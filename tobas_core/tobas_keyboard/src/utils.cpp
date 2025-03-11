@@ -11,12 +11,12 @@ XkbControlsPtr getKeyboardControls()
 {
   // Open display
   const auto display = XOpenDisplay(nullptr);
-  if (display == nullptr)
+  if (!display)
     return nullptr;
 
   // Get keyboard map
   const auto kb = XkbGetMap(display, XkbAllComponentsMask, XkbUseCoreKbd);
-  if (kb == nullptr)
+  if (!kb)
     return nullptr;
 
   // Get keyboard controls
@@ -29,7 +29,7 @@ XkbControlsPtr getKeyboardControls()
 double getKeyboardRepeatInterval()
 {
   const auto keyboard = getKeyboardControls();
-  if (keyboard == nullptr)
+  if (!keyboard)
     throw runtime_error("Failed to get keyboard control.");
 
   return keyboard->repeat_interval * 1e-3;

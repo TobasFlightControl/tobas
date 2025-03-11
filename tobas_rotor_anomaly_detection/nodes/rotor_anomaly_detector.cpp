@@ -72,7 +72,7 @@ void RotorAnomalyDetectorNode::publishRotorLiveliness()
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (drone->prop == nullptr)
+  if (!drone->prop)
     return;
 
   drone_ = drone;
@@ -84,7 +84,7 @@ void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
 
 void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
     return;

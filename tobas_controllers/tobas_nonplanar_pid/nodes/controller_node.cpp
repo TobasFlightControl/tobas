@@ -200,13 +200,13 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
     return false;
   }
 
-  if (dist_force_ == nullptr)
+  if (!dist_force_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return false;
@@ -218,13 +218,13 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (landed_ == nullptr)
+  if (!landed_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kLandedTopic, "\".");
     return false;
   }
 
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kArmingTopic, "\".");
     return false;
@@ -400,7 +400,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     odom_ = odom;
     return;
@@ -417,7 +417,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 位置制御器
   if (pos_cmd_)
   {
-    if (acc_cmd_ == nullptr)
+    if (!acc_cmd_)
       acc_cmd_ = std::make_shared<tobas_command_msgs::Accel>();
 
     // 世界座標系から見た現在の位置速度
@@ -440,7 +440,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 姿勢制御器
   if (angle_cmd_)
   {
-    if (rate_cmd_ == nullptr)
+    if (!rate_cmd_)
       rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>();
 
     // 目標角速度を計算
@@ -458,7 +458,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 角速度制御器
   if (rate_cmd_)
   {
-    if (tar_dgyro_ == nullptr)
+    if (!tar_dgyro_)
       tar_dgyro_ = std::make_shared<kdl::Vector>();
 
     // 目標角加速度を計算

@@ -133,13 +133,13 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   if (drone_.prop->numRotors() == 0)
     return;
 
-  if (rotor_states_ == nullptr)
+  if (!rotor_states_)
     return;
 
   if (joint_states_sub_ && !js_received_)
     return;
 
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     force_lpf_.setValue(kdl::Vector::Zero());
     torque_lpf_.setValue(kdl::Vector::Zero());

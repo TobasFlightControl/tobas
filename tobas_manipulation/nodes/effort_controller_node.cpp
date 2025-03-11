@@ -382,7 +382,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
     return;
   if (home_js_.states.size() == 0)
     return;
-  if (tar_js_ == nullptr && tar_ls_ == nullptr)
+  if (!tar_js_ && !tar_ls_)
     return;
 
   // Create joint efforts command

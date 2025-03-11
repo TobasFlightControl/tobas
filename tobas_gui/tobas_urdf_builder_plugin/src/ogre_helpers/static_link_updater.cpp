@@ -30,7 +30,7 @@ bool StaticLinkUpdater::getLinkTransforms(
   Ogre::Quaternion& collision_orientation) const
 {
   const auto link = urdf_->getLink(link_name);
-  if (link == nullptr)
+  if (!link)
   {
     setLinkStatus(rviz_common::properties::StatusProperty::Error, link_name, "Transform not found");
     return false;
@@ -58,7 +58,7 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
   auto cur = link;
   while (cur && urdf_->getRoot() != cur)
   {
-    if (cur->parent_joint == nullptr)
+    if (!cur->parent_joint)
       break;
     const auto& pose = cur->parent_joint->parent_to_joint_origin_transform;
     Ogre::Matrix4 m;

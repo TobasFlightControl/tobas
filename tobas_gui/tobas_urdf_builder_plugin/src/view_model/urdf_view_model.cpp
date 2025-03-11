@@ -283,7 +283,7 @@ void URDFViewModel::addNameSuffixRec(const LinkViewModelPtr& link_vm, const QStr
 
 void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element)
 {
-  if (element == nullptr)
+  if (!element)
     return;
 
   for (auto child = element->FirstChildElement(); child; child = child->NextSiblingElement())

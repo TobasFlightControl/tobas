@@ -105,7 +105,7 @@ void GazeboICEPropulsionSystemPlugin::Configure(
 
   // Initialize rotor models
   auto rotor_elem = sdf->FindElement(kRotorKey);
-  if (rotor_elem == nullptr)
+  if (!rotor_elem)
     TOBAS_EXIT("Please specify \"", kRotorKey, "\" elements.");
   while (rotor_elem)
   {
@@ -123,7 +123,7 @@ void GazeboICEPropulsionSystemPlugin::Configure(
 
   // Initialize engine model
   const auto engine_elem = sdf->FindElement(kEngineKey);
-  if (engine_elem == nullptr)
+  if (!engine_elem)
     TOBAS_EXIT("Please specify \"", kEngineKey, "\" element.");
   if (!engine_.initialize(engine_elem))
     TOBAS_EXIT("Failed to initialize engine model.");

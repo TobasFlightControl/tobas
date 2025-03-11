@@ -135,7 +135,7 @@ void MissionPlannerWidget::listToCommands()
   auto selected_item = command_list_->selectedItem();
 
   // 何も選択されていなければ強制的に最初の要素を選択
-  if (selected_item == nullptr)
+  if (!selected_item)
   {
     command_list_->setCurrentRow(0);
     selected_item = command_list_->item(0);

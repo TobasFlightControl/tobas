@@ -25,7 +25,7 @@ bool RobotInfo::loadFromPath(const string& path)
 
   // Parse URDF
   urdf_ = urdf::parseURDF(urdf_text_);
-  if (urdf_ == nullptr)
+  if (!urdf_)
   {
     cerr << "Failed to parse URDF." << endl;
     return false;

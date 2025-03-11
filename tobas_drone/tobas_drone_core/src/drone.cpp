@@ -35,7 +35,7 @@ bool Drone::isValid() const
     }
   }
 
-  if (prop == nullptr)
+  if (!prop)
   {
     cerr << "The configurations of propulsion system is null." << endl;
     return false;

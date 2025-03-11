@@ -139,7 +139,7 @@ void PreArmCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 void PreArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   // ディスアームされたらインスタンス変数を初期化
-  if (arming_ == nullptr || (arming_->data && !arming->data))
+  if (!arming_ || (arming_->data && !arming->data))
   {
     battery_ = nullptr;
     cpu_ = nullptr;
@@ -159,7 +159,7 @@ void PreArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& 
 
 void PreArmCheckerNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
-  if (arming_ == nullptr || arming_->data)
+  if (!arming_ || arming_->data)
     return;
 
   battery_ = battery;
@@ -167,7 +167,7 @@ void PreArmCheckerNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
 
 void PreArmCheckerNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
-  if (arming_ == nullptr || arming_->data)
+  if (!arming_ || arming_->data)
     return;
 
   cpu_ = cpu;
@@ -175,7 +175,7 @@ void PreArmCheckerNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 
 void PreArmCheckerNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
 {
-  if (arming_ == nullptr || arming_->data)
+  if (!arming_ || arming_->data)
     return;
 
   rotor_states_ = rotor_states;
@@ -183,11 +183,11 @@ void PreArmCheckerNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::Co
 
 void PreArmCheckerNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
 {
-  if (arming_ == nullptr || arming_->data)
+  if (!arming_ || arming_->data)
     return;
 
   // 最初はメッセージを保存して終了
-  if (imu_raw_ == nullptr)
+  if (!imu_raw_)
   {
     imu_raw_ = imu_raw;
     return;
@@ -206,7 +206,7 @@ void PreArmCheckerNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
 
 void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (arming_ == nullptr || arming_->data)
+  if (!arming_ || arming_->data)
     return;
 
   // 位置の履歴を保存
@@ -222,7 +222,7 @@ void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
 void PreArmCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
 {
-  if (arming_ == nullptr || arming_->data)
+  if (!arming_ || arming_->data)
     return;
 
   euler_ = euler;
@@ -230,10 +230,10 @@ void PreArmCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedP
 
 void PreArmCheckerNode::mainTimerCb()
 {
-  if (drone_ == nullptr)
+  if (!drone_)
     return;
 
-  if (arming_ == nullptr || arming_->data)
+  if (!arming_ || arming_->data)
     return;
 
   auto prearm_check = std::make_unique<tobas_msgs::msg::PreArmCheck>();
@@ -245,7 +245,7 @@ void PreArmCheckerNode::mainTimerCb()
   // TODO: IMUのインターバルではなく，リアルタイムスレッドのノード接続が完了したかどうかを直接観測する．
   if (do_check_.node_connection_unstable)
   {
-    if (imu_raw_ == nullptr)
+    if (!imu_raw_)
     {
       prearm_check->node_connection_unstable = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -277,7 +277,7 @@ void PreArmCheckerNode::mainTimerCb()
       // バッテリー電圧が定格電圧以上
       if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::propulsion_system_t::ELECTRIC)
       {
-        if (battery_ == nullptr)
+        if (!battery_)
         {
           prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
           prearm_check->ok = false;
@@ -318,7 +318,7 @@ void PreArmCheckerNode::mainTimerCb()
   // CPU温度
   if (do_check_.cpu_temperature_too_high)
   {
-    if (cpu_ == nullptr)
+    if (!cpu_)
     {
       prearm_check->cpu_temperature_too_high = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -340,7 +340,7 @@ void PreArmCheckerNode::mainTimerCb()
   // モータ状態
   if (do_check_.rotor_communication_error)
   {
-    if (rotor_states_ == nullptr)
+    if (!rotor_states_)
     {
       prearm_check->rotor_communication_error = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -366,7 +366,7 @@ void PreArmCheckerNode::mainTimerCb()
   // 姿勢角
   if (do_check_.attitude_too_steep)
   {
-    if (euler_ == nullptr)
+    if (!euler_)
     {
       prearm_check->attitude_too_steep = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -388,7 +388,7 @@ void PreArmCheckerNode::mainTimerCb()
   // 位置のドリフト
   if (do_check_.position_unstable)
   {
-    if (odom_ == nullptr)
+    if (!odom_)
     {
       prearm_check->position_unstable = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -414,7 +414,7 @@ void PreArmCheckerNode::mainTimerCb()
   // 位置推定の共分散
   if (do_check_.position_inaccurate)
   {
-    if (odom_ == nullptr)
+    if (!odom_)
     {
       prearm_check->position_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -439,7 +439,7 @@ void PreArmCheckerNode::mainTimerCb()
   // 速度推定の共分散
   if (do_check_.velocity_inaccurate)
   {
-    if (odom_ == nullptr)
+    if (!odom_)
     {
       prearm_check->velocity_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -462,7 +462,7 @@ void PreArmCheckerNode::mainTimerCb()
   // 姿勢推定の共分散
   if (do_check_.attitude_inaccurate)
   {
-    if (odom_ == nullptr)
+    if (!odom_)
     {
       prearm_check->attitude_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
@@ -485,7 +485,7 @@ void PreArmCheckerNode::mainTimerCb()
   // 方位推定の共分散
   if (do_check_.heading_inaccurate)
   {
-    if (odom_ == nullptr)
+    if (!odom_)
     {
       prearm_check->heading_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;

@@ -17,7 +17,7 @@ TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
 bool TrimConditions::updateInternalDataStructures()
 {
   // Check drone configuration
-  if (drone_.fixed_wing == nullptr)
+  if (!drone_.fixed_wing)
   {
     cerr << "The drone is not equipped with fixed wing." << endl;
     return false;

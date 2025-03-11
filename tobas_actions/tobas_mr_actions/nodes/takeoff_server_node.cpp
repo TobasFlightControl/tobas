@@ -114,7 +114,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto result = std::make_shared<ActionType::Result>();
 
   // Check topics
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);

@@ -17,7 +17,7 @@ bool sourceTobasPackage(const fs::path& tbs_path)
 
   // Get old paths
   const auto old_paths = getenv(AMENT_PREFIX_PATH);
-  if (old_paths == nullptr)
+  if (!old_paths)
   {
     cerr << "Failed to get \"" << AMENT_PREFIX_PATH << "\"." << endl;
     return false;

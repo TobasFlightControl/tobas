@@ -54,7 +54,7 @@ public:
     send_goal_future.wait();
 
     const auto goal_handle = send_goal_future.get();
-    if (goal_handle == nullptr)
+    if (!goal_handle)
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Goal was rejected by \"" << action_name_ << "\" action server.");
       return {};

@@ -25,7 +25,7 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tr
 
 bool MicroDisturbanceEoM::updateInternalDataStructures()
 {
-  if (drone_.fixed_wing == nullptr)
+  if (!drone_.fixed_wing)
   {
     cerr << "The drone is not equipped with fixed wing." << endl;
     return false;

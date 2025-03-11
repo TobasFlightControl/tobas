@@ -15,7 +15,7 @@ bool CommandExecutor::execute(const string& command)
 {
   // 標準エラーを標準出力にリダイレクトしてコマンドを実行
   unique_ptr<FILE, int (*)(FILE*)> pipe(popen((command + " 2>&1").c_str(), "r"), pclose);
-  if (pipe == nullptr)
+  if (!pipe)
   {
     cerr << "popen() failed." << endl;
     return false;

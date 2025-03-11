@@ -68,7 +68,7 @@ void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShared
 void AccelCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;

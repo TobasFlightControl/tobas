@@ -30,7 +30,7 @@ void RobotStateDisplay::changedEnableInertiaVisible()
 
 void RobotStateDisplay::changedHighlightColor()
 {
-  if (robot_ == nullptr)
+  if (!robot_)
   {
     RCLCPP_ERROR(node_->get_logger(), "Robot is NULL.");
     return;
@@ -47,7 +47,7 @@ void RobotStateDisplay::changedHighlightColor()
 
 void RobotStateDisplay::changedUnhighlightColor()
 {
-  if (robot_ == nullptr)
+  if (!robot_)
   {
     RCLCPP_ERROR(node_->get_logger(), "Robot is NULL.");
     return;

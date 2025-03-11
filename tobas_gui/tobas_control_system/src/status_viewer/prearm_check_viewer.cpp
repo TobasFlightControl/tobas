@@ -82,7 +82,7 @@ void PreArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShare
 
 void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     reset();
     return;

@@ -196,7 +196,7 @@ void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
 
 void BasePoseCommanderWidget::onArmRequested()
 {
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     qt::qWarnBox(this, "Arming status is not received yet.");
     reset();
@@ -208,7 +208,7 @@ void BasePoseCommanderWidget::onArmRequested()
     reset();
     return;
   }
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     qt::qWarnBox(this, "Odometry is not received yet.");
     reset();

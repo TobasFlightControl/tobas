@@ -215,7 +215,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   prev_sim_time_ = info.simTime;
 
   // Check topics
-  if (battery_gt_ == nullptr)
+  if (!battery_gt_)
   {
     if (info.simTime > kWarnStartTime)
       TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
@@ -387,7 +387,7 @@ void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(
   const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle)
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
-  if (battery_gt_ == nullptr || battery_gt_->voltage < kMinBatteryVoltage)
+  if (!battery_gt_ || battery_gt_->voltage < kMinBatteryVoltage)
     return;
 
   // 壊れていたら応答なし

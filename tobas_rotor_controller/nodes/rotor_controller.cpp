@@ -96,7 +96,7 @@ void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
   {
     TOBAS_WARN_THROTTLE(
       tobas::kTypicalWarnPeriod, "Command is ignored because drone configuration has not been received yet.");
@@ -218,7 +218,7 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
 {
   if (!is_armed_ && req->arming)
   {
-    if (prearm_check_ == nullptr)
+    if (!prearm_check_)
     {
       res->success = false;
       res->message = "Pre-arm check status is not received yet.";

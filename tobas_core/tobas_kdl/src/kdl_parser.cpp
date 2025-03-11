@@ -39,7 +39,7 @@ bool treeFromFile(const string& file, Tree& tree)
 bool treeFromString(const string& xml, Tree& tree)
 {
   const auto robot_model = urdf::parseURDF(xml);
-  if (robot_model == nullptr)
+  if (!robot_model)
   {
     cerr << "Failed to generate robot model." << endl;
     return false;
@@ -50,7 +50,7 @@ bool treeFromString(const string& xml, Tree& tree)
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 {
   const auto root_link = robot_model.getRoot();
-  if (root_link == nullptr)
+  if (!root_link)
   {
     cerr << "Failed to get root link." << endl;
     return false;

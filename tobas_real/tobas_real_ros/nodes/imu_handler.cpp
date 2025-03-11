@@ -114,7 +114,7 @@ void ImuHandlerNode::setParamsCb(
     return;
   }
 
-  if (imu_pub_ == nullptr)
+  if (!imu_pub_)
     registerPubSub();
 
   res->success = true;

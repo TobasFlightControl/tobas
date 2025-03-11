@@ -203,13 +203,13 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (air_pressure_ == nullptr)
+  if (!air_pressure_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kAirPressureTopic, "\".");
     return false;
   }
 
-  if (odom_nwu_ == nullptr)
+  if (!odom_nwu_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
     return false;
@@ -221,7 +221,7 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kArmingTopic, "\".");
     return false;
@@ -475,7 +475,7 @@ void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressureWithVaria
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu)
 {
-  if (odom_nwu_ == nullptr)
+  if (!odom_nwu_)
   {
     odom_nwu_ = odom_nwu;
     return;
@@ -486,7 +486,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   odom_nwu_ = odom_nwu;
 
   // コマンドがなければスキップ
-  if (cmd_nwu_ == nullptr)
+  if (!cmd_nwu_)
     return;
 
   // NWU -> NED

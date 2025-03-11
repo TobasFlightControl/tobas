@@ -24,7 +24,7 @@ void PowerSourceViewerWidget::reset()
 
 void PowerSourceViewerWidget::updateInternalDataStructures()
 {
-  if (drone_.prop == nullptr)
+  if (!drone_.prop)
     return;
 
   // 推進系によって表示するウィジェットを切り替える

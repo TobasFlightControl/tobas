@@ -276,7 +276,7 @@ void RCInputHandlerNode::setParamsCb(
     return;
   }
 
-  if (rcin_pub_ == nullptr)
+  if (!rcin_pub_)
     registerPubSub();
 
   res->success = true;

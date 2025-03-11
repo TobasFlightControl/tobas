@@ -695,7 +695,7 @@ bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     if (strcmp(child->Name(), "joint") == 0)
     {
       const auto jnt_name = child->Attribute("name");
-      if (jnt_name == nullptr)
+      if (!jnt_name)
       {
         qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
         return false;
@@ -722,7 +722,7 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
   if (strcmp(elem->Name(), "mesh") == 0)
   {
     const auto file_name = elem->Attribute("filename");
-    if (file_name == nullptr)
+    if (!file_name)
     {
       qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
       return false;

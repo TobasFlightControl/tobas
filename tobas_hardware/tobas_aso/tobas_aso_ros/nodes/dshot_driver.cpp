@@ -144,7 +144,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
   }
 
-  if (drone->prop == nullptr)
+  if (!drone->prop)
     return;
   if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
     return;
@@ -272,7 +272,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   for (const auto& tar_speed : tar_speeds->speeds)
   {
     const auto erotor = eprop_->getRotor(tar_speed.link_name);
-    if (erotor == nullptr)
+    if (!erotor)
     {
       TOBAS_ERROR("Rotor \"" + tar_speed.link_name + "\" does not exist.");
       continue;

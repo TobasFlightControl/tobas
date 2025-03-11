@@ -181,7 +181,7 @@ void MagnetometerHandlerNode::setParamsCb(
     return;
   }
 
-  if (mag_pub_ == nullptr)
+  if (!mag_pub_)
     registerPubSub();
 
   res->success = true;

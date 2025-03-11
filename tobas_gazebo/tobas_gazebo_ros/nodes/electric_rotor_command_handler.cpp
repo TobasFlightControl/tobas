@@ -45,7 +45,7 @@ ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::N
 
 void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (drone->prop == nullptr)
+  if (!drone->prop)
     return;
 
   if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
@@ -71,12 +71,12 @@ void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::
 
 void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
-  if (eprop_ == nullptr)
+  if (!eprop_)
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message is not received yet.");
     return;
   }
-  if (battery_ == nullptr)
+  if (!battery_)
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery message is not received yet.");
     return;

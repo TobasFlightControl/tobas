@@ -24,10 +24,8 @@ KinectDepthNoiseModel::KinectDepthNoiseModel(const float& min_depth, const float
 
 void KinectDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
 {
-  if (data == nullptr)
-  {
+  if (!data)
     return;
-  }
 
   // Axial noise model from
   // https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6375037,
@@ -56,10 +54,8 @@ PMDDepthNoiseModel::PMDDepthNoiseModel(const float& min_depth, const float& max_
 
 void PMDDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
 {
-  if (data == nullptr)
-  {
+  if (!data)
     return;
-  }
 
   // 1% error claimed by PMD
   Map<VectorXf> data_vector_map(data, width * height);
@@ -69,13 +65,9 @@ void PMDDepthNoiseModel::applyNoise(const size_t& width, const size_t& height, f
   for (size_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
-    {
       data_vector_map[i] += noise_(rnd_gen_) * var_noise(i);
-    }
     else
-    {
       data_vector_map[i] = bad_point_;
-    }
   }
 }
 
@@ -86,10 +78,8 @@ D435DepthNoiseModel::D435DepthNoiseModel(float min_depth, float max_depth, float
 
 void D435DepthNoiseModel::applyNoise(const size_t& width, const size_t& height, float* data)
 {
-  if (data == nullptr)
-  {
+  if (!data)
     return;
-  }
 
   float f = 0.5f * (width / tanf(horizontal_fov_ / 2.0f));
   float multiplier = (SubpixelErr) / (f * baseline_ * 1e+6f);
@@ -105,12 +95,8 @@ void D435DepthNoiseModel::applyNoise(const size_t& width, const size_t& height, 
   for (size_t i = 0; i < width * height; ++i)
   {
     if (inRange(data_vector_map[i]))
-    {
       data_vector_map[i] += noise_(rnd_gen_) * min(((float)noise(i)), MaxStddev);
-    }
     else
-    {
       data_vector_map[i] = bad_point_;
-    }
   }
 }

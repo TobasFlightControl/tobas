@@ -177,7 +177,7 @@ void RotorTestWidget::updateInternalDataStructures()
 
 void RotorTestWidget::publishTargetSppeds()
 {
-  if (tar_speeds_pub_ == nullptr)
+  if (!tar_speeds_pub_)
     return;
 
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
@@ -197,7 +197,7 @@ void RotorTestWidget::publishTargetSppeds()
 
 void RotorTestWidget::updateCurrentSpeeds()
 {
-  if (cur_states_ == nullptr)
+  if (!cur_states_)
     return;
 
   for (const auto& state : cur_states_->states)
@@ -243,7 +243,7 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 void RotorTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;

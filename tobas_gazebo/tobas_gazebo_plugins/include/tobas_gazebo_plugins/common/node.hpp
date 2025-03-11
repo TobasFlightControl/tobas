@@ -405,7 +405,7 @@ void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& n
   params.clear();
 
   const auto list_elem = sdf->FindElement(name);
-  if (list_elem == nullptr)
+  if (!list_elem)
     TOBAS_EXIT("Please specify \"", name, "\".");
 
   auto item_elem = list_elem->FindElement("item");

@@ -261,7 +261,7 @@ void GUICoreWidget::onLoadButtonClicked()
 void GUICoreWidget::onWriteButtonClicked()
 {
   // アームされていないことを確認
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     if (!qt::yesOrNo(
           this,

@@ -35,7 +35,7 @@ RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& op
 
 void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (drone->prop == nullptr)
+  if (!drone->prop)
     return;
 
   rotor_states_.clear();

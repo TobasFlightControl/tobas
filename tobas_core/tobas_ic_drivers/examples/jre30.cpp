@@ -7,7 +7,7 @@ using namespace std;
 void onPacket(shared_ptr<const driver::JRE30Packet> _packet)
 {
   const auto packet = dynamic_pointer_cast<const driver::JRE30Packet_A>(_packet);
-  if (packet == nullptr)
+  if (!packet)
   {
     cerr << "Failed to cast JRE30 packet to type A." << endl;
     return;

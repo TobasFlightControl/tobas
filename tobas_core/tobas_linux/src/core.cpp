@@ -17,7 +17,7 @@ string userName()
   else
   {
     const auto user_name = getenv("USER");
-    if (user_name == nullptr)
+    if (!user_name)
       throw runtime_error("USER environment variable not set.");
     return string(user_name);
   }
@@ -32,7 +32,7 @@ fs::path homeDir()
   else
   {
     const auto home_dir = getenv("HOME");
-    if (home_dir == nullptr)
+    if (!home_dir)
       throw runtime_error("HOME environment variable not set.");
     return home_dir;
   }

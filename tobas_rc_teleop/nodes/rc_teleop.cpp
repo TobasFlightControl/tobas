@@ -334,17 +334,17 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
   {
     case CHECK_PREREQUISITES:
     {
-      if (odom_ == nullptr)
+      if (!odom_)
       {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for odometry.");
         break;
       }
-      if (arming_ == nullptr)
+      if (!arming_)
       {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for arming status.");
         break;
       }
-      if (prearm_check_ == nullptr)
+      if (!prearm_check_)
       {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Warting for pre-arm check status.");
         break;

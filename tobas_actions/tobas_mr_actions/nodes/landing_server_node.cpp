@@ -104,13 +104,13 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto result = std::make_shared<ActionType::Result>();
 
   // Check topics
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
     return;
   }
-  if (landed_ == nullptr)
+  if (!landed_)
   {
     result->message = "Landing state is not received yet.";
     goal_handle->abort(result);

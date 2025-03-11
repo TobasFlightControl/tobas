@@ -66,7 +66,7 @@ PostArmCheckerNode::PostArmCheckerNode(const rclcpp::NodeOptions& options) : sup
 void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   // アームされたらインスタンス変数を初期化
-  if (arming_ == nullptr || (arming_->data && !arming->data))
+  if (!arming_ || (arming_->data && !arming->data))
   {
     imu_ = nullptr;
     mag_ = nullptr;
@@ -78,7 +78,7 @@ void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr&
 
 void PostArmCheckerNode::imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& imu)
 {
-  if (arming_ == nullptr || !arming_->data)
+  if (!arming_ || !arming_->data)
     return;
 
   imu_ = imu;
@@ -86,7 +86,7 @@ void PostArmCheckerNode::imuCb(const tobas_msgs::ImuWithCovarianceStamped::Const
 
 void PostArmCheckerNode::magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& mag)
 {
-  if (arming_ == nullptr || !arming_->data)
+  if (!arming_ || !arming_->data)
     return;
 
   mag_ = mag;
@@ -94,7 +94,7 @@ void PostArmCheckerNode::magCb(const tobas_msgs::MagneticFieldWithCovarianceStam
 
 void PostArmCheckerNode::controlLatencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency)
 {
-  if (arming_ == nullptr || !arming_->data)
+  if (!arming_ || !arming_->data)
     return;
 
   latency_ = latency;
@@ -102,7 +102,7 @@ void PostArmCheckerNode::controlLatencyCb(const tobas_msgs::msg::Latency::ConstS
 
 void PostArmCheckerNode::mainTimerCb()
 {
-  if (arming_ == nullptr || !arming_->data)
+  if (!arming_ || !arming_->data)
     return;
 
   auto postarm_check = std::make_unique<tobas_msgs::msg::PostArmCheck>();

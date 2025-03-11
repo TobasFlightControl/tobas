@@ -262,7 +262,7 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
   RCLCPP_DEBUG(node_->get_logger(), "URDFBuilderPanel::AddLinkActionToggled");
 
   // ルートリンクが存在する場合のみリンクの追加を許可
-  if (vm_.rootLinkViewModel() == nullptr)
+  if (!vm_.rootLinkViewModel())
   {
     QMessageBox::warning(this, kError, "Please create a new robot model or load one first.");
     return;
@@ -519,7 +519,7 @@ bool URDFBuilderPanel::saveURDF(const QString& file_path)
 
 bool URDFBuilderPanel::isValid()
 {
-  if (vm_.rootLink() == nullptr)
+  if (!vm_.rootLink())
   {
     QMessageBox::warning(this, kError, "The robot is empty.");
     return false;

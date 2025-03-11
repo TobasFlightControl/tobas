@@ -132,19 +132,19 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto result = std::make_shared<ActionType::Result>();
 
   // Check if necessary topics are received
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
     return;
   }
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     result->message = "Arming status is not received yet.";
     goal_handle->abort(result);
     return;
   }
-  if (gnss_origin_ == nullptr)
+  if (!gnss_origin_)
   {
     result->message = "GNSS origin is not received yet.";
     goal_handle->abort(result);

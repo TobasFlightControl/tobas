@@ -144,7 +144,7 @@ void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
     return;
 
   // Create messages
@@ -215,7 +215,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
 void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
     return;
 
   (void)velocities;  // TODO
@@ -227,7 +227,7 @@ void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommand
 
 void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
     return;
 
   (void)efforts;  // TODO
