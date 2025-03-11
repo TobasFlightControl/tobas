@@ -5,7 +5,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
-#include <tobas_tools/latency_publisher.hpp>
+#include <tobas_tools/control_latency_publisher.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
@@ -40,7 +40,7 @@ private:
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
-  tobas::LatencyPublisher latency_pub_;
+  tobas::ControlLatencyPublisher ctrl_latency_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
@@ -251,7 +251,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // Resister publishers
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  latency_pub_.initialize(shared_from_this());
+  ctrl_latency_pub_.initialize(shared_from_this());
 
   // Resister subscribers
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
@@ -296,7 +296,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
 
   // Publish messages
   publishRotorStates();
-  latency_pub_.publish(tar_speeds->header.stamp);
+  ctrl_latency_pub_.publish(tar_speeds->header.stamp);
 
   // Reset timeout timers
   auto_stop_timer_->reset();

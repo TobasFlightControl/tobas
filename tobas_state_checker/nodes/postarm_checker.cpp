@@ -39,14 +39,14 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::ImuWithCovarianceStamped> imu_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldWithCovarianceStamped> mag_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Latency> latency_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Latency> ctrl_latency_sub_;
 
   ros2::TimerPtr main_timer_;
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& imu);
   void magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& mag);
-  void latencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency);
+  void controlLatencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency);
 
   void mainTimerCb();
 };
@@ -58,7 +58,7 @@ PostArmCheckerNode::PostArmCheckerNode(const rclcpp::NodeOptions& options) : sup
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   imu_sub_ = createSubscriber(tobas::kImuTopic, &self::imuCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
-  latency_sub_ = createSubscriber(tobas::kLatencyTopic, &self::latencyCb, this);
+  ctrl_latency_sub_ = createSubscriber(tobas::kControlLatencyTopic, &self::controlLatencyCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
@@ -92,7 +92,7 @@ void PostArmCheckerNode::magCb(const tobas_msgs::MagneticFieldWithCovarianceStam
   mag_ = mag;
 }
 
-void PostArmCheckerNode::latencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency)
+void PostArmCheckerNode::controlLatencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency)
 {
   if (arming_ == nullptr || !arming_->data)
     return;

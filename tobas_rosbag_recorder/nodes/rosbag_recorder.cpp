@@ -155,7 +155,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
-  addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);
+  addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
   addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
   addStandardMsgSub<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);

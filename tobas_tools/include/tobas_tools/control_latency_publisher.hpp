@@ -5,10 +5,10 @@
 
 namespace tobas
 {
-class LatencyPublisher
+class ControlLatencyPublisher
 {
 public:
-  explicit LatencyPublisher();
+  explicit ControlLatencyPublisher();
 
   void initialize(rclcpp::Node::SharedPtr node);
   void publish(const builtin_interfaces::msg::Time& start_time);

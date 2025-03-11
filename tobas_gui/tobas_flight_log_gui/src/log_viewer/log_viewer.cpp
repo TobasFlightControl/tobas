@@ -151,7 +151,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         tar_rotor_speeds_ser_.deserialize_message(&ser_msg, &rotor_speeds_);
         tar_rotor_speeds_data.push_back(rotor_speeds_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kLatencyTopic)))
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kControlLatencyTopic)))
       {
         latency_ser_.deserialize_message(&ser_msg, &latency_);
         latency_data.push_back(latency_);
