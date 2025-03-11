@@ -108,7 +108,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::kBatteryTopic), &self::battCb, this);
-  cpu_sub_ = createSubscriber(tobas::kCPUTopic, &self::cpuCb, this);
+  cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
   rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);

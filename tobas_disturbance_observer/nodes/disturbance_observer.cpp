@@ -63,7 +63,7 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
 
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::kDisturbanceForceTopic);
 
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorStatesCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);

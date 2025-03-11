@@ -5,32 +5,46 @@
 
 #include <tobas_aso_core/pwm.hpp>
 
+#include "./common.hpp"
+
 using namespace std;
 
-class PWMDriverNode : public tobas::BaseNode
+class PwmDriverNode : public tobas::BaseNode
 {
-  using self = PWMDriverNode;
+  using self = PwmDriverNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit PWMDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit PwmDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   aso::PWM pwm_;
   ros2::SubscriberPtr<tobas_msgs::msg::PwmArray> pwms_sub_;
+  ros2::TimerPtr initialize_timer_;
 
+  void initialize();
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 };
 
-PWMDriverNode::PWMDriverNode(const rclcpp::NodeOptions& options) : super("aso_pwm_driver", options)
+PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options) : super("aso_pwm_driver", options)
 {
-  if (!pwm_.initialize())
-    TOBAS_EXIT("Failed to initialize PWM driver.");
-
-  pwms_sub_ = createSubscriber(tobas::kPwmCmdTopic, &self::pwmsCb, this);
+  initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }
 
-void PWMDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
+void PwmDriverNode::initialize()
+{
+  if (!pwm_.initialize())
+  {
+    TOBAS_ERROR("Failed to initialize PWM driver. Retrying...");
+    return;
+  }
+
+  pwms_sub_ = createSubscriber(tobas::kPwmCmdTopic, &self::pwmsCb, this);
+
+  initialize_timer_.reset();
+}
+
+void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
 {
   // Set PWM periods of each channel
   for (const auto& elem : pwms->pwms)
@@ -53,4 +67,4 @@ void PWMDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms
     TOBAS_ERROR("Failed to send PWM command.");
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(PWMDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(PwmDriverNode)

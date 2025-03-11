@@ -49,7 +49,7 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   reset();
 
   // rosbagの絶対パスを更新
-  log_path_ = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
+  log_path_ = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   // rosbagを開く
   try

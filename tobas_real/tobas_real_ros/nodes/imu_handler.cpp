@@ -55,7 +55,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real
   }
 
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
 }
 
 bool ImuHandlerNode::getConfig()
@@ -84,7 +84,7 @@ bool ImuHandlerNode::getConfig()
 void ImuHandlerNode::registerPubSub()
 {
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
 }
 
 void ImuHandlerNode::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in)

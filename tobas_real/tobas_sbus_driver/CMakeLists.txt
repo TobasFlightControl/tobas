@@ -41,7 +41,7 @@ endforeach()
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "SBUSDriverNode" EXECUTABLE sbus_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "SbusDriverNode" EXECUTABLE sbus_driver)
 
 install(
 	TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node

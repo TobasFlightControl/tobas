@@ -4,6 +4,8 @@
 
 #include <tobas_aso_core/ilps22qs.hpp>
 
+#include "./common.hpp"
+
 using namespace std;
 
 class BaroDriverNode : public hardware::BaseSensorNode
@@ -27,9 +29,7 @@ private:
 
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("aso_baro_driver", options)
 {
-  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(real::kAirPressureTopic);
-
-  initialize_timer_ = createTimer(1s, &self::initialize, this);
+  initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BaroDriverNode::initialize()
@@ -40,7 +40,9 @@ void BaroDriverNode::initialize()
     return;
   }
 
-  initialize_timer_->cancel();
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(real::kAirPressureTopic);
+
+  initialize_timer_.reset();
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

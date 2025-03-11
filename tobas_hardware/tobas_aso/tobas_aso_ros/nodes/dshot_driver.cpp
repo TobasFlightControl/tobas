@@ -40,7 +40,7 @@ private:
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
-  tobas::ControlLatencyPublisher ctrl_latency_pub_;
+  tobas::ControlLatencyPublisher latency_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
@@ -74,8 +74,6 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("as
   }
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-
-  auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this, false);
 }
 
 bool DShotDriverNode::transferAndSleep()
@@ -251,7 +249,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // Resister publishers
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  ctrl_latency_pub_.initialize(shared_from_this());
+  latency_pub_.initialize(shared_from_this());
 
   // Resister subscribers
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
@@ -261,8 +259,8 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   set_gains_ss_ = createService<SetGains>(tobas::kSetRotorControlGainsSrv, &self::setGainsCb, this);
   save_gains_ss_ = createService<SaveGains>(tobas::kSaveRotorControlGainsSrv, &self::saveGainsCb, this);
 
-  // Start timers
-  auto_stop_timer_->reset();
+  // Create timers
+  auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 
   eprop_ = eprop;
   TOBAS_INFO("Rotor speed controller is initialized.");
@@ -296,7 +294,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
 
   // Publish messages
   publishRotorStates();
-  ctrl_latency_pub_.publish(tar_speeds->header.stamp);
+  latency_pub_.publish(tar_speeds->header.stamp);
 
   // Reset timeout timers
   auto_stop_timer_->reset();

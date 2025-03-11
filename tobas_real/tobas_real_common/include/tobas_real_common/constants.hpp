@@ -5,7 +5,7 @@
 namespace real
 {
 // Topics
-static constexpr char kIMUTopic[] = "real/imu";
+static constexpr char kImuTopic[] = "real/imu";
 static constexpr char kMagTopic[] = "real/magnetic_field";
 static constexpr char kAirPressureTopic[] = "real/air_pressure";
 

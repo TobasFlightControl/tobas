@@ -125,7 +125,7 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
 
 void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 {
-  const auto rosbag_path = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
+  const auto rosbag_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   if (fs::exists(rosbag_path))
   {
@@ -146,7 +146,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 
 void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
-  const auto log_path = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
+  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::QMessageLevel::WARN))
     return;

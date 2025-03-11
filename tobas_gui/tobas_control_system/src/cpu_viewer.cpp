@@ -49,7 +49,7 @@ void CPUViewerWidget::updateNamespace(const std::string& ns)
   load_->setMaximum(kMaxLoad);
 
   cpu_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kCPUTopic), &self::cpuCb, this);
+    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kCpuTopic), &self::cpuCb, this);
 }
 
 void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)

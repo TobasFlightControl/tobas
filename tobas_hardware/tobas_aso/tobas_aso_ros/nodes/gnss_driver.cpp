@@ -5,9 +5,11 @@
 
 #include <tobas_aso_core/zed_f9p_1xb.hpp>
 
+#include "./common.hpp"
+
 using namespace std;
 
-class GNSSDriverNode : public hardware::BaseSensorNode
+class GnssDriverNode : public hardware::BaseSensorNode
 {
   // GNSSレシーバの更新周期 [ms]
   // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
@@ -16,11 +18,11 @@ class GNSSDriverNode : public hardware::BaseSensorNode
   static constexpr auto kMainTimerPeriod = 1ms;
   static constexpr double kWarnPeriod = 3.;  // [s]
 
-  using self = GNSSDriverNode;
+  using self = GnssDriverNode;
   using super = hardware::BaseSensorNode;
 
 public:
-  explicit GNSSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   aso::ZEDF9P1xB gnss_;
@@ -33,24 +35,31 @@ private:
   std::map<aso::ZEDF9P1xB::ubx_nav_id_t, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
+  ros2::TimerPtr initialize_timer_;
 
+  void initialize();
   bool configure();
   void warnUnnecessaryUBXMessage();
 
   void mainTimerCb();
 };
 
-GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_gnss_driver", options)
+GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("aso_gnss_driver", options)
+{
+  initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
+}
+
+void GnssDriverNode::initialize()
 {
   if (!gnss_.initialize())
   {
-    TOBAS_EXIT("Failed to initialize GNSS driver.");
+    TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return;
   }
 
   if (!configure())
   {
-    TOBAS_EXIT("Failed to configure GNSS receiver.");
+    TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
     return;
   }
 
@@ -61,10 +70,11 @@ GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
 
+  initialize_timer_.reset();
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
-bool GNSSDriverNode::configure()
+bool GnssDriverNode::configure()
 {
   if (!gnss_.configureDynamicsModel(aso::ZEDF9P1xB::AIRBORNE_2G))
   {
@@ -159,14 +169,14 @@ bool GNSSDriverNode::configure()
   return true;
 }
 
-void GNSSDriverNode::warnUnnecessaryUBXMessage()
+void GnssDriverNode::warnUnnecessaryUBXMessage()
 {
   const auto cls = gnss_.latestClass();
   const auto id = gnss_.latestId();
   TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
 }
 
-void GNSSDriverNode::mainTimerCb()
+void GnssDriverNode::mainTimerCb()
 {
   if (!gnss_.update())
     return;
@@ -260,4 +270,4 @@ void GNSSDriverNode::mainTimerCb()
   gnss_pub_->publish(move(gnss_msg));
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(GNSSDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(GnssDriverNode)

@@ -290,7 +290,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 
   // 一時的にSBUSトピックを購読開始
   sbus_sub_ =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kSBUSTopic), &self::sbusCb, this);
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kSbusTopic), &self::sbusCb, this);
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);

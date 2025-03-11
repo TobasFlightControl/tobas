@@ -179,7 +179,7 @@ bool RCInputHandlerNode::getConfig()
 void RCInputHandlerNode::registerPubSub()
 {
   rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::kRcInputTopic);
-  sbus_sub_ = createSubscriber(tobas::kSBUSTopic, &self::sbusCb, this);
+  sbus_sub_ = createSubscriber(tobas::kSbusTopic, &self::sbusCb, this);
 }
 
 tobas::flight_mode_t RCInputHandlerNode::getClosestFlightMode(uint16_t period)

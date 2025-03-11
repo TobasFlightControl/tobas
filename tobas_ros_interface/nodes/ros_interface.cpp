@@ -102,11 +102,11 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
 
   addTopicLogicToIface<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
-  addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKDLTreeTopic, tobas::kKDLTreeTopic, true, true);
+  addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKdlTreeTopic, tobas::kKdlTreeTopic, true, true);
   addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(tobas::kBatteryTopic), tobas::kBatteryTopic);
   addTopicLogicToIface<tobas_msgs::msg::EngineState>(tobas::kEngineStateTopic, tobas::kEngineStateTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(tobas::kSBUSTopic), tobas::kSBUSTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCpuTopic, tobas::kCpuTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(tobas::kSbusTopic), tobas::kSbusTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(tobas::kRcInputTopic), tobas::kRcInputTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gnss>(tobas::kGnssTopic, tobas::kGnssTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
@@ -119,7 +119,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Arming>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
   addTopicLogicToIface<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic, tobas::kPostArmCheckTopic);
-  addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(tobas::addThrotNS(real::kIMUTopic), real::kIMUTopic);
+  addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(tobas::addThrotNS(real::kImuTopic), real::kImuTopic);
   addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);
 
@@ -134,9 +134,9 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
   addService<tobas_msgs::srv::GetGnssOrigin>(tobas::kGetGnssOriginSrv);
   addService<tobas_msgs::srv::SetGnssOrigin>(tobas::kSetGnssOriginSrv);
-  addService<tobas_msgs::srv::BagRecordStart>(tobas::kROSBagRecordStartSrv);
-  addService<tobas_msgs::srv::BagRecordStop>(tobas::kROSBagRecordStopSrv);
-  addService<std_srvs::srv::Trigger>(tobas::kROSBagCleanSrv);
+  addService<tobas_msgs::srv::BagRecordStart>(tobas::kRosbagRecordStartSrv);
+  addService<tobas_msgs::srv::BagRecordStop>(tobas::kRosbagRecordStopSrv);
+  addService<std_srvs::srv::Trigger>(tobas::kRosbagCleanSrv);
   addService<tobas_msgs::srv::GetRotorControlGains>(tobas::kGetRotorControlGainsSrv);
   addService<tobas_msgs::srv::SetRotorControlGains>(tobas::kSetRotorControlGainsSrv);
   addService<std_srvs::srv::Trigger>(tobas::kSaveRotorControlGainsSrv);

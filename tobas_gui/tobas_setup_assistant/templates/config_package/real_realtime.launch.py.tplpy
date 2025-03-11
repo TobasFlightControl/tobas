@@ -113,7 +113,7 @@ def generate_launch_description():
                     composable_node_descriptions=[
                         ComposableNode(
                             package="tobas_sbus_driver",
-                            plugin="SBUSDriverNode",
+                            plugin="SbusDriverNode",
                             namespace=DRONE_NAME,
                             parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: FMUに応じてデバイスを変更
                             extra_arguments=extra_arguments,

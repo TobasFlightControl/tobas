@@ -16,7 +16,7 @@ RecordStopThread::RecordStopThread(rclcpp::Node::SharedPtr node) : node_(node)
 void RecordStopThread::run()
 {
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStopSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kRosbagRecordStopSrv));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 

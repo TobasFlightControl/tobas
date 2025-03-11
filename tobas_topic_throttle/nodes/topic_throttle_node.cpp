@@ -88,16 +88,16 @@ void TopicThrottleNode::initialize()
   const auto node = shared_from_this();
 
   battery_throttle_.initialize(node, tobas::kBatteryTopic);
-  sbus_throttle_.initialize(node, tobas::kSBUSTopic);
+  sbus_throttle_.initialize(node, tobas::kSbusTopic);
   rcin_throttle_.initialize(node, tobas::kRcInputTopic);
   rotor_states_throttle_.initialize(node, tobas::kRotorStatesTopic);
   joint_states_throttle_.initialize(node, tobas::kJointStatesTopic);
   odom_throttle_.initialize(node, tobas::kOdometryTopic);
   euler_throttle_.initialize(node, tobas::kEulerTopic);
-  real_imu_throttle_.initialize(node, real::kIMUTopic);
+  real_imu_throttle_.initialize(node, real::kImuTopic);
   real_mag_throttle_.initialize(node, real::kMagTopic);
 
-  initialize_timer_->cancel();
+  initialize_timer_.reset();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(TopicThrottleNode)

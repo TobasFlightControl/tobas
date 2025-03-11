@@ -33,10 +33,10 @@ TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree
 
 void TreeServerNode::initializeTimerCb()
 {
-  tree_pub_ = createPublisher<kdl::Tree>(tobas::kKDLTreeTopic, true, true);
+  tree_pub_ = createPublisher<kdl::Tree>(tobas::kKdlTreeTopic, true, true);
   description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this, true, true);
 
-  initialize_timer_->cancel();
+  initialize_timer_.reset();
 }
 
 void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg)

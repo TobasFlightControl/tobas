@@ -15,6 +15,6 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node_;
-  ros2::PublisherPtr<tobas_msgs::msg::Latency> latency_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Latency> pub_;
 };
 }  // namespace tobas

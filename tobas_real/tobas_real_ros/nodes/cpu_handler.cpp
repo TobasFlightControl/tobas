@@ -42,7 +42,7 @@ private:
 
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("real_cpu_handler", options)
 {
-  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
+  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

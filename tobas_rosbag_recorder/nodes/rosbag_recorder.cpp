@@ -49,9 +49,9 @@
 using namespace std;
 namespace fs = filesystem;
 
-class ROSBagRecorderNode : public tobas::BaseNode
+class RosbagRecorderNode : public tobas::BaseNode
 {
-  using self = ROSBagRecorderNode;
+  using self = RosbagRecorderNode;
   using super = tobas::BaseNode;
 
   using StartSrv = tobas_msgs::srv::BagRecordStart;
@@ -62,7 +62,7 @@ class ROSBagRecorderNode : public tobas::BaseNode
   static constexpr auto kMainTimerPeriod = 1s;
 
 public:
-  explicit ROSBagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RosbagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   const string ns_;
@@ -136,10 +136,10 @@ private:
   void mainTimerCb();
 };
 
-ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
+RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", options),
     ns_(string(get_namespace()) + "/"),
-    rosbag_dir_(linux::isSuperUser() ? tobas::kROSBagDirRoot : ros2::expandUser(tobas::kROSBagDirHome))
+    rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
 
@@ -149,7 +149,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
   addStandardMsgSub<std_msgs::msg::String>(tobas::kRobotDescriptionTopic, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
+  addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
@@ -169,7 +169,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
 
   // Resister subscribers for non-standard messages
   addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::kDroneTopic, true, true);
-  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKDLTreeTopic, true, true);
+  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKdlTreeTopic, true, true);
   addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, tobas::kRcInputTopic);
   addTypeAdaptedMsgSub<tobas_msgs::ImuWithCovarianceStamped>(imu_, tobas::kImuTopic);
   addTypeAdaptedMsgSub<tobas_msgs::ImuStamped>(imu_raw_, tobas::kImuRawTopic);
@@ -183,14 +183,14 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas_debug_msgs::MultiRotorControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);
 
   // Register services
-  start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);
-  stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
-  clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
+  start_srv_ = createService<StartSrv>(tobas::kRosbagRecordStartSrv, &self::startCb, this);
+  stop_srv_ = createService<StopSrv>(tobas::kRosbagRecordStopSrv, &self::stopCb, this);
+  clean_srv_ = createService<CleanSrv>(tobas::kRosbagCleanSrv, &self::cleanCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
-void ROSBagRecorderNode::publishRosbagState()
+void RosbagRecorderNode::publishRosbagState()
 {
   const auto now = get_clock()->now();
 
@@ -231,7 +231,7 @@ void ROSBagRecorderNode::publishRosbagState()
 }
 
 template <typename MsgType>
-inline void ROSBagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
+inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
 {
   try
   {
@@ -247,7 +247,7 @@ inline void ROSBagRecorderNode::write(const MsgType& msg, const char* topic) noe
 }
 
 template <typename MsgType>
-void ROSBagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool reliable, size_t queue_size)
+void RosbagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool reliable, size_t queue_size)
 {
   const auto qos = ros2::makeQoS(latch, reliable, queue_size);
   const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& msg) { standardMsgCb<MsgType>(msg, topic); };
@@ -256,7 +256,7 @@ void ROSBagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool r
 }
 
 template <typename ExtMsgType, typename RawMsgType>
-void ROSBagRecorderNode::addTypeAdaptedMsgSub(
+void RosbagRecorderNode::addTypeAdaptedMsgSub(
   RawMsgType& raw_msg,
   const char* topic,
   bool latch,
@@ -271,7 +271,7 @@ void ROSBagRecorderNode::addTypeAdaptedMsgSub(
 }
 
 template <typename MsgType>
-void ROSBagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
+void RosbagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
 {
   if (!recording_)
     return;
@@ -280,7 +280,7 @@ void ROSBagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& m
 }
 
 template <typename ExtMsgType, typename RawMsgType>
-void ROSBagRecorderNode::typeAdaptedMsgCb(
+void RosbagRecorderNode::typeAdaptedMsgCb(
   const typename ExtMsgType::ConstSharedPtr& ext_msg,
   RawMsgType& raw_msg,
   const char* topic)
@@ -294,7 +294,7 @@ void ROSBagRecorderNode::typeAdaptedMsgCb(
   this->write(raw_msg, topic);
 }
 
-void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
 {
   if (recording_)
   {
@@ -367,7 +367,7 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   publishRosbagState();
 }
 
-void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
 {
   if (!recording_)
   {
@@ -397,7 +397,7 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
   publishRosbagState();
 }
 
-void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
 {
   path::clearDirectory(rosbag_dir_);
 
@@ -405,9 +405,9 @@ void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const
   res->message.clear();
 }
 
-void ROSBagRecorderNode::mainTimerCb()
+void RosbagRecorderNode::mainTimerCb()
 {
   publishRosbagState();
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ROSBagRecorderNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(RosbagRecorderNode)

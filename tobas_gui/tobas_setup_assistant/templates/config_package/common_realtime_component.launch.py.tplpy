@@ -206,7 +206,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_rosbag_recorder",
-                            plugin="ROSBagRecorderNode",
+                            plugin="RosbagRecorderNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),

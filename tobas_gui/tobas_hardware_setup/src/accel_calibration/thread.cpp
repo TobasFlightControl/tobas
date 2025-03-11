@@ -72,7 +72,7 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
 
   // 一時的にIMUの購読を開始
   auto imu_sub =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kIMUTopic), &self::imuCb, this);
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kImuTopic), &self::imuCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))

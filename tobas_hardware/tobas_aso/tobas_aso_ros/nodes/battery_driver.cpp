@@ -4,6 +4,8 @@
 
 #include <tobas_aso_core/battery.hpp>
 
+#include "./common.hpp"
+
 using namespace std;
 
 class BatteryDriverNode : public hardware::BaseSensorNode
@@ -19,16 +21,28 @@ public:
 private:
   aso::Battery battery_;
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
+  ros2::TimerPtr initialize_timer_;
 
+  void initialize();
   void mainTimerCb();
 };
 
 BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options) : super("aso_battery_driver", options)
 {
+  initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
+}
+
+void BatteryDriverNode::initialize()
+{
   if (!battery_.initialize())
-    TOBAS_EXIT("Failed to initialize battery driver.");
+  {
+    TOBAS_ERROR("Failed to initialize battery driver. Retrying...");
+    return;
+  }
 
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+
+  initialize_timer_.reset();
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

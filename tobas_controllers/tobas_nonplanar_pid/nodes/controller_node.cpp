@@ -164,7 +164,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register subscribers
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
@@ -196,7 +196,7 @@ bool ControllerNode::isReadyToControl()
 
   if (!tree_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", 12, tobas::kKDLTreeTopic, "\".");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", 12, tobas::kKdlTreeTopic, "\".");
     return false;
   }
 

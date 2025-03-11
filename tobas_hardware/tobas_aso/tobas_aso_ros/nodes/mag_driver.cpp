@@ -4,6 +4,8 @@
 
 #include <tobas_aso_core/iis2mdc.hpp>
 
+#include "./common.hpp"
+
 using namespace std;
 
 class MagDriverNode : public hardware::BaseSensorNode
@@ -27,9 +29,7 @@ private:
 
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("aso_mag_driver", options)
 {
-  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
-
-  initialize_timer_ = createTimer(1s, &self::initialize, this);
+  initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void MagDriverNode::initialize()
@@ -40,7 +40,9 @@ void MagDriverNode::initialize()
     return;
   }
 
-  initialize_timer_->cancel();
+  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
+
+  initialize_timer_.reset();
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

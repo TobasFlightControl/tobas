@@ -56,7 +56,7 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
 
   landed_pub_ = createPublisher<tobas_std_msgs::msg::BoolStamped>(tobas::kLandedTopic);
 
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
 
   publish_timer_ = createTimer(kPublishPeriod, &self::publishTimerCb, this);

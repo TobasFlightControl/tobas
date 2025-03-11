@@ -103,14 +103,14 @@ void VelocityControllerNode::initialize()
   velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
   tar_js_sub_ = createSubscriber(tobas::kVelCtrlJSTopic, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(tobas::kVelCtrlLSTopic, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 
-  initialize_timer_->cancel();
+  initialize_timer_.reset();
 }
 
 bool VelocityControllerNode::jointSpaceControl(

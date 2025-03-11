@@ -37,13 +37,13 @@ include_directories(include)
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "IMUDriverNode" EXECUTABLE imu_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuDriverNode" EXECUTABLE imu_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagDriverNode" EXECUTABLE mag_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BaroDriverNode" EXECUTABLE baro_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GNSSDriverNode" EXECUTABLE gnss_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GnssDriverNode" EXECUTABLE gnss_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryDriverNode" EXECUTABLE battery_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DShotDriverNode" EXECUTABLE dshot_driver)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PWMDriverNode" EXECUTABLE pwm_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PwmDriverNode" EXECUTABLE pwm_driver)
 
 install(
 	TARGETS ${PROJECT_NAME}_node

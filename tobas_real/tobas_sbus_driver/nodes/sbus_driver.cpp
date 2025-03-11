@@ -7,13 +7,13 @@
 
 using namespace std;
 
-class SBUSDriverNode : public tobas::BaseNode
+class SbusDriverNode : public tobas::BaseNode
 {
-  using self = SBUSDriverNode;
+  using self = SbusDriverNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit SBUSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit SbusDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   string device_;
@@ -25,17 +25,17 @@ private:
   void onPacket(const tobas::SBUS::Packet& packet);
 };
 
-SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
+SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
   : super("sbus_driver", options), sbus_(bind(&self::onPacket, this, placeholders::_1))
 {
   device_ = getStringParam("device");
 
-  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::kSBUSTopic);
+  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::kSbusTopic);
 
   initialize_timer_ = createTimer(3s, &self::initialize, this);
 }
 
-void SBUSDriverNode::initialize()
+void SbusDriverNode::initialize()
 {
   if (!sbus_.initialize(device_.c_str()))
   {
@@ -43,11 +43,11 @@ void SBUSDriverNode::initialize()
     return;
   }
 
-  initialize_timer_->cancel();
+  initialize_timer_.reset();
   sbus_.start();
 }
 
-void SBUSDriverNode::onPacket(const tobas::SBUS::Packet& packet)
+void SbusDriverNode::onPacket(const tobas::SBUS::Packet& packet)
 {
   // Create message
   auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
@@ -58,4 +58,4 @@ void SBUSDriverNode::onPacket(const tobas::SBUS::Packet& packet)
   sbus_pub_->publish(move(sbus_msg));
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(SBUSDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(SbusDriverNode)

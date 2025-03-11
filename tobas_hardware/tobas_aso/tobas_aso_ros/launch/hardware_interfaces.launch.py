@@ -26,7 +26,7 @@ def generate_launch_description():
                     composable_node_descriptions=[
                         ComposableNode(
                             package=pkg_name,
-                            plugin="IMUDriverNode",
+                            plugin="ImuDriverNode",
                             namespace=ns,
                             extra_arguments=extra_arguments,
                         ),
@@ -44,7 +44,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package=pkg_name,
-                            plugin="PWMDriverNode",
+                            plugin="PwmDriverNode",
                             namespace=ns,
                             extra_arguments=extra_arguments,
                         ),
@@ -76,7 +76,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package=pkg_name,
-                            plugin="GNSSDriverNode",
+                            plugin="GnssDriverNode",
                             namespace=ns,
                             extra_arguments=extra_arguments,
                         ),

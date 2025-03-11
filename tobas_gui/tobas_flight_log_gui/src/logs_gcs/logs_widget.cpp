@@ -99,7 +99,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 {
   clearLogs();
 
-  const auto rosbag_dir = ros2::expandUser(tobas::kROSBagDirHome);
+  const auto rosbag_dir = ros2::expandUser(tobas::kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir))
     fs::create_directories(rosbag_dir);
 
@@ -134,7 +134,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::QMessageLevel::WARN))
     return;
 
-  const auto rosbag_dir = ros2::expandUser(tobas::kROSBagDirHome);
+  const auto rosbag_dir = ros2::expandUser(tobas::kRosbagDirHome);
   if (!fs::is_directory(rosbag_dir))
     fs::create_directories(rosbag_dir);
 
@@ -161,7 +161,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 {
-  const auto log_path = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
+  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::QMessageLevel::WARN))
     return;
