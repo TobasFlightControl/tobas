@@ -90,7 +90,8 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
       // 角速度が大きすぎる場合はやり直し
       if (imu_raw->imu.gyro.norm() > kStaticGyroThreshold)
       {
-        TOBAS_WARN("Perturbation is detected while measuring gyro bias: ", imu_raw->imu.gyro, " [rad/s]. Retrying...");
+        TOBAS_WARN_THROTTLE(
+          1., "Perturbation is detected while measuring gyro bias: ", imu_raw->imu.gyro, " [rad/s]. Retrying...");
         gyro_bias_cnt_ = 0;
         for (size_t i = 0; i < 3; ++i)
           gyro_sum_[i].reset();
