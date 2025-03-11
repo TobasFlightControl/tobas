@@ -1,4 +1,5 @@
 #include <tobas_math/core.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_tools/util.hpp>
@@ -160,9 +161,7 @@ void PostArmCheckerNode::mainTimerCb()
   // 制御レイテンシ
   if (latency_)
   {
-    const auto sec = static_cast<long>(latency_->data.sec);
-    const auto nsec = static_cast<long>(latency_->data.nanosec);
-    const auto latency_us = sec * 1'000'000 + nsec / 1'000;
+    const auto latency_us = ros2::microseconds(latency_->data);
     postarm_check->latency_too_large = (latency_us > kLatencyThresh);
     if (postarm_check->latency_too_large)
     {
