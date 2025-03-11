@@ -397,9 +397,9 @@ bool ZEDF9P1xB::waitForAcknowledge(ubx_class_t cls, uint8_t id)
   const auto cls_str = to_string(int(cls));
   const auto id_str = to_string(int(id));
 
-  const auto start_time = system_clock::now();
+  const auto start_time = steady_clock::now();
 
-  while (duration<double>(system_clock::now() - start_time).count() < kWaitForGnssAck)
+  while (duration<double>(steady_clock::now() - start_time).count() < kWaitForGnssAck)
   {
     if (!update(false))
       return false;
