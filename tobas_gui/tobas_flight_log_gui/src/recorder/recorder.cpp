@@ -73,7 +73,7 @@ void FlightLogRecorderWidget::reset()
 {
   clearRosbagStateViewerWidgets();
 
-  rosbag_state_ = nullptr;
+  rosbag_state_.reset();
 }
 
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)

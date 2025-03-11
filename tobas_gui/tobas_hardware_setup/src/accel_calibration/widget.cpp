@@ -45,7 +45,7 @@ const char* AccelCalibrationWidget::title() const
 
 void AccelCalibrationWidget::reset()
 {
-  arming_ = nullptr;
+  arming_.reset();
 }
 
 void AccelCalibrationWidget::setNamespace(const std::string& ns)

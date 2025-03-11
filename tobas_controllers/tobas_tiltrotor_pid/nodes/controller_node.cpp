@@ -258,11 +258,11 @@ bool ControllerNode::updateHeadingPDGain()
 
 void ControllerNode::resetCommands()
 {
-  pos_cmd_ = nullptr;
-  acc_cmd_ = nullptr;
-  angle_cmd_ = nullptr;
-  rate_cmd_ = nullptr;
-  tar_dgyro_ = nullptr;
+  pos_cmd_.reset();
+  acc_cmd_.reset();
+  angle_cmd_.reset();
+  rate_cmd_.reset();
+  tar_dgyro_.reset();
 }
 
 void ControllerNode::resetIntegralGains()
@@ -362,7 +362,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (drone->hasServoJoint())
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
   else
-    js_sub_ = nullptr;
+    js_sub_.reset();
 
   if (tree_received_)
   {
@@ -587,7 +587,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
   }
 
   // 外側の制御を止める
-  pos_cmd_ = nullptr;
+  pos_cmd_.reset();
 
   // コマンドを更新
   acc_cmd_ = std::make_shared<tobas_command_msgs::Accel>(*acc_cmd);
@@ -626,7 +626,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
   }
 
   // 外側の制御を止める
-  angle_cmd_ = nullptr;
+  angle_cmd_.reset();
 
   // コマンドを更新
   rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>(*rate_cmd);

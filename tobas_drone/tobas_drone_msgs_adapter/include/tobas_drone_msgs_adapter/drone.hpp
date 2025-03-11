@@ -125,14 +125,14 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
         default:
         {
           std::cerr << "Invalid propulsion system type: " << (int)src.prop_type << std::endl;
-          dst.prop = nullptr;
+          dst.prop.reset();
           break;
         }
       }
     }
     else
     {
-      dst.prop = nullptr;
+      dst.prop.reset();
     }
 
     // Fixed Wing
@@ -143,7 +143,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     }
     else
     {
-      dst.fixed_wing = nullptr;
+      dst.fixed_wing.reset();
     }
   }
 };

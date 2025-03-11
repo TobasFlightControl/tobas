@@ -61,8 +61,8 @@ void EngineViewerWidget::updateInternalDataStructures()
   }
   else
   {
-    iprop_ = nullptr;
-    engine_state_sub_ = nullptr;
+    iprop_.reset();
+    engine_state_sub_.reset();
   }
 }
 

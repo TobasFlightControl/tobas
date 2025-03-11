@@ -68,9 +68,9 @@ void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr&
   // アームされたらインスタンス変数を初期化
   if (!arming_ || (arming_->data && !arming->data))
   {
-    imu_ = nullptr;
-    mag_ = nullptr;
-    latency_ = nullptr;
+    imu_.reset();
+    mag_.reset();
+    latency_.reset();
   }
 
   arming_ = arming;

@@ -79,7 +79,7 @@ QStringList URDFViewModel::jointNames() const
 void URDFViewModel::newRobot()
 {
   urdf_.reset(new urdf::Model());
-  root_link_ = nullptr;
+  root_link_.reset();
   clone_count_ = 0;
 }
 
@@ -90,7 +90,7 @@ bool URDFViewModel::loadRobot(const QString& file_path)
   if (!urdf_->initFile(file_path.toStdString()))
   {
     PRINT_ERROR("Failed to parse URDF.");
-    urdf_ = nullptr;
+    urdf_.reset();
     return false;
   }
 
@@ -101,7 +101,7 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 bool URDFViewModel::saveRobot(const QString& file_path)
 {
   // URDFを修正してXMLに変換
-  urdf_->root_link_->inertial = nullptr;      // ルートリンクのイナーシャを削除
+  urdf_->root_link_->inertial.reset();        // ルートリンクのイナーシャを削除
   const auto doc = urdf::exportURDF(*urdf_);  // TiXmlは生ポインタで扱うのが基本
   removeTextureTagsWithoutFilename(doc->RootElement());
 
@@ -140,8 +140,8 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
 
     urdf_->root_link_ = link_vm->model();
     urdf_->joints_.erase(urdf_->root_link_->parent_joint->name);
-    urdf_->root_link_->parent_joint = nullptr;
-    urdf_->root_link_->inertial = nullptr;  // ルートリンクはイナーシャを持てない
+    urdf_->root_link_->parent_joint.reset();
+    urdf_->root_link_->inertial.reset();  // ルートリンクはイナーシャを持てない
     root_link_.reset(new LinkViewModel(urdf_->root_link_));
   }
   else

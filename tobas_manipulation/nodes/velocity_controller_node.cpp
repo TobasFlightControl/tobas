@@ -346,7 +346,7 @@ void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
 void VelocityControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)
 {
   tar_js_ = tar_js;
-  tar_ls_ = nullptr;
+  tar_ls_.reset();
 
   auto_reset_timer_->reset();
 }
@@ -354,7 +354,7 @@ void VelocityControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStat
 void VelocityControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
 {
   tar_ls_ = tar_ls;
-  tar_js_ = nullptr;
+  tar_js_.reset();
 
   auto_reset_timer_->reset();
 }
@@ -362,7 +362,7 @@ void VelocityControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray:
 void VelocityControllerNode::autoResetTimerCb()
 {
   tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
-  tar_ls_ = nullptr;
+  tar_ls_.reset();
 
   TOBAS_WARN(
     "The target joint states are automatically reset because ", manipulation::kAutoResetTimeThresh,

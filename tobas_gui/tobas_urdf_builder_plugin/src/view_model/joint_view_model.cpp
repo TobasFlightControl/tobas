@@ -60,7 +60,7 @@ void JointViewModel::type(const QString& type)
   if (limitsEnabled())
     limits_.reset(new JointLimitsViewModel(model_->limits));
   else
-    limits_ = nullptr;
+    limits_.reset();
 }
 
 const urdf::Pose& JointViewModel::origin() const

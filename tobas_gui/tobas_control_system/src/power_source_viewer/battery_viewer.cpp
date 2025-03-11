@@ -59,8 +59,8 @@ void BatteryViewerWidget::updateInternalDataStructures()
   }
   else
   {
-    eprop_ = nullptr;
-    battery_sub_ = nullptr;
+    eprop_.reset();
+    battery_sub_.reset();
   }
 }
 

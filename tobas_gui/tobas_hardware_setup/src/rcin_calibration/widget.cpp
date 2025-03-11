@@ -144,7 +144,7 @@ const char* RCInputCalibrationWidget::title() const
 void RCInputCalibrationWidget::reset()
 {
   if (sbus_sub_)
-    sbus_sub_ = nullptr;
+    sbus_sub_.reset();
 
   rate_.reset();
 
@@ -173,7 +173,7 @@ void RCInputCalibrationWidget::setNamespace(const string& ns)
 
   reset();
 
-  arming_ = nullptr;
+  arming_.reset();
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 

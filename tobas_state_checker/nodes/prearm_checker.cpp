@@ -141,12 +141,12 @@ void PreArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& 
   // ディスアームされたらインスタンス変数を初期化
   if (!arming_ || (arming_->data && !arming->data))
   {
-    battery_ = nullptr;
-    cpu_ = nullptr;
-    rotor_states_ = nullptr;
-    imu_raw_ = nullptr;
-    odom_ = nullptr;
-    euler_ = nullptr;
+    battery_.reset();
+    cpu_.reset();
+    rotor_states_.reset();
+    imu_raw_.reset();
+    odom_.reset();
+    euler_.reset();
 
     t_last_large_interval_ = get_clock()->now();
 

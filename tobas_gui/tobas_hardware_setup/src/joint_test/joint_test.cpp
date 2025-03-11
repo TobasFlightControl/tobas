@@ -66,7 +66,7 @@ void JointTestWidget::reset()
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
 
-  arming_ = nullptr;
+  arming_.reset();
 }
 
 void JointTestWidget::updateInternalDataStructures()

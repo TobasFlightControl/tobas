@@ -463,7 +463,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 
   if (!arming->data)
   {
-    cmd_nwu_ = nullptr;
+    cmd_nwu_.reset();
     lqd_.last_input.setZero();
   }
 }

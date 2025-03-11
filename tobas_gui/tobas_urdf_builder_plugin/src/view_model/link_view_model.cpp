@@ -43,7 +43,7 @@ void LinkViewModel::sync()
     collisions_.begin(), collisions_.end(), back_inserter(model_->collision_array),
     [](const CollisionViewModelPtr& cvm) { return cvm->model(); });
   if (model_->collision_array.empty())
-    model_->collision = nullptr;
+    model_->collision.reset();
   else
     model_->collision = model_->collision_array.front();
 
@@ -53,7 +53,7 @@ void LinkViewModel::sync()
     visuals_.begin(), visuals_.end(), back_inserter(model_->visual_array),
     [](const VisualViewModelPtr& vvm) { return vvm->model(); });
   if (model_->visual_array.empty())
-    model_->visual = nullptr;
+    model_->visual.reset();
   else
     model_->visual = model_->visual_array.front();
 

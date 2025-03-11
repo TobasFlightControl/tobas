@@ -264,7 +264,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
   if (cs_deflections_ && secs_from_last_cmd > kAutoResetTimeout)
   {
-    cs_deflections_ = nullptr;
+    cs_deflections_.reset();
     TOBAS_INFO(
       "Deflection angles of control surfaces are automatically reset because ", kAutoResetTimeout,
       " seconds have elapsed since the last command.");

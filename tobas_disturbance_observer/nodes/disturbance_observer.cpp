@@ -99,14 +99,14 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  odom_ = nullptr;
-  rotor_states_ = nullptr;
+  odom_.reset();
+  rotor_states_.reset();
   js_received_ = false;
 
   if (drone->hasServoJoint())
     joint_states_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStatesCb, this);
   else
-    joint_states_sub_ = nullptr;
+    joint_states_sub_.reset();
 }
 
 void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)

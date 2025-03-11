@@ -99,8 +99,8 @@ void RotorTestWidget::reset()
   stop_button_->setEnabled(false);
   save_button_->setEnabled(false);
 
-  cur_states_ = nullptr;
-  arming_ = nullptr;
+  cur_states_.reset();
+  arming_.reset();
 }
 
 void RotorTestWidget::updateInternalDataStructures()
@@ -161,15 +161,15 @@ void RotorTestWidget::updateInternalDataStructures()
   }
   else
   {
-    eprop_ = nullptr;
+    eprop_.reset();
 
-    tar_speeds_pub_ = nullptr;
-    cur_states_sub_ = nullptr;
-    arming_sub_ = nullptr;
+    tar_speeds_pub_.reset();
+    cur_states_sub_.reset();
+    arming_sub_.reset();
 
-    get_gains_sc_ = nullptr;
-    set_gains_sc_ = nullptr;
-    save_gains_sc_ = nullptr;
+    get_gains_sc_.reset();
+    set_gains_sc_.reset();
+    save_gains_sc_.reset();
 
     setEnabled(false);
   }

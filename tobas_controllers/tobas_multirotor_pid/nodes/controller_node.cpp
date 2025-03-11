@@ -266,10 +266,10 @@ bool ControllerNode::updateHeadingPDGain()
 
 void ControllerNode::resetCommands()
 {
-  pos_cmd_ = nullptr;
-  acc_cmd_ = nullptr;
-  tar_angle_ = nullptr;
-  tar_gyro_ = nullptr;
+  pos_cmd_.reset();
+  acc_cmd_.reset();
+  tar_angle_.reset();
+  tar_gyro_.reset();
 }
 
 void ControllerNode::resetIntegralGains()
@@ -364,7 +364,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (drone->hasServoJoint())
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
   else
-    js_sub_ = nullptr;
+    js_sub_.reset();
 
   if (tree_received_)
   {
@@ -588,7 +588,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
   }
 
   // 外側の制御を止める
-  pos_cmd_ = nullptr;
+  pos_cmd_.reset();
 
   // コマンドを更新
   acc_cmd_ = std::make_shared<tobas_command_msgs::AccelYaw>(*acc_cmd);
@@ -626,8 +626,8 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
   }
 
   // 外側の制御を止める
-  pos_cmd_ = nullptr;
-  acc_cmd_ = nullptr;
+  pos_cmd_.reset();
+  acc_cmd_.reset();
 
   // コマンドを更新
   tar_angle_ = std::make_shared<kdl::Euler>(angle_cmd->angle);
@@ -656,9 +656,9 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
   }
 
   // 外側の制御を止める
-  pos_cmd_ = nullptr;
-  acc_cmd_ = nullptr;
-  tar_angle_ = nullptr;
+  pos_cmd_.reset();
+  acc_cmd_.reset();
+  tar_angle_.reset();
 
   // コマンドを更新
   tar_gyro_ = std::make_shared<kdl::Vector>(rate_cmd->rate);

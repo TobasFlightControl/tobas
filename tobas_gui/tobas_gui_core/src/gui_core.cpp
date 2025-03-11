@@ -149,7 +149,7 @@ void GUICoreWidget::updateInternalDataStructures()
   flight_log_->updateNamespace(drone_.name);
   simulation_->updateTBSPath(tbsPath());
 
-  arming_ = nullptr;
+  arming_.reset();
 
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
@@ -460,7 +460,7 @@ void GUICoreWidget::onSimRealStateChanged()
   param_tuning_->reset();
   flight_log_->reset();
 
-  arming_ = nullptr;
+  arming_.reset();
 
   // イベントループを進めて画面の更新を確実に反映させる
   QApplication::processEvents();

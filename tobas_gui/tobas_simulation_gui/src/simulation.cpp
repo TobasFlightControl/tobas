@@ -60,7 +60,7 @@ void SimulationWidget::reset()
   if (launch_pid_ >= 0)
     killGazeboLaunch();
 
-  arming_ = nullptr;
+  arming_.reset();
 
   start_stop_button_->setChecked(false);
 
@@ -491,7 +491,7 @@ void SimulationWidget::onTerminateRequested()
   }
 
   // シミュレーションのアーム状態が入っているのでリセット
-  arming_ = nullptr;
+  arming_.reset();
 
   sim_settings_->setEnabled(true);
   dynamic_config_->setEnabled(false);
