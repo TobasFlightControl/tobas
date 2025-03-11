@@ -44,8 +44,7 @@ private:
   void mainTimerCb();
 };
 
-GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
-  : super("aso_gnss_driver", rclcpp::NodeOptions(options).clock_type(RCL_STEADY_TIME))
+GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("aso_gnss_driver", options)
 {
   initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }

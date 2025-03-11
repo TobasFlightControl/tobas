@@ -27,8 +27,7 @@ private:
   void mainTimerCb();
 };
 
-BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
-  : super("aso_baro_driver", rclcpp::NodeOptions(options).clock_type(RCL_STEADY_TIME))
+BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("aso_baro_driver", options)
 {
   initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }
