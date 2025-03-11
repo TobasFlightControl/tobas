@@ -41,7 +41,8 @@ public:
   void setRotorSpeedData(
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
     const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data);
-  void setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
+  void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _data);
+  void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
   void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
   void setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data);
 

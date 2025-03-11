@@ -82,9 +82,14 @@ void PlotTabWidget::setRotorSpeedData(
   rotor_speed_plot_->setData(cur_data, tar_data);
 }
 
-void PlotTabWidget::setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data)
+void PlotTabWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _data)
 {
-  latency_plot_->setData(_data);
+  latency_plot_->setSamplingTimeData(_data);
+}
+
+void PlotTabWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _data)
+{
+  latency_plot_->setControlLatencyData(_data);
 }
 
 void PlotTabWidget::setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data)

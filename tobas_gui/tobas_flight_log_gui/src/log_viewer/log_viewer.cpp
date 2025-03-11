@@ -1,6 +1,5 @@
 #include <QVBoxLayout>
 
-#include <tobas_string_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
@@ -101,7 +100,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Battery> battery_data;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data;
   QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data;
-  QVector<tobas_msgs::msg::Latency> latency_data;
+  QVector<tobas_msgs::msg::Latency> sampling_time_data;
+  QVector<tobas_msgs::msg::Latency> ctrl_latency_data;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data;
   while (reader_.has_next())
@@ -116,52 +116,57 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
     try
     {
-      if (str::endsWith(msg->topic_name, path::join("/", tobas::kOdometryTopic)))
+      if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic)))
       {
         odom_ser_.deserialize_message(&ser_msg, &odom_);
         odom_data.push_back(odom_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic)))
       {
         imu_ser_.deserialize_message(&ser_msg, &imu_);
         imu_data.push_back(imu_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kMagTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic)))
       {
         mag_ser_.deserialize_message(&ser_msg, &mag_);
         mag_data.push_back(mag_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kGnssTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic)))
       {
         gnss_ser_.deserialize_message(&ser_msg, &gnss_);
         gnss_data.push_back(gnss_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kBatteryTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic)))
       {
         battery_ser_.deserialize_message(&ser_msg, &battery_);
         battery_data.push_back(battery_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kRotorStatesTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic)))
       {
         cur_rotor_states_ser_.deserialize_message(&ser_msg, &rotor_states_);
         cur_rotor_states_data.push_back(rotor_states_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kRotorSpeedsCmdTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic)))
       {
         tar_rotor_speeds_ser_.deserialize_message(&ser_msg, &rotor_speeds_);
         tar_rotor_speeds_data.push_back(rotor_speeds_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kControlLatencyTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic)))
       {
         latency_ser_.deserialize_message(&ser_msg, &latency_);
-        latency_data.push_back(latency_);
+        sampling_time_data.push_back(latency_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kDisturbanceForceTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic)))
       {
-        dist_force_ser_.deserialize_message(&ser_msg, &dist_force_);
-        dist_force_data.push_back(dist_force_);
+        latency_ser_.deserialize_message(&ser_msg, &latency_);
+        ctrl_latency_data.push_back(latency_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kObsvFeedbackTopic)))
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic)))
+      {
+        wrench_ser_.deserialize_message(&ser_msg, &wrench_);
+        dist_force_data.push_back(wrench_);
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic)))
       {
         obsv_fb_ser_.deserialize_message(&ser_msg, &obsv_fb_);
         obsv_fb_data.push_back(obsv_fb_);
@@ -186,7 +191,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setGnssData(gnss_data);
     plot_tab->setBatteryData(battery_data);
     plot_tab->setRotorSpeedData(cur_rotor_states_data, tar_rotor_speeds_data);
-    plot_tab->setLatencyData(latency_data);
+    plot_tab->setSamplingTimeData(sampling_time_data);
+    plot_tab->setControlLatencyData(ctrl_latency_data);
     plot_tab->setDisturbanceForceData(dist_force_data);
     plot_tab->setObserverFeedbackData(obsv_fb_data);
   }

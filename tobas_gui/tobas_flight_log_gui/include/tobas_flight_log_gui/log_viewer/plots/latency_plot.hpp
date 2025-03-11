@@ -16,11 +16,15 @@ public:
   explicit LatencyPlotWidget();
 
   void setTimeScale(double t_start, double t_stop);
-  void setData(const QVector<tobas_msgs::msg::Latency>& latency_msgs);
+
+  void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& sampling_time_msgs);
+  void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& ctrl_latency_msgs);
 
 private:
-  QwtPlot2* plot_;
-  qwt::QwtPlotCurveWrapper::SharedPtr curve_;
+  QwtPlot2* sampling_time_plot_;
+  QwtPlot2* ctrl_latency_plot_;
+  qwt::QwtPlotCurveWrapper::SharedPtr sampling_time_curve_;
+  qwt::QwtPlotCurveWrapper::SharedPtr ctrl_latency_curve_;
 };
 }  // namespace log
 }  // namespace gui
