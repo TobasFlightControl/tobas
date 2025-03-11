@@ -27,7 +27,8 @@ private:
   void mainTimerCb();
 };
 
-BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options) : super("aso_battery_driver", options)
+BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options)
+  : super("aso_battery_driver", rclcpp::NodeOptions(options).clock_type(RCL_STEADY_TIME))
 {
   initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }

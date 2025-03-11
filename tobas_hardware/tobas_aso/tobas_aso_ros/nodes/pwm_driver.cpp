@@ -26,7 +26,8 @@ private:
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 };
 
-PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options) : super("aso_pwm_driver", options)
+PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options)
+  : super("aso_pwm_driver", rclcpp::NodeOptions(options).clock_type(RCL_STEADY_TIME))
 {
   initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }

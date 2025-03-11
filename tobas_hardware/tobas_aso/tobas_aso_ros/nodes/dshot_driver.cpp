@@ -65,7 +65,8 @@ private:
   void autoStopTimerCb();
 };
 
-DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("aso_dshot_driver", options)
+DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
+  : super("aso_dshot_driver", rclcpp::NodeOptions(options).clock_type(RCL_STEADY_TIME))
 {
   if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.ini")))
   {

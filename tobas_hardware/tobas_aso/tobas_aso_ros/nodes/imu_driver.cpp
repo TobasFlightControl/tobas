@@ -29,7 +29,8 @@ private:
   void mainTimerCb();
 };
 
-ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("aso_imu_driver", options)
+ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
+  : super("aso_imu_driver", rclcpp::NodeOptions(options).clock_type(RCL_STEADY_TIME))
 {
   initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }

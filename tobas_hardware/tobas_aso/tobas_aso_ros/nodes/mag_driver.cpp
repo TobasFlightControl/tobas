@@ -27,7 +27,8 @@ private:
   void mainTimerCb();
 };
 
-MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("aso_mag_driver", options)
+MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
+  : super("aso_mag_driver", rclcpp::NodeOptions(options).clock_type(RCL_STEADY_TIME))
 {
   initialize_timer_ = createTimer(aso::kRetryInitializationInterval, &self::initialize, this);
 }
