@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tobas_msgs/msg/odometry.hpp>
+#include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
 
 #include "./common.hpp"
 
@@ -16,13 +17,21 @@ public:
   explicit PosePlotWidget();
 
   void setTimeScale(double t_start, double t_stop);
-  void setData(const QVector<tobas_msgs::msg::Odometry>& odom_msgs);
+  void setData(
+    const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
+    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs);
 
 private:
   std::array<QwtPlot2*, 3> pos_plots_;
-  std::array<QwtPlot2*, 3> rpy_plots_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> pos_curves_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> rpy_curves_;
+  std::array<QwtPlot2*, 3> rot_plots_;
+
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> cur_pos_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> cur_rot_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> tar_pos_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> tar_rot_curves_;
+
+  void updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs);
+  void updateTargetSamples(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs);
 };
 }  // namespace log
 }  // namespace gui

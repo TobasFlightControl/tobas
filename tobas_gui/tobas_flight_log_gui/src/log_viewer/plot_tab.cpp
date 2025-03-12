@@ -48,9 +48,11 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   mr_ctrl_fb_plot_->setTimeScale(t_start, t_stop);
 }
 
-void PlotTabWidget::setPoseData(const QVector<tobas_msgs::msg::Odometry>& _data)
+void PlotTabWidget::setPoseData(
+  const QVector<tobas_msgs::msg::Odometry>& odom_data,
+  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data)
 {
-  pose_plot_->setData(_data);
+  pose_plot_->setData(odom_data, ctrl_fb_data);
 }
 
 void PlotTabWidget::setTwistData(const QVector<tobas_msgs::msg::Odometry>& _data)
