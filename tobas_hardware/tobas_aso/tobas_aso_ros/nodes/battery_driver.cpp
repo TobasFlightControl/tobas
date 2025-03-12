@@ -10,7 +10,7 @@ using namespace std;
 
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 10ms;
+  static constexpr auto kSamplingPeriod = 1000ms;  // TODO: SPIデバイスをうまく分離してもっと上げる
 
   using self = BatteryDriverNode;
   using super = hardware::BaseSensorNode;
