@@ -11,7 +11,7 @@ using namespace std;
 
 class ImuDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 2500us;  // 400Hz
+  static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
 
   using self = ImuDriverNode;
   using super = hardware::BaseSensorNode;
