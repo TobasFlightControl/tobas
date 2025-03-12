@@ -12,6 +12,7 @@
 #include "./plots/latency_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
 #include "./plots/observer_feedback_plot.hpp"
+#include "./plots/mr_controller_feedback_plot.hpp"
 
 namespace gui
 {
@@ -45,6 +46,7 @@ public:
   void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
   void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
   void setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data);
+  void setMRControllerFeedbackData(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& _data);
 
 private:
   PosePlotWidget* pose_plot_;
@@ -57,6 +59,7 @@ private:
   LatencyPlotWidget* latency_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
+  MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
 };
 }  // namespace log
 }  // namespace gui

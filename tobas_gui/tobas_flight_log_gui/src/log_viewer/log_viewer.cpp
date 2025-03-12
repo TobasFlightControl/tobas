@@ -104,6 +104,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data;
+  QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data;
   while (reader_.has_next())
   {
     const auto msg = reader_.read_next();
@@ -171,6 +172,11 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         obsv_fb_ser_.deserialize_message(&ser_msg, &obsv_fb_);
         obsv_fb_data.push_back(obsv_fb_);
       }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic)))
+      {
+        mr_ctrl_fb_ser_.deserialize_message(&ser_msg, &mr_ctrl_fb_);
+        mr_ctrl_fb_data.push_back(mr_ctrl_fb_);
+      }
     }
     catch (const std::exception& e)
     {
@@ -195,6 +201,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setControlLatencyData(ctrl_latency_data);
     plot_tab->setDisturbanceForceData(dist_force_data);
     plot_tab->setObserverFeedbackData(obsv_fb_data);
+    plot_tab->setMRControllerFeedbackData(mr_ctrl_fb_data);
   }
 }
 

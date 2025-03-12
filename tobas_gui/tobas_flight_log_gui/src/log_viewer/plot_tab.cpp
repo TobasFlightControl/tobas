@@ -16,6 +16,7 @@ PlotTabWidget::PlotTabWidget()
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
+  mr_ctrl_fb_plot_ = new MRControllerFeedbackPlotWidget();
 
   addTab(pose_plot_, "Pose");
   addTab(twist_plot_, "Twist");
@@ -26,7 +27,8 @@ PlotTabWidget::PlotTabWidget()
   addTab(rotor_speed_plot_, "Rotor Speed");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
-  addTab(obsv_fb_plot_, "Observer\nFeedback");
+  addTab(obsv_fb_plot_, "Observer");
+  addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
 
   setTabSize(kTabWidth, kTabHeight);
 }
@@ -43,6 +45,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   latency_plot_->setTimeScale(t_start, t_stop);
   dist_force_plot_->setTimeScale(t_start, t_stop);
   obsv_fb_plot_->setTimeScale(t_start, t_stop);
+  mr_ctrl_fb_plot_->setTimeScale(t_start, t_stop);
 }
 
 void PlotTabWidget::setPoseData(const QVector<tobas_msgs::msg::Odometry>& _data)
@@ -100,6 +103,12 @@ void PlotTabWidget::setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::W
 void PlotTabWidget::setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data)
 {
   obsv_fb_plot_->setData(_data);
+}
+
+void PlotTabWidget::setMRControllerFeedbackData(
+  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& _data)
+{
+  mr_ctrl_fb_plot_->setData(_data);
 }
 }  // namespace log
 }  // namespace gui
