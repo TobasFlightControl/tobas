@@ -96,7 +96,7 @@ bool ISM330DLC::configureAcc()
 {
   constexpr uint8_t scale = FS_XL_4G;
 
-  if (!writeReg(REG_CTRL1_XL, ODR_XL_1660HZ | scale))
+  if (!writeReg(REG_CTRL1_XL, ODR_XL_833HZ | scale))
     return false;
 
   setAccScale(scale);
@@ -110,7 +110,7 @@ bool ISM330DLC::configureGyro()
 
   // ODRが高すぎると精度が落ちる
   // サンプリングの2倍程度が良さそう
-  if (!writeReg(REG_CTRL2_G, ODR_G_1660HZ | scale))
+  if (!writeReg(REG_CTRL2_G, ODR_G_833HZ | scale))
     return false;
 
   // Disable I2C
