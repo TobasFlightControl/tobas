@@ -15,7 +15,7 @@ Restart=always
 RestartSec=5
 CPUSchedulingPolicy=rr
 CPUSchedulingPriority=90
-CPUAffinity=0
+CPUAffinity=3
 
 [Install]
 WantedBy=multi-user.target
