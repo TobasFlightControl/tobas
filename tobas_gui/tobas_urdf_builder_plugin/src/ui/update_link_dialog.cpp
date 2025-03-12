@@ -726,6 +726,7 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
   ui_->InertialOriginXSpinBox->setValue(origin.position.x);
   ui_->InertialOriginYSpinBox->setValue(origin.position.y);
   ui_->InertialOriginZSpinBox->setValue(origin.position.z);
+
   double r, p, y;
   origin.rotation.getRPY(r, p, y);
   ui_->InertialOriginRollSpinBox->setValue(r);

@@ -11,7 +11,6 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 
 using namespace std;
@@ -62,7 +61,6 @@ private:
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
   tobas_msgs::msg::RotorStateArray::ConstSharedPtr rotor_states_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_kdl_msgs::EulerStamped::ConstSharedPtr euler_;
 
   rclcpp::Time t_last_large_interval_;
   array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
@@ -76,7 +74,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Latency> sampling_time_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   ros2::TimerPtr main_timer_;
 
@@ -89,7 +86,6 @@ private:
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
   void samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 
   void mainTimerCb();
 };
@@ -111,7 +107,6 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
   sampling_time_sub_ = createSubscriber(tobas::kImuSamplingTimeTopic, &self::samplingTimeCb, this);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
-  euler_sub_ = createSubscriber(tobas::addThrotNS(tobas::kEulerTopic), &self::eulerCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
@@ -144,7 +139,6 @@ void PreArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& 
     cpu_.reset();
     rotor_states_.reset();
     odom_.reset();
-    euler_.reset();
 
     t_last_large_interval_ = get_clock()->now();
 
@@ -204,14 +198,6 @@ void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   odom_ = odom;
-}
-
-void PreArmCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
-{
-  if (!arming_ || arming_->data)
-    return;
-
-  euler_ = euler;
 }
 
 void PreArmCheckerNode::mainTimerCb()
@@ -344,14 +330,15 @@ void PreArmCheckerNode::mainTimerCb()
   // 姿勢角
   if (do_check_.attitude_too_steep)
   {
-    if (!euler_)
+    if (!odom_)
     {
       prearm_check->attitude_too_steep = tobas_msgs::msg::PreArmCheck::FAILED;
       prearm_check->ok = false;
     }
     else
     {
-      if (max(fabs(euler_->euler.roll), fabs(euler_->euler.pitch)) > kAttitudeThresh)
+      const auto [roll, pitch, _] = odom_->frame.M.getRPY();
+      if (max(fabs(roll), fabs(pitch)) > kAttitudeThresh)
       {
         prearm_check->attitude_too_steep = tobas_msgs::msg::PreArmCheck::FAILED;
         prearm_check->ok = false;

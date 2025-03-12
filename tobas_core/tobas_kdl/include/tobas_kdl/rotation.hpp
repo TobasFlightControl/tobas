@@ -121,6 +121,7 @@ public:
 
   **/
   void getRPY(double& roll, double& pitch, double& yaw) const;
+  std::tuple<double, double, double> getRPY() const;
 
   inline double getYaw() const;
 
