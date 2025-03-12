@@ -59,7 +59,6 @@ private:
   bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
-  double cur_roll_, cur_pitch_, cur_yaw_;
   tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr air_pressure_;  // 大気圧
   tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                                   // 現在の状態 (NWU座標系)
   tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
@@ -233,14 +232,14 @@ bool ControllerNode::isReadyToControl()
 void ControllerNode::updateCurrentStateVector()
 {
   const auto& trim = eom_.trimCondition();
-  odom_ned_.frame.M.getRPY(cur_roll_, cur_pitch_, cur_yaw_);
+  const auto [roll, pitch, _] = odom_ned_.frame.M.getRPY();
 
   // TODO: 横系のトリムも考慮
   lqd_.current_state(eom_.kStateIdx_u) = odom_ned_.twist.vel.x() - trim.u();
   lqd_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(odom_ned_.twist.vel.data) - trim.alpha();
   lqd_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(odom_ned_.twist.vel.data);
-  lqd_.current_state(eom_.kStateIdx_phi) = cur_roll_;
-  lqd_.current_state(eom_.kStateIdx_theta) = cur_pitch_ - trim.theta();
+  lqd_.current_state(eom_.kStateIdx_phi) = roll;
+  lqd_.current_state(eom_.kStateIdx_theta) = pitch - trim.theta();
   lqd_.current_state(eom_.kStateIdx_p) = odom_ned_.twist.rot.x();
   lqd_.current_state(eom_.kStateIdx_q) = odom_ned_.twist.rot.y();
   lqd_.current_state(eom_.kStateIdx_r) = odom_ned_.twist.rot.z();

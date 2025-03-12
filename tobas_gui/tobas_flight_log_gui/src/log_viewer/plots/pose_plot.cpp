@@ -61,10 +61,10 @@ void PosePlotWidget::setData(const QVector<tobas_msgs::msg::Odometry>& odom_msgs
     pos_data[2].push_back(pos.z);
 
     const kdl::Rotation rot(odom.frame.rot.data);
-    rot.getRPY(roll_, pitch_, yaw_);
-    rpy_data[0].push_back(roll_);
-    rpy_data[1].push_back(pitch_);
-    rpy_data[2].push_back(yaw_);
+    const auto [roll, pitch, yaw] = rot.getRPY();
+    rpy_data[0].push_back(roll);
+    rpy_data[1].push_back(pitch);
+    rpy_data[2].push_back(yaw);
   }
 
   for (size_t i = 0; i < 3; ++i)

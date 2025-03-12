@@ -23,8 +23,6 @@ private:
   std::array<QwtPlot2*, 3> rpy_plots_;
   std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> pos_curves_;
   std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> rpy_curves_;
-
-  double roll_, pitch_, yaw_;
 };
 }  // namespace log
 }  // namespace gui

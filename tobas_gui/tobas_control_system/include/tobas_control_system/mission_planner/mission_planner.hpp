@@ -2,7 +2,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
@@ -53,7 +53,7 @@ private:
   MissionExecutionThread mission_thread_;
 
   ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
-  ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();
@@ -74,7 +74,7 @@ private:
   QVector<BaseCommandData::SharedPtr> createMissionCommandList();
 
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
-  void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
 private Q_SLOTS:
   void onLoadButtonClicked();

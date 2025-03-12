@@ -42,7 +42,6 @@ static constexpr char kRotorStatesTopic[] = "rotor_states";
 static constexpr char kRotorLivelinessTopic[] = "rotor_liveliness";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
-static constexpr char kEulerTopic[] = "euler";
 static constexpr char kEventTopic[] = "event";
 static constexpr char kImuSamplingTimeTopic[] = "imu_sampling_time";
 static constexpr char kControlLatencyTopic[] = "control_latency";
