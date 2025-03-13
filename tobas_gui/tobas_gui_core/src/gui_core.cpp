@@ -141,15 +141,28 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
 }
 
+void GUICoreWidget::reset()
+{
+  urdf_builder_->reset();
+  setup_assistant_->reset();
+  hardware_setup_->reset();
+  control_system_->reset();
+  param_tuning_->reset();
+  flight_log_->reset();
+  simulation_->reset();
+
+  arming_.reset();
+}
+
 void GUICoreWidget::updateInternalDataStructures()
 {
+  reset();
+
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
   param_tuning_->updateTBSPath(tbsPath());
   flight_log_->updateNamespace(drone_.name);
   simulation_->updateTBSPath(tbsPath());
-
-  arming_.reset();
 
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
@@ -428,6 +441,9 @@ void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message
     restart_btn_->setChecked(false);
     return;
   }
+
+  // TFの時間戻りを避けるために各ウィジェットをリセット
+  reset();
 
   qt::qInfoBox(this, "Flight controller is restarted successfully.");
   restart_btn_->setChecked(false);
