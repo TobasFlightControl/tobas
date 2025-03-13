@@ -1,11 +1,11 @@
 #pragma once
 
 #include <filesystem>
-#include <rclcpp/serialization.hpp>
 #include <rosbag2_cpp/reader.hpp>
 
 #include "./plot_tab.hpp"
 #include "./playback_control.hpp"
+#include "./message_decoder.hpp"
 
 namespace gui
 {
@@ -30,32 +30,21 @@ private:
   rosbag2_cpp::Reader reader_;
   std::unordered_set<std::string> decode_fail_topics_;
 
+  MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
+  MessageDecoder<tobas_msgs::msg::ImuWithCovarianceStamped> imu_decoder_;
+  MessageDecoder<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_decoder_;
+  MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
+  MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
+  MessageDecoder<tobas_msgs::msg::RotorStateArray> cur_rotor_states_decoder_;
+  MessageDecoder<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_decoder_;
+  MessageDecoder<tobas_msgs::msg::Latency> sampling_time_decoder_;
+  MessageDecoder<tobas_msgs::msg::Latency> ctrl_latency_decoder_;
+  MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> dist_force_decoder_;
+  MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
+  MessageDecoder<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_decoder_;
+
   std::array<PlotTabWidget*, 2> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
-
-  tobas_msgs::msg::Odometry odom_;
-  tobas_msgs::msg::ImuWithCovarianceStamped imu_;
-  tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
-  tobas_msgs::msg::Gnss gnss_;
-  tobas_msgs::msg::Battery battery_;
-  tobas_msgs::msg::RotorStateArray rotor_states_;
-  tobas_msgs::msg::RotorSpeedArray rotor_speeds_;
-  tobas_msgs::msg::Latency latency_;
-  tobas_kdl_msgs::msg::WrenchStamped wrench_;
-  tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
-  tobas_debug_msgs::msg::MultiRotorControllerFeedback mr_ctrl_fb_;
-
-  rclcpp::Serialization<tobas_msgs::msg::Odometry> odom_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::Gnss> gnss_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::Battery> battery_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::RotorStateArray> cur_rotor_states_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::Latency> latency_ser_;
-  rclcpp::Serialization<tobas_kdl_msgs::msg::WrenchStamped> wrench_ser_;
-  rclcpp::Serialization<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_ser_;
-  rclcpp::Serialization<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_ser_;
 
   void reset();
   void setPlotData(double time_from_start);

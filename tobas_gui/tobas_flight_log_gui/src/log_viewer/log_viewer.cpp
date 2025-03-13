@@ -38,6 +38,19 @@ void FlightLogViewerWidget::reset()
   reader_.close();
   decode_fail_topics_.clear();
 
+  odom_decoder_.clearCache();
+  imu_decoder_.clearCache();
+  mag_decoder_.clearCache();
+  gnss_decoder_.clearCache();
+  battery_decoder_.clearCache();
+  cur_rotor_states_decoder_.clearCache();
+  tar_rotor_speeds_decoder_.clearCache();
+  sampling_time_decoder_.clearCache();
+  ctrl_latency_decoder_.clearCache();
+  dist_force_decoder_.clearCache();
+  obsv_fb_decoder_.clearCache();
+  mr_ctrl_fb_decoder_.clearCache();
+
   for (auto& plot_tab : plot_tabs_)
     plot_tab->setTimeScale(0., kWindowDuration);
 
@@ -123,65 +136,29 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     try
     {
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic)))
-      {
-        odom_ser_.deserialize_message(&ser_msg, &odom_);
-        odom_data.push_back(odom_);
-      }
+        odom_data.push_back(odom_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic)))
-      {
-        imu_ser_.deserialize_message(&ser_msg, &imu_);
-        imu_data.push_back(imu_);
-      }
+        imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic)))
-      {
-        mag_ser_.deserialize_message(&ser_msg, &mag_);
-        mag_data.push_back(mag_);
-      }
+        mag_data.push_back(mag_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic)))
-      {
-        gnss_ser_.deserialize_message(&ser_msg, &gnss_);
-        gnss_data.push_back(gnss_);
-      }
+        gnss_data.push_back(gnss_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic)))
-      {
-        battery_ser_.deserialize_message(&ser_msg, &battery_);
-        battery_data.push_back(battery_);
-      }
+        battery_data.push_back(battery_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic)))
-      {
-        cur_rotor_states_ser_.deserialize_message(&ser_msg, &rotor_states_);
-        cur_rotor_states_data.push_back(rotor_states_);
-      }
+        cur_rotor_states_data.push_back(cur_rotor_states_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic)))
-      {
-        tar_rotor_speeds_ser_.deserialize_message(&ser_msg, &rotor_speeds_);
-        tar_rotor_speeds_data.push_back(rotor_speeds_);
-      }
+        tar_rotor_speeds_data.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic)))
-      {
-        latency_ser_.deserialize_message(&ser_msg, &latency_);
-        sampling_time_data.push_back(latency_);
-      }
+        sampling_time_data.push_back(sampling_time_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic)))
-      {
-        latency_ser_.deserialize_message(&ser_msg, &latency_);
-        ctrl_latency_data.push_back(latency_);
-      }
+        ctrl_latency_data.push_back(ctrl_latency_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic)))
-      {
-        wrench_ser_.deserialize_message(&ser_msg, &wrench_);
-        dist_force_data.push_back(wrench_);
-      }
+        dist_force_data.push_back(dist_force_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic)))
-      {
-        obsv_fb_ser_.deserialize_message(&ser_msg, &obsv_fb_);
-        obsv_fb_data.push_back(obsv_fb_);
-      }
+        obsv_fb_data.push_back(obsv_fb_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic)))
-      {
-        mr_ctrl_fb_ser_.deserialize_message(&ser_msg, &mr_ctrl_fb_);
-        mr_ctrl_fb_data.push_back(mr_ctrl_fb_);
-      }
+        mr_ctrl_fb_data.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_msg));
     }
     catch (const std::exception& e)
     {
