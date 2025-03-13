@@ -49,10 +49,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
     return;
 
   if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
-  {
-    TOBAS_WARN("Only supports electric propulsion system.");
     return;
-  }
 
   eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
 
