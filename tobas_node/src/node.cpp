@@ -202,8 +202,15 @@ string BaseNode::createID(const char* file, int line)
 rclcpp::NodeOptions BaseNode::createNodeOptions(rclcpp::NodeOptions options)
 {
   const char* clock_type = nullptr;
+  const char* error = rcutils_get_env("TOBAS_CLOCK_TYPE", &clock_type);
 
-  if (rcutils_get_env("TOBAS_CLOCK_TYPE", &clock_type))
+  if (error)
+  {
+    cerr << "Failed to get clock type: " << error << endl;
+    return options;
+  }
+
+  if (strlen(clock_type) == 0)
     return options;
 
   if (strcmp(clock_type, "ros_time") == 0)
