@@ -17,8 +17,8 @@ class JointConfig
 {
   static constexpr char kNameKey[] = "joint_name";
   static constexpr char kRoleKey[] = "role";
-  static constexpr char kCmdIfaceKey[] = "cmd_iface";
-  static constexpr char kHwIfaceKey[] = "hw_iface";
+  static constexpr char kCommandIfaceKey[] = "cmd_iface";
+  static constexpr char kHardwareIfaceKey[] = "hw_iface";
   static constexpr char kHomePosKey[] = "home_position";
 
 public:
