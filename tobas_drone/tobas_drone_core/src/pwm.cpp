@@ -1,4 +1,6 @@
+#include <tobas_math/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/convert/range.hpp>
 
 #include "tobas_drone_core/pwm.hpp"
 
@@ -14,13 +16,13 @@ bool PwmConfig::isValid() const
     return false;
   }
 
-  if (min_period > max_period)
+  if (!period_range.isValid())
   {
     cerr << "Invalid PWM period range." << endl;
     return false;
   }
 
-  if (min_value > max_value)
+  if (!value_range.isValid())
   {
     cerr << "Invalid PWM value range." << endl;
     return false;
@@ -37,16 +39,10 @@ bool PwmConfig::load(const YAML::Node& node)
   if (!yaml::load(kNameKey, node, name))
     return false;
 
-  if (!yaml::load(kMinPeriodKey, node, min_period))
+  if (!yaml::load(kPeriodRangeKey, node, period_range))
     return false;
 
-  if (!yaml::load(kMaxPeriodKey, node, max_period))
-    return false;
-
-  if (!yaml::load(kMinValueKey, node, min_value))
-    return false;
-
-  if (!yaml::load(kMaxValueKey, node, max_value))
+  if (!yaml::load(kValueRangeKey, node, value_range))
     return false;
 
   if (!yaml::load(kReverseKey, node, reverse))
@@ -61,12 +57,31 @@ YAML::Node PwmConfig::dump() const
 
   node[kChannelKey] = channel;
   node[kNameKey] = name;
-  node[kMinPeriodKey] = min_period;
-  node[kMaxPeriodKey] = max_period;
-  node[kMinValueKey] = min_value;
-  node[kMaxValueKey] = max_value;
+  node[kPeriodRangeKey] = period_range;
+  node[kValueRangeKey] = value_range;
   node[kReverseKey] = reverse;
 
   return node;
+}
+
+uint16_t PwmConfig::periodFromValue(double value) const
+{
+  uint16_t period;
+  if (reverse)
+    period = math::remap<double>(value, value_range.lower, value_range.upper, period_range.upper, period_range.lower);
+  else
+    period = math::remap<double>(value, value_range.lower, value_range.upper, period_range.lower, period_range.upper);
+
+  return period_range.clamp(period);
+}
+
+double PwmConfig::valueFromPeriod(uint16_t period) const
+{
+  period = period_range.clamp(period);
+
+  if (reverse)
+    return math::remap<double>(period, period_range.lower, period_range.upper, value_range.upper, value_range.lower);
+  else
+    return math::remap<double>(period, period_range.lower, period_range.upper, value_range.lower, value_range.upper);
 }
 }  // namespace tobas

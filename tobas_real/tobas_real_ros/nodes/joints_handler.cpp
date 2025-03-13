@@ -72,28 +72,16 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super
 double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)
 {
   // Check limit
-  if (cmd_pos < pwm.min_value - kJointLimitMargin)
+  if (pwm.value_range.inRange(cmd_pos, kJointLimitMargin))
   {
     TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.name, "\" is too small: ", cmd_pos, " < ",
-      pwm.min_value);
-    cmd_pos = pwm.min_value;
-  }
-  else if (cmd_pos > pwm.max_value + kJointLimitMargin)
-  {
-    TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.name, "\" is too large: ", cmd_pos, " > ",
-      pwm.max_value);
-    cmd_pos = pwm.max_value;
+      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.name, "\" is out of range: ", cmd_pos, " ∉ ",
+      pwm.value_range);
+    cmd_pos = pwm.value_range.clamp(cmd_pos);
   }
 
   // Compute PWM period
-  double period;
-  if (pwm.reverse)
-    period = math::remap<double>(cmd_pos, pwm.min_value, pwm.max_value, pwm.max_period, pwm.min_period);
-  else
-    period = math::remap<double>(cmd_pos, pwm.min_value, pwm.max_value, pwm.min_period, pwm.max_period);
-  return clamp<double>(period, pwm.min_period, pwm.max_period);
+  return pwm.periodFromValue(cmd_pos);
 }
 
 void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

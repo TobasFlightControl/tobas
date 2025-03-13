@@ -16,10 +16,10 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
   {
     dst.channel = src.channel;
     dst.name = src.name;
-    dst.min_period = src.min_period;
-    dst.max_period = src.max_period;
-    dst.min_value = src.min_value;
-    dst.max_value = src.max_value;
+    dst.min_period = src.period_range.lower;
+    dst.max_period = src.period_range.upper;
+    dst.min_value = src.value_range.lower;
+    dst.max_value = src.value_range.upper;
     dst.reverse = src.reverse;
   }
 
@@ -27,10 +27,10 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
   {
     dst.channel = src.channel;
     dst.name = src.name;
-    dst.min_period = src.min_period;
-    dst.max_period = src.max_period;
-    dst.min_value = src.min_value;
-    dst.max_value = src.max_value;
+    dst.period_range.lower = src.min_period;
+    dst.period_range.upper = src.max_period;
+    dst.value_range.lower = src.min_value;
+    dst.value_range.upper = src.max_value;
     dst.reverse = src.reverse;
   }
 };

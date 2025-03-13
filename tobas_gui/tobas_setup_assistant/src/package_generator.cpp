@@ -145,10 +145,10 @@ tobas::Drone PackageGenerator::createDrone()
         tobas::PwmConfig pwm;
         pwm.channel = joint_config->getPwmChannel(i);
         pwm.name = joint.name;
-        pwm.min_period = joint_config->getPwmMinPeriod(i);
-        pwm.max_period = joint_config->getPwmMaxPeriod(i);
-        pwm.min_value = joint_config->getPwmMinAngle(i);
-        pwm.max_value = joint_config->getPwmMaxAngle(i);
+        pwm.period_range.lower = joint_config->getPwmMinPeriod(i);
+        pwm.period_range.upper = joint_config->getPwmMaxPeriod(i);
+        pwm.value_range.lower = joint_config->getPwmMinAngle(i);
+        pwm.value_range.upper = joint_config->getPwmMaxAngle(i);
         pwm.reverse = joint_config->getPwmReverse(i);
         drone.pwms[joint.name] = pwm;
         break;
