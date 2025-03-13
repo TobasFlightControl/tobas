@@ -191,7 +191,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
     plot_tab->setPoseData(odom_data, mr_ctrl_fb_data);
-    plot_tab->setTwistData(odom_data);
+    plot_tab->setTwistData(odom_data, mr_ctrl_fb_data);
     plot_tab->setImuData(imu_data);
     plot_tab->setMagData(mag_data);
     plot_tab->setGnssData(gnss_data);

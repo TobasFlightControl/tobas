@@ -36,7 +36,9 @@ public:
   void setPoseData(
     const QVector<tobas_msgs::msg::Odometry>& odom_data,
     const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data);
-  void setTwistData(const QVector<tobas_msgs::msg::Odometry>& _data);
+  void setTwistData(
+    const QVector<tobas_msgs::msg::Odometry>& odom_data,
+    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data);
   void setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data);
   void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
   void setGnssData(const QVector<tobas_msgs::msg::Gnss>& _data);

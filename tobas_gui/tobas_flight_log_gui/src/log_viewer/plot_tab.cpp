@@ -55,9 +55,11 @@ void PlotTabWidget::setPoseData(
   pose_plot_->setData(odom_data, ctrl_fb_data);
 }
 
-void PlotTabWidget::setTwistData(const QVector<tobas_msgs::msg::Odometry>& _data)
+void PlotTabWidget::setTwistData(
+  const QVector<tobas_msgs::msg::Odometry>& odom_data,
+  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data)
 {
-  twist_plot_->setData(_data);
+  twist_plot_->setData(odom_data, ctrl_fb_data);
 }
 
 void PlotTabWidget::setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data)
