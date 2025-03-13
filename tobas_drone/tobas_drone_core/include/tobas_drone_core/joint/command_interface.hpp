@@ -12,7 +12,7 @@ enum struct jnt_cmd_iface_t : uint8_t
   NONE,
 };
 
-std::string textFromEnum(jnt_cmd_iface_t interface);
+std::string textFromEnum(jnt_cmd_iface_t value);
 bool enumFromText(const std::string& text, jnt_cmd_iface_t& dst);
 }  // namespace tobas
 
