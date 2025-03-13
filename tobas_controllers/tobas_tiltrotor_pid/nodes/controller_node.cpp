@@ -427,7 +427,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = pos_cmd_->vel;
+    feedback->target_velocity = odom->frame.M.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
@@ -502,7 +502,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_angles_pub_->publish(move(tar_angles));
 
     // フィードバックメッセージを埋める
-    feedback->target_accel = acc_cmd_->accel;
+    feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
     feedback->target_dgyro = *tar_dgyro_;
 
     // フィードバックメッセージを発行

@@ -68,10 +68,10 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelYaw::SharedPtr pos_cmd_;  // 位置制御の目標値
-  tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;   // 加速度制御の目標値
-  shared_ptr<kdl::Euler> tar_angle_;                  // 目標オイラー角
-  shared_ptr<kdl::Vector> tar_gyro_;                  // 目標ジャイロ
+  tobas_command_msgs::PosVelYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
+  tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
+  shared_ptr<kdl::Euler> tar_angle_;                  // 目標オイラー角 (世界座標系)
+  shared_ptr<kdl::Vector> tar_gyro_;                  // 目標ジャイロ (機体座標系P)
   double tar_thrust_;                                 // 目標推力
 
   // Publishers
@@ -406,9 +406,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
   odom_ = odom;
 
-  // 現在のオイラー角を計算
-  const kdl::Euler cur_rpy(odom->frame.M);
-
   // フィードバックメッセージを作成
   auto feedback = std::make_unique<tobas_debug_msgs::MultiRotorControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
@@ -435,7 +432,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = pos_cmd_->vel;
+    feedback->target_velocity = odom->frame.M.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
@@ -454,7 +451,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_angle_->yaw = acc_cmd_->yaw;
 
     // フィードバックメッセージを埋める
-    feedback->target_accel = acc_cmd_->accel;
+    feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
   }
 
   // 姿勢制御器
@@ -462,6 +459,9 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   {
     if (!tar_gyro_)
       tar_gyro_ = std::make_shared<kdl::Vector>();
+
+    // 現在のオイラー角を計算
+    const kdl::Euler cur_rpy(odom->frame.M);
 
     // 目標角速度を計算
     // 接地している場合はI制御は行わない
