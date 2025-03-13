@@ -28,6 +28,7 @@ public:
 private:
   std::filesystem::path log_path_;
   rosbag2_cpp::Reader reader_;
+  std::unordered_set<std::string> decode_fail_topics_;
 
   std::array<PlotTabWidget*, 2> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;

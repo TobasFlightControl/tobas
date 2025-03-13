@@ -36,6 +36,7 @@ void FlightLogViewerWidget::reset()
 {
   log_path_.clear();
   reader_.close();
+  decode_fail_topics_.clear();
 
   for (auto& plot_tab : plot_tabs_)
     plot_tab->setTimeScale(0., kWindowDuration);
@@ -113,8 +114,12 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     if (cur_time > window_stop_time)
       break;
 
-    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+    // 一度デコードに失敗したトピックはログがリセットされるまでデコードしない
+    if (decode_fail_topics_.contains(msg->topic_name))
+      continue;
 
+    // デコード
+    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
     try
     {
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic)))
@@ -180,7 +185,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     }
     catch (const std::exception& e)
     {
-      qWarning() << "Failed to deserialize " << QString::fromStdString(msg->topic_name) << ": " + QString(e.what());
+      qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(msg->topic_name) + "\".");
+      decode_fail_topics_.insert(msg->topic_name);
     }
   }
 
