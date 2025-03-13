@@ -156,7 +156,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     // Fill commands
     switch (joint.hw_iface)
     {
-      case tobas::jnt_hw_iface_t::PWM:
+      case tobas::hw_iface_t::PWM:
       {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
@@ -172,7 +172,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
         break;
       }
-      case tobas::jnt_hw_iface_t::OTHER:
+      case tobas::hw_iface_t::OTHER:
       {
         break;
       }
@@ -242,7 +242,7 @@ void JointsHandlerNode::positionResetTimerCb()
     // Fill commands
     switch (joint.hw_iface)
     {
-      case tobas::jnt_hw_iface_t::PWM:
+      case tobas::hw_iface_t::PWM:
       {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
@@ -258,7 +258,7 @@ void JointsHandlerNode::positionResetTimerCb()
 
         break;
       }
-      case tobas::jnt_hw_iface_t::OTHER:
+      case tobas::hw_iface_t::OTHER:
       {
         break;
       }

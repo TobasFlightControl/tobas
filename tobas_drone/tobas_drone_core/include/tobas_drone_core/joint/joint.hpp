@@ -6,7 +6,7 @@
 
 #include "./role.hpp"
 #include "./command_interface.hpp"
-#include "./hardware_interface.hpp"
+#include "../hardware_interface.hpp"
 
 namespace tobas
 {
@@ -25,7 +25,7 @@ public:
   std::string name = "";
   jnt_role_t role = jnt_role_t::OTHER;
   jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::NONE;
-  jnt_hw_iface_t hw_iface = jnt_hw_iface_t::OTHER;
+  hw_iface_t hw_iface = hw_iface_t::OTHER;
   double home_pos = 0.;  // [rad | m]
 
   bool isValid() const;

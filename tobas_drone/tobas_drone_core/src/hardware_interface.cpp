@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "tobas_drone_core/joint/hardware_interface.hpp"
+#include "tobas_drone_core/hardware_interface.hpp"
 
 #define PWM_TEXT "pwm"
 #define OTHER_TEXT "other"
@@ -9,29 +9,29 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(jnt_hw_iface_t cmd_iface)
+string textFromEnum(hw_iface_t value)
 {
-  switch (cmd_iface)
+  switch (value)
   {
-    case jnt_hw_iface_t::PWM:
+    case hw_iface_t::PWM:
       return PWM_TEXT;
-    case jnt_hw_iface_t::OTHER:
+    case hw_iface_t::OTHER:
       return OTHER_TEXT;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, jnt_hw_iface_t& dst)
+bool enumFromText(const string& text, hw_iface_t& dst)
 {
   if (text == PWM_TEXT)
   {
-    dst = tobas::jnt_hw_iface_t::PWM;
+    dst = tobas::hw_iface_t::PWM;
     return true;
   }
   else if (text == OTHER_TEXT)
   {
-    dst = tobas::jnt_hw_iface_t::OTHER;
+    dst = tobas::hw_iface_t::OTHER;
     return true;
   }
   else
@@ -44,14 +44,14 @@ bool enumFromText(const string& text, jnt_hw_iface_t& dst)
 
 namespace YAML
 {
-Node convert<tobas::jnt_hw_iface_t>::encode(const tobas::jnt_hw_iface_t& rhs)
+Node convert<tobas::hw_iface_t>::encode(const tobas::hw_iface_t& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::jnt_hw_iface_t>::decode(const Node& node, tobas::jnt_hw_iface_t& rhs)
+bool convert<tobas::hw_iface_t>::decode(const Node& node, tobas::hw_iface_t& rhs)
 {
   if (!node.IsScalar())
     return false;

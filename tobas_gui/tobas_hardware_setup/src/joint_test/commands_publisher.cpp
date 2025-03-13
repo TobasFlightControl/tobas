@@ -42,7 +42,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
   std::unordered_set<size_t> pwm_channels;
   for (const auto& [_, joint] : drone_.joints)
   {
-    if (joint.hw_iface != tobas::jnt_hw_iface_t::PWM)
+    if (joint.hw_iface != tobas::hw_iface_t::PWM)
       continue;
 
     const auto& pwm = drone_.pwms.at(joint.name);

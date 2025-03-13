@@ -140,7 +140,7 @@ tobas::Drone PackageGenerator::createDrone()
 
     switch (joint.hw_iface)
     {
-      case tobas::jnt_hw_iface_t::PWM:
+      case tobas::hw_iface_t::PWM:
       {
         tobas::PwmConfig pwm;
         pwm.channel = joint_config->getPwmChannel(i);
@@ -153,7 +153,7 @@ tobas::Drone PackageGenerator::createDrone()
         drone.pwms[joint.name] = pwm;
         break;
       }
-      case tobas::jnt_hw_iface_t::OTHER:
+      case tobas::hw_iface_t::OTHER:
       {
         break;
       }
