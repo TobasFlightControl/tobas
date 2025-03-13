@@ -42,6 +42,8 @@ private:
   ros2::TimerPtr vel_reset_timer_;
   ros2::TimerPtr eff_reset_timer_;
 
+  double pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos);
+
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
@@ -65,6 +67,21 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super
   pos_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
   vel_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);
   eff_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
+}
+
+double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)
+{
+  // Check joint position limit
+  if (pwm.value_range.inRange(cmd_pos, kJointLimitMargin))
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.name, "\" is out of range: ", cmd_pos, " ∉ ",
+      pwm.value_range);
+    cmd_pos = pwm.value_range.clamp(cmd_pos);
+  }
+
+  // Compute PWM period
+  return pwm.periodFromValue(cmd_pos);
 }
 
 void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -145,7 +162,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = pwm_cfg.channel;
-        pwms->pwms.back().period = pwm_cfg.periodFromValue(cmd_pos);
+        pwms->pwms.back().period = pwmPeriodFromJointPos(pwm_cfg, cmd_pos);
 
         joint_states->states.emplace_back();
         joint_states->states.back().name = joint.name;
