@@ -14,9 +14,9 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
-#include <tobas_msgs/msg/engine_throttle.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
+#include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/imu_stamped.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
@@ -25,7 +25,6 @@
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
-#include <tobas_msgs/msg/propeller_pitch_angle_array.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -125,10 +124,9 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);
 
-  addTopicIfaceToLogic<tobas_msgs::msg::EngineThrottle>(tobas::kEngineThrottleCmdTopic, tobas::kEngineThrottleCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
-  addTopicIfaceToLogic<tobas_msgs::msg::PropellerPitchAngleArray>(
-    tobas::kPropellerPitchesCmdTopic, tobas::kPropellerPitchesCmdTopic);
+  addTopicIfaceToLogic<tobas_msgs::msg::IcePropulsionSystemCommand>(
+    tobas::kIcePropulsionSystemCmdTopic, tobas::kIcePropulsionSystemCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic, tobas::kJointPosCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic, tobas::kJointVelCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic, tobas::kJointEffCmdTopic);

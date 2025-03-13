@@ -7,8 +7,7 @@
 
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
-#include <tobas_msgs/msg/engine_throttle.hpp>
-#include <tobas_msgs/msg/propeller_pitch_angle_array.hpp>
+#include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
@@ -34,8 +33,7 @@ private:
   bool is_armed_ = false;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::EngineThrottle> engine_throt_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::PropellerPitchAngleArray> pitches_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::Arming> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
@@ -61,8 +59,7 @@ private:
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
 {
   rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
-  engine_throt_pub_ = createPublisher<tobas_msgs::msg::EngineThrottle>(tobas::kEngineThrottleCmdTopic);
-  pitches_pub_ = createPublisher<tobas_msgs::msg::PropellerPitchAngleArray>(tobas::kPropellerPitchesCmdTopic);
+  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::kIcePropulsionSystemCmdTopic);
   arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
@@ -178,23 +175,20 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       // エンジン回転数を求める
       const auto engine_speed = sqrt(torque_sum / torque_coef_sum);
 
-      // エンジンスロットルを発行
-      auto engine_throt_msg = std::make_unique<tobas_msgs::msg::EngineThrottle>();
-      engine_throt_msg->header = tar_thrusts_msg->header;
-      engine_throt_msg->data = engine_speed > 0. ? iprop->engine.computeThrottle(torque_sum, engine_speed) : 0.;
-      engine_throt_pub_->publish(move(engine_throt_msg));
-
-      // プロペラピッチ角を発行
-      auto pitches_msg = std::make_unique<tobas_msgs::msg::PropellerPitchAngleArray>();
-      pitches_msg->header = tar_thrusts_msg->header;
+      // コマンドを発行
+      auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
+      ice_cmd_msg->header = tar_thrusts_msg->header;
+      if (engine_speed > 0.)
+        ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
       for (const auto& elem : tar_thrusts_msg->thrusts)
       {
         const auto irotor = iprop->getRotor(elem.link_name);
-        pitches_msg->angles.emplace_back();
-        pitches_msg->angles.back().link_name = elem.link_name;
-        pitches_msg->angles.back().angle = engine_speed > 0. ? irotor->pitchFromThrust(engine_speed, elem.thrust) : 0.;
+        ice_cmd_msg->pitch_angles.emplace_back();
+        ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
+        if (engine_speed > 0.)
+          ice_cmd_msg->pitch_angles.back().angle = irotor->pitchFromThrust(engine_speed, elem.thrust);
       }
-      pitches_pub_->publish(move(pitches_msg));
+      ice_cmd_pub_->publish(move(ice_cmd_msg));
 
       break;
     }

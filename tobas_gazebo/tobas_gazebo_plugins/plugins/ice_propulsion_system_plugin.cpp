@@ -2,8 +2,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
-#include <tobas_msgs/msg/engine_throttle.hpp>
-#include <tobas_msgs/msg/propeller_pitch_angle_array.hpp>
+#include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 
@@ -71,15 +70,13 @@ private:
   map<string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_gt_pubs_;
 
   // Subscribers
-  ros2::SubscriberPtr<tobas_msgs::msg::EngineThrottle> engine_throttle_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PropellerPitchAngleArray> propeller_pitches_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_sub_;
   ros2::SubscriberPtr<tobas_msgs::Wind> wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
 
-  void engineThrottleCb(const tobas_msgs::msg::EngineThrottle::ConstSharedPtr& throttle);
-  void propellerPitchesCb(const tobas_msgs::msg::PropellerPitchAngleArray::ConstSharedPtr& propeller_pitches);
+  void iceCommandCb(const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd);
   void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt);
 };
 
@@ -209,33 +206,30 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
       createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name));
   }
 
-  engine_throttle_sub_ = createSubscriber(tobas::kEngineThrottleCmdTopic, &self::engineThrottleCb, this);
-  propeller_pitches_sub_ = createSubscriber(tobas::kPropellerPitchesCmdTopic, &self::propellerPitchesCb, this);
+  ice_cmd_sub_ = createSubscriber(tobas::kIcePropulsionSystemCmdTopic, &self::iceCommandCb, this);
   wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
 
-void GazeboICEPropulsionSystemPlugin::engineThrottleCb(const tobas_msgs::msg::EngineThrottle::ConstSharedPtr& throttle)
+void GazeboICEPropulsionSystemPlugin::iceCommandCb(
+  const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
 {
   // 最後にコマンドを受け取った時刻を更新
   last_cmd_time_ = prev_sim_time_;
 
-  // 範囲を制限してスロットルを更新
-  if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data)
-    TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
-  engine_.setThrottle(throttle->data);
-}
+  // エンジンスロットルを更新
+  const auto& engine_throt = ice_cmd->engine_throttle;
+  if (engine_throt < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < engine_throt)
+    TOBAS_ERROR("The commanded throttle ", engine_throt, " is out of range.");
+  engine_.setThrottle(engine_throt);
 
-void GazeboICEPropulsionSystemPlugin::propellerPitchesCb(
-  const tobas_msgs::msg::PropellerPitchAngleArray::ConstSharedPtr& propeller_pitches)
-{
-  for (const auto& elem : propeller_pitches->angles)
+  // プロペラピッチ角を更新
+  for (const auto& elem : ice_cmd->pitch_angles)
   {
     if (!rotors_.contains(elem.link_name))
     {
       TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");
       continue;
     }
-
     rotors_.at(elem.link_name).setTargetPitchAngle(elem.angle);
   }
 }

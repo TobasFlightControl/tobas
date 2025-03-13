@@ -54,10 +54,9 @@ static constexpr char kRosbagStateTopic[] = "rosbag_state";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Low Command
-static constexpr char kEngineThrottleCmdTopic[] = "command/engine_throttle";
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
-static constexpr char kPropellerPitchesCmdTopic[] = "command/propeller_pitch_angles";
+static constexpr char kIcePropulsionSystemCmdTopic[] = "command/ice_propulsion_system";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 // High Command
