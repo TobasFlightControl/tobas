@@ -121,6 +121,12 @@ static constexpr char kController[] = "controller";
 static constexpr char kObserver[] = "observer";
 }  // namespace node
 
+// PWM keys
+namespace pwm
+{
+static constexpr char kEngineThrottleKey[] = "engine";
+}
+
 // Frames
 static constexpr char kWorldFrame[] = "world";
 

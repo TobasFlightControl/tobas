@@ -98,7 +98,18 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                     ],
-                )
+                ),
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_1",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="ICEPropulsionSystemHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                ),
             ],
         )
     )
