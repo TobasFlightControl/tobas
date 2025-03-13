@@ -274,8 +274,8 @@ void ICEPropulsionSystemHandlerNode::autoStopTimerCb()
   {
     is_commanded_ = false;
     TOBAS_WARN(
-      "ICE propulsion system is automatically stopped because ", tobas::kCommandAutoResetTimeout.count(),
-      " ms have elapsed since the last command.");
+      "ICE propulsion system is automatically stopped because ", tobas::kCommandAutoResetTimeout,
+      " have elapsed since the last command.");
   }
 }
 

@@ -432,7 +432,7 @@ void EffortControllerNode::autoResetTimerCb()
 
   TOBAS_WARN(
     "The target joint states are automatically reset because ", manipulation::kAutoResetTimeThresh,
-    " seconds have elapsed since the last command.");
+    " have elapsed since the last command.");
 
   auto_reset_timer_->cancel();
 }

@@ -44,7 +44,6 @@ class GazeboFixedWingPlugin : public BaseNode,
   // Constants
   static constexpr char kControlSurfaceKey[] = "controlSurface";
   static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
-  static constexpr double kAutoResetTimeout = 0.5;  // [s]
 
   using self = GazeboFixedWingPlugin;
 
@@ -261,13 +260,13 @@ void GazeboFixedWingPlugin::registerPubSub()
 void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
   // 最新のコマンドからの経過時間を確認
-  const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
-  if (cs_deflections_ && secs_from_last_cmd > kAutoResetTimeout)
+  const auto time_from_last_cmd = info.simTime - last_cmd_time_;
+  if (cs_deflections_ && time_from_last_cmd > tobas::kCommandAutoResetTimeout)
   {
     cs_deflections_.reset();
     TOBAS_INFO(
-      "Deflection angles of control surfaces are automatically reset because ", kAutoResetTimeout,
-      " seconds have elapsed since the last command.");
+      "Deflection angles of control surfaces are automatically reset because ", tobas::kCommandAutoResetTimeout,
+      " have elapsed since the last command.");
   }
 
   // ベースの状態

@@ -247,8 +247,8 @@ void RotorControllerNode::autoDisarmTimerCb()
   auto_disarm_timer_->cancel();
 
   TOBAS_WARN(
-    "All rotors are automatically disarmed because ", tobas::kAutoDisarmTimeout.count(),
-    " s have elapsed since the last command.");
+    "All rotors are automatically disarmed because ", tobas::kAutoDisarmTimeout,
+    " have elapsed since the last command.");
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(RotorControllerNode)
