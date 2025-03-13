@@ -1,2 +1,3 @@
 float64 torque_const
 float64 friction_torque
+uint8 hw_iface

@@ -6,6 +6,7 @@
 #include <tobas_std_tools/range.hpp>
 
 #include "../rotor.hpp"
+#include "../../hardware_interface.hpp"
 
 namespace tobas
 {
@@ -18,15 +19,17 @@ class ICERotorConfig : public RotorConfig
   static constexpr char kPitchReferenceKey[] = "pitch_reference";
   static constexpr char kPitchRangeKey[] = "pitch_range";
   static constexpr char kMotorConstKey[] = "motor_constant";
+  static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
 public:
   using SharedPtr = std::shared_ptr<ICERotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const ICERotorConfig>;
 
-  double gear_ratio;  // 減速比 [-]
-  double pitch_ref;   // プロペラピッチ角の参照値 (最も効率の良いピッチ角) [rad]
-  tobas_std::Range<double> pitch_range;  // プロペラピッチ角の範囲 [rad]
-  std::pair<double, double> motor_const;  // T = (aφ + b) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
+  double gear_ratio = 0.;  // 減速比 [-]
+  double pitch_ref = 0.;   // プロペラピッチ角の参照値 (最も効率の良いピッチ角) [rad]
+  tobas_std::Range<double> pitch_range = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
+  std::pair<double, double> motor_const = { 0., 0. };  // T = (aφ + b) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
+  hw_iface_t hw_iface = hw_iface_t::OTHER;
 
   bool isValid() const override;
 

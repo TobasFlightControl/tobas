@@ -16,12 +16,14 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
   {
     dst.torque_const = src.torque_const;
     dst.friction_torque = src.friction_torque;
+    dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.torque_const = src.torque_const;
     dst.friction_torque = src.friction_torque;
+    dst.hw_iface = static_cast<tobas::hw_iface_t>(src.hw_iface);
   }
 };
 

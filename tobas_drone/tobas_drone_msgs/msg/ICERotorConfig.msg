@@ -4,3 +4,4 @@ float64 gear_ratio
 float64 pitch_ref
 tobas_std_msgs/RangeFloat64 pitch_range
 tobas_std_msgs/PairFloat64 motor_const
+uint8 hw_iface

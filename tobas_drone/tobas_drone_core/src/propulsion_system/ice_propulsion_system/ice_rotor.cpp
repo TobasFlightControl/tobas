@@ -55,6 +55,9 @@ bool ICERotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kMotorConstKey, node, motor_const))
     return false;
 
+  if (!yaml::load(kHardwareIfaceKey, node, hw_iface))
+    return false;
+
   return true;
 }
 
@@ -66,6 +69,7 @@ YAML::Node ICERotorConfig::dump() const
   node[kPitchReferenceKey] = pitch_ref;
   node[kPitchRangeKey] = pitch_range;
   node[kMotorConstKey] = motor_const;
+  node[kHardwareIfaceKey] = hw_iface;
 
   return node;
 }

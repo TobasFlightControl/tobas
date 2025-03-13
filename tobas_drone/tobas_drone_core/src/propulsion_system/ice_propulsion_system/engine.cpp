@@ -36,6 +36,9 @@ bool EngineConfig::load(const YAML::Node& node)
   if (!yaml::load(kDynamicFrictionTorqueKey, node, friction_torque))
     return false;
 
+  if (!yaml::load(kHardwareIfaceKey, node, hw_iface))
+    return false;
+
   return true;
 }
 
@@ -45,6 +48,7 @@ YAML::Node EngineConfig::dump() const
 
   node[kTorqueConstantKey] = torque_const;
   node[kDynamicFrictionTorqueKey] = friction_torque;
+  node[kHardwareIfaceKey] = hw_iface;
 
   return node;
 }

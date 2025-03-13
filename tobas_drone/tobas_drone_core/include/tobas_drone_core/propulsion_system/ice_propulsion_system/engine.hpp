@@ -3,16 +3,20 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 
+#include "../../hardware_interface.hpp"
+
 namespace tobas
 {
 class EngineConfig
 {
   static constexpr char kTorqueConstantKey[] = "torque_constant";
   static constexpr char kDynamicFrictionTorqueKey[] = "dynamic_friction_torque";
+  static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
 public:
   double torque_const = 0.;     // [Nm/(rad/s)]
   double friction_torque = 0.;  // [Nm]
+  hw_iface_t hw_iface = hw_iface_t::OTHER;
 
   bool isValid() const;
 
