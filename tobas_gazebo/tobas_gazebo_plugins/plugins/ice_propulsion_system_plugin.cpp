@@ -160,7 +160,7 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(
     rotor.step(dt);
   engine_.step(dt);
 
-  // Publish rotor observed states
+  // Publish observed states
   if (publish_state_rate_manager_->update(info.simTime))
   {
     for (const auto& [link_name, rotor] : rotors_)
@@ -172,9 +172,15 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(
       state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
       rotor_state_pubs_.at(link_name)->publish(move(state_msg_obs));
     }
+
+    auto engine_state = make_unique<tobas_msgs::msg::EngineState>();
+    ros2::timeChronoToMsg(info.simTime, engine_state->header.stamp);
+    engine_state->fuel_quantity = NAN;    // TODO
+    engine_state->oil_temperature = NAN;  // TODO
+    engine_state_pub_->publish(move(engine_state));
   }
 
-  // Publish rotor ground-truth states
+  // Publish ground-truth states
   for (const auto& [link_name, rotor] : rotors_)
   {
     auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
@@ -184,13 +190,6 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(
     state_msg_gt->rotor_noise = 0.;  // TODO: エンジン駆動プロペラの振動モデル
     rotor_state_gt_pubs_.at(link_name)->publish(move(state_msg_gt));
   }
-
-  // Publish engine state
-  auto engine_state = make_unique<tobas_msgs::msg::EngineState>();
-  ros2::timeChronoToMsg(info.simTime, engine_state->header.stamp);
-  engine_state->fuel_quantity = NAN;    // TODO
-  engine_state->oil_temperature = NAN;  // TODO
-  engine_state_pub_->publish(move(engine_state));
 }
 
 void GazeboICEPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

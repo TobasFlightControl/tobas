@@ -5,6 +5,7 @@
 #include <tobas_tools/util.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
@@ -65,6 +66,7 @@ public:
 
 private:
   TopicThrottle<tobas_msgs::msg::Battery> battery_throttle_;
+  TopicThrottle<tobas_msgs::msg::EngineState> engine_state_throttle_;
   TopicThrottle<tobas_msgs::msg::Sbus> sbus_throttle_;
   TopicThrottle<tobas_msgs::RCInput> rcin_throttle_;
   TopicThrottle<tobas_msgs::msg::RotorStateArray> rotor_states_throttle_;
@@ -86,6 +88,7 @@ void TopicThrottleNode::initialize()
   const auto node = shared_from_this();
 
   battery_throttle_.initialize(node, tobas::kBatteryTopic);
+  engine_state_throttle_.initialize(node, tobas::kEngineStateTopic);
   sbus_throttle_.initialize(node, tobas::kSbusTopic);
   rcin_throttle_.initialize(node, tobas::kRcInputTopic);
   rotor_states_throttle_.initialize(node, tobas::kRotorStatesTopic);
