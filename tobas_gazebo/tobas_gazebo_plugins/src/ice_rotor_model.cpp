@@ -249,7 +249,7 @@ bool ICERotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   }
 
   // Get parent link
-  const auto parent_link_name = joint_->ChildLinkName(ecm).value();
+  const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
   parent_link_ = make_shared<gz::sim::Link>(parent_link_entity);
   if (!parent_link_->Valid(ecm))
