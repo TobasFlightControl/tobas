@@ -93,11 +93,11 @@ void DShotDriverNode::publishRotorStates()
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   rotor_states->header.stamp = get_clock()->now();
 
-  for (const auto& [link_name, _] : eprop_->rotors)
+  for (const auto& [_, rotor] : eprop_->rotors)
   {
-    const auto erotor = eprop_->getRotor(link_name);
+    const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
     rotor_states->states.emplace_back();
-    rotor_states->states.back().link_name = link_name;
+    rotor_states->states.back().link_name = rotor->link_name;
     if (dshot_.getValidity(erotor->channel))
     {
       const auto speed = dshot_.getSpeed(erotor->channel);
@@ -296,7 +296,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   publishRotorStates();
   latency_pub_.publish(tar_speeds->header.stamp);
 
-  // Reset timeout timers
+  // Reset timeout timer
   auto_stop_timer_->reset();
 
   // Now the rotors are commanded
