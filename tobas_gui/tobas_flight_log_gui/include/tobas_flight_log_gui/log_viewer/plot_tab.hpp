@@ -4,6 +4,7 @@
 
 #include "./plots/pose_plot.hpp"
 #include "./plots/twist_plot.hpp"
+#include "./plots/accel_plot.hpp"
 #include "./plots/imu_plot.hpp"
 #include "./plots/mag_plot.hpp"
 #include "./plots/gnss_plot.hpp"
@@ -33,10 +34,7 @@ public:
 
   void setTimeScale(double t_start, double t_stop);
 
-  void setPoseData(
-    const QVector<tobas_msgs::msg::Odometry>& odom_data,
-    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data);
-  void setTwistData(
+  void setFrameData(
     const QVector<tobas_msgs::msg::Odometry>& odom_data,
     const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data);
   void setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data);
@@ -55,6 +53,7 @@ public:
 private:
   PosePlotWidget* pose_plot_;
   TwistPlotWidget* twist_plot_;
+  AccelPlotWidget* accel_plot_;
   ImuPlotWidget* imu_plot_;
   MagPlotWidget* mag_plot_;
   GnssPlotWidget* gnss_plot_;

@@ -8,6 +8,7 @@ PlotTabWidget::PlotTabWidget()
 {
   pose_plot_ = new PosePlotWidget();
   twist_plot_ = new TwistPlotWidget();
+  accel_plot_ = new AccelPlotWidget();
   imu_plot_ = new ImuPlotWidget();
   mag_plot_ = new MagPlotWidget();
   gnss_plot_ = new GnssPlotWidget();
@@ -20,6 +21,7 @@ PlotTabWidget::PlotTabWidget()
 
   addTab(pose_plot_, "Pose");
   addTab(twist_plot_, "Twist");
+  addTab(accel_plot_, "Accel");
   addTab(imu_plot_, "IMU");
   addTab(mag_plot_, "Magnetic\nField");
   addTab(gnss_plot_, "GNSS");
@@ -37,6 +39,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
 {
   pose_plot_->setTimeScale(t_start, t_stop);
   twist_plot_->setTimeScale(t_start, t_stop);
+  accel_plot_->setTimeScale(t_start, t_stop);
   imu_plot_->setTimeScale(t_start, t_stop);
   mag_plot_->setTimeScale(t_start, t_stop);
   gnss_plot_->setTimeScale(t_start, t_stop);
@@ -48,18 +51,13 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   mr_ctrl_fb_plot_->setTimeScale(t_start, t_stop);
 }
 
-void PlotTabWidget::setPoseData(
+void PlotTabWidget::setFrameData(
   const QVector<tobas_msgs::msg::Odometry>& odom_data,
   const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data)
 {
   pose_plot_->setData(odom_data, ctrl_fb_data);
-}
-
-void PlotTabWidget::setTwistData(
-  const QVector<tobas_msgs::msg::Odometry>& odom_data,
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data)
-{
   twist_plot_->setData(odom_data, ctrl_fb_data);
+  accel_plot_->setData(odom_data, ctrl_fb_data);
 }
 
 void PlotTabWidget::setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data)
