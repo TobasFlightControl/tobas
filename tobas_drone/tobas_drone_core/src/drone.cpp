@@ -94,7 +94,7 @@ bool Drone::load(const YAML::Node& node)
       cerr << "Failed to load the configurations of PWM." << endl;
       return false;
     }
-    pwms[pwm.joint_name] = pwm;
+    pwms[pwm.name] = pwm;
   }
 
   // Propulsion system

@@ -8,9 +8,9 @@ namespace tobas
 {
 bool PwmConfig::isValid() const
 {
-  if (joint_name.empty())
+  if (name.empty())
   {
-    cerr << "Joint name is empty." << endl;
+    cerr << "PWM name is empty." << endl;
     return false;
   }
 
@@ -20,9 +20,9 @@ bool PwmConfig::isValid() const
     return false;
   }
 
-  if (min_angle > max_angle)
+  if (min_value > max_value)
   {
-    cerr << "Invalid PWM angle range." << endl;
+    cerr << "Invalid PWM value range." << endl;
     return false;
   }
 
@@ -34,7 +34,7 @@ bool PwmConfig::load(const YAML::Node& node)
   if (!yaml::load(kChannelKey, node, channel))
     return false;
 
-  if (!yaml::load(kJointNameKey, node, joint_name))
+  if (!yaml::load(kNameKey, node, name))
     return false;
 
   if (!yaml::load(kMinPeriodKey, node, min_period))
@@ -43,10 +43,10 @@ bool PwmConfig::load(const YAML::Node& node)
   if (!yaml::load(kMaxPeriodKey, node, max_period))
     return false;
 
-  if (!yaml::load(kMinAngleKey, node, min_angle))
+  if (!yaml::load(kMinValueKey, node, min_value))
     return false;
 
-  if (!yaml::load(kMaxAngleKey, node, max_angle))
+  if (!yaml::load(kMaxValueKey, node, max_value))
     return false;
 
   if (!yaml::load(kReverseKey, node, reverse))
@@ -60,11 +60,11 @@ YAML::Node PwmConfig::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kChannelKey] = channel;
-  node[kJointNameKey] = joint_name;
+  node[kNameKey] = name;
   node[kMinPeriodKey] = min_period;
   node[kMaxPeriodKey] = max_period;
-  node[kMinAngleKey] = min_angle;
-  node[kMaxAngleKey] = max_angle;
+  node[kMinValueKey] = min_value;
+  node[kMaxValueKey] = max_value;
   node[kReverseKey] = reverse;
 
   return node;

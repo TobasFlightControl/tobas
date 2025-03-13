@@ -99,8 +99,8 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     dst.pwms.clear();
     for (const auto& pwm : src.pwms)
     {
-      dst.pwms[pwm.joint_name] = tobas::PwmConfig();
-      tobas_drone_msgs::PwmConfigAdapter::convert_to_custom(pwm, dst.pwms.at(pwm.joint_name));
+      dst.pwms[pwm.name] = tobas::PwmConfig();
+      tobas_drone_msgs::PwmConfigAdapter::convert_to_custom(pwm, dst.pwms.at(pwm.name));
     }
 
     // Propulsion System

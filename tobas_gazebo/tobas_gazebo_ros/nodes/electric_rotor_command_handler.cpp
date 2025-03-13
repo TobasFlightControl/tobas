@@ -39,8 +39,6 @@ ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::N
   : super("gazebo_electric_rotor_command_handler", options)
 {
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
-  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
 }
 
 void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -53,12 +51,17 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
 
   eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
 
+  // Register publishers
   throttle_pubs_.clear();
   for (const auto& [link_name, _] : eprop_->rotors)
   {
     const auto topic = path::join(gazebo::kRotorThrottleCmdTopicNS, link_name);
     throttle_pubs_[link_name] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
+
+  // Register subscribers
+  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
+  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
 }
 
 void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
