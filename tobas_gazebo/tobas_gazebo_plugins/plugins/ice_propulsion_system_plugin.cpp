@@ -172,6 +172,7 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(
 
     auto engine_state = make_unique<tobas_msgs::msg::EngineState>();
     ros2::timeChronoToMsg(info.simTime, engine_state->header.stamp);
+    engine_state->speed = engine_.getSpeed();
     engine_state->fuel_quantity = NAN;    // TODO
     engine_state->oil_temperature = NAN;  // TODO
     engine_state_pub_->publish(move(engine_state));
