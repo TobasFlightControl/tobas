@@ -12,17 +12,21 @@ dtoverlay=disable-bt
 avoid_warnings=2
 
 # Settings for the performance of processors
-# over_voltage=0
+# [Overclocking options | config.txt](https://www.raspberrypi.com/documentation/computers/config_txt.html#overclocking-options)
+# over_voltage_delta=0
 # arm_freq=2400
-# arm_freq_min=2400
 # gpu_freq=910
-# force_turbo=0
+# force_turbo=1
 # ---
-over_voltage=6
+over_voltage_delta=120000
 arm_freq=2800
-arm_freq_min=2800
-gpu_freq=1000
+gpu_freq=910
 force_turbo=1
+# ---
+# over_voltage_delta=150000
+# arm_freq=3000
+# gpu_freq=1000
+# force_turbo=1
 
 [pi5]
 
