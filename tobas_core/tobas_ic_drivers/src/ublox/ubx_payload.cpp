@@ -1,10 +1,10 @@
 #include <tobas_algorithm/binary.hpp>
 
-#include "../include/tobas_aso_core/ubx_payload.hpp"
+#include "../include/tobas_ic_drivers/ublox/ubx_payload.hpp"
 
 using namespace std;
 
-namespace aso
+namespace ublox
 {
 namespace payload
 {
@@ -595,4 +595,4 @@ void NAV_VELNED::print(ostream& os) const
   os << "Course / Heading accuracy estimate: " << cAcc << "[deg]" << endl;
 }
 }  // namespace payload
-}  // namespace aso
+}  // namespace ublox

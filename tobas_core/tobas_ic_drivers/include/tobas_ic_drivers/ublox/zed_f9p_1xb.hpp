@@ -8,7 +8,7 @@
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
-namespace aso
+namespace ublox
 {
 /**
  * @brief A Linux driver of u-blox ZED-F9P-1xB using SPI interface and UBX protocol.
@@ -21,7 +21,6 @@ namespace aso
 class ZEDF9P1xB
 {
 private:
-  static constexpr char kSpiDevice[] = "/dev/spidev1.2";
   static constexpr uint32_t kSPIClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
   static constexpr size_t kSPIBufSize = 256;
   static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] 同軸ケーブルの遅延
@@ -123,7 +122,7 @@ public:
 
   explicit ZEDF9P1xB();
 
-  bool initialize();
+  bool initialize(const char* spi_device);
   bool update(bool nonblock = true);
 
   /* ===== Configurations =====*/
@@ -284,4 +283,4 @@ inline const uint8_t* ZEDF9P1xB::payload() const
 {
   return scanner_.getPayload();
 }
-}  // namespace aso
+}  // namespace ublox

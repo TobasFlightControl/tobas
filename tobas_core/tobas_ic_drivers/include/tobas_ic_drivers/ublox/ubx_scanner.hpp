@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace aso
+namespace ublox
 {
 static constexpr size_t kUbxSyncLength = 2;
 static constexpr size_t kUbxClassLength = 1;
@@ -108,4 +108,4 @@ inline const uint8_t* UBXScanner::getChecksumB() const
 {
   return getChecksumA() + 1;
 }
-}  // namespace aso
+}  // namespace ublox

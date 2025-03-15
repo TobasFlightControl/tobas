@@ -3,7 +3,7 @@
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
 
-#include <tobas_aso_core/zed_f9p_1xb.hpp>
+#include <tobas_ic_drivers/ublox/zed_f9p_1xb.hpp>
 
 #include "./common.hpp"
 
@@ -11,12 +11,12 @@ using namespace std;
 
 class GnssDriverNode : public hardware::BaseSensorNode
 {
+  static constexpr char kSpiDevice[] = "/dev/spidev1.2";
+  static constexpr auto kMainTimerPeriod = 1ms;
+
   // GNSSレシーバの更新周期 [ms]
   // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
   static constexpr size_t kMeasPeriod = 1000 / 20;
-
-  static constexpr auto kMainTimerPeriod = 1ms;
-  static constexpr double kWarnPeriod = 3.;  // [s]
 
   using self = GnssDriverNode;
   using super = hardware::BaseSensorNode;
@@ -25,14 +25,14 @@ public:
   explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  aso::ZEDF9P1xB gnss_;
+  ublox::ZEDF9P1xB gnss_;
 
-  aso::payload::NAV_STATUS status_;
-  aso::payload::NAV_HPPOSLLH hpposllh_;
-  aso::payload::NAV_VELNED velned_;
-  aso::payload::NAV_COV cov_;
+  ublox::payload::NAV_STATUS status_;
+  ublox::payload::NAV_HPPOSLLH hpposllh_;
+  ublox::payload::NAV_VELNED velned_;
+  ublox::payload::NAV_COV cov_;
 
-  std::map<aso::ZEDF9P1xB::ubx_nav_id_t, bool> is_received_;
+  std::map<ublox::ZEDF9P1xB::ubx_nav_id_t, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr initialize_timer_;
@@ -51,7 +51,7 @@ GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("aso_
 
 void GnssDriverNode::initialize()
 {
-  if (!gnss_.initialize())
+  if (!gnss_.initialize(kSpiDevice))
   {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return;
@@ -63,10 +63,10 @@ void GnssDriverNode::initialize()
     return;
   }
 
-  is_received_[aso::ZEDF9P1xB::NAV_STATUS] = false;
-  is_received_[aso::ZEDF9P1xB::NAV_HPPOSLLH] = false;
-  is_received_[aso::ZEDF9P1xB::NAV_VELNED] = false;
-  is_received_[aso::ZEDF9P1xB::NAV_COV] = false;
+  is_received_[ublox::ZEDF9P1xB::NAV_STATUS] = false;
+  is_received_[ublox::ZEDF9P1xB::NAV_HPPOSLLH] = false;
+  is_received_[ublox::ZEDF9P1xB::NAV_VELNED] = false;
+  is_received_[ublox::ZEDF9P1xB::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
 
@@ -76,7 +76,7 @@ void GnssDriverNode::initialize()
 
 bool GnssDriverNode::configure()
 {
-  if (!gnss_.configureDynamicsModel(aso::ZEDF9P1xB::AIRBORNE_2G))
+  if (!gnss_.configureDynamicsModel(ublox::ZEDF9P1xB::AIRBORNE_2G))
   {
     TOBAS_ERROR("Failed to configure dynamics model.");
     return false;
@@ -127,22 +127,22 @@ bool GnssDriverNode::configure()
   }
 
   // Enable messages
-  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_STATUS, true))
+  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_STATUS, true))
   {
     TOBAS_ERROR("Failed to enable NAV_STATUS message.");
     return false;
   }
-  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_HPPOSLLH, true))
+  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_HPPOSLLH, true))
   {
     TOBAS_ERROR("Failed to enable NAV_HPPOSLLH message.");
     return false;
   }
-  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_VELNED, true))
+  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_VELNED, true))
   {
     TOBAS_ERROR("Failed to enable NAV_VELNED message.");
     return false;
   }
-  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_COV, true))
+  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_COV, true))
   {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
@@ -154,11 +154,11 @@ bool GnssDriverNode::configure()
     TOBAS_WARN("Failed to set the antenna length.");
 
   // 不要なプロトコルを無効化
-  if (!gnss_.enableProtocol(aso::ZEDF9P1xB::NMEA, false))
+  if (!gnss_.enableProtocol(ublox::ZEDF9P1xB::NMEA, false))
     TOBAS_WARN("Failed to disable NMEA protocol.");
-  if (!gnss_.enableProtocol(aso::ZEDF9P1xB::RTCM3X, false))
+  if (!gnss_.enableProtocol(ublox::ZEDF9P1xB::RTCM3X, false))
     TOBAS_WARN("Failed to disable RTCM3X protocol.");
-  if (!gnss_.enableProtocol(aso::ZEDF9P1xB::SPARTN, false))
+  if (!gnss_.enableProtocol(ublox::ZEDF9P1xB::SPARTN, false))
     TOBAS_WARN("Failed to disable SPARTN protocol.");
 
   // 不要なインターフェースを無効化
@@ -181,7 +181,7 @@ void GnssDriverNode::mainTimerCb()
   if (!gnss_.update())
     return;
 
-  if (gnss_.latestClass() != aso::ZEDF9P1xB::CLASS_NAV)
+  if (gnss_.latestClass() != ublox::ZEDF9P1xB::CLASS_NAV)
   {
     warnUnnecessaryUBXMessage();
     return;
@@ -189,21 +189,21 @@ void GnssDriverNode::mainTimerCb()
 
   switch (gnss_.latestId())
   {
-    case aso::ZEDF9P1xB::NAV_STATUS:
+    case ublox::ZEDF9P1xB::NAV_STATUS:
       status_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P1xB::NAV_STATUS) = true;
+      is_received_.at(ublox::ZEDF9P1xB::NAV_STATUS) = true;
       break;
-    case aso::ZEDF9P1xB::NAV_HPPOSLLH:
+    case ublox::ZEDF9P1xB::NAV_HPPOSLLH:
       hpposllh_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P1xB::NAV_HPPOSLLH) = true;
+      is_received_.at(ublox::ZEDF9P1xB::NAV_HPPOSLLH) = true;
       break;
-    case aso::ZEDF9P1xB::NAV_VELNED:
+    case ublox::ZEDF9P1xB::NAV_VELNED:
       velned_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P1xB::NAV_VELNED) = true;
+      is_received_.at(ublox::ZEDF9P1xB::NAV_VELNED) = true;
       break;
-    case aso::ZEDF9P1xB::NAV_COV:
+    case ublox::ZEDF9P1xB::NAV_COV:
       cov_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P1xB::NAV_COV) = true;
+      is_received_.at(ublox::ZEDF9P1xB::NAV_COV) = true;
       break;
     default:
       warnUnnecessaryUBXMessage();

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <iostream>
 
-namespace aso
+namespace ublox
 {
 namespace payload
 {
@@ -460,4 +460,4 @@ struct NAV_VELNED : public Payload
   void print(std::ostream& os) const override;
 };
 }  // namespace payload
-}  // namespace aso
+}  // namespace ublox

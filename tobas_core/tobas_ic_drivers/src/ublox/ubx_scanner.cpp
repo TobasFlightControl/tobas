@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "../include/tobas_aso_core/ubx_scanner.hpp"
+#include "../include/tobas_ic_drivers/ublox/ubx_scanner.hpp"
 
 using namespace std;
 
-namespace aso
+namespace ublox
 {
 UBXScanner::UBXScanner()
 {
@@ -91,4 +91,4 @@ bool UBXScanner::update(const uint8_t& data)
 
   return true;
 }
-}  // namespace aso
+}  // namespace ublox

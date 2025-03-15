@@ -1,7 +1,7 @@
 #include <cstring>
 #include <cassert>
 
-#include "../include/tobas_aso_core/zed_f9p_1xb.hpp"
+#include "../include/tobas_ic_drivers/ublox/zed_f9p_1xb.hpp"
 
 #define NOT_IMPLEMENTED "Not implemented."
 #define NOT_RECEIVABLE "Not receivable."
@@ -9,16 +9,16 @@
 using namespace std;
 using namespace chrono;
 
-namespace aso
+namespace ublox
 {
 ZEDF9P1xB::ZEDF9P1xB() : rate_(kReqInterval)
 {
 }
 
-bool ZEDF9P1xB::initialize()
+bool ZEDF9P1xB::initialize(const char* spi_device)
 {
   // Initialize SPI device
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   return true;
@@ -506,4 +506,4 @@ uint32_t ZEDF9P1xB::configKeyID(cfg_size_t size, cfg_group_t group, uint8_t id)
 {
   return (size << 28) | (group << 16) | id;
 }
-}  // namespace aso
+}  // namespace ublox
