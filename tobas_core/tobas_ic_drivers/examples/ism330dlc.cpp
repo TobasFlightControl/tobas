@@ -1,17 +1,24 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <tobas_aso_core/ism330dlc.hpp>
+#include <tobas_ic_drivers/ism330dlc.hpp>
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
-  aso::ISM330DLC imu;
+  if (argc != 2)
+  {
+    cerr << "Usage: " << argv[0] << " <SPI Device>" << endl;
+    return EXIT_FAILURE;
+  }
+  const auto device = argv[1];
+
+  driver::ISM330DLC imu;
   double ax, ay, az;
   double gx, gy, gz;
 
-  if (!imu.initialize())
+  if (!imu.initialize(device))
   {
     cerr << "Failed to initialize IMU." << endl;
     return EXIT_FAILURE;
@@ -19,7 +26,7 @@ int main()
 
   while (true)
   {
-    if (!imu.readAcc(ax, ay, az))
+    if (!imu.readAccel(ax, ay, az))
     {
       cerr << "Failed to read accel." << endl;
       return EXIT_FAILURE;

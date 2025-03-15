@@ -1,9 +1,8 @@
+#include <tobas_ic_drivers/ism330dlc.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
-
-#include <tobas_aso_core/ism330dlc.hpp>
 
 #include "./common.hpp"
 
@@ -11,6 +10,7 @@ using namespace std;
 
 class ImuDriverNode : public hardware::BaseSensorNode
 {
+  static constexpr char kSpiDevice[] = "/dev/spidev0.0";
   static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
 
   using self = ImuDriverNode;
@@ -20,12 +20,14 @@ public:
   explicit ImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  aso::ISM330DLC imu_;
+  driver::ISM330DLC imu_;
   ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
   tobas::ImuSamplingTimePublisher sampling_time_pub_;
   ros2::TimerPtr initialize_timer_;
 
   void initialize();
+  bool initializeImuDriver();
+
   void mainTimerCb();
 };
 
@@ -36,17 +38,49 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("aso_im
 
 void ImuDriverNode::initialize()
 {
-  if (!imu_.initialize())
-  {
-    TOBAS_ERROR("Failed to initialize IMU. Retrying...");
+  if (!initializeImuDriver())
     return;
-  }
 
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(real::kImuTopic);
   sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
 
   initialize_timer_.reset();
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+}
+
+bool ImuDriverNode::initializeImuDriver()
+{
+  if (!imu_.initialize(kSpiDevice))
+  {
+    TOBAS_ERROR("Failed to initialize IMU.");
+    return false;
+  }
+
+  if (!imu_.setAccelOutputDataRate(driver::ISM330DLC::odr_xl_t::ODR_XL_833HZ))
+  {
+    TOBAS_ERROR("Failed to set accelerometer output data rate.");
+    return false;
+  }
+
+  if (!imu_.setGyroOutputDataRate(driver::ISM330DLC::odr_g_t::ODR_G_833HZ))
+  {
+    TOBAS_ERROR("Failed to set gyroscope output data rate.");
+    return false;
+  }
+
+  if (!imu_.setAccelFullScale(driver::ISM330DLC::fs_xl_t::FS_XL_4G))
+  {
+    TOBAS_ERROR("Failed to set accelerometer full scale.");
+    return false;
+  }
+
+  if (!imu_.setGyroFullScale(driver::ISM330DLC::fs_g_t::FS_G_500DPS))
+  {
+    TOBAS_ERROR("Failed to set gyroscope full scale.");
+    return false;
+  }
+
+  return true;
 }
 
 void ImuDriverNode::mainTimerCb()
@@ -59,7 +93,7 @@ void ImuDriverNode::mainTimerCb()
   msg->header.stamp = now;
 
   // Read IMU data
-  if (!imu_.readAcc(msg->imu.accel.x(), msg->imu.accel.y(), msg->imu.accel.z()))
+  if (!imu_.readAccel(msg->imu.accel.x(), msg->imu.accel.y(), msg->imu.accel.z()))
   {
     TOBAS_FATAL("Failed to read accelerometer.");
     return;
