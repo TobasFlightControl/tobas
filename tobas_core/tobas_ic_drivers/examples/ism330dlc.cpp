@@ -24,6 +24,17 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
+  if (!imu.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_6660HZ))
+  {
+    cerr << "Failed to set accelerometer output data rate." << endl;
+    return EXIT_FAILURE;
+  }
+  if (!imu.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_6660HZ))
+  {
+    cerr << "Failed to set gyroscope output data rate." << endl;
+    return EXIT_FAILURE;
+  }
+
   while (true)
   {
     if (!imu.readAccel(ax, ay, az))
@@ -41,7 +52,7 @@ int main(int argc, char** argv)
     cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
 
-    sleep(1);
+    usleep(100000);
   }
 
   return EXIT_SUCCESS;
