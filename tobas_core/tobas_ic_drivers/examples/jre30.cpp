@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 {
   if (argc != 2)
   {
-    cerr << "Usage: " << argv[0] << " <Device>" << endl;
+    cerr << "Usage: " << argv[0] << " <UART Device>" << endl;
     return EXIT_FAILURE;
   }
   const auto device = argv[1];
