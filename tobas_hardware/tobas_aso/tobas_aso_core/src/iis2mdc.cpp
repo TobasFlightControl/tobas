@@ -2,7 +2,6 @@
 #include <bitset>
 
 #include "../include/tobas_aso_core/iis2mdc.hpp"
-#include "../include/tobas_aso_core/constants.hpp"
 
 using namespace std;
 
@@ -14,7 +13,7 @@ IIS2MDC::IIS2MDC()
 
 bool IIS2MDC::initialize()
 {
-  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kMagAddress))
+  if (!i2c_.initialize(kI2cDevice, kI2cAddress))
   {
     cerr << "Failed to initialize I2C device." << endl;
     return false;

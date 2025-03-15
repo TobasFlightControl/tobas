@@ -2,7 +2,6 @@
 #include <cassert>
 
 #include "../include/tobas_aso_core/zed_f9p_1xb.hpp"
-#include "../include/tobas_aso_core/constants.hpp"
 
 #define NOT_IMPLEMENTED "Not implemented."
 #define NOT_RECEIVABLE "Not receivable."
@@ -19,7 +18,7 @@ ZEDF9P1xB::ZEDF9P1xB() : rate_(kReqInterval)
 bool ZEDF9P1xB::initialize()
 {
   // Initialize SPI device
-  if (!spi_.initialize(spi_device::kGnssDev, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   return true;

@@ -11,6 +11,8 @@ namespace aso
  */
 class IIS2MDC
 {
+  static constexpr char kI2cDevice[] = "/dev/i2c-1";
+  static constexpr uint8_t kI2cAddress = 0b0011110;
   static constexpr uint8_t kMultiReadFlag = 0x80;  // cf. 6.1.1: I2C operation (p.23)
   static constexpr double kSensitivity = 1.5e-3;   // [gauss/LSB]
 

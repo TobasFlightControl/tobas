@@ -3,7 +3,6 @@
 #include <tobas_msgs/msg/sbus.hpp>
 
 #include <tobas_sbus_driver/sbus.hpp>
-#include <tobas_aso_core/constants.hpp>
 
 using namespace std;
 

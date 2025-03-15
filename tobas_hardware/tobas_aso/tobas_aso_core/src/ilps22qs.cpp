@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "../include/tobas_aso_core/ilps22qs.hpp"
-#include "../include/tobas_aso_core/constants.hpp"
 
 using namespace std;
 
@@ -13,7 +12,7 @@ ILPS22QS::ILPS22QS()
 
 bool ILPS22QS::initialize()
 {
-  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kBaroAddress))
+  if (!i2c_.initialize(kI2cDevice, kI2cAddress))
     return false;
 
   if (!checkWhoAmI())

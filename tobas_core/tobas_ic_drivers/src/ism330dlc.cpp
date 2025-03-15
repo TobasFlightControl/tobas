@@ -21,6 +21,12 @@ bool ISM330DLC::initialize(const char* spi_device)
   if (!checkWhoAmI())
     return false;
 
+  // Set full scales
+  if (!setAccelFullScale(fs_xl_t::FS_XL_2G))
+    return false;
+  if (!setGyroFullScale(fs_g_t::FS_G_250DPS))
+    return false;
+
   // Disable I2C
   if (!writeReg(REG_CTRL4_C, I2C_DISABLE))
     return false;

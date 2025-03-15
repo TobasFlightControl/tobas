@@ -21,10 +21,11 @@ namespace aso
 class ZEDF9P1xB
 {
 private:
-  static constexpr size_t kSPIBufSize = 256;
+  static constexpr char kSpiDevice[] = "/dev/spidev1.2";
   static constexpr uint32_t kSPIClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
-  static constexpr uint8_t kRG174CableDelay = 5;        // [ns/m] 同軸ケーブルの遅延
-  static constexpr double kWaitForGnssAck = 1.;         // [s]
+  static constexpr size_t kSPIBufSize = 256;
+  static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] 同軸ケーブルの遅延
+  static constexpr double kWaitForGnssAck = 1.;   // [s]
 
   // SPIで1バイト受け取る間隔 [us]
   // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．

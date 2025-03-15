@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "../include/tobas_aso_core/battery.hpp"
-#include "../include/tobas_aso_core/constants.hpp"
 
 using namespace std;
 
@@ -13,7 +12,7 @@ Battery::Battery()
 
 bool Battery::initialize()
 {
-  if (!spi_.initialize(spi_device::kBatteryDev, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   return true;

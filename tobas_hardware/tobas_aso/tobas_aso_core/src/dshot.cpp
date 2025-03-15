@@ -3,7 +3,6 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include "../include/tobas_aso_core/dshot.hpp"
-#include "../include/tobas_aso_core/constants.hpp"
 
 using namespace std;
 
@@ -16,7 +15,7 @@ DShot::DShot() : crc_(algo::CRC32Left::CRC_32)
 
 bool DShot::initialize()
 {
-  if (!spi_.initialize(spi_device::kDshotDev, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   half_num_poles_.fill(1);

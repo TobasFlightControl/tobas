@@ -6,10 +6,10 @@ namespace aso
 {
 class Battery
 {
-private:
+  static constexpr char kSpiDevice[] = "/dev/spidev0.1";
+  static constexpr uint32_t kSPIClockFreq = 30'000'000;  // [Hz]
   static constexpr size_t kChannelSize = 2;
   static constexpr size_t kSPIBufSize = kChannelSize;
-  static constexpr uint32_t kSPIClockFreq = 30'000'000;  // [Hz]
 
 public:
   explicit Battery();

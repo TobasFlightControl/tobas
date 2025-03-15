@@ -64,9 +64,10 @@ private:
   static constexpr uint8_t kSetHalfNumPolesCmd = 6;
   static constexpr uint8_t kSetGainCmd = 7;
 
+  static constexpr char kSpiDevice[] = "/dev/spidev1.0";
+  static constexpr uint32_t kSPIClockFreq = 30'000'000;                // [Hz]
   static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSPIClockFreq = 30'000'000;                // [Hz]
 
 public:
   explicit DShot();

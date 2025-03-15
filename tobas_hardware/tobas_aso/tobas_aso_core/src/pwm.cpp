@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "../include/tobas_aso_core/pwm.hpp"
-#include "../include/tobas_aso_core/constants.hpp"
 
 using namespace std;
 
@@ -14,7 +13,7 @@ PWM::PWM() : crc_(algo::CRC32Left::CRC_32)
 
 bool PWM::initialize()
 {
-  if (!spi_.initialize(spi_device::kPwmDev, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   return true;

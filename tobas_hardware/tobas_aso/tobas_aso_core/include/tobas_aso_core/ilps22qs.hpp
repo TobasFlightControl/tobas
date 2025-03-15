@@ -11,6 +11,8 @@ namespace aso
  */
 class ILPS22QS
 {
+  static constexpr char kI2cDevice[] = "/dev/i2c-1";
+  static constexpr uint8_t kI2cAddress = 0b1011100;
   static constexpr double kTempScale = 100;  // [LSB/degC]
 
 public:
