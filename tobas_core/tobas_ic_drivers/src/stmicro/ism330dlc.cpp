@@ -3,11 +3,11 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
-#include "../include/tobas_ic_drivers/ism330dlc.hpp"
+#include "../include/tobas_ic_drivers/stmicro/ism330dlc.hpp"
 
 using namespace std;
 
-namespace driver
+namespace stm
 {
 ISM330DLC::ISM330DLC()
 {
@@ -273,4 +273,4 @@ bool ISM330DLC::checkWhoAmI()
 
   return true;
 }
-}  // namespace driver
+}  // namespace stm

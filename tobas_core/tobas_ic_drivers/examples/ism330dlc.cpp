@@ -1,7 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <tobas_ic_drivers/ism330dlc.hpp>
+#include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 
 using namespace std;
 
@@ -14,7 +14,7 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];
 
-  driver::ISM330DLC imu;
+  stm::ISM330DLC imu;
   double ax, ay, az;
   double gx, gy, gz;
 

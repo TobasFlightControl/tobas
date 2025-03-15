@@ -1,4 +1,4 @@
-#include <tobas_ic_drivers/ism330dlc.hpp>
+#include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
@@ -20,7 +20,7 @@ public:
   explicit ImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  driver::ISM330DLC imu_;
+  stm::ISM330DLC imu_;
   ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
   tobas::ImuSamplingTimePublisher sampling_time_pub_;
   ros2::TimerPtr initialize_timer_;
@@ -56,25 +56,25 @@ bool ImuDriverNode::initializeImuDriver()
     return false;
   }
 
-  if (!imu_.setAccelOutputDataRate(driver::ISM330DLC::odr_xl_t::ODR_XL_833HZ))
+  if (!imu_.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_833HZ))
   {
     TOBAS_ERROR("Failed to set accelerometer output data rate.");
     return false;
   }
 
-  if (!imu_.setGyroOutputDataRate(driver::ISM330DLC::odr_g_t::ODR_G_833HZ))
+  if (!imu_.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_833HZ))
   {
     TOBAS_ERROR("Failed to set gyroscope output data rate.");
     return false;
   }
 
-  if (!imu_.setAccelFullScale(driver::ISM330DLC::fs_xl_t::FS_XL_4G))
+  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_4G))
   {
     TOBAS_ERROR("Failed to set accelerometer full scale.");
     return false;
   }
 
-  if (!imu_.setGyroFullScale(driver::ISM330DLC::fs_g_t::FS_G_500DPS))
+  if (!imu_.setGyroFullScale(stm::ISM330DLC::fs_g_t::FS_G_500DPS))
   {
     TOBAS_ERROR("Failed to set gyroscope full scale.");
     return false;

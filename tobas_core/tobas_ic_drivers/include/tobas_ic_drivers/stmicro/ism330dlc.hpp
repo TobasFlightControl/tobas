@@ -4,7 +4,7 @@
 
 #include <tobas_linux/spi_dev.hpp>
 
-namespace driver
+namespace stm
 {
 /**
  * @brief A linux driver of 6-axis IMU.
@@ -251,4 +251,4 @@ private:
 
   bool checkWhoAmI();
 };
-}  // namespace driver
+}  // namespace stm
