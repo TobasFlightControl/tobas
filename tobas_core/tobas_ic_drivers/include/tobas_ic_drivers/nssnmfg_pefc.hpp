@@ -66,7 +66,7 @@ public:
 
   explicit NssnmfgPEFC(std::function<void(const Packet&)> packet_cb);
 
-  bool initialize(const char* device);
+  bool initialize(const char* uart_device);
   void start();
   void spin();
 

@@ -57,7 +57,7 @@ class JRE30
 public:
   explicit JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb);
 
-  bool initialize(const char* device);
+  bool initialize(const char* uart_device);
   void start();
   void spin();
 

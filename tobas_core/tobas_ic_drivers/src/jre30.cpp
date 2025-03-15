@@ -62,9 +62,9 @@ JRE30::JRE30(function<void(shared_ptr<const JRE30Packet>)> packet_cb)
   packet_c_ = make_shared<JRE30Packet_C>();
 }
 
-bool JRE30::initialize(const char* device)
+bool JRE30::initialize(const char* uart_device)
 {
-  if (!uart_.initialize(device, true))
+  if (!uart_.initialize(uart_device, true))
     return false;
 
   if (!uart_.setBaudRate(460'800))

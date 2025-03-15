@@ -12,9 +12,9 @@ NssnmfgPEFC::NssnmfgPEFC(std::function<void(const Packet&)> packet_cb) : packet_
 {
 }
 
-bool NssnmfgPEFC::initialize(const char* device)
+bool NssnmfgPEFC::initialize(const char* uart_device)
 {
-  if (!uart_.initialize(device, true))
+  if (!uart_.initialize(uart_device, true))
     return false;
 
   if (!uart_.setBaudRate(38400))
