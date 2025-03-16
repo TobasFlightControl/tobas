@@ -14,7 +14,7 @@ MagnetometerWidget::MagnetometerWidget()
 
   update_rate_ = new ParamGetterWidget_SpinBox("Update Rate", "");  // TODO
   update_rate_->setMinimum(1);
-  update_rate_->setValue(20);
+  update_rate_->setValue(100);
   update_rate_->setSuffix(" Hz");
   addWidget(update_rate_);
 
