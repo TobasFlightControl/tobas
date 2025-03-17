@@ -47,7 +47,7 @@ void SelectedLinksWidget::updateInternalDataStructures()
 
     // 推力の作用線
     const auto arrow_start = kdl::Vector::Zero();
-    const auto arrow_end = kdl::toKdl(urdf_joint->axis) * kArrowLength;
+    const auto arrow_end = kdl::vectorUrdfToKdl(urdf_joint->axis) * kArrowLength;
     const auto arrow_scale = kdl::Vector(0.1, 0.2, 0.3) * kArrowLength;
 
     // マーカを作成

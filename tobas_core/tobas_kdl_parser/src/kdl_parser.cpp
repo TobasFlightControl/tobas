@@ -12,21 +12,24 @@ namespace kdl
 /* Recursive function to walk through tree. */
 void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
-  // constructs the optional inertia
-  RigidBodyInertia inertia(0);
+  // Construct the KDL joint
+  const auto joint = jointUrdfToKdl(*root->parent_joint);
+
+  // Construct the tip frame
+  const auto f_tip = poseUrdfToKdl(root->parent_joint->parent_to_joint_origin_transform);
+
+  // Construct the optional inertia
+  RigidBodyInertia inertia;
   if (root->inertial)
-    inertia = toKdl(*root->inertial);
+    inertiaUrdfToKdl(*root->inertial, inertia);
 
-  // constructs the kdl joint
-  const auto jnt = toKdl(*root->parent_joint);
+  // construct the KDL segment
+  const Segment segment(root->name, joint, f_tip, inertia);
 
-  // construct the kdl segment
-  const Segment sgm(root->name, jnt, toKdl(root->parent_joint->parent_to_joint_origin_transform), inertia);
+  // Add segment to tree
+  tree.addSegment(segment, root->parent_joint->parent_link_name);
 
-  // add segment to tree
-  tree.addSegment(sgm, root->parent_joint->parent_link_name);
-
-  // recurslively add all children
+  // Recurslively add all children
   for (const auto& child : root->child_links)
     addChildrenToTree(child, tree);
 }

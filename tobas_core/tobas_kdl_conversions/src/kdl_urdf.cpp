@@ -4,85 +4,157 @@ using namespace std;
 
 namespace kdl
 {
-Vector toKdl(const urdf::Vector3& v)
+void vectorKdlToUrdf(const Vector& k, urdf::Vector3& u)
 {
-  return Vector(v.x, v.y, v.z);
+  u.x = k.x();
+  u.y = k.y();
+  u.z = k.z();
 }
 
-Rotation toKdl(const urdf::Rotation& r)
+void vectorUrdfToKdl(const urdf::Vector3& u, Vector& k)
 {
-  return Rotation::Quaternion(r.x, r.y, r.z, r.w);
+  k.x(u.x);
+  k.y(u.y);
+  k.z(u.z);
 }
 
-Frame toKdl(const urdf::Pose& p)
+urdf::Vector3 vectorKdlToUrdf(const Vector& k)
 {
-  return Frame(toKdl(p.rotation), toKdl(p.position));
+  urdf::Vector3 u;
+  vectorKdlToUrdf(k, u);
+  return u;
 }
 
-RigidBodyInertia toKdl(const urdf::Inertial& i)
+Vector vectorUrdfToKdl(const urdf::Vector3& u)
 {
-  const auto origin = toKdl(i.origin);
-
-  // the mass is frame independent
-  const auto& kdl_mass = i.mass;
-
-  // kdl and urdf both specify the com position in the reference frame of the link
-  const auto& kdl_com = origin.p;
-
-  // kdl specifies the inertia matrix in the reference frame of the link,
-  // while the urdf specifies the inertia matrix in the inertia reference frame
-  const RotationalInertia urdf_inertia(i.ixx, i.iyy, i.izz, i.ixy, i.ixz, i.iyz);
-
-  // Rotation operators are not defined for rotational inertia,
-  // so we use the RigidBodyInertia operators (with com = 0) as a workaround
-  const RigidBodyInertia kdl_inertia_wrt_com_workaround = origin.M * RigidBodyInertia(0., Vector::Zero(), urdf_inertia);
-
-  // Note that the RigidBodyInertia constructor takes the 3d inertia wrt the com
-  // while the getRotationalInertia method returns the 3d inertia wrt the frame origin
-  // (but having com = Vector::Zero() in kdl_inertia_wrt_com_workaround they match)
-  const RotationalInertia kdl_inertia_wrt_com = kdl_inertia_wrt_com_workaround.getRotationalInertia();
-
-  return RigidBodyInertia(kdl_mass, kdl_com, kdl_inertia_wrt_com);
+  Vector k;
+  vectorUrdfToKdl(u, k);
+  return k;
 }
 
-Joint toKdl(const urdf::Joint& jnt)
+void rotationKdlToUrdf(const Rotation& k, urdf::Rotation& u)
 {
-  const auto F_parent_jnt = toKdl(jnt.parent_to_joint_origin_transform);
+  k.getQuaternion(u.x, u.y, u.z, u.w);
+}
 
-  Joint res;
-  res.name = jnt.name;
+void rotationUrdfToKdl(const urdf::Rotation& u, Rotation& k)
+{
+  k = Rotation::Quaternion(u.x, u.y, u.z, u.w);
+}
 
-  if (jnt.type == urdf::Joint::FIXED)
+urdf::Rotation rotationKdlToUrdf(const Rotation& k)
+{
+  urdf::Rotation u;
+  rotationKdlToUrdf(k, u);
+  return u;
+}
+
+Rotation rotationUrdfToKdl(const urdf::Rotation& u)
+{
+  Rotation k;
+  rotationUrdfToKdl(u, k);
+  return k;
+}
+
+void poseKdlToUrdf(const Frame& k, urdf::Pose& u)
+{
+  vectorKdlToUrdf(k.p, u.position);
+  rotationKdlToUrdf(k.M, u.rotation);
+}
+
+void poseUrdfToKdl(const urdf::Pose& u, Frame& k)
+{
+  vectorUrdfToKdl(u.position, k.p);
+  rotationUrdfToKdl(u.rotation, k.M);
+}
+
+urdf::Inertial inertiaKdlToUrdf(const RigidBodyInertia& k)
+{
+  urdf::Inertial u;
+  inertiaKdlToUrdf(k, u);
+  return u;
+}
+
+RigidBodyInertia inertiaUrdfToKdl(const urdf::Inertial& u)
+{
+  RigidBodyInertia k;
+  inertiaUrdfToKdl(u, k);
+  return k;
+}
+
+void inertiaKdlToUrdf(const RigidBodyInertia&, urdf::Inertial&)
+{
+  throw runtime_error("Not implemented yet.");  // TODO
+}
+
+void inertiaUrdfToKdl(const urdf::Inertial& u, RigidBodyInertia& k)
+{
+  const auto kdl_origin = poseUrdfToKdl(u.origin);
+  const RotationalInertia urdf_inertia(u.ixx, u.iyy, u.izz, u.ixy, u.ixz, u.iyz);
+  k = RigidBodyInertia(u.mass, kdl_origin.p, kdl_origin.M * urdf_inertia);
+}
+
+void jointKdlToUrdf(const Joint&, urdf::Joint&)
+{
+  throw runtime_error("Not implemented yet.");  // TODO
+}
+
+void jointUrdfToKdl(const urdf::Joint& u, Joint& k)
+{
+  // Name
+  k.name = u.name;
+
+  if (u.type == urdf::Joint::FIXED)
   {
-    res.type = Joint::FIXED;
+    k.type = Joint::FIXED;
   }
   else
   {
-    if (jnt.type == urdf::Joint::REVOLUTE || jnt.type == urdf::Joint::CONTINUOUS)
-      res.type = Joint::ROTATION;
-    else if (jnt.type == urdf::Joint::PRISMATIC)
-      res.type = Joint::TRANSLATION;
+    // Type
+    if (u.type == urdf::Joint::REVOLUTE || u.type == urdf::Joint::CONTINUOUS)
+      k.type = Joint::ROTATION;
+    else if (u.type == urdf::Joint::PRISMATIC)
+      k.type = Joint::TRANSLATION;
     else
-      throw runtime_error("Unknown joint type of joint: " + jnt.name);
+      throw runtime_error("Unknown joint type of joint: " + u.name);
 
-    res.origin = F_parent_jnt.p;
-    res.axis(F_parent_jnt.M * toKdl(jnt.axis));
+    // Origin
+    const auto F_parent_jnt = poseUrdfToKdl(u.parent_to_joint_origin_transform);
+    k.origin = F_parent_jnt.p;
 
-    if (jnt.dynamics)
+    // Axis
+    const auto kdl_axis = vectorUrdfToKdl(u.axis);
+    k.axis(F_parent_jnt.M * kdl_axis);
+
+    // Dynamics
+    if (u.dynamics)
     {
-      res.damping = jnt.dynamics->damping;
-      res.friction = jnt.dynamics->friction;
+      k.damping = u.dynamics->damping;
+      k.friction = u.dynamics->friction;
     }
 
-    if (jnt.limits)
+    // Limits
+    if (u.limits)
     {
-      res.lower_limit = jnt.limits->lower;
-      res.upper_limit = jnt.limits->upper;
-      res.max_effort = jnt.limits->effort;
-      res.max_velocity = jnt.limits->velocity;
+      k.lower_limit = u.limits->lower;
+      k.upper_limit = u.limits->upper;
+      k.max_effort = u.limits->effort;
+      k.max_velocity = u.limits->velocity;
     }
   }
+}
 
-  return res;
+urdf::Joint jointKdlToUrdf(const Joint& k)
+{
+  urdf::Joint u;
+  jointKdlToUrdf(k, u);
+  return u;
+}
+
+Joint jointUrdfToKdl(const urdf::Joint& u)
+{
+  Joint k;
+  jointUrdfToKdl(u, k);
+  return k;
 }
 }  // namespace kdl
