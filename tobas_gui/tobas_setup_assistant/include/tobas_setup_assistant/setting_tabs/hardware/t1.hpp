@@ -6,12 +6,12 @@ namespace gui
 {
 namespace sa
 {
-class AsoWidget : public BaseHardwareWidget
+class T1Widget : public BaseHardwareWidget
 {
   Q_OBJECT
 
 public:
-  explicit AsoWidget();
+  explicit T1Widget();
 
   const char* name() const override;
   const char* description() const override;

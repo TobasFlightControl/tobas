@@ -6,7 +6,7 @@ namespace gui
 {
 namespace sa
 {
-AsoWidget::AsoWidget()
+T1Widget::T1Widget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -14,31 +14,31 @@ AsoWidget::AsoWidget()
   rows->addStretch();
 }
 
-const char* AsoWidget::name() const
+const char* T1Widget::name() const
 {
-  return "Aso | Tobas";
+  return "T1 | Tobas";
 }
 
-const char* AsoWidget::description() const
+const char* T1Widget::description() const
 {
   return "";  // TODO
 }
 
-const char* AsoWidget::hardwarePackage() const
+const char* T1Widget::hardwarePackage() const
 {
   return "tobas_t1_ros";
 }
 
-YAML::Node AsoWidget::dump() const
+YAML::Node T1Widget::dump() const
 {
   return YAML::Node(YAML::NodeType::Map);
 }
 
-void AsoWidget::load(const YAML::Node&)
+void T1Widget::load(const YAML::Node&)
 {
 }
 
-bool AsoWidget::isValid()
+bool T1Widget::isValid()
 {
   return true;
 }

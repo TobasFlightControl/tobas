@@ -1,4 +1,4 @@
-# Tobas Aso
+# Tobas T1
 
 ## 追加のセットアップ
 

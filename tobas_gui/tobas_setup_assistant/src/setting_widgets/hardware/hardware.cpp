@@ -18,7 +18,7 @@ HardwareWidget::HardwareWidget()
   addWidget(description_);
   addWidget(hardwares_);
 
-  hardwares_->addWidget(new AsoWidget());
+  hardwares_->addWidget(new T1Widget());
 
   for (int i = 0; i < hardwares_->count(); ++i)
   {
