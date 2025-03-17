@@ -68,17 +68,17 @@ void poseUrdfToKdl(const urdf::Pose& u, Frame& k)
   rotationUrdfToKdl(u.rotation, k.M);
 }
 
-urdf::Inertial inertiaKdlToUrdf(const RigidBodyInertia& k)
+urdf::Pose poseKdlToUrdf(const Frame& k)
 {
-  urdf::Inertial u;
-  inertiaKdlToUrdf(k, u);
+  urdf::Pose u;
+  poseKdlToUrdf(k, u);
   return u;
 }
 
-RigidBodyInertia inertiaUrdfToKdl(const urdf::Inertial& u)
+Frame poseUrdfToKdl(const urdf::Pose& u)
 {
-  RigidBodyInertia k;
-  inertiaUrdfToKdl(u, k);
+  Frame k;
+  poseUrdfToKdl(u, k);
   return k;
 }
 
@@ -92,6 +92,20 @@ void inertiaUrdfToKdl(const urdf::Inertial& u, RigidBodyInertia& k)
   const auto kdl_origin = poseUrdfToKdl(u.origin);
   const RotationalInertia urdf_inertia(u.ixx, u.iyy, u.izz, u.ixy, u.ixz, u.iyz);
   k = RigidBodyInertia(u.mass, kdl_origin.p, kdl_origin.M * urdf_inertia);
+}
+
+urdf::Inertial inertiaKdlToUrdf(const RigidBodyInertia& k)
+{
+  urdf::Inertial u;
+  inertiaKdlToUrdf(k, u);
+  return u;
+}
+
+RigidBodyInertia inertiaUrdfToKdl(const urdf::Inertial& u)
+{
+  RigidBodyInertia k;
+  inertiaUrdfToKdl(u, k);
+  return k;
 }
 
 void jointKdlToUrdf(const Joint&, urdf::Joint&)
