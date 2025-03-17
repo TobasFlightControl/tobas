@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
 
-	<name>tobas_hardware</name>
+	<name>tobas_t1_ros</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -9,8 +9,14 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_hardware_common</exec_depend>
-	<exec_depend>tobas_t1</exec_depend>
+	<depend>tobas_ic_drivers</depend>
+	<depend>tobas_property_tree</depend>
+	<depend>tobas_tools</depend>
+	<depend>tobas_msgs_adapter</depend>
+	<depend>tobas_drone_msgs_adapter</depend>
+	<depend>tobas_real_common</depend>
+	<depend>tobas_hardware_common</depend>
+	<depend>tobas_t1_core</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

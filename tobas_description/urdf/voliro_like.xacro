@@ -5,7 +5,7 @@
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
-  <xacro:include filename="$(find tobas_description)/urdf/components/fmu/tobas_aso.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/fmu/tobas_t1.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
 
   <!-- Properties -->
@@ -37,9 +37,9 @@
   </link>
 
   <!-- Flight Controller -->
-  <xacro:tobas_aso parent="base_link">
+  <xacro:tobas_t1 parent="base_link">
     <origin xyz="0 0 0.057" rpy="0 0 0"/>
-  </xacro:tobas_aso>
+  </xacro:tobas_t1>
 
   <!-- Tilt Rotor -->
   <xacro:macro name="tilt_rotor" params="index direction yaw_deg">
