@@ -3,7 +3,7 @@
 #include <string>
 #include <urdf_model/model.h>
 
-#include "./tree.hpp"
+#include <tobas_kdl/tree.hpp>
 
 namespace kdl
 {

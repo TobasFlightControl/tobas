@@ -1,8 +1,9 @@
 #include <iostream>
 #include <urdf_parser/urdf_parser.h>
 
-#include "../include/tobas_kdl/kdl_parser.hpp"
-#include "../include/tobas_kdl/conversion/urdf_kdl.hpp"
+#include <tobas_kdl_conversions/kdl_urdf.hpp>
+
+#include "../include/tobas_kdl_parser/kdl_parser.hpp"
 
 using namespace std;
 

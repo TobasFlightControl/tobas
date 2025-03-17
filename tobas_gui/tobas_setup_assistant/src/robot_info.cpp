@@ -1,7 +1,7 @@
 #include <iostream>
 #include <urdf_parser/urdf_parser.h>
 
-#include <tobas_kdl/kdl_parser.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_ros2_tools/xacro.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"

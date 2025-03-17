@@ -7,7 +7,7 @@
 #include <QApplication>
 
 #include <tobas_path_tools/join.hpp>
-#include <tobas_kdl/kdl_parser.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>

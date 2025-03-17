@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/conversion/urdf_kdl.hpp"
+#include "../include/tobas_kdl_conversions/kdl_urdf.hpp"
 
 using namespace std;
 
@@ -35,7 +35,7 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 
   // Rotation operators are not defined for rotational inertia,
   // so we use the RigidBodyInertia operators (with com = 0) as a workaround
-  const RigidBodyInertia kdl_inertia_wrt_com_workaround = origin.M * RigidBodyInertia(0, Vector::Zero(), urdf_inertia);
+  const RigidBodyInertia kdl_inertia_wrt_com_workaround = origin.M * RigidBodyInertia(0., Vector::Zero(), urdf_inertia);
 
   // Note that the RigidBodyInertia constructor takes the 3d inertia wrt the com
   // while the getRotationalInertia method returns the 3d inertia wrt the frame origin

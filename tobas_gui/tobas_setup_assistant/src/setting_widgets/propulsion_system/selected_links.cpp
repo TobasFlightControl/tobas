@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include <tobas_kdl/conversion/urdf_kdl.hpp>
+#include <tobas_kdl_conversions/kdl_urdf.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/message.hpp>

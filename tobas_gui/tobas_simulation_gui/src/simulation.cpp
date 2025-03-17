@@ -2,7 +2,7 @@
 #include <QHBoxLayout>
 #include <QCloseEvent>
 
-#include <tobas_kdl/kdl_parser.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_linux/errer.hpp>
 #include <tobas_ros2_tools/register.hpp>

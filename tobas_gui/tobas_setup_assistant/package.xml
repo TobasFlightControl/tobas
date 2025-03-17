@@ -15,7 +15,7 @@
   <depend>inja_ament</depend>
   <depend>rapidcsv_ament</depend>
   <depend>tobas_string_tools</depend>
-  <depend>tobas_kdl_conversions</depend>
+  <depend>tobas_kdl_parser</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_property_client</depend>
   <depend>tobas_drone_msgs_adapter</depend>
