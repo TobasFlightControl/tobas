@@ -1,7 +1,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/aerodynamics.hpp"
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/no_select.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/manual.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/thrust_stand.hpp"
@@ -26,7 +25,6 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWi
   rows->addWidget(method_name_);
   rows->addWidget(methods_);
 
-  methods_->addWidget(new AerodynamicsWidget_NoSelect());
   methods_->addWidget(new AerodynamicsWidget_Manual());
   methods_->addWidget(new AerodynamicsWidget_BladeTheory(propeller));
   methods_->addWidget(new AerodynamicsWidget_ThrustStand(node, propeller));
