@@ -58,7 +58,7 @@ bool BarometerWidget::isValid()
   return true;
 }
 
-YAML::Node BarometerWidget::dump()
+YAML::Node BarometerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

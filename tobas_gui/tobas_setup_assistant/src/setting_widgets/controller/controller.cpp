@@ -1,5 +1,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
@@ -88,7 +89,7 @@ bool ControllerWidget::isValid()
   return true;
 }
 
-YAML::Node ControllerWidget::dump()
+YAML::Node ControllerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -157,17 +158,22 @@ void ControllerWidget::setCurrentController(int index)
 
 BaseControllerWidget* ControllerWidget::widget(int index)
 {
-  return qobject_cast<BaseControllerWidget*>(controllers_->widget(index));
+  return qt::qPointerCast<BaseControllerWidget>(controllers_->widget(index));
+}
+
+const BaseControllerWidget* ControllerWidget::widget(int index) const
+{
+  return qt::qConstPointerCast<BaseControllerWidget>(controllers_->widget(index));
 }
 
 BaseControllerWidget* ControllerWidget::selected()
 {
-  return qobject_cast<BaseControllerWidget*>(controllers_->currentWidget());
+  return qt::qPointerCast<BaseControllerWidget>(controllers_->currentWidget());
 }
 
 const BaseControllerWidget* ControllerWidget::selected() const
 {
-  return qobject_cast<BaseControllerWidget*>(controllers_->currentWidget());
+  return qt::qConstPointerCast<BaseControllerWidget>(controllers_->currentWidget());
 }
 }  // namespace sa
 }  // namespace gui

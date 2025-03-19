@@ -1,6 +1,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/propeller.hpp"
 
@@ -58,7 +59,7 @@ bool PropellerWidget::isValid()
 
 void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qobject_cast<const PropellerWidget*>(src);
+  const auto derived = qt::qConstPointerCast<PropellerWidget>(src);
 
   num_blade_->setValue(derived->num_blade_->getValue());
   diameter_->setValue(derived->diameter_->getValue());

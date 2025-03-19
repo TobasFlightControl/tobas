@@ -71,7 +71,7 @@ bool PreArmCheckWidget::isValid()
   return true;
 }
 
-YAML::Node PreArmCheckWidget::dump()
+YAML::Node PreArmCheckWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

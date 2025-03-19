@@ -39,7 +39,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   tobas::propulsion_system_t type() const;
@@ -50,6 +50,7 @@ public:
   QString tiltJointName(int index) const;
 
   BasePropulsionSystemWidget* widget(int index);
+  const BasePropulsionSystemWidget* widget(int index) const;
 
   BasePropulsionSystemWidget* selected();
   const BasePropulsionSystemWidget* selected() const;

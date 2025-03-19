@@ -1,4 +1,5 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
@@ -79,7 +80,7 @@ bool PropulsionSystemWidget::isValid()
   return true;
 }
 
-YAML::Node PropulsionSystemWidget::dump()
+YAML::Node PropulsionSystemWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -132,17 +133,22 @@ QString PropulsionSystemWidget::tiltJointName(int index) const
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
 {
-  return qobject_cast<BasePropulsionSystemWidget*>(propulsions_->widget(index));
+  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsions_->widget(index));
+}
+
+const BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index) const
+{
+  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsions_->widget(index));
 }
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::selected()
 {
-  return qobject_cast<BasePropulsionSystemWidget*>(propulsions_->currentWidget());
+  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsions_->currentWidget());
 }
 
 const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 {
-  return qobject_cast<const BasePropulsionSystemWidget*>(propulsions_->currentWidget());
+  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsions_->currentWidget());
 }
 }  // namespace propulsion
 }  // namespace sa

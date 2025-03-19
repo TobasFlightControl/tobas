@@ -55,7 +55,7 @@ public:
 
   bool isValid();
 
-  YAML::Node dump();
+  YAML::Node dump() const;
   bool load(const YAML::Node& node);
 
 private Q_SLOTS:

@@ -3,6 +3,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/available_links.hpp"
 #include "tobas_setup_assistant/common.hpp"
@@ -102,8 +103,7 @@ QListWidgetItem* AvailableLinksWidget::findLink(const QString& link_name)
   for (int row = 0; row < count(); ++row)
   {
     const auto link_item = item(row);
-    const auto link_widget = qobject_cast<const AvailableLinkItemWidget*>(itemWidget(link_item));
-    TOBAS_CHECK(link_widget);
+    const auto link_widget = qt::qConstPointerCast<AvailableLinkItemWidget>(itemWidget(link_item));
 
     if (link_widget->linkName() == link_name)
       return link_item;

@@ -1,4 +1,5 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/general/general.hpp"
 
@@ -52,7 +53,7 @@ bool GeneralWidget::isValid()
 
 void GeneralWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qobject_cast<const GeneralWidget*>(src);
+  const auto derived = qt::qConstPointerCast<GeneralWidget>(src);
 
   channel_->setValue(derived->channel_->getValue());
   direction_->setValue(derived->direction_->getValue());

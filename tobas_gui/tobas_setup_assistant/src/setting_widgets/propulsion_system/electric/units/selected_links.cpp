@@ -5,6 +5,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/stream.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/selected_links.hpp"
 
@@ -174,12 +175,12 @@ int SelectedLinksWidget::index(const QString& link_name) const
 
 SelectedLinkWidget* SelectedLinksWidget::widget(int index)
 {
-  return qobject_cast<SelectedLinkWidget*>(super::widget(index));
+  return qt::qPointerCast<SelectedLinkWidget>(super::widget(index));
 }
 
 const SelectedLinkWidget* SelectedLinksWidget::widget(int index) const
 {
-  return qobject_cast<const SelectedLinkWidget*>(super::widget(index));
+  return qt::qConstPointerCast<SelectedLinkWidget>(super::widget(index));
 }
 
 SelectedLinkWidget* SelectedLinksWidget::widget(const QString& link_name)

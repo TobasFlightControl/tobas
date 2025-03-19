@@ -1,6 +1,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/uiuc.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
@@ -52,7 +53,7 @@ bool AerodynamicsWidget_UIUC::isValid()
 
 void AerodynamicsWidget_UIUC::copyFrom(const AerodynamicsWidget_Base* src)
 {
-  const auto derived = qobject_cast<const AerodynamicsWidget_UIUC*>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_UIUC>(src);
   data_->setValue(derived->data_->getValue());
 }
 

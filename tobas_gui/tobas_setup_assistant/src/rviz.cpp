@@ -6,6 +6,7 @@
 
 #include <tobas_ros2_tools/parameter.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/rviz.hpp"
 #include "tobas_setup_assistant/common.hpp"
@@ -31,12 +32,12 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   display_ = rviz_manager_.getDisplay("RobotState");
 
   // 使用するプロパティを取得
-  enable_visual_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Visual Enabled"));
-  enable_collision_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Collision Enabled"));
-  enable_inertia_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Inertial Enabled"));
-  highlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Highlight Link"));
-  unhighlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Unhighlight Link"));
-  reload_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Reload"));
+  enable_visual_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Visual Enabled"));
+  enable_collision_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Collision Enabled"));
+  enable_inertia_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Inertial Enabled"));
+  highlight_link_ = qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Highlight Link"));
+  unhighlight_link_ = qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Unhighlight Link"));
+  reload_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Reload"));
 
   enable_visual_->setBool(kDefaultVisualEnabled);
   enable_collision_->setBool(kDefaultCollisionEnabled);

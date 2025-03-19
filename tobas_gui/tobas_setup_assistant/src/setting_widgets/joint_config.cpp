@@ -143,7 +143,7 @@ bool JointConfigurationWidget::isValid()
   return true;
 }
 
-YAML::Node JointConfigurationWidget::dump()
+YAML::Node JointConfigurationWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

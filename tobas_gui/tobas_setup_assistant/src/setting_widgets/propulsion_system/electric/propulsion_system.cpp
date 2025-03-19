@@ -51,7 +51,7 @@ bool PropulsionSystemWidget::isValid()
   return true;
 }
 
-YAML::Node PropulsionSystemWidget::dump()
+YAML::Node PropulsionSystemWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

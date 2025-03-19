@@ -1,3 +1,5 @@
+#include <tobas_qt_tools/cast.hpp>
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/manual.hpp"
 
 namespace gui
@@ -63,7 +65,7 @@ bool AerodynamicsWidget_Manual::isValid()
 
 void AerodynamicsWidget_Manual::copyFrom(const AerodynamicsWidget_Base* src)
 {
-  const auto derived = qobject_cast<const AerodynamicsWidget_Manual*>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_Manual>(src);
   motor_const_->setValue(derived->motor_const_->getValue());
   moment_const_->setValue(derived->moment_const_->getValue());
   drag_const_->setValue(derived->drag_const_->getValue());

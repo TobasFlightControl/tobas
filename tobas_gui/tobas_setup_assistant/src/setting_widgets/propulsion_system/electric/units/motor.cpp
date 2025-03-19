@@ -1,5 +1,6 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/motor.hpp"
 
@@ -52,7 +53,7 @@ bool MotorWidget::isValid()
 
 void MotorWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qobject_cast<const MotorWidget*>(src);
+  const auto derived = qt::qConstPointerCast<MotorWidget>(src);
 
   kv_->setValue(derived->kv_->getValue());
   resistance_->setValue(derived->resistance_->getValue());

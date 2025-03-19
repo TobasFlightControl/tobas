@@ -52,7 +52,7 @@ bool BatteryWidget_LiPo::isValid()
   return true;
 }
 
-YAML::Node BatteryWidget_LiPo::dump()
+YAML::Node BatteryWidget_LiPo::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

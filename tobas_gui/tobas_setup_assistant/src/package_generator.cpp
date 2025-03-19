@@ -9,6 +9,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/command.hpp>
 
@@ -236,7 +237,7 @@ tobas::Drone PackageGenerator::createDrone()
 tobas::ElectricPropulsionSystemConfig::SharedPtr PackageGenerator::createElectricPropulsionSystem()
 {
   const auto eprop =
-    qobject_cast<const propulsion::electric::PropulsionSystemWidget*>(settings_->propulsion_system->selected());
+    qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(settings_->propulsion_system->selected());
   const auto res = make_shared<tobas::ElectricPropulsionSystemConfig>();
 
   // Battery
@@ -835,8 +836,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   {
     case tobas::propulsion_system_t::ELECTRIC:
     {
-      const auto eprop = qobject_cast<const propulsion::electric::PropulsionSystemWidget*>(prop->selected());
-      TOBAS_CHECK(eprop);
+      const auto eprop = qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
       const auto battery = eprop->battery;
       const auto units = eprop->units->selected();
 

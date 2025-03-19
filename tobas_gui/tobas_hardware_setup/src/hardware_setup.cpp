@@ -1,5 +1,7 @@
 #include <QVBoxLayout>
 
+#include <tobas_qt_tools/cast.hpp>
+
 #include "tobas_hardware_setup/hardware_setup.hpp"
 
 namespace gui
@@ -35,7 +37,10 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
 void HardwareSetupWidget::reset()
 {
   for (int i = 0; i < tabs_->count(); ++i)
-    qobject_cast<BaseHardwareSetupWidget*>(tabs_->widget(i))->reset();
+  {
+    const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
+    widget->reset();
+  }
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()

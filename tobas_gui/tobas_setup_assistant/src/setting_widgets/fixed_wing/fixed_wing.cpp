@@ -81,7 +81,7 @@ bool FixedWingWidget::isValid()
   return true;
 }
 
-YAML::Node FixedWingWidget::dump()
+YAML::Node FixedWingWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

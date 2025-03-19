@@ -37,7 +37,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   QString controllerPackage() const;
@@ -64,6 +64,7 @@ private:
   qt::DescriptionWidget* description_;
 
   BaseControllerWidget* widget(int index);
+  const BaseControllerWidget* widget(int index) const;
 
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;

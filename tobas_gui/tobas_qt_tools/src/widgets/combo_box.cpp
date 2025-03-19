@@ -2,6 +2,7 @@
 #include <QStandardItemModel>
 
 #include "tobas_qt_tools/widgets/combo_box.hpp"
+#include "tobas_qt_tools/cast.hpp"
 
 namespace qt
 {
@@ -40,7 +41,7 @@ void ComboBox::setCurrentText(const QString& text)
 
 void ComboBox::setItemEnabled(int row, bool enabled)
 {
-  const auto model = qobject_cast<QStandardItemModel*>(this->model());
+  const auto model = qt::qConstPointerCast<QStandardItemModel>(this->model());
   const auto item = model->item(row);
   const auto cur_flags = item->flags();
   const auto new_flags = enabled ? cur_flags | Qt::ItemIsEnabled : cur_flags & ~Qt::ItemIsEnabled;

@@ -7,6 +7,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_flight_log_gui/logs_fc/logs_widget.hpp"
 #include "tobas_flight_log_gui/logs_fc/log_item.hpp"
@@ -84,8 +85,7 @@ QListWidgetItem* FlightLogsWidgetFC::findLog(const QString& log_name)
   for (int row = 0; row < log_list_->count(); ++row)
   {
     const auto list_item = log_list_->item(row);
-    const auto log_widget = qobject_cast<FlightLogItemWidgetFC*>(log_list_->itemWidget(list_item));
-    TOBAS_CHECK(log_widget);
+    const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetFC>(log_list_->itemWidget(list_item));
 
     if (log_widget->logName() == log_name)
       return list_item;

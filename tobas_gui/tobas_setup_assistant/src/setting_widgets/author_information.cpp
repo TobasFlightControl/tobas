@@ -70,7 +70,7 @@ bool AuthorInformationWidget::isValid()
   return true;
 }
 
-YAML::Node AuthorInformationWidget::dump()
+YAML::Node AuthorInformationWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

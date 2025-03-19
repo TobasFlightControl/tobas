@@ -1,4 +1,5 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/aerodynamics.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/manual.hpp"
@@ -32,7 +33,7 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWi
 
   for (int i = 0; i < methods_->count(); ++i)
   {
-    const auto method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));
+    const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method_name_->addItem(method->name());
   }
 
@@ -56,14 +57,14 @@ bool AerodynamicsWidget::isValid()
 
 void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qobject_cast<const AerodynamicsWidget*>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(src);
 
   method_name_->setCurrentIndex(derived->method_name_->currentIndex());
 
   for (int i = 0; i < methods_->count(); ++i)
   {
-    const auto des_method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));
-    const auto src_method = qobject_cast<const AerodynamicsWidget_Base*>(derived->methods_->widget(i));
+    const auto des_method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
+    const auto src_method = qt::qConstPointerCast<AerodynamicsWidget_Base>(derived->methods_->widget(i));
     des_method->copyFrom(src_method);
   }
 }
@@ -76,7 +77,7 @@ YAML::Node AerodynamicsWidget::dump() const
 
   for (int i = 0; i < methods_->count(); ++i)
   {
-    const auto method = qobject_cast<const AerodynamicsWidget_Base*>(methods_->widget(i));
+    const auto method = qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     node[method->name()] = method->dump();
   }
 
@@ -89,7 +90,7 @@ void AerodynamicsWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < methods_->count(); ++i)
   {
-    const auto method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));
+    const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method->load(node[method->name()]);
   }
 }
@@ -111,12 +112,12 @@ double AerodynamicsWidget::dragConst() const
 
 AerodynamicsWidget_Base* AerodynamicsWidget::selected()
 {
-  return qobject_cast<AerodynamicsWidget_Base*>(methods_->currentWidget());
+  return qt::qPointerCast<AerodynamicsWidget_Base>(methods_->currentWidget());
 }
 
 const AerodynamicsWidget_Base* AerodynamicsWidget::selected() const
 {
-  return qobject_cast<const AerodynamicsWidget_Base*>(methods_->currentWidget());
+  return qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->currentWidget());
 }
 }  // namespace electric
 }  // namespace propulsion

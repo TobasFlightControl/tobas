@@ -4,6 +4,7 @@
 #include <QFileDialog>
 
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
@@ -146,8 +147,8 @@ YAML::Node AerodynamicsCoefficientsWidget::dump() const
 
   for (int row = 0; row < form_->rowCount(); ++row)
   {
-    const auto label = qobject_cast<QLabel*>(form_->getLabel(row));
-    const auto widget = qobject_cast<qt::DoubleSpinBox*>(form_->getWidget(row));
+    const auto label = qt::qConstPointerCast<QLabel>(form_->getLabel(row));
+    const auto widget = qt::qConstPointerCast<qt::DoubleSpinBox>(form_->getWidget(row));
     node[label->text().toStdString()] = widget->value();
   }
 
@@ -158,8 +159,8 @@ void AerodynamicsCoefficientsWidget::load(const YAML::Node& node)
 {
   for (int row = 0; row < form_->rowCount(); ++row)
   {
-    const auto label = qobject_cast<QLabel*>(form_->getLabel(row));
-    const auto widget = qobject_cast<qt::DoubleSpinBox*>(form_->getWidget(row));
+    const auto label = qt::qConstPointerCast<QLabel>(form_->getLabel(row));
+    const auto widget = qt::qPointerCast<qt::DoubleSpinBox>(form_->getWidget(row));
     widget->setValue(node[label->text().toStdString()].as<double>());
   }
 }

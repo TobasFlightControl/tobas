@@ -1,5 +1,6 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/thrust_stand.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
@@ -52,7 +53,7 @@ bool AerodynamicsWidget_ThrustStand::isValid()
 
 void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* src)
 {
-  const auto derived = qobject_cast<const AerodynamicsWidget_ThrustStand*>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(src);
   data_->setValue(derived->data_->getValue());
 }
 

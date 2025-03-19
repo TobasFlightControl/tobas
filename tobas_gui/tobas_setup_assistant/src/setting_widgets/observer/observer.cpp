@@ -1,5 +1,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/observer/observer.hpp"
 #include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
@@ -29,7 +30,7 @@ ObserverWidget::ObserverWidget(
 
   for (int i = 0; i < observers_->count(); ++i)
   {
-    const auto observer = qobject_cast<BaseObserverWidget*>(observers_->widget(i));
+    const auto observer = qt::qConstPointerCast<BaseObserverWidget>(observers_->widget(i));
     type_->addItem(observer->name());
   }
 
@@ -71,7 +72,7 @@ bool ObserverWidget::isValid()
   return true;
 }
 
-YAML::Node ObserverWidget::dump()
+YAML::Node ObserverWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -79,7 +80,7 @@ YAML::Node ObserverWidget::dump()
 
   for (int i = 0; i < observers_->count(); ++i)
   {
-    const auto observer = qobject_cast<BaseObserverWidget*>(observers_->widget(i));
+    const auto observer = qt::qConstPointerCast<BaseObserverWidget>(observers_->widget(i));
     node[observer->name()] = observer->dump();
   }
 
@@ -92,7 +93,7 @@ void ObserverWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < observers_->count(); ++i)
   {
-    const auto observer = qobject_cast<BaseObserverWidget*>(observers_->widget(i));
+    const auto observer = qt::qPointerCast<BaseObserverWidget>(observers_->widget(i));
     observer->load(node[observer->name()]);
   }
 }
@@ -120,12 +121,12 @@ void ObserverWidget::setCurrentObserver(int index)
 
 BaseObserverWidget* ObserverWidget::selected()
 {
-  return qobject_cast<BaseObserverWidget*>(observers_->currentWidget());
+  return qt::qPointerCast<BaseObserverWidget>(observers_->currentWidget());
 }
 
 const BaseObserverWidget* ObserverWidget::selected() const
 {
-  return qobject_cast<BaseObserverWidget*>(observers_->currentWidget());
+  return qt::qConstPointerCast<BaseObserverWidget>(observers_->currentWidget());
 }
 }  // namespace sa
 }  // namespace gui

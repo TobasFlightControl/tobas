@@ -7,6 +7,7 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_control_system/mission_planner/mission_planner.hpp"
 
@@ -172,7 +173,7 @@ void MissionPlannerWidget::commandsToMap()
     {
       case command_t::WAYPOINT:
       {
-        const auto waypoint = qobject_cast<WaypointWidget*>(cmd_widget);
+        const auto waypoint = qt::qConstPointerCast<WaypointWidget>(cmd_widget);
         const auto latitude = waypoint->latitude();
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
@@ -502,7 +503,7 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
       ++cur_idx;
     if (cur_idx == index)
     {
-      const auto waypoint = qobject_cast<WaypointWidget*>(getCommandWidget(item));
+      const auto waypoint = qt::qPointerCast<WaypointWidget>(getCommandWidget(item));
       waypoint->latitude(latitude);
       waypoint->longitude(longitude);
       break;

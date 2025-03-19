@@ -1,4 +1,5 @@
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/settings.hpp"
 
@@ -42,7 +43,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   // 各タブを初期化
   for (int i = 0; i < count(); ++i)
   {
-    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
     tab->setEnabled(false);  // 最初は無効化
   }
 
@@ -58,7 +59,7 @@ void SettingsWidget::updateInternalDataStructures()
 {
   for (int i = 0; i < count(); ++i)
   {
-    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
     tab->updateInternalDataStructures();
     tab->setEnabled(true);
   }
@@ -69,7 +70,7 @@ bool SettingsWidget::isValid()
   // 全ての設定項目について，単体で問題ないことを確認
   for (int i = 0; i < count(); ++i)
   {
-    const auto cur_widget = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(widget(i));
     if (!cur_widget->isValid())
     {
       switchTab(cur_widget);
@@ -83,13 +84,13 @@ bool SettingsWidget::isValid()
   return true;
 }
 
-YAML::Node SettingsWidget::dump()
+YAML::Node SettingsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
   for (int i = 0; i < count(); ++i)
   {
-    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qt::qConstPointerCast<BaseSettingWidget>(widget(i));
     node[tab->name()] = tab->dump();
   }
 
@@ -102,7 +103,7 @@ bool SettingsWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < count(); ++i)
   {
-    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
     try
     {
       tab->onOpened();
@@ -120,7 +121,7 @@ bool SettingsWidget::load(const YAML::Node& node)
 
 void SettingsWidget::onCurrentChanged(int index)
 {
-  const auto cur_widget = qobject_cast<BaseSettingWidget*>(widget(index));
+  const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(widget(index));
   cur_widget->onOpened();
 }
 }  // namespace sa

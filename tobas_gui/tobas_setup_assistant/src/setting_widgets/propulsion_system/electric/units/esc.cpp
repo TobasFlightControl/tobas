@@ -1,3 +1,5 @@
+#include <tobas_qt_tools/cast.hpp>
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/esc.hpp"
 
 namespace gui
@@ -37,7 +39,7 @@ bool ESCWidget::isValid()
 
 void ESCWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  const auto derived = qobject_cast<const ESCWidget*>(src);
+  const auto derived = qt::qConstPointerCast<ESCWidget>(src);
   max_current_->setValue(derived->max_current_->getValue());
 }
 

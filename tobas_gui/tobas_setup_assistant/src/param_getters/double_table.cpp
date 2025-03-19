@@ -11,6 +11,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
@@ -83,7 +84,7 @@ MatrixXd ParamGetterWidget_DoubleTable::getValue() const
   {
     for (int col = 0; col < num_entry_; ++col)
     {
-      const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, col));
+      const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(table_->cellWidget(row, col));
       res(row, col) = cell->value();
     }
   }
@@ -103,7 +104,7 @@ bool ParamGetterWidget_DoubleTable::setValue(const MatrixXd& src)
     addRow();
     for (int col = 0; col < src.cols(); ++col)
     {
-      const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, col));
+      const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(table_->cellWidget(row, col));
       cell->setValue(src(row, col));
     }
   }

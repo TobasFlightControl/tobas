@@ -42,6 +42,7 @@ private:
   qt::StackedWidget* batteries_;
 
   BatteryWidget_Base* widget(int index);
+  const BatteryWidget_Base* widget(int index) const;
 
   BatteryWidget_Base* selected();
   const BatteryWidget_Base* selected() const;

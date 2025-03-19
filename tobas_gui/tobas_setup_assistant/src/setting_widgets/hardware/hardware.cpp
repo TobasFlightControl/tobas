@@ -1,5 +1,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
 #include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
@@ -22,7 +23,7 @@ HardwareWidget::HardwareWidget()
 
   for (int i = 0; i < hardwares_->count(); ++i)
   {
-    const auto hardware = qobject_cast<BaseHardwareWidget*>(hardwares_->widget(i));
+    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     type_->addItem(hardware->name());
   }
 
@@ -63,7 +64,7 @@ bool HardwareWidget::isValid()
   return true;
 }
 
-YAML::Node HardwareWidget::dump()
+YAML::Node HardwareWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -71,7 +72,7 @@ YAML::Node HardwareWidget::dump()
 
   for (int i = 0; i < hardwares_->count(); ++i)
   {
-    const auto hardware = qobject_cast<BaseHardwareWidget*>(hardwares_->widget(i));
+    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     node[hardware->name()] = hardware->dump();
   }
 
@@ -84,7 +85,7 @@ void HardwareWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < hardwares_->count(); ++i)
   {
-    const auto hardware = qobject_cast<BaseHardwareWidget*>(hardwares_->widget(i));
+    const auto hardware = qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     hardware->load(node[hardware->name()]);
   }
 }
@@ -102,12 +103,12 @@ void HardwareWidget::setCurrentHardware(int index)
 
 BaseHardwareWidget* HardwareWidget::selected()
 {
-  return qobject_cast<BaseHardwareWidget*>(hardwares_->currentWidget());
+  return qt::qPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
 }
 
 const BaseHardwareWidget* HardwareWidget::selected() const
 {
-  return qobject_cast<BaseHardwareWidget*>(hardwares_->currentWidget());
+  return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
 }
 }  // namespace sa
 }  // namespace gui

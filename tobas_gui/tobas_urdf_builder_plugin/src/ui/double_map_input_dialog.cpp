@@ -1,3 +1,5 @@
+#include <tobas_qt_tools/cast.hpp>
+
 #include "../../include/tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
 
 namespace gui
@@ -52,7 +54,7 @@ const double& DoubleMapInputDialog::getValue(const QString& field) const
 
 void DoubleMapInputDialog::SpinBoxValueChanged(double value)
 {
-  const auto obj = qobject_cast<QDoubleSpinBox*>(sender());
+  const auto obj = qt::qPointerCast<QDoubleSpinBox>(sender());
   const auto field_name = spinbox2field_.at(obj);
   field2value_[field_name] = value;
 }

@@ -40,7 +40,7 @@ public:
   virtual bool isValid() = 0;
 
   /* ユーザ設定を書き出す． */
-  virtual YAML::Node dump() = 0;
+  virtual YAML::Node dump() const = 0;
 
   /* ユーザ設定を読み込む． */
   virtual void load(const YAML::Node& node) = 0;

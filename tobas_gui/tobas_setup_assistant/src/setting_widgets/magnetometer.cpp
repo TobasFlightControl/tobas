@@ -63,7 +63,7 @@ bool MagnetometerWidget::isValid()
   return true;
 }
 
-YAML::Node MagnetometerWidget::dump()
+YAML::Node MagnetometerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

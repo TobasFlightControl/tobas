@@ -1,3 +1,5 @@
+#include <tobas_qt_tools/cast.hpp>
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/selected_link.hpp"
 
 namespace gui
@@ -59,7 +61,7 @@ bool SelectedLinkWidget::isValid()
 {
   for (int i = 0; i < tabs_->count(); ++i)
   {
-    const auto widget = qobject_cast<BaseSelectedLinkSettingWidget*>(tabs_->widget(i));
+    const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
     if (!widget->isValid())
       return false;
   }
@@ -71,8 +73,8 @@ void SelectedLinkWidget::copyFrom(const SelectedLinkWidget* src)
 {
   for (int i = 0; i < tabs_->count(); ++i)
   {
-    const auto des_widget = qobject_cast<BaseSelectedLinkSettingWidget*>(tabs_->widget(i));
-    const auto src_widget = qobject_cast<const BaseSelectedLinkSettingWidget*>(src->tabs_->widget(i));
+    const auto des_widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
+    const auto src_widget = qt::qConstPointerCast<const BaseSelectedLinkSettingWidget>(src->tabs_->widget(i));
     des_widget->copyFrom(src_widget);
   }
 }
@@ -83,7 +85,7 @@ YAML::Node SelectedLinkWidget::dump() const
 
   for (int i = 0; i < tabs_->count(); ++i)
   {
-    const auto widget = qobject_cast<const BaseSelectedLinkSettingWidget*>(tabs_->widget(i));
+    const auto widget = qt::qConstPointerCast<const BaseSelectedLinkSettingWidget>(tabs_->widget(i));
     node[widget->name()] = widget->dump();
   }
 
@@ -96,7 +98,7 @@ void SelectedLinkWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < tabs_->count(); ++i)
   {
-    const auto widget = qobject_cast<BaseSelectedLinkSettingWidget*>(tabs_->widget(i));
+    const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
     widget->load(node[widget->name()]);
   }
 

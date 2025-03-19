@@ -28,7 +28,7 @@ public:
   virtual void updateInternalDataStructures() = 0;
   virtual bool isValid() = 0;
 
-  virtual YAML::Node dump() = 0;
+  virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
   virtual tobas::propulsion_system_t type() const = 0;

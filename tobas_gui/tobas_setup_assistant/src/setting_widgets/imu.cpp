@@ -102,7 +102,7 @@ bool IMUWidget::isValid()
   return true;
 }
 
-YAML::Node IMUWidget::dump()
+YAML::Node IMUWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

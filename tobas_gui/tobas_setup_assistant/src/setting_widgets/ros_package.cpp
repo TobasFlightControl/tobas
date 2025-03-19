@@ -105,7 +105,7 @@ bool ROSPackageWidget::isValid()
   return true;
 }
 
-YAML::Node ROSPackageWidget::dump()
+YAML::Node ROSPackageWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

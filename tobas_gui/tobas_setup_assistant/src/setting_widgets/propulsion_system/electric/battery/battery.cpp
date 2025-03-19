@@ -1,4 +1,5 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/battery.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
@@ -101,17 +102,22 @@ double BatteryWidget::internalRegistance()
 
 BatteryWidget_Base* BatteryWidget::widget(int index)
 {
-  return qobject_cast<BatteryWidget_Base*>(batteries_->widget(index));
+  return qt::qPointerCast<BatteryWidget_Base>(batteries_->widget(index));
+}
+
+const BatteryWidget_Base* BatteryWidget::widget(int index) const
+{
+  return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->widget(index));
 }
 
 BatteryWidget_Base* BatteryWidget::selected()
 {
-  return qobject_cast<BatteryWidget_Base*>(batteries_->currentWidget());
+  return qt::qPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
 }
 
 const BatteryWidget_Base* BatteryWidget::selected() const
 {
-  return qobject_cast<const BatteryWidget_Base*>(batteries_->currentWidget());
+  return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
 }
 }  // namespace electric
 }  // namespace propulsion

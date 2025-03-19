@@ -96,7 +96,7 @@ bool GNSSWidget::isValid()
   return true;
 }
 
-YAML::Node GNSSWidget::dump()
+YAML::Node GNSSWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
