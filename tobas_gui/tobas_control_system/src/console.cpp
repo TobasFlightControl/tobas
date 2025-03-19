@@ -55,7 +55,7 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
   if (num_rows > kMaxRows)
     table_->removeRow(num_rows - 1);
 
-  const auto stamp_text = QString::number(msg->stamp.sec) + "." + QString::number(msg->stamp.nanosec);
+  const auto stamp_text = QString::number(msg->header.stamp.sec) + "." + QString::number(msg->header.stamp.nanosec);
   const auto stamp_item = new QTableWidgetItem(stamp_text);
   table_->setItem(0, kStampCol, stamp_item);
 

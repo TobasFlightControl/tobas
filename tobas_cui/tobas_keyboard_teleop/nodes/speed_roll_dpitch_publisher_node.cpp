@@ -102,7 +102,7 @@ SpeedRollDeltaPitchPublisherNode::SpeedRollDeltaPitchPublisherNode(const rclcpp:
   cmd_pub_ = createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
 
   process_timer_ = createTimer(kCommandPeriod, &self::mainTimerCb, this);
@@ -240,7 +240,7 @@ void SpeedRollDeltaPitchPublisherNode::checkTopicsTimerCb()
     TOBAS_INFO("Waiting for \"", tobas::kDroneTopic, "\".");
 
   if (!tree_received_)
-    TOBAS_INFO("Waiting for \"", tobas::kKDLTreeTopic, "\".");
+    TOBAS_INFO("Waiting for \"", tobas::kKdlTreeTopic, "\".");
 
   if (!pressure_received_)
     TOBAS_INFO("Waiting for \"", tobas::kAirPressureTopic, "\".");

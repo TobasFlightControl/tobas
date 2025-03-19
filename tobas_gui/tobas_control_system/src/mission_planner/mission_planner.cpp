@@ -96,8 +96,8 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 
   gnss_sub_ =
     ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGnssTopic), &self::gnssCb, this);
-  euler_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kEulerTopic), &self::eulerCb, this);
+  odom_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -135,7 +135,7 @@ void MissionPlannerWidget::listToCommands()
   auto selected_item = command_list_->selectedItem();
 
   // 何も選択されていなければ強制的に最初の要素を選択
-  if (selected_item == nullptr)
+  if (!selected_item)
   {
     command_list_->setCurrentRow(0);
     selected_item = command_list_->item(0);
@@ -243,9 +243,10 @@ void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
   map_->setArrowPosition(gnss->latitude, gnss->longitude);
 }
 
-void MissionPlannerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
+void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  map_->setArrowRotation(-tobas_std::rad2deg(euler->euler.yaw));
+  const auto yaw = odom->frame.M.getYaw();
+  map_->setArrowRotation(-tobas_std::rad2deg(yaw));
 }
 
 void MissionPlannerWidget::onLoadButtonClicked()

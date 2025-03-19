@@ -123,19 +123,19 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
 {
   if (home_js_.states.size() == 0)
     return;
-  if (tar_js_ == nullptr && tar_ls_ == nullptr)
+  if (!tar_js_ && !tar_ls_)
     return;
 
   // Create joint velocities command
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
   // Joint space control or Task space control
-  if (tar_js_ != nullptr)
+  if (tar_js_)
   {
     if (!jointSpaceControl(*positions_msg))
       return;
   }
-  else if (tar_ls_ != nullptr)
+  else if (tar_ls_)
   {
     if (!taskSpaceControl(*positions_msg))
       return;
@@ -153,7 +153,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
 void PositionControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)
 {
   tar_js_ = tar_js;
-  tar_ls_ = nullptr;
+  tar_ls_.reset();
 
   auto_reset_timer_->reset();
 }
@@ -161,7 +161,7 @@ void PositionControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStat
 void PositionControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
 {
   tar_ls_ = tar_ls;
-  tar_js_ = nullptr;
+  tar_js_.reset();
 
   auto_reset_timer_->reset();
 }
@@ -169,11 +169,11 @@ void PositionControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray:
 void PositionControllerNode::autoResetTimerCb()
 {
   tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
-  tar_ls_ = nullptr;
+  tar_ls_.reset();
 
   TOBAS_WARN(
     "The target joint states are automatically reset because ", manipulation::kAutoResetTimeThresh,
-    " seconds have elapsed since the last command.");
+    " have elapsed since the last command.");
 
   auto_reset_timer_->cancel();
 }

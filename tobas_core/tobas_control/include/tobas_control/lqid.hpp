@@ -32,7 +32,7 @@ public:
   Eigen::VectorXd solve(const double& dt, const bool& update_gain = true);
   void updateGain();
 
-  inline const Eigen::VectorXd& integralError() const;
+  inline const Eigen::VectorXd& getIntegralError() const;
 
   friend std::ostream& operator<<(std::ostream& os, const LQID& arg);
 
@@ -58,7 +58,7 @@ private:
   Eigen::MatrixXd K_;
 };
 
-inline const Eigen::VectorXd& LQID::integralError() const
+inline const Eigen::VectorXd& LQID::getIntegralError() const
 {
   return eps_;
 }

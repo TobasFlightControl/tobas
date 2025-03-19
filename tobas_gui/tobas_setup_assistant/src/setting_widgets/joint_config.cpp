@@ -108,7 +108,7 @@ bool JointConfigurationWidget::isValid()
     const auto channel = getPwmChannel(row);
     switch (getHardwareInterface(row))
     {
-      case tobas::jnt_hw_iface_t::PWM:
+      case tobas::hw_iface_t::PWM:
       {
         if (pwm_channels.contains(channel))
         {
@@ -118,7 +118,7 @@ bool JointConfigurationWidget::isValid()
         pwm_channels.insert(channel);
         break;
       }
-      case tobas::jnt_hw_iface_t::OTHER:
+      case tobas::hw_iface_t::OTHER:
       {
         break;
       }
@@ -254,14 +254,14 @@ tobas::jnt_cmd_iface_t JointConfigurationWidget::getCommandInterface(int row) co
     throw;
 }
 
-tobas::jnt_hw_iface_t JointConfigurationWidget::getHardwareInterface(int row) const
+tobas::hw_iface_t JointConfigurationWidget::getHardwareInterface(int row) const
 {
   const auto text = hw_iface_[row]->currentText();
 
   if (text == kHwIfaceLabel_PWM)
-    return tobas::jnt_hw_iface_t::PWM;
+    return tobas::hw_iface_t::PWM;
   else if (text == kHwIfaceLabel_Other)
-    return tobas::jnt_hw_iface_t::OTHER;
+    return tobas::hw_iface_t::OTHER;
   else
     throw;
 }
@@ -355,15 +355,15 @@ void JointConfigurationWidget::setCommandInterface(int row, tobas::jnt_cmd_iface
   cmd_iface_[row]->setCurrentText(text);
 }
 
-void JointConfigurationWidget::setHardwareInterface(int row, tobas::jnt_hw_iface_t value)
+void JointConfigurationWidget::setHardwareInterface(int row, tobas::hw_iface_t value)
 {
   QString text;
   switch (value)
   {
-    case tobas::jnt_hw_iface_t::PWM:
+    case tobas::hw_iface_t::PWM:
       text = kHwIfaceLabel_PWM;
       break;
-    case tobas::jnt_hw_iface_t::OTHER:
+    case tobas::hw_iface_t::OTHER:
       text = kHwIfaceLabel_Other;
       break;
     default:
@@ -555,7 +555,7 @@ void JointConfigurationWidget::updateEnability(int row)
   // ハードウェアインターフェースによるフィールド
   switch (getHardwareInterface(row))
   {
-    case tobas::jnt_hw_iface_t::PWM:
+    case tobas::hw_iface_t::PWM:
       pwm_channel_[row]->setEnabled(true);
       pwm_min_period_[row]->setEnabled(true);
       pwm_max_period_[row]->setEnabled(true);
@@ -563,7 +563,7 @@ void JointConfigurationWidget::updateEnability(int row)
       pwm_max_angle_[row]->setEnabled(true);
       pwm_reverse_[row]->setEnabled(true);
       break;
-    case tobas::jnt_hw_iface_t::OTHER:
+    case tobas::hw_iface_t::OTHER:
       pwm_channel_[row]->setEnabled(false);
       pwm_min_period_[row]->setEnabled(false);
       pwm_max_period_[row]->setEnabled(false);

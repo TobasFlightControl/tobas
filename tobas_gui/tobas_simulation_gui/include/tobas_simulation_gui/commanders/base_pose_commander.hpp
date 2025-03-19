@@ -10,8 +10,9 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
+#include <tobas_command_msgs_adapter/angle.hpp>
+#include <tobas_command_msgs_adapter/pos_vel.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
 
 #include <tobas_msgs/srv/set_arm.hpp>
 
@@ -58,8 +59,9 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
 
-  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PoseTwistAccel> pta_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> pos_vel_yaw_pub_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;

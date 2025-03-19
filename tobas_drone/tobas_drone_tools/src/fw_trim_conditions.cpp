@@ -12,20 +12,17 @@ namespace tobas
 TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), inertia_solver_(tree), asd_cog_(drone, tree)
 {
-  if (drone.fixed_wing.equipped)
-    if (!updateInternalDataStructures())
-      PRINT_ERROR("Failed to update internal data structures.");
 }
 
 bool TrimConditions::updateInternalDataStructures()
 {
   // Check drone configuration
-  if (!drone_.fixed_wing.equipped)
+  if (!drone_.fixed_wing)
   {
     cerr << "The drone is not equipped with fixed wing." << endl;
     return false;
   }
-  if (drone_.numControlSurfaces() == 0)
+  if (drone_.fixed_wing->numControlSurfaces() == 0)
   {
     cerr << "The drone must have at least 1 control surfaces." << endl;
     return false;
@@ -47,7 +44,7 @@ bool TrimConditions::updateInternalDataStructures()
 
   // Set elevator index
   auto max_c_pitch_delta = -INFINITY;
-  for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
+  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces)
   {
     if (fabs(cs.c_pitch_delta) > max_c_pitch_delta)
     {
@@ -57,8 +54,8 @@ bool TrimConditions::updateInternalDataStructures()
   }
 
   // Set coefficients
-  const auto& aero = drone_.fixed_wing.aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_channel_);
+  const auto& aero = drone_.fixed_wing->aerodynamics;
+  const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_channel_);
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
@@ -112,8 +109,8 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   }
 
   // エイリアス
-  const auto& aero = drone_.fixed_wing.aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_channel_);
+  const auto& aero = drone_.fixed_wing->aerodynamics;
+  const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_channel_);
 
   // CoGまわりの安定微係数
   asd_cog_.update(q);
@@ -131,7 +128,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   const auto q_bar = dynamicPressure(rho, V);
 
   // 縦系の釣り合い
-  c_L_ = W_ / (q_bar * drone_.fixed_wing.vehicle.wing_surface);                 // (2.9-47)
+  c_L_ = W_ / (q_bar * drone_.fixed_wing->vehicle.wing_surface);                // (2.9-47)
   alpha_ = (c_L_ - b_) / a_;                                                    // (2.9-49)
   elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
   const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;            // TODO: 2次以上も考慮
@@ -141,14 +138,14 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   // その他依存変数
   u_ = V * cos(alpha_);
 
-  if (!drone_.fixed_wing.vehicle.alpha_limit.inRange(alpha_))
+  if (!drone_.fixed_wing->vehicle.alpha_limit.inRange(alpha_))
   {
     if (error_code_ > E_WARN)
     {
       error_msg_ = "The angle of attack in the trimmed condition is outside the valid range.";
       error_code_ = E_WARN;
     }
-    alpha_ = drone_.fixed_wing.vehicle.alpha_limit.clamp(alpha_);
+    alpha_ = drone_.fixed_wing->vehicle.alpha_limit.clamp(alpha_);
   }
 
   const auto& joint = tree_.getSegment(elev_cs.link_name)->second.segment.joint();
@@ -169,16 +166,16 @@ tobas_std::Range<double> TrimConditions::speedLimit(const double& rho) const
 {
   assert(rho > 0);
 
-  const auto c = 2 * W_ / rho / drone_.fixed_wing.vehicle.wing_surface;
+  const auto c = 2 * W_ / rho / drone_.fixed_wing->vehicle.wing_surface;
 
   // 迎角の最大値から最小速度を求める
-  const auto max_den = a_ * drone_.fixed_wing.vehicle.alpha_limit.upper + b_;
+  const auto max_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.upper + b_;
   assert(max_den > 0.);
   const auto V_min = sqrt(c / max_den);
 
   // 迎角の最小値から最大速度を求める
   // 分母が+0になる場合は，理論上無限の速度で水平飛行できる
-  const auto min_den = a_ * drone_.fixed_wing.vehicle.alpha_limit.lower + b_;
+  const auto min_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.lower + b_;
   const auto V_max = min_den > 0. ? sqrt(c / min_den) : INFINITY;
 
   return tobas_std::Range<double>(V_min, V_max);
@@ -188,7 +185,7 @@ double TrimConditions::takeOffSpeed(const double& rho) const
 {
   assert(rho > 0);
 
-  const auto c = 2 * W_ / rho / drone_.fixed_wing.vehicle.wing_surface;
+  const auto c = 2 * W_ / rho / drone_.fixed_wing->vehicle.wing_surface;
   constexpr double alpha_zero = 0.;
   return sqrt(c / (a_ * alpha_zero + b_));
 }

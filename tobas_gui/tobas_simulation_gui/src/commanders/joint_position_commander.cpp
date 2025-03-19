@@ -170,19 +170,19 @@ void JointPositionCommanderWidget::reset()
 
 void JointPositionCommanderWidget::publishCurrentCommand()
 {
-  if (tar_js_pos_pub_ != nullptr)
+  if (tar_js_pos_pub_)
   {
     auto tar_js_pos = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_pos_);
     tar_js_pos_pub_->publish(std::move(tar_js_pos));
   }
 
-  if (tar_js_vel_pub_ != nullptr)
+  if (tar_js_vel_pub_)
   {
     auto tar_js_vel = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_vel_);
     tar_js_vel_pub_->publish(std::move(tar_js_vel));
   }
 
-  if (tar_js_eff_pub_ != nullptr)
+  if (tar_js_eff_pub_)
   {
     auto tar_js_eff = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_eff_);
     tar_js_eff_pub_->publish(std::move(tar_js_eff));

@@ -1,3 +1,5 @@
+#include <rcutils/env.h>
+
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_node/node.hpp"
@@ -7,7 +9,7 @@ using namespace std;
 namespace tobas
 {
 BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
-  : super(node_name, options), dparam_sub_(this)
+  : super(node_name, createNodeOptions(options)), dparam_sub_(this)
 {
   RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
 
@@ -195,5 +197,32 @@ void BaseNode::getDParamCb(
 string BaseNode::createID(const char* file, int line)
 {
   return string(file) + ":" + to_string(line);
+}
+
+rclcpp::NodeOptions BaseNode::createNodeOptions(rclcpp::NodeOptions options)
+{
+  const char* clock_type = nullptr;
+  const char* error = rcutils_get_env("TOBAS_CLOCK_TYPE", &clock_type);
+
+  if (error)
+  {
+    cerr << "Failed to get clock type: " << error << endl;
+    return options;
+  }
+
+  if (strlen(clock_type) == 0)
+    return options;
+
+  if (strcmp(clock_type, "ros_time") == 0)
+    return options.clock_type(RCL_ROS_TIME);  // 参照クロックがなければシステムクロック
+  else if (strcmp(clock_type, "system_time") == 0)
+    return options.clock_type(RCL_SYSTEM_TIME);  // NTPと同期したシステムクロック
+  else if (strcmp(clock_type, "steady_time") == 0)
+    return options.clock_type(RCL_STEADY_TIME);  // NTPの影響を受けないモノトニックタイマー
+  else
+  {
+    cerr << "Unknown clock type: " << clock_type << endl;
+    return options;
+  }
 }
 }  // namespace tobas

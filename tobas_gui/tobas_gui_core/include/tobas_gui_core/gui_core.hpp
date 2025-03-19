@@ -43,6 +43,7 @@ class GUICoreWidget : public QWidget
 public:
   explicit GUICoreWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateInternalDataStructures();
 
 protected:

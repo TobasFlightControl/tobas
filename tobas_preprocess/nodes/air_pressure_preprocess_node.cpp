@@ -8,8 +8,8 @@
 
 class AirPressurePreprocessNode : public tobas::BaseNode
 {
-  static constexpr double kHpfCutoff = 10.;  // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
-  static constexpr size_t kWindowSize = 100;
+  static constexpr double kNoiseFiltrerHPFCutoff = 10.;  // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
+  static constexpr size_t kNoiseFilterWindowSize = 100;
 
   using self = AirPressurePreprocessNode;
   using super = tobas::BaseNode;
@@ -19,7 +19,7 @@ public:
 
 private:
   tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr pres_raw_;
-  dsp::NoiseVarianceFilter<double, 1, kWindowSize> pres_noise_;
+  dsp::NoiseVarianceFilter<double, 1, kNoiseFilterWindowSize> pres_noise_;
 
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> pres_pub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureStamped> pres_raw_sub_;
@@ -37,9 +37,9 @@ AirPressurePreprocessNode::AirPressurePreprocessNode(const rclcpp::NodeOptions& 
 void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr& pres_raw)
 {
   // Initialize
-  if (pres_raw_ == nullptr)
+  if (!pres_raw_)
   {
-    if (!pres_noise_.initialize(kHpfCutoff, Eigen::Scalard(pres_raw->pressure)))
+    if (!pres_noise_.initialize(kNoiseFiltrerHPFCutoff, Eigen::Scalard(pres_raw->pressure)))
     {
       TOBAS_ERROR("Failed to initialize noise variance filter.");
       return;
@@ -53,8 +53,7 @@ void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureSt
   pres_raw_ = pres_raw;
 
   // Update noise filter
-  if (pres_noise_.update(Eigen::Scalard(pres_raw->pressure), dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", pres_noise_.errorMessage());
+  pres_noise_.update(Eigen::Scalard(pres_raw->pressure), dt);
 
   // Create message
   auto pres_out = std::make_unique<tobas_msgs::msg::FluidPressureWithVarianceStamped>();

@@ -17,9 +17,6 @@ namespace tobas
 TiltRotorMixer_pinv::TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
-  if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
-    if (!updateInternalDataStructures())
-      PRINT_ERROR("Failed to update internal data structures of TiltRotorMixer_pinv.");
 }
 
 bool TiltRotorMixer_pinv::updateInternalDataStructures()
@@ -30,20 +27,20 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
-  const auto nr = drone_.numRotors();
+  const auto nr = drone_.prop->numRotors();
 
   A_.resize(nr);
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     const auto& rotor = rotor_it.second;
 
-    if (rotor.tilt_joint_name.empty())
+    if (rotor->tilt_joint_name.empty())
     {
-      cerr << "The tilt joint of rotor " << rotor.link_name << " is not specified." << endl;
+      cerr << "The tilt joint of rotor " << rotor->link_name << " is not specified." << endl;
       return false;
     }
 
-    const auto& cur_elem = tree_.getSegment(rotor.link_name)->second;
+    const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
     const auto& cur_seg = cur_elem.segment;
     const auto& cur_joint = cur_seg.joint();
     const auto& par_elem = cur_elem.parent->second;
@@ -54,9 +51,9 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
     const auto& q = par_seg.frame().M * cur_joint.axis();  // 親リンクのジョイントフレームから見たロータ軸
 
     // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
-    if (par_joint.name != rotor.tilt_joint_name)
+    if (par_joint.name != rotor->tilt_joint_name)
     {
-      cerr << "Tilt joint name of rotor " << rotor.link_name << " mismatch." << endl;
+      cerr << "Tilt joint name of rotor " << rotor->link_name << " mismatch." << endl;
       return false;
     }
 
@@ -77,8 +74,8 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
   x_.conservativeResize(2 * nr);
 
   is_singular_.clear();
-  for (const auto& [_, rotor] : drone_.rotors)
-    is_singular_[rotor.channel] = false;
+  for (const auto& [_, rotor] : drone_.prop->rotors)
+    is_singular_[rotor->link_name] = false;
 
   return true;
 }
@@ -88,7 +85,9 @@ bool TiltRotorMixer_pinv::solve(
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_acc_W,
-  const kdl::Vector& tar_dgyro_B)
+  const kdl::Vector& tar_dgyro_B,
+  const kdl::Vector& ext_force_W,
+  const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
   if (fk_solver_.JntToCart(cur_q) < 0)
@@ -104,16 +103,16 @@ bool TiltRotorMixer_pinv::solve(
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
+  const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
-  const auto& mass = inertia.getMass();
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     const auto& rotor = rotor_it.second;
 
     // ロータリンクとその親要素を取得
-    const auto& cur_elem = tree_.getSegment(rotor.link_name)->second;
+    const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
     const auto& par_elem = cur_elem.parent->second;
     const auto& gpar_elem = par_elem.parent->second;
 
@@ -131,31 +130,31 @@ bool TiltRotorMixer_pinv::solve(
       declination = M_PI - declination;
 
     // 特異状態を更新
-    if (is_singular_.at(rotor.channel))
+    if (is_singular_.at(rotor->link_name))
     {
       if (declination > cfg_.singular_declination_ub)
-        is_singular_[rotor.channel] = false;
+        is_singular_[rotor->link_name] = false;
     }
     else
     {
       if (declination < cfg_.singular_declination_lb)
-        is_singular_[rotor.channel] = true;
+        is_singular_[rotor->link_name] = true;
     }
 
     // 運動方程式の左辺を計算
     const auto col = 2 * idx;
-    if (is_singular_.at(rotor.channel) || !rotor_alive_.at(rotor.channel))
+    if (is_singular_.at(rotor->link_name) || !rotor_alive_.at(rotor->link_name))
     {
       // 特異状態もしくはロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
       E_.block<3, 2>(0, col).setZero();
       E_.block<3, 2>(3, col).setZero();
     }
     {
-      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
+      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
-      const auto d = rotor.sign();
-      const auto& cm = rotor.moment_constant;
+      const auto d = rotor->sign();
+      const auto& cm = rotor->moment_const;
 
       const Matrix<double, 3, 2> B = B_Rot_gpar.data * A_.at(idx);
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
@@ -166,10 +165,15 @@ bool TiltRotorMixer_pinv::solve(
     }
   }
 
-  // 運動方程式の右辺を計算
+  // 並進EoMの右辺
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  f_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W)).data;
-  f_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B)).data;
+  auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;                // [N]
+  eom_trans_right_W.z(max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));  // XXX: 必ず鉛直上方向に推力を出す
+  f_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
+
+  // 回転EoMの右辺
+  const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
+  f_.tail<3>() = eom_rot_right_B.data;
 
   // Ex = f の最小二乗解を求める
   // 冗長自由度がある場合はxのL2ノルムを最小化する
@@ -177,12 +181,12 @@ bool TiltRotorMixer_pinv::solve(
   x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
 
   // 特異状態に対応する解を最小値に固定
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     const auto& rotor = rotor_it.second;
-    if (is_singular_.at(rotor.channel))
+    if (is_singular_.at(rotor->link_name))
     {
-      x_(2 * idx) = rotor.minThrust();
+      x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
       x_(2 * idx + 1) = 0.;
     }
   }

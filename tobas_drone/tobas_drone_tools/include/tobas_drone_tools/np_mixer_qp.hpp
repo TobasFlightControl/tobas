@@ -22,7 +22,6 @@ public:
   bool updateInternalDataStructures() override;
 
   bool solve(
-    const double& cur_voltage,
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
@@ -55,6 +54,5 @@ private:
   Eigen::Vector6d h_;                 // EoM行列等式の右辺
 
   void resizeAndFill();
-  void updateWeight();
 };
 }  // namespace tobas

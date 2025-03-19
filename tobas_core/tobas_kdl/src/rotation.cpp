@@ -6,6 +6,8 @@
 
 #define EPS 1e-12
 
+using namespace std;
+
 namespace kdl
 {
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
@@ -105,6 +107,13 @@ void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
     roll = atan2(data(2, 1), data(2, 2));
     yaw = atan2(data(1, 0), data(0, 0));
   }
+}
+
+tuple<double, double, double> Rotation::getRPY() const
+{
+  double roll, pitch, yaw;
+  getRPY(roll, pitch, yaw);
+  return { roll, pitch, yaw };
 }
 
 void Rotation::doRotX(double angle)

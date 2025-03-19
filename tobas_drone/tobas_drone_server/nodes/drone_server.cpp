@@ -12,7 +12,6 @@ public:
 
 private:
   tobas::Drone drone_;
-  std::map<size_t, double> max_rot_speeds_;
 
   ros2::PublisherPtr<tobas::Drone> drone_pub_;
 
@@ -52,11 +51,6 @@ bool DroneServerNode::fileParamCb(const std::string& p)
 
   // Publish drone configuration
   publishDrone();
-
-  // Save max rotation speeds
-  max_rot_speeds_.clear();
-  for (const auto& [_, rotor] : drone_.rotors)
-    max_rot_speeds_[rotor.channel] = rotor.max_rot_speed;
 
   TOBAS_INFO("New drone configuration message is published.");
   return true;

@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_constants REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_kdl_msgs_adapter REQUIRED)
 find_package(tobas_eigen_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
+  tobas_constants
   tobas_msgs
   tobas_kdl_msgs_adapter
   tobas_eigen_msgs_adapter

@@ -94,21 +94,21 @@ void MapWidget::setArrowRotation(double angle_deg)
 QObject* MapWidget::getMapObject() const
 {
   const auto res = rootObject()->findChild<QObject*>("map");
-  TOBAS_CHECK(res != nullptr);
+  TOBAS_CHECK(res);
   return res;
 }
 
 QObject* MapWidget::getArrowObject() const
 {
   const auto res = rootObject()->findChild<QObject*>("arrow");
-  TOBAS_CHECK(res != nullptr);
+  TOBAS_CHECK(res);
   return res;
 }
 
 QObject* MapWidget::getArrowRotationObject() const
 {
   const auto res = rootObject()->findChild<QObject*>("arrowRotation");
-  TOBAS_CHECK(res != nullptr);
+  TOBAS_CHECK(res);
   return res;
 }
 

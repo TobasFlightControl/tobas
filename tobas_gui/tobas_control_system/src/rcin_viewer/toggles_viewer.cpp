@@ -1,7 +1,9 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 
+#include <tobas_algorithm/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -16,27 +18,28 @@ namespace rcin
 {
 TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  acrobat_mode_ = new qt::CircleWidget(" Acrobat ");
+  kill_ = new qt::ToggleSwitch();
+  sub_mode_ = new qt::ToggleSwitch();
+
+  kill_->setText("Kill");
+  sub_mode_->setText("Sub Mode");
+
+  kill_->ignoreMousePressEvent(true);
+  sub_mode_->ignoreMousePressEvent(true);
+
+  acrobat_mode_ = new qt::CircleWidget("Acrobat");
   stabilize_mode_ = new qt::CircleWidget("Stabilize");
-  loiter_mode_ = new qt::CircleWidget("  Loiter  ");
-
-  enable_ = new qt::ToggleSwitch();
-  enable_->setText("Enable");
-  enable_->ignoreMousePressEvent(true);
-
-  gpsw_ = new qt::ToggleSwitch();
-  gpsw_->setText(" GPSw ");
-  gpsw_->ignoreMousePressEvent(true);
+  loiter_mode_ = new qt::CircleWidget("Loiter");
 
   // Layout
+  const auto toggle_cols = new QGridLayout();
+  toggle_cols->addWidget(kill_, 0, 0);
+  toggle_cols->addWidget(sub_mode_, 0, 1);
+
   const auto mode_cols = new QHBoxLayout();
   mode_cols->addWidget(acrobat_mode_);
   mode_cols->addWidget(stabilize_mode_);
   mode_cols->addWidget(loiter_mode_);
-
-  const auto toggle_cols = new QHBoxLayout();
-  toggle_cols->addWidget(enable_);
-  toggle_cols->addWidget(gpsw_);
 
   const auto rows = new QVBoxLayout();
   rows->addLayout(toggle_cols, 2);
@@ -51,8 +54,8 @@ void TogglesViewer::reset()
   stabilize_mode_->setColor(kOffColor);
   loiter_mode_->setColor(kOffColor);
 
-  enable_->setChecked(false);
-  gpsw_->setChecked(false);
+  kill_->setChecked(false);
+  sub_mode_->setChecked(false);
 }
 
 void TogglesViewer::updateNamespace(const std::string& ns)
@@ -63,50 +66,81 @@ void TogglesViewer::updateNamespace(const std::string& ns)
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
-void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
+void TogglesViewer::paintEvent(QPaintEvent*)
 {
-  enable_->setChecked(rcin->enable);
-  gpsw_->setChecked(rcin->gpsw);
+  // スイッチと飛行モードそれぞれについて，ポイントサイズをそれぞれの最大値の最小値に設定する．
+  setToggleSwitchPointSizes();
+  setFlightModePointSizes();
+}
+
+void TogglesViewer::setToggleSwitchPointSizes()
+{
+  const auto kill_psize = kill_->calcMaxTextPointSize();
+  const auto sub_mode_psize = sub_mode_->calcMaxTextPointSize();
+
+  const auto psize = std::min(kill_psize, sub_mode_psize);
+
+  kill_->setTextPointSize(psize);
+  sub_mode_->setTextPointSize(psize);
+}
+
+void TogglesViewer::setFlightModePointSizes()
+{
+  const auto acrobat_psize = acrobat_mode_->calcMaxTextPointSize();
+  const auto stabilize_psize = stabilize_mode_->calcMaxTextPointSize();
+  const auto loiter_psize = loiter_mode_->calcMaxTextPointSize();
+
+  const auto psize = algo::min(acrobat_psize, stabilize_psize, loiter_psize);
+
+  acrobat_mode_->setTextPointSize(psize);
+  stabilize_mode_->setTextPointSize(psize);
+  loiter_mode_->setTextPointSize(psize);
+}
+
+void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+{
+  kill_->setChecked(rcin->kill);
+  sub_mode_->setChecked(rcin->sub_mode);
 
   if (rcin->enable)
   {
-    if (rcin->mode == tobas::flight_mode_t::STABILIZE_MODE)
+    if (rcin->mode == tobas::flight_mode_t::STABILIZE)
       stabilize_mode_->setColor(kOnColorEnable);
     else
       stabilize_mode_->setColor(kOffColor);
 
-    if (rcin->mode == tobas::flight_mode_t::ACROBAT_MODE)
+    if (rcin->mode == tobas::flight_mode_t::ACROBAT)
       acrobat_mode_->setColor(kOnColorEnable);
     else
       acrobat_mode_->setColor(kOffColor);
 
-    if (rcin->mode == tobas::flight_mode_t::LOITER_MODE)
+    if (rcin->mode == tobas::flight_mode_t::LOITER)
       loiter_mode_->setColor(kOnColorEnable);
     else
       loiter_mode_->setColor(kOffColor);
 
-    enable_->setOnColor(kOnColorEnable);
-    gpsw_->setOnColor(kOnColorEnable);
+    kill_->setOnColor(kOnColorEnable);
+    sub_mode_->setOnColor(kOnColorEnable);
   }
   else
   {
-    if (rcin->mode == tobas::flight_mode_t::STABILIZE_MODE)
+    if (rcin->mode == tobas::flight_mode_t::STABILIZE)
       stabilize_mode_->setColor(kOnColorDisable);
     else
       stabilize_mode_->setColor(kOffColor);
 
-    if (rcin->mode == tobas::flight_mode_t::ACROBAT_MODE)
+    if (rcin->mode == tobas::flight_mode_t::ACROBAT)
       acrobat_mode_->setColor(kOnColorDisable);
     else
       acrobat_mode_->setColor(kOffColor);
 
-    if (rcin->mode == tobas::flight_mode_t::LOITER_MODE)
+    if (rcin->mode == tobas::flight_mode_t::LOITER)
       loiter_mode_->setColor(kOnColorDisable);
     else
       loiter_mode_->setColor(kOffColor);
 
-    enable_->setOnColor(kOnColorDisable);
-    gpsw_->setOnColor(kOnColorDisable);
+    kill_->setOnColor(kOnColorDisable);
+    sub_mode_->setOnColor(kOnColorDisable);
   }
 }
 }  // namespace rcin

@@ -15,22 +15,22 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.channel = src.channel;
-    dst.joint_name = src.joint_name;
-    dst.min_period = src.min_period;
-    dst.max_period = src.max_period;
-    dst.min_angle = src.min_angle;
-    dst.max_angle = src.max_angle;
+    dst.name = src.name;
+    dst.min_period = src.period_range.lower;
+    dst.max_period = src.period_range.upper;
+    dst.min_value = src.value_range.lower;
+    dst.max_value = src.value_range.upper;
     dst.reverse = src.reverse;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.channel = src.channel;
-    dst.joint_name = src.joint_name;
-    dst.min_period = src.min_period;
-    dst.max_period = src.max_period;
-    dst.min_angle = src.min_angle;
-    dst.max_angle = src.max_angle;
+    dst.name = src.name;
+    dst.period_range.lower = src.min_period;
+    dst.period_range.upper = src.max_period;
+    dst.value_range.lower = src.min_value;
+    dst.value_range.upper = src.max_value;
     dst.reverse = src.reverse;
   }
 };

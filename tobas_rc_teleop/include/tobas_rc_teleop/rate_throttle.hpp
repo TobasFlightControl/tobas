@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_command_msgs/msg/rate_throttle.hpp>
+#include <tobas_command_msgs_adapter/rate_throttle.hpp>
 
 #include "./base_controller.hpp"
 
@@ -20,15 +20,15 @@ public:
 
   void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   // rosparams
-  double max_attitude_rate_;  // [rad/s]
-  double max_heading_rate_;   // [rad/s]
+  double max_atti_rate_;  // [rad/s]
+  double max_head_rate_;  // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::msg::RateThrottle> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

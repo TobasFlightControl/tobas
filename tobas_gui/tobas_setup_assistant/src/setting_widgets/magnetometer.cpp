@@ -14,21 +14,21 @@ MagnetometerWidget::MagnetometerWidget()
 
   update_rate_ = new ParamGetterWidget_SpinBox("Update Rate", "");  // TODO
   update_rate_->setMinimum(1);
-  update_rate_->setValue(20);
+  update_rate_->setValue(100);
   update_rate_->setSuffix(" Hz");
   addWidget(update_rate_);
 
   noise_stddev_ = new ParamGetterWidget_SpinBox("Standard Deviation of Additive White Gaussian Noise", "");  // TODO
   noise_stddev_->setMinimum(0);
-  noise_stddev_->setValue(500);
+  noise_stddev_->setValue(460);  // IIS2MDC
   noise_stddev_->setSuffix(" nT");
   addWidget(noise_stddev_);
 
-  hard_bias_range_ = new ParamGetterWidget_SpinBox("Symmetric Bounds of Uniform Noise for Hard Bias", "");  // TODO
-  hard_bias_range_->setMinimum(0);
-  hard_bias_range_->setValue(5000);
-  hard_bias_range_->setSuffix(" nT");
-  addWidget(hard_bias_range_);
+  hard_bias_norm_ = new ParamGetterWidget_SpinBox("Hard-Iron Bias Norm", "");  // TODO
+  hard_bias_norm_->setMinimum(0);
+  hard_bias_norm_->setValue(3000);  // IIS2MDCの最大値は6000nTだが，キャリブレーションを前提としてそれより低めに設定．
+  hard_bias_norm_->setSuffix(" nT");
+  addWidget(hard_bias_norm_);
 
   addStretch();
 }
@@ -40,7 +40,7 @@ const char* MagnetometerWidget::name() const
 
 const char* MagnetometerWidget::title() const
 {
-  return "Define Compass";
+  return "Define 3-Axis Magnetometer";
 }
 
 const char* MagnetometerWidget::description() const
@@ -70,7 +70,7 @@ YAML::Node MagnetometerWidget::dump()
   node[offset_->name()] = offset_->getValue();
   node[update_rate_->name()] = update_rate_->getValue();
   node[noise_stddev_->name()] = noise_stddev_->getValue();
-  node[hard_bias_range_->name()] = hard_bias_range_->getValue();
+  node[hard_bias_norm_->name()] = hard_bias_norm_->getValue();
 
   return node;
 }
@@ -80,7 +80,7 @@ void MagnetometerWidget::load(const YAML::Node& node)
   offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
   update_rate_->setValue(node[update_rate_->name()].as<int>());
   noise_stddev_->setValue(node[noise_stddev_->name()].as<int>());
-  hard_bias_range_->setValue(node[hard_bias_range_->name()].as<int>());
+  hard_bias_norm_->setValue(node[hard_bias_norm_->name()].as<int>());
 }
 
 Eigen::Vector3d MagnetometerWidget::offset() const
@@ -98,9 +98,9 @@ int MagnetometerWidget::noiseStddev() const
   return noise_stddev_->getValue();
 }
 
-int MagnetometerWidget::hardBiasRange() const
+int MagnetometerWidget::hardBiasNorm() const
 {
-  return hard_bias_range_->getValue();
+  return hard_bias_norm_->getValue();
 }
 }  // namespace sa
 }  // namespace gui

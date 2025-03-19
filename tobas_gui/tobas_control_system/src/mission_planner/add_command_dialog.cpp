@@ -47,7 +47,7 @@ command_t AddCommandDialog::selectedCommand() const
 void AddCommandDialog::onOkClicked()
 {
   const auto selected_item = command_list_->selectedItem();
-  if (selected_item == nullptr)
+  if (!selected_item)
     return;
 
   selected_command_ = textToCommand(selected_item->text().toUtf8());

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_command_msgs/msg/angle_throttle.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 
 #include "./base_controller.hpp"
 
@@ -20,18 +20,18 @@ public:
 
   void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   double yaw_;
   rclcpp::Time t_last_rcin_;
 
   // rosparams
-  double max_attitude_;      // [rad]
-  double max_heading_rate_;  // [rad/s]
+  double max_attitude_;   // [rad]
+  double max_head_rate_;  // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::msg::AngleThrottle> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

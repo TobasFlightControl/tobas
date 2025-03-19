@@ -12,12 +12,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_kdl REQUIRED)
+find_package(urdf REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(tobas_kdl REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	tobas_kdl
+	urdf
 	geometry_msgs
+	tobas_kdl
 )
 
 include_directories(include)

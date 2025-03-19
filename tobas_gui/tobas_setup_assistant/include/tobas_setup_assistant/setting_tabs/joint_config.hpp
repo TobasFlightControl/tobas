@@ -95,7 +95,7 @@ public:
   QString getJointName(int row) const;
   tobas::jnt_role_t getRole(int row) const;
   tobas::jnt_cmd_iface_t getCommandInterface(int row) const;
-  tobas::jnt_hw_iface_t getHardwareInterface(int row) const;
+  tobas::hw_iface_t getHardwareInterface(int row) const;
   double getHomePosition(int row) const;  // [rad]
   int getPwmChannel(int row) const;
   uint16_t getPwmMinPeriod(int row) const;  // [us]
@@ -107,7 +107,7 @@ public:
   // Setters
   void setRole(int row, tobas::jnt_role_t value);
   void setCommandInterface(int row, tobas::jnt_cmd_iface_t value);
-  void setHardwareInterface(int row, tobas::jnt_hw_iface_t value);
+  void setHardwareInterface(int row, tobas::hw_iface_t value);
   void setHomePosition(int row, double value);  // [rad]
   void setPwmChannel(int row, int value);
   void setPwmMinPeriod(int row, uint16_t value);  // [us]

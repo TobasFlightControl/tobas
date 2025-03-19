@@ -2,7 +2,7 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_qt_tools/widgets/widget.hpp>
 
 namespace gui
@@ -38,12 +38,12 @@ private:
   const rclcpp::Node::SharedPtr node_;
 
   // 現在のオイラー角
-  kdl::Euler euler_;
+  double roll_, pitch_, yaw_;
 
   // 機体から見た地平線の方程式
   double slope_, y_intercept_;
 
-  ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   void paintEvent(QPaintEvent* event) override;
 
@@ -66,7 +66,7 @@ private:
   /* ヨー角 [rad] をウィンドウ幅に変換する． */
   double yawToWidth(double yaw) const;
 
-  void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
 }  // namespace gcs
 }  // namespace gui

@@ -42,7 +42,8 @@ void MultiComponentManagers::spin()
 {
   vector<ComponentManager> managers(num_managers_);
 
-  const auto node_options = rclcpp::NodeOptions().use_intra_process_comms(true);
+  rclcpp::NodeOptions node_options;
+  node_options.use_intra_process_comms(true);
 
   for (size_t i = 0; i < num_managers_; ++i)
   {

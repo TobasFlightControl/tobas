@@ -7,12 +7,11 @@ namespace gui
 {
 namespace gcs
 {
-ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone)
+ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone) : drone_(drone)
 {
   // Components
   pose_viewer_ = new PoseViewerWidget(node);
-  battery_viewer_ = new BatteryViewerWidget(node, drone);
+  power_source_viewer_ = new PowerSourceViewerWidget(node, drone);
   cpu_viewer_ = new CPUViewerWidget(node);
   rcin_viewer_ = new rcin::RCInputViewerWidget(node);
   rotors_viewer_ = new RotorsViewerWiddget(node, drone);
@@ -22,7 +21,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tob
 
   // Layout
   const auto cols3 = new QHBoxLayout();
-  cols3->addWidget(battery_viewer_, 1);
+  cols3->addWidget(power_source_viewer_, 1);
   cols3->addWidget(cpu_viewer_, 1);
 
   const auto rows2 = new QVBoxLayout();
@@ -49,7 +48,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tob
 void ControlSystemWidget::reset()
 {
   pose_viewer_->reset();
-  battery_viewer_->reset();
+  power_source_viewer_->reset();
   cpu_viewer_->reset();
   rcin_viewer_->reset();
   rotors_viewer_->reset();
@@ -61,7 +60,7 @@ void ControlSystemWidget::reset()
 void ControlSystemWidget::updateInternalDataStructures()
 {
   pose_viewer_->updateNamespace(drone_.name);
-  battery_viewer_->updateInternalDataStructures();
+  power_source_viewer_->updateInternalDataStructures();
   cpu_viewer_->updateNamespace(drone_.name);
   rcin_viewer_->updateNamespace(drone_.name);
   rotors_viewer_->updateInternalDataStructures();

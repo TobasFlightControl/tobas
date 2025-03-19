@@ -1,3 +1,4 @@
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -11,8 +12,6 @@ namespace tobas
 MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE), stopwatch_(100)
 {
-  resizeAndFill();
-  updateWeight();
 }
 
 bool MultiRotorMixer_QP::updateInternalDataStructures()
@@ -28,21 +27,22 @@ bool MultiRotorMixer_QP::updateInternalDataStructures()
     return false;
 
   resizeAndFill();
-  updateWeight();
 
   return true;
 }
 
 bool MultiRotorMixer_QP::solve(
-  const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
   const double& tar_thrusts_sum,
   const kdl::Vector& ext_torque_B)
 {
-  assert(cur_voltage > 0);
-  assert(tar_thrusts_sum > 0);
+  if (tar_thrusts_sum < 0.)
+  {
+    cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << endl;
+    return false;
+  }
 
   // 順運動学を計算
   if (fk_solver_.JntToCart(cur_q) < 0)
@@ -58,6 +58,7 @@ bool MultiRotorMixer_QP::solve(
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
+  const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -66,21 +67,26 @@ bool MultiRotorMixer_QP::solve(
   {
     const auto& rotor = z_rotors_.rotor(i);
 
-    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
+    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
 
-    const auto elem = tree_.getSegment(rotor.link_name)->second;
+    const auto elem = tree_.getSegment(rotor->link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
-    const auto d = rotor.sign();
-    const auto& cm = rotor.moment_constant;
+    const auto d = rotor->sign();
+    const auto& cm = rotor->moment_const;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.col(i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
   // EoM行列等式の右辺
-  const auto right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;
-  h_ = right.data;
+  h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
+
+  // 重み
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
+  const auto thrust_scale = mass * tobas_std::kGravity / z_rotors_.count();  // [N]
+  Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
+  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
   // コスト関数
   qp_.problem.P = G_.transpose() * Q_ * G_;
@@ -96,10 +102,10 @@ bool MultiRotorMixer_QP::solve(
     const auto& rotor = z_rotors_.rotor(i);
 
     double max_thrust, min_thrust;
-    if (rotor_alive_.at(rotor.channel))
+    if (rotor_alive_.at(rotor->link_name))
     {
-      max_thrust = rotor.maxThrust(cur_voltage);
-      min_thrust = rotor.minThrust();
+      max_thrust = drone_.prop->maxThrust(rotor->link_name);
+      min_thrust = drone_.prop->minThrust(rotor->link_name);
     }
     else
     {
@@ -144,7 +150,6 @@ bool MultiRotorMixer_QP::setBaseWeight(double p)
   }
 
   cfg_.base_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -157,7 +162,6 @@ bool MultiRotorMixer_QP::setThrustWeight(double p)
   }
 
   cfg_.thrust_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -176,23 +180,5 @@ void MultiRotorMixer_QP::resizeAndFill()
 
   R_.resize(z_rotors_.count());
   G_.resize(NoChange, z_rotors_.count());
-}
-
-void MultiRotorMixer_QP::updateWeight()
-{
-  if (z_rotors_.count() == 0)
-    return;
-
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
-  const auto& inertia = inertia_solver_.getInertia();
-  const auto& mass = inertia.getMass();
-  const auto& I = inertia.getRotationalInertia();
-
-  const auto angular_scale = (I.trace() / 3) * kDGyroScale;                  // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / z_rotors_.count();  // [N]
-
-  Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
-  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 }
 }  // namespace tobas

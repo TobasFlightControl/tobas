@@ -68,7 +68,7 @@ OgreController::~OgreController() = default;
 
 void OgreController::update()
 {
-  if (pimpl_->rviz.robot == nullptr || pimpl_->link_updater == nullptr)
+  if (!pimpl_->rviz.robot || !pimpl_->link_updater)
     return;
 
   pimpl_->rviz.robot->update(*pimpl_->link_updater);

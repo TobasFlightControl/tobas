@@ -46,4 +46,7 @@ private:
   UniformDistribution noise_[3];
   gz::math::Vector3d values_;
 };
+
+/* 単位球上の一点をランダムに生成する． */
+gz::math::Vector3d createUnitSpherePoint(std::random_device& rnd_dev);
 }  // namespace gazebo

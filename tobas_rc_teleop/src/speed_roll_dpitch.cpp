@@ -1,5 +1,4 @@
 #include <tobas_std_tools/check.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -43,7 +42,7 @@ void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 {
 }
 
-void SpeedRollDeltaPitchController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
+void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();

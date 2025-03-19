@@ -3,6 +3,7 @@
 #include <cmath>
 #include <array>
 #include <iostream>
+#include <cassert>
 
 #include <tobas_math/core.hpp>
 
@@ -14,12 +15,12 @@ namespace dsp
 template <typename T>
 class NotchFilter : public BaseFilter<T>
 {
-  using super = BaseFilter<T>;
+  static constexpr size_t kHistorySize = 3;
 
 public:
   explicit NotchFilter();
 
-  super::error_t update(const T& u, const double& dt) override;
+  void update(const T& u, const double& dt) override;
   void bypass(const T& u);
 
   inline const T& getValue() const override;
@@ -34,8 +35,8 @@ private:
   double q_ = 0.;    // [-]
   double d_ = 0.;    // [-]
 
-  std::array<T, 3> y_;
-  std::array<T, 3> u_;
+  std::array<T, kHistorySize> y_;
+  std::array<T, kHistorySize> u_;
 
   void shiftHistory();
 };
@@ -46,12 +47,19 @@ NotchFilter<T>::NotchFilter()
 }
 
 template <typename T>
-BaseFilter<T>::error_t NotchFilter<T>::update(const T& u, const double& dt)
+void NotchFilter<T>::update(const T& u, const double& dt)
 {
-  if (dt <= 0)
-    return super::error_code_ = super::E_TIME_STEP_NEGATIVE;
-  else if (dt >= 2 / wn_)
-    return super::error_code_ = super::E_TIME_STEP_TOO_LARGE;
+  assert(dt >= 0.);
+
+  if (dt >= 2 / wn_)
+  {
+    for (size_t i = 0; i < kHistorySize; ++i)
+    {
+      y_[i] = u;
+      u[i] = u;
+    }
+    return;
+  }
 
   shiftHistory();
 
@@ -73,8 +81,6 @@ BaseFilter<T>::error_t NotchFilter<T>::update(const T& u, const double& dt)
 
   u_[0] = u;
   y_[0] = (n0 * u_[0] + n1 * u_[1] + n2 * u_[2] - d1 * y_[1] - d2 * y_[2]) / d0;
-
-  return super::error_code_ = super::E_NO_ERROR;
 }
 
 template <typename T>

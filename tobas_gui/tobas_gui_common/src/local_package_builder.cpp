@@ -6,9 +6,7 @@
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_gui_common/local_package_builder.hpp"
-#include "../include/tobas_gui_common/constants.hpp"
 #include "../include/tobas_gui_common/package.hpp"
-#include "../include/tobas_gui_common/util.hpp"
 
 using namespace std;
 namespace fs = filesystem;
@@ -31,7 +29,7 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   }
 
   // Get paths needed for building
-  const auto ws_path = ros2::expandUser(kColconWSPathLocal);
+  const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
   const auto build_path = ws_path / "build";
   const auto install_path = ws_path / "install";
   const auto log_path = ws_path / "log";
@@ -61,13 +59,6 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   if (!command_executor_.execute(command))
   {
     cerr << "Failed to build \"" << meta_name << "\"." << endl;
-    return false;
-  }
-
-  // Source workspace
-  if (!addAmentPrefixPath(install_path))
-  {
-    cout << "Failed to source " << install_path << "." << endl;
     return false;
   }
 

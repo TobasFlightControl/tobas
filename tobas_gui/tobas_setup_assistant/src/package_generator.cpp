@@ -1,9 +1,6 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <urdf_parser/urdf_parser.h>
-#include <std_msgs/msg/string.hpp>
-
 #include <QDebug>
-#include <QMessageBox>
 
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -12,7 +9,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/command.hpp>
 
@@ -79,7 +75,7 @@ string PackageGenerator::tbsPath() const
 
 string PackageGenerator::flightActionsPackage() const
 {
-  if (settings_->controller->isCommandCompatible(tobas::POS_VEL_ACC_YAW))
+  if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_YAW))
   {
     return "tobas_mr_actions";
   }
@@ -130,12 +126,6 @@ tobas::Drone PackageGenerator::createDrone()
   // Drone Name
   drone.name = robot_.robotName();
 
-  // Battery
-  drone.battery.nominal_voltage = settings_->battery->nominalVoltage();
-  drone.battery.max_voltage = settings_->battery->maxVoltage();
-  drone.battery.sag_voltage = settings_->battery->sagVoltage();
-  drone.battery.max_current = settings_->battery->maxCurrent();
-
   // Joints
   const auto& joint_config = settings_->joint_config;
   for (int i = 0; i < joint_config->count(); ++i)
@@ -150,20 +140,20 @@ tobas::Drone PackageGenerator::createDrone()
 
     switch (joint.hw_iface)
     {
-      case tobas::jnt_hw_iface_t::PWM:
+      case tobas::hw_iface_t::PWM:
       {
         tobas::PwmConfig pwm;
         pwm.channel = joint_config->getPwmChannel(i);
-        pwm.joint_name = joint.name;
-        pwm.min_period = joint_config->getPwmMinPeriod(i);
-        pwm.max_period = joint_config->getPwmMaxPeriod(i);
-        pwm.min_angle = joint_config->getPwmMinAngle(i);
-        pwm.max_angle = joint_config->getPwmMaxAngle(i);
+        pwm.name = joint.name;
+        pwm.period_range.lower = joint_config->getPwmMinPeriod(i);
+        pwm.period_range.upper = joint_config->getPwmMaxPeriod(i);
+        pwm.value_range.lower = joint_config->getPwmMinAngle(i);
+        pwm.value_range.upper = joint_config->getPwmMaxAngle(i);
         pwm.reverse = joint_config->getPwmReverse(i);
         drone.pwms[joint.name] = pwm;
         break;
       }
-      case tobas::jnt_hw_iface_t::OTHER:
+      case tobas::hw_iface_t::OTHER:
       {
         break;
       }
@@ -174,62 +164,42 @@ tobas::Drone PackageGenerator::createDrone()
     }
   }
 
-  // Rotors
-  const auto propulsions = settings_->propulsion_system->selected();
-  for (int i = 0; i < propulsions->count(); ++i)
-  {
-    const auto link_name = propulsions->linkName(i);
-    const auto prop_config = propulsions->widget(i);
-
-    tobas::RotorConfig rotor;
-    rotor.channel = prop_config->general()->channel();
-    rotor.link_name = link_name.toStdString();
-    rotor.direction = prop_config->general()->direction();
-    rotor.axis = robot_.rotorAxisType(link_name.toStdString());
-    rotor.num_poles = prop_config->motor()->numPoles();
-    rotor.kv = prop_config->motor()->kv();
-    rotor.internal_resistance = prop_config->motor()->internalResistance();
-    rotor.propeller_diameter = prop_config->propeller()->diameter();
-    rotor.max_rot_speed = prop_config->speedLimit()->maxRotSpeed();
-    rotor.motor_constant = prop_config->aerodynamics()->motorConst();
-    rotor.moment_constant = prop_config->aerodynamics()->momentConst();
-    rotor.drag_constant = prop_config->aerodynamics()->rotorDragCoef();
-    rotor.tilt_joint_name = prop_config->general()->tiltJointName().toStdString();
-
-    drone.rotors[rotor.channel] = rotor;
-  }
+  // Propulsion System
+  // TODO: 電動とICEで場合分け
+  drone.prop = createElectricPropulsionSystem();
 
   // Fixed Wing
-  drone.fixed_wing.equipped = settings_->fixed_wing->hasFixedWing();
-  if (drone.fixed_wing.equipped)
+  if (settings_->fixed_wing->hasFixedWing())
   {
+    drone.fixed_wing = make_shared<tobas::FixedWingConfig>();
+
     // Vehicle
     const auto vehicle = settings_->fixed_wing->vehicle();
-    drone.fixed_wing.vehicle.wing_surface = vehicle->wingSurface();
-    drone.fixed_wing.vehicle.wing_span = vehicle->wingSpan();
-    drone.fixed_wing.vehicle.mac = vehicle->mac();
-    drone.fixed_wing.vehicle.ac.data = vehicle->aerodynamicCenter();
-    drone.fixed_wing.vehicle.alpha_limit.lower = vehicle->alphaLimit().first;
-    drone.fixed_wing.vehicle.alpha_limit.upper = vehicle->alphaLimit().second;
+    drone.fixed_wing->vehicle.wing_surface = vehicle->wingSurface();
+    drone.fixed_wing->vehicle.wing_span = vehicle->wingSpan();
+    drone.fixed_wing->vehicle.mac = vehicle->mac();
+    drone.fixed_wing->vehicle.ac.data = vehicle->aerodynamicCenter();
+    drone.fixed_wing->vehicle.alpha_limit.lower = vehicle->alphaLimit().first;
+    drone.fixed_wing->vehicle.alpha_limit.upper = vehicle->alphaLimit().second;
 
     // Aerodynamic Coefficients
     const auto aero_coefs = settings_->fixed_wing->aeroCoefs();
-    drone.fixed_wing.aerodynamics.c_lift_0 = aero_coefs->c_lift_0();
-    drone.fixed_wing.aerodynamics.c_lift_alpha = aero_coefs->c_lift_alpha();
-    drone.fixed_wing.aerodynamics.c_drag_0 = aero_coefs->c_drag_0();
-    drone.fixed_wing.aerodynamics.c_drag_alpha = aero_coefs->c_drag_alpha();
-    drone.fixed_wing.aerodynamics.c_side_beta = aero_coefs->c_side_beta();
-    drone.fixed_wing.aerodynamics.c_roll_beta = aero_coefs->c_roll_beta();
-    drone.fixed_wing.aerodynamics.c_roll_p = aero_coefs->c_roll_p();
-    drone.fixed_wing.aerodynamics.c_roll_r = aero_coefs->c_roll_r();
-    drone.fixed_wing.aerodynamics.c_pitch_0 = aero_coefs->c_pitch_0();
-    drone.fixed_wing.aerodynamics.c_pitch_alpha = aero_coefs->c_pitch_alpha();
-    drone.fixed_wing.aerodynamics.c_pitch_abs_beta = aero_coefs->c_pitch_abs_beta();
-    drone.fixed_wing.aerodynamics.c_pitch_alpha_rate = aero_coefs->c_pitch_alpha_rate();
-    drone.fixed_wing.aerodynamics.c_pitch_q = aero_coefs->c_pitch_q();
-    drone.fixed_wing.aerodynamics.c_yaw_beta = aero_coefs->c_yaw_beta();
-    drone.fixed_wing.aerodynamics.c_yaw_p = aero_coefs->c_yaw_p();
-    drone.fixed_wing.aerodynamics.c_yaw_r = aero_coefs->c_yaw_r();
+    drone.fixed_wing->aerodynamics.c_lift_0 = aero_coefs->c_lift_0();
+    drone.fixed_wing->aerodynamics.c_lift_alpha = aero_coefs->c_lift_alpha();
+    drone.fixed_wing->aerodynamics.c_drag_0 = aero_coefs->c_drag_0();
+    drone.fixed_wing->aerodynamics.c_drag_alpha = aero_coefs->c_drag_alpha();
+    drone.fixed_wing->aerodynamics.c_side_beta = aero_coefs->c_side_beta();
+    drone.fixed_wing->aerodynamics.c_roll_beta = aero_coefs->c_roll_beta();
+    drone.fixed_wing->aerodynamics.c_roll_p = aero_coefs->c_roll_p();
+    drone.fixed_wing->aerodynamics.c_roll_r = aero_coefs->c_roll_r();
+    drone.fixed_wing->aerodynamics.c_pitch_0 = aero_coefs->c_pitch_0();
+    drone.fixed_wing->aerodynamics.c_pitch_alpha = aero_coefs->c_pitch_alpha();
+    drone.fixed_wing->aerodynamics.c_pitch_abs_beta = aero_coefs->c_pitch_abs_beta();
+    drone.fixed_wing->aerodynamics.c_pitch_alpha_rate = aero_coefs->c_pitch_alpha_rate();
+    drone.fixed_wing->aerodynamics.c_pitch_q = aero_coefs->c_pitch_q();
+    drone.fixed_wing->aerodynamics.c_yaw_beta = aero_coefs->c_yaw_beta();
+    drone.fixed_wing->aerodynamics.c_yaw_p = aero_coefs->c_yaw_p();
+    drone.fixed_wing->aerodynamics.c_yaw_r = aero_coefs->c_yaw_r();
 
     // Control Surfaces
     const auto css = settings_->fixed_wing->controlSurfaces()->selected();
@@ -247,11 +217,54 @@ tobas::Drone PackageGenerator::createDrone()
       cs.c_pitch_delta = css->pitchCoef(i);
       cs.c_yaw_delta = css->yawCoef(i);
 
-      drone.fixed_wing.control_surfaces[cs.channel] = cs;
+      drone.fixed_wing->control_surfaces[cs.channel] = cs;
     }
   }
 
   return drone;
+}
+
+tobas::ElectricPropulsionSystemConfig::SharedPtr PackageGenerator::createElectricPropulsionSystem()
+{
+  const auto eprop = make_shared<tobas::ElectricPropulsionSystemConfig>();
+
+  // Battery
+  eprop->battery.nominal_voltage = settings_->battery->nominalVoltage();
+  eprop->battery.max_voltage = settings_->battery->maxVoltage();
+  eprop->battery.sag_voltage = settings_->battery->sagVoltage();
+  eprop->battery.max_current = settings_->battery->maxCurrent();
+
+  // Rotors
+  const auto propulsions = settings_->propulsion_system->selected();
+  for (int i = 0; i < propulsions->count(); ++i)
+  {
+    const auto link_name = propulsions->linkName(i).toStdString();
+    const auto prop_config = propulsions->widget(i);
+
+    const auto rotor = make_shared<tobas::ElectricRotorConfig>();
+
+    rotor->link_name = link_name;
+    rotor->direction = prop_config->general()->direction();
+    rotor->axis = robot_.rotorAxisType(link_name);
+    rotor->moment_const = prop_config->aerodynamics()->momentConst();
+    rotor->tilt_joint_name = prop_config->general()->tiltJointName().toStdString();
+
+    rotor->channel = prop_config->general()->channel();
+    rotor->num_poles = prop_config->motor()->numPoles();
+    rotor->kv = prop_config->motor()->kv();
+    rotor->internal_resistance = prop_config->motor()->internalResistance();
+    rotor->propeller_diameter = prop_config->propeller()->diameter();
+    rotor->motor_const = prop_config->aerodynamics()->motorConst();
+
+    eprop->rotors[link_name] = rotor;
+  }
+
+  return eprop;
+}
+
+tobas::ICEPropulsionSystemConfig::SharedPtr PackageGenerator::createICEPropulsionSystem()
+{
+  return make_shared<tobas::ICEPropulsionSystemConfig>();  // TODO
 }
 
 bool PackageGenerator::hasServoJoint() const
@@ -549,9 +562,9 @@ bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
 {
   // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
   YAML::Node node(YAML::NodeType::Map);
-  node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
-  node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
-  node["loiter_mode"] = static_cast<int>(settings_->controller->loiterModeCommand());
+  node["acrobat_mode"] = settings_->controller->acrobatModeCommand();
+  node["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
+  node["loiter_mode"] = settings_->controller->loiterModeCommand();
 
   if (!saveYamlNode(config_dir / "rc_teleop.yaml", node))
     return false;
@@ -559,9 +572,10 @@ bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generatePreArmCheckConfig(const std::filesystem::path& config_dir)
+bool PackageGenerator::generatePreArmCheckConfig(const filesystem::path& config_dir)
 {
   YAML::Node node(YAML::NodeType::Map);
+  node["check_node_connection"] = settings_->pre_arm_check->checkNodeConnection();
   node["check_battery_voltage"] = settings_->pre_arm_check->checkBatteryVoltage();
   node["check_cpu_temperature"] = settings_->pre_arm_check->checkCPUTemperature();
   node["check_rotor_communication"] = settings_->pre_arm_check->checkRotorCommunication();
@@ -667,7 +681,7 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
 
 bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 {
-  std::set<std::string> prop_jnt_names;
+  set<string> prop_jnt_names;
   const auto propulsions = settings_->propulsion_system->selected();
   for (int i = 0; i < propulsions->count(); ++i)
   {
@@ -676,19 +690,19 @@ bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     prop_jnt_names.insert(jnt_name);
   }
 
-  for (auto child = robot->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+  for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement())
   {
     if (strcmp(child->Name(), "joint") == 0)
     {
       const auto jnt_name = child->Attribute("name");
-      if (jnt_name == nullptr)
+      if (!jnt_name)
       {
         qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
         return false;
       }
       if (prop_jnt_names.contains(jnt_name))
       {
-        for (auto gchild = child->FirstChildElement(); gchild != nullptr; gchild = gchild->NextSiblingElement())
+        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement())
         {
           if (strcmp(gchild->Name(), "limit") == 0)
           {
@@ -707,14 +721,20 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
 {
   if (strcmp(elem->Name(), "mesh") == 0)
   {
-    const auto filename = elem->Attribute("filename");
-    if (filename == nullptr)
+    const auto file_name = elem->Attribute("filename");
+    if (!file_name)
     {
       qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
-    const auto src_path = ros2::resolveURI(filename);
+    const auto src_path = ros2::resolveURI(file_name);
+    if (!fs::exists(src_path))
+    {
+      qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
+      return false;
+    }
+
     const auto base_name = src_path.filename();
     const auto dst_path = mesh_dir / base_name;
     if (src_path != dst_path)
@@ -741,13 +761,13 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
       // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
       // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
       const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-      const auto new_filename = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
-      elem->SetAttribute("filename", new_filename.c_str());
+      const auto new_file_name = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
+      elem->SetAttribute("filename", new_file_name.c_str());
     }
   }
 
   // 再帰的に子要素もチェック
-  for (auto child = elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement())
     if (!resolveMeshFiles(child, mesh_dir))
       return false;
 
@@ -762,7 +782,6 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   const auto& batt = settings_->battery;
   const auto& propulsions = settings_->propulsion_system->selected();
-  const auto& fixed_wing = settings_->fixed_wing;
   const auto& imu = settings_->imu;
   const auto& mag = settings_->magnetometer;
   const auto& baro = settings_->barometer;
@@ -772,9 +791,9 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   const auto drone = createDrone();
 
   // Get rotor channels
-  vector<size_t> rotor_channels;
-  for (const auto& [channel, _] : drone.rotors)
-    rotor_channels.push_back(channel);
+  vector<string> rotor_link_names;
+  for (const auto& [link_name, _] : drone.prop->rotors)
+    rotor_link_names.push_back(link_name);
 
   // XML namespace
   robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
@@ -783,18 +802,18 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
   addBatteryPlugin(
     robot, ns, kBatterySamplingRate, batt->maxVoltage(), batt->sagVoltage(), batt->maxCurrent(), batt->capacity(),
-    batt->internalRegistance(), rotor_channels);
+    batt->internalRegistance(), rotor_link_names);
 
   // IMU plugin
   addIMUPlugin(
-    robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroRandomWalk(),
-    imu->gyroBiasCorrTime(), imu->gyroTurnOnBiasSigma(), imu->accNoiseDensity(), imu->accRandomWalk(),
-    imu->accBiasCorrTime(), imu->accTurnOnBiasSigma(), rotor_channels);
+    robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroOffsetNorm(),
+    imu->gyroRandomWalk(), imu->gyroBiasCorrTime(), imu->accNoiseDensity(), imu->accOffsetNorm(), imu->accRandomWalk(),
+    imu->accBiasCorrTime(), rotor_link_names);
 
   // Magnetometer plugin
   addMagnetometerPlugin(
     robot, ns, root_name, mag->updateRate(), mag->offset(), sim->latitudeZero(), sim->longitudeZero(),
-    sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasRange());
+    sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasNorm());
 
   // Barometer plugin
   addBarometerPlugin(
@@ -818,15 +837,14 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     const auto propeller = propulsion->propeller();
     const auto aero = propulsion->aerodynamics();
 
-    addRotorPlugin(
-      robot, ns, link_name, general->channel(), motor->kv(), motor->internalResistance(), propeller->numBlade(),
-      aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), general->direction(), esc->maxCurrent(),
-      sim->maxModelErrorRate());
+    addElectricPropulsionSystemPlugin(
+      robot, ns, link_name, motor->kv(), motor->internalResistance(), propeller->numBlade(), aero->motorConst(),
+      aero->momentConst(), aero->rotorDragCoef(), general->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
   }
 
   // Fixed wing plugin
-  if (fixed_wing->hasFixedWing())
-    addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), drone.fixed_wing);
+  if (drone.fixed_wing)
+    addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
 
   // Wind plugin
   addGazeboWindPlugin(robot, ns, root_name);

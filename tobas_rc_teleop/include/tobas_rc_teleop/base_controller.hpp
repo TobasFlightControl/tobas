@@ -5,7 +5,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 
 namespace tobas_rc_teleop
 {
@@ -21,7 +21,7 @@ public:
 
   virtual void initialize(tobas::BaseNode* node) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
-  virtual void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
+  virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
 
 protected:
   const tobas_std::Range<double> dead_zone_;

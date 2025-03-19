@@ -26,7 +26,6 @@ public:
   bool updateInternalDataStructures() override;
 
   bool solve(
-    const double& cur_voltage,
     const kdl::JntArray& cur_q,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_dgyro_B,
@@ -58,6 +57,5 @@ private:
   tobas_std::Stopwatch stopwatch_;
 
   void resizeAndFill();
-  void updateWeight();
 };
 }  // namespace tobas

@@ -10,22 +10,25 @@ Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : drone_(drone), tree_(t
 
 bool Mixer::updateInternalDataStructures()
 {
+  if (!drone_.isValid())
+    return false;
+
   rotor_alive_.clear();
-  for (const auto& [channel, _] : drone_.rotors)
-    rotor_alive_[channel] = true;
+  for (const auto& [link_name, _] : drone_.prop->rotors)
+    rotor_alive_[link_name] = true;
 
   return true;
 }
 
-bool Mixer::setRotorLiveliness(size_t channel, bool alive)
+bool Mixer::setRotorLiveliness(const std::string& link_name, bool alive)
 {
-  if (!rotor_alive_.contains(channel))
+  if (!rotor_alive_.contains(link_name))
   {
-    cerr << "Invalid rotor channel: " << channel << endl;
+    cerr << "Invalid rotor link name: " << link_name << endl;
     return false;
   }
 
-  rotor_alive_[channel] = alive;
+  rotor_alive_.at(link_name) = alive;
   return true;
 }
 }  // namespace tobas

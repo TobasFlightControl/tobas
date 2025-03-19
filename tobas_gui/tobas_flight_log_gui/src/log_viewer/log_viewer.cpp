@@ -1,6 +1,5 @@
 #include <QVBoxLayout>
 
-#include <tobas_string_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
@@ -37,6 +36,20 @@ void FlightLogViewerWidget::reset()
 {
   log_path_.clear();
   reader_.close();
+  decode_fail_topics_.clear();
+
+  odom_decoder_.clearCache();
+  imu_decoder_.clearCache();
+  mag_decoder_.clearCache();
+  gnss_decoder_.clearCache();
+  battery_decoder_.clearCache();
+  cur_rotor_states_decoder_.clearCache();
+  tar_rotor_speeds_decoder_.clearCache();
+  sampling_time_decoder_.clearCache();
+  ctrl_latency_decoder_.clearCache();
+  dist_force_decoder_.clearCache();
+  obsv_fb_decoder_.clearCache();
+  mr_ctrl_fb_decoder_.clearCache();
 
   for (auto& plot_tab : plot_tabs_)
     plot_tab->setTimeScale(0., kWindowDuration);
@@ -49,7 +62,7 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   reset();
 
   // rosbagの絶対パスを更新
-  log_path_ = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
+  log_path_ = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   // rosbagを開く
   try
@@ -101,9 +114,11 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Battery> battery_data;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data;
   QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data;
-  QVector<tobas_msgs::msg::Latency> latency_data;
+  QVector<tobas_msgs::msg::Latency> sampling_time_data;
+  QVector<tobas_msgs::msg::Latency> ctrl_latency_data;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data;
+  QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data;
   while (reader_.has_next())
   {
     const auto msg = reader_.read_next();
@@ -112,64 +127,43 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     if (cur_time > window_stop_time)
       break;
 
-    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+    // 一度デコードに失敗したトピックはログがリセットされるまでデコードしない
+    if (decode_fail_topics_.contains(msg->topic_name))
+      continue;
 
+    // デコード
+    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
     try
     {
-      if (str::endsWith(msg->topic_name, path::join("/", tobas::kOdometryTopic)))
-      {
-        odom_ser_.deserialize_message(&ser_msg, &odom_);
-        odom_data.push_back(odom_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
-      {
-        imu_ser_.deserialize_message(&ser_msg, &imu_);
-        imu_data.push_back(imu_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kMagTopic)))
-      {
-        mag_ser_.deserialize_message(&ser_msg, &mag_);
-        mag_data.push_back(mag_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kGnssTopic)))
-      {
-        gnss_ser_.deserialize_message(&ser_msg, &gnss_);
-        gnss_data.push_back(gnss_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kBatteryTopic)))
-      {
-        battery_ser_.deserialize_message(&ser_msg, &battery_);
-        battery_data.push_back(battery_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kRotorStatesTopic)))
-      {
-        cur_rotor_states_ser_.deserialize_message(&ser_msg, &rotor_states_);
-        cur_rotor_states_data.push_back(rotor_states_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kRotorSpeedsCmdTopic)))
-      {
-        tar_rotor_speeds_ser_.deserialize_message(&ser_msg, &rotor_speeds_);
-        tar_rotor_speeds_data.push_back(rotor_speeds_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kLatencyTopic)))
-      {
-        latency_ser_.deserialize_message(&ser_msg, &latency_);
-        latency_data.push_back(latency_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kDisturbanceForceTopic)))
-      {
-        dist_force_ser_.deserialize_message(&ser_msg, &dist_force_);
-        dist_force_data.push_back(dist_force_);
-      }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kObsvFeedbackTopic)))
-      {
-        obsv_fb_ser_.deserialize_message(&ser_msg, &obsv_fb_);
-        obsv_fb_data.push_back(obsv_fb_);
-      }
+      if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic)))
+        odom_data.push_back(odom_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic)))
+        imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic)))
+        mag_data.push_back(mag_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic)))
+        gnss_data.push_back(gnss_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic)))
+        battery_data.push_back(battery_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic)))
+        cur_rotor_states_data.push_back(cur_rotor_states_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic)))
+        tar_rotor_speeds_data.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic)))
+        sampling_time_data.push_back(sampling_time_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic)))
+        ctrl_latency_data.push_back(ctrl_latency_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic)))
+        dist_force_data.push_back(dist_force_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic)))
+        obsv_fb_data.push_back(obsv_fb_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic)))
+        mr_ctrl_fb_data.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_msg));
     }
     catch (const std::exception& e)
     {
-      qWarning() << "Failed to deserialize " << QString::fromStdString(msg->topic_name) << ": " + QString(e.what());
+      qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(msg->topic_name) + "\".");
+      decode_fail_topics_.insert(msg->topic_name);
     }
   }
 
@@ -179,16 +173,17 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     // XXX: データの設定の前に範囲を指定しないと若干プロットが崩れる
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
-    plot_tab->setPoseData(odom_data);
-    plot_tab->setTwistData(odom_data);
+    plot_tab->setFrameData(odom_data, mr_ctrl_fb_data);
     plot_tab->setImuData(imu_data);
     plot_tab->setMagData(mag_data);
     plot_tab->setGnssData(gnss_data);
     plot_tab->setBatteryData(battery_data);
     plot_tab->setRotorSpeedData(cur_rotor_states_data, tar_rotor_speeds_data);
-    plot_tab->setLatencyData(latency_data);
+    plot_tab->setSamplingTimeData(sampling_time_data);
+    plot_tab->setControlLatencyData(ctrl_latency_data);
     plot_tab->setDisturbanceForceData(dist_force_data);
     plot_tab->setObserverFeedbackData(obsv_fb_data);
+    plot_tab->setMRControllerFeedbackData(mr_ctrl_fb_data);
   }
 }
 

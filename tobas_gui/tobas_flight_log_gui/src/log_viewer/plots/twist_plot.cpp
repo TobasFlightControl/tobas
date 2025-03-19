@@ -13,24 +13,36 @@ TwistPlotWidget::TwistPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  linear_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Linear Velocity X");
-  linear_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Linear Velocity Y");
-  linear_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Linear Velocity Z");
-  angular_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Angular Velocity X");
-  angular_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Angular Velocity Y");
-  angular_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Angular Velocity Z");
+  cur_lin_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Velocity X");
+  cur_lin_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Velocity Y");
+  cur_lin_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Velocity Z");
+  cur_ang_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Velocity X");
+  cur_ang_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Velocity Y");
+  cur_ang_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Velocity Z");
+  tar_lin_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Velocity X");
+  tar_lin_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Velocity Y");
+  tar_lin_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Velocity Z");
+  tar_ang_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Velocity X");
+  tar_ang_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Velocity Y");
+  tar_ang_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Velocity Z");
 
   for (size_t i = 0; i < 3; ++i)
   {
-    linear_plots_[i] = new QwtPlot2();
-    linear_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    linear_curves_[i]->attach(linear_plots_[i]);
-    grid->addWidget(linear_plots_[i], i, 0);
+    lin_plots_[i] = new QwtPlot2();
+    ang_plots_[i] = new QwtPlot2();
 
-    angular_plots_[i] = new QwtPlot2();
-    angular_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    angular_curves_[i]->attach(angular_plots_[i]);
-    grid->addWidget(angular_plots_[i], i, 1);
+    grid->addWidget(lin_plots_[i], i, 0);
+    grid->addWidget(ang_plots_[i], i, 1);
+
+    cur_lin_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
+    cur_ang_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
+    tar_lin_curves_[i]->setPen(kTargetValueColor, kLineWidth);
+    tar_ang_curves_[i]->setPen(kTargetValueColor, kLineWidth);
+
+    cur_lin_curves_[i]->attach(lin_plots_[i]);
+    cur_ang_curves_[i]->attach(ang_plots_[i]);
+    tar_lin_curves_[i]->attach(lin_plots_[i]);
+    tar_ang_curves_[i]->attach(ang_plots_[i]);
   }
 }
 
@@ -38,39 +50,79 @@ void TwistPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (size_t i = 0; i < 3; ++i)
   {
-    linear_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-    angular_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    lin_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    ang_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
 }
 
-void TwistPlotWidget::setData(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
+void TwistPlotWidget::setData(
+  const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
+  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
+{
+  updateCurrentSamples(odom_msgs);
+  updateTargetSamples(ctrl_fb_msgs);
+
+  for (size_t i = 0; i < 3; ++i)
+  {
+    lin_plots_[i]->replot();
+    ang_plots_[i]->replot();
+  }
+}
+
+void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, 3> linear_data;
-  std::array<QVector<double>, 3> angular_data;
+  std::array<QVector<double>, 3> lin_data;
+  std::array<QVector<double>, 3> ang_data;
 
   for (const auto& odom : odom_msgs)
   {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
     const auto& lin_vel = odom.twist.linear;
-    linear_data[0].push_back(lin_vel.x);
-    linear_data[1].push_back(lin_vel.y);
-    linear_data[2].push_back(lin_vel.z);
+    lin_data[0].push_back(lin_vel.x);
+    lin_data[1].push_back(lin_vel.y);
+    lin_data[2].push_back(lin_vel.z);
 
     const auto& ang_vel = odom.twist.angular;
-    angular_data[0].push_back(ang_vel.x);
-    angular_data[1].push_back(ang_vel.y);
-    angular_data[2].push_back(ang_vel.z);
+    ang_data[0].push_back(ang_vel.x);
+    ang_data[1].push_back(ang_vel.y);
+    ang_data[2].push_back(ang_vel.z);
   }
 
   for (size_t i = 0; i < 3; ++i)
   {
-    linear_curves_[i]->setSamples(t_data, linear_data[i]);
-    linear_plots_[i]->replot();
+    cur_lin_curves_[i]->setSamples(t_data, lin_data[i]);
+    cur_ang_curves_[i]->setSamples(t_data, ang_data[i]);
+  }
+}
 
-    angular_curves_[i]->setSamples(t_data, angular_data[i]);
-    angular_plots_[i]->replot();
+void TwistPlotWidget::updateTargetSamples(
+  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
+{
+  QVector<double> t_data;
+  std::array<QVector<double>, 3> lin_data;
+  std::array<QVector<double>, 3> ang_data;
+
+  for (const auto& ctrl_fb : ctrl_fb_msgs)
+  {
+    t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
+
+    const auto& lin_vel = ctrl_fb.target_velocity;
+    lin_data[0].push_back(lin_vel.x);
+    lin_data[1].push_back(lin_vel.y);
+    lin_data[2].push_back(lin_vel.z);
+
+    const auto& ang_vel = ctrl_fb.target_gyro;
+    ang_data[0].push_back(ang_vel.x);
+    ang_data[1].push_back(ang_vel.y);
+    ang_data[2].push_back(ang_vel.z);
+  }
+
+  for (size_t i = 0; i < 3; ++i)
+  {
+    tar_lin_curves_[i]->setSamples(t_data, lin_data[i]);
+    tar_ang_curves_[i]->setSamples(t_data, ang_data[i]);
   }
 }
 }  // namespace log

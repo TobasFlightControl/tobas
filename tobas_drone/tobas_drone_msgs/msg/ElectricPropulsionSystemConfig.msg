@@ -1,0 +1,2 @@
+tobas_drone_msgs/BatteryConfig battery
+tobas_drone_msgs/ElectricRotorConfig[] rotors

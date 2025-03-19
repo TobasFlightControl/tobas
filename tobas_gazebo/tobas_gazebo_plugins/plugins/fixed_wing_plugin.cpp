@@ -42,12 +42,8 @@ class GazeboFixedWingPlugin : public BaseNode,
                               public gz::sim::ISystemPreUpdate
 {
   // Constants
+  static constexpr char kControlSurfaceKey[] = "controlSurface";
   static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
-  static constexpr double kAutoResetTimeout = 0.5;  // [s]
-
-  // Default values
-  static constexpr double kDefaultLowerStallAngle = -10 * tobas_std::kDeg2Rad;
-  static constexpr double kDefaultUpperStallAngle = 20 * tobas_std::kDeg2Rad;
 
   using self = GazeboFixedWingPlugin;
 
@@ -179,7 +175,7 @@ void GazeboFixedWingPlugin::Configure(
 void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
+  getSdfParam(sdf, "altitudeZero", alt_0_, NON_NEGATIVE);
 
   // Vehicle
   getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, POSITIVE);
@@ -190,8 +186,8 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "aerodynamicCenter", ac);
   vectorGazeboToKDL(ac, vehicle_params_.ac);
 
-  getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower, kDefaultLowerStallAngle);
-  getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper, kDefaultUpperStallAngle);
+  getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower);
+  getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper);
   if (!vehicle_params_.alpha_limit.isValid())
     TOBAS_EXIT("Invalid stall angles");
 
@@ -217,10 +213,10 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, NEGATIVE);
 
   // ControlSurface
-  if (sdf->HasElement("controlSurface"))
+  if (sdf->HasElement(kControlSurfaceKey))
   {
     unordered_set<int> indexes;
-    auto cs_elem = sdf->FindElement("controlSurface");
+    auto cs_elem = sdf->FindElement(kControlSurfaceKey);
 
     while (cs_elem)
     {
@@ -241,7 +237,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
       indexes.emplace(cs.channel);
       control_surfaces_.push_back(cs);
-      cs_elem = cs_elem->GetNextElement("controlSurface");
+      cs_elem = cs_elem->GetNextElement(kControlSurfaceKey);
     }
 
     for (size_t i = 0; i < indexes.size(); ++i)
@@ -264,13 +260,13 @@ void GazeboFixedWingPlugin::registerPubSub()
 void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
   // 最新のコマンドからの経過時間を確認
-  const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
-  if (cs_deflections_ != nullptr && secs_from_last_cmd > kAutoResetTimeout)
+  const auto time_from_last_cmd = info.simTime - last_cmd_time_;
+  if (cs_deflections_ && time_from_last_cmd > tobas::kCommandAutoResetTimeout)
   {
-    cs_deflections_ = nullptr;
+    cs_deflections_.reset();
     TOBAS_INFO(
-      "Deflection angles of control surfaces are automatically reset because ", kAutoResetTimeout,
-      " seconds have elapsed since the last command.");
+      "Deflection angles of control surfaces are automatically reset because ", tobas::kCommandAutoResetTimeout,
+      " have elapsed since the last command.");
   }
 
   // ベースの状態

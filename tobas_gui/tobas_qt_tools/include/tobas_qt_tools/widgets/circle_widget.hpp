@@ -17,9 +17,12 @@ public:
 
   void setColor(Qt::GlobalColor color);
   void setText(const QString& text);
+  void setTextPointSize(int point_size);
 
   int getDiameter() const;
   int getRadius() const;
+
+  int calcMaxTextPointSize() const;
 
 protected:
   void paintEvent(QPaintEvent* event) override;
@@ -27,6 +30,7 @@ protected:
 private:
   Qt::GlobalColor color_ = Qt::black;
   QString text_ = "";
+  int text_psize_ = 0;
 
   void drawCircle(QPainter& painter);
 };

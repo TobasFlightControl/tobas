@@ -57,6 +57,7 @@ public:
   double c_yaw_r = 0;     // [s/rad]
 
   bool isValid() const;
+
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
 };

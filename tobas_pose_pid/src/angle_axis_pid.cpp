@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "../include/tobas_pose_pid/angle_axis_pid.hpp"
+#include "./util.hpp"
 
 using namespace std;
 
@@ -11,14 +12,14 @@ AngleAxisPID::AngleAxisPID()
   updateGain();
 }
 
-kdl::Vector AngleAxisPID::update(
+kdl::Vector AngleAxisPID::updatePID(
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro,
   const kdl::Rotation& tar_rot,
   const kdl::Vector& tar_gyro,
   const double& dt)
 {
-  // Compute error in angle-axis form wrt. the base frame
+  // Compute error in angle-axis form wrt. the local frame
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
   const auto ed = tar_gyro - cur_gyro;
 
@@ -28,7 +29,21 @@ kdl::Vector AngleAxisPID::update(
       ei_(i) += ep(i) * dt;
 
   // Compute target dgyro
-  return kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
+  return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
+}
+
+kdl::Vector AngleAxisPID::updatePD(
+  const kdl::Rotation& cur_rot,
+  const kdl::Vector& cur_gyro,
+  const kdl::Rotation& tar_rot,
+  const kdl::Vector& tar_gyro)
+{
+  // Compute error in angle-axis form wrt. the local frame
+  const auto ep = (cur_rot.inverse() * tar_rot).getRot();
+  const auto ed = tar_gyro - cur_gyro;
+
+  // Compute target dgyro
+  return kp_.hadamard(ep) + kd_.hadamard(ed);
 }
 
 bool AngleAxisPID::setNaturalFreq(int idx, double value)
@@ -86,16 +101,5 @@ void AngleAxisPID::updateGain()
 {
   kp_ = natural_freq_.sqr();
   kd_ = 2 * damp_ratio_.hadamard(natural_freq_);
-}
-
-bool AngleAxisPID::checkIndex(int idx)
-{
-  if (idx < 0 || 3 <= idx)
-  {
-    cerr << "Index " << idx << " is out of range.";
-    return false;
-  }
-
-  return true;
 }
 }  // namespace tobas

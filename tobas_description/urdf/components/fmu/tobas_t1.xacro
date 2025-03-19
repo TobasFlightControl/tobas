@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
+
+  <xacro:macro name="tobas_t1" params="parent *origin">
+
+    <xacro:property name="x" value="0.090"/>
+    <xacro:property name="y" value="0.062"/>
+    <xacro:property name="z" value="0.028"/>
+    <xacro:property name="mass" value="0.2"/>
+
+    <joint name="fmu_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="fmu"/>
+    </joint>
+
+    <link name="fmu">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/common/fmu/tobas_t1.stl" scale="1 1 1"/>
+        </geometry>
+        <xacro:insert_block name="red"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.009" rpy="0 0 0"/>
+        <geometry>
+          <box size="${x} ${y} ${z}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="${mass}"/>
+        <origin xyz="0 0 0.009" rpy="0 0 0"/>
+        <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
+      </inertial>
+    </link>
+
+  </xacro:macro>
+
+</robot>

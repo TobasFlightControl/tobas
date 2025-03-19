@@ -71,29 +71,17 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super
 
 double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)
 {
-  // Check limit
-  if (cmd_pos < pwm.min_angle - kJointLimitMargin)
+  // Check joint position limit
+  if (pwm.value_range.inRange(cmd_pos, kJointLimitMargin))
   {
     TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.joint_name, "\" is too small: ", cmd_pos, " < ",
-      pwm.min_angle);
-    cmd_pos = pwm.min_angle;
-  }
-  else if (cmd_pos > pwm.max_angle + kJointLimitMargin)
-  {
-    TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.joint_name, "\" is too large: ", cmd_pos, " > ",
-      pwm.max_angle);
-    cmd_pos = pwm.max_angle;
+      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.name, "\" is out of range: ", cmd_pos, " ∉ ",
+      pwm.value_range);
+    cmd_pos = pwm.value_range.clamp(cmd_pos);
   }
 
   // Compute PWM period
-  double period;
-  if (pwm.reverse)
-    period = math::remap<double>(cmd_pos, pwm.min_angle, pwm.max_angle, pwm.max_period, pwm.min_period);
-  else
-    period = math::remap<double>(cmd_pos, pwm.min_angle, pwm.max_angle, pwm.min_period, pwm.max_period);
-  return clamp<double>(period, pwm.min_period, pwm.max_period);
+  return pwm.periodFromValue(cmd_pos);
 }
 
 void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -144,7 +132,7 @@ void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
     return;
 
   // Create messages
@@ -160,7 +148,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     const auto joint_it = drone_->joints.find(jnt_name);
     if (joint_it == drone_->joints.end())
     {
-      TOBAS_WARN("Joint \"", jnt_name, "\" is not found.");
+      TOBAS_ERROR("Joint \"", jnt_name, "\" is not found.");
       continue;
     }
     const auto& joint = joint_it->second;
@@ -168,7 +156,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     // Fill commands
     switch (joint.hw_iface)
     {
-      case tobas::jnt_hw_iface_t::PWM:
+      case tobas::hw_iface_t::PWM:
       {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
@@ -184,13 +172,13 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
         break;
       }
-      case tobas::jnt_hw_iface_t::OTHER:
+      case tobas::hw_iface_t::OTHER:
       {
         break;
       }
       default:
       {
-        TOBAS_WARN("The hardware interface of joint \"", jnt_name, "\" is invalid: ", (int)joint.hw_iface);
+        TOBAS_ERROR("The hardware interface of joint \"", jnt_name, "\" is invalid: ", (int)joint.hw_iface);
         break;
       }
     }
@@ -215,7 +203,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
 void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
     return;
 
   (void)velocities;  // TODO
@@ -227,7 +215,7 @@ void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommand
 
 void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
-  if (drone_ == nullptr)
+  if (!drone_)
     return;
 
   (void)efforts;  // TODO
@@ -254,13 +242,13 @@ void JointsHandlerNode::positionResetTimerCb()
     // Fill commands
     switch (joint.hw_iface)
     {
-      case tobas::jnt_hw_iface_t::PWM:
+      case tobas::hw_iface_t::PWM:
       {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = pwm_cfg.channel;
-        pwms->pwms.back().period = pwmPeriodFromJointPos(pwm_cfg, joint.home_pos);
+        pwms->pwms.back().period = pwm_cfg.periodFromValue(joint.home_pos);
 
         joint_states->states.emplace_back();
         joint_states->states.back().name = joint.name;
@@ -270,7 +258,7 @@ void JointsHandlerNode::positionResetTimerCb()
 
         break;
       }
-      case tobas::jnt_hw_iface_t::OTHER:
+      case tobas::hw_iface_t::OTHER:
       {
         break;
       }
@@ -299,8 +287,8 @@ void JointsHandlerNode::positionResetTimerCb()
   {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ",
-      tobas::kCommandAutoResetTimeout.count(), " ms have elapsed since the last command.");
+      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      " have elapsed since the last command.");
   }
 }
 

@@ -17,7 +17,9 @@ PoseViewerWidget::PoseViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 
 void PoseViewerWidget::reset()
 {
-  euler_.setZero();
+  roll_ = 0.;
+  pitch_ = 0.;
+  yaw_ = 0.;
 
   slope_ = 0.;
   y_intercept_ = height() / 2;
@@ -29,8 +31,8 @@ void PoseViewerWidget::updateNamespace(const std::string& ns)
 {
   reset();
 
-  euler_sub_ = ros2::createSubscriber<tobas_kdl_msgs::EulerStamped>(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kEulerTopic), &self::eulerCb, this);
+  odom_sub_ = ros2::createSubscriber<tobas_msgs::Odometry>(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
 }
 
 void PoseViewerWidget::paintEvent(QPaintEvent*)
@@ -69,10 +71,10 @@ void PoseViewerWidget::drawGround(QPainter& painter)
 
 void PoseViewerWidget::drawSky(QPainter& painter)
 {
-  auto tan_roll = tan(euler_.roll);
+  auto tan_roll = tan(roll_);
   const auto tan_roll_sign = tan_roll >= 0 ? 1 : -1;
   tan_roll += tan_roll_sign * 1e-6;  // tan(roll)が0になるのを防ぐ
-  const auto pitch_rate = 2 * euler_.pitch / kPitchHeightRange;
+  const auto pitch_rate = 2 * pitch_ / kPitchHeightRange;
 
   const QPoint OO(0, 0);
   const QPoint WO(width(), 0);
@@ -138,7 +140,7 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
 
   // 機体から見た円の中心に移動
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tobas_std::rad2deg(euler_.roll));
+  painter.rotate(-tobas_std::rad2deg(roll_));
 
   // ウィジェットの大きさに合わせてスケーリング
   scale(painter, true);
@@ -179,13 +181,13 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
 
   // 機体から見た中心位置に移動
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tobas_std::rad2deg(euler_.roll));
+  painter.rotate(-tobas_std::rad2deg(roll_));
 
   // ウィジェットの大きさに合わせてスケーリング
   scale(painter, true);
 
   // 描画する値の範囲を決める
-  const auto pitch_deg = tobas_std::rad2deg(euler_.pitch);
+  const auto pitch_deg = tobas_std::rad2deg(pitch_);
   const auto pitch_min = math::floor(pitch_deg - kPitchVisualRange, kScaleInterval);
   const auto pitch_max = math::ceil(pitch_deg + kPitchVisualRange, kScaleInterval);
 
@@ -215,7 +217,7 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
   // 現在の位置に目印を描く
   painter.save();
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tobas_std::rad2deg(euler_.roll));
+  painter.rotate(-tobas_std::rad2deg(roll_));
   scale(painter, true);
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(-line_half, 0, line_half, 0);
@@ -238,9 +240,9 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.drawLine(-kOriginalSize / 2, 0, kOriginalSize / 2, 0);
 
   // 描画する値の範囲を決める
-  const auto yaw_deg = tobas_std::rad2deg(euler_.yaw);
-  const auto yaw_min = math::floor(tobas_std::rad2deg(euler_.yaw - beta), kScaleInterval);
-  const auto yaw_max = math::ceil(tobas_std::rad2deg(euler_.yaw + beta), kScaleInterval);
+  const auto yaw_deg = tobas_std::rad2deg(yaw_);
+  const auto yaw_min = math::floor(tobas_std::rad2deg(yaw_ - beta), kScaleInterval);
+  const auto yaw_max = math::ceil(tobas_std::rad2deg(yaw_ + beta), kScaleInterval);
 
   // 初期位置に移動
   painter.translate(yawToWidth(tobas_std::deg2rad(yaw_deg - yaw_min)), 0);
@@ -298,7 +300,7 @@ bool PoseViewerWidget::isSky(const QPoint& p) const
   const auto right = slope_ * p.x() + y_intercept_;
 
   // ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
-  if (fabs(euler_.roll) < M_PI_2)
+  if (fabs(roll_) < M_PI_2)
     return left < right;
   else
     return left > right;
@@ -314,23 +316,16 @@ double PoseViewerWidget::yawToWidth(double yaw) const
   return kOriginalSize * yaw / kYawWidthRange;
 }
 
-void PoseViewerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
+void PoseViewerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (!euler->euler.isFinite())
-  {
-    RCLCPP_WARN_STREAM(node_->get_logger(), "Orientation is invalid: " << euler);
-    reset();
-    return;
-  }
-
   // 現在のオイラー角を更新
-  euler_ = euler->euler;
+  odom->frame.M.getRPY(roll_, pitch_, yaw_);
 
   // 地平線を更新
-  const auto tan_roll = tan(euler_.roll);
+  const auto tan_roll = tan(roll_);
   const auto alpha = kPitchHeightRange / 2;
   slope_ = -tan_roll;
-  y_intercept_ = (width() * tan_roll + height() * (1 - euler_.pitch / alpha)) / 2;
+  y_intercept_ = (width() * tan_roll + height() * (1 - pitch_ / alpha)) / 2;
 
   // 再描画
   update();

@@ -20,6 +20,6 @@ private:
   bool running_ = false;
   size_t count_ = 0;
   uint64_t sum_duration_ = 0;
-  std::chrono::system_clock::time_point start_time_;  // [us]
+  std::chrono::steady_clock::time_point start_time_;  // [us]
 };
 }  // namespace tobas_std

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../../include/tobas_drone_core/joint/command_interface.hpp"
+#include "tobas_drone_core/joint/command_interface.hpp"
 
 #define POSITION_TEXT "position"
 #define VELOCITY_TEXT "velocity"
@@ -11,9 +11,9 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(jnt_cmd_iface_t cmd_iface)
+string textFromEnum(jnt_cmd_iface_t value)
 {
-  switch (cmd_iface)
+  switch (value)
   {
     case jnt_cmd_iface_t::POSITION:
       return POSITION_TEXT;

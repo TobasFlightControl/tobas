@@ -48,7 +48,7 @@ void RotorSpeedPlotWidget::clear()
   qt::clearLayout(grid_);
 
   num_rotors_ = 0;
-  channel2idx_.clear();
+  name2idx_.clear();
 }
 
 void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg)
@@ -63,7 +63,7 @@ void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
 
   for (const auto& [idx, state] : std::views::enumerate(msg.states))
   {
-    channel2idx_[state.channel] = idx;
+    name2idx_[state.link_name] = idx;
 
     plots_[idx] = new QwtPlot2();
 
@@ -71,12 +71,12 @@ void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
     grid_->addWidget(plots_[idx], idx / 2, idx % 2);
 
     cur_speed_curves_[idx] =
-      std::make_shared<qwt::QwtPlotCurveWrapper>("Current Speed (CH" + QString::number(state.channel) + ")");
+      std::make_shared<qwt::QwtPlotCurveWrapper>("Current Speed (" + QString::fromStdString(state.link_name) + ")");
     cur_speed_curves_[idx]->setPen(kCurrentValueColor, kLineWidth);
     cur_speed_curves_[idx]->attach(plots_[idx]);
 
     tar_speed_curves_[idx] =
-      std::make_shared<qwt::QwtPlotCurveWrapper>("Target Speed (CH" + QString::number(state.channel) + ")");
+      std::make_shared<qwt::QwtPlotCurveWrapper>("Target Speed (" + QString::fromStdString(state.link_name) + ")");
     tar_speed_curves_[idx]->setPen(kTargetValueColor, kLineWidth);
     tar_speed_curves_[idx]->attach(plots_[idx]);
   }
@@ -97,16 +97,16 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
 
     for (const auto& state : msg.states)
     {
-      if (!channel2idx_.contains(state.channel))
+      if (!name2idx_.contains(state.link_name))
       {
-        qWarning() << "Rotor channel " << QString::number(state.channel) << " is not registered.";
+        qWarning() << "Rotor \"" << QString::fromStdString(state.link_name) << "\" is not registered.";
         continue;
       }
 
-      if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+      if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
         continue;
 
-      const auto& idx = channel2idx_[state.channel];
+      const auto& idx = name2idx_[state.link_name];
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
       speed_data[idx].push_back(state.speed);
@@ -132,13 +132,13 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
 
     for (const auto& speed : msg.speeds)
     {
-      if (!channel2idx_.contains(speed.channel))
+      if (!name2idx_.contains(speed.link_name))
       {
-        qWarning() << "Rotor channel " << QString::number(speed.channel) << " is not registered.";
+        qWarning() << "Rotor \"" << QString::fromStdString(speed.link_name) << "\" is not registered.";
         continue;
       }
 
-      const auto& idx = channel2idx_[speed.channel];
+      const auto& idx = name2idx_[speed.link_name];
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
       speed_data[idx].push_back(speed.speed);

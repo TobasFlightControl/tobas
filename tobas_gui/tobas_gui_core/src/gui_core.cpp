@@ -7,13 +7,12 @@
 #include <QApplication>
 
 #include <tobas_path_tools/join.hpp>
-#include <tobas_kdl/kdl_parser.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 
 #include "tobas_gui_core/gui_core.hpp"
@@ -142,15 +141,28 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
 }
 
+void GUICoreWidget::reset()
+{
+  urdf_builder_->reset();
+  setup_assistant_->reset();
+  hardware_setup_->reset();
+  control_system_->reset();
+  param_tuning_->reset();
+  flight_log_->reset();
+  simulation_->reset();
+
+  arming_.reset();
+}
+
 void GUICoreWidget::updateInternalDataStructures()
 {
+  reset();
+
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
   param_tuning_->updateTBSPath(tbsPath());
   flight_log_->updateNamespace(drone_.name);
   simulation_->updateTBSPath(tbsPath());
-
-  arming_ = nullptr;
 
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
@@ -202,9 +214,9 @@ void GUICoreWidget::onBrowseButtonClicked()
     return;
 
   // 拡張子をチェック
-  if (!tbs_path.endsWith(common::kTBSExtension))
+  if (!tbs_path.endsWith(tobas::kTBSExtension))
   {
-    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + common::kTBSExtension + ").");
+    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
     return;
   }
 
@@ -262,7 +274,7 @@ void GUICoreWidget::onLoadButtonClicked()
 void GUICoreWidget::onWriteButtonClicked()
 {
   // アームされていないことを確認
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     if (!qt::yesOrNo(
           this,
@@ -312,7 +324,7 @@ void GUICoreWidget::onWriteButtonClicked()
   // Tobasパッケージを送信
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
-  const auto remote_dir = fs::path(common::kColconWSPathRemote) / "src/";
+  const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
@@ -370,7 +382,7 @@ void GUICoreWidget::onRestartButtonClicked(bool checked)
     return;
 
   // アームされていないことを確認
-  if (arming_ != nullptr && arming_->data)
+  if (arming_ && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     restart_btn_->setChecked(false);
@@ -397,7 +409,7 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
     return;
 
   // アームされていないことを確認
-  if (arming_ != nullptr && arming_->data)
+  if (arming_ && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     shutdown_btn_->setChecked(false);
@@ -430,6 +442,9 @@ void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message
     return;
   }
 
+  // TFの時間戻りを避けるために各ウィジェットをリセット
+  reset();
+
   qt::qInfoBox(this, "Flight controller is restarted successfully.");
   restart_btn_->setChecked(false);
 }
@@ -461,7 +476,7 @@ void GUICoreWidget::onSimRealStateChanged()
   param_tuning_->reset();
   flight_log_->reset();
 
-  arming_ = nullptr;
+  arming_.reset();
 
   // イベントループを進めて画面の更新を確実に反映させる
   QApplication::processEvents();

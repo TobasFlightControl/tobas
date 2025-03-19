@@ -1,5 +1,6 @@
 #include <QDebug>
 
+#include <tobas_kdl_conversions/kdl_urdf.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -39,13 +40,14 @@ void SelectedLinksWidget::updateInternalDataStructures()
   for (const auto& [link_name, elem] : robot_.tree().getSegments())
   {
     // ジョイントを取得
-    const auto& joint = elem.segment.joint();
-    if (joint.type != kdl::Joint::ROTATION)
+    const auto& kdl_joint = elem.segment.joint();
+    if (kdl_joint.type != kdl::Joint::ROTATION)
       continue;
+    const auto urdf_joint = robot_.urdf()->getJoint(kdl_joint.name);
 
     // 推力の作用線
     const auto arrow_start = kdl::Vector::Zero();
-    const auto arrow_end = joint.axis() * kArrowLength;
+    const auto arrow_end = kdl::vectorUrdfToKdl(urdf_joint->axis) * kArrowLength;
     const auto arrow_scale = kdl::Vector(0.1, 0.2, 0.3) * kArrowLength;
 
     // マーカを作成

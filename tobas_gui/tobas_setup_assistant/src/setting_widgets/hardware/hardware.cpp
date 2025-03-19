@@ -2,7 +2,7 @@
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
-#include "tobas_setup_assistant/setting_tabs/hardware/aso.hpp"
+#include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
 
 namespace gui
 {
@@ -18,7 +18,7 @@ HardwareWidget::HardwareWidget()
   addWidget(description_);
   addWidget(hardwares_);
 
-  hardwares_->addWidget(new AsoWidget());
+  hardwares_->addWidget(new T1Widget());
 
   for (int i = 0; i < hardwares_->count(); ++i)
   {

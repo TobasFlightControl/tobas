@@ -20,8 +20,8 @@ AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
   addWidget(motor_const_);
 
   moment_const_ = new ParamGetterWidget_DoubleSpinBox(
-    "Moment Constant", "Propeller torque reaction coefficient. "
-                       "If the torque reaction coefficient is c [m] and the propeller's thrust is T [N], "
+    "Moment Constant", "Propeller torque reaction constant. "
+                       "If the torque reaction constant is c [m] and the propeller's thrust is T [N], "
                        "the torque generated in the opposite direction to the propeller's rotation, "
                        "in Newton-meters, is N = c T.");
   moment_const_->setDecimals(6);
@@ -31,12 +31,12 @@ AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
   addWidget(moment_const_);
 
   rotor_drag_coef_ = new ParamGetterWidget_DoubleSpinBox(
-    "Rotor Drag Coefficient", "Propeller drag coefficient. "
-                              "If the drag coefficient is c [kg/rad], the motor's rotational speed is w [rad/s], "
-                              "and V [m/s] is the magnitude of the atmospheric velocity component "
-                              "perpendicular to the rotational axis relative to the aircraft, "
-                              "then the magnitude of the air drag force F [N] generated on the propeller is expressed "
-                              "as F = c w V.");
+    "Drag Constant", "Propeller drag constant. "
+                     "If the drag constant is c [kg/rad], the motor's rotational speed is w [rad/s], "
+                     "and V [m/s] is the magnitude of the atmospheric velocity component "
+                     "perpendicular to the rotational axis relative to the aircraft, "
+                     "then the magnitude of the air drag force F [N] generated on the propeller is expressed "
+                     "as F = c w V.");
   rotor_drag_coef_->setDecimals(9);
   rotor_drag_coef_->setMinimum(0.);
   rotor_drag_coef_->setValue(8.06428e-5);

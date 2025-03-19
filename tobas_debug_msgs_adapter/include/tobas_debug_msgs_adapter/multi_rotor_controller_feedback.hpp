@@ -14,11 +14,12 @@ struct MultiRotorControllerFeedback
   std_msgs::msg::Header header;
   kdl::Vector target_position;
   kdl::Vector target_velocity;
-  kdl::Vector target_acceleration;
+  kdl::Vector target_accel;
   kdl::Euler target_angle;
-  kdl::Euler target_angle_rate;
-  double target_thrust;
+  kdl::Vector target_gyro;
+  kdl::Vector target_dgyro;
   kdl::Vector position_integral_error;
+  kdl::Vector angle_integral_error;
 
   using SharedPtr = std::shared_ptr<MultiRotorControllerFeedback>;
   using ConstSharedPtr = std::shared_ptr<const MultiRotorControllerFeedback>;
@@ -38,11 +39,12 @@ struct rclcpp::
     dst.header = src.header;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_position, dst.target_position);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_velocity, dst.target_velocity);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_acceleration, dst.target_acceleration);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_accel, dst.target_accel);
     tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.target_angle, dst.target_angle);
-    tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.target_angle_rate, dst.target_angle_rate);
-    dst.target_thrust = src.target_thrust;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_gyro, dst.target_gyro);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_dgyro, dst.target_dgyro);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.position_integral_error, dst.position_integral_error);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.angle_integral_error, dst.angle_integral_error);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -50,11 +52,12 @@ struct rclcpp::
     dst.header = src.header;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_position, dst.target_position);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_velocity, dst.target_velocity);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_acceleration, dst.target_acceleration);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_accel, dst.target_accel);
     tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.target_angle, dst.target_angle);
-    tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.target_angle_rate, dst.target_angle_rate);
-    dst.target_thrust = src.target_thrust;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_gyro, dst.target_gyro);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_dgyro, dst.target_dgyro);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.position_integral_error, dst.position_integral_error);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.angle_integral_error, dst.angle_integral_error);
   }
 };
 

@@ -1,6 +1,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../../include/tobas_drone_core/fixed_wing/fixed_wing.hpp"
+#include "tobas_drone_core/fixed_wing/fixed_wing.hpp"
 
 using namespace std;
 
@@ -8,9 +8,6 @@ namespace tobas
 {
 bool FixedWingConfig::isValid() const
 {
-  if (!equipped)
-    return true;
-
   if (!vehicle.isValid())
   {
     cerr << "The configurations of vehicle parameters are invalid." << endl;
@@ -37,12 +34,8 @@ bool FixedWingConfig::isValid() const
 
 bool FixedWingConfig::load(const YAML::Node& node)
 {
-  // Equipped
-  if (!yaml::load(kEquippedKey, node, equipped))
-    return false;
-
   // Vehicle
-  if (!node[kVehicleKey].IsMap())
+  if (!node[kVehicleKey].IsDefined())
   {
     cerr << "Vehicle parameters field is not defined." << endl;
     return false;
@@ -54,7 +47,7 @@ bool FixedWingConfig::load(const YAML::Node& node)
   }
 
   // Aerodynamics
-  if (!node[kAerodynamicsKey].IsMap())
+  if (!node[kAerodynamicsKey].IsDefined())
   {
     cerr << "Aerodynamics parameters field is not defined." << endl;
     return false;
@@ -89,9 +82,6 @@ bool FixedWingConfig::load(const YAML::Node& node)
 YAML::Node FixedWingConfig::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
-
-  // Equipped
-  node[kEquippedKey] = equipped;
 
   // Vehicle
   node[kVehicleKey] = vehicle.dump();

@@ -15,12 +15,12 @@ public:
 
   virtual bool updateInternalDataStructures();
 
-  bool setRotorLiveliness(size_t channel, bool alive);
+  bool setRotorLiveliness(const std::string& link_name, bool alive);
 
 protected:
   const Drone& drone_;
   const kdl::Tree& tree_;
 
-  std::map<size_t, bool> rotor_alive_;
+  std::map<std::string, bool> rotor_alive_;
 };
 }  // namespace tobas

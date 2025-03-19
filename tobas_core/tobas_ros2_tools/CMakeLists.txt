@@ -17,6 +17,7 @@ find_package(rclcpp REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tobas_std_tools REQUIRED)
+find_package(tobas_string_tools REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
@@ -25,6 +26,7 @@ set(AMENT_DEPENDENCIES
 	ament_index_cpp
 	tf2_ros
 	tobas_std_tools
+	tobas_string_tools
 	tobas_path_tools
 )
 

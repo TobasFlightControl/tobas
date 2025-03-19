@@ -1,5 +1,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -65,7 +66,7 @@ void JointTestWidget::reset()
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
 
-  arming_ = nullptr;
+  arming_.reset();
 }
 
 void JointTestWidget::updateInternalDataStructures()
@@ -88,7 +89,7 @@ void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 void JointTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;

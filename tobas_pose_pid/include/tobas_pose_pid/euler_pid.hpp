@@ -9,18 +9,25 @@ class EulerPID
 public:
   explicit EulerPID();
 
-  kdl::Vector update(
+  kdl::Vector updatePID(
     const kdl::Euler& cur_rpy,
     const kdl::Vector& cur_gyro,
     const kdl::Euler& tar_rpy,
     const kdl::Vector& tar_gyro,
     const double& dt);
 
+  kdl::Vector updatePD(
+    const kdl::Euler& cur_rpy,
+    const kdl::Vector& cur_gyro,
+    const kdl::Euler& tar_rpy,
+    const kdl::Vector& tar_gyro);
+
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);
   bool setIntegralGain(int idx, double value);
 
-  inline kdl::Vector integralError() const;
+  inline const kdl::Vector& getIntegralError() const;
+  inline void resetIntegralError();
 
 private:
   // Config
@@ -36,11 +43,19 @@ private:
   kdl::Vector ei_ = kdl::Vector::Zero();
 
   void updateGain();
-  bool checkIndex(int idx);
+
+  static kdl::Vector computeProportionalError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
+  static kdl::Vector
+  computeDerivativeError(const kdl::Euler& cur_rpy, const kdl::Vector& cur_gyro, const kdl::Vector& tar_gyro);
 };
 
-inline kdl::Vector EulerPID::integralError() const
+inline const kdl::Vector& EulerPID::getIntegralError() const
 {
   return ei_;
+}
+
+inline void EulerPID::resetIntegralError()
+{
+  ei_.setZero();
 }
 }  // namespace tobas

@@ -64,7 +64,7 @@ void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 
 void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
 {
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     reset();
     return;

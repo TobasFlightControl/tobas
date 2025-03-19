@@ -1,5 +1,6 @@
 #include <std_srvs/srv/empty.hpp>
 
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -25,7 +26,6 @@ class GazeboBatteryPlugin : public BaseNode,
   static constexpr double kSagCapRate = 0.2;  // [-] 放電特性が急激に変化する点における電気残率
 
   // Default parameters
-  static constexpr size_t kDefaultUpdateRate = 100;           // [Hz]
   static constexpr double kDefaultVoltageNoiseStddev = 0.01;  // [V]
   static constexpr double kDefaultCurrentNoiseStddev = 0.01;  // [A]
 
@@ -52,9 +52,9 @@ private:
   double registance_;   // [Ω] 内部抵抗値
   double voltage_noise_stddev_;  // [V] 電圧の観測ノイズの標準偏差
   double current_noise_stddev_;  // [A] 電流の観測ノイズの標準偏差
-  vector<size_t> rotor_channels_;
+  vector<string> rotor_link_names_;
 
-  map<size_t, double> rotor_currents_;  // [A] 各モータに流れる電流
+  map<string, double> rotor_currents_;  // [A] 各モータに流れる電流
   double q_;                            // [As] 現在の電気量
   RateManager::SharedPtr rate_manager_;
 
@@ -108,7 +108,7 @@ void GazeboBatteryPlugin::Configure(
 
 void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
   getSdfParam(sdf, "maxVoltage", max_voltage_, POSITIVE);
   getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
@@ -116,7 +116,7 @@ void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "internalRegistance", registance_, NON_NEGATIVE);
   getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
   getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, NON_NEGATIVE);
-  getSdfParam(sdf, "rotorChannels", rotor_channels_);
+  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
 }
 
 void GazeboBatteryPlugin::registerPubSub()
@@ -125,14 +125,14 @@ void GazeboBatteryPlugin::registerPubSub()
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
-  for (const auto& ch : rotor_channels_)
+  for (const auto& link_name : rotor_link_names_)
   {
-    const auto topic = kRotorStateGtTopicPrefix + to_string(ch);
+    const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const auto qos = ros2::makeQoS(false, false, 1);
-    const auto cb = [this, ch](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
+    const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
     {
       assert(msg->current >= 0.);
-      rotor_currents_[ch] = msg->current;
+      rotor_currents_[link_name] = msg->current;
     };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
@@ -144,11 +144,11 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   if (!rate_manager_->update(info.simTime))
     return;
 
-  if (rotor_currents_.size() < rotor_channels_.size())
+  if (rotor_currents_.size() < rotor_link_names_.size())
   {
     if (info.simTime > kWarnStartTime)
     {
-      const auto num_not_received = rotor_channels_.size() - rotor_currents_.size();
+      const auto num_not_received = rotor_link_names_.size() - rotor_currents_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
   }

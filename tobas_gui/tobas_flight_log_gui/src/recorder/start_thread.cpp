@@ -16,7 +16,7 @@ RecordStartThread::RecordStartThread(rclcpp::Node::SharedPtr node) : node_(node)
 void RecordStartThread::run()
 {
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStartSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kRosbagRecordStartSrv));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name_;

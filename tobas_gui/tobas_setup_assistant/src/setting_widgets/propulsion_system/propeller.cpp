@@ -22,7 +22,7 @@ PropellerWidget::PropellerWidget()
 
   diameter_ = new ParamGetterWidget_SpinBox("Propeller Diameter", "Diameter of the propeller's rotational plane.");
   diameter_->setMinimum(1);
-  diameter_->setValue(10);
+  diameter_->setValue(9);
   diameter_->setSuffix(" inch");
   rows->addWidget(diameter_);
 

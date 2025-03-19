@@ -9,18 +9,25 @@ class AngleAxisPID
 public:
   explicit AngleAxisPID();
 
-  kdl::Vector update(
+  kdl::Vector updatePID(
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro,
     const kdl::Rotation& tar_rot,
     const kdl::Vector& tar_gyro,
     const double& dt);
 
+  kdl::Vector updatePD(
+    const kdl::Rotation& cur_rot,
+    const kdl::Vector& cur_gyro,
+    const kdl::Rotation& tar_rot,
+    const kdl::Vector& tar_gyro);
+
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);
   bool setIntegralGain(int idx, double value);
 
-  inline kdl::Vector integralError() const;
+  inline const kdl::Vector& getIntegralError() const;
+  inline void resetIntegralError();
 
 private:
   // Config
@@ -36,11 +43,15 @@ private:
   kdl::Vector ei_ = kdl::Vector::Zero();
 
   void updateGain();
-  bool checkIndex(int idx);
 };
 
-inline kdl::Vector AngleAxisPID::integralError() const
+inline const kdl::Vector& AngleAxisPID::getIntegralError() const
 {
   return ei_;
+}
+
+inline void AngleAxisPID::resetIntegralError()
+{
+  ei_.setZero();
 }
 }  // namespace tobas

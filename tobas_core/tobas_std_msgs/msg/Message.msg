@@ -1,9 +1,9 @@
-builtin_interfaces/Time stamp
+std_msgs/Header header
 uint8 level
 string name
 string message
 
-# Message level
+# Message Level
 uint8 LEVEL_DEBUG = 0
 uint8 LEVEL_INFO = 1
 uint8 LEVEL_WARN = 2

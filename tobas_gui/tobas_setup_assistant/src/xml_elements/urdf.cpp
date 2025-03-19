@@ -13,18 +13,33 @@ namespace sa
 {
 namespace util
 {
-string toString(double data)
+template <typename T>
+string toString(const T& data)
+{
+  return to_string(data);
+}
+
+template <>
+string toString<string>(const string& data)
+{
+  return data;
+}
+
+template <>
+string toString<double>(const double& data)
 {
   return format("{}", data);  // 最適な表記方法を自動判定
 }
 
-string toString(const pair<double, double>& data)
+template <>
+string toString<const pair<double, double>>(const pair<double, double>& data)
 {
   // format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
   return toString(data.first) + " " + toString(data.second);
 }
 
-string toString(const Eigen::Vector3d& data)
+template <>
+string toString<Eigen::Vector3d>(const Eigen::Vector3d& data)
 {
   return toString(data.x()) + " " + toString(data.y()) + " " + toString(data.z());
 }
@@ -34,7 +49,7 @@ void addList(tinyxml2::XMLElement* parent, const string& list_name, const vector
 {
   const auto elem = parent->InsertNewChildElement(list_name.c_str());
   for (const auto& item : items)
-    elem->InsertNewChildElement("item")->SetText(to_string(item).c_str());
+    elem->InsertNewChildElement("item")->SetText(toString(item).c_str());
 }
 
 tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const string& filename, const string& name)
@@ -80,7 +95,7 @@ void addBatteryPlugin(
   double max_current,
   double current_capacity,
   double internal_registance,
-  const vector<size_t>& rotor_channels)
+  const vector<string>& rotor_link_names)
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_battery_plugin", "gazebo::GazeboBatteryPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -90,7 +105,7 @@ void addBatteryPlugin(
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
   plugin->InsertNewChildElement("currentCapacity")->SetText(current_capacity);
   plugin->InsertNewChildElement("internalRegistance")->SetText(internal_registance);
-  util::addList(plugin, "rotorChannels", rotor_channels);
+  util::addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 
 void addIMUPlugin(
@@ -100,31 +115,29 @@ void addIMUPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
+  double gyro_offset_norm,
   double gyro_random_walk,
   double gyro_bias_corr_time,
-  double gyro_turn_on_bias_sigma,
   double acc_noise_density,
+  double acc_offset_norm,
   double acc_random_walk,
   double acc_bias_corr_time,
-  double acc_turn_on_bias_sigma,
-  const vector<size_t>& rotor_channels)
+  const vector<string>& rotor_link_names)
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "gazebo::GazeboImuPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
   plugin->InsertNewChildElement("offset")->SetText(util::toString(offset).c_str());
-  plugin->InsertNewChildElement("gyroNoiseDensityOnSignal")->SetText(gyro_noise_density);
-  plugin->InsertNewChildElement("gyroNoiseDensityObserved")->SetText(gyro_noise_density);
+  plugin->InsertNewChildElement("gyroNoiseDensity")->SetText(gyro_noise_density);
   plugin->InsertNewChildElement("gyroRandomWalk")->SetText(gyro_random_walk);
   plugin->InsertNewChildElement("gyroBiasCorrelationTime")->SetText(gyro_bias_corr_time);
-  plugin->InsertNewChildElement("gyroTurnOnBiasSigma")->SetText(gyro_turn_on_bias_sigma);
-  plugin->InsertNewChildElement("accelNoiseDensityOnSignal")->SetText(acc_noise_density);
-  plugin->InsertNewChildElement("accelNoiseDensityObserved")->SetText(acc_noise_density);
+  plugin->InsertNewChildElement("gyroOffsetNorm")->SetText(gyro_offset_norm);
+  plugin->InsertNewChildElement("accelNoiseDensity")->SetText(acc_noise_density);
   plugin->InsertNewChildElement("accelRandomWalk")->SetText(acc_random_walk);
   plugin->InsertNewChildElement("accelBiasCorrelationTime")->SetText(acc_bias_corr_time);
-  plugin->InsertNewChildElement("accelTurnOnBiasSigma")->SetText(acc_turn_on_bias_sigma);
-  util::addList(plugin, "rotorChannels", rotor_channels);
+  plugin->InsertNewChildElement("accelOffsetNorm")->SetText(acc_offset_norm);
+  util::addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 
 void addMagnetometerPlugin(
@@ -137,7 +150,7 @@ void addMagnetometerPlugin(
   double longitude_zero,
   double altitude_zero,
   double noise_stddev,
-  double hard_bias_range)
+  double hard_bias_norm)
 {
   const auto plugin =
     util::addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "gazebo::GazeboMagnetometerPlugin");
@@ -149,7 +162,7 @@ void addMagnetometerPlugin(
   plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
   plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
-  plugin->InsertNewChildElement("hardBiasRange")->SetText(hard_bias_range);
+  plugin->InsertNewChildElement("hardBiasNorm")->SetText(hard_bias_norm);
 }
 
 void addBarometerPlugin(
@@ -202,32 +215,31 @@ void addGNSSPlugin(
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
 }
 
-void addRotorPlugin(
+void addElectricPropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
   const string& link_name,
-  uint32_t channel,
   double kv,
   double internal_resistance,
   size_t num_blades,
-  double motor_constant,
-  double moment_constant,
-  double drag_constant,
+  double motor_const,
+  double moment_const,
+  double drag_const,
   tobas::turning_direction_t direction,
   double max_current,
   double max_model_error_rate)
 {
-  const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_rotor_plugin", "gazebo::GazeboRotorPlugin");
+  const auto plugin = util::addGazeboPlugin(
+    robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("channel")->SetText(channel);
   plugin->InsertNewChildElement("kv")->SetText(kv);
   plugin->InsertNewChildElement("internalResistance")->SetText(internal_resistance);
   plugin->InsertNewChildElement("numberOfBlades")->SetText(num_blades);
-  plugin->InsertNewChildElement("motorConstant")->SetText(motor_constant);
-  plugin->InsertNewChildElement("momentConstant")->SetText(moment_constant);
-  plugin->InsertNewChildElement("rotorDragCoefficient")->SetText(drag_constant);
-  plugin->InsertNewChildElement("turningDirection")->SetText(direction);
+  plugin->InsertNewChildElement("motorConstant")->SetText(motor_const);
+  plugin->InsertNewChildElement("momentConstant")->SetText(moment_const);
+  plugin->InsertNewChildElement("dragConstant")->SetText(drag_const);
+  plugin->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(direction).c_str());
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }

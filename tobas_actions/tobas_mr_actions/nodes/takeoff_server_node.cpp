@@ -1,5 +1,4 @@
 #include <tobas_std_tools/trajectory.hpp>
-#include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
@@ -29,6 +28,7 @@ public:
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   CommandType cmd_;
+  double dummy_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
@@ -45,7 +45,7 @@ private:
 
 TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("takeoff_server", options)
 {
-  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelYawCmdTopic);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   as_ = createAction(tobas::kTakeoffAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
@@ -113,16 +113,10 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
-  // Check if odometry is received and is in good status
-  if (odom_ == nullptr)
+  // Check topics
+  if (!odom_)
   {
     result->message = "Odometry is not received yet.";
-    goal_handle->abort(result);
-    return;
-  }
-  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
-  {
-    result->message = "There is a problem with the state estimation.";
     goal_handle->abort(result);
     return;
   }
@@ -144,7 +138,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto start_time = get_clock()->now();
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
-  const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
+  const auto start_yaw = odom_->frame.M.getYaw();
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
@@ -172,10 +166,8 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
 
     // コマンドを作成
     cmd_.level = goal->level;
-    cmd_.frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;
     cmd_.pos.setZero();
     cmd_.vel.setZero();
-    cmd_.acc.setZero();
 
     // 水平位置とヨー角は初期状態を維持
     cmd_.pos.x(start_x);
@@ -183,17 +175,16 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     cmd_.yaw = start_yaw;
 
     // 鉛直方向の軌道を生成
-    traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), cmd_.acc.z());
+    traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), dummy_);
 
     // コマンドを発行
     auto cmd_ptr = std::make_unique<CommandType>(cmd_);
     cmd_pub_->publish(move(cmd_ptr));
 
-    // アクション中止の場合は目標速度・加速度を0にして終了
+    // アクション中止の場合は目標速度を0にして終了
     if (goal_handle->is_canceling())
     {
       cmd_.vel.setZero();
-      cmd_.acc.setZero();
       cmd_pub_->publish(cmd_);
 
       result->message.clear();

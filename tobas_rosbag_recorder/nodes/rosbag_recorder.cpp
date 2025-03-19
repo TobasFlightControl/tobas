@@ -5,12 +5,12 @@
 
 #include <tobas_path_tools/core.hpp>
 #include <tobas_linux/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_std_msgs/msg/message.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -24,7 +24,6 @@
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -35,15 +34,10 @@
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_command_msgs/msg/rate_throttle.hpp>
-#include <tobas_command_msgs/msg/angle_throttle.hpp>
-#include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 #include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
-#include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
 #include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
 
 #include <tobas_msgs/srv/bag_record_start.hpp>
@@ -54,9 +48,9 @@
 using namespace std;
 namespace fs = filesystem;
 
-class ROSBagRecorderNode : public tobas::BaseNode
+class RosbagRecorderNode : public tobas::BaseNode
 {
-  using self = ROSBagRecorderNode;
+  using self = RosbagRecorderNode;
   using super = tobas::BaseNode;
 
   using StartSrv = tobas_msgs::srv::BagRecordStart;
@@ -67,7 +61,7 @@ class ROSBagRecorderNode : public tobas::BaseNode
   static constexpr auto kMainTimerPeriod = 1s;
 
 public:
-  explicit ROSBagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RosbagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   const string ns_;
@@ -82,19 +76,16 @@ private:
   // ROS message buffers
   tobas_drone_msgs::msg::Drone drone_;
   tobas_kdl_msgs::msg::Tree tree_;
+  tobas_msgs::msg::RCInput rcin_;
   tobas_msgs::msg::ImuWithCovarianceStamped imu_;
   tobas_msgs::msg::ImuStamped imu_raw_;
   tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
   tobas_msgs::msg::MagneticFieldStamped mag_raw_;
   tobas_msgs::msg::Gnss gnss_;
   tobas_msgs::msg::Odometry odom_;
-  tobas_kdl_msgs::msg::EulerStamped euler_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
-  tobas_command_msgs::msg::PosVelAccYaw pvay_;
-  tobas_command_msgs::msg::PoseTwistAccel pta_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
   tobas_debug_msgs::msg::MultiRotorControllerFeedback mr_ctrl_fb_;
-  tobas_debug_msgs::msg::NonPlanarControllerFeedback np_ctrl_fb_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RosbagState> rosbag_state_pub_;
@@ -143,10 +134,10 @@ private:
   void mainTimerCb();
 };
 
-ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
+RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", options),
     ns_(string(get_namespace()) + "/"),
-    rosbag_dir_(linux::isSuperUser() ? tobas::kROSBagDirRoot : linux::expandUser(tobas::kROSBagDirHome))
+    rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
 
@@ -156,14 +147,14 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
   addStandardMsgSub<std_msgs::msg::String>(tobas::kRobotDescriptionTopic, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
-  addStandardMsgSub<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
+  addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
-  addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);
+  addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kImuSamplingTimeTopic);
+  addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
   addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
   addStandardMsgSub<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -173,37 +164,31 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
-  addStandardMsgSub<tobas_command_msgs::msg::RateThrottle>(tobas::kRateThrottleCmdTopic);
-  addStandardMsgSub<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
-  addStandardMsgSub<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
 
   // Resister subscribers for non-standard messages
   addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::kDroneTopic, true, true);
-  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKDLTreeTopic, true, true);
+  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKdlTreeTopic, true, true);
+  addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, tobas::kRcInputTopic);
   addTypeAdaptedMsgSub<tobas_msgs::ImuWithCovarianceStamped>(imu_, tobas::kImuTopic);
   addTypeAdaptedMsgSub<tobas_msgs::ImuStamped>(imu_raw_, tobas::kImuRawTopic);
   addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldWithCovarianceStamped>(mag_, tobas::kMagTopic);
   addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldStamped>(mag_raw_, tobas::kMagRawTopic);
   addTypeAdaptedMsgSub<tobas_msgs::Gnss>(gnss_, tobas::kGnssTopic);
   addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
-  addTypeAdaptedMsgSub<tobas_kdl_msgs::EulerStamped>(euler_, tobas::kEulerTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
-  addTypeAdaptedMsgSub<tobas_command_msgs::PosVelAccYaw>(pvay_, tobas::kPosVelAccYawCmdTopic);
-  addTypeAdaptedMsgSub<tobas_command_msgs::PoseTwistAccel>(pta_, tobas::kPoseTwistAccelCmdTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, tobas::kObsvFeedbackTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::MultiRotorControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);
-  addTypeAdaptedMsgSub<tobas_debug_msgs::NonPlanarControllerFeedback>(np_ctrl_fb_, tobas::kNPCtrlFeedbackTopic);
 
   // Register services
-  start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);
-  stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
-  clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
+  start_srv_ = createService<StartSrv>(tobas::kRosbagRecordStartSrv, &self::startCb, this);
+  stop_srv_ = createService<StopSrv>(tobas::kRosbagRecordStopSrv, &self::stopCb, this);
+  clean_srv_ = createService<CleanSrv>(tobas::kRosbagCleanSrv, &self::cleanCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
-void ROSBagRecorderNode::publishRosbagState()
+void RosbagRecorderNode::publishRosbagState()
 {
   const auto now = get_clock()->now();
 
@@ -244,7 +229,7 @@ void ROSBagRecorderNode::publishRosbagState()
 }
 
 template <typename MsgType>
-inline void ROSBagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
+inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
 {
   try
   {
@@ -260,7 +245,7 @@ inline void ROSBagRecorderNode::write(const MsgType& msg, const char* topic) noe
 }
 
 template <typename MsgType>
-void ROSBagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool reliable, size_t queue_size)
+void RosbagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool reliable, size_t queue_size)
 {
   const auto qos = ros2::makeQoS(latch, reliable, queue_size);
   const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& msg) { standardMsgCb<MsgType>(msg, topic); };
@@ -269,7 +254,7 @@ void ROSBagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool r
 }
 
 template <typename ExtMsgType, typename RawMsgType>
-void ROSBagRecorderNode::addTypeAdaptedMsgSub(
+void RosbagRecorderNode::addTypeAdaptedMsgSub(
   RawMsgType& raw_msg,
   const char* topic,
   bool latch,
@@ -284,7 +269,7 @@ void ROSBagRecorderNode::addTypeAdaptedMsgSub(
 }
 
 template <typename MsgType>
-void ROSBagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
+void RosbagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
 {
   if (!recording_)
     return;
@@ -293,7 +278,7 @@ void ROSBagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& m
 }
 
 template <typename ExtMsgType, typename RawMsgType>
-void ROSBagRecorderNode::typeAdaptedMsgCb(
+void RosbagRecorderNode::typeAdaptedMsgCb(
   const typename ExtMsgType::ConstSharedPtr& ext_msg,
   RawMsgType& raw_msg,
   const char* topic)
@@ -307,7 +292,7 @@ void ROSBagRecorderNode::typeAdaptedMsgCb(
   this->write(raw_msg, topic);
 }
 
-void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
 {
   if (recording_)
   {
@@ -380,7 +365,7 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   publishRosbagState();
 }
 
-void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
 {
   if (!recording_)
   {
@@ -410,7 +395,7 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
   publishRosbagState();
 }
 
-void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
 {
   path::clearDirectory(rosbag_dir_);
 
@@ -418,9 +403,9 @@ void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const
   res->message.clear();
 }
 
-void ROSBagRecorderNode::mainTimerCb()
+void RosbagRecorderNode::mainTimerCb()
 {
   publishRosbagState();
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ROSBagRecorderNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(RosbagRecorderNode)

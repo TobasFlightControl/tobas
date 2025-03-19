@@ -230,7 +230,7 @@ bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
 
   // 地磁気を受け取っていればヨーを初期化
   // でないとヨーの誤差が大きすぎる場合にロールピッチまでフィードバックの影響を受けてしまう
-  if (mag_ != nullptr)
+  if (mag_)
   {
     // 現在のRPYを取得
     double old_roll, old_pitch, old_yaw;
@@ -452,7 +452,7 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   const auto cur_time = ros2::chronoFromRosTime(imu->header.stamp);
 
   // Initialization
-  if (imu_ == nullptr)
+  if (!imu_)
   {
     if (!eskf_.initialize(
           Vector3d::Zero(),                                                     // Init position
@@ -513,7 +513,7 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
 
 void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
 {
-  if (imu_ == nullptr)
+  if (!imu_)
     return;
 
   mag_ = mag;
@@ -534,12 +534,12 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
 void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
 {
-  if (imu_ == nullptr)
+  if (!imu_)
     return;
 
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
-  if (bar_ == nullptr)
+  if (!bar_)
     alt_0_bar_ = tobas_std::pressureToAltitude(bar->pressure.pressure);
 
   bar_ = bar;
@@ -554,14 +554,14 @@ void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
 
 void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 {
-  if (imu_ == nullptr)
+  if (!imu_)
     return;
 
   gnss_fix_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
   if (!gnss_fix_)
     return;
 
-  if (gnss_ == nullptr)
+  if (!gnss_)
   {
     // GNSSの初期位置
     // TODO: IMUフレームに変換

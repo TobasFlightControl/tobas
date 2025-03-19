@@ -73,7 +73,7 @@ void FlightLogRecorderWidget::reset()
 {
   clearRosbagStateViewerWidgets();
 
-  rosbag_state_ = nullptr;
+  rosbag_state_.reset();
 }
 
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
@@ -151,7 +151,7 @@ void FlightLogRecorderWidget::onStartRequested()
   }
 
   // ロガーの状態が取得できているかをチェック
-  if (rosbag_state_ == nullptr)
+  if (!rosbag_state_)
   {
     qt::qWarnBox(this, "Unable to start recording because the logger state is not received yet.");
     start_stop_button_->setChecked(false);

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "../include/tobas_pose_pid/position_pid.hpp"
+#include "./util.hpp"
 
 using namespace std;
 
@@ -11,7 +12,7 @@ PositionPID::PositionPID()
   updateGain();
 }
 
-kdl::Vector PositionPID::update(
+kdl::Vector PositionPID::updatePID(
   const kdl::Vector& cur_pos,
   const kdl::Vector& cur_vel,
   const kdl::Vector& tar_pos,
@@ -41,8 +42,25 @@ kdl::Vector PositionPID::update(
     }
   }
 
-  // PID
+  // 目標加速度を計算
   const auto cmd_acc = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
+
+  // 目標加速度を制限して出力
+  return cmd_acc.clamp(-max_acc_, max_acc_);
+}
+
+kdl::Vector PositionPID::updatePD(
+  const kdl::Vector& cur_pos,
+  const kdl::Vector& cur_vel,
+  const kdl::Vector& tar_pos,
+  const kdl::Vector& tar_vel)
+{
+  // 誤差を計算
+  const auto ep = tar_pos - cur_pos;
+  const auto ed = tar_vel - cur_vel;
+
+  // 目標加速度を計算
+  const auto cmd_acc = kp_.hadamard(ep) + kd_.hadamard(ed);
 
   // 目標加速度を制限して出力
   return cmd_acc.clamp(-max_acc_, max_acc_);
@@ -119,16 +137,5 @@ void PositionPID::updateGain()
 {
   kp_ = natural_freq_.sqr();
   kd_ = 2 * damp_ratio_.hadamard(natural_freq_);
-}
-
-bool PositionPID::checkIndex(int idx)
-{
-  if (idx < 0 || 3 <= idx)
-  {
-    cerr << "Index " << idx << " is out of range.";
-    return false;
-  }
-
-  return true;
 }
 }  // namespace tobas

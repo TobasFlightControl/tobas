@@ -1,6 +1,5 @@
 std_msgs/Header header
 tobas_command_msgs/CommandLevel level
-float64 roll      # [rad]
-float64 pitch     # [rad]
-float64 yaw       # [rad]
-float64 throttle  # [0, 1]
+
+tobas_kdl_msgs/Euler angle  # Target euler angles wrt. the global coordinates [rad]
+float64 throttle            # Target throttle [0, 1]

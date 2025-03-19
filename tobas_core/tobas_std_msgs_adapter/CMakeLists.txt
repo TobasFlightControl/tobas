@@ -3,10 +3,12 @@ project(tobas_std_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(tobas_std_tools REQUIRED)
 find_package(tobas_std_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
   rclcpp
+  tobas_std_tools
   tobas_std_msgs
 )
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <cassert>
 
 #include "./base_filter.hpp"
 #include "./utils.hpp"
@@ -10,12 +11,10 @@ namespace dsp
 template <typename T>
 class LowPassFilter : public BaseFilter<T>
 {
-  using super = BaseFilter<T>;
-
 public:
   explicit LowPassFilter();
 
-  super::error_t update(const T& u, const double& dt) override;
+  void update(const T& u, const double& dt) override;
 
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
@@ -33,26 +32,16 @@ LowPassFilter<T>::LowPassFilter()
 }
 
 template <typename T>
-BaseFilter<T>::error_t LowPassFilter<T>::update(const T& u, const double& dt)
+void LowPassFilter<T>::update(const T& u, const double& dt)
 {
-  if (dt < 0.)
-  {
+  assert(dt >= 0.);
+
+  if (dt > T_)
     y_ = u;
-    super::error_code_ = super::E_TIME_STEP_NEGATIVE;
-  }
-  else if (dt > T_)
-  {
-    y_ = u;
-    super::error_code_ = super::E_TIME_STEP_TOO_LARGE;
-  }
   else
-  {
     y_ = ((T_ - dt) * y_ + dt * (u + prev_u_)) / (T_ + dt);
-    super::error_code_ = super::E_NO_ERROR;
-  }
 
   prev_u_ = u;
-  return super::error_code_;
 }
 
 template <typename T>

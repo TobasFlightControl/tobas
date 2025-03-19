@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/motor/a2212_920kv.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
+
+  <!-- DJI A2212 920KV + DJI Phantom3 0945 -->
+  <xacro:macro name="dji_a2212_0945" params="parent index direction *origin">
+
+    <xacro:a2212_920kv parent="${parent}" index="${index}">
+      <xacro:insert_block name="origin"/>
+    </xacro:a2212_920kv>
+
+    <xacro:phantom3_0945 parent="motor_${index}" index="${index}" direction="${direction}">
+      <origin xyz="0 0 0.0245" rpy="0 0 0"/>
+    </xacro:phantom3_0945>
+
+  </xacro:macro>
+
+</robot>

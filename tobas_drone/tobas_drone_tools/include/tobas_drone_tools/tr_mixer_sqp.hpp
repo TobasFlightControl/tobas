@@ -19,18 +19,21 @@ class TiltRotorMixer_SQP : public Mixer
   using self = TiltRotorMixer_SQP;
   using super = Mixer;
 
+  static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
+
 public:
   explicit TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures();
 
   bool solve(
-    const double& cur_voltage,
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_acc_W,
-    const kdl::Vector& tar_dgyro_B);
+    const kdl::Vector& tar_dgyro_B,
+    const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
+    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
   double getThrust(size_t idx) const;
   double getTiltAngle(size_t idx) const;
@@ -69,7 +72,6 @@ private:
 
   void resetTensors();
   bool initializeSQP();
-  bool updateWeight();
 
   // SQPに渡す関数
   double f(const Eigen::VectorXd& x);

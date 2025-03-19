@@ -11,7 +11,7 @@ namespace field
 AltitudeWidget::AltitudeWidget()
 {
   spinbox_ = new qt::DoubleSpinBox();
-  spinbox_->setDecimals(3);
+  spinbox_->setDecimals(2);
   spinbox_->setValue(5.);
   spinbox_->setSuffix(" m");
 

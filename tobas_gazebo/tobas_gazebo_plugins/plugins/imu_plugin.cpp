@@ -1,5 +1,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
@@ -12,6 +13,7 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_plugins/random.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
@@ -26,18 +28,7 @@ class GazeboImuPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugPubTopic[] = "gazebo/imu_debug";
-  static constexpr double kAccGyroRotorNoiseRate = 0.1;  // TODO: モータのジャイロへの影響も真面目に考察
-
-  // Default values
-  static constexpr size_t kDefaultUpdateRate = 400;  // [Hz]
-  static constexpr double kDefaultAccNoiseDensity = 2. * 2e-3;
-  static constexpr double kDefaultAccRandomWalk = 2. * 3e-3;
-  static constexpr double kDefaultAccBiasCorrTime = 300.;
-  static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas_std::kGravity;
-  static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * tobas_std::kDeg2Rad;
-  static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * tobas_std::kDeg2Rad;
-  static constexpr double kDefaultGyroBiasCorrTime = 1000.;
-  static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * tobas_std::kDeg2Rad;
+  static constexpr double kAccGyroRotorNoiseRate = 0.05;  // TODO: モータのジャイロへの影響も真面目に考察
 
   using self = GazeboImuPlugin;
 
@@ -55,19 +46,17 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;              // Update rate [Hz]
-  gz::math::Vector3d offset_;       // B_Pos_BS
-  double acc_noise_density_sig_;    // Accel noise density actually added to signal [m/s^2/√Hz]
-  double acc_noise_density_obs_;    // Accel noise density that is observerd [m/s^2/√Hz]
-  double acc_random_walk_;          // Accel bias random walk [m/s^2/s/√Hz]
-  double acc_bias_corr_time_;       // Accel bias correlation time constant [s]
-  double acc_turn_on_bias_sigma_;   // Accel turn on bias standard deviation [m/s^2]
-  double gyro_noise_density_sig_;   // Gyro noise density actually added to signal [rad/s/√Hz]
-  double gyro_noise_density_obs_;   // Gyro noise density that is observed [rad/s/√Hz]
-  double gyro_random_walk_;         // Gyro bias random walk [rad/s/s/√Hz]
-  double gyro_bias_corr_time_;      // Gyro bias correlation time constant [s]
-  double gyro_turn_on_bias_sigma_;  // Gyro turn on bias standard deviation [rad/s]
-  vector<size_t> rotor_channels_;
+  size_t update_rate_;          // Update rate [Hz]
+  gz::math::Vector3d offset_;   // B_Pos_BS
+  double acc_noise_density_;    // Accel noise density [m/s^2/√Hz]
+  double acc_offset_norm_;      // Accel initial offset level [m/s^2]
+  double acc_random_walk_;      // Accel bias random walk [m/s^2/s/√Hz]
+  double acc_bias_corr_time_;   // Accel bias correlation time constant [s]
+  double gyro_noise_density_;   // Gyro noise density [rad/s/√Hz]
+  double gyro_offset_norm_;     // Gyro initial offset level [rad/s]
+  double gyro_random_walk_;     // Gyro bias random walk [rad/s/s/√Hz]
+  double gyro_bias_corr_time_;  // Gyro bias correlation time constant [s]
+  vector<string> rotor_link_names_;
 
   const cmp::WorldPose* pose_W_;
   const cmp::LinearAcceleration* acc_B_;
@@ -77,11 +66,11 @@ private:
 
   RateManager::SharedPtr rate_manager_;
   ModelMassHolder mass_holder_;
+  gz::math::Vector3d acc_offset_;
+  gz::math::Vector3d gyro_offset_;
   gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d gyro_bias_ = gz::math::Vector3d::Zero;
-  gz::math::Vector3d acc_turn_on_bias_;
-  gz::math::Vector3d gyro_turn_on_bias_;
-  map<size_t, double> rotor_noises_;  // [N] 各モータで発生する周波数ノイズ
+  map<string, double> rotor_noises_;  // [N] 各モータで発生する周波数ノイズ
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -127,23 +116,21 @@ void GazeboImuPlugin::Configure(
   dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
   grav_W_ = getComponent<cmp::Gravity>(world, ecm);
 
+  acc_offset_ = createUnitSpherePoint(rnd_dev_) * acc_offset_norm_;
+  gyro_offset_ = createUnitSpherePoint(rnd_dev_) * gyro_offset_norm_;
+
   noise_ = NormalDistribution(0, 1);
-  for (size_t i = 0; i < 3; ++i)
-  {
-    acc_turn_on_bias_[i] = acc_turn_on_bias_sigma_ * noise_(rnd_gen_);
-    gyro_turn_on_bias_[i] = gyro_turn_on_bias_sigma_ * noise_(rnd_gen_);
-  }
 
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
-  for (const auto& ch : rotor_channels_)
+  for (const auto& link_name : rotor_link_names_)
   {
-    const auto topic = kRotorStateGtTopicPrefix + to_string(ch);
+    const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const auto qos = ros2::makeQoS(false, false, 1);
-    const auto cb = [this, ch](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
-    { rotor_noises_[ch] = msg->rotor_noise; };
+    const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
+    { rotor_noises_[link_name] = msg->rotor_noise; };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
@@ -152,22 +139,20 @@ void GazeboImuPlugin::Configure(
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
-  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
+  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
+  getSdfParam(sdf, "offset", offset_);
 
-  getSdfParam(sdf, "accelNoiseDensityOnSignal", acc_noise_density_sig_, kDefaultAccNoiseDensity, POSITIVE);
-  getSdfParam(sdf, "accelNoiseDensityObserved", acc_noise_density_obs_, kDefaultAccNoiseDensity, POSITIVE);
-  getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, kDefaultAccRandomWalk, POSITIVE);
-  getSdfParam(sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime, POSITIVE);
-  getSdfParam(sdf, "accelTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma, POSITIVE);
+  getSdfParam(sdf, "accelNoiseDensity", acc_noise_density_, NON_NEGATIVE);
+  getSdfParam(sdf, "accelOffsetNorm", acc_offset_norm_, NON_NEGATIVE);
+  getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, NON_NEGATIVE);
+  getSdfParam(sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, POSITIVE);
 
-  getSdfParam(sdf, "gyroNoiseDensityOnSignal", gyro_noise_density_sig_, kDefaultGyroNoiseDensity, POSITIVE);
-  getSdfParam(sdf, "gyroNoiseDensityObserved", gyro_noise_density_obs_, kDefaultGyroNoiseDensity, POSITIVE);
-  getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
-  getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
-  getSdfParam(sdf, "gyroTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma, POSITIVE);
+  getSdfParam(sdf, "gyroNoiseDensity", gyro_noise_density_, NON_NEGATIVE);
+  getSdfParam(sdf, "gyroOffsetNorm", gyro_offset_norm_, NON_NEGATIVE);
+  getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, NON_NEGATIVE);
+  getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, POSITIVE);
 
-  getSdfParam(sdf, "rotorChannels", rotor_channels_);
+  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -175,11 +160,11 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   if (!rate_manager_->update(info.simTime))
     return;
 
-  if (rotor_noises_.size() < rotor_channels_.size())
+  if (rotor_noises_.size() < rotor_link_names_.size())
   {
     if (info.simTime > kWarnStartTime)
     {
-      const auto num_not_received = rotor_channels_.size() - rotor_noises_.size();
+      const auto num_not_received = rotor_link_names_.size() - rotor_noises_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
   }
@@ -231,10 +216,10 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   const auto rotor_noise_acc = rotor_noise_sum / mass_holder_.getMass();
   const auto rotor_noise_gyro = rotor_noise_acc * kAccGyroRotorNoiseRate;
 
-  // Accelerometer
+  // Accel
   const auto tau_a = acc_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
-  const auto sigma_a_d = acc_noise_density_sig_ / sqrt(dt);  // [m/s^2]
+  const auto sigma_a_d = acc_noise_density_ / sqrt(dt);  // [m/s^2]
   const auto sigma_b_a = acc_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
   const auto sigma_b_a_d = sigma_b_a * sqrt(tau_a / 2 * (1 - exp(-2 * dt / tau_a)));  // [m/s^2]
@@ -244,13 +229,13 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   for (size_t i = 0; i < 3; ++i)
   {
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
-    acc[i] += sigma_a_d * noise_(rnd_gen_) + acc_bias_[i] + acc_turn_on_bias_[i] + rotor_noise_acc;
+    acc[i] += sigma_a_d * noise_(rnd_gen_) + acc_offset_[i] + acc_bias_[i] + rotor_noise_acc;
   }
 
-  // Gyrosocpe
+  // Gyro
   const auto tau_g = gyro_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
-  const auto sigma_g_d = gyro_noise_density_sig_ / sqrt(dt);  // [rad/s]
+  const auto sigma_g_d = gyro_noise_density_ / sqrt(dt);  // [rad/s]
   const auto sigma_b_g = gyro_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32)
   const auto sigma_b_g_d = sigma_b_g * sqrt(tau_g / 2 * (1 - exp(-2 * dt / tau_g)));  // [rad/s]
@@ -260,7 +245,7 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   for (size_t i = 0; i < 3; ++i)
   {
     gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
-    gyro[i] += sigma_g_d * noise_(rnd_gen_) + gyro_bias_[i] + gyro_turn_on_bias_[i] + rotor_noise_gyro;
+    gyro[i] += sigma_g_d * noise_(rnd_gen_) + gyro_offset_[i] + gyro_bias_[i] + rotor_noise_gyro;
   }
 }
 }  // namespace gazebo

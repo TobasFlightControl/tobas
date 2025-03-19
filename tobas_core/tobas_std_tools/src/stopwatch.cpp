@@ -15,7 +15,7 @@ Stopwatch::Stopwatch(size_t samples) : samples_(samples)
 
 void Stopwatch::start()
 {
-  start_time_ = system_clock::now();
+  start_time_ = steady_clock::now();
   running_ = true;
 }
 
@@ -24,7 +24,7 @@ uint64_t Stopwatch::stop()
   if (!running_)
     return 0;
 
-  const auto end_time = system_clock::now();
+  const auto end_time = steady_clock::now();
   const auto duration = duration_cast<microseconds>(end_time - start_time_).count();
   sum_duration_ += duration;
 

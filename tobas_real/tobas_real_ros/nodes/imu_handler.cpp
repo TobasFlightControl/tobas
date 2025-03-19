@@ -1,3 +1,5 @@
+#include <tobas_linux/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
@@ -37,7 +39,8 @@ private:
 
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real_imu_handler", options)
 {
-  if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
+  if (!pt_.initialize((cfg_dir / kConfigFileName)))
   {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
@@ -52,7 +55,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real
   }
 
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
 }
 
 bool ImuHandlerNode::getConfig()
@@ -81,7 +84,7 @@ bool ImuHandlerNode::getConfig()
 void ImuHandlerNode::registerPubSub()
 {
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
 }
 
 void ImuHandlerNode::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in)
@@ -111,7 +114,7 @@ void ImuHandlerNode::setParamsCb(
     return;
   }
 
-  if (imu_pub_ == nullptr)
+  if (!imu_pub_)
     registerPubSub();
 
   res->success = true;

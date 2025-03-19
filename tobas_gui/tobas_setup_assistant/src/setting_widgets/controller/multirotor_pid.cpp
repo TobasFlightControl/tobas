@@ -19,7 +19,7 @@ MultirotorPIDWidget::MultirotorPIDWidget(
   setLayout(rows);
 
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
-  do_dist_comp_trans_->setChecked(true);
+  do_dist_comp_trans_->setChecked(false);
   rows->addWidget(do_dist_comp_trans_);
 
   do_dist_comp_rot_ = new QCheckBox("Do Disturbance Compensation (Rotation)");
@@ -56,12 +56,12 @@ tobas::rc_command_t MultirotorPIDWidget::acrobatModeCommand() const
 
 tobas::rc_command_t MultirotorPIDWidget::stabilizeModeCommand() const
 {
-  return tobas::rc_command_t::ANGLE_THROTTLE;
+  return tobas::rc_command_t::ACCEL_YAW;
 }
 
 tobas::rc_command_t MultirotorPIDWidget::loiterModeCommand() const
 {
-  return tobas::rc_command_t::POS_VEL_ACC_YAW;
+  return tobas::rc_command_t::POS_VEL_YAW;
 }
 
 YAML::Node MultirotorPIDWidget::staticParams() const

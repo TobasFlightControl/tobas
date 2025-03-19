@@ -249,6 +249,9 @@ private:
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res);
 
   static std::string createID(const char* file, int line);
+
+  /* 環境変数によってノードオプションを切り替える． */
+  static rclcpp::NodeOptions createNodeOptions(rclcpp::NodeOptions options);
 };
 
 inline std::string BaseNode::ns() const
@@ -681,7 +684,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
 {
   // Create message
   auto message = std::make_unique<tobas_std_msgs::msg::Message>();
-  message->stamp = get_clock()->now();
+  message->header.stamp = get_clock()->now();
   message->level = level;
   message->name = get_name();
   message->message = tobas_std::buildString(args...);

@@ -19,7 +19,7 @@ NonPlanarPIDWidget::NonPlanarPIDWidget(
   setLayout(rows);
 
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
-  do_dist_comp_trans_->setChecked(true);
+  do_dist_comp_trans_->setChecked(false);
   rows->addWidget(do_dist_comp_trans_);
 
   do_dist_comp_rot_ = new QCheckBox("Do Disturbance Compensation (Rotation)");
@@ -51,17 +51,17 @@ QString NonPlanarPIDWidget::pluginName() const
 
 tobas::rc_command_t NonPlanarPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
+  return tobas::rc_command_t::ACCEL_RATE;
 }
 
 tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const
 {
-  return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
+  return tobas::rc_command_t::ACCEL_ANGLE;
 }
 
 tobas::rc_command_t NonPlanarPIDWidget::loiterModeCommand() const
 {
-  return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
+  return tobas::rc_command_t::POS_VEL_ANGLE;
 }
 
 YAML::Node NonPlanarPIDWidget::staticParams() const

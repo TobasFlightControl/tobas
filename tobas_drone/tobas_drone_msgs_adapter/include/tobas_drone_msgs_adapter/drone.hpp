@@ -5,11 +5,11 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
 
-#include "./battery_config.hpp"
 #include "./joint_config.hpp"
-#include "./rotor_config.hpp"
-#include "./fixed_wing_config.hpp"
 #include "./pwm_config.hpp"
+#include "./electric_propulsion_system_config.hpp"
+#include "./ice_propulsion_system_config.hpp"
+#include "./fixed_wing_config.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
@@ -20,10 +20,10 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
+    // Name
     dst.name = src.name;
 
-    tobas_drone_msgs::BatteryConfigAdapter::convert_to_ros_message(src.battery, dst.battery);
-
+    // Joint
     dst.joints.clear();
     for (const auto& [_, joint] : src.joints)
     {
@@ -31,13 +31,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
       tobas_drone_msgs::JointConfigAdapter::convert_to_ros_message(joint, dst.joints.back());
     }
 
-    dst.rotors.clear();
-    for (const auto& [_, rotor] : src.rotors)
-    {
-      dst.rotors.emplace_back();
-      tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(rotor, dst.rotors.back());
-    }
-
+    // PWM
     dst.pwms.clear();
     for (const auto& [_, pwm] : src.pwms)
     {
@@ -45,15 +39,55 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
       tobas_drone_msgs::PwmConfigAdapter::convert_to_ros_message(pwm, dst.pwms.back());
     }
 
-    tobas_drone_msgs::FixedWingConfigAdapter::convert_to_ros_message(src.fixed_wing, dst.fixed_wing);
+    // Propulsion System
+    if (src.prop)
+    {
+      dst.prop_type = static_cast<int8_t>(src.prop->type());
+      switch (src.prop->type())
+      {
+        case tobas::propulsion_system_t::ELECTRIC:
+        {
+          const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(src.prop);
+          tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_ros_message(*eprop, dst.eprop);
+          break;
+        }
+        case tobas::propulsion_system_t::ICE:
+        {
+          const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(src.prop);
+          tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_ros_message(*iprop, dst.iprop);
+          break;
+        }
+        default:
+        {
+          std::cerr << "Invalid propulsion system type: " << (int)src.prop->type() << std::endl;
+          dst.prop_type = -1;
+          break;
+        }
+      }
+    }
+    else
+    {
+      dst.prop_type = -1;
+    }
+
+    // Fixed Wing
+    if (src.fixed_wing)
+    {
+      dst.has_fixed_wing = true;
+      tobas_drone_msgs::FixedWingConfigAdapter::convert_to_ros_message(*src.fixed_wing, dst.fixed_wing);
+    }
+    else
+    {
+      dst.has_fixed_wing = false;
+    }
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
+    // Name
     dst.name = src.name;
 
-    tobas_drone_msgs::BatteryConfigAdapter::convert_to_custom(src.battery, dst.battery);
-
+    // Joint
     dst.joints.clear();
     for (const auto& joint : src.joints)
     {
@@ -61,21 +95,56 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
       tobas_drone_msgs::JointConfigAdapter::convert_to_custom(joint, dst.joints.at(joint.name));
     }
 
-    dst.rotors.clear();
-    for (const auto& rotor : src.rotors)
-    {
-      dst.rotors[rotor.channel] = tobas::RotorConfig();
-      tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(rotor, dst.rotors.at(rotor.channel));
-    }
-
+    // PWM
     dst.pwms.clear();
     for (const auto& pwm : src.pwms)
     {
-      dst.pwms[pwm.joint_name] = tobas::PwmConfig();
-      tobas_drone_msgs::PwmConfigAdapter::convert_to_custom(pwm, dst.pwms.at(pwm.joint_name));
+      dst.pwms[pwm.name] = tobas::PwmConfig();
+      tobas_drone_msgs::PwmConfigAdapter::convert_to_custom(pwm, dst.pwms.at(pwm.name));
     }
 
-    tobas_drone_msgs::FixedWingConfigAdapter::convert_to_custom(src.fixed_wing, dst.fixed_wing);
+    // Propulsion System
+    if (src.prop_type >= 0)
+    {
+      switch (static_cast<tobas::propulsion_system_t>(src.prop_type))
+      {
+        case tobas::propulsion_system_t::ELECTRIC:
+        {
+          const auto eprop = std::make_shared<tobas::ElectricPropulsionSystemConfig>();
+          tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_custom(src.eprop, *eprop);
+          dst.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
+          break;
+        }
+        case tobas::propulsion_system_t::ICE:
+        {
+          const auto iprop = std::make_shared<tobas::ICEPropulsionSystemConfig>();
+          tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_custom(src.iprop, *iprop);
+          dst.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
+          break;
+        }
+        default:
+        {
+          std::cerr << "Invalid propulsion system type: " << (int)src.prop_type << std::endl;
+          dst.prop.reset();
+          break;
+        }
+      }
+    }
+    else
+    {
+      dst.prop.reset();
+    }
+
+    // Fixed Wing
+    if (src.has_fixed_wing)
+    {
+      dst.fixed_wing = std::make_shared<tobas::FixedWingConfig>();
+      tobas_drone_msgs::FixedWingConfigAdapter::convert_to_custom(src.fixed_wing, *dst.fixed_wing);
+    }
+    else
+    {
+      dst.fixed_wing.reset();
+    }
   }
 };
 

@@ -26,7 +26,8 @@ find_package(visualization_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(inja_ament REQUIRED)
 find_package(rapidcsv_ament REQUIRED)
-find_package(tobas_kdl_conversions REQUIRED)
+find_package(tobas_string_tools REQUIRED)
+find_package(tobas_kdl_parser REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
@@ -40,7 +41,8 @@ set(AMENT_DEPENDENCIES
   moveit_msgs
   inja_ament
   rapidcsv_ament
-  tobas_kdl_conversions
+  tobas_string_tools
+  tobas_kdl_parser
   tobas_ros2_tools
   tobas_property_client
   tobas_drone_msgs_adapter

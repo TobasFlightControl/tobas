@@ -113,12 +113,6 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package="tobas_latency_publisher",
-                            plugin="LatencyPublisherNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
                             package="tobas_disturbance_observer",
                             plugin="DisturbanceObserverNode",
                             namespace=DRONE_NAME,
@@ -212,15 +206,8 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_rosbag_recorder",
-                            plugin="ROSBagRecorderNode",
+                            plugin="RosbagRecorderNode",
                             namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_matrix_euler_conversion",
-                            plugin="MatrixEulerConverterNode",
-                            namespace=DRONE_NAME,
-                            remappings=remappings,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
@@ -234,6 +221,13 @@ def generate_launch_description():
                         ComposableNode(
                             package="tobas_state_checker",
                             plugin="PostArmCheckerNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_landing_detection",
+                            plugin="LandingDetectorNode",
                             namespace=DRONE_NAME,
                             remappings=remappings,
                             extra_arguments=extra_arguments,

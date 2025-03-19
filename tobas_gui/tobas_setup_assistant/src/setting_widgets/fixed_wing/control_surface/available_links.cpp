@@ -58,7 +58,7 @@ void AvailableLinksWidget::updateInternalDataStructures()
 QString AvailableLinksWidget::selected() const
 {
   const auto cur_item = currentItem();
-  if (cur_item == nullptr)
+  if (!cur_item)
     return "";
   else
     return cur_item->text();

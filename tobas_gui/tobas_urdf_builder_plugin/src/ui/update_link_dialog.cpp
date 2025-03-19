@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <boost/polymorphic_cast.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rcutils/env.h>
 
@@ -291,8 +292,8 @@ void UpdateLinkDialog::VisualListWidgetItemClicked(QListWidgetItem* item)
   RCLCPP_DEBUG_STREAM(
     node_->get_logger(), "UpdateLinkDialog::VisualListWidgetItemClicked(" << item->text().toStdString() << ")");
 
-  auto visualItem = dynamic_cast<VisualListWidgetItem*>(item);
-  readFromVM(visualItem->viewModel());
+  const auto visual_item = boost::polymorphic_downcast<VisualListWidgetItem*>(item);
+  readFromVM(visual_item->viewModel());
 }
 
 void UpdateLinkDialog::CollisionListWidgetItemClicked(QListWidgetItem* item)
@@ -300,8 +301,8 @@ void UpdateLinkDialog::CollisionListWidgetItemClicked(QListWidgetItem* item)
   RCLCPP_DEBUG_STREAM(
     node_->get_logger(), "UpdateLinkDialog::CollisionListWidgetItemClicked(" << item->text().toStdString() << ")");
 
-  const auto collisionItem = dynamic_cast<CollisionListWidgetItem*>(item);
-  readFromVM(collisionItem->viewModel());
+  const auto collision_item = boost::polymorphic_downcast<CollisionListWidgetItem*>(item);
+  readFromVM(collision_item->viewModel());
 }
 
 void UpdateLinkDialog::RenameLinkButtonClicked()
@@ -366,14 +367,14 @@ void UpdateLinkDialog::RemoveVisualButtonClicked()
   }
 
   const auto item = ui_->VisualListWidget->selectedItems().front();
-  const auto casted_item = dynamic_cast<VisualListWidgetItem*>(item);
+  const auto casted_item = boost::polymorphic_downcast<VisualListWidgetItem*>(item);
   link_vm_->remove(casted_item->viewModel());
   ui_->VisualListWidget->removeItemWidget(item);
   delete item;
 
   if (ui_->VisualListWidget->count() > 0)
   {
-    const auto first = dynamic_cast<VisualListWidgetItem*>(ui_->VisualListWidget->item(0));
+    const auto first = boost::polymorphic_downcast<VisualListWidgetItem*>(ui_->VisualListWidget->item(0));
     first->setSelected(true);
     readFromVM(first->viewModel());
   }
@@ -410,14 +411,14 @@ void UpdateLinkDialog::RemoveCollisionButtonClicked()
   }
 
   const auto item = ui_->CollisionListWidget->selectedItems().front();
-  const auto casted_item = dynamic_cast<CollisionListWidgetItem*>(item);
+  const auto casted_item = boost::polymorphic_downcast<CollisionListWidgetItem*>(item);
   link_vm_->remove(casted_item->viewModel());
   ui_->CollisionListWidget->removeItemWidget(item);
   delete item;
 
   if (ui_->CollisionListWidget->count() > 0)
   {
-    const auto first = dynamic_cast<CollisionListWidgetItem*>(ui_->CollisionListWidget->item(0));
+    const auto first = boost::polymorphic_downcast<CollisionListWidgetItem*>(ui_->CollisionListWidget->item(0));
     first->setSelected(true);
     readFromVM(first->viewModel());
   }
@@ -725,6 +726,7 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
   ui_->InertialOriginXSpinBox->setValue(origin.position.x);
   ui_->InertialOriginYSpinBox->setValue(origin.position.y);
   ui_->InertialOriginZSpinBox->setValue(origin.position.z);
+
   double r, p, y;
   origin.rotation.getRPY(r, p, y);
   ui_->InertialOriginRollSpinBox->setValue(r);
@@ -746,7 +748,7 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
 
 void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) const
 {
-  assert(visual != nullptr);
+  assert(visual);
 
   urdf::Pose pose;
   pose.position.x = ui_->VisualOriginXSpinBox->value();
@@ -790,7 +792,7 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
 
 void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& collision) const
 {
-  assert(collision != nullptr);
+  assert(collision);
 
   urdf::Pose pose;
   pose.position.x = ui_->CollisionOriginXSpinBox->value();

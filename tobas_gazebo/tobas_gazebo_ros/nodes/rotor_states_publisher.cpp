@@ -1,11 +1,10 @@
+#include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
-
-using namespace std;
 
 class RotorStatesPublisherNode : public tobas::BaseNode
 {
@@ -17,11 +16,11 @@ public:
 
 private:
   tobas::Drone::ConstSharedPtr drone_;
-  std::map<size_t, tobas_msgs::msg::RotorState> rotor_states_;  // チャンネル順に並ぶようmapを使う
+  std::map<std::string, tobas_msgs::msg::RotorState> rotor_states_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  map<size_t, ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
+  std::map<std::string, ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& rotor_state);
@@ -36,13 +35,16 @@ RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& op
 
 void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
+  if (!drone->prop)
+    return;
+
   rotor_states_.clear();
   rotor_state_subs_.clear();
 
-  for (const auto& [channel, _] : drone->rotors)
+  for (const auto& [link_name, _] : drone->prop->rotors)
   {
-    const auto topic = gazebo::kRotorStateTopicPrefix + to_string(channel);
-    rotor_state_subs_[channel] = createSubscriber(topic, &self::rotorStateCb, this);
+    const auto topic = path::join(gazebo::kRotorStateTopicNS, link_name);
+    rotor_state_subs_[link_name] = createSubscriber(topic, &self::rotorStateCb, this);
   }
 
   drone_ = drone;
@@ -50,18 +52,18 @@ void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
 
 void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& rotor_state)
 {
-  const auto& channel = rotor_state->channel;
+  const auto& link_name = rotor_state->link_name;
 
-  if (rotor_states_.contains(channel))
+  if (rotor_states_.contains(link_name))
   {
-    TOBAS_WARN("Rotor channel ", (int)channel, " is already updated.");
+    TOBAS_WARN("Rotor \"", link_name, "\" is already updated.");
     return;
   }
 
   // Store rotor state
-  rotor_states_[channel] = *rotor_state;
+  rotor_states_[link_name] = *rotor_state;
 
-  if (rotor_states_.size() == drone_->numRotors())
+  if (rotor_states_.size() == drone_->prop->numRotors())
   {
     // Publish rotor states
     auto rotor_states_msg = std::make_unique<tobas_msgs::msg::RotorStateArray>();

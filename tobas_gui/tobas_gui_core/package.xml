@@ -19,7 +19,6 @@
   <depend>tobas_simulation_gui</depend>
 
   <exec_depend>rmw_cyclonedds_cpp</exec_depend>
-  <exec_depend>tobas_ssh_server</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

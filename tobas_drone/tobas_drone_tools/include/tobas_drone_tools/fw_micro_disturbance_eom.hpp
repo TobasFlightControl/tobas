@@ -38,7 +38,7 @@ public:
    * @param rho 大気密度 [kg/m^3]
    * @param q 可動関節の角度 [rad]
    */
-  int update(const double& V, const double& rho, const double& battery_voltage, const kdl::JntArray& q);
+  int update(const double& V, const double& rho, const kdl::JntArray& q);
 
   inline const TrimConditions& trimCondition() const;
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -145,7 +145,7 @@ private:
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
 
   void resize();
-  void setInputLimits(const double& battery_voltage);
+  void setInputLimits();
 };
 
 inline const TrimConditions& MicroDisturbanceEoM::trimCondition() const

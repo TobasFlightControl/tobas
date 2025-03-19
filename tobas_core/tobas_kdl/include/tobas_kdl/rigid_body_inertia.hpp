@@ -21,7 +21,7 @@ public:
    * inertia in the cog.
    */
   inline explicit RigidBodyInertia(
-    double m = 0,
+    double m = 0.,
     const Vector& oc = Vector::Zero(),
     const RotationalInertia& Ic = RotationalInertia::Zero());
 
@@ -179,9 +179,7 @@ inline RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I)
 
 inline RigidBodyInertia operator*(const Rotation& M, const RigidBodyInertia& I)
 {
-  const auto& R = M.data;
-  const RotationalInertia Ib(R * I.I_.data * R.transpose());
-  return RigidBodyInertia(I.m_, M * I.h_, Ib, true);
+  return RigidBodyInertia(I.m_, M * I.h_, M * I.I_, true);
 }
 
 inline std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg)

@@ -1,46 +1,37 @@
-#include <iostream>
-
 #include <tobas_linux/subprocess.hpp>
 
 #include "../include/tobas_gui_common/ros2_cli.hpp"
 
 using namespace std;
+namespace fs = filesystem;
 
 namespace gui
 {
 namespace common
 {
-pid_t rosrun(const string& pkg, const string& exec, const string& name)
+namespace util
 {
-  vector<char*> command;
-  command.push_back(const_cast<char*>("ros2"));
-  command.push_back(const_cast<char*>("run"));
-  command.push_back(const_cast<char*>(pkg.c_str()));
-  command.push_back(const_cast<char*>(exec.c_str()));
+string sourceCommand(const fs::path& install_dir)
+{
+  const auto setup_bash_path = install_dir / "setup.bash";
+  return "source " + setup_bash_path.string();
+}
+}  // namespace util
 
+pid_t rosrun(const fs::path& install_dir, const string& pkg, const string& exec, const string& name)
+{
+  auto command = util::sourceCommand(install_dir) + " && ros2 run " + pkg + " " + exec;
   if (!name.empty())
-  {
-    const auto name_arg = "--ros-args --name " + name;
-    command.push_back(const_cast<char*>(name_arg.c_str()));
-  }
+    command += " --ros-args --name " + name;
 
   return linux::createSubprocess(command);
 }
 
-pid_t roslaunch(const string& pkg, const string& name, const map<string, string>& args)
+pid_t roslaunch(const fs::path& install_dir, const string& pkg, const string& name, const map<string, string>& args)
 {
-  vector<char*> command;
-  command.push_back(const_cast<char*>("ros2"));
-  command.push_back(const_cast<char*>("launch"));
-  command.push_back(const_cast<char*>(pkg.c_str()));
-  command.push_back(const_cast<char*>(name.c_str()));
-
-  vector<string> arg_buf;  // const_castは文字列をコピーしないため，明示的に文字列のメモリを確保しておく必要がある．
-  for (const auto& arg : args)
-  {
-    arg_buf.push_back(arg.first + ":=" + arg.second);
-    command.push_back(const_cast<char*>(arg_buf.back().c_str()));
-  }
+  auto command = util::sourceCommand(install_dir) + " && ros2 launch " + pkg + " " + name;
+  for (const auto& [arg_name, arg_value] : args)
+    command += " " + arg_name + ":=" + arg_value;
 
   return linux::createSubprocess(command);
 }

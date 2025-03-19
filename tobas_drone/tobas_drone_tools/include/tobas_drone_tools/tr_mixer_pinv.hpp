@@ -15,6 +15,8 @@ class TiltRotorMixer_pinv : public Mixer
 {
   using super = Mixer;
 
+  static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
+
 public:
   explicit TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
 
@@ -25,7 +27,9 @@ public:
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_acc_W,
-    const kdl::Vector& tar_dgyro_B);
+    const kdl::Vector& tar_dgyro_B,
+    const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
+    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
   double getThrust(size_t idx) const;
   double getTiltAngle(size_t idx) const;
@@ -48,6 +52,6 @@ private:
   Eigen::Vector6d f_;
   Eigen::VectorXd x_;
 
-  std::map<size_t, bool> is_singular_;  // 各ティルトロータが特異状態かどうか
+  std::map<std::string, bool> is_singular_;  // 各ティルトロータが特異状態かどうか
 };
 }  // namespace tobas

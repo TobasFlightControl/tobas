@@ -3,8 +3,8 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
-from tobas_msgs.msg import PosVelAccYaw
-from tobas_msgs.action import Takeoff
+from tobas_command_msgs.msg import PosVelYaw
+from tobas_mission_msgs.action import Takeoff
 
 
 class CommandSquareTrajectoryNode(Node):
@@ -19,7 +19,7 @@ class CommandSquareTrajectoryNode(Node):
         self._takeoff_client = ActionClient(self, Takeoff, "takeoff_action")
 
         # コマンドのパブリッシャーを作成
-        self._command_pub = self.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", 1)
+        self._command_pub = self.create_publisher(PosVelYaw, "command/pos_vel_yaw", 1)
 
     def run(self) -> None:
         # アクションサーバーが起動するのを待つ
@@ -45,7 +45,7 @@ class CommandSquareTrajectoryNode(Node):
         # 正方形の頂点を指令し続ける
         while rclpy.ok():
             # 頂点1
-            command = PosVelAccYaw()
+            command = PosVelYaw()
             command.pos.x = self.SIDE_LENGTH / 2
             command.pos.y = self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE
@@ -53,7 +53,7 @@ class CommandSquareTrajectoryNode(Node):
             time.sleep(self.INTERVAL)
 
             # 頂点2
-            command = PosVelAccYaw()
+            command = PosVelYaw()
             command.pos.x = -self.SIDE_LENGTH / 2
             command.pos.y = self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE
@@ -61,7 +61,7 @@ class CommandSquareTrajectoryNode(Node):
             time.sleep(self.INTERVAL)
 
             # 頂点3
-            command = PosVelAccYaw()
+            command = PosVelYaw()
             command.pos.x = -self.SIDE_LENGTH / 2
             command.pos.y = -self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE
@@ -69,7 +69,7 @@ class CommandSquareTrajectoryNode(Node):
             time.sleep(self.INTERVAL)
 
             # 頂点4
-            command = PosVelAccYaw()
+            command = PosVelYaw()
             command.pos.x = self.SIDE_LENGTH / 2
             command.pos.y = -self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE

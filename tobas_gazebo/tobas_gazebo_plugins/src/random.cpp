@@ -42,4 +42,14 @@ Vector3d UniformDistribution3d::get()
     values_[i] = noise_[i](rnd_gen_);
   return values_;
 }
+
+Vector3d createUnitSpherePoint(random_device& rnd_dev)
+{
+  UniformDistribution angle_dist(-M_PI, M_PI);
+
+  const auto phi = angle_dist(rnd_dev);
+  const auto theta = angle_dist(rnd_dev);
+
+  return Vector3d(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi));
+}
 }  // namespace gazebo

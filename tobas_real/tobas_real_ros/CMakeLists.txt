@@ -16,6 +16,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_property_tree REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
@@ -26,6 +27,7 @@ set(AMENT_DEPENDENCIES
 	tobas_linux
 	tobas_property_tree
 	tobas_node
+	tobas_tools
 	tobas_msgs_adapter
 	tobas_drone_msgs_adapter
 	tobas_real_common
@@ -43,7 +45,7 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BarometerHandlerNod
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputHandlerNode" EXECUTABLE rcin_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointsHandlerNode" EXECUTABLE joints_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TimeReferenceServerNode" EXECUTABLE time_reference_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ICEPropulsionSystemHandlerNode" EXECUTABLE ice_propulsion_system_handler)
 
 install(
 	TARGETS ${PROJECT_NAME}_node

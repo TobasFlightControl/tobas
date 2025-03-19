@@ -63,7 +63,7 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
 
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::kDisturbanceForceTopic);
 
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorStatesCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
@@ -99,14 +99,14 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  odom_ = nullptr;
-  rotor_states_ = nullptr;
+  odom_.reset();
+  rotor_states_.reset();
   js_received_ = false;
 
   if (drone->hasServoJoint())
     joint_states_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStatesCb, this);
   else
-    joint_states_sub_ = nullptr;
+    joint_states_sub_.reset();
 }
 
 void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
@@ -130,16 +130,16 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   if (tree_.getNrOfJoints() == 0)
     return;
 
-  if (drone_.numRotors() == 0)
+  if (drone_.prop->numRotors() == 0)
     return;
 
-  if (rotor_states_ == nullptr)
+  if (!rotor_states_)
     return;
 
-  if (joint_states_sub_ != nullptr && !js_received_)
+  if (joint_states_sub_ && !js_received_)
     return;
 
-  if (odom_ == nullptr)
+  if (!odom_)
   {
     force_lpf_.setValue(kdl::Vector::Zero());
     torque_lpf_.setValue(kdl::Vector::Zero());
@@ -176,29 +176,27 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   kdl::Vector rot_sum = kdl::Vector::Zero();
   for (const auto& rotor_state : rotor_states_->states)
   {
-    if (rotor_state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+    if (rotor_state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
     {
       TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "No communication with rotor channel ", (int)rotor_state.channel,
-        ". Its rotation speed is estimated to 0.");
+        tobas::kTypicalWarnPeriod, "No communication with rotor \"", rotor_state.link_name,
+        "\". Its rotation speed is estimated to 0.");
     }
     else
     {
-      const auto& rotor = drone_.rotors.at(rotor_state.channel);
+      const auto& rotor = drone_.prop->rotors.at(rotor_state.link_name);
 
-      const auto elem = tree_.getSegment(rotor.link_name)->second;
+      const auto elem = tree_.getSegment(rotor->link_name)->second;
       const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
       const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
-      const auto thrust = rotor.thrustFromRotSpeed(rotor_state.speed);
-
-      const auto d = rotor.sign();
-      const auto& cm = rotor.moment_constant;
-      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
+      const auto d = rotor->sign();
+      const auto& cm = rotor->moment_const;
+      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
-      trans_sum += axis_B * thrust;
-      rot_sum += (B_Pos_G2P * axis_B - (d * cm) * axis_B) * thrust;
+      trans_sum += axis_B * rotor_state.thrust;
+      rot_sum += (B_Pos_G2P * axis_B - (d * cm) * axis_B) * rotor_state.thrust;
     }
   }
 
@@ -212,18 +210,14 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 
   // 外力をLPFに通す
-  if (force_lpf_.update(force_W, dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update force LPF.");
-  if (torque_lpf_.update(torque_B, dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update torque LPF.");
+  force_lpf_.update(force_W, dt);
+  torque_lpf_.update(torque_B, dt);
 
   // 外力メッセージを作成
   auto dist_force_msg = std::make_unique<tobas_kdl_msgs::WrenchStamped>();
   dist_force_msg->header.stamp = odom->header.stamp;
   dist_force_msg->wrench.force = force_lpf_.getValue();
   dist_force_msg->wrench.torque = torque_lpf_.getValue();
-
-  // TODO: 鉛直上方向の外力を制限
 
   // 外力メッセージを発行
   dist_force_pub_->publish(std::move(dist_force_msg));

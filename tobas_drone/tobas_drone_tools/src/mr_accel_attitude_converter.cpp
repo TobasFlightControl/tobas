@@ -34,9 +34,12 @@ void AccelAttitudeConverter::update(
   const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_) - ext_force_W;
   auto x = xyz.x();
   auto y = xyz.y();
-  const auto& z = xyz.z();
+  auto z = xyz.z();
 
-  // 姿勢の制限を考慮してx, yをクランプ
+  // 鉛直下方向に推力は出せないことを考慮して垂直成分をクランプ
+  z = max(z, 0.);
+
+  // 姿勢の制限を考慮して水平成分をクランプ
   const auto tan_max_atti = tan(cfg_.max_attitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
   algo::clamp2d(x, y, max_xy_norm);

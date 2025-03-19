@@ -2,6 +2,7 @@ std_msgs/Header header
 
 bool ok
 
+uint8 node_connection_unstable
 uint8 battery_voltage_too_low
 uint8 cpu_temperature_too_high
 uint8 rotor_communication_error

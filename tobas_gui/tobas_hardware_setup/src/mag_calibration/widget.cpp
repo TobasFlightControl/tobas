@@ -94,14 +94,9 @@ const char* MagCalibrationWidget::title() const
 
 void MagCalibrationWidget::reset()
 {
+  resetToPreStart();
+
   rviz_manager_.resetTime();
-
-  start_button_->setEnabled(true);
-  finish_button_->setEnabled(false);
-  cancel_button_->setEnabled(false);
-
-  // キャリブレーション中のみ購読する
-  mag_raw_sub_ = nullptr;
 }
 
 void MagCalibrationWidget::setNamespace(const string& ns)
@@ -110,11 +105,21 @@ void MagCalibrationWidget::setNamespace(const string& ns)
 
   ns_ = ns;
 
-  arming_ = nullptr;
+  arming_.reset();
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
+}
+
+void MagCalibrationWidget::resetToPreStart()
+{
+  start_button_->setEnabled(true);
+  finish_button_->setEnabled(false);
+  cancel_button_->setEnabled(false);
+
+  // キャリブレーション中のみ購読する
+  mag_raw_sub_.reset();
 }
 
 void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
@@ -149,7 +154,7 @@ void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
 void MagCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (arming_ == nullptr)
+  if (!arming_)
   {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
@@ -187,7 +192,7 @@ void MagCalibrationWidget::onStartButtonClicked()
 
 void MagCalibrationWidget::onCancelButtonClicked()
 {
-  reset();
+  resetToPreStart();
   qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
 }
 
@@ -306,7 +311,6 @@ void MagCalibrationWidget::onFinishButtonClicked()
   // 楕円体であることを確認
   if (!mag_trans_.initialize())
   {
-    reset();
     qt::qErrorBox(this, "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.");
     return;
   }
@@ -354,7 +358,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
   pc_pub_->publish(std::move(pc_calib));
 
-  reset();
+  resetToPreStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
 }
 }  // namespace hw
