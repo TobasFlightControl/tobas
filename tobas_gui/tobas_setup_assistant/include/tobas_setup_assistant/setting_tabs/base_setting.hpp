@@ -50,6 +50,7 @@ protected:
   void addWidgetCenter(QWidget* widget);
   void addLayout(QLayout* layout);
   void addStretch();
+  void addSpacing(int size);
 
 private:
   QLabel* title_;

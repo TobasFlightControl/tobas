@@ -16,6 +16,8 @@ FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& 
   connect(has_fixed_wing_, &QCheckBox::toggled, this, &self::setSettingWidgetsEnabled);
   addWidget(has_fixed_wing_);
 
+  addSpacing(50);
+
   setting_rows_ = new QVBoxLayout();
   addLayout(setting_rows_);
 

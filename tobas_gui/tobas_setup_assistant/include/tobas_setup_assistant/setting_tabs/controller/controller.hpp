@@ -63,6 +63,8 @@ private:
   qt::StackedWidget* controllers_;
   qt::DescriptionWidget* description_;
 
+  BaseControllerWidget* widget(int index);
+
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;
 };

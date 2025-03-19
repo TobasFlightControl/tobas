@@ -35,7 +35,7 @@ public:
   const SelectedLinksWidget* selected() const;
 
   /* 登録された制御面の個数を返す． */
-  int count() const;
+  int numUnits() const;
 
 private:
   AvailableLinksWidget* available_;

@@ -68,7 +68,7 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
   yawCoef(row, node[kYawCoefLabel].as<double>());
 }
 
-int SelectedLinksWidget::count() const
+int SelectedLinksWidget::numUnits() const
 {
   return rowCount();
 }
@@ -244,22 +244,6 @@ void SelectedLinksWidget::yawCoef(int row, double value)
 {
   const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kYawCoefCol));
   return cell->setValue(value);
-}
-
-QStringList SelectedLinksWidget::linkNames() const
-{
-  QStringList res;
-  for (int row = 0; row < rowCount(); ++row)
-    res.append(linkName(row));
-  return res;
-}
-
-QStringList SelectedLinksWidget::jointNames() const
-{
-  QStringList res;
-  for (int row = 0; row < rowCount(); ++row)
-    res.append(jointName(row));
-  return res;
 }
 }  // namespace fixed_wing
 }  // namespace sa

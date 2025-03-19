@@ -42,10 +42,9 @@ JointConfigurationWidget::JointConfigurationWidget(
 
   connect(propulsion_, &propulsion::PropulsionSystemWidget::linkAdded, this, &self::onRotorLinkAdded);
   connect(propulsion_, &propulsion::PropulsionSystemWidget::linkRemoved, this, &self::onRotorLinkRemoved);
-
-  const auto props = propulsion_->selected();
-  connect(props, &propulsion::SelectedLinksWidget::isTiltStateChanged, this, &self::onRotorIsTiltStateChanged);
-  connect(props, &propulsion::SelectedLinksWidget::tiltJointNameChanged, this, &self::onRotorTiltJointNameChanged);
+  connect(propulsion_, &propulsion::PropulsionSystemWidget::isTiltStateChanged, this, &self::onRotorIsTiltStateChanged);
+  connect(
+    propulsion_, &propulsion::PropulsionSystemWidget::tiltJointNameChanged, this, &self::onRotorTiltJointNameChanged);
 
   const auto css = fixed_wing_->controlSurfaces();
   connect(css, &fixed_wing::ControlSurfacesWidget::linkAdded, this, &self::onControlSurfaceLinkAdded);
@@ -197,12 +196,10 @@ void JointConfigurationWidget::load(const YAML::Node& node)
 
   // ロータに対応するティルトジョイント名を更新
   tilt_joint_map_.clear();
-  const auto props = propulsion_->selected();
-  for (int i = 0; i < props->count(); ++i)
+  for (int i = 0; i < propulsion_->numUnits(); ++i)
   {
-    const auto prop = props->widget(i);
-    if (prop->general()->isTiltRotor())
-      tilt_joint_map_[props->linkName(i)] = prop->general()->tiltJointName();
+    if (propulsion_->isTiltRotor(i))
+      tilt_joint_map_[propulsion_->linkName(i)] = propulsion_->tiltJointName(i);
   }
 
   blockSignals(false);
@@ -408,7 +405,7 @@ void JointConfigurationWidget::setPwmReverse(int row, bool value)
   pwm_reverse_[row]->setChecked(value);
 }
 
-int JointConfigurationWidget::count() const
+int JointConfigurationWidget::numJoints() const
 {
   return table_->rowCount();
 }

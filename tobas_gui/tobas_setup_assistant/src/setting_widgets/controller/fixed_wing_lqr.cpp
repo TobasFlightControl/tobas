@@ -71,24 +71,22 @@ void FixedWingLQRWidget::load(const YAML::Node&)
 
 bool FixedWingLQRWidget::isApplicable()
 {
-  const auto props = propulsion_system_->selected();
-
   // 固定翼を持つ
   if (!fixed_wing_->hasFixedWing())
     return false;
 
   // 制御面の個数条件
-  if (fixed_wing_->controlSurfaces()->count() < kMinNumCS)
+  if (fixed_wing_->controlSurfaces()->numUnits() < kMinNumCS)
     return false;
 
   // プロペラの個数条件
-  if (props->count() < kMinNumProp)
+  if (propulsion_system_->numUnits() < kMinNumProp)
     return false;
 
   // X軸正方向のプロペラのみ
-  for (int i = 0; i < props->count(); ++i)
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i)
   {
-    const auto link_name = props->linkName(i);
+    const auto link_name = propulsion_system_->linkName(i);
     if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitX()))
       return false;
   }

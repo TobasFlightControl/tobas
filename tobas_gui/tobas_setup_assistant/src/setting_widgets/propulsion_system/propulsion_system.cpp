@@ -1,5 +1,4 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/font.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
@@ -10,23 +9,38 @@ namespace sa
 namespace propulsion
 {
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot)
 {
-  const auto links_label = new QLabel("Available Links");
-  links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
-  links_label->setAlignment(Qt::AlignLeft);
+  type_ = new qt::ComboBox();
+  propulsions_ = new qt::StackedWidget();
 
-  available_ = new AvailableLinksWidget(robot_);
-  selected_ = new SelectedLinksWidget(node_, robot_);
+  propulsions_->addWidget(new electric::PropulsionSystemWidget(node, robot));
 
-  // Layout
-  addWidget(links_label);
-  addWidget(available_);
-  addWidget(selected_);
+  for (int i = 0; i < propulsions_->count(); ++i)
+  {
+    const auto propulsion = widget(i);
+    type_->addItem(propulsion->name());
 
-  // Connection
-  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
-  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
+    connect(
+      propulsion, &BasePropulsionSystemWidget::linkAdded,
+      [this](const QString& link_name) { Q_EMIT linkAdded(link_name); });
+    connect(
+      propulsion, &BasePropulsionSystemWidget::linkRemoved,
+      [this](const QString& link_name) { Q_EMIT linkRemoved(link_name); });
+    connect(
+      propulsion, &BasePropulsionSystemWidget::isTiltStateChanged,
+      [this](const QString& link_name, bool is_tilt) { Q_EMIT isTiltStateChanged(link_name, is_tilt); });
+    connect(
+      propulsion, &BasePropulsionSystemWidget::tiltJointNameChanged,
+      [this](const QString& link_name, const QString& tilt_joint_name)
+      { Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name); });
+  }
+
+  addWidget(type_);
+  addSpacing(50);
+  addWidget(propulsions_);
+
+  connect(
+    type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), propulsions_, &qt::StackedWidget::setCurrentIndex);
 }
 
 const char* PropulsionSystemWidget::name() const
@@ -41,9 +55,7 @@ const char* PropulsionSystemWidget::title() const
 
 const char* PropulsionSystemWidget::description() const
 {
-  return "Configure the propulsion system. "
-         "Please add the link you intend to use for the propulsion system from the Available Links, "
-         "and input the necessary information for each.";
+  return "";  // TODO
 }
 
 void PropulsionSystemWidget::onOpened()
@@ -52,15 +64,16 @@ void PropulsionSystemWidget::onOpened()
 
 void PropulsionSystemWidget::updateInternalDataStructures()
 {
-  available_->updateInternalDataStructures();
-  selected_->updateInternalDataStructures();
+  for (int i = 0; i < propulsions_->count(); ++i)
+  {
+    const auto propulsion = widget(i);
+    propulsion->updateInternalDataStructures();
+  }
 }
 
 bool PropulsionSystemWidget::isValid()
 {
-  if (!available_->isValid())
-    return false;
-  if (!selected_->isValid())
+  if (!selected()->isValid())
     return false;
 
   return true;
@@ -70,10 +83,12 @@ YAML::Node PropulsionSystemWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int i = 0; i < selected_->count(); ++i)
+  node[kTypeKey] = type_->currentText();
+
+  for (int i = 0; i < propulsions_->count(); ++i)
   {
-    const auto link_name = selected_->linkName(i);
-    node[link_name.toStdString()] = selected_->widget(i)->dump();
+    const auto propulsion = widget(i);
+    node[propulsion->name()] = propulsion->dump();
   }
 
   return node;
@@ -81,45 +96,53 @@ YAML::Node PropulsionSystemWidget::dump()
 
 void PropulsionSystemWidget::load(const YAML::Node& node)
 {
-  blockSignals(true);
+  type_->setCurrentText(node[kTypeKey].as<QString>());
 
-  for (const auto& pair : node)
+  for (int i = 0; i < propulsions_->count(); ++i)
   {
-    const auto link_name = pair.first.as<QString>();
-    const auto& sub_node = pair.second;
-
-    // リンクをAvailableからSelectedに移動させる
-    available_->removeLink(link_name);
-    selected_->addLink(link_name);
-
-    // 選択リンクの設定を更新
-    selected_->widget(link_name)->load(sub_node);
+    const auto propulsion = widget(i);
+    propulsion->load(node[propulsion->name()]);
   }
-
-  blockSignals(false);
 }
 
-const AvailableLinksWidget* PropulsionSystemWidget::available() const
+tobas::propulsion_system_t PropulsionSystemWidget::type() const
 {
-  return available_;
+  return selected()->type();
 }
 
-const SelectedLinksWidget* PropulsionSystemWidget::selected() const
+int PropulsionSystemWidget::numUnits() const
 {
-  return selected_;
+  return selected()->numUnits();
 }
 
-void PropulsionSystemWidget::onAvailableLinkRemoved(const QString& link_name)
+QString PropulsionSystemWidget::linkName(int index) const
 {
-  selected_->addLink(link_name);
-  Q_EMIT linkAdded(link_name);
+  return selected()->linkName(index);
 }
 
-void PropulsionSystemWidget::onSelectedLinkRemoved(const QString& link_name)
+bool PropulsionSystemWidget::isTiltRotor(int index) const
 {
-  available_->addLink(link_name);
-  available_->sortItems();
-  Q_EMIT linkRemoved(link_name);
+  return selected()->isTiltRotor(index);
+}
+
+QString PropulsionSystemWidget::tiltJointName(int index) const
+{
+  return selected()->tiltJointName(index);
+}
+
+BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
+{
+  return qobject_cast<BasePropulsionSystemWidget*>(propulsions_->widget(index));
+}
+
+BasePropulsionSystemWidget* PropulsionSystemWidget::selected()
+{
+  return qobject_cast<BasePropulsionSystemWidget*>(propulsions_->currentWidget());
+}
+
+const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
+{
+  return qobject_cast<const BasePropulsionSystemWidget*>(propulsions_->currentWidget());
 }
 }  // namespace propulsion
 }  // namespace sa

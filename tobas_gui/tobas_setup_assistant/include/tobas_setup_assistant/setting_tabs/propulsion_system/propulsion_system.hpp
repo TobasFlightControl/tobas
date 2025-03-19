@@ -1,8 +1,11 @@
 #pragma once
 
+#include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+
 #include "../base_setting.hpp"
-#include "./available_links.hpp"
-#include "./selected_links.hpp"
+#include "./base.hpp"
+#include "./electric/propulsion_system.hpp"
 
 namespace gui
 {
@@ -17,9 +20,13 @@ class PropulsionSystemWidget : public BaseSettingWidget
   using self = PropulsionSystemWidget;
   using super = BaseSettingWidget;
 
+  static constexpr char kTypeKey[] = "propulsion_system_type";
+
 Q_SIGNALS:
   void linkAdded(const QString& link_name);
   void linkRemoved(const QString& link_name);
+  void isTiltStateChanged(const QString& link_name, bool is_tilt);
+  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 
 public:
   explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
@@ -35,19 +42,21 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
-  const AvailableLinksWidget* available() const;
-  const SelectedLinksWidget* selected() const;
+  tobas::propulsion_system_t type() const;
+  int numUnits() const;
 
-private Q_SLOTS:
-  void onAvailableLinkRemoved(const QString& link_name);
-  void onSelectedLinkRemoved(const QString& link_name);
+  QString linkName(int index) const;
+  bool isTiltRotor(int index) const;
+  QString tiltJointName(int index) const;
+
+  BasePropulsionSystemWidget* widget(int index);
+
+  BasePropulsionSystemWidget* selected();
+  const BasePropulsionSystemWidget* selected() const;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  const RobotInfo& robot_;
-
-  AvailableLinksWidget* available_;
-  SelectedLinksWidget* selected_;
+  qt::ComboBox* type_;
+  qt::StackedWidget* propulsions_;
 };
 };  // namespace propulsion
 }  // namespace sa

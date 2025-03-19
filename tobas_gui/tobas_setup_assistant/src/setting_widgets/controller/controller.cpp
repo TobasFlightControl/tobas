@@ -34,7 +34,7 @@ ControllerWidget::ControllerWidget(
 
   for (int i = 0; i < controllers_->count(); ++i)
   {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+    const auto controller = widget(i);
     type_->addItem(controller->name());
   }
 
@@ -64,7 +64,7 @@ void ControllerWidget::onOpened()
   // 現在の機体設定で適用可能な選択肢のみ選択可能にする
   for (int i = 0; i < controllers_->count(); ++i)
   {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+    const auto controller = widget(i);
     type_->setItemEnabled(i, controller->isApplicable());
   }
 }
@@ -96,7 +96,7 @@ YAML::Node ControllerWidget::dump()
 
   for (int i = 0; i < controllers_->count(); ++i)
   {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+    const auto controller = widget(i);
     node[controller->name()] = controller->dump();
   }
 
@@ -109,7 +109,7 @@ void ControllerWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < controllers_->count(); ++i)
   {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+    const auto controller = widget(i);
     controller->load(node[controller->name()]);
   }
 }
@@ -153,6 +153,11 @@ void ControllerWidget::setCurrentController(int index)
 {
   controllers_->setCurrentIndex(index);
   description_->setText(selected()->description());
+}
+
+BaseControllerWidget* ControllerWidget::widget(int index)
+{
+  return qobject_cast<BaseControllerWidget*>(controllers_->widget(index));
 }
 
 BaseControllerWidget* ControllerWidget::selected()

@@ -8,7 +8,6 @@ namespace sa
 {
 SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
 {
-  battery = new BatteryWidget();
   propulsion_system = new propulsion::PropulsionSystemWidget(node, robot);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
   joint_config = new JointConfigurationWidget(robot, propulsion_system, fixed_wing);
@@ -25,7 +24,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   ros_package = new ROSPackageWidget(node, robot);
 
   // 各タブを追加
-  addTab(battery, battery->name());
   addTab(propulsion_system, propulsion_system->name());
   addTab(fixed_wing, fixed_wing->name());
   addTab(joint_config, joint_config->name());
@@ -76,23 +74,6 @@ bool SettingsWidget::isValid()
     {
       switchTab(cur_widget);
       return false;
-    }
-  }
-
-  // Propulsion System, Control Surfacesの関節名が重複していないことを確認
-  const auto prop_links = propulsion_system->selected()->linkNames();
-  const auto cs_links = fixed_wing->controlSurfaces()->selected()->linkNames();
-  QSet<QString> registered_links_set;
-  for (const auto& link_list : { prop_links, cs_links })
-  {
-    for (const auto& link_name : link_list)
-    {
-      if (registered_links_set.contains(link_name))
-      {
-        qt::qErrorBox(this, "Link name \"" + link_name + "\" is registered to multiple actuators.");
-        return false;
-      }
-      registered_links_set.insert(link_name);
     }
   }
 

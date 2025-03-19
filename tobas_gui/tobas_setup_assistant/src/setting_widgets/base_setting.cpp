@@ -54,6 +54,11 @@ void BaseSettingWidget::addStretch()
   content_rows_->addStretch();
 }
 
+void BaseSettingWidget::addSpacing(int size)
+{
+  content_rows_->addSpacing(size);
+}
+
 void BaseSettingWidget::initialize()
 {
   title_->setText(title());

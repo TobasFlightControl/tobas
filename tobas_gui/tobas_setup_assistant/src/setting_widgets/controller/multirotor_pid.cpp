@@ -1,4 +1,5 @@
 #include <QVBoxLayout>
+#include <QDebug>
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -92,27 +93,21 @@ void MultirotorPIDWidget::load(const YAML::Node& node)
 
 bool MultirotorPIDWidget::isApplicable()
 {
-  const auto props = propulsion_system_->selected();
-
   // 固定翼を持たない
   if (fixed_wing_->hasFixedWing())
     return false;
 
   // プロペラの個数条件
-  if (props->count() < kMinNumProp)
+  if (propulsion_system_->numUnits() < kMinNumProp)
     return false;
 
   // Z軸正方向のプロペラのみ
-  for (int i = 0; i < props->count(); ++i)
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i)
   {
-    const auto link_name = props->linkName(i);
+    const auto link_name = propulsion_system_->linkName(i);
     if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ()))
       return false;
   }
-
-  // 両方の回転方向のプロペラをもつ
-  if (!props->hasBothRotationalDirections())
-    return false;
 
   return true;
 }

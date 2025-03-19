@@ -4,7 +4,6 @@
 
 #include "./robot_info.hpp"
 
-#include "./setting_tabs/battery/battery.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/joint_config.hpp"
@@ -35,7 +34,6 @@ class SettingsWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
-  BatteryWidget* battery;
   propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
   JointConfigurationWidget* joint_config;

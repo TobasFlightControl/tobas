@@ -117,7 +117,7 @@ public:
   void setPwmReverse(int row, bool value);
 
   /* 登録されているジョイント数． */
-  int count() const;
+  int numJoints() const;
 
   /* リンク名に対応するテーブルの行を返す．存在しなければ-1を返す． */
   int findLink(const QString& link_name) const;

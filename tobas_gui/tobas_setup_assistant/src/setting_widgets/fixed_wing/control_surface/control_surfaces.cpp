@@ -88,7 +88,7 @@ const SelectedLinksWidget* ControlSurfacesWidget::selected() const
   return selected_;
 }
 
-int ControlSurfacesWidget::count() const
+int ControlSurfacesWidget::numUnits() const
 {
   return selected_->rowCount();
 }
