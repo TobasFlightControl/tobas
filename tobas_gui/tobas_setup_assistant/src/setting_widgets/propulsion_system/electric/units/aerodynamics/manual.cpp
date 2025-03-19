@@ -32,18 +32,18 @@ AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
   moment_const_->setSuffix(" m");
   addWidget(moment_const_);
 
-  rotor_drag_coef_ = new ParamGetterWidget_DoubleSpinBox(
+  drag_const_ = new ParamGetterWidget_DoubleSpinBox(
     "Drag Constant", "Propeller drag constant. "
                      "If the drag constant is c [kg/rad], the motor's rotational speed is w [rad/s], "
                      "and V [m/s] is the magnitude of the atmospheric velocity component "
                      "perpendicular to the rotational axis relative to the aircraft, "
                      "then the magnitude of the air drag force F [N] generated on the propeller is expressed "
                      "as F = c w V.");
-  rotor_drag_coef_->setDecimals(9);
-  rotor_drag_coef_->setMinimum(0.);
-  rotor_drag_coef_->setValue(8.06428e-5);
-  rotor_drag_coef_->setSuffix(" kg/rad");
-  addWidget(rotor_drag_coef_);
+  drag_const_->setDecimals(9);
+  drag_const_->setMinimum(0.);
+  drag_const_->setValue(8.06428e-5);
+  drag_const_->setSuffix(" kg/rad");
+  addWidget(drag_const_);
 }
 
 const char* AerodynamicsWidget_Manual::name() const
@@ -66,7 +66,7 @@ void AerodynamicsWidget_Manual::copyFrom(const AerodynamicsWidget_Base* src)
   const auto derived = qobject_cast<const AerodynamicsWidget_Manual*>(src);
   motor_const_->setValue(derived->motor_const_->getValue());
   moment_const_->setValue(derived->moment_const_->getValue());
-  rotor_drag_coef_->setValue(derived->rotor_drag_coef_->getValue());
+  drag_const_->setValue(derived->drag_const_->getValue());
 }
 
 YAML::Node AerodynamicsWidget_Manual::dump() const
@@ -75,7 +75,7 @@ YAML::Node AerodynamicsWidget_Manual::dump() const
 
   node[motor_const_->name()] = motor_const_->getValue();
   node[moment_const_->name()] = moment_const_->getValue();
-  node[rotor_drag_coef_->name()] = rotor_drag_coef_->getValue();
+  node[drag_const_->name()] = drag_const_->getValue();
 
   return node;
 }
@@ -84,7 +84,7 @@ void AerodynamicsWidget_Manual::load(const YAML::Node& node)
 {
   motor_const_->setValue(node[motor_const_->name()].as<double>());
   moment_const_->setValue(node[moment_const_->name()].as<double>());
-  rotor_drag_coef_->setValue(node[rotor_drag_coef_->name()].as<double>());
+  drag_const_->setValue(node[drag_const_->name()].as<double>());
 }
 
 double AerodynamicsWidget_Manual::motorConst() const
@@ -97,9 +97,9 @@ double AerodynamicsWidget_Manual::momentConst() const
   return moment_const_->getValue();
 }
 
-double AerodynamicsWidget_Manual::rotorDragCoef() const
+double AerodynamicsWidget_Manual::dragConst() const
 {
-  return rotor_drag_coef_->getValue();
+  return drag_const_->getValue();
 }
 }  // namespace electric
 }  // namespace propulsion

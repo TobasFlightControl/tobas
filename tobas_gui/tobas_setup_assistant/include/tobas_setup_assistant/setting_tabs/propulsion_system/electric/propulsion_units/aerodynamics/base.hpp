@@ -37,7 +37,7 @@ public:
   virtual double momentConst() const = 0;
 
   /* [kg/rad] */
-  virtual double rotorDragCoef() const = 0;
+  virtual double dragConst() const = 0;
 
 protected:
   void addWidget(QWidget* widget);

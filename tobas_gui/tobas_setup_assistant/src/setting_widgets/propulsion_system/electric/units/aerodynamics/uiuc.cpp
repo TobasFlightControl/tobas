@@ -88,11 +88,12 @@ double AerodynamicsWidget_UIUC::momentConst() const
   return (d * CP) / (2 * M_PI * CT);
 }
 
-double AerodynamicsWidget_UIUC::rotorDragCoef() const
+double AerodynamicsWidget_UIUC::dragConst() const
 {
   // TODO: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-  return BladeTheory(propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle())
-    .rotorDragCoef();
+  const BladeTheory blade(
+    propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle());
+  return blade.dragConst();
 }
 }  // namespace electric
 }  // namespace propulsion

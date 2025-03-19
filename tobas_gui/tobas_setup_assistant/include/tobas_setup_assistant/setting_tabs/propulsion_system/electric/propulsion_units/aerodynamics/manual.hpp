@@ -29,12 +29,12 @@ public:
 
   double motorConst() const override;
   double momentConst() const override;
-  double rotorDragCoef() const override;
+  double dragConst() const override;
 
 private:
   ParamGetterWidget_DoubleSpinBox* motor_const_;
   ParamGetterWidget_DoubleSpinBox* moment_const_;
-  ParamGetterWidget_DoubleSpinBox* rotor_drag_coef_;
+  ParamGetterWidget_DoubleSpinBox* drag_const_;
 };
 }  // namespace electric
 }  // namespace propulsion

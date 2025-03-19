@@ -31,7 +31,7 @@ double BladeTheory::momentConst() const
   return R_ * lambda();
 }
 
-double BladeTheory::rotorDragCoef() const
+double BladeTheory::dragConst() const
 {
   return 4 * M_PI * rho_ * math::cube(R_) * C_H();
 }

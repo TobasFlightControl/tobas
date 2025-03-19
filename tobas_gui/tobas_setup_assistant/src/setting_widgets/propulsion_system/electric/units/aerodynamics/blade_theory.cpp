@@ -54,9 +54,9 @@ double AerodynamicsWidget_BladeTheory::momentConst() const
   return bladeTheory().momentConst();
 }
 
-double AerodynamicsWidget_BladeTheory::rotorDragCoef() const
+double AerodynamicsWidget_BladeTheory::dragConst() const
 {
-  return bladeTheory().rotorDragCoef();
+  return bladeTheory().dragConst();
 }
 
 BladeTheory AerodynamicsWidget_BladeTheory::bladeTheory() const

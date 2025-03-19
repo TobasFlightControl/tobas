@@ -91,11 +91,12 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
   return torque.dot(thrust) / thrust.dot(thrust);  // 最小2乗解 (memo: 2-28)
 }
 
-double AerodynamicsWidget_ThrustStand::rotorDragCoef() const
+double AerodynamicsWidget_ThrustStand::dragConst() const
 {
   // TODO: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-  return BladeTheory(propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle())
-    .rotorDragCoef();
+  const BladeTheory blade(
+    propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle());
+  return blade.dragConst();
 }
 }  // namespace electric
 }  // namespace propulsion

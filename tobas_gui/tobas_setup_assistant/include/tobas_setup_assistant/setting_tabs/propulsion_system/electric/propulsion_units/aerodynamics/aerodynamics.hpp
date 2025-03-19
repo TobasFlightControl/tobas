@@ -40,7 +40,7 @@ public:
   double momentConst() const;
 
   /* [kg/rad] */
-  double rotorDragCoef() const;
+  double dragConst() const;
 
 private:
   qt::ComboBox* method_name_;

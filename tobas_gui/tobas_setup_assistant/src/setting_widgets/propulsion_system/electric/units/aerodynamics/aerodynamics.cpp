@@ -104,9 +104,9 @@ double AerodynamicsWidget::momentConst() const
   return selected()->momentConst();
 }
 
-double AerodynamicsWidget::rotorDragCoef() const
+double AerodynamicsWidget::dragConst() const
 {
-  return selected()->rotorDragCoef();
+  return selected()->dragConst();
 }
 
 AerodynamicsWidget_Base* AerodynamicsWidget::selected()

@@ -860,8 +860,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
         addElectricPropulsionSystemPlugin(
           robot, ns, link_name, motor->kv(), motor->internalResistance(), propeller->numBlade(), aero->motorConst(),
-          aero->momentConst(), aero->rotorDragCoef(), general->direction(), esc->maxCurrent(),
-          sim->maxModelErrorRate());
+          aero->momentConst(), aero->dragConst(), general->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
       }
       break;
     }

@@ -33,7 +33,7 @@ public:
 
   double motorConst() const override;
   double momentConst() const override;
-  double rotorDragCoef() const override;
+  double dragConst() const override;
 
 private:
   PropellerWidget* propeller_;

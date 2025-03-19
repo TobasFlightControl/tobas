@@ -30,7 +30,7 @@ public:
 
   double motorConst() const;
   double momentConst() const;
-  double rotorDragCoef() const;
+  double dragConst() const;
 
 private:
   const int N_;
