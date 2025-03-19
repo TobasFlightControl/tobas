@@ -1,8 +1,7 @@
 #pragma once
 
-#include <QObject>
-#include <QDebug>
 #include <stdexcept>
+#include <QObject>
 
 namespace qt
 {
