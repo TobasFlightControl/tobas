@@ -49,7 +49,7 @@ bool PropulsionUnitsWidget::isValid()
   return true;
 }
 
-YAML::Node PropulsionUnitsWidget::dump()
+YAML::Node PropulsionUnitsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

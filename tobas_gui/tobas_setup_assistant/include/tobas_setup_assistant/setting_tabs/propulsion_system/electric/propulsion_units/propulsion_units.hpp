@@ -25,7 +25,7 @@ public:
   void updateInternalDataStructures();
   bool isValid();
 
-  YAML::Node dump();
+  YAML::Node dump() const;
   void load(const YAML::Node& node);
 
   const AvailableLinksWidget* available() const;

@@ -44,7 +44,7 @@ bool BatteryWidget::isValid()
   return true;
 }
 
-YAML::Node BatteryWidget::dump()
+YAML::Node BatteryWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

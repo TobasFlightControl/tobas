@@ -27,7 +27,7 @@ public:
 
   bool isValid();
 
-  YAML::Node dump();
+  YAML::Node dump() const;
   void load(const YAML::Node& node);
 
   double nominalVoltage();
