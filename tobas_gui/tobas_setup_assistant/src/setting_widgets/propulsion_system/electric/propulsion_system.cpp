@@ -8,26 +8,15 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
 {
   setTabSize(kTabWidth, kTabHeight);
 
   battery = new BatteryWidget();
-  units = new PropulsionUnitsWidget(node, robot);
+  units = new PropulsionUnitsWidget(node, robot, _signals);
 
   addTab(battery, kBatteryTitle);
   addTab(units, kPropulsionUnitTitle);
-
-  connect(units, &PropulsionUnitsWidget::linkAdded, [this](const QString& link_name) { Q_EMIT linkAdded(link_name); });
-  connect(
-    units, &PropulsionUnitsWidget::linkRemoved, [this](const QString& link_name) { Q_EMIT linkRemoved(link_name); });
-  connect(
-    units, &PropulsionUnitsWidget::isTiltStateChanged,
-    [this](const QString& link_name, bool is_tilt) { Q_EMIT isTiltStateChanged(link_name, is_tilt); });
-  connect(
-    units, &PropulsionUnitsWidget::tiltJointNameChanged,
-    [this](const QString& link_name, const QString& tilt_joint_name)
-    { Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name); });
 }
 
 const char* PropulsionSystemWidget::name() const

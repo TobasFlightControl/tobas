@@ -26,13 +26,8 @@ class GeneralWidget : public BaseSelectedLinkSettingWidget
   static constexpr char kCCWName[] = "CCW";
   static constexpr char kActiveTiltSettingsKey[] = "active_tilt_settings";
 
-Q_SIGNALS:
-  void channelChanged(int channel);
-  void isTiltStateChanged(bool is_tilt);
-  void tiltJointNameChanged(const QString& joint_name);
-
 public:
-  explicit GeneralWidget(const RobotInfo& robot, const QString& link_name);
+  explicit GeneralWidget(const RobotInfo& robot, Signals& _signals, const QString& link_name);
 
   const char* name() const override;
   bool isValid() override;

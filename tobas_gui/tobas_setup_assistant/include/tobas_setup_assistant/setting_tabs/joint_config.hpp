@@ -7,6 +7,7 @@
 #include <tobas_drone_core/joint/joint.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
+#include "tobas_setup_assistant/signals.hpp"
 #include "./base_setting.hpp"
 #include "./propulsion_system/propulsion_system.hpp"
 #include "./fixed_wing/fixed_wing.hpp"
@@ -76,6 +77,7 @@ class JointConfigurationWidget : public BaseSettingWidget
 public:
   explicit JointConfigurationWidget(
     const RobotInfo& robot,
+    const Signals& _signals,
     const propulsion::PropulsionSystemWidget* propulsion,
     const fixed_wing::FixedWingWidget* fixed_wing);
 
@@ -127,6 +129,7 @@ public:
 
 private:
   const RobotInfo& robot_;
+  const Signals& signals_;
   const propulsion::PropulsionSystemWidget* propulsion_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
 
@@ -159,8 +162,8 @@ private Q_SLOTS:
   void onHardwareInterfaceChanged(int row);
   void onRotorLinkAdded(const QString& link_name);
   void onRotorLinkRemoved(const QString& link_name);
-  void onRotorIsTiltStateChanged(const QString& link_name, bool is_tilt);
-  void onRotorTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
+  void onIsTiltRotorStateChanged(const QString& link_name, bool is_tilt);
+  void onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
   void onControlSurfaceLinkAdded(const QString& link_name);
   void onControlSurfaceLinkRemoved(const QString& link_name);
 };

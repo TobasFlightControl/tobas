@@ -17,8 +17,8 @@ namespace propulsion
 {
 namespace electric
 {
-ActiveTiltSettingsWidget::ActiveTiltSettingsWidget(const RobotInfo& robot, const QString& link_name)
-  : robot_(robot), link_name_(link_name)
+ActiveTiltSettingsWidget::ActiveTiltSettingsWidget(const RobotInfo& robot, Signals& _signals, const QString& link_name)
+  : robot_(robot), signals_(_signals), link_name_(link_name)
 {
   const auto label = new qt::Label("Active Tilt Settings", kLabelPSize, QFont::Bold);
 
@@ -123,13 +123,13 @@ void ActiveTiltSettingsWidget::onIsTiltCheckBoxToggled(bool checked)
     tilt_joint_name_->setEnabled(false);
   }
 
-  Q_EMIT isTiltStateChanged(checked);
+  Q_EMIT signals_.isTiltRotorStateChanged(link_name_, checked);
 }
 
 void ActiveTiltSettingsWidget::onTiltJointNameChanged(const QString& joint_name)
 {
   if (!joint_name.isEmpty())
-    Q_EMIT tiltJointNameChanged(joint_name);
+    Q_EMIT signals_.tiltJointNameChanged(link_name_, joint_name);
 }
 }  // namespace electric
 }  // namespace propulsion

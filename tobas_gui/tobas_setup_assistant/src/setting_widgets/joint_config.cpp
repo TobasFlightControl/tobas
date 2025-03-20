@@ -18,9 +18,10 @@ namespace sa
 {
 JointConfigurationWidget::JointConfigurationWidget(
   const RobotInfo& robot,
+  const Signals& _signals,
   const propulsion::PropulsionSystemWidget* propulsion,
   const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_(propulsion), fixed_wing_(fixed_wing)
+  : robot_(robot), signals_(_signals), propulsion_(propulsion), fixed_wing_(fixed_wing)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
@@ -40,11 +41,10 @@ JointConfigurationWidget::JointConfigurationWidget(
   });
   addWidget(table_);
 
-  connect(propulsion_, &propulsion::PropulsionSystemWidget::linkAdded, this, &self::onRotorLinkAdded);
-  connect(propulsion_, &propulsion::PropulsionSystemWidget::linkRemoved, this, &self::onRotorLinkRemoved);
-  connect(propulsion_, &propulsion::PropulsionSystemWidget::isTiltStateChanged, this, &self::onRotorIsTiltStateChanged);
-  connect(
-    propulsion_, &propulsion::PropulsionSystemWidget::tiltJointNameChanged, this, &self::onRotorTiltJointNameChanged);
+  connect(&signals_, &Signals::rotorLinkAdded, this, &self::onRotorLinkAdded);
+  connect(&signals_, &Signals::rotorLinkRemoved, this, &self::onRotorLinkRemoved);
+  connect(&signals_, &Signals::isTiltRotorStateChanged, this, &self::onIsTiltRotorStateChanged);
+  connect(&signals_, &Signals::tiltJointNameChanged, this, &self::onTiltJointNameChanged);
 
   const auto css = fixed_wing_->controlSurfaces();
   connect(css, &fixed_wing::ControlSurfacesWidget::linkAdded, this, &self::onControlSurfaceLinkAdded);
@@ -746,7 +746,7 @@ void JointConfigurationWidget::onRotorLinkRemoved(const QString& link_name)
   reset(row);
 }
 
-void JointConfigurationWidget::onRotorIsTiltStateChanged(const QString& link_name, bool is_tilt)
+void JointConfigurationWidget::onIsTiltRotorStateChanged(const QString& link_name, bool is_tilt)
 {
   const auto rotor_row = findLink(link_name);
   TOBAS_CHECK(rotor_row >= 0);
@@ -758,7 +758,7 @@ void JointConfigurationWidget::onRotorIsTiltStateChanged(const QString& link_nam
     removeTiltJoint(link_name);
 }
 
-void JointConfigurationWidget::onRotorTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name)
+void JointConfigurationWidget::onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name)
 {
   const auto rotor_row = findLink(link_name);
   TOBAS_CHECK(rotor_row >= 0);

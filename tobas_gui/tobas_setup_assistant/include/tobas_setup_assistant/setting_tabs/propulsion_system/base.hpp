@@ -16,12 +16,6 @@ class BasePropulsionSystemWidget : public qt::TabWidget
 {
   Q_OBJECT
 
-Q_SIGNALS:
-  void linkAdded(const QString& link_name);
-  void linkRemoved(const QString& link_name);
-  void isTiltStateChanged(const QString& link_name, bool is_tilt);
-  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
-
 public:
   virtual const char* name() const = 0;
 

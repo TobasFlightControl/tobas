@@ -31,6 +31,7 @@ public:
 
 private:
   RobotInfo robot_;
+  Signals signals_;
   std::unique_ptr<PackageGenerator> pkg_generator_;
 
   ros2::SyncParamClient rsp_client_;

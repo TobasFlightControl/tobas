@@ -29,12 +29,9 @@ class SelectedLinksWidget : public qt::TabWidget
 
 Q_SIGNALS:
   void linkRemoved(const QString& link_name);
-  void channelChanged(const QString& link_name, int channel);
-  void isTiltStateChanged(const QString& link_name, bool is_tilt);
-  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 
 public:
-  explicit SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
 
   void updateInternalDataStructures();
 
@@ -57,6 +54,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
+  Signals& signals_;
 
   visualization_msgs::msg::MarkerArray markers_;
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
@@ -72,9 +70,6 @@ private Q_SLOTS:
   void onTabCloseRequested(int index);
   void onCopyFromLeftButtonClicked(const QString& link_name);
   void onCopyToAllButtonClicked(const QString& link_name);
-  void onChannelChanged(const QString& link_name, int channel);
-  void onIsTiltStateChanged(const QString& link_name, bool is_tilt);
-  void onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 };
 }  // namespace electric
 }  // namespace propulsion

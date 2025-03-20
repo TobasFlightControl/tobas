@@ -22,14 +22,8 @@ class PropulsionSystemWidget : public BaseSettingWidget
 
   static constexpr char kTypeKey[] = "propulsion_system_type";
 
-Q_SIGNALS:
-  void linkAdded(const QString& link_name);
-  void linkRemoved(const QString& link_name);
-  void isTiltStateChanged(const QString& link_name, bool is_tilt);
-  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
-
 public:
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
 
   const char* name() const override;
   const char* title() const override;

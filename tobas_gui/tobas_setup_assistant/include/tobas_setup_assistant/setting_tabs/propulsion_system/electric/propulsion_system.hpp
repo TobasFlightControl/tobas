@@ -26,7 +26,7 @@ public:
   BatteryWidget* battery;
   PropulsionUnitsWidget* units;
 
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
 
   const char* name() const override;
 

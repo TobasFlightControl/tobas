@@ -7,11 +7,11 @@ namespace gui
 {
 namespace sa
 {
-SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
+SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals)
 {
-  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot);
+  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, _signals);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
-  joint_config = new JointConfigurationWidget(robot, propulsion_system, fixed_wing);
+  joint_config = new JointConfigurationWidget(robot, _signals, propulsion_system, fixed_wing);
   imu = new IMUWidget();
   magnetometer = new MagnetometerWidget();
   barometer = new BarometerWidget();

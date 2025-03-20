@@ -9,31 +9,17 @@ namespace sa
 {
 namespace propulsion
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
 {
   type_ = new qt::ComboBox();
   propulsions_ = new qt::StackedWidget();
 
-  propulsions_->addWidget(new electric::PropulsionSystemWidget(node, robot));
+  propulsions_->addWidget(new electric::PropulsionSystemWidget(node, robot, _signals));
 
   for (int i = 0; i < propulsions_->count(); ++i)
   {
     const auto propulsion = widget(i);
     type_->addItem(propulsion->name());
-
-    connect(
-      propulsion, &BasePropulsionSystemWidget::linkAdded,
-      [this](const QString& link_name) { Q_EMIT linkAdded(link_name); });
-    connect(
-      propulsion, &BasePropulsionSystemWidget::linkRemoved,
-      [this](const QString& link_name) { Q_EMIT linkRemoved(link_name); });
-    connect(
-      propulsion, &BasePropulsionSystemWidget::isTiltStateChanged,
-      [this](const QString& link_name, bool is_tilt) { Q_EMIT isTiltStateChanged(link_name, is_tilt); });
-    connect(
-      propulsion, &BasePropulsionSystemWidget::tiltJointNameChanged,
-      [this](const QString& link_name, const QString& tilt_joint_name)
-      { Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name); });
   }
 
   addWidget(type_);

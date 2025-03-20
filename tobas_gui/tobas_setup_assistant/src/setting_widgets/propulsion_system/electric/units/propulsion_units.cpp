@@ -11,15 +11,15 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot)
+PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+  : node_(node), robot_(robot), signals_(_signals)
 {
   const auto available_links_label = new QLabel("Available Links");
   available_links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
   available_links_label->setAlignment(Qt::AlignLeft);
 
   available_ = new AvailableLinksWidget(robot_);
-  selected_ = new SelectedLinksWidget(node_, robot_);
+  selected_ = new SelectedLinksWidget(node_, robot_, signals_);
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -31,13 +31,6 @@ PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const
   // Connection
   connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
   connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
-  connect(
-    selected_, &SelectedLinksWidget::isTiltStateChanged,
-    [this](const QString& link_name, bool is_tilt) { Q_EMIT isTiltStateChanged(link_name, is_tilt); });
-  connect(
-    selected_, &SelectedLinksWidget::tiltJointNameChanged,
-    [this](const QString& link_name, const QString& tilt_joint_name)
-    { Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name); });
 }
 
 void PropulsionUnitsWidget::updateInternalDataStructures()
@@ -102,14 +95,14 @@ const SelectedLinksWidget* PropulsionUnitsWidget::selected() const
 void PropulsionUnitsWidget::onAvailableLinkRemoved(const QString& link_name)
 {
   selected_->addLink(link_name);
-  Q_EMIT linkAdded(link_name);
+  Q_EMIT signals_.rotorLinkAdded(link_name);
 }
 
 void PropulsionUnitsWidget::onSelectedLinkRemoved(const QString& link_name)
 {
   available_->addLink(link_name);
   available_->sortItems();
-  Q_EMIT linkRemoved(link_name);
+  Q_EMIT signals_.rotorLinkRemoved(link_name);
 }
 }  // namespace electric
 }  // namespace propulsion

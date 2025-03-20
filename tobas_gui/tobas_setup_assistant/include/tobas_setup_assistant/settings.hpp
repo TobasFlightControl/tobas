@@ -49,7 +49,7 @@ public:
   AuthorInformationWidget* author_info;
   ROSPackageWidget* ros_package;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot);
+  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals);
 
   void updateInternalDataStructures();
 

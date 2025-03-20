@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tobas_setup_assistant/signals.hpp"
 #include "./available_links.hpp"
 #include "./selected_links.hpp"
 
@@ -18,14 +19,8 @@ class PropulsionUnitsWidget : public QWidget
   using self = PropulsionUnitsWidget;
   using super = QWidget;
 
-Q_SIGNALS:
-  void linkAdded(const QString& link_name);
-  void linkRemoved(const QString& link_name);
-  void isTiltStateChanged(const QString& link_name, bool is_tilt);
-  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
-
 public:
-  explicit PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
 
   void updateInternalDataStructures();
   bool isValid();
@@ -43,6 +38,7 @@ private Q_SLOTS:
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
+  Signals& signals_;
 
   AvailableLinksWidget* available_;
   SelectedLinksWidget* selected_;

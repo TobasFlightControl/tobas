@@ -15,7 +15,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
 {
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる
-  settings_ = new SettingsWidget(node, robot_);
+  settings_ = new SettingsWidget(node, robot_, signals_);
   start_ = new StartWidget(node, robot_, settings_);
   rviz_ = new RvizWidget(robot_);
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);

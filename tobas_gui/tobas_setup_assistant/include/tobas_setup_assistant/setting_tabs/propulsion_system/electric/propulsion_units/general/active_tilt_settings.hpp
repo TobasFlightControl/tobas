@@ -5,6 +5,7 @@
 #include <QComboBox>
 
 #include "tobas_setup_assistant/robot_info.hpp"
+#include "tobas_setup_assistant/signals.hpp"
 
 namespace gui
 {
@@ -24,12 +25,8 @@ class ActiveTiltSettingsWidget : public QWidget
   static constexpr char kIsTiltKey[] = "is_tilt";
   static constexpr char kTiltJointNameKey[] = "tilt_joint_name";
 
-Q_SIGNALS:
-  void isTiltStateChanged(bool is_tilt);
-  void tiltJointNameChanged(const QString& joint_name);
-
 public:
-  explicit ActiveTiltSettingsWidget(const RobotInfo& robot, const QString& link_name);
+  explicit ActiveTiltSettingsWidget(const RobotInfo& robot, Signals& _signals, const QString& link_name);
 
   bool isValid();
   void copyFrom(const ActiveTiltSettingsWidget* src);
@@ -42,6 +39,7 @@ public:
 
 private:
   const RobotInfo& robot_;
+  Signals& signals_;
   const QString link_name_;
 
   QCheckBox* is_tilt_;

@@ -30,12 +30,13 @@ class SelectedLinkWidget : public QWidget
 Q_SIGNALS:
   void copyFromLeftButtonClicked();
   void copyToAllButtonClicked();
-  void channelChanged(int channel);
-  void isTiltStateChanged(bool is_tilt);
-  void tiltJointNameChanged(const QString& joint_name);
 
 public:
-  explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name);
+  explicit SelectedLinkWidget(
+    rclcpp::Node::SharedPtr node,
+    const RobotInfo& robot,
+    Signals& _signals,
+    const QString& link_name);
 
   bool isValid();
   void copyFrom(const SelectedLinkWidget* src);

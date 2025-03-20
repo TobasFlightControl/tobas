@@ -10,7 +10,11 @@ namespace propulsion
 {
 namespace electric
 {
-SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name)
+SelectedLinkWidget::SelectedLinkWidget(
+  rclcpp::Node::SharedPtr node,
+  const RobotInfo& robot,
+  Signals& _signals,
+  const QString& link_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -33,7 +37,7 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const Robot
   tabs_->setTabSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
-  general_ = new GeneralWidget(robot, link_name);
+  general_ = new GeneralWidget(robot, _signals, link_name);
   esc_ = new ESCWidget();
   motor_ = new MotorWidget();
   propeller_ = new PropellerWidget();
@@ -50,11 +54,6 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const Robot
   // Connection
   connect(copy_to_all_button_, &QPushButton::clicked, [this]() { Q_EMIT copyToAllButtonClicked(); });
   connect(copy_from_left_button_, &QPushButton::clicked, [this]() { Q_EMIT copyFromLeftButtonClicked(); });
-  connect(general_, &GeneralWidget::channelChanged, [this](int channel) { Q_EMIT channelChanged(channel); });
-  connect(general_, &GeneralWidget::isTiltStateChanged, [this](bool is_tilt) { Q_EMIT isTiltStateChanged(is_tilt); });
-  connect(
-    general_, &GeneralWidget::tiltJointNameChanged,
-    [this](const QString& joint_name) { Q_EMIT tiltJointNameChanged(joint_name); });
 }
 
 bool SelectedLinkWidget::isValid()

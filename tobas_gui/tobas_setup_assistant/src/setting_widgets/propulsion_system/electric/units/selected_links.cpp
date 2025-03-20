@@ -19,8 +19,8 @@ namespace propulsion
 {
 namespace electric
 {
-SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot)
+SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+  : node_(node), robot_(robot), signals_(_signals)
 {
   ignoreWheelEvent();
   setTabSize(kTabWidth, kTabHeight);
@@ -125,7 +125,7 @@ bool SelectedLinksWidget::isValid()
 void SelectedLinksWidget::addLink(const QString& link_name)
 {
   // タブを追加
-  const auto link_widget = new SelectedLinkWidget(node_, robot_, link_name);
+  const auto link_widget = new SelectedLinkWidget(node_, robot_, signals_, link_name);
   addTab(link_widget, link_name);
 
   // 指定リンクのマーカを表示
@@ -138,15 +138,6 @@ void SelectedLinksWidget::addLink(const QString& link_name)
   connect(
     link_widget, &SelectedLinkWidget::copyToAllButtonClicked, this,
     bind(&self::onCopyToAllButtonClicked, this, link_name));
-  connect(
-    link_widget, &SelectedLinkWidget::channelChanged, this,
-    bind(&self::onChannelChanged, this, link_name, placeholders::_1));
-  connect(
-    link_widget, &SelectedLinkWidget::isTiltStateChanged, this,
-    bind(&self::onIsTiltStateChanged, this, link_name, placeholders::_1));
-  connect(
-    link_widget, &SelectedLinkWidget::tiltJointNameChanged, this,
-    bind(&self::onTiltJointNameChanged, this, link_name, placeholders::_1));
 }
 
 void SelectedLinksWidget::removeLink(const QString& link_name)
@@ -263,21 +254,6 @@ void SelectedLinksWidget::onCopyToAllButtonClicked(const QString& link_name)
   }
 
   qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other selected links.");
-}
-
-void SelectedLinksWidget::onChannelChanged(const QString& link_name, int channel)
-{
-  Q_EMIT channelChanged(link_name, channel);
-}
-
-void SelectedLinksWidget::onIsTiltStateChanged(const QString& link_name, bool is_tilt)
-{
-  Q_EMIT isTiltStateChanged(link_name, is_tilt);
-}
-
-void SelectedLinksWidget::onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name)
-{
-  Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name);
 }
 }  // namespace electric
 }  // namespace propulsion
