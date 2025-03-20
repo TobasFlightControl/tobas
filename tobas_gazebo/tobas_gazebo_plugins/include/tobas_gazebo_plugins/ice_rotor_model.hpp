@@ -6,7 +6,7 @@
 
 #include <tobas_std_tools/range.hpp>
 
-#include "./filter/symmetric_first_order_filter.hpp"
+#include "./simple_joint_model.hpp"
 
 namespace gazebo
 {
@@ -40,7 +40,7 @@ public:
 
   void updateJointPosition(gz::sim::EntityComponentManager& ecm, const double& engine_pos);
 
-  bool step(const double& dt);
+  void step(const double& dt);
 
 private:
   // SDF parameters
@@ -51,19 +51,14 @@ private:
   std::pair<double, double> motor_const_;  // T = (aφ + b) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
   double moment_const_;                    // TODO: ピッチ角による反トルク係数の変化を考慮
   double drag_const_;                      // TODO: ピッチ角によるH-Force係数の変化を考慮
-  tobas_std::Range<double> pitch_range_;  // プロペラピッチ角の範囲 [rad]
-  double pitch_time_const_;               // プロペラピッチ角の追従時定数 [s]
 
   // Gazebo objects
   std::shared_ptr<gz::sim::Joint> joint_;
   std::shared_ptr<gz::sim::Link> link_;
   std::shared_ptr<gz::sim::Link> parent_link_;
 
-  // Command
-  double tar_pitch_ = 0.;  // 目標ピッチ角 [rad]
-
   // Other
-  SymmetricFirstOrderFilter<double> pitch_filter_;
+  SimpleJointModel pitch_angle_;
 
   bool getSdfParams(const sdf::ElementConstPtr& sdf);
   bool initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);

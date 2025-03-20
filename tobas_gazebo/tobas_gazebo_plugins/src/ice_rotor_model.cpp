@@ -23,9 +23,6 @@ bool ICERotorModel::initialize(
   if (!initializeGazeboObjects(ecm, model))
     return false;
 
-  if (!pitch_filter_.initialize(pitch_time_const_, 0.))
-    return false;
-
   return true;
 }
 
@@ -66,7 +63,7 @@ double ICERotorModel::getDragConst() const
 
 double ICERotorModel::getPitchAngle() const
 {
-  return pitch_filter_.getValue();
+  return pitch_angle_.getCurrentPosition();
 }
 
 double ICERotorModel::getSpeed(const double& engine_speed) const
@@ -86,16 +83,7 @@ double ICERotorModel::getThrust(const double& engine_speed) const
 
 void ICERotorModel::setTargetPitchAngle(const double& tar_pitch)
 {
-  if (pitch_range_.inRange(tar_pitch))
-  {
-    tar_pitch_ = tar_pitch;
-  }
-  else
-  {
-    gzwarn << "Target pitch angle of propeller " << link_name_ << " is out of range: " << tar_pitch << " ∉ "
-           << pitch_range_ << endl;
-    tar_pitch_ = pitch_range_.clamp(tar_pitch);
-  }
+  pitch_angle_.setTargetPosition(tar_pitch);
 }
 
 void ICERotorModel::applyWrench(
@@ -138,9 +126,9 @@ void ICERotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, co
   joint_->ResetPosition(ecm, { pos / kRotorSpeedSlowdownSim });
 }
 
-bool ICERotorModel::step(const double& dt)
+void ICERotorModel::step(const double& dt)
 {
-  return pitch_filter_.update(tar_pitch_, dt);
+  pitch_angle_.step(dt);
 }
 
 bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -191,21 +179,21 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "minPitchAngle", pitch_range_.lower))
+  if (!getSdfParam(sdf, "minPitchAngle", pitch_angle_.pos_limit.lower))
     return false;
-  if (!getSdfParam(sdf, "maxPitchAngle", pitch_range_.upper))
+  if (!getSdfParam(sdf, "maxPitchAngle", pitch_angle_.pos_limit.upper))
     return false;
-  if (!pitch_range_.isValid())
+  if (!pitch_angle_.pos_limit.isValid())
   {
-    gzerr << "Pitch range of rotor \"" << link_name_ << "\" is invalid." << endl;
+    gzerr << "Propeller pitch range is invalid." << endl;
     return false;
   }
 
-  if (!getSdfParam(sdf, "pitchTimeConst", pitch_time_const_))
+  if (!getSdfParam(sdf, "maxPitchAngleRate", pitch_angle_.max_vel))
     return false;
-  if (pitch_time_const_ < 0.)
+  if (pitch_angle_.max_vel < 0.)
   {
-    gzerr << "The time constant of propeller pitch tracking must be non-negative." << endl;
+    gzerr << "The maximum propeller pitch angle rate must be non-negative." << endl;
     return false;
   }
 

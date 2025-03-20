@@ -78,8 +78,7 @@ private:
   chrono::steady_clock::duration prev_sim_time_;
   chrono::steady_clock::duration last_cmd_time_;
   bool is_initialized_ = false;
-  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;                   // 風速 [m/s]
-  tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr cs_deflections_;  // 舵角 [rad]
+  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // 風速 [m/s]
 
   // PubSub
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::FixedWingDebug> debug_pub_;
@@ -261,9 +260,10 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 {
   // 最新のコマンドからの経過時間を確認
   const auto time_from_last_cmd = info.simTime - last_cmd_time_;
-  if (cs_deflections_ && time_from_last_cmd > tobas::kCommandAutoResetTimeout)
+  if (time_from_last_cmd > tobas::kCommandAutoResetTimeout)
   {
-    cs_deflections_.reset();
+    for (auto& cs_angle_model : cs_angle_models_)
+      cs_angle_model.setTargetPosition(0.);
     TOBAS_INFO(
       "Deflection angles of control surfaces are automatically reset because ", tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
@@ -360,7 +360,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   vectorGazeboToMsg(force_B, debug_msg->air_force);
   vectorGazeboToMsg(torque_B, debug_msg->air_moment);
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    debug_msg->deflections.push_back(cs_angle_models_[i].currentPosition());
+    debug_msg->deflections.push_back(cs_angle_models_[i].getCurrentPosition());
   debug_pub_->publish(move(debug_msg));
 }
 
@@ -369,14 +369,11 @@ void GazeboFixedWingPlugin::updateDeflections(gz::sim::EntityComponentManager& e
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
   {
     // 角度と角速度の制限を考慮して制御面の舵角を更新
-    // Transmissionに任せることもできるが，プラグイン内で完結するようにしている
-    // アクティベートされていなければ0を目標値とする
-    const auto& cmd_deflection = cs_deflections_ ? cs_deflections_->deflections[i] : 0.;
-    cs_angle_models_[i].update(cmd_deflection, dt);
+    cs_angle_models_[i].step(dt);
 
     // Gazebo内の関節角を更新
     // これは単なるアニメーションであり，制御面を動かすことによる機体への反作用は考慮しない
-    cs_joints_[i]->ResetPosition(ecm, { cs_angle_models_[i].currentPosition() });
+    cs_joints_[i]->ResetPosition(ecm, { cs_angle_models_[i].getCurrentPosition() });
   }
 }
 
@@ -421,7 +418,7 @@ double GazeboFixedWingPlugin::liftCoefficient(double alpha) const
 
   // 舵面
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    C_L += control_surfaces_[i].c_lift_delta * cs_angle_models_[i].currentPosition();
+    C_L += control_surfaces_[i].c_lift_delta * cs_angle_models_[i].getCurrentPosition();
 
   return C_L;
 }
@@ -433,7 +430,7 @@ double GazeboFixedWingPlugin::dragCoefficient(double alpha) const
 
   // 舵面
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    C_D += control_surfaces_[i].c_drag_abs_delta * fabs(cs_angle_models_[i].currentPosition());
+    C_D += control_surfaces_[i].c_drag_abs_delta * fabs(cs_angle_models_[i].getCurrentPosition());
 
   return C_D;
 }
@@ -445,7 +442,7 @@ double GazeboFixedWingPlugin::sideCoefficient(double beta) const
 
   // 舵面
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    C_S += control_surfaces_[i].c_side_delta * cs_angle_models_[i].currentPosition();
+    C_S += control_surfaces_[i].c_side_delta * cs_angle_models_[i].getCurrentPosition();
 
   return C_S;
 }
@@ -461,7 +458,7 @@ double GazeboFixedWingPlugin::rollCoefficient(double beta, double p, double r, d
 
   // 舵面
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    C_l += control_surfaces_[i].c_roll_delta * cs_angle_models_[i].currentPosition();
+    C_l += control_surfaces_[i].c_roll_delta * cs_angle_models_[i].getCurrentPosition();
 
   return C_l;
 }
@@ -478,7 +475,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(double alpha, double beta, double
 
   // 舵面
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    C_m += control_surfaces_[i].c_pitch_delta * cs_angle_models_[i].currentPosition();
+    C_m += control_surfaces_[i].c_pitch_delta * cs_angle_models_[i].getCurrentPosition();
 
   return C_m;
 }
@@ -494,7 +491,7 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
 
   // 舵面
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    C_n += control_surfaces_[i].c_yaw_delta * cs_angle_models_[i].currentPosition();
+    C_n += control_surfaces_[i].c_yaw_delta * cs_angle_models_[i].getCurrentPosition();
 
   return C_n;
 }
@@ -510,8 +507,9 @@ void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::msg::ControlSurfaceD
     return;
   }
 
-  // Update reference deflection angles
-  cs_deflections_ = deflections;
+  // Update target deflection angles
+  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+    cs_angle_models_[i].setTargetPosition(deflections->deflections[i]);
 
   // Update last commanded time
   last_cmd_time_ = prev_sim_time_;
