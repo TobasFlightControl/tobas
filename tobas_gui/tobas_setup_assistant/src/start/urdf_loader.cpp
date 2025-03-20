@@ -10,7 +10,7 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
 #include "tobas_setup_assistant/start/urdf_loader.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace fs = std::filesystem;
 

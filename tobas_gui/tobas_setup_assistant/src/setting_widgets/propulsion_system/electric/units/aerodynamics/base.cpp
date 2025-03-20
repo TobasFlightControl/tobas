@@ -5,7 +5,7 @@
 #include <tobas_qt_tools/font.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/base.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {

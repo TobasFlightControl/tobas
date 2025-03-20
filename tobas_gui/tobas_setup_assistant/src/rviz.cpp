@@ -9,7 +9,7 @@
 #include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/rviz.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace fs = std::filesystem;
 

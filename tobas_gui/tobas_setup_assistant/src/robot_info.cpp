@@ -5,7 +5,7 @@
 #include <tobas_ros2_tools/xacro.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 using namespace std;
 

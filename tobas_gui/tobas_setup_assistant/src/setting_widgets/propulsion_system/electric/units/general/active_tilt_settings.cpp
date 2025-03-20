@@ -6,7 +6,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/message.hpp>
 
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/general/active_tilt_settings.hpp"
 
 namespace gui

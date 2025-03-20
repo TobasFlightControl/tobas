@@ -8,7 +8,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/selected_links.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {

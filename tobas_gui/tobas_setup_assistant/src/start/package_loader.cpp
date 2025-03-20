@@ -12,7 +12,7 @@
 #include <tobas_gui_common/package.hpp>
 
 #include "tobas_setup_assistant/start/package_loader.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {

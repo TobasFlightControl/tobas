@@ -6,7 +6,7 @@
 #include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/available_links.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {

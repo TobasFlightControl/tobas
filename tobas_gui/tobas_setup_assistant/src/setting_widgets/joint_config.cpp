@@ -10,7 +10,7 @@
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/joint_config.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {

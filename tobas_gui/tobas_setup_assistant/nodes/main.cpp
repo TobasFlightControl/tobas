@@ -5,7 +5,7 @@
 #include <tobas_gui_common/util.hpp>
 
 #include <tobas_setup_assistant/setup_assistant.hpp>
-#include <tobas_setup_assistant/common.hpp>
+#include <tobas_setup_assistant/constants.hpp>
 
 static void sigIntHandler(int)
 {
