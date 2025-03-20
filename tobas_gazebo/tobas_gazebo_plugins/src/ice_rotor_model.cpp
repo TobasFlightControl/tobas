@@ -48,7 +48,7 @@ size_t ICERotorModel::getNumBlades() const
 
 double ICERotorModel::getMotorConst() const
 {
-  return motor_const_.first * getPitchAngle() + motor_const_.second;
+  return getMotorConst(getPitchAngle());
 }
 
 double ICERotorModel::getMomentConst() const
@@ -58,7 +58,7 @@ double ICERotorModel::getMomentConst() const
 
 double ICERotorModel::getDragConst() const
 {
-  return drag_const_;
+  return getDragConst(getPitchAngle());
 }
 
 double ICERotorModel::getPitchAngle() const
@@ -111,7 +111,7 @@ void ICERotorModel::applyWrench(
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-speed * drag_const_) * linvel_perp_W;
+  const auto h_force_W = (-speed * getDragConst()) * linvel_perp_W;
   link_->AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
 
   // (2) first term: Rotor drag torque
@@ -155,30 +155,6 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "motorConstant", motor_const_))
-    return false;
-  if (motor_const_.first <= 0.)
-  {
-    gzerr << "The first term of motor constant must be positive." << endl;
-    return false;
-  }
-
-  if (!getSdfParam(sdf, "momentConstant", moment_const_))
-    return false;
-  if (moment_const_ <= 0.)
-  {
-    gzerr << "Moment constant must be positive." << endl;
-    return false;
-  }
-
-  if (!getSdfParam(sdf, "dragConstant", drag_const_))
-    return false;
-  if (drag_const_ <= 0.)
-  {
-    gzerr << "Drag constant must be positive." << endl;
-    return false;
-  }
-
   if (!getSdfParam(sdf, "minPitchAngle", pitch_angle_.pos_limit.lower))
     return false;
   if (!getSdfParam(sdf, "maxPitchAngle", pitch_angle_.pos_limit.upper))
@@ -194,6 +170,40 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   if (pitch_angle_.max_vel < 0.)
   {
     gzerr << "The maximum propeller pitch angle rate must be non-negative." << endl;
+    return false;
+  }
+
+  if (!getSdfParam(sdf, "motorConstant", motor_const_))
+    return false;
+  if (motor_const_.first <= 0.)
+  {
+    gzerr << "The first term of motor constant must be positive." << endl;
+    return false;
+  }
+  if (getMotorConst(pitch_angle_.pos_limit.lower) <= 0.)
+  {
+    gzerr << "The motor constant at the lower pitch angle limit must be positive." << endl;
+    return false;
+  }
+
+  if (!getSdfParam(sdf, "momentConstant", moment_const_))
+    return false;
+  if (moment_const_ <= 0.)
+  {
+    gzerr << "Moment constant must be positive." << endl;
+    return false;
+  }
+
+  if (!getSdfParam(sdf, "dragConstant", drag_const_))
+    return false;
+  if (drag_const_.first <= 0.)
+  {
+    gzerr << "The first term of drag constant must be positive." << endl;
+    return false;
+  }
+  if (getDragConst(pitch_angle_.pos_limit.lower) <= 0.)
+  {
+    gzerr << "The drag constant at the lower pitch angle limit must be positive." << endl;
     return false;
   }
 
@@ -269,5 +279,15 @@ bool ICERotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   }
 
   return true;
+}
+
+double ICERotorModel::getMotorConst(double pitch_angle) const
+{
+  return max(motor_const_.first * pitch_angle + motor_const_.second, 0.);
+}
+
+double ICERotorModel::getDragConst(double pitch_angle) const
+{
+  return max(drag_const_.first * pitch_angle + drag_const_.second, 0.);
 }
 }  // namespace gazebo

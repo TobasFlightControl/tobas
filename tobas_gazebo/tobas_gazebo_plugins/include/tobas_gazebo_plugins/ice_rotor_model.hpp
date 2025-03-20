@@ -50,7 +50,7 @@ private:
   size_t num_blades_;                      // プロペラのブレード数
   std::pair<double, double> motor_const_;  // T = (aφ + b) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
   double moment_const_;                    // TODO: ピッチ角による反トルク係数の変化を考慮
-  double drag_const_;                      // TODO: ピッチ角によるH-Force係数の変化を考慮
+  std::pair<double, double> drag_const_;
 
   // Gazebo objects
   std::shared_ptr<gz::sim::Joint> joint_;
@@ -62,5 +62,8 @@ private:
 
   bool getSdfParams(const sdf::ElementConstPtr& sdf);
   bool initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);
+
+  double getMotorConst(double pitch_angle) const;
+  double getDragConst(double pitch_angle) const;
 };
 }  // namespace gazebo
