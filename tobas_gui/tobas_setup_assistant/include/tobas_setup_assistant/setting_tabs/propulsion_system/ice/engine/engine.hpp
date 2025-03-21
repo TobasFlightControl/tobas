@@ -2,8 +2,9 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./response.hpp"
 #include "./dynamics/dynamics.hpp"
+#include "./response.hpp"
+#include "./hardware_interface.hpp"
 
 namespace gui
 {
@@ -23,8 +24,9 @@ class EngineWidget : public qt::TabWidget
   static constexpr int kTabWidth = 135;
   static constexpr int kTabHeight = 45;
 
-  static constexpr char kResponseLabel[] = "Response";
   static constexpr char kDynamicsLabel[] = "Dynamics";
+  static constexpr char kResponseLabel[] = "Response";
+  static constexpr char kHardwareIfaceLabel[] = "HW Interface";
 
 public:
   explicit EngineWidget();
@@ -34,12 +36,14 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  const EngineResponseWidget* response() const;
   const EngineDynamicsWidget* dynamics() const;
+  const EngineResponseWidget* response() const;
+  const EngineHardwareIfaceWidget* hardwareIface() const;
 
 private:
-  EngineResponseWidget* response_;
   EngineDynamicsWidget* dynamics_;
+  EngineResponseWidget* response_;
+  EngineHardwareIfaceWidget* hw_iface_;
 };
 };  // namespace ice
 }  // namespace propulsion

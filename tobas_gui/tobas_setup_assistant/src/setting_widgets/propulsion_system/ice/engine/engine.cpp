@@ -12,19 +12,24 @@ EngineWidget::EngineWidget()
 {
   setTabSize(kTabWidth, kTabHeight);
 
-  response_ = new EngineResponseWidget();
   dynamics_ = new EngineDynamicsWidget();
+  response_ = new EngineResponseWidget();
+  hw_iface_ = new EngineHardwareIfaceWidget();
 
-  addTab(response_, kResponseLabel);
   addTab(dynamics_, kDynamicsLabel);
+  addTab(response_, kResponseLabel);
+  addTab(hw_iface_, kHardwareIfaceLabel);
 }
 
 bool EngineWidget::isValid()
 {
+  if (!dynamics_->isValid())
+    return false;
+
   if (!response_->isValid())
     return false;
 
-  if (!dynamics_->isValid())
+  if (!hw_iface_->isValid())
     return false;
 
   return true;
@@ -34,16 +39,23 @@ YAML::Node EngineWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kResponseLabel] = response_->dump();
   node[kDynamicsLabel] = dynamics_->dump();
+  node[kResponseLabel] = response_->dump();
+  node[kHardwareIfaceLabel] = hw_iface_->dump();
 
   return node;
 }
 
 void EngineWidget::load(const YAML::Node& node)
 {
-  response_->load(node[kResponseLabel]);
   dynamics_->load(node[kDynamicsLabel]);
+  response_->load(node[kResponseLabel]);
+  hw_iface_->load(node[kHardwareIfaceLabel]);
+}
+
+const EngineDynamicsWidget* EngineWidget::dynamics() const
+{
+  return dynamics_;
 }
 
 const EngineResponseWidget* EngineWidget::response() const
@@ -51,9 +63,9 @@ const EngineResponseWidget* EngineWidget::response() const
   return response_;
 }
 
-const EngineDynamicsWidget* EngineWidget::dynamics() const
+const EngineHardwareIfaceWidget* EngineWidget::hardwareIface() const
 {
-  return dynamics_;
+  return hw_iface_;
 }
 }  // namespace ice
 }  // namespace propulsion

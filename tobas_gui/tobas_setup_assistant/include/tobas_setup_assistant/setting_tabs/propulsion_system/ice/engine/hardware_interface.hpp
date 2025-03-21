@@ -12,30 +12,33 @@ namespace propulsion
 {
 namespace ice
 {
-class EngineResponseWidget : public QWidget
+class EngineHardwareIfaceWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = EngineResponseWidget;
+  using self = EngineHardwareIfaceWidget;
   using super = QWidget;
 
 public:
-  explicit EngineResponseWidget();
+  explicit EngineHardwareIfaceWidget();
 
   bool isValid();
 
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  /* [s] */
-  double timeConstUp() const;
+  int pwmChannel() const;
 
-  /* [s] */
-  double timeConstDown() const;
+  /* [us] */
+  int pwmPeriodZeroThrot() const;
+
+  /* [us] */
+  int pwmPeriodFullThrot() const;
 
 private:
-  ParamGetterWidget_SpinBox* time_const_up_;
-  ParamGetterWidget_SpinBox* time_const_down_;
+  ParamGetterWidget_SpinBox* pwm_channel_;
+  ParamGetterWidget_SpinBox* pwm_period_zero_;
+  ParamGetterWidget_SpinBox* pwm_period_full_;
 };
 };  // namespace ice
 }  // namespace propulsion

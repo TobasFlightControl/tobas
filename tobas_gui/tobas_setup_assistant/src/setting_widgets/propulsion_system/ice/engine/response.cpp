@@ -47,8 +47,8 @@ YAML::Node EngineResponseWidget::dump() const
 
 void EngineResponseWidget::load(const YAML::Node& node)
 {
-  time_const_up_->setValue(node[time_const_up_->name()].as<double>());
-  time_const_down_->setValue(node[time_const_down_->name()].as<double>());
+  time_const_up_->setValue(node[time_const_up_->name()].as<int>());
+  time_const_down_->setValue(node[time_const_down_->name()].as<int>());
 }
 
 double EngineResponseWidget::timeConstUp() const
