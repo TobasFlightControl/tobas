@@ -11,6 +11,8 @@ namespace gui
 {
 namespace sa
 {
+namespace xml
+{
 namespace util
 {
 template <typename T>
@@ -32,7 +34,7 @@ string toString<double>(const double& data)
 }
 
 template <>
-string toString<const pair<double, double>>(const pair<double, double>& data)
+string toString<pair<double, double>>(const pair<double, double>& data)
 {
   // format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
   return toString(data.first) + " " + toString(data.second);
@@ -244,6 +246,41 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }
 
+void addICEPropulsionSystemPlugin(
+  tinyxml2::XMLElement* robot,
+  const string& ns,
+  const EngineParam& engine_param,
+  const vector<ICERotorParam>& rotor_params)
+{
+  // robot/gazebo/plugin
+  const auto plugin = util::addGazeboPlugin(
+    robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+
+  // robot/gazebo/plugin/engine
+  const auto engine = plugin->InsertNewChildElement("engine");
+  engine->InsertNewChildElement("torqueConstant")->SetText(engine_param.torque_const);
+  engine->InsertNewChildElement("dynamicFrictionTorque")->SetText(engine_param.friction_torque);
+  engine->InsertNewChildElement("timeConstUp")->SetText(engine_param.time_const_up);
+  engine->InsertNewChildElement("timeConstDown")->SetText(engine_param.time_const_down);
+
+  // robot/gazebo/plugin/rotor
+  for (const auto& rotor_param : rotor_params)
+  {
+    const auto rotor = plugin->InsertNewChildElement("rotor");
+    rotor->InsertNewChildElement("linkName")->SetText(rotor_param.link_name.c_str());
+    rotor->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(rotor_param.direction).c_str());
+    rotor->InsertNewChildElement("gearRatio")->SetText(rotor_param.gear_ratio);
+    rotor->InsertNewChildElement("numberOfBlades")->SetText(rotor_param.num_blades);
+    rotor->InsertNewChildElement("motorConstant")->SetText(util::toString(rotor_param.motor_const).c_str());
+    rotor->InsertNewChildElement("momentConstant")->SetText(rotor_param.moment_const);
+    rotor->InsertNewChildElement("dragConstant")->SetText(util::toString(rotor_param.drag_const).c_str());
+    rotor->InsertNewChildElement("minPitchAngle")->SetText(rotor_param.pitch_angle_limit.lower);
+    rotor->InsertNewChildElement("maxPitchAngle")->SetText(rotor_param.pitch_angle_limit.upper);
+    rotor->InsertNewChildElement("maxPitchAngleRate")->SetText(rotor_param.max_pitch_angle_rate);
+  }
+}
+
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
@@ -380,5 +417,6 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const string& root_link_nam
   joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::kWorldFrame);
   joint->InsertNewChildElement("child")->SetAttribute("link", root_link_name.c_str());
 }
+}  // namespace xml
 }  // namespace sa
 }  // namespace gui

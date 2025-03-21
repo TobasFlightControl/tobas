@@ -43,8 +43,6 @@ private:
   inja::json createTemplateData();
 
   tobas::Drone createDrone();
-  tobas::ElectricPropulsionSystemConfig::SharedPtr createElectricPropulsionSystem();
-  tobas::ICEPropulsionSystemConfig::SharedPtr createICEPropulsionSystem();
 
   bool hasServoJoint() const;
 

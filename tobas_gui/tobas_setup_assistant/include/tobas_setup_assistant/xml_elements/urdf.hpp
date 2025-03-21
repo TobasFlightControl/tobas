@@ -9,6 +9,8 @@ namespace gui
 {
 namespace sa
 {
+namespace xml
+{
 void addBatteryPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
@@ -87,6 +89,33 @@ void addElectricPropulsionSystemPlugin(
   double max_current,
   double max_model_error_rate);
 
+struct EngineParam
+{
+  double torque_const;
+  double friction_torque;
+  double time_const_up;
+  double time_const_down;
+};
+
+struct ICERotorParam
+{
+  std::string link_name;
+  tobas::turning_direction_t direction;
+  double gear_ratio;
+  size_t num_blades;
+  tobas_std::Range<double> pitch_angle_limit;
+  double max_pitch_angle_rate;
+  std::pair<double, double> motor_const;
+  double moment_const;
+  std::pair<double, double> drag_const;
+};
+
+void addICEPropulsionSystemPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const EngineParam& engine_param,
+  const std::vector<ICERotorParam>& rotor_params);
+
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
@@ -108,5 +137,6 @@ void addGazeboSimROS2ControlPlugin(
 void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints);
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
+}  // namespace xml
 }  // namespace sa
 }  // namespace gui

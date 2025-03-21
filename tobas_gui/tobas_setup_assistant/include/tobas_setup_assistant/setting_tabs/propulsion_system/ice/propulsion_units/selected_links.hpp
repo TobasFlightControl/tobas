@@ -41,6 +41,8 @@ public:
   void addLink(const QString& link_name);
   void removeLink(const QString& link_name);
 
+  int numUnits() const;
+
   QString linkName(int index) const;
 
   /* タブのインデックスを返す．存在しなければ-1を返す． */

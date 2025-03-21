@@ -151,7 +151,7 @@ tobas::Drone PackageGenerator::createDrone()
         pwm.value_range.lower = joint_config->getPwmMinAngle(i);
         pwm.value_range.upper = joint_config->getPwmMaxAngle(i);
         pwm.reverse = joint_config->getPwmReverse(i);
-        drone.pwms[joint.name] = pwm;
+        TOBAS_CHECK(drone.pwms.insert({ joint.name, pwm }).second);
         break;
       }
       case tobas::hw_iface_t::OTHER:
@@ -169,13 +169,104 @@ tobas::Drone PackageGenerator::createDrone()
   switch (settings_->propulsion_system->type())
   {
     case tobas::propulsion_system_t::ELECTRIC:
-      drone.prop = createElectricPropulsionSystem();
+    {
+      const auto eprop_widget =
+        qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(settings_->propulsion_system->selected());
+      const auto eprop = make_shared<tobas::ElectricPropulsionSystemConfig>();
+
+      // Battery
+      const auto battery_widget = eprop_widget->battery;
+      eprop->battery.nominal_voltage = battery_widget->nominalVoltage();
+      eprop->battery.max_voltage = battery_widget->maxVoltage();
+      eprop->battery.sag_voltage = battery_widget->sagVoltage();
+      eprop->battery.max_current = battery_widget->maxCurrent();
+
+      // Rotors
+      const auto units_widget = eprop_widget->units->selected();
+      for (int i = 0; i < eprop_widget->numUnits(); ++i)
+      {
+        const auto link_name = eprop_widget->linkName(i).toStdString();
+        const auto unit_widget = units_widget->widget(i);
+
+        const auto rotor = make_shared<tobas::ElectricRotorConfig>();
+        rotor->link_name = link_name;
+        rotor->direction = unit_widget->general()->direction();
+        rotor->axis = robot_.rotorAxisType(link_name);
+        rotor->moment_const = unit_widget->aerodynamics()->momentConst();
+        rotor->tilt_joint_name = unit_widget->general()->tiltJointName().toStdString();
+        rotor->channel = unit_widget->general()->channel();
+        rotor->num_poles = unit_widget->motor()->numPoles();
+        rotor->kv = unit_widget->motor()->kv();
+        rotor->internal_resistance = unit_widget->motor()->internalResistance();
+        rotor->propeller_diameter = unit_widget->propeller()->diameter();
+        rotor->motor_const = unit_widget->aerodynamics()->motorConst();
+        TOBAS_CHECK(eprop->rotors.insert({ link_name, rotor }).second);
+      }
+
+      drone.prop = static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
       break;
+    }
     case tobas::propulsion_system_t::ICE:
-      // TODO
+    {
+      const auto iprop_widget =
+        qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(settings_->propulsion_system->selected());
+      const auto iprop = make_shared<tobas::ICEPropulsionSystemConfig>();
+
+      // Engine
+      const auto engine_widget = iprop_widget->engine;
+      iprop->engine.torque_const = engine_widget->dynamics()->torqueConstant();
+      iprop->engine.friction_torque = engine_widget->dynamics()->dynamicFrictionTorque();
+      iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
+
+      // TODO: PWM以外のインターフェースに対応
+      tobas::PwmConfig engine_pwm;
+      engine_pwm.channel = engine_widget->hardwareIface()->pwmChannel();
+      engine_pwm.name = tobas::pwm::kEngineThrottleKey;
+      engine_pwm.period_range.lower = engine_widget->hardwareIface()->pwmPeriodZeroThrot();
+      engine_pwm.period_range.lower = engine_widget->hardwareIface()->pwmPeriodFullThrot();
+      engine_pwm.value_range.lower = tobas::kMinThrot;
+      engine_pwm.value_range.lower = tobas::kMaxThrot;
+      engine_pwm.reverse = false;
+      TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+
+      // Rotors
+      const auto units_widget = iprop_widget->units->selected();
+      for (int i = 0; i < iprop_widget->numUnits(); ++i)
+      {
+        const auto link_name = iprop_widget->linkName(i).toStdString();
+        const auto unit_widget = units_widget->widget(i);
+
+        const auto rotor = make_shared<tobas::ICERotorConfig>();
+        rotor->link_name = link_name;
+        rotor->direction = unit_widget->general()->direction();
+        rotor->axis = robot_.rotorAxisType(link_name);
+        rotor->moment_const = unit_widget->aerodynamics()->momentConst();
+        rotor->tilt_joint_name = "";
+        rotor->gear_ratio = unit_widget->transmission()->gearRatio();
+        rotor->pitch_ref = unit_widget->propeller()->pitchAngleRef();
+        rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
+        rotor->motor_const = unit_widget->aerodynamics()->motorConst();
+        rotor->hw_iface = tobas::hw_iface_t::PWM;
+        TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
+
+        // TODO: PWM以外のインターフェースに対応
+        tobas::PwmConfig pitch_pwm;
+        pitch_pwm.channel = unit_widget->hardwareIface()->pwmChannel();
+        pitch_pwm.name = link_name;
+        pitch_pwm.period_range.lower = unit_widget->hardwareIface()->pwmPeriodMinPitch();
+        pitch_pwm.period_range.upper = unit_widget->hardwareIface()->pwmPeriodMaxPitch();
+        pitch_pwm.value_range = unit_widget->propeller()->pitchAngleLimit();
+        pitch_pwm.reverse = false;
+        TOBAS_CHECK(drone.pwms.insert({ link_name, pitch_pwm }).second);
+      }
+
+      drone.prop = static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
       break;
+    }
     default:
+    {
       throw;
+    }
   }
 
   // Fixed Wing
@@ -231,52 +322,6 @@ tobas::Drone PackageGenerator::createDrone()
   }
 
   return drone;
-}
-
-tobas::ElectricPropulsionSystemConfig::SharedPtr PackageGenerator::createElectricPropulsionSystem()
-{
-  const auto eprop =
-    qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(settings_->propulsion_system->selected());
-  const auto res = make_shared<tobas::ElectricPropulsionSystemConfig>();
-
-  // Battery
-  const auto battery = eprop->battery;
-  res->battery.nominal_voltage = battery->nominalVoltage();
-  res->battery.max_voltage = battery->maxVoltage();
-  res->battery.sag_voltage = battery->sagVoltage();
-  res->battery.max_current = battery->maxCurrent();
-
-  // Rotors
-  const auto units = eprop->units->selected();
-  for (int i = 0; i < eprop->numUnits(); ++i)
-  {
-    const auto link_name = eprop->linkName(i).toStdString();
-    const auto unit = units->widget(i);
-
-    const auto rotor = make_shared<tobas::ElectricRotorConfig>();
-
-    rotor->link_name = link_name;
-    rotor->direction = unit->general()->direction();
-    rotor->axis = robot_.rotorAxisType(link_name);
-    rotor->moment_const = unit->aerodynamics()->momentConst();
-    rotor->tilt_joint_name = unit->general()->tiltJointName().toStdString();
-
-    rotor->channel = unit->general()->channel();
-    rotor->num_poles = unit->motor()->numPoles();
-    rotor->kv = unit->motor()->kv();
-    rotor->internal_resistance = unit->motor()->internalResistance();
-    rotor->propeller_diameter = unit->propeller()->diameter();
-    rotor->motor_const = unit->aerodynamics()->motorConst();
-
-    res->rotors[link_name] = rotor;
-  }
-
-  return res;
-}
-
-tobas::ICEPropulsionSystemConfig::SharedPtr PackageGenerator::createICEPropulsionSystem()
-{
-  return make_shared<tobas::ICEPropulsionSystemConfig>();  // TODO
 }
 
 bool PackageGenerator::hasServoJoint() const
@@ -471,8 +516,8 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
     const auto jsb_name = string(tobas::node::kJointStateBroadcaster);
     const auto jsb_param = config_dir + jsb_name + ".yaml";
     const auto jsb_args = jsb_name + " --param-file " + jsb_param;
-    const auto jsb_node = addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
-    addNodeParam(jsb_node, "use_sim_time", "true");
+    const auto jsb_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
+    xml::addNodeParam(jsb_node, "use_sim_time", "true");
 
     // コントローラごとにノードを立ち上げる
     for (int i = 0; i < joint_config->numJoints(); ++i)
@@ -484,8 +529,8 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
       const auto ctrl_name = joint_name + "_controller";
       const auto ctrl_param = config_dir + ctrl_name + ".yaml";
       const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
-      const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
-      addNodeParam(ctrl_node, "use_sim_time", "true");
+      const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
+      xml::addNodeParam(ctrl_node, "use_sim_time", "true");
     }
   }
 
@@ -810,22 +855,22 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
 
   // IMU plugin
-  addIMUPlugin(
+  xml::addIMUPlugin(
     robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroOffsetNorm(),
     imu->gyroRandomWalk(), imu->gyroBiasCorrTime(), imu->accNoiseDensity(), imu->accOffsetNorm(), imu->accRandomWalk(),
     imu->accBiasCorrTime(), rotor_link_names);
 
   // Magnetometer plugin
-  addMagnetometerPlugin(
+  xml::addMagnetometerPlugin(
     robot, ns, root_name, mag->updateRate(), mag->offset(), sim->latitudeZero(), sim->longitudeZero(),
     sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasNorm());
 
   // Barometer plugin
-  addBarometerPlugin(
+  xml::addBarometerPlugin(
     robot, ns, root_name, baro->updateRate(), baro->offset(), sim->altitudeZero(), baro->pressureVariance());
 
   // GNSS plugin
-  addGNSSPlugin(
+  xml::addGNSSPlugin(
     robot, ns, root_name, gnss->updateRate(), gnss->offset(), gnss->delay(), gnss->positionCorrectionTime(),
     gnss->horizontalPositionAccuracy(), gnss->verticalPositionAccuracy(), gnss->horizontalVelocityStddev(),
     gnss->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
@@ -841,14 +886,14 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
       // Battery plugin
       constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
-      addBatteryPlugin(
+      xml::addBatteryPlugin(
         robot, ns, kBatterySamplingRate, battery->maxVoltage(), battery->sagVoltage(), battery->maxCurrent(),
         battery->capacity(), battery->internalRegistance(), rotor_link_names);
 
       // Rotor plugins
-      for (int i = 0; i < units->count(); ++i)
+      for (int i = 0; i < units->numUnits(); ++i)
       {
-        const auto link_name = prop->linkName(i).toStdString();
+        const auto link_name = eprop->linkName(i).toStdString();
 
         const auto unit = units->widget(i);
         const auto general = unit->general();
@@ -857,15 +902,46 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
         const auto propeller = unit->propeller();
         const auto aero = unit->aerodynamics();
 
-        addElectricPropulsionSystemPlugin(
+        xml::addElectricPropulsionSystemPlugin(
           robot, ns, link_name, motor->kv(), motor->internalResistance(), propeller->numBlade(), aero->motorConst(),
           aero->momentConst(), aero->dragConst(), general->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
       }
+
       break;
     }
     case tobas::propulsion_system_t::ICE:
     {
-      // TODO
+      const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(prop->selected());
+      const auto engine = iprop->engine;
+      const auto units = iprop->units->selected();
+
+      xml::EngineParam engine_param;
+      engine_param.torque_const = engine->dynamics()->torqueConstant();
+      engine_param.friction_torque = engine->dynamics()->dynamicFrictionTorque();
+      engine_param.time_const_up = engine->response()->timeConstUp();
+      engine_param.time_const_down = engine->response()->timeConstDown();
+
+      std::vector<xml::ICERotorParam> rotor_params;
+      for (int i = 0; i < units->numUnits(); ++i)
+      {
+        const auto unit = units->widget(i);
+
+        xml::ICERotorParam rotor_param;
+        rotor_param.link_name = iprop->linkName(i).toStdString();
+        rotor_param.direction = unit->general()->direction();
+        rotor_param.gear_ratio = unit->transmission()->gearRatio();
+        rotor_param.num_blades = unit->propeller()->numBlade();
+        rotor_param.pitch_angle_limit = unit->propeller()->pitchAngleLimit();
+        rotor_param.max_pitch_angle_rate = unit->propeller()->maxPitchAngleRate();
+        rotor_param.motor_const = unit->aerodynamics()->motorConst();
+        rotor_param.moment_const = unit->aerodynamics()->momentConst();
+        rotor_param.drag_const = unit->aerodynamics()->dragConst();
+
+        rotor_params.push_back(rotor_param);
+      }
+
+      xml::addICEPropulsionSystemPlugin(robot, ns, engine_param, rotor_params);
+
       break;
     }
     default:
@@ -876,24 +952,24 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // Fixed wing plugin
   if (drone.fixed_wing)
-    addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
+    xml::addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
 
   // Wind plugin
-  addGazeboWindPlugin(robot, ns, root_name);
+  xml::addGazeboWindPlugin(robot, ns, root_name);
 
   // Ground truth state plugin
-  addGazeboGroundTruthStatePlugin(robot, ns, root_name);
+  xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);
 
   // Gazebo ROS2 control system
-  addGazeboROS2SimSystem(robot, drone.joints);
+  xml::addGazeboROS2SimSystem(robot, drone.joints);
 
   // Gazebo ROS2 control plugin
   // XXX: This must be defined after GazeboSimSystem
   if (hasServoJoint())
-    addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
+    xml::addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
 
   // Base static joint for debug
-  addBaseStaticJoint(robot, robot_.tree().getRootName());
+  xml::addBaseStaticJoint(robot, robot_.tree().getRootName());
 
   return true;
 }

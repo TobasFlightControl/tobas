@@ -17,9 +17,9 @@ TransmissionWidget::TransmissionWidget()
   setLayout(rows);
 
   gear_ratio_ = new ParamGetterWidget_DoubleSpinBox("Gear Ratio", "");  // TODO
-  gear_ratio_->setDecimals(2);
+  gear_ratio_->setDecimals(1);
   gear_ratio_->setMinimum(1.);
-  gear_ratio_->setValue(1.);
+  gear_ratio_->setValue(3.6);
   rows->addWidget(gear_ratio_);
 
   rows->addStretch();

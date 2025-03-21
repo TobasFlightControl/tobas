@@ -149,6 +149,11 @@ void SelectedLinksWidget::removeLink(const QString& link_name)
   setAction(link_name, visualization_msgs::msg::Marker::DELETE);
 }
 
+int SelectedLinksWidget::numUnits() const
+{
+  return count();
+}
+
 QString SelectedLinksWidget::linkName(int index) const
 {
   return tabText(index);
