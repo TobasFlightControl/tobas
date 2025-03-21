@@ -18,7 +18,7 @@ PropellerWidget::PropellerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  num_blade_ = new ParamGetterWidget_SpinBox("Number of blades", "Number of blades per propeller.");
+  num_blade_ = new ParamGetterWidget_SpinBox("Number of Blades", "Number of blades per propeller.");
   num_blade_->setMinimum(1);
   num_blade_->setValue(2);
   rows->addWidget(num_blade_);
@@ -30,14 +30,14 @@ PropellerWidget::PropellerWidget()
   rows->addWidget(diameter_);
 
   blade_chord_ =
-    new ParamGetterWidget_SpinBox("75% Blade chord", "Chord length at 75% of the distance from the blade's center.");
+    new ParamGetterWidget_SpinBox("75% Blade Chord", "Chord length at 75% of the distance from the blade's center.");
   blade_chord_->setMinimum(1);
   blade_chord_->setValue(15);
   blade_chord_->setSuffix(" mm");
   rows->addWidget(blade_chord_);
 
   pitch_angle_ = new ParamGetterWidget_SpinBox(
-    "75% Blade pitch angle", "Twist angle at 75% of the distance from the blade's center.");
+    "75% Blade Pitch Angle", "Twist angle at 75% of the distance from the blade's center.");
   pitch_angle_->setMinimum(1);
   pitch_angle_->setMaximum(90);
   pitch_angle_->setValue(15);
