@@ -10,8 +10,6 @@ namespace ice
 {
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
 {
-  setTabSize(kTabWidth, kTabHeight);
-
   engine = new EngineWidget();
   units = new PropulsionUnitsWidget(node, robot, _signals);
 

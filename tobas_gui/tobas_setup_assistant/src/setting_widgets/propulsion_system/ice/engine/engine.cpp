@@ -10,6 +10,7 @@ namespace ice
 {
 EngineWidget::EngineWidget()
 {
+  ignoreWheelEvent();
   setTabSize(kTabWidth, kTabHeight);
 
   dynamics_ = new EngineDynamicsWidget();

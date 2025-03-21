@@ -10,8 +10,6 @@ namespace electric
 {
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
 {
-  setTabSize(kTabWidth, kTabHeight);
-
   battery = new BatteryWidget();
   units = new PropulsionUnitsWidget(node, robot, _signals);
 
