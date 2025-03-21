@@ -12,8 +12,6 @@ ParamGetterWidget_SpinBox::ParamGetterWidget_SpinBox(const QString& param_name, 
 {
   spin_box_ = new qt::SpinBox();
   rows_->addWidget(spin_box_);
-
-  spin_box_->setFocusPolicy(Qt::StrongFocus);
   connect(spin_box_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 

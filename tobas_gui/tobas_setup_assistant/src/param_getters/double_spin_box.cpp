@@ -14,8 +14,6 @@ ParamGetterWidget_DoubleSpinBox::ParamGetterWidget_DoubleSpinBox(
 {
   spin_box_ = new qt::DoubleSpinBox();
   rows_->addWidget(spin_box_);
-
-  spin_box_->setFocusPolicy(Qt::StrongFocus);
   connect(spin_box_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 

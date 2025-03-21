@@ -23,7 +23,6 @@ IntGetter::IntGetter(const QString& name)
 
   data_ = new qt::SpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-  data_->setFocusPolicy(Qt::StrongFocus);
   cols->addWidget(data_);
 
   connect(data_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
@@ -79,7 +78,6 @@ DoubleGetter::DoubleGetter(const QString& name)
 
   data_ = new qt::DoubleSpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-  data_->setFocusPolicy(Qt::StrongFocus);
   cols->addWidget(data_);
 
   connect(data_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
