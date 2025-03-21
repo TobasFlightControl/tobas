@@ -189,8 +189,7 @@ tobas::Drone PackageGenerator::createDrone()
     drone.fixed_wing->vehicle.wing_span = vehicle->wingSpan();
     drone.fixed_wing->vehicle.mac = vehicle->mac();
     drone.fixed_wing->vehicle.ac.data = vehicle->aerodynamicCenter();
-    drone.fixed_wing->vehicle.alpha_limit.lower = vehicle->alphaLimit().first;
-    drone.fixed_wing->vehicle.alpha_limit.upper = vehicle->alphaLimit().second;
+    drone.fixed_wing->vehicle.alpha_limit = vehicle->alphaLimit();
 
     // Aerodynamic Coefficients
     const auto aero_coefs = settings_->fixed_wing->aeroCoefs();

@@ -20,15 +20,15 @@ ParamGetterWidget_DoubleRange::ParamGetterWidget_DoubleRange(const QString& para
   connect(max_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
 }
 
-std::pair<double, double> ParamGetterWidget_DoubleRange::getValue() const
+ParamGetterWidget_DoubleRange::ValueType ParamGetterWidget_DoubleRange::getValue() const
 {
   return { min(), max() };
 }
 
-bool ParamGetterWidget_DoubleRange::setValue(const std::pair<double, double>& src)
+bool ParamGetterWidget_DoubleRange::setValue(const ValueType& src)
 {
-  min_->setValue(src.first);
-  max_->setValue(src.second);
+  min_->setValue(src.lower);
+  max_->setValue(src.upper);
   return true;
 }
 

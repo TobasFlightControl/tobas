@@ -17,9 +17,11 @@ namespace sa
 template <typename T>
 class ParamGetterWidget : public QWidget
 {
-  using super = QWidget;
+  Q_OBJECT
 
 public:
+  using ValueType = T;
+
   explicit ParamGetterWidget(const QString& param_name, const QString& description_text);
 
   virtual T getValue() const = 0;

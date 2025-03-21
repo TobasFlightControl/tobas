@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_std_tools/range.hpp>
+
 #include "./base.hpp"
 #include "./scalar_getter.hpp"
 
@@ -7,21 +9,21 @@ namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_DoubleRange : public ParamGetterWidget<std::pair<double, double>>
+class ParamGetterWidget_DoubleRange : public ParamGetterWidget<tobas_std::Range<double>>
 {
   Q_OBJECT
 
   using self = ParamGetterWidget_DoubleRange;
-  using super = ParamGetterWidget<std::pair<double, double>>;
+  using super = ParamGetterWidget<ValueType>;
 
 Q_SIGNALS:
-  void valueChanged(std::pair<double, double> value);
+  void valueChanged(const ValueType& value);
 
 public:
   explicit ParamGetterWidget_DoubleRange(const QString& param_name, const QString& description_text);
 
-  std::pair<double, double> getValue() const override;
-  bool setValue(const std::pair<double, double>& src) override;
+  ValueType getValue() const override;
+  bool setValue(const ValueType& src) override;
 
   void setDecimals(int decimals);
   void setMinimum(double minimum);
