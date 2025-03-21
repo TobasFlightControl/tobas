@@ -16,10 +16,6 @@ GeneralWidget::GeneralWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  channel_ = new ParamGetterWidget_SpinBox("Channel", "");
-  channel_->setMinimum(0);
-  rows->addWidget(channel_);
-
   direction_ = new ParamGetterWidget_ComboBox("Turning Direction", "");
   direction_->setChoices({ kCWName, kCCWName });
   rows->addWidget(direction_);
@@ -41,7 +37,6 @@ void GeneralWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
   const auto derived = qt::qConstPointerCast<GeneralWidget>(src);
 
-  channel_->setValue(derived->channel_->getValue());
   direction_->setValue(derived->direction_->getValue());
 }
 
@@ -49,7 +44,6 @@ YAML::Node GeneralWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[channel_->name()] = channel_->getValue();
   node[direction_->name()] = direction_->getValue();
 
   return node;
@@ -57,13 +51,7 @@ YAML::Node GeneralWidget::dump() const
 
 void GeneralWidget::load(const YAML::Node& node)
 {
-  channel_->setValue(node[channel_->name()].as<int>());
   direction_->setValue(node[direction_->name()].as<QString>());
-}
-
-int GeneralWidget::channel() const
-{
-  return channel_->getValue();
 }
 
 tobas::turning_direction_t GeneralWidget::direction() const

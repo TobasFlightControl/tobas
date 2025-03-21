@@ -34,11 +34,9 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  int channel() const;
   tobas::turning_direction_t direction() const;
 
 private:
-  ParamGetterWidget_SpinBox* channel_;
   ParamGetterWidget_ComboBox* direction_;
 };
 }  // namespace ice
