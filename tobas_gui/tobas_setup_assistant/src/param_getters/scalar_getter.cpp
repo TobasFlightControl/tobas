@@ -1,7 +1,6 @@
 #include <QLabel>
 #include <QHBoxLayout>
 
-#include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_qt_tools/font.hpp>
 

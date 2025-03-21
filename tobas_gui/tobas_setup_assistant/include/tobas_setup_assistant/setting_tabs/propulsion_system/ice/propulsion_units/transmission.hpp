@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
+#include "tobas_setup_assistant/param_getters/ratio.hpp"
 #include "./base.hpp"
 
 namespace gui
@@ -31,7 +31,7 @@ public:
   double gearRatio() const;
 
 private:
-  ParamGetterWidget_DoubleSpinBox* gear_ratio_;
+  ParamGetterWidget_Ratio* gear_ratio_;
 };
 }  // namespace ice
 }  // namespace propulsion

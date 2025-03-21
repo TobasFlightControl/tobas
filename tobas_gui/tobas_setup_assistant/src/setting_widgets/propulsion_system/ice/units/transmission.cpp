@@ -1,5 +1,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/transmission.hpp"
 
@@ -16,10 +17,11 @@ TransmissionWidget::TransmissionWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  gear_ratio_ = new ParamGetterWidget_DoubleSpinBox("Gear Ratio", "");  // TODO
-  gear_ratio_->setDecimals(1);
-  gear_ratio_->setMinimum(1.);
-  gear_ratio_->setValue(3.6);
+  gear_ratio_ = new ParamGetterWidget_Ratio("Gear Ratio", "");  // TODO
+  gear_ratio_->setMinimum(1);
+  gear_ratio_->setLeftText("Engine");
+  gear_ratio_->setRightText("Propeller");
+  gear_ratio_->setValue({ 60 * 33 * 23 * 39, 30 * 44 * 11 * 34 });
   rows->addWidget(gear_ratio_);
 
   rows->addStretch();
@@ -32,6 +34,14 @@ const char* TransmissionWidget::name() const
 
 bool TransmissionWidget::isValid()
 {
+  const auto [engine_gear, propeller_gear] = gear_ratio_->getValue();
+  if (engine_gear < propeller_gear)
+  {
+    qt::qErrorBox(
+      this, "The engine's rotational speed must be equal to or greater than the propeller's rotational speed.");
+    return false;
+  }
+
   return true;
 }
 
@@ -53,12 +63,13 @@ YAML::Node TransmissionWidget::dump() const
 
 void TransmissionWidget::load(const YAML::Node& node)
 {
-  gear_ratio_->setValue(node[gear_ratio_->name()].as<int>());
+  gear_ratio_->setValue(node[gear_ratio_->name()].as<std::pair<int, int>>());
 }
 
 double TransmissionWidget::gearRatio() const
 {
-  return gear_ratio_->getValue();
+  const auto [engine_gear, propeller_gear] = gear_ratio_->getValue();
+  return static_cast<double>(engine_gear) / static_cast<double>(propeller_gear);
 }
 }  // namespace ice
 }  // namespace propulsion
