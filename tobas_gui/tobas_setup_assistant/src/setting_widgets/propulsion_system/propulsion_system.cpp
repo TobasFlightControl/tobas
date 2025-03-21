@@ -15,6 +15,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   propulsions_ = new qt::StackedWidget();
 
   propulsions_->addWidget(new electric::PropulsionSystemWidget(node, robot, _signals));
+  propulsions_->addWidget(new ice::PropulsionSystemWidget(node, robot, _signals));
 
   for (int i = 0; i < propulsions_->count(); ++i)
   {

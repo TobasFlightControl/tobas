@@ -6,6 +6,7 @@
 #include "../base_setting.hpp"
 #include "./base.hpp"
 #include "./electric/propulsion_system.hpp"
+#include "./ice/propulsion_system.hpp"
 
 namespace gui
 {

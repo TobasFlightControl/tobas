@@ -17,8 +17,6 @@ namespace sa
 template <typename T>
 class ParamGetterWidget : public QWidget
 {
-  Q_OBJECT
-
 public:
   using ValueType = T;
 

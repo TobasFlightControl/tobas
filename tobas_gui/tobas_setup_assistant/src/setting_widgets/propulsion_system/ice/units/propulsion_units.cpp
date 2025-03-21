@@ -1,7 +1,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/font.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/propulsion_units.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propulsion_units.hpp"
 
 namespace gui
 {
@@ -9,7 +9,7 @@ namespace sa
 {
 namespace propulsion
 {
-namespace electric
+namespace ice
 {
 PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
   : signals_(_signals)
@@ -19,7 +19,7 @@ PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const
   available_links_label->setAlignment(Qt::AlignLeft);
 
   available_ = new AvailableLinksWidget(robot);
-  selected_ = new SelectedLinksWidget(node, robot, _signals);
+  selected_ = new SelectedLinksWidget(node, robot);
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -104,7 +104,7 @@ void PropulsionUnitsWidget::onSelectedLinkRemoved(const QString& link_name)
   available_->sortItems();
   Q_EMIT signals_.rotorLinkRemoved(link_name);
 }
-}  // namespace electric
+}  // namespace ice
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui

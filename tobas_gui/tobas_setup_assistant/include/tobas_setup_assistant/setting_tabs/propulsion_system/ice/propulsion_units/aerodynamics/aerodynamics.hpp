@@ -24,7 +24,7 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
   static constexpr char kMethodNameKey[] = "method_name";
 
 public:
-  explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWidget* propeller);
+  explicit AerodynamicsWidget();
 
   const char* name() const override;
   bool isValid() override;

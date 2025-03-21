@@ -10,7 +10,7 @@ namespace sa
 {
 namespace propulsion
 {
-namespace electric
+namespace ice
 {
 class PropulsionUnitsWidget : public QWidget
 {
@@ -41,7 +41,7 @@ private:
   AvailableLinksWidget* available_;
   SelectedLinksWidget* selected_;
 };
-};  // namespace electric
+};  // namespace ice
 }  // namespace propulsion
 }  // namespace sa
 }  // namespace gui
