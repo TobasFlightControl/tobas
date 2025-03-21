@@ -17,7 +17,7 @@ class ICERotorConfig : public RotorConfig
 
   static constexpr char kGearRatioKey[] = "gear_ratio";
   static constexpr char kPitchReferenceKey[] = "pitch_reference";
-  static constexpr char kPitchRangeKey[] = "pitch_range";
+  static constexpr char kPitchLimitKey[] = "pitch_limit";
   static constexpr char kMotorConstKey[] = "motor_constant";
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
@@ -27,7 +27,7 @@ public:
 
   double gear_ratio = 0.;  // 減速比 [-]
   double pitch_ref = 0.;   // プロペラピッチ角の参照値 (最も効率の良いピッチ角) [rad]
-  tobas_std::Range<double> pitch_range = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
+  tobas_std::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
   std::pair<double, double> motor_const = { 0., 0. };  // T = (c0 + c1 φ) ω^2 (φ: プロペラピッチ，ω: プロペラ回転数)
   hw_iface_t hw_iface = hw_iface_t::OTHER;
 

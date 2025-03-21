@@ -214,12 +214,12 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor_it->second);
 
     // Check pitch angle limit
-    if (irotor->pitch_range.inRange(cmd_angle))
+    if (irotor->pitch_limit.inRange(cmd_angle))
     {
       TOBAS_WARN_THROTTLE(
         tobas::kTypicalWarnPeriod, "Commanded pitch angle of propeller \"", link_name,
-        "\" is out of range: ", cmd_angle, " ∉ ", irotor->pitch_range);
-      cmd_angle = irotor->pitch_range.clamp(cmd_angle);
+        "\" is out of its limit: ", cmd_angle, " ∉ ", irotor->pitch_limit);
+      cmd_angle = irotor->pitch_limit.clamp(cmd_angle);
     }
 
     // Set current pitch angle

@@ -161,7 +161,7 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   if (!pitch_angle_.pos_limit.isValid())
   {
-    gzerr << "Propeller pitch range is invalid." << endl;
+    gzerr << "Propeller pitch angle limit is invalid." << endl;
     return false;
   }
 

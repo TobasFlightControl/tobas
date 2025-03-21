@@ -18,15 +18,15 @@ bool ICERotorConfig::isValid() const
     return false;
   }
 
-  if (!pitch_range.isValid())
+  if (!pitch_limit.isValid())
   {
-    cerr << "Pitch range is invalid." << endl;
+    cerr << "Pitch angle limit is invalid." << endl;
     return false;
   }
 
-  if (!pitch_range.inRange(pitch_ref))
+  if (!pitch_limit.inRange(pitch_ref))
   {
-    cerr << "Pitch reference is out of range." << endl;
+    cerr << "Pitch angle reference is out of its limit." << endl;
     return false;
   }
 
@@ -49,7 +49,7 @@ bool ICERotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kPitchReferenceKey, node, pitch_ref))
     return false;
 
-  if (!yaml::load(kPitchRangeKey, node, pitch_range))
+  if (!yaml::load(kPitchLimitKey, node, pitch_limit))
     return false;
 
   if (!yaml::load(kMotorConstKey, node, motor_const))
@@ -67,7 +67,7 @@ YAML::Node ICERotorConfig::dump() const
 
   node[kGearRatioKey] = gear_ratio;
   node[kPitchReferenceKey] = pitch_ref;
-  node[kPitchRangeKey] = pitch_range;
+  node[kPitchLimitKey] = pitch_limit;
   node[kMotorConstKey] = motor_const;
   node[kHardwareIfaceKey] = hw_iface;
 
