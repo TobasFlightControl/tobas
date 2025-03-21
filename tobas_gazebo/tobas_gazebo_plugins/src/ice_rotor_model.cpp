@@ -175,9 +175,9 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   if (!getSdfParam(sdf, "motorConstant", motor_const_))
     return false;
-  if (motor_const_.first <= 0.)
+  if (motor_const_.second <= 0.)
   {
-    gzerr << "The first term of motor constant must be positive." << endl;
+    gzerr << "The second term of motor constant must be positive." << endl;
     return false;
   }
   if (getMotorConst(pitch_angle_.pos_limit.lower) <= 0.)
@@ -196,9 +196,9 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   if (!getSdfParam(sdf, "dragConstant", drag_const_))
     return false;
-  if (drag_const_.first <= 0.)
+  if (drag_const_.second <= 0.)
   {
-    gzerr << "The first term of drag constant must be positive." << endl;
+    gzerr << "The second term of drag constant must be positive." << endl;
     return false;
   }
   if (getDragConst(pitch_angle_.pos_limit.lower) <= 0.)
@@ -283,11 +283,11 @@ bool ICERotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 
 double ICERotorModel::getMotorConst(double pitch_angle) const
 {
-  return max(motor_const_.first * pitch_angle + motor_const_.second, 0.);
+  return max(motor_const_.first + motor_const_.second * pitch_angle, 0.);
 }
 
 double ICERotorModel::getDragConst(double pitch_angle) const
 {
-  return max(drag_const_.first * pitch_angle + drag_const_.second, 0.);
+  return max(drag_const_.first + drag_const_.second * pitch_angle, 0.);
 }
 }  // namespace gazebo

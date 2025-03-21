@@ -30,9 +30,9 @@ bool ICERotorConfig::isValid() const
     return false;
   }
 
-  if (motor_const.first <= 0.)
+  if (motor_const.second <= 0.)
   {
-    cerr << "The first term of motor constant must be positive." << endl;
+    cerr << "The second term of motor constant must be positive." << endl;
   }
 
   return true;

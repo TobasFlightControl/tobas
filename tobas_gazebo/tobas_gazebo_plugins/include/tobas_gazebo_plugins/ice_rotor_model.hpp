@@ -48,9 +48,9 @@ private:
   int direction_;                          // Turning direction: 1(CCW) or -1(CW)
   double gear_ratio_;                      // 減速比 [-]
   size_t num_blades_;                      // プロペラのブレード数
-  std::pair<double, double> motor_const_;  // T = (aφ + b) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
+  std::pair<double, double> motor_const_;  // T = (c0 + c1 φ) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
   double moment_const_;                    // TODO: ピッチ角による反トルク係数の変化を考慮
-  std::pair<double, double> drag_const_;
+  std::pair<double, double> drag_const_;  // CH = c0 + c1 φ
 
   // Gazebo objects
   std::shared_ptr<gz::sim::Joint> joint_;
