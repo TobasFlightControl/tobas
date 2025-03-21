@@ -142,20 +142,20 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
   const auto q_nr = segment.joint().type != Joint::FIXED ? nj_ : 0;
   const auto retval = segments_.insert(make_pair(segment.name(), TreeElement(segment, parent, q_nr)));
 
-  // check if insertion succeeded
+  // Check if insertion succeeded
   if (!retval.second)
   {
     cerr << "Failed to insert \"" + segment.name() + "\" into the tree." << endl;
     return false;
   }
 
-  // add iterator to new element in parents children list
+  // Add iterator to new element in parents children list
   parent->second.children.push_back(retval.first);
 
-  // increase number of segments
+  // Increase number of segments
   ++ns_;
 
-  // increase number of joints
+  // Increase number of joints
   if (segment.joint().type != Joint::FIXED)
     ++nj_;
 
@@ -195,10 +195,10 @@ bool Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const string&
 
 bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& chain) const
 {
-  // clear chain
+  // Clear chain
   chain.clear();
 
-  // walk down from chain_root and chain_tip to the seg of the tree
+  // Walk down from chain_root and chain_tip to the seg of the tree
   vector<SegmentMap::key_type> parents_chain_root, parents_chain_tip;
   for (auto s = getSegment(chain_root); s != segments_.end(); s = s->second.parent)
   {
@@ -224,7 +224,7 @@ bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
     return false;
   }
 
-  // remove common part of segment lists
+  // Remove common part of segment lists
   auto last_segment = root_name_;
   while (!parents_chain_root.empty() && !parents_chain_tip.empty()
          && parents_chain_root.back() == parents_chain_tip.back())
@@ -235,7 +235,7 @@ bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
   }
   parents_chain_root.push_back(last_segment);
 
-  // add the segments from the seg to the common frame
+  // Add the segments from the seg to the common frame
   for (size_t s = 0; s < parents_chain_root.size() - 1; ++s)
   {
     const auto& seg = getSegment(parents_chain_root[s])->second.segment;
@@ -258,7 +258,7 @@ bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       getSegment(parents_chain_root[s + 1])->second.segment.inertia()));
   }
 
-  // add the segments from the common frame to the tip frame
+  // Add the segments from the common frame to the tip frame
   for (auto rit = parents_chain_tip.rbegin(); rit != parents_chain_tip.rend(); ++rit)
     chain.addSegment(getSegment(*rit)->second.segment);
 
