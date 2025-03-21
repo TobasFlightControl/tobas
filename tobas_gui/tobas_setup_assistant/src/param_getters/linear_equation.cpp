@@ -16,6 +16,7 @@ ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
 {
   c0_ = new qt::DoubleSpinBox();
   c1_ = new qt::DoubleSpinBox();
+  suffix_ = new QLabel();
 
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
@@ -25,6 +26,7 @@ ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
   cols->addWidget(new QLabel(value + " + "));
   cols->addWidget(c0_);
   cols->addWidget(suffix_);
+  cols->addStretch();
 
   connect(c0_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
   connect(c1_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
@@ -39,6 +41,8 @@ bool ParamGetterWidget_LinearEquation::setValue(const ValueType& src)
 {
   c0_->setValue(src.first);
   c1_->setValue(src.second);
+
+  return true;
 }
 
 void ParamGetterWidget_LinearEquation::setDecimals(int decimals)
@@ -49,7 +53,7 @@ void ParamGetterWidget_LinearEquation::setDecimals(int decimals)
 
 void ParamGetterWidget_LinearEquation::setSuffix(const QString& suffix)
 {
-  suffix_->setText(suffix);
+  suffix_->setText(QString::fromStdString(str::convertToSuperscript(suffix.toStdString())));
 }
 
 void ParamGetterWidget_LinearEquation::onValueChanged()

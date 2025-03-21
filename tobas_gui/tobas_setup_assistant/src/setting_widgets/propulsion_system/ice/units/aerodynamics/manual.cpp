@@ -25,7 +25,7 @@ AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
   moment_const_->setSuffix(" m");
   addWidget(moment_const_);
 
-  drag_const_ = new ParamGetterWidget_LinearEquation("Drag Constant", "", "CT", "φ");  // TODO
+  drag_const_ = new ParamGetterWidget_LinearEquation("Drag Constant", "", "CH", "φ");  // TODO
   drag_const_->setDecimals(6);
   drag_const_->setValue({ 0.01, 0.01 });
   drag_const_->setSuffix(" kg/rad");
