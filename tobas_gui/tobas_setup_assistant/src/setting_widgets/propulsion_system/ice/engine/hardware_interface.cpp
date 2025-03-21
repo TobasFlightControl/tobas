@@ -20,13 +20,13 @@ EngineHardwareIfaceWidget::EngineHardwareIfaceWidget()
   pwm_channel_->setValue(0);
   rows->addWidget(pwm_channel_);
 
-  pwm_period_zero_ = new ParamGetterWidget_SpinBox("PWM Period (Zero Throttle)", "");  // TODO
+  pwm_period_zero_ = new ParamGetterWidget_SpinBox("PWM Period at Zero Throttle", "");  // TODO
   pwm_period_zero_->setMinimum(0);
   pwm_period_zero_->setValue(1000);
   pwm_period_zero_->setSuffix(" us");
   rows->addWidget(pwm_period_zero_);
 
-  pwm_period_full_ = new ParamGetterWidget_SpinBox("PWM Period (Full Throttle)", "");  // TODO
+  pwm_period_full_ = new ParamGetterWidget_SpinBox("PWM Period at Full Throttle", "");  // TODO
   pwm_period_full_->setMinimum(0);
   pwm_period_full_->setValue(2000);
   pwm_period_full_->setSuffix(" us");
