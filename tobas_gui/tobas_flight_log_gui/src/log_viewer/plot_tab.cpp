@@ -15,6 +15,7 @@ PlotTabWidget::PlotTabWidget()
   battery_plot_ = new BatteryPlotWidget();
   engine_plot_ = new EnginePlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
+  propeller_pitch_plot_ = new PropellerPitchPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
@@ -29,6 +30,7 @@ PlotTabWidget::PlotTabWidget()
   addTab(battery_plot_, "Battery");
   addTab(engine_plot_, "Engine");
   addTab(rotor_speed_plot_, "Rotor Speed");
+  addTab(propeller_pitch_plot_, "VPP Pitch");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
   addTab(obsv_fb_plot_, "Observer");
@@ -48,6 +50,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   battery_plot_->setTimeScale(t_start, t_stop);
   engine_plot_->setTimeScale(t_start, t_stop);
   rotor_speed_plot_->setTimeScale(t_start, t_stop);
+  propeller_pitch_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
   dist_force_plot_->setTimeScale(t_start, t_stop);
   obsv_fb_plot_->setTimeScale(t_start, t_stop);
@@ -93,6 +96,11 @@ void PlotTabWidget::setRotorSpeedData(
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data)
 {
   rotor_speed_plot_->setData(cur_data, tar_data);
+}
+
+void PlotTabWidget::setPropellerPitchData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data)
+{
+  propeller_pitch_plot_->setData(ice_cmd_data);
 }
 
 void PlotTabWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _data)

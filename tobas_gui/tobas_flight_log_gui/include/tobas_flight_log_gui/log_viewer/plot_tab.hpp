@@ -11,6 +11,7 @@
 #include "./plots/battery_plot.hpp"
 #include "./plots/engine_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
+#include "./plots/propeller_pitch_plot.hpp"
 #include "./plots/latency_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
 #include "./plots/observer_feedback_plot.hpp"
@@ -46,6 +47,7 @@ public:
   void setRotorSpeedData(
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
     const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data);
+  void setPropellerPitchData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data);
   void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _data);
   void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
   void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
@@ -62,6 +64,7 @@ private:
   BatteryPlotWidget* battery_plot_;
   EnginePlotWidget* engine_plot_;
   RotorSpeedPlotWidget* rotor_speed_plot_;
+  PropellerPitchPlotWidget* propeller_pitch_plot_;
   LatencyPlotWidget* latency_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;

@@ -184,6 +184,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setBatteryData(battery_data);
     plot_tab->setEngineData(ice_cmd_data);
     plot_tab->setRotorSpeedData(cur_rotor_states_data, tar_rotor_speeds_data);
+    plot_tab->setPropellerPitchData(ice_cmd_data);
     plot_tab->setSamplingTimeData(sampling_time_data);
     plot_tab->setControlLatencyData(ctrl_latency_data);
     plot_tab->setDisturbanceForceData(dist_force_data);
