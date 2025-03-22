@@ -80,11 +80,12 @@ bool SettingsWidget::isValid()
 
   // PWMチャンネルが被ってないことを確認
   if (!isPwmChannelsUnique())
+    return false;
 
-    // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
-    // TODO
+  // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
+  // TODO
 
-    return true;
+  return true;
 }
 
 bool SettingsWidget::isPwmChannelsUnique()
