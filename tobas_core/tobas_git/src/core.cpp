@@ -3,15 +3,17 @@
 
 #include "../include/tobas_git/core.hpp"
 
+using namespace std;
+
 namespace git
 {
-std::string getGitConfigValue(const char* key)
+string getGitConfigValue(const char* key)
 {
   git_libgit2_init();
 
   git_config* config = nullptr;
   git_config_entry* entry = nullptr;
-  std::string value = "";
+  string value = "";
 
   if (git_config_open_default(&config) == 0)
   {
@@ -20,7 +22,16 @@ std::string getGitConfigValue(const char* key)
       value = entry->value;
       git_config_entry_free(entry);
     }
+    else
+    {
+      cerr << "Failed to get git config entry: \"" << key << "\"" << endl;
+    }
+
     git_config_free(config);
+  }
+  else
+  {
+    cerr << "Failed to open git config." << endl;
   }
 
   git_libgit2_shutdown();
