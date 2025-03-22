@@ -21,7 +21,7 @@ AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
   moment_const_ = new ParamGetterWidget_DoubleSpinBox("Moment Constant", "");  // TODO
   moment_const_->setDecimals(6);
   moment_const_->setMinimum(0.);
-  moment_const_->setValue(0.016);
+  moment_const_->setValue(0.06);
   moment_const_->setSuffix(" m");
   addWidget(moment_const_);
 
