@@ -9,22 +9,13 @@ namespace gui
 namespace log
 {
 AccelPlotWidget::AccelPlotWidget()
+  : cur_lin_curves_{ "Current Linear Accel X", "Current Linear Accel Y", "Current Linear Accel Z" },
+    cur_ang_curves_{ "Current Angular Accel X", "Current Angular Accel Y", "Current Angular Accel Z" },
+    tar_lin_curves_{ "Target Linear Accel X", "Target Linear Accel Y", "Target Linear Accel Z" },
+    tar_ang_curves_{ "Target Angular Accel X", "Target Angular Accel Y", "Target Angular Accel Z" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
-
-  cur_lin_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Accel X");
-  cur_lin_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Accel Y");
-  cur_lin_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Accel Z");
-  cur_ang_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Accel X");
-  cur_ang_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Accel Y");
-  cur_ang_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Accel Z");
-  tar_lin_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Accel X");
-  tar_lin_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Accel Y");
-  tar_lin_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Accel Z");
-  tar_ang_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Accel X");
-  tar_ang_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Accel Y");
-  tar_ang_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Accel Z");
 
   for (size_t i = 0; i < 3; ++i)
   {
@@ -34,15 +25,15 @@ AccelPlotWidget::AccelPlotWidget()
     grid->addWidget(lin_plots_[i], i, 0);
     grid->addWidget(ang_plots_[i], i, 1);
 
-    cur_lin_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
-    cur_ang_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
-    tar_lin_curves_[i]->setPen(kTargetValueColor, kLineWidth);
-    tar_ang_curves_[i]->setPen(kTargetValueColor, kLineWidth);
+    cur_lin_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    cur_ang_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    tar_lin_curves_[i].setPen(kTargetValueColor, kLineWidth);
+    tar_ang_curves_[i].setPen(kTargetValueColor, kLineWidth);
 
-    cur_lin_curves_[i]->attach(lin_plots_[i]);
-    cur_ang_curves_[i]->attach(ang_plots_[i]);
-    tar_lin_curves_[i]->attach(lin_plots_[i]);
-    tar_ang_curves_[i]->attach(ang_plots_[i]);
+    cur_lin_curves_[i].attach(lin_plots_[i]);
+    cur_ang_curves_[i].attach(ang_plots_[i]);
+    tar_lin_curves_[i].attach(lin_plots_[i]);
+    tar_ang_curves_[i].attach(ang_plots_[i]);
   }
 }
 
@@ -92,8 +83,8 @@ void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
 
   for (size_t i = 0; i < 3; ++i)
   {
-    cur_lin_curves_[i]->setSamples(t_data, lin_data[i]);
-    cur_ang_curves_[i]->setSamples(t_data, ang_data[i]);
+    cur_lin_curves_[i].setSamples(t_data, lin_data[i]);
+    cur_ang_curves_[i].setSamples(t_data, ang_data[i]);
   }
 }
 
@@ -121,8 +112,8 @@ void AccelPlotWidget::updateTargetSamples(
 
   for (size_t i = 0; i < 3; ++i)
   {
-    tar_lin_curves_[i]->setSamples(t_data, lin_data[i]);
-    tar_ang_curves_[i]->setSamples(t_data, ang_data[i]);
+    tar_lin_curves_[i].setSamples(t_data, lin_data[i]);
+    tar_ang_curves_[i].setSamples(t_data, ang_data[i]);
   }
 }
 }  // namespace log

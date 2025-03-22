@@ -9,27 +9,21 @@ namespace gui
 namespace log
 {
 DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
+  : force_curves_{ "Force X", "Force Y", "Force Z" }, torque_curves_{ "Torque X", "Torque Y", "Torque Z" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  force_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Force X");
-  force_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Force Y");
-  force_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Force Z");
-  torque_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Torque X");
-  torque_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Torque Y");
-  torque_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Torque Z");
-
   for (size_t i = 0; i < 3; ++i)
   {
     force_plots_[i] = new QwtPlot2();
-    force_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    force_curves_[i]->attach(force_plots_[i]);
+    force_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    force_curves_[i].attach(force_plots_[i]);
     grid->addWidget(force_plots_[i], i, 0);
 
     torque_plots_[i] = new QwtPlot2();
-    torque_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    torque_curves_[i]->attach(torque_plots_[i]);
+    torque_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    torque_curves_[i].attach(torque_plots_[i]);
     grid->addWidget(torque_plots_[i], i, 1);
   }
 }
@@ -66,10 +60,10 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
 
   for (size_t i = 0; i < 3; ++i)
   {
-    force_curves_[i]->setSamples(t_data, force_data[i]);
+    force_curves_[i].setSamples(t_data, force_data[i]);
     force_plots_[i]->replot();
 
-    torque_curves_[i]->setSamples(t_data, torque_data[i]);
+    torque_curves_[i].setSamples(t_data, torque_data[i]);
     torque_plots_[i]->replot();
   }
 }

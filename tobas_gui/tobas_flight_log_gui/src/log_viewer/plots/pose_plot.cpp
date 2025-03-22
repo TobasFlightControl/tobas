@@ -11,22 +11,13 @@ namespace gui
 namespace log
 {
 PosePlotWidget::PosePlotWidget()
+  : cur_pos_curves_{ "Current X", "Current Y", "Current Z" },
+    cur_rot_curves_{ "Current Roll", "Current Pitch", "Current Yaw" },
+    tar_pos_curves_{ "Target X", "Target Y", "Target Z" },
+    tar_rot_curves_{ "Target Roll", "Target Pitch", "Target Yaw" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
-
-  cur_pos_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current X");
-  cur_pos_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Y");
-  cur_pos_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Z");
-  cur_rot_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Roll");
-  cur_rot_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Pitch");
-  cur_rot_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Yaw");
-  tar_pos_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target X");
-  tar_pos_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Y");
-  tar_pos_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Z");
-  tar_rot_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Roll");
-  tar_rot_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Pitch");
-  tar_rot_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Yaw");
 
   for (size_t i = 0; i < 3; ++i)
   {
@@ -36,15 +27,15 @@ PosePlotWidget::PosePlotWidget()
     grid->addWidget(pos_plots_[i], i, 0);
     grid->addWidget(rot_plots_[i], i, 1);
 
-    cur_pos_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
-    cur_rot_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
-    tar_pos_curves_[i]->setPen(kTargetValueColor, kLineWidth);
-    tar_rot_curves_[i]->setPen(kTargetValueColor, kLineWidth);
+    cur_pos_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    cur_rot_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    tar_pos_curves_[i].setPen(kTargetValueColor, kLineWidth);
+    tar_rot_curves_[i].setPen(kTargetValueColor, kLineWidth);
 
-    cur_pos_curves_[i]->attach(pos_plots_[i]);
-    cur_rot_curves_[i]->attach(rot_plots_[i]);
-    tar_pos_curves_[i]->attach(pos_plots_[i]);
-    tar_rot_curves_[i]->attach(rot_plots_[i]);
+    cur_pos_curves_[i].attach(pos_plots_[i]);
+    cur_rot_curves_[i].attach(rot_plots_[i]);
+    tar_pos_curves_[i].attach(pos_plots_[i]);
+    tar_rot_curves_[i].attach(rot_plots_[i]);
   }
 }
 
@@ -95,8 +86,8 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
 
   for (size_t i = 0; i < 3; ++i)
   {
-    cur_pos_curves_[i]->setSamples(t_data, pos_data[i]);
-    cur_rot_curves_[i]->setSamples(t_data, rot_data[i]);
+    cur_pos_curves_[i].setSamples(t_data, pos_data[i]);
+    cur_rot_curves_[i].setSamples(t_data, rot_data[i]);
   }
 }
 
@@ -124,8 +115,8 @@ void PosePlotWidget::updateTargetSamples(
 
   for (size_t i = 0; i < 3; ++i)
   {
-    tar_pos_curves_[i]->setSamples(t_data, pos_data[i]);
-    tar_rot_curves_[i]->setSamples(t_data, rot_data[i]);
+    tar_pos_curves_[i].setSamples(t_data, pos_data[i]);
+    tar_rot_curves_[i].setSamples(t_data, rot_data[i]);
   }
 }
 }  // namespace log

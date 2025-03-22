@@ -11,9 +11,8 @@ namespace qwt
 class QwtPlotCurveWrapper
 {
 public:
-  using SharedPtr = std::shared_ptr<QwtPlotCurveWrapper>;
-
-  explicit QwtPlotCurveWrapper(const QString& title = "");
+  QwtPlotCurveWrapper(const QString& title = "");
+  QwtPlotCurveWrapper(const char* title = "");
 
   void setPen(const QColor& color, qreal width, Qt::PenStyle style = Qt::SolidLine);
 

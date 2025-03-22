@@ -9,59 +9,50 @@ namespace gui
 namespace log
 {
 ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
+  : acc_bias_curves_{ "Accel Bias X", "Accel Bias Y", "Accel Bias Z" },
+    gyro_bias_curves_{ "Gyro Bias X", "Gyro Bias Y", "Gyro Bias Z" },
+    mag_hard_bias_curves_{ "Mag Hard-Iron Bias X", "Mag Hard-Iron Bias Y", "Mag Hard-Iron Bias Z" },
+    mag_soft_bias_curves_{ "Mag Soft-Iron Bias XX", "Mag Soft-Iron Bias YY", "Mag Soft-Iron Bias ZZ",
+                           "Mag Soft-Iron Bias XY", "Mag Soft-Iron Bias YZ", "Mag Soft-Iron Bias ZX" },
+    gravity_curve_("Gravity"),
+    gnss_anormaly_score_curve_("GNSS Anormaly Score")
+
 {
   acc_bias_plot_ = new QwtPlot2();
-  acc_bias_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Accel Bias X");
-  acc_bias_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Accel Bias Y");
-  acc_bias_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Accel Bias Z");
   for (size_t i = 0; i < kAccelBiasSize; ++i)
   {
-    acc_bias_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    acc_bias_curves_[i]->attach(acc_bias_plot_);
+    acc_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    acc_bias_curves_[i].attach(acc_bias_plot_);
   }
 
   gyro_bias_plot_ = new QwtPlot2();
-  gyro_bias_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Gyro Bias X");
-  gyro_bias_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Gyro Bias Y");
-  gyro_bias_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Gyro Bias Z");
   for (size_t i = 0; i < kGyroBiasSize; ++i)
   {
-    gyro_bias_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    gyro_bias_curves_[i]->attach(gyro_bias_plot_);
+    gyro_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    gyro_bias_curves_[i].attach(gyro_bias_plot_);
   }
 
   mag_hard_bias_plot_ = new QwtPlot2();
-  mag_hard_bias_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Hard-Iron Bias X");
-  mag_hard_bias_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Hard-Iron Bias Y");
-  mag_hard_bias_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Hard-Iron Bias Z");
   for (size_t i = 0; i < kMagHardBiasSize; ++i)
   {
-    mag_hard_bias_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    mag_hard_bias_curves_[i]->attach(mag_hard_bias_plot_);
+    mag_hard_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    mag_hard_bias_curves_[i].attach(mag_hard_bias_plot_);
   }
 
   mag_soft_bias_plot_ = new QwtPlot2();
-  mag_soft_bias_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Soft-Iron Bias XX");
-  mag_soft_bias_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Soft-Iron Bias YY");
-  mag_soft_bias_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Soft-Iron Bias ZZ");
-  mag_soft_bias_curves_[3] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Soft-Iron Bias XY");
-  mag_soft_bias_curves_[4] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Soft-Iron Bias YZ");
-  mag_soft_bias_curves_[5] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Soft-Iron Bias ZX");
   for (size_t i = 0; i < kMagSoftBiasSize; ++i)
   {
-    mag_soft_bias_curves_[i]->setPen(kSoftBiasColor[i], kLineWidth);
-    mag_soft_bias_curves_[i]->attach(mag_soft_bias_plot_);
+    mag_soft_bias_curves_[i].setPen(kSoftBiasColor[i], kLineWidth);
+    mag_soft_bias_curves_[i].attach(mag_soft_bias_plot_);
   }
 
   gravity_plot_ = new QwtPlot2();
-  gravity_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Gravity");
-  gravity_curve_->setPen(Qt::black, kLineWidth);
-  gravity_curve_->attach(gravity_plot_);
+  gravity_curve_.setPen(Qt::black, kLineWidth);
+  gravity_curve_.attach(gravity_plot_);
 
   gnss_anormaly_score_plot_ = new QwtPlot2();
-  gnss_anormaly_score_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("GNSS Anormaly Score");
-  gnss_anormaly_score_curve_->setPen(Qt::black, kLineWidth);
-  gnss_anormaly_score_curve_->attach(gnss_anormaly_score_plot_);
+  gnss_anormaly_score_curve_.setPen(Qt::black, kLineWidth);
+  gnss_anormaly_score_curve_.attach(gnss_anormaly_score_plot_);
 
   // Layout
   const auto grid = new QGridLayout();
@@ -119,19 +110,19 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
   }
 
   for (size_t i = 0; i < kAccelBiasSize; ++i)
-    acc_bias_curves_[i]->setSamples(t_data, acc_bias_data[i]);
+    acc_bias_curves_[i].setSamples(t_data, acc_bias_data[i]);
 
   for (size_t i = 0; i < kGyroBiasSize; ++i)
-    gyro_bias_curves_[i]->setSamples(t_data, gyro_bias_data[i]);
+    gyro_bias_curves_[i].setSamples(t_data, gyro_bias_data[i]);
 
   for (size_t i = 0; i < kMagHardBiasSize; ++i)
-    mag_hard_bias_curves_[i]->setSamples(t_data, mag_hard_bias_data[i]);
+    mag_hard_bias_curves_[i].setSamples(t_data, mag_hard_bias_data[i]);
 
   for (size_t i = 0; i < kMagSoftBiasSize; ++i)
-    mag_soft_bias_curves_[i]->setSamples(t_data, mag_soft_bias_data[i]);
+    mag_soft_bias_curves_[i].setSamples(t_data, mag_soft_bias_data[i]);
 
-  gravity_curve_->setSamples(t_data, gravity_data);
-  gnss_anormaly_score_curve_->setSamples(t_data, gnss_anormaly_score_data);
+  gravity_curve_.setSamples(t_data, gravity_data);
+  gnss_anormaly_score_curve_.setSamples(t_data, gnss_anormaly_score_data);
 
   acc_bias_plot_->replot();
   gyro_bias_plot_->replot();

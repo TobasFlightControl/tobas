@@ -21,8 +21,8 @@ public:
 private:
   std::array<QwtPlot2*, 3> acc_plots_;
   std::array<QwtPlot2*, 3> gyro_plots_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> acc_curves_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> gyro_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, 3> acc_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, 3> gyro_curves_;
 };
 }  // namespace log
 }  // namespace gui

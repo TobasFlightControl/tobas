@@ -20,7 +20,7 @@ public:
 
 private:
   std::array<QwtPlot2*, 3> mag_plots_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> mag_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, 3> mag_curves_;
 };
 }  // namespace log
 }  // namespace gui

@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-EnginePlotWidget::EnginePlotWidget() : throttle_curve_("throttle")
+EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle")
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

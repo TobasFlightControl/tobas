@@ -23,8 +23,8 @@ public:
 private:
   QwtPlot2* sampling_time_plot_;
   QwtPlot2* ctrl_latency_plot_;
-  qwt::QwtPlotCurveWrapper::SharedPtr sampling_time_curve_;
-  qwt::QwtPlotCurveWrapper::SharedPtr ctrl_latency_curve_;
+  qwt::QwtPlotCurveWrapper sampling_time_curve_;
+  qwt::QwtPlotCurveWrapper ctrl_latency_curve_;
 };
 }  // namespace log
 }  // namespace gui

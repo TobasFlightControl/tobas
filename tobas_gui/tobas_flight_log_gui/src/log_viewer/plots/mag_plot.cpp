@@ -8,20 +8,16 @@ namespace gui
 {
 namespace log
 {
-MagPlotWidget::MagPlotWidget()
+MagPlotWidget::MagPlotWidget() : mag_curves_{ "Mag X", "Mag Y", "Mag Z" }
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  mag_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag X");
-  mag_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Y");
-  mag_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Z");
-
   for (size_t i = 0; i < 3; ++i)
   {
     mag_plots_[i] = new QwtPlot2();
-    mag_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    mag_curves_[i]->attach(mag_plots_[i]);
+    mag_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    mag_curves_[i].attach(mag_plots_[i]);
     rows->addWidget(mag_plots_[i]);
   }
 }
@@ -48,7 +44,7 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticFieldWithCova
 
   for (size_t i = 0; i < 3; ++i)
   {
-    mag_curves_[i]->setSamples(t_data, mag_data[i]);
+    mag_curves_[i].setSamples(t_data, mag_data[i]);
     mag_plots_[i]->replot();
   }
 }

@@ -11,27 +11,22 @@ namespace gui
 namespace log
 {
 MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
+  : pos_ei_curves_{ "X Integral Error", "Y Integral Error", "Z Integral Error" },
+    rot_ei_curves_{ "Roll Integral Error", "Pitch Integral Error", "Yaw Integral Error" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  pos_ei_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("X Integral Error");
-  pos_ei_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Y Integral Error");
-  pos_ei_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Z Integral Error");
-  rot_ei_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Roll Integral Error");
-  rot_ei_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Pitch Integral Error");
-  rot_ei_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Yaw Integral Error");
-
   for (size_t i = 0; i < 3; ++i)
   {
     pos_ei_plots_[i] = new QwtPlot2();
-    pos_ei_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    pos_ei_curves_[i]->attach(pos_ei_plots_[i]);
+    pos_ei_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    pos_ei_curves_[i].attach(pos_ei_plots_[i]);
     grid->addWidget(pos_ei_plots_[i], i, 0);
 
     rot_ei_plots_[i] = new QwtPlot2();
-    rot_ei_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
-    rot_ei_curves_[i]->attach(rot_ei_plots_[i]);
+    rot_ei_curves_[i].setPen(kColorXYZ[i], kLineWidth);
+    rot_ei_curves_[i].attach(rot_ei_plots_[i]);
     grid->addWidget(rot_ei_plots_[i], i, 1);
   }
 }
@@ -68,10 +63,10 @@ void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg
 
   for (size_t i = 0; i < 3; ++i)
   {
-    pos_ei_curves_[i]->setSamples(t_data, pos_ei_data[i]);
+    pos_ei_curves_[i].setSamples(t_data, pos_ei_data[i]);
     pos_ei_plots_[i]->replot();
 
-    rot_ei_curves_[i]->setSamples(t_data, rot_ei_data[i]);
+    rot_ei_curves_[i].setSamples(t_data, rot_ei_data[i]);
     rot_ei_plots_[i]->replot();
   }
 }

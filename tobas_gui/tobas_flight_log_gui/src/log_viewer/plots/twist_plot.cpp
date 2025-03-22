@@ -9,22 +9,13 @@ namespace gui
 namespace log
 {
 TwistPlotWidget::TwistPlotWidget()
+  : cur_lin_curves_{ "Current Linear Velocity X", "Current Linear Velocity Y", "Current Linear Velocity Z" },
+    cur_ang_curves_{ "Current Angular Velocity X", "Current Angular Velocity Y", "Current Angular Velocity Z" },
+    tar_lin_curves_{ "Target Linear Velocity X", "Target Linear Velocity Y", "Target Linear Velocity Z" },
+    tar_ang_curves_{ "Target Angular Velocity X", "Target Angular Velocity Y", "Target Angular Velocity Z" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
-
-  cur_lin_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Velocity X");
-  cur_lin_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Velocity Y");
-  cur_lin_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Linear Velocity Z");
-  cur_ang_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Velocity X");
-  cur_ang_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Velocity Y");
-  cur_ang_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Current Angular Velocity Z");
-  tar_lin_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Velocity X");
-  tar_lin_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Velocity Y");
-  tar_lin_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Linear Velocity Z");
-  tar_ang_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Velocity X");
-  tar_ang_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Velocity Y");
-  tar_ang_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Target Angular Velocity Z");
 
   for (size_t i = 0; i < 3; ++i)
   {
@@ -34,15 +25,15 @@ TwistPlotWidget::TwistPlotWidget()
     grid->addWidget(lin_plots_[i], i, 0);
     grid->addWidget(ang_plots_[i], i, 1);
 
-    cur_lin_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
-    cur_ang_curves_[i]->setPen(kCurrentValueColor, kLineWidth);
-    tar_lin_curves_[i]->setPen(kTargetValueColor, kLineWidth);
-    tar_ang_curves_[i]->setPen(kTargetValueColor, kLineWidth);
+    cur_lin_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    cur_ang_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    tar_lin_curves_[i].setPen(kTargetValueColor, kLineWidth);
+    tar_ang_curves_[i].setPen(kTargetValueColor, kLineWidth);
 
-    cur_lin_curves_[i]->attach(lin_plots_[i]);
-    cur_ang_curves_[i]->attach(ang_plots_[i]);
-    tar_lin_curves_[i]->attach(lin_plots_[i]);
-    tar_ang_curves_[i]->attach(ang_plots_[i]);
+    cur_lin_curves_[i].attach(lin_plots_[i]);
+    cur_ang_curves_[i].attach(ang_plots_[i]);
+    tar_lin_curves_[i].attach(lin_plots_[i]);
+    tar_ang_curves_[i].attach(ang_plots_[i]);
   }
 }
 
@@ -92,8 +83,8 @@ void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
 
   for (size_t i = 0; i < 3; ++i)
   {
-    cur_lin_curves_[i]->setSamples(t_data, lin_data[i]);
-    cur_ang_curves_[i]->setSamples(t_data, ang_data[i]);
+    cur_lin_curves_[i].setSamples(t_data, lin_data[i]);
+    cur_ang_curves_[i].setSamples(t_data, ang_data[i]);
   }
 }
 
@@ -121,8 +112,8 @@ void TwistPlotWidget::updateTargetSamples(
 
   for (size_t i = 0; i < 3; ++i)
   {
-    tar_lin_curves_[i]->setSamples(t_data, lin_data[i]);
-    tar_ang_curves_[i]->setSamples(t_data, ang_data[i]);
+    tar_lin_curves_[i].setSamples(t_data, lin_data[i]);
+    tar_ang_curves_[i].setSamples(t_data, ang_data[i]);
   }
 }
 }  // namespace log

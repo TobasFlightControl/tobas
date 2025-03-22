@@ -57,28 +57,22 @@ void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
 
   num_rotors_ = msg.states.size();
 
-  plots_.resize(num_rotors_);
-  cur_speed_curves_.resize(num_rotors_);
-  tar_speed_curves_.resize(num_rotors_);
-
   for (const auto& [idx, state] : std::views::enumerate(msg.states))
   {
     name2idx_[state.link_name] = idx;
 
-    plots_[idx] = new QwtPlot2();
+    plots_.push_back(new QwtPlot2());
 
     // N行2列の格子状に配置
-    grid_->addWidget(plots_[idx], idx / 2, idx % 2);
+    grid_->addWidget(plots_.back(), idx / 2, idx % 2);
 
-    cur_speed_curves_[idx] =
-      std::make_shared<qwt::QwtPlotCurveWrapper>("Current Speed (" + QString::fromStdString(state.link_name) + ")");
-    cur_speed_curves_[idx]->setPen(kCurrentValueColor, kLineWidth);
-    cur_speed_curves_[idx]->attach(plots_[idx]);
+    cur_speed_curves_.push_back("Current Speed (" + QString::fromStdString(state.link_name) + ")");
+    cur_speed_curves_.back().setPen(kCurrentValueColor, kLineWidth);
+    cur_speed_curves_.back().attach(plots_.back());
 
-    tar_speed_curves_[idx] =
-      std::make_shared<qwt::QwtPlotCurveWrapper>("Target Speed (" + QString::fromStdString(state.link_name) + ")");
-    tar_speed_curves_[idx]->setPen(kTargetValueColor, kLineWidth);
-    tar_speed_curves_[idx]->attach(plots_[idx]);
+    tar_speed_curves_.push_back("Target Speed (" + QString::fromStdString(state.link_name) + ")");
+    tar_speed_curves_.back().setPen(kTargetValueColor, kLineWidth);
+    tar_speed_curves_.back().attach(plots_.back());
   }
 }
 
@@ -114,7 +108,7 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
   }
 
   for (size_t i = 0; i < num_rotors_; ++i)
-    cur_speed_curves_[i]->setSamples(t_data[i], speed_data[i]);
+    cur_speed_curves_[i].setSamples(t_data[i], speed_data[i]);
 }
 
 void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs)
@@ -146,7 +140,7 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
   }
 
   for (size_t i = 0; i < num_rotors_; ++i)
-    tar_speed_curves_[i]->setSamples(t_data[i], speed_data[i]);
+    tar_speed_curves_[i].setSamples(t_data[i], speed_data[i]);
 }
 }  // namespace log
 }  // namespace gui

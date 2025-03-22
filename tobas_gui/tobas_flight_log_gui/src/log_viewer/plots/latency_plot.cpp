@@ -9,20 +9,19 @@ namespace gui
 namespace log
 {
 LatencyPlotWidget::LatencyPlotWidget()
+  : sampling_time_curve_("IMU Sampling Time"), ctrl_latency_curve_("Control Latency")
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  sampling_time_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("IMU Sampling Time");
   sampling_time_plot_ = new QwtPlot2();
-  sampling_time_curve_->setPen(Qt::black, kLineWidth);
-  sampling_time_curve_->attach(sampling_time_plot_);
+  sampling_time_curve_.setPen(Qt::black, kLineWidth);
+  sampling_time_curve_.attach(sampling_time_plot_);
   rows->addWidget(sampling_time_plot_);
 
-  ctrl_latency_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Control Latency");
   ctrl_latency_plot_ = new QwtPlot2();
-  ctrl_latency_curve_->setPen(Qt::black, kLineWidth);
-  ctrl_latency_curve_->attach(ctrl_latency_plot_);
+  ctrl_latency_curve_.setPen(Qt::black, kLineWidth);
+  ctrl_latency_curve_.attach(ctrl_latency_plot_);
   rows->addWidget(ctrl_latency_plot_);
 }
 
@@ -43,7 +42,7 @@ void LatencyPlotWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Laten
     sampling_time_data.push_back(ros2::microseconds(sampling_time.data));
   }
 
-  sampling_time_curve_->setSamples(t_data, sampling_time_data);
+  sampling_time_curve_.setSamples(t_data, sampling_time_data);
   sampling_time_plot_->replot();
 }
 
@@ -58,7 +57,7 @@ void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Lat
     ctrl_latency_data.push_back(ros2::microseconds(ctrl_latency.data));
   }
 
-  ctrl_latency_curve_->setSamples(t_data, ctrl_latency_data);
+  ctrl_latency_curve_.setSamples(t_data, ctrl_latency_data);
   ctrl_latency_plot_->replot();
 }
 }  // namespace log
