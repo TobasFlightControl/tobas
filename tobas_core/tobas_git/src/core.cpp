@@ -11,7 +11,7 @@ std::string getGitConfigValue(const char* key)
 
   git_config* config = nullptr;
   git_config_entry* entry = nullptr;
-  std::string value;
+  std::string value = "";
 
   if (git_config_open_default(&config) == 0)
   {
