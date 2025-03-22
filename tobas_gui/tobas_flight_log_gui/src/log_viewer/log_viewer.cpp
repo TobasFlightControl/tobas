@@ -45,6 +45,7 @@ void FlightLogViewerWidget::reset()
   battery_decoder_.clearCache();
   cur_rotor_states_decoder_.clearCache();
   tar_rotor_speeds_decoder_.clearCache();
+  ice_cmd_decoder_.clearCache();
   sampling_time_decoder_.clearCache();
   ctrl_latency_decoder_.clearCache();
   dist_force_decoder_.clearCache();
@@ -114,6 +115,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Battery> battery_data;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data;
   QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data;
+  QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data;
   QVector<tobas_msgs::msg::Latency> sampling_time_data;
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
@@ -149,6 +151,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         cur_rotor_states_data.push_back(cur_rotor_states_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic)))
         tar_rotor_speeds_data.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic)))
+        ice_cmd_data.push_back(ice_cmd_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic)))
         sampling_time_data.push_back(sampling_time_decoder_.decode(cur_time, ser_msg));
       else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic)))
@@ -178,6 +182,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setMagData(mag_data);
     plot_tab->setGnssData(gnss_data);
     plot_tab->setBatteryData(battery_data);
+    plot_tab->setEngineData(ice_cmd_data);
     plot_tab->setRotorSpeedData(cur_rotor_states_data, tar_rotor_speeds_data);
     plot_tab->setSamplingTimeData(sampling_time_data);
     plot_tab->setControlLatencyData(ctrl_latency_data);

@@ -80,6 +80,11 @@ void PlotTabWidget::setBatteryData(const QVector<tobas_msgs::msg::Battery>& _dat
   battery_plot_->setData(_data);
 }
 
+void PlotTabWidget::setEngineData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data)
+{
+  engine_plot_->setData(ice_cmd_data);
+}
+
 void PlotTabWidget::setRotorSpeedData(
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data)

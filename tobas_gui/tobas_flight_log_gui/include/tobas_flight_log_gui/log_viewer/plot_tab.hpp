@@ -9,6 +9,7 @@
 #include "./plots/mag_plot.hpp"
 #include "./plots/gnss_plot.hpp"
 #include "./plots/battery_plot.hpp"
+#include "./plots/engine_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/latency_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
@@ -41,6 +42,7 @@ public:
   void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
   void setGnssData(const QVector<tobas_msgs::msg::Gnss>& _data);
   void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
+  void setEngineData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data);
   void setRotorSpeedData(
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
     const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data);
@@ -58,6 +60,7 @@ private:
   MagPlotWidget* mag_plot_;
   GnssPlotWidget* gnss_plot_;
   BatteryPlotWidget* battery_plot_;
+  EnginePlotWidget* engine_plot_;
   RotorSpeedPlotWidget* rotor_speed_plot_;
   LatencyPlotWidget* latency_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;

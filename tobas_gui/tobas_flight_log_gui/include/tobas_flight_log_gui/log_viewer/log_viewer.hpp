@@ -37,6 +37,7 @@ private:
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorStateArray> cur_rotor_states_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_decoder_;
+  MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> sampling_time_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> ctrl_latency_decoder_;
   MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> dist_force_decoder_;
