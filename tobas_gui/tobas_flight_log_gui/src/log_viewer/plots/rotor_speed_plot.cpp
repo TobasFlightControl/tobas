@@ -59,7 +59,11 @@ void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
 
   for (const auto& [idx, state] : std::views::enumerate(msg.states))
   {
-    name2idx_[state.link_name] = idx;
+    if (!name2idx_.insert({ state.link_name, idx }).second)
+    {
+      qWarning() << "Rotor \"" << QString::fromStdString(state.link_name) << "\" is duplicated.";
+      continue;
+    }
 
     plots_.push_back(new QwtPlot2());
 
