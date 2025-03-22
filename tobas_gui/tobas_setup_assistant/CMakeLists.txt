@@ -27,6 +27,7 @@ find_package(moveit_msgs REQUIRED)
 find_package(inja_ament REQUIRED)
 find_package(rapidcsv_ament REQUIRED)
 find_package(tobas_string_tools REQUIRED)
+find_package(tobas_git REQUIRED)
 find_package(tobas_kdl_parser REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
@@ -42,6 +43,7 @@ set(AMENT_DEPENDENCIES
   inja_ament
   rapidcsv_ament
   tobas_string_tools
+  tobas_git
   tobas_kdl_parser
   tobas_ros2_tools
   tobas_property_client

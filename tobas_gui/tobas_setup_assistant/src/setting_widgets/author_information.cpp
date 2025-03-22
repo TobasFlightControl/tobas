@@ -1,5 +1,6 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_git/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/author_information.hpp"
@@ -11,9 +12,11 @@ namespace sa
 AuthorInformationWidget::AuthorInformationWidget()
 {
   name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
+  name_->setValue(QString::fromStdString(git::getGitConfigValue("user.name")));
   addWidget(name_);
 
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
+  email_->setValue(QString::fromStdString(git::getGitConfigValue("user.email")));
   addWidget(email_);
 
   addStretch();
