@@ -13,6 +13,7 @@ PlotTabWidget::PlotTabWidget()
   mag_plot_ = new MagPlotWidget();
   gnss_plot_ = new GnssPlotWidget();
   battery_plot_ = new BatteryPlotWidget();
+  engine_plot_ = new EnginePlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
@@ -26,6 +27,7 @@ PlotTabWidget::PlotTabWidget()
   addTab(mag_plot_, "Magnetic\nField");
   addTab(gnss_plot_, "GNSS");
   addTab(battery_plot_, "Battery");
+  addTab(engine_plot_, "Engine");
   addTab(rotor_speed_plot_, "Rotor Speed");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
@@ -44,6 +46,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   mag_plot_->setTimeScale(t_start, t_stop);
   gnss_plot_->setTimeScale(t_start, t_stop);
   battery_plot_->setTimeScale(t_start, t_stop);
+  engine_plot_->setTimeScale(t_start, t_stop);
   rotor_speed_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
   dist_force_plot_->setTimeScale(t_start, t_stop);
