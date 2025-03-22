@@ -33,7 +33,6 @@
 	<exec_depend>tobas_landing_detection</exec_depend>
 	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
-	<exec_depend>tobas_matrix_euler_conversion</exec_depend>
 	<exec_depend>tobas_mission_msgs</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_msgs_adapter</exec_depend>
