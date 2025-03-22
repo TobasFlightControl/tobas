@@ -38,11 +38,11 @@ PropellerWidget::PropellerWidget()
   pitch_limit_->setSuffix(" deg");
   rows->addWidget(pitch_limit_);
 
-  pitch_ref_ = new ParamGetterWidget_SpinBox("Max Pitch Angle Rate", "");  // TODO
-  pitch_ref_->setMinimum(0);
-  pitch_ref_->setValue(600);
-  pitch_ref_->setSuffix(" dps");
-  rows->addWidget(pitch_ref_);
+  max_pitch_rate_ = new ParamGetterWidget_SpinBox("Max Pitch Angle Rate", "");  // TODO
+  max_pitch_rate_->setMinimum(0);
+  max_pitch_rate_->setValue(600);
+  max_pitch_rate_->setSuffix(" dps");
+  rows->addWidget(max_pitch_rate_);
 
   rows->addStretch();
 }
@@ -64,7 +64,7 @@ void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
   num_blade_->setValue(derived->num_blade_->getValue());
   pitch_ref_->setValue(derived->pitch_ref_->getValue());
   pitch_limit_->setValue(derived->pitch_limit_->getValue());
-  pitch_ref_->setValue(derived->pitch_ref_->getValue());
+  max_pitch_rate_->setValue(derived->max_pitch_rate_->getValue());
 }
 
 YAML::Node PropellerWidget::dump() const
@@ -74,7 +74,7 @@ YAML::Node PropellerWidget::dump() const
   node[num_blade_->name()] = num_blade_->getValue();
   node[pitch_ref_->name()] = pitch_ref_->getValue();
   node[pitch_limit_->name()] = pitch_limit_->getValue();
-  node[pitch_ref_->name()] = pitch_ref_->getValue();
+  node[max_pitch_rate_->name()] = max_pitch_rate_->getValue();
 
   return node;
 }
@@ -84,7 +84,7 @@ void PropellerWidget::load(const YAML::Node& node)
   num_blade_->setValue(node[num_blade_->name()].as<int>());
   pitch_ref_->setValue(node[pitch_ref_->name()].as<int>());
   pitch_limit_->setValue(node[pitch_limit_->name()].as<tobas_std::Range<int>>());
-  pitch_ref_->setValue(node[pitch_ref_->name()].as<int>());
+  max_pitch_rate_->setValue(node[max_pitch_rate_->name()].as<int>());
 }
 
 int PropellerWidget::numBlade() const
