@@ -223,9 +223,9 @@ tobas::Drone PackageGenerator::createDrone()
       engine_pwm.channel = engine_widget->hardwareIface()->pwmChannel();
       engine_pwm.name = tobas::pwm::kEngineThrottleKey;
       engine_pwm.period_range.lower = engine_widget->hardwareIface()->pwmPeriodZeroThrot();
-      engine_pwm.period_range.lower = engine_widget->hardwareIface()->pwmPeriodFullThrot();
+      engine_pwm.period_range.upper = engine_widget->hardwareIface()->pwmPeriodFullThrot();
       engine_pwm.value_range.lower = tobas::kMinThrot;
-      engine_pwm.value_range.lower = tobas::kMaxThrot;
+      engine_pwm.value_range.upper = tobas::kMaxThrot;
       engine_pwm.reverse = false;
       TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
 
