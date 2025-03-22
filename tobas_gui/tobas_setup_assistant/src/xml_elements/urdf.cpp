@@ -254,7 +254,7 @@ void addICEPropulsionSystemPlugin(
 {
   // robot/gazebo/plugin
   const auto plugin = util::addGazeboPlugin(
-    robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
+    robot, "tobas_gazebo_ice_propulsion_system_plugin", "gazebo::GazeboICEPropulsionSystemPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
 
   // robot/gazebo/plugin/engine
