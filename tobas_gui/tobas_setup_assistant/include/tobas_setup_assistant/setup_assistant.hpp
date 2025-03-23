@@ -4,7 +4,7 @@
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 #include "./constants.hpp"
-#include "./robot_info.hpp"
+#include "./rotor_marker_publisher.hpp"
 #include "./package_generator.hpp"
 #include "./build_package_thread.hpp"
 #include "./start/start.hpp"
@@ -32,10 +32,10 @@ public:
 private:
   RobotInfo robot_;
   Signals signals_;
+  RotorMarkerPublisher rotor_marker_publisher_;
+
   std::unique_ptr<PackageGenerator> pkg_generator_;
-
   ros2::SyncParamClient rsp_client_;
-
   qt::WaitSpinnerWidget spinner_;
   BuildPackageThread build_thread_;
 

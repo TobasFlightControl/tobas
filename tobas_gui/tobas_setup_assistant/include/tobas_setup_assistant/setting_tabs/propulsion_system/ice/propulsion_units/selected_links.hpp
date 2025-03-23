@@ -1,10 +1,5 @@
 #pragma once
 
-#include <QTimer>
-#include <visualization_msgs/msg/marker_array.hpp>
-
-#include <tobas_ros2_tools/definitions.hpp>
-
 #include "tobas_setup_assistant/robot_info.hpp"
 #include "./selected_link.hpp"
 
@@ -25,7 +20,6 @@ class SelectedLinksWidget : public qt::TabWidget
 
   static constexpr int kTabWidth = 150;
   static constexpr int kTabHeight = 50;
-  static constexpr double kArrowLength = 0.2;  // TODO: 想定される推力の最大値を矢印の長さに反映
 
 Q_SIGNALS:
   void linkRemoved(const QString& link_name);
@@ -35,7 +29,6 @@ public:
 
   void updateInternalDataStructures();
 
-  void clear();
   bool isValid();
 
   void addLink(const QString& link_name);
@@ -56,16 +49,6 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
-
-  visualization_msgs::msg::MarkerArray markers_;
-  ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
-
-  QTimer publish_markers_timer_;
-
-  /* 指定されたリンクのマーカのアクションを設定する． */
-  void setAction(const QString& link_name, int action);
-
-  void publishTimerCb();
 
 private Q_SLOTS:
   void onTabCloseRequested(int index);
