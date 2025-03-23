@@ -60,7 +60,7 @@ private:
   bool generatePreArmCheckConfig(const std::filesystem::path& config_dir);
   bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
   bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
-  bool generateURDF(const std::filesystem::path& mesh_dir);
+  bool generateURDFs(const std::filesystem::path& mesh_dir);
 
   /* 空のファイルを作成する． */
   bool createEmptyFile(const std::filesystem::path& file_path);

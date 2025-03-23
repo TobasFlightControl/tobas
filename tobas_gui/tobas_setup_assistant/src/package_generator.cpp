@@ -346,14 +346,6 @@ bool PackageGenerator::generateBackupFiles()
   if (!saveYamlNode(common::getSettingsPath(tbs_path), backup_data))
     return false;
 
-  // オリジナルURDF
-  const auto doc = urdf::exportURDF(*robot_.urdf());
-  if (doc->SaveFile(common::getOriginalURDFPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS)
-  {
-    qt::qErrorBox(settings_, "Failed to save the original URDF.");
-    return false;
-  }
-
   return true;
 }
 
@@ -428,7 +420,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateObserverStaticConfig(config_dir))
     return false;
-  if (!generateURDF(mesh_dir))
+  if (!generateURDFs(mesh_dir))
     return false;
 
   return true;
@@ -671,7 +663,7 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateURDF(const fs::path& mesh_dir)
+bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
 {
   // Export the original URDF
   // コメントやGazeboプラグインなどの不確定要素を排するため，テキストそのままではなく一度URDFオブジェクトを介してエクスポートする．
@@ -685,10 +677,19 @@ bool PackageGenerator::generateURDF(const fs::path& mesh_dir)
     return false;
   }
 
+  // Resolve mesh file paths
+  if (!resolveMeshFiles(robot, mesh_dir))
+    return false;
+
+  // Save original URDF
+  if (doc->SaveFile(common::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
+  {
+    qt::qErrorBox(settings_, "Failed to save the original URDF.");
+    return false;
+  }
+
   // Modify robot
   if (!removePropellerJointLimits(robot))
-    return false;
-  if (!resolveMeshFiles(robot, mesh_dir))
     return false;
   if (!addXMLElements(robot))
     return false;
