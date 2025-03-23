@@ -67,12 +67,8 @@ YAML::Node ActiveTiltSettingsWidget::dump() const
 
 void ActiveTiltSettingsWidget::load(const YAML::Node& node)
 {
-  blockSignals(true);
-
   is_tilt_->setChecked(node[kIsTiltKey].as<bool>());
   tilt_joint_name_->setCurrentText(node[kTiltJointNameKey].as<QString>());
-
-  blockSignals(false);
 }
 
 bool ActiveTiltSettingsWidget::isTiltRotor() const

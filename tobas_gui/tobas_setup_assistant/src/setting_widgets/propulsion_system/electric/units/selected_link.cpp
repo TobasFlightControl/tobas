@@ -93,15 +93,11 @@ YAML::Node SelectedLinkWidget::dump() const
 
 void SelectedLinkWidget::load(const YAML::Node& node)
 {
-  blockSignals(true);
-
   for (int i = 0; i < tabs_->count(); ++i)
   {
     const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
     widget->load(node[widget->name()]);
   }
-
-  blockSignals(false);
 }
 
 const GeneralWidget* SelectedLinkWidget::general() const

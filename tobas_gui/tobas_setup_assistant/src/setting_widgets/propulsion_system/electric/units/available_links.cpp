@@ -96,6 +96,7 @@ void AvailableLinksWidget::removeLink(const QString& link_name)
 {
   const auto link_item = findLink(link_name);
   remove(link_item);
+  Q_EMIT linkRemoved(link_name);
 }
 
 QListWidgetItem* AvailableLinksWidget::findLink(const QString& link_name)
@@ -115,7 +116,6 @@ QListWidgetItem* AvailableLinksWidget::findLink(const QString& link_name)
 void AvailableLinksWidget::onAddButtonClicked(const QString& link_name)
 {
   removeLink(link_name);
-  Q_EMIT linkRemoved(link_name);
 }
 }  // namespace electric
 }  // namespace propulsion

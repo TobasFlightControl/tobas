@@ -169,8 +169,6 @@ YAML::Node JointConfigurationWidget::dump() const
 
 void JointConfigurationWidget::load(const YAML::Node& node)
 {
-  blockSignals(true);
-
   // 各フィールドの値と有効無効を設定
   for (const auto& pair : node)
   {
@@ -201,8 +199,6 @@ void JointConfigurationWidget::load(const YAML::Node& node)
     if (propulsion_->isTiltRotor(i))
       tilt_joint_map_[propulsion_->linkName(i)] = propulsion_->tiltJointName(i);
   }
-
-  blockSignals(false);
 }
 
 QString JointConfigurationWidget::getLinkName(int row) const

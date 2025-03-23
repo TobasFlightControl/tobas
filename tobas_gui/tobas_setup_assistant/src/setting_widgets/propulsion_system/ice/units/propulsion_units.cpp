@@ -64,8 +64,6 @@ YAML::Node PropulsionUnitsWidget::dump() const
 
 void PropulsionUnitsWidget::load(const YAML::Node& node)
 {
-  blockSignals(true);
-
   for (const auto& pair : node)
   {
     const auto link_name = pair.first.as<QString>();
@@ -73,13 +71,10 @@ void PropulsionUnitsWidget::load(const YAML::Node& node)
 
     // リンクをAvailableからSelectedに移動させる
     available_->removeLink(link_name);
-    selected_->addLink(link_name);
 
     // 選択リンクの設定を更新
     selected_->widget(link_name)->load(sub_node);
   }
-
-  blockSignals(false);
 }
 
 const AvailableLinksWidget* PropulsionUnitsWidget::available() const
