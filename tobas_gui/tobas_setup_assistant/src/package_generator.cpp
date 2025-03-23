@@ -43,10 +43,6 @@ bool PackageGenerator::generatePackage()
     return false;
   }
 
-  // バックアップファイルを作成
-  if (!generateBackupFiles())
-    return false;
-
   // テンプレート用アイテムを作成
   const auto tpl_data = createTemplateData();
 
@@ -64,6 +60,10 @@ bool PackageGenerator::generatePackage()
 
   // ユーザ用Pythonパッケージを作成
   if (!generateUserPyPackage(tpl_data))
+    return false;
+
+  // バックアップファイルを作成
+  if (!generateBackupFiles())
     return false;
 
   return true;
@@ -333,22 +333,6 @@ bool PackageGenerator::hasServoJoint() const
   return false;
 }
 
-bool PackageGenerator::generateBackupFiles()
-{
-  const auto tbs_path = tbsPath();
-
-  // ディレクトリを作成
-  const auto backup_dir = common::getBackupPath(tbs_path);
-  fs::create_directory(backup_dir);
-
-  // 設定ファイル
-  const auto backup_data = settings_->dump();
-  if (!saveYamlNode(common::getSettingsPath(tbs_path), backup_data))
-    return false;
-
-  return true;
-}
-
 bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 {
   const auto meta_pkg_path = common::getTBSMetaPath(tbsPath());
@@ -420,7 +404,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateObserverStaticConfig(config_dir))
     return false;
-  if (!generateURDFs(mesh_dir))
+  if (!generateModifiedURDF(mesh_dir))
     return false;
 
   return true;
@@ -484,6 +468,33 @@ bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
     return false;
   if (!createEmptyFile(lib_dir / "__init__.py"))
     return false;
+
+  return true;
+}
+
+bool PackageGenerator::generateBackupFiles()
+{
+  const auto tbs_path = tbsPath();
+
+  // ディレクトリを作成
+  const auto backup_dir = common::getBackupPath(tbs_path);
+  fs::create_directory(backup_dir);
+
+  // 設定ファイル
+  const auto backup_data = settings_->dump();
+  if (!saveYamlNode(common::getSettingsPath(tbs_path), backup_data))
+    return false;
+
+  // Save original URDF
+  const auto doc = urdf::exportURDF(*robot_.urdf());
+  const auto robot = doc->RootElement();
+  if (!replaceOriginalUrdfMeshFilePaths(robot))
+    return false;
+  if (doc->SaveFile(common::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
+  {
+    qt::qErrorBox(settings_, "Failed to save the original URDF.");
+    return false;
+  }
 
   return true;
 }
@@ -663,32 +674,15 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
+bool PackageGenerator::generateModifiedURDF(const fs::path& mesh_dir)
 {
   // Export the original URDF
-  // コメントやGazeboプラグインなどの不確定要素を排するため，テキストそのままではなく一度URDFオブジェクトを介してエクスポートする．
   const auto doc = urdf::exportURDF(*robot_.urdf());
-
-  // Get robot element
   const auto robot = doc->RootElement();
-  if (strcmp(robot->Name(), "robot") != 0)
-  {
-    qt::qErrorBox(settings_, "Robot description is invalid.");
-    return false;
-  }
-
-  // Resolve mesh file paths
-  if (!resolveMeshFiles(robot, mesh_dir))
-    return false;
-
-  // Save original URDF
-  if (doc->SaveFile(common::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
-  {
-    qt::qErrorBox(settings_, "Failed to save the original URDF.");
-    return false;
-  }
 
   // Modify robot
+  if (!resolveModifiedUrdfMeshFilePaths(robot, mesh_dir))
+    return false;
   if (!removePropellerJointLimits(robot))
     return false;
   if (!addXMLElements(robot))
@@ -737,45 +731,7 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
   return true;
 }
 
-bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
-{
-  set<string> prop_jnt_names;
-  const auto& prop = settings_->propulsion_system;
-  for (int i = 0; i < prop->numUnits(); ++i)
-  {
-    const auto link_name = prop->linkName(i).toStdString();
-    const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
-    prop_jnt_names.insert(jnt_name);
-  }
-
-  for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement())
-  {
-    if (strcmp(child->Name(), "joint") == 0)
-    {
-      const auto jnt_name = child->Attribute("name");
-      if (!jnt_name)
-      {
-        qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
-        return false;
-      }
-      if (prop_jnt_names.contains(jnt_name))
-      {
-        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement())
-        {
-          if (strcmp(gchild->Name(), "limit") == 0)
-          {
-            child->DeleteChild(gchild);
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  return true;
-}
-
-bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::path& mesh_dir)
+bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& mesh_dir)
 {
   if (strcmp(elem->Name(), "mesh") == 0)
   {
@@ -826,8 +782,74 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
 
   // 再帰的に子要素もチェック
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement())
-    if (!resolveMeshFiles(child, mesh_dir))
+    if (!resolveModifiedUrdfMeshFilePaths(child, mesh_dir))
       return false;
+
+  return true;
+}
+
+bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
+{
+  if (strcmp(elem->Name(), "mesh") == 0)
+  {
+    const auto file_name = elem->Attribute("filename");
+    if (!file_name)
+    {
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      return false;
+    }
+
+    const auto src_path = ros2::resolveURI(file_name);
+    const auto base_name = src_path.filename();
+    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+
+    // パス解決できなくてもエラーを出さない形式に置換
+    const auto new_file_name = "package://" + config_pkg_name + "/meshes/" + base_name.string();
+    elem->SetAttribute("filename", new_file_name.c_str());
+  }
+
+  // 再帰的に子要素もチェック
+  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement())
+    if (!replaceOriginalUrdfMeshFilePaths(child))
+      return false;
+
+  return true;
+}
+
+bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
+{
+  set<string> prop_jnt_names;
+  const auto& prop = settings_->propulsion_system;
+  for (int i = 0; i < prop->numUnits(); ++i)
+  {
+    const auto link_name = prop->linkName(i).toStdString();
+    const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
+    prop_jnt_names.insert(jnt_name);
+  }
+
+  for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement())
+  {
+    if (strcmp(child->Name(), "joint") == 0)
+    {
+      const auto jnt_name = child->Attribute("name");
+      if (!jnt_name)
+      {
+        qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
+        return false;
+      }
+      if (prop_jnt_names.contains(jnt_name))
+      {
+        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement())
+        {
+          if (strcmp(gchild->Name(), "limit") == 0)
+          {
+            child->DeleteChild(gchild);
+            break;
+          }
+        }
+      }
+    }
+  }
 
   return true;
 }

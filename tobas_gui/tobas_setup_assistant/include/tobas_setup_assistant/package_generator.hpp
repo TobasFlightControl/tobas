@@ -46,11 +46,11 @@ private:
 
   bool hasServoJoint() const;
 
-  bool generateBackupFiles();
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);
   bool generateUserCppPackage(const inja::json& data);
   bool generateUserPyPackage(const inja::json& data);
+  bool generateBackupFiles();
 
   bool generateControllerManagerLaunch(const std::filesystem::path& launch_dir);
   bool generateJointControllerManagerConfig(const std::filesystem::path& config_dir);
@@ -60,7 +60,7 @@ private:
   bool generatePreArmCheckConfig(const std::filesystem::path& config_dir);
   bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
   bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
-  bool generateURDFs(const std::filesystem::path& mesh_dir);
+  bool generateModifiedURDF(const std::filesystem::path& mesh_dir);
 
   /* 空のファイルを作成する． */
   bool createEmptyFile(const std::filesystem::path& file_path);
@@ -71,11 +71,14 @@ private:
   /* YAML::Nodeを保存する． */
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
 
+  /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
+  bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& mesh_dir);
+
+  /* オリジナルURDFの全てのメッシュファイルのパスをパッケージ以下に変更する． */
+  bool replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem);
+
   /* プロペラジョイントのlimitタグを削除する． */
   bool removePropellerJointLimits(tinyxml2::XMLElement* robot);
-
-  /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  bool resolveMeshFiles(tinyxml2::XMLElement* elem, const std::filesystem::path& mesh_dir);
 
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXMLElements(tinyxml2::XMLElement* robot);
