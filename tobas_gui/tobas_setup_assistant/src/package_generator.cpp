@@ -749,9 +749,10 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       return false;
     }
 
+    // メッシュファイルをTobasパッケージ以下にコピー
     const auto base_name = src_path.filename();
     const auto dst_path = mesh_dir / base_name;
-    if (src_path != dst_path)
+    if (!fs::equivalent(src_path, dst_path))
     {
       if (fs::exists(dst_path))
       {
@@ -762,7 +763,6 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
         }
       }
 
-      // メッシュファイルをTobasパッケージ以下にコピー
       if (!fs::copy_file(src_path, dst_path))
       {
         qt::qErrorBox(
@@ -770,14 +770,14 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
           "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
         return false;
       }
-
-      // メッシュファイルへのパスを置換
-      // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
-      // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
-      const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-      const auto new_file_name = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
-      elem->SetAttribute("filename", new_file_name.c_str());
     }
+
+    // メッシュファイルへのパスを置換
+    // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
+    // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
+    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+    const auto new_file_name = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
+    elem->SetAttribute("filename", new_file_name.c_str());
   }
 
   // 再帰的に子要素もチェック
@@ -801,10 +801,12 @@ bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* el
 
     const auto src_path = ros2::resolveURI(file_name);
     const auto base_name = src_path.filename();
-    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+    const auto config_pkg_path = common::getTBSConfigPath(tbsPath());
 
-    // パス解決できなくてもエラーを出さない形式に置換
-    const auto new_file_name = "package://" + config_pkg_name + "/meshes/" + base_name.string();
+    // Tobasパッケージがビルドされてなくても読み込めるようにconfigパッケージ内の絶対パスに変更
+    // TODO: 可搬性を高めるために相対パスで保存する
+    const auto new_file_path = config_pkg_path / "meshes" / base_name;
+    const auto new_file_name = "file://" + new_file_path.string();
     elem->SetAttribute("filename", new_file_name.c_str());
   }
 
