@@ -36,7 +36,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   addWidget(propulsion_stack_);
 
   // Connection
-  connect(type_buttons_, &QButtonGroup::idToggled, propulsion_stack_, &qt::StackedWidget::setCurrentIndex);
+  connect(type_buttons_, &QButtonGroup::idToggled, this, &self::onPropulsionTypeChanged);
 }
 
 const char* PropulsionSystemWidget::name() const
@@ -153,6 +153,18 @@ BasePropulsionSystemWidget* PropulsionSystemWidget::selected()
 const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 {
   return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
+}
+
+void PropulsionSystemWidget::onPropulsionTypeChanged(int index)
+{
+  // 全ての設定をリセット
+  for (int i = 0; i < propulsion_stack_->count(); ++i)
+  {
+    const auto propulsion = widget(i);
+    propulsion->reset();
+  }
+
+  propulsion_stack_->setCurrentIndex(index);
 }
 }  // namespace propulsion
 }  // namespace sa

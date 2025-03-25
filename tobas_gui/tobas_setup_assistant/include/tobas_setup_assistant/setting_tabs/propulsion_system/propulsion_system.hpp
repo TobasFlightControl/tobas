@@ -57,6 +57,9 @@ public:
 private:
   QButtonGroup* type_buttons_;
   qt::StackedWidget* propulsion_stack_;
+
+private Q_SLOTS:
+  void onPropulsionTypeChanged(int index);
 };
 };  // namespace propulsion
 }  // namespace sa

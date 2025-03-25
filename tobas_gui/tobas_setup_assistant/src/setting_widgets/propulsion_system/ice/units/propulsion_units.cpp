@@ -33,6 +33,12 @@ PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const
   connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
 }
 
+void PropulsionUnitsWidget::clear()
+{
+  while (selected_->numUnits() > 0)
+    selected_->removeLink(selected_->linkName(0));
+}
+
 void PropulsionUnitsWidget::updateInternalDataStructures()
 {
   available_->updateInternalDataStructures();

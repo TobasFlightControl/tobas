@@ -22,6 +22,7 @@ class PropulsionUnitsWidget : public QWidget
 public:
   explicit PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
 
+  void clear();
   void updateInternalDataStructures();
   bool isValid();
 
