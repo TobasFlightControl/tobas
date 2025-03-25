@@ -15,6 +15,7 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   setLayout(rows);
 
   tabs_ = new qt::VerticalTabWidget();
+  tabs_->ignoreWheelEvent();  // 不可視なタブのウィジェットを表示しないように
   rows->addWidget(tabs_);
 
   network_setting_ = new NetworkSettingWidget(node);
