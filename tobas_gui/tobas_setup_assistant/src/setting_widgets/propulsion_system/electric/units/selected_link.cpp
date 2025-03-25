@@ -33,7 +33,7 @@ SelectedLinkWidget::SelectedLinkWidget(
   button_cols->addStretch();
 
   tabs_ = new qt::TabWidget();
-  tabs_->ignoreWheelEvent();
+  tabs_->enableWheelEvent(false);
   tabs_->setTabSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 

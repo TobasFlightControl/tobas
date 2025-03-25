@@ -42,19 +42,9 @@ void VerticalTabBar::paintEvent(QPaintEvent*)
   }
 }
 
-void VerticalTabBarWithNoWheelEvent::wheelEvent(QWheelEvent* event)
-{
-  event->ignore();
-}
-
 VerticalTabWidget::VerticalTabWidget(QWidget* parent) : super(parent)
 {
   setTabBar(new VerticalTabBar());
   setTabPosition(QTabWidget::West);
-}
-
-void VerticalTabWidget::ignoreWheelEvent()
-{
-  setTabBar(new VerticalTabBarWithNoWheelEvent());
 }
 }  // namespace qt

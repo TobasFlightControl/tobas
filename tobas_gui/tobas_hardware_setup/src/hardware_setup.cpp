@@ -15,7 +15,7 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   setLayout(rows);
 
   tabs_ = new qt::VerticalTabWidget();
-  tabs_->ignoreWheelEvent();  // 不可視なタブのウィジェットを表示しないように
+  tabs_->enableWheelEvent(false);  // 不可視なタブのウィジェットを表示しないように
   rows->addWidget(tabs_);
 
   network_setting_ = new NetworkSettingWidget(node);
@@ -42,6 +42,8 @@ void HardwareSetupWidget::reset()
     const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
     widget->reset();
   }
+
+  tabs_->setCurrentWidget(network_setting_);
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()
@@ -53,6 +55,21 @@ void HardwareSetupWidget::updateInternalDataStructures()
   rcin_calib_->setNamespace(drone_.name);
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
+
+  switch (drone_.prop->type())
+  {
+    case tobas::propulsion_system_t::ELECTRIC:
+      tabs_->setTabVisible(rotor_test_, true);
+      break;
+    case tobas::propulsion_system_t::ICE:
+      tabs_->setTabVisible(rotor_test_, false);
+      break;
+    default:
+      throw;
+  }
+
+  // タブを表示・非表示した際の歪みを整える
+  tabs_->update();
 }
 }  // namespace hw
 }  // namespace gui

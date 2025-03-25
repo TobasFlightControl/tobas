@@ -8,7 +8,7 @@ namespace propulsion
 {
 BasePropulsionSystemWidget::BasePropulsionSystemWidget()
 {
-  ignoreWheelEvent();
+  enableWheelEvent(false);
   setTabSize(kTabWidth, kTabHeight);
 }
 }  // namespace propulsion

@@ -15,7 +15,7 @@ namespace electric
 SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
   : node_(node), robot_(robot), signals_(_signals)
 {
-  ignoreWheelEvent();
+  enableWheelEvent(false);
   setTabSize(kTabWidth, kTabHeight);
   setMovable(true);
   setTabsClosable(true);

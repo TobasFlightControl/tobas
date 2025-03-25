@@ -15,7 +15,7 @@ namespace ice
 SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
 {
-  ignoreWheelEvent();
+  enableWheelEvent(false);
   setTabSize(kTabWidth, kTabHeight);
   setMovable(true);
   setTabsClosable(true);

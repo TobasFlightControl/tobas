@@ -5,16 +5,20 @@
 
 namespace qt
 {
-class TabBarWithNoWheelEvent : public QTabBar
+class TabBar : public QTabBar
 {
   Q_OBJECT
 
   using super = QTabBar;
 
 public:
-  using super::QTabBar;
+  void enableWheelEvent(bool enable);
 
+protected:
   void wheelEvent(QWheelEvent* event) override;
+
+private:
+  bool enable_wheel_event_ = true;
 };
 
 /**
@@ -29,15 +33,14 @@ class TabWidget : public QTabWidget
   using super = QTabWidget;
 
 public:
-  using super::QTabWidget;
+  explicit TabWidget(QWidget* parent = nullptr);
 
   /**
    * @brief マウスホイールイベントを無視する．
    * @note setMovableなどのTabBarの設定の前に呼ぶ必要がある．
    */
-  virtual void ignoreWheelEvent();
+  virtual void enableWheelEvent(bool enable);
 
-  void setCurrentWidget(QWidget* tab);
   void setTabVisible(QWidget* tab, bool visible);
 
   void setTabWidth(int width);
