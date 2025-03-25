@@ -16,13 +16,13 @@ StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Setting
   const auto new_ckb = new QCheckBox("Create new Tobas configuration package");
   urdf_loader_ = new URDFLoaderWidget(node, robot);
   ckb_group->addButton(new_ckb);
-  ckb_group->setId(new_ckb, 0);
+  ckb_group->setId(new_ckb, kNewId);
   stack->addWidget(urdf_loader_);
 
   const auto edit_ckb = new QCheckBox("Edit existing Tobas configuration package");
   package_loader_ = new PackageLoaderWidget(node, robot, settings);
   ckb_group->addButton(edit_ckb);
-  ckb_group->setId(edit_ckb, 1);
+  ckb_group->setId(edit_ckb, kEditId);
   stack->addWidget(package_loader_);
 
   new_ckb->setChecked(true);      // デフォルト
@@ -37,7 +37,7 @@ StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Setting
   setLayout(rows);
 
   // Connection
-  connect(ckb_group, &QButtonGroup::idClicked, stack, &QStackedWidget::setCurrentIndex);
+  connect(ckb_group, &QButtonGroup::idToggled, stack, &QStackedWidget::setCurrentIndex);
 }
 }  // namespace sa
 }  // namespace gui

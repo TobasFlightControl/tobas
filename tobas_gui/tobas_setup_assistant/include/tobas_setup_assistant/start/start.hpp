@@ -14,6 +14,9 @@ class StartWidget : public QWidget
   using self = StartWidget;
   using super = QWidget;
 
+  static constexpr int kNewId = 0;
+  static constexpr int kEditId = kNewId + 1;
+
 public:
   explicit StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
 
