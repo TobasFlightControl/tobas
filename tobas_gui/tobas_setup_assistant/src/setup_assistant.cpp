@@ -52,6 +52,10 @@ void SetupAssistantWidget::reset()
 void SetupAssistantWidget::onRobotLoaded()
 {
   rotor_marker_publisher_.updateInternalDataStructures();
+  settings_->updateInternalDataStructures();
+  rviz_->updateInternalDataStructures();
+  frame_tree_->updateInternalDataStructures();
+  jsp_->updateInternalDataStructures();
 
   // Update RSP parameter
   if (!rsp_client_.setParam("robot_description", robot_.urdfText()))

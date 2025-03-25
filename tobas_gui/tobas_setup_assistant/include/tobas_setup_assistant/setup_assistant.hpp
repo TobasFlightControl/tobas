@@ -39,11 +39,11 @@ private:
   qt::WaitSpinnerWidget spinner_;
   BuildPackageThread build_thread_;
 
-  StartWidget* start_;
-  FrameTreeWidget* frame_tree_;
-  RvizWidget* rviz_;
-  JointStatePublisherWidget* jsp_;
   SettingsWidget* settings_;
+  StartWidget* start_;
+  RvizWidget* rviz_;
+  FrameTreeWidget* frame_tree_;
+  JointStatePublisherWidget* jsp_;
 
 private Q_SLOTS:
   void onRobotLoaded();

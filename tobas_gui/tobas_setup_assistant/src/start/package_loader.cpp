@@ -105,14 +105,12 @@ void PackageLoaderWidget::onLoadButtonClicked()
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
 
   // URDFをロード
+  // Qtのイベント処理はスタックだからこの時点で設定が各ウィジェットに反映される
   if (!robot_.loadFromPath(urdf_path))
   {
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
-
-  // URDFを各ウィジェットに反映
-  settings_->updateInternalDataStructures();
 
   // ユーザ設定を読み込む
   YAML::Node node;

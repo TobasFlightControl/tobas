@@ -18,8 +18,8 @@ namespace gui
 {
 namespace sa
 {
-URDFLoaderWidget::URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
-  : node_(node), robot_(robot), settings_(settings), property_client_(node, tobas::kPropertyServerName, kPackageName)
+URDFLoaderWidget::URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
+  : node_(node), robot_(robot), property_client_(node, tobas::kPropertyServerName, kPackageName)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -83,9 +83,6 @@ void URDFLoaderWidget::onLoadButtonClicked()
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
-
-  // URDFを各ウィジェットに反映
-  settings_->updateInternalDataStructures();
 
   qt::qInfoBox(this, "URDF is loaded successfully. Configure the settings for each tab.");
 }

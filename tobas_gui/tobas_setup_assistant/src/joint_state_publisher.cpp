@@ -42,7 +42,6 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   setLayout(rows);
 
   // Connection
-  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_timer_, &QTimer::timeout, this, &self::publish);
@@ -52,19 +51,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   drs_pub_ = ros2::createPublisher<moveit_msgs::msg::DisplayRobotState>(node_, "display_robot_state", false, true);
 }
 
-void JointStatePublisherWidget::publish()
-{
-  js_.header.stamp = node_->get_clock()->now();
-
-  auto js = make_unique<sensor_msgs::msg::JointState>(js_);
-  js_pub_->publish(std::move(js));
-
-  auto drs = make_unique<moveit_msgs::msg::DisplayRobotState>();
-  drs->state.joint_state = js_;
-  drs_pub_->publish(std::move(drs));
-}
-
-void JointStatePublisherWidget::onRobotLoaded()
+void JointStatePublisherWidget::updateInternalDataStructures()
 {
   js_.name.clear();
   js_.position.clear();
@@ -109,6 +96,18 @@ void JointStatePublisherWidget::onRobotLoaded()
 
   // Start to publish joint states
   publish_timer_.start(100);
+}
+
+void JointStatePublisherWidget::publish()
+{
+  js_.header.stamp = node_->get_clock()->now();
+
+  auto js = make_unique<sensor_msgs::msg::JointState>(js_);
+  js_pub_->publish(std::move(js));
+
+  auto drs = make_unique<moveit_msgs::msg::DisplayRobotState>();
+  drs->state.joint_state = js_;
+  drs_pub_->publish(std::move(drs));
 }
 
 void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_name)

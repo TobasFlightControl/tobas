@@ -14,7 +14,7 @@ StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Setting
   const auto stack = new QStackedWidget();
 
   const auto new_ckb = new QCheckBox("Create new Tobas configuration package");
-  urdf_loader_ = new URDFLoaderWidget(node, robot, settings);
+  urdf_loader_ = new URDFLoaderWidget(node, robot);
   ckb_group->addButton(new_ckb);
   ckb_group->setId(new_ckb, 0);
   stack->addWidget(urdf_loader_);

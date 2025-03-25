@@ -63,13 +63,12 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   cols->addWidget(inertia_box);
 
   // Connection
-  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
   connect(inertia_box, &QCheckBox::toggled, this, &self::onInertiaBoxToggled);
 }
 
-void RvizWidget::onRobotLoaded()
+void RvizWidget::updateInternalDataStructures()
 {
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();

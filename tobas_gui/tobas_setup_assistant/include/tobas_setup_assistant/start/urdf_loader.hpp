@@ -7,7 +7,6 @@
 #include <tobas_property_client/property_client.hpp>
 
 #include "../robot_info.hpp"
-#include "../settings.hpp"
 
 namespace gui
 {
@@ -23,7 +22,7 @@ class URDFLoaderWidget : public QWidget
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir/urdf_loader";
 
 public:
-  explicit URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
+  explicit URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot);
 
 private Q_SLOTS:
   void onLoadButtonClicked();
@@ -31,7 +30,6 @@ private Q_SLOTS:
 private:
   const rclcpp::Node::SharedPtr node_;
   RobotInfo& robot_;
-  SettingsWidget* settings_;
 
   ptree::PropertyClient property_client_;
 

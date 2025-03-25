@@ -14,13 +14,12 @@ FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : rob
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(this, &self::itemClicked, this, &self::onItemClicked);
   connect(this, &self::itemExpanded, this, &self::resizeColumns);
   connect(this, &self::itemCollapsed, this, &self::resizeColumns);
 }
 
-void FrameTreeWidget::onRobotLoaded()
+void FrameTreeWidget::updateInternalDataStructures()
 {
   // ツリーを消去
   clear();
