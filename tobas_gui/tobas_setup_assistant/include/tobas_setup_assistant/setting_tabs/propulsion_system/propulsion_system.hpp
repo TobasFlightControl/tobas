@@ -1,6 +1,7 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <QButtonGroup>
+
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
@@ -22,6 +23,9 @@ class PropulsionSystemWidget : public BaseSettingWidget
   using super = BaseSettingWidget;
 
   static constexpr char kTypeKey[] = "propulsion_system_type";
+
+  static constexpr int kElectricId = 0;
+  static constexpr int kIceId = kElectricId + 1;
 
 public:
   explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
@@ -51,8 +55,8 @@ public:
   const BasePropulsionSystemWidget* selected() const;
 
 private:
-  qt::ComboBox* type_;
-  qt::StackedWidget* propulsions_;
+  QButtonGroup* type_buttons_;
+  qt::StackedWidget* propulsion_stack_;
 };
 };  // namespace propulsion
 }  // namespace sa
