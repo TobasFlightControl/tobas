@@ -37,7 +37,8 @@ public:
    */
   virtual void ignoreWheelEvent();
 
-  void switchTab(QWidget* tab);
+  void setCurrentWidget(QWidget* tab);
+  void setTabVisible(QWidget* tab, bool visible);
 
   void setTabWidth(int width);
   void setTabHeight(int height);

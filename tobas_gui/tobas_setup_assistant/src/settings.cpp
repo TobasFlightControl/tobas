@@ -73,7 +73,7 @@ bool SettingsWidget::isValid()
     const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(widget(i));
     if (!cur_widget->isValid())
     {
-      switchTab(cur_widget);
+      setCurrentWidget(cur_widget);
       return false;
     }
   }

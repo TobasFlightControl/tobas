@@ -16,11 +16,18 @@ void TabWidget::ignoreWheelEvent()
   setTabBar(new TabBarWithNoWheelEvent());
 }
 
-void TabWidget::switchTab(QWidget* tab)
+void TabWidget::setCurrentWidget(QWidget* tab)
 {
   const auto idx = indexOf(tab);
   TOBAS_CHECK(idx >= 0);
   setCurrentIndex(idx);
+}
+
+void TabWidget::setTabVisible(QWidget* tab, bool visible)
+{
+  const auto idx = indexOf(tab);
+  TOBAS_CHECK(idx >= 0);
+  tabBar()->setTabVisible(idx, visible);
 }
 
 void TabWidget::setTabWidth(int width)
