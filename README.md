@@ -63,7 +63,7 @@ $ exec bash
 
 ```bash
 $ cd ~/colcon_ws/src
-$ git clone git@github.com:TobasFlightControl/tobas.git -b main
+$ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b main
 ```
 
 5. Install ROS dependencies
