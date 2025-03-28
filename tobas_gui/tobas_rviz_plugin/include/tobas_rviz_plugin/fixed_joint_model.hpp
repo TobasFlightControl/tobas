@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-/** \brief A fixed joint */
+/* A fixed joint */
 class FixedJointModel : public JointModel
 {
 public:

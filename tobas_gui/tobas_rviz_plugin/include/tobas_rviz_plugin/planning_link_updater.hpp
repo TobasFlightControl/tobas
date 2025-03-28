@@ -6,7 +6,7 @@
 
 namespace tobas
 {
-/** \brief Update the links of an rviz::Robot using a RobotState */
+/* Update the links of an rviz::Robot using a RobotState */
 class PlanningLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:

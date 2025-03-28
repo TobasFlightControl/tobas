@@ -11,7 +11,7 @@ namespace tobas
 TOBAS_CLASS_FORWARD(RenderShapes);             // Defines RenderShapesPtr, ConstPtr, WeakPtr... etc
 TOBAS_CLASS_FORWARD(RobotStateVisualization);  // Defines RobotStateVisualizationPtr, ConstPtr, WeakPtr... etc
 
-/** \brief Update the links of an rviz::Robot using a RobotState */
+/* Update the links of an rviz::Robot using a RobotState */
 class RobotStateVisualization
 {
 public:
@@ -37,7 +37,7 @@ public:
     const std::map<std::string, std_msgs::msg::ColorRGBA>& color_map);
   void updateKinematicState(const RobotStateConstPtr& robot_state);
   void setDefaultAttachedObjectColor(const std_msgs::msg::ColorRGBA& default_attached_object_color);
-  /// update color of all attached object shapes
+  // update color of all attached object shapes
   void updateAttachedObjectColors(const std_msgs::msg::ColorRGBA& attached_object_color);
 
   bool isVisible() const

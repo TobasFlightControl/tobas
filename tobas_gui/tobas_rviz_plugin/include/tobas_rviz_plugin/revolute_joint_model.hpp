@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-/** \brief A revolute joint */
+/* A revolute joint */
 class RevoluteJointModel : public JointModel
 {
 public:
@@ -36,26 +36,26 @@ public:
 
   void setContinuous(bool flag);
 
-  /** \brief Check if this joint wraps around */
+  /* Check if this joint wraps around */
   bool isContinuous() const
   {
     return continuous_;
   }
 
-  /** \brief Get the axis of rotation */
+  /* Get the axis of rotation */
   const Eigen::Vector3d& getAxis() const
   {
     return axis_;
   }
 
-  /** \brief Set the axis of rotation */
+  /* Set the axis of rotation */
   void setAxis(const Eigen::Vector3d& axis);
 
 protected:
-  /** \brief The axis of the joint */
+  /* The axis of the joint */
   Eigen::Vector3d axis_;
 
-  /** \brief Flag indicating whether this joint wraps around */
+  /* Flag indicating whether this joint wraps around */
   bool continuous_;
 
 private:

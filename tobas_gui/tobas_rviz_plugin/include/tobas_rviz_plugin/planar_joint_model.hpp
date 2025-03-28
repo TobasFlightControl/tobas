@@ -4,11 +4,11 @@
 
 namespace tobas
 {
-/** \brief A planar joint */
+/* A planar joint */
 class PlanarJointModel : public JointModel
 {
 public:
-  /** \brief different types of planar joints we support */
+  /* different types of planar joints we support */
   enum MotionModel
   {
     HOLONOMIC,  // default
@@ -69,15 +69,15 @@ public:
     motion_model_ = model;
   }
 
-  /// Make the yaw component of a state's value vector be in the range [-Pi, Pi]. enforceBounds() also calls this
-  /// function;
-  /// Return true if a change is actually made
+  // Make the yaw component of a state's value vector be in the range [-Pi, Pi]. enforceBounds() also calls this
+  // function;
+  // Return true if a change is actually made
   bool normalizeRotation(double* values) const;
 
 private:
   double angular_distance_weight_;
   MotionModel motion_model_;
-  /// Only used for the differential drive motion model @see computeTurnDriveTurnGeometry
+  // Only used for the differential drive motion model @see computeTurnDriveTurnGeometry
   double min_translational_distance_;
 };
 

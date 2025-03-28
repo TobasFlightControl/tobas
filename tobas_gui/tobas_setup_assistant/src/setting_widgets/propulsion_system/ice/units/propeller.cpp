@@ -19,7 +19,7 @@ PropellerWidget::PropellerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  num_blade_ = new ParamGetterWidget_SpinBox("Number of Blades", "");  /// TODO
+  num_blade_ = new ParamGetterWidget_SpinBox("Number of Blades", "");  // TODO
   num_blade_->setMinimum(1);
   num_blade_->setValue(2);
   rows->addWidget(num_blade_);

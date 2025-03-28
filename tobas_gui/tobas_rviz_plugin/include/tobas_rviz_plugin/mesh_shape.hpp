@@ -9,7 +9,7 @@ class ManualObject;
 
 namespace rviz_rendering
 {
-/** \brief This class allows constructing Ogre shapes manually, from triangle lists.
+/* This class allows constructing Ogre shapes manually, from triangle lists.
 
     For example:
     Assuming we have a set of mesh triangles represented like this:
@@ -50,10 +50,10 @@ public:
   /* \brief Estimate the number of vertices ahead of time. */
   void estimateVertexCount(size_t vcount);
 
-  /** \brief Start adding triangles to the mesh */
+  /* Start adding triangles to the mesh */
   void beginTriangles();
 
-  /** \brief Add a vertex to the mesh (no normal defined). If using
+  /* Add a vertex to the mesh (no normal defined). If using
       this function only (not using addTriangle()) it is assumed that
       triangles are added by specifying the 3 vertices in order (3
       consecutive calls to this function). This means there must be
@@ -61,7 +61,7 @@ public:
       is used, indexing in the defined vertices is done. */
   void addVertex(const Ogre::Vector3& position);
 
-  /** \brief Add a vertex to the mesh with a normal defined. If using
+  /* Add a vertex to the mesh with a normal defined. If using
       this function only (not using addTriangle()) it is assumed that
       triangles are added by specifying the 3 vertices in order (3
       consecutive calls to this function). This means there must be
@@ -69,7 +69,7 @@ public:
       is used, indexing in the defined vertices is done.  */
   void addVertex(const Ogre::Vector3& position, const Ogre::Vector3& normal);
 
-  /** \brief Add a vertex to the mesh with normal and color defined. If using
+  /* Add a vertex to the mesh with normal and color defined. If using
       this function only (not using addTriangle()) it is assumed that
       triangles are added by specifying the 3 vertices in order (3
       consecutive calls to this function). This means there must be
@@ -77,23 +77,23 @@ public:
       is used, indexing in the defined vertices is done. */
   void addVertex(const Ogre::Vector3& position, const Ogre::Vector3& normal, const Ogre::ColourValue& color);
 
-  /** \brief Add normal for a vertex */
+  /* Add normal for a vertex */
   void addNormal(const Ogre::Vector3& normal);
 
-  /** \brief Add color for a vertex */
+  /* Add color for a vertex */
   void addColor(const Ogre::ColourValue& color);
 
-  /** \brief Add a triangle by indexing in the defined vertices. */
+  /* Add a triangle by indexing in the defined vertices. */
   void addTriangle(unsigned int p1, unsigned int p2, unsigned int p3);
 
-  /** \brief Notify that the set of triangles to add is complete. No more triangles can be added, beginTriangles() can
+  /* Notify that the set of triangles to add is complete. No more triangles can be added, beginTriangles() can
    * no longer be called unless clear() was called. */
   void endTriangles();
 
-  /** \brief Clear the mesh */
+  /* Clear the mesh */
   void clear();
 
-  /** \brief Get the manual object created for the mesh */
+  /* Get the manual object created for the mesh */
   Ogre::ManualObject* getManualObject()
   {
     return manual_object_;

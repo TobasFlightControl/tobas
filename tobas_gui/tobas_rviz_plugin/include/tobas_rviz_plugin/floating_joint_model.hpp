@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-/** \brief A floating joint */
+/* A floating joint */
 class FloatingJointModel : public JointModel
 {
 public:
@@ -42,14 +42,14 @@ public:
     angular_distance_weight_ = weight;
   }
 
-  /// Normalize the quaternion (warn if norm is 0, and set to identity);
-  /// Return true if any change was made
+  // Normalize the quaternion (warn if norm is 0, and set to identity);
+  // Return true if any change was made
   bool normalizeRotation(double* values) const;
 
-  /// Get the distance between the rotation components of two states
+  // Get the distance between the rotation components of two states
   double distanceRotation(const double* values1, const double* values2) const;
 
-  /// Get the distance between the translation components of two states
+  // Get the distance between the translation components of two states
   double distanceTranslation(const double* values1, const double* values2) const;
 
 private:

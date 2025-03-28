@@ -15,7 +15,7 @@ namespace tobas
 {
 TOBAS_CLASS_FORWARD(RobotState);  // Defines RobotStatePtr, ConstPtr, WeakPtr... etc
 
-/** \brief Signature for functions that can verify that if the group \e joint_group in \e robot_state is set to \e
+/* Signature for functions that can verify that if the group \e joint_group in \e robot_state is set to \e
    joint_group_variable_values
     the state is valid or not. Returns true if the state is valid. This call is allowed to modify \e robot_state (e.g.,
    set \e joint_group_variable_values) */
@@ -23,7 +23,7 @@ typedef std::function<
   bool(RobotState* robot_state, const JointModelGroup* joint_group, const double* joint_group_variable_values)>
   GroupStateValidityCallbackFn;
 
-/** \brief Representation of a robot's state. This includes position,
+/* Representation of a robot's state. This includes position,
     velocity, acceleration and effort.
 
     At the lowest level, a state is a collection of variables. Each
@@ -43,48 +43,48 @@ typedef std::function<
 class RobotState
 {
 public:
-  /** \brief A state can be constructed from a specified robot model. No values are initialized.
+  /* A state can be constructed from a specified robot model. No values are initialized.
       Call setToDefaultValues() if a state needs to provide valid information. */
   RobotState(const RobotModelConstPtr& robot_model);
   ~RobotState();
 
-  /** \brief Copy constructor. */
+  /* Copy constructor. */
   RobotState(const RobotState& other);
 
-  /** \brief Copy operator */
+  /* Copy operator */
   RobotState& operator=(const RobotState& other);
 
-  /** \brief Get the robot model this state is constructed for. */
+  /* Get the robot model this state is constructed for. */
   const RobotModelConstPtr& getRobotModel() const
   {
     return robot_model_;
   }
 
-  /** \brief Get the number of variables that make up this state. */
+  /* Get the number of variables that make up this state. */
   std::size_t getVariableCount() const
   {
     return robot_model_->getVariableCount();
   }
 
-  /** \brief Get the names of the variables that make up this state, in the order they are stored in memory. */
+  /* Get the names of the variables that make up this state, in the order they are stored in memory. */
   const std::vector<std::string>& getVariableNames() const
   {
     return robot_model_->getVariableNames();
   }
 
-  /** \brief Get the model of a particular link */
+  /* Get the model of a particular link */
   const LinkModel* getLinkModel(const std::string& link) const
   {
     return robot_model_->getLinkModel(link);
   }
 
-  /** \brief Get the model of a particular joint */
+  /* Get the model of a particular joint */
   const JointModel* getJointModel(const std::string& joint) const
   {
     return robot_model_->getJointModel(joint);
   }
 
-  /** \brief Get the model of a particular joint group */
+  /* Get the model of a particular joint group */
   const JointModelGroup* getJointModelGroup(const std::string& group) const
   {
     return robot_model_->getJointModelGroup(group);
@@ -94,7 +94,7 @@ public:
    *  @{
    */
 
-  /** \brief Get a raw pointer to the positions of the variables
+  /* Get a raw pointer to the positions of the variables
       stored in this state. Use carefully. If you change these values
       externally you need to make sure you trigger a forced update for
       the state by calling update(true). */
@@ -103,19 +103,19 @@ public:
     return position_.data();
   }
 
-  /** \brief Get a raw pointer to the positions of the variables
+  /* Get a raw pointer to the positions of the variables
       stored in this state. */
   const double* getVariablePositions() const
   {
     return position_.data();
   }
 
-  /** \brief It is assumed \e positions is an array containing the new
+  /* It is assumed \e positions is an array containing the new
       positions for all variables in this state. Those values are
       copied into the state. */
   void setVariablePositions(const double* position);
 
-  /** \brief It is assumed \e positions is an array containing the new
+  /* It is assumed \e positions is an array containing the new
       positions for all variables in this state. Those values are
       copied into the state. */
   void setVariablePositions(const std::vector<double>& position)
@@ -124,27 +124,27 @@ public:
     setVariablePositions(&position[0]);
   }
 
-  /** \brief Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
+  /* Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
    */
   void setVariablePositions(const std::map<std::string, double>& variable_map);
 
-  /** \brief Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
+  /* Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
       Additionally, \e missing_variables is filled with the names of the variables that are not set. */
   void
   setVariablePositions(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
 
-  /** \brief Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
+  /* Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
       Additionally, \e missing_variables is filled with the names of the variables that are not set. */
   void
   setVariablePositions(const std::vector<std::string>& variable_names, const std::vector<double>& variable_position);
 
-  /** \brief Set the position of a single variable. An exception is thrown if the variable name is not known */
+  /* Set the position of a single variable. An exception is thrown if the variable name is not known */
   void setVariablePosition(const std::string& variable, double value)
   {
     setVariablePosition(robot_model_->getVariableIndex(variable), value);
   }
 
-  /** \brief Set the position of a single variable. The variable is specified by its index (a value associated by the
+  /* Set the position of a single variable. The variable is specified by its index (a value associated by the
    * RobotModel to each variable) */
   void setVariablePosition(int index, double value)
   {
@@ -157,13 +157,13 @@ public:
     }
   }
 
-  /** \brief Get the position of a particular variable. An exception is thrown if the variable is not known. */
+  /* Get the position of a particular variable. An exception is thrown if the variable is not known. */
   double getVariablePosition(const std::string& variable) const
   {
     return position_[robot_model_->getVariableIndex(variable)];
   }
 
-  /** \brief Get the position of a particular variable. The variable is
+  /* Get the position of a particular variable. The variable is
       specified by its index. No checks are performed for the validity
       of the index passed  */
   double getVariablePosition(int index) const
@@ -177,7 +177,7 @@ public:
    *  @{
    */
 
-  /** \brief By default, if velocities are never set or initialized,
+  /* By default, if velocities are never set or initialized,
       the state remembers that there are no velocities set. This is
       useful to know when serializing or copying the state.*/
   bool hasVelocities() const
@@ -185,7 +185,7 @@ public:
     return has_velocity_;
   }
 
-  /** \brief Get raw access to the velocities of the variables that make up this state. The values are in the same order
+  /* Get raw access to the velocities of the variables that make up this state. The values are in the same order
    * as reported by getVariableNames() */
   double* getVariableVelocities()
   {
@@ -193,17 +193,17 @@ public:
     return velocity_.data();
   }
 
-  /** \brief Get const access to the velocities of the variables that make up this state. The values are in the same
+  /* Get const access to the velocities of the variables that make up this state. The values are in the same
    * order as reported by getVariableNames() */
   const double* getVariableVelocities() const
   {
     return velocity_.data();
   }
 
-  /** \brief Set all velocities to 0.0 */
+  /* Set all velocities to 0.0 */
   void zeroVelocities();
 
-  /** \brief Given an array with velocity values for all variables, set those values as the velocities in this state */
+  /* Given an array with velocity values for all variables, set those values as the velocities in this state */
   void setVariableVelocities(const double* velocity)
   {
     has_velocity_ = true;
@@ -211,34 +211,34 @@ public:
     memcpy(velocity_.data(), velocity, robot_model_->getVariableCount() * sizeof(double));
   }
 
-  /** \brief Given an array with velocity values for all variables, set those values as the velocities in this state */
+  /* Given an array with velocity values for all variables, set those values as the velocities in this state */
   void setVariableVelocities(const std::vector<double>& velocity)
   {
     assert(robot_model_->getVariableCount() <= velocity.size());  // checked only in debug mode
     setVariableVelocities(&velocity[0]);
   }
 
-  /** \brief Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
+  /* Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
    */
   void setVariableVelocities(const std::map<std::string, double>& variable_map);
 
-  /** \brief Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
+  /* Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
       Additionally, \e missing_variables is filled with the names of the variables that are not set. */
   void
   setVariableVelocities(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
 
-  /** \brief Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
+  /* Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
    */
   void
   setVariableVelocities(const std::vector<std::string>& variable_names, const std::vector<double>& variable_velocity);
 
-  /** \brief Set the velocity of a variable. If an unknown variable name is specified, an exception is thrown. */
+  /* Set the velocity of a variable. If an unknown variable name is specified, an exception is thrown. */
   void setVariableVelocity(const std::string& variable, double value)
   {
     setVariableVelocity(robot_model_->getVariableIndex(variable), value);
   }
 
-  /** \brief Set the velocity of a single variable. The variable is specified by its index (a value associated by the
+  /* Set the velocity of a single variable. The variable is specified by its index (a value associated by the
    * RobotModel to each variable) */
   void setVariableVelocity(int index, double value)
   {
@@ -246,13 +246,13 @@ public:
     velocity_[index] = value;
   }
 
-  /** \brief Get the velocity of a particular variable. An exception is thrown if the variable is not known. */
+  /* Get the velocity of a particular variable. An exception is thrown if the variable is not known. */
   double getVariableVelocity(const std::string& variable) const
   {
     return velocity_[robot_model_->getVariableIndex(variable)];
   }
 
-  /** \brief Get the velocity of a particular variable. The variable is
+  /* Get the velocity of a particular variable. The variable is
       specified by its index. No checks are performed for the validity
       of the index passed  */
   double getVariableVelocity(int index) const
@@ -260,7 +260,7 @@ public:
     return velocity_[index];
   }
 
-  /** \brief Remove velocities from this state (this differs from setting them to zero) */
+  /* Remove velocities from this state (this differs from setting them to zero) */
   void dropVelocities();
 
   /** @} */
@@ -269,7 +269,7 @@ public:
    *  @{
    */
 
-  /** \brief By default, if accelerations are never set or initialized, the state remembers that there are no
+  /* By default, if accelerations are never set or initialized, the state remembers that there are no
      accelerations set. This is
       useful to know when serializing or copying the state. If hasAccelerations() reports true, hasEffort() will
      certainly report false. */
@@ -278,7 +278,7 @@ public:
     return has_acceleration_;
   }
 
-  /** \brief Get raw access to the accelerations of the variables that make up this state. The values are in the same
+  /* Get raw access to the accelerations of the variables that make up this state. The values are in the same
    * order as reported by getVariableNames(). The area of memory overlaps with effort (effort and acceleration should
    * not be set at the same time) */
   double* getVariableAccelerations()
@@ -287,17 +287,17 @@ public:
     return effort_or_acceleration_.data();
   }
 
-  /** \brief Get const raw access to the accelerations of the variables that make up this state. The values are in the
+  /* Get const raw access to the accelerations of the variables that make up this state. The values are in the
    * same order as reported by getVariableNames() */
   const double* getVariableAccelerations() const
   {
     return effort_or_acceleration_.data();
   }
 
-  /** \brief Set all accelerations to 0.0 */
+  /* Set all accelerations to 0.0 */
   void zeroAccelerations();
 
-  /** \brief Given an array with acceleration values for all variables, set those values as the accelerations in this
+  /* Given an array with acceleration values for all variables, set those values as the accelerations in this
    * state */
   void setVariableAccelerations(const double* acceleration)
   {
@@ -308,7 +308,7 @@ public:
     memcpy(effort_or_acceleration_.data(), acceleration, robot_model_->getVariableCount() * sizeof(double));
   }
 
-  /** \brief Given an array with acceleration values for all variables, set those values as the accelerations in this
+  /* Given an array with acceleration values for all variables, set those values as the accelerations in this
    * state */
   void setVariableAccelerations(const std::vector<double>& acceleration)
   {
@@ -316,30 +316,30 @@ public:
     setVariableAccelerations(&acceleration[0]);
   }
 
-  /** \brief Set the accelerations of a set of variables. If unknown variable names are specified, an exception is
+  /* Set the accelerations of a set of variables. If unknown variable names are specified, an exception is
    * thrown. */
   void setVariableAccelerations(const std::map<std::string, double>& variable_map);
 
-  /** \brief Set the accelerations of a set of variables. If unknown variable names are specified, an exception is
+  /* Set the accelerations of a set of variables. If unknown variable names are specified, an exception is
      thrown.
       Additionally, \e missing_variables is filled with the names of the variables that are not set. */
   void setVariableAccelerations(
     const std::map<std::string, double>& variable_map,
     std::vector<std::string>& missing_variables);
 
-  /** \brief Set the accelerations of a set of variables. If unknown variable names are specified, an exception is
+  /* Set the accelerations of a set of variables. If unknown variable names are specified, an exception is
    * thrown. */
   void setVariableAccelerations(
     const std::vector<std::string>& variable_names,
     const std::vector<double>& variable_acceleration);
 
-  /** \brief Set the acceleration of a variable. If an unknown variable name is specified, an exception is thrown. */
+  /* Set the acceleration of a variable. If an unknown variable name is specified, an exception is thrown. */
   void setVariableAcceleration(const std::string& variable, double value)
   {
     setVariableAcceleration(robot_model_->getVariableIndex(variable), value);
   }
 
-  /** \brief Set the acceleration of a single variable. The variable is specified by its index (a value associated by
+  /* Set the acceleration of a single variable. The variable is specified by its index (a value associated by
    * the RobotModel to each variable) */
   void setVariableAcceleration(int index, double value)
   {
@@ -347,13 +347,13 @@ public:
     effort_or_acceleration_[index] = value;
   }
 
-  /** \brief Get the acceleration of a particular variable. An exception is thrown if the variable is not known. */
+  /* Get the acceleration of a particular variable. An exception is thrown if the variable is not known. */
   double getVariableAcceleration(const std::string& variable) const
   {
     return effort_or_acceleration_[robot_model_->getVariableIndex(variable)];
   }
 
-  /** \brief Get the acceleration of a particular variable. The variable is
+  /* Get the acceleration of a particular variable. The variable is
       specified by its index. No checks are performed for the validity
       of the index passed  */
   double getVariableAcceleration(int index) const
@@ -361,7 +361,7 @@ public:
     return effort_or_acceleration_[index];
   }
 
-  /** \brief Remove accelerations from this state (this differs from setting them to zero) */
+  /* Remove accelerations from this state (this differs from setting them to zero) */
   void dropAccelerations();
 
   /** @} */
@@ -370,7 +370,7 @@ public:
    *  @{
    */
 
-  /** \brief By default, if effort is never set or initialized, the state remembers that there is no effort set. This is
+  /* By default, if effort is never set or initialized, the state remembers that there is no effort set. This is
       useful to know when serializing or copying the state. If hasEffort() reports true, hasAccelerations() will
      certainly report false. */
   bool hasEffort() const
@@ -378,7 +378,7 @@ public:
     return has_effort_;
   }
 
-  /** \brief Get raw access to the effort of the variables that make up this state. The values are in the same order as
+  /* Get raw access to the effort of the variables that make up this state. The values are in the same order as
    * reported by getVariableNames(). The area of memory overlaps with accelerations (effort and acceleration should not
    * be set at the same time) */
   double* getVariableEffort()
@@ -387,17 +387,17 @@ public:
     return effort_or_acceleration_.data();
   }
 
-  /** \brief Get const raw access to the effort of the variables that make up this state. The values are in the same
+  /* Get const raw access to the effort of the variables that make up this state. The values are in the same
    * order as reported by getVariableNames(). */
   const double* getVariableEffort() const
   {
     return effort_or_acceleration_.data();
   }
 
-  /** \brief Set all effort values to 0.0 */
+  /* Set all effort values to 0.0 */
   void zeroEffort();
 
-  /** \brief Given an array with effort values for all variables, set those values as the effort in this state */
+  /* Given an array with effort values for all variables, set those values as the effort in this state */
   void setVariableEffort(const double* effort)
   {
     has_effort_ = true;
@@ -406,32 +406,32 @@ public:
     memcpy(effort_or_acceleration_.data(), effort, robot_model_->getVariableCount() * sizeof(double));
   }
 
-  /** \brief Given an array with effort values for all variables, set those values as the effort in this state */
+  /* Given an array with effort values for all variables, set those values as the effort in this state */
   void setVariableEffort(const std::vector<double>& effort)
   {
     assert(robot_model_->getVariableCount() <= effort.size());  // checked only in debug mode
     setVariableEffort(&effort[0]);
   }
 
-  /** \brief Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown. */
+  /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown. */
   void setVariableEffort(const std::map<std::string, double>& variable_map);
 
-  /** \brief Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown.
+  /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown.
       Additionally, \e missing_variables is filled with the names of the variables that are not set. */
   void
   setVariableEffort(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
 
-  /** \brief Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown. */
+  /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown. */
   void
   setVariableEffort(const std::vector<std::string>& variable_names, const std::vector<double>& variable_acceleration);
 
-  /** \brief Set the effort of a variable. If an unknown variable name is specified, an exception is thrown. */
+  /* Set the effort of a variable. If an unknown variable name is specified, an exception is thrown. */
   void setVariableEffort(const std::string& variable, double value)
   {
     setVariableEffort(robot_model_->getVariableIndex(variable), value);
   }
 
-  /** \brief Set the effort of a single variable. The variable is specified by its index (a value associated by the
+  /* Set the effort of a single variable. The variable is specified by its index (a value associated by the
    * RobotModel to each variable) */
   void setVariableEffort(int index, double value)
   {
@@ -439,13 +439,13 @@ public:
     effort_or_acceleration_[index] = value;
   }
 
-  /** \brief Get the effort of a particular variable. An exception is thrown if the variable is not known. */
+  /* Get the effort of a particular variable. An exception is thrown if the variable is not known. */
   double getVariableEffort(const std::string& variable) const
   {
     return effort_or_acceleration_[robot_model_->getVariableIndex(variable)];
   }
 
-  /** \brief Get the effort of a particular variable. The variable is
+  /* Get the effort of a particular variable. The variable is
       specified by its index. No checks are performed for the validity
       of the index passed  */
   double getVariableEffort(int index) const
@@ -453,13 +453,13 @@ public:
     return effort_or_acceleration_[index];
   }
 
-  /** \brief Remove effort values from this state (this differs from setting them to zero) */
+  /* Remove effort values from this state (this differs from setting them to zero) */
   void dropEffort();
 
-  /** \brief Reduce RobotState to kinematic information (remove velocity, acceleration and effort, if present) */
+  /* Reduce RobotState to kinematic information (remove velocity, acceleration and effort, if present) */
   void dropDynamics();
 
-  /** \brief Invert velocity if present. */
+  /* Invert velocity if present. */
   void invertVelocity();
 
   /** @} */
@@ -535,7 +535,7 @@ public:
    *  @{
    */
 
-  /** \brief Given positions for the variables that make up a group, in the order found in the group (including values
+  /* Given positions for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupPositions(const std::string& joint_group_name, const double* gstate)
   {
@@ -544,7 +544,7 @@ public:
       setJointGroupPositions(jmg, gstate);
   }
 
-  /** \brief Given positions for the variables that make up a group, in the order found in the group (including values
+  /* Given positions for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupPositions(const std::string& joint_group_name, const std::vector<double>& gstate)
   {
@@ -556,7 +556,7 @@ public:
     }
   }
 
-  /** \brief Given positions for the variables that make up a group, in the order found in the group (including values
+  /* Given positions for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupPositions(const JointModelGroup* group, const std::vector<double>& gstate)
   {
@@ -564,11 +564,11 @@ public:
     setJointGroupPositions(group, &gstate[0]);
   }
 
-  /** \brief Given positions for the variables that make up a group, in the order found in the group (including values
+  /* Given positions for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupPositions(const JointModelGroup* group, const double* gstate);
 
-  /** \brief Given positions for the variables that make up a group, in the order found in the group (including values
+  /* Given positions for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupPositions(const std::string& joint_group_name, const Eigen::VectorXd& values)
   {
@@ -580,16 +580,16 @@ public:
     }
   }
 
-  /** \brief Given positions for the variables that make up a group, in the order found in the group (including values
+  /* Given positions for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupPositions(const JointModelGroup* group, const Eigen::VectorXd& values);
 
-  /** \brief Given positions for the variables of active joints that make up a group,
+  /* Given positions for the variables of active joints that make up a group,
    * in the order found in the group (excluding values of mimic joints), set those
    * as the new values that correspond to the group */
   void setJointGroupActivePositions(const JointModelGroup* group, const std::vector<double>& gstate);
 
-  /** \brief Given positions for the variables of active joints that make up a group,
+  /* Given positions for the variables of active joints that make up a group,
    * in the order found in the group (excluding values of mimic joints), set those
    * as the new values that correspond to the group */
   void setJointGroupActivePositions(const std::string& joint_group_name, const std::vector<double>& gstate)
@@ -602,12 +602,12 @@ public:
     }
   }
 
-  /** \brief Given positions for the variables of active joints that make up a group,
+  /* Given positions for the variables of active joints that make up a group,
    * in the order found in the group (excluding values of mimic joints), set those
    * as the new values that correspond to the group */
   void setJointGroupActivePositions(const JointModelGroup* group, const Eigen::VectorXd& values);
 
-  /** \brief Given positions for the variables of active joints that make up a group,
+  /* Given positions for the variables of active joints that make up a group,
    * in the order found in the group (excluding values of mimic joints), set those
    * as the new values that correspond to the group */
   void setJointGroupActivePositions(const std::string& joint_group_name, const Eigen::VectorXd& values)
@@ -620,7 +620,7 @@ public:
     }
   }
 
-  /** \brief For a given group, copy the position values of the variables that make up the group into another location,
+  /* For a given group, copy the position values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupPositions(const std::string& joint_group_name, std::vector<double>& gstate) const
@@ -633,7 +633,7 @@ public:
     }
   }
 
-  /** \brief For a given group, copy the position values of the variables that make up the group into another location,
+  /* For a given group, copy the position values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupPositions(const std::string& joint_group_name, double* gstate) const
@@ -643,7 +643,7 @@ public:
       copyJointGroupPositions(jmg, gstate);
   }
 
-  /** \brief For a given group, copy the position values of the variables that make up the group into another location,
+  /* For a given group, copy the position values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupPositions(const JointModelGroup* group, std::vector<double>& gstate) const
@@ -652,12 +652,12 @@ public:
     copyJointGroupPositions(group, &gstate[0]);
   }
 
-  /** \brief For a given group, copy the position values of the variables that make up the group into another location,
+  /* For a given group, copy the position values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupPositions(const JointModelGroup* group, double* gstate) const;
 
-  /** \brief For a given group, copy the position values of the variables that make up the group into another location,
+  /* For a given group, copy the position values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupPositions(const std::string& joint_group_name, Eigen::VectorXd& values) const
@@ -667,7 +667,7 @@ public:
       copyJointGroupPositions(jmg, values);
   }
 
-  /** \brief For a given group, copy the position values of the variables that make up the group into another location,
+  /* For a given group, copy the position values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupPositions(const JointModelGroup* group, Eigen::VectorXd& values) const;
@@ -678,7 +678,7 @@ public:
    *  @{
    */
 
-  /** \brief Given velocities for the variables that make up a group, in the order found in the group (including values
+  /* Given velocities for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupVelocities(const std::string& joint_group_name, const double* gstate)
   {
@@ -687,7 +687,7 @@ public:
       setJointGroupVelocities(jmg, gstate);
   }
 
-  /** \brief Given velocities for the variables that make up a group, in the order found in the group (including values
+  /* Given velocities for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupVelocities(const std::string& joint_group_name, const std::vector<double>& gstate)
   {
@@ -696,18 +696,18 @@ public:
       setJointGroupVelocities(jmg, &gstate[0]);
   }
 
-  /** \brief Given velocities for the variables that make up a group, in the order found in the group (including values
+  /* Given velocities for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupVelocities(const JointModelGroup* group, const std::vector<double>& gstate)
   {
     setJointGroupVelocities(group, &gstate[0]);
   }
 
-  /** \brief Given velocities for the variables that make up a group, in the order found in the group (including values
+  /* Given velocities for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupVelocities(const JointModelGroup* group, const double* gstate);
 
-  /** \brief Given velocities for the variables that make up a group, in the order found in the group (including values
+  /* Given velocities for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupVelocities(const std::string& joint_group_name, const Eigen::VectorXd& values)
   {
@@ -716,11 +716,11 @@ public:
       setJointGroupVelocities(jmg, values);
   }
 
-  /** \brief Given velocities for the variables that make up a group, in the order found in the group (including values
+  /* Given velocities for the variables that make up a group, in the order found in the group (including values
    *   of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupVelocities(const JointModelGroup* group, const Eigen::VectorXd& values);
 
-  /** \brief For a given group, copy the velocity values of the variables that make up the group into another location,
+  /* For a given group, copy the velocity values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupVelocities(const std::string& joint_group_name, std::vector<double>& gstate) const
@@ -733,7 +733,7 @@ public:
     }
   }
 
-  /** \brief For a given group, copy the velocity values of the variables that make up the group into another location,
+  /* For a given group, copy the velocity values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupVelocities(const std::string& joint_group_name, double* gstate) const
@@ -743,7 +743,7 @@ public:
       copyJointGroupVelocities(jmg, gstate);
   }
 
-  /** \brief For a given group, copy the velocity values of the variables that make up the group into another location,
+  /* For a given group, copy the velocity values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupVelocities(const JointModelGroup* group, std::vector<double>& gstate) const
@@ -752,12 +752,12 @@ public:
     copyJointGroupVelocities(group, &gstate[0]);
   }
 
-  /** \brief For a given group, copy the velocity values of the variables that make up the group into another location,
+  /* For a given group, copy the velocity values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupVelocities(const JointModelGroup* group, double* gstate) const;
 
-  /** \brief For a given group, copy the velocity values of the variables that make up the group into another location,
+  /* For a given group, copy the velocity values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupVelocities(const std::string& joint_group_name, Eigen::VectorXd& values) const
@@ -767,7 +767,7 @@ public:
       copyJointGroupVelocities(jmg, values);
   }
 
-  /** \brief For a given group, copy the velocity values of the variables that make up the group into another location,
+  /* For a given group, copy the velocity values of the variables that make up the group into another location,
    * in the order that the variables are found in the group. This is not necessarily a contiguous block of memory in the
    * RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupVelocities(const JointModelGroup* group, Eigen::VectorXd& values) const;
@@ -778,7 +778,7 @@ public:
    *  @{
    */
 
-  /** \brief Given accelerations for the variables that make up a group, in the order found in the group (including
+  /* Given accelerations for the variables that make up a group, in the order found in the group (including
    *   values of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupAccelerations(const std::string& joint_group_name, const double* gstate)
   {
@@ -787,7 +787,7 @@ public:
       setJointGroupAccelerations(jmg, gstate);
   }
 
-  /** \brief Given accelerations for the variables that make up a group, in the order found in the group (including
+  /* Given accelerations for the variables that make up a group, in the order found in the group (including
    *   values of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupAccelerations(const std::string& joint_group_name, const std::vector<double>& gstate)
   {
@@ -796,18 +796,18 @@ public:
       setJointGroupAccelerations(jmg, &gstate[0]);
   }
 
-  /** \brief Given accelerations for the variables that make up a group, in the order found in the group (including
+  /* Given accelerations for the variables that make up a group, in the order found in the group (including
    *   values of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupAccelerations(const JointModelGroup* group, const std::vector<double>& gstate)
   {
     setJointGroupAccelerations(group, &gstate[0]);
   }
 
-  /** \brief Given accelerations for the variables that make up a group, in the order found in the group (including
+  /* Given accelerations for the variables that make up a group, in the order found in the group (including
    *   values of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupAccelerations(const JointModelGroup* group, const double* gstate);
 
-  /** \brief Given accelerations for the variables that make up a group, in the order found in the group (including
+  /* Given accelerations for the variables that make up a group, in the order found in the group (including
    *   values of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupAccelerations(const std::string& joint_group_name, const Eigen::VectorXd& values)
   {
@@ -816,11 +816,11 @@ public:
       setJointGroupAccelerations(jmg, values);
   }
 
-  /** \brief Given accelerations for the variables that make up a group, in the order found in the group (including
+  /* Given accelerations for the variables that make up a group, in the order found in the group (including
    *   values of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupAccelerations(const JointModelGroup* group, const Eigen::VectorXd& values);
 
-  /** \brief For a given group, copy the acceleration values of the variables that make up the group into another
+  /* For a given group, copy the acceleration values of the variables that make up the group into another
    * location, in the order that the variables are found in the group. This is not necessarily a contiguous block of
    * memory in the RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupAccelerations(const std::string& joint_group_name, std::vector<double>& gstate) const
@@ -833,7 +833,7 @@ public:
     }
   }
 
-  /** \brief For a given group, copy the acceleration values of the variables that make up the group into another
+  /* For a given group, copy the acceleration values of the variables that make up the group into another
    * location, in the order that the variables are found in the group. This is not necessarily a contiguous block of
    * memory in the RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupAccelerations(const std::string& joint_group_name, double* gstate) const
@@ -843,7 +843,7 @@ public:
       copyJointGroupAccelerations(jmg, gstate);
   }
 
-  /** \brief For a given group, copy the acceleration values of the variables that make up the group into another
+  /* For a given group, copy the acceleration values of the variables that make up the group into another
    * location, in the order that the variables are found in the group. This is not necessarily a contiguous block of
    * memory in the RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupAccelerations(const JointModelGroup* group, std::vector<double>& gstate) const
@@ -852,12 +852,12 @@ public:
     copyJointGroupAccelerations(group, &gstate[0]);
   }
 
-  /** \brief For a given group, copy the acceleration values of the variables that make up the group into another
+  /* For a given group, copy the acceleration values of the variables that make up the group into another
    * location, in the order that the variables are found in the group. This is not necessarily a contiguous block of
    * memory in the RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupAccelerations(const JointModelGroup* group, double* gstate) const;
 
-  /** \brief For a given group, copy the acceleration values of the variables that make up the group into another
+  /* For a given group, copy the acceleration values of the variables that make up the group into another
    * location, in the order that the variables are found in the group. This is not necessarily a contiguous block of
    * memory in the RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupAccelerations(const std::string& joint_group_name, Eigen::VectorXd& values) const
@@ -867,7 +867,7 @@ public:
       copyJointGroupAccelerations(jmg, values);
   }
 
-  /** \brief For a given group, copy the acceleration values of the variables that make up the group into another
+  /* For a given group, copy the acceleration values of the variables that make up the group into another
    * location, in the order that the variables are found in the group. This is not necessarily a contiguous block of
    * memory in the RobotState itself, so we copy instead of returning a pointer.*/
   void copyJointGroupAccelerations(const JointModelGroup* group, Eigen::VectorXd& values) const;
@@ -878,7 +878,7 @@ public:
    *  @{
    */
 
-  /** \brief If the group this state corresponds to is a chain and a solver is available, then the joint values can be
+  /* If the group this state corresponds to is a chain and a solver is available, then the joint values can be
      set by computing inverse kinematics.
       The pose is assumed to be in the reference frame of the kinematic model. Returns true on success.
       @param pose The pose the last link in the chain needs to achieve
@@ -892,7 +892,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief If the group this state corresponds to is a chain and a solver is available, then the joint values can be
+  /* If the group this state corresponds to is a chain and a solver is available, then the joint values can be
      set by computing inverse kinematics.
       The pose is assumed to be in the reference frame of the kinematic model. Returns true on success.
       @param pose The pose the \e tip  link in the chain needs to achieve
@@ -908,7 +908,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief If the group this state corresponds to is a chain and a solver is available, then the joint values can be
+  /* If the group this state corresponds to is a chain and a solver is available, then the joint values can be
      set by computing inverse kinematics.
       The pose is assumed to be in the reference frame of the kinematic model. Returns true on success.
       @param pose The pose the last link in the chain needs to achieve
@@ -922,7 +922,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief If the group this state corresponds to is a chain and a solver is available, then the joint values can be
+  /* If the group this state corresponds to is a chain and a solver is available, then the joint values can be
      set by computing inverse kinematics.
       The pose is assumed to be in the reference frame of the kinematic model. Returns true on success.
       @param pose The pose the last link in the chain needs to achieve
@@ -937,7 +937,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief If the group this state corresponds to is a chain and a solver is available, then the joint values can be
+  /* If the group this state corresponds to is a chain and a solver is available, then the joint values can be
      set by computing inverse kinematics.
       The pose is assumed to be in the reference frame of the kinematic model. Returns true on success.
       @param pose The pose the last link in the chain needs to achieve
@@ -955,7 +955,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief  Warning: This function inefficiently copies all transforms around.
+  /*  Warning: This function inefficiently copies all transforms around.
       If the group consists of a set of sub-groups that are each a chain and a solver
       is available for each sub-group, then the joint values can be set by computing inverse kinematics.
       The poses are assumed to be in the reference frame of the kinematic model. The poses are assumed
@@ -973,7 +973,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief Warning: This function inefficiently copies all transforms around.
+  /* Warning: This function inefficiently copies all transforms around.
       If the group consists of a set of sub-groups that are each a chain and a solver
       is available for each sub-group, then the joint values can be set by computing inverse kinematics.
       The poses are assumed to be in the reference frame of the kinematic model. The poses are assumed
@@ -1010,7 +1010,7 @@ public:
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions());
 
-  /** \brief Set the joint values from a Cartesian velocity applied during a time dt
+  /* Set the joint values from a Cartesian velocity applied during a time dt
    * @param group the group of joints this function operates on
    * @param twist a Cartesian velocity on the 'tip' frame
    * @param tip the frame for which the twist is given
@@ -1024,7 +1024,7 @@ public:
     double dt,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn());
 
-  /** \brief Set the joint values from a Cartesian velocity applied during a time dt
+  /* Set the joint values from a Cartesian velocity applied during a time dt
    * @param group the group of joints this function operates on
    * @param twist a Cartesian velocity on the 'tip' frame
    * @param tip the frame for which the twist is given
@@ -1038,7 +1038,7 @@ public:
     double dt,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn());
 
-  /** \brief Compute the Jacobian with reference to a particular point on a given link, for a specified group.
+  /* Compute the Jacobian with reference to a particular point on a given link, for a specified group.
    * \param group The group to compute the Jacobian for
    * \param link The link model to compute the Jacobian for
    * \param reference_point_position The reference point position (with respect to the link specified in link)
@@ -1054,7 +1054,7 @@ public:
     Eigen::MatrixXd& jacobian,
     bool use_quaternion_representation = false) const;
 
-  /** \brief Compute the Jacobian with reference to a particular point on a given link, for a specified group.
+  /* Compute the Jacobian with reference to a particular point on a given link, for a specified group.
    * \param group The group to compute the Jacobian for
    * \param link The link model to compute the Jacobian for
    * \param reference_point_position The reference point position (with respect to the link specified in link)
@@ -1075,7 +1075,7 @@ public:
       group, link, reference_point_position, jacobian, use_quaternion_representation);
   }
 
-  /** \brief Compute the Jacobian with reference to the last link of a specified group, and origin at the group root
+  /* Compute the Jacobian with reference to the last link of a specified group, and origin at the group root
    * link. If the group is not a chain, an exception is thrown.
    * \param group The group to compute the Jacobian for
    * \param reference_point_position The reference point position (with respect to the link specified in link_name)
@@ -1085,7 +1085,7 @@ public:
     const JointModelGroup* group,
     const Eigen::Vector3d& reference_point_position = Eigen::Vector3d(0.0, 0.0, 0.0)) const;
 
-  /** \brief Compute the Jacobian with reference to the last link of a specified group, and origin at the group root
+  /* Compute the Jacobian with reference to the last link of a specified group, and origin at the group root
    * link. If the group is not a chain, an exception is thrown.
    * \param group The group to compute the Jacobian for
    * \param reference_point_position The reference point position (with respect to the link specified in link_name)
@@ -1099,7 +1099,7 @@ public:
     return static_cast<const RobotState*>(this)->getJacobian(group, reference_point_position);
   }
 
-  /** \brief Given a twist for a particular link (\e tip), compute the corresponding velocity for every variable and
+  /* Given a twist for a particular link (\e tip), compute the corresponding velocity for every variable and
    * store it in \e qdot */
   void computeVariableVelocity(
     const JointModelGroup* jmg,
@@ -1107,7 +1107,7 @@ public:
     const Eigen::VectorXd& twist,
     const LinkModel* tip) const;
 
-  /** \brief Given a twist for a particular link (\e tip), compute the corresponding velocity for every variable and
+  /* Given a twist for a particular link (\e tip), compute the corresponding velocity for every variable and
    * store it in \e qdot */
   void computeVariableVelocity(
     const JointModelGroup* jmg,
@@ -1119,7 +1119,7 @@ public:
     static_cast<const RobotState*>(this)->computeVariableVelocity(jmg, qdot, twist, tip);
   }
 
-  /** \brief Given the velocities for the variables in this group (\e qdot) and an amount of time (\e dt),
+  /* Given the velocities for the variables in this group (\e qdot) and an amount of time (\e dt),
       update the current state using the Euler forward method. If the constraint specified is satisfied, return true,
      otherwise return false. */
   bool integrateVariableVelocity(
@@ -1142,12 +1142,12 @@ public:
       setVariableVelocities(msg.name, msg.velocity);
   }
 
-  /** \brief Set all joints to their default positions.
+  /* Set all joints to their default positions.
        The default position is 0, or if that is not within bounds then half way
        between min and max bound.  */
   void setToDefaultValues();
 
-  /** \brief Set the joints in \e group to the position \e name defined in the SRDF */
+  /* Set the joints in \e group to the position \e name defined in the SRDF */
   bool setToDefaultValues(const JointModelGroup* group, const std::string& name);
 
   bool setToDefaultValues(const std::string& group_name, const std::string& state_name)
@@ -1163,24 +1163,24 @@ public:
     }
   }
 
-  /** \brief Set all joints to random values.  Values will be within default bounds. */
+  /* Set all joints to random values.  Values will be within default bounds. */
   void setToRandomPositions();
 
-  /** \brief Set all joints in \e group to random values.  Values will be within default bounds. */
+  /* Set all joints in \e group to random values.  Values will be within default bounds. */
   void setToRandomPositions(const JointModelGroup* group);
 
-  /** \brief Set all joints in \e group to random values using a specified random number generator.
+  /* Set all joints in \e group to random values using a specified random number generator.
       Values will be within default bounds. */
   void setToRandomPositions(const JointModelGroup* group, random_numbers::RandomNumberGenerator& rng);
 
-  /** \brief Set all joints in \e group to random values near the value in \e seed.
+  /* Set all joints in \e group to random values near the value in \e seed.
    *  \e distance is the maximum amount each joint value will vary from the
    *  corresponding value in \e seed.  \distance represents meters for
    *  prismatic/positional joints and radians for revolute/orientation joints.
    *  Resulting values are clamped within default bounds. */
   void setToRandomPositionsNearBy(const JointModelGroup* group, const RobotState& seed, double distance);
 
-  /** \brief Set all joints in \e group to random values near the value in \e seed, using a specified random number
+  /* Set all joints in \e group to random values near the value in \e seed, using a specified random number
    * generator. \e distance is the maximum amount each joint value will vary from the corresponding value in \e seed.
    * \distance represents meters for prismatic/positional joints and radians for revolute/orientation joints. Resulting
    * values are clamped within default bounds. */
@@ -1190,7 +1190,7 @@ public:
     double distance,
     random_numbers::RandomNumberGenerator& rng);
 
-  /** \brief Set all joints in \e group to random values near the value in \e seed.
+  /* Set all joints in \e group to random values near the value in \e seed.
    *  \e distances \b MUST have the same size as \c
    *  group.getActiveJointModels().  Each value in \e distances is the maximum
    *  amount the corresponding active joint in \e group will vary from the
@@ -1202,7 +1202,7 @@ public:
     const RobotState& seed,
     const std::vector<double>& distances);
 
-  /** \brief Set all joints in \e group to random values near the value in \e seed, using a specified random number
+  /* Set all joints in \e group to random values near the value in \e seed, using a specified random number
    * generator. \e distances \b MUST have the same size as \c group.getActiveJointModels().  Each value in \e distances
    * is the maximum amount the corresponding active joint in \e group will vary from the corresponding value in \e seed.
    * \distance represents meters for prismatic/positional joints and radians for revolute/orientation joints. Resulting
@@ -1219,18 +1219,18 @@ public:
    *  @{
    */
 
-  /** \brief Update the transforms for the collision bodies. This call is needed before calling collision checking.
+  /* Update the transforms for the collision bodies. This call is needed before calling collision checking.
       If updating link transforms or joint transforms is needed, the corresponding updates are also triggered. */
   void updateCollisionBodyTransforms();
 
-  /** \brief Update the reference frame transforms for links. This call is needed before using the transforms of links
+  /* Update the reference frame transforms for links. This call is needed before using the transforms of links
    * for coordinate transforms. */
   void updateLinkTransforms();
 
-  /** \brief Update all transforms. */
+  /* Update all transforms. */
   void update(bool force = false);
 
-  /** \brief Update the state after setting a particular link to the input global transform pose.
+  /* Update the state after setting a particular link to the input global transform pose.
 
       This "warps" the given link to the given pose, neglecting the joint values of its parent joint.
       The link transforms of link and all its descendants are updated, but not marked as dirty,
@@ -1243,10 +1243,10 @@ public:
     updateStateWithLinkAt(robot_model_->getLinkModel(link_name), transform, backward);
   }
 
-  /** \brief Update the state after setting a particular link to the input global transform pose.*/
+  /* Update the state after setting a particular link to the input global transform pose.*/
   void updateStateWithLinkAt(const LinkModel* link, const Eigen::Isometry3d& transform, bool backward = false);
 
-  /** \brief Get the latest link upwards the kinematic tree which is only connected via fixed joints.
+  /* Get the latest link upwards the kinematic tree which is only connected via fixed joints.
    *
    * This behaves the same as RobotModel::getRigidlyConnectedParentLinkModel,
    * but can additionally resolve parents for attached objects / subframes.
@@ -1254,7 +1254,7 @@ public:
   const LinkModel*
   getRigidlyConnectedParentLinkModel(const std::string& frame, const JointModelGroup* jmg = nullptr) const;
 
-  /** \brief Get the link transform w.r.t. the root link (model frame) of the RobotModel.
+  /* Get the link transform w.r.t. the root link (model frame) of the RobotModel.
    *   This is typically the root link of the URDF unless a virtual joint is present.
    *   Checks the cache and if there are any dirty (non-updated) transforms, first updates them as needed.
    *   A related, more comprehensive function is |getFrameTransform|, which additionally to link frames
@@ -1294,7 +1294,7 @@ public:
     return global_link_transforms_[link->getLinkIndex()];
   }
 
-  /** \brief Get the link transform w.r.t. the root link (model frame) of the RobotModel.
+  /* Get the link transform w.r.t. the root link (model frame) of the RobotModel.
    *   This is typically the root link of the URDF unless a virtual joint is present.
    *   Checks the cache and if there are any dirty (non-updated) transforms, first updates them as needed.
    *
@@ -1359,7 +1359,7 @@ public:
     return dirty_link_transforms_ || dirty_collision_body_transforms_;
   }
 
-  /** \brief Returns true if anything in this state is dirty */
+  /* Returns true if anything in this state is dirty */
   bool dirty() const
   {
     return dirtyCollisionBodyTransforms();
@@ -1371,16 +1371,16 @@ public:
    *  @{
    */
 
-  /** \brief Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
+  /* Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
   double distance(const RobotState& other) const
   {
     return robot_model_->distance(position_.data(), other.getVariablePositions());
   }
 
-  /** \brief Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
+  /* Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
   double distance(const RobotState& other, const JointModelGroup* joint_group) const;
 
-  /** \brief Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
+  /* Return the sum of joint distances to "other" state. An L1 norm. Only considers active joints. */
   double distance(const RobotState& other, const JointModel* joint) const;
 
   /**
@@ -1425,7 +1425,7 @@ public:
   }
   void enforcePositionBounds(const JointModel* joint);
 
-  /// Call harmonizePosition() for all joints / all joints in group / given joint
+  // Call harmonizePosition() for all joints / all joints in group / given joint
   void harmonizePositions();
   void harmonizePositions(const JointModelGroup* joint_group);
   void harmonizePosition(const JointModel* joint);
@@ -1447,15 +1447,15 @@ public:
     return joint->satisfiesVelocityBounds(getJointVelocities(joint), margin);
   }
 
-  /** \brief Get the minimm distance from this state to the bounds.
+  /* Get the minimm distance from this state to the bounds.
       The minimum distance and the joint for which this minimum is achieved are returned. */
   std::pair<double, const JointModel*> getMinDistanceToPositionBounds() const;
 
-  /** \brief Get the minimm distance from a group in this state to the bounds.
+  /* Get the minimm distance from a group in this state to the bounds.
       The minimum distance and the joint for which this minimum is achieved are returned. */
   std::pair<double, const JointModel*> getMinDistanceToPositionBounds(const JointModelGroup* group) const;
 
-  /** \brief Get the minimm distance from a set of joints in the state to the bounds.
+  /* Get the minimm distance from a set of joints in the state to the bounds.
       The minimum distance and the joint for which this minimum is achieved are returned. */
   std::pair<double, const JointModel*>
   getMinDistanceToPositionBounds(const std::vector<const JointModel*>& joints) const;
@@ -1474,7 +1474,7 @@ public:
    *  @{
    */
 
-  /** \brief Add an attached body to this state.
+  /* Add an attached body to this state.
    *
    * This only adds the given body to this RobotState
    * instance.  It does not change anything about other
@@ -1544,42 +1544,42 @@ public:
     attachBody(id, pose, shapes, shape_poses, touch_links_set, link_name, detach_posture, subframe_poses);
   }
 
-  /** \brief Get all bodies attached to the model corresponding to this state */
+  /* Get all bodies attached to the model corresponding to this state */
   void getAttachedBodies(std::vector<const AttachedBody*>& attached_bodies) const;
 
-  /** \brief Get all bodies attached to a particular group the model corresponding to this state */
+  /* Get all bodies attached to a particular group the model corresponding to this state */
   void getAttachedBodies(std::vector<const AttachedBody*>& attached_bodies, const JointModelGroup* group) const;
 
-  /** \brief Get all bodies attached to a particular link in the model corresponding to this state */
+  /* Get all bodies attached to a particular link in the model corresponding to this state */
   void getAttachedBodies(std::vector<const AttachedBody*>& attached_bodies, const LinkModel* link_model) const;
 
-  /** \brief Remove the attached body named \e id. Return false if the object was not found (and thus not removed).
+  /* Remove the attached body named \e id. Return false if the object was not found (and thus not removed).
    * Return true on success. */
   bool clearAttachedBody(const std::string& id);
 
-  /** \brief Clear the bodies attached to a specific link */
+  /* Clear the bodies attached to a specific link */
   void clearAttachedBodies(const LinkModel* link);
 
-  /** \brief Clear the bodies attached to a specific group */
+  /* Clear the bodies attached to a specific group */
   void clearAttachedBodies(const JointModelGroup* group);
 
-  /** \brief Clear all attached bodies. This calls delete on the AttachedBody instances, if needed. */
+  /* Clear all attached bodies. This calls delete on the AttachedBody instances, if needed. */
   void clearAttachedBodies();
 
-  /** \brief Get the attached body named \e name. Return nullptr if not found. */
+  /* Get the attached body named \e name. Return nullptr if not found. */
   const AttachedBody* getAttachedBody(const std::string& name) const;
 
-  /** \brief Check if an attached body named \e id exists in this state */
+  /* Check if an attached body named \e id exists in this state */
   bool hasAttachedBody(const std::string& id) const;
 
   void setAttachedBodyUpdateCallback(const AttachedBodyCallback& callback);
   /** @} */
 
-  /** \brief Compute an axis-aligned bounding box that contains the current state.
+  /* Compute an axis-aligned bounding box that contains the current state.
       The format for \e aabb is (minx, maxx, miny, maxy, minz, maxz) */
   void computeAABB(std::vector<double>& aabb) const;
 
-  /** \brief Compute an axis-aligned bounding box that contains the current state.
+  /* Compute an axis-aligned bounding box that contains the current state.
       The format for \e aabb is (minx, maxx, miny, maxy, minz, maxz) */
   void computeAABB(std::vector<double>& aabb)
   {
@@ -1587,7 +1587,7 @@ public:
     static_cast<const RobotState*>(this)->computeAABB(aabb);
   }
 
-  /** \brief Return the instance of a random number generator */
+  /* Return the instance of a random number generator */
   random_numbers::RandomNumberGenerator& getRandomNumberGenerator()
   {
     if (!rng_)
@@ -1595,21 +1595,21 @@ public:
     return *rng_;
   }
 
-  /** \brief Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
+  /* Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
    *
    * If frame_id was not found, \e frame_found is set to false and an identity transform is returned.
    *
    * The returned transformation is always a valid isometry. */
   const Eigen::Isometry3d& getFrameTransform(const std::string& frame_id, bool* frame_found = nullptr);
 
-  /** \brief Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
+  /* Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
    *
    * If frame_id was not found, \e frame_found is set to false and an identity transform is returned.
    *
    * The returned transformation is always a valid isometry. */
   const Eigen::Isometry3d& getFrameTransform(const std::string& frame_id, bool* frame_found = nullptr) const;
 
-  /** \brief Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
+  /* Get the transformation matrix from the model frame (root of model) to the frame identified by \e frame_id
    *
    * If this frame is attached to a robot link, the link pointer is returned in \e robot_link.
    * If frame_id was not found, \e frame_found is set to false and an identity transform is returned.
@@ -1618,7 +1618,7 @@ public:
   const Eigen::Isometry3d&
   getFrameInfo(const std::string& frame_id, const LinkModel*& robot_link, bool& frame_found) const;
 
-  /** \brief Check if a transformation matrix from the model frame (root of model) to frame \e frame_id is known */
+  /* Check if a transformation matrix from the model frame (root of model) to frame \e frame_id is known */
   bool knowsFrameTransform(const std::string& frame_id) const;
 
   /** @brief Get a MarkerArray that fully describes the robot markers for a given robot.
@@ -1679,7 +1679,7 @@ public:
 
   void printStatePositions(std::ostream& out = std::cout) const;
 
-  /** \brief Output to console the current state of the robot's joint limits */
+  /* Output to console the current state of the robot's joint limits */
   void printStatePositionsWithJointLimits(const JointModelGroup* jmg, std::ostream& out = std::cout) const;
 
   void printStateInfo(std::ostream& out = std::cout) const;
@@ -1735,7 +1735,7 @@ private:
 
   void updateMimicJoint(const JointModel* joint);
 
-  /** \brief Update all mimic joints within group */
+  /* Update all mimic joints within group */
   void updateMimicJoints(const JointModelGroup* group);
 
   void updateLinkTransformsInternal(const JointModel* start);
@@ -1744,16 +1744,16 @@ private:
   getMissingKeys(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables) const;
   void getStateTreeJointString(std::ostream& ss, const JointModel* jm, const std::string& pfx0, bool last) const;
 
-  /** \brief This function is only called in debug mode */
+  /* This function is only called in debug mode */
   bool checkJointTransforms(const JointModel* joint) const;
 
-  /** \brief This function is only called in debug mode */
+  /* This function is only called in debug mode */
   bool checkLinkTransforms() const;
 
-  /** \brief This function is only called in debug mode */
+  /* This function is only called in debug mode */
   bool checkCollisionTransforms() const;
 
-  /** \brief Get the closest link in the kinematic tree to `frame`.
+  /* Get the closest link in the kinematic tree to `frame`.
    *
    * Helper function for getRigidlyConnectedParentLinkModel,
    * which resolves attached objects / subframes.
@@ -1781,20 +1781,20 @@ private:
                                                                      ///< bodies
   std::vector<unsigned char> dirty_joint_transforms_;
 
-  /** \brief All attached bodies that are part of this state, indexed by their name */
+  /* All attached bodies that are part of this state, indexed by their name */
   std::map<std::string, std::unique_ptr<AttachedBody>> attached_body_map_;
 
-  /** \brief This event is called when there is a change in the attached bodies for this state;
+  /* This event is called when there is a change in the attached bodies for this state;
       The event specifies the body that changed and whether it was just attached or about to be detached. */
   AttachedBodyCallback attached_body_update_callback_;
 
-  /** \brief For certain operations a state needs a random number generator. However, it may be slightly expensive
+  /* For certain operations a state needs a random number generator. However, it may be slightly expensive
       to allocate the random number generator if many state instances are generated. For this reason, the generator
       is allocated on a need basis, by the getRandomNumberGenerator() function. Never use the rng_ member directly, but
       call getRandomNumberGenerator() instead. */
   std::unique_ptr<random_numbers::RandomNumberGenerator> rng_;
 };
 
-/** \brief Operator overload for printing variable bounds to a stream */
+/* Operator overload for printing variable bounds to a stream */
 std::ostream& operator<<(std::ostream& out, const RobotState& s);
 }  // namespace tobas

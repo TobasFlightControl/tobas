@@ -14,8 +14,6 @@ public:
   inline explicit Impulse();
   inline explicit Impulse(const Vector& linear, const Vector& angular);
 
-  /// Spatial cross product for 6d force vectors, beware all of them have to be expressed in the
-  /// same reference frame/point
   inline friend Wrench operator*(const Twist& t, const Impulse& P);
 };
 

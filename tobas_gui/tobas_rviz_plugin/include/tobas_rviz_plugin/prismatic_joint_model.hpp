@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-/** \brief A prismatic joint */
+/* A prismatic joint */
 class PrismaticJointModel : public JointModel
 {
 public:
@@ -34,20 +34,20 @@ public:
   void computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const override;
   void computeVariablePositions(const Eigen::Isometry3d& transf, double* joint_values) const override;
 
-  /** \brief Get the axis of translation */
+  /* Get the axis of translation */
   const Eigen::Vector3d& getAxis() const
   {
     return axis_;
   }
 
-  /** \brief Set the axis of translation */
+  /* Set the axis of translation */
   void setAxis(const Eigen::Vector3d& axis)
   {
     axis_ = axis;
   }
 
 protected:
-  /** \brief The axis of the joint */
+  /* The axis of the joint */
   Eigen::Vector3d axis_;
 };
 }  // namespace tobas

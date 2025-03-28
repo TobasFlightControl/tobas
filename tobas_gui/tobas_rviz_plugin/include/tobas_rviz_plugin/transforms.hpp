@@ -10,8 +10,8 @@ namespace tobas
 {
 TOBAS_CLASS_FORWARD(Transforms);  // Defines TransformsPtr, ConstPtr, WeakPtr... etc
 
-/// @brief Map frame names to the transformation matrix that can transform objects from the frame name to the planning
-/// frame
+// @brief Map frame names to the transformation matrix that can transform objects from the frame name to the planning
+// frame
 using FixedTransformsMap = std::map<
   std::string,
   Eigen::Isometry3d,
@@ -44,7 +44,7 @@ public:
    */
   virtual ~Transforms();
 
-  /** \brief Check if two frames end up being the same once the missing / are added as prefix (if they are missing) */
+  /* Check if two frames end up being the same once the missing / are added as prefix (if they are missing) */
   static bool sameFrame(const std::string& frame1, const std::string& frame2);
 
   /**

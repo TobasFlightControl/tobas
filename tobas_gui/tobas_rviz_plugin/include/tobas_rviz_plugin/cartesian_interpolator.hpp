@@ -12,23 +12,24 @@ struct CartesianPrecision
   double max_resolution = 1e-5;  //< max resolution for waypoints (fraction of total path)
 };
 
-/** \brief Struct with options for defining joint-space jump thresholds. */
+/* Struct with options for defining joint-space jump thresholds. */
 struct JumpThreshold
 {
   JumpThreshold() = default;  // default is equivalent to disabled().
 
-  /** \brief Do not define any jump threshold, i.e., disable joint-space jump detection. */
+  /* Do not define any jump threshold, i.e., disable joint-space jump detection. */
   static JumpThreshold disabled();
 
-  /** \brief Detect joint-space jumps relative to the average joint-space displacement along the path.
-
-     The average joint-space distance between consecutive points in the path is computed. If any individual joint-space
-     motion delta is larger than the average distance by a factor of `relative_factor`, it is considered the path has a
-     jump. For instance, a `relative_factor` of 10.0 will detect joint increments larger than 10x the average increment
+  /**
+   * @brief Detect joint-space jumps relative to the average joint-space displacement along the path.
+   *
+   * The average joint-space distance between consecutive points in the path is computed. If any individual joint-space
+   * motion delta is larger than the average distance by a factor of `relative_factor`, it is considered the path has a
+   * jump. For instance, a `relative_factor` of 10.0 will detect joint increments larger than 10x the average increment
    */
   static JumpThreshold relative(double relative_factor);
 
-  /** \brief Detect joint-space jumps greater than the given absolute thresholds.
+  /* Detect joint-space jumps greater than the given absolute thresholds.
 
      `revolute` and `prismatic` are absolute joint displacement thresholds, in radians and meters respectively.
      If any two consecutive waypoints have a joint-space distance larger than these values, the path has a jump. */
@@ -43,11 +44,13 @@ struct JumpThreshold
   [[deprecated("Use JumpThreshold::absolute() instead.")]] JumpThreshold(double revolute, double prismatic);
 };
 
-/** \brief Struct for containing max_step for computeCartesianPath
-
-    Setting translation to zero will disable checking for translations. The same goes for rotation.
-    Initializing with only one value (translation) sets the rotation such that
-    1 cm of allowed translation = 2 degrees of allowed rotation. */
+/**
+ * @brief Struct for containing max_step for computeCartesianPath
+ *
+ * Setting translation to zero will disable checking for translations. The same goes for rotation.
+ * Initializing with only one value (translation) sets the rotation such that
+ * 1 cm of allowed translation = 2 degrees of allowed rotation.
+ */
 struct MaxEEFStep
 {
   MaxEEFStep(double _translation, double _rotation) : translation(_translation), rotation(_rotation)
@@ -112,7 +115,7 @@ public:
     double meters;
   };
 
-  /** \brief Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
+  /* Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
 
      The Cartesian path to be followed is specified as a \e translation vector to be followed by the robot \e link.
      This vector is assumed to be specified either in the global reference frame or in the local
@@ -141,7 +144,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular link.
+  /* Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular link.
 
      In contrast to the previous function, the translation vector is specified as a (unit) direction vector and
      a distance. */
@@ -164,7 +167,7 @@ public:
       options, cost_function);
   }
 
-  /** \brief Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
+  /* Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
 
      In contrast to the previous function, the Cartesian path is specified as a target frame to be reached (\e target)
      for a virtual frame attached to the robot \e link with the given \e link_offset.
@@ -185,7 +188,7 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /** \brief Compute the sequence of joint values that perform a general Cartesian path.
+  /* Compute the sequence of joint values that perform a general Cartesian path.
 
      In contrast to the previous functions, the Cartesian path is specified as a set of \e waypoints to be sequentially
      reached by the virtual frame attached to the robot \e link. The waypoints are transforms given either w.r.t. the
@@ -205,7 +208,7 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /** \brief Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
+  /* Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
 
      The Cartesian path to be followed is specified as a \e translation vector to be followed by the robot \e link.
      This vector is assumed to be specified either in the global reference frame or in the local
@@ -244,7 +247,7 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /** \brief Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular link.
+  /* Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular link.
 
      In contrast to the previous function, the translation vector is specified as a (unit) direction vector and
      a distance. */
@@ -270,7 +273,7 @@ public:
 #pragma GCC diagnostic pop
   }
 
-  /** \brief Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
+  /* Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
 
      In contrast to the previous function, the Cartesian path is specified as a target frame to be reached (\e target)
      for a virtual frame attached to the robot \e link with the given \e link_offset.
@@ -291,7 +294,7 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /** \brief Compute the sequence of joint values that perform a general Cartesian path.
+  /* Compute the sequence of joint values that perform a general Cartesian path.
 
      In contrast to the previous functions, the Cartesian path is specified as a set of \e waypoints to be sequentially
      reached by the virtual frame attached to the robot \e link. The waypoints are transforms given either w.r.t. the
@@ -311,7 +314,7 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /** \brief Checks if a path has a joint-space jump, and truncates the path at the jump.
+  /* Checks if a path has a joint-space jump, and truncates the path at the jump.
 
      Checks if a path has a jump larger than `jump_threshold` and truncates the path to the waypoint right before the
      jump. Returns the percentage of the path that doesn't have jumps.
@@ -327,12 +330,14 @@ public:
     const JumpThreshold& jump_threshold);
 };
 
-/** \brief Checks if a joint-space path has a jump larger than the given threshold.
-
-   This function computes the distance between every pair of adjacent waypoints (for the given group) and checks if that
-   distance is larger than the threshold defined by `jump_threshold`. If so, it is considered that the path has a
-   jump, and the path index where the jump happens is returned as output.
-   Otherwise the function returns a nullopt. */
+/**
+ * @brief Checks if a joint-space path has a jump larger than the given threshold.
+ *
+ * This function computes the distance between every pair of adjacent waypoints (for the given group) and checks if that
+ * distance is larger than the threshold defined by `jump_threshold`. If so, it is considered that the path has a
+ * jump, and the path index where the jump happens is returned as output.
+ * Otherwise the function returns a nullopt.
+ */
 std::optional<int> hasJointSpaceJump(
   const std::vector<RobotStatePtr>& waypoints,
   const JointModelGroup& group,

@@ -167,7 +167,6 @@ void RobotState::updateMimicJoint(const JointModel* joint)
   }
 }
 
-/** \brief Update all mimic joints within group */
 void RobotState::updateMimicJoints(const JointModelGroup* group)
 {
   for (const JointModel* jm : group->getMimicJointModels())
