@@ -1,12 +1,8 @@
+#include <functional>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_eigen/tf2_eigen.hpp>
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shape_operations.h>
-#include <rclcpp/clock.hpp>
-#include <rclcpp/logger.hpp>
-#include <rclcpp/logging.hpp>
-#include <rclcpp/time.hpp>
-#include <tf2_eigen/tf2_eigen.hpp>
-#include <cassert>
-#include <functional>
 
 #include "../include/tobas_rviz_plugin/robot_state.hpp"
 #include "../include/tobas_rviz_plugin/logger.hpp"
@@ -129,7 +125,7 @@ void RobotState::markVelocity()
   if (!has_velocity_)
   {
     has_velocity_ = true;
-    std::fill(velocity_.begin(), velocity_.end(), 0.0);
+    std::fill(velocity_.begin(), velocity_.end(), 0.);
   }
 }
 
@@ -139,7 +135,7 @@ void RobotState::markAcceleration()
   {
     has_acceleration_ = true;
     has_effort_ = false;
-    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.0);
+    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.);
   }
 }
 
@@ -149,7 +145,7 @@ void RobotState::markEffort()
   {
     has_acceleration_ = false;
     has_effort_ = true;
-    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.0);
+    std::fill(effort_or_acceleration_.begin(), effort_or_acceleration_.end(), 0.);
   }
 }
 
@@ -1089,7 +1085,7 @@ bool RobotState::isValidVelocityMove(const RobotState& other, const JointModelGr
 
 double RobotState::distance(const RobotState& other, const JointModelGroup* joint_group) const
 {
-  double d = 0.0;
+  double d = 0.;
   const std::vector<const JointModel*>& jm = joint_group->getActiveJointModels();
   for (const JointModel* joint : jm)
   {
@@ -1103,7 +1099,7 @@ double RobotState::distance(const RobotState& other, const JointModel* joint) co
 {
   if (joint->getVariableCount() == 0)
   {
-    return 0.0;
+    return 0.;
   }
   const int idx = joint->getFirstVariableIndex();
   return joint->distance(&position_.at(idx), &other.position_.at(idx));
@@ -1554,11 +1550,11 @@ bool RobotState::getJacobian(
     }
     else if (joint_model->getType() == JointModel::PLANAR)
     {
-      jacobian.block<3, 1>(0, i) = root_pose_link.linear() * Eigen::Vector3d(1.0, 0.0, 0.0);
-      jacobian.block<3, 1>(0, i + 1) = root_pose_link.linear() * Eigen::Vector3d(0.0, 1.0, 0.0);
+      jacobian.block<3, 1>(0, i) = root_pose_link.linear() * Eigen::Vector3d(1., 0., 0.);
+      jacobian.block<3, 1>(0, i + 1) = root_pose_link.linear() * Eigen::Vector3d(0., 1., 0.);
       jacobian.block<3, 1>(0, i + 2) =
-        (root_pose_link.linear() * Eigen::Vector3d(0.0, 0.0, 1.0)).cross(tip_point - root_pose_link.translation());
-      jacobian.block<3, 1>(3, i + 2) = root_pose_link.linear() * Eigen::Vector3d(0.0, 0.0, 1.0);
+        (root_pose_link.linear() * Eigen::Vector3d(0., 0., 1.)).cross(tip_point - root_pose_link.translation());
+      jacobian.block<3, 1>(3, i + 2) = root_pose_link.linear() * Eigen::Vector3d(0., 0., 1.);
     }
     else
     {
@@ -1617,7 +1613,7 @@ void RobotState::computeVariableVelocity(
 {
   // Get the Jacobian of the group at the current configuration
   Eigen::MatrixXd j(6, jmg->getVariableCount());
-  Eigen::Vector3d reference_point(0.0, 0.0, 0.0);
+  Eigen::Vector3d reference_point(0., 0., 0.);
   getJacobian(jmg, tip, reference_point, j, false);
 
   // Rotate the jacobian to the end-effector frame
@@ -1635,7 +1631,7 @@ void RobotState::computeVariableVelocity(
 
   Eigen::VectorXd sinv = s;
   static const double PINVTOLER = std::numeric_limits<double>::epsilon();
-  double maxsv = 0.0;
+  double maxsv = 0.;
   for (std::size_t i = 0; i < static_cast<std::size_t>(s.rows()); ++i)
   {
     if (fabs(s(i)) > maxsv)
@@ -1646,11 +1642,11 @@ void RobotState::computeVariableVelocity(
     // Those singular values smaller than a percentage of the maximum singular value are removed
     if (fabs(s(i)) > maxsv * PINVTOLER)
     {
-      sinv(i) = 1.0 / s(i);
+      sinv(i) = 1. / s(i);
     }
     else
     {
-      sinv(i) = 0.0;
+      sinv(i) = 0.;
     }
   }
   Eigen::MatrixXd jinv = (v * sinv.asDiagonal() * u.transpose());
@@ -2304,7 +2300,7 @@ void RobotState::computeAABB(std::vector<double>& aabb) const
   }
 
   aabb.clear();
-  aabb.resize(6, 0.0);
+  aabb.resize(6, 0.);
   if (!bounding_box.isEmpty())
   {
     // The following is a shorthand for something like:
@@ -2347,7 +2343,7 @@ void RobotState::printStatePositionsWithJointLimits(const JointModelGroup* jmg, 
 
     out << "   " << std::fixed << std::setprecision(5) << bound.min_position_ << '\t';
     double delta = bound.max_position_ - bound.min_position_;
-    double step = delta / 20.0;
+    double step = delta / 20.;
 
     bool marker_shown = false;
     for (double value = bound.min_position_; value < bound.max_position_; value += step)

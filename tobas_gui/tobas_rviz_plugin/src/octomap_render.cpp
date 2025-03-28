@@ -75,10 +75,10 @@ void OcTreeRender::setColor(
   int i;
   double m, n, f;
 
-  double s = 1.0;
-  double v = 1.0;
+  double s = 1.;
+  double v = 1.;
 
-  double h = (1.0 - std::min(std::max((z_pos - min_z) / (max_z - min_z), 0.0), 1.0)) * color_factor;
+  double h = (1. - std::min(std::max((z_pos - min_z) / (max_z - min_z), 0.), 1.)) * color_factor;
 
   h -= floor(h);
   h *= 6;
@@ -204,7 +204,7 @@ void OcTreeRender::octreeDecoding(
             break;
           case OCTOMAP_PROBABLILTY_COLOR:
             cell_probability = it->getOccupancy();
-            new_point.setColor((1.0f - cell_probability), cell_probability, 0.0);
+            new_point.setColor((1.0f - cell_probability), cell_probability, 0.);
             break;
           default:
             break;

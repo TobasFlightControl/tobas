@@ -5,7 +5,7 @@
 namespace tobas
 {
 PrismaticJointModel::PrismaticJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index), axis_(0.0, 0.0, 0.0)
+  : JointModel(name, joint_index, first_variable_index), axis_(0., 0., 0.)
 {
   type_ = PRISMATIC;
   variable_names_.push_back(getName());
@@ -30,13 +30,13 @@ double PrismaticJointModel::getMaximumExtent(const Bounds& other_bounds) const
 void PrismaticJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
 {
   // if zero is a valid value
-  if (bounds[0].min_position_ <= 0.0 && bounds[0].max_position_ >= 0.0)
+  if (bounds[0].min_position_ <= 0. && bounds[0].max_position_ >= 0.)
   {
-    values[0] = 0.0;
+    values[0] = 0.;
   }
   else
   {
-    values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.0;
+    values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.;
   }
 }
 
@@ -92,25 +92,25 @@ void PrismaticJointModel::interpolate(const double* from, const double* to, cons
 void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
 {
   double* d = transf.data();
-  d[0] = 1.0;
-  d[1] = 0.0;
-  d[2] = 0.0;
-  d[3] = 0.0;
+  d[0] = 1.;
+  d[1] = 0.;
+  d[2] = 0.;
+  d[3] = 0.;
 
-  d[4] = 0.0;
-  d[5] = 1.0;
-  d[6] = 0.0;
-  d[7] = 0.0;
+  d[4] = 0.;
+  d[5] = 1.;
+  d[6] = 0.;
+  d[7] = 0.;
 
-  d[8] = 0.0;
-  d[9] = 0.0;
-  d[10] = 1.0;
-  d[11] = 0.0;
+  d[8] = 0.;
+  d[9] = 0.;
+  d[10] = 1.;
+  d[11] = 0.;
 
   d[12] = axis_.x() * joint_values[0];
   d[13] = axis_.y() * joint_values[0];
   d[14] = axis_.z() * joint_values[0];
-  d[15] = 1.0;
+  d[15] = 1.;
 
   //  transf.setIdentity();
   //  transf.translation() = Eigen::Vector3d(axis_ * joint_values[0]);

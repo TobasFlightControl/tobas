@@ -3,7 +3,6 @@
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
-#include <string>
 
 #include "../include/tobas_rviz_plugin/conversions.hpp"
 #include "../include/tobas_rviz_plugin/logger.hpp"

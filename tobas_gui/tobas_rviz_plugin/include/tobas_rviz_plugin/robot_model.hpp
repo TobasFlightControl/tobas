@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rclcpp/logging.hpp>
-#include <Eigen/Geometry>
 #include <iostream>
+#include <Eigen/Geometry>
+#include <rclcpp/logging.hpp>
 #include <srdfdom/model.h>
 
 #include "../include/tobas_rviz_plugin/class_forward.hpp"
@@ -294,12 +294,12 @@ public:
     return enforcePositionBounds(state, active_joint_models_bounds_);
   }
   bool enforcePositionBounds(double* state, const JointBoundsVector& active_joint_bounds) const;
-  bool satisfiesPositionBounds(const double* state, double margin = 0.0) const
+  bool satisfiesPositionBounds(const double* state, double margin = 0.) const
   {
     return satisfiesPositionBounds(state, active_joint_models_bounds_, margin);
   }
   bool
-  satisfiesPositionBounds(const double* state, const JointBoundsVector& active_joint_bounds, double margin = 0.0) const;
+  satisfiesPositionBounds(const double* state, const JointBoundsVector& active_joint_bounds, double margin = 0.) const;
   double getMaximumExtent() const
   {
     return getMaximumExtent(active_joint_models_bounds_);

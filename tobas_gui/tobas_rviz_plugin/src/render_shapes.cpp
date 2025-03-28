@@ -1,6 +1,5 @@
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/mesh_operations.h>
-
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 #include <OgreManualObject.h>
@@ -8,10 +7,6 @@
 #include <rviz_rendering/objects/shape.hpp>
 #include <rviz_common/display_context.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
-
-#include <math.h>
-#include <memory>
-#include <string>
 
 #include "../include/tobas_rviz_plugin/render_shapes.hpp"
 #include "../include/tobas_rviz_plugin/mesh_shape.hpp"
@@ -63,7 +58,7 @@ void RenderShapes::renderShape(
     case shapes::SPHERE:
     {
       ogre_shape = new rviz_rendering::Shape(rviz_rendering::Shape::Sphere, context_->getSceneManager(), node);
-      double d = 2.0 * static_cast<const shapes::Sphere*>(s)->radius;
+      double d = 2. * static_cast<const shapes::Sphere*>(s)->radius;
       ogre_shape->setScale(Ogre::Vector3(d, d, d));
     }
     break;
@@ -77,7 +72,7 @@ void RenderShapes::renderShape(
     case shapes::CYLINDER:
     {
       ogre_shape = new rviz_rendering::Shape(rviz_rendering::Shape::Cylinder, context_->getSceneManager(), node);
-      double d = 2.0 * static_cast<const shapes::Cylinder*>(s)->radius;
+      double d = 2. * static_cast<const shapes::Cylinder*>(s)->radius;
       double z = static_cast<const shapes::Cylinder*>(s)->length;
       ogre_shape->setScale(Ogre::Vector3(d, z, d));  // the shape has z as major axis, but the rendered cylinder has y
                                                      // as major axis (assuming z is upright);
@@ -91,7 +86,7 @@ void RenderShapes::renderShape(
         rviz_rendering::MeshShape* m = new rviz_rendering::MeshShape(context_->getSceneManager(), node);
         ogre_shape = m;
 
-        Ogre::Vector3 normal(0.0, 0.0, 0.0);
+        Ogre::Vector3 normal(0., 0., 0.);
         for (unsigned int i = 0; i < mesh->triangle_count; ++i)
         {
           unsigned int i3 = i * 3;
@@ -151,7 +146,7 @@ void RenderShapes::renderShape(
     {
       // in geometric shapes, the z axis of the cylinder is its height;
       // for the rviz shape, the y axis is the height; we add a transform to fix this
-      static Ogre::Quaternion fix(Ogre::Radian(M_PI / 2.0), Ogre::Vector3(1.0, 0.0, 0.0));
+      static Ogre::Quaternion fix(Ogre::Radian(M_PI / 2.), Ogre::Vector3(1., 0., 0.));
       orientation = orientation * fix;
     }
 

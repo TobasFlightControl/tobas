@@ -1,9 +1,9 @@
-#include <geometric_shapes/shape_operations.h>
-#include <rclcpp/logger.hpp>
 #include <algorithm>
 #include <limits>
 #include <cmath>
 #include <memory>
+#include <geometric_shapes/shape_operations.h>
+#include <rclcpp/logger.hpp>
 
 #include "../include/tobas_rviz_plugin/robot_model.hpp"
 #include "../include/tobas_rviz_plugin/logger.hpp"
@@ -425,7 +425,7 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
         {
           RCLCPP_ERROR(getLogger(), "Cycle found in joint that mimic each other. Ignoring all mimic joints.");
           for (JointModel* joint_model_recal : joint_model_vector_)
-            joint_model_recal->setMimic(nullptr, 0.0, 0.0);
+            joint_model_recal->setMimic(nullptr, 0., 0.);
           change = false;
           break;
         }
@@ -1456,7 +1456,7 @@ size_t RobotModel::getVariableIndex(const std::string& variable) const
 
 double RobotModel::getMaximumExtent(const JointBoundsVector& active_joint_bounds) const
 {
-  double max_distance = 0.0;
+  double max_distance = 0.;
   for (std::size_t j = 0; j < active_joint_model_vector_.size(); ++j)
   {
     max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j])
@@ -1497,7 +1497,7 @@ bool RobotModel::enforcePositionBounds(double* state, const JointBoundsVector& a
 
 double RobotModel::distance(const double* state1, const double* state2) const
 {
-  double d = 0.0;
+  double d = 0.;
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i)
   {
     d += active_joint_model_vector_[i]->getDistanceFactor()

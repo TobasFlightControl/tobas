@@ -25,7 +25,7 @@ struct JumpThreshold
    *
    * The average joint-space distance between consecutive points in the path is computed. If any individual joint-space
    * motion delta is larger than the average distance by a factor of `relative_factor`, it is considered the path has a
-   * jump. For instance, a `relative_factor` of 10.0 will detect joint increments larger than 10x the average increment
+   * jump. For instance, a `relative_factor` of 10 will detect joint increments larger than 10x the average increment
    */
   static JumpThreshold relative(double relative_factor);
 
@@ -35,9 +35,9 @@ struct JumpThreshold
      If any two consecutive waypoints have a joint-space distance larger than these values, the path has a jump. */
   static JumpThreshold absolute(double revolute, double prismatic);
 
-  double relative_factor = 0.0;
-  double revolute = 0.0;   // Radians
-  double prismatic = 0.0;  // Meters
+  double relative_factor = 0.;
+  double revolute = 0.;   // Radians
+  double prismatic = 0.;  // Meters
 
   // Deprecated constructors. Construct using the builder methods above.
   [[deprecated("Use JumpThreshold::relative() instead.")]] JumpThreshold(double relative_factor);
@@ -75,7 +75,7 @@ public:
     // value must be in [0,1]
     Percentage(double _value) : value(_value)
     {
-      if (value < 0.0 || value > 1.0)
+      if (value < 0. || value > 1.)
         throw std::runtime_error("Percentage values must be between 0 and 1, inclusive");
     }
     operator double()

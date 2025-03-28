@@ -1,7 +1,7 @@
 #pragma once
 
-#include <std_msgs/msg/string.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/string.hpp>
 
 namespace tobas
 {
@@ -28,7 +28,7 @@ public:
     const std::string& name,
     const StringCallback& parent_callback = {},
     bool default_continuous_value = false,
-    double default_timeout = 10.0);
+    double default_timeout = 10.);
 
 protected:
   bool getMainParameter();

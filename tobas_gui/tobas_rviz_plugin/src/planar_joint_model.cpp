@@ -1,7 +1,7 @@
-#include <angles/angles.h>
 #include <cmath>
-#include <geometric_shapes/check_isometry.h>
 #include <limits>
+#include <angles/angles.h>
+#include <geometric_shapes/check_isometry.h>
 
 #include "../include/tobas_rviz_plugin/planar_joint_model.hpp"
 
@@ -9,7 +9,7 @@ namespace tobas
 {
 PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : JointModel(name, joint_index, first_variable_index),
-    angular_distance_weight_(1.0),
+    angular_distance_weight_(1.),
     motion_model_(HOLONOMIC),
     min_translational_distance_(1e-5)
 {
@@ -56,16 +56,16 @@ void PlanarJointModel::getVariableDefaultPositions(double* values, const Bounds&
   for (unsigned int i = 0; i < 2; ++i)
   {
     // if zero is a valid value
-    if (bounds[i].min_position_ <= 0.0 && bounds[i].max_position_ >= 0.0)
+    if (bounds[i].min_position_ <= 0. && bounds[i].max_position_ >= 0.)
     {
-      values[i] = 0.0;
+      values[i] = 0.;
     }
     else
     {
-      values[i] = (bounds[i].min_position_ + bounds[i].max_position_) / 2.0;
+      values[i] = (bounds[i].min_position_ + bounds[i].max_position_) / 2.;
     }
   }
-  values[2] = 0.0;
+  values[2] = 0.;
 }
 
 void PlanarJointModel::getVariableRandomPositions(
@@ -77,7 +77,7 @@ void PlanarJointModel::getVariableRandomPositions(
     bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[0] = 0.0;
+    values[0] = 0.;
   }
   else
   {
@@ -87,7 +87,7 @@ void PlanarJointModel::getVariableRandomPositions(
     bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[1] = 0.0;
+    values[1] = 0.;
   }
   else
   {
@@ -107,7 +107,7 @@ void PlanarJointModel::getVariableRandomPositionsNearBy(
     bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[0] = 0.0;
+    values[0] = 0.;
   }
   else
   {
@@ -118,7 +118,7 @@ void PlanarJointModel::getVariableRandomPositionsNearBy(
     bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[1] = 0.0;
+    values[1] = 0.;
   }
   else
   {
@@ -151,14 +151,14 @@ void computeTurnDriveTurnGeometry(
   // 1- Align itself with the line connecting the origin of both states
   // 2- Move to the origin of `to` state
   // 3- Rotate so it have the same orientation as `to` state
-  // Example: from=[0.0, 0.0, 0.0] - to=[1e-31, 1e-31, -130°]
+  // Example: from=[0., 0., 0.] - to=[1e-31, 1e-31, -130°]
   // here the robot will: rotate 45° -> move to the origin of `to` state -> rotate -175°, rather than rotating directly
   // to -130°
   // to fix this we added a joint property (default value is 1e-5) and make the movement pure rotation if the
   // translational distance is less than this number
   const double angle_straight_diff = std::hypot(dx, dy) > min_translational_distance ?
                                        angles::shortest_angular_distance(from[2], std::atan2(dy, dx)) :
-                                       0.0;
+                                       0.;
   const double angle_backward_diff = angles::normalize_angle(angle_straight_diff - M_PI);
   const double move_straight_cost =
     std::abs(angle_straight_diff) + std::abs(angles::shortest_angular_distance(from[2] + angle_straight_diff, to[2]));
@@ -192,23 +192,23 @@ void PlanarJointModel::interpolate(const double* from, const double* to, const d
     }
     else
     {
-      if (diff > 0.0)
+      if (diff > 0.)
       {
-        diff = 2.0 * M_PI - diff;
+        diff = 2. * M_PI - diff;
       }
       else
       {
-        diff = -2.0 * M_PI - diff;
+        diff = -2. * M_PI - diff;
       }
       state[2] = from[2] - diff * t;
       // input states are within bounds, so the following check is sufficient
       if (state[2] > M_PI)
       {
-        state[2] -= 2.0 * M_PI;
+        state[2] -= 2. * M_PI;
       }
       else if (state[2] < -M_PI)
       {
-        state[2] += 2.0 * M_PI;
+        state[2] += 2. * M_PI;
       }
     }
   }
@@ -260,7 +260,7 @@ double PlanarJointModel::distance(const double* values1, const double* values2) 
     double dy = values1[1] - values2[1];
 
     double d = fabs(values1[2] - values2[2]);
-    d = (d > M_PI) ? 2.0 * M_PI - d : d;
+    d = (d > M_PI) ? 2. * M_PI - d : d;
     return sqrt(dx * dx + dy * dy) + angular_distance_weight_ * d;
   }
   else if (motion_model_ == DIFF_DRIVE)
@@ -271,7 +271,7 @@ double PlanarJointModel::distance(const double* values1, const double* values2) 
     return hypot(dx, dy) + angular_distance_weight_ * (fabs(initial_turn) + fabs(final_turn));
   }
 
-  return 0.0;
+  return 0.;
 }
 
 bool PlanarJointModel::satisfiesPositionBounds(const double* values, const Bounds& bounds, double margin) const
@@ -289,14 +289,14 @@ bool PlanarJointModel::normalizeRotation(double* values) const
   double& v = values[2];
   if (v >= -M_PI && v <= M_PI)
     return false;
-  v = fmod(v, 2.0 * M_PI);
+  v = fmod(v, 2. * M_PI);
   if (v < -M_PI)
   {
-    v += 2.0 * M_PI;
+    v += 2. * M_PI;
   }
   else if (v > M_PI)
   {
-    v -= 2.0 * M_PI;
+    v -= 2. * M_PI;
   }
   return true;
 }
@@ -323,7 +323,7 @@ bool PlanarJointModel::enforcePositionBounds(double* values, const Bounds& bound
 void PlanarJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
 {
   transf = Eigen::Isometry3d(
-    Eigen::Translation3d(joint_values[0], joint_values[1], 0.0)
+    Eigen::Translation3d(joint_values[0], joint_values[1], 0.)
     * Eigen::AngleAxisd(joint_values[2], Eigen::Vector3d::UnitZ()));
 }
 
@@ -335,14 +335,14 @@ void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transf,
   ASSERT_ISOMETRY(transf)  // unsanitized input, could contain a non-isometry
   Eigen::Quaterniond q(transf.linear());
   // taken from Bullet
-  double s_squared = 1.0 - (q.w() * q.w());
-  if (s_squared < 10.0 * std::numeric_limits<double>::epsilon())
+  double s_squared = 1. - (q.w() * q.w());
+  if (s_squared < 10. * std::numeric_limits<double>::epsilon())
   {
-    joint_values[2] = 0.0;
+    joint_values[2] = 0.;
   }
   else
   {
-    double s = 1.0 / sqrt(s_squared);
+    double s = 1. / sqrt(s_squared);
     joint_values[2] = (acos(q.w()) * 2.0f) * (q.z() * s);
   }
 }

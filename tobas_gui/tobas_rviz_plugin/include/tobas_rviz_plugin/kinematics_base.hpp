@@ -1,10 +1,10 @@
 #pragma once
 
-#include <geometry_msgs/msg/pose.hpp>
-#include <rclcpp/logging.hpp>
-#include <rclcpp/node.hpp>
 #include <string>
 #include <functional>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/node.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 
 #include <tobas_visualization_msgs/msg/error_codes.hpp>
 
@@ -540,7 +540,7 @@ public:
     }
     else
     {
-      return 0.0;  // returned when there aren't any redundant joints
+      return 0.;  // returned when there aren't any redundant joints
     }
   }
 

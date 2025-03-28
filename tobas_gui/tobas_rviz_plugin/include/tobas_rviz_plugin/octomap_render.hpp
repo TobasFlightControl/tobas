@@ -1,11 +1,11 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 #include <octomap/octomap.h>
 #include <OgrePrerequisites.h>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_default_plugins/displays/pointcloud/point_cloud_helpers.hpp>
-#include <vector>
 
 namespace octomap
 {

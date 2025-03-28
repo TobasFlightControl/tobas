@@ -1,7 +1,7 @@
 #include <cmath>
+#include <limits>
 #include <Eigen/Geometry>
 #include <geometric_shapes/check_isometry.h>
-#include <limits>
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 
@@ -21,7 +21,7 @@ rclcpp::Logger getLogger()
 }  // namespace
 
 FloatingJointModel::FloatingJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index), angular_distance_weight_(1.0)
+  : JointModel(name, joint_index, first_variable_index), angular_distance_weight_(1.)
 {
   type_ = FLOATING;
   local_variable_names_.push_back("trans_x");
@@ -53,14 +53,14 @@ FloatingJointModel::FloatingJointModel(const std::string& name, size_t joint_ind
   variable_bounds_[1].max_position_ = std::numeric_limits<double>::infinity();
   variable_bounds_[2].min_position_ = -std::numeric_limits<double>::infinity();
   variable_bounds_[2].max_position_ = std::numeric_limits<double>::infinity();
-  variable_bounds_[3].min_position_ = -1.0;
-  variable_bounds_[3].max_position_ = 1.0;
-  variable_bounds_[4].min_position_ = -1.0;
-  variable_bounds_[4].max_position_ = 1.0;
-  variable_bounds_[5].min_position_ = -1.0;
-  variable_bounds_[5].max_position_ = 1.0;
-  variable_bounds_[6].min_position_ = -1.0;
-  variable_bounds_[6].max_position_ = 1.0;
+  variable_bounds_[3].min_position_ = -1.;
+  variable_bounds_[3].max_position_ = 1.;
+  variable_bounds_[4].min_position_ = -1.;
+  variable_bounds_[4].max_position_ = 1.;
+  variable_bounds_[5].min_position_ = -1.;
+  variable_bounds_[5].max_position_ = 1.;
+  variable_bounds_[6].min_position_ = -1.;
+  variable_bounds_[6].max_position_ = 1.;
 
   computeVariableBoundsMsg();
 }
@@ -135,23 +135,23 @@ bool FloatingJointModel::satisfiesPositionBounds(const double* values, const Bou
   if (values[2] < bounds[2].min_position_ - margin || values[2] > bounds[2].max_position_ + margin)
     return false;
   double norm_sqr = values[3] * values[3] + values[4] * values[4] + values[5] * values[5] + values[6] * values[6];
-  return fabs(norm_sqr - 1.0) <= std::numeric_limits<double>::epsilon() * 10.0;
+  return fabs(norm_sqr - 1.) <= std::numeric_limits<double>::epsilon() * 10.;
 }
 
 bool FloatingJointModel::normalizeRotation(double* values) const
 {
   // normalize the quaternion if we need to
   double norm_sqr = values[3] * values[3] + values[4] * values[4] + values[5] * values[5] + values[6] * values[6];
-  if (fabs(norm_sqr - 1.0) > std::numeric_limits<double>::epsilon() * 100.0)
+  if (fabs(norm_sqr - 1.) > std::numeric_limits<double>::epsilon() * 100.)
   {
     double norm = sqrt(norm_sqr);
-    if (norm < std::numeric_limits<double>::epsilon() * 100.0)
+    if (norm < std::numeric_limits<double>::epsilon() * 100.)
     {
       RCLCPP_WARN(getLogger(), "Quaternion is zero in RobotState representation. Setting to identity");
-      values[3] = 0.0;
-      values[4] = 0.0;
-      values[5] = 0.0;
-      values[6] = 1.0;
+      values[3] = 0.;
+      values[4] = 0.;
+      values[5] = 0.;
+      values[6] = 1.;
     }
     else
     {
@@ -215,20 +215,20 @@ void FloatingJointModel::getVariableDefaultPositions(double* values, const Bound
   for (unsigned int i = 0; i < 3; ++i)
   {
     // if zero is a valid value
-    if (bounds[i].min_position_ <= 0.0 && bounds[i].max_position_ >= 0.0)
+    if (bounds[i].min_position_ <= 0. && bounds[i].max_position_ >= 0.)
     {
-      values[i] = 0.0;
+      values[i] = 0.;
     }
     else
     {
-      values[i] = (bounds[i].min_position_ + bounds[i].max_position_) / 2.0;
+      values[i] = (bounds[i].min_position_ + bounds[i].max_position_) / 2.;
     }
   }
 
-  values[3] = 0.0;
-  values[4] = 0.0;
-  values[5] = 0.0;
-  values[6] = 1.0;
+  values[3] = 0.;
+  values[4] = 0.;
+  values[5] = 0.;
+  values[6] = 1.;
 }
 
 void FloatingJointModel::getVariableRandomPositions(
@@ -240,7 +240,7 @@ void FloatingJointModel::getVariableRandomPositions(
     bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[0] = 0.0;
+    values[0] = 0.;
   }
   else
   {
@@ -250,7 +250,7 @@ void FloatingJointModel::getVariableRandomPositions(
     bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[1] = 0.0;
+    values[1] = 0.;
   }
   else
   {
@@ -260,7 +260,7 @@ void FloatingJointModel::getVariableRandomPositions(
     bounds[2].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[2].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[2] = 0.0;
+    values[2] = 0.;
   }
   else
   {
@@ -286,7 +286,7 @@ void FloatingJointModel::getVariableRandomPositionsNearBy(
     bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[0] = 0.0;
+    values[0] = 0.;
   }
   else
   {
@@ -297,7 +297,7 @@ void FloatingJointModel::getVariableRandomPositionsNearBy(
     bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[1] = 0.0;
+    values[1] = 0.;
   }
   else
   {
@@ -308,7 +308,7 @@ void FloatingJointModel::getVariableRandomPositionsNearBy(
     bounds[2].max_position_ >= std::numeric_limits<double>::infinity()
     || bounds[2].min_position_ <= -std::numeric_limits<double>::infinity())
   {
-    values[2] = 0.0;
+    values[2] = 0.;
   }
   else
   {
@@ -333,22 +333,22 @@ void FloatingJointModel::getVariableRandomPositionsNearBy(
     double ax = rng.gaussian01();
     double ay = rng.gaussian01();
     double az = rng.gaussian01();
-    double angle = 2.0 * pow(rng.uniform01(), 1.0 / 3.0) * da;
+    double angle = 2. * pow(rng.uniform01(), 1. / 3.) * da;
     // convert to quaternion
     double q[4];
     double norm = sqrt(ax * ax + ay * ay + az * az);
     if (norm < 1e-6)
     {
-      q[0] = q[1] = q[2] = 0.0;
-      q[3] = 1.0;
+      q[0] = q[1] = q[2] = 0.;
+      q[3] = 1.;
     }
     else
     {
-      double s = sin(angle / 2.0);
+      double s = sin(angle / 2.);
       q[0] = s * ax / norm;
       q[1] = s * ay / norm;
       q[2] = s * az / norm;
-      q[3] = cos(angle / 2.0);
+      q[3] = cos(angle / 2.);
     }
     // multiply quaternions: near * q
     values[3] = near[6] * q[0] + near[3] * q[3] + near[4] * q[2] - near[5] * q[1];

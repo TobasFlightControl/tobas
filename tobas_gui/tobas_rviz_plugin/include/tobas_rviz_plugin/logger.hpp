@@ -1,7 +1,6 @@
 #pragma once
 
 #include <rclcpp/logger.hpp>
-#include <string>
 
 namespace tobas
 {

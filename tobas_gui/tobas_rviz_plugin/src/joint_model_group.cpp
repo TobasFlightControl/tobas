@@ -1,6 +1,6 @@
+#include <algorithm>
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
-#include <algorithm>
 
 #include "../include/tobas_rviz_plugin/robot_model.hpp"
 #include "../include/tobas_rviz_plugin/joint_model_group.hpp"
@@ -354,7 +354,7 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i)
   {
-    double distance = 0.0;
+    double distance = 0.;
     std::map<JointModel::JointType, double>::const_iterator iter =
       distance_map.find(active_joint_model_vector_[i]->getType());
     if (iter != distance_map.end())
@@ -427,7 +427,7 @@ bool JointModelGroup::enforcePositionBounds(double* state, const JointBoundsVect
 
 double JointModelGroup::getMaximumExtent(const JointBoundsVector& active_joint_bounds) const
 {
-  double max_distance = 0.0;
+  double max_distance = 0.;
   for (std::size_t j = 0; j < active_joint_model_vector_.size(); ++j)
   {
     max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j])
@@ -438,7 +438,7 @@ double JointModelGroup::getMaximumExtent(const JointBoundsVector& active_joint_b
 
 double JointModelGroup::distance(const double* state1, const double* state2) const
 {
-  double d = 0.0;
+  double d = 0.;
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i)
   {
     d += active_joint_model_vector_[i]->getDistanceFactor()
@@ -839,8 +839,8 @@ std::pair<Eigen::VectorXd, Eigen::VectorXd> JointModelGroup::getLowerAndUpperLim
 
 std::pair<Eigen::VectorXd, Eigen::VectorXd> JointModelGroup::getMaxVelocitiesAndAccelerationBounds() const
 {
-  Eigen::VectorXd max_joint_velocities = Eigen::VectorXd::Constant(active_variable_count_, 0.0);
-  Eigen::VectorXd max_joint_accelerations = Eigen::VectorXd::Constant(active_variable_count_, 0.0);
+  Eigen::VectorXd max_joint_velocities = Eigen::VectorXd::Constant(active_variable_count_, 0.);
+  Eigen::VectorXd max_joint_accelerations = Eigen::VectorXd::Constant(active_variable_count_, 0.);
   // Check if variable count matches number of joint model bounds
   if (active_joint_models_bounds_.size() != active_variable_count_)
   {

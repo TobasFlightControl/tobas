@@ -46,12 +46,12 @@ bool FixedJointModel::satisfiesPositionBounds(const double* /*values*/, const Bo
 
 double FixedJointModel::distance(const double* /*values1*/, const double* /*values2*/) const
 {
-  return 0.0;
+  return 0.;
 }
 
 double FixedJointModel::getMaximumExtent(const Bounds& /*other_bounds*/) const
 {
-  return 0.0;
+  return 0.;
 }
 
 void FixedJointModel::interpolate(const double* /*from*/, const double* /*to*/, const double /*t*/, double* /*state*/)

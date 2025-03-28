@@ -6,9 +6,7 @@
 #include <OgreEntity.h>
 #include <OgreMaterialManager.h>
 #include <OgreManualObject.h>
-
 #include <rviz_common/logging.hpp>
-#include <string>
 
 #include "../include/tobas_rviz_plugin/mesh_shape.hpp"
 

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <rclcpp/rclcpp.hpp>
 #include <urdf/model.h>
 #include <srdfdom/model.h>
-#include <rclcpp/rclcpp.hpp>
 
 #include "./class_forward.hpp"
 #include "./synchronized_string_parameter.hpp"
@@ -39,7 +39,7 @@ public:
     const std::shared_ptr<rclcpp::Node>& node,
     const std::string& ros_name = "robot_description",
     bool default_continuous_value = false,
-    double default_timeout = 10.0);
+    double default_timeout = 10.);
 
   /* Initialize the robot model from a string representation of the URDF and SRDF documents */
   RDFLoader(const std::string& urdf_string, const std::string& srdf_string);

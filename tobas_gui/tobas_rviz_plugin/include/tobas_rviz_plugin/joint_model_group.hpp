@@ -1,9 +1,9 @@
 #pragma once
 
-#include <srdfdom/model.h>
 #include <functional>
 #include <set>
 #include <string>
+#include <srdfdom/model.h>
 
 #include "./joint_model.hpp"
 #include "./link_model.hpp"
@@ -386,12 +386,12 @@ public:
   }
 
   bool enforcePositionBounds(double* state, const JointBoundsVector& active_joint_bounds) const;
-  bool satisfiesPositionBounds(const double* state, double margin = 0.0) const
+  bool satisfiesPositionBounds(const double* state, double margin = 0.) const
   {
     return satisfiesPositionBounds(state, active_joint_models_bounds_, margin);
   }
   bool
-  satisfiesPositionBounds(const double* state, const JointBoundsVector& active_joint_bounds, double margin = 0.0) const;
+  satisfiesPositionBounds(const double* state, const JointBoundsVector& active_joint_bounds, double margin = 0.) const;
 
   double getMaximumExtent() const
   {

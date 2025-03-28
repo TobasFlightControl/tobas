@@ -26,8 +26,8 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false)
 
   robot_alpha_property_ = new rviz_common::properties::FloatProperty(
     "Robot Alpha", 1.0f, "Specifies the alpha for the robot links", this, SLOT(changedRobotSceneAlpha()), this);
-  robot_alpha_property_->setMin(0.0);
-  robot_alpha_property_->setMax(1.0);
+  robot_alpha_property_->setMin(0.);
+  robot_alpha_property_->setMax(1.);
 
   attached_body_color_property_ = new rviz_common::properties::ColorProperty(
     "Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies", this,

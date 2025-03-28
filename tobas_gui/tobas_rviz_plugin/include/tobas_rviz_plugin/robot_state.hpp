@@ -195,7 +195,7 @@ public:
     return velocity_.data();
   }
 
-  /* Set all velocities to 0.0 */
+  /* Set all velocities to 0. */
   void zeroVelocities();
 
   /* Given an array with velocity values for all variables, set those values as the velocities in this state */
@@ -283,7 +283,7 @@ public:
     return effort_or_acceleration_.data();
   }
 
-  /* Set all accelerations to 0.0 */
+  /* Set all accelerations to 0. */
   void zeroAccelerations();
 
   /* Given an array with acceleration values for all variables, set those values as the accelerations in this
@@ -376,7 +376,7 @@ public:
     return effort_or_acceleration_.data();
   }
 
-  /* Set all effort values to 0.0 */
+  /* Set all effort values to 0. */
   void zeroEffort();
 
   /* Given an array with effort values for all variables, set those values as the effort in this state */
@@ -844,7 +844,7 @@ public:
   bool setFromIK(
     const JointModelGroup* group,
     const geometry_msgs::msg::Pose& pose,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
@@ -863,7 +863,7 @@ public:
     const JointModelGroup* group,
     const geometry_msgs::msg::Pose& pose,
     const std::string& tip,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
@@ -880,7 +880,7 @@ public:
   bool setFromIK(
     const JointModelGroup* group,
     const Eigen::Isometry3d& pose,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
@@ -898,7 +898,7 @@ public:
     const JointModelGroup* group,
     const Eigen::Isometry3d& pose,
     const std::string& tip,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
@@ -919,7 +919,7 @@ public:
     const Eigen::Isometry3d& pose,
     const std::string& tip,
     const std::vector<double>& consistency_limits,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
@@ -940,7 +940,7 @@ public:
     const JointModelGroup* group,
     const EigenSTL::vector_Isometry3d& poses,
     const std::vector<std::string>& tips,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
@@ -963,7 +963,7 @@ public:
     const EigenSTL::vector_Isometry3d& poses,
     const std::vector<std::string>& tips,
     const std::vector<std::vector<double>>& consistency_limits,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
@@ -982,7 +982,7 @@ public:
     const EigenSTL::vector_Isometry3d& poses,
     const std::vector<std::string>& tips,
     const std::vector<std::vector<double>>& consistency_limits,
-    double timeout = 0.0,
+    double timeout = 0.,
     const GroupStateValidityCallbackFn& constraint = GroupStateValidityCallbackFn(),
     const KinematicsQueryOptions& options = KinematicsQueryOptions());
 
@@ -1073,7 +1073,7 @@ public:
    */
   Eigen::MatrixXd getJacobian(
     const JointModelGroup* group,
-    const Eigen::Vector3d& reference_point_position = Eigen::Vector3d(0.0, 0.0, 0.0)) const;
+    const Eigen::Vector3d& reference_point_position = Eigen::Vector3d(0., 0., 0.)) const;
 
   /**
    * @brief Compute the Jacobian with reference to the last link of a specified group,
@@ -1087,7 +1087,7 @@ public:
    */
   Eigen::MatrixXd getJacobian(
     const JointModelGroup* group,
-    const Eigen::Vector3d& reference_point_position = Eigen::Vector3d(0.0, 0.0, 0.0))
+    const Eigen::Vector3d& reference_point_position = Eigen::Vector3d(0., 0., 0.))
   {
     updateLinkTransforms();
     return static_cast<const RobotState*>(this)->getJacobian(group, reference_point_position);
@@ -1408,17 +1408,17 @@ public:
 
   void enforceVelocityBounds(const JointModel* joint);
 
-  bool satisfiesBounds(double margin = 0.0) const;
-  bool satisfiesBounds(const JointModelGroup* joint_group, double margin = 0.0) const;
-  bool satisfiesBounds(const JointModel* joint, double margin = 0.0) const
+  bool satisfiesBounds(double margin = 0.) const;
+  bool satisfiesBounds(const JointModelGroup* joint_group, double margin = 0.) const;
+  bool satisfiesBounds(const JointModel* joint, double margin = 0.) const
   {
     return satisfiesPositionBounds(joint, margin) && (!has_velocity_ || satisfiesVelocityBounds(joint, margin));
   }
-  bool satisfiesPositionBounds(const JointModel* joint, double margin = 0.0) const
+  bool satisfiesPositionBounds(const JointModel* joint, double margin = 0.) const
   {
     return joint->satisfiesPositionBounds(getJointPositions(joint), margin);
   }
-  bool satisfiesVelocityBounds(const JointModel* joint, double margin = 0.0) const
+  bool satisfiesVelocityBounds(const JointModel* joint, double margin = 0.) const
   {
     return joint->satisfiesVelocityBounds(getJointVelocities(joint), margin);
   }

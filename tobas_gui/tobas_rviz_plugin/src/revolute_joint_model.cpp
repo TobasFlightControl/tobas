@@ -1,6 +1,6 @@
-#include <geometric_shapes/check_isometry.h>
-#include <algorithm>
 #include <cmath>
+#include <algorithm>
+#include <geometric_shapes/check_isometry.h>
 
 #include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
 
@@ -8,14 +8,14 @@ namespace tobas
 {
 RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
   : JointModel(name, joint_index, first_variable_index),
-    axis_(0.0, 0.0, 0.0),
+    axis_(0., 0., 0.),
     continuous_(false),
-    x2_(0.0),
-    y2_(0.0),
-    z2_(0.0),
-    xy_(0.0),
-    xz_(0.0),
-    yz_(0.0)
+    x2_(0.),
+    y2_(0.),
+    z2_(0.),
+    xy_(0.),
+    xz_(0.),
+    yz_(0.)
 {
   type_ = REVOLUTE;
   variable_names_.push_back(getName());
@@ -65,13 +65,13 @@ double RevoluteJointModel::getMaximumExtent(const Bounds& /*other_bounds*/) cons
 void RevoluteJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
 {
   // if zero is a valid value
-  if (bounds[0].min_position_ <= 0.0 && bounds[0].max_position_ >= 0.0)
+  if (bounds[0].min_position_ <= 0. && bounds[0].max_position_ >= 0.)
   {
-    values[0] = 0.0;
+    values[0] = 0.;
   }
   else
   {
-    values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.0;
+    values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.;
   }
 }
 
@@ -113,23 +113,23 @@ void RevoluteJointModel::interpolate(const double* from, const double* to, const
     }
     else
     {
-      if (diff > 0.0)
+      if (diff > 0.)
       {
-        diff = 2.0 * M_PI - diff;
+        diff = 2. * M_PI - diff;
       }
       else
       {
-        diff = -2.0 * M_PI - diff;
+        diff = -2. * M_PI - diff;
       }
       state[0] = from[0] - diff * t;
       // input states are within bounds, so the following check is sufficient
       if (state[0] > M_PI)
       {
-        state[0] -= 2.0 * M_PI;
+        state[0] -= 2. * M_PI;
       }
       else if (state[0] < -M_PI)
       {
-        state[0] += 2.0 * M_PI;
+        state[0] += 2. * M_PI;
       }
     }
   }
@@ -141,8 +141,8 @@ double RevoluteJointModel::distance(const double* values1, const double* values2
 {
   if (continuous_)
   {
-    double d = fmod(fabs(values1[0] - values2[0]), 2.0 * M_PI);
-    return (d > M_PI) ? 2.0 * M_PI - d : d;
+    double d = fmod(fabs(values1[0] - values2[0]), 2. * M_PI);
+    return (d > M_PI) ? 2. * M_PI - d : d;
   }
   else
     return fabs(values1[0] - values2[0]);
@@ -189,14 +189,14 @@ bool RevoluteJointModel::enforcePositionBounds(double* values, const Bounds& bou
     double& v = values[0];
     if (v <= -M_PI || v > M_PI)
     {
-      v = fmod(v, 2.0 * M_PI);
+      v = fmod(v, 2. * M_PI);
       if (v <= -M_PI)
       {
-        v += 2.0 * M_PI;
+        v += 2. * M_PI;
       }
       else if (v > M_PI)
       {
-        v -= 2.0 * M_PI;
+        v -= 2. * M_PI;
       }
     }
   }
@@ -218,7 +218,7 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
 {
   const double c = cos(joint_values[0]);
   const double s = sin(joint_values[0]);
-  const double t = 1.0 - c;
+  const double t = 1. - c;
   const double txy = t * xy_;
   const double txz = t * xz_;
   const double tyz = t * yz_;
@@ -233,22 +233,22 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
   d[0] = t * x2_ + c;
   d[1] = txy + zs;
   d[2] = txz - ys;
-  d[3] = 0.0;
+  d[3] = 0.;
 
   d[4] = txy - zs;
   d[5] = t * y2_ + c;
   d[6] = tyz + xs;
-  d[7] = 0.0;
+  d[7] = 0.;
 
   d[8] = txz + ys;
   d[9] = tyz - xs;
   d[10] = t * z2_ + c;
-  d[11] = 0.0;
+  d[11] = 0.;
 
-  d[12] = 0.0;
-  d[13] = 0.0;
-  d[14] = 0.0;
-  d[15] = 1.0;
+  d[12] = 0.;
+  d[13] = 0.;
+  d[14] = 0.;
+  d[15] = 1.;
 
   //  transf = Eigen::Isometry3d(Eigen::AngleAxisd(joint_values[0], axis_));
 }

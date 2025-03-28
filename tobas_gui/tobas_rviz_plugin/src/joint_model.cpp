@@ -14,10 +14,10 @@ JointModel::JointModel(const std::string& name, size_t joint_index, size_t first
     parent_link_model_(nullptr),
     child_link_model_(nullptr),
     mimic_(nullptr),
-    mimic_factor_(1.0),
-    mimic_offset_(0.0),
+    mimic_factor_(1.),
+    mimic_offset_(0.),
     passive_(false),
-    distance_factor_(1.0)
+    distance_factor_(1.)
 {
 }
 

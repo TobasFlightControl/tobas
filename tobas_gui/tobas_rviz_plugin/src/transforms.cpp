@@ -1,8 +1,8 @@
-#include <geometric_shapes/check_isometry.h>
+#include <boost/algorithm/string/trim.hpp>
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
-#include <boost/algorithm/string/trim.hpp>
+#include <geometric_shapes/check_isometry.h>
 
 #include "../include/tobas_rviz_plugin/transforms.hpp"
 #include "../include/tobas_rviz_plugin/logger.hpp"

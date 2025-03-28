@@ -16,17 +16,17 @@ namespace tobas
 struct VariableBounds
 {
   VariableBounds()
-    : min_position_(0.0),
-      max_position_(0.0),
+    : min_position_(0.),
+      max_position_(0.),
       position_bounded_(false),
-      min_velocity_(0.0),
-      max_velocity_(0.0),
+      min_velocity_(0.),
+      max_velocity_(0.),
       velocity_bounded_(false),
-      min_acceleration_(0.0),
-      max_acceleration_(0.0),
+      min_acceleration_(0.),
+      max_acceleration_(0.),
       acceleration_bounded_(false),
-      min_jerk_(0.0),
-      max_jerk_(0.0),
+      min_jerk_(0.),
+      max_jerk_(0.),
       jerk_bounded_(false)
   {
   }
@@ -252,7 +252,7 @@ public:
     const double distance) const = 0;
 
   /* Check if the set of values for the variables of this joint are within bounds. */
-  bool satisfiesPositionBounds(const double* values, double margin = 0.0) const
+  bool satisfiesPositionBounds(const double* values, double margin = 0.) const
   {
     return satisfiesPositionBounds(values, variable_bounds_, margin);
   }
@@ -288,7 +288,7 @@ public:
   }
 
   /* Check if the set of velocities for the variables of this joint are within bounds. */
-  bool satisfiesVelocityBounds(const double* values, double margin = 0.0) const
+  bool satisfiesVelocityBounds(const double* values, double margin = 0.) const
   {
     return satisfiesVelocityBounds(values, variable_bounds_, margin);
   }
@@ -306,7 +306,7 @@ public:
   virtual bool enforceVelocityBounds(double* values, const Bounds& other_bounds) const;
 
   /* Check if the set of accelerations for the variables of this joint are within bounds. */
-  bool satisfiesAccelerationBounds(const double* values, double margin = 0.0) const
+  bool satisfiesAccelerationBounds(const double* values, double margin = 0.) const
   {
     return satisfiesAccelerationBounds(values, variable_bounds_, margin);
   }
@@ -315,7 +315,7 @@ public:
   virtual bool satisfiesAccelerationBounds(const double* values, const Bounds& other_bounds, double margin) const;
 
   /* Check if the set of jerks for the variables of this joint are within bounds. */
-  bool satisfiesJerkBounds(const double* values, double margin = 0.0) const
+  bool satisfiesJerkBounds(const double* values, double margin = 0.) const
   {
     return satisfiesJerkBounds(values, variable_bounds_, margin);
   }

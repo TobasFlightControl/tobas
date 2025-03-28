@@ -1,15 +1,14 @@
 #include <rclcpp/rclcpp.hpp>
-#include <string>
 #include <rsl/random.hpp>
-#include <fmt/format.h>
 
 #include "../include/tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {
-// This is the function that stores the global logger used by Tobas.
-// As it returns a reference to the static logger it can be changed through the
-// `setNodeLoggerName` function.
+/**
+ * @brief This is the function that stores the global logger used by Tobas.
+ * As it returns a reference to the static logger it can be changed through the `setNodeLoggerName` function.
+ */
 rclcpp::Logger& getGlobalRootLogger()
 {
   static rclcpp::Logger logger = [&]
@@ -17,7 +16,7 @@ rclcpp::Logger& getGlobalRootLogger()
     // A random number is appended to the name used for the node to make it unique.
     // This unique node and logger name is only used if a user does not set a logger
     // through the `setNodeLoggerName` method to their node's logger.
-    auto name = fmt::format("tobas_{}", rsl::rng()());
+    auto name = std::format("tobas_{}", rsl::rng()());
     try
     {
       static auto* tobas_node = new rclcpp::Node(name);

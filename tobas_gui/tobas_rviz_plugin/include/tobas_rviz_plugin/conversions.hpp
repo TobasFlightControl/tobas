@@ -1,9 +1,9 @@
 #pragma once
 
+#include <tobas_visualization_msgs/msg/robot_state.hpp>
+
 #include "./robot_state.hpp"
 #include "./transforms.hpp"
-
-#include <tobas_visualization_msgs/msg/robot_state.hpp>
 
 namespace tobas
 {
