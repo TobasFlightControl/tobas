@@ -9,7 +9,7 @@ static constexpr char kTitle[] = "Tobas Setup Assistant";
 
 // ROS parameters
 static constexpr char kRobotDescriptionParam[] = "robot_description";
-static constexpr char kRobotDescriptionSemanticParam[] = "robot_description_semantic";  // Moveitのエラー回避のため
+static constexpr char kRobotDescriptionSemanticParam[] = "robot_description_semantic";
 
 // Point Sizes
 static constexpr int kTitlePSize = 18;
