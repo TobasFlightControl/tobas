@@ -23,7 +23,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
-find_package(moveit_msgs REQUIRED)
 find_package(inja_ament REQUIRED)
 find_package(rapidcsv_ament REQUIRED)
 find_package(tobas_string_tools REQUIRED)
@@ -32,6 +31,7 @@ find_package(tobas_kdl_parser REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_visualization_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_rviz_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
@@ -39,7 +39,6 @@ find_package(tobas_gui_common REQUIRED)
 set(AMENT_DEPENDENCIES
   sensor_msgs
   visualization_msgs
-  moveit_msgs
   inja_ament
   rapidcsv_ament
   tobas_string_tools
@@ -48,6 +47,7 @@ set(AMENT_DEPENDENCIES
   tobas_ros2_tools
   tobas_property_client
   tobas_drone_msgs_adapter
+  tobas_visualization_msgs
   tobas_qt_tools
   tobas_rviz_wrapper
   tobas_gui_common

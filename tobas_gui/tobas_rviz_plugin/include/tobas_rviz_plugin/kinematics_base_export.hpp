@@ -1,0 +1,38 @@
+#pragma once
+
+#ifdef TOBAS_KINEMATICS_BASE_STATIC_DEFINE
+#define TOBAS_KINEMATICS_BASE_EXPORT
+#define TOBAS_KINEMATICS_BASE_NO_EXPORT
+#else
+#ifndef TOBAS_KINEMATICS_BASE_EXPORT
+#ifdef tobas_kinematics_base_EXPORTS
+/* We are building this library */
+#define TOBAS_KINEMATICS_BASE_EXPORT __attribute__((visibility("default")))
+#else
+/* We are using this library */
+#define TOBAS_KINEMATICS_BASE_EXPORT __attribute__((visibility("default")))
+#endif
+#endif
+
+#ifndef TOBAS_KINEMATICS_BASE_NO_EXPORT
+#define TOBAS_KINEMATICS_BASE_NO_EXPORT __attribute__((visibility("hidden")))
+#endif
+#endif
+
+#ifndef TOBAS_KINEMATICS_BASE_DEPRECATED
+#define TOBAS_KINEMATICS_BASE_DEPRECATED __attribute__((__deprecated__))
+#endif
+
+#ifndef TOBAS_KINEMATICS_BASE_DEPRECATED_EXPORT
+#define TOBAS_KINEMATICS_BASE_DEPRECATED_EXPORT TOBAS_KINEMATICS_BASE_EXPORT TOBAS_KINEMATICS_BASE_DEPRECATED
+#endif
+
+#ifndef TOBAS_KINEMATICS_BASE_DEPRECATED_NO_EXPORT
+#define TOBAS_KINEMATICS_BASE_DEPRECATED_NO_EXPORT TOBAS_KINEMATICS_BASE_NO_EXPORT TOBAS_KINEMATICS_BASE_DEPRECATED
+#endif
+
+#if 0 /* DEFINE_NO_DEPRECATED */
+#ifndef TOBAS_KINEMATICS_BASE_NO_DEPRECATED
+#define TOBAS_KINEMATICS_BASE_NO_DEPRECATED
+#endif
+#endif

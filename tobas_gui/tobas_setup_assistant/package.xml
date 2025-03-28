@@ -11,7 +11,6 @@
 
   <depend>sensor_msgs</depend>
   <depend>visualization_msgs</depend>
-  <depend>moveit_msgs</depend>
   <depend>inja_ament</depend>
   <depend>rapidcsv_ament</depend>
   <depend>tobas_string_tools</depend>
@@ -20,6 +19,7 @@
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_property_client</depend>
   <depend>tobas_drone_msgs_adapter</depend>
+  <depend>tobas_visualization_msgs</depend>
   <depend>tobas_qt_tools</depend>
   <depend>tobas_rviz_wrapper</depend>
   <depend>tobas_gui_common</depend>

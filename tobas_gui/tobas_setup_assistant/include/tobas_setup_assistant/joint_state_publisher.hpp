@@ -5,7 +5,7 @@
 #include <QTimer>
 
 #include <sensor_msgs/msg/joint_state.hpp>
-#include <moveit_msgs/msg/display_robot_state.hpp>
+#include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
@@ -43,7 +43,7 @@ private:
   std::vector<qt::DoubleSliderDisplay*> sliders_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
-  ros2::PublisherPtr<moveit_msgs::msg::DisplayRobotState> drs_pub_;
+  ros2::PublisherPtr<tobas_visualization_msgs::msg::DisplayRobotState> drs_pub_;
 
   QTimer publish_timer_;
 

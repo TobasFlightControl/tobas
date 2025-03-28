@@ -1,0 +1,14 @@
+#pragma once
+
+#include <Eigen/Geometry>
+
+namespace tobas
+{
+/** \brief Represents an axis-aligned bounding box. */
+class AABB : public Eigen::AlignedBox3d
+{
+public:
+  /** \brief Extend with a box transformed by the given transform. */
+  void extendWithTransformedBox(const Eigen::Isometry3d& transform, const Eigen::Vector3d& box);
+};
+}  // namespace tobas
