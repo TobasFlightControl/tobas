@@ -120,5 +120,4 @@ void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& tran
 {
   joint_values[0] = transf.translation().dot(axis_);
 }
-
 }  // namespace tobas

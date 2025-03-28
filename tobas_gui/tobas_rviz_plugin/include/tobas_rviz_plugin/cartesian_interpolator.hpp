@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-/** Struct defining linear and rotational precision */
+/* Struct defining linear and rotational precision. */
 struct CartesianPrecision
 {
   double translational = 0.001;  //< max deviation in translation (meters)
@@ -115,22 +115,23 @@ public:
     double meters;
   };
 
-  /* Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
-
-     The Cartesian path to be followed is specified as a \e translation vector to be followed by the robot \e link.
-     This vector is assumed to be specified either in the global reference frame or in the local
-     reference frame of the link.
-     The resulting joint values are stored in the vector \e traj, one by one. The interpolation distance in
-     Cartesian space between consecutive points on the resulting path is specified in the \e MaxEEFStep struct which
-     provides two fields: translation and rotation. If a \e validCallback is specified, this is passed to the internal
-     call to setFromIK(). In case of IK failure, the computation of the path stops and the value returned corresponds to
-     the distance that was achieved and for which corresponding states were added to the path.
-
-     The struct CartesianPrecision specifies the precision to which the path should follow the Cartesian straight line.
-     If the deviation at the mid point of two consecutive waypoints is larger than the specified precision, another
-     waypoint will be inserted at that mid point. The precision is specified separately for translation and rotation.
-     The maximal resolution to consider (as fraction of the total path length) is specified by max_resolution.
-  */
+  /**
+   * @brief Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
+   *
+   * The Cartesian path to be followed is specified as a \e translation vector to be followed by the robot \e link.
+   * This vector is assumed to be specified either in the global reference frame or in the local
+   * reference frame of the link.
+   * The resulting joint values are stored in the vector \e traj, one by one. The interpolation distance in
+   * Cartesian space between consecutive points on the resulting path is specified in the \e MaxEEFStep struct which
+   * provides two fields: translation and rotation. If a \e validCallback is specified, this is passed to the internal
+   * call to setFromIK(). In case of IK failure, the computation of the path stops and the value returned corresponds to
+   * the distance that was achieved and for which corresponding states were added to the path.
+   *
+   * The struct CartesianPrecision specifies the precision to which the path should follow the Cartesian straight line.
+   * If the deviation at the mid point of two consecutive waypoints is larger than the specified precision, another
+   * waypoint will be inserted at that mid point. The precision is specified separately for translation and rotation.
+   * The maximal resolution to consider (as fraction of the total path length) is specified by max_resolution.
+   */
   static Distance computeCartesianPath(
     const RobotState* start_state,
     const JointModelGroup* group,
@@ -167,13 +168,15 @@ public:
       options, cost_function);
   }
 
-  /* Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
-
-     In contrast to the previous function, the Cartesian path is specified as a target frame to be reached (\e target)
-     for a virtual frame attached to the robot \e link with the given \e link_offset.
-     The target frame is assumed to be specified either w.r.t. to the global reference frame or the virtual link frame.
-     This function returns the fraction (0..1) of path that was achieved. All other comments from the previous function
-     apply. */
+  /**
+   * @brief Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
+   *
+   * In contrast to the previous function, the Cartesian path is specified as a target frame to be reached (\e target)
+   * for a virtual frame attached to the robot \e link with the given \e link_offset.
+   * The target frame is assumed to be specified either w.r.t. to the global reference frame or the virtual link frame.
+   * This function returns the fraction (0..1) of path that was achieved.
+   * All other comments from the previous function apply.
+   */
   static Percentage computeCartesianPath(
     const RobotState* start_state,
     const JointModelGroup* group,
@@ -188,12 +191,14 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /* Compute the sequence of joint values that perform a general Cartesian path.
-
-     In contrast to the previous functions, the Cartesian path is specified as a set of \e waypoints to be sequentially
-     reached by the virtual frame attached to the robot \e link. The waypoints are transforms given either w.r.t. the
-     global reference frame or the virtual frame at the immediately preceding waypoint. The virtual frame needs to move
-     in a straight line between two consecutive waypoints. All other comments apply. */
+  /**
+   * @brief Compute the sequence of joint values that perform a general Cartesian path.
+   *
+   * In contrast to the previous functions, the Cartesian path is specified as a set of \e waypoints to be
+   * sequentially reached by the virtual frame attached to the robot \e link. The waypoints are transforms given either
+   * w.r.t. the global reference frame or the virtual frame at the immediately preceding waypoint. The virtual frame
+   * needs to move in a straight line between two consecutive waypoints. All other comments apply.
+   */
   static Percentage computeCartesianPath(
     const RobotState* start_state,
     const JointModelGroup* group,
@@ -208,32 +213,34 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /* Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
-
-     The Cartesian path to be followed is specified as a \e translation vector to be followed by the robot \e link.
-     This vector is assumed to be specified either in the global reference frame or in the local
-     reference frame of the link (\e global_reference_frame is false).
-     The resulting joint values are stored in the vector \e path, one by one. The maximum distance in
-     Cartesian space between consecutive points on the resulting path is specified in the \e MaxEEFStep struct which
-     provides two fields: translation and rotation. If a \e validCallback is specified, this is passed to the internal
-     call to setFromIK(). In case of IK failure, the computation of the path stops and the value returned corresponds to
-     the distance that was achieved and for which corresponding states were added to the path. At the end of the
-     function call, the state of the group corresponds to the last attempted Cartesian pose.
-
-     During the computation of the path, it is usually preferred if consecutive joint values do not 'jump' by a
-     large amount in joint space, even if the Cartesian distance between the corresponding points is small as expected.
-     To account for this, the \e jump_threshold struct is provided, which comprises three fields:
-     \e jump_threshold_factor, \e revolute_jump_threshold and \e prismatic_jump_threshold.
-     If either \e revolute_jump_threshold or \e prismatic_jump_threshold  are non-zero, we test for absolute jumps.
-     If \e jump_threshold_factor is non-zero, we test for relative jumps. To this end, the average joint-space distance
-     between consecutive points in the trajectory is computed. If any individual joint-space motion delta is larger than
-     this average distance multiplied by \e jump_threshold_factor, this step is considered a jump.
-
-     Otherwise (if all params are zero), jump detection is disabled.
-     If a jump is detected, the path is truncated up to just before the jump.
-
-     Kinematics solvers may use cost functions to prioritize certain solutions, which may be specified with \e
-     cost_function. */
+  /**
+   * @brief Compute the sequence of joint values that correspond to a straight Cartesian path for a particular link.
+   *
+   * The Cartesian path to be followed is specified as a \e translation vector to be followed by the robot \e link.
+   * This vector is assumed to be specified either in the global reference frame or in the local
+   * reference frame of the link (\e global_reference_frame is false).
+   * The resulting joint values are stored in the vector \e path, one by one. The maximum distance in
+   * Cartesian space between consecutive points on the resulting path is specified in the \e MaxEEFStep struct which
+   * provides two fields: translation and rotation. If a \e validCallback is specified, this is passed to the
+   * internal call to setFromIK(). In case of IK failure, the computation of the path stops and the value returned
+   * corresponds to the distance that was achieved and for which corresponding states were added to the path. At the end
+   * of the function call, the state of the group corresponds to the last attempted Cartesian pose.
+   *
+   * During the computation of the path, it is usually preferred if consecutive joint values do not 'jump' by a
+   * large amount in joint space, even if the Cartesian distance between the corresponding points is small as
+   * expected. To account for this, the \e jump_threshold struct is provided, which comprises three fields: \e
+   * jump_threshold_factor, \e revolute_jump_threshold and \e prismatic_jump_threshold. If either \e
+   * revolute_jump_threshold or \e prismatic_jump_threshold  are non-zero, we test for absolute jumps. If \e
+   * jump_threshold_factor is non-zero, we test for relative jumps. To this end, the average joint-space distance
+   * between consecutive points in the trajectory is computed. If any individual joint-space motion delta is larger
+   * than this average distance multiplied by \e jump_threshold_factor, this step is considered a jump.
+   *
+   * Otherwise (if all params are zero), jump detection is disabled.
+   * If a jump is detected, the path is truncated up to just before the jump.
+   *
+   * Kinematics solvers may use cost functions to prioritize certain solutions, which may be specified with \e
+   * cost_function.
+   */
   [[deprecated("Replace JumpThreshold with CartesianPrecision")]] static Distance computeCartesianPath(
     RobotState* start_state,
     const JointModelGroup* group,
@@ -247,10 +254,12 @@ public:
     const KinematicsQueryOptions& options = KinematicsQueryOptions(),
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn());
 
-  /* Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular link.
-
-     In contrast to the previous function, the translation vector is specified as a (unit) direction vector and
-     a distance. */
+  /**
+   * @brief Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular link.
+   *
+   * In contrast to the previous function,
+   * the translation vector is specified as a (unit) direction vector and a distance.
+   */
   [[deprecated("Replace JumpThreshold with CartesianPrecision")]] static Distance computeCartesianPath(
     RobotState* start_state,
     const JointModelGroup* group,
@@ -273,13 +282,15 @@ public:
 #pragma GCC diagnostic pop
   }
 
-  /* Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
-
-     In contrast to the previous function, the Cartesian path is specified as a target frame to be reached (\e target)
-     for a virtual frame attached to the robot \e link with the given \e link_offset.
-     The target frame is assumed to be specified either w.r.t. to the global reference frame or the virtual link frame
-     (\e global_reference_frame is false). This function returns the percentage (0..1) of the path that was achieved.
-     All other comments from the previous function apply. */
+  /**
+   * @brief Compute the sequence of joint values that correspond to a straight Cartesian path, for a particular frame.
+   *
+   * In contrast to the previous function, the Cartesian path is specified as a target frame to be reached (\e target)
+   * for a virtual frame attached to the robot \e link with the given \e link_offset.
+   * The target frame is assumed to be specified either w.r.t. to the global reference frame or the virtual link frame
+   * (\e global_reference_frame is false). This function returns the percentage (0..1) of the path that was achieved.
+   * All other comments from the previous function apply.
+   */
   [[deprecated("Replace JumpThreshold with CartesianPrecision")]] static Percentage computeCartesianPath(
     RobotState* start_state,
     const JointModelGroup* group,
@@ -294,12 +305,14 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /* Compute the sequence of joint values that perform a general Cartesian path.
-
-     In contrast to the previous functions, the Cartesian path is specified as a set of \e waypoints to be sequentially
-     reached by the virtual frame attached to the robot \e link. The waypoints are transforms given either w.r.t. the
-     global reference frame or the virtual frame at the immediately preceding waypoint. The virtual frame needs to move
-     in a straight line between two consecutive waypoints. All other comments apply. */
+  /**
+   * @brief Compute the sequence of joint values that perform a general Cartesian path.
+   *
+   * In contrast to the previous functions, the Cartesian path is specified as a set of \e waypoints to be sequentially
+   * reached by the virtual frame attached to the robot \e link. The waypoints are transforms given either w.r.t. the
+   * global reference frame or the virtual frame at the immediately preceding waypoint. The virtual frame needs to move
+   * in a straight line between two consecutive waypoints. All other comments apply.
+   */
   [[deprecated("Replace JumpThreshold with CartesianPrecision")]] static Percentage computeCartesianPath(
     RobotState* start_state,
     const JointModelGroup* group,
@@ -314,16 +327,13 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn(),
     const Eigen::Isometry3d& link_offset = Eigen::Isometry3d::Identity());
 
-  /* Checks if a path has a joint-space jump, and truncates the path at the jump.
-
-     Checks if a path has a jump larger than `jump_threshold` and truncates the path to the waypoint right before the
-     jump. Returns the percentage of the path that doesn't have jumps.
-
-     @param group The joint model group of the robot state.
-     @param path The path that should be tested.
-     @param jump_threshold The struct holding jump thresholds to determine if a joint space jump has occurred.
-     @return The fraction of the path that passed.
-  */
+  /**
+   * @brief Checks if a path has a joint-space jump, and truncates the path at the jump.
+   *
+   * Checks if a path has a jump larger than `jump_threshold`
+   * and truncates the path to the waypoint right before the jump.
+   * Returns the percentage of the path that doesn't have jumps.
+   */
   static Percentage checkJointSpaceJump(
     const JointModelGroup* group,
     std::vector<std::shared_ptr<RobotState>>& path,
@@ -342,5 +352,4 @@ std::optional<int> hasJointSpaceJump(
   const std::vector<RobotStatePtr>& waypoints,
   const JointModelGroup& group,
   const JumpThreshold& jump_threshold);
-
 }  // namespace tobas

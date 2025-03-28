@@ -63,9 +63,7 @@ protected:
   void initializeLoader();
   void loadRobotModel();
 
-  /**
-   * \brief Set the scene node's position, given the target frame and the planning frame
-   */
+  /* Set the scene node's position, given the target frame and the planning frame. */
   void calculateOffsetPosition();
 
   void setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color);

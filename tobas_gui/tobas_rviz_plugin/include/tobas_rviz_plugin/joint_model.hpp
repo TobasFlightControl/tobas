@@ -63,18 +63,17 @@ using JointModelMap = std::map<std::string, JointModel*>;
 /* Map of names to const instances for JointModel */
 using JointModelMapConst = std::map<std::string, const JointModel*>;
 
-/* A joint from the robot. Models the transform that
-    this joint applies in the kinematic chain. A joint
-    consists of multiple variables. In the simplest case, when
-    the joint is a single DOF, there is only one variable and
-    its name is the same as the joint's name. For multi-DOF
-    joints, each variable has a local name (e.g., \e x, \e y)
-    but the full variable name as seen from the outside of
-    this class is a concatenation of the "joint name"/"local
-    name" (e.g., a joint named 'base' with local variables 'x'
-    and 'y' will store its full variable names as 'base/x' and
-    'base/y'). Local names are never used to reference
-    variables directly. */
+/**
+ * @brief A joint from the robot.
+ * Models the transform that this joint applies in the kinematic chain.
+ * A joint consists of multiple variables.
+ * In the simplest case, when the joint is a single DOF,
+ * there is only one variable and its name is the same as the joint's name.
+ * For multi-DOF joints, each variable has a local name (e.g., \e x, \e y)
+ * but the full variable name as seen from the outside of this class is a concatenation of the "joint name"/"local name"
+ * (e.g., a joint named 'base' with local variables 'x' and 'y' will store its full variable names as 'base/x' and
+ * 'base/y'). Local names are never used to reference variables directly.
+ */
 class JointModel
 {
 public:
@@ -93,11 +92,11 @@ public:
   using Bounds = std::vector<VariableBounds>;
 
   /**
-   * @brief      Constructs a joint named \e name
+   * @brief Constructs a joint named \e name
    *
-   * @param[in]  name                   The joint name
-   * @param[in]  index                  The index of the joint in the RobotModel
-   * @param[in]  first_variable_index   The index of the first variable in the RobotModel
+   * @param name                   The joint name
+   * @param index                  The index of the joint in the RobotModel
+   * @param first_variable_index   The index of the first variable in the RobotModel
    */
   JointModel(const std::string& name, size_t joint_index, size_t first_variable_index);
 
@@ -118,9 +117,11 @@ public:
   /* Get the type of joint as a string */
   std::string getTypeName() const;
 
-  /* Get the link that this joint connects to. The
-      robot is assumed to start with a joint, so the root
-      joint will return nullptr here. */
+  /**
+   * @brief Get the link that this joint connects to.
+   * The robot is assumed to start with a joint,
+   * so the root joint will return nullptr here.
+   */
   const LinkModel* getParentLinkModel() const
   {
     return parent_link_model_;
@@ -142,21 +143,21 @@ public:
     child_link_model_ = link;
   }
 
-  /** @name Reason about the variables that make up this joint
-      @{ */
-
-  /* Get the names of the variables that make up this joint, in the order they appear in corresponding states.
-      For single DOF joints, this will be just the joint name. For multi-DOF joints these will be the joint name
-     followed by "/", followed by
-      the local names of the variables */
+  /**
+   * @brief Get the names of the variables that make up this joint, in the order they appear in corresponding states.
+   * For single DOF joints, this will be just the joint name. For multi-DOF joints these will be the joint name
+   * followed by "/", followed by the local names of the variables
+   */
   const std::vector<std::string>& getVariableNames() const
   {
     return variable_names_;
   }
 
-  /* Get the local names of the variable that make up the joint (suffixes that are attached to joint names to
-     construct the variable names).
-      For single DOF joints, this will be empty. */
+  /**
+   * @brief Get the local names of the variable that make up the joint
+   * (suffixes that are attached to joint names to construct the variable names).
+   * For single DOF joints, this will be empty.
+   */
   const std::vector<std::string>& getLocalVariableNames() const
   {
     return local_variable_names_;
@@ -189,40 +190,47 @@ public:
   /* Get the index of the variable within this joint */
   size_t getLocalVariableIndex(const std::string& variable) const;
 
-  /** @} */
-
-  /** @name Functionality specific to computing state values
-      @{ */
-
-  /* Provide a default value for the joint given the default joint variable bounds (maintained internally).
-      Most joints will use the default implementation provided in this base class, but the quaternion
-      for example needs a different implementation. Enough memory is assumed to be allocated. */
+  /**
+   * @brief Provide a default value for the joint given the default joint variable bounds (maintained internally).
+   * Most joints will use the default implementation provided in this base class,
+   * but the quaternion for example needs a different implementation.
+   * Enough memory is assumed to be allocated.
+   */
   void getVariableDefaultPositions(double* values) const
   {
     getVariableDefaultPositions(values, variable_bounds_);
   }
 
-  /* Provide a default value for the joint given the joint variable bounds.
-      Most joints will use the default implementation provided in this base class, but the quaternion
-      for example needs a different implementation. Enough memory is assumed to be allocated. */
+  /**
+   * @brief Provide a default value for the joint given the joint variable bounds.
+   * Most joints will use the default implementation provided in this base class,
+   * but the quaternion for example needs a different implementation.
+   * Enough memory is assumed to be allocated.
+   */
   virtual void getVariableDefaultPositions(double* values, const Bounds& other_bounds) const = 0;
 
-  /* Provide random values for the joint variables (within default bounds). Enough memory is assumed to be
-   * allocated. */
+  /**
+   * @brief Provide random values for the joint variables (within default bounds).
+   * Enough memory is assumed to be allocated.
+   */
   void getVariableRandomPositions(random_numbers::RandomNumberGenerator& rng, double* values) const
   {
     getVariableRandomPositions(rng, values, variable_bounds_);
   }
 
-  /* Provide random values for the joint variables (within specified bounds). Enough memory is assumed to be
-   * allocated. */
+  /**
+   * @brief Provide random values for the joint variables (within specified bounds).
+   * Enough memory is assumed to be allocated.
+   */
   virtual void getVariableRandomPositions(
     random_numbers::RandomNumberGenerator& rng,
     double* values,
     const Bounds& other_bounds) const = 0;
 
-  /* Provide random values for the joint variables (within default bounds). Enough memory is assumed to be
-   * allocated. */
+  /**
+   * @brief Provide random values for the joint variables (within default bounds).
+   * Enough memory is assumed to be allocated.
+   */
   void getVariableRandomPositionsNearBy(
     random_numbers::RandomNumberGenerator& rng,
     double* values,
@@ -232,8 +240,10 @@ public:
     getVariableRandomPositionsNearBy(rng, values, variable_bounds_, near, distance);
   }
 
-  /* Provide random values for the joint variables (within specified bounds). Enough memory is assumed to be
-   * allocated. */
+  /**
+   * @brief Provide random values for the joint variables (within specified bounds).
+   * Enough memory is assumed to be allocated.
+   */
   virtual void getVariableRandomPositionsNearBy(
     random_numbers::RandomNumberGenerator& rng,
     double* values,
@@ -241,36 +251,36 @@ public:
     const double* near,
     const double distance) const = 0;
 
-  /** @} */
-
-  /** @name Functionality specific to verifying bounds
-      @{ */
-
   /* Check if the set of values for the variables of this joint are within bounds. */
   bool satisfiesPositionBounds(const double* values, double margin = 0.0) const
   {
     return satisfiesPositionBounds(values, variable_bounds_, margin);
   }
 
-  /* Check if the set of position values for the variables of this joint are within bounds, up to some margin.
-   */
+  /* Check if the set of position values for the variables of this joint are within bounds, up to some margin. */
   virtual bool satisfiesPositionBounds(const double* values, const Bounds& other_bounds, double margin) const = 0;
 
-  /* Force the specified values to be inside bounds and normalized. Quaternions are normalized, continuous
-     revolute joints are made between -Pi and Pi.
-      Returns true if changes were made. */
+  /**
+   * @brief Force the specified values to be inside bounds and normalized.
+   * Quaternions are normalized, continuous revolute joints are made between -Pi and Pi.
+   * Returns true if changes were made.
+   */
   bool enforcePositionBounds(double* values) const
   {
     return enforcePositionBounds(values, variable_bounds_);
   }
 
-  /* Force the specified values to be inside bounds and normalized. Quaternions are normalized, continuous
-     revolute joints are made between -Pi and Pi.
-      Return true if changes were made. */
+  /**
+   * @brief Force the specified values to be inside bounds and normalized.
+   * Quaternions are normalized, continuous revolute joints are made between -Pi and Pi.
+   * Return true if changes were made.
+   */
   virtual bool enforcePositionBounds(double* values, const Bounds& other_bounds) const = 0;
 
-  /** Harmonize position of revolute joints, adding/subtracting multiples of 2*Pi to bring them back into bounds.
-   *  Return true if changes were made. */
+  /**
+   * @brief Harmonize position of revolute joints, adding/subtracting multiples of 2*Pi to bring them back into bounds.
+   * Return true if changes were made.
+   */
   virtual bool harmonizePosition(double* values, const Bounds& other_bounds) const;
   bool harmonizePosition(double* values) const
   {
@@ -334,20 +344,22 @@ public:
     return variable_bounds_msg_;
   }
 
-  /** @} */
-
   /* Compute the distance between two joint states of the same model (represented by the variable values) */
   virtual double distance(const double* value1, const double* value2) const = 0;
 
-  /* Get the factor that should be applied to the value returned by distance() when that value is used in
-   * compound distances */
+  /**
+   * @brief Get the factor that should be applied to the value returned by distance()
+   * when that value is used in compound distances
+   */
   double getDistanceFactor() const
   {
     return distance_factor_;
   }
 
-  /* Set the factor that should be applied to the value returned by distance() when that value is used in
-   * compound distances */
+  /**
+   * @brief Set the factor that should be applied to the value returned by distance()
+   * when that value is used in compound distances
+   */
   void setDistanceFactor(double factor)
   {
     distance_factor_ = factor;
@@ -417,10 +429,10 @@ public:
     passive_ = flag;
   }
 
-  /* Computes the state that lies at time @e t in [0, 1] on the segment that connects @e from state to @e to
-     state.
-      The memory location of @e state is not required to be different from the memory of either
-      @e from or @e to. */
+  /**
+   * @brief Computes the state that lies at time t in [0, 1] on the segment that connects from state to to state.
+   * The memory location of state is not required to be different from the memory of either from or to.
+   */
   virtual void interpolate(const double* from, const double* to, const double t, double* state) const = 0;
 
   /* Get the extent of the state space (the maximum value distance() can ever report) */
@@ -431,18 +443,17 @@ public:
     return getMaximumExtent(variable_bounds_);
   }
 
-  /** @name Computing transforms
-      @{ */
-
-  /* Given the joint values for a joint, compute the corresponding transform. The computed transform is
-   *  guaranteed to be a valid isometry. */
+  /**
+   * @brief Given the joint values for a joint, compute the corresponding transform.
+   * The computed transform is guaranteed to be a valid isometry.
+   */
   virtual void computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const = 0;
 
-  /* Given the transform generated by joint, compute the corresponding joint values. Make sure the passed
-   *  transform is a valid isometry. */
+  /**
+   * @brief Given the transform generated by joint, compute the corresponding joint values.
+   * Make sure the passed transform is a valid isometry.
+   */
   virtual void computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const = 0;
-
-  /** @} */
 
 private:
   /* Name of the joint */
@@ -471,8 +482,8 @@ protected:
 
   std::vector<tobas_visualization_msgs::msg::JointLimits> variable_bounds_msg_;
 
-  /* Map from variable names to the corresponding index in variable_names_ (indexing makes sense within the
-   * JointModel only) */
+  /* Map from variable names to the corresponding index in variable_names_
+   * (indexing makes sense within the JointModel only) */
   VariableIndexMap variable_index_map_;
 
   /* The link before this joint */
@@ -499,8 +510,8 @@ protected:
   /* Pointers to all the joints that follow this one in the kinematic tree (including mimic joints) */
   std::vector<const JointModel*> descendant_joint_models_;
 
-  /* Pointers to all the joints that follow this one in the kinematic tree, including mimic joints, but
-   * excluding fixed joints */
+  /* Pointers to all the joints that follow this one in the kinematic tree,
+   * including mimic joints, but excluding fixed joints */
   std::vector<const JointModel*> non_fixed_descendant_joint_models_;
 
   /* Specify whether this joint is marked as passive in the SRDF */

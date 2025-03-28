@@ -1,10 +1,10 @@
 #pragma once
 
+#include <set>
+#include <functional>
 #include <geometric_shapes/check_isometry.h>
 #include <eigen_stl_containers/eigen_stl_containers.h>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
-#include <set>
-#include <functional>
 
 #include "./link_model.hpp"
 #include "./transforms.hpp"
@@ -14,7 +14,7 @@ namespace tobas
 class AttachedBody;
 typedef std::function<void(AttachedBody* body, bool attached)> AttachedBodyCallback;
 
-/** @brief Object defining bodies that can be attached to robot links.
+/* Object defining bodies that can be attached to robot links.
  *
  * This is useful when handling objects picked up by the robot. */
 class AttachedBody
@@ -40,83 +40,92 @@ public:
 
   ~AttachedBody();
 
-  /* Get the name of the attached body */
+  /* Get the name of the attached body. */
   const std::string& getName() const
   {
     return id_;
   }
 
-  /* Get the pose of the attached body relative to the parent link */
+  /* Get the pose of the attached body relative to the parent link. */
   const Eigen::Isometry3d& getPose() const
   {
     return pose_;
   }
 
-  /* Get the pose of the attached body, relative to the world */
+  /* Get the pose of the attached body, relative to the world. */
   const Eigen::Isometry3d& getGlobalPose() const
   {
     return global_pose_;
   }
 
-  /* Get the name of the link this body is attached to */
+  /* Get the name of the link this body is attached to. */
   const std::string& getAttachedLinkName() const
   {
     return parent_link_model_->getName();
   }
 
-  /* Get the model of the link this body is attached to */
+  /* Get the model of the link this body is attached to. */
   const LinkModel* getAttachedLink() const
   {
     return parent_link_model_;
   }
 
-  /* Get the shapes that make up this attached body */
+  /* Get the shapes that make up this attached body. */
   const std::vector<shapes::ShapeConstPtr>& getShapes() const
   {
     return shapes_;
   }
 
-  /* Get the shape poses (the transforms to the shapes of this body, relative to the pose). The returned
-   *  transforms are guaranteed to be valid isometries. */
+  /**
+   * @brief Get the shape poses (the transforms to the shapes of this body, relative to the pose).
+   * The returned transforms are guaranteed to be valid isometries.
+   */
   const EigenSTL::vector_Isometry3d& getShapePoses() const
   {
     return shape_poses_;
   }
 
-  /* Get the links that the attached body is allowed to touch */
+  /* Get the links that the attached body is allowed to touch. */
   const std::set<std::string>& getTouchLinks() const
   {
     return touch_links_;
   }
 
-  /* Return the posture that is necessary for the object to be released, (if any). This is useful for example
-     when storing the configuration of a gripper holding an object */
+  /**
+   * @brief Return the posture that is necessary for the object to be released, (if any).
+   * This is useful for example when storing the configuration of a gripper holding an object.
+   */
   const trajectory_msgs::msg::JointTrajectory& getDetachPosture() const
   {
     return detach_posture_;
   }
 
-  /* Get the fixed transforms (the transforms to the shapes of this body, relative to the link). The returned
-   *  transforms are guaranteed to be valid isometries. */
+  /**
+   * @brief Get the fixed transforms (the transforms to the shapes of this body, relative to the link).
+   * The returned transforms are guaranteed to be valid isometries.
+   */
   const EigenSTL::vector_Isometry3d& getShapePosesInLinkFrame() const
   {
     return shape_poses_in_link_frame_;
   }
 
-  /* Get subframes of this object (relative to the object pose). The returned transforms are guaranteed to be
-   * valid isometries. */
+  /**
+   * @brief et subframes of this object (relative to the object pose).
+   * The returned transforms are guaranteed to be valid isometries.
+   */
   const FixedTransformsMap& getSubframes() const
   {
     return subframe_poses_;
   }
 
-  /* Get subframes of this object (in the world frame) */
+  /* Get subframes of this object (in the world frame). */
   const FixedTransformsMap& getGlobalSubframeTransforms() const
   {
     return global_subframe_poses_;
   }
 
-  /* Set all subframes of this object.
+  /**
+   * @brief Set all subframes of this object.
    *
    * Use these to define points of interest on the object to plan with
    * (e.g. screwdriver/tip, kettle/spout, mug/base).
@@ -130,39 +139,48 @@ public:
     subframe_poses_ = subframe_poses;
   }
 
-  /* Get the fixed transform to a named subframe on this body (relative to the body's pose)
+  /**
+   * @brief Get the fixed transform to a named subframe on this body (relative to the body's pose)
    *
    * The frame_name needs to have the object's name prepended (e.g. "screwdriver/tip" returns true if the object's
    * name is "screwdriver"). Returns an identity transform if frame_name is unknown (and set found to false).
-   * The returned transform is guaranteed to be a valid isometry. */
+   * The returned transform is guaranteed to be a valid isometry.
+   */
   const Eigen::Isometry3d& getSubframeTransform(const std::string& frame_name, bool* found = nullptr) const;
 
-  /* Get the fixed transform to a named subframe on this body, relative to the world frame.
-   * The frame_name needs to have the object's name prepended (e.g. "screwdriver/tip" returns true if the object's
-   * name is "screwdriver"). Returns an identity transform if frame_name is unknown (and set found to false).
-   * The returned transform is guaranteed to be a valid isometry. */
-  const Eigen::Isometry3d& getGlobalSubframeTransform(const std::string& frame_name, bool* found = nullptr) const;
-
-  /* Check whether a subframe of given @frame_name is present in this object.
+  /**
+   * @brief Get the fixed transform to a named subframe on this body, relative to the world frame.
    *
    * The frame_name needs to have the object's name prepended (e.g. "screwdriver/tip" returns true if the object's
-   * name is "screwdriver"). */
+   * name is "screwdriver"). Returns an identity transform if frame_name is unknown (and set found to false).
+   * The returned transform is guaranteed to be a valid isometry.
+   */
+  const Eigen::Isometry3d& getGlobalSubframeTransform(const std::string& frame_name, bool* found = nullptr) const;
+
+  /**
+   * @brief Check whether a subframe of given @frame_name is present in this object.
+   *
+   * The frame_name needs to have the object's name prepended (e.g. "screwdriver/tip" returns true if the object's
+   * name is "screwdriver").
+   */
   bool hasSubframeTransform(const std::string& frame_name) const;
 
-  /* Get the global transforms (in world frame) for the collision bodies. The returned transforms are
-   *  guaranteed to be valid isometries. */
+  /**
+   * @brief Get the global transforms (in world frame) for the collision bodies.
+   * The returned transforms are guaranteed to be valid isometries.
+   */
   const EigenSTL::vector_Isometry3d& getGlobalCollisionBodyTransforms() const
   {
     return global_collision_body_transforms_;
   }
 
-  /* Set the padding for the shapes of this attached object */
+  /* Set the padding for the shapes of this attached object. */
   void setPadding(double padding);
 
-  /* Set the scale for the shapes of this attached object */
+  /* Set the scale for the shapes of this attached object. */
   void setScale(double scale);
 
-  /* Recompute global_collision_body_transform given the transform of the parent link */
+  /* Recompute global_collision_body_transform given the transform of the parent link. */
   void computeTransform(const Eigen::Isometry3d& parent_link_global_transform);
 
 private:
@@ -175,7 +193,7 @@ private:
   /* The transform from the parent link to the attached body's pose*/
   Eigen::Isometry3d pose_;
 
-  /* The transform from the model frame to the attached body's pose  */
+  /* The transform from the model frame to the attached body's pose */
   Eigen::Isometry3d global_pose_;
 
   /* The geometries of the attached body */
@@ -193,8 +211,8 @@ private:
   /* The set of links this body is allowed to touch */
   std::set<std::string> touch_links_;
 
-  /* Posture of links for releasing the object (if any). This is useful for example when storing
-      the configuration of a gripper holding an object */
+  /* Posture of links for releasing the object (if any).
+   * This is useful for example when storing the configuration of a gripper holding an object. */
   trajectory_msgs::msg::JointTrajectory detach_posture_;
 
   /* Transforms to subframes on the object, relative to the object's pose. */

@@ -2536,5 +2536,4 @@ std::ostream& operator<<(std::ostream& out, const RobotState& s)
   s.printStateInfo(out);
   return out;
 }
-
 }  // namespace tobas

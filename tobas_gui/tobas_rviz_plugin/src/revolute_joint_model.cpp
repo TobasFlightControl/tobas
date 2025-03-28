@@ -262,5 +262,4 @@ void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& trans
   axis_.array().abs().maxCoeff(&max_idx);
   joint_values[0] = 2. * atan2(q.vec()[max_idx] / axis_[max_idx], q.w());
 }
-
 }  // namespace tobas

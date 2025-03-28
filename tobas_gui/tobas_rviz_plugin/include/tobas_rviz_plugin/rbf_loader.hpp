@@ -18,21 +18,22 @@ using NewModelCallback = std::function<void()>;
 class RDFLoader
 {
 public:
-  /** @brief Default constructor
+  /**
+   * @brief Default constructor
    *
-   *  Loads the URDF from a parameter given by the string argument,
-   *  and the SRDF that has the same name + the "_semantic" suffix
+   * Loads the URDF from a parameter given by the string argument,
+   * and the SRDF that has the same name + the "_semantic" suffix
    *
-   *  If the parameter does not exist, attempt to subscribe to topics
-   *  with the same name and type std_msgs::msg::String.
+   * If the parameter does not exist, attempt to subscribe to topics
+   * with the same name and type std_msgs::msg::String.
    *
-   *  (specifying default_continuous_value/default_timeout allows users
-   *   to specify values without setting ros parameters)
+   * (specifying default_continuous_value/default_timeout allows users
+   * to specify values without setting ros parameters)
    *
-   *  @param node ROS interface for parameters / topics
-   *  @param ros_name The string name corresponding to the URDF
-   *  @param default_continuous_value Default value for parameter with "_continuous" suffix.
-   *  @param default_timeout Default value for parameter with "_timeout" suffix.
+   * @param node ROS interface for parameters / topics
+   * @param ros_name The string name corresponding to the URDF
+   * @param default_continuous_value Default value for parameter with "_continuous" suffix.
+   * @param default_timeout Default value for parameter with "_timeout" suffix.
    */
   RDFLoader(
     const std::shared_ptr<rclcpp::Node>& node,
@@ -40,28 +41,28 @@ public:
     bool default_continuous_value = false,
     double default_timeout = 10.0);
 
-  /** @brief Initialize the robot model from a string representation of the URDF and SRDF documents */
+  /* Initialize the robot model from a string representation of the URDF and SRDF documents */
   RDFLoader(const std::string& urdf_string, const std::string& srdf_string);
 
-  /** @brief Get the resolved parameter name for the robot description */
+  /* Get the resolved parameter name for the robot description */
   const std::string& getRobotDescription() const
   {
     return ros_name_;
   }
 
-  /** @brief Get the URDF string*/
+  /* Get the URDF string*/
   const std::string& getURDFString() const
   {
     return urdf_string_;
   }
 
-  /** @brief Get the parsed URDF model*/
+  /* Get the parsed URDF model*/
   const urdf::ModelInterfaceSharedPtr& getURDF() const
   {
     return urdf_;
   }
 
-  /** @brief Get the parsed SRDF model*/
+  /* Get the parsed SRDF model*/
   const srdf::ModelSharedPtr& getSRDF() const
   {
     return srdf_;
@@ -72,22 +73,21 @@ public:
     new_model_cb_ = cb;
   }
 
-  /** @brief determine if given path points to a xacro file */
+  /* determine if given path points to a xacro file */
   static bool isXacroFile(const std::string& path);
 
-  /** @brief load file from given path into buffer */
+  /* load file from given path into buffer */
   static bool loadFileToString(std::string& buffer, const std::string& path);
 
-  /** @brief run xacro with the given args on the file, return result in buffer */
+  /* run xacro with the given args on the file, return result in buffer */
   static bool
   loadXacroFileToString(std::string& buffer, const std::string& path, const std::vector<std::string>& xacro_args);
 
-  /** @brief helper that branches between loadFileToString() and loadXacroFileToString() based on result of
-   * isXacroFile() */
+  /* helper that branches between loadFileToString() and loadXacroFileToString() based on result of isXacroFile() */
   static bool
   loadXmlFileToString(std::string& buffer, const std::string& path, const std::vector<std::string>& xacro_args);
 
-  /** @brief helper that generates a file path based on package name and relative file path to package */
+  /* helper that generates a file path based on package name and relative file path to package */
   static bool loadPkgFileToString(
     std::string& buffer,
     const std::string& package_name,

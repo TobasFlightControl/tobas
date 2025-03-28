@@ -146,5 +146,4 @@ bool AttachedBody::hasSubframeTransform(const std::string& frame_name) const
   getSubframeTransform(frame_name, &found);
   return found;
 }
-
 }  // namespace tobas

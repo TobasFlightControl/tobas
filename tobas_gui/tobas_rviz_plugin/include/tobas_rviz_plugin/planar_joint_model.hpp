@@ -69,9 +69,11 @@ public:
     motion_model_ = model;
   }
 
-  // Make the yaw component of a state's value vector be in the range [-Pi, Pi]. enforceBounds() also calls this
-  // function;
-  // Return true if a change is actually made
+  /**
+   * @brief Make the yaw component of a state's value vector be in the range [-Pi, Pi].
+   * enforceBounds() also calls this function.
+   * Return true if a change is actually made.
+   */
   bool normalizeRotation(double* values) const;
 
 private:
@@ -83,15 +85,17 @@ private:
 
 /**
  * @brief Compute the geometry to turn toward the target point, drive straight and then turn to target orientation
- * @param[in]  from                       A vector representing the initial position [x0, y0, theta0]
- * @param[in]  to                         A vector representing the target position  [x1, y1, theta1]
- * @param[in]  min_translational_distance If the translational distance between \p from and \p to is less than this
- *                                        value the motion will be pure rotation (meters)
- * @param[out] dx                         x1 - x0 (meters)
- * @param[out] dy                         y1 - y0 (meters)
- * @param[out] initial_turn               The initial turn in radians to face the target
- * @param[out] drive_angle                The orientation in radians that the robot will be driving straight at
- * @param[out] final_turn                 The final turn in radians to the target orientation
+ *
+ * @param[in] from                       A vector representing the initial position [x0, y0, theta0]
+ * @param[in] to                         A vector representing the target position  [x1, y1, theta1]
+ * @param[in] min_translational_distance If the translational distance between \p from and \p to is less than this value
+ *                                       the motion will be pure rotation (meters)
+ *
+ * @param[out] dx           x1 - x0 (meters)
+ * @param[out] dy           y1 - y0 (meters)
+ * @param[out] initial_turn The initial turn in radians to face the target
+ * @param[out] drive_angle  The orientation in radians that the robot will be driving straight at
+ * @param[out] final_turn   The final turn in radians to the target orientation
  */
 void computeTurnDriveTurnGeometry(
   const double* from,

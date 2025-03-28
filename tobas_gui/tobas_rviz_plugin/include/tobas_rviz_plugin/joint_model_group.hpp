@@ -149,20 +149,21 @@ public:
     return continuous_joint_model_vector_;
   }
 
-  /* Get the names of the variables that make up the joints included in this group. The number of
-      returned elements is always equal to getVariableCount(). This includes mimic joints. */
+  /**
+   * @brief Get the names of the variables that make up the joints included in this group.
+   * The number of returned elements is always equal to getVariableCount(). This includes mimic joints.
+   */
   const std::vector<std::string>& getVariableNames() const
   {
     return variable_names_;
   }
 
-  /* Unlike a complete kinematic model, a group may
-      contain disconnected parts of the kinematic tree -- a
-      set of smaller trees. This function gives the roots of
-      those smaller trees. Furthermore, it is ensured that
-      the roots are on different branches in the kinematic
-      tree. This means that in following any root in the given
-      list, none of the other returned roots will be encountered. */
+  /**
+   * @brief Unlike a complete kinematic model, a group may contain disconnected parts of the kinematic tree
+   * -- a set of smaller trees. This function gives the roots of those smaller trees. Furthermore,
+   * it is ensured that the roots are on different branches in the kinematic tree.
+   * This means that in following any root in the given list, none of the other returned roots will be encountered.
+   */
   const std::vector<const JointModel*>& getJointRoots() const
   {
     return joint_roots_;
@@ -192,10 +193,12 @@ public:
     return link_model_with_geometry_name_vector_;
   }
 
-  /* Get the names of the links that are to be updated when the state of this group changes. This
-      includes links that are in the kinematic model but outside this group, if those links are descendants of
-      joints in this group that have their values updated. The order is the correct order for updating the corresponding
-     states. */
+  /**
+   * @brief Get the names of the links that are to be updated when the state of this group changes.
+   * This includes links that are in the kinematic model but outside this group,
+   * if those links are descendants of joints in this group that have their values updated.
+   * The order is the correct order for updating the corresponding states.
+   */
   const std::vector<const LinkModel*>& getUpdatedLinkModels() const
   {
     return updated_link_model_vector_;
@@ -213,9 +216,11 @@ public:
     return updated_link_model_name_vector_;
   }
 
-  /* Get the names of the links that are to be updated when the state of this group changes. This
-      includes links that are in the kinematic model but outside this group, if those links are descendants of
-      joints in this group that have their values updated. */
+  /**
+   * @brief Get the names of the links that are to be updated when the state of this group changes.
+   * This includes links that are in the kinematic model but outside this group,
+   * if those links are descendants of joints in this group that have their values updated.
+   */
   const std::vector<const LinkModel*>& getUpdatedLinkModelsWithGeometry() const
   {
     return updated_link_model_with_geometry_vector_;
@@ -239,9 +244,11 @@ public:
     return updated_link_model_with_geometry_name_set_;
   }
 
-  /* True if this name is in the set of links that are to be updated when the state of this group changes. This
-      includes links that are in the kinematic model but outside this group, if those links are descendants of
-      joints in this group that have their values updated. */
+  /**
+   * @brief True if this name is in the set of links that are to be updated when the state of this group changes.
+   * This includes links that are in the kinematic model but outside this group,
+   * if those links are descendants of joints in this group that have their values updated.
+   */
   bool isLinkUpdated(const std::string& name) const
   {
     return updated_link_model_name_set_.find(name) != updated_link_model_name_set_.end();
@@ -395,15 +402,19 @@ public:
   double distance(const double* state1, const double* state2) const;
   void interpolate(const double* from, const double* to, double t, double* state) const;
 
-  /* Get the number of variables that describe this joint group. This includes variables necessary for mimic
-      joints, so will always be >= getActiveVariableCount() */
+  /**
+   * @brief Get the number of variables that describe this joint group.
+   * This includes variables necessary for mimic joints, so will always be >= getActiveVariableCount()
+   */
   unsigned int getVariableCount() const
   {
     return variable_count_;
   }
 
-  /* Get the number of variables that describe the active joints in this joint group. This excludes variables
-      necessary for mimic joints. */
+  /**
+   * @brief Get the number of variables that describe the active joints in this joint group.
+   *  This excludes variables necessary for mimic joints.
+   */
   unsigned int getActiveVariableCount() const
   {
     return active_variable_count_;
@@ -459,16 +470,16 @@ public:
   /* Set the name of the end-effector, and remember this group is indeed an end-effector. */
   void setEndEffectorName(const std::string& name);
 
-  /* If this group is an end-effector, specify the parent group (e.g., the arm holding the eef) and the link the
-     end
-      effector connects to */
+  /**
+   * @brief Set the End Effector Parent objectIf this group is an end-effector, specify the parent group
+   * (e.g., the arm holding the eef) and the link the end effector connects to.
+   */
   void setEndEffectorParent(const std::string& group, const std::string& link);
 
   /* Notify this group that there is an end-effector attached to it */
   void attachEndEffector(const std::string& eef_name);
 
-  /* Get the name of the group this end-effector attaches to (first) and the name of the link in that group
-   * (second) */
+  /* Get the name of the group this end-effector attaches to (first) and the name of the link in that group (second). */
   const std::pair<std::string, std::string>& getEndEffectorParentGroup() const
   {
     return end_effector_parent_;
@@ -481,27 +492,27 @@ public:
   }
 
   /**
-   * \brief Get the unique set of end effector tips included in a particular joint model group
-   * as defined by the SRDF end effector elements
-   *        e.g. for a humanoid robot this would return 4 tips for the hands and feet
-   * \param tips - the output vector of link models of the tips
-   * \return true on success
+   * @brief Get the unique set of end effector tips included in a particular joint model group
+   * as defined by the SRDF end effector elements.
+   * e.g. for a humanoid robot this would return 4 tips for the hands and feet
+   * @param tips - the output vector of link models of the tips
+   * @return true on success
    */
   bool getEndEffectorTips(std::vector<const LinkModel*>& tips) const;
 
   /**
-   * \brief Get the unique set of end effector tips included in a particular joint model group
-   * as defined by the SRDF end effector elements
-   *        e.g. for a humanoid robot this would return 4 tips for the hands and feet
-   * \param tips - the output vector of link names of the tips
-   * \return true on success
+   * @brief Get the unique set of end effector tips included in a particular joint model group
+   * as defined by the SRDF end effector elements.
+   * e.g. for a humanoid robot this would return 4 tips for the hands and feet
+   * @param tips - the output vector of link names of the tips
+   * @return true on success
    */
   bool getEndEffectorTips(std::vector<std::string>& tips) const;
 
   /**
-   * \brief Get one end effector tip, throwing an error if there ends up being more in the joint model group
-   *  This is a useful helper function because most planning groups (almost all) only have one tip
-   * \return pointer to LinkModel, or nullptr on failure
+   * @brief Get one end effector tip, throwing an error if there ends up being more in the joint model group
+   * This is a useful helper function because most planning groups (almost all) only have one tip
+   * @return pointer to LinkModel, or nullptr on failure
    */
   const LinkModel* getOnlyOneEndEffectorTip() const;
 
@@ -552,10 +563,12 @@ public:
   /* Set the default IK timeout */
   void setDefaultIKTimeout(double ik_timeout);
 
-  /* Return the mapping between the order of the joints in this group and the order of the joints in the
-     kinematics solver.
-      An element bijection[i] at index \e i in this array, maps the variable at index bijection[i] in this group to
-      the variable at index i in the kinematic solver. */
+  /**
+   * @brief Return the mapping between the order of the joints in this group
+   * and the order of the joints in the kinematics solver.
+   * An element bijection[i] at index \e i in this array, maps the variable at index bijection[i] in this group to
+   * the variable at index i in the kinematic solver.
+   */
   const std::vector<size_t>& getKinematicsSolverJointBijection() const
   {
     return group_kinematics_.first.bijection_;
@@ -600,9 +613,11 @@ public:
   [[nodiscard]] std::pair<Eigen::VectorXd, Eigen::VectorXd> getMaxVelocitiesAndAccelerationBounds() const;
 
 protected:
-  /* Update the variable values for the state of a group with respect to the mimic joints. This only updates
-      mimic joints that have the parent in this group. If there is a joint mimicking one that is outside the group,
-      there are no values to be read (\e values is only the group state) */
+  /**
+   * @brief Update the variable values for the state of a group with respect to the mimic joints. This only updates
+   * mimic joints that have the parent in this group. If there is a joint mimicking one that is outside the group,
+   * there are no values to be read (\e values is only the group state).
+   */
   void updateMimicJoints(double* values) const;
 
   /* Owner model */
@@ -632,12 +647,12 @@ protected:
   /* The set of continuous joints this group contains */
   std::vector<const JointModel*> continuous_joint_model_vector_;
 
-  /* The names of the DOF that make up this group (this is just a sequence of joint variable names; not
-      necessarily joint names!) */
+  /* The names of the DOF that make up this group (this is just a sequence of joint variable names; not necessarily
+   * joint names!) */
   std::vector<std::string> variable_names_;
 
-  /* The names of the DOF that make up this group (this is just a sequence of joint variable names; not
-      necessarily joint names!) */
+  /* The names of the DOF that make up this group (this is just a sequence of joint variable names; not necessarily
+   * joint names!) */
   std::set<std::string> variable_names_set_;
 
   /* A map from joint names to their instances. This includes all joints in the group. */
@@ -650,24 +665,23 @@ protected:
   const JointModel* common_root_;
 
   /* The group includes all the joint variables that make up the joints the group consists of.
-      This map gives the position in the state vector of the group for each of these variables.
-      Additionally, it includes the names of the joints and the index for the first variable of that joint. */
+   * This map gives the position in the state vector of the group for each of these variables.
+   * Additionally, it includes the names of the joints and the index for the first variable of that joint. */
   VariableIndexMap joint_variables_index_map_;
 
   /* The bounds for all the active joint models */
   JointBoundsVector active_joint_models_bounds_;
 
-  /* The list of index values this group includes, with respect to a full robot state; this includes mimic
-   * joints. */
+  /* The list of index values this group includes, with respect to a full robot state; this includes mimic joints. */
   std::vector<int> variable_index_list_;
 
-  /* For each active joint model in this group, hold the index at which the corresponding joint state starts in
-      the group state */
+  /* For each active joint model in this group, hold the index at which the corresponding joint state starts in the
+   * group state */
   std::vector<int> active_joint_model_start_index_;
 
   /* The links that are on the direct lineage between joints
-      and joint_roots_, as well as the children of the joint leafs.
-      May not be in any particular order */
+   * and joint_roots_, as well as the children of the joint leafs.
+   * May not be in any particular order */
   std::vector<const LinkModel*> link_model_vector_;
 
   /* A map from link names to their instances */
@@ -681,36 +695,36 @@ protected:
   /* The names of the links in this group that also have geometry */
   std::vector<std::string> link_model_with_geometry_name_vector_;
 
-  /* The list of downstream link models in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link models in the order they should be updated
+   * (may include links that are not in this group) */
   std::vector<const LinkModel*> updated_link_model_vector_;
 
-  /* The list of downstream link models in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link models in the order they should be updated
+   * (may include links that are not in this group) */
   std::set<const LinkModel*> updated_link_model_set_;
 
-  /* The list of downstream link names in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link names in the order they should be updated
+   * (may include links that are not in this group) */
   std::vector<std::string> updated_link_model_name_vector_;
 
-  /* The list of downstream link names in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link names in the order they should be updated
+   * (may include links that are not in this group) */
   std::set<std::string> updated_link_model_name_set_;
 
-  /* The list of downstream link models in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link models in the order they should be updated
+   * (may include links that are not in this group) */
   std::vector<const LinkModel*> updated_link_model_with_geometry_vector_;
 
-  /* The list of downstream link models in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link models in the order they should be updated
+   * (may include links that are not in this group) */
   std::set<const LinkModel*> updated_link_model_with_geometry_set_;
 
-  /* The list of downstream link names in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link names in the order they should be updated
+   * (may include links that are not in this group) */
   std::vector<std::string> updated_link_model_with_geometry_name_vector_;
 
-  /* The list of downstream link names in the order they should be updated (may include links that are not in
-   * this group) */
+  /* The list of downstream link names in the order they should be updated
+   * (may include links that are not in this group) */
   std::set<std::string> updated_link_model_with_geometry_name_set_;
 
   /* The number of variables necessary to describe this group of joints */
@@ -720,7 +734,7 @@ protected:
   unsigned int active_variable_count_;
 
   /* True if the state of this group is contiguous within the full robot state; this also means that
-      the index values in variable_index_list_ are consecutive integers */
+   * the index values in variable_index_list_ are consecutive integers */
   bool is_contiguous_index_list_;
 
   /* The set of labelled subgroups that are included in this group */
@@ -732,9 +746,8 @@ protected:
   /* If an end-effector is attached to this group, the name of that end-effector is stored in this variable */
   std::vector<std::string> attached_end_effector_names_;
 
-  /* First: name of the group that is parent to this end-effector group; Second: the link this in the parent
-     group
-      that this group attaches to */
+  /* First: name of the group that is parent to this end-effector group; Second: the link this in the parent group that
+   * this group attaches to */
   std::pair<std::string, std::string> end_effector_parent_;
 
   /* The name of the end effector, if this group is an end-effector */

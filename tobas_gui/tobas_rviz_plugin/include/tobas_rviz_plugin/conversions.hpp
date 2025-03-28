@@ -110,11 +110,11 @@ void robotStateToStream(
   const std::string& separator = ",");
 
 /**
- * \brief Convert a string of joint values from a file (CSV) or input source into a RobotState
+ * @brief Convert a string of joint values from a file (CSV) or input source into a RobotState
  * @param state - the output Tobas robot state object
  * @param line - the input string of joint values
  * @param separator - allows to override the comma separator with any symbol, such as a white space
- * \return true on success
+ * @return true on success
  */
 void streamToRobotState(RobotState& state, const std::string& line, const std::string& separator = ",");
 }  // namespace tobas

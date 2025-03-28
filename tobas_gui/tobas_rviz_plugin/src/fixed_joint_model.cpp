@@ -68,4 +68,4 @@ void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d& /* trans
   const
 {
 }
-}  // end of namespace tobas
+}  // namespace tobas

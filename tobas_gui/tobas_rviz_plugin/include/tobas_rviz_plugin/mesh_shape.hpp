@@ -9,37 +9,12 @@ class ManualObject;
 
 namespace rviz_rendering
 {
-/* This class allows constructing Ogre shapes manually, from triangle lists.
-
-    For example:
-    Assuming we have a set of mesh triangles represented like this:
-    \verbatim
-    struct Triangle
-    {
-      unsigned v1, v2, v3; // index for the 3 vertices that make up a triangle
-    };
-    std::vector<Triangle> triangles;
-    std::vector<Ogre::Vector3> vertices;
-    std::vector<Ogre::Vector3> normals; // normal at every vertex
-    \endverbatim
-
-    we can use this class to render the mesh as follows:
-    \verbatim
-    rviz::MeshShape *shape = new MeshShape(scene_manager);
-    mesh->estimateVertexCount(vertices.size());
-    mesh->beginTriangles();
-    for (std::size_t i = 0 ; i < vertices.size() ; ++i)
-      mesh->addVertex(vertices[i], normals[i]);
-    for (std::size_t i = 0 ; i < triangles.size() ; ++i)
-      mesh->addTriangle(triangles[i].v1, triangles[i].v2, triangles[i].v3);
-    mesh->endTriangles();
-    \endverbatim
- */
+/* This class allows constructing Ogre shapes manually, from triangle lists. */
 class MeshShape : public Shape
 {
 public:
   /**
-   * \brief Constructor
+   * @brief Constructor
    *
    * @param scene_manager The scene manager this object is associated with
    * @param parent_node A scene node to use as the parent of this object.  If nullptr, uses the root scene node.
@@ -47,34 +22,40 @@ public:
   MeshShape(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node = nullptr);
   ~MeshShape() override;
 
-  /* \brief Estimate the number of vertices ahead of time. */
+  /* Estimate the number of vertices ahead of time. */
   void estimateVertexCount(size_t vcount);
 
   /* Start adding triangles to the mesh */
   void beginTriangles();
 
-  /* Add a vertex to the mesh (no normal defined). If using
-      this function only (not using addTriangle()) it is assumed that
-      triangles are added by specifying the 3 vertices in order (3
-      consecutive calls to this function). This means there must be
-      3*n calls to this function to add n triangles. If addTriangle()
-      is used, indexing in the defined vertices is done. */
+  /**
+   * @brief Add a vertex to the mesh (no normal defined). If using
+   * this function only (not using addTriangle()) it is assumed that
+   * triangles are added by specifying the 3 vertices in order (3
+   * consecutive calls to this function). This means there must be
+   * 3*n calls to this function to add n triangles. If addTriangle()
+   * is used, indexing in the defined vertices is done.
+   */
   void addVertex(const Ogre::Vector3& position);
 
-  /* Add a vertex to the mesh with a normal defined. If using
-      this function only (not using addTriangle()) it is assumed that
-      triangles are added by specifying the 3 vertices in order (3
-      consecutive calls to this function). This means there must be
-      3*n calls to this function to add n triangles.If addTriangle()
-      is used, indexing in the defined vertices is done.  */
+  /**
+   * @brief Add a vertex to the mesh with a normal defined. If using
+   * this function only (not using addTriangle()) it is assumed that
+   * triangles are added by specifying the 3 vertices in order (3
+   * consecutive calls to this function). This means there must be
+   * 3*n calls to this function to add n triangles.If addTriangle()
+   * is used, indexing in the defined vertices is done.
+   */
   void addVertex(const Ogre::Vector3& position, const Ogre::Vector3& normal);
 
-  /* Add a vertex to the mesh with normal and color defined. If using
-      this function only (not using addTriangle()) it is assumed that
-      triangles are added by specifying the 3 vertices in order (3
-      consecutive calls to this function). This means there must be
-      3*n calls to this function to add n triangles.If addTriangle()
-      is used, indexing in the defined vertices is done. */
+  /**
+   * @brief Add a vertex to the mesh with normal and color defined. If using
+   * this function only (not using addTriangle()) it is assumed that
+   * triangles are added by specifying the 3 vertices in order (3
+   * consecutive calls to this function). This means there must be
+   * 3*n calls to this function to add n triangles.If addTriangle()
+   * is used, indexing in the defined vertices is done.
+   */
   void addVertex(const Ogre::Vector3& position, const Ogre::Vector3& normal, const Ogre::ColourValue& color);
 
   /* Add normal for a vertex */
@@ -86,8 +67,10 @@ public:
   /* Add a triangle by indexing in the defined vertices. */
   void addTriangle(unsigned int p1, unsigned int p2, unsigned int p3);
 
-  /* Notify that the set of triangles to add is complete. No more triangles can be added, beginTriangles() can
-   * no longer be called unless clear() was called. */
+  /**
+   * @brief Notify that the set of triangles to add is complete.
+   * No more triangles can be added, beginTriangles() can no longer be called unless clear() was called.
+   */
   void endTriangles();
 
   /* Clear the mesh */
@@ -100,8 +83,7 @@ public:
   }
 
 private:
-  // true in between calls to beginTriangles() and endTriangles()
-  bool started_;
+  bool started_;  // true in between calls to beginTriangles() and endTriangles()
   Ogre::ManualObject* manual_object_;
 };
 

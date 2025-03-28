@@ -271,5 +271,4 @@ std::ostream& operator<<(std::ostream& out, const VariableBounds& b)
   out << "];";
   return out;
 }
-
 }  // namespace tobas

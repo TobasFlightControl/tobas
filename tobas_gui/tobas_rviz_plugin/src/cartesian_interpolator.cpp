@@ -568,5 +568,4 @@ std::optional<int> hasJointSpaceJump(
 
   return std::nullopt;
 }
-
-}  // end of namespace tobas
+}  // namespace tobas

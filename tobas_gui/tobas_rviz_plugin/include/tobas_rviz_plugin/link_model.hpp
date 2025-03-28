@@ -40,10 +40,10 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /**
-   * @brief      Construct a link model named \e name
+   * @brief Construct a link model named \e name
    *
-   * @param[in]  name        The name of the link
-   * @param[in]  link_index  The link index in the RobotModel
+   * @param name        The name of the link
+   * @param link_index  The link index in the RobotModel
    */
   LinkModel(const std::string& name, size_t link_index);
   ~LinkModel();

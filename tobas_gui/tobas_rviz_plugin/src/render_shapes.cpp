@@ -166,5 +166,4 @@ void RenderShapes::updateShapeColors(double r, double g, double b, double a)
   for (const std::unique_ptr<rviz_rendering::Shape>& shape : scene_shapes_)
     shape->setColor(r, g, b, a);
 }
-
 }  // namespace tobas

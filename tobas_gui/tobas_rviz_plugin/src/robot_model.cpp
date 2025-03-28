@@ -1659,5 +1659,4 @@ void RobotModel::computeFixedTransforms(
     }
   }
 }
-
 }  // namespace tobas

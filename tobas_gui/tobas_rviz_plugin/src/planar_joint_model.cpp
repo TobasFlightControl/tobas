@@ -346,5 +346,4 @@ void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transf,
     joint_values[2] = (acos(q.w()) * 2.0f) * (q.z() * s);
   }
 }
-
 }  // namespace tobas

@@ -10,17 +10,19 @@ namespace tobas
 {
 TOBAS_CLASS_FORWARD(Transforms);  // Defines TransformsPtr, ConstPtr, WeakPtr... etc
 
-// @brief Map frame names to the transformation matrix that can transform objects from the frame name to the planning
-// frame
+/* Map frame names to the transformation matrix that can transform objects from the frame name to the planning */
 using FixedTransformsMap = std::map<
   std::string,
   Eigen::Isometry3d,
   std::less<std::string>,
   Eigen::aligned_allocator<std::pair<const std::string, Eigen::Isometry3d> > >;
 
-/** @brief Provides an implementation of a snapshot of a transform tree that can be easily queried for
-    transforming different quantities. Transforms are maintained as a list of transforms to a particular frame.
-    All stored transforms are considered fixed. */
+/**
+ * @brief Provides an implementation of a snapshot of a transform tree
+ * that can be easily queried for transforming different quantities.
+ * Transforms are maintained as a list of transforms to a particular frame.
+ * All stored transforms are considered fixed.
+ */
 class Transforms
 {
 public:
@@ -52,11 +54,6 @@ public:
    * @return The planning frame
    */
   const std::string& getTargetFrame() const;
-
-  /**
-   * \name Setting and retrieving transforms maintained in this class
-   */
-  /**@{*/
 
   /**
    * @brief Return all the transforms
@@ -91,24 +88,19 @@ public:
   void setTransforms(const std::vector<geometry_msgs::msg::TransformStamped>& transforms);
 
   /**
-   * @brief Set all the transforms: a map from string names of frames to corresponding Eigen::Isometry3d (w.r.t the
-   * planning frame)
+   * @brief Set all the transforms: a map from string names of frames to corresponding Eigen::Isometry3d
+   * (w.r.t the planning frame)
    */
   void setAllTransforms(const FixedTransformsMap& transforms);
 
-  /**@}*/
-
-  /**
-   * \name Applying transforms
-   */
-  /**@{*/
-
   /**
    * @brief Transform a vector in from_frame to the target_frame
-   *        Note: assumes that v_in and v_out are "free" vectors, not points
+   *
    * @param from_frame The frame from which the transform is computed
    * @param v_in The input vector (in from_frame)
    * @param v_out The resultant (transformed) vector
+   *
+   * @note assumes that v_in and v_out are "free" vectors, not points
    */
   void transformVector3(const std::string& from_frame, const Eigen::Vector3d& v_in, Eigen::Vector3d& v_out) const
   {
@@ -152,7 +144,6 @@ public:
     // getTransform() returns a valid isometry by contract
     t_out = getTransform(from_frame) * t_in;
   }
-  /**@}*/
 
   /**
    * @brief Check whether data can be transformed from a particular frame

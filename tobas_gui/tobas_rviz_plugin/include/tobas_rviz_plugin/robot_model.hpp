@@ -14,7 +14,6 @@
 #include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
 #include "../include/tobas_rviz_plugin/prismatic_joint_model.hpp"
 
-/* Main namespace for Tobas */
 namespace tobas
 {
 TOBAS_CLASS_FORWARD(RobotModel);  // Defines RobotModelPtr, ConstPtr, WeakPtr... etc
@@ -29,8 +28,7 @@ static inline void checkInterpolationParamBounds(const rclcpp::Logger& logger, d
   RCLCPP_WARN_STREAM_EXPRESSION(logger, t < 0. || t > 1., "Interpolation parameter is not in the range [0, 1]: " << t);
 }
 
-/* Definition of a kinematic model. This class is not thread
-    safe, however multiple instances can be created */
+/* Definition of a kinematic model. This class is not thread safe, however multiple instances can be created */
 class RobotModel
 {
 public:
@@ -46,10 +44,11 @@ public:
     return model_name_;
   }
 
-  /* Get the frame in which the transforms for this model are
-      computed (when using a RobotState). This frame depends on the
-      root joint. As such, the frame is either extracted from SRDF, or
-      it is assumed to be the name of the root link */
+  /**
+   * @brief Get the frame in which the transforms for this model are computed (when using a RobotState).
+   * This frame depends on the root joint.
+   * As such, the frame is either extracted from SRDF, or it is assumed to be the name of the root link.
+   */
   const std::string& getModelFrame() const
   {
     return model_frame_;
@@ -76,14 +75,11 @@ public:
   /* Print information about the constructed model */
   void printModelInfo(std::ostream& out) const;
 
-  /** \name Access to joint models
-   *  @{
+  /**
+   * @brief Get the root joint.
+   * There will be one root joint unless the model is empty.
+   * This is either extracted from the SRDF, or a fixed joint is assumed, if no specification is given.
    */
-
-  /* Get the root joint. There will be one root joint
-      unless the model is empty. This is either extracted from the
-      SRDF, or a fixed joint is assumed, if no specification is
-      given. */
   const JointModel* getRootJoint() const;
 
   /* Return the name of the root joint. Throws an exception if there is no root joint. */
@@ -111,9 +107,10 @@ public:
     return joint_model_vector_const_;
   }
 
-  /* Get the array of joints, in the order they appear in the
-      robot state. This includes all types of joints (including mimic
-      & fixed), as opposed to JointModelGroup::getJointModels(). */
+  /**
+   * @brief Get the array of joints, in the order they appear in the robot state.
+   * This includes all types of joints (including mimic & fixed), as opposed to JointModelGroup::getJointModels().
+   */
   const std::vector<JointModel*>& getJointModels()
   {
     return joint_model_vector_;
@@ -155,15 +152,13 @@ public:
     return multi_dof_joints_;
   }
 
-  /* Get the array of continuous joints, in the order they appear
-      in the robot state. */
+  /* Get the array of continuous joints, in the order they appear in the robot state. */
   const std::vector<const JointModel*>& getContinuousJointModels() const
   {
     return continuous_joint_model_vector_;
   }
 
-  /* Get the array of mimic joints, in the order they appear
-      in the robot state. */
+  /* Get the array of mimic joints, in the order they appear in the robot state. */
   const std::vector<const JointModel*>& getMimicJointModels() const
   {
     return mimic_joints_;
@@ -184,12 +179,6 @@ public:
     return joint_model_vector_.size();
   }
 
-  /** @} */
-
-  /** \name Access to link models
-   *  @{
-   */
-
   /* Get the physical root link of the robot. */
   const LinkModel* getRootLink() const;
 
@@ -199,9 +188,11 @@ public:
     return getRootLink()->getName();
   }
 
-  /* Check if a link exists. Return true if it does.
+  /**
+   * @brief Check if a link exists. Return true if it does.
    *
-   * If this is followed by a call to getLinkModel(), better use the latter with the has_link argument */
+   * If this is followed by a call to getLinkModel(), better use the latter with the has_link argument.
+   */
   bool hasLinkModel(const std::string& name) const;
 
   /* Get a link by its name. Output error and return nullptr when the link is missing. */
@@ -213,7 +204,8 @@ public:
   /* Get a link by its name. Output error and return nullptr when the link is missing. */
   LinkModel* getLinkModel(const std::string& link, bool* has_link = nullptr);
 
-  /* Get the latest link upwards the kinematic tree, which is only connected via fixed joints
+  /**
+   * @brief Get the latest link upwards the kinematic tree, which is only connected via fixed joints
    *
    * If jmg is given, all links that are not active in this JMG are considered fixed.
    * Otherwise only fixed joints are considered fixed.
@@ -230,13 +222,13 @@ public:
   static const LinkModel*
   getRigidlyConnectedParentLinkModel(const LinkModel* link, const JointModelGroup* jmg = nullptr);
 
-  /* Get the array of links  */
+  /* Get the array of links */
   const std::vector<const LinkModel*>& getLinkModels() const
   {
     return link_model_vector_const_;
   }
 
-  /* Get the array of links  */
+  /* Get the array of links */
   const std::vector<LinkModel*>& getLinkModels()
   {
     return link_model_vector_;
@@ -269,8 +261,6 @@ public:
   {
     return link_geometry_count_;
   }
-
-  /** @} */
 
   /* Compute the random values for a RobotState */
   void getVariableRandomPositions(random_numbers::RandomNumberGenerator& rng, double* values) const;
@@ -320,7 +310,7 @@ public:
   double distance(const double* state1, const double* state2) const;
 
   /**
-   * Interpolate between "from" state, to "to" state. Mimic joints are correctly updated.
+   * @brief Interpolate between "from" state, to "to" state. Mimic joints are correctly updated.
    *
    * @param from interpolate from this state
    * @param to to this state
@@ -375,18 +365,17 @@ public:
     return end_effectors_;
   }
 
-  /** @} */
-
   /* Get the number of variables that describe this model */
   std::size_t getVariableCount() const
   {
     return variable_count_;
   }
 
-  /* Get the names of the variables that make up the joints that form this state. Fixed joints have no DOF, so
-     they are not here,
-      but the variables for mimic joints are included. The number of returned elements is always equal to
-     getVariableCount() */
+  /**
+   * @brief Get the names of the variables that make up the joints that form this state.
+   * Fixed joints have no DOF, so they are not here, but the variables for mimic joints are included.
+   * The number of returned elements is always equal to getVariableCount().
+   */
   const std::vector<std::string>& getVariableNames() const
   {
     return variable_names_;
@@ -421,7 +410,7 @@ public:
       [common_joint_roots_[a->getJointIndex() * joint_model_vector_.size() + b->getJointIndex()]];
   }
 
-  // A map of known kinematics solvers (associated to their group name)
+  /* A map of known kinematics solvers (associated to their group name) */
   void setKinematicsAllocators(const std::map<std::string, SolverAllocatorFn>& allocators);
 
 protected:
@@ -513,11 +502,10 @@ protected:
   std::vector<const JointModel*> multi_dof_joints_;
 
   /* For every two joints, the index of the common root for the joints is stored.
-
-      for jointA, jointB
-      the index of the common root is located in the array at location
-      jointA->getJointIndex() * nr.joints + jointB->getJointIndex().
-      The size of this array is nr.joints * nr.joints
+   *
+   * for jointA, jointB the index of the common root is located in the array at location
+   * jointA->getJointIndex() * nr.joints + jointB->getJointIndex().
+   * The size of this array is nr.joints * nr.joints
    */
   std::vector<int> common_joint_roots_;
 
@@ -531,8 +519,8 @@ protected:
   std::size_t variable_count_;
 
   /* The state includes all the joint variables that make up the joints the state consists of.
-      This map gives the position in the state vector of the group for each of these variables.
-      Additionally, it includes the names of the joints and the index for the first variable of that joint. */
+   * This map gives the position in the state vector of the group for each of these variables.
+   * Additionally, it includes the names of the joints and the index for the first variable of that joint. */
   VariableIndexMap joint_variables_index_map_;
 
   std::vector<int> active_joint_model_start_index_;
@@ -592,20 +580,19 @@ private:
   void computeCommonRoots();
 
   /* (This function is mostly intended for internal use). Given a parent link, build up (recursively),
-      the kinematic model by walking  down the tree*/
+   * the kinematic model by walking  down the tree*/
   JointModel* buildRecursive(LinkModel* parent, const urdf::Link* link, const srdf::Model& srdf_model);
 
   /* Construct a JointModelGroup given a SRDF description \e group */
   bool addJointModelGroup(const srdf::Model::Group& group);
 
-  /* Given a child link and a srdf model,
-      build up the corresponding JointModel object*/
+  /* Given a child link and a srdf model, build up the corresponding JointModel object */
   JointModel* constructJointModel(const urdf::Link* child_link, const srdf::Model& srdf_model);
 
-  /* Given a urdf link, build the corresponding LinkModel object*/
+  /* Given a urdf link, build the corresponding LinkModel object */
   LinkModel* constructLinkModel(const urdf::Link* urdf_link);
 
-  /* Given a geometry spec from the URDF and a filename (for a mesh), construct the corresponding shape object*/
+  /* Given a geometry spec from the URDF and a filename (for a mesh), construct the corresponding shape object */
   shapes::ShapePtr constructShape(const urdf::Geometry* geom);
 };
 }  // namespace tobas

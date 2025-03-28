@@ -11,7 +11,7 @@ namespace tobas
 TOBAS_CLASS_FORWARD(RenderShapes);             // Defines RenderShapesPtr, ConstPtr, WeakPtr... etc
 TOBAS_CLASS_FORWARD(RobotStateVisualization);  // Defines RobotStateVisualizationPtr, ConstPtr, WeakPtr... etc
 
-/* Update the links of an rviz::Robot using a RobotState */
+/* Update the links of an rviz::Robot using a RobotState. */
 class RobotStateVisualization
 {
 public:
@@ -37,7 +37,8 @@ public:
     const std::map<std::string, std_msgs::msg::ColorRGBA>& color_map);
   void updateKinematicState(const RobotStateConstPtr& robot_state);
   void setDefaultAttachedObjectColor(const std_msgs::msg::ColorRGBA& default_attached_object_color);
-  // update color of all attached object shapes
+
+  /* update color of all attached object shapes. */
   void updateAttachedObjectColors(const std_msgs::msg::ColorRGBA& attached_object_color);
 
   bool isVisible() const
@@ -46,19 +47,19 @@ public:
   }
 
   /**
-   * \brief Set the robot as a whole to be visible or not
+   * @brief Set the robot as a whole to be visible or not.
    * @param visible Should we be visible?
    */
   void setVisible(bool visible);
 
   /**
-   * \brief Set whether the visual meshes of the robot should be visible
+   * @brief Set whether the visual meshes of the robot should be visible.
    * @param visible Whether the visual meshes of the robot should be visible
    */
   void setVisualVisible(bool visible);
 
   /**
-   * \brief Set whether the collision meshes/primitives of the robot should be visible
+   * @brief Set whether the collision meshes/primitives of the robot should be visible.
    * @param visible Whether the collision meshes/primitives should be visible
    */
   void setCollisionVisible(bool visible);
