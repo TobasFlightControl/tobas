@@ -16,6 +16,7 @@
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_property_client</depend>
   <depend>tobas_constants</depend>
+  <depend>tobas_qt_tools</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
