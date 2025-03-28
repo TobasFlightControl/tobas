@@ -66,10 +66,11 @@ $ cd ~/colcon_ws/src
 $ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b main
 ```
 
-5. Install ROS dependencies
+5. Install dependencies
 
 ```bash
 $ rosdep install --from-paths ~/colcon_ws/src/tobas -yi
+$ sudo apt install -y libgit2-dev
 ```
 
 6. Build
