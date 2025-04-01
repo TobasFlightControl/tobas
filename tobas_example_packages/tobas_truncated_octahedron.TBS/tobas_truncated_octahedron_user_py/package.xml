@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="3">
+
+	<name>tobas_truncated_octahedron_user_py</name>
+	<version>0.0.0</version>
+	<description>Tobas user Python package for truncated_octahedron</description>
+	<maintainer email="example@gmail.com">example</maintainer>
+	<license>BSD</license>
+
+	<export>
+		<build_type>ament_python</build_type>
+	</export>
+
+</package>

@@ -1,0 +1,113 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+from launch_ros.actions import Node, SetParameter
+from launch_ros.substitutions import FindPackageShare
+
+# Template parameters
+DRONE_NAME = "truncated_octahedron"
+ACTIONS_PKG = "tobas_dummy_pkg"
+USER_CPP_PKG_NAME = "tobas_truncated_octahedron_user_cpp"
+USER_PY_PKG_NAME = "tobas_truncated_octahedron_user_py"
+
+# Arguments
+LOG_LEVEL = "log_level"
+OUTPUT = "output"
+USE_SIM_TIME = "use_sim_time"
+GROUND_TRUTH = "ground_truth"
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="true"))
+    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
+
+    # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
+    use_sim_time = LaunchConfiguration(USE_SIM_TIME)
+    ground_truth = LaunchConfiguration(GROUND_TRUTH)
+
+    # Set common parameters
+    # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
+    ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
+
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+    user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
+
+    remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+    ros_args = ["--log-level", log_level]
+
+    # Launch navigation actions
+    ld.add_action(
+        Node(
+            package=ACTIONS_PKG,
+            executable="takeoff_server",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package=ACTIONS_PKG,
+            executable="land_server",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package=ACTIONS_PKG,
+            executable="move_server",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch dynamic parameter server
+    ld.add_action(
+        Node(
+            package="tobas_dparam_server",
+            executable="dparam_server",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch interface bridge
+    ld.add_action(
+        Node(
+            package="tobas_ros_interface",
+            executable="ros_interface",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_cpp_pkg_share, "launch", "common.launch.py"]))
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "common.launch.py"]))
+        )
+    )
+
+    return ld
