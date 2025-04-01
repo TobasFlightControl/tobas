@@ -1,0 +1,6 @@
+/**:
+  joint3_controller:
+    ros__parameters:
+      joints:
+        - joint3
+      interface_name: position

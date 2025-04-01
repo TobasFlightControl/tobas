@@ -1,0 +1,78 @@
+<launch>
+
+  <arg name="log_level" default="info"/>
+  <arg name="output" default="screen"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="user_debug" default="false"/>
+  <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/basic.world"/>
+  <arg name="verbose" default="3"/>
+  <arg name="ground_truth" default="false"/>
+  <arg name="standalone" default="false"/>
+  <arg name="multiprocess" default="true"/>
+  <arg name="launch_core" default="true"/>
+  <arg name="x" default="0.0" description="Initial X position in meters."/>
+  <arg name="y" default="0.0" description="Initial Y position in meters."/>
+  <arg name="z" default="0.3" description="Initial Z position in meters."/>
+  <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
+
+  <!-- Set common parameters -->
+  <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
+
+  <!-- Load robot description -->
+  <include file="$(find-pkg-share tobas_hydrus_config)/launch/robot_state_publisher.launch.py">
+    <arg name="log_level" value="$(var log_level)"/>
+    <arg name="output" value="$(var output)"/>
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="user_debug" value="$(var user_debug)"/>
+  </include>
+
+  <!-- Launch a Gazebo world -->
+  <include file="$(find-pkg-share tobas_gazebo_sim)/launch/gazebo.launch.xml">
+    <arg name="world_path" value="$(var world_path)"/>
+    <arg name="verbose" value="$(var verbose)"/>
+  </include>
+
+  <group>
+    <push_ros_namespace namespace="hydrus"/>
+
+    <!-- Spawn robot in Gazebo -->
+    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name hydrus -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
+
+    <!-- Launch Gazebo nodes -->
+    <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="rotor_states_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="electric_rotor_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="joint_states_bridge" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+  </group>
+
+  <!-- Launch joint controllers -->
+  <include file="$(find-pkg-share tobas_hydrus_config)/launch/joint_controller_manager.launch.xml"/>
+
+  <!-- Launch Tobas core software -->
+  <group if="$(var launch_core)">
+    <include file="$(find-pkg-share tobas_hydrus_config)/launch/common.launch.py">
+      <arg name="log_level" value="$(var log_level)"/>
+      <arg name="output" value="$(var output)"/>
+      <arg name="use_sim_time" value="$(var use_sim_time)"/>
+      <arg name="ground_truth" value="$(var ground_truth)"/>
+      <arg name="standalone" value="$(var standalone)"/>
+      <arg name="multiprocess" value="$(var multiprocess)"/>
+    </include>
+  </group>
+
+  <!-- Launch nodes related to RC input -->
+  <group>
+    <push_ros_namespace namespace="hydrus"/>
+
+    <node pkg="tobas_sbus_driver" exec="sbus_driver" ros_args="--log-level $(var log_level)" output="$(var output)">
+      <param name="device" value="/dev/ttyUSB0"/>
+    </node>
+    <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+  </group>
+
+  <!-- Launch user nodes -->
+  <include file="$(find-pkg-share tobas_hydrus_user_cpp)/launch/gazebo.launch.py"/>
+  <include file="$(find-pkg-share tobas_hydrus_user_py)/launch/gazebo.launch.py"/>
+
+</launch>

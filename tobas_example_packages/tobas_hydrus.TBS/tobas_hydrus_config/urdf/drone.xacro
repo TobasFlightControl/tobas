@@ -1,0 +1,638 @@
+<robot name="hydrus" xmlns:xacro="http://ros.org/wiki/xacro">
+    <link name="bat1">
+        <inertial>
+            <mass value="0.4108"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0006" iyz="0" izz="0.0006"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/Kypom-3000-6s.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="bat2">
+        <inertial>
+            <mass value="0.4108"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0006" iyz="0" izz="0.0006"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/Kypom-3000-6s.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="fc">
+        <inertial>
+            <mass value="0.05"/>
+            <origin xyz="0.013 0.0044 -0.009" rpy="0 -0 0"/>
+            <inertia ixx="1e-05" ixy="0" ixz="0" iyy="1e-05" iyz="0" izz="2e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/spinal.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="gps">
+        <inertial>
+            <mass value="0.042"/>
+            <origin xyz="0 0 -0.013" rpy="0 -0 0"/>
+            <inertia ixx="6e-05" ixy="0" ixz="0" iyy="6e-05" iyz="0" izz="7e-06"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/gps_ublox_m8n.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="leddarone">
+        <inertial>
+            <mass value="0.025"/>
+            <origin xyz="-0.008 0 0" rpy="0 -0 0"/>
+            <inertia ixx="1e-05" ixy="0" ixz="0" iyy="6e-06" iyz="0" izz="1e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/leddar_one_tx2_attached_mode.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="leg1">
+        <inertial>
+            <mass value="0.0471"/>
+            <origin xyz="0 0.0005 -0.09411" rpy="0 -0 0"/>
+            <inertia ixx="0.000251" ixy="0" ixz="0" iyy="0.000242" iyz="0" izz="1.1e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/end_leg.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="leg2">
+        <inertial>
+            <mass value="0.0471"/>
+            <origin xyz="0 0.0005 -0.09521" rpy="0 -0 0"/>
+            <inertia ixx="0.000251" ixy="0" ixz="0" iyy="0.000242" iyz="0" izz="1.1e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/joint_leg.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="leg3">
+        <inertial>
+            <mass value="0.0471"/>
+            <origin xyz="0 0.0005 -0.09521" rpy="0 -0 0"/>
+            <inertia ixx="0.000251" ixy="0" ixz="0" iyy="0.000242" iyz="0" izz="1.1e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/joint_leg.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="leg4">
+        <inertial>
+            <mass value="0.0471"/>
+            <origin xyz="0 0.0005 -0.09521" rpy="0 -0 0"/>
+            <inertia ixx="0.000251" ixy="0" ixz="0" iyy="0.000242" iyz="0" izz="1.1e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/joint_leg.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="leg5">
+        <inertial>
+            <mass value="0.0471"/>
+            <origin xyz="0 0.0005 -0.09411" rpy="0 -0 0"/>
+            <inertia ixx="0.000251" ixy="0" ixz="0" iyy="0.000242" iyz="0" izz="1.1e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/end_leg.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="link1">
+        <inertial>
+            <mass value="0.58712"/>
+            <origin xyz="0.357 0 0.018" rpy="0 -0 0"/>
+            <inertia ixx="0.00179" ixy="0" ixz="0.00067" iyy="0.01605" iyz="0" izz="0.01714"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/link1.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0.3 0 -0.08575" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.6 0.05 0.1715"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="link2">
+        <inertial>
+            <mass value="0.55744"/>
+            <origin xyz="0.3 0 0.01287" rpy="0 -0 0"/>
+            <inertia ixx="0.00171" ixy="0" ixz="1e-05" iyy="0.01727" iyz="0" izz="0.01844"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/link2.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0.3 0 -0.08575" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.6 0.05 0.1715"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="link3">
+        <inertial>
+            <mass value="0.63453"/>
+            <origin xyz="0.2683 0 0.01836" rpy="0 -0 0"/>
+            <inertia ixx="0.00182" ixy="0" ixz="-0.00077" iyy="0.02232" iyz="0" izz="0.02254"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/link3.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0.3 0 -0.08575" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.6 0.05 0.1715"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="link4">
+        <inertial>
+            <mass value="0.59"/>
+            <origin xyz="0.242 0 0.0188" rpy="0 -0 0"/>
+            <inertia ixx="0.00179" ixy="0" ixz="-0.00067" iyy="0.01581" iyz="0" izz="0.01692"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/link4.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0.3 0 -0.08575" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.6 0.05 0.1715"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="magnet">
+        <inertial>
+            <mass value="1e-05"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="1e-06" ixy="0" ixz="0" iyy="1e-06" iyz="0" izz="2e-06"/>
+        </inertial>
+    </link>
+    <link name="pc">
+        <inertial>
+            <mass value="0.181"/>
+            <origin xyz="0.018 0.004 -0.018" rpy="0 -0 0"/>
+            <inertia ixx="7e-05" ixy="0" ixz="0" iyy="3e-05" iyz="0" izz="9e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/jetson_tx2_unit.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+    </link>
+    <link name="root"/>
+    <link name="thrust1">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="1e-05" ixy="0" ixz="0" iyy="1e-05" iyz="0" izz="2e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0.032" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/T-motor-CF-14inch-CW.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.2025" length="0.1"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="thrust2">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="1e-05" ixy="0" ixz="0" iyy="1e-05" iyz="0" izz="2e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0.032" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/T-motor-CF-14inch-CCW.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.2025" length="0.1"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="thrust3">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="1e-05" ixy="0" ixz="0" iyy="1e-05" iyz="0" izz="2e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0.032" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/T-motor-CF-14inch-CW.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.2025" length="0.1"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="thrust4">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="1e-05" ixy="0" ixz="0" iyy="1e-05" iyz="0" izz="2e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0.032" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_hydrus_config)/meshes/T-motor-CF-14inch-CCW.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.2025" length="0.1"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="gps2magnet" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="gps"/>
+        <child link="magnet"/>
+    </joint>
+    <joint name="joint1" type="revolute">
+        <origin xyz="0.6 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="link1"/>
+        <child link="link2"/>
+        <dynamics damping="0.9" friction="0.05"/>
+        <limit effort="10" velocity="0.5" lower="-1.5708" upper="1.5708"/>
+    </joint>
+    <joint name="joint2" type="revolute">
+        <origin xyz="0.6 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="link2"/>
+        <child link="link3"/>
+        <dynamics damping="0.9" friction="0.05"/>
+        <limit effort="10" velocity="0.5" lower="-1.5708" upper="1.5708"/>
+    </joint>
+    <joint name="joint3" type="revolute">
+        <origin xyz="0.6 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="link3"/>
+        <child link="link4"/>
+        <dynamics damping="0.9" friction="0.05"/>
+        <limit effort="10" velocity="0.5" lower="-1.5708" upper="1.5708"/>
+    </joint>
+    <joint name="link12bat1" type="fixed">
+        <origin xyz="0.3 0 -0.048" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link1"/>
+        <child link="bat1"/>
+    </joint>
+    <joint name="link12leg1" type="fixed">
+        <origin xyz="0.04116 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link1"/>
+        <child link="leg1"/>
+    </joint>
+    <joint name="link22fc" type="fixed">
+        <origin xyz="0.5221 -0.0044 0.02135" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link2"/>
+        <child link="fc"/>
+    </joint>
+    <joint name="link22gps" type="fixed">
+        <origin xyz="0.4925 0 0.152" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link2"/>
+        <child link="gps"/>
+    </joint>
+    <joint name="link22leg2" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link2"/>
+        <child link="leg2"/>
+    </joint>
+    <joint name="link32leddarone" type="fixed">
+        <origin xyz="0.1145 0 -0.0626" rpy="3.14159 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link3"/>
+        <child link="leddarone"/>
+    </joint>
+    <joint name="link32leg3" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link3"/>
+        <child link="leg3"/>
+    </joint>
+    <joint name="link32pc" type="fixed">
+        <origin xyz="0.06225 0 -0.01" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link3"/>
+        <child link="pc"/>
+    </joint>
+    <joint name="link42bat2" type="fixed">
+        <origin xyz="0.3 0 -0.048" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link4"/>
+        <child link="bat2"/>
+    </joint>
+    <joint name="link42leg4" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link4"/>
+        <child link="leg4"/>
+    </joint>
+    <joint name="link42leg5" type="fixed">
+        <origin xyz="0.55884 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="link4"/>
+        <child link="leg5"/>
+    </joint>
+    <joint name="root_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="root"/>
+        <child link="link1"/>
+    </joint>
+    <joint name="rotor1" type="continuous">
+        <origin xyz="0.3 0 0.013" rpy="0 -0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="link1"/>
+        <child link="thrust1"/>
+    </joint>
+    <joint name="rotor2" type="continuous">
+        <origin xyz="0.3 0 0.013" rpy="0 -0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="link2"/>
+        <child link="thrust2"/>
+    </joint>
+    <joint name="rotor3" type="continuous">
+        <origin xyz="0.3 0 0.013" rpy="0 -0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="link3"/>
+        <child link="thrust3"/>
+    </joint>
+    <joint name="rotor4" type="continuous">
+        <origin xyz="0.3 0 0.013" rpy="0 -0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="link4"/>
+        <child link="thrust4"/>
+    </joint>
+    <gazebo>
+        <plugin filename="tobas_gazebo_imu_plugin" name="gazebo::GazeboImuPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>root</linkName>
+            <updateRate>400</updateRate>
+            <offset>0 0 0</offset>
+            <gyroNoiseDensity>0.00019198621771937627</gyroNoiseDensity>
+            <gyroRandomWalk>0</gyroRandomWalk>
+            <gyroBiasCorrelationTime>1000</gyroBiasCorrelationTime>
+            <gyroOffsetNorm>0.034906585039886591</gyroOffsetNorm>
+            <accelNoiseDensity>0.0016671304999999997</accelNoiseDensity>
+            <accelRandomWalk>0</accelRandomWalk>
+            <accelBiasCorrelationTime>300</accelBiasCorrelationTime>
+            <accelOffsetNorm>0.392266</accelOffsetNorm>
+            <rotorLinkNames>
+                <item>thrust1</item>
+                <item>thrust2</item>
+                <item>thrust3</item>
+                <item>thrust4</item>
+            </rotorLinkNames>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_magnetometer_plugin" name="gazebo::GazeboMagnetometerPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>root</linkName>
+            <updateRate>100</updateRate>
+            <offset>0 0 0</offset>
+            <latitudeZero>35.658099</latitudeZero>
+            <longitudeZero>139.741354</longitudeZero>
+            <altitudeZero>24.390000000000001</altitudeZero>
+            <noiseStddev>460</noiseStddev>
+            <hardBiasNorm>3000</hardBiasNorm>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_barometer_plugin" name="gazebo::GazeboBarometerPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>root</linkName>
+            <updateRate>50</updateRate>
+            <offset>0 0 0</offset>
+            <altitudeZero>24.390000000000001</altitudeZero>
+            <pressureVariance>10</pressureVariance>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_gnss_plugin" name="gazebo::GazeboGnssPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>root</linkName>
+            <updateRate>20</updateRate>
+            <offset>0 0 0</offset>
+            <delay>0.10000000000000001</delay>
+            <positionCorrTime>10</positionCorrTime>
+            <horPosAccuracy>2</horPosAccuracy>
+            <verPosAccuracy>4</verPosAccuracy>
+            <horVelStdDev>0.10000000000000001</horVelStdDev>
+            <verVelStdDev>0.10000000000000001</verVelStdDev>
+            <latitudeZero>35.658099</latitudeZero>
+            <longitudeZero>139.741354</longitudeZero>
+            <altitudeZero>24.390000000000001</altitudeZero>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_battery_plugin" name="gazebo::GazeboBatteryPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <updateRate>100</updateRate>
+            <maxVoltage>25.200000000000003</maxVoltage>
+            <sagVoltage>20.399999999999999</sagVoltage>
+            <maxCurrent>250</maxCurrent>
+            <currentCapacity>18000</currentCapacity>
+            <internalRegistance>0.018000000000000002</internalRegistance>
+            <rotorLinkNames>
+                <item>thrust1</item>
+                <item>thrust2</item>
+                <item>thrust3</item>
+                <item>thrust4</item>
+            </rotorLinkNames>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>thrust1</linkName>
+            <kv>39.79350694547071</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>4.2072034529971242e-05</motorConstant>
+            <momentConstant>0.0183328789497509</momentConstant>
+            <dragConstant>0.00060631080594778419</dragConstant>
+            <turningDirection>cw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>thrust2</linkName>
+            <kv>39.79350694547071</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>4.2072034529971242e-05</motorConstant>
+            <momentConstant>0.0183328789497509</momentConstant>
+            <dragConstant>0.00060631080594778419</dragConstant>
+            <turningDirection>ccw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>thrust3</linkName>
+            <kv>39.79350694547071</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>4.2072034529971242e-05</motorConstant>
+            <momentConstant>0.0183328789497509</momentConstant>
+            <dragConstant>0.00060631080594778419</dragConstant>
+            <turningDirection>cw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>thrust4</linkName>
+            <kv>39.79350694547071</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>4.2072034529971242e-05</motorConstant>
+            <momentConstant>0.0183328789497509</momentConstant>
+            <dragConstant>0.00060631080594778419</dragConstant>
+            <turningDirection>ccw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_wind_plugin" name="gazebo::GazeboWindPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>root</linkName>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_ground_truth_state_plugin" name="gazebo::GazeboGroundTruthStatePlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>root</linkName>
+        </plugin>
+    </gazebo>
+    <ros2_control name="GazeboSimSystem" type="system">
+        <hardware>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+        <joint name="joint1">
+            <state_interface name="position">
+                <param name="initial_value">1.5707963267948966</param>
+            </state_interface>
+            <state_interface name="velocity">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <state_interface name="effort">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <command_interface name="position"/>
+        </joint>
+        <joint name="joint2">
+            <state_interface name="position">
+                <param name="initial_value">1.5707963267948966</param>
+            </state_interface>
+            <state_interface name="velocity">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <state_interface name="effort">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <command_interface name="position"/>
+        </joint>
+        <joint name="joint3">
+            <state_interface name="position">
+                <param name="initial_value">1.5707963267948966</param>
+            </state_interface>
+            <state_interface name="velocity">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <state_interface name="effort">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <command_interface name="position"/>
+        </joint>
+    </ros2_control>
+    <gazebo>
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(find tobas_hydrus_config)/config/joint_controller_manager.yaml</parameters>
+            <ros>
+                <namespace>hydrus</namespace>
+            </ros>
+        </plugin>
+    </gazebo>
+    <xacro:if value="$(arg DEBUG)">
+        <link name="world"/>
+        <joint name="base_static_joint" type="fixed">
+            <parent link="world"/>
+            <child link="root"/>
+        </joint>
+    </xacro:if>
+</robot>
