@@ -1,0 +1,5 @@
+/**:
+  joint_state_broadcaster:
+    ros__parameters:
+      use_local_topics: false
+      use_urdf_to_filter: true
