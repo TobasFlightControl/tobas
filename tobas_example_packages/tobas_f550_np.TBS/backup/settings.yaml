@@ -1,0 +1,741 @@
+Propulsion:
+  propulsion_system_type: Electric Propulsion System
+  Electric Propulsion System:
+    Battery:
+      battery_type: Lithium Polymer Battery (LiPo)
+      Lithium Polymer Battery (LiPo):
+        Number of Cells: 4
+        Current Capacity: 5000
+        Continuous Discharge Current Rate: 50
+        Internal Registance: 3
+      Other Battery:
+        Nominal Voltage: 14.800000000000001
+        Maximum Voltage: 16.800000000000001
+        Voltage Threshold: 13.6
+        Maximum Current: 200
+        Current Capacity: 5000
+        Internal Registance: 12
+    Propulsion Units:
+      propeller_0:
+        General:
+          Channel: 0
+          Turning Direction: CCW
+          active_tilt_settings:
+            is_tilt: false
+            tilt_joint_name: ""
+        ESC:
+          Maximum Current: 35
+        Motor:
+          Kv: 920
+          Internal Registance: 250
+          Number of Poles: 14
+        Propeller:
+          Number of Blades: 2
+          Propeller Diameter: 9
+          75% Blade Chord: 15
+          75% Blade Pitch Angle: 15
+        Aerodynamics:
+          method_name: Estimate from UIUC Propeller Data (Recommended)
+          Set Manually:
+            Motor Constant: 8.5485800000000001e-06
+            Moment Constant: 0.016
+            Drag Constant: 8.0642999999999993e-05
+          Estimate from Propeller Geometry:
+            {}
+          Estimate from Thrust Stand Data:
+            Data from thrust stand:
+              rows: 0
+              cols: 3
+              data:
+                []
+          Estimate from UIUC Propeller Data (Recommended):
+            Measurements in static condition:
+              rows: 16
+              cols: 3
+              data:
+                - 2.763000e+03
+                - 1.137000e-01
+                - 4.810000e-02
+                - 3.062000e+03
+                - 1.152000e-01
+                - 4.820000e-02
+                - 3.310000e+03
+                - 1.152000e-01
+                - 4.810000e-02
+                - 3.622000e+03
+                - 1.158000e-01
+                - 4.800000e-02
+                - 3.874000e+03
+                - 1.159000e-01
+                - 4.800000e-02
+                - 4.153000e+03
+                - 1.163000e-01
+                - 4.800000e-02
+                - 4.422000e+03
+                - 1.170000e-01
+                - 4.810000e-02
+                - 4.687000e+03
+                - 1.176000e-01
+                - 4.820000e-02
+                - 4.942000e+03
+                - 1.175000e-01
+                - 4.810000e-02
+                - 5.226000e+03
+                - 1.184000e-01
+                - 4.840000e-02
+                - 5.473000e+03
+                - 1.189000e-01
+                - 4.840000e-02
+                - 5.736000e+03
+                - 1.190000e-01
+                - 4.840000e-02
+                - 6.026000e+03
+                - 1.192000e-01
+                - 4.840000e-02
+                - 6.285000e+03
+                - 1.192000e-01
+                - 4.830000e-02
+                - 6.554000e+03
+                - 1.195000e-01
+                - 4.830000e-02
+                - 6.768000e+03
+                - 1.199000e-01
+                - 4.830000e-02
+      propeller_1:
+        General:
+          Channel: 1
+          Turning Direction: CW
+          active_tilt_settings:
+            is_tilt: false
+            tilt_joint_name: ""
+        ESC:
+          Maximum Current: 35
+        Motor:
+          Kv: 920
+          Internal Registance: 250
+          Number of Poles: 14
+        Propeller:
+          Number of Blades: 2
+          Propeller Diameter: 9
+          75% Blade Chord: 15
+          75% Blade Pitch Angle: 15
+        Aerodynamics:
+          method_name: Estimate from UIUC Propeller Data (Recommended)
+          Set Manually:
+            Motor Constant: 8.5485800000000001e-06
+            Moment Constant: 0.016
+            Drag Constant: 8.0642999999999993e-05
+          Estimate from Propeller Geometry:
+            {}
+          Estimate from Thrust Stand Data:
+            Data from thrust stand:
+              rows: 0
+              cols: 3
+              data:
+                []
+          Estimate from UIUC Propeller Data (Recommended):
+            Measurements in static condition:
+              rows: 16
+              cols: 3
+              data:
+                - 2.763000e+03
+                - 1.137000e-01
+                - 4.810000e-02
+                - 3.062000e+03
+                - 1.152000e-01
+                - 4.820000e-02
+                - 3.310000e+03
+                - 1.152000e-01
+                - 4.810000e-02
+                - 3.622000e+03
+                - 1.158000e-01
+                - 4.800000e-02
+                - 3.874000e+03
+                - 1.159000e-01
+                - 4.800000e-02
+                - 4.153000e+03
+                - 1.163000e-01
+                - 4.800000e-02
+                - 4.422000e+03
+                - 1.170000e-01
+                - 4.810000e-02
+                - 4.687000e+03
+                - 1.176000e-01
+                - 4.820000e-02
+                - 4.942000e+03
+                - 1.175000e-01
+                - 4.810000e-02
+                - 5.226000e+03
+                - 1.184000e-01
+                - 4.840000e-02
+                - 5.473000e+03
+                - 1.189000e-01
+                - 4.840000e-02
+                - 5.736000e+03
+                - 1.190000e-01
+                - 4.840000e-02
+                - 6.026000e+03
+                - 1.192000e-01
+                - 4.840000e-02
+                - 6.285000e+03
+                - 1.192000e-01
+                - 4.830000e-02
+                - 6.554000e+03
+                - 1.195000e-01
+                - 4.830000e-02
+                - 6.768000e+03
+                - 1.199000e-01
+                - 4.830000e-02
+      propeller_2:
+        General:
+          Channel: 2
+          Turning Direction: CCW
+          active_tilt_settings:
+            is_tilt: false
+            tilt_joint_name: ""
+        ESC:
+          Maximum Current: 35
+        Motor:
+          Kv: 920
+          Internal Registance: 250
+          Number of Poles: 14
+        Propeller:
+          Number of Blades: 2
+          Propeller Diameter: 9
+          75% Blade Chord: 15
+          75% Blade Pitch Angle: 15
+        Aerodynamics:
+          method_name: Estimate from UIUC Propeller Data (Recommended)
+          Set Manually:
+            Motor Constant: 8.5485800000000001e-06
+            Moment Constant: 0.016
+            Drag Constant: 8.0642999999999993e-05
+          Estimate from Propeller Geometry:
+            {}
+          Estimate from Thrust Stand Data:
+            Data from thrust stand:
+              rows: 0
+              cols: 3
+              data:
+                []
+          Estimate from UIUC Propeller Data (Recommended):
+            Measurements in static condition:
+              rows: 16
+              cols: 3
+              data:
+                - 2.763000e+03
+                - 1.137000e-01
+                - 4.810000e-02
+                - 3.062000e+03
+                - 1.152000e-01
+                - 4.820000e-02
+                - 3.310000e+03
+                - 1.152000e-01
+                - 4.810000e-02
+                - 3.622000e+03
+                - 1.158000e-01
+                - 4.800000e-02
+                - 3.874000e+03
+                - 1.159000e-01
+                - 4.800000e-02
+                - 4.153000e+03
+                - 1.163000e-01
+                - 4.800000e-02
+                - 4.422000e+03
+                - 1.170000e-01
+                - 4.810000e-02
+                - 4.687000e+03
+                - 1.176000e-01
+                - 4.820000e-02
+                - 4.942000e+03
+                - 1.175000e-01
+                - 4.810000e-02
+                - 5.226000e+03
+                - 1.184000e-01
+                - 4.840000e-02
+                - 5.473000e+03
+                - 1.189000e-01
+                - 4.840000e-02
+                - 5.736000e+03
+                - 1.190000e-01
+                - 4.840000e-02
+                - 6.026000e+03
+                - 1.192000e-01
+                - 4.840000e-02
+                - 6.285000e+03
+                - 1.192000e-01
+                - 4.830000e-02
+                - 6.554000e+03
+                - 1.195000e-01
+                - 4.830000e-02
+                - 6.768000e+03
+                - 1.199000e-01
+                - 4.830000e-02
+      propeller_3:
+        General:
+          Channel: 3
+          Turning Direction: CW
+          active_tilt_settings:
+            is_tilt: false
+            tilt_joint_name: ""
+        ESC:
+          Maximum Current: 35
+        Motor:
+          Kv: 920
+          Internal Registance: 250
+          Number of Poles: 14
+        Propeller:
+          Number of Blades: 2
+          Propeller Diameter: 9
+          75% Blade Chord: 15
+          75% Blade Pitch Angle: 15
+        Aerodynamics:
+          method_name: Estimate from UIUC Propeller Data (Recommended)
+          Set Manually:
+            Motor Constant: 8.5485800000000001e-06
+            Moment Constant: 0.016
+            Drag Constant: 8.0642999999999993e-05
+          Estimate from Propeller Geometry:
+            {}
+          Estimate from Thrust Stand Data:
+            Data from thrust stand:
+              rows: 0
+              cols: 3
+              data:
+                []
+          Estimate from UIUC Propeller Data (Recommended):
+            Measurements in static condition:
+              rows: 16
+              cols: 3
+              data:
+                - 2.763000e+03
+                - 1.137000e-01
+                - 4.810000e-02
+                - 3.062000e+03
+                - 1.152000e-01
+                - 4.820000e-02
+                - 3.310000e+03
+                - 1.152000e-01
+                - 4.810000e-02
+                - 3.622000e+03
+                - 1.158000e-01
+                - 4.800000e-02
+                - 3.874000e+03
+                - 1.159000e-01
+                - 4.800000e-02
+                - 4.153000e+03
+                - 1.163000e-01
+                - 4.800000e-02
+                - 4.422000e+03
+                - 1.170000e-01
+                - 4.810000e-02
+                - 4.687000e+03
+                - 1.176000e-01
+                - 4.820000e-02
+                - 4.942000e+03
+                - 1.175000e-01
+                - 4.810000e-02
+                - 5.226000e+03
+                - 1.184000e-01
+                - 4.840000e-02
+                - 5.473000e+03
+                - 1.189000e-01
+                - 4.840000e-02
+                - 5.736000e+03
+                - 1.190000e-01
+                - 4.840000e-02
+                - 6.026000e+03
+                - 1.192000e-01
+                - 4.840000e-02
+                - 6.285000e+03
+                - 1.192000e-01
+                - 4.830000e-02
+                - 6.554000e+03
+                - 1.195000e-01
+                - 4.830000e-02
+                - 6.768000e+03
+                - 1.199000e-01
+                - 4.830000e-02
+      propeller_4:
+        General:
+          Channel: 4
+          Turning Direction: CCW
+          active_tilt_settings:
+            is_tilt: false
+            tilt_joint_name: ""
+        ESC:
+          Maximum Current: 35
+        Motor:
+          Kv: 920
+          Internal Registance: 250
+          Number of Poles: 14
+        Propeller:
+          Number of Blades: 2
+          Propeller Diameter: 9
+          75% Blade Chord: 15
+          75% Blade Pitch Angle: 15
+        Aerodynamics:
+          method_name: Estimate from UIUC Propeller Data (Recommended)
+          Set Manually:
+            Motor Constant: 8.5485800000000001e-06
+            Moment Constant: 0.016
+            Drag Constant: 8.0642999999999993e-05
+          Estimate from Propeller Geometry:
+            {}
+          Estimate from Thrust Stand Data:
+            Data from thrust stand:
+              rows: 0
+              cols: 3
+              data:
+                []
+          Estimate from UIUC Propeller Data (Recommended):
+            Measurements in static condition:
+              rows: 16
+              cols: 3
+              data:
+                - 2.763000e+03
+                - 1.137000e-01
+                - 4.810000e-02
+                - 3.062000e+03
+                - 1.152000e-01
+                - 4.820000e-02
+                - 3.310000e+03
+                - 1.152000e-01
+                - 4.810000e-02
+                - 3.622000e+03
+                - 1.158000e-01
+                - 4.800000e-02
+                - 3.874000e+03
+                - 1.159000e-01
+                - 4.800000e-02
+                - 4.153000e+03
+                - 1.163000e-01
+                - 4.800000e-02
+                - 4.422000e+03
+                - 1.170000e-01
+                - 4.810000e-02
+                - 4.687000e+03
+                - 1.176000e-01
+                - 4.820000e-02
+                - 4.942000e+03
+                - 1.175000e-01
+                - 4.810000e-02
+                - 5.226000e+03
+                - 1.184000e-01
+                - 4.840000e-02
+                - 5.473000e+03
+                - 1.189000e-01
+                - 4.840000e-02
+                - 5.736000e+03
+                - 1.190000e-01
+                - 4.840000e-02
+                - 6.026000e+03
+                - 1.192000e-01
+                - 4.840000e-02
+                - 6.285000e+03
+                - 1.192000e-01
+                - 4.830000e-02
+                - 6.554000e+03
+                - 1.195000e-01
+                - 4.830000e-02
+                - 6.768000e+03
+                - 1.199000e-01
+                - 4.830000e-02
+      propeller_5:
+        General:
+          Channel: 5
+          Turning Direction: CW
+          active_tilt_settings:
+            is_tilt: false
+            tilt_joint_name: ""
+        ESC:
+          Maximum Current: 35
+        Motor:
+          Kv: 920
+          Internal Registance: 250
+          Number of Poles: 14
+        Propeller:
+          Number of Blades: 2
+          Propeller Diameter: 9
+          75% Blade Chord: 15
+          75% Blade Pitch Angle: 15
+        Aerodynamics:
+          method_name: Estimate from UIUC Propeller Data (Recommended)
+          Set Manually:
+            Motor Constant: 8.5485800000000001e-06
+            Moment Constant: 0.016
+            Drag Constant: 8.0642999999999993e-05
+          Estimate from Propeller Geometry:
+            {}
+          Estimate from Thrust Stand Data:
+            Data from thrust stand:
+              rows: 0
+              cols: 3
+              data:
+                []
+          Estimate from UIUC Propeller Data (Recommended):
+            Measurements in static condition:
+              rows: 16
+              cols: 3
+              data:
+                - 2.763000e+03
+                - 1.137000e-01
+                - 4.810000e-02
+                - 3.062000e+03
+                - 1.152000e-01
+                - 4.820000e-02
+                - 3.310000e+03
+                - 1.152000e-01
+                - 4.810000e-02
+                - 3.622000e+03
+                - 1.158000e-01
+                - 4.800000e-02
+                - 3.874000e+03
+                - 1.159000e-01
+                - 4.800000e-02
+                - 4.153000e+03
+                - 1.163000e-01
+                - 4.800000e-02
+                - 4.422000e+03
+                - 1.170000e-01
+                - 4.810000e-02
+                - 4.687000e+03
+                - 1.176000e-01
+                - 4.820000e-02
+                - 4.942000e+03
+                - 1.175000e-01
+                - 4.810000e-02
+                - 5.226000e+03
+                - 1.184000e-01
+                - 4.840000e-02
+                - 5.473000e+03
+                - 1.189000e-01
+                - 4.840000e-02
+                - 5.736000e+03
+                - 1.190000e-01
+                - 4.840000e-02
+                - 6.026000e+03
+                - 1.192000e-01
+                - 4.840000e-02
+                - 6.285000e+03
+                - 1.192000e-01
+                - 4.830000e-02
+                - 6.554000e+03
+                - 1.195000e-01
+                - 4.830000e-02
+                - 6.768000e+03
+                - 1.199000e-01
+                - 4.830000e-02
+  ICE Propulsion System:
+    Engine:
+      Dynamics:
+        method_name: Set Manually
+        Set Manually:
+          Torque Constant: 0.10000000000000001
+          Dynamic Friction Torque: 1
+      Response:
+        Time Constant Up: 100
+        Time Constant Down: 200
+      HW Interface:
+        PWM Channel: 0
+        PWM Period at Zero Throttle: 1000
+        PWM Period at Full Throttle: 2000
+    Propulsion Units:
+      {}
+Fixed Wing:
+  Fixed-Wing Configuration: false
+  Vehicle Parameters:
+    Wing Surface: 0.46999999999999997
+    Wing Span: 2.5899999999999999
+    Mean Aerodynamic Chord: 0.17999999999999999
+    Aerodynamic Center:
+      - 1.000000e-01
+      - 0.000000e+00
+      - 0.000000e+00
+    Limitation of Angle of Attack:
+      - -0.27000000000000002
+      - 0.27000000000000002
+  Aerodynamic Coefficients:
+    c_lift_0: 0.2127
+    c_lift_alpha: 10.805999999999999
+    c_drag_0: 0.13600000000000001
+    c_drag_alpha: 0.67369999999999997
+    c_side_beta: -0.30730000000000002
+    c_roll_beta: -0.0154
+    c_roll_p: -0.16470000000000001
+    c_roll_r: 0.0117
+    c_pitch_0: 0.043499999999999997
+    c_pitch_alpha: -2.9689999999999999
+    c_pitch_abs_beta: 0
+    c_pitch_alpha_rate: 0
+    c_pitch_q: -106.1542
+    c_yaw_beta: 0.042999999999999997
+    c_yaw_p: 0
+    c_yaw_r: -0.082699999999999996
+  Control Surfaces:
+    {}
+Joint Config:
+  propeller_0:
+    Role: Rotor
+    Command Interface: None
+    Hardware Interface: Other
+    Home Position: 0
+    PWM Channel: 0
+    PWM Min Period: 1000
+    PWM Max Period: 2000
+    PWM Min Angle: -90
+    PWM Max Angle: 90
+    PWM Reverse: false
+  propeller_1:
+    Role: Rotor
+    Command Interface: None
+    Hardware Interface: Other
+    Home Position: 0
+    PWM Channel: 0
+    PWM Min Period: 1000
+    PWM Max Period: 2000
+    PWM Min Angle: -90
+    PWM Max Angle: 90
+    PWM Reverse: false
+  propeller_2:
+    Role: Rotor
+    Command Interface: None
+    Hardware Interface: Other
+    Home Position: 0
+    PWM Channel: 0
+    PWM Min Period: 1000
+    PWM Max Period: 2000
+    PWM Min Angle: -90
+    PWM Max Angle: 90
+    PWM Reverse: false
+  propeller_3:
+    Role: Rotor
+    Command Interface: None
+    Hardware Interface: Other
+    Home Position: 0
+    PWM Channel: 0
+    PWM Min Period: 1000
+    PWM Max Period: 2000
+    PWM Min Angle: -90
+    PWM Max Angle: 90
+    PWM Reverse: false
+  propeller_4:
+    Role: Rotor
+    Command Interface: None
+    Hardware Interface: Other
+    Home Position: 0
+    PWM Channel: 0
+    PWM Min Period: 1000
+    PWM Max Period: 2000
+    PWM Min Angle: -90
+    PWM Max Angle: 90
+    PWM Reverse: false
+  propeller_5:
+    Role: Rotor
+    Command Interface: None
+    Hardware Interface: Other
+    Home Position: 0
+    PWM Channel: 0
+    PWM Min Period: 1000
+    PWM Max Period: 2000
+    PWM Min Angle: -90
+    PWM Max Angle: 90
+    PWM Reverse: false
+IMU:
+  Offset:
+    - 0.000000e+00
+    - 0.000000e+00
+    - 0.000000e+00
+  Update Rate: 400
+  Gyroscope Noise Density: 11
+  Gyroscope Initial Offset Norm: 2
+  Gyroscope Bias Random Walk: 0
+  Gyroscope Bias Correlation Time Constant: 1000
+  Accelerometer Noise Density: 170
+  Accelerometer Initial Offset Norm: 40
+  Accelerometer Bias Random Walk: 0
+  Accelerometer Bias Correlation Time Constant: 300
+Compass:
+  Offset:
+    - 0.000000e+00
+    - 0.000000e+00
+    - 0.000000e+00
+  Update Rate: 100
+  Standard Deviation of Additive White Gaussian Noise: 460
+  Hard-Iron Bias Norm: 3000
+Barometer:
+  Offset:
+    - 0.000000e+00
+    - 0.000000e+00
+    - 0.000000e+00
+  Update Rate: 50
+  Air Pressure Variance: 10
+GNSS:
+  equipped: true
+  Offset:
+    - 0.000000e+00
+    - 0.000000e+00
+    - 0.000000e+00
+  Update Rate: 20
+  Communication Delay: 100
+  Position Correction Time Constant: 10
+  Horizontal Position Accuracy: 2
+  Vertical Position Accuracy: 4
+  Standard Deviation for Horizontal Speed Noise: 0.10000000000000001
+  Standard Deviation for Vertical Speed Noise: 0.10000000000000001
+Controller:
+  controller_type: Non-Planar Multirotor PID
+  Multirotor PID:
+    Do Disturbance Compensation (Translation): false
+    Do Disturbance Compensation (Rotation): false
+  Non-Planar Multirotor PID:
+    Do Disturbance Compensation (Translation): false
+    Do Disturbance Compensation (Rotation): false
+  Active Tilt Multirotor PID:
+    Do Disturbance Compensation (Translation): false
+    Do Disturbance Compensation (Rotation): false
+  Fixed Wing LQR:
+    {}
+  Use Custom Controller:
+    Controller Package Name: ""
+    Controller Plugin Name: ""
+    Acrobat Mode: Angle Rate + Throttle
+    Stabilize Mode: Accel + Yaw
+    Loiter Mode: Position + Velocity + Yaw
+Observer:
+  observer_type: Error State Kalman Filter
+  Error State Kalman Filter:
+    Do Accelerometer Bias Estimation: false
+    Do Gyroscope Bias Estimation: true
+    Do Magnetometer Hard-Iron Bias Estimation: false
+    Do Magnetometer Soft-Iron Bias Estimation: false
+    Do Gravity Estimation: true
+  Use Custom Observer:
+    Observer Package Name: ""
+    Observer Plugin Name: ""
+Hardware:
+  hardware_type: T1 | Tobas
+  T1 | Tobas:
+    {}
+PreArm Check:
+  Check node connection: true
+  Check battery voltage: true
+  Check CPU temperature: true
+  Check rotor communication: true
+  Check attitude level: true
+  Check position stability: true
+  Check position accuracy: true
+  Check velocity accuracy: true
+  Check attitude accuracy: true
+  Check heading accuracy: true
+Simulation:
+  Latitude of Origin: 35.658099
+  Longitude of Origin: 139.741354
+  Altitude Above Sea Level: 24.390000000000001
+  Max Model Error Rate: 10
+Author Info:
+  Name of the Maintainer: example
+  Email of the Maintainer: example@gmail.com
+ROS Package:
+  Parent Directory: /home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages
+  Package Name: tobas_f550_np
