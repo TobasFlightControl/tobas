@@ -25,6 +25,7 @@
 	<exec_depend>tobas_drone</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_eskf</exec_depend>
+	<exec_depend>tobas_example_packages</exec_depend>
 	<exec_depend>tobas_examples_py</exec_depend>
 	<exec_depend>tobas_fake_publishers</exec_depend>
 	<exec_depend>tobas_gazebo</exec_depend>
