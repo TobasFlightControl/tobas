@@ -749,20 +749,32 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       return false;
     }
 
-    // メッシュファイルをTobasパッケージ以下にコピー
+    // 必要に応じてメッシュファイルをTobasパッケージ以下にコピー
     const auto base_name = src_path.filename();
     const auto dst_path = mesh_dir / base_name;
-    if (!fs::equivalent(src_path, dst_path))
+    if (fs::exists(dst_path))
     {
-      if (fs::exists(dst_path))
+      // dst_pathが存在するがsrc_pathと内容が異なる場合は，copy_fileでは上書きされないため一度削除した上でコピーする．
+      if (!fs::equivalent(src_path, dst_path))
       {
         if (!fs::remove(dst_path))
         {
-          qt::qErrorBox(settings_, QString::fromStdString(dst_path) + " already exists, but failed to overwrite it.");
+          qt::qErrorBox(settings_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
+          return false;
+        }
+
+        if (!fs::copy_file(src_path, dst_path))
+        {
+          qt::qErrorBox(
+            settings_,
+            "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
           return false;
         }
       }
-
+    }
+    else
+    {
+      // dst_pathが存在しない場合は，ただコピーすればよい．
       if (!fs::copy_file(src_path, dst_path))
       {
         qt::qErrorBox(
