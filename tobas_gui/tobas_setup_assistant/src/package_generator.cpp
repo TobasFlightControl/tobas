@@ -754,7 +754,7 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
     const auto dst_path = mesh_dir / base_name;
     if (fs::exists(dst_path))
     {
-      // dst_pathが存在するがsrc_pathと内容が異なる場合は，copy_fileでは上書きされないため一度削除した上でコピーする．
+      // dst_pathが存在するがsrc_pathと内容が異なる場合は，fs::copy_fileでは上書きされないため一度削除した上でコピーする．
       if (!fs::equivalent(src_path, dst_path))
       {
         if (!fs::remove(dst_path))
