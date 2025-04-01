@@ -1,0 +1,489 @@
+<robot name="f550" xmlns:xacro="http://ros.org/wiki/xacro">
+    <material name="black">
+        <texture/>
+        <color rgba="0 0 0 1"/>
+    </material>
+    <material name="red">
+        <texture/>
+        <color rgba="1 0 0 1"/>
+    </material>
+    <material name="white">
+        <texture/>
+        <color rgba="1 1 1 1"/>
+    </material>
+    <material name="yellow">
+        <texture/>
+        <color rgba="1 1 0 1"/>
+    </material>
+    <link name="base_link"/>
+    <link name="battery">
+        <inertial>
+            <mass value="0.496"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="0.000137557" ixy="0" ixz="0" iyy="0.00103536" iyz="0" izz="0.00108827"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.155 0.048 0.032"/>
+            </geometry>
+            <material name="yellow">
+                <texture/>
+                <color rgba="1 1 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.155 0.048 0.032"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="fmu">
+        <inertial>
+            <mass value="0.2"/>
+            <origin xyz="0 0 0.009" rpy="0 -0 0"/>
+            <inertia ixx="7.71333e-05" ixy="0" ixz="0" iyy="0.000148067" iyz="0" izz="0.000199067"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/tobas_t1.stl" scale="1 1 1"/>
+            </geometry>
+            <material name="red">
+                <texture/>
+                <color rgba="1 0 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.009" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.09 0.062 0.028"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="frame">
+        <inertial>
+            <mass value="0.916217"/>
+            <origin xyz="0 0 -0.006031" rpy="0 -0 0"/>
+            <inertia ixx="0.01953" ixy="-2.894e-06" ixz="2.258e-06" iyy="0.01953" iyz="3.192e-06" izz="0.03837"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/frame.stl" scale="1 1 1"/>
+            </geometry>
+            <material name="black">
+                <texture/>
+                <color rgba="0 0 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.028" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.509223 0.294 0.056"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="0 0 -0.028" rpy="0 -0 1.0472"/>
+            <geometry>
+                <box size="0.509223 0.294 0.056"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="0 0 -0.028" rpy="0 0 -1.0472"/>
+            <geometry>
+                <box size="0.509223 0.294 0.056"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_0">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_1">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_2">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_3">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_4">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_5">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file://$(find tobas_f550_config)/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="battery_joint" type="fixed">
+        <origin xyz="0 0 -0.021" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="battery"/>
+    </joint>
+    <joint name="fmu_joint" type="fixed">
+        <origin xyz="0 0 0.02" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="fmu"/>
+    </joint>
+    <joint name="frame_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="frame"/>
+    </joint>
+    <joint name="propeller_0_joint" type="continuous">
+        <origin xyz="0.238157 0.1375 0.0247" rpy="0 -0 0.523599"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_0"/>
+    </joint>
+    <joint name="propeller_1_joint" type="continuous">
+        <origin xyz="1.68389e-17 0.275 0.0247" rpy="0 -0 1.5708"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_1"/>
+    </joint>
+    <joint name="propeller_2_joint" type="continuous">
+        <origin xyz="-0.238157 0.1375 0.0247" rpy="0 -0 2.61799"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_2"/>
+    </joint>
+    <joint name="propeller_3_joint" type="continuous">
+        <origin xyz="-0.238157 -0.1375 0.0247" rpy="0 -0 -2.61799"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_3"/>
+    </joint>
+    <joint name="propeller_4_joint" type="continuous">
+        <origin xyz="-5.05167e-17 -0.275 0.0247" rpy="0 -0 -1.5708"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_4"/>
+    </joint>
+    <joint name="propeller_5_joint" type="continuous">
+        <origin xyz="0.238157 -0.1375 0.0247" rpy="0 -0 -0.523599"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_5"/>
+    </joint>
+    <gazebo>
+        <plugin filename="tobas_gazebo_imu_plugin" name="gazebo::GazeboImuPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>base_link</linkName>
+            <updateRate>400</updateRate>
+            <offset>0 0 0</offset>
+            <gyroNoiseDensity>0.00019198621771937627</gyroNoiseDensity>
+            <gyroRandomWalk>0</gyroRandomWalk>
+            <gyroBiasCorrelationTime>1000</gyroBiasCorrelationTime>
+            <gyroOffsetNorm>0.034906585039886591</gyroOffsetNorm>
+            <accelNoiseDensity>0.0016671304999999997</accelNoiseDensity>
+            <accelRandomWalk>0</accelRandomWalk>
+            <accelBiasCorrelationTime>300</accelBiasCorrelationTime>
+            <accelOffsetNorm>0.392266</accelOffsetNorm>
+            <rotorLinkNames>
+                <item>propeller_0</item>
+                <item>propeller_1</item>
+                <item>propeller_2</item>
+                <item>propeller_3</item>
+                <item>propeller_4</item>
+                <item>propeller_5</item>
+            </rotorLinkNames>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_magnetometer_plugin" name="gazebo::GazeboMagnetometerPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>base_link</linkName>
+            <updateRate>100</updateRate>
+            <offset>0 0 0</offset>
+            <latitudeZero>35.658099</latitudeZero>
+            <longitudeZero>139.741354</longitudeZero>
+            <altitudeZero>24.390000000000001</altitudeZero>
+            <noiseStddev>460</noiseStddev>
+            <hardBiasNorm>3000</hardBiasNorm>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_barometer_plugin" name="gazebo::GazeboBarometerPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>base_link</linkName>
+            <updateRate>50</updateRate>
+            <offset>0 0 0</offset>
+            <altitudeZero>24.390000000000001</altitudeZero>
+            <pressureVariance>10</pressureVariance>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_gnss_plugin" name="gazebo::GazeboGnssPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>base_link</linkName>
+            <updateRate>20</updateRate>
+            <offset>0 0 0</offset>
+            <delay>0.10000000000000001</delay>
+            <positionCorrTime>10</positionCorrTime>
+            <horPosAccuracy>2</horPosAccuracy>
+            <verPosAccuracy>4</verPosAccuracy>
+            <horVelStdDev>0.10000000000000001</horVelStdDev>
+            <verVelStdDev>0.10000000000000001</verVelStdDev>
+            <latitudeZero>35.658099</latitudeZero>
+            <longitudeZero>139.741354</longitudeZero>
+            <altitudeZero>24.390000000000001</altitudeZero>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_battery_plugin" name="gazebo::GazeboBatteryPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <updateRate>100</updateRate>
+            <maxVoltage>16.800000000000001</maxVoltage>
+            <sagVoltage>13.6</sagVoltage>
+            <maxCurrent>250</maxCurrent>
+            <currentCapacity>18000</currentCapacity>
+            <internalRegistance>0.012</internalRegistance>
+            <rotorLinkNames>
+                <item>propeller_0</item>
+                <item>propeller_1</item>
+                <item>propeller_2</item>
+                <item>propeller_3</item>
+                <item>propeller_4</item>
+                <item>propeller_5</item>
+            </rotorLinkNames>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>propeller_0</linkName>
+            <kv>96.342174710086979</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>9.9477813743395614e-06</motorConstant>
+            <momentConstant>0.014940142181179608</momentConstant>
+            <dragConstant>0.00018989579710349899</dragConstant>
+            <turningDirection>ccw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>propeller_1</linkName>
+            <kv>96.342174710086979</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>9.9477813743395614e-06</motorConstant>
+            <momentConstant>0.014940142181179608</momentConstant>
+            <dragConstant>0.00018989579710349899</dragConstant>
+            <turningDirection>cw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>propeller_2</linkName>
+            <kv>96.342174710086979</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>9.9477813743395614e-06</motorConstant>
+            <momentConstant>0.014940142181179608</momentConstant>
+            <dragConstant>0.00018989579710349899</dragConstant>
+            <turningDirection>ccw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>propeller_3</linkName>
+            <kv>96.342174710086979</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>9.9477813743395614e-06</motorConstant>
+            <momentConstant>0.014940142181179608</momentConstant>
+            <dragConstant>0.00018989579710349899</dragConstant>
+            <turningDirection>cw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>propeller_4</linkName>
+            <kv>96.342174710086979</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>9.9477813743395614e-06</motorConstant>
+            <momentConstant>0.014940142181179608</momentConstant>
+            <dragConstant>0.00018989579710349899</dragConstant>
+            <turningDirection>ccw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>propeller_5</linkName>
+            <kv>96.342174710086979</kv>
+            <internalResistance>0.25</internalResistance>
+            <numberOfBlades>2</numberOfBlades>
+            <motorConstant>9.9477813743395614e-06</motorConstant>
+            <momentConstant>0.014940142181179608</momentConstant>
+            <dragConstant>0.00018989579710349899</dragConstant>
+            <turningDirection>cw</turningDirection>
+            <maxCurrent>35</maxCurrent>
+            <maxModelErrorRate>0.10000000000000001</maxModelErrorRate>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_wind_plugin" name="gazebo::GazeboWindPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>base_link</linkName>
+        </plugin>
+    </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_ground_truth_state_plugin" name="gazebo::GazeboGroundTruthStatePlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>base_link</linkName>
+        </plugin>
+    </gazebo>
+    <ros2_control name="GazeboSimSystem" type="system">
+        <hardware>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+    </ros2_control>
+    <xacro:if value="$(arg DEBUG)">
+        <link name="world"/>
+        <joint name="base_static_joint" type="fixed">
+            <parent link="world"/>
+            <child link="base_link"/>
+        </joint>
+    </xacro:if>
+</robot>
