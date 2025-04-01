@@ -1,0 +1,191 @@
+name: voliro_like
+joints:
+  - joint_name: arm_0_joint
+    role: tilt_joint
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 0
+  - joint_name: arm_1_joint
+    role: tilt_joint
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 0
+  - joint_name: arm_2_joint
+    role: tilt_joint
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 0
+  - joint_name: arm_3_joint
+    role: tilt_joint
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 0
+  - joint_name: arm_4_joint
+    role: tilt_joint
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 0
+  - joint_name: arm_5_joint
+    role: tilt_joint
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 0
+  - joint_name: propeller_0_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_1_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_2_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_3_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_4_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_5_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+pwms:
+  - channel: 0
+    name: arm_0_joint
+    period_range:
+      - 500
+      - 2500
+    value_range:
+      - -2.3561944901923448
+      - 2.3561944901923448
+    reverse: true
+  - channel: 1
+    name: arm_1_joint
+    period_range:
+      - 500
+      - 2500
+    value_range:
+      - -2.3561944901923448
+      - 2.3561944901923448
+    reverse: true
+  - channel: 2
+    name: arm_2_joint
+    period_range:
+      - 500
+      - 2500
+    value_range:
+      - -2.3561944901923448
+      - 2.3561944901923448
+    reverse: true
+  - channel: 3
+    name: arm_3_joint
+    period_range:
+      - 500
+      - 2500
+    value_range:
+      - -2.3561944901923448
+      - 2.3561944901923448
+    reverse: true
+  - channel: 4
+    name: arm_4_joint
+    period_range:
+      - 500
+      - 2500
+    value_range:
+      - -2.3561944901923448
+      - 2.3561944901923448
+    reverse: true
+  - channel: 5
+    name: arm_5_joint
+    period_range:
+      - 500
+      - 2500
+    value_range:
+      - -2.3561944901923448
+      - 2.3561944901923448
+    reverse: true
+propulsion_system_type: electric
+propulsion_system:
+  rotors:
+    - link_name: propeller_0
+      direction: ccw
+      axis: unknown
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: arm_0_joint
+      channel: 0
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_1
+      direction: cw
+      axis: unknown
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: arm_1_joint
+      channel: 1
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_2
+      direction: ccw
+      axis: unknown
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: arm_2_joint
+      channel: 2
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_3
+      direction: cw
+      axis: unknown
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: arm_3_joint
+      channel: 3
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_4
+      direction: ccw
+      axis: unknown
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: arm_4_joint
+      channel: 4
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_5
+      direction: cw
+      axis: unknown
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: arm_5_joint
+      channel: 5
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+  battery:
+    nominal_voltage: 22.200000000000003
+    max_voltage: 25.200000000000003
+    sag_voltage: 20.399999999999999
+    max_current: 250
