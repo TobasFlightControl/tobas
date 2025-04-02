@@ -16,8 +16,8 @@ int main(int argc, char** argv)
   const auto size = stoul(argv[1]);
   const auto trials = stoul(argv[2]);
 
-  const auto A = Eigen::MatrixXd::Random(size, size);
-  const auto B = Eigen::MatrixXd::Random(size, size);
+  const auto A = Eigen::MatrixXf::Random(size, size);
+  const auto B = Eigen::MatrixXf::Random(size, size);
 
   tobas_std::Stopwatch stopwatch(trials);
 
