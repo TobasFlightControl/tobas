@@ -4,7 +4,6 @@
 #include <tobas_std_tools/stopwatch.hpp>
 
 using namespace std;
-using namespace std::chrono;
 using namespace Eigen;
 
 template <typename T>
