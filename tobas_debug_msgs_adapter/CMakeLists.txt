@@ -6,12 +6,14 @@ find_package(tobas_debug_msgs REQUIRED)
 find_package(tobas_eigen_msgs_adapter REQUIRED)
 find_package(tobas_kdl_msgs_adapter REQUIRED)
 
-add_library(${PROJECT_NAME} INTERFACE)
-ament_target_dependencies(${PROJECT_NAME} INTERFACE
+set(AMENT_DEPENDENCIES
   tobas_debug_msgs
   tobas_eigen_msgs_adapter
   tobas_kdl_msgs_adapter
 )
+
+add_library(${PROJECT_NAME} INTERFACE)
+ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -24,10 +26,6 @@ install(
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(
-  tobas_debug_msgs
-  tobas_eigen_msgs_adapter
-  tobas_kdl_msgs_adapter
-)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

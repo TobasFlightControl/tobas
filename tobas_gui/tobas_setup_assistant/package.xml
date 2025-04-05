@@ -13,6 +13,7 @@
   <depend>visualization_msgs</depend>
   <depend>inja_ament</depend>
   <depend>rapidcsv_ament</depend>
+  <depend>magic_enum_ament</depend>
   <depend>tobas_string_tools</depend>
   <depend>tobas_git</depend>
   <depend>tobas_kdl_parser</depend>

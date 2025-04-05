@@ -25,6 +25,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(inja_ament REQUIRED)
 find_package(rapidcsv_ament REQUIRED)
+find_package(magic_enum_ament REQUIRED)
 find_package(tobas_string_tools REQUIRED)
 find_package(tobas_git REQUIRED)
 find_package(tobas_kdl_parser REQUIRED)
@@ -41,6 +42,7 @@ set(AMENT_DEPENDENCIES
   visualization_msgs
   inja_ament
   rapidcsv_ament
+  magic_enum_ament
   tobas_string_tools
   tobas_git
   tobas_kdl_parser
