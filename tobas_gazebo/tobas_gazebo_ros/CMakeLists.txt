@@ -30,11 +30,7 @@ find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 
-include_directories(include)
-
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}_node
+set(AMENT_DEPENDENCIES
 	sensor_msgs
 	std_srvs
 	controller_manager_msgs
@@ -44,6 +40,12 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_gazebo_common
 	tobas_gazebo_msgs
 )
+
+include_directories(include)
+
+file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorStatesPublisherNode" EXECUTABLE rotor_states_publisher)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ElectricRotorCommandHandlerNode" EXECUTABLE electric_rotor_command_handler)
@@ -59,14 +61,6 @@ install(
 	INCLUDES DESTINATION include
 )
 
-ament_export_dependencies(
-	std_srvs
-	controller_manager_msgs
-	tobas_node
-	tobas_drone_msgs_adapter
-	tobas_msgs_adapter
-	tobas_gazebo_common
-	tobas_gazebo_msgs
-)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

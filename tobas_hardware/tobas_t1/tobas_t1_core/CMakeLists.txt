@@ -15,11 +15,16 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 
+set(AMENT_DEPENDENCIES
+	tobas_linux
+	tobas_std_tools
+)
+
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} tobas_linux tobas_std_tools)
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(targets_to_install "")
@@ -43,6 +48,6 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(tobas_linux tobas_std_tools)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()
