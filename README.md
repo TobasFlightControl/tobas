@@ -51,9 +51,10 @@ $ mkdir -p ~/colcon_ws/src
 $ cd ~/colcon_ws
 ```
 
-3. Set up your system to source your colcon workspace automatically each time a new shell is opened (optional)
+3. Set up your system automatically each time a new shell is opened
 
 ```bash
+$ echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc
 $ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 $ echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc
 $ exec bash
@@ -102,7 +103,6 @@ $ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
 - [ ] Support for fixed-wing
 - [ ] Support for VTOL
 - [ ] CM5-based FMU
-- [ ] VideoCore VII as GPGPU
 - [ ] Visual Inertial Odometry (VIO)
 - [ ] Obstacle avoidance
 - [ ] Automatic path planning
