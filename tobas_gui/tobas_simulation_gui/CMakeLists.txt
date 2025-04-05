@@ -24,8 +24,10 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_kdl_parser REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_drone_core REQUIRED)
+find_package(tobas_property_client REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_command_msgs_adapter REQUIRED)
+find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
@@ -34,8 +36,10 @@ set(AMENT_DEPENDENCIES
   tobas_kdl_parser
   tobas_ros2_tools
   tobas_drone_core
+  tobas_property_client
   tobas_msgs_adapter
   tobas_command_msgs_adapter
+  tobas_gazebo_common
   tobas_gazebo_msgs
   tobas_qt_tools
   tobas_gui_common
