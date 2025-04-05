@@ -12,19 +12,23 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(magic_enum_ament REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_command_msgs_adapter REQUIRED)
+
+set(AMENT_DEPENDENCIES
+	magic_enum_ament
+	tobas_node
+	tobas_msgs_adapter
+	tobas_command_msgs_adapter
+)
 
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}
-	tobas_node
-	tobas_msgs_adapter
-	tobas_command_msgs_adapter
-)
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
@@ -42,9 +46,6 @@ install(
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(
-	tobas_node
-	tobas_msgs_adapter
-)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()
