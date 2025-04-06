@@ -196,6 +196,8 @@ fs::path GUICoreWidget::tbsPath() const
 
 void GUICoreWidget::onBrowseButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onBrowseButtonClicked");
+
   // 前回開いたパスを取得
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
@@ -237,6 +239,8 @@ void GUICoreWidget::onBrowseButtonClicked()
 
 void GUICoreWidget::onLoadButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onLoadButtonClicked");
+
   const auto tbs_path = tbs_path_->text().toStdString();
 
   // 機体設定ファイルの存在を確認
@@ -273,6 +277,8 @@ void GUICoreWidget::onLoadButtonClicked()
 
 void GUICoreWidget::onWriteButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onWriteButtonClicked");
+
   // アームされていないことを確認
   if (!arming_)
   {
@@ -378,6 +384,8 @@ void GUICoreWidget::onWriteButtonClicked()
 
 void GUICoreWidget::onRestartButtonClicked(bool checked)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartButtonClicked");
+
   if (!checked)
     return;
 
@@ -405,6 +413,8 @@ void GUICoreWidget::onRestartButtonClicked(bool checked)
 
 void GUICoreWidget::onShutdownButtonClicked(bool checked)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownButtonClicked");
+
   if (!checked)
     return;
 
@@ -432,6 +442,8 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
 
 void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartThreadFinished");
+
   spinner_.hide();
   spinner_.stop();
 
@@ -451,6 +463,8 @@ void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message
 
 void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& message)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownThreadFinished");
+
   spinner_.hide();
   spinner_.stop();
 
@@ -468,6 +482,8 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
 
 void GUICoreWidget::onSimRealStateChanged()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onSimRealStateChanged");
+
   // シミュレーションウィジェット以外リセット
   urdf_builder_->reset();
   setup_assistant_->reset();
