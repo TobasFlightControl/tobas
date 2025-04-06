@@ -46,7 +46,10 @@ def generate_launch_description():
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
-    remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+
+    odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+    tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
+
     extra_arguments = [{"use_intra_process_comms": True}]
 
     # Launch component containers
@@ -86,6 +89,7 @@ def generate_launch_description():
                                 PathJoinSubstitution([config_pkg_share, "config", "observer_static.yaml"]),
                                 PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
                             ],
+                            remappings=tf_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
@@ -97,7 +101,7 @@ def generate_launch_description():
                                 PathJoinSubstitution([config_pkg_share, "config", "controller_static.yaml"]),
                                 PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
                             ],
-                            remappings=remappings,
+                            remappings=odom_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
@@ -137,7 +141,7 @@ def generate_launch_description():
                             plugin="tobas_rc_teleop::RCTeleopNode",
                             namespace=DRONE_NAME,
                             parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop.yaml"])],
-                            remappings=remappings,
+                            remappings=odom_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
@@ -156,21 +160,21 @@ def generate_launch_description():
                             package="tobas_manipulation",
                             plugin="PositionControllerNode",
                             namespace=DRONE_NAME,
-                            remappings=remappings,
+                            remappings=odom_remap + tf_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
                             package="tobas_manipulation",
                             plugin="VelocityControllerNode",
                             namespace=DRONE_NAME,
-                            remappings=remappings,
+                            remappings=odom_remap + tf_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
                             package="tobas_manipulation",
                             plugin="EffortControllerNode",
                             namespace=DRONE_NAME,
-                            remappings=remappings,
+                            remappings=odom_remap + tf_remap,
                             extra_arguments=extra_arguments,
                         ),
                     ],
@@ -215,21 +219,21 @@ def generate_launch_description():
                             plugin="PreArmCheckerNode",
                             namespace=DRONE_NAME,
                             parameters=[PathJoinSubstitution([config_pkg_share, "config", "pre_arm_check.yaml"])],
-                            remappings=remappings,
+                            remappings=odom_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
                             package="tobas_state_checker",
                             plugin="PostArmCheckerNode",
                             namespace=DRONE_NAME,
-                            remappings=remappings,
+                            remappings=odom_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
                             package="tobas_landing_detection",
                             plugin="LandingDetectorNode",
                             namespace=DRONE_NAME,
-                            remappings=remappings,
+                            remappings=odom_remap,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
