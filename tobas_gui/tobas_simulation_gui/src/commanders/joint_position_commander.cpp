@@ -225,6 +225,7 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
   }
 
   const auto& joint = drone_.joints.at(jnt_name);
+  bool jnt_found = false;
 
   switch (joint.cmd_iface)
   {
@@ -235,12 +236,18 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
         if (cmd.name == jnt_name)
         {
           cmd.position = value;
+          jnt_found = true;
           break;
         }
       }
 
-      qWarning() << "Position commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
-      return;
+      if (!jnt_found)
+      {
+        qWarning() << "Position commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
+        return;
+      }
+
+      break;
     }
     case tobas::jnt_cmd_iface_t::VELOCITY:
     {
@@ -249,12 +256,18 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
         if (cmd.name == jnt_name)
         {
           cmd.position = value;
+          jnt_found = true;
           break;
         }
       }
 
-      qWarning() << "Velocity commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
-      return;
+      if (!jnt_found)
+      {
+        qWarning() << "Velocity commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
+        return;
+      }
+
+      break;
     }
     case tobas::jnt_cmd_iface_t::EFFORT:
     {
@@ -263,12 +276,18 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
         if (cmd.name == jnt_name)
         {
           cmd.position = value;
+          jnt_found = true;
           break;
         }
       }
 
-      qWarning() << "Effort commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
-      return;
+      if (!jnt_found)
+      {
+        qWarning() << "Effort commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
+        return;
+      }
+
+      break;
     }
     default:
     {
