@@ -1,3 +1,5 @@
+<!-- cf. https://gazebosim.org/docs/latest/sdf_worlds/ -->
+
 <sdf version="1.10">
   <world name="default">
 
@@ -12,7 +14,7 @@
     <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
 
     <gui fullscreen="0">
-      <!-- TODO: プラグインを追加: https://gazebosim.org/docs/latest/sdf_worlds/ -->
+      <!-- TODO: プラグインを追加 -->
     </gui>
 
     <include>
