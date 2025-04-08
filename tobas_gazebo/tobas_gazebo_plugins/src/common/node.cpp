@@ -12,7 +12,7 @@ BaseNode::BaseNode()
 
 void BaseNode::initialize(const string& name, const sdf::ElementConstPtr& sdf)
 {
-  ignmsg << "Initializing \"" << name << "\"." << endl;
+  gzmsg << "Initializing \"" << name << "\"." << endl;
 
   name_ = name;
 
