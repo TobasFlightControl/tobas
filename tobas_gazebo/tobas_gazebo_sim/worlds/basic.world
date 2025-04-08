@@ -14,6 +14,7 @@
     <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
 
     <gui fullscreen="0">
+      <!-- 3D View (Essential) -->
       <plugin filename="MinimalScene" name="3D View">
         <gz-gui>
           <title>3D View</title>
@@ -28,6 +29,7 @@
         <camera_pose>-5 0 2 0 0 0</camera_pose>
       </plugin>
 
+      <!-- Scene Manager (Essential) -->
       <plugin filename="GzSceneManager" name="Scene Manager">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
@@ -38,6 +40,7 @@
         </gz-gui>
       </plugin>
 
+      <!-- LookAt Camera -->
       <plugin filename="lookat_camera_plugin" name="LookAt Camera">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
