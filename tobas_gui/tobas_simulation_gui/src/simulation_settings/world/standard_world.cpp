@@ -16,7 +16,7 @@ WorldWidget_Standard::WorldWidget_Standard() : super("Standard World")
 
   // Add worlds
   // TODO: "tobas_gazebo_sim/worlds/"以下のworldファイルを検索し，全てのベース名を選択肢に含める．
-  combo_box_->addItem("basic");
+  combo_box_->addItem("empty");
 }
 
 fs::path WorldWidget_Standard::worldPath() const

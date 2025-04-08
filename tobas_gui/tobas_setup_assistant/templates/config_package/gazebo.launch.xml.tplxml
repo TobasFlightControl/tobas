@@ -4,7 +4,7 @@
   <arg name="output" default="screen"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="user_debug" default="false"/>
-  <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/basic.world"/>
+  <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/empty.world"/>
   <arg name="verbose" default="3"/>
   <arg name="ground_truth" default="false"/>
   <arg name="standalone" default="false"/>
