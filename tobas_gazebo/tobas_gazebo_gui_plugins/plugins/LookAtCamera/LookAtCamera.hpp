@@ -9,15 +9,15 @@ using namespace std;
 namespace gazebo
 {
 /* cf. gz-gui/src/plugins/camera_tracking/CameraTracking.cc */
-class LookAtCameraPlugin : public gz::gui::Plugin
+class LookAtCamera : public gz::gui::Plugin
 {
   Q_OBJECT
 
-  using self = LookAtCameraPlugin;
+  using self = LookAtCamera;
   using super = gz::gui::Plugin;
 
 public:
-  explicit LookAtCameraPlugin();
+  explicit LookAtCamera();
 
   void LoadConfig(const tinyxml2::XMLElement* elem) override;
 

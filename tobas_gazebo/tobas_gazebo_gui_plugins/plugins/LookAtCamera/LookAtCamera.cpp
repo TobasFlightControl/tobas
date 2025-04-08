@@ -8,17 +8,17 @@
 
 #include <tobas_gazebo_tools/conversion.hpp>
 
-#include "./lookat_camera_plugin.hpp"
+#include "./LookAtCamera.hpp"
 
 using namespace std;
 
 namespace gazebo
 {
-LookAtCameraPlugin::LookAtCameraPlugin()
+LookAtCamera::LookAtCamera()
 {
 }
 
-void LookAtCameraPlugin::LoadConfig(const tinyxml2::XMLElement* elem)
+void LookAtCamera::LoadConfig(const tinyxml2::XMLElement* elem)
 {
   if (title.empty())
     title = "LookAt Camera Plugin";
@@ -31,7 +31,7 @@ void LookAtCameraPlugin::LoadConfig(const tinyxml2::XMLElement* elem)
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }
 
-bool LookAtCameraPlugin::eventFilter(QObject* obj, QEvent* event)
+bool LookAtCamera::eventFilter(QObject* obj, QEvent* event)
 {
   if (event->type() == gz::gui::events::Render::kType)
     onRender();
@@ -39,7 +39,7 @@ bool LookAtCameraPlugin::eventFilter(QObject* obj, QEvent* event)
   return QObject::eventFilter(obj, event);
 }
 
-void LookAtCameraPlugin::onRender()
+void LookAtCamera::onRender()
 {
   lock_guard<mutex> lock(mutex_);
 
@@ -75,7 +75,7 @@ void LookAtCameraPlugin::onRender()
   camera_->SetWorldPose(camera_pose);
 }
 
-void LookAtCameraPlugin::initialize()
+void LookAtCamera::initialize()
 {
   // Attach to the first camera we find
   for (size_t i = 0; i < scene_->NodeCount(); ++i)
@@ -84,7 +84,7 @@ void LookAtCameraPlugin::initialize()
     if (camera)
     {
       camera_ = camera;
-      gzdbg << "LookAtCameraPlugin is moving camera [" << camera_->Name() << "]" << endl;
+      gzdbg << "LookAtCamera is moving camera [" << camera_->Name() << "]" << endl;
       break;
     }
   }
@@ -95,10 +95,10 @@ void LookAtCameraPlugin::initialize()
     return;
   }
 
-  node_.Subscribe("/gui/look_at_position", &LookAtCameraPlugin::lookAtPositionCb, this);
+  node_.Subscribe("/gui/look_at_position", &LookAtCamera::lookAtPositionCb, this);
 }
 
-void LookAtCameraPlugin::lookAtPositionCb(const gz::msgs::Vector3d& msg)
+void LookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
 {
   lock_guard<mutex> lock(mutex_);
 
@@ -106,4 +106,4 @@ void LookAtCameraPlugin::lookAtPositionCb(const gz::msgs::Vector3d& msg)
 }
 }  // namespace gazebo
 
-GZ_ADD_PLUGIN(gazebo::LookAtCameraPlugin, gz::gui::Plugin)
+GZ_ADD_PLUGIN(gazebo::LookAtCamera, gz::gui::Plugin)

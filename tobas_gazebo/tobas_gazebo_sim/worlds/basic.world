@@ -41,7 +41,7 @@
       </plugin>
 
       <!-- LookAt Camera -->
-      <plugin filename="lookat_camera_plugin" name="LookAt Camera">
+      <plugin filename="LookAtCamera" name="LookAt Camera">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
           <property key="width" type="double">5</property>
