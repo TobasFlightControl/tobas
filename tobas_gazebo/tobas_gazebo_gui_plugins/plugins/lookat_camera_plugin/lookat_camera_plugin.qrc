@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="lookat_camera_plugin/">
+    <file>lookat_camera_plugin.qml</file>
+  </qresource>
+</RCC>

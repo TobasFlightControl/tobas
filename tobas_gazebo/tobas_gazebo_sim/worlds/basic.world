@@ -14,7 +14,28 @@
     <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
 
     <gui fullscreen="0">
-      <!-- TODO: プラグインを追加 -->
+      <plugin filename="lookat_camera_plugin" name="gazebo::LookAtCameraPlugin">
+        <!-- <gz-gui>
+          <title>World control</title>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="bool" key="resizable">false</property>
+          <property type="double" key="height">72</property>
+          <property type="double" key="width">121</property>
+          <property type="double" key="z">1</property>
+
+          <property type="string" key="state">floating</property>
+          <anchors target="3D View">
+            <line own="left" target="left"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
+        </gz-gui>
+
+        <play_pause>true</play_pause>
+        <step>true</step>
+        <start_paused>true</start_paused>
+        <service>/world/world_demo/control</service>
+        <stats_topic>/world/world_demo/stats</stats_topic> -->
+      </plugin>
     </gui>
 
     <include>
