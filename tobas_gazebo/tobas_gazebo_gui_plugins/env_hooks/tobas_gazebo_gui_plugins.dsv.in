@@ -1,0 +1,1 @@
+prepend-non-duplicate;GZ_GUI_PLUGIN_PATH;@CMAKE_INSTALL_PREFIX@/lib/@PROJECT_NAME@/plugins

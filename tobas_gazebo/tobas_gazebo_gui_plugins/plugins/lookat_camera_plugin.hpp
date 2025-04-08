@@ -11,6 +11,8 @@ namespace gazebo
 /* cf. gz-gui/src/plugins/camera_tracking/CameraTracking.cc */
 class LookAtCameraPlugin : public gz::gui::Plugin
 {
+  Q_OBJECT
+
   using self = LookAtCameraPlugin;
   using super = gz::gui::Plugin;
 

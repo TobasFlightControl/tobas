@@ -28,7 +28,10 @@ find_package(gz-sim REQUIRED)
 find_package(gz_plugin_vendor REQUIRED)
 find_package(gz-plugin REQUIRED)
 
-include_directories(${OpenCV_INCLUDE_DIRS})
+# add_definitions(-DQT_NO_KEYWORDS)
+set(CMAKE_AUTOMOC ON)
+
+include_directories(include)
 
 # Build common library
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
@@ -36,20 +39,25 @@ add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}
 	tobas_gazebo_tools
 )
-target_link_libraries(${PROJECT_NAME}
-	gz-sim::gz-sim
-	gz-plugin::register
-)
 
 # Build each plugin
 file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*.cpp)
 set(targets_to_install "")
 
 foreach(FILE IN LISTS PLUGIN_CPP_FILES)
+	get_filename_component(PARENT_DIR ${FILE} DIRECTORY)
 	get_filename_component(FILE_NAME ${FILE} NAME_WE)
+	set(FILE_WITHOUT_EXT ${PARENT_DIR}/${FILE_NAME})
 	set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
-	add_library(${PLUGIN_NAME} SHARED ${FILE})
-	target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME})
+
+	qt5_wrap_cpp(MOC_SOURCE ${FILE_WITHOUT_EXT}.hpp)
+	add_library(${PLUGIN_NAME} SHARED ${MOC_SOURCE} ${FILE_WITHOUT_EXT}.cpp)
+	target_link_libraries(${PLUGIN_NAME}
+		${PROJECT_NAME}
+		gz-sim::gz-sim
+		gz-plugin::register
+	)
+
 	list(APPEND targets_to_install ${PLUGIN_NAME})
 endforeach()
 
@@ -57,10 +65,9 @@ endforeach()
 install(
 	TARGETS ${targets_to_install}
 	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib/${PROJECT_NAME}/plugins
 )
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env_hooks/${PROJECT_NAME}.dsv.in")
 
 # Export plugins
 ament_export_libraries(${targets_to_install})
