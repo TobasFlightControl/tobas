@@ -49,15 +49,14 @@ void LookAtCameraPlugin::onRender()
     if (!scene_)
       return;
 
-    this->initialize();
+    initialize();
   }
 
   if (!camera_)
     return;
 
-  // Fixed camera position in world frame
-  // TODO: 正しい位置を取得
-  gz::math::Vector3d camera_pos(-5., 0., 1.7);
+  // Get camera position
+  const auto camera_pos = camera_->WorldPosition();
 
   // Direction vector
   const auto dir = (tar_pos_ - camera_pos).Normalized();

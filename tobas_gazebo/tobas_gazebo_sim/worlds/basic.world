@@ -14,27 +14,38 @@
     <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
 
     <gui fullscreen="0">
-      <plugin filename="lookat_camera_plugin" name="gazebo::LookAtCameraPlugin">
-        <!-- <gz-gui>
-          <title>World control</title>
+      <plugin filename="MinimalScene" name="3D View">
+        <gz-gui>
+          <title>3D View</title>
           <property type="bool" key="showTitleBar">false</property>
-          <property type="bool" key="resizable">false</property>
-          <property type="double" key="height">72</property>
-          <property type="double" key="width">121</property>
-          <property type="double" key="z">1</property>
-
-          <property type="string" key="state">floating</property>
-          <anchors target="3D View">
-            <line own="left" target="left"/>
-            <line own="bottom" target="bottom"/>
-          </anchors>
+          <property type="string" key="state">docked</property>
         </gz-gui>
 
-        <play_pause>true</play_pause>
-        <step>true</step>
-        <start_paused>true</start_paused>
-        <service>/world/world_demo/control</service>
-        <stats_topic>/world/world_demo/stats</stats_topic> -->
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <ambient_light>0 0 0</ambient_light>
+        <background_color>0.8 0.8 0.8</background_color>
+        <camera_pose>-5 0 2 0 0 0</camera_pose>
+      </plugin>
+
+      <plugin filename="GzSceneManager" name="Scene Manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+
+      <plugin filename="lookat_camera_plugin" name="LookAt Camera">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
       </plugin>
     </gui>
 
