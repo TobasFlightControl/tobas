@@ -39,6 +39,21 @@ void ComboBox::setCurrentText(const QString& text)
   super::setCurrentIndex(index);
 }
 
+void ComboBox::sort()
+{
+  // 全てのアイテムをQStringListに集める
+  QStringList items;
+  for (int i = 0; i < count(); ++i)
+    items << itemText(i);
+
+  // 大文字小文字を区別せずに名前順に並べ替える
+  items.sort(Qt::CaseInsensitive);
+
+  // 一旦中身をクリアしてソート後のリストを追加し直す
+  clear();
+  addItems(items);
+}
+
 void ComboBox::setItemEnabled(int row, bool enabled)
 {
   const auto model = qt::qConstPointerCast<QStandardItemModel>(this->model());

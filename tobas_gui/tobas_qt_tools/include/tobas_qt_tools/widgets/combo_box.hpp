@@ -29,6 +29,8 @@ public:
   void setItemEnabled(int row, bool enabled);
   void setItemEnabled(const QString& text, bool enabled);
 
+  void sort();
+
 public Q_SLOTS:
   void setCurrentIndex(int index);
   void setCurrentText(const QString& text);
