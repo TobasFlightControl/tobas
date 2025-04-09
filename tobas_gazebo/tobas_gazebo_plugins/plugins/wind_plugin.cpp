@@ -3,12 +3,12 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
-#include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

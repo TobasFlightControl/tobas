@@ -20,7 +20,6 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
-#include "../include/tobas_gazebo_plugins/utils.hpp"
 #include "../include/tobas_gazebo_plugins/sdf.hpp"
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．

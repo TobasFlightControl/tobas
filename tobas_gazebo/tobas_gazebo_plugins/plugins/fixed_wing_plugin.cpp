@@ -20,7 +20,6 @@
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_plugins/utils.hpp"
 #include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
 
 using namespace std;

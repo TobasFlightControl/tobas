@@ -7,6 +7,7 @@
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/model_mass_holder.hpp>
+#include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_gazebo_msgs/msg/imu_debug.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 
@@ -14,7 +15,6 @@
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"
-#include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

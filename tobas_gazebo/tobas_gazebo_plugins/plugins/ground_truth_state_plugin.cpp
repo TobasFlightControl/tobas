@@ -4,11 +4,11 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_tools/utils.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
-#include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;
