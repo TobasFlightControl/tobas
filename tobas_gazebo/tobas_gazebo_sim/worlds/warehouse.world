@@ -11,13 +11,11 @@
     <plugin name="ignition::gazebo::systems::Physics" filename="libignition-gazebo-physics-system.so"/>
     <plugin name="ignition::gazebo::systems::UserCommands" filename="libignition-gazebo-user-commands-system.so"/>
     <plugin name="ignition::gazebo::systems::SceneBroadcaster" filename="libignition-gazebo-scene-broadcaster-system.so"/>
-    <plugin name="ignition::gazebo::systems::Imu" filename="ignition-gazebo-imu-system"/>
     <plugin name="ignition::gazebo::systems::Sensors" filename="ignition-gazebo-sensors-system">
       <render_engine>ogre2</render_engine>
     </plugin>
 
     <gui fullscreen="0">
-      <!-- 3D View -->
       <plugin filename="GzScene3D" name="3D View">
         <ignition-gui>
           <title>3D View</title>
@@ -32,7 +30,6 @@
         <camera_pose>-3 0 2 0 0.5 0</camera_pose>
       </plugin>
 
-      <!-- Scene Manager -->
       <plugin filename="GzSceneManager" name="Scene Manager">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
