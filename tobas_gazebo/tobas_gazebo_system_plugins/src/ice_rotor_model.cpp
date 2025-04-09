@@ -2,9 +2,9 @@
 
 #include <tobas_gazebo_tools/utils.hpp>
 
-#include "../include/tobas_gazebo_plugins/ice_rotor_model.hpp"
-#include "../include/tobas_gazebo_plugins/sdf.hpp"
-#include "../include/tobas_gazebo_plugins/common/constants.hpp"
+#include "../include/tobas_gazebo_system_plugins/ice_rotor_model.hpp"
+#include "../include/tobas_gazebo_system_plugins/sdf.hpp"
+#include "../include/tobas_gazebo_system_plugins/common/constants.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

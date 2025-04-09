@@ -2,7 +2,7 @@
 #include <iostream>
 #include <eigen3/Eigen/Core>
 
-#include "../include/tobas_gazebo_plugins/depth_noise_models.hpp"
+#include "../include/tobas_gazebo_system_plugins/depth_noise_models.hpp"
 
 using namespace std;
 using namespace Eigen;

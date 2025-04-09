@@ -17,10 +17,10 @@
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 
-#include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_plugins/rate_manager.hpp"
-#include "../include/tobas_gazebo_plugins/sdf.hpp"
+#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
+#include "../include/tobas_gazebo_system_plugins/conversions/conversions.hpp"
+#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_system_plugins/sdf.hpp"
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
 // ESCが電子制御で電流の変化を抑えるため，見かけのインダクタンスは実測値よりも遥かに大きい (100倍くらい？)

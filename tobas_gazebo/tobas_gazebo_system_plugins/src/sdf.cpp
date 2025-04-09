@@ -1,6 +1,6 @@
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
-#include "../include/tobas_gazebo_plugins/sdf.hpp"
+#include "../include/tobas_gazebo_system_plugins/sdf.hpp"
 
 using namespace std;
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_gazebo_plugins)
+project(tobas_gazebo_system_plugins)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 

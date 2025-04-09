@@ -8,7 +8,7 @@
 #include <tobas_gazebo_tools/conversion.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 
-#include "../include/tobas_gazebo_plugins/common/common.hpp"
+#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

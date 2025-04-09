@@ -1,5 +1,5 @@
-#include "../../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
-#include "../../include/tobas_gazebo_plugins/conversions/gazebo_eigen.hpp"
+#include "../../include/tobas_gazebo_system_plugins/conversions/gazebo_kdl.hpp"
+#include "../../include/tobas_gazebo_system_plugins/conversions/gazebo_eigen.hpp"
 
 using namespace gz::math;
 

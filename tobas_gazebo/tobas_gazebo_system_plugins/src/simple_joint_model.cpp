@@ -1,6 +1,6 @@
 #include <gz/common/Console.hh>
 
-#include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
+#include "../include/tobas_gazebo_system_plugins/simple_joint_model.hpp"
 
 #define POS_MARGIN 1e-2  // [rad]
 

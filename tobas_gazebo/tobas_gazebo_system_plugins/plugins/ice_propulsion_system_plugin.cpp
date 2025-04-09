@@ -10,12 +10,12 @@
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 
-#include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_plugins/rate_manager.hpp"
-#include "../include/tobas_gazebo_plugins/sdf.hpp"
-#include "../include/tobas_gazebo_plugins/ice_rotor_model.hpp"
-#include "../include/tobas_gazebo_plugins/engine_model.hpp"
+#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
+#include "../include/tobas_gazebo_system_plugins/conversions/conversions.hpp"
+#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_system_plugins/sdf.hpp"
+#include "../include/tobas_gazebo_system_plugins/ice_rotor_model.hpp"
+#include "../include/tobas_gazebo_system_plugins/engine_model.hpp"
 
 using namespace std;
 using namespace chrono;

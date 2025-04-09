@@ -1,7 +1,7 @@
 #include <tobas_math/core.hpp>
 
-#include "../include/tobas_gazebo_plugins/engine_model.hpp"
-#include "../include/tobas_gazebo_plugins/sdf.hpp"
+#include "../include/tobas_gazebo_system_plugins/engine_model.hpp"
+#include "../include/tobas_gazebo_system_plugins/sdf.hpp"
 
 using namespace std;
 

@@ -18,9 +18,9 @@
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_gazebo_msgs/msg/fixed_wing_debug.hpp>
 
-#include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
+#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
+#include "../include/tobas_gazebo_system_plugins/conversions/conversions.hpp"
+#include "../include/tobas_gazebo_system_plugins/simple_joint_model.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;
