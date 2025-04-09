@@ -1,19 +1,49 @@
-<sdf version="1.10">
-  <world name="default">
+<!-- cf. https://app.gazebosim.org/OpenRobotics/fuel/worlds/Prius%20on%20Sonoma%20Raceway -->
 
-    <physics name="2000Hz" type="ignored">
+<sdf version="1.10">
+  <world name="sonoma_raceway">
+
+    <physics type="ignored">
       <max_step_size>0.0005</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>
 
-    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
-    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
-    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
-    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+    <plugin name="ignition::gazebo::systems::Physics" filename="libignition-gazebo-physics-system.so"/>
+    <plugin name="ignition::gazebo::systems::UserCommands" filename="libignition-gazebo-user-commands-system.so"/>
+    <plugin name="ignition::gazebo::systems::SceneBroadcaster" filename="libignition-gazebo-scene-broadcaster-system.so"/>
+    <plugin name="ignition::gazebo::systems::Sensors" filename="ignition-gazebo-sensors-system">
+      <render_engine>ogre2</render_engine>
+    </plugin>
 
-    <include>
-      <uri>models/sun</uri>
-    </include>
+    <gui fullscreen="0">
+      <plugin filename="GzScene3D" name="3D View">
+        <ignition-gui>
+          <title>3D View</title>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="string" key="state">docked</property>
+        </ignition-gui>
+
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <ambient_light>0.4 0.4 0.4</ambient_light>
+        <background_color>0.8 0.8 0.8</background_color>
+        <camera_pose>-3 2.5 0 0 0.5 -0.7</camera_pose>
+      </plugin>
+
+      <plugin filename="GzSceneManager" name="Scene Manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+    </gui>
+
+    <scene>
+      <grid>false</grid>
+    </scene>
 
     <include>
       <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/Sonoma Raceway</uri>
