@@ -1,9 +1,7 @@
-<!-- cf. https://gazebosim.org/docs/latest/sdf_worlds/ -->
-
 <sdf version="1.10">
-  <world name="default">
+  <world name="flight_training">
 
-    <physics name="2000Hz" type="ignored">
+    <physics type="ignored">
       <max_step_size>0.0005</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>

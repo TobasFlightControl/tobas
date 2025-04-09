@@ -2,6 +2,10 @@
 
 ## メモ
 
+### Documentation
+
+- [Gazebo Tutorials/SDF worlds](https://gazebosim.org/docs/latest/sdf_worlds/)
+
 ### world ファイルの例
 
 - [gz-sim](https://github.com/gazebosim/gz-sim/tree/ign-gazebo3/examples/worlds)
