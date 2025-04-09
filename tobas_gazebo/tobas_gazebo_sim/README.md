@@ -14,3 +14,11 @@
   <uri>package://${package_name}/models/${model_name}</uri>
 </include>
 ```
+
+### Fuel (Gazebo 用のモデル共有サイト) からダウンロード
+
+```xml
+<include>
+  <uri>https://fuel.ignitionrobotics.org/1.0/openrobotics/models/Sonoma Raceway</uri>
+</include>
+```
