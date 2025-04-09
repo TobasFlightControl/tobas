@@ -353,6 +353,14 @@ void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const string& 
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
 }
 
+void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
+{
+  const auto plugin =
+    util::addGazeboPlugin(robot, "tobas_gazebo_lookat_position_plugin", "gazebo::GazeboLookAtPositionPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+  plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
+}
+
 void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints)
 {
   // robot/ros2_control

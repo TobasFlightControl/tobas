@@ -127,6 +127,8 @@ void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, con
 
 void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
+void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+
 /* https://github.com/ros-controls/gz_ros2_control/tree/jazzy */
 void addGazeboSimROS2ControlPlugin(
   tinyxml2::XMLElement* robot,

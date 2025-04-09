@@ -997,6 +997,9 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Ground truth state plugin
   xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);
 
+  // LookAt position plugin
+  xml::addGazeboLookAtPositionPlugin(robot, ns, root_name);
+
   // Gazebo ROS2 control system
   xml::addGazeboROS2SimSystem(robot, drone.joints);
 
