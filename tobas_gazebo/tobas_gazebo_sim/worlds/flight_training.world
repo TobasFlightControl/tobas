@@ -58,9 +58,11 @@
 
     <include>
       <uri>models/ground_plane</uri>
+    </include>
 
-      <!-- パスを正しく追加していればパッケージからのURI指定も可能． -->
-      <!-- <uri>package://tobas_gazebo_sim/models/ground_plane</uri> -->
+    <include>
+      <uri>models/yosemite</uri>
+      <pose>-295 150 -7 0 0 0</pose>
     </include>
 
   </world>
