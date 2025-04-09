@@ -6,6 +6,7 @@
 #include <gz/common/Console.hh>
 #include <gz/rendering/RenderingIface.hh>
 
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/conversion.hpp>
 
 #include "./LookAtCamera.hpp"
@@ -95,7 +96,7 @@ void LookAtCamera::initialize()
     return;
   }
 
-  node_.Subscribe("/gui/look_at_position", &LookAtCamera::lookAtPositionCb, this);
+  node_.Subscribe(kLookAtPositionTopic, &LookAtCamera::lookAtPositionCb, this);
 }
 
 void LookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
