@@ -60,10 +60,5 @@
       <uri>models/ground_plane</uri>
     </include>
 
-    <include>
-      <uri>models/yosemite</uri>
-      <pose>-295 150 -7 0 0 0</pose>
-    </include>
-
   </world>
 </sdf>
