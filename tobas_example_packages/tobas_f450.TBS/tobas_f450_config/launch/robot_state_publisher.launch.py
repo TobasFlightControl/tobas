@@ -47,6 +47,7 @@ def generate_launch_description():
             package="robot_state_publisher",
             executable="robot_state_publisher",
             parameters=[{"robot_description": urdf_content, "use_sim_time": use_sim_time}],
+            remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
             ros_arguments=["--log-level", log_level],
             output=output,
         )
