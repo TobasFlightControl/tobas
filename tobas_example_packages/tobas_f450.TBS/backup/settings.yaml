@@ -491,6 +491,8 @@ GNSS:
   Vertical Position Accuracy: 4
   Standard Deviation for Horizontal Speed Noise: 0.10000000000000001
   Standard Deviation for Vertical Speed Noise: 0.10000000000000001
+RC Input:
+  The number of S.BUS channels: 8
 Controller:
   controller_type: Multirotor PID
   Multirotor PID:

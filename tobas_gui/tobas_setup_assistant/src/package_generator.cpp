@@ -321,6 +321,9 @@ tobas::Drone PackageGenerator::createDrone()
     }
   }
 
+  // RC Input
+  drone.num_sbus_channles = settings_->rc_input->numOfSbusChannels();
+
   return drone;
 }
 

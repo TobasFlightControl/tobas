@@ -11,6 +11,7 @@
 #include "./setting_tabs/magnetometer.hpp"
 #include "./setting_tabs/barometer.hpp"
 #include "./setting_tabs/gnss.hpp"
+#include "./setting_tabs/rc_input.hpp"
 #include "./setting_tabs/controller/controller.hpp"
 #include "./setting_tabs/observer/observer.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
@@ -41,6 +42,7 @@ public:
   MagnetometerWidget* magnetometer;
   BarometerWidget* barometer;
   GNSSWidget* gnss;
+  RcInputWidget* rc_input;
   ControllerWidget* controller;
   ObserverWidget* observer;
   HardwareWidget* hardware;
