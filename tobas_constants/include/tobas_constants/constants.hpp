@@ -9,6 +9,9 @@ static constexpr double kMinThrot = 0.;  // The minimum throttle
 static constexpr double kMaxThrot = 1.;  // The maximum throttle
 
 // RCInput
+static constexpr size_t kMinSbusChannels = 8;
+static constexpr size_t kMaxSbusChannels = 16;
+static constexpr size_t kMaxNumOfGpsw = kMaxSbusChannels - kMinSbusChannels;
 static constexpr double kRCInputMin = -1.;
 static constexpr double kRCInputMid = 0.;
 static constexpr double kRCInputMax = 1.;

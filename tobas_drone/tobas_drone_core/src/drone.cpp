@@ -52,6 +52,12 @@ bool Drone::isValid() const
     return false;
   }
 
+  if (num_sbus_channles < tobas::kMinSbusChannels || tobas::kMaxSbusChannels < num_sbus_channles)
+  {
+    cerr << "The number of sbus channels is invalid." << endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -97,7 +103,7 @@ bool Drone::load(const YAML::Node& node)
     pwms[pwm.name] = pwm;
   }
 
-  // Propulsion system
+  // Propulsion System
   propulsion_system_t prop_type;
   if (!yaml::load(kPropulsionSystemTypeKey, node, prop_type))
     return false;
@@ -140,7 +146,7 @@ bool Drone::load(const YAML::Node& node)
     }
   }
 
-  // Fixed wing
+  // Fixed Wing
   if (node[kFixedWingKey].IsDefined())
   {
     fixed_wing = make_shared<FixedWingConfig>();
@@ -155,6 +161,10 @@ bool Drone::load(const YAML::Node& node)
     cout << "\"" << kFixedWingKey << "\" is not defined." << endl;
     fixed_wing.reset();
   }
+
+  // S.BUS Channels
+  if (!yaml::load(kNumSbusChannelsKey, node, num_sbus_channles))
+    return false;
 
   return true;
 }
@@ -176,13 +186,16 @@ YAML::Node Drone::dump() const
   for (const auto& [_, pwm] : pwms)
     node[kPwmsKey].push_back(pwm.dump());
 
-  // Propulsion system
+  // Propulsion System
   node[kPropulsionSystemTypeKey] = prop->type();
   node[kPropulsionSystemKey] = prop->dump();
 
-  // Fixed wing
+  // Fixed Wing
   if (fixed_wing)
     node[kFixedWingKey] = fixed_wing->dump();
+
+  // S.BUS Channels
+  node[kNumSbusChannelsKey] = num_sbus_channles;
 
   return node;
 }

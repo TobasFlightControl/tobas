@@ -80,6 +80,9 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     {
       dst.has_fixed_wing = false;
     }
+
+    // S.BUS Channels
+    dst.num_sbus_channles = src.num_sbus_channles;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -145,6 +148,9 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     {
       dst.fixed_wing.reset();
     }
+
+    // S.BUS Channels
+    dst.num_sbus_channles = src.num_sbus_channles;
   }
 };
 
