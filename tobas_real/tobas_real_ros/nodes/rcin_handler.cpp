@@ -35,6 +35,7 @@ private:
   uint16_t kill_on_, kill_off_;
   map<tobas::flight_mode_t, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
+  array<uint16_t, tobas::kMaxNumOfGpsw> gpsw_on_, gpsw_off_;
 
   ptree::PropertyTree pt_;
 
@@ -173,6 +174,17 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
+  if (!pt_.get(kGpswOnKey, gpsw_on_))
+  {
+    TOBAS_ERROR("Failed to get \"", kGpswOnKey, "\".");
+    return false;
+  }
+  if (!pt_.get(kGpswOffKey, gpsw_off_))
+  {
+    TOBAS_ERROR("Failed to get \"", kGpswOffKey, "\".");
+    return false;
+  }
+
   return true;
 }
 
@@ -217,12 +229,19 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
     sbus->data[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
   rcin_msg->throttle = math::remap<double>(
     sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+
   rcin_msg->enable =
     abs(sbus->data[real::kRcChannelEnable] - enable_on_) < abs(sbus->data[real::kRcChannelEnable] - enable_off_);
   rcin_msg->kill = abs(sbus->data[real::kRcChannelKill] - kill_on_) < abs(sbus->data[real::kRcChannelKill] - kill_off_);
   rcin_msg->mode = getClosestFlightMode(sbus->data[real::kRcChannelMode]);
   rcin_msg->sub_mode =
     abs(sbus->data[real::kRcChannelSubMode] - sub_mode_on_) < abs(sbus->data[real::kRcChannelSubMode] - sub_mode_off_);
+
+  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
+  {
+    const auto sbus_idx = real::kRcChannelGpsw + i;
+    rcin_msg->gpsw[i] = abs(sbus->data[sbus_idx] - gpsw_on_[i]) < abs(sbus->data[sbus_idx] - gpsw_off_[i]);
+  }
 
   // Publish message
   rcin_pub_->publish(move(rcin_msg));
@@ -250,6 +269,8 @@ void RCInputHandlerNode::setParamsCb(
   modes_.at(tobas::flight_mode_t::LOITER) = req->mode_loiter;
   sub_mode_on_ = req->sub_mode_on;
   sub_mode_off_ = req->sub_mode_off;
+  gpsw_on_ = req->gpsw_on;
+  gpsw_off_ = req->gpsw_off;
 
   // Save parameters
   pt_.set(kRollLeftKey, req->roll_left);
@@ -269,6 +290,8 @@ void RCInputHandlerNode::setParamsCb(
   pt_.set(kModeLoiterKey, req->mode_loiter);
   pt_.set(kSubModeOnKey, req->sub_mode_on);
   pt_.set(kSubModeOffKey, req->sub_mode_off);
+  pt_.set(kGpswOnKey, req->gpsw_on);
+  pt_.set(kGpswOffKey, req->gpsw_off);
   if (!pt_.save())
   {
     res->success = false;
