@@ -23,7 +23,7 @@ namespace handler
 {
 namespace imu
 {
-static constexpr char kConfigFileName[] = "imu.ini";
+static constexpr char kConfigFileName[] = "imu.json";
 static constexpr char kSetParamSrv[] = "real/set_imu_parameters";
 
 static constexpr char kOffsetXKey[] = "offset_x";
@@ -33,7 +33,7 @@ static constexpr char kOffsetZKey[] = "offset_z";
 
 namespace mag
 {
-static constexpr char kConfigFileName[] = "magnetometer.ini";
+static constexpr char kConfigFileName[] = "magnetometer.json";
 static constexpr char kSetParamSrv[] = "real/set_magnetometer_parameters";
 
 static constexpr char kAxxKey[] = "a_xx";
@@ -50,7 +50,7 @@ static constexpr char kCKey[] = "c";
 
 namespace rcin
 {
-static constexpr char kConfigFileName[] = "rc_input.ini";
+static constexpr char kConfigFileName[] = "rc_input.json";
 static constexpr char kSetParamSrv[] = "real/set_rc_input_parameters";
 
 static constexpr char kRollLeftKey[] = "roll/left";

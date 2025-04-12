@@ -1,4 +1,5 @@
 #include <iostream>
+#include <boost/property_tree/json_parser.hpp>
 
 #include <tobas_path_tools/core.hpp>
 
@@ -20,11 +21,11 @@ bool PropertyTree::initialize(const fs::path& file_path)
     // If configuration file exists, try to load it.
     try
     {
-      boost::property_tree::ini_parser::read_ini(file_path, pt_);
+      boost::property_tree::json_parser::read_json(file_path, root_node_);
     }
-    catch (...)
+    catch (const exception& e)
     {
-      cerr << file_path << " exists, but failed to load it." << endl;
+      cerr << file_path << " exists, but failed to load it: " << e.what() << endl;
       return false;
     }
   }
@@ -47,11 +48,11 @@ bool PropertyTree::save()
 {
   try
   {
-    boost::property_tree::ini_parser::write_ini(file_path_, pt_);
+    boost::property_tree::json_parser::write_json(file_path_, root_node_);
   }
-  catch (...)
+  catch (const exception& e)
   {
-    cerr << "Failed to load " << file_path_ << "." << endl;
+    cerr << "Failed to save " << file_path_ << ": " << e.what() << endl;
     return false;
   }
 

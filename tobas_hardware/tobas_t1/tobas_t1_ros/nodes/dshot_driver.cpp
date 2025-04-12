@@ -67,7 +67,7 @@ private:
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("t1_dshot_driver", options)
 {
-  if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.ini")))
+  if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.json")))
   {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
