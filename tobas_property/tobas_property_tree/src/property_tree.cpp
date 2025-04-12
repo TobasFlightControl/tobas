@@ -1,4 +1,3 @@
-#include <iostream>
 #include <boost/property_tree/json_parser.hpp>
 
 #include <tobas_path_tools/core.hpp>
