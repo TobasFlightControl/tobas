@@ -7,3 +7,4 @@ bool enable       # CH5: Enable Radio Control
 bool kill         # CH6: Kill Switch
 uint8 mode        # CH7: Flight Mode
 bool sub_mode     # CH8: Sub Flight Mode
+bool[8] gpsw      # CH9-16: General Purpose Switch
