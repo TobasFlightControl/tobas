@@ -48,7 +48,6 @@ NetworkSettingWidget::NetworkSettingWidget(rclcpp::Node::SharedPtr node)
   rows_->addWidget(instruction);
   rows_->addLayout(cols);
   rows_->addWidget(table_);
-  rows_->addStretch();
 
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
