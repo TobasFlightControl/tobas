@@ -78,7 +78,7 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
 template <typename SrvType>
 void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  if (pt_.get(keyWithSection(req->key, req->section), res->value))
+  if (pt_.get(keyWithSection(req->section, req->key), res->value))
   {
     res->success = true;
     res->message = "";
@@ -93,7 +93,7 @@ void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const Sr
 template <typename SrvType>
 void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  pt_.set(keyWithSection(req->key, req->section), req->value);
+  pt_.set(keyWithSection(req->section, req->key), req->value);
 
   res->success = true;
   res->message = "";
