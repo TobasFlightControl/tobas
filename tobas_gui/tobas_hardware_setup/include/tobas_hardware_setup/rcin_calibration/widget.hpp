@@ -68,6 +68,8 @@ private:
   qt::HPositionBarWidget* kill_range_;
   qt::HPositionBarWidget* mode_range_;
   qt::HPositionBarWidget* sub_mode_range_;
+
+  std::array<QLabel*, tobas::kMaxNumOfGpsw> gpsw_labels_;
   std::array<qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;

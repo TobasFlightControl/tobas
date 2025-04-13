@@ -138,9 +138,10 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
   {
+    gpsw_labels_[i] = new QLabel();
     gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
-    gpsw_form->addVAlignedRow(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i + 1).c_str(), gpsw_ranges_[i]);
+    gpsw_form->addVAlignedRow(gpsw_labels_[i], gpsw_ranges_[i]);
     if (i < tobas::kMaxNumOfGpsw - 1)
       gpsw_form->addStretch();
   }
@@ -198,9 +199,15 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
   reset();
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i)
+  {
+    gpsw_labels_.at(i)->setText(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i + 1).c_str());
     gpsw_ranges_.at(i)->setEnabled(true);
+  }
   for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i)
+  {
+    gpsw_labels_.at(i)->setText("Not Registered");
     gpsw_ranges_.at(i)->setEnabled(false);
+  }
 
   arming_.reset();
   arming_sub_ = ros2::createSubscriber(
