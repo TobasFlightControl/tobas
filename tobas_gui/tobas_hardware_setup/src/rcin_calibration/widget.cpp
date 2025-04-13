@@ -102,8 +102,11 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   stick_cols->addWidget(throt_range_);
 
   // Control Switches
+  const auto ctrl_switch_widget = new QWidget();
+  main_signal_rows->addWidget(ctrl_switch_widget, 1);
+
   const auto ctrl_switch_grid = new QGridLayout();  // XXX: QFormLayoutだと縦に広がらない
-  main_signal_rows->addLayout(ctrl_switch_grid, 1);
+  ctrl_switch_widget->setLayout(ctrl_switch_grid);
 
   ctrl_switch_grid->addWidget(new QLabel(format("Enable (CH{})", real::kRcChannelEnable + 1).c_str()), 0, 0);
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
