@@ -27,9 +27,9 @@ class ObserverWidget : public BaseSettingWidget
 public:
   explicit ObserverWidget(
     const RobotInfo& robot,
-    const IMUWidget* imu,
+    const ImuWidget* imu,
     const BarometerWidget* baro,
-    const GNSSWidget* gnss);
+    const GnssWidget* gnss);
 
   const char* name() const override;
   const char* title() const override;
@@ -52,9 +52,9 @@ private Q_SLOTS:
 
 private:
   const RobotInfo& robot_;
-  const IMUWidget* imu_;
+  const ImuWidget* imu_;
   const BarometerWidget* baro_;
-  const GNSSWidget* gnss_;
+  const GnssWidget* gnss_;
 
   qt::ComboBox* type_;
   qt::StackedWidget* observers_;

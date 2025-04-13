@@ -6,7 +6,7 @@ namespace gui
 {
 namespace sa
 {
-GNSSWidget::GNSSWidget()
+GnssWidget::GnssWidget()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
   offset_->setSuffix(" m");
@@ -63,32 +63,32 @@ GNSSWidget::GNSSWidget()
   addStretch();
 }
 
-const char* GNSSWidget::name() const
+const char* GnssWidget::name() const
 {
   return "GNSS";
 }
 
-const char* GNSSWidget::title() const
+const char* GnssWidget::title() const
 {
   return "Define Global Positioning System";
 }
 
-const char* GNSSWidget::description() const
+const char* GnssWidget::description() const
 {
   return "";  // TODO
 }
 
-void GNSSWidget::onOpened()
+void GnssWidget::onOpened()
 {
   return;
 }
 
-void GNSSWidget::updateInternalDataStructures()
+void GnssWidget::updateInternalDataStructures()
 {
   return;
 }
 
-bool GNSSWidget::isValid()
+bool GnssWidget::isValid()
 {
   if (!equipped())
     return true;
@@ -96,7 +96,7 @@ bool GNSSWidget::isValid()
   return true;
 }
 
-YAML::Node GNSSWidget::dump() const
+YAML::Node GnssWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -114,7 +114,7 @@ YAML::Node GNSSWidget::dump() const
   return node;
 }
 
-void GNSSWidget::load(const YAML::Node& node)
+void GnssWidget::load(const YAML::Node& node)
 {
   equipped_->setChecked(node[kEquippedKey].as<bool>());
 
@@ -128,47 +128,47 @@ void GNSSWidget::load(const YAML::Node& node)
   vertical_vel_stddev_->setValue(node[vertical_vel_stddev_->name()].as<double>());
 }
 
-Eigen::Vector3d GNSSWidget::offset() const
+Eigen::Vector3d GnssWidget::offset() const
 {
   return offset_->getValue();
 }
 
-int GNSSWidget::updateRate() const
+int GnssWidget::updateRate() const
 {
   return update_rate_->getValue();
 }
 
-double GNSSWidget::delay() const
+double GnssWidget::delay() const
 {
   return static_cast<double>(delay_->getValue()) * 1e-3;
 }
 
-int GNSSWidget::positionCorrectionTime() const
+int GnssWidget::positionCorrectionTime() const
 {
   return pos_corr_time_->getValue();
 }
 
-double GNSSWidget::horizontalPositionAccuracy() const
+double GnssWidget::horizontalPositionAccuracy() const
 {
   return horizontal_pos_accuracy_->getValue();
 }
 
-double GNSSWidget::verticalPositionAccuracy() const
+double GnssWidget::verticalPositionAccuracy() const
 {
   return vertical_pos_accuracy_->getValue();
 }
 
-double GNSSWidget::horizontalVelocityStddev() const
+double GnssWidget::horizontalVelocityStddev() const
 {
   return horizontal_vel_stddev_->getValue();
 }
 
-double GNSSWidget::verticalVelocityStddev() const
+double GnssWidget::verticalVelocityStddev() const
 {
   return vertical_vel_stddev_->getValue();
 }
 
-bool GNSSWidget::defaultEquipped() const
+bool GnssWidget::defaultEquipped() const
 {
   return true;
 }

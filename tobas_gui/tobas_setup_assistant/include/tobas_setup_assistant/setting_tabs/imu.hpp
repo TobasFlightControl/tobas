@@ -9,15 +9,15 @@ namespace gui
 {
 namespace sa
 {
-class IMUWidget : public BaseSettingWidget
+class ImuWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = IMUWidget;
+  using self = ImuWidget;
   using super = BaseSettingWidget;
 
 public:
-  explicit IMUWidget();
+  explicit ImuWidget();
 
   const char* name() const override;
   const char* title() const override;

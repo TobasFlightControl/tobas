@@ -9,9 +9,9 @@ namespace sa
 {
 ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   const RobotInfo& robot,
-  const IMUWidget* imu,
+  const ImuWidget* imu,
   const BarometerWidget* baro,
-  const GNSSWidget* gnss)
+  const GnssWidget* gnss)
   : robot_(robot), imu_(imu), baro_(baro), gnss_(gnss)
 {
   const auto rows = new QVBoxLayout();

@@ -38,10 +38,10 @@ public:
   propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
   JointConfigurationWidget* joint_config;
-  IMUWidget* imu;
+  ImuWidget* imu;
   MagnetometerWidget* magnetometer;
   BarometerWidget* barometer;
-  GNSSWidget* gnss;
+  GnssWidget* gnss;
   RcInputWidget* rc_input;
   ControllerWidget* controller;
   ObserverWidget* observer;
@@ -49,7 +49,7 @@ public:
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
-  ROSPackageWidget* ros_package;
+  RosPackageWidget* ros_package;
 
   explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals);
 

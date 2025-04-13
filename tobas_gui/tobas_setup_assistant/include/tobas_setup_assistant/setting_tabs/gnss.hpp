@@ -9,15 +9,15 @@ namespace gui
 {
 namespace sa
 {
-class GNSSWidget : public OptionalDeviceWidget
+class GnssWidget : public OptionalDeviceWidget
 {
   Q_OBJECT
 
-  using self = GNSSWidget;
+  using self = GnssWidget;
   using super = OptionalDeviceWidget;
 
 public:
-  explicit GNSSWidget();
+  explicit GnssWidget();
 
   const char* name() const override;
   const char* title() const override;

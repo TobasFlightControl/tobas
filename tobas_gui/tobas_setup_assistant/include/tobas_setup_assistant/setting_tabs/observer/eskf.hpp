@@ -17,9 +17,9 @@ class ErrorStateKalmanFilterWidget : public BaseObserverWidget
 public:
   explicit ErrorStateKalmanFilterWidget(
     const RobotInfo& robot,
-    const IMUWidget* imu,
+    const ImuWidget* imu,
     const BarometerWidget* baro,
-    const GNSSWidget* gnss);
+    const GnssWidget* gnss);
 
   const char* name() const override;
   const char* description() const override;
@@ -35,9 +35,9 @@ public:
 
 private:
   const RobotInfo& robot_;
-  const IMUWidget* imu_;
+  const ImuWidget* imu_;
   const BarometerWidget* baro_;
-  const GNSSWidget* gnss_;
+  const GnssWidget* gnss_;
 
   QCheckBox* do_acc_bias_estimation_;
   QCheckBox* do_gyro_bias_estimation_;
