@@ -75,25 +75,24 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   roll_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   roll_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(roll_range_);
-  qt::addWidgetCenter(
-    new QLabel(QString::fromStdString(format("Roll (CH{})", real::kRcChannelRoll + 1))), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(format("Roll (CH{})", real::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
 
   roll_yaw_rows->addStretch();
 
   const auto pitch_throt_label_cols = new QHBoxLayout();
   roll_yaw_rows->addLayout(pitch_throt_label_cols);
 
-  const auto pitch_label = new QLabel(QString::fromStdString(format("Pitch (CH{})", real::kRcChannelPitch + 1)));
+  const auto pitch_label = new QLabel(format("Pitch (CH{})", real::kRcChannelPitch + 1).c_str());
   pitch_label->setAlignment(Qt::AlignLeft);
   pitch_throt_label_cols->addWidget(pitch_label);
 
-  const auto throt_label = new QLabel(QString::fromStdString(format("Throttle (CH{})", real::kRcChannelThrot + 1)));
+  const auto throt_label = new QLabel(format("Throttle (CH{})", real::kRcChannelThrot + 1).c_str());
   throt_label->setAlignment(Qt::AlignRight);
   pitch_throt_label_cols->addWidget(throt_label);
 
   roll_yaw_rows->addStretch();
 
-  qt::addWidgetCenter(new QLabel(QString::fromStdString(format("Yaw (CH{})", real::kRcChannelYaw + 1))), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(format("Yaw (CH{})", real::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
   yaw_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   yaw_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(yaw_range_);
@@ -106,26 +105,22 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   const auto ctrl_switch_grid = new QGridLayout();  // XXX: QFormLayoutだと縦に広がらない
   main_signal_rows->addLayout(ctrl_switch_grid, 1);
 
-  ctrl_switch_grid->addWidget(
-    new QLabel(QString::fromStdString(format("Enable (CH{})", real::kRcChannelEnable + 1))), 0, 0);
+  ctrl_switch_grid->addWidget(new QLabel(format("Enable (CH{})", real::kRcChannelEnable + 1).c_str()), 0, 0);
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_grid->addWidget(enable_range_, 0, 1);
 
-  ctrl_switch_grid->addWidget(
-    new QLabel(QString::fromStdString(format("Kill (CH{})", real::kRcChannelKill + 1))), 1, 0);
+  ctrl_switch_grid->addWidget(new QLabel(format("Kill (CH{})", real::kRcChannelKill + 1).c_str()), 1, 0);
   kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   kill_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_grid->addWidget(kill_range_, 1, 1);
 
-  ctrl_switch_grid->addWidget(
-    new QLabel(QString::fromStdString(format("Mode (CH{})", real::kRcChannelMode + 1))), 2, 0);
+  ctrl_switch_grid->addWidget(new QLabel(format("Mode (CH{})", real::kRcChannelMode + 1).c_str()), 2, 0);
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_grid->addWidget(mode_range_, 2, 1);
 
-  ctrl_switch_grid->addWidget(
-    new QLabel(QString::fromStdString(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1))), 3, 0);
+  ctrl_switch_grid->addWidget(new QLabel(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str()), 3, 0);
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_grid->addWidget(sub_mode_range_, 3, 1);
@@ -136,8 +131,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
   {
-    gpsw_grid->addWidget(
-      new QLabel(QString::fromStdString(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i))), i, 0);
+    gpsw_grid->addWidget(new QLabel(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i).c_str()), i, 0);
     gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
     gpsw_grid->addWidget(gpsw_ranges_[i], i, 1);
