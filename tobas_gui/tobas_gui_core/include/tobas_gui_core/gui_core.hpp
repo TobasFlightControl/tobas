@@ -60,7 +60,6 @@ private:
   common::RemotePackageBuilder package_builder_;
 
   QLineEdit* tbs_path_;
-  QPushButton* browse_btn_;
   QPushButton* load_btn_;
   QPushButton* write_btn_;
 
@@ -88,7 +87,6 @@ private:
   std::filesystem::path tbsPath() const;
 
 private Q_SLOTS:
-  void onBrowseButtonClicked();
   void onLoadButtonClicked();
   void onWriteButtonClicked();
 

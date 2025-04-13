@@ -85,12 +85,10 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   tbs_path_->setReadOnly(true);
   tbs_path_->setFocusPolicy(Qt::NoFocus);
 
-  browse_btn_ = new QPushButton("Browse");
   load_btn_ = new QPushButton("Load");
   write_btn_ = new QPushButton("Write");
 
-  browse_btn_->setEnabled(true);
-  load_btn_->setEnabled(false);
+  load_btn_->setEnabled(true);
   write_btn_->setEnabled(false);
 
   // Power control buttons
@@ -99,7 +97,6 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
 
   // Layout
   const auto pkg_btn_cols = new QHBoxLayout();
-  pkg_btn_cols->addWidget(browse_btn_);
   pkg_btn_cols->addWidget(load_btn_);
   pkg_btn_cols->addWidget(write_btn_);
 
@@ -130,7 +127,6 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
 
   // Connection
   connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
-  connect(browse_btn_, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
@@ -194,9 +190,9 @@ fs::path GUICoreWidget::tbsPath() const
   return tbs_path_->text().toStdString();
 }
 
-void GUICoreWidget::onBrowseButtonClicked()
+void GUICoreWidget::onLoadButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onBrowseButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onLoadButtonClicked");
 
   // 前回開いたパスを取得
   std::string last_opened_dir;
@@ -232,19 +228,8 @@ void GUICoreWidget::onBrowseButtonClicked()
   if (property_client_.save() < 0)
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
 
-  // Load,Writeボタンを有効化
-  load_btn_->setEnabled(true);
-  write_btn_->setEnabled(true);
-}
-
-void GUICoreWidget::onLoadButtonClicked()
-{
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onLoadButtonClicked");
-
-  const auto tbs_path = tbs_path_->text().toStdString();
-
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path);
+  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path.toStdString());
   if (!fs::is_regular_file(tbsdrn_path))
   {
     qt::qErrorBox(
@@ -254,7 +239,7 @@ void GUICoreWidget::onLoadButtonClicked()
   }
 
   // kdl::Treeをロード
-  const auto urdf_path = common::getOriginalURDFPath(tbs_path);
+  const auto urdf_path = common::getOriginalURDFPath(tbs_path.toStdString());
   if (!kdl::treeFromFile(urdf_path, tree_))
   {
     qt::qErrorBox(this, "Failed to load robot tree.");
@@ -270,6 +255,9 @@ void GUICoreWidget::onLoadButtonClicked()
 
   // 内部状態を更新
   updateInternalDataStructures();
+
+  // Writeボタンを有効化
+  write_btn_->setEnabled(true);
 
   // ロードが成功したことを示すダイアログ
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
