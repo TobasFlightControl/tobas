@@ -199,7 +199,7 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i)
     gpsw_ranges_.at(i)->setEnabled(true);
-  for (size_t i = numOfGpswChannels(); tobas::kMaxSbusChannels; ++i)
+  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i)
     gpsw_ranges_.at(i)->setEnabled(false);
 
   arming_.reset();
@@ -259,7 +259,7 @@ bool RCInputCalibrationWidget::saveParamsGCS()
     gpsw_on[i] = gpsw_ranges_[i]->getLower();
     gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
-  for (size_t i = numOfGpswChannels(); tobas::kMaxSbusChannels; ++i)
+  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i)
   {
     gpsw_on[i] = numeric_limits<uint16_t>::max();
     gpsw_off[i] = 0;
@@ -304,7 +304,7 @@ bool RCInputCalibrationWidget::saveParamsFC()
     req->gpsw_on[i] = gpsw_ranges_[i]->getLower();
     req->gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
-  for (size_t i = numOfGpswChannels(); tobas::kMaxSbusChannels; ++i)
+  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i)
   {
     req->gpsw_on[i] = numeric_limits<uint16_t>::max();
     req->gpsw_off[i] = 0;
