@@ -197,6 +197,11 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
 {
   reset();
 
+  for (size_t i = 0; i < numOfGpswChannels(); ++i)
+    gpsw_ranges_.at(i)->setEnabled(true);
+  for (size_t i = numOfGpswChannels(); tobas::kMaxSbusChannels; ++i)
+    gpsw_ranges_.at(i)->setEnabled(false);
+
   arming_.reset();
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
@@ -328,18 +333,18 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   if (!rate_.update(sbus->header.stamp))
     return;
 
-  roll_range_->setValue(sbus->data[real::kRcChannelRoll]);
-  pitch_range_->setValue(sbus->data[real::kRcChannelPitch]);
-  yaw_range_->setValue(sbus->data[real::kRcChannelYaw]);
-  throt_range_->setValue(sbus->data[real::kRcChannelThrot]);
+  roll_range_->setValue(sbus->data.at(real::kRcChannelRoll));
+  pitch_range_->setValue(sbus->data.at(real::kRcChannelPitch));
+  yaw_range_->setValue(sbus->data.at(real::kRcChannelYaw));
+  throt_range_->setValue(sbus->data.at(real::kRcChannelThrot));
 
-  enable_range_->setValue(sbus->data[real::kRcChannelEnable]);
-  kill_range_->setValue(sbus->data[real::kRcChannelKill]);
-  mode_range_->setValue(sbus->data[real::kRcChannelMode]);
-  sub_mode_range_->setValue(sbus->data[real::kRcChannelSubMode]);
+  enable_range_->setValue(sbus->data.at(real::kRcChannelEnable));
+  kill_range_->setValue(sbus->data.at(real::kRcChannelKill));
+  mode_range_->setValue(sbus->data.at(real::kRcChannelMode));
+  sub_mode_range_->setValue(sbus->data.at(real::kRcChannelSubMode));
 
-  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
-    gpsw_ranges_[i]->setValue(sbus->data[real::kRcChannelGpsw + i]);
+  for (size_t i = 0; i < numOfGpswChannels(); ++i)
+    gpsw_ranges_[i]->setValue(sbus->data.at(real::kRcChannelGpsw + i));
 }
 
 void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
