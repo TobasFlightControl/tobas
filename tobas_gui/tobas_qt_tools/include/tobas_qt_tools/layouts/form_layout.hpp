@@ -35,5 +35,11 @@ public:
 
   /* 指定した行のウィジェットを取得する． */
   QWidget* getWidget(int row);
+
+  /* 指定した行を有効/無効にする． */
+  void setEnabled(int row, bool enabled);
+
+  /* 指定した行を可視/不可視にする． */
+  void setVisible(int row, bool visible);
 };
 }  // namespace qt

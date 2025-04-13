@@ -44,4 +44,16 @@ QWidget* FormLayout::getWidget(int row)
   const auto item = itemAt(row, QFormLayout::FieldRole);
   return item->widget();
 }
+
+void FormLayout::setEnabled(int row, bool enabled)
+{
+  getLabel(row)->setEnabled(enabled);
+  getWidget(row)->setEnabled(enabled);
+}
+
+void FormLayout::setVisible(int row, bool visible)
+{
+  getLabel(row)->setVisible(visible);
+  getWidget(row)->setVisible(visible);
+}
 }  // namespace qt
