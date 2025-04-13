@@ -8,9 +8,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>rclcpp</depend>
-	<depend>std_srvs</depend>
-	<depend>tobas_path_tools</depend>
 	<depend>tobas_property_common</depend>
 	<depend>tobas_property_msgs</depend>
 

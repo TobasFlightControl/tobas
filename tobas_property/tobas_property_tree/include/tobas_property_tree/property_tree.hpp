@@ -34,6 +34,8 @@ public:
 
 private:
   std::filesystem::path file_path_;
+  std::filesystem::path parent_dir_;
+
   boost::property_tree::ptree root_node_;
 };
 
