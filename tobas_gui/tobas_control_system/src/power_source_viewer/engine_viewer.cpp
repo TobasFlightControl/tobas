@@ -34,10 +34,10 @@ EngineViewerWidget::EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas
 void EngineViewerWidget::reset()
 {
   fuel_quantity_->setUpper(fuel_quantity_->getMinimum());
-  fuel_quantity_->setText("");
+  fuel_quantity_->setCenterText("");
 
   oil_temp_->setUpper(oil_temp_->getMinimum());
-  oil_temp_->setText("");
+  oil_temp_->setCenterText("");
 }
 
 void EngineViewerWidget::updateInternalDataStructures()
@@ -70,7 +70,7 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 {
   const auto fuel_rate = math::remap(fuel_quantity, 0., MAX_FUEL_QUANTITY, 0., 100.);
   fuel_quantity_->setUpper(fuel_quantity);
-  fuel_quantity_->setText(std::format("{:.2f} L ({:.0f} %)", fuel_quantity, fuel_rate).c_str());
+  fuel_quantity_->setCenterText(std::format("{:.2f} L ({:.0f} %)", fuel_quantity, fuel_rate).c_str());
 
   if (fuel_rate > 20.)
     fuel_quantity_->setFillColor(Qt::green);
@@ -83,7 +83,7 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
 void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
 {
   oil_temp_->setUpper(oil_temp);
-  oil_temp_->setText(std::format("{:.1f} ℃", oil_temp).c_str());
+  oil_temp_->setCenterText(std::format("{:.1f} ℃", oil_temp).c_str());
 
   // TODO: 油温の適正値をEngineConfigに含める
   if (oil_temp < 60.)

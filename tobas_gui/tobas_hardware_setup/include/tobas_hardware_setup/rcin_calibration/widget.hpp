@@ -30,8 +30,8 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr int kMinSignalRange = 300;
   static constexpr int kRangeSideShort = 50;
 
-  static constexpr char kOnOffText[] = "ON                                                       OFF";
-  static constexpr char kModeText[] = "Loiter               Stabilize               Acrobat";
+  static constexpr char kOnText[] = "ON";
+  static constexpr char kOffText[] = "OFF";
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;

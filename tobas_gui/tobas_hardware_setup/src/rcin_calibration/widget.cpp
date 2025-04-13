@@ -176,15 +176,24 @@ void RCInputCalibrationWidget::reset()
   mode_range_->clear();
   sub_mode_range_->clear();
 
-  enable_range_->setText(kOnOffText);
-  kill_range_->setText(kOnOffText);
-  mode_range_->setText(kModeText);
-  sub_mode_range_->setText(kOnOffText);
+  enable_range_->setLowerText(kOnText);
+  enable_range_->setUpperText(kOffText);
+
+  kill_range_->setLowerText(kOnText);
+  kill_range_->setUpperText(kOffText);
+
+  mode_range_->setLowerText("Loiter");
+  mode_range_->setCenterText("Stabilize");
+  mode_range_->setUpperText("Acrobat");
+
+  sub_mode_range_->setLowerText(kOnText);
+  sub_mode_range_->setUpperText(kOffText);
 
   for (auto& gpsw_range : gpsw_ranges_)
   {
     gpsw_range->clear();
-    gpsw_range->setText(kOnOffText);
+    gpsw_range->setLowerText(kOnText);
+    gpsw_range->setUpperText(kOffText);
   }
 
   start_button_->setEnabled(true);

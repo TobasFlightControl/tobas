@@ -32,10 +32,10 @@ BatteryViewerWidget::BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tob
 void BatteryViewerWidget::reset()
 {
   voltage_->setUpper(voltage_->getMinimum());
-  voltage_->setText("");
+  voltage_->setCenterText("");
 
   current_->setUpper(current_->getMinimum());
-  current_->setText("");
+  current_->setCenterText("");
 }
 
 void BatteryViewerWidget::updateInternalDataStructures()
@@ -68,7 +68,7 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
 {
   const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0., 100.);
   voltage_->setUpper(voltage);
-  voltage_->setText(std::format("{:.2f} V ({:.0f} %)", voltage, volt_rate).c_str());
+  voltage_->setCenterText(std::format("{:.2f} V ({:.0f} %)", voltage, volt_rate).c_str());
 
   if (volt_rate > 20.)
     voltage_->setFillColor(Qt::green);
@@ -81,7 +81,7 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
 void BatteryViewerWidget::updateCurrent(const double& current)
 {
   current_->setUpper(current);
-  current_->setText(std::format("{:.2f} A", current).c_str());
+  current_->setCenterText(std::format("{:.2f} A", current).c_str());
 
   if (current < eprop_->battery.max_current * 0.6)
     current_->setFillColor(Qt::green);

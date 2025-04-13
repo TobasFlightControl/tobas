@@ -30,10 +30,10 @@ CPUViewerWidget::CPUViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 void CPUViewerWidget::reset()
 {
   temp_->setUpper(temp_->getMinimum());
-  temp_->setText("");
+  temp_->setCenterText("");
 
   load_->setUpper(load_->getMinimum());
-  load_->setText("");
+  load_->setCenterText("");
 }
 
 void CPUViewerWidget::updateNamespace(const std::string& ns)
@@ -55,7 +55,7 @@ void CPUViewerWidget::updateNamespace(const std::string& ns)
 void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
   temp_->setUpper(cpu->temperature);
-  temp_->setText(std::format("{:.0f} ℃", cpu->temperature).c_str());
+  temp_->setCenterText(std::format("{:.0f} ℃", cpu->temperature).c_str());
   if (cpu->temperature > 85.)
     temp_->setFillColor(Qt::magenta);
   else if (cpu->temperature > 70.)
@@ -66,7 +66,7 @@ void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
     temp_->setFillColor(Qt::green);
 
   load_->setUpper(cpu->load * 100);
-  load_->setText(std::format("{:.0f} %", cpu->load * 100).c_str());
+  load_->setCenterText(std::format("{:.0f} %", cpu->load * 100).c_str());
   if (cpu->load > 80.)
     load_->setFillColor(Qt::red);
   else if (cpu->load > 60.)

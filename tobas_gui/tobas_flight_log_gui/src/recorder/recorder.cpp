@@ -94,7 +94,7 @@ void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()
   duration_->display("00:00:00");
 
   file_size_->setUpper(0);
-  file_size_->setText("0 MB");
+  file_size_->setCenterText("0 MB");
 
   message_count_->setText("0");
 }
@@ -120,7 +120,7 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
     duration_->display(hhmmss);
 
     file_size_->setUpper(rosbag_state->file_size);
-    file_size_->setText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
+    file_size_->setCenterText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
 
     message_count_->setText(QString::number(rosbag_state->message_count));
   }
