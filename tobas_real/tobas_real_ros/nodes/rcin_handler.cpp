@@ -20,7 +20,7 @@ class RCInputHandlerNode : public tobas::BaseNode
 {
   using self = RCInputHandlerNode;
   using super = tobas::BaseNode;
-  using SetParams = tobas_real_msgs::srv::SetRCInputParams;
+  using SetParams = tobas_real_msgs::srv::SetRcInputParams;
 
 public:
   explicit RCInputHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

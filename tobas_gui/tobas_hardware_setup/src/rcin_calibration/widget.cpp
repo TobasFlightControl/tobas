@@ -292,7 +292,7 @@ bool RCInputCalibrationWidget::saveParamsGCS()
 
 bool RCInputCalibrationWidget::saveParamsFC()
 {
-  const auto req = std::make_shared<tobas_real_msgs::srv::SetRCInputParams::Request>();
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetRcInputParams::Request>();
 
   req->roll_left = roll_range_->getLower();
   req->roll_right = roll_range_->getUpper();
@@ -324,7 +324,7 @@ bool RCInputCalibrationWidget::saveParamsFC()
     req->gpsw_off[i] = 0;
   }
 
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRCInputParams> sc(
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout))
   {

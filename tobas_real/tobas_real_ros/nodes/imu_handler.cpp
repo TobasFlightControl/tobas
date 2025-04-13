@@ -15,7 +15,7 @@ class ImuHandlerNode : public tobas::BaseNode
 {
   using self = ImuHandlerNode;
   using super = tobas::BaseNode;
-  using SetParams = tobas_real_msgs::srv::SetIMUParams;
+  using SetParams = tobas_real_msgs::srv::SetImuParams;
 
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

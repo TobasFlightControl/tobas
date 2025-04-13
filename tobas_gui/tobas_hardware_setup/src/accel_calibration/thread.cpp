@@ -33,13 +33,13 @@ void AccelCalibrationThread::run()
   const Eigen::Vector3d acc_offset = acc_top_ - Eigen::Vector3d(0, 0, tobas_std::kGravity);
 
   // パラメータを作成
-  const auto req = std::make_shared<tobas_real_msgs::srv::SetIMUParams::Request>();
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetImuParams::Request>();
   req->offset_x = acc_offset.x();
   req->offset_y = acc_offset.y();
   req->offset_z = acc_offset.z();
 
   // パラメータを更新
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetIMUParams> sc(
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
     node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::imu::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout))
   {
