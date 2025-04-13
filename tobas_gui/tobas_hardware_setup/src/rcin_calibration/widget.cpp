@@ -460,7 +460,7 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i)
   {
-    if (gpsw_ranges_.at(i)->getValue() < kMinSignalRange)
+    if (gpsw_ranges_.at(i)->getRange() < kMinSignalRange)
     {
       qt::qErrorBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
       reset();
