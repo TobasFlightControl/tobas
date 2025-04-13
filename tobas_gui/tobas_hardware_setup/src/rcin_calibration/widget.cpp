@@ -30,10 +30,8 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
     "If the stick's movement is opposite to that of the bar, adjust the transmitter settings accordingly.\n\n"
     "3. Press \"Finish\" button.\n\n",
     kBodyPSize);
-  rows_->addWidget(instruction);
 
   const auto button_cols = new QHBoxLayout();
-  rows_->addLayout(button_cols);
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -54,17 +52,8 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
 
   button_cols->addStretch();
 
-  rows_->addSpacing(50);
-
-  const auto rc_range_cols = new QHBoxLayout();
-  rows_->addLayout(rc_range_cols);
-
-  const auto main_signal_rows = new QVBoxLayout();
-  rc_range_cols->addLayout(main_signal_rows, kLayoutStretch);
-
   // Sticks
   const auto stick_cols = new QHBoxLayout();
-  main_signal_rows->addLayout(stick_cols, kLayoutStretch);
 
   pitch_range_ = new qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
   pitch_range_->setFixedWidth(kRangeSideShort);
@@ -102,11 +91,8 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   throt_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(throt_range_);
 
-  main_signal_rows->addStretch(1);
-
   // Control Switches
   const auto ctrl_switch_form = new qt::FormLayout();
-  main_signal_rows->addLayout(ctrl_switch_form, kLayoutStretch);
 
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
@@ -130,11 +116,8 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   sub_mode_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_form->addVAlignedRow(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
 
-  rc_range_cols->addStretch(1);
-
   // General Purpose Switches
   const auto gpsw_form = new qt::FormLayout();
-  rc_range_cols->addLayout(gpsw_form, kLayoutStretch);
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
   {
@@ -146,8 +129,23 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
       gpsw_form->addStretch();
   }
 
-  reset();
+  // Layout
+  const auto main_signal_rows = new QVBoxLayout();
+  main_signal_rows->addLayout(stick_cols, 10);
+  main_signal_rows->addStretch(1);
+  main_signal_rows->addLayout(ctrl_switch_form, 10);
 
+  const auto rc_range_cols = new QHBoxLayout();
+  rc_range_cols->addLayout(main_signal_rows, 10);
+  rc_range_cols->addStretch(1);
+  rc_range_cols->addLayout(gpsw_form, 10);
+
+  rows_->addWidget(instruction);
+  rows_->addLayout(button_cols);
+  rows_->addSpacing(50);
+  rows_->addLayout(rc_range_cols);
+
+  reset();
   setEnabled(false);
 }
 
