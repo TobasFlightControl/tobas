@@ -52,7 +52,7 @@ bool Drone::isValid() const
     return false;
   }
 
-  if (num_sbus_channles < tobas::kMinSbusChannels || tobas::kMaxSbusChannels < num_sbus_channles)
+  if (num_sbus_channels < tobas::kMinSbusChannels || tobas::kMaxSbusChannels < num_sbus_channels)
   {
     cerr << "The number of sbus channels is invalid." << endl;
     return false;
@@ -163,7 +163,7 @@ bool Drone::load(const YAML::Node& node)
   }
 
   // S.BUS Channels
-  if (!yaml::load(kNumSbusChannelsKey, node, num_sbus_channles))
+  if (!yaml::load(kNumSbusChannelsKey, node, num_sbus_channels))
     return false;
 
   return true;
@@ -195,7 +195,7 @@ YAML::Node Drone::dump() const
     node[kFixedWingKey] = fixed_wing->dump();
 
   // S.BUS Channels
-  node[kNumSbusChannelsKey] = num_sbus_channles;
+  node[kNumSbusChannelsKey] = num_sbus_channels;
 
   return node;
 }

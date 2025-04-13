@@ -10,4 +10,4 @@ tobas_drone_msgs/ICEPropulsionSystemConfig iprop
 bool has_fixed_wing
 tobas_drone_msgs/FixedWingConfig fixed_wing
 
-uint32 num_sbus_channles
+uint32 num_sbus_channels

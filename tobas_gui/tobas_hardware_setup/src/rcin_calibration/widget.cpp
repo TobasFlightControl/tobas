@@ -225,18 +225,18 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
 
 size_t RCInputCalibrationWidget::numOfGpswChannels() const
 {
-  if (drone_.num_sbus_channles < tobas::kMinSbusChannels)
+  if (drone_.num_sbus_channels < tobas::kMinSbusChannels)
   {
     qWarning() << "The number of S.BUS channels cannot be lower than " << tobas::kMinSbusChannels << ".";
     return 0;
   }
-  else if (drone_.num_sbus_channles > tobas::kMaxSbusChannels)
+  else if (drone_.num_sbus_channels > tobas::kMaxSbusChannels)
   {
     qWarning() << "The number of S.BUS channels cannot be greater than " << tobas::kMinSbusChannels << ".";
     return tobas::kMaxNumOfGpsw;
   }
 
-  return drone_.num_sbus_channles - tobas::kMinSbusChannels;
+  return drone_.num_sbus_channels - tobas::kMinSbusChannels;
 }
 
 bool RCInputCalibrationWidget::saveParamsGCS()

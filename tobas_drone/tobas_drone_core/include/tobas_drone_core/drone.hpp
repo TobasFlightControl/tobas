@@ -35,7 +35,7 @@ public:
   PwmConfigMap pwms;                       // The PWM configurations (joint name -> config)
   PropulsionSystemConfig::SharedPtr prop;  // The propulsion system configurations
   FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configurations
-  uint32_t num_sbus_channles = 0;          // The number of S.BUS channels
+  uint32_t num_sbus_channels = 0;          // The number of S.BUS channels
 
   bool isValid() const;
 

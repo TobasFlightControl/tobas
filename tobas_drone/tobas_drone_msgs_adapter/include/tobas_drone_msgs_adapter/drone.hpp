@@ -82,7 +82,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     }
 
     // S.BUS Channels
-    dst.num_sbus_channles = src.num_sbus_channles;
+    dst.num_sbus_channels = src.num_sbus_channels;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -150,7 +150,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     }
 
     // S.BUS Channels
-    dst.num_sbus_channles = src.num_sbus_channles;
+    dst.num_sbus_channels = src.num_sbus_channels;
   }
 };
 
