@@ -84,12 +84,15 @@ class HPositionBarWidget : public PositionBarWidget
 public:
   using PositionBarWidget::PositionBarWidget;
 
-private:
+protected:
   void drawRange(QPainter& painter, double lower, double upper) override;
   void drawValue(QPainter& painter, double value) override;
   void drawCenterText(QPainter& painter, const QString& text) override;
   void drawLowerText(QPainter& painter, const QString& text) override;
   void drawUpperText(QPainter& painter, const QString& text) override;
+
+private:
+  void drawTextCommon(QPainter& painter);
 };
 
 class VPositionBarWidget : public PositionBarWidget
@@ -99,11 +102,14 @@ class VPositionBarWidget : public PositionBarWidget
 public:
   using PositionBarWidget::PositionBarWidget;
 
-private:
+protected:
   void drawRange(QPainter& painter, double lower, double upper) override;
   void drawValue(QPainter& painter, double value) override;
   void drawCenterText(QPainter& painter, const QString& text) override;
   void drawLowerText(QPainter& painter, const QString& text) override;
   void drawUpperText(QPainter& painter, const QString& text) override;
+
+private:
+  void drawTextCommon(QPainter& painter);
 };
 }  // namespace qt
