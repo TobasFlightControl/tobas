@@ -1,8 +1,9 @@
+#include <QDebug>
+
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_property_tree/property_tree.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -19,7 +20,8 @@ namespace gui
 {
 namespace hw
 {
-RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node) : node_(node), rate_(kTopicRate)
+RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
+  : node_(node), drone_(drone), rate_(kTopicRate)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Start\" button.\n\n"
@@ -56,19 +58,23 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node)
   const auto rc_range_cols = new QHBoxLayout();
   rows_->addLayout(rc_range_cols);
 
+  const auto main_signal_rows = new QVBoxLayout();
+  rc_range_cols->addLayout(main_signal_rows, 1);
+
   // Sticks
-  const auto stick_cols = qt::createFixedHeightQHBoxLayout(kRangeSideLong + 20, rc_range_cols);
+  const auto stick_cols = new QHBoxLayout();
+  main_signal_rows->addLayout(stick_cols, 1);
 
   pitch_range_ = new qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
-  pitch_range_->setFixedSize(kRangeSideShort, kRangeSideLong);
+  pitch_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(pitch_range_);
 
   const auto roll_yaw_rows = new QVBoxLayout();
   stick_cols->addLayout(roll_yaw_rows);
 
   roll_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  roll_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  qt::addWidgetCenter(roll_range_, roll_yaw_rows);
+  roll_range_->setFixedHeight(kRangeSideShort);
+  roll_yaw_rows->addWidget(roll_range_);
   qt::addWidgetCenter(
     new QLabel(QString::fromStdString(format("Roll (CH{})", real::kRcChannelRoll + 1))), roll_yaw_rows);
 
@@ -89,42 +95,53 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node)
 
   qt::addWidgetCenter(new QLabel(QString::fromStdString(format("Yaw (CH{})", real::kRcChannelYaw + 1))), roll_yaw_rows);
   yaw_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  yaw_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  qt::addWidgetCenter(yaw_range_, roll_yaw_rows);
+  yaw_range_->setFixedHeight(kRangeSideShort);
+  roll_yaw_rows->addWidget(yaw_range_);
 
   throt_range_ = new qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
-  throt_range_->setFixedSize(kRangeSideShort, kRangeSideLong);
+  throt_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(throt_range_);
 
-  rc_range_cols->addSpacing(30);
+  // Control Switches
+  const auto ctrl_switch_grid = new QGridLayout();  // XXX: QFormLayoutだと縦に広がらない
+  main_signal_rows->addLayout(ctrl_switch_grid, 1);
 
-  // Toggle Switches
-  const auto switch_grid = new QGridLayout();
-  rc_range_cols->addLayout(switch_grid);
-
-  switch_grid->addWidget(new QLabel(QString::fromStdString(format("Enable (CH{})", real::kRcChannelEnable + 1))), 0, 0);
+  ctrl_switch_grid->addWidget(
+    new QLabel(QString::fromStdString(format("Enable (CH{})", real::kRcChannelEnable + 1))), 0, 0);
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  enable_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  switch_grid->addWidget(enable_range_, 0, 1);
+  enable_range_->setFixedHeight(kRangeSideShort);
+  ctrl_switch_grid->addWidget(enable_range_, 0, 1);
 
-  switch_grid->addWidget(new QLabel(QString::fromStdString(format("Kill (CH{})", real::kRcChannelKill + 1))), 1, 0);
+  ctrl_switch_grid->addWidget(
+    new QLabel(QString::fromStdString(format("Kill (CH{})", real::kRcChannelKill + 1))), 1, 0);
   kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  kill_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  switch_grid->addWidget(kill_range_, 1, 1);
+  kill_range_->setFixedHeight(kRangeSideShort);
+  ctrl_switch_grid->addWidget(kill_range_, 1, 1);
 
-  switch_grid->addWidget(new QLabel(QString::fromStdString(format("Mode (CH{})", real::kRcChannelMode + 1))), 2, 0);
+  ctrl_switch_grid->addWidget(
+    new QLabel(QString::fromStdString(format("Mode (CH{})", real::kRcChannelMode + 1))), 2, 0);
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  mode_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  switch_grid->addWidget(mode_range_, 2, 1);
+  mode_range_->setFixedHeight(kRangeSideShort);
+  ctrl_switch_grid->addWidget(mode_range_, 2, 1);
 
-  switch_grid->addWidget(
+  ctrl_switch_grid->addWidget(
     new QLabel(QString::fromStdString(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1))), 3, 0);
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  sub_mode_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  switch_grid->addWidget(sub_mode_range_, 3, 1);
+  sub_mode_range_->setFixedHeight(kRangeSideShort);
+  ctrl_switch_grid->addWidget(sub_mode_range_, 3, 1);
 
-  rc_range_cols->addStretch();
-  rows_->addStretch();
+  // General Purpose Switches
+  const auto gpsw_grid = new QGridLayout();
+  rc_range_cols->addLayout(gpsw_grid, 1);
+
+  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
+  {
+    gpsw_grid->addWidget(
+      new QLabel(QString::fromStdString(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i))), i, 0);
+    gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+    gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
+    gpsw_grid->addWidget(gpsw_ranges_[i], i, 1);
+  }
 
   reset();
 
@@ -152,6 +169,7 @@ void RCInputCalibrationWidget::reset()
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
+
   enable_range_->clear();
   kill_range_->clear();
   mode_range_->clear();
@@ -162,22 +180,42 @@ void RCInputCalibrationWidget::reset()
   mode_range_->setText(kModeText);
   sub_mode_range_->setText(kOnOffText);
 
+  for (auto& gpsw_range : gpsw_ranges_)
+  {
+    gpsw_range->clear();
+    gpsw_range->setText(kOnOffText);
+  }
+
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
 }
 
-void RCInputCalibrationWidget::setNamespace(const string& ns)
+void RCInputCalibrationWidget::updateInternalDataStructures()
 {
-  ns_ = ns;
-
   reset();
 
   arming_.reset();
   arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
+}
+
+size_t RCInputCalibrationWidget::numOfGpswChannels() const
+{
+  if (drone_.num_sbus_channles < tobas::kMinSbusChannels)
+  {
+    qWarning() << "The number of S.BUS channels cannot be lower than " << tobas::kMinSbusChannels << ".";
+    return 0;
+  }
+  else if (drone_.num_sbus_channles > tobas::kMaxSbusChannels)
+  {
+    qWarning() << "The number of S.BUS channels cannot be greater than " << tobas::kMinSbusChannels << ".";
+    return tobas::kMaxNumOfGpsw;
+  }
+
+  return drone_.num_sbus_channles - tobas::kMinSbusChannels;
 }
 
 bool RCInputCalibrationWidget::saveParamsGCS()
@@ -197,6 +235,7 @@ bool RCInputCalibrationWidget::saveParamsGCS()
   pt.set(kYawRightKey, yaw_range_->getUpper());
   pt.set(kThrotUpKey, throt_range_->getLower());
   pt.set(kThrotDownKey, throt_range_->getUpper());
+
   pt.set(kEnableOnKey, enable_range_->getLower());
   pt.set(kEnableOffKey, enable_range_->getUpper());
   pt.set(kKillOnKey, kill_range_->getLower());
@@ -206,6 +245,21 @@ bool RCInputCalibrationWidget::saveParamsGCS()
   pt.set(kModeLoiterKey, mode_range_->getLower());
   pt.set(kSubModeOnKey, sub_mode_range_->getLower());
   pt.set(kSubModeOffKey, sub_mode_range_->getUpper());
+
+  array<int, tobas::kMaxNumOfGpsw> gpsw_on, gpsw_off;
+  for (size_t i = 0; i < numOfGpswChannels(); ++i)
+  {
+    gpsw_on[i] = gpsw_ranges_[i]->getLower();
+    gpsw_off[i] = gpsw_ranges_[i]->getUpper();
+  }
+  for (size_t i = numOfGpswChannels(); tobas::kMaxSbusChannels; ++i)
+  {
+    gpsw_on[i] = numeric_limits<uint16_t>::max();
+    gpsw_off[i] = 0;
+  }
+  pt.set(kGpswOnKey, gpsw_on);
+  pt.set(kGpswOffKey, gpsw_off);
+
   if (!pt.save())
   {
     qt::qErrorBox(this, "Failed to save calibration results on GCS.");
@@ -218,6 +272,7 @@ bool RCInputCalibrationWidget::saveParamsGCS()
 bool RCInputCalibrationWidget::saveParamsFC()
 {
   const auto req = std::make_shared<tobas_real_msgs::srv::SetRCInputParams::Request>();
+
   req->roll_left = roll_range_->getLower();
   req->roll_right = roll_range_->getUpper();
   req->pitch_up = pitch_range_->getLower();
@@ -226,6 +281,7 @@ bool RCInputCalibrationWidget::saveParamsFC()
   req->yaw_right = yaw_range_->getUpper();
   req->throttle_up = throt_range_->getLower();
   req->throttle_down = throt_range_->getUpper();
+
   req->enable_on = enable_range_->getLower();
   req->enable_off = enable_range_->getUpper();
   req->kill_on = kill_range_->getLower();
@@ -236,8 +292,19 @@ bool RCInputCalibrationWidget::saveParamsFC()
   req->sub_mode_on = sub_mode_range_->getLower();
   req->sub_mode_off = sub_mode_range_->getUpper();
 
+  for (size_t i = 0; i < numOfGpswChannels(); ++i)
+  {
+    req->gpsw_on[i] = gpsw_ranges_[i]->getLower();
+    req->gpsw_off[i] = gpsw_ranges_[i]->getUpper();
+  }
+  for (size_t i = numOfGpswChannels(); tobas::kMaxSbusChannels; ++i)
+  {
+    req->gpsw_on[i] = numeric_limits<uint16_t>::max();
+    req->gpsw_off[i] = 0;
+  }
+
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRCInputParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, kSetParamSrv));
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout))
   {
     qt::qErrorBox(this, "Failed to send calibration results to FC.");
@@ -263,10 +330,14 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   pitch_range_->setValue(sbus->data[real::kRcChannelPitch]);
   yaw_range_->setValue(sbus->data[real::kRcChannelYaw]);
   throt_range_->setValue(sbus->data[real::kRcChannelThrot]);
+
   enable_range_->setValue(sbus->data[real::kRcChannelEnable]);
   kill_range_->setValue(sbus->data[real::kRcChannelKill]);
   mode_range_->setValue(sbus->data[real::kRcChannelMode]);
   sub_mode_range_->setValue(sbus->data[real::kRcChannelSubMode]);
+
+  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
+    gpsw_ranges_[i]->setValue(sbus->data[real::kRcChannelGpsw + i]);
 }
 
 void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -289,8 +360,8 @@ void RCInputCalibrationWidget::onStartButtonClicked()
   }
 
   // 一時的にSBUSトピックを購読開始
-  sbus_sub_ =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kSbusTopic), &self::sbusCb, this);
+  sbus_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSbusTopic), &self::sbusCb, this);
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);
@@ -340,6 +411,7 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     reset();
     return;
   }
+
   if (enable_range_->getRange() < kMinSignalRange)
   {
     qt::qErrorBox(this, "The signal range of Enable channel is too narrow.");
@@ -363,6 +435,16 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     qt::qErrorBox(this, "The signal range of Sub-Mode channel is too narrow.");
     reset();
     return;
+  }
+
+  for (size_t i = 0; i < numOfGpswChannels(); ++i)
+  {
+    if (gpsw_ranges_.at(i)->getValue() < kMinSignalRange)
+    {
+      qt::qErrorBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
+      reset();
+      return;
+    }
   }
 
   if (!saveParamsGCS())
