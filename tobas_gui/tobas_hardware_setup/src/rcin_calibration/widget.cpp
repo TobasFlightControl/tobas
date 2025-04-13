@@ -60,11 +60,11 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   rows_->addLayout(rc_range_cols);
 
   const auto main_signal_rows = new QVBoxLayout();
-  rc_range_cols->addLayout(main_signal_rows, 1);
+  rc_range_cols->addLayout(main_signal_rows, kLayoutStretch);
 
   // Sticks
   const auto stick_cols = new QHBoxLayout();
-  main_signal_rows->addLayout(stick_cols, 1);
+  main_signal_rows->addLayout(stick_cols, kLayoutStretch);
 
   pitch_range_ = new qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
   pitch_range_->setFixedWidth(kRangeSideShort);
@@ -102,41 +102,45 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   throt_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(throt_range_);
 
+  main_signal_rows->addStretch(1);
+
   // Control Switches
   const auto ctrl_switch_form = new qt::FormLayout();
-  main_signal_rows->addLayout(ctrl_switch_form, 1);
+  main_signal_rows->addLayout(ctrl_switch_form, kLayoutStretch);
 
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addRow(format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
+  ctrl_switch_form->addVAlignedRow(format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
 
   ctrl_switch_form->addStretch();
 
   kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   kill_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addRow(format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
+  ctrl_switch_form->addVAlignedRow(format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
 
   ctrl_switch_form->addStretch();
 
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addRow(format("Mode (CH{})", real::kRcChannelMode + 1).c_str(), mode_range_);
+  ctrl_switch_form->addVAlignedRow(format("Mode (CH{})", real::kRcChannelMode + 1).c_str(), mode_range_);
 
   ctrl_switch_form->addStretch();
 
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addRow(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
+  ctrl_switch_form->addVAlignedRow(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
+
+  rc_range_cols->addStretch(1);
 
   // General Purpose Switches
   const auto gpsw_form = new qt::FormLayout();
-  rc_range_cols->addLayout(gpsw_form, 1);
+  rc_range_cols->addLayout(gpsw_form, kLayoutStretch);
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
   {
     gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
-    gpsw_form->addRow(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i).c_str(), gpsw_ranges_[i]);
+    gpsw_form->addVAlignedRow(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i + 1).c_str(), gpsw_ranges_[i]);
     if (i < tobas::kMaxNumOfGpsw - 1)
       gpsw_form->addStretch();
   }
