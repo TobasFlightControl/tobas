@@ -24,6 +24,9 @@ public:
   /* ラベルを左中央に配置した行を追加する． */
   void addVAlignedRow(const QString& label_text, QWidget* field);
 
+  /* 拡大するストレッチを追加する． */
+  void addStretch();
+
   /* 全てのフォームを削除する． */
   void clear();
 

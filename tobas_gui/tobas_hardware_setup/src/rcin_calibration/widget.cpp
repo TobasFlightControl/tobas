@@ -9,6 +9,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "tobas_hardware_setup/rcin_calibration/widget.hpp"
 #include "tobas_hardware_setup/constants.hpp"
@@ -102,42 +103,42 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   stick_cols->addWidget(throt_range_);
 
   // Control Switches
-  const auto ctrl_switch_widget = new QWidget();
-  main_signal_rows->addWidget(ctrl_switch_widget, 1);
+  const auto ctrl_switch_form = new qt::FormLayout();
+  main_signal_rows->addLayout(ctrl_switch_form, 1);
 
-  const auto ctrl_switch_grid = new QGridLayout();  // XXX: QFormLayoutだと縦に広がらない
-  ctrl_switch_widget->setLayout(ctrl_switch_grid);
-
-  ctrl_switch_grid->addWidget(new QLabel(format("Enable (CH{})", real::kRcChannelEnable + 1).c_str()), 0, 0);
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_grid->addWidget(enable_range_, 0, 1);
+  ctrl_switch_form->addRow(format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
 
-  ctrl_switch_grid->addWidget(new QLabel(format("Kill (CH{})", real::kRcChannelKill + 1).c_str()), 1, 0);
+  ctrl_switch_form->addStretch();
+
   kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   kill_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_grid->addWidget(kill_range_, 1, 1);
+  ctrl_switch_form->addRow(format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
 
-  ctrl_switch_grid->addWidget(new QLabel(format("Mode (CH{})", real::kRcChannelMode + 1).c_str()), 2, 0);
+  ctrl_switch_form->addStretch();
+
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_grid->addWidget(mode_range_, 2, 1);
+  ctrl_switch_form->addRow(format("Mode (CH{})", real::kRcChannelMode + 1).c_str(), mode_range_);
 
-  ctrl_switch_grid->addWidget(new QLabel(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str()), 3, 0);
+  ctrl_switch_form->addStretch();
+
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_grid->addWidget(sub_mode_range_, 3, 1);
+  ctrl_switch_form->addRow(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
 
   // General Purpose Switches
-  const auto gpsw_grid = new QGridLayout();
-  rc_range_cols->addLayout(gpsw_grid, 1);
+  const auto gpsw_form = new qt::FormLayout();
+  rc_range_cols->addLayout(gpsw_form, 1);
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
   {
-    gpsw_grid->addWidget(new QLabel(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i).c_str()), i, 0);
     gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
-    gpsw_grid->addWidget(gpsw_ranges_[i], i, 1);
+    gpsw_form->addRow(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i).c_str(), gpsw_ranges_[i]);
+    if (i < tobas::kMaxNumOfGpsw - 1)
+      gpsw_form->addStretch();
   }
 
   reset();
