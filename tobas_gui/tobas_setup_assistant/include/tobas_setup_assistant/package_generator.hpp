@@ -56,10 +56,10 @@ private:
   bool generateJointControllerManagerConfig(const std::filesystem::path& config_dir);
   bool generateJointControllerConfigs(const std::filesystem::path& config_dir);
   bool generateDroneConfig(const std::filesystem::path& config_dir);
-  bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
   bool generatePreArmCheckConfig(const std::filesystem::path& config_dir);
   bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
   bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
+  bool generateRcTeleopStaticConfig(const std::filesystem::path& config_dir);
   bool generateModifiedURDF(const std::filesystem::path& mesh_dir);
 
   /* 空のファイルを作成する． */

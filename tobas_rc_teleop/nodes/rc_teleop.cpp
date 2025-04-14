@@ -107,7 +107,7 @@ private:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 
-RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleop", options)
+RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::node::kRcTeleop, options)
 {
   TOBAS_CHECK(mode2str_.size() == magic_enum::enum_count<tobas::flight_mode_t>());
 

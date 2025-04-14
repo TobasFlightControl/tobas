@@ -37,6 +37,7 @@ private:
 
   ParamBlockWidget* controller_params_;
   ParamBlockWidget* observer_params_;
+  ParamBlockWidget* rc_teleop_params_;
 
 private Q_SLOTS:
   void onLoadButtonClicked();

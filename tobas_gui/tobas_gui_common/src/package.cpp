@@ -91,6 +91,11 @@ fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
   return getTBSConfigPath(tbs_path) / "config" / "observer_dynamic.yaml";
 }
 
+fs::path getRcTeleopDynamicParamsPath(const fs::path& tbs_path)
+{
+  return getTBSConfigPath(tbs_path) / "config" / "rc_teleop_dynamic.yaml";
+}
+
 fs::path getSettingsPath(const fs::path& tbs_path)
 {
   return getBackupPath(tbs_path) / "settings.yaml";

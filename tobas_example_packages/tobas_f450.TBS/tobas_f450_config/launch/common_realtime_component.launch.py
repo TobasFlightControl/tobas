@@ -140,7 +140,10 @@ def generate_launch_description():
                             package="tobas_rc_teleop",
                             plugin="tobas_rc_teleop::RCTeleopNode",
                             namespace=DRONE_NAME,
-                            parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop.yaml"])],
+                            parameters=[
+                                PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static.yaml"]),
+                                PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
+                            ],
                             remappings=odom_remap,
                             extra_arguments=extra_arguments,
                         ),

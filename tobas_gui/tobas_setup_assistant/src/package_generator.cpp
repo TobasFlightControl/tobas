@@ -338,7 +338,8 @@ bool PackageGenerator::hasServoJoint() const
 
 bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 {
-  const auto meta_pkg_path = common::getTBSMetaPath(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto meta_pkg_path = common::getTBSMetaPath(tbs_path);
   fs::create_directory(meta_pkg_path);
 
   meta_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", meta_pkg_path);
@@ -352,7 +353,8 @@ bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 {
-  const auto pkg_path = common::getTBSConfigPath(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto pkg_path = common::getTBSConfigPath(tbs_path);
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
@@ -383,9 +385,11 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
-  if (!createEmptyYaml(config_dir / "controller_dynamic.yaml", false))
+  if (!createEmptyYaml(common::getControllerDynamicParamsPath(tbs_path), false))
     return false;
-  if (!createEmptyYaml(config_dir / "observer_dynamic.yaml", false))
+  if (!createEmptyYaml(common::getObserverDynamicParamsPath(tbs_path), false))
+    return false;
+  if (!createEmptyYaml(common::getRcTeleopDynamicParamsPath(tbs_path), false))
     return false;
 
   // その他
@@ -399,13 +403,13 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateDroneConfig(config_dir))
     return false;
-  if (!generateRCTeleopConfig(config_dir))
-    return false;
   if (!generatePreArmCheckConfig(config_dir))
     return false;
   if (!generateControllerStaticConfig(config_dir))
     return false;
   if (!generateObserverStaticConfig(config_dir))
+    return false;
+  if (!generateRcTeleopStaticConfig(config_dir))
     return false;
   if (!generateModifiedURDF(mesh_dir))
     return false;
@@ -415,7 +419,8 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
-  const auto pkg_path = common::getTBSUserCppPath(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto pkg_path = common::getTBSUserCppPath(tbs_path);
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
@@ -441,8 +446,9 @@ bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
 {
-  const auto pkg_path = common::getTBSUserPyPath(tbsPath());
-  const auto pkg_name = common::getTBSUserPyName(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto pkg_path = common::getTBSUserPyPath(tbs_path);
+  const auto pkg_name = common::getTBSUserPyName(tbs_path);
 
   // パッケージを作成
   fs::create_directory(pkg_path);
@@ -621,20 +627,6 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
-{
-  // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
-  YAML::Node node(YAML::NodeType::Map);
-  node["acrobat_mode"] = settings_->controller->acrobatModeCommand();
-  node["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
-  node["loiter_mode"] = settings_->controller->loiterModeCommand();
-
-  if (!saveYamlNode(config_dir / "rc_teleop.yaml", node))
-    return false;
-
-  return true;
-}
-
 bool PackageGenerator::generatePreArmCheckConfig(const filesystem::path& config_dir)
 {
   YAML::Node node(YAML::NodeType::Map);
@@ -672,6 +664,20 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   TOBAS_CHECK(node.IsMap());
 
   if (!saveYamlNode(config_dir / "observer_static.yaml", node))
+    return false;
+
+  return true;
+}
+
+bool PackageGenerator::generateRcTeleopStaticConfig(const fs::path& config_dir)
+{
+  // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
+  YAML::Node node(YAML::NodeType::Map);
+  node["acrobat_mode"] = settings_->controller->acrobatModeCommand();
+  node["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
+  node["loiter_mode"] = settings_->controller->loiterModeCommand();
+
+  if (!saveYamlNode(config_dir / "rc_teleop_static.yaml", node))
     return false;
 
   return true;
