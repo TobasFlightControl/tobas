@@ -1,7 +1,6 @@
 #include <tobas_ros2_tools/time.hpp>
 
 #include "../include/tobas_rc_teleop/pos_vel_yaw.hpp"
-#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 
@@ -31,9 +30,12 @@ bool PosVelYawController::requireAngularVelocity()
   return false;
 }
 
-void PosVelYawController::initialize(tobas::BaseNode* node)
+void PosVelYawController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  getStaticRosParams(node);
+  node->addDynamicDoubleParam(
+    addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 6., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 4., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelYaw>(tobas::kPosVelYawCmdTopic);
 }
@@ -71,7 +73,7 @@ void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
+  auto cmd = make_unique<tobas_command_msgs::PosVelYaw>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->pos = tar_pos_W_;
@@ -82,27 +84,21 @@ void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   cmd_pub_->publish(move(cmd));
 }
 
-void PosVelYawController::getStaticRosParams(tobas::BaseNode* node)
+bool PosVelYawController::maxHorizontalVelocityCb(const double& p)
 {
-  max_hor_vel_ = node->getDoubleParam("max_horizontal_velocity", kDefaultMaxHorVel);
-  if (max_hor_vel_ < 0)
-  {
-    node->error("Maximum horizontal velocity must be positive.");
-    max_hor_vel_ = kDefaultMaxHorVel;
-  }
+  max_hor_vel_ = p;
+  return true;
+}
 
-  max_ver_vel_ = node->getDoubleParam("max_vertical_velocity", kDefaultMaxVerVel);
-  if (max_ver_vel_ < 0)
-  {
-    node->error("Maximum vertical velocity must be positive.");
-    max_ver_vel_ = kDefaultMaxVerVel;
-  }
+bool PosVelYawController::maxVerticalVelocityCb(const double& p)
+{
+  max_ver_vel_ = p;
+  return true;
+}
 
-  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_head_rate_ < 0)
-  {
-    node->error("Maximum heading rate must be positive.");
-    max_head_rate_ = kDefaultMaxHeadingRate;
-  }
+bool PosVelYawController::maxHeadingRateCb(const double& p)
+{
+  max_head_rate_ = p;
+  return true;
 }
 }  // namespace tobas_rc_teleop

@@ -1,7 +1,6 @@
 #include <tobas_ros2_tools/time.hpp>
 
 #include "../include/tobas_rc_teleop/accel_angle.hpp"
-#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 
@@ -31,9 +30,12 @@ bool AccelAngleController::requireAngularVelocity()
   return true;
 }
 
-void AccelAngleController::initialize(tobas::BaseNode* node)
+void AccelAngleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  getStaticRosParams(node);
+  node->addDynamicDoubleParam(addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 3., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 2., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, M_PI_2, 0., M_PI);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
 
   accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::kAccelCmdTopic);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::kAngleCmdTopic);
@@ -90,40 +92,9 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   publishAngle(rcin.header.stamp, tar_angle_);
 }
 
-void AccelAngleController::getStaticRosParams(tobas::BaseNode* node)
-{
-  max_hor_acc_ = node->getDoubleParam("max_horizontal_accel", kDefaultMaxHorAcc);
-  if (max_hor_acc_ < 0)
-  {
-    node->error("Maximum horizontal velocity must be positive.");
-    max_hor_acc_ = kDefaultMaxHorAcc;
-  }
-
-  max_ver_acc_ = node->getDoubleParam("max_vertical_accel", kDefaultMaxVerAcc);
-  if (max_ver_acc_ < 0)
-  {
-    node->error("Maximum vertical velocity must be positive.");
-    max_ver_acc_ = kDefaultMaxVerAcc;
-  }
-
-  max_attitude_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitude);
-  if (max_attitude_ < 0)
-  {
-    node->error("Maximum attitude angle must be positive.");
-    max_attitude_ = kDefaultMaxAttitude;
-  }
-
-  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_head_rate_ < 0)
-  {
-    node->error("Maximum heading rate must be positive.");
-    max_head_rate_ = kDefaultMaxHeadingRate;
-  }
-}
-
 void AccelAngleController::publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc)
 {
-  auto cmd = std::make_unique<tobas_command_msgs::Accel>();
+  auto cmd = make_unique<tobas_command_msgs::Accel>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->accel = acc;
@@ -133,11 +104,35 @@ void AccelAngleController::publishAccel(const builtin_interfaces::msg::Time& sta
 
 void AccelAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
 {
-  auto cmd = std::make_unique<tobas_command_msgs::Angle>();
+  auto cmd = make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->angle = angle;
 
   angle_pub_->publish(move(cmd));
+}
+
+bool AccelAngleController::maxHorizontalAccelCb(const double& p)
+{
+  max_hor_acc_ = p;
+  return true;
+}
+
+bool AccelAngleController::maxVerticalAccelCb(const double& p)
+{
+  max_ver_acc_ = p;
+  return true;
+}
+
+bool AccelAngleController::maxAttitudeCb(const double& p)
+{
+  max_attitude_ = p;
+  return true;
+}
+
+bool AccelAngleController::maxHeadingRateCb(const double& p)
+{
+  max_head_rate_ = p;
+  return true;
 }
 }  // namespace tobas_rc_teleop

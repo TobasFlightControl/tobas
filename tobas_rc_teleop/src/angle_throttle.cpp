@@ -1,7 +1,6 @@
 #include <tobas_ros2_tools/time.hpp>
 
 #include "../include/tobas_rc_teleop/angle_throttle.hpp"
-#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 
@@ -31,9 +30,10 @@ bool AngleThrottleController::requireAngularVelocity()
   return false;
 }
 
-void AngleThrottleController::initialize(tobas::BaseNode* node)
+void AngleThrottleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  getStaticRosParams(node);
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, M_PI / 4, 0., M_PI_2);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
 }
@@ -55,7 +55,7 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::AngleThrottle>();
+  auto cmd = make_unique<tobas_command_msgs::AngleThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
@@ -69,20 +69,15 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd_pub_->publish(move(cmd));
 }
 
-void AngleThrottleController::getStaticRosParams(tobas::BaseNode* node)
+bool AngleThrottleController::maxAttitudeCb(const double& p)
 {
-  max_attitude_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitude);
-  if (max_attitude_ < 0)
-  {
-    node->error("Maximum attitude angle must be positive.");
-    max_attitude_ = kDefaultMaxAttitude;
-  }
+  max_attitude_ = p;
+  return true;
+}
 
-  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_head_rate_ < 0)
-  {
-    node->error("Maximum heading rate must be positive.");
-    max_head_rate_ = kDefaultMaxHeadingRate;
-  }
+bool AngleThrottleController::maxHeadingRateCb(const double& p)
+{
+  max_head_rate_ = p;
+  return true;
 }
 }  // namespace tobas_rc_teleop

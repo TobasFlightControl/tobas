@@ -8,7 +8,10 @@ namespace tobas_rc_teleop
 {
 class PosVelYawController : public BaseController
 {
+  using self = PosVelYawController;
   using super = BaseController;
+
+  static constexpr double kMaxPositionError = 5.;  // [m]
 
 public:
   explicit PosVelYawController();
@@ -18,7 +21,7 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node) override;
+  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
@@ -36,6 +39,8 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> cmd_pub_;
 
-  void getStaticRosParams(tobas::BaseNode* node);
+  bool maxHorizontalVelocityCb(const double& p);
+  bool maxVerticalVelocityCb(const double& p);
+  bool maxHeadingRateCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

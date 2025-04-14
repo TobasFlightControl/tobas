@@ -167,7 +167,7 @@ void RCTeleopNode::initializeControllers()
         TOBAS_EXIT("Invalid flight mode: ", (int)mode);
     }
 
-    controllers_.at(mode)->initialize(this);
+    controllers_.at(mode)->initialize(this, mode);
   }
 }
 

@@ -9,7 +9,10 @@ namespace tobas_rc_teleop
 {
 class PosVelAngleController : public BaseController
 {
+  using self = PosVelAngleController;
   using super = BaseController;
+
+  static constexpr double kMaxPositionError = 5.;  // [m]
 
 public:
   explicit PosVelAngleController();
@@ -19,7 +22,7 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node) override;
+  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
@@ -39,9 +42,12 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
 
-  void getStaticRosParams(tobas::BaseNode* node);
-
   void publishPosVel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& pos, const kdl::Vector& vel);
   void publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle);
+
+  bool maxHorizontalVelocityCb(const double& p);
+  bool maxVerticalVelocityCb(const double& p);
+  bool maxAttitudeCb(const double& p);
+  bool maxHeadingRateCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

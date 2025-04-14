@@ -11,6 +11,8 @@ namespace tobas_rc_teleop
 {
 class BaseController
 {
+  static constexpr double kDeadZone = 0.05;
+
 public:
   explicit BaseController();
 
@@ -19,7 +21,7 @@ public:
   virtual bool requireLinearVelocity() = 0;
   virtual bool requireAngularVelocity() = 0;
 
-  virtual void initialize(tobas::BaseNode* node) = 0;
+  virtual void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
   virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
 
@@ -31,6 +33,9 @@ protected:
 
   /* RCInputの値がdead_zoneに入っていたら0，入っていなければ[a, b]に投影する． */
   inline double remapDead(const double& x, const double& a, const double& b);
+
+  /* テキストにフライトモードのプリフィックスを与える． */
+  static std::string addMode(const std::string& text, tobas::flight_mode_t mode);
 };
 
 inline double BaseController::remap(const double& x, const double& a, const double& b)

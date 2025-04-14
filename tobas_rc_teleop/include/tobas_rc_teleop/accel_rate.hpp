@@ -9,6 +9,7 @@ namespace tobas_rc_teleop
 {
 class AccelRateController : public BaseController
 {
+  using self = AccelRateController;
   using super = BaseController;
 
 public:
@@ -19,7 +20,7 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node) override;
+  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
@@ -37,9 +38,12 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::Accel> accel_pub_;
   ros2::PublisherPtr<tobas_command_msgs::Rate> rate_pub_;
 
-  void getStaticRosParams(tobas::BaseNode* node);
-
   void publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc);
   void publishRate(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& rate);
+
+  bool maxHorizontalAccelCb(const double& p);
+  bool maxVerticalAccelCb(const double& p);
+  bool maxAttitudeRateCb(const double& p);
+  bool maxHeadingRateCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

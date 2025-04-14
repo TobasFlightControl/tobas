@@ -1,7 +1,6 @@
 #include <tobas_ros2_tools/time.hpp>
 
 #include "../include/tobas_rc_teleop/pos_vel_angle.hpp"
-#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 
@@ -31,9 +30,13 @@ bool PosVelAngleController::requireAngularVelocity()
   return true;
 }
 
-void PosVelAngleController::initialize(tobas::BaseNode* node)
+void PosVelAngleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  getStaticRosParams(node);
+  node->addDynamicDoubleParam(
+    addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 6., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 4., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, M_PI / 4, 0., M_PI_2);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
 
   pos_vel_pub_ = node->createPublisher<tobas_command_msgs::PosVel>(tobas::kPosVelCmdTopic);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::kAngleCmdTopic);
@@ -96,43 +99,12 @@ void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_
   publishAngle(rcin.header.stamp, tar_angle_);
 }
 
-void PosVelAngleController::getStaticRosParams(tobas::BaseNode* node)
-{
-  max_hor_vel_ = node->getDoubleParam("max_horizontal_velocity", kDefaultMaxHorVel);
-  if (max_hor_vel_ < 0)
-  {
-    node->error("Maximum horizontal velocity must be positive.");
-    max_hor_vel_ = kDefaultMaxHorVel;
-  }
-
-  max_ver_vel_ = node->getDoubleParam("max_vertical_velocity", kDefaultMaxVerVel);
-  if (max_ver_vel_ < 0)
-  {
-    node->error("Maximum vertical velocity must be positive.");
-    max_ver_vel_ = kDefaultMaxVerVel;
-  }
-
-  max_attitude_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitude);
-  if (max_attitude_ < 0)
-  {
-    node->error("Maximum attitude angle must be positive.");
-    max_attitude_ = kDefaultMaxAttitude;
-  }
-
-  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_head_rate_ < 0)
-  {
-    node->error("Maximum heading rate must be positive.");
-    max_head_rate_ = kDefaultMaxHeadingRate;
-  }
-}
-
 void PosVelAngleController::publishPosVel(
   const builtin_interfaces::msg::Time& stamp,
   const kdl::Vector& pos,
   const kdl::Vector& vel)
 {
-  auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
+  auto cmd = make_unique<tobas_command_msgs::PosVel>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->pos = pos;
@@ -143,11 +115,35 @@ void PosVelAngleController::publishPosVel(
 
 void PosVelAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
 {
-  auto cmd = std::make_unique<tobas_command_msgs::Angle>();
+  auto cmd = make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->angle = angle;
 
   angle_pub_->publish(move(cmd));
+}
+
+bool PosVelAngleController::maxHorizontalVelocityCb(const double& p)
+{
+  max_hor_vel_ = p;
+  return true;
+}
+
+bool PosVelAngleController::maxVerticalVelocityCb(const double& p)
+{
+  max_ver_vel_ = p;
+  return true;
+}
+
+bool PosVelAngleController::maxAttitudeCb(const double& p)
+{
+  max_attitude_ = p;
+  return true;
+}
+
+bool PosVelAngleController::maxHeadingRateCb(const double& p)
+{
+  max_head_rate_ = p;
+  return true;
 }
 }  // namespace tobas_rc_teleop

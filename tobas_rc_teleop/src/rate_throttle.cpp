@@ -1,7 +1,6 @@
 #include <tobas_ros2_tools/time.hpp>
 
 #include "../include/tobas_rc_teleop/rate_throttle.hpp"
-#include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 
@@ -31,9 +30,10 @@ bool RateThrottleController::requireAngularVelocity()
   return true;
 }
 
-void RateThrottleController::initialize(tobas::BaseNode* node)
+void RateThrottleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  getStaticRosParams(node);
+  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, M_PI, 0., M_PI);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::kRateThrottleCmdTopic);
 }
@@ -45,7 +45,7 @@ void RateThrottleController::reset(const tobas_msgs::Odometry&)
 void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::RateThrottle>();
+  auto cmd = make_unique<tobas_command_msgs::RateThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->rate.x(remap(rcin.roll, -max_atti_rate_, max_atti_rate_));
@@ -57,20 +57,15 @@ void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd_pub_->publish(move(cmd));
 }
 
-void RateThrottleController::getStaticRosParams(tobas::BaseNode* node)
+bool RateThrottleController::maxAttitudeRateCb(const double& p)
 {
-  max_atti_rate_ = node->getDoubleParam("max_attitude_rate", kDefaultMaxAttitudeRate);
-  if (max_atti_rate_ < 0)
-  {
-    node->error("Maximum attitude rate must be positive.");
-    max_atti_rate_ = kDefaultMaxAttitudeRate;
-  }
+  max_atti_rate_ = p;
+  return true;
+}
 
-  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_head_rate_ < 0)
-  {
-    node->error("Maximum heading rate must be positive.");
-    max_head_rate_ = kDefaultMaxHeadingRate;
-  }
+bool RateThrottleController::maxHeadingRateCb(const double& p)
+{
+  max_head_rate_ = p;
+  return true;
 }
 }  // namespace tobas_rc_teleop
