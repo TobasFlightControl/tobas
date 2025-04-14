@@ -32,7 +32,7 @@ bool RateThrottleController::requireAngularVelocity()
 
 void RateThrottleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, M_PI, 0., M_PI);
+  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, M_PI, 0., M_PI * 2);
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::kRateThrottleCmdTopic);
