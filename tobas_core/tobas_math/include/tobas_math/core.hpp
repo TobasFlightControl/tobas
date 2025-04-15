@@ -25,7 +25,7 @@ constexpr inline T quat(const T& x)
   return sqr(sqr(x));
 }
 
-/* 符号を返す．正なら+1，負なら-1． */
+/* 符号を返す．正なら+1，負なら-1，ゼロなら0． */
 template <typename T>
 constexpr inline int sign(const T& x)
 {
