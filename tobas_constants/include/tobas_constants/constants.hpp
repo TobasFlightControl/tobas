@@ -12,9 +12,9 @@ static constexpr double kMaxThrot = 1.;  // The maximum throttle
 static constexpr size_t kMinSbusChannels = 8;
 static constexpr size_t kMaxSbusChannels = 16;
 static constexpr size_t kMaxNumOfGpsw = kMaxSbusChannels - kMinSbusChannels;
-static constexpr double kRCInputMin = -1.;
+static constexpr double kRcInputMin = -1.;
 static constexpr double kRCInputMid = 0.;
-static constexpr double kRCInputMax = 1.;
+static constexpr double kRcInputMax = 1.;
 
 // Rotor speed control
 static constexpr int kMinRotorCtrlGain = 0;

@@ -16,10 +16,10 @@ namespace rcin
 {
 ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  roll_range_ = new qt::HPositionBarWidget(tobas::kRCInputMin, tobas::kRCInputMax);
-  pitch_range_ = new qt::VPositionBarWidget(tobas::kRCInputMax, tobas::kRCInputMin);
-  yaw_range_ = new qt::HPositionBarWidget(tobas::kRCInputMax, tobas::kRCInputMin);
-  throt_range_ = new qt::VPositionBarWidget(tobas::kRCInputMax, tobas::kRCInputMin);
+  roll_range_ = new qt::HPositionBarWidget(tobas::kRcInputMin, tobas::kRcInputMax);
+  pitch_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
+  yaw_range_ = new qt::HPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
+  throt_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
 
   roll_range_->setFixedHeight(kRangeSideShort);
   pitch_range_->setFixedWidth(kRangeSideShort);

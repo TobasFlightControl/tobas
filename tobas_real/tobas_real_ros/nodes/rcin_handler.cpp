@@ -222,13 +222,13 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
 
   // Fill duty periods for each channel
   rcin_msg->roll = math::remap<double>(
-    sbus->data[real::kRcChannelRoll], roll_range_.lower, roll_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+    sbus->data[real::kRcChannelRoll], roll_range_.lower, roll_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
   rcin_msg->pitch = math::remap<double>(
-    sbus->data[real::kRcChannelPitch], pitch_range_.lower, pitch_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+    sbus->data[real::kRcChannelPitch], pitch_range_.lower, pitch_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
   rcin_msg->yaw = math::remap<double>(
-    sbus->data[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+    sbus->data[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
   rcin_msg->throttle = math::remap<double>(
-    sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+    sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
 
   rcin_msg->enable =
     abs(sbus->data[real::kRcChannelEnable] - enable_on_) < abs(sbus->data[real::kRcChannelEnable] - enable_off_);

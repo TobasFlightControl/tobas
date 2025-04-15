@@ -18,7 +18,7 @@ namespace tobas
 {
 TOBAS_CLASS_FORWARD(RobotModel);  // Defines RobotModelPtr, ConstPtr, WeakPtr... etc
 
-static inline void checkInterpolationParamBounds(const rclcpp::Logger& logger, double t)
+inline static void checkInterpolationParamBounds(const rclcpp::Logger& logger, double t)
 {
   if (std::isnan(t) || std::isinf(t))
   {
