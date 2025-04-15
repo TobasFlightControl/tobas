@@ -36,6 +36,9 @@ void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::fli
   node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 20., 0., 40.);
   node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, M_PI_2, 0., M_PI);
   node->addDynamicDoubleParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, M_PI_4, 0., M_PI_2);
+  node->addDynamicIntParam(addMode("speed_expo", mode), &self::speedExpoCb, this, 0, 0, kExpoScale);
+  node->addDynamicIntParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
 }
@@ -49,7 +52,10 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   // コマンドを作成
   auto cmd = make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
   cmd->header = rcin.header;
-  cmd->speed = remap(rcin.throttle, min_speed_, max_speed_);  // TODO: 機体の制限速度を考慮
+
+  const auto throttle = expo(remap(rcin.throttle, 0., 1.), speed_expo_);  // [-1, 1] -> [0, 1] -> [0, 1]
+  cmd->speed = math::remap(throttle, 0., 1., min_speed_, max_speed_);     // TODO: 機体の制限速度を考慮
+
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);
 
@@ -90,6 +96,24 @@ bool SpeedRollDeltaPitchController::maxRollCb(const double& p)
 bool SpeedRollDeltaPitchController::maxDeltaPitchCb(const double& p)
 {
   max_dpitch_ = p;
+  return true;
+}
+
+bool SpeedRollDeltaPitchController::speedExpoCb(const long& p)
+{
+  speed_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool SpeedRollDeltaPitchController::rollExpoCb(const long& p)
+{
+  roll_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool SpeedRollDeltaPitchController::pitchExpoCb(const long& p)
+{
+  pitch_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

@@ -245,7 +245,7 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.roll = tobas::kRCInputMid;
   idle_rcin.pitch = tobas::kRCInputMid;
   idle_rcin.yaw = tobas::kRCInputMid;
-  idle_rcin.throttle = tobas::kRCInputMin;
+  idle_rcin.throttle = tobas::kRcInputMin;
 
   controllers_[cur_mode_]->update(idle_rcin, *odom_);
 }
@@ -253,13 +253,13 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
 bool RCTeleopNode::isArmCommand(const tobas_msgs::RCInput& rcin)
 {
   return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh
-         && rcin.yaw < tobas::kRCInputMin + kArmThrotThresh && rcin.throttle < tobas::kRCInputMin + kArmThrotThresh;
+         && rcin.yaw < tobas::kRcInputMin + kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
 }
 
 bool RCTeleopNode::isDisarmCommand(const tobas_msgs::RCInput& rcin)
 {
   return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh
-         && rcin.yaw > tobas::kRCInputMax - kArmThrotThresh && rcin.throttle < tobas::kRCInputMin + kArmThrotThresh;
+         && rcin.yaw > tobas::kRcInputMax - kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
@@ -447,7 +447,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       if (postArmCommonProcess(*rcin))
         break;
 
-      if (rcin->throttle > tobas::kRCInputMin + kArmThrotThresh)
+      if (rcin->throttle > tobas::kRcInputMin + kArmThrotThresh)
       {
         // スロットルが上がっていればコマンド送信開始
         TOBAS_INFO("The throttle lever has risen, starting RC command transmission.");

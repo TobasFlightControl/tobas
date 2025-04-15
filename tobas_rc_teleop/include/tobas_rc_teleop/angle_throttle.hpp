@@ -30,11 +30,17 @@ private:
   // rosparams
   double max_attitude_;   // [rad]
   double max_head_rate_;  // [rad/s]
+  double atti_expo_;
+  double head_expo_;
+  double throt_expo_;
 
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
   bool maxAttitudeCb(const double& p);
   bool maxHeadingRateCb(const double& p);
+  bool attitudeExpoCb(const long& p);
+  bool headingExpoCb(const long& p);
+  bool throttleExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

@@ -35,6 +35,9 @@ private:
   double max_hor_vel_;    // [m/s]
   double max_ver_vel_;    // [m/s]
   double max_head_rate_;  // [rad/s]
+  double hor_vel_expo_;
+  double ver_vel_expo_;
+  double head_expo_;
 
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> cmd_pub_;
@@ -42,5 +45,8 @@ private:
   bool maxHorizontalVelocityCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
   bool maxHeadingRateCb(const double& p);
+  bool horizontalVelocityExpoCb(const long& p);
+  bool verticalVelocityExpoCb(const long& p);
+  bool headingExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

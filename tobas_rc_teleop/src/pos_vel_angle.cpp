@@ -37,6 +37,12 @@ void PosVelAngleController::initialize(tobas::BaseNode* node, tobas::flight_mode
   node->addDynamicDoubleParam(addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 4., 0., 10.);
   node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, M_PI / 4, 0., M_PI_2);
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
+  node->addDynamicIntParam(
+    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(
+    addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 0, -kExpoScale, kExpoScale);
 
   pos_vel_pub_ = node->createPublisher<tobas_command_msgs::PosVel>(tobas::kPosVelCmdTopic);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::kAngleCmdTopic);
@@ -60,8 +66,8 @@ void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_
   if (rcin.sub_mode)  // 回転固定で並進制御
   {
     // RC入力から目標水平速度を計算
-    tar_vel_G_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
-    tar_vel_G_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
+    tar_vel_G_.x(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
+    tar_vel_G_.y(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
 
     // 目標姿勢角はゼロ
     tar_angle_.roll = 0.;
@@ -70,8 +76,8 @@ void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_
   else  // 並進固定で回転制御
   {
     // RC入力から目標姿勢を計算
-    tar_angle_.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
-    tar_angle_.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
+    tar_angle_.roll = expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);
+    tar_angle_.pitch = expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
 
     // 目標水平速度はゼロ
     tar_vel_G_.x(0.);
@@ -79,8 +85,8 @@ void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_
   }
 
   // RC入力から鉛直速度とヨーレートを計算
-  tar_vel_G_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
-  const auto yawrate = remapDead(rcin.yaw, -max_head_rate_, max_head_rate_);
+  tar_vel_G_.z(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_));
+  const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
 
   // 目標速度を地面座標系から世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
@@ -144,6 +150,30 @@ bool PosVelAngleController::maxAttitudeCb(const double& p)
 bool PosVelAngleController::maxHeadingRateCb(const double& p)
 {
   max_head_rate_ = p;
+  return true;
+}
+
+bool PosVelAngleController::horizontalVelocityExpoCb(const long& p)
+{
+  hor_vel_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool PosVelAngleController::verticalVelocityExpoCb(const long& p)
+{
+  ver_vel_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool PosVelAngleController::attitudeExpoCb(const long& p)
+{
+  atti_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool PosVelAngleController::headingExpoCb(const long& p)
+{
+  head_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

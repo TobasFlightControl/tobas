@@ -34,6 +34,10 @@ private:
   double max_ver_acc_;    // [m/s]
   double max_attitude_;   // [rad]
   double max_head_rate_;  // [rad/s]
+  double hor_acc_expo_;
+  double ver_acc_expo_;
+  double atti_expo_;
+  double head_expo_;
 
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::Accel> accel_pub_;
@@ -46,5 +50,9 @@ private:
   bool maxVerticalAccelCb(const double& p);
   bool maxAttitudeCb(const double& p);
   bool maxHeadingRateCb(const double& p);
+  bool horizontalAccelExpoCb(const long& p);
+  bool verticalAccelExpoCb(const long& p);
+  bool attitudeExpoCb(const long& p);
+  bool headingExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop
