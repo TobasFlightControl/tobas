@@ -62,8 +62,10 @@ void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
     temp_->setFillColor(Qt::red);
   else if (cpu->temperature > 60.)
     temp_->setFillColor(Qt::yellow);
-  else
+  else if (cpu->temperature > 0.)
     temp_->setFillColor(Qt::green);
+  else
+    temp_->setFillColor(Qt::blue);
 
   load_->setUpper(cpu->load * 100);
   load_->setCenterText(std::format("{:.0f} %", cpu->load * 100).c_str());
