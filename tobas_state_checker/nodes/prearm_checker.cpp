@@ -23,7 +23,7 @@ class PreArmCheckerNode : public tobas::BaseNode
   static constexpr long kImuSamplingTimeThresh = 5000;          // [us]
   static constexpr double kNodeConnectionCheckTimeWindow = 5.;  // [s]
   static constexpr double kPosDriftThresh = 1.;                 // [m]
-  static constexpr double kCPUTempThresh = 70.;                 // [degC]
+  static constexpr double kCPUTempThresh = 80.;                 // [degC]
   static constexpr double kAttitudeThresh = M_PI / 12;          // [rad]
   static constexpr double kHorPosStddevThresh = 1.;             // [m]
   static constexpr double kVerPosStddevThresh = 2.;             // [m]
