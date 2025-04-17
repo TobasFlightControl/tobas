@@ -82,21 +82,24 @@ propulsion_system_t ICEPropulsionSystemConfig::type() const
 
 double ICEPropulsionSystemConfig::minSpeed(const std::string&) const
 {
-  return 0.;  // TODO
+  return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxSpeed(const std::string&) const
+double ICEPropulsionSystemConfig::maxSpeed(const std::string& link_name) const
 {
-  return 500.;  // TODO
+  return engine.max_speed / getRotor(link_name)->gear_ratio;
 }
 
 double ICEPropulsionSystemConfig::minThrust(const std::string&) const
 {
-  return 0.;  // TODO
+  return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxThrust(const std::string&) const
+double ICEPropulsionSystemConfig::maxThrust(const std::string& link_name) const
 {
-  return numeric_limits<double>::max();  // TODO
+  const auto rotor = getRotor(link_name);
+  const auto max_motor_const = rotor->motorConst(rotor->pitch_limit.upper);
+  const auto max_speed = engine.max_speed / rotor->gear_ratio;
+  return max_motor_const * math::sqr(max_speed);
 }
 }  // namespace tobas

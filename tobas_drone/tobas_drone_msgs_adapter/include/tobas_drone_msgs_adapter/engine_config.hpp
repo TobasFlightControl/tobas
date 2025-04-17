@@ -16,6 +16,7 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
   {
     dst.torque_const = src.torque_const;
     dst.friction_torque = src.friction_torque;
+    dst.max_speed = src.max_speed;
     dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
   }
 
@@ -23,6 +24,7 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
   {
     dst.torque_const = src.torque_const;
     dst.friction_torque = src.friction_torque;
+    dst.max_speed = src.max_speed;
     dst.hw_iface = static_cast<tobas::hw_iface_t>(src.hw_iface);
   }
 };

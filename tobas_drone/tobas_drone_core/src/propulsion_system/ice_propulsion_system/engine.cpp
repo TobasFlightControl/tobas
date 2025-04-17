@@ -25,6 +25,12 @@ bool EngineConfig::isValid() const
     return false;
   }
 
+  if (max_speed <= 0.)
+  {
+    cerr << "Engine maximum speed must be positive." << endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -34,6 +40,9 @@ bool EngineConfig::load(const YAML::Node& node)
     return false;
 
   if (!yaml::load(kDynamicFrictionTorqueKey, node, friction_torque))
+    return false;
+
+  if (!yaml::load(kMaxSpeedKey, node, max_speed))
     return false;
 
   if (!yaml::load(kHardwareIfaceKey, node, hw_iface))
@@ -48,6 +57,7 @@ YAML::Node EngineConfig::dump() const
 
   node[kTorqueConstantKey] = torque_const;
   node[kDynamicFrictionTorqueKey] = friction_torque;
+  node[kMaxSpeedKey] = max_speed;
   node[kHardwareIfaceKey] = hw_iface;
 
   return node;
@@ -101,6 +111,7 @@ ostream& operator<<(ostream& os, const EngineConfig& arg)
 {
   os << "Torque Constant [Nm/(rad/s)]: " << arg.torque_const << endl;
   os << "Dynamic Friction Torque [Nm]: " << arg.friction_torque << endl;
+  os << "Maximum Speed [rpm]: " << arg.max_speed << endl;
   return os;
 }
 }  // namespace tobas
