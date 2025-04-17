@@ -8,8 +8,8 @@ void onPacket(const driver::NssnmfgPEFC::Packet& packet)
 {
   // Error
   const auto& error = packet.error;
-  cout << boolalpha;
   cout << "Error:" << endl;
+  cout << boolalpha;
   cout << "\tStack Temperature Abnormal: " << error.stack_temperature_abnormal << endl;
   cout << "\tDCDC Current Too High: " << error.dcdc_current_too_high << endl;
   cout << "\tDCDC Voltage Too Low: " << error.dcdc_voltage_too_low << endl;

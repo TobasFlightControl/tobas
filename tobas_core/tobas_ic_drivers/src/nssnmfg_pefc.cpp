@@ -50,13 +50,13 @@ void NssnmfgPEFC::readThreadFunc()
   while (true)
   {
     // Check header
-    if (!uart_.receive(buf_ + 0, 1))
+    if (!uart_.receive(buf_ + kHeaderIdx, 1))
       continue;
-    if (buf_[0] != 0xAA)
+    if (buf_[kHeaderIdx] != 0xAA)
       continue;
 
     // Receive packet
-    for (size_t i = 1; i < kPacketSize; ++i)
+    for (size_t i = kHeaderIdx + 1; i < kPacketSize; ++i)
       if (!uart_.receive(buf_ + i, 1))
         continue;
 
@@ -72,7 +72,7 @@ void NssnmfgPEFC::readThreadFunc()
   }
 }
 
-bool NssnmfgPEFC::checkSum()
+bool NssnmfgPEFC::checkSum() const
 {
   uint8_t checksum = 0;
   for (size_t i = 0; i < kCheckSumIdx; ++i)
@@ -90,7 +90,7 @@ bool NssnmfgPEFC::checkSum()
 void NssnmfgPEFC::decode()
 {
   // Error
-  const auto error = (buf_[kErrorIdx + 1] << 8) | buf_[kErrorIdx];
+  const auto error = read2Bytes(kErrorIdx);
   packet_.error.stack_temperature_abnormal = (error >> 6) & 1;
   packet_.error.dcdc_current_too_high = (error >> 7) & 1;
   packet_.error.dcdc_voltage_too_low = (error >> 8) & 1;
@@ -101,18 +101,18 @@ void NssnmfgPEFC::decode()
   packet_.error.hydrogen_level_too_low = (error >> 13) & 1;
 
   // Stack
-  packet_.stack.voltage = (buf_[kStackVoltageIdx + 1] << 8) | buf_[kStackVoltageIdx];
-  packet_.stack.current = (buf_[kStackCurrentIdx + 1] << 8) | buf_[kStackCurrentIdx];
-  packet_.stack.power = (buf_[kStackPowerIdx + 1] << 8) | buf_[kStackPowerIdx];
-  packet_.stack.pressure = (buf_[kStackPressureIdx + 1] << 8) | buf_[kStackPressureIdx];
-  packet_.stack.temperature = (buf_[kStackTemperatureIdx + 1] << 8) | buf_[kStackTemperatureIdx];
+  packet_.stack.voltage = read2Bytes(kStackVoltageIdx);
+  packet_.stack.current = read2Bytes(kStackCurrentIdx);
+  packet_.stack.power = read2Bytes(kStackPowerIdx);
+  packet_.stack.pressure = read2Bytes(kStackPressureIdx);
+  packet_.stack.temperature = read2Bytes(kStackTemperatureIdx);
 
   // Battery
-  packet_.battery.voltage = (buf_[kBatteryVoltageIdx + 1] << 8) | buf_[kBatteryVoltageIdx];
-  packet_.battery.current = (buf_[kBatteryCurrentIdx + 1] << 8) | buf_[kBatteryCurrentIdx];
-  packet_.battery.power = (buf_[kBatteryPowerIdx + 1] << 8) | buf_[kBatteryPowerIdx];
+  packet_.battery.voltage = read2Bytes(kBatteryVoltageIdx);
+  packet_.battery.current = read2Bytes(kBatteryCurrentIdx);
+  packet_.battery.power = read2Bytes(kBatteryPowerIdx);
 
   // Tank
-  packet_.tank.pressure = (buf_[kTankPressureIdx + 1] << 8) | buf_[kTankPressureIdx];
+  packet_.tank.pressure = read2Bytes(kTankPressureIdx);
 }
 }  // namespace driver
