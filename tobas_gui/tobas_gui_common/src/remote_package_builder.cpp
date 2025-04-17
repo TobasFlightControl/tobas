@@ -33,6 +33,7 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
     "--merge-install "
     "--symlink-install "
     "--parallel-workers $(nproc) "
+    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "
     "--packages-up-to {}",
     meta_pkg_name);
 
