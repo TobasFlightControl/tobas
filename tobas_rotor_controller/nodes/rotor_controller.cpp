@@ -159,16 +159,18 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       double torque_coef_sum = 0.;
       for (const auto& elem : tar_thrusts_msg->thrusts)
       {
-        if (elem.thrust < 0.)
+        auto tar_thrust = elem.thrust;
+
+        if (tar_thrust < 0.)
         {
           TOBAS_WARN_THROTTLE(
-            tobas::kTypicalWarnPeriod, "Negative thrust is commanded on rotor \"", elem.link_name, "\": ", elem.thrust,
+            tobas::kTypicalWarnPeriod, "Negative thrust is commanded on rotor \"", elem.link_name, "\": ", tar_thrust,
             " < 0 [N]");
-          continue;
+          tar_thrust = 0.;
         }
 
         const auto irotor = iprop->getRotor(elem.link_name);
-        torque_sum += irotor->moment_const * elem.thrust;
+        torque_sum += irotor->moment_const * tar_thrust;
         torque_coef_sum += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::sqr(irotor->gear_ratio);
       }
 
