@@ -216,6 +216,7 @@ tobas::Drone PackageGenerator::createDrone()
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.torque_const = engine_widget->dynamics()->torqueConstant();
       iprop->engine.friction_torque = engine_widget->dynamics()->dynamicFrictionTorque();
+      iprop->engine.max_speed = engine_widget->limit()->maxSpeed();
       iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
 
       // TODO: PWM以外のインターフェースに対応

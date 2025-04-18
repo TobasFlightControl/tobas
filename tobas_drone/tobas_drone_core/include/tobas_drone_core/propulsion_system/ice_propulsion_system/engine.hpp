@@ -17,7 +17,7 @@ class EngineConfig
 public:
   double torque_const = 0.;     // [Nm/(rad/s)]
   double friction_torque = 0.;  // [Nm]
-  double max_speed;             // [rad/s]
+  double max_speed = 0.;        // [rad/s]
   hw_iface_t hw_iface = hw_iface_t::OTHER;
 
   bool isValid() const;
