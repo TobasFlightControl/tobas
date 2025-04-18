@@ -172,22 +172,36 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         torque_coef_sum += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::sqr(irotor->gear_ratio);
       }
 
-      // エンジン回転数を求める
-      const auto engine_speed = sqrt(torque_sum / torque_coef_sum);
-
-      // コマンドを発行
+      // コマンドを作成
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header = tar_thrusts_msg->header;
-      if (engine_speed > 0.)
-        ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
-      for (const auto& elem : tar_thrusts_msg->thrusts)
+
+      // エンジンスロットルとプロペラピッチ角を求める
+      if (torque_sum > 0.)
       {
-        const auto irotor = iprop->getRotor(elem.link_name);
-        ice_cmd_msg->pitch_angles.emplace_back();
-        ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
-        if (engine_speed > 0.)
+        const auto engine_speed = sqrt(torque_sum / torque_coef_sum);
+        ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
+        for (const auto& elem : tar_thrusts_msg->thrusts)
+        {
+          const auto irotor = iprop->getRotor(elem.link_name);
+          ice_cmd_msg->pitch_angles.emplace_back();
+          ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
           ice_cmd_msg->pitch_angles.back().angle = irotor->pitchFromThrust(engine_speed, elem.thrust);
+        }
       }
+      else
+      {
+        ice_cmd_msg->engine_throttle = 0.;
+        for (const auto& elem : tar_thrusts_msg->thrusts)
+        {
+          const auto irotor = iprop->getRotor(elem.link_name);
+          ice_cmd_msg->pitch_angles.emplace_back();
+          ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
+          ice_cmd_msg->pitch_angles.back().angle = irotor->pitch_ref;
+        }
+      }
+
+      // コマンドを発行
       ice_cmd_pub_->publish(move(ice_cmd_msg));
 
       break;
