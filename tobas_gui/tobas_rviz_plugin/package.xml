@@ -14,8 +14,6 @@
   <depend>tf2_eigen</depend>
   <depend>rsl</depend>
   <depend>octomap_msgs</depend>
-  <depend>Qt5Core</depend>
-  <depend>Qt5Widgets</depend>
   <depend>rviz_common</depend>
   <depend>rviz_default_plugins</depend>
   <depend>rviz_rendering</depend>

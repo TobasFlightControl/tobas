@@ -27,8 +27,6 @@ find_package(geometric_shapes REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(rsl REQUIRED)
 find_package(octomap_msgs REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_rendering REQUIRED)
@@ -42,8 +40,6 @@ set(AMENT_DEPENDENCIES
   tf2_eigen
   rsl
   octomap_msgs
-  Qt5Core
-  Qt5Widgets
   rviz_common
   rviz_default_plugins
   rviz_rendering
