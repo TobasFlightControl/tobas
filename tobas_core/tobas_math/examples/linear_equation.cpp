@@ -4,10 +4,15 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
-  constexpr double a = 2;
-  constexpr double b = 3;
+  if (argc != 3)
+  {
+    cerr << "Usage: " << argv[0] << " a b -> Solve: ax + b = 0" << endl;
+    return EXIT_FAILURE;
+  }
+  const auto a = stod(argv[1]);
+  const auto b = stod(argv[2]);
 
   const auto x = math::solveLinearEquation(a, b);
   cout << a << " x + " << b << " = 0 <=> x = " << x << endl;
