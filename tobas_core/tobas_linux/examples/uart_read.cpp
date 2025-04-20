@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   opts(DATA_BITS, "The number of data bits {5, 6, 7, 8}", cxxopts::value<int>()->default_value("8"));
   opts(STOP_BITS, "The number of stop bits {0, 1, 2}", cxxopts::value<int>()->default_value("0"));
   opts(PARITY, "Parity check mode {none, odd, even}", cxxopts::value<string>()->default_value("none"));
-  opts(HUNGUP, "Enable hungup close");
+  opts(HUNGUP, "Enable hungup close", cxxopts::value<bool>()->default_value("false"));
 
   cxxopts::ParseResult result;
   try
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
   const auto data_bits = result[DATA_BITS].as<int>();
   const auto stop_bits = result[STOP_BITS].as<int>();
   const auto parity = result[PARITY].as<string>();
-  const auto hungup = result.count(HUNGUP) > 0;
+  const auto hungup = result[HUNGUP].as<bool>();
 
   cout << "----------------------------------------" << endl;
   cout << "UART Configurations:" << endl;
