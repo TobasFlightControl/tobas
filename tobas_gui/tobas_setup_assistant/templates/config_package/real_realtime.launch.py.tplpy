@@ -36,7 +36,8 @@ def generate_launch_description():
     xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
     urdf_content = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
 
-    # Launch Tobas core software (Including component managers)
+    # Launch Tobas core software
+    # XXX: To ensure stable registration of components, the component managers are launched first.
     ld.add_action(
         TimerAction(
             period=0.0,
