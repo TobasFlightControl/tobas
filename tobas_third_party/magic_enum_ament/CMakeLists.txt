@@ -14,7 +14,10 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/magic_enum/include/magic_enum DESTINATION include)
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/magic_enum/include/magic_enum
+  DESTINATION include
+)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

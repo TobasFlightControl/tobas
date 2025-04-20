@@ -14,7 +14,10 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
-install(FILES ${PROJECT_SOURCE_DIR}/rapidcsv/src/rapidcsv.h DESTINATION include)
+install(
+  FILES ${PROJECT_SOURCE_DIR}/rapidcsv/src/rapidcsv.h
+  DESTINATION include
+)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})
