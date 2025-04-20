@@ -23,7 +23,7 @@ int main(int argc, char** argv)
   opts(BAUDRATE, "Baudrate", cxxopts::value<int>()->default_value("9600"));
   opts(DATA_BITS, "The number of data bits", cxxopts::value<int>()->default_value("8"));
   opts(STOP_BITS, "The number of stop bits", cxxopts::value<int>()->default_value("0"));
-  opts(PARITY, "Enable parity check", cxxopts::value<string>()->default_value("none"));
+  opts(PARITY, "Parity check mode", cxxopts::value<string>()->default_value("none"));
   opts(HUNGUP, "Enable hungup close");
 
   cxxopts::ParseResult result;
