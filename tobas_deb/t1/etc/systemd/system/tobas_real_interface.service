@@ -1,7 +1,7 @@
 [Unit]
 Description=Tobas Interface Process
+After=network-online.target
 After=hostapd.service
-Requires=hostapd.service
 PartOf=tobas_real.target
 
 [Service]
@@ -11,8 +11,7 @@ EnvironmentFile=/etc/tobas/config_pkg.env
 ExecStartPre=/lib/systemd/systemd-networkd-wait-online --interface ap0
 ExecStartPre=/bin/sleep 3
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/colcon_ws/install/setup.bash && /opt/ros/jazzy/ros2cli/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_interface.launch.py'
-Restart=always
-RestartSec=5
+Restart=no
 CPUSchedulingPolicy=rr
 CPUSchedulingPriority=90
 CPUAffinity=3

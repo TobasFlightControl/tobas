@@ -1,7 +1,6 @@
 [Unit]
 Description=FastDDS Discovery Server
 After=network-online.target
-Requires=network-online.target
 
 [Service]
 Type=simple

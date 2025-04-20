@@ -1,7 +1,6 @@
 [Unit]
 Description=Tobas HITL (Hardware in the Loop)
 After=network-online.target
-Requires=network-online.target
 
 [Service]
 Type=simple

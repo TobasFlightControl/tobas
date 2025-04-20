@@ -1,7 +1,6 @@
 [Unit]
 Description=Tobas Realtime Process
-After=hostapd.service
-Requires=hostapd.service
+After=network-online.target
 PartOf=tobas_real.target
 
 [Service]
@@ -13,8 +12,7 @@ ExecStartPre=/bin/bash -c 'echo 4 | sudo tee /proc/irq/106/smp_affinity'  # I2C
 ExecStartPre=/bin/bash -c 'echo 2 | sudo tee /proc/irq/117/smp_affinity'  # SPI0
 ExecStartPre=/bin/bash -c 'echo 4 | sudo tee /proc/irq/118/smp_affinity'  # SPI1
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/colcon_ws/install/setup.bash && /opt/ros/jazzy/ros2cli/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py'
-Restart=always
-RestartSec=5
+Restart=no
 CPUSchedulingPolicy=rr
 CPUSchedulingPriority=95
 CPUAffinity=1 2 3
