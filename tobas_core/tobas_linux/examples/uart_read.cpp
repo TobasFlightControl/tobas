@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
   if (result.count(HELP))
   {
-    std::cout << options.help() << std::endl;
+    cout << options.help() << endl;
     return EXIT_SUCCESS;
   }
 
