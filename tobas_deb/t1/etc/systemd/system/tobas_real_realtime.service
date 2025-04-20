@@ -1,6 +1,6 @@
 [Unit]
 Description=Tobas Realtime Process
-After=network-online.target
+After=network.target
 PartOf=tobas_real.target
 
 [Service]

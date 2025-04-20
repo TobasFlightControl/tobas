@@ -1,6 +1,6 @@
 [Unit]
 Description=Tobas Interface Process
-After=network-online.target hostapd.service
+After=network.target hostapd.service
 PartOf=tobas_real.target
 
 [Service]
