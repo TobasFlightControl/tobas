@@ -103,6 +103,11 @@ int main(int argc, char** argv)
     if (!uart.enableParity(linux::UARTdev::parity_mode_t::PARITY_EVEN))
       return EXIT_FAILURE;
   }
+  else
+  {
+    cerr << "Invalid parity mode: " << parity << endl;
+    return EXIT_FAILURE;
+  }
 
   if (hungup)
   {
