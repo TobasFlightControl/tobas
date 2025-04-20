@@ -13,6 +13,7 @@ avoid_warnings=2
 
 # Settings for the performance of processors
 # [Overclocking options | config.txt](https://www.raspberrypi.com/documentation/computers/config_txt.html#overclocking-options)
+# ---
 # over_voltage_delta=0
 # arm_freq=2400
 # gpu_freq=910
