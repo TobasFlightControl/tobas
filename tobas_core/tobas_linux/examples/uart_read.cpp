@@ -21,9 +21,9 @@ int main(int argc, char** argv)
   opts(HELP, "Print usage");
   opts(DEVICE, "UART device", cxxopts::value<string>()->default_value("/dev/ttyUSB0"));
   opts(BAUDRATE, "Baudrate", cxxopts::value<int>()->default_value("9600"));
-  opts(DATA_BITS, "The number of data bits", cxxopts::value<int>()->default_value("8"));
-  opts(STOP_BITS, "The number of stop bits", cxxopts::value<int>()->default_value("0"));
-  opts(PARITY, "Parity check mode", cxxopts::value<string>()->default_value("none"));
+  opts(DATA_BITS, "The number of data bits {5, 6, 7, 8}", cxxopts::value<int>()->default_value("8"));
+  opts(STOP_BITS, "The number of stop bits {0, 1, 2}", cxxopts::value<int>()->default_value("0"));
+  opts(PARITY, "Parity check mode {none, odd, even}", cxxopts::value<string>()->default_value("none"));
   opts(HUNGUP, "Enable hungup close");
 
   cxxopts::ParseResult result;
