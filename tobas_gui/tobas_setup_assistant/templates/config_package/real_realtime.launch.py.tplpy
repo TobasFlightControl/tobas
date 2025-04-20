@@ -36,25 +36,10 @@ def generate_launch_description():
     xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
     urdf_content = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
 
-    # Launch hardware interfaces
+    # Launch Tobas core software (Including component managers)
     ld.add_action(
         TimerAction(
             period=0.0,
-            actions=[
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        PathJoinSubstitution([hw_pkg_share, "launch", "hardware_interfaces.launch.py"])
-                    ),
-                    launch_arguments={"namespace": DRONE_NAME}.items(),
-                )
-            ],
-        )
-    )
-
-    # Launch Tobas core software
-    ld.add_action(
-        TimerAction(
-            period=3.0,
             actions=[
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
@@ -67,6 +52,21 @@ def generate_launch_description():
                         "ground_truth": "false",
                         "multiprocess": "false",
                     }.items(),
+                )
+            ],
+        )
+    )
+
+    # Launch hardware interfaces
+    ld.add_action(
+        TimerAction(
+            period=3.0,
+            actions=[
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(
+                        PathJoinSubstitution([hw_pkg_share, "launch", "hardware_interfaces.launch.py"])
+                    ),
+                    launch_arguments={"namespace": DRONE_NAME}.items(),
                 )
             ],
         )
