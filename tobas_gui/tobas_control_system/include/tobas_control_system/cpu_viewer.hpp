@@ -19,7 +19,7 @@ class CPUViewerWidget : public QWidget
   static constexpr int kBarHeight = 40;
 
   static constexpr double kMinTemp = 0.;    // [degC]
-  static constexpr double kMaxTemp = 90.;   // [degC]
+  static constexpr double kMaxTemp = 100.;  // [degC]
   static constexpr double kMinLoad = 0.;    // [%]
   static constexpr double kMaxLoad = 100.;  // [%]
 
