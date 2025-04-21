@@ -86,6 +86,6 @@ def generate_launch_description():
 
     # Emit ready event
     ready_event = EmitEvent(event=HardwareInterfacesReady())
-    ld.add_action(RegisterEventHandler(OnExecutionComplete(target_action=nodes_3, on_start=[ready_event])))
+    ld.add_action(RegisterEventHandler(OnExecutionComplete(target_action=nodes_3, on_completion=[ready_event])))
 
     return ld
