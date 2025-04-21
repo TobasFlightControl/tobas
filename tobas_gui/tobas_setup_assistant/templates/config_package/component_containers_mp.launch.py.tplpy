@@ -1,8 +1,9 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, EmitEvent
 from launch.substitutions import LaunchConfiguration
-
 from launch_ros.actions import Node
+
+from tobas_launch_events.events import ComponentContainersReady
 
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
@@ -23,6 +24,7 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
+    # Launch component containers
     for i in range(1, 4):
         ld.add_action(
             Node(
@@ -34,5 +36,8 @@ def generate_launch_description():
                 output=output,
             )
         )
+
+    # Emit an event signal without waiting for the component container to finish starting up
+    ld.add_action(EmitEvent(event=ComponentContainersReady()))
 
     return ld
