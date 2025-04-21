@@ -2,10 +2,9 @@ import re
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, EmitEvent, Shutdown
 from launch.substitutions import LaunchConfiguration
-from launch.event_handlers import OnProcessStart, OnProcessIO
-from launch_ros.actions import Node
+from launch.event_handlers import OnProcessIO
 
-from tobas_launch_events.events import ComponentContainersReady
+from launch_ros.actions import Node
 
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
@@ -42,10 +41,6 @@ def generate_launch_description():
         output=output,
     )
     ld.add_action(component_containers)
-
-    # Emit an event signal after the component containers have fully started up
-    ready_event = EmitEvent(event=ComponentContainersReady())
-    ld.add_action(RegisterEventHandler(OnProcessStart(target_action=component_containers, on_start=[ready_event])))
 
     # If failed to load a component, shutdown the entire system
     ld.add_action(
