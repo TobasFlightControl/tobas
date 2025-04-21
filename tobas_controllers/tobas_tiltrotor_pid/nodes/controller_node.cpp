@@ -549,11 +549,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 
 void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
 {
-  if (!drone_received_)
-  {
-    TOBAS_WARN("Drone configuration is not received yet.");
+  if (!mixer_.isInitialized())
     return;
-  }
 
   for (const auto& data : rotor_liveliness->data)
     if (!mixer_.setRotorLiveliness(data.link_name, data.alive))

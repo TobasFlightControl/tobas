@@ -17,6 +17,7 @@ bool Mixer::updateInternalDataStructures()
   for (const auto& [link_name, _] : drone_.prop->rotors)
     rotor_alive_[link_name] = true;
 
+  is_initialized_ = true;
   return true;
 }
 
