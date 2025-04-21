@@ -585,43 +585,43 @@ void ControllerNode::checkTopicsTimerCb()
 {
   if (!drone_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kDroneTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kDroneTopic, "\".");
     return;
   }
 
   if (!tree_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", 12, tobas::kKdlTreeTopic, "\".");
+    TOBAS_WARN("Waiting for \"", 12, tobas::kKdlTreeTopic, "\".");
     return;
   }
 
   if (!odom_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kOdometryTopic, "\".");
     return;
   }
 
   if (!dist_force_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return;
   }
 
   if (js_sub_ && !js_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kJointStatesTopic, "\".");
     return;
   }
 
   if (!landed_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kLandedTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kLandedTopic, "\".");
     return;
   }
 
   if (!arming_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kArmingTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kArmingTopic, "\".");
     return;
   }
 

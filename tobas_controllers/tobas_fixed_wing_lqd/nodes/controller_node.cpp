@@ -532,25 +532,25 @@ void ControllerNode::checkTopicsTimerCb()
 {
   if (!drone_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kDroneTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kDroneTopic, "\".");
     return;
   }
 
   if (!tree_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kKdlTreeTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kKdlTreeTopic, "\".");
     return;
   }
 
   if (!air_pressure_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kAirPressureTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kAirPressureTopic, "\".");
     return;
   }
 
   if (!odom_nwu_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kOdometryTopic, "\".");
     return;
   }
 

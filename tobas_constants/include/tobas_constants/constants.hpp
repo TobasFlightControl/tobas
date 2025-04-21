@@ -153,8 +153,7 @@ constexpr auto kAccelScale = 10.;   // [m/s^2]
 constexpr auto kDGyroScale = 100.;  // [rad/s^2]
 
 // Console message period
-static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
-static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
+static constexpr double kIgnoreCmdMsgPeriod = 1.;  // [s]
 
 // Others
 static constexpr char kTBSExtension[] = ".TBS";
@@ -168,7 +167,7 @@ static constexpr double kTypicalInfoPeriod = 5.;         // [s]
 static constexpr double kTypicalWarnPeriod = 3.;         // [s]
 static constexpr double kTypicalErrorPeriod = 1.;        // [s]
 static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
-static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(3);
+static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(5);
 static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(200);
 static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
 static constexpr size_t kMaxRosbagSize = 5'000'000'000UL;  // [byte]
