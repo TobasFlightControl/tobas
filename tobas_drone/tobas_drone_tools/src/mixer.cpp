@@ -20,7 +20,7 @@ bool Mixer::updateInternalDataStructures()
   return true;
 }
 
-bool Mixer::setRotorLiveliness(const std::string& link_name, bool alive)
+bool Mixer::setRotorLiveliness(const string& link_name, bool alive)
 {
   if (!rotor_alive_.contains(link_name))
   {
