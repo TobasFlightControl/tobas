@@ -61,7 +61,7 @@ def generate_launch_description():
     # Launch hardware interfaces
     ld.add_action(
         TimerAction(
-            period=3.0,
+            period=4.0,
             actions=[
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
@@ -76,7 +76,7 @@ def generate_launch_description():
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
         TimerAction(
-            period=6.0,
+            period=7.0,
             actions=[
                 LoadComposableNodes(
                     target_container=f"{DRONE_NAME}/component_manager_1",
@@ -107,7 +107,7 @@ def generate_launch_description():
     # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
     ld.add_action(
         TimerAction(
-            period=7.0,
+            period=8.0,
             actions=[
                 LoadComposableNodes(
                     target_container=f"{DRONE_NAME}/component_manager_2",
@@ -160,7 +160,7 @@ def generate_launch_description():
     # Launch 3th priority nodes (Others)
     ld.add_action(
         TimerAction(
-            period=8.0,
+            period=9.0,
             actions=[
                 LoadComposableNodes(
                     target_container=f"{DRONE_NAME}/component_manager_3",
