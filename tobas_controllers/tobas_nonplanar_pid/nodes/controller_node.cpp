@@ -584,7 +584,7 @@ void ControllerNode::checkTopicsTimerCb()
 
   if (!tree_received_)
   {
-    TOBAS_WARN("Waiting for \"", 12, tobas::kKdlTreeTopic, "\".");
+    TOBAS_WARN("Waiting for \"", tobas::kKdlTreeTopic, "\".");
     return;
   }
 
