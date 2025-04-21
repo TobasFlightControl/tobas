@@ -168,6 +168,7 @@ static constexpr double kTypicalInfoPeriod = 5.;         // [s]
 static constexpr double kTypicalWarnPeriod = 3.;         // [s]
 static constexpr double kTypicalErrorPeriod = 1.;        // [s]
 static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
+static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(3);
 static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(200);
 static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
 static constexpr size_t kMaxRosbagSize = 5'000'000'000UL;  // [byte]
