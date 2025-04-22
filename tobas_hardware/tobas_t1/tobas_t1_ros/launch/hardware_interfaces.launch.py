@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, TimerAction
+from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
@@ -18,70 +18,60 @@ def generate_launch_description():
 
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
-        TimerAction(
-            period=0.0,
-            actions=[
-                LoadComposableNodes(
-                    target_container=PathJoinSubstitution([ns, "component_manager_1"]),
-                    composable_node_descriptions=[
-                        ComposableNode(
-                            package=pkg_name,
-                            plugin="ImuDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=pkg_name,
-                            plugin="DShotDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=pkg_name,
-                            plugin="PwmDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                    ],
-                )
+        LoadComposableNodes(
+            target_container=PathJoinSubstitution([ns, "component_manager_1"]),
+            composable_node_descriptions=[
+                ComposableNode(
+                    package=pkg_name,
+                    plugin="ImuDriverNode",
+                    namespace=ns,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package=pkg_name,
+                    plugin="DShotDriverNode",
+                    namespace=ns,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package=pkg_name,
+                    plugin="PwmDriverNode",
+                    namespace=ns,
+                    extra_arguments=extra_arguments,
+                ),
             ],
         )
     )
 
     # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
     ld.add_action(
-        TimerAction(
-            period=1.0,
-            actions=[
-                LoadComposableNodes(
-                    target_container=PathJoinSubstitution([ns, "component_manager_2"]),
-                    composable_node_descriptions=[
-                        ComposableNode(
-                            package=pkg_name,
-                            plugin="MagDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=pkg_name,
-                            plugin="BaroDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=pkg_name,
-                            plugin="GnssDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=pkg_name,
-                            plugin="BatteryDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                    ],
-                )
+        LoadComposableNodes(
+            target_container=PathJoinSubstitution([ns, "component_manager_2"]),
+            composable_node_descriptions=[
+                ComposableNode(
+                    package=pkg_name,
+                    plugin="MagDriverNode",
+                    namespace=ns,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package=pkg_name,
+                    plugin="BaroDriverNode",
+                    namespace=ns,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package=pkg_name,
+                    plugin="GnssDriverNode",
+                    namespace=ns,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package=pkg_name,
+                    plugin="BatteryDriverNode",
+                    namespace=ns,
+                    extra_arguments=extra_arguments,
+                ),
             ],
         )
     )
