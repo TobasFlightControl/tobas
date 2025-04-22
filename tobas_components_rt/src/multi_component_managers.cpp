@@ -52,7 +52,7 @@ void MultiComponentManagers::spin()
     else
       managers[i].exec = make_shared<MultiThreadedExecutorRT>(policy_[i], priority_[i], affinity_[i], num_threads_[i]);
 
-    managers[i].node = make_shared<rclcpp_components::ComponentManager>(managers[i].exec, nodeName(i), node_options);
+    managers[i].node = make_shared<ros2::ThreadSafeComponentManager>(managers[i].exec, nodeName(i), node_options);
     managers[i].exec->add_node(managers[i].node);
 
     // ComponentManagerを別スレッドで起動
