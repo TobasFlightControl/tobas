@@ -219,7 +219,7 @@ Vector Rotation::getRot() const
   return angle * axis;
 }
 
-std::pair<double, Vector> Rotation::getAngleAxis() const
+pair<double, Vector> Rotation::getAngleAxis() const
 {
   constexpr auto eps2 = EPS * 10;  // margin to distinguish between 0 and 180 degrees
 
