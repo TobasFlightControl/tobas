@@ -32,20 +32,21 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
-    component_managers = Node(
+    # Launch component containers
+    component_containers = Node(
         package="tobas_components_rt",
         executable="component_containers",
         namespace=DRONE_NAME,
         ros_arguments=["--log-level", log_level],
         output=output,
     )
-    ld.add_action(component_managers)
+    ld.add_action(component_containers)
 
     # If failed to load a component, shutdown the entire system
     ld.add_action(
         RegisterEventHandler(
             OnProcessIO(
-                target_action=component_managers,
+                target_action=component_containers,
                 on_stdout=lambda event: handle_output(event),
                 on_stderr=lambda event: handle_output(event),
             )
