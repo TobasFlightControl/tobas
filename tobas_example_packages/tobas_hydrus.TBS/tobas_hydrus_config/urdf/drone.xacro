@@ -579,6 +579,12 @@
             <linkName>root</linkName>
         </plugin>
     </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_lookat_position_plugin" name="gazebo::GazeboLookAtPositionPlugin">
+            <robotNamespace>hydrus</robotNamespace>
+            <linkName>root</linkName>
+        </plugin>
+    </gazebo>
     <ros2_control name="GazeboSimSystem" type="system">
         <hardware>
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
