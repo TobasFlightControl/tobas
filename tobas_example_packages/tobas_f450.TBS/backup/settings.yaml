@@ -366,6 +366,8 @@ Propulsion:
       Response:
         Time Constant Up: 100
         Time Constant Down: 200
+      Limit:
+        Maximum Ratation Speed: 8700
       HW Interface:
         PWM Channel: 0
         PWM Period at Zero Throttle: 1000

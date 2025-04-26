@@ -1,7 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
-
 from launch_ros.actions import Node
 
 # Template parameters
@@ -23,6 +22,7 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
+    # Launch component containers
     for i in range(1, 4):
         ld.add_action(
             Node(
