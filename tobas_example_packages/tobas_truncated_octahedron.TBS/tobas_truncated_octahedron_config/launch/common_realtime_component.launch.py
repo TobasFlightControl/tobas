@@ -30,7 +30,7 @@ def generate_launch_description():
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
-    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="true"))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
     ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
     ld.add_action(DeclareLaunchArgument(MULTIPROCESS, default_value="false"))
 
