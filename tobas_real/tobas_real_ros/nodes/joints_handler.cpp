@@ -64,9 +64,9 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super
   velocities_sub_ = createSubscriber(tobas::kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
   efforts_sub_ = createSubscriber(tobas::kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
 
-  pos_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
-  vel_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);
-  eff_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
+  pos_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
+  vel_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);
+  eff_reset_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
 }
 
 double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)

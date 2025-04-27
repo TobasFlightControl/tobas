@@ -28,7 +28,7 @@ private:
 
 PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options) : super("t1_pwm_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void PwmDriverNode::initialize()

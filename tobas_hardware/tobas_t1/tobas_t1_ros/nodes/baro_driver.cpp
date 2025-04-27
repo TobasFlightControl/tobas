@@ -29,7 +29,7 @@ private:
 
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("t1_baro_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BaroDriverNode::initialize()
@@ -45,7 +45,7 @@ void BaroDriverNode::initialize()
   initialize_timer_->cancel();
   initialize_timer_.reset();
 
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void BaroDriverNode::mainTimerCb()

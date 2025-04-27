@@ -33,7 +33,7 @@ private:
 
 ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("t1_imu_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void ImuDriverNode::initialize()
@@ -47,7 +47,7 @@ void ImuDriverNode::initialize()
   initialize_timer_->cancel();
   initialize_timer_.reset();
 
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 bool ImuDriverNode::initializeImuDriver()

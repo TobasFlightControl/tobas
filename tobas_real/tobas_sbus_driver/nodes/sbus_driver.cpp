@@ -31,7 +31,7 @@ SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
 
   sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::kSbusTopic);
 
-  initialize_timer_ = createTimer(3s, &self::initialize, this);
+  initialize_timer_ = createWallTimer(3s, &self::initialize, this);
 }
 
 void SbusDriverNode::initialize()

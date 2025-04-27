@@ -46,7 +46,7 @@ private:
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("t1_gnss_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void GnssDriverNode::initialize()
@@ -73,7 +73,7 @@ void GnssDriverNode::initialize()
   initialize_timer_->cancel();
   initialize_timer_.reset();
 
-  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
 bool GnssDriverNode::configure()

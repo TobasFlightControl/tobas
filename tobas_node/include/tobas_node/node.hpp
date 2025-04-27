@@ -107,6 +107,12 @@ public:
   template <typename RepType, typename DurType, typename Obj>
   ros2::TimerPtr
   createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj, bool autostart = true);
+  template <typename RepType, typename DurType, typename Obj>
+  ros2::TimerPtr createWallTimer(
+    std::chrono::duration<RepType, DurType> period,
+    void (Obj::*fp)(void),
+    Obj* obj,
+    bool autostart = true);
 
   template <typename... Args>
   void log(uint8_t level, const Args&... args) const;
@@ -331,6 +337,16 @@ BaseNode::createTimer(std::chrono::duration<RepType, DurType> period, void (Obj:
     timer->cancel();
 
   return timer;
+}
+
+template <typename RepType, typename DurType, typename Obj>
+ros2::TimerPtr BaseNode::createWallTimer(
+  std::chrono::duration<RepType, DurType> period,
+  void (Obj::*fp)(void),
+  Obj* obj,
+  bool autostart)
+{
+  return create_wall_timer(period, bind(fp, obj), nullptr, autostart);
 }
 
 template <typename Obj>

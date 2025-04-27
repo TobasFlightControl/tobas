@@ -148,7 +148,7 @@ void ICEPropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   ice_cmd_sub_ = createSubscriber(tobas::kIcePropulsionSystemCmdTopic, &self::iceCommandCb, this);
 
   // Create timers
-  auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
+  auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 }
 
 void ICEPropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)

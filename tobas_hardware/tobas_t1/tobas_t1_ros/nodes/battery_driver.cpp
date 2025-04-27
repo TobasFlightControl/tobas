@@ -29,7 +29,7 @@ private:
 
 BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options) : super("t1_battery_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BatteryDriverNode::initialize()
@@ -45,7 +45,7 @@ void BatteryDriverNode::initialize()
   initialize_timer_->cancel();
   initialize_timer_.reset();
 
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void BatteryDriverNode::mainTimerCb()

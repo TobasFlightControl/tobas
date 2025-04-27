@@ -260,7 +260,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   save_gains_ss_ = createService<SaveGains>(tobas::kSaveRotorControlGainsSrv, &self::saveGainsCb, this);
 
   // Create timers
-  auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
+  auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 
   eprop_ = eprop;
   TOBAS_INFO("Rotor speed controller is initialized.");
