@@ -28,8 +28,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
 
-  ros2::TimerPtr publish_arm_status_timer_;
-
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
