@@ -42,7 +42,6 @@ void PwmDriverNode::initialize()
   pwms_sub_ = createSubscriber(tobas::kPwmCmdTopic, &self::pwmsCb, this);
 
   initialize_timer_->cancel();
-  initialize_timer_.reset();
 }
 
 void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)

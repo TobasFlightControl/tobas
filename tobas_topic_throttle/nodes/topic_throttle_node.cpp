@@ -98,7 +98,6 @@ void TopicThrottleNode::initialize()
   real_mag_throttle_.initialize(node, real::kMagTopic);
 
   initialize_timer_->cancel();
-  initialize_timer_.reset();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(TopicThrottleNode)

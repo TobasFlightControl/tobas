@@ -111,7 +111,6 @@ void VelocityControllerNode::initialize()
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 
   initialize_timer_->cancel();
-  initialize_timer_.reset();
 }
 
 bool VelocityControllerNode::jointSpaceControl(

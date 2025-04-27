@@ -45,8 +45,6 @@ void ImuDriverNode::initialize()
   sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
 
   initialize_timer_->cancel();
-  initialize_timer_.reset();
-
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
