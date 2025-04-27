@@ -14,6 +14,7 @@ HARDWARE_PKG = "{{ hardware_pkg }}"
 # Arguments
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
+MULTIPROCESS = "multiprocess"
 
 
 def generate_launch_description():
@@ -22,10 +23,12 @@ def generate_launch_description():
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(MULTIPROCESS, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
+    multiprocess = LaunchConfiguration(MULTIPROCESS)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     hw_pkg_share = FindPackageShare(HARDWARE_PKG)
@@ -47,7 +50,7 @@ def generate_launch_description():
                 "output": output,
                 "use_sim_time": "false",
                 "ground_truth": "false",
-                "multiprocess": "false",
+                "multiprocess": multiprocess,
             }.items(),
         )
     )
