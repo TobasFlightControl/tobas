@@ -44,7 +44,9 @@ void ImuDriverNode::initialize()
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(real::kImuTopic);
   sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
 
+  initialize_timer_->cancel();
   initialize_timer_.reset();
+
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

@@ -619,6 +619,8 @@ void ControllerNode::checkTopicsTimerCb()
   }
 
   topics_received_ = true;
+
+  check_topics_timer_->cancel();
   check_topics_timer_.reset();
 }
 

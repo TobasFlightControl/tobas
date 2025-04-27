@@ -42,7 +42,9 @@ void SbusDriverNode::initialize()
     return;
   }
 
+  initialize_timer_->cancel();
   initialize_timer_.reset();
+
   sbus_.start();
 }
 

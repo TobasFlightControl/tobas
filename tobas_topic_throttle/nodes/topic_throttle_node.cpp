@@ -97,6 +97,7 @@ void TopicThrottleNode::initialize()
   real_imu_throttle_.initialize(node, real::kImuTopic);
   real_mag_throttle_.initialize(node, real::kMagTopic);
 
+  initialize_timer_->cancel();
   initialize_timer_.reset();
 }
 

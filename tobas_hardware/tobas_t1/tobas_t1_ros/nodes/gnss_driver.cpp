@@ -70,7 +70,9 @@ void GnssDriverNode::initialize()
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
 
+  initialize_timer_->cancel();
   initialize_timer_.reset();
+
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 

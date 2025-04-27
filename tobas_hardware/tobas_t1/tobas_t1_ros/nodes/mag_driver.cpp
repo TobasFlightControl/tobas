@@ -42,7 +42,9 @@ void MagDriverNode::initialize()
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
 
+  initialize_timer_->cancel();
   initialize_timer_.reset();
+
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
