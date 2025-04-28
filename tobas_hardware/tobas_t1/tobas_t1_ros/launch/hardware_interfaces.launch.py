@@ -60,12 +60,12 @@ def generate_launch_description():
                     namespace=ns,
                     extra_arguments=extra_arguments,
                 ),
-                ComposableNode(
-                    package=pkg_name,
-                    plugin="GnssDriverNode",
-                    namespace=ns,
-                    extra_arguments=extra_arguments,
-                ),
+                # ComposableNode(
+                #     package=pkg_name,
+                #     plugin="GnssDriverNode",
+                #     namespace=ns,
+                #     extra_arguments=extra_arguments,
+                # ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="BatteryDriverNode",
