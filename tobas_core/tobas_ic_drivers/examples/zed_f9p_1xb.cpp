@@ -23,12 +23,14 @@ int main(int argc, char** argv)
   ublox::payload::NAV_TIMEGPS timegps;
   ublox::payload::NAV_VELNED velned;
 
+  cout << "Initializing GNSS device." << endl;
   if (!gnss.initialize(device))
   {
     cerr << "Failed to initialize GNSS driver." << endl;
     return EXIT_FAILURE;
   }
 
+  cout << "Configuring measurement rate." << endl;
   if (!gnss.configureMeasurementRate(1000))
   {
     cerr << "Failed to configure measurement rate." << endl;
@@ -36,6 +38,7 @@ int main(int argc, char** argv)
   }
 
   // Enable GNSS
+  cout << "Enabling GNSS." << endl;
   if (!gnss.enableGPS(true))
   {
     cerr << "Failed to enable GPS." << endl;
@@ -73,6 +76,7 @@ int main(int argc, char** argv)
   }
 
   // Enable messages
+  cout << "Enabling messages." << endl;
   if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_COV, true))
   {
     cerr << "Failed to enable NAV_COV message." << endl;
@@ -108,6 +112,8 @@ int main(int argc, char** argv)
     cerr << "Failed to enable NAV_VELNED message." << endl;
     return EXIT_FAILURE;
   }
+
+  cout << "Initial configuration is finished successfully." << endl;
 
   while (true)
   {
