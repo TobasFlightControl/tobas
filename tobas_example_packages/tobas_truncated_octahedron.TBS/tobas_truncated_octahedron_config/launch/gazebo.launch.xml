@@ -19,12 +19,13 @@
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
   <!-- Load robot description -->
-  <include file="$(find-pkg-share tobas_truncated_octahedron_config)/launch/robot_state_publisher.launch.py">
-    <arg name="log_level" value="$(var log_level)"/>
-    <arg name="output" value="$(var output)"/>
-    <arg name="use_sim_time" value="$(var use_sim_time)"/>
-    <arg name="user_debug" value="$(var user_debug)"/>
-  </include>
+  <arg name="xacro_path" default="$(find-pkg-share tobas_truncated_octahedron_config)/urdf/drone.xacro"/>
+  <arg name="urdf_content" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug)')"/>
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" namespace="truncated_octahedron" ros_args="--log-level $(var log_level)" output="$(var output)">
+    <param name="robot_description" value="$(var urdf_content)"/>
+    <remap from="/tf" to="tf"/>
+    <remap from="/tf_static" to="tf_static"/>
+  </node>
 
   <!-- Launch a Gazebo world -->
   <include file="$(find-pkg-share tobas_gazebo_sim)/launch/gazebo.launch.xml">

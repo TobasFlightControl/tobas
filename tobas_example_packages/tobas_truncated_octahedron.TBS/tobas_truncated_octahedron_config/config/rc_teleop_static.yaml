@@ -1,0 +1,3 @@
+acrobat_mode: accel_rate
+stabilize_mode: accel_angle
+loiter_mode: pos_vel_angle

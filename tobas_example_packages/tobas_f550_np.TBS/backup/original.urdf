@@ -221,37 +221,37 @@
         <child link="frame"/>
     </joint>
     <joint name="propeller_0_joint" type="continuous">
-        <origin xyz="0.242082 0.130702 0.060597" rpy="0.523599 1.38778e-17 0.523599"/>
+        <origin xyz="0.242082 0.130702 0.060597" rpy="0.523599 2.77556e-17 0.523599"/>
         <axis xyz="0 0 1"/>
         <parent link="base_link"/>
         <child link="propeller_0"/>
     </joint>
     <joint name="propeller_1_joint" type="continuous">
-        <origin xyz="-0.007851 0.275 0.060597" rpy="-0.523599 -0 1.5708"/>
+        <origin xyz="-0.007851 0.275 0.060597" rpy="-0.523599 5.55112e-17 1.5708"/>
         <axis xyz="0 0 1"/>
         <parent link="base_link"/>
         <child link="propeller_1"/>
     </joint>
     <joint name="propeller_2_joint" type="continuous">
-        <origin xyz="-0.234232 0.144298 0.060597" rpy="0.523599 -1.38778e-17 2.61799"/>
+        <origin xyz="-0.234232 0.144298 0.060597" rpy="0.523599 2.77556e-17 2.61799"/>
         <axis xyz="0 0 1"/>
         <parent link="base_link"/>
         <child link="propeller_2"/>
     </joint>
     <joint name="propeller_3_joint" type="continuous">
-        <origin xyz="-0.234232 -0.144645 0.060597" rpy="-0.523599 -0 -2.61799"/>
+        <origin xyz="-0.234232 -0.144645 0.060597" rpy="-0.523599 2.77556e-17 -2.61799"/>
         <axis xyz="0 0 1"/>
         <parent link="base_link"/>
         <child link="propeller_3"/>
     </joint>
     <joint name="propeller_4_joint" type="continuous">
-        <origin xyz="-0.007851 -0.275 0.060597" rpy="0.523599 -0 -1.5708"/>
+        <origin xyz="-0.007851 -0.275 0.060597" rpy="0.523599 5.55112e-17 -1.5708"/>
         <axis xyz="0 0 1"/>
         <parent link="base_link"/>
         <child link="propeller_4"/>
     </joint>
     <joint name="propeller_5_joint" type="continuous">
-        <origin xyz="0.242082 -0.130355 0.060597" rpy="-0.523599 -0 -0.523599"/>
+        <origin xyz="0.242082 -0.130355 0.060597" rpy="-0.523599 2.77556e-17 -0.523599"/>
         <axis xyz="0 0 1"/>
         <parent link="base_link"/>
         <child link="propeller_5"/>

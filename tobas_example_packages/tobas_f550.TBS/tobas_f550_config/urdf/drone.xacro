@@ -474,6 +474,12 @@
             <linkName>base_link</linkName>
         </plugin>
     </gazebo>
+    <gazebo>
+        <plugin filename="tobas_gazebo_lookat_position_plugin" name="gazebo::GazeboLookAtPositionPlugin">
+            <robotNamespace>f550</robotNamespace>
+            <linkName>base_link</linkName>
+        </plugin>
+    </gazebo>
     <ros2_control name="GazeboSimSystem" type="system">
         <hardware>
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
