@@ -12,6 +12,11 @@ public:
   ~SPIdev();
 
   bool initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word = 8);
+
+  /**
+   * @brief 引数で与えたバイト数だけ送受信する．
+   * @note デバイスが接続されてないなど，SPIスレーブが機能していない場合はデッドロックする．
+   */
   bool transfer(uint32_t length);
 
 private:
