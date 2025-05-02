@@ -3,10 +3,6 @@
 
 #include <std_msgs/msg/string.hpp>
 
-#include "tobas_coding_style_example/my_class.hpp"
-
-using namespace std::chrono_literals;
-
 namespace tobas
 {
 class MyNode : public rclcpp::Node

@@ -7,11 +7,39 @@ namespace my_namespace
 class MyClass
 {
 public:
-  int public_instance;
+  /* Types and type aliases */
+  using Ptr = MyClass*;
 
+  /* Static constants */
+  static constexpr int kStaticConstant = 0;
+
+  /* Factory functions */
+  static MyClass FactoryFunction();
+
+  /* Default constructor */
+  explicit MyClass();
+
+  /* Move constructor (permit) */
+  MyClass(MyClass&& other) = default;
+  MyClass& operator=(MyClass&& other) = default;
+
+  /* Copy constructor (forbit) */
+  MyClass(const MyClass& other) = delete;
+  MyClass& operator=(const MyClass& other) = delete;
+
+  /* Destructor */
+  ~MyClass();
+
+  /* All other functions */
+  bool initialize();
+  void longMethod();
   inline int shortMethod();
 
-  void longMethod();
+  /* All other data members */
+  int public_instance;
+
+protected:
+  int protected_instance_;
 
 private:
   int private_instance_;
