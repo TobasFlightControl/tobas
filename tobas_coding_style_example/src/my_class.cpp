@@ -24,8 +24,9 @@ namespace my_namespace
 {
 namespace
 {
-void internalMethod()
+bool internalMethod()
 {
+  return true;
 }
 }  // namespace
 
@@ -48,9 +49,16 @@ bool MyClass::initialize()
   return true;
 }
 
-void MyClass::longMethod()
+MyClass::error_t MyClass::longMethod(int primitive_input, const std::string& non_primitive_input, double& output)
 {
-  internalMethod();
+  (void)primitive_input;
+  (void)non_primitive_input;
+  (void)output;
+
+  if (!internalMethod())
+    return E_ERROR;
+
+  return E_NO_ERROR;
 }
 }  // namespace my_namespace
 }  // namespace tobas
