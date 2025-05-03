@@ -85,7 +85,7 @@ BraceWrapping:
   SplitEmptyNamespace: true # Added
 
 # ===== Added =====
-AlignAfterOpenBracket: AlwaysBreak
-AlignOperands: true
-FixNamespaceComments: true
+AlignAfterOpenBracket: AlwaysBreak # 引数が1行に収まらなければ全ての引数を1段下げる
+AlignOperands: true # 長い式の演算子を縦に揃える
+FixNamespaceComments: true # 名前空間の閉じ括弧にコメントを追加/修正
 InsertBraces: true # 必ず{}を挿入する
