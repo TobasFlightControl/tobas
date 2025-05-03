@@ -27,26 +27,26 @@ bool ILPS22QS::initialize()
   return true;
 }
 
-bool ILPS22QS::readPressure(double& pres)
+bool ILPS22QS::readPressure(double& pressure)
 {
   if (!readRegs(PRESSURE_OUT_XL, 3)) {
     return false;
   }
 
   const auto lsb = (i2c_.rx[2] << 16) | (i2c_.rx[1] << 8) | i2c_.rx[0];
-  pres = lsb / pres_scale_;
+  pressure = lsb / pres_scale_;
 
   return true;
 }
 
-bool ILPS22QS::readTemperature(double& temp)
+bool ILPS22QS::readTemperature(double& temperature)
 {
   if (!readRegs(TEMP_OUT_L, 2)) {
     return false;
   }
 
   const auto lsb = (i2c_.rx[1] << 8) | i2c_.rx[0];
-  temp = lsb / kTempScale;
+  temperature = lsb / kTempScale;
 
   return true;
 }
