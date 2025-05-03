@@ -9,13 +9,13 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>tobas_actions</exec_depend>
+	<exec_depend>tobas_code_style</exec_depend>
 	<exec_depend>tobas_command_msgs</exec_depend>
 	<exec_depend>tobas_command_msgs_adapter</exec_depend>
 	<exec_depend>tobas_components_rt</exec_depend>
 	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
-	<exec_depend>tobas_cpp_code_style_example</exec_depend>
 	<exec_depend>tobas_cui</exec_depend>
 	<exec_depend>tobas_debug_msgs</exec_depend>
 	<exec_depend>tobas_debug_msgs_adapter</exec_depend>
