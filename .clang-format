@@ -32,7 +32,7 @@ AllowShortCaseLabelsOnASingleLine: false
 
 AlwaysBreakTemplateDeclarations: true
 AlwaysBreakBeforeMultilineStrings: false
-BreakBeforeBinaryOperators: NonAssignment # false -> NonAssignment
+BreakBeforeBinaryOperators: false
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializersBeforeComma: true
 

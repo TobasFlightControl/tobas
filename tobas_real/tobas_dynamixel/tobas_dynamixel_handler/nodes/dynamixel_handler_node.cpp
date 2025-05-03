@@ -139,9 +139,9 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
   for (const auto& [name, cfg] : motors_) {
     // Add parameters to GroupSyncRead objects
     if (
-      !pos_sync_read_->addParam(cfg.id) || !vel_sync_read_->addParam(cfg.id) || !current_sync_read_->addParam(cfg.id)
-      || !pwm_sync_read_->addParam(cfg.id) || !voltage_sync_read_->addParam(cfg.id)
-      || !temp_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id)) {
+      !pos_sync_read_->addParam(cfg.id) || !vel_sync_read_->addParam(cfg.id) || !current_sync_read_->addParam(cfg.id) ||
+      !pwm_sync_read_->addParam(cfg.id) || !voltage_sync_read_->addParam(cfg.id) ||
+      !temp_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id)) {
       TOBAS_EXIT("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
     }
 

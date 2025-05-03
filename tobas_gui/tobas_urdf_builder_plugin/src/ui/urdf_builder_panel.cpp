@@ -557,8 +557,8 @@ bool URDFBuilderPanel::isJointsValid()
     const auto& axis = joint->axis;
 
     if (
-      type == urdf::Joint::REVOLUTE || type == urdf::Joint::CONTINUOUS || type == urdf::Joint::PRISMATIC
-      || type == urdf::Joint::PLANAR) {
+      type == urdf::Joint::REVOLUTE || type == urdf::Joint::CONTINUOUS || type == urdf::Joint::PRISMATIC ||
+      type == urdf::Joint::PLANAR) {
       if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
         QMessageBox::warning(this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
         return false;

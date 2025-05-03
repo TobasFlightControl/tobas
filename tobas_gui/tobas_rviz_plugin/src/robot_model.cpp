@@ -845,8 +845,8 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
   auto parent_joint = child_link->parent_joint ? child_link->parent_joint.get() : nullptr;
   auto joint_index = joint_model_vector_.size();
   auto first_variable_index = joint_model_vector_.empty() ? 0 :
-                                                            joint_model_vector_.back()->getFirstVariableIndex()
-                                                              + joint_model_vector_.back()->getVariableCount();
+                                                            joint_model_vector_.back()->getFirstVariableIndex() +
+                                                              joint_model_vector_.back()->getVariableCount();
 
   // if parent_joint exists, must be the root link transform
   if (parent_joint) {
@@ -891,8 +891,8 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
     for (const srdf::Model::VirtualJoint& virtual_joint : virtual_joints) {
       if (virtual_joint.child_link_ != child_link->name) {
         if (
-          child_link->name == "world" && virtual_joint.type_ == "fixed" && child_link->collision_array.empty()
-          && !child_link->collision && child_link->visual_array.empty() && !child_link->visual) {
+          child_link->name == "world" && virtual_joint.type_ == "fixed" && child_link->collision_array.empty() &&
+          !child_link->collision && child_link->visual_array.empty() && !child_link->visual) {
           // Gazebo requires a fixed link from a dummy world link to the first robot's link
           // Skip warning in this case and create a fixed joint with given name
           new_joint_model = new FixedJointModel(virtual_joint.name_, joint_index, first_variable_index);
@@ -1339,8 +1339,8 @@ double RobotModel::getMaximumExtent(const JointBoundsVector& active_joint_bounds
 {
   double max_distance = 0.;
   for (std::size_t j = 0; j < active_joint_model_vector_.size(); ++j) {
-    max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j])
-                    * active_joint_model_vector_[j]->getDistanceFactor();
+    max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j]) *
+                    active_joint_model_vector_[j]->getDistanceFactor();
   }
   return max_distance;
 }
@@ -1380,8 +1380,8 @@ double RobotModel::distance(const double* state1, const double* state2) const
 {
   double d = 0.;
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    d += active_joint_model_vector_[i]->getDistanceFactor()
-         * active_joint_model_vector_[i]->distance(
+    d += active_joint_model_vector_[i]->getDistanceFactor() *
+         active_joint_model_vector_[i]->distance(
            state1 + active_joint_model_start_index_[i], state2 + active_joint_model_start_index_[i]);
   }
   return d;

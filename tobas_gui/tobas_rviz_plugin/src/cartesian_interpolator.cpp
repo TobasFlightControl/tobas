@@ -174,8 +174,8 @@ CartesianInterpolator::Distance CartesianInterpolator::computeCartesianPath(
   pose.translation() += global_reference_frame ? translation : pose.linear() * translation;
 
   // call computeCartesianPath for the computed target pose in the global reference frame
-  return CartesianInterpolator::Distance(distance)
-         * computeCartesianPath(
+  return CartesianInterpolator::Distance(distance) *
+         computeCartesianPath(
            start_state, group, traj, link, pose, true, max_step, precision, validCallback, options, cost_function);
 }
 
@@ -243,8 +243,8 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
     pose.translation() = percentage * rotated_target.translation() + (1 - percentage) * start_pose.translation();
 
     if (
-      !state.setFromIK(group, pose * inv_offset, link->getName(), 0., validCallback, options, cost_function)
-      || !validateAndImproveInterval(
+      !state.setFromIK(group, pose * inv_offset, link->getName(), 0., validCallback, options, cost_function) ||
+      !validateAndImproveInterval(
         prev_state, state, prev_pose, pose, traj, percentage, 1. / static_cast<double>(steps), group, link, precision,
         validCallback, options, cost_function, link_offset)) {
       break;
@@ -353,8 +353,8 @@ CartesianInterpolator::Distance CartesianInterpolator::computeCartesianPath(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   // call computeCartesianPath for the computed target pose in the global reference frame
-  return CartesianInterpolator::Distance(distance)
-         * computeCartesianPath(
+  return CartesianInterpolator::Distance(distance) *
+         computeCartesianPath(
            start_state, group, path, link, pose, true, max_step, jump_threshold, validCallback, options, cost_function);
 #pragma GCC diagnostic pop
 }

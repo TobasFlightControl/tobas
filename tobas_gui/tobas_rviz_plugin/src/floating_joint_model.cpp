@@ -102,8 +102,8 @@ void FloatingJointModel::interpolate(const double* from, const double* to, const
 
   // Check if the quaternions are significantly different
   if (
-    abs(from[3] - to[3]) + abs(from[4] - to[4]) + abs(from[5] - to[5]) + abs(from[6] - to[6])
-    > std::numeric_limits<double>::epsilon()) {
+    abs(from[3] - to[3]) + abs(from[4] - to[4]) + abs(from[5] - to[5]) + abs(from[6] - to[6]) >
+    std::numeric_limits<double>::epsilon()) {
     // Note the ordering: Eigen takes w first!
     Eigen::Quaterniond q1(from[6], from[3], from[4], from[5]);
     Eigen::Quaterniond q2(to[6], to[3], to[4], to[5]);
@@ -188,8 +188,8 @@ bool FloatingJointModel::enforcePositionBounds(double* values, const Bounds& bou
 void FloatingJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
 {
   transf = Eigen::Isometry3d(
-    Eigen::Translation3d(joint_values[0], joint_values[1], joint_values[2])
-    * Eigen::Quaterniond(joint_values[6], joint_values[3], joint_values[4], joint_values[5]).normalized());
+    Eigen::Translation3d(joint_values[0], joint_values[1], joint_values[2]) *
+    Eigen::Quaterniond(joint_values[6], joint_values[3], joint_values[4], joint_values[5]).normalized());
 }
 
 void FloatingJointModel::computeVariablePositions(const Eigen::Isometry3d& transf, double* joint_values) const
@@ -229,24 +229,24 @@ void FloatingJointModel::getVariableRandomPositions(
   const Bounds& bounds) const
 {
   if (
-    bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[0].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[0] = 0.;
   }
   else {
     values[0] = rng.uniformReal(bounds[0].min_position_, bounds[0].max_position_);
   }
   if (
-    bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[1].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[1] = 0.;
   }
   else {
     values[1] = rng.uniformReal(bounds[1].min_position_, bounds[1].max_position_);
   }
   if (
-    bounds[2].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[2].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[2].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[2].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[2] = 0.;
   }
   else {
@@ -269,8 +269,8 @@ void FloatingJointModel::getVariableRandomPositionsNearBy(
   const double distance) const
 {
   if (
-    bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[0].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[0] = 0.;
   }
   else {
@@ -278,8 +278,8 @@ void FloatingJointModel::getVariableRandomPositionsNearBy(
       std::max(bounds[0].min_position_, near[0] - distance), std::min(bounds[0].max_position_, near[0] + distance));
   }
   if (
-    bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[1].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[1] = 0.;
   }
   else {
@@ -287,8 +287,8 @@ void FloatingJointModel::getVariableRandomPositionsNearBy(
       std::max(bounds[1].min_position_, near[1] - distance), std::min(bounds[1].max_position_, near[1] + distance));
   }
   if (
-    bounds[2].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[2].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[2].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[2].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[2] = 0.;
   }
   else {

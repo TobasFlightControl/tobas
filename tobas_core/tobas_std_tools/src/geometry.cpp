@@ -166,9 +166,8 @@ void gnssToCartRelative(
   // (2) A,Sの計算
   constexpr auto m_ = (m0 * a) / (1 + n);
   constexpr auto A_ = m_ * A0;  // [m]
-  const auto S_ =
-    m_
-    * (A0 * phi_0 + A1 * sin(2 * phi_0) + A2 * sin(4 * phi_0) + A3 * sin(6 * phi_0) + A4 * sin(8 * phi_0) + A5 * sin(10 * phi_0));
+  const auto S_ = m_ * (A0 * phi_0 + A1 * sin(2 * phi_0) + A2 * sin(4 * phi_0) + A3 * sin(6 * phi_0) +
+                        A4 * sin(8 * phi_0) + A5 * sin(10 * phi_0));
 
   // (3) lam_c,lam_sの計算
   const auto lam_c = cos(lam - lam_0);
@@ -183,13 +182,13 @@ void gnssToCartRelative(
   const auto eta2 = atanh(lam_s / t_);
 
   // (6) x,yの計算
-  x =
-    A_
-      * (xi2 + a1 * sin(2 * xi2) * cosh(2 * eta2) + a2 * sin(4 * xi2) * cosh(4 * eta2) + a3 * sin(6 * xi2) * cosh(6 * eta2) + a4 * sin(8 * xi2) * cosh(8 * eta2) + a5 * sin(10 * xi2) * cosh(10 * eta2))
-    - S_;  // [m]
-  y =
-    A_
-    * (eta2 + a1 * cos(2 * xi2) * sinh(2 * eta2) + a2 * cos(4 * xi2) * sinh(4 * eta2) + a3 * cos(6 * xi2) * sinh(6 * eta2) + a4 * cos(8 * xi2) * sinh(8 * eta2) + a5 * cos(10 * xi2) * sinh(10 * eta2));  // [m]
+  x = A_ * (xi2 + a1 * sin(2 * xi2) * cosh(2 * eta2) + a2 * sin(4 * xi2) * cosh(4 * eta2) +
+            a3 * sin(6 * xi2) * cosh(6 * eta2) + a4 * sin(8 * xi2) * cosh(8 * eta2) +
+            a5 * sin(10 * xi2) * cosh(10 * eta2)) -
+      S_;  // [m]
+  y = A_ * (eta2 + a1 * cos(2 * xi2) * sinh(2 * eta2) + a2 * cos(4 * xi2) * sinh(4 * eta2) +
+            a3 * cos(6 * xi2) * sinh(6 * eta2) + a4 * cos(8 * xi2) * sinh(8 * eta2) +
+            a5 * cos(10 * xi2) * sinh(10 * eta2));  // [m]
 
   // このままだと東が正になっているので反転する
   y *= -1;
@@ -243,29 +242,28 @@ void cartToGnssRelative(
   // (2) A,Sの計算
   constexpr auto m_ = (m0 * a) / (1 + n);
   constexpr auto A_ = m_ * A0;  // [m]
-  const auto S_ =
-    m_
-    * (A0 * phi_0 + A1 * sin(2 * phi_0) + A2 * sin(4 * phi_0) + A3 * sin(6 * phi_0) + A4 * sin(8 * phi_0) + A5 * sin(10 * phi_0));
+  const auto S_ = m_ * (A0 * phi_0 + A1 * sin(2 * phi_0) + A2 * sin(4 * phi_0) + A3 * sin(6 * phi_0) +
+                        A4 * sin(8 * phi_0) + A5 * sin(10 * phi_0));
 
   // (3) xi,etaの計算
   const auto xi = (x + S_) / A_;
   const auto eta = y / A_;
 
   // (4) xi',eta'の計算
-  const auto xi2 = xi - b1 * sin(2 * xi) * cosh(2 * eta) - b2 * sin(4 * xi) * cosh(4 * eta)
-                   - b3 * sin(6 * xi) * cosh(6 * eta) - b4 * sin(8 * xi) * cosh(8 * eta)
-                   - b5 * sin(10 * xi) * cosh(10 * eta);
-  const auto eta2 = eta - b1 * cos(2 * xi) * sinh(2 * eta) - b2 * cos(4 * xi) * sinh(4 * eta)
-                    - b3 * cos(6 * xi) * sinh(6 * eta) - b4 * cos(8 * xi) * sinh(8 * eta)
-                    - b5 * cos(10 * xi) * sinh(10 * eta);
+  const auto xi2 = xi - b1 * sin(2 * xi) * cosh(2 * eta) - b2 * sin(4 * xi) * cosh(4 * eta) -
+                   b3 * sin(6 * xi) * cosh(6 * eta) - b4 * sin(8 * xi) * cosh(8 * eta) -
+                   b5 * sin(10 * xi) * cosh(10 * eta);
+  const auto eta2 = eta - b1 * cos(2 * xi) * sinh(2 * eta) - b2 * cos(4 * xi) * sinh(4 * eta) -
+                    b3 * cos(6 * xi) * sinh(6 * eta) - b4 * cos(8 * xi) * sinh(8 * eta) -
+                    b5 * cos(10 * xi) * sinh(10 * eta);
 
   // (5) chiの計算
   const auto chi = asin(sin(xi2) / cosh(eta2));  // [rad]
 
   // (6) 北緯，東経の計算
-  const auto latitude_rad = chi + d1 * sin(2 * chi) + d2 * sin(4 * chi) + d3 * sin(6 * chi) + d4 * sin(8 * chi)
-                            + d5 * sin(10 * chi) + d6 * sin(12 * chi);  // [rad]
-  const auto longitude_rad = lam_0 - atan(sinh(eta2) / cos(xi2));       // [rad]
+  const auto latitude_rad = chi + d1 * sin(2 * chi) + d2 * sin(4 * chi) + d3 * sin(6 * chi) + d4 * sin(8 * chi) +
+                            d5 * sin(10 * chi) + d6 * sin(12 * chi);  // [rad]
+  const auto longitude_rad = lam_0 - atan(sinh(eta2) / cos(xi2));     // [rad]
 
   // ラジアンを度になおす
   latitude = rad2deg(latitude_rad);

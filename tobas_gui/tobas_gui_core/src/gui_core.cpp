@@ -233,8 +233,8 @@ void GUICoreWidget::onLoadButtonClicked()
   const auto tbsdrn_path = common::getTBSDRNPath(tbs_path.toStdString());
   if (!fs::is_regular_file(tbsdrn_path)) {
     qt::qErrorBox(
-      this, "\"" + QString::fromStdString(tbsdrn_path)
-              + "\" does not exist. Please create a new Tobas configuration package.");
+      this, "\"" + QString::fromStdString(tbsdrn_path) +
+              "\" does not exist. Please create a new Tobas configuration package.");
     return;
   }
 
@@ -325,8 +325,8 @@ void GUICoreWidget::onWriteButtonClicked()
   if (!package_builder_.build(remote_tbs_path)) {
     progress.close();
     qt::qErrorBox(
-      this, "Failed to build the Tobas configuration package:\n\n"
-              + QString::fromStdString(package_builder_.getErrorMessage()));
+      this, "Failed to build the Tobas configuration package:\n\n" +
+              QString::fromStdString(package_builder_.getErrorMessage()));
     return;
   }
   progress.progressStep();

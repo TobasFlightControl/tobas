@@ -143,8 +143,8 @@ void PositionYawPublisherNode::initializeTimerCb()
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
   if (
-    rclcpp::wait_for_message(odom, shared_from_this(), tobas::kOdometryTopic)
-    && odom.status == tobas_msgs::msg::Odometry::NO_ERROR) {
+    rclcpp::wait_for_message(odom, shared_from_this(), tobas::kOdometryTopic) &&
+    odom.status == tobas_msgs::msg::Odometry::NO_ERROR) {
     cmd_pos_ = odom.frame.p;
     cmd_yaw_ = odom.frame.M.getYaw();
   }

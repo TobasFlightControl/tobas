@@ -313,8 +313,8 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   const auto par_dir_size = path::computeDirectorySize(rosbag_dir_);
   if (par_dir_size > kMaxParDirSize) {
     res->success = false;
-    res->message = "The size of rosbag directory (" + rosbag_dir_.string() + ") is over "
-                   + to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
+    res->message = "The size of rosbag directory (" + rosbag_dir_.string() + ") is over " +
+                   to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
     return;
   }
 

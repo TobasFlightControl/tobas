@@ -70,16 +70,16 @@ void PlanarJointModel::getVariableRandomPositions(
   const Bounds& bounds) const
 {
   if (
-    bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[0].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[0] = 0.;
   }
   else {
     values[0] = rng.uniformReal(bounds[0].min_position_, bounds[0].max_position_);
   }
   if (
-    bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[1].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[1] = 0.;
   }
   else {
@@ -96,8 +96,8 @@ void PlanarJointModel::getVariableRandomPositionsNearBy(
   const double distance) const
 {
   if (
-    bounds[0].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[0].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[0].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[0] = 0.;
   }
   else {
@@ -105,8 +105,8 @@ void PlanarJointModel::getVariableRandomPositionsNearBy(
       std::max(bounds[0].min_position_, near[0] - distance), std::min(bounds[0].max_position_, near[0] + distance));
   }
   if (
-    bounds[1].max_position_ >= std::numeric_limits<double>::infinity()
-    || bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
+    bounds[1].max_position_ >= std::numeric_limits<double>::infinity() ||
+    bounds[1].min_position_ <= -std::numeric_limits<double>::infinity()) {
     values[1] = 0.;
   }
   else {
@@ -293,8 +293,8 @@ bool PlanarJointModel::enforcePositionBounds(double* values, const Bounds& bound
 void PlanarJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
 {
   transf = Eigen::Isometry3d(
-    Eigen::Translation3d(joint_values[0], joint_values[1], 0.)
-    * Eigen::AngleAxisd(joint_values[2], Eigen::Vector3d::UnitZ()));
+    Eigen::Translation3d(joint_values[0], joint_values[1], 0.) *
+    Eigen::AngleAxisd(joint_values[2], Eigen::Vector3d::UnitZ()));
 }
 
 void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transf, double* joint_values) const

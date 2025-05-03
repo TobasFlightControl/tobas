@@ -58,8 +58,8 @@ double BladeTheory::C_H() const
   const auto b0 = 0.5 * gamma * (theta_ / 4 - lam / 3);
   const auto b1c = 2 * (lam - (4. / 3) * theta_);  // devided by mu
   const auto b1s = -(4. / 3) * b0;                 // devided by mu
-  return (sigma() / 4)
-         * (C_d0 + (a / 6) * (2 * theta_ * (3 * lam - 2 * b1c) + 9 * lam * b1c + 2 * b0 * b1s + 3 * math::sqr(b0)));
+  return (sigma() / 4) *
+         (C_d0 + (a / 6) * (2 * theta_ * (3 * lam - 2 * b1c) + 9 * lam * b1c + 2 * b0 * b1s + 3 * math::sqr(b0)));
 }
 }  // namespace electric
 }  // namespace propulsion

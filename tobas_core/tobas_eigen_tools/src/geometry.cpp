@@ -133,11 +133,11 @@ Vector3d euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc
   const auto rpyd = eulerrateFromAngvelGlobal(angvel, pitch, yaw);
 
   Vector3d rpydd;
-  rpydd.x() = rpyd.x() * rpyd.y() * tp + (angacc.x() + angvel.y() * rpyd.z()) * cy / cp
-              + (angacc.y() - angvel.x() * rpyd.z()) * sy / cp;
+  rpydd.x() = rpyd.x() * rpyd.y() * tp + (angacc.x() + angvel.y() * rpyd.z()) * cy / cp +
+              (angacc.y() - angvel.x() * rpyd.z()) * sy / cp;
   rpydd.y() = (angacc.y() - angvel.x() * rpyd.z()) * cy - (angacc.x() + angvel.y() * rpyd.z()) * sy;
-  rpydd.z() = angacc.z() + (angvel.x() + cy + angvel.y() * sy) * rpyd.y() / math::sqr(cp)
-              + (angacc.x() + angvel.y() * rpyd.z()) * cy * tp + (angacc.y() - angvel.x() * rpyd.z()) * sy * tp;
+  rpydd.z() = angacc.z() + (angvel.x() + cy + angvel.y() * sy) * rpyd.y() / math::sqr(cp) +
+              (angacc.x() + angvel.y() * rpyd.z()) * cy * tp + (angacc.y() - angvel.x() * rpyd.z()) * sy * tp;
 
   return rpydd;
 }

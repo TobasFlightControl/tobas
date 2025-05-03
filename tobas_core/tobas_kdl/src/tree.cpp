@@ -232,8 +232,8 @@ bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
 
   // Remove common part of segment lists
   auto last_segment = root_name_;
-  while (!parents_chain_root.empty() && !parents_chain_tip.empty()
-         && parents_chain_root.back() == parents_chain_tip.back()) {
+  while (!parents_chain_root.empty() && !parents_chain_tip.empty() &&
+         parents_chain_root.back() == parents_chain_tip.back()) {
     last_segment = parents_chain_root.back();
     parents_chain_root.pop_back();
     parents_chain_tip.pop_back();

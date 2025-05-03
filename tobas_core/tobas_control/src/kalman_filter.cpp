@@ -64,8 +64,8 @@ void KalmanFilter::update()
   const MatrixXd G = PCt * (ss.C * PCt + R).inverse();
   const MatrixXd I_GC = MatrixXd::Identity(stateSize(), stateSize()) - G * ss.C;
   x_ = x_prev + G * (y - ss.C * x_prev);
-  P_ = I_GC * P_prev.selfadjointView<Lower>() * I_GC.transpose()
-       + G * R.selfadjointView<Lower>() * G.transpose();  // Joseph form
+  P_ = I_GC * P_prev.selfadjointView<Lower>() * I_GC.transpose() +
+       G * R.selfadjointView<Lower>() * G.transpose();  // Joseph form
 }
 
 void KalmanFilter::verify() const

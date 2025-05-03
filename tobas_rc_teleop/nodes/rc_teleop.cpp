@@ -244,14 +244,14 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
 
 bool RCTeleopNode::isArmCommand(const tobas_msgs::RCInput& rcin)
 {
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh
-         && rcin.yaw < tobas::kRcInputMin + kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh &&
+         rcin.yaw < tobas::kRcInputMin + kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
 }
 
 bool RCTeleopNode::isDisarmCommand(const tobas_msgs::RCInput& rcin)
 {
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh
-         && rcin.yaw > tobas::kRcInputMax - kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh &&
+         rcin.yaw > tobas::kRcInputMax - kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)

@@ -123,8 +123,8 @@ JointModelGroup::JointModelGroup(
       joint_variables_index_map_[joint_model->getName()] = variable_count_;
 
       if (
-        joint_model->getType() == JointModel::REVOLUTE
-        && static_cast<const RevoluteJointModel*>(joint_model)->isContinuous()) {
+        joint_model->getType() == JointModel::REVOLUTE &&
+        static_cast<const RevoluteJointModel*>(joint_model)->isContinuous()) {
         continuous_joint_model_vector_.push_back(joint_model);
       }
 
@@ -185,8 +185,8 @@ JointModelGroup::JointModelGroup(
     // if this is the first link of the group with a valid parent and includes geometry (for example `base_link`) it
     // should included
     if (
-      link_model_with_geometry_vector_.empty() && link_model->getParentLinkModel()
-      && !link_model->getParentLinkModel()->getShapes().empty()) {
+      link_model_with_geometry_vector_.empty() && link_model->getParentLinkModel() &&
+      !link_model->getParentLinkModel()->getShapes().empty()) {
       link_model_with_geometry_vector_.push_back(link_model->getParentLinkModel());
       link_model_with_geometry_name_vector_.push_back(link_model->getParentLinkModel()->getName());
     }
@@ -361,8 +361,8 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
   if (distances.size() != active_joint_model_vector_.size()) {
     throw Exception(
-      "When sampling random values nearby for group '" + name_ + "', distances vector should be of size "
-      + std::to_string(active_joint_model_vector_.size()) + ", but it is of size " + std::to_string(distances.size()));
+      "When sampling random values nearby for group '" + name_ + "', distances vector should be of size " +
+      std::to_string(active_joint_model_vector_.size()) + ", but it is of size " + std::to_string(distances.size()));
   }
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableRandomPositionsNearBy(
@@ -407,8 +407,8 @@ double JointModelGroup::getMaximumExtent(const JointBoundsVector& active_joint_b
 {
   double max_distance = 0.;
   for (std::size_t j = 0; j < active_joint_model_vector_.size(); ++j) {
-    max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j])
-                    * active_joint_model_vector_[j]->getDistanceFactor();
+    max_distance += active_joint_model_vector_[j]->getMaximumExtent(*active_joint_bounds[j]) *
+                    active_joint_model_vector_[j]->getDistanceFactor();
   }
   return max_distance;
 }
@@ -417,8 +417,8 @@ double JointModelGroup::distance(const double* state1, const double* state2) con
 {
   double d = 0.;
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    d += active_joint_model_vector_[i]->getDistanceFactor()
-         * active_joint_model_vector_[i]->distance(
+    d += active_joint_model_vector_[i]->getDistanceFactor() *
+         active_joint_model_vector_[i]->distance(
            state1 + active_joint_model_start_index_[i], state2 + active_joint_model_start_index_[i]);
   }
   return d;

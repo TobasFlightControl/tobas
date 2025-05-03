@@ -223,8 +223,8 @@ pair<double, Vector> Rotation::getAngleAxis() const
     // First check for identity matrix which must have +1
     // for all terms in leading diagonal and zero in other terms
     if (
-      fabs(data(0, 1) + data(1, 0)) < eps2 && fabs(data(0, 2) + data(2, 0)) < eps2
-      && fabs(data(1, 2) + data(2, 1)) < eps2 && fabs(this->trace() - 3) < eps2) {
+      fabs(data(0, 1) + data(1, 0)) < eps2 && fabs(data(0, 2) + data(2, 0)) < eps2 &&
+      fabs(data(1, 2) + data(2, 1)) < eps2 && fabs(this->trace() - 3) < eps2) {
       // This singularity is identity matrix so angle = 0, axis is arbitrary chose.
       return { 0., Vector::UnitZ() };
     }
