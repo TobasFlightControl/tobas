@@ -20,7 +20,7 @@
 - `perf/`: For performance improvements
 - `test/`: For adding or fixing tests
 - `build/`: For build system changes
-- `ci/`: For CICD configuration changes
+- `ci/`: For CI/CD configuration changes
 - `change/`: For small changes or tweaks
 - `chore/`: For maintenance tasks
 
