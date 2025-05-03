@@ -10,7 +10,7 @@ namespace tobas_std
 Rate::Rate(const microseconds& period) : period_(period)
 {
   if (period.count() <= 0) {
-    throw runtime_error("Period must be postive.");
+    throw runtime_error("Period must be positive.");
   }
 
   start();

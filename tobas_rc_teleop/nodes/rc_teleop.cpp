@@ -262,7 +262,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_pos_var = odom_->position_covariance.eigenvalues().real().maxCoeff();
     if (max_pos_var > math::sqr(kPosStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because position estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because position estimation is inaccurate.");
       return false;
     }
   }
@@ -271,7 +271,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_rot_var = odom_->orientation_covariance.eigenvalues().real().maxCoeff();
     if (max_rot_var > math::sqr(kRotStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because orientation estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because orientation estimation is inaccurate.");
       return false;
     }
   }
@@ -280,7 +280,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_linvel_var = odom_->velocity_covariance.eigenvalues().real().maxCoeff();
     if (max_linvel_var > math::sqr(kLinVelStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because linear velocity estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because linear velocity estimation is inaccurate.");
       return false;
     }
   }
@@ -289,7 +289,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_angvel_var = odom_->gyro_covariance.eigenvalues().real().maxCoeff();
     if (max_angvel_var > math::sqr(kAngVelStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because angular velocity estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because angular velocity estimation is inaccurate.");
       return false;
     }
   }

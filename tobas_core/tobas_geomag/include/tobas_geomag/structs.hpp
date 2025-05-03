@@ -5,7 +5,7 @@
 namespace geomag
 {
 constexpr size_t NMAX = 12;                             // Order of the Model
-constexpr size_t NUMCOF = (NMAX + 1) * (NMAX + 2) / 2;  // Number of coefficents
+constexpr size_t NUMCOF = (NMAX + 1) * (NMAX + 2) / 2;  // Number of coefficients
 
 struct Vector
 {

@@ -4,7 +4,7 @@ string name
 # A value of 0 indicates that bagfile splitting will not be used.
 uint64 max_file_size
 
-# The cache size indiciates how many messages can maximally be hold in cache before these being written to disk.
+# The cache size indicates how many messages can maximally be hold in cache before these being written to disk.
 # A value of 0 disables caching and every write happens directly to disk.
 uint64 max_cache_size
 

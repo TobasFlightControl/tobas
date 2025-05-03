@@ -355,7 +355,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   if (tree_received_) {
     if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occured while updating internal data structures.");
+      TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }
@@ -369,7 +369,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
   if (drone_received_) {
     if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occured while updating internal data structures.");
+      TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }

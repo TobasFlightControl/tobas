@@ -431,7 +431,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   if (tree_received_) {
     if (!initialize()) {
-      TOBAS_FATAL("Error occured while initializing controller.");
+      TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }
@@ -445,7 +445,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
   if (drone_received_) {
     if (!initialize()) {
-      TOBAS_FATAL("Error occured while initializing controller.");
+      TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }

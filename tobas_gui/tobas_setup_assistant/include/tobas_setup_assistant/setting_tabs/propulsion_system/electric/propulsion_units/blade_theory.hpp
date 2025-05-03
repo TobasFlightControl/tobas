@@ -48,7 +48,7 @@ private:
   /* Thrust coefficient */
   double C_T() const;
 
-  /* Horizontal force coefficient (devided by mu) */
+  /* Horizontal force coefficient (divided by mu) */
   double C_H() const;
 };
 }  // namespace electric

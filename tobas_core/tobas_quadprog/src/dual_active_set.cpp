@@ -107,7 +107,7 @@ bool DualActiveSetSolver::solve()
 #endif
 
     // Compute full step length t2: i.e., the minimum step in primal space
-    // s.t. the contraint becomes feasible
+    // s.t. the constraint becomes feasible
     const auto t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.;
 
     // Set x = x + t2 * z
