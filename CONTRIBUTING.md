@@ -28,10 +28,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ```
 
-### ファイル名
-
-- 拡張子は`.hpp`または`.cpp`のみ．
-
 ### ヘッダファイル
 
 - 以下の例外を除く全ての`.cpp`ファイルは同名の`.hpp`ファイルをもつ．つまり，複数のヘッダファイルの実装を 1 箇所にまとめてはならない．
@@ -143,6 +139,39 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 - `float`または`double`のみ使用可．
 - `long double`などは使用不可．
+
+### 命名規則
+
+- 長くなってもよいので読む人が容易に意味や目的を理解できるような名前を付ける．
+
+#### ケース
+
+- ファイル: `hoge_fuga.hpp`, `hoge_fuga.cpp`
+- 型 (class, struct, type alias, enum, type template parameter): `HogeFuga`
+- ローカル変数: `hoge_fuga`
+- グローバル変数 (非推奨): `g_hoge_fuga`
+- public 変数: `hoge_fuga`
+- protected, private 変数: `hoge_fuga_`
+- 引数: `_hoge_fuga`
+- constexpr 定数: `kHogeFuga`
+- 関数: `hogeFuga()`
+- 名前空間: `hoge_fuga`
+- 列挙子 (enum の要素): `kHogeFuga`
+- マクロ (非推奨): `HOGE_FUGA`
+
+### コメント
+
+- クラスコメント: `/* */` or `/** @brief ... */`
+- 関数コメント: `/* */` or `/** @brief ... @param ... @return ... */`
+- 変数コメント: `/* */` or `/** @brief ... */`
+- 実装コメント: `//`
+- 一時的なコメントアウト: `//`
+- ライセンスボイラープレートやヘッダ上部の説明文は不要 <!-- TODO: Add file comments: https://google.github.io/styleguide/cppguide.html#File_Comments -->
+- コメントは日本語でも構わない <!-- TODO: English only -->
+
+### フォーマット
+
+- `.clang_format`に従う．
 
 ### 参考
 

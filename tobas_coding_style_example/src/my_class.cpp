@@ -18,14 +18,20 @@
 // Your project's header files
 #include "tobas_coding_style_example/util.hpp"
 
+#define MY_MACRO(x) (x)
+
 namespace tobas
 {
 namespace my_namespace
 {
 namespace
 {
-bool internalMethod()
+int g_global_variable;
+
+template <typename TypeTemplateParameter>
+bool internalMethod(const TypeTemplateParameter& _x)
 {
+  (void)_x;
   return true;
 }
 }  // namespace
@@ -49,16 +55,18 @@ bool MyClass::initialize()
   return true;
 }
 
-MyClass::error_t MyClass::longMethod(int primitive_input, const std::string& non_primitive_input, double& output)
+MyClass::ErrorCode MyClass::longMethod(int _primitive_input, const std::string& _non_primitive_input, double& _output)
 {
-  (void)primitive_input;
-  (void)non_primitive_input;
-  (void)output;
+  (void)_primitive_input;
+  (void)_non_primitive_input;
+  (void)_output;
 
-  if (!internalMethod())
-    return E_ERROR;
+  const int local_variable = _primitive_input;
 
-  return E_NO_ERROR;
+  if (!internalMethod(local_variable))
+    return ErrorCode::kError;
+
+  return ErrorCode::kNoError;
 }
 }  // namespace my_namespace
 }  // namespace tobas
