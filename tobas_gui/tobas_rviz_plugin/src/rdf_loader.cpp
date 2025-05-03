@@ -30,13 +30,19 @@ RDFLoader::RDFLoader(
   auto start = node->now();
 
   urdf_string_ = urdf_ssp_.loadInitialValue(
-    node, ros_name, [this](const std::string& new_urdf_string) { return urdfUpdateCallback(new_urdf_string); },
-    default_continuous_value, default_timeout);
+    node,
+    ros_name,
+    [this](const std::string& new_urdf_string) { return urdfUpdateCallback(new_urdf_string); },
+    default_continuous_value,
+    default_timeout);
 
   const std::string srdf_name = ros_name + "_semantic";
   srdf_string_ = srdf_ssp_.loadInitialValue(
-    node, srdf_name, [this](const std::string& new_srdf_string) { return srdfUpdateCallback(new_srdf_string); },
-    default_continuous_value, default_timeout);
+    node,
+    srdf_name,
+    [this](const std::string& new_srdf_string) { return srdfUpdateCallback(new_srdf_string); },
+    default_continuous_value,
+    default_timeout);
 
   if (!loadFromStrings()) {
     return;

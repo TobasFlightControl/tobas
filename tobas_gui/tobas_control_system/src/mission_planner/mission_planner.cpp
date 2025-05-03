@@ -304,7 +304,8 @@ void MissionPlannerWidget::onAddButtonClicked()
   commands_->addWidget(cmd_widget);
   connect(cmd_widget, &BaseCommandWidget::updated, this, &self::onMissionUpdated);
   connect(
-    cmd_widget, &BaseCommandWidget::deleteButtonClicked,
+    cmd_widget,
+    &BaseCommandWidget::deleteButtonClicked,
     std::bind(&self::onDeleteButtonClicked, this, item, cmd_widget));
 
   pairs_.insert({ item, cmd_widget });
@@ -361,7 +362,8 @@ void MissionPlannerWidget::onCacheButtonClicked()
 
   // PNGファイルを最終変更時刻が新しい順にソート
   std::sort(
-    files.begin(), files.end(),
+    files.begin(),
+    files.end(),
     [](const fs::path& a, const fs::path& b) { return fs::last_write_time(a) > fs::last_write_time(b); });
 
   // ファイルサイズを取得

@@ -130,7 +130,11 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         }
         else {
           TOBAS_WARN_THROTTLE(
-            tobas::kTypicalWarnPeriod, "Negative thrust is commanded on rotor \"", link_name, "\": ", tar_thrust,
+            tobas::kTypicalWarnPeriod,
+            "Negative thrust is commanded on rotor \"",
+            link_name,
+            "\": ",
+            tar_thrust,
             " < 0 [N]");
           tar_speeds_msg->speeds.back().speed = 0.;
         }
@@ -153,7 +157,11 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
         if (tar_thrust < 0.) {
           TOBAS_WARN_THROTTLE(
-            tobas::kTypicalWarnPeriod, "Negative thrust is commanded on rotor \"", elem.link_name, "\": ", tar_thrust,
+            tobas::kTypicalWarnPeriod,
+            "Negative thrust is commanded on rotor \"",
+            elem.link_name,
+            "\": ",
+            tar_thrust,
             " < 0 [N]");
           tar_thrust = 0.;
         }
@@ -243,7 +251,8 @@ void RotorControllerNode::autoDisarmTimerCb()
   auto_disarm_timer_->cancel();
 
   TOBAS_WARN(
-    "All rotors are automatically disarmed because ", tobas::kAutoDisarmTimeout,
+    "All rotors are automatically disarmed because ",
+    tobas::kAutoDisarmTimeout,
     " have elapsed since the last command.");
 }
 

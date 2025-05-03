@@ -31,8 +31,9 @@ MotorWidget::MotorWidget()
   rows->addWidget(resistance_);
 
   num_poles_ = new ParamGetterWidget_SpinBox(
-    "Number of Poles", "The number of magnetic poles arranged on the rotor inside the motor. "
-                       "It is the number of pairs of N and S poles of permanent magnets attached to the rotor.");
+    "Number of Poles",
+    "The number of magnetic poles arranged on the rotor inside the motor. "
+    "It is the number of pairs of N and S poles of permanent magnets attached to the rotor.");
   num_poles_->setSingleStep(2);
   num_poles_->setMinimum(2);
   num_poles_->setValue(14);

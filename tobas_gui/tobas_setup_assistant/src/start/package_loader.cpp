@@ -86,8 +86,9 @@ void PackageLoaderWidget::onLoadButtonClicked()
   const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
   if (!std::filesystem::is_regular_file(settings_path)) {
     qt::qErrorBox(
-      this, "\"" + QString::fromStdString(settings_path) +
-              "\" does not exist. Please create a new Tobas configuration package.");
+      this,
+      "\"" + QString::fromStdString(settings_path) +
+        "\" does not exist. Please create a new Tobas configuration package.");
     return;
   }
 

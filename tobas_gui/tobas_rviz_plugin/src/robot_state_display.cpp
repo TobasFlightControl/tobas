@@ -10,17 +10,28 @@ namespace tobas
 RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false)
 {
   robot_description_property_ = new rviz_common::properties::StringProperty(
-    "Robot Description", "robot_description", "The name of the ROS parameter where the URDF for the robot is loaded",
-    this, SLOT(changedRobotDescription()), this);
+    "Robot Description",
+    "robot_description",
+    "The name of the ROS parameter where the URDF for the robot is loaded",
+    this,
+    SLOT(changedRobotDescription()),
+    this);
 
   robot_state_topic_property_ = new rviz_common::properties::RosTopicProperty(
-    "Robot State Topic", "display_robot_state",
+    "Robot State Topic",
+    "display_robot_state",
     rosidl_generator_traits::data_type<tobas_visualization_msgs::msg::DisplayRobotState>(),
-    "The topic on which the tobas_visualization_msgs::msg::DisplayRobotState messages are received", this,
-    SLOT(changedRobotStateTopic()), this);
+    "The topic on which the tobas_visualization_msgs::msg::DisplayRobotState messages are received",
+    this,
+    SLOT(changedRobotStateTopic()),
+    this);
 
   root_link_name_property_ = new rviz_common::properties::StringProperty(
-    "Robot Root Link", "", "Shows the name of the root link for the robot model", this, SLOT(changedRootLinkName()),
+    "Robot Root Link",
+    "",
+    "Shows the name of the root link for the robot model",
+    this,
+    SLOT(changedRootLinkName()),
     this);
   root_link_name_property_->setReadOnly(true);
 
@@ -30,22 +41,42 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false)
   robot_alpha_property_->setMax(1.);
 
   attached_body_color_property_ = new rviz_common::properties::ColorProperty(
-    "Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies", this,
-    SLOT(changedAttachedBodyColor()), this);
+    "Attached Body Color",
+    QColor(150, 50, 150),
+    "The color for the attached bodies",
+    this,
+    SLOT(changedAttachedBodyColor()),
+    this);
 
   enable_link_highlight_ = new rviz_common::properties::BoolProperty(
-    "Show Highlights", true, "Specifies whether link highlighting is enabled", this, SLOT(changedEnableLinkHighlight()),
+    "Show Highlights",
+    true,
+    "Specifies whether link highlighting is enabled",
+    this,
+    SLOT(changedEnableLinkHighlight()),
     this);
   enable_visual_visible_ = new rviz_common::properties::BoolProperty(
-    "Visual Enabled", true, "Whether to display the visual representation of the robot.", this,
-    SLOT(changedEnableVisualVisible()), this);
+    "Visual Enabled",
+    true,
+    "Whether to display the visual representation of the robot.",
+    this,
+    SLOT(changedEnableVisualVisible()),
+    this);
   enable_collision_visible_ = new rviz_common::properties::BoolProperty(
-    "Collision Enabled", false, "Whether to display the collision representation of the robot.", this,
-    SLOT(changedEnableCollisionVisible()), this);
+    "Collision Enabled",
+    false,
+    "Whether to display the collision representation of the robot.",
+    this,
+    SLOT(changedEnableCollisionVisible()),
+    this);
 
   enable_inertia_visible_ = new rviz_common::properties::BoolProperty(
-    "Inertial Enabled", false, "Whether to display the inertia representation of the robot.", this,
-    SLOT(changedEnableInertiaVisible()), this);
+    "Inertial Enabled",
+    false,
+    "Whether to display the inertia representation of the robot.",
+    this,
+    SLOT(changedEnableInertiaVisible()),
+    this);
 
   show_all_links_ = new rviz_common::properties::BoolProperty(
     "Show All Links", true, "Toggle all links visibility on or off.", this, SLOT(changedAllLinks()), this);
@@ -243,7 +274,8 @@ void RobotStateDisplay::changedRobotStateTopic()
   setStatus(rviz_common::properties::StatusProperty::Warn, "RobotState", "No msg received");
 
   robot_state_subscriber_ = node_->create_subscription<tobas_visualization_msgs::msg::DisplayRobotState>(
-    robot_state_topic_property_->getStdString(), rclcpp::SystemDefaultsQoS(),
+    robot_state_topic_property_->getStdString(),
+    rclcpp::SystemDefaultsQoS(),
     [this](const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& state)
     { return newRobotStateCallback(state); });
 }

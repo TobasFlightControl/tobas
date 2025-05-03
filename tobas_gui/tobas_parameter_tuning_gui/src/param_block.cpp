@@ -57,7 +57,8 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     config.dflt = param.dflt;
 
     connect(
-      config.slider, &qt::IntSliderTextWidget::valueChanged,
+      config.slider,
+      &qt::IntSliderTextWidget::valueChanged,
       bind(&self::onIntParamChanged, this, placeholders::_1, param.name));
 
     int_configs_[param.name] = config;
@@ -71,7 +72,8 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     config.dflt = param.dflt;
 
     connect(
-      config.slider, &qt::DoubleSliderTextWidget::valueChanged,
+      config.slider,
+      &qt::DoubleSliderTextWidget::valueChanged,
       bind(&self::onDoubleParamChanged, this, placeholders::_1, param.name));
 
     double_configs_[param.name] = config;

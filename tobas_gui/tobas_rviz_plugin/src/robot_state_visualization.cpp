@@ -114,11 +114,21 @@ void RobotStateVisualization::updateHelper(
     const std::vector<shapes::ShapeConstPtr>& ab_shapes = attached_body->getShapes();
     for (std::size_t j = 0; j < ab_shapes.size(); ++j) {
       render_shapes_->renderShape(
-        link->getVisualNode(), ab_shapes[j].get(), ab_t[j], octree_voxel_render_mode_, octree_voxel_color_mode_, rcolor,
+        link->getVisualNode(),
+        ab_shapes[j].get(),
+        ab_t[j],
+        octree_voxel_render_mode_,
+        octree_voxel_color_mode_,
+        rcolor,
         alpha);
       render_shapes_->renderShape(
-        link->getCollisionNode(), ab_shapes[j].get(), ab_t[j], octree_voxel_render_mode_, octree_voxel_color_mode_,
-        rcolor, alpha);
+        link->getCollisionNode(),
+        ab_shapes[j].get(),
+        ab_t[j],
+        octree_voxel_render_mode_,
+        octree_voxel_color_mode_,
+        rcolor,
+        alpha);
     }
   }
   robot_.setVisualVisible(visual_visible_);

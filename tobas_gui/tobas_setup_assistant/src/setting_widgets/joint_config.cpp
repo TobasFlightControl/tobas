@@ -647,7 +647,9 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   pwm_reverse->setCheckable(true);
   pwm_reverse->setText(kReverseLabel_Normal);
   connect(
-    pwm_reverse, &QPushButton::toggled, this,
+    pwm_reverse,
+    &QPushButton::toggled,
+    this,
     [pwm_reverse](bool checked)
     {
       if (checked) {

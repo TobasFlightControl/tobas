@@ -85,8 +85,9 @@ string PackageGenerator::flightActionsPackage() const
   }
   else {
     qt::qWarnBox(
-      settings_, "The functions for takeoff, landing, and autonomous movement "
-                 "corresponding to the selected controller have not been implemented yet.");
+      settings_,
+      "The functions for takeoff, landing, and autonomous movement "
+      "corresponding to the selected controller have not been implemented yet.");
     return "tobas_dummy_pkg";
   }
 }
@@ -903,14 +904,33 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // IMU plugin
   xml::addIMUPlugin(
-    robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroOffsetNorm(),
-    imu->gyroRandomWalk(), imu->gyroBiasCorrTime(), imu->accNoiseDensity(), imu->accOffsetNorm(), imu->accRandomWalk(),
-    imu->accBiasCorrTime(), rotor_link_names);
+    robot,
+    ns,
+    root_name,
+    imu->updateRate(),
+    imu->offset(),
+    imu->gyroNoiseDensity(),
+    imu->gyroOffsetNorm(),
+    imu->gyroRandomWalk(),
+    imu->gyroBiasCorrTime(),
+    imu->accNoiseDensity(),
+    imu->accOffsetNorm(),
+    imu->accRandomWalk(),
+    imu->accBiasCorrTime(),
+    rotor_link_names);
 
   // Magnetometer plugin
   xml::addMagnetometerPlugin(
-    robot, ns, root_name, mag->updateRate(), mag->offset(), sim->latitudeZero(), sim->longitudeZero(),
-    sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasNorm());
+    robot,
+    ns,
+    root_name,
+    mag->updateRate(),
+    mag->offset(),
+    sim->latitudeZero(),
+    sim->longitudeZero(),
+    sim->altitudeZero(),
+    mag->noiseStddev(),
+    mag->hardBiasNorm());
 
   // Barometer plugin
   xml::addBarometerPlugin(
@@ -918,9 +938,20 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // GNSS plugin
   xml::addGNSSPlugin(
-    robot, ns, root_name, gnss->updateRate(), gnss->offset(), gnss->delay(), gnss->positionCorrectionTime(),
-    gnss->horizontalPositionAccuracy(), gnss->verticalPositionAccuracy(), gnss->horizontalVelocityStddev(),
-    gnss->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
+    robot,
+    ns,
+    root_name,
+    gnss->updateRate(),
+    gnss->offset(),
+    gnss->delay(),
+    gnss->positionCorrectionTime(),
+    gnss->horizontalPositionAccuracy(),
+    gnss->verticalPositionAccuracy(),
+    gnss->horizontalVelocityStddev(),
+    gnss->verticalVelocityStddev(),
+    sim->latitudeZero(),
+    sim->longitudeZero(),
+    sim->altitudeZero());
 
   // Propulsion system plugins
   switch (drone.prop->type()) {
@@ -932,8 +963,15 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
       // Battery plugin
       constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
       xml::addBatteryPlugin(
-        robot, ns, kBatterySamplingRate, battery->maxVoltage(), battery->sagVoltage(), battery->maxCurrent(),
-        battery->capacity(), battery->internalRegistance(), rotor_link_names);
+        robot,
+        ns,
+        kBatterySamplingRate,
+        battery->maxVoltage(),
+        battery->sagVoltage(),
+        battery->maxCurrent(),
+        battery->capacity(),
+        battery->internalRegistance(),
+        rotor_link_names);
 
       // Rotor plugins
       for (int i = 0; i < units->numUnits(); ++i) {
@@ -947,8 +985,18 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
         const auto aero = unit->aerodynamics();
 
         xml::addElectricPropulsionSystemPlugin(
-          robot, ns, link_name, motor->kv(), motor->internalResistance(), propeller->numBlade(), aero->motorConst(),
-          aero->momentConst(), aero->dragConst(), general->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
+          robot,
+          ns,
+          link_name,
+          motor->kv(),
+          motor->internalResistance(),
+          propeller->numBlade(),
+          aero->motorConst(),
+          aero->momentConst(),
+          aero->dragConst(),
+          general->direction(),
+          esc->maxCurrent(),
+          sim->maxModelErrorRate());
       }
 
       break;

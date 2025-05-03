@@ -289,8 +289,9 @@ public:
 
     // Otherwise throw error because this function should have been implemented
     RCLCPP_ERROR(
-      getLogger("tobas.kinematics_base"), "This kinematic solver does not support searchPositionIK with multiple "
-                                          "poses");
+      getLogger("tobas.kinematics_base"),
+      "This kinematic solver does not support searchPositionIK with multiple "
+      "poses");
     return false;
   }
 
@@ -333,12 +334,20 @@ public:
     // if cost function is empty, omit
     if (!cost_function) {
       return searchPositionIK(
-        ik_poses, ik_seed_state, timeout, consistency_limits, solution, solution_callback, error_code, options,
+        ik_poses,
+        ik_seed_state,
+        timeout,
+        consistency_limits,
+        solution,
+        solution_callback,
+        error_code,
+        options,
         context_state);
     }
     RCLCPP_ERROR(
-      getLogger("tobas.kinematics_base"), "This kinematic solver does not support IK solution cost "
-                                          "functions");
+      getLogger("tobas.kinematics_base"),
+      "This kinematic solver does not support IK solution cost "
+      "functions");
     return false;
   }
 
@@ -424,8 +433,9 @@ public:
   {
     if (tip_frames_.size() > 1) {
       RCLCPP_ERROR(
-        getLogger("tobas.kinematics_base"), "This kinematic solver has more than one tip frame, "
-                                            "do not call getTipFrame()");
+        getLogger("tobas.kinematics_base"),
+        "This kinematic solver has more than one tip frame, "
+        "do not call getTipFrame()");
     }
 
     return tip_frames_[0];

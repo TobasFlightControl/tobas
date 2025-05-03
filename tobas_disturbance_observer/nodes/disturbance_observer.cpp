@@ -177,7 +177,9 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   for (const auto& rotor_state : rotor_states_->states) {
     if (rotor_state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
       TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "No communication with rotor \"", rotor_state.link_name,
+        tobas::kTypicalWarnPeriod,
+        "No communication with rotor \"",
+        rotor_state.link_name,
         "\". Its rotation speed is estimated to 0.");
     }
     else {

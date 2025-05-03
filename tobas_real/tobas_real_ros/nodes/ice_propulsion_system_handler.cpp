@@ -200,8 +200,13 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
     // Check pitch angle limit
     if (irotor->pitch_limit.inRange(cmd_angle)) {
       TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "Commanded pitch angle of propeller \"", link_name,
-        "\" is out of its limit: ", cmd_angle, " ∉ ", irotor->pitch_limit);
+        tobas::kTypicalWarnPeriod,
+        "Commanded pitch angle of propeller \"",
+        link_name,
+        "\" is out of its limit: ",
+        cmd_angle,
+        " ∉ ",
+        irotor->pitch_limit);
       cmd_angle = irotor->pitch_limit.clamp(cmd_angle);
     }
 
@@ -251,7 +256,8 @@ void ICEPropulsionSystemHandlerNode::autoStopTimerCb()
   if (is_commanded_) {
     is_commanded_ = false;
     TOBAS_WARN(
-      "ICE propulsion system is automatically stopped because ", tobas::kCommandAutoResetTimeout,
+      "ICE propulsion system is automatically stopped because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }

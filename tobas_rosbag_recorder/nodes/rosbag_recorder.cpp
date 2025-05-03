@@ -218,8 +218,11 @@ void RosbagRecorderNode::publishRosbagState()
       recording_ = false;
 
       TOBAS_WARN(
-        "The recording is terminated because the size of rosbag ", file_path_, " exceeded ",
-        tobas::kMaxRosbagSize / BILLION, "GB.");
+        "The recording is terminated because the size of rosbag ",
+        file_path_,
+        " exceeded ",
+        tobas::kMaxRosbagSize / BILLION,
+        "GB.");
     }
   }
 

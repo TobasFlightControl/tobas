@@ -70,15 +70,39 @@ bool validateAndImproveInterval(
   const auto old_percentage = percentage;
   percentage = percentage - half_width;
   if (!validateAndImproveInterval(
-        start_state, mid_state, start_pose, mid_pose, traj, percentage, half_width, group, link, precision,
-        validCallback, options, cost_function, link_offset)) {
+        start_state,
+        mid_state,
+        start_pose,
+        mid_pose,
+        traj,
+        percentage,
+        half_width,
+        group,
+        link,
+        precision,
+        validCallback,
+        options,
+        cost_function,
+        link_offset)) {
     return false;
   }
 
   percentage = old_percentage;
   return validateAndImproveInterval(
-    mid_state, end_state, mid_pose, end_pose, traj, percentage, half_width, group, link, precision, validCallback,
-    options, cost_function, link_offset);
+    mid_state,
+    end_state,
+    mid_pose,
+    end_pose,
+    traj,
+    percentage,
+    half_width,
+    group,
+    link,
+    precision,
+    validCallback,
+    options,
+    cost_function,
+    link_offset);
 }
 
 std::optional<int> hasRelativeJointSpaceJump(
@@ -91,7 +115,8 @@ std::optional<int> hasRelativeJointSpaceJump(
       getLogger(),
       "The computed path is too short to detect jumps in joint-space. "
       "Need at least %zu steps, only got %zu. Try a lower max_step.",
-      MIN_STEPS_FOR_JUMP_THRESH, waypoints.size());
+      MIN_STEPS_FOR_JUMP_THRESH,
+      waypoints.size());
   }
 
   std::vector<double> dist_vector;
@@ -144,7 +169,8 @@ std::optional<int> hasAbsoluteJointSpaceJump(
             "Joint %s has not supported type %s. \n"
             "hasAbsoluteJointSpaceJump only supports prismatic and revolute joints. Skipping joint jump "
             "check for this joint.",
-            joint->getName().c_str(), joint->getTypeName().c_str());
+            joint->getName().c_str(),
+            joint->getTypeName().c_str());
           continue;
       }
     }
@@ -245,8 +271,20 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
     if (
       !state.setFromIK(group, pose * inv_offset, link->getName(), 0., validCallback, options, cost_function) ||
       !validateAndImproveInterval(
-        prev_state, state, prev_pose, pose, traj, percentage, 1. / static_cast<double>(steps), group, link, precision,
-        validCallback, options, cost_function, link_offset)) {
+        prev_state,
+        state,
+        prev_pose,
+        pose,
+        traj,
+        percentage,
+        1. / static_cast<double>(steps),
+        group,
+        link,
+        precision,
+        validCallback,
+        options,
+        cost_function,
+        link_offset)) {
       break;
     }
 
@@ -276,8 +314,18 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   for (std::size_t i = 0; i < waypoints.size(); ++i) {
     std::vector<RobotStatePtr> waypoint_traj;
     double wp_percentage_solved = computeCartesianPath(
-      start_state, group, waypoint_traj, link, waypoints[i], global_reference_frame, max_step, precision, validCallback,
-      options, cost_function, link_offset);
+      start_state,
+      group,
+      waypoint_traj,
+      link,
+      waypoints[i],
+      global_reference_frame,
+      max_step,
+      precision,
+      validCallback,
+      options,
+      cost_function,
+      link_offset);
 
     std::vector<RobotStatePtr>::iterator start = waypoint_traj.begin();
     if (i > 0 && !waypoint_traj.empty()) {
@@ -395,9 +443,10 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
 
   if (max_step.translation <= 0. && max_step.rotation <= 0.) {
     RCLCPP_ERROR(
-      getLogger(), "Invalid MaxEEFStep passed into computeCartesianPath. Both the MaxEEFStep.rotation and "
-                   "MaxEEFStep.translation components must be non-negative and at least one component must be "
-                   "greater than zero");
+      getLogger(),
+      "Invalid MaxEEFStep passed into computeCartesianPath. Both the MaxEEFStep.rotation and "
+      "MaxEEFStep.translation components must be non-negative and at least one component must be "
+      "greater than zero");
     return 0.;
   }
 
@@ -494,8 +543,18 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     double wp_percentage_solved = computeCartesianPath(
-      start_state, group, waypoint_path, link, waypoints[i], global_reference_frame, max_step, NO_JOINT_SPACE_JUMP_TEST,
-      validCallback, options, cost_function, link_offset);
+      start_state,
+      group,
+      waypoint_path,
+      link,
+      waypoints[i],
+      global_reference_frame,
+      max_step,
+      NO_JOINT_SPACE_JUMP_TEST,
+      validCallback,
+      options,
+      cost_function,
+      link_offset);
 #pragma GCC diagnostic pop
 
     std::vector<RobotStatePtr>::iterator start = waypoint_path.begin();

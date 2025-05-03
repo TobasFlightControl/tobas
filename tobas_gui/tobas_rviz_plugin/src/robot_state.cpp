@@ -1425,15 +1425,18 @@ bool RobotState::getJacobian(
   const std::set<const LinkModel*>& descendant_links = group->getUpdatedLinkModelsSet();
   if (descendant_links.find(link) == descendant_links.end()) {
     RCLCPP_ERROR(
-      getLogger(), "Link name '%s' does not exist in the chain '%s' or is not a child for this chain",
-      link->getName().c_str(), group->getName().c_str());
+      getLogger(),
+      "Link name '%s' does not exist in the chain '%s' or is not a child for this chain",
+      link->getName().c_str(),
+      group->getName().c_str());
     return false;
   }
 
   const std::vector<const JointModel*>& joint_models = group->getActiveJointModels();
   if (joint_models.empty()) {
     RCLCPP_ERROR(
-      getLogger(), "The group '%s' doesn't contain any joint models. Cannot compute Jacobian.",
+      getLogger(),
+      "The group '%s' doesn't contain any joint models. Cannot compute Jacobian.",
       group->getName().c_str());
     return false;
   }
@@ -1776,8 +1779,11 @@ bool RobotState::setFromIK(
     if (!solver->supportsGroup(jmg, &error_msg)) {
       const KinematicsBase& solver_ref = *solver;
       RCLCPP_ERROR(
-        getLogger(), "Kinematics solver %s does not support joint group %s.  Error: %s", typeid(solver_ref).name(),
-        jmg->getName().c_str(), error_msg.c_str());
+        getLogger(),
+        "Kinematics solver %s does not support joint group %s.  Error: %s",
+        typeid(solver_ref).name(),
+        jmg->getName().c_str(),
+        error_msg.c_str());
       valid_solver = false;
     }
   }
@@ -1944,7 +1950,8 @@ bool RobotState::setFromIK(
   KinematicsBase::IKCallbackFn ik_callback_fn;
   if (constraint) {
     ik_callback_fn = ik_callback_fn = [this, jmg, constraint](
-                                        const geometry_msgs::msg::Pose& pose, const std::vector<double>& joints,
+                                        const geometry_msgs::msg::Pose& pose,
+                                        const std::vector<double>& joints,
                                         tobas_visualization_msgs::msg::ErrorCodes& error_code)
     { ikCallbackFnAdapter(this, jmg, constraint, pose, joints, error_code); };
   }
@@ -1993,14 +2000,18 @@ bool RobotState::setFromIKSubgroups(
   // Error check
   if (poses_in.size() != sub_groups.size()) {
     RCLCPP_ERROR(
-      getLogger(), "Number of poses (%zu) must be the same as number of sub-groups (%zu)", poses_in.size(),
+      getLogger(),
+      "Number of poses (%zu) must be the same as number of sub-groups (%zu)",
+      poses_in.size(),
       sub_groups.size());
     return false;
   }
 
   if (tips_in.size() != sub_groups.size()) {
     RCLCPP_ERROR(
-      getLogger(), "Number of tip names (%zu) must be same as number of sub-groups (%zu)", tips_in.size(),
+      getLogger(),
+      "Number of tip names (%zu) must be same as number of sub-groups (%zu)",
+      tips_in.size(),
       sub_groups.size());
     return false;
   }
@@ -2013,8 +2024,11 @@ bool RobotState::setFromIKSubgroups(
   for (std::size_t i = 0; i < consistency_limits.size(); ++i) {
     if (consistency_limits[i].size() != sub_groups[i]->getVariableCount()) {
       RCLCPP_ERROR(
-        getLogger(), "Number of joints in consistency_limits[%zu] is %lu but it should be should be %u", i,
-        consistency_limits[i].size(), sub_groups[i]->getVariableCount());
+        getLogger(),
+        "Number of joints in consistency_limits[%zu] is %lu but it should be should be %u",
+        i,
+        consistency_limits[i].size(),
+        sub_groups[i]->getVariableCount());
       return false;
     }
   }
@@ -2079,7 +2093,9 @@ bool RobotState::setFromIKSubgroups(
 
     if (pose_frame != solver_tip_frame) {
       RCLCPP_ERROR(
-        getLogger(), "Cannot compute IK for query pose reference frame '%s', desired: '%s'", pose_frame.c_str(),
+        getLogger(),
+        "Cannot compute IK for query pose reference frame '%s', desired: '%s'",
+        pose_frame.c_str(),
         solver_tip_frame.c_str());
       return false;
     }
@@ -2090,7 +2106,8 @@ bool RobotState::setFromIKSubgroups(
   KinematicsBase::IKCallbackFn ik_callback_fn;
   if (constraint) {
     ik_callback_fn = [this, jmg, constraint](
-                       const geometry_msgs::msg::Pose pose, const std::vector<double>& joints,
+                       const geometry_msgs::msg::Pose pose,
+                       const std::vector<double>& joints,
                        tobas_visualization_msgs::msg::ErrorCodes& error_code)
     { ikCallbackFnAdapter(this, jmg, constraint, pose, joints, error_code); };
   }
@@ -2414,7 +2431,8 @@ void RobotState::getStateTreeJointString(std::ostream& ss, const JointModel* jm,
   }
 
   for (std::vector<const JointModel*>::const_iterator it = link_model->getChildJointModels().begin();
-       it != link_model->getChildJointModels().end(); ++it) {
+       it != link_model->getChildJointModels().end();
+       ++it) {
     getStateTreeJointString(ss, *it, pfx, it + 1 == link_model->getChildJointModels().end());
   }
 }

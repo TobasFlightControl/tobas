@@ -85,12 +85,26 @@ bool LinearMPC::solve()
 
   // 等式制約
   updateQpConstraint(
-    last_u_scaled, Psi_x, Upsilon_u, Theta, du_eqs_scaled, u_eqs_scaled, z_eqs_scaled, qpsolver_.problem.G,
+    last_u_scaled,
+    Psi_x,
+    Upsilon_u,
+    Theta,
+    du_eqs_scaled,
+    u_eqs_scaled,
+    z_eqs_scaled,
+    qpsolver_.problem.G,
     qpsolver_.problem.h);
 
   // 不等式制約
   updateQpConstraint(
-    last_u_scaled, Psi_x, Upsilon_u, Theta, du_ineqs_scaled, u_ineqs_scaled, z_ineqs_scaled, qpsolver_.problem.A,
+    last_u_scaled,
+    Psi_x,
+    Upsilon_u,
+    Theta,
+    du_ineqs_scaled,
+    u_ineqs_scaled,
+    z_ineqs_scaled,
+    qpsolver_.problem.A,
     qpsolver_.problem.b);
 
   // 決定変数のスケール

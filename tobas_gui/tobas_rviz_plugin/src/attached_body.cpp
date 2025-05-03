@@ -76,7 +76,8 @@ void AttachedBody::computeTransform(const Eigen::Isometry3d& parent_link_global_
 
   // update subframe transforms
   for (auto global = global_subframe_poses_.begin(), end = global_subframe_poses_.end(), local = subframe_poses_.begin();
-       global != end; ++global, ++local) {
+       global != end;
+       ++global, ++local) {
     global->second = global_pose_ * local->second;  // valid isometry
   }
 }

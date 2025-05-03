@@ -337,7 +337,8 @@ void DShotDriverNode::autoStopTimerCb()
   if (is_commanded_) {
     is_commanded_ = false;
     TOBAS_WARN(
-      "All rotors are automatically stopped because ", tobas::kCommandAutoResetTimeout,
+      "All rotors are automatically stopped because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }

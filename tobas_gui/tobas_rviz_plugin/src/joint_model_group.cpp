@@ -221,7 +221,8 @@ JointModelGroup::JointModelGroup(
   }
   std::sort(updated_link_model_vector_.begin(), updated_link_model_vector_.end(), OrderLinksByIndex());
   std::sort(
-    updated_link_model_with_geometry_vector_.begin(), updated_link_model_with_geometry_vector_.end(),
+    updated_link_model_with_geometry_vector_.begin(),
+    updated_link_model_with_geometry_vector_.end(),
     OrderLinksByIndex());
   for (const LinkModel* updated_link_model : updated_link_model_vector_) {
     updated_link_model_name_vector_.push_back(updated_link_model->getName());
@@ -320,8 +321,11 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
   assert(active_joint_bounds.size() == active_joint_model_vector_.size());
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableRandomPositionsNearBy(
-      rng, values + active_joint_model_start_index_[i], *active_joint_bounds[i],
-      near + active_joint_model_start_index_[i], distance);
+      rng,
+      values + active_joint_model_start_index_[i],
+      *active_joint_bounds[i],
+      near + active_joint_model_start_index_[i],
+      distance);
   }
   updateMimicJoints(values);
 }
@@ -345,8 +349,11 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
       RCLCPP_WARN(getLogger(), "Did not pass in distance for '%s'", active_joint_model_vector_[i]->getName().c_str());
     }
     active_joint_model_vector_[i]->getVariableRandomPositionsNearBy(
-      rng, values + active_joint_model_start_index_[i], *active_joint_bounds[i],
-      near + active_joint_model_start_index_[i], distance);
+      rng,
+      values + active_joint_model_start_index_[i],
+      *active_joint_bounds[i],
+      near + active_joint_model_start_index_[i],
+      distance);
   }
   updateMimicJoints(values);
 }
@@ -366,8 +373,11 @@ void JointModelGroup::getVariableRandomPositionsNearBy(
   }
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->getVariableRandomPositionsNearBy(
-      rng, values + active_joint_model_start_index_[i], *active_joint_bounds[i],
-      near + active_joint_model_start_index_[i], distances[i]);
+      rng,
+      values + active_joint_model_start_index_[i],
+      *active_joint_bounds[i],
+      near + active_joint_model_start_index_[i],
+      distances[i]);
   }
   updateMimicJoints(values);
 }
@@ -429,7 +439,9 @@ void JointModelGroup::interpolate(const double* from, const double* to, double t
   // we interpolate values only for active joint models (non-mimic)
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->interpolate(
-      from + active_joint_model_start_index_[i], to + active_joint_model_start_index_[i], t,
+      from + active_joint_model_start_index_[i],
+      to + active_joint_model_start_index_[i],
+      t,
       state + active_joint_model_start_index_[i]);
   }
 
@@ -589,7 +601,8 @@ bool JointModelGroup::computeJointVariableIndices(
         getLogger(),
         "Looking for variables for joint '%s', "
         "but group '%s' does not contain such a joint.",
-        joint_name.c_str(), getName().c_str());
+        joint_name.c_str(),
+        getName().c_str());
       return false;
     }
     const JointModel* jm = getJointModel(joint_name);
@@ -765,8 +778,9 @@ bool JointModelGroup::isValidVelocityMove(
     if (var_bounds->size() != 1) {
       // TODO(davetcoleman) Support multiple variables
       RCLCPP_ERROR(
-        getLogger(), "Attempting to check velocity bounds for waypoint move with joints that have multiple "
-                     "variables");
+        getLogger(),
+        "Attempting to check velocity bounds for waypoint move with joints that have multiple "
+        "variables");
       return false;
     }
     const double max_velocity = (*var_bounds)[0].max_velocity_;
@@ -807,16 +821,18 @@ std::pair<Eigen::VectorXd, Eigen::VectorXd> JointModelGroup::getMaxVelocitiesAnd
   if (active_joint_models_bounds_.size() != active_variable_count_) {
     // TODO(sjahr) Support multiple variables
     RCLCPP_ERROR(
-      getLogger(), "Number of active joint models does not match number of active joint model bounds. "
-                   "Returning bound vectors with zeros");
+      getLogger(),
+      "Number of active joint models does not match number of active joint model bounds. "
+      "Returning bound vectors with zeros");
     return { max_joint_velocities, max_joint_accelerations };
   }
   // Check if the joint group contains multi-dof joints
   for (const auto& bound : active_joint_models_bounds_) {
     if (bound->size() != 1) {
       RCLCPP_ERROR(
-        getLogger(), "Multi-dof joints are currently not supported by "
-                     "getMaxVelocitiesAndAccelerationBounds(). Returning bound vectors with zeros.");
+        getLogger(),
+        "Multi-dof joints are currently not supported by "
+        "getMaxVelocitiesAndAccelerationBounds(). Returning bound vectors with zeros.");
       return { max_joint_velocities, max_joint_accelerations };
     }
   }

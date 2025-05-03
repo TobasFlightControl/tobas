@@ -13,10 +13,11 @@ namespace electric
 AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
 {
   motor_const_ = new ParamGetterWidget_DoubleSpinBox(
-    "Motor Constant", "Propeller thrust constant. "
-                      "If the thrust constant is denoted as c [kg*m/rad^2] and the rotational speed as w [rad/s], "
-                      "the thrust force T [N] generated perpendicular to the rotational plane is expressed "
-                      "as T = c w^2.");
+    "Motor Constant",
+    "Propeller thrust constant. "
+    "If the thrust constant is denoted as c [kg*m/rad^2] and the rotational speed as w [rad/s], "
+    "the thrust force T [N] generated perpendicular to the rotational plane is expressed "
+    "as T = c w^2.");
   motor_const_->setDecimals(12);
   motor_const_->setMinimum(0.);
   motor_const_->setValue(8.54858e-6);
@@ -24,10 +25,11 @@ AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
   addWidget(motor_const_);
 
   moment_const_ = new ParamGetterWidget_DoubleSpinBox(
-    "Moment Constant", "Propeller torque reaction constant. "
-                       "If the torque reaction constant is c [m] and the propeller's thrust is T [N], "
-                       "the torque generated in the opposite direction to the propeller's rotation, "
-                       "in Newton-meters, is N = c T.");
+    "Moment Constant",
+    "Propeller torque reaction constant. "
+    "If the torque reaction constant is c [m] and the propeller's thrust is T [N], "
+    "the torque generated in the opposite direction to the propeller's rotation, "
+    "in Newton-meters, is N = c T.");
   moment_const_->setDecimals(6);
   moment_const_->setMinimum(0.);
   moment_const_->setValue(0.016);
@@ -35,12 +37,13 @@ AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
   addWidget(moment_const_);
 
   drag_const_ = new ParamGetterWidget_DoubleSpinBox(
-    "Drag Constant", "Propeller drag constant. "
-                     "If the drag constant is c [kg/rad], the motor's rotational speed is w [rad/s], "
-                     "and V [m/s] is the magnitude of the atmospheric velocity component "
-                     "perpendicular to the rotational axis relative to the aircraft, "
-                     "then the magnitude of the air drag force F [N] generated on the propeller is expressed "
-                     "as F = c w V.");
+    "Drag Constant",
+    "Propeller drag constant. "
+    "If the drag constant is c [kg/rad], the motor's rotational speed is w [rad/s], "
+    "and V [m/s] is the magnitude of the atmospheric velocity component "
+    "perpendicular to the rotational axis relative to the aircraft, "
+    "then the magnitude of the air drag force F [N] generated on the propeller is expressed "
+    "as F = c w V.");
   drag_const_->setDecimals(9);
   drag_const_->setMinimum(0.);
   drag_const_->setValue(8.06428e-5);

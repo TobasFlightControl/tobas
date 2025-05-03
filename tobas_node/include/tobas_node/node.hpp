@@ -319,8 +319,11 @@ ros2::ActionServerPtr<ActionType> BaseNode::createAction(
   };
 
   return rclcpp_action::create_server<ActionType>(
-    obj, action_name, std::bind(handle_goal, obj, std::placeholders::_1, std::placeholders::_2),
-    std::bind(handle_cancel, obj, std::placeholders::_1), handle_accepted);
+    obj,
+    action_name,
+    std::bind(handle_goal, obj, std::placeholders::_1, std::placeholders::_2),
+    std::bind(handle_cancel, obj, std::placeholders::_1),
+    handle_accepted);
 }
 
 template <typename RepType, typename DurType, typename Obj>
@@ -399,8 +402,17 @@ void BaseNode::addDynamicIntParam(
     if (value < _min || _max < value) {
       value = std::clamp(value, _min, _max);
       TOBAS_WARN(
-        "You attempted to set \"", name, "\" to ", value, ", but since it was outside the range [", _min, ", ", _max,
-        "], it was clamped to ", value, ".");
+        "You attempted to set \"",
+        name,
+        "\" to ",
+        value,
+        ", but since it was outside the range [",
+        _min,
+        ", ",
+        _max,
+        "], it was clamped to ",
+        value,
+        ".");
     }
     if ((obj->*fp)(value)) {
       for (auto& int_param : dparams_.ints) {
@@ -447,8 +459,17 @@ void BaseNode::addDynamicDoubleParam(
     if (value < _min || _max < value) {
       value = std::clamp(value, _min, _max);
       TOBAS_WARN(
-        "You attempted to set \"", name, "\" to ", value, ", but since it was outside the range [", _min, ", ", _max,
-        "], it was clamped to ", value, ".");
+        "You attempted to set \"",
+        name,
+        "\" to ",
+        value,
+        ", but since it was outside the range [",
+        _min,
+        ", ",
+        _max,
+        "], it was clamped to ",
+        value,
+        ".");
     }
     if ((obj->*fp)(value)) {
       for (auto& double_param : dparams_.doubles) {

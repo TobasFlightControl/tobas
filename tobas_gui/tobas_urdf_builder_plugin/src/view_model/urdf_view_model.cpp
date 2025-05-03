@@ -62,7 +62,9 @@ QStringList URDFViewModel::linkNames() const
 {
   QStringList result;
   transform(
-    urdf_->links_.begin(), urdf_->links_.end(), back_inserter(result),
+    urdf_->links_.begin(),
+    urdf_->links_.end(),
+    back_inserter(result),
     [](const pair<string, urdf::LinkSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
@@ -71,7 +73,9 @@ QStringList URDFViewModel::jointNames() const
 {
   QStringList result;
   transform(
-    urdf_->joints_.begin(), urdf_->joints_.end(), back_inserter(result),
+    urdf_->joints_.begin(),
+    urdf_->joints_.end(),
+    back_inserter(result),
     [](const pair<string, urdf::JointSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
@@ -236,13 +240,15 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
 
     auto& child_links = old_parent_link->child_links;
     const auto& it1 = remove_if(
-      child_links.begin(), child_links.end(),
+      child_links.begin(),
+      child_links.end(),
       [&](const urdf::LinkSharedPtr& link) { return link->name == old_link_vm->name().toStdString(); });
     child_links.erase(it1, child_links.end());
 
     auto& child_joints = old_parent_link->child_joints;
     const auto& it2 = remove_if(
-      child_joints.begin(), child_joints.end(),
+      child_joints.begin(),
+      child_joints.end(),
       [&](const urdf::JointSharedPtr& joint) { return joint->name == old_joint->name().toStdString(); });
     child_joints.erase(it2, child_joints.end());
   }

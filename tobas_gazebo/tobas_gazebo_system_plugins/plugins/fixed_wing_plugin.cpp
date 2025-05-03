@@ -273,7 +273,8 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
       cs_angle_model.setTargetPosition(0.);
     }
     TOBAS_INFO(
-      "Deflection angles of control surfaces are automatically reset because ", tobas::kCommandAutoResetTimeout,
+      "Deflection angles of control surfaces are automatically reset because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 
@@ -302,7 +303,11 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   // 迎角の範囲チェック
   if (!vehicle_params_.alpha_limit.inRange(alpha)) {
     TOBAS_ERROR_THROTTLE(
-      kErrorPeriod, "The angle of attack ", alpha, " is not within the valid range ", vehicle_params_.alpha_limit,
+      kErrorPeriod,
+      "The angle of attack ",
+      alpha,
+      " is not within the valid range ",
+      vehicle_params_.alpha_limit,
       ". The accuracy of the physics simulation may be compromised.");
   }
 
@@ -513,7 +518,8 @@ void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::msg::ControlSurfaceD
   // Check array size
   if (deflections->deflections.size() != control_surfaces_.size()) {
     TOBAS_ERROR(
-      "The size of the received deflections array is ", deflections->deflections.size(),
+      "The size of the received deflections array is ",
+      deflections->deflections.size(),
       ", which does not match numberOfControlSurfaces.");
     return;
   }

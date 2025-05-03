@@ -50,7 +50,9 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
     "--build-base {} "
     "--install-base {} "
     "--packages-up-to {} ",
-    build_path.string(), install_path.string(), meta_name);
+    build_path.string(),
+    install_path.string(),
+    meta_name);
 
   // Build Tobas package
   cout << "Executing \"" << command << "\" on " << tbs_path << "." << endl;

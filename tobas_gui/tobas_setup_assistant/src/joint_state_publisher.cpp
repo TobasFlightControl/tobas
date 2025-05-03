@@ -83,7 +83,9 @@ void JointStatePublisherWidget::updateInternalDataStructures()
     slider->setValue(0.);
 
     connect(
-      slider, &qt::DoubleSliderDisplay::valueChanged, this,
+      slider,
+      &qt::DoubleSliderDisplay::valueChanged,
+      this,
       bind(&self::onValueChanged, this, placeholders::_1, joint.name));
 
     sliders_.push_back(slider);

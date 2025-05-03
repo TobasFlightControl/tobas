@@ -107,8 +107,11 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
     if (cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
       TOBAS_ERROR(
-        "The command interface of joint \"", jnt_name, "\" is not position. So received position command for joint \"",
-        jnt_name, "\" is ignored.");
+        "The command interface of joint \"",
+        jnt_name,
+        "\" is not position. So received position command for joint \"",
+        jnt_name,
+        "\" is ignored.");
       continue;
     }
 
@@ -132,8 +135,11 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
     if (cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
       TOBAS_ERROR(
-        "The command interface of joint \"", jnt_name, "\" is not velocity. So received velocity command for joint \"",
-        jnt_name, "\" is ignored.");
+        "The command interface of joint \"",
+        jnt_name,
+        "\" is not velocity. So received velocity command for joint \"",
+        jnt_name,
+        "\" is ignored.");
       continue;
     }
 
@@ -156,8 +162,11 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
     if (cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
       TOBAS_ERROR(
-        "The command interface of joint \"", jnt_name, "\" is not effort. So received effort command for joint \"",
-        jnt_name, "\" is ignored.");
+        "The command interface of joint \"",
+        jnt_name,
+        "\" is not effort. So received effort command for joint \"",
+        jnt_name,
+        "\" is ignored.");
       continue;
     }
 
@@ -184,7 +193,8 @@ void JointCommandHandlerNode::positionResetTimerCb()
   if (pos_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }
@@ -205,7 +215,8 @@ void JointCommandHandlerNode::velocityResetTimerCb()
   if (vel_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }
@@ -226,7 +237,8 @@ void JointCommandHandlerNode::effortResetTimerCb()
   if (eff_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }

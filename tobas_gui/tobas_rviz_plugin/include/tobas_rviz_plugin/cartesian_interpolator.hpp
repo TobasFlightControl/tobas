@@ -165,8 +165,17 @@ public:
     const KinematicsBase::IKCostFn& cost_function = KinematicsBase::IKCostFn())
   {
     return computeCartesianPath(
-      start_state, group, traj, link, distance * direction, global_reference_frame, max_step, precision, validCallback,
-      options, cost_function);
+      start_state,
+      group,
+      traj,
+      link,
+      distance * direction,
+      global_reference_frame,
+      max_step,
+      precision,
+      validCallback,
+      options,
+      cost_function);
   }
 
   /**
@@ -278,8 +287,17 @@ public:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     return computeCartesianPath(
-      start_state, group, path, link, distance * direction, global_reference_frame, max_step, jump_threshold,
-      validCallback, options, cost_function);
+      start_state,
+      group,
+      path,
+      link,
+      distance * direction,
+      global_reference_frame,
+      max_step,
+      jump_threshold,
+      validCallback,
+      options,
+      cost_function);
 #pragma GCC diagnostic pop
   }
 

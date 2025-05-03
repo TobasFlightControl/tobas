@@ -36,6 +36,7 @@ BreakBeforeBinaryOperators: false
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializersBeforeComma: true
 
+BinPackArguments: false # Added
 BinPackParameters: false # true -> false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 DerivePointerBinding: false
@@ -89,3 +90,4 @@ AlignAfterOpenBracket: AlwaysBreak # 引数が1行に収まらなければ全て
 AlignOperands: true # 長い式の演算子を縦に揃える
 FixNamespaceComments: true # 名前空間の閉じ括弧にコメントを追加/修正
 InsertBraces: true # 必ず{}を挿入する
+AllowAllArgumentsOnNextLine: true # 引数が1行に収まらない場合に改行して次の1行にまとめることを許可する

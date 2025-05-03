@@ -321,8 +321,13 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
   if (current > max_current_) {
     TOBAS_ERROR(
-      "The ESC of rotor \"", link_name_, "\" is critically damaged due to an overcurrent of ", current,
-      " A, which exceeded its maximum current capacity of ", max_current_, " A.");
+      "The ESC of rotor \"",
+      link_name_,
+      "\" is critically damaged due to an overcurrent of ",
+      current,
+      " A, which exceeded its maximum current capacity of ",
+      max_current_,
+      " A.");
     is_intact_ = false;
     throttle_ = 0.;
   }

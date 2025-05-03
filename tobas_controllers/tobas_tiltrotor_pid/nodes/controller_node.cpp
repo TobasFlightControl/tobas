@@ -450,7 +450,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
     if (!mixer_.solve(
-          js_converter_.getPosition(), odom->frame.M, odom->twist.rot, acc_cmd_->accel, *tar_dgyro_, dist_force_W,
+          js_converter_.getPosition(),
+          odom->frame.M,
+          odom->twist.rot,
+          acc_cmd_->accel,
+          *tar_dgyro_,
+          dist_force_W,
           dist_torque_B)) {
       TOBAS_FATAL("Failed to solve mixing equation.");
       return;

@@ -305,7 +305,8 @@ void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
       std::vector<const JointModel*> remaining_joints = jmg->getActiveJointModels();
       std::map<std::string, double> state;
       for (std::map<std::string, std::vector<double>>::const_iterator jt = group_state.joint_values_.begin();
-           jt != group_state.joint_values_.end(); ++jt) {
+           jt != group_state.joint_values_.end();
+           ++jt) {
         if (jmg->hasJointModel(jt->first)) {
           const JointModel* jm = jmg->getJointModel(jt->first);
           const std::vector<std::string>& vn = jm->getVariableNames();
@@ -324,8 +325,11 @@ void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
               getLogger(),
               "The model for joint '%s' requires %d variable values, "
               "but only %d variable values were supplied in default state '%s' for group '%s'",
-              jt->first.c_str(), static_cast<int>(vn.size()), static_cast<int>(jt->second.size()),
-              group_state.name_.c_str(), jmg->getName().c_str());
+              jt->first.c_str(),
+              static_cast<int>(vn.size()),
+              static_cast<int>(jt->second.size()),
+              group_state.name_.c_str(),
+              jmg->getName().c_str());
           }
         }
         else {
@@ -333,7 +337,9 @@ void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
             getLogger(),
             "Group state '%s' specifies value for joint '%s', "
             "but that joint is not part of group '%s'",
-            group_state.name_.c_str(), jt->first.c_str(), jmg->getName().c_str());
+            group_state.name_.c_str(),
+            jt->first.c_str(),
+            jmg->getName().c_str());
         }
       }
       if (!remaining_joints.empty()) {
@@ -343,9 +349,10 @@ void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
           missing << ", " << (*j)->getName();
         }
         RCLCPP_WARN_STREAM(
-          getLogger(), "Group state '" << group_state.name_ << "' doesn't specify all group joints in group '"
-                                       << group_state.group_ << "'. " << missing.str() << ' '
-                                       << (remaining_joints.size() > 1 ? "are" : "is") << " missing.");
+          getLogger(),
+          "Group state '" << group_state.name_ << "' doesn't specify all group joints in group '" << group_state.group_
+                          << "'. " << missing.str() << ' ' << (remaining_joints.size() > 1 ? "are" : "is")
+                          << " missing.");
       }
       if (!state.empty()) {
         jmg->addDefaultState(group_state.name_, state);
@@ -353,8 +360,10 @@ void RobotModel::buildGroupStates(const srdf::Model& srdf_model)
     }
     else {
       RCLCPP_ERROR(
-        getLogger(), "Group state '%s' specified for group '%s', but that group does not exist",
-        group_state.name_.c_str(), group_state.group_.c_str());
+        getLogger(),
+        "Group state '%s' specified for group '%s', but that group does not exist",
+        group_state.name_.c_str(),
+        group_state.group_.c_str());
     }
   }
 }
@@ -373,13 +382,17 @@ void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
           }
           else {
             RCLCPP_ERROR(
-              getLogger(), "Joint '%s' cannot mimic joint '%s' because they have different number of DOF",
-              joint_model->getName().c_str(), jm->mimic->joint_name.c_str());
+              getLogger(),
+              "Joint '%s' cannot mimic joint '%s' because they have different number of DOF",
+              joint_model->getName().c_str(),
+              jm->mimic->joint_name.c_str());
           }
         }
         else {
           RCLCPP_ERROR(
-            getLogger(), "Joint '%s' cannot mimic unknown joint '%s'", joint_model->getName().c_str(),
+            getLogger(),
+            "Joint '%s' cannot mimic unknown joint '%s'",
+            joint_model->getName().c_str(),
             jm->mimic->joint_name.c_str());
         }
       }
@@ -600,7 +613,9 @@ void RobotModel::buildGroupsInfoEndEffectors(const srdf::Model& srdf_model)
               }
               else {
                 RCLCPP_ERROR(
-                  getLogger(), "Group '%s' for end-effector '%s' cannot be its own parent", eef.parent_group_.c_str(),
+                  getLogger(),
+                  "Group '%s' for end-effector '%s' cannot be its own parent",
+                  eef.parent_group_.c_str(),
                   eef.name_.c_str());
               }
             }
@@ -609,13 +624,17 @@ void RobotModel::buildGroupsInfoEndEffectors(const srdf::Model& srdf_model)
                 getLogger(),
                 "Group '%s' was specified as parent group for end-effector '%s' "
                 "but it does not include the parent link '%s'",
-                eef.parent_group_.c_str(), eef.name_.c_str(), eef.parent_link_.c_str());
+                eef.parent_group_.c_str(),
+                eef.name_.c_str(),
+                eef.parent_link_.c_str());
             }
           }
           else {
             RCLCPP_ERROR(
-              getLogger(), "Group name '%s' not found (specified as parent group for end-effector '%s')",
-              eef.parent_group_.c_str(), eef.name_.c_str());
+              getLogger(),
+              "Group name '%s' not found (specified as parent group for end-effector '%s')",
+              eef.parent_group_.c_str(),
+              eef.name_.c_str());
           }
         }
 
@@ -902,7 +921,9 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
             getLogger(),
             "Skipping virtual joint '%s' because its child frame '%s' "
             "does not match the URDF frame '%s'",
-            virtual_joint.name_.c_str(), virtual_joint.child_link_.c_str(), child_link->name.c_str());
+            virtual_joint.name_.c_str(),
+            virtual_joint.child_link_.c_str(),
+            child_link->name.c_str());
         }
       }
       else if (virtual_joint.parent_frame_.empty()) {
@@ -952,15 +973,16 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
           angular_distance_weight = std::stod(property.value_, &sz);
           if (sz != property.value_.size()) {
             RCLCPP_WARN_STREAM(
-              getLogger(), "Extra characters after property " << property.property_name_ << " for joint "
-                                                              << property.joint_name_ << " as double: '"
-                                                              << property.value_.substr(sz) << '\'');
+              getLogger(),
+              "Extra characters after property " << property.property_name_ << " for joint " << property.joint_name_
+                                                 << " as double: '" << property.value_.substr(sz) << '\'');
           }
         }
         catch (const std::invalid_argument& e) {
           RCLCPP_ERROR_STREAM(
-            getLogger(), "Unable to parse property " << property.property_name_ << " for joint " << property.joint_name_
-                                                     << " as double: '" << property.value_ << '\'');
+            getLogger(),
+            "Unable to parse property " << property.property_name_ << " for joint " << property.joint_name_
+                                        << " as double: '" << property.value_ << '\'');
           continue;
         }
 
@@ -972,14 +994,16 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
         }
         else {
           RCLCPP_ERROR_STREAM(
-            getLogger(), "Cannot apply property " << property.property_name_
-                                                  << " to joint type: " << new_joint_model->getTypeName());
+            getLogger(),
+            "Cannot apply property " << property.property_name_ << " to joint type: " << new_joint_model->getTypeName());
         }
       }
       else if (property.property_name_ == "motion_model") {
         if (new_joint_model->getType() != JointModel::JointType::PLANAR) {
           RCLCPP_ERROR(
-            getLogger(), "Cannot apply property %s to joint type: %s", property.property_name_.c_str(),
+            getLogger(),
+            "Cannot apply property %s to joint type: %s",
+            property.property_name_.c_str(),
             new_joint_model->getTypeName().c_str());
           continue;
         }
@@ -993,8 +1017,9 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
         }
         else {
           RCLCPP_ERROR_STREAM(
-            getLogger(), "Unknown value for property " << property.property_name_ << " (" << property.joint_name_
-                                                       << "): '" << property.value_ << '\'');
+            getLogger(),
+            "Unknown value for property " << property.property_name_ << " (" << property.joint_name_ << "): '"
+                                          << property.value_ << '\'');
           RCLCPP_ERROR(getLogger(), "Valid values are 'holonomic' and 'diff_drive'");
           continue;
         }
@@ -1004,7 +1029,9 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
       else if (property.property_name_ == "min_translational_distance") {
         if (new_joint_model->getType() != JointModel::JointType::PLANAR) {
           RCLCPP_ERROR(
-            getLogger(), "Cannot apply property %s to joint type: %s", property.property_name_.c_str(),
+            getLogger(),
+            "Cannot apply property %s to joint type: %s",
+            property.property_name_.c_str(),
             new_joint_model->getTypeName().c_str());
           continue;
         }
@@ -1014,15 +1041,16 @@ JointModel* RobotModel::constructJointModel(const urdf::Link* child_link, const 
           min_translational_distance = std::stod(property.value_, &sz);
           if (sz != property.value_.size()) {
             RCLCPP_WARN_STREAM(
-              getLogger(), "Extra characters after property " << property.property_name_ << " for joint "
-                                                              << property.joint_name_ << " as double: '"
-                                                              << property.value_.substr(sz) << '\'');
+              getLogger(),
+              "Extra characters after property " << property.property_name_ << " for joint " << property.joint_name_
+                                                 << " as double: '" << property.value_.substr(sz) << '\'');
           }
         }
         catch (const std::invalid_argument& e) {
           RCLCPP_ERROR_STREAM(
-            getLogger(), "Unable to parse property " << property.property_name_ << " for joint " << property.joint_name_
-                                                     << " as double: '" << property.value_ << '\'');
+            getLogger(),
+            "Unable to parse property " << property.property_name_ << " for joint " << property.joint_name_
+                                        << " as double: '" << property.value_ << '\'');
           continue;
         }
 
@@ -1097,7 +1125,8 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
       const urdf::Mesh* mesh = static_cast<const urdf::Mesh*>(urdf_link->visual->geometry.get());
       if (!mesh->filename.empty()) {
         new_link_model->setVisualMesh(
-          mesh->filename, urdfPose2Isometry3d(urdf_link->visual->origin),
+          mesh->filename,
+          urdfPose2Isometry3d(urdf_link->visual->origin),
           Eigen::Vector3d(mesh->scale.x, mesh->scale.y, mesh->scale.z));
       }
     }
@@ -1107,7 +1136,8 @@ LinkModel* RobotModel::constructLinkModel(const urdf::Link* urdf_link)
       const urdf::Mesh* mesh = static_cast<const urdf::Mesh*>(urdf_link->collision->geometry.get());
       if (!mesh->filename.empty()) {
         new_link_model->setVisualMesh(
-          mesh->filename, urdfPose2Isometry3d(urdf_link->collision->origin),
+          mesh->filename,
+          urdfPose2Isometry3d(urdf_link->collision->origin),
           Eigen::Vector3d(mesh->scale.x, mesh->scale.y, mesh->scale.z));
       }
     }
@@ -1393,7 +1423,9 @@ void RobotModel::interpolate(const double* from, const double* to, double t, dou
   // we interpolate values only for active joint models (non-mimic)
   for (std::size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
     active_joint_model_vector_[i]->interpolate(
-      from + active_joint_model_start_index_[i], to + active_joint_model_start_index_[i], t,
+      from + active_joint_model_start_index_[i],
+      to + active_joint_model_start_index_[i],
+      t,
       state + active_joint_model_start_index_[i]);
   }
   // now we update mimic as needed
@@ -1436,11 +1468,16 @@ void RobotModel::setKinematicsAllocators(const std::map<std::string, SolverAlloc
         sub_joints.insert(sub->getJointModels().begin(), sub->getJointModels().end());
 
         if (std::includes(
-              joints.begin(), joints.end(), sub_joints.begin(),
+              joints.begin(),
+              joints.end(),
+              sub_joints.begin(),
               sub_joints.end())) {  // sub_joints included in joints: add sub, remove sub_joints from joints set
           std::set<const JointModel*> joint_model_set;
           std::set_difference(
-            joints.begin(), joints.end(), sub_joints.begin(), sub_joints.end(),
+            joints.begin(),
+            joints.end(),
+            sub_joints.begin(),
+            sub_joints.end(),
             std::inserter(joint_model_set, joint_model_set.end()));
           // TODO: instead of maintaining disjoint joint sets here,
           // should we leave that work to JMG's setSolverAllocators() / computeJointVariableIndices()?
@@ -1523,7 +1560,8 @@ void RobotModel::computeFixedTransforms(
   for (std::size_t i = 0; i < link->getChildJointModels().size(); ++i) {
     if (link->getChildJointModels()[i]->getType() == JointModel::FIXED) {
       computeFixedTransforms(
-        link->getChildJointModels()[i]->getChildLinkModel(), transform * link->getJointOriginTransform(),
+        link->getChildJointModels()[i]->getChildLinkModel(),
+        transform * link->getJointOriginTransform(),
         associated_transforms);
     }
   }

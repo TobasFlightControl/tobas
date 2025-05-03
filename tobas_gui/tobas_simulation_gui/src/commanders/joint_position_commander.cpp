@@ -118,7 +118,8 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
     commander->setValue(0.);
     commander->setEnabled(false);
     connect(
-      commander, &qt::DoubleSliderDisplay::valueChanged,
+      commander,
+      &qt::DoubleSliderDisplay::valueChanged,
       std::bind(&self::onValueChanged, this, std::placeholders::_1, jnt_name));
     commanders_[jnt_name] = commander;
     cmd_rows_->addWidget(commander);

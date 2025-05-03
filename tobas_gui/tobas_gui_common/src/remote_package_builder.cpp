@@ -25,7 +25,9 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
     "source {} && "
     "source {} && "
     "cd {}",
-    ros2_setup_bash, tobas_setup_bash, tobas::kColconWSPathRoot);
+    ros2_setup_bash,
+    tobas_setup_bash,
+    tobas::kColconWSPathRoot);
 
   // XXX: ルート権限だと--symlink-installが機能しない
   const auto build_cmd = format(

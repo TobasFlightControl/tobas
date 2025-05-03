@@ -17,7 +17,9 @@ AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::Sha
   : node_(node), propeller_(propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node_, "Data from thrust stand", { "RPM", "Thrust", "Torque" },
+    node_,
+    "Data from thrust stand",
+    { "RPM", "Thrust", "Torque" },
     "Please input experimental data from the Thrust Stand.");
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1e-1, 1e-6, 1e-6 });

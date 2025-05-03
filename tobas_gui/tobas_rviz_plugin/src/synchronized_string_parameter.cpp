@@ -46,7 +46,9 @@ std::string SynchronizedStringParameter::loadInitialValue(
       node_->get_logger(),
       "Could not find parameter %s and did not receive %s via std_msgs::msg::String subscription "
       "within %f seconds.",
-      name_.c_str(), name_.c_str(), d_timeout);
+      name_.c_str(),
+      name_.c_str(),
+      d_timeout);
   }
   if (!keep_open) {
     string_subscriber_.reset();

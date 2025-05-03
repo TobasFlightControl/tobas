@@ -44,7 +44,9 @@ void LinkViewModel::sync()
   // collision, collision_array
   model_->collision_array.clear();
   transform(
-    collisions_.begin(), collisions_.end(), back_inserter(model_->collision_array),
+    collisions_.begin(),
+    collisions_.end(),
+    back_inserter(model_->collision_array),
     [](const CollisionViewModelPtr& cvm) { return cvm->model(); });
   if (model_->collision_array.empty()) {
     model_->collision.reset();
@@ -56,7 +58,9 @@ void LinkViewModel::sync()
   // visual, visual_array
   model_->visual_array.clear();
   transform(
-    visuals_.begin(), visuals_.end(), back_inserter(model_->visual_array),
+    visuals_.begin(),
+    visuals_.end(),
+    back_inserter(model_->visual_array),
     [](const VisualViewModelPtr& vvm) { return vvm->model(); });
   if (model_->visual_array.empty()) {
     model_->visual.reset();

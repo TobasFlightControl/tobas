@@ -256,7 +256,9 @@ bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       jnt.axis(f_tip.M * (-jnt.axis()));
     }
     chain.addSegment(Segment(
-      getSegment(parents_chain_root[s + 1])->second.segment.name(), jnt, f_tip,
+      getSegment(parents_chain_root[s + 1])->second.segment.name(),
+      jnt,
+      f_tip,
       getSegment(parents_chain_root[s + 1])->second.segment.inertia()));
   }
 

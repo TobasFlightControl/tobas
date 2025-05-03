@@ -67,10 +67,14 @@ void SelectedLinksWidget::addLink(const QString& link_name)
 
   // Connection
   connect(
-    link_widget, &SelectedLinkWidget::copyFromLeftButtonClicked, this,
+    link_widget,
+    &SelectedLinkWidget::copyFromLeftButtonClicked,
+    this,
     std::bind(&self::onCopyFromLeftButtonClicked, this, link_name));
   connect(
-    link_widget, &SelectedLinkWidget::copyToAllButtonClicked, this,
+    link_widget,
+    &SelectedLinkWidget::copyToAllButtonClicked,
+    this,
     std::bind(&self::onCopyToAllButtonClicked, this, link_name));
 }
 

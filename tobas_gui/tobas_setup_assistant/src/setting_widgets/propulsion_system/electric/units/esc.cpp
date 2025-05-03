@@ -16,9 +16,10 @@ ESCWidget::ESCWidget()
   setLayout(rows);
 
   max_current_ = new ParamGetterWidget_SpinBox(
-    "Maximum Current", "Maximum current that the ESC (Electronic Speed Controller) can safely handle. "
-                       "Exceeding this maximum current may lead to overheating or damage to the ESC, "
-                       "and in the worst case, it could cause failure or fire.");
+    "Maximum Current",
+    "Maximum current that the ESC (Electronic Speed Controller) can safely handle. "
+    "Exceeding this maximum current may lead to overheating or damage to the ESC, "
+    "and in the worst case, it could cause failure or fire.");
   max_current_->setMinimum(1);
   max_current_->setValue(20);
   max_current_->setSuffix(" A");

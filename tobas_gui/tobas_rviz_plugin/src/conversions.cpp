@@ -21,7 +21,9 @@ bool jointStateToRobotStateImpl(const sensor_msgs::msg::JointState& joint_state,
 {
   if (joint_state.name.size() != joint_state.position.size()) {
     RCLCPP_ERROR(
-      getLogger(), "Different number of names and positions in JointState message: %zu, %zu", joint_state.name.size(),
+      getLogger(),
+      "Different number of names and positions in JointState message: %zu, %zu",
+      joint_state.name.size(),
       joint_state.position.size());
     return false;
   }
@@ -67,7 +69,8 @@ bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs,
         getLogger(),
         "The transform for multi-dof joints was specified in frame '%s' "
         "but it was not possible to transform that to frame '%s'",
-        mjs.header.frame_id.c_str(), state.getRobotModel()->getModelFrame().c_str());
+        mjs.header.frame_id.c_str(),
+        state.getRobotModel()->getModelFrame().c_str());
     }
   }
 
@@ -199,8 +202,9 @@ void msgToAttachedBody(
     if (!aco.object.primitives.empty() || !aco.object.meshes.empty() || !aco.object.planes.empty()) {
       if (aco.object.primitives.size() != aco.object.primitive_poses.size()) {
         RCLCPP_ERROR(
-          getLogger(), "Number of primitive shapes does not match "
-                       "number of poses in collision object message");
+          getLogger(),
+          "Number of primitive shapes does not match "
+          "number of poses in collision object message");
         return;
       }
 
@@ -282,8 +286,10 @@ void msgToAttachedBody(
 
         if (shapes.empty()) {
           RCLCPP_ERROR(
-            getLogger(), "There is no geometry to attach to link '%s' as part of attached body '%s'",
-            aco.link_name.c_str(), aco.object.id.c_str());
+            getLogger(),
+            "There is no geometry to attach to link '%s' as part of attached body '%s'",
+            aco.link_name.c_str(),
+            aco.object.id.c_str());
         }
         else {
           if (state.clearAttachedBody(aco.object.id)) {
@@ -291,10 +297,17 @@ void msgToAttachedBody(
               getLogger(),
               "The robot state already had an object named '%s' attached to link '%s'. "
               "The object was replaced.",
-              aco.object.id.c_str(), aco.link_name.c_str());
+              aco.object.id.c_str(),
+              aco.link_name.c_str());
           }
           state.attachBody(
-            aco.object.id, object_pose, shapes, shape_poses, aco.touch_links, aco.link_name, aco.detach_posture,
+            aco.object.id,
+            object_pose,
+            shapes,
+            shape_poses,
+            aco.touch_links,
+            aco.link_name,
+            aco.detach_posture,
             subframe_poses);
           RCLCPP_DEBUG(getLogger(), "Attached object '%s' to link '%s'", aco.object.id.c_str(), aco.link_name.c_str());
         }

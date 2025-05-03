@@ -60,10 +60,12 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
     rotor_widgets_.at(ch) = new RotorWidget();
     rotor_cols->addWidget(rotor_widgets_.at(ch));
     connect(
-      rotor_widgets_.at(ch), &RotorWidget::targetRPMChanged,
+      rotor_widgets_.at(ch),
+      &RotorWidget::targetRPMChanged,
       std::bind(&self::onTargetRPMChanged, this, std::placeholders::_1, ch));
     connect(
-      rotor_widgets_.at(ch), &RotorWidget::gainChanged,
+      rotor_widgets_.at(ch),
+      &RotorWidget::gainChanged,
       std::bind(&self::onGainChanged, this, std::placeholders::_1, ch));
   }
 
@@ -140,7 +142,9 @@ void RotorTestWidget::updateInternalDataStructures()
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
     cur_states_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::currentStatesCb,
+      node_,
+      path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic),
+      &self::currentStatesCb,
       this);
     arming_sub_ = ros2::createSubscriber(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);

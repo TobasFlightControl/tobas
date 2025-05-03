@@ -77,7 +77,9 @@ const Eigen::Isometry3d& Transforms::getTransform(const std::string& from_frame)
   }
 
   RCLCPP_ERROR(
-    getLogger(), "Unable to transform from frame '%s' to frame '%s'. Returning identity.", from_frame.c_str(),
+    getLogger(),
+    "Unable to transform from frame '%s' to frame '%s'. Returning identity.",
+    from_frame.c_str(),
     target_frame_.c_str());
 
   // return identity
@@ -121,7 +123,9 @@ void Transforms::setTransform(const geometry_msgs::msg::TransformStamped& transf
   }
   else {
     RCLCPP_ERROR(
-      getLogger(), "Given transform is to frame '%s', but frame '%s' was expected.", transform.child_frame_id.c_str(),
+      getLogger(),
+      "Given transform is to frame '%s', but frame '%s' was expected.",
+      transform.child_frame_id.c_str(),
       target_frame_.c_str());
   }
 }

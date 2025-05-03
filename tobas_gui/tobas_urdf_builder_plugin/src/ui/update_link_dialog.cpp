@@ -782,7 +782,8 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
   const auto& material_vm = visual_vm_->material();
   material_vm->name(ui_->MaterialNameLineEdit->text());
   material_vm->color(
-    ui_->MaterialColorRedSpinBox->value(), ui_->MaterialColorGreenSpinBox->value(),
+    ui_->MaterialColorRedSpinBox->value(),
+    ui_->MaterialColorGreenSpinBox->value(),
     ui_->MaterialColorBlueSpinBox->value());
   material_vm->textureFileName(ui_->MaterialTexturePathLineEdit->text());
   link_vm_->sync();
@@ -797,7 +798,8 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
   pose.position.y = ui_->CollisionOriginYSpinBox->value();
   pose.position.z = ui_->CollisionOriginZSpinBox->value();
   pose.rotation.setFromRPY(
-    ui_->CollisionOriginRollSpinBox->value(), ui_->CollisionOriginPitchSpinBox->value(),
+    ui_->CollisionOriginRollSpinBox->value(),
+    ui_->CollisionOriginPitchSpinBox->value(),
     ui_->CollisionOriginYawSpinBox->value());
   collision->origin(pose);
 
@@ -862,7 +864,8 @@ void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inerti
   pose.position.y = ui_->InertialOriginYSpinBox->value();
   pose.position.z = ui_->InertialOriginZSpinBox->value();
   pose.rotation.setFromRPY(
-    ui_->InertialOriginRollSpinBox->value(), ui_->InertialOriginPitchSpinBox->value(),
+    ui_->InertialOriginRollSpinBox->value(),
+    ui_->InertialOriginPitchSpinBox->value(),
     ui_->InertialOriginYawSpinBox->value());
   inertial->origin(pose);
 

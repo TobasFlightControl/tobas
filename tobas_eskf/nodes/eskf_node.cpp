@@ -495,7 +495,11 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   const auto grav_meas_noise_var = computeGravMeasVariance(imu->imu.imu.accel.data);
   const auto grav_cov = Vector3d::Constant(grav_meas_noise_var).asDiagonal();
   eskf_.measureIMU(
-    imu->imu.imu.accel.data, imu->imu.imu.gyro.data, imu->imu.accel_covariance, imu->imu.gyro_covariance, grav_cov,
+    imu->imu.imu.accel.data,
+    imu->imu.imu.gyro.data,
+    imu->imu.accel_covariance,
+    imu->imu.gyro_covariance,
+    grav_cov,
     cur_time);
 
   // Create odometry message
@@ -609,8 +613,13 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   // ESKFを更新
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   gnss_anormaly_score_ = eskf_.measurePosVel(
-    pos_meas_, gnss->position_covariance, gnss->ground_speed.data, gnss->velocity_covariance, imu2gnss,
-    imu_->imu.imu.gyro.data, ros2::chronoFromRosTime(gnss->header.stamp));
+    pos_meas_,
+    gnss->position_covariance,
+    gnss->ground_speed.data,
+    gnss->velocity_covariance,
+    imu2gnss,
+    imu_->imu.imu.gyro.data,
+    ros2::chronoFromRosTime(gnss->header.stamp));
 
   // 異常度が高すぎる場合は警告
   if (gnss_anormaly_score_ > kAnormalyScoreThreshold) {

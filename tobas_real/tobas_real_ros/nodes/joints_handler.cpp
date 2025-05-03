@@ -74,7 +74,12 @@ double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, dou
   // Check joint position limit
   if (pwm.value_range.inRange(cmd_pos, kJointLimitMargin)) {
     TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.name, "\" is out of range: ", cmd_pos, " ∉ ",
+      tobas::kTypicalWarnPeriod,
+      "Commanded position of joint \"",
+      pwm.name,
+      "\" is out of range: ",
+      cmd_pos,
+      " ∉ ",
       pwm.value_range);
     cmd_pos = pwm.value_range.clamp(cmd_pos);
   }
@@ -279,7 +284,8 @@ void JointsHandlerNode::positionResetTimerCb()
   if (pos_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }

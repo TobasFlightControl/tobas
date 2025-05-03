@@ -130,7 +130,8 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 
   if (fs::exists(rosbag_path)) {
     if (qt::yesOrNo(
-          this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?",
+          this,
+          QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?",
           qt::QMessageLevel::WARN)) {
       fs::remove_all(rosbag_path);
     }

@@ -18,7 +18,9 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, P
   : node_(node), propeller_(propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node_, "Measurements in static condition", { "RPM", "CT", "CP" },
+    node_,
+    "Measurements in static condition",
+    { "RPM", "CT", "CP" },
     "Please input experimental data from the Thrust Stand.");
   data_->setDecimals({ 3, 6, 6 });
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });

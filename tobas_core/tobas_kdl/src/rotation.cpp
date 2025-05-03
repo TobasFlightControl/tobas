@@ -196,8 +196,15 @@ Rotation Rotation::Rot(const Vector& axis, double angle)
   const auto m_vt_1_2 = m_vt_1 * axis.z();
 
   return Rotation(
-    ct + m_vt_0 * axis.x(), -m_st_2 + m_vt_0_1, m_st_1 + m_vt_0_2, m_st_2 + m_vt_0_1, ct + m_vt_1 * axis.y(),
-    -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2, ct + m_vt_2 * axis.z());
+    ct + m_vt_0 * axis.x(),
+    -m_st_2 + m_vt_0_1,
+    m_st_1 + m_vt_0_2,
+    m_st_2 + m_vt_0_1,
+    ct + m_vt_1 * axis.y(),
+    -m_st_0 + m_vt_1_2,
+    -m_st_1 + m_vt_0_2,
+    m_st_0 + m_vt_1_2,
+    ct + m_vt_2 * axis.z());
 }
 
 Rotation Rotation::Rot(const Vector& vec)
