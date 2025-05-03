@@ -4,16 +4,16 @@
 
 ### C++
 
-See [CPP_CODE_STYLE.md](./tobas_code_style/CPP_CODE_STYLE.md).
+See [C++ Code Style](./tobas_code_style/CPP_CODE_STYLE.md).
 
 ### Python
 
-See [PYTHON_CODE_STYLE.md](./tobas_code_style/PYTHON_CODE_STYLE.md).
+See [Python Code Style](./tobas_code_style/PYTHON_CODE_STYLE.md).
 
 ### CMake
 
-See [CMAKE_CODE_STYLE.md](./tobas_code_style/CMAKE_CODE_STYLE.md).
+See [CMake Code Style](./tobas_code_style/CMAKE_CODE_STYLE.md).
 
 ## Git
 
-See [GIT_GUIDELINE.md](./GIT_GUIDELINE.md).
+See [Git Guideline](./GIT_GUIDELINE.md).

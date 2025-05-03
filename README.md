@@ -106,3 +106,7 @@ $ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
 - [ ] Visual Inertial Odometry (VIO)
 - [ ] Obstacle avoidance
 - [ ] Automatic path planning
+
+## For Contributors
+
+See [Contributing to Tobas](./CONTRIBUTING.md).
