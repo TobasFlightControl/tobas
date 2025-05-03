@@ -1,65 +1,91 @@
-# Base: MoveIt!
+# Base: [moveit2/.clang-format](https://github.com/moveit/moveit2/blob/main/.clang-format)
+
 BasedOnStyle: Google
+ColumnLimit: 120
+MaxEmptyLinesToKeep: 1
+SortIncludes: false
+
+Standard: Auto
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
 AccessModifierOffset: -2
 ConstructorInitializerIndentWidth: 2
+NamespaceIndentation: None
+ContinuationIndentWidth: 2 # 4 -> 2
+IndentCaseLabels: true
+IndentFunctionDeclarationAfterType: false
+
 AlignEscapedNewlinesLeft: false
 AlignTrailingComments: true
+
 AllowAllParametersOfDeclarationOnNextLine: false
+ExperimentalAutoDetectBinPacking: false
+ObjCSpaceBeforeProtocolList: true
+Cpp11BracedListStyle: false
+
+AllowShortBlocksOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
+AllowShortCaseLabelsOnASingleLine: false
+
 AlwaysBreakTemplateDeclarations: true
 AlwaysBreakBeforeMultilineStrings: false
 BreakBeforeBinaryOperators: NonAssignment # false -> NonAssignment
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializersBeforeComma: false # true -> false
+
 BinPackParameters: false # true -> false
-ColumnLimit: 120
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 DerivePointerBinding: false
 PointerBindsToType: true
-ExperimentalAutoDetectBinPacking: false
-IndentCaseLabels: true
-MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
-ObjCSpaceBeforeProtocolList: true
-PenaltyBreakBeforeFirstCallParameter: 19
-PenaltyBreakComment: 60
-PenaltyBreakString: 1
-PenaltyBreakFirstLessLess: 1000
-PenaltyExcessCharacter: 1000
-PenaltyReturnTypeOnItsOwnLine: 90
+
+PenaltyExcessCharacter: 50
+PenaltyBreakBeforeFirstCallParameter: 30
+PenaltyBreakComment: 1000
+PenaltyBreakFirstLessLess: 10
+PenaltyBreakString: 100
+PenaltyReturnTypeOnItsOwnLine: 50
+
 SpacesBeforeTrailingComments: 2
-Cpp11BracedListStyle: false
-Standard: Auto
-IndentWidth: 2
-TabWidth: 2
-UseTab: Never
-IndentFunctionDeclarationAfterType: false
 SpacesInParentheses: false
 SpacesInAngles: false
 SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
+SpaceAfterCStyleCast: false
 SpaceAfterControlStatementKeyword: true
 SpaceBeforeAssignmentOperators: true
-ContinuationIndentWidth: 2 # 4 -> 2
-SortIncludes: false
-SpaceAfterCStyleCast: false
-# BreakBeforeBraces: Custom
-# BraceWrapping:
-#   AfterClass: 'true'
-#   AfterControlStatement: 'true'
-#   AfterEnum : 'true'
-#   AfterFunction : 'true'
-#   AfterNamespace : 'true'
-#   AfterStruct : 'true'
-#   AfterUnion : 'true'
-#   BeforeCatch : 'true'
-#   BeforeElse : 'true'
-#   IndentBraces : 'false'
-BreakBeforeBraces: Allman # Custom -> Allman
 
-# Other custom settings
+# Configure each individual brace in BraceWrapping
+BreakBeforeBraces: Custom
+
+# Qualifiers (const, volatile, static, etc)
+QualifierAlignment: Custom
+QualifierOrder: ["static", "inline", "constexpr", "const", "volatile", "type"]
+
+# Control of individual brace wrapping cases
+BraceWrapping:
+  AfterCaseLabel: false # true -> false
+  AfterClass: true
+  AfterControlStatement: true # true -> false
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true # Added
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: "true" # Added
+  BeforeWhile: false # Added
+  IndentBraces: false
+  SplitEmptyFunction: true # Added
+  SplitEmptyRecord: true # Added
+  SplitEmptyNamespace: true # Added
+
+# ===== Added =====
 AlignAfterOpenBracket: AlwaysBreak
 AlignOperands: true
 FixNamespaceComments: true
+InsertBraces: true
