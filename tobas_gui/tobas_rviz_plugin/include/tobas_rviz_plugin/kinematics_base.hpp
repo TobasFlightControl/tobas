@@ -138,7 +138,7 @@ public:
   virtual bool getPositionIK(
     const std::vector<geometry_msgs::msg::Pose>& ik_poses,
     const std::vector<double>& ik_seed_state,
-    std::vector<std::vector<double> >& solutions,
+    std::vector<std::vector<double>>& solutions,
     KinematicsResult& result,
     const KinematicsQueryOptions& options) const;
 

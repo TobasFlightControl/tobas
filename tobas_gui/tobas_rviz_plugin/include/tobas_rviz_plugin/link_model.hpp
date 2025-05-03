@@ -31,7 +31,7 @@ using LinkTransformMap = std::map<
   const LinkModel*,
   Eigen::Isometry3d,
   std::less<const LinkModel*>,
-  Eigen::aligned_allocator<std::pair<const LinkModel* const, Eigen::Isometry3d> > >;
+  Eigen::aligned_allocator<std::pair<const LinkModel* const, Eigen::Isometry3d>>>;
 
 /* A link from the robot. Contains the constant transform applied to the link and its geometry */
 class LinkModel

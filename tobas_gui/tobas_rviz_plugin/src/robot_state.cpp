@@ -1730,7 +1730,7 @@ bool RobotState::setFromIK(
   std::vector<std::string> tips;
   tips.push_back(tip_in);
 
-  std::vector<std::vector<double> > consistency_limits;
+  std::vector<std::vector<double>> consistency_limits;
   consistency_limits.push_back(consistency_limits_in);
 
   return setFromIK(jmg, poses, tips, consistency_limits, timeout, constraint, options, cost_function);
@@ -1745,7 +1745,7 @@ bool RobotState::setFromIK(
   const KinematicsQueryOptions& options,
   const KinematicsBase::IKCostFn& cost_function)
 {
-  const std::vector<std::vector<double> > consistency_limits;
+  const std::vector<std::vector<double>> consistency_limits;
   return setFromIK(jmg, poses_in, tips_in, consistency_limits, timeout, constraint, options, cost_function);
 }
 
@@ -1753,7 +1753,7 @@ bool RobotState::setFromIK(
   const JointModelGroup* jmg,
   const EigenSTL::vector_Isometry3d& poses_in,
   const std::vector<std::string>& tips_in,
-  const std::vector<std::vector<double> >& consistency_limit_sets,
+  const std::vector<std::vector<double>>& consistency_limit_sets,
   double timeout,
   const GroupStateValidityCallbackFn& constraint,
   const KinematicsQueryOptions& options,
@@ -1986,7 +1986,7 @@ bool RobotState::setFromIKSubgroups(
   const JointModelGroup* jmg,
   const EigenSTL::vector_Isometry3d& poses_in,
   const std::vector<std::string>& tips_in,
-  const std::vector<std::vector<double> >& consistency_limits,
+  const std::vector<std::vector<double>>& consistency_limits,
   double timeout,
   const GroupStateValidityCallbackFn& constraint,
   const KinematicsQueryOptions& /*options*/)
@@ -2216,8 +2216,8 @@ void RobotState::computeAABB(std::vector<double>& aabb) const
   if (!bounding_box.isEmpty()) {
     // The following is a shorthand for something like:
     // aabb[0, 2, 4] = bounding_box.min(); aabb[1, 3, 5] = bounding_box.max();
-    Eigen::Map<Eigen::VectorXd, Eigen::Unaligned, Eigen::InnerStride<2> >(aabb.data(), 3) = bounding_box.min();
-    Eigen::Map<Eigen::VectorXd, Eigen::Unaligned, Eigen::InnerStride<2> >(aabb.data() + 1, 3) = bounding_box.max();
+    Eigen::Map<Eigen::VectorXd, Eigen::Unaligned, Eigen::InnerStride<2>>(aabb.data(), 3) = bounding_box.min();
+    Eigen::Map<Eigen::VectorXd, Eigen::Unaligned, Eigen::InnerStride<2>>(aabb.data() + 1, 3) = bounding_box.max();
   }
 }
 

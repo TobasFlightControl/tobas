@@ -773,7 +773,7 @@ protected:
   srdf::Model::Group config_;
 
   /* The set of default states specified for this group in the SRDF */
-  std::map<std::string, std::map<std::string, double> > default_states_;
+  std::map<std::string, std::map<std::string, double>> default_states_;
 
   /* The names of the default states specified for this group in the SRDF */
   std::vector<std::string> default_states_names_;

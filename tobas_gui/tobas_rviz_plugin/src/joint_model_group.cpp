@@ -465,7 +465,7 @@ void JointModelGroup::addDefaultState(const std::string& name, const std::map<st
 
 bool JointModelGroup::getVariableDefaultPositions(const std::string& name, std::map<std::string, double>& values) const
 {
-  std::map<std::string, std::map<std::string, double> >::const_iterator it = default_states_.find(name);
+  std::map<std::string, std::map<std::string, double>>::const_iterator it = default_states_.find(name);
   if (it == default_states_.end()) {
     return false;
   }

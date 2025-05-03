@@ -36,7 +36,7 @@ public:
 private:
   rviz_common::DisplayContext* context_;
 
-  std::vector<std::unique_ptr<rviz_rendering::Shape> > scene_shapes_;
+  std::vector<std::unique_ptr<rviz_rendering::Shape>> scene_shapes_;
   std::vector<OcTreeRenderPtr> octree_voxel_grids_;
 };
 }  // namespace tobas
