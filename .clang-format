@@ -92,3 +92,4 @@ FixNamespaceComments: true # 名前空間の閉じ括弧にコメントを追加
 ShortNamespaceLines: 0 # 名前空間内に1行以上記述されていれば閉じ括弧にコメントを追加
 InsertBraces: true # 必ず{}を挿入する
 AllowAllArgumentsOnNextLine: true # 引数が1行に収まらない場合に改行して次の1行にまとめることを許可する
+# RemoveEmptyLinesInUnwrappedLines: true # clang-format 20+
