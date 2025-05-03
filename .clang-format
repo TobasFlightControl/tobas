@@ -1,4 +1,5 @@
 # Base: [moveit2/.clang-format](https://github.com/moveit/moveit2/blob/main/.clang-format)
+# cf. [Clang-Formatの書式について](https://qiita.com/koyukitukimino/items/9b8f74d1ae307a7017d3)
 
 BasedOnStyle: Google
 ColumnLimit: 120
