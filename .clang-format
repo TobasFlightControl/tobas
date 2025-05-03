@@ -68,7 +68,7 @@ QualifierOrder: ["static", "inline", "constexpr", "const", "volatile", "type"]
 BraceWrapping:
   AfterCaseLabel: false # true -> false
   AfterClass: true
-  AfterControlStatement: true # true -> false
+  AfterControlStatement: false # true -> false
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: true
