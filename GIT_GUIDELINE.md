@@ -53,6 +53,7 @@
 - `build`: Changes to the build system or external dependencies
 - `ci`: Changes to CI/CD scripts
 - `chore`: Maintenance tasks or other minor changes
+- `wip`: Work in progress
 
 #### Subject
 
