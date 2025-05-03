@@ -42,7 +42,7 @@ ament_target_dependencies(${PROJECT_NAME}
 
 # Build each plugin
 file(GLOB PLUGIN_DIR_PATHS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*)
-set(targets_to_install "")
+set(TARGETS_TO_INSTALL "")
 
 foreach(DIR_PATH IN LISTS PLUGIN_DIR_PATHS)
 	get_filename_component(PLUGIN_NAME ${DIR_PATH} NAME_WE)
@@ -57,18 +57,18 @@ foreach(DIR_PATH IN LISTS PLUGIN_DIR_PATHS)
 		gz-plugin::register
 	)
 
-	list(APPEND targets_to_install ${PLUGIN_NAME})
+	list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
 endforeach()
 
 # Install plugins
 install(
-	TARGETS ${targets_to_install}
+	TARGETS ${TARGETS_TO_INSTALL}
 	EXPORT ${PROJECT_NAME}
 	LIBRARY DESTINATION lib/${PROJECT_NAME}/plugins
 )
 ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env_hooks/${PROJECT_NAME}.dsv.in")
 
 # Export plugins
-ament_export_libraries(${targets_to_install})
+ament_export_libraries(${TARGETS_TO_INSTALL})
 
 ament_package()

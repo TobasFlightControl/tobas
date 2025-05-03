@@ -29,13 +29,13 @@ add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-set(targets_to_install "")
+set(TARGETS_TO_INSTALL "")
 
 foreach(FILE IN LISTS NODE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)
 	add_executable(${NAME} ${FILE})
 	target_link_libraries(${NAME} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NAME})
+	list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 
 install(
@@ -46,7 +46,7 @@ install(
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
+install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_dependencies(${AMENT_DEPENDENCIES})
 

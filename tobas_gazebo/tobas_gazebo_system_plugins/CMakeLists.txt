@@ -63,19 +63,19 @@ target_link_libraries(${PROJECT_NAME}
 
 # Build each plugin
 file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*.cpp)
-set(targets_to_install "")
+set(TARGETS_TO_INSTALL "")
 
 foreach(FILE IN LISTS PLUGIN_CPP_FILES)
 	get_filename_component(FILE_NAME ${FILE} NAME_WE)
 	set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
 	add_library(${PLUGIN_NAME} SHARED ${FILE})
 	target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${PLUGIN_NAME})
+	list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
 endforeach()
 
 # Install plugins
 install(
-	TARGETS ${targets_to_install}
+	TARGETS ${TARGETS_TO_INSTALL}
 	EXPORT ${PROJECT_NAME}
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
@@ -83,6 +83,6 @@ install(
 )
 
 # Export plugins
-ament_export_libraries(${targets_to_install})
+ament_export_libraries(${TARGETS_TO_INSTALL})
 
 ament_package()
