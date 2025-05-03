@@ -2,7 +2,7 @@
 
 ## Example
 
-See [tobas_code_style_example](./tobas_code_style_example/)
+See [tobas_cpp_code_style_example](./tobas_cpp_code_style_example/)
 
 ## C++ バージョン
 

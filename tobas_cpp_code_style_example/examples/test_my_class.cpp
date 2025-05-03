@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <tobas_code_style_example/my_class.hpp>
+#include <tobas_cpp_code_style_example/my_class.hpp>
 
 int main()
 {

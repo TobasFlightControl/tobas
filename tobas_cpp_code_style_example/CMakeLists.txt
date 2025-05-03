@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_code_style_example)
+project(tobas_cpp_code_style_example)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)

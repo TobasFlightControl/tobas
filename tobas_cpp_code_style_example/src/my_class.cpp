@@ -1,5 +1,5 @@
 // Related header file
-#include "tobas_code_style_example/my_class.hpp"
+#include "tobas_cpp_code_style_example/my_class.hpp"
 
 // C system headers, and any other headers in angle brackets with the .h extension
 #include <stdlib.h>
@@ -16,7 +16,7 @@
 #include <tobas_math/core.hpp>
 
 // Your project's header files
-#include "tobas_code_style_example/util.hpp"
+#include "tobas_cpp_code_style_example/util.hpp"
 
 #define MY_MACRO(x) (x)
 
