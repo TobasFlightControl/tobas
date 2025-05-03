@@ -32,6 +32,6 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
 namespace tobas_drone_msgs
 {
 using EngineConfigAdapter = rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::EngineConfig, tobas_drone_msgs::msg::EngineConfig);

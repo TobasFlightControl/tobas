@@ -71,6 +71,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::Odometry, tobas_msgs::msg::Odometry>
 namespace tobas_msgs
 {
 using OdometryAdapter = rclcpp::TypeAdapter<tobas_msgs::Odometry, tobas_msgs::msg::Odometry>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::Odometry, tobas_msgs::msg::Odometry);

@@ -28,6 +28,6 @@ struct rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::Rotation
 namespace tobas_kdl_msgs
 {
 using RotationalInertiaAdapter = rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia);

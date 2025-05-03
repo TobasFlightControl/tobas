@@ -34,6 +34,6 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
 namespace tobas_drone_msgs
 {
 using JointConfigAdapter = rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::JointConfig, tobas_drone_msgs::msg::JointConfig);

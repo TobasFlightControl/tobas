@@ -30,6 +30,6 @@ struct rclcpp::TypeAdapter<kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>
 namespace tobas_kdl_msgs
 {
 using VectorVelAdapter = rclcpp::TypeAdapter<kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel);

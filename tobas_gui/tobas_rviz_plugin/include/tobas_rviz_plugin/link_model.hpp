@@ -13,7 +13,7 @@
 namespace shapes
 {
 TOBAS_CLASS_FORWARD(Shape);  // Defines ShapePtr, ConstPtr, WeakPtr... etc
-}
+}  // namespace shapes
 
 namespace tobas
 {

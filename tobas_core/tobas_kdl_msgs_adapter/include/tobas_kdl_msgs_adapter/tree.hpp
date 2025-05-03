@@ -90,6 +90,6 @@ struct rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>
 namespace tobas_kdl_msgs
 {
 using TreeAdapter = rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Tree, tobas_kdl_msgs::msg::Tree);

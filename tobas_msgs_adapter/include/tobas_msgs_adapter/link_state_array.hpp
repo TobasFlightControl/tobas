@@ -51,6 +51,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::LinkStateArray, tobas_msgs::msg::LinkStat
 namespace tobas_msgs
 {
 using LinkStateArrayAdapter = rclcpp::TypeAdapter<tobas_msgs::LinkStateArray, tobas_msgs::msg::LinkStateArray>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::LinkStateArray, tobas_msgs::msg::LinkStateArray);

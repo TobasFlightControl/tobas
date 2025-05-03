@@ -5,7 +5,7 @@
 namespace Ogre
 {
 class ManualObject;
-}
+}  // namespace Ogre
 
 namespace rviz_rendering
 {

@@ -43,6 +43,6 @@ namespace tobas_drone_msgs
 {
 using ElectricRotorConfigAdapter =
   rclcpp::TypeAdapter<tobas::ElectricRotorConfig, tobas_drone_msgs::msg::ElectricRotorConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::ElectricRotorConfig, tobas_drone_msgs::msg::ElectricRotorConfig);

@@ -43,6 +43,6 @@ struct rclcpp::TypeAdapter<tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERoto
 namespace tobas_drone_msgs
 {
 using ICERotorConfigAdapter = rclcpp::TypeAdapter<tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERotorConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERotorConfig);

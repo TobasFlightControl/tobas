@@ -10,7 +10,7 @@
 namespace octomap
 {
 class OcTree;
-}
+}  // namespace octomap
 
 namespace tobas
 {

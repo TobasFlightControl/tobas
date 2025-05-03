@@ -38,6 +38,6 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
 namespace tobas_drone_msgs
 {
 using PwmConfigAdapter = rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig);

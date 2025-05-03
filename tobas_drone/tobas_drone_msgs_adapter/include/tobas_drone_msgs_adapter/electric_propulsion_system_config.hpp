@@ -44,7 +44,7 @@ namespace tobas_drone_msgs
 {
 using ElectricPropulsionSystemConfigAdapter =
   rclcpp::TypeAdapter<tobas::ElectricPropulsionSystemConfig, tobas_drone_msgs::msg::ElectricPropulsionSystemConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
   tobas::ElectricPropulsionSystemConfig,

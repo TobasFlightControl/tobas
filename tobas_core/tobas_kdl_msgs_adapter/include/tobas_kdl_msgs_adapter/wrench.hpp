@@ -30,6 +30,6 @@ struct rclcpp::TypeAdapter<kdl::Wrench, tobas_kdl_msgs::msg::Wrench>
 namespace tobas_kdl_msgs
 {
 using WrenchAdapter = rclcpp::TypeAdapter<kdl::Wrench, tobas_kdl_msgs::msg::Wrench>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Wrench, tobas_kdl_msgs::msg::Wrench);

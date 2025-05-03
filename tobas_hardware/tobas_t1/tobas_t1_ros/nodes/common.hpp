@@ -5,4 +5,4 @@
 namespace t1
 {
 static constexpr auto kRetryInitializationInterval = std::chrono::seconds(1);
-}
+}  // namespace t1

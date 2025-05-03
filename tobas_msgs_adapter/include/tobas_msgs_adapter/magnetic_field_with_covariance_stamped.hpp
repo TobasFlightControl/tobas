@@ -43,7 +43,7 @@ namespace tobas_msgs
 {
 using MagneticFieldWithCovarianceStampedAdapter =
   rclcpp::TypeAdapter<tobas_msgs::MagneticFieldWithCovarianceStamped, tobas_msgs::msg::MagneticFieldWithCovarianceStamped>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
   tobas_msgs::MagneticFieldWithCovarianceStamped,

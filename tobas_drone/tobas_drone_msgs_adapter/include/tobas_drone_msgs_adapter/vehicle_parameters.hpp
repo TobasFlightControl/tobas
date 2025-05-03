@@ -39,6 +39,6 @@ namespace tobas_drone_msgs
 {
 using VehicleParametersAdapter =
   rclcpp::TypeAdapter<tobas::VehicleParameters, tobas_drone_msgs::msg::VehicleParameters>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::VehicleParameters, tobas_drone_msgs::msg::VehicleParameters);

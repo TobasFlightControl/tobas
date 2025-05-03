@@ -46,6 +46,6 @@ struct rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedW
 namespace tobas_drone_msgs
 {
 using FixedWingConfigAdapter = rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedWingConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedWingConfig);

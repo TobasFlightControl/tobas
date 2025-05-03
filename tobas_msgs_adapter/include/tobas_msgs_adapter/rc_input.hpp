@@ -65,6 +65,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
 namespace tobas_msgs
 {
 using RCInputAdapter = rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::RCInput, tobas_msgs::msg::RCInput);

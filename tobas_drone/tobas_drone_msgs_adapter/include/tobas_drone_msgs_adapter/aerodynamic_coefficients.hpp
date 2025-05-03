@@ -67,7 +67,7 @@ namespace tobas_drone_msgs
 {
 using AerodynamicCoefficientsAdapter =
   rclcpp::TypeAdapter<tobas::AerodynamicCoefficients, tobas_drone_msgs::msg::AerodynamicCoefficients>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
   tobas::AerodynamicCoefficients,

@@ -42,7 +42,7 @@ namespace tobas_msgs
 {
 using ImuWithCovarianceStampedAdapter =
   rclcpp::TypeAdapter<tobas_msgs::ImuWithCovarianceStamped, tobas_msgs::msg::ImuWithCovarianceStamped>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
   tobas_msgs::ImuWithCovarianceStamped,

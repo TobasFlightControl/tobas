@@ -16,7 +16,7 @@
 namespace Ui
 {
 class URDFBuilderPanelUI;
-}
+}  // namespace Ui
 
 namespace gui
 {

@@ -129,7 +129,7 @@ static constexpr char kRcTeleop[] = "rc_teleop";
 namespace pwm
 {
 static constexpr char kEngineThrottleKey[] = "engine";
-}
+}  // namespace pwm
 
 // Frames
 static constexpr char kWorldFrame[] = "world";

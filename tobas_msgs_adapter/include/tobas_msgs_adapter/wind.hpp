@@ -42,6 +42,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::Wind, tobas_msgs::msg::Wind>
 namespace tobas_msgs
 {
 using WindAdapter = rclcpp::TypeAdapter<tobas_msgs::Wind, tobas_msgs::msg::Wind>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::Wind, tobas_msgs::msg::Wind);
