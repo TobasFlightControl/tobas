@@ -2,7 +2,7 @@
 
 ## Example
 
-See [tobas_cpp_code_style_example](./tobas_cpp_code_style_example/)
+See [tobas_cpp_code_style_example](./tobas_cpp_code_style_example/).
 
 ## C++ バージョン
 
@@ -174,9 +174,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 - [.clang-format](./.clang-format) に従う．
 
-## その他
+## ROS 2
 
-- ネストされたテンプレートに空白を含めない: `set< list<string> >` -> `set<list<string>>`
+- 不特定多数へのゼロコピー転送のため，トピックは`UniquePtr`で発行して`ConstSharedPtr`で購読する．
 
 ## 参考
 
