@@ -52,8 +52,9 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
 
   // 行が溢れていたら古い方から消す
   const auto num_rows = table_->rowCount();
-  if (num_rows > kMaxRows)
+  if (num_rows > kMaxRows) {
     table_->removeRow(num_rows - 1);
+  }
 
   const auto stamp_text = QString::number(msg->header.stamp.sec) + "." + QString::number(msg->header.stamp.nanosec);
   const auto stamp_item = new QTableWidgetItem(stamp_text);
@@ -65,8 +66,7 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
   const auto level_item = new QTableWidgetItem();
   const auto message_item = new QTableWidgetItem(msg->message.c_str());
 
-  switch (msg->level)
-  {
+  switch (msg->level) {
     case tobas_std_msgs::msg::Message::LEVEL_DEBUG:
       level_item->setText("Debug");
       level_item->setForeground(kDebugColor);

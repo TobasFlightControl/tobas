@@ -176,10 +176,12 @@ void PositionBarWidget::setUpperText(const QString& text)
 void PositionBarWidget::setValue(double value)
 {
   value_ = value;
-  if (!lower_.has_value() || value < lower_.value())
+  if (!lower_.has_value() || value < lower_.value()) {
     lower_ = value;
-  if (!upper_.has_value() || value > upper_.value())
+  }
+  if (!upper_.has_value() || value > upper_.value()) {
     upper_ = value;
+  }
 
   update();
 }
@@ -222,36 +224,31 @@ void PositionBarWidget::paintEvent(QPaintEvent* event)
   painter.restore();
 
   // 値の範囲を塗りつぶす
-  if (fill_range_ && lower_.has_value() && upper_.has_value())
-  {
+  if (fill_range_ && lower_.has_value() && upper_.has_value()) {
     painter.save();
     drawRange(painter, lower_.value(), upper_.value());
     painter.restore();
   }
 
   // 値の位置を表示
-  if (value_.has_value())
-  {
+  if (value_.has_value()) {
     painter.save();
     drawValue(painter, value_.value());
     painter.restore();
   }
 
   // テキストを表示
-  if (center_text_.has_value())
-  {
+  if (center_text_.has_value()) {
     painter.save();
     drawCenterText(painter, center_text_.value());
     painter.restore();
   }
-  if (lower_text_.has_value())
-  {
+  if (lower_text_.has_value()) {
     painter.save();
     drawLowerText(painter, lower_text_.value());
     painter.restore();
   }
-  if (upper_text_.has_value())
-  {
+  if (upper_text_.has_value()) {
     painter.save();
     drawUpperText(painter, upper_text_.value());
     painter.restore();

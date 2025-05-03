@@ -17,8 +17,9 @@ bool RotorAxisExtractor::updateInternalDataStructures()
 double RotorAxisExtractor::maxThrustSum() const
 {
   double res = 0.;
-  for (const auto& link_name : link_names_)
+  for (const auto& link_name : link_names_) {
     res += drone_.prop->maxThrust(link_name);
+  }
   return res;
 }
 
@@ -26,8 +27,10 @@ void RotorAxisExtractor::initialize()
 {
   link_names_.clear();
 
-  for (const auto& [link_name, rotor] : drone_.prop->rotors)
-    if (rotor->axis == axis_)
+  for (const auto& [link_name, rotor] : drone_.prop->rotors) {
+    if (rotor->axis == axis_) {
       link_names_.push_back(link_name);
+    }
+  }
 }
 }  // namespace tobas

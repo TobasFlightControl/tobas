@@ -19,8 +19,7 @@
 /* リリースモードでも機能するアサーション．ほとんど失敗し得ない操作の成否を一応確認するために使う． */
 #define TOBAS_ASSERT(expr)                                                                                             \
   {                                                                                                                    \
-    if (!static_cast<bool>(expr))                                                                                      \
-    {                                                                                                                  \
+    if (!static_cast<bool>(expr)) {                                                                                    \
       TOBAS_FATAL("Assertion failed: ", __FILE__, ": ", __LINE__);                                                     \
       rclcpp::shutdown();                                                                                              \
       abort();                                                                                                         \
@@ -108,11 +107,8 @@ public:
   ros2::TimerPtr
   createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj, bool autostart = true);
   template <typename RepType, typename DurType, typename Obj>
-  ros2::TimerPtr createWallTimer(
-    std::chrono::duration<RepType, DurType> period,
-    void (Obj::*fp)(void),
-    Obj* obj,
-    bool autostart = true);
+  ros2::TimerPtr
+  createWallTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj, bool autostart = true);
 
   template <typename... Args>
   void log(uint8_t level, const Args&... args) const;
@@ -333,31 +329,24 @@ BaseNode::createTimer(std::chrono::duration<RepType, DurType> period, void (Obj:
 {
   const auto timer = create_timer(period, bind(fp, obj));
 
-  if (!autostart)
+  if (!autostart) {
     timer->cancel();
+  }
 
   return timer;
 }
 
 template <typename RepType, typename DurType, typename Obj>
-ros2::TimerPtr BaseNode::createWallTimer(
-  std::chrono::duration<RepType, DurType> period,
-  void (Obj::*fp)(void),
-  Obj* obj,
-  bool autostart)
+ros2::TimerPtr
+BaseNode::createWallTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj, bool autostart)
 {
   return create_wall_timer(period, bind(fp, obj), nullptr, autostart);
 }
 
 template <typename Obj>
-void BaseNode::addDynamicBoolParam(
-  const std::string& name,
-  bool (Obj::*fp)(const bool&),
-  Obj* obj,
-  const bool& _default)
+void BaseNode::addDynamicBoolParam(const std::string& name, bool (Obj::*fp)(const bool&), Obj* obj, const bool& _default)
 {
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -367,12 +356,9 @@ void BaseNode::addDynamicBoolParam(
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto value = param.as_bool();
-    if ((obj->*fp)(value))
-    {
-      for (auto& bool_param : dparams_.bools)
-      {
-        if (bool_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& bool_param : dparams_.bools) {
+        if (bool_param.name == name) {
           bool_param.value = value;
           break;
         }
@@ -400,8 +386,7 @@ void BaseNode::addDynamicIntParam(
 {
   assert(_min <= _default && _default <= _max);
 
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -411,19 +396,15 @@ void BaseNode::addDynamicIntParam(
   const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
   {
     auto value = param.as_int();
-    if (value < _min || _max < value)
-    {
+    if (value < _min || _max < value) {
       value = std::clamp(value, _min, _max);
       TOBAS_WARN(
         "You attempted to set \"", name, "\" to ", value, ", but since it was outside the range [", _min, ", ", _max,
         "], it was clamped to ", value, ".");
     }
-    if ((obj->*fp)(value))
-    {
-      for (auto& int_param : dparams_.ints)
-      {
-        if (int_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& int_param : dparams_.ints) {
+        if (int_param.name == name) {
           int_param.value = value;
           break;
         }
@@ -453,8 +434,7 @@ void BaseNode::addDynamicDoubleParam(
 {
   assert(_min <= _default && _default <= _max);
 
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -464,19 +444,15 @@ void BaseNode::addDynamicDoubleParam(
   const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
   {
     auto value = param.as_double();
-    if (value < _min || _max < value)
-    {
+    if (value < _min || _max < value) {
       value = std::clamp(value, _min, _max);
       TOBAS_WARN(
         "You attempted to set \"", name, "\" to ", value, ", but since it was outside the range [", _min, ", ", _max,
         "], it was clamped to ", value, ".");
     }
-    if ((obj->*fp)(value))
-    {
-      for (auto& double_param : dparams_.doubles)
-      {
-        if (double_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& double_param : dparams_.doubles) {
+        if (double_param.name == name) {
           double_param.value = value;
           break;
         }
@@ -502,8 +478,7 @@ void BaseNode::addDynamicStringParam(
   Obj* obj,
   const std::string& _default)
 {
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -513,12 +488,9 @@ void BaseNode::addDynamicStringParam(
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_string();
-    if ((obj->*fp)(value))
-    {
-      for (auto& string_param : dparams_.strings)
-      {
-        if (string_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& string_param : dparams_.strings) {
+        if (string_param.name == name) {
           string_param.value = value;
           break;
         }
@@ -542,8 +514,7 @@ void BaseNode::addDynamicBoolArrayParam(
   Obj* obj,
   const std::vector<bool>& _default)
 {
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -553,12 +524,9 @@ void BaseNode::addDynamicBoolArrayParam(
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_bool_array();
-    if ((obj->*fp)(value))
-    {
-      for (auto& bool_array_param : dparams_.bool_arrays)
-      {
-        if (bool_array_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& bool_array_param : dparams_.bool_arrays) {
+        if (bool_array_param.name == name) {
           bool_array_param.value = value;
           break;
         }
@@ -582,8 +550,7 @@ void BaseNode::addDynamicIntArrayParam(
   Obj* obj,
   const std::vector<long>& _default)
 {
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -593,12 +560,9 @@ void BaseNode::addDynamicIntArrayParam(
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_integer_array();
-    if ((obj->*fp)(value))
-    {
-      for (auto& int_array_param : dparams_.int_arrays)
-      {
-        if (int_array_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& int_array_param : dparams_.int_arrays) {
+        if (int_array_param.name == name) {
           int_array_param.value = value;
           break;
         }
@@ -622,8 +586,7 @@ void BaseNode::addDynamicDoubleArrayParam(
   Obj* obj,
   const std::vector<double>& _default)
 {
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -633,12 +596,9 @@ void BaseNode::addDynamicDoubleArrayParam(
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_double_array();
-    if ((obj->*fp)(value))
-    {
-      for (auto& double_array_param : dparams_.double_arrays)
-      {
-        if (double_array_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& double_array_param : dparams_.double_arrays) {
+        if (double_array_param.name == name) {
           double_array_param.value = value;
           break;
         }
@@ -662,8 +622,7 @@ void BaseNode::addDynamicStringArrayParam(
   Obj* obj,
   const std::vector<std::string>& _default)
 {
-  if (has_parameter(name))
-  {
+  if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
     return;
   }
@@ -673,12 +632,9 @@ void BaseNode::addDynamicStringArrayParam(
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_string_array();
-    if ((obj->*fp)(value))
-    {
-      for (auto& string_array_param : dparams_.string_arrays)
-      {
-        if (string_array_param.name == name)
-        {
+    if ((obj->*fp)(value)) {
+      for (auto& string_array_param : dparams_.string_arrays) {
+        if (string_array_param.name == name) {
           string_array_param.value = value;
           break;
         }
@@ -716,8 +672,9 @@ template <typename... Args>
 void BaseNode::logOnce(const char* file, int line, uint8_t level, const Args&... args)
 {
   const auto id = createID(file, line);
-  if (log_once_.contains(id))
+  if (log_once_.contains(id)) {
     return;
+  }
   log(level, args...);
   log_once_.insert(id);
 }
@@ -728,16 +685,13 @@ void BaseNode::logThrottle(const char* file, int line, uint8_t level, double per
   const auto id = createID(file, line);
   const auto now = get_clock()->now();
   auto it = log_throttle_.find(id);
-  if (it == log_throttle_.end())
-  {
+  if (it == log_throttle_.end()) {
     log(level, args...);
     log_throttle_[id] = now;
   }
-  else
-  {
+  else {
     const auto diff = (now - it->second).seconds();
-    if (diff > period)
-    {
+    if (diff > period) {
       log(level, args...);
       it->second = now;
     }
@@ -837,12 +791,10 @@ inline void BaseNode::fatalThrottle(const char* file, int line, double period, c
 template <typename T>
 T BaseNode::declareParam(const std::string& name)
 {
-  try
-  {
+  try {
     return declare_parameter<T>(name);
   }
-  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException& e)
-  {
+  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException& e) {
     TOBAS_EXIT(e.what());
   }
 }
@@ -850,18 +802,17 @@ T BaseNode::declareParam(const std::string& name)
 template <typename T>
 T BaseNode::declareParam(const std::string& name, const T& _default)
 {
-  try
-  {
+  try {
     return declare_parameter<T>(name);
   }
-  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&)
-  {
+  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
     TOBAS_WARN("Parameter \"", name, "\" is not initialized. The default value \"", _default, "\" is set.");
 
     // この時点で宣言だけは済んでいるので，デフォルト値をセットする．
     const auto set_param_res = set_parameter(rclcpp::Parameter(name, _default));
-    if (!set_param_res.successful)
+    if (!set_param_res.successful) {
       TOBAS_ERROR("Failed to set \"", name, "\": ", set_param_res.reason);
+    }
 
     return _default;
   }

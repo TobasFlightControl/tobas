@@ -132,8 +132,7 @@ public:
    */
   void setSubframeTransforms(const FixedTransformsMap& subframe_poses)
   {
-    for (const auto& t : subframe_poses)
-    {
+    for (const auto& t : subframe_poses) {
       ASSERT_ISOMETRY(t.second)  // unsanitized input, could contain a non-isometry
     }
     subframe_poses_ = subframe_poses;

@@ -14,8 +14,7 @@ int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) cons
   int point_size = 1;
   auto font = this->font();
 
-  while (true)
-  {
+  while (true) {
     font.setPointSize(point_size++);
     QFontMetrics fm(font);
 
@@ -23,10 +22,12 @@ int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) cons
     const auto text_height = fm.height();
 
     static constexpr double kMargin = 0.1;
-    if (center.x() - text_width / 2 < width() * kMargin || width() * (1 - kMargin) < center.x() + text_width / 2)
+    if (center.x() - text_width / 2 < width() * kMargin || width() * (1 - kMargin) < center.x() + text_width / 2) {
       break;
-    if (center.y() - text_height / 2 < height() * kMargin || height() * (1 - kMargin) < center.y() + text_height / 2)
+    }
+    if (center.y() - text_height / 2 < height() * kMargin || height() * (1 - kMargin) < center.y() + text_height / 2) {
       break;
+    }
   }
 
   return point_size;
@@ -57,8 +58,9 @@ void Widget::drawText(QPainter& painter, const QString& text, const QPoint& cent
 
 void Widget::drawMaximumText(QPainter& painter, const QString& text, const QPoint& center)
 {
-  if (text.isEmpty())
+  if (text.isEmpty()) {
     return;
+  }
 
   const auto point_size = calcMaxTextPointSize(text, center);
   drawText(painter, text, center, point_size);

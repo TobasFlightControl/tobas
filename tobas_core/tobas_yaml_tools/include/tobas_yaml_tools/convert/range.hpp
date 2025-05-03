@@ -21,10 +21,12 @@ struct convert<tobas_std::Range<T>>
 
   static bool decode(const Node& node, tobas_std::Range<T>& rhs)
   {
-    if (!node.IsSequence())
+    if (!node.IsSequence()) {
       return false;
-    if (node.size() != 2)
+    }
+    if (node.size() != 2) {
       return false;
+    }
 
     rhs.lower = node[0].as<T>();
     rhs.upper = node[1].as<T>();

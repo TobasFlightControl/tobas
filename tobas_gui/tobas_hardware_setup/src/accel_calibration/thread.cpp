@@ -24,8 +24,9 @@ void AccelCalibrationThread::run()
   // https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/commander/accelerometer_calibration.cpp
 
   // Top
-  if (!getAccelMean(acc_top_))
+  if (!getAccelMean(acc_top_)) {
     return;
+  }
 
   // TODO: 明らかにおかしな値だった場合は失敗を返す
 
@@ -41,16 +42,14 @@ void AccelCalibrationThread::run()
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
     node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::imu::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout))
-  {
+  if (!sc.call(req, kSetParamTimeout)) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
   }
 
   // 結果を確認
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
   }
@@ -67,20 +66,22 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
 {
   // 初期化
   cnt_ = 0;
-  for (auto& sum : acc_sum_)
+  for (auto& sum : acc_sum_) {
     sum.reset();
+  }
 
   // 一時的にIMUの購読を開始
   auto imu_sub =
     ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kImuTopic), &self::imuCb, this);
 
   // データが溜まるまで待機
-  if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))
-  {
-    if (cnt_ == 0)
+  if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout)) {
+    if (cnt_ == 0) {
       Q_EMIT finished(false, "IMU data is not received.");
-    else
+    }
+    else {
       Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
+    }
     return false;
   }
 
@@ -88,8 +89,9 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   imu_sub.reset();
 
   // 平均を計算
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     des(i) = acc_sum_.at(i).get() / cnt_;
+  }
 
   return true;
 }
@@ -97,8 +99,9 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
 void AccelCalibrationThread::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
 {
   ++cnt_;
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     acc_sum_.at(i).add(imu_raw->imu.accel(i));
+  }
 }
 }  // namespace hw
 }  // namespace gui

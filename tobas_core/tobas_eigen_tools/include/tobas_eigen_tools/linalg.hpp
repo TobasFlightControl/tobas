@@ -69,9 +69,11 @@ Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_
   auto eigenvalues = es.eigenvalues();
 
   // 固有値を修正
-  for (Eigen::Index i = 0; i < eigenvalues.size(); ++i)
-    if (eigenvalues(i) < min_eigenvalue)
+  for (Eigen::Index i = 0; i < eigenvalues.size(); ++i) {
+    if (eigenvalues(i) < min_eigenvalue) {
       eigenvalues(i) = min_eigenvalue;
+    }
+  }
 
   // 修正後の行列を再構築
   return es.eigenvectors() * eigenvalues.asDiagonal() * es.eigenvectors().transpose();

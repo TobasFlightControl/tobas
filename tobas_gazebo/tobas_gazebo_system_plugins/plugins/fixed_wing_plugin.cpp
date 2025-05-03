@@ -120,14 +120,16 @@ void GazeboFixedWingPlugin::Configure(
 
   // Get robot model
   gz::sim::Model model(model_entity);
-  if (!model.Valid(ecm))
+  if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
+  }
 
   // Get body link
   const auto link_entity = model.LinkByName(ecm, link_name_);
   link_ = make_shared<gz::sim::Link>(link_entity);
-  if (!link_->Valid(ecm))
+  if (!link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
+  }
 
   // Create necessary components
   pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
@@ -135,32 +137,37 @@ void GazeboFixedWingPlugin::Configure(
   gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm);
 
   // Get control surface joint models
-  for (const auto& cs : control_surfaces_)
-  {
+  for (const auto& cs : control_surfaces_) {
     // Get control surface joint
     const auto joint_entity = findJointWithChildLink(ecm, cs.link_name);
-    if (!joint_entity.has_value())
+    if (!joint_entity.has_value()) {
       TOBAS_EXIT("Failed to find the parent joint of control surface link \"", cs.link_name, "\".");
+    }
     const auto joint = make_shared<gz::sim::Joint>(joint_entity.value());
-    if (!joint->Valid(ecm))
+    if (!joint->Valid(ecm)) {
       TOBAS_EXIT("Failed to find control surface \"", cs.link_name, "\".");
+    }
 
     // Get joint name
     const auto joint_name = joint->Name(ecm).value();
 
     // Check joint type
     const auto joint_type = joint->Type(ecm).value();
-    if (joint_type != sdf::JointType::REVOLUTE)
+    if (joint_type != sdf::JointType::REVOLUTE) {
       TOBAS_EXIT("The type of control surface joint \"", joint_name, "\" must be revolute.");
+    }
 
     // Check joint limits
     const auto joint_axis = joint->Axis(ecm).value().at(0);
-    if (joint_axis.Lower() >= joint_axis.Upper())
+    if (joint_axis.Lower() >= joint_axis.Upper()) {
       TOBAS_EXIT("The position limit of ", joint_name, " is invalid.");
-    if (joint_axis.MaxVelocity() <= 0.)
+    }
+    if (joint_axis.MaxVelocity() <= 0.) {
       TOBAS_EXIT("The velocity limit of ", joint_name, " must be positive.");
-    if (joint_axis.Effort() <= 0.)
+    }
+    if (joint_axis.Effort() <= 0.) {
       TOBAS_EXIT("The effort limit of ", joint_name, " must be positive.");
+    }
 
     // Add joint model
     cs_joints_.push_back(joint);
@@ -186,8 +193,9 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower);
   getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper);
-  if (!vehicle_params_.alpha_limit.isValid())
+  if (!vehicle_params_.alpha_limit.isValid()) {
     TOBAS_EXIT("Invalid stall angles");
+  }
 
   // Aerodynamics
   getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, POSITIVE);
@@ -211,18 +219,17 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, NEGATIVE);
 
   // ControlSurface
-  if (sdf->HasElement(kControlSurfaceKey))
-  {
+  if (sdf->HasElement(kControlSurfaceKey)) {
     unordered_set<int> indexes;
     auto cs_elem = sdf->FindElement(kControlSurfaceKey);
 
-    while (cs_elem)
-    {
+    while (cs_elem) {
       tobas::ControlSurface cs;
 
       getSdfParam(cs_elem, "channel", cs.channel, NON_NEGATIVE);
-      if (indexes.contains(cs.channel))
+      if (indexes.contains(cs.channel)) {
         TOBAS_EXIT("The channel of each control surface must be unique.");
+      }
 
       getSdfParam(cs_elem, "linkName", cs.link_name);
 
@@ -238,9 +245,11 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
       cs_elem = cs_elem->GetNextElement(kControlSurfaceKey);
     }
 
-    for (size_t i = 0; i < indexes.size(); ++i)
-      if (!indexes.contains(static_cast<int>(i)))
+    for (size_t i = 0; i < indexes.size(); ++i) {
+      if (!indexes.contains(static_cast<int>(i))) {
         TOBAS_EXIT("controlSurface channel mismatch.");
+      }
+    }
   }
 
   // index順に並べ替える
@@ -259,10 +268,10 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 {
   // 最新のコマンドからの経過時間を確認
   const auto time_from_last_cmd = info.simTime - last_cmd_time_;
-  if (time_from_last_cmd > tobas::kCommandAutoResetTimeout)
-  {
-    for (auto& cs_angle_model : cs_angle_models_)
+  if (time_from_last_cmd > tobas::kCommandAutoResetTimeout) {
+    for (auto& cs_angle_model : cs_angle_models_) {
       cs_angle_model.setTargetPosition(0.);
+    }
     TOBAS_INFO(
       "Deflection angles of control surfaces are automatically reset because ", tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
@@ -291,16 +300,14 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   const auto beta = tobas::angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
 
   // 迎角の範囲チェック
-  if (!vehicle_params_.alpha_limit.inRange(alpha))
-  {
+  if (!vehicle_params_.alpha_limit.inRange(alpha)) {
     TOBAS_ERROR_THROTTLE(
       kErrorPeriod, "The angle of attack ", alpha, " is not within the valid range ", vehicle_params_.alpha_limit,
       ". The accuracy of the physics simulation may be compromised.");
   }
 
   // 最初は変数の初期化だけして終了
-  if (!is_initialized_)
-  {
+  if (!is_initialized_) {
     prev_sim_time_ = info.simTime;
     prev_alpha_ = alpha;
     is_initialized_ = true;
@@ -358,15 +365,15 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   debug_msg->beta = beta;
   vectorGazeboToMsg(force_B, debug_msg->air_force);
   vectorGazeboToMsg(torque_B, debug_msg->air_moment);
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     debug_msg->deflections.push_back(cs_angle_models_[i].getCurrentPosition());
+  }
   debug_pub_->publish(move(debug_msg));
 }
 
 void GazeboFixedWingPlugin::updateDeflections(gz::sim::EntityComponentManager& ecm, double dt)
 {
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
-  {
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     // 角度と角速度の制限を考慮して制御面の舵角を更新
     cs_angle_models_[i].step(dt);
 
@@ -416,8 +423,9 @@ double GazeboFixedWingPlugin::liftCoefficient(double alpha) const
   auto C_L = aero_coefs_.c_lift_0 + aero_coefs_.c_lift_alpha * alpha;
 
   // 舵面
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     C_L += control_surfaces_[i].c_lift_delta * cs_angle_models_[i].getCurrentPosition();
+  }
 
   return C_L;
 }
@@ -428,8 +436,9 @@ double GazeboFixedWingPlugin::dragCoefficient(double alpha) const
   auto C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * alpha;
 
   // 舵面
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     C_D += control_surfaces_[i].c_drag_abs_delta * fabs(cs_angle_models_[i].getCurrentPosition());
+  }
 
   return C_D;
 }
@@ -440,8 +449,9 @@ double GazeboFixedWingPlugin::sideCoefficient(double beta) const
   auto C_S = aero_coefs_.c_side_beta * beta;
 
   // 舵面
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     C_S += control_surfaces_[i].c_side_delta * cs_angle_models_[i].getCurrentPosition();
+  }
 
   return C_S;
 }
@@ -456,8 +466,9 @@ double GazeboFixedWingPlugin::rollCoefficient(double beta, double p, double r, d
   C_l += b / (2 * V) * (aero_coefs_.c_roll_p * p + aero_coefs_.c_roll_r * r);
 
   // 舵面
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     C_l += control_surfaces_[i].c_roll_delta * cs_angle_models_[i].getCurrentPosition();
+  }
 
   return C_l;
 }
@@ -473,8 +484,9 @@ double GazeboFixedWingPlugin::pitchCoefficient(double alpha, double beta, double
   C_m += c / (2 * V) * (aero_coefs_.c_pitch_alpha_rate * alpha_rate + aero_coefs_.c_pitch_q * q);
 
   // 舵面
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     C_m += control_surfaces_[i].c_pitch_delta * cs_angle_models_[i].getCurrentPosition();
+  }
 
   return C_m;
 }
@@ -489,8 +501,9 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
   C_n += b / (2 * V) * (aero_coefs_.c_yaw_p * p + aero_coefs_.c_yaw_r * r);
 
   // 舵面
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     C_n += control_surfaces_[i].c_yaw_delta * cs_angle_models_[i].getCurrentPosition();
+  }
 
   return C_n;
 }
@@ -498,8 +511,7 @@ double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, do
 void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr& deflections)
 {
   // Check array size
-  if (deflections->deflections.size() != control_surfaces_.size())
-  {
+  if (deflections->deflections.size() != control_surfaces_.size()) {
     TOBAS_ERROR(
       "The size of the received deflections array is ", deflections->deflections.size(),
       ", which does not match numberOfControlSurfaces.");
@@ -507,8 +519,9 @@ void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::msg::ControlSurfaceD
   }
 
   // Update target deflection angles
-  for (size_t i = 0; i < control_surfaces_.size(); ++i)
+  for (size_t i = 0; i < control_surfaces_.size(); ++i) {
     cs_angle_models_[i].setTargetPosition(deflections->deflections[i]);
+  }
 
   // Update last commanded time
   last_cmd_time_ = prev_sim_time_;

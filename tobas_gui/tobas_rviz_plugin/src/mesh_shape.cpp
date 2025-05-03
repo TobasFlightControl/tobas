@@ -28,20 +28,19 @@ MeshShape::~MeshShape()
 
 void MeshShape::estimateVertexCount(size_t vcount)
 {
-  if (entity_ == nullptr && !started_)
+  if (entity_ == nullptr && !started_) {
     manual_object_->estimateVertexCount(vcount);
+  }
 }
 
 void MeshShape::beginTriangles()
 {
-  if (!started_ && entity_)
-  {
+  if (!started_ && entity_) {
     RVIZ_COMMON_LOG_WARNING("Cannot modify mesh once construction is complete");
     return;
   }
 
-  if (!started_)
-  {
+  if (!started_) {
     started_ = true;
     manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST, "rviz_rendering");
   }
@@ -85,34 +84,32 @@ void MeshShape::addTriangle(unsigned int v1, unsigned int v2, unsigned int v3)
 
 void MeshShape::endTriangles()
 {
-  if (started_)
-  {
+  if (started_) {
     started_ = false;
     manual_object_->end();
     static uint32_t count = 0;
     std::string name = "ConvertedMeshShape@" + std::to_string(count++);
     manual_object_->convertToMesh(name);
     entity_ = scene_manager_->createEntity(name);
-    if (entity_)
-    {
+    if (entity_) {
       entity_->setMaterialName(material_name_, "rviz_rendering");
       offset_node_->attachObject(entity_);
     }
-    else
+    else {
       RVIZ_COMMON_LOG_ERROR("Unable to construct triangle mesh");
+    }
   }
-  else
+  else {
     RVIZ_COMMON_LOG_ERROR("No triangles added");
+  }
 }
 
 void MeshShape::clear()
 {
-  if (entity_)
-  {
+  if (entity_) {
     entity_->detachFromParent();
     const auto& mesh_name = entity_->getMesh()->getName();
-    if (Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().getByName(mesh_name))
-    {
+    if (Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().getByName(mesh_name)) {
       Ogre::MeshManager::getSingleton().remove(mesh);
     }
     scene_manager_->destroyEntity(entity_);

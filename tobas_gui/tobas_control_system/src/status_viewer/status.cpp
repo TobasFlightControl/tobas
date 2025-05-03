@@ -29,8 +29,7 @@ void StatusWidget::reset()
 
 void StatusWidget::setStatus(status_t status)
 {
-  switch (status)
-  {
+  switch (status) {
     case PASSED:
       led_->setColor(kPassedColor);
       break;

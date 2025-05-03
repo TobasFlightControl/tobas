@@ -16,11 +16,13 @@ void BaseNode::initialize(const string& name, const sdf::ElementConstPtr& sdf)
 
   name_ = name;
 
-  if (!sdf->Get<string>("robotNamespace", ns_, "/"))
+  if (!sdf->Get<string>("robotNamespace", ns_, "/")) {
     gzwarn << "[" << name << "] Namespace is not specified." << endl;
+  }
 
-  if (!rclcpp::ok())
+  if (!rclcpp::ok()) {
     rclcpp::init(0, nullptr);
+  }
 
   node_ = rclcpp::Node::make_shared(name, ns_);
   executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
@@ -43,8 +45,7 @@ const std::string& BaseNode::ns() const
 
 void BaseNode::gazeboLog(uint8_t level, const string& text) const
 {
-  switch (level)
-  {
+  switch (level) {
     case tobas_std_msgs::msg::Message::LEVEL_DEBUG:
       tbsdbg << text << endl;
       break;

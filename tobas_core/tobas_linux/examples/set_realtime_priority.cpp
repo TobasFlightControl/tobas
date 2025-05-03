@@ -7,8 +7,9 @@ using namespace std;
 
 int main()
 {
-  if (!linux::setRealtimePriorityFIFO(50))
+  if (!linux::setRealtimePriorityFIFO(50)) {
     return EXIT_FAILURE;
+  }
 
   pause();
 

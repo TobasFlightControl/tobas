@@ -38,8 +38,9 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("t1_imu
 
 void ImuDriverNode::initialize()
 {
-  if (!initializeImuDriver())
+  if (!initializeImuDriver()) {
     return;
+  }
 
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(real::kImuTopic);
   sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
@@ -50,32 +51,27 @@ void ImuDriverNode::initialize()
 
 bool ImuDriverNode::initializeImuDriver()
 {
-  if (!imu_.initialize(kSpiDevice))
-  {
+  if (!imu_.initialize(kSpiDevice)) {
     TOBAS_ERROR("Failed to initialize IMU.");
     return false;
   }
 
-  if (!imu_.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_833HZ))
-  {
+  if (!imu_.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_833HZ)) {
     TOBAS_ERROR("Failed to set accelerometer output data rate.");
     return false;
   }
 
-  if (!imu_.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_833HZ))
-  {
+  if (!imu_.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_833HZ)) {
     TOBAS_ERROR("Failed to set gyroscope output data rate.");
     return false;
   }
 
-  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_4G))
-  {
+  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_4G)) {
     TOBAS_ERROR("Failed to set accelerometer full scale.");
     return false;
   }
 
-  if (!imu_.setGyroFullScale(stm::ISM330DLC::fs_g_t::FS_G_500DPS))
-  {
+  if (!imu_.setGyroFullScale(stm::ISM330DLC::fs_g_t::FS_G_500DPS)) {
     TOBAS_ERROR("Failed to set gyroscope full scale.");
     return false;
   }
@@ -93,13 +89,11 @@ void ImuDriverNode::mainTimerCb()
   msg->header.stamp = now;
 
   // Read IMU data
-  if (!imu_.readAccel(msg->imu.accel.x(), msg->imu.accel.y(), msg->imu.accel.z()))
-  {
+  if (!imu_.readAccel(msg->imu.accel.x(), msg->imu.accel.y(), msg->imu.accel.z())) {
     TOBAS_FATAL("Failed to read accelerometer.");
     return;
   }
-  if (!imu_.readGyro(msg->imu.gyro.x(), msg->imu.gyro.y(), msg->imu.gyro.z()))
-  {
+  if (!imu_.readGyro(msg->imu.gyro.x(), msg->imu.gyro.y(), msg->imu.gyro.z())) {
     TOBAS_FATAL("Failed to read gyroscope.");
     return;
   }

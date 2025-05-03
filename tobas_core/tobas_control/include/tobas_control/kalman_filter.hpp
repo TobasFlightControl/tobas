@@ -25,11 +25,8 @@ public:
     const Eigen::Index& y_size,
     const Eigen::Index& v_size);
 
-  void resize(
-    const Eigen::Index& x_size,
-    const Eigen::Index& u_size,
-    const Eigen::Index& y_size,
-    const Eigen::Index& v_size);
+  void
+  resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size, const Eigen::Index& v_size);
   void setZero();
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();

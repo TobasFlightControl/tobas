@@ -51,13 +51,11 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
 
 void PoseViewerWidget::scale(QPainter& painter, bool keep_aspect)
 {
-  if (keep_aspect)
-  {
+  if (keep_aspect) {
     const auto scale = static_cast<double>(std::min(width(), height())) / kOriginalSize;
     painter.scale(scale, scale);
   }
-  else
-  {
+  else {
     const auto x_scale = static_cast<double>(width()) / kOriginalSize;
     const auto y_scale = static_cast<double>(height()) / kOriginalSize;
     painter.scale(x_scale, y_scale);
@@ -93,35 +91,62 @@ void PoseViewerWidget::drawSky(QPainter& painter)
   // 空の領域を構成する点群を作成 (memo: 2-59)
   QVector<QPoint> points;
   if (!OO_sky && !WO_sky && !OH_sky && !WH_sky)  // 0000
-    points = {};
-  else if (!OO_sky && !WO_sky && !OH_sky && WH_sky)  // 0001
-    points = { WH, XH, WY };
-  else if (!OO_sky && !WO_sky && OH_sky && !WH_sky)  // 0010
-    points = { OH, XH, OY };
-  else if (!OO_sky && !WO_sky && OH_sky && WH_sky)  // 0011
-    points = { OH, WH, WY, OY };
-  else if (!OO_sky && WO_sky && !OH_sky && !WH_sky)  // 0100
-    points = { WO, XO, WY };
-  else if (!OO_sky && WO_sky && !OH_sky && WH_sky)  // 0101
-    points = { WO, WH, XH, XO };
-  else if (!OO_sky && WO_sky && OH_sky && WH_sky)  // 0111
-    points = { WO, WH, OH, OY, XO };
-  else if (OO_sky && !WO_sky && !OH_sky && !WH_sky)  // 1000
-    points = { OO, XO, OY };
-  else if (OO_sky && !WO_sky && OH_sky && !WH_sky)  // 1010
-    points = { OO, OH, XH, XO };
-  else if (OO_sky && !WO_sky && OH_sky && WH_sky)  // 1011
-    points = { OO, OH, WH, WY, XO };
-  else if (OO_sky && WO_sky && !OH_sky && !WH_sky)  // 1100
-    points = { OO, WO, WY, OY };
-  else if (OO_sky && WO_sky && !OH_sky && WH_sky)  // 1101
-    points = { OO, WO, WH, XH, OY };
-  else if (OO_sky && WO_sky && OH_sky && !WH_sky)  // 1110
-    points = { WO, OO, OH, XH, WY };
-  else if (OO_sky && WO_sky && OH_sky && WH_sky)  // 1111
-    points = { OO, WO, WH, OH };
-  else
   {
+    points = {};
+  }
+  else if (!OO_sky && !WO_sky && !OH_sky && WH_sky)  // 0001
+  {
+    points = { WH, XH, WY };
+  }
+  else if (!OO_sky && !WO_sky && OH_sky && !WH_sky)  // 0010
+  {
+    points = { OH, XH, OY };
+  }
+  else if (!OO_sky && !WO_sky && OH_sky && WH_sky)  // 0011
+  {
+    points = { OH, WH, WY, OY };
+  }
+  else if (!OO_sky && WO_sky && !OH_sky && !WH_sky)  // 0100
+  {
+    points = { WO, XO, WY };
+  }
+  else if (!OO_sky && WO_sky && !OH_sky && WH_sky)  // 0101
+  {
+    points = { WO, WH, XH, XO };
+  }
+  else if (!OO_sky && WO_sky && OH_sky && WH_sky)  // 0111
+  {
+    points = { WO, WH, OH, OY, XO };
+  }
+  else if (OO_sky && !WO_sky && !OH_sky && !WH_sky)  // 1000
+  {
+    points = { OO, XO, OY };
+  }
+  else if (OO_sky && !WO_sky && OH_sky && !WH_sky)  // 1010
+  {
+    points = { OO, OH, XH, XO };
+  }
+  else if (OO_sky && !WO_sky && OH_sky && WH_sky)  // 1011
+  {
+    points = { OO, OH, WH, WY, XO };
+  }
+  else if (OO_sky && WO_sky && !OH_sky && !WH_sky)  // 1100
+  {
+    points = { OO, WO, WY, OY };
+  }
+  else if (OO_sky && WO_sky && !OH_sky && WH_sky)  // 1101
+  {
+    points = { OO, WO, WH, XH, OY };
+  }
+  else if (OO_sky && WO_sky && OH_sky && !WH_sky)  // 1110
+  {
+    points = { WO, OO, OH, XH, WY };
+  }
+  else if (OO_sky && WO_sky && OH_sky && WH_sky)  // 1111
+  {
+    points = { OO, WO, WH, OH };
+  }
+  else {
     RCLCPP_ERROR(node_->get_logger(), "Impossible ground-sky pattern.");
     return;
   }
@@ -152,8 +177,7 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
   // 各値を描画
   const auto outer_radius = kRollRadius + kRollTickLength;
   const auto text_radius = outer_radius + 20;
-  for (int deg = 0; deg < 360; deg += kScaleInterval)
-  {
+  for (int deg = 0; deg < 360; deg += kScaleInterval) {
     // 目盛りを描画
     painter.drawLine(0, -kRollRadius, 0, -outer_radius);
 
@@ -200,8 +224,7 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
   const auto text_y = 5;
   const auto y_interval = pitchToHeight(tobas_std::deg2rad(kScaleInterval));
   painter.setPen(QPen(Qt::white, kLineWidth));
-  for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval)
-  {
+  for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval) {
     // 目盛りを描画
     painter.drawLine(-line_half, 0, line_half, 0);
 
@@ -251,8 +274,7 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   const auto text_x = -10;
   const auto text_y = -kYawTickLength - 20;
   const auto x_interval = yawToWidth(tobas_std::deg2rad(kScaleInterval));
-  for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval)
-  {
+  for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval) {
     // 目盛りを描画
     painter.drawLine(0, 0, 0, -kYawTickLength);
 
@@ -300,10 +322,12 @@ bool PoseViewerWidget::isSky(const QPoint& p) const
   const auto right = slope_ * p.x() + y_intercept_;
 
   // ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
-  if (fabs(roll_) < M_PI_2)
+  if (fabs(roll_) < M_PI_2) {
     return left < right;
-  else
+  }
+  else {
     return left > right;
+  }
 }
 
 double PoseViewerWidget::pitchToHeight(double pitch) const

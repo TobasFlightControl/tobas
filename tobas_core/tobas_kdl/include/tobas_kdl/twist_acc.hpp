@@ -15,7 +15,7 @@ public:
   inline explicit TwistAcc();
   inline explicit TwistAcc(const VectorAcc& _vel, const VectorAcc& _rot);
 
-  inline static TwistAcc Zero();
+  static inline TwistAcc Zero();
 
   // Changes the reference point of the TwistAcc.
   // The RVector v_base_AB is expressed in the same base as the TwistAcc

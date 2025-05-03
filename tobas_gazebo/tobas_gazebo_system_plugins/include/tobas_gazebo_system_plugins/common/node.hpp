@@ -136,8 +136,7 @@ protected:
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const;
   template <typename T>
-  void
-  getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const sdf_constr_t& constr) const;
+  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const sdf_constr_t& constr) const;
   template <typename T>
   void getSdfParam(
     const sdf::ElementConstPtr& sdf,
@@ -215,8 +214,9 @@ template <typename... Args>
 void BaseNode::logOnce(const char* file, int line, uint8_t level, const Args&... args)
 {
   const auto id = createID(file, line);
-  if (log_once_.contains(id))
+  if (log_once_.contains(id)) {
     return;
+  }
   log(level, args...);
   log_once_.insert(id);
 }
@@ -227,16 +227,13 @@ void BaseNode::logThrottle(const char* file, int line, uint8_t level, double per
   const auto id = createID(file, line);
   const auto now = node_->get_clock()->now();
   auto it = log_throttle_.find(id);
-  if (it == log_throttle_.end())
-  {
+  if (it == log_throttle_.end()) {
     log(level, args...);
     log_throttle_[id] = now;
   }
-  else
-  {
+  else {
     const auto diff = (now - it->second).seconds();
-    if (diff > period)
-    {
+    if (diff > period) {
       log(level, args...);
       it->second = now;
     }
@@ -336,25 +333,28 @@ inline void BaseNode::fatalThrottle(const char* file, int line, double period, c
 template <typename T>
 void BaseNode::checkConstraint(const std::string& name, const T& param, const sdf_constr_t& constr) const
 {
-  switch (constr)
-  {
+  switch (constr) {
     case NONE:
       break;
     case POSITIVE:
-      if (param <= 0)
+      if (param <= 0) {
         TOBAS_EXIT(name, " must be positive.");
+      }
       break;
     case NEGATIVE:
-      if (param >= 0)
+      if (param >= 0) {
         TOBAS_EXIT(name, " must be negative.");
+      }
       break;
     case NON_NEGATIVE:
-      if (param < 0)
+      if (param < 0) {
         TOBAS_EXIT(name, " must be non-negative.");
+      }
       break;
     case NON_POSITIVE:
-      if (param > 0)
+      if (param > 0) {
         TOBAS_EXIT(name, " must be non-positive.");
+      }
       break;
     default:
       TOBAS_EXIT("Invalid constr type.");
@@ -364,16 +364,18 @@ void BaseNode::checkConstraint(const std::string& name, const T& param, const sd
 template <typename T>
 void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const
 {
-  if (!sdf->HasElement(name))
+  if (!sdf->HasElement(name)) {
     TOBAS_EXIT("Please specify \"", name, "\".");
+  }
   param = sdf->Get<T>(name);
 }
 
 template <typename T>
 void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const
 {
-  if (!sdf->Get(name, param, dflt))
+  if (!sdf->Get(name, param, dflt)) {
     TOBAS_WARN("SDF parameter \"", name, "\" is not specified. The default value \"", dflt, "\" is used.");
+  }
 }
 
 template <typename T>
@@ -405,12 +407,12 @@ void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& n
   params.clear();
 
   const auto list_elem = sdf->FindElement(name);
-  if (!list_elem)
+  if (!list_elem) {
     TOBAS_EXIT("Please specify \"", name, "\".");
+  }
 
   auto item_elem = list_elem->FindElement("item");
-  while (item_elem)
-  {
+  while (item_elem) {
     const auto value = item_elem->Get<T>();
     params.push_back(value);
     item_elem = item_elem->GetNextElement("item");

@@ -25,8 +25,7 @@ JointModel::~JointModel() = default;
 
 std::string JointModel::getTypeName() const
 {
-  switch (type_)
-  {
+  switch (type_) {
     case UNKNOWN:
       return "Unknown";
     case REVOLUTE:
@@ -47,8 +46,9 @@ std::string JointModel::getTypeName() const
 size_t JointModel::getLocalVariableIndex(const std::string& variable) const
 {
   VariableIndexMap::const_iterator it = variable_index_map_.find(variable);
-  if (it == variable_index_map_.end())
+  if (it == variable_index_map_.end()) {
     throw Exception("Could not find variable '" + variable + "' to get bounds for within joint '" + name_ + "'");
+  }
   return it->second;
 }
 
@@ -60,15 +60,12 @@ bool JointModel::harmonizePosition(double* /*values*/, const Bounds& /*other_bou
 bool JointModel::enforceVelocityBounds(double* values, const Bounds& other_bounds) const
 {
   bool change = false;
-  for (std::size_t i = 0; i < other_bounds.size(); ++i)
-  {
-    if (other_bounds[i].max_velocity_ < values[i])
-    {
+  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+    if (other_bounds[i].max_velocity_ < values[i]) {
       values[i] = other_bounds[i].max_velocity_;
       change = true;
     }
-    else if (other_bounds[i].min_velocity_ > values[i])
-    {
+    else if (other_bounds[i].min_velocity_ > values[i]) {
       values[i] = other_bounds[i].min_velocity_;
       change = true;
     }
@@ -78,18 +75,14 @@ bool JointModel::enforceVelocityBounds(double* values, const Bounds& other_bound
 
 bool JointModel::satisfiesVelocityBounds(const double* values, const Bounds& other_bounds, double margin) const
 {
-  for (std::size_t i = 0; i < other_bounds.size(); ++i)
-  {
-    if (!other_bounds[i].velocity_bounded_)
-    {
+  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+    if (!other_bounds[i].velocity_bounded_) {
       continue;
     }
-    if (other_bounds[i].max_velocity_ + margin < values[i])
-    {
+    if (other_bounds[i].max_velocity_ + margin < values[i]) {
       return false;
     }
-    else if (other_bounds[i].min_velocity_ - margin > values[i])
-    {
+    else if (other_bounds[i].min_velocity_ - margin > values[i]) {
       return false;
     }
   }
@@ -98,18 +91,14 @@ bool JointModel::satisfiesVelocityBounds(const double* values, const Bounds& oth
 
 bool JointModel::satisfiesAccelerationBounds(const double* values, const Bounds& other_bounds, double margin) const
 {
-  for (std::size_t i = 0; i < other_bounds.size(); ++i)
-  {
-    if (!other_bounds[i].acceleration_bounded_)
-    {
+  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+    if (!other_bounds[i].acceleration_bounded_) {
       continue;
     }
-    if (other_bounds[i].max_acceleration_ + margin < values[i])
-    {
+    if (other_bounds[i].max_acceleration_ + margin < values[i]) {
       return false;
     }
-    else if (other_bounds[i].min_acceleration_ - margin > values[i])
-    {
+    else if (other_bounds[i].min_acceleration_ - margin > values[i]) {
       return false;
     }
   }
@@ -118,18 +107,14 @@ bool JointModel::satisfiesAccelerationBounds(const double* values, const Bounds&
 
 bool JointModel::satisfiesJerkBounds(const double* values, const Bounds& other_bounds, double margin) const
 {
-  for (std::size_t i = 0; i < other_bounds.size(); ++i)
-  {
-    if (!other_bounds[i].jerk_bounded_)
-    {
+  for (std::size_t i = 0; i < other_bounds.size(); ++i) {
+    if (!other_bounds[i].jerk_bounded_) {
       continue;
     }
-    if (other_bounds[i].max_jerk_ + margin < values[i])
-    {
+    if (other_bounds[i].max_jerk_ + margin < values[i]) {
       return false;
     }
-    else if (other_bounds[i].min_jerk_ - margin > values[i])
-    {
+    else if (other_bounds[i].min_jerk_ - margin > values[i]) {
       return false;
     }
   }
@@ -149,33 +134,26 @@ void JointModel::setVariableBounds(const std::string& variable, const VariableBo
 
 void JointModel::setVariableBounds(const std::vector<tobas_visualization_msgs::msg::JointLimits>& jlim)
 {
-  for (std::size_t j = 0; j < variable_names_.size(); ++j)
-  {
-    for (const tobas_visualization_msgs::msg::JointLimits& joint_limit : jlim)
-    {
-      if (joint_limit.joint_name == variable_names_[j])
-      {
+  for (std::size_t j = 0; j < variable_names_.size(); ++j) {
+    for (const tobas_visualization_msgs::msg::JointLimits& joint_limit : jlim) {
+      if (joint_limit.joint_name == variable_names_[j]) {
         variable_bounds_[j].position_bounded_ = joint_limit.has_position_limits;
-        if (joint_limit.has_position_limits)
-        {
+        if (joint_limit.has_position_limits) {
           variable_bounds_[j].min_position_ = joint_limit.min_position;
           variable_bounds_[j].max_position_ = joint_limit.max_position;
         }
         variable_bounds_[j].velocity_bounded_ = joint_limit.has_velocity_limits;
-        if (joint_limit.has_velocity_limits)
-        {
+        if (joint_limit.has_velocity_limits) {
           variable_bounds_[j].min_velocity_ = -joint_limit.max_velocity;
           variable_bounds_[j].max_velocity_ = joint_limit.max_velocity;
         }
         variable_bounds_[j].acceleration_bounded_ = joint_limit.has_acceleration_limits;
-        if (joint_limit.has_acceleration_limits)
-        {
+        if (joint_limit.has_acceleration_limits) {
           variable_bounds_[j].min_acceleration_ = -joint_limit.max_acceleration;
           variable_bounds_[j].max_acceleration_ = joint_limit.max_acceleration;
         }
         variable_bounds_[j].jerk_bounded_ = joint_limit.has_jerk_limits;
-        if (joint_limit.has_jerk_limits)
-        {
+        if (joint_limit.has_jerk_limits) {
           variable_bounds_[j].min_jerk_ = -joint_limit.max_jerk;
           variable_bounds_[j].max_jerk_ = joint_limit.max_jerk;
         }
@@ -189,8 +167,7 @@ void JointModel::setVariableBounds(const std::vector<tobas_visualization_msgs::m
 void JointModel::computeVariableBoundsMsg()
 {
   variable_bounds_msg_.clear();
-  for (std::size_t i = 0; i < variable_bounds_.size(); ++i)
-  {
+  for (std::size_t i = 0; i < variable_bounds_.size(); ++i) {
     tobas_visualization_msgs::msg::JointLimits lim;
     lim.joint_name = variable_names_[i];
     lim.has_position_limits = variable_bounds_[i].position_bounded_;
@@ -222,8 +199,9 @@ void JointModel::addMimicRequest(const JointModel* joint)
 void JointModel::addDescendantJointModel(const JointModel* joint)
 {
   descendant_joint_models_.push_back(joint);
-  if (joint->getType() != FIXED)
+  if (joint->getType() != FIXED) {
     non_fixed_descendant_joint_models_.push_back(joint);
+  }
 }
 
 void JointModel::addDescendantLinkModel(const LinkModel* link)
@@ -235,16 +213,13 @@ namespace
 {
 inline void printBoundHelper(std::ostream& out, double v)
 {
-  if (v <= -std::numeric_limits<double>::infinity())
-  {
+  if (v <= -std::numeric_limits<double>::infinity()) {
     out << "-inf";
   }
-  else if (v >= std::numeric_limits<double>::infinity())
-  {
+  else if (v >= std::numeric_limits<double>::infinity()) {
     out << "inf";
   }
-  else
-  {
+  else {
     out << v;
   }
 }

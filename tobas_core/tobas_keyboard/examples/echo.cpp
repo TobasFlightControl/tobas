@@ -12,17 +12,19 @@ int main()
 {
   keyboard::KeyboardReader keyboard;
 
-  while (true)
-  {
+  while (true) {
     const auto c = keyboard.readKey();
-    if (c < 0)
+    if (c < 0) {
       cout << "Failed to read keyboard." << endl;
+    }
     else if (c == 0)
       ;
-    else if (c < 0x21)
+    else if (c < 0x21) {
       cout << "Special Command : " << HEX_STREAM(c) << endl;
-    else
+    }
+    else {
       cout << "Normal Character: " << c << endl;
+    }
 
     this_thread::sleep_for(10ms);
   }

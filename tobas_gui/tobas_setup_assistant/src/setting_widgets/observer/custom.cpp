@@ -66,14 +66,12 @@ void CustomObserverWidget::load(const YAML::Node& node)
 
 bool CustomObserverWidget::isValid()
 {
-  if (package_->getValue().isEmpty())
-  {
+  if (package_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom observer package name.");
     return false;
   }
 
-  if (plugin_->getValue().isEmpty())
-  {
+  if (plugin_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom observer plugin name.");
     return false;
   }

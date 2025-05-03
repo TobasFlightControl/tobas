@@ -33,12 +33,10 @@ double altitudeToGPH(const double& altitude)
 
 double gphToTemperature(const double& gph)
 {
-  if (gph <= TROPOPAUSE_ALTITUDE)
-  {
+  if (gph <= TROPOPAUSE_ALTITUDE) {
     return T0 + L * gph;
   }
-  else
-  {
+  else {
     throw;  // TODO
   }
 }
@@ -51,13 +49,11 @@ double altitudeToTemperature(const double& altitude)
 
 double gphToPressure(const double& gph)
 {
-  if (gph <= TROPOPAUSE_ALTITUDE)
-  {
+  if (gph <= TROPOPAUSE_ALTITUDE) {
     double T = gphToTemperature(gph);
     return temperatureToPressure(T);
   }
-  else
-  {
+  else {
     throw;  // TODO
   }
 }

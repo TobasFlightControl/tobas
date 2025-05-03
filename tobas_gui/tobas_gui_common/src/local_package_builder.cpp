@@ -22,8 +22,7 @@ LocalPackageBuilder::LocalPackageBuilder()
 bool LocalPackageBuilder::build(const fs::path& tbs_path)
 {
   // Navigate to the Tobas package
-  if (chdir(tbs_path.c_str()) != 0)
-  {
+  if (chdir(tbs_path.c_str()) != 0) {
     cerr << "Failed to navigate to \"" << tbs_path << "\"." << endl;
     return false;
   }
@@ -35,8 +34,7 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   const auto log_path = ws_path / "log";
 
   // Specify the log directory
-  if (setenv("COLCON_LOG_PATH", log_path.c_str(), 1) != 0)
-  {
+  if (setenv("COLCON_LOG_PATH", log_path.c_str(), 1) != 0) {
     cerr << "Failed to set the colcon log directory path to \"" << log_path << "\"." << endl;
     return false;
   }
@@ -56,8 +54,7 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
 
   // Build Tobas package
   cout << "Executing \"" << command << "\" on " << tbs_path << "." << endl;
-  if (!command_executor_.execute(command))
-  {
+  if (!command_executor_.execute(command)) {
     cerr << "Failed to build \"" << meta_name << "\"." << endl;
     return false;
   }

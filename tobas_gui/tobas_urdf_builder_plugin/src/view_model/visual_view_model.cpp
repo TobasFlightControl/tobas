@@ -12,8 +12,9 @@ VisualViewModel::VisualViewModel(const urdf::VisualSharedPtr& model)
     geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry)),
     material_vm_(std::make_shared<MaterialViewModel>(model_->material))
 {
-  if (model_->name.empty())
+  if (model_->name.empty()) {
     model_->name = "visual_" + std::to_string(utils::timeNowMilliseconds());
+  }
 }
 
 void VisualViewModel::sync()

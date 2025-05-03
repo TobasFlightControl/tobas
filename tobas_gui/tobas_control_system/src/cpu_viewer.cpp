@@ -56,25 +56,33 @@ void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
   temp_->setUpper(cpu->temperature);
   temp_->setCenterText(std::format("{:.0f} ℃", cpu->temperature).c_str());
-  if (cpu->temperature > 85.)
+  if (cpu->temperature > 85.) {
     temp_->setFillColor(Qt::magenta);
-  else if (cpu->temperature > 80.)
+  }
+  else if (cpu->temperature > 80.) {
     temp_->setFillColor(Qt::red);
-  else if (cpu->temperature > 60.)
+  }
+  else if (cpu->temperature > 60.) {
     temp_->setFillColor(Qt::yellow);
-  else if (cpu->temperature > 0.)
+  }
+  else if (cpu->temperature > 0.) {
     temp_->setFillColor(Qt::green);
-  else
+  }
+  else {
     temp_->setFillColor(Qt::blue);
+  }
 
   load_->setUpper(cpu->load * 100);
   load_->setCenterText(std::format("{:.0f} %", cpu->load * 100).c_str());
-  if (cpu->load > 80.)
+  if (cpu->load > 80.) {
     load_->setFillColor(Qt::red);
-  else if (cpu->load > 60.)
+  }
+  else if (cpu->load > 60.) {
     load_->setFillColor(Qt::yellow);
-  else
+  }
+  else {
     load_->setFillColor(Qt::green);
+  }
 }
 }  // namespace gcs
 }  // namespace gui

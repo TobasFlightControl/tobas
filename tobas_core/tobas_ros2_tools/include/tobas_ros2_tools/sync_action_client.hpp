@@ -44,8 +44,7 @@ public:
     std::shared_future<typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult>>
   sendGoal(const typename ActionType::Goal& goal)
   {
-    if (!client_->wait_for_action_server(kWaitForServer))
-    {
+    if (!client_->wait_for_action_server(kWaitForServer)) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << action_name_ << "\" action server is not ready.");
       return {};
     }
@@ -54,8 +53,7 @@ public:
     send_goal_future.wait();
 
     const auto goal_handle = send_goal_future.get();
-    if (!goal_handle)
-    {
+    if (!goal_handle) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Goal was rejected by \"" << action_name_ << "\" action server.");
       return {};
     }
@@ -77,16 +75,17 @@ public:
     std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
   {
     auto [goal_handle, get_result_future] = sendGoal(goal);
-    if (!get_result_future.valid())
+    if (!get_result_future.valid()) {
       return false;
+    }
 
-    if (waitForFuture(get_result_future, get_result_timeout) != std::future_status::ready)
-    {
+    if (waitForFuture(get_result_future, get_result_timeout) != std::future_status::ready) {
       RCLCPP_ERROR_STREAM(
         node_->get_logger(), "Timeout before getting \"" << action_name_ << "\" action result. Cancelling goal...");
 
-      if (!cancelGoalAndWait(goal_handle, cancel_goal_timeout))
+      if (!cancelGoalAndWait(goal_handle, cancel_goal_timeout)) {
         return false;
+      }
 
       return false;
     }
@@ -107,8 +106,7 @@ public:
     std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
     auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
-    if (waitForFuture(cancel_goal_future, timeout) != std::future_status::ready)
-    {
+    if (waitForFuture(cancel_goal_future, timeout) != std::future_status::ready) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to cancel \"" << action_name_ << "\" action goal.");
       return false;
     }

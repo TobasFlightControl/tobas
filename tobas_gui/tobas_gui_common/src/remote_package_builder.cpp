@@ -36,14 +36,12 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
     "--packages-up-to {}",
     meta_pkg_name);
 
-  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) != ssh::SSHClient::E_NO_ERROR) {
     // ビルドできなければcleanして再試行
     RCLCPP_WARN(node_->get_logger(), "Failed to build remote package. Retrying...");
 
     const auto command = pre_cmd + " && sudo colcon clean workspace -y && " + build_cmd;
-    if (ssh_client_.execute(command, output_, true) != ssh::SSHClient::E_NO_ERROR)
-    {
+    if (ssh_client_.execute(command, output_, true) != ssh::SSHClient::E_NO_ERROR) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Clean build of remote package also failed: " << getErrorMessage());
       return false;
     }

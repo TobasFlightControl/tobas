@@ -38,12 +38,13 @@ bool QpOasesSolver::solve()
 
   // 列優先の場合を考慮し，要素を1つずつコピー
   const MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, 0);
-  for (Index r = 0; r < con_size; ++r)
-    for (Index c = 0; c < var_size; ++c)
+  for (Index r = 0; r < con_size; ++r) {
+    for (Index c = 0; c < var_size; ++c) {
       A[r * var_size + c] = A_eigen(r, c);
+    }
+  }
 
-  for (Index i = 0; i < var_size; ++i)
-  {
+  for (Index i = 0; i < var_size; ++i) {
     lb[i] = -qpOASES::INFTY;
     ub[i] = qpOASES::INFTY;
   }
@@ -70,8 +71,7 @@ bool QpOasesSolver::solve()
 
   double x_opt[var_size];
   const auto ret = solver.getPrimalSolution(x_opt);
-  if (ret != qpOASES::SUCCESSFUL_RETURN)
-  {
+  if (ret != qpOASES::SUCCESSFUL_RETURN) {
     error_msg_ = "qpOASES finished with error code " + to_string(ret);
     return false;
   }

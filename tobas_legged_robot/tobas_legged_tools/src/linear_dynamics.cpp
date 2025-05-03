@@ -21,19 +21,17 @@ LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot
 
 bool LinearDynamics::updateInternalDataStructures()
 {
-  if (!fk_solver_.updateInternalDataStructures())
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
-  if (!inertia_solver_.updateInternalDataStructures())
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
+  }
 
   return true;
 }
 
-void LinearDynamics::update(
-  const double& roll,
-  const double& pitch,
-  const kdl::JntArray& q,
-  const vector<bool>& is_stand)
+void LinearDynamics::update(const double& roll, const double& pitch, const kdl::JntArray& q, const vector<bool>& is_stand)
 {
   assert(is_stand.size() == nc_);
 
@@ -46,16 +44,13 @@ void LinearDynamics::updateA(const double& pitch)
   A(kRollIdx, kGyroXIdx) = 1 / cos(pitch);
 }
 
-void LinearDynamics::updateB(
-  const double& roll,
-  const double& pitch,
-  const kdl::JntArray& q,
-  const vector<bool>& is_stand)
+void LinearDynamics::updateB(const double& roll, const double& pitch, const kdl::JntArray& q, const vector<bool>& is_stand)
 {
   // B: Base, G: CoG, F: Footprint, C: Contact
 
-  if (inertia_solver_.JntToCart(q) < 0)
+  if (inertia_solver_.JntToCart(q) < 0) {
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  }
 
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
@@ -69,12 +64,11 @@ void LinearDynamics::updateB(
   const Vector3d F_Ins_inv_z = F_Ins.data.inverse().col(2);
   const Matrix3d R_I_inv = F_Rot_B.data * B_Ins.data.inverse();
 
-  for (size_t l = 0; l < nc_; ++l)
-  {
-    if (is_stand[l])
-    {
-      if (fk_solver_.JntToCart(q, foot_names_[l]) < 0)
+  for (size_t l = 0; l < nc_; ++l) {
+    if (is_stand[l]) {
+      if (fk_solver_.JntToCart(q, foot_names_[l]) < 0) {
         throw runtime_error("FK solver failed: " + fk_solver_.errorMessage());
+      }
 
       const auto& B_Pos_BC = fk_solver_.getFrame().p;
       const auto B_Pos_GC = B_Pos_BC - B_Pos_BG;
@@ -82,8 +76,7 @@ void LinearDynamics::updateB(
       B.block<3, 1>(kGyroXIdx, torqueIndex(l)) = F_Ins_inv_z;
       B.block<3, 3>(kVelXIdx, forceIndex(l)).diagonal().fill(1 / mass);
     }
-    else
-    {
+    else {
       B.block<6, kInputSizePerLeg>(kGyroXIdx, forceIndex(l)).setZero();
     }
   }

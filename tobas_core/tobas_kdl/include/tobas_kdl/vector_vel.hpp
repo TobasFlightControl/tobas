@@ -16,7 +16,7 @@ public:
   inline explicit VectorVel(const Vector& _p, const Vector& _v);
   inline explicit VectorVel(const Vector& _p);
 
-  inline static VectorVel Zero();
+  static inline VectorVel Zero();
 
   inline void setZero();
 
@@ -72,8 +72,9 @@ inline void VectorVel::setZero()
 inline doubleVel VectorVel::norm() const
 {
   const auto n = p.norm();
-  if (n < std::numeric_limits<double>::epsilon())
+  if (n < std::numeric_limits<double>::epsilon()) {
     return doubleVel(0, 0);
+  }
   return doubleVel(n, p.dot(v) / n);
 }
 

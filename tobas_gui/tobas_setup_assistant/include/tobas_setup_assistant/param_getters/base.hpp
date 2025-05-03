@@ -43,8 +43,7 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
   label_->setAlignment(Qt::AlignTop);
   rows_->addWidget(label_);
 
-  if (!description_text.isEmpty())
-  {
+  if (!description_text.isEmpty()) {
     const auto description = new qt::DescriptionWidget(description_text, kBodyPSize);
     rows_->addWidget(description);
   }

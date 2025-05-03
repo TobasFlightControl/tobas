@@ -44,8 +44,7 @@ void EngineViewerWidget::updateInternalDataStructures()
 {
   reset();
 
-  if (drone_.prop->type() == tobas::propulsion_system_t::ICE)
-  {
+  if (drone_.prop->type() == tobas::propulsion_system_t::ICE) {
     iprop_ = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_.prop);
 
     fuel_quantity_->setLower(0.);
@@ -59,8 +58,7 @@ void EngineViewerWidget::updateInternalDataStructures()
     engine_state_sub_ = ros2::createSubscriber(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kEngineStateTopic), &self::engineStateCb, this);
   }
-  else
-  {
+  else {
     iprop_.reset();
     engine_state_sub_.reset();
   }
@@ -72,12 +70,15 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
   fuel_quantity_->setUpper(fuel_quantity);
   fuel_quantity_->setCenterText(std::format("{:.2f} L ({:.0f} %)", fuel_quantity, fuel_rate).c_str());
 
-  if (fuel_rate > 20.)
+  if (fuel_rate > 20.) {
     fuel_quantity_->setFillColor(Qt::green);
-  else if (fuel_rate > 10.)
+  }
+  else if (fuel_rate > 10.) {
     fuel_quantity_->setFillColor(Qt::yellow);
-  else
+  }
+  else {
     fuel_quantity_->setFillColor(Qt::red);
+  }
 }
 
 void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
@@ -86,14 +87,18 @@ void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
   oil_temp_->setCenterText(std::format("{:.1f} ℃", oil_temp).c_str());
 
   // TODO: 油温の適正値をEngineConfigに含める
-  if (oil_temp < 60.)
+  if (oil_temp < 60.) {
     oil_temp_->setFillColor(Qt::blue);
-  else if (oil_temp < 100.)
+  }
+  else if (oil_temp < 100.) {
     oil_temp_->setFillColor(Qt::green);
-  else if (oil_temp < 120.)
+  }
+  else if (oil_temp < 120.) {
     oil_temp_->setFillColor(Qt::yellow);
-  else
+  }
+  else {
     oil_temp_->setFillColor(Qt::red);
+  }
 }
 
 void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)

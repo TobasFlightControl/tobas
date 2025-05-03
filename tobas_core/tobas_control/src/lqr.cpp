@@ -19,8 +19,9 @@ VectorXd LQR::solve(const bool& update_gain)
 {
   checkProblemValidity();
 
-  if (update_gain)
+  if (update_gain) {
     updateGain();
+  }
 
   // スケーリング
   const VectorXd x_scaled = current_state.array() / state_scale.array();

@@ -45,13 +45,11 @@ void eulerFromQuaternion(
 
   pitch = asin(sy);
 
-  if (isClose(fabs(sy), 1.))
-  {
+  if (isClose(fabs(sy), 1.)) {
     roll = 0.;
     yaw = atan2(-2 * (x * y - z * w), 2 * (math::sqr(w) + math::sqr(y)) - 1);
   }
-  else
-  {
+  else {
     roll = atan2(2 * (y * z + x * w), 2 * (math::sqr(w) + math::sqr(z)) - 1);
     yaw = atan2(2 * (x * y + z * w), 2 * (math::sqr(w) + math::sqr(x)) - 1);
   }

@@ -21,8 +21,9 @@ public:
 
   inline void update(const T& x)
   {
-    if (x < min_)
+    if (x < min_) {
       min_ = x;
+    }
   }
 
   /* Request the minimum value. */
@@ -52,8 +53,9 @@ public:
 
   inline void update(const T& x)
   {
-    if (x > max_)
+    if (x > max_) {
       max_ = x;
+    }
   }
 
   /* Request the maximum value. */

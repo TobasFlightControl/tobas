@@ -65,8 +65,7 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
 
 bool SpeedRollDeltaPitchController::minSpeedCb(const double& p)
 {
-  if (p >= max_speed_)
-  {
+  if (p >= max_speed_) {
     cerr << "Minimum speed must be lower than maximum speed." << endl;
     return false;
   }
@@ -77,8 +76,7 @@ bool SpeedRollDeltaPitchController::minSpeedCb(const double& p)
 
 bool SpeedRollDeltaPitchController::maxSpeedCb(const double& p)
 {
-  if (p <= min_speed_)
-  {
+  if (p <= min_speed_) {
     cerr << "Maximum speed must be greater than minimum speed." << endl;
     return false;
   }

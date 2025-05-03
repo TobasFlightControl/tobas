@@ -15,27 +15,32 @@ ToggleButton::ToggleButton(const QString& off_text, const QString& on_text, QWid
 void ToggleButton::setChecked(bool _checked)
 {
   // 状態が変わらないなら何もしない
-  if (_checked == checked_)
+  if (_checked == checked_) {
     return;
+  }
 
   // 状態を更新
   checked_ = _checked;
 
   // 新しい状態に応じたテキスト設定
   // シグナル発行は行わない
-  if (_checked)
+  if (_checked) {
     setText(on_text_);
-  else
+  }
+  else {
     setText(off_text_);
+  }
 }
 
 void ToggleButton::onClicked()
 {
   setChecked(!checked_);
 
-  if (checked_)
+  if (checked_) {
     Q_EMIT checked();
-  else
+  }
+  else {
     Q_EMIT unchecked();
+  }
 }
 }  // namespace qt

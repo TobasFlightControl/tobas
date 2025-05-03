@@ -47,11 +47,7 @@ void MapWidget::clear()
   line_->clear();
 }
 
-void MapWidget::addWaypoint(
-  int index,
-  const QGeoCoordinate& coord,
-  double acceptance_radius,
-  const QString& marker_color)
+void MapWidget::addWaypoint(int index, const QGeoCoordinate& coord, double acceptance_radius, const QString& marker_color)
 {
   waypoint_->add(index, coord, acceptance_radius, marker_color);
 }

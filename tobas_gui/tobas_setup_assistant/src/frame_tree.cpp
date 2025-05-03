@@ -50,12 +50,12 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
 {
   const auto parent_name = parent_item->text(0).toStdString();
 
-  if (robot_.tree().isEndSegment(parent_name))
+  if (robot_.tree().isEndSegment(parent_name)) {
     return;
+  }
 
   const auto parent_it = robot_.tree().getSegment(parent_name);
-  for (const auto& child_it : parent_it->second.children)
-  {
+  for (const auto& child_it : parent_it->second.children) {
     const auto& child_name = child_it->first;
     const auto child_item = new QTreeWidgetItem({ QString::fromStdString(child_name) });
     parent_item->addChild(child_item);

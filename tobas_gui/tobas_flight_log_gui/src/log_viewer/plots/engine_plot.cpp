@@ -29,8 +29,7 @@ void EnginePlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSyste
   QVector<double> t_data;
   QVector<double> throttle_data;
 
-  for (const auto& msg : msgs)
-  {
+  for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
     throttle_data.push_back(msg.engine_throttle);
   }

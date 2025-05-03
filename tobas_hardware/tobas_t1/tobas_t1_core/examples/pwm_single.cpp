@@ -7,8 +7,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 3)
-  {
+  if (argc != 3) {
     cerr << "Usage: " << argv[0] << " <Channel> <Period>" << endl;
     return EXIT_FAILURE;
   }
@@ -16,22 +15,18 @@ int main(int argc, char** argv)
   const uint16_t period = stoi(argv[2]);
 
   t1::PWM pwm;
-  if (!pwm.initialize())
-  {
+  if (!pwm.initialize()) {
     cerr << "Failed to initialize PWM driver." << endl;
     return EXIT_FAILURE;
   }
 
-  while (true)
-  {
-    if (!pwm.setPeriod(channel, period))
-    {
+  while (true) {
+    if (!pwm.setPeriod(channel, period)) {
       cerr << "Failed to set PWM period of channel " << channel << "." << endl;
       return EXIT_FAILURE;
     }
 
-    if (!pwm.transfer())
-    {
+    if (!pwm.transfer()) {
       cerr << "Failed to command PWM periods." << endl;
       return EXIT_FAILURE;
     }

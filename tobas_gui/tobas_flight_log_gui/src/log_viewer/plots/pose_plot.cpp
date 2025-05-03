@@ -19,8 +19,7 @@ PosePlotWidget::PosePlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     pos_plots_[i] = new QwtPlot2();
     rot_plots_[i] = new QwtPlot2();
 
@@ -41,8 +40,7 @@ PosePlotWidget::PosePlotWidget()
 
 void PosePlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     pos_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
     rot_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
@@ -55,8 +53,7 @@ void PosePlotWidget::setData(
   updateCurrentSamples(odom_msgs);
   updateTargetSamples(ctrl_fb_msgs);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     pos_plots_[i]->replot();
     rot_plots_[i]->replot();
   }
@@ -68,8 +65,7 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
   std::array<QVector<double>, 3> pos_data;
   std::array<QVector<double>, 3> rot_data;
 
-  for (const auto& odom : odom_msgs)
-  {
+  for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
     const auto& pos = odom.frame.trans;
@@ -84,22 +80,19 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
     rot_data[2].push_back(yaw);
   }
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     cur_pos_curves_[i].setSamples(t_data, pos_data[i]);
     cur_rot_curves_[i].setSamples(t_data, rot_data[i]);
   }
 }
 
-void PosePlotWidget::updateTargetSamples(
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
+void PosePlotWidget::updateTargetSamples(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, 3> pos_data;
   std::array<QVector<double>, 3> rot_data;
 
-  for (const auto& ctrl_fb : ctrl_fb_msgs)
-  {
+  for (const auto& ctrl_fb : ctrl_fb_msgs) {
     t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
 
     const auto& pos = ctrl_fb.target_position;
@@ -113,8 +106,7 @@ void PosePlotWidget::updateTargetSamples(
     rot_data[2].push_back(rot.yaw);
   }
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     tar_pos_curves_[i].setSamples(t_data, pos_data[i]);
     tar_rot_curves_[i].setSamples(t_data, rot_data[i]);
   }

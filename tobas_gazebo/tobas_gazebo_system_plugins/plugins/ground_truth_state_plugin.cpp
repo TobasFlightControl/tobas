@@ -67,8 +67,9 @@ void GazeboGroundTruthStatePlugin::Configure(
   getSdfParams(sdf);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity)
+  if (link == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
+  }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   vel_B_ = getComponent<cmp::LinearVelocity>(link, ecm);
@@ -89,8 +90,9 @@ void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
-  if (!rate_manager_->update(info.simTime))
+  if (!rate_manager_->update(info.simTime)) {
     return;
+  }
 
   // Create Pose & Twist message
   auto odom = std::make_unique<tobas_msgs::Odometry>();

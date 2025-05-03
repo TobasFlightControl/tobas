@@ -149,8 +149,7 @@ int main()
 
   sqp.initialize(x0, f, g, h, dfdx, dgdx, dhdx, dFdx, dGdx, dHdx);
 
-  if (sqp.solve() < 0)
-  {
+  if (sqp.solve() < 0) {
     cerr << sqp.errorMessage() << endl;
     return EXIT_FAILURE;
   }

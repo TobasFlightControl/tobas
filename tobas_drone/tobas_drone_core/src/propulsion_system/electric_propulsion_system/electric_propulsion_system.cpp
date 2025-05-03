@@ -9,18 +9,17 @@ namespace tobas
 bool ElectricPropulsionSystemConfig::isValid() const
 {
   // Rotors
-  for (const auto& [_, rotor] : rotors)
-  {
-    if (!rotor->isValid())
-    {
+  for (const auto& [_, rotor] : rotors) {
+    if (!rotor->isValid()) {
       cerr << "The configurations of rotor \"" << rotor->link_name << "\" are invalid." << endl;
       return false;
     }
   }
 
   // Battery
-  if (!battery.isValid())
+  if (!battery.isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -29,16 +28,13 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& node)
 {
   // Rotors
   rotors.clear();
-  if (!node[kRotorsKey].IsSequence())
-  {
+  if (!node[kRotorsKey].IsSequence()) {
     cerr << "Rotors field is not defined." << endl;
     return false;
   }
-  for (const auto& rotor_node : node[kRotorsKey])
-  {
+  for (const auto& rotor_node : node[kRotorsKey]) {
     const auto rotor = make_shared<ElectricRotorConfig>();
-    if (!rotor->load(rotor_node))
-    {
+    if (!rotor->load(rotor_node)) {
       cerr << "Failed to load the configurations of rotors." << endl;
       return false;
     }
@@ -46,13 +42,11 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& node)
   }
 
   // Battery
-  if (!node[kBatteryKey].IsDefined())
-  {
+  if (!node[kBatteryKey].IsDefined()) {
     cerr << "Battery field is not defined." << endl;
     return false;
   }
-  if (!battery.load(node[kBatteryKey]))
-  {
+  if (!battery.load(node[kBatteryKey])) {
     cerr << "Failed to load the configurations of battery." << endl;
     return false;
   }
@@ -66,8 +60,9 @@ YAML::Node ElectricPropulsionSystemConfig::dump() const
 
   // Rotors
   node[kRotorsKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (const auto& [_, rotor] : rotors)
+  for (const auto& [_, rotor] : rotors) {
     node[kRotorsKey].push_back(rotor->dump());
+  }
 
   // Battery
   node[kBatteryKey] = battery.dump();

@@ -11,8 +11,9 @@ MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* 
 {
   setWindowTitle(title);
 
-  if (!icon_path.isEmpty())
+  if (!icon_path.isEmpty()) {
     setWindowIcon(QIcon(icon_path));
+  }
 
   const auto rows = new QVBoxLayout();
   setLayout(rows);

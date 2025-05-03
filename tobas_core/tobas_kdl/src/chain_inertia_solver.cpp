@@ -11,8 +11,9 @@ ChainInertiaSolver::ChainInertiaSolver(const Chain& chain) : super(chain)
 
 bool ChainInertiaSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
 
@@ -21,15 +22,16 @@ bool ChainInertiaSolver::updateInternalDataStructures()
 
 int ChainInertiaSolver::JntToCart(const JntArray& q)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_)
+  }
+  if (q.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   // Sweep from root to leaf
   j_ = 0;
-  for (size_t i = 0; i < ns_; ++i)
-  {
+  for (size_t i = 0; i < ns_; ++i) {
     const auto& seg = chain_.getSegment(i);
     const auto qj = seg.joint().type != Joint::FIXED ? q(j_++) : 0.;
     I_[i] = seg.inertia();
@@ -37,8 +39,9 @@ int ChainInertiaSolver::JntToCart(const JntArray& q)
   }
 
   // Sweep from leaf to root
-  for (int i = ns_ - 1; i > 0; --i)
+  for (int i = ns_ - 1; i > 0; --i) {
     I_[i - 1] += X_[i] * I_[i];
+  }
 
   // 最後に{root}座標系に変換して返す
   I_out_ = X_[0] * I_[0];

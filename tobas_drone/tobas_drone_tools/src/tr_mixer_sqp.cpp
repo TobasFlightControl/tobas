@@ -22,22 +22,28 @@ TiltRotorMixer_SQP::TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree
 
 bool TiltRotorMixer_SQP::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!joint_parser_.updateInternalDataStructures())
+  if (!joint_parser_.updateInternalDataStructures()) {
     return false;
-  if (!fk_solver_.updateInternalDataStructures())
+  }
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
-  if (!inertia_solver_.updateInternalDataStructures())
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
-  if (!np_mixer_.updateInternalDataStructures())
+  }
+  if (!np_mixer_.updateInternalDataStructures()) {
     return false;
+  }
 
   resetTensors();
 
-  if (!initializeSQP())
+  if (!initializeSQP()) {
     return false;
+  }
 
   return true;
 }
@@ -51,15 +57,13 @@ bool TiltRotorMixer_SQP::solve(
   const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0)
-  {
+  if (fk_solver_.JntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0)
-  {
+  if (inertia_solver_.JntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -68,8 +72,7 @@ bool TiltRotorMixer_SQP::solve(
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     // Update B
@@ -81,20 +84,16 @@ bool TiltRotorMixer_SQP::solve(
 
     // Update ci0
     const auto nr = drone_.prop->numRotors();
-    if (rotor_alive_.at(rotor->link_name))
-    {
-      if (!rotor->tilt_joint_name.empty())
-      {
+    if (rotor_alive_.at(rotor->link_name)) {
+      if (!rotor->tilt_joint_name.empty()) {
         ci0_(idx) = joint_parser_.lowerLimit(rotor->tilt_joint_name);
         ci0_(nr + idx) = -joint_parser_.upperLimit(rotor->tilt_joint_name);
       }
       ci0_(2 * nr + idx) = drone_.prop->minThrust(rotor->link_name);
       ci0_(3 * nr + idx) = -drone_.prop->maxThrust(rotor->link_name);
     }
-    else
-    {
-      if (!rotor->tilt_joint_name.empty())
-      {
+    else {
+      if (!rotor->tilt_joint_name.empty()) {
         ci0_(idx) = 0.;
         ci0_(nr + idx) = 0.;
       }
@@ -126,8 +125,7 @@ bool TiltRotorMixer_SQP::solve(
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
   // SQPを解く
-  if (sqp_.solve() < 0)
-  {
+  if (sqp_.solve() < 0) {
     cerr << "SQP failed: " << sqp_.errorMessage() << endl;
     return false;
   }
@@ -147,8 +145,7 @@ double TiltRotorMixer_SQP::getTiltAngle(size_t idx) const
 
 bool TiltRotorMixer_SQP::setLinearWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Linear weight must be positive." << endl;
     return false;
   }
@@ -159,8 +156,7 @@ bool TiltRotorMixer_SQP::setLinearWeight(double p)
 
 bool TiltRotorMixer_SQP::setAngularWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Angular weight must be positive." << endl;
     return false;
   }
@@ -171,8 +167,7 @@ bool TiltRotorMixer_SQP::setAngularWeight(double p)
 
 bool TiltRotorMixer_SQP::setThrustWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Thrust weight must be positive." << endl;
     return false;
   }
@@ -188,8 +183,9 @@ void TiltRotorMixer_SQP::resetTensors()
   R_.resize(nr);
 
   B_.conservativeResize(NoChange, 3 * nr);
-  for (size_t i = 0; i < nr; ++i)
+  for (size_t i = 0; i < nr; ++i) {
     B_.block<3, 3>(0, 3 * i).setIdentity();
+  }
 
   N_.conservativeResize(3 * nr, nr);
   N_.setZero();
@@ -223,8 +219,7 @@ bool TiltRotorMixer_SQP::initializeSQP()
   const auto q0 = kdl::JntArray::Zero(tree_.getNrOfJoints());
   const auto R0 = kdl::Rotation::Identity();
   const auto v0 = kdl::Vector::Zero();
-  if (!np_mixer_.solve(q0, R0, v0, v0, v0))
-  {
+  if (!np_mixer_.solve(q0, R0, v0, v0, v0)) {
     cerr << "Failed to solve Non-planar mixer." << endl;
     return false;
   }
@@ -356,14 +351,12 @@ Matrix6Xd TiltRotorMixer_SQP::calc_C(const VectorXd& theta)
 
 const MatrixXd& TiltRotorMixer_SQP::calc_N(const VectorXd& theta)
 {
-  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
     // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
-    if (!rotor->tilt_joint_name.empty())
-    {
+    if (!rotor->tilt_joint_name.empty()) {
       const auto& par_elem = elem.parent->second;
       const auto& gpar_elem = par_elem.parent->second;
       const auto& cur_seg = elem.segment;
@@ -375,8 +368,7 @@ const MatrixXd& TiltRotorMixer_SQP::calc_N(const VectorXd& theta)
       const auto axis_B = R_base2gpar * (R_gpar2par * axis_par);
       N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
-    else
-    {
+    else {
       const auto& R_base2par = fk_solver_.getFrame(elem.parent->first).M;
       const auto axis_B = R_base2par * elem.segment.joint().axis();
       N_.block<3, 1>(3 * i, i) = axis_B.data;
@@ -388,13 +380,11 @@ const MatrixXd& TiltRotorMixer_SQP::calc_N(const VectorXd& theta)
 
 const Tensor3Xd& TiltRotorMixer_SQP::calc_dN_dtheta(const VectorXd& theta)
 {
-  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
-    if (!rotor->tilt_joint_name.empty())
-    {
+    if (!rotor->tilt_joint_name.empty()) {
       const auto& par_elem = elem.parent->second;
       const auto& gpar_elem = par_elem.parent->second;
       const auto& cur_seg = elem.segment;
@@ -412,13 +402,11 @@ const Tensor3Xd& TiltRotorMixer_SQP::calc_dN_dtheta(const VectorXd& theta)
 
 const Tensor4Xd& TiltRotorMixer_SQP::calc_dN_dtheta_2(const VectorXd& theta)
 {
-  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [i, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
-    if (!rotor->tilt_joint_name.empty())
-    {
+    if (!rotor->tilt_joint_name.empty()) {
       const auto& par_elem = elem.parent->second;
       const auto& gpar_elem = par_elem.parent->second;
       const auto& cur_seg = elem.segment;

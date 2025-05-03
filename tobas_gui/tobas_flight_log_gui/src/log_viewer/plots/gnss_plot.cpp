@@ -70,8 +70,7 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   QVector<double> west_speed_data;
   QVector<double> up_speed_data;
 
-  for (const auto& gnss : gnss_msgs)
-  {
+  for (const auto& gnss : gnss_msgs) {
     t_data.push_back(ros2::seconds(gnss.header.stamp));
 
     latitude_data.push_back(gnss.latitude);

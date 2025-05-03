@@ -44,8 +44,7 @@ void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& 
   TOBAS_INFO("New robot description is received.");
 
   auto tree = std::make_unique<kdl::Tree>();
-  if (!kdl::treeFromString(msg->data, *tree))
-  {
+  if (!kdl::treeFromString(msg->data, *tree)) {
     TOBAS_ERROR("Failed to parse robot description.");
     return;
   }

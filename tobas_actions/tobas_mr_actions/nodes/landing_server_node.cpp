@@ -60,15 +60,13 @@ bool LandServerNode::disarmRotors()
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = false;
-  if (!sc.call(req))
-  {
+  if (!sc.call(req)) {
     TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
     return false;
   }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     TOBAS_ERROR("Failed to disarm rotors: ", res->message);
     return false;
   }
@@ -104,14 +102,12 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto result = std::make_shared<ActionType::Result>();
 
   // Check topics
-  if (!odom_)
-  {
+  if (!odom_) {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
     return;
   }
-  if (!landed_)
-  {
+  if (!landed_) {
     result->message = "Landing state is not received yet.";
     goal_handle->abort(result);
     return;
@@ -126,14 +122,11 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
   // 高度チェック
   rclcpp::Rate rate(kCommandRate, get_clock());
-  while (rclcpp::ok())
-  {
+  while (rclcpp::ok()) {
     // 着陸検知したらモータを停止して終了
-    if (landed_->data)
-    {
+    if (landed_->data) {
       TOBAS_INFO("Landing detected. Stopping motors.");
-      if (!disarmRotors())
-      {
+      if (!disarmRotors()) {
         result->message = "Failed to disarm rotors.";
         goal_handle->abort(result);
         return;
@@ -160,8 +153,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     cmd_pub_->publish(move(cmd_));
 
     // アクション中止の場合は目標速度を0にして終了
-    if (goal_handle->is_canceling())
-    {
+    if (goal_handle->is_canceling()) {
       cmd_.vel.setZero();
       cmd_pub_->publish(cmd_);
 

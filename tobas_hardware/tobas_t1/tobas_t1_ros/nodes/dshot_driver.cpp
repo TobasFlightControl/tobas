@@ -67,8 +67,7 @@ private:
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("t1_dshot_driver", options)
 {
-  if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.json")))
-  {
+  if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.json"))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
@@ -78,8 +77,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("t1
 
 bool DShotDriverNode::transferAndSleep()
 {
-  if (!dshot_.transfer())
-  {
+  if (!dshot_.transfer()) {
     TOBAS_ERROR("SPI communication failed.");
     return false;
   }
@@ -93,20 +91,17 @@ void DShotDriverNode::publishRotorStates()
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   rotor_states->header.stamp = get_clock()->now();
 
-  for (const auto& [_, rotor] : eprop_->rotors)
-  {
+  for (const auto& [_, rotor] : eprop_->rotors) {
     const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = rotor->link_name;
-    if (dshot_.getValidity(erotor->channel))
-    {
+    if (dshot_.getValidity(erotor->channel)) {
       const auto speed = dshot_.getSpeed(erotor->channel);
       rotor_states->states.back().speed = speed;
       rotor_states->states.back().thrust = erotor->thrustFromSpeed(speed);
       rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_ERROR;
     }
-    else
-    {
+    else {
       rotor_states->states.back().speed = NAN;
       rotor_states->states.back().thrust = NAN;
       rotor_states->states.back().status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
@@ -118,17 +113,14 @@ void DShotDriverNode::publishRotorStates()
 
 bool DShotDriverNode::stopRotors()
 {
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-  {
-    if (!dshot_.setThrottle(ch, t1::DShot::DSHOT_CMD_MOTOR_STOP))
-    {
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+    if (!dshot_.setThrottle(ch, t1::DShot::DSHOT_CMD_MOTOR_STOP)) {
       TOBAS_ERROR("Failed to set disarm throttle on channel ", ch, ".");
       return false;
     }
   }
 
-  if (!dshot_.transfer())
-  {
+  if (!dshot_.transfer()) {
     TOBAS_ERROR("Failed to stop rotors.");
     return false;
   }
@@ -138,114 +130,106 @@ bool DShotDriverNode::stopRotors()
 
 void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (eprop_)
-  {
+  if (eprop_) {
     TOBAS_WARN("DShot driver cannot be re-initialized.");
     return;
   }
 
-  if (!drone->prop)
+  if (!drone->prop) {
     return;
-  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
+  }
+  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC) {
     return;
+  }
 
   const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
 
   // Initialize DShot driver
-  if (!dshot_.initialize())
-  {
+  if (!dshot_.initialize()) {
     TOBAS_ERROR("Failed to initialize DShot driver.");
     return;
   }
 
   // Set Kv values
-  for (const auto& [link_name, _] : eprop->rotors)
-  {
+  for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setKv(erotor->channel, erotor->kv))
-    {
+    if (!dshot_.setKv(erotor->channel, erotor->kv)) {
       TOBAS_ERROR("Failed to set Kv of channel ", erotor->channel, ".");
       return;
     }
   }
-  if (!transferAndSleep())
+  if (!transferAndSleep()) {
     return;
+  }
 
   // Set internal resistances
-  for (const auto& [link_name, _] : eprop->rotors)
-  {
+  for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance))
-    {
+    if (!dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance)) {
       TOBAS_ERROR("Failed to set internal resistance of channel ", erotor->channel, ".");
       return;
     }
   }
-  if (!transferAndSleep())
+  if (!transferAndSleep()) {
     return;
+  }
 
   // Set propeller diameters
-  for (const auto& [link_name, _] : eprop->rotors)
-  {
+  for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter))
-    {
+    if (!dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter)) {
       TOBAS_ERROR("Failed to set propeller diameter of channel ", erotor->channel, ".");
       return;
     }
   }
-  if (!transferAndSleep())
+  if (!transferAndSleep()) {
     return;
+  }
 
   // Set moment constants
-  for (const auto& [link_name, _] : eprop->rotors)
-  {
+  for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
     const auto moment_const = erotor->motor_const * erotor->moment_const / math::quat(erotor->propeller_diameter);
-    if (!dshot_.setMomentConstant(erotor->channel, moment_const))
-    {
+    if (!dshot_.setMomentConstant(erotor->channel, moment_const)) {
       TOBAS_ERROR("Failed to set moment constant of channel ", erotor->channel, ".");
       return;
     }
   }
-  if (!transferAndSleep())
+  if (!transferAndSleep()) {
     return;
+  }
 
   // Set the number of poles
-  for (const auto& [link_name, _] : eprop->rotors)
-  {
+  for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (!dshot_.setNumPoles(erotor->channel, erotor->num_poles))
-    {
+    if (!dshot_.setNumPoles(erotor->channel, erotor->num_poles)) {
       TOBAS_ERROR("Failed to set the number of poles of channel ", erotor->channel, ".");
       return;
     }
   }
-  if (!transferAndSleep())
+  if (!transferAndSleep()) {
     return;
+  }
 
   // Load and set the speed control gains
-  for (const auto& [link_name, _] : eprop->rotors)
-  {
+  for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    if (erotor->channel >= t1::DShot::kChannelSize)
-    {
+    if (erotor->channel >= t1::DShot::kChannelSize) {
       TOBAS_ERROR("Rotor channel ", erotor->channel, " is out of range.");
       continue;
     }
-    if (!pt_.get(kGainKeyPrefix + to_string(erotor->channel), gains_.at(erotor->channel)))
-    {
+    if (!pt_.get(kGainKeyPrefix + to_string(erotor->channel), gains_.at(erotor->channel))) {
       TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
-    if (!dshot_.setSpeedControlGain(erotor->channel, gains_.at(erotor->channel)))
-    {
+    if (!dshot_.setSpeedControlGain(erotor->channel, gains_.at(erotor->channel))) {
       TOBAS_ERROR("Failed to set the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
   }
-  if (!transferAndSleep())
+  if (!transferAndSleep()) {
     return;
+  }
 
   // Resister publishers
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
@@ -269,25 +253,21 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
   // Set target speeds of each channel
-  for (const auto& tar_speed : tar_speeds->speeds)
-  {
+  for (const auto& tar_speed : tar_speeds->speeds) {
     const auto erotor = eprop_->getRotor(tar_speed.link_name);
-    if (!erotor)
-    {
+    if (!erotor) {
       TOBAS_ERROR("Rotor \"" + tar_speed.link_name + "\" does not exist.");
       continue;
     }
 
-    if (!dshot_.setTargetSpeed(erotor->channel, tar_speed.speed))
-    {
+    if (!dshot_.setTargetSpeed(erotor->channel, tar_speed.speed)) {
       TOBAS_ERROR("Failed to set target speed of rotor \"", tar_speed.link_name, "\".");
       continue;
     }
   }
 
   // Send command and get rotor states
-  if (!dshot_.transfer())
-  {
+  if (!dshot_.transfer()) {
     TOBAS_ERROR("SPI communication failed.");
     return;
   }
@@ -310,10 +290,8 @@ void DShotDriverNode::getGainsCb(const GetGains::Request::ConstSharedPtr&, const
 
 void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res)
 {
-  for (const auto& gain : req->gains)
-  {
-    if (!dshot_.setSpeedControlGain(gain.channel, gain.gain))
-    {
+  for (const auto& gain : req->gains) {
+    if (!dshot_.setSpeedControlGain(gain.channel, gain.gain)) {
       res->success = false;
       res->message = "Rotor control gain of channel " + to_string((int)gain.channel) + " is rejected.";
       return;
@@ -321,8 +299,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
     gains_.at(gain.channel) = gain.gain;
   }
 
-  if (!dshot_.transfer())
-  {
+  if (!dshot_.transfer()) {
     res->success = false;
     res->message = "SPI communication with DShot driver is failed.";
     return;
@@ -334,14 +311,12 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
 
 void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, const SaveGains::Response::SharedPtr& res)
 {
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-  {
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
     const auto key = kGainKeyPrefix + to_string(ch);
     pt_.set(key, gains_.at(ch));
   }
 
-  if (!pt_.save())
-  {
+  if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save gains.";
     return;
@@ -353,13 +328,13 @@ void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, con
 
 void DShotDriverNode::autoStopTimerCb()
 {
-  if (!stopRotors())
+  if (!stopRotors()) {
     return;
+  }
 
   publishRotorStates();
 
-  if (is_commanded_)
-  {
+  if (is_commanded_) {
     is_commanded_ = false;
     TOBAS_WARN(
       "All rotors are automatically stopped because ", tobas::kCommandAutoResetTimeout,

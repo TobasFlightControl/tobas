@@ -94,19 +94,21 @@ void MultirotorPIDWidget::load(const YAML::Node& node)
 bool MultirotorPIDWidget::isApplicable()
 {
   // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing())
+  if (fixed_wing_->hasFixedWing()) {
     return false;
+  }
 
   // プロペラの個数条件
-  if (propulsion_system_->numUnits() < kMinNumProp)
+  if (propulsion_system_->numUnits() < kMinNumProp) {
     return false;
+  }
 
   // Z軸正方向のプロペラのみ
-  for (int i = 0; i < propulsion_system_->numUnits(); ++i)
-  {
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
     const auto link_name = propulsion_system_->linkName(i);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ()))
+    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ())) {
       return false;
+    }
   }
 
   return true;

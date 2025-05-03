@@ -125,8 +125,7 @@ void GazeboBatteryPlugin::registerPubSub()
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
-  for (const auto& link_name : rotor_link_names_)
-  {
+  for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const auto qos = ros2::makeQoS(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
@@ -141,13 +140,12 @@ void GazeboBatteryPlugin::registerPubSub()
 
 void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
-  if (!rate_manager_->update(info.simTime))
+  if (!rate_manager_->update(info.simTime)) {
     return;
+  }
 
-  if (rotor_currents_.size() < rotor_link_names_.size())
-  {
-    if (info.simTime > kWarnStartTime)
-    {
+  if (rotor_currents_.size() < rotor_link_names_.size()) {
+    if (info.simTime > kWarnStartTime) {
       const auto num_not_received = rotor_link_names_.size() - rotor_currents_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
@@ -155,10 +153,12 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
 
   // 電流を計算
   double current_true = 0.;
-  for (const auto& [_, current] : rotor_currents_)
+  for (const auto& [_, current] : rotor_currents_) {
     current_true += current;
-  if (current_true > max_current_)
+  }
+  if (current_true > max_current_) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current_true, " > ", max_current_, " [A]");
+  }
   const auto current_obs = max(current_true + current_noise_(rnd_gen_), 0.);  // 観測ノイズを受けた観測電流
 
   // 電気容量の減少
@@ -189,10 +189,12 @@ double GazeboBatteryPlugin::currentVoltage()
 {
   // memo: 2-50
   const auto rate = q_ / capacity_;
-  if (rate < kSagCapRate)
+  if (rate < kSagCapRate) {
     return sag_voltage_ * rate / kSagCapRate;
-  else
+  }
+  else {
     return (max_voltage_ - sag_voltage_) * (rate - kSagCapRate) / (1 - kSagCapRate) + sag_voltage_;
+  }
 }
 
 void GazeboBatteryPlugin::chargeCb(

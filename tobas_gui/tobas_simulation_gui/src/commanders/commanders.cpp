@@ -37,11 +37,13 @@ void CommandersWidget::updateInternalDataStructures()
 
 bool CommandersWidget::start()
 {
-  if (!base_pose_commander_->start())
+  if (!base_pose_commander_->start()) {
     return false;
+  }
 
-  if (!jointpos_commander_->start())
+  if (!jointpos_commander_->start()) {
     return false;
+  }
 
   return true;
 }

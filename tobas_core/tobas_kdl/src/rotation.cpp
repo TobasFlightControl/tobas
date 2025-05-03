@@ -28,41 +28,35 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
   const auto tzz = tz * z;
 
   return Rotation(
-    1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx,
-    1 - (txx + tyy));
+    1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
 }
 
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 {
   const auto trace = data.trace();
-  if (trace > EPS)
-  {
+  if (trace > EPS) {
     const auto s = 0.5 / sqrt(trace + 1.);
     w = 0.25 / s;
     x = (data(2, 1) - data(1, 2)) * s;
     y = (data(0, 2) - data(2, 0)) * s;
     z = (data(1, 0) - data(0, 1)) * s;
   }
-  else
-  {
-    if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2))
-    {
+  else {
+    if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2)) {
       const auto s = 2. * sqrt(1. + data(0, 0) - data(1, 1) - data(2, 2));
       w = (data(2, 1) - data(1, 2)) / s;
       x = 0.25 * s;
       y = (data(0, 1) + data(1, 0)) / s;
       z = (data(0, 2) + data(2, 0)) / s;
     }
-    else if (data(1, 1) > data(2, 2))
-    {
+    else if (data(1, 1) > data(2, 2)) {
       const auto s = 2. * sqrt(1. + data(1, 1) - data(0, 0) - data(2, 2));
       w = (data(0, 2) - data(2, 0)) / s;
       x = (data(0, 1) + data(1, 0)) / s;
       y = 0.25 * s;
       z = (data(1, 2) + data(2, 1)) / s;
     }
-    else
-    {
+    else {
       const auto s = 2. * sqrt(1. + data(2, 2) - data(0, 0) - data(1, 1));
       w = (data(1, 0) - data(0, 1)) / s;
       x = (data(0, 2) + data(2, 0)) / s;
@@ -97,13 +91,11 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
   pitch = atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
-  if (fabs(pitch) > (M_PI_2 - EPS))
-  {
+  if (fabs(pitch) > (M_PI_2 - EPS)) {
     yaw = atan2(-data(0, 1), data(1, 1));
     roll = 0.;
   }
-  else
-  {
+  else {
     roll = atan2(data(2, 1), data(2, 2));
     yaw = atan2(data(1, 0), data(0, 0));
   }
@@ -226,15 +218,13 @@ pair<double, Vector> Rotation::getAngleAxis() const
   // Optional check that input is pure rotation, 'isRotationMatrix' is defined at:
   // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
-  if (fabs(data(0, 1) - data(1, 0) < EPS) && fabs(data(0, 2) - data(2, 0)) < EPS && fabs(data(1, 2) - data(2, 1)) < EPS)
-  {
+  if (fabs(data(0, 1) - data(1, 0) < EPS) && fabs(data(0, 2) - data(2, 0)) < EPS && fabs(data(1, 2) - data(2, 1)) < EPS) {
     // Singularity found
     // First check for identity matrix which must have +1
     // for all terms in leading diagonal and zero in other terms
     if (
       fabs(data(0, 1) + data(1, 0)) < eps2 && fabs(data(0, 2) + data(2, 0)) < eps2
-      && fabs(data(1, 2) + data(2, 1)) < eps2 && fabs(this->trace() - 3) < eps2)
-    {
+      && fabs(data(1, 2) + data(2, 1)) < eps2 && fabs(this->trace() - 3) < eps2) {
       // This singularity is identity matrix so angle = 0, axis is arbitrary chose.
       return { 0., Vector::UnitZ() };
     }
@@ -248,22 +238,19 @@ pair<double, Vector> Rotation::getAngleAxis() const
     const auto yz = (data(1, 2) + data(2, 1)) / 4;
 
     double x, y, z;
-    if (xx > yy && xx > zz)
-    {
+    if (xx > yy && xx > zz) {
       // data(0, 0) is the largest diagonal term
       x = sqrt(xx);
       y = xy / x;
       z = xz / x;
     }
-    else if (yy > zz)
-    {
+    else if (yy > zz) {
       // data(1, 1) is the largest diagonal term
       y = sqrt(yy);
       x = xy / y;
       z = yz / y;
     }
-    else
-    {
+    else {
       // data(2, 2) is the largest diagonal term so base result on this
       z = sqrt(zz);
       x = xz / z;

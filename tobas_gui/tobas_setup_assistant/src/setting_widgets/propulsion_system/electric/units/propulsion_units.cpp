@@ -35,8 +35,9 @@ PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const
 
 void PropulsionUnitsWidget::clear()
 {
-  while (selected_->numUnits() > 0)
+  while (selected_->numUnits() > 0) {
     selected_->removeLink(selected_->linkName(0));
+  }
 }
 
 void PropulsionUnitsWidget::updateInternalDataStructures()
@@ -47,10 +48,12 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
 
 bool PropulsionUnitsWidget::isValid()
 {
-  if (!available_->isValid())
+  if (!available_->isValid()) {
     return false;
-  if (!selected_->isValid())
+  }
+  if (!selected_->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -59,8 +62,7 @@ YAML::Node PropulsionUnitsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int i = 0; i < selected_->count(); ++i)
-  {
+  for (int i = 0; i < selected_->count(); ++i) {
     const auto link_name = selected_->linkName(i);
     node[link_name.toStdString()] = selected_->widget(i)->dump();
   }
@@ -70,8 +72,7 @@ YAML::Node PropulsionUnitsWidget::dump() const
 
 void PropulsionUnitsWidget::load(const YAML::Node& node)
 {
-  for (const auto& pair : node)
-  {
+  for (const auto& pair : node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
 

@@ -90,8 +90,9 @@ void GnssWidget::updateInternalDataStructures()
 
 bool GnssWidget::isValid()
 {
-  if (!equipped())
+  if (!equipped()) {
     return true;
+  }
 
   return true;
 }

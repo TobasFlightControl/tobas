@@ -34,8 +34,7 @@ MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("t1_mag
 
 void MagDriverNode::initialize()
 {
-  if (!mag_.initialize())
-  {
+  if (!mag_.initialize()) {
     TOBAS_ERROR("Failed to initialize Magnetometer. Retrying...");
     return;
   }
@@ -55,8 +54,7 @@ void MagDriverNode::mainTimerCb()
   msg->header.stamp = get_clock()->now();
 
   // Read sensor
-  if (!mag_.readMag(msg->mag.x(), msg->mag.y(), msg->mag.z()))
-  {
+  if (!mag_.readMag(msg->mag.x(), msg->mag.y(), msg->mag.z())) {
     TOBAS_FATAL("Failed to read magnetometer.");
     return;
   }

@@ -18,8 +18,9 @@ ZEDF9P1xB::ZEDF9P1xB() : rate_(kReqInterval)
 bool ZEDF9P1xB::initialize(const char* spi_device)
 {
   // Initialize SPI device
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq)) {
     return false;
+  }
 
   return true;
 }
@@ -28,34 +29,38 @@ bool ZEDF9P1xB::update(bool nonblock)
 {
   scanner_.reset();
 
-  if (nonblock)
-  {
+  if (nonblock) {
     // スタートバイトを確認
-    if (!spi_.transfer(1))
+    if (!spi_.transfer(1)) {
       return false;
-    if (!scanner_.update(rx_buf_[0]))
+    }
+    if (!scanner_.update(rx_buf_[0])) {
       return false;
+    }
 
     // データが来てなければ終了
-    if (scanner_.state() == UBXScanner::Sync1)
+    if (scanner_.state() == UBXScanner::Sync1) {
       return false;
+    }
   }
 
   // メッセージを1つスキャン
   rate_.start();
-  while (scanner_.state() != UBXScanner::Done)
-  {
-    if (!spi_.transfer(1))
+  while (scanner_.state() != UBXScanner::Done) {
+    if (!spi_.transfer(1)) {
       return false;
-    if (!scanner_.update(rx_buf_[0]))
+    }
+    if (!scanner_.update(rx_buf_[0])) {
       return false;
+    }
 
     // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
     rate_.sleep();
   }
 
-  if (!verifyMessage())
+  if (!verifyMessage()) {
     return false;
+  }
 
   return true;
 }
@@ -64,17 +69,13 @@ bool ZEDF9P1xB::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
 {
   CfgValSet<uint8_t, 1> cfg;
 
-  switch (cls)
-  {
-    case CLASS_MON:
-    {
+  switch (cls) {
+    case CLASS_MON: {
       cerr << NOT_IMPLEMENTED << endl;  // TODO
       return false;
     }
-    case CLASS_NAV:
-    {
-      switch (id)
-      {
+    case CLASS_NAV: {
+      switch (id) {
         case NAV_CLOCK:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x69);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
           break;
@@ -171,8 +172,7 @@ bool ZEDF9P1xB::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
       }
       break;
     }
-    default:
-    {
+    default: {
       cerr << NOT_IMPLEMENTED << endl;  // TODO
       return false;
     }
@@ -382,8 +382,9 @@ bool ZEDF9P1xB::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16
   const auto ck = computeChecksum(tx_buf_, checksum_pos);
   const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
 
-  if (!spi_.transfer(message_length))
+  if (!spi_.transfer(message_length)) {
     return false;
+  }
 
   return true;
 }
@@ -398,25 +399,23 @@ bool ZEDF9P1xB::waitForAcknowledge(ubx_class_t cls, uint8_t id)
 
   const auto start_time = steady_clock::now();
 
-  while (duration<double>(steady_clock::now() - start_time).count() < kWaitForGnssAck)
-  {
-    if (!update(false))
+  while (duration<double>(steady_clock::now() - start_time).count() < kWaitForGnssAck) {
+    if (!update(false)) {
       return false;
+    }
 
-    if (latestClass() != CLASS_ACK)
+    if (latestClass() != CLASS_ACK) {
       continue;
+    }
 
-    switch (latestId())
-    {
+    switch (latestId()) {
       case ACK_ACK:
         ack.decode(payload());
 
-        if (ack.clsID == cls && ack.msgID == id)
-        {
+        if (ack.clsID == cls && ack.msgID == id) {
           return true;
         }
-        else
-        {
+        else {
           cerr << "An acknowledment message for an unspecified message is received." << endl;
           return false;
         }
@@ -426,13 +425,11 @@ bool ZEDF9P1xB::waitForAcknowledge(ubx_class_t cls, uint8_t id)
       case ACK_NAK:
         nak.decode(payload());
 
-        if (nak.clsID == cls && nak.msgID == id)
-        {
+        if (nak.clsID == cls && nak.msgID == id) {
           cerr << "Configuration is rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << endl;
           return false;
         }
-        else
-        {
+        else {
           cerr << "A non-acknowledment message for an unspecified message is received." << endl;
           return false;
         }
@@ -451,8 +448,9 @@ bool ZEDF9P1xB::waitForAcknowledge(ubx_class_t cls, uint8_t id)
 
 bool ZEDF9P1xB::configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size)
 {
-  if (!sendMessage(CLASS_CFG, cfg_id, msg, size))
+  if (!sendMessage(CLASS_CFG, cfg_id, msg, size)) {
     return false;
+  }
 
   return waitForAcknowledge(CLASS_CFG, cfg_id);
 }
@@ -460,21 +458,18 @@ bool ZEDF9P1xB::configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size)
 bool ZEDF9P1xB::verifyMessage() const
 {
   // Sync chars
-  if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2)
-  {
+  if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2) {
     cerr << "The current message is not UBX format." << endl;
     return false;
   }
 
   // Checksum
   uint8_t CK_A = 0, CK_B = 0;
-  for (auto x = scanner_.getClass(); x < scanner_.getChecksumA(); ++x)
-  {
+  for (auto x = scanner_.getClass(); x < scanner_.getChecksumA(); ++x) {
     CK_A += *x;
     CK_B += CK_A;
   }
-  if (CK_A != *scanner_.getChecksumA() || CK_B != *scanner_.getChecksumB())
-  {
+  if (CK_A != *scanner_.getChecksumA() || CK_B != *scanner_.getChecksumB()) {
     cerr << "Checksum failed." << endl;
     return false;
   }
@@ -487,8 +482,7 @@ ZEDF9P1xB::CheckSum ZEDF9P1xB::computeChecksum(const uint8_t* message, size_t ch
   CheckSum ck;
   ck.CK_A = ck.CK_B = 0;
 
-  for (size_t i = kUbxSyncLength; i < checksum_pos; ++i)
-  {
+  for (size_t i = kUbxSyncLength; i < checksum_pos; ++i) {
     ck.CK_A += message[i];
     ck.CK_B += ck.CK_A;
   }

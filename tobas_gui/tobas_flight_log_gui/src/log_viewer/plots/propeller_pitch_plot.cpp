@@ -17,34 +17,33 @@ PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 
 void PropellerPitchPlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (auto& plot : plots_)
+  for (auto& plot : plots_) {
     plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  }
 }
 
 void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& msgs)
 {
-  if (msgs.size() == 0)
+  if (msgs.size() == 0) {
     return;
+  }
 
   const auto& first_msg = msgs.at(0);
-  if (first_msg.pitch_angles.size() != num_rotors_)
+  if (first_msg.pitch_angles.size() != num_rotors_) {
     updateInternalDataStructures(first_msg);
+  }
 
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> pitch_data(num_rotors_);
 
-  for (const auto& msg : msgs)
-  {
-    if (msg.pitch_angles.size() != num_rotors_)
-    {
+  for (const auto& msg : msgs) {
+    if (msg.pitch_angles.size() != num_rotors_) {
       qWarning() << "The number of VPPs mismatch.";
       continue;
     }
 
-    for (const auto& elem : msg.pitch_angles)
-    {
-      if (!name2idx_.contains(elem.link_name))
-      {
+    for (const auto& elem : msg.pitch_angles) {
+      if (!name2idx_.contains(elem.link_name)) {
         qWarning() << "VPP \"" << QString::fromStdString(elem.link_name) << "\" is not registered.";
         continue;
       }
@@ -56,11 +55,13 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
     }
   }
 
-  for (size_t i = 0; i < num_rotors_; ++i)
+  for (size_t i = 0; i < num_rotors_; ++i) {
     curves_[i].setSamples(t_data[i], pitch_data[i]);
+  }
 
-  for (auto& plot : plots_)
+  for (auto& plot : plots_) {
     plot->replot();
+  }
 }
 
 void PropellerPitchPlotWidget::clear()
@@ -80,10 +81,8 @@ void PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
 
   num_rotors_ = msg.pitch_angles.size();
 
-  for (const auto& [idx, elem] : std::views::enumerate(msg.pitch_angles))
-  {
-    if (!name2idx_.insert({ elem.link_name, idx }).second)
-    {
+  for (const auto& [idx, elem] : std::views::enumerate(msg.pitch_angles)) {
+    if (!name2idx_.insert({ elem.link_name, idx }).second) {
       qWarning() << "VPP \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
       continue;
     }

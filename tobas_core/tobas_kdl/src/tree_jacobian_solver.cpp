@@ -11,8 +11,9 @@ TreeJacobianSolver::TreeJacobianSolver(const Tree& tree) : super(tree)
 
 bool TreeJacobianSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
 
@@ -21,12 +22,15 @@ bool TreeJacobianSolver::updateInternalDataStructures()
 
 int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q_in.rows() != nj_)
+  }
+  if (q_in.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
-  if (!tree_.hasSegment(seg_name))
+  }
+  if (!tree_.hasSegment(seg_name)) {
     return setDefaultError(E_OUT_OF_RANGE);
+  }
 
   // Initialize
   J_out_.setZero();
@@ -35,8 +39,7 @@ int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
   // Lets recursively iterate until we are in the root segment
   auto it = tree_.getSegment(seg_name);
   const auto root_it = tree_.getRootSegment();
-  while (it != root_it)
-  {
+  while (it != root_it) {
     const auto& ele = it->second;
     const auto& seg = ele.segment;
     const auto& q_nr = ele.q_nr;
@@ -47,8 +50,7 @@ int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     T_total_ = T_local * T_total_;
 
     // get the twist of the segment:
-    if (seg.joint().type != Joint::FIXED)
-    {
+    if (seg.joint().type != Joint::FIXED) {
       auto t_local = seg.jacobian(q_in(q_nr));
       // transform the endpoint of the local twist to the global endpoint:
       t_local = t_local.refPoint(T_total_.p - T_local.p);

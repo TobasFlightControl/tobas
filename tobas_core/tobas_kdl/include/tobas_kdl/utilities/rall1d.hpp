@@ -46,14 +46,14 @@ public:
   {
   }
 
-  inline static Rall1d<T, V, S> Zero()
+  static inline Rall1d<T, V, S> Zero()
   {
     Rall1d<T, V, S> tmp;
     setToZero(tmp);
     return tmp;
   }
 
-  inline static Rall1d<T, V, S> Identity()
+  static inline Rall1d<T, V, S> Identity()
   {
     Rall1d<T, V, S> tmp;
     setToIdentity(tmp);

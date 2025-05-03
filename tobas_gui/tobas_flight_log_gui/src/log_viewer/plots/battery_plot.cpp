@@ -36,8 +36,7 @@ void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& batt_ms
   QVector<double> voltage_data;
   QVector<double> current_data;
 
-  for (const auto& batt : batt_msgs)
-  {
+  for (const auto& batt : batt_msgs) {
     t_data.push_back(ros2::seconds(batt.header.stamp));
 
     voltage_data.push_back(batt.voltage);

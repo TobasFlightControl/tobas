@@ -102,8 +102,9 @@ void GazeboWindPlugin::Configure(
   params_.gust_interval = kDefaultGustInterval;
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity)
+  if (link == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
+  }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
@@ -122,12 +123,9 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 {
   // 突風
   const auto t_gust = chrono::duration<double>(info.simTime - gust_state_change_time_).count();  // [s]
-  switch (gust_state_)
-  {
-    case GUST:
-    {
-      if (t_gust > params_.gust_duration)
-      {
+  switch (gust_state_) {
+    case GUST: {
+      if (t_gust > params_.gust_duration) {
         gust_state_ = NO_GUST;
         gust_state_change_time_ = info.simTime;
         break;
@@ -137,10 +135,8 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
       gust_speed_ = 0.5 * max_gust_speed * (1 - cos(2 * M_PI * t_gust / params_.gust_duration));
       break;
     }
-    case NO_GUST:
-    {
-      if (t_gust > params_.gust_interval)
-      {
+    case NO_GUST: {
+      if (t_gust > params_.gust_interval) {
         gust_state_ = GUST;
         gust_state_change_time_ = info.simTime;
         break;
@@ -149,8 +145,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
       gust_speed_ = 0.;
       break;
     }
-    default:
-    {
+    default: {
       TOBAS_EXIT("Invalid gust state: ", static_cast<int>(gust_state_));
     }
   }
@@ -187,8 +182,7 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& req, c
   res->params = params_;
 
   // Mean speed
-  if (req->params.mean_speed < 0)
-  {
+  if (req->params.mean_speed < 0) {
     TOBAS_ERROR("Mean wind speed must be non-negative.");
     res->success = false;
   }
@@ -198,22 +192,28 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& req, c
   params_.direction = res->params.direction = req->params.direction;
 
   // Gust speed factor
-  if (req->params.gust_speed_factor > 0)
+  if (req->params.gust_speed_factor > 0) {
     params_.gust_speed_factor = res->params.gust_speed_factor = req->params.gust_speed_factor;
-  else
+  }
+  else {
     TOBAS_WARN("Gust speed factor remains unchanged.");
+  }
 
   // Gust duration
-  if (req->params.gust_duration > 0)
+  if (req->params.gust_duration > 0) {
     params_.gust_duration = res->params.gust_duration = req->params.gust_duration;
-  else
+  }
+  else {
     TOBAS_WARN("Gust duration remains unchanged.");
+  }
 
   // Gust interval
-  if (req->params.gust_interval > 0)
+  if (req->params.gust_interval > 0) {
     params_.gust_interval = res->params.gust_interval = req->params.gust_interval;
-  else
+  }
+  else {
     TOBAS_WARN("Gust interval remains unchanged.");
+  }
 
   // Update dryden wind model
   dryden_.setMeanWindSpeed(req->params.mean_speed);

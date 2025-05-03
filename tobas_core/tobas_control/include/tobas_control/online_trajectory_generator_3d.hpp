@@ -31,8 +31,7 @@ public:
 
   void setSpeedOverride(size_t idx, double speed_override);
 
-  void
-  update(double dt, const Eigen::Vector3d& cur_pos, const Eigen::Vector3d& cur_vel, const Eigen::Vector3d& cur_acc);
+  void update(double dt, const Eigen::Vector3d& cur_pos, const Eigen::Vector3d& cur_vel, const Eigen::Vector3d& cur_acc);
 
   void update(double dt);
 

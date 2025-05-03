@@ -56,15 +56,13 @@ bool TakeoffServerNode::armRotors()
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = true;
-  if (!sc.call(req))
-  {
+  if (!sc.call(req)) {
     TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");
     return false;
   }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     TOBAS_ERROR("Failed to arm rotors: ", res->message);
     return false;
   }
@@ -80,20 +78,17 @@ void TakeoffServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 rclcpp_action::GoalResponse
 TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
-  if (goal->target_altitude <= 0)
-  {
+  if (goal->target_altitude <= 0) {
     TOBAS_ERROR("Target altitude must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->altitude_tolerance <= 0)
-  {
+  if (goal->altitude_tolerance <= 0) {
     TOBAS_ERROR("Altitude tolerance must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->duration <= 0)
-  {
+  if (goal->duration <= 0) {
     TOBAS_ERROR("Target duration must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
@@ -114,16 +109,16 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto result = std::make_shared<ActionType::Result>();
 
   // Check topics
-  if (!odom_)
-  {
+  if (!odom_) {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
     return;
   }
 
   // Arm rotors
-  if (!armRotors())
+  if (!armRotors()) {
     return;
+  }
 
   // TODO: 正常にアームされたかどうかを確認
 
@@ -142,14 +137,12 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
-  while (rclcpp::ok())
-  {
+  while (rclcpp::ok()) {
     // 開始からの経過時間を計算
     const auto t = (get_clock()->now() - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0 && t > duration + goal->timeout)
-    {
+    if (goal->timeout > 0 && t > duration + goal->timeout) {
       result->message = "Timeout before reaching the target altitude.";
       goal_handle->abort(result);
       return;
@@ -157,8 +150,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto alt_error = fabs(goal->target_altitude - odom_->frame.p.z());
-    if (t > duration && alt_error < goal->altitude_tolerance)
-    {
+    if (t > duration && alt_error < goal->altitude_tolerance) {
       result->message.clear();
       goal_handle->succeed(result);
       return;
@@ -182,8 +174,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     cmd_pub_->publish(move(cmd_ptr));
 
     // アクション中止の場合は目標速度を0にして終了
-    if (goal_handle->is_canceling())
-    {
+    if (goal_handle->is_canceling()) {
       cmd_.vel.setZero();
       cmd_pub_->publish(cmd_);
 

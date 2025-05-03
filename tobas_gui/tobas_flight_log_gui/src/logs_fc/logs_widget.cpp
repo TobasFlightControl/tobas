@@ -82,13 +82,13 @@ void FlightLogsWidgetFC::removeLog(const QString& log_name)
 
 QListWidgetItem* FlightLogsWidgetFC::findLog(const QString& log_name)
 {
-  for (int row = 0; row < log_list_->count(); ++row)
-  {
+  for (int row = 0; row < log_list_->count(); ++row) {
     const auto list_item = log_list_->item(row);
     const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetFC>(log_list_->itemWidget(list_item));
 
-    if (log_widget->logName() == log_name)
+    if (log_widget->logName() == log_name) {
       return list_item;
+    }
   }
 
   return nullptr;
@@ -114,8 +114,9 @@ void FlightLogsWidgetFC::onReadButtonClicked()
 
 void FlightLogsWidgetFC::onCleanButtonClicked()
 {
-  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
   clean_thread_.start();
 
@@ -127,14 +128,15 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
 {
   const auto rosbag_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
-  if (fs::exists(rosbag_path))
-  {
+  if (fs::exists(rosbag_path)) {
     if (qt::yesOrNo(
           this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?",
-          qt::QMessageLevel::WARN))
+          qt::QMessageLevel::WARN)) {
       fs::remove_all(rosbag_path);
-    else
+    }
+    else {
       return;
+    }
   }
 
   download_thread_.setLogName(log_name);
@@ -148,8 +150,9 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
   const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
   delete_thread_.setLogName(log_name);
   delete_thread_.start();
@@ -163,22 +166,21 @@ void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, co
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     return;
   }
 
   clearLogs();
 
-  if (log_names.size() == 0)
-  {
+  if (log_names.size() == 0) {
     qt::qWarnBox(this, "There are no flight logs saved on the flight controller.");
     return;
   }
 
-  for (const auto& log_name : log_names)
+  for (const auto& log_name : log_names) {
     addLog(log_name);
+  }
 
   sortLogs();
 
@@ -190,8 +192,7 @@ void FlightLogsWidgetFC::onCleanFinished(bool success, const QString& message)
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     return;
   }
@@ -204,8 +205,7 @@ void FlightLogsWidgetFC::onDownloadFinished(bool success, const QString& message
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     return;
   }
@@ -218,8 +218,7 @@ void FlightLogsWidgetFC::onDeleteFinished(bool success, const QString& message)
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     return;
   }

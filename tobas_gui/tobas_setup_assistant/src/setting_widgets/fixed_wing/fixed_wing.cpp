@@ -68,15 +68,19 @@ void FixedWingWidget::updateInternalDataStructures()
 
 bool FixedWingWidget::isValid()
 {
-  if (!hasFixedWing())
+  if (!hasFixedWing()) {
     return true;
+  }
 
-  if (!vehicle_->isValid())
+  if (!vehicle_->isValid()) {
     return false;
-  if (!aero_coefs_->isValid())
+  }
+  if (!aero_coefs_->isValid()) {
     return false;
-  if (!control_surfaces_->isValid())
+  }
+  if (!control_surfaces_->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -125,8 +129,7 @@ const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 
 void FixedWingWidget::setSettingWidgetsEnabled(bool enabled)
 {
-  for (int row = 0; row < setting_rows_->count(); ++row)
-  {
+  for (int row = 0; row < setting_rows_->count(); ++row) {
     const auto widget = setting_rows_->itemAt(row)->widget();
     widget->setEnabled(enabled);
   }

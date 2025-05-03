@@ -14,14 +14,14 @@ public:
   inline explicit RotationVel(const Rotation& _R);
   inline explicit RotationVel(const Rotation& _R, const Vector& _w);
 
-  inline static RotationVel Identity();
+  static inline RotationVel Identity();
 
-  inline static RotationVel RotX(const doubleVel& angle);
-  inline static RotationVel RotY(const doubleVel& angle);
-  inline static RotationVel RotZ(const doubleVel& angle);
+  static inline RotationVel RotX(const doubleVel& angle);
+  static inline RotationVel RotY(const doubleVel& angle);
+  static inline RotationVel RotZ(const doubleVel& angle);
 
   /* Axis must be normalized. rotation around a constant vector! */
-  inline static RotationVel Rot(const Vector& axis, const doubleVel& angle);
+  static inline RotationVel Rot(const Vector& axis, const doubleVel& angle);
 
   inline void setIdentity();
 

@@ -71,8 +71,9 @@ VectorXd LQID::solve(const double& dt, const bool& update_gain)
   assert(eigen::isFinite(max_integrated_error));
   assert((max_integrated_error.array() >= 0).all());
 
-  if (update_gain)
+  if (update_gain) {
     updateGain();
+  }
 
   // 積分誤差を更新
   const VectorXd y = C * current_state;

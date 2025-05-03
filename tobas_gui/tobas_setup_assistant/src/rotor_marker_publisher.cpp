@@ -27,12 +27,12 @@ void RotorMarkerPublisher::updateInternalDataStructures()
 
   // 全ての可動リンクのマーカを保持しておく
   size_t id = 0;
-  for (const auto& [link_name, elem] : robot_.tree().getSegments())
-  {
+  for (const auto& [link_name, elem] : robot_.tree().getSegments()) {
     // ジョイントを取得
     const auto& kdl_joint = elem.segment.joint();
-    if (kdl_joint.type != kdl::Joint::ROTATION)
+    if (kdl_joint.type != kdl::Joint::ROTATION) {
       continue;
+    }
     const auto urdf_joint = robot_.urdf()->getJoint(kdl_joint.name);
 
     // 推力の作用線
@@ -72,10 +72,8 @@ void RotorMarkerPublisher::updateInternalDataStructures()
 
 void RotorMarkerPublisher::setAction(const QString& link_name, int action)
 {
-  for (auto& marker : markers_.markers)
-  {
-    if (marker.header.frame_id == link_name.toStdString())
-    {
+  for (auto& marker : markers_.markers) {
+    if (marker.header.frame_id == link_name.toStdString()) {
       marker.action = action;
       return;
     }
@@ -88,8 +86,9 @@ void RotorMarkerPublisher::publishTimerCb()
 {
   // Fill timestamps
   const auto now = node_->get_clock()->now();
-  for (auto& marker : markers_.markers)
+  for (auto& marker : markers_.markers) {
     marker.header.stamp = now;
+  }
 
   // Publish markers
   auto markers_ptr = make_unique<visualization_msgs::msg::MarkerArray>(markers_);

@@ -8,41 +8,36 @@ namespace tobas
 {
 bool ElectricRotorConfig::isValid() const
 {
-  if (!super::isValid())
+  if (!super::isValid()) {
     return false;
+  }
 
-  if (num_poles <= 0)
-  {
+  if (num_poles <= 0) {
     cerr << "The number of poles must be positive." << endl;
     return false;
   }
 
-  if (num_poles % 2 != 0)
-  {
+  if (num_poles % 2 != 0) {
     cerr << "The number of poles must be even." << endl;
     return false;
   }
 
-  if (kv <= 0)
-  {
+  if (kv <= 0) {
     cerr << "Kv value must be positive." << endl;
     return false;
   }
 
-  if (internal_resistance <= 0)
-  {
+  if (internal_resistance <= 0) {
     cerr << "Internal resistance must be positive." << endl;
     return false;
   }
 
-  if (propeller_diameter <= 0)
-  {
+  if (propeller_diameter <= 0) {
     cerr << "Propeller diameter must be positive." << endl;
     return false;
   }
 
-  if (motor_const <= 0)
-  {
+  if (motor_const <= 0) {
     cerr << "Motor constant must be positive." << endl;
     return false;
   }
@@ -52,26 +47,33 @@ bool ElectricRotorConfig::isValid() const
 
 bool ElectricRotorConfig::load(const YAML::Node& node)
 {
-  if (!super::load(node))
+  if (!super::load(node)) {
     return false;
+  }
 
-  if (!yaml::load(kChannelKey, node, channel))
+  if (!yaml::load(kChannelKey, node, channel)) {
     return false;
+  }
 
-  if (!yaml::load(kNumPolesKey, node, num_poles))
+  if (!yaml::load(kNumPolesKey, node, num_poles)) {
     return false;
+  }
 
-  if (!yaml::load(kKvKey, node, kv))
+  if (!yaml::load(kKvKey, node, kv)) {
     return false;
+  }
 
-  if (!yaml::load(kInternalResistanceKey, node, internal_resistance))
+  if (!yaml::load(kInternalResistanceKey, node, internal_resistance)) {
     return false;
+  }
 
-  if (!yaml::load(kPropellerDiameterKey, node, propeller_diameter))
+  if (!yaml::load(kPropellerDiameterKey, node, propeller_diameter)) {
     return false;
+  }
 
-  if (!yaml::load(kMotorConstKey, node, motor_const))
+  if (!yaml::load(kMotorConstKey, node, motor_const)) {
     return false;
+  }
 
   return true;
 }

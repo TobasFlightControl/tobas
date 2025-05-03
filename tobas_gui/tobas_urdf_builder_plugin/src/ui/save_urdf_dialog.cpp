@@ -24,14 +24,13 @@ SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
 
 bool SaveUrdfDialog::eventFilter(QObject* obj, QEvent* event)
 {
-  if (obj == line_edit_ && event->type() == QEvent::KeyPress)
-  {
+  if (obj == line_edit_ && event->type() == QEvent::KeyPress) {
     const auto key_event = static_cast<QKeyEvent*>(event);
-    if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter)
-    {
+    if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
       // Only accept if the save button is enabled
-      if (save_button_->isEnabled())
+      if (save_button_->isEnabled()) {
         accept();
+      }
 
       // Consume the event
       return true;
@@ -45,10 +44,12 @@ void SaveUrdfDialog::onLineEditTextChanged()
 {
   // Enable the save button only if the file name is valid
   const auto file_name = line_edit_->text();
-  if (file_name.contains('.'))
+  if (file_name.contains('.')) {
     save_button_->setEnabled(file_name.endsWith(".urdf") && !utils::getBaseName(file_name).isEmpty());
-  else
+  }
+  else {
     save_button_->setEnabled(file_name.length() > 0);
+  }
 }
 }  // namespace ui
 }  // namespace urdf_builder

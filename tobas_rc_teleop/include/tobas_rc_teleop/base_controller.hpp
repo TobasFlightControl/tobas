@@ -45,7 +45,7 @@ protected:
   inline double expoRemapDead(const double& x, const double& exp, const double& lb, const double& ub) const;
 
   /* FutabaのEXPO関数とたぶん同じ: [-1, 1] -> [-1, 1] */
-  inline static double expo(const double& x, const double& exp);
+  static inline double expo(const double& x, const double& exp);
 
   /* テキストにフライトモードのプリフィックスを与える． */
   static std::string addMode(const std::string& text, tobas::flight_mode_t mode);
@@ -71,8 +71,7 @@ inline double BaseController::remapDead(const double& x, const double& lb, const
   return inDeadZone(x) ? 0. : remap(x, lb, ub);
 }
 
-inline double
-BaseController::expoRemapDead(const double& x, const double& exp, const double& lb, const double& ub) const
+inline double BaseController::expoRemapDead(const double& x, const double& exp, const double& lb, const double& ub) const
 {
   return inDeadZone(x) ? 0. : expoRemap(x, exp, lb, ub);
 }

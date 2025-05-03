@@ -17,8 +17,7 @@ MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     pos_ei_plots_[i] = new QwtPlot2();
     pos_ei_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     pos_ei_curves_[i].attach(pos_ei_plots_[i]);
@@ -33,8 +32,7 @@ MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
 
 void MRControllerFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     pos_ei_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
     rot_ei_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
@@ -46,8 +44,7 @@ void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg
   std::array<QVector<double>, 3> pos_ei_data;
   std::array<QVector<double>, 3> rot_ei_data;
 
-  for (const auto& msg : msgs)
-  {
+  for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     const auto& pos_ei = msg.position_integral_error;
@@ -61,8 +58,7 @@ void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg
     rot_ei_data[2].push_back(rot_ei.z);
   }
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     pos_ei_curves_[i].setSamples(t_data, pos_ei_data[i]);
     pos_ei_plots_[i]->replot();
 

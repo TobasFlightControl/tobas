@@ -34,8 +34,7 @@ BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options) : super
 
 void BatteryDriverNode::initialize()
 {
-  if (!battery_.initialize())
-  {
+  if (!battery_.initialize()) {
     TOBAS_ERROR("Failed to initialize battery driver. Retrying...");
     return;
   }
@@ -55,8 +54,7 @@ void BatteryDriverNode::mainTimerCb()
   msg->header.stamp = get_clock()->now();
 
   // Read data
-  if (!battery_.read(msg->voltage, msg->current))
-  {
+  if (!battery_.read(msg->voltage, msg->current)) {
     TOBAS_FATAL("Failed to read battery state.");
     return;
   }

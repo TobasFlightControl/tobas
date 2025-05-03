@@ -59,7 +59,7 @@ public:
   /* Compute the second derivative of the rotation matrix with respect to the joint position. */
   inline Eigen::Matrix3d rotGrad2(double q) const;
 
-  inline static const char* typeToText(joint_type_t type);
+  static inline const char* typeToText(joint_type_t type);
 
   inline friend std::ostream& operator<<(std::ostream& os, const Joint& arg);
 
@@ -84,8 +84,7 @@ inline void Joint::axis(const Vector& axis)
 
 inline Frame Joint::pose(double q) const
 {
-  switch (type)
-  {
+  switch (type) {
     case ROTATION:
       return Frame(Rotation::Rot(axis_, q), origin);
     case TRANSLATION:
@@ -99,8 +98,7 @@ inline Frame Joint::pose(double q) const
 
 inline Twist Joint::twist(double qd) const
 {
-  switch (type)
-  {
+  switch (type) {
     case ROTATION:
       return Twist(Vector::Zero(), axis_ * qd);
     case TRANSLATION:
@@ -114,8 +112,7 @@ inline Twist Joint::twist(double qd) const
 
 inline Accel Joint::accel(double qdd) const
 {
-  switch (type)
-  {
+  switch (type) {
     case ROTATION:
       return Accel(Vector::Zero(), axis_ * qdd);
     case TRANSLATION:
@@ -129,8 +126,7 @@ inline Accel Joint::accel(double qdd) const
 
 inline SegmentJacobian Joint::jacobian() const
 {
-  switch (type)
-  {
+  switch (type) {
     case ROTATION:
       return SegmentJacobian(Vector::Zero(), axis_);
     case TRANSLATION:
@@ -144,24 +140,27 @@ inline SegmentJacobian Joint::jacobian() const
 
 inline Eigen::Matrix3d Joint::rotGrad(double q) const
 {
-  if (type == ROTATION)
+  if (type == ROTATION) {
     return eigen::skew(axis_.data) * Rotation::Rot(axis_, q).data;
-  else
+  }
+  else {
     return Eigen::Matrix3d::Zero();
+  }
 }
 
 inline Eigen::Matrix3d Joint::rotGrad2(double q) const
 {
-  if (type == ROTATION)
+  if (type == ROTATION) {
     return eigen::skew2(axis_.data) * Rotation::Rot(axis_, q).data;
-  else
+  }
+  else {
     return Eigen::Matrix3d::Zero();
+  }
 }
 
 inline const char* Joint::typeToText(joint_type_t type)
 {
-  switch (type)
-  {
+  switch (type) {
     case ROTATION:
       return "Rotation";
     case TRANSLATION:

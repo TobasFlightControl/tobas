@@ -41,17 +41,18 @@ template <typename Scalar, int Size, size_t Length>
 void MovingStatistics<Scalar, Size, Length>::initialize(const std::array<DataType, Length>& init_data)
 {
   que_.clear();
-  for (const auto& x : init_data)
+  for (const auto& x : init_data) {
     que_.push_back(x);
+  }
 
   DataType data_sum = DataType::Zero();
-  for (const auto& x : init_data)
+  for (const auto& x : init_data) {
     data_sum += x;
+  }
   m_ = data_sum / Length;
 
   CovType cov_sum = CovType::Zero();
-  for (const auto& x : init_data)
-  {
+  for (const auto& x : init_data) {
     const DataType d = x - m_;
     cov_sum += d * d.transpose();
   }

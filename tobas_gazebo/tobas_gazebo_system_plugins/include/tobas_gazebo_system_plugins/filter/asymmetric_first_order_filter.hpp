@@ -35,8 +35,7 @@ bool AsymmetricFirstOrderFilter<T>::initialize(
   const double& time_const_down,
   const T& init_value)
 {
-  if (time_const_up < 0. || time_const_down < 0.)
-  {
+  if (time_const_up < 0. || time_const_down < 0.) {
     std::cerr << "Time constant must be non-negative." << std::endl;
     return false;
   }
@@ -52,26 +51,22 @@ bool AsymmetricFirstOrderFilter<T>::initialize(
 template <typename T>
 bool AsymmetricFirstOrderFilter<T>::update(const T& input_value, const double& sampling_time)
 {
-  if (!is_initialized_)
-  {
+  if (!is_initialized_) {
     std::cerr << "Filter is not initialized yet." << std::endl;
     return false;
   }
 
-  if (sampling_time <= 0.)
-  {
+  if (sampling_time <= 0.) {
     std::cerr << "Sampling time must be positive." << std::endl;
     return false;
   }
 
-  if (input_value > value_)
-  {
+  if (input_value > value_) {
     // Acceleration
     const double alpha_up = time_const_up_ > 0 ? exp(-sampling_time / time_const_up_) : 0;
     value_ = alpha_up * value_ + (1 - alpha_up) * input_value;
   }
-  else
-  {
+  else {
     // Deceleration
     const double alpha_down = time_const_down_ > 0 ? exp(-sampling_time / time_const_down_) : 0;
     value_ = alpha_down * value_ + (1 - alpha_down) * input_value;

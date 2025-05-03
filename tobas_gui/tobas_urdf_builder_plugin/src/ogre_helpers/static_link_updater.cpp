@@ -1,11 +1,11 @@
 #include "../../include/tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 
-inline static Ogre::Vector3 URDFVector3ToOgre(const urdf::Vector3& v)
+static inline Ogre::Vector3 URDFVector3ToOgre(const urdf::Vector3& v)
 {
   return Ogre::Vector3(v.x, v.y, v.z);
 }
 
-inline static Ogre::Quaternion URDFRotationToOgre(const urdf::Rotation& r)
+static inline Ogre::Quaternion URDFRotationToOgre(const urdf::Rotation& r)
 {
   return Ogre::Quaternion(r.w, r.x, r.y, r.z);
 }
@@ -18,8 +18,9 @@ namespace ogre
 {
 StaticLinkUpdater::StaticLinkUpdater(urdf::ModelSharedPtr urdf) : urdf_(std::move(urdf))
 {
-  for (const auto& link : urdf_->links_)
+  for (const auto& link : urdf_->links_) {
     transforms_[link.first] = findTransform(link.second);
+  }
 }
 
 bool StaticLinkUpdater::getLinkTransforms(
@@ -30,8 +31,7 @@ bool StaticLinkUpdater::getLinkTransforms(
   Ogre::Quaternion& collision_orientation) const
 {
   const auto link = urdf_->getLink(link_name);
-  if (!link)
-  {
+  if (!link) {
     setLinkStatus(rviz_common::properties::StatusProperty::Error, link_name, "Transform not found");
     return false;
   }
@@ -46,8 +46,7 @@ bool StaticLinkUpdater::getLinkTransforms(
   return true;
 }
 
-void StaticLinkUpdater::setLinkStatus(rviz_common::properties::StatusLevel, const std::string&, const std::string&)
-  const
+void StaticLinkUpdater::setLinkStatus(rviz_common::properties::StatusLevel, const std::string&, const std::string&) const
 {
 }
 
@@ -56,10 +55,10 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
   std::vector<Ogre::Matrix4> matrices;
 
   auto cur = link;
-  while (cur && urdf_->getRoot() != cur)
-  {
-    if (!cur->parent_joint)
+  while (cur && urdf_->getRoot() != cur) {
+    if (!cur->parent_joint) {
       break;
+    }
     const auto& pose = cur->parent_joint->parent_to_joint_origin_transform;
     Ogre::Matrix4 m;
     m.makeTransform(URDFVector3ToOgre(pose.position), Ogre::Vector3(1, 1, 1), URDFRotationToOgre(pose.rotation));
@@ -72,8 +71,9 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
 
   matrices.push_back(Ogre::Matrix4::IDENTITY);
   auto result = matrices[0];
-  for (size_t i = 1; i < matrices.size(); ++i)
+  for (size_t i = 1; i < matrices.size(); ++i) {
     result = result * matrices[i];
+  }
   return result;
 }
 }  // namespace ogre

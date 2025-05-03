@@ -13,8 +13,7 @@ namespace tobas
 {
 string textFromEnum(jnt_cmd_iface_t value)
 {
-  switch (value)
-  {
+  switch (value) {
     case jnt_cmd_iface_t::POSITION:
       return POSITION_TEXT;
     case jnt_cmd_iface_t::VELOCITY:
@@ -30,28 +29,23 @@ string textFromEnum(jnt_cmd_iface_t value)
 
 bool enumFromText(const string& text, jnt_cmd_iface_t& dst)
 {
-  if (text == POSITION_TEXT)
-  {
+  if (text == POSITION_TEXT) {
     dst = tobas::jnt_cmd_iface_t::POSITION;
     return true;
   }
-  else if (text == VELOCITY_TEXT)
-  {
+  else if (text == VELOCITY_TEXT) {
     dst = tobas::jnt_cmd_iface_t::VELOCITY;
     return true;
   }
-  else if (text == EFFORT_TEXT)
-  {
+  else if (text == EFFORT_TEXT) {
     dst = tobas::jnt_cmd_iface_t::EFFORT;
     return true;
   }
-  else if (text == NONE_TEXT)
-  {
+  else if (text == NONE_TEXT) {
     dst = tobas::jnt_cmd_iface_t::NONE;
     return true;
   }
-  else
-  {
+  else {
     cerr << "Invalid joint command interface: " << text << endl;
     return false;
   }
@@ -69,8 +63,9 @@ Node convert<tobas::jnt_cmd_iface_t>::encode(const tobas::jnt_cmd_iface_t& rhs)
 
 bool convert<tobas::jnt_cmd_iface_t>::decode(const Node& node, tobas::jnt_cmd_iface_t& rhs)
 {
-  if (!node.IsScalar())
+  if (!node.IsScalar()) {
     return false;
+  }
 
   return tobas::enumFromText(node.as<string>(), rhs);
 }

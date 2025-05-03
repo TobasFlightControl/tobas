@@ -119,14 +119,14 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   // General Purpose Switches
   const auto gpsw_form = new qt::FormLayout();
 
-  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
-  {
+  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
     gpsw_labels_[i] = new QLabel();
     gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
     gpsw_form->addVAlignedRow(gpsw_labels_[i], gpsw_ranges_[i]);
-    if (i < tobas::kMaxNumOfGpsw - 1)
+    if (i < tobas::kMaxNumOfGpsw - 1) {
       gpsw_form->addStretch();
+    }
   }
 
   // Layout
@@ -161,8 +161,9 @@ const char* RCInputCalibrationWidget::title() const
 
 void RCInputCalibrationWidget::reset()
 {
-  if (sbus_sub_)
+  if (sbus_sub_) {
     sbus_sub_.reset();
+  }
 
   rate_.reset();
 
@@ -189,8 +190,7 @@ void RCInputCalibrationWidget::reset()
   sub_mode_range_->setLowerText(kOnText);
   sub_mode_range_->setUpperText(kOffText);
 
-  for (auto& gpsw_range : gpsw_ranges_)
-  {
+  for (auto& gpsw_range : gpsw_ranges_) {
     gpsw_range->clear();
     gpsw_range->setLowerText(kOnText);
     gpsw_range->setUpperText(kOffText);
@@ -205,13 +205,11 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
 {
   reset();
 
-  for (size_t i = 0; i < numOfGpswChannels(); ++i)
-  {
+  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_labels_.at(i)->setText(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i + 1).c_str());
     gpsw_ranges_.at(i)->setEnabled(true);
   }
-  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i)
-  {
+  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
     gpsw_labels_.at(i)->setText("Not Registered");
     gpsw_ranges_.at(i)->setEnabled(false);
   }
@@ -225,13 +223,11 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
 
 size_t RCInputCalibrationWidget::numOfGpswChannels() const
 {
-  if (drone_.num_sbus_channels < tobas::kMinSbusChannels)
-  {
+  if (drone_.num_sbus_channels < tobas::kMinSbusChannels) {
     qWarning() << "The number of S.BUS channels cannot be lower than " << tobas::kMinSbusChannels << ".";
     return 0;
   }
-  else if (drone_.num_sbus_channels > tobas::kMaxSbusChannels)
-  {
+  else if (drone_.num_sbus_channels > tobas::kMaxSbusChannels) {
     qWarning() << "The number of S.BUS channels cannot be greater than " << tobas::kMinSbusChannels << ".";
     return tobas::kMaxNumOfGpsw;
   }
@@ -242,8 +238,7 @@ size_t RCInputCalibrationWidget::numOfGpswChannels() const
 bool RCInputCalibrationWidget::saveParamsGCS()
 {
   ptree::PropertyTree pt;
-  if (!pt.initialize((ros2::expandUser(tobas::kConfigDirHome) / kConfigFileName)))
-  {
+  if (!pt.initialize((ros2::expandUser(tobas::kConfigDirHome) / kConfigFileName))) {
     qt::qErrorBox(this, "Failed to initialize property tree.");
     return false;
   }
@@ -268,21 +263,18 @@ bool RCInputCalibrationWidget::saveParamsGCS()
   pt.set(kSubModeOffKey, sub_mode_range_->getUpper());
 
   array<int, tobas::kMaxNumOfGpsw> gpsw_on, gpsw_off;
-  for (size_t i = 0; i < numOfGpswChannels(); ++i)
-  {
+  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_on[i] = gpsw_ranges_[i]->getLower();
     gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
-  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i)
-  {
+  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
     gpsw_on[i] = numeric_limits<uint16_t>::max();
     gpsw_off[i] = 0;
   }
   pt.set(kGpswOnKey, gpsw_on);
   pt.set(kGpswOffKey, gpsw_off);
 
-  if (!pt.save())
-  {
+  if (!pt.save()) {
     qt::qErrorBox(this, "Failed to save calibration results on GCS.");
     return false;
   }
@@ -313,28 +305,24 @@ bool RCInputCalibrationWidget::saveParamsFC()
   req->sub_mode_on = sub_mode_range_->getLower();
   req->sub_mode_off = sub_mode_range_->getUpper();
 
-  for (size_t i = 0; i < numOfGpswChannels(); ++i)
-  {
+  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     req->gpsw_on[i] = gpsw_ranges_[i]->getLower();
     req->gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
-  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i)
-  {
+  for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
     req->gpsw_on[i] = numeric_limits<uint16_t>::max();
     req->gpsw_off[i] = 0;
   }
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout))
-  {
+  if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results to FC.");
     return false;
   }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return false;
   }
@@ -344,8 +332,9 @@ bool RCInputCalibrationWidget::saveParamsFC()
 
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
-  if (!rate_.update(sbus->header.stamp))
+  if (!rate_.update(sbus->header.stamp)) {
     return;
+  }
 
   roll_range_->setValue(sbus->data.at(real::kRcChannelRoll));
   pitch_range_->setValue(sbus->data.at(real::kRcChannelPitch));
@@ -357,8 +346,9 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   mode_range_->setValue(sbus->data.at(real::kRcChannelMode));
   sub_mode_range_->setValue(sbus->data.at(real::kRcChannelSubMode));
 
-  for (size_t i = 0; i < numOfGpswChannels(); ++i)
+  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_ranges_[i]->setValue(sbus->data.at(real::kRcChannelGpsw + i));
+  }
 }
 
 void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -369,13 +359,11 @@ void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 void RCInputCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
-  if (arming_->data)
-  {
+  if (arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     return;
   }
@@ -400,78 +388,69 @@ void RCInputCalibrationWidget::onCancelButtonClicked()
 void RCInputCalibrationWidget::onFinishButtonClicked()
 {
   // メッセージの受信を確認
-  if (!roll_range_->hasValue())
-  {
+  if (!roll_range_->hasValue()) {
     qt::qErrorBox(this, "No S.BUS message is received.");
     reset();
     return;
   }
 
   // 各チャンネルの値の範囲をチェック
-  if (roll_range_->getRange() < kMinSignalRange)
-  {
+  if (roll_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Roll channel is too narrow.");
     reset();
     return;
   }
-  if (pitch_range_->getRange() < kMinSignalRange)
-  {
+  if (pitch_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Pitch channel is too narrow.");
     reset();
     return;
   }
-  if (yaw_range_->getRange() < kMinSignalRange)
-  {
+  if (yaw_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Yaw channel is too narrow.");
     reset();
     return;
   }
-  if (throt_range_->getRange() < kMinSignalRange)
-  {
+  if (throt_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Throttle channel is too narrow.");
     reset();
     return;
   }
 
-  if (enable_range_->getRange() < kMinSignalRange)
-  {
+  if (enable_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Enable channel is too narrow.");
     reset();
     return;
   }
-  if (kill_range_->getRange() < kMinSignalRange)
-  {
+  if (kill_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Kill channel is too narrow.");
     reset();
     return;
   }
-  if (mode_range_->getRange() < kMinSignalRange)
-  {
+  if (mode_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Mode channel is too narrow.");
     reset();
     return;
   }
-  if (sub_mode_range_->getRange() < kMinSignalRange)
-  {
+  if (sub_mode_range_->getRange() < kMinSignalRange) {
     qt::qErrorBox(this, "The signal range of Sub-Mode channel is too narrow.");
     reset();
     return;
   }
 
-  for (size_t i = 0; i < numOfGpswChannels(); ++i)
-  {
-    if (gpsw_ranges_.at(i)->getRange() < kMinSignalRange)
-    {
+  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
+    if (gpsw_ranges_.at(i)->getRange() < kMinSignalRange) {
       qt::qErrorBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
       reset();
       return;
     }
   }
 
-  if (!saveParamsGCS())
+  if (!saveParamsGCS()) {
     return;
-  if (!saveParamsFC())
+  }
+  if (!saveParamsFC()) {
     return;
+  }
 
   qt::qInfoBox(this, "Radio calibration finished successfully.");
   reset();

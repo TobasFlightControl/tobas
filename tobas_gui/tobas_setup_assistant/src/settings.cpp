@@ -43,8 +43,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   addTab(ros_package, ros_package->name());
 
   // 各タブを初期化
-  for (int i = 0; i < count(); ++i)
-  {
+  for (int i = 0; i < count(); ++i) {
     const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
     tab->setEnabled(false);  // 最初は無効化
   }
@@ -59,8 +58,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
 
 void SettingsWidget::updateInternalDataStructures()
 {
-  for (int i = 0; i < count(); ++i)
-  {
+  for (int i = 0; i < count(); ++i) {
     const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
     tab->updateInternalDataStructures();
     tab->setEnabled(true);
@@ -70,19 +68,18 @@ void SettingsWidget::updateInternalDataStructures()
 bool SettingsWidget::isValid()
 {
   // 全ての設定項目について，単体で問題ないことを確認
-  for (int i = 0; i < count(); ++i)
-  {
+  for (int i = 0; i < count(); ++i) {
     const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(widget(i));
-    if (!cur_widget->isValid())
-    {
+    if (!cur_widget->isValid()) {
       setCurrentWidget(cur_widget);
       return false;
     }
   }
 
   // PWMチャンネルが被ってないことを確認
-  if (!isPwmChannelsUnique())
+  if (!isPwmChannelsUnique()) {
     return false;
+  }
 
   // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
   // TODO
@@ -95,22 +92,18 @@ bool SettingsWidget::isPwmChannelsUnique()
   // 全てのPWMチャンネルを収集
   std::vector<int> channel_list;
 
-  switch (propulsion_system->type())
-  {
-    case tobas::propulsion_system_t::ELECTRIC:
-    {
+  switch (propulsion_system->type()) {
+    case tobas::propulsion_system_t::ELECTRIC: {
       break;
     }
-    case tobas::propulsion_system_t::ICE:
-    {
+    case tobas::propulsion_system_t::ICE: {
       const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(propulsion_system->selected());
 
       const auto engine = iprop->engine;
       channel_list.push_back(engine->hardwareIface()->pwmChannel());
 
       const auto units = iprop->units->selected();
-      for (int i = 0; i < iprop->numUnits(); ++i)
-      {
+      for (int i = 0; i < iprop->numUnits(); ++i) {
         const auto unit_widget = units->widget(i);
         const auto pwm_channel = unit_widget->hardwareIface()->pwmChannel();
         channel_list.push_back(pwm_channel);
@@ -118,22 +111,21 @@ bool SettingsWidget::isPwmChannelsUnique()
 
       break;
     }
-    default:
-    {
+    default: {
       throw;
     }
   }
 
-  for (int i = 0; i < joint_config->numJoints(); ++i)
-    if (joint_config->getHardwareInterface(i) == tobas::hw_iface_t::PWM)
+  for (int i = 0; i < joint_config->numJoints(); ++i) {
+    if (joint_config->getHardwareInterface(i) == tobas::hw_iface_t::PWM) {
       channel_list.push_back(joint_config->getPwmChannel(i));
+    }
+  }
 
   // PWMチャンネルがユニークであることを確認
   std::unordered_set<int> channel_set;
-  for (const auto& channel : channel_list)
-  {
-    if (!channel_set.insert(channel).second)
-    {
+  for (const auto& channel : channel_list) {
+    if (!channel_set.insert(channel).second) {
       qt::qErrorBox(this, "PWM channel " + QString::number(channel) + " is duplicated.");
       return false;
     }
@@ -146,8 +138,7 @@ YAML::Node SettingsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int i = 0; i < count(); ++i)
-  {
+  for (int i = 0; i < count(); ++i) {
     const auto tab = qt::qConstPointerCast<BaseSettingWidget>(widget(i));
     node[tab->name()] = tab->dump();
   }
@@ -159,16 +150,13 @@ bool SettingsWidget::load(const YAML::Node& node)
 {
   bool success = true;
 
-  for (int i = 0; i < count(); ++i)
-  {
+  for (int i = 0; i < count(); ++i) {
     const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
-    try
-    {
+    try {
       tab->onOpened();
       tab->load(node[tab->name()]);
     }
-    catch (const std::exception& e)
-    {
+    catch (const std::exception& e) {
       qt::qErrorBox(this, "Failed to load settings of \"" + QString(tab->name()) + "\":\n\n" + e.what());
       success = false;
     }

@@ -73,7 +73,7 @@ protected:
   int protected_data_member_;  // Variable comments can be written here if needed.
 
 private:
-  // Variable comments can be written here if needed. 
+  // Variable comments can be written here if needed.
   int private_data_member_;
 };
 

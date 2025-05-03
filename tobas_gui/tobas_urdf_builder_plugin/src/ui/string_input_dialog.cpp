@@ -49,15 +49,13 @@ QString StringInputDialog::getText() const
 
 void StringInputDialog::LineEditTextChanged(const QString& text)
 {
-  if (text.isEmpty())
-  {
+  if (text.isEmpty()) {
     warn_label_->setText("Please set text.");
     enableOkButton(false);
     return;
   }
 
-  if (excludeds_.contains(text))
-  {
+  if (excludeds_.contains(text)) {
     warn_label_->setText("This is already used.");
     enableOkButton(false);
     return;

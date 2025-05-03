@@ -7,8 +7,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 3)
-  {
+  if (argc != 3) {
     cerr << "Usage: " << argv[0] << " <Channel> <Throttle>" << endl;
     return EXIT_FAILURE;
   }
@@ -16,22 +15,18 @@ int main(int argc, char** argv)
   const uint16_t throttle = stoi(argv[2]);
 
   t1::DShot dshot;
-  if (!dshot.initialize())
-  {
+  if (!dshot.initialize()) {
     cerr << "Failed to initialize DShot driver." << endl;
     return EXIT_FAILURE;
   }
 
-  while (true)
-  {
-    if (!dshot.setThrottle(channel, throttle))
-    {
+  while (true) {
+    if (!dshot.setThrottle(channel, throttle)) {
       cerr << "Failed to set DShot throttle of channel " << channel << "." << endl;
       return EXIT_FAILURE;
     }
 
-    if (!dshot.transfer())
-    {
+    if (!dshot.transfer()) {
       cerr << "Failed to command DShot throttles." << endl;
       return EXIT_FAILURE;
     }

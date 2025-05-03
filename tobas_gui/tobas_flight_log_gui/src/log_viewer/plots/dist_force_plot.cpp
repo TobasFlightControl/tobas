@@ -14,8 +14,7 @@ DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     force_plots_[i] = new QwtPlot2();
     force_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     force_curves_[i].attach(force_plots_[i]);
@@ -30,8 +29,7 @@ DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
 
 void DisturbanceForcePlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     force_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
     torque_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
@@ -43,8 +41,7 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
   std::array<QVector<double>, 3> force_data;
   std::array<QVector<double>, 3> torque_data;
 
-  for (const auto& dist_force : dist_force_msg)
-  {
+  for (const auto& dist_force : dist_force_msg) {
     t_data.push_back(ros2::seconds(dist_force.header.stamp));
 
     const auto& force = dist_force.wrench.force;
@@ -58,8 +55,7 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
     torque_data[2].push_back(torque.z);
   }
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     force_curves_[i].setSamples(t_data, force_data[i]);
     force_plots_[i]->replot();
 

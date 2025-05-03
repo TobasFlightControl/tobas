@@ -17,26 +17,30 @@ RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 
 void RotorSpeedPlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (auto& plot : plots_)
+  for (auto& plot : plots_) {
     plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  }
 }
 
 void RotorSpeedPlotWidget::setData(
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs)
 {
-  if (cur_msgs.size() == 0)
+  if (cur_msgs.size() == 0) {
     return;
+  }
 
   const auto& cur_states = cur_msgs.at(0);
-  if (cur_states.states.size() != num_rotors_)
+  if (cur_states.states.size() != num_rotors_) {
     updateInternalDataStructures(cur_states);
+  }
 
   updateCurrentSpeedSamples(cur_msgs);
   updateTargetSpeedSamples(tar_msgs);
 
-  for (auto& plot : plots_)
+  for (auto& plot : plots_) {
     plot->replot();
+  }
 }
 
 void RotorSpeedPlotWidget::clear()
@@ -57,10 +61,8 @@ void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
 
   num_rotors_ = msg.states.size();
 
-  for (const auto& [idx, state] : std::views::enumerate(msg.states))
-  {
-    if (!name2idx_.insert({ state.link_name, idx }).second)
-    {
+  for (const auto& [idx, state] : std::views::enumerate(msg.states)) {
+    if (!name2idx_.insert({ state.link_name, idx }).second) {
       qWarning() << "Rotor \"" << QString::fromStdString(state.link_name) << "\" is duplicated.";
       continue;
     }
@@ -85,24 +87,21 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> speed_data(num_rotors_);
 
-  for (const auto& msg : msgs)
-  {
-    if (msg.states.size() != num_rotors_)
-    {
+  for (const auto& msg : msgs) {
+    if (msg.states.size() != num_rotors_) {
       qWarning() << "The number of rotors mismatch.";
       continue;
     }
 
-    for (const auto& state : msg.states)
-    {
-      if (!name2idx_.contains(state.link_name))
-      {
+    for (const auto& state : msg.states) {
+      if (!name2idx_.contains(state.link_name)) {
         qWarning() << "Rotor \"" << QString::fromStdString(state.link_name) << "\" is not registered.";
         continue;
       }
 
-      if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
+      if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
         continue;
+      }
 
       const auto& idx = name2idx_[state.link_name];
 
@@ -111,8 +110,9 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
     }
   }
 
-  for (size_t i = 0; i < num_rotors_; ++i)
+  for (size_t i = 0; i < num_rotors_; ++i) {
     cur_speed_curves_[i].setSamples(t_data[i], speed_data[i]);
+  }
 }
 
 void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs)
@@ -120,18 +120,14 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> speed_data(num_rotors_);
 
-  for (const auto& msg : msgs)
-  {
-    if (msg.speeds.size() != num_rotors_)
-    {
+  for (const auto& msg : msgs) {
+    if (msg.speeds.size() != num_rotors_) {
       qWarning() << "The number of rotors mismatch.";
       continue;
     }
 
-    for (const auto& speed : msg.speeds)
-    {
-      if (!name2idx_.contains(speed.link_name))
-      {
+    for (const auto& speed : msg.speeds) {
+      if (!name2idx_.contains(speed.link_name)) {
         qWarning() << "Rotor \"" << QString::fromStdString(speed.link_name) << "\" is not registered.";
         continue;
       }
@@ -143,8 +139,9 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
     }
   }
 
-  for (size_t i = 0; i < num_rotors_; ++i)
+  for (size_t i = 0; i < num_rotors_; ++i) {
     tar_speed_curves_[i].setSamples(t_data[i], speed_data[i]);
+  }
 }
 }  // namespace log
 }  // namespace gui

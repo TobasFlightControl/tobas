@@ -26,12 +26,10 @@ double SimpleJointModel::getCurrentPosition() const
 
 void SimpleJointModel::setTargetPosition(double tar_pos)
 {
-  if (pos_limit.inRange(tar_pos, POS_MARGIN))
-  {
+  if (pos_limit.inRange(tar_pos, POS_MARGIN)) {
     tar_pos_ = tar_pos;
   }
-  else
-  {
+  else {
     gzwarn << "Target joint position is out of range: " << tar_pos << " ∉ " << pos_limit << endl;
     tar_pos_ = pos_limit.clamp(tar_pos);
   }

@@ -15,12 +15,15 @@ TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2
 
 bool TreeIkSolverVel_pinv::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
-  if (!jnt2jac_.updateInternalDataStructures())
+  }
+  if (!jnt2jac_.updateInternalDataStructures()) {
     return false;
-  if (!jntparser_.updateInternalDataStructures())
+  }
+  if (!jntparser_.updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
 
@@ -29,10 +32,12 @@ bool TreeIkSolverVel_pinv::updateInternalDataStructures()
 
 int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q_in.rows() != nj_)
+  }
+  if (q_in.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   const auto num_points = v_in.size();
   const auto eq_dim = 6 * num_points;
@@ -41,11 +46,11 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
   J_.conservativeResize(eq_dim, nj_);
   t_.conservativeResize(eq_dim);
   size_t i = 0;
-  for (const auto& [seg_name, twist] : v_in)
-  {
+  for (const auto& [seg_name, twist] : v_in) {
     // Update big jacobian
-    if (jnt2jac_.JntToJac(q_in, seg_name) < 0)
+    if (jnt2jac_.JntToJac(q_in, seg_name) < 0) {
       return copyError(jnt2jac_);
+    }
     J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
 
     // Update big velocity
@@ -66,19 +71,21 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
   // 不等式制約
   auto qd_min = -jntparser_.maxVelocities();
   auto qd_max = +jntparser_.maxVelocities();
-  for (size_t j = 0; j < nj_; ++j)
-  {
+  for (size_t j = 0; j < nj_; ++j) {
     // 既に関節角制限をオーバーしている場合は，それ以上違反量を大きくしないように制限
-    if (q_in(j) < jntparser_.lowerLimit(j))
+    if (q_in(j) < jntparser_.lowerLimit(j)) {
       qd_min(j) = 0.;
-    else if (q_in(j) > jntparser_.upperLimit(j))
+    }
+    else if (q_in(j) > jntparser_.upperLimit(j)) {
       qd_max(j) = 0.;
+    }
   }
   quadprog::matIneqFromRange(qd_min.data, qd_max.data, qp_solver_.problem.A, qp_solver_.problem.b);
 
   // QPを解く
-  if (!qp_solver_.solve())
+  if (!qp_solver_.solve()) {
     return setDefaultError(E_QP_FAILED);
+  }
   qd_out_.data = qp_solver_.solution();
 
   return setDefaultError(E_NOERROR);
@@ -86,8 +93,9 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
 
 bool TreeIkSolverVel_pinv::setWeightTS(const Vector6d& Wt)
 {
-  if ((Wt.array() < 0).any())
+  if ((Wt.array() < 0).any()) {
     return false;
+  }
 
   Wt_ = Wt;
   return true;
@@ -101,8 +109,9 @@ const Vector6d& TreeIkSolverVel_pinv::getWeightTS() const
 bool TreeIkSolverVel_pinv::setWeightJS(const double& Wj)
 {
   // 数値エラーを防ぐため正則化項は必ず入れる
-  if (Wj <= 0)
+  if (Wj <= 0) {
     return false;
+  }
 
   Wj_ = Wj;
   return true;

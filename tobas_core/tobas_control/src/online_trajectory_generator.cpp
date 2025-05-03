@@ -10,27 +10,27 @@ using namespace std;
 
 namespace ctrl
 {
-inline static double sign(double v)
+static inline double sign(double v)
 {
   return signbit(v) ? -1. : 1.;
 }
 
-inline static double delta_v(double v, double edk, double eddk)
+static inline double delta_v(double v, double edk, double eddk)
 {
   return eddk * fabs(eddk) + 2 * (edk - v);
 }
 
-inline static double u_cv(double v, double U, double edk, double eddk)
+static inline double u_cv(double v, double U, double edk, double eddk)
 {
   return -U * sign(delta_v(v, edk, eddk) + (1 - fabs(sign(delta_v(v, edk, eddk)))) * eddk);
 }
 
-inline static double u_a(double a, double U, double eddk)
+static inline double u_a(double a, double U, double eddk)
 {
   return -U * sign(eddk - a);
 }
 
-inline static double u_v(double v, double U, double edd_min, double edd_max, double edk, double eddk)
+static inline double u_v(double v, double U, double edd_min, double edd_max, double edk, double eddk)
 {
   const auto min = fmin(u_cv(v, U, edk, eddk), u_a(edd_max, U, eddk));
   return fmax(u_a(edd_min, U, eddk), min);
@@ -139,18 +139,15 @@ void OnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel
   const auto sgnd = sign(delta);
 
   double Sigma = 0.;
-  if ((eddk <= edd_max) && (edk <= (math::sqr(eddk) / 2 - math::sqr(edd_max))))
-  {
+  if ((eddk <= edd_max) && (edk <= (math::sqr(eddk) / 2 - math::sqr(edd_max)))) {
     const auto tmp = math::sqr(eddk) - 2 * edk;
     Sigma = ek - edd_max * tmp / 4 - math::sqr(tmp) / (8 * edd_max) - eddk * (3 * edk - math::sqr(eddk)) / 3;
   }
-  else if ((eddk >= edd_min) && (edk >= (math::sqr(edd_min) - math::sqr(eddk) / 2)))
-  {
+  else if ((eddk >= edd_min) && (edk >= (math::sqr(edd_min) - math::sqr(eddk) / 2))) {
     const auto tmp = math::sqr(eddk) + 2 * edk;
     Sigma = ek - edd_min * tmp / 4. - math::sqr(tmp) / (8 * edd_min) + eddk * (3 * edk + math::sqr(eddk)) / 3;
   }
-  else
-  {
+  else {
     const auto tmp = math::sqr(eddk) + 2 * edk * sgnd;
     Sigma = ek + edk * eddk * sgnd - math::cube(eddk) / 6 * (1 - 3 * fabs(sgnd)) + sgnd / 4 * sqrt(2 * math::cube(tmp));
   }

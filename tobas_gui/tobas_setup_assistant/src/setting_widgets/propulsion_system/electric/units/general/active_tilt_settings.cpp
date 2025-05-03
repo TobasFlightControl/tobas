@@ -83,24 +83,22 @@ QString ActiveTiltSettingsWidget::tiltJointName() const
 
 void ActiveTiltSettingsWidget::onIsTiltCheckBoxToggled(bool checked)
 {
-  if (checked)
-  {
+  if (checked) {
     auto seg_it = robot_.tree().getSegment(link_name_.toStdString());
     seg_it = seg_it->second.parent;
 
     // ルートリンクまでの全ての回転関節を選択肢に追加
-    while (seg_it != robot_.tree().getRootSegment())
-    {
+    while (seg_it != robot_.tree().getRootSegment()) {
       const auto& elem = seg_it->second;
       const auto& joint = elem.segment.joint();
-      if (joint.type == kdl::Joint::ROTATION)
+      if (joint.type == kdl::Joint::ROTATION) {
         tilt_joint_name_->addItem(QString::fromStdString(joint.name));
+      }
       seg_it = elem.parent;
     }
 
     // ティルトジョイントの候補が存在しなければリセット
-    if (tilt_joint_name_->count() == 0)
-    {
+    if (tilt_joint_name_->count() == 0) {
       qt::qWarnBox(this, "\"" + link_name_ + "\" cannot be used as a tilt rotor.");
 
       // チェック状態をリセットする際にシグナルが発行されないようブロック
@@ -113,8 +111,7 @@ void ActiveTiltSettingsWidget::onIsTiltCheckBoxToggled(bool checked)
 
     tilt_joint_name_->setEnabled(true);
   }
-  else
-  {
+  else {
     tilt_joint_name_->clear();
     tilt_joint_name_->setEnabled(false);
   }
@@ -124,8 +121,9 @@ void ActiveTiltSettingsWidget::onIsTiltCheckBoxToggled(bool checked)
 
 void ActiveTiltSettingsWidget::onTiltJointNameChanged(const QString& joint_name)
 {
-  if (!joint_name.isEmpty())
+  if (!joint_name.isEmpty()) {
     Q_EMIT signals_.tiltJointNameChanged(link_name_, joint_name);
+  }
 }
 }  // namespace electric
 }  // namespace propulsion

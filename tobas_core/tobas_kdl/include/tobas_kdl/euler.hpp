@@ -22,7 +22,7 @@ public:
   inline explicit Euler(const Vector& rpy);
   inline explicit Euler(const Rotation& rot);
 
-  inline static Euler Zero();
+  static inline Euler Zero();
 
   inline void setZero();
   inline void fill(double value);

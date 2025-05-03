@@ -101,6 +101,4 @@ using ObserverFeedbackAdapter =
   rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs::msg::ObserverFeedback>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas_debug_msgs::ObserverFeedback,
-  tobas_debug_msgs::msg::ObserverFeedback);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs::msg::ObserverFeedback);

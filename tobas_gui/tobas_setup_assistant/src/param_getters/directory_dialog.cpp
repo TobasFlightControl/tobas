@@ -57,8 +57,7 @@ void ParamGetterWidget_DirDialog::onTextChanged(const QString& text)
 void ParamGetterWidget_DirDialog::onBrowseButtonClicked()
 {
   string last_opened_dir;
-  if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0)
-  {
+  if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -66,19 +65,19 @@ void ParamGetterWidget_DirDialog::onBrowseButtonClicked()
   const auto options = QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
   const auto path = QFileDialog::getExistingDirectory(this, kTitle, QString::fromStdString(last_opened_dir), options);
   if (path.isEmpty())  // Cancelの場合
+  {
     return;
+  }
 
   path_->setText(path);
 
   // 最後に開かれたパスを保存
   const auto par_dir = filesystem::path(path.toStdString()).parent_path();
-  if (property_client_.set(last_opend_dir_key_, par_dir) < 0)
-  {
+  if (property_client_.set(last_opend_dir_key_, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;
   }
-  if (property_client_.save() < 0)
-  {
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;
   }

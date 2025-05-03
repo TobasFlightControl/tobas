@@ -19,7 +19,7 @@ public:
 
   inline explicit TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, const size_t& _q_nr);
 
-  inline static TreeElement Root(const std::string& root_name);
+  static inline TreeElement Root(const std::string& root_name);
 
 private:
   inline explicit TreeElement(const std::string& name);

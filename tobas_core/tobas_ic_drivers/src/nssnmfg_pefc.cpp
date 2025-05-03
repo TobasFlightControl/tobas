@@ -14,23 +14,29 @@ NssnmfgPEFC::NssnmfgPEFC(std::function<void(const Packet&)> packet_cb) : packet_
 
 bool NssnmfgPEFC::initialize(const char* uart_device)
 {
-  if (!uart_.initialize(uart_device, true))
+  if (!uart_.initialize(uart_device, true)) {
     return false;
+  }
 
-  if (!uart_.setBaudRate(38400))
+  if (!uart_.setBaudRate(38400)) {
     return false;
+  }
 
-  if (!uart_.setDataBits(8))
+  if (!uart_.setDataBits(8)) {
     return false;
+  }
 
-  if (!uart_.setSingleStopBit())
+  if (!uart_.setSingleStopBit()) {
     return false;
+  }
 
-  if (!uart_.disableParity())
+  if (!uart_.disableParity()) {
     return false;
+  }
 
-  if (!uart_.setTimeout(TIMEOUT_MS / 100))
+  if (!uart_.setTimeout(TIMEOUT_MS / 100)) {
     return false;
+  }
 
   return true;
 }
@@ -47,22 +53,26 @@ void NssnmfgPEFC::spin()
 
 void NssnmfgPEFC::readThreadFunc()
 {
-  while (true)
-  {
+  while (true) {
     // Check header
-    if (!uart_.receive(buf_ + kHeaderIdx, 1))
+    if (!uart_.receive(buf_ + kHeaderIdx, 1)) {
       continue;
-    if (buf_[kHeaderIdx] != 0xAA)
+    }
+    if (buf_[kHeaderIdx] != 0xAA) {
       continue;
+    }
 
     // Receive packet
-    for (size_t i = kHeaderIdx + 1; i < kPacketSize; ++i)
-      if (!uart_.receive(buf_ + i, 1))
+    for (size_t i = kHeaderIdx + 1; i < kPacketSize; ++i) {
+      if (!uart_.receive(buf_ + i, 1)) {
         continue;
+      }
+    }
 
     // CheckSum
-    if (!checkSum())
+    if (!checkSum()) {
       continue;
+    }
 
     // Decode packet
     decode();
@@ -75,11 +85,11 @@ void NssnmfgPEFC::readThreadFunc()
 bool NssnmfgPEFC::checkSum() const
 {
   uint8_t checksum = 0;
-  for (size_t i = 0; i < kCheckSumIdx; ++i)
+  for (size_t i = 0; i < kCheckSumIdx; ++i) {
     checksum ^= buf_[i];
+  }
 
-  if (checksum != buf_[kCheckSumIdx])
-  {
+  if (checksum != buf_[kCheckSumIdx]) {
     cerr << "CheckSum failed: " << checksum << " != " << buf_[kCheckSumIdx] << endl;
     return false;
   }

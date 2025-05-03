@@ -9,16 +9,15 @@ namespace gazebo
 template <typename CompType>
 CompType* getComponent(const gz::sim::Entity& entity, gz::sim::EntityComponentManager& ecm)
 {
-  if (ecm.EntityHasComponentType(entity, CompType().TypeId()))
+  if (ecm.EntityHasComponentType(entity, CompType().TypeId())) {
     return ecm.Component<CompType>(entity);
-  else
+  }
+  else {
     return ecm.CreateComponent(entity, CompType());
+  }
 }
 
-bool belongsTo(
-  const gz::sim::Entity& entity,
-  const gz::sim::Entity& target,
-  const gz::sim::EntityComponentManager& ecm);
+bool belongsTo(const gz::sim::Entity& entity, const gz::sim::Entity& target, const gz::sim::EntityComponentManager& ecm);
 
 std::optional<gz::sim::Entity>
 findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::string& link_name);

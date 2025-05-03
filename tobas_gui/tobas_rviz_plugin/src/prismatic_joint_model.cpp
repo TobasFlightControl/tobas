@@ -30,12 +30,10 @@ double PrismaticJointModel::getMaximumExtent(const Bounds& other_bounds) const
 void PrismaticJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
 {
   // if zero is a valid value
-  if (bounds[0].min_position_ <= 0. && bounds[0].max_position_ >= 0.)
-  {
+  if (bounds[0].min_position_ <= 0. && bounds[0].max_position_ >= 0.) {
     values[0] = 0.;
   }
-  else
-  {
+  else {
     values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.;
   }
 }
@@ -66,13 +64,11 @@ void PrismaticJointModel::getVariableRandomPositionsNearBy(
 
 bool PrismaticJointModel::enforcePositionBounds(double* values, const Bounds& bounds) const
 {
-  if (values[0] < bounds[0].min_position_)
-  {
+  if (values[0] < bounds[0].min_position_) {
     values[0] = bounds[0].min_position_;
     return true;
   }
-  else if (values[0] > bounds[0].max_position_)
-  {
+  else if (values[0] > bounds[0].max_position_) {
     values[0] = bounds[0].max_position_;
     return true;
   }

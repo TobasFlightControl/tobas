@@ -99,16 +99,19 @@ void GazeboImuPlugin::Configure(
 
   rate_manager_ = make_shared<RateManager>(update_rate_);
 
-  if (!mass_holder_.initialize(model, ecm))
+  if (!mass_holder_.initialize(model, ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
+  }
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity)
+  if (link == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
+  }
 
   const auto world = ecm.EntityByComponents(cmp::World());
-  if (world == gz::sim::kNullEntity)
+  if (world == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to get the world component.");
+  }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
@@ -125,8 +128,7 @@ void GazeboImuPlugin::Configure(
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
-  for (const auto& link_name : rotor_link_names_)
-  {
+  for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const auto qos = ros2::makeQoS(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
@@ -157,13 +159,12 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
-  if (!rate_manager_->update(info.simTime))
+  if (!rate_manager_->update(info.simTime)) {
     return;
+  }
 
-  if (rotor_noises_.size() < rotor_link_names_.size())
-  {
-    if (info.simTime > kWarnStartTime)
-    {
+  if (rotor_noises_.size() < rotor_link_names_.size()) {
+    if (info.simTime > kWarnStartTime) {
       const auto num_not_received = rotor_link_names_.size() - rotor_noises_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
@@ -211,8 +212,9 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
 {
   // Compute rotor noise
   double rotor_noise_sum = 0;
-  for (const auto& [_, rotor_noise] : rotor_noises_)
+  for (const auto& [_, rotor_noise] : rotor_noises_) {
     rotor_noise_sum += rotor_noise;
+  }
   const auto rotor_noise_acc = rotor_noise_sum / mass_holder_.getMass();
   const auto rotor_noise_gyro = rotor_noise_acc * kAccGyroRotorNoiseRate;
 
@@ -226,8 +228,7 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Compute state-transition
   const auto phi_a_d = exp(-dt / tau_a);
   // Simulate accelerometer noise processes and add them to the true linear acceleration
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
     acc[i] += sigma_a_d * noise_(rnd_gen_) + acc_offset_[i] + acc_bias_[i] + rotor_noise_acc;
   }
@@ -242,8 +243,7 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Compute state-transition
   const auto phi_g_d = exp(-dt / tau_g);
   // Simulate gyroscope noise processes and add them to the true angular rate
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
     gyro[i] += sigma_g_d * noise_(rnd_gen_) + gyro_offset_[i] + gyro_bias_[i] + rotor_noise_gyro;
   }

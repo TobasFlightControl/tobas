@@ -85,11 +85,13 @@ void RvizWidget::updateInternalDataStructures()
 
 void RvizWidget::heightLink(const QString& link_name)
 {
-  if (link_name == highlighted_link_)
+  if (link_name == highlighted_link_) {
     return;
+  }
 
-  if (!highlighted_link_.isEmpty())
+  if (!highlighted_link_.isEmpty()) {
     unheightLink(highlighted_link_);
+  }
 
   highlight_link_->setValue(link_name);
   highlighted_link_ = link_name;

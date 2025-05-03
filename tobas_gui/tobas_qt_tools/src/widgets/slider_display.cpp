@@ -68,8 +68,9 @@ void IntSliderDisplay::setValue(int value, bool block_signal)
 
   value_->setText(QString::number(value) + suffix_);
 
-  if (!block_signal)
+  if (!block_signal) {
     Q_EMIT valueChanged(value);
+  }
 }
 
 void IntSliderDisplay::setMinimum(int minimum)
@@ -165,8 +166,9 @@ void DoubleSliderDisplay::setValue(double value, bool block_signal)
 
   value_->setText(QString::number(value, 'f', decimals_) + suffix_);
 
-  if (!block_signal)
+  if (!block_signal) {
     Q_EMIT valueChanged(value);
+  }
 }
 
 void DoubleSliderDisplay::setMinimum(double minimum)

@@ -8,8 +8,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 3)
-  {
+  if (argc != 3) {
     cerr << "Usage: " << argv[0] << " <Gain> <Target RPM>" << endl;
     return EXIT_FAILURE;
   }
@@ -18,59 +17,80 @@ int main(int argc, char** argv)
 
   t1::DShot dshot;
 
-  if (!dshot.initialize())
+  if (!dshot.initialize()) {
     throw runtime_error("Failed to initialize DShot driver.");
+  }
 
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-    if (!dshot.setKv(ch, 920 * (M_PI / 30)))
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+    if (!dshot.setKv(ch, 920 * (M_PI / 30))) {
       throw runtime_error("Failed to set Kv.");
-  if (!dshot.transfer())
+    }
+  }
+  if (!dshot.transfer()) {
     throw runtime_error("Failed to send Kv.");
+  }
   this_thread::sleep_for(1ms);
 
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-    if (!dshot.setInternalResistance(ch, 0.25))
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+    if (!dshot.setInternalResistance(ch, 0.25)) {
       throw runtime_error("Failed to set internal resistance.");
-  if (!dshot.transfer())
+    }
+  }
+  if (!dshot.transfer()) {
     throw runtime_error("Failed to send internal resistance.");
+  }
   this_thread::sleep_for(1ms);
 
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-    if (!dshot.setPropellerDiameter(ch, 9 * 0.0254))
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+    if (!dshot.setPropellerDiameter(ch, 9 * 0.0254)) {
       throw runtime_error("Failed to set propeller diameter.");
-  if (!dshot.transfer())
+    }
+  }
+  if (!dshot.transfer()) {
     throw runtime_error("Failed to send propeller diameter.");
+  }
   this_thread::sleep_for(1ms);
 
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-    if (!dshot.setMomentConstant(ch, 5.442e-5))
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+    if (!dshot.setMomentConstant(ch, 5.442e-5)) {
       throw runtime_error("Failed to set moment constant.");
-  if (!dshot.transfer())
+    }
+  }
+  if (!dshot.transfer()) {
     throw runtime_error("Failed to send moment constant.");
+  }
   this_thread::sleep_for(1ms);
 
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-    if (!dshot.setNumPoles(ch, 14))
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+    if (!dshot.setNumPoles(ch, 14)) {
       throw runtime_error("Failed to set the number of poles.");
-  if (!dshot.transfer())
+    }
+  }
+  if (!dshot.transfer()) {
     throw runtime_error("Failed to send the number of poles.");
+  }
   this_thread::sleep_for(1ms);
 
-  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-    if (!dshot.setSpeedControlGain(ch, gain))
+  for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+    if (!dshot.setSpeedControlGain(ch, gain)) {
       throw runtime_error("Failed to set the speed control gain.");
-  if (!dshot.transfer())
+    }
+  }
+  if (!dshot.transfer()) {
     throw runtime_error("Failed to send the speed control gain.");
+  }
   this_thread::sleep_for(1ms);
 
-  while (true)
-  {
-    for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch)
-      if (!dshot.setTargetSpeed(ch, tar_rpm * (M_PI / 30)))
+  while (true) {
+    for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
+      if (!dshot.setTargetSpeed(ch, tar_rpm * (M_PI / 30))) {
         throw runtime_error("Failed to set target speed.");
+      }
+    }
 
-    if (!dshot.transfer())
+    if (!dshot.transfer()) {
       throw runtime_error("Failed to send target speed.");
+    }
 
     dshot.printCurrentStates();
     cout << "----------" << endl;

@@ -35,8 +35,9 @@ KeyboardReader::~KeyboardReader()
 signed char KeyboardReader::readKey()
 {
   char buf = 0;
-  if (read(STD_INPUT_FD, &buf, 1) < 0)
+  if (read(STD_INPUT_FD, &buf, 1) < 0) {
     return -1;
+  }
   return buf;
 }
 }  // namespace keyboard

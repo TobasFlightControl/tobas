@@ -51,8 +51,7 @@ public:
     }
 
     auto future = client_->async_send_request(req);
-    if (waitForFuture(future, timeout) != std::future_status::ready)
-    {
+    if (waitForFuture(future, timeout) != std::future_status::ready) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
       return false;
     }

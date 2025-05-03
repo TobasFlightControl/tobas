@@ -19,29 +19,25 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
 
 {
   acc_bias_plot_ = new QwtPlot2();
-  for (size_t i = 0; i < kAccelBiasSize; ++i)
-  {
+  for (size_t i = 0; i < kAccelBiasSize; ++i) {
     acc_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     acc_bias_curves_[i].attach(acc_bias_plot_);
   }
 
   gyro_bias_plot_ = new QwtPlot2();
-  for (size_t i = 0; i < kGyroBiasSize; ++i)
-  {
+  for (size_t i = 0; i < kGyroBiasSize; ++i) {
     gyro_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     gyro_bias_curves_[i].attach(gyro_bias_plot_);
   }
 
   mag_hard_bias_plot_ = new QwtPlot2();
-  for (size_t i = 0; i < kMagHardBiasSize; ++i)
-  {
+  for (size_t i = 0; i < kMagHardBiasSize; ++i) {
     mag_hard_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     mag_hard_bias_curves_[i].attach(mag_hard_bias_plot_);
   }
 
   mag_soft_bias_plot_ = new QwtPlot2();
-  for (size_t i = 0; i < kMagSoftBiasSize; ++i)
-  {
+  for (size_t i = 0; i < kMagSoftBiasSize; ++i) {
     mag_soft_bias_curves_[i].setPen(kSoftBiasColor[i], kLineWidth);
     mag_soft_bias_curves_[i].attach(mag_soft_bias_plot_);
   }
@@ -85,18 +81,20 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
   QVector<double> gravity_data;
   QVector<double> gnss_anormaly_score_data;
 
-  for (const auto& msg : msgs)
-  {
+  for (const auto& msg : msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
-    for (size_t i = 0; i < kAccelBiasSize; ++i)
+    for (size_t i = 0; i < kAccelBiasSize; ++i) {
       acc_bias_data[i].push_back(msg.accel_bias.data[i]);
+    }
 
-    for (size_t i = 0; i < kGyroBiasSize; ++i)
+    for (size_t i = 0; i < kGyroBiasSize; ++i) {
       gyro_bias_data[i].push_back(msg.gyro_bias.data[i]);
+    }
 
-    for (size_t i = 0; i < kMagHardBiasSize; ++i)
+    for (size_t i = 0; i < kMagHardBiasSize; ++i) {
       mag_hard_bias_data[i].push_back(msg.mag_hard_bias.data[i]);
+    }
 
     mag_soft_bias_data[0].push_back(msg.mag_soft_bias.data[0]);
     mag_soft_bias_data[1].push_back(msg.mag_soft_bias.data[4]);
@@ -109,17 +107,21 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
     gnss_anormaly_score_data.push_back(msg.gnss_anormaly_score);
   }
 
-  for (size_t i = 0; i < kAccelBiasSize; ++i)
+  for (size_t i = 0; i < kAccelBiasSize; ++i) {
     acc_bias_curves_[i].setSamples(t_data, acc_bias_data[i]);
+  }
 
-  for (size_t i = 0; i < kGyroBiasSize; ++i)
+  for (size_t i = 0; i < kGyroBiasSize; ++i) {
     gyro_bias_curves_[i].setSamples(t_data, gyro_bias_data[i]);
+  }
 
-  for (size_t i = 0; i < kMagHardBiasSize; ++i)
+  for (size_t i = 0; i < kMagHardBiasSize; ++i) {
     mag_hard_bias_curves_[i].setSamples(t_data, mag_hard_bias_data[i]);
+  }
 
-  for (size_t i = 0; i < kMagSoftBiasSize; ++i)
+  for (size_t i = 0; i < kMagSoftBiasSize; ++i) {
     mag_soft_bias_curves_[i].setSamples(t_data, mag_soft_bias_data[i]);
+  }
 
   gravity_curve_.setSamples(t_data, gravity_data);
   gnss_anormaly_score_curve_.setSamples(t_data, gnss_anormaly_score_data);

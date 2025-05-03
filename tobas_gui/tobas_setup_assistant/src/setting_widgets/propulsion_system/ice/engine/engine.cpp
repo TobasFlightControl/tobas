@@ -26,17 +26,21 @@ EngineWidget::EngineWidget()
 
 bool EngineWidget::isValid()
 {
-  if (!dynamics_->isValid())
+  if (!dynamics_->isValid()) {
     return false;
+  }
 
-  if (!response_->isValid())
+  if (!response_->isValid()) {
     return false;
+  }
 
-  if (!limit_->isValid())
+  if (!limit_->isValid()) {
     return false;
+  }
 
-  if (!hw_iface_->isValid())
+  if (!hw_iface_->isValid()) {
     return false;
+  }
 
   return true;
 }

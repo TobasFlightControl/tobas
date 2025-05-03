@@ -55,22 +55,21 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
 {
   // Initialize property tree
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / kConfigFileName)))
-  {
+  if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
   // Initialize mode map
-  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>())
+  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>()) {
     modes_[mode];
+  }
 
   // Register service server
   set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
   // Try to get configuration
-  if (!getConfig())
-  {
+  if (!getConfig()) {
     TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
     return;
   }
@@ -81,106 +80,87 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
 
 bool RCInputHandlerNode::getConfig()
 {
-  if (!pt_.get(kRollLeftKey, roll_range_.lower))
-  {
+  if (!pt_.get(kRollLeftKey, roll_range_.lower)) {
     TOBAS_ERROR("Failed to get \"", kRollLeftKey, "\".");
     return false;
   }
-  if (!pt_.get(kRollRightKey, roll_range_.upper))
-  {
+  if (!pt_.get(kRollRightKey, roll_range_.upper)) {
     TOBAS_ERROR("Failed to get \"", kRollRightKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kPitchUpKey, pitch_range_.upper))
-  {
+  if (!pt_.get(kPitchUpKey, pitch_range_.upper)) {
     TOBAS_ERROR("Failed to get \"", kPitchUpKey, "\".");
     return false;
   }
-  if (!pt_.get(kPitchDownKey, pitch_range_.lower))
-  {
+  if (!pt_.get(kPitchDownKey, pitch_range_.lower)) {
     TOBAS_ERROR("Failed to get \"", kPitchDownKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kYawLeftKey, yaw_range_.upper))
-  {
+  if (!pt_.get(kYawLeftKey, yaw_range_.upper)) {
     TOBAS_ERROR("Failed to get \"", kYawLeftKey, "\".");
     return false;
   }
-  if (!pt_.get(kYawRightKey, yaw_range_.lower))
-  {
+  if (!pt_.get(kYawRightKey, yaw_range_.lower)) {
     TOBAS_ERROR("Failed to get \"", kYawRightKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kThrotUpKey, throt_range_.upper))
-  {
+  if (!pt_.get(kThrotUpKey, throt_range_.upper)) {
     TOBAS_ERROR("Failed to get \"", kThrotUpKey, "\".");
     return false;
   }
-  if (!pt_.get(kThrotDownKey, throt_range_.lower))
-  {
+  if (!pt_.get(kThrotDownKey, throt_range_.lower)) {
     TOBAS_ERROR("Failed to get \"", kThrotDownKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kEnableOnKey, enable_on_))
-  {
+  if (!pt_.get(kEnableOnKey, enable_on_)) {
     TOBAS_ERROR("Failed to get \"", kEnableOnKey, "\".");
     return false;
   }
-  if (!pt_.get(kEnableOffKey, enable_off_))
-  {
+  if (!pt_.get(kEnableOffKey, enable_off_)) {
     TOBAS_ERROR("Failed to get \"", kEnableOffKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kKillOnKey, kill_on_))
-  {
+  if (!pt_.get(kKillOnKey, kill_on_)) {
     TOBAS_ERROR("Failed to get \"", kKillOnKey, "\".");
     return false;
   }
-  if (!pt_.get(kKillOffKey, kill_off_))
-  {
+  if (!pt_.get(kKillOffKey, kill_off_)) {
     TOBAS_ERROR("Failed to get \"", kKillOffKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT)))
-  {
+  if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT))) {
     TOBAS_ERROR("Failed to get \"", kModeAcrobatKey, "\".");
     return false;
   }
-  if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::flight_mode_t::STABILIZE)))
-  {
+  if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::flight_mode_t::STABILIZE))) {
     TOBAS_ERROR("Failed to get \"", kModeStabilizeKey, "\".");
     return false;
   }
-  if (!pt_.get(kModeLoiterKey, modes_.at(tobas::flight_mode_t::LOITER)))
-  {
+  if (!pt_.get(kModeLoiterKey, modes_.at(tobas::flight_mode_t::LOITER))) {
     TOBAS_ERROR("Failed to get \"", kModeLoiterKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kSubModeOnKey, sub_mode_on_))
-  {
+  if (!pt_.get(kSubModeOnKey, sub_mode_on_)) {
     TOBAS_ERROR("Failed to get \"", kSubModeOnKey, "\".");
     return false;
   }
-  if (!pt_.get(kSubModeOffKey, sub_mode_off_))
-  {
+  if (!pt_.get(kSubModeOffKey, sub_mode_off_)) {
     TOBAS_ERROR("Failed to get \"", kSubModeOffKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kGpswOnKey, gpsw_on_))
-  {
+  if (!pt_.get(kGpswOnKey, gpsw_on_)) {
     TOBAS_ERROR("Failed to get \"", kGpswOnKey, "\".");
     return false;
   }
-  if (!pt_.get(kGpswOffKey, gpsw_off_))
-  {
+  if (!pt_.get(kGpswOffKey, gpsw_off_)) {
     TOBAS_ERROR("Failed to get \"", kGpswOffKey, "\".");
     return false;
   }
@@ -199,11 +179,9 @@ tobas::flight_mode_t RCInputHandlerNode::getClosestFlightMode(uint16_t period)
   tobas::flight_mode_t res = tobas::flight_mode_t::LOITER;  // コンパイラ警告を抑制するために適当に初期化
   auto min_dist = numeric_limits<uint16_t>::max();
 
-  for (const auto& [mode, period_ref] : modes_)
-  {
+  for (const auto& [mode, period_ref] : modes_) {
     const auto dist = abs(period - period_ref);
-    if (dist < min_dist)
-    {
+    if (dist < min_dist) {
       min_dist = dist;
       res = mode;
     }
@@ -237,8 +215,7 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
   rcin_msg->sub_mode =
     abs(sbus->data[real::kRcChannelSubMode] - sub_mode_on_) < abs(sbus->data[real::kRcChannelSubMode] - sub_mode_off_);
 
-  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i)
-  {
+  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
     const auto sbus_idx = real::kRcChannelGpsw + i;
     rcin_msg->gpsw[i] = abs(sbus->data[sbus_idx] - gpsw_on_[i]) < abs(sbus->data[sbus_idx] - gpsw_off_[i]);
   }
@@ -292,15 +269,15 @@ void RCInputHandlerNode::setParamsCb(
   pt_.set(kSubModeOffKey, req->sub_mode_off);
   pt_.set(kGpswOnKey, req->gpsw_on);
   pt_.set(kGpswOffKey, req->gpsw_off);
-  if (!pt_.save())
-  {
+  if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";
     return;
   }
 
-  if (!rcin_pub_)
+  if (!rcin_pub_) {
     registerPubSub();
+  }
 
   res->success = true;
   res->message.clear();

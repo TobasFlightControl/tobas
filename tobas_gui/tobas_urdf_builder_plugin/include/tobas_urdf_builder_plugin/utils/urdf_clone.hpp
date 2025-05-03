@@ -16,8 +16,9 @@ namespace utils
 template <typename T>
 std::shared_ptr<T> clone(const std::shared_ptr<T>& ptr)
 {
-  if (!ptr)
+  if (!ptr) {
     return nullptr;
+  }
 
   return std::make_shared<T>(*ptr);
 }

@@ -33,8 +33,9 @@ void DynamicConfigWidget::updateNamespace(const std::string& ns)
 
 bool DynamicConfigWidget::start()
 {
-  if (!wind_params_->start())
+  if (!wind_params_->start()) {
     return false;
+  }
 
   return true;
 }

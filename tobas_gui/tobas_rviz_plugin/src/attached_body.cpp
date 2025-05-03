@@ -25,25 +25,23 @@ AttachedBody::AttachedBody(
     global_subframe_poses_(subframe_poses)
 {
   ASSERT_ISOMETRY(pose)  // unsanitized input, could contain a non-isometry
-  for (const auto& t : shape_poses_)
-  {
+  for (const auto& t : shape_poses_) {
     ASSERT_ISOMETRY(t)  // unsanitized input, could contain a non-isometry
   }
-  for (const auto& t : subframe_poses_)
-  {
+  for (const auto& t : subframe_poses_) {
     ASSERT_ISOMETRY(t.second)  // unsanitized input, could contain a non-isometry
   }
 
   // Global poses are initialized to identity to allow efficient Isometry calculations
   global_pose_.setIdentity();
   global_collision_body_transforms_.resize(shape_poses.size());
-  for (Eigen::Isometry3d& global_collision_body_transform : global_collision_body_transforms_)
+  for (Eigen::Isometry3d& global_collision_body_transform : global_collision_body_transforms_) {
     global_collision_body_transform.setIdentity();
+  }
 
   shape_poses_in_link_frame_.clear();
   shape_poses_in_link_frame_.reserve(shape_poses_.size());
-  for (const auto& shape_pose : shape_poses_)
-  {
+  for (const auto& shape_pose : shape_poses_) {
     shape_poses_in_link_frame_.push_back(pose_ * shape_pose);
   }
 }
@@ -52,15 +50,12 @@ AttachedBody::~AttachedBody() = default;
 
 void AttachedBody::setScale(double scale)
 {
-  for (shapes::ShapeConstPtr& shape : shapes_)
-  {
+  for (shapes::ShapeConstPtr& shape : shapes_) {
     // if this shape is only owned here (and because this is a non-const function), we can safely const-cast:
-    if (shape.unique())
-    {
+    if (shape.unique()) {
       const_cast<shapes::Shape*>(shape.get())->scale(scale);
     }
-    else
-    {
+    else {
       // if the shape is owned elsewhere, we make a copy:
       shapes::Shape* copy = shape->clone();
       copy->scale(scale);
@@ -75,27 +70,25 @@ void AttachedBody::computeTransform(const Eigen::Isometry3d& parent_link_global_
   global_pose_ = parent_link_global_transform * pose_;
 
   // update collision body transforms
-  for (std::size_t i = 0; i < global_collision_body_transforms_.size(); ++i)
+  for (std::size_t i = 0; i < global_collision_body_transforms_.size(); ++i) {
     global_collision_body_transforms_[i] = global_pose_ * shape_poses_[i];  // valid isometry
+  }
 
   // update subframe transforms
-  for (auto global = global_subframe_poses_.begin(), end = global_subframe_poses_.end(),
-            local = subframe_poses_.begin();
-       global != end; ++global, ++local)
+  for (auto global = global_subframe_poses_.begin(), end = global_subframe_poses_.end(), local = subframe_poses_.begin();
+       global != end; ++global, ++local) {
     global->second = global_pose_ * local->second;  // valid isometry
+  }
 }
 
 void AttachedBody::setPadding(double padding)
 {
-  for (shapes::ShapeConstPtr& shape : shapes_)
-  {
+  for (shapes::ShapeConstPtr& shape : shapes_) {
     // if this shape is only owned here (and because this is a non-const function), we can safely const-cast:
-    if (shape.unique())
-    {
+    if (shape.unique()) {
       const_cast<shapes::Shape*>(shape.get())->padd(padding);
     }
-    else
-    {
+    else {
       // if the shape is owned elsewhere, we make a copy:
       shapes::Shape* copy = shape->clone();
       copy->padd(padding);
@@ -106,37 +99,37 @@ void AttachedBody::setPadding(double padding)
 
 const Eigen::Isometry3d& AttachedBody::getSubframeTransform(const std::string& frame_name, bool* found) const
 {
-  if (frame_name.rfind(id_, 0) == 0 && frame_name[id_.length()] == '/')
-  {
+  if (frame_name.rfind(id_, 0) == 0 && frame_name[id_.length()] == '/') {
     auto it = subframe_poses_.find(frame_name.substr(id_.length() + 1));
-    if (it != subframe_poses_.end())
-    {
-      if (found)
+    if (it != subframe_poses_.end()) {
+      if (found) {
         *found = true;
+      }
       return it->second;
     }
   }
   static const Eigen::Isometry3d IDENTITY_TRANSFORM = Eigen::Isometry3d::Identity();
-  if (found)
+  if (found) {
     *found = false;
+  }
   return IDENTITY_TRANSFORM;
 }
 
 const Eigen::Isometry3d& AttachedBody::getGlobalSubframeTransform(const std::string& frame_name, bool* found) const
 {
-  if (frame_name.rfind(id_, 0) == 0 && frame_name[id_.length()] == '/')
-  {
+  if (frame_name.rfind(id_, 0) == 0 && frame_name[id_.length()] == '/') {
     auto it = global_subframe_poses_.find(frame_name.substr(id_.length() + 1));
-    if (it != global_subframe_poses_.end())
-    {
-      if (found)
+    if (it != global_subframe_poses_.end()) {
+      if (found) {
         *found = true;
+      }
       return it->second;
     }
   }
   static const Eigen::Isometry3d IDENTITY_TRANSFORM = Eigen::Isometry3d::Identity();
-  if (found)
+  if (found) {
     *found = false;
+  }
   return IDENTITY_TRANSFORM;
 }
 

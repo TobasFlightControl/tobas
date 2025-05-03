@@ -50,19 +50,20 @@ bool validateAndImproveInterval(
   // if deviation between both poses, fk_pose and mid_pose is within precision, we are satisfied
   double linear_distance = (mid_pose.translation() - fk_pose.translation()).norm();
   double angular_distance = Eigen::Quaterniond(mid_pose.linear()).angularDistance(Eigen::Quaterniond(fk_pose.linear()));
-  if (linear_distance <= precision.translational && angular_distance <= precision.rotational)
-  {
+  if (linear_distance <= precision.translational && angular_distance <= precision.rotational) {
     traj.push_back(std::make_shared<RobotState>(end_state));
     return true;
   }
 
-  if (width < precision.max_resolution)
+  if (width < precision.max_resolution) {
     return false;  // failed to find linear interpolation within max_resolution
+  }
 
   // otherwise subdivide interval further, computing IK for mid_pose
   if (!mid_state.setFromIK(
-        group, mid_pose * link_offset.inverse(), link->getName(), 0., validCallback, options, cost_function))
+        group, mid_pose * link_offset.inverse(), link->getName(), 0., validCallback, options, cost_function)) {
     return false;
+  }
 
   // and recursively processing the two sub-intervals
   const auto half_width = width / 2.;
@@ -70,8 +71,9 @@ bool validateAndImproveInterval(
   percentage = percentage - half_width;
   if (!validateAndImproveInterval(
         start_state, mid_state, start_pose, mid_pose, traj, percentage, half_width, group, link, precision,
-        validCallback, options, cost_function, link_offset))
+        validCallback, options, cost_function, link_offset)) {
     return false;
+  }
 
   percentage = old_percentage;
   return validateAndImproveInterval(
@@ -84,8 +86,7 @@ std::optional<int> hasRelativeJointSpaceJump(
   const JointModelGroup& group,
   double jump_threshold_factor)
 {
-  if (waypoints.size() < MIN_STEPS_FOR_JUMP_THRESH)
-  {
+  if (waypoints.size() < MIN_STEPS_FOR_JUMP_THRESH) {
     RCLCPP_WARN(
       getLogger(),
       "The computed path is too short to detect jumps in joint-space. "
@@ -96,8 +97,7 @@ std::optional<int> hasRelativeJointSpaceJump(
   std::vector<double> dist_vector;
   dist_vector.reserve(waypoints.size() - 1);
   double total_dist = 0.;
-  for (std::size_t i = 1; i < waypoints.size(); ++i)
-  {
+  for (std::size_t i = 1; i < waypoints.size(); ++i) {
     const double dist_prev_point = waypoints[i]->distance(*waypoints[i - 1], &group);
     dist_vector.push_back(dist_prev_point);
     total_dist += dist_prev_point;
@@ -105,10 +105,8 @@ std::optional<int> hasRelativeJointSpaceJump(
 
   // compute the average distance between the states we looked at.
   double thres = jump_threshold_factor * (total_dist / static_cast<double>(dist_vector.size()));
-  for (std::size_t i = 0; i < dist_vector.size(); ++i)
-  {
-    if (dist_vector[i] > thres)
-    {
+  for (std::size_t i = 0; i < dist_vector.size(); ++i) {
+    if (dist_vector[i] > thres) {
       return i + 1;
     }
   }
@@ -126,22 +124,17 @@ std::optional<int> hasAbsoluteJointSpaceJump(
   const bool check_prismatic = prismatic_threshold > 0.;
 
   const std::vector<const JointModel*>& joints = group.getActiveJointModels();
-  for (std::size_t i = 1; i < waypoints.size(); ++i)
-  {
-    for (const auto& joint : joints)
-    {
+  for (std::size_t i = 1; i < waypoints.size(); ++i) {
+    for (const auto& joint : joints) {
       const double distance = waypoints[i]->distance(*waypoints[i - 1], joint);
-      switch (joint->getType())
-      {
+      switch (joint->getType()) {
         case JointModel::REVOLUTE:
-          if (check_revolute && distance > revolute_threshold)
-          {
+          if (check_revolute && distance > revolute_threshold) {
             return i;
           }
           break;
         case JointModel::PRISMATIC:
-          if (check_prismatic && distance > prismatic_threshold)
-          {
+          if (check_prismatic && distance > prismatic_threshold) {
             return i;
           }
           break;
@@ -208,8 +201,9 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
 
   const std::vector<const JointModel*>& cjnt = group->getContinuousJointModels();
   // make sure that continuous joints wrap
-  for (const JointModel* joint : cjnt)
+  for (const JointModel* joint : cjnt) {
     state.enforceBounds(joint);
+  }
 
   // Cartesian pose we start from
   Eigen::Isometry3d start_pose = state.getGlobalLinkTransform(link) * link_offset;
@@ -226,12 +220,14 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
 
   // decide how many steps we will need for this trajectory
   std::size_t translation_steps = 0;
-  if (max_step.translation > 0.)
+  if (max_step.translation > 0.) {
     translation_steps = floor(translation_distance / max_step.translation);
+  }
 
   std::size_t rotation_steps = 0;
-  if (max_step.rotation > 0.)
+  if (max_step.rotation > 0.) {
     rotation_steps = floor(rotation_distance / max_step.rotation);
+  }
   std::size_t steps = std::max(translation_steps, rotation_steps) + 1;
 
   traj.clear();
@@ -240,8 +236,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   double last_valid_percentage = 0.;
   Eigen::Isometry3d prev_pose = start_pose;
   RobotState prev_state(state);
-  for (std::size_t i = 1; i <= steps; ++i)
-  {
+  for (std::size_t i = 1; i <= steps; ++i) {
     double percentage = static_cast<double>(i) / static_cast<double>(steps);
 
     Eigen::Isometry3d pose(start_quaternion.slerp(percentage, target_quaternion));
@@ -251,8 +246,9 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
       !state.setFromIK(group, pose * inv_offset, link->getName(), 0., validCallback, options, cost_function)
       || !validateAndImproveInterval(
         prev_state, state, prev_pose, pose, traj, percentage, 1. / static_cast<double>(steps), group, link, precision,
-        validCallback, options, cost_function, link_offset))
+        validCallback, options, cost_function, link_offset)) {
       break;
+    }
 
     prev_pose = pose;
     prev_state = state;
@@ -277,24 +273,22 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   const Eigen::Isometry3d& link_offset)
 {
   double percentage_solved = 0.;
-  for (std::size_t i = 0; i < waypoints.size(); ++i)
-  {
+  for (std::size_t i = 0; i < waypoints.size(); ++i) {
     std::vector<RobotStatePtr> waypoint_traj;
     double wp_percentage_solved = computeCartesianPath(
       start_state, group, waypoint_traj, link, waypoints[i], global_reference_frame, max_step, precision, validCallback,
       options, cost_function, link_offset);
 
     std::vector<RobotStatePtr>::iterator start = waypoint_traj.begin();
-    if (i > 0 && !waypoint_traj.empty())
+    if (i > 0 && !waypoint_traj.empty()) {
       std::advance(start, 1);
+    }
     traj.insert(traj.end(), start, waypoint_traj.end());
 
-    if (fabs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon())
-    {
+    if (fabs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon()) {
       percentage_solved = static_cast<double>(i + 1) / static_cast<double>(waypoints.size());
     }
-    else
-    {
+    else {
       percentage_solved += wp_percentage_solved / static_cast<double>(waypoints.size());
       break;
     }
@@ -385,8 +379,9 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
 
   const std::vector<const JointModel*>& cjnt = group->getContinuousJointModels();
   // make sure that continuous joints wrap
-  for (const JointModel* joint : cjnt)
+  for (const JointModel* joint : cjnt) {
     start_state->enforceBounds(joint);
+  }
 
   // Cartesian pose we start from
   Eigen::Isometry3d start_pose = start_state->getGlobalLinkTransform(link) * link_offset;
@@ -398,8 +393,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   Eigen::Quaterniond start_quaternion(start_pose.linear());
   Eigen::Quaterniond target_quaternion(rotated_target.linear());
 
-  if (max_step.translation <= 0. && max_step.rotation <= 0.)
-  {
+  if (max_step.translation <= 0. && max_step.rotation <= 0.) {
     RCLCPP_ERROR(
       getLogger(), "Invalid MaxEEFStep passed into computeCartesianPath. Both the MaxEEFStep.rotation and "
                    "MaxEEFStep.translation components must be non-negative and at least one component must be "
@@ -412,27 +406,27 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
 
   // decide how many steps we will need for this path
   std::size_t translation_steps = 0;
-  if (max_step.translation > 0.)
+  if (max_step.translation > 0.) {
     translation_steps = floor(translation_distance / max_step.translation);
+  }
 
   std::size_t rotation_steps = 0;
-  if (max_step.rotation > 0.)
+  if (max_step.rotation > 0.) {
     rotation_steps = floor(rotation_distance / max_step.rotation);
+  }
 
   // If we are testing for relative jumps, we always want at least MIN_STEPS_FOR_JUMP_THRESH steps
   std::size_t steps = std::max(translation_steps, rotation_steps) + 1;
-  if (jump_threshold.relative_factor > 0 && steps < MIN_STEPS_FOR_JUMP_THRESH)
+  if (jump_threshold.relative_factor > 0 && steps < MIN_STEPS_FOR_JUMP_THRESH) {
     steps = MIN_STEPS_FOR_JUMP_THRESH;
+  }
 
   // To limit absolute joint-space jumps, we pass consistency limits to the IK solver
   std::vector<double> consistency_limits;
-  if (jump_threshold.prismatic > 0 || jump_threshold.revolute > 0)
-  {
-    for (const JointModel* jm : group->getActiveJointModels())
-    {
+  if (jump_threshold.prismatic > 0 || jump_threshold.revolute > 0) {
+    for (const JointModel* jm : group->getActiveJointModels()) {
       double limit;
-      switch (jm->getType())
-      {
+      switch (jm->getType()) {
         case JointModel::REVOLUTE:
           limit = jump_threshold.revolute;
           break;
@@ -442,8 +436,9 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
         default:
           limit = 0.;
       }
-      if (limit == 0.)
+      if (limit == 0.) {
         limit = jm->getMaximumExtent();
+      }
       consistency_limits.push_back(limit);
     }
   }
@@ -452,8 +447,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   path.push_back(std::make_shared<RobotState>(*start_state));
 
   double last_valid_percentage = 0.;
-  for (std::size_t i = 1; i <= steps; ++i)
-  {
+  for (std::size_t i = 1; i <= steps; ++i) {
     double percentage = static_cast<double>(i) / static_cast<double>(steps);
 
     Eigen::Isometry3d pose(start_quaternion.slerp(percentage, target_quaternion));
@@ -462,13 +456,11 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
     // Explicitly use a single IK attempt only (by setting a timeout of 0.), using the current state as the seed.
     // Random seeding (of additional attempts) would create large joint-space jumps.
     if (start_state->setFromIK(
-          group, pose * offset, link->getName(), consistency_limits, 0., validCallback, options, cost_function))
-    {
+          group, pose * offset, link->getName(), consistency_limits, 0., validCallback, options, cost_function)) {
       start_state->update();
       path.push_back(std::make_shared<RobotState>(*start_state));
     }
-    else
-    {
+    else {
       break;
     }
 
@@ -495,8 +487,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
   const Eigen::Isometry3d& link_offset)
 {
   double percentage_solved = 0.;
-  for (std::size_t i = 0; i < waypoints.size(); ++i)
-  {
+  for (std::size_t i = 0; i < waypoints.size(); ++i) {
     // Don't test joint space jumps for every waypoint, test them later on the whole path.
     static const JumpThreshold NO_JOINT_SPACE_JUMP_TEST = JumpThreshold::disabled();
     std::vector<RobotStatePtr> waypoint_path;
@@ -508,16 +499,15 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
 #pragma GCC diagnostic pop
 
     std::vector<RobotStatePtr>::iterator start = waypoint_path.begin();
-    if (i > 0 && !waypoint_path.empty())
+    if (i > 0 && !waypoint_path.empty()) {
       std::advance(start, 1);
+    }
     path.insert(path.end(), start, waypoint_path.end());
 
-    if (fabs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon())
-    {
+    if (fabs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon()) {
       percentage_solved = static_cast<double>((i + 1)) / static_cast<double>(waypoints.size());
     }
-    else
-    {
+    else {
       percentage_solved += wp_percentage_solved / static_cast<double>(waypoints.size());
       break;
     }
@@ -536,8 +526,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::checkJointSpaceJump(
   std::optional<int> jump_index = hasJointSpaceJump(path, *group, jump_threshold);
 
   double percentage_solved = 1.;
-  if (jump_index.has_value())
-  {
+  if (jump_index.has_value()) {
     percentage_solved = static_cast<double>(*jump_index) / static_cast<double>(path.size());
     // Truncate the path at the index right before the jump.
     path.resize(jump_index.value());
@@ -551,18 +540,15 @@ std::optional<int> hasJointSpaceJump(
   const JointModelGroup& group,
   const JumpThreshold& jump_threshold)
 {
-  if (waypoints.size() <= 1)
-  {
+  if (waypoints.size() <= 1) {
     return std::nullopt;
   }
 
-  if (jump_threshold.relative_factor > 0.)
-  {
+  if (jump_threshold.relative_factor > 0.) {
     return hasRelativeJointSpaceJump(waypoints, group, jump_threshold.relative_factor);
   }
 
-  if (jump_threshold.revolute > 0. || jump_threshold.prismatic > 0.)
-  {
+  if (jump_threshold.revolute > 0. || jump_threshold.prismatic > 0.) {
     return hasAbsoluteJointSpaceJump(waypoints, group, jump_threshold.revolute, jump_threshold.prismatic);
   }
 

@@ -20,15 +20,13 @@ void RecordStopThread::run()
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 
-  if (!sc.call(req))
-  {
+  if (!sc.call(req)) {
     Q_EMIT finished(false, "Flight log recording service is unavailable.");
     return;
   }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     Q_EMIT finished(false, "Failed to stop recording flight log: " + QString(res->message.c_str()));
     return;
   }

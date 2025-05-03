@@ -69,27 +69,23 @@ void PreArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShare
 {
   arming_ = arming;
 
-  if (arming->data)
-  {
+  if (arming->data) {
     reset();
     setEnabled(false);
   }
-  else
-  {
+  else {
     setEnabled(true);
   }
 }
 
 void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
-  if (!arming_)
-  {
+  if (!arming_) {
     reset();
     return;
   }
 
-  if (arming_->data)
-  {
+  if (arming_->data) {
     reset();
     return;
   }

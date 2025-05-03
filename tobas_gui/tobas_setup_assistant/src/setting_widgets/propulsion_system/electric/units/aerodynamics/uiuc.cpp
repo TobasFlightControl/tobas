@@ -42,8 +42,7 @@ const char* AerodynamicsWidget_UIUC::description() const
 
 bool AerodynamicsWidget_UIUC::isValid()
 {
-  if (data_->count() == 0)
-  {
+  if (data_->count() == 0) {
     qt::qErrorBox(this, "Measurements in static condition is blank.");
     return false;
   }

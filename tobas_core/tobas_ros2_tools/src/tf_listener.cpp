@@ -11,12 +11,10 @@ TransformListener::TransformListener(rclcpp::Node::SharedPtr node)
 
 bool TransformListener::lookupTransform(const string& parent, const string& child, const rclcpp::Time& time)
 {
-  try
-  {
+  try {
     tf_ = tf_buffer_.lookupTransform(parent, child, time);
   }
-  catch (tf2::TransformException& e)
-  {
+  catch (tf2::TransformException& e) {
     error_msg_ = e.what();
     return false;
   }

@@ -58,25 +58,30 @@ void SetupAssistantWidget::onRobotLoaded()
   jsp_->updateInternalDataStructures();
 
   // Update RSP parameter
-  if (!rsp_client_.setParam("robot_description", robot_.urdfText()))
+  if (!rsp_client_.setParam("robot_description", robot_.urdfText())) {
     qt::qErrorBox(this, "Failed to update robot state publisher.");
+  }
 }
 
 void SetupAssistantWidget::onGenerateButtonClicked()
 {
   // ユーザ設定に問題がないか確認
-  if (!settings_->isValid())
+  if (!settings_->isValid()) {
     return;
+  }
 
   // パッケージパスが既に存在する場合は置換するかどうかをユーザに確認
   const auto tbs_path = settings_->ros_package->tbsPath();
-  if (fs::exists(tbs_path.toStdString()))
-    if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN))
+  if (fs::exists(tbs_path.toStdString())) {
+    if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
       return;
+    }
+  }
 
   // パッケージを作成
-  if (!pkg_generator_->generatePackage())
+  if (!pkg_generator_->generatePackage()) {
     return;
+  }
 
   // スピナーを開始
   spinner_.show();
@@ -94,10 +99,12 @@ void SetupAssistantWidget::onBuildPackageFinished(bool success, const QString& o
   spinner_.stop();
 
   // 結果を表示
-  if (success)
+  if (success) {
     qt::qInfoBox(this, "Tobas configuration package is generated and built successfully.");
-  else
+  }
+  else {
     qt::qErrorBox(this, "Tobas configuration package is generated, but failed to build it:\n\n" + output);
+  }
 }
 }  // namespace sa
 }  // namespace gui

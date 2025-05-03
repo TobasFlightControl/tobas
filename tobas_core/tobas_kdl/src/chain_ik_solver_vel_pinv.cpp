@@ -14,25 +14,30 @@ ChainIkSolverVel_pinv::ChainIkSolverVel_pinv(const Chain& chain) : super(chain),
 
 bool ChainIkSolverVel_pinv::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!jnt2jac_.updateInternalDataStructures())
+  if (!jnt2jac_.updateInternalDataStructures()) {
     return false;
+  }
 
   return true;
 }
 
 int ChainIkSolverVel_pinv::CartToJnt(const JntArray& q, const Vector& v)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_)
+  }
+  if (q.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   // ヤコビアンを更新
-  if (jnt2jac_.JntToJac(q) < 0)
+  if (jnt2jac_.JntToJac(q) < 0) {
     return copyError(jnt2jac_);
+  }
   const auto& jac = jnt2jac_.getJacobian();
 
   // 最小二乗解を求める
@@ -43,14 +48,17 @@ int ChainIkSolverVel_pinv::CartToJnt(const JntArray& q, const Vector& v)
 
 int ChainIkSolverVel_pinv::CartToJnt(const JntArray& q, const Twist& v)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_)
+  }
+  if (q.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   // ヤコビアンを更新
-  if (jnt2jac_.JntToJac(q) < 0)
+  if (jnt2jac_.JntToJac(q) < 0) {
     return copyError(jnt2jac_);
+  }
   const auto& jac = jnt2jac_.getJacobian();
 
   // 最小二乗解を求める

@@ -21,7 +21,7 @@ public:
   inline explicit Accel();
   inline explicit Accel(const Vector& linear, const Vector& angular);
 
-  inline static Accel Zero();
+  static inline Accel Zero();
 
   inline void setZero();
 

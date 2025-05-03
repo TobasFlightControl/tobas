@@ -198,8 +198,7 @@ void RosbagRecorderNode::publishRosbagState()
   rosbag_state->header.stamp = now;
   rosbag_state->recording = recording_;
 
-  if (recording_)
-  {
+  if (recording_) {
     const auto file_size = path::computeDirectorySize(file_path_);
 
     rosbag_state->file_path = file_path_;
@@ -207,14 +206,11 @@ void RosbagRecorderNode::publishRosbagState()
     rosbag_state->file_size = file_size;
     rosbag_state->message_count = msg_cnt_;
 
-    if (file_size > tobas::kMaxRosbagSize)
-    {
-      try
-      {
+    if (file_size > tobas::kMaxRosbagSize) {
+      try {
         writer_.close();
       }
-      catch (const exception& e)
-      {
+      catch (const exception& e) {
         TOBAS_ERROR("Failed to close rosbag file: ", e.what());
         return;
       }
@@ -233,12 +229,10 @@ void RosbagRecorderNode::publishRosbagState()
 template <typename MsgType>
 inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
 {
-  try
-  {
+  try {
     writer_.write(msg, ns_ + topic, get_clock()->now());
   }
-  catch (const exception& e)
-  {
+  catch (const exception& e) {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
     return;
   }
@@ -273,8 +267,9 @@ void RosbagRecorderNode::addTypeAdaptedMsgSub(
 template <typename MsgType>
 void RosbagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
 {
-  if (!recording_)
+  if (!recording_) {
     return;
+  }
 
   this->write(*msg, topic);
 }
@@ -285,8 +280,9 @@ void RosbagRecorderNode::typeAdaptedMsgCb(
   RawMsgType& raw_msg,
   const char* topic)
 {
-  if (!recording_)
+  if (!recording_) {
     return;
+  }
 
   // Publisher側にシリアライズさせるのを防ぐため，TypeAdapterのまま購読し，こちら側でROSメッセージへの変換を行う．
   rclcpp::TypeAdapter<ExtMsgType, RawMsgType>::convert_to_ros_message(*ext_msg, raw_msg);
@@ -296,28 +292,26 @@ void RosbagRecorderNode::typeAdaptedMsgCb(
 
 void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
 {
-  if (recording_)
-  {
+  if (recording_) {
     res->success = false;
     res->message = "Rosbag recording is in progress.";
     return;
   }
 
-  if (req->name.empty())
-  {
+  if (req->name.empty()) {
     res->success = false;
     res->message = "Please specify rosbag name.";
     return;
   }
 
   // rosbagディレクトリが存在しなければ作成
-  if (!fs::exists(rosbag_dir_))
+  if (!fs::exists(rosbag_dir_)) {
     fs::create_directories(rosbag_dir_);
+  }
 
   // rosbagディレクトリ全体のサイズが大きすぎないか確認
   const auto par_dir_size = path::computeDirectorySize(rosbag_dir_);
-  if (par_dir_size > kMaxParDirSize)
-  {
+  if (par_dir_size > kMaxParDirSize) {
     res->success = false;
     res->message = "The size of rosbag directory (" + rosbag_dir_.string() + ") is over "
                    + to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
@@ -325,14 +319,11 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   }
 
   file_path_ = rosbag_dir_ / req->name;
-  if (fs::exists(file_path_))
-  {
-    if (req->overwrite)
-    {
+  if (fs::exists(file_path_)) {
+    if (req->overwrite) {
       fs::remove_all(file_path_);
     }
-    else
-    {
+    else {
       res->success = false;
       res->message = file_path_.string() + " already exists.";
       return;
@@ -344,12 +335,10 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   options.max_bagfile_size = req->max_file_size;
   options.max_cache_size = req->max_cache_size;
 
-  try
-  {
+  try {
     writer_.open(options);
   }
-  catch (const exception& e)
-  {
+  catch (const exception& e) {
     res->success = false;
     res->message = "Failed to open " + options.uri + ": " + e.what();
     return;
@@ -369,19 +358,16 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
 
 void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
 {
-  if (!recording_)
-  {
+  if (!recording_) {
     res->success = false;
     res->message = "Rosbag recording is not in progress.";
     return;
   }
 
-  try
-  {
+  try {
     writer_.close();
   }
-  catch (const exception& e)
-  {
+  catch (const exception& e) {
     res->success = false;
     res->message = "Failed to close rosbag file: " + string(e.what());
     return;

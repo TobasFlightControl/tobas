@@ -54,17 +54,18 @@ void AvailableLinksWidget::updateInternalDataStructures()
 {
   clear();
 
-  for (const auto& [link_name, elem] : robot_.tree().getSegments())
-  {
+  for (const auto& [link_name, elem] : robot_.tree().getSegments()) {
     const auto& joint = elem.segment.joint();
 
     // 回転関節をもつことを確認
-    if (joint.type != kdl::Joint::ROTATION)
+    if (joint.type != kdl::Joint::ROTATION) {
       continue;
+    }
 
     // エンドリンクであることを確認
-    if (!robot_.tree().isEndSegment(link_name))
+    if (!robot_.tree().isEndSegment(link_name)) {
       continue;
+    }
 
     // リンク名をリストに追加
     addLink(QString::fromStdString(link_name));
@@ -101,13 +102,13 @@ void AvailableLinksWidget::removeLink(const QString& link_name)
 
 QListWidgetItem* AvailableLinksWidget::findLink(const QString& link_name)
 {
-  for (int row = 0; row < count(); ++row)
-  {
+  for (int row = 0; row < count(); ++row) {
     const auto link_item = item(row);
     const auto link_widget = qt::qConstPointerCast<AvailableLinkItemWidget>(itemWidget(link_item));
 
-    if (link_widget->linkName() == link_name)
+    if (link_widget->linkName() == link_name) {
       return link_item;
+    }
   }
 
   throw std::runtime_error("Failed to find " + link_name.toStdString() + " in the available link list.");

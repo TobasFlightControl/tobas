@@ -74,20 +74,20 @@ void JointConfigurationWidget::updateInternalDataStructures()
 {
   clear();
 
-  for (const auto& [link_name, elem] : robot_.tree().getSegments())
-  {
-    if (link_name == robot_.tree().getRootName())
+  for (const auto& [link_name, elem] : robot_.tree().getSegments()) {
+    if (link_name == robot_.tree().getRootName()) {
       continue;
+    }
 
     const auto& joint = elem.segment.joint();
 
     // 可動関節でなければスキップ
-    if (joint.type == kdl::Joint::FIXED)
+    if (joint.type == kdl::Joint::FIXED) {
       continue;
+    }
 
     // TODO: 直動ジョイントにも対応
-    if (joint.type == kdl::Joint::TRANSLATION)
-    {
+    if (joint.type == kdl::Joint::TRANSLATION) {
       qt::qWarnBox(this, "Translational joint is not supported yet.");
       continue;
     }
@@ -101,24 +101,19 @@ bool JointConfigurationWidget::isValid()
 {
   QSet<int> pwm_channels;
 
-  for (int row = 0; row < table_->rowCount(); ++row)
-  {
+  for (int row = 0; row < table_->rowCount(); ++row) {
     // ハードウェアインターフェースが同じもののチャンネルが異なることを保証
     const auto channel = getPwmChannel(row);
-    switch (getHardwareInterface(row))
-    {
-      case tobas::hw_iface_t::PWM:
-      {
-        if (pwm_channels.contains(channel))
-        {
+    switch (getHardwareInterface(row)) {
+      case tobas::hw_iface_t::PWM: {
+        if (pwm_channels.contains(channel)) {
           qt::qErrorBox(this, "PWM channel " + QString::number(channel) + " is duplicated.");
           return false;
         }
         pwm_channels.insert(channel);
         break;
       }
-      case tobas::hw_iface_t::OTHER:
-      {
+      case tobas::hw_iface_t::OTHER: {
         break;
       }
       default:
@@ -126,15 +121,13 @@ bool JointConfigurationWidget::isValid()
     }
 
     // PWM High時間の範囲
-    if (getPwmMinPeriod(row) >= getPwmMaxPeriod(row))
-    {
+    if (getPwmMinPeriod(row) >= getPwmMaxPeriod(row)) {
       qt::qErrorBox(this, "PWM period range of channel " + QString::number(channel) + " is invalid.");
       return false;
     }
 
     // PWM関節角の範囲
-    if (getPwmMinAngle(row) >= getPwmMaxAngle(row))
-    {
+    if (getPwmMinAngle(row) >= getPwmMaxAngle(row)) {
       qt::qErrorBox(this, "PWM angle range of channel " + QString::number(channel) + " is invalid.");
       return false;
     }
@@ -147,8 +140,7 @@ YAML::Node JointConfigurationWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int row = 0; row < table_->rowCount(); ++row)
-  {
+  for (int row = 0; row < table_->rowCount(); ++row) {
     YAML::Node sub_node(YAML::NodeType::Map);
     sub_node[kRoleLabel] = role_[row]->currentText();
     sub_node[kCmdIfaceLabel] = cmd_iface_[row]->currentText();
@@ -170,8 +162,7 @@ YAML::Node JointConfigurationWidget::dump() const
 void JointConfigurationWidget::load(const YAML::Node& node)
 {
   // 各フィールドの値と有効無効を設定
-  for (const auto& pair : node)
-  {
+  for (const auto& pair : node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
 
@@ -194,10 +185,10 @@ void JointConfigurationWidget::load(const YAML::Node& node)
 
   // ロータに対応するティルトジョイント名を更新
   tilt_joint_map_.clear();
-  for (int i = 0; i < propulsion_->numUnits(); ++i)
-  {
-    if (propulsion_->isTiltRotor(i))
+  for (int i = 0; i < propulsion_->numUnits(); ++i) {
+    if (propulsion_->isTiltRotor(i)) {
       tilt_joint_map_[propulsion_->linkName(i)] = propulsion_->tiltJointName(i);
+    }
   }
 }
 
@@ -215,48 +206,63 @@ tobas::jnt_role_t JointConfigurationWidget::getRole(int row) const
 {
   const auto text = role_[row]->currentText();
 
-  if (text == kRoleLabel_Rotor)
+  if (text == kRoleLabel_Rotor) {
     return tobas::jnt_role_t::ROTOR;
-  else if (text == kRoleLabel_TiltJoint)
+  }
+  else if (text == kRoleLabel_TiltJoint) {
     return tobas::jnt_role_t::TILT_JOINT;
-  else if (text == kRoleLabel_ControlSurface)
+  }
+  else if (text == kRoleLabel_ControlSurface) {
     return tobas::jnt_role_t::CONTROL_SURFACE;
-  else if (text == kRoleLabel_Manipulation)
+  }
+  else if (text == kRoleLabel_Manipulation) {
     return tobas::jnt_role_t::MANIPULATION;
-  else if (text == kRoleLabel_PassiveWheel)
+  }
+  else if (text == kRoleLabel_PassiveWheel) {
     return tobas::jnt_role_t::PASSIVE_WHEEL;
-  else if (text == kRoleLabel_Other)
+  }
+  else if (text == kRoleLabel_Other) {
     return tobas::jnt_role_t::OTHER;
-  else
+  }
+  else {
     throw;
+  }
 }
 
 tobas::jnt_cmd_iface_t JointConfigurationWidget::getCommandInterface(int row) const
 {
   const auto text = cmd_iface_[row]->currentText();
 
-  if (text == kCmdIfaceLabel_Position)
+  if (text == kCmdIfaceLabel_Position) {
     return tobas::jnt_cmd_iface_t::POSITION;
-  else if (text == kCmdIfaceLabel_Velocity)
+  }
+  else if (text == kCmdIfaceLabel_Velocity) {
     return tobas::jnt_cmd_iface_t::VELOCITY;
-  else if (text == kCmdIfaceLabel_Effort)
+  }
+  else if (text == kCmdIfaceLabel_Effort) {
     return tobas::jnt_cmd_iface_t::EFFORT;
-  else if (text == kCmdIfaceLabel_None)
+  }
+  else if (text == kCmdIfaceLabel_None) {
     return tobas::jnt_cmd_iface_t::NONE;
-  else
+  }
+  else {
     throw;
+  }
 }
 
 tobas::hw_iface_t JointConfigurationWidget::getHardwareInterface(int row) const
 {
   const auto text = hw_iface_[row]->currentText();
 
-  if (text == kHwIfaceLabel_PWM)
+  if (text == kHwIfaceLabel_PWM) {
     return tobas::hw_iface_t::PWM;
-  else if (text == kHwIfaceLabel_Other)
+  }
+  else if (text == kHwIfaceLabel_Other) {
     return tobas::hw_iface_t::OTHER;
-  else
+  }
+  else {
     throw;
+  }
 }
 
 double JointConfigurationWidget::getHomePosition(int row) const
@@ -297,8 +303,7 @@ bool JointConfigurationWidget::getPwmReverse(int row) const
 void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
 {
   QString text;
-  switch (value)
-  {
+  switch (value) {
     case tobas::jnt_role_t::ROTOR:
       text = kRoleLabel_Rotor;
       break;
@@ -327,8 +332,7 @@ void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
 void JointConfigurationWidget::setCommandInterface(int row, tobas::jnt_cmd_iface_t value)
 {
   QString text;
-  switch (value)
-  {
+  switch (value) {
     case tobas::jnt_cmd_iface_t::POSITION:
       text = kCmdIfaceLabel_Position;
       break;
@@ -351,8 +355,7 @@ void JointConfigurationWidget::setCommandInterface(int row, tobas::jnt_cmd_iface
 void JointConfigurationWidget::setHardwareInterface(int row, tobas::hw_iface_t value)
 {
   QString text;
-  switch (value)
-  {
+  switch (value) {
     case tobas::hw_iface_t::PWM:
       text = kHwIfaceLabel_PWM;
       break;
@@ -408,9 +411,11 @@ int JointConfigurationWidget::numJoints() const
 
 int JointConfigurationWidget::findLink(const QString& link_name) const
 {
-  for (int row = 0; row < table_->rowCount(); ++row)
-    if (getLinkName(row) == link_name)
+  for (int row = 0; row < table_->rowCount(); ++row) {
+    if (getLinkName(row) == link_name) {
       return row;
+    }
+  }
 
   qWarning() << "Link " << link_name << " is not found.";
   return -1;
@@ -418,9 +423,11 @@ int JointConfigurationWidget::findLink(const QString& link_name) const
 
 int JointConfigurationWidget::findJoint(const QString& joint_name) const
 {
-  for (int row = 0; row < table_->rowCount(); ++row)
-    if (getJointName(row) == joint_name)
+  for (int row = 0; row < table_->rowCount(); ++row) {
+    if (getJointName(row) == joint_name) {
       return row;
+    }
+  }
 
   qWarning() << "Joint " << joint_name << " is not found.";
   return -1;
@@ -451,8 +458,9 @@ void JointConfigurationWidget::reset(int row)
   role_[row]->setCurrentText(kRoleLabel_Other);
 
   // Rotor, Tilt Joint, Control Surfaceを選択不可にする
-  for (const auto& label : { kRoleLabel_Rotor, kRoleLabel_TiltJoint, kRoleLabel_ControlSurface })
+  for (const auto& label : { kRoleLabel_Rotor, kRoleLabel_TiltJoint, kRoleLabel_ControlSurface }) {
     role_[row]->setItemEnabled(label, false);
+  }
 
   setDefaultValues(row);
   updateEnability(row);
@@ -461,8 +469,7 @@ void JointConfigurationWidget::reset(int row)
 void JointConfigurationWidget::setDefaultValues(int row)
 {
   // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
-  switch (getRole(row))
-  {
+  switch (getRole(row)) {
     case tobas::jnt_role_t::ROTOR:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
@@ -503,8 +510,7 @@ void JointConfigurationWidget::setDefaultValues(int row)
 void JointConfigurationWidget::updateEnability(int row)
 {
   // 役割によるフィールド
-  switch (getRole(row))
-  {
+  switch (getRole(row)) {
     case tobas::jnt_role_t::ROTOR:
       role_[row]->setEnabled(false);
       cmd_iface_[row]->setEnabled(false);
@@ -546,8 +552,7 @@ void JointConfigurationWidget::updateEnability(int row)
   }
 
   // ハードウェアインターフェースによるフィールド
-  switch (getHardwareInterface(row))
-  {
+  switch (getHardwareInterface(row)) {
     case tobas::hw_iface_t::PWM:
       pwm_channel_[row]->setEnabled(true);
       pwm_min_period_[row]->setEnabled(true);
@@ -645,10 +650,12 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
     pwm_reverse, &QPushButton::toggled, this,
     [pwm_reverse](bool checked)
     {
-      if (checked)
+      if (checked) {
         pwm_reverse->setText(kReverseLabel_Reverse);
-      else
+      }
+      else {
         pwm_reverse->setText(kReverseLabel_Normal);
+      }
     });
 
   // Insert table row
@@ -736,8 +743,9 @@ void JointConfigurationWidget::onRotorLinkRemoved(const QString& link_name)
   const auto cur_role = getRole(row);
   TOBAS_CHECK(cur_role == tobas::jnt_role_t::ROTOR);
 
-  if (tilt_joint_map_.contains(link_name))
+  if (tilt_joint_map_.contains(link_name)) {
     removeTiltJoint(link_name);
+  }
 
   reset(row);
 }
@@ -750,8 +758,9 @@ void JointConfigurationWidget::onIsTiltRotorStateChanged(const QString& link_nam
   const auto rotor_role = getRole(rotor_row);
   TOBAS_CHECK(rotor_role == tobas::jnt_role_t::ROTOR);
 
-  if (!is_tilt)
+  if (!is_tilt) {
     removeTiltJoint(link_name);
+  }
 }
 
 void JointConfigurationWidget::onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name)
@@ -762,8 +771,9 @@ void JointConfigurationWidget::onTiltJointNameChanged(const QString& link_name, 
   const auto rotor_role = getRole(rotor_row);
   TOBAS_CHECK(rotor_role == tobas::jnt_role_t::ROTOR);
 
-  if (tilt_joint_map_.contains(link_name))
+  if (tilt_joint_map_.contains(link_name)) {
     removeTiltJoint(tilt_joint_name);
+  }
   tilt_joint_map_[link_name] = tilt_joint_name;
 
   const auto tilt_row = findJoint(tilt_joint_name);

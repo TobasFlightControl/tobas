@@ -15,35 +15,40 @@ ISM330DLC::ISM330DLC()
 
 bool ISM330DLC::initialize(const char* spi_device)
 {
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq)) {
     return false;
+  }
 
-  if (!checkWhoAmI())
+  if (!checkWhoAmI()) {
     return false;
+  }
 
   // Set full scales
-  if (!setAccelFullScale(fs_xl_t::FS_XL_2G))
+  if (!setAccelFullScale(fs_xl_t::FS_XL_2G)) {
     return false;
-  if (!setGyroFullScale(fs_g_t::FS_G_250DPS))
+  }
+  if (!setGyroFullScale(fs_g_t::FS_G_250DPS)) {
     return false;
+  }
 
   // Disable I2C
-  if (!writeReg(REG_CTRL4_C, I2C_DISABLE))
+  if (!writeReg(REG_CTRL4_C, I2C_DISABLE)) {
     return false;
+  }
 
   return true;
 }
 
 bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
 {
-  if (!readRegs(REG_CTRL1_XL, 1))
+  if (!readRegs(REG_CTRL1_XL, 1)) {
     return false;
+  }
 
   auto ctrl1_xl = res_[0];
   ctrl1_xl &= 0b00001111;
 
-  switch (odr)
-  {
+  switch (odr) {
     case odr_xl_t::ODR_XL_26HZ:
       ctrl1_xl |= ODR_XL_26HZ;
       break;
@@ -76,22 +81,23 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
       return false;
   }
 
-  if (!writeReg(REG_CTRL1_XL, ctrl1_xl))
+  if (!writeReg(REG_CTRL1_XL, ctrl1_xl)) {
     return false;
+  }
 
   return true;
 }
 
 bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
 {
-  if (!readRegs(REG_CTRL2_G, 1))
+  if (!readRegs(REG_CTRL2_G, 1)) {
     return false;
+  }
 
   auto ctrl2_g = res_[0];
   ctrl2_g &= 0b00001111;
 
-  switch (odr)
-  {
+  switch (odr) {
     case odr_g_t::ODR_G_26HZ:
       ctrl2_g |= ODR_G_26HZ;
       break;
@@ -124,22 +130,23 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
       return false;
   }
 
-  if (!writeReg(REG_CTRL2_G, ctrl2_g))
+  if (!writeReg(REG_CTRL2_G, ctrl2_g)) {
     return false;
+  }
 
   return true;
 }
 
 bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
 {
-  if (!readRegs(REG_CTRL1_XL, 1))
+  if (!readRegs(REG_CTRL1_XL, 1)) {
     return false;
+  }
 
   auto ctrl1_xl = res_[0];
   ctrl1_xl &= 0b11110011;
 
-  switch (fs)
-  {
+  switch (fs) {
     case fs_xl_t::FS_XL_2G:
       ctrl1_xl |= FS_XL_2G;
       acc_scale_ = 0.061;
@@ -161,8 +168,9 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
       return false;
   }
 
-  if (!writeReg(REG_CTRL1_XL, ctrl1_xl))
+  if (!writeReg(REG_CTRL1_XL, ctrl1_xl)) {
     return false;
+  }
 
   // LSB -> mg -> g -> m/s^2 (Linear acceleration sensitivity | 4.1 Mechanical characteristics)
   acc_scale_ *= 1e-3;
@@ -173,14 +181,14 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
 
 bool ISM330DLC::setGyroFullScale(fs_g_t fs)
 {
-  if (!readRegs(REG_CTRL2_G, 1))
+  if (!readRegs(REG_CTRL2_G, 1)) {
     return false;
+  }
 
   auto ctrl2_g = res_[0];
   ctrl2_g &= 0b11110001;
 
-  switch (fs)
-  {
+  switch (fs) {
     case fs_g_t::FS_G_125DPS:
       ctrl2_g |= FS_G_125DPS;
       gyro_scale_ = 4.375;
@@ -206,8 +214,9 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
       return false;
   }
 
-  if (!writeReg(REG_CTRL2_G, ctrl2_g))
+  if (!writeReg(REG_CTRL2_G, ctrl2_g)) {
     return false;
+  }
 
   // mdps -> dps -> rad/s (Angular rate sensitivity | 4.1 Mechanical characteristics)
   gyro_scale_ *= 1e-3;
@@ -218,8 +227,9 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
 
 bool ISM330DLC::readAccel(double& ax, double& ay, double& az)
 {
-  if (!readRegs(REG_OUTX_L_XL, 6))
+  if (!readRegs(REG_OUTX_L_XL, 6)) {
     return false;
+  }
 
   // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
   ax = static_cast<int16_t>((res_[1] << 8) | res_[0]) * acc_scale_;
@@ -231,8 +241,9 @@ bool ISM330DLC::readAccel(double& ax, double& ay, double& az)
 
 bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
 {
-  if (!readRegs(REG_OUTX_L_G, 6))
+  if (!readRegs(REG_OUTX_L_G, 6)) {
     return false;
+  }
 
   gx = static_cast<int16_t>((res_[1] << 8) | res_[0]) * gyro_scale_;
   gy = static_cast<int16_t>((res_[3] << 8) | res_[2]) * gyro_scale_;
@@ -245,8 +256,9 @@ bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
 {
   tx_buf_[0] = addr | kReadFlag;
 
-  if (!spi_.transfer(bytes + 1))
+  if (!spi_.transfer(bytes + 1)) {
     return false;
+  }
 
   memcpy(res_, rx_buf_ + 1, bytes);
 
@@ -262,11 +274,11 @@ bool ISM330DLC::writeReg(const uint8_t& addr, const uint8_t& data)
 
 bool ISM330DLC::checkWhoAmI()
 {
-  if (!readRegs(REG_WHO_AM_I, 1))
+  if (!readRegs(REG_WHO_AM_I, 1)) {
     return false;
+  }
 
-  if (res_[0] != WHO_AM_I)
-  {
+  if (res_[0] != WHO_AM_I) {
     cerr << "IMU is not recognized." << endl;
     return false;
   }

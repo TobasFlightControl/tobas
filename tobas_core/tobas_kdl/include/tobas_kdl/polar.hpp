@@ -18,7 +18,7 @@ public:
   inline explicit SphericalCoordinate();
   inline explicit SphericalCoordinate(double _rho, double _phi, double _theta);
 
-  inline static SphericalCoordinate Cartesian(const Vector& cart);
+  static inline SphericalCoordinate Cartesian(const Vector& cart);
 
   inline Vector toCartesian() const;
 

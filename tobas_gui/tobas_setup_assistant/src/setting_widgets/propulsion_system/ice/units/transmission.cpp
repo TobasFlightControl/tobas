@@ -35,8 +35,7 @@ const char* TransmissionWidget::name() const
 bool TransmissionWidget::isValid()
 {
   const auto [engine_gear, propeller_gear] = gear_ratio_->getValue();
-  if (engine_gear < propeller_gear)
-  {
+  if (engine_gear < propeller_gear) {
     qt::qErrorBox(
       this, "The engine's rotational speed must be equal to or greater than the propeller's rotational speed.");
     return false;

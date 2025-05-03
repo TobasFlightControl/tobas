@@ -43,11 +43,8 @@ ServiceServerPtr<SrvType> createService(
 }
 
 template <typename RepType, typename DurType, typename Obj>
-ros2::TimerPtr createTimer(
-  rclcpp::Node::SharedPtr node,
-  std::chrono::duration<RepType, DurType> period,
-  void (Obj::*fp)(void),
-  Obj* obj)
+ros2::TimerPtr
+createTimer(rclcpp::Node::SharedPtr node, std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj)
 {
   return node->create_timer(period, std::bind(fp, obj));
 }

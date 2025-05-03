@@ -17,7 +17,7 @@ public:
   inline explicit FrameVel(const Frame& _T, const Twist& _t);
   inline explicit FrameVel(const RotationVel& _M, const VectorVel& _p);
 
-  inline static FrameVel Identity();
+  static inline FrameVel Identity();
 
   inline void setIdentity();
 

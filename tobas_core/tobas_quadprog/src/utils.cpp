@@ -24,10 +24,10 @@ void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, Vecto
   b.conservativeResize(num_valid);
 
   int row = 0;  // 行列不等式の行番号
-  for (int i = 0; i < size * 2; ++i)
-  {
-    if (!is_valid(i))
+  for (int i = 0; i < size * 2; ++i) {
+    if (!is_valid(i)) {
       continue;
+    }
     A.block(row, 0, 1, size) = left.row(i);
     b(row) = right(i);
     ++row;

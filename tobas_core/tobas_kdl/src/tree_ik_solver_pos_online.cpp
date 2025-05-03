@@ -11,42 +11,50 @@ TreeIkSolverPos_Online::TreeIkSolverPos_Online(const Tree& tree)
 
 bool TreeIkSolverPos_Online::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!fksolver_.updateInternalDataStructures())
+  if (!fksolver_.updateInternalDataStructures()) {
     return false;
-  if (!iksolver_.updateInternalDataStructures())
+  }
+  if (!iksolver_.updateInternalDataStructures()) {
     return false;
-  if (!jntparser_.updateInternalDataStructures())
+  }
+  if (!jntparser_.updateInternalDataStructures()) {
     return false;
+  }
 
   return true;
 }
 
 int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q_in.rows() != nj_)
+  }
+  if (q_in.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
-  if (dt < 0)
+  }
+  if (dt < 0) {
     return setDefaultError(E_NEGATIVE_DELTA_TIME);
+  }
 
   // Compute delta twists
   TwistMap delta_twists;
-  for (const auto& [seg_name, frame] : p_in)
-  {
-    if (fksolver_.JntToCart(q_in, seg_name) < 0)
+  for (const auto& [seg_name, frame] : p_in) {
+    if (fksolver_.JntToCart(q_in, seg_name) < 0) {
       return copyError(fksolver_);
+    }
     auto delta_t = (frame - fksolver_.getFrame()).toTwist();
     enforceCartVelLimits(delta_t, dt);
     delta_twists[seg_name] = delta_t;
   }
 
   // Compute delta q
-  if (iksolver_.CartToJnt(q_in, delta_twists) < 0)
+  if (iksolver_.CartToJnt(q_in, delta_twists) < 0) {
     return copyError(iksolver_);
+  }
   auto delta_q = iksolver_.getVelocities();
   enforceJointVelLimits(delta_q, dt);
 
@@ -63,8 +71,9 @@ int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in
 
 bool TreeIkSolverPos_Online::setMaxLinearVelocity(const double& max_linvel)
 {
-  if (max_linvel < 0)
+  if (max_linvel < 0) {
     return false;
+  }
 
   max_linvel_ = max_linvel;
   return true;
@@ -72,8 +81,9 @@ bool TreeIkSolverPos_Online::setMaxLinearVelocity(const double& max_linvel)
 
 bool TreeIkSolverPos_Online::setMaxAngularVelocity(const double& max_angvel)
 {
-  if (max_angvel < 0)
+  if (max_angvel < 0) {
     return false;
+  }
 
   max_angvel_ = max_angvel;
   return true;
@@ -87,28 +97,28 @@ void TreeIkSolverPos_Online::enforceJointVelLimits(JntArray& delta_q, const doub
   double rel_os_max = 0.;  // the biggest relative overshoot
   bool max_exceeded = false;
 
-  for (size_t i = 0; i < nj_; ++i)
-  {
+  for (size_t i = 0; i < nj_; ++i) {
     const auto delta_q_max = jntparser_.maxVelocity(i) * dt;
-    if (delta_q(i) > delta_q_max)
-    {
+    if (delta_q(i) > delta_q_max) {
       max_exceeded = true;
       const auto rel_os = (delta_q(i) - delta_q_max) / delta_q_max;
-      if (rel_os > rel_os_max)
+      if (rel_os > rel_os_max) {
         rel_os_max = rel_os;
+      }
     }
-    else if (delta_q(i) < -delta_q_max)
-    {
+    else if (delta_q(i) < -delta_q_max) {
       max_exceeded = true;
       const auto rel_os = (-delta_q(i) - delta_q_max) / delta_q_max;
-      if (rel_os > rel_os_max)
+      if (rel_os > rel_os_max) {
         rel_os_max = rel_os;
+      }
     }
   }
 
   // scales delta_q, if one joint exceeds the maximum value
-  if (max_exceeded == true)
+  if (max_exceeded == true) {
     delta_q *= 1 / (1 + rel_os_max);
+  }
 }
 
 void TreeIkSolverPos_Online::enforceCartVelLimits(Twist& delta_t, const double& dt)
@@ -118,15 +128,12 @@ void TreeIkSolverPos_Online::enforceCartVelLimits(Twist& delta_t, const double& 
   const auto delta_lin_max = max_linvel_ * dt;
   const auto delta_ang_max = max_angvel_ * dt;
 
-  if (delta_lin_norm > delta_lin_max || delta_ang_norm > delta_ang_max)
-  {
-    if (delta_lin_norm > delta_ang_norm)
-    {
+  if (delta_lin_norm > delta_lin_max || delta_ang_norm > delta_ang_max) {
+    if (delta_lin_norm > delta_ang_norm) {
       delta_t.vel = delta_t.vel * (delta_lin_max / delta_lin_norm);
       delta_t.rot = delta_t.rot * (delta_lin_max / delta_lin_norm);
     }
-    else if (delta_ang_norm > delta_lin_norm)
-    {
+    else if (delta_ang_norm > delta_lin_norm) {
       delta_t.vel = delta_t.vel * (delta_ang_max / delta_ang_norm);
       delta_t.rot = delta_t.rot * (delta_ang_max / delta_ang_norm);
     }

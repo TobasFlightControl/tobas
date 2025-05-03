@@ -160,19 +160,24 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
-  if (do_acc_bias_estimation_)
+  if (do_acc_bias_estimation_) {
     addDynamicIntParam("acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 20, 0, 1000);  // [ug/√Hz]
-  if (do_gyro_bias_estimation_)
+  }
+  if (do_gyro_bias_estimation_) {
     addDynamicIntParam(
       "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1000, 0, 10000);  // [udps/√Hz]
-  if (do_mag_hard_bias_estimation_)
+  }
+  if (do_mag_hard_bias_estimation_) {
     addDynamicIntParam(
       "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 1000, 0, 10000);  // [u/√Hz]
-  if (do_mag_soft_bias_estimation_)
+  }
+  if (do_mag_soft_bias_estimation_) {
     addDynamicIntParam(
       "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 1000, 0, 10000);  // [u/√Hz]
-  if (do_grav_estimation_)
+  }
+  if (do_grav_estimation_) {
     addDynamicIntParam("grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 20, 0, 1000);  // [ug/√Hz]
+  }
 
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
   addDynamicIntParam("grav_meas_var_slope", &self::gravMeasVarSlopeCb, this, 100, 0, 1000);
@@ -185,10 +190,12 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   // Register subscribers
   imu_sub_ = createSubscriber(tobas::kImuTopic, &self::imuCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
-  if (use_bar_)
+  if (use_bar_) {
     bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::barCb, this);
-  if (use_gnss_)
+  }
+  if (use_gnss_) {
     gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
+  }
 
   // Register service servers
   get_gnss_origin_ss_ = createService<GetOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
@@ -217,21 +224,18 @@ void ObserverNode::getStaticRosParams()
 bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
 {
   // 地磁気の参照値を設定
-  if (!eskf_.setMagneticFieldRef(mag_W))
-  {
+  if (!eskf_.setMagneticFieldRef(mag_W)) {
     TOBAS_ERROR("Failed to set reference magnetic field.");
     return false;
   }
 
   // 地磁気のバイアスを初期化
   eskf_.initializeMagHardBias(Vector3d::Zero(), Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal());
-  eskf_.initializeMagSoftBias(
-    Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
+  eskf_.initializeMagSoftBias(Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
 
   // 地磁気を受け取っていればヨーを初期化
   // でないとヨーの誤差が大きすぎる場合にロールピッチまでフィードバックの影響を受けてしまう
-  if (mag_)
-  {
+  if (mag_) {
     // 現在のRPYを取得
     double old_roll, old_pitch, old_yaw;
     const auto R_W_B = eskf_.getQuaternion();
@@ -257,8 +261,7 @@ bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
     rot_cov(2, 2) = math::sqr(kInitRotStddev);
 
     // 姿勢を初期化
-    if (!eskf_.initializeQuaternion(new_q, rot_cov))
-    {
+    if (!eskf_.initializeQuaternion(new_q, rot_cov)) {
       TOBAS_ERROR("Failed to initialize orientation.");
       return false;
     }
@@ -285,10 +288,12 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   odom.header.frame_id = tobas::kWorldFrame;
 
   // Status
-  if (!gnss_fix_)
+  if (!gnss_fix_) {
     odom.status = tobas_msgs::msg::Odometry::POSITION_LOST;
-  else
+  }
+  else {
     odom.status = tobas_msgs::msg::Odometry::NO_ERROR;
+  }
 
   // Position (Global): IMU frame -> Base frame
   odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
@@ -452,8 +457,7 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   const auto cur_time = ros2::chronoFromRosTime(imu->header.stamp);
 
   // Initialization
-  if (!imu_)
-  {
+  if (!imu_) {
     if (!eskf_.initialize(
           Vector3d::Zero(),                                                     // Init position
           Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position cov
@@ -471,8 +475,7 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
           Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias cov
           tobas_std::kGravity,                                                  // Init gravity
           math::sqr(initGravBiasStddev()),                                      // Init gravity var
-          cur_time))
-    {
+          cur_time)) {
       TOBAS_ERROR("Failed to initialize ESKF.");
       return;
     }
@@ -513,34 +516,38 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
 
 void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
 {
-  if (!imu_)
+  if (!imu_) {
     return;
+  }
 
   mag_ = mag;
 
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照とする．
-  if (!mag_ref_set_)
-  {
+  if (!mag_ref_set_) {
     setMagneticFieldRef(mag_->mag.mag.data);
     return;
   }
 
   // バイアス推定を行う場合は3軸，行わない場合はヨーのみ更新
-  if (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_)
+  if (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_) {
     eskf_.measureMagneticField3d(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
-  else
+  }
+  else {
     eskf_.measureMagneticFieldYaw(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
+  }
 }
 
 void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
 {
-  if (!imu_)
+  if (!imu_) {
     return;
+  }
 
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
-  if (!bar_)
+  if (!bar_) {
     alt_0_bar_ = tobas_std::pressureToAltitude(bar->pressure.pressure);
+  }
 
   bar_ = bar;
 
@@ -554,15 +561,16 @@ void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
 
 void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 {
-  if (!imu_)
+  if (!imu_) {
     return;
+  }
 
   gnss_fix_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
-  if (!gnss_fix_)
+  if (!gnss_fix_) {
     return;
+  }
 
-  if (!gnss_)
-  {
+  if (!gnss_) {
     // GNSSの初期位置
     // TODO: IMUフレームに変換
     lat_0_ = gnss->latitude;
@@ -576,18 +584,17 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
     const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gnss_, tobas_std::yearFraction());
     Vector3d mag_W(mag.north, -mag.east, -mag.down);  // NWU coordinates
-    if (!setMagneticFieldRef(mag_W))
+    if (!setMagneticFieldRef(mag_W)) {
       return;
+    }
 
     // 初めてGNSSを受け取った位置速度で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
-    if (!eskf_.initializePosition(Vector3d::Zero(), gnss->position_covariance))
-    {
+    if (!eskf_.initializePosition(Vector3d::Zero(), gnss->position_covariance)) {
       TOBAS_ERROR("Failed to initialize position.");
       return;
     }
-    if (!eskf_.initializeVelocity(gnss->ground_speed.data, gnss->velocity_covariance))
-    {
+    if (!eskf_.initializeVelocity(gnss->ground_speed.data, gnss->velocity_covariance)) {
       TOBAS_ERROR("Failed to initialize velocity.");
       return;
     }
@@ -606,14 +613,14 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     imu_->imu.imu.gyro.data, ros2::chronoFromRosTime(gnss->header.stamp));
 
   // 異常度が高すぎる場合は警告
-  if (gnss_anormaly_score_ > kAnormalyScoreThreshold)
+  if (gnss_anormaly_score_ > kAnormalyScoreThreshold) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
+  }
 }
 
 void ObserverNode::getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr&, const GetOrigin::Response::SharedPtr& res)
 {
-  if (!gnss_fix_)
-  {
+  if (!gnss_fix_) {
     res->success = false;
     res->message = "GNSS position is not fixed.";
     return;
@@ -631,8 +638,7 @@ void ObserverNode::setGnssOriginCb(
   const SetOrigin::Request::ConstSharedPtr& req,
   const SetOrigin::Response::SharedPtr& res)
 {
-  if (!gnss_fix_)
-  {
+  if (!gnss_fix_) {
     res->success = false;
     res->message = "GNSS position is not fixed.";
     return;

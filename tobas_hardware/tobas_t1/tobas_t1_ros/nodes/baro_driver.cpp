@@ -34,8 +34,7 @@ BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("t1_b
 
 void BaroDriverNode::initialize()
 {
-  if (!baro_.initialize())
-  {
+  if (!baro_.initialize()) {
     TOBAS_ERROR("Failed to initialize Barometer. Retrying...");
     return;
   }
@@ -55,8 +54,7 @@ void BaroDriverNode::mainTimerCb()
   msg->header.stamp = get_clock()->now();
 
   // Read sensor
-  if (!baro_.readPressure(msg->pressure))
-  {
+  if (!baro_.readPressure(msg->pressure)) {
     TOBAS_FATAL("Failed to read barometer.");
     return;
   }

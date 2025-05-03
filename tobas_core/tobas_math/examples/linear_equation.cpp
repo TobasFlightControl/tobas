@@ -6,8 +6,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 3)
-  {
+  if (argc != 3) {
     cerr << "Usage: " << argv[0] << " a b -> Solve: ax + b = 0" << endl;
     return EXIT_FAILURE;
   }

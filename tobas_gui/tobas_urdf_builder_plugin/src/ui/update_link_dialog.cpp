@@ -57,16 +57,17 @@ UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPane
 
 void UpdateLinkDialog::done(int code)
 {
-  if (code == QDialog::Rejected)
-  {
+  if (code == QDialog::Rejected) {
     QDialog::done(code);
     return;
   }
 
-  if (ui_->LinkNameLineEdit->text().isEmpty())
+  if (ui_->LinkNameLineEdit->text().isEmpty()) {
     QMessageBox::warning(this, kError, "No name specified");
-  else
+  }
+  else {
     QDialog::done(code);
+  }
 }
 
 void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& link_vm)
@@ -76,12 +77,14 @@ void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& link_vm)
   blockSignals(true);
 
   ui_->VisualListWidget->clear();
-  for (const auto& visual : link_vm_->visuals())
+  for (const auto& visual : link_vm_->visuals()) {
     ui_->VisualListWidget->addItem(new VisualListWidgetItem(visual));
+  }
 
   ui_->CollisionListWidget->clear();
-  for (const auto& collision : link_vm_->collisions())
+  for (const auto& collision : link_vm_->collisions()) {
     ui_->CollisionListWidget->addItem(new CollisionListWidgetItem(collision));
+  }
 
   ui_->VisualOriginGroupBox->hide();
   ui_->VisualGeometryGroupBox->hide();
@@ -241,13 +244,11 @@ void UpdateLinkDialog::JointTypeComboBoxIndexChanged(int)
   ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
 
   // 固定関節ならばAxis, Dynamicsは表示しない
-  if (joint->isFixed())
-  {
+  if (joint->isFixed()) {
     ui_->JointAxisGroupBox->setVisible(false);
     ui_->JointDynamicsGroupBox->setVisible(false);
   }
-  else
-  {
+  else {
     ui_->JointAxisGroupBox->setVisible(true);
     ui_->JointDynamicsGroupBox->setVisible(true);
   }
@@ -315,8 +316,9 @@ void UpdateLinkDialog::RenameLinkButtonClicked()
   StringInputDialog dialog(this, "Rename Link", "Link Name", cur_name, excludeds);
 
   const auto result = dialog.exec();
-  if (result != QDialog::Accepted)
+  if (result != QDialog::Accepted) {
     return;
+  }
 
   ui_->LinkNameLineEdit->setText(dialog.getText());
 
@@ -334,8 +336,9 @@ void UpdateLinkDialog::RenameJointButtonClicked()
   StringInputDialog dialog(this, "Rename Joint", "Joint Name", cur_name, excludeds);
 
   const auto result = dialog.exec();
-  if (result != QDialog::Accepted)
+  if (result != QDialog::Accepted) {
     return;
+  }
 
   ui_->JointNameLineEdit->setText(dialog.getText());
 
@@ -360,8 +363,7 @@ void UpdateLinkDialog::RemoveVisualButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::RemoveVisualButtonClicked");
 
-  if (ui_->VisualListWidget->selectedItems().empty())
-  {
+  if (ui_->VisualListWidget->selectedItems().empty()) {
     QMessageBox::warning(this, kError, "No visual is selected.");
     return;
   }
@@ -372,14 +374,12 @@ void UpdateLinkDialog::RemoveVisualButtonClicked()
   ui_->VisualListWidget->removeItemWidget(item);
   delete item;
 
-  if (ui_->VisualListWidget->count() > 0)
-  {
+  if (ui_->VisualListWidget->count() > 0) {
     const auto first = boost::polymorphic_downcast<VisualListWidgetItem*>(ui_->VisualListWidget->item(0));
     first->setSelected(true);
     readFromVM(first->viewModel());
   }
-  else
-  {
+  else {
     readFromVM(shared_ptr<view_model::VisualViewModel>(nullptr));
   }
 
@@ -404,8 +404,7 @@ void UpdateLinkDialog::RemoveCollisionButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::RemoveCollisionButtonClicked");
 
-  if (ui_->CollisionListWidget->selectedItems().empty())
-  {
+  if (ui_->CollisionListWidget->selectedItems().empty()) {
     QMessageBox::warning(this, kError, "No collision is selected.");
     return;
   }
@@ -416,14 +415,12 @@ void UpdateLinkDialog::RemoveCollisionButtonClicked()
   ui_->CollisionListWidget->removeItemWidget(item);
   delete item;
 
-  if (ui_->CollisionListWidget->count() > 0)
-  {
+  if (ui_->CollisionListWidget->count() > 0) {
     const auto first = boost::polymorphic_downcast<CollisionListWidgetItem*>(ui_->CollisionListWidget->item(0));
     first->setSelected(true);
     readFromVM(first->viewModel());
   }
-  else
-  {
+  else {
     readFromVM(shared_ptr<view_model::CollisionViewModel>(nullptr));
   }
 
@@ -436,8 +433,7 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   string last_dir;
-  if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
-  {
+  if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     last_dir = rcutils_get_home_dir();
   }
@@ -445,21 +441,20 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
     this, tr("URDF Builder"), QString::fromStdString(last_dir), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
-  if (file_path.isEmpty())
+  if (file_path.isEmpty()) {
     return;
+  }
 
   // メッシュファイルのパスを設定
   ui_->VisualGeometryMeshPathLineEdit->setText("file://" + file_path);
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0)
-  {
+  if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     return;
   }
-  if (property_client_.save() < 0)
-  {
+  if (property_client_.save() < 0) {
     PRINT_WARN(property_client_.errorMessage());
     return;
   }
@@ -471,8 +466,7 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   string last_dir;
-  if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
-  {
+  if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     last_dir = rcutils_get_home_dir();
   }
@@ -480,21 +474,20 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
     this, tr("URDF Builder"), QString::fromStdString(last_dir), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
-  if (file_path.isEmpty())
+  if (file_path.isEmpty()) {
     return;
+  }
 
   // メッシュファイルのパスを設定
   ui_->CollisionGeometryMeshPathLineEdit->setText("file://" + file_path);
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0)
-  {
+  if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     return;
   }
-  if (property_client_.save() < 0)
-  {
+  if (property_client_.save() < 0) {
     PRINT_WARN(property_client_.errorMessage());
     return;
   }
@@ -507,8 +500,9 @@ void UpdateLinkDialog::MaterialColorPickButtonClicked()
   const auto& color = visual_vm_->material()->color();
   QColorDialog dialog(QColor::fromRgbF(color.r, color.g, color.b, color.a));
 
-  if (dialog.exec() != QDialog::Accepted)
+  if (dialog.exec() != QDialog::Accepted) {
     return;
+  }
 
   visual_vm_->material()->color(dialog.currentColor());
   link_vm_->sync();
@@ -524,8 +518,9 @@ void UpdateLinkDialog::BuildInertiaBoxButtonClicked()
   DoubleMapInputDialog dialog(this, "Box Inertia", { "X", "Y", "Z" });
   const auto result = dialog.exec();
 
-  if (result != QDialog::Accepted)
+  if (result != QDialog::Accepted) {
     return;
+  }
 
   const auto& x = dialog.getValue("X");
   const auto& y = dialog.getValue("Y");
@@ -545,8 +540,9 @@ void UpdateLinkDialog::BuildInertiaCylinderButtonClicked()
   DoubleMapInputDialog dialog(this, "Cylinder Inertia", { "Radius", "Length" });
   const auto result = dialog.exec();
 
-  if (result != QDialog::Accepted)
+  if (result != QDialog::Accepted) {
     return;
+  }
 
   const auto& radius = dialog.getValue("Radius");
   const auto& length = dialog.getValue("Length");
@@ -565,8 +561,9 @@ void UpdateLinkDialog::BuildInertiaSphereButtonClicked()
   DoubleMapInputDialog dialog(this, "Sphere Inertia", { "Radius" });
   const auto result = dialog.exec();
 
-  if (result != QDialog::Accepted)
+  if (result != QDialog::Accepted) {
     return;
+  }
 
   const auto& radius = dialog.getValue("Radius");
 
@@ -584,19 +581,22 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
   ui_->JointNameLineEdit->setText(joint->name());
 
   ui_->JointParentLinkComboBox->clear();
-  for (const auto& link_name : main_->linkNames())
-    if (link_name != link_vm_->name())
+  for (const auto& link_name : main_->linkNames()) {
+    if (link_name != link_vm_->name()) {
       ui_->JointParentLinkComboBox->addItem(link_name);
-  if (joint->parentLinkName().isEmpty())
+    }
+  }
+  if (joint->parentLinkName().isEmpty()) {
     ui_->JointParentLinkComboBox->setCurrentIndex(-1);
-  else
+  }
+  else {
     ui_->JointParentLinkComboBox->setCurrentText(joint->parentLinkName());
+  }
 
   ui_->JointTypeComboBox->setCurrentText(joint->type());
 
   ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
-  if (joint->limitsEnabled())
-  {
+  if (joint->limitsEnabled()) {
     ui_->JointLimitLowerSpinBox->setValue(joint->limits()->lower());
     ui_->JointLimitUpperSpinBox->setValue(joint->limits()->upper());
     ui_->JointLimitEffortSpinBox->setValue(joint->limits()->effort());
@@ -604,13 +604,11 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
   }
 
   // 固定関節ならばAxis, Dynamicsは表示しない
-  if (joint->isFixed())
-  {
+  if (joint->isFixed()) {
     ui_->JointAxisGroupBox->setVisible(false);
     ui_->JointDynamicsGroupBox->setVisible(false);
   }
-  else
-  {
+  else {
     ui_->JointAxisGroupBox->setVisible(true);
     ui_->JointDynamicsGroupBox->setVisible(true);
   }
@@ -640,8 +638,9 @@ void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
   ui_->VisualGeometryGroupBox->setVisible(visual != nullptr);
   ui_->VisualMaterialGroupBox->setVisible(visual != nullptr);
 
-  if (!visual)
+  if (!visual) {
     return;
+  }
 
   blockSignals(true);
 
@@ -686,8 +685,9 @@ void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& colli
   ui_->CollisionOriginGroupBox->setVisible(collision != nullptr);
   ui_->CollisionGeometryGroupBox->setVisible(collision != nullptr);
 
-  if (!collision)
+  if (!collision) {
     return;
+  }
 
   blockSignals(true);
 
@@ -755,13 +755,11 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
   pose.position.y = ui_->VisualOriginYSpinBox->value();
   pose.position.z = ui_->VisualOriginZSpinBox->value();
   pose.rotation.setFromRPY(
-    ui_->VisualOriginRollSpinBox->value(), ui_->VisualOriginPitchSpinBox->value(),
-    ui_->VisualOriginYawSpinBox->value());
+    ui_->VisualOriginRollSpinBox->value(), ui_->VisualOriginPitchSpinBox->value(), ui_->VisualOriginYawSpinBox->value());
   visual->origin(pose);
 
   const auto& geometry_vm = visual->geometry();
-  switch (geometry_vm->type())
-  {
+  switch (geometry_vm->type()) {
     case GeometryType::BOX:
       geometry_vm->length(ui_->VisualGeometryBoxLengthSpinBox->value());
       geometry_vm->width(ui_->VisualGeometryBoxWidthSpinBox->value());
@@ -804,8 +802,7 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
   collision->origin(pose);
 
   const auto& geometry_vm = collision->geometry();
-  switch (geometry_vm->type())
-  {
+  switch (geometry_vm->type()) {
     case GeometryType::BOX:
       geometry_vm->length(ui_->CollisionGeometryBoxLengthSpinBox->value());
       geometry_vm->width(ui_->CollisionGeometryBoxWidthSpinBox->value());
@@ -834,8 +831,7 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) co
   joint->childLinkName(ui_->LinkNameLineEdit->text());
   joint->type(ui_->JointTypeComboBox->currentText());
 
-  if (joint->limitsEnabled())
-  {
+  if (joint->limitsEnabled()) {
     joint->limits()->lower(ui_->JointLimitLowerSpinBox->value());
     joint->limits()->upper(ui_->JointLimitUpperSpinBox->value());
     joint->limits()->effort(ui_->JointLimitEffortSpinBox->value());
@@ -890,8 +886,7 @@ void UpdateLinkDialog::blockSignals(bool block)
   const QList<QWidget*>::const_iterator last_widget(widget_list.end());
   QList<QWidget*>::const_iterator widget_iter(widget_list.begin());
 
-  while (widget_iter != last_widget)
-  {
+  while (widget_iter != last_widget) {
     (*widget_iter)->blockSignals(block);
     ++widget_iter;
   }
@@ -904,8 +899,9 @@ void UpdateLinkDialog::emitChanged()
 
 void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const map<QString, QFrame*>& map, const QString& type)
 {
-  for (const auto& pair : map)
+  for (const auto& pair : map) {
     pair.second->hide();
+  }
   map.at(type)->show();
 }
 }  // namespace ui

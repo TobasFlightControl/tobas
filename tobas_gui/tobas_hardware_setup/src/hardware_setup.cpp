@@ -37,8 +37,7 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
 
 void HardwareSetupWidget::reset()
 {
-  for (int i = 0; i < tabs_->count(); ++i)
-  {
+  for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
     widget->reset();
   }
@@ -56,8 +55,7 @@ void HardwareSetupWidget::updateInternalDataStructures()
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
 
-  switch (drone_.prop->type())
-  {
+  switch (drone_.prop->type()) {
     case tobas::propulsion_system_t::ELECTRIC:
       tabs_->setTabVisible(rotor_test_, true);
       break;

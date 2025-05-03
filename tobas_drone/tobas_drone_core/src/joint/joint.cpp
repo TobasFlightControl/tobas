@@ -8,8 +8,7 @@ namespace tobas
 {
 bool JointConfig::isValid() const
 {
-  if (name.empty())
-  {
+  if (name.empty()) {
     cerr << "Joint name is empty." << endl;
     return false;
   }
@@ -19,20 +18,25 @@ bool JointConfig::isValid() const
 
 bool JointConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kNameKey, node, name))
+  if (!yaml::load(kNameKey, node, name)) {
     return false;
+  }
 
-  if (!yaml::load(kRoleKey, node, role))
+  if (!yaml::load(kRoleKey, node, role)) {
     return false;
+  }
 
-  if (!yaml::load(kCommandIfaceKey, node, cmd_iface))
+  if (!yaml::load(kCommandIfaceKey, node, cmd_iface)) {
     return false;
+  }
 
-  if (!yaml::load(kHardwareIfaceKey, node, hw_iface))
+  if (!yaml::load(kHardwareIfaceKey, node, hw_iface)) {
     return false;
+  }
 
-  if (!yaml::load(kHomePosKey, node, home_pos))
+  if (!yaml::load(kHomePosKey, node, home_pos)) {
     return false;
+  }
 
   return true;
 }

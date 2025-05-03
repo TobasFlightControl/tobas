@@ -6,8 +6,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
-  {
+  if (argc != 2) {
     cerr << "Usage: " << argv[0] << " <SPI Device>" << endl;
     return EXIT_FAILURE;
   }
@@ -24,110 +23,92 @@ int main(int argc, char** argv)
   ublox::payload::NAV_VELNED velned;
 
   cout << "Initializing GNSS device." << endl;
-  if (!gnss.initialize(device))
-  {
+  if (!gnss.initialize(device)) {
     cerr << "Failed to initialize GNSS driver." << endl;
     return EXIT_FAILURE;
   }
 
   cout << "Configuring measurement rate." << endl;
-  if (!gnss.configureMeasurementRate(1000))
-  {
+  if (!gnss.configureMeasurementRate(1000)) {
     cerr << "Failed to configure measurement rate." << endl;
     return EXIT_FAILURE;
   }
 
   // Enable GNSS
   cout << "Enabling GNSS." << endl;
-  if (!gnss.enableGPS(true))
-  {
+  if (!gnss.enableGPS(true)) {
     cerr << "Failed to enable GPS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSBAS(true))
-  {
+  if (!gnss.enableSBAS(true)) {
     cerr << "Failed to enable SBAS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableGalileo(false))
-  {
+  if (!gnss.enableGalileo(false)) {
     cerr << "Failed to disable Galileo." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableBeiDou(false))
-  {
+  if (!gnss.enableBeiDou(false)) {
     cerr << "Failed to disable BeiDou." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableQZSS(true))
-  {
+  if (!gnss.enableQZSS(true)) {
     cerr << "Failed to enable QZSS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableGLONASS(false))
-  {
+  if (!gnss.enableGLONASS(false)) {
     cerr << "Failed to disable GLONASS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableNavIC(false))
-  {
+  if (!gnss.enableNavIC(false)) {
     cerr << "Failed to disable NavIC." << endl;
     return EXIT_FAILURE;
   }
 
   // Enable messages
   cout << "Enabling messages." << endl;
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_COV, true))
-  {
+  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_COV, true)) {
     cerr << "Failed to enable NAV_COV message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_HPPOSLLH, true))
-  {
+  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_HPPOSLLH, true)) {
     cerr << "Failed to enable NAV_HPPOSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_POSLLH, true))
-  {
+  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_POSLLH, true)) {
     cerr << "Failed to enable NAV_POSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_PVT, true))
-  {
+  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_STATUS, true))
-  {
+  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_STATUS, true)) {
     cerr << "Failed to enable NAV_STATUS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_TIMEGPS, true))
-  {
+  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_TIMEGPS, true)) {
     cerr << "Failed to enable NAV_TIMEGPS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_VELNED, true))
-  {
+  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_VELNED, true)) {
     cerr << "Failed to enable NAV_VELNED message." << endl;
     return EXIT_FAILURE;
   }
 
   cout << "Initial configuration is finished successfully." << endl;
 
-  while (true)
-  {
-    if (!gnss.update(false))
-    {
+  while (true) {
+    if (!gnss.update(false)) {
       cerr << "Failed to update GNSS driver." << endl;
       return EXIT_FAILURE;
     }
 
-    if (gnss.latestClass() != ublox::ZEDF9P1xB::CLASS_NAV)
+    if (gnss.latestClass() != ublox::ZEDF9P1xB::CLASS_NAV) {
       continue;
+    }
 
-    switch (gnss.latestId())
-    {
+    switch (gnss.latestId()) {
       case ublox::ZEDF9P1xB::NAV_COV:
         cov.decode(gnss.payload());
         cout << "[NAV_COV]" << endl;

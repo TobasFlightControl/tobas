@@ -18,8 +18,7 @@ DeleteThread::DeleteThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 void DeleteThread::run()
 {
   const string rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name_.toStdString();
-  if (ssh_client_.execute("rm -rf " + rosbag_path, true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute("rm -rf " + rosbag_path, true) != ssh::SSHClient::E_NO_ERROR) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;
   }

@@ -80,10 +80,8 @@ MatrixXd ParamGetterWidget_DoubleTable::getValue() const
   const auto rows = count();
 
   MatrixXd res(rows, num_entry_);
-  for (int row = 0; row < rows; ++row)
-  {
-    for (int col = 0; col < num_entry_; ++col)
-    {
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < num_entry_; ++col) {
       const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(table_->cellWidget(row, col));
       res(row, col) = cell->value();
     }
@@ -94,16 +92,15 @@ MatrixXd ParamGetterWidget_DoubleTable::getValue() const
 
 bool ParamGetterWidget_DoubleTable::setValue(const MatrixXd& src)
 {
-  if (!isValidData(src))
+  if (!isValidData(src)) {
     return false;
+  }
 
   table_->removeAll();
 
-  for (int row = 0; row < src.rows(); ++row)
-  {
+  for (int row = 0; row < src.rows(); ++row) {
     addRow();
-    for (int col = 0; col < src.cols(); ++col)
-    {
+    for (int col = 0; col < src.cols(); ++col) {
       const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(table_->cellWidget(row, col));
       cell->setValue(src(row, col));
     }
@@ -157,8 +154,7 @@ void ParamGetterWidget_DoubleTable::addRow()
   const auto rows = count();
   table_->insertRow(rows);
 
-  for (int col = 0; col < num_entry_; ++col)
-  {
+  for (int col = 0; col < num_entry_; ++col) {
     const auto cell = new qt::DoubleSpinBox();
     cell->setMinimum(minimum_[col]);
     cell->setMaximum(maximum_[col]);
@@ -173,8 +169,9 @@ void ParamGetterWidget_DoubleTable::addRow()
 void ParamGetterWidget_DoubleTable::deleteRow()
 {
   const auto row = table_->currentRow();
-  if (row < 0)
+  if (row < 0) {
     return;
+  }
   table_->removeRow(row);
 }
 
@@ -183,22 +180,21 @@ void ParamGetterWidget_DoubleTable::loadCSV()
   // Get CSV file path
   const auto file_path = getCSVFilePath();
   if (file_path.isEmpty())  // Cancelの場合
+  {
     return;
+  }
 
   // Load CSV
   rapidcsv::Document doc(file_path.toStdString());
 
   // Read data
   vector<vector<double>> columns(num_entry_);
-  for (int i = 0; i < num_entry_; ++i)
-  {
+  for (int i = 0; i < num_entry_; ++i) {
     const auto& label = labels_.at(i);
-    try
-    {
+    try {
       columns[i] = doc.GetColumn<double>(label.toStdString());
     }
-    catch (...)
-    {
+    catch (...) {
       qt::qErrorBox(this, "Field \"" + label + "\" does not exist.");
       return;
     }
@@ -207,20 +203,20 @@ void ParamGetterWidget_DoubleTable::loadCSV()
   // Fill data
   const size_t num_data = columns.front().size();
   MatrixXd data_array(num_data, num_entry_);
-  for (int col = 0; col < num_entry_; ++col)
-  {
-    if (columns.at(col).size() != num_data)
-    {
+  for (int col = 0; col < num_entry_; ++col) {
+    if (columns.at(col).size() != num_data) {
       qt::qErrorBox(this, "Data size mismatch.");
       return;
     }
-    for (size_t row = 0; row < num_data; ++row)
+    for (size_t row = 0; row < num_data; ++row) {
       data_array(row, col) = columns.at(col).at(row);
+    }
   }
 
   // Set data
-  if (!setValue(data_array))
+  if (!setValue(data_array)) {
     return;
+  }
 
   qt::qInfoBox(this, "Data is loaded successfully.");
 }
@@ -233,8 +229,7 @@ void ParamGetterWidget_DoubleTable::onCellValueChanged()
 QString ParamGetterWidget_DoubleTable::getCSVFilePath()
 {
   string last_opened_dir;
-  if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0)
-  {
+  if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -244,8 +239,7 @@ QString ParamGetterWidget_DoubleTable::getCSVFilePath()
     this, kTitle, QString::fromStdString(last_opened_dir), "CSV File (*.csv)", nullptr, options);
 
   // 最後に開かれたパスを保存
-  if (!file_path.isEmpty())
-  {
+  if (!file_path.isEmpty()) {
     const auto par_dir = filesystem::path(file_path.toStdString()).parent_path();
     saveLastOpenedDir(par_dir);
   }
@@ -255,17 +249,14 @@ QString ParamGetterWidget_DoubleTable::getCSVFilePath()
 
 bool ParamGetterWidget_DoubleTable::isValidData(const MatrixXd& src)
 {
-  if (src.cols() != num_entry_)
-  {
+  if (src.cols() != num_entry_) {
     qt::qErrorBox(this, "Column size mismatch.");
     return false;
   }
 
-  for (int col = 0; col < num_entry_; ++col)
-  {
+  for (int col = 0; col < num_entry_; ++col) {
     const ArrayXd column = src.col(col).array();
-    if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any())
-    {
+    if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
       qt::qErrorBox(this, "Some values of field \"" + labels_.at(col) + "\" are out of limits.");
       return false;
     }
@@ -276,13 +267,11 @@ bool ParamGetterWidget_DoubleTable::isValidData(const MatrixXd& src)
 
 void ParamGetterWidget_DoubleTable::saveLastOpenedDir(const string& dir)
 {
-  if (property_client_.set(last_opend_dir_key_, dir) < 0)
-  {
+  if (property_client_.set(last_opend_dir_key_, dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;
   }
-  if (property_client_.save() < 0)
-  {
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;
   }

@@ -33,24 +33,23 @@ bool SelectedLinksWidget::isValid()
   const auto num_rotors = count();
 
   // 最低1つは登録されていなければならない
-  if (num_rotors == 0)
-  {
+  if (num_rotors == 0) {
     qt::qErrorBox(this, "Please register at least one link as a propulsion system.");
     return false;
   }
 
   // それぞれのタブの設定が有効であることを確認
-  for (int i = 0; i < num_rotors; ++i)
-    if (!widget(i)->isValid())
+  for (int i = 0; i < num_rotors; ++i) {
+    if (!widget(i)->isValid()) {
       return false;
+    }
+  }
 
   // チャンネルが重複していないことを確認
   QSet<int> channels;
-  for (int i = 0; i < num_rotors; ++i)
-  {
+  for (int i = 0; i < num_rotors; ++i) {
     const auto channel = widget(i)->hardwareIface()->pwmChannel();
-    if (channels.contains(channel))
-    {
+    if (channels.contains(channel)) {
       qt::qErrorBox(this, "PWM channel " + QString::number(channel) + " is duplicated.");
       return false;
     }
@@ -96,9 +95,11 @@ QString SelectedLinksWidget::linkName(int index) const
 
 int SelectedLinksWidget::index(const QString& link_name) const
 {
-  for (int i = 0; i < count(); ++i)
-    if (linkName(i) == link_name)
+  for (int i = 0; i < count(); ++i) {
+    if (linkName(i) == link_name) {
       return i;
+    }
+  }
 
   qWarning() << link_name << " is not selected as a propulsion system.";
   return -1;
@@ -138,8 +139,7 @@ void SelectedLinksWidget::onCopyFromLeftButtonClicked(const QString& link_name)
 
   const auto dst_idx = index(link_name);
   const auto src_idx = dst_idx - 1;
-  if (src_idx < 0)
-  {
+  if (src_idx < 0) {
     qt::qWarnBox(this, "There are no tabs on the left side.");
     return;
   }
@@ -158,10 +158,10 @@ void SelectedLinksWidget::onCopyToAllButtonClicked(const QString& link_name)
   const auto src_idx = index(link_name);
   const auto src_widget = widget(src_idx);
 
-  for (int dst_idx = 0; dst_idx < count(); ++dst_idx)
-  {
-    if (dst_idx == src_idx)
+  for (int dst_idx = 0; dst_idx < count(); ++dst_idx) {
+    if (dst_idx == src_idx) {
       continue;
+    }
     const auto dst_widget = widget(dst_idx);
     dst_widget->copyFrom(src_widget);
   }

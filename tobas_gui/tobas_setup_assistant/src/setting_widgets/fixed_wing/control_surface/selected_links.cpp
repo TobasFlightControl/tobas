@@ -82,9 +82,11 @@ QString SelectedLinksWidget::selected() const
 
 int SelectedLinksWidget::find(const QString& link_name) const
 {
-  for (int row = 0; row < rowCount(); ++row)
-    if (linkName(row) == link_name)
+  for (int row = 0; row < rowCount(); ++row) {
+    if (linkName(row) == link_name) {
       return row;
+    }
+  }
 
   qWarning() << link_name << " is not selected as a control surface.";
   return -1;

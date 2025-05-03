@@ -42,8 +42,7 @@ public:
   void setOrientation(const Ogre::Quaternion& orientation);
 
 private:
-  void
-  setColor(double z_pos, double min_z, double max_z, double color_factor, rviz_rendering::PointCloud::Point* point);
+  void setColor(double z_pos, double min_z, double max_z, double color_factor, rviz_rendering::PointCloud::Point* point);
   void setProbColor(double prob, rviz_rendering::PointCloud::Point* point);
 
   void octreeDecoding(

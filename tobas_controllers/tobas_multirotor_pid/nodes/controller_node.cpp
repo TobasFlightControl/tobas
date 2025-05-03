@@ -190,14 +190,18 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
 bool ControllerNode::updateInternalDataStructures()
 {
-  if (!z_rotors_.updateInternalDataStructures())
+  if (!z_rotors_.updateInternalDataStructures()) {
     return false;
-  if (!js_converter_.updateInternalDataStructures())
+  }
+  if (!js_converter_.updateInternalDataStructures()) {
     return false;
-  if (!acc_atti_conv_.updateInternalDataStructures())
+  }
+  if (!acc_atti_conv_.updateInternalDataStructures()) {
     return false;
-  if (!mixer_.updateInternalDataStructures())
+  }
+  if (!mixer_.updateInternalDataStructures()) {
     return false;
+  }
 
   return true;
 }
@@ -225,20 +229,17 @@ bool ControllerNode::updateHeadingPDGain()
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
 {
-  if (!topics_received_)
-  {
+  if (!topics_received_) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
     return false;
   }
 
-  if (!arming_->data)
-  {
+  if (!arming_->data) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, get_clock()->now()))
-  {
+  if (!cmd_level_handler_.update(level.data, get_clock()->now())) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -343,15 +344,15 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  if (drone->hasServoJoint())
+  if (drone->hasServoJoint()) {
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
-  else
+  }
+  else {
     js_sub_.reset();
+  }
 
-  if (tree_received_)
-  {
-    if (!updateInternalDataStructures())
-    {
+  if (tree_received_) {
+    if (!updateInternalDataStructures()) {
       TOBAS_FATAL("Error occured while updating internal data structures.");
       return;
     }
@@ -364,10 +365,8 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (drone_received_)
-  {
-    if (!updateInternalDataStructures())
-    {
+  if (drone_received_) {
+    if (!updateInternalDataStructures()) {
       TOBAS_FATAL("Error occured while updating internal data structures.");
       return;
     }
@@ -378,8 +377,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (!odom_)
-  {
+  if (!odom_) {
     odom_ = odom;
     return;
   }
@@ -393,10 +391,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->header.stamp = odom->header.stamp;
 
   // 位置制御器
-  if (pos_cmd_)
-  {
-    if (!acc_cmd_)
+  if (pos_cmd_) {
+    if (!acc_cmd_) {
       acc_cmd_ = std::make_shared<tobas_command_msgs::AccelYaw>();
+    }
 
     // 世界座標系から見た現在の位置速度
     const auto& cur_pos_W = odom->frame.p;
@@ -404,10 +402,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 目標加速度を計算
     // 接地している場合はI制御は行わない
-    if (landed_->data)
+    if (landed_->data) {
       acc_cmd_->accel = pos_pid_.updatePD(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel);
-    else
+    }
+    else {
       acc_cmd_->accel = pos_pid_.updatePID(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, dt);
+    }
 
     // ヨー角はそのまま流す
     acc_cmd_->yaw = pos_cmd_->yaw;
@@ -419,10 +419,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 加速度制御器
-  if (acc_cmd_)
-  {
-    if (!tar_angle_)
+  if (acc_cmd_) {
+    if (!tar_angle_) {
       tar_angle_ = std::make_shared<kdl::Euler>();
+    }
 
     // 推力和と目標姿勢を計算
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
@@ -437,20 +437,22 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 姿勢制御器
-  if (tar_angle_)
-  {
-    if (!tar_gyro_)
+  if (tar_angle_) {
+    if (!tar_gyro_) {
       tar_gyro_ = std::make_shared<kdl::Vector>();
+    }
 
     // 現在のオイラー角を計算
     const kdl::Euler cur_rpy(odom->frame.M);
 
     // 目標角速度を計算
     // 接地している場合はI制御は行わない
-    if (landed_->data)
+    if (landed_->data) {
       *tar_gyro_ = rot_pi_.updateP(cur_rpy, *tar_angle_);
-    else
+    }
+    else {
       *tar_gyro_ = rot_pi_.updatePI(cur_rpy, *tar_angle_, dt);
+    }
 
     // フィードバックメッセージを埋める
     feedback->target_angle = *tar_angle_;
@@ -458,16 +460,14 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 角速度制御器
-  if (tar_gyro_)
-  {
+  if (tar_gyro_) {
     // 目標角加速度を計算
     const auto& cur_gyro = odom->twist.rot;
     const auto tar_dgyro = gyro_gain_.hadamard(*tar_gyro_ - cur_gyro);
 
     // プロペラの推力を計算
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-    if (!mixer_.solve(js_converter_.getPosition(), cur_gyro, tar_dgyro, tar_thrust_, dist_torque_B))
-    {
+    if (!mixer_.solve(js_converter_.getPosition(), cur_gyro, tar_dgyro, tar_thrust_, dist_torque_B)) {
       TOBAS_FATAL("Failed to solve mixing equation.");
       return;
     }
@@ -476,8 +476,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 目標推力を発行
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     thrusts_msg->header.stamp = odom->header.stamp;
-    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
-    {
+    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
       thrusts_msg->thrusts.back().thrust = thrusts(idx);
@@ -501,8 +500,7 @@ void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::Con
 void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
   // 異なる関節の情報が別々のメッセージで送られてくる場合を想定し，メッセージそのものを保持せずにコールバックでKDLへの変換まで行う．
-  if (js_converter_.convert(*js) < 0)
-  {
+  if (js_converter_.convert(*js) < 0) {
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
     return;
   }
@@ -512,16 +510,16 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
 {
-  if (landed->data)
+  if (landed->data) {
     resetIntegralGains();
+  }
 
   landed_ = landed;
 }
 
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  if (arming_ && arming_->data && !arming->data)
-  {
+  if (arming_ && arming_->data && !arming->data) {
     resetCommands();
     resetIntegralGains();
     TOBAS_INFO("Controller is reset.");
@@ -532,18 +530,22 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 
 void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
 {
-  if (!mixer_.isInitialized())
+  if (!mixer_.isInitialized()) {
     return;
+  }
 
-  for (const auto& data : rotor_liveliness->data)
-    if (!mixer_.setRotorLiveliness(data.link_name, data.alive))
+  for (const auto& data : rotor_liveliness->data) {
+    if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
       TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
+    }
+  }
 }
 
 void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelYaw::ConstSharedPtr& pos_cmd)
 {
-  if (!isCommandAccepted(pos_cmd->level))
+  if (!isCommandAccepted(pos_cmd->level)) {
     return;
+  }
 
   // コマンドを更新
   pos_cmd_ = std::make_shared<tobas_command_msgs::PosVelYaw>(*pos_cmd);
@@ -551,8 +553,9 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelYaw::Cons
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd)
 {
-  if (!isCommandAccepted(acc_cmd->level))
+  if (!isCommandAccepted(acc_cmd->level)) {
     return;
+  }
 
   // 外側の制御を止める
   pos_cmd_.reset();
@@ -563,22 +566,20 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd)
 {
-  if (!isCommandAccepted(angle_cmd->level))
+  if (!isCommandAccepted(angle_cmd->level)) {
     return;
+  }
 
   // Check command range
-  if (angle_cmd->angle.roll <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.roll)
-  {
+  if (angle_cmd->angle.roll <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.roll) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;
   }
-  if (angle_cmd->angle.pitch <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.pitch)
-  {
+  if (angle_cmd->angle.pitch <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.pitch) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
     return;
   }
-  if (angle_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < angle_cmd->throttle)
-  {
+  if (angle_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < angle_cmd->throttle) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
     return;
   }
@@ -594,12 +595,12 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd)
 {
-  if (!isCommandAccepted(rate_cmd->level))
+  if (!isCommandAccepted(rate_cmd->level)) {
     return;
+  }
 
   // Check command range
-  if (rate_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < rate_cmd->throttle)
-  {
+  if (rate_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < rate_cmd->throttle) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
     return;
   }
@@ -616,44 +617,37 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
 
 void ControllerNode::checkTopicsTimerCb()
 {
-  if (!drone_received_)
-  {
+  if (!drone_received_) {
     TOBAS_WARN("Waiting for \"", tobas::kDroneTopic, "\".");
     return;
   }
 
-  if (!tree_received_)
-  {
+  if (!tree_received_) {
     TOBAS_WARN("Waiting for \"", tobas::kKdlTreeTopic, "\".");
     return;
   }
 
-  if (!odom_)
-  {
+  if (!odom_) {
     TOBAS_WARN("Waiting for \"", tobas::kOdometryTopic, "\".");
     return;
   }
 
-  if (!dist_force_)
-  {
+  if (!dist_force_) {
     TOBAS_WARN("Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return;
   }
 
-  if (js_sub_ && !js_received_)
-  {
+  if (js_sub_ && !js_received_) {
     TOBAS_WARN("Waiting for \"", tobas::kJointStatesTopic, "\".");
     return;
   }
 
-  if (!landed_)
-  {
+  if (!landed_) {
     TOBAS_WARN("Waiting for \"", tobas::kLandedTopic, "\".");
     return;
   }
 
-  if (!arming_)
-  {
+  if (!arming_) {
     TOBAS_WARN("Waiting for \"", tobas::kArmingTopic, "\".");
     return;
   }

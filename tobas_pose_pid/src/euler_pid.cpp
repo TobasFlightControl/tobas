@@ -27,9 +27,11 @@ kdl::Vector EulerPID::updatePID(
   const auto ed = computeDerivativeError(cur_rpy, cur_gyro, tar_gyro);
 
   // I制御を行う場合は積分誤差を蓄積
-  for (size_t i = 0; i < 3; ++i)
-    if (ki_(i) > 0.)
+  for (size_t i = 0; i < 3; ++i) {
+    if (ki_(i) > 0.) {
       ei_(i) += ep(i) * dt;
+    }
+  }
 
   // 目標オイラー角加速度を計算
   const auto tar_ddrpy = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
@@ -59,11 +61,11 @@ kdl::Vector EulerPID::updatePD(
 
 bool EulerPID::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Natural frequency must be non-negative." << endl;
     return false;
   }
@@ -76,11 +78,11 @@ bool EulerPID::setNaturalFreq(int idx, double value)
 
 bool EulerPID::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
@@ -93,11 +95,11 @@ bool EulerPID::setDampingRatio(int idx, double value)
 
 bool EulerPID::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Integral gain must be non-negative." << endl;
     return false;
   }

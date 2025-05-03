@@ -18,12 +18,10 @@ OcTreeRender::OcTreeRender(
   Ogre::SceneNode* parent_node)
   : octree_(octree), colorFactor_(0.8)
 {
-  if (!max_octree_depth)
-  {
+  if (!max_octree_depth) {
     octree_depth_ = octree->getTreeDepth();
   }
-  else
-  {
+  else {
     octree_depth_ = std::min(max_octree_depth, static_cast<std::size_t>(octree->getTreeDepth()));
   }
 
@@ -31,8 +29,7 @@ OcTreeRender::OcTreeRender(
 
   cloud_.resize(octree_depth_);
 
-  for (std::size_t i = 0; i < octree_depth_; ++i)
-  {
+  for (std::size_t i = 0; i < octree_depth_; ++i) {
     std::stringstream sname;
     sname << "PointCloud Nr." << i;
     cloud_[i] = new rviz_rendering::PointCloud();
@@ -48,8 +45,7 @@ OcTreeRender::~OcTreeRender()
 {
   scene_node_->detachAllObjects();
 
-  for (std::size_t i = 0; i < octree_depth_; ++i)
-  {
+  for (std::size_t i = 0; i < octree_depth_; ++i) {
     delete cloud_[i];
   }
 }
@@ -84,13 +80,13 @@ void OcTreeRender::setColor(
   h *= 6;
   i = floor(h);
   f = h - i;
-  if (!(i & 1))
+  if (!(i & 1)) {
     f = 1 - f;  // if i is even
+  }
   m = v * (1 - s);
   n = v * (1 - s * f);
 
-  switch (i)
-  {
+  switch (i) {
     case 6:
     case 0:
       point->setColor(v, n, m);
@@ -135,13 +131,11 @@ void OcTreeRender::octreeDecoding(
     int step_size = 1 << (octree->getTreeDepth() - octree_depth_);  // for pruning of occluded voxels
 
     // traverse all leafs in the tree:
-    for (octomap::OcTree::iterator it = octree->begin(octree_depth_), end = octree->end(); it != end; ++it)
-    {
+    for (octomap::OcTree::iterator it = octree->begin(octree_depth_), end = octree->end(); it != end; ++it) {
       bool display_voxel = false;
 
       // the left part evaluates to 1 for free voxels and 2 for occupied voxels
-      if ((static_cast<int>(octree->isNodeOccupied(*it)) + 1) & render_mode_mask)
-      {
+      if ((static_cast<int>(octree->isNodeOccupied(*it)) + 1) & render_mode_mask) {
         // check if current voxel has neighbors on all sides -> no need to be displayed
         bool all_neighbors_found = true;
 
@@ -154,28 +148,23 @@ void OcTreeRender::octreeDecoding(
         int diff[2] = { -1, diff_base };
 
         // cells with adjacent faces can occlude a voxel, iterate over the cases x,y,z (idxCase) and +/- (diff)
-        for (unsigned int idx_case = 0; idx_case < 3; ++idx_case)
-        {
+        for (unsigned int idx_case = 0; idx_case < 3; ++idx_case) {
           int idx_0 = idx_case % 3;
           int idx_1 = (idx_case + 1) % 3;
           int idx_2 = (idx_case + 2) % 3;
 
-          for (int i = 0; all_neighbors_found && i < 2; ++i)
-          {
+          for (int i = 0; all_neighbors_found && i < 2; ++i) {
             key[idx_0] = n_key[idx_0] + diff[i];
             // if rendering is restricted to treeDepth < maximum tree depth inner nodes with distance step_size can
             // already occlude a voxel
             for (key[idx_1] = n_key[idx_1] + diff[0] + 1; all_neighbors_found && key[idx_1] < n_key[idx_1] + diff[1];
-                 key[idx_1] += step_size)
-            {
+                 key[idx_1] += step_size) {
               for (key[idx_2] = n_key[idx_2] + diff[0] + 1; all_neighbors_found && key[idx_2] < n_key[idx_2] + diff[1];
-                   key[idx_2] += step_size)
-              {
+                   key[idx_2] += step_size) {
                 octomap::OcTreeNode* node = octree->search(key, octree_depth_);
 
                 // the left part evaluates to 1 for free voxels and 2 for occupied voxels
-                if (!(node && (((static_cast<int>(octree->isNodeOccupied(node))) + 1) & render_mode_mask)))
-                {
+                if (!(node && (((static_cast<int>(octree->isNodeOccupied(node))) + 1) & render_mode_mask))) {
                   // we do not have a neighbor => break!
                   all_neighbors_found = false;
                 }
@@ -187,8 +176,7 @@ void OcTreeRender::octreeDecoding(
         display_voxel |= !all_neighbors_found;
       }
 
-      if (display_voxel)
-      {
+      if (display_voxel) {
         rviz_rendering::PointCloud::Point new_point;
 
         new_point.position.x = it.getX();
@@ -197,8 +185,7 @@ void OcTreeRender::octreeDecoding(
 
         double cell_probability;
 
-        switch (octree_color_mode)
-        {
+        switch (octree_color_mode) {
           case OCTOMAP_Z_AXIS_COLOR:
             setColor(new_point.position.z, min_z, max_z, colorFactor_, &new_point);
             break;
@@ -217,8 +204,7 @@ void OcTreeRender::octreeDecoding(
     }
   }
 
-  for (size_t i = 0; i < octree_depth_; ++i)
-  {
+  for (size_t i = 0; i < octree_depth_; ++i) {
     double size = octree->getNodeSize(i + 1);
 
     cloud_[i]->clear();

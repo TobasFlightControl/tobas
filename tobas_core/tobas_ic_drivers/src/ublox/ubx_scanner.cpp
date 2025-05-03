@@ -19,21 +19,22 @@ void UBXScanner::reset()
 
 bool UBXScanner::update(const uint8_t& data)
 {
-  if (state_ != Done)
+  if (state_ != Done) {
     buffer_[pos_++] = data;
+  }
 
-  switch (state_)
-  {
+  switch (state_) {
     case Sync1:
-      if (data == kUbxSync1)
+      if (data == kUbxSync1) {
         state_ = Sync2;
-      else
+      }
+      else {
         reset();
+      }
       break;
 
     case Sync2:
-      switch (data)
-      {
+      switch (data) {
         case kUbxSync1:
           state_ = Sync1;
           break;
@@ -61,8 +62,7 @@ bool UBXScanner::update(const uint8_t& data)
 
     case Length2:
       payload_length_ += data << 8;
-      if (messageLength() > kUbxBufferLength)
-      {
+      if (messageLength() > kUbxBufferLength) {
         cerr << "The size of payload is larger than that of UBX buffer." << endl;
         return false;
       }
@@ -70,8 +70,9 @@ bool UBXScanner::update(const uint8_t& data)
       break;
 
     case Payload:
-      if (pos_ == kUbxHeaderLength + payload_length_)
+      if (pos_ == kUbxHeaderLength + payload_length_) {
         state_ = CK_A;
+      }
       break;
 
     case CK_A:

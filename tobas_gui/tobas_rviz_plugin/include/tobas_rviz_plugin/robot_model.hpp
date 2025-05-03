@@ -18,10 +18,9 @@ namespace tobas
 {
 TOBAS_CLASS_FORWARD(RobotModel);  // Defines RobotModelPtr, ConstPtr, WeakPtr... etc
 
-inline static void checkInterpolationParamBounds(const rclcpp::Logger& logger, double t)
+static inline void checkInterpolationParamBounds(const rclcpp::Logger& logger, double t)
 {
-  if (std::isnan(t) || std::isinf(t))
-  {
+  if (std::isnan(t) || std::isinf(t)) {
     throw Exception("Interpolation parameter is NaN or inf.");
   }
 
@@ -402,12 +401,13 @@ public:
   /* Get the deepest joint in the kinematic tree that is a common parent of both joints passed as argument */
   const JointModel* getCommonRoot(const JointModel* a, const JointModel* b) const
   {
-    if (!a)
+    if (!a) {
       return b;
-    if (!b)
+    }
+    if (!b) {
       return a;
-    return joint_model_vector_
-      [common_joint_roots_[a->getJointIndex() * joint_model_vector_.size() + b->getJointIndex()]];
+    }
+    return joint_model_vector_[common_joint_roots_[a->getJointIndex() * joint_model_vector_.size() + b->getJointIndex()]];
   }
 
   /* A map of known kinematics solvers (associated to their group name) */

@@ -38,8 +38,7 @@ RDFLoader::RDFLoader(
     node, srdf_name, [this](const std::string& new_srdf_string) { return srdfUpdateCallback(new_srdf_string); },
     default_continuous_value, default_timeout);
 
-  if (!loadFromStrings())
-  {
+  if (!loadFromStrings()) {
     return;
   }
 
@@ -49,8 +48,7 @@ RDFLoader::RDFLoader(
 RDFLoader::RDFLoader(const std::string& urdf_string, const std::string& srdf_string)
   : urdf_string_(urdf_string), srdf_string_(srdf_string)
 {
-  if (!loadFromStrings())
-  {
+  if (!loadFromStrings()) {
     return;
   }
 }
@@ -58,15 +56,13 @@ RDFLoader::RDFLoader(const std::string& urdf_string, const std::string& srdf_str
 bool RDFLoader::loadFromStrings()
 {
   std::unique_ptr<urdf::Model> urdf = std::make_unique<urdf::Model>();
-  if (!urdf->initString(urdf_string_))
-  {
+  if (!urdf->initString(urdf_string_)) {
     RCLCPP_INFO(getLogger(), "Unable to parse URDF");
     return false;
   }
 
   srdf::ModelSharedPtr srdf = std::make_shared<srdf::Model>();
-  if (!srdf->initString(*urdf, srdf_string_))
-  {
+  if (!srdf->initString(*urdf, srdf_string_)) {
     RCLCPP_ERROR(getLogger(), "Unable to parse SRDF");
     return false;
   }
@@ -86,21 +82,18 @@ bool RDFLoader::isXacroFile(const std::string& path)
 
 bool RDFLoader::loadFileToString(std::string& buffer, const std::string& path)
 {
-  if (path.empty())
-  {
+  if (path.empty()) {
     RCLCPP_ERROR(getLogger(), "Path is empty");
     return false;
   }
 
-  if (!std::filesystem::exists(path))
-  {
+  if (!std::filesystem::exists(path)) {
     RCLCPP_ERROR(getLogger(), "File does not exist");
     return false;
   }
 
   std::ifstream stream(path.c_str());
-  if (!stream.good())
-  {
+  if (!stream.good()) {
     RCLCPP_ERROR(getLogger(), "Unable to load path");
     return false;
   }
@@ -121,21 +114,20 @@ bool RDFLoader::loadXacroFileToString(
   const std::vector<std::string>& xacro_args)
 {
   buffer.clear();
-  if (path.empty())
-  {
+  if (path.empty()) {
     RCLCPP_ERROR(getLogger(), "Path is empty");
     return false;
   }
 
-  if (!std::filesystem::exists(path))
-  {
+  if (!std::filesystem::exists(path)) {
     RCLCPP_ERROR(getLogger(), "File does not exist");
     return false;
   }
 
   std::string cmd = "ros2 run xacro xacro ";
-  for (const std::string& xacro_arg : xacro_args)
+  for (const std::string& xacro_arg : xacro_args) {
     cmd += xacro_arg + " ";
+  }
   cmd += path;
 
 #ifdef _WIN32
@@ -143,17 +135,16 @@ bool RDFLoader::loadXacroFileToString(
 #else
   FILE* pipe = popen(cmd.c_str(), "r");
 #endif
-  if (!pipe)
-  {
+  if (!pipe) {
     RCLCPP_ERROR(getLogger(), "Unable to load path");
     return false;
   }
 
   char pipe_buffer[128];
-  while (!feof(pipe))
-  {
-    if (fgets(pipe_buffer, 128, pipe) != nullptr)
+  while (!feof(pipe)) {
+    if (fgets(pipe_buffer, 128, pipe) != nullptr) {
       buffer += pipe_buffer;
+    }
   }
 #ifdef _WIN32
   _pclose(pipe);
@@ -169,8 +160,7 @@ bool RDFLoader::loadXmlFileToString(
   const std::string& path,
   const std::vector<std::string>& xacro_args)
 {
-  if (isXacroFile(path))
-  {
+  if (isXacroFile(path)) {
     return loadXacroFileToString(buffer, path, xacro_args);
   }
 
@@ -184,12 +174,10 @@ bool RDFLoader::loadPkgFileToString(
   const std::vector<std::string>& xacro_args)
 {
   std::string package_path;
-  try
-  {
+  try {
     package_path = ament_index_cpp::get_package_share_directory(package_name);
   }
-  catch (const ament_index_cpp::PackageNotFoundError& e)
-  {
+  catch (const ament_index_cpp::PackageNotFoundError& e) {
     RCLCPP_ERROR(getLogger(), "ament_index_cpp: %s", e.what());
     return false;
   }
@@ -203,12 +191,10 @@ bool RDFLoader::loadPkgFileToString(
 void RDFLoader::urdfUpdateCallback(const std::string& new_urdf_string)
 {
   urdf_string_ = new_urdf_string;
-  if (!loadFromStrings())
-  {
+  if (!loadFromStrings()) {
     return;
   }
-  if (new_model_cb_)
-  {
+  if (new_model_cb_) {
     new_model_cb_();
   }
 }
@@ -216,12 +202,10 @@ void RDFLoader::urdfUpdateCallback(const std::string& new_urdf_string)
 void RDFLoader::srdfUpdateCallback(const std::string& new_srdf_string)
 {
   srdf_string_ = new_srdf_string;
-  if (!loadFromStrings())
-  {
+  if (!loadFromStrings()) {
     return;
   }
-  if (new_model_cb_)
-  {
+  if (new_model_cb_) {
     new_model_cb_();
   }
 }

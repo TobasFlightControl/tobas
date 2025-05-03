@@ -12,15 +12,14 @@ RateManager::RateManager(const size_t& update_rate) : update_rate_(update_rate),
 
 bool RateManager::update(const chrono::steady_clock::duration& time)
 {
-  if (update_rate_ == 0)
+  if (update_rate_ == 0) {
     return true;
+  }
 
-  if (time < t_next_)
-  {
+  if (time < t_next_) {
     return false;
   }
-  else
-  {
+  else {
     t_next_ += chrono::nanoseconds(1'000'000'000 / update_rate_);
     return true;
   }

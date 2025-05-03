@@ -90,11 +90,11 @@ void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
 {
-  if (mass_holder_.getMass() == 0.)
+  if (mass_holder_.getMass() == 0.) {
     return;
+  }
 
-  if (t_last_detect_.nanoseconds() == 0)
-  {
+  if (t_last_detect_.nanoseconds() == 0) {
     t_last_detect_ = dist_force->header.stamp;
     return;
   }
@@ -103,15 +103,12 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   const auto& z_forcd_thresh = mass_holder_.getMass() * tobas_std::kGravity * switch_mass_rate_;
 
   // 鉛直上方向の力が閾値を超えている状態が一定時間続いたら状態を切り替える
-  if ((landed_ && z_force > z_forcd_thresh) || (!landed_ && z_force < z_forcd_thresh))
-  {
+  if ((landed_ && z_force > z_forcd_thresh) || (!landed_ && z_force < z_forcd_thresh)) {
     t_last_detect_ = dist_force->header.stamp;
   }
-  else
-  {
+  else {
     const auto time_from_last_detect = (dist_force->header.stamp - t_last_detect_).seconds();
-    if (time_from_last_detect > switch_time_thresh_)
-    {
+    if (time_from_last_detect > switch_time_thresh_) {
       landed_ = !landed_;
       publishLandedState(dist_force->header.stamp);
     }

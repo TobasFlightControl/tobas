@@ -44,8 +44,7 @@ void DynamicParamServer::callback(
   const typename SrvType::Response::SharedPtr& res)
 {
   ros2::SyncParamClient client(shared_from_this(), req->node_name);
-  if (!client.setParam<ValueType>(req->param_name, req->value))
-  {
+  if (!client.setParam<ValueType>(req->param_name, req->value)) {
     res->success = false;
     return;
   }

@@ -97,22 +97,25 @@ void GazeboICEPropulsionSystemPlugin::Configure(
 
   // Get robot model
   gz::sim::Model model(model_entity);
-  if (!model.Valid(ecm))
+  if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
+  }
 
   // Initialize rotor models
   auto rotor_elem = sdf->FindElement(kRotorKey);
-  if (!rotor_elem)
+  if (!rotor_elem) {
     TOBAS_EXIT("Please specify \"", kRotorKey, "\" elements.");
-  while (rotor_elem)
-  {
+  }
+  while (rotor_elem) {
     ICERotorModel rotor;
 
-    if (!rotor.initialize(rotor_elem, ecm, model))
+    if (!rotor.initialize(rotor_elem, ecm, model)) {
       TOBAS_EXIT("Failed to initialize ICE rotor model.");
+    }
 
-    if (rotors_.contains(rotor.getLinkName()))
+    if (rotors_.contains(rotor.getLinkName())) {
       TOBAS_EXIT("Rotor link name \"", rotor.getLinkName(), "\" is duplicated.");
+    }
 
     rotors_[rotor.getLinkName()] = rotor;
     rotor_elem = rotor_elem->GetNextElement(kRotorKey);
@@ -120,10 +123,12 @@ void GazeboICEPropulsionSystemPlugin::Configure(
 
   // Initialize engine model
   const auto engine_elem = sdf->FindElement(kEngineKey);
-  if (!engine_elem)
+  if (!engine_elem) {
     TOBAS_EXIT("Please specify \"", kEngineKey, "\" element.");
-  if (!engine_.initialize(engine_elem))
+  }
+  if (!engine_.initialize(engine_elem)) {
     TOBAS_EXIT("Failed to initialize engine model.");
+  }
 
   // Register ROS interfaces
   registerPubSub();
@@ -136,32 +141,29 @@ void GazeboICEPropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にスロットルをゼロにする
   const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
-  if (secs_from_last_cmd > kAutoStopTimeout)
+  if (secs_from_last_cmd > kAutoStopTimeout) {
     engine_.setThrottle(0.);
+  }
 
   // Update gazebo states
-  for (auto& [_, rotor] : rotors_)
-  {
+  for (auto& [_, rotor] : rotors_) {
     rotor.applyWrench(ecm, engine_.getSpeed(), wind_vel_W_);
     rotor.updateJointPosition(ecm, engine_.getPosition());
   }
 }
 
-void GazeboICEPropulsionSystemPlugin::PostUpdate(
-  const gz::sim::UpdateInfo& info,
-  const gz::sim::EntityComponentManager&)
+void GazeboICEPropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   // Step simulation
   const auto dt = duration<double>(info.dt).count();
-  for (auto& [_, rotor] : rotors_)
+  for (auto& [_, rotor] : rotors_) {
     rotor.step(dt);
+  }
   engine_.step(dt);
 
   // Publish observed states
-  if (publish_state_rate_manager_->update(info.simTime))
-  {
-    for (const auto& [link_name, rotor] : rotors_)
-    {
+  if (publish_state_rate_manager_->update(info.simTime)) {
+    for (const auto& [link_name, rotor] : rotors_) {
       auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
       state_msg_obs->link_name = link_name;
       state_msg_obs->speed = rotor.getSpeed(engine_.getSpeed());
@@ -179,8 +181,7 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(
   }
 
   // Publish ground-truth states
-  for (const auto& [link_name, rotor] : rotors_)
-  {
+  for (const auto& [link_name, rotor] : rotors_) {
     auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
     ros2::timeChronoToMsg(info.simTime, state_msg_gt->header.stamp);
     state_msg_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
@@ -199,8 +200,7 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
 {
   engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(tobas::kEngineStateTopic);
 
-  for (auto& [link_name, _] : rotors_)
-  {
+  for (auto& [link_name, _] : rotors_) {
     rotor_state_pubs_[link_name] =
       createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name));
     rotor_state_gt_pubs_[link_name] =
@@ -219,15 +219,14 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
 
   // エンジンスロットルを更新
   const auto& engine_throt = ice_cmd->engine_throttle;
-  if (engine_throt < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < engine_throt)
+  if (engine_throt < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < engine_throt) {
     TOBAS_ERROR("The commanded throttle ", engine_throt, " is out of range.");
+  }
   engine_.setThrottle(engine_throt);
 
   // プロペラピッチ角を更新
-  for (const auto& elem : ice_cmd->pitch_angles)
-  {
-    if (!rotors_.contains(elem.link_name))
-    {
+  for (const auto& elem : ice_cmd->pitch_angles) {
+    if (!rotors_.contains(elem.link_name)) {
       TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");
       continue;
     }

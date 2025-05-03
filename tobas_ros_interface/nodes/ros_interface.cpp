@@ -215,8 +215,7 @@ void ROSInterfaceNode::serviceCallback(
 {
   const auto client = boost::polymorphic_pointer_downcast<rclcpp::Client<SrvType>>(clients_.at(srv_name));
 
-  if (!client->wait_for_service())
-  {
+  if (!client->wait_for_service()) {
     TOBAS_ERROR("\"", client->get_service_name(), "\" service is not ready.");
     return;
   }
@@ -234,11 +233,11 @@ int main(int argc, char* argv[])
   const auto node = std::make_shared<ROSInterfaceNode>();
 
   long num_threads = DEFAULT_NUM_THREADS;
-  if (node->has_parameter("num_threads"))
+  if (node->has_parameter("num_threads")) {
     num_threads = node->get_parameter("num_threads").as_int();
+  }
 
-  if (num_threads < MIN_NUM_THREADS)
-  {
+  if (num_threads < MIN_NUM_THREADS) {
     RCLCPP_WARN_STREAM(
       node->get_logger(),
       "To avoid deadlock with recursive service calls, at least " << MIN_NUM_THREADS << " threads are required.");

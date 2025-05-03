@@ -34,8 +34,9 @@ int IntGetter::getValue() const
 
 bool IntGetter::setValue(const int& value)
 {
-  if (value < data_->minimum() || data_->maximum() < value)
+  if (value < data_->minimum() || data_->maximum() < value) {
     return false;
+  }
 
   data_->setValue(value);
   return true;
@@ -89,8 +90,9 @@ double DoubleGetter::getValue() const
 
 bool DoubleGetter::setValue(const double& value)
 {
-  if (value < data_->minimum() || data_->maximum() < value)
+  if (value < data_->minimum() || data_->maximum() < value) {
     return false;
+  }
 
   data_->setValue(value);
   return true;

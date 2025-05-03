@@ -12,8 +12,7 @@ GitHandler::GitHandler()
 
 string GitHandler::getUserName()
 {
-  if (!command_executor_.execute("git config --global user.name"))
-  {
+  if (!command_executor_.execute("git config --global user.name")) {
     cerr << "Failed to get Git user name." << endl;
     return "";
   }
@@ -23,8 +22,7 @@ string GitHandler::getUserName()
 
 string GitHandler::getUserEmail()
 {
-  if (!command_executor_.execute("git config --global user.email"))
-  {
+  if (!command_executor_.execute("git config --global user.email")) {
     cerr << "Failed to get Git user email." << endl;
     return "";
   }

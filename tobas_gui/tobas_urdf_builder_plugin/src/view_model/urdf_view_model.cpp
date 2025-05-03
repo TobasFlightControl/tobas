@@ -87,8 +87,7 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 {
   newRobot();
 
-  if (!urdf_->initFile(file_path.toStdString()))
-  {
+  if (!urdf_->initFile(file_path.toStdString())) {
     PRINT_ERROR("Failed to parse URDF.");
     urdf_.reset();
     return false;
@@ -106,8 +105,7 @@ bool URDFViewModel::saveRobot(const QString& file_path)
   removeTextureTagsWithoutFilename(doc->RootElement());
 
   // XMLを保存
-  if (doc->SaveFile(file_path.toStdString().c_str()) != tinyxml2::XML_SUCCESS)
-  {
+  if (doc->SaveFile(file_path.toStdString().c_str()) != tinyxml2::XML_SUCCESS) {
     PRINT_ERROR("Failed to save URDF: " << doc->ErrorStr());
     return false;
   }
@@ -123,20 +121,23 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
   const auto joint_name = joint_vm->name().toStdString();
   const auto parent_link_name = joint_vm->parentLinkName().toStdString();
 
-  if (link_name.empty())
+  if (link_name.empty()) {
     throw runtime_error("Link name cannot be empty.");
+  }
 
-  if (urdf_->links_.find(link_name) != urdf_->links_.end())
+  if (urdf_->links_.find(link_name) != urdf_->links_.end()) {
     throw runtime_error("Link \"" + link_name + "\" already exists.");
+  }
 
-  if (urdf_->joints_.find(joint_name) != urdf_->joints_.end())
+  if (urdf_->joints_.find(joint_name) != urdf_->joints_.end()) {
     throw runtime_error("Joint \"" + joint_name + "\" already exists.");
+  }
 
-  if (parent_link_name.empty())
-  {
-    if (urdf_->root_link_)
+  if (parent_link_name.empty()) {
+    if (urdf_->root_link_) {
       throw runtime_error(
         "The root link already exists, but the parent link of \"" + link_name + "\" is not specified.");
+    }
 
     urdf_->root_link_ = link_vm->model();
     urdf_->joints_.erase(urdf_->root_link_->parent_joint->name);
@@ -144,34 +145,37 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
     urdf_->root_link_->inertial.reset();  // ルートリンクはイナーシャを持てない
     root_link_.reset(new LinkViewModel(urdf_->root_link_));
   }
-  else
-  {
-    if (joint_name.empty())
+  else {
+    if (joint_name.empty()) {
       throw runtime_error("Joint name cannot be empty.");
+    }
 
-    if (urdf_->links_.find(parent_link_name) == urdf_->links_.end())
+    if (urdf_->links_.find(parent_link_name) == urdf_->links_.end()) {
       throw runtime_error("Parent link \"" + parent_link_name + "\" does not exist.");
+    }
 
     const auto& parent_link = urdf_->links_.at(parent_link_name);
     auto& child_links = parent_link->child_links;
     auto& child_joints = parent_link->child_joints;
-    if (!tobas_std::contains(child_links, link_vm->model()))
+    if (!tobas_std::contains(child_links, link_vm->model())) {
       child_links.push_back(link_vm->model());
-    if (!tobas_std::contains(child_joints, joint_vm->model()))
+    }
+    if (!tobas_std::contains(child_joints, joint_vm->model())) {
       child_joints.push_back(joint_vm->model());
+    }
   }
 
   urdf_->links_[link_name] = link_vm->model();
   urdf_->joints_[joint_name] = joint_vm->model();
 
-  for (const auto& visual : link_vm->visuals())
-  {
+  for (const auto& visual : link_vm->visuals()) {
     const auto& material_vm = visual->material();
     urdf_->materials_[material_vm->name().toStdString()] = material_vm->model();
   }
 
-  for (const auto& child_link_vm : link_vm->children())
+  for (const auto& child_link_vm : link_vm->children()) {
     addLink(child_link_vm);
+  }
 }
 
 void URDFViewModel::cloneLink(const LinkViewModelPtr& link_vm)
@@ -196,20 +200,22 @@ void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
   queue<urdf::LinkSharedPtr> que;
   que.push(link);
 
-  while (!que.empty())
-  {
+  while (!que.empty()) {
     auto top = que.front();
     que.pop();
 
     urdf_->links_.erase(top->name);
-    if (top->parent_joint)
+    if (top->parent_joint) {
       urdf_->joints_.erase(top->parent_joint->name);
+    }
 
-    for (const auto& visual : top->visual_array)
+    for (const auto& visual : top->visual_array) {
       urdf_->materials_.erase(visual->material_name);
+    }
 
-    for (const auto& child : top->child_links)
+    for (const auto& child : top->child_links) {
       que.push(child);
+    }
   }
 }
 
@@ -220,12 +226,12 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
 
   urdf_->links_.erase(old_link_vm->name().toStdString());
   urdf_->joints_.erase(old_joint->name().toStdString());
-  for (const auto& visual : old_link_vm->visuals())
+  for (const auto& visual : old_link_vm->visuals()) {
     urdf_->materials_.erase(visual->material()->name().toStdString());
+  }
 
   const auto& old_parent_link_it = urdf_->links_.find(old_joint->parentLinkName().toStdString());
-  if (old_parent_link_it != urdf_->links_.end())
-  {
+  if (old_parent_link_it != urdf_->links_.end()) {
     const auto& old_parent_link = old_parent_link_it->second;
 
     auto& child_links = old_parent_link->child_links;
@@ -244,8 +250,7 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
   // add new
   const auto& new_joint = new_link_vm->joint();
   const auto& new_parent_link_it = urdf_->links_.find(new_joint->parentLinkName().toStdString());
-  if (new_parent_link_it != urdf_->links_.end())
-  {
+  if (new_parent_link_it != urdf_->links_.end()) {
     const auto& new_parent_link = new_parent_link_it->second;
     new_parent_link->child_links.push_back(new_link_vm->model());
     new_parent_link->child_joints.push_back(new_link_vm->joint()->model());
@@ -253,11 +258,11 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
 
   urdf_->joints_[new_joint->name().toStdString()] = new_joint->model();
   urdf_->links_[new_link_vm->name().toStdString()] = new_link_vm->model();
-  for (const auto& visual : new_link_vm->visuals())
+  for (const auto& visual : new_link_vm->visuals()) {
     urdf_->materials_[visual->material()->name().toStdString()] = visual->material()->model();
+  }
 
-  if (new_link_vm->model() == urdf_->root_link_)
-  {
+  if (new_link_vm->model() == urdf_->root_link_) {
     urdf_->root_link_ = new_link_vm->model();
     root_link_.reset(new LinkViewModel(urdf_->root_link_));
   }
@@ -274,8 +279,7 @@ void URDFViewModel::addNameSuffixRec(const LinkViewModelPtr& link_vm, const QStr
   joint_vm->name(new_joint_name);
   joint_vm->childLinkName(new_link_name);
 
-  for (const auto& child_link_vm : link_vm->children())
-  {
+  for (const auto& child_link_vm : link_vm->children()) {
     child_link_vm->joint()->parentLinkName(new_link_name);
     addNameSuffixRec(child_link_vm, suffix);
   }
@@ -283,14 +287,15 @@ void URDFViewModel::addNameSuffixRec(const LinkViewModelPtr& link_vm, const QStr
 
 void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element)
 {
-  if (!element)
+  if (!element) {
     return;
+  }
 
-  for (auto child = element->FirstChildElement(); child; child = child->NextSiblingElement())
-  {
+  for (auto child = element->FirstChildElement(); child; child = child->NextSiblingElement()) {
     // FIXME: 繰り返し中にツリー構造を変えるのはまずいかも．対象要素をリストしておいて後で消すべき．
-    if (string(child->Name()) == "texture" && !child->Attribute("filename"))
+    if (string(child->Name()) == "texture" && !child->Attribute("filename")) {
       element->DeleteChild(child);
+    }
 
     // 再帰的に子要素もチェック
     removeTextureTagsWithoutFilename(child);

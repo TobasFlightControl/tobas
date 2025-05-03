@@ -52,8 +52,7 @@ VectorXd QpIpmSolver::solveQp()
 
   // QPを解く
   qpipm::QuadProgSolver solver(Q, A, b, c);
-  if (solver.solve().getExitFlag() != qpipm::Status::OPTIMAL)
-  {
+  if (solver.solve().getExitFlag() != qpipm::Status::OPTIMAL) {
     throw runtime_error("Failed to solve QP.");
   }
 

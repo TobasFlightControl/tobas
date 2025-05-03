@@ -10,26 +10,22 @@ namespace tobas
 {
 bool VehicleParameters::isValid() const
 {
-  if (wing_surface <= 0)
-  {
+  if (wing_surface <= 0) {
     cerr << "Wing surface must be positive." << endl;
     return false;
   }
 
-  if (wing_span <= 0)
-  {
+  if (wing_span <= 0) {
     cerr << "Wing span must be positive." << endl;
     return false;
   }
 
-  if (mac <= 0)
-  {
+  if (mac <= 0) {
     cerr << "Mean aerodynamic chord must be positive." << endl;
     return false;
   }
 
-  if (!alpha_limit.isValid())
-  {
+  if (!alpha_limit.isValid()) {
     cerr << "Invalid stall angles." << endl;
     return false;
   }
@@ -39,20 +35,25 @@ bool VehicleParameters::isValid() const
 
 bool VehicleParameters::load(const YAML::Node& node)
 {
-  if (!yaml::load(kWingSurfaceKey, node, wing_surface))
+  if (!yaml::load(kWingSurfaceKey, node, wing_surface)) {
     return false;
+  }
 
-  if (!yaml::load(kWingSpanKey, node, wing_span))
+  if (!yaml::load(kWingSpanKey, node, wing_span)) {
     return false;
+  }
 
-  if (!yaml::load(kMACKey, node, mac))
+  if (!yaml::load(kMACKey, node, mac)) {
     return false;
+  }
 
-  if (!yaml::load(kAeroCenterKey, node, ac.data))
+  if (!yaml::load(kAeroCenterKey, node, ac.data)) {
     return false;
+  }
 
-  if (!yaml::load(kAlphaLimitLKey, node, alpha_limit))
+  if (!yaml::load(kAlphaLimitLKey, node, alpha_limit)) {
     return false;
+  }
 
   return true;
 }

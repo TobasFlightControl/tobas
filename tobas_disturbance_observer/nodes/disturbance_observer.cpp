@@ -71,14 +71,12 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
 
 bool DisturbanceObserverNode::cutoffFreqCb(const long& p)
 {
-  if (!force_lpf_.setCutoffFrequency(p))
-  {
+  if (!force_lpf_.setCutoffFrequency(p)) {
     TOBAS_ERROR("Failed to set cutoff frequency of force LPF.");
     return false;
   }
 
-  if (!torque_lpf_.setCutoffFrequency(p))
-  {
+  if (!torque_lpf_.setCutoffFrequency(p)) {
     TOBAS_ERROR("Failed to set cutoff frequency of torque LPF.");
     return false;
   }
@@ -103,10 +101,12 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   rotor_states_.reset();
   js_received_ = false;
 
-  if (drone->hasServoJoint())
+  if (drone->hasServoJoint()) {
     joint_states_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStatesCb, this);
-  else
+  }
+  else {
     joint_states_sub_.reset();
+  }
 }
 
 void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
@@ -116,8 +116,7 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
 
 void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states)
 {
-  if (js_converter_.convert(*joint_states) < 0)
-  {
+  if (js_converter_.convert(*joint_states) < 0) {
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
     return;
   }
@@ -127,20 +126,23 @@ void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArr
 
 void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (tree_.getNrOfJoints() == 0)
+  if (tree_.getNrOfJoints() == 0) {
     return;
+  }
 
-  if (drone_.prop->numRotors() == 0)
+  if (drone_.prop->numRotors() == 0) {
     return;
+  }
 
-  if (!rotor_states_)
+  if (!rotor_states_) {
     return;
+  }
 
-  if (joint_states_sub_ && !js_received_)
+  if (joint_states_sub_ && !js_received_) {
     return;
+  }
 
-  if (!odom_)
-  {
+  if (!odom_) {
     force_lpf_.setValue(kdl::Vector::Zero());
     torque_lpf_.setValue(kdl::Vector::Zero());
 
@@ -153,15 +155,13 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   odom_ = odom;
 
   // 順運動学を計算
-  if (fk_solver_.JntToCart(js_converter_.getPosition()) < 0)
-  {
+  if (fk_solver_.JntToCart(js_converter_.getPosition()) < 0) {
     TOBAS_ERROR("Forward kinematics failed: ", fk_solver_.errorMessage());
     return;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(js_converter_.getPosition()) < 0)
-  {
+  if (inertia_solver_.JntToCart(js_converter_.getPosition()) < 0) {
     TOBAS_ERROR("Inertia solver failed: ", inertia_solver_.errorMessage());
     return;
   }
@@ -174,16 +174,13 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   // 推力がかかる項を計算
   kdl::Vector trans_sum = kdl::Vector::Zero();
   kdl::Vector rot_sum = kdl::Vector::Zero();
-  for (const auto& rotor_state : rotor_states_->states)
-  {
-    if (rotor_state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
-    {
+  for (const auto& rotor_state : rotor_states_->states) {
+    if (rotor_state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
       TOBAS_WARN_THROTTLE(
         tobas::kTypicalWarnPeriod, "No communication with rotor \"", rotor_state.link_name,
         "\". Its rotation speed is estimated to 0.");
     }
-    else
-    {
+    else {
       const auto& rotor = drone_.prop->rotors.at(rotor_state.link_name);
 
       const auto elem = tree_.getSegment(rotor->link_name)->second;

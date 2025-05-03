@@ -22,8 +22,9 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Inde
   const auto c = A.cols();
 
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(r * num, c * num);
-  for (Eigen::Index i = 0; i < num; ++i)
+  for (Eigen::Index i = 0; i < num; ++i) {
     res.block(r * i, c * i, r, c) = A;
+  }
 
   return res;
 }
@@ -46,24 +47,22 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& nu
   const auto r = A.rows();
   const auto c = A.cols();
 
-  switch (axis)
-  {
-    case 0:
-    {
+  switch (axis) {
+    case 0: {
       Eigen::MatrixXd res(r * num, c);
-      for (Eigen::Index i = 0; i < num; ++i)
+      for (Eigen::Index i = 0; i < num; ++i) {
         res.block(r * i, 0, r, c) = A;
+      }
       return res;
     }
-    case 1:
-    {
+    case 1: {
       Eigen::MatrixXd res(r, c * num);
-      for (Eigen::Index i = 0; i < num; ++i)
+      for (Eigen::Index i = 0; i < num; ++i) {
         res.block(0, c * i, r, c) = A;
+      }
       return res;
     }
-    default:
-    {
+    default: {
       throw std::runtime_error("axis must be 0 or 1");
     }
   }
@@ -81,24 +80,20 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& nu
 template <typename T, typename U>
 Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8_t& axis)
 {
-  switch (axis)
-  {
-    case 0:
-    {
+  switch (axis) {
+    case 0: {
       assert(A.cols() == B.cols());
       Eigen::MatrixXd res(A.rows() + B.rows(), A.cols());
       res << A, B;
       return res;
     }
-    case 1:
-    {
+    case 1: {
       assert(A.rows() == B.rows());
       Eigen::MatrixXd res(A.rows(), A.cols() + B.cols());
       res << A, B;
       return res;
     }
-    default:
-    {
+    default: {
       throw std::runtime_error("axis must be 0 or 1");
     }
   }
@@ -182,8 +177,9 @@ template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Rows, 1> meanRow(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
   Eigen::Matrix<Scalar, Rows, 1> res;
-  for (Eigen::Index r = 0; r < Rows; ++r)
+  for (Eigen::Index r = 0; r < Rows; ++r) {
     res(r) = A.row(r).mean();
+  }
   return res;
 }
 
@@ -192,8 +188,9 @@ template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Cols, 1> meanCol(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
   Eigen::Matrix<Scalar, Cols, 1> res;
-  for (Eigen::Index c = 0; c < Cols; ++c)
+  for (Eigen::Index c = 0; c < Cols; ++c) {
     res(c) = A.col(c).mean();
+  }
   return res;
 }
 
@@ -203,8 +200,9 @@ Eigen::Matrix<Scalar, Rows, 1> varianceRow(const Eigen::Matrix<Scalar, Rows, Col
 {
   const Eigen::Matrix<Scalar, Rows, 1> mean = meanRow(A);
   Eigen::Matrix<Scalar, Rows, 1> res;
-  for (Eigen::Index r = 0; r < Rows; ++r)
+  for (Eigen::Index r = 0; r < Rows; ++r) {
     res(r) = (A.row(r).array() - mean(r)).square().mean();
+  }
   return res;
 }
 
@@ -214,8 +212,9 @@ Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Col
 {
   const Eigen::Matrix<Scalar, Cols, 1> mean = meanCol(A);
   Eigen::Matrix<Scalar, Cols, 1> res;
-  for (Eigen::Index c = 0; c < Cols; ++c)
+  for (Eigen::Index c = 0; c < Cols; ++c) {
     res(c) = (A.col(c).array() - mean(c)).square().mean();
+  }
   return res;
 }
 

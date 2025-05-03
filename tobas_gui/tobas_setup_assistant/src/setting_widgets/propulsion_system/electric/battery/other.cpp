@@ -67,8 +67,7 @@ const char* BatteryWidget_Other::name() const
 
 bool BatteryWidget_Other::isValid()
 {
-  if (max_voltage_->getValue() <= sag_voltage_->getValue())
-  {
+  if (max_voltage_->getValue() <= sag_voltage_->getValue()) {
     qt::qErrorBox(this, "Maximum voltage must be greater than voltage threshold.");
     return false;
   }

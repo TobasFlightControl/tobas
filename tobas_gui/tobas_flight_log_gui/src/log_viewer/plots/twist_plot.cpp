@@ -17,8 +17,7 @@ TwistPlotWidget::TwistPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     lin_plots_[i] = new QwtPlot2();
     ang_plots_[i] = new QwtPlot2();
 
@@ -39,8 +38,7 @@ TwistPlotWidget::TwistPlotWidget()
 
 void TwistPlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     lin_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
     ang_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
@@ -53,8 +51,7 @@ void TwistPlotWidget::setData(
   updateCurrentSamples(odom_msgs);
   updateTargetSamples(ctrl_fb_msgs);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     lin_plots_[i]->replot();
     ang_plots_[i]->replot();
   }
@@ -66,8 +63,7 @@ void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
   std::array<QVector<double>, 3> lin_data;
   std::array<QVector<double>, 3> ang_data;
 
-  for (const auto& odom : odom_msgs)
-  {
+  for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
     const auto& lin_vel = odom.twist.linear;
@@ -81,8 +77,7 @@ void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
     ang_data[2].push_back(ang_vel.z);
   }
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     cur_lin_curves_[i].setSamples(t_data, lin_data[i]);
     cur_ang_curves_[i].setSamples(t_data, ang_data[i]);
   }
@@ -95,8 +90,7 @@ void TwistPlotWidget::updateTargetSamples(
   std::array<QVector<double>, 3> lin_data;
   std::array<QVector<double>, 3> ang_data;
 
-  for (const auto& ctrl_fb : ctrl_fb_msgs)
-  {
+  for (const auto& ctrl_fb : ctrl_fb_msgs) {
     t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
 
     const auto& lin_vel = ctrl_fb.target_velocity;
@@ -110,8 +104,7 @@ void TwistPlotWidget::updateTargetSamples(
     ang_data[2].push_back(ang_vel.z);
   }
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     tar_lin_curves_[i].setSamples(t_data, lin_data[i]);
     tar_ang_curves_[i].setSamples(t_data, ang_data[i]);
   }

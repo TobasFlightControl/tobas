@@ -21,8 +21,9 @@ string sourceCommand(const fs::path& install_dir)
 pid_t rosrun(const fs::path& install_dir, const string& pkg, const string& exec, const string& name)
 {
   auto command = util::sourceCommand(install_dir) + " && ros2 run " + pkg + " " + exec;
-  if (!name.empty())
+  if (!name.empty()) {
     command += " --ros-args --name " + name;
+  }
 
   return linux::createSubprocess(command);
 }
@@ -30,8 +31,9 @@ pid_t rosrun(const fs::path& install_dir, const string& pkg, const string& exec,
 pid_t roslaunch(const fs::path& install_dir, const string& pkg, const string& name, const map<string, string>& args)
 {
   auto command = util::sourceCommand(install_dir) + " && ros2 launch " + pkg + " " + name;
-  for (const auto& [arg_name, arg_value] : args)
+  for (const auto& [arg_name, arg_value] : args) {
     command += " " + arg_name + ":=" + arg_value;
+  }
 
   return linux::createSubprocess(command);
 }

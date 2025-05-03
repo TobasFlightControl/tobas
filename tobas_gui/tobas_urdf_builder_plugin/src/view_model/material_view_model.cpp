@@ -9,8 +9,7 @@ namespace view_model
 MaterialViewModel::MaterialViewModel(const urdf::MaterialSharedPtr& model)
   : BaseViewModel<urdf::Material, MaterialViewModel>(model)
 {
-  if (model_->name.empty())
-  {
+  if (model_->name.empty()) {
     // Set default name
     model_->name = "material_" + std::to_string(utils::timeNowMilliseconds());
 

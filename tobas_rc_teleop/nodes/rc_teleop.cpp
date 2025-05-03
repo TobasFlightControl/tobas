@@ -124,8 +124,9 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::no
 
 void RCTeleopNode::getStaticRosParams()
 {
-  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>())
+  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>()) {
     modes_[mode];
+  }
 
   TOBAS_CHECK(tobas::enumFromText(getStringParam("acrobat_mode"), modes_.at(tobas::flight_mode_t::ACROBAT)));
   TOBAS_CHECK(tobas::enumFromText(getStringParam("stabilize_mode"), modes_.at(tobas::flight_mode_t::STABILIZE)));
@@ -135,10 +136,8 @@ void RCTeleopNode::getStaticRosParams()
 void RCTeleopNode::initializeControllers()
 {
   // 各フライトモードに対応するコントローラを設定
-  for (const auto& [mode, cmd] : modes_)
-  {
-    switch (cmd)
-    {
+  for (const auto& [mode, cmd] : modes_) {
+    switch (cmd) {
       case tobas::rc_command_t::RATE_THROTTLE:
         controllers_[mode] = std::make_unique<RateThrottleController>();
         break;
@@ -173,8 +172,7 @@ void RCTeleopNode::initializeControllers()
 
 void RCTeleopNode::requestArmingRotors(bool arming)
 {
-  if (!set_arm_sc_->service_is_ready())
-  {
+  if (!set_arm_sc_->service_is_ready()) {
     TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
     return;
   }
@@ -187,26 +185,22 @@ void RCTeleopNode::requestArmingRotors(bool arming)
 bool RCTeleopNode::postArmCommonProcess(const tobas_msgs::RCInput& rcin)
 {
   // ディスアームされていればステージをリセット
-  if (!arming_->data)
-  {
+  if (!arming_->data) {
     t_arm_start_ = rcin.header.stamp;
     stage_ = CHECK_PREREQUISITES;
     return true;
   }
 
   // Killスイッチがオンならば即ディスアーム
-  if (rcin.kill)
-  {
+  if (rcin.kill) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The kill switch has been activated. Forcing disarm.");
     requestArmingRotors(false);
     return true;
   }
 
   // Enableスイッチがオフならば待機モードに戻る
-  if (!rcin.enable)
-  {
-    if (stage_ != WAIT_FOR_ENABLE)
-    {
+  if (!rcin.enable) {
+    if (stage_ != WAIT_FOR_ENABLE) {
       TOBAS_INFO("RC control is disabled.");
       stage_ = WAIT_FOR_ENABLE;
     }
@@ -216,16 +210,14 @@ bool RCTeleopNode::postArmCommonProcess(const tobas_msgs::RCInput& rcin)
   }
 
   // ディスアームコマンドの場合
-  if (isDisarmCommand(rcin))
-  {
+  if (isDisarmCommand(rcin)) {
     TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
 
     // 安全のためアイドルコマンドを送信
     updateWithIdleCommand(rcin);
 
     // ディスアームコマンドが一定時間維持されていればリクエスト
-    if ((rcin.header.stamp - t_disarm_start_).seconds() > kDisarmDuration)
-    {
+    if ((rcin.header.stamp - t_disarm_start_).seconds() > kDisarmDuration) {
       TOBAS_INFO("Requesting disarming rotors...");
       requestArmingRotors(false);
       t_disarm_start_ = rcin.header.stamp;
@@ -266,44 +258,36 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
 {
   const auto& controller = controllers_.at(mode);
 
-  if (controller->requirePosition())
-  {
+  if (controller->requirePosition()) {
     const auto max_pos_var = odom_->position_covariance.eigenvalues().real().maxCoeff();
-    if (max_pos_var > math::sqr(kPosStddevThresh))
-    {
+    if (max_pos_var > math::sqr(kPosStddevThresh)) {
       TOBAS_WARN_THROTTLE(
         kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because position estimation is innacurate.");
       return false;
     }
   }
 
-  if (controller->requireOrientation())
-  {
+  if (controller->requireOrientation()) {
     const auto max_rot_var = odom_->orientation_covariance.eigenvalues().real().maxCoeff();
-    if (max_rot_var > math::sqr(kRotStddevThresh))
-    {
+    if (max_rot_var > math::sqr(kRotStddevThresh)) {
       TOBAS_WARN_THROTTLE(
         kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because orientation estimation is innacurate.");
       return false;
     }
   }
 
-  if (controller->requireLinearVelocity())
-  {
+  if (controller->requireLinearVelocity()) {
     const auto max_linvel_var = odom_->velocity_covariance.eigenvalues().real().maxCoeff();
-    if (max_linvel_var > math::sqr(kLinVelStddevThresh))
-    {
+    if (max_linvel_var > math::sqr(kLinVelStddevThresh)) {
       TOBAS_WARN_THROTTLE(
         kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because linear velocity estimation is innacurate.");
       return false;
     }
   }
 
-  if (controller->requireAngularVelocity())
-  {
+  if (controller->requireAngularVelocity()) {
     const auto max_angvel_var = odom_->gyro_covariance.eigenvalues().real().maxCoeff();
-    if (max_angvel_var > math::sqr(kAngVelStddevThresh))
-    {
+    if (max_angvel_var > math::sqr(kAngVelStddevThresh)) {
       TOBAS_WARN_THROTTLE(
         kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because angular velocity estimation is innacurate.");
       return false;
@@ -330,22 +314,17 @@ void RCTeleopNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstShared
 
 void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  switch (stage_)
-  {
-    case CHECK_PREREQUISITES:
-    {
-      if (!odom_)
-      {
+  switch (stage_) {
+    case CHECK_PREREQUISITES: {
+      if (!odom_) {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for odometry.");
         break;
       }
-      if (!arming_)
-      {
+      if (!arming_) {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for arming status.");
         break;
       }
-      if (!prearm_check_)
-      {
+      if (!prearm_check_) {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Warting for pre-arm check status.");
         break;
       }
@@ -355,15 +334,12 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       break;
     }
 
-    case WAIT_FOR_ARMING:
-    {
+    case WAIT_FOR_ARMING: {
       // アームされていれば次のステージに以降
       // プログラムモードから制御を奪う場合のために，アームコマンドの確認の前に現在のアーム状態の確認を行う．
-      if (arming_->data)
-      {
+      if (arming_->data) {
         // プロポを起動した瞬間ディスアームされるのを防ぐため，Killスイッチがオンの時はRC制御モードには移行しない．
-        if (rcin->kill)
-        {
+        if (rcin->kill) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot switch to RC control mode because the kill switch is on.");
           t_arm_start_ = rcin->header.stamp;
           break;
@@ -374,11 +350,9 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       }
 
       // アームコマンドが入力されている場合
-      if (isArmCommand(*rcin))
-      {
+      if (isArmCommand(*rcin)) {
         // アームコマンドが一定時間維持されていれば一度アームをリクエスト
-        if ((rcin->header.stamp - t_arm_start_).seconds() > kArmDuration)
-        {
+        if ((rcin->header.stamp - t_arm_start_).seconds() > kArmDuration) {
           TOBAS_INFO("Requesting arming rotors...");
           requestArmingRotors(true);
           t_arm_start_ = rcin->header.stamp;
@@ -386,22 +360,19 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         }
 
         // アーム可能な場合のみ時刻を初期化せず継続
-        if (!rcin->enable)
-        {
+        if (!rcin->enable) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Please turn on the enable switch before arming.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
 
-        if (rcin->kill)
-        {
+        if (rcin->kill) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Please turn off the kill switch before arming.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
 
-        if (!prearm_check_->ok)
-        {
+        if (!prearm_check_->ok) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot arm because pre-arm check failed.");
           t_arm_start_ = rcin->header.stamp;
           break;
@@ -410,29 +381,29 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Arm commanded.");
         break;
       }
-      else
-      {
+      else {
         t_arm_start_ = rcin->header.stamp;
         break;
       }
     }
 
-    case WAIT_FOR_ENABLE:
-    {
-      if (postArmCommonProcess(*rcin))
+    case WAIT_FOR_ENABLE: {
+      if (postArmCommonProcess(*rcin)) {
         break;
+      }
 
-      if (!rcin->enable)
+      if (!rcin->enable) {
         break;
+      }
 
-      if (!modes_.contains(rcin->mode))
-      {
+      if (!modes_.contains(rcin->mode)) {
         TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)rcin->mode);
         break;
       }
 
-      if (!isFlightModeApplicable(rcin->mode))
+      if (!isFlightModeApplicable(rcin->mode)) {
         break;
+      }
 
       controllers_.at(rcin->mode)->reset(*odom_);
       cur_mode_ = rcin->mode;
@@ -442,20 +413,18 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       break;
     }
 
-    case WAIT_FOR_THROTTLE:
-    {
-      if (postArmCommonProcess(*rcin))
+    case WAIT_FOR_THROTTLE: {
+      if (postArmCommonProcess(*rcin)) {
         break;
+      }
 
-      if (rcin->throttle > tobas::kRcInputMin + kArmThrotThresh)
-      {
+      if (rcin->throttle > tobas::kRcInputMin + kArmThrotThresh) {
         // スロットルが上がっていればコマンド送信開始
         TOBAS_INFO("The throttle lever has risen, starting RC command transmission.");
         t_disarm_start_ = rcin->header.stamp;
         stage_ = RUNNING;
       }
-      else
-      {
+      else {
         // アーム直後でスロットルが下がったままならばアイドルコマンドを送信
         TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "The throttle lever is lowered, sending a idle command.");
         updateWithIdleCommand(*rcin);
@@ -464,22 +433,20 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       break;
     }
 
-    case RUNNING:
-    {
-      if (postArmCommonProcess(*rcin))
+    case RUNNING: {
+      if (postArmCommonProcess(*rcin)) {
         break;
+      }
 
       // フライトモードを取得
-      if (!modes_.contains(rcin->mode))
-      {
+      if (!modes_.contains(rcin->mode)) {
         TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
         break;
       }
 
       // フライトモードの変更があった場合，適用可能な場合に限り変更する．
       // 適用できない場合は前のフライトモードを継続する．
-      if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode))
-      {
+      if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode)) {
         controllers_[rcin->mode]->reset(*odom_);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
@@ -492,8 +459,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       break;
     }
 
-    default:
-    {
+    default: {
       TOBAS_ERROR("Invalid stage: ", (int)stage_);
       break;
     }

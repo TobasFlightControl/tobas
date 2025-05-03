@@ -22,10 +22,12 @@ StateEstimator::StateEstimator(const kdl::Tree& tree, const vector<string>& foot
 
 bool StateEstimator::updateInternalDataStructures()
 {
-  if (!fk_solver_.updateInternalDataStructures())
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
-  if (!cont_.updateInternalDataStructures())
+  }
+  if (!cont_.updateInternalDataStructures()) {
     return false;
+  }
 
   initializeKalmanFilter();
   return true;
@@ -33,8 +35,9 @@ bool StateEstimator::updateInternalDataStructures()
 
 bool StateEstimator::configure(const StateEstimatorConfig& cfg)
 {
-  if (cfg.variance_coef <= 0)
+  if (cfg.variance_coef <= 0) {
     return false;
+  }
 
   cfg_ = cfg;
   return true;
@@ -78,14 +81,15 @@ void StateEstimator::update(
   // 重力
   kf_.R(kGravIdx, kGravIdx) = EPS;
 
-  for (size_t l = 0; l < nc_; ++l)
-  {
+  for (size_t l = 0; l < nc_; ++l) {
     // 分散を計算
     double var;
-    if (is_stand[l])
+    if (is_stand[l]) {
       var = max(cfg_.variance_coef * pow(1 - contact_probs[l], cfg_.variance_exp), EPS);
-    else
+    }
+    else {
       var = numeric_limits<double>::max();
+    }
 
     // 地面からの高さ
     kf_.R(altIdx(l), altIdx(l)) = var;
@@ -105,13 +109,12 @@ void StateEstimator::update(
   // 重力
   kf_.y(kGravIdx) = tobas_std::kGravity;
 
-  for (size_t l = 0; l < nc_; ++l)
-  {
-    if (is_stand[l])
-    {
+  for (size_t l = 0; l < nc_; ++l) {
+    if (is_stand[l]) {
       // 順運動学
-      if (fk_solver_.JntToCart(q, qd, foot_names_[l]) < 0)
+      if (fk_solver_.JntToCart(q, qd, foot_names_[l]) < 0) {
         throw runtime_error("FK failed: " + fk_solver_.errorMessage());
+      }
       const auto& foot_pos = fk_solver_.getFrameVel().p.p;
       const auto& foot_vel = fk_solver_.getFrameVel().p.v;
 
@@ -123,8 +126,7 @@ void StateEstimator::update(
       // 並進速度 (memo: 1-28)
       kf_.y.segment<3>(velIdx(l)) = -(FP_Rot_B * (gyro_B * foot_pos + foot_vel)).data;
     }
-    else
-    {
+    else {
       // 遊脚の場合は予測状態をそのまま観測状態とする
       // TODO: もっと良い推定方法を考える
       kf_.y(altIdx(l)) = kf_.state()(LinearDynamics::kAltIdx);
@@ -134,8 +136,7 @@ void StateEstimator::update(
 
   /* ===== 制御入力を更新 ===== */
   // FIXME: 状態推定が制御入力に依存すると発散のリスクがあるため，
-  for (size_t l = 0; l < nc_; ++l)
-  {
+  for (size_t l = 0; l < nc_; ++l) {
     kf_.u.segment<3>(cont_.forceIndex(l)) = foot_forces[l].data;
     kf_.u(cont_.torqueIndex(l)) = foot_torques[l];
   }
@@ -172,12 +173,14 @@ MatrixXd StateEstimator::makeCy()
   Cy(kGravIdx, LinearDynamics::kGravIdx) = 1;
 
   // 地面からの高さ
-  for (size_t l = 0; l < nc_; ++l)
+  for (size_t l = 0; l < nc_; ++l) {
     Cy(altIdx(l), LinearDynamics::kAltIdx) = 1;
+  }
 
   // 並進速度
-  for (size_t l = 0; l < nc_; ++l)
+  for (size_t l = 0; l < nc_; ++l) {
     Cy.block<3, 3>(velIdx(l), LinearDynamics::kVelXIdx).diagonal().setOnes();
+  }
 
   return Cy;
 }

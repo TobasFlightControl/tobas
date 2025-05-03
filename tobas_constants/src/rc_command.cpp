@@ -17,8 +17,7 @@ namespace tobas
 {
 string textFromEnum(rc_command_t role)
 {
-  switch (role)
-  {
+  switch (role) {
     case rc_command_t::RATE_THROTTLE:
       return RATE_THROTTLE_TEXT;
     case rc_command_t::ANGLE_THROTTLE:
@@ -42,48 +41,39 @@ string textFromEnum(rc_command_t role)
 
 bool enumFromText(const string& text, rc_command_t& dst)
 {
-  if (text == RATE_THROTTLE_TEXT)
-  {
+  if (text == RATE_THROTTLE_TEXT) {
     dst = rc_command_t::RATE_THROTTLE;
     return true;
   }
-  else if (text == ANGLE_THROTTLE_TEXT)
-  {
+  else if (text == ANGLE_THROTTLE_TEXT) {
     dst = rc_command_t::ANGLE_THROTTLE;
     return true;
   }
-  else if (text == ACCEL_YAW_TEXT)
-  {
+  else if (text == ACCEL_YAW_TEXT) {
     dst = rc_command_t::ACCEL_YAW;
     return true;
   }
-  else if (text == POS_VEL_YAW_TEXT)
-  {
+  else if (text == POS_VEL_YAW_TEXT) {
     dst = rc_command_t::POS_VEL_YAW;
     return true;
   }
-  else if (text == ACCEL_RATE_TEXT)
-  {
+  else if (text == ACCEL_RATE_TEXT) {
     dst = rc_command_t::ACCEL_RATE;
     return true;
   }
-  else if (text == ACCEL_ANGLE_TEXT)
-  {
+  else if (text == ACCEL_ANGLE_TEXT) {
     dst = rc_command_t::ACCEL_ANGLE;
     return true;
   }
-  else if (text == POS_VEL_ANGLE_TEXT)
-  {
+  else if (text == POS_VEL_ANGLE_TEXT) {
     dst = rc_command_t::POS_VEL_ANGLE;
     return true;
   }
-  else if (text == SPEED_ROLL_DPITCH_TEXT)
-  {
+  else if (text == SPEED_ROLL_DPITCH_TEXT) {
     dst = rc_command_t::SPEED_ROLL_DPITCH;
     return true;
   }
-  else
-  {
+  else {
     cerr << "Invalid RC command: " << text << endl;
     return false;
   }
@@ -101,8 +91,9 @@ Node convert<tobas::rc_command_t>::encode(const tobas::rc_command_t& rhs)
 
 bool convert<tobas::rc_command_t>::decode(const Node& node, tobas::rc_command_t& rhs)
 {
-  if (!node.IsScalar())
+  if (!node.IsScalar()) {
     return false;
+  }
 
   return tobas::enumFromText(node.as<string>(), rhs);
 }

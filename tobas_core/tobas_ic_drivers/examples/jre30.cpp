@@ -7,8 +7,7 @@ using namespace std;
 void onPacket(shared_ptr<const driver::JRE30Packet> _packet)
 {
   const auto packet = dynamic_pointer_cast<const driver::JRE30Packet_A>(_packet);
-  if (!packet)
-  {
+  if (!packet) {
     cerr << "Failed to cast JRE30 packet to type A." << endl;
     return;
   }
@@ -30,8 +29,7 @@ void onPacket(shared_ptr<const driver::JRE30Packet> _packet)
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
-  {
+  if (argc != 2) {
     cerr << "Usage: " << argv[0] << " <UART Device>" << endl;
     return EXIT_FAILURE;
   }
@@ -39,8 +37,7 @@ int main(int argc, char** argv)
 
   driver::JRE30 jre30(&onPacket);
 
-  if (!jre30.initialize(device))
-  {
+  if (!jre30.initialize(device)) {
     cerr << "Failed to initialize JRE30 driver." << endl;
     return EXIT_FAILURE;
   }

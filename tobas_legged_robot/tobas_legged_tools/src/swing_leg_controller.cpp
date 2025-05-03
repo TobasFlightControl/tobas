@@ -32,8 +32,9 @@ SwingLegController::SwingLegController(
 
 bool SwingLegController::updateInternalDataStructures()
 {
-  if (!fk_solver_.updateInternalDataStructures())
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
+  }
 
   return true;
 }
@@ -53,8 +54,7 @@ bool SwingLegController::update(
   const vector<bool>& is_stand,
   const TimeType& cur_time)
 {
-  if (is_stand.size() != nc_)
-  {
+  if (is_stand.size() != nc_) {
     cerr << "The size of is_stand mismatch." << endl;
     return false;
   }
@@ -62,16 +62,13 @@ bool SwingLegController::update(
   W_Rot_B.getRPY(roll_, pitch_, yaw_);
   const auto G_Rot_B = kdl::Rotation::RPY(roll_, pitch_, 0.);
 
-  for (size_t l = 0; l < nc_; ++l)
-  {
+  for (size_t l = 0; l < nc_; ++l) {
     /* ===== 立脚から遊脚に移行したタイミングで軌道生成 ===== */
-    if (is_stand_prev_[l] && !is_stand[l])
-    {
+    if (is_stand_prev_[l] && !is_stand[l]) {
       t_switch_[l] = cur_time;
 
       // {gnd}から見た{gnd}に対する{foot}の初期位置を計算
-      if (fk_solver_.JntToCart(q, foot_names_[l]) < 0)
-      {
+      if (fk_solver_.JntToCart(q, foot_names_[l]) < 0) {
         cerr << "FK failed: " << fk_solver_.errorMessage() << endl;
         return false;
       }
@@ -94,8 +91,9 @@ bool SwingLegController::update(
       const auto G_Pos_GF_f = p_thigh + p_sym + p_cent;
 
       // 軌道生成
-      if (!ref_traj_[l].generate(G_Pos_GF_0, G_Pos_GF_f, swing_period_, clearance_))
+      if (!ref_traj_[l].generate(G_Pos_GF_0, G_Pos_GF_f, swing_period_, clearance_)) {
         return false;
+      }
     }
 
     /* ===== 接地状態を更新 ===== */
@@ -103,13 +101,15 @@ bool SwingLegController::update(
 
     /* ===== 遊脚の足先状態の目標値を更新 ===== */
     // 立脚なら前回の値のまま
-    if (is_stand[l])
+    if (is_stand[l]) {
       continue;
+    }
 
     // {gnd}から見た各足先の目標状態を得る
     const auto t = max(DurationType(cur_time - t_switch_[l]).count(), 0.);
-    if (!ref_traj_[l].get(t, G_Tdd_GF_.p, G_Tdd_GF_.v, G_Tdd_GF_.dv))
+    if (!ref_traj_[l].get(t, G_Tdd_GF_.p, G_Tdd_GF_.v, G_Tdd_GF_.dv)) {
       return false;
+    }
 
     // {gnd}から見た{bs}に対する{foot}の状態を計算
     const kdl::Vector G_Pos_GB(0, 0, z);
@@ -126,8 +126,7 @@ bool SwingLegController::update(
 
 bool SwingLegController::setRaibertGain(double raibert_gain)
 {
-  if (raibert_gain <= 0)
-  {
+  if (raibert_gain <= 0) {
     cerr << "Raibert gain must be positive." << endl;
     return false;
   }
@@ -138,8 +137,7 @@ bool SwingLegController::setRaibertGain(double raibert_gain)
 
 bool SwingLegController::setClearance(double clearance)
 {
-  if (clearance <= 0)
-  {
+  if (clearance <= 0) {
     cerr << "Foot clearance must be positive." << endl;
     return false;
   }
@@ -150,13 +148,11 @@ bool SwingLegController::setClearance(double clearance)
 
 bool SwingLegController::setGaitParams(double stand_period, double swing_period)
 {
-  if (stand_period <= 0)
-  {
+  if (stand_period <= 0) {
     cerr << "Stand period must be positive." << endl;
     return false;
   }
-  if (swing_period <= 0)
-  {
+  if (swing_period <= 0) {
     cerr << "Swing period must be positive." << endl;
     return false;
   }
@@ -178,10 +174,10 @@ void SwingLegController::setThighOrigins()
 {
   const auto q0 = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
-  for (size_t l = 0; l < nc_; ++l)
-  {
-    if (fk_solver_.JntToCart(q0, thigh_names_[l]) < 0)
+  for (size_t l = 0; l < nc_; ++l) {
+    if (fk_solver_.JntToCart(q0, thigh_names_[l]) < 0) {
       throw runtime_error("FK failed: " + fk_solver_.errorMessage());
+    }
     thigh_0_[l] = fk_solver_.getFrame().p;
   }
 }

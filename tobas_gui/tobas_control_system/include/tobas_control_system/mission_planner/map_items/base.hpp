@@ -43,8 +43,9 @@ QHash<int, QByteArray> MapItemModel<Args...>::roleNames() const
 {
   QHash<int, QByteArray> res;
   const auto arg_names = argNames();
-  for (int i = 0; i < arg_names.size(); ++i)
+  for (int i = 0; i < arg_names.size(); ++i) {
     res[Qt::UserRole + i] = arg_names[i];
+  }
   return res;
 }
 

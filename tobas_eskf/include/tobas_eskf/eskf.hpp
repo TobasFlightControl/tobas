@@ -514,15 +514,13 @@ double ErrorStateKalmanFilter::correct(
 
   // (276) Update covariance matrix
   const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
-  if (enable_joseph_form_)
-  {
+  if (enable_joseph_form_) {
     // 対称正定が保持されやすい
     const auto P1 = I_KH * P_.selfadjointView<Eigen::Lower>() * I_KH.transpose();
     const auto P2 = K * meas_cov.template selfadjointView<Eigen::Lower>() * K.transpose();
     P_ = P1 + P2;
   }
-  else
-  {
+  else {
     // 理論通りだが数値的に不安定
     P_ = I_KH * P_;
   }
@@ -540,8 +538,7 @@ double ErrorStateKalmanFilter::correct(
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
 
   // (286) Initialize ESKF (Optional)
-  if (enable_cov_initialization_)
-  {
+  if (enable_cov_initialization_) {
     G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Diagonal3d(1, 1, 1) - eigen::skew(0.5 * dtheta);
     P_ = G_ * P_.selfadjointView<Eigen::Lower>() * G_.transpose();  // TODO: 必要な部分のみ計算
   }

@@ -114,16 +114,15 @@ void URDFBuilderPanel::LoadButtonClicked()
   const auto file_path = QFileDialog::getOpenFileName(
     this, tr("Load URDF"), last_opened_dir, tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
 
-  if (file_path.isEmpty())
+  if (file_path.isEmpty()) {
     return;
+  }
 
   setLastOpenedDir(file_path);
 
-  if (file_path.endsWith(".urdf"))
-  {
+  if (file_path.endsWith(".urdf")) {
     // URDFを解析
-    if (!vm_.loadRobot(file_path))
-    {
+    if (!vm_.loadRobot(file_path)) {
       QMessageBox::warning(this, kError, "Failed to parse URDF.");
       return;
     }
@@ -131,19 +130,16 @@ void URDFBuilderPanel::LoadButtonClicked()
     // URDFのパスを設定
     ui_->Path->setText(file_path);
   }
-  else if (file_path.endsWith(".xacro"))
-  {
+  else if (file_path.endsWith(".xacro")) {
     // XACROを展開
     const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
-    if (system(command.toUtf8()) != EXIT_SUCCESS)
-    {
+    if (system(command.toUtf8()) != EXIT_SUCCESS) {
       QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
       return;
     }
 
     // URDFを解析
-    if (!vm_.loadRobot(TMP_URDF_PATH))
-    {
+    if (!vm_.loadRobot(TMP_URDF_PATH)) {
       QMessageBox::warning(this, kError, "Failed to parse XACRO.");
       return;
     }
@@ -151,8 +147,7 @@ void URDFBuilderPanel::LoadButtonClicked()
     // XACROをURDFで上書きするのはまずいため保存用パスを消去
     ui_->Path->clear();
   }
-  else
-  {
+  else {
     QMessageBox::warning(this, kError, "Invalid file format: " + file_path);
     return;
   }
@@ -167,11 +162,11 @@ void URDFBuilderPanel::SaveButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "URDFBuilderPanel::SaveButtonClicked");
 
-  if (!isValid())
+  if (!isValid()) {
     return;
+  }
 
-  if (ui_->Path->text().isEmpty())
-  {
+  if (ui_->Path->text().isEmpty()) {
     SaveAsButtonClicked();
     return;
   }
@@ -183,22 +178,25 @@ void URDFBuilderPanel::SaveAsButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "URDFBuilderPanel::SaveAsButtonClicked");
 
-  if (!isValid())
+  if (!isValid()) {
     return;
+  }
 
   const auto last_opened_dir = getLastOpenedDir();
   SaveUrdfDialog dialog(this, last_opened_dir);
 
   const auto result = dialog.exec();
-  if (result != QDialog::Accepted)
+  if (result != QDialog::Accepted) {
     return;
+  }
   const auto file_path = dialog.selectedFiles().first();
   assert(file_path.endsWith(".urdf"));
 
   setLastOpenedDir(file_path);
 
-  if (!saveURDF(file_path))
+  if (!saveURDF(file_path)) {
     return;
+  }
 
   ui_->Path->setText(file_path);
 }
@@ -240,10 +238,12 @@ void URDFBuilderPanel::LinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
   const auto link_item = boost::polymorphic_downcast<LinkTreeWidgetItem*>(item);
   const auto link_name = link_item->viewModel()->name().toStdString();
 
-  if (item->checkState(0) == Qt::Unchecked)
+  if (item->checkState(0) == Qt::Unchecked) {
     ogre_ctrl_->hide(link_name);
-  else
+  }
+  else {
     ogre_ctrl_->show(link_name);
+  }
 }
 
 void URDFBuilderPanel::LinkTreeContextMenuRequested(const QPoint& point)
@@ -262,8 +262,7 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
   RCLCPP_DEBUG(node_->get_logger(), "URDFBuilderPanel::AddLinkActionToggled");
 
   // ルートリンクが存在する場合のみリンクの追加を許可
-  if (!vm_.rootLinkViewModel())
-  {
+  if (!vm_.rootLinkViewModel()) {
     QMessageBox::warning(this, kError, "Please create a new robot model or load one first.");
     return;
   }
@@ -272,8 +271,9 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
   AddLinkDialog dialog(this, vm_.linkNames(), *link_vm);
   const auto result = dialog.exec();
 
-  if (result != QDialog::Accepted)
+  if (result != QDialog::Accepted) {
     return;
+  }
 
   vm_.addLink(link_vm);
   reload();
@@ -284,8 +284,7 @@ void URDFBuilderPanel::RemoveLinkActionToggled(bool)
   RCLCPP_DEBUG(node_->get_logger(), "URDFBuilderPanel::RemoveLinkActionToggled");
 
   const auto& items = ui_->LinkTreeWidget->selectedItems();
-  if (items.empty())
-  {
+  if (items.empty()) {
     QMessageBox::warning(this, kError, "No link is selected.");
     return;
   }
@@ -295,8 +294,7 @@ void URDFBuilderPanel::RemoveLinkActionToggled(bool)
   // ルートリンクは消せないようにする
   const auto& link = front->viewModel()->model();
   const auto& root_link = vm_.rootLinkViewModel()->model();
-  if (link == root_link)
-  {
+  if (link == root_link) {
     QMessageBox::warning(this, kError, "Root link cannot be removed.");
     return;
   }
@@ -311,8 +309,7 @@ void URDFBuilderPanel::CloneLinkActionToggled(bool)
   RCLCPP_DEBUG(node_->get_logger(), "URDFBuilderPanel::CloneLinkActionToggled");
 
   const auto& items = ui_->LinkTreeWidget->selectedItems();
-  if (items.empty())
-  {
+  if (items.empty()) {
     QMessageBox::warning(this, kError, "No link is selected.");
     return;
   }
@@ -322,8 +319,7 @@ void URDFBuilderPanel::CloneLinkActionToggled(bool)
   // ルートリンクは複製不可
   const auto& link = front->viewModel()->model();
   const auto& root_link = vm_.rootLinkViewModel()->model();
-  if (link == root_link)
-  {
+  if (link == root_link) {
     QMessageBox::warning(this, kError, "Root link cannot be cloned.");
     return;
   }
@@ -349,8 +345,7 @@ void URDFBuilderPanel::LinkDialogChanged()
 QString URDFBuilderPanel::getLastOpenedDir()
 {
   string last_opened_dir;
-  if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0)
-  {
+  if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0) {
     RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -362,13 +357,11 @@ void URDFBuilderPanel::setLastOpenedDir(const QString& file_path)
   fs::path p(file_path.toStdString());
   const auto dir = p.parent_path().string();
 
-  if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
-  {
+  if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0) {
     RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
     return;
   }
-  if (property_client_.save() < 0)
-  {
+  if (property_client_.save() < 0) {
     RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
     return;
   }
@@ -414,16 +407,16 @@ void URDFBuilderPanel::reloadLinkTree()
   // 選択されているリンク名を取得
   QString selected_link_name = "";
   const auto& selected_items = ui_->LinkTreeWidget->selectedItems();
-  if (!selected_items.empty())
-  {
+  if (!selected_items.empty()) {
     const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(selected_items.front());
     selected_link_name = front->viewModel()->name();
   }
 
   // チェック状態を取得
   QSet<QString> unchecked_links;
-  for (int i = 0; i < ui_->LinkTreeWidget->topLevelItemCount(); ++i)
+  for (int i = 0; i < ui_->LinkTreeWidget->topLevelItemCount(); ++i) {
     collectUncheckedLinks(ui_->LinkTreeWidget->topLevelItem(i), unchecked_links);
+  }
 
   // 一度全てのノードをを削除
   ui_->LinkTreeWidget->clear();
@@ -431,8 +424,7 @@ void URDFBuilderPanel::reloadLinkTree()
   queue<pair<view_model::LinkViewModelPtr, QTreeWidgetItem*>> que;
   que.push({ vm_.rootLinkViewModel(), new LinkTreeWidgetItem(vm_.rootLinkViewModel(), ui_->LinkTreeWidget) });
 
-  while (!que.empty())
-  {
+  while (!que.empty()) {
     const auto t = que.front();
     que.pop();
 
@@ -446,14 +438,15 @@ void URDFBuilderPanel::reloadLinkTree()
     item->setSelected(link_vm->name() == selected_link_name);
 
     // チェック状態を保持
-    if (unchecked_links.contains(link_vm->name()))
+    if (unchecked_links.contains(link_vm->name())) {
       item->setCheckState(0, Qt::Unchecked);
-    else
+    }
+    else {
       item->setCheckState(0, Qt::Checked);
+    }
 
     // 子ノードをキューに追加
-    for (const auto& child : link_vm->children())
-    {
+    for (const auto& child : link_vm->children()) {
       const auto child_item = new LinkTreeWidgetItem(child);
       item->addChild(child_item);
       que.push({ child, child_item });
@@ -508,8 +501,7 @@ void URDFBuilderPanel::addRootLink()
 
 bool URDFBuilderPanel::saveURDF(const QString& file_path)
 {
-  if (!vm_.saveRobot(file_path))
-  {
+  if (!vm_.saveRobot(file_path)) {
     QMessageBox::warning(this, kError, "Failed to save URDF.");
     return false;
   }
@@ -519,17 +511,18 @@ bool URDFBuilderPanel::saveURDF(const QString& file_path)
 
 bool URDFBuilderPanel::isValid()
 {
-  if (!vm_.rootLink())
-  {
+  if (!vm_.rootLink()) {
     QMessageBox::warning(this, kError, "The robot is empty.");
     return false;
   }
 
-  if (!isRobotNameValid())
+  if (!isRobotNameValid()) {
     return false;
+  }
 
-  if (!isJointsValid())
+  if (!isJointsValid()) {
     return false;
+  }
 
   return true;
 }
@@ -538,16 +531,13 @@ bool URDFBuilderPanel::isRobotNameValid()
 {
   const auto name = ui_->RobotName->text();
 
-  if (name.isEmpty())
-  {
+  if (name.isEmpty()) {
     QMessageBox::warning(this, kError, "Please set robot name.");
     return false;
   }
 
-  for (const auto& ch : INVALID_CHARS)
-  {
-    if (name.contains(ch))
-    {
+  for (const auto& ch : INVALID_CHARS) {
+    if (name.contains(ch)) {
       QMessageBox::warning(this, kError, "Robot name cannot contain '" + QString(ch) + "'.");
       return false;
     }
@@ -558,8 +548,7 @@ bool URDFBuilderPanel::isRobotNameValid()
 
 bool URDFBuilderPanel::isJointsValid()
 {
-  for (const auto& joint_pair : vm_.joints())
-  {
+  for (const auto& joint_pair : vm_.joints()) {
     const auto& name = joint_pair.first;
     const auto& joint = joint_pair.second;
 
@@ -569,10 +558,8 @@ bool URDFBuilderPanel::isJointsValid()
 
     if (
       type == urdf::Joint::REVOLUTE || type == urdf::Joint::CONTINUOUS || type == urdf::Joint::PRISMATIC
-      || type == urdf::Joint::PLANAR)
-    {
-      if (axis.x == 0 && axis.y == 0 && axis.z == 0)
-      {
+      || type == urdf::Joint::PLANAR) {
+      if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
         QMessageBox::warning(this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
         return false;
       }
@@ -584,15 +571,15 @@ bool URDFBuilderPanel::isJointsValid()
 
 void URDFBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set)
 {
-  if (item->checkState(0) == Qt::Unchecked)
-  {
+  if (item->checkState(0) == Qt::Unchecked) {
     const auto link_name = item->text(0);
     set.insert(link_name);
   }
 
   // 子アイテムを走査
-  for (int i = 0; i < item->childCount(); ++i)
+  for (int i = 0; i < item->childCount(); ++i) {
     collectUncheckedLinks(item->child(i), set);
+  }
 }
 }  // namespace ui
 }  // namespace urdf_builder

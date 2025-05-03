@@ -104,18 +104,15 @@ inline T Range<T>::clamp(const T& x) const
 template <typename T>
 inline bool Range<T>::clamp(const T& src, T& des) const
 {
-  if (src < lower)
-  {
+  if (src < lower) {
     des = lower;
     return true;
   }
-  else if (src > upper)
-  {
+  else if (src > upper) {
     des = upper;
     return true;
   }
-  else
-  {
+  else {
     des = src;
     return false;
   }

@@ -17,13 +17,11 @@ rclcpp::Logger& getGlobalRootLogger()
     // This unique node and logger name is only used if a user does not set a logger
     // through the `setNodeLoggerName` method to their node's logger.
     auto name = std::format("tobas_{}", rsl::rng()());
-    try
-    {
+    try {
       static auto* tobas_node = new rclcpp::Node(name);
       return tobas_node->get_logger();
     }
-    catch (const std::exception& ex)
-    {
+    catch (const std::exception& ex) {
       // rclcpp::init was not called so rcl context is null, return non-node logger
       auto logger2 = rclcpp::get_logger(name);
       RCLCPP_WARN_STREAM(logger2, "exception thrown while creating node for logging: " << ex.what());

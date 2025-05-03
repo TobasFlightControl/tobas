@@ -36,11 +36,11 @@ kdl::Vector AngleAxisPDD2::update(
 
 bool AngleAxisPDD2::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Natural frequency must be positive." << endl;
     return false;
   }
@@ -53,11 +53,11 @@ bool AngleAxisPDD2::setNaturalFreq(int idx, double value)
 
 bool AngleAxisPDD2::setInertiaRatio(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Inertia ratio must be positive." << endl;
     return false;
   }
@@ -70,11 +70,11 @@ bool AngleAxisPDD2::setInertiaRatio(int idx, double value)
 
 bool AngleAxisPDD2::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
@@ -87,11 +87,11 @@ bool AngleAxisPDD2::setDampingRatio(int idx, double value)
 
 bool AngleAxisPDD2::setMaximumDDGyro(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Maximum DD-Gyro must be positive." << endl;
     return false;
   }

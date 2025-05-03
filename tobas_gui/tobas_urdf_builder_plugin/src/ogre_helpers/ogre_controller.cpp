@@ -68,8 +68,9 @@ OgreController::~OgreController() = default;
 
 void OgreController::update()
 {
-  if (!pimpl_->rviz.robot || !pimpl_->link_updater)
+  if (!pimpl_->rviz.robot || !pimpl_->link_updater) {
     return;
+  }
 
   pimpl_->rviz.robot->update(*pimpl_->link_updater);
 }
@@ -86,17 +87,20 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
   pimpl_->rviz.robot->load(*model);
   pimpl_->link_updater.reset(new ogre::StaticLinkUpdater(model));
 
-  for (const auto& [name, link] : pimpl_->rviz.robot->getLinks())
-  {
-    if (highlighted_links_.find(name) != highlighted_links_.end())
+  for (const auto& [name, link] : pimpl_->rviz.robot->getLinks()) {
+    if (highlighted_links_.find(name) != highlighted_links_.end()) {
       link->setColor(kHighlightR, kHighlightG, kHighlightB);
-    else
+    }
+    else {
       link->unsetColor();
+    }
 
-    if (hidden_links_.find(name) != hidden_links_.end())
+    if (hidden_links_.find(name) != hidden_links_.end()) {
       link->setRobotAlpha(0.);
-    else
+    }
+    else {
       link->setRobotAlpha(kDefaultRobotAlpha);
+    }
   }
 }
 
@@ -108,10 +112,10 @@ void OgreController::reloadAxes(const view_model::URDFViewModel& vm)
   const auto& model = vm.urdf();
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
-  for (const auto& pair : model->links_)
-  {
-    if (!pimpl_->link_updater->getLinkTransforms(pair.second->name, position, orientation, position, orientation))
+  for (const auto& pair : model->links_) {
+    if (!pimpl_->link_updater->getLinkTransforms(pair.second->name, position, orientation, position, orientation)) {
       continue;
+    }
 
     const auto axes =
       make_shared<rviz_rendering::Axes>(pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius);
@@ -144,8 +148,9 @@ void OgreController::unhighlight(const std::string& link_name)
 
 void OgreController::unhighlightAll()
 {
-  for (const auto& pair : pimpl_->rviz.robot->getLinks())
+  for (const auto& pair : pimpl_->rviz.robot->getLinks()) {
     pair.second->unsetColor();
+  }
   highlighted_links_.clear();
 }
 

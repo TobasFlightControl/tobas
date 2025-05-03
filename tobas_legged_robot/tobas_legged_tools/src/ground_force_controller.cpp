@@ -24,13 +24,16 @@ GroundForceController::GroundForceController(const kdl::Tree& tree, const vector
 
 bool GroundForceController::updateInternalDataStructures()
 {
-  if (!inertia_solver_.updateInternalDataStructures())
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
-  if (!bb_solver_.updateInternalDataStructures())
+  }
+  if (!bb_solver_.updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!cont_.updateInternalDataStructures())
+  if (!cont_.updateInternalDataStructures()) {
     return false;
+  }
 
   initializeMPC();
 
@@ -99,8 +102,7 @@ bool GroundForceController::solve(
 
   // Update dynamics
   // ステップ0の連続時間ダイナミクスを後の予測で使うため，未来から逆順で処理する．
-  for (Index k = mpc_.prediction_steps - 1; k >= 0; --k)
-  {
+  for (Index k = mpc_.prediction_steps - 1; k >= 0; --k) {
     cont_.update(roll_pred[k], pitch_pred[k], q_pred[k], is_stand_pred[k]);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
   }
@@ -113,8 +115,9 @@ bool GroundForceController::solve(
   mpc_.set_state << 0, 0, tar_z, 0, 0, tar_yawrate, tar_vx, tar_vy, 0;
 
   // Solve MPC
-  if (!mpc_.solve())
+  if (!mpc_.solve()) {
     return false;
+  }
 
   // Prediction
   const auto& u = mpc_.optimalControlInput();

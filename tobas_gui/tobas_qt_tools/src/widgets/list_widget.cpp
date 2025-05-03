@@ -19,10 +19,12 @@ bool ListWidget::contains(const QString& text)
 QListWidgetItem* ListWidget::selectedItem()
 {
   const auto& selected_items = selectedItems();
-  if (selected_items.size() > 0)
+  if (selected_items.size() > 0) {
     return selected_items.at(0);
-  else
+  }
+  else {
     return nullptr;
+  }
 }
 
 void ListWidget::dropEvent(QDropEvent* event)

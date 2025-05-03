@@ -21,8 +21,9 @@ QString ParamGetterWidget_ComboBox::getValue() const
 
 bool ParamGetterWidget_ComboBox::setValue(const QString& src)
 {
-  if (!box_->contains(src))
+  if (!box_->contains(src)) {
     return false;
+  }
 
   box_->setCurrentText(src);
   return true;

@@ -17,14 +17,18 @@ LinearDynamics LinearDynamics::scale(const VectorXd& x_scale, const VectorXd& u_
   auto res = *this;
 
   // memo: 2-20
-  for (Index c = 0; c < stateSize(); ++c)
+  for (Index c = 0; c < stateSize(); ++c) {
     res.A.col(c) *= x_scale(c);
-  for (Index r = 0; r < stateSize(); ++r)
+  }
+  for (Index r = 0; r < stateSize(); ++r) {
     res.A.row(r) /= x_scale(r);
-  for (Index c = 0; c < inputSize(); ++c)
+  }
+  for (Index c = 0; c < inputSize(); ++c) {
     res.B.col(c) *= u_scale(c);
-  for (Index r = 0; r < stateSize(); ++r)
+  }
+  for (Index r = 0; r < stateSize(); ++r) {
     res.B.row(r) /= x_scale(r);
+  }
 
   return res;
 }

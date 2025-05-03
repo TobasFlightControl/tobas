@@ -12,13 +12,16 @@ TreeDynParam::TreeDynParam(const Tree& tree, const Vector& grav)
 
 bool TreeDynParam::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!rne_coriolis_.updateInternalDataStructures())
+  if (!rne_coriolis_.updateInternalDataStructures()) {
     return false;
-  if (!rne_gravity_.updateInternalDataStructures())
+  }
+  if (!rne_gravity_.updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
 

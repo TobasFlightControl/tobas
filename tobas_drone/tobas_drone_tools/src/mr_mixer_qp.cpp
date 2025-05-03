@@ -16,15 +16,19 @@ MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree
 
 bool MultiRotorMixer_QP::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!fk_solver_.updateInternalDataStructures())
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
-  if (!inertia_solver_.updateInternalDataStructures())
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
-  if (!z_rotors_.updateInternalDataStructures())
+  }
+  if (!z_rotors_.updateInternalDataStructures()) {
     return false;
+  }
 
   resizeAndFill();
 
@@ -38,22 +42,19 @@ bool MultiRotorMixer_QP::solve(
   const double& tar_thrusts_sum,
   const kdl::Vector& ext_torque_B)
 {
-  if (tar_thrusts_sum < 0.)
-  {
+  if (tar_thrusts_sum < 0.) {
     cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << endl;
     return false;
   }
 
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0)
-  {
+  if (fk_solver_.JntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0)
-  {
+  if (inertia_solver_.JntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -63,8 +64,7 @@ bool MultiRotorMixer_QP::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // EoM行列等式の左辺
-  for (size_t i = 0; i < z_rotors_.count(); ++i)
-  {
+  for (size_t i = 0; i < z_rotors_.count(); ++i) {
     const auto& rotor = z_rotors_.rotor(i);
 
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
@@ -97,18 +97,15 @@ bool MultiRotorMixer_QP::solve(
   // 同時に合計推力の範囲を計算
   double max_thrust_sum = 0.;
   double min_thrust_sum = 0.;
-  for (size_t i = 0; i < z_rotors_.count(); ++i)
-  {
+  for (size_t i = 0; i < z_rotors_.count(); ++i) {
     const auto& rotor = z_rotors_.rotor(i);
 
     double max_thrust, min_thrust;
-    if (rotor_alive_.at(rotor->link_name))
-    {
+    if (rotor_alive_.at(rotor->link_name)) {
       max_thrust = drone_.prop->maxThrust(rotor->link_name);
       min_thrust = drone_.prop->minThrust(rotor->link_name);
     }
-    else
-    {
+    else {
       max_thrust = 0.;
       min_thrust = 0.;
     }
@@ -126,8 +123,7 @@ bool MultiRotorMixer_QP::solve(
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
   // stopwatch_.start();
-  if (!qp_.solve())
-  {
+  if (!qp_.solve()) {
     cerr << "QP failed: " << qp_.errorMessage() << endl;
     return false;
   }
@@ -143,8 +139,7 @@ const VectorXd& MultiRotorMixer_QP::getThrusts() const
 
 bool MultiRotorMixer_QP::setBaseWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Base weight must be positive." << endl;
     return false;
   }
@@ -155,8 +150,7 @@ bool MultiRotorMixer_QP::setBaseWeight(double p)
 
 bool MultiRotorMixer_QP::setThrustWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Thrust weight must be positive." << endl;
     return false;
   }

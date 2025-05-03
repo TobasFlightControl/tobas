@@ -54,11 +54,11 @@ SelectedLinkWidget::SelectedLinkWidget()
 
 bool SelectedLinkWidget::isValid()
 {
-  for (int i = 0; i < tabs_->count(); ++i)
-  {
+  for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
-    if (!widget->isValid())
+    if (!widget->isValid()) {
       return false;
+    }
   }
 
   return true;
@@ -66,8 +66,7 @@ bool SelectedLinkWidget::isValid()
 
 void SelectedLinkWidget::copyFrom(const SelectedLinkWidget* src)
 {
-  for (int i = 0; i < tabs_->count(); ++i)
-  {
+  for (int i = 0; i < tabs_->count(); ++i) {
     const auto des_widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
     const auto src_widget = qt::qConstPointerCast<const BaseSelectedLinkSettingWidget>(src->tabs_->widget(i));
     des_widget->copyFrom(src_widget);
@@ -78,8 +77,7 @@ YAML::Node SelectedLinkWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int i = 0; i < tabs_->count(); ++i)
-  {
+  for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = qt::qConstPointerCast<const BaseSelectedLinkSettingWidget>(tabs_->widget(i));
     node[widget->name()] = widget->dump();
   }
@@ -89,8 +87,7 @@ YAML::Node SelectedLinkWidget::dump() const
 
 void SelectedLinkWidget::load(const YAML::Node& node)
 {
-  for (int i = 0; i < tabs_->count(); ++i)
-  {
+  for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
     widget->load(node[widget->name()]);
   }

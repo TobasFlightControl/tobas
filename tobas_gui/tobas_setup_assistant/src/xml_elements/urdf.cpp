@@ -50,8 +50,9 @@ template <typename T>
 void addList(tinyxml2::XMLElement* parent, const string& list_name, const vector<T>& items)
 {
   const auto elem = parent->InsertNewChildElement(list_name.c_str());
-  for (const auto& item : items)
+  for (const auto& item : items) {
     elem->InsertNewChildElement("item")->SetText(toString(item).c_str());
+  }
 }
 
 tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const string& filename, const string& name)
@@ -265,8 +266,7 @@ void addICEPropulsionSystemPlugin(
   engine->InsertNewChildElement("timeConstDown")->SetText(engine_param.time_const_down);
 
   // robot/gazebo/plugin/rotor
-  for (const auto& rotor_param : rotor_params)
-  {
+  for (const auto& rotor_param : rotor_params) {
     const auto rotor = plugin->InsertNewChildElement("rotor");
     rotor->InsertNewChildElement("linkName")->SetText(rotor_param.link_name.c_str());
     rotor->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(rotor_param.direction).c_str());
@@ -324,8 +324,7 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("cYawR")->SetText(aerodynamics.c_yaw_r);
 
   // Control Surfaces
-  for (const auto& [_, cs] : control_surfaces)
-  {
+  for (const auto& [_, cs] : control_surfaces) {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
     cs_elem->InsertNewChildElement("channel")->SetText(cs.channel);
     cs_elem->InsertNewChildElement("linkName")->SetText(cs.link_name.c_str());
@@ -373,10 +372,10 @@ void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfi
   hardware->InsertNewChildElement("plugin")->SetText("gz_ros2_control/GazeboSimSystem");
 
   // robot/ros2_control/joint
-  for (const auto& [jnt_name, jnt_cfg] : joints)
-  {
-    if (!jnt_cfg.isServoJoint())
+  for (const auto& [jnt_name, jnt_cfg] : joints) {
+    if (!jnt_cfg.isServoJoint()) {
       continue;
+    }
 
     const auto joint = ros2_control->InsertNewChildElement("joint");
     joint->SetAttribute("name", jnt_name.c_str());

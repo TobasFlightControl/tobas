@@ -24,11 +24,11 @@ public:
   inline Vector(double x, double y, double z);
   inline Vector(const Eigen::Vector3d& _data);
 
-  inline static Vector Zero();
-  inline static Vector Constant(const double& value);
-  inline static Vector UnitX();
-  inline static Vector UnitY();
-  inline static Vector UnitZ();
+  static inline Vector Zero();
+  static inline Vector Constant(const double& value);
+  static inline Vector UnitX();
+  static inline Vector UnitY();
+  static inline Vector UnitZ();
 
   /* Access to elements, range checked when NDEBUG is not set, from 0..2 */
   inline double operator()(size_t index) const;

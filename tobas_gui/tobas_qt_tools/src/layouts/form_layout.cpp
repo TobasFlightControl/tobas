@@ -29,8 +29,9 @@ void FormLayout::addStretch()
 
 void FormLayout::clear()
 {
-  while (rowCount() > 0)
+  while (rowCount() > 0) {
     removeRow(0);
+  }
 }
 
 QWidget* FormLayout::getLabel(int row)

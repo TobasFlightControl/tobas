@@ -26,7 +26,7 @@ public:
     const RotationalInertia& Ic = RotationalInertia::Zero());
 
   /* Creates an inertia with zero mass, and zero RotationalInertia */
-  inline static RigidBodyInertia Zero();
+  static inline RigidBodyInertia Zero();
 
   /* Get the mass of the rigid body */
   inline const double& getMass() const;

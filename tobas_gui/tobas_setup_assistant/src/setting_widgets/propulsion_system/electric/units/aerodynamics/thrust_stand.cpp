@@ -42,8 +42,7 @@ const char* AerodynamicsWidget_ThrustStand::description() const
 
 bool AerodynamicsWidget_ThrustStand::isValid()
 {
-  if (data_->count() == 0)
-  {
+  if (data_->count() == 0) {
     qt::qErrorBox(this, "Thrust stand data is blank.");
     return false;
   }

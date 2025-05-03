@@ -89,13 +89,11 @@ void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 void JointTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
-  if (arming_->data)
-  {
+  if (arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while rotors are armed.");
     return;
   }

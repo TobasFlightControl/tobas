@@ -18,8 +18,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  for (size_t i = 0; i < plot_tabs_.size(); ++i)
-  {
+  for (size_t i = 0; i < plot_tabs_.size(); ++i) {
     plot_tabs_[i] = new PlotTabWidget();
     rows->addWidget(plot_tabs_[i]);
   }
@@ -52,8 +51,9 @@ void FlightLogViewerWidget::reset()
   obsv_fb_decoder_.clearCache();
   mr_ctrl_fb_decoder_.clearCache();
 
-  for (auto& plot_tab : plot_tabs_)
+  for (auto& plot_tab : plot_tabs_) {
     plot_tab->setTimeScale(0., kWindowDuration);
+  }
 
   playback_ctrl_->reset();
 }
@@ -66,12 +66,10 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   log_path_ = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   // rosbagを開く
-  try
-  {
+  try {
     reader_.open(log_path_);
   }
-  catch (const std::exception& e)
-  {
+  catch (const std::exception& e) {
     qt::qErrorBox(this, "Failed to open " + QString::fromStdString(log_path_) + ".");
     return;
   }
@@ -87,14 +85,12 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
 
 void FlightLogViewerWidget::setPlotData(double time_from_start)
 {
-  if (log_path_.empty())
-  {
+  if (log_path_.empty()) {
     qWarning() << "Log path is not set.";
     return;
   }
 
-  if (!fs::exists(log_path_))
-  {
+  if (!fs::exists(log_path_)) {
     qWarning() << "Log path " << QString::fromStdString(log_path_) << " does not exist.";
     return;
   }
@@ -121,59 +117,70 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data;
   QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data;
-  while (reader_.has_next())
-  {
+  while (reader_.has_next()) {
     const auto msg = reader_.read_next();
 
     const auto& cur_time = msg->recv_timestamp;  // [ns]
-    if (cur_time > window_stop_time)
+    if (cur_time > window_stop_time) {
       break;
+    }
 
     // 一度デコードに失敗したトピックはログがリセットされるまでデコードしない
-    if (decode_fail_topics_.contains(msg->topic_name))
+    if (decode_fail_topics_.contains(msg->topic_name)) {
       continue;
+    }
 
     // デコード
     rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
-    try
-    {
-      if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic)))
+    try {
+      if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
         odom_data.push_back(odom_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic))) {
         imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
         mag_data.push_back(mag_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
         gnss_data.push_back(gnss_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
         battery_data.push_back(battery_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
         cur_rotor_states_data.push_back(cur_rotor_states_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
         tar_rotor_speeds_data.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
         ice_cmd_data.push_back(ice_cmd_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
         sampling_time_data.push_back(sampling_time_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
         ctrl_latency_data.push_back(ctrl_latency_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
         dist_force_data.push_back(dist_force_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
         obsv_fb_data.push_back(obsv_fb_decoder_.decode(cur_time, ser_msg));
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic)))
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
         mr_ctrl_fb_data.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_msg));
+      }
     }
-    catch (const std::exception& e)
-    {
+    catch (const std::exception& e) {
       qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(msg->topic_name) + "\".");
       decode_fail_topics_.insert(msg->topic_name);
     }
   }
 
   // データをプロット
-  for (auto& plot_tab : plot_tabs_)
-  {
+  for (auto& plot_tab : plot_tabs_) {
     // XXX: データの設定の前に範囲を指定しないと若干プロットが崩れる
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 

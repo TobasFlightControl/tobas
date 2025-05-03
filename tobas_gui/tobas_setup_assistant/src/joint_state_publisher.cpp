@@ -59,11 +59,11 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   sliders_.clear();
   qt::clearLayout(slider_rows_);
 
-  for (const auto& [_, elem] : robot_.tree().getSegments())
-  {
+  for (const auto& [_, elem] : robot_.tree().getSegments()) {
     const auto& joint = elem.segment.joint();
-    if (joint.type == kdl::Joint::FIXED)
+    if (joint.type == kdl::Joint::FIXED) {
       continue;
+    }
 
     js_.name.push_back(joint.name);
     js_.position.push_back(0.);
@@ -73,8 +73,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
     auto lower_limit = joint.lower_limit;
     auto upper_limit = joint.upper_limit;
-    if (joint.type == kdl::Joint::ROTATION && upper_limit - lower_limit > 2 * M_PI)
-    {
+    if (joint.type == kdl::Joint::ROTATION && upper_limit - lower_limit > 2 * M_PI) {
       lower_limit = -M_PI;
       upper_limit = +M_PI;
     }
@@ -114,8 +113,7 @@ void JointStatePublisherWidget::publish()
 void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_name)
 {
   const auto idx = tobas_std::index(js_.name, jnt_name);
-  if (idx < 0)
-  {
+  if (idx < 0) {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Joint \"" << jnt_name << "\" does not exist.");
     return;
   }
@@ -125,8 +123,7 @@ void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_n
 
 void JointStatePublisherWidget::onCenterButtonClicked()
 {
-  for (auto& slider : sliders_)
-  {
+  for (auto& slider : sliders_) {
     const auto value = (slider->getMinimum() + slider->getMaximum()) / 2;
     slider->setValue(value);
   }
@@ -134,8 +131,7 @@ void JointStatePublisherWidget::onCenterButtonClicked()
 
 void JointStatePublisherWidget::onRandomButtonClicked()
 {
-  for (auto& slider : sliders_)
-  {
+  for (auto& slider : sliders_) {
     uniform_real_distribution<double> uniform(slider->getMinimum(), slider->getMaximum());
     const auto value = uniform(rnd_gen_);
     slider->setValue(value);

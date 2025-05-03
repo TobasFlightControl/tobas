@@ -25,11 +25,9 @@ kdl::Vector PositionPID::updatePID(
   const auto ep = tar_pos - cur_pos;
   const auto ed = tar_vel - cur_vel;
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     // I制御を行う場合
-    if (ki_(i) > 0.)
-    {
+    if (ki_(i) > 0.) {
       // 積分誤差を蓄積
       ei_(i) += ep(i) * dt;
 
@@ -68,11 +66,11 @@ kdl::Vector PositionPID::updatePD(
 
 bool PositionPID::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Natural frequency must be non-negative." << endl;
     return false;
   }
@@ -85,11 +83,11 @@ bool PositionPID::setNaturalFreq(int idx, double value)
 
 bool PositionPID::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
@@ -102,11 +100,11 @@ bool PositionPID::setDampingRatio(int idx, double value)
 
 bool PositionPID::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Integral gain must be non-negative." << endl;
     return false;
   }
@@ -119,11 +117,11 @@ bool PositionPID::setIntegralGain(int idx, double value)
 
 bool PositionPID::setMaximumAccel(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Maximum acceleration must be positive." << endl;
     return false;
   }

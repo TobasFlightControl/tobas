@@ -32,10 +32,7 @@ class UniformDistribution3d
 public:
   using SharedPtr = std::shared_ptr<UniformDistribution3d>;
 
-  explicit UniformDistribution3d(
-    std::random_device& rnd_dev,
-    const gz::math::Vector3d& lb,
-    const gz::math::Vector3d& ub);
+  explicit UniformDistribution3d(std::random_device& rnd_dev, const gz::math::Vector3d& lb, const gz::math::Vector3d& ub);
 
   explicit UniformDistribution3d(std::random_device& rnd_dev, double lb, double ub);
 

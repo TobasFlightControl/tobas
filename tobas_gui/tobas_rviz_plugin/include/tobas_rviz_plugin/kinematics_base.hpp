@@ -276,16 +276,13 @@ public:
   {
     (void)context_state;
     // For IK solvers that do not support multiple poses, fall back to single pose call
-    if (ik_poses.size() == 1)
-    {
+    if (ik_poses.size() == 1) {
       // Check if a solution_callback function was provided and call the corresponding function
-      if (solution_callback)
-      {
+      if (solution_callback) {
         return searchPositionIK(
           ik_poses[0], ik_seed_state, timeout, consistency_limits, solution, solution_callback, error_code, options);
       }
-      else
-      {
+      else {
         return searchPositionIK(ik_poses[0], ik_seed_state, timeout, consistency_limits, solution, error_code, options);
       }
     }
@@ -334,8 +331,7 @@ public:
     const RobotState* context_state = nullptr) const
   {
     // if cost function is empty, omit
-    if (!cost_function)
-    {
+    if (!cost_function) {
       return searchPositionIK(
         ik_poses, ik_seed_state, timeout, consistency_limits, solution, solution_callback, error_code, options,
         context_state);
@@ -426,8 +422,7 @@ public:
    */
   virtual const std::string& getTipFrame() const
   {
-    if (tip_frames_.size() > 1)
-    {
+    if (tip_frames_.size() > 1) {
       RCLCPP_ERROR(
         getLogger("tobas.kinematics_base"), "This kinematic solver has more than one tip frame, "
                                             "do not call getTipFrame()");
@@ -507,8 +502,9 @@ public:
   void setSearchDiscretization(double sd)
   {
     redundant_joint_discretization_.clear();
-    for (unsigned int index : redundant_joint_indices_)
+    for (unsigned int index : redundant_joint_indices_) {
       redundant_joint_discretization_[index] = sd;
+    }
   }
 
   /**
@@ -522,8 +518,7 @@ public:
   {
     redundant_joint_discretization_.clear();
     redundant_joint_indices_.clear();
-    for (const auto& pair : discretization)
-    {
+    for (const auto& pair : discretization) {
       redundant_joint_discretization_.insert(pair);
       redundant_joint_indices_.push_back(pair.first);
     }
@@ -534,12 +529,10 @@ public:
    */
   double getSearchDiscretization(int joint_index = 0) const
   {
-    if (redundant_joint_discretization_.count(joint_index) > 0)
-    {
+    if (redundant_joint_discretization_.count(joint_index) > 0) {
       return redundant_joint_discretization_.at(joint_index);
     }
-    else
-    {
+    else {
       return 0.;  // returned when there aren't any redundant joints
     }
   }

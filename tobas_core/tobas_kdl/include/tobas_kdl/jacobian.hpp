@@ -81,20 +81,23 @@ inline void Jacobian::setColumn(size_t i, const SegmentJacobian& jac)
 
 inline void Jacobian::changeRefPoint(const Vector& base_AB)
 {
-  for (size_t i = 0; i < columns(); ++i)
+  for (size_t i = 0; i < columns(); ++i) {
     setColumn(i, getColumn(i).refPoint(base_AB));
+  }
 }
 
 inline void Jacobian::changeBase(const Rotation& rot)
 {
-  for (size_t i = 0; i < columns(); ++i)
+  for (size_t i = 0; i < columns(); ++i) {
     setColumn(i, rot * getColumn(i));
+  }
 }
 
 inline void Jacobian::changeRefFrame(const Frame& frame)
 {
-  for (size_t i = 0; i < columns(); ++i)
+  for (size_t i = 0; i < columns(); ++i) {
     setColumn(i, frame * getColumn(i));
+  }
 }
 
 inline double Jacobian::operator()(size_t i, size_t j) const

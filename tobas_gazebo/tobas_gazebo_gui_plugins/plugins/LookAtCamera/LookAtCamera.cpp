@@ -21,11 +21,11 @@ LookAtCamera::LookAtCamera()
 
 void LookAtCamera::LoadConfig(const tinyxml2::XMLElement* elem)
 {
-  if (title.empty())
+  if (title.empty()) {
     title = "LookAt Camera Plugin";
+  }
 
-  if (elem)
-  {
+  if (elem) {
     // TODO: Get XML parameters
   }
 
@@ -34,8 +34,9 @@ void LookAtCamera::LoadConfig(const tinyxml2::XMLElement* elem)
 
 bool LookAtCamera::eventFilter(QObject* obj, QEvent* event)
 {
-  if (event->type() == gz::gui::events::Render::kType)
+  if (event->type() == gz::gui::events::Render::kType) {
     onRender();
+  }
 
   return QObject::eventFilter(obj, event);
 }
@@ -44,17 +45,18 @@ void LookAtCamera::onRender()
 {
   lock_guard<mutex> lock(mutex_);
 
-  if (!scene_)
-  {
+  if (!scene_) {
     scene_ = gz::rendering::sceneFromFirstRenderEngine();
-    if (!scene_)
+    if (!scene_) {
       return;
+    }
 
     initialize();
   }
 
-  if (!camera_)
+  if (!camera_) {
     return;
+  }
 
   // Get camera position
   const auto camera_pos = camera_->WorldPosition();
@@ -79,19 +81,16 @@ void LookAtCamera::onRender()
 void LookAtCamera::initialize()
 {
   // Attach to the first camera we find
-  for (size_t i = 0; i < scene_->NodeCount(); ++i)
-  {
+  for (size_t i = 0; i < scene_->NodeCount(); ++i) {
     const auto camera = dynamic_pointer_cast<gz::rendering::Camera>(scene_->NodeByIndex(i));
-    if (camera)
-    {
+    if (camera) {
       camera_ = camera;
       gzdbg << "LookAtCamera is moving camera [" << camera_->Name() << "]" << endl;
       break;
     }
   }
 
-  if (!camera_)
-  {
+  if (!camera_) {
     gzerr << "Camera is not available." << endl;
     return;
   }

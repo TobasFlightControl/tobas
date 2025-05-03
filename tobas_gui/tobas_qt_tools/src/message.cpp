@@ -24,8 +24,7 @@ bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
   QMessageBox msg_box(parent);
 
   // メッセージレベルを設定
-  switch (level)
-  {
+  switch (level) {
     case QMessageLevel::INFO:
       msg_box.setIcon(QMessageBox::Icon::Information);
       msg_box.setWindowTitle("INFO");

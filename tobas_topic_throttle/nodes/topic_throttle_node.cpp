@@ -46,8 +46,9 @@ private:
   {
     // ネットワークトラフィックの改善のため，周波数の高いトピックを間引く．
     // ヘッダの時刻だとPCとFCのシステムクロックの誤差が出力レートを壊す恐れがあるため，タイマーをノードのものに統一する．
-    if (!rate_manager_.update(node_->get_clock()->now()))
+    if (!rate_manager_.update(node_->get_clock()->now())) {
       return;
+    }
 
     auto msg_out = std::make_unique<MsgType>(*msg_in);
     pub_->publish(move(msg_out));

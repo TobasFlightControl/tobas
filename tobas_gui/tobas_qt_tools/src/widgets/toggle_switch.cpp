@@ -84,8 +84,7 @@ int ToggleSwitch::calcMaxTextPointSize() const
 
 void ToggleSwitch::paintEvent(QPaintEvent*)
 {
-  if (width() < height())
-  {
+  if (width() < height()) {
     qWarning() << "The height of toggle switch is greater than the width.";
     return;
   }
@@ -108,8 +107,9 @@ void ToggleSwitch::paintEvent(QPaintEvent*)
 
 void ToggleSwitch::mousePressEvent(QMouseEvent*)
 {
-  if (ignore_mouse_press_event_)
+  if (ignore_mouse_press_event_) {
     return;
+  }
 
   checked_ = !checked_;      // 状態をトグル
   Q_EMIT toggled(checked_);  // トグル状態が変わったことを通知
@@ -122,18 +122,21 @@ void ToggleSwitch::resizeEvent(QResizeEvent* event)
 
   // アスペクト比を2:1よりも横長に保つ
   // 足りない方の長さで調整するとウィジェットが消滅してしまうため，必ず足りない方の長さを据え置きでもう片方で合わせる．
-  if (w < 2 * h)
+  if (w < 2 * h) {
     resize(w, w / 2);
+  }
 
   super::resizeEvent(event);
 }
 
 void ToggleSwitch::drawBackground(QPainter& painter)
 {
-  if (checked_)
+  if (checked_) {
     painter.setBrush(on_color_);
-  else
+  }
+  else {
     painter.setBrush(off_color_);
+  }
 
   painter.setPen(Qt::NoPen);
   painter.drawRoundedRect(0, 0, width(), height(), height() / 2, height() / 2);
@@ -150,9 +153,11 @@ void ToggleSwitch::drawText(QPainter& painter)
 {
   const auto center = getTextCenter();
 
-  if (text_psize_ > 0)
+  if (text_psize_ > 0) {
     super::drawText(painter, text_, center, text_psize_);
-  else
+  }
+  else {
     drawMaximumText(painter, text_, center);
+  }
 }
 }  // namespace qt

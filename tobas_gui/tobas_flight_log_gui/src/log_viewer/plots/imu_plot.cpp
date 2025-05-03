@@ -14,8 +14,7 @@ ImuPlotWidget::ImuPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     acc_plots_[i] = new QwtPlot2();
     acc_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     acc_curves_[i].attach(acc_plots_[i]);
@@ -30,8 +29,7 @@ ImuPlotWidget::ImuPlotWidget()
 
 void ImuPlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     acc_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
     gyro_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
@@ -43,8 +41,7 @@ void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::ImuWithCovarianceStam
   std::array<QVector<double>, 3> acc_data;
   std::array<QVector<double>, 3> gyro_data;
 
-  for (const auto& imu : imu_msgs)
-  {
+  for (const auto& imu : imu_msgs) {
     t_data.push_back(ros2::seconds(imu.header.stamp));
 
     const auto& accel = imu.imu.imu.accel;
@@ -58,8 +55,7 @@ void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::ImuWithCovarianceStam
     gyro_data[2].push_back(gyro.z);
   }
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     acc_curves_[i].setSamples(t_data, acc_data[i]);
     acc_plots_[i]->replot();
 

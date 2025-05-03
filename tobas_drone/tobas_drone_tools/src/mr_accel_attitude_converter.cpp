@@ -56,8 +56,7 @@ void AccelAttitudeConverter::update(
 
 bool AccelAttitudeConverter::setMaxAttitude(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Maximum attitude must be positive." << endl;
     return false;
   }

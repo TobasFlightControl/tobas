@@ -18,7 +18,7 @@ public:
   inline explicit TaskSpaceDamping();
   inline explicit TaskSpaceDamping(const Vector& linear, const Vector& angular);
 
-  inline static TaskSpaceDamping Zero();
+  static inline TaskSpaceDamping Zero();
 
   inline void setZero();
 

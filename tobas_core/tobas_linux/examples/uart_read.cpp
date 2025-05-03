@@ -27,18 +27,15 @@ int main(int argc, char** argv)
   opts(HUNGUP, "Enable hungup close", cxxopts::value<bool>()->default_value("false"));
 
   cxxopts::ParseResult result;
-  try
-  {
+  try {
     result = options.parse(argc, argv);
   }
-  catch (const cxxopts::exceptions::exception& e)
-  {
+  catch (const cxxopts::exceptions::exception& e) {
     cerr << "Failed to parse arguments: " << e.what() << endl;
     return EXIT_FAILURE;
   }
 
-  if (result.count(HELP))
-  {
+  if (result.count(HELP)) {
     cout << options.help() << endl;
     return EXIT_SUCCESS;
   }
@@ -62,71 +59,74 @@ int main(int argc, char** argv)
 
   linux::UARTdev uart;
 
-  if (!uart.initialize(device.c_str()))
+  if (!uart.initialize(device.c_str())) {
     return EXIT_FAILURE;
+  }
 
-  if (!uart.setBaudRate(baudrate))
+  if (!uart.setBaudRate(baudrate)) {
     return EXIT_FAILURE;
+  }
 
-  if (!uart.setDataBits(data_bits))
+  if (!uart.setDataBits(data_bits)) {
     return EXIT_FAILURE;
+  }
 
-  switch (stop_bits)
-  {
+  switch (stop_bits) {
     case 0:
       break;
     case 1:
-      if (!uart.setSingleStopBit())
+      if (!uart.setSingleStopBit()) {
         return EXIT_FAILURE;
+      }
       break;
     case 2:
-      if (!uart.setDoubleStopBit())
+      if (!uart.setDoubleStopBit()) {
         return EXIT_FAILURE;
+      }
       break;
     default:
       cerr << "The number of stop bits is invalid: " << stop_bits << endl;
       return EXIT_FAILURE;
   }
 
-  if (parity == "none")
-  {
-    if (!uart.disableParity())
+  if (parity == "none") {
+    if (!uart.disableParity()) {
       return EXIT_FAILURE;
+    }
   }
-  else if (parity == "odd")
-  {
-    if (!uart.enableParity(linux::UARTdev::parity_mode_t::PARITY_ODD))
+  else if (parity == "odd") {
+    if (!uart.enableParity(linux::UARTdev::parity_mode_t::PARITY_ODD)) {
       return EXIT_FAILURE;
+    }
   }
-  else if (parity == "even")
-  {
-    if (!uart.enableParity(linux::UARTdev::parity_mode_t::PARITY_EVEN))
+  else if (parity == "even") {
+    if (!uart.enableParity(linux::UARTdev::parity_mode_t::PARITY_EVEN)) {
       return EXIT_FAILURE;
+    }
   }
-  else
-  {
+  else {
     cerr << "Invalid parity mode: " << parity << endl;
     return EXIT_FAILURE;
   }
 
-  if (hungup)
-  {
-    if (!uart.enableHungupClose())
+  if (hungup) {
+    if (!uart.enableHungupClose()) {
       return EXIT_FAILURE;
+    }
   }
-  else
-  {
-    if (!uart.disableHungupClose())
+  else {
+    if (!uart.disableHungupClose()) {
       return EXIT_FAILURE;
+    }
   }
 
   uint8_t data;
   cout << hex;
 
-  while (true)
-  {
-    if (!uart.receive(&data, 1))
+  while (true) {
+    if (!uart.receive(&data, 1)) {
       continue;
+    }
     cout << data << " ";
   }
 }

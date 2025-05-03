@@ -72,8 +72,7 @@ bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
 {
   reset();
 
-  if (!drone_.load(common::getTBSDRNPath(tbs_path)))
-  {
+  if (!drone_.load(common::getTBSDRNPath(tbs_path))) {
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return false;
   }
@@ -85,18 +84,20 @@ bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
 
 void ParameterTuningWidget::onLoadButtonClicked()
 {
-  if (drone_.name.empty())
-  {
+  if (drone_.name.empty()) {
     qt::qWarnBox(this, "Tobas package is not loaded yet.");
     return;
   }
 
-  if (!controller_params_->load(drone_.name, tobas::node::kController))
+  if (!controller_params_->load(drone_.name, tobas::node::kController)) {
     return;
-  if (!observer_params_->load(drone_.name, tobas::node::kObserver))
+  }
+  if (!observer_params_->load(drone_.name, tobas::node::kObserver)) {
     return;
-  if (!rc_teleop_params_->load(drone_.name, tobas::node::kRcTeleop))
+  }
+  if (!rc_teleop_params_->load(drone_.name, tobas::node::kRcTeleop)) {
     return;
+  }
 
   // 読み込みと同時に可視化
   controller_params_->setVisible(true);
@@ -115,18 +116,21 @@ void ParameterTuningWidget::onSaveButtonClicked()
 
   const auto controller_path_local = common::getControllerDynamicParamsPath(tbs_path_);
   const auto controller_path_remote = common::getControllerDynamicParamsPath(remote_tbs_path);
-  if (!controller_params_->save(controller_path_local, controller_path_remote))
+  if (!controller_params_->save(controller_path_local, controller_path_remote)) {
     return;
+  }
 
   const auto observer_path_local = common::getObserverDynamicParamsPath(tbs_path_);
   const auto observer_path_remote = common::getObserverDynamicParamsPath(remote_tbs_path);
-  if (!observer_params_->save(observer_path_local, observer_path_remote))
+  if (!observer_params_->save(observer_path_local, observer_path_remote)) {
     return;
+  }
 
   const auto rc_teleop_path_local = common::getRcTeleopDynamicParamsPath(tbs_path_);
   const auto rc_teleop_path_remote = common::getObserverDynamicParamsPath(remote_tbs_path);
-  if (!rc_teleop_params_->save(rc_teleop_path_local, rc_teleop_path_remote))
+  if (!rc_teleop_params_->save(rc_teleop_path_local, rc_teleop_path_remote)) {
     return;
+  }
 
   qt::qInfoBox(this, "Dynamic parameters are saved to PC and FC successfully.");
 }
@@ -134,17 +138,21 @@ void ParameterTuningWidget::onSaveButtonClicked()
 void ParameterTuningWidget::onResetButtonClicked()
 {
   // 本当に全てのパラメータをリセットしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
-  if (!controller_params_->setToDefaults())
+  if (!controller_params_->setToDefaults()) {
     return;
+  }
 
-  if (!observer_params_->setToDefaults())
+  if (!observer_params_->setToDefaults()) {
     return;
+  }
 
-  if (!rc_teleop_params_->setToDefaults())
+  if (!rc_teleop_params_->setToDefaults()) {
     return;
+  }
 
   qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
 }

@@ -21,8 +21,7 @@ BatteryWidget::BatteryWidget()
   batteries_->addWidget(new BatteryWidget_LiPo());
   batteries_->addWidget(new BatteryWidget_Other());
 
-  for (int i = 0; i < batteries_->count(); ++i)
-  {
+  for (int i = 0; i < batteries_->count(); ++i) {
     const auto battery = widget(i);
     type_->addItem(battery->name());
   }
@@ -38,8 +37,9 @@ BatteryWidget::BatteryWidget()
 
 bool BatteryWidget::isValid()
 {
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -50,8 +50,7 @@ YAML::Node BatteryWidget::dump() const
 
   node[kTypeKey] = type_->currentText();
 
-  for (int i = 0; i < batteries_->count(); ++i)
-  {
+  for (int i = 0; i < batteries_->count(); ++i) {
     const auto battery = widget(i);
     node[battery->name()] = battery->dump();
   }
@@ -63,8 +62,7 @@ void BatteryWidget::load(const YAML::Node& node)
 {
   type_->setCurrentText(node[kTypeKey].as<QString>());
 
-  for (int i = 0; i < batteries_->count(); ++i)
-  {
+  for (int i = 0; i < batteries_->count(); ++i) {
     const auto battery = widget(i);
     battery->load(node[battery->name()]);
   }

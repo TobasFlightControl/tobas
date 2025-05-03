@@ -17,7 +17,7 @@ public:
   inline explicit Wrench();
   inline explicit Wrench(const Vector& _force, const Vector& _torque);
 
-  inline static Wrench Zero();
+  static inline Wrench Zero();
 
   inline void setZero();
 

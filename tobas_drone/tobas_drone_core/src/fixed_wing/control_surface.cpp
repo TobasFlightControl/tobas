@@ -9,8 +9,7 @@ namespace tobas
 {
 bool ControlSurface::isValid() const
 {
-  if (link_name.empty())
-  {
+  if (link_name.empty()) {
     cerr << "Link name is empty." << endl;
     return false;
   }
@@ -23,29 +22,37 @@ bool ControlSurface::isValid() const
 
 bool ControlSurface::load(const YAML::Node& node)
 {
-  if (!yaml::load(kChannelKey, node, channel))
+  if (!yaml::load(kChannelKey, node, channel)) {
     return false;
+  }
 
-  if (!yaml::load(kLinkNameKey, node, link_name))
+  if (!yaml::load(kLinkNameKey, node, link_name)) {
     return false;
+  }
 
-  if (!yaml::load(kCLiftDeltaKey, node, c_lift_delta))
+  if (!yaml::load(kCLiftDeltaKey, node, c_lift_delta)) {
     return false;
+  }
 
-  if (!yaml::load(kCDragAbsDeltaKey, node, c_drag_abs_delta))
+  if (!yaml::load(kCDragAbsDeltaKey, node, c_drag_abs_delta)) {
     return false;
+  }
 
-  if (!yaml::load(kCSideDeltaKey, node, c_side_delta))
+  if (!yaml::load(kCSideDeltaKey, node, c_side_delta)) {
     return false;
+  }
 
-  if (!yaml::load(kCRollDeltaKey, node, c_roll_delta))
+  if (!yaml::load(kCRollDeltaKey, node, c_roll_delta)) {
     return false;
+  }
 
-  if (!yaml::load(kCPitchDeltaKey, node, c_pitch_delta))
+  if (!yaml::load(kCPitchDeltaKey, node, c_pitch_delta)) {
     return false;
+  }
 
-  if (!yaml::load(kCYawDeltaKey, node, c_yaw_delta))
+  if (!yaml::load(kCYawDeltaKey, node, c_yaw_delta)) {
     return false;
+  }
 
   return true;
 }

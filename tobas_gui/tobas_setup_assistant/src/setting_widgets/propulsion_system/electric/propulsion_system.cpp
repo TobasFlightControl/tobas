@@ -34,11 +34,13 @@ void PropulsionSystemWidget::updateInternalDataStructures()
 
 bool PropulsionSystemWidget::isValid()
 {
-  if (!battery->isValid())
+  if (!battery->isValid()) {
     return false;
+  }
 
-  if (!units->isValid())
+  if (!units->isValid()) {
     return false;
+  }
 
   return true;
 }

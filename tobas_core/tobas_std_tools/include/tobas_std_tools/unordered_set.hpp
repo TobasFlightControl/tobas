@@ -13,8 +13,9 @@ T min(const std::unordered_set<T>& set)
   assert(set.size() > 0);
 
   T res = *set.begin();
-  for (const T& elem : set)
+  for (const T& elem : set) {
     res = min(res, elem);
+  }
   return res;
 }
 
@@ -25,8 +26,9 @@ T max(const std::unordered_set<T>& set)
   assert(set.size() > 0);
 
   T res = *set.begin();
-  for (const T& elem : set)
+  for (const T& elem : set) {
     res = max(res, elem);
+  }
   return res;
 }
 }  // namespace tobas_std

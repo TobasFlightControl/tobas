@@ -25,15 +25,13 @@ AerodynamicsWidget::AerodynamicsWidget()
 
   methods_->addWidget(new AerodynamicsWidget_Manual());
 
-  for (int i = 0; i < methods_->count(); ++i)
-  {
+  for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method_name_->addItem(method->name());
   }
 
   connect(
-    method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_,
-    &qt::StackedWidget::setCurrentIndex);
+    method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
 }
 
 const char* AerodynamicsWidget::name() const
@@ -43,8 +41,9 @@ const char* AerodynamicsWidget::name() const
 
 bool AerodynamicsWidget::isValid()
 {
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -55,8 +54,7 @@ void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 
   method_name_->setCurrentIndex(derived->method_name_->currentIndex());
 
-  for (int i = 0; i < methods_->count(); ++i)
-  {
+  for (int i = 0; i < methods_->count(); ++i) {
     const auto des_method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     const auto src_method = qt::qConstPointerCast<AerodynamicsWidget_Base>(derived->methods_->widget(i));
     des_method->copyFrom(src_method);
@@ -69,8 +67,7 @@ YAML::Node AerodynamicsWidget::dump() const
 
   node[kMethodNameKey] = method_name_->currentText();
 
-  for (int i = 0; i < methods_->count(); ++i)
-  {
+  for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     node[method->name()] = method->dump();
   }
@@ -82,8 +79,7 @@ void AerodynamicsWidget::load(const YAML::Node& node)
 {
   method_name_->setCurrentText(node[kMethodNameKey].as<QString>());
 
-  for (int i = 0; i < methods_->count(); ++i)
-  {
+  for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method->load(node[method->name()]);
   }

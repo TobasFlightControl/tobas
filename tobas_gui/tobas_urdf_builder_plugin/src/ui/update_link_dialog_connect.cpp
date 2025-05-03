@@ -144,14 +144,11 @@ void UpdateLinkDialog::defineConnections()
     ui_->JointOriginYawSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
     &self::JointSpinBoxValueChanged);
   connect(
-    ui_->JointAxisXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
-    &self::JointSpinBoxValueChanged);
+    ui_->JointAxisXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &self::JointSpinBoxValueChanged);
   connect(
-    ui_->JointAxisYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
-    &self::JointSpinBoxValueChanged);
+    ui_->JointAxisYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &self::JointSpinBoxValueChanged);
   connect(
-    ui_->JointAxisZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
-    &self::JointSpinBoxValueChanged);
+    ui_->JointAxisZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &self::JointSpinBoxValueChanged);
   connect(
     ui_->JointLimitLowerSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
     &self::JointSpinBoxValueChanged);

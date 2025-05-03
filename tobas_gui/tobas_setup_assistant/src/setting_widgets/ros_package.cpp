@@ -73,9 +73,11 @@ void RosPackageWidget::updateInternalDataStructures()
   pardir_->setValue(QString::fromStdString(default_pardir));
 
   // デフォルトの親ディレクトリが存在しなければ作成
-  if (!fs::exists(default_pardir))
-    if (!fs::create_directories(default_pardir))
+  if (!fs::exists(default_pardir)) {
+    if (!fs::create_directories(default_pardir)) {
       qt::qErrorBox(this, QString::fromStdString("Failed to create \"" + default_pardir.string() + "\"."));
+    }
+  }
 
   // デフォルトのTBSパッケージ名を設定
   const auto tbs_name = "tobas_" + robot_.robotName();
@@ -89,15 +91,13 @@ bool RosPackageWidget::isValid()
   const auto tbs_path = tbs_path_->text();
 
   // 親ディレクトリが存在することを確認
-  if (!fs::is_directory(pardir.toStdString()))
-  {
+  if (!fs::is_directory(pardir.toStdString())) {
     qt::qErrorBox(this, pardir + " does not exist.");
     return false;
   }
 
   // パッケージ名が無効な文字を含んでいないことを確認
-  if (tbs_name.contains('/') || tbs_name.contains('.') || tbs_name.contains(' '))
-  {
+  if (tbs_name.contains('/') || tbs_name.contains('.') || tbs_name.contains(' ')) {
     qt::qErrorBox(this, "Invalid package name: " + tbs_name);
     return false;
   }

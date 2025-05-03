@@ -46,12 +46,12 @@ void WaitSpinnerWidget::paintEvent(QPaintEvent*)
   painter.fillRect(this->rect(), Qt::transparent);
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  if (cur_counter_ >= num_lines_)
+  if (cur_counter_ >= num_lines_) {
     cur_counter_ = 0;
+  }
 
   painter.setPen(Qt::NoPen);
-  for (int i = 0; i < num_lines_; ++i)
-  {
+  for (int i = 0; i < num_lines_; ++i) {
     painter.save();
     painter.translate(inner_radius_ + line_length_, inner_radius_ + line_length_);
     const auto rotate_angle = static_cast<double>(360 * i) / static_cast<double>(num_lines_);
@@ -73,11 +73,11 @@ void WaitSpinnerWidget::start()
   is_spinning_ = true;
   show();
 
-  if (parentWidget() && disable_parent_when_spinning_)
+  if (parentWidget() && disable_parent_when_spinning_) {
     parentWidget()->setEnabled(false);
+  }
 
-  if (!timer_->isActive())
-  {
+  if (!timer_->isActive()) {
     timer_->start();
     cur_counter_ = 0;
   }
@@ -88,11 +88,11 @@ void WaitSpinnerWidget::stop()
   is_spinning_ = false;
   hide();
 
-  if (parentWidget() && disable_parent_when_spinning_)
+  if (parentWidget() && disable_parent_when_spinning_) {
     parentWidget()->setEnabled(true);
+  }
 
-  if (timer_->isActive())
-  {
+  if (timer_->isActive()) {
     timer_->stop();
     cur_counter_ = 0;
   }
@@ -202,8 +202,9 @@ bool WaitSpinnerWidget::isSpinning() const
 void WaitSpinnerWidget::rotate()
 {
   ++cur_counter_;
-  if (cur_counter_ >= num_lines_)
+  if (cur_counter_ >= num_lines_) {
     cur_counter_ = 0;
+  }
   update();
 }
 
@@ -220,15 +221,17 @@ void WaitSpinnerWidget::updateTimer()
 
 void WaitSpinnerWidget::updatePosition()
 {
-  if (parentWidget() && center_on_parent_)
+  if (parentWidget() && center_on_parent_) {
     move(parentWidget()->width() / 2 - width() / 2, parentWidget()->height() / 2 - height() / 2);
+  }
 }
 
 int WaitSpinnerWidget::lineCountDistanceFromPrimary(int current, int primary, int total_num_lines)
 {
   auto distance = primary - current;
-  if (distance < 0)
+  if (distance < 0) {
     distance += total_num_lines;
+  }
   return distance;
 }
 
@@ -239,18 +242,17 @@ QColor WaitSpinnerWidget::currentLineColor(
   double min_opacity,
   QColor color)
 {
-  if (count_dist == 0)
+  if (count_dist == 0) {
     return color;
+  }
 
   const auto min_alpha_f = min_opacity / 100.;
   const auto dist_thresh = static_cast<int>(ceil((total_num_lines - 1) * trail_fade_perc / 100.));
 
-  if (count_dist > dist_thresh)
-  {
+  if (count_dist > dist_thresh) {
     color.setAlphaF(min_alpha_f);
   }
-  else
-  {
+  else {
     const auto alpha_diff = color.alphaF() - min_alpha_f;
     const auto gradient = alpha_diff / static_cast<double>(dist_thresh + 1);
     auto result_alpha = color.alphaF() - gradient * count_dist;

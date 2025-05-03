@@ -15,8 +15,9 @@ int writeFile(const char* path, const char* fmt, ...)
   errno = 0;
 
   const auto fd = ::open(path, O_WRONLY | O_CLOEXEC);
-  if (fd == -1)
+  if (fd == -1) {
     return -errno;
+  }
 
   va_list args;
   va_start(args, fmt);
@@ -27,8 +28,9 @@ int writeFile(const char* path, const char* fmt, ...)
 
   va_end(args);
 
-  if (ret < 1)
+  if (ret < 1) {
     return -errno_bkp;
+  }
 
   return ret;
 }
@@ -38,8 +40,9 @@ int readFile(const char* path, const char* fmt, ...)
   errno = 0;
 
   FILE* file = ::fopen(path, "re");
-  if (!file)
+  if (!file) {
     return -errno;
+  }
 
   va_list args;
   va_start(args, fmt);
@@ -50,8 +53,9 @@ int readFile(const char* path, const char* fmt, ...)
 
   va_end(args);
 
-  if (ret < 1)
+  if (ret < 1) {
     return -errno_bkp;
+  }
 
   return ret;
 }

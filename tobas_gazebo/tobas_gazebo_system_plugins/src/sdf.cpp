@@ -10,13 +10,15 @@ bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst)
 {
   static constexpr char kDirectionKey[] = "turningDirection";
 
-  if (!sdf->HasElement(kDirectionKey))
+  if (!sdf->HasElement(kDirectionKey)) {
     return false;
+  }
   const auto direction_text = sdf->Get<string>(kDirectionKey);
 
   tobas::turning_direction_t direction_enum;
-  if (!tobas::enumFromText(direction_text, direction_enum))
+  if (!tobas::enumFromText(direction_text, direction_enum)) {
     return false;
+  }
 
   dst = tobas::sign(direction_enum);
   return true;

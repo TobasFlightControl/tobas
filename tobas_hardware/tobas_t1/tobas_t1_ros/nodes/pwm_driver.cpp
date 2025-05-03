@@ -33,8 +33,7 @@ PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options) : super("t1_pwm
 
 void PwmDriverNode::initialize()
 {
-  if (!pwm_.initialize())
-  {
+  if (!pwm_.initialize()) {
     TOBAS_ERROR("Failed to initialize PWM driver. Retrying...");
     return;
   }
@@ -47,24 +46,22 @@ void PwmDriverNode::initialize()
 void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
 {
   // Set PWM periods of each channel
-  for (const auto& elem : pwms->pwms)
-  {
-    if (elem.channel >= t1::PWM::kChannelSize)
-    {
+  for (const auto& elem : pwms->pwms) {
+    if (elem.channel >= t1::PWM::kChannelSize) {
       TOBAS_ERROR("PWM channel ", elem.channel, " does not exist.");
       continue;
     }
 
-    if (!pwm_.setPeriod(elem.channel, elem.period))
-    {
+    if (!pwm_.setPeriod(elem.channel, elem.period)) {
       TOBAS_ERROR("PWM command of channel ", elem.channel, " is rejected.");
       continue;
     }
   }
 
   // Send PWM pwms
-  if (!pwm_.transfer())
+  if (!pwm_.transfer()) {
     TOBAS_ERROR("Failed to send PWM command.");
+  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(PwmDriverNode)

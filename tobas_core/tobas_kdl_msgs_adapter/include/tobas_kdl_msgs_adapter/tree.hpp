@@ -20,15 +20,15 @@ struct rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>
   {
     dst.segments.clear();
 
-    for (const auto& [_, elem] : src.getSegments())
-    {
+    for (const auto& [_, elem] : src.getSegments()) {
       dst.segments.emplace_back();
       tobas_kdl_msgs::SegmentAdapter::convert_to_ros_message(elem.segment, dst.segments.back().segment);
       dst.segments.back().q_nr = elem.q_nr;
 
       // ルートリンクでなければ親の名前を追加
-      if (elem.segment.name() != src.getRootName())
+      if (elem.segment.name() != src.getRootName()) {
         dst.segments.back().parent_name = elem.parent->first;
+      }
     }
 
     dst.root_name = src.getRootName();
@@ -44,37 +44,39 @@ struct rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>
     kdl::Segment seg;
     size_t q_nr = 0;  // 現在の可動関節の番号
 
-    for (size_t _ = 0; _ < src.segments.size(); ++_)
-    {
-      for (const auto& elem : src.segments)
-      {
+    for (size_t _ = 0; _ < src.segments.size(); ++_) {
+      for (const auto& elem : src.segments) {
         // リンクが既に追加されていればスキップ
-        if (added_segs.contains(elem.segment.name))
+        if (added_segs.contains(elem.segment.name)) {
           continue;
+        }
 
         // q_nrの整合性を保つため，可動関節は番号の若い方から順にツリーに追加する．
         // 固定関節をもつリンクの番号は0だから，常に追加候補になる．
-        if (elem.q_nr > q_nr)
+        if (elem.q_nr > q_nr) {
           continue;
+        }
 
         // 親リンクが追加されていればまだ追加できない
-        if (!added_segs.contains(elem.parent_name))
+        if (!added_segs.contains(elem.parent_name)) {
           continue;
+        }
 
         // 現在のリンクをツリーに追加
         tobas_kdl_msgs::SegmentAdapter::convert_to_custom(elem.segment, seg);
-        if (!tree.addSegment(seg, elem.parent_name))
+        if (!tree.addSegment(seg, elem.parent_name)) {
           throw std::runtime_error("Failed to add segment \"" + elem.segment.name + "\".");
+        }
         added_segs.insert(elem.segment.name);
 
         // 可動関節の場合は次の番号の関節をもつリンクを探索
-        if (elem.segment.joint.type != kdl::Joint::FIXED)
+        if (elem.segment.joint.type != kdl::Joint::FIXED) {
           ++q_nr;
+        }
       }
 
       // 全てのリンクが追加されたらツリーをコピーして終了
-      if (added_segs.size() == src.segments.size())
-      {
+      if (added_segs.size() == src.segments.size()) {
         dst = tree;
         return;
       }

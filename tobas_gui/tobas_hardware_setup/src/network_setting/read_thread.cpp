@@ -12,15 +12,13 @@ ReadWPASupplicantThread::ReadWPASupplicantThread(rclcpp::Node::SharedPtr node) :
 void ReadWPASupplicantThread::run()
 {
   // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR) {
     Q_EMIT finished(false, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
   }
 
   // リモートファイルを開いて内容を読む
-  if (ssh_client_.sftpRead(kWPASupplicantPath, text_, true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.sftpRead(kWPASupplicantPath, text_, true) != ssh::SSHClient::E_NO_ERROR) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;
   }

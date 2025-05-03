@@ -72,8 +72,7 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super
 double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)
 {
   // Check joint position limit
-  if (pwm.value_range.inRange(cmd_pos, kJointLimitMargin))
-  {
+  if (pwm.value_range.inRange(cmd_pos, kJointLimitMargin)) {
     TOBAS_WARN_THROTTLE(
       tobas::kTypicalWarnPeriod, "Commanded position of joint \"", pwm.name, "\" is out of range: ", cmd_pos, " ∉ ",
       pwm.value_range);
@@ -93,10 +92,8 @@ void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   bool has_vel = false;
   bool has_eff = false;
 
-  for (const auto& [_, joint] : drone_->joints)
-  {
-    switch (joint.cmd_iface)
-    {
+  for (const auto& [_, joint] : drone_->joints) {
+    switch (joint.cmd_iface) {
       case tobas::jnt_cmd_iface_t::POSITION:
         has_pos = true;
         break;
@@ -114,50 +111,53 @@ void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     }
   }
 
-  if (has_pos)
+  if (has_pos) {
     pos_reset_timer_->reset();
-  else
+  }
+  else {
     pos_reset_timer_->cancel();
+  }
 
-  if (has_vel)
+  if (has_vel) {
     vel_reset_timer_->reset();
-  else
+  }
+  else {
     vel_reset_timer_->cancel();
+  }
 
-  if (has_eff)
+  if (has_eff) {
     eff_reset_timer_->reset();
-  else
+  }
+  else {
     eff_reset_timer_->cancel();
+  }
 }
 
 void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
-  if (!drone_)
+  if (!drone_) {
     return;
+  }
 
   // Create messages
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
   auto joint_states = std::make_unique<tobas_msgs::msg::JointStateArray>();
 
-  for (const auto& cmd : positions->commands)
-  {
+  for (const auto& cmd : positions->commands) {
     const auto& jnt_name = cmd.name;
     auto cmd_pos = cmd.data;
 
     // Get joint config
     const auto joint_it = drone_->joints.find(jnt_name);
-    if (joint_it == drone_->joints.end())
-    {
+    if (joint_it == drone_->joints.end()) {
       TOBAS_ERROR("Joint \"", jnt_name, "\" is not found.");
       continue;
     }
     const auto& joint = joint_it->second;
 
     // Fill commands
-    switch (joint.hw_iface)
-    {
-      case tobas::hw_iface_t::PWM:
-      {
+    switch (joint.hw_iface) {
+      case tobas::hw_iface_t::PWM: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
         pwms->pwms.emplace_back();
@@ -172,12 +172,10 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
         break;
       }
-      case tobas::hw_iface_t::OTHER:
-      {
+      case tobas::hw_iface_t::OTHER: {
         break;
       }
-      default:
-      {
+      default: {
         TOBAS_ERROR("The hardware interface of joint \"", jnt_name, "\" is invalid: ", (int)joint.hw_iface);
         break;
       }
@@ -185,13 +183,11 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
   }
 
   // Publish messages
-  if (pwms->pwms.size() > 0)
-  {
+  if (pwms->pwms.size() > 0) {
     pwms->header.stamp = positions->header.stamp;
     pwms_pub_->publish(move(pwms));
   }
-  if (joint_states->states.size() > 0)
-  {
+  if (joint_states->states.size() > 0) {
     joint_states->header.stamp = positions->header.stamp;
     joint_states_pub_->publish(move(joint_states));
   }
@@ -203,8 +199,9 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
 void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
-  if (!drone_)
+  if (!drone_) {
     return;
+  }
 
   (void)velocities;  // TODO
 
@@ -215,8 +212,9 @@ void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommand
 
 void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
-  if (!drone_)
+  if (!drone_) {
     return;
+  }
 
   (void)efforts;  // TODO
 
@@ -231,19 +229,18 @@ void JointsHandlerNode::positionResetTimerCb()
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
   auto joint_states = std::make_unique<tobas_msgs::msg::JointStateArray>();
 
-  for (const auto& [_, joint] : drone_->joints)
-  {
-    if (!joint.isServoJoint())
+  for (const auto& [_, joint] : drone_->joints) {
+    if (!joint.isServoJoint()) {
       continue;
+    }
 
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
       continue;
+    }
 
     // Fill commands
-    switch (joint.hw_iface)
-    {
-      case tobas::hw_iface_t::PWM:
-      {
+    switch (joint.hw_iface) {
+      case tobas::hw_iface_t::PWM: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
         pwms->pwms.emplace_back();
@@ -258,12 +255,10 @@ void JointsHandlerNode::positionResetTimerCb()
 
         break;
       }
-      case tobas::hw_iface_t::OTHER:
-      {
+      case tobas::hw_iface_t::OTHER: {
         break;
       }
-      default:
-      {
+      default: {
         TOBAS_WARN("The hardware interface of joint \"", joint.name, "\" is invalid: ", (int)joint.hw_iface);
         break;
       }
@@ -271,20 +266,17 @@ void JointsHandlerNode::positionResetTimerCb()
   }
 
   // Publish messages
-  if (pwms->pwms.size() > 0)
-  {
+  if (pwms->pwms.size() > 0) {
     pwms->header.stamp = get_clock()->now();
     pwms_pub_->publish(move(pwms));
   }
-  if (joint_states->states.size() > 0)
-  {
+  if (joint_states->states.size() > 0) {
     joint_states->header.stamp = get_clock()->now();
     joint_states_pub_->publish(move(joint_states));
   }
 
   // Warn if commanded positions are reset
-  if (pos_commanded_)
-  {
+  if (pos_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
       "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,

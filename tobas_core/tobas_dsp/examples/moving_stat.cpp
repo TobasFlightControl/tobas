@@ -11,8 +11,7 @@ using namespace Eigen;
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
-  {
+  if (argc != 2) {
     cerr << "Usage: " << argv[0] << " <Steps>" << endl;
     return EXIT_FAILURE;
   }
@@ -28,14 +27,12 @@ int main(int argc, char** argv)
   array<Vector3d, LENGTH> init_data;
   vector<Vector3d> incoming_data(steps);
   vector<Vector3d> total_data(LENGTH + steps);
-  for (size_t i = 0; i < LENGTH; ++i)
-  {
+  for (size_t i = 0; i < LENGTH; ++i) {
     Vector3d data(uniform(rnd_gen), uniform(rnd_gen), uniform(rnd_gen));
     init_data.at(i) = data;
     total_data.at(i) = data;
   }
-  for (size_t i = 0; i < steps; ++i)
-  {
+  for (size_t i = 0; i < steps; ++i) {
     Vector3d data(uniform(rnd_gen), uniform(rnd_gen), uniform(rnd_gen));
     incoming_data.at(i) = data;
     total_data.at(LENGTH + i) = data;
@@ -45,17 +42,16 @@ int main(int argc, char** argv)
   dsp::MovingStatistics<double, 3, LENGTH> moving_stat;
   moving_stat.initialize(init_data);
 
-  for (size_t i = 0; i < steps; ++i)
-  {
+  for (size_t i = 0; i < steps; ++i) {
     // Compute moving statistics with offline method
     Vector3d data_sum = Vector3d::Zero();
-    for (size_t j = i; j < i + LENGTH; ++j)
+    for (size_t j = i; j < i + LENGTH; ++j) {
       data_sum += total_data.at(j);
+    }
     const Vector3d mean_1 = data_sum / LENGTH;
 
     Matrix3d cov_sum = Matrix3d::Zero();
-    for (size_t j = i; j < i + LENGTH; ++j)
-    {
+    for (size_t j = i; j < i + LENGTH; ++j) {
       const Vector3d d = total_data.at(j) - mean_1;
       cov_sum += d * d.transpose();
     }
@@ -74,8 +70,7 @@ int main(int argc, char** argv)
     cout << "----------" << endl;
 
     // Validate
-    if (!eigen::isClose(mean_1, mean_2) || !eigen::isClose(cov_1, cov_2))
-    {
+    if (!eigen::isClose(mean_1, mean_2) || !eigen::isClose(cov_1, cov_2)) {
       cerr << "Moving statistics is inaccurate." << endl;
       return EXIT_FAILURE;
     }

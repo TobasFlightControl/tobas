@@ -15,16 +15,16 @@ bool CommandExecutor::execute(const string& command)
 {
   // 標準エラーを標準出力にリダイレクトしてコマンドを実行
   unique_ptr<FILE, int (*)(FILE*)> pipe(popen((command + " 2>&1").c_str(), "r"), pclose);
-  if (!pipe)
-  {
+  if (!pipe) {
     cerr << "popen() failed." << endl;
     return false;
   }
 
   // 出力を読み込む
   output_.clear();
-  while (fgets(buffer_.data(), buffer_.size(), pipe.get()))
+  while (fgets(buffer_.data(), buffer_.size(), pipe.get())) {
     output_ += buffer_.data();
+  }
 
   // 出力末尾のの改行コードを削除
   output_.pop_back();

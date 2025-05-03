@@ -549,8 +549,9 @@ public:
 
   bool setRedundantJoints(const std::vector<std::string>& joints)
   {
-    if (group_kinematics_.first.solver_instance_)
+    if (group_kinematics_.first.solver_instance_) {
       return group_kinematics_.first.solver_instance_->setRedundantJoints(joints);
+    }
     return false;
   }
 
@@ -584,11 +585,8 @@ public:
     double dt) const;
 
   /* Check that the time to move between two waypoints is sufficient given velocity limits */
-  bool isValidVelocityMove(
-    const double* from_joint_pose,
-    const double* to_joint_pose,
-    std::size_t array_size,
-    double dt) const;
+  bool isValidVelocityMove(const double* from_joint_pose, const double* to_joint_pose, std::size_t array_size, double dt)
+    const;
 
   /* Computes the indices of joint variables given a vector of joint names to look up */
   bool

@@ -97,19 +97,21 @@ void ActiveTiltMultirotorPIDWidget::load(const YAML::Node& node)
 bool ActiveTiltMultirotorPIDWidget::isApplicable()
 {
   // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing())
+  if (fixed_wing_->hasFixedWing()) {
     return false;
+  }
 
   // プロペラの個数条件
-  if (propulsion_system_->numUnits() < kMinNumProp)
+  if (propulsion_system_->numUnits() < kMinNumProp) {
     return false;
+  }
 
-  for (int i = 0; i < propulsion_system_->numUnits(); ++i)
-  {
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
     // 全てティルトロータ
     // TODO: アクティブティルトと固定モータの混合モデルも許容
-    if (!propulsion_system_->isTiltRotor(i))
+    if (!propulsion_system_->isTiltRotor(i)) {
       return false;
+    }
 
     // TODO: ティルト軸とロータ軸が直行する (cf. tobas_drone_tools/tr_mixer_pinv)
 

@@ -36,12 +36,12 @@ SSHClient::error_t SSHClient::connect()
 {
   const auto req = make_shared<Connect::Request>();
 
-  if (!connect_sc_.call(req))
+  if (!connect_sc_.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = connect_sc_.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -58,12 +58,12 @@ SSHClient::error_t SSHClient::execute(const string& command, string& output, boo
   req->superuser = superuser;
   req->background = background;
 
-  if (!execute_sc_.call(req))
+  if (!execute_sc_.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = execute_sc_.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->error_output;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -84,12 +84,12 @@ SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& lo
   req->remote_path = remote_path;
   req->local_path = local_path;
 
-  if (!scp_get_sc_.call(req))
+  if (!scp_get_sc_.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = scp_get_sc_.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -106,12 +106,12 @@ SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vecto
   req->exclude_dirs = exclude_dirs;
   req->superuser = superuser;
 
-  if (!scp_put_sc_.call(req))
+  if (!scp_put_sc_.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = scp_put_sc_.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -125,12 +125,12 @@ SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, 
   req->remote_path = remote_path;
   req->superuser = superuser;
 
-  if (!sftp_read_sc_.call(req))
+  if (!sftp_read_sc_.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = sftp_read_sc_.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -146,12 +146,12 @@ SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string&
   req->text = text;
   req->superuser = superuser;
 
-  if (!sftp_write_sc_.call(req))
+  if (!sftp_write_sc_.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = sftp_write_sc_.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -164,12 +164,12 @@ SSHClient::error_t SSHClient::list(const string& pardir, vector<string>& dst)
   const auto req = make_shared<List::Request>();
   req->pardir = pardir;
 
-  if (!list_sc_.call(req))
+  if (!list_sc_.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = list_sc_.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -185,8 +185,7 @@ SSHClient::error_t SSHClient::errorCode() const
 
 const char* SSHClient::errorMessage() const
 {
-  switch (error_code_)
-  {
+  switch (error_code_) {
     case E_NO_ERROR:
       return "";
     case E_SERVICE_NOT_READY:

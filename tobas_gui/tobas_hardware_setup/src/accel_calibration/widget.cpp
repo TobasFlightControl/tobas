@@ -68,13 +68,11 @@ void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShared
 void AccelCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
-  if (arming_->data)
-  {
+  if (arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     return;
   }
@@ -90,10 +88,12 @@ void AccelCalibrationWidget::onCalibrationFinished(bool success, const QString& 
   spinner_.hide();
   spinner_.stop();
 
-  if (success)
+  if (success) {
     qt::qInfoBox(this, message);
-  else
+  }
+  else {
     qt::qErrorBox(this, message);
+  }
 }
 }  // namespace hw
 }  // namespace gui

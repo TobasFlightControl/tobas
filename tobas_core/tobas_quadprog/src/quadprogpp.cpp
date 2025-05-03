@@ -11,12 +11,15 @@ namespace quadprogpp
 {
 void matrixEigenToQp(const MatrixXd& e, Matrix<double>& q)
 {
-  if (q.nrows() != e.rows() || q.ncols() != e.cols())
+  if (q.nrows() != e.rows() || q.ncols() != e.cols()) {
     q.resize(e.rows(), e.cols());
+  }
 
-  for (Index i = 0; i < e.rows(); ++i)
-    for (Index j = 0; j < e.cols(); ++j)
+  for (Index i = 0; i < e.rows(); ++i) {
+    for (Index j = 0; j < e.cols(); ++j) {
       q[i][j] = e(i, j);
+    }
+  }
 }
 
 void matrixQpToEigen(const Matrix<double>& q, MatrixXd& e)
@@ -24,20 +27,24 @@ void matrixQpToEigen(const Matrix<double>& q, MatrixXd& e)
   // Eigenは安易にresizeできないため，引数の時点でサイズが合っていることを確認する
   assert(e.rows() == q.nrows() && e.cols() == q.ncols());
 
-  for (Index i = 0; i < e.rows(); ++i)
-    for (Index j = 0; j < e.cols(); ++j)
+  for (Index i = 0; i < e.rows(); ++i) {
+    for (Index j = 0; j < e.cols(); ++j) {
       e(i, j) = q[i][j];
+    }
+  }
 }
 
 void vectorEigenToQp(const VectorXd& e, Vector<double>& q)
 {
   assert(e.cols() == 1);
 
-  if (q.size() != e.size())
+  if (q.size() != e.size()) {
     q.resize(e.rows());
+  }
 
-  for (Index i = 0; i < e.rows(); ++i)
+  for (Index i = 0; i < e.rows(); ++i) {
     q[i] = e(i);
+  }
 }
 
 void vectorQpToEigen(const Vector<double>& q, VectorXd& e)
@@ -45,8 +52,9 @@ void vectorQpToEigen(const Vector<double>& q, VectorXd& e)
   assert(e.rows() == q.size());
   assert(e.cols() == 1);
 
-  for (Index i = 0; i < e.rows(); ++i)
+  for (Index i = 0; i < e.rows(); ++i) {
     e(i) = q[i];
+  }
 }
 }  // namespace quadprogpp
 
@@ -73,8 +81,7 @@ bool QuadProgppSolver::solve()
 
   // QPを解く
   const double f_value = quadprogpp::solve_quadprog(G_, g0_, CE_, ce0_, CI_, ci0_, x_);
-  if (f_value > F_VALUE_THRESHOLD)
-  {
+  if (f_value > F_VALUE_THRESHOLD) {
     error_msg_ = "QPP is infeasible.";
     return false;
   }

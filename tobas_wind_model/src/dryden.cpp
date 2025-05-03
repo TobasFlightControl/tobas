@@ -21,8 +21,7 @@ void DrydenComponents::update(const double& relative_wind_speed, const double& a
 
   const auto h = max(altitude, dryden::kMinimumAltitude);  // 高度が正であることを保証
   const auto h_ft = h * tobas_std::kMeterToFeet;
-  if (h_ft > dryden::kLowAltitudeThreshold)
-  {
+  if (h_ft > dryden::kLowAltitudeThreshold) {
     PRINT_WARN(
       "Since the altitude from the ground exceeds " << dryden::kLowAltitudeThreshold
                                                     << " feet, the Dryden wind model might be inaccurate.");

@@ -6,10 +6,12 @@ template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::complex<T>& z)
 {
   os << z.real();
-  if (z.imag() >= 0)
+  if (z.imag() >= 0) {
     os << " + " << z.imag() << "i";
-  else
+  }
+  else {
     os << " - " << -z.imag() << "i";
+  }
   return os;
 }
 

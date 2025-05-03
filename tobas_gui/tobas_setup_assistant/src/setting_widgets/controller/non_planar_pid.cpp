@@ -93,26 +93,27 @@ void NonPlanarPIDWidget::load(const YAML::Node& node)
 bool NonPlanarPIDWidget::isApplicable()
 {
   // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing())
+  if (fixed_wing_->hasFixedWing()) {
     return false;
+  }
 
   // プロペラの個数条件
-  if (propulsion_system_->numUnits() < kMinNumProp)
+  if (propulsion_system_->numUnits() < kMinNumProp) {
     return false;
+  }
 
   // 少なくとも1つのプロペラが鉛直上方向以外を向いている
   bool tilted_rotor_found = false;
-  for (int i = 0; i < propulsion_system_->numUnits(); ++i)
-  {
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
     const auto link_name = propulsion_system_->linkName(i);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ()))
-    {
+    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ())) {
       tilted_rotor_found = true;
       break;
     }
   }
-  if (!tilted_rotor_found)
+  if (!tilted_rotor_found) {
     return false;
+  }
 
   return true;
 }

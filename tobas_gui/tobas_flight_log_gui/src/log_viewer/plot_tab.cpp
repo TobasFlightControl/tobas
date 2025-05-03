@@ -123,8 +123,7 @@ void PlotTabWidget::setObserverFeedbackData(const QVector<tobas_debug_msgs::msg:
   obsv_fb_plot_->setData(_data);
 }
 
-void PlotTabWidget::setMRControllerFeedbackData(
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& _data)
+void PlotTabWidget::setMRControllerFeedbackData(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& _data)
 {
   mr_ctrl_fb_plot_->setData(_data);
 }

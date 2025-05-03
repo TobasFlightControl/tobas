@@ -38,8 +38,7 @@ bool FixedJointModel::enforcePositionBounds(double* /*values*/, const Bounds& /*
   return false;
 }
 
-bool FixedJointModel::satisfiesPositionBounds(const double* /*values*/, const Bounds& /*bounds*/, double /*margin*/)
-  const
+bool FixedJointModel::satisfiesPositionBounds(const double* /*values*/, const Bounds& /*bounds*/, double /*margin*/) const
 {
   return true;
 }
@@ -64,8 +63,7 @@ void FixedJointModel::computeTransform(const double* /* joint_values */, Eigen::
   transf.setIdentity();
 }
 
-void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d& /* transform */, double* /* joint_values */)
-  const
+void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d& /* transform */, double* /* joint_values */) const
 {
 }
 }  // namespace tobas

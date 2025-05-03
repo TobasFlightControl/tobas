@@ -28,8 +28,7 @@ ObserverWidget::ObserverWidget(
   observers_->addWidget(new ErrorStateKalmanFilterWidget(robot_, imu_, baro_, gnss_));
   observers_->addWidget(new CustomObserverWidget());
 
-  for (int i = 0; i < observers_->count(); ++i)
-  {
+  for (int i = 0; i < observers_->count(); ++i) {
     const auto observer = qt::qConstPointerCast<BaseObserverWidget>(observers_->widget(i));
     type_->addItem(observer->name());
   }
@@ -66,8 +65,9 @@ void ObserverWidget::updateInternalDataStructures()
 
 bool ObserverWidget::isValid()
 {
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -78,8 +78,7 @@ YAML::Node ObserverWidget::dump() const
 
   node[kTypeKey] = type_->currentText();
 
-  for (int i = 0; i < observers_->count(); ++i)
-  {
+  for (int i = 0; i < observers_->count(); ++i) {
     const auto observer = qt::qConstPointerCast<BaseObserverWidget>(observers_->widget(i));
     node[observer->name()] = observer->dump();
   }
@@ -91,8 +90,7 @@ void ObserverWidget::load(const YAML::Node& node)
 {
   type_->setCurrentText(node[kTypeKey].as<QString>());
 
-  for (int i = 0; i < observers_->count(); ++i)
-  {
+  for (int i = 0; i < observers_->count(); ++i) {
     const auto observer = qt::qPointerCast<BaseObserverWidget>(observers_->widget(i));
     observer->load(node[observer->name()]);
   }

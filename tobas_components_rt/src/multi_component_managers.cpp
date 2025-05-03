@@ -45,12 +45,13 @@ void MultiComponentManagers::spin()
   rclcpp::NodeOptions node_options;
   node_options.use_intra_process_comms(true);
 
-  for (size_t i = 0; i < num_managers_; ++i)
-  {
-    if (num_threads_[i] == 1)
+  for (size_t i = 0; i < num_managers_; ++i) {
+    if (num_threads_[i] == 1) {
       managers[i].exec = make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    else
+    }
+    else {
       managers[i].exec = make_shared<MultiThreadedExecutorRT>(policy_[i], priority_[i], affinity_[i], num_threads_[i]);
+    }
 
     managers[i].node = make_shared<ros2::ThreadSafeComponentManager>(managers[i].exec, nodeName(i), node_options);
     managers[i].exec->add_node(managers[i].node);
@@ -59,20 +60,25 @@ void MultiComponentManagers::spin()
     managers[i].thread = thread([&]() { managers[i].exec->spin(); });
 
     // スレッドのリアルタイム優先度を設定
-    if (priority_[i] > 0)
-      if (!linux::setThreadPriority(managers[i].thread.native_handle(), priority_[i], policy_[i]))
+    if (priority_[i] > 0) {
+      if (!linux::setThreadPriority(managers[i].thread.native_handle(), priority_[i], policy_[i])) {
         RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread realtime priority.");
+      }
+    }
 
     // スレッドのCPU割当を設定
-    if (affinity_[i] > 0)
-      if (!linux::setThreadCPUAffinity(managers[i].thread.native_handle(), affinity_[i]))
+    if (affinity_[i] > 0) {
+      if (!linux::setThreadCPUAffinity(managers[i].thread.native_handle(), affinity_[i])) {
         RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread CPU affinity.");
+      }
+    }
 
     this_thread::sleep_for(100ms);  // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
   }
 
-  for (auto& manager : managers)
+  for (auto& manager : managers) {
     manager.thread.join();
+  }
 }
 
 string MultiComponentManagers::nodeName(size_t idx)

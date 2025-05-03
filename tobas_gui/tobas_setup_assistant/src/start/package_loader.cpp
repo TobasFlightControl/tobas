@@ -52,8 +52,7 @@ void PackageLoaderWidget::onLoadButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
-  {
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -64,20 +63,19 @@ void PackageLoaderWidget::onLoadButtonClicked()
     QFileDialog::getExistingDirectory(this, kTitle, QString::fromStdString(last_opened_dir), options);
 
   // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-  if (tbs_path.isEmpty())
+  if (tbs_path.isEmpty()) {
     return;
+  }
 
   // 拡張子をチェック
-  if (!tbs_path.endsWith(tobas::kTBSExtension))
-  {
+  if (!tbs_path.endsWith(tobas::kTBSExtension)) {
     qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
     return;
   }
 
   // URDFの存在を確認
   const auto urdf_path = common::getOriginalURDFPath(tbs_path.toStdString());
-  if (!std::filesystem::is_regular_file(urdf_path))
-  {
+  if (!std::filesystem::is_regular_file(urdf_path)) {
     qt::qErrorBox(
       this,
       "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas configuration package.");
@@ -86,8 +84,7 @@ void PackageLoaderWidget::onLoadButtonClicked()
 
   // ユーザ設定ファイルの存在を確認
   const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
-  if (!std::filesystem::is_regular_file(settings_path))
-  {
+  if (!std::filesystem::is_regular_file(settings_path)) {
     qt::qErrorBox(
       this, "\"" + QString::fromStdString(settings_path)
               + "\" does not exist. Please create a new Tobas configuration package.");
@@ -99,28 +96,29 @@ void PackageLoaderWidget::onLoadButtonClicked()
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = std::filesystem::path(tbs_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  if (property_client_.save() < 0)
+  }
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  }
 
   // URDFをロード
   // Qtのイベント処理はスタックだからこの時点で設定が各ウィジェットに反映される
-  if (!robot_.loadFromPath(urdf_path))
-  {
+  if (!robot_.loadFromPath(urdf_path)) {
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
 
   // ユーザ設定を読み込む
   YAML::Node node;
-  if (!yaml::load(settings_path, node))
-  {
+  if (!yaml::load(settings_path, node)) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas configuration package.");
     return;
   }
-  if (!settings_->load(node))
+  if (!settings_->load(node)) {
     return;
+  }
 
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }

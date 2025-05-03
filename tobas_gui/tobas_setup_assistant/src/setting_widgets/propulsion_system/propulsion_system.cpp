@@ -60,8 +60,7 @@ void PropulsionSystemWidget::onOpened()
 
 void PropulsionSystemWidget::updateInternalDataStructures()
 {
-  for (int i = 0; i < propulsion_stack_->count(); ++i)
-  {
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
     const auto propulsion = widget(i);
     propulsion->updateInternalDataStructures();
   }
@@ -69,8 +68,9 @@ void PropulsionSystemWidget::updateInternalDataStructures()
 
 bool PropulsionSystemWidget::isValid()
 {
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -82,8 +82,7 @@ YAML::Node PropulsionSystemWidget::dump() const
   const auto type_button = type_buttons_->checkedButton();
   node[kTypeKey] = type_button->text();
 
-  for (int i = 0; i < propulsion_stack_->count(); ++i)
-  {
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
     const auto propulsion = widget(i);
     node[propulsion->name()] = propulsion->dump();
   }
@@ -94,17 +93,14 @@ YAML::Node PropulsionSystemWidget::dump() const
 void PropulsionSystemWidget::load(const YAML::Node& node)
 {
   const auto type_text = node[kTypeKey].as<QString>();
-  for (const auto& button : type_buttons_->buttons())
-  {
-    if (button->text() == type_text)
-    {
+  for (const auto& button : type_buttons_->buttons()) {
+    if (button->text() == type_text) {
       button->setChecked(true);
       break;
     }
   }
 
-  for (int i = 0; i < propulsion_stack_->count(); ++i)
-  {
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
     const auto propulsion = widget(i);
     propulsion->load(node[propulsion->name()]);
   }
@@ -158,8 +154,7 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 void PropulsionSystemWidget::onPropulsionTypeChanged(int index)
 {
   // 全ての設定をリセット
-  for (int i = 0; i < propulsion_stack_->count(); ++i)
-  {
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
     const auto propulsion = widget(i);
     propulsion->reset();
   }

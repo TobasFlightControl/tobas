@@ -57,12 +57,15 @@ void GeneralWidget::load(const YAML::Node& node)
 tobas::turning_direction_t GeneralWidget::direction() const
 {
   const auto text = direction_->getValue();
-  if (text == kCWName)
+  if (text == kCWName) {
     return tobas::turning_direction_t::CW;
-  else if (text == kCCWName)
+  }
+  else if (text == kCCWName) {
     return tobas::turning_direction_t::CCW;
-  else
+  }
+  else {
     throw;
+  }
 }
 }  // namespace ice
 }  // namespace propulsion

@@ -13,7 +13,7 @@ public:
   inline explicit RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz);
   inline explicit RotationalInertia(const Eigen::Matrix3d& _data);
 
-  inline static RotationalInertia Zero();
+  static inline RotationalInertia Zero();
 
   inline double ixx() const;
   inline double iyy() const;

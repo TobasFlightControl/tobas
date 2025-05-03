@@ -118,19 +118,20 @@ void jointUrdfToKdl(const urdf::Joint& u, Joint& k)
   // Name
   k.name = u.name;
 
-  if (u.type == urdf::Joint::FIXED)
-  {
+  if (u.type == urdf::Joint::FIXED) {
     k.type = Joint::FIXED;
   }
-  else
-  {
+  else {
     // Type
-    if (u.type == urdf::Joint::REVOLUTE || u.type == urdf::Joint::CONTINUOUS)
+    if (u.type == urdf::Joint::REVOLUTE || u.type == urdf::Joint::CONTINUOUS) {
       k.type = Joint::ROTATION;
-    else if (u.type == urdf::Joint::PRISMATIC)
+    }
+    else if (u.type == urdf::Joint::PRISMATIC) {
       k.type = Joint::TRANSLATION;
-    else
+    }
+    else {
       throw runtime_error("Unknown joint type of joint: " + u.name);
+    }
 
     // Origin
     const auto F_parent_jnt = poseUrdfToKdl(u.parent_to_joint_origin_transform);
@@ -141,15 +142,13 @@ void jointUrdfToKdl(const urdf::Joint& u, Joint& k)
     k.axis(F_parent_jnt.M * kdl_axis);
 
     // Dynamics
-    if (u.dynamics)
-    {
+    if (u.dynamics) {
       k.damping = u.dynamics->damping;
       k.friction = u.dynamics->friction;
     }
 
     // Limits
-    if (u.limits)
-    {
+    if (u.limits) {
       k.lower_limit = u.limits->lower;
       k.upper_limit = u.limits->upper;
       k.max_effort = u.limits->effort;

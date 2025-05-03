@@ -47,8 +47,7 @@ void FlightLogWidget::updateNamespace(const std::string& ns)
 
 void FlightLogWidget::onLogDownloaded(const QString& log_name)
 {
-  if (logs_gcs_->findLog(log_name))
-  {
+  if (logs_gcs_->findLog(log_name)) {
     qInfo() << "\"" << log_name << "\" already exists in the GCS log list.";
     return;
   }

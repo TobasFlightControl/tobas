@@ -11,49 +11,40 @@ namespace tobas
 {
 bool Drone::isValid() const
 {
-  if (name == "")
-  {
+  if (name == "") {
     cerr << "This drone does not have name." << endl;
     return false;
   }
 
-  for (const auto& [_, pwm] : pwms)
-  {
-    if (!pwm.isValid())
-    {
+  for (const auto& [_, pwm] : pwms) {
+    if (!pwm.isValid()) {
       cerr << "The configurations of PWM channel " << pwm.channel << " are invalid." << endl;
       return false;
     }
   }
 
-  for (const auto& [_, joint] : joints)
-  {
-    if (!joint.isValid())
-    {
+  for (const auto& [_, joint] : joints) {
+    if (!joint.isValid()) {
       cerr << "The configurations of joint \"" << joint.name << "\" are invalid." << endl;
       return false;
     }
   }
 
-  if (!prop)
-  {
+  if (!prop) {
     cerr << "The configurations of propulsion system is null." << endl;
     return false;
   }
-  if (!prop->isValid())
-  {
+  if (!prop->isValid()) {
     cerr << "The configurations of propulsion system are invalid." << endl;
     return false;
   }
 
-  if (fixed_wing && !fixed_wing->isValid())
-  {
+  if (fixed_wing && !fixed_wing->isValid()) {
     cerr << "The configurations of fixed wing are invalid." << endl;
     return false;
   }
 
-  if (num_sbus_channels < tobas::kMinSbusChannels || tobas::kMaxSbusChannels < num_sbus_channels)
-  {
+  if (num_sbus_channels < tobas::kMinSbusChannels || tobas::kMaxSbusChannels < num_sbus_channels) {
     cerr << "The number of sbus channels is invalid." << endl;
     return false;
   }
@@ -64,21 +55,19 @@ bool Drone::isValid() const
 bool Drone::load(const YAML::Node& node)
 {
   // Name
-  if (!yaml::load(kNameKey, node, name))
+  if (!yaml::load(kNameKey, node, name)) {
     return false;
+  }
 
   // Joints
   joints.clear();
-  if (!node[kJointsKey].IsSequence())
-  {
+  if (!node[kJointsKey].IsSequence()) {
     cerr << "Joints field is not defined." << endl;
     return false;
   }
-  for (const auto& joint_node : node[kJointsKey])
-  {
+  for (const auto& joint_node : node[kJointsKey]) {
     JointConfig joint;
-    if (!joint.load(joint_node))
-    {
+    if (!joint.load(joint_node)) {
       cerr << "Failed to load the configurations of joints." << endl;
       return false;
     }
@@ -87,16 +76,13 @@ bool Drone::load(const YAML::Node& node)
 
   // PWM
   pwms.clear();
-  if (!node[kPwmsKey].IsSequence())
-  {
+  if (!node[kPwmsKey].IsSequence()) {
     cerr << "PWM field is not defined." << endl;
     return false;
   }
-  for (const auto& pwm_node : node[kPwmsKey])
-  {
+  for (const auto& pwm_node : node[kPwmsKey]) {
     PwmConfig pwm;
-    if (!pwm.load(pwm_node))
-    {
+    if (!pwm.load(pwm_node)) {
       cerr << "Failed to load the configurations of PWM." << endl;
       return false;
     }
@@ -105,66 +91,58 @@ bool Drone::load(const YAML::Node& node)
 
   // Propulsion System
   propulsion_system_t prop_type;
-  if (!yaml::load(kPropulsionSystemTypeKey, node, prop_type))
+  if (!yaml::load(kPropulsionSystemTypeKey, node, prop_type)) {
     return false;
+  }
 
-  if (!node[kPropulsionSystemKey].IsDefined())
-  {
+  if (!node[kPropulsionSystemKey].IsDefined()) {
     cerr << "Propulsion system field is not defined." << endl;
     return false;
   }
   const auto prop_node = node[kPropulsionSystemKey];
 
-  switch (prop_type)
-  {
-    case propulsion_system_t::ELECTRIC:
-    {
+  switch (prop_type) {
+    case propulsion_system_t::ELECTRIC: {
       const auto eprop = make_shared<ElectricPropulsionSystemConfig>();
-      if (!eprop->load(prop_node))
-      {
+      if (!eprop->load(prop_node)) {
         cerr << "Failed to load the configurations of electric propulsion system." << endl;
         return false;
       }
       prop = static_pointer_cast<PropulsionSystemConfig>(eprop);
       break;
     }
-    case propulsion_system_t::ICE:
-    {
+    case propulsion_system_t::ICE: {
       const auto iprop = make_shared<ICEPropulsionSystemConfig>();
-      if (!iprop->load(prop_node))
-      {
+      if (!iprop->load(prop_node)) {
         cerr << "Failed to load the configurations of ICE propulsion system." << endl;
         return false;
       }
       prop = static_pointer_cast<PropulsionSystemConfig>(iprop);
       break;
     }
-    default:
-    {
+    default: {
       cerr << "Invalid propulsion system type: " << (int)prop_type << endl;
       return false;
     }
   }
 
   // Fixed Wing
-  if (node[kFixedWingKey].IsDefined())
-  {
+  if (node[kFixedWingKey].IsDefined()) {
     fixed_wing = make_shared<FixedWingConfig>();
-    if (!fixed_wing->load(node[kFixedWingKey]))
-    {
+    if (!fixed_wing->load(node[kFixedWingKey])) {
       cerr << "Failed to load the configurations of fixed wing." << endl;
       return false;
     }
   }
-  else
-  {
+  else {
     cout << "\"" << kFixedWingKey << "\" is not defined." << endl;
     fixed_wing.reset();
   }
 
   // S.BUS Channels
-  if (!yaml::load(kNumSbusChannelsKey, node, num_sbus_channels))
+  if (!yaml::load(kNumSbusChannelsKey, node, num_sbus_channels)) {
     return false;
+  }
 
   return true;
 }
@@ -178,21 +156,24 @@ YAML::Node Drone::dump() const
 
   // Joints
   node[kJointsKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (const auto& [_, joint] : joints)
+  for (const auto& [_, joint] : joints) {
     node[kJointsKey].push_back(joint.dump());
+  }
 
   // PWM
   node[kPwmsKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (const auto& [_, pwm] : pwms)
+  for (const auto& [_, pwm] : pwms) {
     node[kPwmsKey].push_back(pwm.dump());
+  }
 
   // Propulsion System
   node[kPropulsionSystemTypeKey] = prop->type();
   node[kPropulsionSystemKey] = prop->dump();
 
   // Fixed Wing
-  if (fixed_wing)
+  if (fixed_wing) {
     node[kFixedWingKey] = fixed_wing->dump();
+  }
 
   // S.BUS Channels
   node[kNumSbusChannelsKey] = num_sbus_channels;
@@ -202,18 +183,17 @@ YAML::Node Drone::dump() const
 
 bool Drone::load(const fs::path& path)
 {
-  if (path.extension() != kDroneExt)
-  {
+  if (path.extension() != kDroneExt) {
     cerr << "Invalid extension: " << path.extension() << endl;
     return false;
   }
 
   YAML::Node node;
-  if (!yaml::load(path, node))
+  if (!yaml::load(path, node)) {
     return false;
+  }
 
-  if (!load(node))
-  {
+  if (!load(node)) {
     cerr << "Failed to load drone." << endl;
     return false;
   }
@@ -223,25 +203,27 @@ bool Drone::load(const fs::path& path)
 
 bool Drone::save(const fs::path& path) const
 {
-  if (path.extension() != kDroneExt)
-  {
+  if (path.extension() != kDroneExt) {
     cerr << "Invalid extension: " << path.extension() << endl;
     return false;
   }
 
   const auto node = dump();
 
-  if (!yaml::save(path, node))
+  if (!yaml::save(path, node)) {
     return false;
+  }
 
   return true;
 }
 
 bool Drone::hasServoJoint() const
 {
-  for (const auto& [_, joint] : joints)
-    if (joint.isServoJoint())
+  for (const auto& [_, joint] : joints) {
+    if (joint.isServoJoint()) {
       return true;
+    }
+  }
   return false;
 }
 }  // namespace tobas

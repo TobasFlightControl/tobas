@@ -36,8 +36,7 @@ void LatencyPlotWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Laten
   QVector<double> t_data;
   QVector<double> sampling_time_data;
 
-  for (const auto& sampling_time : sampling_time_msgs)
-  {
+  for (const auto& sampling_time : sampling_time_msgs) {
     t_data.push_back(ros2::seconds(sampling_time.header.stamp));
     sampling_time_data.push_back(ros2::microseconds(sampling_time.data));
   }
@@ -51,8 +50,7 @@ void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Lat
   QVector<double> t_data;
   QVector<double> ctrl_latency_data;
 
-  for (const auto& ctrl_latency : ctrl_latency_msgs)
-  {
+  for (const auto& ctrl_latency : ctrl_latency_msgs) {
     t_data.push_back(ros2::seconds(ctrl_latency.header.stamp));
     ctrl_latency_data.push_back(ros2::microseconds(ctrl_latency.data));
   }

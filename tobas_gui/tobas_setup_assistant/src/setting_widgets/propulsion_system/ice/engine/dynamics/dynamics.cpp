@@ -25,21 +25,20 @@ EngineDynamicsWidget::EngineDynamicsWidget()
 
   methods_->addWidget(new EngineDynamicsWidget_Manual());
 
-  for (int i = 0; i < methods_->count(); ++i)
-  {
+  for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<EngineDynamicsWidget_Base>(methods_->widget(i));
     method_name_->addItem(method->name());
   }
 
   connect(
-    method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_,
-    &qt::StackedWidget::setCurrentIndex);
+    method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
 }
 
 bool EngineDynamicsWidget::isValid()
 {
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -50,8 +49,7 @@ YAML::Node EngineDynamicsWidget::dump() const
 
   node[kMethodNameKey] = method_name_->currentText();
 
-  for (int i = 0; i < methods_->count(); ++i)
-  {
+  for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qConstPointerCast<EngineDynamicsWidget_Base>(methods_->widget(i));
     node[method->name()] = method->dump();
   }
@@ -63,8 +61,7 @@ void EngineDynamicsWidget::load(const YAML::Node& node)
 {
   method_name_->setCurrentText(node[kMethodNameKey].as<QString>());
 
-  for (int i = 0; i < methods_->count(); ++i)
-  {
+  for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<EngineDynamicsWidget_Base>(methods_->widget(i));
     method->load(node[method->name()]);
   }

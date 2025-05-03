@@ -15,19 +15,16 @@ void RateManager::reset()
 
 bool RateManager::update(const rclcpp::Time& time)
 {
-  if (is_first_update_)
-  {
+  if (is_first_update_) {
     is_first_update_ = false;
     t_next_ = time + interval_;
     return true;
   }
 
-  if (time < t_next_)
-  {
+  if (time < t_next_) {
     return false;
   }
-  else
-  {
+  else {
     t_next_ += interval_;
     return true;
   }

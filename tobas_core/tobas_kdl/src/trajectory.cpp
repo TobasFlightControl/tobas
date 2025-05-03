@@ -19,18 +19,15 @@ bool CycloidGenerator3d::generate(
   const double& h,
   const double& k)
 {
-  if (T <= 0)
-  {
+  if (T <= 0) {
     cerr << "The period T must be positive." << endl;
     return false;
   }
-  if (h <= 0)
-  {
+  if (h <= 0) {
     cerr << " The height h must be positive." << endl;
     return false;
   }
-  if (k < 0)
-  {
+  if (k < 0) {
     cerr << "The order k must be non-negative." << endl;
     return false;
   }
@@ -49,20 +46,17 @@ bool CycloidGenerator3d::generate(
 
 bool CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
 {
-  if (t < 0)
-  {
+  if (t < 0) {
     cerr << "The time t must be non-negative." << endl;
     return false;
   }
 
-  if (t <= T_)
-  {
+  if (t <= T_) {
     getPos(t, r, p);
     getVel(t, r, v);
     getAcc(t, r, a);
   }
-  else
-  {
+  else {
     p = r * pf_;
     v.setZero();
     a.setZero();

@@ -13,8 +13,8 @@ public:
   inline explicit JntArray(size_t nj);
   inline explicit JntArray(const Eigen::VectorXd& _data);
 
-  inline static JntArray Zero(size_t nj);
-  inline static JntArray Constant(size_t nj, double value);
+  static inline JntArray Zero(size_t nj);
+  static inline JntArray Constant(size_t nj, double value);
 
   inline void resize(size_t nj);
   inline void setZero();

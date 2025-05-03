@@ -8,8 +8,9 @@ namespace gazebo
 NormalDistribution3d::NormalDistribution3d(random_device& rnd_dev, const Vector3d& mean, const Vector3d& stddev)
   : rnd_gen_(rnd_dev())
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     noise_[i] = NormalDistribution(mean[i], stddev[i]);
+  }
 }
 
 NormalDistribution3d::NormalDistribution3d(random_device& rnd_dev, double mean, double stddev)
@@ -19,16 +20,18 @@ NormalDistribution3d::NormalDistribution3d(random_device& rnd_dev, double mean, 
 
 Vector3d NormalDistribution3d::get()
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     values_[i] = noise_[i](rnd_gen_);
+  }
   return values_;
 }
 
 UniformDistribution3d::UniformDistribution3d(random_device& rnd_dev, const Vector3d& lb, const Vector3d& ub)
   : rnd_gen_(rnd_dev())
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     noise_[i] = UniformDistribution(lb[i], ub[i]);
+  }
 }
 
 UniformDistribution3d::UniformDistribution3d(random_device& rnd_dev, double lb, double ub)
@@ -38,8 +41,9 @@ UniformDistribution3d::UniformDistribution3d(random_device& rnd_dev, double lb, 
 
 Vector3d UniformDistribution3d::get()
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     values_[i] = noise_[i](rnd_gen_);
+  }
   return values_;
 }
 

@@ -41,18 +41,19 @@ ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::N
 
 void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (!drone->prop)
+  if (!drone->prop) {
     return;
+  }
 
-  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
+  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC) {
     return;
+  }
 
   eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
 
   // Register publishers
   throttle_pubs_.clear();
-  for (const auto& [link_name, _] : eprop_->rotors)
-  {
+  for (const auto& [link_name, _] : eprop_->rotors) {
     const auto topic = path::join(gazebo::kRotorThrottleCmdTopicNS, link_name);
     throttle_pubs_[link_name] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
@@ -69,22 +70,18 @@ void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::
 
 void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
-  if (!eprop_)
-  {
+  if (!eprop_) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message is not received yet.");
     return;
   }
-  if (!battery_)
-  {
+  if (!battery_) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery message is not received yet.");
     return;
   }
 
-  for (const auto& speed : tar_speeds->speeds)
-  {
+  for (const auto& speed : tar_speeds->speeds) {
     // Check link name
-    if (!throttle_pubs_.contains(speed.link_name))
-    {
+    if (!throttle_pubs_.contains(speed.link_name)) {
       TOBAS_ERROR("Electric rotor \"" + speed.link_name + "\" does not exist.");
       return;
     }

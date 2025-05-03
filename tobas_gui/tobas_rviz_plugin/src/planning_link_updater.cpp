@@ -13,8 +13,7 @@ bool PlanningLinkUpdater::getLinkTransforms(
 {
   const LinkModel* link_model = robot_state_->getLinkModel(link_name);
 
-  if (!link_model)
-  {
+  if (!link_model) {
     return false;
   }
 

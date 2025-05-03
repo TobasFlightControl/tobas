@@ -15,8 +15,9 @@ struct convert<QString>
 
   static bool decode(const Node& node, QString& rhs)
   {
-    if (!node.IsScalar())
+    if (!node.IsScalar()) {
       return false;
+    }
 
     rhs = QString::fromStdString(node.as<std::string>());
     return true;

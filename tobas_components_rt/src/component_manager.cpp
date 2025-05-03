@@ -29,35 +29,28 @@ ThreadSafeComponentManager::create_component_factory(const ComponentResource& re
     lock_guard<mutex> lock(g_loader_mtx);
 
     auto it = g_loader_cache.find(library_path);
-    if (it == g_loader_cache.end())
-    {
+    if (it == g_loader_cache.end()) {
       RCLCPP_INFO_STREAM(get_logger(), "Load Library: " << library_path);
-      try
-      {
+      try {
         loader = std::make_shared<class_loader::ClassLoader>(library_path);
       }
-      catch (const exception& ex)
-      {
+      catch (const exception& ex) {
         throw rclcpp_components::ComponentManagerException("Failed to load library: " + string(ex.what()));
       }
-      catch (...)
-      {
+      catch (...) {
         throw rclcpp_components::ComponentManagerException("Failed to load library");
       }
       g_loader_cache.emplace(library_path, loader);
     }
-    else
-    {
+    else {
       loader = it->second;
     }
   }
 
   const auto classes = loader->getAvailableClasses<rclcpp_components::NodeFactory>();
-  for (const auto& clazz : classes)
-  {
+  for (const auto& clazz : classes) {
     RCLCPP_INFO_STREAM(get_logger(), "Found class: " << clazz);
-    if (clazz == class_name || clazz == fq_class_name)
-    {
+    if (clazz == class_name || clazz == fq_class_name) {
       RCLCPP_INFO_STREAM(get_logger(), "Instantiate class: " << clazz);
       return loader->createInstance<rclcpp_components::NodeFactory>(clazz);
     }

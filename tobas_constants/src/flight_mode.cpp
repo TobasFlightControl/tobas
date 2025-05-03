@@ -12,8 +12,7 @@ namespace tobas
 {
 string textFromEnum(flight_mode_t role)
 {
-  switch (role)
-  {
+  switch (role) {
     case flight_mode_t::ACROBAT:
       return ACROBAT_TEXT;
     case flight_mode_t::STABILIZE:
@@ -27,23 +26,19 @@ string textFromEnum(flight_mode_t role)
 
 bool enumFromText(const string& text, flight_mode_t& dst)
 {
-  if (text == ACROBAT_TEXT)
-  {
+  if (text == ACROBAT_TEXT) {
     dst = flight_mode_t::ACROBAT;
     return true;
   }
-  else if (text == STABILIZE_TEXT)
-  {
+  else if (text == STABILIZE_TEXT) {
     dst = flight_mode_t::STABILIZE;
     return true;
   }
-  else if (text == LOITER_TEXT)
-  {
+  else if (text == LOITER_TEXT) {
     dst = flight_mode_t::LOITER;
     return true;
   }
-  else
-  {
+  else {
     cerr << "Invalid flight mode: " << text << endl;
     return false;
   }
@@ -61,8 +56,9 @@ Node convert<tobas::flight_mode_t>::encode(const tobas::flight_mode_t& rhs)
 
 bool convert<tobas::flight_mode_t>::decode(const Node& node, tobas::flight_mode_t& rhs)
 {
-  if (!node.IsScalar())
+  if (!node.IsScalar()) {
     return false;
+  }
 
   return tobas::enumFromText(node.as<string>(), rhs);
 }

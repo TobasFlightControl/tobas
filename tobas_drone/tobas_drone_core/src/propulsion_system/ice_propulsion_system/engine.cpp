@@ -13,20 +13,17 @@ namespace tobas
 {
 bool EngineConfig::isValid() const
 {
-  if (torque_const <= 0.)
-  {
+  if (torque_const <= 0.) {
     cerr << "Engine torque constant must be positive." << endl;
     return false;
   }
 
-  if (friction_torque <= 0.)
-  {
+  if (friction_torque <= 0.) {
     cerr << "Engine dynamic friction torque must be positive." << endl;
     return false;
   }
 
-  if (max_speed <= 0.)
-  {
+  if (max_speed <= 0.) {
     cerr << "Engine maximum speed must be positive." << endl;
     return false;
   }
@@ -36,17 +33,21 @@ bool EngineConfig::isValid() const
 
 bool EngineConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kTorqueConstantKey, node, torque_const))
+  if (!yaml::load(kTorqueConstantKey, node, torque_const)) {
     return false;
+  }
 
-  if (!yaml::load(kDynamicFrictionTorqueKey, node, friction_torque))
+  if (!yaml::load(kDynamicFrictionTorqueKey, node, friction_torque)) {
     return false;
+  }
 
-  if (!yaml::load(kMaxSpeedKey, node, max_speed))
+  if (!yaml::load(kMaxSpeedKey, node, max_speed)) {
     return false;
+  }
 
-  if (!yaml::load(kHardwareIfaceKey, node, hw_iface))
+  if (!yaml::load(kHardwareIfaceKey, node, hw_iface)) {
     return false;
+  }
 
   return true;
 }
@@ -84,10 +85,12 @@ double EngineConfig::computeThrottle(double torque, double speed)
   assert(torque >= 0.);
   assert(speed >= 0.);
 
-  if (torque == 0.)
+  if (torque == 0.) {
     return tobas::kMinThrot;
-  else if (speed == 0.)
+  }
+  else if (speed == 0.) {
     return tobas::kMaxThrot;
+  }
 
   // スロットル方程式が解けるように定数部分を決める
   const auto throt_const = clamp((torque + friction_torque) / (torque_const * speed), 0., 1.);

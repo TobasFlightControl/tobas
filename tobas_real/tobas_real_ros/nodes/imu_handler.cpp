@@ -40,16 +40,14 @@ private:
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real_imu_handler", options)
 {
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / kConfigFileName)))
-  {
+  if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
   set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
-  if (!getConfig())
-  {
+  if (!getConfig()) {
     TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
     return;
   }
@@ -60,20 +58,17 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real
 
 bool ImuHandlerNode::getConfig()
 {
-  if (!pt_.get(kOffsetXKey, acc_bias_.x()))
-  {
+  if (!pt_.get(kOffsetXKey, acc_bias_.x())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kOffsetYKey, acc_bias_.y()))
-  {
+  if (!pt_.get(kOffsetYKey, acc_bias_.y())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kOffsetZKey, acc_bias_.z()))
-  {
+  if (!pt_.get(kOffsetZKey, acc_bias_.z())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
@@ -94,9 +89,7 @@ void ImuHandlerNode::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in)
   imu_pub_->publish(move(imu_out));
 }
 
-void ImuHandlerNode::setParamsCb(
-  const SetParams::Request::ConstSharedPtr& req,
-  const SetParams::Response::SharedPtr& res)
+void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res)
 {
   // Update parameters
   acc_bias_.x(req->offset_x);
@@ -107,15 +100,15 @@ void ImuHandlerNode::setParamsCb(
   pt_.set(kOffsetXKey, req->offset_x);
   pt_.set(kOffsetYKey, req->offset_y);
   pt_.set(kOffsetZKey, req->offset_z);
-  if (!pt_.save())
-  {
+  if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";
     return;
   }
 
-  if (!imu_pub_)
+  if (!imu_pub_) {
     registerPubSub();
+  }
 
   res->success = true;
   res->message.clear();

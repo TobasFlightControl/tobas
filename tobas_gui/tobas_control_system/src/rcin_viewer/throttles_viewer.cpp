@@ -76,15 +76,13 @@ void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
   yaw_range_->setValue(rcin->yaw);
   throt_range_->setValue(rcin->throttle);
 
-  if (rcin->enable)
-  {
+  if (rcin->enable) {
     roll_range_->setValueLineColor(kLineColorEnable);
     pitch_range_->setValueLineColor(kLineColorEnable);
     yaw_range_->setValueLineColor(kLineColorEnable);
     throt_range_->setValueLineColor(kLineColorEnable);
   }
-  else
-  {
+  else {
     roll_range_->setValueLineColor(kLineColorDisable);
     pitch_range_->setValueLineColor(kLineColorDisable);
     yaw_range_->setValueLineColor(kLineColorDisable);

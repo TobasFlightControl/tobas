@@ -11,8 +11,9 @@ StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone, const kdl::Tr
 
 bool StabilityDerivativesCG::updateInternalDataStructures()
 {
-  if (!inertia_solver_.updateInternalDataStructures())
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
+  }
 
   c_pitch_delta_cg_.clear();
   c_yaw_delta_cg_.clear();
@@ -28,8 +29,7 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   const auto& aero = drone_.fixed_wing->aerodynamics;
 
   // CoGを更新
-  if (inertia_solver_.JntToCart(q) < 0)
-  {
+  if (inertia_solver_.JntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
     return error_code_ = E_ERROR;
   }
@@ -43,8 +43,7 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   c_pitch_alpha_cg_ = aero.c_pitch_alpha + dx_c * aero.c_lift_alpha;
   c_yaw_beta_cg_ = aero.c_yaw_beta + dx_b * aero.c_side_beta;
 
-  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces)
-  {
+  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces) {
     c_pitch_delta_cg_[channel] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;
     c_yaw_delta_cg_[channel] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
   }

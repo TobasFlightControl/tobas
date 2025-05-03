@@ -40,8 +40,9 @@ bool EllipseTransformer::initialize()
   const double W = (P.transpose() * b).cwiseAbs2().cwiseProduct(Lam_inv).sum() / 4 - c;
 
   // 楕円体であるための条件チェック
-  if (!((Lam * W).array() > 0).all())
+  if (!((Lam * W).array() > 0).all()) {
     return false;
+  }
 
   const Vector3d S = (Lam / W).cwiseSqrt();
   PSPt_ = P * S.asDiagonal() * P.transpose();

@@ -7,8 +7,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 5)
-  {
+  if (argc != 5) {
     cerr << "Usage: " << argv[0] << " a b c d -> Solve: a x^3 + b x^2 + c x + d = 0" << endl;
     return EXIT_FAILURE;
   }

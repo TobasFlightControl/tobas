@@ -127,13 +127,11 @@ bool EffortControllerNode::jointSpaceControl(
   tobas_msgs::msg::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.convert(cur_js) < 0)
-  {
+  if (cur_js_conv_.convert(cur_js) < 0) {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
   }
-  if (tar_js_conv_.convert(tar_js) < 0)
-  {
+  if (tar_js_conv_.convert(tar_js) < 0) {
     TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
     return false;
   }
@@ -144,24 +142,20 @@ bool EffortControllerNode::jointSpaceControl(
   const auto& tar_qd = tar_js_conv_.getVelocity();
 
   // PIDで関節トルクを計算
-  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0)
-  {
+  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0) {
     TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
     return false;
   }
   const auto efforts = tar_js_conv_.getEffort() + pid_js_.getEfforts();  // FF + FB
 
   // Fill output message
-  for (const auto& tar_state : tar_js.states)
-  {
+  for (const auto& tar_state : tar_js.states) {
     const auto& joint = drone_->joints.at(tar_state.name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION)
-    {
+    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
       TOBAS_WARN("The role of joint \"", tar_state.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
-    {
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
       TOBAS_WARN("The command interface of joint \"", tar_state.name, "\" must be \"EFFORT\".");
       continue;
     }
@@ -180,8 +174,7 @@ bool EffortControllerNode::taskSpaceControl(
   tobas_msgs::msg::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.convert(cur_js) < 0)
-  {
+  if (cur_js_conv_.convert(cur_js) < 0) {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
   }
@@ -192,10 +185,8 @@ bool EffortControllerNode::taskSpaceControl(
   kdl::TwistMap tar_v;
   kdl::AccelMap a_ff;
   kdl::WrenchMap f_ext;
-  for (const auto& ls : tar_ls.states)
-  {
-    if (!tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id))
-    {
+  for (const auto& ls : tar_ls.states) {
+    if (!tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id)) {
       TOBAS_ERROR(tf_listener_->getErrorMessage());
       continue;
     }
@@ -211,8 +202,7 @@ bool EffortControllerNode::taskSpaceControl(
   // PIDで関節トルクを計算
   const auto& cur_q = cur_js_conv_.getPosition();
   const auto& cur_qd = cur_js_conv_.getVelocity();
-  if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
-  {
+  if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0) {
     TOBAS_ERROR("Cartesian PID failed: ", pid_ts_.errorMessage());
     return false;
   }
@@ -223,16 +213,13 @@ bool EffortControllerNode::taskSpaceControl(
   const auto& active_jnt_names = active_jnts_extractor_.activeJointNames();
 
   // Fill output message
-  for (const auto& jnt_name : active_jnt_names)
-  {
+  for (const auto& jnt_name : active_jnt_names) {
     const auto& joint = drone_->joints.at(jnt_name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION)
-    {
+    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
       TOBAS_WARN("The role of joint \"", jnt_name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
-    {
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" must be \"EFFORT\".");
       continue;
     }
@@ -247,8 +234,7 @@ bool EffortControllerNode::taskSpaceControl(
 
 bool EffortControllerNode::jointStiffnessCb(const double& p)
 {
-  if (!pid_js_.setStiffness(p))
-  {
+  if (!pid_js_.setStiffness(p)) {
     TOBAS_ERROR("Failed to set joint stiffness.");
     return false;
   }
@@ -258,8 +244,7 @@ bool EffortControllerNode::jointStiffnessCb(const double& p)
 
 bool EffortControllerNode::jointDamping(const double& p)
 {
-  if (!pid_js_.setDamping(p))
-  {
+  if (!pid_js_.setDamping(p)) {
     TOBAS_ERROR("Failed to set joint damping.");
     return false;
   }
@@ -269,8 +254,7 @@ bool EffortControllerNode::jointDamping(const double& p)
 
 bool EffortControllerNode::linearStiffnessCb(const double& p)
 {
-  if (!pid_ts_.setLinearStiffness(p))
-  {
+  if (!pid_ts_.setLinearStiffness(p)) {
     TOBAS_ERROR("Failed to set linear stiffness.");
     return false;
   }
@@ -280,8 +264,7 @@ bool EffortControllerNode::linearStiffnessCb(const double& p)
 
 bool EffortControllerNode::angularStiffnessCb(const double& p)
 {
-  if (!pid_ts_.setAngularStiffness(p))
-  {
+  if (!pid_ts_.setAngularStiffness(p)) {
     TOBAS_ERROR("Failed to set angular stiffness.");
     return false;
   }
@@ -291,8 +274,7 @@ bool EffortControllerNode::angularStiffnessCb(const double& p)
 
 bool EffortControllerNode::linearDampingCb(const double& p)
 {
-  if (!pid_ts_.setLinearDamping(p))
-  {
+  if (!pid_ts_.setLinearDamping(p)) {
     TOBAS_ERROR("Failed to set linear damping.");
     return false;
   }
@@ -302,8 +284,7 @@ bool EffortControllerNode::linearDampingCb(const double& p)
 
 bool EffortControllerNode::angularDampingCb(const double& p)
 {
-  if (!pid_ts_.setAngularDamping(p))
-  {
+  if (!pid_ts_.setAngularDamping(p)) {
     TOBAS_ERROR("Failed to set angular damping.");
     return false;
   }
@@ -318,58 +299,54 @@ void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   home_js_.states.clear();
 
   // 力指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone->joints)
-  {
-    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION)
+  for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
+    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION) {
       continue;
-    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
+    }
+    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
       continue;
+    }
     home_js_.states.emplace_back();
     home_js_.states.back().name = jnt_name;
     home_js_.states.back().position = jnt_cfg.home_pos;
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.states.size() > 0)
+  if (home_js_.states.size() > 0) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
+  }
 }
 
 void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (!jnt_parser_.updateInternalDataStructures())
-  {
+  if (!jnt_parser_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of joint parser.");
     tree_.clear();
     return;
   }
-  if (!active_jnts_extractor_.updateInternalDataStructures())
-  {
+  if (!active_jnts_extractor_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of active joints extractor.");
     tree_.clear();
     return;
   }
-  if (!pid_js_.updateInternalDataStructures())
-  {
+  if (!pid_js_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of joint space PID.");
     tree_.clear();
     return;
   }
-  if (!pid_ts_.updateInternalDataStructures())
-  {
+  if (!pid_ts_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of task space PID.");
     tree_.clear();
     return;
   }
-  if (!cur_js_conv_.updateInternalDataStructures())
-  {
+  if (!cur_js_conv_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
     tree_.clear();
     return;
   }
-  if (!tar_js_conv_.updateInternalDataStructures())
-  {
+  if (!tar_js_conv_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
     tree_.clear();
     return;
@@ -378,29 +355,31 @@ void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
 {
-  if (tree_.getNrOfJoints() == 0)
+  if (tree_.getNrOfJoints() == 0) {
     return;
-  if (home_js_.states.size() == 0)
+  }
+  if (home_js_.states.size() == 0) {
     return;
-  if (!tar_js_ && !tar_ls_)
+  }
+  if (!tar_js_ && !tar_ls_) {
     return;
+  }
 
   // Create joint efforts command
   auto efforts_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
   // Joint space control or Task space control
-  if (tar_js_)
-  {
-    if (!jointSpaceControl(*cur_js, *tar_js_, *efforts_msg))
+  if (tar_js_) {
+    if (!jointSpaceControl(*cur_js, *tar_js_, *efforts_msg)) {
       return;
+    }
   }
-  else if (tar_ls_)
-  {
-    if (!taskSpaceControl(*cur_js, *tar_ls_, *efforts_msg))
+  else if (tar_ls_) {
+    if (!taskSpaceControl(*cur_js, *tar_ls_, *efforts_msg)) {
       return;
+    }
   }
-  else
-  {
+  else {
     TOBAS_ERROR("Both target joint state and target cartesian state are NULL.");
     return;
   }

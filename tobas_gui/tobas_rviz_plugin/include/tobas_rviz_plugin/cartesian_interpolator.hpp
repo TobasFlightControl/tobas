@@ -75,8 +75,9 @@ public:
     // value must be in [0,1]
     Percentage(double _value) : value(_value)
     {
-      if (value < 0. || value > 1.)
+      if (value < 0. || value > 1.) {
         throw std::runtime_error("Percentage values must be between 0 and 1, inclusive");
+      }
     }
     operator double()
     {

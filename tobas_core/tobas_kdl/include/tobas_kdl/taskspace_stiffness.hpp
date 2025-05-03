@@ -17,7 +17,7 @@ public:
   inline explicit TaskSpaceStiffness();
   inline explicit TaskSpaceStiffness(const Vector& linear, const Vector& angular);
 
-  inline static TaskSpaceStiffness Zero();
+  static inline TaskSpaceStiffness Zero();
 
   inline void setZero();
 

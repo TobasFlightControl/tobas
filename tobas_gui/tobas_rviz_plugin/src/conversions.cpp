@@ -19,8 +19,7 @@ rclcpp::Logger getLogger()
 
 bool jointStateToRobotStateImpl(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
 {
-  if (joint_state.name.size() != joint_state.position.size())
-  {
+  if (joint_state.name.size() != joint_state.position.size()) {
     RCLCPP_ERROR(
       getLogger(), "Different number of names and positions in JointState message: %zu, %zu", joint_state.name.size(),
       joint_state.position.size());
@@ -32,14 +31,10 @@ bool jointStateToRobotStateImpl(const sensor_msgs::msg::JointState& joint_state,
   return true;
 }
 
-bool multiDofJointsToRobotState(
-  const sensor_msgs::msg::MultiDOFJointState& mjs,
-  RobotState& state,
-  const Transforms* tf)
+bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& mjs, RobotState& state, const Transforms* tf)
 {
   std::size_t nj = mjs.joint_names.size();
-  if (nj != mjs.transforms.size())
-  {
+  if (nj != mjs.transforms.size()) {
     RCLCPP_ERROR(getLogger(), "Different number of names, values or frames in MultiDOFJointState message.");
     return false;
   }
@@ -48,12 +43,9 @@ bool multiDofJointsToRobotState(
   Eigen::Isometry3d inv_t;
   bool use_inv_t = false;
 
-  if (nj > 0 && !Transforms::sameFrame(mjs.header.frame_id, state.getRobotModel()->getModelFrame()))
-  {
-    if (tf)
-    {
-      try
-      {
+  if (nj > 0 && !Transforms::sameFrame(mjs.header.frame_id, state.getRobotModel()->getModelFrame())) {
+    if (tf) {
+      try {
         // find the transform that takes the given frame_id to the desired fixed frame
         const Eigen::Isometry3d& t2fixed_frame = tf->getTransform(mjs.header.frame_id);
         // we update the value of the transform so that it transforms from the known fixed frame to the desired child
@@ -61,19 +53,16 @@ bool multiDofJointsToRobotState(
         inv_t = t2fixed_frame.inverse();
         use_inv_t = true;
       }
-      catch (std::exception& ex)
-      {
+      catch (std::exception& ex) {
         RCLCPP_ERROR(getLogger(), "Caught %s", ex.what());
         error = true;
       }
     }
-    else
-    {
+    else {
       error = true;
     }
 
-    if (error)
-    {
+    if (error) {
       RCLCPP_WARN(
         getLogger(),
         "The transform for multi-dof joints was specified in frame '%s' "
@@ -82,19 +71,18 @@ bool multiDofJointsToRobotState(
     }
   }
 
-  for (std::size_t i = 0; i < nj; ++i)
-  {
+  for (std::size_t i = 0; i < nj; ++i) {
     const std::string& joint_name = mjs.joint_names[i];
-    if (!state.getRobotModel()->hasJointModel(joint_name))
-    {
+    if (!state.getRobotModel()->hasJointModel(joint_name)) {
       RCLCPP_WARN(getLogger(), "No joint matching multi-dof joint '%s'", joint_name.c_str());
       error = true;
       continue;
     }
     Eigen::Isometry3d transf = tf2::transformToEigen(mjs.transforms[i]);
     // if frames do not mach, attempt to transform
-    if (use_inv_t)
+    if (use_inv_t) {
       transf = transf * inv_t;
+    }
 
     state.setJointPositions(joint_name, transf);
   }
@@ -107,18 +95,17 @@ void robotStateToMultiDofJointState(const RobotState& state, sensor_msgs::msg::M
   const std::vector<const JointModel*>& js = state.getRobotModel()->getMultiDOFJointModels();
   mjs.joint_names.clear();
   mjs.transforms.clear();
-  for (const JointModel* joint_model : js)
-  {
+  for (const JointModel* joint_model : js) {
     geometry_msgs::msg::TransformStamped p;
-    if (state.dirtyJointTransform(joint_model))
-    {
+    if (state.dirtyJointTransform(joint_model)) {
       Eigen::Isometry3d t;
       t.setIdentity();
       joint_model->computeTransform(state.getJointPositions(joint_model), t);
       p = tf2::eigenToTransform(t);
     }
-    else
+    else {
       p = tf2::eigenToTransform(state.getJointTransform(joint_model));
+    }
     mjs.joint_names.push_back(joint_model->getName());
     mjs.transforms.push_back(p.transform);
   }
@@ -168,8 +155,9 @@ void attachedBodyToMsg(const AttachedBody& attached_body, tobas_visualization_ms
   aco.detach_posture = attached_body.getDetachPosture();
   const std::set<std::string>& touch_links = attached_body.getTouchLinks();
   aco.touch_links.clear();
-  for (const std::string& touch_link : touch_links)
+  for (const std::string& touch_link : touch_links) {
     aco.touch_links.push_back(touch_link);
+  }
   aco.object.header.frame_id = aco.link_name;
   aco.object.id = attached_body.getName();
   aco.object.pose = tf2::toMsg(attached_body.getPose());
@@ -184,11 +172,9 @@ void attachedBodyToMsg(const AttachedBody& attached_body, tobas_visualization_ms
   aco.object.primitive_poses.clear();
   aco.object.mesh_poses.clear();
   aco.object.plane_poses.clear();
-  for (std::size_t j = 0; j < ab_shapes.size(); ++j)
-  {
+  for (std::size_t j = 0; j < ab_shapes.size(); ++j) {
     shapes::ShapeMsg sm;
-    if (shapes::constructMsgFromShape(ab_shapes[j].get(), sm))
-    {
+    if (shapes::constructMsgFromShape(ab_shapes[j].get(), sm)) {
       geometry_msgs::msg::Pose p;
       p = tf2::toMsg(shape_poses[j]);
       sv.addToObject(sm, p);
@@ -196,8 +182,7 @@ void attachedBodyToMsg(const AttachedBody& attached_body, tobas_visualization_ms
   }
   aco.object.subframe_names.clear();
   aco.object.subframe_poses.clear();
-  for (const auto& frame_pair : attached_body.getSubframes())
-  {
+  for (const auto& frame_pair : attached_body.getSubframes()) {
     aco.object.subframe_names.push_back(frame_pair.first);
     geometry_msgs::msg::Pose pose;
     pose = tf2::toMsg(frame_pair.second);
@@ -210,39 +195,32 @@ void msgToAttachedBody(
   const tobas_visualization_msgs::msg::AttachedCollisionObject& aco,
   RobotState& state)
 {
-  if (aco.object.operation == tobas_visualization_msgs::msg::CollisionObject::ADD)
-  {
-    if (!aco.object.primitives.empty() || !aco.object.meshes.empty() || !aco.object.planes.empty())
-    {
-      if (aco.object.primitives.size() != aco.object.primitive_poses.size())
-      {
+  if (aco.object.operation == tobas_visualization_msgs::msg::CollisionObject::ADD) {
+    if (!aco.object.primitives.empty() || !aco.object.meshes.empty() || !aco.object.planes.empty()) {
+      if (aco.object.primitives.size() != aco.object.primitive_poses.size()) {
         RCLCPP_ERROR(
           getLogger(), "Number of primitive shapes does not match "
                        "number of poses in collision object message");
         return;
       }
 
-      if (aco.object.meshes.size() != aco.object.mesh_poses.size())
-      {
+      if (aco.object.meshes.size() != aco.object.mesh_poses.size()) {
         RCLCPP_ERROR(getLogger(), "Number of meshes does not match number of poses in collision object message");
         return;
       }
 
-      if (aco.object.planes.size() != aco.object.plane_poses.size())
-      {
+      if (aco.object.planes.size() != aco.object.plane_poses.size()) {
         RCLCPP_ERROR(getLogger(), "Number of planes does not match number of poses in collision object message");
         return;
       }
 
-      if (aco.object.subframe_poses.size() != aco.object.subframe_names.size())
-      {
+      if (aco.object.subframe_poses.size() != aco.object.subframe_names.size()) {
         RCLCPP_ERROR(getLogger(), "Number of subframe poses does not match number of subframe names in message");
         return;
       }
 
       const LinkModel* lm = state.getLinkModel(aco.link_name);
-      if (lm)
-      {
+      if (lm) {
         Eigen::Isometry3d object_pose;
         tf2::fromMsg(aco.object.pose, object_pose);
 
@@ -254,24 +232,27 @@ void msgToAttachedBody(
 
         auto append = [&shapes, &shape_poses](shapes::Shape* s, const geometry_msgs::msg::Pose& pose_msg)
         {
-          if (!s)
+          if (!s) {
             return;
+          }
           Eigen::Isometry3d pose;
           tf2::fromMsg(pose_msg, pose);
           shapes.emplace_back(shapes::ShapeConstPtr(s));
           shape_poses.emplace_back(std::move(pose));
         };
 
-        for (std::size_t i = 0; i < aco.object.primitives.size(); ++i)
+        for (std::size_t i = 0; i < aco.object.primitives.size(); ++i) {
           append(shapes::constructShapeFromMsg(aco.object.primitives[i]), aco.object.primitive_poses[i]);
-        for (std::size_t i = 0; i < aco.object.meshes.size(); ++i)
+        }
+        for (std::size_t i = 0; i < aco.object.meshes.size(); ++i) {
           append(shapes::constructShapeFromMsg(aco.object.meshes[i]), aco.object.mesh_poses[i]);
-        for (std::size_t i = 0; i < aco.object.planes.size(); ++i)
+        }
+        for (std::size_t i = 0; i < aco.object.planes.size(); ++i) {
           append(shapes::constructShapeFromMsg(aco.object.planes[i]), aco.object.plane_poses[i]);
+        }
 
         FixedTransformsMap subframe_poses;
-        for (std::size_t i = 0; i < aco.object.subframe_poses.size(); ++i)
-        {
+        for (std::size_t i = 0; i < aco.object.subframe_poses.size(); ++i) {
           Eigen::Isometry3d p;
           tf2::fromMsg(aco.object.subframe_poses[i], p);
           std::string name = aco.object.subframe_names[i];
@@ -279,19 +260,15 @@ void msgToAttachedBody(
         }
 
         // Transform shape pose to link frame
-        if (!Transforms::sameFrame(aco.object.header.frame_id, aco.link_name))
-        {
+        if (!Transforms::sameFrame(aco.object.header.frame_id, aco.link_name)) {
           bool frame_found = false;
           Eigen::Isometry3d world_to_header_frame;
           world_to_header_frame = state.getFrameTransform(aco.object.header.frame_id, &frame_found);
-          if (!frame_found)
-          {
-            if (tf && tf->canTransform(aco.object.header.frame_id))
-            {
+          if (!frame_found) {
+            if (tf && tf->canTransform(aco.object.header.frame_id)) {
               world_to_header_frame = tf->getTransform(aco.object.header.frame_id);
             }
-            else
-            {
+            else {
               world_to_header_frame.setIdentity();
               RCLCPP_ERROR(
                 getLogger(),
@@ -303,16 +280,13 @@ void msgToAttachedBody(
           object_pose = state.getGlobalLinkTransform(lm).inverse() * world_to_header_frame * object_pose;
         }
 
-        if (shapes.empty())
-        {
+        if (shapes.empty()) {
           RCLCPP_ERROR(
             getLogger(), "There is no geometry to attach to link '%s' as part of attached body '%s'",
             aco.link_name.c_str(), aco.object.id.c_str());
         }
-        else
-        {
-          if (state.clearAttachedBody(aco.object.id))
-          {
+        else {
+          if (state.clearAttachedBody(aco.object.id)) {
             RCLCPP_DEBUG(
               getLogger(),
               "The robot state already had an object named '%s' attached to link '%s'. "
@@ -326,19 +300,19 @@ void msgToAttachedBody(
         }
       }
     }
-    else
+    else {
       RCLCPP_ERROR(getLogger(), "The attached body for link '%s' has no geometry", aco.link_name.c_str());
+    }
   }
-  else if (aco.object.operation == tobas_visualization_msgs::msg::CollisionObject::REMOVE)
-  {
-    if (!state.clearAttachedBody(aco.object.id))
-    {
+  else if (aco.object.operation == tobas_visualization_msgs::msg::CollisionObject::REMOVE) {
+    if (!state.clearAttachedBody(aco.object.id)) {
       RCLCPP_ERROR(
         getLogger(), "The attached body '%s' can not be removed because it does not exist", aco.link_name.c_str());
     }
   }
-  else
+  else {
     RCLCPP_ERROR(getLogger(), "Unknown collision object operation: %d", aco.object.operation);
+  }
 }
 
 bool robotStateMsgToRobotStateHelper(
@@ -350,8 +324,7 @@ bool robotStateMsgToRobotStateHelper(
   bool valid;
   const tobas_visualization_msgs::msg::RobotState& rs = robot_state;
 
-  if (!rs.is_diff && rs.joint_state.name.empty() && rs.multi_dof_joint_state.joint_names.empty())
-  {
+  if (!rs.is_diff && rs.joint_state.name.empty() && rs.multi_dof_joint_state.joint_names.empty()) {
     RCLCPP_ERROR(getLogger(), "Found empty JointState message");
     return false;
   }
@@ -360,13 +333,14 @@ bool robotStateMsgToRobotStateHelper(
   bool result2 = multiDofJointsToRobotState(robot_state.multi_dof_joint_state, state, tf);
   valid = result1 || result2;
 
-  if (valid && copy_attached_bodies)
-  {
-    if (!robot_state.is_diff)
+  if (valid && copy_attached_bodies) {
+    if (!robot_state.is_diff) {
       state.clearAttachedBodies();
+    }
     for (const tobas_visualization_msgs::msg::AttachedCollisionObject& attached_collision_object :
-         robot_state.attached_collision_objects)
+         robot_state.attached_collision_objects) {
       msgToAttachedBody(tf, attached_collision_object, state);
+    }
   }
 
   return valid;
@@ -409,8 +383,7 @@ void robotStateToRobotStateMsg(
   robotStateToJointStateMsg(state, robot_state.joint_state);
   robotStateToMultiDofJointState(state, robot_state.multi_dof_joint_state);
 
-  if (copy_attached_bodies)
-  {
+  if (copy_attached_bodies) {
     std::vector<const AttachedBody*> attached_bodies;
     state.getAttachedBodies(attached_bodies);
     attachedBodiesToAttachedCollisionObjectMsgs(attached_bodies, robot_state.attached_collision_objects);
@@ -422,8 +395,9 @@ void attachedBodiesToAttachedCollisionObjectMsgs(
   std::vector<tobas_visualization_msgs::msg::AttachedCollisionObject>& attached_collision_objs)
 {
   attached_collision_objs.resize(attached_bodies.size());
-  for (std::size_t i = 0; i < attached_bodies.size(); ++i)
+  for (std::size_t i = 0; i < attached_bodies.size(); ++i) {
     attachedBodyToMsg(*attached_bodies[i], attached_collision_objs[i]);
+  }
 }
 
 void robotStateToJointStateMsg(const RobotState& state, sensor_msgs::msg::JointState& joint_state)
@@ -431,17 +405,18 @@ void robotStateToJointStateMsg(const RobotState& state, sensor_msgs::msg::JointS
   const std::vector<const JointModel*>& js = state.getRobotModel()->getSingleDOFJointModels();
   joint_state = sensor_msgs::msg::JointState();
 
-  for (const JointModel* joint_model : js)
-  {
+  for (const JointModel* joint_model : js) {
     joint_state.name.push_back(joint_model->getName());
     joint_state.position.push_back(state.getVariablePosition(joint_model->getFirstVariableIndex()));
-    if (state.hasVelocities())
+    if (state.hasVelocities()) {
       joint_state.velocity.push_back(state.getVariableVelocity(joint_model->getFirstVariableIndex()));
+    }
   }
 
   // if inconsistent number of velocities are specified, discard them
-  if (joint_state.velocity.size() != joint_state.position.size())
+  if (joint_state.velocity.size() != joint_state.position.size()) {
     joint_state.velocity.clear();
+  }
 
   joint_state.header.frame_id = state.getRobotModel()->getModelFrame();
 }
@@ -451,24 +426,25 @@ bool jointTrajPointToRobotState(
   std::size_t point_id,
   RobotState& state)
 {
-  if (trajectory.points.empty() || point_id > trajectory.points.size() - 1)
-  {
+  if (trajectory.points.empty() || point_id > trajectory.points.size() - 1) {
     RCLCPP_ERROR(getLogger(), "Invalid point_id");
     return false;
   }
-  if (trajectory.joint_names.empty())
-  {
+  if (trajectory.joint_names.empty()) {
     RCLCPP_ERROR(getLogger(), "No joint names specified");
     return false;
   }
 
   state.setVariablePositions(trajectory.joint_names, trajectory.points[point_id].positions);
-  if (!trajectory.points[point_id].velocities.empty())
+  if (!trajectory.points[point_id].velocities.empty()) {
     state.setVariableVelocities(trajectory.joint_names, trajectory.points[point_id].velocities);
-  if (!trajectory.points[point_id].accelerations.empty())
+  }
+  if (!trajectory.points[point_id].accelerations.empty()) {
     state.setVariableAccelerations(trajectory.joint_names, trajectory.points[point_id].accelerations);
-  if (!trajectory.points[point_id].effort.empty())
+  }
+  if (!trajectory.points[point_id].effort.empty()) {
     state.setVariableEffort(trajectory.joint_names, trajectory.points[point_id].effort);
+  }
 
   return true;
 }
@@ -476,27 +452,26 @@ bool jointTrajPointToRobotState(
 void robotStateToStream(const RobotState& state, std::ostream& out, bool include_header, const std::string& separator)
 {
   // Output name of variables
-  if (include_header)
-  {
-    for (std::size_t i = 0; i < state.getVariableCount(); ++i)
-    {
+  if (include_header) {
+    for (std::size_t i = 0; i < state.getVariableCount(); ++i) {
       out << state.getVariableNames()[i];
 
       // Output comma except at end
-      if (i < state.getVariableCount() - 1)
+      if (i < state.getVariableCount() - 1) {
         out << separator;
+      }
     }
     out << '\n';
   }
 
   // Output values of joints
-  for (std::size_t i = 0; i < state.getVariableCount(); ++i)
-  {
+  for (std::size_t i = 0; i < state.getVariableCount(); ++i) {
     out << state.getVariablePositions()[i];
 
     // Output comma except at end
-    if (i < state.getVariableCount() - 1)
+    if (i < state.getVariableCount() - 1) {
       out << separator;
+    }
   }
   out << '\n';
 }
@@ -511,15 +486,12 @@ void robotStateToStream(
   std::stringstream headers;
   std::stringstream joints;
 
-  for (const std::string& joint_group_id : joint_groups_ordering)
-  {
+  for (const std::string& joint_group_id : joint_groups_ordering) {
     const JointModelGroup* jmg = state.getRobotModel()->getJointModelGroup(joint_group_id);
 
     // Output name of variables
-    if (include_header)
-    {
-      for (std::size_t i = 0; i < jmg->getVariableCount(); ++i)
-      {
+    if (include_header) {
+      for (std::size_t i = 0; i < jmg->getVariableCount(); ++i) {
         headers << jmg->getVariableNames()[i] << separator;
       }
     }
@@ -529,15 +501,15 @@ void robotStateToStream(
     state.copyJointGroupPositions(jmg, group_variable_positions);
 
     // Output values of joints
-    for (std::size_t i = 0; i < jmg->getVariableCount(); ++i)
-    {
+    for (std::size_t i = 0; i < jmg->getVariableCount(); ++i) {
       joints << group_variable_positions[i] << separator;
     }
   }
 
   // Push all headers and joints to our output stream
-  if (include_header)
+  if (include_header) {
     out << headers.str() << '\n';
+  }
   out << joints.str() << '\n';
 }
 
@@ -547,11 +519,11 @@ void streamToRobotState(RobotState& state, const std::string& line, const std::s
   std::string cell;
 
   // For each item/column
-  for (std::size_t i = 0; i < state.getVariableCount(); ++i)
-  {
+  for (std::size_t i = 0; i < state.getVariableCount(); ++i) {
     // Get a variable
-    if (!std::getline(line_stream, cell, separator[0]))
+    if (!std::getline(line_stream, cell, separator[0])) {
       RCLCPP_ERROR(getLogger(), "Missing variable %s", state.getVariableNames()[i].c_str());
+    }
     state.getVariablePositions()[i] = std::stod(cell);
   }
 }

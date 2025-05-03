@@ -33,8 +33,7 @@ ControllerWidget::ControllerWidget(
   controllers_->addWidget(new FixedWingLQRWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new CustomControllerWidget());
 
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
+  for (int i = 0; i < controllers_->count(); ++i) {
     const auto controller = widget(i);
     type_->addItem(controller->name());
   }
@@ -63,8 +62,7 @@ const char* ControllerWidget::description() const
 void ControllerWidget::onOpened()
 {
   // 現在の機体設定で適用可能な選択肢のみ選択可能にする
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
+  for (int i = 0; i < controllers_->count(); ++i) {
     const auto controller = widget(i);
     type_->setItemEnabled(i, controller->isApplicable());
   }
@@ -77,14 +75,14 @@ void ControllerWidget::updateInternalDataStructures()
 
 bool ControllerWidget::isValid()
 {
-  if (!selected()->isApplicable())
-  {
+  if (!selected()->isApplicable()) {
     qt::qErrorBox(this, "The selected controller is not applicable to the airframe.");
     return false;
   }
 
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
@@ -95,8 +93,7 @@ YAML::Node ControllerWidget::dump() const
 
   node[kTypeKey] = type_->currentText();
 
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
+  for (int i = 0; i < controllers_->count(); ++i) {
     const auto controller = widget(i);
     node[controller->name()] = controller->dump();
   }
@@ -108,8 +105,7 @@ void ControllerWidget::load(const YAML::Node& node)
 {
   type_->setCurrentText(node[kTypeKey].as<QString>());
 
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
+  for (int i = 0; i < controllers_->count(); ++i) {
     const auto controller = widget(i);
     controller->load(node[controller->name()]);
   }

@@ -31,7 +31,7 @@ public:
   inline explicit Rotation(const Eigen::Matrix3d& _data);
 
   // Gives back an identity rotaton matrix
-  inline static Rotation Identity();
+  static inline Rotation Identity();
 
   inline void setIdentity();
 
@@ -160,16 +160,7 @@ inline Rotation::Rotation()
   *this = Rotation::Identity();
 }
 
-inline Rotation::Rotation(
-  double xx,
-  double yx,
-  double zx,
-  double xy,
-  double yy,
-  double zy,
-  double xz,
-  double yz,
-  double zz)
+inline Rotation::Rotation(double xx, double yx, double zx, double xy, double yy, double zy, double xz, double yz, double zz)
 {
   data << xx, yx, zx, xy, yy, zy, xz, yz, zz;
 }

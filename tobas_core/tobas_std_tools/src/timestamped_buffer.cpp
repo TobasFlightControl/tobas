@@ -13,16 +13,18 @@ namespace tobas_std
 double TimestampedBufferDouble::max() const
 {
   double res = -INFINITY;
-  for (const auto& [_, x] : map_)
+  for (const auto& [_, x] : map_) {
     res = ::max(res, x);
+  }
   return res;
 }
 
 double TimestampedBufferDouble::min() const
 {
   double res = INFINITY;
-  for (const auto& [_, x] : map_)
+  for (const auto& [_, x] : map_) {
     res = ::min(res, x);
+  }
   return res;
 }
 
@@ -33,26 +35,30 @@ double TimestampedBufferDouble::range() const
 
 double TimestampedBufferDouble::mean() const
 {
-  if (this->size() == 0)
+  if (this->size() == 0) {
     return 0.;
+  }
 
   algo::Kahan<double> sum;
-  for (const auto& [_, x] : map_)
+  for (const auto& [_, x] : map_) {
     sum.add(x);
+  }
 
   return sum.get() / this->size();
 }
 
 double TimestampedBufferDouble::variance() const
 {
-  if (this->size() == 0)
+  if (this->size() == 0) {
     return 0.;
+  }
 
   const auto mean = this->mean();
 
   algo::Kahan<double> sum;
-  for (const auto& [_, x] : map_)
+  for (const auto& [_, x] : map_) {
     sum.add(math::sqr(x - mean));
+  }
 
   return sum.get() / this->size();
 }

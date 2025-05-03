@@ -22,8 +22,7 @@ CustomControllerWidget::CustomControllerWidget()
   loiter_mode_ = new ParamGetterWidget_ComboBox("Loiter Mode", "");
 
   // Add command choices
-  for (const auto& [text, _] : command_map_)
-  {
+  for (const auto& [text, _] : command_map_) {
     acrobat_mode_->addChoice(text);
     stabilize_mode_->addChoice(text);
     loiter_mode_->addChoice(text);
@@ -114,14 +113,12 @@ bool CustomControllerWidget::isApplicable()
 
 bool CustomControllerWidget::isValid()
 {
-  if (package_->getValue().isEmpty())
-  {
+  if (package_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom controller package name.");
     return false;
   }
 
-  if (plugin_->getValue().isEmpty())
-  {
+  if (plugin_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom controller plugin name.");
     return false;
   }

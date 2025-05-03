@@ -14,10 +14,12 @@ void TabBar::enableWheelEvent(bool enable)
 
 void TabBar::wheelEvent(QWheelEvent* event)
 {
-  if (enable_wheel_event_)
+  if (enable_wheel_event_) {
     super::wheelEvent(event);
-  else
+  }
+  else {
     event->ignore();
+  }
 }
 
 TabWidget::TabWidget(QWidget* parent) : super(parent)

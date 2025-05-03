@@ -65,8 +65,7 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
 
 void JointPositionCommanderWidget::updateInternalDataStructures()
 {
-  if (!joint_parser_.updateInternalDataStructures())
-  {
+  if (!joint_parser_.updateInternalDataStructures()) {
     qt::qErrorBox(this, "Failed to update joint parser.");
     return;
   }
@@ -80,16 +79,15 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
   tar_js_eff_.states.clear();
 
   // Add joints of current robot
-  for (const auto& [jnt_name, joint] : drone_.joints)
-  {
+  for (const auto& [jnt_name, joint] : drone_.joints) {
     // Joints for manipulation only
-    if (joint.role != tobas::jnt_role_t::MANIPULATION)
+    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
       continue;
+    }
 
     tobas_msgs::msg::JointState cmd;
     cmd.name = jnt_name;
-    switch (joint.cmd_iface)
-    {
+    switch (joint.cmd_iface) {
       case tobas::jnt_cmd_iface_t::POSITION:
         cmd.position = joint.home_pos;
         cmd.velocity = NAN;
@@ -128,15 +126,18 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
 
   // Register command publishers
   const auto& ns = drone_.name;
-  if (tar_js_pos_.states.size() > 0)
+  if (tar_js_pos_.states.size() > 0) {
     tar_js_pos_pub_ =
       ros2::createPublisher<tobas_msgs::msg::JointStateArray>(node_, path::join(ns, tobas::kPosCtrlJSTopic));
-  if (tar_js_vel_.states.size() > 0)
+  }
+  if (tar_js_vel_.states.size() > 0) {
     tar_js_vel_pub_ =
       ros2::createPublisher<tobas_msgs::msg::JointStateArray>(node_, path::join(ns, tobas::kVelCtrlJSTopic));
-  if (tar_js_eff_.states.size() > 0)
+  }
+  if (tar_js_eff_.states.size() > 0) {
     tar_js_eff_pub_ =
       ros2::createPublisher<tobas_msgs::msg::JointStateArray>(node_, path::join(ns, tobas::kEffCtrlJSTopic));
+  }
 }
 
 bool JointPositionCommanderWidget::start()
@@ -148,18 +149,20 @@ void JointPositionCommanderWidget::reset()
 {
   start_stop_button_->setChecked(false);
 
-  for (const auto& [_, commander] : commanders_)
-  {
+  for (const auto& [_, commander] : commanders_) {
     commander->setValue(0.);
     commander->setEnabled(false);
   }
 
-  for (auto& state : tar_js_pos_.states)
+  for (auto& state : tar_js_pos_.states) {
     state.position = 0.;
-  for (auto& state : tar_js_vel_.states)
+  }
+  for (auto& state : tar_js_vel_.states) {
     state.position = 0.;
-  for (auto& state : tar_js_eff_.states)
+  }
+  for (auto& state : tar_js_eff_.states) {
     state.position = 0.;
+  }
 
   home_button_->setEnabled(false);
   center_button_->setEnabled(false);
@@ -170,20 +173,17 @@ void JointPositionCommanderWidget::reset()
 
 void JointPositionCommanderWidget::publishCurrentCommand()
 {
-  if (tar_js_pos_pub_)
-  {
+  if (tar_js_pos_pub_) {
     auto tar_js_pos = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_pos_);
     tar_js_pos_pub_->publish(std::move(tar_js_pos));
   }
 
-  if (tar_js_vel_pub_)
-  {
+  if (tar_js_vel_pub_) {
     auto tar_js_vel = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_vel_);
     tar_js_vel_pub_->publish(std::move(tar_js_vel));
   }
 
-  if (tar_js_eff_pub_)
-  {
+  if (tar_js_eff_pub_) {
     auto tar_js_eff = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_eff_);
     tar_js_eff_pub_->publish(std::move(tar_js_eff));
   }
@@ -192,8 +192,7 @@ void JointPositionCommanderWidget::publishCurrentCommand()
 void JointPositionCommanderWidget::onStartRequested()
 {
   // 初期コマンドをホームポジションに設定して有効化
-  for (const auto& [jnt_name, commander] : commanders_)
-  {
+  for (const auto& [jnt_name, commander] : commanders_) {
     commander->setValue(drone_.joints.at(jnt_name).home_pos);
     commander->setEnabled(true);
   }
@@ -218,8 +217,7 @@ void JointPositionCommanderWidget::onStopRequested()
 
 void JointPositionCommanderWidget::onValueChanged(double value, const std::string& jnt_name)
 {
-  if (!drone_.joints.contains(jnt_name))
-  {
+  if (!drone_.joints.contains(jnt_name)) {
     qWarning() << "Invalid joint name: " << QString::fromStdString(jnt_name);
     return;
   }
@@ -227,70 +225,56 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
   const auto& joint = drone_.joints.at(jnt_name);
   bool jnt_found = false;
 
-  switch (joint.cmd_iface)
-  {
-    case tobas::jnt_cmd_iface_t::POSITION:
-    {
-      for (auto& cmd : tar_js_pos_.states)
-      {
-        if (cmd.name == jnt_name)
-        {
+  switch (joint.cmd_iface) {
+    case tobas::jnt_cmd_iface_t::POSITION: {
+      for (auto& cmd : tar_js_pos_.states) {
+        if (cmd.name == jnt_name) {
           cmd.position = value;
           jnt_found = true;
           break;
         }
       }
 
-      if (!jnt_found)
-      {
+      if (!jnt_found) {
         qWarning() << "Position commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
         return;
       }
 
       break;
     }
-    case tobas::jnt_cmd_iface_t::VELOCITY:
-    {
-      for (auto& cmd : tar_js_vel_.states)
-      {
-        if (cmd.name == jnt_name)
-        {
+    case tobas::jnt_cmd_iface_t::VELOCITY: {
+      for (auto& cmd : tar_js_vel_.states) {
+        if (cmd.name == jnt_name) {
           cmd.position = value;
           jnt_found = true;
           break;
         }
       }
 
-      if (!jnt_found)
-      {
+      if (!jnt_found) {
         qWarning() << "Velocity commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
         return;
       }
 
       break;
     }
-    case tobas::jnt_cmd_iface_t::EFFORT:
-    {
-      for (auto& cmd : tar_js_eff_.states)
-      {
-        if (cmd.name == jnt_name)
-        {
+    case tobas::jnt_cmd_iface_t::EFFORT: {
+      for (auto& cmd : tar_js_eff_.states) {
+        if (cmd.name == jnt_name) {
           cmd.position = value;
           jnt_found = true;
           break;
         }
       }
 
-      if (!jnt_found)
-      {
+      if (!jnt_found) {
         qWarning() << "Effort commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
         return;
       }
 
       break;
     }
-    default:
-    {
+    default: {
       qWarning() << "The command interface of joint " << QString::fromStdString(jnt_name) << " is invalid.";
       return;
     }
@@ -301,24 +285,25 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
 
 void JointPositionCommanderWidget::onHomeButtonClicked()
 {
-  for (const auto& [jnt_name, commander] : commanders_)
+  for (const auto& [jnt_name, commander] : commanders_) {
     commander->setValue(drone_.joints.at(jnt_name).home_pos);
+  }
 
   publishCurrentCommand();
 }
 
 void JointPositionCommanderWidget::onCenterButtonClicked()
 {
-  for (const auto& [_, commander] : commanders_)
+  for (const auto& [_, commander] : commanders_) {
     commander->setValue((commander->getMinimum() + commander->getMaximum()) / 2);
+  }
 
   publishCurrentCommand();
 }
 
 void JointPositionCommanderWidget::onRandomButtonClicked()
 {
-  for (const auto& [_, commander] : commanders_)
-  {
+  for (const auto& [_, commander] : commanders_) {
     std::uniform_real_distribution<double> uniform(commander->getMinimum(), commander->getMaximum());
     const auto value = uniform(rnd_gen_);
     commander->setValue(value);

@@ -107,8 +107,9 @@ void GazeboGnssPlugin::Configure(
   rate_manager_ = make_shared<RateManager>(update_rate_);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity)
+  if (link == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
+  }
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
@@ -157,11 +158,11 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
 
   // 古い履歴を削除
-  while (chrono::duration<double>(cur_time - get<0>(history_.front())).count() > delay_)
-  {
+  while (chrono::duration<double>(cur_time - get<0>(history_.front())).count() > delay_) {
     history_.pop_front();
-    if (!is_history_filled_)
+    if (!is_history_filled_) {
       is_history_filled_ = true;
+    }
   }
 
   // オルンシュタイン＝ウーベンレック過程に従って位置のバイアスを更新
@@ -169,12 +170,14 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   pos_bias_ += (dpos_noise_->get() - pos_bias_ / pos_corr_time_) * dt;
 
   // 更新時刻になっていなければ発行しない
-  if (!rate_manager_->update(info.simTime))
+  if (!rate_manager_->update(info.simTime)) {
     return;
+  }
 
   // 履歴が溜まっていなければ発行しない
-  if (!is_history_filled_)
+  if (!is_history_filled_) {
     return;
+  }
 
   // 最新の発行時刻を更新
   t_last_publish_ = cur_time;

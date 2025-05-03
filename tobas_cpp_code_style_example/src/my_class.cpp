@@ -65,8 +65,7 @@ MyClass::ErrorCode MyClass::longMethod(int _primitive_input, const std::string& 
   const int local_variable = _primitive_input;
 
   // Always use braces following `if`, `else`, `do`, `while` and `for` even when the body is a single line.
-  if (!internalMethod(local_variable))
-  {
+  if (!internalMethod(local_variable)) {
     return ErrorCode::kError;
   }
 

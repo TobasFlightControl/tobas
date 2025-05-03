@@ -41,8 +41,7 @@ void WorldWidget_Custom::onBrowseButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
-  {
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -53,18 +52,21 @@ void WorldWidget_Custom::onBrowseButtonClicked()
     this, "Select World File", QString::fromStdString(last_opened_dir), "Gazebo World (*.world)", nullptr, options);
 
   // キャンセルの場合は何もせずに終了
-  if (file_path.isEmpty())
+  if (file_path.isEmpty()) {
     return;
+  }
 
   // パスをテキストに設定
   file_text_->setText(file_path);
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = std::filesystem::path(file_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  if (property_client_.save() < 0)
+  }
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  }
 }
 }  // namespace sim
 }  // namespace gui

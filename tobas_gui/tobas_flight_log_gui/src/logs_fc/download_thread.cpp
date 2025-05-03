@@ -19,11 +19,11 @@ void DownloadThread::run()
   const auto remote_rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name_.toStdString();
   const auto local_pardir = ros2::expandUser(tobas::kRosbagDirHome);
 
-  if (!fs::is_directory(local_pardir))
+  if (!fs::is_directory(local_pardir)) {
     fs::create_directories(local_pardir);
+  }
 
-  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::E_NO_ERROR) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;
   }

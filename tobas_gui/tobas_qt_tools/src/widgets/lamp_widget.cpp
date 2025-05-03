@@ -19,8 +19,9 @@ LampWidget::LampWidget(const QString& text, QWidget* parent) : super(text, paren
 void LampWidget::setColor(const RGBColor& color)
 {
   // 色が変化しないなら何もしない
-  if (color == c_)
+  if (color == c_) {
     return;
+  }
 
   // 新しい色に更新
   c_ = color;

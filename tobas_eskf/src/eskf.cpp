@@ -66,30 +66,37 @@ bool ErrorStateKalmanFilter::initialize(
   G_.setIdentity();
 
   // Initialize states and covariances
-  if (!initializePosition(init_pos, init_pos_cov))
+  if (!initializePosition(init_pos, init_pos_cov)) {
     return false;
-  if (!initializeVelocity(init_vel, init_vel_cov))
+  }
+  if (!initializeVelocity(init_vel, init_vel_cov)) {
     return false;
-  if (!initializeQuaternion(init_quat, init_dtheta_cov))
+  }
+  if (!initializeQuaternion(init_quat, init_dtheta_cov)) {
     return false;
-  if (!initializeAccelBias(init_acc_bias, init_acc_bias_cov))
+  }
+  if (!initializeAccelBias(init_acc_bias, init_acc_bias_cov)) {
     return false;
-  if (!initializeGyroBias(init_gyro_bias, init_gyro_bias_cov))
+  }
+  if (!initializeGyroBias(init_gyro_bias, init_gyro_bias_cov)) {
     return false;
-  if (!initializeMagHardBias(init_mag_hard_bias, init_mag_hard_bias_cov))
+  }
+  if (!initializeMagHardBias(init_mag_hard_bias, init_mag_hard_bias_cov)) {
     return false;
-  if (!initializeMagSoftBias(init_mag_soft_bias, init_mag_soft_bias_cov))
+  }
+  if (!initializeMagSoftBias(init_mag_soft_bias, init_mag_soft_bias_cov)) {
     return false;
-  if (!initializeGravity(init_grav, init_grav_var))
+  }
+  if (!initializeGravity(init_grav, init_grav_var)) {
     return false;
+  }
 
   return true;
 }
 
 bool ErrorStateKalmanFilter::initializePosition(const Vector3d& value, const Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
     cerr << "Initial position covariance must be symmetric semi-positive definite." << endl;
     return false;
   }
@@ -107,8 +114,7 @@ bool ErrorStateKalmanFilter::initializePosition(const Vector3d& value, const Mat
 
 bool ErrorStateKalmanFilter::initializeVelocity(const Vector3d& value, const Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
     cerr << "Initial velocity covariance must be symmetric semi-positive definite." << endl;
     return false;
   }
@@ -126,8 +132,7 @@ bool ErrorStateKalmanFilter::initializeVelocity(const Vector3d& value, const Mat
 
 bool ErrorStateKalmanFilter::initializeQuaternion(const Quaterniond& value, const Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
     cerr << "Initial rotation covariance must be symmetric semi-positive definite." << endl;
     return false;
   }
@@ -145,8 +150,7 @@ bool ErrorStateKalmanFilter::initializeQuaternion(const Quaterniond& value, cons
 
 bool ErrorStateKalmanFilter::initializeAccelBias(const Vector3d& value, const Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
     cerr << "Initial accelerometer bias covariance must be symmetric semi-positive definite." << endl;
     return false;
   }
@@ -164,8 +168,7 @@ bool ErrorStateKalmanFilter::initializeAccelBias(const Vector3d& value, const Ma
 
 bool ErrorStateKalmanFilter::initializeGyroBias(const Vector3d& value, const Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
     cerr << "Initial gyroscope bias covariance must be symmetric semi-positive definite." << endl;
     return false;
   }
@@ -183,8 +186,7 @@ bool ErrorStateKalmanFilter::initializeGyroBias(const Vector3d& value, const Mat
 
 bool ErrorStateKalmanFilter::initializeMagHardBias(const Vector3d& value, const Matrix3d& cov)
 {
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
     cerr << "Initial magnetometer hard bias covariance must be symmetric semi-positive definite." << endl;
     return false;
   }
@@ -202,14 +204,12 @@ bool ErrorStateKalmanFilter::initializeMagHardBias(const Vector3d& value, const 
 
 bool ErrorStateKalmanFilter::initializeMagSoftBias(const Matrix3d& value, const Matrix6d& cov)
 {
-  if (!eigen::isSymmetricPositiveDefinite(value))
-  {
+  if (!eigen::isSymmetricPositiveDefinite(value)) {
     cerr << "Initial magnetometer soft bias matrix must be symmetric positive definite." << endl;
     return false;
   }
 
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
     cerr << "Initial magnetometer soft bias covariance must be symmetric semi-positive definite." << endl;
     return false;
   }
@@ -227,8 +227,7 @@ bool ErrorStateKalmanFilter::initializeMagSoftBias(const Matrix3d& value, const 
 
 bool ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
 {
-  if (var < 0.)
-  {
+  if (var < 0.) {
     cerr << "Initial gravity variance must be non-negative." << endl;
     return false;
   }
@@ -266,8 +265,7 @@ void ErrorStateKalmanFilter::enableJosephForm(bool enable)
 
 bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 {
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "The noise density of accelerometer bias process must be non-negative." << endl;
     return false;
   }
@@ -278,8 +276,7 @@ bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 {
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "The noise density of gyroscope bias process must be non-negative." << endl;
     return false;
   }
@@ -290,8 +287,7 @@ bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 {
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "The noise density of magnetometer hard-iron bias process must be non-negative." << endl;
     return false;
   }
@@ -302,8 +298,7 @@ bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 {
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "The noise density of magnetometer soft-iron bias process must be non-negative." << endl;
     return false;
   }
@@ -314,8 +309,7 @@ bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 {
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "The noise density of gravity process must be non-negative." << endl;
     return false;
   }
@@ -326,8 +320,7 @@ bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 
 bool ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_W)
 {
-  if (mag_W.norm() <= 0.)
-  {
+  if (mag_W.norm() <= 0.) {
     cerr << "The norm of reference magnetic field must be positive." << endl;
     return false;
   }
@@ -354,8 +347,7 @@ double ErrorStateKalmanFilter::measureIMU(
   t_last_imu_ = time;
 
   // クオータニオンの正規化のためにdt = 0を許容できない
-  if (dt <= 0)
-  {
+  if (dt <= 0) {
     cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << endl;
     return INFINITY;
   }
@@ -377,8 +369,9 @@ double ErrorStateKalmanFilter::measureIMU(
 
   // (260) ノミナル状態のキネマティクス
   x_.segment<3>(kPosIdx) += vel_W * dt;
-  if (enable_second_integral_)
+  if (enable_second_integral_) {
     x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * dt2;  // XXX: 積分誤差増大リスクあり
+  }
   x_.segment<3>(kVelIdx) += acc_grav_W * dt;
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(q * delta_q);
 
@@ -414,20 +407,17 @@ double ErrorStateKalmanFilter::measureIMU(
   // 自由落下中もしくは加速度が大きすぎる場合は全く姿勢を反映していない恐れがあるため，重力方向の観測を行うのはその間の加速度に限る．
   const auto acc_norm = acc_meas.norm();
   const auto gravity = getGravity(x_);
-  if (acc_norm < kDoMeasGravMinGValue * gravity)
-  {
+  if (acc_norm < kDoMeasGravMinGValue * gravity) {
     cerr << "Attitude correction cannot be performed because accel norm is lower than " << kDoMeasGravMinGValue << "G. "
          << endl;
     return INFINITY;
   }
-  else if (acc_norm > kDoMeasGravMaxGValue * gravity)
-  {
+  else if (acc_norm > kDoMeasGravMaxGValue * gravity) {
     cerr << "Attitude correction cannot be performed because accel norm is greater than " << kDoMeasGravMaxGValue
          << "G. " << endl;
     return INFINITY;
   }
-  else
-  {
+  else {
     return measureGravity(acc_meas, grav_cov, time);
   }
 }
@@ -550,8 +540,7 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
   const Matrix3d& mag_cov,
   const steady_clock::time_point& time)
 {
-  if (mag_W_.norm() == 0.)
-  {
+  if (mag_W_.norm() == 0.) {
     cerr << "Reference magnetic field is not set." << endl;
     return INFINITY;
   }
@@ -583,8 +572,7 @@ double ErrorStateKalmanFilter::measureMagneticFieldYaw(
   const Matrix3d& mag_cov,
   const steady_clock::time_point& time)
 {
-  if (mag_W_.norm() == 0.)
-  {
+  if (mag_W_.norm() == 0.) {
     cerr << "Reference magnetic field is not set." << endl;
     return INFINITY;
   }
@@ -655,8 +643,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   const auto SA2 = SA0 * q.w() + SA1 * q.x();
   const auto SA3 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
   double SA4, SA5_inv;
-  if (math::sqr(SA3) > kEpsilon)
-  {
+  if (math::sqr(SA3) > kEpsilon) {
     SA4 = 1 / math::sqr(SA3);
     SA5_inv = math::sqr(SA2) * SA4 + 1;
     can_use_A = fabs(SA5_inv) > kEpsilon;
@@ -668,8 +655,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   const auto SB2 = SB0 * q.z() + SB1 * q.y();
   const auto SB4 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
   double SB3, SB5_inv;
-  if (math::sqr(SB2) > kEpsilon)
-  {
+  if (math::sqr(SB2) > kEpsilon) {
     SB3 = 1 / math::sqr(SB2);
     SB5_inv = SB3 * math::sqr(SB4) + 1;
     can_use_B = fabs(SB5_inv) > kEpsilon;
@@ -677,8 +663,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
 
   // Compute output matrix
   RowVector4d H;
-  if (can_use_A && (!can_use_B || fabs(SA5_inv) >= fabs(SB5_inv)))
-  {
+  if (can_use_A && (!can_use_B || fabs(SA5_inv) >= fabs(SB5_inv))) {
     const auto SA5 = 1 / SA5_inv;
     const auto SA6 = 1 / SA3;
     const auto SA7 = SA2 * SA4;
@@ -690,8 +675,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
     H(2) = SA5 * (SA1 * SA7 + SA9 * q.x());
     H(3) = SA5 * (SA0 * SA7 + SA9 * q.w());
   }
-  else if (can_use_B && (!can_use_A || fabs(SB5_inv) > fabs(SA5_inv)))
-  {
+  else if (can_use_B && (!can_use_A || fabs(SB5_inv) > fabs(SA5_inv))) {
     const auto SB5 = 1 / SB5_inv;
     const auto SB6 = 1 / SB2;
     const auto SB7 = SB3 * SB4;
@@ -703,8 +687,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
     H(2) = -SB5 * (-SB1 * SB7 - SB9 * q.y());
     H(3) = -SB5 * (-SB0 * SB7 - SB9 * q.z());
   }
-  else
-  {
+  else {
     cerr << "Unable to compute the output matrix of yaw_pred angle observation." << endl;
     return RowVector4d::Zero();
   }
@@ -723,26 +706,30 @@ void ErrorStateKalmanFilter::applyConstraints()
   x_.segment<4>(kQuatIdx) = getHamilton().normalized();
 
   // 事前知識を用いて状態の範囲を制限
-  if (acc_bias_proc_noise_density_ > 0.)
+  if (acc_bias_proc_noise_density_ > 0.) {
     x_.segment<3>(kAccBiasIdx) = getAccelBias().cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
-  if (gyro_bias_proc_noise_density_ > 0.)
+  }
+  if (gyro_bias_proc_noise_density_ > 0.) {
     x_.segment<3>(kGyroBiasIdx) = getGyroBias().cwiseMax(-kMaxGyroBias).cwiseMin(kMaxGyroBias);
-  if (mag_hard_bias_proc_noise_density_ > 0.)
+  }
+  if (mag_hard_bias_proc_noise_density_ > 0.) {
     x_.segment<3>(kMagHardBiasIdx) = getMagHardBias().cwiseMax(-kMaxMagHardBias).cwiseMin(kMaxMagHardBias);
-  if (grav_proc_noise_density_ > 0.)
+  }
+  if (grav_proc_noise_density_ > 0.) {
     x_(kGravIdx) = clamp(getGravity(), kMinGravity, kMaxGravity);
+  }
 
   // 地磁気のソフトバイアスは正定値対称
-  if (mag_soft_bias_proc_noise_density_)
-  {
+  if (mag_soft_bias_proc_noise_density_) {
     const auto T = getMagSoftBias();
     const auto T_positive = eigen::nearestPositiveDefinite(T, kMinMagSoftBiasEigenValue);
     setMagSoftBiasFromMatrix(T_positive);
   }
 
   // 共分散行列は対称行列でなければならない
-  if (enable_cov_symmetrisation_)
+  if (enable_cov_symmetrisation_) {
     eigen::symmetrise(P_);
+  }
 }
 
 void ErrorStateKalmanFilter::resetStateHistory()

@@ -11,8 +11,7 @@ namespace tobas
 {
 string textFromEnum(propulsion_system_t cmd_iface)
 {
-  switch (cmd_iface)
-  {
+  switch (cmd_iface) {
     case propulsion_system_t::ELECTRIC:
       return ELECTRIC_TEXT;
     case propulsion_system_t::ICE:
@@ -24,18 +23,15 @@ string textFromEnum(propulsion_system_t cmd_iface)
 
 bool enumFromText(const string& text, propulsion_system_t& dst)
 {
-  if (text == ELECTRIC_TEXT)
-  {
+  if (text == ELECTRIC_TEXT) {
     dst = tobas::propulsion_system_t::ELECTRIC;
     return true;
   }
-  else if (text == ICE_TEXT)
-  {
+  else if (text == ICE_TEXT) {
     dst = tobas::propulsion_system_t::ICE;
     return true;
   }
-  else
-  {
+  else {
     cerr << "Invalid propulsion system type: " << text << endl;
     return false;
   }
@@ -53,8 +49,9 @@ Node convert<tobas::propulsion_system_t>::encode(const tobas::propulsion_system_
 
 bool convert<tobas::propulsion_system_t>::decode(const Node& node, tobas::propulsion_system_t& rhs)
 {
-  if (!node.IsScalar())
+  if (!node.IsScalar()) {
     return false;
+  }
 
   return tobas::enumFromText(node.as<string>(), rhs);
 }

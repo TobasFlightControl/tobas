@@ -43,8 +43,7 @@ DynamicParamClient::error_t DynamicParamClient::errorCode() const
 
 const char* DynamicParamClient::errorMessage() const
 {
-  switch (error_code_)
-  {
+  switch (error_code_) {
     case E_NO_ERROR:
       return "";
     case E_SERVICE_NOT_READY:

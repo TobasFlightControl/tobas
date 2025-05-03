@@ -151,8 +151,7 @@ public:
   {
     position_[index] = value;
     const JointModel* jm = robot_model_->getJointOfVariable(index);
-    if (jm)
-    {
+    if (jm) {
       markDirtyJointTransforms(jm);
       updateMimicJoint(jm);
     }
@@ -400,8 +399,7 @@ public:
 
   /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown.
    * Additionally, \e missing_variables is filled with the names of the variables that are not set. */
-  void
-  setVariableEffort(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
+  void setVariableEffort(const std::map<std::string, double>& variable_map, std::vector<std::string>& missing_variables);
 
   /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown. */
   void
@@ -512,8 +510,9 @@ public:
   void setJointGroupPositions(const std::string& joint_group_name, const double* gstate)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       setJointGroupPositions(jmg, gstate);
+    }
   }
 
   /* Given positions for the variables that make up a group, in the order found in the group (including values
@@ -521,8 +520,7 @@ public:
   void setJointGroupPositions(const std::string& joint_group_name, const std::vector<double>& gstate)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
-    {
+    if (jmg) {
       assert(gstate.size() == jmg->getVariableCount());
       setJointGroupPositions(jmg, &gstate[0]);
     }
@@ -545,8 +543,7 @@ public:
   void setJointGroupPositions(const std::string& joint_group_name, const Eigen::VectorXd& values)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
-    {
+    if (jmg) {
       assert(values.size() == jmg->getVariableCount());
       setJointGroupPositions(jmg, values);
     }
@@ -567,8 +564,7 @@ public:
   void setJointGroupActivePositions(const std::string& joint_group_name, const std::vector<double>& gstate)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
-    {
+    if (jmg) {
       assert(gstate.size() == jmg->getActiveVariableCount());
       setJointGroupActivePositions(jmg, gstate);
     }
@@ -585,8 +581,7 @@ public:
   void setJointGroupActivePositions(const std::string& joint_group_name, const Eigen::VectorXd& values)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
-    {
+    if (jmg) {
       assert(values.size() == jmg->getActiveVariableCount());
       setJointGroupActivePositions(jmg, values);
     }
@@ -598,8 +593,7 @@ public:
   void copyJointGroupPositions(const std::string& joint_group_name, std::vector<double>& gstate) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
-    {
+    if (jmg) {
       gstate.resize(jmg->getVariableCount());
       copyJointGroupPositions(jmg, &gstate[0]);
     }
@@ -611,8 +605,9 @@ public:
   void copyJointGroupPositions(const std::string& joint_group_name, double* gstate) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       copyJointGroupPositions(jmg, gstate);
+    }
   }
 
   /* For a given group, copy the position values of the variables that make up the group into another location,
@@ -635,8 +630,9 @@ public:
   void copyJointGroupPositions(const std::string& joint_group_name, Eigen::VectorXd& values) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       copyJointGroupPositions(jmg, values);
+    }
   }
 
   /* For a given group, copy the position values of the variables that make up the group into another location,
@@ -649,8 +645,9 @@ public:
   void setJointGroupVelocities(const std::string& joint_group_name, const double* gstate)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       setJointGroupVelocities(jmg, gstate);
+    }
   }
 
   /* Given velocities for the variables that make up a group, in the order found in the group (including values
@@ -658,8 +655,9 @@ public:
   void setJointGroupVelocities(const std::string& joint_group_name, const std::vector<double>& gstate)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       setJointGroupVelocities(jmg, &gstate[0]);
+    }
   }
 
   /* Given velocities for the variables that make up a group, in the order found in the group (including values
@@ -678,8 +676,9 @@ public:
   void setJointGroupVelocities(const std::string& joint_group_name, const Eigen::VectorXd& values)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       setJointGroupVelocities(jmg, values);
+    }
   }
 
   /* Given velocities for the variables that make up a group, in the order found in the group (including values
@@ -692,8 +691,7 @@ public:
   void copyJointGroupVelocities(const std::string& joint_group_name, std::vector<double>& gstate) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
-    {
+    if (jmg) {
       gstate.resize(jmg->getVariableCount());
       copyJointGroupVelocities(jmg, &gstate[0]);
     }
@@ -705,8 +703,9 @@ public:
   void copyJointGroupVelocities(const std::string& joint_group_name, double* gstate) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       copyJointGroupVelocities(jmg, gstate);
+    }
   }
 
   /* For a given group, copy the velocity values of the variables that make up the group into another location,
@@ -729,8 +728,9 @@ public:
   void copyJointGroupVelocities(const std::string& joint_group_name, Eigen::VectorXd& values) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       copyJointGroupVelocities(jmg, values);
+    }
   }
 
   /* For a given group, copy the velocity values of the variables that make up the group into another location,
@@ -743,8 +743,9 @@ public:
   void setJointGroupAccelerations(const std::string& joint_group_name, const double* gstate)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       setJointGroupAccelerations(jmg, gstate);
+    }
   }
 
   /* Given accelerations for the variables that make up a group, in the order found in the group (including
@@ -752,8 +753,9 @@ public:
   void setJointGroupAccelerations(const std::string& joint_group_name, const std::vector<double>& gstate)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       setJointGroupAccelerations(jmg, &gstate[0]);
+    }
   }
 
   /* Given accelerations for the variables that make up a group, in the order found in the group (including
@@ -772,8 +774,9 @@ public:
   void setJointGroupAccelerations(const std::string& joint_group_name, const Eigen::VectorXd& values)
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       setJointGroupAccelerations(jmg, values);
+    }
   }
 
   /* Given accelerations for the variables that make up a group, in the order found in the group (including
@@ -786,8 +789,7 @@ public:
   void copyJointGroupAccelerations(const std::string& joint_group_name, std::vector<double>& gstate) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
-    {
+    if (jmg) {
       gstate.resize(jmg->getVariableCount());
       copyJointGroupAccelerations(jmg, &gstate[0]);
     }
@@ -799,8 +801,9 @@ public:
   void copyJointGroupAccelerations(const std::string& joint_group_name, double* gstate) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       copyJointGroupAccelerations(jmg, gstate);
+    }
   }
 
   /* For a given group, copy the acceleration values of the variables that make up the group into another
@@ -823,8 +826,9 @@ public:
   void copyJointGroupAccelerations(const std::string& joint_group_name, Eigen::VectorXd& values) const
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
-    if (jmg)
+    if (jmg) {
       copyJointGroupAccelerations(jmg, values);
+    }
   }
 
   /* For a given group, copy the acceleration values of the variables that make up the group into another
@@ -1124,10 +1128,12 @@ public:
 
   void setVariableValues(const sensor_msgs::msg::JointState& msg)
   {
-    if (!msg.position.empty())
+    if (!msg.position.empty()) {
       setVariablePositions(msg.name, msg.position);
-    if (!msg.velocity.empty())
+    }
+    if (!msg.velocity.empty()) {
       setVariableVelocities(msg.name, msg.velocity);
+    }
   }
 
   /* Set all joints to their default positions.
@@ -1141,12 +1147,10 @@ public:
   bool setToDefaultValues(const std::string& group_name, const std::string& state_name)
   {
     const JointModelGroup* jmg = getJointModelGroup(group_name);
-    if (jmg)
-    {
+    if (jmg) {
       return setToDefaultValues(jmg, state_name);
     }
-    else
-    {
+    else {
       return false;
     }
   }
@@ -1185,10 +1189,8 @@ public:
    * corresponding value in \e seed.  \distance represents meters for
    * prismatic/positional joints and radians for revolute/orientation joints.
    * Resulting values are clamped within default bounds. */
-  void setToRandomPositionsNearBy(
-    const JointModelGroup* group,
-    const RobotState& seed,
-    const std::vector<double>& distances);
+  void
+  setToRandomPositionsNearBy(const JointModelGroup* group, const RobotState& seed, const std::vector<double>& distances);
 
   /* Set all joints in \e group to random values near the value in \e seed, using a specified random number
    * generator. \e distances \b MUST have the same size as \c group.getActiveJointModels().  Each value in \e distances
@@ -1253,8 +1255,7 @@ public:
 
   const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel* link)
   {
-    if (!link)
-    {
+    if (!link) {
       throw Exception("Invalid link");
     }
     updateLinkTransforms();
@@ -1268,8 +1269,7 @@ public:
 
   const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel* link) const
   {
-    if (!link)
-    {
+    if (!link) {
       throw Exception("Invalid link");
     }
     assert(checkLinkTransforms());
@@ -1396,8 +1396,9 @@ public:
   void enforceBounds(const JointModel* joint)
   {
     enforcePositionBounds(joint);
-    if (has_velocity_)
+    if (has_velocity_) {
       enforceVelocityBounds(joint);
+    }
   }
   void enforcePositionBounds(const JointModel* joint);
 
@@ -1559,8 +1560,9 @@ public:
   /* Return the instance of a random number generator */
   random_numbers::RandomNumberGenerator& getRandomNumberGenerator()
   {
-    if (!rng_)
+    if (!rng_) {
       rng_ = std::make_unique<random_numbers::RandomNumberGenerator>();
+    }
     return *rng_;
   }
 
@@ -1691,8 +1693,9 @@ private:
 
   void markDirtyJointTransforms(const JointModelGroup* group)
   {
-    for (const JointModel* jm : group->getActiveJointModels())
+    for (const JointModel* jm : group->getActiveJointModels()) {
       dirty_joint_transforms_[jm->getJointIndex()] = 1;
+    }
     dirty_link_transforms_ = dirty_link_transforms_ == nullptr ?
                                group->getCommonRoot() :
                                robot_model_->getCommonRoot(dirty_link_transforms_, group->getCommonRoot());

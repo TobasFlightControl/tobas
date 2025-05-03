@@ -138,47 +138,57 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   // Get robot model
   gz::sim::Model model(model_entity);
-  if (!model.Valid(ecm))
+  if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
+  }
 
   // Get joint
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
-  if (!joint_entity.has_value())
+  if (!joint_entity.has_value()) {
     TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
+  }
   joint_ = make_shared<gz::sim::Joint>(joint_entity.value());
-  if (!joint_->Valid(ecm))
+  if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
+  }
 
   // Get joint name
   const auto joint_name = joint_->Name(ecm).value();
 
   // Check joint type
   const auto joint_type = joint_->Type(ecm).value();
-  if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE)
+  if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
     TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
+  }
 
   // Get child link
   const auto link_entity = model.LinkByName(ecm, link_name_);
   link_ = make_shared<gz::sim::Link>(link_entity);
-  if (!link_->Valid(ecm))
+  if (!link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
+  }
 
   // Get parent link
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
   parent_link_ = make_shared<gz::sim::Link>(parent_link_entity);
-  if (!parent_link_->Valid(ecm))
+  if (!parent_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
+  }
 
   // Create necessary components
-  if (!getComponent<cmp::JointAxis>(joint_entity.value(), ecm))
+  if (!getComponent<cmp::JointAxis>(joint_entity.value(), ecm)) {
     TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name, "\".");
-  if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm))
+  }
+  if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm)) {
     TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name, "\".");
-  if (!getComponent<cmp::WorldPose>(link_entity, ecm))
+  }
+  if (!getComponent<cmp::WorldPose>(link_entity, ecm)) {
     TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name_, "\".");
-  if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))
+  }
+  if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm)) {
     TOBAS_EXIT("Failed to get component WorldLinearVelocity of link \"", link_name_, "\".");
+  }
 
   // Register ROS interfaces
   registerROSInterfaces();
@@ -196,8 +206,9 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   getSdfParam(sdf, "momentConstant", moment_const_, POSITIVE);
   getSdfParam(sdf, "dragConstant", drag_const_, NON_NEGATIVE);
 
-  if (!getTurningDirection(sdf, direction_))
+  if (!getTurningDirection(sdf, direction_)) {
     TOBAS_EXIT("Failed to get turning direction.");
+  }
 
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
@@ -214,24 +225,26 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   prev_sim_time_ = info.simTime;
 
   // Check topics
-  if (!battery_gt_)
-  {
-    if (info.simTime > kWarnStartTime)
+  if (!battery_gt_) {
+    if (info.simTime > kWarnStartTime) {
       TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
+    }
     return;
   }
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
-  if (secs_from_last_cmd > kAutoStopTimeout)
+  if (secs_from_last_cmd > kAutoStopTimeout) {
     throttle_ = 0.;
+  }
 
   // Compute time after previous simulation time
   const auto dt = duration<double>(info.dt).count();
 
   // Check aliasing
-  if (fabs(velocitySim() * dt) > M_PI)
+  if (fabs(velocitySim() * dt) > M_PI) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
+  }
 
   // Update simulation state
   applyWrenchAndPublishState(ecm, info.simTime);
@@ -306,8 +319,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto current = torque / kt;
 
   // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
-  if (current > max_current_)
-  {
+  if (current > max_current_) {
     TOBAS_ERROR(
       "The ESC of rotor \"", link_name_, "\" is critically damaged due to an overcurrent of ", current,
       " A, which exceeded its maximum current capacity of ", max_current_, " A.");
@@ -316,18 +328,15 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   }
 
   // Publish observed state
-  if (publish_state_rate_manager_->update(cur_time))
-  {
+  if (publish_state_rate_manager_->update(cur_time)) {
     auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
     state_msg_obs->link_name = link_name_;
-    if (is_intact_)
-    {
+    if (is_intact_) {
       state_msg_obs->speed = direction_ * velocity_;
       state_msg_obs->thrust = thrust;
       state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
     }
-    else
-    {
+    else {
       state_msg_obs->speed = NAN;
       state_msg_obs->thrust = NAN;
       state_msg_obs->status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
@@ -358,20 +367,19 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
 
   // 次の時刻の回転数を求める
   double next_speed;
-  if (cur_speed < 1e-3)
-  {
+  if (cur_speed < 1e-3) {
     // モータの慣性モーメントを無視していることにより，現在の回転数が0のときは理論上ゼロ時間で平衡点に収束する．
     next_speed = eq_speed;
   }
-  else
-  {
+  else {
     // 次のステップの回転数を計算
     const auto speed_rate = (Ea / cur_speed - b * cur_speed - c) / a;
     next_speed = cur_speed + speed_rate * dt;
 
     // 速度変化が大きすぎるなどして平衡点を飛び越えている場合は平衡点に拘束する
-    if ((cur_speed - eq_speed) * (next_speed - eq_speed) < 0)
+    if ((cur_speed - eq_speed) * (next_speed - eq_speed) < 0) {
       next_speed = eq_speed;
+    }
   }
 
   // ジョイントの状態を更新
@@ -382,23 +390,25 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   joint_->SetVelocity(ecm, { velocitySim() });
 }
 
-void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(
-  const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle)
+void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle)
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
-  if (!battery_gt_ || battery_gt_->voltage < kMinBatteryVoltage)
+  if (!battery_gt_ || battery_gt_->voltage < kMinBatteryVoltage) {
     return;
+  }
 
   // 壊れていたら応答なし
-  if (!is_intact_)
+  if (!is_intact_) {
     return;
+  }
 
   // 最後にコマンドを受け取った時刻を更新
   last_cmd_time_ = prev_sim_time_;
 
   // 範囲を制限してスロットルを更新
-  if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data)
+  if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data) {
     TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
+  }
   throttle_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
@@ -416,14 +426,12 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
   const BreakSrv::Request::ConstSharedPtr&,
   const BreakSrv::Response::SharedPtr& res)
 {
-  if (is_intact_)
-  {
+  if (is_intact_) {
     is_intact_ = false;
     throttle_ = 0.;
     res->message = "Rotor \"" + link_name_ + "\" has been broken.";
   }
-  else
-  {
+  else {
     res->message = "Rotor \"" + link_name_ + "\" is already broken.";
   }
 

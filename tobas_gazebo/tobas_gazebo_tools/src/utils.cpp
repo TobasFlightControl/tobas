@@ -8,12 +8,15 @@ namespace gazebo
 bool belongsTo(const gz::sim::Entity& entity, const gz::sim::Entity& target, const gz::sim::EntityComponentManager& ecm)
 {
   const auto parent = ecm.ParentEntity(entity);
-  if (parent == gz::sim::kNullEntity)
+  if (parent == gz::sim::kNullEntity) {
     return false;
-  else if (parent == target)
+  }
+  else if (parent == target) {
     return true;
-  else
+  }
+  else {
     return belongsTo(parent, target, ecm);
+  }
 }
 
 optional<gz::sim::Entity> findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const string& link_name)
@@ -23,8 +26,7 @@ optional<gz::sim::Entity> findJointWithChildLink(const gz::sim::EntityComponentM
   ecm.Each<cmp::Joint, cmp::ChildLinkName>(
     [&](const gz::sim::Entity& entity, const cmp::Joint*, const cmp::ChildLinkName* child_link_name) -> bool
     {
-      if (child_link_name->Data() == link_name)
-      {
+      if (child_link_name->Data() == link_name) {
         res = entity;
         return false;
       }

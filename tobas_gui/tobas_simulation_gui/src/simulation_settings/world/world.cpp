@@ -27,8 +27,7 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   const auto ckb_group = new QButtonGroup(this);
   ckb_group->setExclusive(true);
 
-  for (const auto& widget : widgets_)
-  {
+  for (const auto& widget : widgets_) {
     rows->addWidget(widget);
     ckb_group->addButton(widget->checkbox);
     widget->setContentsEnabled(false);
@@ -45,9 +44,11 @@ fs::path WorldWidget::worldPath() const
 
 const WorldWidget_Base* WorldWidget::selected() const
 {
-  for (const auto& widget : widgets_)
-    if (widget->isChecked())
+  for (const auto& widget : widgets_) {
+    if (widget->isChecked()) {
       return widget;
+    }
+  }
 
   throw std::runtime_error("No method is selected.");
 }

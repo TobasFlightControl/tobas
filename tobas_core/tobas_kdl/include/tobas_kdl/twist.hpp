@@ -25,7 +25,7 @@ public:
   inline explicit Twist();
   inline explicit Twist(const Vector& vel, const Vector& rot);
 
-  inline static Twist Zero();
+  static inline Twist Zero();
 
   inline void setZero();
 

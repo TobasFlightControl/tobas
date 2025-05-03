@@ -56,8 +56,7 @@ private:
 PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
 {
   const auto file_path = getStringParam("file_path", "~/.config/tobas/config.json");
-  if (!pt_.initialize(ros2::expandUser(file_path.c_str())))
-  {
+  if (!pt_.initialize(ros2::expandUser(file_path.c_str()))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
@@ -78,13 +77,11 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
 template <typename SrvType>
 void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  if (pt_.get(keyWithSection(req->section, req->key), res->value))
-  {
+  if (pt_.get(keyWithSection(req->section, req->key), res->value)) {
     res->success = true;
     res->message = "";
   }
-  else
-  {
+  else {
     res->success = false;
     res->message = "Failed to get " + req->key + " in section " + req->section + ".";
   }
@@ -101,8 +98,7 @@ void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const Sr
 
 void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
 {
-  if (!pt_.save())
-  {
+  if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save properties to \"" + pt_.filePath().string() + "\".";
   }

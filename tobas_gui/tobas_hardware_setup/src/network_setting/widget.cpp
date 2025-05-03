@@ -93,8 +93,7 @@ void NetworkSettingWidget::onWriteButtonClicked()
 {
   // WPA Parserにテーブルの内容を反映
   wpa_parser_.networks.clear();
-  for (int row = 0; row < table_->rowCount(); ++row)
-  {
+  for (int row = 0; row < table_->rowCount(); ++row) {
     wpa_parser_.networks.emplace_back();
     wpa_parser_.networks.back().ssid = table_->item(row, kSSIDCol)->text().toStdString();
     wpa_parser_.networks.back().psk = table_->item(row, kPSKCol)->text().toStdString();
@@ -116,8 +115,9 @@ void NetworkSettingWidget::onAddButtonClicked()
 void NetworkSettingWidget::onRemoveButtonClicked()
 {
   const auto row = table_->currentRow();
-  if (row >= 0)
+  if (row >= 0) {
     table_->removeRow(row);
+  }
 }
 
 void NetworkSettingWidget::onReadThreadFinished(bool success, const QString& message)
@@ -125,23 +125,22 @@ void NetworkSettingWidget::onReadThreadFinished(bool success, const QString& mes
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     return;
   }
 
   // テキストを解析
-  if (!wpa_parser_.parseFromText(read_thread_.getText()))
-  {
+  if (!wpa_parser_.parseFromText(read_thread_.getText())) {
     qt::qErrorBox(this, "Failed to parse network configuration.");
     return;
   }
 
   // 現在の設定をテーブルに反映
   table_->removeAll();
-  for (const auto& network : wpa_parser_.networks)
+  for (const auto& network : wpa_parser_.networks) {
     addRow(network.ssid, network.psk);
+  }
 
   // 編集用ボタンを有効化
   write_button_->setEnabled(true);
@@ -156,8 +155,7 @@ void NetworkSettingWidget::onWriteThreadFinished(bool success, const QString& me
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     return;
   }

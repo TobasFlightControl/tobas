@@ -53,8 +53,7 @@ void RobotStateVisualization::clear()
   robot_.clear();
 }
 
-void RobotStateVisualization::setDefaultAttachedObjectColor(
-  const std_msgs::msg::ColorRGBA& default_attached_object_color)
+void RobotStateVisualization::setDefaultAttachedObjectColor(const std_msgs::msg::ColorRGBA& default_attached_object_color)
 {
   default_attached_object_color_ = default_attached_object_color;
 }
@@ -95,30 +94,25 @@ void RobotStateVisualization::updateHelper(
 
   std::vector<const AttachedBody*> attached_bodies;
   robot_state->getAttachedBodies(attached_bodies);
-  for (const AttachedBody* attached_body : attached_bodies)
-  {
+  for (const AttachedBody* attached_body : attached_bodies) {
     std_msgs::msg::ColorRGBA color = default_attached_object_color;
     double alpha = robot_.getAlpha();
-    if (color_map)
-    {
+    if (color_map) {
       std::map<std::string, std_msgs::msg::ColorRGBA>::const_iterator it = color_map->find(attached_body->getName());
-      if (it != color_map->end())
-      {
+      if (it != color_map->end()) {
         color = it->second;
         alpha = color.a;
       }
     }
     rviz_default_plugins::robot::RobotLink* link = robot_.getLink(attached_body->getAttachedLinkName());
-    if (!link)
-    {
+    if (!link) {
       RCLCPP_ERROR_STREAM(getLogger(), "Link " << attached_body->getAttachedLinkName() << " not found in rviz::Robot");
       continue;
     }
     Ogre::ColourValue rcolor(color.r, color.g, color.b, color.a);
     const EigenSTL::vector_Isometry3d& ab_t = attached_body->getShapePosesInLinkFrame();
     const std::vector<shapes::ShapeConstPtr>& ab_shapes = attached_body->getShapes();
-    for (std::size_t j = 0; j < ab_shapes.size(); ++j)
-    {
+    for (std::size_t j = 0; j < ab_shapes.size(); ++j) {
       render_shapes_->renderShape(
         link->getVisualNode(), ab_shapes[j].get(), ab_t[j], octree_voxel_render_mode_, octree_voxel_color_mode_, rcolor,
         alpha);

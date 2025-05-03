@@ -76,10 +76,12 @@ inline const Welford<Scalar, Size>::DataType& Welford<Scalar, Size>::mean() cons
 template <typename Scalar, int Size>
 inline Welford<Scalar, Size>::CovType Welford<Scalar, Size>::variance() const
 {
-  if (n_ > 0)
+  if (n_ > 0) {
     return var_n_ / n_;
-  else
+  }
+  else {
     return CovType::Zero();
+  }
 }
 
 template <typename Scalar, int Size>

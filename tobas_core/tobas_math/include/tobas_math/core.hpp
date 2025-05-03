@@ -6,28 +6,28 @@ namespace math
 {
 /* 2乗する． */
 template <typename T>
-constexpr inline T sqr(const T& x)
+inline constexpr T sqr(const T& x)
 {
   return x * x;
 }
 
 /* 3乗する． */
 template <typename T>
-constexpr inline T cube(const T& x)
+inline constexpr T cube(const T& x)
 {
   return x * x * x;
 }
 
 /* 4乗する． */
 template <typename T>
-constexpr inline T quat(const T& x)
+inline constexpr T quat(const T& x)
 {
   return sqr(sqr(x));
 }
 
 /* 符号を返す．正なら+1，負なら-1，ゼロなら0． */
 template <typename T>
-constexpr inline int sign(const T& x)
+inline constexpr int sign(const T& x)
 {
   return (x > 0) - (x < 0);
 }
@@ -61,14 +61,17 @@ T wrap(T x, T n)
   x += n;
 
   // x を [-2n, 2n) の範囲に変換
-  if constexpr (std::is_floating_point<T>::value)
+  if constexpr (std::is_floating_point<T>::value) {
     x = fmod(x, n2);
-  else
+  }
+  else {
     x = x % n2;
+  }
 
   // x が負の場合は範囲を補正
-  if (x < 0)
+  if (x < 0) {
     x += n2;
+  }
 
   // [0, 2n) から [-n, n) へ変換
   // 同時に最初に足した半周期を相殺する

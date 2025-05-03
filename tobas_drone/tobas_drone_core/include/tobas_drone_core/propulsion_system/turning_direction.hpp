@@ -14,10 +14,9 @@ std::string textFromEnum(turning_direction_t interface);
 bool enumFromText(const std::string& text, turning_direction_t& dst);
 
 /* CCW = 1, CW = -1 */
-constexpr inline int sign(turning_direction_t direction)
+inline constexpr int sign(turning_direction_t direction)
 {
-  switch (direction)
-  {
+  switch (direction) {
     case turning_direction_t::CCW:
       return 1;
     case turning_direction_t::CW:

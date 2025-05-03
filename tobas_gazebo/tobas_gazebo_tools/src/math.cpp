@@ -7,8 +7,9 @@ namespace gazebo
 Quaterniond quaternionFromAngleAxis(const Vector3d& w)
 {
   const auto angle = w.Length();
-  if (angle < 1e-9)
+  if (angle < 1e-9) {
     return Quaterniond::Identity;
+  }
 
   const auto axis = w.Normalized();
   const auto mag = sin(angle / 2);
