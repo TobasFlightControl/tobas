@@ -6,7 +6,9 @@ namespace tobas
 {
 namespace my_namespace
 {
-/* This is a short description that fits on a single line. */
+/**
+ * @brief This is a short description that fits on a single line.
+ */
 struct MyStruct
 {
   /* Public data member only */
@@ -68,13 +70,10 @@ public:
   int public_data_member;
 
 protected:
-  int protected_data_member_; /* Short variable comments can be written here if needed. */
+  int protected_data_member_;  // Variable comments can be written here if needed.
 
 private:
-  /**
-   * @brief Variable comments may also be written here,
-   * but only if they are long enough to span multiple lines.
-   */
+  // Variable comments can be written here if needed. 
   int private_data_member_;
 };
 

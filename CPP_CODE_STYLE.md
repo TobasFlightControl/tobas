@@ -26,6 +26,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ```
 
+## 拡張子
+
+- `.hpp`, `.cpp`のみ．
+
 ## ヘッダファイル
 
 - 以下の例外を除く全ての`.cpp`ファイルは同名の`.hpp`ファイルをもつ．つまり，複数のヘッダファイルの実装を 1 箇所にまとめてはならない．
@@ -71,7 +75,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - 意味を明確にするために`std::pair`や`std::tuple`ではなく`struct`を使う．
 - 継承には`public`をつける．
 - 演算子オーバーロードは意味が明確なときのみ可能．
-- メンバ変数は基本`private`．
+- メンバ変数は基本`private`で必要最小限のアクセッサを実装するのが望ましいが，正当な理由をコメントすれば他のアクセス権も認める．
 - アクセスグループの定義順
   1. public
   1. protected
@@ -159,17 +163,20 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ## コメント
 
-- クラスコメント: `/* */` or `/** @brief ... */`
-- 関数コメント: `/* */` or `/** @brief ... @param ... @return ... */`
-- 変数コメント: `/* */` or `/** @brief ... */`
-- 実装コメント: `//`
-- 一時的なコメントアウト: `//`
+- doc コメント (クラスコメント，関数コメント): `/** @brief ... */`
+- 変数コメント: `/* ... */` or `/** @brief ... */`
+- 実装コメント: `// ...`
+- 一時的なコメントアウト: `// ...`
 - ライセンスボイラープレートやヘッダ上部の説明文は不要 <!-- TODO: Add file comments: https://google.github.io/styleguide/cppguide.html#File_Comments -->
 - コメントは日本語でも構わない <!-- TODO: English only -->
 
 ## フォーマット
 
-- `.clang_format`に従う．
+- [.clang-format](./.clang-format) に従う．
+
+## その他
+
+- ネストされたテンプレートに空白を含めない: `set< list<string> >` -> `set<list<string>>`
 
 ## 参考
 
