@@ -23,12 +23,12 @@ namespace urdf_builder
 namespace ui
 {
 UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPanel* main)
-  : QDialog(main),
-    node_(node),
-    property_client_(node, tobas::kPropertyServerName, kPropertySection),
-    main_(main),
-    ui_(new Ui::UpdateLinkDialogUI()),
-    link_vm_(new view_model::LinkViewModel())
+  : QDialog(main)
+  , node_(node)
+  , property_client_(node, tobas::kPropertyServerName, kPropertySection)
+  , main_(main)
+  , ui_(new Ui::UpdateLinkDialogUI())
+  , link_vm_(new view_model::LinkViewModel())
 {
   ui_->setupUi(this);
 

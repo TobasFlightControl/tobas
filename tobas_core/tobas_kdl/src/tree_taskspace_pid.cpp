@@ -7,12 +7,12 @@ using namespace std;
 namespace kdl
 {
 TreeTaskSpacePID::TreeTaskSpacePID(const Tree& tree, const Vector& grav)
-  : super(tree),
-    fk_(tree),
-    rac_(tree),
-    rne_(tree, grav),
-    kp_(Vector::Constant(kDefaultStiffness), Vector::Constant(kDefaultStiffness)),
-    kd_(Vector::Constant(kDefaultDamping), Vector::Constant(kDefaultDamping))
+  : super(tree)
+  , fk_(tree)
+  , rac_(tree)
+  , rne_(tree, grav)
+  , kp_(Vector::Constant(kDefaultStiffness), Vector::Constant(kDefaultStiffness))
+  , kd_(Vector::Constant(kDefaultDamping), Vector::Constant(kDefaultDamping))
 {
 }
 

@@ -11,10 +11,10 @@ namespace gui
 namespace log
 {
 PosePlotWidget::PosePlotWidget()
-  : cur_pos_curves_{ "Current X", "Current Y", "Current Z" },
-    cur_rot_curves_{ "Current Roll", "Current Pitch", "Current Yaw" },
-    tar_pos_curves_{ "Target X", "Target Y", "Target Z" },
-    tar_rot_curves_{ "Target Roll", "Target Pitch", "Target Yaw" }
+  : cur_pos_curves_{ "Current X", "Current Y", "Current Z" }
+  , cur_rot_curves_{ "Current Roll", "Current Pitch", "Current Yaw" }
+  , tar_pos_curves_{ "Target X", "Target Y", "Target Z" }
+  , tar_rot_curves_{ "Target Roll", "Target Pitch", "Target Yaw" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);

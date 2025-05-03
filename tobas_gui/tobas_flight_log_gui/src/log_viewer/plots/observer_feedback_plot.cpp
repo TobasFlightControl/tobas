@@ -9,13 +9,13 @@ namespace gui
 namespace log
 {
 ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
-  : acc_bias_curves_{ "Accel Bias X", "Accel Bias Y", "Accel Bias Z" },
-    gyro_bias_curves_{ "Gyro Bias X", "Gyro Bias Y", "Gyro Bias Z" },
-    mag_hard_bias_curves_{ "Mag Hard-Iron Bias X", "Mag Hard-Iron Bias Y", "Mag Hard-Iron Bias Z" },
-    mag_soft_bias_curves_{ "Mag Soft-Iron Bias XX", "Mag Soft-Iron Bias YY", "Mag Soft-Iron Bias ZZ",
-                           "Mag Soft-Iron Bias XY", "Mag Soft-Iron Bias YZ", "Mag Soft-Iron Bias ZX" },
-    gravity_curve_("Gravity"),
-    gnss_anormaly_score_curve_("GNSS Anormaly Score")
+  : acc_bias_curves_{ "Accel Bias X", "Accel Bias Y", "Accel Bias Z" }
+  , gyro_bias_curves_{ "Gyro Bias X", "Gyro Bias Y", "Gyro Bias Z" }
+  , mag_hard_bias_curves_{ "Mag Hard-Iron Bias X", "Mag Hard-Iron Bias Y", "Mag Hard-Iron Bias Z" }
+  , mag_soft_bias_curves_{ "Mag Soft-Iron Bias XX", "Mag Soft-Iron Bias YY", "Mag Soft-Iron Bias ZZ",
+                           "Mag Soft-Iron Bias XY", "Mag Soft-Iron Bias YZ", "Mag Soft-Iron Bias ZX" }
+  , gravity_curve_("Gravity")
+  , gnss_anormaly_score_curve_("GNSS Anormaly Score")
 
 {
   acc_bias_plot_ = new QwtPlot2();

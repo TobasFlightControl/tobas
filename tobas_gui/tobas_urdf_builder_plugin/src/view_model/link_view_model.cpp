@@ -10,9 +10,9 @@ namespace urdf_builder
 namespace view_model
 {
 LinkViewModel::LinkViewModel(const urdf::LinkSharedPtr& model)
-  : BaseViewModel<urdf::Link, LinkViewModel>(model),
-    inertial_(make_shared<InertialViewModel>(model_->inertial)),
-    joint_(make_shared<JointViewModel>(model_->parent_joint))
+  : BaseViewModel<urdf::Link, LinkViewModel>(model)
+  , inertial_(make_shared<InertialViewModel>(model_->inertial))
+  , joint_(make_shared<JointViewModel>(model_->parent_joint))
 {
   for (const auto& visual : model_->visual_array) {
     visuals_.emplace_back(new VisualViewModel(visual));

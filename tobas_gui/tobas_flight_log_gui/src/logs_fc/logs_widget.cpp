@@ -20,11 +20,11 @@ namespace gui
 namespace log
 {
 FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
-  : read_thread_(node),
-    clean_thread_(node),
-    download_thread_(node),
-    delete_thread_(node),
-    spinner_(Qt::WindowModal, this)
+  : read_thread_(node)
+  , clean_thread_(node)
+  , download_thread_(node)
+  , delete_thread_(node)
+  , spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");

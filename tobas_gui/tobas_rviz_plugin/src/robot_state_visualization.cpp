@@ -22,12 +22,12 @@ RobotStateVisualization::RobotStateVisualization(
   rviz_common::DisplayContext* context,
   const std::string& name,
   rviz_common::properties::Property* parent_property)
-  : robot_(root_node, context, name, parent_property),
-    octree_voxel_render_mode_(OCTOMAP_OCCUPIED_VOXELS),
-    octree_voxel_color_mode_(OCTOMAP_Z_AXIS_COLOR),
-    visible_(true),
-    visual_visible_(true),
-    collision_visible_(false)
+  : robot_(root_node, context, name, parent_property)
+  , octree_voxel_render_mode_(OCTOMAP_OCCUPIED_VOXELS)
+  , octree_voxel_color_mode_(OCTOMAP_Z_AXIS_COLOR)
+  , visible_(true)
+  , visual_visible_(true)
+  , collision_visible_(false)
 {
   default_attached_object_color_.r = 0.0f;
   default_attached_object_color_.g = 0.7f;

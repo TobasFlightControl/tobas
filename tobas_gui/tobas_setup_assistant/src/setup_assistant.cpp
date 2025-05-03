@@ -11,9 +11,9 @@ namespace gui
 namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
-  : rotor_marker_publisher_(node, robot_, signals_),
-    rsp_client_(node, "robot_state_publisher"),
-    spinner_(Qt::WindowModal, this)
+  : rotor_marker_publisher_(node, robot_, signals_)
+  , rsp_client_(node, "robot_state_publisher")
+  , spinner_(Qt::WindowModal, this)
 {
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる

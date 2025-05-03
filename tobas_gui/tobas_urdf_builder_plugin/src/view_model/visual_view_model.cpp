@@ -8,9 +8,9 @@ namespace urdf_builder
 namespace view_model
 {
 VisualViewModel::VisualViewModel(const urdf::VisualSharedPtr& model)
-  : BaseViewModel<urdf::Visual, VisualViewModel>(model),
-    geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry)),
-    material_vm_(std::make_shared<MaterialViewModel>(model_->material))
+  : BaseViewModel<urdf::Visual, VisualViewModel>(model)
+  , geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry))
+  , material_vm_(std::make_shared<MaterialViewModel>(model_->material))
 {
   if (model_->name.empty()) {
     model_->name = "visual_" + std::to_string(utils::timeNowMilliseconds());

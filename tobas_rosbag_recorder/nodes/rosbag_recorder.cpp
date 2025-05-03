@@ -136,9 +136,9 @@ private:
 };
 
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
-  : super("rosbag_recorder", options),
-    ns_(string(get_namespace()) + "/"),
-    rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
+  : super("rosbag_recorder", options)
+  , ns_(string(get_namespace()) + "/")
+  , rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
 

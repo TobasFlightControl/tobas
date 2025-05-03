@@ -49,9 +49,9 @@ enum kinematic_error_t
 struct KinematicsQueryOptions
 {
   KinematicsQueryOptions()
-    : lock_redundant_joints(false),
-      return_approximate_solution(false),
-      discretization_method(discretization_method_t::NO_DISCRETIZATION)
+    : lock_redundant_joints(false)
+    , return_approximate_solution(false)
+    , discretization_method(discretization_method_t::NO_DISCRETIZATION)
   {
   }
 

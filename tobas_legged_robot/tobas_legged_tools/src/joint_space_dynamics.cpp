@@ -14,17 +14,17 @@ JointSpaceDynamics::JointSpaceDynamics(
   const kdl::Tree& tree,
   const vector<string>& foot_names,
   const string& floating_base_name)
-  : tree_raw_(tree),
-    foot_names_(foot_names),
-    floating_base_name_(floating_base_name),
-    nc_(foot_names.size()),
-    wrench_size_(kWrenchSize * nc_),
-    w_ref_(wrench_size_),
-    jac_solver_(tree_),
-    rne_(tree_),
-    mass_solver_(tree_),
-    inertia_solver_(tree_),
-    bb_solver_(tree_)
+  : tree_raw_(tree)
+  , foot_names_(foot_names)
+  , floating_base_name_(floating_base_name)
+  , nc_(foot_names.size())
+  , wrench_size_(kWrenchSize * nc_)
+  , w_ref_(wrench_size_)
+  , jac_solver_(tree_)
+  , rne_(tree_)
+  , mass_solver_(tree_)
+  , inertia_solver_(tree_)
+  , bb_solver_(tree_)
 {
   A1_.setZero();
   A1_(0, 2) = -1;

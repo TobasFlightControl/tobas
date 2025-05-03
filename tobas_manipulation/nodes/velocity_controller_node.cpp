@@ -81,12 +81,12 @@ private:
 };
 
 VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& options)
-  : super("velocity_controller", options),
-    jnt_parser_(tree_),
-    active_jnts_extractor_(tree_),
-    vel_ctrl_(tree_),
-    cur_js_conv_(tree_),
-    tar_js_conv_(tree_)
+  : super("velocity_controller", options)
+  , jnt_parser_(tree_)
+  , active_jnts_extractor_(tree_)
+  , vel_ctrl_(tree_)
+  , cur_js_conv_(tree_)
+  , tar_js_conv_(tree_)
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }

@@ -14,15 +14,15 @@ AttachedBody::AttachedBody(
   const std::set<std::string>& touch_links,
   const trajectory_msgs::msg::JointTrajectory& detach_posture,
   const FixedTransformsMap& subframe_poses)
-  : parent_link_model_(parent),
-    id_(id),
-    pose_(pose),
-    shapes_(shapes),
-    shape_poses_(shape_poses),
-    touch_links_(touch_links),
-    detach_posture_(detach_posture),
-    subframe_poses_(subframe_poses),
-    global_subframe_poses_(subframe_poses)
+  : parent_link_model_(parent)
+  , id_(id)
+  , pose_(pose)
+  , shapes_(shapes)
+  , shape_poses_(shape_poses)
+  , touch_links_(touch_links)
+  , detach_posture_(detach_posture)
+  , subframe_poses_(subframe_poses)
+  , global_subframe_poses_(subframe_poses)
 {
   ASSERT_ISOMETRY(pose)  // unsanitized input, could contain a non-isometry
   for (const auto& t : shape_poses_) {

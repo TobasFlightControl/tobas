@@ -9,12 +9,12 @@ namespace gui
 namespace log
 {
 GnssPlotWidget::GnssPlotWidget()
-  : latitude_curve_("Latitude"),
-    longitude_curve_("Longitude"),
-    altitude_curve_("Altitude"),
-    north_speed_curve_("North Speed"),
-    west_speed_curve_("West Speed"),
-    up_speed_curve_("Up Speed")
+  : latitude_curve_("Latitude")
+  , longitude_curve_("Longitude")
+  , altitude_curve_("Altitude")
+  , north_speed_curve_("North Speed")
+  , west_speed_curve_("West Speed")
+  , up_speed_curve_("Up Speed")
 {
   const auto grid = new QGridLayout();
   setLayout(grid);

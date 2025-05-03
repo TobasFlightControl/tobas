@@ -26,13 +26,13 @@ namespace gui
 namespace core
 {
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
-  : node_(node),
-    property_client_(node, tobas::kPropertyServerName, kPkgName),
-    ssh_client_(node),
-    package_builder_(node),
-    restart_thread_(node),
-    shutdown_thread_(node),
-    spinner_(Qt::WindowModal, this)
+  : node_(node)
+  , property_client_(node, tobas::kPropertyServerName, kPkgName)
+  , ssh_client_(node)
+  , package_builder_(node)
+  , restart_thread_(node)
+  , shutdown_thread_(node)
+  , spinner_(Qt::WindowModal, this)
 {
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPkgName));
   const auto rsrc_path = pkg_path / "resources";

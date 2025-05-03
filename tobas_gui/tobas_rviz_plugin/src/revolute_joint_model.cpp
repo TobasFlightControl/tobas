@@ -7,15 +7,15 @@
 namespace tobas
 {
 RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index),
-    axis_(0., 0., 0.),
-    continuous_(false),
-    x2_(0.),
-    y2_(0.),
-    z2_(0.),
-    xy_(0.),
-    xz_(0.),
-    yz_(0.)
+  : JointModel(name, joint_index, first_variable_index)
+  , axis_(0., 0., 0.)
+  , continuous_(false)
+  , x2_(0.)
+  , y2_(0.)
+  , z2_(0.)
+  , xy_(0.)
+  , xz_(0.)
+  , yz_(0.)
 {
   type_ = REVOLUTE;
   variable_names_.push_back(getName());

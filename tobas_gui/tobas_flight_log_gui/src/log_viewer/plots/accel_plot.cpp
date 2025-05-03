@@ -9,10 +9,10 @@ namespace gui
 namespace log
 {
 AccelPlotWidget::AccelPlotWidget()
-  : cur_lin_curves_{ "Current Linear Accel X", "Current Linear Accel Y", "Current Linear Accel Z" },
-    cur_ang_curves_{ "Current Angular Accel X", "Current Angular Accel Y", "Current Angular Accel Z" },
-    tar_lin_curves_{ "Target Linear Accel X", "Target Linear Accel Y", "Target Linear Accel Z" },
-    tar_ang_curves_{ "Target Angular Accel X", "Target Angular Accel Y", "Target Angular Accel Z" }
+  : cur_lin_curves_{ "Current Linear Accel X", "Current Linear Accel Y", "Current Linear Accel Z" }
+  , cur_ang_curves_{ "Current Angular Accel X", "Current Angular Accel Y", "Current Angular Accel Z" }
+  , tar_lin_curves_{ "Target Linear Accel X", "Target Linear Accel Y", "Target Linear Accel Z" }
+  , tar_ang_curves_{ "Target Angular Accel X", "Target Angular Accel Y", "Target Angular Accel Z" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);

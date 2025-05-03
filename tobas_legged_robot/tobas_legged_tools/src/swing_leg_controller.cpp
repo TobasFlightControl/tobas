@@ -13,16 +13,16 @@ SwingLegController::SwingLegController(
   const kdl::Tree& tree,
   const vector<string>& thigh_names,
   const vector<string>& foot_names)
-  : tree_(tree),
-    thigh_names_(thigh_names),
-    foot_names_(foot_names),
-    nc_(foot_names.size()),
-    fk_solver_(tree),
-    ref_traj_(nc_),
-    is_stand_prev_(nc_),
-    t_switch_(nc_),
-    B_Tdd_BF_(nc_),
-    thigh_0_(nc_)
+  : tree_(tree)
+  , thigh_names_(thigh_names)
+  , foot_names_(foot_names)
+  , nc_(foot_names.size())
+  , fk_solver_(tree)
+  , ref_traj_(nc_)
+  , is_stand_prev_(nc_)
+  , t_switch_(nc_)
+  , B_Tdd_BF_(nc_)
+  , thigh_0_(nc_)
 {
   assert(thigh_names_.size() == foot_names_.size());
 

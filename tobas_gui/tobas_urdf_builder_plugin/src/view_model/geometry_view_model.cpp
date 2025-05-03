@@ -25,13 +25,13 @@ namespace urdf_builder
 namespace view_model
 {
 GeometryViewModel::GeometryViewModel(const urdf::GeometrySharedPtr& model)
-  : BaseViewModel<urdf::Geometry, GeometryViewModel>(model),
-    type_(model_->type),
-    radius_(kDefaultRadius),
-    length_(kDefaultLength),
-    width_(kDefaultWidth),
-    height_(kDefaultHeight),
-    scale_(kDefaultScale, kDefaultScale, kDefaultScale)
+  : BaseViewModel<urdf::Geometry, GeometryViewModel>(model)
+  , type_(model_->type)
+  , radius_(kDefaultRadius)
+  , length_(kDefaultLength)
+  , width_(kDefaultWidth)
+  , height_(kDefaultHeight)
+  , scale_(kDefaultScale, kDefaultScale, kDefaultScale)
 {
   if (!model) {
     model_.reset(new urdf::Sphere());

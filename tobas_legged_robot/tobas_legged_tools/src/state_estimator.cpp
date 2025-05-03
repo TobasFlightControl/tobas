@@ -10,12 +10,12 @@ using namespace Eigen;
 namespace lr_tools
 {
 StateEstimator::StateEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
-  : foot_names_(foot_names),
-    nc_(foot_names.size()),
-    fk_solver_(tree),
-    cont_(tree, foot_names),
-    kf_(cont_.stateSize(), cont_.inputSize(), 6 + 4 * nc_, cont_.stateSize()),
-    c2d_(cont_.stateSize(), cont_.inputSize())
+  : foot_names_(foot_names)
+  , nc_(foot_names.size())
+  , fk_solver_(tree)
+  , cont_(tree, foot_names)
+  , kf_(cont_.stateSize(), cont_.inputSize(), 6 + 4 * nc_, cont_.stateSize())
+  , c2d_(cont_.stateSize(), cont_.inputSize())
 {
   initializeKalmanFilter();
 }

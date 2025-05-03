@@ -18,9 +18,9 @@ WaitSpinnerWidget::WaitSpinnerWidget(
   QWidget* parent,
   bool center_on_parent,
   bool disable_parent_when_spinning)
-  : QWidget(parent, Qt::Dialog | Qt::FramelessWindowHint),
-    center_on_parent_(center_on_parent),
-    disable_parent_when_spinning_(disable_parent_when_spinning)
+  : QWidget(parent, Qt::Dialog | Qt::FramelessWindowHint)
+  , center_on_parent_(center_on_parent)
+  , disable_parent_when_spinning_(disable_parent_when_spinning)
 {
   initialize();
 

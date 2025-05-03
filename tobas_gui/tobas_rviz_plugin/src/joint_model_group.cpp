@@ -73,15 +73,15 @@ JointModelGroup::JointModelGroup(
   const srdf::Model::Group& config,
   const std::vector<const JointModel*>& unsorted_group_joints,
   const RobotModel* parent_model)
-  : parent_model_(parent_model),
-    name_(group_name),
-    common_root_(nullptr),
-    variable_count_(0),
-    active_variable_count_(0),
-    is_contiguous_index_list_(true),
-    is_chain_(false),
-    is_single_dof_(true),
-    config_(config)
+  : parent_model_(parent_model)
+  , name_(group_name)
+  , common_root_(nullptr)
+  , variable_count_(0)
+  , active_variable_count_(0)
+  , is_contiguous_index_list_(true)
+  , is_chain_(false)
+  , is_single_dof_(true)
+  , config_(config)
 {
   // sort joints in Depth-First order
   joint_model_vector_ = unsorted_group_joints;

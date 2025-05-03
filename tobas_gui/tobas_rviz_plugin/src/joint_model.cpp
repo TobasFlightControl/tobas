@@ -7,17 +7,17 @@
 namespace tobas
 {
 JointModel::JointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : name_(name),
-    joint_index_(joint_index),
-    first_variable_index_(first_variable_index),
-    type_(UNKNOWN),
-    parent_link_model_(nullptr),
-    child_link_model_(nullptr),
-    mimic_(nullptr),
-    mimic_factor_(1.),
-    mimic_offset_(0.),
-    passive_(false),
-    distance_factor_(1.)
+  : name_(name)
+  , joint_index_(joint_index)
+  , first_variable_index_(first_variable_index)
+  , type_(UNKNOWN)
+  , parent_link_model_(nullptr)
+  , child_link_model_(nullptr)
+  , mimic_(nullptr)
+  , mimic_factor_(1.)
+  , mimic_offset_(0.)
+  , passive_(false)
+  , distance_factor_(1.)
 {
 }
 

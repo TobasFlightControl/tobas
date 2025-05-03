@@ -16,18 +16,18 @@ namespace tobas
 struct VariableBounds
 {
   VariableBounds()
-    : min_position_(0.),
-      max_position_(0.),
-      position_bounded_(false),
-      min_velocity_(0.),
-      max_velocity_(0.),
-      velocity_bounded_(false),
-      min_acceleration_(0.),
-      max_acceleration_(0.),
-      acceleration_bounded_(false),
-      min_jerk_(0.),
-      max_jerk_(0.),
-      jerk_bounded_(false)
+    : min_position_(0.)
+    , max_position_(0.)
+    , position_bounded_(false)
+    , min_velocity_(0.)
+    , max_velocity_(0.)
+    , velocity_bounded_(false)
+    , min_acceleration_(0.)
+    , max_acceleration_(0.)
+    , acceleration_bounded_(false)
+    , min_jerk_(0.)
+    , max_jerk_(0.)
+    , jerk_bounded_(false)
   {
   }
 

@@ -8,10 +8,10 @@
 namespace tobas
 {
 PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index),
-    angular_distance_weight_(1.),
-    motion_model_(HOLONOMIC),
-    min_translational_distance_(1e-5)
+  : JointModel(name, joint_index, first_variable_index)
+  , angular_distance_weight_(1.)
+  , motion_model_(HOLONOMIC)
+  , min_translational_distance_(1e-5)
 {
   type_ = PLANAR;
 

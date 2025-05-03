@@ -11,32 +11,34 @@ using namespace Eigen;
 namespace ctrl
 {
 LQID::LQID(const Index& state_size, const Index& input_size, const Index& integrate_size)
-  : dynamics(state_size, input_size),
-    C(integrate_size, state_size),
-    state_weight(state_size),
-    integrated_error_weight(integrate_size),
-    input_weight(input_size),
-    input_rate_weight(input_size),
-    current_state(state_size),
-    target_state(state_size),
-    max_integrated_error(integrate_size),
+  : dynamics(state_size, input_size)
+  , C(integrate_size, state_size)
+  , state_weight(state_size)
+  , integrated_error_weight(integrate_size)
+  , input_weight(input_size)
+  , input_rate_weight(input_size)
+  , current_state(state_size)
+  , target_state(state_size)
+  , max_integrated_error(integrate_size)
+  ,
 
-    x_size_(state_size),
-    u_size_(input_size),
-    r_size_(integrate_size),
-    x_tilde_size_(state_size + input_size + integrate_size),
-    x_idx_(0),
-    u_idx_(x_idx_ + x_size_),
-    eps_idx_(u_idx_ + u_size_),
+  x_size_(state_size)
+  , u_size_(input_size)
+  , r_size_(integrate_size)
+  , x_tilde_size_(state_size + input_size + integrate_size)
+  , x_idx_(0)
+  , u_idx_(x_idx_ + x_size_)
+  , eps_idx_(u_idx_ + u_size_)
+  ,
 
-    last_u_(u_size_),
-    eps_(r_size_),
-    x_tilde_(x_tilde_size_),
-    s_tilde_(x_tilde_size_),
-    A_tilde_(x_tilde_size_, x_tilde_size_),
-    B_tilde_(x_tilde_size_, u_size_),
-    Q_tilde_(x_tilde_size_, x_tilde_size_),
-    R_tilde_(u_size_, u_size_)
+  last_u_(u_size_)
+  , eps_(r_size_)
+  , x_tilde_(x_tilde_size_)
+  , s_tilde_(x_tilde_size_)
+  , A_tilde_(x_tilde_size_, x_tilde_size_)
+  , B_tilde_(x_tilde_size_, u_size_)
+  , Q_tilde_(x_tilde_size_, x_tilde_size_)
+  , R_tilde_(u_size_, u_size_)
 {
   C.setZero();
   state_weight.setZero();

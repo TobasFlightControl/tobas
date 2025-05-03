@@ -34,7 +34,7 @@ AlwaysBreakTemplateDeclarations: true
 AlwaysBreakBeforeMultilineStrings: false
 BreakBeforeBinaryOperators: NonAssignment # false -> NonAssignment
 BreakBeforeTernaryOperators: false
-BreakConstructorInitializersBeforeComma: false # true -> false
+BreakConstructorInitializersBeforeComma: true
 
 BinPackParameters: false # true -> false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
@@ -88,4 +88,4 @@ BraceWrapping:
 AlignAfterOpenBracket: AlwaysBreak
 AlignOperands: true
 FixNamespaceComments: true
-InsertBraces: true
+InsertBraces: true # 必ず{}を挿入する

@@ -21,13 +21,13 @@ rclcpp::Logger getLogger()
 }  // namespace
 
 RobotState::RobotState(const RobotModelConstPtr& robot_model)
-  : robot_model_(robot_model),
-    has_velocity_(false),
-    has_acceleration_(false),
-    has_effort_(false),
-    dirty_link_transforms_(nullptr),
-    dirty_collision_body_transforms_(nullptr),
-    rng_(nullptr)
+  : robot_model_(robot_model)
+  , has_velocity_(false)
+  , has_acceleration_(false)
+  , has_effort_(false)
+  , dirty_link_transforms_(nullptr)
+  , dirty_collision_body_transforms_(nullptr)
+  , rng_(nullptr)
 {
   if (robot_model == nullptr) {
     throw std::invalid_argument("RobotState cannot be constructed with nullptr RobotModelConstPtr");

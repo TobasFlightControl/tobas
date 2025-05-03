@@ -18,10 +18,10 @@ ParamGetterWidget_DirDialog::ParamGetterWidget_DirDialog(
   rclcpp::Node::SharedPtr node,
   const QString& param_name,
   const QString& description_text)
-  : super(param_name, description_text),
-    node_(node),
-    last_opend_dir_key_("last_opened_dir/dir_dialog/" + str::replace(param_name.toStdString(), " ", "_")),
-    property_client_(node, tobas::kPropertyServerName, kPackageName)
+  : super(param_name, description_text)
+  , node_(node)
+  , last_opend_dir_key_("last_opened_dir/dir_dialog/" + str::replace(param_name.toStdString(), " ", "_"))
+  , property_client_(node, tobas::kPropertyServerName, kPackageName)
 {
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);

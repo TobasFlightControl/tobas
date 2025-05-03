@@ -125,10 +125,10 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kController, options),
-    mass_holder_(tree_),
-    x_rotors_(drone_, tobas::X_POSITIVE),
-    eom_(drone_, tree_)
+  : super(tobas::node::kController, options)
+  , mass_holder_(tree_)
+  , x_rotors_(drone_, tobas::X_POSITIVE)
+  , eom_(drone_, tree_)
 {
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);

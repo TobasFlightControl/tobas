@@ -9,14 +9,14 @@ namespace fs = filesystem;
 namespace ssh
 {
 SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
-  : node_(node),
-    connect_sc_(node, kConnectSrv),
-    execute_sc_(node, kExecuteSrv),
-    scp_get_sc_(node, kSCPGetSrv),
-    scp_put_sc_(node, kSCPPutSrv),
-    sftp_read_sc_(node, kSFTPReadSrv),
-    sftp_write_sc_(node, kSFTPWriteSrv),
-    list_sc_(node, kListSrv)
+  : node_(node)
+  , connect_sc_(node, kConnectSrv)
+  , execute_sc_(node, kExecuteSrv)
+  , scp_get_sc_(node, kSCPGetSrv)
+  , scp_put_sc_(node, kSCPPutSrv)
+  , sftp_read_sc_(node, kSFTPReadSrv)
+  , sftp_write_sc_(node, kSFTPWriteSrv)
+  , list_sc_(node, kListSrv)
 {
 }
 

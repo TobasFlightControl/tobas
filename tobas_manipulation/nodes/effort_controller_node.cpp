@@ -85,13 +85,13 @@ private:
 };
 
 EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
-  : super("effort_controller", options),
-    jnt_parser_(tree_),
-    active_jnts_extractor_(tree_),
-    pid_js_(tree_),
-    pid_ts_(tree_),
-    cur_js_conv_(tree_),
-    tar_js_conv_(tree_)
+  : super("effort_controller", options)
+  , jnt_parser_(tree_)
+  , active_jnts_extractor_(tree_)
+  , pid_js_(tree_)
+  , pid_ts_(tree_)
+  , cur_js_conv_(tree_)
+  , tar_js_conv_(tree_)
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }

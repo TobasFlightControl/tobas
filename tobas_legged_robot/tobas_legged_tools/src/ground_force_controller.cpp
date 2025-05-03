@@ -11,13 +11,13 @@ using namespace Eigen;
 namespace lr_tools
 {
 GroundForceController::GroundForceController(const kdl::Tree& tree, const vector<string>& foot_names)
-  : tree_(tree),
-    foot_names_(foot_names),
-    nc_(foot_names.size()),
-    inertia_solver_(tree),
-    bb_solver_(tree),
-    cont_(tree, foot_names),
-    c2d_(cont_.stateSize(), cont_.inputSize())
+  : tree_(tree)
+  , foot_names_(foot_names)
+  , nc_(foot_names.size())
+  , inertia_solver_(tree)
+  , bb_solver_(tree)
+  , cont_(tree, foot_names)
+  , c2d_(cont_.stateSize(), cont_.inputSize())
 {
   initializeMPC();
 }

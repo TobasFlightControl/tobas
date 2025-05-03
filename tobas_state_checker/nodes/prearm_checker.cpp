@@ -91,8 +91,8 @@ private:
 };
 
 PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
-  : super("pre_arm_checker", options),
-    pos_bufs_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+  : super("pre_arm_checker", options)
+  , pos_bufs_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
                tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
                tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {

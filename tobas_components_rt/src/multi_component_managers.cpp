@@ -10,11 +10,11 @@ using namespace std;
 namespace ros2
 {
 MultiComponentManagers::MultiComponentManagers(size_t num_managers)
-  : num_managers_(num_managers),
-    policy_(num_managers, SCHED_FIFO),
-    priority_(num_managers, 0),
-    affinity_(num_managers, 0),
-    num_threads_(num_managers, 1)
+  : num_managers_(num_managers)
+  , policy_(num_managers, SCHED_FIFO)
+  , priority_(num_managers, 0)
+  , affinity_(num_managers, 0)
+  , num_threads_(num_managers, 1)
 {
 }
 

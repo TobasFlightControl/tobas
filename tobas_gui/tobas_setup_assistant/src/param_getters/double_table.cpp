@@ -27,12 +27,12 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const QString& param_name,
   const QStringList& labels,
   const QString& description_text)
-  : super(param_name, description_text),
-    node_(node),
-    last_opend_dir_key_("last_opened_dir/double_table/" + str::replace(param_name.toStdString(), " ", "_")),
-    labels_(labels),
-    num_entry_(labels.size()),
-    property_client_(node, tobas::kPropertyServerName, kPackageName)
+  : super(param_name, description_text)
+  , node_(node)
+  , last_opend_dir_key_("last_opened_dir/double_table/" + str::replace(param_name.toStdString(), " ", "_"))
+  , labels_(labels)
+  , num_entry_(labels.size())
+  , property_client_(node, tobas::kPropertyServerName, kPackageName)
 {
   TOBAS_CHECK(num_entry_ > 0);
 
