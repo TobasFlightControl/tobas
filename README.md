@@ -64,7 +64,7 @@ $ exec bash
 
 ```bash
 $ cd ~/colcon_ws/src
-$ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b main
+$ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b jazzy # or "jazzy-develop" if you contribute to Tobas
 ```
 
 5. Install dependencies
