@@ -1,10 +1,10 @@
 # Contributing to Tobas
 
-## C++ Coding Style
+## C++ Code Style
 
 ### Example
 
-See `tobas_coding_style_example`.
+See `tobas_code_style_example`.
 
 ### C++ バージョン
 

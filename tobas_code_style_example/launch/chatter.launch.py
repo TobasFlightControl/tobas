@@ -20,7 +20,7 @@ def generate_launch_description():
             target_container="component_manager",
             composable_node_descriptions=[
                 ComposableNode(
-                    package="tobas_coding_style_example",
+                    package="tobas_code_style_example",
                     plugin="tobas::Talker",
                     extra_arguments=[{"use_intra_process_comms": True}],
                 ),
@@ -33,7 +33,7 @@ def generate_launch_description():
             target_container="component_manager",
             composable_node_descriptions=[
                 ComposableNode(
-                    package="tobas_coding_style_example",
+                    package="tobas_code_style_example",
                     plugin="tobas::Listener",
                     extra_arguments=[{"use_intra_process_comms": True}],
                 ),
