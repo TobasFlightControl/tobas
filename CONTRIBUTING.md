@@ -20,7 +20,7 @@ To check every time you commit in git (optional):
 $ pre-commit install
 ```
 
-To update hook versions:
+To update hook repository versions:
 
 ```
 $ pre-commit autoupdate
