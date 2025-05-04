@@ -42,13 +42,13 @@ ament_target_dependencies(${PROJECT_NAME} tobas_gazebo_tools)
 file(GLOB PLUGIN_DIR_PATHS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*)
 set(TARGETS_TO_INSTALL "")
 
-foreach(DIR_PATH IN LISTS PLUGIN_DIR_PATHS)
-  get_filename_component(PLUGIN_NAME ${DIR_PATH} NAME_WE)
+foreach(dir_path IN LISTS PLUGIN_DIR_PATHS)
+  get_filename_component(PLUGIN_NAME ${dir_path} NAME_WE)
 
-  qt5_wrap_cpp(MOC_SOURCE ${DIR_PATH}/${PLUGIN_NAME}.hpp)
-  qt_add_resources(RCC_SOURCE ${DIR_PATH}/${PLUGIN_NAME}.qrc)
+  qt5_wrap_cpp(MOC_SOURCE ${dir_path}/${PLUGIN_NAME}.hpp)
+  qt_add_resources(RCC_SOURCE ${dir_path}/${PLUGIN_NAME}.qrc)
 
-  add_library(${PLUGIN_NAME} SHARED ${MOC_SOURCE} ${RCC_SOURCE} ${DIR_PATH}/${PLUGIN_NAME}.cpp)
+  add_library(${PLUGIN_NAME} SHARED ${MOC_SOURCE} ${RCC_SOURCE} ${dir_path}/${PLUGIN_NAME}.cpp)
   target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
 
   list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})

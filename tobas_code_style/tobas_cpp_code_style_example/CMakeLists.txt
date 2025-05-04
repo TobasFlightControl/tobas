@@ -23,9 +23,9 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Listener" EX
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(TARGETS_TO_INSTALL "")
-foreach(FILE IN LISTS EXE_FILES)
-  get_filename_component(NAME ${FILE} NAME_WE)
-  add_executable(${NAME} ${FILE})
+foreach(file_path IN LISTS EXE_FILES)
+  get_filename_component(NAME ${file_path} NAME_WE)
+  add_executable(${NAME} ${file_path})
   target_link_libraries(${NAME} ${PROJECT_NAME})
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
