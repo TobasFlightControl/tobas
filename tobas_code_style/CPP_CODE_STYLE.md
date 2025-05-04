@@ -172,7 +172,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ## フォーマット
 
-- [.clang-format](./.clang-format) に従う．
+- [.clang-format](../.clang-format) に従う．
 
 ## ROS 2
 
