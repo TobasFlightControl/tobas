@@ -30,6 +30,7 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: pretty-format-json
+        exclude: \.ipynb$
       - id: trailing-whitespace
 
   - repo: https://github.com/codespell-project/codespell
@@ -66,6 +67,5 @@ repos:
         name: cmake-lint
         entry: cmake-lint
         language: system
-        args: ["-i"]
         files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
         exclude: tobas_example_packages/
