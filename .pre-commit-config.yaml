@@ -1,16 +1,4 @@
-# To use:
-#
-#     pre-commit run -a
-#
-# Or:
-#
-#     pre-commit install  # (runs every time you commit in git)
-#
-# To update this file:
-#
-#     pre-commit autoupdate
-#
-# See https://github.com/pre-commit/pre-commit
+# cf. [moveit2/.pre-commit-config.yaml](https://github.com/moveit/moveit2/blob/main/.pre-commit-config.yaml)
 
 repos:
   # Standard hooks

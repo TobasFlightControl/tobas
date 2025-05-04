@@ -1,5 +1,31 @@
 # Contributing to Tobas
 
+## Pre-Commit Check
+
+Install dependencies:
+
+```
+$ sudo apt install -y black clang-format cmake-format
+```
+
+Check all:
+
+```
+$ pre-commit run -a
+```
+
+To check every time you commit in git (optional):
+
+```
+$ pre-commit install
+```
+
+To update hook versions:
+
+```
+$ pre-commit autoupdate
+```
+
 ## Code Style
 
 ### C++
