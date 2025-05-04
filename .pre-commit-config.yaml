@@ -32,6 +32,14 @@ repos:
       - id: pretty-format-json
       - id: trailing-whitespace
 
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        args:
+          - "--write-changes"
+          - "--ignore-words=.codespell_words"
+
   - repo: local
     hooks:
       - id: black
@@ -39,34 +47,25 @@ repos:
         entry: black
         language: system
         files: \.(py|tplpy)$
-        exclude: tobas_example_packages/*
-
-  - repo: local
-    hooks:
+        exclude: tobas_example_packages/
       - id: clang-format
         name: clang-format
         entry: clang-format
         language: system
-        files: \.(cpp|hpp|tplcpp|tplhpp)$
         args: ["-fallback-style=none", "-i"]
-
-  - repo: https://github.com/cheshirekow/cmake-format-precommit
-    rev: v0.6.13
-    hooks:
+        files: \.(cpp|hpp|tplcpp|tplhpp)$
+        exclude: tobas_example_packages/
       - id: cmake-format
+        name: cmake-format
+        entry: cmake-format
+        language: system
+        args: ["-i"]
+        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        exclude: tobas_example_packages/
       - id: cmake-lint
-        args:
-          - "--disabled-codes=C0301" # Disable Line too long lint
-          - "--suppress-decorations"
-
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
-    hooks:
-      - id: codespell
-        args:
-          [
-            "--write-changes",
-            "--ignore-words=.codespell_words",
-            '--skip="*.eps"',
-          ]
-        exclude: CHANGELOG.rst
+        name: cmake-lint
+        entry: cmake-lint
+        language: system
+        args: ["-i"]
+        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        exclude: tobas_example_packages/
