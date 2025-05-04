@@ -21,7 +21,6 @@ ament_target_dependencies(${PROJECT_NAME})
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(TARGETS_TO_INSTALL "")
-
 foreach(FILE IN LISTS EXE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)
 	add_executable(${NAME} ${FILE})
