@@ -86,5 +86,7 @@ repos:
         name: cmake-lint
         entry: cmake-lint
         language: system
+        args:
+          - "--suppress-decorations"
         files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
         exclude: tobas_example_packages/
