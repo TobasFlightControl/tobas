@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <tobas_quadprog/quadprogpp.hpp>
 #include <tobas_quadprog/qpoases.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
