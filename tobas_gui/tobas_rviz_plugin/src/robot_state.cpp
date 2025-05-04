@@ -705,17 +705,17 @@ void RobotState::updateCollisionBodyTransforms()
     dirty_collision_body_transforms_ = nullptr;
 
     for (const LinkModel* link : links) {
-      const EigenSTL::vector_Isometry3d& ot = link->getCollisionOriginTransforms();
-      const std::vector<int>& ot_id = link->areCollisionOriginTransformsIdentity();
+      const EigenSTL::vector_Isometry3d& origin_transforms = link->getCollisionOriginTransforms();
+      const std::vector<int>& origin_transforms_id = link->areCollisionOriginTransformsIdentity();
       const int index_co = link->getFirstCollisionBodyTransformIndex();
       const int index_l = link->getLinkIndex();
-      for (std::size_t j = 0, end = ot.size(); j != end; ++j) {
-        if (ot_id[j]) {
+      for (std::size_t j = 0, end = origin_transforms.size(); j != end; ++j) {
+        if (origin_transforms_id[j]) {
           global_collision_body_transforms_[index_co + j] = global_link_transforms_[index_l];
         }
         else {
           global_collision_body_transforms_[index_co + j].affine().noalias() =
-            global_link_transforms_[index_l].affine() * ot[j].matrix();
+            global_link_transforms_[index_l].affine() * origin_transforms[j].matrix();
         }
       }
     }

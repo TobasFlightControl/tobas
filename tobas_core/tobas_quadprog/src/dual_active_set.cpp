@@ -338,7 +338,7 @@ bool DualActiveSetSolver::solve()
           break;
         }
 
-        // A patial step has taken
+        // A partial step has taken
 #ifdef TRACE_SOLVER
         cout << "Partial step has taken " << t << endl;
         cout << "x:\n" << x_.transpose() << endl;

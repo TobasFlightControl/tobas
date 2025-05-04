@@ -167,7 +167,7 @@ public:
    * @param pos_cov 位置の観測ノイズの共分散
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   double measurePosition(
     const Eigen::Vector3d& pos_meas,
@@ -187,7 +187,7 @@ public:
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
    * @param gyro_meas ジャイロセンサの読み
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   double measureVelocity(
     const Eigen::Vector3d& vel_meas,
@@ -294,7 +294,7 @@ private:
    * @param grav_cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   double measureGravity(
     const Eigen::Vector3d& acc_meas,
@@ -309,7 +309,7 @@ private:
    * @param meas_cov 観測ノイズの共分散
    * @param H 観測方程式
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   template <int M>
   double correct(
@@ -546,8 +546,8 @@ double ErrorStateKalmanFilter::correct(
   // Apply constraints to avoid numerical errors
   applyConstraints();
 
-  // Compute anormaly score
-  const double anormaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
-  return anormaly_score;
+  // Compute anomaly score
+  const double anomaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
+  return anomaly_score;
 }
 }  // namespace eskf

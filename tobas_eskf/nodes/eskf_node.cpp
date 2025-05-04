@@ -61,7 +61,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
   // その他
-  static constexpr double kAnormalyScoreThreshold = 10.;  // [-]
+  static constexpr double kAnomalyScoreThreshold = 10.;  // [-]
 
 public:
   explicit ObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -81,7 +81,7 @@ private:
   GnssMsg::ConstSharedPtr gnss_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
-  double gnss_anormaly_score_ = 0.;
+  double gnss_anomaly_score_ = 0.;
 
   eskf::ErrorStateKalmanFilter eskf_;
 
@@ -356,7 +356,7 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
   feedback->mag_soft_bias_cov = eskf_.getMagSoftBiasCovariance();
   feedback->gravity_var = eskf_.getGravityVariance();
 
-  feedback->gnss_anormaly_score = gnss_anormaly_score_;
+  feedback->gnss_anomaly_score = gnss_anomaly_score_;
 
   feedback_pub_->publish(move(feedback));
 }
@@ -612,7 +612,7 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
   // ESKFを更新
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
-  gnss_anormaly_score_ = eskf_.measurePosVel(
+  gnss_anomaly_score_ = eskf_.measurePosVel(
     pos_meas_,
     gnss->position_covariance,
     gnss->ground_speed.data,
@@ -622,7 +622,7 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     ros2::chronoFromRosTime(gnss->header.stamp));
 
   // 異常度が高すぎる場合は警告
-  if (gnss_anormaly_score_ > kAnormalyScoreThreshold) {
+  if (gnss_anomaly_score_ > kAnomalyScoreThreshold) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
   }
 }

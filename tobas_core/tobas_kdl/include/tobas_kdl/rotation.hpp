@@ -30,7 +30,7 @@ public:
   inline explicit Rotation(const Vector& x, const Vector& y, const Vector& z);
   inline explicit Rotation(const Eigen::Matrix3d& _data);
 
-  // Gives back an identity rotaton matrix
+  // Gives back an identity rotation matrix
   static inline Rotation Identity();
 
   inline void setIdentity();
