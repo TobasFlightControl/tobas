@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_drone_core)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -17,11 +17,7 @@ find_package(tobas_kdl REQUIRED)
 find_package(tobas_yaml_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	tobas_kdl
-	tobas_yaml_tools
-	tobas_constants
-)
+set(AMENT_DEPENDENCIES tobas_kdl tobas_yaml_tools tobas_constants)
 
 include_directories(include)
 
@@ -34,12 +30,13 @@ ament_add_gtest(${PROJECT_NAME}_test ${TEST_CPP_FILES})
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 
 install(
-	TARGETS ${PROJECT_NAME}
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

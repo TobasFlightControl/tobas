@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_ros_interface)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -21,13 +21,13 @@ find_package(tobas_real_common REQUIRED)
 find_package(tobas_real_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	std_srvs
-	tobas_node
-	tobas_tools
-	tobas_msgs
-	tobas_drone_msgs
-	tobas_real_common
-	tobas_real_msgs
+    std_srvs
+    tobas_node
+    tobas_tools
+    tobas_msgs
+    tobas_drone_msgs
+    tobas_real_common
+    tobas_real_msgs
 )
 
 include_directories(include)

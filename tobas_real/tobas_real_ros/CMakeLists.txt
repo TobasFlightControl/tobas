@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_real_ros)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -24,16 +24,16 @@ find_package(tobas_real_common REQUIRED)
 find_package(tobas_real_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	sensor_msgs
-	magic_enum_ament
-	tobas_linux
-	tobas_property_tree
-	tobas_node
-	tobas_tools
-	tobas_msgs_adapter
-	tobas_drone_msgs_adapter
-	tobas_real_common
-	tobas_real_msgs
+    sensor_msgs
+    magic_enum_ament
+    tobas_linux
+    tobas_property_tree
+    tobas_node
+    tobas_tools
+    tobas_msgs_adapter
+    tobas_drone_msgs_adapter
+    tobas_real_common
+    tobas_real_msgs
 )
 
 include_directories(include)
@@ -47,15 +47,18 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BarometerHandlerNod
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputHandlerNode" EXECUTABLE rcin_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointsHandlerNode" EXECUTABLE joints_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ICEPropulsionSystemHandlerNode" EXECUTABLE ice_propulsion_system_handler)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "ICEPropulsionSystemHandlerNode" EXECUTABLE ice_propulsion_system_handler
+)
 
 install(
-	TARGETS ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 
 ament_package()

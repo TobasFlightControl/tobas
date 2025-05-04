@@ -5,10 +5,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_command_msgs REQUIRED)
 find_package(tobas_kdl_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  tobas_command_msgs
-  tobas_kdl_msgs_adapter
-)
+set(AMENT_DEPENDENCIES tobas_command_msgs tobas_kdl_msgs_adapter)
 
 add_library(${PROJECT_NAME} INTERFACE)
 ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
@@ -19,7 +16,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

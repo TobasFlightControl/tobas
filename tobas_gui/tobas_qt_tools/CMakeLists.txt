@@ -26,19 +26,13 @@ find_package(Qt5Widgets REQUIRED)
 find_package(tobas_math REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  Qt5Core
-  Qt5Widgets
-  tobas_math
-  tobas_std_tools
-)
+set(AMENT_DEPENDENCIES Qt5Core Qt5Widgets tobas_math tobas_std_tools)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
-file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR}
-  include/${PROJECT_NAME}/widgets/[^.]*.hpp
-  include/${PROJECT_NAME}/layouts/[^.]*.hpp
+file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/widgets/[^.]*.hpp
+                                                             include/${PROJECT_NAME}/layouts/[^.]*.hpp
 )
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
@@ -54,7 +48,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

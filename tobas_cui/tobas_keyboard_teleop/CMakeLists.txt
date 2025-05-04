@@ -33,7 +33,8 @@ include_directories(include)
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}_node
+ament_target_dependencies(
+  ${PROJECT_NAME}_node
   tobas_keyboard
   tobas_node
   tobas_msgs_adapter
@@ -42,13 +43,12 @@ ament_target_dependencies(${PROJECT_NAME}_node
   tobas_drone_tools
   tobas_drone_msgs_adapter
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node
-  PLUGIN "tobas_keyboard_teleop::PositionYawPublisherNode"
-  EXECUTABLE position_yaw_publiser
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas_keyboard_teleop::PositionYawPublisherNode" EXECUTABLE position_yaw_publiser
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node
-  PLUGIN "tobas_keyboard_teleop::SpeedRollDeltaPitchPublisherNode"
-  EXECUTABLE speed_roll_dpitch_publisher
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas_keyboard_teleop::SpeedRollDeltaPitchPublisherNode" EXECUTABLE
+  speed_roll_dpitch_publisher
 )
 
 install(
@@ -57,7 +57,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 
 ament_package()

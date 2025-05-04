@@ -7,11 +7,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(tobas_eigen_msgs REQUIRED)
 find_package(tobas_kdl_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  geometry_msgs
-  tobas_eigen_msgs
-  tobas_kdl_msgs
-)
+set(AMENT_DEPENDENCIES geometry_msgs tobas_eigen_msgs tobas_kdl_msgs)
 
 file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR} msg/[^.]*.msg srv/[^.]*.srv action/[^.]*.action)
 rosidl_generate_interfaces(${PROJECT_NAME} ${MSG_FILES} DEPENDENCIES ${AMENT_DEPENDENCIES})

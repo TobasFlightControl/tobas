@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_state_checker)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -17,12 +17,7 @@ find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	tobas_node
-	tobas_tools
-	tobas_msgs_adapter
-	tobas_drone_msgs_adapter
-)
+set(AMENT_DEPENDENCIES tobas_node tobas_tools tobas_msgs_adapter tobas_drone_msgs_adapter)
 
 include_directories(include)
 
@@ -33,12 +28,13 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PreArmCheckerNode" 
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PostArmCheckerNode" EXECUTABLE post_arm_checker)
 
 install(
-	TARGETS ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 
 ament_package()

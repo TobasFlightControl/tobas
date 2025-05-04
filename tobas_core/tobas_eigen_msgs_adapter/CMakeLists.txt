@@ -5,10 +5,7 @@ find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(tobas_eigen_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  Eigen3
-  tobas_eigen_msgs
-)
+set(AMENT_DEPENDENCIES Eigen3 tobas_eigen_msgs)
 
 add_library(${PROJECT_NAME} INTERFACE)
 ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
@@ -19,7 +16,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

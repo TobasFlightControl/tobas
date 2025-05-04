@@ -38,21 +38,21 @@ find_package(tobas_rviz_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  sensor_msgs
-  visualization_msgs
-  inja_ament
-  rapidcsv_ament
-  magic_enum_ament
-  tobas_string_tools
-  tobas_git
-  tobas_kdl_parser
-  tobas_ros2_tools
-  tobas_property_client
-  tobas_drone_msgs_adapter
-  tobas_visualization_msgs
-  tobas_qt_tools
-  tobas_rviz_wrapper
-  tobas_gui_common
+    sensor_msgs
+    visualization_msgs
+    inja_ament
+    rapidcsv_ament
+    magic_enum_ament
+    tobas_string_tools
+    tobas_git
+    tobas_kdl_parser
+    tobas_ros2_tools
+    tobas_property_client
+    tobas_drone_msgs_adapter
+    tobas_visualization_msgs
+    tobas_qt_tools
+    tobas_rviz_wrapper
+    tobas_gui_common
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -76,7 +76,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)

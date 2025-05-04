@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_tree_server)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -16,11 +16,7 @@ find_package(tobas_kdl_parser REQUIRED)
 find_package(tobas_kdl_msgs_adapter REQUIRED)
 find_package(tobas_node REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	tobas_kdl_parser
-	tobas_kdl_msgs_adapter
-	tobas_node
-)
+set(AMENT_DEPENDENCIES tobas_kdl_parser tobas_kdl_msgs_adapter tobas_node)
 
 include_directories(include)
 
@@ -30,12 +26,13 @@ ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TreeServerNode" EXECUTABLE tree_server)
 
 install(
-	TARGETS ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 
 ament_export_dependencies(${AMENT_DEPENDENCIES})

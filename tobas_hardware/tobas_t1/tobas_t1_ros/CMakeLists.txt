@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_t1_ros)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -22,14 +22,14 @@ find_package(tobas_hardware_common REQUIRED)
 find_package(tobas_t1_core REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	tobas_ic_drivers
-	tobas_property_tree
-	tobas_tools
-	tobas_msgs_adapter
-	tobas_drone_msgs_adapter
-	tobas_real_common
-	tobas_hardware_common
-	tobas_t1_core
+    tobas_ic_drivers
+    tobas_property_tree
+    tobas_tools
+    tobas_msgs_adapter
+    tobas_drone_msgs_adapter
+    tobas_real_common
+    tobas_hardware_common
+    tobas_t1_core
 )
 
 include_directories(include)
@@ -46,12 +46,13 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DShotDriverNode" EX
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PwmDriverNode" EXECUTABLE pwm_driver)
 
 install(
-	TARGETS ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 

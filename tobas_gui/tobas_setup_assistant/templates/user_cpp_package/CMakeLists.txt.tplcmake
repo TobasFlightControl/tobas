@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project({{ user_cpp_pkg_name }})
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -15,10 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	rclcpp
-	rclcpp_components
-)
+set(AMENT_DEPENDENCIES rclcpp rclcpp_components)
 
 include_directories(include)
 
@@ -28,12 +25,13 @@ ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "UserNode" EXECUTABLE user_node)
 
 install(
-	TARGETS ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 

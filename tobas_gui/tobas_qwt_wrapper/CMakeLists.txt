@@ -25,11 +25,7 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  Qt5Core
-  Qt5Widgets
-  Qt5Gui
-)
+set(AMENT_DEPENDENCIES Qt5Core Qt5Widgets Qt5Gui)
 
 include_directories(include)
 
@@ -44,7 +40,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

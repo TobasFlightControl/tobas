@@ -38,16 +38,16 @@ find_package(tobas_constants REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  Qt5Core
-  Qt5Widgets
-  rviz_common
-  rviz_default_plugins
-  rviz_rendering
-  tobas_std_tools
-  tobas_ros2_tools
-  tobas_property_client
-  tobas_constants
-  tobas_qt_tools
+    Qt5Core
+    Qt5Widgets
+    rviz_common
+    rviz_default_plugins
+    rviz_rendering
+    tobas_std_tools
+    tobas_ros2_tools
+    tobas_property_client
+    tobas_constants
+    tobas_qt_tools
 )
 
 # add_definitions(-DQT_NO_KEYWORDS)
@@ -72,7 +72,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 pluginlib_export_plugin_description_file(rviz_common plugin_description.xml)

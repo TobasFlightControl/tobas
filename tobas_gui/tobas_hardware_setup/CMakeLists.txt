@@ -35,18 +35,18 @@ find_package(tobas_rviz_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  tobas_eigen_conversions
-  tobas_kdl_conversions
-  wpa_supplicant_parser
-  tobas_property_tree
-  tobas_ssh_client
-  tobas_msgs_adapter
-  tobas_drone_core
-  tobas_real_common
-  tobas_real_msgs
-  tobas_qt_tools
-  tobas_rviz_wrapper
-  tobas_gui_common
+    tobas_eigen_conversions
+    tobas_kdl_conversions
+    wpa_supplicant_parser
+    tobas_property_tree
+    tobas_ssh_client
+    tobas_msgs_adapter
+    tobas_drone_core
+    tobas_real_common
+    tobas_real_msgs
+    tobas_qt_tools
+    tobas_rviz_wrapper
+    tobas_gui_common
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -67,7 +67,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME})

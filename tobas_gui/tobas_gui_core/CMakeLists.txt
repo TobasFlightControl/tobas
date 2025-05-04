@@ -31,14 +31,14 @@ find_package(tobas_flight_log_gui REQUIRED)
 find_package(tobas_simulation_gui REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  tobas_homepage
-  tobas_urdf_builder
-  tobas_setup_assistant
-  tobas_hardware_setup
-  tobas_control_system
-  tobas_parameter_tuning_gui
-  tobas_flight_log_gui
-  tobas_simulation_gui
+    tobas_homepage
+    tobas_urdf_builder
+    tobas_setup_assistant
+    tobas_hardware_setup
+    tobas_control_system
+    tobas_parameter_tuning_gui
+    tobas_flight_log_gui
+    tobas_simulation_gui
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -63,7 +63,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(TARGETS Tobas DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)

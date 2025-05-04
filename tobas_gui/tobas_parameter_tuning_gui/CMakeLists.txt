@@ -28,13 +28,8 @@ find_package(tobas_dparam_client REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  tobas_ros2_tools
-  tobas_drone_core
-  tobas_ssh_client
-  tobas_dparam_client
-  tobas_qt_tools
-  tobas_gui_common
+set(AMENT_DEPENDENCIES tobas_ros2_tools tobas_drone_core tobas_ssh_client tobas_dparam_client tobas_qt_tools
+                       tobas_gui_common
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -55,7 +50,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

@@ -24,10 +24,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  tobas_qt_tools
-  tobas_gui_common
-)
+set(AMENT_DEPENDENCIES tobas_qt_tools tobas_gui_common)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
@@ -50,7 +47,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)

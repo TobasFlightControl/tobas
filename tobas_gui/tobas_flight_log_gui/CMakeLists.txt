@@ -31,14 +31,14 @@ find_package(tobas_qwt_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  rosbag2_cpp
-  tobas_kdl
-  tobas_ros2_tools
-  tobas_msgs
-  tobas_debug_msgs
-  tobas_qt_tools
-  tobas_qwt_wrapper
-  tobas_gui_common
+    rosbag2_cpp
+    tobas_kdl
+    tobas_ros2_tools
+    tobas_msgs
+    tobas_debug_msgs
+    tobas_qt_tools
+    tobas_qwt_wrapper
+    tobas_gui_common
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -59,7 +59,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

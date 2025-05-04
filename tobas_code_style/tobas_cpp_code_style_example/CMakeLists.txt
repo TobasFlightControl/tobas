@@ -7,12 +7,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tobas_math REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	rclcpp
-	rclcpp_components
-	std_msgs
-	tobas_math
-)
+set(AMENT_DEPENDENCIES rclcpp rclcpp_components std_msgs tobas_math)
 
 include_directories(include)
 
@@ -29,19 +24,20 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Listener" EX
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(TARGETS_TO_INSTALL "")
 foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NAME ${FILE} NAME_WE)
-	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${PROJECT_NAME})
-	list(APPEND TARGETS_TO_INSTALL ${NAME})
+  get_filename_component(NAME ${FILE} NAME_WE)
+  add_executable(${NAME} ${FILE})
+  target_link_libraries(${NAME} ${PROJECT_NAME})
+  list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 
 install(
-	TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})

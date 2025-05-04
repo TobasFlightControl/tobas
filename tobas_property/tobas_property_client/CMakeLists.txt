@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_property_client)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -18,13 +18,7 @@ find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_common REQUIRED)
 find_package(tobas_property_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	std_srvs
-	tobas_path_tools
-	tobas_ros2_tools
-	tobas_property_common
-	tobas_property_msgs
-)
+set(AMENT_DEPENDENCIES std_srvs tobas_path_tools tobas_ros2_tools tobas_property_common tobas_property_msgs)
 
 include_directories(include)
 
@@ -33,12 +27,13 @@ add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(
-	TARGETS ${PROJECT_NAME}
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

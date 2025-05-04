@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_ros2_tools)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -21,13 +21,13 @@ find_package(tobas_string_tools REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	Eigen3
-	rclcpp
-	ament_index_cpp
-	tf2_ros
-	tobas_std_tools
-	tobas_string_tools
-	tobas_path_tools
+    Eigen3
+    rclcpp
+    ament_index_cpp
+    tf2_ros
+    tobas_std_tools
+    tobas_string_tools
+    tobas_path_tools
 )
 
 include_directories(include)
@@ -39,19 +39,20 @@ ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(TARGETS_TO_INSTALL "")
 foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NAME ${FILE} NAME_WE)
-	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${PROJECT_NAME})
-	list(APPEND TARGETS_TO_INSTALL ${NAME})
+  get_filename_component(NAME ${FILE} NAME_WE)
+  add_executable(${NAME} ${FILE})
+  target_link_libraries(${NAME} ${PROJECT_NAME})
+  list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 
 install(
-	TARGETS ${PROJECT_NAME}
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})

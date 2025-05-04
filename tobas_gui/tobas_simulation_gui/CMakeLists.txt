@@ -33,16 +33,16 @@ find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  tobas_kdl_parser
-  tobas_ros2_tools
-  tobas_drone_core
-  tobas_property_client
-  tobas_msgs_adapter
-  tobas_command_msgs_adapter
-  tobas_gazebo_common
-  tobas_gazebo_msgs
-  tobas_qt_tools
-  tobas_gui_common
+    tobas_kdl_parser
+    tobas_ros2_tools
+    tobas_drone_core
+    tobas_property_client
+    tobas_msgs_adapter
+    tobas_command_msgs_adapter
+    tobas_gazebo_common
+    tobas_gazebo_msgs
+    tobas_qt_tools
+    tobas_gui_common
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -63,7 +63,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

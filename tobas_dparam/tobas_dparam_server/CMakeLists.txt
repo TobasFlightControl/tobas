@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_dparam_server)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -16,11 +16,7 @@ find_package(tobas_node REQUIRED)
 find_package(tobas_dparam_common REQUIRED)
 find_package(tobas_dparam_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	tobas_node
-	tobas_dparam_common
-	tobas_dparam_msgs
-)
+set(AMENT_DEPENDENCIES tobas_node tobas_dparam_common tobas_dparam_msgs)
 
 include_directories(include)
 

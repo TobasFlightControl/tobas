@@ -18,13 +18,7 @@ find_package(trajectory_msgs REQUIRED)
 find_package(shape_msgs REQUIRED)
 find_package(object_recognition_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  std_msgs
-  sensor_msgs
-  trajectory_msgs
-  shape_msgs
-  object_recognition_msgs
-)
+set(AMENT_DEPENDENCIES std_msgs sensor_msgs trajectory_msgs shape_msgs object_recognition_msgs)
 
 file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR} msg/[^.]*.msg srv/[^.]*.srv action/[^.]*.action)
 rosidl_generate_interfaces(${PROJECT_NAME} ${MSG_FILES} DEPENDENCIES ${AMENT_DEPENDENCIES})

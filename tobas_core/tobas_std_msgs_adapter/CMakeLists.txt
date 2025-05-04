@@ -6,11 +6,7 @@ find_package(rclcpp REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_std_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  rclcpp
-  tobas_std_tools
-  tobas_std_msgs
-)
+set(AMENT_DEPENDENCIES rclcpp tobas_std_tools tobas_std_msgs)
 
 add_library(${PROJECT_NAME} INTERFACE)
 ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
@@ -21,7 +17,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

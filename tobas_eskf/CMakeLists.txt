@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_eskf)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -19,13 +19,8 @@ find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_debug_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	tobas_eigen_tools
-	tobas_geomag
-	tobas_kdl_conversions
-	tobas_node
-	tobas_msgs_adapter
-	tobas_debug_msgs_adapter
+set(AMENT_DEPENDENCIES tobas_eigen_tools tobas_geomag tobas_kdl_conversions tobas_node tobas_msgs_adapter
+                       tobas_debug_msgs_adapter
 )
 
 include_directories(include)
@@ -40,12 +35,13 @@ target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ObserverNode" EXECUTABLE observer)
 
 install(
-	TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

@@ -34,17 +34,17 @@ find_package(tobas_mission_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  Qt5QuickWidgets
-  Qt5Positioning
-  magic_enum_ament
-  tobas_path_tools
-  tobas_ros2_tools
-  tobas_constants
-  tobas_drone_core
-  tobas_std_msgs
-  tobas_msgs_adapter
-  tobas_mission_msgs
-  tobas_qt_tools
+    Qt5QuickWidgets
+    Qt5Positioning
+    magic_enum_ament
+    tobas_path_tools
+    tobas_ros2_tools
+    tobas_constants
+    tobas_drone_core
+    tobas_std_msgs
+    tobas_msgs_adapter
+    tobas_mission_msgs
+    tobas_qt_tools
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -65,7 +65,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY qml DESTINATION share/${PROJECT_NAME})

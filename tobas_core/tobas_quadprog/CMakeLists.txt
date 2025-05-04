@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_quadprog)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -14,40 +14,30 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_eigen_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	tobas_eigen_tools
-)
+set(AMENT_DEPENDENCIES tobas_eigen_tools)
 
 include_directories(include)
 
 # file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-set(LIB_CPP_FILES
-	src/utils.cpp
-	src/qpsolver.cpp
-	src/dual_active_set.cpp
-	src/primal_dual_interior_point.cpp
-	# src/quadprogpp.cpp
-	# src/qpoases.cpp
+set(LIB_CPP_FILES src/utils.cpp src/qpsolver.cpp src/dual_active_set.cpp src/primal_dual_interior_point.cpp
+                  # src/quadprogpp.cpp src/qpoases.cpp
 )
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(TARGETS_TO_INSTALL "")
-# foreach(FILE IN LISTS EXE_FILES)
-# 	get_filename_component(NAME ${FILE} NAME_WE)
-# 	add_executable(${NAME} ${FILE})
-# 	target_link_libraries(${NAME} ${PROJECT_NAME})
-# 	list(APPEND TARGETS_TO_INSTALL ${NAME})
-# endforeach()
+# foreach(FILE IN LISTS EXE_FILES) get_filename_component(NAME ${FILE} NAME_WE) add_executable(${NAME} ${FILE})
+# target_link_libraries(${NAME} ${PROJECT_NAME}) list(APPEND TARGETS_TO_INSTALL ${NAME}) endforeach()
 
 install(
-	TARGETS ${PROJECT_NAME}
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})

@@ -14,9 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  yaml-cpp
-)
+set(AMENT_DEPENDENCIES yaml-cpp)
 
 include_directories(include)
 
@@ -31,7 +29,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

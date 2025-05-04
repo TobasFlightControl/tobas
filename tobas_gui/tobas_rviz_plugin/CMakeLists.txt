@@ -34,17 +34,17 @@ find_package(srdfdom REQUIRED)
 find_package(tobas_visualization_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  eigen_stl_containers
-  angles
-  geometric_shapes
-  tf2_eigen
-  rsl
-  octomap_msgs
-  rviz_common
-  rviz_default_plugins
-  rviz_rendering
-  srdfdom
-  tobas_visualization_msgs
+    eigen_stl_containers
+    angles
+    geometric_shapes
+    tf2_eigen
+    rsl
+    octomap_msgs
+    rviz_common
+    rviz_default_plugins
+    rviz_rendering
+    srdfdom
+    tobas_visualization_msgs
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -70,7 +70,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
 
