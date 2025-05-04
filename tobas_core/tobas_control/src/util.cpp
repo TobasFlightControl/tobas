@@ -1,10 +1,10 @@
+#include "../include/tobas_control/util.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>
-
-#include "../include/tobas_control/util.hpp"
 
 #define EPS numeric_limits<double>::epsilon()
 

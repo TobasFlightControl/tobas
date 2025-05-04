@@ -1,7 +1,8 @@
+#include "../include/tobas_kdl/rotation.hpp"
+
 #include <tobas_math/linalg.hpp>
 #include <tobas_std_tools/float.hpp>
 
-#include "../include/tobas_kdl/rotation.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
 
 #define EPS 1e-12

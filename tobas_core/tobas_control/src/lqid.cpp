@@ -1,8 +1,9 @@
+#include "../include/tobas_control/lqid.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/core.hpp>
 
-#include "../include/tobas_control/lqid.hpp"
 #include "../include/tobas_control/care.hpp"
 
 using namespace std;

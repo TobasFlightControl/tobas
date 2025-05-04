@@ -1,8 +1,8 @@
+#include "../include/tobas_kdl/trajectory.hpp"
+
 #include <iostream>
 
 #include <tobas_math/core.hpp>
-
-#include "../include/tobas_kdl/trajectory.hpp"
 
 using namespace std;
 

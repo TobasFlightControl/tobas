@@ -1,8 +1,9 @@
+#include "../include/tobas_control/care.hpp"
+
 #include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "../include/tobas_control/care.hpp"
 #include "../include/tobas_control/util.hpp"
 
 using namespace std;

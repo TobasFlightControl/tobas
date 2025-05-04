@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <array>
+
 #include <eigen3/Eigen/Core>
 
 namespace tobas_kdl_msgs

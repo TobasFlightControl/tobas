@@ -1,10 +1,10 @@
+#include "../include/tobas_ic_drivers/ads1220.hpp"
+
 #include <bitset>
 #include <iostream>
 #include <thread>
 
 #include <tobas_math/core.hpp>
-
-#include "../include/tobas_ic_drivers/ads1220.hpp"
 
 using namespace std;
 

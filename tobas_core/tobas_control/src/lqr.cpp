@@ -1,9 +1,11 @@
+#include "../include/tobas_control/lqr.hpp"
+
 #include <iostream>
+
 #include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/core.hpp>
 
-#include "../include/tobas_control/lqr.hpp"
 #include "../include/tobas_control/care.hpp"
 
 using namespace std;

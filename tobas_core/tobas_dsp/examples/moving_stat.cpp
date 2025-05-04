@@ -1,7 +1,6 @@
 #include <random>
 
 #include <tobas_std_tools/vector.hpp>
-
 #include <tobas_dsp/moving_stat.hpp>
 
 #define LENGTH 1000

@@ -1,3 +1,5 @@
+#include "../include/tobas_control/kalman_filter.hpp"
+
 #include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/core.hpp>
@@ -5,7 +7,6 @@
 
 #include "../include/tobas_control/util.hpp"
 #include "../include/tobas_control/dare.hpp"
-#include "../include/tobas_control/kalman_filter.hpp"
 
 using namespace std;
 using namespace Eigen;

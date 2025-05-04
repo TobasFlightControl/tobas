@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "../include/tobas_constants/flight_mode.hpp"
+
+#include <iostream>
 
 #define ACROBAT_TEXT "acrobat"
 #define STABILIZE_TEXT "stabilize"

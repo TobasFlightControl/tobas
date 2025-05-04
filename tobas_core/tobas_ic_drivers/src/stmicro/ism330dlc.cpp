@@ -1,9 +1,9 @@
+#include "../include/tobas_ic_drivers/stmicro/ism330dlc.hpp"
+
 #include <iostream>
 #include <cstring>
 
 #include <tobas_std_tools/universal_constants.hpp>
-
-#include "../include/tobas_ic_drivers/stmicro/ism330dlc.hpp"
 
 using namespace std;
 

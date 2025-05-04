@@ -1,6 +1,6 @@
-#include <cmath>
-
 #include "../include/tobas_algorithm/binary.hpp"
+
+#include <cmath>
 
 using namespace std;
 

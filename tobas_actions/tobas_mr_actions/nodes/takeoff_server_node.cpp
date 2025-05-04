@@ -1,11 +1,12 @@
-#include <tobas_std_tools/trajectory.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_std_tools/trajectory.hpp>
 #include <tobas_tools/util.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
+
 #include <tobas_mission_msgs/action/takeoff.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 #include "../include/tobas_mr_actions/common.hpp"
 

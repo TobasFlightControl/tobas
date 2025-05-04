@@ -1,7 +1,6 @@
 #include <random>
 
 #include <tobas_std_tools/vector.hpp>
-
 #include <tobas_dsp/welford.hpp>
 
 using namespace std;

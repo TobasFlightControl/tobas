@@ -1,7 +1,7 @@
+#include "../include/tobas_ic_drivers/ublox/zed_f9p_1xb.hpp"
+
 #include <cstring>
 #include <cassert>
-
-#include "../include/tobas_ic_drivers/ublox/zed_f9p_1xb.hpp"
 
 #define NOT_IMPLEMENTED "Not implemented."
 #define NOT_RECEIVABLE "Not receivable."

@@ -1,7 +1,7 @@
+#include "../include/tobas_kdl/tree_ik_solver_acc_rac.hpp"
+
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>
-
-#include "../include/tobas_kdl/tree_ik_solver_acc_rac.hpp"
 
 using namespace std;
 using namespace Eigen;

@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/segment.hpp>
+
 #include <tobas_kdl_msgs/msg/segment.hpp>
 
 #include "./joint.hpp"

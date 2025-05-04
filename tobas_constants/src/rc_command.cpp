@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "../include/tobas_constants/rc_command.hpp"
+
+#include <iostream>
 
 #define RATE_THROTTLE_TEXT "rate_throttle"
 #define ANGLE_THROTTLE_TEXT "angle_throttle"

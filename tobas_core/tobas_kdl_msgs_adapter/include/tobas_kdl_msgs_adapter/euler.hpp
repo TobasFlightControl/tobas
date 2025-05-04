@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/euler.hpp>
+
 #include <tobas_kdl_msgs/msg/euler.hpp>
 
 template <>

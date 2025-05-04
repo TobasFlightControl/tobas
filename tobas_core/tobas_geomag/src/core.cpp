@@ -1,9 +1,9 @@
+#include "../include/tobas_geomag/core.hpp"
+
 #include <cmath>
 #include <iostream>
 
 #include <tobas_std_tools/console.hpp>
-
-#include "../include/tobas_geomag/core.hpp"
 
 using namespace std;
 

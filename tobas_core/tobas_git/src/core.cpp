@@ -1,7 +1,8 @@
-#include <iostream>
-#include <git2.h>
-
 #include "../include/tobas_git/core.hpp"
+
+#include <iostream>
+
+#include <git2.h>
 
 using namespace std;
 

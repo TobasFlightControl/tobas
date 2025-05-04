@@ -1,8 +1,8 @@
+#include "../include/tobas_control/linear_mpc.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/core.hpp>
-
-#include "../include/tobas_control/linear_mpc.hpp"
 
 #define STOPWATCH_SAMPLES 100
 
