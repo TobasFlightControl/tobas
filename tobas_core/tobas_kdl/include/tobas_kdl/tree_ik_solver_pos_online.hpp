@@ -36,10 +36,7 @@ public:
   bool setMaxLinearVelocity(const double& max_linvel);
   bool setMaxAngularVelocity(const double& max_angvel);
 
-  const JntArray& getPositions() const
-  {
-    return q_out_;
-  }
+  inline const JntArray& getPositions() const;
 
 private:
   double max_linvel_ = kDefaultMaxLinearVelocity;
@@ -65,4 +62,9 @@ private:
    */
   void enforceCartVelLimits(Twist& twist, const double& dt);
 };
+
+inline const JntArray& TreeIkSolverPos_Online::getPositions() const
+{
+  return q_out_;
+}
 }  // namespace kdl

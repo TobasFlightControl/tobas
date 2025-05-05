@@ -18,10 +18,7 @@ public:
 
   int JntToCart(const JntArray& q);
 
-  const RigidBodyInertia& getInertia() const
-  {
-    return I_out_;
-  }
+  inline const RigidBodyInertia& getInertia() const;
 
 private:
   std::vector<RigidBodyInertia> I_;
@@ -31,4 +28,9 @@ private:
 
   void resize();
 };
+
+inline const RigidBodyInertia& ChainInertiaSolver::getInertia() const
+{
+  return I_out_;
+}
 }  // namespace kdl

@@ -21,10 +21,7 @@ public:
 
   int JntToCart(const JntArray& q, const JntArray& qd);
 
-  const Accel& getJdqd(const std::string& seg_name) const
-  {
-    return Jdqd_out_.at(seg_name);
-  }
+  inline const Accel& getJdqd(const std::string& seg_name) const;
 
 private:
   RotationMap R_;
@@ -35,4 +32,9 @@ private:
   void initialize();
   void JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
 };
+
+inline const Accel& TreeJacAccSolver::getJdqd(const std::string& seg_name) const
+{
+  return Jdqd_out_.at(seg_name);
+}
 }  // namespace kdl

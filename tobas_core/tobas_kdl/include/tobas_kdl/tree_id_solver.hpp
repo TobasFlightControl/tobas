@@ -16,9 +16,7 @@ class TreeIdSolver : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeIdSolver(const Tree& tree) : super(tree)
-  {
-  }
+  explicit TreeIdSolver(const Tree& tree);
 
   /**
    * Calculate inverse dynamics, from joint positions, velocity, acceleration, external forces
@@ -33,7 +31,7 @@ public:
    */
   virtual int CartToJnt(const JntArray& q, const JntArray& q_dot, const JntArray& q_dotdot, const WrenchMap& f_ext) = 0;
 
-  const JntArray& getEfforts() const
+  inline const JntArray& getEfforts() const
   {
     return effort_out_;
   }
@@ -41,4 +39,9 @@ public:
 protected:
   JntArray effort_out_;
 };
+
+inline const JntArray& TreeIdSolver::getEfforts() const
+{
+  return effort_out_;
+}
 }  // namespace kdl
