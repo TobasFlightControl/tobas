@@ -16,16 +16,15 @@ namespace gui
 {
 namespace urdf_builder
 {
-class URDFBuilderPanel;
-
 namespace ui
 {
+class URDFBuilderPanel;
+
 class AddLinkDialog : public QDialog
 {
   Q_OBJECT
 
   using self = AddLinkDialog;
-  using super = QDialog;
 
 public:
   explicit AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm);

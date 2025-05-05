@@ -1,6 +1,6 @@
-#include <tobas_std_tools/console.hpp>
-
 #include "../../include/tobas_urdf_builder_plugin/view_model/geometry_view_model.hpp"
+
+#include <tobas_std_tools/console.hpp>
 
 using namespace std;
 

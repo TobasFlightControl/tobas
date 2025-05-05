@@ -1,8 +1,8 @@
+#include "../../include/tobas_urdf_builder_plugin/view_model/inertial_view_model.hpp"
+
 #include <cassert>
 
 #include <tobas_math/core.hpp>
-
-#include "../../include/tobas_urdf_builder_plugin/view_model/inertial_view_model.hpp"
 
 namespace gui
 {

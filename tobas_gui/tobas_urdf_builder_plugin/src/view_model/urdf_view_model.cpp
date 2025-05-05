@@ -1,10 +1,11 @@
+#include "../../include/tobas_urdf_builder_plugin/view_model/urdf_view_model.hpp"
+
 #include <queue>
+
 #include <urdf_parser/urdf_parser.h>
 
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/console.hpp>
-
-#include "../../include/tobas_urdf_builder_plugin/view_model/urdf_view_model.hpp"
 
 using namespace std;
 

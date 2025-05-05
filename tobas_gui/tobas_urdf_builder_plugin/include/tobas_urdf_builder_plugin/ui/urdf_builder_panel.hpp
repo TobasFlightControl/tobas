@@ -1,17 +1,15 @@
 #pragma once
 
 #include <rviz_common/panel.hpp>
+#include <urdf/model.h>
 
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_property_client/property_client.hpp>
 
-#ifndef Q_MOC_RUN
-#include <urdf/model.h>
 #include "../ogre_helpers/static_link_updater.hpp"
 #include "../view_model/urdf_view_model.hpp"
 #include "../ogre_helpers/ogre_controller.hpp"
 #include "./update_link_dialog.hpp"
-#endif
 
 namespace Ui
 {

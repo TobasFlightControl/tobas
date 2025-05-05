@@ -1,4 +1,5 @@
 #include "../../include/tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
+
 #include "ui_update_link_dialog.h"
 
 namespace gui
