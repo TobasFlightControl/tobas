@@ -14,10 +14,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_property_common REQUIRED)
 find_package(tobas_property_msgs REQUIRED)
+find_package(tobas_path_tools)
 
 set(AMENT_DEPENDENCIES
 	tobas_property_common
 	tobas_property_msgs
+	tobas_path_tools
 )
 
 include_directories(include)

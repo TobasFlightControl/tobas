@@ -22,6 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_gazebo_tools REQUIRED)
+find_package(tobas_gazebo_common REQUIRED)
 
 find_package(gz_sim_vendor REQUIRED)
 find_package(gz-sim REQUIRED)
@@ -38,6 +39,7 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}
 	tobas_gazebo_tools
+	tobas_gazebo_common
 )
 
 # Build each plugin
