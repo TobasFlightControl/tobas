@@ -1,8 +1,8 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_msgs/msg/battery.hpp>
-
 #include <tobas_t1_core/battery.hpp>
+
+#include <tobas_msgs/msg/battery.hpp>
 
 #include "./common.hpp"
 

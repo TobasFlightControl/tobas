@@ -1,9 +1,9 @@
 #include <tobas_std_tools/gps.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
-
 #include <tobas_ic_drivers/ublox/zed_f9p_1xb.hpp>
+
+#include <tobas_msgs_adapter/gnss.hpp>
 
 #include "./common.hpp"
 

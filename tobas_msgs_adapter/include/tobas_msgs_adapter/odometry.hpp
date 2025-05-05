@@ -6,7 +6,6 @@
 #include <tobas_kdl_msgs_adapter/frame.hpp>
 #include <tobas_kdl_msgs_adapter/twist.hpp>
 #include <tobas_kdl_msgs_adapter/accel.hpp>
-
 #include <tobas_msgs/msg/odometry.hpp>
 
 namespace tobas_msgs

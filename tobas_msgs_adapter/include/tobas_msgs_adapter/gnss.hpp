@@ -4,7 +4,6 @@
 
 #include <tobas_eigen_msgs_adapter/core.hpp>
 #include <tobas_kdl_msgs_adapter/vector.hpp>
-
 #include <tobas_msgs/msg/gnss.hpp>
 
 namespace tobas_msgs

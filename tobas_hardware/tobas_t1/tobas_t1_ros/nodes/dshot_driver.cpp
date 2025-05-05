@@ -1,18 +1,18 @@
-#include <std_srvs/srv/trigger.hpp>
-
 #include <tobas_math/core.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
+#include <tobas_t1_core/dshot.hpp>
+
+#include <std_srvs/srv/trigger.hpp>
+
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-
-#include <tobas_t1_core/dshot.hpp>
 
 using namespace std;
 namespace fs = filesystem;

@@ -3,7 +3,6 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl_msgs_adapter/vector.hpp>
-
 #include <tobas_msgs/msg/magnetic_field_stamped.hpp>
 
 namespace tobas_msgs

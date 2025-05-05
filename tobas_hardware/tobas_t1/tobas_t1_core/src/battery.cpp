@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "../include/tobas_t1_core/battery.hpp"
+
+#include <iostream>
 
 using namespace std;
 

@@ -1,8 +1,8 @@
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
-
 #include <tobas_t1_core/iis2mdc.hpp>
+
+#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 
 #include "./common.hpp"
 

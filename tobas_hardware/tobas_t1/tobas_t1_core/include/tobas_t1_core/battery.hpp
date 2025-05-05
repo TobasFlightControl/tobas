@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include <tobas_linux/spi_dev.hpp>
 
 namespace t1

@@ -1,7 +1,7 @@
+#include "../include/tobas_legged_tools/contact_estimator.hpp"
+
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
-
-#include "../include/tobas_legged_tools/contact_estimator.hpp"
 
 using namespace std;
 using namespace Eigen;

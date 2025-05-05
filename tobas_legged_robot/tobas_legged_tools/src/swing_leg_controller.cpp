@@ -1,9 +1,9 @@
+#include "../include/tobas_legged_tools/swing_leg_controller.hpp"
+
 #include <iostream>
 
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
-
-#include "../include/tobas_legged_tools/swing_leg_controller.hpp"
 
 using namespace std;
 

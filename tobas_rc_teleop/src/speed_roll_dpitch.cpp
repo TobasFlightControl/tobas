@@ -1,6 +1,6 @@
-#include <tobas_std_tools/check.hpp>
-
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
+
+#include <tobas_std_tools/check.hpp>
 
 using namespace std;
 

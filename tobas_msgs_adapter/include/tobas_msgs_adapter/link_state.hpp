@@ -6,7 +6,6 @@
 #include <tobas_kdl_msgs_adapter/twist.hpp>
 #include <tobas_kdl_msgs_adapter/accel.hpp>
 #include <tobas_kdl_msgs_adapter/wrench.hpp>
-
 #include <tobas_msgs/msg/link_state.hpp>
 
 namespace tobas_msgs

@@ -1,6 +1,6 @@
-#include <tobas_path_tools/join.hpp>
-
 #include "../include/tobas_rc_teleop/base_controller.hpp"
+
+#include <tobas_path_tools/join.hpp>
 
 using namespace std;
 
