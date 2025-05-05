@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_ik_solver_vel_pinv.hpp"
+#include "tobas_kdl/chain_ik_solver_vel_pinv.hpp"
 
 #include <iostream>
 

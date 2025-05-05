@@ -12,7 +12,7 @@
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 
-#include "../include/tobas_keyboard_teleop/constants.hpp"
+#include "tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
 

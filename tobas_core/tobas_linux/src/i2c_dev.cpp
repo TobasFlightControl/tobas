@@ -1,4 +1,4 @@
-#include "../include/tobas_linux/i2c_dev.hpp"
+#include "tobas_linux/i2c_dev.hpp"
 
 #include <fcntl.h>
 #include <linux/i2c-dev.h>
@@ -9,7 +9,7 @@
 #include <iostream>
 #include <thread>
 
-#include "../include/tobas_linux/errer.hpp"
+#include "tobas_linux/errer.hpp"
 
 using namespace std;
 

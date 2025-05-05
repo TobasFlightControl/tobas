@@ -1,4 +1,4 @@
-#include "../include/tobas_ssh_client/ssh_client.hpp"
+#include "tobas_ssh_client/ssh_client.hpp"
 
 #include <tobas_ros2_tools/register.hpp>
 

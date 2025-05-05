@@ -1,4 +1,4 @@
-#include "../include/tobas_quadprog/qpoases.hpp"
+#include "tobas_quadprog/qpoases.hpp"
 
 #include <qpOASES.hpp>
 

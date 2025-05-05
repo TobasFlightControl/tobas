@@ -12,7 +12,7 @@
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-#include "../include/tobas_mr_actions/common.hpp"
+#include "tobas_mr_actions/common.hpp"
 
 using namespace std;
 

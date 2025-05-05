@@ -1,4 +1,4 @@
-#include "../include/tobas_git/core.hpp"
+#include "tobas_git/core.hpp"
 
 #include <iostream>
 

@@ -1,11 +1,11 @@
-#include "../include/tobas_linux/schedule.hpp"
+#include "tobas_linux/schedule.hpp"
 
 #include <pthread.h>
 #include <sched.h>
 
 #include <iostream>
 
-#include "../include/tobas_linux/core.hpp"
+#include "tobas_linux/core.hpp"
 
 using namespace std;
 

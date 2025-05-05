@@ -1,4 +1,4 @@
-#include "../include/tobas_legged_tools/swing_leg_controller.hpp"
+#include "tobas_legged_tools/swing_leg_controller.hpp"
 
 #include <iostream>
 

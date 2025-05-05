@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/octomap_render.hpp"
+#include "tobas_rviz_plugin/octomap_render.hpp"
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>

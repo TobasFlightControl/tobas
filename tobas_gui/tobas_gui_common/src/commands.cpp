@@ -1,10 +1,10 @@
-#include "../include/tobas_gui_common/command.hpp"
+#include "tobas_gui_common/command.hpp"
 
 #include <unistd.h>
 
 #include <iostream>
 
-#include "../include/tobas_gui_common/package.hpp"
+#include "tobas_gui_common/package.hpp"
 
 using namespace std;
 namespace fs = filesystem;

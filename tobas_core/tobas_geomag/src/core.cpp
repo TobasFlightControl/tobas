@@ -1,4 +1,4 @@
-#include "../include/tobas_geomag/core.hpp"
+#include "tobas_geomag/core.hpp"
 
 #include <cmath>
 #include <iostream>

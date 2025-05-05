@@ -1,4 +1,4 @@
-#include "../include/tobas_tools/control_latency_publisher.hpp"
+#include "tobas_tools/control_latency_publisher.hpp"
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/time.hpp>

@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/attached_body.hpp"
+#include "tobas_rviz_plugin/attached_body.hpp"
 
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shapes.h>

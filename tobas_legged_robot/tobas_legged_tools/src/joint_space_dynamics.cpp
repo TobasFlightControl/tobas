@@ -1,4 +1,4 @@
-#include "../include/tobas_legged_tools/joint_space_dynamics.hpp"
+#include "tobas_legged_tools/joint_space_dynamics.hpp"
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>

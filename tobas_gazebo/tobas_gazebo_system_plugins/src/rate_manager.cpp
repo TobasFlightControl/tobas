@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 #include <cassert>
 

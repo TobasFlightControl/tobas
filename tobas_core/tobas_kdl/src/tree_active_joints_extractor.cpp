@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_active_joints_extractor.hpp"
+#include "tobas_kdl/tree_active_joints_extractor.hpp"
 
 using namespace std;
 

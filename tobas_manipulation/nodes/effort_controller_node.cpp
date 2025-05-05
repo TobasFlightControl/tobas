@@ -13,8 +13,8 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
 
-#include "../include/tobas_manipulation/constants.hpp"
-#include "../include/tobas_manipulation/util.hpp"
+#include "tobas_manipulation/constants.hpp"
+#include "tobas_manipulation/util.hpp"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "../include/tobas_control/online_trajectory_generator_3d.hpp"
+#include "tobas_control/online_trajectory_generator_3d.hpp"
 
 using namespace std;
 using namespace Eigen;

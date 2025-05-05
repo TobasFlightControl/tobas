@@ -1,4 +1,4 @@
-#include "../include/tobas_node/node.hpp"
+#include "tobas_node/node.hpp"
 
 #include <rcutils/env.h>
 

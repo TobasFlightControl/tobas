@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/transforms.hpp"
+#include "tobas_rviz_plugin/transforms.hpp"
 
 #include <geometric_shapes/check_isometry.h>
 #include <boost/algorithm/string/trim.hpp>
@@ -6,7 +6,7 @@
 #include <rclcpp/logging.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
 
-#include "../include/tobas_rviz_plugin/logger.hpp"
+#include "tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {

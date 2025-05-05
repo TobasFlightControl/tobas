@@ -1,4 +1,4 @@
-#include "../include/tobas_tools/tree_joint_state_converter.hpp"
+#include "tobas_tools/tree_joint_state_converter.hpp"
 
 #include <tobas_std_tools/vector.hpp>
 

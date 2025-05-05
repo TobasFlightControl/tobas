@@ -12,7 +12,7 @@
 #include <tobas_mission_msgs/action/takeoff.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-#include "../include/tobas_keyboard_teleop/constants.hpp"
+#include "tobas_keyboard_teleop/constants.hpp"
 
 #define TAKEOFF_TARGET_ALTITUDE 3.      // [m]
 #define TAKEOFF_ALTITUDE_TOLERANCE 0.1  // [m]

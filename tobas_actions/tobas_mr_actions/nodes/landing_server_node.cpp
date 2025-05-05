@@ -10,7 +10,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_std_msgs/msg/bool_stamped.hpp>
 
-#include "../include/tobas_mr_actions/common.hpp"
+#include "tobas_mr_actions/common.hpp"
 
 using namespace std;
 

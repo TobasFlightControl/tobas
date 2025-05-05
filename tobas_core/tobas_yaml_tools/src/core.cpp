@@ -1,4 +1,4 @@
-#include "../include/tobas_yaml_tools/core.hpp"
+#include "tobas_yaml_tools/core.hpp"
 
 #include <fstream>
 #include <iostream>

@@ -1,4 +1,4 @@
-#include "../include/tobas_property_tree/property_tree.hpp"
+#include "tobas_property_tree/property_tree.hpp"
 
 #include <boost/property_tree/json_parser.hpp>
 

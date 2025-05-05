@@ -1,8 +1,8 @@
-#include "../include/tobas_rviz_plugin/robot_state_display.hpp"
+#include "tobas_rviz_plugin/robot_state_display.hpp"
 
 #include <rviz_common/properties/string_property.hpp>
 
-#include "../include/tobas_rviz_plugin/conversions.hpp"
+#include "tobas_rviz_plugin/conversions.hpp"
 
 using namespace std;
 

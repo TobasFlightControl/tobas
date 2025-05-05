@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/tr_mixer_pinv.hpp"
+#include "tobas_drone_tools/tr_mixer_pinv.hpp"
 
 #include <ranges>
 

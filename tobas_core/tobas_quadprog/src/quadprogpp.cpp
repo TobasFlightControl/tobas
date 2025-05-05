@@ -1,4 +1,4 @@
-#include "../include/tobas_quadprog/quadprogpp.hpp"
+#include "tobas_quadprog/quadprogpp.hpp"
 
 #include <QuadProg++/QuadProg++.hh>
 

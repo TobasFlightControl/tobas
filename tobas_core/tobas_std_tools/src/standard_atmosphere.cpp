@@ -1,4 +1,4 @@
-#include "../include/tobas_std_tools/standard_atmosphere.hpp"
+#include "tobas_std_tools/standard_atmosphere.hpp"
 
 #include <cassert>
 #include <cmath>

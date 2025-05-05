@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/rotor_axis_extractor.hpp"
+#include "tobas_drone_tools/rotor_axis_extractor.hpp"
 
 using namespace std;
 

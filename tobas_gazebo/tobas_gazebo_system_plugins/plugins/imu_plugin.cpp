@@ -11,10 +11,10 @@
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 
-#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_system_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_system_plugins/random.hpp"
-#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
+#include "tobas_gazebo_system_plugins/random.hpp"
+#include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

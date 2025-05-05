@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/rbf_loader.hpp"
+#include "tobas_rviz_plugin/rbf_loader.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -9,7 +9,7 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include "../include/tobas_rviz_plugin/logger.hpp"
+#include "tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {

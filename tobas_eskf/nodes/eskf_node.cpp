@@ -24,7 +24,7 @@
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-#include "../include/tobas_eskf/eskf.hpp"
+#include "tobas_eskf/eskf.hpp"
 
 using namespace std;
 using namespace Eigen;

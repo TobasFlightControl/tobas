@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/solver_i.hpp"
+#include "tobas_kdl/solver_i.hpp"
 
 using namespace std;
 

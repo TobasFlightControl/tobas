@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/trajectory.hpp"
+#include "tobas_kdl/trajectory.hpp"
 
 #include <iostream>
 

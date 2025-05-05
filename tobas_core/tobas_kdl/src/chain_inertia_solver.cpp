@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_inertia_solver.hpp"
+#include "tobas_kdl/chain_inertia_solver.hpp"
 
 using namespace std;
 

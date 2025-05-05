@@ -1,4 +1,4 @@
-#include "../include/tobas_ic_drivers/ublox/zed_f9p_1xb.hpp"
+#include "tobas_ic_drivers/ublox/zed_f9p_1xb.hpp"
 
 #include <cassert>
 #include <cstring>

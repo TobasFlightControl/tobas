@@ -1,4 +1,4 @@
-#include "../include/tobas_std_tools/stopwatch.hpp"
+#include "tobas_std_tools/stopwatch.hpp"
 
 #include <iostream>
 

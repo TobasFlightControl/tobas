@@ -1,4 +1,4 @@
-#include "../include/tobas_algorithm/binary.hpp"
+#include "tobas_algorithm/binary.hpp"
 
 #include <cmath>
 

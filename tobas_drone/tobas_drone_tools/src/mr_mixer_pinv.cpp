@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/mr_mixer_pinv.hpp"
+#include "tobas_drone_tools/mr_mixer_pinv.hpp"
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_std_tools/console.hpp>

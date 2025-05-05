@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_ik_solver_acc_rac.hpp"
+#include "tobas_kdl/chain_ik_solver_acc_rac.hpp"
 
 #include <iostream>
 

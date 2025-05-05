@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/planar_joint_model.hpp"
+#include "tobas_rviz_plugin/planar_joint_model.hpp"
 
 #include <cmath>
 #include <limits>

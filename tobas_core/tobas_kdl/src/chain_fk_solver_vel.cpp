@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_fk_solver_vel.hpp"
+#include "tobas_kdl/chain_fk_solver_vel.hpp"
 
 using namespace std;
 

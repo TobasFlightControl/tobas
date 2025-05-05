@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain.hpp"
+#include "tobas_kdl/chain.hpp"
 
 using namespace std;
 

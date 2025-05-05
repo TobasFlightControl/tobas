@@ -1,4 +1,4 @@
-#include "../include/tobas_algorithm/crc.hpp"
+#include "tobas_algorithm/crc.hpp"
 
 namespace algo
 {

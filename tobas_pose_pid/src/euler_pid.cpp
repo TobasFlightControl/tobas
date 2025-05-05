@@ -1,4 +1,4 @@
-#include "../include/tobas_pose_pid/euler_pid.hpp"
+#include "tobas_pose_pid/euler_pid.hpp"
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>

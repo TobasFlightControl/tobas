@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/robot_state.hpp"
+#include "tobas_rviz_plugin/robot_state.hpp"
 
 #include <functional>
 
@@ -7,10 +7,10 @@
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>
 
-#include "../include/tobas_rviz_plugin/aabb.hpp"
-#include "../include/tobas_rviz_plugin/cartesian_interpolator.hpp"
-#include "../include/tobas_rviz_plugin/console_colers.hpp"
-#include "../include/tobas_rviz_plugin/logger.hpp"
+#include "tobas_rviz_plugin/aabb.hpp"
+#include "tobas_rviz_plugin/cartesian_interpolator.hpp"
+#include "tobas_rviz_plugin/console_colers.hpp"
+#include "tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {

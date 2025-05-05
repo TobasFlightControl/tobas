@@ -1,4 +1,4 @@
-#include "../include/tobas_linux/realtime.hpp"
+#include "tobas_linux/realtime.hpp"
 
 #include <pthread.h>
 #include <string.h>
@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "../include/tobas_linux/errer.hpp"
+#include "tobas_linux/errer.hpp"
 
 using namespace std;
 

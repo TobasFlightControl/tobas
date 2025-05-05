@@ -18,9 +18,9 @@
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 
-#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_system_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_system_plugins/simple_joint_model.hpp"
+#include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
+#include "tobas_gazebo_system_plugins/simple_joint_model.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

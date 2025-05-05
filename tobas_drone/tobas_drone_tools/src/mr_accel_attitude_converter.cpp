@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/mr_accel_attitude_converter.hpp"
+#include "tobas_drone_tools/mr_accel_attitude_converter.hpp"
 
 #include <iostream>
 

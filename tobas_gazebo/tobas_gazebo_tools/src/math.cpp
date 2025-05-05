@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_tools/math.hpp"
+#include "tobas_gazebo_tools/math.hpp"
 
 using namespace gz::math;
 

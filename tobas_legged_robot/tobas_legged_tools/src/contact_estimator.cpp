@@ -1,4 +1,4 @@
-#include "../include/tobas_legged_tools/contact_estimator.hpp"
+#include "tobas_legged_tools/contact_estimator.hpp"
 
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>

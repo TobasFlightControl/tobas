@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/mr_mixer_qp.hpp"
+#include "tobas_drone_tools/mr_mixer_qp.hpp"
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>

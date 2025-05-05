@@ -1,4 +1,4 @@
-#include "../include/tobas_quadprog/utils.hpp"
+#include "tobas_quadprog/utils.hpp"
 
 #include <tobas_eigen_tools/core.hpp>
 

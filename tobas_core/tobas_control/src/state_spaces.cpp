@@ -1,4 +1,4 @@
-#include "../include/tobas_control/state_spaces.hpp"
+#include "tobas_control/state_spaces.hpp"
 
 using namespace std;
 using namespace Eigen;

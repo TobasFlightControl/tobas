@@ -1,10 +1,10 @@
-#include "../include/tobas_rviz_plugin/joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model.hpp"
 
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shape_operations.h>
 
-#include "../include/tobas_rviz_plugin/aabb.hpp"
-#include "../include/tobas_rviz_plugin/link_model.hpp"
+#include "tobas_rviz_plugin/aabb.hpp"
+#include "tobas_rviz_plugin/link_model.hpp"
 
 namespace tobas
 {

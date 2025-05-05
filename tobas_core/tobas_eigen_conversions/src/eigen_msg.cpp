@@ -1,4 +1,4 @@
-#include "../include/tobas_eigen_conversions/eigen_msg.hpp"
+#include "tobas_eigen_conversions/eigen_msg.hpp"
 
 namespace tf
 {

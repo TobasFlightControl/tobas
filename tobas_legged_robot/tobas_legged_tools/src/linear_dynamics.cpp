@@ -1,4 +1,4 @@
-#include "../include/tobas_legged_tools/linear_dynamics.hpp"
+#include "tobas_legged_tools/linear_dynamics.hpp"
 
 #include <tobas_eigen_tools/geometry.hpp>
 

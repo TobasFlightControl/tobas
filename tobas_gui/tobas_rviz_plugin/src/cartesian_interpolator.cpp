@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/cartesian_interpolator.hpp"
+#include "tobas_rviz_plugin/cartesian_interpolator.hpp"
 
 #include <memory>
 
@@ -7,7 +7,7 @@
 #include <rclcpp/logging.hpp>
 #include <rcpputils/asserts.hpp>
 
-#include "../include/tobas_rviz_plugin/logger.hpp"
+#include "tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {

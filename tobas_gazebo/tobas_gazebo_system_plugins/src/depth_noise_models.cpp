@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_system_plugins/depth_noise_models.hpp"
+#include "tobas_gazebo_system_plugins/depth_noise_models.hpp"
 
 #include <algorithm>
 #include <iostream>

@@ -1,4 +1,4 @@
-#include "../include/tobas_control/online_trajectory_generator.hpp"
+#include "tobas_control/online_trajectory_generator.hpp"
 
 #include <algorithm>
 #include <cassert>

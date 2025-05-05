@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/np_mixer_qp.hpp"
+#include "tobas_drone_tools/np_mixer_qp.hpp"
 
 #include <ranges>
 

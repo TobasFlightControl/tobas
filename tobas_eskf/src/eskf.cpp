@@ -1,4 +1,4 @@
-#include "../include/tobas_eskf/eskf.hpp"
+#include "tobas_eskf/eskf.hpp"
 
 #include <iostream>
 

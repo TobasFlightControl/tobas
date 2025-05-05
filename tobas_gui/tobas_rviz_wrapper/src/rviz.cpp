@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_wrapper/rviz.hpp"
+#include "tobas_rviz_wrapper/rviz.hpp"
 
 #include <OgreMaterialManager.h>
 #include <rviz_common/display_group.hpp>

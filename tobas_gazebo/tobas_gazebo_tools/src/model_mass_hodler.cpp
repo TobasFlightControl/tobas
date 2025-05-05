@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_tools/model_mass_holder.hpp"
+#include "tobas_gazebo_tools/model_mass_holder.hpp"
 
 using namespace std;
 using namespace gz::sim;

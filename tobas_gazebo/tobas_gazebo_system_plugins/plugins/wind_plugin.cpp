@@ -7,8 +7,8 @@
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 
-#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_system_plugins/conversions/gazebo_kdl.hpp"
+#include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

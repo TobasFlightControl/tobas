@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/mesh_shape.hpp"
+#include "tobas_rviz_plugin/mesh_shape.hpp"
 
 #include <OgreEntity.h>
 #include <OgreManualObject.h>

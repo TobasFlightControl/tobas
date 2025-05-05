@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_jntspace_inertia_solver.hpp"
+#include "tobas_kdl/tree_jntspace_inertia_solver.hpp"
 
 using namespace std;
 

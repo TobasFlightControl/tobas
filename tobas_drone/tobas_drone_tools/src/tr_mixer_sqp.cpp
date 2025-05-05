@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/tr_mixer_sqp.hpp"
+#include "tobas_drone_tools/tr_mixer_sqp.hpp"
 
 #include <ranges>
 

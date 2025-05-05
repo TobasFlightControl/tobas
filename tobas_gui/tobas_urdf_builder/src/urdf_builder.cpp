@@ -1,4 +1,4 @@
-#include "../include/tobas_urdf_builder/urdf_builder.hpp"
+#include "tobas_urdf_builder/urdf_builder.hpp"
 
 #include <filesystem>
 

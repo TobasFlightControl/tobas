@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/render_shapes.hpp"
+#include "tobas_rviz_plugin/render_shapes.hpp"
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
@@ -10,7 +10,7 @@
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_rendering/objects/shape.hpp>
 
-#include "../include/tobas_rviz_plugin/mesh_shape.hpp"
+#include "tobas_rviz_plugin/mesh_shape.hpp"
 
 namespace tobas
 {

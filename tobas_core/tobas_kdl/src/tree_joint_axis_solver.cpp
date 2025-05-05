@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_joint_axis_solver.hpp"
+#include "tobas_kdl/tree_joint_axis_solver.hpp"
 
 using namespace std;
 

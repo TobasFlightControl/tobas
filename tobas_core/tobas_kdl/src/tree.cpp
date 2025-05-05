@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree.hpp"
+#include "tobas_kdl/tree.hpp"
 
 #include <iostream>
 

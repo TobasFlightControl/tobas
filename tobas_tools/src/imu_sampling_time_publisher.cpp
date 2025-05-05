@@ -1,4 +1,4 @@
-#include "../include/tobas_tools/imu_sampling_time_publisher.hpp"
+#include "tobas_tools/imu_sampling_time_publisher.hpp"
 
 #include <tobas_constants/constants.hpp>
 

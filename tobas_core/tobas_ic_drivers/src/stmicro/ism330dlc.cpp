@@ -1,4 +1,4 @@
-#include "../include/tobas_ic_drivers/stmicro/ism330dlc.hpp"
+#include "tobas_ic_drivers/stmicro/ism330dlc.hpp"
 
 #include <cstring>
 #include <iostream>

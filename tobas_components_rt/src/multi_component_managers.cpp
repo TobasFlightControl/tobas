@@ -1,10 +1,10 @@
-#include "../include/tobas_components_rt/multi_component_managers.hpp"
+#include "tobas_components_rt/multi_component_managers.hpp"
 
 #include <thread>
 
 #include <tobas_linux/realtime.hpp>
 
-#include "../include/tobas_components_rt/multi_threaded_executor.hpp"
+#include "tobas_components_rt/multi_threaded_executor.hpp"
 
 using namespace std;
 

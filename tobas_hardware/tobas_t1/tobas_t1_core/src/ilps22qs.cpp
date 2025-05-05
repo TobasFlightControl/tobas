@@ -1,4 +1,4 @@
-#include "../include/tobas_t1_core/ilps22qs.hpp"
+#include "tobas_t1_core/ilps22qs.hpp"
 
 #include <iostream>
 

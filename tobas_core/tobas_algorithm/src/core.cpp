@@ -1,4 +1,4 @@
-#include "../include/tobas_algorithm/core.hpp"
+#include "tobas_algorithm/core.hpp"
 
 #include <cassert>
 #include <cmath>

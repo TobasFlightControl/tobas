@@ -1,4 +1,4 @@
-#include "../include/tobas_sbus_driver/sbus.hpp"
+#include "tobas_sbus_driver/sbus.hpp"
 
 #include <iostream>
 #include <set>

@@ -1,9 +1,9 @@
-#include "../include/tobas_rviz_plugin/exceptions.hpp"
+#include "tobas_rviz_plugin/exceptions.hpp"
 
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 
-#include "../include/tobas_rviz_plugin/logger.hpp"
+#include "tobas_rviz_plugin/logger.hpp"
 
 #define LOGGER_NAME "tobas_exception"
 

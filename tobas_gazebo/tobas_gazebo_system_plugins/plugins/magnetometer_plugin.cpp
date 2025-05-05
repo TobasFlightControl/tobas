@@ -9,10 +9,10 @@
 
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 
-#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_system_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_system_plugins/random.hpp"
-#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
+#include "tobas_gazebo_system_plugins/random.hpp"
+#include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

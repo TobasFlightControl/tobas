@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_tools/conversion.hpp"
+#include "tobas_gazebo_tools/conversion.hpp"
 
 namespace gazebo
 {

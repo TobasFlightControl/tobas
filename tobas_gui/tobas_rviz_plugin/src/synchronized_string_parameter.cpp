@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/synchronized_string_parameter.hpp"
+#include "tobas_rviz_plugin/synchronized_string_parameter.hpp"
 
 namespace tobas
 {

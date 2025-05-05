@@ -1,4 +1,4 @@
-#include "../include/tobas_property_client/property_client.hpp"
+#include "tobas_property_client/property_client.hpp"
 
 #include <std_srvs/srv/trigger.hpp>
 

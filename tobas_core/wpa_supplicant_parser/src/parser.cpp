@@ -1,4 +1,4 @@
-#include "../include/wpa_supplicant_parser/parser.hpp"
+#include "wpa_supplicant_parser/parser.hpp"
 
 #include <fstream>
 #include <iostream>

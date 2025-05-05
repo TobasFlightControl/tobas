@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_system_plugins/simple_joint_model.hpp"
+#include "tobas_gazebo_system_plugins/simple_joint_model.hpp"
 
 #include <gz/common/Console.hh>
 

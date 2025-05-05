@@ -1,9 +1,9 @@
-#include "../include/tobas_quadprog/primal_dual_interior_point.hpp"
+#include "tobas_quadprog/primal_dual_interior_point.hpp"
 
 #include <eigen3/Eigen/Cholesky>
 #include <eigen3/Eigen/LU>
 
-#include "../include/tobas_quadprog/dual_active_set.hpp"
+#include "tobas_quadprog/dual_active_set.hpp"
 
 using namespace std;
 using namespace Eigen;

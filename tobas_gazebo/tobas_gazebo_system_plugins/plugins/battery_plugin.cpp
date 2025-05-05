@@ -8,9 +8,9 @@
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 
-#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_system_plugins/conversions/gazebo_msg.hpp"
-#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/conversions/gazebo_msg.hpp"
+#include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

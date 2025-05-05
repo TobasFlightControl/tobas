@@ -12,7 +12,7 @@
 #include <tobas_dynamixel_msgs/msg/motor_state_array.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-#include "../include/tobas_dynamixel_handler/constants.hpp"
+#include "tobas_dynamixel_handler/constants.hpp"
 
 using namespace std;
 using namespace dynamixel;

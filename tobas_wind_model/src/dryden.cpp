@@ -1,4 +1,4 @@
-#include "../include/tobas_wind_model/dryden.hpp"
+#include "tobas_wind_model/dryden.hpp"
 
 #include <cassert>
 

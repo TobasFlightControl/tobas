@@ -1,4 +1,4 @@
-#include "../include/tobas_linux/core.hpp"
+#include "tobas_linux/core.hpp"
 
 #include <unistd.h>
 

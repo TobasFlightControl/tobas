@@ -1,4 +1,4 @@
-#include "../include/tobas_ic_drivers/nssnmfg_pefc.hpp"
+#include "tobas_ic_drivers/nssnmfg_pefc.hpp"
 
 #include <iostream>
 

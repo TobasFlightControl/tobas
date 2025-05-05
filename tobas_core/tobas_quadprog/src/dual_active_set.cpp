@@ -1,4 +1,4 @@
-#include "../include/tobas_quadprog/dual_active_set.hpp"
+#include "tobas_quadprog/dual_active_set.hpp"
 
 #include <iostream>
 

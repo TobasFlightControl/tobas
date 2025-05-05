@@ -1,4 +1,4 @@
-#include "../include/tobas_qt_tools/string.hpp"
+#include "tobas_qt_tools/string.hpp"
 
 namespace qt
 {

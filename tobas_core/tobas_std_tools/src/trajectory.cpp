@@ -1,4 +1,4 @@
-#include "../include/tobas_std_tools/trajectory.hpp"
+#include "tobas_std_tools/trajectory.hpp"
 
 #include <algorithm>
 #include <cassert>

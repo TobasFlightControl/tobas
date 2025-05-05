@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/fixed_joint_model.hpp"
+#include "tobas_rviz_plugin/fixed_joint_model.hpp"
 
 namespace tobas
 {

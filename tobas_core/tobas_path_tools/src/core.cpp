@@ -1,4 +1,4 @@
-#include "../include/tobas_path_tools/core.hpp"
+#include "tobas_path_tools/core.hpp"
 
 #include <fstream>
 #include <iostream>

@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_id_solver.hpp"
+#include "tobas_kdl/tree_id_solver.hpp"
 
 namespace kdl
 {

@@ -1,4 +1,4 @@
-#include "../include/tobas_string_tools/core.hpp"
+#include "tobas_string_tools/core.hpp"
 
 #include <algorithm>
 #include <cstdint>

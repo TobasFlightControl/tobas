@@ -7,7 +7,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/geometry.hpp>
 
-#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/common/common.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

@@ -1,4 +1,4 @@
-#include "../include/tobas_constants/rc_command.hpp"
+#include "tobas_constants/rc_command.hpp"
 
 #include <iostream>
 

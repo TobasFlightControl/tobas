@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_ik_solver_vel_pinv.hpp"
+#include "tobas_kdl/tree_ik_solver_vel_pinv.hpp"
 
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>

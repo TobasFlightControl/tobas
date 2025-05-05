@@ -1,4 +1,4 @@
-#include "../include/tobas_linux/termios2.hpp"
+#include "tobas_linux/termios2.hpp"
 
 #include <asm/termbits.h>
 #include <sys/ioctl.h>
@@ -6,7 +6,7 @@
 #include <iostream>
 #include <thread>
 
-#include "../include/tobas_linux/errer.hpp"
+#include "tobas_linux/errer.hpp"
 
 using namespace std;
 

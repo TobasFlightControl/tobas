@@ -1,4 +1,4 @@
-#include "../include/tobas_ic_drivers/ads1220.hpp"
+#include "tobas_ic_drivers/ads1220.hpp"
 
 #include <bitset>
 #include <iostream>

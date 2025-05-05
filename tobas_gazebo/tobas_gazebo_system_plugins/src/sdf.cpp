@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_system_plugins/sdf.hpp"
+#include "tobas_gazebo_system_plugins/sdf.hpp"
 
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 

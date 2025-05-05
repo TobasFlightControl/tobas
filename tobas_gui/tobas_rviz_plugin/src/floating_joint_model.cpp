@@ -1,4 +1,4 @@
-#include "../include/tobas_rviz_plugin/floating_joint_model.hpp"
+#include "tobas_rviz_plugin/floating_joint_model.hpp"
 
 #include <cmath>
 #include <limits>
@@ -8,7 +8,7 @@
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 
-#include "../include/tobas_rviz_plugin/logger.hpp"
+#include "tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {

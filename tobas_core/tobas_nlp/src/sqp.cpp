@@ -1,4 +1,4 @@
-#include "../include/tobas_nlp/sqp.hpp"
+#include "tobas_nlp/sqp.hpp"
 
 #include <iostream>
 

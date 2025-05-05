@@ -1,4 +1,4 @@
-#include "../include/tobas_control/linear_mpc.hpp"
+#include "tobas_control/linear_mpc.hpp"
 
 #include <iostream>
 

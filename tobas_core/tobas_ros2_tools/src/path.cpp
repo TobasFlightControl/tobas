@@ -1,4 +1,4 @@
-#include "../include/tobas_ros2_tools/path.hpp"
+#include "tobas_ros2_tools/path.hpp"
 
 #include <filesystem>
 #include <stdexcept>

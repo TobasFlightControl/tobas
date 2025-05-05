@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_id_solver_rne.hpp"
+#include "tobas_kdl/chain_id_solver_rne.hpp"
 
 namespace kdl
 {

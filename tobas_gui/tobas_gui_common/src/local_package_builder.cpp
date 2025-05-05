@@ -1,4 +1,4 @@
-#include "../include/tobas_gui_common/local_package_builder.hpp"
+#include "tobas_gui_common/local_package_builder.hpp"
 
 #include <unistd.h>
 
@@ -8,7 +8,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-#include "../include/tobas_gui_common/package.hpp"
+#include "tobas_gui_common/package.hpp"
 
 using namespace std;
 namespace fs = filesystem;
