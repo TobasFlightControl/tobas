@@ -31,10 +31,7 @@ public:
    */
   virtual int CartToJnt(const JntArray& q, const JntArray& q_dot, const JntArray& q_dotdot, const WrenchMap& f_ext) = 0;
 
-  inline const JntArray& getEfforts() const
-  {
-    return effort_out_;
-  }
+  inline const JntArray& getEfforts() const;
 
 protected:
   JntArray effort_out_;

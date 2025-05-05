@@ -2,7 +2,7 @@
 
 namespace kdl
 {
-explicit inline TreeIdSolver::TreeIdSolver(const Tree& tree) : super(tree)
+TreeIdSolver::TreeIdSolver(const Tree& tree) : super(tree)
 {
 }
 }  // namespace kdl
