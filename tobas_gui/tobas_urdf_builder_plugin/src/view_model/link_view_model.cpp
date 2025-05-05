@@ -1,6 +1,6 @@
-#include "../../include/tobas_urdf_builder_plugin/view_model/link_view_model.hpp"
+#include "tobas_urdf_builder_plugin/view_model/link_view_model.hpp"
 
-#include "../../include/tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
+#include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
 using namespace std;
 

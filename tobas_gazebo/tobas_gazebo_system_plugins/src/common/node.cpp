@@ -1,4 +1,4 @@
-#include "../../include/tobas_gazebo_system_plugins/common/node.hpp"
+#include "tobas_gazebo_system_plugins/common/node.hpp"
 
 #include <tobas_constants/constants.hpp>
 

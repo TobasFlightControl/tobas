@@ -1,4 +1,4 @@
-#include "../../include/tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 
 #include <filesystem>
 
@@ -14,11 +14,11 @@
 
 #include "ui_update_link_dialog.h"
 
-#include "../../include/tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/widget_item.hpp"
-#include "../../include/tobas_urdf_builder_plugin/utils/constants.hpp"
+#include "tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
+#include "tobas_urdf_builder_plugin/ui/widget_item.hpp"
+#include "tobas_urdf_builder_plugin/utils/constants.hpp"
 
 using namespace std;
 

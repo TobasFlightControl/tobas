@@ -1,4 +1,4 @@
-#include "../../include/tobas_urdf_builder_plugin/view_model/urdf_view_model.hpp"
+#include "tobas_urdf_builder_plugin/view_model/urdf_view_model.hpp"
 
 #include <queue>
 

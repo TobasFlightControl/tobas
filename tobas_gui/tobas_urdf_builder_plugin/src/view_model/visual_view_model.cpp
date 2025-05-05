@@ -1,6 +1,6 @@
-#include "../../include/tobas_urdf_builder_plugin/view_model/visual_view_model.hpp"
+#include "tobas_urdf_builder_plugin/view_model/visual_view_model.hpp"
 
-#include "../../include/tobas_urdf_builder_plugin/utils/time.hpp"
+#include "tobas_urdf_builder_plugin/utils/time.hpp"
 
 namespace gui
 {

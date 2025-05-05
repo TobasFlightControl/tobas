@@ -1,10 +1,10 @@
-#include "../../include/tobas_urdf_builder_plugin/ui/add_link_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/add_link_dialog.hpp"
 
 #include <QPushButton>
 
 #include "ui_add_link_dialog.h"
 
-#include "../../include/tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
+#include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
 namespace gui
 {
