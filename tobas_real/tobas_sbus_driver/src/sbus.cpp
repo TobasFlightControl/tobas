@@ -1,11 +1,12 @@
+#include "../include/tobas_sbus_driver/sbus.hpp"
+
 #include <iostream>
 #include <thread>
 #include <set>
+
 #include <boost/multiprecision/cpp_int.hpp>
 
 #include <tobas_std_tools/console.hpp>
-
-#include "../include/tobas_sbus_driver/sbus.hpp"
 
 #define TIMEOUT_MS 1000
 #define TIMEOUT_ERROR_MSG "Failed to receive SBUS byte in 1 second."
