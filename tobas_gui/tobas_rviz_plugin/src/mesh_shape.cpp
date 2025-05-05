@@ -1,3 +1,4 @@
+#include "../include/tobas_rviz_plugin/mesh_shape.hpp"
 
 #include <OgreMesh.h>
 #include <OgreMeshManager.h>
@@ -7,8 +8,6 @@
 #include <OgreMaterialManager.h>
 #include <OgreManualObject.h>
 #include <rviz_common/logging.hpp>
-
-#include "../include/tobas_rviz_plugin/mesh_shape.hpp"
 
 namespace rviz_rendering
 {

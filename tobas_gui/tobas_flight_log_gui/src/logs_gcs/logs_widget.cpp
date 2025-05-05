@@ -1,3 +1,5 @@
+#include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
@@ -9,7 +11,6 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/cast.hpp>
 
-#include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 #include "tobas_flight_log_gui/constants.hpp"
 

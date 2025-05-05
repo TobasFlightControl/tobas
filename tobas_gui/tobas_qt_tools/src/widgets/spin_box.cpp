@@ -1,7 +1,7 @@
+#include "tobas_qt_tools/widgets/spin_box.hpp"
+
 #include <QTimer>
 #include <QWheelEvent>
-
-#include "tobas_qt_tools/widgets/spin_box.hpp"
 
 namespace qt
 {

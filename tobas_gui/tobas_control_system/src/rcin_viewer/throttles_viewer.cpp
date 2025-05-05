@@ -1,3 +1,5 @@
+#include "tobas_control_system/rcin_viewer/throttles_viewer.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
@@ -5,8 +7,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/util.hpp>
-
-#include "tobas_control_system/rcin_viewer/throttles_viewer.hpp"
 
 namespace gui
 {

@@ -1,3 +1,5 @@
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/available_links.hpp"
+
 #include <QHBoxLayout>
 
 #include <tobas_std_tools/check.hpp>
@@ -5,7 +7,6 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/cast.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/available_links.hpp"
 #include "tobas_setup_assistant/constants.hpp"
 
 namespace gui

@@ -1,9 +1,10 @@
+#include "tobas_qt_tools/util.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
 #include <tobas_std_tools/console.hpp>
 
-#include "tobas_qt_tools/util.hpp"
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
 namespace qt

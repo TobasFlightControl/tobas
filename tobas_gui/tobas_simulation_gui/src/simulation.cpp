@@ -1,3 +1,5 @@
+#include "tobas_simulation_gui/simulation.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QCloseEvent>
@@ -13,8 +15,6 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
-
-#include "tobas_simulation_gui/simulation.hpp"
 
 namespace fs = std::filesystem;
 

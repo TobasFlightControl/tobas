@@ -1,9 +1,10 @@
+#include "tobas_qt_tools/widgets/position_bar_widget.hpp"
+
 #include <QPainter>
 #include <QPaintEvent>
 
 #include <tobas_math/core.hpp>
 
-#include "tobas_qt_tools/widgets/position_bar_widget.hpp"
 #include "tobas_qt_tools/font.hpp"
 
 namespace qt

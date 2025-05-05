@@ -1,4 +1,7 @@
+#include "tobas_setup_assistant/start/package_loader.hpp"
+
 #include <filesystem>
+
 #include <rcutils/env.h>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -11,7 +14,6 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_gui_common/package.hpp>
 
-#include "tobas_setup_assistant/start/package_loader.hpp"
 #include "tobas_setup_assistant/constants.hpp"
 
 namespace gui

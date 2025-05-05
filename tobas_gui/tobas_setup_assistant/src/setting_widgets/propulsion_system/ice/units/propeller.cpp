@@ -1,10 +1,10 @@
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propeller.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propeller.hpp"
 
 namespace gui
 {

@@ -1,8 +1,8 @@
+#include "tobas_hardware_setup/hardware_setup.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_hardware_setup/hardware_setup.hpp"
 
 namespace gui
 {

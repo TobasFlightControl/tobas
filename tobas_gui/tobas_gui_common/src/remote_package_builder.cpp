@@ -1,6 +1,7 @@
+#include "../include/tobas_gui_common/remote_package_builder.hpp"
+
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_gui_common/remote_package_builder.hpp"
 #include "../include/tobas_gui_common/package.hpp"
 
 using namespace std;

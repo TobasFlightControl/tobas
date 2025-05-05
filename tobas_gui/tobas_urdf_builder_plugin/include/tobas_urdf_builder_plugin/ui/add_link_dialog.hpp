@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+
 #include <QtWidgets/QtWidgets>
 
 #include "../view_model/link_view_model.hpp"

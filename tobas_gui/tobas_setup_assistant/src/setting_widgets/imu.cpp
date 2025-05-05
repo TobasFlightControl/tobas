@@ -1,7 +1,7 @@
+#include "tobas_setup_assistant/setting_tabs/imu.hpp"
+
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/imu.hpp"
 
 namespace gui
 {

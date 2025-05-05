@@ -1,6 +1,6 @@
-#include <QMessageBox>
-
 #include "tobas_qt_tools/message.hpp"
+
+#include <QMessageBox>
 
 namespace qt
 {

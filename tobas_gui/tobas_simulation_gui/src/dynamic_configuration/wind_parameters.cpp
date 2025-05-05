@@ -1,3 +1,5 @@
+#include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_path_tools/join.hpp>
@@ -6,7 +8,6 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 
-#include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui

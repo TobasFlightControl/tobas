@@ -1,7 +1,8 @@
+#include "tobas_qt_tools/widgets/slider_display.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-#include "tobas_qt_tools/widgets/slider_display.hpp"
 #include "tobas_qt_tools/font.hpp"
 
 #define TEXT_PSIZE 9

@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/observer/custom.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/observer/custom.hpp"
 
 namespace gui
 {

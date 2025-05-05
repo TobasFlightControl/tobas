@@ -1,3 +1,5 @@
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/general/active_tilt_settings.hpp"
+
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -7,7 +9,6 @@
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/general/active_tilt_settings.hpp"
 
 namespace gui
 {

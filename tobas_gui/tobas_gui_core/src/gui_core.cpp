@@ -1,3 +1,5 @@
+#include "tobas_gui_core/gui_core.hpp"
+
 #include <rcutils/env.h>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <QLabel>
@@ -15,7 +17,6 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_gui_common/package.hpp>
 
-#include "tobas_gui_core/gui_core.hpp"
 #include "tobas_gui_core/constants.hpp"
 #include "tobas_gui_core/app_button.hpp"
 

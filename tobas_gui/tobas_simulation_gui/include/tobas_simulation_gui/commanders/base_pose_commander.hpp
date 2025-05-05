@@ -13,7 +13,6 @@
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
-
 #include <tobas_msgs/srv/set_arm.hpp>
 
 namespace gui

@@ -1,3 +1,5 @@
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/selected_links.hpp"
+
 #include <QLabel>
 #include <QDebug>
 
@@ -6,7 +8,6 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/selected_links.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 #include "tobas_setup_assistant/constants.hpp"
 

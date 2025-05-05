@@ -1,7 +1,7 @@
+#include "tobas_control_system/control_system.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-
-#include "tobas_control_system/control_system.hpp"
 
 namespace gui
 {

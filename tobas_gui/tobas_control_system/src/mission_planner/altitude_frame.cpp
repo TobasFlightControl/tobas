@@ -1,8 +1,9 @@
-#include <stdexcept>
-#include <format>
+#include "tobas_control_system/mission_planner/altitude_frame.hpp"
+
 #include <string.h>
 
-#include "tobas_control_system/mission_planner/altitude_frame.hpp"
+#include <stdexcept>
+#include <format>
 
 #define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
 #define RELATIVE_TO_HOME_LABEL "Relative to Home"

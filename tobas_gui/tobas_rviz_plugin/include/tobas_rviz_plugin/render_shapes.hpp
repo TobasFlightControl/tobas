@@ -1,7 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <Eigen/Geometry>
+
+#include <eigen3/Eigen/Geometry>
 #include <OgreColourValue.h>
 #include <geometric_shapes/shapes.h>
 #include <rviz_common/properties/color_property.hpp>

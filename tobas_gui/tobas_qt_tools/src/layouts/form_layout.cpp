@@ -1,8 +1,8 @@
+#include "tobas_qt_tools/layouts/form_layout.hpp"
+
 #include <QWidget>
 #include <QLabel>
 #include <QHBoxLayout>
-
-#include "tobas_qt_tools/layouts/form_layout.hpp"
 
 namespace qt
 {

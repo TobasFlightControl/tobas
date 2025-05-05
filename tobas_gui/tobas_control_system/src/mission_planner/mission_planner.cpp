@@ -1,3 +1,5 @@
+#include "tobas_control_system/mission_planner/mission_planner.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
@@ -8,8 +10,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_control_system/mission_planner/mission_planner.hpp"
 
 namespace fs = std::filesystem;
 

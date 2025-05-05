@@ -1,8 +1,8 @@
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/motor.hpp"
+
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/motor.hpp"
 
 namespace gui
 {

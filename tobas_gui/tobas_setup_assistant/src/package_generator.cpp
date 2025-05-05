@@ -1,3 +1,5 @@
+#include "tobas_setup_assistant/package_generator.hpp"
+
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <urdf_parser/urdf_parser.h>
 #include <QDebug>
@@ -13,7 +15,6 @@
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/command.hpp>
 
-#include "tobas_setup_assistant/package_generator.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
 using namespace std;

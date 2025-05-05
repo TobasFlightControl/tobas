@@ -1,8 +1,8 @@
+#include "tobas_qt_tools/widgets/toggle_switch.hpp"
+
 #include <QPainter>
 #include <QResizeEvent>
 #include <QDebug>
-
-#include "tobas_qt_tools/widgets/toggle_switch.hpp"
 
 namespace qt
 {

@@ -1,7 +1,7 @@
+#include "tobas_qt_tools/widgets/list_widget.hpp"
+
 #include <QVariant>
 #include <QDropEvent>
-
-#include "tobas_qt_tools/widgets/list_widget.hpp"
 
 namespace qt
 {

@@ -1,3 +1,5 @@
+#include "tobas_control_system/power_source_viewer/battery_viewer.hpp"
+
 #include <format>
 
 #include <tobas_math/core.hpp>
@@ -6,8 +8,6 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-
-#include "tobas_control_system/power_source_viewer/battery_viewer.hpp"
 
 namespace gui
 {

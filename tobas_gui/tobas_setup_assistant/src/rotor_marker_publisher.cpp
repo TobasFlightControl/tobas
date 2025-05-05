@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/rotor_marker_publisher.hpp"
+
 #include <QDebug>
 
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-
-#include "tobas_setup_assistant/rotor_marker_publisher.hpp"
 
 namespace gui
 {

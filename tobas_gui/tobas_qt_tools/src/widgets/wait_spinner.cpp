@@ -1,7 +1,8 @@
-#include <algorithm>
-#include <QPainter>
-
 #include "tobas_qt_tools/widgets/wait_spinner.hpp"
+
+#include <algorithm>
+
+#include <QPainter>
 
 using namespace std;
 

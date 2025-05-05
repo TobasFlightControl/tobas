@@ -1,10 +1,10 @@
+#include "tobas_flight_log_gui/log_viewer/plots/pose_plot.hpp"
+
 #include <QGridLayout>
 
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
-
-#include "tobas_flight_log_gui/log_viewer/plots/pose_plot.hpp"
 
 namespace gui
 {

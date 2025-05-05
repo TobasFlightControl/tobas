@@ -1,11 +1,11 @@
+#include "tobas_control_system/cpu_viewer.hpp"
+
 #include <format>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-
-#include "tobas_control_system/cpu_viewer.hpp"
 
 namespace gui
 {

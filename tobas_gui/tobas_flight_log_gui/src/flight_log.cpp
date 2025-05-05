@@ -1,8 +1,8 @@
+#include "tobas_flight_log_gui/flight_log.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDebug>
-
-#include "tobas_flight_log_gui/flight_log.hpp"
 
 namespace gui
 {

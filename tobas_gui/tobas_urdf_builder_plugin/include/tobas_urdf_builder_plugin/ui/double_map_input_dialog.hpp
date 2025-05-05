@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+
 #include <QtWidgets/QtWidgets>
 
 namespace gui

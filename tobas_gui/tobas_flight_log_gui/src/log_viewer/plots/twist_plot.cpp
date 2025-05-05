@@ -1,8 +1,8 @@
+#include "tobas_flight_log_gui/log_viewer/plots/twist_plot.hpp"
+
 #include <QGridLayout>
 
 #include <tobas_ros2_tools/time.hpp>
-
-#include "tobas_flight_log_gui/log_viewer/plots/twist_plot.hpp"
 
 namespace gui
 {

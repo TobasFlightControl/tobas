@@ -9,6 +9,7 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
+
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 

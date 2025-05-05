@@ -1,7 +1,7 @@
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/general.hpp"
+
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/general.hpp"
 
 namespace gui
 {

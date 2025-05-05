@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+
 #include <octomap/octomap.h>
 #include <OgrePrerequisites.h>
 #include <rviz_common/properties/color_property.hpp>

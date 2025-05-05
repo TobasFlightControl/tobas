@@ -1,9 +1,9 @@
+#include "tobas_flight_log_gui/log_viewer/playback_control.hpp"
+
 #include <QStyle>
 #include <QHBoxLayout>
 
 #include <tobas_std_tools/check.hpp>
-
-#include "tobas_flight_log_gui/log_viewer/playback_control.hpp"
 
 namespace gui
 {

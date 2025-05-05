@@ -1,7 +1,8 @@
+#include "../include/tobas_rviz_plugin/joint_model.hpp"
+
 #include <algorithm>
 
 #include "../include/tobas_rviz_plugin/exceptions.hpp"
-#include "../include/tobas_rviz_plugin/joint_model.hpp"
 #include "../include/tobas_rviz_plugin/link_model.hpp"
 
 namespace tobas

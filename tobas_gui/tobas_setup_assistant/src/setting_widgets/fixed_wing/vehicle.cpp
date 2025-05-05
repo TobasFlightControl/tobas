@@ -1,8 +1,8 @@
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/vehicle.hpp"
+
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vehicle.hpp"
 
 namespace gui
 {

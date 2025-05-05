@@ -1,7 +1,8 @@
+#include "tobas_hardware_setup/network_setting/widget.hpp"
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-#include "tobas_hardware_setup/network_setting/widget.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
 namespace gui

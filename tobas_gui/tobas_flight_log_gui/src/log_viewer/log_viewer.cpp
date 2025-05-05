@@ -1,11 +1,11 @@
+#include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
 
 namespace fs = std::filesystem;
 

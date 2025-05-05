@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/optional_device.hpp"
+
 #include <QTimer>
 
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/font.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/optional_device.hpp"
 
 namespace gui
 {

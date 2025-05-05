@@ -1,9 +1,9 @@
+#include "tobas_control_system/status_viewer/postarm_check_viewer.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_control_system/status_viewer/postarm_check_viewer.hpp"
 
 namespace gui
 {

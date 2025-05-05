@@ -3,7 +3,6 @@
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./robot_info.hpp"
-
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/joint_config.hpp"

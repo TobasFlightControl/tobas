@@ -1,4 +1,7 @@
+#include "tobas_hardware_setup/mag_calibration/widget.hpp"
+
 #include <filesystem>
+
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_math/core.hpp>
@@ -10,11 +13,11 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-#include "tobas_hardware_setup/mag_calibration/widget.hpp"
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
+
 #include "tobas_hardware_setup/mag_calibration/method.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 

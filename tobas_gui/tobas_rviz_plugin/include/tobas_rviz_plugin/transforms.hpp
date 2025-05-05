@@ -1,7 +1,9 @@
 #pragma once
 
 #include <map>
-#include <Eigen/Geometry>
+
+#include <eigen3/Eigen/Geometry>
+
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include "./class_forward.hpp"

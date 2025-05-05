@@ -1,4 +1,7 @@
+#include "tobas_control_system/mission_planner/map_widget.hpp"
+
 #include <filesystem>
+
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <QtQuick/QQuickItem>
 #include <QtQml/QQmlContext>
@@ -6,7 +9,6 @@
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_control_system/constants.hpp"
-#include "tobas_control_system/mission_planner/map_widget.hpp"
 #include "tobas_control_system/mission_planner/system_info.hpp"
 
 namespace fs = std::filesystem;

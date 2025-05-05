@@ -1,3 +1,5 @@
+#pragma once
+
 #include "./link_model.hpp"
 #include "./joint_model_group.hpp"
 

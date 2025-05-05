@@ -1,6 +1,6 @@
-#include <limits>
-
 #include "../include/tobas_rviz_plugin/prismatic_joint_model.hpp"
+
+#include <limits>
 
 namespace tobas
 {

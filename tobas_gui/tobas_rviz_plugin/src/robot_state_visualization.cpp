@@ -1,8 +1,9 @@
+#include "../include/tobas_rviz_plugin/robot_state_visualization.hpp"
+
 #include <rviz_common/properties/parse_color.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
 #include <QApplication>
 
-#include "../include/tobas_rviz_plugin/robot_state_visualization.hpp"
 #include "../include/tobas_rviz_plugin/planning_link_updater.hpp"
 #include "../include/tobas_rviz_plugin/render_shapes.hpp"
 #include "../include/tobas_rviz_plugin/logger.hpp"

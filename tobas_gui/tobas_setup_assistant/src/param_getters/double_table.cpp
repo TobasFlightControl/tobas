@@ -1,9 +1,10 @@
+#include "tobas_setup_assistant/param_getters/double_table.hpp"
+
 #include <filesystem>
 #include <rcutils/env.h>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QHeaderView>
-
 #include <rapidcsv.h>
 
 #include <tobas_string_tools/core.hpp>
@@ -12,8 +13,6 @@
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_setup_assistant/param_getters/double_table.hpp"
 
 using namespace std;
 using namespace Eigen;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+
 #include <tinyxml2.h>
 
 namespace gui

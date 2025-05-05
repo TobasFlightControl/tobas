@@ -1,8 +1,8 @@
+#include "tobas_control_system/status_viewer/status_viewer.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/label.hpp>
-
-#include "tobas_control_system/status_viewer/status_viewer.hpp"
 
 namespace gui
 {

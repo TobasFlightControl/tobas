@@ -1,9 +1,9 @@
+#include "tobas_flight_log_gui/log_viewer/plots/propeller_pitch_plot.hpp"
+
 #include <ranges>
 
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_qt_tools/util.hpp>
-
-#include "tobas_flight_log_gui/log_viewer/plots/propeller_pitch_plot.hpp"
 
 namespace gui
 {

@@ -1,10 +1,10 @@
+#include "tobas_qt_tools/widgets/progress_dialog.hpp"
+
 #include <QApplication>
 #include <QThread>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
-
-#include "tobas_qt_tools/widgets/progress_dialog.hpp"
 
 namespace qt
 {

@@ -1,6 +1,6 @@
-#include <QHBoxLayout>
-
 #include "tobas_control_system/rcin_viewer/rcin_viewer.hpp"
+
+#include <QHBoxLayout>
 
 namespace gui
 {

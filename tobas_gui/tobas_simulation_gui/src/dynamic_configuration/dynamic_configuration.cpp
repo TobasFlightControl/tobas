@@ -1,9 +1,10 @@
+#include "tobas_simulation_gui/dynamic_configuration/dynamic_configuration.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-#include "tobas_simulation_gui/dynamic_configuration/dynamic_configuration.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui

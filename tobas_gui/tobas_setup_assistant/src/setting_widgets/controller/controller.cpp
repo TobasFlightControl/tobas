@@ -1,8 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
+
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/cast.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"

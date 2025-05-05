@@ -1,10 +1,11 @@
 #pragma once
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
+
+#include <tobas_msgs_adapter/gnss.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 #include "./map_widget.hpp"
 #include "./command_button.hpp"

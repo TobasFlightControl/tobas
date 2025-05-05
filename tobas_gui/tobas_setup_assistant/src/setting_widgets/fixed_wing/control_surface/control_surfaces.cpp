@@ -1,10 +1,11 @@
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/control_surfaces.hpp"
+
 #include <QLabel>
 #include <QVBoxLayout>
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/font.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/control_surfaces.hpp"
 #include "tobas_setup_assistant/constants.hpp"
 
 namespace gui

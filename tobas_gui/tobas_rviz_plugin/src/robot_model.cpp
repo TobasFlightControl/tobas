@@ -1,11 +1,13 @@
+#include "../include/tobas_rviz_plugin/robot_model.hpp"
+
 #include <algorithm>
 #include <limits>
 #include <cmath>
 #include <memory>
+
 #include <geometric_shapes/shape_operations.h>
 #include <rclcpp/logger.hpp>
 
-#include "../include/tobas_rviz_plugin/robot_model.hpp"
 #include "../include/tobas_rviz_plugin/logger.hpp"
 #include "../include/tobas_rviz_plugin/order_robot_model_items.hpp"
 

@@ -1,6 +1,6 @@
-#include <geometric_shapes/check_isometry.h>
-
 #include "../include/tobas_rviz_plugin/aabb.hpp"
+
+#include <geometric_shapes/check_isometry.h>
 
 namespace tobas
 {

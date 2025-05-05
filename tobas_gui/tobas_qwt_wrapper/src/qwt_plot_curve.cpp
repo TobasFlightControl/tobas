@@ -1,6 +1,6 @@
-#include <qwt/qwt_plot_curve.h>  // <= C++17
-
 #include "../include/tobas_qwt_wrapper/qwt_plot_curve.hpp"
+
+#include <qwt/qwt_plot_curve.h>  // XXX: <= C++17
 
 namespace qwt
 {

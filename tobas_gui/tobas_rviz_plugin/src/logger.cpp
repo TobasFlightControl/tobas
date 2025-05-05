@@ -1,7 +1,7 @@
+#include "../include/tobas_rviz_plugin/logger.hpp"
+
 #include <rclcpp/rclcpp.hpp>
 #include <rsl/random.hpp>
-
-#include "../include/tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {

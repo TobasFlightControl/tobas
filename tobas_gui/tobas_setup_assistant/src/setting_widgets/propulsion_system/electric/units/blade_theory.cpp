@@ -1,7 +1,7 @@
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/blade_theory.hpp"
+
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/blade_theory.hpp"
 
 namespace gui
 {

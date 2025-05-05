@@ -1,3 +1,5 @@
+#include "tobas_setup_assistant/joint_state_publisher.hpp"
+
 #include <QPushButton>
 #include <QHBoxLayout>
 
@@ -6,8 +8,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_qt_tools/util.hpp>
-
-#include "tobas_setup_assistant/joint_state_publisher.hpp"
 
 using namespace std;
 

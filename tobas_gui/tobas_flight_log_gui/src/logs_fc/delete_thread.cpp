@@ -1,8 +1,8 @@
+#include "tobas_flight_log_gui/logs_fc/delete_thread.hpp"
+
 #include <filesystem>
 
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_flight_log_gui/logs_fc/delete_thread.hpp"
 
 using namespace std;
 namespace fs = filesystem;

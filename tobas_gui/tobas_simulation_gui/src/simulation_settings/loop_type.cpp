@@ -1,8 +1,9 @@
+#include "tobas_simulation_gui/simulation_settings/loop_type.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_simulation_gui/simulation_settings/loop_type.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui

@@ -1,10 +1,11 @@
+#include "tobas_hardware_setup/rotor_test/rotor_test.hpp"
+
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-#include "tobas_hardware_setup/rotor_test/rotor_test.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
 namespace gui

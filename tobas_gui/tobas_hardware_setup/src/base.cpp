@@ -1,8 +1,9 @@
+#include "tobas_hardware_setup/base.hpp"
+
 #include <QTimer>
 
 #include <tobas_qt_tools/font.hpp>
 
-#include "tobas_hardware_setup/base.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
 namespace gui

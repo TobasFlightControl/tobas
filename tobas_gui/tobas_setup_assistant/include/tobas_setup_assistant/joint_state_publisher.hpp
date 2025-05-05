@@ -1,14 +1,16 @@
 #pragma once
 
 #include <random>
+
 #include <QVBoxLayout>
 #include <QTimer>
 
-#include <sensor_msgs/msg/joint_state.hpp>
-#include <tobas_visualization_msgs/msg/display_robot_state.hpp>
-
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
+
+#include <sensor_msgs/msg/joint_state.hpp>
+
+#include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
 #include "./robot_info.hpp"
 

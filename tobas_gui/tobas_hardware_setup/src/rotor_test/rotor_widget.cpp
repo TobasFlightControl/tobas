@@ -1,11 +1,11 @@
+#include "tobas_hardware_setup/rotor_test/rotor_widget.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
-
-#include "tobas_hardware_setup/rotor_test/rotor_widget.hpp"
 
 namespace gui
 {

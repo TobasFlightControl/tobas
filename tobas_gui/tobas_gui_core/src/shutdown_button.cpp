@@ -1,6 +1,6 @@
-#include <QGraphicsDropShadowEffect>
-
 #include "tobas_gui_core/shutdown_button.hpp"
+
+#include <QGraphicsDropShadowEffect>
 
 namespace gui
 {

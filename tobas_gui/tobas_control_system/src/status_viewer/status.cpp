@@ -1,9 +1,9 @@
+#include "tobas_control_system/status_viewer/status.hpp"
+
 #include <QHBoxLayout>
 #include <QDebug>
 
 #include <tobas_qt_tools/widgets/label.hpp>
-
-#include "tobas_control_system/status_viewer/status.hpp"
 
 namespace gui
 {

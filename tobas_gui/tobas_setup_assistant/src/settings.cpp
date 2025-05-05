@@ -1,7 +1,7 @@
+#include "tobas_setup_assistant/settings.hpp"
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_setup_assistant/settings.hpp"
 
 namespace gui
 {

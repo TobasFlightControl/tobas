@@ -1,3 +1,5 @@
+#include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
@@ -7,7 +9,6 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-#include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui

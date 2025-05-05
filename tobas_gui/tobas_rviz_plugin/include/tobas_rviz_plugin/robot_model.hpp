@@ -1,7 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <Eigen/Geometry>
+
+#include <eigen3/Eigen/Geometry>
 #include <rclcpp/logging.hpp>
 #include <srdfdom/model.h>
 

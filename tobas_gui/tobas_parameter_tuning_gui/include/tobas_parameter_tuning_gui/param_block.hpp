@@ -1,8 +1,8 @@
 #pragma once
 
 #include <filesystem>
-#include <yaml-cpp/yaml.h>
 
+#include <yaml-cpp/yaml.h>
 #include <QWidget>
 #include <QLabel>
 

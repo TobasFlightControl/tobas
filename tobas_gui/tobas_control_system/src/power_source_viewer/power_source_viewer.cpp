@@ -1,6 +1,6 @@
-#include <QVBoxLayout>
-
 #include "tobas_control_system/power_source_viewer/power_source_viewer.hpp"
+
+#include <QVBoxLayout>
 
 namespace gui
 {

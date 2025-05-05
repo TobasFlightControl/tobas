@@ -1,6 +1,6 @@
-#include <QPainter>
-
 #include "tobas_qt_tools/widgets/circle_widget.hpp"
+
+#include <QPainter>
 
 namespace qt
 {

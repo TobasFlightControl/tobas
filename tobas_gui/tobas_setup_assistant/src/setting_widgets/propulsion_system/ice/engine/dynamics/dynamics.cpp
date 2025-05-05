@@ -1,7 +1,8 @@
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/dynamics/dynamics.hpp"
+
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/cast.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/dynamics/dynamics.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/dynamics/manual.hpp"
 
 namespace gui

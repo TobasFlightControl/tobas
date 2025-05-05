@@ -1,10 +1,10 @@
+#include "tobas_control_system/pose_viewer.hpp"
+
 #include <QPainter>
 
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_control_system/pose_viewer.hpp"
 
 namespace gui
 {

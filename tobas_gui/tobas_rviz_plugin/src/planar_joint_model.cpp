@@ -1,9 +1,10 @@
+#include "../include/tobas_rviz_plugin/planar_joint_model.hpp"
+
 #include <cmath>
 #include <limits>
+
 #include <angles/angles.h>
 #include <geometric_shapes/check_isometry.h>
-
-#include "../include/tobas_rviz_plugin/planar_joint_model.hpp"
 
 namespace tobas
 {

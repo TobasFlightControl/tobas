@@ -1,9 +1,11 @@
+#include "../include/tobas_rviz_plugin/joint_model_group.hpp"
+
 #include <algorithm>
+
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 
 #include "../include/tobas_rviz_plugin/robot_model.hpp"
-#include "../include/tobas_rviz_plugin/joint_model_group.hpp"
 #include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
 #include "../include/tobas_rviz_plugin/order_robot_model_items.hpp"
 #include "../include/tobas_rviz_plugin/exceptions.hpp"

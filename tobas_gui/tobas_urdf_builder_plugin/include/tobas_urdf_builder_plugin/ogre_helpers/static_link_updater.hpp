@@ -5,7 +5,6 @@
 #include <OgreVector.h>
 #include <OgreMatrix4.h>
 #include <OgreQuaternion.h>
-
 #include <urdf/model.h>
 #include <rviz_default_plugins/robot/link_updater.hpp>
 

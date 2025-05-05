@@ -1,9 +1,10 @@
 #pragma once
 
 #include <QTimer>
-#include <visualization_msgs/msg/marker_array.hpp>
 
 #include <tobas_ros2_tools/register.hpp>
+
+#include <visualization_msgs/msg/marker_array.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
 #include "tobas_setup_assistant/signals.hpp"

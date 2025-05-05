@@ -1,4 +1,5 @@
 #include "tobas_hardware_setup/network_setting/read_thread.hpp"
+
 #include "tobas_hardware_setup/constants.hpp"
 
 namespace gui

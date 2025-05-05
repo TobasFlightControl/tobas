@@ -1,9 +1,9 @@
+#include "tobas_qt_tools/widgets/vertical_tab_widget.hpp"
+
 #include <QTabBar>
 #include <QWheelEvent>
 #include <QStylePainter>
 #include <QStyleOptionTab>
-
-#include "tobas_qt_tools/widgets/vertical_tab_widget.hpp"
 
 namespace qt
 {

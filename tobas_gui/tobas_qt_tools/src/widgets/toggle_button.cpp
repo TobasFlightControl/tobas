@@ -1,6 +1,6 @@
-#include <QDebug>
-
 #include "tobas_qt_tools/widgets/toggle_button.hpp"
+
+#include <QDebug>
 
 namespace qt
 {

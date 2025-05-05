@@ -1,10 +1,10 @@
+#include "tobas_control_system/console.hpp"
+
 #include <QVBoxLayout>
 #include <QHeaderView>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_control_system/console.hpp"
 
 namespace gui
 {

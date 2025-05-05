@@ -1,4 +1,7 @@
+#include "tobas_flight_log_gui/recorder/recorder.hpp"
+
 #include <filesystem>
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
@@ -9,7 +12,6 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-#include "tobas_flight_log_gui/recorder/recorder.hpp"
 #include "tobas_flight_log_gui/constants.hpp"
 
 namespace fs = std::filesystem;

@@ -1,6 +1,6 @@
-#include <tobas_qt_tools/widgets/label.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
+
+#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
 {

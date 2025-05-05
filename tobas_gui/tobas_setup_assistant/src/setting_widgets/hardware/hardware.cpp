@@ -1,8 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
+
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/cast.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
 #include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
 
 namespace gui

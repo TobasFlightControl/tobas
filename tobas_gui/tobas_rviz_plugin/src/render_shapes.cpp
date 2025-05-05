@@ -1,3 +1,5 @@
+#include "../include/tobas_rviz_plugin/render_shapes.hpp"
+
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/mesh_operations.h>
 #include <OgreSceneNode.h>
@@ -8,7 +10,6 @@
 #include <rviz_common/display_context.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
 
-#include "../include/tobas_rviz_plugin/render_shapes.hpp"
 #include "../include/tobas_rviz_plugin/mesh_shape.hpp"
 
 namespace tobas

@@ -3,6 +3,7 @@
 #include <functional>
 #include <set>
 #include <string>
+
 #include <srdfdom/model.h>
 
 #include "./joint_model.hpp"
