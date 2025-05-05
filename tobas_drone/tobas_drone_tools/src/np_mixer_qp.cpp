@@ -1,11 +1,11 @@
+#include "../include/tobas_drone_tools/np_mixer_qp.hpp"
+
 #include <ranges>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "../include/tobas_drone_tools/np_mixer_qp.hpp"
 
 using namespace std;
 using namespace Eigen;

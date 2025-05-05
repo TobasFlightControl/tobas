@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "tobas_drone_core/propulsion_system/type.hpp"
+
+#include <iostream>
 
 #define ELECTRIC_TEXT "electric"
 #define ICE_TEXT "ice"

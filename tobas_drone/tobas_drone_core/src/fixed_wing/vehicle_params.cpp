@@ -1,8 +1,8 @@
+#include "tobas_drone_core/fixed_wing/vehicle_params.hpp"
+
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
-
-#include "tobas_drone_core/fixed_wing/vehicle_params.hpp"
 
 using namespace std;
 

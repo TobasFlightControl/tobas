@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "tobas_drone_core/hardware_interface.hpp"
+
+#include <iostream>
 
 #define PWM_TEXT "pwm"
 #define OTHER_TEXT "other"

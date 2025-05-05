@@ -1,3 +1,5 @@
+#include "../include/tobas_drone_tools/tr_mixer_sqp.hpp"
+
 #include <ranges>
 
 #include <tobas_math/core.hpp>
@@ -7,8 +9,6 @@
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "../include/tobas_drone_tools/tr_mixer_sqp.hpp"
 
 using namespace std;
 using namespace Eigen;

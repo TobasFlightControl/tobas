@@ -1,10 +1,10 @@
+#include "../include/tobas_eskf/eskf.hpp"
+
 #include <iostream>
 
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "../include/tobas_eskf/eskf.hpp"
 
 #define E3 Diagonal3d(1, 1, 1)
 

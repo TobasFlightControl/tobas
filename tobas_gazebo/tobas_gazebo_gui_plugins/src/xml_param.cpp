@@ -1,6 +1,6 @@
-#include <gz/common/Console.hh>
-
 #include "../include/tobas_gazebo_gui_plugins/xml_param.hpp"
+
+#include <gz/common/Console.hh>
 
 using namespace std;
 

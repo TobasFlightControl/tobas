@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+
 #include <yaml-cpp/yaml.h>
 
 #include "./role.hpp"

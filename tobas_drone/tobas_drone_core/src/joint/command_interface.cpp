@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "tobas_drone_core/joint/command_interface.hpp"
+
+#include <iostream>
 
 #define POSITION_TEXT "position"
 #define VELOCITY_TEXT "velocity"

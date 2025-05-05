@@ -1,6 +1,6 @@
-#include <tobas_constants/constants.hpp>
-
 #include "../../include/tobas_gazebo_system_plugins/common/node.hpp"
+
+#include <tobas_constants/constants.hpp>
 
 using namespace std;
 
