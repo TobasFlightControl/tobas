@@ -37,8 +37,10 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
 
 bool PackageGenerator::generatePackage()
 {
+  const auto tbs_path = tbsPath();
+
   // Tobasパッケージを作成
-  if (!path::createDirectories(tbsPath())) {
+  if (!path::createDirectories(tbs_path)) {
     qt::qErrorBox(settings_, "Failed to create Tobas package path.");
     return false;
   }
@@ -57,13 +59,17 @@ bool PackageGenerator::generatePackage()
   }
 
   // ユーザ用C++パッケージを作成
-  if (!generateUserCppPackage(tpl_data)) {
-    return false;
+  if (!fs::is_directory(common::getTBSUserCppPath(tbs_path))) {
+    if (!generateUserCppPackage(tpl_data)) {
+      return false;
+    }
   }
 
   // ユーザ用Pythonパッケージを作成
-  if (!generateUserPyPackage(tpl_data)) {
-    return false;
+  if (!fs::is_directory(common::getTBSUserPyPath(tbs_path))) {
+    if (!generateUserPyPackage(tpl_data)) {
+      return false;
+    }
   }
 
   // バックアップファイルを作成
@@ -428,6 +434,8 @@ bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
   const auto tbs_path = tbsPath();
   const auto pkg_path = common::getTBSUserCppPath(tbs_path);
+
+  // パッケージを作成
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
