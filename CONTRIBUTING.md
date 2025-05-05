@@ -5,7 +5,7 @@
 Install dependencies:
 
 ```
-$ sudo apt install -y black clang-format cmake-format
+$ sudo apt install -y pre-commit black clang-format cmake-format
 ```
 
 To check all:
