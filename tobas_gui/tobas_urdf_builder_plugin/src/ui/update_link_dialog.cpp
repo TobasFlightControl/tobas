@@ -3,6 +3,9 @@
 #include <filesystem>
 
 #include <rcutils/env.h>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
 #include <rclcpp/rclcpp.hpp>
 

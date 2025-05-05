@@ -3,6 +3,8 @@
 #include <filesystem>
 
 #include <rcutils/env.h>
+#include <QMenu>
+#include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>

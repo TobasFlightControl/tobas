@@ -1,5 +1,9 @@
 #include "../../include/tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
 
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QVBoxLayout>
+
 namespace gui
 {
 namespace urdf_builder

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <urdf/model.h>
+#include <QTimer>
+#include <QTreeWidgetItem>
 #include <rviz_common/panel.hpp>
 
 #include <tobas_property_client/property_client.hpp>

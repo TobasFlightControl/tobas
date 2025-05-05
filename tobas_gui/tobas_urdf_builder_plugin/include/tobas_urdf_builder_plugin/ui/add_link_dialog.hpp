@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <QtWidgets/QtWidgets>
+#include <QDialog>
 
 #include "../view_model/link_view_model.hpp"
 

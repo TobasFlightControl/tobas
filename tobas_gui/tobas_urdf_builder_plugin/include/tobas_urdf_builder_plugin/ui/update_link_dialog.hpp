@@ -2,7 +2,8 @@
 
 #include <map>
 
-#include <QtWidgets/QtWidgets>
+#include <QDialog>
+#include <QListWidgetItem>
 
 #include <tobas_property_client/property_client.hpp>
 

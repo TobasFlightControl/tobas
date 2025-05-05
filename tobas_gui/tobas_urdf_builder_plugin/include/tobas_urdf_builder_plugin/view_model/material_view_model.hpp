@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QtGui/QtGui>
+#include <QColor>
+#include <QString>
 
 #include "../utils/constants.hpp"
 #include "../utils/time.hpp"

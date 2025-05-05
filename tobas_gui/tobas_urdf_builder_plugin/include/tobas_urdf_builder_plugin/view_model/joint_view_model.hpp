@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <QtCore/QtCore>
+#include <QString>
 
 #include "../utils/urdf_clone.hpp"
 #include "./base_view_model.hpp"

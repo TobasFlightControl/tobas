@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <QtCore/QtCore>
+#include <QString>
 
 #include "./base_view_model.hpp"
 
