@@ -2,8 +2,8 @@
 
 #include <QDebug>
 
-#include <tobas_kdl_conversions/kdl_urdf.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
+#include <tobas_kdl_conversions/kdl_urdf.hpp>
 
 namespace gui
 {

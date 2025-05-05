@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_msgs/msg/odometry.hpp>
 #include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
+#include <tobas_msgs/msg/odometry.hpp>
 
 #include "./common.hpp"
 

@@ -2,9 +2,9 @@
 
 #include <csignal>
 
-#include <QVBoxLayout>
-#include <QIcon>
 #include <QCloseEvent>
+#include <QIcon>
+#include <QVBoxLayout>
 
 namespace qt
 {

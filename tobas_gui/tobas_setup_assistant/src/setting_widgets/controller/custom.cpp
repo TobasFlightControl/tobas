@@ -3,9 +3,9 @@
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
+#include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/message.hpp>
 
 namespace gui
 {

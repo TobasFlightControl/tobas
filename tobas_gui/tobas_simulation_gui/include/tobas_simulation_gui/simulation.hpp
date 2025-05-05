@@ -2,18 +2,18 @@
 
 #include <QPushButton>
 
-#include <tobas_linux/command_executor.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
-#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_gui_common/local_package_builder.hpp>
 #include <tobas_gui_common/remote_package_builder.hpp>
+#include <tobas_linux/command_executor.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
+#include <tobas_ssh_client/ssh_client.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
 
-#include "./simulation_settings/simulation_settings.hpp"
-#include "./dynamic_configuration/dynamic_configuration.hpp"
 #include "./commanders/commanders.hpp"
+#include "./dynamic_configuration/dynamic_configuration.hpp"
+#include "./simulation_settings/simulation_settings.hpp"
 
 namespace gui
 {

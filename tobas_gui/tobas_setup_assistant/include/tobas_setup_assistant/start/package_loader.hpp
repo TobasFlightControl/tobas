@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QWidget>
 
 #include <tobas_property_client/property_client.hpp>
 

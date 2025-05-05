@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./jntarray.hpp"
 #include "./frame_vel.hpp"
+#include "./jntarray.hpp"
 #include "./utilities/utility.hpp"
 
 namespace kdl

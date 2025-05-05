@@ -4,22 +4,22 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include <tobas_math/core.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_std_tools/check.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_std_tools/check.hpp>
 
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-#include "tobas_hardware_setup/mag_calibration/method.hpp"
 #include "tobas_hardware_setup/constants.hpp"
+#include "tobas_hardware_setup/mag_calibration/method.hpp"
 
 using namespace std;
 using namespace Eigen;

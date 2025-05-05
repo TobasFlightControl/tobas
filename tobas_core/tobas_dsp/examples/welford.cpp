@@ -1,7 +1,7 @@
 #include <random>
 
-#include <tobas_std_tools/vector.hpp>
 #include <tobas_dsp/welford.hpp>
+#include <tobas_std_tools/vector.hpp>
 
 using namespace std;
 using namespace Eigen;

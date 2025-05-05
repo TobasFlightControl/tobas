@@ -1,8 +1,8 @@
 #include "tobas_control_system/mission_planner/add_command_dialog.hpp"
 
+#include <QHBoxLayout>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
 namespace gui

@@ -1,7 +1,7 @@
 #include "tobas_qt_tools/widgets/slider_display.hpp"
 
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include "tobas_qt_tools/font.hpp"
 

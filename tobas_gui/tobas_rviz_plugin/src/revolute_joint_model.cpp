@@ -1,7 +1,7 @@
 #include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 #include <geometric_shapes/check_isometry.h>
 

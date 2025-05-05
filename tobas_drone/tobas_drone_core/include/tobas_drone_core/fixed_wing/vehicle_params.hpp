@@ -2,8 +2,8 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <tobas_std_tools/range.hpp>
 #include <tobas_kdl/vector.hpp>
+#include <tobas_std_tools/range.hpp>
 
 namespace tobas
 {

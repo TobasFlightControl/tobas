@@ -1,8 +1,8 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QWidget>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 

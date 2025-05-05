@@ -1,8 +1,8 @@
 #include "../include/tobas_control/online_trajectory_generator.hpp"
 
-#include <cmath>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 
 #include <tobas_math/core.hpp>
 

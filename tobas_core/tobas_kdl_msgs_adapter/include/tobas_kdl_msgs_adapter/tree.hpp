@@ -4,8 +4,8 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_std_tools/debug.hpp>
 #include <tobas_kdl/tree.hpp>
+#include <tobas_std_tools/debug.hpp>
 
 #include <tobas_kdl_msgs/msg/tree.hpp>
 

@@ -1,18 +1,18 @@
 #include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
 
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
-#include <tobas_std_tools/check.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_ros2_tools/util.hpp>
+#include <tobas_std_tools/check.hpp>
 
-#include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 #include "tobas_flight_log_gui/constants.hpp"
+#include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 
 namespace fs = std::filesystem;
 

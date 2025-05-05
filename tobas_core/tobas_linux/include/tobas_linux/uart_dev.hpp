@@ -2,8 +2,8 @@
 
 #include <termios.h>  // XXX: <asm/termios.h>ではダメ
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <map>
 
 namespace linux

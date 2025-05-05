@@ -2,10 +2,10 @@
 
 #include <cassert>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_math/equation.hpp>
 #include <tobas_yaml_tools/core.hpp>
-#include <tobas_constants/constants.hpp>
 
 using namespace std;
 

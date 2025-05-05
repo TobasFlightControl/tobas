@@ -4,11 +4,11 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "./fixed_wing/fixed_wing.hpp"
 #include "./joint/joint.hpp"
-#include "./pwm.hpp"
 #include "./propulsion_system/propulsion_system.hpp"
 #include "./propulsion_system/type.hpp"
-#include "./fixed_wing/fixed_wing.hpp"
+#include "./pwm.hpp"
 
 namespace tobas
 {

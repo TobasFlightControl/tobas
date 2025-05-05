@@ -1,14 +1,14 @@
 #pragma once
 
+#include <QLCDNumber>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QLCDNumber>
 
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_qt_tools/widgets/toggle_button.hpp>
-#include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/framed_label.hpp>
+#include <tobas_qt_tools/widgets/position_bar_widget.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
+#include <tobas_ros2_tools/register.hpp>
 
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>

@@ -1,16 +1,17 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_tools/util.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_tools/util.hpp>
 
 #include <std_srvs/srv/trigger.hpp>
 
+#include <tobas_dparam_msgs/srv/get_params.hpp>
+#include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
-#include <tobas_std_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
@@ -23,7 +24,6 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field_stamped.hpp>
 #include <tobas_msgs/msg/odometry.hpp>
-#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
@@ -31,18 +31,18 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs/srv/get_gnss_origin.hpp>
-#include <tobas_msgs/srv/set_gnss_origin.hpp>
+#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
-#include <tobas_drone_msgs/msg/drone.hpp>
-#include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
+#include <tobas_std_msgs/msg/message.hpp>
 
 #define DEFAULT_NUM_THREADS 4
 #define MIN_NUM_THREADS 2

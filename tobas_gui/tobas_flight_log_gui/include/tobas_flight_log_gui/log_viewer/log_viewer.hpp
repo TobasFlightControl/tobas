@@ -4,9 +4,9 @@
 
 #include <rosbag2_cpp/reader.hpp>
 
-#include "./plot_tab.hpp"
-#include "./playback_control.hpp"
 #include "./message_decoder.hpp"
+#include "./playback_control.hpp"
+#include "./plot_tab.hpp"
 
 namespace gui
 {

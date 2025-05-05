@@ -1,9 +1,9 @@
 #include "tobas_flight_log_gui/recorder/start_thread.hpp"
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 
 namespace gui
 {

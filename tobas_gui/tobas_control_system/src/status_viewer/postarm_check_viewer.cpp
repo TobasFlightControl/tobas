@@ -2,8 +2,8 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 
 namespace gui
 {

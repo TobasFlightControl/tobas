@@ -3,8 +3,8 @@
 #include <cmath>
 #include <limits>
 
-#include <eigen3/Eigen/Geometry>
 #include <geometric_shapes/check_isometry.h>
+#include <eigen3/Eigen/Geometry>
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 

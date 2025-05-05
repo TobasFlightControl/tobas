@@ -2,20 +2,20 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./plots/pose_plot.hpp"
-#include "./plots/twist_plot.hpp"
 #include "./plots/accel_plot.hpp"
-#include "./plots/imu_plot.hpp"
-#include "./plots/mag_plot.hpp"
-#include "./plots/gnss_plot.hpp"
 #include "./plots/battery_plot.hpp"
-#include "./plots/engine_plot.hpp"
-#include "./plots/rotor_speed_plot.hpp"
-#include "./plots/propeller_pitch_plot.hpp"
-#include "./plots/latency_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
-#include "./plots/observer_feedback_plot.hpp"
+#include "./plots/engine_plot.hpp"
+#include "./plots/gnss_plot.hpp"
+#include "./plots/imu_plot.hpp"
+#include "./plots/latency_plot.hpp"
+#include "./plots/mag_plot.hpp"
 #include "./plots/mr_controller_feedback_plot.hpp"
+#include "./plots/observer_feedback_plot.hpp"
+#include "./plots/pose_plot.hpp"
+#include "./plots/propeller_pitch_plot.hpp"
+#include "./plots/rotor_speed_plot.hpp"
+#include "./plots/twist_plot.hpp"
 
 namespace gui
 {

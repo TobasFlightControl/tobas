@@ -1,8 +1,8 @@
 #pragma once
 
-#include <map>
-#include <chrono>
 #include <cassert>
+#include <chrono>
+#include <map>
 
 namespace tobas_std
 {

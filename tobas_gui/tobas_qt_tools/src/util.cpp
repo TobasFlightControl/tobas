@@ -1,7 +1,7 @@
 #include "tobas_qt_tools/util.hpp"
 
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <tobas_std_tools/console.hpp>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QTabWidget>
 #include <QTabBar>
+#include <QTabWidget>
 
 namespace qt
 {

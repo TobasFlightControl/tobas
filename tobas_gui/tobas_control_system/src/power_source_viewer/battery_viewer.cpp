@@ -2,12 +2,12 @@
 
 #include <format>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 namespace gui
 {

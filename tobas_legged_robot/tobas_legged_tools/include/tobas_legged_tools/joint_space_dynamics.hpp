@@ -1,14 +1,14 @@
 #pragma once
 
-#include <tobas_std_tools/range.hpp>
-#include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_kdl/jntspace_inertia_matrix.hpp>
-#include <tobas_kdl/tree_jacobian_solver.hpp>
-#include <tobas_kdl/tree_id_solver_rne.hpp>
-#include <tobas_kdl/tree_jntspace_inertia_solver.hpp>
-#include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_kdl/tree_bounding_box_solver.hpp>
+#include <tobas_kdl/tree_id_solver_rne.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
+#include <tobas_kdl/tree_jacobian_solver.hpp>
+#include <tobas_kdl/tree_jntspace_inertia_solver.hpp>
+#include <tobas_quadprog/dual_active_set.hpp>
+#include <tobas_std_tools/range.hpp>
 
 namespace lr_tools
 {

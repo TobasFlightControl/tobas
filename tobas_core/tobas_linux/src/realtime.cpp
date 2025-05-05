@@ -1,8 +1,8 @@
 #include "../include/tobas_linux/realtime.hpp"
 
+#include <pthread.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 
 #include <iostream>
 

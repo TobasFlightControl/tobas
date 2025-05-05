@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QWidget>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 

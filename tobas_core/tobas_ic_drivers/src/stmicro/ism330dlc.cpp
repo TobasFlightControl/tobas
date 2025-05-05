@@ -1,7 +1,7 @@
 #include "../include/tobas_ic_drivers/stmicro/ism330dlc.hpp"
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #include <tobas_std_tools/universal_constants.hpp>
 

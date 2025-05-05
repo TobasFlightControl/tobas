@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rviz_common/ros_integration/ros_node_abstraction.hpp>
 #include <rviz_common/display.hpp>
+#include <rviz_common/ros_integration/ros_node_abstraction.hpp>
 
 namespace rviz_common
 {

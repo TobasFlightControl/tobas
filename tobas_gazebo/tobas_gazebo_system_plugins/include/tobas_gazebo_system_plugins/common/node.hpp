@@ -1,11 +1,11 @@
 #pragma once
 
+#include <gz/common/Console.hh>
 #include <rclcpp/rclcpp.hpp>
 #include <sdf/sdf.hh>
-#include <gz/common/Console.hh>
 
-#include <tobas_std_tools/stream.hpp>
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_std_tools/stream.hpp>
 
 #include <tobas_std_msgs/msg/message.hpp>
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./base.hpp"
-#include "../propeller.hpp"
 #include "../blade_theory.hpp"
+#include "../propeller.hpp"
+#include "./base.hpp"
 
 namespace gui
 {

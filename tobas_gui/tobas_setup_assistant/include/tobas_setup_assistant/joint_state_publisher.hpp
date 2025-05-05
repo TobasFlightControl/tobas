@@ -2,11 +2,11 @@
 
 #include <random>
 
-#include <QVBoxLayout>
 #include <QTimer>
+#include <QVBoxLayout>
 
-#include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
+#include <tobas_ros2_tools/definitions.hpp>
 
 #include <sensor_msgs/msg/joint_state.hpp>
 

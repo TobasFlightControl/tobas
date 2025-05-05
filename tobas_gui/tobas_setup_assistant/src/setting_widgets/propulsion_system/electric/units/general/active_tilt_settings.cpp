@@ -1,12 +1,12 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/general/active_tilt_settings.hpp"
 
+#include <QFormLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QFormLayout>
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
 

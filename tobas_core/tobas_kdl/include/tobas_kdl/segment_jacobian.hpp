@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./accel.hpp"
-#include "./wrench.hpp"
 #include "./segment_inertia.hpp"
+#include "./wrench.hpp"
 
 namespace kdl
 {

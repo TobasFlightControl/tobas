@@ -1,7 +1,7 @@
 #pragma once
 
-#include <thread>
 #include <functional>
+#include <thread>
 
 #include <tobas_linux/uart_dev.hpp>
 

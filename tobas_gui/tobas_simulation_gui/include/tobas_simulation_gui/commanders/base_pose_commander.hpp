@@ -2,18 +2,18 @@
 
 #include <QPushButton>
 
+#include <tobas_drone_core/drone.hpp>
+#include <tobas_qt_tools/widgets/slider_display.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_drone_core/drone.hpp>
-#include <tobas_qt_tools/widgets/toggle_button.hpp>
-#include <tobas_qt_tools/widgets/slider_display.hpp>
 
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 namespace gui
 {

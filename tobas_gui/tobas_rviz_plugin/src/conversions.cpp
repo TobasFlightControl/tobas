@@ -1,7 +1,7 @@
 #include "../include/tobas_rviz_plugin/conversions.hpp"
 
-#include <boost/variant.hpp>
 #include <geometric_shapes/shape_operations.h>
+#include <boost/variant.hpp>
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 #include <tf2_eigen/tf2_eigen.hpp>

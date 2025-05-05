@@ -1,8 +1,8 @@
 #include "../include/tobas_sbus_driver/sbus.hpp"
 
 #include <iostream>
-#include <thread>
 #include <set>
+#include <thread>
 
 #include <boost/multiprecision/cpp_int.hpp>
 

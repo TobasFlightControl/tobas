@@ -1,19 +1,19 @@
 #include "tobas_setup_assistant/package_generator.hpp"
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <urdf_parser/urdf_parser.h>
 #include <QDebug>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <tobas_gui_common/command.hpp>
+#include <tobas_gui_common/package.hpp>
+#include <tobas_path_tools/core.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/path.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
-#include <tobas_path_tools/core.hpp>
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_ros2_tools/path.hpp>
-#include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/cast.hpp>
-#include <tobas_gui_common/package.hpp>
-#include <tobas_gui_common/command.hpp>
+#include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 

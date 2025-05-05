@@ -1,8 +1,8 @@
 #include "tobas_drone_core/pwm.hpp"
 
 #include <tobas_math/core.hpp>
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
+#include <tobas_yaml_tools/core.hpp>
 
 using namespace std;
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cmath>
 #include <array>
-#include <iostream>
 #include <cassert>
+#include <cmath>
+#include <iostream>
 
 #include <tobas_math/core.hpp>
 

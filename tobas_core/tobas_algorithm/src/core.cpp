@@ -1,7 +1,7 @@
 #include "../include/tobas_algorithm/core.hpp"
 
-#include <cmath>
 #include <cassert>
+#include <cmath>
 
 namespace algo
 {

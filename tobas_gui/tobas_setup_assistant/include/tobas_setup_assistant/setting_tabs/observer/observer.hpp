@@ -1,15 +1,15 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "tobas_setup_assistant/robot_info.hpp"
-#include "../base_setting.hpp"
-#include "../imu.hpp"
 #include "../barometer.hpp"
+#include "../base_setting.hpp"
 #include "../gnss.hpp"
+#include "../imu.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {

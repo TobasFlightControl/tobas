@@ -1,14 +1,14 @@
 #pragma once
 
-#include <QWidget>
 #include <QPushButton>
 #include <QTimer>
+#include <QWidget>
 
-#include <tobas_ros2_tools/register.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
-#include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
+#include <tobas_ros2_tools/register.hpp>
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 

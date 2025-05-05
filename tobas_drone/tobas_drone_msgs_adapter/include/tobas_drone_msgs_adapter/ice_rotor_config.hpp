@@ -4,9 +4,9 @@
 
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_rotor.hpp>
 
+#include <tobas_drone_msgs/msg/ice_rotor_config.hpp>
 #include <tobas_std_msgs_adapter/pair_float64.hpp>
 #include <tobas_std_msgs_adapter/range_float64.hpp>
-#include <tobas_drone_msgs/msg/ice_rotor_config.hpp>
 
 #include "./rotor_config.hpp"
 

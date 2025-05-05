@@ -1,9 +1,9 @@
 #pragma once
 
-#include "./optional_device.hpp"
-#include "../param_getters/spin_box.hpp"
 #include "../param_getters/double_spin_box.hpp"
+#include "../param_getters/spin_box.hpp"
 #include "../param_getters/vector3d.hpp"
+#include "./optional_device.hpp"
 
 namespace gui
 {

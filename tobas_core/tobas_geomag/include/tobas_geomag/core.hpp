@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./structs.hpp"
 #include "./model_params.hpp"
+#include "./structs.hpp"
 
 namespace geomag
 {

@@ -1,7 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/add_remove_buttons.hpp"
 
-#include <QPushButton>
 #include <QHBoxLayout>
+#include <QPushButton>
 
 #include <tobas_qt_tools/message.hpp>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <urdf_model/link.h>
 #include <urdf_model/joint.h>
+#include <urdf_model/link.h>
 
 namespace gui
 {

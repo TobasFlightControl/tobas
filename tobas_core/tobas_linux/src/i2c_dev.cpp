@@ -1,12 +1,12 @@
 #include "../include/tobas_linux/i2c_dev.hpp"
 
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 #include <thread>
 
 #include "../include/tobas_linux/errer.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./base.hpp"
 #include "../../param_getters/line_edit.hpp"
+#include "./base.hpp"
 
 namespace gui
 {

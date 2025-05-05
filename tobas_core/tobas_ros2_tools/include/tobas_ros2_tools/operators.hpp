@@ -1,7 +1,7 @@
 #pragma once
 
-#include <geometry_msgs/msg/vector3.hpp>
 #include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 
 namespace geometry_msgs
 {

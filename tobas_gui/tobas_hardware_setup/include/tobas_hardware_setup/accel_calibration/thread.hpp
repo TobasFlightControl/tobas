@@ -1,8 +1,8 @@
 #pragma once
 
+#include <QThread>
 #include <eigen3/Eigen/Core>
 #include <rclcpp/node.hpp>
-#include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
 

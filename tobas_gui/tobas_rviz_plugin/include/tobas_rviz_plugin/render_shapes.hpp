@@ -2,15 +2,15 @@
 
 #include <memory>
 
-#include <eigen3/Eigen/Geometry>
 #include <OgreColourValue.h>
 #include <geometric_shapes/shapes.h>
-#include <rviz_common/properties/color_property.hpp>
+#include <eigen3/Eigen/Geometry>
 #include <rviz_common/display_context.hpp>
+#include <rviz_common/properties/color_property.hpp>
 #include <rviz_rendering/objects/shape.hpp>
 
-#include "./octomap_render.hpp"
 #include "./class_forward.hpp"
+#include "./octomap_render.hpp"
 
 namespace tobas
 {

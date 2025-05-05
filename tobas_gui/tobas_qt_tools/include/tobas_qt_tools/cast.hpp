@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdexcept>
-#include <QObject>
 #include <QDebug>
+#include <QObject>
+#include <stdexcept>
 
 #include <tobas_std_tools/typeinfo.hpp>
 

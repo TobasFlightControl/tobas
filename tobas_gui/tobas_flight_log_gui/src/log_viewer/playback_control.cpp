@@ -1,7 +1,7 @@
 #include "tobas_flight_log_gui/log_viewer/playback_control.hpp"
 
-#include <QStyle>
 #include <QHBoxLayout>
+#include <QStyle>
 
 #include <tobas_std_tools/check.hpp>
 

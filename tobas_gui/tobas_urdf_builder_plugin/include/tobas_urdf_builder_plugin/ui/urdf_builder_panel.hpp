@@ -1,14 +1,14 @@
 #pragma once
 
-#include <rviz_common/panel.hpp>
 #include <urdf/model.h>
+#include <rviz_common/panel.hpp>
 
-#include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_property_client/property_client.hpp>
+#include <tobas_ros2_tools/async_node_manager.hpp>
 
+#include "../ogre_helpers/ogre_controller.hpp"
 #include "../ogre_helpers/static_link_updater.hpp"
 #include "../view_model/urdf_view_model.hpp"
-#include "../ogre_helpers/ogre_controller.hpp"
 #include "./update_link_dialog.hpp"
 
 namespace Ui

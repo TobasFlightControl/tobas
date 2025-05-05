@@ -6,11 +6,11 @@
 
 #include <tobas_drone_msgs/msg/drone.hpp>
 
+#include "./electric_propulsion_system_config.hpp"
+#include "./fixed_wing_config.hpp"
+#include "./ice_propulsion_system_config.hpp"
 #include "./joint_config.hpp"
 #include "./pwm_config.hpp"
-#include "./electric_propulsion_system_config.hpp"
-#include "./ice_propulsion_system_config.hpp"
-#include "./fixed_wing_config.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <algorithm>
-#include <string>
-#include <iostream>
 #include <cassert>
+#include <iostream>
+#include <string>
 
 namespace tobas_std
 {

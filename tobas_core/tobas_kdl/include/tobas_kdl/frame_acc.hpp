@@ -1,9 +1,9 @@
 #pragma once
 
 #include "./frame.hpp"
-#include "./vector_acc.hpp"
 #include "./rotation_acc.hpp"
 #include "./twist_acc.hpp"
+#include "./vector_acc.hpp"
 
 namespace kdl
 {

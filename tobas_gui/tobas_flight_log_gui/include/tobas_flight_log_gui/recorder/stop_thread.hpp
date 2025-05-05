@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rclcpp/node.hpp>
 #include <QThread>
+#include <rclcpp/node.hpp>
 
 namespace gui
 {

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/linear_equation.hpp"
-#include "./base.hpp"
 
 namespace gui
 {

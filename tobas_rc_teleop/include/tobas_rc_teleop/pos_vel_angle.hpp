@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_command_msgs_adapter/pos_vel.hpp>
 #include <tobas_command_msgs_adapter/angle.hpp>
+#include <tobas_command_msgs_adapter/pos_vel.hpp>
 
 #include "./base_controller.hpp"
 

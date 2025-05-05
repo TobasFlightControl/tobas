@@ -2,11 +2,11 @@
 
 #include <QVBoxLayout>
 
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_gazebo_common/constants.hpp>
 
 #include "tobas_simulation_gui/constants.hpp"
 

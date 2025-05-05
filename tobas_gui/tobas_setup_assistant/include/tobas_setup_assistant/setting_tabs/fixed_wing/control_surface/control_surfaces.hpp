@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../base.hpp"
+#include "./add_remove_buttons.hpp"
 #include "./available_links.hpp"
 #include "./selected_links.hpp"
-#include "./add_remove_buttons.hpp"
 
 namespace gui
 {

@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-#include <stdexcept>
 #include <format>
+#include <stdexcept>
 
 #define WAYPOINT_LABEL "Waypoint"
 #define TAKEOFF_LABEL "Takeoff"

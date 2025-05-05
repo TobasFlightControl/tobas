@@ -1,8 +1,8 @@
 #include "../include/tobas_drone_tools/mr_mixer_qp.hpp"
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_constants/constants.hpp>
 
 using namespace std;
 using namespace Eigen;

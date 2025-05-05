@@ -2,9 +2,9 @@
 
 #include <QPainter>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
 
 namespace gui
 {

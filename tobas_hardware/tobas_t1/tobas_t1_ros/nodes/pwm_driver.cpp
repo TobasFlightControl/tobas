@@ -1,6 +1,6 @@
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_t1_core/pwm.hpp>
 
 #include <tobas_msgs/msg/pwm_array.hpp>

@@ -3,8 +3,8 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_property_common/constants.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 
 namespace ptree
 {

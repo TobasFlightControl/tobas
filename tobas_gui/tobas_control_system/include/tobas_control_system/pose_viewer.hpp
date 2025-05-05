@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/widget.hpp>
+#include <tobas_ros2_tools/register.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 #include <tobas_msgs_adapter/odometry.hpp>
 

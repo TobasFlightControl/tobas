@@ -1,9 +1,9 @@
 #include "../include/tobas_legged_tools/ground_force_controller.hpp"
 
+#include <tobas_control/util.hpp>
+#include <tobas_eigen_tools/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_eigen_tools/core.hpp>
-#include <tobas_control/util.hpp>
 
 using namespace std;
 using namespace Eigen;

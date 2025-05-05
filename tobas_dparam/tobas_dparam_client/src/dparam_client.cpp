@@ -3,8 +3,8 @@
 #include <tobas_dparam_common/constants.hpp>
 
 #include <tobas_dparam_msgs/srv/set_bool.hpp>
-#include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_double.hpp>
+#include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_string.hpp>
 
 using namespace std;

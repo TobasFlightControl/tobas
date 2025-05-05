@@ -5,11 +5,11 @@
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 
-#include "../include/tobas_rviz_plugin/robot_model.hpp"
-#include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
-#include "../include/tobas_rviz_plugin/order_robot_model_items.hpp"
 #include "../include/tobas_rviz_plugin/exceptions.hpp"
 #include "../include/tobas_rviz_plugin/logger.hpp"
+#include "../include/tobas_rviz_plugin/order_robot_model_items.hpp"
+#include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
+#include "../include/tobas_rviz_plugin/robot_model.hpp"
 
 namespace tobas
 {

@@ -1,7 +1,7 @@
 #include "../include/tobas_linux/termios2.hpp"
 
-#include <sys/ioctl.h>
 #include <asm/termbits.h>
+#include <sys/ioctl.h>
 
 #include <iostream>
 #include <thread>

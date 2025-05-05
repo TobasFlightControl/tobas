@@ -5,8 +5,8 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
-#include <tobas_std_tools/float.hpp>
 #include <tobas_eigen_tools/core.hpp>
+#include <tobas_std_tools/float.hpp>
 
 namespace kdl
 {

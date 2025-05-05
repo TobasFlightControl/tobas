@@ -2,8 +2,8 @@
 
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 
 using namespace std;
 using namespace tobas_msgs::srv;

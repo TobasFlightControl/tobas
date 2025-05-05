@@ -3,8 +3,8 @@
 #include <rviz_default_plugins/robot/robot.hpp>
 
 #include "./class_forward.hpp"
-#include "./robot_state.hpp"
 #include "./octomap_render.hpp"
+#include "./robot_state.hpp"
 
 namespace tobas
 {

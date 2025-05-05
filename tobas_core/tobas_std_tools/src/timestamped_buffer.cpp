@@ -3,8 +3,8 @@
 #include <cmath>
 #include <limits>
 
-#include <tobas_math/core.hpp>
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_math/core.hpp>
 
 using namespace std;
 

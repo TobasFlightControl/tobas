@@ -2,8 +2,8 @@
 
 #include <QPushButton>
 
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
+#include <tobas_ros2_tools/register.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
 

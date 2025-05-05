@@ -1,8 +1,8 @@
 #pragma once
 
-#include <gz/sim/Model.hh>
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
 
 #include <tobas_std_tools/range.hpp>
 

@@ -3,11 +3,11 @@
 #include <filesystem>
 
 #include <rcutils/env.h>
-#include <QPushButton>
 #include <QHBoxLayout>
+#include <QPushButton>
 
-#include <tobas_string_tools/core.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_string_tools/core.hpp>
 
 using namespace std;
 

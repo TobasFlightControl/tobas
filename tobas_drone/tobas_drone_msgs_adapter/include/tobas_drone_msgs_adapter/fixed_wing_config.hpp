@@ -4,12 +4,12 @@
 
 #include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
 
-#include <tobas_kdl_msgs_adapter/vector.hpp>
 #include <tobas_drone_msgs/msg/fixed_wing_config.hpp>
+#include <tobas_kdl_msgs_adapter/vector.hpp>
 
-#include "./vehicle_parameters.hpp"
 #include "./aerodynamic_coefficients.hpp"
 #include "./control_surface.hpp"
+#include "./vehicle_parameters.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedWingConfig>

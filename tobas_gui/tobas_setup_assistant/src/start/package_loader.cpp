@@ -3,16 +3,16 @@
 #include <filesystem>
 
 #include <rcutils/env.h>
+#include <QFileDialog>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QFileDialog>
 
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/package.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
 

@@ -1,9 +1,9 @@
 #include "../include/tobas_rviz_plugin/octomap_render.hpp"
 
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
 #include <octomap/octomap.h>
 #include <octomap_msgs/msg/octomap.hpp>
-#include <OgreSceneNode.h>
-#include <OgreSceneManager.h>
 
 namespace tobas
 {

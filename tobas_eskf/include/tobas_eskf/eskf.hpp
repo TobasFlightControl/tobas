@@ -3,13 +3,13 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
-#include <tobas_std_tools/geometry.hpp>
-#include <tobas_std_tools/timestamped_buffer.hpp>
-#include <tobas_std_tools/stopwatch.hpp>
-#include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_eigen_tools/operators.hpp>
-#include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
+#include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_eigen_tools/operators.hpp>
+#include <tobas_eigen_tools/typedef.hpp>
+#include <tobas_std_tools/geometry.hpp>
+#include <tobas_std_tools/stopwatch.hpp>
+#include <tobas_std_tools/timestamped_buffer.hpp>
 
 namespace eskf
 {

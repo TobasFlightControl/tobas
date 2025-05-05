@@ -1,12 +1,12 @@
 #include "../include/tobas_rviz_plugin/mesh_shape.hpp"
 
+#include <OgreEntity.h>
+#include <OgreManualObject.h>
+#include <OgreMaterialManager.h>
 #include <OgreMesh.h>
 #include <OgreMeshManager.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-#include <OgreEntity.h>
-#include <OgreMaterialManager.h>
-#include <OgreManualObject.h>
 #include <rviz_common/logging.hpp>
 
 namespace rviz_rendering

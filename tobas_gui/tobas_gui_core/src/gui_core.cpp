@@ -1,24 +1,24 @@
 #include "tobas_gui_core/gui_core.hpp"
 
 #include <rcutils/env.h>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <QLabel>
-#include <QButtonGroup>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QApplication>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
-#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_gui_common/package.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "tobas_gui_core/constants.hpp"
 #include "tobas_gui_core/app_button.hpp"
+#include "tobas_gui_core/constants.hpp"
 
 namespace fs = std::filesystem;
 

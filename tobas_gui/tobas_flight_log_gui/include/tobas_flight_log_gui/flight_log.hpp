@@ -1,9 +1,9 @@
 #pragma once
 
-#include "./recorder/recorder.hpp"
+#include "./log_viewer/log_viewer.hpp"
 #include "./logs_fc/logs_widget.hpp"
 #include "./logs_gcs/logs_widget.hpp"
-#include "./log_viewer/log_viewer.hpp"
+#include "./recorder/recorder.hpp"
 
 namespace gui
 {

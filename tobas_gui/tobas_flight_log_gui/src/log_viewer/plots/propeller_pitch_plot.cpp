@@ -2,8 +2,8 @@
 
 #include <ranges>
 
-#include <tobas_ros2_tools/time.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_ros2_tools/time.hpp>
 
 namespace gui
 {

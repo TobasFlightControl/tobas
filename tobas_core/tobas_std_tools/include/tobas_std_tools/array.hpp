@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
 #include <cassert>
+#include <cstddef>
 #include <iostream>
 
 #include <tobas_algorithm/kahan.hpp>

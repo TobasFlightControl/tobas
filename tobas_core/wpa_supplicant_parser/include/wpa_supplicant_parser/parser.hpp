@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <filesystem>
+#include <vector>
 
-#include "./network.hpp"
 #include "./country_code.hpp"
+#include "./network.hpp"
 
 namespace wpa
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sdf/sdf.hh>
 #include <gz/common/Console.hh>
+#include <sdf/sdf.hh>
 
 namespace gazebo
 {

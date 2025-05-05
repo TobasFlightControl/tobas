@@ -2,9 +2,9 @@
 
 #include <cassert>
 
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/console.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
 

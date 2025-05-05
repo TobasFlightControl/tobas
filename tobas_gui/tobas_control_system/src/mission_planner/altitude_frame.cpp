@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-#include <stdexcept>
 #include <format>
+#include <stdexcept>
 
 #define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
 #define RELATIVE_TO_HOME_LABEL "Relative to Home"

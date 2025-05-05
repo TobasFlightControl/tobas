@@ -1,15 +1,15 @@
 #include "tobas_control_system/mission_planner/mission_planner.hpp"
 
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
-#include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_std_tools/check.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/message.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/util.hpp>
+#include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace fs = std::filesystem;
 

@@ -4,7 +4,8 @@
 BasedOnStyle: Google
 ColumnLimit: 120
 MaxEmptyLinesToKeep: 1
-SortIncludes: false
+SortIncludes: CaseSensitive # false -> CaseSensitive
+IncludeBlocks: Preserve # Added
 
 Standard: c++20 # Auto -> c++20
 IndentWidth: 2

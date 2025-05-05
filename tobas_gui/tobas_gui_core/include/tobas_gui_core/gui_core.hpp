@@ -1,28 +1,28 @@
 #pragma once
 
-#include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QWidget>
 
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_property_client/property_client.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_gui_common/remote_package_builder.hpp>
+#include <tobas_property_client/property_client.hpp>
+#include <tobas_ros2_tools/register.hpp>
+#include <tobas_ssh_client/ssh_client.hpp>
 
-#include <tobas_homepage/homepage.hpp>
-#include <tobas_urdf_builder/urdf_builder.hpp>
-#include <tobas_setup_assistant/setup_assistant.hpp>
-#include <tobas_hardware_setup/hardware_setup.hpp>
 #include <tobas_control_system/control_system.hpp>
-#include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
+#include <tobas_hardware_setup/hardware_setup.hpp>
+#include <tobas_homepage/homepage.hpp>
+#include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
+#include <tobas_setup_assistant/setup_assistant.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
+#include <tobas_urdf_builder/urdf_builder.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
 
 #include "./restart_button.hpp"
-#include "./shutdown_button.hpp"
 #include "./restart_thread.hpp"
+#include "./shutdown_button.hpp"
 #include "./shutdown_thread.hpp"
 
 namespace gui

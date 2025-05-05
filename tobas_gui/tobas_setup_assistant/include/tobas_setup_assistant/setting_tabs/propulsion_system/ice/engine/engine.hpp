@@ -3,9 +3,9 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "./dynamics/dynamics.hpp"
-#include "./response.hpp"
-#include "./limit.hpp"
 #include "./hardware_interface.hpp"
+#include "./limit.hpp"
+#include "./response.hpp"
 
 namespace gui
 {

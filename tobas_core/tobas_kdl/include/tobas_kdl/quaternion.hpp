@@ -4,8 +4,8 @@
 #include <tobas_std_tools/float.hpp>
 #include <tobas_std_tools/geometry.hpp>
 
-#include "./vector.hpp"
 #include "./rotation.hpp"
+#include "./vector.hpp"
 
 namespace kdl
 {

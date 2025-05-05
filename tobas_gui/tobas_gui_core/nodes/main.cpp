@@ -1,11 +1,11 @@
 #include <QApplication>
 
-#include <tobas_ros2_tools/async_node_manager.hpp>
-#include <tobas_qt_tools/widgets/main_widget.hpp>
 #include <tobas_gui_common/util.hpp>
+#include <tobas_qt_tools/widgets/main_widget.hpp>
+#include <tobas_ros2_tools/async_node_manager.hpp>
 
-#include "tobas_gui_core/gui_core.hpp"
 #include "tobas_gui_core/constants.hpp"
+#include "tobas_gui_core/gui_core.hpp"
 
 static void sigIntHandler(int)
 {

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <gz/math/Pose3.hh>
 #include <gz/sim/System.hh>
 #include <gz/sim/components.hh>
-#include <gz/math/Pose3.hh>
 
 namespace gazebo
 {

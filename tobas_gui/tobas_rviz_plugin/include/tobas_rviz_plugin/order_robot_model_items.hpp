@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./link_model.hpp"
 #include "./joint_model_group.hpp"
+#include "./link_model.hpp"
 
 namespace tobas
 {

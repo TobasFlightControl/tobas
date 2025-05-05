@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_kdl/tree_solver_i.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
+#include <tobas_kdl/tree_solver_i.hpp>
 
 #include <tobas_msgs/msg/joint_state_array.hpp>
 

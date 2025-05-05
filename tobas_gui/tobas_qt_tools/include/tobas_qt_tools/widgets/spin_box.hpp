@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QSpinBox>
 #include <QDoubleSpinBox>
+#include <QSpinBox>
 
 namespace qt
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
 #include <tinyxml2.h>
+#include <eigen3/Eigen/Core>
 
 #include <tobas_drone_core/drone.hpp>
 

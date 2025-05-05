@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 
-#include "./tree_solver_i.hpp"
 #include "./jntarray.hpp"
+#include "./tree_solver_i.hpp"
 
 namespace kdl
 {

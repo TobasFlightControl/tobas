@@ -1,8 +1,8 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <thread>
-#include <functional>
 
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/uart_dev.hpp>

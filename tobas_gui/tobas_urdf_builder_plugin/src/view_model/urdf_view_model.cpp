@@ -4,8 +4,8 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-#include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/vector.hpp>
 
 using namespace std;
 

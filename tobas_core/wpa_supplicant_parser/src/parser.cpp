@@ -1,7 +1,7 @@
 #include "../include/wpa_supplicant_parser/parser.hpp"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #include <tobas_string_tools/core.hpp>
 

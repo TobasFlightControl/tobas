@@ -3,8 +3,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/font.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
 

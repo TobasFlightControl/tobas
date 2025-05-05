@@ -1,9 +1,9 @@
 #pragma once
 
-#include "./tree_solver_i.hpp"
 #include "./frames.hpp"
-#include "./jntarray.hpp"
 #include "./jacobian.hpp"
+#include "./jntarray.hpp"
+#include "./tree_solver_i.hpp"
 
 namespace kdl
 {

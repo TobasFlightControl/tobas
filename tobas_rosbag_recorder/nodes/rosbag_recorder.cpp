@@ -1,18 +1,20 @@
 #include <rosbag2_cpp/writer.hpp>
 
-#include <tobas_path_tools/core.hpp>
-#include <tobas_linux/core.hpp>
-#include <tobas_ros2_tools/util.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_path_tools/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 #include <std_msgs/msg/string.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
+#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
-#include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
@@ -25,10 +27,13 @@
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
+#include <tobas_msgs/msg/rosbag_state.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/srv/bag_record_start.hpp>
+#include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
@@ -36,12 +41,7 @@
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
-#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
-#include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
-#include <tobas_msgs/srv/bag_record_start.hpp>
-#include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_std_msgs/msg/message.hpp>
 
 #define BILLION 1'000'000'000
 

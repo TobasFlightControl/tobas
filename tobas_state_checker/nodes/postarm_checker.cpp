@@ -1,12 +1,12 @@
-#include <tobas_math/core.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_tools/util.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/latency.hpp>
+#include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 

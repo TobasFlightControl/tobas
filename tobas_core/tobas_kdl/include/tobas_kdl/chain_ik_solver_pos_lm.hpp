@@ -4,8 +4,8 @@
 
 #include <tobas_eigen_tools/typedef.hpp>
 
-#include "./chain_ik_solver.hpp"
 #include "./chain.hpp"
+#include "./chain_ik_solver.hpp"
 
 namespace kdl
 {

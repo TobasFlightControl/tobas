@@ -1,10 +1,10 @@
 #pragma once
 
-#include <set>
 #include <functional>
+#include <set>
 
-#include <geometric_shapes/check_isometry.h>
 #include <eigen_stl_containers/eigen_stl_containers.h>
+#include <geometric_shapes/check_isometry.h>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 
 #include "./link_model.hpp"

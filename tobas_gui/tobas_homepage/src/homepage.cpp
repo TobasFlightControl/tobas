@@ -3,8 +3,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
 {

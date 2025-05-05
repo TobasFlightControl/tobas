@@ -1,9 +1,9 @@
 #pragma once
 
-#include "./twist.hpp"
 #include "./accel.hpp"
-#include "./wrench.hpp"
 #include "./segment_jacobian.hpp"
+#include "./twist.hpp"
+#include "./wrench.hpp"
 
 namespace kdl
 {

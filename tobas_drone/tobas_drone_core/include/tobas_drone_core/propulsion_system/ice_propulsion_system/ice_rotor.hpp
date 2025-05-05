@@ -5,8 +5,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
 
-#include "../rotor.hpp"
 #include "../../hardware_interface.hpp"
+#include "../rotor.hpp"
 
 namespace tobas
 {

@@ -1,13 +1,13 @@
 #include "tobas_control_system/rcin_viewer/toggles_viewer.hpp"
 
+#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 namespace gui

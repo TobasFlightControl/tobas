@@ -1,14 +1,14 @@
 #include "../include/tobas_rviz_plugin/render_shapes.hpp"
 
-#include <geometric_shapes/check_isometry.h>
-#include <geometric_shapes/mesh_operations.h>
-#include <OgreSceneNode.h>
-#include <OgreSceneManager.h>
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
-#include <rviz_rendering/objects/shape.hpp>
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+#include <geometric_shapes/check_isometry.h>
+#include <geometric_shapes/mesh_operations.h>
 #include <rviz_common/display_context.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_rendering/objects/shape.hpp>
 
 #include "../include/tobas_rviz_plugin/mesh_shape.hpp"
 

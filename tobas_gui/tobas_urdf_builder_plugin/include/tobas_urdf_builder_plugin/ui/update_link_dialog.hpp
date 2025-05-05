@@ -6,8 +6,8 @@
 
 #include <tobas_property_client/property_client.hpp>
 
-#include "../view_model/link_view_model.hpp"
 #include "../view_model/joint_view_model.hpp"
+#include "../view_model/link_view_model.hpp"
 
 namespace Ui
 {

@@ -2,10 +2,10 @@
 
 #include <tobas_std_tools/geometry.hpp>
 
-#include "./vector.hpp"
-#include "./rotation.hpp"
-#include "./quaternion.hpp"
 #include "./angle_axis.hpp"
+#include "./quaternion.hpp"
+#include "./rotation.hpp"
+#include "./vector.hpp"
 
 namespace kdl
 {

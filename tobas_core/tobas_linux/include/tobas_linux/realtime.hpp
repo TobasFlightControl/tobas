@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sys/types.h>
 #include <sched.h>
+#include <sys/types.h>
 
 #include <cstdint>
 

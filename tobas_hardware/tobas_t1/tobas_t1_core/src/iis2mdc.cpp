@@ -1,7 +1,7 @@
 #include "../include/tobas_t1_core/iis2mdc.hpp"
 
-#include <iostream>
 #include <bitset>
+#include <iostream>
 
 using namespace std;
 

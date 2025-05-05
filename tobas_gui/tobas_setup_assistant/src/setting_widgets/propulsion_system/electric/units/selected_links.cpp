@@ -1,8 +1,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/selected_links.hpp"
 
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/stream.hpp>
-#include <tobas_qt_tools/cast.hpp>
 
 namespace gui
 {

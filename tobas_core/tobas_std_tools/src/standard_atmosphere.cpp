@@ -1,7 +1,7 @@
 #include "../include/tobas_std_tools/standard_atmosphere.hpp"
 
-#include <cmath>
 #include <cassert>
+#include <cmath>
 #include <stdexcept>
 
 #include <tobas_math/core.hpp>

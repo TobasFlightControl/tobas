@@ -1,11 +1,11 @@
 #pragma once
 
-#include "./vector.hpp"
+#include "./accel.hpp"
+#include "./impulse.hpp"
 #include "./rotation.hpp"
 #include "./twist.hpp"
-#include "./accel.hpp"
+#include "./vector.hpp"
 #include "./wrench.hpp"
-#include "./impulse.hpp"
 
 namespace kdl
 {

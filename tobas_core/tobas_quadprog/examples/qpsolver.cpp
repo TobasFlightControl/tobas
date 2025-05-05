@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include <tobas_quadprog/quadprogpp.hpp>
-#include <tobas_quadprog/qpoases.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_quadprog/primal_dual_interior_point.hpp>
+#include <tobas_quadprog/qpoases.hpp>
+#include <tobas_quadprog/quadprogpp.hpp>
 
 using namespace std;
 using namespace Eigen;

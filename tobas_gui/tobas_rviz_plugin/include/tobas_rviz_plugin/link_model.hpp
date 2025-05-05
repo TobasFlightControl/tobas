@@ -1,13 +1,13 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <utility>
 #include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include <eigen3/Eigen/Geometry>
 #include <eigen_stl_containers/eigen_stl_vector_container.h>
 #include <geometric_shapes/check_isometry.h>
+#include <eigen3/Eigen/Geometry>
 
 #include "./class_forward.hpp"
 

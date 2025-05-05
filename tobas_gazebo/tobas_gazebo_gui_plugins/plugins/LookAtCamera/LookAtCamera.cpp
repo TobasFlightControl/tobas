@@ -1,9 +1,9 @@
 #include <boost/polymorphic_pointer_cast.hpp>
-#include <gz/gui/Application.hh>
-#include <gz/gui/MainWindow.hh>
-#include <gz/gui/GuiEvents.hh>
-#include <gz/plugin/Register.hh>
 #include <gz/common/Console.hh>
+#include <gz/gui/Application.hh>
+#include <gz/gui/GuiEvents.hh>
+#include <gz/gui/MainWindow.hh>
+#include <gz/plugin/Register.hh>
 #include <gz/rendering/RenderingIface.hh>
 
 #include <tobas_gazebo_common/constants.hpp>

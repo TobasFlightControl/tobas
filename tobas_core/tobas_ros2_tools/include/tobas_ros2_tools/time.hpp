@@ -2,8 +2,8 @@
 
 #include <rclcpp/time.hpp>
 
-#include <builtin_interfaces/msg/time.hpp>
 #include <builtin_interfaces/msg/duration.hpp>
+#include <builtin_interfaces/msg/time.hpp>
 
 namespace ros2
 {

@@ -2,9 +2,9 @@
 
 #include <QtGui/QtGui>
 
-#include "./base_view_model.hpp"
-#include "../utils/time.hpp"
 #include "../utils/constants.hpp"
+#include "../utils/time.hpp"
+#include "./base_view_model.hpp"
 
 namespace gui
 {

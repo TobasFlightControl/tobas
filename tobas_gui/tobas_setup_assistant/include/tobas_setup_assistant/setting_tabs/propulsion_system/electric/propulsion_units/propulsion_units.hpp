@@ -1,8 +1,8 @@
 #pragma once
 
-#include "tobas_setup_assistant/signals.hpp"
 #include "./available_links.hpp"
 #include "./selected_links.hpp"
+#include "tobas_setup_assistant/signals.hpp"
 
 namespace gui
 {
