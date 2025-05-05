@@ -1,8 +1,9 @@
-#include <cstddef>
-#include <iostream>
+#include "../include/tobas_std_tools/cmdline_parser.hpp"
+
 #include <string.h>
 
-#include "../include/tobas_std_tools/cmdline_parser.hpp"
+#include <cstddef>
+#include <iostream>
 
 using namespace std;
 

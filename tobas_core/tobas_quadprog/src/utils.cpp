@@ -1,6 +1,6 @@
-#include <tobas_eigen_tools/core.hpp>
-
 #include "../include/tobas_quadprog/utils.hpp"
+
+#include <tobas_eigen_tools/core.hpp>
 
 using namespace std;
 using namespace Eigen;

@@ -1,3 +1,5 @@
+#include "../include/tobas_linux/process_settings.hpp"
+
 #include <cstring>
 #include <string>
 #include <stdexcept>
@@ -5,7 +7,6 @@
 
 #include <tobas_std_tools/cmdline_parser.hpp>
 
-#include "../include/tobas_linux/process_settings.hpp"
 #include "../include/tobas_linux/realtime.hpp"
 #include "../include/tobas_linux/memory_lock.hpp"
 

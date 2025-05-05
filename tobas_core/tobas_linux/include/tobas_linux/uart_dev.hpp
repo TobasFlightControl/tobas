@@ -1,9 +1,10 @@
 #pragma once
 
+#include <termios.h>  // XXX: <asm/termios.h>ではダメ
+
 #include <cstdint>
 #include <cstddef>
 #include <map>
-#include <termios.h>  // <asm/termios.h>ではダメ
 
 namespace linux
 {

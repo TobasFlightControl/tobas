@@ -1,6 +1,6 @@
-#include <QuadProg++/QuadProg++.hh>
-
 #include "../include/tobas_quadprog/quadprogpp.hpp"
+
+#include <QuadProg++/QuadProg++.hh>
 
 #define F_VALUE_THRESHOLD 1e+10
 

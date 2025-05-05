@@ -1,9 +1,10 @@
+#include "../include/tobas_quadprog/dual_active_set.hpp"
+
 #include <iostream>
+
 #include <eigen3/Eigen/Cholesky>
 
 #include <tobas_math/core.hpp>
-
-#include "../include/tobas_quadprog/dual_active_set.hpp"
 
 #define EPS numeric_limits<double>::epsilon()
 #define INF numeric_limits<double>::infinity()

@@ -1,7 +1,8 @@
-#include <stdexcept>
-#include <X11/XKBlib.h>  // NOTE: ヘッダでインクルードすると#defineが衝突する恐れあり
-
 #include "../include/tobas_keyboard/utils.hpp"
+
+#include <stdexcept>
+
+#include <X11/XKBlib.h>  // XXX: ヘッダでインクルードすると#defineが衝突する恐れあり
 
 using namespace std;
 

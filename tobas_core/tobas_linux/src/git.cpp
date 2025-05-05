@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "../include/tobas_linux/git.hpp"
+
+#include <iostream>
 
 using namespace std;
 

@@ -1,7 +1,7 @@
+#include "../include/tobas_yaml_tools/core.hpp"
+
 #include <fstream>
 #include <iostream>
-
-#include "../include/tobas_yaml_tools/core.hpp"
 
 using namespace std;
 

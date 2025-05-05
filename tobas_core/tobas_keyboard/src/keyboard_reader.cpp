@@ -1,8 +1,9 @@
-#include <cstring>
-#include <stdexcept>
+#include "../include/tobas_keyboard/keyboard_reader.hpp"
+
 #include <unistd.h>
 
-#include "../include/tobas_keyboard/keyboard_reader.hpp"
+#include <cstring>
+#include <stdexcept>
 
 #define STD_INPUT_FD 0  // 標準入力のファイルディスクリプタ
 

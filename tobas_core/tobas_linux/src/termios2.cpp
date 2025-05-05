@@ -1,9 +1,11 @@
-#include <iostream>
-#include <thread>
+#include "../include/tobas_linux/termios2.hpp"
+
 #include <sys/ioctl.h>
 #include <asm/termbits.h>
 
-#include "../include/tobas_linux/termios2.hpp"
+#include <iostream>
+#include <thread>
+
 #include "../include/tobas_linux/errer.hpp"
 
 using namespace std;

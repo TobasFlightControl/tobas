@@ -1,7 +1,8 @@
-#include <iostream>
-#include <eigen3/Eigen/Eigen>
-
 #include "../include/tobas_math/ellipse_transformer.hpp"
+
+#include <iostream>
+
+#include <eigen3/Eigen/Eigen>
 
 using namespace std;
 using namespace Eigen;

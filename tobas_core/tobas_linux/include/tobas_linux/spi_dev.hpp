@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <linux/spi/spidev.h>
+
+#include <cstdint>
 
 namespace linux
 {

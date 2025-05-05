@@ -1,8 +1,9 @@
 #pragma once
 
-#include <cstdint>
 #include <sys/types.h>
 #include <sched.h>
+
+#include <cstdint>
 
 namespace linux
 {

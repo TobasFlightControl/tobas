@@ -1,6 +1,7 @@
+#include "../include/tobas_std_tools/debug.hpp"
+
 #include <iostream>
 
-#include "../include/tobas_std_tools/debug.hpp"
 #include "../include/tobas_std_tools/ansi_text_styles.hpp"
 
 using namespace std;

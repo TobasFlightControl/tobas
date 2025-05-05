@@ -1,11 +1,13 @@
-#include <iostream>
-#include <thread>
-#include <cstring>
+#include "../include/tobas_linux/uart_dev.hpp"
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include "../include/tobas_linux/uart_dev.hpp"
+#include <iostream>
+#include <thread>
+#include <cstring>
+
 #include "../include/tobas_linux/errer.hpp"
 #include "../include/tobas_linux/termios2.hpp"
 

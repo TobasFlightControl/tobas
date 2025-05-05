@@ -1,8 +1,8 @@
+#include "../include/tobas_nlp/sqp.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/linalg.hpp>
-
-#include "../include/tobas_nlp/sqp.hpp"
 
 #define EPS 1e-6
 // #define TRACE_SOLVER

@@ -1,9 +1,9 @@
+#include "../include/tobas_std_tools/trajectory.hpp"
+
 #include <cassert>
 #include <algorithm>
 
 #include <tobas_math/core.hpp>
-
-#include "../include/tobas_std_tools/trajectory.hpp"
 
 using namespace std;
 

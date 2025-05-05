@@ -1,11 +1,12 @@
-#include <cstring>
-#include <iostream>
-#include <cassert>
+#include "../include/tobas_linux/spi_dev.hpp"
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include "../include/tobas_linux/spi_dev.hpp"
+#include <cstring>
+#include <iostream>
+#include <cassert>
 
 using namespace std;
 

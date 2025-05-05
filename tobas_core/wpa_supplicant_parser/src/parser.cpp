@@ -1,9 +1,9 @@
+#include "../include/wpa_supplicant_parser/parser.hpp"
+
 #include <iostream>
 #include <fstream>
 
 #include <tobas_string_tools/core.hpp>
-
-#include "../include/wpa_supplicant_parser/parser.hpp"
 
 using namespace std;
 namespace fs = filesystem;

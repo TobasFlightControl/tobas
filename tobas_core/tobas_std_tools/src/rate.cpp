@@ -1,6 +1,6 @@
-#include <thread>
-
 #include "../include/tobas_std_tools/rate.hpp"
+
+#include <thread>
 
 using namespace std;
 using namespace std::chrono;
