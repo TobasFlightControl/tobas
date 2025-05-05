@@ -47,11 +47,17 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   1. A blank line
   1. C++ standard library headers (without file extension), e.g., <algorithm>, <cstddef>.
   1. A blank line
-  1. Third-party libraries' header files.
+  1. Third-party libraries' header files
   1. A blank line
   1. Tobas libraries' header files
   1. A blank line
-  1. Your project's header files.
+  1. [ROS 2 common interfaces'](https://github.com/ros2/common_interfaces/tree/jazzy) header files.
+  1. A blank line
+  1. ROS 2 external interfaces' header files
+  1. A blank line
+  1. ROS 2 Tobas interfaces' header files (including type adapters)
+  1. A blank line
+  1. Your project's header files
 - それぞれのセクションのヘッダファイルをアルファベット順に並べる．
 - 関連ヘッダのインクルードに UNIX ディレクトリエイリアスは使用しない: `../include/my_library/my_class.hpp` -> `my_library/my_class.hpp`
 - 同じライブラリのヘッダのパスのみダブルクオーテーションで囲む．

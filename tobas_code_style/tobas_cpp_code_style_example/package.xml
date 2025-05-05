@@ -12,7 +12,9 @@
 	<depend>rclcpp</depend>
 	<depend>rclcpp_components</depend>
 	<depend>std_msgs</depend>
+	<depend>mavros_msgs</depend>
 	<depend>tobas_math</depend>
+	<depend>tobas_msgs_adapter</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

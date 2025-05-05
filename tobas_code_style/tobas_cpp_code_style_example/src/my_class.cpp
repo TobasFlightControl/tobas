@@ -10,10 +10,22 @@
 #include <cstddef>
 
 // Third-party libraries' header files
+#include <tinyxml2.h>
 #include <eigen3/Eigen/Core>
 
 // Tobas libraries' header files
 #include <tobas_math/core.hpp>
+
+// ROS 2 common interfaces' header files
+#include <std_msgs/msg/bool.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+
+// ROS 2 external interfaces' header files
+#include <mavros_msgs/msg/waypoint.hpp>
+
+// ROS 2 Tobas interfaces' header files (including type adapters)
+#include <tobas_msgs_adapter/gnss.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
 
 // Your project's header files
 #include "tobas_cpp_code_style_example/util.hpp"

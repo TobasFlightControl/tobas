@@ -5,9 +5,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(mavros_msgs REQUIRED)
 find_package(tobas_math REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES rclcpp rclcpp_components std_msgs tobas_math)
+set(AMENT_DEPENDENCIES rclcpp rclcpp_components std_msgs mavros_msgs tobas_math tobas_msgs_adapter)
 
 include_directories(include)
 
