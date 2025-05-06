@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_visualization_msgs)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)

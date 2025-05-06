@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_debug_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
