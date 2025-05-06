@@ -36,32 +36,28 @@ int main(int argc, char** argv)
 
   // Enable GNSS
   cout << "Enabling GNSS." << endl;
-  if (!gnss.enableGPS(true)) {
+  if (!gnss.enableGps()) {
     cerr << "Failed to enable GPS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSBAS(true)) {
+  if (!gnss.enableSbas()) {
     cerr << "Failed to enable SBAS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableGalileo(false)) {
+  if (!gnss.disableGalileo()) {
     cerr << "Failed to disable Galileo." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableBeiDou(false)) {
+  if (!gnss.disableBeiDou()) {
     cerr << "Failed to disable BeiDou." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableQZSS(true)) {
+  if (!gnss.enableQzss()) {
     cerr << "Failed to enable QZSS." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableGLONASS(false)) {
+  if (!gnss.disableGlonass()) {
     cerr << "Failed to disable GLONASS." << endl;
-    return EXIT_FAILURE;
-  }
-  if (!gnss.enableNavIC(false)) {
-    cerr << "Failed to disable NavIC." << endl;
     return EXIT_FAILURE;
   }
 

@@ -14,9 +14,16 @@ namespace ublox
  * @brief A Linux driver of u-blox ZED-F9P using SPI interface and UBX protocol.
  *
  * Product Page: https://www.u-blox.com/en/product/zed-f9p-module
- * Datasheet: https://content.u-blox.com/sites/default/files/documents/ZED-F9P-15B_DataSheet_UBX-23009090.pdf
+ *
+ * Product Summary: https://content.u-blox.com/sites/default/files/ZED-F9P_ProductSummary_UBX-17005151.pdf
+ *
+ * Integration Manual: https://content.u-blox.com/sites/default/files/ZED-F9P_IntegrationManual_UBX-18010802.pdf
+ *
  * Interface Description:
- * https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf
+ *
+ * L1/L2: https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf
+ *
+ * L1/L5: https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf
  */
 class ZEDF9P
 {
@@ -131,20 +138,33 @@ public:
   bool configureDynamicsModel(dynamics_model_t model);
   bool configureMeasurementRate(uint16_t period_ms);
 
-  bool enableGPS(bool enable);
-  bool enableSBAS(bool enable);
-  bool enableGalileo(bool enable);
-  bool enableBeiDou(bool enable);
-  bool enableQZSS(bool enable);
-  bool enableGLONASS(bool enable);
-  bool enableNavIC(bool enable);
+  bool enableGps();
+  bool disableGps();
+
+  bool enableSbas();
+  bool disableSbas();
+
+  bool enableGalileo();
+  bool disableGalileo();
+
+  bool enableBeiDou();
+  bool disableBeiDou();
+
+  bool enableQzss();
+  bool disableQzss();
+
+  bool enableGlonass();
+  bool disableGlonass();
+
+  bool enableNavIc();
+  bool disableNavIc();
 
   bool enableProtocol(cfg_protocol_t prot, bool enable);
 
   /* RF174ケーブルの長さからアナログ伝達の遅延を設定する． */
   bool setAntennaLength(uint8_t length_m);
 
-  bool enableUSB(bool enable);
+  bool enableUsb(bool enable);
 
   /* ===== Getters ===== */
 
@@ -259,6 +279,36 @@ private:
   bool waitForAcknowledge(ubx_class_t cls, uint8_t id);
   bool configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size);
   bool verifyMessage() const;
+
+  bool enableGps(bool enable);
+  bool enableGpsL1();
+  bool enableGpsL2();
+  bool enableGpsL5();
+
+  bool enableSbas(bool enable);
+  bool enableSbasL1();
+
+  bool enableGalileo(bool enable);
+  bool enableGalileoL1();
+  bool enableGalileoL2();
+  bool enableGalileoL5();
+
+  bool enableBeiDou(bool enable);
+  bool enableBeiDouL1();
+  bool enableBeiDouL2();
+  bool enableBeiDouL5();
+
+  bool enableQzss(bool enable);
+  bool enableQzssL1();
+  bool enableQzssL2();
+  bool enableQzssL5();
+
+  bool enableGlonass(bool enable);
+  bool enableGlonassL1();
+  bool enableGlonassL2();
+
+  bool enableNavIc(bool enable);
+  bool enableNavIcL5();
 
   /* 5.4 UBX Checksum */
   static CheckSum computeChecksum(const uint8_t* message, size_t checksum_pos);

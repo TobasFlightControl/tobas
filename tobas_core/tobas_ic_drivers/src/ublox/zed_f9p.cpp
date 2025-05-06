@@ -187,8 +187,7 @@ bool ZEDF9P::configureDynamicsModel(dynamics_model_t model)
 {
   CfgValSet<uint8_t, 1> cfg;
 
-  // CFG-NAVSPG-DYNMODEL
-  cfg.data[0].key = configKeyID(ONE_BYTE, CFG_NAVSPG, 0x21);
+  cfg.data[0].key = configKeyID(ONE_BYTE, CFG_NAVSPG, 0x21);  // CFG-NAVSPG-DYNMODEL
   cfg.data[0].value = model;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
@@ -198,149 +197,236 @@ bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
 {
   CfgValSet<uint16_t, 1> cfg;
 
-  // CFG-RATE-MEAS
-  cfg.data[0].key = configKeyID(TWO_BYTES, CFG_RATE, 0x01);
+  cfg.data[0].key = configKeyID(TWO_BYTES, CFG_RATE, 0x01);  // CFG-RATE-MEAS
   cfg.data[0].value = period_ms;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableGPS(bool enable)
+bool ZEDF9P::enableGps()
 {
-  CfgValSet<uint8_t, 3> cfg;
+  // Enable GPS
+  if (!enableGps(true)) {
+    cerr << "Failed to enable GPS." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-GPS_ENA
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1F);
-  cfg.data[0].value = enable;
+  // Enable L1 band
+  if (!enableGpsL1()) {
+    cerr << "Failed to enable GPS L1." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-GPS_L1CA_ENA
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x01);
-  cfg.data[1].value = enable;
+  // Try to enable L2 band
+  if (enableGpsL2()) {
+    cout << "GPS L1/L2 is enabled." << endl;
+    return true;
+  }
 
-  // CFG-SIGNAL-GPS_L5_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x04);
-  cfg.data[2].value = enable;
+  // Try to enable L5 band
+  if (enableGpsL5()) {
+    cout << "GPS L1/L5 is enabled." << endl;
+    return true;
+  }
 
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  cerr << "Failed to enable either GPS L2 or L5 bands." << endl;
+  return false;
 }
 
-bool ZEDF9P::enableSBAS(bool enable)
+bool ZEDF9P::disableGps()
 {
-  CfgValSet<uint8_t, 2> cfg;
-
-  // CFG-SIGNAL-SBAS_ENA
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x20);
-  cfg.data[0].value = enable;
-
-  // CFG-SIGNAL-SBAS_L1CA_ENA
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x05);
-  cfg.data[1].value = enable;
-
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  return enableGps(false);
 }
 
-bool ZEDF9P::enableGalileo(bool enable)
+bool ZEDF9P::enableSbas()
 {
-  CfgValSet<uint8_t, 3> cfg;
+  // Enable SBAS
+  if (!enableSbas(true)) {
+    cerr << "Failed to enable SBAS." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-GAL_ENA
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x21);
-  cfg.data[0].value = enable;
+  // Enable L1 band
+  if (!enableSbasL1()) {
+    cerr << "Failed to enable SBAS L1." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-GAL_E1_ENA
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x07);
-  cfg.data[1].value = enable;
-
-  // CFG-SIGNAL-GAL_EA5_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x09);
-  cfg.data[2].value = enable;
-
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  return true;
 }
 
-bool ZEDF9P::enableBeiDou(bool enable)
+bool ZEDF9P::disableSbas()
 {
-  CfgValSet<uint8_t, 3> cfg;
-
-  // CFG-SIGNAL-BDS_ENA
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x22);
-  cfg.data[0].value = enable;
-
-  // CFG-SIGNAL-BDS_B1_ENA
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0D);
-  cfg.data[1].value = enable;
-
-  // CFG-SIGNAL-BDS_B2A_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x28);
-  cfg.data[2].value = enable;
-
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  return enableGps(false);
 }
 
-bool ZEDF9P::enableQZSS(bool enable)
+bool ZEDF9P::enableGalileo()
 {
-  CfgValSet<uint8_t, 4> cfg;
+  // Enable Galileo
+  if (!enableGalileo(true)) {
+    cerr << "Failed to enable Galileo." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-QZSS_ENA
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x24);
-  cfg.data[0].value = enable;
+  // Enable L1 band
+  if (!enableGalileoL1()) {
+    cerr << "Failed to enable Galileo L1." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-QZSS_L1CA_ENA
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x12);
-  cfg.data[1].value = enable;
+  // Try to enable L2 band
+  if (enableGalileoL2()) {
+    cout << "Galileo L1/L2 is enabled." << endl;
+    return true;
+  }
 
-  // CFG-SIGNAL-QZSS_L1S_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x14);
-  cfg.data[2].value = enable;
+  // Try to enable L5 band
+  if (enableGalileoL5()) {
+    cout << "Galileo L1/L5 is enabled." << endl;
+    return true;
+  }
 
-  // CFG-SIGNAL-QZSS_L5_ENA
-  cfg.data[3].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x17);
-  cfg.data[3].value = enable;
-
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  cerr << "Failed to enable either Galileo L2 or L5 bands." << endl;
+  return false;
 }
 
-bool ZEDF9P::enableGLONASS(bool enable)
+bool ZEDF9P::disableGalileo()
 {
-  CfgValSet<uint8_t, 2> cfg;
-
-  // CFG-SIGNAL-GLO_ENA
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x25);
-  cfg.data[0].value = enable;
-
-  // CFG-SIGNAL-GLO_L1_ENA
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x18);
-  cfg.data[1].value = enable;
-
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  return enableGalileo(false);
 }
 
-bool ZEDF9P::enableNavIC(bool enable)
+bool ZEDF9P::enableBeiDou()
 {
-  CfgValSet<uint8_t, 2> cfg;
+  // Enable BeiDou
+  if (!enableBeiDou(true)) {
+    cerr << "Failed to enable BeiDou." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-NAVIC_ENA
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x26);
-  cfg.data[0].value = enable;
+  // Enable L1 band
+  if (!enableBeiDouL1()) {
+    cerr << "Failed to enable BeiDou L1." << endl;
+    return false;
+  }
 
-  // CFG-SIGNAL-NAVIC_L5_ENA
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1D);
-  cfg.data[1].value = enable;
+  // Try to enable L2 band
+  if (enableBeiDouL2()) {
+    cout << "BeiDou L1/L2 is enabled." << endl;
+    return true;
+  }
 
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  // Try to enable L5 band
+  if (enableBeiDouL5()) {
+    cout << "BeiDou L1/L5 is enabled." << endl;
+    return true;
+  }
+
+  cerr << "Failed to enable either BeiDou L2 or L5 bands." << endl;
+  return false;
+}
+
+bool ZEDF9P::disableBeiDou()
+{
+  return enableBeiDou(false);
+}
+
+bool ZEDF9P::enableQzss()
+{
+  // Enable QZSS
+  if (!enableQzss(true)) {
+    cerr << "Failed to enable QZSS." << endl;
+    return false;
+  }
+
+  // Enable L1 band
+  if (!enableQzssL1()) {
+    cerr << "Failed to enable QZSS L1." << endl;
+    return false;
+  }
+
+  // Try to enable L2 band
+  if (enableQzssL2()) {
+    cout << "QZSS L1/L2 is enabled." << endl;
+    return true;
+  }
+
+  // Try to enable L5 band
+  if (enableQzssL5()) {
+    cout << "QZSS L1/L5 is enabled." << endl;
+    return true;
+  }
+
+  cerr << "Failed to enable either QZSS L2 or L5 bands." << endl;
+  return false;
+}
+
+bool ZEDF9P::disableQzss()
+{
+  return enableQzss(false);
+}
+
+bool ZEDF9P::enableGlonass()
+{
+  // Enable GLONASS
+  if (!enableGlonass(true)) {
+    cerr << "Failed to enable GLONASS." << endl;
+    return false;
+  }
+
+  // Enable L1 band
+  if (!enableGlonassL1()) {
+    cerr << "Failed to enable GLONASS L1." << endl;
+    return false;
+  }
+
+  // Try to enable L2 band
+  if (enableGlonassL2()) {
+    cout << "GLONASS L1/L2 is enabled." << endl;
+    return true;
+  }
+
+  cout << "GLONASS L1 is enabled." << endl;
+  return true;
+}
+
+bool ZEDF9P::disableGlonass()
+{
+  return enableGlonass(false);
+}
+
+bool ZEDF9P::enableNavIc()
+{
+  // Enable NavIC
+  if (!enableNavIc(true)) {
+    cerr << "Failed to enable NavIC." << endl;
+    return false;
+  }
+
+  // Enable L5 band
+  if (!enableNavIcL5()) {
+    cerr << "Failed to enable NavIC L5." << endl;
+    return false;
+  }
+
+  cout << "NavIC L5 is enabled." << endl;
+  return false;
+}
+
+bool ZEDF9P::disableNavIc()
+{
+  return enableNavIc(false);
 }
 
 bool ZEDF9P::enableProtocol(cfg_protocol_t prot, bool enable)
 {
   CfgValSet<uint8_t, 2> cfg;
 
-  // CFG-SPIINPROT-XXX
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SPIINPROT, prot);
-  cfg.data[0].value = enable;
+  for (size_t i = 0; i < 2; ++i) {
+    cfg.data[i].value = enable;
+  }
 
-  // CFG-SPIOUTPROT-XXX
-  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SPIOUTPROT, prot);
-  cfg.data[1].value = enable;
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SPIINPROT, prot);   // CFG-SPIINPROT-XXX
+  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SPIOUTPROT, prot);  // CFG-SPIOUTPROT-XXX
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
@@ -349,19 +435,17 @@ bool ZEDF9P::setAntennaLength(uint8_t length_m)
 {
   CfgValSet<uint16_t, 1> cfg;
 
-  // CFG-TP-ANT_CABLEDELAY
-  cfg.data[0].key = configKeyID(TWO_BYTES, CFG_RATE, 0x01);
+  cfg.data[0].key = configKeyID(TWO_BYTES, CFG_RATE, 0x01);  // CFG-TP-ANT_CABLEDELAY
   cfg.data[0].value = length_m * kRG174CableDelay;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableUSB(bool enable)
+bool ZEDF9P::enableUsb(bool enable)
 {
   CfgValSet<uint8_t, 1> cfg;
 
-  // CFG-USB-ENABLED
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_USB, 0x01);
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_USB, 0x01);  // CFG-USB-ENABLED
   cfg.data[0].value = enable;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
@@ -475,6 +559,239 @@ bool ZEDF9P::verifyMessage() const
   }
 
   return true;
+}
+
+bool ZEDF9P::enableGps(bool enable)
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1F);  // CFG-SIGNAL-GPS_ENA
+  cfg.data[0].value = enable;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGpsL1()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x01);  // CFG-SIGNAL-GPS_L1CA_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGpsL2()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x03);  // CFG-SIGNAL-GPS_L2C_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGpsL5()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x04);  // CFG-SIGNAL-GPS_L5_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableSbas(bool enable)
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x20);  // CFG-SIGNAL-SBAS_ENA
+  cfg.data[0].value = enable;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableSbasL1()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x05);  // CFG-SIGNAL-SBAS_L1CA_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGalileo(bool enable)
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x21);  // CFG-SIGNAL-GAL_ENA
+  cfg.data[0].value = enable;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGalileoL1()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x07);  // CFG-SIGNAL-GAL_E1_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGalileoL2()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0A);  // CFG-SIGNAL-GAL_E5B_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGalileoL5()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x09);  // CFG-SIGNAL-GAL_E5A_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableBeiDou(bool enable)
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x22);  // CFG-SIGNAL-BDS_ENA
+  cfg.data[0].value = enable;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableBeiDouL1()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0D);  // CFG-SIGNAL-BDS_B1_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableBeiDouL2()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0E);  // CFG-SIGNAL-BDS_B2_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableBeiDouL5()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x28);  // CFG-SIGNAL-BDS_B2A_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableQzss(bool enable)
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x24);  // CFG-SIGNAL-QZSS_ENA
+  cfg.data[0].value = enable;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableQzssL1()
+{
+  CfgValSet<uint8_t, 2> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x12);  // CFG-SIGNAL-QZSS_L1CA_ENA
+  cfg.data[0].value = true;
+
+  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x14);  // CFG-SIGNAL-QZSS_L1S_ENA
+  cfg.data[1].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableQzssL2()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x15);  // CFG-SIGNAL-QZSS_L2C_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableQzssL5()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x17);  // CFG-SIGNAL-QZSS_L5_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGlonass(bool enable)
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x25);  // CFG-SIGNAL-GLO_ENA
+  cfg.data[0].value = enable;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGlonassL1()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x18);  // CFG-SIGNAL-GLO_L1_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableGlonassL2()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1A);  // CFG-SIGNAL-GLO_L2_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableNavIc(bool enable)
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x26);  // CFG-SIGNAL-NAVIC_ENA
+  cfg.data[0].value = enable;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P::enableNavIcL5()
+{
+  CfgValSet<uint8_t, 1> cfg;
+
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1D);  // CFG-SIGNAL-NAVIC_L5_ENA
+  cfg.data[0].value = true;
+
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* message, size_t checksum_pos)

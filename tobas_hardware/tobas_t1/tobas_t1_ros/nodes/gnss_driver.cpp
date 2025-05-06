@@ -86,33 +86,29 @@ bool GnssDriverNode::configure()
 
   // GPS + SBAS + QZSSを有効化
   // データシートを見るに，複数のメインGNSSを組み合わせると精度はあまり変化しない割に出力周波数が落ちる
-  if (!gnss_.enableGPS(true)) {
+  if (!gnss_.enableGps()) {
     TOBAS_ERROR("Failed to enable GPS.");
     return false;
   }
-  if (!gnss_.enableSBAS(true)) {
+  if (!gnss_.enableSbas()) {
     TOBAS_ERROR("Failed to enable SBAS.");
     return false;
   }
-  if (!gnss_.enableGalileo(false)) {
+  if (!gnss_.disableGalileo()) {
     TOBAS_ERROR("Failed to disable Galileo.");
     return false;
   }
-  if (!gnss_.enableBeiDou(false)) {
+  if (!gnss_.disableBeiDou()) {
     TOBAS_ERROR("Failed to disable BeiDou.");
     return false;
   }
-  if (!gnss_.enableQZSS(true)) {
+  if (!gnss_.enableQzss()) {
     TOBAS_ERROR("Failed to enable QZSS.");
     return false;
   }
-  if (!gnss_.enableGLONASS(false)) {
+  if (!gnss_.disableGlonass()) {
     TOBAS_ERROR("Failed to disable GLONASS.");
     return false;
-  }
-  if (!gnss_.enableNavIC(false)) {
-    TOBAS_ERROR("Failed to disable NavIC.");
-    return EXIT_FAILURE;
   }
 
   // Enable messages
@@ -152,7 +148,7 @@ bool GnssDriverNode::configure()
 
   // 不要なインターフェースを無効化
   // D_SELをオフにしているため，I2CとUARTは始めから無効化されているはず．
-  if (!gnss_.enableUSB(false)) {
+  if (!gnss_.enableUsb(false)) {
     TOBAS_WARN("Failed to disable USB interface.");
   }
 
