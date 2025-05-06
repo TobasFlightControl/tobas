@@ -32,7 +32,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/widgets/*.hpp
-                                                             include/${PROJECT_NAME}/layouts/*.hpp
+                                                                               include/${PROJECT_NAME}/layouts/*.hpp
 )
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
