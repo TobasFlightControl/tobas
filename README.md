@@ -56,7 +56,7 @@ $ cd ~/colcon_ws
 ```bash
 $ echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc
 $ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
-$ echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc
+$ echo "source ~/colcon_ws/install/local_setup.bash" >> ~/.bashrc
 $ exec bash
 ```
 

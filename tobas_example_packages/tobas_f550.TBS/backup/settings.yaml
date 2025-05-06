@@ -727,9 +727,9 @@ PreArm Check:
   Check CPU temperature: true
   Check rotor communication: true
   Check attitude level: true
-  Check position stability: true
-  Check position accuracy: true
-  Check velocity accuracy: true
+  Check position stability: false
+  Check position accuracy: false
+  Check velocity accuracy: false
   Check attitude accuracy: true
   Check heading accuracy: true
 Simulation:

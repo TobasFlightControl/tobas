@@ -21,7 +21,7 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
 
   // XXX: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
   const auto ros2_setup_bash = (fs::path(tobas::kROS2JazzyInstallPath) / "setup.bash").string();
-  const auto tobas_setup_bash = (fs::path(tobas::kTobasInstallPath) / "setup.bash").string();
+  const auto tobas_setup_bash = (fs::path(tobas::kTobasInstallPath) / "local_setup.bash").string();
   const auto pre_cmd = format(
     "source {} && "
     "source {} && "
