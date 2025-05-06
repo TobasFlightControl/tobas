@@ -35,22 +35,25 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
     "colcon build "
     "--merge-install "
     "--parallel-workers $(nproc) "
-    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "
+    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "  // XXX: コンパイラを指定
     "--packages-up-to {}",
     meta_pkg_name);
 
-  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) != ssh::SSHClient::E_NO_ERROR) {
-    // ビルドできなければcleanして再試行
-    RCLCPP_WARN(node_->get_logger(), "Failed to build remote package. Retrying...");
-
-    const auto command = pre_cmd + " && sudo colcon clean workspace -y && " + build_cmd;
-    if (ssh_client_.execute(command, output_, true) != ssh::SSHClient::E_NO_ERROR) {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Clean build of remote package also failed: " << getErrorMessage());
-      return false;
-    }
+  // ビルドできれば終了
+  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) == ssh::SSHClient::E_NO_ERROR) {
+    return true;
   }
 
-  return true;
+  // ビルドできなければクリーンビルド
+  RCLCPP_WARN(node_->get_logger(), "Failed to build remote package. Retrying...");
+  const auto command = pre_cmd + " && sudo colcon clean workspace -y && " + build_cmd;
+  if (ssh_client_.execute(command, output_, true) == ssh::SSHClient::E_NO_ERROR) {
+    return true;
+  }
+
+  // クリーンビルドもできなければエラー
+  RCLCPP_ERROR_STREAM(node_->get_logger(), "Clean build of remote package also failed: " << getErrorMessage());
+  return false;
 }
 
 const string& RemotePackageBuilder::getOutput() const
