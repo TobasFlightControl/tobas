@@ -20,11 +20,11 @@ pkg_check_modules(LIBGIT2 REQUIRED libgit2)
 include_directories(include)
 include_directories(${LIBGIT2_INCLUDE_DIRS})
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBGIT2_LIBRARIES})
 
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
+file(GLOB_RECURSE EXE_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS EXE_FILES)
   get_filename_component(NAME ${file_path} NAME_WE)

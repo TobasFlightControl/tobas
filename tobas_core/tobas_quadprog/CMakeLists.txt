@@ -18,14 +18,14 @@ set(AMENT_DEPENDENCIES tobas_eigen_tools)
 
 include_directories(include)
 
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+# file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 set(LIB_CPP_FILES src/utils.cpp src/qpsolver.cpp src/dual_active_set.cpp src/primal_dual_interior_point.cpp
                   # src/quadprogpp.cpp src/qpoases.cpp
 )
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
+file(GLOB_RECURSE EXE_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(TARGETS_TO_INSTALL "")
 # foreach(file_path IN LISTS EXE_FILES) get_filename_component(NAME ${file_path} NAME_WE) add_executable(${NAME}
 # ${file_path}) target_link_libraries(${NAME} ${PROJECT_NAME}) list(APPEND TARGETS_TO_INSTALL ${NAME}) endforeach()

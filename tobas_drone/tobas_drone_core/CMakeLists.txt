@@ -21,11 +21,11 @@ set(AMENT_DEPENDENCIES tobas_kdl tobas_yaml_tools tobas_constants)
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE TEST_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} tests/[^.]*.cpp)
+file(GLOB_RECURSE TEST_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} tests/[^.]*.cpp)
 ament_add_gtest(${PROJECT_NAME}_test ${TEST_CPP_FILES})
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 

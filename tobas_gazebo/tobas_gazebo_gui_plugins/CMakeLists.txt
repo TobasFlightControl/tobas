@@ -35,12 +35,12 @@ set(CMAKE_AUTOMOC ON)
 include_directories(include)
 
 # Build common library
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} tobas_gazebo_common tobas_gazebo_tools)
 
 # Build each plugin
-file(GLOB PLUGIN_DIR_PATHS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*)
+file(GLOB PLUGIN_DIR_PATHS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*)
 set(TARGETS_TO_INSTALL "")
 
 foreach(dir_path IN LISTS PLUGIN_DIR_PATHS)

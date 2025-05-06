@@ -22,11 +22,11 @@ set(AMENT_DEPENDENCIES tobas_kdl_conversions tobas_node tobas_tools tobas_msgs_a
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PositionControllerNode" EXECUTABLE position_controller)

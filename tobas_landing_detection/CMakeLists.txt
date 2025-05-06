@@ -17,7 +17,7 @@ find_package(tobas_msgs_adapter REQUIRED)
 
 include_directories(include)
 
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node tobas_node tobas_msgs_adapter)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "LandingDetectorNode" EXECUTABLE landing_detector)
