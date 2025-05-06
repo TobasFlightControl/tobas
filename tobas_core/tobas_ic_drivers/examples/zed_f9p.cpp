@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <tobas_ic_drivers/ublox/zed_f9p_1xb.hpp>
+#include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 
 using namespace std;
 
@@ -12,7 +12,7 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];
 
-  ublox::ZEDF9P1xB gnss;
+  ublox::ZEDF9P gnss;
 
   ublox::payload::NAV_COV cov;
   ublox::payload::NAV_HPPOSLLH hpposllh;
@@ -67,31 +67,31 @@ int main(int argc, char** argv)
 
   // Enable messages
   cout << "Enabling messages." << endl;
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_COV, true)) {
+  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_COV, true)) {
     cerr << "Failed to enable NAV_COV message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_HPPOSLLH, true)) {
+  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
     cerr << "Failed to enable NAV_HPPOSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_POSLLH, true)) {
+  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_POSLLH, true)) {
     cerr << "Failed to enable NAV_POSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_PVT, true)) {
+  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_STATUS, true)) {
+  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_STATUS, true)) {
     cerr << "Failed to enable NAV_STATUS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_TIMEGPS, true)) {
+  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_TIMEGPS, true)) {
     cerr << "Failed to enable NAV_TIMEGPS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_VELNED, true)) {
+  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_VELNED, true)) {
     cerr << "Failed to enable NAV_VELNED message." << endl;
     return EXIT_FAILURE;
   }
@@ -104,42 +104,42 @@ int main(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    if (gnss.latestClass() != ublox::ZEDF9P1xB::CLASS_NAV) {
+    if (gnss.latestClass() != ublox::ZEDF9P::CLASS_NAV) {
       continue;
     }
 
     switch (gnss.latestId()) {
-      case ublox::ZEDF9P1xB::NAV_COV:
+      case ublox::ZEDF9P::NAV_COV:
         cov.decode(gnss.payload());
         cout << "[NAV_COV]" << endl;
         cout << cov << endl;
         break;
-      case ublox::ZEDF9P1xB::NAV_HPPOSLLH:
+      case ublox::ZEDF9P::NAV_HPPOSLLH:
         hpposllh.decode(gnss.payload());
         cout << "[NAV_HPPOSLLH]" << endl;
         cout << hpposllh << endl;
         break;
-      case ublox::ZEDF9P1xB::NAV_POSLLH:
+      case ublox::ZEDF9P::NAV_POSLLH:
         posllh.decode(gnss.payload());
         cout << "[NAV_POSLLH]" << endl;
         cout << posllh << endl;
         break;
-      case ublox::ZEDF9P1xB::NAV_PVT:
+      case ublox::ZEDF9P::NAV_PVT:
         pvt.decode(gnss.payload());
         cout << "[NAV_PVT]" << endl;
         cout << pvt << endl;
         break;
-      case ublox::ZEDF9P1xB::NAV_STATUS:
+      case ublox::ZEDF9P::NAV_STATUS:
         status.decode(gnss.payload());
         cout << "[NAV_STATUS]" << endl;
         cout << status << endl;
         break;
-      case ublox::ZEDF9P1xB::NAV_TIMEGPS:
+      case ublox::ZEDF9P::NAV_TIMEGPS:
         timegps.decode(gnss.payload());
         cout << "[NAV_TIMEGPS]" << endl;
         cout << timegps << endl;
         break;
-      case ublox::ZEDF9P1xB::NAV_VELNED:
+      case ublox::ZEDF9P::NAV_VELNED:
         velned.decode(gnss.payload());
         cout << "[NAV_VELNED]" << endl;
         cout << velned << endl;

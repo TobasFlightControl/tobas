@@ -11,14 +11,14 @@
 namespace ublox
 {
 /**
- * @brief A Linux driver of u-blox ZED-F9P-1xB using SPI interface and UBX protocol.
+ * @brief A Linux driver of u-blox ZED-F9P using SPI interface and UBX protocol.
  *
  * Product Page: https://www.u-blox.com/en/product/zed-f9p-module
  * Datasheet: https://content.u-blox.com/sites/default/files/documents/ZED-F9P-15B_DataSheet_UBX-23009090.pdf
  * Interface Description:
  * https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf
  */
-class ZEDF9P1xB
+class ZEDF9P
 {
 private:
   static constexpr uint32_t kSPIClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
@@ -120,7 +120,7 @@ public:
     SPARTN = 0x05,
   };
 
-  explicit ZEDF9P1xB();
+  explicit ZEDF9P();
 
   bool initialize(const char* spi_device);
   bool update(bool nonblock = true);
@@ -269,17 +269,17 @@ private:
   static uint32_t configKeyID(cfg_size_t size, cfg_group_t group, uint8_t id);
 };
 
-inline ZEDF9P1xB::ubx_class_t ZEDF9P1xB::latestClass() const
+inline ZEDF9P::ubx_class_t ZEDF9P::latestClass() const
 {
   return static_cast<ubx_class_t>(*scanner_.getClass());
 }
 
-inline uint8_t ZEDF9P1xB::latestId() const
+inline uint8_t ZEDF9P::latestId() const
 {
   return *scanner_.getId();
 }
 
-inline const uint8_t* ZEDF9P1xB::payload() const
+inline const uint8_t* ZEDF9P::payload() const
 {
   return scanner_.getPayload();
 }
