@@ -41,7 +41,7 @@ find_package(gz-plugin REQUIRED)
 include_directories(include ${OpenCV_INCLUDE_DIRS})
 
 # Build common library
-file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(
   ${PROJECT_NAME}
@@ -60,7 +60,7 @@ ament_target_dependencies(
 target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
 
 # Build each plugin
-file(GLOB_RECURSE PLUGIN_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*.cpp)
+file(GLOB_RECURSE PLUGIN_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
 set(TARGETS_TO_INSTALL "")
 
 foreach(file_path IN LISTS PLUGIN_CPP_FILES)
