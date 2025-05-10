@@ -57,8 +57,7 @@ SQP::error_t SQP::solve()
 
   while (true) {
     // 繰り返し回数の上限チェック
-    ++iter_;
-    if (max_iter_ > 0 && iter_ > max_iter_) {
+    if (++iter_ > max_iter_) {
       return error_code_ = E_MAX_ITERATION_EXCEEDED;
     }
 
