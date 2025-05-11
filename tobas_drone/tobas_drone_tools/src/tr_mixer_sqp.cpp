@@ -229,16 +229,17 @@ bool TiltRotorMixer_SQP::initializeSQP()
   x0.head(nr).setZero();
   x0.tail(nr) = np_mixer_.getThrusts();
 
-  const auto _f = bind(&self::f, this, std::placeholders::_1);
-  const auto _g = bind(&self::g, this, std::placeholders::_1);
-  const auto _h = bind(&self::h, this, std::placeholders::_1);
-  const auto _dfdx = bind(&self::dfdx, this, std::placeholders::_1);
-  const auto _dgdx = bind(&self::dgdx, this, std::placeholders::_1);
-  const auto _dhdx = bind(&self::dhdx, this, std::placeholders::_1);
-  const auto _dFdx = bind(&self::dFdx, this, std::placeholders::_1);
-  const auto _dGdx = bind(&self::dGdx, this, std::placeholders::_1);
-  const auto _dHdx = bind(&self::dHdx, this, std::placeholders::_1);
-  sqp_.initialize(x0, _f, _g, _h, _dfdx, _dgdx, _dhdx, _dFdx, _dGdx, _dHdx);
+  sqp_.initialize(
+    x0,
+    bind(&self::f, this, std::placeholders::_1),
+    bind(&self::g, this, std::placeholders::_1),
+    bind(&self::h, this, std::placeholders::_1),
+    bind(&self::dfdx, this, std::placeholders::_1),
+    bind(&self::dgdx, this, std::placeholders::_1),
+    bind(&self::dhdx, this, std::placeholders::_1),
+    bind(&self::dFdx, this, std::placeholders::_1),
+    bind(&self::dGdx, this, std::placeholders::_1),
+    bind(&self::dHdx, this, std::placeholders::_1));
 
   return true;
 }

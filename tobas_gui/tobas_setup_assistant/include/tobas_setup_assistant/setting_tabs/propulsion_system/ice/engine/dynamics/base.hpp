@@ -29,11 +29,8 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
-  /* [Nm/(rad/s)] */
-  virtual double torqueConstant() const = 0;
-
-  /* [Nm] */
-  virtual double dynamicFrictionTorque() const = 0;
+  /* A, B (memo: 3-28) */
+  virtual std::pair<double, double> engineConstant() const = 0;
 
 protected:
   void addWidget(QWidget* widget);

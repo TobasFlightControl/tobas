@@ -474,7 +474,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
-      tar_thrusts->thrusts.back().thrust = thrusts(idx);
+      tar_thrusts->thrusts.back().thrust = max(thrusts(idx), 0.);
     }
     tar_thrusts_pub_->publish(move(tar_thrusts));
 

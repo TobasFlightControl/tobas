@@ -80,6 +80,6 @@ inline double ICERotorConfig::pitchFromThrust(double engine_speed, double thrust
   assert(engine_speed > 0.);
 
   const auto rot_speed = speedEngineToRotor(engine_speed);
-  return (thrust / math::sqr(rot_speed) - motor_const.first) / motor_const.second;
+  return pitch_limit.clamp((thrust / math::sqr(rot_speed) - motor_const.first) / motor_const.second);
 }
 }  // namespace tobas

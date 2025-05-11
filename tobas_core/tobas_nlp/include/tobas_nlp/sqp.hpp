@@ -66,7 +66,7 @@ private:
   quadprog::DualActiveSetSolver qp_;
 
   // Configurations
-  size_t max_iter_ = 0;
+  size_t max_iter_ = UINT64_MAX;
   double rel_tol_ = 1e-3;
 };
 }  // namespace nlp

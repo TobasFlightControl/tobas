@@ -1,4 +1,3 @@
-float64 torque_const
-float64 friction_torque
+tobas_std_msgs/PairFloat64 engine_const
 float64 max_speed
 uint8 hw_iface
