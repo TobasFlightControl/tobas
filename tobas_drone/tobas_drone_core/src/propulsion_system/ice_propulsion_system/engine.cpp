@@ -57,7 +57,7 @@ double EngineConfig::computeTorque(double speed, double throttle)
   assert(speed >= 0.);
   assert(0. <= throttle && throttle <= 1.);
 
-  if (throttle == 0.) {
+  if (throttle < numeric_limits<double>::epsilon()) {
     return 0.;
   }
 
@@ -74,13 +74,13 @@ double EngineConfig::computeThrottle(double torque, double speed)
   assert(torque >= 0.);
   assert(speed >= 0.);
 
-  if (speed == 0.) {
+  if (speed < numeric_limits<double>::epsilon()) {
     return 0.;
   }
 
   const auto& [A, B] = engine_const;
 
-  const auto cos_phi = 1. - A * torque / sqrt(B - torque / speed);
+  const auto cos_phi = 1. - A * torque / sqrt(max(B - torque / speed, 0.));
   const auto phi = acos(clamp(cos_phi, 0., 1.));
   return phi / M_PI_2;
 }
