@@ -1,5 +1,6 @@
 #include "tobas_nlp/newton_1d.hpp"
 
+#include <cassert>
 #include <cmath>
 #include <iostream>
 
@@ -31,9 +32,12 @@ NewtonSolver1d::ErrorCode NewtonSolver1d::solve(double& x)
     std::cout << "----------" << std::endl;
 #endif
 
+    assert(std::isfinite(f));
+    assert(std::isfinite(dfdx));
+
     // 停留点の場合
-    if (dfdx == 0.) {
-      if (f == 0.) {
+    if (dfdx < std::numeric_limits<double>::epsilon()) {
+      if (f < std::numeric_limits<double>::epsilon()) {
         // すでに解にいるならば終了
         return error_code_ = kNoError;
       }
