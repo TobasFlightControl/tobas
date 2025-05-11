@@ -103,7 +103,7 @@ bool PosVelYawController::maxVerticalVelocityCb(const double& p)
 
 bool PosVelYawController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = static_cast<double>(p) / kExpoScale;
+  max_head_rate_ = p;
   return true;
 }
 
