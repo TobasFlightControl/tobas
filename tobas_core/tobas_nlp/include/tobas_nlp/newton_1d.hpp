@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <functional>
 
 namespace nlp
@@ -39,7 +38,7 @@ private:
   std::function<double(double)> dfdx_;
 
   // Configurations
-  size_t max_iter_ = UINT64_MAX;
+  size_t max_iter_ = 100;
   double abs_tol_ = 1e-10;
 };
 }  // namespace nlp
