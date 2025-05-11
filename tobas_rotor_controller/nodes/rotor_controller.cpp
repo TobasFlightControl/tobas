@@ -149,9 +149,9 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
     {
       const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
 
-      // 合計トルクとその係数を求める
+      // エンジン軸にかかる合計トルクとその係数を求める
       double torque_sum = 0.;
-      double torque_coef_sum = 0.;
+      double K = 0.;
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         auto tar_thrust = elem.thrust;
 
@@ -167,8 +167,8 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         }
 
         const auto irotor = iprop->getRotor(elem.link_name);
-        torque_sum += irotor->moment_const * tar_thrust;
-        torque_coef_sum += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::sqr(irotor->gear_ratio);
+        torque_sum += irotor->moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
+        K += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::cube(irotor->gear_ratio);
       }
 
       // コマンドを作成
@@ -177,7 +177,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       // エンジンスロットルとプロペラピッチ角を求める
       if (torque_sum > 0.) {
-        const auto engine_speed = sqrt(torque_sum / torque_coef_sum);
+        const auto engine_speed = sqrt(torque_sum / K);
         ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
         for (const auto& elem : tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);

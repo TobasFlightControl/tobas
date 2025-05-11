@@ -21,17 +21,10 @@ bool EngineModel::initialize(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
+  newton_.initialize(
+    bind(&self::speedFunc, this, std::placeholders::_1), bind(&self::speedFuncDeriv, this, std::placeholders::_1));
+
   return true;
-}
-
-double EngineModel::getTorqueConst() const
-{
-  return torque_const_;
-}
-
-double EngineModel::getFrictionTorque() const
-{
-  return friction_torque_;
 }
 
 double EngineModel::getSpeed() const
@@ -67,19 +60,11 @@ bool EngineModel::step(const double& dt)
 
 bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  if (!getSdfParam(sdf, "torqueConstant", torque_const_)) {
+  if (!getSdfParam(sdf, "engineConstant", engine_const_)) {
     return false;
   }
-  if (torque_const_ <= 0.) {
-    gzerr << "Engine torque constant must be positive." << endl;
-    return false;
-  }
-
-  if (!getSdfParam(sdf, "dynamicFrictionTorque", friction_torque_)) {
-    return false;
-  }
-  if (friction_torque_ <= 0.) {
-    gzerr << "Engine friction torque must be positive." << endl;
+  if (engine_const_.first <= 0. || engine_const_.second <= 0.) {
+    gzerr << "Engine constants must be positive." << endl;
     return false;
   }
 
@@ -99,23 +84,53 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 double EngineModel::computeSteadySpeed()
 {
-  const auto& A = torque_const_;
-  const auto& B = friction_torque_;
-
-  double K = 0.;
-  for (const auto& [_, rotor] : rotors_) {
-    K += rotor.getMotorConst() * rotor.getMomentConst() / math::sqr(rotor.getGearRatio());
-  }
-
-  const auto g = math::sqr(throttle_) * (2 - throttle_);
-  const auto Ag = A * g;
-
-  const auto D = math::sqr(Ag) - 4 * K * B;
-  if (D < 0.) {
+  // FIXME: 実際はゼロスロットルでもトルクは発生する (アイドリング)
+  if (throttle_ <= 0.) {
     return 0.;
   }
-  else {
-    return (Ag + sqrt(D)) / (2 * K);
+
+  double speed = 0.;
+  if (newton_.solve(speed) < 0) {
+    gzerr << "Failed to solve engine dynamics equation: " << newton_.errorMessage() << endl;
+    return 0.;
   }
+
+  return speed;
+}
+
+double EngineModel::speedFunc(double omega) const
+{
+  const auto& B = engine_const_.second;
+  const auto f = calc_f();
+  const auto k = calc_k();
+  return f * math::sqr(k) * math::quat(omega) + k * omega - B;
+}
+
+double EngineModel::speedFuncDeriv(double omega) const
+{
+  const auto f = calc_f();
+  const auto k = calc_k();
+  return 4 * f * math::sqr(k) * math::cube(omega) + k;
+}
+
+double EngineModel::calc_phi() const
+{
+  return M_PI_2 * throttle_;
+}
+
+double EngineModel::calc_f() const
+{
+  const auto& A = engine_const_.first;
+  const auto phi = calc_phi();
+  return math::sqr(A / (1 - cos(phi)));
+}
+
+double EngineModel::calc_k() const
+{
+  double res = 0.;
+  for (const auto& [_, rotor] : rotors_) {
+    res += rotor.getMotorConst() * rotor.getMomentConst() / math::cube(rotor.getGearRatio());
+  }
+  return res;
 }
 }  // namespace gazebo

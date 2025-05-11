@@ -68,14 +68,9 @@ void EngineDynamicsWidget::load(const YAML::Node& node)
   }
 }
 
-double EngineDynamicsWidget::torqueConstant() const
+std::pair<double, double> EngineDynamicsWidget::engineConstant() const
 {
-  return selected()->torqueConstant();
-}
-
-double EngineDynamicsWidget::dynamicFrictionTorque() const
-{
-  return selected()->dynamicFrictionTorque();
+  return selected()->engineConstant();
 }
 
 EngineDynamicsWidget_Base* EngineDynamicsWidget::selected()

@@ -2,9 +2,7 @@
 
 #include <cassert>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
-#include <tobas_math/equation.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std;
@@ -13,13 +11,8 @@ namespace tobas
 {
 bool EngineConfig::isValid() const
 {
-  if (torque_const <= 0.) {
-    cerr << "Engine torque constant must be positive." << endl;
-    return false;
-  }
-
-  if (friction_torque <= 0.) {
-    cerr << "Engine dynamic friction torque must be positive." << endl;
+  if (engine_const.first <= 0. || engine_const.second <= 0.) {
+    cerr << "Engine constants must be positive." << endl;
     return false;
   }
 
@@ -33,11 +26,7 @@ bool EngineConfig::isValid() const
 
 bool EngineConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kTorqueConstantKey, node, torque_const)) {
-    return false;
-  }
-
-  if (!yaml::load(kDynamicFrictionTorqueKey, node, friction_torque)) {
+  if (!yaml::load(kEngineConstantKey, node, engine_const)) {
     return false;
   }
 
@@ -56,8 +45,7 @@ YAML::Node EngineConfig::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kTorqueConstantKey] = torque_const;
-  node[kDynamicFrictionTorqueKey] = friction_torque;
+  node[kEngineConstantKey] = engine_const;
   node[kMaxSpeedKey] = max_speed;
   node[kHardwareIfaceKey] = hw_iface;
 
@@ -67,17 +55,18 @@ YAML::Node EngineConfig::dump() const
 double EngineConfig::computeTorque(double speed, double throttle)
 {
   assert(speed >= 0.);
-  assert(throttle >= 0.);
+  assert(0. <= throttle && throttle <= 1.);
 
-  return max(torque_const * g(throttle) * speed - friction_torque, 0.);
-}
+  if (throttle == 0.) {
+    return 0.;
+  }
 
-double EngineConfig::computeSpeed(double throttle, double torque)
-{
-  assert(throttle >= 0.);
-  assert(torque >= 0.);
+  const auto& [A, B] = engine_const;
 
-  return (torque + friction_torque) / (torque_const * g(throttle));
+  // FIXME: 実際はゼロスロットル (アイドリング) でも出力トルクはゼロではなく，エンジンモデルの改善が必要．
+  const auto phi = M_PI_2 * throttle;
+  const auto f = math::sqr(A / (1 - cos(phi)));
+  return 2 * B * speed / (sqrt(1 + 4 * B * math::sqr(speed) * f) + 1);
 }
 
 double EngineConfig::computeThrottle(double torque, double speed)
@@ -85,35 +74,20 @@ double EngineConfig::computeThrottle(double torque, double speed)
   assert(torque >= 0.);
   assert(speed >= 0.);
 
-  if (torque == 0.) {
-    return tobas::kMinThrot;
-  }
-  else if (speed == 0.) {
-    return tobas::kMaxThrot;
+  if (speed == 0.) {
+    return 0.;
   }
 
-  // スロットル方程式が解けるように定数部分を決める
-  const auto throt_const = clamp((torque + friction_torque) / (torque_const * speed), 0., 1.);
+  const auto& [A, B] = engine_const;
 
-  // スロットル方程式を解く
-  const auto& [throt_1, throt_2, throt_3] = math::solveCubicEquation(1, -2, 0, throt_const);
-
-  // 定数部分が[0, 1]の範囲にあるとき，解はx <= 0, 0 <= x <= 1, 1 <= xの範囲に1つずつ存在する．
-  // そのため3つの解のうち2番目に大きなものを選べばよい．
-  double throt_cands[] = { throt_1.real(), throt_2.real(), throt_3.real() };
-  sort(begin(throt_cands), end(throt_cands));
-  return throt_cands[1];
-}
-
-double EngineConfig::g(double throttle)
-{
-  return math::sqr(throttle) * (2 - throttle);
+  const auto cos_phi = 1. - A * torque / sqrt(B - torque / speed);
+  const auto phi = acos(clamp(cos_phi, 0., 1.));
+  return phi / M_PI_2;
 }
 
 ostream& operator<<(ostream& os, const EngineConfig& arg)
 {
-  os << "Torque Constant [Nm/(rad/s)]: " << arg.torque_const << endl;
-  os << "Dynamic Friction Torque [Nm]: " << arg.friction_torque << endl;
+  os << "Engine Constant: " << arg.engine_const.first << ", " << arg.engine_const.second << endl;
   os << "Maximum Speed [rad/s]: " << arg.max_speed << endl;
   return os;
 }

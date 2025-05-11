@@ -10,15 +10,13 @@ namespace tobas
 {
 class EngineConfig
 {
-  static constexpr char kTorqueConstantKey[] = "torque_constant";
-  static constexpr char kDynamicFrictionTorqueKey[] = "dynamic_friction_torque";
+  static constexpr char kEngineConstantKey[] = "engine_constant";
   static constexpr char kMaxSpeedKey[] = "max_speed";
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
 public:
-  double torque_const = 0.;     // [Nm/(rad/s)]
-  double friction_torque = 0.;  // [Nm]
-  double max_speed = 0.;        // [rad/s]
+  std::pair<double, double> engine_const = { 0., 0. };  // A, B (memo: 3-28)
+  double max_speed = 0.;                                // [rad/s]
   hw_iface_t hw_iface = hw_iface_t::OTHER;
 
   bool isValid() const;
@@ -29,15 +27,9 @@ public:
   /* Compute engine torque [Nm] from speed [rad/s] and throttle [0, 1]. */
   double computeTorque(double speed, double throttle);
 
-  /* Compute engine speed [rad/s] from throttle [0, 1] and torque [Nm]. */
-  double computeSpeed(double throttle, double torque);
-
   /* Compute engine throttle [0, 1] from torque [N] and speed [rad/s]. */
   double computeThrottle(double torque, double speed);
 
   friend std::ostream& operator<<(std::ostream& os, const EngineConfig& arg);
-
-private:
-  static double g(double throttle);
 };
 }  // namespace tobas

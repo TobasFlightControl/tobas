@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
+#include "tobas_setup_assistant/param_getters/double_pair.hpp"
 
 namespace gui
 {
@@ -26,12 +26,10 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  double torqueConstant() const override;
-  double dynamicFrictionTorque() const override;
+  std::pair<double, double> engineConstant() const override;
 
 private:
-  ParamGetterWidget_DoubleSpinBox* torque_const_;
-  ParamGetterWidget_DoubleSpinBox* friction_torque_;
+  ParamGetterWidget_DoublePair* engine_const_;
 };
 }  // namespace ice
 }  // namespace propulsion

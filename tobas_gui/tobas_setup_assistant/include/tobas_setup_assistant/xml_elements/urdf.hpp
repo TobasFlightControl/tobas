@@ -91,8 +91,7 @@ void addElectricPropulsionSystemPlugin(
 
 struct EngineParam
 {
-  double torque_const;
-  double friction_torque;
+  std::pair<double, double> engine_const;
   double time_const_up;
   double time_const_down;
 };

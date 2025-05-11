@@ -215,8 +215,7 @@ tobas::Drone PackageGenerator::createDrone()
 
       // Engine
       const auto engine_widget = iprop_widget->engine;
-      iprop->engine.torque_const = engine_widget->dynamics()->torqueConstant();
-      iprop->engine.friction_torque = engine_widget->dynamics()->dynamicFrictionTorque();
+      iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
       iprop->engine.max_speed = engine_widget->limit()->maxSpeed();
       iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
 
@@ -1016,8 +1015,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
       const auto units = iprop->units->selected();
 
       xml::EngineParam engine_param;
-      engine_param.torque_const = engine->dynamics()->torqueConstant();
-      engine_param.friction_torque = engine->dynamics()->dynamicFrictionTorque();
+      engine_param.engine_const = engine->dynamics()->engineConstant();
       engine_param.time_const_up = engine->response()->timeConstUp();
       engine_param.time_const_down = engine->response()->timeConstDown();
 
