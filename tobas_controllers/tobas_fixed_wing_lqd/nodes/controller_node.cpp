@@ -245,7 +245,7 @@ void ControllerNode::publishThrusts(const VectorXd& thrusts)
   for (int i = 0; i < thrusts.rows(); ++i) {
     thrusts_msg->thrusts.emplace_back();
     thrusts_msg->thrusts.back().link_name = x_rotors_.linkName(i);
-    thrusts_msg->thrusts.back().thrust = thrusts(i);
+    thrusts_msg->thrusts.back().thrust = max(thrusts(i), 0.);
   }
 
   tar_thrusts_pub_->publish(move(thrusts_msg));
