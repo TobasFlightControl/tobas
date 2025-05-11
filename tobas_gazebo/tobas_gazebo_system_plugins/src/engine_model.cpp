@@ -92,11 +92,11 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 double EngineModel::computeSteadySpeed()
 {
   // FIXME: 実際はゼロスロットルでもトルクは発生する (アイドリング)
-  if (throttle_ <= 0.) {
+  if (throttle_ <= std::numeric_limits<double>::epsilon()) {
     return 0.;
   }
 
-  double speed = 0.;
+  double speed = max_speed_;
   if (newton_.solve(speed) < 0) {
     gzerr << "Failed to solve engine dynamics equation: " << newton_.errorMessage() << endl;
     return 0.;
