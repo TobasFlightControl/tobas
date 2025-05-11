@@ -219,8 +219,13 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
 
   // エンジンスロットルを更新
   const auto& engine_throt = ice_cmd->engine_throttle;
+  if (!std::isfinite(engine_throt)) {
+    TOBAS_WARN("The commanded engine throttle is not finite: ", engine_throt);
+    engine_.setThrottle(engine_throt);
+    return;
+  }
   if (engine_throt < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < engine_throt) {
-    TOBAS_ERROR("The commanded throttle ", engine_throt, " is out of range.");
+    TOBAS_WARN("The commanded engine throttle is out of range: ", engine_throt);
   }
   engine_.setThrottle(engine_throt);
 
@@ -228,6 +233,11 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
   for (const auto& elem : ice_cmd->pitch_angles) {
     if (!rotors_.contains(elem.link_name)) {
       TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");
+      continue;
+    }
+    if (!std::isfinite(elem.angle)) {
+      TOBAS_WARN("The commanded pitch angle of propeller \"", elem.link_name, "\" is not finite: ", elem.angle);
+      rotors_.at(elem.link_name).setTargetPitchAngle(0.);
       continue;
     }
     rotors_.at(elem.link_name).setTargetPitchAngle(elem.angle);
