@@ -31,6 +31,7 @@ private:
 
   // SDF parameters
   std::pair<double, double> engine_const_;  // A, B (memo: 3-28)
+  double max_speed_;                        // [rad/s]
   double time_const_up_;                    // [s]
   double time_const_down_;                  // [s]
 

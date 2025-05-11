@@ -1016,6 +1016,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
       xml::EngineParam engine_param;
       engine_param.engine_const = engine->dynamics()->engineConstant();
+      engine_param.max_speed = engine->limit()->maxSpeed();
       engine_param.time_const_up = engine->response()->timeConstUp();
       engine_param.time_const_down = engine->response()->timeConstDown();
 

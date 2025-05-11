@@ -68,6 +68,13 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
+  if (!getSdfParam(sdf, "maxSpeed", max_speed_)) {
+    return false;
+  }
+  if (max_speed_ <= 0.) {
+    gzerr << "Engine maximum speed must be positive." << endl;
+  }
+
   if (!getSdfParam(sdf, "timeConstUp", time_const_up_)) {
     return false;
   }
@@ -95,7 +102,7 @@ double EngineModel::computeSteadySpeed()
     return 0.;
   }
 
-  return speed;
+  return min(speed, max_speed_);
 }
 
 double EngineModel::speedFunc(double omega) const
