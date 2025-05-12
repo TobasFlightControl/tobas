@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#define TIMEOUT_MS 1000
-
 using namespace std;
 
 namespace driver
@@ -31,10 +29,6 @@ bool NssnmfgPEFC::initialize(const char* uart_device)
   }
 
   if (!uart_.disableParity()) {
-    return false;
-  }
-
-  if (!uart_.setTimeout(TIMEOUT_MS / 100)) {
     return false;
   }
 

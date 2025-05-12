@@ -218,7 +218,11 @@ bool UARTdev::disableHungupClose()
 
 bool UARTdev::setTimeout(cc_t msec_100)
 {
-  options_.c_cc[VTIME] = msec_100;
+  if (!block_mode_ && msec_100 > 0) {
+    cerr << "The timeout configuration is disabled in non-blocking mode." << endl;
+    return false;
+  }
+  options_.c_cc[VTIME] = msec_100;  // FIXME: 反映されず最速で返ってくる
   return setConfig();
 }
 

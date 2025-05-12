@@ -8,9 +8,6 @@
 
 #include <tobas_std_tools/console.hpp>
 
-#define TIMEOUT_MS 1000
-#define TIMEOUT_ERROR_MSG "Failed to receive SBUS byte in 1 second."
-
 using namespace std;
 using namespace boost::multiprecision;
 
@@ -42,10 +39,6 @@ bool SBUS::initialize(const char* device)
     return false;
   }
 
-  if (!uart_.setTimeout(TIMEOUT_MS / 100)) {
-    return false;
-  }
-
   return true;
 }
 
@@ -72,7 +65,6 @@ void SBUS::readThreadFunc()
 
     // Start byte
     if (!uart_.receive(&start_byte, 1)) {
-      cerr << TIMEOUT_ERROR_MSG << endl;
       continue;
     }
     PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte);
@@ -83,7 +75,6 @@ void SBUS::readThreadFunc()
     // Data
     for (size_t i = 0; i < kDataSize; ++i) {
       if (!uart_.receive(&data[i], 1)) {
-        cerr << TIMEOUT_ERROR_MSG << endl;
         continue;
       }
       PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data[i]);
@@ -91,14 +82,12 @@ void SBUS::readThreadFunc()
 
     // Flags
     if (!uart_.receive(&flags, 1)) {
-      cerr << TIMEOUT_ERROR_MSG << endl;
       continue;
     }
     PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags);
 
     // End byte
     if (!uart_.receive(&end_byte, 1)) {
-      cerr << TIMEOUT_ERROR_MSG << endl;
       continue;
     }
     PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte);
