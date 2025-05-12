@@ -12,7 +12,7 @@ using namespace std;
 class ImuDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
-  static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
+  static constexpr auto kSamplingPeriod = 2500us;  // 400Hz
 
   using self = ImuDriverNode;
   using super = hardware::BaseSensorNode;
