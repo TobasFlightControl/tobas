@@ -175,7 +175,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  if (do_dist_comp_trans_ || do_dist_comp_rot_) {
+    dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  }
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
@@ -632,7 +634,7 @@ void ControllerNode::checkTopicsTimerCb()
     return;
   }
 
-  if (!dist_force_) {
+  if (dist_force_sub_ && !dist_force_) {
     TOBAS_WARN("Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return;
   }
