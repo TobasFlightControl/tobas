@@ -14,15 +14,6 @@ bool RotorAxisExtractor::updateInternalDataStructures()
   return true;
 }
 
-double RotorAxisExtractor::maxThrustSum() const
-{
-  double res = 0.;
-  for (const auto& link_name : link_names_) {
-    res += drone_.prop->maxThrust(link_name);
-  }
-  return res;
-}
-
 void RotorAxisExtractor::initialize()
 {
   link_names_.clear();

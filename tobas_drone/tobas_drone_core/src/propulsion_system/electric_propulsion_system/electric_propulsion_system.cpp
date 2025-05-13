@@ -79,7 +79,7 @@ double ElectricPropulsionSystemConfig::minSpeed(const string& link_name) const
 {
   // TODO: モータやプロペラのパラメータから最小回転数を決定
   (void)link_name;
-  return kMinSpeed;
+  return tobas_std::rpm2rps(300);
 }
 
 double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name) const
@@ -93,12 +93,19 @@ double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name) const
 double ElectricPropulsionSystemConfig::minThrust(const string& link_name) const
 {
   const auto rotor = getRotor(link_name);
-  return rotor->thrustFromSpeed(kMinSpeed);
+  return rotor->thrustFromSpeed(minSpeed(link_name));
 }
 
 double ElectricPropulsionSystemConfig::maxThrust(const string& link_name) const
 {
   const auto rotor = getRotor(link_name);
   return rotor->thrustFromSpeed(maxSpeed(link_name));
+}
+
+double ElectricPropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle) const
+{
+  const auto rotor = getRotor(link_name);
+  const auto input_voltage = battery.nominal_voltage * throttle;
+  return rotor->thrustFromVoltage(input_voltage);
 }
 }  // namespace tobas

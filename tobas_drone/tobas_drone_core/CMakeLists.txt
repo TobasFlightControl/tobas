@@ -13,11 +13,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_gtest REQUIRED)
+find_package(tobas_nlp REQUIRED)
 find_package(tobas_kdl REQUIRED)
 find_package(tobas_yaml_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_kdl tobas_yaml_tools tobas_constants)
+set(AMENT_DEPENDENCIES tobas_nlp tobas_kdl tobas_yaml_tools tobas_constants)
 
 include_directories(include)
 

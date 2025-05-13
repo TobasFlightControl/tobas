@@ -10,6 +10,8 @@ namespace tobas
 {
 class ICEPropulsionSystemConfig : public PropulsionSystemConfig
 {
+  using self = ICEPropulsionSystemConfig;
+
   static constexpr char kEngineKey[] = "engine";
 
 public:
@@ -27,11 +29,26 @@ public:
 
   double minSpeed(const std::string& link_name) const override;
   double maxSpeed(const std::string& link_name) const override;
+
   double minThrust(const std::string& link_name) const override;
   double maxThrust(const std::string& link_name) const override;
 
+  double thrustFromThrottle(const std::string& link_name, double throttle) const override;
+
   inline ICERotorConfig::SharedPtr getRotor(const std::string& link_name);
   inline ICERotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;
+
+private:
+  /* エンジンスロットルとティルト角から定常回転数を求める (memo: 3-29) */
+  double computeEngineSpeed(double throttle) const;
+
+  /* ニュートン法ソルバーに渡す関数 (memo: 3-29) */
+  double speedFunc(double throttle, double omega) const;
+  double speedFuncDeriv(double throttle, double omega) const;
+
+  double calc_phi(double throttle) const;
+  double calc_f(double throttle) const;
+  double calc_k() const;
 };
 
 inline ICERotorConfig::SharedPtr ICEPropulsionSystemConfig::getRotor(const std::string& link_name)

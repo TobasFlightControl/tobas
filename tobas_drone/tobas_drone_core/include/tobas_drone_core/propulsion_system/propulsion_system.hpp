@@ -27,8 +27,11 @@ public:
 
   virtual double minSpeed(const std::string& link_name) const = 0;
   virtual double maxSpeed(const std::string& link_name) const = 0;
+
   virtual double minThrust(const std::string& link_name) const = 0;
   virtual double maxThrust(const std::string& link_name) const = 0;
+
+  virtual double thrustFromThrottle(const std::string& link_name, double throttle) const = 0;
 
   inline size_t numRotors() const;
 };

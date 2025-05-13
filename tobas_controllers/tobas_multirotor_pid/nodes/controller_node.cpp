@@ -57,6 +57,9 @@ private:
   double atti_zeta_, head_zeta_;  // [-]
   kdl::Vector gyro_gain_;
 
+  // Values depending on drone configuration
+  double max_thrust_sum_;
+
   // State
   bool drone_received_ = false;
   bool tree_received_ = false;
@@ -203,6 +206,14 @@ bool ControllerNode::updateInternalDataStructures()
   }
   if (!mixer_.updateInternalDataStructures()) {
     return false;
+  }
+
+  // Update the maximum total thrust
+  max_thrust_sum_ = 0.;
+  for (size_t idx = 0; idx < z_rotors_.count(); ++idx) {
+    const auto& link_name = z_rotors_.rotor(idx)->link_name;
+    const auto thrust_at_full_thort = drone_.prop->thrustFromThrottle(link_name, tobas::kMaxThrot);
+    max_thrust_sum_ += thrust_at_full_thort;
   }
 
   return true;
@@ -592,7 +603,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
 
   // コマンドを更新
   tar_angle_ = std::make_shared<kdl::Euler>(angle_cmd->angle);
-  tar_thrust_ = z_rotors_.maxThrustSum() * angle_cmd->throttle;
+  tar_thrust_ = max_thrust_sum_ * angle_cmd->throttle;
 }
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd)
@@ -614,7 +625,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
 
   // コマンドを更新
   tar_gyro_ = std::make_shared<kdl::Vector>(rate_cmd->rate);
-  tar_thrust_ = z_rotors_.maxThrustSum() * rate_cmd->throttle;
+  tar_thrust_ = max_thrust_sum_ * rate_cmd->throttle;
 }
 
 void ControllerNode::checkTopicsTimerCb()
