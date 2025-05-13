@@ -75,22 +75,22 @@ propulsion_system_t ICEPropulsionSystemConfig::type() const
   return propulsion_system_t::ICE;
 }
 
-double ICEPropulsionSystemConfig::minSpeed(const std::string&) const
+double ICEPropulsionSystemConfig::minSpeed(const string&) const
 {
   return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxSpeed(const std::string& link_name) const
+double ICEPropulsionSystemConfig::maxSpeed(const string& link_name) const
 {
   return engine.max_speed / getRotor(link_name)->gear_ratio;
 }
 
-double ICEPropulsionSystemConfig::minThrust(const std::string&) const
+double ICEPropulsionSystemConfig::minThrust(const string&) const
 {
   return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxThrust(const std::string& link_name) const
+double ICEPropulsionSystemConfig::maxThrust(const string& link_name) const
 {
   const auto rotor = getRotor(link_name);
   const auto max_motor_const = rotor->motorConst(rotor->pitch_limit.upper);
