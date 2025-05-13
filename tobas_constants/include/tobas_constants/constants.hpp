@@ -123,6 +123,7 @@ static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
 static constexpr char kController[] = "controller";
 static constexpr char kObserver[] = "observer";
 static constexpr char kRcTeleop[] = "rc_teleop";
+static constexpr char kImuPreprocess[] = "imu_preprocess";
 }  // namespace node
 
 // PWM keys

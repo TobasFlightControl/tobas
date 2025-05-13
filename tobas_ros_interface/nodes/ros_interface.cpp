@@ -144,6 +144,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kRcTeleop, tobas::kGetDynamicParamsSrv));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kImuPreprocess, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetImuParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetRcInputParams>(real::handler::rcin::kSetParamSrv);

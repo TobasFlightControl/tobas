@@ -393,6 +393,9 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!createEmptyYaml(common::getRcTeleopDynamicParamsPath(tbs_path), false)) {
     return false;
   }
+  if (!createEmptyYaml(common::getImuPreprocessDynamicParamsPath(tbs_path), false)) {
+    return false;
+  }
 
   // その他
   if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
