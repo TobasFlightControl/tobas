@@ -27,7 +27,7 @@ bool ICERotorModel::initialize(
   return true;
 }
 
-const std::string& ICERotorModel::getLinkName() const
+const string& ICERotorModel::getLinkName() const
 {
   return link_name_;
 }
