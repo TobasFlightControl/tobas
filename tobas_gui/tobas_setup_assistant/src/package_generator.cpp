@@ -216,7 +216,6 @@ tobas::Drone PackageGenerator::createDrone()
       // Engine
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
-      iprop->engine.max_speed = engine_widget->limit()->maxSpeed();
       iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
 
       // TODO: PWM以外のインターフェースに対応
@@ -1019,7 +1018,6 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
       xml::EngineParam engine_param;
       engine_param.engine_const = engine->dynamics()->engineConstant();
-      engine_param.max_speed = engine->limit()->maxSpeed();
       engine_param.time_const_up = engine->response()->timeConstUp();
       engine_param.time_const_down = engine->response()->timeConstDown();
 

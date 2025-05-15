@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_nlp/newton_1d.hpp>
 
 using namespace std;
@@ -53,6 +54,9 @@ bool ICEPropulsionSystemConfig::load(const YAML::Node& node)
     return false;
   }
 
+  // Maximum engine speed
+  max_engine_speed_ = computeEngineSpeed(tobas::kMaxThrot);
+
   return true;
 }
 
@@ -77,34 +81,44 @@ propulsion_system_t ICEPropulsionSystemConfig::type() const
   return propulsion_system_t::ICE;
 }
 
-double ICEPropulsionSystemConfig::minSpeed(const string&) const
+double ICEPropulsionSystemConfig::minSpeed(const string&)
 {
   return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxSpeed(const string& link_name) const
+double ICEPropulsionSystemConfig::maxSpeed(const string& link_name)
 {
-  return engine.max_speed / getRotor(link_name)->gear_ratio;
+  return maxEngineSpeed() / getRotor(link_name)->gear_ratio;
 }
 
-double ICEPropulsionSystemConfig::minThrust(const string&) const
+double ICEPropulsionSystemConfig::minThrust(const string&)
 {
   return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxThrust(const string& link_name) const
+double ICEPropulsionSystemConfig::maxThrust(const string& link_name)
 {
   const auto rotor = getRotor(link_name);
   const auto max_motor_const = rotor->motorConst(rotor->pitch_limit.upper);
-  const auto max_speed = engine.max_speed / rotor->gear_ratio;
+  const auto max_speed = maxEngineSpeed() / rotor->gear_ratio;
   return max_motor_const * math::sqr(max_speed);
 }
 
-double ICEPropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle) const
+double ICEPropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle)
 {
   const auto rotor = getRotor(link_name);
   const auto engine_speed = computeEngineSpeed(throttle);
   return rotor->thrustFromPitch(engine_speed, rotor->pitch_ref);  // XXX: 参照ピッチ角のときの推力を返す
+}
+
+double ICEPropulsionSystemConfig::maxEngineSpeed()
+{
+  // フルスロット時のエンジン回転数を1度だけ計算
+  if (!max_engine_speed_.has_value()) {
+    max_engine_speed_ = computeEngineSpeed(tobas::kMaxThrot);
+  }
+
+  return max_engine_speed_.value();
 }
 
 double ICEPropulsionSystemConfig::computeEngineSpeed(double throttle) const
@@ -120,7 +134,7 @@ double ICEPropulsionSystemConfig::computeEngineSpeed(double throttle) const
     bind(&self::speedFunc, this, throttle, std::placeholders::_1),
     bind(&self::speedFuncDeriv, this, throttle, std::placeholders::_1));
 
-  double engine_speed = engine.max_speed;
+  double engine_speed = 0.;
   if (newton.solve(engine_speed) < 0) {
     if (newton.solve(engine_speed) < 0) {
       cerr << "Failed to solve engine dynamics equation: " << newton.errorMessage() << endl;

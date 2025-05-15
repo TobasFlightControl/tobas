@@ -11,12 +11,10 @@ namespace tobas
 class EngineConfig
 {
   static constexpr char kEngineConstantKey[] = "engine_constant";
-  static constexpr char kMaxSpeedKey[] = "max_speed";
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
 public:
   std::pair<double, double> engine_const = { 0., 0. };  // A, B (memo: 3-28)
-  double max_speed = 0.;                                // [rad/s]
   hw_iface_t hw_iface = hw_iface_t::OTHER;
 
   bool isValid() const;

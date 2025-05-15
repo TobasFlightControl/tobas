@@ -1,3 +1,2 @@
 tobas_std_msgs/PairFloat64 engine_const
-float64 max_speed
 uint8 hw_iface

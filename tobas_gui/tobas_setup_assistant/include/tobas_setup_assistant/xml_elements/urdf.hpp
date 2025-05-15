@@ -92,7 +92,6 @@ void addElectricPropulsionSystemPlugin(
 struct EngineParam
 {
   std::pair<double, double> engine_const;
-  double max_speed;
   double time_const_up;
   double time_const_down;
 };

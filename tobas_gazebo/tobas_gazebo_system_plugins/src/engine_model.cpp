@@ -68,13 +68,6 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "maxSpeed", max_speed_)) {
-    return false;
-  }
-  if (max_speed_ <= 0.) {
-    gzerr << "Engine maximum speed must be positive." << endl;
-  }
-
   if (!getSdfParam(sdf, "timeConstUp", time_const_up_)) {
     return false;
   }
@@ -96,13 +89,13 @@ double EngineModel::computeSteadySpeed()
     return 0.;
   }
 
-  double speed = max_speed_;
+  double speed = 0.;
   if (newton_.solve(speed) < 0) {
     gzerr << "Failed to solve engine dynamics equation: " << newton_.errorMessage() << endl;
     return 0.;
   }
 
-  return min(speed, max_speed_);
+  return speed;
 }
 
 double EngineModel::speedFunc(double omega) const

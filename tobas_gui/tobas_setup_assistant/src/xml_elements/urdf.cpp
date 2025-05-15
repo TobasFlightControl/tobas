@@ -261,7 +261,6 @@ void addICEPropulsionSystemPlugin(
   // robot/gazebo/plugin/engine
   const auto engine = plugin->InsertNewChildElement("engine");
   engine->InsertNewChildElement("engineConstant")->SetText(util::toString(engine_param.engine_const).c_str());
-  engine->InsertNewChildElement("maxSpeed")->SetText(engine_param.max_speed);
   engine->InsertNewChildElement("timeConstUp")->SetText(engine_param.time_const_up);
   engine->InsertNewChildElement("timeConstDown")->SetText(engine_param.time_const_down);
 

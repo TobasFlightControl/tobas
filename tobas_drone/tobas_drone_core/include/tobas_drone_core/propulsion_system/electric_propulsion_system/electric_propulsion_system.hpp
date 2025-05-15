@@ -25,13 +25,13 @@ public:
 
   propulsion_system_t type() const override;
 
-  double minSpeed(const std::string& link_name) const override;
-  double maxSpeed(const std::string& link_name) const override;
+  double minSpeed(const std::string& link_name) override;
+  double maxSpeed(const std::string& link_name) override;
 
-  double minThrust(const std::string& link_name) const override;
-  double maxThrust(const std::string& link_name) const override;
+  double minThrust(const std::string& link_name) override;
+  double maxThrust(const std::string& link_name) override;
 
-  double thrustFromThrottle(const std::string& link_name, double throttle) const override;
+  double thrustFromThrottle(const std::string& link_name, double throttle) override;
 
   inline ElectricRotorConfig::SharedPtr getRotor(const std::string& link_name);
   inline ElectricRotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;

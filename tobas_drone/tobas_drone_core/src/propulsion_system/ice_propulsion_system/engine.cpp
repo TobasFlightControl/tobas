@@ -16,21 +16,12 @@ bool EngineConfig::isValid() const
     return false;
   }
 
-  if (max_speed <= 0.) {
-    cerr << "Engine maximum speed must be positive." << endl;
-    return false;
-  }
-
   return true;
 }
 
 bool EngineConfig::load(const YAML::Node& node)
 {
   if (!yaml::load(kEngineConstantKey, node, engine_const)) {
-    return false;
-  }
-
-  if (!yaml::load(kMaxSpeedKey, node, max_speed)) {
     return false;
   }
 
@@ -46,7 +37,6 @@ YAML::Node EngineConfig::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kEngineConstantKey] = engine_const;
-  node[kMaxSpeedKey] = max_speed;
   node[kHardwareIfaceKey] = hw_iface;
 
   return node;
@@ -88,7 +78,6 @@ double EngineConfig::computeThrottle(double torque, double speed)
 ostream& operator<<(ostream& os, const EngineConfig& arg)
 {
   os << "Engine Constant: " << arg.engine_const.first << ", " << arg.engine_const.second << endl;
-  os << "Maximum Speed [rad/s]: " << arg.max_speed << endl;
   return os;
 }
 }  // namespace tobas

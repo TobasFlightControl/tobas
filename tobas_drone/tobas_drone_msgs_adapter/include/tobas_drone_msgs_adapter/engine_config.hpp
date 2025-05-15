@@ -17,14 +17,12 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     tobas_std_msgs::PairFloat64Adapter::convert_to_ros_message(src.engine_const, dst.engine_const);
-    dst.max_speed = src.max_speed;
     dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     tobas_std_msgs::PairFloat64Adapter::convert_to_custom(src.engine_const, dst.engine_const);
-    dst.max_speed = src.max_speed;
     dst.hw_iface = static_cast<tobas::hw_iface_t>(src.hw_iface);
   }
 };

@@ -27,19 +27,24 @@ public:
 
   propulsion_system_t type() const override;
 
-  double minSpeed(const std::string& link_name) const override;
-  double maxSpeed(const std::string& link_name) const override;
+  double minSpeed(const std::string& link_name) override;
+  double maxSpeed(const std::string& link_name) override;
 
-  double minThrust(const std::string& link_name) const override;
-  double maxThrust(const std::string& link_name) const override;
+  double minThrust(const std::string& link_name) override;
+  double maxThrust(const std::string& link_name) override;
 
-  double thrustFromThrottle(const std::string& link_name, double throttle) const override;
+  double thrustFromThrottle(const std::string& link_name, double throttle) override;
 
   inline ICERotorConfig::SharedPtr getRotor(const std::string& link_name);
   inline ICERotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;
 
 private:
-  /* エンジンスロットルとティルト角から定常回転数を求める (memo: 3-29) */
+  std::optional<double> max_engine_speed_;
+
+  /* 平均プロペラピッチ角が固定されているときのエンジンの最大回転数 [rad/s] */
+  double maxEngineSpeed();
+
+  /* 平均プロペラピッチ角を固定した上で，エンジンスロットルから定常回転数を求める (memo: 3-29) */
   double computeEngineSpeed(double throttle) const;
 
   /* ニュートン法ソルバーに渡す関数 (memo: 3-29) */
