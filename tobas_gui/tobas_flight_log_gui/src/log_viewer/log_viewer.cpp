@@ -52,6 +52,7 @@ void FlightLogViewerWidget::reset()
   mr_ctrl_fb_decoder_.clearCache();
 
   for (auto& plot_tab : plot_tabs_) {
+    plot_tab->clear();
     plot_tab->setTimeScale(0., kWindowDuration);
   }
 

@@ -15,6 +15,18 @@ RotorSpeedPlotWidget::RotorSpeedPlotWidget()
   setLayout(grid_);
 }
 
+void RotorSpeedPlotWidget::clear()
+{
+  // XXX: レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
+  plots_.clear();
+  cur_speed_curves_.clear();
+  tar_speed_curves_.clear();
+  qt::clearLayout(grid_);
+
+  num_rotors_ = 0;
+  name2idx_.clear();
+}
+
 void RotorSpeedPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (auto& plot : plots_) {
@@ -41,18 +53,6 @@ void RotorSpeedPlotWidget::setData(
   for (auto& plot : plots_) {
     plot->replot();
   }
-}
-
-void RotorSpeedPlotWidget::clear()
-{
-  // XXX: レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
-  plots_.clear();
-  cur_speed_curves_.clear();
-  tar_speed_curves_.clear();
-  qt::clearLayout(grid_);
-
-  num_rotors_ = 0;
-  name2idx_.clear();
 }
 
 void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg)

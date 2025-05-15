@@ -15,6 +15,17 @@ PropellerPitchPlotWidget::PropellerPitchPlotWidget()
   setLayout(grid_);
 }
 
+void PropellerPitchPlotWidget::clear()
+{
+  // XXX: レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
+  plots_.clear();
+  curves_.clear();
+  qt::clearLayout(grid_);
+
+  num_rotors_ = 0;
+  name2idx_.clear();
+}
+
 void PropellerPitchPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (auto& plot : plots_) {
@@ -62,17 +73,6 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
   for (auto& plot : plots_) {
     plot->replot();
   }
-}
-
-void PropellerPitchPlotWidget::clear()
-{
-  // XXX: レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
-  plots_.clear();
-  curves_.clear();
-  qt::clearLayout(grid_);
-
-  num_rotors_ = 0;
-  name2idx_.clear();
 }
 
 void PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg)

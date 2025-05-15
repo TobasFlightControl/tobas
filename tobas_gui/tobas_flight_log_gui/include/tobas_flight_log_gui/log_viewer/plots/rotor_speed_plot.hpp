@@ -18,6 +18,7 @@ class RotorSpeedPlotWidget : public QWidget
 public:
   explicit RotorSpeedPlotWidget();
 
+  void clear();
   void setTimeScale(double t_start, double t_stop);
   void setData(
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
@@ -34,7 +35,6 @@ private:
   size_t num_rotors_;                                 // The number of rotors
   std::unordered_map<std::string, size_t> name2idx_;  // Link Name -> Index
 
-  void clear();
   void updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg);
 
   void updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs);

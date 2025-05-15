@@ -34,6 +34,7 @@ class PlotTabWidget : public qt::TabWidget
 public:
   explicit PlotTabWidget();
 
+  void clear();
   void setTimeScale(double t_start, double t_stop);
 
   void setFrameData(

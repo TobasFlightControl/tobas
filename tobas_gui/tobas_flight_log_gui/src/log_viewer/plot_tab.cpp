@@ -39,6 +39,12 @@ PlotTabWidget::PlotTabWidget()
   setTabSize(kTabWidth, kTabHeight);
 }
 
+void PlotTabWidget::clear()
+{
+  rotor_speed_plot_->clear();
+  propeller_pitch_plot_->clear();
+}
+
 void PlotTabWidget::setTimeScale(double t_start, double t_stop)
 {
   pose_plot_->setTimeScale(t_start, t_stop);
