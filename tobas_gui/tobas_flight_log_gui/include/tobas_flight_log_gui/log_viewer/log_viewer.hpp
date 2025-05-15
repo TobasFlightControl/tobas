@@ -45,7 +45,7 @@ private:
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_decoder_;
 
-  std::array<PlotTabWidget*, 2> plot_tabs_;
+  std::array<PlotTabWidget*, 3> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
 
   void reset();

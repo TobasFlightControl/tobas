@@ -18,9 +18,9 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  for (size_t i = 0; i < plot_tabs_.size(); ++i) {
-    plot_tabs_[i] = new PlotTabWidget();
-    rows->addWidget(plot_tabs_[i]);
+  for (auto& plot_tab : plot_tabs_) {
+    plot_tab = new PlotTabWidget();
+    rows->addWidget(plot_tab);
   }
 
   playback_ctrl_ = new PlaybackControlWidget();
