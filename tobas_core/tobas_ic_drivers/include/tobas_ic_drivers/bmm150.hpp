@@ -19,7 +19,7 @@ public:
 
   bool initialize();
 
-  /* Read the current magnetic field [gauss]. axis orientation ref: p.46*/
+  /* Read the current magnetic field [μT]. axis orientation ref: p.46*/
   bool readMag(double& mx, double& my, double& mz);
 
 private:
@@ -131,31 +131,31 @@ private:
     POSITIVE_SATURATION_Z = 32767,
   };
 
-  struct trim_data_t
+  struct TrimData
   {
     /*! trim x1 data */
-    int8_t digX1;
+    int8_t dig_x1;
     /*! trim y1 data */
-    int8_t digY1;
+    int8_t dig_y1;
     /*! trim x2 data */
-    int8_t digX2;
+    int8_t dig_x2;
     /*! trim y2 data */
-    int8_t digY2;
+    int8_t dig_y2;
     /*! trim z1 data */
-    uint16_t digZ1;
+    uint16_t dig_z1;
     /*! trim z2 data */
-    int16_t digZ2;
+    int16_t dig_z2;
     /*! trim z3 data */
-    int16_t digZ3;
+    int16_t dig_z3;
     /*! trim z4 data */
-    int16_t digZ4;
+    int16_t dig_z4;
     /*! trim xy1 data */
-    uint8_t digXy1;
+    uint8_t dig_xy1;
     /*! trim xy2 data */
-    int8_t digXy2;
+    int8_t dig_xy2;
     /*! trim xyz1 data */
-    uint16_t digXyz1;
-  } trimData;
+    uint16_t dig_xyz1;
+  } trim_data;
 
   linux::I2Cdev i2c_;
 
@@ -165,10 +165,35 @@ private:
   bool checkWhoAmI();
   bool execSelfTest();
   bool configure();
+  // ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet)
   bool readTrimRegisters();
 
-  int16_t compensateX(const int16_t& magDataX, const uint16_t& dataRhall);
-  int16_t compensateY(const int16_t& magDataY, const uint16_t& dataRhall);
-  int16_t compensateZ(const int16_t& magDataZ, const uint16_t& dataRhall);
+  /**
+   * @brief This internal API is used to obtain the compensated
+   * magnetometer X axis data(micro-tesla) in int16_t.
+   * 
+   * @param mag_data_x magneto X axis raw data (int16_t)
+   * @param data_r_hall hall sensor resistance raw data (uint16_t)
+   * @return int16_t compensated magneto X axis data
+   */
+  int16_t compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall);
+  /**
+   * @brief This internal API is used to obtain the compensated
+   * magnetometer Y axis data(micro-tesla) in int16_t.
+   * 
+   * @param mag_data_y magneto Y axis raw data (int16_t)
+   * @param data_r_hall hall sensor resistance raw data (uint16_t)
+   * @return int16_t compensated magneto Y axis data
+   */
+  int16_t compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall);
+  /**
+   * @brief This internal API is used to obtain the compensated
+   * magnetometer Z axis data(micro-tesla) in int16_t.
+   * 
+   * @param mag_data_z magneto Z axis raw data (int16_t)
+   * @param data_r_hall hall sensor resistance raw data (uint16_t)
+   * @return int16_t compensated magneto Z axis data
+   */
+  int16_t compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall);
 };
 }  // namespace driver

@@ -1,9 +1,9 @@
+#include "tobas_ic_drivers/bmm150.hpp"
+
 #include <iostream>
 #include <bitset>
 #include <thread>
 #include <cstring>
-
-#include "../include/tobas_ic_drivers/bmm150.hpp"
 
 using namespace std;
 
@@ -66,16 +66,16 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
   //     return false;
   //   }
 
-  int16_t rawDataX = ((i2c_.rx[1] << 5) | (i2c_.rx[0] >> 3));
-  int16_t rawDataY = ((i2c_.rx[3] << 5) | (i2c_.rx[2] >> 3));
-  int16_t rawDataZ = ((i2c_.rx[5] << 7) | (i2c_.rx[4] >> 1));
-  uint16_t rHall = ((i2c_.rx[7] << 6) | (i2c_.rx[6] >> 2));
+  int16_t raw_data_x = ((i2c_.rx[1] << 5) | (i2c_.rx[0] >> 3));
+  int16_t raw_data_y = ((i2c_.rx[3] << 5) | (i2c_.rx[2] >> 3));
+  int16_t raw_data_z = ((i2c_.rx[5] << 7) | (i2c_.rx[4] >> 1));
+  uint16_t r_hall = ((i2c_.rx[7] << 6) | (i2c_.rx[6] >> 2));
 
-  // TODO: compensate for the temperature effect using resistance value of hall sensor based on
+  // compensate for the temperature effect using resistance value of hall sensor based on
   // https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
-  mx = static_cast<double>(compensateX(rawDataX, rHall)) / 16.0;
-  my = static_cast<double>(compensateY(rawDataY, rHall)) / 16.0;
-  mz = static_cast<double>(compensateZ(rawDataZ, rHall)) / 16.0;
+  mx = static_cast<double>(compensateX(raw_data_x, r_hall)) / 16.0;
+  my = static_cast<double>(compensateY(raw_data_y, r_hall)) / 16.0;
+  mz = static_cast<double>(compensateZ(raw_data_z, r_hall)) / 16.0;
 
   return true;
 }
@@ -145,95 +145,94 @@ bool BMM150::configure()
   return true;
 }
 
-// ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet)
 bool BMM150::readTrimRegisters()
 {
-  uint8_t trimX1y1[2] = { 0 };
-  uint8_t trimXyzData[4] = { 0 };
-  uint8_t trimXy1xy2[10] = { 0 };
-  uint16_t tempMsb = 0;
+  uint8_t trim_x1y1[2] = { 0 };
+  uint8_t trim_xyz_data[4] = { 0 };
+  uint8_t trim_xy1xy2[10] = { 0 };
+  uint16_t temp_msb = 0;
 
   /* Trim register value is read */
   if (!readRegs(DIG_X1_REG, 2)) {
     cerr << "Failed to read DIG_X1_REG." << endl;
     return false;
   }
-  memcpy(trimX1y1, i2c_.rx, 2);
+  memcpy(trim_x1y1, i2c_.rx, 2);
   if (!readRegs(DIG_Z4_LSB_REG, 4)) {
     cerr << "Failed to read DIG_Z4_REG." << endl;
     return false;
   }
-  memcpy(trimXyzData, i2c_.rx, 4);
+  memcpy(trim_xyz_data, i2c_.rx, 4);
   if (!readRegs(DIG_Z2_LSB_REG, 10)) {
     cerr << "Failed to read DIG_Z2_LSB_REG." << endl;
     return false;
   }
-  memcpy(trimXy1xy2, i2c_.rx, 10);
+  memcpy(trim_xy1xy2, i2c_.rx, 10);
 
   /*  Trim data which is read is updated
       in the device structure */
-  trimData.digX1 = (int8_t)trimX1y1[0];
-  trimData.digY1 = (int8_t)trimX1y1[1];
-  trimData.digX2 = (int8_t)trimXyzData[2];
-  trimData.digY2 = (int8_t)trimXyzData[3];
-  tempMsb = ((uint16_t)trimXy1xy2[3]) << 8;
-  trimData.digZ1 = (uint16_t)(tempMsb | trimXy1xy2[2]);
-  tempMsb = ((uint16_t)trimXy1xy2[1]) << 8;
-  trimData.digZ2 = (int16_t)(tempMsb | trimXy1xy2[0]);
-  tempMsb = ((uint16_t)trimXy1xy2[7]) << 8;
-  trimData.digZ3 = (int16_t)(tempMsb | trimXy1xy2[6]);
-  tempMsb = ((uint16_t)trimXyzData[1]) << 8;
-  trimData.digZ4 = (int16_t)(tempMsb | trimXyzData[0]);
-  trimData.digXy1 = trimXy1xy2[9];
-  trimData.digXy2 = (int8_t)trimXy1xy2[8];
-  tempMsb = ((uint16_t)(trimXy1xy2[5] & 0x7F)) << 8;
-  trimData.digXyz1 = (uint16_t)(tempMsb | trimXy1xy2[4]);
+  trim_data.dig_x1 = (int8_t)trim_x1y1[0];
+  trim_data.dig_y1 = (int8_t)trim_x1y1[1];
+  trim_data.dig_x2 = (int8_t)trim_xyz_data[2];
+  trim_data.dig_y2 = (int8_t)trim_xyz_data[3];
+  temp_msb = ((uint16_t)trim_xy1xy2[3]) << 8;
+  trim_data.dig_z1 = (uint16_t)(temp_msb | trim_xy1xy2[2]);
+  temp_msb = ((uint16_t)trim_xy1xy2[1]) << 8;
+  trim_data.dig_z2 = (int16_t)(temp_msb | trim_xy1xy2[0]);
+  temp_msb = ((uint16_t)trim_xy1xy2[7]) << 8;
+  trim_data.dig_z3 = (int16_t)(temp_msb | trim_xy1xy2[6]);
+  temp_msb = ((uint16_t)trim_xyz_data[1]) << 8;
+  trim_data.dig_z4 = (int16_t)(temp_msb | trim_xyz_data[0]);
+  trim_data.dig_xy1 = trim_xy1xy2[9];
+  trim_data.dig_xy2 = (int8_t)trim_xy1xy2[8];
+  temp_msb = ((uint16_t)(trim_xy1xy2[5] & 0x7F)) << 8;
+  trim_data.dig_xyz1 = (uint16_t)(temp_msb | trim_xy1xy2[4]);
 
   return true;
 }
 
-int16_t BMM150::compensateX(const int16_t& magDataX, const uint16_t& dataRhall)
+int16_t BMM150::compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall)
 {
   int16_t retval;
-  uint16_t processCompX0 = 0;
-  int32_t processCompX1;
-  uint16_t processCompX2;
-  int32_t processCompX3;
-  int32_t processCompX4;
-  int32_t processCompX5;
-  int32_t processCompX6;
-  int32_t processCompX7;
-  int32_t processCompX8;
-  int32_t processCompX9;
-  int32_t processCompX10;
+  uint16_t process_comp_x0 = 0;
+  int32_t process_comp_x1;
+  uint16_t process_comp_x2;
+  int32_t process_comp_x3;
+  int32_t process_comp_x4;
+  int32_t process_comp_x5;
+  int32_t process_comp_x6;
+  int32_t process_comp_x7;
+  int32_t process_comp_x8;
+  int32_t process_comp_x9;
+  int32_t process_comp_x10;
 
   /* Overflow condition check */
-  if (magDataX != XYAXES_FLIP_OVERFLOW_ADCVAL) {
-    if (dataRhall != 0) {
+  if (mag_data_x != XYAXES_FLIP_OVERFLOW_ADCVAL) {
+    if (data_r_hall != 0) {
       /* Availability of valid data*/
-      processCompX0 = dataRhall;
+      process_comp_x0 = data_r_hall;
     }
-    else if (trimData.digXyz1 != 0) {
-      processCompX0 = trimData.digXyz1;
+    else if (trim_data.dig_xyz1 != 0) {
+      process_comp_x0 = trim_data.dig_xyz1;
     }
     else {
-      processCompX0 = 0;
+      process_comp_x0 = 0;
     }
-    if (processCompX0 != 0) {
+    if (process_comp_x0 != 0) {
       /* Processing compensation equations*/
-      processCompX1 = ((int32_t)trimData.digXyz1) * 16384;
-      processCompX2 = ((uint16_t)(processCompX1 / processCompX0)) - ((uint16_t)0x4000);
-      retval = ((int16_t)processCompX2);
-      processCompX3 = (((int32_t)retval) * ((int32_t)retval));
-      processCompX4 = (((int32_t)trimData.digXy2) * (processCompX3 / 128));
-      processCompX5 = (int32_t)(((int16_t)trimData.digXy1) * 128);
-      processCompX6 = ((int32_t)retval) * processCompX5;
-      processCompX7 = (((processCompX4 + processCompX6) / 512) + ((int32_t)0x100000));
-      processCompX8 = ((int32_t)(((int16_t)trimData.digX2) + ((int16_t)0xA0)));
-      processCompX9 = ((processCompX7 * processCompX8) / 4096);
-      processCompX10 = ((int32_t)magDataX) * processCompX9;
-      retval = ((int16_t)(processCompX10 / 8192));
-      retval = (retval + (((int16_t)trimData.digX1) * 8)) / 16;
+      process_comp_x1 = ((int32_t)trim_data.dig_xyz1) * 16384;
+      process_comp_x2 = ((uint16_t)(process_comp_x1 / process_comp_x0)) - ((uint16_t)0x4000);
+      retval = ((int16_t)process_comp_x2);
+      process_comp_x3 = (((int32_t)retval) * ((int32_t)retval));
+      process_comp_x4 = (((int32_t)trim_data.dig_xy2) * (process_comp_x3 / 128));
+      process_comp_x5 = (int32_t)(((int16_t)trim_data.dig_xy1) * 128);
+      process_comp_x6 = ((int32_t)retval) * process_comp_x5;
+      process_comp_x7 = (((process_comp_x4 + process_comp_x6) / 512) + ((int32_t)0x100000));
+      process_comp_x8 = ((int32_t)(((int16_t)trim_data.dig_x2) + ((int16_t)0xA0)));
+      process_comp_x9 = ((process_comp_x7 * process_comp_x8) / 4096);
+      process_comp_x10 = ((int32_t)mag_data_x) * process_comp_x9;
+      retval = ((int16_t)(process_comp_x10 / 8192));
+      retval = (retval + (((int16_t)trim_data.dig_x1) * 8)) / 16;
     }
     else {
       retval = OVERFLOW_OUTPUT;
@@ -247,50 +246,46 @@ int16_t BMM150::compensateX(const int16_t& magDataX, const uint16_t& dataRhall)
   return retval;
 }
 
-/*
-  @brief This internal API is used to obtain the compensated
-  magnetometer Y axis data(micro-tesla) in int16_t.
-*/
-int16_t BMM150::compensateY(const int16_t& magDataY, const uint16_t& dataRhall)
+int16_t BMM150::compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall)
 {
   int16_t retval;
-  uint16_t processCompY0 = 0;
-  int32_t processCompY1;
-  uint16_t processCompY2;
-  int32_t processCompY3;
-  int32_t processCompY4;
-  int32_t processCompY5;
-  int32_t processCompY6;
-  int32_t processCompY7;
-  int32_t processCompY8;
-  int32_t processCompY9;
+  uint16_t process_comp_y0 = 0;
+  int32_t process_comp_y1;
+  uint16_t process_comp_y2;
+  int32_t process_comp_y3;
+  int32_t process_comp_y4;
+  int32_t process_comp_y5;
+  int32_t process_comp_y6;
+  int32_t process_comp_y7;
+  int32_t process_comp_y8;
+  int32_t process_comp_y9;
 
   /* Overflow condition check */
-  if (magDataY != XYAXES_FLIP_OVERFLOW_ADCVAL) {
-    if (dataRhall != 0) {
+  if (mag_data_y != XYAXES_FLIP_OVERFLOW_ADCVAL) {
+    if (data_r_hall != 0) {
       /* Availability of valid data*/
-      processCompY0 = dataRhall;
+      process_comp_y0 = data_r_hall;
     }
-    else if (trimData.digXyz1 != 0) {
-      processCompY0 = trimData.digXyz1;
+    else if (trim_data.dig_xyz1 != 0) {
+      process_comp_y0 = trim_data.dig_xyz1;
     }
     else {
-      processCompY0 = 0;
+      process_comp_y0 = 0;
     }
-    if (processCompY0 != 0) {
+    if (process_comp_y0 != 0) {
       /*Processing compensation equations*/
-      processCompY1 = (((int32_t)trimData.digXyz1) * 16384) / processCompY0;
-      processCompY2 = ((uint16_t)processCompY1) - ((uint16_t)0x4000);
-      retval = ((int16_t)processCompY2);
-      processCompY3 = ((int32_t)retval) * ((int32_t)retval);
-      processCompY4 = ((int32_t)trimData.digXy2) * (processCompY3 / 128);
-      processCompY5 = ((int32_t)(((int16_t)trimData.digXy1) * 128));
-      processCompY6 = ((processCompY4 + (((int32_t)retval) * processCompY5)) / 512);
-      processCompY7 = ((int32_t)(((int16_t)trimData.digY2) + ((int16_t)0xA0)));
-      processCompY8 = (((processCompY6 + ((int32_t)0x100000)) * processCompY7) / 4096);
-      processCompY9 = (((int32_t)magDataY) * processCompY8);
-      retval = (int16_t)(processCompY9 / 8192);
-      retval = (retval + (((int16_t)trimData.digY1) * 8)) / 16;
+      process_comp_y1 = (((int32_t)trim_data.dig_xyz1) * 16384) / process_comp_y0;
+      process_comp_y2 = ((uint16_t)process_comp_y1) - ((uint16_t)0x4000);
+      retval = ((int16_t)process_comp_y2);
+      process_comp_y3 = ((int32_t)retval) * ((int32_t)retval);
+      process_comp_y4 = ((int32_t)trim_data.dig_xy2) * (process_comp_y3 / 128);
+      process_comp_y5 = ((int32_t)(((int16_t)trim_data.dig_xy1) * 128));
+      process_comp_y6 = ((process_comp_y4 + (((int32_t)retval) * process_comp_y5)) / 512);
+      process_comp_y7 = ((int32_t)(((int16_t)trim_data.dig_y2) + ((int16_t)0xA0)));
+      process_comp_y8 = (((process_comp_y6 + ((int32_t)0x100000)) * process_comp_y7) / 4096);
+      process_comp_y9 = (((int32_t)mag_data_y) * process_comp_y8);
+      retval = (int16_t)(process_comp_y9 / 8192);
+      retval = (retval + (((int16_t)trim_data.dig_y1) * 8)) / 16;
     }
     else {
       retval = OVERFLOW_OUTPUT;
@@ -304,28 +299,24 @@ int16_t BMM150::compensateY(const int16_t& magDataY, const uint16_t& dataRhall)
   return retval;
 }
 
-/*
-  @brief This internal API is used to obtain the compensated
-  magnetometer Z axis data(micro-tesla) in int16_t.
-*/
-int16_t BMM150::compensateZ(const int16_t& magDataZ, const uint16_t& dataRhall)
+int16_t BMM150::compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall)
 {
   int32_t retval;
-  int16_t processCompZ0;
-  int32_t processCompZ1;
-  int32_t processCompZ2;
-  int32_t processCompZ3;
-  int16_t processCompZ4;
+  int16_t process_comp_z0;
+  int32_t process_comp_z1;
+  int32_t process_comp_z2;
+  int32_t process_comp_z3;
+  int16_t process_comp_z4;
 
-  if (magDataZ != ZAXIS_HALL_OVERFLOW_ADCVAL) {
-    if ((trimData.digZ2 != 0) && (trimData.digZ1 != 0) && (dataRhall != 0) && (trimData.digXyz1 != 0)) {
+  if (mag_data_z != ZAXIS_HALL_OVERFLOW_ADCVAL) {
+    if ((trim_data.dig_z2 != 0) && (trim_data.dig_z1 != 0) && (data_r_hall != 0) && (trim_data.dig_xyz1 != 0)) {
       /*Processing compensation equations*/
-      processCompZ0 = ((int16_t)dataRhall) - ((int16_t)trimData.digXyz1);
-      processCompZ1 = (((int32_t)trimData.digZ3) * ((int32_t)(processCompZ0))) / 4;
-      processCompZ2 = (((int32_t)(magDataZ - trimData.digZ4)) * 32768);
-      processCompZ3 = ((int32_t)trimData.digZ1) * (((int16_t)dataRhall) * 2);
-      processCompZ4 = (int16_t)((processCompZ3 + (32768)) / 65536);
-      retval = ((processCompZ2 - processCompZ1) / (trimData.digZ2 + processCompZ4));
+      process_comp_z0 = ((int16_t)data_r_hall) - ((int16_t)trim_data.dig_xyz1);
+      process_comp_z1 = (((int32_t)trim_data.dig_z3) * ((int32_t)(process_comp_z0))) / 4;
+      process_comp_z2 = (((int32_t)(mag_data_z - trim_data.dig_z4)) * 32768);
+      process_comp_z3 = ((int32_t)trim_data.dig_z1) * (((int16_t)data_r_hall) * 2);
+      process_comp_z4 = (int16_t)((process_comp_z3 + (32768)) / 65536);
+      retval = ((process_comp_z2 - process_comp_z1) / (trim_data.dig_z2 + process_comp_z4));
 
       /* saturate result to +/- 2 micro-tesla */
       if (retval > POSITIVE_SATURATION_Z) {
