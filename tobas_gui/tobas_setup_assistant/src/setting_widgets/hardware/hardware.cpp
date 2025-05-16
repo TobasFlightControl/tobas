@@ -1,7 +1,9 @@
-#include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/message.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
+
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
+
 #include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
 
 namespace gui
@@ -20,9 +22,8 @@ HardwareWidget::HardwareWidget()
 
   hardwares_->addWidget(new T1Widget());
 
-  for (int i = 0; i < hardwares_->count(); ++i)
-  {
-    const auto hardware = qobject_cast<BaseHardwareWidget*>(hardwares_->widget(i));
+  for (int i = 0; i < hardwares_->count(); ++i) {
+    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     type_->addItem(hardware->name());
   }
 
@@ -57,21 +58,21 @@ void HardwareWidget::updateInternalDataStructures()
 
 bool HardwareWidget::isValid()
 {
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
 
-YAML::Node HardwareWidget::dump()
+YAML::Node HardwareWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
   node[kTypeKey] = type_->currentText();
 
-  for (int i = 0; i < hardwares_->count(); ++i)
-  {
-    const auto hardware = qobject_cast<BaseHardwareWidget*>(hardwares_->widget(i));
+  for (int i = 0; i < hardwares_->count(); ++i) {
+    const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     node[hardware->name()] = hardware->dump();
   }
 
@@ -82,9 +83,8 @@ void HardwareWidget::load(const YAML::Node& node)
 {
   type_->setCurrentText(node[kTypeKey].as<QString>());
 
-  for (int i = 0; i < hardwares_->count(); ++i)
-  {
-    const auto hardware = qobject_cast<BaseHardwareWidget*>(hardwares_->widget(i));
+  for (int i = 0; i < hardwares_->count(); ++i) {
+    const auto hardware = qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     hardware->load(node[hardware->name()]);
   }
 }
@@ -102,12 +102,12 @@ void HardwareWidget::setCurrentHardware(int index)
 
 BaseHardwareWidget* HardwareWidget::selected()
 {
-  return qobject_cast<BaseHardwareWidget*>(hardwares_->currentWidget());
+  return qt::qPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
 }
 
 const BaseHardwareWidget* HardwareWidget::selected() const
 {
-  return qobject_cast<BaseHardwareWidget*>(hardwares_->currentWidget());
+  return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
 }
 }  // namespace sa
 }  // namespace gui

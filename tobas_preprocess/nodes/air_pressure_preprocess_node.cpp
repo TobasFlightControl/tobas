@@ -1,8 +1,9 @@
-#include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_dsp/noise_variance_filter.hpp>
+#include <tobas_eigen_tools/typedef.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/time.hpp>
+
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 
@@ -37,10 +38,8 @@ AirPressurePreprocessNode::AirPressurePreprocessNode(const rclcpp::NodeOptions& 
 void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr& pres_raw)
 {
   // Initialize
-  if (!pres_raw_)
-  {
-    if (!pres_noise_.initialize(kNoiseFiltrerHPFCutoff, Eigen::Scalard(pres_raw->pressure)))
-    {
+  if (!pres_raw_) {
+    if (!pres_noise_.initialize(kNoiseFiltrerHPFCutoff, Eigen::Scalard(pres_raw->pressure))) {
       TOBAS_ERROR("Failed to initialize noise variance filter.");
       return;
     }

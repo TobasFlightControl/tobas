@@ -1,9 +1,10 @@
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/rate_manager.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_tools/util.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_ros2_tools/rate_manager.hpp>
+#include <tobas_ros2_tools/register.hpp>
+#include <tobas_tools/util.hpp>
+
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
@@ -46,8 +47,9 @@ private:
   {
     // ネットワークトラフィックの改善のため，周波数の高いトピックを間引く．
     // ヘッダの時刻だとPCとFCのシステムクロックの誤差が出力レートを壊す恐れがあるため，タイマーをノードのものに統一する．
-    if (!rate_manager_.update(node_->get_clock()->now()))
+    if (!rate_manager_.update(node_->get_clock()->now())) {
       return;
+    }
 
     auto msg_out = std::make_unique<MsgType>(*msg_in);
     pub_->publish(move(msg_out));
@@ -97,7 +99,7 @@ void TopicThrottleNode::initialize()
   real_imu_throttle_.initialize(node, real::kImuTopic);
   real_mag_throttle_.initialize(node, real::kMagTopic);
 
-  initialize_timer_.reset();
+  initialize_timer_->cancel();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(TopicThrottleNode)

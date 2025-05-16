@@ -1,12 +1,12 @@
-#include <QVBoxLayout>
-#include <QGridLayout>
-
-#include <tobas_std_tools/check.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/message.hpp>
-
 #include "tobas_hardware_setup/joint_test/commands_publisher.hpp"
+
+#include <QGridLayout>
+#include <QVBoxLayout>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_std_tools/check.hpp>
 
 namespace gui
 {
@@ -24,8 +24,7 @@ JointCommandsPublisherWidget::JointCommandsPublisherWidget(
   const auto grid = new QGridLayout();
   rows->addLayout(grid);
 
-  for (size_t ch = 0; ch < kChannelSize; ++ch)
-  {
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
     commanders_[ch] = new qt::DoubleSliderDisplay();
     connect(commanders_[ch], &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
     grid->addWidget(commanders_[ch], ch % kMaxRows, ch / kMaxRows);
@@ -40,29 +39,25 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
   // PWMサーボとして登録されているチャンネルの設定
   std::unordered_set<size_t> pwm_channels;
-  for (const auto& [_, joint] : drone_.joints)
-  {
-    if (joint.hw_iface != tobas::hw_iface_t::PWM)
+  for (const auto& [_, joint] : drone_.joints) {
+    if (joint.hw_iface != tobas::hw_iface_t::PWM) {
       continue;
+    }
 
     const auto& pwm = drone_.pwms.at(joint.name);
     const auto& ch = pwm.channel;
-    if (ch >= kChannelSize)
-    {
+    if (ch >= kChannelSize) {
       qt::qErrorBox(this, "Channel " + QString::number(ch) + " is out of range.");
       continue;
     }
 
     commanders_[ch]->setText("CH" + QString::number(ch) + ": " + QString::fromStdString(joint.name));
 
-    switch (joint.cmd_iface)
-    {
-      case tobas::jnt_cmd_iface_t::POSITION:
-      {
+    switch (joint.cmd_iface) {
+      case tobas::jnt_cmd_iface_t::POSITION: {
         const auto min_pos = joint_parser_.lowerLimit(joint.name);
         const auto max_pos = joint_parser_.upperLimit(joint.name);
-        if (std::isinf(min_pos) || std::isinf(max_pos))
-        {
+        if (std::isinf(min_pos) || std::isinf(max_pos)) {
           qt::qErrorBox(this, "The position limit of joint \"" + QString::fromStdString(joint.name) + "\" is invalid.");
           continue;
         }
@@ -74,11 +69,11 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::jnt_cmd_iface_t::VELOCITY:
-      {
+      case tobas::jnt_cmd_iface_t::VELOCITY: {
         auto max_vel = joint_parser_.maxVelocity(joint.name);
-        if (std::isinf(max_vel))
+        if (std::isinf(max_vel)) {
           max_vel = kDefaultMaxVel;
+        }
 
         commanders_[ch]->setMinimum(-max_vel);
         commanders_[ch]->setMaximum(max_vel);
@@ -87,11 +82,11 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::jnt_cmd_iface_t::EFFORT:
-      {
+      case tobas::jnt_cmd_iface_t::EFFORT: {
         auto max_eff = joint_parser_.maxEffort(joint.name);
-        if (std::isinf(max_eff))
+        if (std::isinf(max_eff)) {
           max_eff = kDefaultMaxEff;
+        }
 
         commanders_[ch]->setMinimum(-max_eff);
         commanders_[ch]->setMaximum(max_eff);
@@ -100,14 +95,11 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::jnt_cmd_iface_t::NONE:
-      {
-        qt::qErrorBox(
-          this, "The command interface of joint \"" + QString::fromStdString(joint.name) + "\" is not set.");
+      case tobas::jnt_cmd_iface_t::NONE: {
+        qt::qErrorBox(this, "The command interface of joint \"" + QString::fromStdString(joint.name) + "\" is not set.");
         continue;
       }
-      default:
-      {
+      default: {
         throw;
       }
     }
@@ -120,10 +112,10 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
   }
 
   // PWMサーボとして登録されていないチャンネルを無効化
-  for (size_t ch = 0; ch < kChannelSize; ++ch)
-  {
-    if (pwm_channels.contains(ch))
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+    if (pwm_channels.contains(ch)) {
       continue;
+    }
 
     jnt_names_[ch].clear();
     cmd_iface_[ch] = tobas::jnt_cmd_iface_t::NONE;
@@ -148,10 +140,8 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 void JointCommandsPublisherWidget::start()
 {
   // コマンダーを有効化
-  for (size_t ch = 0; ch < kChannelSize; ++ch)
-  {
-    switch (cmd_iface_[ch])
-    {
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+    switch (cmd_iface_[ch]) {
       case tobas::jnt_cmd_iface_t::POSITION:
         commanders_[ch]->setValue(home_pos_[ch], true);
         break;
@@ -177,8 +167,7 @@ void JointCommandsPublisherWidget::start()
 void JointCommandsPublisherWidget::stop()
 {
   // コマンダーを無効化
-  for (size_t ch = 0; ch < kChannelSize; ++ch)
-  {
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
     commanders_[ch]->setValue(0., true);
     commanders_[ch]->setEnabled(false);
   }
@@ -195,10 +184,8 @@ void JointCommandsPublisherWidget::publishCurrentValues()
   auto tar_eff = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
   // Fill messages
-  for (size_t ch = 0; ch < kChannelSize; ++ch)
-  {
-    switch (cmd_iface_[ch])
-    {
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+    switch (cmd_iface_[ch]) {
       case tobas::jnt_cmd_iface_t::POSITION:
         tar_pos->commands.emplace_back();
         tar_pos->commands.back().name = jnt_names_[ch];
@@ -222,18 +209,15 @@ void JointCommandsPublisherWidget::publishCurrentValues()
   }
 
   // Publish messages
-  if (tar_pos->commands.size() > 0)
-  {
+  if (tar_pos->commands.size() > 0) {
     tar_pos->header.stamp = node_->get_clock()->now();
     pos_pub_->publish(std::move(tar_pos));
   }
-  if (tar_vel->commands.size() > 0)
-  {
+  if (tar_vel->commands.size() > 0) {
     tar_vel->header.stamp = node_->get_clock()->now();
     pos_pub_->publish(std::move(tar_vel));
   }
-  if (tar_eff->commands.size() > 0)
-  {
+  if (tar_eff->commands.size() > 0) {
     tar_eff->header.stamp = node_->get_clock()->now();
     pos_pub_->publish(std::move(tar_eff));
   }

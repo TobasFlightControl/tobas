@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/observer/custom.hpp"
+
 #include <QVBoxLayout>
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/observer/custom.hpp"
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
 {
@@ -66,14 +66,12 @@ void CustomObserverWidget::load(const YAML::Node& node)
 
 bool CustomObserverWidget::isValid()
 {
-  if (package_->getValue().isEmpty())
-  {
+  if (package_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom observer package name.");
     return false;
   }
 
-  if (plugin_->getValue().isEmpty())
-  {
+  if (plugin_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom observer plugin name.");
     return false;
   }

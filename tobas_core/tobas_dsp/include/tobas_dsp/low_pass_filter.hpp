@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 #include "./base_filter.hpp"
 #include "./utils.hpp"
@@ -36,10 +36,12 @@ void LowPassFilter<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
-  if (dt > T_)
+  if (dt > T_) {
     y_ = u;
-  else
+  }
+  else {
     y_ = ((T_ - dt) * y_ + dt * (u + prev_u_)) / (T_ + dt);
+  }
 
   prev_u_ = u;
 }
@@ -59,8 +61,7 @@ inline void LowPassFilter<T>::setValue(const T& x)
 template <typename T>
 bool LowPassFilter<T>::setCutoffFrequency(const double& cutoff_freq)
 {
-  if (cutoff_freq <= 0)
-  {
+  if (cutoff_freq <= 0) {
     std::cerr << "The cutoff frequency of low-pass filter must be positive." << std::endl;
     return false;
   }

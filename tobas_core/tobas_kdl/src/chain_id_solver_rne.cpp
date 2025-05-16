@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_id_solver_rne.hpp"
+#include "tobas_kdl/chain_id_solver_rne.hpp"
 
 namespace kdl
 {
@@ -9,8 +9,9 @@ ChainIdSolver_RNE::ChainIdSolver_RNE(const Chain& chain) : super(chain), ag_(Acc
 
 bool ChainIdSolver_RNE::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
 
@@ -24,27 +25,26 @@ int ChainIdSolver_RNE::CartToJnt(
   const Wrenches& forces,
   const Vector& grav)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_ || forces.size() != ns_)
+  }
+  if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_ || forces.size() != ns_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   // Update gravity
   ag_.linear = -grav;
 
   // Sweep from root to leaf
   j_ = 0;
-  for (size_t i = 0; i < ns_; ++i)
-  {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED)
-    {
+  for (size_t i = 0; i < ns_; ++i) {
+    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
       qj_ = q(j_);
       qdj_ = qd(j_);
       qddj_ = qdd(j_);
       ++j_;
     }
-    else
-    {
+    else {
       qj_ = 0.;
       qdj_ = 0.;
       qddj_ = 0.;
@@ -53,13 +53,11 @@ int ChainIdSolver_RNE::CartToJnt(
     X_[i] = chain_.getSegment(i).pose(qj_);
     S_[i] = X_[i].M.inverse(chain_.getSegment(i).jacobian(qj_));
     const auto vj = X_[i].M.inverse(chain_.getSegment(i).twist(qj_, qdj_));
-    if (i == 0)
-    {
+    if (i == 0) {
       v_[i] = vj;
       a_[i] = X_[i].inverse(ag_) + S_[i].accel(qddj_) + vj * vj;
     }
-    else
-    {
+    else {
       v_[i] = X_[i].inverse(v_[i - 1]) + vj;
       a_[i] = X_[i].inverse(a_[i - 1]) + S_[i].accel(qddj_) + v_[i] * vj;
     }
@@ -69,12 +67,13 @@ int ChainIdSolver_RNE::CartToJnt(
 
   // Sweep from leaf to root
   j_ = nj_ - 1;
-  for (int i = ns_ - 1; i >= 0; --i)
-  {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED)
+  for (int i = ns_ - 1; i >= 0; --i) {
+    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
       effort_out_(j_--) = S_[i].dot(f_[i]);
-    if (i != 0)
+    }
+    if (i != 0) {
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];
+    }
   }
 
   return setDefaultError(E_NOERROR);
@@ -87,26 +86,25 @@ int ChainIdSolver_RNE::CartToJnt(
   const Wrench& f_ee,
   const Vector& grav)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_)
+  }
+  if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   // Update gravity
   ag_.linear = -grav;
 
   // Sweep from root to leaf
-  for (size_t i = 0; i < ns_; ++i)
-  {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED)
-    {
+  for (size_t i = 0; i < ns_; ++i) {
+    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
       qj_ = q(j_);
       qdj_ = qd(j_);
       qddj_ = qdd(j_);
       ++j_;
     }
-    else
-    {
+    else {
       qj_ = 0.;
       qdj_ = 0.;
       qddj_ = 0.;
@@ -115,14 +113,12 @@ int ChainIdSolver_RNE::CartToJnt(
     X_[i] = chain_.getSegment(i).pose(qj_);
     const auto vj = X_[i].M.inverse(chain_.getSegment(i).twist(qj_, qdj_));
     S_[i] = X_[i].M.inverse(chain_.getSegment(i).jacobian(qj_));
-    if (i == 0)
-    {
+    if (i == 0) {
       v_[i] = vj;
       a_[i] = X_[i].inverse(ag_) + S_[i].accel(qddj_) + v_[i] * vj;
       f_ee_ = X_[i].M.inverse(f_ee);  // CHANGED
     }
-    else
-    {
+    else {
       v_[i] = X_[i].inverse(v_[i - 1]) + vj;
       a_[i] = X_[i].inverse(a_[i - 1]) + S_[i].accel(qddj_) + v_[i] * vj;
       f_ee_ = X_[i].M.inverse(f_ee_);  // CHANGED
@@ -131,19 +127,21 @@ int ChainIdSolver_RNE::CartToJnt(
     /* -----CHANGED----- */
     // f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]) - forces[i];
     f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]);
-    if (i == ns_ - 1)
+    if (i == ns_ - 1) {
       f_[i] -= f_ee_;
+    }
     /* -----CHANGED----- */
   }
 
   // Sweep from leaf to root
   j_ = nj_ - 1;
-  for (int i = ns_ - 1; i >= 0; --i)
-  {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED)
+  for (int i = ns_ - 1; i >= 0; --i) {
+    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
       effort_out_(j_--) = S_[i].dot(f_[i]);
-    if (i != 0)
+    }
+    if (i != 0) {
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];
+    }
   }
 
   return setDefaultError(E_NOERROR);

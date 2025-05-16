@@ -1,11 +1,11 @@
+#include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
+
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
+#include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 
 namespace gui
 {
@@ -22,8 +22,7 @@ CustomControllerWidget::CustomControllerWidget()
   loiter_mode_ = new ParamGetterWidget_ComboBox("Loiter Mode", "");
 
   // Add command choices
-  for (const auto& [text, _] : command_map_)
-  {
+  for (const auto& [text, _] : command_map_) {
     acrobat_mode_->addChoice(text);
     stabilize_mode_->addChoice(text);
     loiter_mode_->addChoice(text);
@@ -114,14 +113,12 @@ bool CustomControllerWidget::isApplicable()
 
 bool CustomControllerWidget::isValid()
 {
-  if (package_->getValue().isEmpty())
-  {
+  if (package_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom controller package name.");
     return false;
   }
 
-  if (plugin_->getValue().isEmpty())
-  {
+  if (plugin_->getValue().isEmpty()) {
     qt::qErrorBox(this, "Please specify custom controller plugin name.");
     return false;
   }

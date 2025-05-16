@@ -1,7 +1,7 @@
+#include "tobas_legged_tools/contact_estimator.hpp"
+
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
-
-#include "../include/tobas_legged_tools/contact_estimator.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -21,10 +21,12 @@ ContactEstimator::ContactEstimator(const kdl::Tree& tree, const vector<string>& 
 
 bool ContactEstimator::updateInternalDataStructures()
 {
-  if (!fk_solver_.updateInternalDataStructures())
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
-  if (!mass_holder_.updateInternalDataStructures())
+  }
+  if (!mass_holder_.updateInternalDataStructures()) {
     return false;
+  }
 
   return true;
 }
@@ -47,42 +49,41 @@ void ContactEstimator::update(
   kf_.update();
 
   // 接触状態を更新 (Fig.10)
-  for (size_t l = 0; l < nc_; ++l)
-  {
+  for (size_t l = 0; l < nc_; ++l) {
     const auto contact_detected = (kf_.state()(l) > kContactProbThreshold);  // 接触検知されたか否か
 
-    switch (states_[l])
-    {
-      case Contact:
-      {
-        if (!cpg_states[l])
+    switch (states_[l]) {
+      case Contact: {
+        if (!cpg_states[l]) {
           states_[l] = Swing;
+        }
         break;
       }
-      case Swing:
-      {
-        if (cpg_states[l] && contact_detected)
+      case Swing: {
+        if (cpg_states[l] && contact_detected) {
           states_[l] = Contact;
-        else if (cpg_states[l])
+        }
+        else if (cpg_states[l]) {
           states_[l] = Late;
-        else if (contact_detected)
+        }
+        else if (contact_detected) {
           states_[l] = Early;
+        }
         break;
       }
-      case Early:
-      {
-        if (cpg_states[l])
+      case Early: {
+        if (cpg_states[l]) {
           states_[l] = Contact;
+        }
         break;
       }
-      case Late:
-      {
-        if (contact_detected)
+      case Late: {
+        if (contact_detected) {
           states_[l] = Contact;
+        }
         break;
       }
-      default:
-      {
+      default: {
         throw runtime_error("Invalid contact state");
       }
     }
@@ -151,8 +152,7 @@ void ContactEstimator::setupKalmanFilter()
 VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntArray& q)
 {
   VectorXd res(nc_);
-  for (size_t l = 0; l < nc_; ++l)
-  {
+  for (size_t l = 0; l < nc_; ++l) {
     fk_solver_.JntToCart(q, foot_names_[l]);
     const auto F_Pos_FC = T.M * fk_solver_.getFrame().p;
     const auto height = T.p.z() + F_Pos_FC.z();
@@ -166,8 +166,9 @@ VectorXd ContactEstimator::calcProbs_force(const vector<double>& contact_forces)
   const auto mean_force = mass_holder_.getMass() * tobas_std::kGravity / nc_;
 
   VectorXd res(nc_);
-  for (size_t l = 0; l < nc_; ++l)
+  for (size_t l = 0; l < nc_; ++l) {
     res(l) = 0.5 * (1 + erf((contact_forces[l] - mean_force) / erfden_force_));
+  }
 
   return res;
 }
@@ -175,16 +176,13 @@ VectorXd ContactEstimator::calcProbs_force(const vector<double>& contact_forces)
 VectorXd ContactEstimator::calcProbs_pred(const vector<bool>& cpg_states, const vector<double>& cpg_subphases)
 {
   VectorXd res(nc_);
-  for (size_t l = 0; l < nc_; ++l)
-  {
-    if (cpg_states[l])
-    {
+  for (size_t l = 0; l < nc_; ++l) {
+    if (cpg_states[l]) {
       const auto erf1 = erf((cpg_subphases[l] - 0) / erfden_pred_);
       const auto erf2 = erf((1 - cpg_subphases[l]) / erfden_pred_);
       res(l) = 0.5 * (erf1 + erf2);
     }
-    else
-    {
+    else {
       const auto erf1 = erf((0 - cpg_subphases[l]) / erfden_pred_);
       const auto erf2 = erf((cpg_subphases[l] - 1) / erfden_pred_);
       res(l) = 0.5 * (2 + erf1 + erf2);

@@ -1,13 +1,15 @@
-#include <QLabel>
-#include <QDebug>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/selected_links.hpp"
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
+#include <QDebug>
+#include <QLabel>
+
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/selected_links.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
-#include "tobas_setup_assistant/common.hpp"
 
 namespace gui
 {
@@ -68,7 +70,7 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
   yawCoef(row, node[kYawCoefLabel].as<double>());
 }
 
-int SelectedLinksWidget::count() const
+int SelectedLinksWidget::numUnits() const
 {
   return rowCount();
 }
@@ -81,9 +83,11 @@ QString SelectedLinksWidget::selected() const
 
 int SelectedLinksWidget::find(const QString& link_name) const
 {
-  for (int row = 0; row < rowCount(); ++row)
-    if (linkName(row) == link_name)
+  for (int row = 0; row < rowCount(); ++row) {
+    if (linkName(row) == link_name) {
       return row;
+    }
+  }
 
   qWarning() << link_name << " is not selected as a control surface.";
   return -1;
@@ -152,114 +156,98 @@ void SelectedLinksWidget::remove(const QString& link_name)
 
 QString SelectedLinksWidget::linkName(int row) const
 {
-  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kLinkNameCol));
+  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
   return cell->text();
 }
 
 QString SelectedLinksWidget::jointName(int row) const
 {
-  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kJointNameCol));
+  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kJointNameCol));
   return cell->text();
 }
 
 double SelectedLinksWidget::liftCoef(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kLiftCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::dragCoef(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kDragCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::sideCoef(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kSideCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::rollCoef(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kRollCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::pitchCoef(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kPitchCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::yawCoef(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kYawCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->value();
 }
 
 void SelectedLinksWidget::linkName(int row, const QString& text)
 {
-  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kLinkNameCol));
+  const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
   return cell->setText(text);
 }
 
 void SelectedLinksWidget::jointName(int row, const QString& text)
 {
-  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kJointNameCol));
+  const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kJointNameCol));
   return cell->setText(text);
 }
 
 void SelectedLinksWidget::liftCoef(int row, double value)
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kLiftCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
   return cell->setValue(value);
 }
 
 void SelectedLinksWidget::dragCoef(int row, double value)
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kDragCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
   return cell->setValue(value);
 }
 
 void SelectedLinksWidget::sideCoef(int row, double value)
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kSideCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
   return cell->setValue(value);
 }
 
 void SelectedLinksWidget::rollCoef(int row, double value)
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kRollCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
   return cell->setValue(value);
 }
 
 void SelectedLinksWidget::pitchCoef(int row, double value)
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kPitchCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
   return cell->setValue(value);
 }
 
 void SelectedLinksWidget::yawCoef(int row, double value)
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kYawCoefCol));
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->setValue(value);
-}
-
-QStringList SelectedLinksWidget::linkNames() const
-{
-  QStringList res;
-  for (int row = 0; row < rowCount(); ++row)
-    res.append(linkName(row));
-  return res;
-}
-
-QStringList SelectedLinksWidget::jointNames() const
-{
-  QStringList res;
-  for (int row = 0; row < rowCount(); ++row)
-    res.append(jointName(row));
-  return res;
 }
 }  // namespace fixed_wing
 }  // namespace sa

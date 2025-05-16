@@ -3,8 +3,8 @@
 #include <QLabel>
 #include <QLineEdit>
 
-#include "./slider.hpp"
 #include "./double_slider.hpp"
+#include "./slider.hpp"
 
 namespace qt
 {

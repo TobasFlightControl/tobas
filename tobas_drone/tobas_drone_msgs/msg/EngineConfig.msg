@@ -1,3 +1,2 @@
-float64 torque_const
-float64 friction_torque
+tobas_std_msgs/PairFloat64 engine_const
 uint8 hw_iface

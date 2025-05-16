@@ -31,11 +31,13 @@ int main()
 
   wpa::WPASupplicantParser parser;
 
-  if (!parser.parseFromText(input_text))
+  if (!parser.parseFromText(input_text)) {
     return EXIT_FAILURE;
+  }
 
-  if (!parser.write(output_path))
+  if (!parser.write(output_path)) {
     return EXIT_FAILURE;
+  }
 
   cout << "Configuration file is saved as \"" << output_path << "\"." << endl;
   return EXIT_SUCCESS;

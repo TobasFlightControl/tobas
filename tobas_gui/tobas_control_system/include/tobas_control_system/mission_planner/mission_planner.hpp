@@ -1,15 +1,16 @@
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <tobas_ros2_tools/register.hpp>
 
-#include "./map_widget.hpp"
-#include "./command_button.hpp"
-#include "./mission_execution_thread.hpp"
+#include <tobas_msgs_adapter/gnss.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
+
 #include "./add_command_dialog.hpp"
+#include "./command_button.hpp"
+#include "./map_widget.hpp"
+#include "./mission_execution_thread.hpp"
 
 namespace gui
 {

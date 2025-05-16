@@ -19,6 +19,9 @@ public:
 
 private:
   linux::CommandExecutor command_executor_;
+
+  bool colconBuild(const std::filesystem::path& tbs_path);
+  bool colconCleanWorkspace();
 };
 }  // namespace common
 }  // namespace gui

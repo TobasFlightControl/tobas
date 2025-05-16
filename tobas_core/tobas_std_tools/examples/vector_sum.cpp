@@ -6,8 +6,7 @@ using namespace std;
 
 int main()
 {
-  for (size_t n : { 1000000, 10000000, 100000000, 1000000000 })
-  {
+  for (size_t n : { 1000000, 10000000, 100000000, 1000000000 }) {
     vector<float> values(n, 1.0);
     const auto naive_sum = tobas_std::sum(values);
     const auto kahan_sum = tobas_std::fsum(values);

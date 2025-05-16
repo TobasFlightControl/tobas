@@ -1,15 +1,17 @@
+#include "tobas_setup_assistant/xml_elements/urdf.hpp"
+
 #include <format>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_setup_assistant/xml_elements/urdf.hpp"
+#include <tobas_path_tools/join.hpp>
 
 using namespace std;
 
 namespace gui
 {
 namespace sa
+{
+namespace xml
 {
 namespace util
 {
@@ -32,7 +34,7 @@ string toString<double>(const double& data)
 }
 
 template <>
-string toString<const pair<double, double>>(const pair<double, double>& data)
+string toString<pair<double, double>>(const pair<double, double>& data)
 {
   // format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
   return toString(data.first) + " " + toString(data.second);
@@ -48,8 +50,9 @@ template <typename T>
 void addList(tinyxml2::XMLElement* parent, const string& list_name, const vector<T>& items)
 {
   const auto elem = parent->InsertNewChildElement(list_name.c_str());
-  for (const auto& item : items)
+  for (const auto& item : items) {
     elem->InsertNewChildElement("item")->SetText(toString(item).c_str());
+  }
 }
 
 tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const string& filename, const string& name)
@@ -244,6 +247,39 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }
 
+void addICEPropulsionSystemPlugin(
+  tinyxml2::XMLElement* robot,
+  const string& ns,
+  const EngineParam& engine_param,
+  const vector<ICERotorParam>& rotor_params)
+{
+  // robot/gazebo/plugin
+  const auto plugin = util::addGazeboPlugin(
+    robot, "tobas_gazebo_ice_propulsion_system_plugin", "gazebo::GazeboICEPropulsionSystemPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+
+  // robot/gazebo/plugin/engine
+  const auto engine = plugin->InsertNewChildElement("engine");
+  engine->InsertNewChildElement("engineConstant")->SetText(util::toString(engine_param.engine_const).c_str());
+  engine->InsertNewChildElement("timeConstUp")->SetText(engine_param.time_const_up);
+  engine->InsertNewChildElement("timeConstDown")->SetText(engine_param.time_const_down);
+
+  // robot/gazebo/plugin/rotor
+  for (const auto& rotor_param : rotor_params) {
+    const auto rotor = plugin->InsertNewChildElement("rotor");
+    rotor->InsertNewChildElement("linkName")->SetText(rotor_param.link_name.c_str());
+    rotor->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(rotor_param.direction).c_str());
+    rotor->InsertNewChildElement("gearRatio")->SetText(rotor_param.gear_ratio);
+    rotor->InsertNewChildElement("numberOfBlades")->SetText(rotor_param.num_blades);
+    rotor->InsertNewChildElement("motorConstant")->SetText(util::toString(rotor_param.motor_const).c_str());
+    rotor->InsertNewChildElement("momentConstant")->SetText(rotor_param.moment_const);
+    rotor->InsertNewChildElement("dragConstant")->SetText(util::toString(rotor_param.drag_const).c_str());
+    rotor->InsertNewChildElement("minPitchAngle")->SetText(rotor_param.pitch_angle_limit.lower);
+    rotor->InsertNewChildElement("maxPitchAngle")->SetText(rotor_param.pitch_angle_limit.upper);
+    rotor->InsertNewChildElement("maxPitchAngleRate")->SetText(rotor_param.max_pitch_angle_rate);
+  }
+}
+
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
@@ -287,8 +323,7 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("cYawR")->SetText(aerodynamics.c_yaw_r);
 
   // Control Surfaces
-  for (const auto& [_, cs] : control_surfaces)
-  {
+  for (const auto& [_, cs] : control_surfaces) {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
     cs_elem->InsertNewChildElement("channel")->SetText(cs.channel);
     cs_elem->InsertNewChildElement("linkName")->SetText(cs.link_name.c_str());
@@ -316,6 +351,14 @@ void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const string& 
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
 }
 
+void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
+{
+  const auto plugin =
+    util::addGazeboPlugin(robot, "tobas_gazebo_lookat_position_plugin", "gazebo::GazeboLookAtPositionPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+  plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
+}
+
 void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints)
 {
   // robot/ros2_control
@@ -328,10 +371,10 @@ void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfi
   hardware->InsertNewChildElement("plugin")->SetText("gz_ros2_control/GazeboSimSystem");
 
   // robot/ros2_control/joint
-  for (const auto& [jnt_name, jnt_cfg] : joints)
-  {
-    if (!jnt_cfg.isServoJoint())
+  for (const auto& [jnt_name, jnt_cfg] : joints) {
+    if (!jnt_cfg.isServoJoint()) {
       continue;
+    }
 
     const auto joint = ros2_control->InsertNewChildElement("joint");
     joint->SetAttribute("name", jnt_name.c_str());
@@ -380,5 +423,6 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const string& root_link_nam
   joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::kWorldFrame);
   joint->InsertNewChildElement("child")->SetAttribute("link", root_link_name.c_str());
 }
+}  // namespace xml
 }  // namespace sa
 }  // namespace gui

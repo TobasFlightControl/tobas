@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_fk_solver_vel.hpp"
+#include "tobas_kdl/tree_fk_solver_vel.hpp"
 
 using namespace std;
 
@@ -10,12 +10,15 @@ TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 
 int TreeFkSolverVel::JntToCart(const JntArray& q, const JntArray& qd, const string& seg_name)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_ || qd.rows() != nj_)
+  }
+  if (q.rows() != nj_ || qd.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
-  if (!tree_.hasSegment(seg_name))
+  }
+  if (!tree_.hasSegment(seg_name)) {
     return setDefaultError(E_OUT_OF_RANGE);
+  }
 
   const auto seg_it = tree_.getSegment(seg_name);
   p_out_ = recursiveFk(q, qd, seg_it);
@@ -33,8 +36,9 @@ FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, con
   const auto twist = cur_seg.twist(q(cur_idx), qd(cur_idx));
   const FrameVel cur_framevel(pose, twist);
 
-  if (cur_it == tree_.getRootSegment())
+  if (cur_it == tree_.getRootSegment()) {
     return cur_framevel;
+  }
 
   const auto& parent_it = cur_ele.parent;
   return recursiveFk(q, qd, parent_it) * cur_framevel;

@@ -25,8 +25,9 @@ public:
 
   explicit BaseViewModel(const ModelPtr& model) : model_(model)
   {
-    if (!model_)
+    if (!model_) {
       model_.reset(new M());
+    }
   }
 
   const ModelPtr& model()

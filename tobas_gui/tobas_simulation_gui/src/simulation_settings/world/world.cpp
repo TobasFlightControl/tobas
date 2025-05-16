@@ -1,11 +1,12 @@
+#include "tobas_simulation_gui/simulation_settings/world/world.hpp"
+
 #include <QButtonGroup>
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
 #include "tobas_simulation_gui/constants.hpp"
-#include "tobas_simulation_gui/simulation_settings/world/world.hpp"
-#include "tobas_simulation_gui/simulation_settings/world/standard_world.hpp"
 #include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
+#include "tobas_simulation_gui/simulation_settings/world/standard_world.hpp"
 
 namespace fs = std::filesystem;
 
@@ -27,8 +28,7 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   const auto ckb_group = new QButtonGroup(this);
   ckb_group->setExclusive(true);
 
-  for (const auto& widget : widgets_)
-  {
+  for (const auto& widget : widgets_) {
     rows->addWidget(widget);
     ckb_group->addButton(widget->checkbox);
     widget->setContentsEnabled(false);
@@ -45,9 +45,11 @@ fs::path WorldWidget::worldPath() const
 
 const WorldWidget_Base* WorldWidget::selected() const
 {
-  for (const auto& widget : widgets_)
-    if (widget->isChecked())
+  for (const auto& widget : widgets_) {
+    if (widget->isChecked()) {
       return widget;
+    }
+  }
 
   throw std::runtime_error("No method is selected.");
 }

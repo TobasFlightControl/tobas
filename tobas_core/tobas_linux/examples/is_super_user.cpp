@@ -6,8 +6,10 @@ using namespace std;
 
 int main()
 {
-  if (linux::isSuperUser())
+  if (linux::isSuperUser()) {
     cout << "Running with super privileges." << endl;
-  else
+  }
+  else {
     cout << "Running with regular privileges." << endl;
+  }
 }

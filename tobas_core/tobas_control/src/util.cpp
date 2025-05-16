@@ -1,10 +1,10 @@
+#include "tobas_control/util.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>
-
-#include "../include/tobas_control/util.hpp"
 
 #define EPS numeric_limits<double>::epsilon()
 
@@ -23,8 +23,7 @@ MatrixXd ctrb(const MatrixXd& A, const MatrixXd& B)
 
   MatrixXd Mc(x_size, u_size * x_size);
   MatrixXd tmp = B;
-  for (int i = 0; i < x_size; ++i)
-  {
+  for (int i = 0; i < x_size; ++i) {
     Mc.block(0, u_size * i, x_size, u_size) = tmp;
     tmp = A * tmp;
   }
@@ -42,8 +41,7 @@ MatrixXd obsv(const MatrixXd& A, const MatrixXd& C)
 
   MatrixXd Mo(y_size * x_size, x_size);
   MatrixXd tmp = C;
-  for (int i = 0; i < x_size; ++i)
-  {
+  for (int i = 0; i < x_size; ++i) {
     Mo.block(y_size * i, 0, y_size, x_size) = tmp;
     tmp = tmp * A;
   }

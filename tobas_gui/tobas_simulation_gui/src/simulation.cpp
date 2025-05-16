@@ -1,20 +1,20 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QCloseEvent>
+#include "tobas_simulation_gui/simulation.hpp"
 
-#include <tobas_kdl_parser/kdl_parser.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_linux/errer.hpp>
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/util.hpp>
+#include <QCloseEvent>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/progress_dialog.hpp>
-#include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/util.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
-
-#include "tobas_simulation_gui/simulation.hpp"
+#include <tobas_kdl_parser/kdl_parser.hpp>
+#include <tobas_linux/errer.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 namespace fs = std::filesystem;
 
@@ -57,8 +57,9 @@ void SimulationWidget::reset()
   resetDynamicConfig();
   resetCommanders();
 
-  if (launch_pid_ >= 0)
+  if (launch_pid_ >= 0) {
     killGazeboLaunch();
+  }
 
   arming_.reset();
 
@@ -73,14 +74,12 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 {
   reset();
 
-  if (!kdl::treeFromFile(common::getOriginalURDFPath(tbs_path), tree_))
-  {
+  if (!kdl::treeFromFile(common::getOriginalURDFPath(tbs_path), tree_)) {
     qt::qErrorBox(this, "Failed to load kdl tree.");
     return false;
   }
 
-  if (!drone_.load(common::getTBSDRNPath(tbs_path)))
-  {
+  if (!drone_.load(common::getTBSDRNPath(tbs_path))) {
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return false;
   }
@@ -104,8 +103,9 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
   RCLCPP_DEBUG(node_->get_logger(), "SimulationWidget::closeEvent");
 
   // 親ウィジェットを閉じるときに子プロセスを破棄
-  if (launch_pid_ >= 0)
+  if (launch_pid_ >= 0) {
     killGazeboLaunch();
+  }
 
   event->accept();
 }
@@ -117,20 +117,17 @@ void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& a
 
 bool SimulationWidget::killGazeboLaunch()
 {
-  if (launch_pid_ < 0)
-  {
+  if (launch_pid_ < 0) {
     RCLCPP_INFO(node_->get_logger(), "Gazebo simulation is not running.");
     return true;
   }
 
-  if (kill(launch_pid_, SIGINT) != 0)
-  {
+  if (kill(launch_pid_, SIGINT) != 0) {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to kill child process: " << linux::strError());
     return false;
   }
 
-  if (!cmd_executor_.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh"))
-  {
+  if (!cmd_executor_.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh")) {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to kill Gazebo: " << cmd_executor_.getOutput());
     return false;
   }
@@ -142,8 +139,7 @@ bool SimulationWidget::killGazeboLaunch()
 bool SimulationWidget::startSITL()
 {
   // フライトコードが起動していないことを確認
-  if (arming_)
-  {
+  if (arming_) {
     qt::qWarnBox(this, "This operation cannot be performed while flight controller is active.");
     return false;
   }
@@ -155,8 +151,7 @@ bool SimulationWidget::startSITL()
 
   // Tobasパッケージをビルド
   progress.setLabelText("Building Tobas package.");
-  if (!buildLocalPackage())
-  {
+  if (!buildLocalPackage()) {
     progress.close();
     return false;
   }
@@ -164,8 +159,7 @@ bool SimulationWidget::startSITL()
 
   // Gazeboを起動
   progress.setLabelText("Launching Gazebo simulation.");
-  if (!launchGazebo(true))
-  {
+  if (!launchGazebo(true)) {
     progress.close();
     return false;
   }
@@ -173,8 +167,7 @@ bool SimulationWidget::startSITL()
 
   // 動的パラメータを起動
   progress.setLabelText("Starting dynamic configurations.");
-  if (!startDynamicConfig())
-  {
+  if (!startDynamicConfig()) {
     progress.close();
     return false;
   }
@@ -182,8 +175,7 @@ bool SimulationWidget::startSITL()
 
   // コマンダーを起動
   progress.setLabelText("Starting commanders.");
-  if (!startCommanders())
-  {
+  if (!startCommanders()) {
     progress.close();
     return false;
   }
@@ -202,8 +194,7 @@ bool SimulationWidget::terminateSITL()
   resetCommanders();
 
   // Gazeboプロセスを終了
-  if (!killGazeboLaunch())
-  {
+  if (!killGazeboLaunch()) {
     qt::qErrorBox(this, "Failed to kill Gazebo process.");
     return false;
   }
@@ -214,16 +205,13 @@ bool SimulationWidget::terminateSITL()
 bool SimulationWidget::startHITL()
 {
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(
       this, "This operation cannot be performed because the arming status is not received from the flight controller.");
     return false;
   }
-  else
-  {
-    if (arming_->data)
-    {
+  else {
+    if (arming_->data) {
       qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
       return false;
     }
@@ -236,8 +224,7 @@ bool SimulationWidget::startHITL()
 
   // ローカルパッケージをビルド
   progress.setLabelText("Building Tobas local package.");
-  if (!buildLocalPackage())
-  {
+  if (!buildLocalPackage()) {
     progress.close();
     return false;
   }
@@ -245,8 +232,7 @@ bool SimulationWidget::startHITL()
 
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR) {
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -255,8 +241,7 @@ bool SimulationWidget::startHITL()
 
   // Realサービスを停止
   progress.setLabelText("Stopping Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -267,8 +252,7 @@ bool SimulationWidget::startHITL()
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path_);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(tbs_path_, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.scpPut(tbs_path_, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -278,8 +262,7 @@ bool SimulationWidget::startHITL()
   // リモートパッケージをビルド
   progress.setLabelText("Building Tobas remote package.");
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path_);
-  if (!remote_pkg_builder_.build(remote_tbs_path))
-  {
+  if (!remote_pkg_builder_.build(remote_tbs_path)) {
     qt::qErrorBox(
       this,
       "Failed to build the Tobas remote package:\n\n" + QString::fromStdString(remote_pkg_builder_.getErrorMessage()));
@@ -299,8 +282,7 @@ bool SimulationWidget::startHITL()
 
   // HITLサービスを起動
   progress.setLabelText("Starting Tobas HITL service.");
-  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SSHClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -309,8 +291,7 @@ bool SimulationWidget::startHITL()
 
   // 動的パラメータを起動
   progress.setLabelText("Starting dynamic configurations.");
-  if (!startDynamicConfig())
-  {
+  if (!startDynamicConfig()) {
     progress.close();
     return false;
   }
@@ -318,8 +299,7 @@ bool SimulationWidget::startHITL()
 
   // コマンダーを起動
   progress.setLabelText("Starting commanders.");
-  if (!startCommanders())
-  {
+  if (!startCommanders()) {
     progress.close();
     return false;
   }
@@ -348,8 +328,7 @@ bool SimulationWidget::terminateHITL()
 
   // Gazeboプロセスを終了
   progress.setLabelText("Terminating Gazebo simulation.");
-  if (!killGazeboLaunch())
-  {
+  if (!killGazeboLaunch()) {
     qt::qErrorBox(this, "Failed to kill Gazebo process.");
     return false;
   }
@@ -357,8 +336,7 @@ bool SimulationWidget::terminateHITL()
 
   // HITLサービスを停止
   progress.setLabelText("Stopping Tobas HITL service.");
-  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SSHClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -367,8 +345,7 @@ bool SimulationWidget::terminateHITL()
 
   // Realサービスを起動
   progress.setLabelText("Starting Tobas real service.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -381,8 +358,7 @@ bool SimulationWidget::terminateHITL()
 
 bool SimulationWidget::buildLocalPackage()
 {
-  if (!local_pkg_builder_.build(tbs_path_))
-  {
+  if (!local_pkg_builder_.build(tbs_path_)) {
     qt::qErrorBox(
       this, "Failed to build Tobas local package:\n\n" + QString::fromStdString(local_pkg_builder_.getOutput()));
     return false;
@@ -401,8 +377,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   };
 
   launch_pid_ = common::roslaunch(install_path, config_pkg_name, "gazebo.launch.xml", args);
-  if (launch_pid_ < 0)
-  {
+  if (launch_pid_ < 0) {
     qt::qErrorBox(this, "Failed to launch Gazebo simulation.");
     return false;
   }
@@ -433,17 +408,18 @@ void SimulationWidget::resetCommanders()
 
 std::string SimulationWidget::boolToText(bool arg)
 {
-  if (arg)
+  if (arg) {
     return "true";
-  else
+  }
+  else {
     return "false";
+  }
 }
 
 void SimulationWidget::onStartRequested()
 {
   bool success;
-  switch (sim_settings_->loopType())
-  {
+  switch (sim_settings_->loopType()) {
     case loop_type_t::SITL:
       success = startSITL();
       break;
@@ -454,8 +430,7 @@ void SimulationWidget::onStartRequested()
       throw;
   }
 
-  if (!success)
-  {
+  if (!success) {
     reset();
     return;
   }
@@ -472,8 +447,7 @@ void SimulationWidget::onStartRequested()
 void SimulationWidget::onTerminateRequested()
 {
   bool success;
-  switch (sim_settings_->loopType())
-  {
+  switch (sim_settings_->loopType()) {
     case loop_type_t::SITL:
       success = terminateSITL();
       break;
@@ -484,8 +458,7 @@ void SimulationWidget::onTerminateRequested()
       throw;
   }
 
-  if (!success)
-  {
+  if (!success) {
     reset();
     return;
   }

@@ -1,7 +1,9 @@
-#include <tobas_quadprog/quadprogpp.hpp>
-#include <tobas_quadprog/qpoases.hpp>
+#include <iostream>
+
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_quadprog/primal_dual_interior_point.hpp>
+#include <tobas_quadprog/qpoases.hpp>
+#include <tobas_quadprog/quadprogpp.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -18,8 +20,7 @@ int main()
   quadprog::QuadProgppSolver quadprog;
   quadprog.problem = problem;
   quadprog.x_scale = x_scale;
-  if (!quadprog.solve())
-  {
+  if (!quadprog.solve()) {
     cerr << "QuadProgppSolver failed." << endl;
     return EXIT_FAILURE;
   }
@@ -28,8 +29,7 @@ int main()
   quadprog::QpOasesSolver qpoases;
   qpoases.problem = problem;
   qpoases.x_scale = x_scale;
-  if (!qpoases.solve())
-  {
+  if (!qpoases.solve()) {
     cerr << "QpOasesSolver failed." << endl;
     return EXIT_FAILURE;
   }
@@ -38,8 +38,7 @@ int main()
   quadprog::DualActiveSetSolver das;
   das.problem = problem;
   das.x_scale = x_scale;
-  if (!das.solve())
-  {
+  if (!das.solve()) {
     cerr << "DualActiveSetSolver failed." << endl;
     return EXIT_FAILURE;
   }
@@ -48,8 +47,7 @@ int main()
   quadprog::PrimalDualInteriorPointSolver ipm;
   ipm.problem = problem;
   ipm.x_scale = x_scale;
-  if (!ipm.solve())
-  {
+  if (!ipm.solve()) {
     cerr << "PrimalDualInteriorPointSolver failed." << endl;
     return EXIT_FAILURE;
   }

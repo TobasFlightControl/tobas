@@ -1,12 +1,14 @@
-#include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/message.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
+
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
+
+#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/fixed_wing_lqr.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/fixed_wing_lqr.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 
 namespace gui
 {
@@ -32,9 +34,8 @@ ControllerWidget::ControllerWidget(
   controllers_->addWidget(new FixedWingLQRWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new CustomControllerWidget());
 
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+  for (int i = 0; i < controllers_->count(); ++i) {
+    const auto controller = widget(i);
     type_->addItem(controller->name());
   }
 
@@ -62,9 +63,8 @@ const char* ControllerWidget::description() const
 void ControllerWidget::onOpened()
 {
   // 現在の機体設定で適用可能な選択肢のみ選択可能にする
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+  for (int i = 0; i < controllers_->count(); ++i) {
+    const auto controller = widget(i);
     type_->setItemEnabled(i, controller->isApplicable());
   }
 }
@@ -76,27 +76,26 @@ void ControllerWidget::updateInternalDataStructures()
 
 bool ControllerWidget::isValid()
 {
-  if (!selected()->isApplicable())
-  {
+  if (!selected()->isApplicable()) {
     qt::qErrorBox(this, "The selected controller is not applicable to the airframe.");
     return false;
   }
 
-  if (!selected()->isValid())
+  if (!selected()->isValid()) {
     return false;
+  }
 
   return true;
 }
 
-YAML::Node ControllerWidget::dump()
+YAML::Node ControllerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
   node[kTypeKey] = type_->currentText();
 
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+  for (int i = 0; i < controllers_->count(); ++i) {
+    const auto controller = widget(i);
     node[controller->name()] = controller->dump();
   }
 
@@ -107,9 +106,8 @@ void ControllerWidget::load(const YAML::Node& node)
 {
   type_->setCurrentText(node[kTypeKey].as<QString>());
 
-  for (int i = 0; i < controllers_->count(); ++i)
-  {
-    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+  for (int i = 0; i < controllers_->count(); ++i) {
+    const auto controller = widget(i);
     controller->load(node[controller->name()]);
   }
 }
@@ -155,14 +153,24 @@ void ControllerWidget::setCurrentController(int index)
   description_->setText(selected()->description());
 }
 
+BaseControllerWidget* ControllerWidget::widget(int index)
+{
+  return qt::qPointerCast<BaseControllerWidget>(controllers_->widget(index));
+}
+
+const BaseControllerWidget* ControllerWidget::widget(int index) const
+{
+  return qt::qConstPointerCast<BaseControllerWidget>(controllers_->widget(index));
+}
+
 BaseControllerWidget* ControllerWidget::selected()
 {
-  return qobject_cast<BaseControllerWidget*>(controllers_->currentWidget());
+  return qt::qPointerCast<BaseControllerWidget>(controllers_->currentWidget());
 }
 
 const BaseControllerWidget* ControllerWidget::selected() const
 {
-  return qobject_cast<BaseControllerWidget*>(controllers_->currentWidget());
+  return qt::qConstPointerCast<BaseControllerWidget>(controllers_->currentWidget());
 }
 }  // namespace sa
 }  // namespace gui

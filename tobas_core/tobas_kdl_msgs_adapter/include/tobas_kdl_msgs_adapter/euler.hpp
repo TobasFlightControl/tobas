@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/euler.hpp>
+
 #include <tobas_kdl_msgs/msg/euler.hpp>
 
 template <>
@@ -30,6 +31,6 @@ struct rclcpp::TypeAdapter<kdl::Euler, tobas_kdl_msgs::msg::Euler>
 namespace tobas_kdl_msgs
 {
 using EulerAdapter = rclcpp::TypeAdapter<kdl::Euler, tobas_kdl_msgs::msg::Euler>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Euler, tobas_kdl_msgs::msg::Euler);

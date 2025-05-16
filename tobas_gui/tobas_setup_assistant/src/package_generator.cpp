@@ -1,18 +1,20 @@
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include "tobas_setup_assistant/package_generator.hpp"
+
 #include <urdf_parser/urdf_parser.h>
 #include <QDebug>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <tobas_gui_common/command.hpp>
+#include <tobas_gui_common/package.hpp>
+#include <tobas_path_tools/core.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/path.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
-#include <tobas_path_tools/core.hpp>
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_ros2_tools/path.hpp>
-#include <tobas_qt_tools/message.hpp>
-#include <tobas_gui_common/package.hpp>
-#include <tobas_gui_common/command.hpp>
+#include <tobas_yaml_tools/core.hpp>
 
-#include "tobas_setup_assistant/package_generator.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
 using namespace std;
@@ -35,35 +37,45 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
 
 bool PackageGenerator::generatePackage()
 {
+  const auto tbs_path = tbsPath();
+
   // Tobasパッケージを作成
-  if (!path::createDirectories(tbsPath()))
-  {
+  if (!path::createDirectories(tbs_path)) {
     qt::qErrorBox(settings_, "Failed to create Tobas package path.");
     return false;
   }
-
-  // バックアップファイルを作成
-  if (!generateBackupFiles())
-    return false;
 
   // テンプレート用アイテムを作成
   const auto tpl_data = createTemplateData();
 
   // メタパッケージを作成
-  if (!generateMetaPackage(tpl_data))
+  if (!generateMetaPackage(tpl_data)) {
     return false;
+  }
 
   // 設定パッケージを作成
-  if (!generateConfigPackage(tpl_data))
+  if (!generateConfigPackage(tpl_data)) {
     return false;
+  }
 
   // ユーザ用C++パッケージを作成
-  if (!generateUserCppPackage(tpl_data))
-    return false;
+  if (!fs::is_directory(common::getTBSUserCppPath(tbs_path))) {
+    if (!generateUserCppPackage(tpl_data)) {
+      return false;
+    }
+  }
 
   // ユーザ用Pythonパッケージを作成
-  if (!generateUserPyPackage(tpl_data))
+  if (!fs::is_directory(common::getTBSUserPyPath(tbs_path))) {
+    if (!generateUserPyPackage(tpl_data)) {
+      return false;
+    }
+  }
+
+  // バックアップファイルを作成
+  if (!generateBackupFiles()) {
     return false;
+  }
 
   return true;
 }
@@ -75,15 +87,14 @@ string PackageGenerator::tbsPath() const
 
 string PackageGenerator::flightActionsPackage() const
 {
-  if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_YAW))
-  {
+  if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_YAW)) {
     return "tobas_mr_actions";
   }
-  else
-  {
+  else {
     qt::qWarnBox(
-      settings_, "The functions for takeoff, landing, and autonomous movement "
-                 "corresponding to the selected controller have not been implemented yet.");
+      settings_,
+      "The functions for takeoff, landing, and autonomous movement "
+      "corresponding to the selected controller have not been implemented yet.");
     return "tobas_dummy_pkg";
   }
 }
@@ -128,8 +139,7 @@ tobas::Drone PackageGenerator::createDrone()
 
   // Joints
   const auto& joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->count(); ++i)
-  {
+  for (int i = 0; i < joint_config->numJoints(); ++i) {
     tobas::JointConfig joint;
     joint.name = joint_config->getJointName(i).toStdString();
     joint.role = joint_config->getRole(i);
@@ -138,10 +148,8 @@ tobas::Drone PackageGenerator::createDrone()
     joint.home_pos = joint_config->getHomePosition(i);
     drone.joints[joint.name] = joint;
 
-    switch (joint.hw_iface)
-    {
-      case tobas::hw_iface_t::PWM:
-      {
+    switch (joint.hw_iface) {
+      case tobas::hw_iface_t::PWM: {
         tobas::PwmConfig pwm;
         pwm.channel = joint_config->getPwmChannel(i);
         pwm.name = joint.name;
@@ -150,27 +158,117 @@ tobas::Drone PackageGenerator::createDrone()
         pwm.value_range.lower = joint_config->getPwmMinAngle(i);
         pwm.value_range.upper = joint_config->getPwmMaxAngle(i);
         pwm.reverse = joint_config->getPwmReverse(i);
-        drone.pwms[joint.name] = pwm;
+        TOBAS_CHECK(drone.pwms.insert({ joint.name, pwm }).second);
         break;
       }
-      case tobas::hw_iface_t::OTHER:
-      {
+      case tobas::hw_iface_t::OTHER: {
         break;
       }
-      default:
-      {
+      default: {
         throw;
       }
     }
   }
 
   // Propulsion System
-  // TODO: 電動とICEで場合分け
-  drone.prop = createElectricPropulsionSystem();
+  switch (settings_->propulsion_system->type()) {
+    case tobas::propulsion_system_t::ELECTRIC: {
+      const auto eprop_widget =
+        qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(settings_->propulsion_system->selected());
+      const auto eprop = make_shared<tobas::ElectricPropulsionSystemConfig>();
+
+      // Battery
+      const auto battery_widget = eprop_widget->battery;
+      eprop->battery.nominal_voltage = battery_widget->nominalVoltage();
+      eprop->battery.max_voltage = battery_widget->maxVoltage();
+      eprop->battery.sag_voltage = battery_widget->sagVoltage();
+      eprop->battery.max_current = battery_widget->maxCurrent();
+
+      // Rotors
+      const auto units_widget = eprop_widget->units->selected();
+      for (int i = 0; i < eprop_widget->numUnits(); ++i) {
+        const auto link_name = eprop_widget->linkName(i).toStdString();
+        const auto unit_widget = units_widget->widget(i);
+
+        const auto rotor = make_shared<tobas::ElectricRotorConfig>();
+        rotor->link_name = link_name;
+        rotor->direction = unit_widget->general()->direction();
+        rotor->axis = robot_.rotorAxisType(link_name);
+        rotor->moment_const = unit_widget->aerodynamics()->momentConst();
+        rotor->tilt_joint_name = unit_widget->general()->tiltJointName().toStdString();
+        rotor->channel = unit_widget->general()->channel();
+        rotor->num_poles = unit_widget->motor()->numPoles();
+        rotor->kv = unit_widget->motor()->kv();
+        rotor->internal_resistance = unit_widget->motor()->internalResistance();
+        rotor->propeller_diameter = unit_widget->propeller()->diameter();
+        rotor->motor_const = unit_widget->aerodynamics()->motorConst();
+        TOBAS_CHECK(eprop->rotors.insert({ link_name, rotor }).second);
+      }
+
+      drone.prop = static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
+      break;
+    }
+    case tobas::propulsion_system_t::ICE: {
+      const auto iprop_widget =
+        qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(settings_->propulsion_system->selected());
+      const auto iprop = make_shared<tobas::ICEPropulsionSystemConfig>();
+
+      // Engine
+      const auto engine_widget = iprop_widget->engine;
+      iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
+      iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
+
+      // TODO: PWM以外のインターフェースに対応
+      tobas::PwmConfig engine_pwm;
+      engine_pwm.channel = engine_widget->hardwareIface()->pwmChannel();
+      engine_pwm.name = tobas::pwm::kEngineThrottleKey;
+      engine_pwm.period_range.lower = engine_widget->hardwareIface()->pwmPeriodZeroThrot();
+      engine_pwm.period_range.upper = engine_widget->hardwareIface()->pwmPeriodFullThrot();
+      engine_pwm.value_range.lower = tobas::kMinThrot;
+      engine_pwm.value_range.upper = tobas::kMaxThrot;
+      engine_pwm.reverse = false;
+      TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+
+      // Rotors
+      const auto units_widget = iprop_widget->units->selected();
+      for (int i = 0; i < iprop_widget->numUnits(); ++i) {
+        const auto link_name = iprop_widget->linkName(i).toStdString();
+        const auto unit_widget = units_widget->widget(i);
+
+        const auto rotor = make_shared<tobas::ICERotorConfig>();
+        rotor->link_name = link_name;
+        rotor->direction = unit_widget->general()->direction();
+        rotor->axis = robot_.rotorAxisType(link_name);
+        rotor->moment_const = unit_widget->aerodynamics()->momentConst();
+        rotor->tilt_joint_name = "";
+        rotor->gear_ratio = unit_widget->transmission()->gearRatio();
+        rotor->pitch_ref = unit_widget->propeller()->pitchAngleRef();
+        rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
+        rotor->motor_const = unit_widget->aerodynamics()->motorConst();
+        rotor->hw_iface = tobas::hw_iface_t::PWM;
+        TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
+
+        // TODO: PWM以外のインターフェースに対応
+        tobas::PwmConfig pitch_pwm;
+        pitch_pwm.channel = unit_widget->hardwareIface()->pwmChannel();
+        pitch_pwm.name = link_name;
+        pitch_pwm.period_range.lower = unit_widget->hardwareIface()->pwmPeriodMinPitch();
+        pitch_pwm.period_range.upper = unit_widget->hardwareIface()->pwmPeriodMaxPitch();
+        pitch_pwm.value_range = unit_widget->propeller()->pitchAngleLimit();
+        pitch_pwm.reverse = false;
+        TOBAS_CHECK(drone.pwms.insert({ link_name, pitch_pwm }).second);
+      }
+
+      drone.prop = static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
+      break;
+    }
+    default: {
+      throw;
+    }
+  }
 
   // Fixed Wing
-  if (settings_->fixed_wing->hasFixedWing())
-  {
+  if (settings_->fixed_wing->hasFixedWing()) {
     drone.fixed_wing = make_shared<tobas::FixedWingConfig>();
 
     // Vehicle
@@ -179,8 +277,7 @@ tobas::Drone PackageGenerator::createDrone()
     drone.fixed_wing->vehicle.wing_span = vehicle->wingSpan();
     drone.fixed_wing->vehicle.mac = vehicle->mac();
     drone.fixed_wing->vehicle.ac.data = vehicle->aerodynamicCenter();
-    drone.fixed_wing->vehicle.alpha_limit.lower = vehicle->alphaLimit().first;
-    drone.fixed_wing->vehicle.alpha_limit.upper = vehicle->alphaLimit().second;
+    drone.fixed_wing->vehicle.alpha_limit = vehicle->alphaLimit();
 
     // Aerodynamic Coefficients
     const auto aero_coefs = settings_->fixed_wing->aeroCoefs();
@@ -203,8 +300,7 @@ tobas::Drone PackageGenerator::createDrone()
 
     // Control Surfaces
     const auto css = settings_->fixed_wing->controlSurfaces()->selected();
-    for (int i = 0; i < css->count(); ++i)
-    {
+    for (int i = 0; i < css->numUnits(); ++i) {
       const auto link_name = css->linkName(i);
 
       tobas::ControlSurface cs;
@@ -221,102 +317,43 @@ tobas::Drone PackageGenerator::createDrone()
     }
   }
 
+  // RC Input
+  drone.num_sbus_channels = settings_->rc_input->numOfSbusChannels();
+
   return drone;
-}
-
-tobas::ElectricPropulsionSystemConfig::SharedPtr PackageGenerator::createElectricPropulsionSystem()
-{
-  const auto eprop = make_shared<tobas::ElectricPropulsionSystemConfig>();
-
-  // Battery
-  eprop->battery.nominal_voltage = settings_->battery->nominalVoltage();
-  eprop->battery.max_voltage = settings_->battery->maxVoltage();
-  eprop->battery.sag_voltage = settings_->battery->sagVoltage();
-  eprop->battery.max_current = settings_->battery->maxCurrent();
-
-  // Rotors
-  const auto propulsions = settings_->propulsion_system->selected();
-  for (int i = 0; i < propulsions->count(); ++i)
-  {
-    const auto link_name = propulsions->linkName(i).toStdString();
-    const auto prop_config = propulsions->widget(i);
-
-    const auto rotor = make_shared<tobas::ElectricRotorConfig>();
-
-    rotor->link_name = link_name;
-    rotor->direction = prop_config->general()->direction();
-    rotor->axis = robot_.rotorAxisType(link_name);
-    rotor->moment_const = prop_config->aerodynamics()->momentConst();
-    rotor->tilt_joint_name = prop_config->general()->tiltJointName().toStdString();
-
-    rotor->channel = prop_config->general()->channel();
-    rotor->num_poles = prop_config->motor()->numPoles();
-    rotor->kv = prop_config->motor()->kv();
-    rotor->internal_resistance = prop_config->motor()->internalResistance();
-    rotor->propeller_diameter = prop_config->propeller()->diameter();
-    rotor->motor_const = prop_config->aerodynamics()->motorConst();
-
-    eprop->rotors[link_name] = rotor;
-  }
-
-  return eprop;
-}
-
-tobas::ICEPropulsionSystemConfig::SharedPtr PackageGenerator::createICEPropulsionSystem()
-{
-  return make_shared<tobas::ICEPropulsionSystemConfig>();  // TODO
 }
 
 bool PackageGenerator::hasServoJoint() const
 {
   const auto& joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->count(); ++i)
-    if (tobas::isServoJoint(joint_config->getRole(i)))
+  for (int i = 0; i < joint_config->numJoints(); ++i) {
+    if (tobas::isServoJoint(joint_config->getRole(i))) {
       return true;
-  return false;
-}
-
-bool PackageGenerator::generateBackupFiles()
-{
-  const auto tbs_path = tbsPath();
-
-  // ディレクトリを作成
-  const auto backup_dir = common::getBackupPath(tbs_path);
-  fs::create_directory(backup_dir);
-
-  // 設定ファイル
-  const auto backup_data = settings_->dump();
-  if (!saveYamlNode(common::getSettingsPath(tbs_path), backup_data))
-    return false;
-
-  // オリジナルURDF
-  const auto doc = urdf::exportURDF(*robot_.urdf());
-  if (doc->SaveFile(common::getOriginalURDFPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS)
-  {
-    qt::qErrorBox(settings_, "Failed to save the original URDF.");
-    return false;
+    }
   }
-
-  return true;
+  return false;
 }
 
 bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 {
-  const auto meta_pkg_path = common::getTBSMetaPath(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto meta_pkg_path = common::getTBSMetaPath(tbs_path);
   fs::create_directory(meta_pkg_path);
 
   meta_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", meta_pkg_path);
   meta_env_->generate(tpl_data, "package.xml.tplxml", meta_pkg_path);
 
-  if (!createEmptyFile(meta_pkg_path / kDoNotEditThisPackage))
+  if (!createEmptyFile(meta_pkg_path / kDoNotEditThisPackage)) {
     return false;
+  }
 
   return true;
 }
 
 bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 {
-  const auto pkg_path = common::getTBSConfigPath(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto pkg_path = common::getTBSConfigPath(tbs_path);
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
@@ -344,42 +381,62 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
-  if (!createEmptyYaml(config_dir / "controller_dynamic.yaml", false))
+  if (!createEmptyYaml(common::getControllerDynamicParamsPath(tbs_path), false)) {
     return false;
-  if (!createEmptyYaml(config_dir / "observer_dynamic.yaml", false))
+  }
+  if (!createEmptyYaml(common::getObserverDynamicParamsPath(tbs_path), false)) {
     return false;
+  }
+  if (!createEmptyYaml(common::getRcTeleopDynamicParamsPath(tbs_path), false)) {
+    return false;
+  }
+  if (!createEmptyYaml(common::getImuPreprocessDynamicParamsPath(tbs_path), false)) {
+    return false;
+  }
 
   // その他
-  if (!createEmptyFile(pkg_path / kDoNotEditThisPackage))
+  if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
     return false;
-  if (!generateControllerManagerLaunch(launch_dir))
+  }
+  if (!generateControllerManagerLaunch(launch_dir)) {
     return false;
-  if (!generateJointControllerManagerConfig(config_dir))
+  }
+  if (!generateJointControllerManagerConfig(config_dir)) {
     return false;
-  if (!generateJointControllerConfigs(config_dir))
+  }
+  if (!generateJointControllerConfigs(config_dir)) {
     return false;
-  if (!generateDroneConfig(config_dir))
+  }
+  if (!generateDroneConfig(config_dir)) {
     return false;
-  if (!generateRCTeleopConfig(config_dir))
+  }
+  if (!generatePreArmCheckConfig(config_dir)) {
     return false;
-  if (!generatePreArmCheckConfig(config_dir))
+  }
+  if (!generateControllerStaticConfig(config_dir)) {
     return false;
-  if (!generateControllerStaticConfig(config_dir))
+  }
+  if (!generateObserverStaticConfig(config_dir)) {
     return false;
-  if (!generateObserverStaticConfig(config_dir))
+  }
+  if (!generateRcTeleopStaticConfig(config_dir)) {
     return false;
-  if (!generateURDF(mesh_dir))
+  }
+  if (!generateModifiedURDF(mesh_dir)) {
     return false;
+  }
 
   return true;
 }
 
 bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
-  const auto pkg_path = common::getTBSUserCppPath(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto pkg_path = common::getTBSUserCppPath(tbs_path);
+
+  // パッケージを作成
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
@@ -397,16 +454,18 @@ bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
   user_cpp_env_->generate(tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
 
   // その他
-  if (!createEmptyFile(pkg_path / kYouCanEditThisPackage))
+  if (!createEmptyFile(pkg_path / kYouCanEditThisPackage)) {
     return false;
+  }
 
   return true;
 }
 
 bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
 {
-  const auto pkg_path = common::getTBSUserPyPath(tbsPath());
-  const auto pkg_name = common::getTBSUserPyName(tbsPath());
+  const auto tbs_path = tbsPath();
+  const auto pkg_path = common::getTBSUserPyPath(tbs_path);
+  const auto pkg_name = common::getTBSUserPyName(tbs_path);
 
   // パッケージを作成
   fs::create_directory(pkg_path);
@@ -431,10 +490,40 @@ bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
   user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
 
   // その他
-  if (!createEmptyFile(pkg_path / kYouCanEditThisPackage))
+  if (!createEmptyFile(pkg_path / kYouCanEditThisPackage)) {
     return false;
-  if (!createEmptyFile(lib_dir / "__init__.py"))
+  }
+  if (!createEmptyFile(lib_dir / "__init__.py")) {
     return false;
+  }
+
+  return true;
+}
+
+bool PackageGenerator::generateBackupFiles()
+{
+  const auto tbs_path = tbsPath();
+
+  // ディレクトリを作成
+  const auto backup_dir = common::getBackupPath(tbs_path);
+  fs::create_directory(backup_dir);
+
+  // 設定ファイル
+  const auto backup_data = settings_->dump();
+  if (!saveYamlNode(common::getSettingsPath(tbs_path), backup_data)) {
+    return false;
+  }
+
+  // Save original URDF
+  const auto doc = urdf::exportURDF(*robot_.urdf());
+  const auto robot = doc->RootElement();
+  if (!replaceOriginalUrdfMeshFilePaths(robot)) {
+    return false;
+  }
+  if (doc->SaveFile(common::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(settings_, "Failed to save the original URDF.");
+    return false;
+  }
 
   return true;
 }
@@ -450,8 +539,7 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   doc->InsertFirstChild(launch);
 
   // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
-  if (hasServoJoint())
-  {
+  if (hasServoJoint()) {
     const auto config_pkg_name = common::getTBSConfigName(tbsPath());
     const auto config_dir = "$(find-pkg-share " + config_pkg_name + ")/config/";
 
@@ -459,27 +547,26 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
     const auto jsb_name = string(tobas::node::kJointStateBroadcaster);
     const auto jsb_param = config_dir + jsb_name + ".yaml";
     const auto jsb_args = jsb_name + " --param-file " + jsb_param;
-    const auto jsb_node = addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
-    addNodeParam(jsb_node, "use_sim_time", "true");
+    const auto jsb_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
+    xml::addNodeParam(jsb_node, "use_sim_time", "true");
 
     // コントローラごとにノードを立ち上げる
-    for (int i = 0; i < joint_config->count(); ++i)
-    {
-      if (!tobas::isServoJoint(joint_config->getRole(i)))
+    for (int i = 0; i < joint_config->numJoints(); ++i) {
+      if (!tobas::isServoJoint(joint_config->getRole(i))) {
         continue;
+      }
 
       const auto joint_name = joint_config->getJointName(i).toStdString();
       const auto ctrl_name = joint_name + "_controller";
       const auto ctrl_param = config_dir + ctrl_name + ".yaml";
       const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
-      const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
-      addNodeParam(ctrl_node, "use_sim_time", "true");
+      const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
+      xml::addNodeParam(ctrl_node, "use_sim_time", "true");
     }
   }
 
   // XMLを保存
-  if (doc->SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS)
-  {
+  if (doc->SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
     return false;
   }
@@ -496,10 +583,10 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
 
   // Each joint controllers
   const auto joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->count(); ++i)
-  {
-    if (!tobas::isServoJoint(joint_config->getRole(i)))
+  for (int i = 0; i < joint_config->numJoints(); ++i) {
+    if (!tobas::isServoJoint(joint_config->getRole(i))) {
       continue;
+    }
 
     const auto jnt_name = joint_config->getJointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
@@ -511,8 +598,9 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
   root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
 
   // Save data
-  if (!saveYamlNode(config_dir / "joint_controller_manager.yaml", root_node))
+  if (!saveYamlNode(config_dir / "joint_controller_manager.yaml", root_node)) {
     return false;
+  }
 
   return true;
 }
@@ -521,10 +609,10 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
 {
   const auto joint_config = settings_->joint_config;
 
-  for (int i = 0; i < joint_config->count(); ++i)
-  {
-    if (!tobas::isServoJoint(joint_config->getRole(i)))
+  for (int i = 0; i < joint_config->numJoints(); ++i) {
+    if (!tobas::isServoJoint(joint_config->getRole(i))) {
       continue;
+    }
 
     const auto jnt_name = joint_config->getJointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
@@ -538,8 +626,9 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
     root_node["/**"][ctrl_name][kROSParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
 
     // Save data
-    if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node))
+    if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
       return false;
+    }
   }
 
   return true;
@@ -549,25 +638,10 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
 {
   const auto drone = createDrone();
 
-  if (!drone.save(config_dir / "drone.tbsdrn"))
-  {
+  if (!drone.save(config_dir / "drone.tbsdrn")) {
     qt::qErrorBox(settings_, "Failed to save drone configuration.");
     return false;
   }
-
-  return true;
-}
-
-bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
-{
-  // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
-  YAML::Node node(YAML::NodeType::Map);
-  node["acrobat_mode"] = settings_->controller->acrobatModeCommand();
-  node["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
-  node["loiter_mode"] = settings_->controller->loiterModeCommand();
-
-  if (!saveYamlNode(config_dir / "rc_teleop.yaml", node))
-    return false;
 
   return true;
 }
@@ -586,8 +660,9 @@ bool PackageGenerator::generatePreArmCheckConfig(const filesystem::path& config_
   node["check_attitude_accuracy"] = settings_->pre_arm_check->checkAttitudeAccuracy();
   node["check_heading_accuracy"] = settings_->pre_arm_check->checkHeadingAccuracy();
 
-  if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node))
+  if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node)) {
     return false;
+  }
 
   return true;
 }
@@ -597,8 +672,9 @@ bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir
   const auto node = settings_->controller->staticParams();
   TOBAS_CHECK(node.IsMap());
 
-  if (!saveYamlNode(config_dir / "controller_static.yaml", node))
+  if (!saveYamlNode(config_dir / "controller_static.yaml", node)) {
     return false;
+  }
 
   return true;
 }
@@ -608,37 +684,47 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   const auto node = settings_->observer->staticParams();
   TOBAS_CHECK(node.IsMap());
 
-  if (!saveYamlNode(config_dir / "observer_static.yaml", node))
+  if (!saveYamlNode(config_dir / "observer_static.yaml", node)) {
     return false;
+  }
 
   return true;
 }
 
-bool PackageGenerator::generateURDF(const fs::path& mesh_dir)
+bool PackageGenerator::generateRcTeleopStaticConfig(const fs::path& config_dir)
 {
-  // Export the original URDF
-  // コメントやGazeboプラグインなどの不確定要素を排するため，テキストそのままではなく一度URDFオブジェクトを介してエクスポートする．
-  const auto doc = urdf::exportURDF(*robot_.urdf());
+  // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
+  YAML::Node node(YAML::NodeType::Map);
+  node["acrobat_mode"] = settings_->controller->acrobatModeCommand();
+  node["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
+  node["loiter_mode"] = settings_->controller->loiterModeCommand();
 
-  // Get robot element
-  const auto robot = doc->RootElement();
-  if (strcmp(robot->Name(), "robot") != 0)
-  {
-    qt::qErrorBox(settings_, "Robot description is invalid.");
+  if (!saveYamlNode(config_dir / "rc_teleop_static.yaml", node)) {
     return false;
   }
 
+  return true;
+}
+
+bool PackageGenerator::generateModifiedURDF(const fs::path& mesh_dir)
+{
+  // Export the original URDF
+  const auto doc = urdf::exportURDF(*robot_.urdf());
+  const auto robot = doc->RootElement();
+
   // Modify robot
-  if (!removePropellerJointLimits(robot))
+  if (!resolveModifiedUrdfMeshFilePaths(robot, mesh_dir)) {
     return false;
-  if (!resolveMeshFiles(robot, mesh_dir))
+  }
+  if (!removePropellerJointLimits(robot)) {
     return false;
-  if (!addXMLElements(robot))
+  }
+  if (!addXMLElements(robot)) {
     return false;
+  }
 
   // Save modified URDF
-  if (doc->SaveFile(common::getModifiedURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
-  {
+  if (doc->SaveFile(common::getModifiedURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the modified URDF.");
     return false;
   }
@@ -648,8 +734,7 @@ bool PackageGenerator::generateURDF(const fs::path& mesh_dir)
 
 bool PackageGenerator::createEmptyFile(const fs::path& file_path)
 {
-  if (!path::createFilePath(file_path))
-  {
+  if (!path::createFilePath(file_path)) {
     qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\".");
     return false;
   }
@@ -659,21 +744,114 @@ bool PackageGenerator::createEmptyFile(const fs::path& file_path)
 
 bool PackageGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite)
 {
-  if (!overwrite && fs::is_regular_file(file_path))
+  if (!overwrite && fs::is_regular_file(file_path)) {
     return true;
+  }
 
-  if (!saveYamlNode(file_path, YAML::Node(YAML::NodeType::Map)))
+  if (!saveYamlNode(file_path, YAML::Node(YAML::NodeType::Map))) {
     return false;
+  }
 
   return true;
 }
 
 bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node)
 {
-  if (!yaml::save(path, node))
-  {
+  if (!yaml::save(path, node)) {
     qt::qErrorBox(settings_, "Failed to save \"" + QString::fromStdString(path) + "\".");
     return false;
+  }
+
+  return true;
+}
+
+bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& mesh_dir)
+{
+  if (strcmp(elem->Name(), "mesh") == 0) {
+    const auto file_name = elem->Attribute("filename");
+    if (!file_name) {
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      return false;
+    }
+
+    const auto src_path = ros2::resolveURI(file_name);
+    if (!fs::exists(src_path)) {
+      qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
+      return false;
+    }
+
+    // 必要に応じてメッシュファイルをTobasパッケージ以下にコピー
+    const auto base_name = src_path.filename();
+    const auto dst_path = mesh_dir / base_name;
+    if (fs::exists(dst_path)) {
+      // dst_pathが存在するがsrc_pathと内容が異なる場合は，fs::copy_fileでは上書きされないため一度削除した上でコピーする．
+      if (!fs::equivalent(src_path, dst_path)) {
+        if (!fs::remove(dst_path)) {
+          qt::qErrorBox(settings_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
+          return false;
+        }
+
+        if (!fs::copy_file(src_path, dst_path)) {
+          qt::qErrorBox(
+            settings_,
+            "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
+          return false;
+        }
+      }
+    }
+    else {
+      // dst_pathが存在しない場合は，ただコピーすればよい．
+      if (!fs::copy_file(src_path, dst_path)) {
+        qt::qErrorBox(
+          settings_,
+          "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
+        return false;
+      }
+    }
+
+    // メッシュファイルへのパスを置換
+    // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
+    // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
+    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+    const auto new_file_name = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
+    elem->SetAttribute("filename", new_file_name.c_str());
+  }
+
+  // 再帰的に子要素もチェック
+  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
+    if (!resolveModifiedUrdfMeshFilePaths(child, mesh_dir)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
+{
+  if (strcmp(elem->Name(), "mesh") == 0) {
+    const auto file_name = elem->Attribute("filename");
+    if (!file_name) {
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      return false;
+    }
+
+    const auto src_path = ros2::resolveURI(file_name);
+    const auto base_name = src_path.filename();
+    const auto config_pkg_path = common::getTBSConfigPath(tbsPath());
+
+    // Tobasパッケージがビルドされてなくても読み込めるようにconfigパッケージ内の絶対パスに変更
+    // TODO: 可搬性を高めるために相対パスで保存する
+    const auto new_file_path = config_pkg_path / "meshes" / base_name;
+    const auto new_file_name = "file://" + new_file_path.string();
+    elem->SetAttribute("filename", new_file_name.c_str());
+  }
+
+  // 再帰的に子要素もチェック
+  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
+    if (!replaceOriginalUrdfMeshFilePaths(child)) {
+      return false;
+    }
   }
 
   return true;
@@ -682,30 +860,23 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
 bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 {
   set<string> prop_jnt_names;
-  const auto propulsions = settings_->propulsion_system->selected();
-  for (int i = 0; i < propulsions->count(); ++i)
-  {
-    const auto link_name = propulsions->linkName(i).toStdString();
+  const auto& prop = settings_->propulsion_system;
+  for (int i = 0; i < prop->numUnits(); ++i) {
+    const auto link_name = prop->linkName(i).toStdString();
     const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
     prop_jnt_names.insert(jnt_name);
   }
 
-  for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement())
-  {
-    if (strcmp(child->Name(), "joint") == 0)
-    {
+  for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
+    if (strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
-      if (!jnt_name)
-      {
+      if (!jnt_name) {
         qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
         return false;
       }
-      if (prop_jnt_names.contains(jnt_name))
-      {
-        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement())
-        {
-          if (strcmp(gchild->Name(), "limit") == 0)
-          {
+      if (prop_jnt_names.contains(jnt_name)) {
+        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {
+          if (strcmp(gchild->Name(), "limit") == 0) {
             child->DeleteChild(gchild);
             break;
           }
@@ -717,71 +888,13 @@ bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
   return true;
 }
 
-bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::path& mesh_dir)
-{
-  if (strcmp(elem->Name(), "mesh") == 0)
-  {
-    const auto file_name = elem->Attribute("filename");
-    if (!file_name)
-    {
-      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
-      return false;
-    }
-
-    const auto src_path = ros2::resolveURI(file_name);
-    if (!fs::exists(src_path))
-    {
-      qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
-      return false;
-    }
-
-    const auto base_name = src_path.filename();
-    const auto dst_path = mesh_dir / base_name;
-    if (src_path != dst_path)
-    {
-      if (fs::exists(dst_path))
-      {
-        if (!fs::remove(dst_path))
-        {
-          qt::qErrorBox(settings_, QString::fromStdString(dst_path) + " already exists, but failed to overwrite it.");
-          return false;
-        }
-      }
-
-      // メッシュファイルをTobasパッケージ以下にコピー
-      if (!fs::copy_file(src_path, dst_path))
-      {
-        qt::qErrorBox(
-          settings_,
-          "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
-        return false;
-      }
-
-      // メッシュファイルへのパスを置換
-      // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
-      // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
-      const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-      const auto new_file_name = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
-      elem->SetAttribute("filename", new_file_name.c_str());
-    }
-  }
-
-  // 再帰的に子要素もチェック
-  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement())
-    if (!resolveMeshFiles(child, mesh_dir))
-      return false;
-
-  return true;
-}
-
 bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 {
   const auto& ns = robot_.robotName();
   const auto& root_name = robot_.tree().getRootName();
   const auto config_pkg_name = common::getTBSConfigName(tbsPath());
 
-  const auto& batt = settings_->battery;
-  const auto& propulsions = settings_->propulsion_system->selected();
+  const auto& prop = settings_->propulsion_system;
   const auto& imu = settings_->imu;
   const auto& mag = settings_->magnetometer;
   const auto& baro = settings_->barometer;
@@ -792,76 +905,174 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // Get rotor channels
   vector<string> rotor_link_names;
-  for (const auto& [link_name, _] : drone.prop->rotors)
+  for (const auto& [link_name, _] : drone.prop->rotors) {
     rotor_link_names.push_back(link_name);
+  }
 
   // XML namespace
   robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
 
-  // Battery plugin
-  constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
-  addBatteryPlugin(
-    robot, ns, kBatterySamplingRate, batt->maxVoltage(), batt->sagVoltage(), batt->maxCurrent(), batt->capacity(),
-    batt->internalRegistance(), rotor_link_names);
-
   // IMU plugin
-  addIMUPlugin(
-    robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroOffsetNorm(),
-    imu->gyroRandomWalk(), imu->gyroBiasCorrTime(), imu->accNoiseDensity(), imu->accOffsetNorm(), imu->accRandomWalk(),
-    imu->accBiasCorrTime(), rotor_link_names);
+  xml::addIMUPlugin(
+    robot,
+    ns,
+    root_name,
+    imu->updateRate(),
+    imu->offset(),
+    imu->gyroNoiseDensity(),
+    imu->gyroOffsetNorm(),
+    imu->gyroRandomWalk(),
+    imu->gyroBiasCorrTime(),
+    imu->accNoiseDensity(),
+    imu->accOffsetNorm(),
+    imu->accRandomWalk(),
+    imu->accBiasCorrTime(),
+    rotor_link_names);
 
   // Magnetometer plugin
-  addMagnetometerPlugin(
-    robot, ns, root_name, mag->updateRate(), mag->offset(), sim->latitudeZero(), sim->longitudeZero(),
-    sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasNorm());
+  xml::addMagnetometerPlugin(
+    robot,
+    ns,
+    root_name,
+    mag->updateRate(),
+    mag->offset(),
+    sim->latitudeZero(),
+    sim->longitudeZero(),
+    sim->altitudeZero(),
+    mag->noiseStddev(),
+    mag->hardBiasNorm());
 
   // Barometer plugin
-  addBarometerPlugin(
+  xml::addBarometerPlugin(
     robot, ns, root_name, baro->updateRate(), baro->offset(), sim->altitudeZero(), baro->pressureVariance());
 
   // GNSS plugin
-  addGNSSPlugin(
-    robot, ns, root_name, gnss->updateRate(), gnss->offset(), gnss->delay(), gnss->positionCorrectionTime(),
-    gnss->horizontalPositionAccuracy(), gnss->verticalPositionAccuracy(), gnss->horizontalVelocityStddev(),
-    gnss->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
+  xml::addGNSSPlugin(
+    robot,
+    ns,
+    root_name,
+    gnss->updateRate(),
+    gnss->offset(),
+    gnss->delay(),
+    gnss->positionCorrectionTime(),
+    gnss->horizontalPositionAccuracy(),
+    gnss->verticalPositionAccuracy(),
+    gnss->horizontalVelocityStddev(),
+    gnss->verticalVelocityStddev(),
+    sim->latitudeZero(),
+    sim->longitudeZero(),
+    sim->altitudeZero());
 
-  // Rotor plugins
-  for (int i = 0; i < propulsions->count(); ++i)
-  {
-    const auto link_name = propulsions->linkName(i).toStdString();
+  // Propulsion system plugins
+  switch (drone.prop->type()) {
+    case tobas::propulsion_system_t::ELECTRIC: {
+      const auto eprop = qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
+      const auto battery = eprop->battery;
+      const auto units = eprop->units->selected();
 
-    const auto propulsion = propulsions->widget(i);
-    const auto general = propulsion->general();
-    const auto esc = propulsion->esc();
-    const auto motor = propulsion->motor();
-    const auto propeller = propulsion->propeller();
-    const auto aero = propulsion->aerodynamics();
+      // Battery plugin
+      constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
+      xml::addBatteryPlugin(
+        robot,
+        ns,
+        kBatterySamplingRate,
+        battery->maxVoltage(),
+        battery->sagVoltage(),
+        battery->maxCurrent(),
+        battery->capacity(),
+        battery->internalRegistance(),
+        rotor_link_names);
 
-    addElectricPropulsionSystemPlugin(
-      robot, ns, link_name, motor->kv(), motor->internalResistance(), propeller->numBlade(), aero->motorConst(),
-      aero->momentConst(), aero->rotorDragCoef(), general->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
+      // Rotor plugins
+      for (int i = 0; i < units->numUnits(); ++i) {
+        const auto link_name = eprop->linkName(i).toStdString();
+
+        const auto unit = units->widget(i);
+        const auto general = unit->general();
+        const auto esc = unit->esc();
+        const auto motor = unit->motor();
+        const auto propeller = unit->propeller();
+        const auto aero = unit->aerodynamics();
+
+        xml::addElectricPropulsionSystemPlugin(
+          robot,
+          ns,
+          link_name,
+          motor->kv(),
+          motor->internalResistance(),
+          propeller->numBlade(),
+          aero->motorConst(),
+          aero->momentConst(),
+          aero->dragConst(),
+          general->direction(),
+          esc->maxCurrent(),
+          sim->maxModelErrorRate());
+      }
+
+      break;
+    }
+    case tobas::propulsion_system_t::ICE: {
+      const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(prop->selected());
+      const auto engine = iprop->engine;
+      const auto units = iprop->units->selected();
+
+      xml::EngineParam engine_param;
+      engine_param.engine_const = engine->dynamics()->engineConstant();
+      engine_param.time_const_up = engine->response()->timeConstUp();
+      engine_param.time_const_down = engine->response()->timeConstDown();
+
+      std::vector<xml::ICERotorParam> rotor_params;
+      for (int i = 0; i < units->numUnits(); ++i) {
+        const auto unit = units->widget(i);
+
+        xml::ICERotorParam rotor_param;
+        rotor_param.link_name = iprop->linkName(i).toStdString();
+        rotor_param.direction = unit->general()->direction();
+        rotor_param.gear_ratio = unit->transmission()->gearRatio();
+        rotor_param.num_blades = unit->propeller()->numBlade();
+        rotor_param.pitch_angle_limit = unit->propeller()->pitchAngleLimit();
+        rotor_param.max_pitch_angle_rate = unit->propeller()->maxPitchAngleRate();
+        rotor_param.motor_const = unit->aerodynamics()->motorConst();
+        rotor_param.moment_const = unit->aerodynamics()->momentConst();
+        rotor_param.drag_const = unit->aerodynamics()->dragConst();
+
+        rotor_params.push_back(rotor_param);
+      }
+
+      xml::addICEPropulsionSystemPlugin(robot, ns, engine_param, rotor_params);
+
+      break;
+    }
+    default: {
+      throw;
+    }
   }
 
   // Fixed wing plugin
-  if (drone.fixed_wing)
-    addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
+  if (drone.fixed_wing) {
+    xml::addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
+  }
 
   // Wind plugin
-  addGazeboWindPlugin(robot, ns, root_name);
+  xml::addGazeboWindPlugin(robot, ns, root_name);
 
   // Ground truth state plugin
-  addGazeboGroundTruthStatePlugin(robot, ns, root_name);
+  xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);
+
+  // LookAt position plugin
+  xml::addGazeboLookAtPositionPlugin(robot, ns, root_name);
 
   // Gazebo ROS2 control system
-  addGazeboROS2SimSystem(robot, drone.joints);
+  xml::addGazeboROS2SimSystem(robot, drone.joints);
 
   // Gazebo ROS2 control plugin
   // XXX: This must be defined after GazeboSimSystem
-  if (hasServoJoint())
-    addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
+  if (hasServoJoint()) {
+    xml::addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
+  }
 
   // Base static joint for debug
-  addBaseStaticJoint(robot, robot_.tree().getRootName());
+  xml::addBaseStaticJoint(robot, robot_.tree().getRootName());
 
   return true;
 }

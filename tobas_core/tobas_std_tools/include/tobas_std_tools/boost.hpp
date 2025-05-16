@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+
 #include <boost/array.hpp>
 
 namespace tobas_std
@@ -11,8 +12,7 @@ T average(const boost::array<T, N>& arr, const boost::array<U, N>& weights)
 {
   T num = 0;
   U den = 0;
-  for (size_t i = 0; i < arr.size(); ++i)
-  {
+  for (size_t i = 0; i < arr.size(); ++i) {
     num += arr[i] * weights[i];
     den += weights[i];
   }
@@ -63,8 +63,9 @@ template <typename After, typename Before, size_t N>
 boost::array<After, N> cast(const boost::array<Before, N>& arr)
 {
   boost::array<After, N> res;
-  for (size_t i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i) {
     res[i] = static_cast<After>(arr[i]);
+  }
   return res;
 }
 
@@ -72,8 +73,9 @@ template <typename T, size_t N>
 boost::array<T, N> operator*(const boost::array<T, N>& lhs, const T& rhs)
 {
   boost::array<T, N> res;
-  for (size_t i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i) {
     res[i] = lhs[i] * rhs;
+  }
   return res;
 }
 
@@ -89,8 +91,9 @@ boost::array<T, N> operator/(const boost::array<T, N>& lhs, const T& rhs)
   assert(rhs != 0);
 
   boost::array<T, N> res;
-  for (size_t i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i) {
     res[i] = lhs[i] / rhs;
+  }
   return res;
 }
 
@@ -98,8 +101,7 @@ template <typename T, size_t N>
 boost::array<T, N> operator/(const T& lhs, const boost::array<T, N>& rhs)
 {
   boost::array<T, N> res;
-  for (size_t i = 0; i < N; ++i)
-  {
+  for (size_t i = 0; i < N; ++i) {
     assert(rhs[i] != 0);
     res[i] = lhs / rhs[i];
   }
@@ -110,8 +112,9 @@ template <typename T, size_t N>
 boost::array<T, N> operator+(const boost::array<T, N>& lhs, const boost::array<T, N>& rhs)
 {
   boost::array<T, N> res;
-  for (size_t i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i) {
     res[i] = lhs[i] + rhs[i];
+  }
   return res;
 }
 }  // namespace tobas_std

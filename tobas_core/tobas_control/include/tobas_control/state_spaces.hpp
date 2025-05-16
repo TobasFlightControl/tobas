@@ -135,10 +135,7 @@ inline LinearStateSpace::LinearStateSpace(
 {
 }
 
-inline LinearStateSpace::LinearStateSpace(
-  const Eigen::MatrixXd& _A,
-  const Eigen::MatrixXd& _B,
-  const Eigen::MatrixXd& _C)
+inline LinearStateSpace::LinearStateSpace(const Eigen::MatrixXd& _A, const Eigen::MatrixXd& _B, const Eigen::MatrixXd& _C)
   : A(_A), B(_B), C(_C)
 {
   assert(A.cols() == stateSize());

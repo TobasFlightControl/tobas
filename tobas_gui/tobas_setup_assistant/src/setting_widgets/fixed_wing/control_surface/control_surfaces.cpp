@@ -1,11 +1,12 @@
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/control_surfaces.hpp"
+
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/font.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/control_surfaces.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {
@@ -34,7 +35,8 @@ ControlSurfacesWidget::ControlSurfacesWidget(const RobotInfo& robot)
   connect(
     add_remove_, &AddRemoveButtonsWidget::linkAdded, [this](const QString& link_name) { Q_EMIT linkAdded(link_name); });
   connect(
-    add_remove_, &AddRemoveButtonsWidget::linkRemoved,
+    add_remove_,
+    &AddRemoveButtonsWidget::linkRemoved,
     [this](const QString& link_name) { Q_EMIT linkRemoved(link_name); });
 }
 
@@ -53,8 +55,7 @@ YAML::Node ControlSurfacesWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int row = 0; row < selected_->rowCount(); ++row)
-  {
+  for (int row = 0; row < selected_->rowCount(); ++row) {
     const auto link_name = selected_->linkName(row);
     node[link_name.toStdString()] = selected_->dump(link_name);
   }
@@ -64,8 +65,7 @@ YAML::Node ControlSurfacesWidget::dump() const
 
 void ControlSurfacesWidget::load(const YAML::Node& node)
 {
-  for (const auto& pair : node)
-  {
+  for (const auto& pair : node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
 
@@ -88,7 +88,7 @@ const SelectedLinksWidget* ControlSurfacesWidget::selected() const
   return selected_;
 }
 
-int ControlSurfacesWidget::count() const
+int ControlSurfacesWidget::numUnits() const
 {
   return selected_->rowCount();
 }

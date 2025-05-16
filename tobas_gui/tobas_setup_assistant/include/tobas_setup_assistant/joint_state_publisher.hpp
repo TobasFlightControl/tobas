@@ -1,14 +1,16 @@
 #pragma once
 
 #include <random>
-#include <QVBoxLayout>
+
 #include <QTimer>
+#include <QVBoxLayout>
+
+#include <tobas_qt_tools/widgets/slider_display.hpp>
+#include <tobas_ros2_tools/definitions.hpp>
 
 #include <sensor_msgs/msg/joint_state.hpp>
-#include <moveit_msgs/msg/display_robot_state.hpp>
 
-#include <tobas_ros2_tools/definitions.hpp>
-#include <tobas_qt_tools/widgets/slider_display.hpp>
+#include <tobas_visualization_msgs/msg/display_robot_state.hpp>
 
 #include "./robot_info.hpp"
 
@@ -28,6 +30,8 @@ class JointStatePublisherWidget : public QWidget
 public:
   explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
+  void updateInternalDataStructures();
+
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
@@ -41,14 +45,13 @@ private:
   std::vector<qt::DoubleSliderDisplay*> sliders_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
-  ros2::PublisherPtr<moveit_msgs::msg::DisplayRobotState> drs_pub_;
+  ros2::PublisherPtr<tobas_visualization_msgs::msg::DisplayRobotState> drs_pub_;
 
   QTimer publish_timer_;
 
   void publish();
 
 private Q_SLOTS:
-  void onRobotLoaded();
   void onValueChanged(double value, const std::string& jnt_name);
   void onCenterButtonClicked();
   void onRandomButtonClicked();

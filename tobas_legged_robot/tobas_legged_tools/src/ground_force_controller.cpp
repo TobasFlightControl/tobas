@@ -1,9 +1,9 @@
+#include "tobas_legged_tools/ground_force_controller.hpp"
+
+#include <tobas_control/util.hpp>
+#include <tobas_eigen_tools/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_eigen_tools/core.hpp>
-#include <tobas_control/util.hpp>
-
-#include "../include/tobas_legged_tools/ground_force_controller.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -11,26 +11,29 @@ using namespace Eigen;
 namespace lr_tools
 {
 GroundForceController::GroundForceController(const kdl::Tree& tree, const vector<string>& foot_names)
-  : tree_(tree),
-    foot_names_(foot_names),
-    nc_(foot_names.size()),
-    inertia_solver_(tree),
-    bb_solver_(tree),
-    cont_(tree, foot_names),
-    c2d_(cont_.stateSize(), cont_.inputSize())
+  : tree_(tree)
+  , foot_names_(foot_names)
+  , nc_(foot_names.size())
+  , inertia_solver_(tree)
+  , bb_solver_(tree)
+  , cont_(tree, foot_names)
+  , c2d_(cont_.stateSize(), cont_.inputSize())
 {
   initializeMPC();
 }
 
 bool GroundForceController::updateInternalDataStructures()
 {
-  if (!inertia_solver_.updateInternalDataStructures())
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
-  if (!bb_solver_.updateInternalDataStructures())
+  }
+  if (!bb_solver_.updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!cont_.updateInternalDataStructures())
+  if (!cont_.updateInternalDataStructures()) {
     return false;
+  }
 
   initializeMPC();
 
@@ -99,8 +102,7 @@ bool GroundForceController::solve(
 
   // Update dynamics
   // ステップ0の連続時間ダイナミクスを後の予測で使うため，未来から逆順で処理する．
-  for (Index k = mpc_.prediction_steps - 1; k >= 0; --k)
-  {
+  for (Index k = mpc_.prediction_steps - 1; k >= 0; --k) {
     cont_.update(roll_pred[k], pitch_pred[k], q_pred[k], is_stand_pred[k]);
     mpc_.discrete_dynamics[k] = c2d_.convert(cont_, mpc_.time_step);
   }
@@ -113,8 +115,9 @@ bool GroundForceController::solve(
   mpc_.set_state << 0, 0, tar_z, 0, 0, tar_yawrate, tar_vx, tar_vy, 0;
 
   // Solve MPC
-  if (!mpc_.solve())
+  if (!mpc_.solve()) {
     return false;
+  }
 
   // Prediction
   const auto& u = mpc_.optimalControlInput();

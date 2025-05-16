@@ -8,6 +8,7 @@ namespace tobas_rc_teleop
 {
 class RateThrottleController : public BaseController
 {
+  using self = RateThrottleController;
   using super = BaseController;
 
 public:
@@ -18,7 +19,7 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node) override;
+  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
@@ -26,10 +27,17 @@ private:
   // rosparams
   double max_atti_rate_;  // [rad/s]
   double max_head_rate_;  // [rad/s]
+  double atti_expo_;
+  double head_expo_;
+  double throt_expo_;
 
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;
 
-  void getStaticRosParams(tobas::BaseNode* node);
+  bool maxAttitudeRateCb(const double& p);
+  bool maxHeadingRateCb(const double& p);
+  bool attitudeExpoCb(const long& p);
+  bool headingExpoCb(const long& p);
+  bool throttleExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

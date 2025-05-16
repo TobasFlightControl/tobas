@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_description)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
-  message("This package is skipped on Raspberry Pi.")
+  message(STATUS "This package is skipped on Raspberry Pi.")
   find_package(ament_cmake REQUIRED)
   ament_package()
   return()

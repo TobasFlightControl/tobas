@@ -1,17 +1,17 @@
-#include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
-#include <tobas_std_tools/vector.hpp>
-#include <tobas_std_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_std_tools/time.hpp>
+#include <tobas_std_tools/vector.hpp>
 
-#include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs/msg/rotor_speed_array.hpp>
-#include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_msgs/msg/arming.hpp>
+#include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
+#include <tobas_msgs/msg/pre_arm_check.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
 
 using namespace std;
 
@@ -82,8 +82,7 @@ void RotorControllerNode::publishArming()
 
 void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (!drone->isValid())
-  {
+  if (!drone->isValid()) {
     TOBAS_ERROR("Drone configuration is invalid.");
     return;
   }
@@ -93,29 +92,24 @@ void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg)
 {
-  if (!drone_)
-  {
+  if (!drone_) {
     TOBAS_WARN_THROTTLE(
       tobas::kTypicalWarnPeriod, "Command is ignored because drone configuration has not been received yet.");
     return;
   }
 
-  if (!is_armed_)
-  {
+  if (!is_armed_) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the rotors are disarmed.");
     return;
   }
 
-  if (tar_thrusts_msg->thrusts.size() != drone_->prop->numRotors())
-  {
+  if (tar_thrusts_msg->thrusts.size() != drone_->prop->numRotors()) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Thrust command size mismatch.");
     return;
   }
 
-  switch (drone_->prop->type())
-  {
-    case tobas::propulsion_system_t::ELECTRIC:
-    {
+  switch (drone_->prop->type()) {
+    case tobas::propulsion_system_t::ELECTRIC: {
       const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
       // Create target speeds message
@@ -123,8 +117,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       tar_speeds_msg->header = tar_thrusts_msg->header;
 
       // Convert target thrusts to target speeds
-      for (const auto& elem : tar_thrusts_msg->thrusts)
-      {
+      for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto& link_name = elem.link_name;
         const auto& tar_thrust = elem.thrust;
         const auto erotor = eprop->getRotor(link_name);
@@ -132,14 +125,16 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = link_name;
 
-        if (tar_thrust >= 0.)
-        {
+        if (tar_thrust >= 0.) {
           tar_speeds_msg->speeds.back().speed = erotor->speedFromThrust(tar_thrust);
         }
-        else
-        {
+        else {
           TOBAS_WARN_THROTTLE(
-            tobas::kTypicalWarnPeriod, "Negative thrust is commanded on rotor \"", link_name, "\": ", tar_thrust,
+            tobas::kTypicalWarnPeriod,
+            "Negative thrust is commanded on rotor \"",
+            link_name,
+            "\": ",
+            tar_thrust,
             " < 0 [N]");
           tar_speeds_msg->speeds.back().speed = 0.;
         }
@@ -154,46 +149,59 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
     {
       const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
 
-      // 合計トルクとその係数を求める
+      // エンジン軸にかかる合計トルクとその係数を求める
       double torque_sum = 0.;
-      double torque_coef_sum = 0.;
-      for (const auto& elem : tar_thrusts_msg->thrusts)
-      {
-        if (elem.thrust < 0.)
-        {
+      double K = 0.;
+      for (const auto& elem : tar_thrusts_msg->thrusts) {
+        auto tar_thrust = elem.thrust;
+
+        if (tar_thrust < 0.) {
           TOBAS_WARN_THROTTLE(
-            tobas::kTypicalWarnPeriod, "Negative thrust is commanded on rotor \"", elem.link_name, "\": ", elem.thrust,
+            tobas::kTypicalWarnPeriod,
+            "Negative thrust is commanded on rotor \"",
+            elem.link_name,
+            "\": ",
+            tar_thrust,
             " < 0 [N]");
-          continue;
+          tar_thrust = 0.;
         }
 
         const auto irotor = iprop->getRotor(elem.link_name);
-        torque_sum += irotor->moment_const * elem.thrust;
-        torque_coef_sum += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::sqr(irotor->gear_ratio);
+        torque_sum += irotor->moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
+        K += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::cube(irotor->gear_ratio);
       }
 
-      // エンジン回転数を求める
-      const auto engine_speed = sqrt(torque_sum / torque_coef_sum);
-
-      // コマンドを発行
+      // コマンドを作成
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header = tar_thrusts_msg->header;
-      if (engine_speed > 0.)
+
+      // エンジンスロットルとプロペラピッチ角を求める
+      if (torque_sum > 0.) {
+        const auto engine_speed = sqrt(torque_sum / K);
         ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
-      for (const auto& elem : tar_thrusts_msg->thrusts)
-      {
-        const auto irotor = iprop->getRotor(elem.link_name);
-        ice_cmd_msg->pitch_angles.emplace_back();
-        ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
-        if (engine_speed > 0.)
+        for (const auto& elem : tar_thrusts_msg->thrusts) {
+          const auto irotor = iprop->getRotor(elem.link_name);
+          ice_cmd_msg->pitch_angles.emplace_back();
+          ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
           ice_cmd_msg->pitch_angles.back().angle = irotor->pitchFromThrust(engine_speed, elem.thrust);
+        }
       }
+      else {
+        ice_cmd_msg->engine_throttle = 0.;
+        for (const auto& elem : tar_thrusts_msg->thrusts) {
+          const auto irotor = iprop->getRotor(elem.link_name);
+          ice_cmd_msg->pitch_angles.emplace_back();
+          ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
+          ice_cmd_msg->pitch_angles.back().angle = irotor->pitch_ref;
+        }
+      }
+
+      // コマンドを発行
       ice_cmd_pub_->publish(move(ice_cmd_msg));
 
       break;
     }
-    default:
-    {
+    default: {
       TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
       break;
     }
@@ -210,17 +218,14 @@ void RotorControllerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::Cons
 
 void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res)
 {
-  if (!is_armed_ && req->arming)
-  {
-    if (!prearm_check_)
-    {
+  if (!is_armed_ && req->arming) {
+    if (!prearm_check_) {
       res->success = false;
       res->message = "Pre-arm check status is not received yet.";
       return;
     }
 
-    if (!prearm_check_->ok)
-    {
+    if (!prearm_check_->ok) {
       res->success = false;
       res->message = "Pre-arm check failed.";
       return;
@@ -230,8 +235,7 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
     publishArming();
     auto_disarm_timer_->reset();
   }
-  else if (is_armed_ && !req->arming)
-  {
+  else if (is_armed_ && !req->arming) {
     is_armed_ = false;
     publishArming();
     auto_disarm_timer_->cancel();
@@ -247,7 +251,8 @@ void RotorControllerNode::autoDisarmTimerCb()
   auto_disarm_timer_->cancel();
 
   TOBAS_WARN(
-    "All rotors are automatically disarmed because ", tobas::kAutoDisarmTimeout,
+    "All rotors are automatically disarmed because ",
+    tobas::kAutoDisarmTimeout,
     " have elapsed since the last command.");
 }
 

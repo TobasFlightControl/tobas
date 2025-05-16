@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./chain_solver_i.hpp"
-#include "./frames.hpp"
 #include "./frame_vel.hpp"
+#include "./frames.hpp"
 #include "./jntarray.hpp"
 #include "./jntarray_vel.hpp"
 

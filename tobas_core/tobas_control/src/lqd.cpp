@@ -1,10 +1,12 @@
+#include "tobas_control/lqd.hpp"
+
 #include <iostream>
+
 #include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/core.hpp>
 
-#include "../include/tobas_control/lqd.hpp"
-#include "../include/tobas_control/care.hpp"
+#include "tobas_control/care.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -20,8 +22,9 @@ VectorXd LQD::solve(const double& dt, const bool& update_gain)
   assert(dt >= 0);
   checkProblemValidity();
 
-  if (update_gain)
+  if (update_gain) {
     updateGain();
+  }
 
   // スケーリング
   const VectorXd x_scaled = current_state.array() / state_scale.array();

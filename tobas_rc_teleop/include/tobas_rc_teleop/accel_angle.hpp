@@ -9,6 +9,7 @@ namespace tobas_rc_teleop
 {
 class AccelAngleController : public BaseController
 {
+  using self = AccelAngleController;
   using super = BaseController;
 
 public:
@@ -19,7 +20,7 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node) override;
+  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
@@ -33,14 +34,25 @@ private:
   double max_ver_acc_;    // [m/s]
   double max_attitude_;   // [rad]
   double max_head_rate_;  // [rad/s]
+  double hor_acc_expo_;
+  double ver_acc_expo_;
+  double atti_expo_;
+  double head_expo_;
 
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::Accel> accel_pub_;
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
 
-  void getStaticRosParams(tobas::BaseNode* node);
-
   void publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc);
   void publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle);
+
+  bool maxHorizontalAccelCb(const double& p);
+  bool maxVerticalAccelCb(const double& p);
+  bool maxAttitudeCb(const double& p);
+  bool maxHeadingRateCb(const double& p);
+  bool horizontalAccelExpoCb(const long& p);
+  bool verticalAccelExpoCb(const long& p);
+  bool attitudeExpoCb(const long& p);
+  bool headingExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

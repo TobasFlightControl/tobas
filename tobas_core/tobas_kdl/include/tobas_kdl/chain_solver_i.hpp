@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./solver_i.hpp"
 #include "./chain.hpp"
+#include "./solver_i.hpp"
 
 namespace kdl
 {

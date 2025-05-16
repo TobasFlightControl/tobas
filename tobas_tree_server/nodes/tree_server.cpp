@@ -1,10 +1,11 @@
+#include <tobas_constants/constants.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_std_tools/debug.hpp>
+
 #include <std_msgs/msg/string.hpp>
 
-#include <tobas_std_tools/debug.hpp>
-#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
 
 using namespace std;
 
@@ -36,7 +37,7 @@ void TreeServerNode::initializeTimerCb()
   tree_pub_ = createPublisher<kdl::Tree>(tobas::kKdlTreeTopic, true, true);
   description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this, true, true);
 
-  initialize_timer_.reset();
+  initialize_timer_->cancel();
 }
 
 void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg)
@@ -44,8 +45,7 @@ void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& 
   TOBAS_INFO("New robot description is received.");
 
   auto tree = std::make_unique<kdl::Tree>();
-  if (!kdl::treeFromString(msg->data, *tree))
-  {
+  if (!kdl::treeFromString(msg->data, *tree)) {
     TOBAS_ERROR("Failed to parse robot description.");
     return;
   }

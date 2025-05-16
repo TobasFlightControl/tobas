@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/propulsion_system/rotor.hpp>
+
 #include <tobas_drone_msgs/msg/rotor_config.hpp>
 
 template <>
@@ -34,6 +35,6 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
 namespace tobas_drone_msgs
 {
 using RotorConfigAdapter = rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfig);

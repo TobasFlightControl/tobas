@@ -52,7 +52,7 @@ public:
   void load(const QString& link_name, const YAML::Node& node);
 
   /* 登録されている制御面の個数． */
-  int count() const;
+  int numUnits() const;
 
   /* 現在選択されているリンク名を返す．存在しない場合は空文字を返す． */
   QString selected() const;
@@ -82,9 +82,6 @@ public:
   void rollCoef(int row, double value);
   void pitchCoef(int row, double value);
   void yawCoef(int row, double value);
-
-  QStringList linkNames() const;
-  QStringList jointNames() const;
 
 private:
   const RobotInfo& robot_;

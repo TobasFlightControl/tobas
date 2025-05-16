@@ -1,6 +1,7 @@
+#include "tobas_pose_pid/position_pdd2.hpp"
+
 #include <iostream>
 
-#include "../include/tobas_pose_pid/position_pdd2.hpp"
 #include "./util.hpp"
 
 using namespace std;
@@ -36,11 +37,11 @@ kdl::Vector PositionPDD2::update(
 
 bool PositionPDD2::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Natural frequency must be positive." << endl;
     return false;
   }
@@ -53,11 +54,11 @@ bool PositionPDD2::setNaturalFreq(int idx, double value)
 
 bool PositionPDD2::setInertiaRatio(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Inertia ratio must be positive." << endl;
     return false;
   }
@@ -70,11 +71,11 @@ bool PositionPDD2::setInertiaRatio(int idx, double value)
 
 bool PositionPDD2::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Damping ratio must be positive." << endl;
     return false;
   }
@@ -87,11 +88,11 @@ bool PositionPDD2::setDampingRatio(int idx, double value)
 
 bool PositionPDD2::setMaximumJerk(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value <= 0.)
-  {
+  if (value <= 0.) {
     cerr << "Maximum jerk must be positive." << endl;
     return false;
   }

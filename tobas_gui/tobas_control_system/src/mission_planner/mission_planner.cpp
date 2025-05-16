@@ -1,14 +1,15 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-
-#include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_std_tools/check.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/util.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/message.hpp>
-
 #include "tobas_control_system/mission_planner/mission_planner.hpp"
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/util.hpp>
+#include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace fs = std::filesystem;
 
@@ -128,24 +129,22 @@ void MissionPlannerWidget::setEditMode()
 
 void MissionPlannerWidget::listToCommands()
 {
-  if (command_list_->count() == 0)
+  if (command_list_->count() == 0) {
     return;
+  }
 
   // 選択されているアイテムを取得
   auto selected_item = command_list_->selectedItem();
 
   // 何も選択されていなければ強制的に最初の要素を選択
-  if (!selected_item)
-  {
+  if (!selected_item) {
     command_list_->setCurrentRow(0);
     selected_item = command_list_->item(0);
   }
 
   // 選択アイテムに対応するコマンドを表示
-  for (const auto& [item, command] : pairs_)
-  {
-    if (item == selected_item)
-    {
+  for (const auto& [item, command] : pairs_) {
+    if (item == selected_item) {
       commands_->setCurrentWidget(command);
       return;
     }
@@ -162,17 +161,14 @@ void MissionPlannerWidget::commandsToMap()
   QGeoCoordinate last_coord;
   const auto selected_item = command_list_->selectedItem();
 
-  for (int i = 0; i < command_list_->count(); ++i)
-  {
+  for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
     const auto cmd_type = textToCommand(item->text().toUtf8());
     const auto cmd_widget = getCommandWidget(item);
 
-    switch (cmd_type)
-    {
-      case command_t::WAYPOINT:
-      {
-        const auto waypoint = qobject_cast<WaypointWidget*>(cmd_widget);
+    switch (cmd_type) {
+      case command_t::WAYPOINT: {
+        const auto waypoint = qt::qConstPointerCast<WaypointWidget>(cmd_widget);
         const auto latitude = waypoint->latitude();
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
@@ -180,10 +176,12 @@ void MissionPlannerWidget::commandsToMap()
         const auto point_color = item == selected_item ? "orange" : "cyan";
         map_->addWaypoint(index, coord, waypoint->acceptanceRadius(), point_color);
 
-        if (is_first_waypoint)
+        if (is_first_waypoint) {
           is_first_waypoint = false;
-        else
+        }
+        else {
           map_->addLine(last_coord.latitude(), last_coord.longitude(), latitude, longitude);
+        }
 
         ++index;
         last_coord.setLatitude(latitude);
@@ -191,23 +189,19 @@ void MissionPlannerWidget::commandsToMap()
 
         break;
       }
-      case command_t::TAKEOFF:
-      {
+      case command_t::TAKEOFF: {
         // TODO
         break;
       }
-      case command_t::LAND:
-      {
+      case command_t::LAND: {
         // TODO
         break;
       }
-      case command_t::RETURN_TO_HOME:
-      {
+      case command_t::RETURN_TO_HOME: {
         // TODO
         break;
       }
-      default:
-      {
+      default: {
         throw;
       }
     }
@@ -216,9 +210,11 @@ void MissionPlannerWidget::commandsToMap()
 
 BaseCommandWidget* MissionPlannerWidget::getCommandWidget(QListWidgetItem* tar_item)
 {
-  for (const auto& [item, command] : pairs_)
-    if (item == tar_item)
+  for (const auto& [item, command] : pairs_) {
+    if (item == tar_item) {
       return command;
+    }
+  }
 
   throw std::runtime_error("Command widget corresponding to the list item is not found.");
 }
@@ -226,8 +222,7 @@ BaseCommandWidget* MissionPlannerWidget::getCommandWidget(QListWidgetItem* tar_i
 QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandList()
 {
   QVector<BaseCommandData::SharedPtr> res;
-  for (int i = 0; i < command_list_->count(); ++i)
-  {
+  for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
     const auto cmd_widget = getCommandWidget(item);
     res.append(cmd_widget->data());
@@ -237,8 +232,9 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
 
 void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D)
+  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
     return;
+  }
 
   map_->setArrowPosition(gnss->latitude, gnss->longitude);
 }
@@ -270,15 +266,14 @@ void MissionPlannerWidget::onAddButtonClicked()
   AddCommandDialog dialog(this);
 
   const auto res = dialog.exec();
-  if (res != QDialog::Accepted)
+  if (res != QDialog::Accepted) {
     return;
+  }
 
   const auto cmd_type = dialog.selectedCommand();
   BaseCommandWidget* cmd_widget;
-  switch (cmd_type)
-  {
-    case command_t::WAYPOINT:
-    {
+  switch (cmd_type) {
+    case command_t::WAYPOINT: {
       const auto center = map_->getCenter();
       const auto waypoint = new WaypointWidget();
       waypoint->latitude(center.latitude());
@@ -286,23 +281,19 @@ void MissionPlannerWidget::onAddButtonClicked()
       cmd_widget = waypoint;
       break;
     }
-    case command_t::TAKEOFF:
-    {
+    case command_t::TAKEOFF: {
       cmd_widget = new TakeoffWidget();
       break;
     }
-    case command_t::LAND:
-    {
+    case command_t::LAND: {
       cmd_widget = new LandWidget();
       break;
     }
-    case command_t::RETURN_TO_HOME:
-    {
+    case command_t::RETURN_TO_HOME: {
       cmd_widget = new ReturnToHomeWidget();
       break;
     }
-    default:
-    {
+    default: {
       throw;
     }
   }
@@ -313,7 +304,8 @@ void MissionPlannerWidget::onAddButtonClicked()
   commands_->addWidget(cmd_widget);
   connect(cmd_widget, &BaseCommandWidget::updated, this, &self::onMissionUpdated);
   connect(
-    cmd_widget, &BaseCommandWidget::deleteButtonClicked,
+    cmd_widget,
+    &BaseCommandWidget::deleteButtonClicked,
     std::bind(&self::onDeleteButtonClicked, this, item, cmd_widget));
 
   pairs_.insert({ item, cmd_widget });
@@ -326,8 +318,9 @@ void MissionPlannerWidget::onClearButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onClearButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to clear all the commands?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Do you want to clear all the commands?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
   map_->clear();
   command_list_->clear();
@@ -339,20 +332,20 @@ void MissionPlannerWidget::onCacheButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCacheButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
   const auto dir_from = ros2::expandUser(kCacheDirOnline);
   const auto dir_to = ros2::expandUser(kCacheDirOffline);
 
-  if (!fs::is_directory(dir_to))
+  if (!fs::is_directory(dir_to)) {
     fs::create_directories(dir_to);
+  }
 
   // 全てのPNGファイルをコピー
-  for (const auto& entry : fs::directory_iterator(dir_from))
-  {
-    if (entry.path().extension() == ".png")
-    {
+  for (const auto& entry : fs::directory_iterator(dir_from)) {
+    if (entry.path().extension() == ".png") {
       const auto& file_from = entry.path();
       const auto file_to = dir_to / file_from.filename();
       fs::copy_file(file_from, file_to, fs::copy_options::overwrite_existing);
@@ -361,19 +354,23 @@ void MissionPlannerWidget::onCacheButtonClicked()
 
   // ディレクトリ内のPNGファイルを取得
   std::vector<fs::path> files;
-  for (const auto& entry : fs::directory_iterator(dir_to))
-    if (entry.path().extension() == ".png")
+  for (const auto& entry : fs::directory_iterator(dir_to)) {
+    if (entry.path().extension() == ".png") {
       files.push_back(entry.path());
+    }
+  }
 
   // PNGファイルを最終変更時刻が新しい順にソート
   std::sort(
-    files.begin(), files.end(),
+    files.begin(),
+    files.end(),
     [](const fs::path& a, const fs::path& b) { return fs::last_write_time(a) > fs::last_write_time(b); });
 
   // ファイルサイズを取得
   std::vector<uintmax_t> sizes;
-  for (const auto& file : files)
+  for (const auto& file : files) {
     sizes.push_back(fs::file_size(file));
+  }
 
   // ファイルサイズの累積和を計算
   std::vector<uintmax_t> sizes_cs(sizes.size());
@@ -384,9 +381,11 @@ void MissionPlannerWidget::onCacheButtonClicked()
   const auto last_alive_idx = std::distance(sizes_cs.begin(), it);
 
   // サイズがリミットを超えたファイルを削除
-  for (size_t i = last_alive_idx; i < files.size(); ++i)
-    if (!fs::remove(files[i]))
+  for (size_t i = last_alive_idx; i < files.size(); ++i) {
+    if (!fs::remove(files[i])) {
       RCLCPP_WARN_STREAM(node_->get_logger(), "Failed to remove " << files[i]);
+    }
+  }
 
   qt::qInfoBox(this, std::format("Map tiles are cached to {}.", kCacheDirOffline).c_str());
 }
@@ -395,12 +394,12 @@ void MissionPlannerWidget::onExecuteButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onExecuteButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to execute the mission?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Do you want to execute the mission?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
   // ミッションが設定されているかどうかを確認
-  if (command_list_->count() == 0)
-  {
+  if (command_list_->count() == 0) {
     qt::qWarnBox(this, "Mission is empty.");
     return;
   }
@@ -422,8 +421,9 @@ void MissionPlannerWidget::onCancelButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCancelButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to cancel the mission?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Do you want to cancel the mission?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
   // ミッションを停止
   mission_thread_.stop();
@@ -450,12 +450,10 @@ void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, B
   commands_->removeWidget(target_widget);
 
   bool found = false;
-  for (const auto& pair : pairs_)
-  {
+  for (const auto& pair : pairs_) {
     const auto& item = pair.first;
     const auto& widget = pair.second;
-    if (item == target_item && widget == target_widget)
-    {
+    if (item == target_item && widget == target_widget) {
       found = true;
       pairs_.erase(pair);
       break;
@@ -486,41 +484,42 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onWaypointMoved");
 
-  if (mission_thread_.isRunning())
-  {
+  if (mission_thread_.isRunning()) {
     qt::qWarnBox(this, "You cannot edit the mission while executing it.");
     commandsToMap();
     return;
   }
 
   int cur_idx = 0;
-  for (int i = 0; i < command_list_->count(); ++i)
-  {
+  for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
     const auto cmd_type = textToCommand(item->text().toUtf8());
-    if (cmd_type == command_t::WAYPOINT)
+    if (cmd_type == command_t::WAYPOINT) {
       ++cur_idx;
-    if (cur_idx == index)
-    {
-      const auto waypoint = qobject_cast<WaypointWidget*>(getCommandWidget(item));
+    }
+    if (cur_idx == index) {
+      const auto waypoint = qt::qPointerCast<WaypointWidget>(getCommandWidget(item));
       waypoint->latitude(latitude);
       waypoint->longitude(longitude);
       break;
     }
   }
 
-  if (cur_idx != index)
+  if (cur_idx != index) {
     throw std::runtime_error(std::format("Index {} is out of range.", index));
+  }
 }
 
 void MissionPlannerWidget::onMissionFinished(bool success, const QString& message)
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onMissionFinished");
 
-  if (success)
+  if (success) {
     qt::qInfoBox(this, "The mission is completed.");
-  else
+  }
+  else {
     qt::qErrorBox(this, message);
+  }
 
   setEditMode();
 }

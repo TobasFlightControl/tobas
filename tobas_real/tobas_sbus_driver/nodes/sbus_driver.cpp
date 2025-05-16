@@ -1,8 +1,9 @@
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
+
 #include <tobas_msgs/msg/sbus.hpp>
 
-#include <tobas_sbus_driver/sbus.hpp>
+#include "tobas_sbus_driver/sbus.hpp"
 
 using namespace std;
 
@@ -31,18 +32,18 @@ SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
 
   sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::kSbusTopic);
 
-  initialize_timer_ = createTimer(3s, &self::initialize, this);
+  initialize_timer_ = createWallTimer(3s, &self::initialize, this);
 }
 
 void SbusDriverNode::initialize()
 {
-  if (!sbus_.initialize(device_.c_str()))
-  {
+  if (!sbus_.initialize(device_.c_str())) {
     TOBAS_WARN("Failed to initialize S.BUS driver with device \"", device_, "\". Retrying...");
     return;
   }
 
-  initialize_timer_.reset();
+  initialize_timer_->cancel();
+
   sbus_.start();
 }
 

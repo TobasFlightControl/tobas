@@ -47,6 +47,6 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::AccelYaw, tobas_command_msgs::msg
 namespace tobas_command_msgs
 {
 using AccelYawAdapter = rclcpp::TypeAdapter<tobas_command_msgs::AccelYaw, tobas_command_msgs::msg::AccelYaw>;
-}
+}  // namespace tobas_command_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_command_msgs::AccelYaw, tobas_command_msgs::msg::AccelYaw);

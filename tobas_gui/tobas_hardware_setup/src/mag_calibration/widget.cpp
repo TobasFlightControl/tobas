@@ -1,22 +1,25 @@
+#include "tobas_hardware_setup/mag_calibration/widget.hpp"
+
 #include <filesystem>
+
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include <tobas_math/core.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_std_tools/check.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_real_common/constants.hpp>
-#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_std_tools/check.hpp>
 
-#include "tobas_hardware_setup/mag_calibration/widget.hpp"
-#include "tobas_hardware_setup/mag_calibration/method.hpp"
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
+
 #include "tobas_hardware_setup/constants.hpp"
+#include "tobas_hardware_setup/mag_calibration/method.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -125,11 +128,9 @@ void MagCalibrationWidget::resetToPreStart()
 void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
 {
   // 最初のデータからスケールを決定
-  if (cnt_ == 0)
-  {
+  if (cnt_ == 0) {
     mag_norm_ = mag_raw->mag.norm();
-    if (mag_norm_ == 0.)
-    {
+    if (mag_norm_ == 0.) {
       RCLCPP_WARN(node_->get_logger(), "The first magnetic field is zero.");
       return;
     }
@@ -154,13 +155,11 @@ void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
 void MagCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
-  if (arming_->data)
-  {
+  if (arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     return;
   }
@@ -199,8 +198,7 @@ void MagCalibrationWidget::onCancelButtonClicked()
 void MagCalibrationWidget::onFinishButtonClicked()
 {
   const auto size = min(cnt_, kMaxDataSize);
-  if (size < kMinDataSize)
-  {
+  if (size < kMinDataSize) {
     qt::qWarnBox(this, "The number of collected samples is too small.");
     return;
   }
@@ -211,8 +209,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
 
   // データを整理
   VectorXd x(size), y(size), z(size);
-  for (int i = 0; i < size; ++i)
-  {
+  for (int i = 0; i < size; ++i) {
     x(i) = mag_data_[i].x();
     y(i) = mag_data_[i].y();
     z(i) = mag_data_[i].z();
@@ -227,8 +224,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   constexpr auto kCalibMethod = BOUNDING;  // TODO: 手法を選べるようにする
 
   // 楕円体の係数を求める
-  if (kCalibMethod == BOUNDING)
-  {
+  if (kCalibMethod == BOUNDING) {
     // https://okasho-engineer.com/magnetic-sensor-calibration/
     const auto x_min = x.minCoeff();
     const auto x_max = x.maxCoeff();
@@ -258,16 +254,14 @@ void MagCalibrationWidget::onFinishButtonClicked()
     mag_trans_.b_z = -2 * z0 / rz2;
     mag_trans_.c = math::sqr(x0) / rx2 + math::sqr(y0) / ry2 + math::sqr(z0) / rz2 - 1;
   }
-  else
-  {
+  else {
     // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
     // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
     mag_trans_.c = -(xx + yy + zz).mean();
     VectorXd ce0(size);
     ce0.fill(-mag_trans_.c);
 
-    if (kCalibMethod == SPHERE_FITTING)
-    {
+    if (kCalibMethod == SPHERE_FITTING) {
       // 球体でフィッティング．
       // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
       MatrixXd CE(size, 4);
@@ -284,8 +278,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
       mag_trans_.b_y = coefs(2);
       mag_trans_.b_z = coefs(3);
     }
-    else if (kCalibMethod == ELLIPSE_FITTING)
-    {
+    else if (kCalibMethod == ELLIPSE_FITTING) {
       // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
       // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
       MatrixXd CE(size, 9);
@@ -302,15 +295,13 @@ void MagCalibrationWidget::onFinishButtonClicked()
       mag_trans_.b_y = coefs(7);
       mag_trans_.b_z = coefs(8);
     }
-    else
-    {
+    else {
       throw;
     }
   }
 
   // 楕円体であることを確認
-  if (!mag_trans_.initialize())
-  {
+  if (!mag_trans_.initialize()) {
     qt::qErrorBox(this, "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.");
     return;
   }
@@ -331,16 +322,14 @@ void MagCalibrationWidget::onFinishButtonClicked()
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
     node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout))
-  {
+  if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results.");
     return;
   }
 
   // 結果を確認
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
   }
@@ -350,8 +339,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   pc_calib->header.stamp = node_->get_clock()->now();
   pc_calib->header.frame_id = tobas::kWorldFrame;
   pc_calib->points.resize(size);
-  for (int i = 0; i < size; ++i)
-  {
+  for (int i = 0; i < size; ++i) {
     const Vector3d p_calib = mag_trans_.transform(mag_data_[i]);
     const Vector3f p_disp = p_calib.cast<float>() * kRvizPointScale;
     tf::point32EigenToMsg(p_disp, pc_calib->points[i]);

@@ -1,16 +1,16 @@
 #pragma once
 
 #include <filesystem>
+
 #include <yaml-cpp/yaml.h>
-
-#include <QWidget>
 #include <QLabel>
+#include <QWidget>
 
+#include <tobas_dparam_client/dparam_client.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <tobas_qt_tools/widgets/slider_text.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
-#include <tobas_dparam_client/dparam_client.hpp>
-#include <tobas_qt_tools/widgets/slider_text.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 namespace gui
 {

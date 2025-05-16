@@ -1,5 +1,6 @@
-#include "../../include/tobas_urdf_builder_plugin/view_model/collision_view_model.hpp"
-#include "../../include/tobas_urdf_builder_plugin/utils/time.hpp"
+#include "tobas_urdf_builder_plugin/view_model/collision_view_model.hpp"
+
+#include "tobas_urdf_builder_plugin/utils/time.hpp"
 
 namespace gui
 {
@@ -8,11 +9,12 @@ namespace urdf_builder
 namespace view_model
 {
 CollisionViewModel::CollisionViewModel(const urdf::CollisionSharedPtr& model)
-  : BaseViewModel<urdf::Collision, CollisionViewModel>(model),
-    geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry))
+  : BaseViewModel<urdf::Collision, CollisionViewModel>(model)
+  , geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry))
 {
-  if (model_->name.empty())
+  if (model_->name.empty()) {
     model_->name = "collision_" + std::to_string(utils::timeNowMilliseconds());
+  }
 }
 
 void CollisionViewModel::sync()

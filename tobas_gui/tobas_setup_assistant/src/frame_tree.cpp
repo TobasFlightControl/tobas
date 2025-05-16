@@ -1,6 +1,6 @@
-#include <tobas_std_tools/check.hpp>
-
 #include "tobas_setup_assistant/frame_tree.hpp"
+
+#include <tobas_std_tools/check.hpp>
 
 namespace gui
 {
@@ -14,13 +14,12 @@ FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : rob
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(this, &self::itemClicked, this, &self::onItemClicked);
   connect(this, &self::itemExpanded, this, &self::resizeColumns);
   connect(this, &self::itemCollapsed, this, &self::resizeColumns);
 }
 
-void FrameTreeWidget::onRobotLoaded()
+void FrameTreeWidget::updateInternalDataStructures()
 {
   // ツリーを消去
   clear();
@@ -51,12 +50,12 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
 {
   const auto parent_name = parent_item->text(0).toStdString();
 
-  if (robot_.tree().isEndSegment(parent_name))
+  if (robot_.tree().isEndSegment(parent_name)) {
     return;
+  }
 
   const auto parent_it = robot_.tree().getSegment(parent_name);
-  for (const auto& child_it : parent_it->second.children)
-  {
+  for (const auto& child_it : parent_it->second.children) {
     const auto& child_name = child_it->first;
     const auto child_item = new QTreeWidgetItem({ QString::fromStdString(child_name) });
     parent_item->addChild(child_item);

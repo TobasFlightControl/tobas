@@ -1,11 +1,14 @@
 #pragma once
 
 #include <string>
+
 #include <tinyxml2.h>
 
 namespace gui
 {
 namespace sa
+{
+namespace xml
 {
 tinyxml2::XMLElement* addNode(
   tinyxml2::XMLElement* parent,
@@ -17,5 +20,6 @@ tinyxml2::XMLElement* addNode(
   const std::string& args = "");
 
 tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string& name, const std::string& value);
+}  // namespace xml
 }  // namespace sa
 }  // namespace gui

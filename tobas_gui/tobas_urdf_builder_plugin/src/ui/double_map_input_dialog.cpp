@@ -1,4 +1,11 @@
-#include "../../include/tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
+
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+
+#include <tobas_qt_tools/cast.hpp>
 
 namespace gui
 {
@@ -14,8 +21,7 @@ DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title
   const auto root_layout = new QVBoxLayout();
   setLayout(root_layout);
 
-  for (const auto& field_name : field_names)
-  {
+  for (const auto& field_name : field_names) {
     const auto layout = new QHBoxLayout();
     root_layout->addLayout(layout);
 
@@ -52,7 +58,7 @@ const double& DoubleMapInputDialog::getValue(const QString& field) const
 
 void DoubleMapInputDialog::SpinBoxValueChanged(double value)
 {
-  const auto obj = qobject_cast<QDoubleSpinBox*>(sender());
+  const auto obj = qt::qPointerCast<QDoubleSpinBox>(sender());
   const auto field_name = spinbox2field_.at(obj);
   field2value_[field_name] = value;
 }

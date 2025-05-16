@@ -1,8 +1,8 @@
 #pragma once
 
-#include <map>
-#include <chrono>
 #include <cassert>
+#include <chrono>
+#include <map>
 
 namespace tobas_std
 {
@@ -87,8 +87,9 @@ public:
     auto it = map_.lower_bound(time);
 
     // 要素が古すぎる場合は最新の値を返す
-    if (it == map_.end())
+    if (it == map_.end()) {
       --it;
+    }
 
     return it->second;
   }
@@ -101,8 +102,7 @@ protected:
   void removeExpiredData(const TimeType& cur_time)
   {
     auto it = map_.begin();
-    while (it != map_.end() && cur_time - it->first > expiry_duration_)
-    {
+    while (it != map_.end() && cur_time - it->first > expiry_duration_) {
       it = map_.erase(it);  // Erase returns the iterator following the removed element
       is_filled_ = true;
     }

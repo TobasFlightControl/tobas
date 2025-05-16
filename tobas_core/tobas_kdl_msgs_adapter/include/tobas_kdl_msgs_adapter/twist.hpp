@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/twist.hpp>
+
 #include <tobas_kdl_msgs/msg/twist.hpp>
 
 #include "./vector.hpp"
@@ -30,6 +31,6 @@ struct rclcpp::TypeAdapter<kdl::Twist, tobas_kdl_msgs::msg::Twist>
 namespace tobas_kdl_msgs
 {
 using TwistAdapter = rclcpp::TypeAdapter<kdl::Twist, tobas_kdl_msgs::msg::Twist>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Twist, tobas_kdl_msgs::msg::Twist);

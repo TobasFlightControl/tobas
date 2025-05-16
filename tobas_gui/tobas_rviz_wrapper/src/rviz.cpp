@@ -1,18 +1,19 @@
+#include "tobas_rviz_wrapper/rviz.hpp"
+
 #include <OgreMaterialManager.h>
-#include <rviz_common/yaml_config_reader.hpp>
+#include <rviz_common/display_group.hpp>
 #include <rviz_common/visualization_frame.hpp>  // XXX: rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
 #include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/display_group.hpp>
-
-#include "../include/tobas_rviz_wrapper/rviz.hpp"
+#include <rviz_common/yaml_config_reader.hpp>
 
 namespace rviz
 {
 RvizFrameManager::RvizFrameManager(const std::string& node_name)
 {
   // Initialize ROS node
-  if (!rclcpp::ok())
+  if (!rclcpp::ok()) {
     rclcpp::init(0, nullptr);
+  }
 
   // Create Rviz ROS interface
   node_ = std::make_shared<rviz_common::ros_integration::RosNodeAbstraction>(node_name);
@@ -75,18 +76,17 @@ void RvizFrameManager::setFixedFrame(const QString& frame)
 
 rviz_common::Display* RvizFrameManager::getDisplay(const QString& name)
 {
-  for (int i = 0; i < display_group_->numDisplays(); ++i)
-  {
+  for (int i = 0; i < display_group_->numDisplays(); ++i) {
     const auto display = display_group_->getDisplayAt(i);
 
-    if (!display)
-    {
+    if (!display) {
       RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to get display of index " << std::to_string(i));
       continue;
     };
 
-    if (display->getName() == name)
+    if (display->getName() == name) {
       return display;
+    }
   }
 
   RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to find display named \"" << name.toStdString() << "\"");
@@ -97,8 +97,9 @@ void RvizFrameManager::removeDefaultColorMaterials()
 {
   const auto material_manager = Ogre::MaterialManager::getSingletonPtr();
 
-  if (!material_manager)
+  if (!material_manager) {
     return;
+  }
 
   // rviz_rendering::MaterialManager::createDefaultColorMaterials()で作成されたマテリアルの重複を防ぐために削除する．
   // TODO: 公式で改善されたらこの処理を削除

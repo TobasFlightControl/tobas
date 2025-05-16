@@ -1,17 +1,18 @@
+#include "tobas_qt_tools/widgets/vertical_tab_widget.hpp"
+
+#include <QStyleOptionTab>
+#include <QStylePainter>
 #include <QTabBar>
 #include <QWheelEvent>
-#include <QStylePainter>
-#include <QStyleOptionTab>
-
-#include "tobas_qt_tools/widgets/vertical_tab_widget.hpp"
 
 namespace qt
 {
 QSize VerticalTabBar::tabSizeHint(int index) const
 {
   auto s = super::tabSizeHint(index);
-  if (s.width() < s.height())
+  if (s.width() < s.height()) {
     s.transpose();
+  }
   s.scale(s.width() * 2, s.height() * 2, Qt::KeepAspectRatio);
   return s;
 }
@@ -21,8 +22,7 @@ void VerticalTabBar::paintEvent(QPaintEvent*)
   QStylePainter painter(this);
   QStyleOptionTab style_option;
 
-  for (int i = 0; i < count(); ++i)
-  {
+  for (int i = 0; i < count(); ++i) {
     initStyleOption(&style_option, i);
     painter.drawControl(QStyle::CE_TabBarTabShape, style_option);
     painter.save();
@@ -42,19 +42,9 @@ void VerticalTabBar::paintEvent(QPaintEvent*)
   }
 }
 
-void VerticalTabBarWithNoWheelEvent::wheelEvent(QWheelEvent* event)
-{
-  event->ignore();
-}
-
 VerticalTabWidget::VerticalTabWidget(QWidget* parent) : super(parent)
 {
   setTabBar(new VerticalTabBar());
   setTabPosition(QTabWidget::West);
-}
-
-void VerticalTabWidget::ignoreWheelEvent()
-{
-  setTabBar(new VerticalTabBarWithNoWheelEvent());
 }
 }  // namespace qt

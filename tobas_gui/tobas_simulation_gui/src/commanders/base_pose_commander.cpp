@@ -1,13 +1,14 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
 
-#include <tobas_path_tools/join.hpp>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
@@ -99,8 +100,7 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 
 bool BasePoseCommanderWidget::start()
 {
-  if (!set_arm_sc_->waitForService(kWaitForService))
-  {
+  if (!set_arm_sc_->waitForService(kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.");
     return false;
   }
@@ -131,8 +131,7 @@ void BasePoseCommanderWidget::reset()
 
 void BasePoseCommanderWidget::publishCurrentCommand()
 {
-  if (angle_pub_)
-  {
+  if (angle_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::Angle>();
     msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
     msg->angle.roll = cmd_roll_->getValue();
@@ -141,8 +140,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     angle_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_pub_)
-  {
+  if (pos_vel_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::PosVel>();
     msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
     msg->pos.x() = cmd_x_->getValue();
@@ -152,8 +150,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     pos_vel_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_yaw_pub_)
-  {
+  if (pos_vel_yaw_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::PosVelYaw>();
     msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
     msg->pos.x() = cmd_x_->getValue();
@@ -168,15 +165,13 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
 {
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
-  if (!set_arm_sc_->call(req, kWaitForService))
-  {
+  if (!set_arm_sc_->call(req, kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }
 
   const auto res = set_arm_sc_->getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     qt::qErrorBox(this, "Arming service failed: " + QString::fromStdString(res->message));
     return false;
   }
@@ -196,28 +191,24 @@ void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
 
 void BasePoseCommanderWidget::onArmRequested()
 {
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(this, "Arming status is not received yet.");
     reset();
     return;
   }
-  if (arming_->data)
-  {
+  if (arming_->data) {
     qt::qWarnBox(this, "The rotors are already armed.");
     reset();
     return;
   }
-  if (!odom_)
-  {
+  if (!odom_) {
     qt::qWarnBox(this, "Odometry is not received yet.");
     reset();
     return;
   }
 
   // アーム
-  if (!armRotors(true))
-  {
+  if (!armRotors(true)) {
     reset();
     return;
   }
@@ -244,8 +235,9 @@ void BasePoseCommanderWidget::onArmRequested()
 
 void BasePoseCommanderWidget::onDisarmRequested()
 {
-  if (!armRotors(false))
+  if (!armRotors(false)) {
     return;
+  }
 
   reset();
 

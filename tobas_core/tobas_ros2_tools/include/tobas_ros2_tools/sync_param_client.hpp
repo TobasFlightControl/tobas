@@ -28,29 +28,25 @@ public:
     const ValueT& value,
     std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
-    if (!client_.wait_for_service(kWaitForServer))
-    {
+    if (!client_.wait_for_service(kWaitForServer)) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << remote_node_name_ << "\" parameter server is not ready.");
       return false;
     }
 
     auto future = client_.set_parameters({ rclcpp::Parameter(param_name, value) });
-    if (waitForFuture(future, timeout) != std::future_status::ready)
-    {
+    if (waitForFuture(future, timeout) != std::future_status::ready) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before setting \"" << param_name << "\".");
       return false;
     }
 
     const auto results = future.get();
-    if (results.size() != 1)
-    {
+    if (results.size() != 1) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Result size mismatch.");
       return false;
     }
 
     const auto res = results.front();
-    if (!res.successful)
-    {
+    if (!res.successful) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to set \"" << param_name << "\": " << res.reason);
       return false;
     }

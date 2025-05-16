@@ -4,9 +4,9 @@
 #include <QVBoxLayout>
 
 #include "../base_setting.hpp"
-#include "./vehicle.hpp"
 #include "./aero_coefs.hpp"
 #include "./control_surface/control_surfaces.hpp"
+#include "./vehicle.hpp"
 
 namespace gui
 {
@@ -38,7 +38,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   bool hasFixedWing() const;

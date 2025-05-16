@@ -1,11 +1,12 @@
+#include "tobas_control/kalman_filter.hpp"
+
 #include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "../include/tobas_control/util.hpp"
-#include "../include/tobas_control/dare.hpp"
-#include "../include/tobas_control/kalman_filter.hpp"
+#include "tobas_control/dare.hpp"
+#include "tobas_control/util.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -64,8 +65,8 @@ void KalmanFilter::update()
   const MatrixXd G = PCt * (ss.C * PCt + R).inverse();
   const MatrixXd I_GC = MatrixXd::Identity(stateSize(), stateSize()) - G * ss.C;
   x_ = x_prev + G * (y - ss.C * x_prev);
-  P_ = I_GC * P_prev.selfadjointView<Lower>() * I_GC.transpose()
-       + G * R.selfadjointView<Lower>() * G.transpose();  // Joseph form
+  P_ = I_GC * P_prev.selfadjointView<Lower>() * I_GC.transpose() +
+       G * R.selfadjointView<Lower>() * G.transpose();  // Joseph form
 }
 
 void KalmanFilter::verify() const

@@ -1,17 +1,18 @@
 #include <tobas_algorithm/core.hpp>
-#include <tobas_std_tools/trajectory.hpp>
-#include <tobas_std_tools/geometry.hpp>
-#include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_kdl_conversions/kdl_msg.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_std_tools/geometry.hpp>
+#include <tobas_std_tools/trajectory.hpp>
 #include <tobas_tools/util.hpp>
+
+#include <tobas_mission_msgs/action/move.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_mission_msgs/action/move.hpp>
 
-#include "../include/tobas_mr_actions/common.hpp"
+#include "tobas_mr_actions/common.hpp"
 
 using namespace std;
 
@@ -92,26 +93,22 @@ void MoveServerNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::Co
 rclcpp_action::GoalResponse
 MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
-  if (goal->target_latitude < -90 || 90 < goal->target_latitude)
-  {
+  if (goal->target_latitude < -90 || 90 < goal->target_latitude) {
     TOBAS_ERROR("Invalid target latitude.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->target_longitude < -180 || 180 < goal->target_longitude)
-  {
+  if (goal->target_longitude < -180 || 180 < goal->target_longitude) {
     TOBAS_ERROR("Invalid target longitude.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->acceptance_radius <= 0)
-  {
+  if (goal->acceptance_radius <= 0) {
     TOBAS_ERROR("Acceptance radius must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->duration <= 0)
-  {
+  if (goal->duration <= 0) {
     TOBAS_ERROR("Target duration must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
@@ -132,36 +129,31 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto result = std::make_shared<ActionType::Result>();
 
   // Check if necessary topics are received
-  if (!odom_)
-  {
+  if (!odom_) {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
     return;
   }
-  if (!arming_)
-  {
+  if (!arming_) {
     result->message = "Arming status is not received yet.";
     goal_handle->abort(result);
     return;
   }
-  if (!gnss_origin_)
-  {
+  if (!gnss_origin_) {
     result->message = "GNSS origin is not received yet.";
     goal_handle->abort(result);
     return;
   }
 
   // Check if rotors are armed
-  if (!arming_->data)
-  {
+  if (!arming_->data) {
     result->message = "Rotors are not armed.";
     goal_handle->abort(result);
     return;
   }
 
   // Check odometry
-  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
-  {
+  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR) {
     result->message = "There is a problem with the state estimation.";
     goal_handle->abort(result);
     return;
@@ -172,8 +164,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
   // 目標位置
   kdl::Vector goal_pos;
-  if (!computeGoalPosition(goal, goal_pos))
-  {
+  if (!computeGoalPosition(goal, goal_pos)) {
     result->message = "Failed to compute the goal position.";
     goal_handle->abort(result);
     return;
@@ -192,14 +183,12 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
-  while (rclcpp::ok())
-  {
+  while (rclcpp::ok()) {
     // 開始からの経過時間を計算
     const auto t = (get_clock()->now() - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0 && t > duration + goal->timeout)
-    {
+    if (goal->timeout > 0 && t > duration + goal->timeout) {
       result->message = "Timeout before reaching the goal position.";
       goal_handle->abort(result);
       return;
@@ -208,8 +197,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto pos_error = goal_pos - cur_pos;
-    if (t > duration && pos_error.norm() < goal->acceptance_radius)
-    {
+    if (t > duration && pos_error.norm() < goal->acceptance_radius) {
       result->message.clear();
       goal_handle->succeed(result);
       return;
@@ -238,8 +226,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     goal_handle->publish_feedback(move(feedback));
 
     // アクション中止の場合は目標速度を0にして終了
-    if (goal_handle->is_canceling())
-    {
+    if (goal_handle->is_canceling()) {
       cmd_.vel.setZero();
       cmd_pub_->publish(cmd_);
 

@@ -15,7 +15,7 @@ public:
   inline explicit RotationAcc(const Rotation& _R);
   inline explicit RotationAcc(const Rotation& _R, const Vector& _w, const Vector& _dw);
 
-  inline static RotationAcc Identity();
+  static inline RotationAcc Identity();
 
   inline void setIdentity();
 

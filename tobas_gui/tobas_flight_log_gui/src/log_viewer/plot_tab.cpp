@@ -13,7 +13,9 @@ PlotTabWidget::PlotTabWidget()
   mag_plot_ = new MagPlotWidget();
   gnss_plot_ = new GnssPlotWidget();
   battery_plot_ = new BatteryPlotWidget();
+  engine_plot_ = new EnginePlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
+  propeller_pitch_plot_ = new PropellerPitchPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
@@ -26,13 +28,21 @@ PlotTabWidget::PlotTabWidget()
   addTab(mag_plot_, "Magnetic\nField");
   addTab(gnss_plot_, "GNSS");
   addTab(battery_plot_, "Battery");
+  addTab(engine_plot_, "Engine");
   addTab(rotor_speed_plot_, "Rotor Speed");
+  addTab(propeller_pitch_plot_, "VPP Pitch");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
   addTab(obsv_fb_plot_, "Observer");
   addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
 
   setTabSize(kTabWidth, kTabHeight);
+}
+
+void PlotTabWidget::clear()
+{
+  rotor_speed_plot_->clear();
+  propeller_pitch_plot_->clear();
 }
 
 void PlotTabWidget::setTimeScale(double t_start, double t_stop)
@@ -44,7 +54,9 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   mag_plot_->setTimeScale(t_start, t_stop);
   gnss_plot_->setTimeScale(t_start, t_stop);
   battery_plot_->setTimeScale(t_start, t_stop);
+  engine_plot_->setTimeScale(t_start, t_stop);
   rotor_speed_plot_->setTimeScale(t_start, t_stop);
+  propeller_pitch_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
   dist_force_plot_->setTimeScale(t_start, t_stop);
   obsv_fb_plot_->setTimeScale(t_start, t_stop);
@@ -60,9 +72,11 @@ void PlotTabWidget::setFrameData(
   accel_plot_->setData(odom_data, ctrl_fb_data);
 }
 
-void PlotTabWidget::setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data)
+void PlotTabWidget::setImuData(
+  const QVector<tobas_msgs::msg::ImuStamped>& raw_msgs,
+  const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_msgs)
 {
-  imu_plot_->setData(_data);
+  imu_plot_->setData(raw_msgs, filt_msgs);
 }
 
 void PlotTabWidget::setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data)
@@ -80,11 +94,21 @@ void PlotTabWidget::setBatteryData(const QVector<tobas_msgs::msg::Battery>& _dat
   battery_plot_->setData(_data);
 }
 
+void PlotTabWidget::setEngineData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data)
+{
+  engine_plot_->setData(ice_cmd_data);
+}
+
 void PlotTabWidget::setRotorSpeedData(
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data)
 {
   rotor_speed_plot_->setData(cur_data, tar_data);
+}
+
+void PlotTabWidget::setPropellerPitchData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data)
+{
+  propeller_pitch_plot_->setData(ice_cmd_data);
 }
 
 void PlotTabWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _data)
@@ -107,8 +131,7 @@ void PlotTabWidget::setObserverFeedbackData(const QVector<tobas_debug_msgs::msg:
   obsv_fb_plot_->setData(_data);
 }
 
-void PlotTabWidget::setMRControllerFeedbackData(
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& _data)
+void PlotTabWidget::setMRControllerFeedbackData(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& _data)
 {
   mr_ctrl_fb_plot_->setData(_data);
 }

@@ -21,8 +21,8 @@ public:
 private:
   std::array<QwtPlot2*, 3> pos_ei_plots_;
   std::array<QwtPlot2*, 3> rot_ei_plots_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> pos_ei_curves_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> rot_ei_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, 3> pos_ei_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, 3> rot_ei_curves_;
 };
 }  // namespace log
 }  // namespace gui

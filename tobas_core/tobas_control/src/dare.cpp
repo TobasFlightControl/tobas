@@ -1,9 +1,10 @@
+#include "tobas_control/dare.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "../include/tobas_control/dare.hpp"
-#include "../include/tobas_control/util.hpp"
+#include "tobas_control/util.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -30,8 +31,7 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
   MatrixXd X_next = MatrixXd::Identity(n, n);
   size_t iter = 0;
 
-  while ((X_next - X_prev).norm() / X_next.norm() > tol)
-  {
+  while ((X_next - X_prev).norm() / X_next.norm() > tol) {
     X_prev = X_next;
 
     // 事前推定
@@ -43,8 +43,9 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
     const auto I_GBt = I - G * B.transpose();
     X_next = I_GBt * X_mid.selfadjointView<Lower>();
 
-    if (iter++ > max_iter)
+    if (iter++ > max_iter) {
       throw runtime_error("DARE failed to converge in " + to_string(max_iter) + " iterations.");
+    }
   }
 
   cout << "DARE has successfully converged in " << iter << " iterations." << endl;

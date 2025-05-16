@@ -1,8 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/author_information.hpp"
+
+#include <tobas_git/core.hpp>
+#include <tobas_qt_tools/message.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/author_information.hpp"
 
 namespace gui
 {
@@ -11,9 +12,11 @@ namespace sa
 AuthorInformationWidget::AuthorInformationWidget()
 {
   name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
+  name_->setValue(QString::fromStdString(git::getGitConfigValue("user.name")));
   addWidget(name_);
 
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
+  email_->setValue(QString::fromStdString(git::getGitConfigValue("user.email")));
   addWidget(email_);
 
   addStretch();
@@ -49,20 +52,17 @@ void AuthorInformationWidget::updateInternalDataStructures()
 bool AuthorInformationWidget::isValid()
 {
   const auto author_name = name_->getValue();
-  if (author_name.isEmpty())
-  {
+  if (author_name.isEmpty()) {
     qt::qErrorBox(this, "Please specify author name.");
     return false;
   }
 
   const auto author_email = email_->getValue();
-  if (author_email.isEmpty())
-  {
+  if (author_email.isEmpty()) {
     qt::qErrorBox(this, "Please specify author email address.");
     return false;
   }
-  if (!str::isValidEmail(author_email.toStdString()))
-  {
+  if (!str::isValidEmail(author_email.toStdString())) {
     qt::qErrorBox(this, "Invalid email address.");
     return false;
   }
@@ -70,7 +70,7 @@ bool AuthorInformationWidget::isValid()
   return true;
 }
 
-YAML::Node AuthorInformationWidget::dump()
+YAML::Node AuthorInformationWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

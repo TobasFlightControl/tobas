@@ -1,0 +1,222 @@
+<robot name="f450">
+    <material name="black">
+        <texture/>
+        <color rgba="0 0 0 1"/>
+    </material>
+    <material name="blue">
+        <texture/>
+        <color rgba="0 0 1 1"/>
+    </material>
+    <material name="red">
+        <texture/>
+        <color rgba="1 0 0 1"/>
+    </material>
+    <material name="white">
+        <texture/>
+        <color rgba="1 1 1 1"/>
+    </material>
+    <link name="base_link"/>
+    <link name="battery">
+        <inertial>
+            <mass value="0.201"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="3.36508e-05" ixy="0" ixz="0" iyy="0.000204903" iyz="0" izz="0.00021229"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.107 0.035 0.028"/>
+            </geometry>
+            <material name="blue">
+                <texture/>
+                <color rgba="0 0 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.107 0.035 0.028"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="fmu">
+        <inertial>
+            <mass value="0.2"/>
+            <origin xyz="0 0 0.009" rpy="0 -0 0"/>
+            <inertia ixx="7.71333e-05" ixy="0" ixz="0" iyy="0.000148067" iyz="0" izz="0.000199067"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f450.TBS/tobas_f450_config/meshes/tobas_t1.stl" scale="1 1 1"/>
+            </geometry>
+            <material name="red">
+                <texture/>
+                <color rgba="1 0 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.009" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.09 0.062 0.028"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="frame">
+        <inertial>
+            <mass value="0.55346"/>
+            <origin xyz="0 0 -0.004136" rpy="0 -0 0"/>
+            <inertia ixx="0.008128" ixy="0" ixz="0" iyy="0.008193" iyz="0" izz="0.01597"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f450.TBS/tobas_f450_config/meshes/frame.stl" scale="1 1 1"/>
+            </geometry>
+            <material name="black">
+                <texture/>
+                <color rgba="0 0 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.03" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.35 0.35 0.06"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_0">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f450.TBS/tobas_f450_config/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_1">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f450.TBS/tobas_f450_config/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_2">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f450.TBS/tobas_f450_config/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_3">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f450.TBS/tobas_f450_config/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="battery_joint" type="fixed">
+        <origin xyz="-0.037 0 -0.023" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="battery"/>
+    </joint>
+    <joint name="fmu_joint" type="fixed">
+        <origin xyz="0 0.015 0.02" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="fmu"/>
+    </joint>
+    <joint name="frame_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="frame"/>
+    </joint>
+    <joint name="propeller_0_joint" type="continuous">
+        <origin xyz="0.159099 -0.159099 0.0247" rpy="0 0 -0.785398"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_0"/>
+    </joint>
+    <joint name="propeller_1_joint" type="continuous">
+        <origin xyz="-0.159099 0.159099 0.0247" rpy="0 -0 2.35619"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_1"/>
+    </joint>
+    <joint name="propeller_2_joint" type="continuous">
+        <origin xyz="0.159099 0.159099 0.0247" rpy="0 -0 0.785398"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_2"/>
+    </joint>
+    <joint name="propeller_3_joint" type="continuous">
+        <origin xyz="-0.159099 -0.159099 0.0247" rpy="0 0 -2.35619"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_3"/>
+    </joint>
+</robot>

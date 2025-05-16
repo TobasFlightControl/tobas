@@ -1,9 +1,10 @@
+#include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
+
+#include <QDebug>
 #include <QVBoxLayout>
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
 {
@@ -92,27 +93,23 @@ void MultirotorPIDWidget::load(const YAML::Node& node)
 
 bool MultirotorPIDWidget::isApplicable()
 {
-  const auto props = propulsion_system_->selected();
-
   // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing())
+  if (fixed_wing_->hasFixedWing()) {
     return false;
-
-  // プロペラの個数条件
-  if (props->count() < kMinNumProp)
-    return false;
-
-  // Z軸正方向のプロペラのみ
-  for (int i = 0; i < props->count(); ++i)
-  {
-    const auto link_name = props->linkName(i);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ()))
-      return false;
   }
 
-  // 両方の回転方向のプロペラをもつ
-  if (!props->hasBothRotationalDirections())
+  // プロペラの個数条件
+  if (propulsion_system_->numUnits() < kMinNumProp) {
     return false;
+  }
+
+  // Z軸正方向のプロペラのみ
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
+    const auto link_name = propulsion_system_->linkName(i);
+    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ())) {
+      return false;
+    }
+  }
 
   return true;
 }

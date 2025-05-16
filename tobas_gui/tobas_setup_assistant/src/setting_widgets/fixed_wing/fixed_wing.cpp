@@ -1,6 +1,6 @@
-#include <tobas_qt_tools/widgets/label.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
+
+#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
 {
@@ -15,6 +15,8 @@ FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& 
   has_fixed_wing_->setChecked(kDefaultHasFixedWing);
   connect(has_fixed_wing_, &QCheckBox::toggled, this, &self::setSettingWidgetsEnabled);
   addWidget(has_fixed_wing_);
+
+  addSpacing(50);
 
   setting_rows_ = new QVBoxLayout();
   addLayout(setting_rows_);
@@ -66,20 +68,24 @@ void FixedWingWidget::updateInternalDataStructures()
 
 bool FixedWingWidget::isValid()
 {
-  if (!hasFixedWing())
+  if (!hasFixedWing()) {
     return true;
+  }
 
-  if (!vehicle_->isValid())
+  if (!vehicle_->isValid()) {
     return false;
-  if (!aero_coefs_->isValid())
+  }
+  if (!aero_coefs_->isValid()) {
     return false;
-  if (!control_surfaces_->isValid())
+  }
+  if (!control_surfaces_->isValid()) {
     return false;
+  }
 
   return true;
 }
 
-YAML::Node FixedWingWidget::dump()
+YAML::Node FixedWingWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -123,8 +129,7 @@ const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 
 void FixedWingWidget::setSettingWidgetsEnabled(bool enabled)
 {
-  for (int row = 0; row < setting_rows_->count(); ++row)
-  {
+  for (int row = 0; row < setting_rows_->count(); ++row) {
     const auto widget = setting_rows_->itemAt(row)->widget();
     widget->setEnabled(enabled);
   }

@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"
+
 #include <QVBoxLayout>
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
 {
@@ -96,25 +96,22 @@ void ActiveTiltMultirotorPIDWidget::load(const YAML::Node& node)
 
 bool ActiveTiltMultirotorPIDWidget::isApplicable()
 {
-  const auto props = propulsion_system_->selected();
-
   // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing())
+  if (fixed_wing_->hasFixedWing()) {
     return false;
+  }
 
   // プロペラの個数条件
-  if (props->count() < kMinNumProp)
+  if (propulsion_system_->numUnits() < kMinNumProp) {
     return false;
+  }
 
-  for (int i = 0; i < props->count(); ++i)
-  {
-    const auto prop = props->widget(i);
-    const auto link_name = props->linkName(i);
-
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
     // 全てティルトロータ
     // TODO: アクティブティルトと固定モータの混合モデルも許容
-    if (!prop->general()->isTiltRotor())
+    if (!propulsion_system_->isTiltRotor(i)) {
       return false;
+    }
 
     // TODO: ティルト軸とロータ軸が直行する (cf. tobas_drone_tools/tr_mixer_pinv)
 

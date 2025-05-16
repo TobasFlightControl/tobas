@@ -1,9 +1,10 @@
+#include "tobas_simulation_gui/commanders/commanders.hpp"
+
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_simulation_gui/commanders/commanders.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
@@ -37,11 +38,13 @@ void CommandersWidget::updateInternalDataStructures()
 
 bool CommandersWidget::start()
 {
-  if (!base_pose_commander_->start())
+  if (!base_pose_commander_->start()) {
     return false;
+  }
 
-  if (!jointpos_commander_->start())
+  if (!jointpos_commander_->start()) {
     return false;
+  }
 
   return true;
 }

@@ -1,15 +1,15 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "tobas_setup_assistant/robot_info.hpp"
-#include "../base_setting.hpp"
-#include "../imu.hpp"
 #include "../barometer.hpp"
+#include "../base_setting.hpp"
 #include "../gnss.hpp"
+#include "../imu.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
@@ -27,9 +27,9 @@ class ObserverWidget : public BaseSettingWidget
 public:
   explicit ObserverWidget(
     const RobotInfo& robot,
-    const IMUWidget* imu,
+    const ImuWidget* imu,
     const BarometerWidget* baro,
-    const GNSSWidget* gnss);
+    const GnssWidget* gnss);
 
   const char* name() const override;
   const char* title() const override;
@@ -39,7 +39,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   QString observerPackage() const;
@@ -52,9 +52,9 @@ private Q_SLOTS:
 
 private:
   const RobotInfo& robot_;
-  const IMUWidget* imu_;
+  const ImuWidget* imu_;
   const BarometerWidget* baro_;
-  const GNSSWidget* gnss_;
+  const GnssWidget* gnss_;
 
   qt::ComboBox* type_;
   qt::StackedWidget* observers_;

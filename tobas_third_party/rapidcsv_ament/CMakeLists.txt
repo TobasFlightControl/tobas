@@ -12,7 +12,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(FILES ${PROJECT_SOURCE_DIR}/rapidcsv/src/rapidcsv.h DESTINATION include)
 

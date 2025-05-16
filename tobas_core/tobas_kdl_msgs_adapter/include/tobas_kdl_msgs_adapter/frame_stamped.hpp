@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/frame.hpp>
+
 #include <tobas_kdl_msgs/msg/frame_stamped.hpp>
 
 #include "./frame.hpp"
@@ -42,6 +43,6 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::FrameStamped, tobas_kdl_msgs::msg::Fr
 namespace tobas_kdl_msgs
 {
 using FrameStampedAdapter = rclcpp::TypeAdapter<tobas_kdl_msgs::FrameStamped, tobas_kdl_msgs::msg::FrameStamped>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::FrameStamped, tobas_kdl_msgs::msg::FrameStamped);

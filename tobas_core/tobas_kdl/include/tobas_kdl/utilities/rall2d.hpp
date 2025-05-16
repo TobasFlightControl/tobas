@@ -70,14 +70,14 @@ public:
     return dd;
   }
 
-  inline static Rall2d<T, V, S> Zero()
+  static inline Rall2d<T, V, S> Zero()
   {
     Rall2d<T, V, S> tmp;
     setToZero(tmp);
     return tmp;
   }
 
-  inline static Rall2d<T, V, S> Identity()
+  static inline Rall2d<T, V, S> Identity()
   {
     Rall2d<T, V, S> tmp;
     setToIdentity(tmp);

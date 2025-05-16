@@ -1,7 +1,7 @@
 #pragma once
 
-#include <gz/math/Vector3.hh>
 #include <gz/math/Quaternion.hh>
+#include <gz/math/Vector3.hh>
 
 namespace gazebo
 {
@@ -14,7 +14,7 @@ public:
   inline explicit Wrench();
   inline explicit Wrench(const gz::math::Vector3d& _force, const gz::math::Vector3d& _torque);
 
-  inline static Wrench Zero();
+  static inline Wrench Zero();
 
   inline void setZero();
 

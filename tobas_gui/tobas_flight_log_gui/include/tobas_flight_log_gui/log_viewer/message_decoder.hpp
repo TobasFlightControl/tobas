@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+
 #include <rclcpp/serialization.hpp>
 
 namespace gui
@@ -31,8 +32,7 @@ MessageDecoder<MsgType>::MessageDecoder()
 template <typename MsgType>
 const MsgType& MessageDecoder<MsgType>::decode(long time, const rclcpp::SerializedMessage& ser_msg)
 {
-  if (cache_map_.contains(time))
-  {
+  if (cache_map_.contains(time)) {
     return cache_map_[time];
   }
   {

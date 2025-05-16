@@ -6,15 +6,15 @@ using namespace std;
 
 void onPacket(const tobas::SBUS::Packet& packet)
 {
-  for (size_t ch = 0; ch < tobas::SBUS::kChannelSize; ++ch)
+  for (size_t ch = 0; ch < tobas::SBUS::kChannelSize; ++ch) {
     cout << "Channel " << ch << ": " << packet.periods.at(ch) << endl;
+  }
   cout << endl;
 }
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
-  {
+  if (argc != 2) {
     cerr << "Usage: " << argv[0] << " <Device>" << endl;
     return EXIT_FAILURE;
   }
@@ -22,8 +22,7 @@ int main(int argc, char** argv)
 
   tobas::SBUS sbus(&onPacket);
 
-  if (!sbus.initialize(device))
-  {
+  if (!sbus.initialize(device)) {
     cerr << "Failed to initialize S.BUS driver." << endl;
     return EXIT_FAILURE;
   }

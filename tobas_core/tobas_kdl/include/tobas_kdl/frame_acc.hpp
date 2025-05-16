@@ -1,9 +1,9 @@
 #pragma once
 
 #include "./frame.hpp"
-#include "./vector_acc.hpp"
 #include "./rotation_acc.hpp"
 #include "./twist_acc.hpp"
+#include "./vector_acc.hpp"
 
 namespace kdl
 {
@@ -18,7 +18,7 @@ public:
   inline explicit FrameAcc(const Frame& _T, const Twist& _t, const Twist& _dt);
   inline explicit FrameAcc(const RotationAcc& _M, const VectorAcc& _p);
 
-  inline static FrameAcc Identity();
+  static inline FrameAcc Identity();
 
   inline void setIdentity();
 

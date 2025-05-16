@@ -4,8 +4,8 @@
 #include <tobas_std_tools/float.hpp>
 #include <tobas_std_tools/geometry.hpp>
 
-#include "./vector.hpp"
 #include "./rotation.hpp"
+#include "./vector.hpp"
 
 namespace kdl
 {
@@ -19,13 +19,13 @@ public:
   inline explicit Quaternion();
 
   /* 単位クォータニオン． */
-  inline static Quaternion Identity();
+  static inline Quaternion Identity();
 
   /* 等価角軸ベクトルからクオータニオンを作成． */
-  inline static Quaternion AngleAxis(const Vector& a);
+  static inline Quaternion AngleAxis(const Vector& a);
 
   /* オイラー角からクオータニオンを作成． */
-  inline static Quaternion RPY(double roll, double pitch, double yaw);
+  static inline Quaternion RPY(double roll, double pitch, double yaw);
 
   /* クオータニオンをオイラー角に変換． */
   inline void getRPY(double& roll, double& pitch, double& yaw) const;
@@ -85,8 +85,9 @@ inline Quaternion Quaternion::AngleAxis(const Vector& a)
 {
   const auto angle = a.norm();
 
-  if (angle < std::numeric_limits<double>::epsilon())
+  if (angle < std::numeric_limits<double>::epsilon()) {
     return Quaternion::Identity();
+  }
 
   const auto axis = a / angle;
   const auto mag = ::sin(angle / 2);

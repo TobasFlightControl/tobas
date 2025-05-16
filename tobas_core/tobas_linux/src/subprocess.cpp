@@ -1,7 +1,8 @@
-#include <iostream>
+#include "tobas_linux/subprocess.hpp"
+
 #include <unistd.h>
 
-#include "../include/tobas_linux/subprocess.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -9,8 +10,7 @@ namespace linux
 {
 pid_t createSubprocess(const vector<char*>& _argv)
 {
-  if (_argv.size() == 0)
-  {
+  if (_argv.size() == 0) {
     cerr << "The size of command list is 0." << endl;
     return -1;
   }
@@ -18,23 +18,21 @@ pid_t createSubprocess(const vector<char*>& _argv)
   // 呼び出し元のプロセスをクローン
   // この時点で全く同じ内容のプロセスが2つできる
   const auto pid = fork();
-  if (pid < 0)
-  {
+  if (pid < 0) {
     cerr << "Failed to clone the calling process." << endl;
     return -1;
   }
 
-  if (pid > 0)
-  {
+  if (pid > 0) {
     // 子プロセスのPIDが帰ってきた場合は親プロセスの処理を続ける
     return pid;
   }
-  else
-  {
+  else {
     // PIDが0だった場合は子プロセスなので，その内容を与えられたコマンドに置換する．
     cout << "Executing: ";
-    for (const auto& cmd_elem : _argv)
+    for (const auto& cmd_elem : _argv) {
       cout << cmd_elem << " ";
+    }
     cout << endl;
 
     auto argv = _argv;

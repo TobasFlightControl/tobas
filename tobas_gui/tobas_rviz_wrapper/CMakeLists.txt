@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_rviz_wrapper)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
-
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
-  message("This package is skipped on Raspberry Pi.")
+  message(STATUS "This package is skipped on Raspberry Pi.")
   find_package(ament_cmake REQUIRED)
   ament_package()
   return()
@@ -23,16 +22,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(rviz_common REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  rviz_common
-)
+set(AMENT_DEPENDENCIES rviz_common)
 
 # add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
@@ -42,7 +39,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

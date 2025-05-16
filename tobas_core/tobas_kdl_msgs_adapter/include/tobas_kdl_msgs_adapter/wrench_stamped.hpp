@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/wrench.hpp>
+
 #include <tobas_kdl_msgs/msg/wrench_stamped.hpp>
 
 #include "./wrench.hpp"
@@ -42,6 +43,6 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::WrenchStamped, tobas_kdl_msgs::msg::W
 namespace tobas_kdl_msgs
 {
 using WrenchStampedAdapter = rclcpp::TypeAdapter<tobas_kdl_msgs::WrenchStamped, tobas_kdl_msgs::msg::WrenchStamped>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::WrenchStamped, tobas_kdl_msgs::msg::WrenchStamped);

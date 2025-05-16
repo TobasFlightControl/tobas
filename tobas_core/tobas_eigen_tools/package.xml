@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <package format="3">
 
 	<name>tobas_eigen_tools</name>
@@ -9,6 +8,7 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<depend>libopenblas-dev</depend>
 	<depend>tobas_std_tools</depend>
 
 	<export>

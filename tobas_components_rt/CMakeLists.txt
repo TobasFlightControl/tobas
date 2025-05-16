@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_components_rt)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -16,37 +16,34 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(tobas_linux REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	rclcpp
-	rclcpp_components
-	tobas_linux
-)
+set(AMENT_DEPENDENCIES rclcpp rclcpp_components tobas_linux)
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-set(targets_to_install "")
+file(GLOB_RECURSE EXE_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
+set(TARGETS_TO_INSTALL "")
 
-foreach(FILE IN LISTS NODE_FILES)
-	get_filename_component(NAME ${FILE} NAME_WE)
-	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NAME})
+foreach(file_path IN LISTS EXE_FILES)
+  get_filename_component(NAME ${file_path} NAME_WE)
+  add_executable(${NAME} ${file_path})
+  target_link_libraries(${NAME} ${PROJECT_NAME})
+  list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 
 install(
-	TARGETS ${PROJECT_NAME}
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
-install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
+install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_dependencies(${AMENT_DEPENDENCIES})
 

@@ -14,10 +14,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  inline const double& getMass() const
-  {
-    return mass_;
-  }
+  inline const double& getMass() const;
 
 private:
   double mass_;
@@ -27,4 +24,9 @@ private:
   /* 指定したセグメント以下の質量を返す． */
   double computeMass(const SegmentMap::const_iterator& cur_it);
 };
+
+inline const double& TreeMassHolder::getMass() const
+{
+  return mass_;
+}
 }  // namespace kdl

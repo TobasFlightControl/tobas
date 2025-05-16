@@ -1,14 +1,17 @@
-#include <filesystem>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <QCheckBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-
-#include <tobas_ros2_tools/parameter.hpp>
-#include <tobas_constants/constants.hpp>
-
 #include "tobas_setup_assistant/rviz.hpp"
-#include "tobas_setup_assistant/common.hpp"
+
+#include <filesystem>
+
+#include <QCheckBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_ros2_tools/parameter.hpp>
+
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -31,12 +34,12 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   display_ = rviz_manager_.getDisplay("RobotState");
 
   // 使用するプロパティを取得
-  enable_visual_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Visual Enabled"));
-  enable_collision_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Collision Enabled"));
-  enable_inertia_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Inertial Enabled"));
-  highlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Highlight Link"));
-  unhighlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Unhighlight Link"));
-  reload_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Reload"));
+  enable_visual_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Visual Enabled"));
+  enable_collision_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Collision Enabled"));
+  enable_inertia_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Inertial Enabled"));
+  highlight_link_ = qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Highlight Link"));
+  unhighlight_link_ = qt::qPointerCast<rviz_common::properties::StringProperty>(display_->subProp("Unhighlight Link"));
+  reload_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Reload"));
 
   enable_visual_->setBool(kDefaultVisualEnabled);
   enable_collision_->setBool(kDefaultCollisionEnabled);
@@ -62,13 +65,12 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   cols->addWidget(inertia_box);
 
   // Connection
-  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
   connect(inertia_box, &QCheckBox::toggled, this, &self::onInertiaBoxToggled);
 }
 
-void RvizWidget::onRobotLoaded()
+void RvizWidget::updateInternalDataStructures()
 {
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
@@ -85,11 +87,13 @@ void RvizWidget::onRobotLoaded()
 
 void RvizWidget::heightLink(const QString& link_name)
 {
-  if (link_name == highlighted_link_)
+  if (link_name == highlighted_link_) {
     return;
+  }
 
-  if (!highlighted_link_.isEmpty())
+  if (!highlighted_link_.isEmpty()) {
     unheightLink(highlighted_link_);
+  }
 
   highlight_link_->setValue(link_name);
   highlighted_link_ = link_name;

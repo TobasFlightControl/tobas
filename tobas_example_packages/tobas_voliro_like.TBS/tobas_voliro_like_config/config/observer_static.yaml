@@ -1,0 +1,20 @@
+frame_id: base_link
+use_barometer: false
+use_gnss: true
+do_acc_bias_estimation: false
+do_gyro_bias_estimation: true
+do_mag_hard_bias_estimation: false
+do_mag_soft_bias_estimation: false
+do_gravity_estimation: true
+imu_offset:
+  - 0.000000e+00
+  - 0.000000e+00
+  - 0.000000e+00
+barometer_offset:
+  - 0.000000e+00
+  - 0.000000e+00
+  - 0.000000e+00
+gnss_offset:
+  - 0.000000e+00
+  - 0.000000e+00
+  - 0.000000e+00

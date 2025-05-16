@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/frame_vel.hpp>
+
 #include <tobas_kdl_msgs/msg/frame_vel.hpp>
 
 #include "./frame.hpp"
@@ -36,6 +37,6 @@ struct rclcpp::TypeAdapter<kdl::FrameVel, tobas_kdl_msgs::msg::FrameVel>
 namespace tobas_kdl_msgs
 {
 using FrameVelAdapter = rclcpp::TypeAdapter<kdl::FrameVel, tobas_kdl_msgs::msg::FrameVel>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::FrameVel, tobas_kdl_msgs::msg::FrameVel);

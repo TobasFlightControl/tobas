@@ -1,15 +1,17 @@
-#include <filesystem>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include "tobas_flight_log_gui/recorder/recorder.hpp"
 
-#include <tobas_string_tools/core.hpp>
-#include <tobas_path_tools/join.hpp>
+#include <filesystem>
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <tobas_string_tools/core.hpp>
 
-#include "tobas_flight_log_gui/recorder/recorder.hpp"
 #include "tobas_flight_log_gui/constants.hpp"
 
 namespace fs = std::filesystem;
@@ -94,7 +96,7 @@ void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()
   duration_->display("00:00:00");
 
   file_size_->setUpper(0);
-  file_size_->setText("0 MB");
+  file_size_->setCenterText("0 MB");
 
   message_count_->setText("0");
 }
@@ -104,8 +106,7 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
   // 現在のレコーダの状態によってウィジェットの状態を切り替える
   start_stop_button_->setChecked(rosbag_state->recording);
 
-  if (rosbag_state->recording)
-  {
+  if (rosbag_state->recording) {
     log_name_->setText(fs::path(rosbag_state->file_path).lexically_normal().filename().c_str());
     log_name_->setEnabled(false);
 
@@ -120,12 +121,11 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
     duration_->display(hhmmss);
 
     file_size_->setUpper(rosbag_state->file_size);
-    file_size_->setText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
+    file_size_->setCenterText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
 
     message_count_->setText(QString::number(rosbag_state->message_count));
   }
-  else
-  {
+  else {
     log_name_->setEnabled(true);
     clearRosbagStateViewerWidgets();
   }
@@ -137,22 +137,19 @@ void FlightLogRecorderWidget::onStartRequested()
 {
   // ファイル名をチェック
   const auto log_name = log_name_->text().toStdString();
-  if (log_name.empty())
-  {
+  if (log_name.empty()) {
     qt::qWarnBox(this, "Please specify the name of log file.");
     start_stop_button_->setChecked(false);
     return;
   }
-  if (!str::isValidFileName(log_name))
-  {
+  if (!str::isValidFileName(log_name)) {
     qt::qWarnBox(this, "The name of the log file is invalid.");
     start_stop_button_->setChecked(false);
     return;
   }
 
   // ロガーの状態が取得できているかをチェック
-  if (!rosbag_state_)
-  {
+  if (!rosbag_state_) {
     qt::qWarnBox(this, "Unable to start recording because the logger state is not received yet.");
     start_stop_button_->setChecked(false);
     return;
@@ -178,8 +175,7 @@ void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString&
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     start_stop_button_->setChecked(false);
     return;
@@ -196,8 +192,7 @@ void FlightLogRecorderWidget::onStopThreadFinished(bool success, const QString& 
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     start_stop_button_->setChecked(true);
     return;

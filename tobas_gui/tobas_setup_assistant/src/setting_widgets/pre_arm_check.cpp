@@ -1,6 +1,6 @@
-#include <tobas_yaml_tools/convert/qstring.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/pre_arm_check.hpp"
+
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
 {
@@ -71,7 +71,7 @@ bool PreArmCheckWidget::isValid()
   return true;
 }
 
-YAML::Node PreArmCheckWidget::dump()
+YAML::Node PreArmCheckWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

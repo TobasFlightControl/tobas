@@ -1,10 +1,10 @@
 #pragma once
 
-#include <QLineEdit>
 #include <QFileDialog>
+#include <QLineEdit>
 
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_property_client/property_client.hpp>
 
 #include "./base.hpp"
 

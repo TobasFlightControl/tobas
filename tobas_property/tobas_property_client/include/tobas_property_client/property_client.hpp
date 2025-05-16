@@ -3,8 +3,8 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_property_common/constants.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 
 namespace ptree
 {
@@ -79,12 +79,12 @@ PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& v
   req->section = section_;
   req->key = key;
 
-  if (!sc.call(req))
+  if (!sc.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -106,12 +106,12 @@ PropertyClient::error_t PropertyClient::setProperty(const std::string& key, T& v
   req->key = key;
   req->value = value;
 
-  if (!sc.call(req))
+  if (!sc.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }

@@ -1,18 +1,18 @@
 #include <tobas_algorithm/core.hpp>
-#include <tobas_std_tools/range.hpp>
-#include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_keyboard/utils.hpp>
-#include <tobas_keyboard/keyboard_reader.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_tools/fw_trim_conditions.hpp>
+#include <tobas_keyboard/keyboard_reader.hpp>
+#include <tobas_keyboard/utils.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_std_tools/range.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
 
-#include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 
-#include "../include/tobas_keyboard_teleop/constants.hpp"
+#include "tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
 
@@ -126,8 +126,7 @@ void SpeedRollDeltaPitchPublisherNode::getStaticRosParams()
 
 bool SpeedRollDeltaPitchPublisherNode::initialize()
 {
-  if (!trim_.updateInternalDataStructures())
-  {
+  if (!trim_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of trim condition.");
     return false;
   }
@@ -166,63 +165,55 @@ void SpeedRollDeltaPitchPublisherNode::airPressureCb(
 
 void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
 {
-  if (!is_initialized_)
-  {
-    if (drone_received_ && tree_received_ && pressure_received_)
-    {
-      if (!initialize())
+  if (!is_initialized_) {
+    if (drone_received_ && tree_received_ && pressure_received_) {
+      if (!initialize()) {
         return;
+      }
       check_topics_timer_->cancel();
       is_initialized_ = true;
     }
     return;
   }
 
-  if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
-  {
+  if (trim_.update(cmd_.speed, air_density_, q_0_) < 0) {
     TOBAS_ERROR(trim_.errorMessage());
     return;
   }
 
   // コマンドを更新
   const auto c = key_reader_.readKey();
-  if (c < 0)
+  if (c < 0) {
     TOBAS_ERROR("Failed to read keyboard.");
+  }
 
-  switch (c)
-  {
-    case 'w':
-    {
+  switch (c) {
+    case 'w': {
       cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
       TOBAS_INFO("Increase speed");
       break;
     }
-    case 's':
-    {
+    case 's': {
       cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
       TOBAS_INFO("Decrease speed");
       break;
     }
-    case keyboard::UP:
-    {
+    case keyboard::UP: {
       cmd_.delta_pitch = clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
       TOBAS_INFO("Nose up");
       break;
     }
-    case keyboard::DOWN:
-    {
+    case keyboard::DOWN: {
       cmd_.delta_pitch = clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
       TOBAS_INFO("Nose down");
       break;
     }
-    case keyboard::LEFT:
-    {
+    case keyboard::LEFT: {
       cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
       TOBAS_INFO("Turn left");
       break;
     }
-    case keyboard::RIGHT:
-    {
+    case keyboard::RIGHT: {
       cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
       TOBAS_INFO("Turn right");
       break;
@@ -236,14 +227,17 @@ void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
 
 void SpeedRollDeltaPitchPublisherNode::checkTopicsTimerCb()
 {
-  if (!drone_received_)
+  if (!drone_received_) {
     TOBAS_INFO("Waiting for \"", tobas::kDroneTopic, "\".");
+  }
 
-  if (!tree_received_)
+  if (!tree_received_) {
     TOBAS_INFO("Waiting for \"", tobas::kKdlTreeTopic, "\".");
+  }
 
-  if (!pressure_received_)
+  if (!pressure_received_) {
     TOBAS_INFO("Waiting for \"", tobas::kAirPressureTopic, "\".");
+  }
 }
 
 void SpeedRollDeltaPitchPublisherNode::instructionTimerCb()

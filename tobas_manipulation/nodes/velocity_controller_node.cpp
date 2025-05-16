@@ -1,19 +1,19 @@
-#include <tobas_kdl/tree_joint_parser.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_taskspace_vel_ctrl.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_ros2_tools/tf_listener.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/tf_listener.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
+#include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
-#include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
 
-#include "../include/tobas_manipulation/constants.hpp"
-#include "../include/tobas_manipulation/util.hpp"
+#include "tobas_manipulation/constants.hpp"
+#include "tobas_manipulation/util.hpp"
 
 using namespace std;
 
@@ -81,12 +81,12 @@ private:
 };
 
 VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& options)
-  : super("velocity_controller", options),
-    jnt_parser_(tree_),
-    active_jnts_extractor_(tree_),
-    vel_ctrl_(tree_),
-    cur_js_conv_(tree_),
-    tar_js_conv_(tree_)
+  : super("velocity_controller", options)
+  , jnt_parser_(tree_)
+  , active_jnts_extractor_(tree_)
+  , vel_ctrl_(tree_)
+  , cur_js_conv_(tree_)
+  , tar_js_conv_(tree_)
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }
@@ -110,7 +110,7 @@ void VelocityControllerNode::initialize()
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 
-  initialize_timer_.reset();
+  initialize_timer_->cancel();
 }
 
 bool VelocityControllerNode::jointSpaceControl(
@@ -119,13 +119,11 @@ bool VelocityControllerNode::jointSpaceControl(
   tobas_msgs::msg::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.convert(cur_js) < 0)
-  {
+  if (cur_js_conv_.convert(cur_js) < 0) {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
   }
-  if (tar_js_conv_.convert(tar_js) < 0)
-  {
+  if (tar_js_conv_.convert(tar_js) < 0) {
     TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
     return false;
   }
@@ -139,16 +137,13 @@ bool VelocityControllerNode::jointSpaceControl(
   // TODO: 関節角制限を考慮し，制限に違反する速度を出さない
 
   // Fill output message
-  for (const auto& tar_state : tar_js.states)
-  {
+  for (const auto& tar_state : tar_js.states) {
     const auto& joint = drone_->joints.at(tar_state.name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION)
-    {
+    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
       TOBAS_WARN("The role of joint \"", tar_state.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
-    {
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
       TOBAS_WARN("The command interface of joint \"", tar_state.name, "\" must be \"VELOCITY\".");
       continue;
     }
@@ -167,18 +162,15 @@ bool VelocityControllerNode::taskSpaceControl(
   tobas_msgs::msg::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.convert(cur_js) < 0)
-  {
+  if (cur_js_conv_.convert(cur_js) < 0) {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
   }
 
   kdl::Frame T_Base_Parent;
   kdl::FrameMap tar_p;
-  for (const auto& ls : tar_ls.states)
-  {
-    if (!tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id))
-    {
+  for (const auto& ls : tar_ls.states) {
+    if (!tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id)) {
       TOBAS_ERROR(tf_listener_->getErrorMessage());
       continue;
     }
@@ -189,8 +181,7 @@ bool VelocityControllerNode::taskSpaceControl(
 
   // 目標関節速度を計算
   const auto& cur_q = cur_js_conv_.getPosition();
-  if (vel_ctrl_.CartToJnt(cur_q, tar_p) < 0)
-  {
+  if (vel_ctrl_.CartToJnt(cur_q, tar_p) < 0) {
     TOBAS_ERROR("Cartesian controller failed: ", vel_ctrl_.errorMessage());
     return false;
   }
@@ -201,16 +192,13 @@ bool VelocityControllerNode::taskSpaceControl(
   const auto& active_jnt_names = active_jnts_extractor_.activeJointNames();
 
   // Fill output message
-  for (const auto& jnt_name : active_jnt_names)
-  {
+  for (const auto& jnt_name : active_jnt_names) {
     const auto& joint = drone_->joints.at(jnt_name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION)
-    {
+    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
       TOBAS_WARN("The role of joint \"", jnt_name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
-    {
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" must be \"VELOCITY\".");
       continue;
     }
@@ -231,8 +219,7 @@ bool VelocityControllerNode::jointTimeConstCb(const double& p)
 
 bool VelocityControllerNode::linearTimeConstCb(const double& p)
 {
-  if (!vel_ctrl_.setLinearTimeConst(p))
-  {
+  if (!vel_ctrl_.setLinearTimeConst(p)) {
     TOBAS_ERROR("Failed to set linear tracking time constant.");
     return false;
   }
@@ -242,8 +229,7 @@ bool VelocityControllerNode::linearTimeConstCb(const double& p)
 
 bool VelocityControllerNode::angularTimeConstCb(const double& p)
 {
-  if (!vel_ctrl_.setAngularTimeConst(p))
-  {
+  if (!vel_ctrl_.setAngularTimeConst(p)) {
     TOBAS_ERROR("Failed to set angular tracking time constant.");
     return false;
   }
@@ -258,52 +244,49 @@ void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   home_js_.states.clear();
 
   // 速度指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone->joints)
-  {
-    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION)
+  for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
+    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION) {
       continue;
-    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
+    }
+    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
       continue;
+    }
     home_js_.states.emplace_back();
     home_js_.states.back().name = jnt_name;
     home_js_.states.back().position = jnt_cfg.home_pos;
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.states.size() > 0)
+  if (home_js_.states.size() > 0) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
+  }
 }
 
 void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (!jnt_parser_.updateInternalDataStructures())
-  {
+  if (!jnt_parser_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of joint parser.");
     tree_.clear();
     return;
   }
-  if (!active_jnts_extractor_.updateInternalDataStructures())
-  {
+  if (!active_jnts_extractor_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of active joints extractor.");
     tree_.clear();
     return;
   }
-  if (!vel_ctrl_.updateInternalDataStructures())
-  {
+  if (!vel_ctrl_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of joint space velocity controller.");
     tree_.clear();
     return;
   }
-  if (!cur_js_conv_.updateInternalDataStructures())
-  {
+  if (!cur_js_conv_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
     tree_.clear();
     return;
   }
-  if (!tar_js_conv_.updateInternalDataStructures())
-  {
+  if (!tar_js_conv_.updateInternalDataStructures()) {
     TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
     tree_.clear();
     return;
@@ -312,29 +295,31 @@ void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
 {
-  if (tree_.getNrOfJoints() == 0)
+  if (tree_.getNrOfJoints() == 0) {
     return;
-  if (home_js_.states.size() == 0)
+  }
+  if (home_js_.states.size() == 0) {
     return;
-  if (!tar_js_ && !tar_ls_)
+  }
+  if (!tar_js_ && !tar_ls_) {
     return;
+  }
 
   // Create joint velocities command
   auto velocities_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
   // Joint space control or Task space control
-  if (tar_js_)
-  {
-    if (!jointSpaceControl(*cur_js, *tar_js_, *velocities_msg))
+  if (tar_js_) {
+    if (!jointSpaceControl(*cur_js, *tar_js_, *velocities_msg)) {
       return;
+    }
   }
-  else if (tar_ls_)
-  {
-    if (!taskSpaceControl(*cur_js, *tar_ls_, *velocities_msg))
+  else if (tar_ls_) {
+    if (!taskSpaceControl(*cur_js, *tar_ls_, *velocities_msg)) {
       return;
+    }
   }
-  else
-  {
+  else {
     TOBAS_ERROR("Both target joint state and target link state are NULL.");
     return;
   }
@@ -365,7 +350,8 @@ void VelocityControllerNode::autoResetTimerCb()
   tar_ls_.reset();
 
   TOBAS_WARN(
-    "The target joint states are automatically reset because ", manipulation::kAutoResetTimeThresh,
+    "The target joint states are automatically reset because ",
+    manipulation::kAutoResetTimeThresh,
     " have elapsed since the last command.");
 
   auto_reset_timer_->cancel();

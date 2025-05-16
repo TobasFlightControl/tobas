@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 namespace tobas
 {

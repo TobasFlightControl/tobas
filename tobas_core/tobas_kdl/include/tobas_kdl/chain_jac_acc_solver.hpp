@@ -21,10 +21,7 @@ public:
 
   int JntToCart(const JntArray& q, const JntArray& qd);
 
-  const Accel& getJdqd() const
-  {
-    return Jdqd_out_;
-  }
+  inline const Accel& getJdqd() const;
 
 private:
   std::vector<Frame> X_;
@@ -36,4 +33,9 @@ private:
 
   void resize();
 };
+
+inline const Accel& ChainJacAccSolver::getJdqd() const
+{
+  return Jdqd_out_;
+}
 }  // namespace kdl

@@ -2,8 +2,8 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl_msgs_adapter/vector.hpp>
 #include <tobas_kdl_msgs_adapter/euler.hpp>
+#include <tobas_kdl_msgs_adapter/vector.hpp>
 
 #include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
 
@@ -63,9 +63,9 @@ struct rclcpp::
 
 namespace tobas_debug_msgs
 {
-using MultiRotorControllerFeedbackAdapter = rclcpp::
-  TypeAdapter<tobas_debug_msgs::MultiRotorControllerFeedback, tobas_debug_msgs::msg::MultiRotorControllerFeedback>;
-}
+using MultiRotorControllerFeedbackAdapter =
+  rclcpp::TypeAdapter<tobas_debug_msgs::MultiRotorControllerFeedback, tobas_debug_msgs::msg::MultiRotorControllerFeedback>;
+}  // namespace tobas_debug_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
   tobas_debug_msgs::MultiRotorControllerFeedback,

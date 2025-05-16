@@ -1,12 +1,16 @@
-#include <qwt/qwt_plot_curve.h>  // <= C++17
+#include "tobas_qwt_wrapper/qwt_plot_curve.hpp"
 
-#include "../include/tobas_qwt_wrapper/qwt_plot_curve.hpp"
+#include <qwt/qwt_plot_curve.h>  // XXX: <= C++17
 
 namespace qwt
 {
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& title)
 {
   impl_ = std::make_shared<QwtPlotCurve>(title);
+}
+
+QwtPlotCurveWrapper::QwtPlotCurveWrapper(const char* title) : QwtPlotCurveWrapper(QString(title))
+{
 }
 
 void QwtPlotCurveWrapper::setPen(const QColor& color, qreal width, Qt::PenStyle style)

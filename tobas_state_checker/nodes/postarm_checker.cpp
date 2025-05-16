@@ -1,11 +1,12 @@
-#include <tobas_math/core.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_tools/util.hpp>
+
 #include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/latency.hpp>
+#include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 
@@ -67,8 +68,7 @@ PostArmCheckerNode::PostArmCheckerNode(const rclcpp::NodeOptions& options) : sup
 void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   // アームされたらインスタンス変数を初期化
-  if (!arming_ || (arming_->data && !arming->data))
-  {
+  if (!arming_ || (arming_->data && !arming->data)) {
     imu_.reset();
     mag_.reset();
     latency_.reset();
@@ -79,39 +79,42 @@ void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr&
 
 void PostArmCheckerNode::imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& imu)
 {
-  if (!arming_ || !arming_->data)
+  if (!arming_ || !arming_->data) {
     return;
+  }
 
   imu_ = imu;
 }
 
 void PostArmCheckerNode::magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& mag)
 {
-  if (!arming_ || !arming_->data)
+  if (!arming_ || !arming_->data) {
     return;
+  }
 
   mag_ = mag;
 }
 
 void PostArmCheckerNode::controlLatencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency)
 {
-  if (!arming_ || !arming_->data)
+  if (!arming_ || !arming_->data) {
     return;
+  }
 
   latency_ = latency;
 }
 
 void PostArmCheckerNode::mainTimerCb()
 {
-  if (!arming_ || !arming_->data)
+  if (!arming_ || !arming_->data) {
     return;
+  }
 
   auto postarm_check = std::make_unique<tobas_msgs::msg::PostArmCheck>();
 
   postarm_check->header.stamp = get_clock()->now();
 
-  if (imu_)
-  {
+  if (imu_) {
     // ジャイロノイズの標準偏差
     const auto gyro_noise_var = imu_->imu.gyro_covariance.diagonal().maxCoeff();
     postarm_check->gyro_noise_too_large = (gyro_noise_var > math::sqr(kGyroNoiseStddevThresh));
@@ -120,36 +123,31 @@ void PostArmCheckerNode::mainTimerCb()
     const auto acc_noise_var = imu_->imu.accel_covariance.diagonal().maxCoeff();
     postarm_check->accel_noise_too_large = (acc_noise_var > math::sqr(kAccNoiseStddevThresh));
   }
-  else
-  {
+  else {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "IMU state is not received yet.");
     postarm_check->gyro_noise_too_large = true;
     postarm_check->accel_noise_too_large = true;
   }
 
-  if (mag_)
-  {
+  if (mag_) {
     // 地磁気が原点を中心とする単位球上に存在するか
     postarm_check->mag_offset_too_large = (abs(mag_->mag.mag.norm() - 1.) > kMagLengthErrorThresh);
 
     // 世界座標系から見た磁気ベクトルが参照と一致するか
     // TODO: ESKFから参照地磁気ベクトルを発行して評価
   }
-  else
-  {
+  else {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Magnetic field is not received yet.");
     postarm_check->mag_offset_too_large = true;
     postarm_check->mag_misalignment = true;
   }
 
   // 制御レイテンシ
-  if (latency_)
-  {
+  if (latency_) {
     const auto latency_us = ros2::microseconds(latency_->data);
     postarm_check->latency_too_large = (latency_us > kLatencyThresh);
   }
-  else
-  {
+  else {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Control latency is not received yet.");
     postarm_check->latency_too_large = true;
   }

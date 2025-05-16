@@ -3,13 +3,13 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
-#include <tobas_std_tools/geometry.hpp>
-#include <tobas_std_tools/timestamped_buffer.hpp>
-#include <tobas_std_tools/stopwatch.hpp>
-#include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_eigen_tools/operators.hpp>
-#include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
+#include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_eigen_tools/operators.hpp>
+#include <tobas_eigen_tools/typedef.hpp>
+#include <tobas_std_tools/geometry.hpp>
+#include <tobas_std_tools/stopwatch.hpp>
+#include <tobas_std_tools/timestamped_buffer.hpp>
 
 namespace eskf
 {
@@ -167,7 +167,7 @@ public:
    * @param pos_cov 位置の観測ノイズの共分散
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   double measurePosition(
     const Eigen::Vector3d& pos_meas,
@@ -187,7 +187,7 @@ public:
    * @param offset IMUフレームで表現された，IMUフレームに対する観測フレームのオフセット
    * @param gyro_meas ジャイロセンサの読み
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   double measureVelocity(
     const Eigen::Vector3d& vel_meas,
@@ -294,7 +294,7 @@ private:
    * @param grav_cov 観測による修正量を決めるパラメータ．
    * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   double measureGravity(
     const Eigen::Vector3d& acc_meas,
@@ -309,7 +309,7 @@ private:
    * @param meas_cov 観測ノイズの共分散
    * @param H 観測方程式
    *
-   * @return Anormaly score
+   * @return Anomaly score
    */
   template <int M>
   double correct(
@@ -514,15 +514,13 @@ double ErrorStateKalmanFilter::correct(
 
   // (276) Update covariance matrix
   const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
-  if (enable_joseph_form_)
-  {
+  if (enable_joseph_form_) {
     // 対称正定が保持されやすい
     const auto P1 = I_KH * P_.selfadjointView<Eigen::Lower>() * I_KH.transpose();
     const auto P2 = K * meas_cov.template selfadjointView<Eigen::Lower>() * K.transpose();
     P_ = P1 + P2;
   }
-  else
-  {
+  else {
     // 理論通りだが数値的に不安定
     P_ = I_KH * P_;
   }
@@ -540,8 +538,7 @@ double ErrorStateKalmanFilter::correct(
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
 
   // (286) Initialize ESKF (Optional)
-  if (enable_cov_initialization_)
-  {
+  if (enable_cov_initialization_) {
     G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Diagonal3d(1, 1, 1) - eigen::skew(0.5 * dtheta);
     P_ = G_ * P_.selfadjointView<Eigen::Lower>() * G_.transpose();  // TODO: 必要な部分のみ計算
   }
@@ -549,8 +546,8 @@ double ErrorStateKalmanFilter::correct(
   // Apply constraints to avoid numerical errors
   applyConstraints();
 
-  // Compute anormaly score
-  const double anormaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
-  return anormaly_score;
+  // Compute anomaly score
+  const double anomaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
+  return anomaly_score;
 }
 }  // namespace eskf

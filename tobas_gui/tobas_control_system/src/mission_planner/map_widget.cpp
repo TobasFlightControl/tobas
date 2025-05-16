@@ -1,12 +1,14 @@
+#include "tobas_control_system/mission_planner/map_widget.hpp"
+
 #include <filesystem>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <QtQuick/QQuickItem>
+
 #include <QtQml/QQmlContext>
+#include <QtQuick/QQuickItem>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_control_system/constants.hpp"
-#include "tobas_control_system/mission_planner/map_widget.hpp"
 #include "tobas_control_system/mission_planner/system_info.hpp"
 
 namespace fs = std::filesystem;
@@ -47,11 +49,7 @@ void MapWidget::clear()
   line_->clear();
 }
 
-void MapWidget::addWaypoint(
-  int index,
-  const QGeoCoordinate& coord,
-  double acceptance_radius,
-  const QString& marker_color)
+void MapWidget::addWaypoint(int index, const QGeoCoordinate& coord, double acceptance_radius, const QString& marker_color)
 {
   waypoint_->add(index, coord, acceptance_radius, marker_color);
 }

@@ -13,6 +13,7 @@ class SpeedRollDeltaPitchController : public BaseController
   static constexpr double kDefaultMaxRoll = M_PI_2;        // [rad]
   static constexpr double kDefaultMaxDeltaPitch = M_PI_4;  // [rad]
 
+  using self = SpeedRollDeltaPitchController;
   using super = BaseController;
 
 public:
@@ -23,20 +24,29 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node) override;
+  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   // rosparams
-  double min_speed_;   // [m/s]
-  double max_speed_;   // [m/s]
-  double max_roll_;    // [rad]
-  double max_dpitch_;  // [rad]
+  double min_speed_ = 0.;                                  // [m/s]
+  double max_speed_ = std::numeric_limits<double>::max();  // [m/s]
+  double max_roll_;                                        // [rad]
+  double max_dpitch_;                                      // [rad]
+  double speed_expo_;
+  double roll_expo_;
+  double pitch_expo_;
 
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
 
-  void getStaticRosParams(tobas::BaseNode* node);
+  bool minSpeedCb(const double& p);
+  bool maxSpeedCb(const double& p);
+  bool maxRollCb(const double& p);
+  bool maxDeltaPitchCb(const double& p);
+  bool speedExpoCb(const long& p);
+  bool rollExpoCb(const long& p);
+  bool pitchExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

@@ -1,6 +1,7 @@
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
+
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
@@ -55,30 +56,25 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
 
   // Engine
-  switch (iprop_->engine.hw_iface)
-  {
-    case tobas::hw_iface_t::PWM:
-    {
+  switch (iprop_->engine.hw_iface) {
+    case tobas::hw_iface_t::PWM: {
       const auto& pwm_cfg = drone_->pwms.at(tobas::pwm::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
       pwms->pwms.back().period = pwm_cfg.periodFromValue(0.);
       break;
     }
-    case tobas::hw_iface_t::OTHER:
-    {
+    case tobas::hw_iface_t::OTHER: {
       break;
     }
-    default:
-    {
+    default: {
       TOBAS_ERROR("The hardware interface of engine throttle is invalid: ", (int)iprop_->engine.hw_iface);
       break;
     }
   }
 
   // Pitch angles
-  for (const auto& [_, rotor] : iprop_->rotors)
-  {
+  for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor);
 
     const auto& link_name = irotor->link_name;
@@ -88,22 +84,18 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
     pitch_angles_.at(link_name) = cmd_angle;
 
     // Set command
-    switch (irotor->hw_iface)
-    {
-      case tobas::hw_iface_t::PWM:
-      {
+    switch (irotor->hw_iface) {
+      case tobas::hw_iface_t::PWM: {
         const auto& pwm_cfg = drone_->pwms.at(link_name);
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = pwm_cfg.channel;
         pwms->pwms.back().period = pwm_cfg.periodFromValue(cmd_angle);
         break;
       }
-      case tobas::hw_iface_t::OTHER:
-      {
+      case tobas::hw_iface_t::OTHER: {
         break;
       }
-      default:
-      {
+      default: {
         TOBAS_ERROR(
           "The hardware interface of variable pitch propeller \"", link_name, "\" is invalid: ", (int)irotor->hw_iface);
         break;
@@ -112,8 +104,7 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
   }
 
   // Publish command
-  if (pwms->pwms.size() > 0)
-  {
+  if (pwms->pwms.size() > 0) {
     pwms->header.stamp = get_clock()->now();
     pwms_pub_->publish(move(pwms));
   }
@@ -121,19 +112,20 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
 
 void ICEPropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (!drone->prop)
+  if (!drone->prop) {
     return;
+  }
 
-  if (drone->prop->type() != tobas::propulsion_system_t::ICE)
+  if (drone->prop->type() != tobas::propulsion_system_t::ICE) {
     return;
+  }
 
   drone_ = drone;
   iprop_ = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone->prop);
 
   // Initialize pitch angle map
   pitch_angles_.clear();
-  for (const auto& [_, rotor] : iprop_->rotors)
-  {
+  for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor);
     pitch_angles_[irotor->link_name] = irotor->pitch_ref;
   }
@@ -148,7 +140,7 @@ void ICEPropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   ice_cmd_sub_ = createSubscriber(tobas::kIcePropulsionSystemCmdTopic, &self::iceCommandCb, this);
 
   // Create timers
-  auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
+  auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 }
 
 void ICEPropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
@@ -156,8 +148,7 @@ void ICEPropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::Engine
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   rotor_states->header.stamp = engine_state->header.stamp;
 
-  for (const auto& [link_name, rotor] : iprop_->rotors)
-  {
+  for (const auto& [link_name, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor);
 
     rotor_states->states.emplace_back();
@@ -177,71 +168,65 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
 
   // Engine
-  switch (iprop_->engine.hw_iface)
-  {
-    case tobas::hw_iface_t::PWM:
-    {
+  switch (iprop_->engine.hw_iface) {
+    case tobas::hw_iface_t::PWM: {
       const auto& pwm_cfg = drone_->pwms.at(tobas::pwm::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
       pwms->pwms.back().period = pwm_cfg.periodFromValue(ice_cmd->engine_throttle);
       break;
     }
-    case tobas::hw_iface_t::OTHER:
-    {
+    case tobas::hw_iface_t::OTHER: {
       break;
     }
-    default:
-    {
+    default: {
       TOBAS_ERROR("The hardware interface of engine throttle is invalid: ", (int)iprop_->engine.hw_iface);
       break;
     }
   }
 
   // Pitch angles
-  for (const auto& elem : ice_cmd->pitch_angles)
-  {
+  for (const auto& elem : ice_cmd->pitch_angles) {
     const auto& link_name = elem.link_name;
     auto cmd_angle = elem.angle;
 
     // Get rotor config
     const auto rotor_it = iprop_->rotors.find(link_name);
-    if (rotor_it == iprop_->rotors.end())
-    {
+    if (rotor_it == iprop_->rotors.end()) {
       TOBAS_ERROR("Rotor link \"", link_name, "\" is not found.");
       continue;
     }
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor_it->second);
 
     // Check pitch angle limit
-    if (irotor->pitch_range.inRange(cmd_angle))
-    {
+    if (!irotor->pitch_limit.inRange(cmd_angle)) {
       TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "Commanded pitch angle of propeller \"", link_name,
-        "\" is out of range: ", cmd_angle, " ∉ ", irotor->pitch_range);
-      cmd_angle = irotor->pitch_range.clamp(cmd_angle);
+        tobas::kTypicalWarnPeriod,
+        "Commanded pitch angle of propeller \"",
+        link_name,
+        "\" is out of its limit: ",
+        cmd_angle,
+        " ∉ ",
+        irotor->pitch_limit);
+      cmd_angle = irotor->pitch_limit.clamp(cmd_angle);
     }
 
     // Set current pitch angle
     pitch_angles_.at(link_name) = cmd_angle;
 
     // Set command
-    switch (irotor->hw_iface)
-    {
-      case tobas::hw_iface_t::PWM:
-      {
+    switch (irotor->hw_iface) {
+      case tobas::hw_iface_t::PWM: {
         const auto& pwm_cfg = drone_->pwms.at(link_name);
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = pwm_cfg.channel;
         pwms->pwms.back().period = pwm_cfg.periodFromValue(cmd_angle);
         break;
       }
-      case tobas::hw_iface_t::OTHER:
-      {
+      case tobas::hw_iface_t::OTHER: {
         break;
       }
-      default:
-      {
+      default: {
         TOBAS_ERROR(
           "The hardware interface of variable pitch propeller \"", link_name, "\" is invalid: ", (int)irotor->hw_iface);
         break;
@@ -250,8 +235,7 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
   }
 
   // Publish command
-  if (pwms->pwms.size() > 0)
-  {
+  if (pwms->pwms.size() > 0) {
     pwms->header.stamp = ice_cmd->header.stamp;
     pwms_pub_->publish(move(pwms));
   }
@@ -270,11 +254,11 @@ void ICEPropulsionSystemHandlerNode::autoStopTimerCb()
 {
   stopActuator();
 
-  if (is_commanded_)
-  {
+  if (is_commanded_) {
     is_commanded_ = false;
     TOBAS_WARN(
-      "ICE propulsion system is automatically stopped because ", tobas::kCommandAutoResetTimeout,
+      "ICE propulsion system is automatically stopped because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }

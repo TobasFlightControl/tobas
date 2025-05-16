@@ -1,9 +1,10 @@
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/time.hpp>
+
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 
@@ -50,10 +51,10 @@ private:
   void imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
 };
 
-ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super("imu_preprocess", options)
+ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super(tobas::node::kImuPreprocess, options)
 {
-  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, kDefaultAccelLowPassCutoff, 30, 400);
-  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, kDefaultGyroLowPassCutoff, 30, 400);
+  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, kDefaultAccelLowPassCutoff, 1, 400);
+  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, kDefaultGyroLowPassCutoff, 1, 400);
 
   imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
@@ -61,8 +62,7 @@ ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super
 
 bool ImuPreprocessNode::accelLowPassCutoffCb(const long& p)
 {
-  if (!acc_lpf_.setCutoffFrequency(p))
-  {
+  if (!acc_lpf_.setCutoffFrequency(p)) {
     TOBAS_ERROR("Failed to set cutoff frequency of accel low-pass filter.");
     return false;
   }
@@ -72,8 +72,7 @@ bool ImuPreprocessNode::accelLowPassCutoffCb(const long& p)
 
 bool ImuPreprocessNode::gyroLowPassCutoffCb(const long& p)
 {
-  if (!gyro_lpf_.setCutoffFrequency(p))
-  {
+  if (!gyro_lpf_.setCutoffFrequency(p)) {
     TOBAS_ERROR("Failed to set cutoff frequency of gyro low-pass filter.");
     return false;
   }
@@ -83,48 +82,44 @@ bool ImuPreprocessNode::gyroLowPassCutoffCb(const long& p)
 
 void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
 {
-  switch (stage_)
-  {
-    case MEASURE_GYRO_BIAS:
-    {
+  switch (stage_) {
+    case MEASURE_GYRO_BIAS: {
       // 角速度が大きすぎる場合はやり直し
-      if (imu_raw->imu.gyro.norm() > kStaticGyroThreshold)
-      {
+      if (imu_raw->imu.gyro.norm() > kStaticGyroThreshold) {
         TOBAS_WARN_THROTTLE(
           1., "Perturbation is detected while measuring gyro bias: ", imu_raw->imu.gyro, " [rad/s]. Retrying...");
         gyro_bias_cnt_ = 0;
-        for (size_t i = 0; i < 3; ++i)
+        for (size_t i = 0; i < 3; ++i) {
           gyro_sum_[i].reset();
+        }
         break;
       }
 
       // 角速度を加算
-      for (size_t i = 0; i < 3; ++i)
+      for (size_t i = 0; i < 3; ++i) {
         gyro_sum_[i].add(imu_raw->imu.gyro(i));
+      }
 
       // データが溜まったら角速度の平均をバイアスの推定値として次のステージに進む
-      if (++gyro_bias_cnt_ == kMeasureGyroBiasCount)
-      {
-        for (size_t i = 0; i < 3; ++i)
+      if (++gyro_bias_cnt_ == kMeasureGyroBiasCount) {
+        for (size_t i = 0; i < 3; ++i) {
           gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;
+        }
         TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_);
         stage_ = INITIALIZE;
       }
 
       break;
     }
-    case INITIALIZE:
-    {
+    case INITIALIZE: {
       acc_lpf_.setValue(imu_raw->imu.accel);
       gyro_lpf_.setValue(imu_raw->imu.gyro);
 
-      if (!acc_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.accel.data))
-      {
+      if (!acc_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.accel.data)) {
         TOBAS_ERROR("Failed to initialize accel noise variance filter.");
         return;
       }
-      if (!gyro_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.gyro.data))
-      {
+      if (!gyro_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.gyro.data)) {
         TOBAS_ERROR("Failed to initialize gyro noise variance filter.");
         return;
       }
@@ -133,8 +128,7 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
       stage_ = PUBLISH;
       break;
     }
-    case PUBLISH:
-    {
+    case PUBLISH: {
       // Compute time difference
       const auto dt = (imu_raw->header.stamp - imu_raw_->header.stamp).seconds();
       imu_raw_ = imu_raw;

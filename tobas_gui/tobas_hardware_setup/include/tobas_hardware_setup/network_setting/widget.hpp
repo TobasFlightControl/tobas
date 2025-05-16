@@ -2,10 +2,10 @@
 
 #include <QPushButton>
 
-#include <wpa_supplicant_parser/parser.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
+#include <tobas_ssh_client/ssh_client.hpp>
+#include <wpa_supplicant_parser/parser.hpp>
 
 #include "../base.hpp"
 #include "./read_thread.hpp"

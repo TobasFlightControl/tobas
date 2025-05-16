@@ -1,15 +1,17 @@
 #include <boost/polymorphic_pointer_cast.hpp>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_tools/util.hpp>
+
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_tools/util.hpp>
-#include <tobas_real_common/constants.hpp>
-
+#include <tobas_dparam_msgs/srv/get_params.hpp>
+#include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
-#include <tobas_std_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
@@ -22,7 +24,6 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field_stamped.hpp>
 #include <tobas_msgs/msg/odometry.hpp>
-#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
@@ -30,18 +31,18 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs/srv/get_gnss_origin.hpp>
-#include <tobas_msgs/srv/set_gnss_origin.hpp>
+#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
-#include <tobas_drone_msgs/msg/drone.hpp>
-#include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
+#include <tobas_std_msgs/msg/message.hpp>
 
 #define DEFAULT_NUM_THREADS 4
 #define MIN_NUM_THREADS 2
@@ -142,9 +143,11 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<std_srvs::srv::Trigger>(tobas::kSaveRotorControlGainsSrv);
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::kGetDynamicParamsSrv));
-  addService<tobas_real_msgs::srv::SetIMUParams>(real::handler::imu::kSetParamSrv);
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kRcTeleop, tobas::kGetDynamicParamsSrv));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kImuPreprocess, tobas::kGetDynamicParamsSrv));
+  addService<tobas_real_msgs::srv::SetImuParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
-  addService<tobas_real_msgs::srv::SetRCInputParams>(real::handler::rcin::kSetParamSrv);
+  addService<tobas_real_msgs::srv::SetRcInputParams>(real::handler::rcin::kSetParamSrv);
 }
 
 template <typename MsgType>
@@ -214,8 +217,7 @@ void ROSInterfaceNode::serviceCallback(
 {
   const auto client = boost::polymorphic_pointer_downcast<rclcpp::Client<SrvType>>(clients_.at(srv_name));
 
-  if (!client->wait_for_service())
-  {
+  if (!client->wait_for_service()) {
     TOBAS_ERROR("\"", client->get_service_name(), "\" service is not ready.");
     return;
   }
@@ -233,11 +235,11 @@ int main(int argc, char* argv[])
   const auto node = std::make_shared<ROSInterfaceNode>();
 
   long num_threads = DEFAULT_NUM_THREADS;
-  if (node->has_parameter("num_threads"))
+  if (node->has_parameter("num_threads")) {
     num_threads = node->get_parameter("num_threads").as_int();
+  }
 
-  if (num_threads < MIN_NUM_THREADS)
-  {
+  if (num_threads < MIN_NUM_THREADS) {
     RCLCPP_WARN_STREAM(
       node->get_logger(),
       "To avoid deadlock with recursive service calls, at least " << MIN_NUM_THREADS << " threads are required.");

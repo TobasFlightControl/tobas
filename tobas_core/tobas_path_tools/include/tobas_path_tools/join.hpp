@@ -20,12 +20,15 @@ std::string join(const T& _x, const U& _y)
   const std::string x = _x;
   const std::string y = _y;
 
-  if (y.starts_with(sep))
+  if (y.starts_with(sep)) {
     return y;
-  else if (x.empty() || x.ends_with(sep))
+  }
+  else if (x.empty() || x.ends_with(sep)) {
     return x + y;
-  else
+  }
+  else {
     return x + sep + y;
+  }
 }
 
 /* Same as os.path.join() from Python. */

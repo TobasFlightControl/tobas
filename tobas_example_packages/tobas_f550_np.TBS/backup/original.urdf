@@ -1,0 +1,259 @@
+<robot name="f550_np">
+    <material name="black">
+        <texture/>
+        <color rgba="0 0 0 1"/>
+    </material>
+    <material name="white">
+        <texture/>
+        <color rgba="1 1 1 1"/>
+    </material>
+    <material name="yellow">
+        <texture/>
+        <color rgba="1 1 0 1"/>
+    </material>
+    <link name="base_link"/>
+    <link name="battery">
+        <inertial>
+            <mass value="0.496"/>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <inertia ixx="0.000137557" ixy="0" ixz="0" iyy="0.00103536" iyz="0" izz="0.00108827"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.155 0.048 0.032"/>
+            </geometry>
+            <material name="yellow">
+                <texture/>
+                <color rgba="1 1 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.155 0.048 0.032"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="frame">
+        <inertial>
+            <mass value="1.423"/>
+            <origin xyz="0.000624 0.001181 0.014463" rpy="0 -0 0"/>
+            <inertia ixx="0.03692" ixy="1.71388e-07" ixz="-2.21927e-06" iyy="0.03681" iyz="-5.164e-05" izz="0.07082"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f550_np.TBS/tobas_f550_np_config/meshes/frame.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="black">
+                <texture/>
+                <color rgba="0 0 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.028" rpy="0 -0 0"/>
+            <geometry>
+                <box size="0.509223 0.294 0.056"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="0 0 -0.028" rpy="0 -0 1.0472"/>
+            <geometry>
+                <box size="0.509223 0.294 0.056"/>
+            </geometry>
+        </collision>
+        <collision>
+            <origin xyz="0 0 -0.028" rpy="0 0 -1.0472"/>
+            <geometry>
+                <box size="0.509223 0.294 0.056"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_0">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f550_np.TBS/tobas_f550_np_config/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_1">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f550_np.TBS/tobas_f550_np_config/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_2">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f550_np.TBS/tobas_f550_np_config/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_3">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f550_np.TBS/tobas_f550_np_config/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_4">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f550_np.TBS/tobas_f550_np_config/meshes/phantom3_0945_ccw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="propeller_5">
+        <inertial>
+            <mass value="0.011"/>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <inertia ixx="3.60593e-05" ixy="0" ixz="0" iyy="3.60593e-05" iyz="0" izz="7.18547e-05"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0"/>
+            <geometry>
+                <mesh filename="file:///home/dohi/colcon_ws_tobas/src/tobas/tobas_example_packages/tobas_f550_np.TBS/tobas_f550_np_config/meshes/phantom3_0945_cw.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="white">
+                <texture/>
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.006" rpy="0 -0 0"/>
+            <geometry>
+                <cylinder radius="0.1143" length="0.012"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="battery_joint" type="fixed">
+        <origin xyz="0 0 -0.021" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="battery"/>
+    </joint>
+    <joint name="frame_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <axis xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="frame"/>
+    </joint>
+    <joint name="propeller_0_joint" type="continuous">
+        <origin xyz="0.242082 0.130702 0.060597" rpy="0.523599 2.77556e-17 0.523599"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_0"/>
+    </joint>
+    <joint name="propeller_1_joint" type="continuous">
+        <origin xyz="-0.007851 0.275 0.060597" rpy="-0.523599 5.55112e-17 1.5708"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_1"/>
+    </joint>
+    <joint name="propeller_2_joint" type="continuous">
+        <origin xyz="-0.234232 0.144298 0.060597" rpy="0.523599 2.77556e-17 2.61799"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_2"/>
+    </joint>
+    <joint name="propeller_3_joint" type="continuous">
+        <origin xyz="-0.234232 -0.144645 0.060597" rpy="-0.523599 2.77556e-17 -2.61799"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_3"/>
+    </joint>
+    <joint name="propeller_4_joint" type="continuous">
+        <origin xyz="-0.007851 -0.275 0.060597" rpy="0.523599 5.55112e-17 -1.5708"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_4"/>
+    </joint>
+    <joint name="propeller_5_joint" type="continuous">
+        <origin xyz="0.242082 -0.130355 0.060597" rpy="-0.523599 2.77556e-17 -0.523599"/>
+        <axis xyz="0 0 1"/>
+        <parent link="base_link"/>
+        <child link="propeller_5"/>
+    </joint>
+</robot>

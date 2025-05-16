@@ -1,6 +1,6 @@
-#include <tobas_std_tools/vector.hpp>
+#include "tobas_tools/tree_joint_state_converter.hpp"
 
-#include "../include/tobas_tools/tree_joint_state_converter.hpp"
+#include <tobas_std_tools/vector.hpp>
 
 namespace tobas
 {
@@ -12,11 +12,13 @@ TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& tree) : super(
 
 bool TreeJointStateConverter::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!jnt_parser_.updateInternalDataStructures())
+  if (!jnt_parser_.updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
 
@@ -25,20 +27,18 @@ bool TreeJointStateConverter::updateInternalDataStructures()
 
 int TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
+  }
 
-  for (const auto& state : msg.states)
-  {
-    try
-    {
+  for (const auto& state : msg.states) {
+    try {
       const auto& kdl_idx = jnt_parser_.jointIndex(state.name);  // Tree内でのインデックス
       q_out_(kdl_idx) = state.position;
       qd_out_(kdl_idx) = state.velocity;
       f_out_(kdl_idx) = state.effort;
     }
-    catch (const std::exception& e)
-    {
+    catch (const std::exception& e) {
       error_msg_ = e.what();
       return error_code_ = E_NOERROR;
     }

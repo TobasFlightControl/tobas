@@ -48,12 +48,14 @@ DynamicParamClient::error_t DynamicParamClient::setParam(const std::string& para
   req->param_name = param_name;
   req->value = value;
 
-  if (!sc.call(req))
+  if (!sc.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = sc.getResponse();
-  if (!res->success)
+  if (!res->success) {
     return error_code_ = E_SERVER_ERROR;
+  }
 
   return error_code_ = E_NO_ERROR;
 }

@@ -1,14 +1,13 @@
 #pragma once
 
 #include <tobas_std_tools/stopwatch.hpp>
-
 // #include <tobas_quadprog/quadprogpp.hpp>
 // #include <tobas_quadprog/qpoases.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 // #include <tobas_quadprog/primal_dual_interior_point.hpp>
 
-#include "./state_spaces.hpp"
 #include "./equations.hpp"
+#include "./state_spaces.hpp"
 
 namespace ctrl
 {

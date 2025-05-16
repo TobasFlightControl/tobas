@@ -1,8 +1,8 @@
+#include "tobas_kdl/tree_mass_holder.hpp"
+
 #include <iostream>
 
 #include <tobas_algorithm/kahan.hpp>
-
-#include "../include/tobas_kdl/tree_mass_holder.hpp"
 
 using namespace std;
 
@@ -15,8 +15,9 @@ TreeMassHolder::TreeMassHolder(const Tree& tree) : super(tree)
 
 bool TreeMassHolder::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
   updateTotalMass();
   return true;
@@ -35,8 +36,9 @@ double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it)
   algo::Kahan<double> mass_sum;
 
   // Compute the total mass of child segments
-  for (const auto& child_it : cur_ele.children)
+  for (const auto& child_it : cur_ele.children) {
     mass_sum.add(computeMass(child_it));
+  }
 
   // To reduce numerical errors, the mass of the current segment,
   // which is nearest to the root and tend to be large, is added last.

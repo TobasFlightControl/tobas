@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/euler.hpp>
+
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 
 #include "./euler.hpp"
@@ -42,6 +43,6 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::EulerStamped, tobas_kdl_msgs::msg::Eu
 namespace tobas_kdl_msgs
 {
 using EulerStampedAdapter = rclcpp::TypeAdapter<tobas_kdl_msgs::EulerStamped, tobas_kdl_msgs::msg::EulerStamped>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::EulerStamped, tobas_kdl_msgs::msg::EulerStamped);

@@ -1,0 +1,14 @@
+<launch>
+    <node pkg="controller_manager" exec="spawner" namespace="hydrus" args="joint_state_broadcaster --param-file $(find-pkg-share tobas_hydrus_config)/config/joint_state_broadcaster.yaml">
+        <param name="use_sim_time" value="true"/>
+    </node>
+    <node pkg="controller_manager" exec="spawner" namespace="hydrus" args="joint1_controller --param-file $(find-pkg-share tobas_hydrus_config)/config/joint1_controller.yaml">
+        <param name="use_sim_time" value="true"/>
+    </node>
+    <node pkg="controller_manager" exec="spawner" namespace="hydrus" args="joint2_controller --param-file $(find-pkg-share tobas_hydrus_config)/config/joint2_controller.yaml">
+        <param name="use_sim_time" value="true"/>
+    </node>
+    <node pkg="controller_manager" exec="spawner" namespace="hydrus" args="joint3_controller --param-file $(find-pkg-share tobas_hydrus_config)/config/joint3_controller.yaml">
+        <param name="use_sim_time" value="true"/>
+    </node>
+</launch>

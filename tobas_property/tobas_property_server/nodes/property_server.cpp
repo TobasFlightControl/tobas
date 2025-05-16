@@ -1,17 +1,17 @@
+#include <tobas_node/node.hpp>
+#include <tobas_property_common/constants.hpp>
+#include <tobas_property_tree/property_tree.hpp>
+#include <tobas_ros2_tools/util.hpp>
+
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_ros2_tools/util.hpp>
-#include <tobas_node/node.hpp>
-
-#include <tobas_property_tree/property_tree.hpp>
-#include <tobas_property_common/constants.hpp>
 #include <tobas_property_msgs/srv/get_bool.hpp>
-#include <tobas_property_msgs/srv/get_int.hpp>
 #include <tobas_property_msgs/srv/get_double.hpp>
+#include <tobas_property_msgs/srv/get_int.hpp>
 #include <tobas_property_msgs/srv/get_string.hpp>
 #include <tobas_property_msgs/srv/set_bool.hpp>
-#include <tobas_property_msgs/srv/set_int.hpp>
 #include <tobas_property_msgs/srv/set_double.hpp>
+#include <tobas_property_msgs/srv/set_int.hpp>
 #include <tobas_property_msgs/srv/set_string.hpp>
 
 using namespace std;
@@ -49,13 +49,14 @@ private:
   void setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
 
   void saveFileCb(const Trigger::Request::ConstSharedPtr& req, const Trigger::Response::SharedPtr& res);
+
+  string keyWithSection(const string& section, const string& key);
 };
 
 PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
 {
-  const auto file_path = getStringParam("file_path", "~/.config/tobas/config.ini");
-  if (!pt_.initialize(ros2::expandUser(file_path.c_str())))
-  {
+  const auto file_path = getStringParam("file_path", "~/.config/tobas/config.json");
+  if (!pt_.initialize(ros2::expandUser(file_path.c_str()))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
@@ -76,13 +77,11 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
 template <typename SrvType>
 void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  if (pt_.get(req->section, req->key, res->value))
-  {
+  if (pt_.get(keyWithSection(req->section, req->key), res->value)) {
     res->success = true;
     res->message = "";
   }
-  else
-  {
+  else {
     res->success = false;
     res->message = "Failed to get " + req->key + " in section " + req->section + ".";
   }
@@ -91,7 +90,7 @@ void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const Sr
 template <typename SrvType>
 void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  pt_.set(req->section, req->key, req->value);
+  pt_.set(keyWithSection(req->section, req->key), req->value);
 
   res->success = true;
   res->message = "";
@@ -99,14 +98,18 @@ void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const Sr
 
 void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
 {
-  if (!pt_.save())
-  {
+  if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save properties to \"" + pt_.filePath().string() + "\".";
   }
 
   res->success = true;
   res->message = "";
+}
+
+inline string PropertyServer::keyWithSection(const string& section, const string& key)
+{
+  return section + "." + key;
 }
 }  // namespace ptree
 

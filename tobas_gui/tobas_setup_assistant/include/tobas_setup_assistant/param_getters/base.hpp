@@ -1,13 +1,13 @@
 #pragma once
 
-#include <QWidget>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {
@@ -17,9 +17,9 @@ namespace sa
 template <typename T>
 class ParamGetterWidget : public QWidget
 {
-  using super = QWidget;
-
 public:
+  using ValueType = T;
+
   explicit ParamGetterWidget(const QString& param_name, const QString& description_text);
 
   virtual T getValue() const = 0;
@@ -43,8 +43,7 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
   label_->setAlignment(Qt::AlignTop);
   rows_->addWidget(label_);
 
-  if (!description_text.isEmpty())
-  {
+  if (!description_text.isEmpty()) {
     const auto description = new qt::DescriptionWidget(description_text, kBodyPSize);
     rows_->addWidget(description);
   }

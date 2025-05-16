@@ -56,7 +56,7 @@ $ cd ~/colcon_ws
 ```bash
 $ echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc
 $ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
-$ echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc
+$ echo "source ~/colcon_ws/install/local_setup.bash" >> ~/.bashrc
 $ exec bash
 ```
 
@@ -64,7 +64,7 @@ $ exec bash
 
 ```bash
 $ cd ~/colcon_ws/src
-$ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b main
+$ git clone git@github.com:TobasFlightControl/tobas.git --recursive -b jazzy # or "jazzy-develop" if you contribute to Tobas
 ```
 
 5. Install dependencies
@@ -106,3 +106,7 @@ $ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
 - [ ] Visual Inertial Odometry (VIO)
 - [ ] Obstacle avoidance
 - [ ] Automatic path planning
+
+## For Contributors
+
+See [Contributing to Tobas](./CONTRIBUTING.md).

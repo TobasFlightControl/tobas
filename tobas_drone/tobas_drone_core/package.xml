@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <package format="3">
 
 	<name>tobas_drone_core</name>
@@ -10,6 +9,7 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 	<test_depend>ament_cmake_gtest</test_depend>
 
+	<depend>tobas_nlp</depend>
 	<depend>tobas_kdl</depend>
 	<depend>tobas_yaml_tools</depend>
 	<depend>tobas_constants</depend>

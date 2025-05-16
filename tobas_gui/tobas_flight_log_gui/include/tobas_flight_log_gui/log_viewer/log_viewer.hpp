@@ -1,11 +1,12 @@
 #pragma once
 
 #include <filesystem>
+
 #include <rosbag2_cpp/reader.hpp>
 
-#include "./plot_tab.hpp"
-#include "./playback_control.hpp"
 #include "./message_decoder.hpp"
+#include "./playback_control.hpp"
+#include "./plot_tab.hpp"
 
 namespace gui
 {
@@ -31,19 +32,21 @@ private:
   std::unordered_set<std::string> decode_fail_topics_;
 
   MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
-  MessageDecoder<tobas_msgs::msg::ImuWithCovarianceStamped> imu_decoder_;
-  MessageDecoder<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_decoder_;
+  MessageDecoder<tobas_msgs::msg::ImuStamped> imu_decoder_;
+  MessageDecoder<tobas_msgs::msg::ImuWithCovarianceStamped> imu_cov_decoder_;
+  MessageDecoder<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_cov_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorStateArray> cur_rotor_states_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_decoder_;
+  MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> sampling_time_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> ctrl_latency_decoder_;
   MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> dist_force_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_decoder_;
 
-  std::array<PlotTabWidget*, 2> plot_tabs_;
+  std::array<PlotTabWidget*, 3> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
 
   void reset();

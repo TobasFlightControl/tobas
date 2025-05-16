@@ -1,12 +1,14 @@
-#include <tobas_std_tools/check.hpp>
-
 #include "tobas_setup_assistant/xml_elements/launch.hpp"
+
+#include <tobas_std_tools/check.hpp>
 
 using namespace std;
 
 namespace gui
 {
 namespace sa
+{
+namespace xml
 {
 tinyxml2::XMLElement* addNode(
   tinyxml2::XMLElement* parent,
@@ -20,14 +22,18 @@ tinyxml2::XMLElement* addNode(
   const auto node = parent->InsertNewChildElement("node");
   node->SetAttribute("pkg", pkg.c_str());
   node->SetAttribute("exec", exec.c_str());
-  if (!name.empty())
+  if (!name.empty()) {
     node->SetAttribute("name", name.c_str());
-  if (!ns.empty())
+  }
+  if (!ns.empty()) {
     node->SetAttribute("namespace", ns.c_str());
-  if (!output.empty())
+  }
+  if (!output.empty()) {
     node->SetAttribute("output", output.c_str());
-  if (!args.empty())
+  }
+  if (!args.empty()) {
     node->SetAttribute("args", args.c_str());
+  }
   return node;
 }
 
@@ -41,5 +47,6 @@ tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const string& nam
 
   return param;
 }
+}  // namespace xml
 }  // namespace sa
 }  // namespace gui

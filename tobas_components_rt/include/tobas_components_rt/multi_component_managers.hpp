@@ -1,13 +1,14 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
-#include <rclcpp_components/component_manager.hpp>
+
+#include "./component_manager.hpp"
 
 namespace ros2
 {
 struct ComponentManager
 {
-  rclcpp_components::ComponentManager::SharedPtr node;
+  ros2::ThreadSafeComponentManager::SharedPtr node;
   rclcpp::Executor::SharedPtr exec;
   std::thread thread;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_kdl/tree.hpp>
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_kdl/tree.hpp>
 
 namespace tobas
 {
@@ -46,8 +46,7 @@ inline const std::string& SolverI::errorMessage() const
 
 inline int SolverI::updateError(const SolverI& arg)
 {
-  if (arg.errorCode() < error_code_)
-  {
+  if (arg.errorCode() < error_code_) {
     error_code_ = arg.errorCode();
     error_msg_ = arg.errorMessage();
   }

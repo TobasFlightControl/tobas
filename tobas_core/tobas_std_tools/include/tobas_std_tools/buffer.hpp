@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <cassert>
+#include <string>
+#include <vector>
 
 #include "./assert.hpp"
 
@@ -58,8 +58,7 @@ void Buffer<T>::add(T item)
 template <typename T>
 void Buffer<T>::fill(T item)
 {
-  for (int i = 0; i < max_size_; ++i)
-  {
+  for (int i = 0; i < max_size_; ++i) {
     data_[i] = item;
   }
   cur_ = max_size_;

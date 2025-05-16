@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+
 #include <QPushButton>
 
 #include <tobas_drone_core/drone.hpp>
@@ -37,6 +38,8 @@ private:
 
   ParamBlockWidget* controller_params_;
   ParamBlockWidget* observer_params_;
+  ParamBlockWidget* rc_teleop_params_;
+  ParamBlockWidget* imu_preprocess_params_;
 
 private Q_SLOTS:
   void onLoadButtonClicked();

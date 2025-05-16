@@ -1,10 +1,11 @@
-#include <tobas_ros2_tools/sync_param_client.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_dparam_common/constants.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/sync_param_client.hpp>
+
 #include <tobas_dparam_msgs/srv/set_bool.hpp>
-#include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_double.hpp>
+#include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_string.hpp>
 
 using namespace std;
@@ -44,8 +45,7 @@ void DynamicParamServer::callback(
   const typename SrvType::Response::SharedPtr& res)
 {
   ros2::SyncParamClient client(shared_from_this(), req->node_name);
-  if (!client.setParam<ValueType>(req->param_name, req->value))
-  {
+  if (!client.setParam<ValueType>(req->param_name, req->value)) {
     res->success = false;
     return;
   }

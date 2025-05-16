@@ -17,9 +17,11 @@ struct convert<Eigen::Matrix<double, Rows, Cols>>
 
     Node node(NodeType::Sequence);
 
-    for (int r = 0; r < Rows; ++r)
-      for (int c = 0; c < Cols; ++c)
+    for (int r = 0; r < Rows; ++r) {
+      for (int c = 0; c < Cols; ++c) {
         node.push_back(util::format(rhs(r, c)));
+      }
+    }
 
     return node;
   }
@@ -29,14 +31,18 @@ struct convert<Eigen::Matrix<double, Rows, Cols>>
     static_assert(Rows > 0);
     static_assert(Cols > 0);
 
-    if (!node.IsSequence())
+    if (!node.IsSequence()) {
       return false;
-    if (node.size() != Rows * Cols)
+    }
+    if (node.size() != Rows * Cols) {
       return false;
+    }
 
-    for (int r = 0; r < Rows; ++r)
-      for (int c = 0; c < Cols; ++c)
+    for (int r = 0; r < Rows; ++r) {
+      for (int c = 0; c < Cols; ++c) {
         rhs(r, c) = node[r * Cols + c].as<double>();
+      }
+    }
 
     return true;
   }
@@ -60,9 +66,11 @@ struct convert<Eigen::MatrixXd>
     node[kColsKey] = cols;
 
     Node data(NodeType::Sequence);
-    for (int r = 0; r < rows; ++r)
-      for (int c = 0; c < cols; ++c)
+    for (int r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
         data.push_back(util::format(rhs(r, c)));
+      }
+    }
     node[kDataKey] = data;
 
     return node;
@@ -70,23 +78,28 @@ struct convert<Eigen::MatrixXd>
 
   static bool decode(const Node& node, Eigen::MatrixXd& rhs)
   {
-    if (!node.IsMap())
+    if (!node.IsMap()) {
       return false;
+    }
 
-    if (!node[kRowsKey] || !node[kColsKey] || !node[kDataKey])
+    if (!node[kRowsKey] || !node[kColsKey] || !node[kDataKey]) {
       return false;
+    }
 
     const auto rows = node[kRowsKey].as<int>();
     const auto cols = node[kColsKey].as<int>();
     const auto data = node[kDataKey];
 
-    if (data.size() != rows * cols)
+    if (data.size() != rows * cols) {
       return false;
+    }
 
     rhs.conservativeResize(rows, cols);
-    for (int r = 0; r < rows; ++r)
-      for (int c = 0; c < cols; ++c)
+    for (int r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
         rhs(r, c) = data[r * cols + c].as<double>();
+      }
+    }
 
     return true;
   }

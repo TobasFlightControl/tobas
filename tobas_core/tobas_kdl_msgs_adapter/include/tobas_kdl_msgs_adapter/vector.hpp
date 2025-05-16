@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/vector.hpp>
+
 #include <tobas_kdl_msgs/msg/vector.hpp>
 
 template <>
@@ -30,6 +31,6 @@ struct rclcpp::TypeAdapter<kdl::Vector, tobas_kdl_msgs::msg::Vector>
 namespace tobas_kdl_msgs
 {
 using VectorAdapter = rclcpp::TypeAdapter<kdl::Vector, tobas_kdl_msgs::msg::Vector>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Vector, tobas_kdl_msgs::msg::Vector);

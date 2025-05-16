@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./urdf_loader.hpp"
 #include "./package_loader.hpp"
+#include "./urdf_loader.hpp"
 
 namespace gui
 {
@@ -13,6 +13,9 @@ class StartWidget : public QWidget
 
   using self = StartWidget;
   using super = QWidget;
+
+  static constexpr int kNewId = 0;
+  static constexpr int kEditId = kNewId + 1;
 
 public:
   explicit StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);

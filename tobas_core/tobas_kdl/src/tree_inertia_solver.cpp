@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_inertia_solver.hpp"
+#include "tobas_kdl/tree_inertia_solver.hpp"
 
 using namespace std;
 
@@ -11,8 +11,9 @@ TreeInertiaSolver::TreeInertiaSolver(const Tree& tree) : super(tree)
 
 bool TreeInertiaSolver::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
   initialize();
 
@@ -21,10 +22,12 @@ bool TreeInertiaSolver::updateInternalDataStructures()
 
 int TreeInertiaSolver::JntToCart(const JntArray& q)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_)
+  }
+  if (q.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   const auto root_it = tree_.getRootSegment();
   step(root_it, q);
@@ -36,8 +39,7 @@ void TreeInertiaSolver::initialize()
 {
   X_.clear();
   I_.clear();
-  for (const auto& [seg_name, _] : tree_.getSegments())
-  {
+  for (const auto& [seg_name, _] : tree_.getSegments()) {
     X_[seg_name] = Frame::Identity();
     I_[seg_name] = RigidBodyInertia::Zero();
   }
@@ -57,11 +59,13 @@ void TreeInertiaSolver::step(const SegmentMap::const_iterator& cur_it, const Jnt
   I_.at(cur_name) = cur_seg.inertia();
 
   // Propagate calculations over each child segment
-  for (const auto& child_it : cur_ele.children)
+  for (const auto& child_it : cur_ele.children) {
     step(child_it, q);
+  }
 
   // Backward calculation
-  if (cur_it != tree_.getRootSegment())
+  if (cur_it != tree_.getRootSegment()) {
     I_.at(par_name) += X_.at(cur_name) * I_.at(cur_name);
+  }
 }
 }  // namespace kdl

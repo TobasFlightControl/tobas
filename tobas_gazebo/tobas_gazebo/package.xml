@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <package format="3">
 
 	<name>tobas_gazebo</name>
@@ -10,10 +9,11 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>tobas_gazebo_common</exec_depend>
+	<exec_depend>tobas_gazebo_gui_plugins</exec_depend>
 	<exec_depend>tobas_gazebo_msgs</exec_depend>
-	<exec_depend>tobas_gazebo_plugins</exec_depend>
 	<exec_depend>tobas_gazebo_ros</exec_depend>
 	<exec_depend>tobas_gazebo_sim</exec_depend>
+	<exec_depend>tobas_gazebo_system_plugins</exec_depend>
 	<exec_depend>tobas_gazebo_tools</exec_depend>
 
 	<export>

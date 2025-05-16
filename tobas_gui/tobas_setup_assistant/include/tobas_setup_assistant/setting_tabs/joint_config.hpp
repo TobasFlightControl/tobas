@@ -3,13 +3,14 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_drone_core/joint/joint.hpp>
+#include <tobas_qt_tools/widgets/table_widget.hpp>
 
-#include "tobas_setup_assistant/robot_info.hpp"
 #include "./base_setting.hpp"
-#include "./propulsion_system/propulsion_system.hpp"
 #include "./fixed_wing/fixed_wing.hpp"
+#include "./propulsion_system/propulsion_system.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
+#include "tobas_setup_assistant/signals.hpp"
 
 namespace gui
 {
@@ -76,6 +77,7 @@ class JointConfigurationWidget : public BaseSettingWidget
 public:
   explicit JointConfigurationWidget(
     const RobotInfo& robot,
+    const Signals& _signals,
     const propulsion::PropulsionSystemWidget* propulsion,
     const fixed_wing::FixedWingWidget* fixed_wing);
 
@@ -87,7 +89,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   // Getters
@@ -117,7 +119,7 @@ public:
   void setPwmReverse(int row, bool value);
 
   /* 登録されているジョイント数． */
-  int count() const;
+  int numJoints() const;
 
   /* リンク名に対応するテーブルの行を返す．存在しなければ-1を返す． */
   int findLink(const QString& link_name) const;
@@ -127,6 +129,7 @@ public:
 
 private:
   const RobotInfo& robot_;
+  const Signals& signals_;
   const propulsion::PropulsionSystemWidget* propulsion_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
 
@@ -159,8 +162,8 @@ private Q_SLOTS:
   void onHardwareInterfaceChanged(int row);
   void onRotorLinkAdded(const QString& link_name);
   void onRotorLinkRemoved(const QString& link_name);
-  void onRotorIsTiltStateChanged(const QString& link_name, bool is_tilt);
-  void onRotorTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
+  void onIsTiltRotorStateChanged(const QString& link_name, bool is_tilt);
+  void onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
   void onControlSurfaceLinkAdded(const QString& link_name);
   void onControlSurfaceLinkRemoved(const QString& link_name);
 };

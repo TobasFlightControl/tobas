@@ -1,7 +1,7 @@
-#include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/font.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
+
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
 {
@@ -9,24 +9,34 @@ namespace sa
 {
 namespace propulsion
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
 {
-  const auto links_label = new QLabel("Available Links");
-  links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
-  links_label->setAlignment(Qt::AlignLeft);
+  type_buttons_ = new QButtonGroup(this);
+  propulsion_stack_ = new qt::StackedWidget();
 
-  available_ = new AvailableLinksWidget(robot_);
-  selected_ = new SelectedLinksWidget(node_, robot_);
+  const auto eprop = new electric::PropulsionSystemWidget(node, robot, _signals);
+  const auto eprop_ckb = new QCheckBox(eprop->name());
+  type_buttons_->addButton(eprop_ckb);
+  type_buttons_->setId(eprop_ckb, kElectricId);
+  propulsion_stack_->addWidget(eprop);
+
+  const auto iprop = new ice::PropulsionSystemWidget(node, robot, _signals);
+  const auto iprop_ckb = new QCheckBox(iprop->name());
+  type_buttons_->addButton(iprop_ckb);
+  type_buttons_->setId(iprop_ckb, kIceId);
+  propulsion_stack_->addWidget(iprop);
+
+  eprop_ckb->setChecked(true);        // デフォルト
+  type_buttons_->setExclusive(true);  // 1つのみ有効
 
   // Layout
-  addWidget(links_label);
-  addWidget(available_);
-  addWidget(selected_);
+  addWidget(eprop_ckb);
+  addWidget(iprop_ckb);
+  addSpacing(50);
+  addWidget(propulsion_stack_);
 
   // Connection
-  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
-  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
+  connect(type_buttons_, &QButtonGroup::idToggled, this, &self::onPropulsionTypeChanged);
 }
 
 const char* PropulsionSystemWidget::name() const
@@ -41,9 +51,7 @@ const char* PropulsionSystemWidget::title() const
 
 const char* PropulsionSystemWidget::description() const
 {
-  return "Configure the propulsion system. "
-         "Please add the link you intend to use for the propulsion system from the Available Links, "
-         "and input the necessary information for each.";
+  return "";  // TODO
 }
 
 void PropulsionSystemWidget::onOpened()
@@ -52,28 +60,31 @@ void PropulsionSystemWidget::onOpened()
 
 void PropulsionSystemWidget::updateInternalDataStructures()
 {
-  available_->updateInternalDataStructures();
-  selected_->updateInternalDataStructures();
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
+    const auto propulsion = widget(i);
+    propulsion->updateInternalDataStructures();
+  }
 }
 
 bool PropulsionSystemWidget::isValid()
 {
-  if (!available_->isValid())
+  if (!selected()->isValid()) {
     return false;
-  if (!selected_->isValid())
-    return false;
+  }
 
   return true;
 }
 
-YAML::Node PropulsionSystemWidget::dump()
+YAML::Node PropulsionSystemWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int i = 0; i < selected_->count(); ++i)
-  {
-    const auto link_name = selected_->linkName(i);
-    node[link_name.toStdString()] = selected_->widget(i)->dump();
+  const auto type_button = type_buttons_->checkedButton();
+  node[kTypeKey] = type_button->text();
+
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
+    const auto propulsion = widget(i);
+    node[propulsion->name()] = propulsion->dump();
   }
 
   return node;
@@ -81,45 +92,74 @@ YAML::Node PropulsionSystemWidget::dump()
 
 void PropulsionSystemWidget::load(const YAML::Node& node)
 {
-  blockSignals(true);
-
-  for (const auto& pair : node)
-  {
-    const auto link_name = pair.first.as<QString>();
-    const auto& sub_node = pair.second;
-
-    // リンクをAvailableからSelectedに移動させる
-    available_->removeLink(link_name);
-    selected_->addLink(link_name);
-
-    // 選択リンクの設定を更新
-    selected_->widget(link_name)->load(sub_node);
+  const auto type_text = node[kTypeKey].as<QString>();
+  for (const auto& button : type_buttons_->buttons()) {
+    if (button->text() == type_text) {
+      button->setChecked(true);
+      break;
+    }
   }
 
-  blockSignals(false);
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
+    const auto propulsion = widget(i);
+    propulsion->load(node[propulsion->name()]);
+  }
 }
 
-const AvailableLinksWidget* PropulsionSystemWidget::available() const
+tobas::propulsion_system_t PropulsionSystemWidget::type() const
 {
-  return available_;
+  return selected()->type();
 }
 
-const SelectedLinksWidget* PropulsionSystemWidget::selected() const
+int PropulsionSystemWidget::numUnits() const
 {
-  return selected_;
+  return selected()->numUnits();
 }
 
-void PropulsionSystemWidget::onAvailableLinkRemoved(const QString& link_name)
+QString PropulsionSystemWidget::linkName(int index) const
 {
-  selected_->addLink(link_name);
-  Q_EMIT linkAdded(link_name);
+  return selected()->linkName(index);
 }
 
-void PropulsionSystemWidget::onSelectedLinkRemoved(const QString& link_name)
+bool PropulsionSystemWidget::isTiltRotor(int index) const
 {
-  available_->addLink(link_name);
-  available_->sortItems();
-  Q_EMIT linkRemoved(link_name);
+  return selected()->isTiltRotor(index);
+}
+
+QString PropulsionSystemWidget::tiltJointName(int index) const
+{
+  return selected()->tiltJointName(index);
+}
+
+BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
+{
+  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+}
+
+const BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index) const
+{
+  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+}
+
+BasePropulsionSystemWidget* PropulsionSystemWidget::selected()
+{
+  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
+}
+
+const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
+{
+  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
+}
+
+void PropulsionSystemWidget::onPropulsionTypeChanged(int index)
+{
+  // 全ての設定をリセット
+  for (int i = 0; i < propulsion_stack_->count(); ++i) {
+    const auto propulsion = widget(i);
+    propulsion->reset();
+  }
+
+  propulsion_stack_->setCurrentIndex(index);
 }
 }  // namespace propulsion
 }  // namespace sa

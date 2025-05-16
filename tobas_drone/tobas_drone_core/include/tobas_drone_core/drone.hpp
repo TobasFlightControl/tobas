@@ -1,13 +1,14 @@
 #pragma once
 
 #include <filesystem>
+
 #include <yaml-cpp/yaml.h>
 
+#include "./fixed_wing/fixed_wing.hpp"
 #include "./joint/joint.hpp"
-#include "./pwm.hpp"
 #include "./propulsion_system/propulsion_system.hpp"
 #include "./propulsion_system/type.hpp"
-#include "./fixed_wing/fixed_wing.hpp"
+#include "./pwm.hpp"
 
 namespace tobas
 {
@@ -24,6 +25,7 @@ class Drone
   static constexpr char kPropulsionSystemTypeKey[] = "propulsion_system_type";
   static constexpr char kPropulsionSystemKey[] = "propulsion_system";
   static constexpr char kFixedWingKey[] = "fixed_wing";
+  static constexpr char kNumSbusChannelsKey[] = "num_sbus_channels";
 
 public:
   using SharedPtr = std::shared_ptr<Drone>;
@@ -34,6 +36,7 @@ public:
   PwmConfigMap pwms;                       // The PWM configurations (joint name -> config)
   PropulsionSystemConfig::SharedPtr prop;  // The propulsion system configurations
   FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configurations
+  uint32_t num_sbus_channels = 0;          // The number of S.BUS channels
 
   bool isValid() const;
 

@@ -1,6 +1,6 @@
-#include <tobas_yaml_tools/convert/eigen.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/magnetometer.hpp"
+
+#include <tobas_yaml_tools/convert/eigen.hpp>
 
 namespace gui
 {
@@ -63,7 +63,7 @@ bool MagnetometerWidget::isValid()
   return true;
 }
 
-YAML::Node MagnetometerWidget::dump()
+YAML::Node MagnetometerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

@@ -1,8 +1,9 @@
+#include "tobas_simulation_gui/simulation_settings/loop_type.hpp"
+
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_simulation_gui/simulation_settings/loop_type.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
@@ -37,12 +38,15 @@ loop_type_t LoopTypeWidget::loopType() const
 {
   const auto checked_button = ckb_group_->checkedButton();
 
-  if (checked_button == sitl_ckb_)
+  if (checked_button == sitl_ckb_) {
     return SITL;
-  else if (checked_button == hitl_ckb_)
+  }
+  else if (checked_button == hitl_ckb_) {
     return HITL;
-  else
+  }
+  else {
     throw std::runtime_error("The checked button does not match any of the defined buttons.");
+  }
 }
 }  // namespace sim
 }  // namespace gui

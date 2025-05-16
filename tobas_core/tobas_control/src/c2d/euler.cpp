@@ -1,4 +1,4 @@
-#include "../../include/tobas_control/c2d/euler.hpp"
+#include "tobas_control/c2d/euler.hpp"
 
 using namespace std;
 using namespace Eigen;

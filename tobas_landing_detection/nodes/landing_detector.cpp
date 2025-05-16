@@ -1,11 +1,12 @@
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_kdl/tree_mass_holder.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_std_msgs/msg/bool_stamped.hpp>
+#include <tobas_kdl/tree_mass_holder.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
+
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
+#include <tobas_std_msgs/msg/bool_stamped.hpp>
 
 using namespace std;
 
@@ -51,8 +52,8 @@ private:
 LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   : super("landing_detector", options), mass_holder_(tree_)
 {
-  addDynamicDoubleParam("switch_time_threshold", &self::switchTimeThreshCb, this, 0., 1., 5.);
-  addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 20, 50, 80);
+  addDynamicDoubleParam("switch_time_threshold", &self::switchTimeThreshCb, this, 1., 0., 5.);
+  addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 50, 20, 80);
 
   landed_pub_ = createPublisher<tobas_std_msgs::msg::BoolStamped>(tobas::kLandedTopic);
 
@@ -90,11 +91,11 @@ void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
 {
-  if (mass_holder_.getMass() == 0.)
+  if (mass_holder_.getMass() == 0.) {
     return;
+  }
 
-  if (t_last_detect_.nanoseconds() == 0)
-  {
+  if (t_last_detect_.nanoseconds() == 0) {
     t_last_detect_ = dist_force->header.stamp;
     return;
   }
@@ -103,15 +104,12 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   const auto& z_forcd_thresh = mass_holder_.getMass() * tobas_std::kGravity * switch_mass_rate_;
 
   // 鉛直上方向の力が閾値を超えている状態が一定時間続いたら状態を切り替える
-  if ((landed_ && z_force > z_forcd_thresh) || (!landed_ && z_force < z_forcd_thresh))
-  {
+  if ((landed_ && z_force > z_forcd_thresh) || (!landed_ && z_force < z_forcd_thresh)) {
     t_last_detect_ = dist_force->header.stamp;
   }
-  else
-  {
+  else {
     const auto time_from_last_detect = (dist_force->header.stamp - t_last_detect_).seconds();
-    if (time_from_last_detect > switch_time_thresh_)
-    {
+    if (time_from_last_detect > switch_time_thresh_) {
       landed_ = !landed_;
       publishLandedState(dist_force->header.stamp);
     }

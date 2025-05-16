@@ -1,14 +1,14 @@
+#include <tobas_constants/constants.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
 
-#include "../include/tobas_manipulation/constants.hpp"
+#include "tobas_manipulation/constants.hpp"
 
 using namespace std;
 
@@ -67,16 +67,13 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
 {
   // 位置コマンドをそのまま流すだけ
-  for (const auto& cmd : tar_js_->states)
-  {
+  for (const auto& cmd : tar_js_->states) {
     const auto& joint = drone_->joints.at(cmd.name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION)
-    {
+    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
       TOBAS_WARN("The role of joint \"", cmd.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
-    {
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
       TOBAS_WARN("The command interface of joint \"", cmd.name, "\" must be \"POSITION\".");
       continue;
     }
@@ -103,45 +100,48 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   home_js_.states.clear();
 
   // 位置指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone->joints)
-  {
-    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION)
+  for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
+    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION) {
       continue;
-    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
+    }
+    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
       continue;
+    }
     home_js_.states.emplace_back();
     home_js_.states.back().name = jnt_name;
     home_js_.states.back().position = jnt_cfg.home_pos;
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.states.size() > 0)
+  if (home_js_.states.size() > 0) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
+  }
 }
 
 void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr&)
 {
-  if (home_js_.states.size() == 0)
+  if (home_js_.states.size() == 0) {
     return;
-  if (!tar_js_ && !tar_ls_)
+  }
+  if (!tar_js_ && !tar_ls_) {
     return;
+  }
 
   // Create joint velocities command
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
   // Joint space control or Task space control
-  if (tar_js_)
-  {
-    if (!jointSpaceControl(*positions_msg))
+  if (tar_js_) {
+    if (!jointSpaceControl(*positions_msg)) {
       return;
+    }
   }
-  else if (tar_ls_)
-  {
-    if (!taskSpaceControl(*positions_msg))
+  else if (tar_ls_) {
+    if (!taskSpaceControl(*positions_msg)) {
       return;
+    }
   }
-  else
-  {
+  else {
     TOBAS_ERROR("Both target joint state and target link state are NULL.");
     return;
   }
@@ -172,7 +172,8 @@ void PositionControllerNode::autoResetTimerCb()
   tar_ls_.reset();
 
   TOBAS_WARN(
-    "The target joint states are automatically reset because ", manipulation::kAutoResetTimeThresh,
+    "The target joint states are automatically reset because ",
+    manipulation::kAutoResetTimeThresh,
     " have elapsed since the last command.");
 
   auto_reset_timer_->cancel();

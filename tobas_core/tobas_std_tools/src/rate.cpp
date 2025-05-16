@@ -1,6 +1,6 @@
-#include <thread>
+#include "tobas_std_tools/rate.hpp"
 
-#include "../include/tobas_std_tools/rate.hpp"
+#include <thread>
 
 using namespace std;
 using namespace std::chrono;
@@ -9,16 +9,18 @@ namespace tobas_std
 {
 Rate::Rate(const microseconds& period) : period_(period)
 {
-  if (period.count() <= 0)
-    throw runtime_error("Period must be postive.");
+  if (period.count() <= 0) {
+    throw runtime_error("Period must be positive.");
+  }
 
   start();
 }
 
 Rate::Rate(const double& freq) : period_(static_cast<uint64_t>(1e+6 / freq))
 {
-  if (freq <= 0)
+  if (freq <= 0) {
     throw runtime_error("Frequency must be positive.");
+  }
 
   start();
 }

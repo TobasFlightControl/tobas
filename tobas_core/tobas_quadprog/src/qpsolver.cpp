@@ -1,6 +1,6 @@
-#include <tobas_eigen_tools/core.hpp>
+#include "tobas_quadprog/qpsolver.hpp"
 
-#include "../include/tobas_quadprog/qpsolver.hpp"
+#include <tobas_eigen_tools/core.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -55,8 +55,8 @@ bool QuadProgProblem::isSizeMatch() const
 
 bool QuadProgProblem::isFinite() const
 {
-  return eigen::isFinite(P) && eigen::isFinite(q) && eigen::isFinite(G) && eigen::isFinite(h) && eigen::isFinite(A)
-         && eigen::isFinite(b);
+  return eigen::isFinite(P) && eigen::isFinite(q) && eigen::isFinite(G) && eigen::isFinite(h) && eigen::isFinite(A) &&
+         eigen::isFinite(b);
 }
 
 ostream& operator<<(ostream& os, const QuadProgProblem& arg)

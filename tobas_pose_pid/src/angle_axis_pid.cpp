@@ -1,6 +1,7 @@
+#include "tobas_pose_pid/angle_axis_pid.hpp"
+
 #include <iostream>
 
-#include "../include/tobas_pose_pid/angle_axis_pid.hpp"
 #include "./util.hpp"
 
 using namespace std;
@@ -24,9 +25,11 @@ kdl::Vector AngleAxisPID::updatePID(
   const auto ed = tar_gyro - cur_gyro;
 
   // Integrate error
-  for (size_t i = 0; i < 3; ++i)
-    if (ki_(i) > 0.)
+  for (size_t i = 0; i < 3; ++i) {
+    if (ki_(i) > 0.) {
       ei_(i) += ep(i) * dt;
+    }
+  }
 
   // Compute target dgyro
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
@@ -48,11 +51,11 @@ kdl::Vector AngleAxisPID::updatePD(
 
 bool AngleAxisPID::setNaturalFreq(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Natural frequency must be non-negative." << endl;
     return false;
   }
@@ -65,11 +68,11 @@ bool AngleAxisPID::setNaturalFreq(int idx, double value)
 
 bool AngleAxisPID::setDampingRatio(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
@@ -82,11 +85,11 @@ bool AngleAxisPID::setDampingRatio(int idx, double value)
 
 bool AngleAxisPID::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Integral gain must be non-negative." << endl;
     return false;
   }

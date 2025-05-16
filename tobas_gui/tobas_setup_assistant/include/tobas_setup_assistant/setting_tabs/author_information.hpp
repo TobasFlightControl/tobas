@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./base_setting.hpp"
 #include "../param_getters/line_edit.hpp"
+#include "./base_setting.hpp"
 
 namespace gui
 {
@@ -25,7 +25,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   QString authorName() const;

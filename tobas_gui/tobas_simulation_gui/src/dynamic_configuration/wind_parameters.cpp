@@ -1,12 +1,13 @@
+#include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
+
 #include <QVBoxLayout>
 
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_gazebo_common/constants.hpp>
 
-#include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
@@ -55,20 +56,19 @@ void WindParamsWidget::updateNamespace(const std::string& ns)
 
 bool WindParamsWidget::start()
 {
-  if (!get_sc_->waitForService(kWaitForService))
-  {
+  if (!get_sc_->waitForService(kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.");
     return false;
   }
-  if (!set_sc_->waitForService(kWaitForService))
-  {
+  if (!set_sc_->waitForService(kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.");
     return false;
   }
 
   // パラメータの初期値を設定
-  if (!loadCurrentParams())
+  if (!loadCurrentParams()) {
     return false;
+  }
 
   return true;
 }
@@ -86,8 +86,7 @@ bool WindParamsWidget::loadCurrentParams()
 {
   const auto get_req = std::make_shared<GetSrv::Request>();
 
-  if (!get_sc_->call(get_req, kServiceCallTimeout))
-  {
+  if (!get_sc_->call(get_req, kServiceCallTimeout)) {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kGetWindParamsSrv) + "\" service.");
     return false;
   }
@@ -113,18 +112,17 @@ void WindParamsWidget::onValueChanged()
   set_req->params.gust_duration = gust_duration_->get();
   set_req->params.gust_interval = gust_interval_->get();
 
-  if (!set_sc_->call(set_req, kServiceCallTimeout))
-  {
+  if (!set_sc_->call(set_req, kServiceCallTimeout)) {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kSetWindParamsSrv) + "\" service.");
     return;
   }
 
   const auto set_res = set_sc_->getResponse();
-  if (!set_res->success)
-  {
+  if (!set_res->success) {
     qt::qErrorBox(this, "Failed to set wind parameters.");
-    if (!loadCurrentParams())
+    if (!loadCurrentParams()) {
       return;
+    }
   }
 }
 }  // namespace sim

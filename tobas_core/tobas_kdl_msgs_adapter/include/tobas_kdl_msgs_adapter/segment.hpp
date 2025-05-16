@@ -3,10 +3,11 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/segment.hpp>
+
 #include <tobas_kdl_msgs/msg/segment.hpp>
 
-#include "./joint.hpp"
 #include "./frame.hpp"
+#include "./joint.hpp"
 #include "./rigid_body_inertia.hpp"
 
 template <>
@@ -43,6 +44,6 @@ struct rclcpp::TypeAdapter<kdl::Segment, tobas_kdl_msgs::msg::Segment>
 namespace tobas_kdl_msgs
 {
 using SegmentAdapter = rclcpp::TypeAdapter<kdl::Segment, tobas_kdl_msgs::msg::Segment>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Segment, tobas_kdl_msgs::msg::Segment);

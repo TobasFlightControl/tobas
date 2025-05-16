@@ -1,6 +1,6 @@
-#include <QVBoxLayout>
-
 #include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
+
+#include <QVBoxLayout>
 
 namespace gui
 {

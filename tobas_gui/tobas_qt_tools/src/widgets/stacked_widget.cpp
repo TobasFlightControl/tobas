@@ -1,13 +1,12 @@
-#include <QApplication>
-
 #include "tobas_qt_tools/widgets/stacked_widget.hpp"
+
+#include <QApplication>
 
 namespace qt
 {
 void StackedWidget::clear()
 {
-  while (count() > 0)
-  {
+  while (count() > 0) {
     const auto tar_widget = widget(0);
     removeWidget(tar_widget);
     tar_widget->deleteLater();

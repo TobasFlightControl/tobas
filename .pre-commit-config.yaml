@@ -1,0 +1,80 @@
+# cf. [moveit2/.pre-commit-config.yaml](https://github.com/moveit/moveit2/blob/main/.pre-commit-config.yaml)
+
+repos:
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-ast
+      # - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      # - id: check-executables-have-shebangs
+      # - id: check-illegal-windows-names
+      - id: check-json
+      - id: check-merge-conflict
+      # - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-vcs-permalinks
+      - id: check-xml
+      - id: check-yaml
+      - id: debug-statements
+      - id: destroyed-symlinks
+      # - id: detect-aws-credentials
+      - id: detect-private-key
+      # - id: double-quote-string-fixer
+      - id: end-of-file-fixer
+      # - id: file-contents-sorter
+      # - id: fix-byte-order-marker
+      # - id: fix-encoding-pragma
+      # - id: forbid-new-submodules
+      # - id: forbid-submodules
+      - id: mixed-line-ending
+      - id: name-tests-test
+      # - id: no-commit-to-branch
+      - id: pretty-format-json
+        exclude: \.ipynb$
+      - id: requirements-txt-fixer
+      - id: sort-simple-yaml
+      - id: trailing-whitespace
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        args:
+          - "--write-changes"
+          - "--ignore-words=.codespell_words"
+
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: black
+        language: system
+        files: \.(py|tplpy)$
+        exclude: tobas_example_packages/
+      - id: clang-format
+        name: clang-format
+        entry: clang-format
+        language: system
+        args: ["-fallback-style=none", "-i"]
+        files: \.(cpp|hpp|tplcpp|tplhpp)$
+        exclude: tobas_example_packages/
+      - id: cmake-format
+        name: cmake-format
+        entry: cmake-format
+        language: system
+        args: ["-i"]
+        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        exclude: tobas_example_packages/
+      - id: cmake-lint
+        name: cmake-lint
+        entry: cmake-lint
+        language: system
+        args:
+          - "--suppress-decorations"
+        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        exclude: tobas_example_packages/

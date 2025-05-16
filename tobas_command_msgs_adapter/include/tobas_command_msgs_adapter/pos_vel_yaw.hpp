@@ -50,6 +50,6 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PosVelYaw, tobas_command_msgs::ms
 namespace tobas_command_msgs
 {
 using PosVelYawAdapter = rclcpp::TypeAdapter<tobas_command_msgs::PosVelYaw, tobas_command_msgs::msg::PosVelYaw>;
-}
+}  // namespace tobas_command_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_command_msgs::PosVelYaw, tobas_command_msgs::msg::PosVelYaw);

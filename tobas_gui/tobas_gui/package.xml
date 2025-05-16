@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <package format="3">
 
 	<name>tobas_gui</name>
@@ -24,6 +23,7 @@
 	<exec_depend>tobas_simulation_gui</exec_depend>
 	<exec_depend>tobas_urdf_builder</exec_depend>
 	<exec_depend>tobas_urdf_builder_plugin</exec_depend>
+	<exec_depend>tobas_visualization_msgs</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

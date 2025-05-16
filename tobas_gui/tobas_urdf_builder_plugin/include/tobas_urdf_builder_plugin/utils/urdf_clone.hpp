@@ -1,7 +1,7 @@
 #pragma once
 
-#include <urdf_model/link.h>
 #include <urdf_model/joint.h>
+#include <urdf_model/link.h>
 
 namespace gui
 {
@@ -16,8 +16,9 @@ namespace utils
 template <typename T>
 std::shared_ptr<T> clone(const std::shared_ptr<T>& ptr)
 {
-  if (!ptr)
+  if (!ptr) {
     return nullptr;
+  }
 
   return std::make_shared<T>(*ptr);
 }

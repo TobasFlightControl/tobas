@@ -17,7 +17,7 @@ public:
   inline explicit SegmentInertia();
   inline explicit SegmentInertia(const Vector& linear, const Vector& angular);
 
-  inline static SegmentInertia Zero();
+  static inline SegmentInertia Zero();
 };
 
 inline SegmentInertia::SegmentInertia()

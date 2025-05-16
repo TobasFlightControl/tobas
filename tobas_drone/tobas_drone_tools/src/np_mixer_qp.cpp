@@ -1,11 +1,11 @@
+#include "tobas_drone_tools/np_mixer_qp.hpp"
+
 #include <ranges>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_constants/constants.hpp>
-
-#include "../include/tobas_drone_tools/np_mixer_qp.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -19,13 +19,16 @@ NonPlanarMixer_QP::NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree)
 
 bool NonPlanarMixer_QP::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!fk_solver_.updateInternalDataStructures())
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
-  if (!inertia_solver_.updateInternalDataStructures())
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
+  }
 
   resizeAndFill();
 
@@ -42,15 +45,13 @@ bool NonPlanarMixer_QP::solve(
   const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0)
-  {
+  if (fk_solver_.JntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0)
-  {
+  if (inertia_solver_.JntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -60,8 +61,7 @@ bool NonPlanarMixer_QP::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // EoM行列等式の左辺
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     // 回転軸を求める
@@ -104,16 +104,13 @@ bool NonPlanarMixer_QP::solve(
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
   // 不等式制約
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    if (rotor_alive_.at(rotor->link_name))
-    {
+    if (rotor_alive_.at(rotor->link_name)) {
       qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
       qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }
-    else
-    {
+    else {
       qp_.problem.b(idx) = 0.;
       qp_.problem.b(drone_.prop->numRotors() + idx) = 0.;
     }
@@ -121,8 +118,7 @@ bool NonPlanarMixer_QP::solve(
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
-  if (!qp_.solve())
-  {
+  if (!qp_.solve()) {
     cerr << "QP failed: " << qp_.errorMessage() << endl;
     return false;
   }
@@ -137,8 +133,7 @@ const VectorXd& NonPlanarMixer_QP::getThrusts() const
 
 bool NonPlanarMixer_QP::setLinearWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Linear weight must be positive." << endl;
     return false;
   }
@@ -149,8 +144,7 @@ bool NonPlanarMixer_QP::setLinearWeight(double p)
 
 bool NonPlanarMixer_QP::setAngularWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Angular weight must be positive." << endl;
     return false;
   }
@@ -161,8 +155,7 @@ bool NonPlanarMixer_QP::setAngularWeight(double p)
 
 bool NonPlanarMixer_QP::setThrustWeight(double p)
 {
-  if (p <= 0.)
-  {
+  if (p <= 0.) {
     cerr << "Thrust weight must be positive." << endl;
     return false;
   }

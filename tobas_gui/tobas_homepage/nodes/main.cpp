@@ -1,9 +1,9 @@
 #include <QApplication>
 
-#include <tobas_qt_tools/widgets/main_widget.hpp>
 #include <tobas_gui_common/util.hpp>
+#include <tobas_qt_tools/widgets/main_widget.hpp>
 
-#include <tobas_homepage/homepage.hpp>
+#include "tobas_homepage/homepage.hpp"
 
 int main(int argc, char** argv)
 {

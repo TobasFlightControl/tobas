@@ -1,15 +1,15 @@
+#include "tobas_property_client/property_client.hpp"
+
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_property_msgs/srv/get_bool.hpp>
-#include <tobas_property_msgs/srv/get_int.hpp>
 #include <tobas_property_msgs/srv/get_double.hpp>
+#include <tobas_property_msgs/srv/get_int.hpp>
 #include <tobas_property_msgs/srv/get_string.hpp>
 #include <tobas_property_msgs/srv/set_bool.hpp>
-#include <tobas_property_msgs/srv/set_int.hpp>
 #include <tobas_property_msgs/srv/set_double.hpp>
+#include <tobas_property_msgs/srv/set_int.hpp>
 #include <tobas_property_msgs/srv/set_string.hpp>
-
-#include "../include/tobas_property_client/property_client.hpp"
 
 using namespace std;
 using namespace std_srvs::srv;
@@ -46,11 +46,13 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value)
 {
   int tmp;
 
-  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0)
+  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0) {
     return error_code_;
+  }
 
-  if (tmp < 0 || UINT8_MAX < tmp)
+  if (tmp < 0 || UINT8_MAX < tmp) {
     return error_code_ = E_OUT_OF_RANGE;
+  }
 
   value = static_cast<uint8_t>(tmp);
   return error_code_ = E_NO_ERROR;
@@ -60,11 +62,13 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value)
 {
   int tmp;
 
-  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0)
+  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0) {
     return error_code_;
+  }
 
-  if (tmp < 0 || UINT16_MAX < tmp)
+  if (tmp < 0 || UINT16_MAX < tmp) {
     return error_code_ = E_OUT_OF_RANGE;
+  }
 
   value = static_cast<uint16_t>(tmp);
   return error_code_ = E_NO_ERROR;
@@ -116,12 +120,12 @@ PropertyClient::error_t PropertyClient::save()
 
   const auto req = make_shared<Trigger::Request>();
 
-  if (!sc.call(req))
+  if (!sc.call(req)) {
     return error_code_ = E_SERVICE_NOT_READY;
+  }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
@@ -136,8 +140,7 @@ PropertyClient::error_t PropertyClient::errorCode() const
 
 const char* PropertyClient::errorMessage() const
 {
-  switch (error_code_)
-  {
+  switch (error_code_) {
     case E_NO_ERROR:
       return "";
     case E_SERVICE_NOT_READY:

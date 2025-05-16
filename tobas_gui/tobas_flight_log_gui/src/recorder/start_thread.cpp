@@ -1,9 +1,9 @@
-#include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
+#include "tobas_flight_log_gui/recorder/start_thread.hpp"
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
-
-#include "tobas_flight_log_gui/recorder/start_thread.hpp"
+#include <tobas_path_tools/join.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 
 namespace gui
 {
@@ -21,15 +21,13 @@ void RecordStartThread::run()
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name_;
 
-  if (!sc.call(req))
-  {
+  if (!sc.call(req)) {
     Q_EMIT finished(false, "Flight log recording service is unavailable.");
     return;
   }
 
   const auto res = sc.getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     Q_EMIT finished(false, "Failed to start recording flight log: " + QString(res->message.c_str()));
     return;
   }

@@ -1,10 +1,12 @@
+#include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
+
 #include <std_msgs/msg/float64_multi_array.hpp>
+
 #include <controller_manager_msgs/srv/list_controllers.hpp>
 
-#include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_msgs/msg/joint_command_array.hpp>
 
 using namespace std;
 
@@ -77,8 +79,7 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // Resister publishers
   ctrl_map_.clear();
-  for (const auto& [_, joint] : drone->joints)
-  {
+  for (const auto& [_, joint] : drone->joints) {
     const auto controller_name = joint.name + "_controller";
     const auto topic = controller_name + "/commands";
     ctrl_map_[joint.name] = { static_cast<tobas::jnt_cmd_iface_t>(joint.cmd_iface),
@@ -98,21 +99,21 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
-  for (const auto& tbs_cmd : positions->commands)
-  {
+  for (const auto& tbs_cmd : positions->commands) {
     const auto& jnt_name = tbs_cmd.name;
-    if (!ctrl_map_.contains(jnt_name))
-    {
+    if (!ctrl_map_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       continue;
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
-    {
+    if (cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
       TOBAS_ERROR(
-        "The command interface of joint \"", jnt_name, "\" is not position. So received position command for joint \"",
-        jnt_name, "\" is ignored.");
+        "The command interface of joint \"",
+        jnt_name,
+        "\" is not position. So received position command for joint \"",
+        jnt_name,
+        "\" is ignored.");
       continue;
     }
 
@@ -125,22 +126,22 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
 
 void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
-  for (const auto& tbs_cmd : velocities->commands)
-  {
+  for (const auto& tbs_cmd : velocities->commands) {
     const auto& jnt_name = tbs_cmd.name;
 
-    if (!ctrl_map_.contains(jnt_name))
-    {
+    if (!ctrl_map_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       continue;
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
-    {
+    if (cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
       TOBAS_ERROR(
-        "The command interface of joint \"", jnt_name, "\" is not velocity. So received velocity command for joint \"",
-        jnt_name, "\" is ignored.");
+        "The command interface of joint \"",
+        jnt_name,
+        "\" is not velocity. So received velocity command for joint \"",
+        jnt_name,
+        "\" is ignored.");
       continue;
     }
 
@@ -153,21 +154,21 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
 
 void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
-  for (const auto& tbs_cmd : efforts->commands)
-  {
+  for (const auto& tbs_cmd : efforts->commands) {
     const auto& jnt_name = tbs_cmd.name;
-    if (!ctrl_map_.contains(jnt_name))
-    {
+    if (!ctrl_map_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       continue;
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
-    {
+    if (cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
       TOBAS_ERROR(
-        "The command interface of joint \"", jnt_name, "\" is not effort. So received effort command for joint \"",
-        jnt_name, "\" is ignored.");
+        "The command interface of joint \"",
+        jnt_name,
+        "\" is not effort. So received effort command for joint \"",
+        jnt_name,
+        "\" is ignored.");
       continue;
     }
 
@@ -180,63 +181,66 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
 
 void JointCommandHandlerNode::positionResetTimerCb()
 {
-  for (const auto& [_, joint] : drone_->joints)
-  {
-    if (!joint.isServoJoint())
+  for (const auto& [_, joint] : drone_->joints) {
+    if (!joint.isServoJoint()) {
       continue;
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
+    }
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
       continue;
+    }
 
     publishJointCommand(joint.name, joint.home_pos);
   }
 
-  if (pos_commanded_)
-  {
+  if (pos_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }
 
 void JointCommandHandlerNode::velocityResetTimerCb()
 {
-  for (const auto& [_, joint] : drone_->joints)
-  {
-    if (!joint.isServoJoint())
+  for (const auto& [_, joint] : drone_->joints) {
+    if (!joint.isServoJoint()) {
       continue;
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
+    }
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
       continue;
+    }
 
     publishJointCommand(joint.name, joint.home_pos);
   }
 
-  if (vel_commanded_)
-  {
+  if (vel_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }
 
 void JointCommandHandlerNode::effortResetTimerCb()
 {
-  for (const auto& [_, joint] : drone_->joints)
-  {
-    if (!joint.isServoJoint())
+  for (const auto& [_, joint] : drone_->joints) {
+    if (!joint.isServoJoint()) {
       continue;
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
+    }
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
       continue;
+    }
 
     publishJointCommand(joint.name, joint.home_pos);
   }
 
-  if (eff_commanded_)
-  {
+  if (eff_commanded_) {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", tobas::kCommandAutoResetTimeout,
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
 }

@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/jntarray.hpp>
+
 #include <tobas_kdl_msgs/msg/jnt_array_vel_stamped.hpp>
 
 #include "./jnt_array_vel.hpp"
@@ -43,8 +44,6 @@ namespace tobas_kdl_msgs
 {
 using JntArrayVelStampedAdapter =
   rclcpp::TypeAdapter<tobas_kdl_msgs::JntArrayVelStamped, tobas_kdl_msgs::msg::JntArrayVelStamped>;
-}
+}  // namespace tobas_kdl_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas_kdl_msgs::JntArrayVelStamped,
-  tobas_kdl_msgs::msg::JntArrayVelStamped);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::JntArrayVelStamped, tobas_kdl_msgs::msg::JntArrayVelStamped);

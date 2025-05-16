@@ -1,9 +1,10 @@
-#include <csignal>
-#include <QVBoxLayout>
-#include <QIcon>
-#include <QCloseEvent>
-
 #include "tobas_qt_tools/widgets/main_widget.hpp"
+
+#include <csignal>
+
+#include <QCloseEvent>
+#include <QIcon>
+#include <QVBoxLayout>
 
 namespace qt
 {
@@ -11,8 +12,9 @@ MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* 
 {
   setWindowTitle(title);
 
-  if (!icon_path.isEmpty())
+  if (!icon_path.isEmpty()) {
     setWindowIcon(QIcon(icon_path));
+  }
 
   const auto rows = new QVBoxLayout();
   setLayout(rows);

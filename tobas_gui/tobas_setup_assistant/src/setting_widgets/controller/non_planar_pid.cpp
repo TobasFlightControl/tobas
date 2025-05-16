@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
+
 #include <QVBoxLayout>
 
-#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
 {
@@ -92,42 +92,34 @@ void NonPlanarPIDWidget::load(const YAML::Node& node)
 
 bool NonPlanarPIDWidget::isApplicable()
 {
-  const auto props = propulsion_system_->selected();
-
   // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing())
+  if (fixed_wing_->hasFixedWing()) {
     return false;
+  }
 
   // プロペラの個数条件
-  if (props->count() < kMinNumProp)
+  if (propulsion_system_->numUnits() < kMinNumProp) {
     return false;
+  }
 
   // 少なくとも1つのプロペラが鉛直上方向以外を向いている
   bool tilted_rotor_found = false;
-  for (int i = 0; i < props->count(); ++i)
-  {
-    const auto link_name = props->linkName(i);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ()))
-    {
+  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
+    const auto link_name = propulsion_system_->linkName(i);
+    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ())) {
       tilted_rotor_found = true;
       break;
     }
   }
-  if (!tilted_rotor_found)
+  if (!tilted_rotor_found) {
     return false;
+  }
 
   return true;
 }
 
 bool NonPlanarPIDWidget::isValid()
 {
-  // 全てのプロペラの回転方向が同じ場合は警告
-  if (!propulsion_system_->selected()->hasBothRotationalDirections())
-  {
-    if (!qt::yesOrNo(this, "All rotors have the same rotation direction. Is that OK?", qt::QMessageLevel::WARN))
-      return false;
-  }
-
   return true;
 }
 }  // namespace sa

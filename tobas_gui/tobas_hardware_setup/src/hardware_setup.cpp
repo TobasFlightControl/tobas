@@ -1,6 +1,8 @@
+#include "tobas_hardware_setup/hardware_setup.hpp"
+
 #include <QVBoxLayout>
 
-#include "tobas_hardware_setup/hardware_setup.hpp"
+#include <tobas_qt_tools/cast.hpp>
 
 namespace gui
 {
@@ -13,12 +15,13 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   setLayout(rows);
 
   tabs_ = new qt::VerticalTabWidget();
+  tabs_->enableWheelEvent(false);  // 不可視なタブのウィジェットを表示しないように
   rows->addWidget(tabs_);
 
   network_setting_ = new NetworkSettingWidget(node);
   accel_calib_ = new AccelCalibrationWidget(node);
   mag_calib_ = new MagCalibrationWidget(node);
-  rcin_calib_ = new RCInputCalibrationWidget(node);
+  rcin_calib_ = new RCInputCalibrationWidget(node, drone);
   rotor_test_ = new RotorTestWidget(node, drone);
   joint_test_ = new JointTestWidget(node, tree, drone);
 
@@ -34,8 +37,12 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
 
 void HardwareSetupWidget::reset()
 {
-  for (int i = 0; i < tabs_->count(); ++i)
-    qobject_cast<BaseHardwareSetupWidget*>(tabs_->widget(i))->reset();
+  for (int i = 0; i < tabs_->count(); ++i) {
+    const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
+    widget->reset();
+  }
+
+  tabs_->setCurrentWidget(network_setting_);
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()
@@ -44,9 +51,23 @@ void HardwareSetupWidget::updateInternalDataStructures()
 
   accel_calib_->setNamespace(drone_.name);
   mag_calib_->setNamespace(drone_.name);
-  rcin_calib_->setNamespace(drone_.name);
+  rcin_calib_->updateInternalDataStructures();
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
+
+  switch (drone_.prop->type()) {
+    case tobas::propulsion_system_t::ELECTRIC:
+      tabs_->setTabVisible(rotor_test_, true);
+      break;
+    case tobas::propulsion_system_t::ICE:
+      tabs_->setTabVisible(rotor_test_, false);
+      break;
+    default:
+      throw;
+  }
+
+  // タブを表示・非表示した際の歪みを整える
+  tabs_->update();
 }
 }  // namespace hw
 }  // namespace gui

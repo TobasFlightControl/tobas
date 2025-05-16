@@ -2,10 +2,10 @@
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/double_range.hpp"
-#include "tobas_setup_assistant/param_getters/vector3d.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/param_getters/double_range.hpp"
+#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
+#include "tobas_setup_assistant/param_getters/vector3d.hpp"
 
 namespace gui
 {
@@ -33,7 +33,7 @@ public:
   double wingSpan() const;
   double mac() const;
   Eigen::Vector3d aerodynamicCenter() const;
-  std::pair<double, double> alphaLimit() const;
+  tobas_std::Range<double> alphaLimit() const;
 
 private:
   ParamGetterWidget_DoubleSpinBox* wing_surface_;

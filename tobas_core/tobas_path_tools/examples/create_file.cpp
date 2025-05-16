@@ -8,8 +8,7 @@ int main()
 {
   static constexpr char path[] = "/tmp/this/is/the/file/created/by/create_file";
 
-  if (!path::createFilePath(path))
-  {
+  if (!path::createFilePath(path)) {
     cerr << "Failed to create " << path << "." << endl;
     return EXIT_FAILURE;
   }

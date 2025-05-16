@@ -1,9 +1,9 @@
-#include <QHBoxLayout>
+#include "tobas_control_system/status_viewer/status.hpp"
+
 #include <QDebug>
+#include <QHBoxLayout>
 
 #include <tobas_qt_tools/widgets/label.hpp>
-
-#include "tobas_control_system/status_viewer/status.hpp"
 
 namespace gui
 {
@@ -29,8 +29,7 @@ void StatusWidget::reset()
 
 void StatusWidget::setStatus(status_t status)
 {
-  switch (status)
-  {
+  switch (status) {
     case PASSED:
       led_->setColor(kPassedColor);
       break;

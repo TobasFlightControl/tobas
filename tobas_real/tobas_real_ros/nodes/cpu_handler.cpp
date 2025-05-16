@@ -1,10 +1,11 @@
 #include <fstream>
 #include <sstream>
 
-#include <tobas_string_tools/core.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_string_tools/core.hpp>
+
 #include <tobas_msgs/msg/cpu.hpp>
 
 using namespace std;
@@ -43,14 +44,13 @@ private:
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("real_cpu_handler", options)
 {
   cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 bool CpuHandlerNode::getTemperature(double& temp)
 {
   ifstream temp_file(kTemperatureFilePath);
-  if (!temp_file)
-  {
+  if (!temp_file) {
     TOBAS_ERROR("Failed to open ", kTemperatureFilePath, ".");
     return false;
   }
@@ -61,8 +61,7 @@ bool CpuHandlerNode::getTemperature(double& temp)
 
 bool CpuHandlerNode::getFrequency(uint64_t& freq)
 {
-  if (!command_executor_.execute("vcgencmd measure_clock arm"))
-  {
+  if (!command_executor_.execute("vcgencmd measure_clock arm")) {
     TOBAS_ERROR("Failed to get CPU clock frequency.");
     return false;
   }
@@ -76,15 +75,13 @@ bool CpuHandlerNode::getLoad(double& load)
 {
   // ファイルを読み込む
   ifstream stat_file(kStatisticsFilePath);
-  if (!stat_file)
-  {
+  if (!stat_file) {
     TOBAS_ERROR("Failed to open ", kStatisticsFilePath, ".");
     return false;
   }
 
   // ファイルの最初の行を読む
-  if (!getline(stat_file, cpu_line_))
-  {
+  if (!getline(stat_file, cpu_line_)) {
     TOBAS_ERROR("Failed to read the first line of ", kStatisticsFilePath, ".");
     return false;
   }
@@ -97,32 +94,28 @@ bool CpuHandlerNode::getLoad(double& load)
   iss >> token_;
 
   // (01) Time spent in user mode
-  if (!(iss >> token_))
-  {
+  if (!(iss >> token_)) {
     TOBAS_ERROR("Failed to read the CPU time spent in user mode.");
     return false;
   }
   const auto new_user_time = stoul(token_);
 
   // (02) Time spent in user mode with low priority (nice)
-  if (!(iss >> token_))
-  {
+  if (!(iss >> token_)) {
     TOBAS_ERROR("Failed to read the CPU time spent in user mode with low priority.");
     return false;
   }
   const auto new_nice_time = stoul(token_);
 
   // (03) Time spent in system mode
-  if (!(iss >> token_))
-  {
+  if (!(iss >> token_)) {
     TOBAS_ERROR("Failed to read the CPU time spent in system mode.");
     return false;
   }
   const auto new_system_time = stoul(token_);
 
   // (04) Time spent in the idle task
-  if (!(iss >> token_))
-  {
+  if (!(iss >> token_)) {
     TOBAS_ERROR("Failed to read the CPU time spent in the idle task.");
     return false;
   }
@@ -155,16 +148,19 @@ void CpuHandlerNode::mainTimerCb()
   cpu_msg->header.stamp = get_clock()->now();
 
   // Get CPU temperature
-  if (!getTemperature(cpu_msg->temperature))
+  if (!getTemperature(cpu_msg->temperature)) {
     return;
+  }
 
   // Get CPU frequency
-  if (!getFrequency(cpu_msg->frequency))
+  if (!getFrequency(cpu_msg->frequency)) {
     return;
+  }
 
   // Get CPU load
-  if (!getLoad(cpu_msg->load))
+  if (!getLoad(cpu_msg->load)) {
     return;
+  }
 
   // Publish ROS message
   cpu_pub_->publish(move(cpu_msg));

@@ -1,11 +1,12 @@
-#include <tobas_math/ellipse_transformer.hpp>
-#include <tobas_linux/core.hpp>
-#include <tobas_ros2_tools/util.hpp>
-#include <tobas_property_tree/property_tree.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_math/ellipse_transformer.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_property_tree/property_tree.hpp>
+#include <tobas_ros2_tools/util.hpp>
+
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
+#include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
 using namespace std;
@@ -43,22 +44,19 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
   : super("real_magnetometer_handler", options)
 {
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / kConfigFileName)))
-  {
+  if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
   set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
-  if (!getConfig())
-  {
+  if (!getConfig()) {
     TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
     return;
   }
 
-  if (!mag_trans_.initialize())
-  {
+  if (!mag_trans_.initialize()) {
     TOBAS_ERROR("Failed to initialize ellipse transformer. This node will not work.");
     return;
   }
@@ -68,53 +66,43 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
 
 bool MagnetometerHandlerNode::getConfig()
 {
-  if (!pt_.get(kAxxKey, mag_trans_.a_xx))
-  {
+  if (!pt_.get(kAxxKey, mag_trans_.a_xx)) {
     TOBAS_ERROR("Failed to get \"", kAxxKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kAyyKey, mag_trans_.a_yy))
-  {
+  if (!pt_.get(kAyyKey, mag_trans_.a_yy)) {
     TOBAS_ERROR("Failed to get \"", kAyyKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kAzzKey, mag_trans_.a_zz))
-  {
+  if (!pt_.get(kAzzKey, mag_trans_.a_zz)) {
     TOBAS_ERROR("Failed to get \"", kAzzKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kAxyKey, mag_trans_.a_xy))
-  {
+  if (!pt_.get(kAxyKey, mag_trans_.a_xy)) {
     TOBAS_ERROR("Failed to get \"", kAxyKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kAyzKey, mag_trans_.a_yz))
-  {
+  if (!pt_.get(kAyzKey, mag_trans_.a_yz)) {
     TOBAS_ERROR("Failed to get \"", kAyzKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kAzxKey, mag_trans_.a_zx))
-  {
+  if (!pt_.get(kAzxKey, mag_trans_.a_zx)) {
     TOBAS_ERROR("Failed to get \"", kAzxKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kBxKey, mag_trans_.b_x))
-  {
+  if (!pt_.get(kBxKey, mag_trans_.b_x)) {
     TOBAS_ERROR("Failed to get \"", kBxKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kByKey, mag_trans_.b_y))
-  {
+  if (!pt_.get(kByKey, mag_trans_.b_y)) {
     TOBAS_ERROR("Failed to get \"", kByKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kBzKey, mag_trans_.b_z))
-  {
+  if (!pt_.get(kBzKey, mag_trans_.b_z)) {
     TOBAS_ERROR("Failed to get \"", kBzKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(kCKey, mag_trans_.c))
-  {
+  if (!pt_.get(kCKey, mag_trans_.c)) {
     TOBAS_ERROR("Failed to get \"", kCKey, "\" from configuration file.");
     return false;
   }
@@ -155,8 +143,7 @@ void MagnetometerHandlerNode::setParamsCb(
   mag_trans_.c = req->c;
 
   // Verify parameters
-  if (!mag_trans_.initialize())
-  {
+  if (!mag_trans_.initialize()) {
     res->success = false;
     res->message = "Failed to initialize ellipse transformer.";
     mag_trans_ = mag_trans_old;
@@ -174,15 +161,15 @@ void MagnetometerHandlerNode::setParamsCb(
   pt_.set(kByKey, req->b_y);
   pt_.set(kBzKey, req->b_z);
   pt_.set(kCKey, req->c);
-  if (!pt_.save())
-  {
+  if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";
     return;
   }
 
-  if (!mag_pub_)
+  if (!mag_pub_) {
     registerPubSub();
+  }
 
   res->success = true;
   res->message.clear();

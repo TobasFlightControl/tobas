@@ -7,8 +7,7 @@
 /* Releaseビルドでも機能するアサーション． */
 #define TOBAS_CHECK(expr)                                                                                              \
   {                                                                                                                    \
-    if (!static_cast<bool>(expr))                                                                                      \
-    {                                                                                                                  \
+    if (!static_cast<bool>(expr)) {                                                                                    \
       std::cout << RED_PREFIX << "Check failed: " << #expr << " (" << __FILE__ << ":" << __LINE__ << ")"               \
                 << COLOR_RESET << std::endl;                                                                           \
       std::abort();                                                                                                    \

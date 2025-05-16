@@ -1,6 +1,6 @@
-#include <tobas_yaml_tools/convert/eigen.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/barometer.hpp"
+
+#include <tobas_yaml_tools/convert/eigen.hpp>
 
 namespace gui
 {
@@ -58,7 +58,7 @@ bool BarometerWidget::isValid()
   return true;
 }
 
-YAML::Node BarometerWidget::dump()
+YAML::Node BarometerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

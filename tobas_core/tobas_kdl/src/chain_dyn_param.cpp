@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_dyn_param.hpp"
+#include "tobas_kdl/chain_dyn_param.hpp"
 
 using namespace std;
 
@@ -11,13 +11,16 @@ ChainDynParam::ChainDynParam(const Chain& chain) : super(chain), rne_coriolis_(c
 
 bool ChainDynParam::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!rne_coriolis_.updateInternalDataStructures())
+  if (!rne_coriolis_.updateInternalDataStructures()) {
     return false;
-  if (!rne_gravity_.updateInternalDataStructures())
+  }
+  if (!rne_gravity_.updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
 

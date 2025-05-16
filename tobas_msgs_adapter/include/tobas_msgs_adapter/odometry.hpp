@@ -3,10 +3,9 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_eigen_msgs_adapter/core.hpp>
+#include <tobas_kdl_msgs_adapter/accel.hpp>
 #include <tobas_kdl_msgs_adapter/frame.hpp>
 #include <tobas_kdl_msgs_adapter/twist.hpp>
-#include <tobas_kdl_msgs_adapter/accel.hpp>
-
 #include <tobas_msgs/msg/odometry.hpp>
 
 namespace tobas_msgs
@@ -71,6 +70,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::Odometry, tobas_msgs::msg::Odometry>
 namespace tobas_msgs
 {
 using OdometryAdapter = rclcpp::TypeAdapter<tobas_msgs::Odometry, tobas_msgs::msg::Odometry>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::Odometry, tobas_msgs::msg::Odometry);

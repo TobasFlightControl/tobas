@@ -44,6 +44,6 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::Angle, tobas_command_msgs::msg::A
 namespace tobas_command_msgs
 {
 using AngleAdapter = rclcpp::TypeAdapter<tobas_command_msgs::Angle, tobas_command_msgs::msg::Angle>;
-}
+}  // namespace tobas_command_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_command_msgs::Angle, tobas_command_msgs::msg::Angle);

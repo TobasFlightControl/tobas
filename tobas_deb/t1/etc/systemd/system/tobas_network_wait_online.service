@@ -1,0 +1,11 @@
+[Unit]
+Description=Wait for end0 or wlan0 to get a routable IP
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --interface=end0 --interface=wlan0 --any --timeout=30
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

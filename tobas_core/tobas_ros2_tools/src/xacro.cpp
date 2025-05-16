@@ -1,7 +1,7 @@
-#include <iostream>
-#include <fstream>
+#include "tobas_ros2_tools/xacro.hpp"
 
-#include "../include/tobas_ros2_tools/xacro.hpp"
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -13,16 +13,14 @@ bool xacro(const string& xacro_path, string& urdf_content)
   char tmp_urdf_path[] = "/tmp/temp_urdf_XXXXXX";
 
   // mkstemp()はテンプレートのX部分をランダムな文字列に置き換え，一時ファイルを作成する．
-  if (mkstemp(tmp_urdf_path) < 0)
-  {
+  if (mkstemp(tmp_urdf_path) < 0) {
     cerr << "Failed to create temporary URDF path." << endl;
     return false;
   }
 
   // XACROを展開してURDFを作成
   const auto command = "xacro " + xacro_path + " > " + tmp_urdf_path;
-  if (system(command.c_str()) != EXIT_SUCCESS)
-  {
+  if (system(command.c_str()) != EXIT_SUCCESS) {
     cerr << "Failed to convert XACRO to URDF." << endl;
     return false;
   }
@@ -30,8 +28,7 @@ bool xacro(const string& xacro_path, string& urdf_content)
 
   // 作成したURDFを読み取る
   ifstream file(tmp_urdf_path);
-  if (!file)
-  {
+  if (!file) {
     cerr << "Failed to open file: " << tmp_urdf_path << endl;
     return false;
   }

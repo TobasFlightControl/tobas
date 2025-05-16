@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QWidget>
-
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
@@ -27,6 +26,8 @@ class RvizWidget : public QWidget
 public:
   explicit RvizWidget(const RobotInfo& robot);
 
+  void updateInternalDataStructures();
+
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
@@ -38,7 +39,6 @@ public:
   void resetTime();
 
 private Q_SLOTS:
-  void onRobotLoaded();
   void onVisualBoxToggled(bool checked);
   void onCollisionBoxToggled(bool checked);
   void onInertiaBoxToggled(bool checked);

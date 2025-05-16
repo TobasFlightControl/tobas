@@ -1,9 +1,9 @@
 #pragma once
 
-#include "./base_setting.hpp"
-#include "../param_getters/spin_box.hpp"
 #include "../param_getters/double_spin_box.hpp"
+#include "../param_getters/spin_box.hpp"
 #include "../param_getters/vector3d.hpp"
+#include "./base_setting.hpp"
 
 namespace gui
 {
@@ -27,7 +27,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   Eigen::Vector3d offset() const;

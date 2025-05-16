@@ -1,7 +1,6 @@
-#include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/core.hpp>
-
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
+
+#include <tobas_string_tools/core.hpp>
 
 namespace gui
 {
@@ -12,8 +11,6 @@ ParamGetterWidget_SpinBox::ParamGetterWidget_SpinBox(const QString& param_name, 
 {
   spin_box_ = new qt::SpinBox();
   rows_->addWidget(spin_box_);
-
-  spin_box_->setFocusPolicy(Qt::StrongFocus);
   connect(spin_box_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
@@ -24,8 +21,9 @@ int ParamGetterWidget_SpinBox::getValue() const
 
 bool ParamGetterWidget_SpinBox::setValue(const int& src)
 {
-  if (src < spin_box_->minimum() || spin_box_->maximum() < src)
+  if (src < spin_box_->minimum() || spin_box_->maximum() < src) {
     return false;
+  }
 
   spin_box_->setValue(src);
   return true;

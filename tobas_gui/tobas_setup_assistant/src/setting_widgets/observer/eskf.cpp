@@ -1,7 +1,7 @@
+#include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
+
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
 
 namespace gui
 {
@@ -9,9 +9,9 @@ namespace sa
 {
 ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   const RobotInfo& robot,
-  const IMUWidget* imu,
+  const ImuWidget* imu,
   const BarometerWidget* baro,
-  const GNSSWidget* gnss)
+  const GnssWidget* gnss)
   : robot_(robot), imu_(imu), baro_(baro), gnss_(gnss)
 {
   const auto rows = new QVBoxLayout();

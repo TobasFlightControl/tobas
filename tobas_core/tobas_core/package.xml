@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <package format="3">
 
 	<name>tobas_core</name>
@@ -17,6 +16,7 @@
 	<exec_depend>tobas_eigen_msgs_adapter</exec_depend>
 	<exec_depend>tobas_eigen_tools</exec_depend>
 	<exec_depend>tobas_geomag</exec_depend>
+	<exec_depend>tobas_git</exec_depend>
 	<exec_depend>tobas_ic_drivers</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>
 	<exec_depend>tobas_kdl_conversions</exec_depend>

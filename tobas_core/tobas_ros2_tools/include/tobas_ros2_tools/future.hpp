@@ -8,12 +8,10 @@ namespace ros2
 template <typename FutureType, typename RepType, typename DurType>
 std::future_status waitForFuture(const FutureType& future, std::chrono::duration<RepType, DurType> timeout)
 {
-  if (timeout.count() > 0)
-  {
+  if (timeout.count() > 0) {
     return future.wait_for(timeout);
   }
-  else
-  {
+  else {
     future.wait();
     return std::future_status::ready;
   }

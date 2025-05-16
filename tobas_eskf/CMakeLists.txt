@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_eskf)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -19,33 +19,29 @@ find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_debug_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	tobas_eigen_tools
-	tobas_geomag
-	tobas_kdl_conversions
-	tobas_node
-	tobas_msgs_adapter
-	tobas_debug_msgs_adapter
+set(AMENT_DEPENDENCIES tobas_eigen_tools tobas_geomag tobas_kdl_conversions tobas_node tobas_msgs_adapter
+                       tobas_debug_msgs_adapter
 )
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ObserverNode" EXECUTABLE observer)
 
 install(
-	TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

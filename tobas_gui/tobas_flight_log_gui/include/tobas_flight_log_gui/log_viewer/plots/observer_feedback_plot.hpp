@@ -33,14 +33,14 @@ private:
   QwtPlot2* mag_hard_bias_plot_;
   QwtPlot2* mag_soft_bias_plot_;
   QwtPlot2* gravity_plot_;
-  QwtPlot2* gnss_anormaly_score_plot_;
+  QwtPlot2* gnss_anomaly_score_plot_;
 
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, kAccelBiasSize> acc_bias_curves_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, kGyroBiasSize> gyro_bias_curves_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, kMagHardBiasSize> mag_hard_bias_curves_;
-  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, kMagSoftBiasSize> mag_soft_bias_curves_;
-  qwt::QwtPlotCurveWrapper::SharedPtr gravity_curve_;
-  qwt::QwtPlotCurveWrapper::SharedPtr gnss_anormaly_score_curve_;
+  std::array<qwt::QwtPlotCurveWrapper, kAccelBiasSize> acc_bias_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, kGyroBiasSize> gyro_bias_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, kMagHardBiasSize> mag_hard_bias_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, kMagSoftBiasSize> mag_soft_bias_curves_;
+  qwt::QwtPlotCurveWrapper gravity_curve_;
+  qwt::QwtPlotCurveWrapper gnss_anomaly_score_curve_;
 };
 }  // namespace log
 }  // namespace gui

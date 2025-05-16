@@ -1,10 +1,10 @@
-#include <tobas_path_tools/join.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_gazebo_common/constants.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_path_tools/join.hpp>
+
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-
-#include <tobas_gazebo_common/constants.hpp>
 
 class RotorStatesPublisherNode : public tobas::BaseNode
 {
@@ -35,14 +35,14 @@ RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& op
 
 void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (!drone->prop)
+  if (!drone->prop) {
     return;
+  }
 
   rotor_states_.clear();
   rotor_state_subs_.clear();
 
-  for (const auto& [link_name, _] : drone->prop->rotors)
-  {
+  for (const auto& [link_name, _] : drone->prop->rotors) {
     const auto topic = path::join(gazebo::kRotorStateTopicNS, link_name);
     rotor_state_subs_[link_name] = createSubscriber(topic, &self::rotorStateCb, this);
   }
@@ -54,8 +54,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
 {
   const auto& link_name = rotor_state->link_name;
 
-  if (rotor_states_.contains(link_name))
-  {
+  if (rotor_states_.contains(link_name)) {
     TOBAS_WARN("Rotor \"", link_name, "\" is already updated.");
     return;
   }
@@ -63,13 +62,13 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
   // Store rotor state
   rotor_states_[link_name] = *rotor_state;
 
-  if (rotor_states_.size() == drone_->prop->numRotors())
-  {
+  if (rotor_states_.size() == drone_->prop->numRotors()) {
     // Publish rotor states
     auto rotor_states_msg = std::make_unique<tobas_msgs::msg::RotorStateArray>();
     rotor_states_msg->header.stamp = get_clock()->now();
-    for (const auto& [_, state] : rotor_states_)
+    for (const auto& [_, state] : rotor_states_) {
       rotor_states_msg->states.push_back(state);
+    }
     rotor_states_pub_->publish(move(rotor_states_msg));
 
     // Reset

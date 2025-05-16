@@ -1,5 +1,6 @@
-#include "../../include/tobas_urdf_builder_plugin/view_model/joint_view_model.hpp"
-#include "../../include/tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
+#include "tobas_urdf_builder_plugin/view_model/joint_view_model.hpp"
+
+#include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
 using namespace std;
 
@@ -25,17 +26,20 @@ namespace view_model
 {
 JointViewModel::JointViewModel(const urdf::JointSharedPtr& model) : BaseViewModel<urdf::Joint, JointViewModel>(model)
 {
-  if (model_->type == urdf::Joint::UNKNOWN)
+  if (model_->type == urdf::Joint::UNKNOWN) {
     model_->type = urdf::Joint::FIXED;
+  }
 
-  if (limitsEnabled())
+  if (limitsEnabled()) {
     limits_.reset(new JointLimitsViewModel(model_->limits));
+  }
 }
 
 void JointViewModel::sync()
 {
-  if (limitsEnabled())
+  if (limitsEnabled()) {
     model_->limits = limits_->model();
+  }
 }
 
 QString JointViewModel::name() const
@@ -57,10 +61,12 @@ void JointViewModel::type(const QString& type)
 {
   model_->type = kJointNameToTypeMap.at(type);
 
-  if (limitsEnabled())
+  if (limitsEnabled()) {
     limits_.reset(new JointLimitsViewModel(model_->limits));
-  else
+  }
+  else {
     limits_.reset();
+  }
 }
 
 const urdf::Pose& JointViewModel::origin() const

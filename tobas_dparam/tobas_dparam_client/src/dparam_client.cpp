@@ -1,10 +1,11 @@
-#include <tobas_dparam_common/constants.hpp>
-#include <tobas_dparam_msgs/srv/set_bool.hpp>
-#include <tobas_dparam_msgs/srv/set_int.hpp>
-#include <tobas_dparam_msgs/srv/set_double.hpp>
-#include <tobas_dparam_msgs/srv/set_string.hpp>
+#include "tobas_dparam_client/dparam_client.hpp"
 
-#include "../include/tobas_dparam_client/dparam_client.hpp"
+#include <tobas_dparam_common/constants.hpp>
+
+#include <tobas_dparam_msgs/srv/set_bool.hpp>
+#include <tobas_dparam_msgs/srv/set_double.hpp>
+#include <tobas_dparam_msgs/srv/set_int.hpp>
+#include <tobas_dparam_msgs/srv/set_string.hpp>
 
 using namespace std;
 using namespace tobas_dparam_msgs::srv;
@@ -43,8 +44,7 @@ DynamicParamClient::error_t DynamicParamClient::errorCode() const
 
 const char* DynamicParamClient::errorMessage() const
 {
-  switch (error_code_)
-  {
+  switch (error_code_) {
     case E_NO_ERROR:
       return "";
     case E_SERVICE_NOT_READY:

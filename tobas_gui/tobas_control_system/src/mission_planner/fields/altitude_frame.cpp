@@ -1,8 +1,7 @@
-#include <QHBoxLayout>
-
-#include <magic_enum/magic_enum.hpp>
-
 #include "tobas_control_system/mission_planner/fields/altitude_frame.hpp"
+
+#include <QHBoxLayout>
+#include <magic_enum/magic_enum.hpp>
 
 namespace gui
 {

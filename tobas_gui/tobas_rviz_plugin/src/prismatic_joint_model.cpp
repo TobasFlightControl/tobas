@@ -1,0 +1,119 @@
+#include "tobas_rviz_plugin/prismatic_joint_model.hpp"
+
+#include <limits>
+
+namespace tobas
+{
+PrismaticJointModel::PrismaticJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
+  : JointModel(name, joint_index, first_variable_index), axis_(0., 0., 0.)
+{
+  type_ = PRISMATIC;
+  variable_names_.push_back(getName());
+  variable_bounds_.resize(1);
+  variable_bounds_[0].position_bounded_ = true;
+  variable_bounds_[0].min_position_ = -std::numeric_limits<double>::max();
+  variable_bounds_[0].max_position_ = std::numeric_limits<double>::max();
+  variable_index_map_[getName()] = 0;
+  computeVariableBoundsMsg();
+}
+
+unsigned int PrismaticJointModel::getStateSpaceDimension() const
+{
+  return 1;
+}
+
+double PrismaticJointModel::getMaximumExtent(const Bounds& other_bounds) const
+{
+  return variable_bounds_[0].max_position_ - other_bounds[0].min_position_;
+}
+
+void PrismaticJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
+{
+  // if zero is a valid value
+  if (bounds[0].min_position_ <= 0. && bounds[0].max_position_ >= 0.) {
+    values[0] = 0.;
+  }
+  else {
+    values[0] = (bounds[0].min_position_ + bounds[0].max_position_) / 2.;
+  }
+}
+
+bool PrismaticJointModel::satisfiesPositionBounds(const double* values, const Bounds& bounds, double margin) const
+{
+  return values[0] >= bounds[0].min_position_ - margin && values[0] <= bounds[0].max_position_ + margin;
+}
+
+void PrismaticJointModel::getVariableRandomPositions(
+  random_numbers::RandomNumberGenerator& rng,
+  double* values,
+  const Bounds& bounds) const
+{
+  values[0] = rng.uniformReal(bounds[0].min_position_, bounds[0].max_position_);
+}
+
+void PrismaticJointModel::getVariableRandomPositionsNearBy(
+  random_numbers::RandomNumberGenerator& rng,
+  double* values,
+  const Bounds& bounds,
+  const double* near,
+  const double distance) const
+{
+  values[0] = rng.uniformReal(
+    std::max(bounds[0].min_position_, near[0] - distance), std::min(bounds[0].max_position_, near[0] + distance));
+}
+
+bool PrismaticJointModel::enforcePositionBounds(double* values, const Bounds& bounds) const
+{
+  if (values[0] < bounds[0].min_position_) {
+    values[0] = bounds[0].min_position_;
+    return true;
+  }
+  else if (values[0] > bounds[0].max_position_) {
+    values[0] = bounds[0].max_position_;
+    return true;
+  }
+  return false;
+}
+
+double PrismaticJointModel::distance(const double* values1, const double* values2) const
+{
+  return fabs(values1[0] - values2[0]);
+}
+
+void PrismaticJointModel::interpolate(const double* from, const double* to, const double t, double* state) const
+{
+  state[0] = from[0] + (to[0] - from[0]) * t;
+}
+
+void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
+{
+  double* d = transf.data();
+  d[0] = 1.;
+  d[1] = 0.;
+  d[2] = 0.;
+  d[3] = 0.;
+
+  d[4] = 0.;
+  d[5] = 1.;
+  d[6] = 0.;
+  d[7] = 0.;
+
+  d[8] = 0.;
+  d[9] = 0.;
+  d[10] = 1.;
+  d[11] = 0.;
+
+  d[12] = axis_.x() * joint_values[0];
+  d[13] = axis_.y() * joint_values[0];
+  d[14] = axis_.z() * joint_values[0];
+  d[15] = 1.;
+
+  //  transf.setIdentity();
+  //  transf.translation() = Eigen::Vector3d(axis_ * joint_values[0]);
+}
+
+void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& transf, double* joint_values) const
+{
+  joint_values[0] = transf.translation().dot(axis_);
+}
+}  // namespace tobas

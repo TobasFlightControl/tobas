@@ -4,31 +4,15 @@
 
 namespace qt
 {
-class VerticalTabBar : public QTabBar
+class VerticalTabBar : public TabBar
 {
   Q_OBJECT
 
-  using super = QTabBar;
-
-public:
-  using super::QTabBar;
+  using super = TabBar;
 
 protected:
   QSize tabSizeHint(int index) const override;
   void paintEvent(QPaintEvent* event) override;
-};
-
-class VerticalTabBarWithNoWheelEvent : public QTabBar
-{
-  Q_OBJECT
-
-  using super = QTabBar;
-
-public:
-  using super::QTabBar;
-
-protected:
-  void wheelEvent(QWheelEvent* event) override;
 };
 
 class VerticalTabWidget : public TabWidget
@@ -39,7 +23,5 @@ class VerticalTabWidget : public TabWidget
 
 public:
   explicit VerticalTabWidget(QWidget* parent = nullptr);
-
-  void ignoreWheelEvent() override;
 };
 }  // namespace qt

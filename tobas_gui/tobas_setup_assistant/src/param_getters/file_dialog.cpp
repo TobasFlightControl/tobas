@@ -1,12 +1,13 @@
-#include <filesystem>
-#include <rcutils/env.h>
-#include <QPushButton>
-#include <QHBoxLayout>
-
-#include <tobas_string_tools/core.hpp>
-#include <tobas_constants/constants.hpp>
-
 #include "tobas_setup_assistant/param_getters/file_dialog.hpp"
+
+#include <filesystem>
+
+#include <rcutils/env.h>
+#include <QHBoxLayout>
+#include <QPushButton>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_string_tools/core.hpp>
 
 using namespace std;
 
@@ -18,10 +19,10 @@ ParamGetterWidget_FileDialog::ParamGetterWidget_FileDialog(
   rclcpp::Node::SharedPtr node,
   const QString& param_name,
   const QString& description_text)
-  : super(param_name, description_text),
-    node_(node),
-    last_opend_dir_key_("last_opened_dir/file_dialog/" + str::replace(param_name.toStdString(), " ", "_")),
-    property_client_(node, tobas::kPropertyServerName, kPackageName)
+  : super(param_name, description_text)
+  , node_(node)
+  , last_opend_dir_key_("last_opened_dir/file_dialog/" + str::replace(param_name.toStdString(), " ", "_"))
+  , property_client_(node, tobas::kPropertyServerName, kPackageName)
 {
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
@@ -57,8 +58,7 @@ void ParamGetterWidget_FileDialog::onTextChanged(const QString& text)
 void ParamGetterWidget_FileDialog::onBrowseButtonClicked()
 {
   string last_opened_dir;
-  if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0)
-  {
+  if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -67,19 +67,19 @@ void ParamGetterWidget_FileDialog::onBrowseButtonClicked()
   const auto path =
     QFileDialog::getOpenFileName(this, kTitle, QString::fromStdString(last_opened_dir), init_filter_, nullptr, options);
   if (path.isEmpty())  // Cancelの場合
+  {
     return;
+  }
 
   path_->setText(path);
 
   // 最後に開かれたパスを保存
   const auto par_dir = filesystem::path(path.toStdString()).parent_path();
-  if (property_client_.set(last_opend_dir_key_, par_dir) < 0)
-  {
+  if (property_client_.set(last_opend_dir_key_, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;
   }
-  if (property_client_.save() < 0)
-  {
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;
   }

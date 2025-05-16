@@ -1,5 +1,6 @@
-#include "../../include/tobas_urdf_builder_plugin/view_model/link_view_model.hpp"
-#include "../../include/tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
+#include "tobas_urdf_builder_plugin/view_model/link_view_model.hpp"
+
+#include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
 using namespace std;
 
@@ -10,15 +11,17 @@ namespace urdf_builder
 namespace view_model
 {
 LinkViewModel::LinkViewModel(const urdf::LinkSharedPtr& model)
-  : BaseViewModel<urdf::Link, LinkViewModel>(model),
-    inertial_(make_shared<InertialViewModel>(model_->inertial)),
-    joint_(make_shared<JointViewModel>(model_->parent_joint))
+  : BaseViewModel<urdf::Link, LinkViewModel>(model)
+  , inertial_(make_shared<InertialViewModel>(model_->inertial))
+  , joint_(make_shared<JointViewModel>(model_->parent_joint))
 {
-  for (const auto& visual : model_->visual_array)
+  for (const auto& visual : model_->visual_array) {
     visuals_.emplace_back(new VisualViewModel(visual));
+  }
 
-  for (const auto& collision : model_->collision_array)
+  for (const auto& collision : model_->collision_array) {
     collisions_.emplace_back(new CollisionViewModel(collision));
+  }
 
   // コンストラクタの時点でURDFと同期しておく．
   // そうしないとMeshをクローンしたときにパスエラーが出る．
@@ -29,10 +32,12 @@ void LinkViewModel::sync()
 {
   inertial_->sync();
   joint_->sync();
-  for (const auto& visual : visuals_)
+  for (const auto& visual : visuals_) {
     visual->sync();
-  for (const auto& collision : collisions_)
+  }
+  for (const auto& collision : collisions_) {
     collision->sync();
+  }
 
   // inertial
   model_->inertial = inertial_->model();
@@ -40,22 +45,30 @@ void LinkViewModel::sync()
   // collision, collision_array
   model_->collision_array.clear();
   transform(
-    collisions_.begin(), collisions_.end(), back_inserter(model_->collision_array),
+    collisions_.begin(),
+    collisions_.end(),
+    back_inserter(model_->collision_array),
     [](const CollisionViewModelPtr& cvm) { return cvm->model(); });
-  if (model_->collision_array.empty())
+  if (model_->collision_array.empty()) {
     model_->collision.reset();
-  else
+  }
+  else {
     model_->collision = model_->collision_array.front();
+  }
 
   // visual, visual_array
   model_->visual_array.clear();
   transform(
-    visuals_.begin(), visuals_.end(), back_inserter(model_->visual_array),
+    visuals_.begin(),
+    visuals_.end(),
+    back_inserter(model_->visual_array),
     [](const VisualViewModelPtr& vvm) { return vvm->model(); });
-  if (model_->visual_array.empty())
+  if (model_->visual_array.empty()) {
     model_->visual.reset();
-  else
+  }
+  else {
     model_->visual = model_->visual_array.front();
+  }
 
   // parent_joint
   model_->parent_joint = joint_->model();
@@ -74,8 +87,9 @@ void LinkViewModel::name(const QString& name)
 
   // 整合性をとるために上下の関節に含まれるリンク名も変更する
   joint_->childLinkName(name);
-  for (const auto& child_link : model_->child_links)
+  for (const auto& child_link : model_->child_links) {
     child_link->parent_joint->parent_link_name = name.toStdString();
+  }
 }
 
 const InertialViewModelPtr& LinkViewModel::inertial()
@@ -101,8 +115,9 @@ const JointViewModelPtr& LinkViewModel::joint()
 V_LinkViewModelPtr LinkViewModel::children() const
 {
   V_LinkViewModelPtr result;
-  for (const auto& child : model_->child_links)
+  for (const auto& child : model_->child_links) {
     result.emplace_back(new LinkViewModel(child));
+  }
   return result;
 }
 

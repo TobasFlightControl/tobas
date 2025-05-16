@@ -1,4 +1,4 @@
-#include "../include/tobas_eigen_tools/spline.hpp"
+#include "tobas_eigen_tools/spline.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -6,9 +6,9 @@ using namespace Eigen;
 namespace eigen
 {
 SplineFunction::SplineFunction(const VectorXd& x_vec, const VectorXd& y_vec, const size_t& degree)
-  : x_min_(x_vec.minCoeff()),
-    x_max_(x_vec.maxCoeff()),
-    spline_(SplineFitting<Spline<double, 1>>::Interpolate(
+  : x_min_(x_vec.minCoeff())
+  , x_max_(x_vec.maxCoeff())
+  , spline_(SplineFitting<Spline<double, 1>>::Interpolate(
       y_vec.transpose(),
       min<int>(x_vec.rows() - 1, degree),
       scaledValues(x_vec)))

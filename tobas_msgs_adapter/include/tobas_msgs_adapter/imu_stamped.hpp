@@ -41,6 +41,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::ImuStamped, tobas_msgs::msg::ImuStamped>
 namespace tobas_msgs
 {
 using ImuStampedAdapter = rclcpp::TypeAdapter<tobas_msgs::ImuStamped, tobas_msgs::msg::ImuStamped>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::ImuStamped, tobas_msgs::msg::ImuStamped);

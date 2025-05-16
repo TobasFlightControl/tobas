@@ -1,8 +1,6 @@
+#include "tobas_ic_drivers/jre30.hpp"
+
 #include <iostream>
-
-#include "../include/tobas_ic_drivers/jre30.hpp"
-
-#define TIMEOUT_MS 1000
 
 using namespace std;
 
@@ -64,23 +62,25 @@ JRE30::JRE30(function<void(shared_ptr<const JRE30Packet>)> packet_cb)
 
 bool JRE30::initialize(const char* uart_device)
 {
-  if (!uart_.initialize(uart_device, true))
+  if (!uart_.initialize(uart_device, true)) {
     return false;
+  }
 
-  if (!uart_.setBaudRate(460'800))
+  if (!uart_.setBaudRate(460'800)) {
     return false;
+  }
 
-  if (!uart_.setDataBits(8))
+  if (!uart_.setDataBits(8)) {
     return false;
+  }
 
-  if (!uart_.setSingleStopBit())
+  if (!uart_.setSingleStopBit()) {
     return false;
+  }
 
-  if (!uart_.disableParity())
+  if (!uart_.disableParity()) {
     return false;
-
-  if (!uart_.setTimeout(TIMEOUT_MS / 100))
-    return false;
+  }
 
   return true;
 }
@@ -97,19 +97,20 @@ void JRE30::spin()
 
 void JRE30::readThreadFunc()
 {
-  while (true)
-  {
+  while (true) {
     // Header
-    if (!uart_.receive(buf_ + 0, 1))
+    if (!uart_.receive(buf_ + 0, 1)) {
       continue;
-    if (buf_[0] != 'R')
+    }
+    if (buf_[0] != 'R') {
       continue;
+    }
 
-    if (!uart_.receive(buf_ + 1, 1))
+    if (!uart_.receive(buf_ + 1, 1)) {
       continue;
+    }
 
-    switch (buf_[1])
-    {
+    switch (buf_[1]) {
       case 'A':
         packet_ = static_pointer_cast<JRE30Packet>(packet_a_);
         break;
@@ -123,12 +124,15 @@ void JRE30::readThreadFunc()
         continue;
     }
 
-    for (size_t i = 2; i < packet_->packetSize(); ++i)
-      if (!uart_.receive(buf_ + i, 1))
+    for (size_t i = 2; i < packet_->packetSize(); ++i) {
+      if (!uart_.receive(buf_ + i, 1)) {
         continue;
+      }
+    }
 
-    if (!checkCRC())
+    if (!checkCRC()) {
       continue;
+    }
 
     packet_->decode(buf_);
     packet_cb_(packet_);
@@ -142,8 +146,7 @@ bool JRE30::checkCRC() const
   const uint16_t cs = crc_.compute(buf_, packet_size - 2);
   const uint16_t cr = (buf_[packet_size - 1] << 8) | buf_[packet_size - 2];
 
-  if (cs != cr)
-  {
+  if (cs != cr) {
     cerr << "CRC failed: " << cs << " != " << cr << endl;
     return false;
   }

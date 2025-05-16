@@ -1,11 +1,11 @@
+#include "tobas_control_system/cpu_viewer.hpp"
+
 #include <format>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-
-#include "tobas_control_system/cpu_viewer.hpp"
+#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
 {
@@ -30,10 +30,10 @@ CPUViewerWidget::CPUViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 void CPUViewerWidget::reset()
 {
   temp_->setUpper(temp_->getMinimum());
-  temp_->setText("");
+  temp_->setCenterText("");
 
   load_->setUpper(load_->getMinimum());
-  load_->setText("");
+  load_->setCenterText("");
 }
 
 void CPUViewerWidget::updateNamespace(const std::string& ns)
@@ -55,24 +55,34 @@ void CPUViewerWidget::updateNamespace(const std::string& ns)
 void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
   temp_->setUpper(cpu->temperature);
-  temp_->setText(std::format("{:.0f} ℃", cpu->temperature).c_str());
-  if (cpu->temperature > 85.)
+  temp_->setCenterText(std::format("{:.0f} ℃", cpu->temperature).c_str());
+  if (cpu->temperature > 85.) {
     temp_->setFillColor(Qt::magenta);
-  else if (cpu->temperature > 70.)
+  }
+  else if (cpu->temperature > 80.) {
     temp_->setFillColor(Qt::red);
-  else if (cpu->temperature > 50.)
+  }
+  else if (cpu->temperature > 60.) {
     temp_->setFillColor(Qt::yellow);
-  else
+  }
+  else if (cpu->temperature > 0.) {
     temp_->setFillColor(Qt::green);
+  }
+  else {
+    temp_->setFillColor(Qt::blue);
+  }
 
   load_->setUpper(cpu->load * 100);
-  load_->setText(std::format("{:.0f} %", cpu->load * 100).c_str());
-  if (cpu->load > 80.)
+  load_->setCenterText(std::format("{:.0f} %", cpu->load * 100).c_str());
+  if (cpu->load > 80.) {
     load_->setFillColor(Qt::red);
-  else if (cpu->load > 60.)
+  }
+  else if (cpu->load > 60.) {
     load_->setFillColor(Qt::yellow);
-  else
+  }
+  else {
     load_->setFillColor(Qt::green);
+  }
 }
 }  // namespace gcs
 }  // namespace gui

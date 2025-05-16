@@ -1,6 +1,6 @@
-#include <QPainter>
-
 #include "tobas_qt_tools/widgets/circle_widget.hpp"
+
+#include <QPainter>
 
 namespace qt
 {
@@ -54,14 +54,15 @@ void CircleWidget::paintEvent(QPaintEvent*)
   drawCircle(painter);
   painter.restore();
 
-  if (!text_.isEmpty())
-  {
+  if (!text_.isEmpty()) {
     painter.save();
 
-    if (text_psize_ > 0)
+    if (text_psize_ > 0) {
       super::drawText(painter, text_, getCenter(), text_psize_);
-    else
+    }
+    else {
       drawMaximumText(painter, text_, getCenter());
+    }
 
     painter.restore();
   }

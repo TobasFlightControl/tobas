@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./vector.hpp"
 #include "./rotation.hpp"
 #include "./utilities/rall2d.hpp"
+#include "./vector.hpp"
 
 namespace kdl
 {
@@ -18,7 +18,7 @@ public:
   inline explicit VectorAcc(const Vector& _p, const Vector& _v);
   inline explicit VectorAcc(const Vector& _p, const Vector& _v, const Vector& _dv);
 
-  inline static VectorAcc Zero();
+  static inline VectorAcc Zero();
 
   inline void setZero();
 

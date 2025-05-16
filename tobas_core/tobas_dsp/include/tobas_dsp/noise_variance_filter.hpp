@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./high_pass_filter.hpp"
-#include "./welford.hpp"
 #include "./moving_stat.hpp"
+#include "./welford.hpp"
 
 namespace dsp
 {
@@ -39,8 +39,9 @@ NoiseVarianceFilter<Scalar, Size, Length>::NoiseVarianceFilter()
 template <typename Scalar, int Size, size_t Length>
 bool NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_freq, const DataType& init_data)
 {
-  if (!hpf_.setCutoffFrequency(hpf_cutoff_freq))
+  if (!hpf_.setCutoffFrequency(hpf_cutoff_freq)) {
     return false;
+  }
 
   hpf_.setValue(init_data);
 
@@ -67,8 +68,7 @@ void NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, dou
   else  // データ数が時間窓を超えてからは移動分散アルゴリズムを使う
   {
     // データサイズが時間窓と一致した時にWelfordのアルゴリズムから移動分散アルゴリズムに切り替える
-    if (num_data_ == Length)
-    {
+    if (num_data_ == Length) {
       assert(data_buf_.size() == Length);
       moving_stat_.initialize(data_buf_);
     }
@@ -83,9 +83,11 @@ template <typename Scalar, int Size, size_t Length>
 inline NoiseVarianceFilter<Scalar, Size, Length>::CovType
 NoiseVarianceFilter<Scalar, Size, Length>::noiseVariance() const
 {
-  if (num_data_ <= Length)
+  if (num_data_ <= Length) {
     return welford_.variance();
-  else
+  }
+  else {
     return moving_stat_.variance();
+  }
 }
 }  // namespace dsp

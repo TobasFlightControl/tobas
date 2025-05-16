@@ -1,0 +1,240 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+
+from launch_ros.actions import Node, SetParameter
+from launch_ros.substitutions import FindPackageShare
+
+# Template parameters
+DRONE_NAME = "voliro_like"
+CONFIG_PKG_NAME = "tobas_voliro_like_config"
+OBSERVER_PKG = "tobas_eskf"
+CONTROLLER_PKG = "tobas_tiltrotor_pid"
+
+# Arguments
+LOG_LEVEL = "log_level"
+OUTPUT = "output"
+USE_SIM_TIME = "use_sim_time"
+GROUND_TRUTH = "ground_truth"
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
+
+    # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
+    use_sim_time = LaunchConfiguration(USE_SIM_TIME)
+    ground_truth = LaunchConfiguration(GROUND_TRUTH)
+
+    # Set common parameters
+    # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
+    ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
+
+    config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+
+    odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+    tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
+
+    ros_args = ["--log-level", log_level]
+
+    # Launch 1st priority nodes (Twist Control)
+    ld.add_action(
+        Node(
+            package=OBSERVER_PKG,
+            executable="observer",
+            name="observer",
+            namespace=DRONE_NAME,
+            parameters=[],  # TODO
+            remappings=tf_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package=CONTROLLER_PKG,
+            executable="controller",
+            name="controller",
+            namespace=DRONE_NAME,
+            parameters=[],  # TODO
+            remappings=odom_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_preprocess",
+            executable="imu_preprocess",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_rotor_controller",
+            executable="rotor_controller",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_disturbance_observer",
+            executable="disturbance_observer",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
+    ld.add_action(
+        Node(
+            package="tobas_rc_teleop",
+            executable="rc_teleop",
+            namespace=DRONE_NAME,
+            parameters=[],  # TODO
+            remappings=odom_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_preprocess",
+            executable="mag_preprocess",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_preprocess",
+            executable="air_pressure_preprocess",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_manipulation",
+            executable="position_controller",
+            namespace=DRONE_NAME,
+            remappings=odom_remap + tf_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_manipulation",
+            executable="velocity_controller",
+            namespace=DRONE_NAME,
+            remappings=odom_remap + tf_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_manipulation",
+            executable="effort_controller",
+            namespace=DRONE_NAME,
+            remappings=odom_remap + tf_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch 3th priority nodes (Others)
+    ld.add_action(
+        Node(
+            package="tobas_tree_server",
+            executable="tree_server",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_drone_server",
+            executable="drone_server",
+            namespace=DRONE_NAME,
+            parameters=[{"tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"])}],
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_rosbag_recorder",
+            executable="rosbag_recorder",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_state_checker",
+            executable="pre_arm_checker",
+            namespace=DRONE_NAME,
+            parameters=[],  # TODO
+            remappings=odom_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_state_checker",
+            executable="post_arm_checker",
+            namespace=DRONE_NAME,
+            remappings=odom_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_landing_detection",
+            executable="landing_detector",
+            namespace=DRONE_NAME,
+            remappings=odom_remap,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_rotor_anomaly_detection",
+            executable="rotor_anomaly_detector",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_topic_throttle",
+            executable="topic_throttle",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    return ld

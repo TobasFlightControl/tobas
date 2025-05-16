@@ -1,13 +1,16 @@
-#include <filesystem>
-#include <rcutils/env.h>
-#include <QPushButton>
-#include <QFileDialog>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
 
+#include <filesystem>
+
+#include <rcutils/env.h>
+#include <QFileDialog>
+#include <QPushButton>
+
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
 
 namespace gui
 {
@@ -144,10 +147,9 @@ YAML::Node AerodynamicsCoefficientsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int row = 0; row < form_->rowCount(); ++row)
-  {
-    const auto label = qobject_cast<QLabel*>(form_->getLabel(row));
-    const auto widget = qobject_cast<qt::DoubleSpinBox*>(form_->getWidget(row));
+  for (int row = 0; row < form_->rowCount(); ++row) {
+    const auto label = qt::qConstPointerCast<QLabel>(form_->getLabel(row));
+    const auto widget = qt::qConstPointerCast<qt::DoubleSpinBox>(form_->getWidget(row));
     node[label->text().toStdString()] = widget->value();
   }
 
@@ -156,10 +158,9 @@ YAML::Node AerodynamicsCoefficientsWidget::dump() const
 
 void AerodynamicsCoefficientsWidget::load(const YAML::Node& node)
 {
-  for (int row = 0; row < form_->rowCount(); ++row)
-  {
-    const auto label = qobject_cast<QLabel*>(form_->getLabel(row));
-    const auto widget = qobject_cast<qt::DoubleSpinBox*>(form_->getWidget(row));
+  for (int row = 0; row < form_->rowCount(); ++row) {
+    const auto label = qt::qConstPointerCast<QLabel>(form_->getLabel(row));
+    const auto widget = qt::qPointerCast<qt::DoubleSpinBox>(form_->getWidget(row));
     widget->setValue(node[label->text().toStdString()].as<double>());
   }
 }
@@ -248,8 +249,7 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
-  {
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -260,20 +260,22 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
     this, kTitle, QString::fromStdString(last_opened_dir), "OpenVSP Stability Derivatives (*.stab)", nullptr, options);
 
   // キャンセルの場合は何もせずに終了
-  if (file_path.isEmpty())
+  if (file_path.isEmpty()) {
     return;
+  }
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = std::filesystem::path(file_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  if (property_client_.save() < 0)
+  }
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  }
 
   // パラメータを読み込む
   VSPAEROParser parser;
-  if (!parser.parse(file_path.toStdString()))
-  {
+  if (!parser.parse(file_path.toStdString())) {
     qt::qErrorBox(this, "Failed to read coefficients.");
     return;
   }

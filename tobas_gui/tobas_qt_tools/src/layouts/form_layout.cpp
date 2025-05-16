@@ -1,8 +1,8 @@
-#include <QWidget>
-#include <QLabel>
-#include <QHBoxLayout>
-
 #include "tobas_qt_tools/layouts/form_layout.hpp"
+
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QWidget>
 
 namespace qt
 {
@@ -22,10 +22,16 @@ void FormLayout::addVAlignedRow(const QString& label_text, QWidget* field)
   addVAlignedRow(new QLabel(label_text), field);
 }
 
+void FormLayout::addStretch()
+{
+  addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+}
+
 void FormLayout::clear()
 {
-  while (rowCount() > 0)
+  while (rowCount() > 0) {
     removeRow(0);
+  }
 }
 
 QWidget* FormLayout::getLabel(int row)
@@ -38,5 +44,17 @@ QWidget* FormLayout::getWidget(int row)
 {
   const auto item = itemAt(row, QFormLayout::FieldRole);
   return item->widget();
+}
+
+void FormLayout::setEnabled(int row, bool enabled)
+{
+  getLabel(row)->setEnabled(enabled);
+  getWidget(row)->setEnabled(enabled);
+}
+
+void FormLayout::setVisible(int row, bool visible)
+{
+  getLabel(row)->setVisible(visible);
+  getWidget(row)->setVisible(visible);
 }
 }  // namespace qt

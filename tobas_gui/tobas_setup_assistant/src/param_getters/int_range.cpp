@@ -20,15 +20,15 @@ ParamGetterWidget_IntRange::ParamGetterWidget_IntRange(const QString& param_name
   connect(max_, &IntGetter::valueChanged, this, &self::onValueChanged);
 }
 
-std::pair<int, int> ParamGetterWidget_IntRange::getValue() const
+ParamGetterWidget_IntRange::ValueType ParamGetterWidget_IntRange::getValue() const
 {
   return { min(), max() };
 }
 
-bool ParamGetterWidget_IntRange::setValue(const std::pair<int, int>& src)
+bool ParamGetterWidget_IntRange::setValue(const ValueType& src)
 {
-  min_->setValue(src.first);
-  max_->setValue(src.second);
+  min_->setValue(src.lower);
+  max_->setValue(src.upper);
   return true;
 }
 

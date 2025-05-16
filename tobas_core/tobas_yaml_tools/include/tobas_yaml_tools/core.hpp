@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
+
 #include <yaml-cpp/yaml.h>
 
 namespace yaml
@@ -9,18 +10,15 @@ namespace yaml
 template <typename T>
 bool load(const std::string& key, const YAML::Node& parent, T& value)
 {
-  if (!parent.IsMap())
-  {
+  if (!parent.IsMap()) {
     std::cerr << "The type of the parent node of key \"" << key << "\" is not map." << std::endl;
     return false;
   }
 
-  try
-  {
+  try {
     value = parent[key].as<T>();
   }
-  catch (...)
-  {
+  catch (...) {
     std::cerr << "Key \"" << key << "\" type mismatch." << std::endl;
     return false;
   }

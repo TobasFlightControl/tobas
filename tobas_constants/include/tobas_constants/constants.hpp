@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 
 namespace tobas
 {
@@ -9,9 +9,12 @@ static constexpr double kMinThrot = 0.;  // The minimum throttle
 static constexpr double kMaxThrot = 1.;  // The maximum throttle
 
 // RCInput
-static constexpr double kRCInputMin = -1.;
+static constexpr size_t kMinSbusChannels = 8;
+static constexpr size_t kMaxSbusChannels = 16;
+static constexpr size_t kMaxNumOfGpsw = kMaxSbusChannels - kMinSbusChannels;
+static constexpr double kRcInputMin = -1.;
 static constexpr double kRCInputMid = 0.;
-static constexpr double kRCInputMax = 1.;
+static constexpr double kRcInputMax = 1.;
 
 // Rotor speed control
 static constexpr int kMinRotorCtrlGain = 0;
@@ -119,13 +122,15 @@ namespace node
 static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
 static constexpr char kController[] = "controller";
 static constexpr char kObserver[] = "observer";
+static constexpr char kRcTeleop[] = "rc_teleop";
+static constexpr char kImuPreprocess[] = "imu_preprocess";
 }  // namespace node
 
 // PWM keys
 namespace pwm
 {
 static constexpr char kEngineThrottleKey[] = "engine";
-}
+}  // namespace pwm
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
@@ -149,8 +154,7 @@ constexpr auto kAccelScale = 10.;   // [m/s^2]
 constexpr auto kDGyroScale = 100.;  // [rad/s^2]
 
 // Console message period
-static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
-static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
+static constexpr double kIgnoreCmdMsgPeriod = 1.;  // [s]
 
 // Others
 static constexpr char kTBSExtension[] = ".TBS";
@@ -164,6 +168,7 @@ static constexpr double kTypicalInfoPeriod = 5.;         // [s]
 static constexpr double kTypicalWarnPeriod = 3.;         // [s]
 static constexpr double kTypicalErrorPeriod = 1.;        // [s]
 static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
+static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(5);
 static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(200);
 static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
 static constexpr size_t kMaxRosbagSize = 5'000'000'000UL;  // [byte]

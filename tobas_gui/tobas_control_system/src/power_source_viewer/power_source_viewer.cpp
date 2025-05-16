@@ -1,6 +1,6 @@
-#include <QVBoxLayout>
-
 #include "tobas_control_system/power_source_viewer/power_source_viewer.hpp"
+
+#include <QVBoxLayout>
 
 namespace gui
 {
@@ -24,12 +24,12 @@ void PowerSourceViewerWidget::reset()
 
 void PowerSourceViewerWidget::updateInternalDataStructures()
 {
-  if (!drone_.prop)
+  if (!drone_.prop) {
     return;
+  }
 
   // 推進系によって表示するウィジェットを切り替える
-  switch (drone_.prop->type())
-  {
+  switch (drone_.prop->type()) {
     case tobas::propulsion_system_t::ELECTRIC:
       battery_viewer_->updateInternalDataStructures();
       setCurrentWidget(battery_viewer_);

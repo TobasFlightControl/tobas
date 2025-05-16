@@ -1,7 +1,5 @@
-<?xml version="1.0"?>
-
-<robot name="s900"
-  xmlns:xacro="http://ros.org/wiki/xacro">
+<robot
+  xmlns:xacro="http://ros.org/wiki/xacro" name="s900">
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>

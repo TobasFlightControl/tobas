@@ -1,9 +1,10 @@
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/console.hpp>
+#include "tobas_drone_tools/fw_trim_conditions.hpp"
 
-#include "../include/tobas_drone_tools/fw_trim_conditions.hpp"
-#include "../include/tobas_drone_tools/utils/fixed_wing_tools.hpp"
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
+
+#include "tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
 using namespace std;
 
@@ -17,26 +18,25 @@ TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
 bool TrimConditions::updateInternalDataStructures()
 {
   // Check drone configuration
-  if (!drone_.fixed_wing)
-  {
+  if (!drone_.fixed_wing) {
     cerr << "The drone is not equipped with fixed wing." << endl;
     return false;
   }
-  if (drone_.fixed_wing->numControlSurfaces() == 0)
-  {
+  if (drone_.fixed_wing->numControlSurfaces() == 0) {
     cerr << "The drone must have at least 1 control surfaces." << endl;
     return false;
   }
 
   // Update solvers
-  if (!inertia_solver_.updateInternalDataStructures())
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
-  if (!asd_cog_.updateInternalDataStructures())
+  }
+  if (!asd_cog_.updateInternalDataStructures()) {
     return false;
+  }
 
   // Set mass
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-  {
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -44,10 +44,8 @@ bool TrimConditions::updateInternalDataStructures()
 
   // Set elevator index
   auto max_c_pitch_delta = -INFINITY;
-  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces)
-  {
-    if (fabs(cs.c_pitch_delta) > max_c_pitch_delta)
-    {
+  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces) {
+    if (fabs(cs.c_pitch_delta) > max_c_pitch_delta) {
       max_c_pitch_delta = fabs(cs.c_pitch_delta);
       elev_channel_ = channel;
     }
@@ -60,13 +58,11 @@ bool TrimConditions::updateInternalDataStructures()
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
 
-  if (a_ <= 0.)
-  {
+  if (a_ <= 0.) {
     cerr << "The aerodynamic coefficient \"a\" must be positive." << endl;
     return false;
   }
-  if (b_ <= 0.)
-  {
+  if (b_ <= 0.) {
     cerr << "The aerodynamic coefficient \"b\" must be positive." << endl;
     return false;
   }
@@ -81,27 +77,22 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 
   error_code_ = E_NO_ERROR;
 
-  if (q.rows() != tree_.getNrOfJoints())
-  {
+  if (q.rows() != tree_.getNrOfJoints()) {
     error_msg_ = kErrorSizeMismatch;
     return error_code_ = E_ERROR;
   }
 
   // 速度が有効な範囲内にあるかチェック
   const auto speed_limit = speedLimit(rho);
-  if (V < speed_limit.lower)
-  {
-    if (error_code_ > E_WARN)
-    {
+  if (V < speed_limit.lower) {
+    if (error_code_ > E_WARN) {
       error_msg_ = "Speed is too low: " + to_string(V) + " < " + to_string(speed_limit.lower);
       error_code_ = E_WARN;
     }
     V = speed_limit.lower;
   }
-  else if (V > speed_limit.upper)
-  {
-    if (error_code_ > E_WARN)
-    {
+  else if (V > speed_limit.upper) {
+    if (error_code_ > E_WARN) {
       error_msg_ = "Speed is too high: " + to_string(V) + " > " + to_string(speed_limit.upper);
       error_code_ = E_WARN;
     }
@@ -114,12 +105,12 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 
   // CoGまわりの安定微係数
   asd_cog_.update(q);
-  if (updateError(asd_cog_) <= E_ERROR)
+  if (updateError(asd_cog_) <= E_ERROR) {
     return error_code_;
+  }
   const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
   const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_channel_);
-  if (c_pitch_elev_cg == 0)
-  {
+  if (c_pitch_elev_cg == 0) {
     error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
     return error_code_ = E_ERROR;
   }
@@ -138,10 +129,8 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   // その他依存変数
   u_ = V * cos(alpha_);
 
-  if (!drone_.fixed_wing->vehicle.alpha_limit.inRange(alpha_))
-  {
-    if (error_code_ > E_WARN)
-    {
+  if (!drone_.fixed_wing->vehicle.alpha_limit.inRange(alpha_)) {
+    if (error_code_ > E_WARN) {
       error_msg_ = "The angle of attack in the trimmed condition is outside the valid range.";
       error_code_ = E_WARN;
     }
@@ -149,10 +138,8 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   }
 
   const auto& joint = tree_.getSegment(elev_cs.link_name)->second.segment.joint();
-  if (elevator_ < joint.lower_limit || joint.upper_limit < elevator_)
-  {
-    if (error_code_ > E_WARN)
-    {
+  if (elevator_ < joint.lower_limit || joint.upper_limit < elevator_) {
+    if (error_code_ > E_WARN) {
       error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
       error_code_ = E_WARN;
     }

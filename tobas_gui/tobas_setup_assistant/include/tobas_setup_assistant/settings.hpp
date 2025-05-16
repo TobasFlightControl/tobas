@@ -3,22 +3,21 @@
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./robot_info.hpp"
-
-#include "./setting_tabs/battery/battery.hpp"
-#include "./setting_tabs/propulsion_system/propulsion_system.hpp"
-#include "./setting_tabs/fixed_wing/fixed_wing.hpp"
-#include "./setting_tabs/joint_config.hpp"
-#include "./setting_tabs/imu.hpp"
-#include "./setting_tabs/magnetometer.hpp"
-#include "./setting_tabs/barometer.hpp"
-#include "./setting_tabs/gnss.hpp"
-#include "./setting_tabs/controller/controller.hpp"
-#include "./setting_tabs/observer/observer.hpp"
-#include "./setting_tabs/hardware/hardware.hpp"
-#include "./setting_tabs/pre_arm_check.hpp"
-#include "./setting_tabs/simulation.hpp"
 #include "./setting_tabs/author_information.hpp"
+#include "./setting_tabs/barometer.hpp"
+#include "./setting_tabs/controller/controller.hpp"
+#include "./setting_tabs/fixed_wing/fixed_wing.hpp"
+#include "./setting_tabs/gnss.hpp"
+#include "./setting_tabs/hardware/hardware.hpp"
+#include "./setting_tabs/imu.hpp"
+#include "./setting_tabs/joint_config.hpp"
+#include "./setting_tabs/magnetometer.hpp"
+#include "./setting_tabs/observer/observer.hpp"
+#include "./setting_tabs/pre_arm_check.hpp"
+#include "./setting_tabs/propulsion_system/propulsion_system.hpp"
+#include "./setting_tabs/rc_input.hpp"
 #include "./setting_tabs/ros_package.hpp"
+#include "./setting_tabs/simulation.hpp"
 
 namespace gui
 {
@@ -35,29 +34,30 @@ class SettingsWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
-  BatteryWidget* battery;
   propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
   JointConfigurationWidget* joint_config;
-  IMUWidget* imu;
+  ImuWidget* imu;
   MagnetometerWidget* magnetometer;
   BarometerWidget* barometer;
-  GNSSWidget* gnss;
+  GnssWidget* gnss;
+  RcInputWidget* rc_input;
   ControllerWidget* controller;
   ObserverWidget* observer;
   HardwareWidget* hardware;
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
-  ROSPackageWidget* ros_package;
+  RosPackageWidget* ros_package;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot);
+  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals);
 
   void updateInternalDataStructures();
 
   bool isValid();
+  bool isPwmChannelsUnique();
 
-  YAML::Node dump();
+  YAML::Node dump() const;
   bool load(const YAML::Node& node);
 
 private Q_SLOTS:

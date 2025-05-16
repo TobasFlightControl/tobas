@@ -1,10 +1,10 @@
-#include <cmath>
+#include "tobas_std_tools/standard_atmosphere.hpp"
+
 #include <cassert>
+#include <cmath>
 #include <stdexcept>
 
 #include <tobas_math/core.hpp>
-
-#include "../include/tobas_std_tools/standard_atmosphere.hpp"
 
 #define R0 6356766.                 // 北緯45度における地球の半径 [m]
 #define TROPOPAUSE_ALTITUDE 1.1e+4  // 対流圏界面 (対流圏と成層圏の境界面) [m]
@@ -33,12 +33,10 @@ double altitudeToGPH(const double& altitude)
 
 double gphToTemperature(const double& gph)
 {
-  if (gph <= TROPOPAUSE_ALTITUDE)
-  {
+  if (gph <= TROPOPAUSE_ALTITUDE) {
     return T0 + L * gph;
   }
-  else
-  {
+  else {
     throw;  // TODO
   }
 }
@@ -51,13 +49,11 @@ double altitudeToTemperature(const double& altitude)
 
 double gphToPressure(const double& gph)
 {
-  if (gph <= TROPOPAUSE_ALTITUDE)
-  {
+  if (gph <= TROPOPAUSE_ALTITUDE) {
     double T = gphToTemperature(gph);
     return temperatureToPressure(T);
   }
-  else
-  {
+  else {
     throw;  // TODO
   }
 }

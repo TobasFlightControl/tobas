@@ -26,12 +26,12 @@ private:
   QwtPlot2* west_speed_plot_;
   QwtPlot2* up_speed_plot_;
 
-  qwt::QwtPlotCurveWrapper::SharedPtr latitude_curve_;
-  qwt::QwtPlotCurveWrapper::SharedPtr longitude_curve_;
-  qwt::QwtPlotCurveWrapper::SharedPtr altitude_curve_;
-  qwt::QwtPlotCurveWrapper::SharedPtr north_speed_curve_;
-  qwt::QwtPlotCurveWrapper::SharedPtr west_speed_curve_;
-  qwt::QwtPlotCurveWrapper::SharedPtr up_speed_curve_;
+  qwt::QwtPlotCurveWrapper latitude_curve_;
+  qwt::QwtPlotCurveWrapper longitude_curve_;
+  qwt::QwtPlotCurveWrapper altitude_curve_;
+  qwt::QwtPlotCurveWrapper north_speed_curve_;
+  qwt::QwtPlotCurveWrapper west_speed_curve_;
+  qwt::QwtPlotCurveWrapper up_speed_curve_;
 };
 }  // namespace log
 }  // namespace gui

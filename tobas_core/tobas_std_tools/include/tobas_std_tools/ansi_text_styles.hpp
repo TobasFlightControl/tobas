@@ -1,3 +1,5 @@
+#pragma once
+
 #define BLACK_PREFIX "\033[30m"
 #define RED_PREFIX "\033[31m"
 #define GREEN_PREFIX "\033[32m"

@@ -2,20 +2,20 @@
 
 #include <QPushButton>
 
-#include "./base_setting.hpp"
-#include "../robot_info.hpp"
-#include "../param_getters/line_edit.hpp"
 #include "../param_getters/directory_dialog.hpp"
+#include "../param_getters/line_edit.hpp"
+#include "../robot_info.hpp"
+#include "./base_setting.hpp"
 
 namespace gui
 {
 namespace sa
 {
-class ROSPackageWidget : public BaseSettingWidget
+class RosPackageWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = ROSPackageWidget;
+  using self = RosPackageWidget;
   using super = BaseSettingWidget;
 
   static constexpr int kTextHeight = 50;
@@ -26,7 +26,7 @@ Q_SIGNALS:
   void generateButtonClicked();
 
 public:
-  explicit ROSPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit RosPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
   const char* name() const override;
   const char* title() const override;
@@ -36,7 +36,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   QString tbsName() const;

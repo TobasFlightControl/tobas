@@ -1,10 +1,10 @@
 #pragma once
 
-#include "./base.hpp"
+#include "../fields/acceptance_radius.hpp"
 #include "../fields/altitude.hpp"
 #include "../fields/altitude_frame.hpp"
-#include "../fields/acceptance_radius.hpp"
 #include "../fields/duration.hpp"
+#include "./base.hpp"
 
 namespace gui
 {

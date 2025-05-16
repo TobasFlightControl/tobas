@@ -70,7 +70,7 @@ bool SimulationWidget::isValid()
   return true;
 }
 
-YAML::Node SimulationWidget::dump()
+YAML::Node SimulationWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

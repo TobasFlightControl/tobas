@@ -4,7 +4,6 @@
 
 #include <tobas_eigen_msgs_adapter/core.hpp>
 #include <tobas_kdl_msgs_adapter/vector.hpp>
-
 #include <tobas_msgs/msg/gnss.hpp>
 
 namespace tobas_msgs
@@ -60,6 +59,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
 namespace tobas_msgs
 {
 using GnssAdapter = rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::Gnss, tobas_msgs::msg::Gnss);

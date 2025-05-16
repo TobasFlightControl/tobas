@@ -1,7 +1,8 @@
-#include <iostream>
-#include <eigen3/Eigen/SVD>
+#include "tobas_kdl/chain_ik_solver_acc_rac.hpp"
 
-#include "../include/tobas_kdl/chain_ik_solver_acc_rac.hpp"
+#include <iostream>
+
+#include <eigen3/Eigen/SVD>
 
 using namespace std;
 using namespace Eigen;
@@ -14,32 +15,39 @@ ChainIkSolverAcc_RAC::ChainIkSolverAcc_RAC(const Chain& chain) : super(chain), j
 
 bool ChainIkSolverAcc_RAC::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!jnt2jac_.updateInternalDataStructures())
+  if (!jnt2jac_.updateInternalDataStructures()) {
     return false;
-  if (!jnt2jdqd_.updateInternalDataStructures())
+  }
+  if (!jnt2jdqd_.updateInternalDataStructures()) {
     return false;
+  }
 
   return true;
 }
 
 int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const Vector& acc_ref)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_ || qd.rows() != nj_)
+  }
+  if (q.rows() != nj_ || qd.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   // 目標加速度を計算
-  if (jnt2jdqd_.JntToCart(q, qd) < 0)
+  if (jnt2jdqd_.JntToCart(q, qd) < 0) {
     return copyError(jnt2jdqd_);
+  }
   const auto acc_diff = acc_ref - jnt2jdqd_.getJdqd().linear;
 
   // ヤコビアンを更新
-  if (jnt2jac_.JntToJac(q) < 0)
+  if (jnt2jac_.JntToJac(q) < 0) {
     return copyError(jnt2jac_);
+  }
   const auto& jac = jnt2jac_.getJacobian();
 
   // 最小二乗解を計算
@@ -51,20 +59,24 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
 
 int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const Accel& acc_ref)
 {
-  if (!isUpToDate())
+  if (!isUpToDate()) {
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_ || qd.rows() != nj_)
+  }
+  if (q.rows() != nj_ || qd.rows() != nj_) {
     return setDefaultError(E_SIZE_MISMATCH);
+  }
 
   // 目標加速度を計算
-  if (jnt2jdqd_.JntToCart(q, qd) < 0)
+  if (jnt2jdqd_.JntToCart(q, qd) < 0) {
     return copyError(jnt2jdqd_);
+  }
   const auto acc_diff = acc_ref - jnt2jdqd_.getJdqd();
   const auto acc_diff_ravel = acc_diff.ravel();
 
   // ヤコビアンを更新
-  if (jnt2jac_.JntToJac(q) < 0)
+  if (jnt2jac_.JntToJac(q) < 0) {
     return copyError(jnt2jac_);
+  }
   const auto& jac = jnt2jac_.getJacobian();
 
   // 最小二乗解を計算

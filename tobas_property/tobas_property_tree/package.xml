@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <package format="3">
 
 	<name>tobas_property_tree</name>
@@ -9,8 +8,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>rclcpp</depend>
-	<depend>std_srvs</depend>
 	<depend>tobas_path_tools</depend>
 	<depend>tobas_property_common</depend>
 	<depend>tobas_property_msgs</depend>

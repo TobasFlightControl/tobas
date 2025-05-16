@@ -1,10 +1,10 @@
+#include <tobas_constants/constants.hpp>
+#include <tobas_gazebo_common/constants.hpp>
+#include <tobas_node/node.hpp>
+
 #include <sensor_msgs/msg/joint_state.hpp>
 
-#include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
-
-#include <tobas_gazebo_common/constants.hpp>
 
 /* sensor_msgs/JointState -> tobas_msgs/JointStateArray */
 class JointStatesBridge : public tobas::BaseNode
@@ -33,8 +33,7 @@ void JointStatesBridge::jointStatesCb(const sensor_msgs::msg::JointState::ConstS
   auto js_out = std::make_unique<tobas_msgs::msg::JointStateArray>();
   js_out->header = js_in->header;
 
-  for (size_t i = 0; i < js_in->name.size(); ++i)
-  {
+  for (size_t i = 0; i < js_in->name.size(); ++i) {
     js_out->states.emplace_back();
     js_out->states.back().name = js_in->name[i];
     js_out->states.back().position = js_in->position[i];

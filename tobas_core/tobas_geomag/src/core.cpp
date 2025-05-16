@@ -1,9 +1,9 @@
+#include "tobas_geomag/core.hpp"
+
 #include <cmath>
 #include <iostream>
 
 #include <tobas_std_tools/console.hpp>
-
-#include "../include/tobas_geomag/core.hpp"
 
 using namespace std;
 
@@ -82,15 +82,11 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
   double Wnm = Wtop;
 
   // Iterate through all ms
-  for (size_t m = 0; m <= NMAX + 1; ++m)
-  {
+  for (size_t m = 0; m <= NMAX + 1; ++m) {
     // Iterate through all ns
-    for (size_t n = m; n <= NMAX + 1; ++n)
-    {
-      if (n == m)
-      {
-        if (m != 0)
-        {
+    for (size_t n = m; n <= NMAX + 1; ++n) {
+      if (n == m) {
+        if (m != 0) {
           temp = Vtop;
           Vtop = (2 * m - 1) * (a * Vtop - b * Wtop);
           Wtop = (2 * m - 1) * (a * Wtop + b * temp);
@@ -100,8 +96,7 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
           Wnm = Wtop;
         }
       }
-      else
-      {
+      else {
         temp = Vnm;
         const double invs_temp = 1. / ((n - m));
         Vnm = ((2 * n - 1) * f * Vnm - (n + m - 1) * g * Vprev) * invs_temp;
@@ -110,23 +105,19 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
         Wnm = ((2 * n - 1) * f * Wnm - (n + m - 1) * g * Wprev) * invs_temp;
         Wprev = temp;
       }
-      if (m < NMAX && n >= m + 2)
-      {
+      if (m < NMAX && n >= m + 2) {
         px += 0.5 * (n - m) * (n - m - 1) * (WMM.C(n - 1, m + 1, dyear) * Vnm + WMM.S(n - 1, m + 1, dyear) * Wnm);
         py += 0.5 * (n - m) * (n - m - 1) * (-WMM.C(n - 1, m + 1, dyear) * Wnm + WMM.S(n - 1, m + 1, dyear) * Vnm);
       }
-      if (n >= 2 && m >= 2)
-      {
+      if (n >= 2 && m >= 2) {
         px += 0.5 * (-WMM.C(n - 1, m - 1, dyear) * Vnm - WMM.S(n - 1, m - 1, dyear) * Wnm);
         py += 0.5 * (-WMM.C(n - 1, m - 1, dyear) * Wnm + WMM.S(n - 1, m - 1, dyear) * Vnm);
       }
-      if (m == 1 && n >= 2)
-      {
+      if (m == 1 && n >= 2) {
         px += -WMM.C(n - 1, 0, dyear) * Vnm;
         py += -WMM.C(n - 1, 0, dyear) * Wnm;
       }
-      if (n >= 2 && n > m)
-      {
+      if (n >= 2 && n > m) {
         pz += (n - m) * (-WMM.C(n - 1, m, dyear) * Vnm - WMM.S(n - 1, m, dyear) * Wnm);
       }
     }
@@ -136,14 +127,16 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
 
 Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, const ConstModel& WMM)
 {
-  if (dyear <= WMM.epoch)
+  if (dyear <= WMM.epoch) {
     PRINT_ERROR("The year should be greater than the epoch of the magnetic field model.");
+  }
 
   // 5年ごとに新しいデータが出るので，それを2回分過ぎたら警告する．
   // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
   // FIXME: PRINT_WARN_THROTTLEを実装
-  if (dyear - WMM.epoch > 10)
+  if (dyear - WMM.epoch > 10) {
     PRINT_WARN("It is time to replace the WMM data with the latest version.");
+  }
 
   const auto ecef = geomag::ecefFromGeodetic(lat, lon, h);
   const auto mag_field = geomag::magFieldFromECEF(dyear, ecef, WMM);

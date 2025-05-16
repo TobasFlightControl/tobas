@@ -1,0 +1,60 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+from launch_ros.substitutions import FindPackageShare
+
+# Template parameters
+CONFIG_PKG_NAME = "tobas_f450_config"
+USER_CPP_PKG_NAME = "tobas_f450_user_cpp"
+USER_PY_PKG_NAME = "tobas_f450_user_py"
+
+# Arguments
+LOG_LEVEL = "log_level"
+OUTPUT = "output"
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+
+    # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
+
+    config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+    user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
+
+    # Launch Tobas core software
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([config_pkg_share, "launch", "common_interface.launch.py"])
+            ),
+            launch_arguments={
+                "log_level": log_level,
+                "output": output,
+                "use_sim_time": "false",
+                "ground_truth": "false",
+            }.items(),
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_cpp_pkg_share, "launch", "real.launch.py"]))
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "common.launch.py"]))
+        )
+    )
+
+    return ld

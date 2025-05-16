@@ -1,6 +1,4 @@
-<?xml version="1.0"?>
-
-<robot name="techpod" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="techpod">
 
   <!-- Global properties -->
   <xacro:property name="namespace" value="techpod"/>

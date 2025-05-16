@@ -1,14 +1,14 @@
+#include "tobas_parameter_tuning_gui/parameter_tuning.hpp"
+
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/package.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
-#include <tobas_gui_common/package.hpp>
-
-#include "tobas_parameter_tuning_gui/parameter_tuning.hpp"
 
 namespace gui
 {
@@ -24,8 +24,10 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
   reset_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  controller_params_ = new ParamBlockWidget(node, "Controller");
-  observer_params_ = new ParamBlockWidget(node, "Observer");
+  controller_params_ = new ParamBlockWidget(node, "Flight Controller");
+  observer_params_ = new ParamBlockWidget(node, "State Estimator");
+  rc_teleop_params_ = new ParamBlockWidget(node, "Radio Control");
+  imu_preprocess_params_ = new ParamBlockWidget(node, "IMU Preprocess");
 
   reset();
 
@@ -43,6 +45,8 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
   const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
   param_rows->addWidget(controller_params_);
   param_rows->addWidget(observer_params_);
+  param_rows->addWidget(rc_teleop_params_);
+  param_rows->addWidget(imu_preprocess_params_);
   param_rows->addStretch();
 
   // Connection
@@ -59,17 +63,20 @@ void ParameterTuningWidget::reset()
 
   controller_params_->clear();
   observer_params_->clear();
+  rc_teleop_params_->clear();
+  imu_preprocess_params_->clear();
 
   controller_params_->setVisible(false);
   observer_params_->setVisible(false);
+  rc_teleop_params_->setVisible(false);
+  imu_preprocess_params_->setVisible(false);
 }
 
 bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
 {
   reset();
 
-  if (!drone_.load(common::getTBSDRNPath(tbs_path)))
-  {
+  if (!drone_.load(common::getTBSDRNPath(tbs_path))) {
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return false;
   }
@@ -81,21 +88,29 @@ bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
 
 void ParameterTuningWidget::onLoadButtonClicked()
 {
-  if (drone_.name.empty())
-  {
+  if (drone_.name.empty()) {
     qt::qWarnBox(this, "Tobas package is not loaded yet.");
     return;
   }
 
-  if (!controller_params_->load(drone_.name, tobas::node::kController))
+  if (!controller_params_->load(drone_.name, tobas::node::kController)) {
     return;
-
-  if (!observer_params_->load(drone_.name, tobas::node::kObserver))
+  }
+  if (!observer_params_->load(drone_.name, tobas::node::kObserver)) {
     return;
+  }
+  if (!rc_teleop_params_->load(drone_.name, tobas::node::kRcTeleop)) {
+    return;
+  }
+  if (!imu_preprocess_params_->load(drone_.name, tobas::node::kImuPreprocess)) {
+    return;
+  }
 
   // 読み込みと同時に可視化
   controller_params_->setVisible(true);
   observer_params_->setVisible(true);
+  rc_teleop_params_->setVisible(true);
+  imu_preprocess_params_->setVisible(true);
 
   save_button_->setEnabled(true);
   reset_button_->setEnabled(true);
@@ -107,15 +122,29 @@ void ParameterTuningWidget::onSaveButtonClicked()
 {
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path_);
 
-  const auto ctrl_path_local = common::getControllerDynamicParamsPath(tbs_path_);
-  const auto ctrl_path_remote = common::getControllerDynamicParamsPath(remote_tbs_path);
-  if (!controller_params_->save(ctrl_path_local, ctrl_path_remote))
+  const auto controller_path_local = common::getControllerDynamicParamsPath(tbs_path_);
+  const auto controller_path_remote = common::getControllerDynamicParamsPath(remote_tbs_path);
+  if (!controller_params_->save(controller_path_local, controller_path_remote)) {
     return;
+  }
 
-  const auto obsv_path_local = common::getObserverDynamicParamsPath(tbs_path_);
-  const auto obsv_path_remote = common::getObserverDynamicParamsPath(remote_tbs_path);
-  if (!observer_params_->save(obsv_path_local, obsv_path_remote))
+  const auto observer_path_local = common::getObserverDynamicParamsPath(tbs_path_);
+  const auto observer_path_remote = common::getObserverDynamicParamsPath(remote_tbs_path);
+  if (!observer_params_->save(observer_path_local, observer_path_remote)) {
     return;
+  }
+
+  const auto rc_teleop_path_local = common::getRcTeleopDynamicParamsPath(tbs_path_);
+  const auto rc_teleop_path_remote = common::getRcTeleopDynamicParamsPath(remote_tbs_path);
+  if (!rc_teleop_params_->save(rc_teleop_path_local, rc_teleop_path_remote)) {
+    return;
+  }
+
+  const auto imu_preprocess_path_local = common::getImuPreprocessDynamicParamsPath(tbs_path_);
+  const auto imu_preprocess_path_remote = common::getImuPreprocessDynamicParamsPath(remote_tbs_path);
+  if (!imu_preprocess_params_->save(imu_preprocess_path_local, imu_preprocess_path_remote)) {
+    return;
+  }
 
   qt::qInfoBox(this, "Dynamic parameters are saved to PC and FC successfully.");
 }
@@ -123,14 +152,25 @@ void ParameterTuningWidget::onSaveButtonClicked()
 void ParameterTuningWidget::onResetButtonClicked()
 {
   // 本当に全てのパラメータをリセットしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::QMessageLevel::WARN)) {
     return;
+  }
 
-  if (!controller_params_->setToDefaults())
+  if (!controller_params_->setToDefaults()) {
     return;
+  }
 
-  if (!observer_params_->setToDefaults())
+  if (!observer_params_->setToDefaults()) {
     return;
+  }
+
+  if (!rc_teleop_params_->setToDefaults()) {
+    return;
+  }
+
+  if (!imu_preprocess_params_->setToDefaults()) {
+    return;
+  }
 
   qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
 }

@@ -2,10 +2,10 @@
 
 #include <tobas_std_tools/geometry.hpp>
 
-#include "./vector.hpp"
-#include "./rotation.hpp"
-#include "./quaternion.hpp"
 #include "./angle_axis.hpp"
+#include "./quaternion.hpp"
+#include "./rotation.hpp"
+#include "./vector.hpp"
 
 namespace kdl
 {
@@ -22,7 +22,7 @@ public:
   inline explicit Euler(const Vector& rpy);
   inline explicit Euler(const Rotation& rot);
 
-  inline static Euler Zero();
+  static inline Euler Zero();
 
   inline void setZero();
   inline void fill(double value);

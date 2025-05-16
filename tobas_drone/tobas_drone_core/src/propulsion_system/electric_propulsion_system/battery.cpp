@@ -1,6 +1,6 @@
-#include <tobas_yaml_tools/core.hpp>
-
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/battery.hpp"
+
+#include <tobas_yaml_tools/core.hpp>
 
 using namespace std;
 
@@ -8,26 +8,22 @@ namespace tobas
 {
 bool BatteryConfig::isValid() const
 {
-  if (sag_voltage <= 0.)
-  {
+  if (sag_voltage <= 0.) {
     cerr << "Battery sag voltage must be positive." << endl;
     return false;
   }
 
-  if (nominal_voltage <= sag_voltage)
-  {
+  if (nominal_voltage <= sag_voltage) {
     cerr << "Battery nominal voltage must be greater than sag voltage." << endl;
     return false;
   }
 
-  if (max_voltage <= nominal_voltage)
-  {
+  if (max_voltage <= nominal_voltage) {
     cerr << "Battery max voltage must be greater than nominal voltage." << endl;
     return false;
   }
 
-  if (max_current <= 0.)
-  {
+  if (max_current <= 0.) {
     cerr << "Battery max current must be positive." << endl;
     return false;
   }
@@ -37,17 +33,21 @@ bool BatteryConfig::isValid() const
 
 bool BatteryConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kNominalVoltageKey, node, nominal_voltage))
+  if (!yaml::load(kNominalVoltageKey, node, nominal_voltage)) {
     return false;
+  }
 
-  if (!yaml::load(kMaxVoltageKey, node, max_voltage))
+  if (!yaml::load(kMaxVoltageKey, node, max_voltage)) {
     return false;
+  }
 
-  if (!yaml::load(kSagVoltageKey, node, sag_voltage))
+  if (!yaml::load(kSagVoltageKey, node, sag_voltage)) {
     return false;
+  }
 
-  if (!yaml::load(kMaxCurrentKey, node, max_current))
+  if (!yaml::load(kMaxCurrentKey, node, max_current)) {
     return false;
+  }
 
   return true;
 }

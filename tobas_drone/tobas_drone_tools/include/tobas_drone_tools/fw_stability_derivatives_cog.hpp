@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 
 #include "./solver_i.hpp"
 

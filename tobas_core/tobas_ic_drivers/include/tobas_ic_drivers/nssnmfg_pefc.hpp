@@ -1,7 +1,7 @@
 #pragma once
 
-#include <thread>
 #include <functional>
+#include <thread>
 
 #include <tobas_linux/uart_dev.hpp>
 
@@ -80,7 +80,14 @@ private:
   std::thread read_thread_;
   void readThreadFunc();
 
-  bool checkSum();
+  bool checkSum() const;
   void decode();
+
+  inline uint16_t read2Bytes(size_t idx) const;
 };
+
+uint16_t NssnmfgPEFC::read2Bytes(size_t idx) const
+{
+  return (buf_[idx + 1] << 8) | buf_[idx];
+}
 }  // namespace driver

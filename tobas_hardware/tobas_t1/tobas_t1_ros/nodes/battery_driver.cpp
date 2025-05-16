@@ -1,8 +1,8 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_msgs/msg/battery.hpp>
-
 #include <tobas_t1_core/battery.hpp>
+
+#include <tobas_msgs/msg/battery.hpp>
 
 #include "./common.hpp"
 
@@ -29,21 +29,20 @@ private:
 
 BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options) : super("t1_battery_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void BatteryDriverNode::initialize()
 {
-  if (!battery_.initialize())
-  {
+  if (!battery_.initialize()) {
     TOBAS_ERROR("Failed to initialize battery driver. Retrying...");
     return;
   }
 
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
 
-  initialize_timer_.reset();
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  initialize_timer_->cancel();
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void BatteryDriverNode::mainTimerCb()
@@ -55,8 +54,7 @@ void BatteryDriverNode::mainTimerCb()
   msg->header.stamp = get_clock()->now();
 
   // Read data
-  if (!battery_.read(msg->voltage, msg->current))
-  {
+  if (!battery_.read(msg->voltage, msg->current)) {
     TOBAS_FATAL("Failed to read battery state.");
     return;
   }

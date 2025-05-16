@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cmath>
 #include <array>
-#include <iostream>
 #include <cassert>
+#include <cmath>
+#include <iostream>
 
 #include <tobas_math/core.hpp>
 
@@ -51,10 +51,8 @@ void NotchFilter<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
-  if (dt >= 2 / wn_)
-  {
-    for (size_t i = 0; i < kHistorySize; ++i)
-    {
+  if (dt >= 2 / wn_) {
+    for (size_t i = 0; i < kHistorySize; ++i) {
       y_[i] = u;
       u[i] = u;
     }
@@ -106,8 +104,7 @@ inline void NotchFilter<T>::setValue(const T& x)
 template <typename T>
 bool NotchFilter<T>::setCenterFrequency(const double& fn_hz)
 {
-  if (fn_hz <= 0.)
-  {
+  if (fn_hz <= 0.) {
     std::cerr << "The center frequency of notch filter must be positive." << std::endl;
     return false;
   }
@@ -119,8 +116,7 @@ bool NotchFilter<T>::setCenterFrequency(const double& fn_hz)
 template <typename T>
 bool NotchFilter<T>::setQValue(const double& q)
 {
-  if (q <= 0.)
-  {
+  if (q <= 0.) {
     std::cerr << "The Q value of notch filter must be positive." << std::endl;
     return false;
   }
@@ -132,8 +128,7 @@ bool NotchFilter<T>::setQValue(const double& q)
 template <typename T>
 bool NotchFilter<T>::setDepth(const double& depth)
 {
-  if (depth < 0. || 1. < depth)
-  {
+  if (depth < 0. || 1. < depth) {
     std::cerr << "The depth of notch filter must be in range of (0,1)." << std::endl;
     return false;
   }

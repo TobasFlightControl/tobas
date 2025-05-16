@@ -24,6 +24,9 @@ public:
   /* ラベルを左中央に配置した行を追加する． */
   void addVAlignedRow(const QString& label_text, QWidget* field);
 
+  /* 拡大するストレッチを追加する． */
+  void addStretch();
+
   /* 全てのフォームを削除する． */
   void clear();
 
@@ -32,5 +35,11 @@ public:
 
   /* 指定した行のウィジェットを取得する． */
   QWidget* getWidget(int row);
+
+  /* 指定した行を有効/無効にする． */
+  void setEnabled(int row, bool enabled);
+
+  /* 指定した行を可視/不可視にする． */
+  void setVisible(int row, bool visible);
 };
 }  // namespace qt

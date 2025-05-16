@@ -8,8 +8,8 @@ void onPacket(const driver::NssnmfgPEFC::Packet& packet)
 {
   // Error
   const auto& error = packet.error;
-  cout << boolalpha;
   cout << "Error:" << endl;
+  cout << boolalpha;
   cout << "\tStack Temperature Abnormal: " << error.stack_temperature_abnormal << endl;
   cout << "\tDCDC Current Too High: " << error.dcdc_current_too_high << endl;
   cout << "\tDCDC Voltage Too Low: " << error.dcdc_voltage_too_low << endl;
@@ -46,8 +46,7 @@ void onPacket(const driver::NssnmfgPEFC::Packet& packet)
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
-  {
+  if (argc != 2) {
     cerr << "Usage: " << argv[0] << " <UART Device>" << endl;
     return EXIT_FAILURE;
   }
@@ -55,8 +54,7 @@ int main(int argc, char** argv)
 
   driver::NssnmfgPEFC pefc(&onPacket);
 
-  if (!pefc.initialize(device))
-  {
+  if (!pefc.initialize(device)) {
     cerr << "Failed to initialize PEFC driver." << endl;
     return EXIT_FAILURE;
   }

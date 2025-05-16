@@ -10,5 +10,5 @@ enum mag_calibration_method
   SPHERE_FITTING,
   ELLIPSE_FITTING,
 };
-}
+}  // namespace hw
 }  // namespace gui

@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/accel.hpp>
+
 #include <tobas_kdl_msgs/msg/accel_stamped.hpp>
 
 #include "./accel.hpp"
@@ -42,6 +43,6 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::AccelStamped, tobas_kdl_msgs::msg::Ac
 namespace tobas_kdl_msgs
 {
 using AccelStampedAdapter = rclcpp::TypeAdapter<tobas_kdl_msgs::AccelStamped, tobas_kdl_msgs::msg::AccelStamped>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::AccelStamped, tobas_kdl_msgs::msg::AccelStamped);

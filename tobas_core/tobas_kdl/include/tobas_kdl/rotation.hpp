@@ -1,9 +1,9 @@
 #pragma once
 
-#include "./twist.hpp"
 #include "./accel.hpp"
-#include "./wrench.hpp"
 #include "./segment_jacobian.hpp"
+#include "./twist.hpp"
+#include "./wrench.hpp"
 
 namespace kdl
 {
@@ -30,8 +30,8 @@ public:
   inline explicit Rotation(const Vector& x, const Vector& y, const Vector& z);
   inline explicit Rotation(const Eigen::Matrix3d& _data);
 
-  // Gives back an identity rotaton matrix
-  inline static Rotation Identity();
+  // Gives back an identity rotation matrix
+  static inline Rotation Identity();
 
   inline void setIdentity();
 
@@ -74,10 +74,12 @@ public:
 
   // Along an arbitrary axes. Axis must be normalized.
   // returns identity rotation matrix in the case that the norm of axis is to small to be used.
+  // R = exp(ω)
   static Rotation Rot(const Vector& axis, double angle);
   static Rotation Rot(const Vector& vec);
 
   // Returns a vector with the direction of the equiv. axis and its norm is angle.
+  // ω = log(R)
   Vector getRot() const;
 
   // Returns the rotation angle around the equiv. axis.
@@ -158,16 +160,7 @@ inline Rotation::Rotation()
   *this = Rotation::Identity();
 }
 
-inline Rotation::Rotation(
-  double xx,
-  double yx,
-  double zx,
-  double xy,
-  double yy,
-  double zy,
-  double xz,
-  double yz,
-  double zz)
+inline Rotation::Rotation(double xx, double yx, double zx, double xy, double yy, double zy, double xz, double yz, double zz)
 {
   data << xx, yx, zx, xy, yy, zy, xz, yz, zz;
 }

@@ -29,11 +29,9 @@
 
 /* デバッグモードのときに限り一度だけメッセージを出力する． */
 #define PRINT_DEBUG_ONCE(msg)                                                                                          \
-  do                                                                                                                   \
-  {                                                                                                                    \
+  do {                                                                                                                 \
     static bool is_message_printed = false;                                                                            \
-    if (!is_message_printed)                                                                                           \
-    {                                                                                                                  \
+    if (!is_message_printed) {                                                                                         \
       PRINT_DEBUG(msg);                                                                                                \
       is_message_printed = true;                                                                                       \
     }                                                                                                                  \

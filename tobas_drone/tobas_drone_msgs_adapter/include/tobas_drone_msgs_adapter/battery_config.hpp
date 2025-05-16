@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/battery.hpp>
+
 #include <tobas_drone_msgs/msg/battery_config.hpp>
 
 template <>
@@ -32,6 +33,6 @@ struct rclcpp::TypeAdapter<tobas::BatteryConfig, tobas_drone_msgs::msg::BatteryC
 namespace tobas_drone_msgs
 {
 using BatteryConfigAdapter = rclcpp::TypeAdapter<tobas::BatteryConfig, tobas_drone_msgs::msg::BatteryConfig>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::BatteryConfig, tobas_drone_msgs::msg::BatteryConfig);

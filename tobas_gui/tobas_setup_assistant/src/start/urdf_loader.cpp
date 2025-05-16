@@ -1,16 +1,18 @@
+#include "tobas_setup_assistant/start/urdf_loader.hpp"
+
 #include <filesystem>
+
 #include <rcutils/env.h>
+#include <QFileDialog>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QFileDialog>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-#include "tobas_setup_assistant/start/urdf_loader.hpp"
-#include "tobas_setup_assistant/common.hpp"
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -18,8 +20,8 @@ namespace gui
 {
 namespace sa
 {
-URDFLoaderWidget::URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
-  : node_(node), robot_(robot), settings_(settings), property_client_(node, tobas::kPropertyServerName, kPackageName)
+URDFLoaderWidget::URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
+  : node_(node), robot_(robot), property_client_(node, tobas::kPropertyServerName, kPackageName)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -52,8 +54,7 @@ void URDFLoaderWidget::onLoadButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
-  {
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -64,28 +65,27 @@ void URDFLoaderWidget::onLoadButtonClicked()
     this, kTitle, QString::fromStdString(last_opened_dir), "Robot Description (*.urdf *.xacro)", nullptr, options);
 
   // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-  if (urdf_path.isEmpty())
+  if (urdf_path.isEmpty()) {
     return;
+  }
 
   // パスをテキストに設定
   file_text_->setText(urdf_path);
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(urdf_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  if (property_client_.save() < 0)
+  }
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  }
 
   // URDFをロード
-  if (!robot_.loadFromPath(urdf_path.toStdString()))
-  {
+  if (!robot_.loadFromPath(urdf_path.toStdString())) {
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
-
-  // URDFを各ウィジェットに反映
-  settings_->updateInternalDataStructures();
 
   qt::qInfoBox(this, "URDF is loaded successfully. Configure the settings for each tab.");
 }

@@ -1,6 +1,6 @@
-#include <tobas_yaml_tools/core.hpp>
-
 #include "tobas_drone_core/propulsion_system/rotor.hpp"
+
+#include <tobas_yaml_tools/core.hpp>
 
 using namespace std;
 
@@ -8,14 +8,12 @@ namespace tobas
 {
 bool RotorConfig::isValid() const
 {
-  if (link_name.empty())
-  {
+  if (link_name.empty()) {
     cerr << "Link name is empty." << endl;
     return false;
   }
 
-  if (moment_const <= 0)
-  {
+  if (moment_const <= 0) {
     cerr << "Moment constant must be positive." << endl;
     return false;
   }
@@ -25,20 +23,25 @@ bool RotorConfig::isValid() const
 
 bool RotorConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kLinkNameKey, node, link_name))
+  if (!yaml::load(kLinkNameKey, node, link_name)) {
     return false;
+  }
 
-  if (!yaml::load(kDirectionKey, node, direction))
+  if (!yaml::load(kDirectionKey, node, direction)) {
     return false;
+  }
 
-  if (!yaml::load(kAxisKey, node, axis))
+  if (!yaml::load(kAxisKey, node, axis)) {
     return false;
+  }
 
-  if (!yaml::load(kMomentConstKey, node, moment_const))
+  if (!yaml::load(kMomentConstKey, node, moment_const)) {
     return false;
+  }
 
-  if (!yaml::load(kTiltJointName, node, tilt_joint_name))
+  if (!yaml::load(kTiltJointName, node, tilt_joint_name)) {
     return false;
+  }
 
   return true;
 }

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <iostream>
 #include <unordered_set>
-#include <functional>
+#include <vector>
 
-#include <tobas_math/core.hpp>
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_math/core.hpp>
 
 namespace std
 {
@@ -18,15 +18,15 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
   const auto size = vec.size();
 
-  if (size == 0)
-  {
+  if (size == 0) {
     os << "[]";
     return os;
   }
 
   os << "[";
-  for (size_t i = 0; i < size - 1; ++i)
+  for (size_t i = 0; i < size - 1; ++i) {
     os << vec[i] << " ";
+  }
   os << vec[size - 1] << "]";
 
   return os;
@@ -40,8 +40,9 @@ template <typename T>
 T sum(const std::vector<T>& arr)
 {
   T sum = 0;
-  for (const auto& x : arr)
+  for (const auto& x : arr) {
     sum += x;
+  }
   return sum;
 }
 
@@ -53,8 +54,9 @@ T sum(const std::vector<T>& arr, size_t start, size_t size)
   assert(stop <= arr.size());
 
   T sum = 0;
-  for (size_t i = start; i < stop; ++i)
+  for (size_t i = start; i < stop; ++i) {
     sum += arr[i];
+  }
   return sum;
 }
 
@@ -63,8 +65,9 @@ template <typename T>
 T fsum(const std::vector<T>& arr)
 {
   algo::Kahan<T> sum;
-  for (const auto& x : arr)
+  for (const auto& x : arr) {
     sum.add(x);
+  }
   return sum.get();
 }
 
@@ -76,8 +79,9 @@ T fsum(const std::vector<T>& arr, size_t start, size_t size)
   assert(stop <= arr.size());
 
   algo::Kahan<T> sum;
-  for (size_t i = start; i < stop; ++i)
+  for (size_t i = start; i < stop; ++i) {
     sum.add(arr[i]);
+  }
   return sum.get();
 }
 
@@ -85,8 +89,9 @@ T fsum(const std::vector<T>& arr, size_t start, size_t size)
 template <typename T>
 T fmean(const std::vector<T>& arr)
 {
-  if (arr.size() == 0)
+  if (arr.size() == 0) {
     return 0;
+  }
 
   return fsum(arr) / arr.size();
 }
@@ -95,8 +100,9 @@ T fmean(const std::vector<T>& arr)
 template <typename T>
 T fmean(const std::vector<T>& arr, size_t start, size_t size)
 {
-  if (size == 0)
+  if (size == 0) {
     return 0;
+  }
 
   return fsum(arr, start, size) / size;
 }
@@ -105,13 +111,15 @@ T fmean(const std::vector<T>& arr, size_t start, size_t size)
 template <typename T>
 T variance(const std::vector<T>& arr)
 {
-  if (arr.size() == 0)
+  if (arr.size() == 0) {
     return 0;
+  }
 
   const auto mean = fmean(arr);
   algo::Kahan<T> sum;
-  for (const auto& x : arr)
+  for (const auto& x : arr) {
     sum.add(math::sqr(x - mean));
+  }
   return sum.get() / arr.size();
 }
 
@@ -122,13 +130,15 @@ T variance(const std::vector<T>& arr, size_t start, size_t size)
   const auto stop = start + size;
   assert(stop <= arr.size());
 
-  if (arr.size() == 0)
+  if (arr.size() == 0) {
     return 0;
+  }
 
   const auto mean = fmean(arr, start, size);
   algo::Kahan<T> sum;
-  for (size_t i = start; i < stop; ++i)
+  for (size_t i = start; i < stop; ++i) {
     sum.add(math::sqr(arr[i] - mean));
+  }
   return sum.get() / size;
 }
 
@@ -140,8 +150,7 @@ T average(const std::vector<T>& vec, const std::vector<U>& weights)
 
   T num = 0;
   U den = 0;
-  for (size_t i = 0; i < vec.size(); ++i)
-  {
+  for (size_t i = 0; i < vec.size(); ++i) {
     num += vec[i] * weights[i];
     den += weights[i];
   }
@@ -162,8 +171,9 @@ template <typename T>
 ssize_t findIndex(const std::vector<T>& vec, const T& item)
 {
   const auto ret = std::find(vec.begin(), vec.end(), item);
-  if (ret == vec.end())
+  if (ret == vec.end()) {
     return -1;
+  }
   return ret - vec.begin();
 }
 
@@ -178,10 +188,10 @@ inline void fill(std::vector<T>& vec, const T& item)
 template <typename T>
 bool all_gt(const std::vector<T>& vec, const T& a)
 {
-  for (const auto& x : vec)
-  {
-    if (x <= a)
+  for (const auto& x : vec) {
+    if (x <= a) {
       return false;
+    }
   }
   return true;
 }
@@ -190,10 +200,10 @@ bool all_gt(const std::vector<T>& vec, const T& a)
 template <typename T>
 bool all_lt(const std::vector<T>& vec, const T& a)
 {
-  for (const auto& x : vec)
-  {
-    if (x >= a)
+  for (const auto& x : vec) {
+    if (x >= a) {
       return false;
+    }
   }
   return true;
 }
@@ -202,10 +212,10 @@ bool all_lt(const std::vector<T>& vec, const T& a)
 template <typename T>
 bool all_ge(const std::vector<T>& vec, const T& a)
 {
-  for (const auto& x : vec)
-  {
-    if (x < a)
+  for (const auto& x : vec) {
+    if (x < a) {
       return false;
+    }
   }
   return true;
 }
@@ -214,10 +224,10 @@ bool all_ge(const std::vector<T>& vec, const T& a)
 template <typename T>
 bool all_le(const std::vector<T>& vec, const T& a)
 {
-  for (const auto& x : vec)
-  {
-    if (x > a)
+  for (const auto& x : vec) {
+    if (x > a) {
       return false;
+    }
   }
   return true;
 }
@@ -231,11 +241,9 @@ size_t closestIndex(const std::vector<T>& vec, const T& a)
   size_t closest_idx = 0;  // コンパイラの警告を防ぐために適当に初期化
   T closest_dist = std::numeric_limits<T>::max();
 
-  for (size_t i = 0; i < vec.size(); ++i)
-  {
+  for (size_t i = 0; i < vec.size(); ++i) {
     const T dist = std::abs(vec[i] - a);
-    if (dist < closest_dist)
-    {
+    if (dist < closest_dist) {
       closest_dist = dist;
       closest_idx = i;
     }
@@ -251,10 +259,8 @@ std::vector<T> unique(const std::vector<T>& vec)
   std::unordered_set<T> seen;
   std::vector<T> res;
 
-  for (const auto& val : vec)
-  {
-    if (seen.find(val) == seen.end())
-    {
+  for (const auto& val : vec) {
+    if (seen.find(val) == seen.end()) {
       seen.insert(val);
       res.push_back(val);
     }
@@ -298,9 +304,11 @@ template <typename T>
 ssize_t index(const std::vector<T>& vec, const T& value)
 {
   const auto it = std::find(vec.begin(), vec.end(), value);
-  if (it != vec.end())
+  if (it != vec.end()) {
     return std::distance(vec.begin(), it);
-  else
+  }
+  else {
     return -1;
+  }
 }
 }  // namespace tobas_std

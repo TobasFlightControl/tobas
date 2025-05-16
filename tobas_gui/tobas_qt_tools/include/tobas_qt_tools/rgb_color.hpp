@@ -11,15 +11,15 @@ public:
 
   constexpr explicit RGBColor(uint8_t _r, uint8_t _g, uint8_t _b);
 
-  constexpr static RGBColor Black();
-  constexpr static RGBColor White();
-  constexpr static RGBColor Gray();
-  constexpr static RGBColor Blue();
-  constexpr static RGBColor Green();
-  constexpr static RGBColor Orange();
-  constexpr static RGBColor Purple();
-  constexpr static RGBColor Red();
-  constexpr static RGBColor Yellow();
+  static constexpr RGBColor Black();
+  static constexpr RGBColor White();
+  static constexpr RGBColor Gray();
+  static constexpr RGBColor Blue();
+  static constexpr RGBColor Green();
+  static constexpr RGBColor Orange();
+  static constexpr RGBColor Purple();
+  static constexpr RGBColor Red();
+  static constexpr RGBColor Yellow();
 
   RGBColor mean(const RGBColor& other) const;
 

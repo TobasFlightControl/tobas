@@ -24,7 +24,7 @@ def generate_launch_description():
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
-    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="true"))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
     ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
 
     # Get arguments
@@ -38,7 +38,10 @@ def generate_launch_description():
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
-    remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+
+    odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+    tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
+
     ros_args = ["--log-level", log_level]
 
     # Launch 1st priority nodes (Twist Control)
@@ -49,6 +52,7 @@ def generate_launch_description():
             name="observer",
             namespace=DRONE_NAME,
             parameters=[],  # TODO
+            remappings=tf_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -60,7 +64,7 @@ def generate_launch_description():
             name="controller",
             namespace=DRONE_NAME,
             parameters=[],  # TODO
-            remappings=remappings,
+            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -100,7 +104,7 @@ def generate_launch_description():
             executable="rc_teleop",
             namespace=DRONE_NAME,
             parameters=[],  # TODO
-            remappings=remappings,
+            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -128,7 +132,7 @@ def generate_launch_description():
             package="tobas_manipulation",
             executable="position_controller",
             namespace=DRONE_NAME,
-            remappings=remappings,
+            remappings=odom_remap + tf_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -138,7 +142,7 @@ def generate_launch_description():
             package="tobas_manipulation",
             executable="velocity_controller",
             namespace=DRONE_NAME,
-            remappings=remappings,
+            remappings=odom_remap + tf_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -148,7 +152,7 @@ def generate_launch_description():
             package="tobas_manipulation",
             executable="effort_controller",
             namespace=DRONE_NAME,
-            remappings=remappings,
+            remappings=odom_remap + tf_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -189,7 +193,7 @@ def generate_launch_description():
             executable="pre_arm_checker",
             namespace=DRONE_NAME,
             parameters=[],  # TODO
-            remappings=remappings,
+            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -199,7 +203,7 @@ def generate_launch_description():
             package="tobas_state_checker",
             executable="post_arm_checker",
             namespace=DRONE_NAME,
-            remappings=remappings,
+            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -209,7 +213,7 @@ def generate_launch_description():
             package="tobas_landing_detection",
             executable="landing_detector",
             namespace=DRONE_NAME,
-            remappings=remappings,
+            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )

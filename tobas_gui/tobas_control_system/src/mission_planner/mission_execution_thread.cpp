@@ -1,9 +1,9 @@
+#include "tobas_control_system/mission_planner/mission_execution_thread.hpp"
+
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_control_system/mission_planner/mission_execution_thread.hpp"
+#include <tobas_path_tools/join.hpp>
 
 using namespace std;
 using namespace tobas_msgs::srv;
@@ -32,9 +32,11 @@ void MissionExecutionThread::run()
   move_ac_ = make_shared<ros2::SyncActionClient<Move>>(node_, path::join(ns_, tobas::kMoveAction));
 
   // 前から順にコマンドを実行
-  for (const auto& command : commands_)
-    if (!execute(command))
+  for (const auto& command : commands_) {
+    if (!execute(command)) {
       return;
+    }
+  }
 
   Q_EMIT finished(true, "");
 }
@@ -59,8 +61,7 @@ bool MissionExecutionThread::execute(BaseCommandData::SharedPtr command)
   const auto cmd_type = command->type();
   RCLCPP_INFO_STREAM(node_->get_logger(), "Execute command: " << commandToText(cmd_type));
 
-  switch (cmd_type)
-  {
+  switch (cmd_type) {
     case command_t::WAYPOINT:
       return execute(boost::polymorphic_pointer_downcast<WaypointData>(command));
     case command_t::TAKEOFF:
@@ -87,17 +88,14 @@ bool MissionExecutionThread::execute(TakeoffData::SharedPtr command)
 
   // アクションを実行
   auto [goal_handle, get_result_future] = takeoff_ac_->sendGoal(goal);
-  if (!get_result_future.valid())
-  {
+  if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call takeoff action.");
     return false;
   }
 
   // 終了フラグを監視しながら待機
-  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready)
-  {
-    if (stop_requested_)
-    {
+  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready) {
+    if (stop_requested_) {
       takeoff_ac_->cancelGoal(goal_handle);
       return false;
     }
@@ -105,8 +103,7 @@ bool MissionExecutionThread::execute(TakeoffData::SharedPtr command)
 
   // アクションの成否を確認
   const auto result = get_result_future.get();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED)
-  {
+  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     Q_EMIT finished(false, result.result->message.c_str());
     return false;
   }
@@ -122,17 +119,14 @@ bool MissionExecutionThread::execute(LandData::SharedPtr)
 
   // アクションを実行
   auto [goal_handle, get_result_future] = land_ac_->sendGoal(goal);
-  if (!get_result_future.valid())
-  {
+  if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call land action.");
     return false;
   }
 
   // 終了フラグを監視しながら待機
-  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready)
-  {
-    if (stop_requested_)
-    {
+  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready) {
+    if (stop_requested_) {
       land_ac_->cancelGoal(goal_handle);
       return false;
     }
@@ -140,8 +134,7 @@ bool MissionExecutionThread::execute(LandData::SharedPtr)
 
   // アクションの成否を確認
   const auto result = get_result_future.get();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED)
-  {
+  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     Q_EMIT finished(false, result.result->message.c_str());
     return false;
   }
@@ -163,17 +156,14 @@ bool MissionExecutionThread::execute(WaypointData::SharedPtr command)
 
   // アクションを実行
   auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
-  if (!get_result_future.valid())
-  {
+  if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call move action.");
     return false;
   }
 
   // 終了フラグを監視しながら待機
-  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready)
-  {
-    if (stop_requested_)
-    {
+  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready) {
+    if (stop_requested_) {
       move_ac_->cancelGoal(goal_handle);
       return false;
     }
@@ -181,8 +171,7 @@ bool MissionExecutionThread::execute(WaypointData::SharedPtr command)
 
   // アクションの成否を確認
   const auto result = get_result_future.get();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED)
-  {
+  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     Q_EMIT finished(false, result.result->message.c_str());
     return false;
   }
@@ -194,15 +183,13 @@ bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
 {
   // ホームポジションの経緯度を取得
   const auto get_gnss_origin_req = make_shared<tobas_msgs::srv::GetGnssOrigin::Request>();
-  if (!get_gnss_origin_sc_->call(get_gnss_origin_req))
-  {
+  if (!get_gnss_origin_sc_->call(get_gnss_origin_req)) {
     Q_EMIT finished(false, format("Failed to call \"{}\" service.", tobas::kGetGnssOriginSrv).c_str());
     return false;
   }
 
   const auto get_gnss_origin_res = get_gnss_origin_sc_->getResponse();
-  if (!get_gnss_origin_res->success)
-  {
+  if (!get_gnss_origin_res->success) {
     Q_EMIT finished(false, format("Failed to get GNSS origin: {}", get_gnss_origin_res->message).c_str());
     return false;
   }
@@ -219,17 +206,14 @@ bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
 
   // アクションを実行
   auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
-  if (!get_result_future.valid())
-  {
+  if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call move action.");
     return false;
   }
 
   // 終了フラグを監視しながら待機
-  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready)
-  {
-    if (stop_requested_)
-    {
+  while (get_result_future.wait_for(kCheckCancelInterval) != std::future_status::ready) {
+    if (stop_requested_) {
       move_ac_->cancelGoal(goal_handle);
       return false;
     }
@@ -237,8 +221,7 @@ bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
 
   // アクションの成否を確認
   const auto result = get_result_future.get();
-  if (result.code != rclcpp_action::ResultCode::SUCCEEDED)
-  {
+  if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     Q_EMIT finished(false, result.result->message.c_str());
     return false;
   }

@@ -1,7 +1,7 @@
-#include <tobas_ros2_tools/util.hpp>
-#include <tobas_constants/constants.hpp>
-
 #include "tobas_flight_log_gui/logs_fc/download_thread.hpp"
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 using namespace std;
 namespace fs = filesystem;
@@ -19,11 +19,11 @@ void DownloadThread::run()
   const auto remote_rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name_.toStdString();
   const auto local_pardir = ros2::expandUser(tobas::kRosbagDirHome);
 
-  if (!fs::is_directory(local_pardir))
+  if (!fs::is_directory(local_pardir)) {
     fs::create_directories(local_pardir);
+  }
 
-  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::E_NO_ERROR) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;
   }

@@ -1,9 +1,9 @@
-#include <QStyle>
+#include "tobas_flight_log_gui/log_viewer/playback_control.hpp"
+
 #include <QHBoxLayout>
+#include <QStyle>
 
 #include <tobas_std_tools/check.hpp>
-
-#include "tobas_flight_log_gui/log_viewer/playback_control.hpp"
 
 namespace gui
 {
@@ -103,17 +103,16 @@ QString PlaybackControlWidget::formatTime(int msec)
 
 void PlaybackControlWidget::onPlayButtonToggled(bool checked)
 {
-  if (checked)
-  {
+  if (checked) {
     // 終了してたら先頭に戻してスタート
-    if (slider_->value() == slider_->maximum())
+    if (slider_->value() == slider_->maximum()) {
       slider_->setValue(0);
+    }
 
     play_button_->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     timer_.start(kTimerInterval);
   }
-  else
-  {
+  else {
     play_button_->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     timer_.stop();
   }
@@ -139,14 +138,14 @@ void PlaybackControlWidget::onSliderReleased()
 
 void PlaybackControlWidget::onTimerTimeout()
 {
-  if (is_slider_held_)
+  if (is_slider_held_) {
     return;
+  }
 
   auto next_time = slider_->value() + kTimerInterval;  // [ms]
 
   // 終了時点で停止
-  if (next_time > slider_->maximum())
-  {
+  if (next_time > slider_->maximum()) {
     next_time = slider_->maximum();
     play_button_->setChecked(false);
   }

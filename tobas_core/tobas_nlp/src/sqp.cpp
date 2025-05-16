@@ -1,8 +1,8 @@
+#include "tobas_nlp/sqp.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/linalg.hpp>
-
-#include "../include/tobas_nlp/sqp.hpp"
 
 #define EPS 1e-6
 // #define TRACE_SOLVER
@@ -46,27 +46,29 @@ void SQP::initialize(
   dGdx_ = dGdx;
   dHdx_ = dHdx;
 
-  if (qp_.x_scale.size() != n_)
+  if (qp_.x_scale.size() != n_) {
     qp_.x_scale = VectorXd::Ones(n_);
+  }
 }
 
 SQP::error_t SQP::solve()
 {
   iter_ = 0;
 
-  while (true)
-  {
+  while (true) {
     // 繰り返し回数の上限チェック
-    ++iter_;
-    if (max_iter_ > 0 && iter_ > max_iter_)
+    if (++iter_ > max_iter_) {
       return error_code_ = E_MAX_ITERATION_EXCEEDED;
+    }
 
     // ラグランジュ関数のヘッセ行列を計算
     auto H = dFdx_(x_);
-    if (m_ > 0)
+    if (m_ > 0) {
       H += lam_.transpose().eval() * dGdx_(x_);
-    if (p_ > 0)
+    }
+    if (p_ > 0) {
       H += mu_.transpose().eval() * dHdx_(x_);
+    }
 
     // 局所的なQPを解く
     qp_.problem.P = eigen::nearestPositiveDefinite(H, EPS);
@@ -76,8 +78,9 @@ SQP::error_t SQP::solve()
     qp_.problem.G = dhdx_(x_);
     qp_.problem.h = -h_(x_);
 
-    if (!qp_.solve())
+    if (!qp_.solve()) {
       return error_code_ = E_QP_FAILED;
+    }
 
     const auto& dx = qp_.solution();
 
@@ -96,8 +99,9 @@ SQP::error_t SQP::solve()
 
     // 終了判定
     // cf. https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
-    if ((dx.cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all())
+    if ((dx.cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
       return error_code_ = E_NO_ERROR;
+    }
   }
 }
 
@@ -118,8 +122,7 @@ SQP::error_t SQP::errorCode() const
 
 const char* SQP::errorMessage() const
 {
-  switch (error_code_)
-  {
+  switch (error_code_) {
     case E_NO_ERROR:
       return "No error.";
     case E_MAX_ITERATION_EXCEEDED:
@@ -139,8 +142,7 @@ bool SQP::setMaximumIterations(size_t max_iter)
 
 bool SQP::setRelativeTolerance(double rel_tol)
 {
-  if (rel_tol <= 0.)
-  {
+  if (rel_tol <= 0.) {
     cerr << "Relative tolerance must be positive." << endl;
     return false;
   }
@@ -151,14 +153,12 @@ bool SQP::setRelativeTolerance(double rel_tol)
 
 bool SQP::setVariableScales(const Eigen::VectorXd& x_scale)
 {
-  if (x_scale.size() != n_)
-  {
+  if (x_scale.size() != n_) {
     cerr << "The size of scale vector does not match that of variables." << endl;
     return false;
   }
 
-  if ((x_scale.array() <= 0).any())
-  {
+  if ((x_scale.array() <= 0).any()) {
     cerr << "The scale of variables must be positive." << endl;
     return false;
   }

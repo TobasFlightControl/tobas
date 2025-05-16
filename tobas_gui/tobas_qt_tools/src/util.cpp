@@ -1,9 +1,10 @@
-#include <QVBoxLayout>
+#include "tobas_qt_tools/util.hpp"
+
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <tobas_std_tools/console.hpp>
 
-#include "tobas_qt_tools/util.hpp"
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
 namespace qt
@@ -11,8 +12,9 @@ namespace qt
 void blockSignalsRec(QObject* obj, bool block)
 {
   obj->blockSignals(block);
-  for (auto child : obj->children())
+  for (auto child : obj->children()) {
     blockSignalsRec(child, block);
+  }
 }
 
 void addWidgetCenter(QWidget* widget, QVBoxLayout* rows, int stretch)
@@ -73,16 +75,13 @@ QHBoxLayout* createFixedHeightQHBoxLayout(int height, QBoxLayout* parent)
 
 void clearLayout(QLayout* layout)
 {
-  while (QLayoutItem* item = layout->takeAt(0))
-  {
-    if (QWidget* widget = item->widget())
-    {
+  while (QLayoutItem* item = layout->takeAt(0)) {
+    if (QWidget* widget = item->widget()) {
       widget->hide();
       layout->removeWidget(widget);
       delete widget;
     }
-    else if (QLayout* sub_layout = item->layout())
-    {
+    else if (QLayout* sub_layout = item->layout()) {
       clearLayout(sub_layout);  // 再帰的にサブレイアウトを削除
       delete sub_layout;
     }
@@ -100,8 +99,9 @@ QWidget* createVerticalWidgetsContainer(const std::vector<QWidget*>& widgets)
   container->setLayout(rows);
 
   // 受け取ったウィジェットをレイアウトに追加
-  for (const auto widget : widgets)
+  for (const auto widget : widgets) {
     rows->addWidget(widget);
+  }
 
   // コンテナウィジェットを返す
   return container;
@@ -117,8 +117,9 @@ QWidget* createHorizontalWidgetsContainer(const std::vector<QWidget*>& widgets)
   container->setLayout(cols);
 
   // 受け取ったウィジェットをレイアウトに追加
-  for (const auto widget : widgets)
+  for (const auto widget : widgets) {
     cols->addWidget(widget);
+  }
 
   // コンテナウィジェットを返す
   return container;

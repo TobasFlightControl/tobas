@@ -1,11 +1,12 @@
-#include "../include/tobas_ros2_tools/async_node_manager.hpp"
+#include "tobas_ros2_tools/async_node_manager.hpp"
 
 namespace ros2
 {
 AsyncNodeManager::AsyncNodeManager(int argc, char** argv, const std::string& node_name)
 {
-  if (!rclcpp::ok())
+  if (!rclcpp::ok()) {
     rclcpp::init(argc, argv);
+  }
 
   node_ = rclcpp::Node::make_shared(node_name);
   executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();

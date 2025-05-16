@@ -1,12 +1,13 @@
 #pragma once
 
-#include <string>
 #include <map>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
-#include "./role.hpp"
-#include "./command_interface.hpp"
 #include "../hardware_interface.hpp"
+#include "./command_interface.hpp"
+#include "./role.hpp"
 
 namespace tobas
 {

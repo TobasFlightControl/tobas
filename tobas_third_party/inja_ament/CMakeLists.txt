@@ -12,11 +12,11 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
-install(
-  DIRECTORY ${PROJECT_SOURCE_DIR}/inja/include/inja ${PROJECT_SOURCE_DIR}/inja/third_party/include/nlohmann
+  INCLUDES
   DESTINATION include
+)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/inja/include/inja ${PROJECT_SOURCE_DIR}/inja/third_party/include/nlohmann
+        DESTINATION include
 )
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

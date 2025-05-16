@@ -1,10 +1,11 @@
 #pragma once
 
-#include <QtGui/QtGui>
+#include <QColor>
+#include <QString>
 
-#include "./base_view_model.hpp"
-#include "../utils/time.hpp"
 #include "../utils/constants.hpp"
+#include "../utils/time.hpp"
+#include "./base_view_model.hpp"
 
 namespace gui
 {

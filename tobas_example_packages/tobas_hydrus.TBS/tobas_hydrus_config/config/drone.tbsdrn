@@ -1,0 +1,118 @@
+name: hydrus
+joints:
+  - joint_name: joint1
+    role: manipulation
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 1.5707963267948966
+  - joint_name: joint2
+    role: manipulation
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 1.5707963267948966
+  - joint_name: joint3
+    role: manipulation
+    cmd_iface: position
+    hw_iface: pwm
+    home_position: 1.5707963267948966
+  - joint_name: rotor1
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: rotor2
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: rotor3
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: rotor4
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+pwms:
+  - channel: 0
+    name: joint1
+    period_range:
+      - 1000
+      - 2000
+    value_range:
+      - -1.5707963267948966
+      - 1.5707963267948966
+    reverse: false
+  - channel: 1
+    name: joint2
+    period_range:
+      - 1000
+      - 2000
+    value_range:
+      - -1.5707963267948966
+      - 1.5707963267948966
+    reverse: false
+  - channel: 2
+    name: joint3
+    period_range:
+      - 1000
+      - 2000
+    value_range:
+      - -1.5707963267948966
+      - 1.5707963267948966
+    reverse: false
+propulsion_system_type: electric
+propulsion_system:
+  rotors:
+    - link_name: thrust1
+      direction: cw
+      axis: z_positive
+      moment_constant: 0.0183328789497509
+      tilt_joint_name: ""
+      channel: 0
+      num_poles: 14
+      kv: 39.79350694547071
+      internal_resistance: 0.25
+      propeller_diameter: 0.38100000000000001
+      motor_constant: 4.2072034529971242e-05
+    - link_name: thrust2
+      direction: ccw
+      axis: z_positive
+      moment_constant: 0.0183328789497509
+      tilt_joint_name: ""
+      channel: 1
+      num_poles: 14
+      kv: 39.79350694547071
+      internal_resistance: 0.25
+      propeller_diameter: 0.38100000000000001
+      motor_constant: 4.2072034529971242e-05
+    - link_name: thrust3
+      direction: cw
+      axis: z_positive
+      moment_constant: 0.0183328789497509
+      tilt_joint_name: ""
+      channel: 2
+      num_poles: 14
+      kv: 39.79350694547071
+      internal_resistance: 0.25
+      propeller_diameter: 0.38100000000000001
+      motor_constant: 4.2072034529971242e-05
+    - link_name: thrust4
+      direction: ccw
+      axis: z_positive
+      moment_constant: 0.0183328789497509
+      tilt_joint_name: ""
+      channel: 3
+      num_poles: 14
+      kv: 39.79350694547071
+      internal_resistance: 0.25
+      propeller_diameter: 0.38100000000000001
+      motor_constant: 4.2072034529971242e-05
+  battery:
+    nominal_voltage: 22.200000000000003
+    max_voltage: 25.200000000000003
+    sag_voltage: 20.399999999999999
+    max_current: 250
+num_sbus_channels: 8

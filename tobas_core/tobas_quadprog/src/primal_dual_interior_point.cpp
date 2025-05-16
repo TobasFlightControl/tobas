@@ -1,8 +1,9 @@
-#include <eigen3/Eigen/LU>
-#include <eigen3/Eigen/Cholesky>
+#include "tobas_quadprog/primal_dual_interior_point.hpp"
 
-#include "../include/tobas_quadprog/primal_dual_interior_point.hpp"
-#include "../include/tobas_quadprog/dual_active_set.hpp"
+#include <eigen3/Eigen/Cholesky>
+#include <eigen3/Eigen/LU>
+
+#include "tobas_quadprog/dual_active_set.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -20,10 +21,8 @@ bool PrimalDualInteriorPointSolver::solve()
   // Scaling
   const auto scaled = scaleProblem();
 
-  if (is_first_solve_)
-  {
-    if (!initialize(scaled))
-    {
+  if (is_first_solve_) {
+    if (!initialize(scaled)) {
       error_msg_ = "Failed to initialize decision variables.";
       return false;
     }
@@ -31,11 +30,9 @@ bool PrimalDualInteriorPointSolver::solve()
   }
 
   // 制約がない場合は停留点を求めて終わり
-  if (eq_dim_ == 0 && ineq_dim_ == 0)
-  {
+  if (eq_dim_ == 0 && ineq_dim_ == 0) {
     const LLT<MatrixXd> llt(scaled.P);
-    if (llt.info() == NumericalIssue)
-    {
+    if (llt.info() == NumericalIssue) {
       error_msg_ = "Cholesky decomposition failed.";
       return false;
     }
@@ -46,10 +43,9 @@ bool PrimalDualInteriorPointSolver::solve()
   }
 
   // Iteration
-  // Real-time rquirements will impose a hard bound on the number of interior-point iterations,
-  // hense it is assumed fixed a priori.
-  for (size_t _ = 0; _ < num_iter_; ++_)
-  {
+  // Real-time requirements will impose a hard bound on the number of interior-point iterations,
+  // hence it is assumed fixed a priori.
+  for (size_t _ = 0; _ < num_iter_; ++_) {
     const DiagonalMatrix<double, Dynamic> W = lam_.cwiseProduct(s_.cwiseInverse()).asDiagonal();
     const double mu = lam_.dot(s_) / static_cast<double>(eq_dim_ + ineq_dim_);  // 制約なしだとNaN
     const VectorXd sigma_mu_sinv = sigma_ * mu * s_.cwiseInverse();
@@ -97,8 +93,9 @@ bool PrimalDualInteriorPointSolver::solve()
 
 bool PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter)
 {
-  if (num_iter == 0)
+  if (num_iter == 0) {
     return false;
+  }
 
   num_iter_ = num_iter;
   return true;
@@ -106,8 +103,9 @@ bool PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter
 
 bool PrimalDualInteriorPointSolver::setSigma(const double& sigma)
 {
-  if (sigma <= 0. || 1. <= sigma)
+  if (sigma <= 0. || 1. <= sigma) {
     return false;
+  }
 
   sigma_ = sigma;
   return true;
@@ -115,8 +113,9 @@ bool PrimalDualInteriorPointSolver::setSigma(const double& sigma)
 
 bool PrimalDualInteriorPointSolver::setAlphaTolerance(const double& alpha_tol)
 {
-  if (alpha_tol <= 0. || 1. <= alpha_tol)
+  if (alpha_tol <= 0. || 1. <= alpha_tol) {
     return false;
+  }
 
   alpha_tol_ = alpha_tol;
   return true;
@@ -132,8 +131,9 @@ bool PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
   DualActiveSetSolver active_set_solver_;
   active_set_solver_.problem = scaled;
   active_set_solver_.x_scale = VectorXd::Ones(problem.varSize());
-  if (!active_set_solver_.solve())
+  if (!active_set_solver_.solve()) {
     return false;
+  }
   theta_ = active_set_solver_.solution();
 
   // 不等式制約のラグランジュ乗数とスラック変数の初期値を1に設定
@@ -151,15 +151,16 @@ double PrimalDualInteriorPointSolver::findAlpha(const VectorXd& dlam, const Vect
   double lb = 0.;
   double ub = 1.;
 
-  while (ub - lb > alpha_tol_)
-  {
+  while (ub - lb > alpha_tol_) {
     const auto mid = (lb + ub) / 2;
     const VectorXd lam = lam_ + mid * dlam;
     const VectorXd s = s_ + mid * ds;
-    if ((lam.array() > 0).all() && (s.array() > 0).all())
+    if ((lam.array() > 0).all() && (s.array() > 0).all()) {
       lb = mid;
-    else
+    }
+    else {
       ub = mid;
+    }
   }
 
   return lb;

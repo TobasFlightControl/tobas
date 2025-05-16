@@ -1,0 +1,12 @@
+hydrus:
+  controller_manager:
+    ros__parameters:
+      update_rate: 100
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
+      joint1_controller:
+        type: forward_command_controller/ForwardCommandController
+      joint2_controller:
+        type: forward_command_controller/ForwardCommandController
+      joint3_controller:
+        type: forward_command_controller/ForwardCommandController

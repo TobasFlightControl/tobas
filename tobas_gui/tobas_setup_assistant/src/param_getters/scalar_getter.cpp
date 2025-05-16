@@ -1,12 +1,12 @@
-#include <QLabel>
-#include <QHBoxLayout>
-
-#include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/core.hpp>
-#include <tobas_qt_tools/font.hpp>
-
 #include "tobas_setup_assistant/param_getters/scalar_getter.hpp"
-#include "tobas_setup_assistant/common.hpp"
+
+#include <QHBoxLayout>
+#include <QLabel>
+
+#include <tobas_qt_tools/font.hpp>
+#include <tobas_string_tools/core.hpp>
+
+#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {
@@ -23,7 +23,6 @@ IntGetter::IntGetter(const QString& name)
 
   data_ = new qt::SpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-  data_->setFocusPolicy(Qt::StrongFocus);
   cols->addWidget(data_);
 
   connect(data_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
@@ -36,8 +35,9 @@ int IntGetter::getValue() const
 
 bool IntGetter::setValue(const int& value)
 {
-  if (value < data_->minimum() || data_->maximum() < value)
+  if (value < data_->minimum() || data_->maximum() < value) {
     return false;
+  }
 
   data_->setValue(value);
   return true;
@@ -79,7 +79,6 @@ DoubleGetter::DoubleGetter(const QString& name)
 
   data_ = new qt::DoubleSpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-  data_->setFocusPolicy(Qt::StrongFocus);
   cols->addWidget(data_);
 
   connect(data_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
@@ -92,8 +91,9 @@ double DoubleGetter::getValue() const
 
 bool DoubleGetter::setValue(const double& value)
 {
-  if (value < data_->minimum() || data_->maximum() < value)
+  if (value < data_->minimum() || data_->maximum() < value) {
     return false;
+  }
 
   data_->setValue(value);
   return true;

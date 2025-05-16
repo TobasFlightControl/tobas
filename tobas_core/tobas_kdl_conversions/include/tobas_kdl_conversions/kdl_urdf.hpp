@@ -3,8 +3,8 @@
 #include <urdf/model.h>
 
 #include <tobas_kdl/frame.hpp>
-#include <tobas_kdl/rigid_body_inertia.hpp>
 #include <tobas_kdl/joint.hpp>
+#include <tobas_kdl/rigid_body_inertia.hpp>
 
 namespace kdl
 {

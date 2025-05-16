@@ -1,5 +1,6 @@
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
+
 #include <tobas_drone_msgs_adapter/drone.hpp>
 
 class DroneServerNode : public tobas::BaseNode
@@ -36,15 +37,13 @@ void DroneServerNode::publishDrone()
 bool DroneServerNode::fileParamCb(const std::string& p)
 {
   // Load drone configuration
-  if (!drone_.load(p))
-  {
+  if (!drone_.load(p)) {
     TOBAS_ERROR("Failed to load drone configurations from \"", p, "\".");
     return false;
   }
 
   // Check drone configuration validity
-  if (!drone_.isValid())
-  {
+  if (!drone_.isValid()) {
     TOBAS_ERROR("Drone configurations are invalid.");
     return false;
   }

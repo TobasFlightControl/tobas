@@ -3,7 +3,6 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl_msgs_adapter/vector.hpp>
-
 #include <tobas_msgs/msg/magnetic_field_stamped.hpp>
 
 namespace tobas_msgs
@@ -42,6 +41,6 @@ namespace tobas_msgs
 {
 using MagneticFieldStampedAdapter =
   rclcpp::TypeAdapter<tobas_msgs::MagneticFieldStamped, tobas_msgs::msg::MagneticFieldStamped>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::MagneticFieldStamped, tobas_msgs::msg::MagneticFieldStamped);

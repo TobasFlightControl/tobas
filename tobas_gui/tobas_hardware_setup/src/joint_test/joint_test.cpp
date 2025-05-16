@@ -1,10 +1,11 @@
-#include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/register.hpp>
+#include "tobas_hardware_setup/joint_test/joint_test.hpp"
+
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_ros2_tools/register.hpp>
 
-#include "tobas_hardware_setup/joint_test/joint_test.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
 namespace gui
@@ -89,13 +90,11 @@ void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 void JointTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
-  if (arming_->data)
-  {
+  if (arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while rotors are armed.");
     return;
   }

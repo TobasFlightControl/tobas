@@ -1,23 +1,24 @@
-#include <rcutils/env.h>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <QLabel>
-#include <QButtonGroup>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QApplication>
+#include "tobas_gui_core/gui_core.hpp"
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_kdl_parser/kdl_parser.hpp>
+#include <rcutils/env.h>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
-#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_gui_common/package.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "tobas_gui_core/gui_core.hpp"
-#include "tobas_gui_core/constants.hpp"
 #include "tobas_gui_core/app_button.hpp"
+#include "tobas_gui_core/constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -26,13 +27,13 @@ namespace gui
 namespace core
 {
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
-  : node_(node),
-    property_client_(node, tobas::kPropertyServerName, kPkgName),
-    ssh_client_(node),
-    package_builder_(node),
-    restart_thread_(node),
-    shutdown_thread_(node),
-    spinner_(Qt::WindowModal, this)
+  : node_(node)
+  , property_client_(node, tobas::kPropertyServerName, kPkgName)
+  , ssh_client_(node)
+  , package_builder_(node)
+  , restart_thread_(node)
+  , shutdown_thread_(node)
+  , spinner_(Qt::WindowModal, this)
 {
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPkgName));
   const auto rsrc_path = pkg_path / "resources";
@@ -85,12 +86,10 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   tbs_path_->setReadOnly(true);
   tbs_path_->setFocusPolicy(Qt::NoFocus);
 
-  browse_btn_ = new QPushButton("Browse");
   load_btn_ = new QPushButton("Load");
   write_btn_ = new QPushButton("Write");
 
-  browse_btn_->setEnabled(true);
-  load_btn_->setEnabled(false);
+  load_btn_->setEnabled(true);
   write_btn_->setEnabled(false);
 
   // Power control buttons
@@ -99,7 +98,6 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
 
   // Layout
   const auto pkg_btn_cols = new QHBoxLayout();
-  pkg_btn_cols->addWidget(browse_btn_);
   pkg_btn_cols->addWidget(load_btn_);
   pkg_btn_cols->addWidget(write_btn_);
 
@@ -130,7 +128,6 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
 
   // Connection
   connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
-  connect(browse_btn_, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
@@ -194,12 +191,13 @@ fs::path GUICoreWidget::tbsPath() const
   return tbs_path_->text().toStdString();
 }
 
-void GUICoreWidget::onBrowseButtonClicked()
+void GUICoreWidget::onLoadButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onLoadButtonClicked");
+
   // 前回開いたパスを取得
   std::string last_opened_dir;
-  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
-  {
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
   }
@@ -210,12 +208,12 @@ void GUICoreWidget::onBrowseButtonClicked()
     QFileDialog::getExistingDirectory(this, kTitle, QString::fromStdString(last_opened_dir), options);
 
   // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-  if (tbs_path.isEmpty())
+  if (tbs_path.isEmpty()) {
     return;
+  }
 
   // 拡張子をチェック
-  if (!tbs_path.endsWith(tobas::kTBSExtension))
-  {
+  if (!tbs_path.endsWith(tobas::kTBSExtension)) {
     qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
     return;
   }
@@ -225,41 +223,32 @@ void GUICoreWidget::onBrowseButtonClicked()
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  if (property_client_.save() < 0)
+  }
+  if (property_client_.save() < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-
-  // Load,Writeボタンを有効化
-  load_btn_->setEnabled(true);
-  write_btn_->setEnabled(true);
-}
-
-void GUICoreWidget::onLoadButtonClicked()
-{
-  const auto tbs_path = tbs_path_->text().toStdString();
+  }
 
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path);
-  if (!fs::is_regular_file(tbsdrn_path))
-  {
+  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path.toStdString());
+  if (!fs::is_regular_file(tbsdrn_path)) {
     qt::qErrorBox(
-      this, "\"" + QString::fromStdString(tbsdrn_path)
-              + "\" does not exist. Please create a new Tobas configuration package.");
+      this,
+      "\"" + QString::fromStdString(tbsdrn_path) +
+        "\" does not exist. Please create a new Tobas configuration package.");
     return;
   }
 
   // kdl::Treeをロード
-  const auto urdf_path = common::getOriginalURDFPath(tbs_path);
-  if (!kdl::treeFromFile(urdf_path, tree_))
-  {
+  const auto urdf_path = common::getOriginalURDFPath(tbs_path.toStdString());
+  if (!kdl::treeFromFile(urdf_path, tree_)) {
     qt::qErrorBox(this, "Failed to load robot tree.");
     return;
   }
 
   // 機体設定ファイルをロード
-  if (!drone_.load(tbsdrn_path))
-  {
+  if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return;
   }
@@ -267,27 +256,30 @@ void GUICoreWidget::onLoadButtonClicked()
   // 内部状態を更新
   updateInternalDataStructures();
 
+  // Writeボタンを有効化
+  write_btn_->setEnabled(true);
+
   // ロードが成功したことを示すダイアログ
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }
 
 void GUICoreWidget::onWriteButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onWriteButtonClicked");
+
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     if (!qt::yesOrNo(
           this,
           "This operation will restart the flight control software, "
           "so it can only be performed when the aircraft is completely stationary. "
           "Do you want to proceed?",
-          qt::QMessageLevel::WARN))
+          qt::QMessageLevel::WARN)) {
       return;
+    }
   }
-  else
-  {
-    if (arming_->data)
-    {
+  else {
+    if (arming_->data) {
       qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
       return;
     }
@@ -303,8 +295,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR) {
     progress.close();
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
@@ -313,8 +304,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR) {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -325,8 +315,7 @@ void GUICoreWidget::onWriteButtonClicked()
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
     progress.close();
     qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -335,12 +324,12 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // Tobasパッケージをビルド
   progress.setLabelText("Building Tobas configuration package.");
-  if (!package_builder_.build(remote_tbs_path))
-  {
+  if (!package_builder_.build(remote_tbs_path)) {
     progress.close();
     qt::qErrorBox(
-      this, "Failed to build the Tobas configuration package:\n\n"
-              + QString::fromStdString(package_builder_.getErrorMessage()));
+      this,
+      "Failed to build the Tobas configuration package:\n\n" +
+        QString::fromStdString(package_builder_.getErrorMessage()));
     return;
   }
   progress.progressStep();
@@ -349,8 +338,7 @@ void GUICoreWidget::onWriteButtonClicked()
   progress.setLabelText("Setting environment variables.");
   const auto config_pkg_name = common::getTBSConfigName(tbs_path);
   const auto env_content = std::format("TOBAS_CONFIG_PKG={}\n", config_pkg_name);
-  if (ssh_client_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR) {
     progress.close();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -359,8 +347,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // サービスを再起動
   progress.setLabelText("Restarting the flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
-  {
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR) {
     progress.close();
     qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -378,20 +365,21 @@ void GUICoreWidget::onWriteButtonClicked()
 
 void GUICoreWidget::onRestartButtonClicked(bool checked)
 {
-  if (!checked)
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartButtonClicked");
+
+  if (!checked) {
     return;
+  }
 
   // アームされていないことを確認
-  if (arming_ && arming_->data)
-  {
+  if (arming_ && arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     restart_btn_->setChecked(false);
     return;
   }
 
   // 本当に再起動してよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::QMessageLevel::WARN))
-  {
+  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::QMessageLevel::WARN)) {
     restart_btn_->setChecked(false);
     return;
   }
@@ -405,20 +393,21 @@ void GUICoreWidget::onRestartButtonClicked(bool checked)
 
 void GUICoreWidget::onShutdownButtonClicked(bool checked)
 {
-  if (!checked)
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownButtonClicked");
+
+  if (!checked) {
     return;
+  }
 
   // アームされていないことを確認
-  if (arming_ && arming_->data)
-  {
+  if (arming_ && arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     shutdown_btn_->setChecked(false);
     return;
   }
 
   // 本当にシャットダウンしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN))
-  {
+  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN)) {
     shutdown_btn_->setChecked(false);
     return;
   }
@@ -432,11 +421,12 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
 
 void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartThreadFinished");
+
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     restart_btn_->setChecked(false);
     return;
@@ -451,11 +441,12 @@ void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message
 
 void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& message)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownThreadFinished");
+
   spinner_.hide();
   spinner_.stop();
 
-  if (!success)
-  {
+  if (!success) {
     qt::qErrorBox(this, message);
     shutdown_btn_->setChecked(false);
     return;
@@ -468,6 +459,8 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
 
 void GUICoreWidget::onSimRealStateChanged()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onSimRealStateChanged");
+
   // シミュレーションウィジェット以外リセット
   urdf_builder_->reset();
   setup_assistant_->reset();

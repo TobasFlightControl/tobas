@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_rotor_anomaly_detection)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -18,28 +18,25 @@ find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES
-	std_srvs
-	tobas_node
-	tobas_tools
-	tobas_msgs_adapter
-	tobas_drone_msgs_adapter
-)
+set(AMENT_DEPENDENCIES std_srvs tobas_node tobas_tools tobas_msgs_adapter tobas_drone_msgs_adapter)
 
 include_directories(include)
 
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorAnomalyDetectorNode" EXECUTABLE rotor_anomaly_detector)
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "RotorAnomalyDetectorNode" EXECUTABLE rotor_anomaly_detector
+)
 
 install(
-	TARGETS ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
 )
 
 ament_package()

@@ -10,16 +10,13 @@ int main()
   t1::Battery battery;
   double voltage, current;
 
-  if (!battery.initialize())
-  {
+  if (!battery.initialize()) {
     cerr << "Failed to initialize ADC." << endl;
     return EXIT_FAILURE;
   }
 
-  while (true)
-  {
-    if (!battery.read(voltage, current))
-    {
+  while (true) {
+    if (!battery.read(voltage, current)) {
       cerr << "Failed to read battery status." << endl;
       return EXIT_FAILURE;
     }

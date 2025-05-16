@@ -1,7 +1,7 @@
+#include "tobas_yaml_tools/core.hpp"
+
 #include <fstream>
 #include <iostream>
-
-#include "../include/tobas_yaml_tools/core.hpp"
 
 using namespace std;
 
@@ -20,18 +20,15 @@ string dump(const YAML::Node& node)
 
 bool load(const filesystem::path& path, YAML::Node& node)
 {
-  if (!filesystem::exists(path))
-  {
+  if (!filesystem::exists(path)) {
     cerr << path << " does not exist." << endl;
     return false;
   }
 
-  try
-  {
+  try {
     node = YAML::LoadFile(path);
   }
-  catch (const exception& e)
-  {
+  catch (const exception& e) {
     cerr << "Failed to load yaml: " << e.what() << endl;
     return false;
   }
@@ -42,8 +39,7 @@ bool load(const filesystem::path& path, YAML::Node& node)
 bool save(const filesystem::path& path, const YAML::Node& node)
 {
   ofstream fout(path);
-  if (!fout.is_open())
-  {
+  if (!fout.is_open()) {
     cerr << "Failed to open \"" << path << "\" for writing." << endl;
     return false;
   }

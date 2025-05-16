@@ -5,8 +5,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
 
-#include "../rotor.hpp"
 #include "../../hardware_interface.hpp"
+#include "../rotor.hpp"
 
 namespace tobas
 {
@@ -17,7 +17,7 @@ class ICERotorConfig : public RotorConfig
 
   static constexpr char kGearRatioKey[] = "gear_ratio";
   static constexpr char kPitchReferenceKey[] = "pitch_reference";
-  static constexpr char kPitchRangeKey[] = "pitch_range";
+  static constexpr char kPitchLimitKey[] = "pitch_limit";
   static constexpr char kMotorConstKey[] = "motor_constant";
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
@@ -27,8 +27,8 @@ public:
 
   double gear_ratio = 0.;  // 減速比 [-]
   double pitch_ref = 0.;   // プロペラピッチ角の参照値 (最も効率の良いピッチ角) [rad]
-  tobas_std::Range<double> pitch_range = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
-  std::pair<double, double> motor_const = { 0., 0. };  // T = (aφ + b) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
+  tobas_std::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
+  std::pair<double, double> motor_const = { 0., 0. };  // T = (c0 + c1 φ) ω^2 (φ: プロペラピッチ，ω: プロペラ回転数)
   hw_iface_t hw_iface = hw_iface_t::OTHER;
 
   bool isValid() const override;
@@ -54,7 +54,7 @@ public:
 
 inline double ICERotorConfig::motorConst(double pitch_angle) const
 {
-  return motor_const.first * pitch_angle + motor_const.second;
+  return motor_const.first + motor_const.second * pitch_angle;
 }
 
 inline double ICERotorConfig::speedEngineToRotor(double engine_speed) const
@@ -80,6 +80,6 @@ inline double ICERotorConfig::pitchFromThrust(double engine_speed, double thrust
   assert(engine_speed > 0.);
 
   const auto rot_speed = speedEngineToRotor(engine_speed);
-  return (thrust / math::sqr(rot_speed) - motor_const.second) / motor_const.first;
+  return pitch_limit.clamp((thrust / math::sqr(rot_speed) - motor_const.first) / motor_const.second);
 }
 }  // namespace tobas

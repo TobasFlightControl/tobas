@@ -1,7 +1,8 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-
 #include "tobas_qt_tools/widgets/slider_display.hpp"
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include "tobas_qt_tools/font.hpp"
 
 #define TEXT_PSIZE 9
@@ -68,8 +69,9 @@ void IntSliderDisplay::setValue(int value, bool block_signal)
 
   value_->setText(QString::number(value) + suffix_);
 
-  if (!block_signal)
+  if (!block_signal) {
     Q_EMIT valueChanged(value);
+  }
 }
 
 void IntSliderDisplay::setMinimum(int minimum)
@@ -165,8 +167,9 @@ void DoubleSliderDisplay::setValue(double value, bool block_signal)
 
   value_->setText(QString::number(value, 'f', decimals_) + suffix_);
 
-  if (!block_signal)
+  if (!block_signal) {
     Q_EMIT valueChanged(value);
+  }
 }
 
 void DoubleSliderDisplay::setMinimum(double minimum)

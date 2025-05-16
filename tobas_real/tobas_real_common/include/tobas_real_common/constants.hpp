@@ -18,12 +18,13 @@ static constexpr size_t kRcChannelEnable = 4;   // CH5
 static constexpr size_t kRcChannelKill = 5;     // CH6
 static constexpr size_t kRcChannelMode = 6;     // CH7
 static constexpr size_t kRcChannelSubMode = 7;  // CH8
+static constexpr size_t kRcChannelGpsw = 8;     // CH9-16
 
 namespace handler
 {
 namespace imu
 {
-static constexpr char kConfigFileName[] = "imu.ini";
+static constexpr char kConfigFileName[] = "imu.json";
 static constexpr char kSetParamSrv[] = "real/set_imu_parameters";
 
 static constexpr char kOffsetXKey[] = "offset_x";
@@ -33,7 +34,7 @@ static constexpr char kOffsetZKey[] = "offset_z";
 
 namespace mag
 {
-static constexpr char kConfigFileName[] = "magnetometer.ini";
+static constexpr char kConfigFileName[] = "magnetometer.json";
 static constexpr char kSetParamSrv[] = "real/set_magnetometer_parameters";
 
 static constexpr char kAxxKey[] = "a_xx";
@@ -50,7 +51,7 @@ static constexpr char kCKey[] = "c";
 
 namespace rcin
 {
-static constexpr char kConfigFileName[] = "rc_input.ini";
+static constexpr char kConfigFileName[] = "rc_input.json";
 static constexpr char kSetParamSrv[] = "real/set_rc_input_parameters";
 
 static constexpr char kRollLeftKey[] = "roll/left";
@@ -70,6 +71,8 @@ static constexpr char kModeStabilizeKey[] = "mode/stabilize";
 static constexpr char kModeLoiterKey[] = "mode/loiter";
 static constexpr char kSubModeOnKey[] = "sub_mode/on";
 static constexpr char kSubModeOffKey[] = "sub_mode/off";
+static constexpr char kGpswOnKey[] = "gpsw/on";
+static constexpr char kGpswOffKey[] = "gpsw/off";
 }  // namespace rcin
 }  // namespace handler
 }  // namespace real

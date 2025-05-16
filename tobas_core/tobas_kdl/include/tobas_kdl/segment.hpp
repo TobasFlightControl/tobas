@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./frames.hpp"
-#include "./rigid_body_inertia.hpp"
 #include "./joint.hpp"
+#include "./rigid_body_inertia.hpp"
 #include "./segment_jacobian.hpp"
 
 namespace kdl

@@ -51,8 +51,9 @@ operator*(const Eigen::Tensor<Scalar, 3>& lhs, const Eigen::Vector<Scalar, N>& r
 
   assert(nz == rhs.size());
 
-  if (nz == 0)
+  if (nz == 0) {
     return Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(nx, ny);
+  }
 
   const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(2, 0) };
   const Eigen::TensorMap<const Eigen::Tensor1Xd> rhs_tensor(rhs.data(), rhs.size());
@@ -70,8 +71,9 @@ operator*(const Eigen::RowVector<Scalar, N>& lhs, const Eigen::Tensor<Scalar, 3>
 
   assert(lhs.size() == nx);
 
-  if (nx == 0)
+  if (nx == 0) {
     return Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(ny, nz);
+  }
 
   const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(0, 0) };
   const Eigen::TensorMap<const Eigen::Tensor1Xd> lhs_tensor(lhs.data(), lhs.size());
@@ -86,8 +88,7 @@ operator*(const Eigen::Tensor<Scalar, Dims>& lhs, const Eigen::Vector<Scalar, N>
   static_assert(Dims >= 4);
   assert(lhs.dimension(Dims - 1) == rhs.size());
 
-  if (rhs.size() == 0)
-  {
+  if (rhs.size() == 0) {
     Eigen::DSizes<Eigen::DenseIndex, Dims - 1> dims;
     std::copy(lhs.dimensions().begin(), lhs.dimensions().end() - 1, dims.begin());
     Eigen::Tensor<Scalar, Dims - 1> res(dims);
@@ -107,8 +108,7 @@ operator*(const Eigen::RowVector<Scalar, N>& lhs, const Eigen::Tensor<Scalar, Di
   static_assert(Dims >= 4);
   assert(lhs.size() == rhs.dimension(Dims - 1));
 
-  if (lhs.size() == 0)
-  {
+  if (lhs.size() == 0) {
     Eigen::DSizes<Eigen::DenseIndex, Dims - 1> dims;
     std::copy(rhs.dimensions().begin() + 1, rhs.dimensions().end(), dims.begin());
     Eigen::Tensor<Scalar, Dims - 1> res(dims);
@@ -129,8 +129,7 @@ operator*(const Eigen::Tensor<Scalar, Dims>& lhs, const Eigen::Matrix<Scalar, N,
   static_assert(M != 1);
   assert(lhs.dimension(Dims - 1) == rhs.rows());
 
-  if (rhs.rows() == 0)
-  {
+  if (rhs.rows() == 0) {
     Eigen::DSizes<Eigen::DenseIndex, Dims> dims;
     std::copy(lhs.dimensions().begin(), lhs.dimensions().end() - 1, dims.begin());
     dims.back() = rhs.cols();
@@ -152,8 +151,7 @@ operator*(const Eigen::Matrix<Scalar, N, M>& lhs, const Eigen::Tensor<Scalar, Di
   static_assert(N != 1);
   assert(lhs.cols() == rhs.dimension(0));
 
-  if (lhs.cols() == 0)
-  {
+  if (lhs.cols() == 0) {
     Eigen::DSizes<Eigen::DenseIndex, Dims> dims;
     dims.front() = lhs.rows();
     std::copy(rhs.dimensions().begin() + 1, rhs.dimensions().end(), dims.begin() + 1);

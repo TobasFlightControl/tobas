@@ -1,25 +1,26 @@
-#include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/debug.hpp>
+#include <tobas_constants/constants.hpp>
+#include <tobas_control/lqd.hpp>
+#include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
+#include <tobas_drone_tools/rotor_axis_extractor.hpp>
+#include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
-#include <tobas_control/lqd.hpp>
-#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/debug.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/coordinates.hpp>
-#include <tobas_drone_tools/rotor_axis_extractor.hpp>
-#include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
-#include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
-#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
-#include <tobas_msgs/msg/control_surface_deflections.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_msgs/msg/arming.hpp>
+#include <tobas_msgs/msg/control_surface_deflections.hpp>
+#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -59,6 +60,8 @@ private:
   bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
+  bool topics_received_ = false;
+  tobas::CommandLevelHandler cmd_level_handler_;
   tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr air_pressure_;  // 大気圧
   tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                                   // 現在の状態 (NWU座標系)
   tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
@@ -80,12 +83,15 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
 
+  // Timers
+  ros2::TimerPtr check_topics_timer_;
+
   bool initialize();
-  bool isReadyToControl();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishThrusts(const Eigen::VectorXd& thrusts);
-  void publishDeflections(const Eigen::VectorXd& deflections);
+  void publishThrusts(const VectorXd& thrusts);
+  void publishDeflections(const VectorXd& deflections);
+  bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
 
   void updateForwardSpeedWeight();
   void updateAlphaWeight();
@@ -114,13 +120,15 @@ private:
   void airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& pressure);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
   void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
+
+  void checkTopicsTimerCb();
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kController, options),
-    mass_holder_(tree_),
-    x_rotors_(drone_, tobas::X_POSITIVE),
-    eom_(drone_, tree_)
+  : super(tobas::node::kController, options)
+  , mass_holder_(tree_)
+  , x_rotors_(drone_, tobas::X_POSITIVE)
+  , eom_(drone_, tree_)
 {
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
@@ -144,16 +152,22 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   cmd_sub_ = createSubscriber(tobas::kSpeedRollDpitchCmdTopic, &self::commandCb, this);
+
+  // Register timers
+  check_topics_timer_ = createTimer(tobas::kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
 bool ControllerNode::initialize()
 {
-  if (!mass_holder_.updateInternalDataStructures())
+  if (!mass_holder_.updateInternalDataStructures()) {
     return false;
-  if (!x_rotors_.updateInternalDataStructures())
+  }
+  if (!x_rotors_.updateInternalDataStructures()) {
     return false;
-  if (!eom_.updateInternalDataStructures())
+  }
+  if (!eom_.updateInternalDataStructures()) {
     return false;
+  }
 
   q_0_.resize(tree_.getNrOfJoints());
   q_0_.setZero();
@@ -185,47 +199,6 @@ bool ControllerNode::initialize()
   updateParameters();
 
   is_initialized_ = true;
-  return true;
-}
-
-bool ControllerNode::isReadyToControl()
-{
-  if (!drone_received_)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kDroneTopic, "\".");
-    return false;
-  }
-
-  if (!tree_received_)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kKdlTreeTopic, "\".");
-    return false;
-  }
-
-  if (!air_pressure_)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kAirPressureTopic, "\".");
-    return false;
-  }
-
-  if (!odom_nwu_)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
-    return false;
-  }
-
-  if (odom_nwu_->status != tobas_msgs::msg::Odometry::NO_ERROR)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
-    return false;
-  }
-
-  if (!arming_)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kArmingTopic, "\".");
-    return false;
-  }
-
   return true;
 }
 
@@ -269,11 +242,10 @@ void ControllerNode::publishThrusts(const VectorXd& thrusts)
   auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
   thrusts_msg->header.stamp = odom_ned_.header.stamp;
 
-  for (int i = 0; i < thrusts.rows(); ++i)
-  {
+  for (int i = 0; i < thrusts.rows(); ++i) {
     thrusts_msg->thrusts.emplace_back();
     thrusts_msg->thrusts.back().link_name = x_rotors_.linkName(i);
-    thrusts_msg->thrusts.back().thrust = thrusts(i);
+    thrusts_msg->thrusts.back().thrust = max(thrusts(i), 0.);
   }
 
   tar_thrusts_pub_->publish(move(thrusts_msg));
@@ -285,6 +257,26 @@ void ControllerNode::publishDeflections(const VectorXd& deflections)
   deflections_msg->header.stamp = odom_ned_.header.stamp;
   deflections_msg->deflections = eigen::toStdVector(deflections);
   deflections_pub_->publish(move(deflections_msg));
+}
+
+bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
+{
+  if (!topics_received_) {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
+    return false;
+  }
+
+  if (!arming_->data) {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
+    return false;
+  }
+
+  if (!cmd_level_handler_.update(level.data, get_clock()->now())) {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
+    return false;
+  }
+
+  return true;
 }
 
 void ControllerNode::updateForwardSpeedWeight()
@@ -355,72 +347,81 @@ void ControllerNode::updateParameters()
 bool ControllerNode::forwardSpeedWeightCb(const long& p)
 {
   params_.forward_speed_weight = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateForwardSpeedWeight();
+  }
   return true;
 }
 
 bool ControllerNode::alphaWeightCb(const long& p)
 {
   params_.alpha_weight = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateAlphaWeight();
+  }
   return true;
 }
 
 bool ControllerNode::betaWeightCb(const long& p)
 {
   params_.beta_weight = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateBetaWeight();
+  }
   return true;
 }
 
 bool ControllerNode::attitudeWeightCb(const long& p)
 {
   params_.attitude_weight = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateAttitudeWeight();
+  }
   return true;
 }
 
 bool ControllerNode::angularVelicityWeightCb(const long& p)
 {
   params_.angular_velocity_weight = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateAngularVelicityWeight();
+  }
   return true;
 }
 
 bool ControllerNode::thrustWeightLog10Cb(const long& p)
 {
   params_.thrust_weight_log10 = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateThrustWeightLog10();
+  }
   return true;
 }
 
 bool ControllerNode::thrustRateWeightLog10Cb(const long& p)
 {
   params_.thrust_rate_weight_log10 = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateThrustRateWeightLog10();
+  }
   return true;
 }
 
 bool ControllerNode::deflectionWeightLog10Cb(const long& p)
 {
   params_.deflection_weight_log10 = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateDeflectionWeightLog10();
+  }
   return true;
 }
 
 bool ControllerNode::deflectionRateWeightLog10Cb(const long& p)
 {
   params_.deflection_rate_weight_log10 = p;
-  if (is_initialized_)
+  if (is_initialized_) {
     updateDeflectionRateWeightLog10();
+  }
   return true;
 }
 
@@ -428,11 +429,9 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  if (tree_received_)
-  {
-    if (!initialize())
-    {
-      TOBAS_FATAL("Error occured while initializing controller.");
+  if (tree_received_) {
+    if (!initialize()) {
+      TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }
@@ -444,11 +443,9 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (drone_received_)
-  {
-    if (!initialize())
-    {
-      TOBAS_FATAL("Error occured while initializing controller.");
+  if (drone_received_) {
+    if (!initialize()) {
+      TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }
@@ -460,8 +457,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 {
   arming_ = arming;
 
-  if (!arming->data)
-  {
+  if (!arming->data) {
     cmd_nwu_.reset();
     lqd_.last_input.setZero();
   }
@@ -474,8 +470,7 @@ void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressureWithVaria
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu)
 {
-  if (!odom_nwu_)
-  {
+  if (!odom_nwu_) {
     odom_nwu_ = odom_nwu;
     return;
   }
@@ -485,8 +480,9 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   odom_nwu_ = odom_nwu;
 
   // コマンドがなければスキップ
-  if (!cmd_nwu_)
+  if (!cmd_nwu_) {
     return;
+  }
 
   // NWU -> NED
   tobas::odometryNwuToNed(*odom_nwu_, odom_ned_);
@@ -494,8 +490,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
 
   // 現在の速度を使って状態方程式を更新
   const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure.pressure);
-  switch (eom_.update(odom_ned_.twist.vel.norm(), rho, q_0_))
-  {
+  switch (eom_.update(odom_ned_.twist.vel.norm(), rho, q_0_)) {
     case tobas::SolverI::E_NO_ERROR:
       break;
     case tobas::SolverI::E_WARN:
@@ -529,21 +524,37 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
 
 void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu)
 {
-  if (!isReadyToControl())
-  {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
+  if (!isCommandAccepted(cmd_nwu->level)) {
     return;
   }
-
-  if (!arming_->data)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
-    return;
-  }
-
-  // TODO: コマンドレベルの処理
 
   cmd_nwu_ = cmd_nwu;
+}
+
+void ControllerNode::checkTopicsTimerCb()
+{
+  if (!drone_received_) {
+    TOBAS_WARN("Waiting for \"", tobas::kDroneTopic, "\".");
+    return;
+  }
+
+  if (!tree_received_) {
+    TOBAS_WARN("Waiting for \"", tobas::kKdlTreeTopic, "\".");
+    return;
+  }
+
+  if (!air_pressure_) {
+    TOBAS_WARN("Waiting for \"", tobas::kAirPressureTopic, "\".");
+    return;
+  }
+
+  if (!odom_nwu_) {
+    TOBAS_WARN("Waiting for \"", tobas::kOdometryTopic, "\".");
+    return;
+  }
+
+  topics_received_ = true;
+  check_topics_timer_->cancel();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)

@@ -1,0 +1,10 @@
+check_node_connection: true
+check_battery_voltage: true
+check_cpu_temperature: true
+check_rotor_communication: true
+check_attitude_level: true
+check_position_stability: true
+check_position_accuracy: true
+check_velocity_accuracy: true
+check_attitude_accuracy: true
+check_heading_accuracy: true

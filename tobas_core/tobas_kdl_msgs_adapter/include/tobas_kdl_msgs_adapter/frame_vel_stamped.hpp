@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/frame_vel.hpp>
+
 #include <tobas_kdl_msgs/msg/frame_vel_stamped.hpp>
 
 #include "./frame_vel.hpp"
@@ -43,6 +44,6 @@ namespace tobas_kdl_msgs
 {
 using FrameVelStampedAdapter =
   rclcpp::TypeAdapter<tobas_kdl_msgs::FrameVelStamped, tobas_kdl_msgs::msg::FrameVelStamped>;
-}
+}  // namespace tobas_kdl_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::FrameVelStamped, tobas_kdl_msgs::msg::FrameVelStamped);

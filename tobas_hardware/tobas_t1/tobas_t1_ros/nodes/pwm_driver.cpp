@@ -1,9 +1,9 @@
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/pwm_array.hpp>
-
 #include <tobas_t1_core/pwm.hpp>
+
+#include <tobas_msgs/msg/pwm_array.hpp>
 
 #include "./common.hpp"
 
@@ -28,43 +28,40 @@ private:
 
 PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options) : super("t1_pwm_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void PwmDriverNode::initialize()
 {
-  if (!pwm_.initialize())
-  {
+  if (!pwm_.initialize()) {
     TOBAS_ERROR("Failed to initialize PWM driver. Retrying...");
     return;
   }
 
   pwms_sub_ = createSubscriber(tobas::kPwmCmdTopic, &self::pwmsCb, this);
 
-  initialize_timer_.reset();
+  initialize_timer_->cancel();
 }
 
 void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
 {
   // Set PWM periods of each channel
-  for (const auto& elem : pwms->pwms)
-  {
-    if (elem.channel >= t1::PWM::kChannelSize)
-    {
+  for (const auto& elem : pwms->pwms) {
+    if (elem.channel >= t1::PWM::kChannelSize) {
       TOBAS_ERROR("PWM channel ", elem.channel, " does not exist.");
       continue;
     }
 
-    if (!pwm_.setPeriod(elem.channel, elem.period))
-    {
+    if (!pwm_.setPeriod(elem.channel, elem.period)) {
       TOBAS_ERROR("PWM command of channel ", elem.channel, " is rejected.");
       continue;
     }
   }
 
   // Send PWM pwms
-  if (!pwm_.transfer())
+  if (!pwm_.transfer()) {
     TOBAS_ERROR("Failed to send PWM command.");
+  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(PwmDriverNode)

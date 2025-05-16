@@ -1,0 +1,6 @@
+/**:
+  arm_2_joint_controller:
+    ros__parameters:
+      joints:
+        - arm_2_joint
+      interface_name: position

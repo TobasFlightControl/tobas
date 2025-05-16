@@ -1,12 +1,12 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/util.hpp>
-
 #include "tobas_control_system/rcin_viewer/throttles_viewer.hpp"
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
 {
@@ -16,10 +16,10 @@ namespace rcin
 {
 ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  roll_range_ = new qt::HPositionBarWidget(tobas::kRCInputMin, tobas::kRCInputMax);
-  pitch_range_ = new qt::VPositionBarWidget(tobas::kRCInputMax, tobas::kRCInputMin);
-  yaw_range_ = new qt::HPositionBarWidget(tobas::kRCInputMax, tobas::kRCInputMin);
-  throt_range_ = new qt::VPositionBarWidget(tobas::kRCInputMax, tobas::kRCInputMin);
+  roll_range_ = new qt::HPositionBarWidget(tobas::kRcInputMin, tobas::kRcInputMax);
+  pitch_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
+  yaw_range_ = new qt::HPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
+  throt_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
 
   roll_range_->setFixedHeight(kRangeSideShort);
   pitch_range_->setFixedWidth(kRangeSideShort);
@@ -76,15 +76,13 @@ void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
   yaw_range_->setValue(rcin->yaw);
   throt_range_->setValue(rcin->throttle);
 
-  if (rcin->enable)
-  {
+  if (rcin->enable) {
     roll_range_->setValueLineColor(kLineColorEnable);
     pitch_range_->setValueLineColor(kLineColorEnable);
     yaw_range_->setValueLineColor(kLineColorEnable);
     throt_range_->setValueLineColor(kLineColorEnable);
   }
-  else
-  {
+  else {
     roll_range_->setValueLineColor(kLineColorDisable);
     pitch_range_->setValueLineColor(kLineColorDisable);
     yaw_range_->setValueLineColor(kLineColorDisable);

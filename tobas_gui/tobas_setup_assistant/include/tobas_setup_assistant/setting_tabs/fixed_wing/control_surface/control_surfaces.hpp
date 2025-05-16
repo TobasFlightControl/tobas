@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../base.hpp"
+#include "./add_remove_buttons.hpp"
 #include "./available_links.hpp"
 #include "./selected_links.hpp"
-#include "./add_remove_buttons.hpp"
 
 namespace gui
 {
@@ -35,7 +35,7 @@ public:
   const SelectedLinksWidget* selected() const;
 
   /* 登録された制御面の個数を返す． */
-  int count() const;
+  int numUnits() const;
 
 private:
   AvailableLinksWidget* available_;

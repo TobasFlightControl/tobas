@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./accel.hpp"
-#include "./wrench.hpp"
 #include "./segment_inertia.hpp"
+#include "./wrench.hpp"
 
 namespace kdl
 {
@@ -18,7 +18,7 @@ public:
   inline explicit SegmentJacobian();
   inline explicit SegmentJacobian(const Vector& linear, const Vector& angular);
 
-  inline static SegmentJacobian Zero();
+  static inline SegmentJacobian Zero();
 
   inline void setZero();
 

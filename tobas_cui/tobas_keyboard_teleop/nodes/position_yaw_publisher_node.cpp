@@ -1,17 +1,18 @@
 #include <rclcpp/wait_for_message.hpp>
 
-#include <tobas_std_tools/range.hpp>
 #include <tobas_algorithm/core.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_keyboard/utils.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_std_tools/range.hpp>
+
 #include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
 #include <tobas_mission_msgs/action/takeoff.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
-#include "../include/tobas_keyboard_teleop/constants.hpp"
+#include "tobas_keyboard_teleop/constants.hpp"
 
 #define TAKEOFF_TARGET_ALTITUDE 3.      // [m]
 #define TAKEOFF_ALTITUDE_TOLERANCE 0.1  // [m]
@@ -131,24 +132,24 @@ void PositionYawPublisherNode::initializeTimerCb()
   takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
   takeoff_goal.altitude_tolerance = TAKEOFF_ALTITUDE_TOLERANCE;
   takeoff_goal.duration = TAKEOFF_DURATION;
-  if (!takeoff_ac.sendGoalAndWait(takeoff_goal))
+  if (!takeoff_ac.sendGoalAndWait(takeoff_goal)) {
     TOBAS_EXIT("Takeoff action failed.");
+  }
   const auto takeoff_result = takeoff_ac.getResult();
-  if (takeoff_result.code != rclcpp_action::ResultCode::SUCCEEDED)
+  if (takeoff_result.code != rclcpp_action::ResultCode::SUCCEEDED) {
     TOBAS_EXIT("Takeoff action failed: ", takeoff_result.result->message);
+  }
   TOBAS_INFO("Takeoff finished successfully.");
 
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
   if (
-    rclcpp::wait_for_message(odom, shared_from_this(), tobas::kOdometryTopic)
-    && odom.status == tobas_msgs::msg::Odometry::NO_ERROR)
-  {
+    rclcpp::wait_for_message(odom, shared_from_this(), tobas::kOdometryTopic) &&
+    odom.status == tobas_msgs::msg::Odometry::NO_ERROR) {
     cmd_pos_ = odom.frame.p;
     cmd_yaw_ = odom.frame.M.getYaw();
   }
-  else
-  {
+  else {
     TOBAS_ERROR("Failed to get ", tobas::kOdometryTopic, ".");
     cmd_pos_.x() = 0;
     cmd_pos_.y() = 0;
@@ -169,14 +170,12 @@ void PositionYawPublisherNode::mainTimerCb()
 {
   // キーボード入力に依ってコマンドを更新
   const auto c = key_reader_.readKey();
-  if (c < 0)
-  {
+  if (c < 0) {
     TOBAS_ERROR("Failed to read keyboard.");
     return;
   }
 
-  switch (c)
-  {
+  switch (c) {
     case 'w':  // X+
     {
       cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() + delta_pos_));

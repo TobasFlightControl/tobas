@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/solver_i.hpp"
+#include "tobas_kdl/solver_i.hpp"
 
 using namespace std;
 
@@ -20,8 +20,7 @@ int SolverI::setDefaultError(const int& error_code)
 
 string SolverI::defaultErrorMessage(const int& error_code) const
 {
-  switch (error_code)
-  {
+  switch (error_code) {
     case E_NOERROR:
       return "";  // 正常時はメモリ割り当てを回避しパフォーマンスを向上させるためにエラーメッセージを空文字にしておく．
     case E_NO_CONVERGE:

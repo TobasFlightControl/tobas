@@ -1,9 +1,9 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <map>
-
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
+
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
 
 using namespace std;
 
@@ -17,8 +17,7 @@ bool VSPAEROParser::parse(const string& stab_path)
 {
   ifstream file(stab_path);
 
-  if (!file.is_open())
-  {
+  if (!file.is_open()) {
     cerr << "Failed to open \"" << stab_path << "\"." << endl;
     return false;
   }
@@ -28,40 +27,35 @@ bool VSPAEROParser::parse(const string& stab_path)
   };
 
   string line;
-  while (getline(file, line))
-  {
+  while (getline(file, line)) {
     istringstream iss(line);
     string name, base, alpha, beta, p, q, r, mach, u;
 
-    if (!(iss >> name >> base >> alpha >> beta >> p >> q >> r >> mach >> u))
+    if (!(iss >> name >> base >> alpha >> beta >> p >> q >> r >> mach >> u)) {
       continue;
+    }
 
-    if (name == CL)
-    {
+    if (name == CL) {
       line_found.at(CL) = true;
       c_lift_0_ = stod(base);
       c_lift_alpha_ = stod(alpha);
     }
-    else if (name == CD)
-    {
+    else if (name == CD) {
       line_found.at(CD) = true;
       c_drag_0_ = stod(base);
       c_drag_alpha_ = stod(alpha);
     }
-    else if (name == CS)
-    {
+    else if (name == CS) {
       line_found.at(CS) = true;
       c_side_beta_ = stod(beta);
     }
-    else if (name == CMl)
-    {
+    else if (name == CMl) {
       line_found.at(CMl) = true;
       c_roll_beta_ = stod(beta);
       c_roll_p_ = stod(p);
       c_roll_r_ = stod(r);
     }
-    else if (name == CMm)
-    {
+    else if (name == CMm) {
       line_found.at(CMm) = true;
       c_pitch_0_ = stod(base);
       c_pitch_alpha_ = stod(alpha);
@@ -69,8 +63,7 @@ bool VSPAEROParser::parse(const string& stab_path)
       c_pitch_alpha_rate_ = 0.0;
       c_pitch_q_ = stod(q);
     }
-    else if (name == CMn)
-    {
+    else if (name == CMn) {
       line_found.at(CMn) = true;
       c_yaw_beta_ = stod(beta);
       c_yaw_p_ = stod(p);
@@ -78,10 +71,8 @@ bool VSPAEROParser::parse(const string& stab_path)
     }
   }
 
-  for (const auto& [line_name, found] : line_found)
-  {
-    if (!found)
-    {
+  for (const auto& [line_name, found] : line_found) {
+    if (!found) {
       cerr << "\"" << line_name << "\" line is not found." << endl;
       return false;
     }

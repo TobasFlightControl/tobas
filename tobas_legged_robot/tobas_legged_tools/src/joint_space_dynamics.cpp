@@ -1,9 +1,9 @@
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/console.hpp>
+#include "tobas_legged_tools/joint_space_dynamics.hpp"
+
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
-
-#include "../include/tobas_legged_tools/joint_space_dynamics.hpp"
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -14,17 +14,17 @@ JointSpaceDynamics::JointSpaceDynamics(
   const kdl::Tree& tree,
   const vector<string>& foot_names,
   const string& floating_base_name)
-  : tree_raw_(tree),
-    foot_names_(foot_names),
-    floating_base_name_(floating_base_name),
-    nc_(foot_names.size()),
-    wrench_size_(kWrenchSize * nc_),
-    w_ref_(wrench_size_),
-    jac_solver_(tree_),
-    rne_(tree_),
-    mass_solver_(tree_),
-    inertia_solver_(tree_),
-    bb_solver_(tree_)
+  : tree_raw_(tree)
+  , foot_names_(foot_names)
+  , floating_base_name_(floating_base_name)
+  , nc_(foot_names.size())
+  , wrench_size_(kWrenchSize * nc_)
+  , w_ref_(wrench_size_)
+  , jac_solver_(tree_)
+  , rne_(tree_)
+  , mass_solver_(tree_)
+  , inertia_solver_(tree_)
+  , bb_solver_(tree_)
 {
   A1_.setZero();
   A1_(0, 2) = -1;
@@ -42,30 +42,31 @@ JointSpaceDynamics::JointSpaceDynamics(
   qp_.resize(wrench_size_ + kBaseDoF, kBaseDoF, kIneqSize * nc_);
   qp_.setZero();
 
-  if (tree.getNrOfJoints() > 0)
-    if (!updateInternalDataStructures())
+  if (tree.getNrOfJoints() > 0) {
+    if (!updateInternalDataStructures()) {
       PRINT_ERROR("Failed to update internal data structures of lr_tools::JointSpaceDynamics.");
+    }
+  }
 }
 
 bool JointSpaceDynamics::updateInternalDataStructures()
 {
   // 浮遊リンクの名前を取得
   auto floating_base_name = floating_base_name_;
-  if (floating_base_name.empty())
+  if (floating_base_name.empty()) {
     floating_base_name = tree_raw_.getRootName();
+  }
 
   // ベースリンク以下を抽出
   kdl::Tree base_sub_tree;
-  if (!tree_raw_.getSubTree(floating_base_name, base_sub_tree))
-  {
+  if (!tree_raw_.getSubTree(floating_base_name, base_sub_tree)) {
     cerr << "Failed to get sub tree." << endl;
     return false;
   }
 
   // ツリーに浮遊リンクを接続
   tree_ = kdl::Tree::FloatingBase("world", floating_base_name);
-  if (!tree_.addTree(base_sub_tree, floating_base_name))
-  {
+  if (!tree_.addTree(base_sub_tree, floating_base_name)) {
     cerr << "Failed to add a floating base link to the tree." << endl;
     return false;
   }
@@ -74,16 +75,21 @@ bool JointSpaceDynamics::updateInternalDataStructures()
   nj_ = tree_.getNrOfJoints();
   J_.resize(wrench_size_, nj_);
 
-  if (!jac_solver_.updateInternalDataStructures())
+  if (!jac_solver_.updateInternalDataStructures()) {
     return false;
-  if (!rne_.updateInternalDataStructures())
+  }
+  if (!rne_.updateInternalDataStructures()) {
     return false;
-  if (!mass_solver_.updateInternalDataStructures())
+  }
+  if (!mass_solver_.updateInternalDataStructures()) {
     return false;
-  if (!inertia_solver_.updateInternalDataStructures())
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
-  if (!bb_solver_.updateInternalDataStructures())
+  }
+  if (!bb_solver_.updateInternalDataStructures()) {
     return false;
+  }
 
   cur_q_.resize(nj_);
   cur_qd_.resize(nj_);
@@ -145,10 +151,8 @@ bool JointSpaceDynamics::solve(
   cur_qd_.data.tail(nj_raw_) = cur_qd.data;
 
   // ヤコビアンを更新
-  for (size_t l = 0; l < nc_; ++l)
-  {
-    if (jac_solver_.JntToJac(cur_q_, foot_names_[l]) < 0)
-    {
+  for (size_t l = 0; l < nc_; ++l) {
+    if (jac_solver_.JntToJac(cur_q_, foot_names_[l]) < 0) {
       error_msg_ = "Jacobian solver failed: " + jac_solver_.errorMessage();
       return false;
     }
@@ -165,22 +169,19 @@ bool JointSpaceDynamics::solve(
   tar_qdd_.data.tail(nj_raw_) = tar_qdd.data;
 
   // 地面反力の参照値を更新
-  for (size_t l = 0; l < nc_; ++l)
-  {
+  for (size_t l = 0; l < nc_; ++l) {
     w_ref_.segment<kForceSize>(forceIndex(l)) = tar_force[l].data;
     w_ref_(torqueIndex(l)) = tar_torque[l];
   }
 
   // 外力項を除いたトルクを計算
-  if (rne_.CartToJnt(cur_q_, cur_qd_, tar_qdd_) < 0)
-  {
+  if (rne_.CartToJnt(cur_q_, cur_qd_, tar_qdd_) < 0) {
     error_msg_ = "RNE failed: " + rne_.errorMessage();
     return false;
   }
 
   // 質量行列を計算
-  if (mass_solver_.JntToMass(cur_q_) < 0)
-  {
+  if (mass_solver_.JntToMass(cur_q_) < 0) {
     error_msg_ = "Mass solver failed: " + mass_solver_.errorMessage();
     return false;
   }
@@ -194,19 +195,19 @@ bool JointSpaceDynamics::solve(
 
   qp_.problem.h = rne_.getEfforts().data.head<kBaseDoF>() - Jt_base * w_ref_;
 
-  for (size_t l = 0; l < nc_; ++l)
-  {
+  for (size_t l = 0; l < nc_; ++l) {
     // 各足の接地状態を制御対象として扱うため，目標地面反力から接地状態を決定する．
     const auto is_stand = tar_force[l].z() > kStandLegNormalForceThresh;
-    if (is_stand)
+    if (is_stand) {
       qp_.problem.b.segment<kIneqSize>(kIneqSize * l) = b1_st_ - A1_ * w_ref_.segment<kWrenchSize>(forceIndex(l));
-    else
+    }
+    else {
       qp_.problem.b.segment<kIneqSize>(kIneqSize * l) = b1_sw_ - A1_ * w_ref_.segment<kWrenchSize>(forceIndex(l));
+    }
   }
 
   // QPPを解く
-  if (!qp_.solve())
-  {
+  if (!qp_.solve()) {
     error_msg_ = "QP failed: " + qp_.errorMessage();
     return false;
   }

@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/setting_tabs/base_setting.hpp"
+
 #include <QTimer>
 
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/base_setting.hpp"
 
 namespace gui
 {
@@ -52,6 +52,11 @@ void BaseSettingWidget::addLayout(QLayout* layout)
 void BaseSettingWidget::addStretch()
 {
   content_rows_->addStretch();
+}
+
+void BaseSettingWidget::addSpacing(int size)
+{
+  content_rows_->addSpacing(size);
 }
 
 void BaseSettingWidget::initialize()

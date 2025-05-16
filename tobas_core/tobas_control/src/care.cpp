@@ -1,9 +1,10 @@
+#include "tobas_control/care.hpp"
+
 #include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "../include/tobas_control/care.hpp"
-#include "../include/tobas_control/util.hpp"
+#include "tobas_control/util.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -40,24 +41,24 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
 
   // Get eigenvalues and eigenvectors
   const EigenSolver<MatrixXd> es(H);
-  if (es.info() != Success)
+  if (es.info() != Success) {
     throw runtime_error("Failed to get eigenvalues.");
+  }
   const VectorXd eigvals = es.eigenvalues().real();
   const MatrixXcd eigvecs = es.eigenvectors();  // 固有ベクトルは虚部も使う必要がある
 
   // 実部が負の固有値の個数はシステムの次数に等しいはず
   // 0と比較すると未初期化の値がヒットするため，少しマージンを設ける
   const auto num_stable_eigvals = (eigvals.array() < -numeric_limits<double>::epsilon()).count();
-  if (num_stable_eigvals != n)
+  if (num_stable_eigvals != n) {
     throw runtime_error("The number of stable eigenvalues does not match the order of the system.");
+  }
 
   // Extract eigenvectors corresponding to stable eigenvalues
   MatrixXcd eigvecs_stable(n * 2, n);
   Index j = 0;  // The index of stable eigenvalue. This value must become identical to n.
-  for (Index i = 0; i < n * 2; ++i)
-  {
-    if (eigvals(i) < 0.)
-    {
+  for (Index i = 0; i < n * 2; ++i) {
+    if (eigvals(i) < 0.) {
       eigvecs_stable.col(j) = eigvecs.col(i);
       ++j;
     }

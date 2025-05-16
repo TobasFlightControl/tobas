@@ -1,7 +1,4 @@
-<?xml version="1.0"?>
-
-<robot name="truncated_octahedron"
-  xmlns:xacro="http://ros.org/wiki/xacro">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="truncated_octahedron">
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>

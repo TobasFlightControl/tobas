@@ -12,7 +12,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/magic_enum/include/magic_enum DESTINATION include)
 

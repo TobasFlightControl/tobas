@@ -1,7 +1,8 @@
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
+#include <tobas_ros2_tools/register.hpp>
+
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 namespace gui

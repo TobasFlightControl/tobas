@@ -4,7 +4,6 @@
 
 #include <tobas_eigen_msgs_adapter/core.hpp>
 #include <tobas_kdl_msgs_adapter/vector.hpp>
-
 #include <tobas_msgs/msg/magnetic_field_with_covariance.hpp>
 
 namespace tobas_msgs
@@ -43,7 +42,7 @@ namespace tobas_msgs
 {
 using MagneticFieldWithCovarianceAdapter =
   rclcpp::TypeAdapter<tobas_msgs::MagneticFieldWithCovariance, tobas_msgs::msg::MagneticFieldWithCovariance>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
   tobas_msgs::MagneticFieldWithCovariance,

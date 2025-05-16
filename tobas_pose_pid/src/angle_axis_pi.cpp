@@ -1,6 +1,7 @@
+#include "tobas_pose_pid/angle_axis_pi.hpp"
+
 #include <iostream>
 
-#include "../include/tobas_pose_pid/angle_axis_pi.hpp"
 #include "./util.hpp"
 
 using namespace std;
@@ -17,9 +18,11 @@ kdl::Vector AngleAxisPI::updatePI(const kdl::Rotation& cur_rot, const kdl::Rotat
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
 
   // Integrate error
-  for (size_t i = 0; i < 3; ++i)
-    if (ki_(i) > 0.)
+  for (size_t i = 0; i < 3; ++i) {
+    if (ki_(i) > 0.) {
       ei_(i) += ep(i) * dt;
+    }
+  }
 
   // Compute target gyro
   return kp_.hadamard(ep) + ki_.hadamard(ei_);
@@ -36,11 +39,11 @@ kdl::Vector AngleAxisPI::updateP(const kdl::Rotation& cur_rot, const kdl::Rotati
 
 bool AngleAxisPI::setProportionalGain(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Proportional gain must be non-negative." << endl;
     return false;
   }
@@ -52,11 +55,11 @@ bool AngleAxisPI::setProportionalGain(int idx, double value)
 
 bool AngleAxisPI::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx))
+  if (!checkIndex(idx)) {
     return false;
+  }
 
-  if (value < 0.)
-  {
+  if (value < 0.) {
     cerr << "Integral gain must be non-negative." << endl;
     return false;
   }

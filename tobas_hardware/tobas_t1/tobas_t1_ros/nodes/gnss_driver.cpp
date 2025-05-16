@@ -1,9 +1,9 @@
-#include <tobas_std_tools/gps.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
+#include <tobas_ic_drivers/ublox/zed_f9p.hpp>
+#include <tobas_std_tools/gps.hpp>
 
-#include <tobas_ic_drivers/ublox/zed_f9p_1xb.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 
 #include "./common.hpp"
 
@@ -25,14 +25,14 @@ public:
   explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ublox::ZEDF9P1xB gnss_;
+  ublox::ZEDF9P gnss_;
 
   ublox::payload::NAV_STATUS status_;
   ublox::payload::NAV_HPPOSLLH hpposllh_;
   ublox::payload::NAV_VELNED velned_;
   ublox::payload::NAV_COV cov_;
 
-  std::map<ublox::ZEDF9P1xB::ubx_nav_id_t, bool> is_received_;
+  std::map<ublox::ZEDF9P::ubx_nav_id_t, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr initialize_timer_;
@@ -46,125 +46,111 @@ private:
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("t1_gnss_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void GnssDriverNode::initialize()
 {
-  if (!gnss_.initialize(kSpiDevice))
-  {
+  if (!gnss_.initialize(kSpiDevice)) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return;
   }
 
-  if (!configure())
-  {
+  if (!configure()) {
     TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
     return;
   }
 
-  is_received_[ublox::ZEDF9P1xB::NAV_STATUS] = false;
-  is_received_[ublox::ZEDF9P1xB::NAV_HPPOSLLH] = false;
-  is_received_[ublox::ZEDF9P1xB::NAV_VELNED] = false;
-  is_received_[ublox::ZEDF9P1xB::NAV_COV] = false;
+  is_received_[ublox::ZEDF9P::NAV_STATUS] = false;
+  is_received_[ublox::ZEDF9P::NAV_HPPOSLLH] = false;
+  is_received_[ublox::ZEDF9P::NAV_VELNED] = false;
+  is_received_[ublox::ZEDF9P::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
 
-  initialize_timer_.reset();
-  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+  initialize_timer_->cancel();
+  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
 bool GnssDriverNode::configure()
 {
-  if (!gnss_.configureDynamicsModel(ublox::ZEDF9P1xB::AIRBORNE_2G))
-  {
+  if (!gnss_.configureDynamicsModel(ublox::ZEDF9P::AIRBORNE_2G)) {
     TOBAS_ERROR("Failed to configure dynamics model.");
     return false;
   }
 
-  if (!gnss_.configureMeasurementRate(kMeasPeriod))
-  {
+  if (!gnss_.configureMeasurementRate(kMeasPeriod)) {
     TOBAS_ERROR("Failed to configure measurement rate.");
     return false;
   }
 
   // GPS + SBAS + QZSSを有効化
   // データシートを見るに，複数のメインGNSSを組み合わせると精度はあまり変化しない割に出力周波数が落ちる
-  if (!gnss_.enableGPS(true))
-  {
+  if (!gnss_.enableGps()) {
     TOBAS_ERROR("Failed to enable GPS.");
     return false;
   }
-  if (!gnss_.enableSBAS(true))
-  {
+  if (!gnss_.enableSbas()) {
     TOBAS_ERROR("Failed to enable SBAS.");
     return false;
   }
-  if (!gnss_.enableGalileo(false))
-  {
+  if (!gnss_.disableGalileo()) {
     TOBAS_ERROR("Failed to disable Galileo.");
     return false;
   }
-  if (!gnss_.enableBeiDou(false))
-  {
+  if (!gnss_.disableBeiDou()) {
     TOBAS_ERROR("Failed to disable BeiDou.");
     return false;
   }
-  if (!gnss_.enableQZSS(true))
-  {
+  if (!gnss_.enableQzss()) {
     TOBAS_ERROR("Failed to enable QZSS.");
     return false;
   }
-  if (!gnss_.enableGLONASS(false))
-  {
+  if (!gnss_.disableGlonass()) {
     TOBAS_ERROR("Failed to disable GLONASS.");
     return false;
   }
-  if (!gnss_.enableNavIC(false))
-  {
-    TOBAS_ERROR("Failed to disable NavIC.");
-    return EXIT_FAILURE;
-  }
 
   // Enable messages
-  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_STATUS, true))
-  {
+  if (!gnss_.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_STATUS, true)) {
     TOBAS_ERROR("Failed to enable NAV_STATUS message.");
     return false;
   }
-  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_HPPOSLLH, true))
-  {
+  if (!gnss_.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
     TOBAS_ERROR("Failed to enable NAV_HPPOSLLH message.");
     return false;
   }
-  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_VELNED, true))
-  {
+  if (!gnss_.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_VELNED, true)) {
     TOBAS_ERROR("Failed to enable NAV_VELNED message.");
     return false;
   }
-  if (!gnss_.enableMsg(ublox::ZEDF9P1xB::CLASS_NAV, ublox::ZEDF9P1xB::NAV_COV, true))
-  {
+  if (!gnss_.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_COV, true)) {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
   }
 
   // 同軸ケーブルの長さを設定
   // TODO: GUIから設定できるようにする
-  if (!gnss_.setAntennaLength(1))
+  if (!gnss_.setAntennaLength(1)) {
     TOBAS_WARN("Failed to set the antenna length.");
+  }
 
   // 不要なプロトコルを無効化
-  if (!gnss_.enableProtocol(ublox::ZEDF9P1xB::NMEA, false))
+  if (!gnss_.enableProtocol(ublox::ZEDF9P::NMEA, false)) {
     TOBAS_WARN("Failed to disable NMEA protocol.");
-  if (!gnss_.enableProtocol(ublox::ZEDF9P1xB::RTCM3X, false))
+  }
+  if (!gnss_.enableProtocol(ublox::ZEDF9P::RTCM3X, false)) {
     TOBAS_WARN("Failed to disable RTCM3X protocol.");
-  if (!gnss_.enableProtocol(ublox::ZEDF9P1xB::SPARTN, false))
+  }
+  if (!gnss_.enableProtocol(ublox::ZEDF9P::SPARTN, false)) {
     TOBAS_WARN("Failed to disable SPARTN protocol.");
+  }
 
   // 不要なインターフェースを無効化
   // D_SELをオフにしているため，I2CとUARTは始めから無効化されているはず．
-  if (!gnss_.enableUSB(false))
+  if (!gnss_.enableUsb(false)) {
     TOBAS_WARN("Failed to disable USB interface.");
+  }
 
   return true;
 }
@@ -178,32 +164,31 @@ void GnssDriverNode::warnUnnecessaryUBXMessage()
 
 void GnssDriverNode::mainTimerCb()
 {
-  if (!gnss_.update())
+  if (!gnss_.update()) {
     return;
+  }
 
-  if (gnss_.latestClass() != ublox::ZEDF9P1xB::CLASS_NAV)
-  {
+  if (gnss_.latestClass() != ublox::ZEDF9P::CLASS_NAV) {
     warnUnnecessaryUBXMessage();
     return;
   }
 
-  switch (gnss_.latestId())
-  {
-    case ublox::ZEDF9P1xB::NAV_STATUS:
+  switch (gnss_.latestId()) {
+    case ublox::ZEDF9P::NAV_STATUS:
       status_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P1xB::NAV_STATUS) = true;
+      is_received_.at(ublox::ZEDF9P::NAV_STATUS) = true;
       break;
-    case ublox::ZEDF9P1xB::NAV_HPPOSLLH:
+    case ublox::ZEDF9P::NAV_HPPOSLLH:
       hpposllh_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P1xB::NAV_HPPOSLLH) = true;
+      is_received_.at(ublox::ZEDF9P::NAV_HPPOSLLH) = true;
       break;
-    case ublox::ZEDF9P1xB::NAV_VELNED:
+    case ublox::ZEDF9P::NAV_VELNED:
       velned_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P1xB::NAV_VELNED) = true;
+      is_received_.at(ublox::ZEDF9P::NAV_VELNED) = true;
       break;
-    case ublox::ZEDF9P1xB::NAV_COV:
+    case ublox::ZEDF9P::NAV_COV:
       cov_.decode(gnss_.payload());
-      is_received_.at(ublox::ZEDF9P1xB::NAV_COV) = true;
+      is_received_.at(ublox::ZEDF9P::NAV_COV) = true;
       break;
     default:
       warnUnnecessaryUBXMessage();
@@ -211,17 +196,19 @@ void GnssDriverNode::mainTimerCb()
   }
 
   // 全てのメッセージが更新されたら発行
-  for (const auto& [_, received] : is_received_)
-    if (!received)
+  for (const auto& [_, received] : is_received_) {
+    if (!received) {
       return;
+    }
+  }
 
   // Reset UBX message checker flags
-  for (auto& [_, received] : is_received_)
+  for (auto& [_, received] : is_received_) {
     received = false;
+  }
 
   // GNSSメッセージの遅延を表示 (デバッグモードのみ)
-  if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug)
-  {
+  if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug) {
     const auto delay_ms = tobas_std::computeGPSDelayFromToW(hpposllh_.iTOW);
     TOBAS_DEBUG("GNSS delay: ", delay_ms, "[ms]");
   }

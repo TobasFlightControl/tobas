@@ -1,65 +1,97 @@
-# Base: MoveIt!
+# Base: [moveit2/.clang-format](https://github.com/moveit/moveit2/blob/main/.clang-format)
+# cf. [Clang-Formatの書式について](https://qiita.com/koyukitukimino/items/9b8f74d1ae307a7017d3)
+
 BasedOnStyle: Google
-AccessModifierOffset: -2
-ConstructorInitializerIndentWidth: 2
-AlignEscapedNewlinesLeft: false
-AlignTrailingComments: true
-AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: None
-AlwaysBreakTemplateDeclarations: true
-AlwaysBreakBeforeMultilineStrings: false
-BreakBeforeBinaryOperators: NonAssignment  # false -> NonAssignment
-BreakBeforeTernaryOperators: false
-BreakConstructorInitializersBeforeComma: false  # true -> false
-BinPackParameters: false  # true -> false
 ColumnLimit: 120
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-DerivePointerBinding: false
-PointerBindsToType: true
-ExperimentalAutoDetectBinPacking: false
-IndentCaseLabels: true
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
-ObjCSpaceBeforeProtocolList: true
-PenaltyBreakBeforeFirstCallParameter: 19
-PenaltyBreakComment: 60
-PenaltyBreakString: 1
-PenaltyBreakFirstLessLess: 1000
-PenaltyExcessCharacter: 1000
-PenaltyReturnTypeOnItsOwnLine: 90
-SpacesBeforeTrailingComments: 2
-Cpp11BracedListStyle: false
-Standard: Auto
+SortIncludes: CaseSensitive # false -> CaseSensitive
+IncludeBlocks: Preserve # Added
+
+Standard: c++20 # Auto -> c++20
 IndentWidth: 2
 TabWidth: 2
 UseTab: Never
+AccessModifierOffset: -2
+ConstructorInitializerIndentWidth: 2
+NamespaceIndentation: None
+ContinuationIndentWidth: 2 # 4 -> 2
+IndentCaseLabels: true
 IndentFunctionDeclarationAfterType: false
+
+AlignEscapedNewlinesLeft: false
+AlignTrailingComments: true
+
+AllowAllParametersOfDeclarationOnNextLine: false
+ExperimentalAutoDetectBinPacking: false
+ObjCSpaceBeforeProtocolList: true
+Cpp11BracedListStyle: false
+
+AllowShortBlocksOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortCaseLabelsOnASingleLine: false
+
+AlwaysBreakTemplateDeclarations: true
+AlwaysBreakBeforeMultilineStrings: false
+BreakBeforeBinaryOperators: false
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializersBeforeComma: true
+
+BinPackArguments: false # Added
+BinPackParameters: false # true -> false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+DerivePointerBinding: false
+PointerBindsToType: true
+
+PenaltyExcessCharacter: 50
+PenaltyBreakBeforeFirstCallParameter: 30
+PenaltyBreakComment: 1000
+PenaltyBreakFirstLessLess: 10
+PenaltyBreakString: 100
+PenaltyReturnTypeOnItsOwnLine: 50
+
+SpacesBeforeTrailingComments: 2
 SpacesInParentheses: false
-SpacesInAngles:  false
+SpacesInAngles: false
 SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
+SpaceAfterCStyleCast: false
 SpaceAfterControlStatementKeyword: true
 SpaceBeforeAssignmentOperators: true
-ContinuationIndentWidth: 2  # 4 -> 2
-SortIncludes: false
-SpaceAfterCStyleCast: false
-# BreakBeforeBraces: Custom
-# BraceWrapping:
-#   AfterClass: 'true'
-#   AfterControlStatement: 'true'
-#   AfterEnum : 'true'
-#   AfterFunction : 'true'
-#   AfterNamespace : 'true'
-#   AfterStruct : 'true'
-#   AfterUnion : 'true'
-#   BeforeCatch : 'true'
-#   BeforeElse : 'true'
-#   IndentBraces : 'false'
-BreakBeforeBraces: Allman  # Custom -> Allman
 
-# Other custom settings
-AlignAfterOpenBracket: AlwaysBreak
-AlignOperands: true
-FixNamespaceComments: true
+# Configure each individual brace in BraceWrapping
+BreakBeforeBraces: Custom
+
+# Qualifiers (const, volatile, static, etc)
+QualifierAlignment: Custom
+QualifierOrder: ["static", "inline", "constexpr", "const", "volatile", "type"]
+
+# Control of individual brace wrapping cases
+BraceWrapping:
+  AfterCaseLabel: false # true -> false
+  AfterClass: true
+  AfterControlStatement: false # true -> false
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true # Added
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: "true" # Added
+  BeforeWhile: false # Added
+  IndentBraces: false
+  SplitEmptyFunction: true # Added
+  SplitEmptyRecord: true # Added
+  SplitEmptyNamespace: true # Added
+
+# ===== Added =====
+AlignAfterOpenBracket: AlwaysBreak # 引数が1行に収まらなければ全ての引数を1段下げる
+AlignOperands: true # 長い式の演算子を縦に揃える
+FixNamespaceComments: true # 名前空間の閉じ括弧にコメントを追加/修正
+ShortNamespaceLines: 0 # 名前空間内に1行以上記述されていれば閉じ括弧にコメントを追加
+InsertBraces: true # 必ず{}を挿入する
+AllowAllArgumentsOnNextLine: true # 引数が1行に収まらない場合に改行して次の1行にまとめることを許可する
+# RemoveEmptyLinesInUnwrappedLines: true # clang-format 20+

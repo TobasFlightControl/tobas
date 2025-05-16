@@ -2,6 +2,9 @@
 
 namespace gazebo
 {
+// Gazebo Topics
+static constexpr char kLookAtPositionTopic[] = "/gui/look_at_position";
+
 // ROS Topics
 static constexpr char kBatteryGtTopic[] = "gazebo/ground_truth/battery";
 static constexpr char kOdometryGtTopic[] = "gazebo/ground_truth/odom";

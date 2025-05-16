@@ -7,3 +7,6 @@
 [submodule "tobas_third_party/magic_enum_ament/magic_enum"]
 	path = tobas_third_party/magic_enum_ament/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "tobas_third_party/cxxopts_ament/cxxopts"]
+	path = tobas_third_party/cxxopts_ament/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git

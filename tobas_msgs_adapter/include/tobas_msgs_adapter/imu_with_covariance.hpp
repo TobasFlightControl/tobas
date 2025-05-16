@@ -4,7 +4,6 @@
 
 #include <tobas_eigen_msgs_adapter/core.hpp>
 #include <tobas_kdl_msgs_adapter/vector.hpp>
-
 #include <tobas_msgs/msg/imu_with_covariance.hpp>
 
 #include "./imu.hpp"
@@ -47,6 +46,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::ImuWithCovariance, tobas_msgs::msg::ImuWi
 namespace tobas_msgs
 {
 using ImuWithCovarianceAdapter = rclcpp::TypeAdapter<tobas_msgs::ImuWithCovariance, tobas_msgs::msg::ImuWithCovariance>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::ImuWithCovariance, tobas_msgs::msg::ImuWithCovariance);

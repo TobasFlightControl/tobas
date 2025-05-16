@@ -1,0 +1,19 @@
+<package format="3">
+
+	<name>tobas_f550_np</name>
+	<version>0.0.0</version>
+	<description>Tobas meta package for f550_np</description>
+	<maintainer email="example@gmail.com">example</maintainer>
+	<license>BSD</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<exec_depend>tobas_f550_np_config</exec_depend>
+	<exec_depend>tobas_f550_np_user_cpp</exec_depend>
+	<exec_depend>tobas_f550_np_user_py</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

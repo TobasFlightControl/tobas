@@ -1,8 +1,9 @@
-#include <cstring>
-#include <stdexcept>
+#include "tobas_keyboard/keyboard_reader.hpp"
+
 #include <unistd.h>
 
-#include "../include/tobas_keyboard/keyboard_reader.hpp"
+#include <cstring>
+#include <stdexcept>
 
 #define STD_INPUT_FD 0  // 標準入力のファイルディスクリプタ
 
@@ -35,8 +36,9 @@ KeyboardReader::~KeyboardReader()
 signed char KeyboardReader::readKey()
 {
   char buf = 0;
-  if (read(STD_INPUT_FD, &buf, 1) < 0)
+  if (read(STD_INPUT_FD, &buf, 1) < 0) {
     return -1;
+  }
   return buf;
 }
 }  // namespace keyboard

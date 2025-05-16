@@ -1,11 +1,11 @@
 #pragma once
 
-#include "./vector.hpp"
+#include "./accel.hpp"
+#include "./impulse.hpp"
 #include "./rotation.hpp"
 #include "./twist.hpp"
-#include "./accel.hpp"
+#include "./vector.hpp"
 #include "./wrench.hpp"
-#include "./impulse.hpp"
 
 namespace kdl
 {
@@ -35,7 +35,7 @@ public:
   inline explicit Frame();
 
   // @return the identity transformation Frame(Rotation::Identity(),Vector::Zero()).
-  inline static Frame Identity();
+  static inline Frame Identity();
 
   /*
   // DH_Craig1989 : constructs a transformationmatrix
@@ -83,14 +83,14 @@ public:
   //     theta(i)   = angle between X(i-1) to X(i) along X(i)
   // \endverbatim
   */
-  inline static Frame DH_Craig1989(double a, double alpha, double d, double theta);
+  static inline Frame DH_Craig1989(double a, double alpha, double d, double theta);
 
   // DH : constructs a transformationmatrix T_link(i-1)_link(i) with
   // the Denavit-Hartenberg convention as described in the original
   // publictation: Denavit, J. and Hartenberg, R. S., A kinematic
   // notation for lower-pair mechanisms based on matrices, ASME
   // Journal of Applied Mechanics, 23:215-221, 1955.
-  inline static Frame DH(double a, double alpha, double d, double theta);
+  static inline Frame DH(double a, double alpha, double d, double theta);
 
   inline Eigen::Matrix4d matrix() const;
 
@@ -195,38 +195,42 @@ inline void Frame::setIdentity()
 inline double Frame::operator()(int i, int j)
 {
   assert((0 <= i) && (i <= 3) && (0 <= j) && (j <= 3));
-  if (i == 3)
-  {
-    if (j == 3)
+  if (i == 3) {
+    if (j == 3) {
       return 1.;
-    else
+    }
+    else {
       return 0.;
+    }
   }
-  else
-  {
-    if (j == 3)
+  else {
+    if (j == 3) {
       return p(i);
-    else
+    }
+    else {
       return M(i, j);
+    }
   }
 }
 
 inline double Frame::operator()(int i, int j) const
 {
   assert((0 <= i) && (i <= 3) && (0 <= j) && (j <= 3));
-  if (i == 3)
-  {
-    if (j == 3)
+  if (i == 3) {
+    if (j == 3) {
       return 1.;
-    else
+    }
+    else {
       return 0.;
+    }
   }
-  else
-  {
-    if (j == 3)
+  else {
+    if (j == 3) {
       return p(i);
-    else
+    }
+    else {
       return M(i, j);
+    }
   }
 }
 
@@ -235,10 +239,12 @@ inline void Frame::integrate(const Twist& t_this, double sampling_freq)
   assert(sampling_freq > 0);
 
   const auto n = t_this.rot.norm() / sampling_freq;
-  if (n < std::numeric_limits<double>::epsilon())
+  if (n < std::numeric_limits<double>::epsilon()) {
     p += M * (t_this.vel / sampling_freq);
-  else
+  }
+  else {
     (*this) = (*this) * Frame(Rotation::Rot(t_this.rot, n), t_this.vel / sampling_freq);
+  }
 }
 
 inline Twist Frame::toTwist() const

@@ -4,8 +4,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 #include "../param_getters/base.hpp"
 
@@ -40,7 +40,7 @@ public:
   virtual bool isValid() = 0;
 
   /* ユーザ設定を書き出す． */
-  virtual YAML::Node dump() = 0;
+  virtual YAML::Node dump() const = 0;
 
   /* ユーザ設定を読み込む． */
   virtual void load(const YAML::Node& node) = 0;
@@ -50,6 +50,7 @@ protected:
   void addWidgetCenter(QWidget* widget);
   void addLayout(QLayout* layout);
   void addStretch();
+  void addSpacing(int size);
 
 private:
   QLabel* title_;

@@ -1,7 +1,6 @@
-#include <tobas_ros2_tools/time.hpp>
+#include "tobas_rc_teleop/angle_throttle.hpp"
 
-#include "../include/tobas_rc_teleop/angle_throttle.hpp"
-#include "../include/tobas_rc_teleop/common.hpp"
+#include <tobas_ros2_tools/time.hpp>
 
 using namespace std;
 
@@ -31,9 +30,13 @@ bool AngleThrottleController::requireAngularVelocity()
   return false;
 }
 
-void AngleThrottleController::initialize(tobas::BaseNode* node)
+void AngleThrottleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  getStaticRosParams(node);
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, M_PI / 4, 0., M_PI_2);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
+  node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
 }
@@ -51,38 +54,51 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   t_last_rcin_ = rcin.header.stamp;
 
   // ヨーの目標値を更新
-  const auto yawrate = remapDead(rcin.yaw, -max_head_rate_, max_head_rate_);
+  const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::AngleThrottle>();
+  auto cmd = make_unique<tobas_command_msgs::AngleThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
   // 姿勢とスロットルを埋める
-  cmd->angle.roll = remap(rcin.roll, -max_attitude_, max_attitude_);
-  cmd->angle.pitch = remap(rcin.pitch, -max_attitude_, max_attitude_);
+  cmd->angle.roll = expoRemap(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);
+  cmd->angle.pitch = expoRemap(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
   cmd->angle.yaw = yaw_;
-  cmd->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
+  cmd->throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), throt_expo_);
 
   // コマンドを発行
   cmd_pub_->publish(move(cmd));
 }
 
-void AngleThrottleController::getStaticRosParams(tobas::BaseNode* node)
+bool AngleThrottleController::maxAttitudeCb(const double& p)
 {
-  max_attitude_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitude);
-  if (max_attitude_ < 0)
-  {
-    node->error("Maximum attitude angle must be positive.");
-    max_attitude_ = kDefaultMaxAttitude;
-  }
+  max_attitude_ = p;
+  return true;
+}
 
-  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_head_rate_ < 0)
-  {
-    node->error("Maximum heading rate must be positive.");
-    max_head_rate_ = kDefaultMaxHeadingRate;
-  }
+bool AngleThrottleController::maxHeadingRateCb(const double& p)
+{
+  max_head_rate_ = p;
+  return true;
+}
+
+bool AngleThrottleController::attitudeExpoCb(const long& p)
+{
+  atti_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AngleThrottleController::headingExpoCb(const long& p)
+{
+  head_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AngleThrottleController::throttleExpoCb(const long& p)
+{
+  throt_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
 }
 }  // namespace tobas_rc_teleop

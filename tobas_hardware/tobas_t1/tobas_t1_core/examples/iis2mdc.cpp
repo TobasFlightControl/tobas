@@ -1,5 +1,6 @@
-#include <iostream>
 #include <unistd.h>
+
+#include <iostream>
 
 #include <tobas_t1_core/iis2mdc.hpp>
 
@@ -10,16 +11,13 @@ int main()
   t1::IIS2MDC mag;
   double mx, my, mz;
 
-  if (!mag.initialize())
-  {
+  if (!mag.initialize()) {
     cerr << "Failed to initialize magnetometer." << endl;
     return EXIT_FAILURE;
   }
 
-  while (true)
-  {
-    if (!mag.readMag(mx, my, mz))
-    {
+  while (true) {
+    if (!mag.readMag(mx, my, mz)) {
       cerr << "Failed to read magnetic field." << endl;
       return EXIT_FAILURE;
     }

@@ -2,11 +2,10 @@
 
 #include <rclcpp/type_adapter.hpp>
 
+#include <tobas_kdl_msgs_adapter/accel.hpp>
 #include <tobas_kdl_msgs_adapter/frame.hpp>
 #include <tobas_kdl_msgs_adapter/twist.hpp>
-#include <tobas_kdl_msgs_adapter/accel.hpp>
 #include <tobas_kdl_msgs_adapter/wrench.hpp>
-
 #include <tobas_msgs/msg/link_state.hpp>
 
 namespace tobas_msgs
@@ -53,6 +52,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::LinkState, tobas_msgs::msg::LinkState>
 namespace tobas_msgs
 {
 using LinkStateAdapter = rclcpp::TypeAdapter<tobas_msgs::LinkState, tobas_msgs::msg::LinkState>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::LinkState, tobas_msgs::msg::LinkState);

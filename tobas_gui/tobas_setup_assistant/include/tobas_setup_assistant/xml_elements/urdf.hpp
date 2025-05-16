@@ -1,13 +1,15 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
 #include <tinyxml2.h>
+#include <eigen3/Eigen/Core>
 
 #include <tobas_drone_core/drone.hpp>
 
 namespace gui
 {
 namespace sa
+{
+namespace xml
 {
 void addBatteryPlugin(
   tinyxml2::XMLElement* robot,
@@ -87,6 +89,32 @@ void addElectricPropulsionSystemPlugin(
   double max_current,
   double max_model_error_rate);
 
+struct EngineParam
+{
+  std::pair<double, double> engine_const;
+  double time_const_up;
+  double time_const_down;
+};
+
+struct ICERotorParam
+{
+  std::string link_name;
+  tobas::turning_direction_t direction;
+  double gear_ratio;
+  size_t num_blades;
+  tobas_std::Range<double> pitch_angle_limit;
+  double max_pitch_angle_rate;
+  std::pair<double, double> motor_const;
+  double moment_const;
+  std::pair<double, double> drag_const;
+};
+
+void addICEPropulsionSystemPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const EngineParam& engine_param,
+  const std::vector<ICERotorParam>& rotor_params);
+
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
@@ -98,6 +126,8 @@ void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, con
 
 void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
+void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+
 /* https://github.com/ros-controls/gz_ros2_control/tree/jazzy */
 void addGazeboSimROS2ControlPlugin(
   tinyxml2::XMLElement* robot,
@@ -108,5 +138,6 @@ void addGazeboSimROS2ControlPlugin(
 void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints);
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
+}  // namespace xml
 }  // namespace sa
 }  // namespace gui

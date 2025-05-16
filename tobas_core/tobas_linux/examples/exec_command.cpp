@@ -9,8 +9,7 @@ int main()
   linux::CommandExecutor command_executor;
 
   const char* cmd = "date";
-  if (!command_executor.execute(cmd))
-  {
+  if (!command_executor.execute(cmd)) {
     cerr << "Command failed." << endl;
     return EXIT_FAILURE;
   }

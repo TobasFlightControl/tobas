@@ -1,8 +1,9 @@
-#include <stdexcept>
-#include <format>
+#include "tobas_control_system/mission_planner/command.hpp"
+
 #include <string.h>
 
-#include "tobas_control_system/mission_planner/command.hpp"
+#include <format>
+#include <stdexcept>
 
 #define WAYPOINT_LABEL "Waypoint"
 #define TAKEOFF_LABEL "Takeoff"
@@ -15,8 +16,7 @@ namespace gcs
 {
 const char* commandToText(command_t cmd)
 {
-  switch (cmd)
-  {
+  switch (cmd) {
     case command_t::WAYPOINT:
       return WAYPOINT_LABEL;
     case command_t::TAKEOFF:
@@ -32,16 +32,21 @@ const char* commandToText(command_t cmd)
 
 command_t textToCommand(const char* text)
 {
-  if (strcmp(text, WAYPOINT_LABEL) == 0)
+  if (strcmp(text, WAYPOINT_LABEL) == 0) {
     return command_t::WAYPOINT;
-  else if (strcmp(text, TAKEOFF_LABEL) == 0)
+  }
+  else if (strcmp(text, TAKEOFF_LABEL) == 0) {
     return command_t::TAKEOFF;
-  else if (strcmp(text, LAND_LABEL) == 0)
+  }
+  else if (strcmp(text, LAND_LABEL) == 0) {
     return command_t::LAND;
-  else if (strcmp(text, RETURN_TO_HOME_LABEL) == 0)
+  }
+  else if (strcmp(text, RETURN_TO_HOME_LABEL) == 0) {
     return command_t::RETURN_TO_HOME;
-  else
+  }
+  else {
     throw std::runtime_error(std::format("Invalid command text: {}", text));
+  }
 }
 }  // namespace gcs
 }  // namespace gui

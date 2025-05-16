@@ -1,13 +1,13 @@
+#include "tobas_drone_tools/tr_mixer_pinv.hpp"
+
 #include <ranges>
 
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/console.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
-#include <tobas_constants/constants.hpp>
-
-#include "../include/tobas_drone_tools/tr_mixer_pinv.hpp"
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -21,8 +21,9 @@ TiltRotorMixer_pinv::TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tr
 
 bool TiltRotorMixer_pinv::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -30,12 +31,10 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
   const auto nr = drone_.prop->numRotors();
 
   A_.resize(nr);
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
-    if (rotor->tilt_joint_name.empty())
-    {
+    if (rotor->tilt_joint_name.empty()) {
       cerr << "The tilt joint of rotor " << rotor->link_name << " is not specified." << endl;
       return false;
     }
@@ -51,14 +50,12 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
     const auto& q = par_seg.frame().M * cur_joint.axis();  // 親リンクのジョイントフレームから見たロータ軸
 
     // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
-    if (par_joint.name != rotor->tilt_joint_name)
-    {
+    if (par_joint.name != rotor->tilt_joint_name) {
       cerr << "Tilt joint name of rotor " << rotor->link_name << " mismatch." << endl;
       return false;
     }
 
-    if (!p.isOrthogonal(q))
-    {
+    if (!p.isOrthogonal(q)) {
       cerr << "The axes of tilt joint " << par_joint.name << " and rotor joint " << cur_joint.name
            << " must be orthogonal." << endl;
       return false;
@@ -74,8 +71,9 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
   x_.conservativeResize(2 * nr);
 
   is_singular_.clear();
-  for (const auto& [_, rotor] : drone_.prop->rotors)
+  for (const auto& [_, rotor] : drone_.prop->rotors) {
     is_singular_[rotor->link_name] = false;
+  }
 
   return true;
 }
@@ -90,15 +88,13 @@ bool TiltRotorMixer_pinv::solve(
   const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0)
-  {
+  if (fk_solver_.JntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0)
-  {
+  if (inertia_solver_.JntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -107,8 +103,7 @@ bool TiltRotorMixer_pinv::solve(
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     // ロータリンクとその親要素を取得
@@ -126,25 +121,25 @@ bool TiltRotorMixer_pinv::solve(
     const auto tilt_axis_B = B_Rot_gpar * par_joint.axis();
     const auto tilt_axis_W = cur_rot * tilt_axis_B;
     auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
-    if (declination > M_PI_2)
+    if (declination > M_PI_2) {
       declination = M_PI - declination;
+    }
 
     // 特異状態を更新
-    if (is_singular_.at(rotor->link_name))
-    {
-      if (declination > cfg_.singular_declination_ub)
+    if (is_singular_.at(rotor->link_name)) {
+      if (declination > cfg_.singular_declination_ub) {
         is_singular_[rotor->link_name] = false;
+      }
     }
-    else
-    {
-      if (declination < cfg_.singular_declination_lb)
+    else {
+      if (declination < cfg_.singular_declination_lb) {
         is_singular_[rotor->link_name] = true;
+      }
     }
 
     // 運動方程式の左辺を計算
     const auto col = 2 * idx;
-    if (is_singular_.at(rotor->link_name) || !rotor_alive_.at(rotor->link_name))
-    {
+    if (is_singular_.at(rotor->link_name) || !rotor_alive_.at(rotor->link_name)) {
       // 特異状態もしくはロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
       E_.block<3, 2>(0, col).setZero();
       E_.block<3, 2>(3, col).setZero();
@@ -181,11 +176,9 @@ bool TiltRotorMixer_pinv::solve(
   x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
 
   // 特異状態に対応する解を最小値に固定
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
-  {
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    if (is_singular_.at(rotor->link_name))
-    {
+    if (is_singular_.at(rotor->link_name)) {
       x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
       x_(2 * idx + 1) = 0.;
     }
@@ -208,8 +201,7 @@ double TiltRotorMixer_pinv::getTiltAngle(size_t idx) const
 
 bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationLB(double lb_rad)
 {
-  if (lb_rad < 0.)
-  {
+  if (lb_rad < 0.) {
     cerr << "The lower bind of singular tilt axis declination must be non-negative." << endl;
     return false;
   }
@@ -220,8 +212,7 @@ bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationLB(double lb_rad)
 
 bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationUB(double ub_rad)
 {
-  if (ub_rad < 0.)
-  {
+  if (ub_rad < 0.) {
     cerr << "The upper bind of singular tilt axis declination must be non-negative." << endl;
     return false;
   }

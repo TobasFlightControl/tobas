@@ -1,10 +1,12 @@
-#include <iostream>
+#include "tobas_linux/realtime.hpp"
+
+#include <pthread.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 
-#include "../include/tobas_linux/realtime.hpp"
-#include "../include/tobas_linux/errer.hpp"
+#include <iostream>
+
+#include "tobas_linux/errer.hpp"
 
 using namespace std;
 
@@ -16,8 +18,7 @@ bool setThreadPriority(pthread_t thread, size_t priority, int policy)
   memset(&param, 0, sizeof(param));
   param.sched_priority = priority;
 
-  if (pthread_setschedparam(thread, policy, &param) != 0)
-  {
+  if (pthread_setschedparam(thread, policy, &param) != 0) {
     cerr << "Failed to set scheduling policy: " << strError() << endl;
     return false;
   }
@@ -31,8 +32,7 @@ bool setProcessPriority(pid_t pid, size_t priority, int policy)
   memset(&param, 0, sizeof(param));
   param.sched_priority = priority;
 
-  if (sched_setscheduler(pid, policy, &param) != 0)
-  {
+  if (sched_setscheduler(pid, policy, &param) != 0) {
     cerr << "Failed to set scheduling policy: " << strError() << endl;
     return false;
   }
@@ -50,16 +50,15 @@ bool setThreadCPUAffinity(pthread_t thread, uint32_t cpu_bit_mask)
   cpu_set_t set;
   uint32_t cpu_cnt = 0;
   CPU_ZERO(&set);
-  while (cpu_bit_mask > 0)
-  {
-    if (cpu_bit_mask & 1)
+  while (cpu_bit_mask > 0) {
+    if (cpu_bit_mask & 1) {
       CPU_SET(cpu_cnt, &set);
+    }
     cpu_bit_mask >>= 1;
     ++cpu_cnt;
   }
 
-  if (pthread_setaffinity_np(thread, sizeof(set), &set) != 0)
-  {
+  if (pthread_setaffinity_np(thread, sizeof(set), &set) != 0) {
     cerr << "Failed to set CPU affinity: " << strError() << endl;
     return false;
   }
@@ -72,16 +71,15 @@ bool setProcessCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
   cpu_set_t set;
   uint32_t cpu_cnt = 0;
   CPU_ZERO(&set);
-  while (cpu_bit_mask > 0)
-  {
-    if ((cpu_bit_mask & 1) > 0)
+  while (cpu_bit_mask > 0) {
+    if ((cpu_bit_mask & 1) > 0) {
       CPU_SET(cpu_cnt, &set);
+    }
     cpu_bit_mask >>= 1;
     ++cpu_cnt;
   }
 
-  if (sched_setaffinity(pid, sizeof(set), &set) != 0)
-  {
+  if (sched_setaffinity(pid, sizeof(set), &set) != 0) {
     cerr << "Failed to set CPU affinity: " << strError() << endl;
     return false;
   }

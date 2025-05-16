@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+
 #include <yaml-cpp/yaml.h>
 
 namespace YAML
@@ -12,21 +13,25 @@ struct convert<std::array<T, N>>
   {
     Node node(NodeType::Sequence);
 
-    for (auto& value : rhs)
+    for (auto& value : rhs) {
       node.push_back(value);
+    }
 
     return node;
   }
 
   static bool decode(const Node& node, std::array<T, N>& rhs)
   {
-    if (!node.IsSequence())
+    if (!node.IsSequence()) {
       return false;
-    if (node.size() != N)
+    }
+    if (node.size() != N) {
       return false;
+    }
 
-    for (size_t i = 0; i < N; ++i)
+    for (size_t i = 0; i < N; ++i) {
       rhs[i] = node[i].as<T>();
+    }
 
     return true;
   }

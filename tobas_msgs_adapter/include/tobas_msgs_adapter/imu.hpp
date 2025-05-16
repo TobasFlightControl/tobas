@@ -3,7 +3,6 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl_msgs_adapter/vector.hpp>
-
 #include <tobas_msgs/msg/imu.hpp>
 
 namespace tobas_msgs
@@ -41,6 +40,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::Imu, tobas_msgs::msg::Imu>
 namespace tobas_msgs
 {
 using ImuAdapter = rclcpp::TypeAdapter<tobas_msgs::Imu, tobas_msgs::msg::Imu>;
-}
+}  // namespace tobas_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::Imu, tobas_msgs::msg::Imu);

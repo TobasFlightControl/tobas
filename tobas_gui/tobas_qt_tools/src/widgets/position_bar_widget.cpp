@@ -1,9 +1,10 @@
-#include <QPainter>
+#include "tobas_qt_tools/widgets/position_bar_widget.hpp"
+
 #include <QPaintEvent>
+#include <QPainter>
 
 #include <tobas_math/core.hpp>
 
-#include "tobas_qt_tools/widgets/position_bar_widget.hpp"
 #include "tobas_qt_tools/font.hpp"
 
 namespace qt
@@ -17,9 +18,19 @@ PositionBarWidget::PositionBarWidget(double minimum, double maximum, QWidget* pa
 {
 }
 
-bool PositionBarWidget::hasText() const
+bool PositionBarWidget::hasCenterText() const
 {
-  return text_.has_value();
+  return center_text_.has_value();
+}
+
+bool PositionBarWidget::hasLowerText() const
+{
+  return lower_text_.has_value();
+}
+
+bool PositionBarWidget::hasUpperText() const
+{
+  return upper_text_.has_value();
 }
 
 bool PositionBarWidget::hasValue() const
@@ -57,9 +68,19 @@ int PositionBarWidget::getTextPSize() const
   return text_psize_;
 }
 
-const QString& PositionBarWidget::getText() const
+const QString& PositionBarWidget::getCenterText() const
 {
-  return text_.value();
+  return center_text_.value();
+}
+
+const QString& PositionBarWidget::getLowerText() const
+{
+  return lower_text_.value();
+}
+
+const QString& PositionBarWidget::getUpperText() const
+{
+  return upper_text_.value();
 }
 
 double PositionBarWidget::getValue() const
@@ -135,19 +156,33 @@ void PositionBarWidget::setValueLineColor(Qt::GlobalColor color)
   update();
 }
 
-void PositionBarWidget::setText(const QString& text)
+void PositionBarWidget::setCenterText(const QString& text)
 {
-  text_ = text;
+  center_text_ = text;
+  update();
+}
+
+void PositionBarWidget::setLowerText(const QString& text)
+{
+  lower_text_ = text;
+  update();
+}
+
+void PositionBarWidget::setUpperText(const QString& text)
+{
+  upper_text_ = text;
   update();
 }
 
 void PositionBarWidget::setValue(double value)
 {
   value_ = value;
-  if (!lower_.has_value() || value < lower_.value())
+  if (!lower_.has_value() || value < lower_.value()) {
     lower_ = value;
-  if (!upper_.has_value() || value > upper_.value())
+  }
+  if (!upper_.has_value() || value > upper_.value()) {
     upper_ = value;
+  }
 
   update();
 }
@@ -166,7 +201,9 @@ void PositionBarWidget::setUpper(double upper)
 
 void PositionBarWidget::clear()
 {
-  text_.reset();
+  center_text_.reset();
+  lower_text_.reset();
+  upper_text_.reset();
   value_.reset();
   lower_.reset();
   upper_.reset();
@@ -188,26 +225,33 @@ void PositionBarWidget::paintEvent(QPaintEvent* event)
   painter.restore();
 
   // 値の範囲を塗りつぶす
-  if (fill_range_ && lower_.has_value() && upper_.has_value())
-  {
+  if (fill_range_ && lower_.has_value() && upper_.has_value()) {
     painter.save();
     drawRange(painter, lower_.value(), upper_.value());
     painter.restore();
   }
 
   // 値の位置を表示
-  if (value_.has_value())
-  {
+  if (value_.has_value()) {
     painter.save();
     drawValue(painter, value_.value());
     painter.restore();
   }
 
   // テキストを表示
-  if (text_.has_value())
-  {
+  if (center_text_.has_value()) {
     painter.save();
-    drawText(painter, text_.value());
+    drawCenterText(painter, center_text_.value());
+    painter.restore();
+  }
+  if (lower_text_.has_value()) {
+    painter.save();
+    drawLowerText(painter, lower_text_.value());
+    painter.restore();
+  }
+  if (upper_text_.has_value()) {
+    painter.save();
+    drawUpperText(painter, upper_text_.value());
     painter.restore();
   }
 }
@@ -238,11 +282,28 @@ void HPositionBarWidget::drawValue(QPainter& painter, double value)
   painter.drawLine(value_pos, 0, value_pos, height());
 }
 
-void HPositionBarWidget::drawText(QPainter& painter, const QString& text)
+void HPositionBarWidget::drawCenterText(QPainter& painter, const QString& text)
+{
+  drawTextCommon(painter);
+  painter.drawText(QRect(0, 0, width(), height()), Qt::AlignHCenter | Qt::AlignVCenter, text);
+}
+
+void HPositionBarWidget::drawLowerText(QPainter& painter, const QString& text)
+{
+  drawTextCommon(painter);
+  painter.drawText(QRect(0, 0, width(), height()), Qt::AlignLeft | Qt::AlignVCenter, "     " + text);
+}
+
+void HPositionBarWidget::drawUpperText(QPainter& painter, const QString& text)
+{
+  drawTextCommon(painter);
+  painter.drawText(QRect(0, 0, width(), height()), Qt::AlignRight | Qt::AlignVCenter, text + "     ");
+}
+
+void HPositionBarWidget::drawTextCommon(QPainter& painter)
 {
   painter.setPen(Qt::gray);
   painter.setFont(DefaultFont(getTextPSize()));
-  painter.drawText(QRect(0, 0, width(), height()), Qt::AlignCenter, text);
 }
 
 void VPositionBarWidget::drawRange(QPainter& painter, double lower, double upper)
@@ -271,7 +332,28 @@ void VPositionBarWidget::drawValue(QPainter& painter, double value)
   painter.drawLine(0, value_pos, width(), value_pos);
 }
 
-void VPositionBarWidget::drawText(QPainter& painter, const QString& text)
+void VPositionBarWidget::drawCenterText(QPainter& painter, const QString& text)
+{
+  drawTextCommon(painter);
+  QRect text_rect(-height() / 2, -width() / 2, height(), width());
+  painter.drawText(text_rect, Qt::AlignHCenter | Qt::AlignVCenter, text);
+}
+
+void VPositionBarWidget::drawLowerText(QPainter& painter, const QString& text)
+{
+  drawTextCommon(painter);
+  QRect text_rect(-height() / 2, -width() / 2, height(), width());
+  painter.drawText(text_rect, Qt::AlignLeft | Qt::AlignVCenter, "     " + text);
+}
+
+void VPositionBarWidget::drawUpperText(QPainter& painter, const QString& text)
+{
+  drawTextCommon(painter);
+  QRect text_rect(-height() / 2, -width() / 2, height(), width());
+  painter.drawText(text_rect, Qt::AlignRight | Qt::AlignVCenter, text + "     ");
+}
+
+void VPositionBarWidget::drawTextCommon(QPainter& painter)
 {
   // フォントを設定
   painter.setPen(Qt::gray);
@@ -280,9 +362,5 @@ void VPositionBarWidget::drawText(QPainter& painter, const QString& text)
   // ペインターの回転と移動を設定
   painter.translate(width() / 2, height() / 2);
   painter.rotate(90);
-
-  // 回転した状態でテキストを描画
-  QRect text_rect(-height() / 2, -width() / 2, height(), width());
-  painter.drawText(text_rect, Qt::AlignCenter, text);
 }
 }  // namespace qt

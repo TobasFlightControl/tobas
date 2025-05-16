@@ -1,23 +1,23 @@
 #pragma once
 
-#include "./optional_device.hpp"
-#include "../param_getters/spin_box.hpp"
 #include "../param_getters/double_spin_box.hpp"
+#include "../param_getters/spin_box.hpp"
 #include "../param_getters/vector3d.hpp"
+#include "./optional_device.hpp"
 
 namespace gui
 {
 namespace sa
 {
-class GNSSWidget : public OptionalDeviceWidget
+class GnssWidget : public OptionalDeviceWidget
 {
   Q_OBJECT
 
-  using self = GNSSWidget;
+  using self = GnssWidget;
   using super = OptionalDeviceWidget;
 
 public:
-  explicit GNSSWidget();
+  explicit GnssWidget();
 
   const char* name() const override;
   const char* title() const override;
@@ -27,7 +27,7 @@ public:
   void updateInternalDataStructures() override;
   bool isValid() override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   Eigen::Vector3d offset() const;

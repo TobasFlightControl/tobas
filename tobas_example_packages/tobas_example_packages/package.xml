@@ -1,0 +1,22 @@
+<package format="3">
+
+	<name>tobas_example_packages</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<exec_depend>tobas_f450</exec_depend>
+	<exec_depend>tobas_f550</exec_depend>
+	<exec_depend>tobas_f550_np</exec_depend>
+	<exec_depend>tobas_hydrus</exec_depend>
+	<exec_depend>tobas_truncated_octahedron</exec_depend>
+	<exec_depend>tobas_voliro_like</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

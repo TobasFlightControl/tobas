@@ -1,4 +1,4 @@
-#include "../include/tobas_control/online_trajectory_generator_3d.hpp"
+#include "tobas_control/online_trajectory_generator_3d.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -41,20 +41,23 @@ Vector3d OnlineTrajectoryGenerator3d::getTargetAcceleration() const
 
 void OnlineTrajectoryGenerator3d::setTargetPosition(const Vector3d& tar_pos)
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     otg_[i].setTargetPosition(tar_pos(i));
+  }
 }
 
 void OnlineTrajectoryGenerator3d::setTargetVelocity(const Vector3d& tar_vel)
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     otg_[i].setTargetVelocity(tar_vel(i));
+  }
 }
 
 void OnlineTrajectoryGenerator3d::setTargetAcceleration(const Vector3d& tar_acc)
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     otg_[i].setTargetAcceleration(tar_acc(i));
+  }
 }
 
 void OnlineTrajectoryGenerator3d::setMinVelocity(size_t idx, double min_vel)
@@ -93,13 +96,15 @@ void OnlineTrajectoryGenerator3d::update(
   const Vector3d& cur_vel,
   const Vector3d& cur_acc)
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     otg_[i].update(dt, cur_pos(i), cur_vel(i), cur_acc(i));
+  }
 }
 
 void OnlineTrajectoryGenerator3d::update(double dt)
 {
-  for (size_t i = 0; i < 3; ++i)
+  for (size_t i = 0; i < 3; ++i) {
     otg_[i].update(dt);
+  }
 }
 }  // namespace ctrl

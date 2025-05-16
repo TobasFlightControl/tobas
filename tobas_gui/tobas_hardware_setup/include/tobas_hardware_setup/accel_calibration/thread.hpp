@@ -1,10 +1,11 @@
 #pragma once
 
+#include <QThread>
 #include <eigen3/Eigen/Core>
 #include <rclcpp/node.hpp>
-#include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
+
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 
 namespace gui

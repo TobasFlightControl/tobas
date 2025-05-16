@@ -1,7 +1,6 @@
-#include <tobas_ros2_tools/time.hpp>
+#include "tobas_rc_teleop/accel_angle.hpp"
 
-#include "../include/tobas_rc_teleop/accel_angle.hpp"
-#include "../include/tobas_rc_teleop/common.hpp"
+#include <tobas_ros2_tools/time.hpp>
 
 using namespace std;
 
@@ -31,9 +30,18 @@ bool AccelAngleController::requireAngularVelocity()
   return true;
 }
 
-void AccelAngleController::initialize(tobas::BaseNode* node)
+void AccelAngleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  getStaticRosParams(node);
+  node->addDynamicDoubleParam(addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 3., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 2., 0., 10.);
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, M_PI_2, 0., M_PI);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
+  node->addDynamicIntParam(
+    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(
+    addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 0, -kExpoScale, kExpoScale);
 
   accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::kAccelCmdTopic);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::kAngleCmdTopic);
@@ -56,8 +64,8 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   if (rcin.sub_mode)  // 回転固定で並進制御
   {
     // RC入力から目標水平加速度を計算
-    tar_acc_G_.x(remap(rcin.pitch, -max_hor_acc_, max_hor_acc_));
-    tar_acc_G_.y(-remap(rcin.roll, -max_hor_acc_, max_hor_acc_));
+    tar_acc_G_.x(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
+    tar_acc_G_.y(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
 
     // 目標姿勢角はゼロ
     tar_angle_.roll = 0.;
@@ -66,17 +74,17 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   else  // 並進固定で回転制御
   {
     // RC入力から目標姿勢を計算
-    tar_angle_.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
-    tar_angle_.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
+    tar_angle_.roll = expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);
+    tar_angle_.pitch = expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
 
     // 目標水平加速度はゼロ
     tar_acc_G_.x(0.);
     tar_acc_G_.y(0.);
   }
 
-  // RC入力から鉛直速度とヨーレートを計算
-  tar_acc_G_.z(remap(rcin.throttle, -max_ver_acc_, max_ver_acc_));
-  const auto yawrate = remapDead(rcin.yaw, -max_head_rate_, max_head_rate_);
+  // RC入力から鉛直加速度とヨーレートを計算
+  tar_acc_G_.z(expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_));
+  const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
 
   // 目標加速度を地面座標系から世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
@@ -90,40 +98,9 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   publishAngle(rcin.header.stamp, tar_angle_);
 }
 
-void AccelAngleController::getStaticRosParams(tobas::BaseNode* node)
-{
-  max_hor_acc_ = node->getDoubleParam("max_horizontal_accel", kDefaultMaxHorAcc);
-  if (max_hor_acc_ < 0)
-  {
-    node->error("Maximum horizontal velocity must be positive.");
-    max_hor_acc_ = kDefaultMaxHorAcc;
-  }
-
-  max_ver_acc_ = node->getDoubleParam("max_vertical_accel", kDefaultMaxVerAcc);
-  if (max_ver_acc_ < 0)
-  {
-    node->error("Maximum vertical velocity must be positive.");
-    max_ver_acc_ = kDefaultMaxVerAcc;
-  }
-
-  max_attitude_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitude);
-  if (max_attitude_ < 0)
-  {
-    node->error("Maximum attitude angle must be positive.");
-    max_attitude_ = kDefaultMaxAttitude;
-  }
-
-  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_head_rate_ < 0)
-  {
-    node->error("Maximum heading rate must be positive.");
-    max_head_rate_ = kDefaultMaxHeadingRate;
-  }
-}
-
 void AccelAngleController::publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc)
 {
-  auto cmd = std::make_unique<tobas_command_msgs::Accel>();
+  auto cmd = make_unique<tobas_command_msgs::Accel>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->accel = acc;
@@ -133,11 +110,59 @@ void AccelAngleController::publishAccel(const builtin_interfaces::msg::Time& sta
 
 void AccelAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
 {
-  auto cmd = std::make_unique<tobas_command_msgs::Angle>();
+  auto cmd = make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->angle = angle;
 
   angle_pub_->publish(move(cmd));
+}
+
+bool AccelAngleController::maxHorizontalAccelCb(const double& p)
+{
+  max_hor_acc_ = p;
+  return true;
+}
+
+bool AccelAngleController::maxVerticalAccelCb(const double& p)
+{
+  max_ver_acc_ = p;
+  return true;
+}
+
+bool AccelAngleController::maxAttitudeCb(const double& p)
+{
+  max_attitude_ = p;
+  return true;
+}
+
+bool AccelAngleController::maxHeadingRateCb(const double& p)
+{
+  max_head_rate_ = p;
+  return true;
+}
+
+bool AccelAngleController::horizontalAccelExpoCb(const long& p)
+{
+  hor_acc_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AccelAngleController::verticalAccelExpoCb(const long& p)
+{
+  ver_acc_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AccelAngleController::attitudeExpoCb(const long& p)
+{
+  atti_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AccelAngleController::headingExpoCb(const long& p)
+{
+  head_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
 }
 }  // namespace tobas_rc_teleop

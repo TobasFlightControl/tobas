@@ -1,8 +1,8 @@
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/console.hpp>
-#include <tobas_constants/constants.hpp>
+#include "tobas_drone_tools/mr_mixer_pinv.hpp"
 
-#include "../include/tobas_drone_tools/mr_mixer_pinv.hpp"
+#include <tobas_constants/constants.hpp>
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -16,15 +16,19 @@ MultiRotorMixer_pinv::MultiRotorMixer_pinv(const Drone& drone, const kdl::Tree& 
 
 bool MultiRotorMixer_pinv::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
-  if (!fk_solver_.updateInternalDataStructures())
+  if (!fk_solver_.updateInternalDataStructures()) {
     return false;
-  if (!inertia_solver_.updateInternalDataStructures())
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
-  if (!z_rotors_.updateInternalDataStructures())
+  }
+  if (!z_rotors_.updateInternalDataStructures()) {
     return false;
+  }
 
   E_.conservativeResize(NoChange, z_rotors_.count());
   E_.bottomRows<1>().setOnes();  // 推力和等式の左辺
@@ -44,15 +48,13 @@ bool MultiRotorMixer_pinv::solve(
   assert(tar_thrusts_sum > 0);
 
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0)
-  {
+  if (fk_solver_.JntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0)
-  {
+  if (inertia_solver_.JntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -61,12 +63,10 @@ bool MultiRotorMixer_pinv::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // EoM行列等式の左辺
-  for (size_t i = 0; i < z_rotors_.count(); ++i)
-  {
+  for (size_t i = 0; i < z_rotors_.count(); ++i) {
     const auto& rotor = z_rotors_.rotor(i);
 
-    if (rotor_alive_.at(rotor->link_name))
-    {
+    if (rotor_alive_.at(rotor->link_name)) {
       const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
 
       const auto elem = tree_.getSegment(rotor->link_name)->second;
@@ -78,8 +78,7 @@ bool MultiRotorMixer_pinv::solve(
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
       E_.block<3, 1>(0, i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
     }
-    else
-    {
+    else {
       // ロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
       E_.block<3, 1>(0, i).setZero();
     }

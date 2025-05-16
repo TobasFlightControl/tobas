@@ -1,7 +1,7 @@
-#include <tobas_std_tools/check.hpp>
-#include <tobas_constants/constants.hpp>
+#include "tobas_gui_common/package.hpp"
 
-#include "../include/tobas_gui_common/package.hpp"
+#include <tobas_constants/constants.hpp>
+#include <tobas_std_tools/check.hpp>
 
 using namespace std;
 namespace fs = filesystem;
@@ -89,6 +89,16 @@ fs::path getControllerDynamicParamsPath(const fs::path& tbs_path)
 fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
 {
   return getTBSConfigPath(tbs_path) / "config" / "observer_dynamic.yaml";
+}
+
+fs::path getRcTeleopDynamicParamsPath(const fs::path& tbs_path)
+{
+  return getTBSConfigPath(tbs_path) / "config" / "rc_teleop_dynamic.yaml";
+}
+
+fs::path getImuPreprocessDynamicParamsPath(const fs::path& tbs_path)
+{
+  return getTBSConfigPath(tbs_path) / "config" / "imu_preprocess_dynamic.yaml";
 }
 
 fs::path getSettingsPath(const fs::path& tbs_path)

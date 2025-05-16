@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/tree_joint_parser.hpp"
+#include "tobas_kdl/tree_joint_parser.hpp"
 
 using namespace std;
 
@@ -12,8 +12,9 @@ TreeJointParser::TreeJointParser(const Tree& tree) : super(tree)
 
 bool TreeJointParser::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures())
+  if (!super::updateInternalDataStructures()) {
     return false;
+  }
 
   resize();
   parseJntNames();
@@ -41,8 +42,7 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segmen
   const auto& seg = segment->second.segment;
   const auto& jnt = seg.joint();
   const auto& q_nr = segment->second.q_nr;
-  if (seg.joint().type != Joint::FIXED)
-  {
+  if (seg.joint().type != Joint::FIXED) {
     const auto& name = seg.joint().name;
     jnt_names_[q_nr] = name;
     jnt_idx_[name] = q_nr;
@@ -52,7 +52,8 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segmen
     max_efforts_(q_nr) = jnt.max_effort;
   }
 
-  for (const auto& child : segment->second.children)
+  for (const auto& child : segment->second.children) {
     parseJntNamesStep(child);
+  }
 }
 }  // namespace kdl

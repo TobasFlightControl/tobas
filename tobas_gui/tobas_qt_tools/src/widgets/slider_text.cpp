@@ -1,8 +1,8 @@
+#include "tobas_qt_tools/widgets/slider_text.hpp"
+
+#include <QDoubleValidator>
 #include <QHBoxLayout>
 #include <QIntValidator>
-#include <QDoubleValidator>
-
-#include "tobas_qt_tools/widgets/slider_text.hpp"
 
 #define VALUE_WIDTH 100
 

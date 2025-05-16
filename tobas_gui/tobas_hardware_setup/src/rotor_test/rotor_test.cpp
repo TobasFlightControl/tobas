@@ -1,10 +1,11 @@
+#include "tobas_hardware_setup/rotor_test/rotor_test.hpp"
+
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-#include "tobas_hardware_setup/rotor_test/rotor_test.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
 namespace gui
@@ -21,7 +22,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
   const auto instruction = new qt::DescriptionWidget(
     "1. Connect the ESCs to the FC in the correct order.\n\n"
     "2. Press \"Start\" button to enable motors.\n\n"
-    "3. For each channel, confirm the followings:\n"
+    "3. For each channel, confirm the following:\n"
     "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
     "   - The motor does not rotate when the command RPM is 0.\n\n"
     "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n\n"
@@ -56,15 +57,16 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
   const auto rotor_cols = new QHBoxLayout();
   rows_->addLayout(rotor_cols);
 
-  for (size_t ch = 0; ch < kChannelSize; ++ch)
-  {
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
     rotor_widgets_.at(ch) = new RotorWidget();
     rotor_cols->addWidget(rotor_widgets_.at(ch));
     connect(
-      rotor_widgets_.at(ch), &RotorWidget::targetRPMChanged,
+      rotor_widgets_.at(ch),
+      &RotorWidget::targetRPMChanged,
       std::bind(&self::onTargetRPMChanged, this, std::placeholders::_1, ch));
     connect(
-      rotor_widgets_.at(ch), &RotorWidget::gainChanged,
+      rotor_widgets_.at(ch),
+      &RotorWidget::gainChanged,
       std::bind(&self::onGainChanged, this, std::placeholders::_1, ch));
   }
 
@@ -86,8 +88,7 @@ const char* RotorTestWidget::title() const
 void RotorTestWidget::reset()
 {
   // モータウィジェットを無効化
-  for (auto& rotor_widget : rotor_widgets_)
-  {
+  for (auto& rotor_widget : rotor_widgets_) {
     rotor_widget->reset();
     rotor_widget->setEnabled(false);
   }
@@ -107,18 +108,15 @@ void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
 
-  if (drone_.prop->type() == tobas::propulsion_system_t::ELECTRIC)
-  {
+  if (drone_.prop->type() == tobas::propulsion_system_t::ELECTRIC) {
     eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
 
     // モータとして登録されているチャンネルの設定
     QSet<size_t> rotor_channels;
-    for (const auto& [link_name, _] : eprop_->rotors)
-    {
+    for (const auto& [link_name, _] : eprop_->rotors) {
       const auto erotor = eprop_->getRotor(link_name);
 
-      if (erotor->channel >= kChannelSize)
-      {
+      if (erotor->channel >= kChannelSize) {
         qt::qWarnBox(this, "Rotor channel " + QString::number(erotor->channel) + " is not supported.");
         continue;
       }
@@ -133,10 +131,10 @@ void RotorTestWidget::updateInternalDataStructures()
     }
 
     // モータとして登録されていないチャンネルの設定
-    for (size_t ch = 0; ch < kChannelSize; ++ch)
-    {
-      if (rotor_channels.contains(ch))
+    for (size_t ch = 0; ch < kChannelSize; ++ch) {
+      if (rotor_channels.contains(ch)) {
         continue;
+      }
 
       const auto text = "CH" + QString::number(ch) + ": unregistered";
       rotor_widgets_.at(ch)->setText(text);
@@ -145,7 +143,9 @@ void RotorTestWidget::updateInternalDataStructures()
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
     cur_states_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::currentStatesCb,
+      node_,
+      path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic),
+      &self::currentStatesCb,
       this);
     arming_sub_ = ros2::createSubscriber(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
@@ -159,8 +159,7 @@ void RotorTestWidget::updateInternalDataStructures()
 
     setEnabled(true);
   }
-  else
-  {
+  else {
     eprop_.reset();
 
     tar_speeds_pub_.reset();
@@ -177,14 +176,14 @@ void RotorTestWidget::updateInternalDataStructures()
 
 void RotorTestWidget::publishTargetSppeds()
 {
-  if (!tar_speeds_pub_)
+  if (!tar_speeds_pub_) {
     return;
+  }
 
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
   tar_speeds->header.stamp = node_->get_clock()->now();
 
-  for (const auto& [link_name, _] : drone_.prop->rotors)
-  {
+  for (const auto& [link_name, _] : drone_.prop->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
 
     tar_speeds->speeds.emplace_back();
@@ -197,13 +196,14 @@ void RotorTestWidget::publishTargetSppeds()
 
 void RotorTestWidget::updateCurrentSpeeds()
 {
-  if (!cur_states_)
+  if (!cur_states_) {
     return;
+  }
 
-  for (const auto& state : cur_states_->states)
-  {
-    if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
+  for (const auto& state : cur_states_->states) {
+    if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
       continue;
+    }
 
     const auto erotor = eprop_->getRotor(state.link_name);
     rotor_widgets_.at(erotor->channel)->setCurrentRPM(tobas_std::rps2rpm(state.speed));
@@ -213,16 +213,14 @@ void RotorTestWidget::updateCurrentSpeeds()
 bool RotorTestWidget::loadCurrentGains()
 {
   const auto req = std::make_shared<tobas_msgs::srv::GetRotorControlGains::Request>();
-  if (!get_gains_sc_->call(req, kWaitForService))
-  {
+  if (!get_gains_sc_->call(req, kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }
 
   const auto res = get_gains_sc_->getResponse();
   const auto& gains = res->gains;
-  for (const auto& [link_name, _] : eprop_->rotors)
-  {
+  for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     rotor_widgets_.at(erotor->channel)->setGain(gains.at(erotor->channel));
   }
@@ -243,24 +241,22 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 void RotorTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
-  if (!arming_)
-  {
+  if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
-  if (arming_->data)
-  {
+  if (arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed because the rotors are already armed.");
     return;
   }
 
   // 現在のゲインを反映
-  if (!loadCurrentGains())
+  if (!loadCurrentGains()) {
     return;
+  }
 
   // モータウィジェットを有効化
-  for (const auto& [link_name, _] : eprop_->rotors)
-  {
+  for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
     rotor_widgets_.at(erotor->channel)->setEnabled(true);
   }
@@ -287,15 +283,13 @@ void RotorTestWidget::onSaveButtonClicked()
 {
   const auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
 
-  if (!save_gains_sc_->call(req, kWaitForService))
-  {
+  if (!save_gains_sc_->call(req, kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return;
   }
 
   const auto res = set_gains_sc_->getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     qt::qErrorBox(this, "Failed to save control gains: " + QString::fromStdString(res->message));
     return;
   }
@@ -315,15 +309,13 @@ void RotorTestWidget::onGainChanged(int gain, size_t ch)
   req->gains.back().channel = ch;
   req->gains.back().gain = gain;
 
-  if (!set_gains_sc_->call(req, kWaitForService))
-  {
+  if (!set_gains_sc_->call(req, kWaitForService)) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return;
   }
 
   const auto res = set_gains_sc_->getResponse();
-  if (!res->success)
-  {
+  if (!res->success) {
     qt::qErrorBox(this, "Failed to set control gains: " + QString::fromStdString(res->message));
     return;
   }

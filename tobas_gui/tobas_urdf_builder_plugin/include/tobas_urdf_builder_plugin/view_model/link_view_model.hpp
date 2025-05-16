@@ -3,12 +3,12 @@
 #include <memory>
 
 #include "../utils/urdf_clone.hpp"
-#include "./geometry_view_model.hpp"
-#include "./material_view_model.hpp"
 #include "./collision_view_model.hpp"
+#include "./geometry_view_model.hpp"
 #include "./inertial_view_model.hpp"
-#include "./visual_view_model.hpp"
 #include "./joint_view_model.hpp"
+#include "./material_view_model.hpp"
+#include "./visual_view_model.hpp"
 
 namespace gui
 {

@@ -1,16 +1,14 @@
 #include <random>
 
-#include <tobas_std_tools/vector.hpp>
-
 #include <tobas_dsp/welford.hpp>
+#include <tobas_std_tools/vector.hpp>
 
 using namespace std;
 using namespace Eigen;
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
-  {
+  if (argc != 2) {
     cerr << "Usage: " << argv[0] << " <Data Length>" << endl;
     return EXIT_FAILURE;
   }
@@ -24,18 +22,19 @@ int main(int argc, char** argv)
 
   // Create data
   vector<Vector3d> data;
-  for (size_t _ = 0; _ < length; ++_)
+  for (size_t _ = 0; _ < length; ++_) {
     data.emplace_back(uniform(rnd_gen), uniform(rnd_gen), uniform(rnd_gen));
+  }
 
   // Compute variance with normal method
   Vector3d data_sum = Vector3d::Zero();
-  for (const auto& x : data)
+  for (const auto& x : data) {
     data_sum += x;
+  }
   const Vector3d mean_1 = data_sum / length;
 
   Matrix3d cov_sum = Matrix3d::Zero();
-  for (const auto& x : data)
-  {
+  for (const auto& x : data) {
     const Vector3d d = x - mean_1;
     cov_sum += d * d.transpose();
   }
@@ -43,8 +42,9 @@ int main(int argc, char** argv)
 
   // Compute variance with Welford method
   dsp::Welford<double, 3> welford;
-  for (const auto& x : data)
+  for (const auto& x : data) {
     welford.add(x);
+  }
   const Vector3d& mean_2 = welford.mean();
   const Matrix3d& cov_2 = welford.variance();
 
@@ -55,8 +55,7 @@ int main(int argc, char** argv)
   cout << "Coariance (Welford Method):" << endl << cov_2 << endl;
 
   // Validate
-  if (!eigen::isClose(mean_1, mean_2) || !eigen::isClose(cov_1, cov_2))
-  {
+  if (!eigen::isClose(mean_1, mean_2) || !eigen::isClose(cov_1, cov_2)) {
     cerr << "Welford method is inaccurate." << endl;
     return EXIT_FAILURE;
   }

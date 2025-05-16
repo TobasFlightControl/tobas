@@ -6,4 +6,4 @@
 namespace tobas_std
 {
 void _printLocation(const char* file, int line);
-}
+}  // namespace tobas_std

@@ -1,13 +1,15 @@
-#include <iostream>
-#include <cstring>
-#include <memory>
-#include <vector>
+#include "tobas_linux/memory_lock.hpp"
+
 #include <malloc.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
 
-#include "../include/tobas_linux/memory_lock.hpp"
-#include "../include/tobas_linux/errer.hpp"
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <vector>
+
+#include "tobas_linux/errer.hpp"
 
 using namespace std;
 
@@ -15,23 +17,20 @@ namespace linux
 {
 bool lockMemory()
 {
-  if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0)
-  {
+  if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0) {
     cerr << "mlockall failed: " << strError() << endl;
     return false;
   }
 
   // Turn off malloc trimming
-  if (mallopt(M_TRIM_THRESHOLD, -1) == 0)
-  {
+  if (mallopt(M_TRIM_THRESHOLD, -1) == 0) {
     cerr << "mallopt for trim threshold failed: " << strError() << endl;
     munlockall();
     return false;
   }
 
   // Turn off mmap usage
-  if (mallopt(M_MMAP_MAX, 0) == 0)
-  {
+  if (mallopt(M_MMAP_MAX, 0) == 0) {
     cerr << "mallopt for mmap failed: " << strError() << endl;
     mallopt(M_TRIM_THRESHOLD, 1 << 17);
     munlockall();
@@ -43,8 +42,9 @@ bool lockMemory()
 
 bool lockAndPrefaultDynamic()
 {
-  if (!lockMemory())
+  if (!lockMemory()) {
     return false;
+  }
 
   struct rusage usage;
   size_t page_size = sysconf(_SC_PAGESIZE);
@@ -56,20 +56,18 @@ bool lockAndPrefaultDynamic()
   size_t encountered_majflts = 1;
 
   // Prefault until you see no more pagefaults
-  while (encountered_minflts > 0 || encountered_majflts > 0)
-  {
+  while (encountered_minflts > 0 || encountered_majflts > 0) {
     char* ptr;
-    try
-    {
+    try {
       ptr = new char[64 * page_size];
       memset(ptr, 0, 64 * page_size);
     }
-    catch (const bad_alloc& e)
-    {
+    catch (const bad_alloc& e) {
       cerr << "Caught exception: " << e.what() << endl;
       cerr << "Unlocking memory and continuing." << endl;
-      for (auto& prefaulter : prefaulters)
+      for (auto& prefaulter : prefaulters) {
         delete[] prefaulter;
+      }
 
       mallopt(M_TRIM_THRESHOLD, 1 << 17);
       mallopt(M_MMAP_MAX, 1 << 16);
@@ -86,21 +84,22 @@ bool lockAndPrefaultDynamic()
     prev_majflts = current_majflt;
   }
 
-  for (auto& prefaulter : prefaulters)
+  for (auto& prefaulter : prefaulters) {
     delete[] prefaulter;
+  }
 
   return true;
 }
 
 bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
 {
-  if (!lockMemory())
+  if (!lockMemory()) {
     return false;
+  }
 
   void* buf = nullptr;
   const auto pg_sz = sysconf(_SC_PAGESIZE);
-  if (posix_memalign(&buf, pg_sz, process_max_dynamic_memory) != 0)
-  {
+  if (posix_memalign(&buf, pg_sz, process_max_dynamic_memory) != 0) {
     cerr << "proc rt init mem aligning failed: " << strError() << endl;
     return false;
   }

@@ -1,0 +1,77 @@
+name: f450
+joints:
+  - joint_name: propeller_0_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_1_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_2_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+  - joint_name: propeller_3_joint
+    role: rotor
+    cmd_iface: none
+    hw_iface: other
+    home_position: 0
+pwms:
+  []
+propulsion_system_type: electric
+propulsion_system:
+  rotors:
+    - link_name: propeller_0
+      direction: ccw
+      axis: z_positive
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: ""
+      channel: 0
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_1
+      direction: ccw
+      axis: z_positive
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: ""
+      channel: 1
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_2
+      direction: cw
+      axis: z_positive
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: ""
+      channel: 2
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+    - link_name: propeller_3
+      direction: cw
+      axis: z_positive
+      moment_constant: 0.014940142181179608
+      tilt_joint_name: ""
+      channel: 3
+      num_poles: 14
+      kv: 96.342174710086979
+      internal_resistance: 0.25
+      propeller_diameter: 0.2286
+      motor_constant: 9.9477813743395614e-06
+  battery:
+    nominal_voltage: 11.100000000000001
+    max_voltage: 12.600000000000001
+    sag_voltage: 10.199999999999999
+    max_current: 135
+num_sbus_channels: 10

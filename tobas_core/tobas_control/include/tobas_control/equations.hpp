@@ -14,7 +14,7 @@ public:
   inline explicit LinearEquation(const Eigen::Index& var_size, const Eigen::Index& eq_size);
   inline explicit LinearEquation();
 
-  inline static LinearEquation Zero(const Eigen::Index& var_size, const Eigen::Index& eq_size);
+  static inline LinearEquation Zero(const Eigen::Index& var_size, const Eigen::Index& eq_size);
 
   inline void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size);
   inline void setZero();

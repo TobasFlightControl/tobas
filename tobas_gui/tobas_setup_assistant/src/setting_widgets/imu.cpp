@@ -1,13 +1,13 @@
+#include "tobas_setup_assistant/setting_tabs/imu.hpp"
+
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/imu.hpp"
 
 namespace gui
 {
 namespace sa
 {
-IMUWidget::IMUWidget()
+ImuWidget::ImuWidget()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
   offset_->setSuffix(" m");
@@ -72,37 +72,37 @@ IMUWidget::IMUWidget()
   addStretch();
 }
 
-const char* IMUWidget::name() const
+const char* ImuWidget::name() const
 {
   return "IMU";
 }
 
-const char* IMUWidget::title() const
+const char* ImuWidget::title() const
 {
   return "Define 6-Axis IMU";
 }
 
-const char* IMUWidget::description() const
+const char* ImuWidget::description() const
 {
   return "";  // TODO
 }
 
-void IMUWidget::onOpened()
+void ImuWidget::onOpened()
 {
   return;
 }
 
-void IMUWidget::updateInternalDataStructures()
+void ImuWidget::updateInternalDataStructures()
 {
   return;
 }
 
-bool IMUWidget::isValid()
+bool ImuWidget::isValid()
 {
   return true;
 }
 
-YAML::Node IMUWidget::dump()
+YAML::Node ImuWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -120,7 +120,7 @@ YAML::Node IMUWidget::dump()
   return node;
 }
 
-void IMUWidget::load(const YAML::Node& node)
+void ImuWidget::load(const YAML::Node& node)
 {
   offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
   update_rate_->setValue(node[update_rate_->name()].as<int>());
@@ -134,52 +134,52 @@ void IMUWidget::load(const YAML::Node& node)
   acc_bias_corr_time_->setValue(node[acc_bias_corr_time_->name()].as<int>());
 }
 
-Eigen::Vector3d IMUWidget::offset() const
+Eigen::Vector3d ImuWidget::offset() const
 {
   return offset_->getValue();
 }
 
-int IMUWidget::updateRate() const
+int ImuWidget::updateRate() const
 {
   return update_rate_->getValue();
 }
 
-double IMUWidget::gyroNoiseDensity() const
+double ImuWidget::gyroNoiseDensity() const
 {
   return (tobas_std::kDeg2Rad * 1e-3) * gyro_noise_density_->getValue();
 }
 
-double IMUWidget::gyroOffsetNorm() const
+double ImuWidget::gyroOffsetNorm() const
 {
   return tobas_std::kDeg2Rad * gyro_offset_norm_->getValue();
 }
 
-double IMUWidget::gyroRandomWalk() const
+double ImuWidget::gyroRandomWalk() const
 {
   return gyro_random_walk_->getValue();
 }
 
-int IMUWidget::gyroBiasCorrTime() const
+int ImuWidget::gyroBiasCorrTime() const
 {
   return gyro_bias_corr_time_->getValue();
 }
 
-double IMUWidget::accNoiseDensity() const
+double ImuWidget::accNoiseDensity() const
 {
   return (tobas_std::kGravity * 1e-6) * acc_noise_density_->getValue();
 }
 
-double IMUWidget::accOffsetNorm() const
+double ImuWidget::accOffsetNorm() const
 {
   return (tobas_std::kGravity * 1e-3) * acc_offset_norm_->getValue();
 }
 
-double IMUWidget::accRandomWalk() const
+double ImuWidget::accRandomWalk() const
 {
   return acc_random_walk_->getValue();
 }
 
-int IMUWidget::accBiasCorrTime() const
+int ImuWidget::accBiasCorrTime() const
 {
   return acc_bias_corr_time_->getValue();
 }

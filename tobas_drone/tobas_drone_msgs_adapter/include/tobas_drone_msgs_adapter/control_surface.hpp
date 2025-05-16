@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/fixed_wing/control_surface.hpp>
+
 #include <tobas_drone_msgs/msg/control_surface.hpp>
 
 template <>
@@ -42,6 +43,6 @@ struct rclcpp::TypeAdapter<tobas::ControlSurface, tobas_drone_msgs::msg::Control
 namespace tobas_drone_msgs
 {
 using ControlSurfaceAdapter = rclcpp::TypeAdapter<tobas::ControlSurface, tobas_drone_msgs::msg::ControlSurface>;
-}
+}  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::ControlSurface, tobas_drone_msgs::msg::ControlSurface);

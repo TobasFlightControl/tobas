@@ -1,9 +1,9 @@
+#include "tobas_control_system/status_viewer/postarm_check_viewer.hpp"
+
 #include <QVBoxLayout>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_control_system/status_viewer/postarm_check_viewer.hpp"
+#include <tobas_path_tools/join.hpp>
 
 namespace gui
 {
@@ -51,12 +51,10 @@ void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 {
   arming_ = arming;
 
-  if (arming->data)
-  {
+  if (arming->data) {
     setEnabled(true);
   }
-  else
-  {
+  else {
     reset();
     setEnabled(false);
   }
@@ -64,14 +62,12 @@ void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 
 void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
 {
-  if (!arming_)
-  {
+  if (!arming_) {
     reset();
     return;
   }
 
-  if (!arming_->data)
-  {
+  if (!arming_->data) {
     reset();
     return;
   }

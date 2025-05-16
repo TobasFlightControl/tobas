@@ -1,10 +1,12 @@
+#include "tobas_control/lqr.hpp"
+
 #include <iostream>
+
 #include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/core.hpp>
 
-#include "../include/tobas_control/lqr.hpp"
-#include "../include/tobas_control/care.hpp"
+#include "tobas_control/care.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -19,8 +21,9 @@ VectorXd LQR::solve(const bool& update_gain)
 {
   checkProblemValidity();
 
-  if (update_gain)
+  if (update_gain) {
     updateGain();
+  }
 
   // スケーリング
   const VectorXd x_scaled = current_state.array() / state_scale.array();

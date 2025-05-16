@@ -1,8 +1,8 @@
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
-
 #include <tobas_t1_core/iis2mdc.hpp>
+
+#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 
 #include "./common.hpp"
 
@@ -29,21 +29,20 @@ private:
 
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("t1_mag_driver", options)
 {
-  initialize_timer_ = createTimer(t1::kRetryInitializationInterval, &self::initialize, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void MagDriverNode::initialize()
 {
-  if (!mag_.initialize())
-  {
+  if (!mag_.initialize()) {
     TOBAS_ERROR("Failed to initialize Magnetometer. Retrying...");
     return;
   }
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
 
-  initialize_timer_.reset();
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  initialize_timer_->cancel();
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void MagDriverNode::mainTimerCb()
@@ -55,8 +54,7 @@ void MagDriverNode::mainTimerCb()
   msg->header.stamp = get_clock()->now();
 
   // Read sensor
-  if (!mag_.readMag(msg->mag.x(), msg->mag.y(), msg->mag.z()))
-  {
+  if (!mag_.readMag(msg->mag.x(), msg->mag.y(), msg->mag.z())) {
     TOBAS_FATAL("Failed to read magnetometer.");
     return;
   }

@@ -1,6 +1,6 @@
-#include <iostream>
+#include "tobas_t1_core/battery.hpp"
 
-#include "../include/tobas_t1_core/battery.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -12,16 +12,18 @@ Battery::Battery()
 
 bool Battery::initialize()
 {
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq))
+  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq)) {
     return false;
+  }
 
   return true;
 }
 
 bool Battery::read(double& voltage, double& current)
 {
-  if (!spi_.transfer(sizeof(tx_buf_)))
+  if (!spi_.transfer(sizeof(tx_buf_))) {
     return false;
+  }
 
   voltage = static_cast<double>(rx_buf_[0]) * 1e-6;
   current = static_cast<double>(static_cast<int32_t>(rx_buf_[1])) * 1e-6;
