@@ -1,0 +1,11 @@
+[Unit]
+Description=Tobas Network Wait Online
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --any --timeout=30
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
