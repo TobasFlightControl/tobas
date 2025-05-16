@@ -45,8 +45,8 @@
 
 #define BILLION 1'000'000'000
 
-using namespace std;
-namespace fs = filesystem;
+using namespace std::chrono_literals;
+namespace fs = std::filesystem;
 
 class RosbagRecorderNode : public tobas::BaseNode
 {
@@ -64,7 +64,7 @@ public:
   explicit RosbagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  const string ns_;
+  const std::string ns_;
   const fs::path rosbag_dir_;
 
   rosbag2_cpp::Writer writer_;
@@ -91,7 +91,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::RosbagState> rosbag_state_pub_;
 
   // Subscribers
-  vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
+  std::vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
 
   // Service servers
   ros2::ServiceServerPtr<StartSrv> start_srv_;
@@ -136,7 +136,7 @@ private:
 
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", options)
-  , ns_(string(get_namespace()) + "/")
+  , ns_(std::string(get_namespace()) + "/")
   , rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
@@ -209,7 +209,7 @@ void RosbagRecorderNode::publishRosbagState()
       try {
         writer_.close();
       }
-      catch (const exception& e) {
+      catch (const std::exception& e) {
         TOBAS_ERROR("Failed to close rosbag file: ", e.what());
         return;
       }
@@ -234,7 +234,7 @@ inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noe
   try {
     writer_.write(msg, ns_ + topic, get_clock()->now());
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
     return;
   }
@@ -316,7 +316,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   if (par_dir_size > kMaxParDirSize) {
     res->success = false;
     res->message = "The size of rosbag directory (" + rosbag_dir_.string() + ") is over " +
-                   to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
+                   std::to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
     return;
   }
 
@@ -340,7 +340,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   try {
     writer_.open(options);
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     res->success = false;
     res->message = "Failed to open " + options.uri + ": " + e.what();
     return;
@@ -369,9 +369,9 @@ void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
   try {
     writer_.close();
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     res->success = false;
-    res->message = "Failed to close rosbag file: " + string(e.what());
+    res->message = "Failed to close rosbag file: " + std::string(e.what());
     return;
   }
 
