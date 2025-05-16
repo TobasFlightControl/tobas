@@ -32,8 +32,9 @@ private:
   std::unordered_set<std::string> decode_fail_topics_;
 
   MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
-  MessageDecoder<tobas_msgs::msg::ImuWithCovarianceStamped> imu_decoder_;
-  MessageDecoder<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_decoder_;
+  MessageDecoder<tobas_msgs::msg::ImuStamped> imu_decoder_;
+  MessageDecoder<tobas_msgs::msg::ImuWithCovarianceStamped> imu_cov_decoder_;
+  MessageDecoder<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_cov_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorStateArray> cur_rotor_states_decoder_;

@@ -72,9 +72,11 @@ void PlotTabWidget::setFrameData(
   accel_plot_->setData(odom_data, ctrl_fb_data);
 }
 
-void PlotTabWidget::setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data)
+void PlotTabWidget::setImuData(
+  const QVector<tobas_msgs::msg::ImuStamped>& raw_msgs,
+  const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_msgs)
 {
-  imu_plot_->setData(_data);
+  imu_plot_->setData(raw_msgs, filt_msgs);
 }
 
 void PlotTabWidget::setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data)

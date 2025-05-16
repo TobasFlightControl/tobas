@@ -38,8 +38,8 @@ void FlightLogViewerWidget::reset()
   decode_fail_topics_.clear();
 
   odom_decoder_.clearCache();
-  imu_decoder_.clearCache();
-  mag_decoder_.clearCache();
+  imu_cov_decoder_.clearCache();
+  mag_cov_decoder_.clearCache();
   gnss_decoder_.clearCache();
   battery_decoder_.clearCache();
   cur_rotor_states_decoder_.clearCache();
@@ -106,7 +106,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
   // データを仕分ける
   QVector<tobas_msgs::msg::Odometry> odom_data;
-  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
+  QVector<tobas_msgs::msg::ImuStamped> raw_imu_data;
+  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data;
   QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
   QVector<tobas_msgs::msg::Gnss> gnss_data;
   QVector<tobas_msgs::msg::Battery> battery_data;
@@ -137,11 +138,14 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
         odom_data.push_back(odom_decoder_.decode(cur_time, ser_msg));
       }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
+        raw_imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
+      }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic))) {
-        imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
+        filt_imu_data.push_back(imu_cov_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
-        mag_data.push_back(mag_decoder_.decode(cur_time, ser_msg));
+        mag_data.push_back(mag_cov_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
         gnss_data.push_back(gnss_decoder_.decode(cur_time, ser_msg));
@@ -186,7 +190,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
     plot_tab->setFrameData(odom_data, mr_ctrl_fb_data);
-    plot_tab->setImuData(imu_data);
+    plot_tab->setImuData(raw_imu_data, filt_imu_data);
     plot_tab->setMagData(mag_data);
     plot_tab->setGnssData(gnss_data);
     plot_tab->setBatteryData(battery_data);
