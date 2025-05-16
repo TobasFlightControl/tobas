@@ -16,7 +16,6 @@ rm -rf ~/.gnupg/*
 rm -rf ~/.ssh/*
 
 # Clean tobas directory
-sudo rm /etc/tobas/config/*.ini
 sudo rm /etc/tobas/config/*.json
 sudo rm -rf /etc/tobas/rosbag/*
 
