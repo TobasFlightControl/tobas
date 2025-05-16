@@ -1,5 +1,5 @@
 [Unit]
-Description=Tobas Network Wait Online
+Description=Wait for end0 or wlan0 to get a routable IP
 After=network.target
 
 [Service]
