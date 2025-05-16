@@ -2,6 +2,7 @@
 
 #include <QVBoxLayout>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
 namespace gui
@@ -14,9 +15,11 @@ EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle")
   setLayout(rows);
 
   throttle_plot_ = new QwtPlot2();
+  throttle_plot_->setAxisScale(QwtPlot::yLeft, tobas::kMinThrot, tobas::kMaxThrot);
+  rows->addWidget(throttle_plot_);
+
   throttle_curve_.setPen(Qt::black, kLineWidth);
   throttle_curve_.attach(throttle_plot_);
-  rows->addWidget(throttle_plot_);
 }
 
 void EnginePlotWidget::setTimeScale(double t_start, double t_stop)
