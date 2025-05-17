@@ -41,7 +41,9 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
 
   const auto& first_msg = msgs.at(0);
   if (first_msg.pitch_angles.size() != num_rotors_) {
-    updateInternalDataStructures(first_msg);
+    if (!updateInternalDataStructures(first_msg)) {
+      return;
+    }
   }
 
   QVector<QVector<double>> t_data(num_rotors_);
@@ -75,17 +77,22 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
   }
 }
 
-void PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg)
+bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg)
 {
   clear();
 
-  num_rotors_ = msg.pitch_angles.size();
-
   for (const auto& [idx, elem] : std::views::enumerate(msg.pitch_angles)) {
-    if (!name2idx_.insert({ elem.link_name, idx }).second) {
-      qWarning() << "VPP \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
-      continue;
+    if (elem.link_name.empty()) {
+      qWarning() << "Rotor link name is empty.";
+      return false;
     }
+
+    if (!name2idx_.insert({ elem.link_name, idx }).second) {
+      qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
+      return false;
+    }
+
+    ++num_rotors_;
 
     plots_.push_back(new QwtPlot2());
 
@@ -96,6 +103,8 @@ void PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
     curves_.back().setPen(kCurrentValueColor, kLineWidth);
     curves_.back().attach(plots_.back());
   }
+
+  return true;
 }
 }  // namespace log
 }  // namespace gui
