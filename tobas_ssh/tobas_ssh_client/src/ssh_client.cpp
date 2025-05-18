@@ -80,7 +80,7 @@ SSHClient::error_t SSHClient::execute(const string& command, bool superuser, boo
 
 SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& local_path)
 {
-  const auto req = make_shared<SCPGet::Request>();
+  const auto req = make_shared<ScpGet::Request>();
   req->remote_path = remote_path;
   req->local_path = local_path;
 
@@ -100,7 +100,7 @@ SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& lo
 SSHClient::error_t
 SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vector<string>& exclude_dirs, bool superuser)
 {
-  const auto req = make_shared<SCPPut::Request>();
+  const auto req = make_shared<ScpPut::Request>();
   req->local_dir = local_dir;
   req->remote_dir = remote_dir;
   req->exclude_dirs = exclude_dirs;
@@ -121,7 +121,7 @@ SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vecto
 
 SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, bool superuser)
 {
-  const auto req = make_shared<SFTPRead::Request>();
+  const auto req = make_shared<SftpRead::Request>();
   req->remote_path = remote_path;
   req->superuser = superuser;
 
@@ -141,7 +141,7 @@ SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, 
 
 SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string& text, bool superuser)
 {
-  const auto req = make_shared<SFTPWrite::Request>();
+  const auto req = make_shared<SftpWrite::Request>();
   req->remote_path = remote_path;
   req->text = text;
   req->superuser = superuser;
