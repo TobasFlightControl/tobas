@@ -51,6 +51,9 @@ ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   cols1->addWidget(throt_range_);
 
   setLayout(cols1);
+
+  // Connection
+  connect(this, &self::rcInputReceived, this, &self::rcInputCbQt, Qt::QueuedConnection);
 }
 
 void ThrottlesViewer::reset()
@@ -66,17 +69,22 @@ void ThrottlesViewer::updateNamespace(const std::string& ns)
   reset();
 
   rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCbRos, this);
 }
 
-void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void ThrottlesViewer::rcInputCbRos(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
 {
-  roll_range_->setValue(rcin->roll);
-  pitch_range_->setValue(rcin->pitch);
-  yaw_range_->setValue(rcin->yaw);
-  throt_range_->setValue(rcin->throttle);
+  Q_EMIT rcInputReceived(rcin->roll, rcin->pitch, rcin->yaw, rcin->throttle, rcin->enable);
+}
 
-  if (rcin->enable) {
+void ThrottlesViewer::rcInputCbQt(double roll, double pitch, double yaw, double throttle, bool enable)
+{
+  roll_range_->setValue(roll);
+  pitch_range_->setValue(pitch);
+  yaw_range_->setValue(yaw);
+  throt_range_->setValue(throttle);
+
+  if (enable) {
     roll_range_->setValueLineColor(kLineColorEnable);
     pitch_range_->setValueLineColor(kLineColorEnable);
     yaw_range_->setValueLineColor(kLineColorEnable);

@@ -75,8 +75,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&mission_thread_, &MissionExecutionThread::finished, this, &self::onMissionFinished);
-  connect(this, &self::gnssReceived, this, &self::gnssCbQt);
-  connect(this, &self::odomReceived, this, &self::odomCbQt);
+  connect(this, &self::gnssReceived, this, &self::gnssCbQt, Qt::QueuedConnection);
+  connect(this, &self::odomReceived, this, &self::odomCbQt, Qt::QueuedConnection);
 }
 
 void MissionPlannerWidget::reset()

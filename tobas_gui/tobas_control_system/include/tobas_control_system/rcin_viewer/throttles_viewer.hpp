@@ -24,6 +24,9 @@ class ThrottlesViewer : public QWidget
   static constexpr auto kLineColorEnable = Qt::red;
   static constexpr auto kLineColorDisable = Qt::darkGray;
 
+Q_SIGNALS:
+  void rcInputReceived(double roll, double pitch, double yaw, double throttle, bool enable);
+
 public:
   explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
 
@@ -38,9 +41,12 @@ private:
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
 
-  ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
 
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+  void rcInputCbRos(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
+
+private Q_SLOTS:
+  void rcInputCbQt(double roll, double pitch, double yaw, double throttle, bool enable);
 };
 }  // namespace rcin
 }  // namespace gcs

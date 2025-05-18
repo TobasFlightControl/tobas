@@ -46,6 +46,9 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   rows->addLayout(mode_cols, 3);
 
   setLayout(rows);
+
+  // Connection
+  connect(this, &self::rcInputReceived, this, &self::rcInputCbQt, Qt::QueuedConnection);
 }
 
 void TogglesViewer::reset()
@@ -63,7 +66,7 @@ void TogglesViewer::updateNamespace(const std::string& ns)
   reset();
 
   rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCbRos, this);
 }
 
 void TogglesViewer::paintEvent(QPaintEvent*)
@@ -97,27 +100,34 @@ void TogglesViewer::setFlightModePointSizes()
   loiter_mode_->setTextPointSize(psize);
 }
 
-void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void TogglesViewer::rcInputCbRos(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
 {
-  kill_->setChecked(rcin->kill);
-  sub_mode_->setChecked(rcin->sub_mode);
+  Q_EMIT rcInputReceived(rcin->enable, rcin->kill, rcin->mode, rcin->sub_mode);
+}
 
-  if (rcin->enable) {
-    if (rcin->mode == tobas::flight_mode_t::STABILIZE) {
+void TogglesViewer::rcInputCbQt(bool enable, bool kill, uint8_t _mode, bool sub_mode)
+{
+  kill_->setChecked(kill);
+  sub_mode_->setChecked(sub_mode);
+
+  const auto mode = static_cast<tobas::flight_mode_t>(_mode);
+
+  if (enable) {
+    if (mode == tobas::flight_mode_t::STABILIZE) {
       stabilize_mode_->setColor(kOnColorEnable);
     }
     else {
       stabilize_mode_->setColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::flight_mode_t::ACROBAT) {
+    if (mode == tobas::flight_mode_t::ACROBAT) {
       acrobat_mode_->setColor(kOnColorEnable);
     }
     else {
       acrobat_mode_->setColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::flight_mode_t::LOITER) {
+    if (mode == tobas::flight_mode_t::LOITER) {
       loiter_mode_->setColor(kOnColorEnable);
     }
     else {
@@ -128,21 +138,21 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
     sub_mode_->setOnColor(kOnColorEnable);
   }
   else {
-    if (rcin->mode == tobas::flight_mode_t::STABILIZE) {
+    if (mode == tobas::flight_mode_t::STABILIZE) {
       stabilize_mode_->setColor(kOnColorDisable);
     }
     else {
       stabilize_mode_->setColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::flight_mode_t::ACROBAT) {
+    if (mode == tobas::flight_mode_t::ACROBAT) {
       acrobat_mode_->setColor(kOnColorDisable);
     }
     else {
       acrobat_mode_->setColor(kOffColor);
     }
 
-    if (rcin->mode == tobas::flight_mode_t::LOITER) {
+    if (mode == tobas::flight_mode_t::LOITER) {
       loiter_mode_->setColor(kOnColorDisable);
     }
     else {

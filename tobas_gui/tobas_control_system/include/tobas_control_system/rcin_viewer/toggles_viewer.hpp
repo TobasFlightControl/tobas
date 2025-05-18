@@ -23,6 +23,9 @@ class TogglesViewer : public QWidget
   static constexpr auto kOnColorEnable = Qt::green;
   static constexpr auto kOnColorDisable = Qt::darkGray;
 
+Q_SIGNALS:
+  void rcInputReceived(bool enable, bool kill, uint8_t mode, bool sub_mode);
+
 public:
   explicit TogglesViewer(rclcpp::Node::SharedPtr node);
 
@@ -42,12 +45,15 @@ private:
   qt::CircleWidget* stabilize_mode_;
   qt::CircleWidget* loiter_mode_;
 
-  ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
 
   void setToggleSwitchPointSizes();
   void setFlightModePointSizes();
 
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+  void rcInputCbRos(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
+
+private Q_SLOTS:
+  void rcInputCbQt(bool enable, bool kill, uint8_t _mode, bool sub_mode);
 };
 }  // namespace rcin
 }  // namespace gcs
