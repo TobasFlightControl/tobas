@@ -3,5 +3,5 @@
 # Tobasリポジトリの親ディレクトリに移動
 cd $(realpath $(dirname "$0"))/../../../
 
-# GITが追跡しているファイルのみリモートと同期
+# Gitが追跡しているファイルのみリモートと同期
 rsync -av --delete --exclude-from=./tobas/.gitignore --exclude .git/ ./tobas pi@tobas:~/colcon_ws/src/
