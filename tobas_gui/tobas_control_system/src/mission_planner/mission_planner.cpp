@@ -75,6 +75,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&mission_thread_, &MissionExecutionThread::finished, this, &self::onMissionFinished);
+  connect(this, &self::gnssReceived, this, &self::gnssCbQt);
+  connect(this, &self::odomReceived, this, &self::odomCbQt);
 }
 
 void MissionPlannerWidget::reset()
@@ -95,10 +97,10 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 
   mission_thread_.setNamespace(ns);
 
-  gnss_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGnssTopic), &self::gnssCb, this);
+  gnss_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGnssTopic), &self::gnssCbRos, this);
   odom_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kOdometryTopic), &self::odomCbRos, this);
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -230,19 +232,19 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
   return res;
 }
 
-void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void MissionPlannerWidget::gnssCbRos(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
   if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
     return;
   }
 
-  map_->setArrowPosition(gnss->latitude, gnss->longitude);
+  Q_EMIT gnssReceived(gnss->latitude, gnss->longitude);
 }
 
-void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void MissionPlannerWidget::odomCbRos(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   const auto yaw = odom->frame.M.getYaw();
-  map_->setArrowRotation(-tobas_std::rad2deg(yaw));
+  Q_EMIT odomReceived(yaw);
 }
 
 void MissionPlannerWidget::onLoadButtonClicked()
@@ -522,6 +524,16 @@ void MissionPlannerWidget::onMissionFinished(bool success, const QString& messag
   }
 
   setEditMode();
+}
+
+void MissionPlannerWidget::gnssCbQt(double latitude, double longitude)
+{
+  map_->setArrowPosition(latitude, longitude);
+}
+
+void MissionPlannerWidget::odomCbQt(double yaw)
+{
+  map_->setArrowRotation(-tobas_std::rad2deg(yaw));
 }
 }  // namespace gcs
 }  // namespace gui

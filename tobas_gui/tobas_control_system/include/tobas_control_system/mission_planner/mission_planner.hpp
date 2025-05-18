@@ -27,6 +27,10 @@ class MissionPlannerWidget : public QWidget
   static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline/";
   static constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
 
+Q_SIGNALS:
+  void gnssReceived(double latitude, double longitude);
+  void odomReceived(double yaw);
+
 public:
   explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node);
 
@@ -74,8 +78,8 @@ private:
   /* ミッションコマンドのリストを作成する． */
   QVector<BaseCommandData::SharedPtr> createMissionCommandList();
 
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void gnssCbRos(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void odomCbRos(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
 private Q_SLOTS:
   void onLoadButtonClicked();
@@ -92,6 +96,9 @@ private Q_SLOTS:
   void onMissionUpdated();
   void onWaypointMoved(int index, double latitude, double longitude);
   void onMissionFinished(bool success, const QString& message);
+
+  void gnssCbQt(double latitude, double longitude);
+  void odomCbQt(double yaw);
 };
 }  // namespace gcs
 }  // namespace gui
