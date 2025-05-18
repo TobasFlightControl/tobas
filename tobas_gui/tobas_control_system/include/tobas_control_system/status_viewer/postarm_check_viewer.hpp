@@ -18,6 +18,15 @@ class PostArmCheckViewerWidget : public QWidget
   using self = PostArmCheckViewerWidget;
   using super = QWidget;
 
+Q_SIGNALS:
+  void armingReceived(bool arming);
+  void postArmCheckReceived(
+    bool gyro_noise_too_large,
+    bool accel_noise_too_large,
+    bool mag_offset_too_large,
+    bool mag_misalignment,
+    bool latency_too_large);
+
 public:
   explicit PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node);
 
@@ -38,8 +47,17 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PostArmCheck> postarm_check_sub_;
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check);
+  void armingCbRos(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void postArmCheckCbRos(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check);
+
+private Q_SLOTS:
+  void armingCbQt(bool arming);
+  void postArmCheckCbQt(
+    bool gyro_noise_too_large,
+    bool accel_noise_too_large,
+    bool mag_offset_too_large,
+    bool mag_misalignment,
+    bool latency_too_large);
 };
 }  // namespace gcs
 }  // namespace gui

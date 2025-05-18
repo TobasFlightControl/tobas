@@ -18,6 +18,21 @@ class PreArmCheckViewerWidget : public QWidget
   using self = PreArmCheckViewerWidget;
   using super = QWidget;
 
+Q_SIGNALS:
+  void armingReceived(bool arming);
+  void preArmCheckReceived(
+    uint8_t node_connection_unstable,
+    uint8_t battery_voltage_too_low,
+    uint8_t cpu_temperature_too_high,
+    uint8_t rotor_communication_error,
+    uint8_t attitude_too_steep,
+    uint8_t position_unstable,
+    uint8_t position_inaccurate,
+    uint8_t velocity_inaccurate,
+    uint8_t attitude_inaccurate,
+    uint8_t heading_inaccurate,
+    bool ok);
+
 public:
   explicit PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node);
 
@@ -44,8 +59,23 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
+  void armingCbRos(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void preArmCheckCbRos(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
+
+private Q_SLOTS:
+  void armingCbQt(bool arming);
+  void preArmCheckCbQt(
+    uint8_t node_connection_unstable,
+    uint8_t battery_voltage_too_low,
+    uint8_t cpu_temperature_too_high,
+    uint8_t rotor_communication_error,
+    uint8_t attitude_too_steep,
+    uint8_t position_unstable,
+    uint8_t position_inaccurate,
+    uint8_t velocity_inaccurate,
+    uint8_t attitude_inaccurate,
+    uint8_t heading_inaccurate,
+    bool ok);
 };
 }  // namespace gcs
 }  // namespace gui
