@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check user and host
+if [ "$(id -un)" != "pi" ] || [ "$(hostname -s)" != "tobas" ]; then
+  echo "This script can only be executed on RPi." >&2
+  exit 1
+fi
+
 # Set paths
 COLCON_WS=~/colcon_ws
 RELEASE_DIR=${COLCON_WS}/release
@@ -19,7 +25,7 @@ export MAKEFLAGS="-j1"
 # XXX: The "-march=native" option has little impact on speeding up performance on ARM CPUs.
 colcon build --merge-install --parallel-workers 1 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Release $1 $2
 if [ $? -ne 0 ]; then
-  echo "Failed to build."
+  echo "Failed to build." >&2
   exit 1
 fi
 

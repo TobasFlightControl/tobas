@@ -6,7 +6,7 @@ PARDIR=$(realpath $(dirname "$0"))
 echo "Stopping Tobas main service."
 sudo systemctl stop tobas_real.target
 if [ $? -ne 0 ]; then
-  echo "Failed to stop tobas_real.target."
+  echo "Failed to stop tobas_real.target." >&2
   exit 1
 fi
 
@@ -14,7 +14,7 @@ fi
 echo "Building Tobas."
 bash ${PARDIR}/tobas_build_release_upto $1
 if [ $? -ne 0 ]; then
-  echo "Failed to build."
+  echo "Failed to build." >&2
   exit 1
 fi
 
@@ -22,7 +22,7 @@ fi
 echo "Installing Tobas."
 bash ${PARDIR}/tobas_install
 if [ $? -ne 0 ]; then
-  echo "Failed to install."
+  echo "Failed to install." >&2
   exit 1
 fi
 
@@ -30,7 +30,7 @@ fi
 echo "Restarting Tobas main service."
 sudo systemctl restart tobas_real.target
 if [ $? -ne 0 ]; then
-  echo "Failed to restart tobas_real.target."
+  echo "Failed to restart tobas_real.target." >&2
   exit 1
 fi
 

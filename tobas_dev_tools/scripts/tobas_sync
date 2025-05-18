@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check user and host
+if [ "$(id -un)" = "pi" ] && [ "$(hostname -s)" = "tobas" ]; then
+  echo "This script cannot be executed on RPi." >&2
+  exit 1
+fi
+
 # Tobasリポジトリの親ディレクトリに移動
 cd $(realpath $(dirname "$0"))/../../../
 

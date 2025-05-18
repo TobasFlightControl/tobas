@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check user and host
+if [ "$(id -un)" != "pi" ] || [ "$(hostname -s)" != "tobas" ]; then
+  echo "This script can only be executed on RPi." >&2
+  exit 1
+fi
+
 # Remove unnecessary files
 sudo rm -rf /tmp/*
 sudo rm -rf /var/tmp/*
@@ -27,7 +33,7 @@ sudo rm -rf ./src/*
 # Clear network settings
 sudo sed -i '4,$ d' /etc/wpa_supplicant/wpa_supplicant.conf
 if [ $? -ne 0 ]; then
-  echo "Failed to edit /etc/wpa_supplicant/wpa_supplicant.conf."
+  echo "Failed to edit /etc/wpa_supplicant/wpa_supplicant.conf." >&2
   exit 1
 fi
 
