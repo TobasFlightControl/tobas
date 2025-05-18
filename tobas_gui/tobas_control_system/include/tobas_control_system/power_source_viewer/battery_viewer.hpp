@@ -21,6 +21,9 @@ class BatteryViewerWidget : public QWidget
   static constexpr int kLabelPSize = 12;
   static constexpr int kBarHeight = 40;
 
+Q_SIGNALS:
+  void batteryReceived(double voltage, double current);
+
 public:
   explicit BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
@@ -40,7 +43,8 @@ private:
   void updateVoltage(const double& voltage);
   void updateCurrent(const double& current);
 
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void batteryCbRos(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void batteryCbQt(double voltage, double current);
 };
 }  // namespace gcs
 }  // namespace gui

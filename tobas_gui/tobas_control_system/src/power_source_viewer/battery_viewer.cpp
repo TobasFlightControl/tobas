@@ -27,6 +27,9 @@ BatteryViewerWidget::BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tob
   form->addVAlignedRow(new qt::Label("Battery Voltage", kLabelPSize), voltage_);
   form->addVAlignedRow(new qt::Label("Battery Current", kLabelPSize), current_);
   setLayout(form);
+
+  // Connection
+  connect(this, &self::batteryReceived, this, &self::batteryCbQt, Qt::QueuedConnection);
 }
 
 void BatteryViewerWidget::reset()
@@ -54,7 +57,7 @@ void BatteryViewerWidget::updateInternalDataStructures()
     current_->setMaximum(eprop_->battery.max_current);
 
     battery_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::batteryCb, this);
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::batteryCbRos, this);
   }
   else {
     eprop_.reset();
@@ -95,10 +98,15 @@ void BatteryViewerWidget::updateCurrent(const double& current)
   }
 }
 
-void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void BatteryViewerWidget::batteryCbRos(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
-  updateVoltage(battery->voltage);
-  updateCurrent(battery->current);
+  Q_EMIT batteryReceived(battery->voltage, battery->current);
+}
+
+void BatteryViewerWidget::batteryCbQt(double voltage, double current)
+{
+  updateVoltage(voltage);
+  updateCurrent(current);
 }
 }  // namespace gcs
 }  // namespace gui

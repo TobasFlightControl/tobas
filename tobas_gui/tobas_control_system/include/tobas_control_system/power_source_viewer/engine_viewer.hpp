@@ -24,6 +24,9 @@ class EngineViewerWidget : public QWidget
   static constexpr double kMinOilTemp = 0.;    // [degC]
   static constexpr double kMaxOilTemp = 130.;  // [degC]
 
+Q_SIGNALS:
+  void engineStateReceived(double fuel_quantity, double oil_temp);
+
 public:
   explicit EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
@@ -43,7 +46,8 @@ private:
   void updateFuelQuantity(const double& fuel_quantity);
   void updateOilTemperature(const double& oil_temp);
 
-  void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);
+  void engineStateCbRos(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);
+  void engineStateCbQt(double fuel_quantity, double oil_temp);
 };
 }  // namespace gcs
 }  // namespace gui
