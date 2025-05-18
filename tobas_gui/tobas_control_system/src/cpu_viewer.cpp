@@ -23,8 +23,10 @@ CPUViewerWidget::CPUViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
   const auto form = new qt::FormLayout();
   form->addVAlignedRow(new qt::Label("CPU Temperature", kLabelPSize), temp_);
   form->addVAlignedRow(new qt::Label("CPU Load", kLabelPSize), load_);
-
   setLayout(form);
+
+  // Connection
+  connect(this, &self::cpuReceived, this, &self::cpuCbQt);
 }
 
 void CPUViewerWidget::reset()
@@ -49,40 +51,46 @@ void CPUViewerWidget::updateNamespace(const std::string& ns)
   load_->setMaximum(kMaxLoad);
 
   cpu_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kCpuTopic), &self::cpuCb, this);
+    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kCpuTopic), &self::cpuCbRos, this);
 }
 
-void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
+void CPUViewerWidget::cpuCbRos(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
-  temp_->setUpper(cpu->temperature);
-  temp_->setCenterText(std::format("{:.0f} ℃", cpu->temperature).c_str());
-  if (cpu->temperature > 85.) {
+  Q_EMIT cpuReceived(cpu->temperature, cpu->load);
+}
+
+void CPUViewerWidget::cpuCbQt(double temp, double load)
+{
+  temp_->setUpper(temp);
+  temp_->setCenterText(std::format("{:.0f} ℃", temp).c_str());
+  if (temp > 85.) {
     temp_->setFillColor(Qt::magenta);
   }
-  else if (cpu->temperature > 80.) {
+  else if (temp > 80.) {
     temp_->setFillColor(Qt::red);
   }
-  else if (cpu->temperature > 60.) {
+  else if (temp > 60.) {
     temp_->setFillColor(Qt::yellow);
   }
-  else if (cpu->temperature > 0.) {
+  else if (temp > 0.) {
     temp_->setFillColor(Qt::green);
   }
   else {
     temp_->setFillColor(Qt::blue);
   }
 
-  load_->setUpper(cpu->load * 100);
-  load_->setCenterText(std::format("{:.0f} %", cpu->load * 100).c_str());
-  if (cpu->load > 80.) {
+  load_->setUpper(load * 100);
+  load_->setCenterText(std::format("{:.0f} %", load * 100).c_str());
+  if (load > 80.) {
     load_->setFillColor(Qt::red);
   }
-  else if (cpu->load > 60.) {
+  else if (load > 60.) {
     load_->setFillColor(Qt::yellow);
   }
   else {
     load_->setFillColor(Qt::green);
   }
 }
+
 }  // namespace gcs
 }  // namespace gui

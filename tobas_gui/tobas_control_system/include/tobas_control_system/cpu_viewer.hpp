@@ -24,6 +24,9 @@ class CPUViewerWidget : public QWidget
   static constexpr double kMinLoad = 0.;    // [%]
   static constexpr double kMaxLoad = 100.;  // [%]
 
+Q_SIGNALS:
+  void cpuReceived(double temp, double load);
+
 public:
   explicit CPUViewerWidget(rclcpp::Node::SharedPtr node);
 
@@ -38,7 +41,10 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
 
-  void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
+  void cpuCbRos(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
+
+private Q_SLOTS:
+  void cpuCbQt(double temp, double load);
 };
 }  // namespace gcs
 }  // namespace gui
