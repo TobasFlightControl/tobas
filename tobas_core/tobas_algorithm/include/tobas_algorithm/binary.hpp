@@ -11,7 +11,11 @@ inline T extractLowerBits(T value, uint8_t n)
   return value & mask;
 }
 
-/* Decode IEEE 754 single precision floating point number. */
+/**
+ * @brief Decode IEEE 754 single precision floating point number.
+ *
+ * Use std::bit_cast<float>(uint32_t) instead.
+ */
 float decodeR32(uint32_t bin);
 
 inline int8_t decodeI8(const uint8_t* ptr)
