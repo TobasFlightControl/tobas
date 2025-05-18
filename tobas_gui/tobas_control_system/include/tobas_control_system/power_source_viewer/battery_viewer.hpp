@@ -44,6 +44,8 @@ private:
   void updateCurrent(const double& current);
 
   void batteryCbRos(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+
+private Q_SLOTS:
   void batteryCbQt(double voltage, double current);
 };
 }  // namespace gcs

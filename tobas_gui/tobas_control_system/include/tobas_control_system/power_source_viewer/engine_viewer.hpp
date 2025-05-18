@@ -47,6 +47,8 @@ private:
   void updateOilTemperature(const double& oil_temp);
 
   void engineStateCbRos(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);
+
+private Q_SLOTS:
   void engineStateCbQt(double fuel_quantity, double oil_temp);
 };
 }  // namespace gcs
