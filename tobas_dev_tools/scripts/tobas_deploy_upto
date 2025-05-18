@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export COLCON_WS=~/colcon_ws
 PARDIR=$(realpath $(dirname "$0"))
 
 # Stop main service
@@ -8,15 +7,6 @@ echo "Stopping Tobas main service."
 sudo systemctl stop tobas_real.target
 if [ $? -ne 0 ]; then
   echo "Failed to stop tobas_real.target."
-  exit 1
-fi
-
-# Update repositories
-echo "Updating repositories."
-cd ${COLCON_WS}
-vcs pull
-if [ $? -ne 0 ]; then
-  echo "Failed to update repositories."
   exit 1
 fi
 
