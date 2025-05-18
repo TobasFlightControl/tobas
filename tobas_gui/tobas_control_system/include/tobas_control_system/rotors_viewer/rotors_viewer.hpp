@@ -25,6 +25,10 @@ class RotorsViewerWiddget : public qt::ScrollArea
   static constexpr char kAliveBackgroundColor[] = "transparent";
   static constexpr char kDeadBackgroundColor[] = "red";
 
+Q_SIGNALS:
+  void rotorStatesReceived(const QString& link_name, double speed);
+  void rotorLivelinessReceived(const QString& link_name, bool alive);
+
 public:
   explicit RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
@@ -43,10 +47,14 @@ private:
 
   void setSpeed(const std::string& link_name, const double& rps);
 
-  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
-  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
+  void rotorStatesCbRos(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
+  void rotorLivelinessCbRos(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
 
   static QString bottomText(int rpm);
+
+private Q_SLOTS:
+  void rotorStateCbQt(const QString& link_name, double speed);
+  void rotorLivelinessCbQt(const QString& link_name, bool alive);
 };
 }  // namespace gcs
 }  // namespace gui
