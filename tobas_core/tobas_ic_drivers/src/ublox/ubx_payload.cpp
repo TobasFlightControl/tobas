@@ -1,8 +1,8 @@
 #include "tobas_ic_drivers/ublox/ubx_payload.hpp"
 
-#include <tobas_algorithm/binary.hpp>
+#include <bit>
 
-using namespace std;
+#include <tobas_algorithm/binary.hpp>
 
 namespace ublox
 {
@@ -34,18 +34,18 @@ void NAV_COV::decode(const uint8_t* p)
   posCovValid = algo::decodeU8(p + 5);
   velCovValid = algo::decodeU8(p + 6);
 
-  posCovNN = algo::decodeR32(p + 16);
-  posCovNE = algo::decodeR32(p + 20);
-  posCovND = algo::decodeR32(p + 24);
-  posCovEE = algo::decodeR32(p + 28);
-  posCovED = algo::decodeR32(p + 32);
-  posCovDD = algo::decodeR32(p + 36);
-  velCovNN = algo::decodeR32(p + 40);
-  velCovNE = algo::decodeR32(p + 44);
-  velCovND = algo::decodeR32(p + 48);
-  velCovEE = algo::decodeR32(p + 52);
-  velCovED = algo::decodeR32(p + 56);
-  velCovDD = algo::decodeR32(p + 60);
+  posCovNN = std::bit_cast<float>(algo::decodeU32(p + 16));
+  posCovNE = std::bit_cast<float>(algo::decodeU32(p + 20));
+  posCovND = std::bit_cast<float>(algo::decodeU32(p + 24));
+  posCovEE = std::bit_cast<float>(algo::decodeU32(p + 28));
+  posCovED = std::bit_cast<float>(algo::decodeU32(p + 32));
+  posCovDD = std::bit_cast<float>(algo::decodeU32(p + 36));
+  velCovNN = std::bit_cast<float>(algo::decodeU32(p + 40));
+  velCovNE = std::bit_cast<float>(algo::decodeU32(p + 44));
+  velCovND = std::bit_cast<float>(algo::decodeU32(p + 48));
+  velCovEE = std::bit_cast<float>(algo::decodeU32(p + 52));
+  velCovED = std::bit_cast<float>(algo::decodeU32(p + 56));
+  velCovDD = std::bit_cast<float>(algo::decodeU32(p + 60));
 }
 
 void NAV_DOP::decode(const uint8_t*)
@@ -309,290 +309,290 @@ void NAV_VELNED::decode(const uint8_t* p)
 
 /* ===== Print Methods ===== */
 
-void ACK_NAK::print(ostream& os) const
+void ACK_NAK::print(std::ostream& os) const
 {
-  os << "Class ID of the Not-Acknowledged Message: " << (int)clsID << endl;
-  os << "Message ID of the Not-Acknowledged Message: " << (int)msgID << endl;
+  os << "Class ID of the Not-Acknowledged Message: " << (int)clsID << std::endl;
+  os << "Message ID of the Not-Acknowledged Message: " << (int)msgID << std::endl;
 }
 
-void ACK_ACK::print(ostream& os) const
+void ACK_ACK::print(std::ostream& os) const
 {
-  os << "Class ID of the Acknowledged Message: " << (int)clsID << endl;
-  os << "Message ID of the Acknowledged Message: " << (int)msgID << endl;
+  os << "Class ID of the Acknowledged Message: " << (int)clsID << std::endl;
+  os << "Message ID of the Acknowledged Message: " << (int)msgID << std::endl;
 }
 
-void NAV_CLOCK::print(ostream&) const
+void NAV_CLOCK::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_COV::print(ostream& os) const
+void NAV_COV::print(std::ostream& os) const
 {
-  os << "GPS time of week: " << iTOW << "[ms]" << endl;
-  os << "Message version (0x00 for this version): " << version << endl;
-  os << "Position covariance matrix validity flag: " << posCovValid << endl;
-  os << "Velocity covariance matrix validity flag: " << velCovValid << endl;
+  os << "GPS time of week: " << iTOW << "[ms]" << std::endl;
+  os << "Message version (0x00 for this version): " << version << std::endl;
+  os << "Position covariance matrix validity flag: " << posCovValid << std::endl;
+  os << "Velocity covariance matrix validity flag: " << velCovValid << std::endl;
 
-  os << "Position covariance matrix value p_NN: " << posCovNN << "[m^2]" << endl;
-  os << "Position covariance matrix value p_NE: " << posCovNE << "[m^2]" << endl;
-  os << "Position covariance matrix value p_ND: " << posCovND << "[m^2]" << endl;
-  os << "Position covariance matrix value p_EE: " << posCovEE << "[m^2]" << endl;
-  os << "Position covariance matrix value p_ED: " << posCovED << "[m^2]" << endl;
-  os << "Position covariance matrix value p_DD: " << posCovDD << "[m^2]" << endl;
-  os << "Velocity covariance matrix value v_NN: " << velCovNN << "[m^2/s^2]" << endl;
-  os << "Velocity covariance matrix value v_NE: " << velCovNE << "[m^2/s^2]" << endl;
-  os << "Velocity covariance matrix value v_ND: " << velCovND << "[m^2/s^2]" << endl;
-  os << "Velocity covariance matrix value v_EE: " << velCovEE << "[m^2/s^2]" << endl;
-  os << "Velocity covariance matrix value v_ED: " << velCovED << "[m^2/s^2]" << endl;
-  os << "Velocity covariance matrix value v_DD: " << velCovDD << "[m^2/s^2]" << endl;
+  os << "Position covariance matrix value p_NN: " << posCovNN << "[m^2]" << std::endl;
+  os << "Position covariance matrix value p_NE: " << posCovNE << "[m^2]" << std::endl;
+  os << "Position covariance matrix value p_ND: " << posCovND << "[m^2]" << std::endl;
+  os << "Position covariance matrix value p_EE: " << posCovEE << "[m^2]" << std::endl;
+  os << "Position covariance matrix value p_ED: " << posCovED << "[m^2]" << std::endl;
+  os << "Position covariance matrix value p_DD: " << posCovDD << "[m^2]" << std::endl;
+  os << "Velocity covariance matrix value v_NN: " << velCovNN << "[m^2/s^2]" << std::endl;
+  os << "Velocity covariance matrix value v_NE: " << velCovNE << "[m^2/s^2]" << std::endl;
+  os << "Velocity covariance matrix value v_ND: " << velCovND << "[m^2/s^2]" << std::endl;
+  os << "Velocity covariance matrix value v_EE: " << velCovEE << "[m^2/s^2]" << std::endl;
+  os << "Velocity covariance matrix value v_ED: " << velCovED << "[m^2/s^2]" << std::endl;
+  os << "Velocity covariance matrix value v_DD: " << velCovDD << "[m^2/s^2]" << std::endl;
 }
 
-void NAV_DOP::print(ostream&) const
+void NAV_DOP::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_EOE::print(ostream&) const
+void NAV_EOE::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_GEOFENCE::print(ostream&) const
+void NAV_GEOFENCE::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_HPPOSECEF::print(ostream&) const
+void NAV_HPPOSECEF::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_HPPOSLLH::print(ostream& os) const
+void NAV_HPPOSLLH::print(std::ostream& os) const
 {
-  os << "Message version (0x00 for this version): " << version << endl;
+  os << "Message version (0x00 for this version): " << version << std::endl;
 
-  os << "Invalid lon, lat, height, hMSL, lonHp, latHp, heightHp and hMSLHp: " << invalidLlh << endl;
+  os << "Invalid lon, lat, height, hMSL, lonHp, latHp, heightHp and hMSLHp: " << invalidLlh << std::endl;
 
-  os << "GPS time of week: " << iTOW << "[ms]" << endl;
+  os << "GPS time of week: " << iTOW << "[ms]" << std::endl;
 
-  os << "Longitude: " << lon << "[deg]" << endl;
-  os << "Latitude: " << lat << "[deg]" << endl;
-  os << "Height above ellipsoid: " << height << "[mm]" << endl;
-  os << "Height above mean sea level: " << hMSL << "[mm]" << endl;
+  os << "Longitude: " << lon << "[deg]" << std::endl;
+  os << "Latitude: " << lat << "[deg]" << std::endl;
+  os << "Height above ellipsoid: " << height << "[mm]" << std::endl;
+  os << "Height above mean sea level: " << hMSL << "[mm]" << std::endl;
 
-  os << "High precision component of longitude: " << lonHp << "[deg]" << endl;
-  os << "High precision component of latitude: " << latHp << "[deg]" << endl;
-  os << "High precision component of height above ellipsoid: " << heightHp << "[mm]" << endl;
-  os << "High precision component of height above mean sea level: " << hMSLHp << "[mm]" << endl;
+  os << "High precision component of longitude: " << lonHp << "[deg]" << std::endl;
+  os << "High precision component of latitude: " << latHp << "[deg]" << std::endl;
+  os << "High precision component of height above ellipsoid: " << heightHp << "[mm]" << std::endl;
+  os << "High precision component of height above mean sea level: " << hMSLHp << "[mm]" << std::endl;
 
-  os << "Horizontal accuracy estimate: " << hAcc << "[mm]" << endl;
-  os << "Vertical accuracy estimate: " << vAcc << "[mm]" << endl;
+  os << "Horizontal accuracy estimate: " << hAcc << "[mm]" << std::endl;
+  os << "Vertical accuracy estimate: " << vAcc << "[mm]" << std::endl;
 }
 
-void NAV_ODO::print(ostream&) const
+void NAV_ODO::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_ORB::print(ostream&) const
+void NAV_ORB::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_PL::print(ostream&) const
+void NAV_PL::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_POSECEF::print(ostream&) const
+void NAV_POSECEF::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_POSLLH::print(ostream& os) const
+void NAV_POSLLH::print(std::ostream& os) const
 {
-  os << "GPS time of week: " << iTOW << "[ms]" << endl;
+  os << "GPS time of week: " << iTOW << "[ms]" << std::endl;
 
-  os << "Longitude: " << lon << "[deg]" << endl;
-  os << "Latitude: " << lat << "[deg]" << endl;
-  os << "Height above ellipsoid: " << height << "[mm]" << endl;
-  os << "Height above mean sea level: " << hMSL << "[mm]" << endl;
+  os << "Longitude: " << lon << "[deg]" << std::endl;
+  os << "Latitude: " << lat << "[deg]" << std::endl;
+  os << "Height above ellipsoid: " << height << "[mm]" << std::endl;
+  os << "Height above mean sea level: " << hMSL << "[mm]" << std::endl;
 
-  os << "Horizontal accuracy estimate: " << hAcc << "[mm]" << endl;
-  os << "Vertical accuracy estimate: " << vAcc << "[mm]" << endl;
+  os << "Horizontal accuracy estimate: " << hAcc << "[mm]" << std::endl;
+  os << "Vertical accuracy estimate: " << vAcc << "[mm]" << std::endl;
 }
 
-void NAV_PVT::print(ostream& os) const
+void NAV_PVT::print(std::ostream& os) const
 {
-  os << "GPS time of week: " << iTOW << "[ms]" << endl;
+  os << "GPS time of week: " << iTOW << "[ms]" << std::endl;
 
-  os << "Year (UTC): " << (int)year << endl;
-  os << "Month, range 1..12 (UTC): " << (int)month << endl;
-  os << "Day of month, range 1..31 (UTC): " << (int)day << endl;
-  os << "Hour of day, range 0..23 (UTC): " << (int)hour << endl;
-  os << "Minute of hour, range 0..59 (UTC): " << (int)min << endl;
-  os << "Seconds of minute, range 0..60 (UTC): " << (int)sec << endl;
+  os << "Year (UTC): " << (int)year << std::endl;
+  os << "Month, range 1..12 (UTC): " << (int)month << std::endl;
+  os << "Day of month, range 1..31 (UTC): " << (int)day << std::endl;
+  os << "Hour of day, range 0..23 (UTC): " << (int)hour << std::endl;
+  os << "Minute of hour, range 0..59 (UTC): " << (int)min << std::endl;
+  os << "Seconds of minute, range 0..60 (UTC): " << (int)sec << std::endl;
 
-  os << "Valid UTC Date: " << validDate << endl;
-  os << "Valid UTC time of day: " << validTime << endl;
-  os << "UTC time of day has been fully resolved: " << fullyResolved << endl;
-  os << "Valid magnetic declination: " << validMag << endl;
+  os << "Valid UTC Date: " << validDate << std::endl;
+  os << "Valid UTC time of day: " << validTime << std::endl;
+  os << "UTC time of day has been fully resolved: " << fullyResolved << std::endl;
+  os << "Valid magnetic declination: " << validMag << std::endl;
 
-  os << "Time accuracy estimate (UTC): " << tAcc << "[ns]" << endl;
-  os << "Fraction of second, range -1e9 .. 1e9 (UTC): " << nano << "[ns]" << endl;
+  os << "Time accuracy estimate (UTC): " << tAcc << "[ns]" << std::endl;
+  os << "Fraction of second, range -1e9 .. 1e9 (UTC): " << nano << "[ns]" << std::endl;
 
-  os << "GNSSfix Type: " << (int)fixType << endl;
+  os << "GNSSfix Type: " << (int)fixType << std::endl;
 
-  os << "Valid fix (i.e within DOP & accuracy masks): " << gnssFixOk << endl;
-  os << "Differential corrections were applied: " << diffSoln << endl;
-  os << "Power Save Mode state: " << (int)psmState << endl;
-  os << "Heading of vehicle is valid: " << headVehValid << endl;
-  os << "Carrier phase range solution status: " << carrSoln << endl;
+  os << "Valid fix (i.e within DOP & accuracy masks): " << gnssFixOk << std::endl;
+  os << "Differential corrections were applied: " << diffSoln << std::endl;
+  os << "Power Save Mode state: " << (int)psmState << std::endl;
+  os << "Heading of vehicle is valid: " << headVehValid << std::endl;
+  os << "Carrier phase range solution status: " << carrSoln << std::endl;
 
-  os << "Information about UTC Date and Time of Day validity confirmation is available: " << confirmedAvai << endl;
-  os << "UTC Date validity could be confirmed: " << confirmedDate << endl;
-  os << "UTC Time of Day could be confirmed: " << confirmedTime << endl;
+  os << "Information about UTC Date and Time of Day validity confirmation is available: " << confirmedAvai << std::endl;
+  os << "UTC Date validity could be confirmed: " << confirmedDate << std::endl;
+  os << "UTC Time of Day could be confirmed: " << confirmedTime << std::endl;
 
-  os << "Longitude: " << lon << "[deg]" << endl;
-  os << "Latitude: " << lat << "[deg]" << endl;
-  os << "Height above ellipsoid: " << height << "[mm]" << endl;
-  os << "Height above mean sea level: " << hMSL << "[mm]" << endl;
-  os << "Horizontal accuracy estimate: " << hAcc << "[mm]" << endl;
-  os << "Vertical accuracy estimate: " << vAcc << "[mm]" << endl;
-  os << "NED north velocity: " << velN << "[m/s]" << endl;
-  os << "NED east velocity: " << velE << "[m/s]" << endl;
-  os << "NED down velocity: " << velD << "[m/s]" << endl;
-  os << "Ground Speed (2-D): " << gSpeed << "[mm/s]" << endl;
-  os << "Heading of motion (2-D): " << headMot << "[deg]" << endl;
-  os << "Speed accuracy estimate: " << sAcc << "[mm/s]" << endl;
-  os << "Heading accuracy estimate: " << headAcc << "[deg]" << endl;
-  os << "Position DOP: " << pDOP << endl;
+  os << "Longitude: " << lon << "[deg]" << std::endl;
+  os << "Latitude: " << lat << "[deg]" << std::endl;
+  os << "Height above ellipsoid: " << height << "[mm]" << std::endl;
+  os << "Height above mean sea level: " << hMSL << "[mm]" << std::endl;
+  os << "Horizontal accuracy estimate: " << hAcc << "[mm]" << std::endl;
+  os << "Vertical accuracy estimate: " << vAcc << "[mm]" << std::endl;
+  os << "NED north velocity: " << velN << "[m/s]" << std::endl;
+  os << "NED east velocity: " << velE << "[m/s]" << std::endl;
+  os << "NED down velocity: " << velD << "[m/s]" << std::endl;
+  os << "Ground Speed (2-D): " << gSpeed << "[mm/s]" << std::endl;
+  os << "Heading of motion (2-D): " << headMot << "[deg]" << std::endl;
+  os << "Speed accuracy estimate: " << sAcc << "[mm/s]" << std::endl;
+  os << "Heading accuracy estimate: " << headAcc << "[deg]" << std::endl;
+  os << "Position DOP: " << pDOP << std::endl;
 
-  os << "Invalid lon, lat, height and hMSL: " << invalidLlh << endl;
+  os << "Invalid lon, lat, height and hMSL: " << invalidLlh << std::endl;
 
-  os << "Heading of vehicle (2-D): " << headVeh << "[deg]" << endl;
-  os << "Magnetic declination: " << magDec << "[deg]" << endl;
-  os << "Magnetic declination accuracy: " << magAcc << "[deg]" << endl;
+  os << "Heading of vehicle (2-D): " << headVeh << "[deg]" << std::endl;
+  os << "Magnetic declination: " << magDec << "[deg]" << std::endl;
+  os << "Magnetic declination accuracy: " << magAcc << "[deg]" << std::endl;
 }
 
-void NAV_RELPOSNED::print(ostream&) const
+void NAV_RELPOSNED::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_RESETODO::print(ostream&) const
+void NAV_RESETODO::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_SAT::print(ostream&) const
+void NAV_SAT::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_SBAS::print(ostream&) const
+void NAV_SBAS::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_SIG::print(ostream&) const
+void NAV_SIG::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_SLAS::print(ostream&) const
+void NAV_SLAS::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_STATUS::print(ostream& os) const
+void NAV_STATUS::print(std::ostream& os) const
 {
-  os << "GPS time of week: " << iTOW << "[ms]" << endl;
-  os << "GPSfix Type: " << (int)gpsFix << endl;
+  os << "GPS time of week: " << iTOW << "[ms]" << std::endl;
+  os << "GPSfix Type: " << (int)gpsFix << std::endl;
 
-  os << "Position and velocity valid and within DOP and ACC Masks: " << gpsFixOk << endl;
-  os << "Differential corrections were applied: " << diffSoln << endl;
-  os << "Week Number valid: " << wknSet << endl;
-  os << "Time of Week valid: " << towSet << endl;
+  os << "Position and velocity valid and within DOP and ACC Masks: " << gpsFixOk << std::endl;
+  os << "Differential corrections were applied: " << diffSoln << std::endl;
+  os << "Week Number valid: " << wknSet << std::endl;
+  os << "Time of Week valid: " << towSet << std::endl;
 
-  os << "Differential corrections available: " << diffCorr << endl;
-  os << "Map matching status: " << (int)mapMatching << endl;
+  os << "Differential corrections available: " << diffCorr << std::endl;
+  os << "Map matching status: " << (int)mapMatching << std::endl;
 
-  os << "Power save mode state: " << (int)psmState << endl;
-  os << "Spoofing detection state: " << (int)spoofDetState << endl;
+  os << "Power save mode state: " << (int)psmState << std::endl;
+  os << "Spoofing detection state: " << (int)spoofDetState << std::endl;
 
-  os << "Time to first fix: " << ttff << "[ms]" << endl;
-  os << "Milliseconds since Startup / Reset: " << msss << "[ms]" << endl;
+  os << "Time to first fix: " << ttff << "[ms]" << std::endl;
+  os << "Milliseconds since Startup / Reset: " << msss << "[ms]" << std::endl;
 }
 
-void NAV_SVIN::print(ostream&) const
+void NAV_SVIN::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEBDS::print(ostream&) const
+void NAV_TIMEBDS::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEGAL::print(ostream&) const
+void NAV_TIMEGAL::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEGLO::print(ostream&) const
+void NAV_TIMEGLO::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEGPS::print(ostream& os) const
+void NAV_TIMEGPS::print(std::ostream& os) const
 {
-  os << "GPS time of week of the navigation epoch: " << iTOW << "[ms]" << endl;
-  os << "Fractional part of iTOW: " << fTOW << "[ns]" << endl;
-  os << "GPS week number of the navigation epoch: " << week << endl;
-  os << "GPS leap seconds (GPS-UTC): " << (int)leapS << "[s]" << endl;
+  os << "GPS time of week of the navigation epoch: " << iTOW << "[ms]" << std::endl;
+  os << "Fractional part of iTOW: " << fTOW << "[ns]" << std::endl;
+  os << "GPS week number of the navigation epoch: " << week << std::endl;
+  os << "GPS leap seconds (GPS-UTC): " << (int)leapS << "[s]" << std::endl;
 
-  os << "Valid GPS time of week: " << towValid << endl;
-  os << "Valid GPS week number: " << weekValid << endl;
-  os << "Valid GPS leap seconds: " << leapSValid << endl;
+  os << "Valid GPS time of week: " << towValid << std::endl;
+  os << "Valid GPS week number: " << weekValid << std::endl;
+  os << "Valid GPS leap seconds: " << leapSValid << std::endl;
 
-  os << "Time Accuracy Estimate: " << tAcc << "[ns]" << endl;
+  os << "Time Accuracy Estimate: " << tAcc << "[ns]" << std::endl;
 }
 
-void NAV_TIMELS::print(ostream&) const
+void NAV_TIMELS::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEQZSS::print(ostream&) const
+void NAV_TIMEQZSS::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEUTC::print(ostream&) const
+void NAV_TIMEUTC::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_VELECEF::print(ostream&) const
+void NAV_VELECEF::print(std::ostream&) const
 {
   // TODO
 }
 
-void NAV_VELNED::print(ostream& os) const
+void NAV_VELNED::print(std::ostream& os) const
 {
-  os << "GPS time of week: " << iTOW << "[ms]" << endl;
+  os << "GPS time of week: " << iTOW << "[ms]" << std::endl;
 
-  os << "North velocity component: " << velN << "[cm/s]" << endl;
-  os << "East velocity component: " << velE << "[cm/s]" << endl;
-  os << "Down velocity component: " << velD << "[cm/s]" << endl;
+  os << "North velocity component: " << velN << "[cm/s]" << std::endl;
+  os << "East velocity component: " << velE << "[cm/s]" << std::endl;
+  os << "Down velocity component: " << velD << "[cm/s]" << std::endl;
 
-  os << "Speed (3-D): " << speed << "[cm/s]" << endl;
-  os << "Ground Speed (3-D): " << gSpeed << "[cm/s]" << endl;
-  os << "Heading of motion 2-D: " << heading << "[deg]" << endl;
+  os << "Speed (3-D): " << speed << "[cm/s]" << std::endl;
+  os << "Ground Speed (3-D): " << gSpeed << "[cm/s]" << std::endl;
+  os << "Heading of motion 2-D: " << heading << "[deg]" << std::endl;
 
-  os << "Speed accuracy estimate: " << sAcc << "[mm/s]" << endl;
-  os << "Course / Heading accuracy estimate: " << cAcc << "[deg]" << endl;
+  os << "Speed accuracy estimate: " << sAcc << "[mm/s]" << std::endl;
+  os << "Course / Heading accuracy estimate: " << cAcc << "[deg]" << std::endl;
 }
 }  // namespace payload
 }  // namespace ublox
