@@ -47,9 +47,4 @@ inline uint32_t decodeU32(const uint8_t* ptr)
 {
   return (ptr[3] << 24) | (ptr[2] << 16) | (ptr[1] << 8) | ptr[0];
 }
-
-inline float decodeR32(const uint8_t* ptr)
-{
-  return decodeR32(decodeU32(ptr));
-}
 }  // namespace algo
