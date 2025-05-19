@@ -52,6 +52,7 @@ protected:
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  RosQtBridge bridge_;
 
   kdl::Tree tree_;
   tobas::Drone drone_;

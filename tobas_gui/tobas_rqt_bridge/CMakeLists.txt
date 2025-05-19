@@ -24,9 +24,9 @@ find_package(Qt5Core REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
-find_package(tobas_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES Qt5Core tobas_path_tools tobas_ros2_tools tobas_constants tobas_msgs)
+set(AMENT_DEPENDENCIES Qt5Core tobas_path_tools tobas_ros2_tools tobas_constants tobas_msgs_adapter)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)

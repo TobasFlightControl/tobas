@@ -21,17 +21,17 @@ Q_SIGNALS:
   void engineReceived(const tobas_msgs::msg::EngineState::ConstSharedPtr& msg);
   void cpuReceived(const tobas_msgs::msg::Cpu::ConstSharedPtr& msg);
   void sbusReceived(const tobas_msgs::msg::Sbus::ConstSharedPtr& msg);
-  void rcInputReceived(const tobas_msgs::msg::RCInput::ConstSharedPtr& msg);
-  void gnssReceived(const tobas_msgs::msg::Gnss::ConstSharedPtr& msg);
+  void rcInputReceived(const tobas_msgs::RCInput::ConstSharedPtr& msg);
+  void gnssReceived(const tobas_msgs::Gnss::ConstSharedPtr& msg);
   void rotorStatesReceived(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
   void rotorLivelinessesReceived(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
   void jointStatesReceived(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& msg);
-  void odomReceived(const tobas_msgs::msg::Odometry::ConstSharedPtr& msg);
+  void odomReceived(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void armingReceived(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
   void preArmCheckReceived(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& msg);
   void postArmCheckReceived(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& msg);
-  void rawImuReceived(const tobas_msgs::msg::ImuStamped::ConstSharedPtr& msg);
-  void rawMagReceived(const tobas_msgs::msg::MagneticFieldStamped::ConstSharedPtr& msg);
+  void rawImuReceived(const tobas_msgs::ImuStamped::ConstSharedPtr& msg);
+  void rawMagReceived(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& msg);
   void rosbagStateReceived(const tobas_msgs::msg::RosbagState::ConstSharedPtr& msg);
 
 public:

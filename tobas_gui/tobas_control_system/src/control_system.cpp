@@ -7,17 +7,21 @@ namespace gui
 {
 namespace gcs
 {
-ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone) : drone_(drone)
+ControlSystemWidget::ControlSystemWidget(
+  rclcpp::Node::SharedPtr node,
+  const tobas::Drone& drone,
+  const RosQtBridge& bridge)
+  : drone_(drone)
 {
   // Components
   pose_viewer_ = new PoseViewerWidget(node);
   power_source_viewer_ = new PowerSourceViewerWidget(node, drone);
-  cpu_viewer_ = new CPUViewerWidget(node);
+  cpu_viewer_ = new CPUViewerWidget(bridge);
   rcin_viewer_ = new rcin::RCInputViewerWidget(node);
   rotors_viewer_ = new RotorsViewerWiddget(node, drone);
   console_ = new ConsoleWidget(node);
   status_viewer_ = new StatusViewerWidget(node);
-  mission_planner_ = new MissionPlannerWidget(node);
+  mission_planner_ = new MissionPlannerWidget(node, bridge);
 
   // Layout
   const auto cols3 = new QHBoxLayout();
@@ -61,7 +65,7 @@ void ControlSystemWidget::updateInternalDataStructures()
 {
   pose_viewer_->updateNamespace(drone_.name);
   power_source_viewer_->updateInternalDataStructures();
-  cpu_viewer_->updateNamespace(drone_.name);
+  cpu_viewer_->reset();
   rcin_viewer_->updateNamespace(drone_.name);
   rotors_viewer_->updateInternalDataStructures();
   console_->updateNamespace(drone_.name);

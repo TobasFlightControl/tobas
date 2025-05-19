@@ -28,6 +28,7 @@ namespace core
 {
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   : node_(node)
+  , bridge_(node)
   , property_client_(node, tobas::kPropertyServerName, kPkgName)
   , ssh_client_(node)
   , package_builder_(node)
@@ -43,7 +44,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   urdf_builder_ = new urdf_builder::URDFBuilder();
   setup_assistant_ = new sa::SetupAssistantWidget(node);
   hardware_setup_ = new hw::HardwareSetupWidget(node, tree_, drone_);
-  control_system_ = new gcs::ControlSystemWidget(node, drone_);
+  control_system_ = new gcs::ControlSystemWidget(node, drone_, bridge_);
   param_tuning_ = new param::ParameterTuningWidget(node);
   flight_log_ = new log::FlightLogWidget(node);
   simulation_ = new sim::SimulationWidget(node);
@@ -154,6 +155,8 @@ void GUICoreWidget::reset()
 void GUICoreWidget::updateInternalDataStructures()
 {
   reset();
+
+  bridge_.initialize(drone_.name);
 
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
@@ -356,7 +359,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // リロード
   progress.setLabelText("Reloading.");
-  updateInternalDataStructures();
+  reset();
   progress.progressStep();
 
   progress.close();

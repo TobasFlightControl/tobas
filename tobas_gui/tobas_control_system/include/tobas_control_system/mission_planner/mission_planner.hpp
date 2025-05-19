@@ -3,6 +3,7 @@
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
@@ -32,7 +33,7 @@ Q_SIGNALS:
   void odomReceived(double yaw);
 
 public:
-  explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node);
+  explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void reset();
   void updateNamespace(const std::string& ns);
@@ -57,9 +58,6 @@ private:
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
   MissionExecutionThread mission_thread_;
 
-  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();
 
@@ -78,9 +76,6 @@ private:
   /* ミッションコマンドのリストを作成する． */
   QVector<BaseCommandData::SharedPtr> createMissionCommandList();
 
-  void gnssCbRos(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
-  void odomCbRos(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-
 private Q_SLOTS:
   void onLoadButtonClicked();
   void onSaveButtonClicked();
@@ -97,8 +92,8 @@ private Q_SLOTS:
   void onWaypointMoved(int index, double latitude, double longitude);
   void onMissionFinished(bool success, const QString& message);
 
-  void gnssCbQt(double latitude, double longitude);
-  void odomCbQt(double yaw);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
 }  // namespace gcs
 }  // namespace gui
