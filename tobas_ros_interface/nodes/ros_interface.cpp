@@ -16,7 +16,6 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
-#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/imu_stamped.hpp>
@@ -114,7 +113,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
     tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(
-    tobas::kRotorLivelinessTopic, tobas::kRotorLivelinessTopic);
+    tobas::kRotorLivelinessesTopic, tobas::kRotorLivelinessesTopic);
   addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
     tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
   addTopicLogicToIface<tobas_msgs::msg::Odometry>(tobas::addThrotNS(tobas::kOdometryTopic), tobas::kOdometryTopic);

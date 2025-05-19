@@ -47,7 +47,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCbRos, this);
   rotor_liveliness_sub_ = ros2::createSubscriber(
     node_,
-    path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorLivelinessTopic),
+    path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorLivelinessesTopic),
     &self::rotorLivelinessCbRos,
     this);
 }

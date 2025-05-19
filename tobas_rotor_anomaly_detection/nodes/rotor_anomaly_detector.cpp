@@ -48,7 +48,7 @@ private:
 RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
   : super("rotor_anomaly_detector", options)
 {
-  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessTopic);
+  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessesTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::statesCb, this);
@@ -58,16 +58,16 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
 
 void RotorAnomalyDetectorNode::publishRotorLiveliness()
 {
-  auto rotor_liveliness = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
-  rotor_liveliness->header.stamp = get_clock()->now();
+  auto rotor_livelinesses = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
+  rotor_livelinesses->header.stamp = get_clock()->now();
 
   for (const auto& [link_name, data] : data_) {
-    rotor_liveliness->data.emplace_back();
-    rotor_liveliness->data.back().link_name = link_name;
-    rotor_liveliness->data.back().alive = data.is_alive;
+    rotor_livelinesses->data.emplace_back();
+    rotor_livelinesses->data.back().link_name = link_name;
+    rotor_livelinesses->data.back().alive = data.is_alive;
   }
 
-  rotor_liveliness_pub_->publish(move(rotor_liveliness));
+  rotor_liveliness_pub_->publish(move(rotor_livelinesses));
 }
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
