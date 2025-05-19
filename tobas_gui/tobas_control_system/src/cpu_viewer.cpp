@@ -91,6 +91,5 @@ void CPUViewerWidget::cpuCbQt(double temp, double load)
     load_->setFillColor(Qt::green);
   }
 }
-
 }  // namespace gcs
 }  // namespace gui
