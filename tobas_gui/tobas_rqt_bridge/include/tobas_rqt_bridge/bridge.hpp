@@ -18,7 +18,7 @@ class RosQtBridge : public QObject
 
 Q_SIGNALS:
   void batteryReceived(const tobas_msgs::msg::Battery::ConstSharedPtr& msg);
-  void engineReceived(const tobas_msgs::msg::EngineState::ConstSharedPtr& msg);
+  void engineStateReceived(const tobas_msgs::msg::EngineState::ConstSharedPtr& msg);
   void cpuReceived(const tobas_msgs::msg::Cpu::ConstSharedPtr& msg);
   void sbusReceived(const tobas_msgs::msg::Sbus::ConstSharedPtr& msg);
   void rcInputReceived(const tobas_msgs::RCInput::ConstSharedPtr& msg);

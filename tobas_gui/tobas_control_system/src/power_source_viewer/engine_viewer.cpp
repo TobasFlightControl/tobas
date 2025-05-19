@@ -15,8 +15,7 @@ namespace gui
 {
 namespace gcs
 {
-EngineViewerWidget::EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone)
+EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
   fuel_quantity_ = new qt::HPositionBarWidget();
   oil_temp_ = new qt::HPositionBarWidget();
@@ -31,7 +30,7 @@ EngineViewerWidget::EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas
   setLayout(form);
 
   // Connection
-  connect(this, &self::engineStateReceived, this, &self::engineStateCbQt, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
 }
 
 void EngineViewerWidget::reset()
@@ -57,16 +56,9 @@ void EngineViewerWidget::updateInternalDataStructures()
     oil_temp_->setLower(kMinOilTemp);
     oil_temp_->setMinimum(kMinOilTemp);
     oil_temp_->setMaximum(kMaxOilTemp);
-
-    engine_state_sub_ = ros2::createSubscriber(
-      node_,
-      path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kEngineStateTopic),
-      &self::engineStateCbRos,
-      this);
   }
   else {
     iprop_.reset();
-    engine_state_sub_.reset();
   }
 }
 
@@ -107,15 +99,10 @@ void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
   }
 }
 
-void EngineViewerWidget::engineStateCbRos(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
+void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
 {
-  Q_EMIT engineStateReceived(engine_state->fuel_quantity, engine_state->oil_temperature);
-}
-
-void EngineViewerWidget::engineStateCbQt(double fuel_quantity, double oil_temp)
-{
-  updateFuelQuantity(fuel_quantity);
-  updateOilTemperature(oil_temp);
+  updateFuelQuantity(engine_state->fuel_quantity);
+  updateOilTemperature(engine_state->oil_temperature);
 }
 }  // namespace gcs
 }  // namespace gui

@@ -16,7 +16,7 @@ void RosQtBridge::initialize(const std::string& ns)
   subscriptions_.clear();
 
   add<tobas_msgs::msg::Battery, &self::batteryReceived>(ns, tobas::kBatteryTopic);
-  add<tobas_msgs::msg::EngineState, &self::engineReceived>(ns, tobas::kEngineStateTopic);
+  add<tobas_msgs::msg::EngineState, &self::engineStateReceived>(ns, tobas::kEngineStateTopic);
   add<tobas_msgs::msg::Cpu, &self::cpuReceived>(ns, tobas::kCpuTopic);
   add<tobas_msgs::msg::Sbus, &self::sbusReceived>(ns, tobas::kSbusTopic);
   add<tobas_msgs::RCInput, &self::rcInputReceived>(ns, tobas::kRcInputTopic);

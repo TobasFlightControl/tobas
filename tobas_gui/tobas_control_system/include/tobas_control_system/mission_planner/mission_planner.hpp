@@ -2,7 +2,6 @@
 
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
@@ -27,10 +26,6 @@ class MissionPlannerWidget : public QWidget
   static constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online/";
   static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline/";
   static constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
-
-Q_SIGNALS:
-  void gnssReceived(double latitude, double longitude);
-  void odomReceived(double yaw);
 
 public:
   explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);

@@ -9,13 +9,13 @@ namespace gcs
 {
 ControlSystemWidget::ControlSystemWidget(
   rclcpp::Node::SharedPtr node,
-  const tobas::Drone& drone,
-  const RosQtBridge& bridge)
+  const RosQtBridge& bridge,
+  const tobas::Drone& drone)
   : drone_(drone)
 {
   // Components
   pose_viewer_ = new PoseViewerWidget(node);
-  power_source_viewer_ = new PowerSourceViewerWidget(node, drone);
+  power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
   cpu_viewer_ = new CPUViewerWidget(bridge);
   rcin_viewer_ = new rcin::RCInputViewerWidget(node);
   rotors_viewer_ = new RotorsViewerWiddget(node, drone);

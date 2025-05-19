@@ -6,11 +6,10 @@ namespace gui
 {
 namespace gcs
 {
-PowerSourceViewerWidget::PowerSourceViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : drone_(drone)
+PowerSourceViewerWidget::PowerSourceViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
-  battery_viewer_ = new BatteryViewerWidget(node, drone);
-  engine_viewer_ = new EngineViewerWidget(node, drone);
+  battery_viewer_ = new BatteryViewerWidget(bridge, drone);
+  engine_viewer_ = new EngineViewerWidget(bridge, drone);
 
   addWidget(battery_viewer_);
   addWidget(engine_viewer_);
