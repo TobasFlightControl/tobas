@@ -18,7 +18,7 @@ ControlSystemWidget::ControlSystemWidget(
   power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
   cpu_viewer_ = new CPUViewerWidget(bridge);
   rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
-  rotors_viewer_ = new RotorsViewerWiddget(node, drone);
+  rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
   console_ = new ConsoleWidget(node);
   status_viewer_ = new StatusViewerWidget(node);
   mission_planner_ = new MissionPlannerWidget(node, bridge);
