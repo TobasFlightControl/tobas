@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
-#include <tobas_ros2_tools/register.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include <tobas_msgs_adapter/rc_input.hpp>
 
@@ -24,29 +24,19 @@ class ThrottlesViewer : public QWidget
   static constexpr auto kLineColorEnable = Qt::red;
   static constexpr auto kLineColorDisable = Qt::darkGray;
 
-Q_SIGNALS:
-  void rcInputReceived(double roll, double pitch, double yaw, double throttle, bool enable);
-
 public:
-  explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
+  explicit ThrottlesViewer(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   qt::HPositionBarWidget* roll_range_;
   qt::VPositionBarWidget* pitch_range_;
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
-
-  void rcInputCbRos(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
-
 private Q_SLOTS:
-  void rcInputCbQt(double roll, double pitch, double yaw, double throttle, bool enable);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin
 }  // namespace gcs

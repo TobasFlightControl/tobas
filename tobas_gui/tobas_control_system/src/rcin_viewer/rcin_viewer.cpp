@@ -8,10 +8,10 @@ namespace gcs
 {
 namespace rcin
 {
-RCInputViewerWidget::RCInputViewerWidget(rclcpp::Node::SharedPtr node)
+RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
 {
-  throttles_viewer_ = new ThrottlesViewer(node);
-  toggles_viewer_ = new TogglesViewer(node);
+  throttles_viewer_ = new ThrottlesViewer(bridge);
+  toggles_viewer_ = new TogglesViewer(bridge);
 
   reset();
 
@@ -26,12 +26,6 @@ void RCInputViewerWidget::reset()
 {
   throttles_viewer_->reset();
   toggles_viewer_->reset();
-}
-
-void RCInputViewerWidget::updateNamespace(const std::string& ns)
-{
-  throttles_viewer_->updateNamespace(ns);
-  toggles_viewer_->updateNamespace(ns);
 }
 }  // namespace rcin
 }  // namespace gcs

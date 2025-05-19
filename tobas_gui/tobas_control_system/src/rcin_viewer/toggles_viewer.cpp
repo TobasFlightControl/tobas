@@ -6,8 +6,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 namespace gui
@@ -16,7 +14,7 @@ namespace gcs
 {
 namespace rcin
 {
-TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
+TogglesViewer::TogglesViewer(const RosQtBridge& bridge)
 {
   kill_ = new qt::ToggleSwitch();
   sub_mode_ = new qt::ToggleSwitch();
@@ -48,7 +46,7 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   setLayout(rows);
 
   // Connection
-  connect(this, &self::rcInputReceived, this, &self::rcInputCbQt, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void TogglesViewer::reset()
@@ -59,14 +57,6 @@ void TogglesViewer::reset()
 
   kill_->setChecked(false);
   sub_mode_->setChecked(false);
-}
-
-void TogglesViewer::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCbRos, this);
 }
 
 void TogglesViewer::paintEvent(QPaintEvent*)
@@ -100,34 +90,27 @@ void TogglesViewer::setFlightModePointSizes()
   loiter_mode_->setTextPointSize(psize);
 }
 
-void TogglesViewer::rcInputCbRos(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
+void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  Q_EMIT rcInputReceived(rcin->enable, rcin->kill, rcin->mode, rcin->sub_mode);
-}
+  kill_->setChecked(rcin->kill);
+  sub_mode_->setChecked(rcin->sub_mode);
 
-void TogglesViewer::rcInputCbQt(bool enable, bool kill, uint8_t _mode, bool sub_mode)
-{
-  kill_->setChecked(kill);
-  sub_mode_->setChecked(sub_mode);
-
-  const auto mode = static_cast<tobas::flight_mode_t>(_mode);
-
-  if (enable) {
-    if (mode == tobas::flight_mode_t::STABILIZE) {
+  if (rcin->enable) {
+    if (rcin->mode == tobas::flight_mode_t::STABILIZE) {
       stabilize_mode_->setColor(kOnColorEnable);
     }
     else {
       stabilize_mode_->setColor(kOffColor);
     }
 
-    if (mode == tobas::flight_mode_t::ACROBAT) {
+    if (rcin->mode == tobas::flight_mode_t::ACROBAT) {
       acrobat_mode_->setColor(kOnColorEnable);
     }
     else {
       acrobat_mode_->setColor(kOffColor);
     }
 
-    if (mode == tobas::flight_mode_t::LOITER) {
+    if (rcin->mode == tobas::flight_mode_t::LOITER) {
       loiter_mode_->setColor(kOnColorEnable);
     }
     else {
@@ -138,21 +121,21 @@ void TogglesViewer::rcInputCbQt(bool enable, bool kill, uint8_t _mode, bool sub_
     sub_mode_->setOnColor(kOnColorEnable);
   }
   else {
-    if (mode == tobas::flight_mode_t::STABILIZE) {
+    if (rcin->mode == tobas::flight_mode_t::STABILIZE) {
       stabilize_mode_->setColor(kOnColorDisable);
     }
     else {
       stabilize_mode_->setColor(kOffColor);
     }
 
-    if (mode == tobas::flight_mode_t::ACROBAT) {
+    if (rcin->mode == tobas::flight_mode_t::ACROBAT) {
       acrobat_mode_->setColor(kOnColorDisable);
     }
     else {
       acrobat_mode_->setColor(kOffColor);
     }
 
-    if (mode == tobas::flight_mode_t::LOITER) {
+    if (rcin->mode == tobas::flight_mode_t::LOITER) {
       loiter_mode_->setColor(kOnColorDisable);
     }
     else {

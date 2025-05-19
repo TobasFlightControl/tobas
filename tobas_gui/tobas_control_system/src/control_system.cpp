@@ -17,7 +17,7 @@ ControlSystemWidget::ControlSystemWidget(
   pose_viewer_ = new PoseViewerWidget(node);
   power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
   cpu_viewer_ = new CPUViewerWidget(bridge);
-  rcin_viewer_ = new rcin::RCInputViewerWidget(node);
+  rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
   rotors_viewer_ = new RotorsViewerWiddget(node, drone);
   console_ = new ConsoleWidget(node);
   status_viewer_ = new StatusViewerWidget(node);
@@ -63,10 +63,10 @@ void ControlSystemWidget::reset()
 
 void ControlSystemWidget::updateInternalDataStructures()
 {
+  reset();
+
   pose_viewer_->updateNamespace(drone_.name);
   power_source_viewer_->updateInternalDataStructures();
-  cpu_viewer_->reset();
-  rcin_viewer_->updateNamespace(drone_.name);
   rotors_viewer_->updateInternalDataStructures();
   console_->updateNamespace(drone_.name);
   status_viewer_->updateNamespace(drone_.name);

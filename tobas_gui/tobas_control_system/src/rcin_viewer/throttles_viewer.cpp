@@ -4,7 +4,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
@@ -14,7 +13,7 @@ namespace gcs
 {
 namespace rcin
 {
-ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
+ThrottlesViewer::ThrottlesViewer(const RosQtBridge& bridge)
 {
   roll_range_ = new qt::HPositionBarWidget(tobas::kRcInputMin, tobas::kRcInputMax);
   pitch_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
@@ -53,7 +52,7 @@ ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   setLayout(cols1);
 
   // Connection
-  connect(this, &self::rcInputReceived, this, &self::rcInputCbQt, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void ThrottlesViewer::reset()
@@ -64,27 +63,14 @@ void ThrottlesViewer::reset()
   throt_range_->clear();
 }
 
-void ThrottlesViewer::updateNamespace(const std::string& ns)
+void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  reset();
+  roll_range_->setValue(rcin->roll);
+  pitch_range_->setValue(rcin->pitch);
+  yaw_range_->setValue(rcin->yaw);
+  throt_range_->setValue(rcin->throttle);
 
-  rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCbRos, this);
-}
-
-void ThrottlesViewer::rcInputCbRos(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
-{
-  Q_EMIT rcInputReceived(rcin->roll, rcin->pitch, rcin->yaw, rcin->throttle, rcin->enable);
-}
-
-void ThrottlesViewer::rcInputCbQt(double roll, double pitch, double yaw, double throttle, bool enable)
-{
-  roll_range_->setValue(roll);
-  pitch_range_->setValue(pitch);
-  yaw_range_->setValue(yaw);
-  throt_range_->setValue(throttle);
-
-  if (enable) {
+  if (rcin->enable) {
     roll_range_->setValueLineColor(kLineColorEnable);
     pitch_range_->setValueLineColor(kLineColorEnable);
     yaw_range_->setValueLineColor(kLineColorEnable);
