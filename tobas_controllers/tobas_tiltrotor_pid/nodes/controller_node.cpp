@@ -87,7 +87,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_livelinesses_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVel> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Accel> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Angle> angle_cmd_sub_;
@@ -176,7 +176,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   }
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
+  rotor_livelinesses_sub_ = createSubscriber(tobas::kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(tobas::kPosVelCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(tobas::kAccelCmdTopic, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(tobas::kAngleCmdTopic, &self::angleCommandCb, this);
