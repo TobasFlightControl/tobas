@@ -2,14 +2,11 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
-
 namespace gui
 {
 namespace gcs
 {
-PostArmCheckViewerWidget::PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
+PostArmCheckViewerWidget::PostArmCheckViewerWidget(const RosQtBridge& bridge)
 {
   gyro_noise_status_ = new StatusWidget("Gyroscope Noise Level");
   accel_noise_status_ = new StatusWidget("Accelerometer Noise Level");
@@ -28,8 +25,8 @@ PostArmCheckViewerWidget::PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node)
   setLayout(rows);
 
   // Connection
-  connect(this, &self::armingReceived, this, &self::armingCbQt, Qt::QueuedConnection);
-  connect(this, &self::postArmCheckReceived, this, &self::postArmCheckCbQt, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::postArmCheckReceived, this, &self::postArmCheckCb, Qt::QueuedConnection);
 }
 
 void PostArmCheckViewerWidget::reset()
@@ -41,23 +38,20 @@ void PostArmCheckViewerWidget::reset()
   latency_status_->reset();
 }
 
-void PostArmCheckViewerWidget::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCbRos, this);
-  postarm_check_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPostArmCheckTopic), &self::postArmCheckCbRos, this);
-}
-
-void PostArmCheckViewerWidget::armingCbRos(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
-  Q_EMIT armingReceived(arming->data);
+
+  if (arming->data) {
+    setEnabled(true);
+  }
+  else {
+    reset();
+    setEnabled(false);
+  }
 }
 
-void PostArmCheckViewerWidget::postArmCheckCbRos(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
+void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
 {
   if (!arming_) {
     return;
@@ -67,37 +61,11 @@ void PostArmCheckViewerWidget::postArmCheckCbRos(const tobas_msgs::msg::PostArmC
     return;
   }
 
-  Q_EMIT postArmCheckReceived(
-    postarm_check->gyro_noise_too_large,
-    postarm_check->accel_noise_too_large,
-    postarm_check->mag_offset_too_large,
-    postarm_check->mag_misalignment,
-    postarm_check->latency_too_large);
-}
-
-void PostArmCheckViewerWidget::armingCbQt(bool arming)
-{
-  if (arming) {
-    setEnabled(true);
-  }
-  else {
-    reset();
-    setEnabled(false);
-  }
-}
-
-void PostArmCheckViewerWidget::postArmCheckCbQt(
-  bool gyro_noise_too_large,
-  bool accel_noise_too_large,
-  bool mag_offset_too_large,
-  bool mag_misalignment,
-  bool latency_too_large)
-{
-  gyro_noise_status_->setStatus(!gyro_noise_too_large);
-  accel_noise_status_->setStatus(!accel_noise_too_large);
-  mag_offset_status_->setStatus(!mag_offset_too_large);
-  mag_alignment_status_->setStatus(!mag_misalignment);
-  latency_status_->setStatus(!latency_too_large);
+  gyro_noise_status_->setStatus(!postarm_check->gyro_noise_too_large);
+  accel_noise_status_->setStatus(!postarm_check->accel_noise_too_large);
+  mag_offset_status_->setStatus(!postarm_check->mag_offset_too_large);
+  mag_alignment_status_->setStatus(!postarm_check->mag_misalignment);
+  latency_status_->setStatus(!postarm_check->latency_too_large);
 }
 }  // namespace gcs
 }  // namespace gui

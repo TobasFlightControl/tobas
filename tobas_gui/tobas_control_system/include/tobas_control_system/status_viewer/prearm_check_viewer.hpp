@@ -1,9 +1,6 @@
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
-
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./status.hpp"
 
@@ -18,30 +15,12 @@ class PreArmCheckViewerWidget : public QWidget
   using self = PreArmCheckViewerWidget;
   using super = QWidget;
 
-Q_SIGNALS:
-  void armingReceived(bool arming);
-  void preArmCheckReceived(
-    uint8_t node_connection_unstable,
-    uint8_t battery_voltage_too_low,
-    uint8_t cpu_temperature_too_high,
-    uint8_t rotor_communication_error,
-    uint8_t attitude_too_steep,
-    uint8_t position_unstable,
-    uint8_t position_inaccurate,
-    uint8_t velocity_inaccurate,
-    uint8_t attitude_inaccurate,
-    uint8_t heading_inaccurate,
-    bool ok);
-
 public:
-  explicit PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node);
+  explicit PreArmCheckViewerWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   StatusWidget* node_connection_status_;
   StatusWidget* battery_voltage_status_;
   StatusWidget* cpu_temp_status_;
@@ -56,26 +35,9 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
-
-  void armingCbRos(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void preArmCheckCbRos(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
-
 private Q_SLOTS:
-  void armingCbQt(bool arming);
-  void preArmCheckCbQt(
-    uint8_t node_connection_unstable,
-    uint8_t battery_voltage_too_low,
-    uint8_t cpu_temperature_too_high,
-    uint8_t rotor_communication_error,
-    uint8_t attitude_too_steep,
-    uint8_t position_unstable,
-    uint8_t position_inaccurate,
-    uint8_t velocity_inaccurate,
-    uint8_t attitude_inaccurate,
-    uint8_t heading_inaccurate,
-    bool ok);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 };
 }  // namespace gcs
 }  // namespace gui

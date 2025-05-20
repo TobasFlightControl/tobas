@@ -1,9 +1,6 @@
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
-
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./status.hpp"
 
@@ -19,20 +16,15 @@ class OtherStatusViewerWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit OtherStatusViewerWidget(rclcpp::Node::SharedPtr node);
+  explicit OtherStatusViewerWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   StatusWidget* arming_status_;
   StatusWidget* gnss_status_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
-
+private Q_SLOTS:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };

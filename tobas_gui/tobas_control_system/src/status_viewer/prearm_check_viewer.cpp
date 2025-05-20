@@ -2,14 +2,11 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
-
 namespace gui
 {
 namespace gcs
 {
-PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
+PreArmCheckViewerWidget::PreArmCheckViewerWidget(const RosQtBridge& bridge)
 {
   node_connection_status_ = new StatusWidget("Node Connection");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
@@ -40,8 +37,8 @@ PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) :
   setLayout(rows);
 
   // Connection
-  connect(this, &self::armingReceived, this, &self::armingCbQt, Qt::QueuedConnection);
-  connect(this, &self::preArmCheckReceived, this, &self::preArmCheckCbQt, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::preArmCheckReceived, this, &self::preArmCheckCb, Qt::QueuedConnection);
 }
 
 void PreArmCheckViewerWidget::reset()
@@ -59,41 +56,11 @@ void PreArmCheckViewerWidget::reset()
   ready_status_->reset();
 }
 
-void PreArmCheckViewerWidget::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCbRos, this);
-  prearm_check_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPreArmCheckTopic), &self::preArmCheckCbRos, this);
-}
-
-void PreArmCheckViewerWidget::armingCbRos(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void PreArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
-  Q_EMIT armingReceived(arming->data);
-}
 
-void PreArmCheckViewerWidget::preArmCheckCbRos(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
-{
-  Q_EMIT preArmCheckReceived(
-    prearm_check->node_connection_unstable,
-    prearm_check->battery_voltage_too_low,
-    prearm_check->cpu_temperature_too_high,
-    prearm_check->rotor_communication_error,
-    prearm_check->attitude_too_steep,
-    prearm_check->position_unstable,
-    prearm_check->position_inaccurate,
-    prearm_check->velocity_inaccurate,
-    prearm_check->attitude_inaccurate,
-    prearm_check->heading_inaccurate,
-    prearm_check->ok);
-}
-
-void PreArmCheckViewerWidget::armingCbQt(bool arming)
-{
-  if (arming) {
+  if (arming->data) {
     reset();
     setEnabled(false);
   }
@@ -102,18 +69,7 @@ void PreArmCheckViewerWidget::armingCbQt(bool arming)
   }
 }
 
-void PreArmCheckViewerWidget::preArmCheckCbQt(
-  uint8_t node_connection_unstable,
-  uint8_t battery_voltage_too_low,
-  uint8_t cpu_temperature_too_high,
-  uint8_t rotor_communication_error,
-  uint8_t attitude_too_steep,
-  uint8_t position_unstable,
-  uint8_t position_inaccurate,
-  uint8_t velocity_inaccurate,
-  uint8_t attitude_inaccurate,
-  uint8_t heading_inaccurate,
-  bool ok)
+void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
   if (!arming_) {
     return;
@@ -123,17 +79,17 @@ void PreArmCheckViewerWidget::preArmCheckCbQt(
     return;
   }
 
-  node_connection_status_->setStatus(node_connection_unstable);
-  battery_voltage_status_->setStatus(battery_voltage_too_low);
-  cpu_temp_status_->setStatus(cpu_temperature_too_high);
-  rotor_comm_status_->setStatus(rotor_communication_error);
-  attitude_level_status_->setStatus(attitude_too_steep);
-  pos_stability_status_->setStatus(position_unstable);
-  pos_accuracy_status_->setStatus(position_inaccurate);
-  vel_accuracy_status_->setStatus(velocity_inaccurate);
-  atti_accuracy_status_->setStatus(attitude_inaccurate);
-  head_accuracy_status_->setStatus(heading_inaccurate);
-  ready_status_->setStatus(ok);
+  node_connection_status_->setStatus(prearm_check->node_connection_unstable);
+  battery_voltage_status_->setStatus(prearm_check->battery_voltage_too_low);
+  cpu_temp_status_->setStatus(prearm_check->cpu_temperature_too_high);
+  rotor_comm_status_->setStatus(prearm_check->rotor_communication_error);
+  attitude_level_status_->setStatus(prearm_check->attitude_too_steep);
+  pos_stability_status_->setStatus(prearm_check->position_unstable);
+  pos_accuracy_status_->setStatus(prearm_check->position_inaccurate);
+  vel_accuracy_status_->setStatus(prearm_check->velocity_inaccurate);
+  atti_accuracy_status_->setStatus(prearm_check->attitude_inaccurate);
+  head_accuracy_status_->setStatus(prearm_check->heading_inaccurate);
+  ready_status_->setStatus(prearm_check->ok);
 }
 }  // namespace gcs
 }  // namespace gui

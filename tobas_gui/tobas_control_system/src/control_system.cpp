@@ -20,7 +20,7 @@ ControlSystemWidget::ControlSystemWidget(
   rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
   rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
   console_ = new ConsoleWidget(node);
-  status_viewer_ = new StatusViewerWidget(node);
+  status_viewer_ = new StatusViewerWidget(bridge);
   mission_planner_ = new MissionPlannerWidget(node, bridge);
 
   // Layout
@@ -69,7 +69,6 @@ void ControlSystemWidget::updateInternalDataStructures()
   power_source_viewer_->updateInternalDataStructures();
   rotors_viewer_->updateInternalDataStructures();
   console_->updateNamespace(drone_.name);
-  status_viewer_->updateNamespace(drone_.name);
   mission_planner_->updateNamespace(drone_.name);
 }
 }  // namespace gcs

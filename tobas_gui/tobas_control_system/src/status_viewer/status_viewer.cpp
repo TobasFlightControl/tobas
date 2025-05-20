@@ -8,11 +8,11 @@ namespace gui
 {
 namespace gcs
 {
-StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node)
+StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
 {
-  prearm_check_viewer_ = new PreArmCheckViewerWidget(node);
-  postarm_check_viewer_ = new PostArmCheckViewerWidget(node);
-  other_status_viewer_ = new OtherStatusViewerWidget(node);
+  prearm_check_viewer_ = new PreArmCheckViewerWidget(bridge);
+  postarm_check_viewer_ = new PostArmCheckViewerWidget(bridge);
+  other_status_viewer_ = new OtherStatusViewerWidget(bridge);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(new qt::Label("Pre-Arm Check", kLabelPSize, QFont::Bold));
@@ -31,13 +31,6 @@ void StatusViewerWidget::reset()
   prearm_check_viewer_->reset();
   postarm_check_viewer_->reset();
   other_status_viewer_->reset();
-}
-
-void StatusViewerWidget::updateNamespace(const std::string& ns)
-{
-  prearm_check_viewer_->updateNamespace(ns);
-  postarm_check_viewer_->updateNamespace(ns);
-  other_status_viewer_->updateNamespace(ns);
 }
 }  // namespace gcs
 }  // namespace gui
