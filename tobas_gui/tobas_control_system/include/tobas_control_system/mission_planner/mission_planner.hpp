@@ -4,9 +4,6 @@
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-#include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
-
 #include "./add_command_dialog.hpp"
 #include "./command_button.hpp"
 #include "./map_widget.hpp"

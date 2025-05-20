@@ -4,8 +4,6 @@
 #include <tobas_qt_tools/widgets/toggle_switch.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-#include <tobas_msgs_adapter/rc_input.hpp>
-
 namespace gui
 {
 namespace gcs

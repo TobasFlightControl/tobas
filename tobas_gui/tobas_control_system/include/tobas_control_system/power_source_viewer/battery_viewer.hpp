@@ -5,8 +5,6 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-#include <tobas_msgs/msg/battery.hpp>
-
 namespace gui
 {
 namespace gcs

@@ -6,9 +6,6 @@
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
-#include <tobas_msgs/msg/rotor_state_array.hpp>
-
 #include "./speedmeter.hpp"
 
 namespace gui
