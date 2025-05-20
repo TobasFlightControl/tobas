@@ -1,9 +1,7 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_ros2_tools/register.hpp>
-
-#include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 namespace gui
 {
@@ -33,19 +31,16 @@ class ConsoleWidget : public QWidget
   static constexpr auto kUnknownColor = Qt::darkGray;
 
 public:
-  explicit ConsoleWidget(rclcpp::Node::SharedPtr node);
+  explicit ConsoleWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  std::string ns_;
-
   qt::TableWidget* table_;
 
   ros2::SubscriberPtr<tobas_std_msgs::msg::Message> message_sub_;
 
+private Q_SLOTS:
   void messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
 };
 }  // namespace gcs

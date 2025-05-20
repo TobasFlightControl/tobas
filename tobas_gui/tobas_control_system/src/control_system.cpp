@@ -14,12 +14,12 @@ ControlSystemWidget::ControlSystemWidget(
   : drone_(drone)
 {
   // Components
-  pose_viewer_ = new PoseViewerWidget(node);
+  pose_viewer_ = new PoseViewerWidget(bridge);
   power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
   cpu_viewer_ = new CPUViewerWidget(bridge);
   rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
   rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
-  console_ = new ConsoleWidget(node);
+  console_ = new ConsoleWidget(bridge);
   status_viewer_ = new StatusViewerWidget(bridge);
   mission_planner_ = new MissionPlannerWidget(node, bridge);
 
@@ -65,10 +65,8 @@ void ControlSystemWidget::updateInternalDataStructures()
 {
   reset();
 
-  pose_viewer_->updateNamespace(drone_.name);
   power_source_viewer_->updateInternalDataStructures();
   rotors_viewer_->updateInternalDataStructures();
-  console_->updateNamespace(drone_.name);
   mission_planner_->updateNamespace(drone_.name);
 }
 }  // namespace gcs

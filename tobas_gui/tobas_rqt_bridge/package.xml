@@ -11,6 +11,7 @@
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_constants</depend>
+  <depend>tobas_std_msgs</depend>
   <depend>tobas_msgs_adapter</depend>
 
   <export>
