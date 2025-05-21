@@ -2,11 +2,9 @@
 
 #include <QThread>
 #include <eigen3/Eigen/Core>
-#include <rclcpp/node.hpp>
 
 #include <tobas_algorithm/kahan.hpp>
-
-#include <tobas_msgs_adapter/imu_stamped.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 namespace gui
 {
@@ -26,7 +24,7 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit AccelCalibrationThread(rclcpp::Node::SharedPtr node);
+  explicit AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void run() override;
 
@@ -34,6 +32,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  const RosQtBridge& bridge_;
 
   std::string ns_;
 
@@ -42,6 +41,8 @@ private:
   Eigen::Vector3d acc_top_;
 
   bool getAccelMean(Eigen::Vector3d& des);
+
+private Q_SLOTS:
   void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
 };
 }  // namespace hw

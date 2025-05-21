@@ -1,7 +1,5 @@
 #include "tobas_hardware_setup/accel_calibration/widget.hpp"
 
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -11,8 +9,8 @@ namespace gui
 {
 namespace hw
 {
-AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
+AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+  : spinner_(Qt::WindowModal, this), thread_(node, bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "Press \"Start\" button with the flight controller\'s TOP surface facing up.\n\n", kBodyPSize);
@@ -30,8 +28,7 @@ AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(&thread_, &AccelCalibrationThread::finished, this, &self::onCalibrationFinished);
-
-  setEnabled(false);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* AccelCalibrationWidget::name() const
@@ -54,16 +51,6 @@ void AccelCalibrationWidget::setNamespace(const std::string& ns)
   reset();
 
   thread_.setNamespace(ns);
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-
-  setEnabled(true);
-}
-
-void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
 }
 
 void AccelCalibrationWidget::onStartButtonClicked()
@@ -95,6 +82,11 @@ void AccelCalibrationWidget::onCalibrationFinished(bool success, const QString& 
   else {
     qt::qErrorBox(this, message);
   }
+}
+
+void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace hw
 }  // namespace gui

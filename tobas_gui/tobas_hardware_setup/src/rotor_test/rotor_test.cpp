@@ -12,7 +12,8 @@ namespace gui
 {
 namespace hw
 {
-RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone) : node_(node), drone_(drone)
+RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone)
+  : node_(node), bridge_(bridge), drone_(drone)
 {
   const auto warning =
     new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", kBodyPSize);
@@ -71,8 +72,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
   }
 
   connect(&update_timer_, &QTimer::timeout, this, &self::onUpdateTimerTimeout);
-
-  setEnabled(false);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* RotorTestWidget::name() const
@@ -87,6 +87,8 @@ const char* RotorTestWidget::title() const
 
 void RotorTestWidget::reset()
 {
+  disconnect(rotor_states_conn_);
+
   // モータウィジェットを無効化
   for (auto& rotor_widget : rotor_widgets_) {
     rotor_widget->reset();
@@ -100,7 +102,6 @@ void RotorTestWidget::reset()
   stop_button_->setEnabled(false);
   save_button_->setEnabled(false);
 
-  cur_states_.reset();
   arming_.reset();
 }
 
@@ -142,13 +143,6 @@ void RotorTestWidget::updateInternalDataStructures()
 
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
-    cur_states_sub_ = ros2::createSubscriber(
-      node_,
-      path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic),
-      &self::currentStatesCb,
-      this);
-    arming_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
     get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kGetRotorControlGainsSrv));
@@ -156,21 +150,15 @@ void RotorTestWidget::updateInternalDataStructures()
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetRotorControlGainsSrv));
     save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSaveRotorControlGainsSrv));
-
-    setEnabled(true);
   }
   else {
     eprop_.reset();
 
     tar_speeds_pub_.reset();
-    cur_states_sub_.reset();
-    arming_sub_.reset();
 
     get_gains_sc_.reset();
     set_gains_sc_.reset();
     save_gains_sc_.reset();
-
-    setEnabled(false);
   }
 }
 
@@ -194,22 +182,6 @@ void RotorTestWidget::publishTargetSppeds()
   tar_speeds_pub_->publish(std::move(tar_speeds));
 }
 
-void RotorTestWidget::updateCurrentSpeeds()
-{
-  if (!cur_states_) {
-    return;
-  }
-
-  for (const auto& state : cur_states_->states) {
-    if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
-      continue;
-    }
-
-    const auto erotor = eprop_->getRotor(state.link_name);
-    rotor_widgets_.at(erotor->channel)->setCurrentRPM(tobas_std::rps2rpm(state.speed));
-  }
-}
-
 bool RotorTestWidget::loadCurrentGains()
 {
   const auto req = std::make_shared<tobas_msgs::srv::GetRotorControlGains::Request>();
@@ -226,16 +198,6 @@ bool RotorTestWidget::loadCurrentGains()
   }
 
   return true;
-}
-
-void RotorTestWidget::currentStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states)
-{
-  cur_states_ = cur_states;
-}
-
-void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
 }
 
 void RotorTestWidget::onStartButtonClicked()
@@ -261,7 +223,11 @@ void RotorTestWidget::onStartButtonClicked()
     rotor_widgets_.at(erotor->channel)->setEnabled(true);
   }
 
-  // 一定周期でコマンドの発行と状態の更新
+  // 一時的にロータ状態を購読
+  rotor_states_conn_ =
+    connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
+
+  // 一定周期でコマンドを発行
   update_timer_.start(kUpdatePeriod);
 
   start_button_->setEnabled(false);
@@ -323,11 +289,24 @@ void RotorTestWidget::onGainChanged(int gain, size_t ch)
 
 void RotorTestWidget::onUpdateTimerTimeout()
 {
-  // モータが停止しないよう，スライダーに変化がなくても一定周期でコマンドを発行する．
   publishTargetSppeds();
+}
 
-  // ROSとQtのスレッドの競合を防ぐため，GUI関連の処理は必ずQtスレッドで行う．
-  updateCurrentSpeeds();
+void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states)
+{
+  for (const auto& elem : cur_states->states) {
+    if (elem.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
+      continue;
+    }
+
+    const auto erotor = eprop_->getRotor(elem.link_name);
+    rotor_widgets_.at(erotor->channel)->setCurrentRPM(tobas_std::rps2rpm(elem.speed));
+  }
+}
+
+void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace hw
 }  // namespace gui

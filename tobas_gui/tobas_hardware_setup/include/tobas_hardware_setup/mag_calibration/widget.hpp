@@ -1,17 +1,15 @@
 #pragma once
 
 #include <QPushButton>
-#include <rviz_common/properties/int_property.hpp>
+#include <rviz_common/properties/property.hpp>
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
 
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
-
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 
 #include "../base.hpp"
 
@@ -35,7 +33,7 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr double kRvizPointScale = 10.;
 
 public:
-  explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node);
+  explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   const char* name() const override;
   const char* title() const override;
@@ -46,6 +44,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  const RosQtBridge& bridge_;
   rviz::RvizFrameManager rviz_manager_;
 
   std::string ns_;
@@ -64,19 +63,19 @@ private:
 
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> ps_pub_;
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> pc_pub_;
-  ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+
+  QMetaObject::Connection mag_conn_;
 
   /* キャリブレーション開始前の状態にリセットする． */
   void resetToPreStart();
-
-  void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
 private Q_SLOTS:
   void onStartButtonClicked();
   void onCancelButtonClicked();
   void onFinishButtonClicked();
+
+  void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace hw
 }  // namespace gui

@@ -12,7 +12,11 @@ namespace gui
 {
 namespace hw
 {
-JointTestWidget::JointTestWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
+JointTestWidget::JointTestWidget(
+  rclcpp::Node::SharedPtr node,
+  const RosQtBridge& bridge,
+  const kdl::Tree& tree,
+  const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
@@ -32,8 +36,6 @@ JointTestWidget::JointTestWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& 
 
   commands_publisher_ = new JointCommandsPublisherWidget(node, tree, drone);
 
-  setEnabled(false);
-
   // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(start_button_);
@@ -48,6 +50,7 @@ JointTestWidget::JointTestWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* JointTestWidget::name() const
@@ -75,16 +78,6 @@ void JointTestWidget::updateInternalDataStructures()
   reset();
 
   commands_publisher_->updateInternalDataStructures();
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-
-  setEnabled(true);
-}
-
-void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
 }
 
 void JointTestWidget::onStartButtonClicked()
@@ -112,6 +105,11 @@ void JointTestWidget::onStopButtonClicked()
   reset();
 
   qt::qInfoBox(this, "Joint test is finished.");
+}
+
+void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace hw
 }  // namespace gui

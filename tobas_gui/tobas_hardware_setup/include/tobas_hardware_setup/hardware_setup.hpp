@@ -24,7 +24,11 @@ class HardwareSetupWidget : public QWidget
   static constexpr int kTabWidth = 70;
 
 public:
-  explicit HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
+  explicit HardwareSetupWidget(
+    rclcpp::Node::SharedPtr node,
+    const RosQtBridge& bridge,
+    const kdl::Tree& tree,
+    const tobas::Drone& drone);
 
   void reset();
   void updateInternalDataStructures();
@@ -40,6 +44,9 @@ private:
   RCInputCalibrationWidget* rcin_calib_;
   RotorTestWidget* rotor_test_;
   JointTestWidget* joint_test_;
+
+  /* Tobasパッケージに依存した項目の有効/無効を制御． */
+  void setEnabledConfigDependentWidgets(bool enabled);
 };
 }  // namespace hw
 }  // namespace gui

@@ -43,7 +43,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   homepage_ = new homepage::HomepageWidget();
   urdf_builder_ = new urdf_builder::URDFBuilder();
   setup_assistant_ = new sa::SetupAssistantWidget(node);
-  hardware_setup_ = new hw::HardwareSetupWidget(node, tree_, drone_);
+  hardware_setup_ = new hw::HardwareSetupWidget(node, bridge_, tree_, drone_);
   control_system_ = new gcs::ControlSystemWidget(node, bridge_, drone_);
   param_tuning_ = new param::ParameterTuningWidget(node);
   flight_log_ = new log::FlightLogWidget(node);

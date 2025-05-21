@@ -12,9 +12,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
@@ -29,8 +27,8 @@ namespace gui
 {
 namespace hw
 {
-MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), rviz_manager_("rviz_mag_calibration")
+MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+  : node_(node), bridge_(bridge), rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Start\" button.\n\n"
@@ -82,7 +80,8 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   ps_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointStampedTopic);
   pc_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kRvizPointCloudTopic, false, true);
 
-  setEnabled(false);
+  // Other connections
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 const char* MagCalibrationWidget::name() const
@@ -100,6 +99,8 @@ void MagCalibrationWidget::reset()
   resetToPreStart();
 
   rviz_manager_.resetTime();
+
+  arming_.reset();
 }
 
 void MagCalibrationWidget::setNamespace(const string& ns)
@@ -107,49 +108,15 @@ void MagCalibrationWidget::setNamespace(const string& ns)
   reset();
 
   ns_ = ns;
-
-  arming_.reset();
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-
-  setEnabled(true);
 }
 
 void MagCalibrationWidget::resetToPreStart()
 {
+  disconnect(mag_conn_);
+
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
-
-  // キャリブレーション中のみ購読する
-  mag_raw_sub_.reset();
-}
-
-void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
-{
-  // 最初のデータからスケールを決定
-  if (cnt_ == 0) {
-    mag_norm_ = mag_raw->mag.norm();
-    if (mag_norm_ == 0.) {
-      RCLCPP_WARN(node_->get_logger(), "The first magnetic field is zero.");
-      return;
-    }
-  }
-
-  // データを追加
-  mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->mag.data;
-
-  // 表示用メッセージを発行
-  auto point_msg = make_unique<geometry_msgs::msg::PointStamped>();
-  point_msg->header = mag_raw->header;
-  point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
-  kdl::pointKDLToMsg(mag_raw->mag * (kRvizPointScale / mag_norm_), point_msg->point);
-  ps_pub_->publish(std::move(point_msg));
-}
-
-void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
 }
 
 void MagCalibrationWidget::onStartButtonClicked()
@@ -167,9 +134,8 @@ void MagCalibrationWidget::onStartButtonClicked()
   // カウンターをリセット
   cnt_ = 0;
 
-  // 一時的にトピック通信を開始
-  mag_raw_sub_ =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kMagTopic), &self::magCb, this);
+  // 一時的に地磁気を購読
+  mag_conn_ = connect(&bridge_, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
 
   // 一度クリアしてから描画する点の個数を設定
   // FIXME: History Lengthの最小値は1であり，この方法でクリアしようとしても前のデータが1つ残ってしまう．
@@ -348,6 +314,33 @@ void MagCalibrationWidget::onFinishButtonClicked()
 
   resetToPreStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
+}
+
+void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
+{
+  // 最初のデータからスケールを決定
+  if (cnt_ == 0) {
+    mag_norm_ = mag_raw->mag.norm();
+    if (mag_norm_ == 0.) {
+      RCLCPP_WARN(node_->get_logger(), "The first magnetic field is zero.");
+      return;
+    }
+  }
+
+  // データを追加
+  mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->mag.data;
+
+  // 表示用メッセージを発行
+  auto point_msg = make_unique<geometry_msgs::msg::PointStamped>();
+  point_msg->header = mag_raw->header;
+  point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
+  kdl::pointKDLToMsg(mag_raw->mag * (kRvizPointScale / mag_norm_), point_msg->point);
+  ps_pub_->publish(std::move(point_msg));
+}
+
+void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace hw
 }  // namespace gui

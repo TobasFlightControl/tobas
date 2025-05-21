@@ -23,8 +23,11 @@ namespace gui
 {
 namespace hw
 {
-RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone), rate_(kTopicRate)
+RCInputCalibrationWidget::RCInputCalibrationWidget(
+  rclcpp::Node::SharedPtr node,
+  const RosQtBridge& bridge,
+  const tobas::Drone& drone)
+  : node_(node), bridge_(bridge), drone_(drone), rate_(kTopicRate)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Start\" button.\n\n"
@@ -147,8 +150,10 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node,
   rows_->addSpacing(50);
   rows_->addLayout(rc_range_cols);
 
+  // Other connections
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+
   reset();
-  setEnabled(false);
 }
 
 const char* RCInputCalibrationWidget::name() const
@@ -163,9 +168,7 @@ const char* RCInputCalibrationWidget::title() const
 
 void RCInputCalibrationWidget::reset()
 {
-  if (sbus_sub_) {
-    sbus_sub_.reset();
-  }
+  disconnect(sbus_conn_);
 
   rate_.reset();
 
@@ -201,6 +204,8 @@ void RCInputCalibrationWidget::reset()
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
+
+  arming_.reset();
 }
 
 void RCInputCalibrationWidget::updateInternalDataStructures()
@@ -215,12 +220,6 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
     gpsw_labels_.at(i)->setText("Not Registered");
     gpsw_ranges_.at(i)->setEnabled(false);
   }
-
-  arming_.reset();
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-
-  setEnabled(true);
 }
 
 size_t RCInputCalibrationWidget::numOfGpswChannels() const
@@ -332,32 +331,6 @@ bool RCInputCalibrationWidget::saveParamsFC()
   return true;
 }
 
-void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
-{
-  if (!rate_.update(sbus->header.stamp)) {
-    return;
-  }
-
-  roll_range_->setValue(sbus->data.at(real::kRcChannelRoll));
-  pitch_range_->setValue(sbus->data.at(real::kRcChannelPitch));
-  yaw_range_->setValue(sbus->data.at(real::kRcChannelYaw));
-  throt_range_->setValue(sbus->data.at(real::kRcChannelThrot));
-
-  enable_range_->setValue(sbus->data.at(real::kRcChannelEnable));
-  kill_range_->setValue(sbus->data.at(real::kRcChannelKill));
-  mode_range_->setValue(sbus->data.at(real::kRcChannelMode));
-  sub_mode_range_->setValue(sbus->data.at(real::kRcChannelSubMode));
-
-  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_ranges_[i]->setValue(sbus->data.at(real::kRcChannelGpsw + i));
-  }
-}
-
-void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
-}
-
 void RCInputCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
@@ -371,8 +344,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
   }
 
   // 一時的にSBUSトピックを購読開始
-  sbus_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSbusTopic), &self::sbusCb, this);
+  sbus_conn_ = connect(&bridge_, &RosQtBridge::sbusReceived, this, &self::sbusCb, Qt::QueuedConnection);
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);
@@ -456,6 +428,32 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 
   qt::qInfoBox(this, "Radio calibration finished successfully.");
   reset();
+}
+
+void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
+{
+  if (!rate_.update(sbus->header.stamp)) {
+    return;
+  }
+
+  roll_range_->setValue(sbus->data.at(real::kRcChannelRoll));
+  pitch_range_->setValue(sbus->data.at(real::kRcChannelPitch));
+  yaw_range_->setValue(sbus->data.at(real::kRcChannelYaw));
+  throt_range_->setValue(sbus->data.at(real::kRcChannelThrot));
+
+  enable_range_->setValue(sbus->data.at(real::kRcChannelEnable));
+  kill_range_->setValue(sbus->data.at(real::kRcChannelKill));
+  mode_range_->setValue(sbus->data.at(real::kRcChannelMode));
+  sub_mode_range_->setValue(sbus->data.at(real::kRcChannelSubMode));
+
+  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
+    gpsw_ranges_[i]->setValue(sbus->data.at(real::kRcChannelGpsw + i));
+  }
+}
+
+void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace hw
 }  // namespace gui

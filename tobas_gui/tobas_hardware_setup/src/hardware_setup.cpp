@@ -8,7 +8,11 @@ namespace gui
 {
 namespace hw
 {
-HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
+HardwareSetupWidget::HardwareSetupWidget(
+  rclcpp::Node::SharedPtr node,
+  const RosQtBridge& bridge,
+  const kdl::Tree& tree,
+  const tobas::Drone& drone)
   : drone_(drone)
 {
   const auto rows = new QVBoxLayout();
@@ -19,11 +23,11 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   rows->addWidget(tabs_);
 
   network_setting_ = new NetworkSettingWidget(node);
-  accel_calib_ = new AccelCalibrationWidget(node);
-  mag_calib_ = new MagCalibrationWidget(node);
-  rcin_calib_ = new RCInputCalibrationWidget(node, drone);
-  rotor_test_ = new RotorTestWidget(node, drone);
-  joint_test_ = new JointTestWidget(node, tree, drone);
+  accel_calib_ = new AccelCalibrationWidget(node, bridge);
+  mag_calib_ = new MagCalibrationWidget(node, bridge);
+  rcin_calib_ = new RCInputCalibrationWidget(node, bridge, drone);
+  rotor_test_ = new RotorTestWidget(node, bridge, drone);
+  joint_test_ = new JointTestWidget(node, bridge, tree, drone);
 
   tabs_->addTab(network_setting_, network_setting_->name());
   tabs_->addTab(accel_calib_, accel_calib_->name());
@@ -33,6 +37,9 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   tabs_->addTab(joint_test_, joint_test_->name());
 
   tabs_->setTabSize(kTabWidth, kTabHeight);
+
+  // Tobasパッケージが読み込まれるまでは無効化
+  setEnabledConfigDependentWidgets(false);
 }
 
 void HardwareSetupWidget::reset()
@@ -66,8 +73,20 @@ void HardwareSetupWidget::updateInternalDataStructures()
       throw;
   }
 
+  // 各タブを有効化
+  setEnabledConfigDependentWidgets(true);
+
   // タブを表示・非表示した際の歪みを整える
   tabs_->update();
+}
+
+void HardwareSetupWidget::setEnabledConfigDependentWidgets(bool enabled)
+{
+  accel_calib_->setEnabled(enabled);
+  mag_calib_->setEnabled(enabled);
+  rcin_calib_->setEnabled(enabled);
+  rotor_test_->setEnabled(enabled);
+  joint_test_->setEnabled(enabled);
 }
 }  // namespace hw
 }  // namespace gui
