@@ -38,8 +38,6 @@ public:
 private:
   qt::TableWidget* table_;
 
-  ros2::SubscriberPtr<tobas_std_msgs::msg::Message> message_sub_;
-
 private Q_SLOTS:
   void messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
 };
