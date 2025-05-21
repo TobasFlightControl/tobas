@@ -2,8 +2,7 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
