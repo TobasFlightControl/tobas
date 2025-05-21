@@ -6,7 +6,6 @@
 
 #include <tobas_gui_common/remote_package_builder.hpp>
 #include <tobas_property_client/property_client.hpp>
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
 
 #include <tobas_control_system/control_system.hpp>
@@ -83,8 +82,6 @@ private:
   sim::SimulationWidget* simulation_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
   std::filesystem::path tbsPath() const;
 
@@ -98,6 +95,8 @@ private Q_SLOTS:
   void onShutdownThreadFinished(bool success, const QString& message);
 
   void onSimRealStateChanged();
+
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace core
 }  // namespace gui

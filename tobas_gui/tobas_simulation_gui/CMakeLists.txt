@@ -29,6 +29,7 @@ find_package(tobas_command_msgs_adapter REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_rqt_bridge REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
@@ -41,6 +42,7 @@ set(AMENT_DEPENDENCIES
     tobas_gazebo_common
     tobas_gazebo_msgs
     tobas_qt_tools
+    tobas_rqt_bridge
     tobas_gui_common
 )
 

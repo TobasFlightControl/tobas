@@ -15,7 +15,11 @@ class CommandersWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit CommandersWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
+  explicit CommandersWidget(
+    rclcpp::Node::SharedPtr node,
+    const RosQtBridge& bridge,
+    const kdl::Tree& tree,
+    const tobas::Drone& drone);
 
   void updateInternalDataStructures();
 

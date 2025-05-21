@@ -1,6 +1,7 @@
 #include "tobas_simulation_gui/simulation.hpp"
 
 #include <QCloseEvent>
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -22,15 +23,15 @@ namespace gui
 {
 namespace sim
 {
-SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), ssh_client_(node), remote_pkg_builder_(node)
+SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+  : ssh_client_(node), remote_pkg_builder_(node)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   sim_settings_ = new SimulationSettingsWidget(node);
   dynamic_config_ = new DynamicConfigWidget(node);
-  commanders_ = new CommandersWidget(node, tree_, drone_);
+  commanders_ = new CommandersWidget(node, bridge, tree_, drone_);
 
   // Layout
   const auto config_rows = new QVBoxLayout();
@@ -47,6 +48,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onTerminateRequested);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
   setEnabled(false);
@@ -89,9 +91,6 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
   dynamic_config_->updateNamespace(ns);
   commanders_->updateInternalDataStructures();
 
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-
   tbs_path_ = tbs_path;
   setEnabled(true);
 
@@ -100,8 +99,6 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 
 void SimulationWidget::closeEvent(QCloseEvent* event)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "SimulationWidget::closeEvent");
-
   // 親ウィジェットを閉じるときに子プロセスを破棄
   if (launch_pid_ >= 0) {
     killGazeboLaunch();
@@ -110,25 +107,19 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
-}
-
 bool SimulationWidget::killGazeboLaunch()
 {
   if (launch_pid_ < 0) {
-    RCLCPP_INFO(node_->get_logger(), "Gazebo simulation is not running.");
     return true;
   }
 
   if (kill(launch_pid_, SIGINT) != 0) {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to kill child process: " << linux::strError());
+    qWarning() << "Failed to kill child process: " << QString::fromStdString(linux::strError());
     return false;
   }
 
   if (!cmd_executor_.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh")) {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to kill Gazebo: " << cmd_executor_.getOutput());
+    qWarning() << "Failed to kill Gazebo: " << QString::fromStdString(cmd_executor_.getOutput());
     return false;
   }
 
@@ -382,7 +373,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
     return false;
   }
 
-  RCLCPP_INFO_STREAM(node_->get_logger(), "Gazebo is launched with pid " << launch_pid_ << ".");
+  qInfo() << "Gazebo is launched with pid " << launch_pid_ << ".";
   return true;
 }
 
@@ -473,6 +464,11 @@ void SimulationWidget::onTerminateRequested()
   qt::qInfoBox(this, "Gazebo simulation has been terminated successfully.");
 
   Q_EMIT terminated();
+}
+
+void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace sim
 }  // namespace gui

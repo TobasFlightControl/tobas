@@ -47,7 +47,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   control_system_ = new gcs::ControlSystemWidget(node, bridge_, drone_);
   param_tuning_ = new param::ParameterTuningWidget(node);
   flight_log_ = new log::FlightLogWidget(node, bridge_);
-  simulation_ = new sim::SimulationWidget(node);
+  simulation_ = new sim::SimulationWidget(node, bridge_);
 
   // TODO: 別々のアイコンを設定
   const auto homepage_btn = new AppButton("Homepage", QString::fromStdString(rsrc_path / "icon.png"));
@@ -137,6 +137,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
+  connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 void GUICoreWidget::reset()
@@ -163,9 +164,6 @@ void GUICoreWidget::updateInternalDataStructures()
   param_tuning_->updateTBSPath(tbsPath());
   flight_log_->updateNamespace(drone_.name);
   simulation_->updateTBSPath(tbsPath());
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 }
 
 void GUICoreWidget::closeEvent(QCloseEvent* event)
@@ -182,11 +180,6 @@ void GUICoreWidget::closeEvent(QCloseEvent* event)
   simulation_->close();
 
   event->accept();
-}
-
-void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
 }
 
 fs::path GUICoreWidget::tbsPath() const
@@ -476,6 +469,11 @@ void GUICoreWidget::onSimRealStateChanged()
 
   // イベントループを進めて画面の更新を確実に反映させる
   QApplication::processEvents();
+}
+
+void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace core
 }  // namespace gui
