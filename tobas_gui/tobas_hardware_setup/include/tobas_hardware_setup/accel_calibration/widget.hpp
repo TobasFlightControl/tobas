@@ -39,7 +39,6 @@ private:
   AccelCalibrationThread thread_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
 private Q_SLOTS:
   void onStartButtonClicked();
