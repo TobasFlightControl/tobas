@@ -8,12 +8,12 @@
 int main(int argc, char** argv)
 {
   // GUIを表示
-  QApplication qt_app(argc, argv);
+  QApplication qapp(argc, argv);
   const auto widget = new gui::homepage::HomepageWidget();
   qt::MainWidget main("Tobas Hardware Setup", QString::fromStdString(gui::common::getIconPath()), widget);
   main.show();
 
   // アプリケーションの終了時に全てのノードを落とす
-  const auto result = qt_app.exec();
+  const auto result = qapp.exec();
   return result;
 }
