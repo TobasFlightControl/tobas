@@ -14,6 +14,7 @@
   <depend>tobas_msgs</depend>
   <depend>tobas_debug_msgs</depend>
   <depend>tobas_qt_tools</depend>
+  <depend>tobas_rqt_bridge</depend>
   <depend>tobas_qwt_wrapper</depend>
   <depend>tobas_gui_common</depend>
 

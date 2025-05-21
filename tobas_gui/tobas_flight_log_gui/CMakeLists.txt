@@ -26,6 +26,7 @@ find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_debug_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_rqt_bridge REQUIRED)
 find_package(tobas_qwt_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
@@ -36,6 +37,7 @@ set(AMENT_DEPENDENCIES
     tobas_msgs
     tobas_debug_msgs
     tobas_qt_tools
+    tobas_rqt_bridge
     tobas_qwt_wrapper
     tobas_gui_common
 )
