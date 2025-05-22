@@ -26,7 +26,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:
@@ -111,7 +111,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:
@@ -196,7 +196,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:
@@ -281,7 +281,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:
@@ -366,7 +366,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:
@@ -451,7 +451,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:
@@ -536,7 +536,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:
@@ -621,7 +621,7 @@ Propulsion:
         ESC:
           Maximum Current: 35
         Motor:
-          Kv: 920
+          Kv: 580
           Internal Registance: 250
           Number of Poles: 14
         Propeller:

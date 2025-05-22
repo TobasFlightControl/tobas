@@ -52,7 +52,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 0
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06
@@ -63,7 +63,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 1
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06
@@ -74,7 +74,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 2
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06
@@ -85,7 +85,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 3
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06
@@ -96,7 +96,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 4
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06
@@ -107,7 +107,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 5
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06
@@ -118,7 +118,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 6
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06
@@ -129,7 +129,7 @@ propulsion_system:
       tilt_joint_name: ""
       channel: 7
       num_poles: 14
-      kv: 96.342174710086979
+      kv: 60.737457969402662
       internal_resistance: 0.25
       propeller_diameter: 0.2286
       motor_constant: 9.9477813743395614e-06

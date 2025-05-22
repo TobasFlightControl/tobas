@@ -3,6 +3,10 @@
         <texture/>
         <color rgba="0 0 0 1"/>
     </material>
+    <material name="orange">
+        <texture/>
+        <color rgba="1 0.423529 0.0392157 1"/>
+    </material>
     <material name="red">
         <texture/>
         <color rgba="1 0 0 1"/>
@@ -87,185 +91,185 @@
     </link>
     <link name="motor_0">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
     <link name="motor_1">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
     <link name="motor_2">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
     <link name="motor_3">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
     <link name="motor_4">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
     <link name="motor_5">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
     <link name="motor_6">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
     <link name="motor_7">
         <inertial>
-            <mass value="0.053"/>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
-            <inertia ixx="5.2481e-06" ixy="0" ixz="0" iyy="5.2481e-06" iyz="0" izz="5.194e-06"/>
+            <mass value="0.086"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
+            <inertia ixx="1.36095e-05" ixy="0" ixz="0" iyy="1.36095e-05" iyz="0" izz="1.8963e-05"/>
         </inertial>
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0"/>
             <geometry>
-                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/a2212_920kv.stl" scale="1 1 1"/>
+                <mesh filename="file://$(find tobas_truncated_octahedron_config)/meshes/mt3508_580kv.stl" scale="1 1 1"/>
             </geometry>
-            <material name="red">
+            <material name="orange">
                 <texture/>
-                <color rgba="1 0 0 1"/>
+                <color rgba="1 0.423529 0.0392157 1"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0 0 0.01225" rpy="0 -0 0"/>
+            <origin xyz="0 0 0.012" rpy="0 -0 0"/>
             <geometry>
-                <cylinder radius="0.014" length="0.0245"/>
+                <cylinder radius="0.021" length="0.024"/>
             </geometry>
         </collision>
     </link>
@@ -520,49 +524,49 @@
         <child link="motor_7"/>
     </joint>
     <joint name="propeller_0_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_0"/>
         <child link="propeller_0"/>
     </joint>
     <joint name="propeller_1_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_1"/>
         <child link="propeller_1"/>
     </joint>
     <joint name="propeller_2_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_2"/>
         <child link="propeller_2"/>
     </joint>
     <joint name="propeller_3_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_3"/>
         <child link="propeller_3"/>
     </joint>
     <joint name="propeller_4_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_4"/>
         <child link="propeller_4"/>
     </joint>
     <joint name="propeller_5_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_5"/>
         <child link="propeller_5"/>
     </joint>
     <joint name="propeller_6_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_6"/>
         <child link="propeller_6"/>
     </joint>
     <joint name="propeller_7_joint" type="continuous">
-        <origin xyz="0 0 0.0245" rpy="0 -0 0"/>
+        <origin xyz="0 0 0.029" rpy="0 -0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="motor_7"/>
         <child link="propeller_7"/>
@@ -658,7 +662,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_0</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
@@ -673,7 +677,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_1</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
@@ -688,7 +692,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_2</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
@@ -703,7 +707,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_3</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
@@ -718,7 +722,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_4</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
@@ -733,7 +737,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_5</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
@@ -748,7 +752,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_6</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
@@ -763,7 +767,7 @@
         <plugin filename="tobas_gazebo_electric_propulsion_system_plugin" name="gazebo::GazeboElectricPropulsionSystemPlugin">
             <robotNamespace>truncated_octahedron</robotNamespace>
             <linkName>propeller_7</linkName>
-            <kv>96.342174710086979</kv>
+            <kv>60.737457969402662</kv>
             <internalResistance>0.25</internalResistance>
             <numberOfBlades>2</numberOfBlades>
             <motorConstant>9.9477813743395614e-06</motorConstant>
