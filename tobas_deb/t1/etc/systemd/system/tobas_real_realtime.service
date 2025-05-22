@@ -6,7 +6,7 @@ PartOf=tobas_real.target
 [Service]
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
-EnvironmentFile=/etc/tobas/config_pkg.env
+EnvironmentFile=/etc/tobas/config.env
 Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST"
 ExecStartPre=/bin/bash -c 'echo 4 | sudo tee /proc/irq/106/smp_affinity'  # I2C
 ExecStartPre=/bin/bash -c 'echo 2 | sudo tee /proc/irq/117/smp_affinity'  # SPI0

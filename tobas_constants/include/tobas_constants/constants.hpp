@@ -148,6 +148,7 @@ static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
 static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
 static constexpr char kRosbagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
+static constexpr char kConfigEnvPath[] = "/etc/tobas/config.env";
 
 // Scale
 constexpr auto kAccelScale = 10.;   // [m/s^2]
