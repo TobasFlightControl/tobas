@@ -29,7 +29,7 @@ int main()
 
   constexpr char output_path[] = "/tmp/wpa_supplicant.conf";
 
-  wpa::WPASupplicantParser parser;
+  wpa::WpaSupplicantParser parser;
 
   if (!parser.parseFromText(input_text)) {
     return EXIT_FAILURE;

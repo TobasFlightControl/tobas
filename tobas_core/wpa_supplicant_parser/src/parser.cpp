@@ -10,11 +10,11 @@ namespace fs = filesystem;
 
 namespace wpa
 {
-WPASupplicantParser::WPASupplicantParser()
+WpaSupplicantParser::WpaSupplicantParser()
 {
 }
 
-void WPASupplicantParser::clear()
+void WpaSupplicantParser::clear()
 {
   country = kDefaultCountry;
   ctrl_interface = kDefaultCtrlInterface;
@@ -22,7 +22,7 @@ void WPASupplicantParser::clear()
   networks.clear();
 }
 
-bool WPASupplicantParser::parseFromText(const string& text)
+bool WpaSupplicantParser::parseFromText(const string& text)
 {
   clear();
 
@@ -125,7 +125,7 @@ bool WPASupplicantParser::parseFromText(const string& text)
   return true;
 }
 
-bool WPASupplicantParser::parseFromFile(const fs::path& path)
+bool WpaSupplicantParser::parseFromFile(const fs::path& path)
 {
   std::ifstream file(path);
   if (!file) {
@@ -141,7 +141,7 @@ bool WPASupplicantParser::parseFromFile(const fs::path& path)
   return parseFromText(text);  // テキストからパース
 }
 
-bool WPASupplicantParser::write(const fs::path& path)
+bool WpaSupplicantParser::write(const fs::path& path)
 {
   std::ofstream file(path);
   if (!file) {
@@ -149,13 +149,13 @@ bool WPASupplicantParser::write(const fs::path& path)
     return false;
   }
 
-  file << text();  // テキスト形式で書き込む
+  file << exportText();  // テキスト形式で書き込む
   file.close();
 
   return true;
 }
 
-string WPASupplicantParser::text() const
+string WpaSupplicantParser::exportText() const
 {
   std::ostringstream oss;
 
@@ -181,7 +181,7 @@ string WPASupplicantParser::text() const
   return oss.str();
 }
 
-bool WPASupplicantParser::parseCountryCode(const string& src, country_code_t& dst)
+bool WpaSupplicantParser::parseCountryCode(const string& src, country_code_t& dst)
 {
   // TODO: 全ての国について書く
 
@@ -208,7 +208,7 @@ bool WPASupplicantParser::parseCountryCode(const string& src, country_code_t& ds
   return true;
 }
 
-bool WPASupplicantParser::parseKeyManagement(const string& src, key_mgmt_t& dst)
+bool WpaSupplicantParser::parseKeyManagement(const string& src, key_mgmt_t& dst)
 {
   if (src == key_mgmt::WPA_PSK) {
     dst = key_mgmt_t::WPA_PSK;
@@ -224,7 +224,7 @@ bool WPASupplicantParser::parseKeyManagement(const string& src, key_mgmt_t& dst)
   return true;
 }
 
-const char* WPASupplicantParser::countryCodeToString(country_code_t cc)
+const char* WpaSupplicantParser::countryCodeToString(country_code_t cc)
 {
   // TODO: 全ての国について書く
 
@@ -244,7 +244,7 @@ const char* WPASupplicantParser::countryCodeToString(country_code_t cc)
   }
 }
 
-const char* WPASupplicantParser::keyManagementToString(key_mgmt_t key_mgmt)
+const char* WpaSupplicantParser::keyManagementToString(key_mgmt_t key_mgmt)
 {
   switch (key_mgmt) {
     case key_mgmt_t::WPA_PSK:

@@ -101,7 +101,7 @@ void NetworkSettingWidget::onWriteButtonClicked()
   }
 
   // 書き込み開始
-  write_thread_.setText(wpa_parser_.text());
+  write_thread_.setText(wpa_parser_.exportText());
   write_thread_.start();
 
   spinner_.show();

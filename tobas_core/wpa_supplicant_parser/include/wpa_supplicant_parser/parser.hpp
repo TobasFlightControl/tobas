@@ -8,7 +8,7 @@
 
 namespace wpa
 {
-class WPASupplicantParser
+class WpaSupplicantParser
 {
   static constexpr country_code_t kDefaultCountry = country_code_t::JP;
   static constexpr char kDefaultCtrlInterface[] = "DIR=/var/run/wpa_supplicant GROUP=netdev";
@@ -31,7 +31,7 @@ public:
   bool update_config = kDefaultUpdateConfig;
   std::vector<Network> networks;
 
-  explicit WPASupplicantParser();
+  explicit WpaSupplicantParser();
 
   /* 設定を初期化する． */
   void clear();
@@ -43,7 +43,7 @@ public:
   bool write(const std::filesystem::path& path);
 
   /* 設定をwpa_supplicant.confのテキスト形式で返す． */
-  std::string text() const;
+  std::string exportText() const;
 
 private:
   static bool parseCountryCode(const std::string& src, country_code_t& dst);
