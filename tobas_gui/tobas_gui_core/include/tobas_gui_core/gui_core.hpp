@@ -28,11 +28,11 @@ namespace gui
 {
 namespace core
 {
-class GUICoreWidget : public QWidget
+class GuiCoreWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = GUICoreWidget;
+  using self = GuiCoreWidget;
   using super = QWidget;
 
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir/tobas_configuration_package";
@@ -41,7 +41,7 @@ class GUICoreWidget : public QWidget
   static constexpr int kPowerButtonRadius = 40;
 
 public:
-  explicit GUICoreWidget(rclcpp::Node::SharedPtr node);
+  explicit GuiCoreWidget(rclcpp::Node::SharedPtr node);
 
   void reset();
   void updateInternalDataStructures();

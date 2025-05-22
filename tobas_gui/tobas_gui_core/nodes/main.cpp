@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto widget = new gui::core::GUICoreWidget(node_manager.node());
+  const auto widget = new gui::core::GuiCoreWidget(node_manager.node());
   qt::MainWidget main(gui::core::kTitle, QString::fromStdString(gui::common::getIconPath()), widget);
   main.show();
 

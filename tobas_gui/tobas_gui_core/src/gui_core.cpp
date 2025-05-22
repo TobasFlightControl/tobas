@@ -26,7 +26,7 @@ namespace gui
 {
 namespace core
 {
-GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
+GuiCoreWidget::GuiCoreWidget(rclcpp::Node::SharedPtr node)
   : node_(node)
   , bridge_(node)
   , property_client_(node, tobas::kPropertyServerName, kPkgName)
@@ -140,7 +140,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
-void GUICoreWidget::reset()
+void GuiCoreWidget::reset()
 {
   urdf_builder_->reset();
   setup_assistant_->reset();
@@ -153,7 +153,7 @@ void GUICoreWidget::reset()
   arming_.reset();
 }
 
-void GUICoreWidget::updateInternalDataStructures()
+void GuiCoreWidget::updateInternalDataStructures()
 {
   reset();
 
@@ -166,9 +166,9 @@ void GUICoreWidget::updateInternalDataStructures()
   simulation_->updateTBSPath(tbsPath());
 }
 
-void GUICoreWidget::closeEvent(QCloseEvent* event)
+void GuiCoreWidget::closeEvent(QCloseEvent* event)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::closeEvent");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::closeEvent");
 
   homepage_->close();
   urdf_builder_->close();
@@ -182,14 +182,14 @@ void GUICoreWidget::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-fs::path GUICoreWidget::tbsPath() const
+fs::path GuiCoreWidget::tbsPath() const
 {
   return tbs_path_->text().toStdString();
 }
 
-void GUICoreWidget::onLoadButtonClicked()
+void GuiCoreWidget::onLoadButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onLoadButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onLoadButtonClicked");
 
   // 前回開いたパスを取得
   std::string last_opened_dir;
@@ -259,9 +259,9 @@ void GUICoreWidget::onLoadButtonClicked()
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }
 
-void GUICoreWidget::onWriteButtonClicked()
+void GuiCoreWidget::onWriteButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onWriteButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onWriteButtonClicked");
 
   // アームされていないことを確認
   if (!arming_) {
@@ -359,9 +359,9 @@ void GUICoreWidget::onWriteButtonClicked()
   qt::qInfoBox(this, "Tobas configuration package is installed successfully.");
 }
 
-void GUICoreWidget::onRestartButtonClicked(bool checked)
+void GuiCoreWidget::onRestartButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onRestartButtonClicked");
 
   if (!checked) {
     return;
@@ -387,9 +387,9 @@ void GUICoreWidget::onRestartButtonClicked(bool checked)
   spinner_.start();
 }
 
-void GUICoreWidget::onShutdownButtonClicked(bool checked)
+void GuiCoreWidget::onShutdownButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onShutdownButtonClicked");
 
   if (!checked) {
     return;
@@ -415,9 +415,9 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
   spinner_.start();
 }
 
-void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message)
+void GuiCoreWidget::onRestartThreadFinished(bool success, const QString& message)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartThreadFinished");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onRestartThreadFinished");
 
   spinner_.hide();
   spinner_.stop();
@@ -435,9 +435,9 @@ void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message
   restart_btn_->setChecked(false);
 }
 
-void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& message)
+void GuiCoreWidget::onShutdownThreadFinished(bool success, const QString& message)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownThreadFinished");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onShutdownThreadFinished");
 
   spinner_.hide();
   spinner_.stop();
@@ -453,9 +453,9 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
   QApplication::quit();
 }
 
-void GUICoreWidget::onSimRealStateChanged()
+void GuiCoreWidget::onSimRealStateChanged()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onSimRealStateChanged");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onSimRealStateChanged");
 
   // シミュレーションウィジェット以外リセット
   urdf_builder_->reset();
@@ -471,7 +471,7 @@ void GUICoreWidget::onSimRealStateChanged()
   QApplication::processEvents();
 }
 
-void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void GuiCoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }
