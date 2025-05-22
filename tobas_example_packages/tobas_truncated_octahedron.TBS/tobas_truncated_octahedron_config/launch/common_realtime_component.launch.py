@@ -104,6 +104,9 @@ def generate_launch_description():
                     package="tobas_preprocess",
                     plugin="ImuPreprocessNode",
                     namespace=DRONE_NAME,
+                    parameters=[
+                        PathJoinSubstitution([config_pkg_share, "config", "imu_preprocess_dynamic.yaml"]),
+                    ],
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(

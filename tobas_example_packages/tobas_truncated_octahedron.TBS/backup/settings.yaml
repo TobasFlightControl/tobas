@@ -701,13 +701,12 @@ Propulsion:
       Dynamics:
         method_name: Set Manually
         Set Manually:
-          Torque Constant: 0.10000000000000001
-          Dynamic Friction Torque: 1
+          Engine Constant:
+            - 0.0012411595530000001
+            - 0.018504532507000002
       Response:
         Time Constant Up: 100
         Time Constant Down: 200
-      Limit:
-        Maximum Ratation Speed: 8700
       HW Interface:
         PWM Channel: 0
         PWM Period at Zero Throttle: 1000
