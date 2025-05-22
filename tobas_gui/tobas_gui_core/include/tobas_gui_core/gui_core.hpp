@@ -19,6 +19,7 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 
+#include "./config_env_parser.hpp"
 #include "./restart_button.hpp"
 #include "./restart_thread.hpp"
 #include "./shutdown_button.hpp"
@@ -59,6 +60,7 @@ private:
   ptree::PropertyClient property_client_;
   ssh::SSHClient ssh_client_;
   common::RemotePackageBuilder package_builder_;
+  ConfigurationEnvParser config_env_parser_;
 
   QLineEdit* tbs_path_;
   QPushButton* load_btn_;

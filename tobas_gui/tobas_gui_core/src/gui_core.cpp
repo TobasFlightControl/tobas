@@ -283,9 +283,10 @@ void GuiCoreWidget::onWriteButtonClicked()
 
   const auto tbs_path = tbsPath();
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path);
+  const auto config_pkg_name = common::getTBSConfigName(tbs_path);
 
   // 進捗バーを作成
-  qt::ProgressDialog progress(kTitle, 7, this);
+  qt::ProgressDialog progress(kTitle, 9, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -307,6 +308,52 @@ void GuiCoreWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
+  // 環境変数を読み込む
+  progress.setLabelText("Getting environment variables.");
+  std::string cur_env_content;
+  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SSHClient::E_NO_ERROR) {  // ファイルが存在しなくても続行
+    if (!config_env_parser_.parseFromText(cur_env_content)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to parse configuration file.");
+      return;
+    }
+  }
+  else {
+    qWarning() << "Failed to get environment variables: " << ssh_client_.errorMessage();
+  }
+  progress.progressStep();
+
+  // パッケージが代わる場合は競合を避けるためにクリーンビルド
+  if (config_pkg_name != config_env_parser_.config_pkg) {
+    // ワークスペースを初期化
+    progress.setLabelText("Initializing colcon workspace.");
+    if (ssh_client_.execute(std::format("rm -rf {}", std::string(tobas::kColconWSPathRoot)), true)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    if (ssh_client_.execute(std::format("mkdir -p {}/src", std::string(tobas::kColconWSPathRoot)), true)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    progress.progressStep();
+
+    // 環境変数を更新
+    progress.setLabelText("Setting environment variables.");
+    config_env_parser_.config_pkg = config_pkg_name;
+    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SSHClient::E_NO_ERROR) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    progress.progressStep();
+  }
+  else {
+    progress.progressStep();
+    progress.progressStep();
+  }
+
   // Tobasパッケージを送信
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
@@ -326,17 +373,6 @@ void GuiCoreWidget::onWriteButtonClicked()
       this,
       "Failed to build the Tobas configuration package:\n\n" +
         QString::fromStdString(package_builder_.getErrorMessage()));
-    return;
-  }
-  progress.progressStep();
-
-  // 環境変数TOBAS_CONFIG_PKGを設定
-  progress.setLabelText("Setting environment variables.");
-  const auto config_pkg_name = common::getTBSConfigName(tbs_path);
-  const auto env_content = std::format("TOBAS_CONFIG_PKG={}\n", config_pkg_name);
-  if (ssh_client_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR) {
-    progress.close();
-    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
