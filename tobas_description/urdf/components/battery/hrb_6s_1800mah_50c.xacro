@@ -1,0 +1,12 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/base.xacro"/>
+
+  <xacro:macro name="hrb_6s_1800mah_50c" params="parent *origin">
+    <xacro:base_lipo parent="${parent}" x="0.105" y="0.034" z="0.040" mass="0.270">
+      <xacro:insert_block name="origin"/>
+      <xacro:insert_block name="yellow"/>
+    </xacro:base_lipo>
+  </xacro:macro>
+
+</robot>

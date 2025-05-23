@@ -23,14 +23,14 @@
         <xacro:insert_block name="red"/>
       </visual>
       <collision>
-        <origin xyz="0 0 0.009" rpy="0 0 0"/>
+        <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
         <geometry>
           <box size="${x} ${y} ${z}"/>
         </geometry>
       </collision>
       <inertial>
         <mass value="${mass}"/>
-        <origin xyz="0 0 0.009" rpy="0 0 0"/>
+        <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
         <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
       </inertial>
     </link>

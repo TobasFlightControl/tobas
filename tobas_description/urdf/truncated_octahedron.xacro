@@ -3,7 +3,7 @@
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/fmu/tobas_t1.xacro"/>
-  <xacro:include filename="$(find tobas_description)/urdf/components/battery/hrb_6s_5000mah_50c.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/sigp_6s_1100mah_120c.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/combo/mt3508_0945.xacro"/>
 
   <!-- Properties -->
@@ -46,13 +46,13 @@
 
   <!-- Flight Controller -->
   <xacro:tobas_t1 parent="base_link">
-    <origin xyz="0 0 0.0617" rpy="0 0 0"/>
+    <origin xyz="0 0 0.0425" rpy="0 0 0"/>
   </xacro:tobas_t1>
 
   <!-- Battery -->
-  <xacro:hrb_6s_5000mah_50c parent="base_link">
-    <origin xyz="0 0 -0.0635" rpy="0 0 0"/>
-  </xacro:hrb_6s_5000mah_50c>
+  <xacro:sigp_6s_1100mah_120c parent="base_link">
+    <origin xyz="0 0 -0.060" rpy="${pi/2} 0 0"/>
+  </xacro:sigp_6s_1100mah_120c>
 
   <!-- Propulsion System -->
   <xacro:mt3508_0945 parent="base_link" index="0" direction="ccw">

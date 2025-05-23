@@ -137,5 +137,5 @@ propulsion_system:
     nominal_voltage: 22.200000000000003
     max_voltage: 25.200000000000003
     sag_voltage: 20.399999999999999
-    max_current: 250
+    max_current: 132
 num_sbus_channels: 8

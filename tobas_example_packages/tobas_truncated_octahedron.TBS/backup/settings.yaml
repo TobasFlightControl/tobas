@@ -5,8 +5,8 @@ Propulsion:
       battery_type: Lithium Polymer Battery (LiPo)
       Lithium Polymer Battery (LiPo):
         Number of Cells: 6
-        Current Capacity: 5000
-        Continuous Discharge Current Rate: 50
+        Current Capacity: 1100
+        Continuous Discharge Current Rate: 120
         Internal Registance: 3
       Other Battery:
         Nominal Voltage: 14.800000000000001
