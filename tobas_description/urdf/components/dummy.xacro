@@ -9,7 +9,7 @@
 
   <xacro:macro name="dummy_inertial_link" params="name">
     <link name="${name}">
-      <!-- set dummy inetial param for avoiding gazebo error -->
+      <!-- Set dummy inetial param for avoiding gazebo error -->
       <xacro:dummy_inertial/>
     </link>
   </xacro:macro>
