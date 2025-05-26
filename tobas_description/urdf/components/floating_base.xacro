@@ -1,18 +1,6 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <xacro:macro name="dummy_inertial">
-    <inertial>
-      <mass value="1e-9"/>
-      <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
-    </inertial>
-  </xacro:macro>
-
-  <xacro:macro name="dummy_inertial_link" params="name">
-    <link name="${name}">
-      <!-- set dummy inetial param for avoiding gazebo error -->
-      <xacro:dummy_inertial/>
-    </link>
-  </xacro:macro>
+  <xacro:include filename="$(find tobas_description)/urdf/components/dummy.xacro"/>
 
   <xacro:macro name="floating_base" params="world base_link">
     <joint name="base_joint_trans_x" type="prismatic">
@@ -71,7 +59,7 @@
       <child link="${base_link}"/>
     </joint>
 
-    <!-- set dummy transmissions for avoiding gazebo error -->
+    <!-- Set dummy transmissions for avoiding gazebo error -->
     <transmission name="base_joint_trans_x_transmission">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="base_joint_trans_x">

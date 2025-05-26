@@ -1,0 +1,83 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/dummy.xacro"/>
+
+  <xacro:macro name="landing_gear" params="offset direction reverse suffix">
+    <joint name="lg_${suffix}_top_joint" type="fixed">
+      <origin xyz="0 ${direction*offset} 0" rpy="0 0 ${reverse*pi}"/>
+      <parent link="lg_base_link"/>
+      <child link="lg_${suffix}_top"/>
+      <axis xyz="1 0 0"/>
+      <limit velocity="${75*deg2rad/6}" effort="1" lower="0" upper="${75*deg2rad}"/>
+      <dynamics damping="0" friction="0.01"/>
+    </joint>
+    <link name="lg_${suffix}_top">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/common/landing_gear/zhizicathy_electric_150/top.stl" scale="1 1 1"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/common/landing_gear/zhizicathy_electric_150/top.stl" scale="1 1 1"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.0988"/>
+        <origin rpy="0 0 0" xyz="0 0.0175 -0.0070"/>
+        <inertia ixx="3.841e-5" ixy="0" ixz="0" iyy="5.358e-6" iyz="8.642e-7" izz="4.031e-5"/>
+      </inertial>
+    </link>
+
+    <joint name="lg_${suffix}_bottom_joint" type="revolute">
+      <origin xyz="0 0 -0.0125" rpy="0 0 0"/>
+      <parent link="lg_${suffix}_top"/>
+      <child link="lg_${suffix}_bottom"/>
+      <axis xyz="1 0 0"/>
+      <limit velocity="${75*deg2rad/6}" effort="1" lower="0" upper="${75*deg2rad}"/>
+      <dynamics damping="0" friction="0.01"/>
+    </joint>
+    <link name="lg_${suffix}_bottom">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/common/landing_gear/zhizicathy_electric_150/bottom.stl" scale="1 1 1"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0.013 -0.085" rpy="${15*deg2rad} 0 0"/>
+        <geometry>
+          <cylinder radius="0.008" length="0.18"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0.036 -0.17" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.24 0.02 0.02"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.0706"/>
+        <origin xyz="0 0.029 -0.142" rpy="0 0 0"/>
+        <inertia ixx="2.169e-4" ixy="0" ixz="0" iyy="4.320e-4" iyz="0" izz="2.437e-4"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <xacro:macro name="zhizicathy_electric_150" params="parent distance *origin">
+    <joint name="lg_base_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="lg_base_link"/>
+    </joint>
+    <xacro:dummy_inertial_link name="lg_base_link"/>
+
+    <xacro:landing_gear offset="${distance/2}" direction="1" reverse="0" suffix="left"/>
+    <xacro:landing_gear offset="${distance/2}" direction="-1" reverse="1" suffix="right"/>
+  </xacro:macro>
+
+</robot>
