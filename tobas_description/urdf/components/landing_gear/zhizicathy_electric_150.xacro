@@ -2,7 +2,7 @@
 
   <xacro:include filename="$(find tobas_description)/urdf/components/dummy.xacro"/>
 
-  <xacro:macro name="landing_gear" params="offset direction reverse suffix">
+  <xacro:macro name="landing_gear" params="offset max_angle direction reverse suffix">
     <joint name="lg_${suffix}_top_joint" type="fixed">
       <origin xyz="0 ${direction*offset} 0" rpy="0 0 ${reverse*pi}"/>
       <parent link="lg_base_link"/>
@@ -37,7 +37,7 @@
       <parent link="lg_${suffix}_top"/>
       <child link="lg_${suffix}_bottom"/>
       <axis xyz="1 0 0"/>
-      <limit velocity="${75*deg2rad/6}" effort="1" lower="0" upper="${75*deg2rad}"/>
+      <limit velocity="${75*deg2rad/6}" effort="1" lower="0" upper="${max_angle}"/>
       <dynamics damping="0" friction="0.01"/>
     </joint>
     <link name="lg_${suffix}_bottom">
@@ -68,7 +68,7 @@
     </link>
   </xacro:macro>
 
-  <xacro:macro name="zhizicathy_electric_150" params="parent distance *origin">
+  <xacro:macro name="zhizicathy_electric_150" params="parent distance max_angle *origin">
     <joint name="lg_base_joint" type="fixed">
       <xacro:insert_block name="origin"/>
       <parent link="${parent}"/>
@@ -76,8 +76,8 @@
     </joint>
     <xacro:dummy_inertial_link name="lg_base_link"/>
 
-    <xacro:landing_gear offset="${distance/2}" direction="1" reverse="0" suffix="left"/>
-    <xacro:landing_gear offset="${distance/2}" direction="-1" reverse="1" suffix="right"/>
+    <xacro:landing_gear offset="${distance/2}" max_angle="${max_angle}" direction="1" reverse="0" suffix="left"/>
+    <xacro:landing_gear offset="${distance/2}" max_angle="${max_angle}" direction="-1" reverse="1" suffix="right"/>
   </xacro:macro>
 
 </robot>
