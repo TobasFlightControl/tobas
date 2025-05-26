@@ -184,7 +184,13 @@ void ParamGetterWidget_DoubleTable::loadCSV()
   }
 
   // Load CSV
-  rapidcsv::Document doc(file_path.toStdString());
+  rapidcsv::Document doc(
+    file_path.toStdString(),
+    rapidcsv::LabelParams(),
+    rapidcsv::SeparatorParams(),
+    rapidcsv::ConverterParams(),
+    rapidcsv::LineReaderParams(true, '#', true)  // Skip comment and blank lines
+  );
 
   // Read data
   vector<vector<double>> columns(num_entry_);
