@@ -4,7 +4,7 @@
 
   <xacro:macro name="phantom3_0945" params="parent index direction *origin">
 
-    <xacro:property name="diameter" value="${9*inch2meter}"/>
+    <xacro:property name="diameter" value="0.24"/>
     <xacro:property name="radius" value="${diameter/2}"/>
     <xacro:property name="height" value="0.012"/>
     <xacro:property name="mass" value="0.011"/>
@@ -22,7 +22,7 @@
     <link name="${link_name}">
       <visual>
         <geometry>
-          <mesh filename="package://tobas_description/meshes/common/propeller/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
+          <mesh filename="package://tobas_description/meshes/common/propeller/phantom3_0945_${direction}.stl" scale="1 1 1"/>
         </geometry>
         <xacro:insert_block name="white"/>
       </visual>
