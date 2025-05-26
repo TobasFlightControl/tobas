@@ -63,7 +63,7 @@
       <inertial>
         <mass value="0.0706"/>
         <origin xyz="0 0.029 -0.142" rpy="0 0 0"/>
-        <inertia ixx="2.169e-4" ixy="0" ixz="0" iyy="4.320e-4" iyz="0" izz="2.437e-4"/>
+        <inertia ixx="2.169e-4" ixy="0" ixz="0" iyy="4.320e-4" iyz="4.968e-5" izz="2.437e-4"/>
       </inertial>
     </link>
   </xacro:macro>
