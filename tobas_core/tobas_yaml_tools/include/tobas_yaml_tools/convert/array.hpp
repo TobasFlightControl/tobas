@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+
 #include <yaml-cpp/yaml.h>
 
 namespace YAML

@@ -15,12 +15,10 @@ EngineWidget::EngineWidget()
 
   dynamics_ = new EngineDynamicsWidget();
   response_ = new EngineResponseWidget();
-  limit_ = new EngineLimitWidget();
   hw_iface_ = new EngineHardwareIfaceWidget();
 
   addTab(dynamics_, kDynamicsLabel);
   addTab(response_, kResponseLabel);
-  addTab(limit_, kLimitLabel);
   addTab(hw_iface_, kHardwareIfaceLabel);
 }
 
@@ -31,10 +29,6 @@ bool EngineWidget::isValid()
   }
 
   if (!response_->isValid()) {
-    return false;
-  }
-
-  if (!limit_->isValid()) {
     return false;
   }
 
@@ -51,7 +45,6 @@ YAML::Node EngineWidget::dump() const
 
   node[kDynamicsLabel] = dynamics_->dump();
   node[kResponseLabel] = response_->dump();
-  node[kLimitLabel] = limit_->dump();
   node[kHardwareIfaceLabel] = hw_iface_->dump();
 
   return node;
@@ -61,7 +54,6 @@ void EngineWidget::load(const YAML::Node& node)
 {
   dynamics_->load(node[kDynamicsLabel]);
   response_->load(node[kResponseLabel]);
-  limit_->load(node[kLimitLabel]);
   hw_iface_->load(node[kHardwareIfaceLabel]);
 }
 
@@ -73,11 +65,6 @@ const EngineDynamicsWidget* EngineWidget::dynamics() const
 const EngineResponseWidget* EngineWidget::response() const
 {
   return response_;
-}
-
-const EngineLimitWidget* EngineWidget::limit() const
-{
-  return limit_;
 }
 
 const EngineHardwareIfaceWidget* EngineWidget::hardwareIface() const

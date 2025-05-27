@@ -21,8 +21,6 @@ public:
   inline const std::string& linkName(size_t idx) const;
   inline RotorConfig::ConstSharedPtr rotor(size_t idx) const;
 
-  double maxThrustSum() const;
-
 private:
   const Drone& drone_;
   const rotor_axis_t axis_;

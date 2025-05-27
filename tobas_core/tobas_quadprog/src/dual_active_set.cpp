@@ -1,9 +1,10 @@
+#include "tobas_quadprog/dual_active_set.hpp"
+
 #include <iostream>
+
 #include <eigen3/Eigen/Cholesky>
 
 #include <tobas_math/core.hpp>
-
-#include "../include/tobas_quadprog/dual_active_set.hpp"
 
 #define EPS numeric_limits<double>::epsilon()
 #define INF numeric_limits<double>::infinity()
@@ -107,7 +108,7 @@ bool DualActiveSetSolver::solve()
 #endif
 
     // Compute full step length t2: i.e., the minimum step in primal space
-    // s.t. the contraint becomes feasible
+    // s.t. the constraint becomes feasible
     const auto t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.;
 
     // Set x = x + t2 * z
@@ -338,7 +339,7 @@ bool DualActiveSetSolver::solve()
           break;
         }
 
-        // A patial step has taken
+        // A partial step has taken
 #ifdef TRACE_SOLVER
         cout << "Partial step has taken " << t << endl;
         cout << "x:\n" << x_.transpose() << endl;

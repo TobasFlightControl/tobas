@@ -1,8 +1,8 @@
 #pragma once
 
-#include <std_srvs/srv/empty.hpp>
-
 #include <tobas_node/node.hpp>
+
+#include <std_srvs/srv/empty.hpp>
 
 namespace hardware
 {

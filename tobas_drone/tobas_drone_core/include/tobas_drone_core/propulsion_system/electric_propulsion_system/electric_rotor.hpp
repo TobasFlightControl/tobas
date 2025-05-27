@@ -2,9 +2,9 @@
 
 #include <cassert>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include "../rotor.hpp"
 

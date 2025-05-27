@@ -1,8 +1,8 @@
-#include <gz/gui/Plugin.hh>
-#include <gz/transport/Node.hh>
-#include <gz/rendering/Scene.hh>
-#include <gz/rendering/Camera.hh>
 #include <gz/msgs/vector3d.pb.h>
+#include <gz/gui/Plugin.hh>
+#include <gz/rendering/Camera.hh>
+#include <gz/rendering/Scene.hh>
+#include <gz/transport/Node.hh>
 
 using namespace std;
 

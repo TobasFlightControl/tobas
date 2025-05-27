@@ -1,7 +1,9 @@
 #pragma once
 
 #include <map>
-#include <QtWidgets/QtWidgets>
+
+#include <QDialog>
+#include <QDoubleSpinBox>
 
 namespace gui
 {

@@ -1,14 +1,15 @@
-#include <QLabel>
-#include <QDebug>
-
-#include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/font.hpp>
-#include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/widgets/spin_box.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/selected_links.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
+
+#include <QDebug>
+#include <QLabel>
+
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
+
 #include "tobas_setup_assistant/constants.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 
 namespace gui
 {

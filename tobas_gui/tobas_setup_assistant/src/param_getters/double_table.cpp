@@ -1,19 +1,18 @@
-#include <filesystem>
-#include <rcutils/env.h>
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QHeaderView>
+#include "tobas_setup_assistant/param_getters/double_table.hpp"
 
 #include <rapidcsv.h>
+#include <rcutils/env.h>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QPushButton>
+#include <filesystem>
 
-#include <tobas_string_tools/core.hpp>
-#include <tobas_std_tools/check.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/spin_box.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/cast.hpp>
-
-#include "tobas_setup_assistant/param_getters/double_table.hpp"
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_std_tools/check.hpp>
+#include <tobas_string_tools/core.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -185,7 +184,13 @@ void ParamGetterWidget_DoubleTable::loadCSV()
   }
 
   // Load CSV
-  rapidcsv::Document doc(file_path.toStdString());
+  rapidcsv::Document doc(
+    file_path.toStdString(),
+    rapidcsv::LabelParams(),
+    rapidcsv::SeparatorParams(),
+    rapidcsv::ConverterParams(),
+    rapidcsv::LineReaderParams(true, '#', true)  // Skip comment and blank lines
+  );
 
   // Read data
   vector<vector<double>> columns(num_entry_);

@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_jac_acc_solver.hpp"
+#include "tobas_kdl/chain_jac_acc_solver.hpp"
 
 namespace kdl
 {

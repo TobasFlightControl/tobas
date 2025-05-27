@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 #include "./base_filter.hpp"
 #include "./utils.hpp"

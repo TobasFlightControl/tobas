@@ -1,14 +1,14 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "tobas_setup_assistant/robot_info.hpp"
 #include "../base_setting.hpp"
-#include "../propulsion_system/propulsion_system.hpp"
 #include "../fixed_wing/fixed_wing.hpp"
+#include "../propulsion_system/propulsion_system.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {

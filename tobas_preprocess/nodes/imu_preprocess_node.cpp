@@ -1,9 +1,10 @@
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/time.hpp>
+
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 
@@ -50,10 +51,10 @@ private:
   void imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
 };
 
-ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super("imu_preprocess", options)
+ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super(tobas::node::kImuPreprocess, options)
 {
-  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, kDefaultAccelLowPassCutoff, 30, 400);
-  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, kDefaultGyroLowPassCutoff, 30, 400);
+  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, kDefaultAccelLowPassCutoff, 1, 400);
+  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, kDefaultGyroLowPassCutoff, 1, 400);
 
   imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);

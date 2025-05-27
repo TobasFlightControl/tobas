@@ -1,14 +1,16 @@
-#include <filesystem>
-#include <rcutils/env.h>
-#include <QPushButton>
-#include <QFileDialog>
-
-#include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/cast.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
+
+#include <filesystem>
+
+#include <rcutils/env.h>
+#include <QFileDialog>
+#include <QPushButton>
+
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
 
 namespace gui
 {

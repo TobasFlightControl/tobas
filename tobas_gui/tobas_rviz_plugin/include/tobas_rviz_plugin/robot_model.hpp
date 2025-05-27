@@ -1,18 +1,19 @@
 #pragma once
 
 #include <iostream>
-#include <Eigen/Geometry>
-#include <rclcpp/logging.hpp>
-#include <srdfdom/model.h>
 
-#include "../include/tobas_rviz_plugin/class_forward.hpp"
-#include "../include/tobas_rviz_plugin/exceptions.hpp"
-#include "../include/tobas_rviz_plugin/joint_model_group.hpp"
-#include "../include/tobas_rviz_plugin/fixed_joint_model.hpp"
-#include "../include/tobas_rviz_plugin/floating_joint_model.hpp"
-#include "../include/tobas_rviz_plugin/planar_joint_model.hpp"
-#include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
-#include "../include/tobas_rviz_plugin/prismatic_joint_model.hpp"
+#include <srdfdom/model.h>
+#include <eigen3/Eigen/Geometry>
+#include <rclcpp/logging.hpp>
+
+#include "tobas_rviz_plugin/class_forward.hpp"
+#include "tobas_rviz_plugin/exceptions.hpp"
+#include "tobas_rviz_plugin/fixed_joint_model.hpp"
+#include "tobas_rviz_plugin/floating_joint_model.hpp"
+#include "tobas_rviz_plugin/joint_model_group.hpp"
+#include "tobas_rviz_plugin/planar_joint_model.hpp"
+#include "tobas_rviz_plugin/prismatic_joint_model.hpp"
+#include "tobas_rviz_plugin/revolute_joint_model.hpp"
 
 namespace tobas
 {

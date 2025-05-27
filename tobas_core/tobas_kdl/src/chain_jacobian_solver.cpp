@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_jacobian_solver.hpp"
+#include "tobas_kdl/chain_jacobian_solver.hpp"
 
 using namespace std;
 

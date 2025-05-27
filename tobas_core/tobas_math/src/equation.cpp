@@ -1,9 +1,10 @@
+#include "tobas_math/equation.hpp"
+
 #include <cassert>
 #include <iostream>
 
-#include "../include/tobas_math/equation.hpp"
-#include "../include/tobas_math/core.hpp"
-#include "../include/tobas_math/complex.hpp"
+#include "tobas_math/complex.hpp"
+#include "tobas_math/core.hpp"
 
 using namespace std;
 

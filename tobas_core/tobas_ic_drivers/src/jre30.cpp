@@ -1,8 +1,6 @@
+#include "tobas_ic_drivers/jre30.hpp"
+
 #include <iostream>
-
-#include "../include/tobas_ic_drivers/jre30.hpp"
-
-#define TIMEOUT_MS 1000
 
 using namespace std;
 
@@ -81,10 +79,6 @@ bool JRE30::initialize(const char* uart_device)
   }
 
   if (!uart_.disableParity()) {
-    return false;
-  }
-
-  if (!uart_.setTimeout(TIMEOUT_MS / 100)) {
     return false;
   }
 

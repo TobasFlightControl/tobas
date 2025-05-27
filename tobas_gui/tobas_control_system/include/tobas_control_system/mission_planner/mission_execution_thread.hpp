@@ -2,12 +2,13 @@
 
 #include <QThread>
 
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
-#include <tobas_msgs/srv/get_gnss_origin.hpp>
-#include <tobas_mission_msgs/action/takeoff.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+
 #include <tobas_mission_msgs/action/land.hpp>
 #include <tobas_mission_msgs/action/move.hpp>
+#include <tobas_mission_msgs/action/takeoff.hpp>
+#include <tobas_msgs/srv/get_gnss_origin.hpp>
 
 #include "./commands/commands.hpp"
 

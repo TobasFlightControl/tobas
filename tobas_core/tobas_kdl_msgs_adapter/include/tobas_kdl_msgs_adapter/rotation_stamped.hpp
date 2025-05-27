@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/rotation.hpp>
+
 #include <tobas_kdl_msgs/msg/rotation_stamped.hpp>
 
 #include "./rotation.hpp"

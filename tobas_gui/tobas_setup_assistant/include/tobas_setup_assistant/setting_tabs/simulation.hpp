@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./base_setting.hpp"
-#include "../param_getters/spin_box.hpp"
 #include "../param_getters/double_spin_box.hpp"
+#include "../param_getters/spin_box.hpp"
+#include "./base_setting.hpp"
 
 namespace gui
 {

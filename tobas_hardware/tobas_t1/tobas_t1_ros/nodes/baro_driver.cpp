@@ -1,8 +1,8 @@
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
-
 #include <tobas_t1_core/ilps22qs.hpp>
+
+#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 
 #include "./common.hpp"
 

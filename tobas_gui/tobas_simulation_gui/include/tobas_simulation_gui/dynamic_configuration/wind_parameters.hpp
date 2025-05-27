@@ -1,7 +1,8 @@
 #pragma once
 
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_qt_tools/widgets/slider_text.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 

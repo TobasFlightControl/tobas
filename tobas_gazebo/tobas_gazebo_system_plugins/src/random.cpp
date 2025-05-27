@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_system_plugins/random.hpp"
+#include "tobas_gazebo_system_plugins/random.hpp"
 
 using namespace std;
 using namespace gz::math;

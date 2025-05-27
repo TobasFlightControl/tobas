@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
-#include <urdf/model.h>
 #include <srdfdom/model.h>
+#include <urdf/model.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include "./class_forward.hpp"
 #include "./synchronized_string_parameter.hpp"

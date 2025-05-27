@@ -1,8 +1,9 @@
-#include <eigen3/Eigen/LU>
-#include <eigen3/Eigen/Cholesky>
+#include "tobas_quadprog/primal_dual_interior_point.hpp"
 
-#include "../include/tobas_quadprog/primal_dual_interior_point.hpp"
-#include "../include/tobas_quadprog/dual_active_set.hpp"
+#include <eigen3/Eigen/Cholesky>
+#include <eigen3/Eigen/LU>
+
+#include "tobas_quadprog/dual_active_set.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -42,8 +43,8 @@ bool PrimalDualInteriorPointSolver::solve()
   }
 
   // Iteration
-  // Real-time rquirements will impose a hard bound on the number of interior-point iterations,
-  // hense it is assumed fixed a priori.
+  // Real-time requirements will impose a hard bound on the number of interior-point iterations,
+  // hence it is assumed fixed a priori.
   for (size_t _ = 0; _ < num_iter_; ++_) {
     const DiagonalMatrix<double, Dynamic> W = lam_.cwiseProduct(s_.cwiseInverse()).asDiagonal();
     const double mu = lam_.dot(s_) / static_cast<double>(eq_dim_ + ineq_dim_);  // 制約なしだとNaN

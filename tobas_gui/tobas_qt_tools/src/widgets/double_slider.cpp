@@ -1,6 +1,6 @@
-#include <tobas_math/core.hpp>
-
 #include "tobas_qt_tools/widgets/double_slider.hpp"
+
+#include <tobas_math/core.hpp>
 
 namespace qt
 {

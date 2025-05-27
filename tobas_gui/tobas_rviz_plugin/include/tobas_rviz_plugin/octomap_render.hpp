@@ -1,9 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <memory>
-#include <octomap/octomap.h>
+#include <vector>
+
 #include <OgrePrerequisites.h>
+#include <octomap/octomap.h>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_default_plugins/displays/pointcloud/point_cloud_helpers.hpp>
 

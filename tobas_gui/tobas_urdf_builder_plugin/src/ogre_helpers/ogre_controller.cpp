@@ -1,12 +1,13 @@
+#include "tobas_urdf_builder_plugin/ogre_helpers/ogre_controller.hpp"
+
 #include <OgreSceneManager.h>
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
 #include <rviz_rendering/objects/axes.hpp>
 #include <rviz_rendering/objects/movable_text.hpp>
 
-#include "../../include/tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ogre_helpers/ogre_controller.hpp"
-#include "../../include/tobas_urdf_builder_plugin/utils/constants.hpp"
+#include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
+#include "tobas_urdf_builder_plugin/utils/constants.hpp"
 
 using namespace std;
 

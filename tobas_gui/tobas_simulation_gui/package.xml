@@ -17,6 +17,7 @@
   <depend>tobas_gazebo_common</depend>
   <depend>tobas_gazebo_msgs</depend>
   <depend>tobas_qt_tools</depend>
+  <depend>tobas_rqt_bridge</depend>
   <depend>tobas_gui_common</depend>
 
   <export>

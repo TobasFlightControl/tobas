@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./base.hpp"
-#include "../../param_getters/line_edit.hpp"
 #include "../../param_getters/combo_box.hpp"
+#include "../../param_getters/line_edit.hpp"
+#include "./base.hpp"
 
 namespace gui
 {

@@ -1,4 +1,4 @@
-#include "../include/tobas_eigen_tools/spline.hpp"
+#include "tobas_eigen_tools/spline.hpp"
 
 using namespace std;
 using namespace Eigen;

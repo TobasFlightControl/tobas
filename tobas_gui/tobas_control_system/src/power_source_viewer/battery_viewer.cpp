@@ -1,20 +1,17 @@
+#include "tobas_control_system/power_source_viewer/battery_viewer.hpp"
+
 #include <format>
 
 #include <tobas_math/core.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-
-#include "tobas_control_system/power_source_viewer/battery_viewer.hpp"
 
 namespace gui
 {
 namespace gcs
 {
-BatteryViewerWidget::BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone)
+BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
   voltage_ = new qt::HPositionBarWidget();
   current_ = new qt::HPositionBarWidget();
@@ -27,6 +24,9 @@ BatteryViewerWidget::BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tob
   form->addVAlignedRow(new qt::Label("Battery Voltage", kLabelPSize), voltage_);
   form->addVAlignedRow(new qt::Label("Battery Current", kLabelPSize), current_);
   setLayout(form);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);
 }
 
 void BatteryViewerWidget::reset()
@@ -52,13 +52,9 @@ void BatteryViewerWidget::updateInternalDataStructures()
     current_->setLower(0.);
     current_->setMinimum(0.);
     current_->setMaximum(eprop_->battery.max_current);
-
-    battery_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::batteryCb, this);
   }
   else {
     eprop_.reset();
-    battery_sub_.reset();
   }
 }
 

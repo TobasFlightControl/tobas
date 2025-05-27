@@ -1,13 +1,13 @@
+#include "tobas_drone_tools/tr_mixer_pinv.hpp"
+
 #include <ranges>
 
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/console.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
-#include <tobas_constants/constants.hpp>
-
-#include "../include/tobas_drone_tools/tr_mixer_pinv.hpp"
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
 using namespace Eigen;

@@ -2,20 +2,20 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./plots/pose_plot.hpp"
-#include "./plots/twist_plot.hpp"
 #include "./plots/accel_plot.hpp"
-#include "./plots/imu_plot.hpp"
-#include "./plots/mag_plot.hpp"
-#include "./plots/gnss_plot.hpp"
 #include "./plots/battery_plot.hpp"
-#include "./plots/engine_plot.hpp"
-#include "./plots/rotor_speed_plot.hpp"
-#include "./plots/propeller_pitch_plot.hpp"
-#include "./plots/latency_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
-#include "./plots/observer_feedback_plot.hpp"
+#include "./plots/engine_plot.hpp"
+#include "./plots/gnss_plot.hpp"
+#include "./plots/imu_plot.hpp"
+#include "./plots/latency_plot.hpp"
+#include "./plots/mag_plot.hpp"
 #include "./plots/mr_controller_feedback_plot.hpp"
+#include "./plots/observer_feedback_plot.hpp"
+#include "./plots/pose_plot.hpp"
+#include "./plots/propeller_pitch_plot.hpp"
+#include "./plots/rotor_speed_plot.hpp"
+#include "./plots/twist_plot.hpp"
 
 namespace gui
 {
@@ -34,12 +34,15 @@ class PlotTabWidget : public qt::TabWidget
 public:
   explicit PlotTabWidget();
 
+  void clear();
   void setTimeScale(double t_start, double t_stop);
 
   void setFrameData(
     const QVector<tobas_msgs::msg::Odometry>& odom_data,
     const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data);
-  void setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data);
+  void setImuData(
+    const QVector<tobas_msgs::msg::ImuStamped>& raw_msgs,
+    const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_msgs);
   void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
   void setGnssData(const QVector<tobas_msgs::msg::Gnss>& _data);
   void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);

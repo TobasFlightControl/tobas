@@ -57,6 +57,9 @@ std::filesystem::path getObserverDynamicParamsPath(const std::filesystem::path& 
 /* PC上の rc_teleop_dynamic.yaml の絶対パスを返す． */
 std::filesystem::path getRcTeleopDynamicParamsPath(const std::filesystem::path& tbs_path);
 
+/* PC上の imu_preprocess_dynamic.yaml の絶対パスを返す． */
+std::filesystem::path getImuPreprocessDynamicParamsPath(const std::filesystem::path& tbs_path);
+
 /* PC上のバックアップ用設定ファイルの絶対パスを返す． */
 std::filesystem::path getSettingsPath(const std::filesystem::path& tbs_path);
 

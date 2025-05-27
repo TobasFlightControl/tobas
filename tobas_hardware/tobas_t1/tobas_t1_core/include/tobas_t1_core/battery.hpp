@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include <tobas_linux/spi_dev.hpp>
 
 namespace t1
@@ -15,10 +17,7 @@ public:
   explicit Battery();
 
   bool initialize();
-  bool read(double& voltage, double& current);
-
-  inline const double& getVoltage() const;
-  inline const double& getCurrent() const;
+  bool read(float& voltage, float& current);
 
 private:
   linux::SPIdev spi_;

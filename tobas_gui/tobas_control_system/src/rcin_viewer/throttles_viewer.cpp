@@ -1,12 +1,11 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/util.hpp>
-
 #include "tobas_control_system/rcin_viewer/throttles_viewer.hpp"
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
 {
@@ -14,7 +13,7 @@ namespace gcs
 {
 namespace rcin
 {
-ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
+ThrottlesViewer::ThrottlesViewer(const RosQtBridge& bridge)
 {
   roll_range_ = new qt::HPositionBarWidget(tobas::kRcInputMin, tobas::kRcInputMax);
   pitch_range_ = new qt::VPositionBarWidget(tobas::kRcInputMax, tobas::kRcInputMin);
@@ -51,6 +50,9 @@ ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   cols1->addWidget(throt_range_);
 
   setLayout(cols1);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void ThrottlesViewer::reset()
@@ -59,14 +61,6 @@ void ThrottlesViewer::reset()
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
-}
-
-void ThrottlesViewer::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
 void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)

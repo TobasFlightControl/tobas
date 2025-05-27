@@ -3,11 +3,12 @@
 #include <functional>
 #include <set>
 #include <string>
+
 #include <srdfdom/model.h>
 
 #include "./joint_model.hpp"
-#include "./link_model.hpp"
 #include "./kinematics_base.hpp"
+#include "./link_model.hpp"
 
 namespace tobas
 {

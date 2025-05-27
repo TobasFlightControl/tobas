@@ -103,7 +103,7 @@
           </xacro:if>
 
           <xacro:unless value="${self == links}">
-            <!-- symetry -->
+            <!-- symmetry -->
             <xacro:if value="${self == links/2}">
               <xacro:if value="${tilt_mode == 1}">
                 <xacro:if value="${prop_15inch == 1}">

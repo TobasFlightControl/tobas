@@ -22,10 +22,7 @@ public:
   /* Calculate forward position and velocity kinematics, from joint coordinates to cartesian coordinates. */
   int JntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1);
 
-  const FrameVel& getFrameVel() const
-  {
-    return p_out_;
-  }
+  inline const FrameVel& getFrameVel() const;
 
 private:
   size_t j_;
@@ -33,4 +30,9 @@ private:
 
   FrameVel p_out_;
 };
+
+inline const FrameVel& ChainFkSolverVel_recursive::getFrameVel() const
+{
+  return p_out_;
+}
 }  // namespace kdl

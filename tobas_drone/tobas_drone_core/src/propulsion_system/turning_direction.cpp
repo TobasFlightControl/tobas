@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "tobas_drone_core/propulsion_system/turning_direction.hpp"
+
+#include <iostream>
 
 #define CCW_TEXT "ccw"
 #define CW_TEXT "cw"

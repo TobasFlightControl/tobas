@@ -1,30 +1,30 @@
 #include <ranges>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_tools/tree_joint_state_converter.hpp>
-#include <tobas_tools/command_level_handler.hpp>
-#include <tobas_pose_pid/position_pid.hpp>
-#include <tobas_pose_pid/euler_pi.hpp>
 #include <tobas_drone_tools/mr_accel_attitude_converter.hpp>
 #include <tobas_drone_tools/mr_mixer_qp.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_pose_pid/euler_pi.hpp>
+#include <tobas_pose_pid/position_pid.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_tools/command_level_handler.hpp>
+#include <tobas_tools/tree_joint_state_converter.hpp>
 
-#include <tobas_std_msgs/msg/bool_stamped.hpp>
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
-#include <tobas_msgs/msg/joint_state_array.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_command_msgs_adapter/rate_throttle.hpp>
-#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
+#include <tobas_command_msgs_adapter/rate_throttle.hpp>
+#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_msgs/msg/arming.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_std_msgs/msg/bool_stamped.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -57,6 +57,9 @@ private:
   double atti_zeta_, head_zeta_;  // [-]
   kdl::Vector gyro_gain_;
 
+  // Values depending on drone configuration
+  double max_thrust_sum_;
+
   // State
   bool drone_received_ = false;
   bool tree_received_ = false;
@@ -87,7 +90,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_livelinesses_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVelYaw> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AccelYaw> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AngleThrottle> angle_cmd_sub_;
@@ -126,7 +129,7 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses);
   void positionCommandCb(const tobas_command_msgs::PosVelYaw::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd);
@@ -152,7 +155,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 1., 0.1, 5.);
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 10., 1., 50.);
   addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 5., 0.1, 25.);
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.1, 3.);
@@ -175,10 +178,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  if (do_dist_comp_trans_ || do_dist_comp_rot_) {
+    dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  }
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
+  rotor_livelinesses_sub_ = createSubscriber(tobas::kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(tobas::kPosVelYawCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(tobas::kAccelYawCmdTopic, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(tobas::kAngleThrottleCmdTopic, &self::angleCommandCb, this);
@@ -201,6 +206,14 @@ bool ControllerNode::updateInternalDataStructures()
   }
   if (!mixer_.updateInternalDataStructures()) {
     return false;
+  }
+
+  // Update the maximum total thrust
+  max_thrust_sum_ = 0.;
+  for (size_t idx = 0; idx < z_rotors_.count(); ++idx) {
+    const auto& link_name = z_rotors_.rotor(idx)->link_name;
+    const auto thrust_at_full_thort = drone_.prop->thrustFromThrottle(link_name, tobas::kMaxThrot);
+    max_thrust_sum_ += thrust_at_full_thort;
   }
 
   return true;
@@ -353,7 +366,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   if (tree_received_) {
     if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occured while updating internal data structures.");
+      TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }
@@ -367,7 +380,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
   if (drone_received_) {
     if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occured while updating internal data structures.");
+      TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }
@@ -479,7 +492,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
-      thrusts_msg->thrusts.back().thrust = thrusts(idx);
+      thrusts_msg->thrusts.back().thrust = max(thrusts(idx), 0.);
     }
     tar_thrusts_pub_->publish(move(thrusts_msg));
 
@@ -528,13 +541,13 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 }
 
-void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
+void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses)
 {
   if (!mixer_.isInitialized()) {
     return;
   }
 
-  for (const auto& data : rotor_liveliness->data) {
+  for (const auto& data : rotor_livelinesses->data) {
     if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
       TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
     }
@@ -590,7 +603,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
 
   // コマンドを更新
   tar_angle_ = std::make_shared<kdl::Euler>(angle_cmd->angle);
-  tar_thrust_ = z_rotors_.maxThrustSum() * angle_cmd->throttle;
+  tar_thrust_ = max_thrust_sum_ * angle_cmd->throttle;
 }
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd)
@@ -612,7 +625,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
 
   // コマンドを更新
   tar_gyro_ = std::make_shared<kdl::Vector>(rate_cmd->rate);
-  tar_thrust_ = z_rotors_.maxThrustSum() * rate_cmd->throttle;
+  tar_thrust_ = max_thrust_sum_ * rate_cmd->throttle;
 }
 
 void ControllerNode::checkTopicsTimerCb()
@@ -632,7 +645,7 @@ void ControllerNode::checkTopicsTimerCb()
     return;
   }
 
-  if (!dist_force_) {
+  if (dist_force_sub_ && !dist_force_) {
     TOBAS_WARN("Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return;
   }

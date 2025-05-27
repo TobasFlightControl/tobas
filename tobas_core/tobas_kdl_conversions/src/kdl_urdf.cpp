@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl_conversions/kdl_urdf.hpp"
+#include "tobas_kdl_conversions/kdl_urdf.hpp"
 
 using namespace std;
 

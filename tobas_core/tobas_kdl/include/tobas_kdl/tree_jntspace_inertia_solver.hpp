@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./tree_solver_i.hpp"
 #include "./jntspace_inertia_matrix.hpp"
 #include "./tree_id_solver_rne.hpp"
+#include "./tree_solver_i.hpp"
 
 namespace kdl
 {

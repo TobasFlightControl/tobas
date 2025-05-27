@@ -2,17 +2,16 @@
 
 #include <QPushButton>
 
-#include <tobas_linux/command_executor.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
-#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_gui_common/local_package_builder.hpp>
 #include <tobas_gui_common/remote_package_builder.hpp>
-#include <tobas_msgs/msg/arming.hpp>
+#include <tobas_linux/command_executor.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
+#include <tobas_ssh_client/ssh_client.hpp>
 
-#include "./simulation_settings/simulation_settings.hpp"
-#include "./dynamic_configuration/dynamic_configuration.hpp"
 #include "./commanders/commanders.hpp"
+#include "./dynamic_configuration/dynamic_configuration.hpp"
+#include "./simulation_settings/simulation_settings.hpp"
 
 namespace gui
 {
@@ -33,7 +32,7 @@ Q_SIGNALS:
   void terminated();
 
 public:
-  explicit SimulationWidget(rclcpp::Node::SharedPtr node);
+  explicit SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void reset();
   bool updateTBSPath(const std::filesystem::path& tbs_path);
@@ -42,8 +41,6 @@ protected:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   linux::CommandExecutor cmd_executor_;
   ssh::SSHClient ssh_client_;
   common::LocalPackageBuilder local_pkg_builder_;
@@ -61,8 +58,6 @@ private:
   CommandersWidget* commanders_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
   bool killGazeboLaunch();
 
@@ -86,6 +81,8 @@ private:
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
+
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace sim
 }  // namespace gui

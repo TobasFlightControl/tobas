@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./twist.hpp"
 #include "./accel.hpp"
+#include "./twist.hpp"
 #include "./vector_acc.hpp"
 
 namespace kdl

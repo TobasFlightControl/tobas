@@ -1,10 +1,10 @@
 #pragma once
 
-#include "tobas_setup_assistant/robot_info.hpp"
-#include "../imu.hpp"
 #include "../barometer.hpp"
 #include "../gnss.hpp"
+#include "../imu.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {

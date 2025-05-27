@@ -3,8 +3,8 @@
 #include <tobas_quadprog/dual_active_set.hpp>
 
 #include "./tree_ik_solver.hpp"
-#include "./tree_jacobian_solver.hpp"
 #include "./tree_jac_acc_solver.hpp"
+#include "./tree_jacobian_solver.hpp"
 #include "./tree_joint_parser.hpp"
 
 namespace kdl

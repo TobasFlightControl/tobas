@@ -1,4 +1,4 @@
-#include "../include/tobas_hardware_common/base_sensor_node.hpp"
+#include "tobas_hardware_common/base_sensor_node.hpp"
 
 using namespace std;
 

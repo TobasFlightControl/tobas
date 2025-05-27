@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QtCore/QtCore>
-
 #include "./base_view_model.hpp"
 #include "./geometry_view_model.hpp"
 

@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/fw_stability_derivatives_cog.hpp"
+#include "tobas_drone_tools/fw_stability_derivatives_cog.hpp"
 
 using namespace std;
 

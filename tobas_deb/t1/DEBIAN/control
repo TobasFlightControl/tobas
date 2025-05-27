@@ -1,7 +1,7 @@
 Package: tobas
 Maintainer: Masayoshi Dohi <masa0u0masa1215@gmail.com>
 Architecture: arm64
-Version: 2.3.0
+Version: 2.5.0
 Description: Tobas Flight Controller
 Homepage: https://tobas-wiki-ja.readthedocs.io/ja/stable/
 Depends: openssh-server, hostapd, dnsmasq, dhcpcd, netfilter-persistent, iptables-persistent, libgit2-dev

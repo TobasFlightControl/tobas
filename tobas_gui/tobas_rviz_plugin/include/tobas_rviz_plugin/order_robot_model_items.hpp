@@ -1,5 +1,7 @@
-#include "./link_model.hpp"
+#pragma once
+
 #include "./joint_model_group.hpp"
+#include "./link_model.hpp"
 
 namespace tobas
 {

@@ -1,6 +1,6 @@
-#include <tobas_std_tools/check.hpp>
-
 #include "tobas_setup_assistant/frame_tree.hpp"
+
+#include <tobas_std_tools/check.hpp>
 
 namespace gui
 {

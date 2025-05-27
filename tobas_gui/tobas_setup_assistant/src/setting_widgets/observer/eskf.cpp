@@ -1,7 +1,7 @@
+#include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
+
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
 
 namespace gui
 {

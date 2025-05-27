@@ -1,4 +1,4 @@
-#include "../../include/tobas_urdf_builder_plugin/view_model/joint_limits_view_model.hpp"
+#include "tobas_urdf_builder_plugin/view_model/joint_limits_view_model.hpp"
 
 namespace gui
 {

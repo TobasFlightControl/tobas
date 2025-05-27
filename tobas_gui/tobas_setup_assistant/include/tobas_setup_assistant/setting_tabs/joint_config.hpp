@@ -3,14 +3,14 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_drone_core/joint/joint.hpp>
+#include <tobas_qt_tools/widgets/table_widget.hpp>
 
+#include "./base_setting.hpp"
+#include "./fixed_wing/fixed_wing.hpp"
+#include "./propulsion_system/propulsion_system.hpp"
 #include "tobas_setup_assistant/robot_info.hpp"
 #include "tobas_setup_assistant/signals.hpp"
-#include "./base_setting.hpp"
-#include "./propulsion_system/propulsion_system.hpp"
-#include "./fixed_wing/fixed_wing.hpp"
 
 namespace gui
 {

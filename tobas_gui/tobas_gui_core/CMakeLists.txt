@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_gui_core)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
-
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
-  message("This package is skipped on Raspberry Pi.")
+  message(STATUS "This package is skipped on Raspberry Pi.")
   find_package(ament_cmake REQUIRED)
   ament_package()
   return()
@@ -31,25 +30,25 @@ find_package(tobas_flight_log_gui REQUIRED)
 find_package(tobas_simulation_gui REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  tobas_homepage
-  tobas_urdf_builder
-  tobas_setup_assistant
-  tobas_hardware_setup
-  tobas_control_system
-  tobas_parameter_tuning_gui
-  tobas_flight_log_gui
-  tobas_simulation_gui
+    tobas_homepage
+    tobas_urdf_builder
+    tobas_setup_assistant
+    tobas_hardware_setup
+    tobas_control_system
+    tobas_parameter_tuning_gui
+    tobas_flight_log_gui
+    tobas_simulation_gui
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
-file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
+file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/*.hpp)
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
@@ -63,7 +62,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(TARGETS Tobas DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)

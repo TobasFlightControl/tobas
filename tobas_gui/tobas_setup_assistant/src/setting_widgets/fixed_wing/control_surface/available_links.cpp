@@ -1,6 +1,6 @@
-#include <QDebug>
-
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/available_links.hpp"
+
+#include <QDebug>
 
 namespace gui
 {

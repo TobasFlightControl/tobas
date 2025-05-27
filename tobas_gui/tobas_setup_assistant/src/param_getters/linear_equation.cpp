@@ -1,6 +1,6 @@
-#include <tobas_string_tools/core.hpp>
-
 #include "tobas_setup_assistant/param_getters/linear_equation.hpp"
+
+#include <tobas_string_tools/core.hpp>
 
 namespace gui
 {

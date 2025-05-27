@@ -1,26 +1,27 @@
-#include <gz/sim/Model.hh>
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
-#include <std_srvs/srv/trigger.hpp>
+#include <gz/sim/Model.hh>
 
-#include <tobas_math/core.hpp>
-#include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/rotor_state.hpp>
-#include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs_adapter/wind.hpp>
-
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
-#include <tobas_gazebo_msgs/msg/throttle.hpp>
-#include <tobas_gazebo_msgs/msg/rotor_state.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
-#include "../include/tobas_gazebo_system_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_system_plugins/conversions/conversions.hpp"
-#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
-#include "../include/tobas_gazebo_system_plugins/sdf.hpp"
+#include <std_srvs/srv/trigger.hpp>
+
+#include <tobas_gazebo_msgs/msg/rotor_state.hpp>
+#include <tobas_gazebo_msgs/msg/throttle.hpp>
+#include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/rotor_state.hpp>
+#include <tobas_msgs_adapter/wind.hpp>
+
+#include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
+#include "tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "tobas_gazebo_system_plugins/sdf.hpp"
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
 // ESCが電子制御で電流の変化を抑えるため，見かけのインダクタンスは実測値よりも遥かに大きい (100倍くらい？)

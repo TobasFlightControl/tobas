@@ -1,6 +1,6 @@
-#include <tobas_std_tools/check.hpp>
-
 #include "tobas_setup_assistant/xml_elements/launch.hpp"
+
+#include <tobas_std_tools/check.hpp>
 
 using namespace std;
 

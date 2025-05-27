@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QLabel>
-#include <qwt/qwt_thermo.h>
 #include <qwt/qwt_slider.h>
+#include <qwt/qwt_thermo.h>
+#include <QLabel>
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 

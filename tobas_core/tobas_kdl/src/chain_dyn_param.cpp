@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl/chain_dyn_param.hpp"
+#include "tobas_kdl/chain_dyn_param.hpp"
 
 using namespace std;
 

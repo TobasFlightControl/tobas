@@ -3,10 +3,11 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/segment.hpp>
+
 #include <tobas_kdl_msgs/msg/segment.hpp>
 
-#include "./joint.hpp"
 #include "./frame.hpp"
+#include "./joint.hpp"
 #include "./rigid_body_inertia.hpp"
 
 template <>

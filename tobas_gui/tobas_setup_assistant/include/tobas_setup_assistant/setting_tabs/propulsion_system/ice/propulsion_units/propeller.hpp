@@ -1,9 +1,8 @@
 #pragma once
 
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/int_range.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/param_getters/int_range.hpp"
+#include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace gui
 {

@@ -1,6 +1,6 @@
-#include <tobas_yaml_tools/convert/eigen.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/magnetometer.hpp"
+
+#include <tobas_yaml_tools/convert/eigen.hpp>
 
 namespace gui
 {

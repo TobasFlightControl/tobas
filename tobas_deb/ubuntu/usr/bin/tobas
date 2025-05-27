@@ -6,6 +6,6 @@ export ROS_DOMAIN_ID=0
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 source /opt/ros/jazzy/setup.bash
-source /opt/tobas/setup.bash
+source /opt/tobas/local_setup.bash
 
 ros2 launch tobas_gui_core gui.launch.py

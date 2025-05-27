@@ -1,14 +1,16 @@
-#include <filesystem>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <QCheckBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include "tobas_setup_assistant/rviz.hpp"
 
-#include <tobas_ros2_tools/parameter.hpp>
+#include <filesystem>
+
+#include <QCheckBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_ros2_tools/parameter.hpp>
 
-#include "tobas_setup_assistant/rviz.hpp"
 #include "tobas_setup_assistant/constants.hpp"
 
 namespace fs = std::filesystem;

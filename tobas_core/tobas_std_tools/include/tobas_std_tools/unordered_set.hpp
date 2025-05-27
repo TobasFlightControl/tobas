@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cassert>
 #include <unordered_set>
 #include <vector>
-#include <cassert>
 
 namespace tobas_std
 {

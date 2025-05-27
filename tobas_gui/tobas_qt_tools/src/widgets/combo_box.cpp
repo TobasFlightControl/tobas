@@ -1,7 +1,8 @@
-#include <QWheelEvent>
-#include <QStandardItemModel>
-
 #include "tobas_qt_tools/widgets/combo_box.hpp"
+
+#include <QStandardItemModel>
+#include <QWheelEvent>
+
 #include "tobas_qt_tools/cast.hpp"
 
 namespace qt

@@ -4,11 +4,11 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./general.hpp"
-#include "./transmission.hpp"
-#include "./propeller.hpp"
-#include "./hardware_interface.hpp"
 #include "./aerodynamics/aerodynamics.hpp"
+#include "./general.hpp"
+#include "./hardware_interface.hpp"
+#include "./propeller.hpp"
+#include "./transmission.hpp"
 
 namespace gui
 {

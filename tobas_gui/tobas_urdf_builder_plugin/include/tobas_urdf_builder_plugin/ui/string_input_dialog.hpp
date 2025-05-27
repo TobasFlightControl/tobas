@@ -1,6 +1,9 @@
 #pragma once
 
-#include <QtWidgets/QtWidgets>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QLineEdit>
 
 namespace gui
 {

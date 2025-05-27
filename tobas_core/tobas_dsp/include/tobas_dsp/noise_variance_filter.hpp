@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./high_pass_filter.hpp"
-#include "./welford.hpp"
 #include "./moving_stat.hpp"
+#include "./welford.hpp"
 
 namespace dsp
 {

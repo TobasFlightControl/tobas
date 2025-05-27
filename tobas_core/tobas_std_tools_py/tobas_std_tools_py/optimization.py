@@ -1,45 +1,43 @@
+from typing import Callable
+
 import numpy as np
-import numpy.linalg as LA
-from typing import Callable, List
+from numpy import linalg as LA
+from numpy.typing import NDArray
 
 
-def newton_1d(f: Callable, df: Callable, x0: float, eps: float = 1e-10, max_iter=1000):
+def newton_1d(f: Callable, df: Callable, x0: float, eps: float = 1e-10, max_iter: int = 100) -> float:
     """1次元のニュートン法"""
 
     x = x0
 
     for _ in range(max_iter):
-        div = df(x)
-        assert div > 0.0
-        x_new = x - f(x) / div
-        if abs(x - x_new) < eps:
+        dx = -f(x) / df(x)
+        x += dx
+        if abs(dx) < eps:
             break
-        x = x_new
     else:
-        print(f"Error: iteration limit exceeded.")
+        print("Error: Iteration limit exceeded.")
 
     return x
 
 
 def newton(
-    f: List[Callable],
-    df: List[List[Callable]],
-    x0: List[float],
+    f: Callable,
+    df: Callable,
+    x0: NDArray,
     eps: float = 1e-10,
-    max_iter: float = 1e-10,
-):
+    max_iter: int = 100,
+) -> NDArray:
     """多次元のニュートン法"""
 
     x = np.array(x0)
 
     for _ in range(max_iter):
-        div = LA.inv(df(x))
-        assert np.all(div > 0.0)
-        x_new = x - np.dot(div, f(x))
-        if np.sum((x - x_new) ** 2) < eps**2:
+        dx = -np.dot(LA.inv(df(x)), f(x))
+        if np.sum(dx**2) < eps**2:
             break
-        x = x_new
+        x += dx
     else:
-        print(f"Error: iteration limit exceeded.")
+        print("Error: Iteration limit exceeded.")
 
     return x

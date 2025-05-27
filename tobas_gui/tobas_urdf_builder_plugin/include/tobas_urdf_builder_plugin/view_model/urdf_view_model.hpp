@@ -1,11 +1,12 @@
 #pragma once
 
 #include <memory>
+
 #include <tinyxml2.h>
 #include <urdf/model.h>
 
-#include "./link_view_model.hpp"
 #include "./joint_view_model.hpp"
+#include "./link_view_model.hpp"
 
 namespace gui
 {

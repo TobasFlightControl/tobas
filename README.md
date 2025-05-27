@@ -9,6 +9,10 @@ enabling precise flight performance even for unconventional frames not supported
 
 [Tobas User Guide](https://tobas-wiki-ja.readthedocs.io/ja/stable/)
 
+## Supported Motor Controller Firmware
+
+- v1.1
+
 ## Setup from source (Ubuntu 24.04 LTS)
 
 1. [Install ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
@@ -56,7 +60,7 @@ $ cd ~/colcon_ws
 ```bash
 $ echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc
 $ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
-$ echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc
+$ echo "source ~/colcon_ws/install/local_setup.bash" >> ~/.bashrc
 $ exec bash
 ```
 

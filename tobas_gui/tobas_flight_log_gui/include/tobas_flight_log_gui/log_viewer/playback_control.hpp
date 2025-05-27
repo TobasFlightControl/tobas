@@ -1,8 +1,8 @@
 #pragma once
 
+#include <QLabel>
 #include <QPushButton>
 #include <QSlider>
-#include <QLabel>
 #include <QTimer>
 
 namespace gui

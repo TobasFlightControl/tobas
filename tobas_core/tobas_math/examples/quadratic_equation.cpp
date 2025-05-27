@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include <tobas_math/equation.hpp>
 #include <tobas_math/complex.hpp>
+#include <tobas_math/equation.hpp>
 
 using namespace std;
 

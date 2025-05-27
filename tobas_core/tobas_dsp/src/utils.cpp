@@ -1,7 +1,7 @@
+#include "tobas_dsp/utils.hpp"
+
 #include <cmath>
 #include <stdexcept>
-
-#include "../include/tobas_dsp/utils.hpp"
 
 using namespace std;
 

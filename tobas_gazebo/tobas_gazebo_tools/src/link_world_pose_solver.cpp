@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_tools/link_world_pose_solver.hpp"
+#include "tobas_gazebo_tools/link_world_pose_solver.hpp"
 
 using namespace std;
 using namespace gz;

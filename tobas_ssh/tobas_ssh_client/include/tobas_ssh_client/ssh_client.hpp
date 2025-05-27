@@ -7,11 +7,11 @@
 
 #include <tobas_ssh_msgs/srv/connect.hpp>
 #include <tobas_ssh_msgs/srv/execute.hpp>
+#include <tobas_ssh_msgs/srv/list.hpp>
 #include <tobas_ssh_msgs/srv/scp_get.hpp>
 #include <tobas_ssh_msgs/srv/scp_put.hpp>
 #include <tobas_ssh_msgs/srv/sftp_read.hpp>
 #include <tobas_ssh_msgs/srv/sftp_write.hpp>
-#include <tobas_ssh_msgs/srv/list.hpp>
 
 namespace ssh
 {
@@ -69,10 +69,10 @@ private:
 
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Connect> connect_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Execute> execute_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SCPGet> scp_get_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SCPPut> scp_put_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SFTPRead> sftp_read_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SFTPWrite> sftp_write_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::ScpGet> scp_get_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::ScpPut> scp_put_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpRead> sftp_read_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpWrite> sftp_write_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::List> list_sc_;
 
   error_t error_code_ = E_NO_ERROR;

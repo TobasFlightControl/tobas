@@ -1,8 +1,8 @@
 #pragma once
 
+#include "./accel.hpp"
 #include "./frame.hpp"
 #include "./twist.hpp"
-#include "./accel.hpp"
 
 namespace kdl
 {

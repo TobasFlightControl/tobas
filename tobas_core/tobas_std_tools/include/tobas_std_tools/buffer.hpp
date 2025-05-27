@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <cassert>
+#include <string>
+#include <vector>
 
 #include "./assert.hpp"
 

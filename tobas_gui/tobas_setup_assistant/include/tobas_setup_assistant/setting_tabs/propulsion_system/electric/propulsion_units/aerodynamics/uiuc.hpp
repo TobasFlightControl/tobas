@@ -2,9 +2,9 @@
 
 #include <rclcpp/node.hpp>
 
-#include "tobas_setup_assistant/param_getters/double_table.hpp"
-#include "./base.hpp"
 #include "../propeller.hpp"
+#include "./base.hpp"
+#include "tobas_setup_assistant/param_getters/double_table.hpp"
 
 namespace gui
 {

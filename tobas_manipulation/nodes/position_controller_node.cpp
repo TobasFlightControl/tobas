@@ -1,14 +1,14 @@
+#include <tobas_constants/constants.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
 
-#include "../include/tobas_manipulation/constants.hpp"
+#include "tobas_manipulation/constants.hpp"
 
 using namespace std;
 
@@ -127,8 +127,9 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
     return;
   }
 
-  // Create joint velocities command
+  // Create joint positions command
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  positions_msg->header.stamp = get_clock()->now();
 
   // Joint space control or Task space control
   if (tar_js_) {
@@ -146,7 +147,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
     return;
   }
 
-  // Publish joint velocities command
+  // Publish joint positions command
   positions_pub_->publish(move(positions_msg));
 }
 

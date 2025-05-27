@@ -1,13 +1,14 @@
+#include "tobas_linux/process_settings.hpp"
+
 #include <cstring>
-#include <string>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 #include <tobas_std_tools/cmdline_parser.hpp>
 
-#include "../include/tobas_linux/process_settings.hpp"
-#include "../include/tobas_linux/realtime.hpp"
-#include "../include/tobas_linux/memory_lock.hpp"
+#include "tobas_linux/memory_lock.hpp"
+#include "tobas_linux/realtime.hpp"
 
 using namespace std;
 

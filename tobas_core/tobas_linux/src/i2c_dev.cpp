@@ -1,13 +1,15 @@
-#include <iostream>
-#include <cstring>
-#include <thread>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
+#include "tobas_linux/i2c_dev.hpp"
 
-#include "../include/tobas_linux/i2c_dev.hpp"
-#include "../include/tobas_linux/errer.hpp"
+#include <fcntl.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#include <cstring>
+#include <iostream>
+#include <thread>
+
+#include "tobas_linux/errer.hpp"
 
 using namespace std;
 

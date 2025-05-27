@@ -3,14 +3,14 @@
 #include <random>
 
 #include <QPushButton>
-#include <QVBoxLayout>
 #include <QTimer>
+#include <QVBoxLayout>
 
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_qt_tools/widgets/toggle_button.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
+#include <tobas_ros2_tools/register.hpp>
 
 #include <tobas_msgs/msg/joint_state_array.hpp>
 

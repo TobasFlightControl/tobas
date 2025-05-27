@@ -1,6 +1,6 @@
-#include <format>
-
 #include "tobas_qt_tools/widgets/lamp_widget.hpp"
+
+#include <format>
 
 using namespace std;
 

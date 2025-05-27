@@ -1,4 +1,4 @@
-#include "../include/tobas_gazebo_tools/utils.hpp"
+#include "tobas_gazebo_tools/utils.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/post_arm_check.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./status.hpp"
 
@@ -18,14 +16,11 @@ class PostArmCheckViewerWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node);
+  explicit PostArmCheckViewerWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   StatusWidget* gyro_noise_status_;
   StatusWidget* accel_noise_status_;
   StatusWidget* mag_offset_status_;
@@ -34,9 +29,7 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PostArmCheck> postarm_check_sub_;
-
+private Q_SLOTS:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check);
 };

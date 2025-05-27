@@ -1,4 +1,4 @@
-#include "../../include/tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
+#include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 
 static inline Ogre::Vector3 URDFVector3ToOgre(const urdf::Vector3& v)
 {

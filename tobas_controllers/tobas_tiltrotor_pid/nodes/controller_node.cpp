@@ -1,31 +1,31 @@
 #include <ranges>
 
-#include <tobas_kdl/tree_joint_parser.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_tools/tree_joint_state_converter.hpp>
-#include <tobas_tools/command_level_handler.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/tr_mixer_pinv.hpp>
-#include <tobas_pose_pid/position_pid.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_pose_pid/angle_axis_pi.hpp>
+#include <tobas_pose_pid/position_pid.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_tools/command_level_handler.hpp>
+#include <tobas_tools/tree_joint_state_converter.hpp>
 
-#include <tobas_std_msgs/msg/bool_stamped.hpp>
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
-#include <tobas_msgs/msg/joint_state_array.hpp>
-#include <tobas_msgs/msg/joint_command_array.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_command_msgs_adapter/pos_vel.hpp>
 #include <tobas_command_msgs_adapter/accel.hpp>
 #include <tobas_command_msgs_adapter/angle.hpp>
+#include <tobas_command_msgs_adapter/pos_vel.hpp>
 #include <tobas_command_msgs_adapter/rate.hpp>
+#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_msgs/msg/arming.hpp>
+#include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_std_msgs/msg/bool_stamped.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -87,7 +87,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_livelinesses_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVel> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Accel> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Angle> angle_cmd_sub_;
@@ -127,7 +127,7 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses);
   void positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd);
@@ -145,9 +145,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register dynamic parameters
   // XXX: I制御は姿勢変化が大きいと逆効果なため，デフォルトではオフにする．
-  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 5., 1., 50.);
+  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 1., 0.1, 5.);
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 10., 1., 50.);
   addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 5., 0.1, 25.);
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.1, 3.);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.1, 3.);
@@ -171,10 +171,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  if (do_dist_comp_trans_ || do_dist_comp_rot_) {
+    dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  }
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
+  rotor_livelinesses_sub_ = createSubscriber(tobas::kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(tobas::kPosVelCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(tobas::kAccelCmdTopic, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(tobas::kAngleCmdTopic, &self::angleCommandCb, this);
@@ -349,7 +351,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   if (tree_received_) {
     if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occured while updating internal data structures.");
+      TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }
@@ -363,7 +365,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
   if (drone_received_) {
     if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occured while updating internal data structures.");
+      TOBAS_FATAL("Error occurred while updating internal data structures.");
       return;
     }
   }
@@ -530,13 +532,13 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 }
 
-void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
+void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses)
 {
   if (!mixer_.isInitialized()) {
     return;
   }
 
-  for (const auto& data : rotor_liveliness->data) {
+  for (const auto& data : rotor_livelinesses->data) {
     if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
       TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
     }
@@ -606,7 +608,7 @@ void ControllerNode::checkTopicsTimerCb()
     return;
   }
 
-  if (!dist_force_) {
+  if (dist_force_sub_ && !dist_force_) {
     TOBAS_WARN("Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return;
   }

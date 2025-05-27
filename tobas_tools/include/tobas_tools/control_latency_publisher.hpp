@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tobas_ros2_tools/register.hpp>
+
 #include <tobas_msgs/msg/latency.hpp>
 
 namespace tobas

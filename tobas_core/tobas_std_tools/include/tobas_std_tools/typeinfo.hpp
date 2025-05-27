@@ -1,7 +1,8 @@
 #pragma once
 
-#include <typeinfo>
 #include <cxxabi.h>
+
+#include <typeinfo>
 
 namespace tobas_std
 {

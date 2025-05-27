@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/quaternion.hpp>
+
 #include <tobas_kdl_msgs/msg/quaternion.hpp>
 
 template <>

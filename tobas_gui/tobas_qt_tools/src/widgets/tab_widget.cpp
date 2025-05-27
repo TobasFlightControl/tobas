@@ -1,8 +1,9 @@
+#include "tobas_qt_tools/widgets/tab_widget.hpp"
+
 #include <QWheelEvent>
 
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_qt_tools/widgets/tab_widget.hpp"
 #include "tobas_qt_tools/cast.hpp"
 
 namespace qt

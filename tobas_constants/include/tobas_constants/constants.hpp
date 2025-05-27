@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 
 namespace tobas
 {
@@ -42,7 +42,7 @@ static constexpr char kGnssOriginTopic[] = "gnss_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
-static constexpr char kRotorLivelinessTopic[] = "rotor_liveliness";
+static constexpr char kRotorLivelinessesTopic[] = "rotor_livelinesses";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEventTopic[] = "event";
@@ -123,6 +123,7 @@ static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
 static constexpr char kController[] = "controller";
 static constexpr char kObserver[] = "observer";
 static constexpr char kRcTeleop[] = "rc_teleop";
+static constexpr char kImuPreprocess[] = "imu_preprocess";
 }  // namespace node
 
 // PWM keys
@@ -147,6 +148,7 @@ static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
 static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
 static constexpr char kRosbagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
+static constexpr char kConfigEnvPath[] = "/etc/tobas/config.env";
 
 // Scale
 constexpr auto kAccelScale = 10.;   // [m/s^2]

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QWidget>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>

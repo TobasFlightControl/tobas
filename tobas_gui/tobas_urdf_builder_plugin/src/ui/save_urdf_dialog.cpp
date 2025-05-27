@@ -1,5 +1,10 @@
-#include "../../include/tobas_urdf_builder_plugin/utils/string.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
+
+#include <QDialogButtonBox>
+#include <QEvent>
+#include <QKeyEvent>
+
+#include "tobas_urdf_builder_plugin/utils/string.hpp"
 
 namespace gui
 {

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <tobas_std_tools/range.hpp>
+#include <tobas_control/c2d/rk4.hpp>
+#include <tobas_control/linear_mpc.hpp>
 #include <tobas_kdl/tree.hpp>
+#include <tobas_kdl/tree_bounding_box_solver.hpp>
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
-#include <tobas_kdl/tree_bounding_box_solver.hpp>
-#include <tobas_control/linear_mpc.hpp>
-#include <tobas_control/c2d/rk4.hpp>
+#include <tobas_std_tools/range.hpp>
 
 #include "./linear_dynamics.hpp"
 

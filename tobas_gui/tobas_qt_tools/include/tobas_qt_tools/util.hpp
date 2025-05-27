@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QObject>
-#include <QWidget>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QObject>
+#include <QVBoxLayout>
+#include <QWidget>
 
 namespace qt
 {

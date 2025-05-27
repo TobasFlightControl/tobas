@@ -1,10 +1,10 @@
+#include "tobas_rviz_wrapper/rviz.hpp"
+
 #include <OgreMaterialManager.h>
-#include <rviz_common/yaml_config_reader.hpp>
+#include <rviz_common/display_group.hpp>
 #include <rviz_common/visualization_frame.hpp>  // XXX: rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
 #include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/display_group.hpp>
-
-#include "../include/tobas_rviz_wrapper/rviz.hpp"
+#include <rviz_common/yaml_config_reader.hpp>
 
 namespace rviz
 {
@@ -28,11 +28,12 @@ void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
   rviz_common::Config config;
   reader.readFile(config, config_path);
 
-  // Setup visualization frame
+  // Initialize visualization frame
   frame_ = new rviz_common::VisualizationFrame(node_, parent);
-  frame_->initialize(node_);
-  frame_->setHelpPath("");
-  frame_->setSplashPath("");
+  frame_->setSplashPath("");  // Do not show a splash image.
+  frame_->initialize(node_);  // The initialization method must be called after the splash path is set.
+
+  // Configure visualization frame
   frame_->load(config);
   frame_->setMenuBar(nullptr);
   frame_->setStatusBar(nullptr);

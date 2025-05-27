@@ -1,5 +1,5 @@
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <thread>
 
 #include <tobas_keyboard/keyboard_reader.hpp>

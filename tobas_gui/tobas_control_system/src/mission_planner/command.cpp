@@ -1,8 +1,9 @@
-#include <stdexcept>
-#include <format>
+#include "tobas_control_system/mission_planner/command.hpp"
+
 #include <string.h>
 
-#include "tobas_control_system/mission_planner/command.hpp"
+#include <format>
+#include <stdexcept>
 
 #define WAYPOINT_LABEL "Waypoint"
 #define TAKEOFF_LABEL "Takeoff"

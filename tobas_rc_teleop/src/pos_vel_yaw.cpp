@@ -1,6 +1,6 @@
-#include <tobas_ros2_tools/time.hpp>
+#include "tobas_rc_teleop/pos_vel_yaw.hpp"
 
-#include "../include/tobas_rc_teleop/pos_vel_yaw.hpp"
+#include <tobas_ros2_tools/time.hpp>
 
 using namespace std;
 
@@ -103,7 +103,7 @@ bool PosVelYawController::maxVerticalVelocityCb(const double& p)
 
 bool PosVelYawController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = static_cast<double>(p) / kExpoScale;
+  max_head_rate_ = p;
   return true;
 }
 

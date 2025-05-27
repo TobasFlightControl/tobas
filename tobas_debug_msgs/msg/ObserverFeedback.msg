@@ -18,4 +18,4 @@ tobas_eigen_msgs/Matrix3d mag_hard_bias_cov
 tobas_eigen_msgs/Matrix6d mag_soft_bias_cov
 float64 gravity_var
 
-float64 gnss_anormaly_score
+float64 gnss_anomaly_score

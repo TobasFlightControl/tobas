@@ -1,18 +1,20 @@
 #include <rosbag2_cpp/writer.hpp>
 
+#include <tobas_constants/constants.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_path_tools/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
+
 #include <std_msgs/msg/string.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_path_tools/core.hpp>
-#include <tobas_linux/core.hpp>
-#include <tobas_ros2_tools/util.hpp>
-#include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
-
-#include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
+#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
-#include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
@@ -25,10 +27,13 @@
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
+#include <tobas_msgs/msg/rosbag_state.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/srv/bag_record_start.hpp>
+#include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
@@ -36,18 +41,12 @@
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
-#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
-#include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
-
-#include <tobas_msgs/srv/bag_record_start.hpp>
-#include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_std_msgs/msg/message.hpp>
 
 #define BILLION 1'000'000'000
 
-using namespace std;
-namespace fs = filesystem;
+using namespace std::chrono_literals;
+namespace fs = std::filesystem;
 
 class RosbagRecorderNode : public tobas::BaseNode
 {
@@ -65,7 +64,7 @@ public:
   explicit RosbagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  const string ns_;
+  const std::string ns_;
   const fs::path rosbag_dir_;
 
   rosbag2_cpp::Writer writer_;
@@ -92,7 +91,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::RosbagState> rosbag_state_pub_;
 
   // Subscribers
-  vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
+  std::vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
 
   // Service servers
   ros2::ServiceServerPtr<StartSrv> start_srv_;
@@ -137,7 +136,7 @@ private:
 
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", options)
-  , ns_(string(get_namespace()) + "/")
+  , ns_(std::string(get_namespace()) + "/")
   , rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
@@ -152,7 +151,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessTopic);
+  addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessesTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kImuSamplingTimeTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
@@ -210,7 +209,7 @@ void RosbagRecorderNode::publishRosbagState()
       try {
         writer_.close();
       }
-      catch (const exception& e) {
+      catch (const std::exception& e) {
         TOBAS_ERROR("Failed to close rosbag file: ", e.what());
         return;
       }
@@ -235,7 +234,7 @@ inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noe
   try {
     writer_.write(msg, ns_ + topic, get_clock()->now());
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
     return;
   }
@@ -317,7 +316,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   if (par_dir_size > kMaxParDirSize) {
     res->success = false;
     res->message = "The size of rosbag directory (" + rosbag_dir_.string() + ") is over " +
-                   to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
+                   std::to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
     return;
   }
 
@@ -341,7 +340,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   try {
     writer_.open(options);
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     res->success = false;
     res->message = "Failed to open " + options.uri + ": " + e.what();
     return;
@@ -370,9 +369,9 @@ void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
   try {
     writer_.close();
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     res->success = false;
-    res->message = "Failed to close rosbag file: " + string(e.what());
+    res->message = "Failed to close rosbag file: " + std::string(e.what());
     return;
   }
 

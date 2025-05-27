@@ -1,18 +1,24 @@
+#include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
+
 #include <filesystem>
+
+#include <rcutils/env.h>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <rcutils/env.h>
 
-#include <tobas_std_tools/console.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_std_tools/console.hpp>
 
-#include "../../include/tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
-#include "../../include/tobas_urdf_builder_plugin/ui/widget_item.hpp"
-#include "../../include/tobas_urdf_builder_plugin/utils/constants.hpp"
 #include "ui_update_link_dialog.h"
+
+#include "tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
+#include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
+#include "tobas_urdf_builder_plugin/ui/widget_item.hpp"
+#include "tobas_urdf_builder_plugin/utils/constants.hpp"
 
 using namespace std;
 

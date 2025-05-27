@@ -1,25 +1,25 @@
-#include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/util.hpp>
-
 #include "tobas_control_system/rotors_viewer/rotors_viewer.hpp"
+
+#include <tobas_qt_tools/util.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {
 namespace gcs
 {
-RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone)
+RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
   cols_ = new QHBoxLayout();
   setLayout(cols_);
+
+  connect(&bridge, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::rotorLivelinessesReceived, this, &self::rotorLivelinessCb, Qt::QueuedConnection);
 }
 
 void RotorsViewerWiddget::reset()
 {
-  for (const auto& [channel, meter] : meters_) {
-    setSpeed(channel, 0.);
+  for (const auto& [link_name, meter] : meters_) {
+    setSpeed(link_name, 0.);
     meter->setBackgroundColor(kAliveBackgroundColor);
   }
 }
@@ -39,14 +39,6 @@ void RotorsViewerWiddget::updateInternalDataStructures()
   }
 
   reset();
-
-  rotor_states_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
-  rotor_liveliness_sub_ = ros2::createSubscriber(
-    node_,
-    path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorLivelinessTopic),
-    &self::rotorLivelinessCb,
-    this);
 }
 
 void RotorsViewerWiddget::setSpeed(const std::string& link_name, const double& rps)
@@ -59,29 +51,29 @@ void RotorsViewerWiddget::setSpeed(const std::string& link_name, const double& r
 
 void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg)
 {
-  for (const auto& state : msg->states) {
-    if (!meters_.contains(state.link_name)) {
+  for (const auto& elem : msg->states) {
+    if (!meters_.contains(elem.link_name)) {
       continue;
     }
 
-    if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
+    if (elem.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
       continue;
     }
 
-    setSpeed(state.link_name, state.speed);
+    setSpeed(elem.link_name, elem.speed);
   }
 }
 
 void RotorsViewerWiddget::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg)
 {
-  for (const auto& liveliness : msg->data) {
-    if (!meters_.contains(liveliness.link_name)) {
+  for (const auto& elem : msg->data) {
+    if (!meters_.contains(elem.link_name)) {
       continue;
     }
 
-    const auto& meter = meters_.at(liveliness.link_name);
+    const auto& meter = meters_.at(elem.link_name);
 
-    if (liveliness.alive) {
+    if (elem.alive) {
       meter->setBackgroundColor(kAliveBackgroundColor);
     }
     else {

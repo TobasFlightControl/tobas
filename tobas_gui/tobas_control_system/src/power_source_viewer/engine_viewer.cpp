@@ -1,13 +1,11 @@
+#include "tobas_control_system/power_source_viewer/engine_viewer.hpp"
+
 #include <format>
 
 #include <tobas_math/core.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-
-#include "tobas_control_system/power_source_viewer/engine_viewer.hpp"
 
 #define MAX_FUEL_QUANTITY 100.  // TODO: 燃料容量をEngineConfigに含める
 
@@ -15,8 +13,7 @@ namespace gui
 {
 namespace gcs
 {
-EngineViewerWidget::EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone)
+EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
   fuel_quantity_ = new qt::HPositionBarWidget();
   oil_temp_ = new qt::HPositionBarWidget();
@@ -29,6 +26,9 @@ EngineViewerWidget::EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas
   form->addVAlignedRow(new qt::Label("Fuel Quantity", kLabelPSize), fuel_quantity_);
   form->addVAlignedRow(new qt::Label("Oil Temperature", kLabelPSize), oil_temp_);
   setLayout(form);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
 }
 
 void EngineViewerWidget::reset()
@@ -54,13 +54,9 @@ void EngineViewerWidget::updateInternalDataStructures()
     oil_temp_->setLower(kMinOilTemp);
     oil_temp_->setMinimum(kMinOilTemp);
     oil_temp_->setMaximum(kMaxOilTemp);
-
-    engine_state_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kEngineStateTopic), &self::engineStateCb, this);
   }
   else {
     iprop_.reset();
-    engine_state_sub_.reset();
   }
 }
 

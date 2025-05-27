@@ -1,9 +1,10 @@
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/console.hpp>
+#include "tobas_drone_tools/fw_trim_conditions.hpp"
 
-#include "../include/tobas_drone_tools/fw_trim_conditions.hpp"
-#include "../include/tobas_drone_tools/utils/fixed_wing_tools.hpp"
+#include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
+
+#include "tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
 using namespace std;
 

@@ -21,14 +21,16 @@ public:
   /* Calculate forward position kinematics for a kdl::Chain, from joint coordinates to cartesian pose. */
   int JntToCart(const JntArray& q_in, int seg_nr = -1);
 
-  const Frame& getFrame() const
-  {
-    return p_out_;
-  }
+  inline const Frame& getFrame() const;
 
 private:
   size_t j_;
 
   Frame p_out_;
 };
+
+inline const Frame& ChainFkSolverPos::getFrame() const
+{
+  return p_out_;
+}
 }  // namespace kdl

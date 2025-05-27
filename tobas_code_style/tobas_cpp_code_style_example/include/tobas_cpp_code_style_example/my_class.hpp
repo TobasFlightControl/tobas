@@ -44,7 +44,7 @@ public:
   MyClass(MyClass&& _other) = default;
   MyClass& operator=(MyClass&& _other) = default;
 
-  /* Copy constructor (forbit) */
+  /* Copy constructor (forbid) */
   MyClass(const MyClass& _other) = delete;
   MyClass& operator=(const MyClass& _other) = delete;
 

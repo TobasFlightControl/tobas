@@ -1,11 +1,11 @@
+#include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
+
 #include <QVBoxLayout>
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
+#include <tobas_ros2_tools/util.hpp>
 
 namespace fs = std::filesystem;
 
@@ -18,9 +18,9 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  for (size_t i = 0; i < plot_tabs_.size(); ++i) {
-    plot_tabs_[i] = new PlotTabWidget();
-    rows->addWidget(plot_tabs_[i]);
+  for (auto& plot_tab : plot_tabs_) {
+    plot_tab = new PlotTabWidget();
+    rows->addWidget(plot_tab);
   }
 
   playback_ctrl_ = new PlaybackControlWidget();
@@ -38,8 +38,8 @@ void FlightLogViewerWidget::reset()
   decode_fail_topics_.clear();
 
   odom_decoder_.clearCache();
-  imu_decoder_.clearCache();
-  mag_decoder_.clearCache();
+  imu_cov_decoder_.clearCache();
+  mag_cov_decoder_.clearCache();
   gnss_decoder_.clearCache();
   battery_decoder_.clearCache();
   cur_rotor_states_decoder_.clearCache();
@@ -52,6 +52,7 @@ void FlightLogViewerWidget::reset()
   mr_ctrl_fb_decoder_.clearCache();
 
   for (auto& plot_tab : plot_tabs_) {
+    plot_tab->clear();
     plot_tab->setTimeScale(0., kWindowDuration);
   }
 
@@ -105,7 +106,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
   // データを仕分ける
   QVector<tobas_msgs::msg::Odometry> odom_data;
-  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
+  QVector<tobas_msgs::msg::ImuStamped> raw_imu_data;
+  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data;
   QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
   QVector<tobas_msgs::msg::Gnss> gnss_data;
   QVector<tobas_msgs::msg::Battery> battery_data;
@@ -136,11 +138,14 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
         odom_data.push_back(odom_decoder_.decode(cur_time, ser_msg));
       }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
+        raw_imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
+      }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic))) {
-        imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
+        filt_imu_data.push_back(imu_cov_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
-        mag_data.push_back(mag_decoder_.decode(cur_time, ser_msg));
+        mag_data.push_back(mag_cov_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
         gnss_data.push_back(gnss_decoder_.decode(cur_time, ser_msg));
@@ -185,7 +190,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
     plot_tab->setFrameData(odom_data, mr_ctrl_fb_data);
-    plot_tab->setImuData(imu_data);
+    plot_tab->setImuData(raw_imu_data, filt_imu_data);
     plot_tab->setMagData(mag_data);
     plot_tab->setGnssData(gnss_data);
     plot_tab->setBatteryData(battery_data);

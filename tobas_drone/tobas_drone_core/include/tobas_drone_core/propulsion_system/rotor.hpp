@@ -2,8 +2,8 @@
 
 #include <map>
 
-#include "./turning_direction.hpp"
 #include "./rotor_axis.hpp"
+#include "./turning_direction.hpp"
 
 namespace tobas
 {

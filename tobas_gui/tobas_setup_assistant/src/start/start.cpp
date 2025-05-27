@@ -1,8 +1,8 @@
+#include "tobas_setup_assistant/start/start.hpp"
+
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QStackedWidget>
-
-#include "tobas_setup_assistant/start/start.hpp"
 
 namespace gui
 {

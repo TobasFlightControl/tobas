@@ -1,13 +1,14 @@
-#include <QHBoxLayout>
-#include <QDebug>
+#include "tobas_simulation_gui/commanders/joint_position_commander.hpp"
 
-#include <tobas_path_tools/join.hpp>
+#include <QDebug>
+#include <QHBoxLayout>
+
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_simulation_gui/commanders/joint_position_commander.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui

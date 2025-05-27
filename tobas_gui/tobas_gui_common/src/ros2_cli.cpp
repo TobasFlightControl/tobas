@@ -1,6 +1,6 @@
-#include <tobas_linux/subprocess.hpp>
+#include "tobas_gui_common/ros2_cli.hpp"
 
-#include "../include/tobas_gui_common/ros2_cli.hpp"
+#include <tobas_linux/subprocess.hpp>
 
 using namespace std;
 namespace fs = filesystem;
@@ -13,7 +13,7 @@ namespace util
 {
 string sourceCommand(const fs::path& install_dir)
 {
-  const auto setup_bash_path = install_dir / "setup.bash";
+  const auto setup_bash_path = install_dir / "local_setup.bash";
   return "source " + setup_bash_path.string();
 }
 }  // namespace util

@@ -1,19 +1,20 @@
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include "tobas_setup_assistant/package_generator.hpp"
+
 #include <urdf_parser/urdf_parser.h>
 #include <QDebug>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <tobas_gui_common/command.hpp>
+#include <tobas_gui_common/package.hpp>
+#include <tobas_path_tools/core.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/path.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
-#include <tobas_path_tools/core.hpp>
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_ros2_tools/path.hpp>
-#include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/cast.hpp>
-#include <tobas_gui_common/package.hpp>
-#include <tobas_gui_common/command.hpp>
+#include <tobas_yaml_tools/core.hpp>
 
-#include "tobas_setup_assistant/package_generator.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
 using namespace std;
@@ -36,8 +37,10 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
 
 bool PackageGenerator::generatePackage()
 {
+  const auto tbs_path = tbsPath();
+
   // Tobasパッケージを作成
-  if (!path::createDirectories(tbsPath())) {
+  if (!path::createDirectories(tbs_path)) {
     qt::qErrorBox(settings_, "Failed to create Tobas package path.");
     return false;
   }
@@ -56,13 +59,17 @@ bool PackageGenerator::generatePackage()
   }
 
   // ユーザ用C++パッケージを作成
-  if (!generateUserCppPackage(tpl_data)) {
-    return false;
+  if (!fs::is_directory(common::getTBSUserCppPath(tbs_path))) {
+    if (!generateUserCppPackage(tpl_data)) {
+      return false;
+    }
   }
 
   // ユーザ用Pythonパッケージを作成
-  if (!generateUserPyPackage(tpl_data)) {
-    return false;
+  if (!fs::is_directory(common::getTBSUserPyPath(tbs_path))) {
+    if (!generateUserPyPackage(tpl_data)) {
+      return false;
+    }
   }
 
   // バックアップファイルを作成
@@ -208,9 +215,7 @@ tobas::Drone PackageGenerator::createDrone()
 
       // Engine
       const auto engine_widget = iprop_widget->engine;
-      iprop->engine.torque_const = engine_widget->dynamics()->torqueConstant();
-      iprop->engine.friction_torque = engine_widget->dynamics()->dynamicFrictionTorque();
-      iprop->engine.max_speed = engine_widget->limit()->maxSpeed();
+      iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
       iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
 
       // TODO: PWM以外のインターフェースに対応
@@ -387,6 +392,9 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!createEmptyYaml(common::getRcTeleopDynamicParamsPath(tbs_path), false)) {
     return false;
   }
+  if (!createEmptyYaml(common::getImuPreprocessDynamicParamsPath(tbs_path), false)) {
+    return false;
+  }
 
   // その他
   if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
@@ -427,6 +435,8 @@ bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
   const auto tbs_path = tbsPath();
   const auto pkg_path = common::getTBSUserCppPath(tbs_path);
+
+  // パッケージを作成
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
@@ -1007,8 +1017,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
       const auto units = iprop->units->selected();
 
       xml::EngineParam engine_param;
-      engine_param.torque_const = engine->dynamics()->torqueConstant();
-      engine_param.friction_torque = engine->dynamics()->dynamicFrictionTorque();
+      engine_param.engine_const = engine->dynamics()->engineConstant();
       engine_param.time_const_up = engine->response()->timeConstUp();
       engine_param.time_const_down = engine->response()->timeConstDown();
 

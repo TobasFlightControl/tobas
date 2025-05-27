@@ -1,6 +1,7 @@
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
+
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
@@ -198,7 +199,7 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor_it->second);
 
     // Check pitch angle limit
-    if (irotor->pitch_limit.inRange(cmd_angle)) {
+    if (!irotor->pitch_limit.inRange(cmd_angle)) {
       TOBAS_WARN_THROTTLE(
         tobas::kTypicalWarnPeriod,
         "Commanded pitch angle of propeller \"",

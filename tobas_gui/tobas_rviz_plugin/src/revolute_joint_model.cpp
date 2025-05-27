@@ -1,8 +1,9 @@
-#include <cmath>
-#include <algorithm>
-#include <geometric_shapes/check_isometry.h>
+#include "tobas_rviz_plugin/revolute_joint_model.hpp"
 
-#include "../include/tobas_rviz_plugin/revolute_joint_model.hpp"
+#include <algorithm>
+#include <cmath>
+
+#include <geometric_shapes/check_isometry.h>
 
 namespace tobas
 {

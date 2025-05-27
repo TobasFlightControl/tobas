@@ -2,9 +2,9 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "./vehicle_params.hpp"
 #include "./aerodynamic_coefs.hpp"
 #include "./control_surface.hpp"
+#include "./vehicle_params.hpp"
 
 namespace tobas
 {

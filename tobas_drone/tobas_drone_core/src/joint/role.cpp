@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "tobas_drone_core/joint/role.hpp"
+
+#include <iostream>
 
 #define ROTOR_TEXT "rotor"
 #define TILT_JOINT_TEXT "tilt_joint"

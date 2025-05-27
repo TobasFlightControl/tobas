@@ -1,23 +1,24 @@
-#include <rcutils/env.h>
-#include <ament_index_cpp/get_package_share_directory.hpp>
-#include <QLabel>
-#include <QButtonGroup>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QApplication>
+#include "tobas_gui_core/gui_core.hpp"
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_kdl_parser/kdl_parser.hpp>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
-#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_gui_common/package.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
-#include "tobas_gui_core/gui_core.hpp"
-#include "tobas_gui_core/constants.hpp"
 #include "tobas_gui_core/app_button.hpp"
+#include "tobas_gui_core/constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -25,8 +26,9 @@ namespace gui
 {
 namespace core
 {
-GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
+GuiCoreWidget::GuiCoreWidget(rclcpp::Node::SharedPtr node)
   : node_(node)
+  , bridge_(node)
   , property_client_(node, tobas::kPropertyServerName, kPkgName)
   , ssh_client_(node)
   , package_builder_(node)
@@ -41,11 +43,11 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   homepage_ = new homepage::HomepageWidget();
   urdf_builder_ = new urdf_builder::URDFBuilder();
   setup_assistant_ = new sa::SetupAssistantWidget(node);
-  hardware_setup_ = new hw::HardwareSetupWidget(node, tree_, drone_);
-  control_system_ = new gcs::ControlSystemWidget(node, drone_);
+  hardware_setup_ = new hw::HardwareSetupWidget(node, bridge_, tree_, drone_);
+  control_system_ = new gcs::ControlSystemWidget(node, bridge_, drone_);
   param_tuning_ = new param::ParameterTuningWidget(node);
-  flight_log_ = new log::FlightLogWidget(node);
-  simulation_ = new sim::SimulationWidget(node);
+  flight_log_ = new log::FlightLogWidget(node, bridge_);
+  simulation_ = new sim::SimulationWidget(node, bridge_);
 
   // TODO: 別々のアイコンを設定
   const auto homepage_btn = new AppButton("Homepage", QString::fromStdString(rsrc_path / "icon.png"));
@@ -135,9 +137,10 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
+  connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
-void GUICoreWidget::reset()
+void GuiCoreWidget::reset()
 {
   urdf_builder_->reset();
   setup_assistant_->reset();
@@ -150,23 +153,22 @@ void GUICoreWidget::reset()
   arming_.reset();
 }
 
-void GUICoreWidget::updateInternalDataStructures()
+void GuiCoreWidget::updateInternalDataStructures()
 {
   reset();
+
+  bridge_.initialize(drone_.name);
 
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
   param_tuning_->updateTBSPath(tbsPath());
   flight_log_->updateNamespace(drone_.name);
   simulation_->updateTBSPath(tbsPath());
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 }
 
-void GUICoreWidget::closeEvent(QCloseEvent* event)
+void GuiCoreWidget::closeEvent(QCloseEvent* event)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::closeEvent");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::closeEvent");
 
   homepage_->close();
   urdf_builder_->close();
@@ -180,25 +182,20 @@ void GUICoreWidget::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
-}
-
-fs::path GUICoreWidget::tbsPath() const
+fs::path GuiCoreWidget::tbsPath() const
 {
   return tbs_path_->text().toStdString();
 }
 
-void GUICoreWidget::onLoadButtonClicked()
+void GuiCoreWidget::onLoadButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onLoadButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onLoadButtonClicked");
 
   // 前回開いたパスを取得
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
   }
 
   // Tobasパッケージのパスを取得
@@ -262,9 +259,9 @@ void GUICoreWidget::onLoadButtonClicked()
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }
 
-void GUICoreWidget::onWriteButtonClicked()
+void GuiCoreWidget::onWriteButtonClicked()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onWriteButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onWriteButtonClicked");
 
   // アームされていないことを確認
   if (!arming_) {
@@ -286,9 +283,10 @@ void GUICoreWidget::onWriteButtonClicked()
 
   const auto tbs_path = tbsPath();
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path);
+  const auto config_pkg_name = common::getTBSConfigName(tbs_path);
 
   // 進捗バーを作成
-  qt::ProgressDialog progress(kTitle, 7, this);
+  qt::ProgressDialog progress(kTitle, 9, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -309,6 +307,52 @@ void GUICoreWidget::onWriteButtonClicked()
     return;
   }
   progress.progressStep();
+
+  // 環境変数を読み込む
+  progress.setLabelText("Getting environment variables.");
+  std::string cur_env_content;
+  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SSHClient::E_NO_ERROR) {  // ファイルが存在しなくても続行
+    if (!config_env_parser_.parseFromText(cur_env_content)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to parse configuration file.");
+      return;
+    }
+  }
+  else {
+    qWarning() << "Failed to get environment variables: " << ssh_client_.errorMessage();
+  }
+  progress.progressStep();
+
+  // パッケージが代わる場合は競合を避けるためにクリーンビルド
+  if (config_pkg_name != config_env_parser_.config_pkg) {
+    // ワークスペースを初期化
+    progress.setLabelText("Initializing colcon workspace.");
+    if (ssh_client_.execute(std::format("rm -rf {}", std::string(tobas::kColconWSPathRoot)), true)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    if (ssh_client_.execute(std::format("mkdir -p {}/src", std::string(tobas::kColconWSPathRoot)), true)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    progress.progressStep();
+
+    // 環境変数を更新
+    progress.setLabelText("Setting environment variables.");
+    config_env_parser_.config_pkg = config_pkg_name;
+    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SSHClient::E_NO_ERROR) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    progress.progressStep();
+  }
+  else {
+    progress.progressStep();
+    progress.progressStep();
+  }
 
   // Tobasパッケージを送信
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
@@ -333,17 +377,6 @@ void GUICoreWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // 環境変数TOBAS_CONFIG_PKGを設定
-  progress.setLabelText("Setting environment variables.");
-  const auto config_pkg_name = common::getTBSConfigName(tbs_path);
-  const auto env_content = std::format("TOBAS_CONFIG_PKG={}\n", config_pkg_name);
-  if (ssh_client_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR) {
-    progress.close();
-    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
-    return;
-  }
-  progress.progressStep();
-
   // サービスを再起動
   progress.setLabelText("Restarting the flight controller.");
   if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR) {
@@ -355,16 +388,16 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // リロード
   progress.setLabelText("Reloading.");
-  updateInternalDataStructures();
+  reset();
   progress.progressStep();
 
   progress.close();
   qt::qInfoBox(this, "Tobas configuration package is installed successfully.");
 }
 
-void GUICoreWidget::onRestartButtonClicked(bool checked)
+void GuiCoreWidget::onRestartButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onRestartButtonClicked");
 
   if (!checked) {
     return;
@@ -390,9 +423,9 @@ void GUICoreWidget::onRestartButtonClicked(bool checked)
   spinner_.start();
 }
 
-void GUICoreWidget::onShutdownButtonClicked(bool checked)
+void GuiCoreWidget::onShutdownButtonClicked(bool checked)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownButtonClicked");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onShutdownButtonClicked");
 
   if (!checked) {
     return;
@@ -418,9 +451,9 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
   spinner_.start();
 }
 
-void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message)
+void GuiCoreWidget::onRestartThreadFinished(bool success, const QString& message)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onRestartThreadFinished");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onRestartThreadFinished");
 
   spinner_.hide();
   spinner_.stop();
@@ -438,9 +471,9 @@ void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message
   restart_btn_->setChecked(false);
 }
 
-void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& message)
+void GuiCoreWidget::onShutdownThreadFinished(bool success, const QString& message)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onShutdownThreadFinished");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onShutdownThreadFinished");
 
   spinner_.hide();
   spinner_.stop();
@@ -456,9 +489,9 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
   QApplication::quit();
 }
 
-void GUICoreWidget::onSimRealStateChanged()
+void GuiCoreWidget::onSimRealStateChanged()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::onSimRealStateChanged");
+  RCLCPP_DEBUG(node_->get_logger(), "GuiCoreWidget::onSimRealStateChanged");
 
   // シミュレーションウィジェット以外リセット
   urdf_builder_->reset();
@@ -472,6 +505,11 @@ void GUICoreWidget::onSimRealStateChanged()
 
   // イベントループを進めて画面の更新を確実に反映させる
   QApplication::processEvents();
+}
+
+void GuiCoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace core
 }  // namespace gui

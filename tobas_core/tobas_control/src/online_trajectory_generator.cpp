@@ -1,10 +1,10 @@
-#include <cmath>
+#include "tobas_control/online_trajectory_generator.hpp"
+
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 
 #include <tobas_math/core.hpp>
-
-#include "../include/tobas_control/online_trajectory_generator.hpp"
 
 using namespace std;
 

@@ -2,8 +2,8 @@
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
-#include "./base.hpp"
 #include "../altitude_frame.hpp"
+#include "./base.hpp"
 
 namespace gui
 {

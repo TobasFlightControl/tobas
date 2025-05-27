@@ -1,14 +1,12 @@
+#include "tobas_control_system/rcin_viewer/toggles_viewer.hpp"
+
+#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
-
-#include "tobas_control_system/rcin_viewer/toggles_viewer.hpp"
 
 namespace gui
 {
@@ -16,7 +14,7 @@ namespace gcs
 {
 namespace rcin
 {
-TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
+TogglesViewer::TogglesViewer(const RosQtBridge& bridge)
 {
   kill_ = new qt::ToggleSwitch();
   sub_mode_ = new qt::ToggleSwitch();
@@ -46,6 +44,9 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   rows->addLayout(mode_cols, 3);
 
   setLayout(rows);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void TogglesViewer::reset()
@@ -56,14 +57,6 @@ void TogglesViewer::reset()
 
   kill_->setChecked(false);
   sub_mode_->setChecked(false);
-}
-
-void TogglesViewer::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
 void TogglesViewer::paintEvent(QPaintEvent*)

@@ -1,9 +1,9 @@
+#include "tobas_setup_assistant/xml_elements/urdf.hpp"
+
 #include <format>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
-
-#include "tobas_setup_assistant/xml_elements/urdf.hpp"
+#include <tobas_path_tools/join.hpp>
 
 using namespace std;
 
@@ -260,8 +260,7 @@ void addICEPropulsionSystemPlugin(
 
   // robot/gazebo/plugin/engine
   const auto engine = plugin->InsertNewChildElement("engine");
-  engine->InsertNewChildElement("torqueConstant")->SetText(engine_param.torque_const);
-  engine->InsertNewChildElement("dynamicFrictionTorque")->SetText(engine_param.friction_torque);
+  engine->InsertNewChildElement("engineConstant")->SetText(util::toString(engine_param.engine_const).c_str());
   engine->InsertNewChildElement("timeConstUp")->SetText(engine_param.time_const_up);
   engine->InsertNewChildElement("timeConstDown")->SetText(engine_param.time_const_down);
 

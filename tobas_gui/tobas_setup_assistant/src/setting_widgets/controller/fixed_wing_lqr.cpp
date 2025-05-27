@@ -1,6 +1,6 @@
-#include <QVBoxLayout>
-
 #include "tobas_setup_assistant/setting_tabs/controller/fixed_wing_lqr.hpp"
+
+#include <QVBoxLayout>
 
 namespace gui
 {

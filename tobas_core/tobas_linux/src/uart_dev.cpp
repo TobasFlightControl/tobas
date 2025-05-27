@@ -1,13 +1,15 @@
-#include <iostream>
-#include <thread>
-#include <cstring>
-#include <unistd.h>
+#include "tobas_linux/uart_dev.hpp"
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
-#include "../include/tobas_linux/uart_dev.hpp"
-#include "../include/tobas_linux/errer.hpp"
-#include "../include/tobas_linux/termios2.hpp"
+#include <cstring>
+#include <iostream>
+#include <thread>
+
+#include "tobas_linux/errer.hpp"
+#include "tobas_linux/termios2.hpp"
 
 using namespace std;
 
@@ -216,7 +218,11 @@ bool UARTdev::disableHungupClose()
 
 bool UARTdev::setTimeout(cc_t msec_100)
 {
-  options_.c_cc[VTIME] = msec_100;
+  if (!block_mode_ && msec_100 > 0) {
+    cerr << "The timeout configuration is disabled in non-blocking mode." << endl;
+    return false;
+  }
+  options_.c_cc[VTIME] = msec_100;  // FIXME: 反映されず最速で返ってくる
   return setConfig();
 }
 

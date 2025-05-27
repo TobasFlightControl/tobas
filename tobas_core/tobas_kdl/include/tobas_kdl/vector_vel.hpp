@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./vector.hpp"
 #include "./rotation.hpp"
 #include "./utilities/rall1d.hpp"
+#include "./vector.hpp"
 
 namespace kdl
 {

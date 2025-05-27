@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
 #include <string>
 #include <unordered_set>
+#include <vector>
 
-#include "./tree_solver_i.hpp"
 #include "./tree_fk_solver_pos.hpp"
 #include "./tree_ik_solver_vel_pinv.hpp"
 #include "./tree_joint_parser.hpp"
+#include "./tree_solver_i.hpp"
 
 namespace kdl
 {
@@ -36,10 +36,7 @@ public:
   bool setMaxLinearVelocity(const double& max_linvel);
   bool setMaxAngularVelocity(const double& max_angvel);
 
-  const JntArray& getPositions() const
-  {
-    return q_out_;
-  }
+  inline const JntArray& getPositions() const;
 
 private:
   double max_linvel_ = kDefaultMaxLinearVelocity;
@@ -65,4 +62,9 @@ private:
    */
   void enforceCartVelLimits(Twist& twist, const double& dt);
 };
+
+inline const JntArray& TreeIkSolverPos_Online::getPositions() const
+{
+  return q_out_;
+}
 }  // namespace kdl

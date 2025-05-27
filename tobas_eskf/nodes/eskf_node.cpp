@@ -1,29 +1,30 @@
 #include <tf2_ros/transform_broadcaster.h>
-#include <geometry_msgs/msg/transform_stamped.hpp>
 
-#include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
+#include <tobas_constants/constants.hpp>
+#include <tobas_geomag/core.hpp>
+#include <tobas_kdl_conversions/kdl_msg.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/time.hpp>
-#include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_geomag/core.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 
-#include <tobas_msgs/msg/geodetic_coordinates.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+
+#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
-#include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
-#include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
-#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
+#include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
-#include "../include/tobas_eskf/eskf.hpp"
+#include "tobas_eskf/eskf.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -61,7 +62,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
   // その他
-  static constexpr double kAnormalyScoreThreshold = 10.;  // [-]
+  static constexpr double kAnomalyScoreThreshold = 10.;  // [-]
 
 public:
   explicit ObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -81,7 +82,7 @@ private:
   GnssMsg::ConstSharedPtr gnss_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
-  double gnss_anormaly_score_ = 0.;
+  double gnss_anomaly_score_ = 0.;
 
   eskf::ErrorStateKalmanFilter eskf_;
 
@@ -356,7 +357,7 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
   feedback->mag_soft_bias_cov = eskf_.getMagSoftBiasCovariance();
   feedback->gravity_var = eskf_.getGravityVariance();
 
-  feedback->gnss_anormaly_score = gnss_anormaly_score_;
+  feedback->gnss_anomaly_score = gnss_anomaly_score_;
 
   feedback_pub_->publish(move(feedback));
 }
@@ -612,7 +613,7 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
   // ESKFを更新
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
-  gnss_anormaly_score_ = eskf_.measurePosVel(
+  gnss_anomaly_score_ = eskf_.measurePosVel(
     pos_meas_,
     gnss->position_covariance,
     gnss->ground_speed.data,
@@ -622,7 +623,7 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     ros2::chronoFromRosTime(gnss->header.stamp));
 
   // 異常度が高すぎる場合は警告
-  if (gnss_anormaly_score_ > kAnormalyScoreThreshold) {
+  if (gnss_anomaly_score_ > kAnomalyScoreThreshold) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
   }
 }

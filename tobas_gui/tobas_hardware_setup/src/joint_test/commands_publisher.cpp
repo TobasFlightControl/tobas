@@ -1,12 +1,12 @@
-#include <QVBoxLayout>
-#include <QGridLayout>
-
-#include <tobas_std_tools/check.hpp>
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/message.hpp>
-
 #include "tobas_hardware_setup/joint_test/commands_publisher.hpp"
+
+#include <QGridLayout>
+#include <QVBoxLayout>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_std_tools/check.hpp>
 
 namespace gui
 {

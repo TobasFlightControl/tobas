@@ -1,6 +1,6 @@
-#include <iostream>
+#include "tobas_std_tools/stopwatch.hpp"
 
-#include "../include/tobas_std_tools/stopwatch.hpp"
+#include <iostream>
 
 using namespace std;
 using namespace chrono;

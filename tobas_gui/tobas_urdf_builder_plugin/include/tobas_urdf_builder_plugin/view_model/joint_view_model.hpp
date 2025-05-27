@@ -1,11 +1,12 @@
 #pragma once
 
 #include <memory>
-#include <QtCore/QtCore>
 
+#include <QString>
+
+#include "../utils/urdf_clone.hpp"
 #include "./base_view_model.hpp"
 #include "./joint_limits_view_model.hpp"
-#include "../utils/urdf_clone.hpp"
 
 namespace gui
 {

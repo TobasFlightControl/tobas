@@ -1,4 +1,4 @@
-#include "../../include/tobas_urdf_builder_plugin/utils/string.hpp"
+#include "tobas_urdf_builder_plugin/utils/string.hpp"
 
 namespace gui
 {

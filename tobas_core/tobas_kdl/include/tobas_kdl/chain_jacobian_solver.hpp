@@ -38,10 +38,7 @@ public:
    */
   bool setLockedJoints(const std::vector<bool> locked_joints);
 
-  const Jacobian& getJacobian() const
-  {
-    return J_out_;
-  }
+  inline const Jacobian& getJacobian() const;
 
 private:
   std::vector<bool> locked_joints_;
@@ -51,4 +48,9 @@ private:
 
   void resize();
 };
+
+inline const Jacobian& ChainJacobianSolver::getJacobian() const
+{
+  return J_out_;
+}
 }  // namespace kdl

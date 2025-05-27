@@ -1,14 +1,16 @@
+#include "tobas_rviz_plugin/robot_state.hpp"
+
 #include <functional>
-#include <rclcpp/rclcpp.hpp>
-#include <tf2_eigen/tf2_eigen.hpp>
+
 #include <geometric_shapes/check_isometry.h>
 #include <geometric_shapes/shape_operations.h>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_eigen/tf2_eigen.hpp>
 
-#include "../include/tobas_rviz_plugin/robot_state.hpp"
-#include "../include/tobas_rviz_plugin/logger.hpp"
-#include "../include/tobas_rviz_plugin/cartesian_interpolator.hpp"
-#include "../include/tobas_rviz_plugin/console_colers.hpp"
-#include "../include/tobas_rviz_plugin/aabb.hpp"
+#include "tobas_rviz_plugin/aabb.hpp"
+#include "tobas_rviz_plugin/cartesian_interpolator.hpp"
+#include "tobas_rviz_plugin/console_colers.hpp"
+#include "tobas_rviz_plugin/logger.hpp"
 
 namespace tobas
 {
@@ -705,17 +707,17 @@ void RobotState::updateCollisionBodyTransforms()
     dirty_collision_body_transforms_ = nullptr;
 
     for (const LinkModel* link : links) {
-      const EigenSTL::vector_Isometry3d& ot = link->getCollisionOriginTransforms();
-      const std::vector<int>& ot_id = link->areCollisionOriginTransformsIdentity();
+      const EigenSTL::vector_Isometry3d& origin_transforms = link->getCollisionOriginTransforms();
+      const std::vector<int>& origin_transforms_id = link->areCollisionOriginTransformsIdentity();
       const int index_co = link->getFirstCollisionBodyTransformIndex();
       const int index_l = link->getLinkIndex();
-      for (std::size_t j = 0, end = ot.size(); j != end; ++j) {
-        if (ot_id[j]) {
+      for (std::size_t j = 0, end = origin_transforms.size(); j != end; ++j) {
+        if (origin_transforms_id[j]) {
           global_collision_body_transforms_[index_co + j] = global_link_transforms_[index_l];
         }
         else {
           global_collision_body_transforms_[index_co + j].affine().noalias() =
-            global_link_transforms_[index_l].affine() * ot[j].matrix();
+            global_link_transforms_[index_l].affine() * origin_transforms[j].matrix();
         }
       }
     }

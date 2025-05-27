@@ -1,9 +1,9 @@
+#include "tobas_quadprog/qpoases.hpp"
+
 #include <qpOASES.hpp>
 
-#include <tobas_math/core.hpp>
 #include <tobas_eigen_tools/core.hpp>
-
-#include "../include/tobas_quadprog/qpoases.hpp"
+#include <tobas_math/core.hpp>
 
 using namespace std;
 using namespace Eigen;

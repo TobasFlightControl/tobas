@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/vector.hpp>
+
 #include <tobas_kdl_msgs/msg/vector.hpp>
 
 template <>

@@ -1,6 +1,6 @@
-#include <Ogre.h>
+#include "tobas_rviz_plugin/planning_link_updater.hpp"
 
-#include "../include/tobas_rviz_plugin/planning_link_updater.hpp"
+#include <Ogre.h>
 
 namespace tobas
 {

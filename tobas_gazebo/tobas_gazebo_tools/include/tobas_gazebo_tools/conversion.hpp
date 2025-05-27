@@ -1,7 +1,7 @@
 #pragma once
 
-#include <gz/math/Vector3.hh>
 #include <gz/msgs/vector3d.pb.h>
+#include <gz/math/Vector3.hh>
 
 namespace gazebo
 {

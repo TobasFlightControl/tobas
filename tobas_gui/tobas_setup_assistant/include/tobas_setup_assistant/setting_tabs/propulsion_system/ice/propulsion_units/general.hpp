@@ -2,9 +2,9 @@
 
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/combo_box.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/param_getters/combo_box.hpp"
+#include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace gui
 {

@@ -2,10 +2,10 @@
 
 #include <QPushButton>
 
-#include "./base_setting.hpp"
-#include "../robot_info.hpp"
-#include "../param_getters/line_edit.hpp"
 #include "../param_getters/directory_dialog.hpp"
+#include "../param_getters/line_edit.hpp"
+#include "../robot_info.hpp"
+#include "./base_setting.hpp"
 
 namespace gui
 {

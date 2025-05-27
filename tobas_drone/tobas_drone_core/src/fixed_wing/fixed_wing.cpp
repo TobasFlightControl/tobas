@@ -1,6 +1,6 @@
-#include <tobas_yaml_tools/core.hpp>
-
 #include "tobas_drone_core/fixed_wing/fixed_wing.hpp"
+
+#include <tobas_yaml_tools/core.hpp>
 
 using namespace std;
 

@@ -1,20 +1,21 @@
 #include <boost/polymorphic_pointer_cast.hpp>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_tools/util.hpp>
+
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_tools/util.hpp>
-#include <tobas_real_common/constants.hpp>
-
+#include <tobas_dparam_msgs/srv/get_params.hpp>
+#include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
-#include <tobas_std_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
-#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/imu_stamped.hpp>
@@ -22,7 +23,6 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field_stamped.hpp>
 #include <tobas_msgs/msg/odometry.hpp>
-#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
@@ -30,18 +30,18 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs/srv/get_gnss_origin.hpp>
-#include <tobas_msgs/srv/set_gnss_origin.hpp>
+#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
-#include <tobas_drone_msgs/msg/drone.hpp>
-#include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
+#include <tobas_std_msgs/msg/message.hpp>
 
 #define DEFAULT_NUM_THREADS 4
 #define MIN_NUM_THREADS 2
@@ -113,7 +113,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
     tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(
-    tobas::kRotorLivelinessTopic, tobas::kRotorLivelinessTopic);
+    tobas::kRotorLivelinessesTopic, tobas::kRotorLivelinessesTopic);
   addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
     tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
   addTopicLogicToIface<tobas_msgs::msg::Odometry>(tobas::addThrotNS(tobas::kOdometryTopic), tobas::kOdometryTopic);
@@ -143,6 +143,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kRcTeleop, tobas::kGetDynamicParamsSrv));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kImuPreprocess, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetImuParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetRcInputParams>(real::handler::rcin::kSetParamSrv);

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <gz/math/Vector3.hh>
-#include <gz/math/Quaternion.hh>
 #include <gz/math/Pose3.hh>
+#include <gz/math/Quaternion.hh>
+#include <gz/math/Vector3.hh>
 
-#include <geometry_msgs/msg/vector3.hpp>
 #include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 
 namespace gazebo
 {

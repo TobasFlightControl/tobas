@@ -1,8 +1,9 @@
+#include "tobas_flight_log_gui/logs_fc/log_item.hpp"
+
 #include <QHBoxLayout>
 
 #include <tobas_qt_tools/font.hpp>
 
-#include "tobas_flight_log_gui/logs_fc/log_item.hpp"
 #include "tobas_flight_log_gui/constants.hpp"
 
 namespace gui

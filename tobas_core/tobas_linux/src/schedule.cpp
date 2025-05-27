@@ -1,9 +1,11 @@
-#include <iostream>
+#include "tobas_linux/schedule.hpp"
+
 #include <pthread.h>
 #include <sched.h>
 
-#include "../include/tobas_linux/schedule.hpp"
-#include "../include/tobas_linux/core.hpp"
+#include <iostream>
+
+#include "tobas_linux/core.hpp"
 
 using namespace std;
 
@@ -40,7 +42,7 @@ bool setRealtimePriority(const int& tar_policy, const int& tar_priority)
   }
 
   if (tar_priority < 0 || 99 < tar_priority) {
-    cerr << "Real-time priority must be betwenn 0 and 99." << endl;
+    cerr << "Real-time priority must be between 0 and 99." << endl;
     return false;
   }
 

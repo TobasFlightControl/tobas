@@ -2,14 +2,14 @@
 
 #include <QPushButton>
 
-#include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
+#include <tobas_ssh_client/ssh_client.hpp>
 
-#include "./read_thread.hpp"
 #include "./clean_thread.hpp"
-#include "./download_thread.hpp"
 #include "./delete_thread.hpp"
+#include "./download_thread.hpp"
+#include "./read_thread.hpp"
 
 namespace gui
 {

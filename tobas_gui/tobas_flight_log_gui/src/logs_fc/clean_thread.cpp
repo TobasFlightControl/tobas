@@ -1,6 +1,6 @@
-#include <tobas_constants/constants.hpp>
-
 #include "tobas_flight_log_gui/logs_fc/clean_thread.hpp"
+
+#include <tobas_constants/constants.hpp>
 
 using namespace std;
 

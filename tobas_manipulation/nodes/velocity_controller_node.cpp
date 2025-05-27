@@ -1,19 +1,19 @@
-#include <tobas_kdl/tree_joint_parser.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_taskspace_vel_ctrl.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_ros2_tools/tf_listener.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/tf_listener.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
+#include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
-#include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_drone_msgs_adapter/drone.hpp>
 
-#include "../include/tobas_manipulation/constants.hpp"
-#include "../include/tobas_manipulation/util.hpp"
+#include "tobas_manipulation/constants.hpp"
+#include "tobas_manipulation/util.hpp"
 
 using namespace std;
 
@@ -307,6 +307,7 @@ void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
 
   // Create joint velocities command
   auto velocities_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  velocities_msg->header.stamp = cur_js->header.stamp;
 
   // Joint space control or Task space control
   if (tar_js_) {

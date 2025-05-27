@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include <string.h>
+
+#include <string>
 
 namespace linux
 {

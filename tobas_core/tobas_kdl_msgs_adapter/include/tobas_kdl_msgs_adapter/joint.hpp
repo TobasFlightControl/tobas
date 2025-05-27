@@ -3,6 +3,7 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/joint.hpp>
+
 #include <tobas_kdl_msgs/msg/joint.hpp>
 
 #include "./vector.hpp"

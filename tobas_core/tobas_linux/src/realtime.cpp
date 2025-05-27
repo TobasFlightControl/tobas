@@ -1,10 +1,12 @@
-#include <iostream>
+#include "tobas_linux/realtime.hpp"
+
+#include <pthread.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 
-#include "../include/tobas_linux/realtime.hpp"
-#include "../include/tobas_linux/errer.hpp"
+#include <iostream>
+
+#include "tobas_linux/errer.hpp"
 
 using namespace std;
 

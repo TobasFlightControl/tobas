@@ -1,6 +1,4 @@
-#include <iostream>
-
-#include "../include/tobas_kdl/chain_fk_solver_pos.hpp"
+#include "tobas_kdl/chain_fk_solver_pos.hpp"
 
 using namespace std;
 

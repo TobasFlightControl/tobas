@@ -1,4 +1,4 @@
-#include "../include/tobas_kdl_conversions/kdl_eigen.hpp"
+#include "tobas_kdl_conversions/kdl_eigen.hpp"
 
 using namespace Eigen;
 

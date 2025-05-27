@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <unordered_set>
+
 #include <rviz_common/display_context.hpp>
 
 #include "../view_model/urdf_view_model.hpp"

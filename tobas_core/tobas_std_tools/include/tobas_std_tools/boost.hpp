@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+
 #include <boost/array.hpp>
 
 namespace tobas_std

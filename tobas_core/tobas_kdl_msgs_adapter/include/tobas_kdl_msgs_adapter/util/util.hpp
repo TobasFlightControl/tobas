@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
 #include <array>
+#include <vector>
+
 #include <eigen3/Eigen/Core>
 
 namespace tobas_kdl_msgs

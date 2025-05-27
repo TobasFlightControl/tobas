@@ -3,10 +3,11 @@
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_kdl/rigid_body_inertia.hpp>
+
 #include <tobas_kdl_msgs/msg/rigid_body_inertia.hpp>
 
-#include "./vector.hpp"
 #include "./rotational_inertia.hpp"
+#include "./vector.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia>

@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "./util.hpp"
+
+#include <iostream>
 
 using namespace std;
 

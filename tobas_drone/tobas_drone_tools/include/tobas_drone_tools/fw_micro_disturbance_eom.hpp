@@ -2,9 +2,9 @@
 
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 
-#include "./solver_i.hpp"
-#include "./rotor_axis_extractor.hpp"
 #include "./fw_trim_conditions.hpp"
+#include "./rotor_axis_extractor.hpp"
+#include "./solver_i.hpp"
 
 namespace tobas
 {

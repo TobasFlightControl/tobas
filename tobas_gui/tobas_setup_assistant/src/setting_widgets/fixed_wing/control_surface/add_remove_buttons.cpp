@@ -1,9 +1,9 @@
-#include <QPushButton>
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/add_remove_buttons.hpp"
+
 #include <QHBoxLayout>
+#include <QPushButton>
 
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/add_remove_buttons.hpp"
 
 namespace gui
 {

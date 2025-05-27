@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./tree_solver_i.hpp"
 #include "./jntarray.hpp"
 #include "./rigid_body_inertia.hpp"
+#include "./tree_solver_i.hpp"
 
 namespace kdl
 {
@@ -18,10 +18,7 @@ public:
   /* ルートリンク周りの質量特性を計算する． */
   int JntToCart(const JntArray& q);
 
-  inline const RigidBodyInertia& getInertia() const
-  {
-    return I_.at(tree_.getRootSegment()->first);
-  }
+  inline const RigidBodyInertia& getInertia() const;
 
 private:
   std::map<std::string, Frame> X_;
@@ -30,4 +27,9 @@ private:
   void initialize();
   void step(const SegmentMap::const_iterator& cur_it, const JntArray& q);
 };
+
+inline const RigidBodyInertia& TreeInertiaSolver::getInertia() const
+{
+  return I_.at(tree_.getRootSegment()->first);
+}
 }  // namespace kdl

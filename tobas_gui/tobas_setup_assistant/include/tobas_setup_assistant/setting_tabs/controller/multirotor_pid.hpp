@@ -1,9 +1,9 @@
 #pragma once
 
-#include "tobas_setup_assistant/robot_info.hpp"
-#include "../propulsion_system/propulsion_system.hpp"
 #include "../fixed_wing/fixed_wing.hpp"
+#include "../propulsion_system/propulsion_system.hpp"
 #include "./base.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {

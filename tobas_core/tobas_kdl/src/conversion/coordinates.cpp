@@ -1,5 +1,6 @@
-#include "../../include/tobas_kdl/conversion/coordinates.hpp"
-#include "../../include/tobas_kdl/rotational_inertia.hpp"
+#include "tobas_kdl/conversion/coordinates.hpp"
+
+#include "tobas_kdl/rotational_inertia.hpp"
 
 namespace kdl
 {

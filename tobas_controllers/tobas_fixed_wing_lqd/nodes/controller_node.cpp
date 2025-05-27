@@ -1,26 +1,26 @@
-#include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/debug.hpp>
+#include <tobas_constants/constants.hpp>
+#include <tobas_control/lqd.hpp>
+#include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
+#include <tobas_drone_tools/rotor_axis_extractor.hpp>
+#include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
-#include <tobas_control/lqd.hpp>
-#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
-#include <tobas_tools/coordinates.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/debug.hpp>
+#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_level_handler.hpp>
-#include <tobas_drone_tools/rotor_axis_extractor.hpp>
-#include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
-#include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
+#include <tobas_tools/coordinates.hpp>
 
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
-#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
-#include <tobas_msgs/msg/control_surface_deflections.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_msgs/msg/arming.hpp>
+#include <tobas_msgs/msg/control_surface_deflections.hpp>
+#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -245,7 +245,7 @@ void ControllerNode::publishThrusts(const VectorXd& thrusts)
   for (int i = 0; i < thrusts.rows(); ++i) {
     thrusts_msg->thrusts.emplace_back();
     thrusts_msg->thrusts.back().link_name = x_rotors_.linkName(i);
-    thrusts_msg->thrusts.back().thrust = thrusts(i);
+    thrusts_msg->thrusts.back().thrust = max(thrusts(i), 0.);
   }
 
   tar_thrusts_pub_->publish(move(thrusts_msg));
@@ -431,7 +431,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   if (tree_received_) {
     if (!initialize()) {
-      TOBAS_FATAL("Error occured while initializing controller.");
+      TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }
@@ -445,7 +445,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
   if (drone_received_) {
     if (!initialize()) {
-      TOBAS_FATAL("Error occured while initializing controller.");
+      TOBAS_FATAL("Error occurred while initializing controller.");
       return;
     }
   }

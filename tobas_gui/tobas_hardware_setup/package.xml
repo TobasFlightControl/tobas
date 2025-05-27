@@ -18,6 +18,7 @@
   <depend>tobas_real_common</depend>
   <depend>tobas_real_msgs</depend>
   <depend>tobas_qt_tools</depend>
+  <depend>tobas_rqt_bridge</depend>
   <depend>tobas_rviz_wrapper</depend>
   <depend>tobas_gui_common</depend>
 

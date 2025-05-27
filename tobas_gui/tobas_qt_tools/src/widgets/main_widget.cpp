@@ -1,9 +1,10 @@
-#include <csignal>
-#include <QVBoxLayout>
-#include <QIcon>
-#include <QCloseEvent>
-
 #include "tobas_qt_tools/widgets/main_widget.hpp"
+
+#include <csignal>
+
+#include <QCloseEvent>
+#include <QIcon>
+#include <QVBoxLayout>
 
 namespace qt
 {

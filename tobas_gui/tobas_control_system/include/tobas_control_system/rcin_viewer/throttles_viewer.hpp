@@ -1,8 +1,7 @@
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
-#include <tobas_msgs_adapter/rc_input.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 namespace gui
 {
@@ -24,21 +23,17 @@ class ThrottlesViewer : public QWidget
   static constexpr auto kLineColorDisable = Qt::darkGray;
 
 public:
-  explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
+  explicit ThrottlesViewer(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   qt::HPositionBarWidget* roll_range_;
   qt::VPositionBarWidget* pitch_range_;
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
 
-  ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
-
+private Q_SLOTS:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin

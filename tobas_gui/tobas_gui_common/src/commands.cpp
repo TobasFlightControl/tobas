@@ -1,8 +1,10 @@
-#include <iostream>
+#include "tobas_gui_common/command.hpp"
+
 #include <unistd.h>
 
-#include "../include/tobas_gui_common/command.hpp"
-#include "../include/tobas_gui_common/package.hpp"
+#include <iostream>
+
+#include "tobas_gui_common/package.hpp"
 
 using namespace std;
 namespace fs = filesystem;

@@ -1,26 +1,27 @@
 #include <eigen3/Eigen/Eigen>
 #include <magic_enum/magic_enum.hpp>
 
-#include <tobas_math/core.hpp>
-#include <tobas_std_tools/check.hpp>
-#include <tobas_ros2_tools/time.hpp>
-#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_constants/rc_command.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/check.hpp>
+
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
-#include <tobas_msgs_adapter/rc_input.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 
-#include "../include/tobas_rc_teleop/rate_throttle.hpp"
-#include "../include/tobas_rc_teleop/angle_throttle.hpp"
-#include "../include/tobas_rc_teleop/accel_yaw.hpp"
-#include "../include/tobas_rc_teleop/pos_vel_yaw.hpp"
-#include "../include/tobas_rc_teleop/accel_rate.hpp"
-#include "../include/tobas_rc_teleop/accel_angle.hpp"
-#include "../include/tobas_rc_teleop/pos_vel_angle.hpp"
-#include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
+#include "tobas_rc_teleop/accel_angle.hpp"
+#include "tobas_rc_teleop/accel_rate.hpp"
+#include "tobas_rc_teleop/accel_yaw.hpp"
+#include "tobas_rc_teleop/angle_throttle.hpp"
+#include "tobas_rc_teleop/pos_vel_angle.hpp"
+#include "tobas_rc_teleop/pos_vel_yaw.hpp"
+#include "tobas_rc_teleop/rate_throttle.hpp"
+#include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std;
 
@@ -262,7 +263,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_pos_var = odom_->position_covariance.eigenvalues().real().maxCoeff();
     if (max_pos_var > math::sqr(kPosStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because position estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because position estimation is inaccurate.");
       return false;
     }
   }
@@ -271,7 +272,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_rot_var = odom_->orientation_covariance.eigenvalues().real().maxCoeff();
     if (max_rot_var > math::sqr(kRotStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because orientation estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because orientation estimation is inaccurate.");
       return false;
     }
   }
@@ -280,7 +281,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_linvel_var = odom_->velocity_covariance.eigenvalues().real().maxCoeff();
     if (max_linvel_var > math::sqr(kLinVelStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because linear velocity estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because linear velocity estimation is inaccurate.");
       return false;
     }
   }
@@ -289,7 +290,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     const auto max_angvel_var = odom_->gyro_covariance.eigenvalues().real().maxCoeff();
     if (max_angvel_var > math::sqr(kAngVelStddevThresh)) {
       TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because angular velocity estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because angular velocity estimation is inaccurate.");
       return false;
     }
   }

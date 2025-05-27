@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
+
 #include <yaml-cpp/yaml.h>
 
 namespace yaml

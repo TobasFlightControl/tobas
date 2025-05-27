@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tobas_setup_assistant/robot_info.hpp"
 #include "./selected_link.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {

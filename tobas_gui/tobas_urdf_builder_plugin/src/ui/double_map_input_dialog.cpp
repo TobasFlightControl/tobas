@@ -1,6 +1,11 @@
-#include <tobas_qt_tools/cast.hpp>
+#include "tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
 
-#include "../../include/tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+
+#include <tobas_qt_tools/cast.hpp>
 
 namespace gui
 {

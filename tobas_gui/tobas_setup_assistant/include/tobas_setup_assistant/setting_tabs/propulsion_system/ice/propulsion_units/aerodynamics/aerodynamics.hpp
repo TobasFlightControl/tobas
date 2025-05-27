@@ -5,9 +5,9 @@
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "./base.hpp"
 #include "../base.hpp"
 #include "../propeller.hpp"
+#include "./base.hpp"
 
 namespace gui
 {

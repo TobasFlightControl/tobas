@@ -1,6 +1,6 @@
-#include <iostream>
+#include "tobas_kdl/tree.hpp"
 
-#include "../include/tobas_kdl/tree.hpp"
+#include <iostream>
 
 using namespace std;
 

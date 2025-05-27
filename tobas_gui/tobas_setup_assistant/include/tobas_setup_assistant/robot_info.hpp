@@ -3,10 +3,10 @@
 #include <urdf/model.h>
 #include <QObject>
 
-#include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_drone_core/propulsion_system/rotor_axis.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
-#include <tobas_drone_core/propulsion_system/rotor_axis.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {

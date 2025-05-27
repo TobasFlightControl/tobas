@@ -1,6 +1,6 @@
-#include <tobas_qt_tools/cast.hpp>
-
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/selected_link.hpp"
+
+#include <tobas_qt_tools/cast.hpp>
 
 namespace gui
 {

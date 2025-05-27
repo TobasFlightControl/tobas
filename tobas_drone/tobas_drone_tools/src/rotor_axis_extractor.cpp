@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_tools/rotor_axis_extractor.hpp"
+#include "tobas_drone_tools/rotor_axis_extractor.hpp"
 
 using namespace std;
 
@@ -12,15 +12,6 @@ bool RotorAxisExtractor::updateInternalDataStructures()
 {
   initialize();
   return true;
-}
-
-double RotorAxisExtractor::maxThrustSum() const
-{
-  double res = 0.;
-  for (const auto& link_name : link_names_) {
-    res += drone_.prop->maxThrust(link_name);
-  }
-  return res;
 }
 
 void RotorAxisExtractor::initialize()

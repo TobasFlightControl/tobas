@@ -1,11 +1,11 @@
 #pragma once
 
-#include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_eigen_tools/tensor.hpp>
-#include <tobas_nlp/sqp.hpp>
-#include <tobas_kdl/tree_joint_parser.hpp>
+#include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
+#include <tobas_nlp/sqp.hpp>
 
 #include <tobas_drone_tools/np_mixer_qp.hpp>
 

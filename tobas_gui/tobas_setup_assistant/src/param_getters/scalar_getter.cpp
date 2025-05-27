@@ -1,10 +1,11 @@
-#include <QLabel>
-#include <QHBoxLayout>
-
-#include <tobas_string_tools/core.hpp>
-#include <tobas_qt_tools/font.hpp>
-
 #include "tobas_setup_assistant/param_getters/scalar_getter.hpp"
+
+#include <QHBoxLayout>
+#include <QLabel>
+
+#include <tobas_qt_tools/font.hpp>
+#include <tobas_string_tools/core.hpp>
+
 #include "tobas_setup_assistant/constants.hpp"
 
 namespace gui

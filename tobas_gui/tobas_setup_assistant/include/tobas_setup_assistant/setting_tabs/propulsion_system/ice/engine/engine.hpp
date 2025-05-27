@@ -3,9 +3,8 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "./dynamics/dynamics.hpp"
-#include "./response.hpp"
-#include "./limit.hpp"
 #include "./hardware_interface.hpp"
+#include "./response.hpp"
 
 namespace gui
 {
@@ -27,7 +26,6 @@ class EngineWidget : public qt::TabWidget
 
   static constexpr char kDynamicsLabel[] = "Dynamics";
   static constexpr char kResponseLabel[] = "Response";
-  static constexpr char kLimitLabel[] = "Limit";
   static constexpr char kHardwareIfaceLabel[] = "HW Interface";
 
 public:
@@ -40,13 +38,11 @@ public:
 
   const EngineDynamicsWidget* dynamics() const;
   const EngineResponseWidget* response() const;
-  const EngineLimitWidget* limit() const;
   const EngineHardwareIfaceWidget* hardwareIface() const;
 
 private:
   EngineDynamicsWidget* dynamics_;
   EngineResponseWidget* response_;
-  EngineLimitWidget* limit_;
   EngineHardwareIfaceWidget* hw_iface_;
 };
 };  // namespace ice

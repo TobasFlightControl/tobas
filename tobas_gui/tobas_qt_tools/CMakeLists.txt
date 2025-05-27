@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(tobas_qt_tools)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
-
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
-  message("This package is skipped on Raspberry Pi.")
+  message(STATUS "This package is skipped on Raspberry Pi.")
   find_package(ament_cmake REQUIRED)
   ament_package()
   return()
@@ -26,25 +25,19 @@ find_package(Qt5Widgets REQUIRED)
 find_package(tobas_math REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  Qt5Core
-  Qt5Widgets
-  tobas_math
-  tobas_std_tools
-)
+set(AMENT_DEPENDENCIES Qt5Core Qt5Widgets tobas_math tobas_std_tools)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
-file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR}
-  include/${PROJECT_NAME}/widgets/[^.]*.hpp
-  include/${PROJECT_NAME}/layouts/[^.]*.hpp
+file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/widgets/*.hpp
+                                                                               include/${PROJECT_NAME}/layouts/*.hpp
 )
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
@@ -54,7 +47,8 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES
+  DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 

@@ -1,0 +1,19 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/motor/mt3508_580kv.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
+
+  <!-- JMT MT3508 580KV + DJI Phantom3 0945 -->
+  <xacro:macro name="mt3508_0945" params="parent index direction *origin">
+
+    <xacro:mt3508_580kv parent="${parent}" index="${index}">
+      <xacro:insert_block name="origin"/>
+    </xacro:mt3508_580kv>
+
+    <xacro:phantom3_0945 parent="motor_${index}" index="${index}" direction="${direction}">
+      <origin xyz="0 0 0.029" rpy="0 0 0"/>
+    </xacro:phantom3_0945>
+
+  </xacro:macro>
+
+</robot>

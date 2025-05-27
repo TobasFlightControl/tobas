@@ -21,10 +21,10 @@ public:
   bool initialize();
 
   /* Read the current pressure [Pa]. */
-  bool readPressure(double& pres);
+  bool readPressure(double& pressure);
 
   /* Read the current temperature [degC]. */
-  bool readTemperature(double& temp);
+  bool readTemperature(double& temperature);
 
 private:
   /* 8: Register mapping (p.32) */

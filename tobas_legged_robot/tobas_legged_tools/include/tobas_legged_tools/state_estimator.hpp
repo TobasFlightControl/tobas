@@ -1,9 +1,9 @@
 #pragma once
 
+#include <tobas_control/c2d/rk4.hpp>
+#include <tobas_control/kalman_filter.hpp>
 #include <tobas_kdl/quaternion.hpp>
 #include <tobas_kdl/tree_fk_solver_vel.hpp>
-#include <tobas_control/kalman_filter.hpp>
-#include <tobas_control/c2d/rk4.hpp>
 
 #include "./linear_dynamics.hpp"
 

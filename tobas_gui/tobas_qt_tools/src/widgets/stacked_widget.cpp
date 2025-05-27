@@ -1,6 +1,6 @@
-#include <QApplication>
-
 #include "tobas_qt_tools/widgets/stacked_widget.hpp"
+
+#include <QApplication>
 
 namespace qt
 {

@@ -27,11 +27,7 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  /* [Nm/(rad/s)] */
-  double torqueConstant() const;
-
-  /* [Nm] */
-  double dynamicFrictionTorque() const;
+  std::pair<double, double> engineConstant() const;
 
 private:
   qt::ComboBox* method_name_;

@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"
+
+#include <iostream>
 
 using namespace std;
 
@@ -75,14 +75,14 @@ propulsion_system_t ElectricPropulsionSystemConfig::type() const
   return propulsion_system_t::ELECTRIC;
 }
 
-double ElectricPropulsionSystemConfig::minSpeed(const std::string& link_name) const
+double ElectricPropulsionSystemConfig::minSpeed(const string& link_name)
 {
   // TODO: モータやプロペラのパラメータから最小回転数を決定
   (void)link_name;
-  return kMinSpeed;
+  return tobas_std::rpm2rps(300);
 }
 
-double ElectricPropulsionSystemConfig::maxSpeed(const std::string& link_name) const
+double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)
 {
   // FIXME: 電動またはICEの誤差を吸収しつつバッテリーまたはエンジンの状態を考慮した最大推力を反映したい．
   // PropulsionLimitCalculatorから回転数や推力の最大値をトピックで発行するのが良さそう．
@@ -90,15 +90,22 @@ double ElectricPropulsionSystemConfig::maxSpeed(const std::string& link_name) co
   return rotor->speedFromVoltage(battery.nominal_voltage);
 }
 
-double ElectricPropulsionSystemConfig::minThrust(const std::string& link_name) const
+double ElectricPropulsionSystemConfig::minThrust(const string& link_name)
 {
   const auto rotor = getRotor(link_name);
-  return rotor->thrustFromSpeed(kMinSpeed);
+  return rotor->thrustFromSpeed(minSpeed(link_name));
 }
 
-double ElectricPropulsionSystemConfig::maxThrust(const std::string& link_name) const
+double ElectricPropulsionSystemConfig::maxThrust(const string& link_name)
 {
   const auto rotor = getRotor(link_name);
   return rotor->thrustFromSpeed(maxSpeed(link_name));
+}
+
+double ElectricPropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle)
+{
+  const auto rotor = getRotor(link_name);
+  const auto input_voltage = battery.nominal_voltage * throttle;
+  return rotor->thrustFromVoltage(input_voltage);
 }
 }  // namespace tobas

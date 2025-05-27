@@ -1,10 +1,10 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
 #include <QFileDialog>
+#include <eigen3/Eigen/Core>
 
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 
 #include "./base.hpp"

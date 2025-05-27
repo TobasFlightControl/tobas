@@ -1,6 +1,6 @@
-#include <cassert>
+#include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
-#include "../include/tobas_gazebo_system_plugins/rate_manager.hpp"
+#include <cassert>
 
 using namespace std;
 

@@ -1,8 +1,6 @@
+#include "tobas_ic_drivers/nssnmfg_pefc.hpp"
+
 #include <iostream>
-
-#include "../include/tobas_ic_drivers/nssnmfg_pefc.hpp"
-
-#define TIMEOUT_MS 1000
 
 using namespace std;
 
@@ -31,10 +29,6 @@ bool NssnmfgPEFC::initialize(const char* uart_device)
   }
 
   if (!uart_.disableParity()) {
-    return false;
-  }
-
-  if (!uart_.setTimeout(TIMEOUT_MS / 100)) {
     return false;
   }
 

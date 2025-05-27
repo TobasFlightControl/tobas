@@ -1,10 +1,10 @@
-#include <cstdint>
+#include "tobas_string_tools/core.hpp"
+
 #include <algorithm>
+#include <cstdint>
+#include <iostream>
 #include <map>
 #include <regex>
-#include <iostream>
-
-#include "../include/tobas_string_tools/core.hpp"
 
 using namespace std;
 

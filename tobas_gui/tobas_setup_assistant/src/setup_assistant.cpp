@@ -1,8 +1,8 @@
+#include "tobas_setup_assistant/setup_assistant.hpp"
+
 #include <filesystem>
 
 #include <tobas_qt_tools/message.hpp>
-
-#include "tobas_setup_assistant/setup_assistant.hpp"
 
 namespace fs = std::filesystem;
 

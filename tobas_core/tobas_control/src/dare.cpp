@@ -1,9 +1,10 @@
+#include "tobas_control/dare.hpp"
+
 #include <iostream>
 
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "../include/tobas_control/dare.hpp"
-#include "../include/tobas_control/util.hpp"
+#include "tobas_control/util.hpp"
 
 using namespace std;
 using namespace Eigen;

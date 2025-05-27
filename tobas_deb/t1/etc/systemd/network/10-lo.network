@@ -1,0 +1,8 @@
+[Match]
+Name=lo
+
+[Network]
+Address=127.0.0.1/8
+Address=::1/128
+LinkLocalAddressing=no  # Disable IPv4LL/IPv6LL
+DHCP=no

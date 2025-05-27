@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <QColor>
+
 #include <qwt/qwt_plot.h>
+#include <QColor>
 
 class QwtPlotCurve;
 

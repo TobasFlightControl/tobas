@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rclcpp/type_adapter.hpp>
 #include <eigen3/Eigen/Core>
+#include <rclcpp/type_adapter.hpp>
 
 #include <tobas_eigen_msgs/msg/matrix3d.hpp>
 #include <tobas_eigen_msgs/msg/matrix4d.hpp>

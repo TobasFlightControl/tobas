@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QWidget>
-
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
