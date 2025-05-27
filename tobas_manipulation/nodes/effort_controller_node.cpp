@@ -367,6 +367,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
 
   // Create joint efforts command
   auto efforts_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  efforts_msg->header.stamp = cur_js->header.stamp;
 
   // Joint space control or Task space control
   if (tar_js_) {
