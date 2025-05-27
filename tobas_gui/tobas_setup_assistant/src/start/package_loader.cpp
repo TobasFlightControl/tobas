@@ -1,8 +1,5 @@
 #include "tobas_setup_assistant/start/package_loader.hpp"
 
-#include <filesystem>
-
-#include <rcutils/env.h>
 #include <QFileDialog>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -12,6 +9,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
@@ -56,7 +54,7 @@ void PackageLoaderWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
   }
 
   // Tobasパッケージのパスを取得

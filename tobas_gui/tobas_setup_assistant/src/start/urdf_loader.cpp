@@ -2,10 +2,10 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QFileDialog>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
@@ -56,7 +56,7 @@ void URDFLoaderWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = fs::path(ament_index_cpp::get_package_share_directory("tobas_description")) / "urdf";
   }
 
   // URDFのパスを取得

@@ -1,6 +1,5 @@
 #include "tobas_gui_core/gui_core.hpp"
 
-#include <rcutils/env.h>
 #include <QApplication>
 #include <QButtonGroup>
 #include <QHBoxLayout>
@@ -16,6 +15,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 #include "tobas_gui_core/app_button.hpp"
 #include "tobas_gui_core/constants.hpp"
@@ -195,7 +195,7 @@ void GuiCoreWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
   }
 
   // Tobasパッケージのパスを取得
