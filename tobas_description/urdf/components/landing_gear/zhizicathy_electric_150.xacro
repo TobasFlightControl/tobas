@@ -7,9 +7,6 @@
       <origin xyz="0 ${direction*offset} 0" rpy="0 0 ${reverse*pi}"/>
       <parent link="lg_base_link"/>
       <child link="lg_${suffix}_top"/>
-      <axis xyz="1 0 0"/>
-      <limit velocity="${75*deg2rad/6}" effort="1" lower="0" upper="${75*deg2rad}"/>
-      <dynamics damping="0" friction="0.01"/>
     </joint>
     <link name="lg_${suffix}_top">
       <visual>
