@@ -127,7 +127,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
     return;
   }
 
-  // Create joint velocities command
+  // Create joint positions command
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   positions_msg->header.stamp = get_clock()->now();
 
@@ -147,7 +147,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
     return;
   }
 
-  // Publish joint velocities command
+  // Publish joint positions command
   positions_pub_->publish(move(positions_msg));
 }
 
