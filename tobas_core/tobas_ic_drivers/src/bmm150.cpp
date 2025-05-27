@@ -20,6 +20,14 @@ bool BMM150::initialize()
     return false;
   }
 
+  if (!enterSuspendMode()) {
+    cerr << "Failed to enter suspend mode." << endl;
+  }
+
+  if (!suspendToSleepMode()) {
+    cerr << "Failed to change mode from suspend to sleep." << endl;
+  }
+
   if (!checkWhoAmI()) {
     cerr << "Who-Am-I check failed." << endl;
     return false;
@@ -66,10 +74,13 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
   //     return false;
   //   }
 
-  int16_t raw_data_x = ((i2c_.rx[1] << 5) | (i2c_.rx[0] >> 3));
-  int16_t raw_data_y = ((i2c_.rx[3] << 5) | (i2c_.rx[2] >> 3));
-  int16_t raw_data_z = ((i2c_.rx[5] << 7) | (i2c_.rx[4] >> 1));
-  uint16_t r_hall = ((i2c_.rx[7] << 6) | (i2c_.rx[6] >> 2));
+  int16_t msb_data_x = static_cast<int16_t>(static_cast<int8_t>(i2c_.rx[1]) * 32);
+  int16_t msb_data_y = static_cast<int16_t>(static_cast<int8_t>(i2c_.rx[3]) * 32);
+  int16_t msb_data_z = static_cast<int16_t>(static_cast<int8_t>(i2c_.rx[5]) * 128);
+  int16_t raw_data_x = static_cast<int16_t>(msb_data_x | (i2c_.rx[0] >> 3));
+  int16_t raw_data_y = static_cast<int16_t>(msb_data_y | (i2c_.rx[2] >> 3));
+  int16_t raw_data_z = static_cast<int16_t>(msb_data_z | (i2c_.rx[4] >> 1));
+  uint16_t r_hall = ((static_cast<uint16_t>(i2c_.rx[7]) << 6) | (i2c_.rx[6] >> 2));
 
   // compensate for the temperature effect using resistance value of hall sensor based on
   // https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
@@ -94,6 +105,28 @@ bool BMM150::readRegs(const uint8_t& addr, const size_t& bytes)
     return false;
   }
 
+  return true;
+}
+
+bool BMM150::enterSuspendMode()
+{
+  if (!writeReg(CFG_REG_A, 0x00)) {
+    cerr << "Failed to write power control reg." << endl;
+    return false;
+  }
+
+  this_thread::sleep_for(3ms);  // wait for BMM150's suspend.
+  return true;
+}
+
+bool BMM150::suspendToSleepMode()
+{
+  if (!writeReg(CFG_REG_A, 0x01)) {
+    cerr << "Failed to write power control reg." << endl;
+    return false;
+  }
+
+  this_thread::sleep_for(3ms);  // wait for BMM150's start-up.
   return true;
 }
 

@@ -162,6 +162,8 @@ private:
   bool readRegs(const uint8_t& addr, const size_t& bytes);
   bool writeReg(const uint8_t& addr, const uint8_t& data);
 
+  bool enterSuspendMode();
+  bool suspendToSleepMode();
   bool checkWhoAmI();
   bool execSelfTest();
   bool configure();
@@ -171,7 +173,7 @@ private:
   /**
    * @brief This internal API is used to obtain the compensated
    * magnetometer X axis data(micro-tesla) in int16_t.
-   * 
+   *
    * @param mag_data_x magneto X axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto X axis data
@@ -180,7 +182,7 @@ private:
   /**
    * @brief This internal API is used to obtain the compensated
    * magnetometer Y axis data(micro-tesla) in int16_t.
-   * 
+   *
    * @param mag_data_y magneto Y axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Y axis data
@@ -189,7 +191,7 @@ private:
   /**
    * @brief This internal API is used to obtain the compensated
    * magnetometer Z axis data(micro-tesla) in int16_t.
-   * 
+   *
    * @param mag_data_z magneto Z axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Z axis data
