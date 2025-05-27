@@ -34,8 +34,8 @@
       <parent link="lg_${suffix}_top"/>
       <child link="lg_${suffix}_bottom"/>
       <axis xyz="1 0 0"/>
-      <limit velocity="${75*deg2rad/6}" effort="1" lower="0" upper="${max_angle}"/>
-      <dynamics damping="0" friction="0.01"/>
+      <limit velocity="${75*deg2rad/6}" effort="10" lower="-0.01" upper="${max_angle}"/>
+      <dynamics damping="0" friction="0.1"/>
     </joint>
     <link name="lg_${suffix}_bottom">
       <visual>
