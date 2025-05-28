@@ -215,9 +215,9 @@ void JointCommandHandlerNode::velocityResetTimerCb()
   }
 
   if (vel_commanded_) {
-    pos_commanded_ = false;
+    vel_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ",
+      "All joints with velocity command interface are reset to home position because ",
       tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
@@ -237,9 +237,9 @@ void JointCommandHandlerNode::effortResetTimerCb()
   }
 
   if (eff_commanded_) {
-    pos_commanded_ = false;
+    eff_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ",
+      "All joints with effort command interface are reset to home position because ",
       tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
