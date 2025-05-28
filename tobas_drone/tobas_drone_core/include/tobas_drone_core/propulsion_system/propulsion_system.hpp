@@ -18,6 +18,8 @@ public:
 
   RotorConfigMap rotors;
 
+  virtual void clear();
+
   virtual bool isValid() const = 0;
 
   virtual bool load(const YAML::Node& node) = 0;

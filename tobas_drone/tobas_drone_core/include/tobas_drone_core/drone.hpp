@@ -38,6 +38,8 @@ public:
   FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configurations
   uint32_t num_sbus_channels = 0;          // The number of S.BUS channels
 
+  void clear();
+
   bool isValid() const;
 
   bool load(const YAML::Node& node);

@@ -27,15 +27,21 @@ bool ICEPropulsionSystemConfig::isValid() const
   return true;
 }
 
-bool ICEPropulsionSystemConfig::load(const YAML::Node& node)
+bool ICEPropulsionSystemConfig::load(const YAML::Node& root_node)
 {
+  clear();
+
   // Rotors
-  rotors.clear();
-  if (!node[kRotorsKey].IsSequence()) {
-    cerr << "Rotors field is not defined." << endl;
+  const auto rotors_node = root_node[kRotorsKey];
+  if (!rotors_node.IsDefined()) {
+    cerr << "\"" << kRotorsKey << "\" is not defined." << endl;
     return false;
   }
-  for (const auto& rotor_node : node[kRotorsKey]) {
+  if (!rotors_node.IsSequence()) {
+    cerr << "\"" << kRotorsKey << "\" must be a sequence." << endl;
+    return false;
+  }
+  for (const auto& rotor_node : rotors_node) {
     const auto rotor = make_shared<ICERotorConfig>();
     if (!rotor->load(rotor_node)) {
       cerr << "Failed to load the configurations of rotors." << endl;
@@ -45,11 +51,12 @@ bool ICEPropulsionSystemConfig::load(const YAML::Node& node)
   }
 
   // Engine
-  if (!node[kEngineKey].IsDefined()) {
-    cerr << "Engine field is not defined." << endl;
+  const auto engine_node = root_node[kEngineKey];
+  if (!engine_node.IsDefined()) {
+    cerr << "\"" << kEngineKey << "\" is not defined." << endl;
     return false;
   }
-  if (!engine.load(node[kEngineKey])) {
+  if (!engine.load(engine_node)) {
     cerr << "Failed to load the configurations of engine." << endl;
     return false;
   }

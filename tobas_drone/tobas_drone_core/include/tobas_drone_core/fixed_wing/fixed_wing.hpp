@@ -22,6 +22,8 @@ public:
   AerodynamicCoefficients aerodynamics;
   ControlSurfaceMap control_surfaces;
 
+  void clear();
+
   bool isValid() const;
 
   bool load(const YAML::Node& node);
