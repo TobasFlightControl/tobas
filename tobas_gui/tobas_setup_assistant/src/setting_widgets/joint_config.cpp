@@ -491,8 +491,8 @@ void JointConfigurationWidget::setDefaultValues(int row)
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       break;
     case tobas::jnt_role_t::LANDING_GEAR:
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
@@ -500,7 +500,7 @@ void JointConfigurationWidget::setDefaultValues(int row)
       break;
     case tobas::jnt_role_t::MANIPULATION:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       break;
     case tobas::jnt_role_t::OTHER:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
