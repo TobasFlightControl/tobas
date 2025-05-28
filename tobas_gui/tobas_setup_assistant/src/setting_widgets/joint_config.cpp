@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QHeaderView>
+#include <magic_enum/magic_enum.hpp>
 
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -216,11 +217,14 @@ tobas::jnt_role_t JointConfigurationWidget::getRole(int row) const
   else if (text == kRoleLabel_ControlSurface) {
     return tobas::jnt_role_t::CONTROL_SURFACE;
   }
-  else if (text == kRoleLabel_Manipulation) {
-    return tobas::jnt_role_t::MANIPULATION;
+  else if (text == kRoleLabel_LandingGear) {
+    return tobas::jnt_role_t::LANDING_GEAR;
   }
   else if (text == kRoleLabel_PassiveWheel) {
     return tobas::jnt_role_t::PASSIVE_WHEEL;
+  }
+  else if (text == kRoleLabel_Manipulation) {
+    return tobas::jnt_role_t::MANIPULATION;
   }
   else if (text == kRoleLabel_Other) {
     return tobas::jnt_role_t::OTHER;
@@ -314,11 +318,14 @@ void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
     case tobas::jnt_role_t::CONTROL_SURFACE:
       text = kRoleLabel_ControlSurface;
       break;
-    case tobas::jnt_role_t::MANIPULATION:
-      text = kRoleLabel_Manipulation;
+    case tobas::jnt_role_t::LANDING_GEAR:
+      text = kRoleLabel_LandingGear;
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
       text = kRoleLabel_PassiveWheel;
+      break;
+    case tobas::jnt_role_t::MANIPULATION:
+      text = kRoleLabel_Manipulation;
       break;
     case tobas::jnt_role_t::OTHER:
       text = kRoleLabel_Other;
@@ -483,13 +490,17 @@ void JointConfigurationWidget::setDefaultValues(int row)
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       break;
-    case tobas::jnt_role_t::MANIPULATION:
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
+    case tobas::jnt_role_t::LANDING_GEAR:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
+      break;
+    case tobas::jnt_role_t::MANIPULATION:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       break;
     case tobas::jnt_role_t::OTHER:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
@@ -530,7 +541,7 @@ void JointConfigurationWidget::updateEnability(int row)
       hw_iface_[row]->setEnabled(true);
       home_pos_[row]->setEnabled(false);
       break;
-    case tobas::jnt_role_t::MANIPULATION:
+    case tobas::jnt_role_t::LANDING_GEAR:
       role_[row]->setEnabled(true);
       cmd_iface_[row]->setEnabled(true);
       hw_iface_[row]->setEnabled(true);
@@ -541,6 +552,12 @@ void JointConfigurationWidget::updateEnability(int row)
       cmd_iface_[row]->setEnabled(false);
       hw_iface_[row]->setEnabled(false);
       home_pos_[row]->setEnabled(false);
+      break;
+    case tobas::jnt_role_t::MANIPULATION:
+      role_[row]->setEnabled(true);
+      cmd_iface_[row]->setEnabled(true);
+      hw_iface_[row]->setEnabled(true);
+      home_pos_[row]->setEnabled(true);
       break;
     case tobas::jnt_role_t::OTHER:
       role_[row]->setEnabled(true);
@@ -592,10 +609,12 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
     kRoleLabel_Rotor,
     kRoleLabel_TiltJoint,
     kRoleLabel_ControlSurface,
-    kRoleLabel_Manipulation,
+    kRoleLabel_LandingGear,
     kRoleLabel_PassiveWheel,
+    kRoleLabel_Manipulation,
     kRoleLabel_Other,
   });
+  TOBAS_CHECK(static_cast<size_t>(role->count()) == magic_enum::enum_count<tobas::jnt_role_t>());
 
   // Command Interface
   const auto cmd_iface = new qt::ComboBox();

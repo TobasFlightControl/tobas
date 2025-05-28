@@ -5,8 +5,9 @@
 #define ROTOR_TEXT "rotor"
 #define TILT_JOINT_TEXT "tilt_joint"
 #define CONTROL_SURFACE_TEXT "control_surface"
-#define MANIPULATION_TEXT "manipulation"
+#define LANDING_GEAR_TEXT "landing_gear"
 #define PASSIVE_WHEEL_TEXT "passive_wheel"
+#define MANIPULATION_TEXT "manipulation"
 #define OTHER_TEXT "other"
 
 using namespace std;
@@ -22,10 +23,12 @@ string textFromEnum(jnt_role_t role)
       return TILT_JOINT_TEXT;
     case jnt_role_t::CONTROL_SURFACE:
       return CONTROL_SURFACE_TEXT;
-    case jnt_role_t::MANIPULATION:
-      return MANIPULATION_TEXT;
+    case jnt_role_t::LANDING_GEAR:
+      return LANDING_GEAR_TEXT;
     case jnt_role_t::PASSIVE_WHEEL:
       return PASSIVE_WHEEL_TEXT;
+    case jnt_role_t::MANIPULATION:
+      return MANIPULATION_TEXT;
     case jnt_role_t::OTHER:
       return OTHER_TEXT;
     default:
@@ -47,12 +50,16 @@ bool enumFromText(const string& text, jnt_role_t& dst)
     dst = jnt_role_t::CONTROL_SURFACE;
     return true;
   }
-  else if (text == MANIPULATION_TEXT) {
-    dst = jnt_role_t::MANIPULATION;
+  else if (text == LANDING_GEAR_TEXT) {
+    dst = jnt_role_t::LANDING_GEAR;
     return true;
   }
   else if (text == PASSIVE_WHEEL_TEXT) {
     dst = jnt_role_t::PASSIVE_WHEEL;
+    return true;
+  }
+  else if (text == MANIPULATION_TEXT) {
+    dst = jnt_role_t::MANIPULATION;
     return true;
   }
   else if (text == OTHER_TEXT) {
@@ -74,10 +81,12 @@ bool isServoJoint(jnt_role_t role)
       return true;
     case jnt_role_t::CONTROL_SURFACE:
       return true;
-    case jnt_role_t::MANIPULATION:
+    case jnt_role_t::LANDING_GEAR:
       return true;
     case jnt_role_t::PASSIVE_WHEEL:
       return false;
+    case jnt_role_t::MANIPULATION:
+      return true;
     case jnt_role_t::OTHER:
       return false;
     default:

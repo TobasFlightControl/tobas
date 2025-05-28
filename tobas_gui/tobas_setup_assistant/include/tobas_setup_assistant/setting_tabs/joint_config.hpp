@@ -56,8 +56,9 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr char kRoleLabel_Rotor[] = "Rotor";
   static constexpr char kRoleLabel_TiltJoint[] = "Tilt Joint";
   static constexpr char kRoleLabel_ControlSurface[] = "Control Surface";
-  static constexpr char kRoleLabel_Manipulation[] = "Manipulation";
+  static constexpr char kRoleLabel_LandingGear[] = "Landing Gear";
   static constexpr char kRoleLabel_PassiveWheel[] = "Passive Wheel";
+  static constexpr char kRoleLabel_Manipulation[] = "Manipulation";
   static constexpr char kRoleLabel_Other[] = "Other";
 
   // Command Interface Labels

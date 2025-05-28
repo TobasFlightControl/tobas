@@ -9,8 +9,9 @@ enum struct jnt_role_t : uint8_t
   ROTOR,
   TILT_JOINT,
   CONTROL_SURFACE,
-  MANIPULATION,
+  LANDING_GEAR,
   PASSIVE_WHEEL,
+  MANIPULATION,
   OTHER,
 };
 
