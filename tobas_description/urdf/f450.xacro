@@ -43,7 +43,7 @@
 
   <!-- Flight Controller -->
   <xacro:tobas_t1 parent="base_link">
-    <origin xyz="0 0.015 0.020" rpy="0 0 0"/>
+    <origin xyz="0 0.015 0" rpy="0 0 0"/>
   </xacro:tobas_t1>
 
   <!-- Battery -->
