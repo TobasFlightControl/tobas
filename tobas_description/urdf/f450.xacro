@@ -47,7 +47,7 @@
   </xacro:tobas_t1>
 
   <!-- Battery -->
-  <xacro:sigp_3s_2250mah_60c parent="base_link">
+  <xacro:sigp_3s_2250mah_60c link_name="battery" parent="base_link">
     <origin xyz="-0.037 0 -0.023" rpy="0 0 0"/>
   </xacro:sigp_3s_2250mah_60c>
 

@@ -43,7 +43,7 @@
   </xacro:tobas_t1>
 
   <!-- Battery -->
-  <xacro:hrb_4s_5000mah_50c parent="base_link">
+  <xacro:hrb_4s_5000mah_50c link_name="battery" parent="base_link">
     <origin xyz="0 0 -0.021" rpy="0 0 0"/>
   </xacro:hrb_4s_5000mah_50c>
 

@@ -2,14 +2,14 @@
 
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
 
-  <xacro:macro name="base_lipo" params="parent x y z mass *origin *material">
-    <joint name="battery_joint" type="fixed">
+  <xacro:macro name="base_lipo" params="link_name parent x y z mass *origin *material">
+    <joint name="${link_name}_joint" type="fixed">
       <xacro:insert_block name="origin"/>
       <parent link="${parent}"/>
-      <child link="battery"/>
+      <child link="${link_name}"/>
     </joint>
 
-    <link name="battery">
+    <link name="${link_name}">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
