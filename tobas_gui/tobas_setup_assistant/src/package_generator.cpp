@@ -448,9 +448,11 @@ bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
   // テンプレートから作成 (存在する場合は上書きしない)
   user_cpp_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
   user_cpp_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
-  user_cpp_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir, false);
   user_cpp_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
-  user_cpp_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
   user_cpp_env_->generate(tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
 
   // その他
@@ -484,9 +486,11 @@ bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
   user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.cfg.tplini", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.py.tplpy", pkg_path, false);
-  user_py_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir, false);
   user_py_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
   user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
 
   // その他

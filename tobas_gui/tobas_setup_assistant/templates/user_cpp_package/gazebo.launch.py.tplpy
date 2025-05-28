@@ -6,6 +6,6 @@ from launch import LaunchDescription
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Please add the nodes that run only during the Gazebo simulation.
+    # Please add nodes that run only during the Gazebo simulation.
 
     return ld

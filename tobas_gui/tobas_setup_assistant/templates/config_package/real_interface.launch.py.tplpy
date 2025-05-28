@@ -48,12 +48,16 @@ def generate_launch_description():
     # Launch user nodes
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution([user_cpp_pkg_share, "launch", "real.launch.py"]))
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_cpp_pkg_share, "launch", "real_interface.launch.py"])
+            )
         )
     )
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "common.launch.py"]))
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_py_pkg_share, "launch", "real_interface.launch.py"])
+            )
         )
     )
 

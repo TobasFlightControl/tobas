@@ -1,0 +1,27 @@
+# Do not delete or rename this file because it is executed in {{ config_pkg_name }}/common_realtime.launch.py.
+
+from launch import LaunchDescription
+from launch_ros.actions import LoadComposableNodes
+from launch_ros.descriptions import ComposableNode
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Please add the nodes that run on both the actual hardware and requires real-time performance.
+
+    # ld.add_action(
+    #     LoadComposableNodes(
+    #         target_container=f"{{ drone_name }}/component_manager_3",
+    #         composable_node_descriptions=[
+    #             ComposableNode(
+    #                 package="{{ user_cpp_pkg_name }}",
+    #                 plugin="UserNode",
+    #                 namespace="{{ drone_name }}",
+    #                 extra_arguments=[{"use_intra_process_comms": True}],
+    #             ),
+    #         ],
+    #     )
+    # )
+
+    return ld

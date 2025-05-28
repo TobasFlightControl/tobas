@@ -10,6 +10,8 @@ from launch_ros.substitutions import FindPackageShare
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
+USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
+USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
 OBSERVER_PKG = "{{ observer_pkg }}"
 OBSERVER_PLUGIN = "{{ observer_plugin }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
@@ -45,6 +47,8 @@ def generate_launch_description():
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+    user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
 
     odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
     tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
@@ -241,6 +245,22 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
             ],
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_cpp_pkg_share, "launch", "common_realtime.launch.py"])
+            )
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_py_pkg_share, "launch", "common_realtime.launch.py"])
+            )
         )
     )
 
