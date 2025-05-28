@@ -108,8 +108,8 @@ public:
 
 private:
   linux::SPIdev spi_;
-  uint32_t tx_buf_[kSPIBufSize];
-  uint32_t rx_buf_[kSPIBufSize];
+  uint32_t tx_buf_[kSPIBufSize] = { 0 };
+  uint32_t rx_buf_[kSPIBufSize] = { 0 };
 
   std::array<uint16_t, kChannelSize> half_num_poles_;
 

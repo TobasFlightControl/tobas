@@ -22,7 +22,9 @@ bool DShot::initialize()
   half_num_poles_.fill(1);
 
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
-    setThrottle(ch, DSHOT_CMD_MOTOR_STOP);
+    if (!setThrottle(ch, DSHOT_CMD_MOTOR_STOP)) {
+      return false;
+    }
   }
 
   return true;
