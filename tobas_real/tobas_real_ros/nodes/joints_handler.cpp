@@ -73,7 +73,7 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super
 double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)
 {
   // Check joint position limit
-  if (pwm.value_range.inRange(cmd_pos, kJointLimitMargin)) {
+  if (!pwm.value_range.inRange(cmd_pos, kJointLimitMargin)) {
     TOBAS_WARN_THROTTLE(
       tobas::kTypicalWarnPeriod,
       "Commanded position of joint \"",
