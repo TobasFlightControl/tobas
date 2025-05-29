@@ -10,7 +10,7 @@ using namespace std;
 
 class MagDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 10ms;
+  static constexpr auto kSamplingPeriod = 20ms;
 
   using self = MagDriverNode;
   using super = hardware::BaseSensorNode;
