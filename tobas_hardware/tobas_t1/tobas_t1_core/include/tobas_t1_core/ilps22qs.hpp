@@ -61,7 +61,8 @@ private:
 
   enum config_t : uint8_t
   {
-    // CTRL_REG_1
+    // CTRL_REG1
+    ODR_0HZ = 0b0000 << 3,
     ODR_1HZ = 0b0001 << 3,
     ODR_4HZ = 0b0010 << 3,
     ODR_10HZ = 0b0011 << 3,
@@ -78,7 +79,7 @@ private:
     AVG_128 = 0b101 << 0,
     AVG_512 = 0b111 << 0,
 
-    // CTRL_REG_2
+    // CTRL_REG2
     REBOOT_MEMORY_CONTENT = 1 << 7,
     FS_MODE_1260HPA = 0 << 6,
     FS_MODE_4060HPA = 1 << 6,
@@ -89,7 +90,7 @@ private:
     SOFTWARE_RESET = 1 << 2,
     ONESHOT = 1 << 0,
 
-    // CTRL_REG_3
+    // CTRL_REG3
     AH_QVAR_EN = 1 << 7,
     AH_QVAR_P_AUTO_EN = 1 << 5,
     IF_ADD_INC = 1 << 0,

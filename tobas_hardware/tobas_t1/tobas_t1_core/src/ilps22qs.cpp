@@ -84,7 +84,7 @@ bool ILPS22QS::configure()
 {
   constexpr uint8_t fs_mode = FS_MODE_1260HPA;
 
-  if (!writeReg(CTRL_REG1, ODR_200HZ | AVG_32)) {
+  if (!writeReg(CTRL_REG1, ODR_100HZ | AVG_32)) {
     return false;
   }
 
