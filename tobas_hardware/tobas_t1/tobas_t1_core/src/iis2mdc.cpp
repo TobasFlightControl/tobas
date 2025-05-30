@@ -1,6 +1,6 @@
 #include "tobas_t1_core/iis2mdc.hpp"
 
-#include <bitset>
+#include <cassert>
 #include <iostream>
 
 using namespace std;
@@ -45,25 +45,26 @@ bool IIS2MDC::readMag(double& mx, double& my, double& mz)
   return true;
 }
 
-bool IIS2MDC::writeReg(const uint8_t& addr, const uint8_t& data)
+bool IIS2MDC::readReg(const uint8_t& addr)
 {
-  i2c_.tx[0] = data;
-  return i2c_.writeBytes(addr, 1);
+  return i2c_.readByte(addr);
 }
 
 bool IIS2MDC::readRegs(const uint8_t& addr, const size_t& bytes)
 {
-  if (!i2c_.readBytes(addr | kMultiReadFlag, bytes)) {
-    cerr << "Failed to read " << bytes << " bytes from " << bitset<8>(addr) << "." << endl;
-    return false;
-  }
+  assert(bytes >= 2);
+  return i2c_.readBytes(addr | kMultiReadFlag, bytes);
+}
 
-  return true;
+bool IIS2MDC::writeReg(const uint8_t& addr, const uint8_t& data)
+{
+  i2c_.tx[0] = data;
+  return i2c_.writeByte(addr, true);
 }
 
 bool IIS2MDC::checkWhoAmI()
 {
-  if (!readRegs(WHO_AM_I_REG, 1)) {
+  if (!readReg(WHO_AM_I_REG)) {
     cerr << "Failed to read WHO_AM_I data." << endl;
     return false;
   }

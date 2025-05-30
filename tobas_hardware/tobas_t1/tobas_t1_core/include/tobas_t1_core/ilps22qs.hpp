@@ -107,6 +107,7 @@ private:
   linux::I2Cdev i2c_;
   double pres_scale_;  // [LSB/Pa]
 
+  bool readReg(const uint8_t& addr);
   bool readRegs(const uint8_t& addr, const size_t& bytes);
   bool writeReg(const uint8_t& addr, const uint8_t& data);
 

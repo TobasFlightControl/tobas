@@ -1,5 +1,6 @@
 #include "tobas_t1_core/ilps22qs.hpp"
 
+#include <cassert>
 #include <iostream>
 
 using namespace std;
@@ -51,24 +52,27 @@ bool ILPS22QS::readTemperature(double& temperature)
   return true;
 }
 
-bool ILPS22QS::writeReg(const uint8_t& addr, const uint8_t& data)
+bool ILPS22QS::readReg(const uint8_t& addr)
 {
-  i2c_.tx[0] = data;
-  return i2c_.writeBytes(addr, 1);
+  return i2c_.readByte(addr);
 }
 
 bool ILPS22QS::readRegs(const uint8_t& addr, const size_t& bytes)
 {
-  if (!i2c_.readBytes(addr, bytes)) {
-    return false;
-  }
+  assert(bytes >= 2);
+  return i2c_.readBytes(addr, bytes);
+}
 
-  return true;
+bool ILPS22QS::writeReg(const uint8_t& addr, const uint8_t& data)
+{
+  i2c_.tx[0] = data;
+  return i2c_.writeByte(addr, true);
 }
 
 bool ILPS22QS::checkWhoAmI()
 {
-  if (!readRegs(WHO_AM_I_REG, 1)) {
+  if (!readReg(WHO_AM_I_REG)) {
+    cerr << "Failed to read WHO_AM_I data." << endl;
     return false;
   }
 
@@ -85,14 +89,17 @@ bool ILPS22QS::configure()
   constexpr uint8_t fs_mode = FS_MODE_1260HPA;
 
   if (!writeReg(CTRL_REG1, ODR_100HZ | AVG_32)) {
+    cerr << "Failed to write to CTRL_REG1." << endl;
     return false;
   }
 
   if (!writeReg(CTRL_REG2, fs_mode | LPF_CFG_4 | ENABLE_LPF)) {
+    cerr << "Failed to write to CTRL_REG2." << endl;
     return false;
   }
 
   if (!writeReg(CTRL_REG3, IF_ADD_INC)) {
+    cerr << "Failed to write to CTRL_REG3." << endl;
     return false;
   }
 

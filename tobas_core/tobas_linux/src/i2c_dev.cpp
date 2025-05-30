@@ -47,14 +47,24 @@ bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr)
   return true;
 }
 
-bool I2Cdev::readBit(uint8_t reg_addr, uint8_t bit_num, bool& flag)
+bool I2Cdev::readBit(uint8_t reg_addr, uint8_t bit_pos, bool& value)
 {
+  if (bit_pos >= 8) {
+    cerr << "Bit position must be 0-7." << endl;
+    return false;
+  }
+
   if (!readBytes(reg_addr, 1)) {
     return false;
   }
 
-  flag = rx[0] & (1 << bit_num);
+  value = rx[0] & (1 << bit_pos);
   return true;
+}
+
+bool I2Cdev::readByte(uint8_t reg_addr)
+{
+  return readBytes(reg_addr, 1);
 }
 
 bool I2Cdev::readBytes(uint8_t reg_addr, size_t length)
@@ -95,17 +105,27 @@ bool I2Cdev::readBytesNoRegAddress(size_t length)
   return true;
 }
 
-bool I2Cdev::writeBit(uint8_t reg_addr, uint8_t bit_num, bool flag)
+bool I2Cdev::writeBit(uint8_t reg_addr, uint8_t bit_pos, bool value)
 {
+  if (bit_pos >= 8) {
+    cerr << "Bit position must be 0-7." << endl;
+    return false;
+  }
+
   if (!readBytes(reg_addr, 1)) {
     return false;
   }
 
-  tx[0] = flag ? (rx[0] | (1 << bit_num)) : (rx[0] & ~(1 << bit_num));
+  tx[0] = value ? (rx[0] | (1 << bit_pos)) : (rx[0] & ~(1 << bit_pos));
   return writeBytes(reg_addr, 1);
 }
 
-bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length)
+bool I2Cdev::writeByte(uint8_t reg_addr, bool verify)
+{
+  return writeBytes(reg_addr, 1, verify);
+}
+
+bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, bool verify)
 {
   if (!checkDataLength(length)) {
     return false;
@@ -117,6 +137,17 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length)
 
   if (!write(reg_addr, length)) {
     return false;
+  }
+
+  if (verify) {
+    if (!readBytes(reg_addr, length)) {
+      return false;
+    }
+
+    if (memcmp(tx, rx, length) != 0) {
+      cerr << "The " << length << " bytes written over I2C are not taking effect in the slave’s registers." << endl;
+      return false;
+    }
   }
 
   return true;
@@ -168,7 +199,8 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length)
     return false;
   }
   if (res != static_cast<ssize_t>(req_length)) {
-    cerr << "Tried to write " << req_length << " bytes, but " << res << " bytes were written." << endl;
+    cerr << "Tried to write " << req_length << " bytes on " << reg_addr << ", but " << res << " bytes were written."
+         << endl;
     return false;
   }
 

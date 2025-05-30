@@ -22,19 +22,27 @@ public:
    * @brief Read a single bit from an 8-bit device register.
    *
    * @param reg_addr Register address to read from
-   * @param bit_num Bit position to read (0-7)
-   * @param data Container for single bit value
-
+   * @param bit_pos Bit position to read (0-7)
+   * @param value Output value
+   *
    * @return Status of operation (true = success)
    */
-  bool readBit(uint8_t reg_addr, uint8_t bit_num, bool& flag);
+  bool readBit(uint8_t reg_addr, uint8_t bit_pos, bool& value);
+
+  /**
+   * @brief Read a single byte from an 8-bit device register.
+   *
+   * @param reg_addr Register address to read from
+   *
+   * @return Status of operation (true = success)
+   */
+  bool readByte(uint8_t reg_addr);
 
   /**
    * @brief Read multiple bytes from an 8-bit device register.
    *
    * @param reg_addr First register address to read from
    * @param length Number of bytes to read
-   * @param data Buffer to store read data in
    *
    * @return Status of operation (true = success)
    *
@@ -45,9 +53,7 @@ public:
   /**
    * @brief Read multiple bytes from an 8-bit device register without sending the register address.
    *
-   * @param reg_addr First register address to read from
    * @param length Number of bytes to read
-   * @param data Buffer to store read data in
    *
    * @return Status of operation (true = success)
    */
@@ -57,23 +63,31 @@ public:
    * @brief write a single bit in an 8-bit device register.
    *
    * @param reg_addr Register address to write to
-   * @param bit_num Bit position to write (0-7)
+   * @param bit_pos Bit position to write (0-7)
    * @param value New bit value to write
    *
    * @return Status of operation (true = success)
    */
-  bool writeBit(uint8_t reg_addr, uint8_t bit_num, bool flag);
+  bool writeBit(uint8_t reg_addr, uint8_t bit_pos, bool value);
+
+  /**
+   * @brief Write a single byte to an 8-bit device register.
+   *
+   * @param reg_addr Register address to write to
+   *
+   * @return Status of operation (true = success)
+   */
+  bool writeByte(uint8_t reg_addr, bool verify = false);
 
   /**
    * @brief Write multiple bytes to an 8-bit device register.
    *
    * @param reg_addr First register address to write to
    * @param length Number of bytes to write
-   * @param data Buffer to copy new data from
    *
    * @return Status of operation (true = success)
    */
-  bool writeBytes(uint8_t reg_addr, size_t length);
+  bool writeBytes(uint8_t reg_addr, size_t length, bool verify = false);
 
 private:
   uint8_t dev_addr_;
