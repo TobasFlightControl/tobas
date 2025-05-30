@@ -1,6 +1,5 @@
 #include "tobas_t1_core/iis2mdc.hpp"
 
-#include <cassert>
 #include <iostream>
 
 using namespace std;
