@@ -10,7 +10,7 @@ using namespace std;
 
 class BaroDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 10ms;
+  static constexpr auto kSamplingPeriod = 20ms;
 
   using self = BaroDriverNode;
   using super = hardware::BaseSensorNode;
