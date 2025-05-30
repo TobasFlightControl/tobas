@@ -107,7 +107,7 @@ private:
   linux::I2Cdev i2c_;
 
   uint32_t pres_lsb_ = 0;
-  uint16_t temp_lsb_ = 0;
+  int16_t temp_lsb_ = 0;
 
   double pres_scale_;  // [LSB/Pa]
 
