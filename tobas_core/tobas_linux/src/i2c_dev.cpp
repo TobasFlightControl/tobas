@@ -54,41 +54,21 @@ bool I2Cdev::readBit(uint8_t reg_addr, uint8_t bit_pos, bool& value)
     return false;
   }
 
-  if (!readBytes(reg_addr, 1)) {
+  uint8_t byte;
+  if (!readByte(reg_addr, byte)) {
     return false;
   }
 
-  value = rx[0] & (1 << bit_pos);
+  value = byte & (1 << bit_pos);
   return true;
 }
 
-bool I2Cdev::readByte(uint8_t reg_addr)
+bool I2Cdev::readByte(uint8_t reg_addr, uint8_t& value)
 {
-  return readBytes(reg_addr, 1);
+  return readBytes(reg_addr, 1, &value);
 }
 
-bool I2Cdev::readBytes(uint8_t reg_addr, size_t length)
-{
-  if (!checkDataLength(length)) {
-    return false;
-  }
-
-  if (!selectDevice()) {
-    return false;
-  }
-
-  if (!write(reg_addr, 0)) {
-    return false;
-  }
-
-  if (!read(length)) {
-    return false;
-  }
-
-  return true;
-}
-
-bool I2Cdev::readBytesNoRegAddress(size_t length)
+bool I2Cdev::readBytes(uint8_t reg_addr, size_t length, void* rx)
 {
   if (!checkDataLength(length)) {
     return false;
@@ -98,34 +78,62 @@ bool I2Cdev::readBytesNoRegAddress(size_t length)
     return false;
   }
 
-  if (!read(length)) {
+  if (!write(reg_addr, 0, nullptr)) {
+    return false;
+  }
+
+  if (!read(length, rx)) {
     return false;
   }
 
   return true;
 }
 
-bool I2Cdev::writeBit(uint8_t reg_addr, uint8_t bit_pos, bool value)
+bool I2Cdev::readBytesNoRegAddress(size_t length, void* rx)
+{
+  if (!checkDataLength(length)) {
+    return false;
+  }
+
+  if (!selectDevice()) {
+    return false;
+  }
+
+  if (!read(length, rx)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool I2Cdev::writeBit(uint8_t reg_addr, uint8_t bit_pos, bool value, bool verify)
 {
   if (bit_pos >= 8) {
     cerr << "Bit position must be 0-7." << endl;
     return false;
   }
 
-  if (!readBytes(reg_addr, 1)) {
+  uint8_t byte;
+  if (!readByte(reg_addr, byte)) {
     return false;
   }
 
-  tx[0] = value ? (rx[0] | (1 << bit_pos)) : (rx[0] & ~(1 << bit_pos));
-  return writeBytes(reg_addr, 1);
+  if (value) {
+    byte |= (1 << bit_pos);
+  }
+  else {
+    byte &= ~(1 << bit_pos);
+  }
+
+  return writeByte(reg_addr, byte, verify);
 }
 
-bool I2Cdev::writeByte(uint8_t reg_addr, bool verify)
+bool I2Cdev::writeByte(uint8_t reg_addr, uint8_t value, bool verify)
 {
-  return writeBytes(reg_addr, 1, verify);
+  return writeBytes(reg_addr, 1, &value, verify);
 }
 
-bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, bool verify)
+bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, const void* tx, bool verify)
 {
   if (!checkDataLength(length)) {
     return false;
@@ -135,16 +143,16 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, bool verify)
     return false;
   }
 
-  if (!write(reg_addr, length)) {
+  if (!write(reg_addr, length, tx)) {
     return false;
   }
 
   if (verify) {
-    if (!readBytes(reg_addr, length)) {
+    if (!readBytes(reg_addr, length, rx_)) {
       return false;
     }
 
-    if (memcmp(tx, rx, length) != 0) {
+    if (memcmp(tx, rx_, length) != 0) {
       cerr << "The " << length << " bytes written over I2C are not taking effect in the slave’s registers." << endl;
       return false;
     }
@@ -175,7 +183,7 @@ bool I2Cdev::selectDevice() const
   return true;
 }
 
-bool I2Cdev::write(uint8_t reg_addr, size_t length)
+bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
 {
   tx_[0] = reg_addr;
   memcpy(tx_ + 1, tx, length);
@@ -207,7 +215,7 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length)
   return true;
 }
 
-bool I2Cdev::read(size_t length)
+bool I2Cdev::read(size_t length, void* rx)
 {
   // 1. Start Condition (Master -> Slave)
   // 2. Slave Address (Master -> Slave)

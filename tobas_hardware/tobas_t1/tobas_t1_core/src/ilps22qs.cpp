@@ -30,53 +30,36 @@ bool ILPS22QS::initialize()
 
 bool ILPS22QS::readPressure(double& pressure)
 {
-  if (!readRegs(PRESSURE_OUT_XL, 3)) {
+  if (!i2c_.readBytes(PRESSURE_OUT_XL, 3, &pres_lsb_)) {
     return false;
   }
 
-  const auto lsb = (i2c_.rx[2] << 16) | (i2c_.rx[1] << 8) | i2c_.rx[0];
-  pressure = lsb / pres_scale_;
+  pressure = pres_lsb_ / pres_scale_;
 
   return true;
 }
 
 bool ILPS22QS::readTemperature(double& temperature)
 {
-  if (!readRegs(TEMP_OUT_L, 2)) {
+  if (!i2c_.readBytes(TEMP_OUT_L, 2, &temp_lsb_)) {
     return false;
   }
 
-  const auto lsb = (i2c_.rx[1] << 8) | i2c_.rx[0];
-  temperature = lsb / kTempScale;
+  temperature = temp_lsb_ / kTempScale;
 
   return true;
 }
 
-bool ILPS22QS::readReg(const uint8_t& addr)
-{
-  return i2c_.readByte(addr);
-}
-
-bool ILPS22QS::readRegs(const uint8_t& addr, const size_t& bytes)
-{
-  assert(bytes >= 2);
-  return i2c_.readBytes(addr, bytes);
-}
-
-bool ILPS22QS::writeReg(const uint8_t& addr, const uint8_t& data)
-{
-  i2c_.tx[0] = data;
-  return i2c_.writeByte(addr, true);
-}
-
 bool ILPS22QS::checkWhoAmI()
 {
-  if (!readReg(WHO_AM_I_REG)) {
+  uint8_t byte;
+
+  if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
     cerr << "Failed to read WHO_AM_I data." << endl;
     return false;
   }
 
-  if (i2c_.rx[0] != WHO_AM_I) {
+  if (byte != WHO_AM_I) {
     cerr << "Barometer is not recognized." << endl;
     return false;
   }
@@ -88,17 +71,17 @@ bool ILPS22QS::configure()
 {
   constexpr uint8_t fs_mode = FS_MODE_1260HPA;
 
-  if (!writeReg(CTRL_REG1, ODR_100HZ | AVG_32)) {
+  if (!i2c_.writeByte(CTRL_REG1, ODR_100HZ | AVG_32, true)) {
     cerr << "Failed to write to CTRL_REG1." << endl;
     return false;
   }
 
-  if (!writeReg(CTRL_REG2, fs_mode | LPF_CFG_4 | ENABLE_LPF)) {
+  if (!i2c_.writeByte(CTRL_REG2, fs_mode | LPF_CFG_4 | ENABLE_LPF, true)) {
     cerr << "Failed to write to CTRL_REG2." << endl;
     return false;
   }
 
-  if (!writeReg(CTRL_REG3, IF_ADD_INC)) {
+  if (!i2c_.writeByte(CTRL_REG3, IF_ADD_INC, true)) {
     cerr << "Failed to write to CTRL_REG3." << endl;
     return false;
   }
