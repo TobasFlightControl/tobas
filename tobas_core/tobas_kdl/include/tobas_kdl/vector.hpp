@@ -82,6 +82,9 @@ public:
 
   inline bool isFinite() const;
 
+  /* An exact comparison. */
+  inline bool operator==(const Vector& rhs) const;
+
   /* Adds a vector from the Vector object itself. */
   inline Vector& operator+=(const Vector& arg);
   /* Subtracts a vector from the Vector object itself. */
@@ -281,6 +284,11 @@ inline Vector Vector::inverse() const
 bool Vector::isFinite() const
 {
   return eigen::isFinite(data);
+}
+
+inline bool Vector::operator==(const Vector& rhs) const
+{
+  return data.cwiseEqual(rhs.data).all();
 }
 
 inline Vector& Vector::operator+=(const Vector& arg)
