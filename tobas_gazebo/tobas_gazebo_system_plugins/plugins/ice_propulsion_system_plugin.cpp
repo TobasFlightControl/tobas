@@ -2,6 +2,7 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_tools/control_latency_publisher.hpp>
 
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
@@ -68,6 +69,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::EngineState> engine_state_pub_;
   map<string, ros2::PublisherPtr<tobas_msgs::msg::RotorState>> rotor_state_pubs_;
   map<string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_gt_pubs_;
+  tobas::ControlLatencyPublisher latency_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_sub_;
@@ -207,6 +209,8 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
       createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name));
   }
 
+  latency_pub_.initialize(node_);
+
   ice_cmd_sub_ = createSubscriber(tobas::kIcePropulsionSystemCmdTopic, &self::iceCommandCb, this);
   wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
@@ -242,6 +246,9 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
     }
     rotors_.at(elem.link_name).setTargetPitchAngle(elem.angle);
   }
+
+  // Publish control latency
+  latency_pub_.publish(ice_cmd->header.stamp);
 }
 
 void GazeboICEPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)

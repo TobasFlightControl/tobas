@@ -14,6 +14,7 @@
 	<depend>tobas_geomag</depend>
 	<depend>tobas_nlp</depend>
 	<depend>tobas_node</depend>
+	<depend>tobas_tools</depend>
 	<depend>tobas_wind_model</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_drone_tools</depend>

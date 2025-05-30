@@ -26,6 +26,7 @@ find_package(laser_geometry REQUIRED)
 find_package(tobas_geomag REQUIRED)
 find_package(tobas_nlp REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_wind_model REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
@@ -51,6 +52,7 @@ ament_target_dependencies(
   tobas_geomag
   tobas_nlp
   tobas_node
+  tobas_tools
   tobas_wind_model
   tobas_msgs_adapter
   tobas_drone_tools

@@ -24,6 +24,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(controller_manager_msgs REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
@@ -34,6 +35,7 @@ set(AMENT_DEPENDENCIES
     std_srvs
     controller_manager_msgs
     tobas_node
+    tobas_tools
     tobas_drone_msgs_adapter
     tobas_msgs_adapter
     tobas_gazebo_common
