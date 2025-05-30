@@ -25,6 +25,7 @@ private:
   // Config
   kdl::Vector acc_bias_;  // [m/s^2]
 
+  tobas_msgs::ImuStamped::ConstSharedPtr prev_imu_;
   ptree::PropertyTree pt_;
 
   ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
@@ -85,6 +86,26 @@ void ImuHandlerNode::registerPubSub()
 
 void ImuHandlerNode::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in)
 {
+  // First message
+  if (!prev_imu_) {
+    prev_imu_ = imu_in;
+    return;
+  }
+
+  // Verify that the sensor data is updated
+  if (imu_in->imu.accel == prev_imu_->imu.accel) {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Accelerometer data has not been updated—skipping message.");
+    return;
+  }
+  if (imu_in->imu.gyro == prev_imu_->imu.gyro) {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Gyroscope data has not been updated—skipping message.");
+    return;
+  }
+
+  // Update the latest data
+  prev_imu_ = imu_in;
+
+  // Publish a calibrated data
   auto imu_out = std::make_unique<tobas_msgs::ImuStamped>(*imu_in);
   imu_out->imu.accel -= acc_bias_;  // Remove accel bias
   imu_pub_->publish(move(imu_out));

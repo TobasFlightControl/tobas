@@ -26,7 +26,7 @@ private:
   // Config
   math::EllipseTransformer mag_trans_;
 
-  tobas_msgs::MagneticFieldStamped::ConstSharedPtr mag_raw_;
+  tobas_msgs::MagneticFieldStamped::ConstSharedPtr prev_mag_;
   ptree::PropertyTree pt_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
@@ -118,6 +118,22 @@ void MagnetometerHandlerNode::registerPubSub()
 
 void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_in)
 {
+  // First message
+  if (!prev_mag_) {
+    prev_mag_ = mag_in;
+    return;
+  }
+
+  // Verify that the sensor data is updated
+  if (mag_in->mag == prev_mag_->mag) {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Magnetometer data has not been updated—skipping message.");
+    return;
+  }
+
+  // Update the latest data
+  prev_mag_ = mag_in;
+
+  // Publish a calibrated data
   auto mag_out = std::make_unique<tobas_msgs::MagneticFieldStamped>(*mag_in);
   mag_out->mag.data = mag_trans_.transform(mag_in->mag.data);  // Project data to unit sphere
   mag_pub_->publish(move(mag_out));
