@@ -427,7 +427,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       }
       else {
         // アーム直後でスロットルが下がったままならばアイドルコマンドを送信
-        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "The throttle lever is lowered, sending a idle command.");
+        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "The throttle lever is lowered, sending an idle command.");
         updateWithIdleCommand(*rcin);
       }
 
