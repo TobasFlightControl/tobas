@@ -33,6 +33,7 @@
 - `modify`: 軽微な変更，調整
 - `change`: 仕様変更
 - `remove`: 機能，ファイル削除
+- `wip`: 作業途中 (Work in Progress)
 
 #### Subject
 
