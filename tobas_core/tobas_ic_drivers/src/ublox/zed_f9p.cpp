@@ -70,6 +70,26 @@ bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
   CfgValSet<uint8_t, 1> cfg;
 
   switch (cls) {
+    case CLASS_ACK: {
+      cerr << NOT_RECEIVABLE << endl;
+      return false;
+    }
+    case CLASS_CFG: {
+      cerr << NOT_RECEIVABLE << endl;
+      return false;
+    }
+    case CLASS_INF: {
+      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
+    case CLASS_LOG: {
+      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
+    case CLASS_MGA: {
+      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
     case CLASS_MON: {
       cerr << NOT_IMPLEMENTED << endl;  // TODO
       return false;
@@ -172,8 +192,28 @@ bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
       }
       break;
     }
-    default: {
+    case CLASS_NAV2: {
       cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
+    case CLASS_RXM: {
+      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
+    case CLASS_SEC: {
+      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
+    case CLASS_TIM: {
+      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
+    case CLASS_UPD: {
+      cerr << NOT_IMPLEMENTED << endl;  // TODO
+      return false;
+    }
+    default: {
+      cerr << "Invalid UBX class type: " << hex << cls << endl;
       return false;
     }
   }

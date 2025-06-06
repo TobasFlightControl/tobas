@@ -107,6 +107,8 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
         cmd.effort = NAN;
         tar_js_eff_.states.push_back(cmd);
         break;
+      case tobas::jnt_cmd_iface_t::NONE:
+        break;
       default:
         qt::qErrorBox(this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
         continue;
@@ -274,6 +276,9 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
         return;
       }
 
+      break;
+    }
+    case tobas::jnt_cmd_iface_t::NONE: {
       break;
     }
     default: {
