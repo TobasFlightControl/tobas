@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <stdfloat>
 
 namespace algo
 {
@@ -10,13 +11,6 @@ inline T extractLowerBits(T value, uint8_t n)
   const T mask = (static_cast<T>(1) << n) - 1;
   return value & mask;
 }
-
-/**
- * @brief Decode IEEE 754 single precision floating point number.
- *
- * Use std::bit_cast<float>(uint32_t) instead.
- */
-float decodeR32(uint32_t bin);
 
 inline int8_t decodeI8(const uint8_t* ptr)
 {
@@ -47,4 +41,18 @@ inline uint32_t decodeU32(const uint8_t* ptr)
 {
   return (ptr[3] << 24) | (ptr[2] << 16) | (ptr[1] << 8) | ptr[0];
 }
+
+/**
+ * @brief Decode IEEE 754 half precision floating point number.
+ *
+ * @note Use std::bit_cast<std::float16_t>(std::float16_t) instead.
+ */
+std::float16_t decodeR16(uint16_t bin);
+
+/**
+ * @brief Decode IEEE 754 single precision floating point number.
+ *
+ * @note Use std::bit_cast<std::float32_t>(uint32_t) instead.
+ */
+std::float32_t decodeR32(uint32_t bin);
 }  // namespace algo
