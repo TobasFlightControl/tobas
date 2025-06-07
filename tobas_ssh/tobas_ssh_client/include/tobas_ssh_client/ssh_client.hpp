@@ -50,6 +50,7 @@ public:
   error_t scpPut(
     const std::string& local_dir,
     const std::string& remote_dir,
+    bool parents,
     const std::vector<std::string>& exclude_dirs,
     bool superuser = false);
 

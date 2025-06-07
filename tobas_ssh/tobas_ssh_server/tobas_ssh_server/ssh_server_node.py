@@ -93,6 +93,18 @@ class SSHServerNode(Node):
             res.message = self.NO_CONNECTION_ERROR
             return res
 
+        # Create parent directories
+        if req.parents:
+            mkdir_command = f"mkdir -p {req.remote_dir}"
+            if req.superuser:
+                success, _, error_output = self._ssh_client.exec_command_super(mkdir_command)
+            else:
+                success, _, error_output = self._ssh_client.exec_command(mkdir_command)
+            if not success:
+                res.success = False
+                res.message = f"Failed to create remote directory {req.remote_dir}: {error_output}"
+                return res
+
         if req.superuser:
             try:
                 self._ssh_client.scp_put_dir_super(req.local_dir, req.remote_dir, req.exclude_dirs)

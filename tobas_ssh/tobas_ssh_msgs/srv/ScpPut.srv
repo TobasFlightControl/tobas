@@ -1,5 +1,6 @@
 string local_dir
 string remote_dir
+bool parents
 string[] exclude_dirs
 bool superuser
 ---

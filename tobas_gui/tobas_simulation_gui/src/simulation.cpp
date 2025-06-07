@@ -243,7 +243,7 @@ bool SimulationWidget::startHITL()
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path_);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(tbs_path_, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.scpPut(tbs_path_, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;

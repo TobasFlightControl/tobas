@@ -327,12 +327,12 @@ void GuiCoreWidget::onWriteButtonClicked()
   if (config_pkg_name != config_env_parser_.config_pkg) {
     // ワークスペースを初期化
     progress.setLabelText("Initializing colcon workspace.");
-    if (ssh_client_.execute(std::format("rm -rf {}", std::string(tobas::kColconWSPathRoot)), true)) {
+    if (ssh_client_.execute(std::format("rm -rf {}", tobas::kColconWSPathRoot), true)) {
       progress.close();
       qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
       return;
     }
-    if (ssh_client_.execute(std::format("mkdir -p {}/src", std::string(tobas::kColconWSPathRoot)), true)) {
+    if (ssh_client_.execute(std::format("mkdir -p {}/src", tobas::kColconWSPathRoot), true)) {
       progress.close();
       qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
       return;
@@ -358,7 +358,7 @@ void GuiCoreWidget::onWriteButtonClicked()
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.scpPut(tbs_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
     progress.close();
     qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
     return;

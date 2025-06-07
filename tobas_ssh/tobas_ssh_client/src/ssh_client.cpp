@@ -97,12 +97,17 @@ SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& lo
   return error_code_ = E_NO_ERROR;
 }
 
-SSHClient::error_t
-SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vector<string>& exclude_dirs, bool superuser)
+SSHClient::error_t SSHClient::scpPut(
+  const string& local_dir,
+  const string& remote_dir,
+  bool parents,
+  const vector<string>& exclude_dirs,
+  bool superuser)
 {
   const auto req = make_shared<ScpPut::Request>();
   req->local_dir = local_dir;
   req->remote_dir = remote_dir;
+  req->parents = parents;
   req->exclude_dirs = exclude_dirs;
   req->superuser = superuser;
 
