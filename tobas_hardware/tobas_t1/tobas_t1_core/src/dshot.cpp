@@ -184,7 +184,7 @@ bool DShot::setMomentConstant(size_t ch, double moment_const)
     cerr << "Moment constant is too small." << endl;
     return false;
   }
-  if (moment_const_scaled >= (1 << 16)) {
+  if (moment_const_scaled >= (1 << 24)) {
     cerr << "Moment constant is too large." << endl;
     return false;
   }
