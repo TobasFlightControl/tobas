@@ -90,7 +90,7 @@ $ colcon build --packages-up-to tobas
 ### Launch Tobas GCS
 
 ```bash
-$ ros2 launch tobas_gui_core gui.launch.py
+$ ros2 launch tobas_gcs gcs.launch.py
 ```
 
 ### Launch Gazebo simulation

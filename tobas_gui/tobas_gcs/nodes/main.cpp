@@ -3,8 +3,10 @@
 #include <tobas_gui_common/argument.hpp>
 #include <tobas_gui_common/util.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
+#include <tobas_ros2_tools/async_node_manager.hpp>
 
-#include <tobas_urdf_builder/urdf_builder.hpp>
+#include "tobas_gcs/constants.hpp"
+#include "tobas_gcs/gcs.hpp"
 
 static void sigIntHandler(int)
 {
@@ -20,10 +22,13 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
+  // ノードを起動
+  ros2::AsyncNodeManager node_manager(argc, argv, "tobas_gcs");
+
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto widget = new gui::urdf_builder::URDFBuilder();
-  qt::MainWidget main("URDF Builder", QString::fromStdString(gui::common::getIconPath("yellow")), widget);
+  const auto widget = new gui::gcs::GroundControlStationWidget(node_manager.node());
+  qt::MainWidget main(gui::gcs::kTitle, QString::fromStdString(gui::common::getIconPath("white")), widget);
   main.show();
 
   // Ctrl+Cで即終了

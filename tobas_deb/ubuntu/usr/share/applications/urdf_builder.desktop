@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=URDF Builder
+Icon=/usr/share/icons/tobas/icon_yellow.png
+Exec=/usr/bin/tobas_urdf_builder
+Terminal=false
+StartupNotify=true

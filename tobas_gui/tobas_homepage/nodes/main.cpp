@@ -10,7 +10,7 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qapp(argc, argv);
   const auto widget = new gui::homepage::HomepageWidget();
-  qt::MainWidget main("Tobas Hardware Setup", QString::fromStdString(gui::common::getIconPath()), widget);
+  qt::MainWidget main("Tobas Hardware Setup", QString::fromStdString(gui::common::getIconPath("black")), widget);
   main.show();
 
   // アプリケーションの終了時に全てのノードを落とす

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_urdf_builder)
+project(tobas_gcs)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
@@ -20,11 +20,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_qt_tools REQUIRED)
-find_package(tobas_rviz_wrapper REQUIRED)
-find_package(tobas_gui_common REQUIRED)
+find_package(tobas_hardware_setup REQUIRED)
+find_package(tobas_control_system REQUIRED)
+find_package(tobas_parameter_tuning_gui REQUIRED)
+find_package(tobas_flight_log_gui REQUIRED)
+find_package(tobas_simulation_gui REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_qt_tools tobas_rviz_wrapper tobas_gui_common)
+set(AMENT_DEPENDENCIES
+  tobas_hardware_setup
+  tobas_control_system
+  tobas_parameter_tuning_gui
+  tobas_flight_log_gui
+  tobas_simulation_gui
+)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
@@ -35,12 +43,13 @@ qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${UIC_FILES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
+# 実行ファイル名とアプリ名をTobasに一致させることでデスクトップアプリでアイコンが正しく表示される
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})
-set_target_properties(main PROPERTIES OUTPUT_NAME "URDF Builder")
+set_target_properties(main PROPERTIES OUTPUT_NAME "Tobas GCS")
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -53,7 +62,8 @@ install(
 )
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY resources DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

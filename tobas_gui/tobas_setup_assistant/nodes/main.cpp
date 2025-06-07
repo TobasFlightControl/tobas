@@ -23,12 +23,12 @@ int main(int argc, char** argv)
   }
 
   // ノードを起動
-  ros2::AsyncNodeManager node_manager(argc, argv, "sa");
+  ros2::AsyncNodeManager node_manager(argc, argv, "tobas_setup_assistant");
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   const auto widget = new gui::sa::SetupAssistantWidget(node_manager.node());
-  qt::MainWidget main(gui::sa::kTitle, QString::fromStdString(gui::common::getIconPath()), widget);
+  qt::MainWidget main(gui::sa::kTitle, QString::fromStdString(gui::common::getIconPath("black")), widget);
   main.show();
 
   // Ctrl+Cで即終了

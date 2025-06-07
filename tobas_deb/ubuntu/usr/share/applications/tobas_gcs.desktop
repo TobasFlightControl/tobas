@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Tobas GCS
+Icon=/usr/share/icons/tobas/icon_white.png
+Exec=/usr/bin/tobas_gcs
+Terminal=false
+StartupNotify=true
