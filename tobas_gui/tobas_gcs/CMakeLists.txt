@@ -26,12 +26,8 @@ find_package(tobas_parameter_tuning_gui REQUIRED)
 find_package(tobas_flight_log_gui REQUIRED)
 find_package(tobas_simulation_gui REQUIRED)
 
-set(AMENT_DEPENDENCIES
-  tobas_hardware_setup
-  tobas_control_system
-  tobas_parameter_tuning_gui
-  tobas_flight_log_gui
-  tobas_simulation_gui
+set(AMENT_DEPENDENCIES tobas_hardware_setup tobas_control_system tobas_parameter_tuning_gui tobas_flight_log_gui
+                       tobas_simulation_gui
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
