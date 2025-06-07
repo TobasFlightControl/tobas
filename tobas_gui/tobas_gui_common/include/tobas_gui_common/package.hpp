@@ -18,6 +18,9 @@ std::string getTBSMetaName(const std::filesystem::path& tbs_path);
 /* 拡張子を除くTobas設定パッケージ名を返す． */
 std::string getTBSConfigName(const std::filesystem::path& tbs_path);
 
+/* 拡張子を除くTobasユーザMsgパッケージ名を返す． */
+std::string getTBSUserMsgName(const std::filesystem::path& tbs_path);
+
 /* 拡張子を除くTobasユーザC++パッケージ名を返す． */
 std::string getTBSUserCppName(const std::filesystem::path& tbs_path);
 
@@ -32,6 +35,9 @@ std::filesystem::path getTBSMetaPath(const std::filesystem::path& tbs_path);
 
 /* PC上のTobas設定パッケージの絶対パスを返す． */
 std::filesystem::path getTBSConfigPath(const std::filesystem::path& tbs_path);
+
+/* PC上のTobasユーザMsgパッケージの絶対パスを返す． */
+std::filesystem::path getTBSUserMsgPath(const std::filesystem::path& tbs_path);
 
 /* PC上のTobasユーザC++パッケージの絶対パスを返す． */
 std::filesystem::path getTBSUserCppPath(const std::filesystem::path& tbs_path);

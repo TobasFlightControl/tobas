@@ -33,6 +33,7 @@ private:
 
   std::shared_ptr<TemplateGenerator> meta_env_;
   std::shared_ptr<TemplateGenerator> config_env_;
+  std::shared_ptr<TemplateGenerator> user_msg_env_;
   std::shared_ptr<TemplateGenerator> user_cpp_env_;
   std::shared_ptr<TemplateGenerator> user_py_env_;
 
@@ -48,6 +49,7 @@ private:
 
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);
+  bool generateUserMsgPackage(const inja::json& data);
   bool generateUserCppPackage(const inja::json& data);
   bool generateUserPyPackage(const inja::json& data);
   bool generateBackupFiles();

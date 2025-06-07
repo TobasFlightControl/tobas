@@ -31,6 +31,11 @@ string getTBSConfigName(const fs::path& tbs_path)
   return getTBSName(tbs_path) + "_config";
 }
 
+string getTBSUserMsgName(const fs::path& tbs_path)
+{
+  return getTBSName(tbs_path) + "_user_msgs";
+}
+
 string getTBSUserCppName(const fs::path& tbs_path)
 {
   return getTBSName(tbs_path) + "_user_cpp";
@@ -54,6 +59,11 @@ fs::path getTBSMetaPath(const fs::path& tbs_path)
 fs::path getTBSConfigPath(const fs::path& tbs_path)
 {
   return tbs_path / getTBSConfigName(tbs_path);
+}
+
+fs::path getTBSUserMsgPath(const fs::path& tbs_path)
+{
+  return tbs_path / getTBSUserMsgName(tbs_path);
 }
 
 fs::path getTBSUserCppPath(const fs::path& tbs_path)

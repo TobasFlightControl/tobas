@@ -31,6 +31,7 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
   const auto templates_path = pkg_path / "templates";
   meta_env_ = make_shared<TemplateGenerator>(templates_path / "meta_package");
   config_env_ = make_shared<TemplateGenerator>(templates_path / "config_package");
+  user_msg_env_ = make_shared<TemplateGenerator>(templates_path / "user_msg_package");
   user_cpp_env_ = make_shared<TemplateGenerator>(templates_path / "user_cpp_package");
   user_py_env_ = make_shared<TemplateGenerator>(templates_path / "user_py_package");
 }
@@ -56,6 +57,13 @@ bool PackageGenerator::generatePackage()
   // 設定パッケージを作成
   if (!generateConfigPackage(tpl_data)) {
     return false;
+  }
+
+  // ユーザ用Msgパッケージを作成
+  if (!fs::is_directory(common::getTBSUserMsgPath(tbs_path))) {
+    if (!generateUserMsgPackage(tpl_data)) {
+      return false;
+    }
   }
 
   // ユーザ用C++パッケージを作成
@@ -124,6 +132,7 @@ inja::json PackageGenerator::createTemplateData()
   // Ros Package
   tpl_data["meta_pkg_name"] = common::getTBSMetaName(tbsPath());
   tpl_data["config_pkg_name"] = common::getTBSConfigName(tbsPath());
+  tpl_data["user_msg_pkg_name"] = common::getTBSUserMsgName(tbsPath());
   tpl_data["user_cpp_pkg_name"] = common::getTBSUserCppName(tbsPath());
   tpl_data["user_py_pkg_name"] = common::getTBSUserPyName(tbsPath());
 
@@ -431,6 +440,26 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   return true;
 }
 
+bool PackageGenerator::generateUserMsgPackage(const inja::json& tpl_data)
+{
+  const auto tbs_path = tbsPath();
+  const auto pkg_path = common::getTBSUserMsgPath(tbs_path);
+
+  // パッケージを作成
+  fs::create_directory(pkg_path);
+
+  // テンプレートから作成
+  user_msg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
+  user_msg_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
+
+  // その他
+  if (!createEmptyFile(pkg_path / kYouCanEditThisPackage)) {
+    return false;
+  }
+
+  return true;
+}
+
 bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
   const auto tbs_path = tbsPath();
@@ -445,7 +474,7 @@ bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
   fs::create_directory(launch_dir);
   fs::create_directory(nodes_dir);
 
-  // テンプレートから作成 (存在する場合は上書きしない)
+  // テンプレートから作成
   user_cpp_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
   user_cpp_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
   user_cpp_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
@@ -482,7 +511,7 @@ bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
   fs::create_directory(launch_dir);
   fs::create_directory(lib_dir);
 
-  // テンプレートから作成 (存在する場合は上書きしない)
+  // テンプレートから作成
   user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.cfg.tplini", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.py.tplpy", pkg_path, false);
