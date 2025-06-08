@@ -54,7 +54,6 @@ install(
   DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY resources DESTINATION share/${PROJECT_NAME})
 install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

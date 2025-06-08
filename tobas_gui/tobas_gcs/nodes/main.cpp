@@ -1,12 +1,16 @@
+#include <filesystem>
+
 #include <QApplication>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/argument.hpp>
-#include <tobas_gui_common/util.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 
 #include "tobas_gcs/constants.hpp"
 #include "tobas_gcs/gcs.hpp"
+
+namespace fs = std::filesystem;
 
 static void sigIntHandler(int)
 {
@@ -28,7 +32,9 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   const auto widget = new gui::gcs::GroundControlStationWidget(node_manager.node());
-  qt::MainWidget main(gui::gcs::kTitle, QString::fromStdString(gui::common::getIconPath("white")), widget);
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(gui::gcs::kPackageName));
+  const auto icon_path = pkg_path / "resources/icon.png";
+  qt::MainWidget main(gui::gcs::kTitle, QString::fromStdString(icon_path), widget);
   main.show();
 
   // Ctrl+Cで即終了

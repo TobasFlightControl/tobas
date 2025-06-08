@@ -1,11 +1,15 @@
+#include <filesystem>
+
 #include <QApplication>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/argument.hpp>
-#include <tobas_gui_common/util.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 
 #include <tobas_urdf_builder/urdf_builder.hpp>
 #include <tobas_urdf_builder_plugin/utils/constants.hpp>
+
+namespace fs = std::filesystem;
 
 static void sigIntHandler(int)
 {
@@ -24,7 +28,9 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   const auto widget = new gui::urdf_builder::URDFBuilder();
-  qt::MainWidget main(gui::urdf_builder::kTitle, QString::fromStdString(gui::common::getIconPath("yellow")), widget);
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(gui::urdf_builder::kPackageName));
+  const auto icon_path = pkg_path / "resources/icon.png";
+  qt::MainWidget main(gui::urdf_builder::kTitle, QString::fromStdString(icon_path), widget);
   main.show();
 
   // Ctrl+Cで即終了

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=TobasInstall
-Icon=/usr/share/icons/tobas/icon_cyan.png
+Icon=/usr/share/icons/tobas/install.png
 
 # pkexecを使用しない場合
 # Exec=/usr/bin/tobas_install_prereqs

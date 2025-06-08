@@ -4,6 +4,6 @@ namespace gui
 {
 namespace gcs
 {
-static constexpr char kPkgName[] = "tobas_control_system";
+static constexpr char kPackageName[] = "tobas_control_system";
 }  // namespace gcs
 }  // namespace gui

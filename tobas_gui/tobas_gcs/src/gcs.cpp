@@ -30,14 +30,14 @@ namespace gcs
 GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
   : node_(node)
   , bridge_(node)
-  , property_client_(node, tobas::kPropertyServerName, kPkgName)
+  , property_client_(node, tobas::kPropertyServerName, kPackageName)
   , ssh_client_(node)
   , package_builder_(node)
   , restart_thread_(node)
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
 {
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPkgName));
+  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rsrc_path = pkg_path / "resources";
 
   // Applications
@@ -48,11 +48,11 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   simulation_ = new sim::SimulationWidget(node, bridge_);
 
   // TODO: 別々のアイコンを設定
-  const auto hardware_setup_btn = new AppButton("Hardware Setup", QString::fromStdString(rsrc_path / "icon.png"));
-  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "icon.png"));
-  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "icon.png"));
-  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "icon.png"));
-  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto hardware_setup_btn = new AppButton("Hardware Setup", QString::fromStdString(rsrc_path / "app.png"));
+  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "app.png"));
+  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "app.png"));
+  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "app.png"));
+  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "app.png"));
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(hardware_setup_);

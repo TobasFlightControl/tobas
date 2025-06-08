@@ -4,6 +4,7 @@ namespace gui
 {
 namespace urdf_builder
 {
+static constexpr char kPackageName[] = "tobas_urdf_builder";
 static constexpr char kTitle[] = "Tobas URDF Builder";
 static constexpr char kPropertySection[] = "urdf_builder";
 static constexpr char kError[] = "ERROR";
