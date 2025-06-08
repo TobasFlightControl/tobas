@@ -1,9 +1,7 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 
-#include "./build_package_thread.hpp"
 #include "./constants.hpp"
 #include "./frame_tree.hpp"
 #include "./joint_state_publisher.hpp"
@@ -11,7 +9,6 @@
 #include "./rotor_marker_publisher.hpp"
 #include "./rviz.hpp"
 #include "./settings.hpp"
-#include "./start/start.hpp"
 
 namespace gui
 {
@@ -24,6 +21,9 @@ class SetupAssistantWidget : public QWidget
   using self = SetupAssistantWidget;
   using super = QWidget;
 
+  static constexpr char kLastOpenedDirKey_New[] = "last_opened_dir/setup_assistant/new";
+  static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/setup_assistant/load";
+
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 
@@ -34,21 +34,27 @@ private:
   Signals signals_;
   RotorMarkerPublisher rotor_marker_publisher_;
 
-  std::unique_ptr<PackageGenerator> pkg_generator_;
+  ptree::PropertyClient property_client_;
   ros2::SyncParamClient rsp_client_;
-  qt::WaitSpinnerWidget spinner_;
-  BuildPackageThread build_thread_;
 
-  SettingsWidget* settings_;
-  StartWidget* start_;
+  QLineEdit* tbs_path_;
+  QPushButton* new_btn_;
+  QPushButton* load_btn_;
+  QPushButton* save_btn_;
+
   RvizWidget* rviz_;
   FrameTreeWidget* frame_tree_;
   JointStatePublisherWidget* jsp_;
+  SettingsWidget* settings_;
+
+  std::unique_ptr<PackageGenerator> pkg_generator_;
 
 private Q_SLOTS:
   void onRobotLoaded();
-  void onGenerateButtonClicked();
-  void onBuildPackageFinished(bool success, const QString& output);
+
+  void onNewButtonClicked();
+  void onLoadButtonClicked();
+  void onSaveButtonClicked();
 };
 }  // namespace sa
 }  // namespace gui

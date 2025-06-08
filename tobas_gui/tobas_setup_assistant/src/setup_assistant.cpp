@@ -2,7 +2,13 @@
 
 #include <filesystem>
 
+#include <QDebug>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
+#include <tobas_gui_common/package.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/util.hpp>
+#include <tobas_yaml_tools/core.hpp>
 
 namespace fs = std::filesystem;
 
@@ -12,36 +18,51 @@ namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : rotor_marker_publisher_(node, robot_, signals_)
+  , property_client_(node, tobas::kPropertyServerName, kPackageName)
   , rsp_client_(node, "robot_state_publisher")
-  , spinner_(Qt::WindowModal, this)
 {
+  // Package manager
+  tbs_path_ = new QLineEdit();
+  tbs_path_->setReadOnly(true);
+  tbs_path_->setFocusPolicy(Qt::NoFocus);
+
+  new_btn_ = new QPushButton("New");
+  load_btn_ = new QPushButton("Load");
+  save_btn_ = new QPushButton("Save");
+
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる
-  settings_ = new SettingsWidget(node, robot_, signals_);
-  start_ = new StartWidget(node, robot_, settings_);
   rviz_ = new RvizWidget(robot_);
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);
   jsp_ = new JointStatePublisherWidget(node, robot_);
+  settings_ = new SettingsWidget(node, robot_, signals_);
 
   pkg_generator_ = std::make_unique<PackageGenerator>(node, robot_, settings_);
 
   // Layout
-  const auto cols = new QHBoxLayout();
-  cols->addWidget(frame_tree_, 1);
-  cols->addWidget(rviz_, 2);
-  cols->addWidget(jsp_, 1);
+  const auto pkg_cols = new QHBoxLayout();
+  pkg_cols->addWidget(new_btn_);
+  pkg_cols->addWidget(load_btn_);
+  pkg_cols->addWidget(save_btn_);
+  pkg_cols->addWidget(tbs_path_);
 
-  const auto rows = new QVBoxLayout();
-  rows->addWidget(start_, 0);
-  rows->addLayout(cols, 1);
-  rows->addWidget(settings_, 3);
+  const auto viewer_cols = new QHBoxLayout();
+  viewer_cols->addWidget(frame_tree_, 1);
+  viewer_cols->addWidget(rviz_, 2);
+  viewer_cols->addWidget(jsp_, 1);
 
-  setLayout(rows);
+  const auto root_rows = new QVBoxLayout();
+  root_rows->addLayout(pkg_cols, 0);
+  root_rows->addLayout(viewer_cols, 2);
+  root_rows->addWidget(settings_, 5);
+
+  setLayout(root_rows);
 
   // Connection
   connect(&robot_, &RobotInfo::loaded, this, &self::onRobotLoaded);
-  connect(settings_->ros_package, &RosPackageWidget::generateButtonClicked, this, &self::onGenerateButtonClicked);
-  connect(&build_thread_, &BuildPackageThread::finished, this, &self::onBuildPackageFinished);
+  connect(new_btn_, &QPushButton::clicked, this, &self::onNewButtonClicked);
+  connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(save_btn_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
 }
 
 void SetupAssistantWidget::reset()
@@ -63,17 +84,137 @@ void SetupAssistantWidget::onRobotLoaded()
   }
 }
 
-void SetupAssistantWidget::onGenerateButtonClicked()
+void SetupAssistantWidget::onNewButtonClicked()
+{
+  // 前回開いたパスを取得
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey_New, last_opened_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = fs::path(ament_index_cpp::get_package_share_directory("tobas_description")) / "urdf";
+  }
+
+  // URDFのパスを取得
+  const auto options = QFileDialog::DontUseNativeDialog;
+  const auto urdf_path = QFileDialog::getOpenFileName(
+    this, kTitle, QString::fromStdString(last_opened_dir), "Robot Description (*.urdf *.xacro)", nullptr, options);
+
+  // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
+  if (urdf_path.isEmpty()) {
+    return;
+  }
+
+  // ユーザが開いたディレクトリを保存
+  const auto par_dir = fs::path(urdf_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey_New, par_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+  if (property_client_.save() < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+
+  // URDFをロード
+  if (!robot_.loadFromPath(urdf_path.toStdString())) {
+    qt::qErrorBox(this, "Failed to load robot description.");
+    return;
+  }
+
+  // Tobasパッケージのパスをクリア
+  tbs_path_->clear();
+
+  qt::qInfoBox(this, "URDF is loaded successfully. Configure the settings for each tab.");
+}
+
+void SetupAssistantWidget::onLoadButtonClicked()
+{
+  // 前回開いたパスを取得
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey_Load, last_opened_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+  }
+
+  // Tobasパッケージのパスを取得
+  const auto options = QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
+  const auto tbs_path =
+    QFileDialog::getExistingDirectory(this, kTitle, QString::fromStdString(last_opened_dir), options);
+
+  // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
+  if (tbs_path.isEmpty()) {
+    return;
+  }
+
+  // 拡張子をチェック
+  if (!tbs_path.endsWith(tobas::kTBSExtension)) {
+    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
+    return;
+  }
+
+  // URDFの存在を確認
+  const auto urdf_path = common::getOriginalURDFPath(tbs_path.toStdString());
+  if (!std::filesystem::is_regular_file(urdf_path)) {
+    qt::qErrorBox(
+      this,
+      "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas configuration package.");
+    return;
+  }
+
+  // ユーザ設定ファイルの存在を確認
+  const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
+  if (!std::filesystem::is_regular_file(settings_path)) {
+    qt::qErrorBox(
+      this,
+      "\"" + QString::fromStdString(settings_path) +
+        "\" does not exist. Please create a new Tobas configuration package.");
+    return;
+  }
+
+  // ユーザが開いたディレクトリを保存
+  const auto par_dir = std::filesystem::path(tbs_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey_Load, par_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+  if (property_client_.save() < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+
+  // URDFをロード
+  // Qtのイベント処理はスタックだからこの時点で設定が各ウィジェットに反映される
+  if (!robot_.loadFromPath(urdf_path)) {
+    qt::qErrorBox(this, "Failed to load robot description.");
+    return;
+  }
+
+  // ユーザ設定を読み込む
+  YAML::Node node;
+  if (!yaml::load(settings_path, node)) {
+    qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas configuration package.");
+    return;
+  }
+  if (!settings_->load(node)) {
+    return;
+  }
+
+  // Tobasパッケージのパスを設定
+  tbs_path_->setText(tbs_path);
+
+  qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
+}
+
+void SetupAssistantWidget::onSaveButtonClicked()
 {
   // ユーザ設定に問題がないか確認
   if (!settings_->isValid()) {
     return;
   }
 
-  // パッケージパスが既に存在する場合は置換するかどうかをユーザに確認
+  // 読み込んでいないパッケージパスが既に存在する場合は置換するかどうかをユーザに確認
   const auto tbs_path = settings_->ros_package->tbsPath();
-  if (fs::exists(tbs_path.toStdString())) {
+  if (tbs_path != tbs_path_->text() && fs::exists(tbs_path.toStdString())) {
     if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
+      return;
+    }
+    if (fs::remove_all(tbs_path.toStdString()) == 0) {
+      qt::qErrorBox(this, "Failed to remove " + tbs_path);
       return;
     }
   }
@@ -83,28 +224,10 @@ void SetupAssistantWidget::onGenerateButtonClicked()
     return;
   }
 
-  // スピナーを開始
-  spinner_.show();
-  spinner_.start();
+  // 新たなパスを設定
+  tbs_path_->setText(tbs_path);
 
-  // 別スレッドでTobasパッケージをビルド
-  build_thread_.setPackagePath(settings_->ros_package->tbsPath());
-  build_thread_.start();
-}
-
-void SetupAssistantWidget::onBuildPackageFinished(bool success, const QString& output)
-{
-  // スピナーを停止
-  spinner_.hide();
-  spinner_.stop();
-
-  // 結果を表示
-  if (success) {
-    qt::qInfoBox(this, "Tobas configuration package is generated and built successfully.");
-  }
-  else {
-    qt::qErrorBox(this, "Tobas configuration package is generated, but failed to build it:\n\n" + output);
-  }
+  qt::qInfoBox(this, "Tobas configuration package is generated successfully.");
 }
 }  // namespace sa
 }  // namespace gui

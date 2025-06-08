@@ -22,9 +22,6 @@ class RosPackageWidget : public BaseSettingWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
-Q_SIGNALS:
-  void generateButtonClicked();
-
 public:
   explicit RosPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
@@ -44,7 +41,6 @@ public:
 
 private Q_SLOTS:
   void onPathChanged();
-  void onGenerateButtonClicked();
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -53,7 +49,6 @@ private:
   ParamGetterWidget_DirDialog* pardir_;
   ParamGetterWidget_LineEdit* tbs_name_;
   QLabel* tbs_path_;
-  QPushButton* generate_button_;
 };
 };  // namespace sa
 }  // namespace gui

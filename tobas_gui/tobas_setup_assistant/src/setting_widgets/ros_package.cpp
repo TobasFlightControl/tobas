@@ -36,12 +36,6 @@ RosPackageWidget::RosPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo
   tbs_path_->setAlignment(Qt::AlignTop);
   addWidget(tbs_path_);
 
-  generate_button_ = new QPushButton("Generate");
-  generate_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  generate_button_->setEnabled(false);
-  connect(generate_button_, &QPushButton::clicked, this, &self::onGenerateButtonClicked);
-  addWidgetCenter(generate_button_);
-
   addStretch();
 }
 
@@ -138,13 +132,6 @@ void RosPackageWidget::onPathChanged()
 
   const auto path = fs::path(pardir) / (tbs_name + tobas::kTBSExtension);
   tbs_path_->setText(QString::fromStdString(path));
-
-  generate_button_->setEnabled(!pardir.empty() && !tbs_name.empty());
-}
-
-void RosPackageWidget::onGenerateButtonClicked()
-{
-  Q_EMIT generateButtonClicked();
 }
 }  // namespace sa
 }  // namespace gui
