@@ -27,10 +27,10 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto widget = new gui::urdf_builder::URDFBuilder();
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(gui::urdf_builder::kPackageName));
+  const auto widget = new gui::ub::URDFBuilder();
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(gui::ub::kPackageName));
   const auto icon_path = pkg_path / "resources/icon.png";
-  qt::MainWidget main(gui::urdf_builder::kTitle, QString::fromStdString(icon_path), widget);
+  qt::MainWidget main(gui::ub::kTitle, QString::fromStdString(icon_path), widget);
   main.show();
 
   // Ctrl+Cで即終了

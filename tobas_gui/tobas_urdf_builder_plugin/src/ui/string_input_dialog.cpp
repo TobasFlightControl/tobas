@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -74,5 +74,5 @@ void StringInputDialog::enableOkButton(bool enable)
   button_box_->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

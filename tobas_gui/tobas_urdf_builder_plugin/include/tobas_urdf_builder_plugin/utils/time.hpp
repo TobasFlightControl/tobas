@@ -2,11 +2,11 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace utils
 {
 int timeNowMilliseconds();
 }  // namespace utils
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

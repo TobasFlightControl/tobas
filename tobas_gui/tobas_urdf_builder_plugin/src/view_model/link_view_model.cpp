@@ -6,7 +6,7 @@ using namespace std;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -149,5 +149,5 @@ void LinkViewModel::remove(const CollisionViewModelPtr& collision)
   sync();
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

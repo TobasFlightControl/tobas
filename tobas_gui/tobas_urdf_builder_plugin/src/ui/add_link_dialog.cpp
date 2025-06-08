@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -94,5 +94,5 @@ void AddLinkDialog::enableOkButton(bool enable)
   ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -63,5 +63,5 @@ void DoubleMapInputDialog::SpinBoxValueChanged(double value)
   field2value_[field_name] = value;
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -48,5 +48,5 @@ const GeometryViewModelPtr& CollisionViewModel::geometry()
   return geometry_vm_;
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

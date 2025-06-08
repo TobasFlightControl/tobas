@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -28,5 +28,5 @@ private:
   QLineEdit* line_edit_;
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

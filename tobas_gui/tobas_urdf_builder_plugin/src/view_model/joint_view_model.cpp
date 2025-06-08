@@ -20,7 +20,7 @@ static const map<QString, JointType> kJointNameToTypeMap = {
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -124,5 +124,5 @@ bool JointViewModel::isFixed() const
   return model_->type == urdf::Joint::FIXED;
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -57,5 +57,5 @@ void SaveUrdfDialog::onLineEditTextChanged()
   }
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -6,7 +6,7 @@ using namespace std;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace utils
 {
@@ -17,5 +17,5 @@ int timeNowMilliseconds()
   return static_cast<int>(ms.count());
 }
 }  // namespace utils
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

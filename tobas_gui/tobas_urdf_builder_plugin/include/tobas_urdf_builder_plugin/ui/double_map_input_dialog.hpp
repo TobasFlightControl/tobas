@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -37,5 +37,5 @@ private:
   std::map<QDoubleSpinBox*, QString> spinbox2field_;
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

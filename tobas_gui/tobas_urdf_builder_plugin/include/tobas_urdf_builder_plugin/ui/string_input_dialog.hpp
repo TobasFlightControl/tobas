@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -41,5 +41,5 @@ private:
   void enableOkButton(bool enable);
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

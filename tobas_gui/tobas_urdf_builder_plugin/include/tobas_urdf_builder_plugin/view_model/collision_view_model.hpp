@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -31,5 +31,5 @@ private:
 using CollisionViewModelPtr = std::shared_ptr<CollisionViewModel>;
 using V_CollisionViewModelPtr = std::vector<CollisionViewModelPtr>;
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

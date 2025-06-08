@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -345,5 +345,5 @@ void UpdateLinkDialog::defineConnections()
   connect(ui_->BuildInertiaSphereButton, &QPushButton::released, this, &self::BuildInertiaSphereButtonClicked);
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

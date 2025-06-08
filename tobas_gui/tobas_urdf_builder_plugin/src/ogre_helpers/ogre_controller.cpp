@@ -13,7 +13,7 @@ using namespace std;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ogre
 {
@@ -184,5 +184,5 @@ void OgreController::setInertiaVisible(bool visible)
   pimpl_->rviz.robot->setInertiaVisible(visible);
 }
 }  // namespace ogre
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

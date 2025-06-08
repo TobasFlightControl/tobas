@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -47,5 +47,5 @@ protected:
   ModelPtr model_;
 };
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

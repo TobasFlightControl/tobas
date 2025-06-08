@@ -30,7 +30,7 @@ namespace fs = filesystem;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -587,8 +587,8 @@ void URDFBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString
   }
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui
 
 // rviz_common::Panelの派生クラスならばRvizのメインウィジェットにプラグインできる
-PLUGINLIB_EXPORT_CLASS(gui::urdf_builder::ui::URDFBuilderPanel, rviz_common::Panel)
+PLUGINLIB_EXPORT_CLASS(gui::ub::ui::URDFBuilderPanel, rviz_common::Panel)

@@ -4,7 +4,7 @@ using namespace std;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace utils
 {
@@ -116,5 +116,5 @@ urdf::LinkSharedPtr clone(const urdf::LinkSharedPtr& link)
   return res;
 }
 }  // namespace utils
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -11,7 +11,7 @@ using namespace std;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -309,5 +309,5 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* eleme
   }
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

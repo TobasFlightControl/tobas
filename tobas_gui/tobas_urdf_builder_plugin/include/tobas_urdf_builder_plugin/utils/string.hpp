@@ -4,11 +4,11 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace utils
 {
 QString getBaseName(const QString& arg);
 }  // namespace utils
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

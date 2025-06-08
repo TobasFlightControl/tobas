@@ -24,7 +24,7 @@ using namespace std;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -914,5 +914,5 @@ void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const map<QString, QFrame
   map.at(type)->show();
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

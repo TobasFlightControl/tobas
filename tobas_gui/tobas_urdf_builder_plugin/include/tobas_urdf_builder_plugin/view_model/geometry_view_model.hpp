@@ -10,7 +10,7 @@ using GeometryType = decltype(urdf::Geometry::type);
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -65,5 +65,5 @@ private:
 
 using GeometryViewModelPtr = std::shared_ptr<GeometryViewModel>;
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

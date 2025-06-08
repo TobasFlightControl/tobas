@@ -20,7 +20,7 @@ static const map<QString, GeometryType> kGeometryNameToTypeMap = {
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -198,5 +198,5 @@ void GeometryViewModel::load()
   }
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

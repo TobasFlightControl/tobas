@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 static constexpr char kPackageName[] = "tobas_urdf_builder";
 static constexpr char kTitle[] = "Tobas URDF Builder";
@@ -12,5 +12,5 @@ static constexpr float kDefaultRobotAlpha = 0.7;  // FIXME: 1以外だとMeshの
 static constexpr bool kDefaultVisualVisible = true;
 static constexpr bool kDefaultCollisionVisible = true;
 static constexpr bool kDefaultInertiaVisible = false;
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

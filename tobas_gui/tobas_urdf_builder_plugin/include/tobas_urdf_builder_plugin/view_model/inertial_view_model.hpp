@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -45,5 +45,5 @@ public:
 
 using InertialViewModelPtr = std::shared_ptr<InertialViewModel>;
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -18,7 +18,7 @@ using UpdateLinkDialogUIPtr = std::shared_ptr<UpdateLinkDialogUI>;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -112,5 +112,5 @@ private:
   static void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type);
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

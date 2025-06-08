@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -52,5 +52,5 @@ private:
   JointLimitsViewModelPtr limits_;
 };
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

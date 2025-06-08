@@ -20,7 +20,7 @@ class URDFBuilderPanelUI;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -101,5 +101,5 @@ private:
   static void collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set);
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui
