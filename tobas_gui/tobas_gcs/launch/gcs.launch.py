@@ -69,7 +69,7 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package="tobas_gcs",
-            executable="Tobas GCS",
+            executable="TobasGCS",
             ros_arguments=ros_args,
             output=output,
             on_exit=Shutdown(),

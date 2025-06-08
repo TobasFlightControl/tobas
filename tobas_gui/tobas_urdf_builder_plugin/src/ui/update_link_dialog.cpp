@@ -446,7 +446,7 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
-    this, tr("URDF Builder"), QString::fromStdString(last_dir), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
+    this, kTitle, QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }
@@ -479,7 +479,7 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
-    this, tr("URDF Builder"), QString::fromStdString(last_dir), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
+    this, kTitle, QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }

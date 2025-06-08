@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Setup Assistant
+Name=TobasSetupAssistant
 Icon=/usr/share/icons/tobas/icon_purple.png
 Exec=/usr/bin/tobas_setup_assistant
 Terminal=false

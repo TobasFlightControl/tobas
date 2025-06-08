@@ -5,6 +5,7 @@
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 
 #include <tobas_urdf_builder/urdf_builder.hpp>
+#include <tobas_urdf_builder_plugin/utils/constants.hpp>
 
 static void sigIntHandler(int)
 {
@@ -23,7 +24,7 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   const auto widget = new gui::urdf_builder::URDFBuilder();
-  qt::MainWidget main("URDF Builder", QString::fromStdString(gui::common::getIconPath("yellow")), widget);
+  qt::MainWidget main(gui::urdf_builder::kTitle, QString::fromStdString(gui::common::getIconPath("yellow")), widget);
   main.show();
 
   // Ctrl+Cで即終了

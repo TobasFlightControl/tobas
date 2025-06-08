@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Tobas GCS
+Name=TobasGCS
 Icon=/usr/share/icons/tobas/icon_white.png
 Exec=/usr/bin/tobas_gcs
 Terminal=false

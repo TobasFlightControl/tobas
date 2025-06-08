@@ -42,10 +42,10 @@ file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR}
 add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-# 実行ファイル名とアプリ名をTobasに一致させることでデスクトップアプリでアイコンが正しく表示される
+# 実行ファイル名とdesktopファイル名とアプリ名をスペース無しで一致させることでデスクトップアプリでアイコンが正しく表示される
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})
-set_target_properties(main PROPERTIES OUTPUT_NAME "Tobas GCS")
+set_target_properties(main PROPERTIES OUTPUT_NAME "TobasGCS")
 
 install(
   TARGETS ${PROJECT_NAME}

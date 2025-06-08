@@ -40,7 +40,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
   , node_(node_manager_.node())
   , property_client_(node_, tobas::kPropertyServerName, kPropertySection)
 {
-  setWindowTitle("URDF Builder");
+  setWindowTitle(kTitle);
 
   ui_ = new Ui::URDFBuilderPanelUI();
   ui_->setupUi(this);

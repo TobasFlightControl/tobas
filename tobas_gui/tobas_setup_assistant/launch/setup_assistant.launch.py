@@ -46,7 +46,7 @@ def generate_launch_description():
     # Launch setup assistant
     setup_assistant = Node(
         package="tobas_setup_assistant",
-        executable="Setup Assistant",
+        executable="TobasSetupAssistant",
         ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),

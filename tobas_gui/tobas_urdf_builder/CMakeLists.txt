@@ -40,7 +40,7 @@ ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})
-set_target_properties(main PROPERTIES OUTPUT_NAME "URDF Builder")
+set_target_properties(main PROPERTIES OUTPUT_NAME "TobasURDFBuilder")
 
 install(
   TARGETS ${PROJECT_NAME}
