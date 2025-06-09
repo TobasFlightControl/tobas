@@ -1,5 +1,6 @@
 string name
-float64 value
-float64 dflt
-float64 min
-float64 max
+float64 step
+int64 dflt
+int64 min
+int64 max
+int64 value

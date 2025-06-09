@@ -35,7 +35,7 @@ DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& options) : sup
 
   services_.push_back(createService<SetBool>(kSetBoolSrv, &self::callback<SetBool, bool>, this, cb_group_));
   services_.push_back(createService<SetInt>(kSetIntSrv, &self::callback<SetInt, long>, this, cb_group_));
-  services_.push_back(createService<SetDouble>(kSetDoubleSrv, &self::callback<SetDouble, double>, this, cb_group_));
+  services_.push_back(createService<SetDouble>(kSetDoubleSrv, &self::callback<SetDouble, long>, this, cb_group_));
   services_.push_back(createService<SetString>(kSetStringSrv, &self::callback<SetString, string>, this, cb_group_));
 }
 

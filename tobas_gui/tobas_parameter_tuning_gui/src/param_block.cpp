@@ -53,32 +53,53 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
   // Add sliders
   for (const auto& param : params.ints) {
     IntConfig config;
-    config.slider = new qt::IntSliderTextWidget(param.min, param.max);
-    config.slider->set(param.value);
     config.dflt = param.dflt;
 
-    connect(
-      config.slider,
-      &qt::IntSliderTextWidget::valueChanged,
-      bind(&self::onIntParamChanged, this, placeholders::_1, param.name));
+    config.slider = new qt::Slider(Qt::Horizontal);
+    config.slider->setRange(param.min, param.max);
+    config.slider->setValue(param.value);
+
+    config.line_edit = new QLineEdit();
+    config.line_edit->setFixedWidth(kLineEditWidth);
+    config.line_edit->setAlignment(Qt::AlignRight);
+    config.line_edit->setReadOnly(true);
+    config.line_edit->setText(QString::number(param.value));
 
     int_configs_[param.name] = config;
-    form_->addRow(param.name.c_str(), config.slider);
+
+    const auto cols = new QHBoxLayout();
+    cols->addWidget(config.slider);
+    cols->addWidget(config.line_edit);
+    form_->addRow(QString::fromStdString(param.name), cols);
+
+    connect(
+      config.slider, &qt::Slider::valueChanged, bind(&self::onIntParamChanged, this, placeholders::_1, param.name));
   }
 
   for (const auto& param : params.doubles) {
     DoubleConfig config;
-    config.slider = new qt::DoubleSliderTextWidget(param.min, param.max);
-    config.slider->set(param.value);
+    config.step = param.step;
     config.dflt = param.dflt;
 
-    connect(
-      config.slider,
-      &qt::DoubleSliderTextWidget::valueChanged,
-      bind(&self::onDoubleParamChanged, this, placeholders::_1, param.name));
+    config.slider = new qt::Slider(Qt::Horizontal);
+    config.slider->setRange(param.min, param.max);
+    config.slider->setValue(param.value);
+
+    config.line_edit = new QLineEdit();
+    config.line_edit->setFixedWidth(kLineEditWidth);
+    config.line_edit->setAlignment(Qt::AlignRight);
+    config.line_edit->setReadOnly(true);
+    config.line_edit->setText(QString::number(param.step * param.value));
 
     double_configs_[param.name] = config;
-    form_->addRow(param.name.c_str(), config.slider);
+
+    const auto cols = new QHBoxLayout();
+    cols->addWidget(config.slider);
+    cols->addWidget(config.line_edit);
+    form_->addRow(QString::fromStdString(param.name), cols);
+
+    connect(
+      config.slider, &qt::Slider::valueChanged, bind(&self::onDoubleParamChanged, this, placeholders::_1, param.name));
   }
 
   return true;
@@ -109,32 +130,34 @@ void ParamBlockWidget::clear()
 bool ParamBlockWidget::setToDefaults()
 {
   for (const auto& [name, config] : int_configs_) {
-    if (config.slider->get() == config.dflt) {
+    if (config.slider->value() == config.dflt) {
       continue;
     }
 
-    if (dparam_client_->set(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
+    if (dparam_client_->setInt(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
     config.slider->blockSignals(true);
-    config.slider->set(config.dflt);
+    config.slider->setValue(config.dflt);
+    config.line_edit->setText(QString::number(config.dflt));
     config.slider->blockSignals(false);
   }
 
   for (const auto& [name, config] : double_configs_) {
-    if (config.slider->get() == config.dflt) {
+    if (config.slider->value() == config.dflt) {
       continue;
     }
 
-    if (dparam_client_->set(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
+    if (dparam_client_->setDouble(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
     config.slider->blockSignals(true);
-    config.slider->set(config.dflt);
+    config.slider->setValue(config.dflt);
+    config.line_edit->setText(QString::number(config.step * config.dflt));
     config.slider->blockSignals(false);
   }
 
@@ -146,11 +169,11 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
   YAML::Node res(YAML::NodeType::Map);
 
   for (const auto& [name, config] : int_configs_) {
-    res[name] = config.slider->get();
+    res[name] = config.slider->value();
   }
 
   for (const auto& [name, config] : double_configs_) {
-    res[name] = format("{:e}", config.slider->get());  // 整数に丸められるとrosparamが取得できないため指数表記を強制
+    res[name] = config.slider->value();
   }
 
   return res;
@@ -197,16 +220,22 @@ bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
   return true;
 }
 
-void ParamBlockWidget::onIntParamChanged(int value, const string& name)
+void ParamBlockWidget::onIntParamChanged(long value, const string& name)
 {
-  if (dparam_client_->set(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
+  auto& config = int_configs_.at(name);
+  config.line_edit->setText(QString::number(value));
+
+  if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
 
-void ParamBlockWidget::onDoubleParamChanged(double value, const string& name)
+void ParamBlockWidget::onDoubleParamChanged(long value, const string& name)
 {
-  if (dparam_client_->set(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
+  auto& config = double_configs_.at(name);
+  config.line_edit->setText(QString::number(config.step * value));
+
+  if (dparam_client_->setDouble(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
