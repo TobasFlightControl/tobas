@@ -62,7 +62,7 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
 {
   const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0., 100.);
   voltage_->setUpper(voltage);
-  voltage_->setCenterText(std::format("{:.2f} V ({:.0f} %)", voltage, volt_rate).c_str());
+  voltage_->setCenterText(std::format("{:.2f} V ({:.0f} %)", voltage, std::max(volt_rate, 0.)).c_str());
 
   if (volt_rate > 20.) {
     voltage_->setFillColor(Qt::green);
