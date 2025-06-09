@@ -7,6 +7,8 @@
 
 namespace tobas
 {
+class RotorConfig;
+using RotorConfigMap = std::map<std::string, RotorConfig::SharedPtr>;  // Link Name -> RotorConfig
 
 class RotorConfig
 {
@@ -34,8 +36,6 @@ public:
   /* CCW = 1, CW = -1 */
   inline int sign() const;
 };
-
-using RotorConfigMap = std::map<std::string, RotorConfig::SharedPtr>;  // Link Name -> RotorConfig
 
 inline int RotorConfig::sign() const
 {
