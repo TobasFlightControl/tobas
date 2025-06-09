@@ -44,16 +44,16 @@ bool TrimConditions::updateInternalDataStructures()
 
   // Set elevator index
   auto max_c_pitch_delta = -INFINITY;
-  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces) {
+  for (const auto& [link_name, cs] : drone_.fixed_wing->control_surfaces) {
     if (fabs(cs.c_pitch_delta) > max_c_pitch_delta) {
       max_c_pitch_delta = fabs(cs.c_pitch_delta);
-      elev_channel_ = channel;
+      elev_link_name_ = link_name;
     }
   }
 
   // Set coefficients
   const auto& aero = drone_.fixed_wing->aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_channel_);
+  const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_link_name_);
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
@@ -101,7 +101,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 
   // エイリアス
   const auto& aero = drone_.fixed_wing->aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_channel_);
+  const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_link_name_);
 
   // CoGまわりの安定微係数
   asd_cog_.update(q);
@@ -109,7 +109,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
     return error_code_;
   }
   const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
-  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_channel_);
+  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_link_name_);
   if (c_pitch_elev_cg == 0) {
     error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
     return error_code_ = E_ERROR;

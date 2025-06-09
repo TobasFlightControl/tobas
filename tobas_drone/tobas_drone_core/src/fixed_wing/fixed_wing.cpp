@@ -71,7 +71,7 @@ bool FixedWingConfig::load(const YAML::Node& root_node)
       cerr << "Failed to load the configurations of control surfaces." << endl;
       return false;
     }
-    control_surfaces[cs.channel] = cs;
+    control_surfaces[cs.link_name] = cs;
   }
 
   return true;

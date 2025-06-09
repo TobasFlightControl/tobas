@@ -118,7 +118,7 @@ void addICEPropulsionSystemPlugin(
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
-  const std::string& link_name,
+  const std::string& base_link_name,
   double altitude_zero,
   const tobas::FixedWingConfig& fixed_wing);
 

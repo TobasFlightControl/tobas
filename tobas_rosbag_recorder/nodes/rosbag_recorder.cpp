@@ -17,7 +17,6 @@
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
@@ -160,7 +159,6 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::kIcePropulsionSystemCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::PwmArray>(tobas::kPwmCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);

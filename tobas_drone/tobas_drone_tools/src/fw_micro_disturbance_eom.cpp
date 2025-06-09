@@ -1,7 +1,10 @@
 #include "tobas_drone_tools/fw_micro_disturbance_eom.hpp"
 
+#include <ranges>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
+#include <tobas_std_tools/map.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -182,10 +185,12 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   }
 
   // deflection
-  size_t cs_idx = 0;
-  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces) {
-    const auto pitch_delta = asd_cog.cPitchDelta(channel);
-    const auto yaw_delta = asd_cog.cYawDelta(channel);
+  for (const auto& [cs_idx, cs_item] : views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& link_name = cs_item.first;
+    const auto& cs = cs_item.second;
+
+    const auto pitch_delta = asd_cog.cPitchDelta(link_name);
+    const auto yaw_delta = asd_cog.cYawDelta(link_name);
 
     const auto Y_delta_bar = q_S / P * cs.c_side_delta;                                        // (3.2-20)
     const auto Z_delta_bar = -q_S / P * cs.c_lift_delta;                                       // (2.2-37)
@@ -200,8 +205,6 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     B_(kStateIdx_p, col) = L_delta_dash;
     B_(kStateIdx_q, col) = M_delta_dash;
     B_(kStateIdx_r, col) = N_delta_dash;
-
-    ++cs_idx;
   }
 
   // トリム時の状態を更新
@@ -228,7 +231,9 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     }
     u_0_(i) = thrust;
   }
-  u_0_(x_rotors_.count() + trim_.elevatorChannel()) = trim_.elevator();
+
+  const auto elev_cs_idx = tobas_std::getIndex(drone_.fixed_wing->control_surfaces, trim_.elevatorLinkName());
+  u_0_(x_rotors_.count() + elev_cs_idx) = trim_.elevator();
 
   return error_code_;
 }

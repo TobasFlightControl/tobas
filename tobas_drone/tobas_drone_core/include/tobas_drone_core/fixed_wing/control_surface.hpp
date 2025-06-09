@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <map>
+#include <string>
 
 #include <yaml-cpp/yaml.h>
 
@@ -10,7 +11,7 @@
 namespace tobas
 {
 class ControlSurface;
-using ControlSurfaceMap = std::map<uint32_t, ControlSurface>;  // Channel -> ControlSurface
+using ControlSurfaceMap = std::map<std::string, ControlSurface>;  // Joint Name -> ControlSurface
 
 /**
  * @brief Control sufrace.
@@ -29,7 +30,6 @@ class ControlSurface
   static constexpr char kCYawDeltaKey[] = "c_yaw_delta";
 
 public:
-  uint32_t channel = 0;  // モータが接続されているチャンネル
   std::string link_name = "";
 
   double c_lift_delta = 0.;      // [/rad]

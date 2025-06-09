@@ -310,11 +310,10 @@ tobas::Drone PackageGenerator::createDrone()
     // Control Surfaces
     const auto css = settings_->fixed_wing->controlSurfaces()->selected();
     for (int i = 0; i < css->numUnits(); ++i) {
-      const auto link_name = css->linkName(i);
+      const auto link_name = css->linkName(i).toStdString();
 
       tobas::ControlSurface cs;
-      cs.channel = -1;  // TODO: channelフィールドを削除
-      cs.link_name = link_name.toStdString();
+      cs.link_name = link_name;
       cs.c_lift_delta = css->liftCoef(i);
       cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: 正負の確認が必要？
       cs.c_side_delta = css->sideCoef(i);
@@ -322,7 +321,7 @@ tobas::Drone PackageGenerator::createDrone()
       cs.c_pitch_delta = css->pitchCoef(i);
       cs.c_yaw_delta = css->yawCoef(i);
 
-      drone.fixed_wing->control_surfaces[cs.channel] = cs;
+      drone.fixed_wing->control_surfaces[link_name] = cs;
     }
   }
 

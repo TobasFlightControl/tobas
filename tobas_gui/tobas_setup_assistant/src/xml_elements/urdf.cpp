@@ -283,7 +283,7 @@ void addICEPropulsionSystemPlugin(
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
-  const string& link_name,
+  const string& base_link_name,
   double altitude_zero,
   const tobas::FixedWingConfig& fixed_wing)
 {
@@ -293,7 +293,7 @@ void addFixedWingPlugin(
 
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_fixed_wing_plugin", "gazebo::GazeboFixedWingPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
-  plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
+  plugin->InsertNewChildElement("baseLinkName")->SetText(base_link_name.c_str());
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
 
   // Vehicle
@@ -325,7 +325,6 @@ void addFixedWingPlugin(
   // Control Surfaces
   for (const auto& [_, cs] : control_surfaces) {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
-    cs_elem->InsertNewChildElement("channel")->SetText(cs.channel);
     cs_elem->InsertNewChildElement("linkName")->SetText(cs.link_name.c_str());
     cs_elem->InsertNewChildElement("cLiftDelta")->SetText(cs.c_lift_delta);
     cs_elem->InsertNewChildElement("cDragAbsDelta")->SetText(cs.c_drag_abs_delta);

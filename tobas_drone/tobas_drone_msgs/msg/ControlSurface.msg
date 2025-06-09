@@ -1,4 +1,3 @@
-uint32 channel
 string link_name
 
 float64 c_lift_delta

@@ -60,7 +60,6 @@ static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kIcePropulsionSystemCmdTopic[] = "command/ice_propulsion_system";
-static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 // High Command
 static constexpr char kRateCmdTopic[] = "command/rate";

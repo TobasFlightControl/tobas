@@ -51,7 +51,7 @@ public:
   inline Eigen::VectorXd maxDeltaInput() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
-  inline const size_t& elevatorChannel() const;
+  inline const std::string& elevatorLinkName() const;
   inline const size_t& inputSize() const;
 
   inline const Eigen::Matrix<double, kStateSize, kStateSize>& A() const;
@@ -188,9 +188,9 @@ inline Eigen::VectorXd MicroDisturbanceEoM::maxDeltaInput() const
   return max_u_ - u_0_;
 }
 
-inline const size_t& MicroDisturbanceEoM::elevatorChannel() const
+inline const std::string& MicroDisturbanceEoM::elevatorLinkName() const
 {
-  return trim_.elevatorChannel();
+  return trim_.elevatorLinkName();
 }
 
 inline const size_t& MicroDisturbanceEoM::inputSize() const

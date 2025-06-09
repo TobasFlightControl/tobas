@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_control/lqd.hpp>
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
@@ -17,8 +19,8 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
+#include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
@@ -73,7 +75,7 @@ private:
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> tar_angles_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
@@ -143,7 +145,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
-  deflections_pub_ = createPublisher<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
+  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
 
   // Register subscribers
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
@@ -239,6 +241,8 @@ void ControllerNode::updateSetStateVector()
 
 void ControllerNode::publishThrusts(const VectorXd& thrusts)
 {
+  assert(static_cast<size_t>(thrusts.size()) == x_rotors_.count());
+
   auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
   thrusts_msg->header.stamp = odom_ned_.header.stamp;
 
@@ -253,10 +257,21 @@ void ControllerNode::publishThrusts(const VectorXd& thrusts)
 
 void ControllerNode::publishDeflections(const VectorXd& deflections)
 {
-  auto deflections_msg = std::make_unique<tobas_msgs::msg::ControlSurfaceDeflections>();
-  deflections_msg->header.stamp = odom_ned_.header.stamp;
-  deflections_msg->deflections = eigen::toStdVector(deflections);
-  deflections_pub_->publish(move(deflections_msg));
+  assert(static_cast<size_t>(deflections.size()) == drone_.fixed_wing->numControlSurfaces());
+
+  auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  tar_angles_msg->header.stamp = odom_ned_.header.stamp;
+
+  for (const auto& [idx, cs_item] : views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& link_name = cs_item.first;
+    const auto& joint = tree_.getSegment(link_name)->second.segment.joint();
+
+    tar_angles_msg->commands.emplace_back();
+    tar_angles_msg->commands.back().name = joint.name;
+    tar_angles_msg->commands.back().data = deflections(idx);
+  }
+
+  tar_angles_pub_->publish(move(tar_angles_msg));
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
