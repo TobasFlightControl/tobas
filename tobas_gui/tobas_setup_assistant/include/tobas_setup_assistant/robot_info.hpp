@@ -24,7 +24,7 @@ Q_SIGNALS:
 public:
   explicit RobotInfo();
 
-  bool loadFromPath(const std::string& path);
+  bool loadFromText(const std::string& urdf_text);
 
   const std::string& urdfText() const;
   urdf::ModelInterfaceConstSharedPtr urdf() const;

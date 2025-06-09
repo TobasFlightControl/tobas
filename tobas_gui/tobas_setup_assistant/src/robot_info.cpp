@@ -5,7 +5,6 @@
 #include <urdf_parser/urdf_parser.h>
 
 #include <tobas_kdl_parser/kdl_parser.hpp>
-#include <tobas_ros2_tools/xacro.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
 
@@ -19,19 +18,17 @@ RobotInfo::RobotInfo() : axis_solver_(tree_)
 {
 }
 
-bool RobotInfo::loadFromPath(const string& path)
+bool RobotInfo::loadFromText(const string& urdf_text)
 {
   // Parse URDF
-  if (!ros2::xacro(path, urdf_text_)) {
-    return false;
-  }
-
-  // Parse URDF
-  urdf_ = urdf::parseURDF(urdf_text_);
+  urdf_ = urdf::parseURDF(urdf_text);
   if (!urdf_) {
     cerr << "Failed to parse URDF." << endl;
     return false;
   }
+
+  // Update URDF text
+  urdf_text_ = urdf_text;
 
   // Load KDL tree
   if (!kdl::treeFromUrdfModel(*urdf_, tree_)) {

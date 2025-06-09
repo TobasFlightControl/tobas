@@ -801,13 +801,13 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
 bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& mesh_dir)
 {
   if (strcmp(elem->Name(), "mesh") == 0) {
-    const auto file_name = elem->Attribute("filename");
-    if (!file_name) {
+    const auto filename = elem->Attribute("filename");
+    if (!filename) {
       qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
-    const auto src_path = ros2::resolveURI(file_name);
+    const auto src_path = ros2::resolveURI(filename);
     if (!fs::exists(src_path)) {
       qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
       return false;
@@ -846,8 +846,8 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
     // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
     // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
     const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-    const auto new_file_name = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
-    elem->SetAttribute("filename", new_file_name.c_str());
+    const auto new_filename = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
+    elem->SetAttribute("filename", new_filename.c_str());
   }
 
   // 再帰的に子要素もチェック
@@ -863,21 +863,19 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
 bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
 {
   if (strcmp(elem->Name(), "mesh") == 0) {
-    const auto file_name = elem->Attribute("filename");
-    if (!file_name) {
+    const auto filename = elem->Attribute("filename");
+    if (!filename) {
       qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
-    const auto src_path = ros2::resolveURI(file_name);
-    const auto base_name = src_path.filename();
-    const auto config_pkg_path = common::getTBSConfigPath(tbsPath());
+    const auto src_path = ros2::resolveURI(filename);
+    const auto base_name = src_path.filename().string();
+    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
 
-    // Tobasパッケージがビルドされてなくても読み込めるようにconfigパッケージ内の絶対パスに変更
-    // TODO: 可搬性を高めるために相対パスで保存する
-    const auto new_file_path = config_pkg_path / "meshes" / base_name;
-    const auto new_file_name = "file://" + new_file_path.string();
-    elem->SetAttribute("filename", new_file_name.c_str());
+    // config_pkgからの相対パスで指定
+    const auto new_filename = "package://" + config_pkg_name + "/meshes/" + base_name;
+    elem->SetAttribute("filename", new_filename.c_str());
   }
 
   // 再帰的に子要素もチェック

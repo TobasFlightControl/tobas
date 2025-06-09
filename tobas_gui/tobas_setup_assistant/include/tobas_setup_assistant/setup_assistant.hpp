@@ -49,6 +49,9 @@ private:
 
   std::unique_ptr<PackageGenerator> pkg_generator_;
 
+  bool createUrdfText(const std::filesystem::path& tbs_path, std::string& text_out);
+  bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
+
 private Q_SLOTS:
   void onRobotLoaded();
 

@@ -8,6 +8,8 @@
 #include <tobas_gui_common/package.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_ros2_tools/xacro.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 namespace fs = std::filesystem;
@@ -70,6 +72,74 @@ void SetupAssistantWidget::reset()
   rviz_->resetTime();
 }
 
+bool SetupAssistantWidget::createUrdfText(const std::filesystem::path& tbs_path, std::string& text_out)
+{
+  // URDFの存在を確認
+  const auto urdf_path = common::getOriginalURDFPath(tbs_path);
+  if (!std::filesystem::is_regular_file(urdf_path)) {
+    qt::qErrorBox(
+      this,
+      "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas configuration package.");
+    return false;
+  }
+
+  // XACROを解析
+  std::string urdf_text;
+  if (!ros2::xacro(urdf_path, urdf_text)) {
+    qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
+    return false;
+  }
+
+  // XMLを読み込む
+  tinyxml2::XMLDocument doc;
+  if (doc.Parse(urdf_text.c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(this, "Failed to parse URDF.");
+    return false;
+  }
+  const auto robot = doc.RootElement();
+
+  // configパッケージが未ビルドでもメッシュパスが解析できるように絶対パスに変換
+  if (!resolveMeshPaths(common::getTBSConfigPath(tbs_path), robot)) {
+    return false;
+  }
+
+  // メッシュパス変換後のURDFを出力
+  tinyxml2::XMLPrinter printer;
+  doc.Print(&printer);
+  text_out = printer.CStr();
+
+  return true;
+}
+
+bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tinyxml2::XMLElement* elem)
+{
+  if (strcmp(elem->Name(), "mesh") == 0) {
+    const auto filename = elem->Attribute("filename");
+    if (!filename) {
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      return false;
+    }
+
+    const auto config_pkg_name = config_pkg_path.filename().string();
+    const auto prefix = "package://" + config_pkg_name;
+
+    if (std::string(filename).starts_with(prefix)) {
+      const auto file_path = str::replace(std::string(filename), prefix, config_pkg_path);
+      const auto new_filename = "file://" + file_path;
+      elem->SetAttribute("filename", new_filename.c_str());
+    }
+  }
+
+  // 再帰的に子要素もチェック
+  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
+    if (!resolveMeshPaths(config_pkg_path, child)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void SetupAssistantWidget::onRobotLoaded()
 {
   rotor_marker_publisher_.updateInternalDataStructures();
@@ -112,8 +182,15 @@ void SetupAssistantWidget::onNewButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
-  // URDFをロード
-  if (!robot_.loadFromPath(urdf_path.toStdString())) {
+  // XACROを解析
+  std::string urdf_text;
+  if (!ros2::xacro(urdf_path.toStdString(), urdf_text)) {
+    qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
+    return;
+  }
+
+  // メッシュファイルパス解析済みのURDFを作成
+  if (!robot_.loadFromText(urdf_text)) {
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
@@ -149,25 +226,6 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
-  // URDFの存在を確認
-  const auto urdf_path = common::getOriginalURDFPath(tbs_path.toStdString());
-  if (!std::filesystem::is_regular_file(urdf_path)) {
-    qt::qErrorBox(
-      this,
-      "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas configuration package.");
-    return;
-  }
-
-  // ユーザ設定ファイルの存在を確認
-  const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
-  if (!std::filesystem::is_regular_file(settings_path)) {
-    qt::qErrorBox(
-      this,
-      "\"" + QString::fromStdString(settings_path) +
-        "\" does not exist. Please create a new Tobas configuration package.");
-    return;
-  }
-
   // ユーザが開いたディレクトリを保存
   const auto par_dir = std::filesystem::path(tbs_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey_Load, par_dir) < 0) {
@@ -177,14 +235,21 @@ void SetupAssistantWidget::onLoadButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
+  // config_pkgのビルドなしで解析可能なURDFを作成
+  std::string urdf_text;
+  if (!createUrdfText(tbs_path.toStdString(), urdf_text)) {
+    return;
+  }
+
   // URDFをロード
   // Qtのイベント処理はスタックだからこの時点で設定が各ウィジェットに反映される
-  if (!robot_.loadFromPath(urdf_path)) {
+  if (!robot_.loadFromText(urdf_text)) {
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
 
   // ユーザ設定を読み込む
+  const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
   YAML::Node node;
   if (!yaml::load(settings_path, node)) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas configuration package.");
