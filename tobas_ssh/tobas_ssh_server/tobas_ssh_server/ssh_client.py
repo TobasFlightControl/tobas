@@ -25,7 +25,12 @@ class SSHClientWrapper:
 
         # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:
-            self._ssh_client.connect(self._host, self._port, self._user, self._passwd)
+            self._ssh_client.connect(
+                hostname=self._host,
+                port=self._port,
+                username=self._user,
+                password=self._passwd,
+            )
         except paramiko.AuthenticationException as e:
             raise RuntimeError(f"Authentication failed: {e}")
         except paramiko.SSHException as e:
