@@ -1,6 +1,7 @@
 #include "tobas_rc_teleop/accel_yaw.hpp"
 
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 using namespace std;
 
@@ -32,9 +33,11 @@ bool AccelYawController::requireAngularVelocity()
 
 void AccelYawController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  node->addDynamicDoubleParam(addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 5., 0., 10.);
-  node->addDynamicDoubleParam(addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 4., 0., 10.);
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
+  node->addDynamicDoubleParam(
+    addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
+  node->addDynamicDoubleParam(
+    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 8, 1, 20, " m/s^2");
+  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360, " dps");
   node->addDynamicIntParam(
     addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
@@ -88,9 +91,9 @@ bool AccelYawController::maxVerticalAccelCb(const double& p)
   return true;
 }
 
-bool AccelYawController::maxHeadingRateCb(const double& p)
+bool AccelYawController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = p;
+  max_head_rate_ = tobas_std::deg2rad(p);
   return true;
 }
 

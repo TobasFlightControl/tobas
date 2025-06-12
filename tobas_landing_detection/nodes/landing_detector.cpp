@@ -52,8 +52,8 @@ private:
 LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   : super("landing_detector", options), mass_holder_(tree_)
 {
-  addDynamicDoubleParam("switch_time_threshold", &self::switchTimeThreshCb, this, 1., 0., 5.);
-  addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 50, 20, 80);
+  addDynamicDoubleParam("switch_time_threshold", &self::switchTimeThreshCb, this, 0.5, 2, 0., 10, " s");
+  addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 50, 20, 80, " %");
 
   landed_pub_ = createPublisher<tobas_std_msgs::msg::BoolStamped>(tobas::kLandedTopic);
 

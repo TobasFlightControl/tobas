@@ -14,7 +14,7 @@ namespace gui
 {
 namespace param
 {
-ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
+ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
   load_button_ = new QPushButton("Load");
   save_button_ = new QPushButton("Save");
@@ -86,6 +86,44 @@ bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
   return true;
 }
 
+bool ParameterTuningWidget::saveLocal()
+{
+  if (!controller_params_->saveLocal(common::getControllerDynamicParamsPath(tbs_path_))) {
+    return false;
+  }
+  if (!observer_params_->saveLocal(common::getObserverDynamicParamsPath(tbs_path_))) {
+    return false;
+  }
+  if (!rc_teleop_params_->saveLocal(common::getRcTeleopDynamicParamsPath(tbs_path_))) {
+    return false;
+  }
+  if (!imu_preprocess_params_->saveLocal(common::getImuPreprocessDynamicParamsPath(tbs_path_))) {
+    return false;
+  }
+
+  return true;
+}
+
+bool ParameterTuningWidget::saveRemote()
+{
+  const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path_);
+
+  if (!controller_params_->saveRemote(common::getControllerDynamicParamsPath(remote_tbs_path))) {
+    return false;
+  }
+  if (!observer_params_->saveRemote(common::getObserverDynamicParamsPath(remote_tbs_path))) {
+    return false;
+  }
+  if (!rc_teleop_params_->saveRemote(common::getRcTeleopDynamicParamsPath(remote_tbs_path))) {
+    return false;
+  }
+  if (!imu_preprocess_params_->saveRemote(common::getImuPreprocessDynamicParamsPath(remote_tbs_path))) {
+    return false;
+  }
+
+  return true;
+}
+
 void ParameterTuningWidget::onLoadButtonClicked()
 {
   if (drone_.name.empty()) {
@@ -120,33 +158,29 @@ void ParameterTuningWidget::onLoadButtonClicked()
 
 void ParameterTuningWidget::onSaveButtonClicked()
 {
-  const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path_);
+  if (ssh_client_.connect() == ssh::SSHClient::E_NO_ERROR) {
+    if (!saveRemote()) {
+      return;
+    }
+    if (!saveLocal()) {
+      return;
+    }
 
-  const auto controller_path_local = common::getControllerDynamicParamsPath(tbs_path_);
-  const auto controller_path_remote = common::getControllerDynamicParamsPath(remote_tbs_path);
-  if (!controller_params_->save(controller_path_local, controller_path_remote)) {
-    return;
+    qt::qInfoBox(this, "Dynamic parameters are saved to PC and FC successfully.");
   }
+  else {
+    if (!qt::yesOrNo(
+          this, "Failed to connect to FC. Do you want to save parameters only to PC?", qt::QMessageLevel::WARN)) {
+      return;
+    }
 
-  const auto observer_path_local = common::getObserverDynamicParamsPath(tbs_path_);
-  const auto observer_path_remote = common::getObserverDynamicParamsPath(remote_tbs_path);
-  if (!observer_params_->save(observer_path_local, observer_path_remote)) {
-    return;
+    if (!saveLocal()) {
+      return;
+    }
+
+    qt::qInfoBox(
+      this, "Dynamic parameters are saved only to PC. Write the Tobas Configuration Package to apply them to the FC.");
   }
-
-  const auto rc_teleop_path_local = common::getRcTeleopDynamicParamsPath(tbs_path_);
-  const auto rc_teleop_path_remote = common::getRcTeleopDynamicParamsPath(remote_tbs_path);
-  if (!rc_teleop_params_->save(rc_teleop_path_local, rc_teleop_path_remote)) {
-    return;
-  }
-
-  const auto imu_preprocess_path_local = common::getImuPreprocessDynamicParamsPath(tbs_path_);
-  const auto imu_preprocess_path_remote = common::getImuPreprocessDynamicParamsPath(remote_tbs_path);
-  if (!imu_preprocess_params_->save(imu_preprocess_path_local, imu_preprocess_path_remote)) {
-    return;
-  }
-
-  qt::qInfoBox(this, "Dynamic parameters are saved to PC and FC successfully.");
 }
 
 void ParameterTuningWidget::onResetButtonClicked()

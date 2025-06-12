@@ -1,5 +1,7 @@
 #include "tobas_parameter_tuning_gui/param_block.hpp"
 
+#include <QHBoxLayout>
+#include <QStyle>
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
@@ -8,6 +10,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
@@ -52,47 +55,124 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
 
   // Add sliders
   for (const auto& param : params.ints) {
-    IntConfig config;
-    config.slider = new qt::IntSliderTextWidget(param.min, param.max);
-    config.slider->set(param.value);
-    config.dflt = param.dflt;
+    const auto param_name_label = new QLabel(QString::fromStdString(param.name));
+    param_name_label->setFixedWidth(kParamNameWidth);
 
-    connect(
-      config.slider,
-      &qt::IntSliderTextWidget::valueChanged,
-      bind(&self::onIntParamChanged, this, placeholders::_1, param.name));
+    IntConfig config;
+    config.dflt = param.dflt;
+    config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
+
+    config.down_button_ = new QPushButton();
+    config.down_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
+
+    config.up_button_ = new QPushButton();
+    config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
+
+    config.slider = new qt::Slider(Qt::Horizontal);
+    config.slider->setRange(param.min, param.max);
+    config.slider->setValue(param.value);
+
+    config.line_edit = new QLineEdit();
+    config.line_edit->setFixedWidth(kLineEditWidth);
+    config.line_edit->setAlignment(Qt::AlignRight);
+    config.line_edit->setReadOnly(true);
+    config.line_edit->setText(QString::number(param.value) + config.prefix);
 
     int_configs_[param.name] = config;
-    form_->addRow(param.name.c_str(), config.slider);
+
+    const auto cols = new QHBoxLayout();
+    cols->addWidget(config.down_button_);
+    cols->addWidget(config.up_button_);
+    cols->addWidget(config.slider);
+    cols->addWidget(config.line_edit);
+    form_->addRow(param_name_label, cols);
+
+    connect(config.down_button_, &QPushButton::clicked, bind(&self::onIntDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, bind(&self::onIntUpButtonClicked, this, param.name));
+    connect(
+      config.slider,
+      &qt::Slider::valueChanged,
+      bind(&self::onIntSliderValueChanged, this, placeholders::_1, param.name));
   }
 
   for (const auto& param : params.doubles) {
-    DoubleConfig config;
-    config.slider = new qt::DoubleSliderTextWidget(param.min, param.max);
-    config.slider->set(param.value);
-    config.dflt = param.dflt;
+    const auto param_name_label = new QLabel(QString::fromStdString(param.name));
+    param_name_label->setFixedWidth(kParamNameWidth);
 
-    connect(
-      config.slider,
-      &qt::DoubleSliderTextWidget::valueChanged,
-      bind(&self::onDoubleParamChanged, this, placeholders::_1, param.name));
+    DoubleConfig config;
+    config.step = param.step;
+    config.dflt = param.dflt;
+    config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
+
+    config.down_button_ = new QPushButton();
+    config.down_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
+
+    config.up_button_ = new QPushButton();
+    config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
+
+    config.slider = new qt::Slider(Qt::Horizontal);
+    config.slider->setRange(param.min, param.max);
+    config.slider->setValue(param.value);
+
+    config.line_edit = new QLineEdit();
+    config.line_edit->setFixedWidth(kLineEditWidth);
+    config.line_edit->setAlignment(Qt::AlignRight);
+    config.line_edit->setReadOnly(true);
+    config.line_edit->setText(QString::number(param.step * param.value) + config.prefix);
 
     double_configs_[param.name] = config;
-    form_->addRow(param.name.c_str(), config.slider);
+
+    const auto cols = new QHBoxLayout();
+    cols->addWidget(config.down_button_);
+    cols->addWidget(config.up_button_);
+    cols->addWidget(config.slider);
+    cols->addWidget(config.line_edit);
+    form_->addRow(param_name_label, cols);
+
+    connect(config.down_button_, &QPushButton::clicked, bind(&self::onDoubleDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, bind(&self::onDoubleUpButtonClicked, this, param.name));
+    connect(
+      config.slider,
+      &qt::Slider::valueChanged,
+      bind(&self::onDoubleSliderValueChanged, this, placeholders::_1, param.name));
   }
 
   return true;
 }
 
-bool ParamBlockWidget::save(const fs::path& local_path, const fs::path& remote_path)
+bool ParamBlockWidget::saveLocal(const fs::path& path)
 {
   const auto config = createCurrentConfig();
 
-  if (!saveRemote(remote_path, config)) {
+  // 設定ファイルが存在することを確認
+  if (!fs::is_regular_file(path)) {
+    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
     return false;
   }
 
-  if (!saveLocal(local_path, config)) {
+  // PCに保存
+  if (!yaml::save(path, config)) {
+    qt::qErrorBox(this, "Failed to save configuration to PC.");
+    return false;
+  }
+
+  return true;
+}
+
+bool ParamBlockWidget::saveRemote(const fs::path& path)
+{
+  const auto config = createCurrentConfig();
+
+  // 設定ファイルが存在することを確認
+  if (!ssh_client_.fileExists(path)) {
+    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on FC.");
+    return false;
+  }
+
+  // FCに書き込む
+  const auto config_text = yaml::dump(config);
+  if (ssh_client_.sftpWrite(path, config_text, true) != ssh::SSHClient::E_NO_ERROR) {
+    qt::qErrorBox(this, "Failed to save configuration to FC: " + QString(ssh_client_.errorMessage()));
     return false;
   }
 
@@ -109,32 +189,34 @@ void ParamBlockWidget::clear()
 bool ParamBlockWidget::setToDefaults()
 {
   for (const auto& [name, config] : int_configs_) {
-    if (config.slider->get() == config.dflt) {
+    if (config.slider->value() == config.dflt) {
       continue;
     }
 
-    if (dparam_client_->set(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
+    if (dparam_client_->setInt(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
     config.slider->blockSignals(true);
-    config.slider->set(config.dflt);
+    config.slider->setValue(config.dflt);
+    config.line_edit->setText(QString::number(config.dflt) + config.prefix);
     config.slider->blockSignals(false);
   }
 
   for (const auto& [name, config] : double_configs_) {
-    if (config.slider->get() == config.dflt) {
+    if (config.slider->value() == config.dflt) {
       continue;
     }
 
-    if (dparam_client_->set(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
+    if (dparam_client_->setDouble(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
     config.slider->blockSignals(true);
-    config.slider->set(config.dflt);
+    config.slider->setValue(config.dflt);
+    config.line_edit->setText(QString::number(config.step * config.dflt) + config.prefix);
     config.slider->blockSignals(false);
   }
 
@@ -146,67 +228,56 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
   YAML::Node res(YAML::NodeType::Map);
 
   for (const auto& [name, config] : int_configs_) {
-    res[name] = config.slider->get();
+    res[name] = config.slider->value();
   }
 
   for (const auto& [name, config] : double_configs_) {
-    res[name] = format("{:e}", config.slider->get());  // 整数に丸められるとrosparamが取得できないため指数表記を強制
+    res[name] = config.slider->value();
   }
 
   return res;
 }
 
-bool ParamBlockWidget::saveLocal(const fs::path& path, const YAML::Node& node)
+void ParamBlockWidget::onIntDownButtonClicked(const std::string& name)
 {
-  // 設定ファイルが存在することを確認
-  if (!fs::is_regular_file(path)) {
-    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
-    return false;
-  }
-
-  // PCに保存
-  if (!yaml::save(path, node)) {
-    qt::qErrorBox(this, "Failed to save configuration to PC.");
-    return false;
-  }
-
-  return true;
+  auto& config = int_configs_.at(name);
+  config.slider->setValue(config.slider->value() - 1);
 }
 
-bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
+void ParamBlockWidget::onIntUpButtonClicked(const std::string& name)
 {
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR) {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
-    return false;
-  }
-
-  // 設定ファイルが存在することを確認
-  if (!ssh_client_.fileExists(path)) {
-    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on FC.");
-    return false;
-  }
-
-  // FCに書き込む
-  const auto config_text = yaml::dump(node);
-  if (ssh_client_.sftpWrite(path, config_text, true) != ssh::SSHClient::E_NO_ERROR) {
-    qt::qErrorBox(this, "Failed to save configuration to FC: " + QString(ssh_client_.errorMessage()));
-    return false;
-  }
-
-  return true;
+  auto& config = int_configs_.at(name);
+  config.slider->setValue(config.slider->value() + 1);
 }
 
-void ParamBlockWidget::onIntParamChanged(int value, const string& name)
+void ParamBlockWidget::onIntSliderValueChanged(long value, const string& name)
 {
-  if (dparam_client_->set(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
+  auto& config = int_configs_.at(name);
+  config.line_edit->setText(QString::number(value) + config.prefix);
+
+  if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
 
-void ParamBlockWidget::onDoubleParamChanged(double value, const string& name)
+void ParamBlockWidget::onDoubleDownButtonClicked(const std::string& name)
 {
-  if (dparam_client_->set(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
+  auto& config = double_configs_.at(name);
+  config.slider->setValue(config.slider->value() - 1);
+}
+
+void ParamBlockWidget::onDoubleUpButtonClicked(const std::string& name)
+{
+  auto& config = double_configs_.at(name);
+  config.slider->setValue(config.slider->value() + 1);
+}
+
+void ParamBlockWidget::onDoubleSliderValueChanged(long value, const string& name)
+{
+  auto& config = double_configs_.at(name);
+  config.line_edit->setText(QString::number(config.step * value) + config.prefix);
+
+  if (dparam_client_->setDouble(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }

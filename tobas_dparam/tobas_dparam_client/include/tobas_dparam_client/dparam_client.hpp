@@ -19,10 +19,10 @@ public:
 
   explicit DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name, const std::string& ns = "");
 
-  error_t set(const std::string& param_name, const bool& value);
-  error_t set(const std::string& param_name, const int& value);
-  error_t set(const std::string& param_name, const double& value);
-  error_t set(const std::string& param_name, const std::string& value);
+  error_t setBool(const std::string& param_name, const bool& value);
+  error_t setInt(const std::string& param_name, const long& value);
+  error_t setDouble(const std::string& param_name, const long& value);
+  error_t setString(const std::string& param_name, const std::string& value);
 
   error_t errorCode() const;
   const char* errorMessage() const;

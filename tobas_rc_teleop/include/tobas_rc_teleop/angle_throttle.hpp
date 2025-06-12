@@ -37,8 +37,8 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
-  bool maxAttitudeCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
+  bool maxAttitudeCb(const long& p);
+  bool maxHeadingRateCb(const long& p);
   bool attitudeExpoCb(const long& p);
   bool headingExpoCb(const long& p);
   bool throttleExpoCb(const long& p);

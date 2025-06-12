@@ -1,6 +1,7 @@
 #include "tobas_rc_teleop/angle_throttle.hpp"
 
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 using namespace std;
 
@@ -32,8 +33,8 @@ bool AngleThrottleController::requireAngularVelocity()
 
 void AngleThrottleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, M_PI / 4, 0., M_PI_2);
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
+  node->addDynamicIntParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 45, 0, 90, " deg");
+  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 180, " dps");
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
@@ -72,15 +73,15 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd_pub_->publish(move(cmd));
 }
 
-bool AngleThrottleController::maxAttitudeCb(const double& p)
+bool AngleThrottleController::maxAttitudeCb(const long& p)
 {
-  max_attitude_ = p;
+  max_attitude_ = tobas_std::deg2rad(p);
   return true;
 }
 
-bool AngleThrottleController::maxHeadingRateCb(const double& p)
+bool AngleThrottleController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = p;
+  max_head_rate_ = tobas_std::deg2rad(p);
   return true;
 }
 

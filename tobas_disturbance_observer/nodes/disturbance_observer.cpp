@@ -60,7 +60,7 @@ private:
 DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& options)
   : super("disturbance_observer", options), fk_solver_(tree_), inertia_solver_(tree_), js_converter_(tree_)
 {
-  addDynamicIntParam("cutoff_frequency", &self::cutoffFreqCb, this, 10, 1, 100);
+  addDynamicIntParam("cutoff_frequency", &self::cutoffFreqCb, this, 10, 1, 100, " Hz");
 
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::kDisturbanceForceTopic);
 
