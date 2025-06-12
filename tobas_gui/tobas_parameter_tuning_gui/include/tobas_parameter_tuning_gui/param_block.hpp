@@ -48,6 +48,7 @@ class ParamBlockWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kLabelPSize = 12;
+  static constexpr int kParamNameWidth = 250;
   static constexpr int kLineEditWidth = 150;
   static constexpr auto kLoadParamTimeout = std::chrono::seconds(3);
 

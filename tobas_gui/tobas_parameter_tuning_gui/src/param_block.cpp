@@ -55,6 +55,9 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
 
   // Add sliders
   for (const auto& param : params.ints) {
+    const auto param_name_label = new QLabel(QString::fromStdString(param.name));
+    param_name_label->setFixedWidth(kParamNameWidth);
+
     IntConfig config;
     config.dflt = param.dflt;
     config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
@@ -82,7 +85,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     cols->addWidget(config.up_button_);
     cols->addWidget(config.slider);
     cols->addWidget(config.line_edit);
-    form_->addRow(QString::fromStdString(param.name), cols);
+    form_->addRow(param_name_label, cols);
 
     connect(config.down_button_, &QPushButton::clicked, bind(&self::onIntDownButtonClicked, this, param.name));
     connect(config.up_button_, &QPushButton::clicked, bind(&self::onIntUpButtonClicked, this, param.name));
@@ -93,6 +96,9 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
   }
 
   for (const auto& param : params.doubles) {
+    const auto param_name_label = new QLabel(QString::fromStdString(param.name));
+    param_name_label->setFixedWidth(kParamNameWidth);
+
     DoubleConfig config;
     config.step = param.step;
     config.dflt = param.dflt;
@@ -121,7 +127,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     cols->addWidget(config.up_button_);
     cols->addWidget(config.slider);
     cols->addWidget(config.line_edit);
-    form_->addRow(QString::fromStdString(param.name), cols);
+    form_->addRow(param_name_label, cols);
 
     connect(config.down_button_, &QPushButton::clicked, bind(&self::onDoubleDownButtonClicked, this, param.name));
     connect(config.up_button_, &QPushButton::clicked, bind(&self::onDoubleUpButtonClicked, this, param.name));
