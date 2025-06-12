@@ -108,15 +108,39 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
   return true;
 }
 
-bool ParamBlockWidget::save(const fs::path& local_path, const fs::path& remote_path)
+bool ParamBlockWidget::saveLocal(const fs::path& path)
 {
   const auto config = createCurrentConfig();
 
-  if (!saveRemote(remote_path, config)) {
+  // 設定ファイルが存在することを確認
+  if (!fs::is_regular_file(path)) {
+    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
     return false;
   }
 
-  if (!saveLocal(local_path, config)) {
+  // PCに保存
+  if (!yaml::save(path, config)) {
+    qt::qErrorBox(this, "Failed to save configuration to PC.");
+    return false;
+  }
+
+  return true;
+}
+
+bool ParamBlockWidget::saveRemote(const fs::path& path)
+{
+  const auto config = createCurrentConfig();
+
+  // 設定ファイルが存在することを確認
+  if (!ssh_client_.fileExists(path)) {
+    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on FC.");
+    return false;
+  }
+
+  // FCに書き込む
+  const auto config_text = yaml::dump(config);
+  if (ssh_client_.sftpWrite(path, config_text, true) != ssh::SSHClient::E_NO_ERROR) {
+    qt::qErrorBox(this, "Failed to save configuration to FC: " + QString(ssh_client_.errorMessage()));
     return false;
   }
 
@@ -180,47 +204,6 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
   }
 
   return res;
-}
-
-bool ParamBlockWidget::saveLocal(const fs::path& path, const YAML::Node& node)
-{
-  // 設定ファイルが存在することを確認
-  if (!fs::is_regular_file(path)) {
-    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on PC.");
-    return false;
-  }
-
-  // PCに保存
-  if (!yaml::save(path, node)) {
-    qt::qErrorBox(this, "Failed to save configuration to PC.");
-    return false;
-  }
-
-  return true;
-}
-
-bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
-{
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR) {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
-    return false;
-  }
-
-  // 設定ファイルが存在することを確認
-  if (!ssh_client_.fileExists(path)) {
-    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on FC.");
-    return false;
-  }
-
-  // FCに書き込む
-  const auto config_text = yaml::dump(node);
-  if (ssh_client_.sftpWrite(path, config_text, true) != ssh::SSHClient::E_NO_ERROR) {
-    qt::qErrorBox(this, "Failed to save configuration to FC: " + QString(ssh_client_.errorMessage()));
-    return false;
-  }
-
-  return true;
 }
 
 void ParamBlockWidget::onIntParamChanged(long value, const string& name)

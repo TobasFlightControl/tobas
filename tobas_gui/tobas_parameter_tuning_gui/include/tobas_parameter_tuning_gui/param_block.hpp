@@ -50,7 +50,9 @@ public:
   explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label);
 
   bool load(const std::string& ns, const std::string& node_name);
-  bool save(const std::filesystem::path& local_path, const std::filesystem::path& remote_path);
+
+  bool saveLocal(const std::filesystem::path& path);
+  bool saveRemote(const std::filesystem::path& path);
 
   void clear();
 
@@ -69,9 +71,6 @@ private:
   qt::FormLayout* form_;
 
   YAML::Node createCurrentConfig() const;
-
-  bool saveLocal(const std::filesystem::path& path, const YAML::Node& node);
-  bool saveRemote(const std::filesystem::path& path, const YAML::Node& node);
 
 private Q_SLOTS:
   void onIntParamChanged(long value, const std::string& name);
