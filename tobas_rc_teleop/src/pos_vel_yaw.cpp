@@ -34,9 +34,10 @@ bool PosVelYawController::requireAngularVelocity()
 void PosVelYawController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
   node->addDynamicDoubleParam(
-    addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20);
-  node->addDynamicDoubleParam(addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20);
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360);
+    addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
+  node->addDynamicDoubleParam(
+    addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
+  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360, " dps");
   node->addDynamicIntParam(
     addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(

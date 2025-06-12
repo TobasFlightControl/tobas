@@ -8,6 +8,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
@@ -54,6 +55,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
   for (const auto& param : params.ints) {
     IntConfig config;
     config.dflt = param.dflt;
+    config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
 
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.min, param.max);
@@ -63,7 +65,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     config.line_edit->setFixedWidth(kLineEditWidth);
     config.line_edit->setAlignment(Qt::AlignRight);
     config.line_edit->setReadOnly(true);
-    config.line_edit->setText(QString::number(param.value));
+    config.line_edit->setText(QString::number(param.value) + config.prefix);
 
     int_configs_[param.name] = config;
 
@@ -80,6 +82,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     DoubleConfig config;
     config.step = param.step;
     config.dflt = param.dflt;
+    config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
 
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.min, param.max);
@@ -89,7 +92,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     config.line_edit->setFixedWidth(kLineEditWidth);
     config.line_edit->setAlignment(Qt::AlignRight);
     config.line_edit->setReadOnly(true);
-    config.line_edit->setText(QString::number(param.step * param.value));
+    config.line_edit->setText(QString::number(param.step * param.value) + config.prefix);
 
     double_configs_[param.name] = config;
 
@@ -141,7 +144,7 @@ bool ParamBlockWidget::setToDefaults()
 
     config.slider->blockSignals(true);
     config.slider->setValue(config.dflt);
-    config.line_edit->setText(QString::number(config.dflt));
+    config.line_edit->setText(QString::number(config.dflt) + config.prefix);
     config.slider->blockSignals(false);
   }
 
@@ -157,7 +160,7 @@ bool ParamBlockWidget::setToDefaults()
 
     config.slider->blockSignals(true);
     config.slider->setValue(config.dflt);
-    config.line_edit->setText(QString::number(config.step * config.dflt));
+    config.line_edit->setText(QString::number(config.step * config.dflt) + config.prefix);
     config.slider->blockSignals(false);
   }
 
@@ -223,7 +226,7 @@ bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
 void ParamBlockWidget::onIntParamChanged(long value, const string& name)
 {
   auto& config = int_configs_.at(name);
-  config.line_edit->setText(QString::number(value));
+  config.line_edit->setText(QString::number(value) + config.prefix);
 
   if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
@@ -233,7 +236,7 @@ void ParamBlockWidget::onIntParamChanged(long value, const string& name)
 void ParamBlockWidget::onDoubleParamChanged(long value, const string& name)
 {
   auto& config = double_configs_.at(name);
-  config.line_edit->setText(QString::number(config.step * value));
+  config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
   if (dparam_client_->setDouble(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");

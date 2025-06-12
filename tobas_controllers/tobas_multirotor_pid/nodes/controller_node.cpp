@@ -154,10 +154,11 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   const long default_rot_i_gain = do_dist_comp_rot_ ? 0 : 1;
 
   // Register dynamic parameters
-  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 0.2, 5, 1, 25);
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 0.2, 5, 1, 25);
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 1., 10, 1, 50);
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 1., 5, 1, 25);
+  addDynamicDoubleParam(
+    "horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 1., 10, 1, 50, " rad/s");
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 1., 5, 1, 25, " rad/s");
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
@@ -166,9 +167,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.1, default_trans_i_gain, 0, 10);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 1., default_rot_i_gain, 0, 10);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 1., default_rot_i_gain, 0, 10);
-  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40);
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20);
-  addDynamicIntParam("max_attitude", &self::maxAttitudeCb, this, 60, 0, 90);
+  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
+  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
+  addDynamicIntParam("max_attitude", &self::maxAttitudeCb, this, 60, 0, 90, " deg");
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);

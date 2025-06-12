@@ -32,7 +32,7 @@ MagPreprocessNode::MagPreprocessNode(const rclcpp::NodeOptions& options) : super
   // IIS2MDCのデータシートによると，LPF付きでノイズのRMS (= 標準偏差) の最大値が4.6mG (= 460nT)．
   // ナイキスト周波数を考慮したLPFを通さない場合はその√2倍で650nTほどだと思われる．
   // 電源やモータ等の環境ノイズも考えて，デフォルト値はそれよりさらに大きい値に設定．
-  addDynamicIntParam("mag_noise_stddev", &self::magNoiseStddevCb, this, 1000, 1, 5000);  // [nT]
+  addDynamicIntParam("mag_noise_stddev", &self::magNoiseStddevCb, this, 1000, 1, 5000, " nT");
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldWithCovarianceStamped>(tobas::kMagTopic);
   mag_raw_sub_ = createSubscriber(tobas::kMagRawTopic, &self::magRawCb, this);

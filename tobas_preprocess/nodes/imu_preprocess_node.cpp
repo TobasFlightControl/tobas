@@ -15,10 +15,6 @@ class ImuPreprocessNode : public tobas::BaseNode
   static constexpr int kMeasureGyroBiasCount = 1000;     // [-]
   static constexpr double kStaticGyroThreshold = 0.2;    // [rad/s]
 
-  // Default dynamic parameters
-  static constexpr long kDefaultAccelLowPassCutoff = 40;  // TODO: ノッチフィルタを導入したら上げる
-  static constexpr long kDefaultGyroLowPassCutoff = 40;   // TODO: ノッチフィルタを導入したら上げる
-
   using self = ImuPreprocessNode;
   using super = tobas::BaseNode;
 
@@ -53,8 +49,9 @@ private:
 
 ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super(tobas::node::kImuPreprocess, options)
 {
-  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, kDefaultAccelLowPassCutoff, 1, 400);
-  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, kDefaultGyroLowPassCutoff, 1, 400);
+  // TODO: ノッチフィルタを導入したらカットオフ周波数のデフォルト値を上げる
+  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, 40, 1, 400, " Hz");
+  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, 40, 1, 400, " Hz");
 
   imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);

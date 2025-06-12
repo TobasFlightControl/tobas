@@ -162,7 +162,8 @@ public:
     Obj* obj,
     const long& _default,
     const long& _min,
-    const long& _max);
+    const long& _max,
+    const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicDoubleParam(
@@ -172,7 +173,8 @@ public:
     const double& step,
     const long& _default,
     const long& _min,
-    const long& _max);
+    const long& _max,
+    const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicStringParam(
@@ -359,7 +361,8 @@ void BaseNode::addDynamicIntParam(
   Obj* obj,
   const long& _default,
   const long& _min,
-  const long& _max)
+  const long& _max,
+  const std::string& prefix)
 {
   TOBAS_ASSERT(_min <= _default && _default <= _max);
 
@@ -391,6 +394,7 @@ void BaseNode::addDynamicIntParam(
   dparam.dflt = _default;
   dparam.min = _min;
   dparam.max = _max;
+  dparam.prefix = prefix;
   dparams_.ints.push_back(dparam);
 }
 
@@ -402,7 +406,8 @@ void BaseNode::addDynamicDoubleParam(
   const double& step,
   const long& _default,
   const long& _min,
-  const long& _max)
+  const long& _max,
+  const std::string& prefix)
 {
   TOBAS_ASSERT(_min <= _default && _default <= _max);
 
@@ -435,6 +440,7 @@ void BaseNode::addDynamicDoubleParam(
   dparam.dflt = _default;
   dparam.min = _min;
   dparam.max = _max;
+  dparam.prefix = prefix;
   dparams_.doubles.push_back(dparam);
 }
 

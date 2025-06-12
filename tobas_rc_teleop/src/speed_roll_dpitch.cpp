@@ -33,10 +33,10 @@ bool SpeedRollDeltaPitchController::requireAngularVelocity()
 
 void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
 {
-  node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 0, 20);
-  node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 0, 80);
-  node->addDynamicIntParam(addMode("max_roll", mode), &self::maxRollCb, this, 90, 0, 180);
-  node->addDynamicIntParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, 45, 0, 90);
+  node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 0, 20, " m/s");
+  node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 0, 80, " m/s");
+  node->addDynamicIntParam(addMode("max_roll", mode), &self::maxRollCb, this, 90, 0, 180, " deg");
+  node->addDynamicIntParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, 45, 0, 90, " deg");
   node->addDynamicIntParam(addMode("speed_expo", mode), &self::speedExpoCb, this, 0, 0, kExpoScale);
   node->addDynamicIntParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);

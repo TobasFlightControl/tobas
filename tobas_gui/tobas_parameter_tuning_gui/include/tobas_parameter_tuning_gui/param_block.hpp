@@ -19,6 +19,7 @@ namespace param
 struct IntConfig
 {
   long dflt;
+  QString prefix;
 
   qt::Slider* slider;
   QLineEdit* line_edit;
@@ -28,6 +29,7 @@ struct DoubleConfig
 {
   double step;
   long dflt;
+  QString prefix;
 
   qt::Slider* slider;
   QLineEdit* line_edit;
