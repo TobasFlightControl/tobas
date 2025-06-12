@@ -51,8 +51,8 @@ private:
 
   bool maxHorizontalVelocityCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
-  bool maxAttitudeCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
+  bool maxAttitudeCb(const long& p);
+  bool maxHeadingRateCb(const long& p);
   bool horizontalVelocityExpoCb(const long& p);
   bool verticalVelocityExpoCb(const long& p);
   bool attitudeExpoCb(const long& p);

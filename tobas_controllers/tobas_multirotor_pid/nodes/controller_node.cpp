@@ -120,7 +120,7 @@ private:
   bool headingIGainCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxAttitudeCb(const double& p);
+  bool maxAttitudeCb(const long& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -150,25 +150,25 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
   // Iゲインは1~2秒で位置の補正が感じられるくらいに設定するのが良いらしい (GPT o1)
-  const auto default_trans_i_gain = do_dist_comp_trans_ ? 0. : 0.1;
-  const auto default_rot_i_gain = do_dist_comp_rot_ ? 0. : 1.;
+  const long default_trans_i_gain = do_dist_comp_trans_ ? 0 : 1;
+  const long default_rot_i_gain = do_dist_comp_rot_ ? 0 : 1;
 
   // Register dynamic parameters
-  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 1., 0.1, 5.);
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 10., 1., 50.);
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 5., 0.1, 25.);
-  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, default_trans_i_gain, 0., 1.);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, default_trans_i_gain, 0., 1.);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, default_rot_i_gain, 0., 10.);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, default_rot_i_gain, 0., 10.);
-  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 8., 1., 20.);
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 1., 10.);
-  addDynamicDoubleParam("max_attitude", &self::maxAttitudeCb, this, M_PI / 3, 0., M_PI_2 - 1e-3);
+  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 0.2, 5, 1, 25);
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 0.2, 5, 1, 25);
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 1., 10, 1, 50);
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 1., 5, 1, 25);
+  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.1, default_trans_i_gain, 0, 10);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.1, default_trans_i_gain, 0, 10);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 1., default_rot_i_gain, 0, 10);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 1., default_rot_i_gain, 0, 10);
+  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40);
+  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20);
+  addDynamicIntParam("max_attitude", &self::maxAttitudeCb, this, 60, 0, 90);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -348,9 +348,9 @@ bool ControllerNode::maxVerticalAccelCb(const double& p)
   return pos_pid_.setMaximumAccel(2, p);
 }
 
-bool ControllerNode::maxAttitudeCb(const double& p)
+bool ControllerNode::maxAttitudeCb(const long& p)
 {
-  return acc_atti_conv_.setMaxAttitude(p);
+  return acc_atti_conv_.setMaxAttitude(tobas_std::deg2rad(p));
 }
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

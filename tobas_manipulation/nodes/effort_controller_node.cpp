@@ -68,12 +68,12 @@ private:
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& efforts_msg);
 
-  bool jointStiffnessCb(const double& p);
-  bool jointDamping(const double& p);
-  bool linearStiffnessCb(const double& p);
-  bool angularStiffnessCb(const double& p);
-  bool linearDampingCb(const double& p);
-  bool angularDampingCb(const double& p);
+  bool jointStiffnessCb(const long& p);
+  bool jointDamping(const long& p);
+  bool linearStiffnessCb(const long& p);
+  bool angularStiffnessCb(const long& p);
+  bool linearDampingCb(const long& p);
+  bool angularDampingCb(const long& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -101,12 +101,12 @@ void EffortControllerNode::initialize()
   // shared_from_thisはコンストラクタでは呼べない
   tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
 
-  addDynamicDoubleParam("joint_stiffness", &self::jointStiffnessCb, this, 25., 0.1, 100.);
-  addDynamicDoubleParam("joint_damping", &self::jointDamping, this, 10., 0.1, 20.);
-  addDynamicDoubleParam("linear_stiffness", &self::linearStiffnessCb, this, 25., 0.1, 100.);
-  addDynamicDoubleParam("angular_stiffness", &self::angularStiffnessCb, this, 25., 0.1, 100.);
-  addDynamicDoubleParam("linear_damping", &self::linearDampingCb, this, 10., 0.1, 20.);
-  addDynamicDoubleParam("angular_damping", &self::angularDampingCb, this, 10., 0.1, 20.);
+  addDynamicIntParam("joint_stiffness", &self::jointStiffnessCb, this, 25, 1, 100);
+  addDynamicIntParam("joint_damping", &self::jointDamping, this, 10, 1, 20);
+  addDynamicIntParam("linear_stiffness", &self::linearStiffnessCb, this, 25, 1, 100);
+  addDynamicIntParam("angular_stiffness", &self::angularStiffnessCb, this, 25, 1, 100);
+  addDynamicIntParam("linear_damping", &self::linearDampingCb, this, 10, 1, 20);
+  addDynamicIntParam("angular_damping", &self::angularDampingCb, this, 10, 1, 20);
 
   efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
 
@@ -232,7 +232,7 @@ bool EffortControllerNode::taskSpaceControl(
   return true;
 }
 
-bool EffortControllerNode::jointStiffnessCb(const double& p)
+bool EffortControllerNode::jointStiffnessCb(const long& p)
 {
   if (!pid_js_.setStiffness(p)) {
     TOBAS_ERROR("Failed to set joint stiffness.");
@@ -242,7 +242,7 @@ bool EffortControllerNode::jointStiffnessCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::jointDamping(const double& p)
+bool EffortControllerNode::jointDamping(const long& p)
 {
   if (!pid_js_.setDamping(p)) {
     TOBAS_ERROR("Failed to set joint damping.");
@@ -252,7 +252,7 @@ bool EffortControllerNode::jointDamping(const double& p)
   return true;
 }
 
-bool EffortControllerNode::linearStiffnessCb(const double& p)
+bool EffortControllerNode::linearStiffnessCb(const long& p)
 {
   if (!pid_ts_.setLinearStiffness(p)) {
     TOBAS_ERROR("Failed to set linear stiffness.");
@@ -262,7 +262,7 @@ bool EffortControllerNode::linearStiffnessCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::angularStiffnessCb(const double& p)
+bool EffortControllerNode::angularStiffnessCb(const long& p)
 {
   if (!pid_ts_.setAngularStiffness(p)) {
     TOBAS_ERROR("Failed to set angular stiffness.");
@@ -272,7 +272,7 @@ bool EffortControllerNode::angularStiffnessCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::linearDampingCb(const double& p)
+bool EffortControllerNode::linearDampingCb(const long& p)
 {
   if (!pid_ts_.setLinearDamping(p)) {
     TOBAS_ERROR("Failed to set linear damping.");
@@ -282,7 +282,7 @@ bool EffortControllerNode::linearDampingCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::angularDampingCb(const double& p)
+bool EffortControllerNode::angularDampingCb(const long& p)
 {
   if (!pid_ts_.setAngularDamping(p)) {
     TOBAS_ERROR("Failed to set angular damping.");

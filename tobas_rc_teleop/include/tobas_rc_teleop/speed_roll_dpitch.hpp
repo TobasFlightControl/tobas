@@ -8,11 +8,6 @@ namespace tobas_rc_teleop
 {
 class SpeedRollDeltaPitchController : public BaseController
 {
-  static constexpr double kDefaultMinSpeed = 5.;           // [m/s]
-  static constexpr double kDefaultMaxSpeed = 20.;          // [m/s]
-  static constexpr double kDefaultMaxRoll = M_PI_2;        // [rad]
-  static constexpr double kDefaultMaxDeltaPitch = M_PI_4;  // [rad]
-
   using self = SpeedRollDeltaPitchController;
   using super = BaseController;
 
@@ -43,8 +38,8 @@ private:
 
   bool minSpeedCb(const double& p);
   bool maxSpeedCb(const double& p);
-  bool maxRollCb(const double& p);
-  bool maxDeltaPitchCb(const double& p);
+  bool maxRollCb(const long& p);
+  bool maxDeltaPitchCb(const long& p);
   bool speedExpoCb(const long& p);
   bool rollExpoCb(const long& p);
   bool pitchExpoCb(const long& p);

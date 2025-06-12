@@ -44,7 +44,7 @@ private:
 
   bool maxHorizontalVelocityCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
+  bool maxHeadingRateCb(const long& p);
   bool horizontalVelocityExpoCb(const long& p);
   bool verticalVelocityExpoCb(const long& p);
   bool headingExpoCb(const long& p);
