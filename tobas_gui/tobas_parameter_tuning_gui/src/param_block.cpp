@@ -1,5 +1,7 @@
 #include "tobas_parameter_tuning_gui/param_block.hpp"
 
+#include <QHBoxLayout>
+#include <QStyle>
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
@@ -57,6 +59,12 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     config.dflt = param.dflt;
     config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
 
+    config.down_button_ = new QPushButton();
+    config.down_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
+
+    config.up_button_ = new QPushButton();
+    config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
+
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.min, param.max);
     config.slider->setValue(param.value);
@@ -70,12 +78,18 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     int_configs_[param.name] = config;
 
     const auto cols = new QHBoxLayout();
+    cols->addWidget(config.down_button_);
+    cols->addWidget(config.up_button_);
     cols->addWidget(config.slider);
     cols->addWidget(config.line_edit);
     form_->addRow(QString::fromStdString(param.name), cols);
 
+    connect(config.down_button_, &QPushButton::clicked, bind(&self::onIntDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, bind(&self::onIntUpButtonClicked, this, param.name));
     connect(
-      config.slider, &qt::Slider::valueChanged, bind(&self::onIntParamChanged, this, placeholders::_1, param.name));
+      config.slider,
+      &qt::Slider::valueChanged,
+      bind(&self::onIntSliderValueChanged, this, placeholders::_1, param.name));
   }
 
   for (const auto& param : params.doubles) {
@@ -83,6 +97,12 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     config.step = param.step;
     config.dflt = param.dflt;
     config.prefix = QString::fromStdString(str::convertToSuperscript(param.prefix));
+
+    config.down_button_ = new QPushButton();
+    config.down_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
+
+    config.up_button_ = new QPushButton();
+    config.up_button_->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
 
     config.slider = new qt::Slider(Qt::Horizontal);
     config.slider->setRange(param.min, param.max);
@@ -97,12 +117,18 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     double_configs_[param.name] = config;
 
     const auto cols = new QHBoxLayout();
+    cols->addWidget(config.down_button_);
+    cols->addWidget(config.up_button_);
     cols->addWidget(config.slider);
     cols->addWidget(config.line_edit);
     form_->addRow(QString::fromStdString(param.name), cols);
 
+    connect(config.down_button_, &QPushButton::clicked, bind(&self::onDoubleDownButtonClicked, this, param.name));
+    connect(config.up_button_, &QPushButton::clicked, bind(&self::onDoubleUpButtonClicked, this, param.name));
     connect(
-      config.slider, &qt::Slider::valueChanged, bind(&self::onDoubleParamChanged, this, placeholders::_1, param.name));
+      config.slider,
+      &qt::Slider::valueChanged,
+      bind(&self::onDoubleSliderValueChanged, this, placeholders::_1, param.name));
   }
 
   return true;
@@ -206,7 +232,19 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
   return res;
 }
 
-void ParamBlockWidget::onIntParamChanged(long value, const string& name)
+void ParamBlockWidget::onIntDownButtonClicked(const std::string& name)
+{
+  auto& config = int_configs_.at(name);
+  config.slider->setValue(config.slider->value() - 1);
+}
+
+void ParamBlockWidget::onIntUpButtonClicked(const std::string& name)
+{
+  auto& config = int_configs_.at(name);
+  config.slider->setValue(config.slider->value() + 1);
+}
+
+void ParamBlockWidget::onIntSliderValueChanged(long value, const string& name)
 {
   auto& config = int_configs_.at(name);
   config.line_edit->setText(QString::number(value) + config.prefix);
@@ -216,7 +254,19 @@ void ParamBlockWidget::onIntParamChanged(long value, const string& name)
   }
 }
 
-void ParamBlockWidget::onDoubleParamChanged(long value, const string& name)
+void ParamBlockWidget::onDoubleDownButtonClicked(const std::string& name)
+{
+  auto& config = double_configs_.at(name);
+  config.slider->setValue(config.slider->value() - 1);
+}
+
+void ParamBlockWidget::onDoubleUpButtonClicked(const std::string& name)
+{
+  auto& config = double_configs_.at(name);
+  config.slider->setValue(config.slider->value() + 1);
+}
+
+void ParamBlockWidget::onDoubleSliderValueChanged(long value, const string& name)
 {
   auto& config = double_configs_.at(name);
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);

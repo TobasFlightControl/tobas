@@ -5,6 +5,7 @@
 #include <yaml-cpp/yaml.h>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 
 #include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -21,6 +22,8 @@ struct IntConfig
   long dflt;
   QString prefix;
 
+  QPushButton* down_button_;
+  QPushButton* up_button_;
   qt::Slider* slider;
   QLineEdit* line_edit;
 };
@@ -31,6 +34,8 @@ struct DoubleConfig
   long dflt;
   QString prefix;
 
+  QPushButton* down_button_;
+  QPushButton* up_button_;
   qt::Slider* slider;
   QLineEdit* line_edit;
 };
@@ -73,8 +78,13 @@ private:
   YAML::Node createCurrentConfig() const;
 
 private Q_SLOTS:
-  void onIntParamChanged(long value, const std::string& name);
-  void onDoubleParamChanged(long value, const std::string& name);
+  void onIntDownButtonClicked(const std::string& name);
+  void onIntUpButtonClicked(const std::string& name);
+  void onIntSliderValueChanged(long value, const std::string& name);
+
+  void onDoubleDownButtonClicked(const std::string& name);
+  void onDoubleUpButtonClicked(const std::string& name);
+  void onDoubleSliderValueChanged(long value, const std::string& name);
 };
 }  // namespace param
 }  // namespace gui
