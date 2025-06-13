@@ -129,11 +129,11 @@ bool TiltRotorMixer_pinv::solve(
     const auto& gpar_elem = par_elem.parent->second;
     const auto& gpar_seg = gpar_elem.segment;
 
-    // 祖父母フレームの姿勢行列を取得
-    const auto& B_Rot_gpar = fk_solver_.getFrame(gpar_seg.name()).M;
+    // 祖父母フレームを取得
+    const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
 
     // ティルト軸と鉛直方向の偏角を計算
-    const auto tilt_axis_B = B_Rot_gpar * par_joint.axis();
+    const auto tilt_axis_B = B_T_gpar.M * par_joint.axis();
     const auto tilt_axis_W = cur_rot * tilt_axis_B;
     auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
     if (declination > M_PI_2) {
@@ -160,14 +160,13 @@ bool TiltRotorMixer_pinv::solve(
       E_.block<3, 2>(3, col).setZero();
     }
     else {
-      const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
       const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(rotor->link_name);
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
       const auto d = rotor->sign();
       const auto& cm = rotor->moment_const;
 
-      const Matrix<double, 3, 2> B = B_Rot_gpar.data * A_.at(idx);
+      const Matrix<double, 3, 2> B = B_T_gpar.M.data * A_.at(idx);
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
       const auto D = C * B;
 
