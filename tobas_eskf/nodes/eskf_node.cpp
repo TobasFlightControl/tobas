@@ -7,7 +7,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/geometry.hpp>
+#include <tobas_std_tools/gnss.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/universal_constants.hpp>

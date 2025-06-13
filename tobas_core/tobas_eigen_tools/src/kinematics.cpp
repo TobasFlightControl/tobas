@@ -2,7 +2,6 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/assert.hpp>
-#include <tobas_std_tools/geometry.hpp>
 
 #define EPS numeric_limits<double>::epsilon()
 

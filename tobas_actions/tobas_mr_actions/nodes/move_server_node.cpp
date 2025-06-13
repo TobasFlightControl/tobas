@@ -3,7 +3,7 @@
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_std_tools/geometry.hpp>
+#include <tobas_std_tools/gnss.hpp>
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_tools/util.hpp>
 
