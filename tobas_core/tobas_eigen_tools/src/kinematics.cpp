@@ -1,4 +1,4 @@
-#include "tobas_eigen_tools/geometry.hpp"
+#include "tobas_eigen_tools/kinematics.hpp"
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/assert.hpp>
@@ -11,12 +11,6 @@ using namespace Eigen;
 
 namespace eigen
 {
-void quaternionFromAccelMag(const Vector3d& a, const Vector3d& m, const Vector3d& m0, Quaterniond& q)
-{
-  tobas_std::quaternionFromAccelMag(
-    a.x(), a.y(), a.z(), m.x(), m.y(), m.z(), m0.x(), m0.y(), m0.z(), q.x(), q.y(), q.z(), q.w());
-}
-
 Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
 {
   const auto cos_pitch = cos(pitch);
