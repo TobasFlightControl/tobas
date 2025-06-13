@@ -3,6 +3,8 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
+#include <tobas_std_tools/float.hpp>
+
 namespace eigen
 {
 /* 3次元ベクトルをNED座標系からNWU座標系に変換する．Rx(π)をかけるのと同じ． */
@@ -119,5 +121,13 @@ inline Eigen::Matrix3d skew2(double x, double y, double z)
 inline Eigen::Matrix3d skew2(const Eigen::Vector3d& v)
 {
   return skew2(v(0), v(1), v(2));
+}
+
+/* x0を通る方向v (||v|| = 1) の直線に対しpから下ろした垂点を求める． */
+inline Eigen::Vector3d
+projectPointOnToLine(const Eigen::Vector3d& x0, const Eigen::Vector3d& v, const Eigen::Vector3d& p)
+{
+  assert(tobas_std::isClose(v.norm(), 1.));
+  return x0 + v.dot(p - x0) * v;
 }
 }  // namespace eigen

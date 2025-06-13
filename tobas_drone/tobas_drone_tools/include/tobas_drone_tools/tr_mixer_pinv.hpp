@@ -52,6 +52,7 @@ private:
   Eigen::Vector6d f_;
   Eigen::VectorXd x_;
 
-  std::map<std::string, bool> is_singular_;  // 各ティルトロータが特異状態かどうか
+  std::map<std::string, kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
+  std::map<std::string, bool> is_singular_;           // 各ティルトロータが特異状態かどうか
 };
 }  // namespace tobas
