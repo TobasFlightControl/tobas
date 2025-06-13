@@ -27,7 +27,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
 
   // 各タブを追加
   addTab(propulsion_system, propulsion_system->name());
-  addTab(fixed_wing, fixed_wing->name());
+  // addTab(fixed_wing, fixed_wing->name());  // TODO
   addTab(joint_config, joint_config->name());
   addTab(imu, imu->name());
   addTab(magnetometer, magnetometer->name());
