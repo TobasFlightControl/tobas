@@ -25,7 +25,7 @@ public:
 
   std::string name = "";
   Joint::joint_type_t type = FIXED;
-  Vector origin = Vector::Zero();
+  Vector origin = Vector::Zero();  // The position of the drive shaft wrt. the parent frame
   double damping = 0.;
   double friction = 0.;
   double lower_limit = -INFINITY;
