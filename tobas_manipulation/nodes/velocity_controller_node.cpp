@@ -295,7 +295,7 @@ void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
 {
-  if (tree_.getNrOfJoints() == 0) {
+  if (tree_.empty()) {
     return;
   }
   if (home_js_.states.size() == 0) {

@@ -201,32 +201,32 @@ bool Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const string&
   return true;
 }
 
-bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& chain) const
+bool Tree::getChain(const string& root_name, const string& tip_name, Chain& chain) const
 {
   // Clear chain
   chain.clear();
 
-  // Walk down from chain_root and chain_tip to the seg of the tree
+  // Walk down from root_name and tip_name to the seg of the tree
   vector<SegmentMap::key_type> parents_chain_root, parents_chain_tip;
-  for (auto s = getSegment(chain_root); s != segments_.end(); s = s->second.parent) {
+  for (auto s = getSegment(root_name); s != segments_.end(); s = s->second.parent) {
     parents_chain_root.push_back(s->first);
     if (s->first == root_name_) {
       break;
     }
   }
   if (parents_chain_root.empty() || parents_chain_root.back() != root_name_) {
-    cerr << "\"" + chain_root + "\" does not exist in the tree." << endl;
+    cerr << "\"" + root_name + "\" does not exist in the tree." << endl;
     return false;
   }
 
-  for (auto s = getSegment(chain_tip); s != segments_.end(); s = s->second.parent) {
+  for (auto s = getSegment(tip_name); s != segments_.end(); s = s->second.parent) {
     parents_chain_tip.push_back(s->first);
     if (s->first == root_name_) {
       break;
     }
   }
   if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_) {
-    cerr << "\"" + chain_tip + "\" does not exist in the tree." << endl;
+    cerr << "\"" + tip_name + "\" does not exist in the tree." << endl;
     return false;
   }
 

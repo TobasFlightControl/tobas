@@ -38,6 +38,8 @@ public:
   FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configurations
   uint32_t num_sbus_channels = 0;          // The number of S.BUS channels
 
+  inline bool empty() const;
+
   void clear();
 
   bool isValid() const;
@@ -50,4 +52,9 @@ public:
 
   bool hasServoJoint() const;
 };
+
+inline bool Drone::empty() const
+{
+  return prop == nullptr;
+}
 }  // namespace tobas

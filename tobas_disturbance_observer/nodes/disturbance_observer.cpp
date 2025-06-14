@@ -127,11 +127,11 @@ void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArr
 
 void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (tree_.getNrOfJoints() == 0) {
+  if (tree_.empty()) {
     return;
   }
 
-  if (drone_.prop->numRotors() == 0) {
+  if (drone_.empty()) {
     return;
   }
 

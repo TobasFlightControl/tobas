@@ -53,6 +53,7 @@ private:
 
   void setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res);
 
+  void publishArmingTimerCb();
   void autoDisarmTimerCb();
 };
 
@@ -68,7 +69,7 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
 
   set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
 
-  publish_arming_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this);
+  publish_arming_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArmingTimerCb, this);
   auto_disarm_timer_ = createTimer(tobas::kAutoDisarmTimeout, &self::autoDisarmTimerCb, this, false);
 }
 
@@ -93,8 +94,6 @@ void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg)
 {
   if (!drone_) {
-    TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Command is ignored because drone configuration has not been received yet.");
     return;
   }
 
@@ -118,26 +117,11 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       // Convert target thrusts to target speeds
       for (const auto& elem : tar_thrusts_msg->thrusts) {
-        const auto& link_name = elem.link_name;
-        const auto& tar_thrust = elem.thrust;
-        const auto erotor = eprop->getRotor(link_name);
-
+        const auto erotor = eprop->getRotor(elem.link_name);
+        const auto tar_thrust = max(elem.thrust, 0.);
         tar_speeds_msg->speeds.emplace_back();
-        tar_speeds_msg->speeds.back().link_name = link_name;
-
-        if (tar_thrust >= 0.) {
-          tar_speeds_msg->speeds.back().speed = erotor->speedFromThrust(tar_thrust);
-        }
-        else {
-          TOBAS_WARN_THROTTLE(
-            tobas::kTypicalWarnPeriod,
-            "Negative thrust is commanded on rotor \"",
-            link_name,
-            "\": ",
-            tar_thrust,
-            " < 0 [N]");
-          tar_speeds_msg->speeds.back().speed = 0.;
-        }
+        tar_speeds_msg->speeds.back().link_name = elem.link_name;
+        tar_speeds_msg->speeds.back().speed = erotor->speedFromThrust(tar_thrust);
       }
 
       // Publish target speeds
@@ -150,23 +134,13 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
 
       // エンジン軸にかかる合計トルクとその係数を求める
+      double thrust_sum = 0.;
       double torque_sum = 0.;
       double K = 0.;
       for (const auto& elem : tar_thrusts_msg->thrusts) {
-        auto tar_thrust = elem.thrust;
-
-        if (tar_thrust < 0.) {
-          TOBAS_WARN_THROTTLE(
-            tobas::kTypicalWarnPeriod,
-            "Negative thrust is commanded on rotor \"",
-            elem.link_name,
-            "\": ",
-            tar_thrust,
-            " < 0 [N]");
-          tar_thrust = 0.;
-        }
-
         const auto irotor = iprop->getRotor(elem.link_name);
+        const auto tar_thrust = max(elem.thrust, 0.);
+        thrust_sum += tar_thrust;
         torque_sum += irotor->moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
         K += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::cube(irotor->gear_ratio);
       }
@@ -175,24 +149,25 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header = tar_thrusts_msg->header;
 
-      // エンジンスロットルとプロペラピッチ角を求める
-      if (torque_sum > 0.) {
-        const auto engine_speed = sqrt(torque_sum / K);
-        ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
-        for (const auto& elem : tar_thrusts_msg->thrusts) {
-          const auto irotor = iprop->getRotor(elem.link_name);
-          ice_cmd_msg->pitch_angles.emplace_back();
-          ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
-          ice_cmd_msg->pitch_angles.back().angle = irotor->pitchFromThrust(engine_speed, elem.thrust);
-        }
-      }
-      else {
+      // エンジンスロットルとプロペラピッチ角を決める
+      if (thrust_sum <= 0.) {
         ice_cmd_msg->engine_throttle = 0.;
         for (const auto& elem : tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);
           ice_cmd_msg->pitch_angles.emplace_back();
           ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
           ice_cmd_msg->pitch_angles.back().angle = irotor->pitch_ref;
+        }
+      }
+      else {
+        const auto engine_speed = sqrt(torque_sum / K);
+        ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
+        for (const auto& elem : tar_thrusts_msg->thrusts) {
+          const auto irotor = iprop->getRotor(elem.link_name);
+          const auto tar_thrust = max(elem.thrust, 0.);
+          ice_cmd_msg->pitch_angles.emplace_back();
+          ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
+          ice_cmd_msg->pitch_angles.back().angle = irotor->pitchFromThrust(engine_speed, tar_thrust);
         }
       }
 
@@ -242,6 +217,11 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
   }
 
   res->success = true;
+}
+
+void RotorControllerNode::publishArmingTimerCb()
+{
+  publishArming();
 }
 
 void RotorControllerNode::autoDisarmTimerCb()

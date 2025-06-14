@@ -17,7 +17,7 @@ public:
   SegmentMap::const_iterator parent;
   std::vector<SegmentMap::const_iterator> children;
 
-  inline explicit TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, const size_t& _q_nr);
+  inline explicit TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, size_t _q_nr);
 
   static inline TreeElement Root(const std::string& root_name);
 
@@ -26,7 +26,7 @@ private:
 };
 
 /**
- * @brief  This class encapsulates a tree kinematic interconnection structure.
+ * @brief This class encapsulates a tree kinematic interconnection structure.
  * It is built out of segments.
  */
 class Tree
@@ -36,7 +36,7 @@ public:
   using ConstSharedPtr = std::shared_ptr<const Tree>;
 
   /**
-   * The constructor of a tree, a new tree is always empty
+   * @brief The constructor of a tree, a new tree is always empty
    */
   explicit Tree(const std::string& root_name = "");
 
@@ -53,7 +53,7 @@ public:
   void clear();
 
   /**
-   * Adds a new segment to the end of the segment with hook_name as seg_name.
+   * @brief Adds a new segment to the end of the segment with hook_name as seg_name.
    *
    * @param segment new segment to add
    * @param hook_name name of the segment to connect this segment with
@@ -61,7 +61,7 @@ public:
   bool addSegment(const Segment& segment, const std::string& hook_name);
 
   /**
-   * Adds a complete chain to the end of the segment with hook_name as seg_name.
+   * @brief Adds a complete chain to the end of the segment with hook_name as seg_name.
    *
    * @param chain Chain to add
    * @param hook_name name of the segment to connect the chain with
@@ -69,7 +69,7 @@ public:
   bool addChain(const Chain& chain, const std::string& hook_name);
 
   /**
-   * Adds a complete tree to the end of the segment with hookname as seg_name.
+   * @brief Adds a complete tree to the end of the segment with hookname as seg_name.
    *
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
@@ -77,18 +77,18 @@ public:
   bool addTree(const Tree& tree, const std::string& hook_name);
 
   /**
-   * Request the chain of the tree between chain_root and chain_tip.
-   * The chain_root and chain_tip can be in different branches of the tree,
-   * the chain_root can be an ancestor of chain_tip, and chain_tip can be an ancestor of chain_root.
+   * @brief Request the chain of the tree between root_name and tip_name.
+   * The root_name and tip_name can be in different branches of the tree,
+   * the root_name can be an ancestor of tip_name, and tip_name can be an ancestor of root_name.
    *
-   * @param chain_root the name of the root segment of the chain
-   * @param chain_tip the name of the tip segment of the chain
+   * @param root_name the name of the root segment of the chain
+   * @param tip_name the name of the tip segment of the chain
    * @param chain the resulting chain
    */
-  bool getChain(const std::string& chain_root, const std::string& chain_tip, Chain& chain) const;
+  bool getChain(const std::string& root_name, const std::string& tip_name, Chain& chain) const;
 
   /**
-   * Extract a tree having seg_name as root. Only child segments of seg_name are added to the new tree.
+   * @brief Extract a tree having seg_name as root. Only child segments of seg_name are added to the new tree.
    *
    * @param seg_name The name of the segment to be used as root of the new tree
    * @param tree The resulting sub-tree
@@ -96,12 +96,14 @@ public:
    */
   bool getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok = false) const;
 
-  inline const size_t& getNrOfJoints() const;
-  inline const size_t& getNrOfSegments() const;
+  inline size_t getNrOfJoints() const;
+  inline size_t getNrOfSegments() const;
   inline SegmentMap::const_iterator getSegment(const std::string& seg_name) const;
   inline SegmentMap::const_iterator getRootSegment() const;
   inline const std::string& getRootName() const;
   inline const SegmentMap& getSegments() const;
+
+  inline bool empty() const;
 
   inline bool hasSegment(const std::string& seg_name) const;
 
@@ -119,7 +121,7 @@ private:
   bool addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
 
-inline TreeElement::TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, const size_t& _q_nr)
+inline TreeElement::TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, size_t _q_nr)
   : segment(_segment), q_nr(_q_nr), parent(_parent)
 {
 }
@@ -133,12 +135,12 @@ inline TreeElement::TreeElement(const std::string& name) : segment(name), q_nr(0
 {
 }
 
-inline const size_t& Tree::getNrOfJoints() const
+inline size_t Tree::getNrOfJoints() const
 {
   return nj_;
 }
 
-inline const size_t& Tree::getNrOfSegments() const
+inline size_t Tree::getNrOfSegments() const
 {
   return ns_;
 }
@@ -161,6 +163,11 @@ inline const std::string& Tree::getRootName() const
 inline const SegmentMap& Tree::getSegments() const
 {
   return segments_;
+}
+
+inline bool Tree::empty() const
+{
+  return ns_ == 0;
 }
 
 inline bool Tree::hasSegment(const std::string& seg_name) const
