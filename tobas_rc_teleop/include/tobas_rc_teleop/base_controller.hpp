@@ -26,58 +26,58 @@ public:
 
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadZone = 0.05;
+  static constexpr double kDeadZone = 0.02;  // S.BUSのジッタは±2us程度だから，全帯域の1%もあれば十分．
 
-  const tobas_std::Range<double> dead_zone_;
+  const tobas_std::Range<double> deadband_;
 
-  /* dead_zoneに入っているかどうか． */
-  inline bool inDeadZone(const double& x) const;
+  /* デッドバンドに入っていたら0にする． */
+  inline double deadband(double x) const;
 
   /* RCInputの値を範囲[lb, ub]に投影する． */
-  inline double remap(const double& x, const double& lb, const double& ub) const;
+  inline double remap(double x, double lb, double ub) const;
 
-  /* RCInputの値がdead_zoneに入っていたら0，入っていなければ[lb, ub]に投影する． */
-  inline double remapDead(const double& x, const double& lb, const double& ub) const;
+  /* RCInputの値がデッドバンドに入っていたら0，入っていなければ[lb, ub]に投影する． */
+  inline double remapDead(double x, double lb, double ub) const;
 
   /* expo -> remap */
-  inline double expoRemap(const double& x, const double& exp, const double& lb, const double& ub) const;
+  inline double expoRemap(double x, double exp, double lb, double ub) const;
 
   /* dead -> expo -> remap */
-  inline double expoRemapDead(const double& x, const double& exp, const double& lb, const double& ub) const;
+  inline double expoRemapDead(double x, double exp, double lb, double ub) const;
 
   /* FutabaのEXPO関数とたぶん同じ: [-1, 1] -> [-1, 1] */
-  static inline double expo(const double& x, const double& exp);
+  static inline double expo(double x, double exp);
 
   /* テキストにフライトモードのプリフィックスを与える． */
   static std::string addMode(const std::string& text, tobas::flight_mode_t mode);
 };
 
-inline bool BaseController::inDeadZone(const double& x) const
+inline double BaseController::deadband(double x) const
 {
-  return dead_zone_.inRange(x);
+  return deadband_.inRange(x) ? 0. : x;
 }
 
-inline double BaseController::remap(const double& x, const double& lb, const double& ub) const
+inline double BaseController::remap(double x, double lb, double ub) const
 {
   return math::remap(x, tobas::kRcInputMin, tobas::kRcInputMax, lb, ub);
 }
 
-inline double BaseController::expoRemap(const double& x, const double& exp, const double& lb, const double& ub) const
+inline double BaseController::expoRemap(double x, double exp, double lb, double ub) const
 {
   return remap(expo(x, exp), lb, ub);
 }
 
-inline double BaseController::remapDead(const double& x, const double& lb, const double& ub) const
+inline double BaseController::remapDead(double x, double lb, double ub) const
 {
-  return inDeadZone(x) ? 0. : remap(x, lb, ub);
+  return remap(deadband(x), lb, ub);
 }
 
-inline double BaseController::expoRemapDead(const double& x, const double& exp, const double& lb, const double& ub) const
+inline double BaseController::expoRemapDead(double x, double exp, double lb, double ub) const
 {
-  return inDeadZone(x) ? 0. : expoRemap(x, exp, lb, ub);
+  return expoRemap(deadband(x), exp, lb, ub);
 }
 
-inline double BaseController::expo(const double& x, const double& exp)
+inline double BaseController::expo(double x, double exp)
 {
   assert(abs(x) < 1.);
   assert(abs(exp) < 1.);
