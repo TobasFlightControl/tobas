@@ -2,12 +2,12 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_tools/control_latency_publisher.hpp>
 
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
+#include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 
@@ -61,15 +61,15 @@ private:
   size_t publish_state_rate_;  // [Hz]
 
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
-  steady_clock::duration prev_sim_time_;
-  steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
+  builtin_interfaces::msg::Time prev_sim_time_;
+  builtin_interfaces::msg::Time last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   RateManager::SharedPtr publish_state_rate_manager_;
 
   // Publishers
+  ros2::PublisherPtr<tobas_msgs::msg::Latency> latency_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::EngineState> engine_state_pub_;
   map<string, ros2::PublisherPtr<tobas_msgs::msg::RotorState>> rotor_state_pubs_;
   map<string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_gt_pubs_;
-  tobas::ControlLatencyPublisher latency_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_sub_;
@@ -139,10 +139,10 @@ void GazeboICEPropulsionSystemPlugin::Configure(
 void GazeboICEPropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
   // Update the previous simulation step time
-  prev_sim_time_ = info.simTime;
+  ros2::timeChronoToMsg(info.simTime, prev_sim_time_);
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にスロットルをゼロにする
-  const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
+  const auto secs_from_last_cmd = (prev_sim_time_ - last_cmd_time_).seconds();
   if (secs_from_last_cmd > kAutoStopTimeout) {
     engine_.setThrottle(0.);
   }
@@ -200,6 +200,7 @@ void GazeboICEPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& s
 
 void GazeboICEPropulsionSystemPlugin::registerPubSub()
 {
+  latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
   engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(tobas::kEngineStateTopic);
 
   for (auto& [link_name, _] : rotors_) {
@@ -208,8 +209,6 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
     rotor_state_gt_pubs_[link_name] =
       createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name));
   }
-
-  latency_pub_.initialize(node_);
 
   ice_cmd_sub_ = createSubscriber(tobas::kIcePropulsionSystemCmdTopic, &self::iceCommandCb, this);
   wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
@@ -223,7 +222,7 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
 
   // エンジンスロットルを更新
   const auto& engine_throt = ice_cmd->engine_throttle;
-  if (!std::isfinite(engine_throt)) {
+  if (!isfinite(engine_throt)) {
     TOBAS_WARN("The commanded engine throttle is not finite: ", engine_throt);
     engine_.setThrottle(engine_throt);
     return;
@@ -239,7 +238,7 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
       TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");
       continue;
     }
-    if (!std::isfinite(elem.angle)) {
+    if (!isfinite(elem.angle)) {
       TOBAS_WARN("The commanded pitch angle of propeller \"", elem.link_name, "\" is not finite: ", elem.angle);
       rotors_.at(elem.link_name).setTargetPitchAngle(0.);
       continue;
@@ -248,7 +247,10 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
   }
 
   // Publish control latency
-  latency_pub_.publish(ice_cmd->header.stamp);
+  auto latency = make_unique<tobas_msgs::msg::Latency>();
+  latency->header.stamp = prev_sim_time_;
+  latency->data = prev_sim_time_ - ice_cmd->header.stamp;
+  latency_pub_->publish(move(latency));
 }
 
 void GazeboICEPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
