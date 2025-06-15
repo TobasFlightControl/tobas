@@ -13,6 +13,14 @@ class BMM150
 {
   static constexpr char kI2cDevice[] = "/dev/i2c-1";
   static constexpr uint8_t kI2cAddress = 0x10;  // ref: p.36
+  static constexpr uint8_t kSelfTestRef = 0x01;
+  // over flow handlings numbers, written in https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c
+  static constexpr int16_t kXyaxesFlipOverflowAdcval = -4096;
+  static constexpr int16_t kZaxisHallOverflowAdcval = -16384;
+  static constexpr int16_t kOverflowOutput = -32768; // return this value as mag sensor raw data ()
+  static constexpr int16_t kNegativeSaturationZ = -32767;
+  static constexpr int16_t kPositiveSaturationZ = 32767;
+  static constexpr double kResolution = 1.0 / 16.0; // (int16_t)raw_data * kResolution = ~ micro tesla
 
 public:
   explicit BMM150();
@@ -68,13 +76,6 @@ private:
     CHIP_ID = 0x32,
   };
 
-  enum self_test_t : uint8_t
-  {
-    SELF_TEST_X = 1,
-    SELF_TEST_Y = 1,
-    SELF_TEST_Z = 1,
-  };
-
   enum config_t : uint8_t
   {
     // CFG_REG_A
@@ -120,15 +121,6 @@ private:
     // ref: p.31 nZ = 1 + REPZ
     // CFG_REG_F
     REPZ = 26,
-  };
-
-  enum over_flow_t : int16_t
-  {
-    XYAXES_FLIP_OVERFLOW_ADCVAL = -4096,
-    ZAXIS_HALL_OVERFLOW_ADCVAL = -16384,
-    OVERFLOW_OUTPUT = -32768,
-    NEGATIVE_SATURATION_Z = -32767,
-    POSITIVE_SATURATION_Z = 32767,
   };
 
   struct TrimData

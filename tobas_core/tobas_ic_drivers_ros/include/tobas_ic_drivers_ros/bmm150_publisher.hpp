@@ -1,17 +1,20 @@
+#pragma once
+
 #include <chrono>
 #include <functional>
 #include <memory>
 #include <string>
 
 #include <rclcpp/rclcpp.hpp>
-#include <geometry_msgs/msg/point_stamped.hpp>
 
 #include <tobas_ic_drivers/bmm150.hpp>
 
-class Bmm150Publisher : public rclcpp::Node
+#include <geometry_msgs/msg/point_stamped.hpp>
+
+class Bmm150PublisherNode : public rclcpp::Node
 {
 public:
-  explicit Bmm150Publisher();
+  explicit Bmm150PublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
   bool initialize();
 
 private:

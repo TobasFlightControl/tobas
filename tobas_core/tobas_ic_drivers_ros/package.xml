@@ -8,9 +8,10 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-    <depend>rclcpp</depend>
-    <depend>geometry_msgs</depend>
-	<depend>tobas_ic_drivers</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tobas_ic_drivers</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

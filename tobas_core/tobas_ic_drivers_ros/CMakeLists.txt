@@ -13,33 +13,29 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(tobas_ic_drivers REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(tobas_ic_drivers REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	tobas_ic_drivers
     rclcpp
+	rclcpp_components
 	geometry_msgs
+	tobas_ic_drivers
 )
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
-set(targets_to_install "")
-
-foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NAME ${FILE} NAME_WE)
-	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NAME})
-endforeach()
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "Bmm150PublisherNode" EXECUTABLE bmm150_publisher
+)
 
 install(
-	TARGETS ${PROJECT_NAME}
+	TARGETS ${PROJECT_NAME}_node
 	EXPORT ${PROJECT_NAME}
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
