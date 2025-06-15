@@ -459,6 +459,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど姿勢制御の自然周波数が小さくなるように調整する．
+  // これで低速域でのジャイロに対する可変ピッチの感度が一定になる (memo: 3-33)
   const auto thrust_thresh = mass_holder_.getMass() * tobas_std::kGravity * throttle_gain_thresh_;
   const auto thrust_ratio = thrust_thresh > 0. ? tar_thrust_ / thrust_thresh : INFINITY;
   const auto thrust_coef = min(thrust_ratio, 1.);
