@@ -28,7 +28,7 @@ class GazeboImuPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugPubTopic[] = "gazebo/imu_debug";
-  static constexpr double kAccGyroRotorNoiseRate = 0.05;  // TODO: モータのジャイロへの影響も真面目に考察
+  static constexpr double kAccGyroVibrationRate = 0.05;  // TODO: モータのジャイロへの影響も真面目に考察
 
   using self = GazeboImuPlugin;
 
@@ -70,7 +70,7 @@ private:
   gz::math::Vector3d gyro_offset_;
   gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d gyro_bias_ = gz::math::Vector3d::Zero;
-  map<string, double> rotor_noises_;  // [N] 各モータで発生する周波数ノイズ
+  map<string, double> vibration_forces_;  // [N] 各モータで発生する周波数ノイズ
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -132,7 +132,7 @@ void GazeboImuPlugin::Configure(
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const auto qos = ros2::makeQoS(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
-    { rotor_noises_[link_name] = msg->rotor_noise; };
+    { vibration_forces_[link_name] = msg->vibration_force; };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
@@ -163,9 +163,9 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
     return;
   }
 
-  if (rotor_noises_.size() < rotor_link_names_.size()) {
+  if (vibration_forces_.size() < rotor_link_names_.size()) {
     if (info.simTime > kWarnStartTime) {
-      const auto num_not_received = rotor_link_names_.size() - rotor_noises_.size();
+      const auto num_not_received = rotor_link_names_.size() - vibration_forces_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
   }
@@ -210,13 +210,13 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
 
 void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)
 {
-  // Compute rotor noise
-  double rotor_noise_sum = 0;
-  for (const auto& [_, rotor_noise] : rotor_noises_) {
-    rotor_noise_sum += rotor_noise;
+  // Compute vibration force
+  double vibration_force_sum = 0;
+  for (const auto& [_, vibration_force] : vibration_forces_) {
+    vibration_force_sum += vibration_force;
   }
-  const auto rotor_noise_acc = rotor_noise_sum / mass_holder_.getMass();
-  const auto rotor_noise_gyro = rotor_noise_acc * kAccGyroRotorNoiseRate;
+  const auto vibration_acc = vibration_force_sum / mass_holder_.getMass();  // [m/s^2]
+  const auto vibration_gyro = vibration_acc * kAccGyroVibrationRate;        // [rad/s]
 
   // Accel
   const auto tau_a = acc_bias_corr_time_;
@@ -230,7 +230,7 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Simulate accelerometer noise processes and add them to the true linear acceleration
   for (size_t i = 0; i < 3; ++i) {
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
-    acc[i] += sigma_a_d * noise_(rnd_gen_) + acc_offset_[i] + acc_bias_[i] + rotor_noise_acc;
+    acc[i] += sigma_a_d * noise_(rnd_gen_) + acc_offset_[i] + acc_bias_[i] + vibration_acc;
   }
 
   // Gyro
@@ -245,7 +245,7 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Simulate gyroscope noise processes and add them to the true angular rate
   for (size_t i = 0; i < 3; ++i) {
     gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
-    gyro[i] += sigma_g_d * noise_(rnd_gen_) + gyro_offset_[i] + gyro_bias_[i] + rotor_noise_gyro;
+    gyro[i] += sigma_g_d * noise_(rnd_gen_) + gyro_offset_[i] + gyro_bias_[i] + vibration_gyro;
   }
 }
 }  // namespace gazebo

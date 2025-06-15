@@ -188,7 +188,7 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
     ros2::timeChronoToMsg(info.simTime, state_msg_gt->header.stamp);
     state_msg_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
     state_msg_gt->current = 0.;
-    state_msg_gt->rotor_noise = 0.;  // TODO: エンジン駆動プロペラの振動モデル
+    state_msg_gt->vibration_force = 0.;  // TODO: エンジン駆動プロペラの振動モデル
     rotor_state_gt_pubs_.at(link_name)->publish(move(state_msg_gt));
   }
 }

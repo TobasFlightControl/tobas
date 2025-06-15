@@ -46,9 +46,9 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
   static constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
   // Default parameters
-  static constexpr size_t kDefaultPublishStateRate = 400;  // [Hz]
-  static constexpr double kDefaultRotorNoiseCoef = 0.5;    // [-]
-  static constexpr double kDefaultMaxModelErrorRate = 0.;
+  static constexpr size_t kDefaultPublishStateRate = 400;    // [Hz]
+  static constexpr double kDefaultVibrationForceCoef = 0.5;  // [-]
+  static constexpr double kDefaultMaxModelErrorRate = 0.;    // [-]
 
   using self = GazeboElectricPropulsionSystemPlugin;
   using BreakSrv = std_srvs::srv::Trigger;
@@ -76,7 +76,7 @@ private:
   int direction_;                // Turning direction: 1(CCW) or -1(CW)
   double max_current_;           // [A] ESCの最大電流
   size_t publish_state_rate_;    // [Hz]
-  double noise_coef_;            // [-]
+  double vibration_coef_;        // [-]
   double max_model_error_rate_;  // [-]
 
   double throttle_ = 0.;  // [0, 1]
@@ -214,7 +214,7 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
   getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, NON_NEGATIVE);
-  getSdfParam(sdf, "rotorNoiseCoefficient", noise_coef_, kDefaultRotorNoiseCoef, NON_NEGATIVE);
+  getSdfParam(sdf, "vibrationForceCoefficient", vibration_coef_, kDefaultVibrationForceCoef, NON_NEGATIVE);
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
@@ -355,7 +355,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
   state_msg_gt->rotation_speed = direction_ * velocity_;
   state_msg_gt->current = current;
-  state_msg_gt->rotor_noise = noise_coef_ * thrust * sin(num_blades_ * position_);  // TODO: 倍周波も考慮
+  state_msg_gt->vibration_force = vibration_coef_ * thrust * sin(num_blades_ * position_);  // TODO: 倍周波も考慮
   state_gt_pub_->publish(move(state_msg_gt));
 }
 
