@@ -5,9 +5,11 @@
 #include <tobas_drone_tools/mr_accel_attitude_converter.hpp>
 #include <tobas_drone_tools/mr_mixer_qp.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
+#include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
@@ -34,6 +36,8 @@ class ControllerNode : public tobas::BaseNode
   using self = ControllerNode;
   using super = tobas::BaseNode;
 
+  static constexpr double kThrottleGainThresh = 0.5;
+
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -41,6 +45,7 @@ private:
   tobas::Drone drone_;
   kdl::Tree tree_;
 
+  kdl::TreeMassHolder mass_holder_;
   tobas::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
@@ -56,9 +61,10 @@ private:
   double atti_zeta_, head_zeta_;  // [-]
   kdl::Vector rot_ki_;
   kdl::Vector rot_ei_;
+  double throttle_gain_thresh_;  // [-]
 
   // Values depending on drone configuration
-  double max_thrust_sum_;
+  double max_thrust_sum_;  // [N]
 
   // State
   bool drone_received_ = false;
@@ -120,6 +126,7 @@ private:
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
   bool maxAttitudeCb(const long& p);
+  bool throttleGainThresholdCb(const long& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -139,6 +146,7 @@ private:
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::node::kController, options)
+  , mass_holder_(tree_)
   , js_converter_(tree_)
   , z_rotors_(drone_, tobas::Z_POSITIVE)
   , acc_atti_conv_(tree_)
@@ -169,6 +177,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
   addDynamicIntParam("max_attitude", &self::maxAttitudeCb, this, 60, 0, 90, " deg");
+  addDynamicIntParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 50, 0, 100, " %");
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -195,10 +204,13 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
 bool ControllerNode::updateInternalDataStructures()
 {
-  if (!z_rotors_.updateInternalDataStructures()) {
+  if (!mass_holder_.updateInternalDataStructures()) {
     return false;
   }
   if (!js_converter_.updateInternalDataStructures()) {
+    return false;
+  }
+  if (!z_rotors_.updateInternalDataStructures()) {
     return false;
   }
   if (!acc_atti_conv_.updateInternalDataStructures()) {
@@ -346,6 +358,12 @@ bool ControllerNode::maxAttitudeCb(const long& p)
   return acc_atti_conv_.setMaxAttitude(tobas_std::deg2rad(p));
 }
 
+bool ControllerNode::throttleGainThresholdCb(const long& p)
+{
+  throttle_gain_thresh_ = static_cast<double>(p) / 100.;
+  return true;
+}
+
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
@@ -442,6 +460,13 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
   }
 
+  // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど姿勢制御の自然周波数が小さくなるように調整する．
+  const auto thrust_thresh = mass_holder_.getMass() * tobas_std::kGravity * throttle_gain_thresh_;
+  const auto thrust_ratio = thrust_thresh == 0. ? INFINITY : tar_thrust_ / thrust_thresh;
+  const auto thrust_coef = sqrt(min(thrust_ratio, 1.));
+  const auto atti_wn = atti_wn_ * thrust_coef;
+  const auto head_wn = head_wn_ * thrust_coef;
+
   // 姿勢制御器
   if (tar_angle_) {
     if (!tar_gyro_) {
@@ -452,8 +477,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const kdl::Euler cur_rpy(odom->frame.M);
 
     // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
-    const auto atti_kp = atti_wn_ / atti_zeta_ / 2;
-    const auto head_kp = head_wn_ / head_zeta_ / 2;
+    const auto atti_kp = atti_wn / atti_zeta_ / 2;
+    const auto head_kp = head_wn / head_zeta_ / 2;
     const kdl::Vector kp(atti_kp, atti_kp, head_kp);
 
     // 誤差を計算
@@ -478,8 +503,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 角速度制御器
   if (tar_gyro_) {
     // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
-    const auto atti_kd = atti_wn_ * atti_zeta_ * 2;
-    const auto head_kd = head_wn_ * head_zeta_ * 2;
+    const auto atti_kd = atti_wn * atti_zeta_ * 2;
+    const auto head_kd = head_wn * head_zeta_ * 2;
     const kdl::Vector kd(atti_kd, atti_kd, head_kd);
 
     // 目標角加速度を計算
