@@ -460,8 +460,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
   // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど姿勢制御の自然周波数が小さくなるように調整する．
   const auto thrust_thresh = mass_holder_.getMass() * tobas_std::kGravity * throttle_gain_thresh_;
-  const auto thrust_ratio = thrust_thresh == 0. ? INFINITY : tar_thrust_ / thrust_thresh;
-  const auto thrust_coef = sqrt(min(thrust_ratio, 1.));
+  const auto thrust_ratio = thrust_thresh > 0. ? tar_thrust_ / thrust_thresh : INFINITY;
+  const auto thrust_coef = min(thrust_ratio, 1.);
   const auto atti_wn = atti_wn_ * thrust_coef;
   const auto head_wn = head_wn_ * thrust_coef;
 
