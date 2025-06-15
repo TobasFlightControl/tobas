@@ -3,7 +3,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_std_tools/range.hpp>
 
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
@@ -26,9 +25,7 @@ public:
 
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadZone = 0.02;  // S.BUSのジッタは±2us程度だから，全帯域の1%もあれば十分．
-
-  const tobas_std::Range<double> deadband_;
+  static constexpr double kDeadband = 0.02;  // S.BUSのジッタは±2us程度だから，全帯域の1%もあれば十分．
 
   /* デッドバンドに入っていたら0にする． */
   inline double deadband(double x) const;
@@ -54,7 +51,7 @@ protected:
 
 inline double BaseController::deadband(double x) const
 {
-  return deadband_.inRange(x) ? 0. : x;
+  return fabs(x) < kDeadband ? 0. : x;
 }
 
 inline double BaseController::remap(double x, double lb, double ub) const
