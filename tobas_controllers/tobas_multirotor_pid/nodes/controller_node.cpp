@@ -36,8 +36,6 @@ class ControllerNode : public tobas::BaseNode
   using self = ControllerNode;
   using super = tobas::BaseNode;
 
-  static constexpr double kThrottleGainThresh = 0.5;
-
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -517,7 +515,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       TOBAS_FATAL("Failed to solve mixing equation.");
       return;
     }
-    const auto& thrusts = mixer_.getThrusts();
 
     // 目標推力を発行
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
@@ -525,7 +522,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
-      thrusts_msg->thrusts.back().thrust = max(thrusts(idx), 0.);
+      thrusts_msg->thrusts.back().thrust = mixer_.getThrust(idx);  // 微小値はゼロに固定
     }
     tar_thrusts_pub_->publish(move(thrusts_msg));
 

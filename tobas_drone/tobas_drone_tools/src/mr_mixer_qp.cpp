@@ -132,9 +132,9 @@ bool MultiRotorMixer_QP::solve(
   return true;
 }
 
-const VectorXd& MultiRotorMixer_QP::getThrusts() const
+double MultiRotorMixer_QP::getThrust(size_t idx) const
 {
-  return qp_.solution();
+  return thrustDeadband(qp_.solution()(idx));
 }
 
 bool MultiRotorMixer_QP::setBaseWeight(double p)

@@ -97,8 +97,8 @@ bool MultiRotorMixer_pinv::solve(
   return true;
 }
 
-const VectorXd& MultiRotorMixer_pinv::getThrusts() const
+double MultiRotorMixer_pinv::getThrust(size_t idx) const
 {
-  return x_;
+  return thrustDeadband(x_(idx));
 }
 }  // namespace tobas

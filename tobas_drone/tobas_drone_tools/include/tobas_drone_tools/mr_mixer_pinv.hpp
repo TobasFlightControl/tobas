@@ -29,7 +29,7 @@ public:
     const double& tar_thrusts_sum,
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
-  const Eigen::VectorXd& getThrusts() const;
+  double getThrust(size_t idx) const;
 
 private:
   kdl::TreeFkSolverPosAll fk_solver_;

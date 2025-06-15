@@ -204,7 +204,7 @@ bool TiltRotorMixer_pinv::solve(
 
 double TiltRotorMixer_pinv::getThrust(size_t idx) const
 {
-  return x_.segment<2>(2 * idx).norm();
+  return thrustDeadband(x_.segment<2>(2 * idx).norm());
 }
 
 double TiltRotorMixer_pinv::getTiltAngle(size_t idx) const

@@ -135,7 +135,7 @@ bool TiltRotorMixer_SQP::solve(
 
 double TiltRotorMixer_SQP::getThrust(size_t idx) const
 {
-  return sqp_.optimal()(drone_.prop->numRotors() + idx);
+  return thrustDeadband(sqp_.optimal()(drone_.prop->numRotors() + idx));
 }
 
 double TiltRotorMixer_SQP::getTiltAngle(size_t idx) const

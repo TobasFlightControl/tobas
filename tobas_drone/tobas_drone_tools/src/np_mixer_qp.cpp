@@ -126,9 +126,14 @@ bool NonPlanarMixer_QP::solve(
   return true;
 }
 
-const VectorXd& NonPlanarMixer_QP::getThrusts() const
+const Eigen::VectorXd& NonPlanarMixer_QP::getThrusts() const
 {
   return qp_.solution();
+}
+
+double NonPlanarMixer_QP::getThrust(size_t idx) const
+{
+  return thrustDeadband(qp_.solution()(idx));
 }
 
 bool NonPlanarMixer_QP::setLinearWeight(double p)
