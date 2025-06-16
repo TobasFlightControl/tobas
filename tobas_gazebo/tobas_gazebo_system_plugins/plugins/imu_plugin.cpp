@@ -7,6 +7,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+#include <tobas_gazebo_msgs/msg/engine_state.hpp>
 #include <tobas_gazebo_msgs/msg/imu_debug.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
@@ -45,7 +46,7 @@ public:
 
 private:
   // SDF parameters
-  std::string link_name_;
+  string link_name_;
   size_t update_rate_;          // Update rate [Hz]
   gz::math::Vector3d offset_;   // B_Pos_BS
   double acc_noise_density_;    // Accel noise density [m/s^2/√Hz]
@@ -70,18 +71,22 @@ private:
   gz::math::Vector3d gyro_offset_;
   gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d gyro_bias_ = gz::math::Vector3d::Zero;
-  map<string, double> vibration_forces_;  // [N] 各モータで発生する周波数ノイズ
+  double engine_vibration_force_;               // [N] エンジンで発生する振動力
+  map<string, double> rotor_vibration_forces_;  // [N] 各モータで発生する振動力
 
-  std::random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
+  random_device rnd_dev_;
+  mt19937 rnd_gen_;
   NormalDistribution noise_;
 
   ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
+  ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
+
+  void engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg);
 };
 
 GazeboImuPlugin::GazeboImuPlugin() : rnd_gen_(rnd_dev_())
@@ -127,12 +132,14 @@ void GazeboImuPlugin::Configure(
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
 
+  engine_state_sub_ = createSubscriber(kEngineStateGtTopic, &self::engineStateCb, this);
+
   // モータ状態のコールバックとサブスクライバを設定
   for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const auto qos = ros2::makeQoS(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
-    { vibration_forces_[link_name] = msg->vibration_force; };
+    { rotor_vibration_forces_[link_name] = msg->vibration_force; };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
@@ -163,9 +170,9 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
     return;
   }
 
-  if (vibration_forces_.size() < rotor_link_names_.size()) {
+  if (rotor_vibration_forces_.size() < rotor_link_names_.size()) {
     if (info.simTime > kWarnStartTime) {
-      const auto num_not_received = rotor_link_names_.size() - vibration_forces_.size();
+      const auto num_not_received = rotor_link_names_.size() - rotor_vibration_forces_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
   }
@@ -192,7 +199,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   addNoise(acc_meas, gyro_meas, dt);
 
   // Publish IMU message
-  auto imu_msg = std::make_unique<tobas_msgs::ImuStamped>();
+  auto imu_msg = make_unique<tobas_msgs::ImuStamped>();
   ros2::timeChronoToMsg(info.simTime, imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(acc_meas, imu_msg->imu.accel);
@@ -200,7 +207,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   imu_pub_->publish(move(imu_msg));
 
   // Publish debug message
-  auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
+  auto debug_msg = make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
   ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
   debug_msg->header.frame_id = link_name_;
   vectorGazeboToMsg(acc_bias_, debug_msg->acc_bias);
@@ -211,8 +218,8 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
 void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)
 {
   // Compute vibration force
-  double vibration_force_sum = 0;
-  for (const auto& [_, vibration_force] : vibration_forces_) {
+  auto vibration_force_sum = engine_vibration_force_;
+  for (const auto& [_, vibration_force] : rotor_vibration_forces_) {
     vibration_force_sum += vibration_force;
   }
   const auto vibration_acc = vibration_force_sum / mass_holder_.getMass();  // [m/s^2]
@@ -247,6 +254,11 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
     gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
     gyro[i] += sigma_g_d * noise_(rnd_gen_) + gyro_offset_[i] + gyro_bias_[i] + vibration_gyro;
   }
+}
+
+void GazeboImuPlugin::engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg)
+{
+  engine_vibration_force_ = msg->vibration_force;
 }
 }  // namespace gazebo
 

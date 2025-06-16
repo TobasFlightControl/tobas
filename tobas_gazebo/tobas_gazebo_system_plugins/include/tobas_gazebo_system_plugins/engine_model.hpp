@@ -22,6 +22,9 @@ public:
   /* 回転位置 [rad] */
   double getPosition() const;
 
+  /* 振動力 [N] */
+  double getVibrationForce() const;
+
   void setThrottle(const double& throttle);
 
   bool step(const double& dt);
@@ -33,6 +36,8 @@ private:
   std::pair<double, double> engine_const_;  // A, B (memo: 3-28)
   double time_const_up_;                    // [s]
   double time_const_down_;                  // [s]
+  int cycles_;
+  double vibration_force_coef_;  // [N/(rad/s)^2]
 
   // Command
   double throttle_ = 0.;  // スロットル開度 [0, 1]

@@ -260,7 +260,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   size_t queue_size)
 {
   const auto qos = ros2::makeQoS(latch, reliable, queue_size);
-  auto cb = std::bind(fp, obj, std::placeholders::_1);
+  const auto cb = std::bind(fp, obj, std::placeholders::_1);
   return create_subscription<MsgType>(topic_name, qos, cb);
 }
 
@@ -288,9 +288,9 @@ ros2::ActionServerPtr<ActionType> BaseNode::createAction(
 {
   // Callback functions need to return quickly to avoid blocking the executor,
   // so we declare a lambda function to be called inside a new thread.
-  auto handle_accepted = [execute, obj](ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+  const auto handle_accepted = [execute, obj](ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   {
-    auto execute_in_thread = [execute, obj, goal_handle]() { return (obj->*execute)(goal_handle); };
+    const auto execute_in_thread = [execute, obj, goal_handle]() { return (obj->*execute)(goal_handle); };
     std::thread(execute_in_thread).detach();
   };
 

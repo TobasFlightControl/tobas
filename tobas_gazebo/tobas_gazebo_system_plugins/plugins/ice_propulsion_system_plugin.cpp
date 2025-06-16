@@ -3,6 +3,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+#include <tobas_gazebo_msgs/msg/engine_state.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
@@ -68,6 +69,7 @@ private:
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::Latency> latency_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::EngineState> engine_state_pub_;
+  ros2::PublisherPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_gt_pub_;
   map<string, ros2::PublisherPtr<tobas_msgs::msg::RotorState>> rotor_state_pubs_;
   map<string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_gt_pubs_;
 
@@ -166,31 +168,37 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
   // Publish observed states
   if (publish_state_rate_manager_->update(info.simTime)) {
     for (const auto& [link_name, rotor] : rotors_) {
-      auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
-      state_msg_obs->link_name = link_name;
-      state_msg_obs->speed = rotor.getSpeed(engine_.getSpeed());
-      state_msg_obs->thrust = rotor.getThrust(engine_.getSpeed());
-      state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
-      rotor_state_pubs_.at(link_name)->publish(move(state_msg_obs));
+      auto rotor_state_obs = make_unique<tobas_msgs::msg::RotorState>();
+      rotor_state_obs->link_name = link_name;
+      rotor_state_obs->speed = rotor.getSpeed(engine_.getSpeed());
+      rotor_state_obs->thrust = rotor.getThrust(engine_.getSpeed());
+      rotor_state_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
+      rotor_state_pubs_.at(link_name)->publish(move(rotor_state_obs));
     }
 
-    auto engine_state = make_unique<tobas_msgs::msg::EngineState>();
-    ros2::timeChronoToMsg(info.simTime, engine_state->header.stamp);
-    engine_state->speed = engine_.getSpeed();
-    engine_state->fuel_quantity = NAN;    // TODO
-    engine_state->oil_temperature = NAN;  // TODO
-    engine_state_pub_->publish(move(engine_state));
+    auto engine_state_obs = make_unique<tobas_msgs::msg::EngineState>();
+    ros2::timeChronoToMsg(info.simTime, engine_state_obs->header.stamp);
+    engine_state_obs->speed = engine_.getSpeed();
+    engine_state_obs->fuel_quantity = NAN;    // TODO
+    engine_state_obs->oil_temperature = NAN;  // TODO
+    engine_state_pub_->publish(move(engine_state_obs));
   }
 
   // Publish ground-truth states
   for (const auto& [link_name, rotor] : rotors_) {
-    auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
-    ros2::timeChronoToMsg(info.simTime, state_msg_gt->header.stamp);
-    state_msg_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
-    state_msg_gt->current = 0.;
-    state_msg_gt->vibration_force = 0.;  // TODO: エンジン駆動プロペラの振動モデル
-    rotor_state_gt_pubs_.at(link_name)->publish(move(state_msg_gt));
+    auto rotor_state_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
+    ros2::timeChronoToMsg(info.simTime, rotor_state_gt->header.stamp);
+    rotor_state_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
+    rotor_state_gt->current = 0.;
+    rotor_state_gt->vibration_force = 0.;  // TODO: エンジン駆動プロペラの振動モデル
+    rotor_state_gt_pubs_.at(link_name)->publish(move(rotor_state_gt));
   }
+
+  auto engine_state_gt = make_unique<tobas_gazebo_msgs::msg::EngineState>();
+  ros2::timeChronoToMsg(info.simTime, engine_state_gt->header.stamp);
+  engine_state_gt->speed = engine_.getSpeed();
+  engine_state_gt->vibration_force = engine_.getVibrationForce();
+  engine_state_gt_pub_->publish(move(engine_state_gt));
 }
 
 void GazeboICEPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -202,6 +210,7 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
 {
   latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
   engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(tobas::kEngineStateTopic);
+  engine_state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::EngineState>(kEngineStateGtTopic);
 
   for (auto& [link_name, _] : rotors_) {
     rotor_state_pubs_[link_name] =

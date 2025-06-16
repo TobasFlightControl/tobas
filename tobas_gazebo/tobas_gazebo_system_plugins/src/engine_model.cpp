@@ -37,6 +37,12 @@ double EngineModel::getPosition() const
   return position_;
 }
 
+double EngineModel::getVibrationForce() const
+{
+  // TODO: 遠心力以外の力も考慮
+  return vibration_force_coef_ * math::sqr(getSpeed()) * sin(position_ * cycles_);
+}
+
 void EngineModel::setThrottle(const double& throttle)
 {
   throttle_ = clamp(throttle, 0., 1.);
@@ -76,6 +82,18 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
   if (time_const_up_ < 0. || time_const_down_ < 0.) {
     gzerr << "The time constant of engine speed convergence must be non-negative." << endl;
+    return false;
+  }
+
+  getSdfParam(sdf, "engineCycles", cycles_, 2);
+  if (cycles_ <= 0) {
+    gzerr << "The engine cycles must be positive." << endl;
+    return false;
+  }
+
+  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, 1e-3);
+  if (vibration_force_coef_ < 0.) {
+    gzerr << "The vibration force coefficient must be non-negative." << endl;
     return false;
   }
 
