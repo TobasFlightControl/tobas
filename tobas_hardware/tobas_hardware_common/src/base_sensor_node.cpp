@@ -1,7 +1,5 @@
 #include "tobas_hardware_common/base_sensor_node.hpp"
 
-using namespace std;
-
 namespace hardware
 {
 BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options) : super(name, options)

@@ -26,9 +26,6 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_std_msgs/msg/bool_stamped.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 class ControllerNode : public tobas::BaseNode
 {
   using self = ControllerNode;
@@ -73,7 +70,7 @@ private:
   tobas_command_msgs::Accel::SharedPtr acc_cmd_;
   tobas_command_msgs::Angle::SharedPtr angle_cmd_;
   tobas_command_msgs::Rate::SharedPtr rate_cmd_;
-  shared_ptr<kdl::Vector> tar_dgyro_;
+  std::shared_ptr<kdl::Vector> tar_dgyro_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -474,19 +471,19 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 目標推力を発行
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     tar_thrusts->header.stamp = odom->header.stamp;
-    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
-      tar_thrusts->thrusts.back().thrust = max(thrusts(idx), 0.);
+      tar_thrusts->thrusts.back().thrust = std::max(thrusts(idx), 0.);
     }
-    tar_thrusts_pub_->publish(move(tar_thrusts));
+    tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
     // フィードバックメッセージを埋める
     feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
     feedback->target_dgyro = *tar_dgyro_;
 
     // フィードバックメッセージを発行
-    feedback_pub_->publish(move(feedback));
+    feedback_pub_->publish(std::move(feedback));
   }
 }
 

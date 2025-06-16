@@ -24,9 +24,6 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 struct ControllerParameters
 {
   long forward_speed_weight;
@@ -91,8 +88,8 @@ private:
   bool initialize();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishThrusts(const VectorXd& thrusts);
-  void publishDeflections(const VectorXd& deflections);
+  void publishThrusts(const Eigen::VectorXd& thrusts);
+  void publishDeflections(const Eigen::VectorXd& deflections);
   bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
 
   void updateForwardSpeedWeight();
@@ -196,7 +193,7 @@ bool ControllerNode::initialize()
   lqd_.input_rate_weight.resize(eom_.inputSize());
   lqd_.current_state.resize(eom_.kStateSize);
   lqd_.target_state.resize(eom_.kStateSize);
-  lqd_.last_input = VectorXd::Zero(eom_.inputSize());
+  lqd_.last_input = Eigen::VectorXd::Zero(eom_.inputSize());
 
   updateParameters();
 
@@ -239,7 +236,7 @@ void ControllerNode::updateSetStateVector()
   lqd_.target_state(eom_.kStateIdx_r) = 0.;
 }
 
-void ControllerNode::publishThrusts(const VectorXd& thrusts)
+void ControllerNode::publishThrusts(const Eigen::VectorXd& thrusts)
 {
   assert(static_cast<size_t>(thrusts.size()) == x_rotors_.count());
 
@@ -249,20 +246,20 @@ void ControllerNode::publishThrusts(const VectorXd& thrusts)
   for (int i = 0; i < thrusts.rows(); ++i) {
     thrusts_msg->thrusts.emplace_back();
     thrusts_msg->thrusts.back().link_name = x_rotors_.linkName(i);
-    thrusts_msg->thrusts.back().thrust = max(thrusts(i), 0.);
+    thrusts_msg->thrusts.back().thrust = std::max(thrusts(i), 0.);
   }
 
-  tar_thrusts_pub_->publish(move(thrusts_msg));
+  tar_thrusts_pub_->publish(std::move(thrusts_msg));
 }
 
-void ControllerNode::publishDeflections(const VectorXd& deflections)
+void ControllerNode::publishDeflections(const Eigen::VectorXd& deflections)
 {
   assert(static_cast<size_t>(deflections.size()) == drone_.fixed_wing->numControlSurfaces());
 
   auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   tar_angles_msg->header.stamp = odom_ned_.header.stamp;
 
-  for (const auto& [idx, cs_item] : views::enumerate(drone_.fixed_wing->control_surfaces)) {
+  for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& link_name = cs_item.first;
     const auto& joint = tree_.getSegment(link_name)->second.segment.joint();
 
@@ -271,7 +268,7 @@ void ControllerNode::publishDeflections(const VectorXd& deflections)
     tar_angles_msg->commands.back().data = deflections(idx);
   }
 
-  tar_angles_pub_->publish(move(tar_angles_msg));
+  tar_angles_pub_->publish(std::move(tar_angles_msg));
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
@@ -526,11 +523,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   updateSetStateVector();
 
   // 最適制御入力を求める
-  const VectorXd du = lqd_.solve(dt);
-  const VectorXd u = eom_.trimInput() + du;
+  const Eigen::VectorXd du = lqd_.solve(dt);
+  const Eigen::VectorXd u = eom_.trimInput() + du;
 
-  const VectorXd thrusts = u.head(x_rotors_.count());
-  const VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
+  const Eigen::VectorXd thrusts = u.head(x_rotors_.count());
+  const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
 
   // Publish
   publishThrusts(thrusts);

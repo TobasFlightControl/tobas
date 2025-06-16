@@ -15,7 +15,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 template <typename MsgType>
 class TopicThrottle
@@ -27,7 +27,7 @@ public:
   {
   }
 
-  void initialize(rclcpp::Node::SharedPtr node, const string& topic)
+  void initialize(rclcpp::Node::SharedPtr node, const std::string& topic)
   {
     node_ = node;
     rate_manager_.reset();
@@ -52,7 +52,7 @@ private:
     }
 
     auto msg_out = std::make_unique<MsgType>(*msg_in);
-    pub_->publish(move(msg_out));
+    pub_->publish(std::move(msg_out));
   }
 };
 

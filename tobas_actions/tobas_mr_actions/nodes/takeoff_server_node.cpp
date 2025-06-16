@@ -10,8 +10,6 @@
 
 #include "tobas_mr_actions/common.hpp"
 
-using namespace std;
-
 /**
  * @brief マルチコプターの離陸指令を発行するアクションサーバ．
  * X,Y,Yawをアクション開始時の値に保ったままZのみを増やしていく．

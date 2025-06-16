@@ -26,7 +26,6 @@
 
 #include "tobas_eskf/eskf.hpp"
 
-using namespace std;
 using namespace Eigen;
 
 class ObserverNode : public tobas::BaseNode
@@ -87,7 +86,7 @@ private:
   eskf::ErrorStateKalmanFilter eskf_;
 
   // Static parameters
-  string frame_id_;
+  std::string frame_id_;
   bool use_bar_;
   bool use_gnss_;
   bool do_acc_bias_estimation_;
@@ -214,9 +213,9 @@ void ObserverNode::getStaticRosParams()
   do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation", kDefaultDoMagSoftBiasEstimation);
   do_grav_estimation_ = getBoolParam("do_gravity_estimation", kDefaultDoGravEstimation);
 
-  const auto imu_offset = getDoubleArrayParam("imu_offset", vector<double>(3, 0.));
-  const auto bar_offset = getDoubleArrayParam("barometer_offset", vector<double>(3, 0.));
-  const auto gnss_offset = getDoubleArrayParam("gnss_offset", vector<double>(3, 0.));
+  const auto imu_offset = getDoubleArrayParam("imu_offset", std::vector<double>(3, 0.));
+  const auto bar_offset = getDoubleArrayParam("barometer_offset", std::vector<double>(3, 0.));
+  const auto gnss_offset = getDoubleArrayParam("gnss_offset", std::vector<double>(3, 0.));
   imu_offset_ = Map<const Vector3d>(imu_offset.data());
   bar_offset_ = Map<const Vector3d>(bar_offset.data());
   gnss_offset_ = Map<const Vector3d>(gnss_offset.data());

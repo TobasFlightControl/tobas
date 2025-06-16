@@ -27,9 +27,6 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_std_msgs/msg/bool_stamped.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 class ControllerNode : public tobas::BaseNode
 {
   using self = ControllerNode;
@@ -469,17 +466,17 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 推力を発行
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     tar_thrusts->header.stamp = odom->header.stamp;
-    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
       tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
     }
-    tar_thrusts_pub_->publish(move(tar_thrusts));
+    tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
     // ティルト角を発行
     auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
     tar_angles->header.stamp = odom->header.stamp;
-    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       const auto& rotor = rotor_it.second;
       if (rotor->tilt_joint_name.empty()) {
         continue;
@@ -488,14 +485,14 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       tar_angles->commands.back().name = rotor->tilt_joint_name;
       tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
     }
-    tar_angles_pub_->publish(move(tar_angles));
+    tar_angles_pub_->publish(std::move(tar_angles));
 
     // フィードバックメッセージを埋める
     feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
     feedback->target_dgyro = *tar_dgyro_;
 
     // フィードバックメッセージを発行
-    feedback_pub_->publish(move(feedback));
+    feedback_pub_->publish(std::move(feedback));
   }
 }
 

@@ -28,9 +28,6 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_std_msgs/msg/bool_stamped.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 class ControllerNode : public tobas::BaseNode
 {
   using self = ControllerNode;
@@ -78,8 +75,8 @@ private:
   // Command
   tobas_command_msgs::PosVelYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
   tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
-  shared_ptr<kdl::Euler> tar_angle_;                  // 目標オイラー角 (世界座標系)
-  shared_ptr<kdl::Vector> tar_gyro_;                  // 目標ジャイロ (機体座標系P)
+  std::shared_ptr<kdl::Euler> tar_angle_;             // 目標オイラー角 (世界座標系)
+  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標ジャイロ (機体座標系P)
   double tar_thrust_;                                 // 目標推力
 
   // Publishers
@@ -462,7 +459,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // これで低速域でのジャイロに対する可変ピッチの感度が一定になる (memo: 3-33)
   const auto thrust_thresh = mass_holder_.getMass() * tobas_std::kGravity * throttle_gain_thresh_;
   const auto thrust_ratio = thrust_thresh > 0. ? tar_thrust_ / thrust_thresh : INFINITY;
-  const auto thrust_coef = min(thrust_ratio, 1.);
+  const auto thrust_coef = std::min(thrust_ratio, 1.);
   const auto atti_wn = atti_wn_ * thrust_coef;
   const auto head_wn = head_wn_ * thrust_coef;
 
@@ -520,19 +517,19 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 目標推力を発行
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     thrusts_msg->header.stamp = odom->header.stamp;
-    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
       thrusts_msg->thrusts.back().thrust = mixer_.getThrust(idx);  // 微小値はゼロに固定
     }
-    tar_thrusts_pub_->publish(move(thrusts_msg));
+    tar_thrusts_pub_->publish(std::move(thrusts_msg));
 
     // フィードバックメッセージを埋める
     feedback->target_gyro = *tar_gyro_;
     feedback->target_dgyro = tar_dgyro;
 
     // フィードバックメッセージを発行
-    feedback_pub_->publish(move(feedback));
+    feedback_pub_->publish(std::move(feedback));
   }
 }
 

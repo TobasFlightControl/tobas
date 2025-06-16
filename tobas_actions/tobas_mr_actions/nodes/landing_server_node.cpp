@@ -12,8 +12,6 @@
 
 #include "tobas_mr_actions/common.hpp"
 
-using namespace std;
-
 class LandServerNode : public tobas::BaseNode
 {
   static constexpr double kVerticalSpeed = 0.3;  // [m/s]
@@ -151,7 +149,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
     // コマンドを発行
     const auto cmd_ptr = std::make_unique<CommandType>(cmd_);
-    cmd_pub_->publish(move(cmd_));
+    cmd_pub_->publish(std::move(cmd_));
 
     // アクション中止の場合は目標速度を0にして終了
     if (goal_handle->is_canceling()) {

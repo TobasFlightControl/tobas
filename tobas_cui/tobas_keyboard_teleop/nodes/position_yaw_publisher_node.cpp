@@ -18,7 +18,7 @@
 #define TAKEOFF_ALTITUDE_TOLERANCE 0.1  // [m]
 #define TAKEOFF_DURATION 5.             // [s]
 
-using namespace std;
+using namespace std::chrono_literals;
 
 namespace tobas_keyboard_teleop
 {
@@ -162,7 +162,7 @@ void PositionYawPublisherNode::initializeTimerCb()
   process_timer_ = createTimer(kCommandPeriod, &self::mainTimerCb, this);
 
   // インストラクションの表示を開始
-  cout << kInstruction << endl;
+  std::cout << kInstruction << std::endl;
   instruction_timer_ = createTimer(kInstructionTimerPeriod, &self::instructionTimerCb, this);
 }
 
@@ -232,12 +232,12 @@ void PositionYawPublisherNode::mainTimerCb()
   cmd->pos = cmd_pos_;
   cmd->vel.setZero();
   cmd->yaw = cmd_yaw_;
-  cmd_pub_->publish(move(cmd));
+  cmd_pub_->publish(std::move(cmd));
 }
 
 void PositionYawPublisherNode::instructionTimerCb()
 {
-  cout << kInstruction << endl;
+  std::cout << kInstruction << std::endl;
 }
 }  // namespace tobas_keyboard_teleop
 

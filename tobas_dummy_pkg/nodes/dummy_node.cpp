@@ -1,8 +1,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
-using namespace std;
-
 class DummyNode : public rclcpp::Node
 {
 public:
