@@ -37,7 +37,9 @@ private:
   std::pair<double, double> engine_const_;  // A, B (memo: 3-28)
   double time_const_up_;                    // [s]
   double time_const_down_;                  // [s]
-  double vibration_force_coef_;             // [N/(rad/s)^2]
+  int cycles_;
+  double vibration_force_coef_;            // [N/(rad/s)^2]
+  double vibration_force_variation_rate_;  // [-]
 
   // Command
   double throttle_ = 0.;  // スロットル開度 [0, 1]
