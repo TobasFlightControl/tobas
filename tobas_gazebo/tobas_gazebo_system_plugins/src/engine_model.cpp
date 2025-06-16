@@ -7,8 +7,9 @@ using namespace std;
 
 namespace gazebo
 {
-EngineModel::EngineModel(const ICERotorModelMap& rotors) : rotors_(rotors)
+EngineModel::EngineModel(const ICERotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
 {
+  normal_ = NormalDistribution(0., 1.);
 }
 
 bool EngineModel::initialize(const sdf::ElementConstPtr& sdf)
@@ -37,10 +38,10 @@ double EngineModel::getPosition() const
   return position_;
 }
 
-double EngineModel::getVibrationForce() const
+double EngineModel::getVibrationForce()
 {
-  // TODO: 遠心力以外の力も考慮
-  return vibration_force_coef_ * math::sqr(getSpeed()) * sin(position_ * cycles_);
+  // 主成分は往復慣性力だが，位相は再現が困難なため正規分布で近似する．
+  return vibration_force_coef_ * math::sqr(getSpeed()) * normal_(rnd_gen_);
 }
 
 void EngineModel::setThrottle(const double& throttle)
@@ -85,13 +86,7 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  getSdfParam(sdf, "engineCycles", cycles_, 2);
-  if (cycles_ <= 0) {
-    gzerr << "The engine cycles must be positive." << endl;
-    return false;
-  }
-
-  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, 1e-3);
+  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, 0.001);
   if (vibration_force_coef_ < 0.) {
     gzerr << "The vibration force coefficient must be non-negative." << endl;
     return false;

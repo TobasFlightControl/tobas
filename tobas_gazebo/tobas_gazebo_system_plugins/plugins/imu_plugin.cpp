@@ -29,7 +29,11 @@ class GazeboImuPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugPubTopic[] = "gazebo/imu_debug";
-  static constexpr double kAccGyroVibrationRate = 0.05;  // TODO: モータのジャイロへの影響も真面目に考察
+
+  // TODO: 加速度の比率やジャイロの振動も真面目に考察
+  static constexpr double kVibrationAccVerHorRate = 1.;
+  static constexpr double kVibrationAccGyroRate = 0.05;
+  static constexpr double kVibrationGyroAttiHeadRate = 0.5;
 
   using self = GazeboImuPlugin;
 
@@ -75,8 +79,7 @@ private:
   map<string, double> rotor_vibration_forces_;  // [N] 各モータで発生する振動力
 
   random_device rnd_dev_;
-  mt19937 rnd_gen_;
-  NormalDistribution noise_;
+  NormalDistribution3d normal_;
 
   ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
@@ -89,7 +92,7 @@ private:
   void engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg);
 };
 
-GazeboImuPlugin::GazeboImuPlugin() : rnd_gen_(rnd_dev_())
+GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0., 1.)
 {
 }
 
@@ -126,8 +129,6 @@ void GazeboImuPlugin::Configure(
 
   acc_offset_ = createUnitSpherePoint(rnd_dev_) * acc_offset_norm_;
   gyro_offset_ = createUnitSpherePoint(rnd_dev_) * gyro_offset_norm_;
-
-  noise_ = NormalDistribution(0, 1);
 
   imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
@@ -222,8 +223,12 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   for (const auto& [_, vibration_force] : rotor_vibration_forces_) {
     vibration_force_sum += vibration_force;
   }
-  const auto vibration_acc = vibration_force_sum / mass_holder_.getMass();  // [m/s^2]
-  const auto vibration_gyro = vibration_acc * kAccGyroVibrationRate;        // [rad/s]
+  const auto vibration_acc_ver = vibration_force_sum / mass_holder_.getMass();        // [m/s^2]
+  const auto vibration_acc_hor = vibration_acc_ver * kVibrationAccVerHorRate;         // [m/s^2]
+  const auto vibration_gyro_atti = vibration_acc_ver * kVibrationAccGyroRate;         // [rad/s]
+  const auto vibration_gyro_head = vibration_gyro_atti * kVibrationGyroAttiHeadRate;  // [rad/s]
+  const gz::math::Vector3d vibration_acc(vibration_acc_hor, vibration_acc_hor, vibration_acc_ver);
+  const gz::math::Vector3d vibration_gyro(vibration_gyro_atti, vibration_gyro_atti, vibration_gyro_head);
 
   // Accel
   const auto tau_a = acc_bias_corr_time_;
@@ -235,10 +240,8 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Compute state-transition
   const auto phi_a_d = exp(-dt / tau_a);
   // Simulate accelerometer noise processes and add them to the true linear acceleration
-  for (size_t i = 0; i < 3; ++i) {
-    acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
-    acc[i] += sigma_a_d * noise_(rnd_gen_) + acc_offset_[i] + acc_bias_[i] + vibration_acc;
-  }
+  acc_bias_ = phi_a_d * acc_bias_ + sigma_b_a_d * normal_.get();
+  acc += sigma_a_d * normal_.get() + acc_offset_ + acc_bias_ + vibration_acc;
 
   // Gyro
   const auto tau_g = gyro_bias_corr_time_;
@@ -250,10 +253,8 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Compute state-transition
   const auto phi_g_d = exp(-dt / tau_g);
   // Simulate gyroscope noise processes and add them to the true angular rate
-  for (size_t i = 0; i < 3; ++i) {
-    gyro_bias_[i] = phi_g_d * gyro_bias_[i] + sigma_b_g_d * noise_(rnd_gen_);
-    gyro[i] += sigma_g_d * noise_(rnd_gen_) + gyro_offset_[i] + gyro_bias_[i] + vibration_gyro;
-  }
+  gyro_bias_ = phi_g_d * gyro_bias_ + sigma_b_g_d * normal_.get();
+  gyro += sigma_g_d * normal_.get() + gyro_offset_ + gyro_bias_ + vibration_gyro;
 }
 
 void GazeboImuPlugin::engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg)

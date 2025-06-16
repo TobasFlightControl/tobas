@@ -2,6 +2,7 @@
 
 #include <tobas_nlp/newton_1d.hpp>
 
+#include "./common/definitions.hpp"
 #include "./filter/asymmetric_first_order_filter.hpp"
 #include "./ice_rotor_model.hpp"
 
@@ -23,7 +24,7 @@ public:
   double getPosition() const;
 
   /* 振動力 [N] */
-  double getVibrationForce() const;
+  double getVibrationForce();
 
   void setThrottle(const double& throttle);
 
@@ -36,8 +37,7 @@ private:
   std::pair<double, double> engine_const_;  // A, B (memo: 3-28)
   double time_const_up_;                    // [s]
   double time_const_down_;                  // [s]
-  int cycles_;
-  double vibration_force_coef_;  // [N/(rad/s)^2]
+  double vibration_force_coef_;             // [N/(rad/s)^2]
 
   // Command
   double throttle_ = 0.;  // スロットル開度 [0, 1]
@@ -48,6 +48,11 @@ private:
 
   // Solver
   nlp::NewtonSolver1d newton_;
+
+  // Random
+  std::random_device rnd_dev_;
+  std::mt19937 rnd_gen_;
+  NormalDistribution normal_;
 
   bool getSdfParams(const sdf::ElementConstPtr& sdf);
 
