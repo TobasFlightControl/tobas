@@ -10,6 +10,7 @@
 
 	<depend>tobas_math</depend>
 	<depend>tobas_algorithm</depend>
+	<depend>tobas_time_tools</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

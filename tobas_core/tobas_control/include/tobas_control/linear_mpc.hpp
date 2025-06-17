@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tobas_std_tools/stopwatch.hpp>
 // #include <tobas_quadprog/quadprogpp.hpp>
 // #include <tobas_quadprog/qpoases.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
@@ -74,8 +73,6 @@ private:
   bool is_first_solve_ = true;
   Eigen::Index x_size_, u_size_, z_size_;
   Eigen::VectorXd last_input_;  // u: 最新の制御入力
-
-  tobas_std::Stopwatch stopwatch_;
 
   void checkProblemValidity();
 

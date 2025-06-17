@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_std_tools)
+project(tobas_time_tools)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,11 +12,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_algorithm REQUIRED)
-find_package(tobas_math REQUIRED)
-find_package(tobas_time_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_algorithm tobas_math tobas_time_tools)
+set(AMENT_DEPENDENCIES)
 
 include_directories(include)
 

@@ -9,8 +9,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/gnss.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_time_tools/util.hpp>
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
@@ -586,7 +586,7 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
     // GNSSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
-    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gnss_, tobas_std::yearFraction());
+    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gnss_, tim::yearFraction());
     Vector3d mag_W(mag.north, -mag.east, -mag.down);  // NWU coordinates
     if (!setMagneticFieldRef(mag_W)) {
       return;

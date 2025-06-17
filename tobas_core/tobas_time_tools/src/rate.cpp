@@ -1,11 +1,11 @@
-#include "tobas_std_tools/rate.hpp"
+#include "tobas_time_tools/rate.hpp"
 
 #include <thread>
 
 using namespace std;
 using namespace std::chrono;
 
-namespace tobas_std
+namespace tim
 {
 Rate::Rate(const microseconds& period) : period_(period)
 {
@@ -38,4 +38,4 @@ void Rate::sleep()
   this_thread::sleep_for(wait_time);
   last_time_ = cur_time + wait_time;
 }
-}  // namespace tobas_std
+}  // namespace tim

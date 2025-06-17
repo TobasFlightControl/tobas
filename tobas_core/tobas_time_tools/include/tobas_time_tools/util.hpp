@@ -4,7 +4,7 @@
 #include <iostream>
 #include <thread>
 
-namespace tobas_std
+namespace tim
 {
 inline constexpr double secondsFromMilliSeconds(const int& msec)
 {
@@ -56,27 +56,4 @@ timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int n
 
 /* 西暦を日数まで年に換算する． */
 double yearFraction(const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now());
-}  // namespace tobas_std
-
-std::ostream& operator<<(std::ostream& os, const tm& arg);
-
-double operator-(tm lhs, tm rhs);
-
-template <typename Rep, typename Period>
-std::ostream& operator<<(std::ostream& os, const std::chrono::duration<Rep, Period>& d)
-{
-  os << d.count() << " ";
-  if constexpr (std::is_same_v<Period, std::ratio<1>>) {
-    os << "s";
-  }
-  else if constexpr (std::is_same_v<Period, std::milli>) {
-    os << "ms";
-  }
-  else if constexpr (std::is_same_v<Period, std::micro>) {
-    os << "μs";
-  }
-  else if constexpr (std::is_same_v<Period, std::nano>) {
-    os << "ns";
-  }
-  return os;
-}
+}  // namespace tim

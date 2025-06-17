@@ -8,7 +8,6 @@
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_std_tools/geometry.hpp>
-#include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 
 namespace eskf
@@ -249,8 +248,6 @@ private:
   std::chrono::steady_clock::time_point t_last_imu_;
   tobas_std::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
-
-  tobas_std::Stopwatch stopwatch_;
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;

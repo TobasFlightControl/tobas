@@ -1,11 +1,11 @@
-#include "tobas_std_tools/stopwatch.hpp"
+#include "tobas_time_tools/stopwatch.hpp"
 
 #include <iostream>
 
 using namespace std;
 using namespace chrono;
 
-namespace tobas_std
+namespace tim
 {
 Stopwatch::Stopwatch(size_t samples) : samples_(samples)
 {
@@ -44,4 +44,4 @@ bool Stopwatch::isRunning() const
 {
   return running_;
 }
-}  // namespace tobas_std
+}  // namespace tim

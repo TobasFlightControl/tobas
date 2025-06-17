@@ -5,7 +5,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_std_tools/time.hpp>
+#include <tobas_time_tools/util.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 
@@ -122,7 +122,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
   // 経緯度と高度から地磁気の参照値を計算
   // TODO: WMMの誤差を考慮
-  const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tobas_std::yearFraction());
+  const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tim::yearFraction());
 
   // 機体座標系から見た地磁気を計算
   const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [nT]

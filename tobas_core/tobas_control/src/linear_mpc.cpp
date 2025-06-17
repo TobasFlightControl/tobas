@@ -4,14 +4,12 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-#define STOPWATCH_SAMPLES 100
-
 using namespace std;
 using namespace Eigen;
 
 namespace ctrl
 {
-LinearMPC::LinearMPC() : stopwatch_(STOPWATCH_SAMPLES)
+LinearMPC::LinearMPC()
 {
 }
 
@@ -114,11 +112,9 @@ bool LinearMPC::solve()
   qpsolver_.x_scale.fill(1. / static_cast<double>(input_steps));
 
   // QPを解く
-  // stopwatch_.start();
   if (!qpsolver_.solve()) {
     return false;
   }
-  // stopwatch_.stop();
 
   // 最新の制御入力を更新
   const auto& dU = qpsolver_.solution();

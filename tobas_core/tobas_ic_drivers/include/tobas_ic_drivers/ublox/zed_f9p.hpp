@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_linux/spi_dev.hpp>
-#include <tobas_std_tools/rate.hpp>
+#include <tobas_time_tools/rate.hpp>
 
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
@@ -273,7 +273,7 @@ private:
 
   UBXScanner scanner_;
 
-  tobas_std::Rate rate_;
+  tim::Rate rate_;
 
   bool sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size);
   bool waitForAcknowledge(ubx_class_t cls, uint8_t id);

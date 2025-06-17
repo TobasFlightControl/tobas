@@ -12,9 +12,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_time_tools REQUIRED)
 find_package(tobas_linux REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_linux)
+set(AMENT_DEPENDENCIES tobas_time_tools tobas_linux)
 
 include_directories(include)
 
