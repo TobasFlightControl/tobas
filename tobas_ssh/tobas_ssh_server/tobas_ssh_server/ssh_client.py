@@ -166,7 +166,7 @@ class SSHClientWrapper:
         assert not remote_path.endswith("/")
 
         with self._ssh_client.open_sftp() as sftp:
-            with sftp.file(remote_path, "r") as f:
+            with sftp.open(remote_path, "r") as f:
                 text = f.read().decode(self.UTF_8)
         return text
 
