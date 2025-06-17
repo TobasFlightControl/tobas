@@ -6,26 +6,6 @@
 
 namespace tim
 {
-inline constexpr double secondsFromMilliSeconds(const int& msec)
-{
-  return msec / 1000;
-}
-
-inline constexpr int milliSecondsFromSeconds(const double& sec)
-{
-  return sec * 1000;
-}
-
-inline constexpr double secondsFromMicroSeconds(const int& usec)
-{
-  return usec / 1'000'000;
-}
-
-inline constexpr int microSecondsFromSeconds(const double& sec)
-{
-  return sec * 1'000'000;
-}
-
 inline void sleep(double sec)
 {
   std::this_thread::sleep_for(std::chrono::duration<double>(sec));
