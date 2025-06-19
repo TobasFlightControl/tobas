@@ -99,6 +99,10 @@ void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
 
 void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
 {
+  if (!iprop_) {
+    return;
+  }
+
   updateFuelQuantity(engine_state->fuel_quantity);
   updateOilTemperature(engine_state->oil_temperature);
 }

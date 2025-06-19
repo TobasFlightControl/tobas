@@ -93,6 +93,10 @@ void BatteryViewerWidget::updateCurrent(const double& current)
 
 void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
+  if (!eprop_) {
+    return;
+  }
+
   updateVoltage(battery->voltage);
   updateCurrent(battery->current);
 }
