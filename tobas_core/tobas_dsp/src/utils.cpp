@@ -1,18 +1,18 @@
 #include "tobas_dsp/utils.hpp"
 
+#include <cassert>
 #include <cmath>
-#include <stdexcept>
 
 using namespace std;
 
 namespace dsp
 {
-double timeConstFromCutoff(const double& fc)
+double prewarp(double wc, double dt)
 {
-  if (fc <= 0) {
-    throw runtime_error("Cutoff frequency must be positive.");
-  }
+  assert(wc > 0.);
+  assert(dt > 0.);
 
-  return 1 / (2 * M_PI * fc);
+  const auto dt_2 = dt / 2.;
+  return tan(wc * dt_2) / dt_2;
 }
 }  // namespace dsp

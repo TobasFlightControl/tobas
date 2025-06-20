@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "./base_filter.hpp"
+#include "./utils.hpp"
 
 namespace dsp
 {
@@ -36,18 +37,10 @@ void LowPassFilter<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
-  // Prewarping
-  const auto dt_2 = dt / 2.;
-  const auto wc = tan(wc_ * dt_2) / dt_2;
-
+  const auto wc = prewarp(wc_, dt);
   const auto tau = 2. / wc;
-  if (dt > tau) {
-    y_ = u;
-  }
-  else {
-    y_ = ((tau - dt) * y_ + dt * (u + prev_u_)) / (tau + dt);  // Tustin's method
-  }
 
+  y_ = dt < tau ? ((tau - dt) * y_ + dt * (u + prev_u_)) / (tau + dt) : u;
   prev_u_ = u;
 }
 
