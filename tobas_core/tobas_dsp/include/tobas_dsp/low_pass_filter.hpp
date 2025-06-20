@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 #include "./base_filter.hpp"
-#include "./utils.hpp"
 
 namespace dsp
 {
@@ -19,10 +19,10 @@ public:
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
 
-  bool setCutoffFrequency(const double& curoff_freq);
+  bool setCutoffFrequency(const double& fc);
 
 private:
-  double T_ = 0.;
+  double wc_;
   T y_, prev_u_;
 };
 
@@ -36,11 +36,16 @@ void LowPassFilter<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
-  if (dt > T_) {
+  // Prewarping
+  const auto dt_2 = dt / 2.;
+  const auto wc = tan(wc_ * dt_2) / dt_2;
+
+  const auto tau = 2. / wc;
+  if (dt > tau) {
     y_ = u;
   }
   else {
-    y_ = ((T_ - dt) * y_ + dt * (u + prev_u_)) / (T_ + dt);
+    y_ = ((tau - dt) * y_ + dt * (u + prev_u_)) / (tau + dt);  // Tustin's method
   }
 
   prev_u_ = u;
@@ -59,14 +64,14 @@ inline void LowPassFilter<T>::setValue(const T& x)
 }
 
 template <typename T>
-bool LowPassFilter<T>::setCutoffFrequency(const double& cutoff_freq)
+bool LowPassFilter<T>::setCutoffFrequency(const double& fc)
 {
-  if (cutoff_freq <= 0) {
+  if (fc <= 0.) {
     std::cerr << "The cutoff frequency of low-pass filter must be positive." << std::endl;
     return false;
   }
 
-  T_ = 2 * timeConstFromCutoff(cutoff_freq);
+  wc_ = 2. * M_PI * fc;  // Hz -> rad/s
   return true;
 }
 }  // namespace dsp
