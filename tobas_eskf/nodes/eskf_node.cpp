@@ -65,9 +65,6 @@ class ObserverNode : public tobas::BaseNode
   static constexpr double kInitRotStddev = M_PI_4;  // [rad]
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
-  // その他
-  static constexpr double kGeomagScale = 0.5;  // [G] 地磁気の磁束密度の大きさ
-
 public:
   explicit ObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -463,7 +460,7 @@ bool ObserverNode::magMeasNoiseStddevCb(const double& p)
 {
   assert(fix_mag_noise_);
 
-  const auto mag_stddev = p * 1e-2 / kGeomagScale;  // [-]
+  const auto mag_stddev = p * 1e-2 / tobas_std::kGeomagScale;  // [-]
   const auto mag_var = math::sqr(mag_stddev);
   fixed_mag_cov_.diagonal().fill(mag_var);
 
@@ -541,7 +538,7 @@ bool ObserverNode::magHardBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_hard_bias_estimation_);
 
-  const auto nd = p * 1e-5 / kGeomagScale;  // nT/s/√Hz -> /s/√Hz
+  const auto nd = p * 1e-5 / tobas_std::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   return eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
@@ -549,7 +546,7 @@ bool ObserverNode::magSoftBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_soft_bias_estimation_);
 
-  const auto nd = p * 1e-5 / kGeomagScale;  // nT/s/√Hz -> /s/√Hz
+  const auto nd = p * 1e-5 / tobas_std::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   return eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
