@@ -10,7 +10,7 @@
 
 class ImuPreprocessNode : public tobas::BaseNode
 {
-  static constexpr double kNoiseFiltrerHPFCutoff = 30.;  // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
+  static constexpr double kNoiseFiltrerHpfCutoff = 30.;  // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
   static constexpr size_t kNoiseFilterWindowSize = 200;  // 400Hzで0.5s
   static constexpr int kMeasureGyroBiasCount = 1000;     // [-]
   static constexpr double kStaticGyroThreshold = 0.2;    // [rad/s]
@@ -112,11 +112,11 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
       acc_lpf_.setValue(imu_raw->imu.accel);
       gyro_lpf_.setValue(imu_raw->imu.gyro);
 
-      if (!acc_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.accel.data)) {
+      if (!acc_noise_.initialize(kNoiseFiltrerHpfCutoff, imu_raw->imu.accel.data)) {
         TOBAS_ERROR("Failed to initialize accel noise variance filter.");
         return;
       }
-      if (!gyro_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.gyro.data)) {
+      if (!gyro_noise_.initialize(kNoiseFiltrerHpfCutoff, imu_raw->imu.gyro.data)) {
         TOBAS_ERROR("Failed to initialize gyro noise variance filter.");
         return;
       }

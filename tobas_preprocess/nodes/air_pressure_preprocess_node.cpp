@@ -9,7 +9,7 @@
 
 class AirPressurePreprocessNode : public tobas::BaseNode
 {
-  static constexpr double kNoiseFiltrerHPFCutoff = 10.;  // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
+  static constexpr double kNoiseFiltrerHpfCutoff = 10.;  // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
   static constexpr size_t kNoiseFilterWindowSize = 100;
 
   using self = AirPressurePreprocessNode;
@@ -39,8 +39,8 @@ void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureSt
 {
   // Initialize
   if (!pres_raw_) {
-    if (!pres_noise_.initialize(kNoiseFiltrerHPFCutoff, Eigen::Scalard(pres_raw->pressure))) {
-      TOBAS_ERROR("Failed to initialize noise variance filter.");
+    if (!pres_noise_.initialize(kNoiseFiltrerHpfCutoff, Eigen::Scalard(pres_raw->pressure))) {
+      TOBAS_ERROR("Failed to initialize air pressure noise variance filter.");
       return;
     }
     pres_raw_ = pres_raw;
