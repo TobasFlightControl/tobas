@@ -248,6 +248,9 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
+  // Tobasパッケージのパスを設定
+  tbs_path_->setText(tbs_path);
+
   // ユーザ設定を読み込む
   const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
   YAML::Node node;
@@ -258,9 +261,6 @@ void SetupAssistantWidget::onLoadButtonClicked()
   if (!settings_->load(node)) {
     return;
   }
-
-  // Tobasパッケージのパスを設定
-  tbs_path_->setText(tbs_path);
 
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }
