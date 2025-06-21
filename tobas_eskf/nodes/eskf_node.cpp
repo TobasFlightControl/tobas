@@ -35,7 +35,7 @@ class ObserverNode : public tobas::BaseNode
 
   using ImuMsg = tobas_msgs::ImuWithCovarianceStamped;
   using MagMsg = tobas_msgs::MagneticFieldWithCovarianceStamped;
-  using BarMsg = tobas_msgs::msg::FluidPressureWithVarianceStamped;
+  using BaroMsg = tobas_msgs::msg::FluidPressureWithVarianceStamped;
   using GnssMsg = tobas_msgs::Gnss;
   using OdomMsg = tobas_msgs::Odometry;
   using GnssOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
@@ -47,6 +47,10 @@ class ObserverNode : public tobas::BaseNode
   // Default parameters
   static constexpr bool kDefaultUseBarometer = false;
   static constexpr bool kDefaultUseGnss = true;
+  static constexpr bool kDefaultFixImuNoise = true;
+  static constexpr bool kDefaultFixMagNoise = true;
+  static constexpr bool kDefaultFixBaroNoise = true;
+  static constexpr bool kDefaultFixGnssNoise = false;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
   static constexpr bool kDefaultDoMagHardBiasEstimation = false;
@@ -61,7 +65,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
   // その他
-  static constexpr double kAnomalyScoreThreshold = 10.;  // [-]
+  static constexpr double kGeomagScale = 0.5;  // [G] 地磁気の磁束密度の大きさ
 
 public:
   explicit ObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -77,7 +81,7 @@ private:
   kdl::Vector dgyro_;
   ImuMsg::ConstSharedPtr imu_;
   MagMsg::ConstSharedPtr mag_;
-  BarMsg::ConstSharedPtr bar_;
+  BaroMsg::ConstSharedPtr baro_;
   GnssMsg::ConstSharedPtr gnss_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
@@ -89,6 +93,10 @@ private:
   std::string frame_id_;
   bool use_bar_;
   bool use_gnss_;
+  bool fix_imu_noise_;
+  bool fix_mag_noise_;
+  bool fix_baro_noise_;
+  bool fix_gnss_noise_;
   bool do_acc_bias_estimation_;
   bool do_gyro_bias_estimation_;
   bool do_mag_hard_bias_estimation_;
@@ -99,8 +107,14 @@ private:
   Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
 
   // Dynamic parameters
-  double grav_meas_var_intercept_;  // [m^2/s^4] 重力方向の加速度の観測の不確かさの最小値
-  double grav_meas_var_slope_;  // [m/s^2] 重力方向の観測の，加速度ノルム誤差に対する比例定数
+  Matrix3d fixed_acc_cov_ = Matrix3d::Zero();       // [m^2/s^4]
+  Matrix3d fixed_gyro_cov_ = Matrix3d::Zero();      // [rad^2/s^2]
+  Matrix3d fixed_mag_cov_ = Matrix3d::Zero();       // [-]
+  double fixed_head_var_ = 0.;                      // [rad^2]
+  double fixed_baro_alt_var_ = 0.;                  // [m^2]
+  Matrix3d fixed_gnss_pos_cov_ = Matrix3d::Zero();  // [m^2]
+  Matrix3d fixed_gnss_vel_cov_ = Matrix3d::Zero();  // [m^2/s^2]
+  Matrix3d fixed_grav_cov_ = Matrix3d::Zero();      // [m^2/s^4]
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
@@ -110,7 +124,7 @@ private:
   // Subscribers
   ros2::SubscriberPtr<ImuMsg> imu_sub_;
   ros2::SubscriberPtr<MagMsg> mag_sub_;
-  ros2::SubscriberPtr<BarMsg> bar_sub_;
+  ros2::SubscriberPtr<BaroMsg> bar_sub_;
   ros2::SubscriberPtr<GnssMsg> gnss_sub_;
 
   // Services
@@ -126,7 +140,6 @@ private:
   void fillOdometryMsg(OdomMsg& odom) const;
   void publishGNSSOrigin();
   void publishFeedback(const std_msgs::msg::Header& header);
-  double computeGravMeasVariance(const Vector3d& acc) const;
 
   double initAccelBiasStddev() const;
   double initGyroBiasStddev() const;
@@ -134,17 +147,23 @@ private:
   double initMagSoftBiasStddev() const;
   double initGravBiasStddev() const;
 
-  bool accBiasProcNoiseDensityCb(const long& nd_ug);
-  bool gyroBiasProcNoiseDensityCb(const long& nd_udps);
-  bool magHardBiasProcNoiseDensityCb(const long& nd_u);
-  bool magSoftBiasProcNoiseDensityCb(const long& nd_u);
-  bool gravProcNoiseDensityCb(const long& ud_ug);
-  bool gravMeasVarInterceptCb(const long& p);
-  bool gravMeasVarSlopeCb(const long& p);
+  bool accMeasNoiseStddevCb(const double& p);
+  bool gyroMeasNoiseStddevCb(const double& p);
+  bool magMeasNoiseStddevCb(const double& p);
+  bool headMeasNoiseStddevCb(const double& p);
+  bool baroAltMeasNoiseStddevCb(const double& p);
+  bool gnssPosMeasNoiseStddevCb(const double& p);
+  bool gnssVelMeasNoiseStddevCb(const double& p);
+  bool gravMeasNoiseStddevCb(const double& p);
+  bool accBiasProcNoiseDensityCb(const double& p);
+  bool gyroBiasProcNoiseDensityCb(const double& p);
+  bool magHardBiasProcNoiseDensityCb(const double& p);
+  bool magSoftBiasProcNoiseDensityCb(const double& p);
+  bool gravProcNoiseDensityCb(const double& ud_ug);
 
   void imuCb(const ImuMsg::ConstSharedPtr& imu);
   void magCb(const MagMsg::ConstSharedPtr& mag);
-  void barCb(const BarMsg::ConstSharedPtr& bar);
+  void baroCb(const BaroMsg::ConstSharedPtr& baro);
   void gnssCb(const GnssMsg::ConstSharedPtr& gnss);
 
   void getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr& req, const GetOrigin::Response::SharedPtr& res);
@@ -160,27 +179,54 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
+  if (fix_imu_noise_) {
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
+    addDynamicDoubleParam("acc_meas_noise_stddev", &self::accMeasNoiseStddevCb, this, 0.01, 35, 1, 100, " m/s^2");
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
+    addDynamicDoubleParam("gyro_meas_noise_stddev", &self::gyroMeasNoiseStddevCb, this, 0.001, 15, 1, 100, " rad/s");
+  }
+  if (fix_mag_noise_) {
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
+    addDynamicDoubleParam("mag_meas_noise_stddev", &self::magMeasNoiseStddevCb, this, 1., 5, 1, 100, " uT");
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
+    addDynamicDoubleParam("head_meas_noise_stddev", &self::headMeasNoiseStddevCb, this, 0.1, 3, 1, 10, " rad");
+  }
+  if (fix_baro_noise_) {
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
+    addDynamicDoubleParam("baro_alt_meas_noise_stddev", &self::baroAltMeasNoiseStddevCb, this, 0.1, 35, 1, 150, " m");
+  }
+  if (fix_gnss_noise_) {
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
+    addDynamicDoubleParam("gnss_pos_meas_noise_stddev", &self::gnssPosMeasNoiseStddevCb, this, 0.1, 5, 1, 100, " m");
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
+    addDynamicDoubleParam("gnss_vel_meas_noise_stddev", &self::gnssVelMeasNoiseStddevCb, this, 0.1, 3, 1, 50, " m/s");
+  }
+  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
+  addDynamicDoubleParam("grav_meas_noise_stddev", &self::gravMeasNoiseStddevCb, this, 0.1, 10, 1, 100, " g");
   if (do_acc_bias_estimation_) {
-    addDynamicIntParam("acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 20, 0, 1000, " ug/√Hz");
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
+    addDynamicDoubleParam(
+      "acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 1., 15, 0, 50, " ug/s/√Hz");
   }
   if (do_gyro_bias_estimation_) {
-    addDynamicIntParam(
-      "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1000, 0, 10000, " udps/√Hz");
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_B_NOISE
+    addDynamicDoubleParam(
+      "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1., 3, 0, 30, " mdps/s/√Hz");
   }
   if (do_mag_hard_bias_estimation_) {
-    addDynamicIntParam(
-      "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 1000, 0, 10000, " u/√Hz");
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
+    addDynamicDoubleParam(
+      "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
   if (do_mag_soft_bias_estimation_) {
-    addDynamicIntParam(
-      "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 1000, 0, 10000, " u/√Hz");
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_B_NOISE
+    addDynamicDoubleParam(
+      "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 0.1, 5, 0, 100, " nT/s/√Hz");
   }
   if (do_grav_estimation_) {
-    addDynamicIntParam("grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 20, 0, 1000, " ug/√Hz");
+    addDynamicDoubleParam(
+      "grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 1., 15, 0, 50, " ug/s/√Hz");
   }
-
-  addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
-  addDynamicIntParam("grav_meas_var_slope", &self::gravMeasVarSlopeCb, this, 100, 0, 1000);
 
   // Register publishers
   odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
@@ -191,7 +237,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   imu_sub_ = createSubscriber(tobas::kImuTopic, &self::imuCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
   if (use_bar_) {
-    bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::barCb, this);
+    bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::baroCb, this);
   }
   if (use_gnss_) {
     gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
@@ -207,6 +253,10 @@ void ObserverNode::getStaticRosParams()
   frame_id_ = getStringParam("frame_id", "unknown");  // 空文字だとTFが警告文を出す
   use_bar_ = getBoolParam("use_barometer", kDefaultUseBarometer);
   use_gnss_ = getBoolParam("use_gnss", kDefaultUseGnss);
+  fix_imu_noise_ = getBoolParam("fix_imu_noise", kDefaultFixImuNoise);
+  fix_mag_noise_ = getBoolParam("fix_mag_noise", kDefaultFixMagNoise);
+  fix_baro_noise_ = getBoolParam("fix_baro_noise", kDefaultFixBaroNoise);
+  fix_gnss_noise_ = getBoolParam("fix_gnss_noise", kDefaultFixGnssNoise);
   do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", kDefaultDoAccBiasEstimation);
   do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", kDefaultDoGyroBiasEstimation);
   do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation", kDefaultDoMagHardBiasEstimation);
@@ -361,19 +411,6 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
   feedback_pub_->publish(move(feedback));
 }
 
-double ObserverNode::computeGravMeasVariance(const Vector3d& acc) const
-{
-  // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
-  // 加速度の大きさと重力加速度との誤差が大きいほど重力以外の加速度が生じているため加速度による姿勢の観測が不確かだと考えるのは直感的だが，
-  // その誤差は正規分布に従うわけではなく一様に確かでもないため，誤差をそのまま標準偏差とすることには何の根拠もない．
-  // 実際，重力方向の分散を下げると，並進移動時に進行方向への加速度により実際よりも大きく傾いていると判断され，
-  // 制御器が姿勢を戻そうとし，並進方向の加速度の追従が遅れ，位置制御が振動するという因果関係がある．
-  // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
-  // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
-  const auto acc_norm_diff = fabs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
-  return grav_meas_var_intercept_ + grav_meas_var_slope_ * acc_norm_diff;  // TODO: 1次関数以外のプロファイルを検討
-}
-
 double ObserverNode::initAccelBiasStddev() const
 {
   return do_acc_bias_estimation_ ? 1. : 0.;
@@ -399,56 +436,128 @@ double ObserverNode::initGravBiasStddev() const
   return do_grav_estimation_ ? 0.1 : 0.;
 }
 
-bool ObserverNode::accBiasProcNoiseDensityCb(const long& nd_ug)
+bool ObserverNode::accMeasNoiseStddevCb(const double& p)
+{
+  assert(fix_imu_noise_);
+
+  const auto acc_stddev = p;  // [m/s^2]
+  const auto acc_var = math::sqr(acc_stddev);
+  fixed_acc_cov_.diagonal().fill(acc_var);
+
+  return true;
+}
+
+bool ObserverNode::gyroMeasNoiseStddevCb(const double& p)
+{
+  assert(fix_imu_noise_);
+
+  const auto gyro_stddev = p;  // [rad/s]
+  const auto gyro_var = math::sqr(gyro_stddev);
+  fixed_gyro_cov_.diagonal().fill(gyro_var);
+
+  return true;
+}
+
+bool ObserverNode::magMeasNoiseStddevCb(const double& p)
+{
+  assert(fix_mag_noise_);
+
+  const auto mag_stddev = p * 1e-2 / kGeomagScale;  // [-]
+  const auto mag_var = math::sqr(mag_stddev);
+  fixed_mag_cov_.diagonal().fill(mag_var);
+
+  return true;
+}
+
+bool ObserverNode::headMeasNoiseStddevCb(const double& p)
+{
+  assert(fix_mag_noise_);
+
+  const auto head_stddev = p;  // [rad]
+  fixed_head_var_ = math::sqr(head_stddev);
+
+  return true;
+}
+
+bool ObserverNode::baroAltMeasNoiseStddevCb(const double& p)
+{
+  assert(fix_baro_noise_);
+
+  const auto baro_alt_stddev = p;  // [m]
+  fixed_baro_alt_var_ = math::sqr(baro_alt_stddev);
+
+  return true;
+}
+
+bool ObserverNode::gnssPosMeasNoiseStddevCb(const double& p)
+{
+  assert(fix_gnss_noise_);
+
+  const auto gnss_pos_stddev = p;  // [m]
+  const auto gnss_pos_var = math::sqr(gnss_pos_stddev);
+  fixed_gnss_pos_cov_.diagonal().fill(gnss_pos_var);
+
+  return true;
+}
+
+bool ObserverNode::gnssVelMeasNoiseStddevCb(const double& p)
+{
+  assert(fix_gnss_noise_);
+
+  const auto gnss_vel_stddev = p;  // [m/s]
+  const auto gnss_vel_var = math::sqr(gnss_vel_stddev);
+  fixed_gnss_vel_cov_.diagonal().fill(gnss_vel_var);
+
+  return true;
+}
+
+bool ObserverNode::gravMeasNoiseStddevCb(const double& p)
+{
+  const auto grav_stddev = p * tobas_std::kGravity;  // [m/s^2]
+  const auto grav_var = math::sqr(grav_stddev);
+  fixed_grav_cov_.diagonal().fill(grav_var);
+
+  return true;
+}
+
+bool ObserverNode::accBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_acc_bias_estimation_);
 
-  const auto nd = nd_ug * 1e-6 * tobas_std::kGravity;  // [m/s^2/√Hz]
+  const auto nd = p * 1e-6 * tobas_std::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
   return eskf_.setAccBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::gyroBiasProcNoiseDensityCb(const long& nd_udps)
+bool ObserverNode::gyroBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_gyro_bias_estimation_);
 
-  const auto nd = nd_udps * 1e-6 * tobas_std::kDeg2Rad;  // [rad/s/√Hz]
+  const auto nd = p * 1e-3 * tobas_std::kDeg2Rad;  // mdps/s/√Hz -> rad/s^2/√Hz
   return eskf_.setGyroBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::magHardBiasProcNoiseDensityCb(const long& nd_u)
+bool ObserverNode::magHardBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_hard_bias_estimation_);
 
-  const auto nd = nd_u * 1e-6;  // [/√Hz]
+  const auto nd = p * 1e-5 / kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   return eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::magSoftBiasProcNoiseDensityCb(const long& nd_u)
+bool ObserverNode::magSoftBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_soft_bias_estimation_);
 
-  const auto nd = nd_u * 1e-6;  // [/√Hz]
+  const auto nd = p * 1e-5 / kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   return eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::gravProcNoiseDensityCb(const long& nd_ug)
+bool ObserverNode::gravProcNoiseDensityCb(const double& p)
 {
   assert(do_grav_estimation_);
 
-  const auto nd = nd_ug * 1e-6 * tobas_std::kGravity;  // [m/s^2/√Hz]
+  const auto nd = p * 1e-6 * tobas_std::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
   return eskf_.setGravProcNoiseDensity(nd);
-}
-
-bool ObserverNode::gravMeasVarInterceptCb(const long& p)
-{
-  grav_meas_var_intercept_ = p;
-  return true;
-}
-
-bool ObserverNode::gravMeasVarSlopeCb(const long& p)
-{
-  grav_meas_var_slope_ = p;
-  return true;
 }
 
 void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
@@ -492,15 +601,11 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   imu_ = imu;
 
   // Measure IMU
-  const auto grav_meas_noise_var = computeGravMeasVariance(imu->imu.imu.accel.data);
-  const auto grav_cov = Vector3d::Constant(grav_meas_noise_var).asDiagonal();
-  eskf_.measureIMU(
-    imu->imu.imu.accel.data,
-    imu->imu.imu.gyro.data,
-    imu->imu.accel_covariance,
-    imu->imu.gyro_covariance,
-    grav_cov,
-    cur_time);
+  const auto& acc_meas = imu->imu.imu.accel.data;
+  const auto& gyro_meas = imu->imu.imu.gyro.data;
+  const auto& acc_cov = fix_imu_noise_ ? fixed_acc_cov_ : imu->imu.accel_covariance;
+  const auto& gyro_cov = fix_imu_noise_ ? fixed_gyro_cov_ : imu->imu.gyro_covariance;
+  eskf_.measureIMU(acc_meas, gyro_meas, acc_cov, gyro_cov, fixed_grav_cov_, cur_time);
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
@@ -532,16 +637,34 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
     return;
   }
 
+  const auto& mag_meas = mag->mag.mag.data;
+  const auto stamp = ros2::chronoFromRosTime(mag->header.stamp);
+
   // バイアス推定を行う場合は3軸，行わない場合はヨーのみ更新
   if (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_) {
-    eskf_.measureMagneticField3d(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
+    const auto& mag_cov = fix_mag_noise_ ? fixed_mag_cov_ : mag->mag.covariance;
+    eskf_.measureMagneticField3d(mag_meas, mag_cov, stamp);
   }
   else {
-    eskf_.measureMagneticFieldYaw(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
+    double head_var;
+    if (fix_mag_noise_) {
+      head_var = fixed_head_var_;
+    }
+    else {
+      // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
+      const auto mx = mag_meas.x();
+      const auto my = mag_meas.y();
+      const auto mx_std = sqrt(mag->mag.covariance(0, 0));
+      const auto my_std = sqrt(mag->mag.covariance(1, 1));
+      const auto head_std = (fabs(mx) * my_std + fabs(my) * mx_std) / (math::sqr(mx) + math::sqr(my));
+      head_var = math::sqr(head_std);
+    }
+
+    eskf_.measureMagneticFieldHead(mag_meas, head_var, stamp);
   }
 }
 
-void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
+void ObserverNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
 {
   if (!imu_) {
     return;
@@ -549,18 +672,24 @@ void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
 
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
-  if (!bar_) {
-    alt_0_bar_ = tobas_std::pressureToAltitude(bar->pressure.pressure);
+  if (!baro_) {
+    alt_0_bar_ = tobas_std::pressureToAltitude(baro->pressure.pressure);
   }
 
-  bar_ = bar;
+  baro_ = baro;
 
   double z_abs, z_var;
-  tobas_std::pressureToAltitude(bar->pressure.pressure, bar->pressure.variance, z_abs, z_var);
+  if (fix_baro_noise_) {
+    z_abs = tobas_std::pressureToAltitude(baro->pressure.pressure);
+    z_var = fixed_baro_alt_var_;
+  }
+  else {
+    tobas_std::pressureToAltitude(baro->pressure.pressure, baro->pressure.variance, z_abs, z_var);
+  }
 
   // TODO: bar_offsetを考慮
   const auto z_m = z_abs - alt_0_bar_;
-  eskf_.measureAltitude(z_m, z_var, ros2::chronoFromRosTime(bar->header.stamp));
+  eskf_.measureAltitude(z_m, z_var, ros2::chronoFromRosTime(baro->header.stamp));
 }
 
 void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
@@ -573,6 +702,10 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   if (!gnss_fix_) {
     return;
   }
+
+  const auto& vel_meas = gnss->ground_speed.data;
+  const auto& pos_cov = fix_gnss_noise_ ? fixed_gnss_pos_cov_ : gnss->position_covariance;
+  const auto& vel_cov = fix_gnss_noise_ ? fixed_gnss_vel_cov_ : gnss->velocity_covariance;
 
   if (!gnss_) {
     // GNSSの初期位置
@@ -594,11 +727,11 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
     // 初めてGNSSを受け取った位置速度で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
-    if (!eskf_.initializePosition(Vector3d::Zero(), gnss->position_covariance)) {
+    if (!eskf_.initializePosition(Vector3d::Zero(), pos_cov)) {
       TOBAS_ERROR("Failed to initialize position.");
       return;
     }
-    if (!eskf_.initializeVelocity(gnss->ground_speed.data, gnss->velocity_covariance)) {
+    if (!eskf_.initializeVelocity(vel_meas, vel_cov)) {
       TOBAS_ERROR("Failed to initialize velocity.");
       return;
     }
@@ -612,19 +745,9 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
   // ESKFを更新
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
-  gnss_anomaly_score_ = eskf_.measurePosVel(
-    pos_meas_,
-    gnss->position_covariance,
-    gnss->ground_speed.data,
-    gnss->velocity_covariance,
-    imu2gnss,
-    imu_->imu.imu.gyro.data,
-    ros2::chronoFromRosTime(gnss->header.stamp));
-
-  // 異常度が高すぎる場合は警告
-  if (gnss_anomaly_score_ > kAnomalyScoreThreshold) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
-  }
+  const auto& gyro_meas = imu_->imu.imu.gyro.data;
+  const auto stamp = ros2::chronoFromRosTime(gnss->header.stamp);
+  gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, pos_cov, vel_meas, vel_cov, imu2gnss, gyro_meas, stamp);
 }
 
 void ObserverNode::getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr&, const GetOrigin::Response::SharedPtr& res)

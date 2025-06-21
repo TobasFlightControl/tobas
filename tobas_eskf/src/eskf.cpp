@@ -565,9 +565,9 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
   return correct(delta_mag, mag_cov, H_mag_);
 }
 
-double ErrorStateKalmanFilter::measureMagneticFieldYaw(
+double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const Vector3d& mag_meas,
-  const Matrix3d& mag_cov,
+  const double& yaw_var,
   const steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.) {
@@ -592,12 +592,6 @@ double ErrorStateKalmanFilter::measureMagneticFieldYaw(
   const auto yaw_ref = atan2(mag_W_.y(), mag_W_.x());
   const auto yaw_meas = yaw_ref - atan2(my, mx);
   const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
-
-  // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
-  const auto mx_std = sqrt(mag_cov(0, 0));
-  const auto my_std = sqrt(mag_cov(1, 1));
-  const auto yaw_std = (fabs(mx) * my_std + fabs(my) * mx_std) / (math::sqr(mx) + math::sqr(my));
-  const auto yaw_var = math::sqr(yaw_std);
 
   // 出力方程式を更新
   H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = hamiltonToYawOutputMatrix(x) * getQ_dtheta(x);
