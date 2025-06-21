@@ -4,7 +4,7 @@
 
 namespace eskf
 {
-double headVarianceFromMag(const Eigen::Vector3d& mag, const Eigen::Matrix3d& cov)
+double headingVarianceFromMag(const Eigen::Vector3d& mag, const Eigen::Matrix3d& cov)
 {
   const auto mx = mag.x();
   const auto my = mag.y();

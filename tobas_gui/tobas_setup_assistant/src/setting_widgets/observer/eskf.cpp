@@ -17,21 +17,21 @@ ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  fix_imu_noise_ = new QCheckBox("Fix IMU Measurement Noise");
-  fix_imu_noise_->setChecked(true);
-  rows->addWidget(fix_imu_noise_);
+  adaptive_imu_noise_ = new QCheckBox("Adaptive IMU Measurement Noise");
+  adaptive_imu_noise_->setChecked(false);
+  rows->addWidget(adaptive_imu_noise_);
 
-  fix_mag_noise_ = new QCheckBox("Fix Magnetic Field Measurement Noise");
-  fix_mag_noise_->setChecked(true);
-  rows->addWidget(fix_mag_noise_);
+  adaptive_mag_noise_ = new QCheckBox("Adaptive Magnetic Field Measurement Noise");
+  adaptive_mag_noise_->setChecked(false);
+  rows->addWidget(adaptive_mag_noise_);
 
-  fix_baro_noise_ = new QCheckBox("Fix Air Pressure Measurement Noise");
-  fix_baro_noise_->setChecked(true);
-  rows->addWidget(fix_baro_noise_);
+  adaptive_baro_noise_ = new QCheckBox("Adaptive Air Pressure Measurement Noise");
+  adaptive_baro_noise_->setChecked(false);
+  rows->addWidget(adaptive_baro_noise_);
 
-  fix_gnss_noise_ = new QCheckBox("Fix GNSS Measurement Noise");
-  fix_gnss_noise_->setChecked(false);
-  rows->addWidget(fix_gnss_noise_);
+  adaptive_gnss_noise_ = new QCheckBox("Adaptive GNSS Measurement Noise");
+  adaptive_gnss_noise_->setChecked(true);
+  rows->addWidget(adaptive_gnss_noise_);
 
   do_acc_bias_estimation_ = new QCheckBox("Do Accelerometer Bias Estimation");
   do_acc_bias_estimation_->setChecked(false);
@@ -94,10 +94,10 @@ YAML::Node ErrorStateKalmanFilterWidget::staticParams() const
   node["frame_id"] = robot_.tree().getRootName();
   node["use_barometer"] = false;  // TODO: 選択できるように
   node["use_gnss"] = gnss_->equipped();
-  node["fix_imu_noise"] = fix_imu_noise_->isChecked();
-  node["fix_mag_noise"] = fix_mag_noise_->isChecked();
-  node["fix_baro_noise"] = fix_baro_noise_->isChecked();
-  node["fix_gnss_noise"] = fix_gnss_noise_->isChecked();
+  node["adaptive_imu_noise"] = adaptive_imu_noise_->isChecked();
+  node["adaptive_mag_noise"] = adaptive_mag_noise_->isChecked();
+  node["adaptive_baro_noise"] = adaptive_baro_noise_->isChecked();
+  node["adaptive_gnss_noise"] = adaptive_gnss_noise_->isChecked();
   node["do_acc_bias_estimation"] = do_acc_bias_estimation_->isChecked();
   node["do_gyro_bias_estimation"] = do_gyro_bias_estimation_->isChecked();
   node["do_mag_hard_bias_estimation"] = do_mag_hard_bias_estimation_->isChecked();
@@ -114,10 +114,10 @@ YAML::Node ErrorStateKalmanFilterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[fix_imu_noise_->text()] = fix_imu_noise_->isChecked();
-  node[fix_mag_noise_->text()] = fix_mag_noise_->isChecked();
-  node[fix_baro_noise_->text()] = fix_baro_noise_->isChecked();
-  node[fix_gnss_noise_->text()] = fix_gnss_noise_->isChecked();
+  node[adaptive_imu_noise_->text()] = adaptive_imu_noise_->isChecked();
+  node[adaptive_mag_noise_->text()] = adaptive_mag_noise_->isChecked();
+  node[adaptive_baro_noise_->text()] = adaptive_baro_noise_->isChecked();
+  node[adaptive_gnss_noise_->text()] = adaptive_gnss_noise_->isChecked();
   node[do_acc_bias_estimation_->text()] = do_acc_bias_estimation_->isChecked();
   node[do_gyro_bias_estimation_->text()] = do_gyro_bias_estimation_->isChecked();
   node[do_mag_hard_bias_estimation_->text()] = do_mag_hard_bias_estimation_->isChecked();
@@ -129,10 +129,10 @@ YAML::Node ErrorStateKalmanFilterWidget::dump() const
 
 void ErrorStateKalmanFilterWidget::load(const YAML::Node& node)
 {
-  fix_imu_noise_->setChecked(node[fix_imu_noise_->text()].as<bool>());
-  fix_mag_noise_->setChecked(node[fix_mag_noise_->text()].as<bool>());
-  fix_baro_noise_->setChecked(node[fix_baro_noise_->text()].as<bool>());
-  fix_gnss_noise_->setChecked(node[fix_gnss_noise_->text()].as<bool>());
+  adaptive_imu_noise_->setChecked(node[adaptive_imu_noise_->text()].as<bool>());
+  adaptive_mag_noise_->setChecked(node[adaptive_mag_noise_->text()].as<bool>());
+  adaptive_baro_noise_->setChecked(node[adaptive_baro_noise_->text()].as<bool>());
+  adaptive_gnss_noise_->setChecked(node[adaptive_gnss_noise_->text()].as<bool>());
   do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text()].as<bool>());
   do_gyro_bias_estimation_->setChecked(node[do_gyro_bias_estimation_->text()].as<bool>());
   do_mag_hard_bias_estimation_->setChecked(node[do_mag_hard_bias_estimation_->text()].as<bool>());
