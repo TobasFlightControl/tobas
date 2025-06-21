@@ -43,6 +43,7 @@ private:
   QCheckBox* adaptive_mag_noise_;
   QCheckBox* adaptive_baro_noise_;
   QCheckBox* adaptive_gnss_noise_;
+  QCheckBox* adaptive_grav_noise_;
   QCheckBox* do_acc_bias_estimation_;
   QCheckBox* do_gyro_bias_estimation_;
   QCheckBox* do_mag_hard_bias_estimation_;

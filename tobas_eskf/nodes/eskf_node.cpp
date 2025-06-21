@@ -52,6 +52,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr bool kDefaultAdaptiveMagNoise = false;
   static constexpr bool kDefaultAdaptiveBaroNoise = false;
   static constexpr bool kDefaultAdaptiveGnssNoise = true;
+  static constexpr bool kDefaultAdaptiveGravNoise = true;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
   static constexpr bool kDefaultDoMagHardBiasEstimation = false;
@@ -95,6 +96,7 @@ private:
   bool adaptive_mag_noise_;
   bool adaptive_baro_noise_;
   bool adaptive_gnss_noise_;
+  bool adaptive_grav_noise_;
   bool do_acc_bias_estimation_;
   bool do_gyro_bias_estimation_;
   bool do_mag_hard_bias_estimation_;
@@ -113,6 +115,9 @@ private:
   Matrix3d fixed_gnss_pos_cov_ = Matrix3d::Zero();  // [m^2]
   Matrix3d fixed_gnss_vel_cov_ = Matrix3d::Zero();  // [m^2/s^2]
   Matrix3d fixed_grav_cov_ = Matrix3d::Zero();      // [m^2/s^4]
+  double grav_stddev_min_;                          // [m/s^2]
+  double grav_stddev_max_;                          // [m/s^2]
+  double grav_stddev_rate_;                         // [-]
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
@@ -136,8 +141,10 @@ private:
   void getStaticRosParams();
   bool setMagneticFieldRef(const Vector3d& mag_W);
   void fillOdometryMsg(OdomMsg& odom) const;
-  void publishGNSSOrigin();
-  void publishFeedback(const std_msgs::msg::Header& header);
+  void publishGNSSOrigin() const;
+  void publishFeedback(const std_msgs::msg::Header& header) const;
+  double calcGravMeasNoiseStddev(const Vector3d& acc) const;
+  Matrix3d calcGravMeasNoiseCov(const Vector3d& acc) const;
 
   double initAccelBiasStddev() const;
   double initGyroBiasStddev() const;
@@ -145,14 +152,17 @@ private:
   double initMagSoftBiasStddev() const;
   double initGravBiasStddev() const;
 
-  bool accMeasNoiseStddevCb(const double& p);
-  bool gyroMeasNoiseStddevCb(const double& p);
-  bool magMeasNoiseStddevCb(const double& p);
-  bool headMeasNoiseStddevCb(const double& p);
-  bool baroAltMeasNoiseStddevCb(const double& p);
-  bool gnssPosMeasNoiseStddevCb(const double& p);
-  bool gnssVelMeasNoiseStddevCb(const double& p);
-  bool gravMeasNoiseStddevCb(const double& p);
+  bool fixedAccMeasNoiseStddevCb(const double& p);
+  bool fixedGyroMeasNoiseStddevCb(const double& p);
+  bool fixedMagMeasNoiseStddevCb(const double& p);
+  bool fixedHeadMeasNoiseStddevCb(const double& p);
+  bool fixedBaroAltMeasNoiseStddevCb(const double& p);
+  bool fixedGnssPosMeasNoiseStddevCb(const double& p);
+  bool fixedGnssVelMeasNoiseStddevCb(const double& p);
+  bool fixedGravMeasNoiseStddevCb(const double& p);
+  bool adaptiveGravMeasNoiseStddevMinCb(const double& p);
+  bool adaptiveGravMeasNoiseStddevMaxCb(const double& p);
+  bool adaptiveGravMeasNoiseStddevRateCb(const double& p);
   bool accBiasProcNoiseDensityCb(const double& p);
   bool gyroBiasProcNoiseDensityCb(const double& p);
   bool magHardBiasProcNoiseDensityCb(const double& p);
@@ -179,28 +189,42 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   // Register dynamic parameters
   if (!adaptive_imu_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
-    addDynamicDoubleParam("acc_meas_noise_stddev", &self::accMeasNoiseStddevCb, this, 0.01, 35, 1, 100, " m/s^2");
+    addDynamicDoubleParam("acc_meas_noise_stddev", &self::fixedAccMeasNoiseStddevCb, this, 0.01, 35, 1, 100, " m/s^2");
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
-    addDynamicDoubleParam("gyro_meas_noise_stddev", &self::gyroMeasNoiseStddevCb, this, 0.001, 15, 1, 100, " rad/s");
+    addDynamicDoubleParam(
+      "gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.001, 15, 1, 100, " rad/s");
   }
   if (!adaptive_mag_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
-    addDynamicDoubleParam("mag_meas_noise_stddev", &self::magMeasNoiseStddevCb, this, 1., 5, 1, 100, " uT");
+    addDynamicDoubleParam("mag_meas_noise_stddev", &self::fixedMagMeasNoiseStddevCb, this, 1., 5, 1, 100, " uT");
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_HEAD_NOISE
-    addDynamicDoubleParam("head_meas_noise_stddev", &self::headMeasNoiseStddevCb, this, 0.1, 3, 1, 10, " rad");
+    addDynamicDoubleParam("head_meas_noise_stddev", &self::fixedHeadMeasNoiseStddevCb, this, 0.1, 3, 1, 10, " rad");
   }
   if (!adaptive_baro_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_BARO_NOISE
-    addDynamicDoubleParam("baro_alt_meas_noise_stddev", &self::baroAltMeasNoiseStddevCb, this, 0.1, 35, 1, 150, " m");
+    addDynamicDoubleParam(
+      "baro_alt_meas_noise_stddev", &self::fixedBaroAltMeasNoiseStddevCb, this, 0.1, 35, 1, 150, " m");
   }
   if (!adaptive_gnss_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_P_NOISE
-    addDynamicDoubleParam("gnss_pos_meas_noise_stddev", &self::gnssPosMeasNoiseStddevCb, this, 0.1, 5, 1, 100, " m");
+    addDynamicDoubleParam(
+      "gnss_pos_meas_noise_stddev", &self::fixedGnssPosMeasNoiseStddevCb, this, 0.1, 5, 1, 100, " m");
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GPS_V_NOISE
-    addDynamicDoubleParam("gnss_vel_meas_noise_stddev", &self::gnssVelMeasNoiseStddevCb, this, 0.1, 3, 1, 50, " m/s");
+    addDynamicDoubleParam(
+      "gnss_vel_meas_noise_stddev", &self::fixedGnssVelMeasNoiseStddevCb, this, 0.1, 3, 1, 50, " m/s");
   }
-  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
-  addDynamicDoubleParam("grav_meas_noise_stddev", &self::gravMeasNoiseStddevCb, this, 0.1, 10, 1, 100, " g");
+  if (adaptive_grav_noise_) {
+    addDynamicDoubleParam(
+      "grav_meas_noise_stddev_min", &self::adaptiveGravMeasNoiseStddevMinCb, this, 0.01, 1, 0, 100, " m/s^2");
+    addDynamicDoubleParam(
+      "grav_meas_noise_stddev_max", &self::adaptiveGravMeasNoiseStddevMaxCb, this, 1., 20, 10, 100, " m/s^2");
+    addDynamicDoubleParam(
+      "grav_meas_noise_stddev_rate", &self::adaptiveGravMeasNoiseStddevRateCb, this, 1., 100, 0, 500);
+  }
+  else {
+    // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
+    addDynamicDoubleParam("grav_meas_noise_stddev", &self::fixedGravMeasNoiseStddevCb, this, 0.1, 10, 1, 100, " g");
+  }
   if (do_acc_bias_estimation_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
     addDynamicDoubleParam(
@@ -255,6 +279,7 @@ void ObserverNode::getStaticRosParams()
   adaptive_mag_noise_ = getBoolParam("adaptive_mag_noise", kDefaultAdaptiveMagNoise);
   adaptive_baro_noise_ = getBoolParam("adaptive_baro_noise", kDefaultAdaptiveBaroNoise);
   adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise", kDefaultAdaptiveGnssNoise);
+  adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise", kDefaultAdaptiveGravNoise);
   do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", kDefaultDoAccBiasEstimation);
   do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", kDefaultDoGyroBiasEstimation);
   do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation", kDefaultDoMagHardBiasEstimation);
@@ -368,7 +393,7 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   odom.dgyro_covariance.fill(NAN);
 }
 
-void ObserverNode::publishGNSSOrigin()
+void ObserverNode::publishGNSSOrigin() const
 {
   auto gnss_origin = std::make_unique<GnssOriginMsg>();
 
@@ -380,7 +405,7 @@ void ObserverNode::publishGNSSOrigin()
   gnss_origin_pub_->publish(move(gnss_origin));
 }
 
-void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
+void ObserverNode::publishFeedback(const std_msgs::msg::Header& header) const
 {
   auto feedback = std::make_unique<FeedbackMsg>();
 
@@ -409,6 +434,27 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
   feedback_pub_->publish(move(feedback));
 }
 
+double ObserverNode::calcGravMeasNoiseStddev(const Vector3d& acc) const
+{
+  // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
+  // 加速度の大きさと重力加速度との誤差が大きいほど重力以外の加速度が生じているため加速度による姿勢の観測が不確かだと考えるのは直感的だが，
+  // その誤差は正規分布に従うわけではなく一様に確かでもないため，誤差をそのまま標準偏差とすることには何の根拠もない．
+  // 実際，重力方向の分散を下げると，並進移動時に進行方向への加速度により実際よりも大きく傾いていると判断され，
+  // 制御器が姿勢を戻そうとし，並進方向の加速度の追従が遅れ，位置制御が振動するという因果関係がある．
+  // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
+  // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
+  const auto acc_norm_diff = fabs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
+  const auto grav_stddev = grav_stddev_min_ + grav_stddev_rate_ * acc_norm_diff;  // TODO: 他のプロファイルを検討
+  return std::min(grav_stddev, grav_stddev_max_);
+}
+
+Matrix3d ObserverNode::calcGravMeasNoiseCov(const Vector3d& acc) const
+{
+  const auto grav_stddev = calcGravMeasNoiseStddev(acc);
+  const auto grav_var = math::sqr(grav_stddev);
+  return Vector3d::Constant(grav_var).asDiagonal();
+}
+
 double ObserverNode::initAccelBiasStddev() const
 {
   return do_acc_bias_estimation_ ? 1. : 0.;
@@ -434,7 +480,7 @@ double ObserverNode::initGravBiasStddev() const
   return do_grav_estimation_ ? 0.1 : 0.;
 }
 
-bool ObserverNode::accMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedAccMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_imu_noise_);
 
@@ -445,7 +491,7 @@ bool ObserverNode::accMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::gyroMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedGyroMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_imu_noise_);
 
@@ -456,7 +502,7 @@ bool ObserverNode::gyroMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::magMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedMagMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_mag_noise_);
 
@@ -467,7 +513,7 @@ bool ObserverNode::magMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::headMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedHeadMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_mag_noise_);
 
@@ -477,7 +523,7 @@ bool ObserverNode::headMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::baroAltMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedBaroAltMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_baro_noise_);
 
@@ -487,7 +533,7 @@ bool ObserverNode::baroAltMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::gnssPosMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedGnssPosMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_gnss_noise_);
 
@@ -498,7 +544,7 @@ bool ObserverNode::gnssPosMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::gnssVelMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedGnssVelMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_gnss_noise_);
 
@@ -509,12 +555,35 @@ bool ObserverNode::gnssVelMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::gravMeasNoiseStddevCb(const double& p)
+bool ObserverNode::fixedGravMeasNoiseStddevCb(const double& p)
 {
+  assert(!adaptive_grav_noise_);
+
   const auto grav_stddev = p * tobas_std::kGravity;  // [m/s^2]
   const auto grav_var = math::sqr(grav_stddev);
   fixed_grav_cov_.diagonal().fill(grav_var);
 
+  return true;
+}
+
+bool ObserverNode::adaptiveGravMeasNoiseStddevMinCb(const double& p)
+{
+  assert(adaptive_grav_noise_);
+  grav_stddev_min_ = p;
+  return true;
+}
+
+bool ObserverNode::adaptiveGravMeasNoiseStddevMaxCb(const double& p)
+{
+  assert(adaptive_grav_noise_);
+  grav_stddev_max_ = p;
+  return true;
+}
+
+bool ObserverNode::adaptiveGravMeasNoiseStddevRateCb(const double& p)
+{
+  assert(adaptive_grav_noise_);
+  grav_stddev_rate_ = p;
   return true;
 }
 
@@ -603,7 +672,8 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   const auto& gyro_meas = imu->imu.imu.gyro.data;
   const auto& acc_cov = adaptive_imu_noise_ ? imu->imu.accel_covariance : fixed_acc_cov_;
   const auto& gyro_cov = adaptive_imu_noise_ ? imu->imu.gyro_covariance : fixed_gyro_cov_;
-  eskf_.measureIMU(acc_meas, gyro_meas, acc_cov, gyro_cov, fixed_grav_cov_, cur_time);
+  const auto grav_cov = adaptive_grav_noise_ ? calcGravMeasNoiseCov(acc_meas) : fixed_grav_cov_;
+  eskf_.measureIMU(acc_meas, gyro_meas, acc_cov, gyro_cov, grav_cov, cur_time);
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
