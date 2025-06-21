@@ -677,7 +677,8 @@ void ObserverNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
 
   // TODO: bar_offsetを考慮
   const auto z_m = z_abs - alt_0_bar_;
-  eskf_.measureAltitude(z_m, z_var, ros2::chronoFromRosTime(baro->header.stamp));
+  const auto stamp = ros2::chronoFromRosTime(baro->header.stamp);
+  eskf_.measureAltitude(z_m, z_var, stamp);
 }
 
 void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
