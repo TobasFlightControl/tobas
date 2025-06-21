@@ -34,7 +34,7 @@ ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   rows->addWidget(adaptive_gnss_noise_);
 
   adaptive_grav_noise_ = new QCheckBox("Adaptive Gravity Measurement Noise");
-  adaptive_grav_noise_->setChecked(true);
+  adaptive_grav_noise_->setChecked(false);
   rows->addWidget(adaptive_grav_noise_);
 
   do_acc_bias_estimation_ = new QCheckBox("Do Accelerometer Bias Estimation");

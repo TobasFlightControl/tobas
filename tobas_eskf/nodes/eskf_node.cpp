@@ -52,7 +52,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr bool kDefaultAdaptiveMagNoise = false;
   static constexpr bool kDefaultAdaptiveBaroNoise = false;
   static constexpr bool kDefaultAdaptiveGnssNoise = true;
-  static constexpr bool kDefaultAdaptiveGravNoise = true;
+  static constexpr bool kDefaultAdaptiveGravNoise = false;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
   static constexpr bool kDefaultDoMagHardBiasEstimation = false;
