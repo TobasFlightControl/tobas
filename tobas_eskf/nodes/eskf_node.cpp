@@ -25,6 +25,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 
 #include "tobas_eskf/eskf.hpp"
+#include "tobas_eskf/util.hpp"
 
 using namespace Eigen;
 
@@ -646,20 +647,7 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
     eskf_.measureMagneticField3d(mag_meas, mag_cov, stamp);
   }
   else {
-    double head_var;
-    if (fix_mag_noise_) {
-      head_var = fixed_head_var_;
-    }
-    else {
-      // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
-      const auto mx = mag_meas.x();
-      const auto my = mag_meas.y();
-      const auto mx_std = sqrt(mag->mag.covariance(0, 0));
-      const auto my_std = sqrt(mag->mag.covariance(1, 1));
-      const auto head_std = (fabs(mx) * my_std + fabs(my) * mx_std) / (math::sqr(mx) + math::sqr(my));
-      head_var = math::sqr(head_std);
-    }
-
+    const auto head_var = fix_mag_noise_ ? fixed_head_var_ : eskf::headVarianceFromMag(mag_meas, mag->mag.covariance);
     eskf_.measureMagneticFieldHead(mag_meas, head_var, stamp);
   }
 }
