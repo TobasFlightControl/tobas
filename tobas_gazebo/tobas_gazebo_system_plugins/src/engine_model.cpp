@@ -130,7 +130,7 @@ double EngineModel::speedFunc(double omega) const
   const auto& B = engine_const_.second;
   const auto f = calc_f();
   const auto k = calc_k();
-  return f * math::sqr(k) * math::quat(omega) + k * omega - B;
+  return f * math::sqr(k) * math::quar(omega) + k * omega - B;
 }
 
 double EngineModel::speedFuncDeriv(double omega) const

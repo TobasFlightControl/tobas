@@ -157,7 +157,7 @@ double ICEPropulsionSystemConfig::speedFunc(double throttle, double omega) const
   const auto& B = engine.engine_const.second;
   const auto f = calc_f(throttle);
   const auto k = calc_k();
-  return f * math::sqr(k) * math::quat(omega) + k * omega - B;
+  return f * math::sqr(k) * math::quar(omega) + k * omega - B;
 }
 
 double ICEPropulsionSystemConfig::speedFuncDeriv(double throttle, double omega) const

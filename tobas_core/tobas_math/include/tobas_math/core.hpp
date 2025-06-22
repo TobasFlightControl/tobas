@@ -20,10 +20,18 @@ inline constexpr T cube(const T& x)
 
 /* 4乗する． */
 template <typename T>
-inline constexpr T quat(const T& x)
+inline constexpr T quar(const T& x)
 {
   const auto x2 = sqr(x);
   return sqr(x2);
+}
+
+/* 4乗根を計算する． */
+template <typename T>
+inline T quart(const T& x)
+{
+  const auto sqrt_x = sqrt(x);
+  return sqrt(sqrt_x);
 }
 
 /* 符号を返す．正なら+1，負なら-1，ゼロなら0． */

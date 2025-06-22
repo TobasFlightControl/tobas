@@ -23,7 +23,7 @@ BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, doub
 
 double BladeTheory::motorConst() const
 {
-  return 4 * M_PI * rho_ * math::quat(R_) * C_T();
+  return 4 * M_PI * rho_ * math::quar(R_) * C_T();
 }
 
 double BladeTheory::momentConst() const

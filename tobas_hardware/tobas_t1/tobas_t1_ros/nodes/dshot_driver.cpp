@@ -189,7 +189,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // Set moment constants
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    const auto moment_const = erotor->motor_const * erotor->moment_const / math::quat(erotor->propeller_diameter);
+    const auto moment_const = erotor->motor_const * erotor->moment_const / math::quar(erotor->propeller_diameter);
     if (!dshot_.setMomentConstant(erotor->channel, moment_const)) {
       TOBAS_ERROR("Failed to set moment constant of channel ", erotor->channel, ".");
       return;
