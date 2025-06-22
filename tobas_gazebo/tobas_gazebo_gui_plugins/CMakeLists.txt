@@ -22,6 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_tools REQUIRED)
+find_package(tobas_gazebo_common REQUIRED)
 
 find_package(gz_sim_vendor REQUIRED)
 find_package(gz-sim REQUIRED)
