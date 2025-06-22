@@ -53,6 +53,10 @@
 
 - `fix: Resolve price validation bug`
 
+## Pull Request
+
+- レビュアーに土肥 (@Masa0u0) を指定する．
+
 ## 参考
 
 - [Git での基本的な開発フローについて](https://qiita.com/jun1s/items/e45761f103c52926d5e5)
