@@ -36,7 +36,7 @@ bool BMM150::initialize()
   }
 
   if (!execSelfTest()) {
-    cerr << "self test failed." << endl;
+    cerr << "Self test failed." << endl;
     return false;
   }
 
