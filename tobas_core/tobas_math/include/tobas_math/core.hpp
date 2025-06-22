@@ -22,7 +22,8 @@ inline constexpr T cube(const T& x)
 template <typename T>
 inline constexpr T quat(const T& x)
 {
-  return sqr(sqr(x));
+  const auto x2 = sqr(x);
+  return sqr(x2);
 }
 
 /* 符号を返す．正なら+1，負なら-1，ゼロなら0． */
