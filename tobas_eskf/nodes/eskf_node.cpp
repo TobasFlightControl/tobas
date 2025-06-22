@@ -189,10 +189,10 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   // Register dynamic parameters
   if (!adaptive_imu_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_NOISE
-    addDynamicDoubleParam("acc_meas_noise_stddev", &self::fixedAccMeasNoiseStddevCb, this, 0.01, 35, 1, 100, " m/s^2");
+    addDynamicDoubleParam("acc_meas_noise_stddev", &self::fixedAccMeasNoiseStddevCb, this, 0.05, 20, 1, 100, " m/s^2");
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GYR_NOISE
     addDynamicDoubleParam(
-      "gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.001, 15, 1, 100, " rad/s");
+      "gyro_meas_noise_stddev", &self::fixedGyroMeasNoiseStddevCb, this, 0.005, 20, 1, 100, " rad/s");
   }
   if (!adaptive_mag_noise_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_MAG_NOISE
@@ -223,7 +223,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   }
   else {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_GRAV_NOISE
-    addDynamicDoubleParam("grav_meas_noise_stddev", &self::fixedGravMeasNoiseStddevCb, this, 0.1, 10, 1, 100, " g");
+    addDynamicDoubleParam("grav_meas_noise_stddev", &self::fixedGravMeasNoiseStddevCb, this, 0.1, 3, 1, 20, " g");
   }
   if (do_acc_bias_estimation_) {
     // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#EKF2_ACC_B_NOISE
