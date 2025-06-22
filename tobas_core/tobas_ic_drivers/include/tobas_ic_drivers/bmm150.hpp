@@ -14,13 +14,13 @@ class BMM150
   static constexpr char kI2cDevice[] = "/dev/i2c-1";
   static constexpr uint8_t kI2cAddress = 0x10;  // ref: p.36
   static constexpr uint8_t kSelfTestRef = 0x01;
-  // over flow handlings numbers, written in https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c
+  // Overflow handlings numbers, written in https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c
   static constexpr int16_t kXyaxesFlipOverflowAdcval = -4096;
   static constexpr int16_t kZaxisHallOverflowAdcval = -16384;
-  static constexpr int16_t kOverflowOutput = -32768; // return this value as mag sensor raw data ()
+  static constexpr int16_t kOverflowOutput = -32768;  // return this value as mag sensor raw data ()
   static constexpr int16_t kNegativeSaturationZ = -32767;
   static constexpr int16_t kPositiveSaturationZ = 32767;
-  static constexpr double kResolution = 1.0 / 16.0; // (int16_t)raw_data * kResolution = ~ micro tesla
+  static constexpr double kResolution = 1.0 / 16.0;  // (int16_t)raw_data * kResolution = ~ micro tesla
 
 public:
   explicit BMM150();
@@ -45,14 +45,14 @@ private:
     OUTZ_LSB_REG = 0x46,
     OUTZ_MSB_REG = 0x47,
 
-    // hall resistance registers
+    // Hall resistance registers
     HALL_LSB_REG = 0x48,
     HALL_MSB_REG = 0x49,
 
-    // interrrupt status registers
+    // Interrupt status registers
     INTERRUPT_REG = 0x4A,
 
-    // configuration setting registers
+    // Configuration setting registers
     CFG_REG_A = 0x4B,
     CFG_REG_B = 0x4C,
     CFG_REG_C = 0x4D,
@@ -60,7 +60,7 @@ private:
     CFG_REG_E = 0x51,
     CFG_REG_F = 0x52,
 
-    // trim registers
+    // Trim registers
     DIG_X1_REG = 0x5D,
     DIG_Y1_REG = 0x5E,
     DIG_Z4_LSB_REG = 0x62,
@@ -112,7 +112,6 @@ private:
     LOW_INT_Z = 1 << 0,
 
     // CFG_REG_D
-    //
 
     // ref: p.13 recommended settings for Rep. XYZ, p.30 nXY = 1 + 2*REPXY
     // CFG_REG_E
@@ -125,46 +124,43 @@ private:
 
   struct TrimData
   {
-    /*! trim x1 data */
+    /* trim x1 data */
     int8_t dig_x1;
-    /*! trim y1 data */
+    /* trim y1 data */
     int8_t dig_y1;
-    /*! trim x2 data */
+    /* trim x2 data */
     int8_t dig_x2;
-    /*! trim y2 data */
+    /* trim y2 data */
     int8_t dig_y2;
-    /*! trim z1 data */
+    /* trim z1 data */
     uint16_t dig_z1;
-    /*! trim z2 data */
+    /* trim z2 data */
     int16_t dig_z2;
-    /*! trim z3 data */
+    /* trim z3 data */
     int16_t dig_z3;
-    /*! trim z4 data */
+    /* trim z4 data */
     int16_t dig_z4;
-    /*! trim xy1 data */
+    /* trim xy1 data */
     uint8_t dig_xy1;
-    /*! trim xy2 data */
+    /* trim xy2 data */
     int8_t dig_xy2;
-    /*! trim xyz1 data */
+    /* trim xyz1 data */
     uint16_t dig_xyz1;
   } trim_data;
 
   linux::I2Cdev i2c_;
-
-  bool readRegs(const uint8_t& addr, const size_t& bytes);
-  bool writeReg(const uint8_t& addr, const uint8_t& data);
+  uint8_t rx_[8];
 
   bool enterSuspendMode();
   bool suspendToSleepMode();
   bool checkWhoAmI();
   bool execSelfTest();
   bool configure();
-  // ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet)
+  /* ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet) */
   bool readTrimRegisters();
 
   /**
-   * @brief This internal API is used to obtain the compensated
-   * magnetometer X axis data(micro-tesla) in int16_t.
+   * @brief This internal API is used to obtain the compensated magnetometer X axis data in microteslas.
    *
    * @param mag_data_x magneto X axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
@@ -172,8 +168,7 @@ private:
    */
   int16_t compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall);
   /**
-   * @brief This internal API is used to obtain the compensated
-   * magnetometer Y axis data(micro-tesla) in int16_t.
+   * @brief This internal API is used to obtain the compensated magnetometer Y axis data in microteslas.
    *
    * @param mag_data_y magneto Y axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
@@ -181,8 +176,7 @@ private:
    */
   int16_t compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall);
   /**
-   * @brief This internal API is used to obtain the compensated
-   * magnetometer Z axis data(micro-tesla) in int16_t.
+   * @brief This internal API is used to obtain the compensated magnetometer Z axis data in microteslas.
    *
    * @param mag_data_z magneto Z axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
