@@ -146,10 +146,10 @@ private:
     int8_t dig_xy2;
     /* trim xyz1 data */
     uint16_t dig_xyz1;
-  } trim_data;
+  } trim_data_;
 
   linux::I2Cdev i2c_;
-  uint8_t rx_[8];
+  uint8_t mag_buf_[8];
 
   bool enterSuspendMode();
   bool suspendToSleepMode();
