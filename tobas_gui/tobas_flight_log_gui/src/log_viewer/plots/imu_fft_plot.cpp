@@ -1,0 +1,77 @@
+#include "tobas_flight_log_gui/log_viewer/plots/imu_fft_plot.hpp"
+
+#include <ranges>
+
+#include <QGridLayout>
+#include <eigen3/unsupported/Eigen/FFT>
+
+#include <tobas_ros2_tools/time.hpp>
+
+namespace gui
+{
+namespace log
+{
+ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z" }
+{
+  const auto grid = new QGridLayout();
+  setLayout(grid);
+
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    plots_[i] = new QwtPlot2();
+    grid->addWidget(plots_[i], i % 3, i / 3);
+    curves_[i].setPen(kRawValueColor, kLineWidth);
+    curves_[i].attach(plots_[i]);
+  }
+}
+
+void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_msgs)
+{
+  const auto num_samples = imu_msgs.size();
+
+  if (num_samples < 2) {
+    return;
+  }
+
+  // データ収集
+  std::array<std::vector<double>, kNumAxes> data;
+  for (const auto& imu : imu_msgs) {
+    const auto& accel = imu.imu.accel;
+    data[0].push_back(accel.x);
+    data[1].push_back(accel.y);
+    data[2].push_back(accel.z);
+
+    const auto& gyro = imu.imu.gyro;
+    data[3].push_back(gyro.x);
+    data[4].push_back(gyro.y);
+    data[5].push_back(gyro.z);
+  }
+
+  // サンプリング周波数を計算
+  const auto& first_time = imu_msgs.first().header.stamp;
+  const auto& last_time = imu_msgs.back().header.stamp;
+  const auto duration = (last_time - first_time).seconds();  // [s]
+  const auto fs = num_samples / duration;                    // [Hz]
+
+  // 周波数変換して表示
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    Eigen::FFT<double> fft;
+    fft.SetFlag(Eigen::FFT<double>::HalfSpectrum);
+
+    std::vector<std::complex<double>> spec;
+    fft.fwd(spec, data.at(i));
+    assert(spec.size() == num_samples / 2 + 1);
+
+    QVector<double> freqs, amps;
+    for (const auto& [k, x] : std::views::enumerate(spec)) {
+      const auto freq = k * fs / num_samples;                      // [Hz]
+      const auto amp = M_SQRT2 * std::abs(x) / sqrt(num_samples);  // RMS
+      freqs.push_back(freq);
+      amps.push_back(amp);
+    }
+
+    curves_[i].setSamples(freqs, amps);
+    plots_[i]->replot();
+  }
+}
+}  // namespace log
+}  // namespace gui
