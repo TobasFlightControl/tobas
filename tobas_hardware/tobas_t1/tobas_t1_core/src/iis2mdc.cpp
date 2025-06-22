@@ -32,7 +32,7 @@ bool IIS2MDC::initialize()
 
 bool IIS2MDC::readMag(double& mx, double& my, double& mz)
 {
-  if (!i2c_.readBytes(OUTX_L_REG | kMultiReadFlag, 6, mag_buf_)) {
+  if (!i2c_.readBytes(OUTX_L_REG | kMultiReadFlag, sizeof(mag_buf_), mag_buf_)) {
     return false;
   }
 
