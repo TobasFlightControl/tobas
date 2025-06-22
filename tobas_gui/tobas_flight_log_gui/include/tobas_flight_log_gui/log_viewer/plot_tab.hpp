@@ -7,6 +7,7 @@
 #include "./plots/dist_force_plot.hpp"
 #include "./plots/engine_plot.hpp"
 #include "./plots/gnss_plot.hpp"
+#include "./plots/imu_fft_plot.hpp"
 #include "./plots/imu_plot.hpp"
 #include "./plots/latency_plot.hpp"
 #include "./plots/mag_plot.hpp"
@@ -62,6 +63,7 @@ private:
   TwistPlotWidget* twist_plot_;
   AccelPlotWidget* accel_plot_;
   ImuPlotWidget* imu_plot_;
+  ImuFftPlotWidget* imu_fft_plot_;
   MagPlotWidget* mag_plot_;
   GnssPlotWidget* gnss_plot_;
   BatteryPlotWidget* battery_plot_;

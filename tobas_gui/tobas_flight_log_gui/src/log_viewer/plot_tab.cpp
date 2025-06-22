@@ -10,6 +10,7 @@ PlotTabWidget::PlotTabWidget()
   twist_plot_ = new TwistPlotWidget();
   accel_plot_ = new AccelPlotWidget();
   imu_plot_ = new ImuPlotWidget();
+  imu_fft_plot_ = new ImuFftPlotWidget();
   mag_plot_ = new MagPlotWidget();
   gnss_plot_ = new GnssPlotWidget();
   battery_plot_ = new BatteryPlotWidget();
@@ -25,6 +26,7 @@ PlotTabWidget::PlotTabWidget()
   addTab(twist_plot_, "Twist");
   addTab(accel_plot_, "Accel");
   addTab(imu_plot_, "IMU");
+  addTab(imu_fft_plot_, "IMU FFT");
   addTab(mag_plot_, "Magnetic\nField");
   addTab(gnss_plot_, "GNSS");
   addTab(battery_plot_, "Battery");
@@ -77,6 +79,7 @@ void PlotTabWidget::setImuData(
   const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_msgs)
 {
   imu_plot_->setData(raw_msgs, filt_msgs);
+  imu_fft_plot_->setData(raw_msgs);
 }
 
 void PlotTabWidget::setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data)

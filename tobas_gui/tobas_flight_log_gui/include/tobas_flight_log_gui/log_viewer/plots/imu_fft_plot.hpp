@@ -21,7 +21,7 @@ public:
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;
-  std::array<qwt::QwtPlotCurveWrapper, kNumAxes > curves_;
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes> curves_;
 };
 }  // namespace log
 }  // namespace gui

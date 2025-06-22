@@ -19,7 +19,7 @@ ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z",
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();
     grid->addWidget(plots_[i], i % 3, i / 3);
-    curves_[i].setPen(kRawValueColor, kLineWidth);
+    curves_[i].setPen(Qt::black, kLineWidth);
     curves_[i].attach(plots_[i]);
   }
 }
@@ -33,17 +33,17 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_m
   }
 
   // データ収集
-  std::array<std::vector<double>, kNumAxes> data;
+  std::array<std::vector<double>, kNumAxes> imu_data;
   for (const auto& imu : imu_msgs) {
     const auto& accel = imu.imu.accel;
-    data[0].push_back(accel.x);
-    data[1].push_back(accel.y);
-    data[2].push_back(accel.z);
+    imu_data[0].push_back(accel.x);
+    imu_data[1].push_back(accel.y);
+    imu_data[2].push_back(accel.z);
 
     const auto& gyro = imu.imu.gyro;
-    data[3].push_back(gyro.x);
-    data[4].push_back(gyro.y);
-    data[5].push_back(gyro.z);
+    imu_data[3].push_back(gyro.x);
+    imu_data[4].push_back(gyro.y);
+    imu_data[5].push_back(gyro.z);
   }
 
   // サンプリング周波数を計算
@@ -58,7 +58,7 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_m
     fft.SetFlag(Eigen::FFT<double>::HalfSpectrum);
 
     std::vector<std::complex<double>> spec;
-    fft.fwd(spec, data.at(i));
+    fft.fwd(spec, imu_data.at(i));
     assert(spec.size() == num_samples / 2 + 1);
 
     QVector<double> freqs, amps;
