@@ -1,7 +1,5 @@
 #include "tobas_flight_log_gui/log_viewer/plots/imu_fft_plot.hpp"
 
-#include <ranges>
-
 #include <QGridLayout>
 #include <eigen3/unsupported/Eigen/FFT>
 
@@ -18,6 +16,9 @@ ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z",
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();
+    if (i % 3 == 2) {
+      plots_[i]->showXBottomAxisLabel();
+    }
     grid->addWidget(plots_[i], i % 3, i / 3);
     curves_[i].setPen(Qt::black, kLineWidth);
     curves_[i].attach(plots_[i]);
@@ -62,9 +63,9 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_m
     assert(spec.size() == num_samples / 2 + 1);
 
     QVector<double> freqs, amps;
-    for (const auto& [k, x] : std::views::enumerate(spec)) {
-      const auto freq = k * fs / num_samples;                      // [Hz]
-      const auto amp = M_SQRT2 * std::abs(x) / sqrt(num_samples);  // RMS
+    for (size_t k = 1; k < spec.size(); ++k) {
+      const auto freq = k * fs / num_samples;                               // [Hz]
+      const auto amp = M_SQRT2 * std::abs(spec.at(k)) / sqrt(num_samples);  // RMS
       freqs.push_back(freq);
       amps.push_back(amp);
     }

@@ -7,6 +7,8 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
 class NoLabelScaleDraw : public QwtScaleDraw
 {
 public:
@@ -15,6 +17,7 @@ public:
     return QwtText("");  // 空のラベルを返す
   }
 };
+}  // namespace
 
 QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
 {
@@ -32,6 +35,11 @@ QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
 
   // X軸のラベルを削除
   setAxisScaleDraw(QwtPlot::xBottom, new NoLabelScaleDraw());
+}
+
+void QwtPlot2::showXBottomAxisLabel()
+{
+  setAxisScaleDraw(QwtPlot::xBottom, new QwtScaleDraw());
 }
 }  // namespace log
 }  // namespace gui
