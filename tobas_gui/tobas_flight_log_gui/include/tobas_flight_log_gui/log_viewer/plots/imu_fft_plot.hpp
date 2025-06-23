@@ -1,5 +1,7 @@
 #pragma once
 
+#include <eigen3/unsupported/Eigen/FFT>
+
 #include <tobas_msgs/msg/imu_stamped.hpp>
 
 #include "./common.hpp"
@@ -20,6 +22,8 @@ public:
   void setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_msgs);
 
 private:
+  Eigen::FFT<double> fft_;
+
   std::array<QwtPlot2*, kNumAxes> plots_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> curves_;
 };

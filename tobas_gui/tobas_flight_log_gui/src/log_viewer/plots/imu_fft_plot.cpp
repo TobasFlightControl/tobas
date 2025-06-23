@@ -1,7 +1,6 @@
 #include "tobas_flight_log_gui/log_viewer/plots/imu_fft_plot.hpp"
 
 #include <QGridLayout>
-#include <eigen3/unsupported/Eigen/FFT>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -11,6 +10,9 @@ namespace log
 {
 ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z" }
 {
+  // 1次元なので虚数部分は不要
+  fft_.SetFlag(Eigen::FFT<double>::HalfSpectrum);
+
   const auto grid = new QGridLayout();
   setLayout(grid);
 
@@ -27,9 +29,9 @@ ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z",
 
 void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_msgs)
 {
-  const auto num_samples = imu_msgs.size();
+  const auto n = static_cast<size_t>(imu_msgs.size());
 
-  if (num_samples < 2) {
+  if (n < 2) {
     return;
   }
 
@@ -51,22 +53,25 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_m
   const auto& first_time = imu_msgs.first().header.stamp;
   const auto& last_time = imu_msgs.back().header.stamp;
   const auto duration = (last_time - first_time).seconds();  // [s]
-  const auto fs = num_samples / duration;                    // [Hz]
+  const auto fs = n / duration;                              // [Hz]
 
   // 周波数変換して表示
   for (size_t i = 0; i < kNumAxes; ++i) {
-    Eigen::FFT<double> fft;
-    fft.SetFlag(Eigen::FFT<double>::HalfSpectrum);
-
+    // フーリエ変換
     std::vector<std::complex<double>> spec;
-    fft.fwd(spec, imu_data.at(i));
-    assert(spec.size() == num_samples / 2 + 1);
+    fft_.fwd(spec, imu_data.at(i));
+    assert(spec.size() == n / 2 + 1);
 
+    // FFTの結果から周波数と振幅を計算
+    // 平均値 (k = 0) は含めない
     QVector<double> freqs, amps;
     for (size_t k = 1; k < spec.size(); ++k) {
-      const auto freq = k * fs / num_samples;                               // [Hz]
-      const auto amp = M_SQRT2 * std::abs(spec.at(k)) / sqrt(num_samples);  // RMS
+      const auto freq = k * fs / n;  // [Hz]
       freqs.push_back(freq);
+
+      const auto is_edge = (k == 0 || (n % 2 == 0 && k == n / 2));
+      const auto scale = is_edge ? 1. : 2.;
+      const auto amp = scale * std::abs(spec.at(k)) / n;  // RMS
       amps.push_back(amp);
     }
 
