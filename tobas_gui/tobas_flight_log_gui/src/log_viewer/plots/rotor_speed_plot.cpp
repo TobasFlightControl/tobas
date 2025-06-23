@@ -77,15 +77,15 @@ bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
 
     const auto plot = new QwtPlot2();
     plot->setAxisNoLabel(QwtPlot::xBottom);
-    grid_->addWidget(plots_.back(), idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
+    grid_->addWidget(plot, idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
 
     qwt::QwtPlotCurveWrapper cur_speed_curve("Current RPM (" + QString::fromStdString(elem.link_name) + ")");
     cur_speed_curve.setPen(kCurrentValueColor, kLineWidth);
-    cur_speed_curve.attach(plots_.back());
+    cur_speed_curve.attach(plot);
 
     qwt::QwtPlotCurveWrapper tar_speed_curve("Target RPM (" + QString::fromStdString(elem.link_name) + ")");
     tar_speed_curve.setPen(kTargetValueColor, kLineWidth);
-    tar_speed_curve.attach(plots_.back());
+    tar_speed_curve.attach(plot);
 
     plots_.push_back(plot);
     cur_speed_curves_.push_back(cur_speed_curve);
