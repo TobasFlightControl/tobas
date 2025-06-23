@@ -9,38 +9,30 @@ namespace gui
 namespace log
 {
 AccelPlotWidget::AccelPlotWidget()
-  : cur_lin_curves_{ "Current Linear Accel X", "Current Linear Accel Y", "Current Linear Accel Z" }
-  , cur_ang_curves_{ "Current Angular Accel X", "Current Angular Accel Y", "Current Angular Accel Z" }
-  , tar_lin_curves_{ "Target Linear Accel X", "Target Linear Accel Y", "Target Linear Accel Z" }
-  , tar_ang_curves_{ "Target Angular Accel X", "Target Angular Accel Y", "Target Angular Accel Z" }
+  : cur_curves_{ "Current Linear Accel X",  "Current Linear Accel Y",  "Current Linear Accel Z",
+                 "Current Angular Accel X", "Current Angular Accel Y", "Current Angular Accel Z" }
+  , tar_curves_{ "Target Linear Accel X",  "Target Linear Accel Y",  "Target Linear Accel Z",
+                 "Target Angular Accel X", "Target Angular Accel Y", "Target Angular Accel Z" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i) {
-    lin_plots_[i] = new QwtPlot2();
-    ang_plots_[i] = new QwtPlot2();
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    plots_[i] = new QwtPlot2();
+    grid->addWidget(plots_[i], i % 3, i / 3);
 
-    grid->addWidget(lin_plots_[i], i, 0);
-    grid->addWidget(ang_plots_[i], i, 1);
+    cur_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    cur_curves_[i].attach(plots_[i]);
 
-    cur_lin_curves_[i].setPen(kCurrentValueColor, kLineWidth);
-    cur_ang_curves_[i].setPen(kCurrentValueColor, kLineWidth);
-    tar_lin_curves_[i].setPen(kTargetValueColor, kLineWidth);
-    tar_ang_curves_[i].setPen(kTargetValueColor, kLineWidth);
-
-    cur_lin_curves_[i].attach(lin_plots_[i]);
-    cur_ang_curves_[i].attach(ang_plots_[i]);
-    tar_lin_curves_[i].attach(lin_plots_[i]);
-    tar_ang_curves_[i].attach(ang_plots_[i]);
+    tar_curves_[i].setPen(kTargetValueColor, kLineWidth);
+    tar_curves_[i].attach(plots_[i]);
   }
 }
 
 void AccelPlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i) {
-    lin_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-    ang_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
 }
 
@@ -51,35 +43,32 @@ void AccelPlotWidget::setData(
   updateCurrentSamples(odom_msgs);
   updateTargetSamples(ctrl_fb_msgs);
 
-  for (size_t i = 0; i < 3; ++i) {
-    lin_plots_[i]->replot();
-    ang_plots_[i]->replot();
+  for (auto& plot : plots_) {
+    plot->replot();
   }
 }
 
 void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, 3> lin_data;
-  std::array<QVector<double>, 3> ang_data;
+  std::array<QVector<double>, kNumAxes> val_data;
 
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
     const auto& lin_vel = odom.accel.linear;
-    lin_data[0].push_back(lin_vel.x);
-    lin_data[1].push_back(lin_vel.y);
-    lin_data[2].push_back(lin_vel.z);
+    val_data[0].push_back(lin_vel.x);
+    val_data[1].push_back(lin_vel.y);
+    val_data[2].push_back(lin_vel.z);
 
     const auto& ang_vel = odom.accel.angular;
-    ang_data[0].push_back(ang_vel.x);
-    ang_data[1].push_back(ang_vel.y);
-    ang_data[2].push_back(ang_vel.z);
+    val_data[3].push_back(ang_vel.x);
+    val_data[4].push_back(ang_vel.y);
+    val_data[5].push_back(ang_vel.z);
   }
 
-  for (size_t i = 0; i < 3; ++i) {
-    cur_lin_curves_[i].setSamples(t_data, lin_data[i]);
-    cur_ang_curves_[i].setSamples(t_data, ang_data[i]);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    cur_curves_[i].setSamples(t_data, val_data[i]);
   }
 }
 
@@ -87,26 +76,24 @@ void AccelPlotWidget::updateTargetSamples(
   const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, 3> lin_data;
-  std::array<QVector<double>, 3> ang_data;
+  std::array<QVector<double>, kNumAxes> val_data;
 
   for (const auto& ctrl_fb : ctrl_fb_msgs) {
     t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
 
     const auto& lin_vel = ctrl_fb.target_accel;
-    lin_data[0].push_back(lin_vel.x);
-    lin_data[1].push_back(lin_vel.y);
-    lin_data[2].push_back(lin_vel.z);
+    val_data[0].push_back(lin_vel.x);
+    val_data[1].push_back(lin_vel.y);
+    val_data[2].push_back(lin_vel.z);
 
     const auto& ang_vel = ctrl_fb.target_dgyro;
-    ang_data[0].push_back(ang_vel.x);
-    ang_data[1].push_back(ang_vel.y);
-    ang_data[2].push_back(ang_vel.z);
+    val_data[3].push_back(ang_vel.x);
+    val_data[4].push_back(ang_vel.y);
+    val_data[5].push_back(ang_vel.z);
   }
 
-  for (size_t i = 0; i < 3; ++i) {
-    tar_lin_curves_[i].setSamples(t_data, lin_data[i]);
-    tar_ang_curves_[i].setSamples(t_data, ang_data[i]);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    tar_curves_[i].setSamples(t_data, val_data[i]);
   }
 }
 }  // namespace log
