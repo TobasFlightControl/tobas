@@ -20,7 +20,7 @@ MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
   for (size_t i = 0; i < kNumAxes; ++i) {
     ei_plots_[i] = new QwtPlot2();
     ei_plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
-    grid->addWidget(ei_plots_[i], i % 3, i / 3);
+    grid->addWidget(ei_plots_[i], i % 3, i / 3, 1, 1);
 
     ei_curves_[i].setPen(kColorXYZ[i % 3], kLineWidth);
     ei_curves_[i].attach(ei_plots_[i]);

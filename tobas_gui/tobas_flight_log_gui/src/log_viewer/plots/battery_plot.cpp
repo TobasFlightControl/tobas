@@ -17,13 +17,13 @@ BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage"), current_curv
   voltage_plot_->setAxisNoLabel(QwtPlot::xBottom);
   voltage_curve_.setPen(Qt::black, kLineWidth);
   voltage_curve_.attach(voltage_plot_);
-  rows->addWidget(voltage_plot_);
+  rows->addWidget(voltage_plot_, 1);
 
   current_plot_ = new QwtPlot2();
   current_plot_->setAxisNoLabel(QwtPlot::xBottom);
   current_curve_.setPen(Qt::black, kLineWidth);
   current_curve_.attach(current_plot_);
-  rows->addWidget(current_plot_);
+  rows->addWidget(current_plot_, 1);
 }
 
 void BatteryPlotWidget::setTimeScale(double t_start, double t_stop)

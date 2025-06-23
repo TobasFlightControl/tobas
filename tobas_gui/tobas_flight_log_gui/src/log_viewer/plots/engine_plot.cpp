@@ -17,7 +17,7 @@ EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle")
   throttle_plot_ = new QwtPlot2();
   throttle_plot_->setAxisNoLabel(QwtPlot::xBottom);
   throttle_plot_->setAxisScale(QwtPlot::yLeft, tobas::kMinThrot, tobas::kMaxThrot);
-  rows->addWidget(throttle_plot_);
+  rows->addWidget(throttle_plot_, 1);
 
   throttle_curve_.setPen(Qt::black, kLineWidth);
   throttle_curve_.attach(throttle_plot_);

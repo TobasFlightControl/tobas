@@ -59,12 +59,12 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
   // Layout
   const auto grid = new QGridLayout();
   setLayout(grid);
-  grid->addWidget(acc_bias_plot_, 0, 0);
-  grid->addWidget(gyro_bias_plot_, 1, 0);
-  grid->addWidget(mag_hard_bias_plot_, 0, 1);
-  grid->addWidget(mag_soft_bias_plot_, 1, 1);
-  grid->addWidget(gravity_plot_, 2, 0);
-  grid->addWidget(gnss_anomaly_score_plot_, 2, 1);
+  grid->addWidget(acc_bias_plot_, 0, 0, 1, 1);
+  grid->addWidget(gyro_bias_plot_, 1, 0, 1, 1);
+  grid->addWidget(mag_hard_bias_plot_, 0, 1, 1, 1);
+  grid->addWidget(mag_soft_bias_plot_, 1, 1, 1, 1);
+  grid->addWidget(gravity_plot_, 2, 0, 1, 1);
+  grid->addWidget(gnss_anomaly_score_plot_, 2, 1, 1, 1);
 }
 
 void ObserverFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)

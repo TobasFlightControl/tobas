@@ -24,7 +24,7 @@ ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z",
     else {
       plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
     }
-    grid->addWidget(plots_[i], i % 3, i / 3);
+    grid->addWidget(plots_[i], i % 3, i / 3, 1, 1);
 
     curves_[i].setPen(Qt::black, kLineWidth);
     curves_[i].attach(plots_[i]);

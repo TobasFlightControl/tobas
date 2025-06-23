@@ -19,7 +19,7 @@ ImuPlotWidget::ImuPlotWidget()
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();
     plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
-    grid->addWidget(plots_[i], i % 3, i / 3);
+    grid->addWidget(plots_[i], i % 3, i / 3, 1, 1);
 
     raw_curves_[i].setPen(kRawValueColor, kLineWidth);
     raw_curves_[i].attach(plots_[i]);

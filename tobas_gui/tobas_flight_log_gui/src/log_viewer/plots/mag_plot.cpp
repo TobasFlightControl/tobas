@@ -18,7 +18,7 @@ MagPlotWidget::MagPlotWidget() : mag_curves_{ "Mag X", "Mag Y", "Mag Z" }
     mag_plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
     mag_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     mag_curves_[i].attach(mag_plots_[i]);
-    rows->addWidget(mag_plots_[i]);
+    rows->addWidget(mag_plots_[i], 1);
   }
 }
 
