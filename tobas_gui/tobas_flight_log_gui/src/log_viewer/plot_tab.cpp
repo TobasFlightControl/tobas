@@ -4,7 +4,35 @@ namespace gui
 {
 namespace log
 {
-PlotTabWidget::PlotTabWidget()
+PlotTabWidget::PlotTabWidget(
+  const QVector<tobas_msgs::msg::Odometry>& odom_data,
+  const QVector<tobas_msgs::msg::ImuStamped>& raw_imu_data,
+  const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_imu_data,
+  const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& mag_data,
+  const QVector<tobas_msgs::msg::Gnss>& gnss_data,
+  const QVector<tobas_msgs::msg::Battery>& battery_data,
+  const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
+  const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
+  const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
+  const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
+  const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
+  const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
+  const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
+  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& mr_ctrl_fb_data)
+  : odom_data_(odom_data)
+  , raw_imu_data_(raw_imu_data)
+  , filt_imu_data_(filt_imu_data)
+  , mag_data_(mag_data)
+  , gnss_data_(gnss_data)
+  , battery_data_(battery_data)
+  , cur_rotor_states_data_(cur_rotor_states_data)
+  , tar_rotor_speeds_data_(tar_rotor_speeds_data)
+  , ice_cmd_data_(ice_cmd_data)
+  , sampling_time_data_(sampling_time_data)
+  , ctrl_latency_data_(ctrl_latency_data)
+  , dist_force_data_(dist_force_data)
+  , obsv_fb_data_(obsv_fb_data)
+  , mr_ctrl_fb_data_(mr_ctrl_fb_data)
 {
   pose_plot_ = new PosePlotWidget();
   twist_plot_ = new TwistPlotWidget();
@@ -39,6 +67,8 @@ PlotTabWidget::PlotTabWidget()
   addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
 
   setTabSize(kTabWidth, kTabHeight);
+
+  connect(this, &self::currentChanged, this, &self::onCurrentWidgetChanged);
 }
 
 void PlotTabWidget::clear()
@@ -65,37 +95,68 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   mr_ctrl_fb_plot_->setTimeScale(t_start, t_stop);
 }
 
-void PlotTabWidget::setData(
-  const QVector<tobas_msgs::msg::Odometry> odom_data,
-  const QVector<tobas_msgs::msg::ImuStamped> raw_imu_data,
-  const QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data,
-  const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data,
-  const QVector<tobas_msgs::msg::Gnss> gnss_data,
-  const QVector<tobas_msgs::msg::Battery> battery_data,
-  const QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data,
-  const QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data,
-  const QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data,
-  const QVector<tobas_msgs::msg::Latency> sampling_time_data,
-  const QVector<tobas_msgs::msg::Latency> ctrl_latency_data,
-  const QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data,
-  const QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data,
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data)
+void PlotTabWidget::plot()
 {
-  pose_plot_->setData(odom_data, mr_ctrl_fb_data);
-  twist_plot_->setData(odom_data, mr_ctrl_fb_data);
-  accel_plot_->setData(odom_data, mr_ctrl_fb_data);
-  imu_plot_->setData(raw_imu_data, filt_imu_data);
-  imu_fft_plot_->setData(raw_imu_data);
-  mag_plot_->setData(mag_data);
-  gnss_plot_->setData(gnss_data);
-  battery_plot_->setData(battery_data);
-  engine_plot_->setData(ice_cmd_data);
-  rotor_speed_plot_->setData(cur_rotor_states_data, tar_rotor_speeds_data);
-  propeller_pitch_plot_->setData(ice_cmd_data);
-  latency_plot_->setData(sampling_time_data, ctrl_latency_data);
-  dist_force_plot_->setData(dist_force_data);
-  obsv_fb_plot_->setData(obsv_fb_data);
-  mr_ctrl_fb_plot_->setData(mr_ctrl_fb_data);
+  plot(currentIndex());
+}
+
+void PlotTabWidget::plot(int index)
+{
+  const auto cur_widget = widget(index);
+
+  if (cur_widget == pose_plot_) {
+    pose_plot_->setData(odom_data_, mr_ctrl_fb_data_);
+  }
+  else if (cur_widget == twist_plot_) {
+    twist_plot_->setData(odom_data_, mr_ctrl_fb_data_);
+  }
+  else if (cur_widget == accel_plot_) {
+    accel_plot_->setData(odom_data_, mr_ctrl_fb_data_);
+  }
+  else if (cur_widget == imu_plot_) {
+    imu_plot_->setData(raw_imu_data_, filt_imu_data_);
+  }
+  else if (cur_widget == imu_fft_plot_) {
+    imu_fft_plot_->setData(raw_imu_data_);
+  }
+  else if (cur_widget == mag_plot_) {
+    mag_plot_->setData(mag_data_);
+  }
+  else if (cur_widget == gnss_plot_) {
+    gnss_plot_->setData(gnss_data_);
+  }
+  else if (cur_widget == battery_plot_) {
+    battery_plot_->setData(battery_data_);
+  }
+  else if (cur_widget == engine_plot_) {
+    engine_plot_->setData(ice_cmd_data_);
+  }
+  else if (cur_widget == rotor_speed_plot_) {
+    rotor_speed_plot_->setData(cur_rotor_states_data_, tar_rotor_speeds_data_);
+  }
+  else if (cur_widget == propeller_pitch_plot_) {
+    propeller_pitch_plot_->setData(ice_cmd_data_);
+  }
+  else if (cur_widget == latency_plot_) {
+    latency_plot_->setData(sampling_time_data_, ctrl_latency_data_);
+  }
+  else if (cur_widget == dist_force_plot_) {
+    dist_force_plot_->setData(dist_force_data_);
+  }
+  else if (cur_widget == obsv_fb_plot_) {
+    obsv_fb_plot_->setData(obsv_fb_data_);
+  }
+  else if (cur_widget == mr_ctrl_fb_plot_) {
+    mr_ctrl_fb_plot_->setData(mr_ctrl_fb_data_);
+  }
+  else {
+    qWarning() << "Invalid index: " << index;
+  }
+}
+
+void PlotTabWidget::onCurrentWidgetChanged(int index)
+{
+  plot(index);
 }
 }  // namespace log
 }  // namespace gui

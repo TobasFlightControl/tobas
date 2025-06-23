@@ -19,7 +19,21 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   setLayout(rows);
 
   for (auto& plot_tab : plot_tabs_) {
-    plot_tab = new PlotTabWidget();
+    plot_tab = new PlotTabWidget(
+      odom_data_,
+      raw_imu_data_,
+      filt_imu_data_,
+      mag_data_,
+      gnss_data_,
+      battery_data_,
+      cur_rotor_states_data_,
+      tar_rotor_speeds_data_,
+      ice_cmd_data_,
+      sampling_time_data_,
+      ctrl_latency_data_,
+      dist_force_data_,
+      obsv_fb_data_,
+      mr_ctrl_fb_data_);
     rows->addWidget(plot_tab);
   }
 
@@ -104,21 +118,23 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   // 初期時刻に移動
   reader_.seek(window_start_time);
 
+  // データを初期化
+  odom_data_.clear();
+  raw_imu_data_.clear();
+  filt_imu_data_.clear();
+  mag_data_.clear();
+  gnss_data_.clear();
+  battery_data_.clear();
+  cur_rotor_states_data_.clear();
+  tar_rotor_speeds_data_.clear();
+  ice_cmd_data_.clear();
+  sampling_time_data_.clear();
+  ctrl_latency_data_.clear();
+  dist_force_data_.clear();
+  obsv_fb_data_.clear();
+  mr_ctrl_fb_data_.clear();
+
   // データを仕分ける
-  QVector<tobas_msgs::msg::Odometry> odom_data;
-  QVector<tobas_msgs::msg::ImuStamped> raw_imu_data;
-  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data;
-  QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
-  QVector<tobas_msgs::msg::Gnss> gnss_data;
-  QVector<tobas_msgs::msg::Battery> battery_data;
-  QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data;
-  QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data;
-  QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data;
-  QVector<tobas_msgs::msg::Latency> sampling_time_data;
-  QVector<tobas_msgs::msg::Latency> ctrl_latency_data;
-  QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
-  QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data;
-  QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data;
   while (reader_.has_next()) {
     const auto msg = reader_.read_next();
 
@@ -136,46 +152,46 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
     try {
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
-        odom_data.push_back(odom_decoder_.decode(cur_time, ser_msg));
+        odom_data_.push_back(odom_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
-        raw_imu_data.push_back(imu_decoder_.decode(cur_time, ser_msg));
+        raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic))) {
-        filt_imu_data.push_back(imu_cov_decoder_.decode(cur_time, ser_msg));
+        filt_imu_data_.push_back(imu_cov_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
-        mag_data.push_back(mag_cov_decoder_.decode(cur_time, ser_msg));
+        mag_data_.push_back(mag_cov_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
-        gnss_data.push_back(gnss_decoder_.decode(cur_time, ser_msg));
+        gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
-        battery_data.push_back(battery_decoder_.decode(cur_time, ser_msg));
+        battery_data_.push_back(battery_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
-        cur_rotor_states_data.push_back(cur_rotor_states_decoder_.decode(cur_time, ser_msg));
+        cur_rotor_states_data_.push_back(cur_rotor_states_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
-        tar_rotor_speeds_data.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
+        tar_rotor_speeds_data_.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
-        ice_cmd_data.push_back(ice_cmd_decoder_.decode(cur_time, ser_msg));
+        ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
-        sampling_time_data.push_back(sampling_time_decoder_.decode(cur_time, ser_msg));
+        sampling_time_data_.push_back(sampling_time_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
-        ctrl_latency_data.push_back(ctrl_latency_decoder_.decode(cur_time, ser_msg));
+        ctrl_latency_data_.push_back(ctrl_latency_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
-        dist_force_data.push_back(dist_force_decoder_.decode(cur_time, ser_msg));
+        dist_force_data_.push_back(dist_force_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
-        obsv_fb_data.push_back(obsv_fb_decoder_.decode(cur_time, ser_msg));
+        obsv_fb_data_.push_back(obsv_fb_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
-        mr_ctrl_fb_data.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_msg));
+        mr_ctrl_fb_data_.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_msg));
       }
     }
     catch (const std::exception& e) {
@@ -188,21 +204,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   for (auto& plot_tab : plot_tabs_) {
     // XXX: データの設定の前に範囲を指定しないと若干プロットが崩れる
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
-    plot_tab->setData(
-      odom_data,
-      raw_imu_data,
-      filt_imu_data,
-      mag_data,
-      gnss_data,
-      battery_data,
-      cur_rotor_states_data,
-      tar_rotor_speeds_data,
-      ice_cmd_data,
-      sampling_time_data,
-      ctrl_latency_data,
-      dist_force_data,
-      obsv_fb_data,
-      mr_ctrl_fb_data);
+    plot_tab->plot();
   }
 }
 

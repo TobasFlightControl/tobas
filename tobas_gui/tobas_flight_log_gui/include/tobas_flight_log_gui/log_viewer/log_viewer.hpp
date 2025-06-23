@@ -31,6 +31,21 @@ private:
   rosbag2_cpp::Reader reader_;
   std::unordered_set<std::string> decode_fail_topics_;
 
+  QVector<tobas_msgs::msg::Odometry> odom_data_;
+  QVector<tobas_msgs::msg::ImuStamped> raw_imu_data_;
+  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data_;
+  QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data_;
+  QVector<tobas_msgs::msg::Gnss> gnss_data_;
+  QVector<tobas_msgs::msg::Battery> battery_data_;
+  QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data_;
+  QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data_;
+  QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data_;
+  QVector<tobas_msgs::msg::Latency> sampling_time_data_;
+  QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
+  QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data_;
+  QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data_;
+  QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data_;
+
   MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
   MessageDecoder<tobas_msgs::msg::ImuStamped> imu_decoder_;
   MessageDecoder<tobas_msgs::msg::ImuWithCovarianceStamped> imu_cov_decoder_;

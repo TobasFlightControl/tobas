@@ -33,27 +33,42 @@ class PlotTabWidget : public qt::TabWidget
   static constexpr int kTabHeight = 50;
 
 public:
-  explicit PlotTabWidget();
+  explicit PlotTabWidget(
+    const QVector<tobas_msgs::msg::Odometry>& odom_data,
+    const QVector<tobas_msgs::msg::ImuStamped>& raw_imu_data,
+    const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_imu_data,
+    const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& mag_data,
+    const QVector<tobas_msgs::msg::Gnss>& gnss_data,
+    const QVector<tobas_msgs::msg::Battery>& battery_data,
+    const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
+    const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
+    const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
+    const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
+    const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
+    const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
+    const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
+    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& mr_ctrl_fb_data);
 
   void clear();
   void setTimeScale(double t_start, double t_stop);
-  void setData(
-    const QVector<tobas_msgs::msg::Odometry> odom_data,
-    const QVector<tobas_msgs::msg::ImuStamped> raw_imu_data,
-    const QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data,
-    const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data,
-    const QVector<tobas_msgs::msg::Gnss> gnss_data,
-    const QVector<tobas_msgs::msg::Battery> battery_data,
-    const QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data,
-    const QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data,
-    const QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data,
-    const QVector<tobas_msgs::msg::Latency> sampling_time_data,
-    const QVector<tobas_msgs::msg::Latency> ctrl_latency_data,
-    const QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data,
-    const QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data,
-    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data);
+  void plot();
 
 private:
+  const QVector<tobas_msgs::msg::Odometry>& odom_data_;
+  const QVector<tobas_msgs::msg::ImuStamped>& raw_imu_data_;
+  const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_imu_data_;
+  const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& mag_data_;
+  const QVector<tobas_msgs::msg::Gnss>& gnss_data_;
+  const QVector<tobas_msgs::msg::Battery>& battery_data_;
+  const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data_;
+  const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data_;
+  const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data_;
+  const QVector<tobas_msgs::msg::Latency>& sampling_time_data_;
+  const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
+  const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data_;
+  const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data_;
+  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& mr_ctrl_fb_data_;
+
   PosePlotWidget* pose_plot_;
   TwistPlotWidget* twist_plot_;
   AccelPlotWidget* accel_plot_;
@@ -69,6 +84,11 @@ private:
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
   MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
+
+  void plot(int index);
+
+private Q_SLOTS:
+  void onCurrentWidgetChanged(int index);
 };
 }  // namespace log
 }  // namespace gui
