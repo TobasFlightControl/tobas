@@ -8,6 +8,7 @@
 #include <tobas_math/core.hpp>
 
 #include "./base_filter.hpp"
+#include "./utils.hpp"
 
 namespace dsp
 {
@@ -15,8 +16,6 @@ namespace dsp
 template <typename T>
 class NotchFilter : public BaseFilter<T>
 {
-  static constexpr size_t kHistorySize = 3;
-
 public:
   explicit NotchFilter();
 
@@ -35,8 +34,8 @@ private:
   double q_ = 0.;    // [-]
   double d_ = 0.;    // [-]
 
-  std::array<T, kHistorySize> y_;
-  std::array<T, kHistorySize> u_;
+  std::array<T, 3> y_;
+  std::array<T, 3> u_;
 
   void shiftHistory();
 };
@@ -51,19 +50,17 @@ void NotchFilter<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
-  if (dt >= 2 / wn_) {
-    for (size_t i = 0; i < kHistorySize; ++i) {
-      y_[i] = u;
-      u[i] = u;
-    }
+  const auto wn = prewarp(wn_, dt);
+  const auto wn_dt = wn * dt;
+
+  if (wn_dt >= 2.) {
+    setValue(u);
     return;
   }
 
   shiftHistory();
 
-  const auto dt_2 = dt / 2;
-  const auto wn = tan(wn_ * dt_2) / dt_2;  // Prewarping
-  const auto c = wn * dt_2;
+  const auto c = wn_dt / 2;
   const auto c2 = math::sqr(c);
   const auto c2_plus_1 = c2 + 1;
   const auto c2_minus_1 = c2 - 1;
