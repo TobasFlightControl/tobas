@@ -4,8 +4,7 @@
 
 #include <tobas_constants/constants.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -17,7 +16,7 @@ DeleteThread::DeleteThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 
 void DeleteThread::run()
 {
-  const string rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name_.toStdString();
+  const auto rosbag_path = (fs::path(tobas::kRosbagDirRoot) / log_name_.toStdString()).string();
   if (ssh_client_.execute("rm -rf " + rosbag_path, true) != ssh::SSHClient::E_NO_ERROR) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;

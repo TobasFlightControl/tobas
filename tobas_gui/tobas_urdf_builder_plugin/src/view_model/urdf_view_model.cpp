@@ -7,8 +7,6 @@
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-using namespace std;
-
 namespace gui
 {
 namespace ub
@@ -24,27 +22,27 @@ const urdf::ModelSharedPtr& URDFViewModel::urdf() const
   return urdf_;
 };
 
-const map<string, urdf::LinkSharedPtr>& URDFViewModel::links() const
+const std::map<std::string, urdf::LinkSharedPtr>& URDFViewModel::links() const
 {
   return urdf_->links_;
 }
 
-const map<string, urdf::JointSharedPtr>& URDFViewModel::joints() const
+const std::map<std::string, urdf::JointSharedPtr>& URDFViewModel::joints() const
 {
   return urdf_->joints_;
 }
 
-const map<string, urdf::MaterialSharedPtr>& URDFViewModel::materials() const
+const std::map<std::string, urdf::MaterialSharedPtr>& URDFViewModel::materials() const
 {
   return urdf_->materials_;
 }
 
-const string& URDFViewModel::name() const
+const std::string& URDFViewModel::name() const
 {
   return urdf_->name_;
 }
 
-void URDFViewModel::name(const string& name)
+void URDFViewModel::name(const std::string& name)
 {
   urdf_->name_ = name;
 }
@@ -65,8 +63,8 @@ QStringList URDFViewModel::linkNames() const
   transform(
     urdf_->links_.begin(),
     urdf_->links_.end(),
-    back_inserter(result),
-    [](const pair<string, urdf::LinkSharedPtr>& pair) { return QString::fromStdString(pair.first); });
+    std::back_inserter(result),
+    [](const std::pair<std::string, urdf::LinkSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
 
@@ -76,8 +74,8 @@ QStringList URDFViewModel::jointNames() const
   transform(
     urdf_->joints_.begin(),
     urdf_->joints_.end(),
-    back_inserter(result),
-    [](const pair<string, urdf::JointSharedPtr>& pair) { return QString::fromStdString(pair.first); });
+    std::back_inserter(result),
+    [](const std::pair<std::string, urdf::JointSharedPtr>& pair) { return QString::fromStdString(pair.first); });
   return result;
 }
 
@@ -127,20 +125,20 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
   const auto parent_link_name = joint_vm->parentLinkName().toStdString();
 
   if (link_name.empty()) {
-    throw runtime_error("Link name cannot be empty.");
+    throw std::runtime_error("Link name cannot be empty.");
   }
 
   if (urdf_->links_.find(link_name) != urdf_->links_.end()) {
-    throw runtime_error("Link \"" + link_name + "\" already exists.");
+    throw std::runtime_error("Link \"" + link_name + "\" already exists.");
   }
 
   if (urdf_->joints_.find(joint_name) != urdf_->joints_.end()) {
-    throw runtime_error("Joint \"" + joint_name + "\" already exists.");
+    throw std::runtime_error("Joint \"" + joint_name + "\" already exists.");
   }
 
   if (parent_link_name.empty()) {
     if (urdf_->root_link_) {
-      throw runtime_error(
+      throw std::runtime_error(
         "The root link already exists, but the parent link of \"" + link_name + "\" is not specified.");
     }
 
@@ -152,11 +150,11 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
   }
   else {
     if (joint_name.empty()) {
-      throw runtime_error("Joint name cannot be empty.");
+      throw std::runtime_error("Joint name cannot be empty.");
     }
 
     if (urdf_->links_.find(parent_link_name) == urdf_->links_.end()) {
-      throw runtime_error("Parent link \"" + parent_link_name + "\" does not exist.");
+      throw std::runtime_error("Parent link \"" + parent_link_name + "\" does not exist.");
     }
 
     const auto& parent_link = urdf_->links_.at(parent_link_name);
@@ -202,7 +200,7 @@ void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
   child_links.erase(remove(child_links.begin(), child_links.end(), link), child_links.end());
   child_joints.erase(remove(child_joints.begin(), child_joints.end(), link->parent_joint), child_joints.end());
 
-  queue<urdf::LinkSharedPtr> que;
+  std::queue<urdf::LinkSharedPtr> que;
   que.push(link);
 
   while (!que.empty()) {
@@ -300,7 +298,7 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* eleme
 
   for (auto child = element->FirstChildElement(); child; child = child->NextSiblingElement()) {
     // FIXME: 繰り返し中にツリー構造を変えるのはまずいかも．対象要素をリストしておいて後で消すべき．
-    if (string(child->Name()) == "texture" && !child->Attribute("filename")) {
+    if (std::string(child->Name()) == "texture" && !child->Attribute("filename")) {
       element->DeleteChild(child);
     }
 

@@ -2,8 +2,7 @@
 
 #include <tobas_linux/subprocess.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -11,14 +10,14 @@ namespace common
 {
 namespace util
 {
-string sourceCommand(const fs::path& install_dir)
+std::string sourceCommand(const fs::path& install_dir)
 {
   const auto setup_bash_path = install_dir / "local_setup.bash";
   return "source " + setup_bash_path.string();
 }
 }  // namespace util
 
-pid_t rosrun(const fs::path& install_dir, const string& pkg, const string& exec, const string& name)
+pid_t rosrun(const fs::path& install_dir, const std::string& pkg, const std::string& exec, const std::string& name)
 {
   auto command = util::sourceCommand(install_dir) + " && ros2 run " + pkg + " " + exec;
   if (!name.empty()) {
@@ -28,7 +27,11 @@ pid_t rosrun(const fs::path& install_dir, const string& pkg, const string& exec,
   return linux::createSubprocess(command);
 }
 
-pid_t roslaunch(const fs::path& install_dir, const string& pkg, const string& name, const map<string, string>& args)
+pid_t roslaunch(
+  const fs::path& install_dir,
+  const std::string& pkg,
+  const std::string& name,
+  const std::map<std::string, std::string>& args)
 {
   auto command = util::sourceCommand(install_dir) + " && ros2 launch " + pkg + " " + name;
   for (const auto& [arg_name, arg_value] : args) {

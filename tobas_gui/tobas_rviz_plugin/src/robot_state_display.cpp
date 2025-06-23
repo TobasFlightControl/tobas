@@ -4,8 +4,6 @@
 
 #include "tobas_rviz_plugin/conversions.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false)

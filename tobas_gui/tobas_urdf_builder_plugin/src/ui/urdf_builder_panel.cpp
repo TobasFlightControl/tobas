@@ -25,8 +25,7 @@
 #define INVALID_CHARS " '\"#$%&()^~|,.<>/\\!?"
 #define TMP_URDF_PATH "/tmp/urdf_builder.urdf"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -65,7 +64,7 @@ void URDFBuilderPanel::onInitialize()
 {
   Panel::onInitialize();
 
-  ogre_ctrl_ = make_shared<ogre::OgreController>(getDisplayContext());
+  ogre_ctrl_ = std::make_shared<ogre::OgreController>(getDisplayContext());
   update_timer_.start(ROBOT_MODEL_UPDATE_INTERVAL);
 }
 
@@ -272,7 +271,7 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
     return;
   }
 
-  const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
+  const auto link_vm = std::make_shared<view_model::LinkViewModel>(nullptr);
   AddLinkDialog dialog(this, vm_.linkNames(), *link_vm);
   const auto result = dialog.exec();
 
@@ -349,7 +348,7 @@ void URDFBuilderPanel::LinkDialogChanged()
 
 QString URDFBuilderPanel::getLastOpenedDir()
 {
-  string last_opened_dir;
+  std::string last_opened_dir;
   if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0) {
     RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
@@ -426,7 +425,7 @@ void URDFBuilderPanel::reloadLinkTree()
   // 一度全てのノードをを削除
   ui_->LinkTreeWidget->clear();
 
-  queue<pair<view_model::LinkViewModelPtr, QTreeWidgetItem*>> que;
+  std::queue<std::pair<view_model::LinkViewModelPtr, QTreeWidgetItem*>> que;
   que.push({ vm_.rootLinkViewModel(), new LinkTreeWidgetItem(vm_.rootLinkViewModel(), ui_->LinkTreeWidget) });
 
   while (!que.empty()) {
@@ -499,7 +498,7 @@ void URDFBuilderPanel::reflectSelectedItem(QTreeWidgetItem* item)
 
 void URDFBuilderPanel::addRootLink()
 {
-  const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
+  const auto link_vm = std::make_shared<view_model::LinkViewModel>(nullptr);
   link_vm->name("root");
   vm_.addLink(link_vm);
 }

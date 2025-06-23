@@ -10,6 +10,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
+namespace fs = std::filesystem;
+
 namespace gui
 {
 namespace param
@@ -72,7 +74,7 @@ void ParameterTuningWidget::reset()
   imu_preprocess_params_->setVisible(false);
 }
 
-bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
+bool ParameterTuningWidget::updateTBSPath(const fs::path& tbs_path)
 {
   reset();
 

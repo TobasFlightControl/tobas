@@ -3,8 +3,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {

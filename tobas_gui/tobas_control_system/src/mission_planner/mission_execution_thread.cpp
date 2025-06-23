@@ -5,7 +5,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 
-using namespace std;
 using namespace tobas_msgs::srv;
 using namespace tobas_mission_msgs::action;
 
@@ -41,7 +40,7 @@ void MissionExecutionThread::run()
   Q_EMIT finished(true, "");
 }
 
-void MissionExecutionThread::setNamespace(const string& ns)
+void MissionExecutionThread::setNamespace(const std::string& ns)
 {
   ns_ = ns;
 }
@@ -71,7 +70,7 @@ bool MissionExecutionThread::execute(BaseCommandData::SharedPtr command)
     case command_t::RETURN_TO_HOME:
       return execute(boost::polymorphic_pointer_downcast<ReturnToHomeData>(command));
     default:
-      Q_EMIT finished(false, format("Unknown command type: {}", (int)cmd_type).c_str());
+      Q_EMIT finished(false, std::format("Unknown command type: {}", (int)cmd_type).c_str());
       return false;
   }
 }
@@ -182,15 +181,15 @@ bool MissionExecutionThread::execute(WaypointData::SharedPtr command)
 bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
 {
   // ホームポジションの経緯度を取得
-  const auto get_gnss_origin_req = make_shared<tobas_msgs::srv::GetGnssOrigin::Request>();
+  const auto get_gnss_origin_req = std::make_shared<tobas_msgs::srv::GetGnssOrigin::Request>();
   if (!get_gnss_origin_sc_->call(get_gnss_origin_req)) {
-    Q_EMIT finished(false, format("Failed to call \"{}\" service.", tobas::kGetGnssOriginSrv).c_str());
+    Q_EMIT finished(false, std::format("Failed to call \"{}\" service.", tobas::kGetGnssOriginSrv).c_str());
     return false;
   }
 
   const auto get_gnss_origin_res = get_gnss_origin_sc_->getResponse();
   if (!get_gnss_origin_res->success) {
-    Q_EMIT finished(false, format("Failed to get GNSS origin: {}", get_gnss_origin_res->message).c_str());
+    Q_EMIT finished(false, std::format("Failed to get GNSS origin: {}", get_gnss_origin_res->message).c_str());
     return false;
   }
 

@@ -72,11 +72,11 @@ void SetupAssistantWidget::reset()
   rviz_->resetTime();
 }
 
-bool SetupAssistantWidget::createUrdfText(const std::filesystem::path& tbs_path, std::string& text_out)
+bool SetupAssistantWidget::createUrdfText(const fs::path& tbs_path, std::string& text_out)
 {
   // URDFの存在を確認
   const auto urdf_path = common::getOriginalURDFPath(tbs_path);
-  if (!std::filesystem::is_regular_file(urdf_path)) {
+  if (!fs::is_regular_file(urdf_path)) {
     qt::qErrorBox(
       this,
       "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas configuration package.");
@@ -227,7 +227,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = std::filesystem::path(tbs_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey_Load, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
   }

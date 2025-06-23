@@ -15,8 +15,7 @@
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -35,7 +34,7 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& 
   rows->addLayout(form_);
 }
 
-bool ParamBlockWidget::load(const string& ns, const string& node_name)
+bool ParamBlockWidget::load(const std::string& ns, const std::string& node_name)
 {
   node_name_ = node_name;
   dparam_client_ = make_shared<dparam::DynamicParamClient>(node_, node_name, ns);
@@ -45,7 +44,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
   // Get dynamic parameters
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, node_name, tobas::kGetDynamicParamsSrv));
-  const auto req = make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
+  const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req, kLoadParamTimeout)) {
     qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
     return false;
@@ -92,7 +91,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     connect(
       config.slider,
       &qt::Slider::valueChanged,
-      bind(&self::onIntSliderValueChanged, this, placeholders::_1, param.name));
+      std::bind(&self::onIntSliderValueChanged, this, std::placeholders::_1, param.name));
   }
 
   for (const auto& param : params.doubles) {
@@ -134,7 +133,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     connect(
       config.slider,
       &qt::Slider::valueChanged,
-      bind(&self::onDoubleSliderValueChanged, this, placeholders::_1, param.name));
+      std::bind(&self::onDoubleSliderValueChanged, this, std::placeholders::_1, param.name));
   }
 
   return true;
@@ -250,7 +249,7 @@ void ParamBlockWidget::onIntUpButtonClicked(const std::string& name)
   config.slider->setValue(config.slider->value() + 1);
 }
 
-void ParamBlockWidget::onIntSliderValueChanged(long value, const string& name)
+void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& name)
 {
   auto& config = int_configs_.at(name);
   config.line_edit->setText(QString::number(value) + config.prefix);
@@ -272,7 +271,7 @@ void ParamBlockWidget::onDoubleUpButtonClicked(const std::string& name)
   config.slider->setValue(config.slider->value() + 1);
 }
 
-void ParamBlockWidget::onDoubleSliderValueChanged(long value, const string& name)
+void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string& name)
 {
   auto& config = double_configs_.at(name);
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);

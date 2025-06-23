@@ -5,31 +5,29 @@
 #include <map>
 #include <sstream>
 
-using namespace std;
-
 namespace gui
 {
 namespace sa
 {
 namespace fixed_wing
 {
-bool VSPAEROParser::parse(const string& stab_path)
+bool VSPAEROParser::parse(const std::string& stab_path)
 {
-  ifstream file(stab_path);
+  std::ifstream file(stab_path);
 
   if (!file.is_open()) {
-    cerr << "Failed to open \"" << stab_path << "\"." << endl;
+    std::cerr << "Failed to open \"" << stab_path << "\"." << std::endl;
     return false;
   }
 
-  map<string, bool> line_found = {
+  std::map<std::string, bool> line_found = {
     { CL, false }, { CD, false }, { CS, false }, { CMl, false }, { CMm, false }, { CMn, false },
   };
 
-  string line;
+  std::string line;
   while (getline(file, line)) {
-    istringstream iss(line);
-    string name, base, alpha, beta, p, q, r, mach, u;
+    std::istringstream iss(line);
+    std::string name, base, alpha, beta, p, q, r, mach, u;
 
     if (!(iss >> name >> base >> alpha >> beta >> p >> q >> r >> mach >> u)) {
       continue;
@@ -73,7 +71,7 @@ bool VSPAEROParser::parse(const string& stab_path)
 
   for (const auto& [line_name, found] : line_found) {
     if (!found) {
-      cerr << "\"" << line_name << "\" line is not found." << endl;
+      std::cerr << "\"" << line_name << "\" line is not found." << std::endl;
       return false;
     }
   }

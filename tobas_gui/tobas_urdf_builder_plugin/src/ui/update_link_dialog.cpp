@@ -20,7 +20,7 @@
 #include "tobas_urdf_builder_plugin/ui/widget_item.hpp"
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
 
-using namespace std;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -355,7 +355,7 @@ void UpdateLinkDialog::AddVisualButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::AddVisualButtonClicked");
 
-  const auto visual_vm = make_shared<view_model::VisualViewModel>(nullptr);
+  const auto visual_vm = std::make_shared<view_model::VisualViewModel>(nullptr);
   const auto item = new VisualListWidgetItem(visual_vm);
   ui_->VisualListWidget->addItem(item);
   ui_->VisualListWidget->setCurrentItem(item);
@@ -386,7 +386,7 @@ void UpdateLinkDialog::RemoveVisualButtonClicked()
     readFromVM(first->viewModel());
   }
   else {
-    readFromVM(shared_ptr<view_model::VisualViewModel>(nullptr));
+    readFromVM(std::shared_ptr<view_model::VisualViewModel>(nullptr));
   }
 
   emitChanged();
@@ -396,7 +396,7 @@ void UpdateLinkDialog::AddCollisionButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::AddCollisionButtonClicked");
 
-  const auto collision_vm = make_shared<view_model::CollisionViewModel>(nullptr);
+  const auto collision_vm = std::make_shared<view_model::CollisionViewModel>(nullptr);
   const auto item = new CollisionListWidgetItem(collision_vm);
   ui_->CollisionListWidget->addItem(item);
   ui_->CollisionListWidget->setCurrentItem(item);
@@ -427,7 +427,7 @@ void UpdateLinkDialog::RemoveCollisionButtonClicked()
     readFromVM(first->viewModel());
   }
   else {
-    readFromVM(shared_ptr<view_model::CollisionViewModel>(nullptr));
+    readFromVM(std::shared_ptr<view_model::CollisionViewModel>(nullptr));
   }
 
   emitChanged();
@@ -438,7 +438,7 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked");
 
   // 最後に開いたディレクトリを取得
-  string last_dir;
+  std::string last_dir;
   if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     last_dir = rcutils_get_home_dir();
@@ -455,7 +455,7 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
   ui_->VisualGeometryMeshPathLineEdit->setText("file://" + file_path);
 
   // 最後に開いたディレクトリを保存
-  const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
+  const auto new_dir = fs::path(file_path.toStdString()).parent_path().string();
   if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     return;
@@ -471,7 +471,7 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
   RCLCPP_DEBUG(node_->get_logger(), "UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked");
 
   // 最後に開いたディレクトリを取得
-  string last_dir;
+  std::string last_dir;
   if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     last_dir = rcutils_get_home_dir();
@@ -488,7 +488,7 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
   ui_->CollisionGeometryMeshPathLineEdit->setText("file://" + file_path);
 
   // 最後に開いたディレクトリを保存
-  const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
+  const auto new_dir = fs::path(file_path.toStdString()).parent_path().string();
   if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
     return;
@@ -906,7 +906,7 @@ void UpdateLinkDialog::emitChanged()
   Q_EMIT Changed();
 }
 
-void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const map<QString, QFrame*>& map, const QString& type)
+void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type)
 {
   for (const auto& pair : map) {
     pair.second->hide();

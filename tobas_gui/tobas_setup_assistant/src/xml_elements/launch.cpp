@@ -2,8 +2,6 @@
 
 #include <tobas_std_tools/check.hpp>
 
-using namespace std;
-
 namespace gui
 {
 namespace sa
@@ -12,12 +10,12 @@ namespace xml
 {
 tinyxml2::XMLElement* addNode(
   tinyxml2::XMLElement* parent,
-  const string& pkg,
-  const string& exec,
-  const string& name,
-  const string& ns,
-  const string& output,
-  const string& args)
+  const std::string& pkg,
+  const std::string& exec,
+  const std::string& name,
+  const std::string& ns,
+  const std::string& output,
+  const std::string& args)
 {
   const auto node = parent->InsertNewChildElement("node");
   node->SetAttribute("pkg", pkg.c_str());
@@ -37,7 +35,7 @@ tinyxml2::XMLElement* addNode(
   return node;
 }
 
-tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const string& name, const string& value)
+tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string& name, const std::string& value)
 {
   TOBAS_CHECK(strcmp(node->Name(), "node") == 0);
 

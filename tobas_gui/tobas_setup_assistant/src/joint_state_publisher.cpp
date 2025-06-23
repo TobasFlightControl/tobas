@@ -9,8 +9,6 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-using namespace std;
-
 namespace gui
 {
 namespace sa
@@ -86,7 +84,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
       slider,
       &qt::DoubleSliderDisplay::valueChanged,
       this,
-      bind(&self::onValueChanged, this, placeholders::_1, joint.name));
+      std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name));
 
     sliders_.push_back(slider);
     slider_rows_->addWidget(slider);
@@ -107,12 +105,12 @@ void JointStatePublisherWidget::publish()
   auto js = make_unique<sensor_msgs::msg::JointState>(js_);
   js_pub_->publish(std::move(js));
 
-  auto drs = make_unique<tobas_visualization_msgs::msg::DisplayRobotState>();
+  auto drs = std::make_unique<tobas_visualization_msgs::msg::DisplayRobotState>();
   drs->state.joint_state = js_;
   drs_pub_->publish(std::move(drs));
 }
 
-void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_name)
+void JointStatePublisherWidget::onValueChanged(double value, const std::string& jnt_name)
 {
   const auto idx = tobas_std::index(js_.name, jnt_name);
   if (idx < 0) {
@@ -134,7 +132,7 @@ void JointStatePublisherWidget::onCenterButtonClicked()
 void JointStatePublisherWidget::onRandomButtonClicked()
 {
   for (auto& slider : sliders_) {
-    uniform_real_distribution<double> uniform(slider->getMinimum(), slider->getMaximum());
+    std::uniform_real_distribution<double> uniform(slider->getMinimum(), slider->getMaximum());
     const auto value = uniform(rnd_gen_);
     slider->setValue(value);
   }

@@ -11,6 +11,8 @@
 
 #include "tobas_rviz_plugin/logger.hpp"
 
+namespace fs = std::filesystem;
+
 namespace tobas
 {
 namespace
@@ -94,7 +96,7 @@ bool RDFLoader::loadFileToString(std::string& buffer, const std::string& path)
     return false;
   }
 
-  if (!std::filesystem::exists(path)) {
+  if (!fs::exists(path)) {
     RCLCPP_ERROR(getLogger(), "File does not exist");
     return false;
   }
@@ -126,7 +128,7 @@ bool RDFLoader::loadXacroFileToString(
     return false;
   }
 
-  if (!std::filesystem::exists(path)) {
+  if (!fs::exists(path)) {
     RCLCPP_ERROR(getLogger(), "File does not exist");
     return false;
   }
@@ -189,7 +191,7 @@ bool RDFLoader::loadPkgFileToString(
     return false;
   }
 
-  std::filesystem::path path(package_path);
+  fs::path path(package_path);
   path = path / relative_path;
 
   return loadXmlFileToString(buffer, path.string(), xacro_args);

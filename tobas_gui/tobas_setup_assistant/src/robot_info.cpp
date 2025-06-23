@@ -8,8 +8,6 @@
 
 #include "tobas_setup_assistant/constants.hpp"
 
-using namespace std;
-
 namespace gui
 {
 namespace sa
@@ -18,12 +16,12 @@ RobotInfo::RobotInfo() : axis_solver_(tree_)
 {
 }
 
-bool RobotInfo::loadFromText(const string& urdf_text)
+bool RobotInfo::loadFromText(const std::string& urdf_text)
 {
   // Parse URDF
   urdf_ = urdf::parseURDF(urdf_text);
   if (!urdf_) {
-    cerr << "Failed to parse URDF." << endl;
+    std::cerr << "Failed to parse URDF." << std::endl;
     return false;
   }
 
@@ -32,7 +30,7 @@ bool RobotInfo::loadFromText(const string& urdf_text)
 
   // Load KDL tree
   if (!kdl::treeFromUrdfModel(*urdf_, tree_)) {
-    cerr << "Failed to load KDL tree." << endl;
+    std::cerr << "Failed to load KDL tree." << std::endl;
     return false;
   }
 
@@ -61,12 +59,12 @@ const kdl::Tree& RobotInfo::tree() const
   return tree_;
 }
 
-const string& RobotInfo::robotName() const
+const std::string& RobotInfo::robotName() const
 {
   return urdf_->getName();
 }
 
-bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vector& tar_axis)
+bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis)
 {
   const auto seg_it = tree_.getSegment(seg_name);
 
@@ -80,7 +78,7 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vect
   const auto& joint = seg_it->second.segment.joint();
   if (joint.type != kdl::Joint::FIXED) {
     if (axis_solver_.JntToCart(q_zeros_, seg_name) < 0) {
-      cerr << "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage() << endl;
+      std::cerr << "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage() << std::endl;
       return false;
     }
     const auto& cur_axis = axis_solver_.getAxis();
@@ -94,7 +92,7 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vect
   return isJntAxisAlwaysCollinear(par_name, tar_axis);
 }
 
-tobas::rotor_axis_t RobotInfo::rotorAxisType(const string& seg_name)
+tobas::rotor_axis_t RobotInfo::rotorAxisType(const std::string& seg_name)
 {
   if (isJntAxisAlwaysCollinear(seg_name, kdl::Vector::UnitX())) {
     return tobas::rotor_axis_t::X_POSITIVE;

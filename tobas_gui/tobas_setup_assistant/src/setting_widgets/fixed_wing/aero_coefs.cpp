@@ -12,6 +12,8 @@
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
 
+namespace fs = std::filesystem;
+
 namespace gui
 {
 namespace sa
@@ -265,7 +267,7 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   }
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = std::filesystem::path(file_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(file_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
   }

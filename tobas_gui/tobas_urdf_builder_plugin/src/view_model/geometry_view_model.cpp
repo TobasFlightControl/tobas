@@ -2,16 +2,14 @@
 
 #include <tobas_std_tools/console.hpp>
 
-using namespace std;
-
-static const map<GeometryType, QString> kGeometryTypeToNameMap = {
+static const std::map<GeometryType, QString> kGeometryTypeToNameMap = {
   { urdf::Geometry::BOX, "Box" },
   { urdf::Geometry::SPHERE, "Sphere" },
   { urdf::Geometry::CYLINDER, "Cylinder" },
   { urdf::Geometry::MESH, "Mesh" },
 };
 
-static const map<QString, GeometryType> kGeometryNameToTypeMap = {
+static const std::map<QString, GeometryType> kGeometryNameToTypeMap = {
   { "Box", urdf::Geometry::BOX },
   { "Sphere", urdf::Geometry::SPHERE },
   { "Cylinder", urdf::Geometry::CYLINDER },

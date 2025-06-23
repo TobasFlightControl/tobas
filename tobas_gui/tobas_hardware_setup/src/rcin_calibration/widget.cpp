@@ -16,7 +16,6 @@
 
 #include "tobas_hardware_setup/constants.hpp"
 
-using namespace std;
 using namespace real::handler::rcin;
 
 namespace gui
@@ -70,24 +69,24 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   roll_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   roll_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(roll_range_);
-  qt::addWidgetCenter(new QLabel(format("Roll (CH{})", real::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", real::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
 
   roll_yaw_rows->addStretch();
 
   const auto pitch_throt_label_cols = new QHBoxLayout();
   roll_yaw_rows->addLayout(pitch_throt_label_cols);
 
-  const auto pitch_label = new QLabel(format("Pitch (CH{})", real::kRcChannelPitch + 1).c_str());
+  const auto pitch_label = new QLabel(std::format("Pitch (CH{})", real::kRcChannelPitch + 1).c_str());
   pitch_label->setAlignment(Qt::AlignLeft);
   pitch_throt_label_cols->addWidget(pitch_label);
 
-  const auto throt_label = new QLabel(format("Throttle (CH{})", real::kRcChannelThrot + 1).c_str());
+  const auto throt_label = new QLabel(std::format("Throttle (CH{})", real::kRcChannelThrot + 1).c_str());
   throt_label->setAlignment(Qt::AlignRight);
   pitch_throt_label_cols->addWidget(throt_label);
 
   roll_yaw_rows->addStretch();
 
-  qt::addWidgetCenter(new QLabel(format("Yaw (CH{})", real::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", real::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
   yaw_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   yaw_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(yaw_range_);
@@ -101,25 +100,25 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
 
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
 
   ctrl_switch_form->addStretch();
 
   kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   kill_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
 
   ctrl_switch_form->addStretch();
 
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(format("Mode (CH{})", real::kRcChannelMode + 1).c_str(), mode_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Mode (CH{})", real::kRcChannelMode + 1).c_str(), mode_range_);
 
   ctrl_switch_form->addStretch();
 
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
 
   // General Purpose Switches
   const auto gpsw_form = new qt::FormLayout();
@@ -213,7 +212,7 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
   reset();
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_labels_.at(i)->setText(format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i + 1).c_str());
+    gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i + 1).c_str());
     gpsw_ranges_.at(i)->setEnabled(true);
   }
   for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
@@ -263,13 +262,13 @@ bool RCInputCalibrationWidget::saveParamsGCS()
   pt.set(kSubModeOnKey, sub_mode_range_->getLower());
   pt.set(kSubModeOffKey, sub_mode_range_->getUpper());
 
-  array<int, tobas::kMaxNumOfGpsw> gpsw_on, gpsw_off;
+  std::array<int, tobas::kMaxNumOfGpsw> gpsw_on, gpsw_off;
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     gpsw_on[i] = gpsw_ranges_[i]->getLower();
     gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
   for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
-    gpsw_on[i] = numeric_limits<uint16_t>::max();
+    gpsw_on[i] = std::numeric_limits<uint16_t>::max();
     gpsw_off[i] = 0;
   }
   pt.set(kGpswOnKey, gpsw_on);
@@ -311,7 +310,7 @@ bool RCInputCalibrationWidget::saveParamsFC()
     req->gpsw_off[i] = gpsw_ranges_[i]->getUpper();
   }
   for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
-    req->gpsw_on[i] = numeric_limits<uint16_t>::max();
+    req->gpsw_on[i] = std::numeric_limits<uint16_t>::max();
     req->gpsw_off[i] = 0;
   }
 

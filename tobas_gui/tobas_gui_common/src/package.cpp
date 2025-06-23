@@ -3,8 +3,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_std_tools/check.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -15,33 +14,33 @@ fs::path getRemoteTBSPath(const fs::path& tbs_path)
   return "/etc/tobas/colcon_ws/src" / tbs_path.filename();
 }
 
-string getTBSName(const fs::path& tbs_path)
+std::string getTBSName(const fs::path& tbs_path)
 {
   TOBAS_CHECK(tbs_path.extension() == tobas::kTBSExtension);
   return tbs_path.stem();
 }
 
-string getTBSMetaName(const fs::path& tbs_path)
+std::string getTBSMetaName(const fs::path& tbs_path)
 {
   return getTBSName(tbs_path);
 }
 
-string getTBSConfigName(const fs::path& tbs_path)
+std::string getTBSConfigName(const fs::path& tbs_path)
 {
   return getTBSName(tbs_path) + "_config";
 }
 
-string getTBSUserMsgName(const fs::path& tbs_path)
+std::string getTBSUserMsgName(const fs::path& tbs_path)
 {
   return getTBSName(tbs_path) + "_user_msgs";
 }
 
-string getTBSUserCppName(const fs::path& tbs_path)
+std::string getTBSUserCppName(const fs::path& tbs_path)
 {
   return getTBSName(tbs_path) + "_user_cpp";
 }
 
-string getTBSUserPyName(const fs::path& tbs_path)
+std::string getTBSUserPyName(const fs::path& tbs_path)
 {
   return getTBSName(tbs_path) + "_user_py";
 }

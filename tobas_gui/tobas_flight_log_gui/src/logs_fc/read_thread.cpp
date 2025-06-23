@@ -4,8 +4,6 @@
 #include <tobas_qt_tools/string.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-using namespace std;
-
 namespace gui
 {
 namespace log
@@ -16,7 +14,7 @@ ReadThread::ReadThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 
 void ReadThread::run()
 {
-  vector<string> list;
+  std::vector<std::string> list;
   if (ssh_client_.list(tobas::kRosbagDirRoot, list) != ssh::SSHClient::E_NO_ERROR) {
     Q_EMIT finished(false, ssh_client_.errorMessage(), {});
     return;

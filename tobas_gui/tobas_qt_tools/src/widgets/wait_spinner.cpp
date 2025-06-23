@@ -4,8 +4,6 @@
 
 #include <QPainter>
 
-using namespace std;
-
 namespace qt
 {
 WaitSpinnerWidget::WaitSpinnerWidget(QWidget* parent, bool center_on_parent, bool disable_parent_when_spinning)
@@ -106,7 +104,7 @@ void WaitSpinnerWidget::setColor(QColor color)
 
 void WaitSpinnerWidget::setRoundness(double roundness)
 {
-  roundness_ = max(0., min(100., roundness));
+  roundness_ = std::max(0., std::min(100., roundness));
 }
 
 void WaitSpinnerWidget::setMinimumTrailOpacity(double min_trail_opacity)
@@ -259,7 +257,7 @@ QColor WaitSpinnerWidget::currentLineColor(
     auto result_alpha = color.alphaF() - gradient * count_dist;
 
     // If alpha is out of bounds, clip it.
-    result_alpha = min(1., max(0., result_alpha));
+    result_alpha = std::min(1., std::max(0., result_alpha));
     color.setAlphaF(result_alpha);
   }
 

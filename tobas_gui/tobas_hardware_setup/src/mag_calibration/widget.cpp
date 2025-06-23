@@ -19,9 +19,7 @@
 #include "tobas_hardware_setup/constants.hpp"
 #include "tobas_hardware_setup/mag_calibration/method.hpp"
 
-using namespace std;
-using namespace Eigen;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -103,7 +101,7 @@ void MagCalibrationWidget::reset()
   arming_.reset();
 }
 
-void MagCalibrationWidget::setNamespace(const string& ns)
+void MagCalibrationWidget::setNamespace(const std::string& ns)
 {
   reset();
 
@@ -143,7 +141,7 @@ void MagCalibrationWidget::onStartButtonClicked()
   ps_history_length_->setValue(kMaxDataSize);
 
   // 空の点群を発行することでキャリブレーション後の描画をリセット
-  auto pc_empty = make_unique<sensor_msgs::msg::PointCloud>();
+  auto pc_empty = std::make_unique<sensor_msgs::msg::PointCloud>();
   pc_empty->header.stamp = node_->get_clock()->now();
   pc_empty->header.frame_id = tobas::kWorldFrame;
   pc_pub_->publish(std::move(pc_empty));
@@ -163,7 +161,7 @@ void MagCalibrationWidget::onCancelButtonClicked()
 
 void MagCalibrationWidget::onFinishButtonClicked()
 {
-  const auto size = min(cnt_, kMaxDataSize);
+  const auto size = std::min(cnt_, kMaxDataSize);
   if (size < kMinDataSize) {
     qt::qWarnBox(this, "The number of collected samples is too small.");
     return;
@@ -174,18 +172,18 @@ void MagCalibrationWidget::onFinishButtonClicked()
   // TODO: データがきれいな楕円体を描いているかどうかをチェック
 
   // データを整理
-  VectorXd x(size), y(size), z(size);
+  Eigen::VectorXd x(size), y(size), z(size);
   for (int i = 0; i < size; ++i) {
     x(i) = mag_data_[i].x();
     y(i) = mag_data_[i].y();
     z(i) = mag_data_[i].z();
   }
-  const VectorXd xx = x.cwiseProduct(x);
-  const VectorXd yy = y.cwiseProduct(y);
-  const VectorXd zz = z.cwiseProduct(z);
-  const VectorXd xy = x.cwiseProduct(y);
-  const VectorXd yz = y.cwiseProduct(z);
-  const VectorXd zx = z.cwiseProduct(x);
+  const Eigen::VectorXd xx = x.cwiseProduct(x);
+  const Eigen::VectorXd yy = y.cwiseProduct(y);
+  const Eigen::VectorXd zz = z.cwiseProduct(z);
+  const Eigen::VectorXd xy = x.cwiseProduct(y);
+  const Eigen::VectorXd yz = y.cwiseProduct(z);
+  const Eigen::VectorXd zx = z.cwiseProduct(x);
 
   constexpr auto kCalibMethod = BOUNDING;  // TODO: 手法を選べるようにする
 
@@ -224,15 +222,15 @@ void MagCalibrationWidget::onFinishButtonClicked()
     // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
     // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
     mag_trans_.c = -(xx + yy + zz).mean();
-    VectorXd ce0(size);
+    Eigen::VectorXd ce0(size);
     ce0.fill(-mag_trans_.c);
 
     if (kCalibMethod == SPHERE_FITTING) {
       // 球体でフィッティング．
       // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
-      MatrixXd CE(size, 4);
+      Eigen::MatrixXd CE(size, 4);
       CE << xx + yy + zz, x, y, z;
-      const Vector4d coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
+      const Eigen::Vector4d coefs = CE.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(ce0);
 
       mag_trans_.a_xx = coefs(0);
       mag_trans_.a_yy = coefs(0);
@@ -247,9 +245,9 @@ void MagCalibrationWidget::onFinishButtonClicked()
     else if (kCalibMethod == ELLIPSE_FITTING) {
       // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
       // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
-      MatrixXd CE(size, 9);
+      Eigen::MatrixXd CE(size, 9);
       CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
-      const Matrix<double, 9, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
+      const Eigen::Matrix<double, 9, 1> coefs = CE.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(ce0);
 
       mag_trans_.a_xx = coefs(0);
       mag_trans_.a_yy = coefs(1);
@@ -301,13 +299,13 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
 
   // キャリブレーション後の点群を表示
-  auto pc_calib = make_unique<sensor_msgs::msg::PointCloud>();
+  auto pc_calib = std::make_unique<sensor_msgs::msg::PointCloud>();
   pc_calib->header.stamp = node_->get_clock()->now();
   pc_calib->header.frame_id = tobas::kWorldFrame;
   pc_calib->points.resize(size);
   for (int i = 0; i < size; ++i) {
-    const Vector3d p_calib = mag_trans_.transform(mag_data_[i]);
-    const Vector3f p_disp = p_calib.cast<float>() * kRvizPointScale;
+    const Eigen::Vector3d p_calib = mag_trans_.transform(mag_data_[i]);
+    const Eigen::Vector3f p_disp = p_calib.cast<float>() * kRvizPointScale;
     tf::point32EigenToMsg(p_disp, pc_calib->points[i]);
   }
   pc_pub_->publish(std::move(pc_calib));
@@ -331,7 +329,7 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSh
   mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->mag.data;
 
   // 表示用メッセージを発行
-  auto point_msg = make_unique<geometry_msgs::msg::PointStamped>();
+  auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = mag_raw->header;
   point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
   kdl::pointKDLToMsg(mag_raw->mag * (kRvizPointScale / mag_norm_), point_msg->point);

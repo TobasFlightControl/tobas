@@ -10,8 +10,7 @@
 
 #include "tobas_gui_common/package.hpp"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -41,16 +40,16 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   return false;
 }
 
-const string& LocalPackageBuilder::getOutput() const
+const std::string& LocalPackageBuilder::getOutput() const
 {
   return command_executor_.getOutput();
 }
 
-bool LocalPackageBuilder::colconBuild(const std::filesystem::path& tbs_path)
+bool LocalPackageBuilder::colconBuild(const fs::path& tbs_path)
 {
   // Navigate to the Tobas package
   if (chdir(tbs_path.c_str()) != 0) {
-    cerr << "Failed to navigate to \"" << tbs_path << "\"." << endl;
+    std::cerr << "Failed to navigate to \"" << tbs_path << "\"." << std::endl;
     return false;
   }
 
@@ -62,7 +61,7 @@ bool LocalPackageBuilder::colconBuild(const std::filesystem::path& tbs_path)
 
   // Specify the log directory
   if (setenv("COLCON_LOG_PATH", log_path.c_str(), 1) != 0) {
-    cerr << "Failed to set the colcon log directory path to \"" << log_path << "\"." << endl;
+    std::cerr << "Failed to set the colcon log directory path to \"" << log_path << "\"." << std::endl;
     return false;
   }
 
@@ -81,9 +80,9 @@ bool LocalPackageBuilder::colconBuild(const std::filesystem::path& tbs_path)
     meta_name);
 
   // Build Tobas package
-  cout << "Executing \"" << build_cmd << "\" on " << tbs_path << "." << endl;
+  std::cout << "Executing \"" << build_cmd << "\" on " << tbs_path << "." << std::endl;
   if (!command_executor_.execute(build_cmd)) {
-    cerr << "Failed to build \"" << meta_name << "\"." << endl;
+    std::cerr << "Failed to build \"" << meta_name << "\"." << std::endl;
     return false;
   }
 
@@ -95,13 +94,13 @@ bool LocalPackageBuilder::colconCleanWorkspace()
   // Navigate to the colcon workspace
   const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
   if (chdir(ws_path.c_str()) != 0) {
-    cerr << "Failed to navigate to \"" << ws_path << "\"." << endl;
+    std::cerr << "Failed to navigate to \"" << ws_path << "\"." << std::endl;
     return false;
   }
 
   // Clean workspace
   if (!command_executor_.execute("colcon clean workspace -y")) {
-    cerr << "Failed to clean " << ws_path << "." << endl;
+    std::cerr << "Failed to clean " << ws_path << "." << std::endl;
     return false;
   }
 

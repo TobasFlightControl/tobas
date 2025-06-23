@@ -17,8 +17,7 @@
 
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -29,11 +28,11 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
 {
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto templates_path = pkg_path / "templates";
-  meta_env_ = make_shared<TemplateGenerator>(templates_path / "meta_package");
-  config_env_ = make_shared<TemplateGenerator>(templates_path / "config_package");
-  user_msg_env_ = make_shared<TemplateGenerator>(templates_path / "user_msg_package");
-  user_cpp_env_ = make_shared<TemplateGenerator>(templates_path / "user_cpp_package");
-  user_py_env_ = make_shared<TemplateGenerator>(templates_path / "user_py_package");
+  meta_env_ = std::make_shared<TemplateGenerator>(templates_path / "meta_package");
+  config_env_ = std::make_shared<TemplateGenerator>(templates_path / "config_package");
+  user_msg_env_ = std::make_shared<TemplateGenerator>(templates_path / "user_msg_package");
+  user_cpp_env_ = std::make_shared<TemplateGenerator>(templates_path / "user_cpp_package");
+  user_py_env_ = std::make_shared<TemplateGenerator>(templates_path / "user_py_package");
 }
 
 bool PackageGenerator::generatePackage()
@@ -88,12 +87,12 @@ bool PackageGenerator::generatePackage()
   return true;
 }
 
-string PackageGenerator::tbsPath() const
+std::string PackageGenerator::tbsPath() const
 {
   return settings_->ros_package->tbsPath().toStdString();
 }
 
-string PackageGenerator::flightActionsPackage() const
+std::string PackageGenerator::flightActionsPackage() const
 {
   if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_YAW)) {
     return "tobas_mr_actions";
@@ -184,7 +183,7 @@ tobas::Drone PackageGenerator::createDrone()
     case tobas::propulsion_system_t::ELECTRIC: {
       const auto eprop_widget =
         qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(settings_->propulsion_system->selected());
-      const auto eprop = make_shared<tobas::ElectricPropulsionSystemConfig>();
+      const auto eprop = std::make_shared<tobas::ElectricPropulsionSystemConfig>();
 
       // Battery
       const auto battery_widget = eprop_widget->battery;
@@ -199,7 +198,7 @@ tobas::Drone PackageGenerator::createDrone()
         const auto link_name = eprop_widget->linkName(i).toStdString();
         const auto unit_widget = units_widget->widget(i);
 
-        const auto rotor = make_shared<tobas::ElectricRotorConfig>();
+        const auto rotor = std::make_shared<tobas::ElectricRotorConfig>();
         rotor->link_name = link_name;
         rotor->direction = unit_widget->general()->direction();
         rotor->axis = robot_.rotorAxisType(link_name);
@@ -214,13 +213,13 @@ tobas::Drone PackageGenerator::createDrone()
         TOBAS_CHECK(eprop->rotors.insert({ link_name, rotor }).second);
       }
 
-      drone.prop = static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
+      drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
       break;
     }
     case tobas::propulsion_system_t::ICE: {
       const auto iprop_widget =
         qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(settings_->propulsion_system->selected());
-      const auto iprop = make_shared<tobas::ICEPropulsionSystemConfig>();
+      const auto iprop = std::make_shared<tobas::ICEPropulsionSystemConfig>();
 
       // Engine
       const auto engine_widget = iprop_widget->engine;
@@ -244,7 +243,7 @@ tobas::Drone PackageGenerator::createDrone()
         const auto link_name = iprop_widget->linkName(i).toStdString();
         const auto unit_widget = units_widget->widget(i);
 
-        const auto rotor = make_shared<tobas::ICERotorConfig>();
+        const auto rotor = std::make_shared<tobas::ICERotorConfig>();
         rotor->link_name = link_name;
         rotor->direction = unit_widget->general()->direction();
         rotor->axis = robot_.rotorAxisType(link_name);
@@ -268,7 +267,7 @@ tobas::Drone PackageGenerator::createDrone()
         TOBAS_CHECK(drone.pwms.insert({ link_name, pitch_pwm }).second);
       }
 
-      drone.prop = static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
+      drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
       break;
     }
     default: {
@@ -278,7 +277,7 @@ tobas::Drone PackageGenerator::createDrone()
 
   // Fixed Wing
   if (settings_->fixed_wing->hasFixedWing()) {
-    drone.fixed_wing = make_shared<tobas::FixedWingConfig>();
+    drone.fixed_wing = std::make_shared<tobas::FixedWingConfig>();
 
     // Vehicle
     const auto vehicle = settings_->fixed_wing->vehicle();
@@ -377,7 +376,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   // テンプレートから生成
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
   config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
-  config_env_->generate(tpl_data, string(tobas::node::kJointStateBroadcaster) + ".yaml.tplyaml", config_dir);
+  config_env_->generate(tpl_data, std::string(tobas::node::kJointStateBroadcaster) + ".yaml.tplyaml", config_dir);
   config_env_->generate(tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "component_containers_sp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
@@ -576,7 +575,7 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
     const auto config_dir = "$(find-pkg-share " + config_pkg_name + ")/config/";
 
     // Joint state broadcaster
-    const auto jsb_name = string(tobas::node::kJointStateBroadcaster);
+    const auto jsb_name = std::string(tobas::node::kJointStateBroadcaster);
     const auto jsb_param = config_dir + jsb_name + ".yaml";
     const auto jsb_args = jsb_name + " --param-file " + jsb_param;
     const auto jsb_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
@@ -678,7 +677,7 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generatePreArmCheckConfig(const filesystem::path& config_dir)
+bool PackageGenerator::generatePreArmCheckConfig(const fs::path& config_dir)
 {
   YAML::Node node(YAML::NodeType::Map);
   node["check_node_connection"] = settings_->pre_arm_check->checkNodeConnection();
@@ -889,7 +888,7 @@ bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* el
 
 bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 {
-  set<string> prop_jnt_names;
+  std::set<std::string> prop_jnt_names;
   const auto& prop = settings_->propulsion_system;
   for (int i = 0; i < prop->numUnits(); ++i) {
     const auto link_name = prop->linkName(i).toStdString();
@@ -934,7 +933,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   const auto drone = createDrone();
 
   // Get rotor channels
-  vector<string> rotor_link_names;
+  std::vector<std::string> rotor_link_names;
   for (const auto& [link_name, _] : drone.prop->rotors) {
     rotor_link_names.push_back(link_name);
   }

@@ -6,8 +6,7 @@
 
 #include "tobas_gui_common/package.hpp"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -20,7 +19,7 @@ bool sourceTobasPackage(const fs::path& tbs_path)
   // Get old paths
   const auto old_paths = getenv(AMENT_PREFIX_PATH);
   if (!old_paths) {
-    cerr << "Failed to get \"" << AMENT_PREFIX_PATH << "\"." << endl;
+    std::cerr << "Failed to get \"" << AMENT_PREFIX_PATH << "\"." << std::endl;
     return false;
   }
 
@@ -29,7 +28,7 @@ bool sourceTobasPackage(const fs::path& tbs_path)
   const auto user_path = getTBSConfigPath(tbs_path);
   const auto new_paths = config_path.string() + ":" + user_path.string() + ":" + old_paths;
   if (setenv(AMENT_PREFIX_PATH, new_paths.c_str(), 1) != 0) {
-    cerr << "Failed to set \"" << AMENT_PREFIX_PATH << "\"." << endl;
+    std::cerr << "Failed to set \"" << AMENT_PREFIX_PATH << "\"." << std::endl;
     return false;
   }
 

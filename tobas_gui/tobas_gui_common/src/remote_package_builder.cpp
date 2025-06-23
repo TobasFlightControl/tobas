@@ -4,8 +4,7 @@
 
 #include "tobas_gui_common/package.hpp"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -22,7 +21,7 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
   // XXX: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
   const auto ros2_setup_bash = (fs::path(tobas::kROS2JazzyInstallPath) / "setup.bash").string();
   const auto tobas_setup_bash = (fs::path(tobas::kTobasInstallPath) / "local_setup.bash").string();
-  const auto pre_cmd = format(
+  const auto pre_cmd = std::format(
     "source {} && "
     "source {} && "
     "cd {}",
@@ -31,7 +30,7 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
     tobas::kColconWSPathRoot);
 
   // XXX: ルート権限だと--symlink-installが機能しない
-  const auto build_cmd = format(
+  const auto build_cmd = std::format(
     "colcon build "
     "--merge-install "
     "--parallel-workers $(nproc) "
@@ -56,7 +55,7 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
   return false;
 }
 
-const string& RemotePackageBuilder::getOutput() const
+const std::string& RemotePackageBuilder::getOutput() const
 {
   return output_;
 }
