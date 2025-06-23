@@ -4,6 +4,7 @@
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {
@@ -64,7 +65,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
       const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      pitch_data[idx].push_back(elem.angle);
+      pitch_data[idx].push_back(tobas_std::rad2deg(elem.angle));
     }
   }
 
@@ -98,7 +99,7 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
     plot->setAxisNoLabel(QwtPlot::xBottom);
     grid_->addWidget(plot, idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
 
-    qwt::QwtPlotCurveWrapper curve("Pitch Angle (" + QString::fromStdString(elem.link_name) + ")");
+    qwt::QwtPlotCurveWrapper curve("Pitch Angle [deg] (" + QString::fromStdString(elem.link_name) + ")");
     curve.setPen(kCurrentValueColor, kLineWidth);
     curve.attach(plot);
 

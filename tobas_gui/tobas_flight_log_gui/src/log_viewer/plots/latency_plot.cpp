@@ -9,7 +9,7 @@ namespace gui
 namespace log
 {
 LatencyPlotWidget::LatencyPlotWidget()
-  : sampling_time_curve_("IMU Sampling Time"), ctrl_latency_curve_("Control Latency")
+  : sampling_time_curve_("IMU Sampling Time [us]"), ctrl_latency_curve_("Control Latency [us]")
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

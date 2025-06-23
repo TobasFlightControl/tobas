@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-MagPlotWidget::MagPlotWidget() : mag_curves_{ "Mag X", "Mag Y", "Mag Z" }
+MagPlotWidget::MagPlotWidget() : mag_curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [-]" }
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

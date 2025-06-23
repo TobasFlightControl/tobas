@@ -9,10 +9,12 @@ namespace gui
 namespace log
 {
 TwistPlotWidget::TwistPlotWidget()
-  : cur_curves_{ "Current Linear Velocity X",  "Current Linear Velocity Y",  "Current Linear Velocity Z",
-                 "Current Angular Velocity X", "Current Angular Velocity Y", "Current Angular Velocity Z" }
-  , tar_curves_{ "Target Linear Velocity X",  "Target Linear Velocity Y",  "Target Linear Velocity Z",
-                 "Target Angular Velocity X", "Target Angular Velocity Y", "Target Angular Velocity Z" }
+  : cur_curves_{ "Current Linear Velocity X [m/s]",    "Current Linear Velocity Y [m/s]",
+                 "Current Linear Velocity Z [m/s]",    "Current Angular Velocity X [rad/s]",
+                 "Current Angular Velocity Y [rad/s]", "Current Angular Velocity Z [rad/s]" }
+  , tar_curves_{ "Target Linear Velocity X [m/s]",    "Target Linear Velocity Y [m/s]",
+                 "Target Linear Velocity Z [m/s]",    "Target Angular Velocity X [rad/s]",
+                 "Target Angular Velocity Y [rad/s]", "Target Angular Velocity Z [rad/s]" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);

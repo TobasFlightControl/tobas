@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage"), current_curve_("Current")
+BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage [V]"), current_curve_("Current [A]")
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

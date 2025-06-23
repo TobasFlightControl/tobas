@@ -9,9 +9,10 @@ namespace gui
 namespace log
 {
 ImuPlotWidget::ImuPlotWidget()
-  : raw_curves_{ "Raw Accel X", "Raw Accel Y", "Raw Accel Z", "Raw Gyro X", "Raw Gyro Y", "Raw Gyro Z" }
-  , filt_curves_{ "Filtered Accel X", "Filtered Accel Y", "Filtered Accel Z",
-                  "Filtered Gyro X",  "Filtered Gyro Y",  "Filtered Gyro Z" }
+  : raw_curves_{ "Raw Accel X [m/s²]", "Raw Accel Y [m/s²]", "Raw Accel Z [m/s²]",
+                 "Raw Gyro X [rad/s]", "Raw Gyro Y [rad/s]", "Raw Gyro Z [rad/s]" }
+  , filt_curves_{ "Filtered Accel X [m/s²]", "Filtered Accel Y [m/s²]", "Filtered Accel Z [m/s²]",
+                  "Filtered Gyro X [rad/s]", "Filtered Gyro Y [rad/s]", "Filtered Gyro Z [rad/s]" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);

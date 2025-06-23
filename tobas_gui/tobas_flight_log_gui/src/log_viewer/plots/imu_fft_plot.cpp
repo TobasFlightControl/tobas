@@ -8,7 +8,8 @@ namespace gui
 {
 namespace log
 {
-ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z" }
+ImuFftPlotWidget::ImuFftPlotWidget()
+  : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]", "Gyro X [rad/s]", "Gyro Y [rad/s]", "Gyro Z [rad/s]" }
 {
   // 1次元なので虚数部分は不要
   fft_.SetFlag(Eigen::FFT<double>::HalfSpectrum);

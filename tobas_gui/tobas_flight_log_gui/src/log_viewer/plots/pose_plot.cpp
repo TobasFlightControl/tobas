@@ -5,14 +5,17 @@
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {
 namespace log
 {
 PosePlotWidget::PosePlotWidget()
-  : cur_curves_{ "Current X", "Current Y", "Current Z", "Current Roll", "Current Pitch", "Current Yaw" }
-  , tar_curves_{ "Target X", "Target Y", "Target Z", "Target Roll", "Target Pitch", "Target Yaw" }
+  : cur_curves_{ "Current X [m]",      "Current Y [m]",       "Current Z [m]",
+                 "Current Roll [deg]", "Current Pitch [deg]", "Current Yaw [deg]" }
+  , tar_curves_{ "Target X [m]",      "Target Y [m]",       "Target Z [m]",
+                 "Target Roll [deg]", "Target Pitch [deg]", "Target Yaw [deg]" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
@@ -64,9 +67,9 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
 
     const kdl::Rotation rot(odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
-    val_data[3].push_back(roll);
-    val_data[4].push_back(pitch);
-    val_data[5].push_back(yaw);
+    val_data[3].push_back(tobas_std::rad2deg(roll));
+    val_data[4].push_back(tobas_std::rad2deg(pitch));
+    val_data[5].push_back(tobas_std::rad2deg(yaw));
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
@@ -88,9 +91,9 @@ void PosePlotWidget::updateTargetSamples(const QVector<tobas_debug_msgs::msg::Mu
     val_data[2].push_back(pos.z);
 
     const auto& rot = ctrl_fb.target_angle;
-    val_data[3].push_back(rot.roll);
-    val_data[4].push_back(rot.pitch);
-    val_data[5].push_back(rot.yaw);
+    val_data[3].push_back(tobas_std::rad2deg(rot.roll));
+    val_data[4].push_back(tobas_std::rad2deg(rot.pitch));
+    val_data[5].push_back(tobas_std::rad2deg(rot.yaw));
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {

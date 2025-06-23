@@ -4,6 +4,7 @@
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {
@@ -78,11 +79,11 @@ bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
     plot->setAxisNoLabel(QwtPlot::xBottom);
     grid_->addWidget(plots_.back(), idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
 
-    qwt::QwtPlotCurveWrapper cur_speed_curve("Current Speed (" + QString::fromStdString(elem.link_name) + ")");
+    qwt::QwtPlotCurveWrapper cur_speed_curve("Current RPM (" + QString::fromStdString(elem.link_name) + ")");
     cur_speed_curve.setPen(kCurrentValueColor, kLineWidth);
     cur_speed_curve.attach(plots_.back());
 
-    qwt::QwtPlotCurveWrapper tar_speed_curve("Target Speed (" + QString::fromStdString(elem.link_name) + ")");
+    qwt::QwtPlotCurveWrapper tar_speed_curve("Target RPM (" + QString::fromStdString(elem.link_name) + ")");
     tar_speed_curve.setPen(kTargetValueColor, kLineWidth);
     tar_speed_curve.attach(plots_.back());
 
@@ -115,10 +116,10 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
         continue;
       }
 
-      const auto& idx = name2idx_[elem.link_name];
+      const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(elem.speed);
+      speed_data[idx].push_back(tobas_std::rps2rpm(elem.speed));
     }
   }
 

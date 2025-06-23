@@ -9,7 +9,7 @@ namespace gui
 namespace log
 {
 DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
-  : curves_{ "Force X", "Force Y", "Force Z", "Torque X", "Torque Y", "Torque Z" }
+  : curves_{ "Force X [N]", "Force Y [N]", "Force Z [N]", "Torque X [Nm]", "Torque Y [Nm]", "Torque Z [Nm]" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
