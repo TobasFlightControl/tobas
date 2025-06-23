@@ -24,7 +24,7 @@ public:
   bool setCutoffFrequency(const double& fc);
 
 private:
-  double wc_;
+  double wc_ = NAN;  // [rad/s]
   T y_, prev_u_;
 };
 
@@ -61,7 +61,7 @@ template <typename T>
 bool LowPassFilterP1<T>::setCutoffFrequency(const double& fc)
 {
   if (fc <= 0.) {
-    std::cerr << "The cutoff frequency of low-pass filter must be positive." << std::endl;
+    std::cerr << "The cutoff frequency of P1 low-pass filter must be positive." << std::endl;
     return false;
   }
 

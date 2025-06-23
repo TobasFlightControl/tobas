@@ -23,7 +23,7 @@ public:
   bool setCutoffFrequency(const double& fc);
 
 private:
-  double wc_;
+  double wc_ = NAN;  // [rad/s]
   T y_, prev_u_;
 };
 
