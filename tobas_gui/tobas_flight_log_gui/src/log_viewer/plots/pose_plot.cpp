@@ -31,8 +31,8 @@ PosePlotWidget::PosePlotWidget()
 
 void PosePlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < kNumAxes; ++i) {
-    plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  for (auto& plot : plots_) {
+    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
 }
 
