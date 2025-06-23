@@ -148,7 +148,7 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
       const auto& idx = name2idx_[speed.link_name];
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(speed.speed);
+      speed_data[idx].push_back(tobas_std::rps2rpm(speed.speed));
     }
   }
 
