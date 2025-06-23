@@ -1,6 +1,6 @@
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_dsp/low_pass_filter.hpp>
+#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -35,7 +35,7 @@ private:
   std::array<algo::Kahan<double>, 3> gyro_sum_;
 
   tobas_msgs::ImuStamped::ConstSharedPtr imu_raw_;
-  dsp::LowPassFilter<kdl::Vector> acc_lpf_, gyro_lpf_;
+  dsp::LowPassFilterP1<kdl::Vector> acc_lpf_, gyro_lpf_;
   dsp::NoiseVarianceFilter<double, 3, kNoiseFilterWindowSize> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::ImuWithCovarianceStamped> imu_pub_;

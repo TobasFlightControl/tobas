@@ -1,5 +1,5 @@
 #include <tobas_constants/constants.hpp>
-#include <tobas_dsp/low_pass_filter.hpp>
+#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -30,7 +30,7 @@ private:
   bool landed_ = true;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   rclcpp::Time t_last_detect_;  // 最後に鉛直上方向の力が閾値を超えた時刻
-  dsp::LowPassFilter<double> z_force_lpf_;
+  dsp::LowPassFilterP1<double> z_force_lpf_;
 
   kdl::Tree tree_;
   kdl::TreeMassHolder mass_holder_;

@@ -9,11 +9,12 @@
 
 namespace dsp
 {
+/* First order low-pass filter. */
 template <typename T>
-class LowPassFilter : public BaseFilter<T>
+class LowPassFilterP1 : public BaseFilter<T>
 {
 public:
-  explicit LowPassFilter();
+  explicit LowPassFilterP1();
 
   void update(const T& u, const double& dt) override;
 
@@ -28,12 +29,12 @@ private:
 };
 
 template <typename T>
-LowPassFilter<T>::LowPassFilter()
+LowPassFilterP1<T>::LowPassFilterP1()
 {
 }
 
 template <typename T>
-void LowPassFilter<T>::update(const T& u, const double& dt)
+void LowPassFilterP1<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
@@ -45,19 +46,19 @@ void LowPassFilter<T>::update(const T& u, const double& dt)
 }
 
 template <typename T>
-inline const T& LowPassFilter<T>::getValue() const
+inline const T& LowPassFilterP1<T>::getValue() const
 {
   return y_;
 }
 
 template <typename T>
-inline void LowPassFilter<T>::setValue(const T& x)
+inline void LowPassFilterP1<T>::setValue(const T& x)
 {
   y_ = prev_u_ = x;
 }
 
 template <typename T>
-bool LowPassFilter<T>::setCutoffFrequency(const double& fc)
+bool LowPassFilterP1<T>::setCutoffFrequency(const double& fc)
 {
   if (fc <= 0.) {
     std::cerr << "The cutoff frequency of low-pass filter must be positive." << std::endl;

@@ -1,5 +1,5 @@
 #include <tobas_constants/constants.hpp>
-#include <tobas_dsp/low_pass_filter.hpp>
+#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_node/node.hpp>
@@ -37,8 +37,8 @@ private:
   tobas_msgs::msg::RotorStateArray::ConstSharedPtr rotor_states_;
   bool js_received_ = false;
 
-  dsp::LowPassFilter<kdl::Vector> force_lpf_;
-  dsp::LowPassFilter<kdl::Vector> torque_lpf_;
+  dsp::LowPassFilterP1<kdl::Vector> force_lpf_;
+  dsp::LowPassFilterP1<kdl::Vector> torque_lpf_;
 
   ros2::PublisherPtr<tobas_kdl_msgs::WrenchStamped> dist_force_pub_;
 
