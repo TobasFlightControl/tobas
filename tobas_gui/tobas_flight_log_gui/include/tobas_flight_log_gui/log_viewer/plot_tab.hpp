@@ -37,26 +37,21 @@ public:
 
   void clear();
   void setTimeScale(double t_start, double t_stop);
-
-  void setFrameData(
-    const QVector<tobas_msgs::msg::Odometry>& odom_data,
-    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_data);
-  void setImuData(
-    const QVector<tobas_msgs::msg::ImuStamped>& raw_msgs,
-    const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_msgs);
-  void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
-  void setGnssData(const QVector<tobas_msgs::msg::Gnss>& _data);
-  void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
-  void setEngineData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data);
-  void setRotorSpeedData(
-    const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
-    const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data);
-  void setPropellerPitchData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data);
-  void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _data);
-  void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
-  void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
-  void setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data);
-  void setMRControllerFeedbackData(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& _data);
+  void setData(
+    const QVector<tobas_msgs::msg::Odometry> odom_data,
+    const QVector<tobas_msgs::msg::ImuStamped> raw_imu_data,
+    const QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data,
+    const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data,
+    const QVector<tobas_msgs::msg::Gnss> gnss_data,
+    const QVector<tobas_msgs::msg::Battery> battery_data,
+    const QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data,
+    const QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data,
+    const QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data,
+    const QVector<tobas_msgs::msg::Latency> sampling_time_data,
+    const QVector<tobas_msgs::msg::Latency> ctrl_latency_data,
+    const QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data,
+    const QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data,
+    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data);
 
 private:
   PosePlotWidget* pose_plot_;

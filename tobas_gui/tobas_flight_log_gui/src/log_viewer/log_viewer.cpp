@@ -188,20 +188,21 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   for (auto& plot_tab : plot_tabs_) {
     // XXX: データの設定の前に範囲を指定しないと若干プロットが崩れる
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
-
-    plot_tab->setFrameData(odom_data, mr_ctrl_fb_data);
-    plot_tab->setImuData(raw_imu_data, filt_imu_data);
-    plot_tab->setMagData(mag_data);
-    plot_tab->setGnssData(gnss_data);
-    plot_tab->setBatteryData(battery_data);
-    plot_tab->setEngineData(ice_cmd_data);
-    plot_tab->setRotorSpeedData(cur_rotor_states_data, tar_rotor_speeds_data);
-    plot_tab->setPropellerPitchData(ice_cmd_data);
-    plot_tab->setSamplingTimeData(sampling_time_data);
-    plot_tab->setControlLatencyData(ctrl_latency_data);
-    plot_tab->setDisturbanceForceData(dist_force_data);
-    plot_tab->setObserverFeedbackData(obsv_fb_data);
-    plot_tab->setMRControllerFeedbackData(mr_ctrl_fb_data);
+    plot_tab->setData(
+      odom_data,
+      raw_imu_data,
+      filt_imu_data,
+      mag_data,
+      gnss_data,
+      battery_data,
+      cur_rotor_states_data,
+      tar_rotor_speeds_data,
+      ice_cmd_data,
+      sampling_time_data,
+      ctrl_latency_data,
+      dist_force_data,
+      obsv_fb_data,
+      mr_ctrl_fb_data);
   }
 }
 
