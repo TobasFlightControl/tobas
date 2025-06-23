@@ -94,14 +94,16 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
 
     ++num_rotors_;
 
-    plots_.push_back(new QwtPlot2());
+    const auto plot = new QwtPlot2();
+    plot->setAxisNoLabel(QwtPlot::xBottom);
+    grid_->addWidget(plot, idx / 2, idx % 2);  // N行2列の格子状に配置
 
-    // N行2列の格子状に配置
-    grid_->addWidget(plots_.back(), idx / 2, idx % 2);
+    qwt::QwtPlotCurveWrapper curve("Pitch Angle (" + QString::fromStdString(elem.link_name) + ")");
+    curve.setPen(kCurrentValueColor, kLineWidth);
+    curve.attach(plot);
 
-    curves_.push_back("Pitch Angle (" + QString::fromStdString(elem.link_name) + ")");
-    curves_.back().setPen(kCurrentValueColor, kLineWidth);
-    curves_.back().attach(plots_.back());
+    plots_.push_back(plot);
+    curves_.push_back(curve);
   }
 
   return true;

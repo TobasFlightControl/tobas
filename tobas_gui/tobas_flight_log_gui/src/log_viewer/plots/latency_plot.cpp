@@ -15,11 +15,13 @@ LatencyPlotWidget::LatencyPlotWidget()
   setLayout(rows);
 
   sampling_time_plot_ = new QwtPlot2();
+  sampling_time_plot_->setAxisNoLabel(QwtPlot::xBottom);
   sampling_time_curve_.setPen(Qt::black, kLineWidth);
   sampling_time_curve_.attach(sampling_time_plot_);
   rows->addWidget(sampling_time_plot_);
 
   ctrl_latency_plot_ = new QwtPlot2();
+  ctrl_latency_plot_->setAxisNoLabel(QwtPlot::xBottom);
   ctrl_latency_curve_.setPen(Qt::black, kLineWidth);
   ctrl_latency_curve_.attach(ctrl_latency_plot_);
   rows->addWidget(ctrl_latency_plot_);

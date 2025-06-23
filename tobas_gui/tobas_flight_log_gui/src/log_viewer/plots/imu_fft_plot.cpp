@@ -19,7 +19,10 @@ ImuFftPlotWidget::ImuFftPlotWidget() : curves_{ "Accel X", "Accel Y", "Accel Z",
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();
     if (i % 3 == 2) {
-      plots_[i]->showXBottomAxisLabel();
+      plots_[i]->setAxisLabelUnit(QwtPlot::xBottom, "Hz");
+    }
+    else {
+      plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
     }
     grid->addWidget(plots_[i], i % 3, i / 3);
 

@@ -20,31 +20,37 @@ GnssPlotWidget::GnssPlotWidget()
   setLayout(grid);
 
   latitude_plot_ = new QwtPlot2();
+  latitude_plot_->setAxisNoLabel(QwtPlot::xBottom);
   latitude_curve_.setPen(Qt::black, kLineWidth);
   latitude_curve_.attach(latitude_plot_);
   grid->addWidget(latitude_plot_, 0, 0);
 
   longitude_plot_ = new QwtPlot2();
+  longitude_plot_->setAxisNoLabel(QwtPlot::xBottom);
   longitude_curve_.setPen(Qt::black, kLineWidth);
   longitude_curve_.attach(longitude_plot_);
   grid->addWidget(longitude_plot_, 1, 0);
 
   altitude_plot_ = new QwtPlot2();
+  altitude_plot_->setAxisNoLabel(QwtPlot::xBottom);
   altitude_curve_.setPen(Qt::black, kLineWidth);
   altitude_curve_.attach(altitude_plot_);
   grid->addWidget(altitude_plot_, 2, 0);
 
   north_speed_plot_ = new QwtPlot2();
+  north_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
   north_speed_curve_.setPen(Qt::black, kLineWidth);
   north_speed_curve_.attach(north_speed_plot_);
   grid->addWidget(north_speed_plot_, 0, 1);
 
   west_speed_plot_ = new QwtPlot2();
+  west_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
   west_speed_curve_.setPen(Qt::black, kLineWidth);
   west_speed_curve_.attach(west_speed_plot_);
   grid->addWidget(west_speed_plot_, 1, 1);
 
   up_speed_plot_ = new QwtPlot2();
+  up_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
   up_speed_curve_.setPen(Qt::black, kLineWidth);
   up_speed_curve_.attach(up_speed_plot_);
   grid->addWidget(up_speed_plot_, 2, 1);

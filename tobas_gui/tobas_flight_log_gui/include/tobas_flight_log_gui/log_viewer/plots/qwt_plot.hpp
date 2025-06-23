@@ -16,7 +16,8 @@ class QwtPlot2 : public QwtPlot
 public:
   explicit QwtPlot2(QWidget* parent = nullptr);
 
-  void showXBottomAxisLabel();
+  void setAxisNoLabel(const QwtPlot::Axis& axis);
+  void setAxisLabelUnit(const QwtPlot::Axis& axis, const QString& unit);
 };
 }  // namespace log
 }  // namespace gui

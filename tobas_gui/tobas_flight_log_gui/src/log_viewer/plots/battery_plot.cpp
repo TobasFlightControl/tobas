@@ -14,11 +14,13 @@ BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage"), current_curv
   setLayout(rows);
 
   voltage_plot_ = new QwtPlot2();
+  voltage_plot_->setAxisNoLabel(QwtPlot::xBottom);
   voltage_curve_.setPen(Qt::black, kLineWidth);
   voltage_curve_.attach(voltage_plot_);
   rows->addWidget(voltage_plot_);
 
   current_plot_ = new QwtPlot2();
+  current_plot_->setAxisNoLabel(QwtPlot::xBottom);
   current_curve_.setPen(Qt::black, kLineWidth);
   current_curve_.attach(current_plot_);
   rows->addWidget(current_plot_);

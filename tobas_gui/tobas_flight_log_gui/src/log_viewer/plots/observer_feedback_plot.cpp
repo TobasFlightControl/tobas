@@ -19,34 +19,40 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
 
 {
   acc_bias_plot_ = new QwtPlot2();
+  acc_bias_plot_->setAxisNoLabel(QwtPlot::xBottom);
   for (size_t i = 0; i < kAccelBiasSize; ++i) {
     acc_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     acc_bias_curves_[i].attach(acc_bias_plot_);
   }
 
   gyro_bias_plot_ = new QwtPlot2();
+  gyro_bias_plot_->setAxisNoLabel(QwtPlot::xBottom);
   for (size_t i = 0; i < kGyroBiasSize; ++i) {
     gyro_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     gyro_bias_curves_[i].attach(gyro_bias_plot_);
   }
 
   mag_hard_bias_plot_ = new QwtPlot2();
+  mag_hard_bias_plot_->setAxisNoLabel(QwtPlot::xBottom);
   for (size_t i = 0; i < kMagHardBiasSize; ++i) {
     mag_hard_bias_curves_[i].setPen(kColorXYZ[i], kLineWidth);
     mag_hard_bias_curves_[i].attach(mag_hard_bias_plot_);
   }
 
   mag_soft_bias_plot_ = new QwtPlot2();
+  mag_soft_bias_plot_->setAxisNoLabel(QwtPlot::xBottom);
   for (size_t i = 0; i < kMagSoftBiasSize; ++i) {
     mag_soft_bias_curves_[i].setPen(kSoftBiasColor[i], kLineWidth);
     mag_soft_bias_curves_[i].attach(mag_soft_bias_plot_);
   }
 
   gravity_plot_ = new QwtPlot2();
+  gravity_plot_->setAxisNoLabel(QwtPlot::xBottom);
   gravity_curve_.setPen(Qt::black, kLineWidth);
   gravity_curve_.attach(gravity_plot_);
 
   gnss_anomaly_score_plot_ = new QwtPlot2();
+  gnss_anomaly_score_plot_->setAxisNoLabel(QwtPlot::xBottom);
   gnss_anomaly_score_curve_.setPen(Qt::black, kLineWidth);
   gnss_anomaly_score_curve_.attach(gnss_anomaly_score_plot_);
 
