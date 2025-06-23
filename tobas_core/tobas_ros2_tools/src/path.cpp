@@ -18,7 +18,7 @@ fs::path resolveURI(const string& uri)
   static constexpr char kAbsPathPrefix[] = "file://";
 
   if (uri.starts_with(kPackagePrefix)) {
-    const auto pkg_name = str::split(str::lstrip(uri, kPackagePrefix), '/').at(0);
+    const auto pkg_name = str::split(str::lstrip(uri, kPackagePrefix), '/').front();
     const auto rest_of_path = str::lstrip(uri, string(kPackagePrefix) + pkg_name + '/');
     const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(pkg_name));
     return pkg_path / rest_of_path;

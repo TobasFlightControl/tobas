@@ -162,7 +162,7 @@ void GazeboFixedWingPlugin::Configure(
     }
 
     // Check joint limits
-    const auto joint_axis = joint->Axis(ecm).value().at(0);
+    const auto joint_axis = joint->Axis(ecm).value().front();
     if (joint_axis.Lower() >= joint_axis.Upper()) {
       TOBAS_EXIT("The position limit of ", link_name, " is invalid.");
     }
@@ -348,7 +348,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 
 double GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const string& link_name) const
 {
-  return cs_joints_.at(link_name)->Position(ecm).value().at(0);
+  return cs_joints_.at(link_name)->Position(ecm).value().front();
 }
 
 double GazeboFixedWingPlugin::liftCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const

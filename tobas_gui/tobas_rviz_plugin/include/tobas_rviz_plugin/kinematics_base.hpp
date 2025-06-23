@@ -282,10 +282,11 @@ public:
       // Check if a solution_callback function was provided and call the corresponding function
       if (solution_callback) {
         return searchPositionIK(
-          ik_poses[0], ik_seed_state, timeout, consistency_limits, solution, solution_callback, error_code, options);
+          ik_poses.front(), ik_seed_state, timeout, consistency_limits, solution, solution_callback, error_code, options);
       }
       else {
-        return searchPositionIK(ik_poses[0], ik_seed_state, timeout, consistency_limits, solution, error_code, options);
+        return searchPositionIK(
+          ik_poses.front(), ik_seed_state, timeout, consistency_limits, solution, error_code, options);
       }
     }
 
@@ -440,7 +441,7 @@ public:
         "do not call getTipFrame()");
     }
 
-    return tip_frames_[0];
+    return tip_frames_.front();
   }
 
   /**

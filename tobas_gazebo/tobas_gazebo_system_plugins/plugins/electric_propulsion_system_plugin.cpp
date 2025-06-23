@@ -296,7 +296,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // TODO: II-B. Model of the complete quadrotor
 
   // Get joint axes
-  const auto& local_axis = joint_->Axis(ecm).value().at(0).Xyz();
+  const auto& local_axis = joint_->Axis(ecm).value().front().Xyz();
   const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
 
   // (1) first term: Thrust Force

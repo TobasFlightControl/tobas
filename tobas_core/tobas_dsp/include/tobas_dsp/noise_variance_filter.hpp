@@ -46,7 +46,7 @@ bool NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_fre
   hpf_.setValue(init_data);
 
   num_data_ = 1;
-  data_buf_.at(0) = init_data;
+  data_buf_.front() = init_data;
 
   welford_.reset();
   welford_.add(init_data);

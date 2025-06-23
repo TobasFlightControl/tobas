@@ -36,8 +36,8 @@ pid_t createSubprocess(const vector<char*>& _argv)
     cout << endl;
 
     auto argv = _argv;
-    argv.push_back(nullptr);                 // 引数リストの終端
-    return execvp(argv.at(0), argv.data());  // ここでブロッキング
+    argv.push_back(nullptr);                   // 引数リストの終端
+    return execvp(argv.front(), argv.data());  // ここでブロッキング
   }
 }
 

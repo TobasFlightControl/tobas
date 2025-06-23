@@ -20,7 +20,7 @@ QListWidgetItem* ListWidget::selectedItem()
 {
   const auto& selected_items = selectedItems();
   if (selected_items.size() > 0) {
-    return selected_items.at(0);
+    return selected_items.first();
   }
   else {
     return nullptr;
@@ -30,7 +30,7 @@ QListWidgetItem* ListWidget::selectedItem()
 void ListWidget::dropEvent(QDropEvent* event)
 {
   QListWidget::dropEvent(event);
-  Q_EMIT itemMoved(selectedItems().at(0));
+  Q_EMIT itemMoved(selectedItems().first());
 }
 
 bool ListWidgetItem::operator<(const QListWidgetItem& rhs) const

@@ -39,7 +39,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
     return;
   }
 
-  const auto& first_msg = msgs.at(0);
+  const auto& first_msg = msgs.first();
   if (first_msg.pitch_angles.size() != num_rotors_) {
     if (!updateInternalDataStructures(first_msg)) {
       return;

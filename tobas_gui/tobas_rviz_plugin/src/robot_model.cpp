@@ -1318,7 +1318,7 @@ void RobotModel::getVariableRandomPositions(
   std::map<std::string, double>& values) const
 {
   std::vector<double> tmp(variable_count_);
-  getVariableRandomPositions(rng, &tmp[0]);
+  getVariableRandomPositions(rng, &tmp.front());
   values.clear();
   for (std::size_t i = 0; i < variable_names_.size(); ++i) {
     values[variable_names_[i]] = tmp[i];
@@ -1336,7 +1336,7 @@ void RobotModel::getVariableDefaultPositions(double* values) const
 void RobotModel::getVariableDefaultPositions(std::map<std::string, double>& values) const
 {
   std::vector<double> tmp(variable_count_);
-  getVariableDefaultPositions(&tmp[0]);
+  getVariableDefaultPositions(&tmp.front());
   values.clear();
   for (std::size_t i = 0; i < variable_names_.size(); ++i) {
     values[variable_names_[i]] = tmp[i];

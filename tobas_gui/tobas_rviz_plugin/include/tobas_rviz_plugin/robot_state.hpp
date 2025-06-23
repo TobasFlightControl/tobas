@@ -124,7 +124,7 @@ public:
   void setVariablePositions(const std::vector<double>& position)
   {
     assert(robot_model_->getVariableCount() <= position.size());  // checked only in debug mode
-    setVariablePositions(&position[0]);
+    setVariablePositions(&position.front());
   }
 
   /* Set the positions of a set of variables. If unknown variable names are specified, an exception is thrown.
@@ -211,7 +211,7 @@ public:
   void setVariableVelocities(const std::vector<double>& velocity)
   {
     assert(robot_model_->getVariableCount() <= velocity.size());  // checked only in debug mode
-    setVariableVelocities(&velocity[0]);
+    setVariableVelocities(&velocity.front());
   }
 
   /* Set the velocities of a set of variables. If unknown variable names are specified, an exception is thrown.
@@ -303,7 +303,7 @@ public:
   void setVariableAccelerations(const std::vector<double>& acceleration)
   {
     assert(robot_model_->getVariableCount() <= acceleration.size());  // checked only in debug mode
-    setVariableAccelerations(&acceleration[0]);
+    setVariableAccelerations(&acceleration.front());
   }
 
   /* Set the accelerations of a set of variables. If unknown variable names are specified, an exception is
@@ -393,7 +393,7 @@ public:
   void setVariableEffort(const std::vector<double>& effort)
   {
     assert(robot_model_->getVariableCount() <= effort.size());  // checked only in debug mode
-    setVariableEffort(&effort[0]);
+    setVariableEffort(&effort.front());
   }
 
   /* Set the effort of a set of variables. If unknown variable names are specified, an exception is thrown. */
@@ -454,12 +454,12 @@ public:
 
   void setJointPositions(const std::string& joint_name, const std::vector<double>& position)
   {
-    setJointPositions(robot_model_->getJointModel(joint_name), &position[0]);
+    setJointPositions(robot_model_->getJointModel(joint_name), &position.front());
   }
 
   void setJointPositions(const JointModel* joint, const std::vector<double>& position)
   {
-    setJointPositions(joint, &position[0]);
+    setJointPositions(joint, &position.front());
   }
 
   void setJointPositions(const JointModel* joint, const double* position);
@@ -524,7 +524,7 @@ public:
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
     if (jmg) {
       assert(gstate.size() == jmg->getVariableCount());
-      setJointGroupPositions(jmg, &gstate[0]);
+      setJointGroupPositions(jmg, &gstate.front());
     }
   }
 
@@ -533,7 +533,7 @@ public:
   void setJointGroupPositions(const JointModelGroup* group, const std::vector<double>& gstate)
   {
     assert(gstate.size() == group->getVariableCount());
-    setJointGroupPositions(group, &gstate[0]);
+    setJointGroupPositions(group, &gstate.front());
   }
 
   /* Given positions for the variables that make up a group, in the order found in the group (including values
@@ -597,7 +597,7 @@ public:
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
     if (jmg) {
       gstate.resize(jmg->getVariableCount());
-      copyJointGroupPositions(jmg, &gstate[0]);
+      copyJointGroupPositions(jmg, &gstate.front());
     }
   }
 
@@ -618,7 +618,7 @@ public:
   void copyJointGroupPositions(const JointModelGroup* group, std::vector<double>& gstate) const
   {
     gstate.resize(group->getVariableCount());
-    copyJointGroupPositions(group, &gstate[0]);
+    copyJointGroupPositions(group, &gstate.front());
   }
 
   /* For a given group, copy the position values of the variables that make up the group into another location,
@@ -658,7 +658,7 @@ public:
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
     if (jmg) {
-      setJointGroupVelocities(jmg, &gstate[0]);
+      setJointGroupVelocities(jmg, &gstate.front());
     }
   }
 
@@ -666,7 +666,7 @@ public:
    * of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupVelocities(const JointModelGroup* group, const std::vector<double>& gstate)
   {
-    setJointGroupVelocities(group, &gstate[0]);
+    setJointGroupVelocities(group, &gstate.front());
   }
 
   /* Given velocities for the variables that make up a group, in the order found in the group (including values
@@ -695,7 +695,7 @@ public:
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
     if (jmg) {
       gstate.resize(jmg->getVariableCount());
-      copyJointGroupVelocities(jmg, &gstate[0]);
+      copyJointGroupVelocities(jmg, &gstate.front());
     }
   }
 
@@ -716,7 +716,7 @@ public:
   void copyJointGroupVelocities(const JointModelGroup* group, std::vector<double>& gstate) const
   {
     gstate.resize(group->getVariableCount());
-    copyJointGroupVelocities(group, &gstate[0]);
+    copyJointGroupVelocities(group, &gstate.front());
   }
 
   /* For a given group, copy the velocity values of the variables that make up the group into another location,
@@ -756,7 +756,7 @@ public:
   {
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
     if (jmg) {
-      setJointGroupAccelerations(jmg, &gstate[0]);
+      setJointGroupAccelerations(jmg, &gstate.front());
     }
   }
 
@@ -764,7 +764,7 @@ public:
    * values of mimic joints), set those as the new values that correspond to the group */
   void setJointGroupAccelerations(const JointModelGroup* group, const std::vector<double>& gstate)
   {
-    setJointGroupAccelerations(group, &gstate[0]);
+    setJointGroupAccelerations(group, &gstate.front());
   }
 
   /* Given accelerations for the variables that make up a group, in the order found in the group (including
@@ -793,7 +793,7 @@ public:
     const JointModelGroup* jmg = robot_model_->getJointModelGroup(joint_group_name);
     if (jmg) {
       gstate.resize(jmg->getVariableCount());
-      copyJointGroupAccelerations(jmg, &gstate[0]);
+      copyJointGroupAccelerations(jmg, &gstate.front());
     }
   }
 
@@ -814,7 +814,7 @@ public:
   void copyJointGroupAccelerations(const JointModelGroup* group, std::vector<double>& gstate) const
   {
     gstate.resize(group->getVariableCount());
-    copyJointGroupAccelerations(group, &gstate[0]);
+    copyJointGroupAccelerations(group, &gstate.front());
   }
 
   /* For a given group, copy the acceleration values of the variables that make up the group into another

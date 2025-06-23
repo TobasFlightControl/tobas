@@ -94,7 +94,7 @@ void AvailableLinksWidget::remove(const QString& link_name)
     return;
   }
 
-  takeItem(row(items[0]));
+  takeItem(row(items.front()));
 }
 }  // namespace fixed_wing
 }  // namespace sa

@@ -42,7 +42,7 @@ void RotorSpeedPlotWidget::setData(
     return;
   }
 
-  const auto& first_msg = cur_msgs.at(0);
+  const auto& first_msg = cur_msgs.first();
   if (first_msg.states.size() != num_rotors_) {
     if (!updateInternalDataStructures(first_msg)) {
       return;
