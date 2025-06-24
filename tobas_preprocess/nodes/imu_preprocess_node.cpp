@@ -1,6 +1,6 @@
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
+#include <tobas_dsp/low_pass_filter_p2.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -35,7 +35,7 @@ private:
   std::array<algo::Kahan<double>, 3> gyro_sum_;
 
   tobas_msgs::ImuStamped::ConstSharedPtr imu_raw_;
-  dsp::LowPassFilterP1<kdl::Vector> acc_lpf_, gyro_lpf_;
+  dsp::LowPassFilterP2<kdl::Vector> acc_lpf_, gyro_lpf_;
   dsp::NoiseVarianceFilter<double, 3, kNoiseFilterWindowSize> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::ImuWithCovarianceStamped> imu_pub_;
@@ -50,8 +50,10 @@ private:
 ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super(tobas::node::kImuPreprocess, options)
 {
   // TODO: ノッチフィルタを導入したらカットオフ周波数のデフォルト値を上げる
-  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, 40, 1, 400, " Hz");
-  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, 40, 1, 400, " Hz");
+  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_GYRO_CUTOFF
+  // cf. https://docs.px4.io/main/en/advanced_config/parameter_reference.html#IMU_ACCEL_CUTOFF
+  addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, 30, 1, 100, " Hz");
+  addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, 40, 1, 100, " Hz");
 
   imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
