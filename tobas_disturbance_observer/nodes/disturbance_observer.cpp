@@ -1,5 +1,4 @@
 #include <tobas_constants/constants.hpp>
-#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_node/node.hpp>
@@ -33,12 +32,8 @@ private:
   kdl::TreeInertiaSolver inertia_solver_;
   tobas::TreeJointStateConverter js_converter_;
 
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::RotorStateArray::ConstSharedPtr rotor_states_;
   bool js_received_ = false;
-
-  dsp::LowPassFilterP1<kdl::Vector> force_lpf_;
-  dsp::LowPassFilterP1<kdl::Vector> torque_lpf_;
 
   ros2::PublisherPtr<tobas_kdl_msgs::WrenchStamped> dist_force_pub_;
 
@@ -47,8 +42,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> joint_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-
-  bool cutoffFreqCb(const long& p);
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -60,29 +53,12 @@ private:
 DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& options)
   : super("disturbance_observer", options), fk_solver_(tree_), inertia_solver_(tree_), js_converter_(tree_)
 {
-  addDynamicIntParam("cutoff_frequency", &self::cutoffFreqCb, this, 10, 1, 100, " Hz");
-
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::kDisturbanceForceTopic);
 
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorStatesCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-}
-
-bool DisturbanceObserverNode::cutoffFreqCb(const long& p)
-{
-  if (!force_lpf_.setCutoffFrequency(p)) {
-    TOBAS_ERROR("Failed to set cutoff frequency of force LPF.");
-    return false;
-  }
-
-  if (!torque_lpf_.setCutoffFrequency(p)) {
-    TOBAS_ERROR("Failed to set cutoff frequency of torque LPF.");
-    return false;
-  }
-
-  return true;
 }
 
 void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -98,7 +74,6 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  odom_.reset();
   rotor_states_.reset();
   js_received_ = false;
 
@@ -142,18 +117,6 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   if (joint_states_sub_ && !js_received_) {
     return;
   }
-
-  if (!odom_) {
-    force_lpf_.setValue(kdl::Vector::Zero());
-    torque_lpf_.setValue(kdl::Vector::Zero());
-
-    odom_ = odom;
-    return;
-  }
-
-  // サンプリング時間を計算
-  const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
-  odom_ = odom;
 
   // 順運動学を計算
   if (fk_solver_.JntToCart(js_converter_.getPosition()) < 0) {
@@ -209,15 +172,11 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   const auto force_W = kdl::Vector(0, 0, weight) + W_Rot_B * (mass * acc_B - trans_sum);
   const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 
-  // 外力をLPFに通す
-  force_lpf_.update(force_W, dt);
-  torque_lpf_.update(torque_B, dt);
-
   // 外力メッセージを作成
   auto dist_force_msg = std::make_unique<tobas_kdl_msgs::WrenchStamped>();
   dist_force_msg->header.stamp = odom->header.stamp;
-  dist_force_msg->wrench.force = force_lpf_.getValue();
-  dist_force_msg->wrench.torque = torque_lpf_.getValue();
+  dist_force_msg->wrench.force = force_W;
+  dist_force_msg->wrench.torque = torque_B;
 
   // 外力メッセージを発行
   dist_force_pub_->publish(std::move(dist_force_msg));
