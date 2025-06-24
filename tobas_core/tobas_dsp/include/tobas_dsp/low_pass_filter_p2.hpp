@@ -12,7 +12,11 @@
 
 namespace dsp
 {
-/* Second order low-pass filter. */
+/**
+ * @brief Second order low-pass filter.
+ *
+ * @note The sampling frequency should be at least 20 times the cutoff frequency.
+ */
 template <typename T>
 class LowPassFilterP2 : public BaseFilter<T>
 {

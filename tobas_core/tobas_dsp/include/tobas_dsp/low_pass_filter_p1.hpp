@@ -9,7 +9,11 @@
 
 namespace dsp
 {
-/* First order low-pass filter. */
+/**
+ * @brief First order low-pass filter.
+ *
+ * @note The sampling frequency should be at least 10 times the cutoff frequency.
+ */
 template <typename T>
 class LowPassFilterP1 : public BaseFilter<T>
 {
