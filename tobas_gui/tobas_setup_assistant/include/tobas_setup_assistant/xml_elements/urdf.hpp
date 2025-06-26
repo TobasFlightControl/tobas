@@ -29,11 +29,9 @@ void addIMUPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
-  double gyro_offset_norm,
   double gyro_random_walk,
   double gyro_bias_corr_time,
   double acc_noise_density,
-  double acc_offset_norm,
   double acc_random_walk,
   double acc_bias_corr_time,
   const std::vector<std::string>& rotor_link_names);

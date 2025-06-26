@@ -105,15 +105,6 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(
-                    package="tobas_preprocess",
-                    plugin="ImuPreprocessNode",
-                    namespace=DRONE_NAME,
-                    parameters=[
-                        PathJoinSubstitution([config_pkg_share, "config", "imu_preprocess_dynamic.yaml"]),
-                    ],
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
                     package="tobas_rotor_controller",
                     plugin="RotorControllerNode",
                     namespace=DRONE_NAME,
@@ -143,18 +134,6 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
                     ],
                     remappings=odom_remap,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_preprocess",
-                    plugin="MagPreprocessNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_preprocess",
-                    plugin="AirPressurePreprocessNode",
-                    namespace=DRONE_NAME,
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(

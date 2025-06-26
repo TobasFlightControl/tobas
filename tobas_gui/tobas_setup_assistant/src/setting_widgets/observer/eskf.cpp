@@ -17,18 +17,6 @@ ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  adaptive_imu_noise_ = new QCheckBox("Adaptive IMU Measurement Noise");
-  adaptive_imu_noise_->setChecked(false);
-  rows->addWidget(adaptive_imu_noise_);
-
-  adaptive_mag_noise_ = new QCheckBox("Adaptive Magnetic Field Measurement Noise");
-  adaptive_mag_noise_->setChecked(false);
-  rows->addWidget(adaptive_mag_noise_);
-
-  adaptive_baro_noise_ = new QCheckBox("Adaptive Air Pressure Measurement Noise");
-  adaptive_baro_noise_->setChecked(false);
-  rows->addWidget(adaptive_baro_noise_);
-
   adaptive_gnss_noise_ = new QCheckBox("Adaptive GNSS Measurement Noise");
   adaptive_gnss_noise_->setChecked(true);
   rows->addWidget(adaptive_gnss_noise_);
@@ -98,9 +86,6 @@ YAML::Node ErrorStateKalmanFilterWidget::staticParams() const
   node["frame_id"] = robot_.tree().getRootName();
   node["use_barometer"] = false;  // TODO: 選択できるように
   node["use_gnss"] = gnss_->equipped();
-  node["adaptive_imu_noise"] = adaptive_imu_noise_->isChecked();
-  node["adaptive_mag_noise"] = adaptive_mag_noise_->isChecked();
-  node["adaptive_baro_noise"] = adaptive_baro_noise_->isChecked();
   node["adaptive_gnss_noise"] = adaptive_gnss_noise_->isChecked();
   node["adaptive_grav_noise"] = adaptive_grav_noise_->isChecked();
   node["do_acc_bias_estimation"] = do_acc_bias_estimation_->isChecked();
@@ -119,9 +104,6 @@ YAML::Node ErrorStateKalmanFilterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[adaptive_imu_noise_->text()] = adaptive_imu_noise_->isChecked();
-  node[adaptive_mag_noise_->text()] = adaptive_mag_noise_->isChecked();
-  node[adaptive_baro_noise_->text()] = adaptive_baro_noise_->isChecked();
   node[adaptive_gnss_noise_->text()] = adaptive_gnss_noise_->isChecked();
   node[adaptive_grav_noise_->text()] = adaptive_grav_noise_->isChecked();
   node[do_acc_bias_estimation_->text()] = do_acc_bias_estimation_->isChecked();
@@ -135,9 +117,6 @@ YAML::Node ErrorStateKalmanFilterWidget::dump() const
 
 void ErrorStateKalmanFilterWidget::load(const YAML::Node& node)
 {
-  adaptive_imu_noise_->setChecked(node[adaptive_imu_noise_->text()].as<bool>());
-  adaptive_mag_noise_->setChecked(node[adaptive_mag_noise_->text()].as<bool>());
-  adaptive_baro_noise_->setChecked(node[adaptive_baro_noise_->text()].as<bool>());
   adaptive_gnss_noise_->setChecked(node[adaptive_gnss_noise_->text()].as<bool>());
   adaptive_grav_noise_->setChecked(node[adaptive_grav_noise_->text()].as<bool>());
   do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text()].as<bool>());

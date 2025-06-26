@@ -74,7 +74,7 @@ private Q_SLOTS:
   void onCancelButtonClicked();
   void onFinishButtonClicked();
 
-  void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace hw

@@ -5,12 +5,16 @@
 #include <tobas_kdl_msgs_adapter/vector.hpp>
 #include <tobas_msgs/msg/imu.hpp>
 
+#include "./imu.hpp"
+
 namespace tobas_msgs
 {
 struct Imu
 {
-  kdl::Vector gyro;
+  std_msgs::msg::Header header;
   kdl::Vector accel;
+  kdl::Vector gyro;
+  kdl::Vector dgyro;
 
   using SharedPtr = std::shared_ptr<Imu>;
   using ConstSharedPtr = std::shared_ptr<const Imu>;
@@ -26,14 +30,18 @@ struct rclcpp::TypeAdapter<tobas_msgs::Imu, tobas_msgs::msg::Imu>
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.gyro, dst.gyro);
+    dst.header = src.header;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.accel, dst.accel);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.gyro, dst.gyro);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.dgyro, dst.dgyro);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.gyro, dst.gyro);
+    dst.header = src.header;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.accel, dst.accel);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.gyro, dst.gyro);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.dgyro, dst.dgyro);
   }
 };
 

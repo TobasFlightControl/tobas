@@ -399,9 +399,6 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!createEmptyYaml(common::getRcTeleopDynamicParamsPath(tbs_path), false)) {
     return false;
   }
-  if (!createEmptyYaml(common::getImuPreprocessDynamicParamsPath(tbs_path), false)) {
-    return false;
-  }
 
   // その他
   if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
@@ -700,10 +697,19 @@ bool PackageGenerator::generatePreArmCheckConfig(const fs::path& config_dir)
 
 bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir)
 {
-  const auto node = settings_->controller->staticParams();
-  TOBAS_CHECK(node.IsMap());
+  const auto static_params = settings_->controller->staticParams();
+  TOBAS_CHECK(static_params.IsMap());
 
-  if (!saveYamlNode(config_dir / "controller_static.yaml", node)) {
+  // For component
+  const auto node_component = static_params;
+  if (!saveYamlNode(config_dir / "controller_static.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"][tobas::node::kController][kROSParamsKey] = static_params;
+  if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
     return false;
   }
 
@@ -712,10 +718,19 @@ bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir
 
 bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
 {
-  const auto node = settings_->observer->staticParams();
-  TOBAS_CHECK(node.IsMap());
+  const auto static_params = settings_->observer->staticParams();
+  TOBAS_CHECK(static_params.IsMap());
 
-  if (!saveYamlNode(config_dir / "observer_static.yaml", node)) {
+  // For component
+  const auto node_component = static_params;
+  if (!saveYamlNode(config_dir / "observer_static.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"][tobas::node::kObserver][kROSParamsKey] = static_params;
+  if (!saveYamlNode(config_dir / "observer_static_standalone.yaml", node_standalone)) {
     return false;
   }
 
@@ -725,12 +740,21 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
 bool PackageGenerator::generateRcTeleopStaticConfig(const fs::path& config_dir)
 {
   // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
-  YAML::Node node(YAML::NodeType::Map);
-  node["acrobat_mode"] = settings_->controller->acrobatModeCommand();
-  node["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
-  node["loiter_mode"] = settings_->controller->loiterModeCommand();
+  YAML::Node static_params(YAML::NodeType::Map);
+  static_params["acrobat_mode"] = settings_->controller->acrobatModeCommand();
+  static_params["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
+  static_params["loiter_mode"] = settings_->controller->loiterModeCommand();
 
-  if (!saveYamlNode(config_dir / "rc_teleop_static.yaml", node)) {
+  // For component
+  const auto node_component = static_params;
+  if (!saveYamlNode(config_dir / "rc_teleop_static.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"][tobas::node::kRcTeleop][kROSParamsKey] = static_params;
+  if (!saveYamlNode(config_dir / "rc_teleop_static_standalone.yaml", node_standalone)) {
     return false;
   }
 
@@ -949,11 +973,9 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     imu->updateRate(),
     imu->offset(),
     imu->gyroNoiseDensity(),
-    imu->gyroOffsetNorm(),
     imu->gyroRandomWalk(),
     imu->gyroBiasCorrTime(),
     imu->accNoiseDensity(),
-    imu->accOffsetNorm(),
     imu->accRandomWalk(),
     imu->accBiasCorrTime(),
     rotor_link_names);

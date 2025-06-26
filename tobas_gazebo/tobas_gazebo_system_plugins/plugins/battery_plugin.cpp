@@ -75,7 +75,6 @@ private:
   ros2::ServiceServerPtr<std_srvs::srv::Empty> charge_srv_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerPubSub();
   double currentVoltage();
 
   void chargeCb(
@@ -102,7 +101,24 @@ void GazeboBatteryPlugin::Configure(
   voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
-  registerPubSub();
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
+
+  // モータ状態のコールバックとサブスクライバを設定
+  for (const auto& link_name : rotor_link_names_) {
+    const auto topic = path::join(kRotorStateGtTopicNS, link_name);
+    const auto qos = ros2::makeQoS(false, false, 1);
+    const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
+    {
+      if (msg->current < 0.) {
+        TOBAS_WARN("Battery current must be non-negative.");
+      }
+      rotor_currents_[link_name] = msg->current;
+    };
+    const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
+    rotor_state_subs_.push_back(sub);
+  }
+
   charge_srv_ = createService<std_srvs::srv::Empty>(kChargeBatterySrv, &self::chargeCb, this);
 }
 
@@ -117,25 +133,6 @@ void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
   getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, NON_NEGATIVE);
   getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
-}
-
-void GazeboBatteryPlugin::registerPubSub()
-{
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
-
-  // モータ状態のコールバックとサブスクライバを設定
-  for (const auto& link_name : rotor_link_names_) {
-    const auto topic = path::join(kRotorStateGtTopicNS, link_name);
-    const auto qos = ros2::makeQoS(false, false, 1);
-    const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
-    {
-      assert(msg->current >= 0.);
-      rotor_currents_[link_name] = msg->current;
-    };
-    const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
-    rotor_state_subs_.push_back(sub);
-  }
 }
 
 void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

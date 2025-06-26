@@ -116,11 +116,9 @@ void addIMUPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
-  double gyro_offset_norm,
   double gyro_random_walk,
   double gyro_bias_corr_time,
   double acc_noise_density,
-  double acc_offset_norm,
   double acc_random_walk,
   double acc_bias_corr_time,
   const std::vector<std::string>& rotor_link_names)
@@ -133,11 +131,9 @@ void addIMUPlugin(
   plugin->InsertNewChildElement("gyroNoiseDensity")->SetText(gyro_noise_density);
   plugin->InsertNewChildElement("gyroRandomWalk")->SetText(gyro_random_walk);
   plugin->InsertNewChildElement("gyroBiasCorrelationTime")->SetText(gyro_bias_corr_time);
-  plugin->InsertNewChildElement("gyroOffsetNorm")->SetText(gyro_offset_norm);
   plugin->InsertNewChildElement("accelNoiseDensity")->SetText(acc_noise_density);
   plugin->InsertNewChildElement("accelRandomWalk")->SetText(acc_random_walk);
   plugin->InsertNewChildElement("accelBiasCorrelationTime")->SetText(acc_bias_corr_time);
-  plugin->InsertNewChildElement("accelOffsetNorm")->SetText(acc_offset_norm);
   addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 

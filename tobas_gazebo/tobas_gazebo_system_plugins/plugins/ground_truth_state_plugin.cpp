@@ -118,6 +118,12 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
   // Update angular acceleration (Local)
   vectorGazeboToKDL(dgyro_B_->Data(), odom->accel.angular);
 
+  // Update covariances
+  odom->position_covariance.setZero();
+  odom->orientation_covariance.setZero();
+  odom->velocity_covariance.setZero();
+  odom->gyro_covariance.setZero();
+
   // Publish state message
   odom_pub_->publish(move(odom));
 }

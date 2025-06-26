@@ -2,7 +2,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/constants.hpp>
 
-#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 
 using namespace std;
 
@@ -18,22 +18,22 @@ public:
 
 private:
   size_t not_updated_cnt_ = 0;
-  tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr prev_pres_;
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr prev_pres_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::FluidPressureStamped> pres_pub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureStamped> pres_sub_;
+  ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> pres_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> pres_sub_;
 
-  void airPressureCb(const tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr& pres_in);
+  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pres_in);
 };
 
 BarometerHandlerNode::BarometerHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_barometer_handler", options)
 {
-  pres_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
+  pres_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
   pres_sub_ = createSubscriber(real::kAirPressureTopic, &self::airPressureCb, this);
 }
 
-void BarometerHandlerNode::airPressureCb(const tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr& pres_in)
+void BarometerHandlerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pres_in)
 {
   // First message
   if (!prev_pres_) {
@@ -59,7 +59,7 @@ void BarometerHandlerNode::airPressureCb(const tobas_msgs::msg::FluidPressureSta
   prev_pres_ = pres_in;
 
   // Publish a calibrated data
-  auto pres_out = std::make_unique<tobas_msgs::msg::FluidPressureStamped>(*pres_in);
+  auto pres_out = std::make_unique<tobas_msgs::msg::FluidPressure>(*pres_in);
   pres_pub_->publish(move(pres_out));
 }
 

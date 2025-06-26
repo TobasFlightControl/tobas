@@ -18,10 +18,10 @@
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
-#include <tobas_msgs/msg/imu_stamped.hpp>
+#include <tobas_msgs/msg/imu.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
-#include <tobas_msgs/msg/magnetic_field_stamped.hpp>
+#include <tobas_msgs/msg/magnetic_field.hpp>
 #include <tobas_msgs/msg/odometry.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -120,8 +120,8 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Arming>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
   addTopicLogicToIface<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic, tobas::kPostArmCheckTopic);
-  addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(tobas::addThrotNS(real::kImuTopic), real::kImuTopic);
-  addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(real::kImuRawTopic), real::kImuRawTopic);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);
 
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
@@ -143,7 +143,6 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kRcTeleop, tobas::kGetDynamicParamsSrv));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kImuPreprocess, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetImuParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetRcInputParams>(real::handler::rcin::kSetParamSrv);

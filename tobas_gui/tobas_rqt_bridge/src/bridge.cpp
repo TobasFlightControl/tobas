@@ -27,8 +27,8 @@ void RosQtBridge::initialize(const std::string& ns)
   add<tobas_msgs::msg::RotorStateArray, &self::rotorStatesReceived>(ns, tobas::kRotorStatesTopic);
   add<tobas_msgs::msg::Sbus, &self::sbusReceived>(ns, tobas::kSbusTopic);
   add<tobas_msgs::Gnss, &self::gnssReceived>(ns, tobas::kGnssTopic);
-  add<tobas_msgs::ImuStamped, &self::rawImuReceived>(ns, real::kImuTopic);
-  add<tobas_msgs::MagneticFieldStamped, &self::rawMagReceived>(ns, real::kMagTopic);
+  add<tobas_msgs::Imu, &self::rawImuReceived>(ns, real::kImuRawTopic);
+  add<tobas_msgs::MagneticField, &self::rawMagReceived>(ns, real::kMagTopic);
   add<tobas_msgs::Odometry, &self::odomReceived>(ns, tobas::kOdometryTopic);
   add<tobas_msgs::RCInput, &self::rcInputReceived>(ns, tobas::kRcInputTopic);
   add<tobas_std_msgs::msg::Message, &self::messageReceived>(ns, tobas::kMessageTopic);

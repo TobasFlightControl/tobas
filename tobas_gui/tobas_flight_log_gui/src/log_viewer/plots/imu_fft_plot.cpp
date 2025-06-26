@@ -32,7 +32,7 @@ ImuFftPlotWidget::ImuFftPlotWidget()
   }
 }
 
-void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_msgs)
+void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs)
 {
   const auto n = static_cast<size_t>(imu_msgs.size());
 
@@ -43,12 +43,12 @@ void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_m
   // データ収集
   std::array<std::vector<double>, kNumAxes> imu_data;
   for (const auto& imu : imu_msgs) {
-    const auto& accel = imu.imu.accel;
+    const auto& accel = imu.accel;
     imu_data[0].push_back(accel.x);
     imu_data[1].push_back(accel.y);
     imu_data[2].push_back(accel.z);
 
-    const auto& gyro = imu.imu.gyro;
+    const auto& gyro = imu.gyro;
     imu_data[3].push_back(gyro.x);
     imu_data[4].push_back(gyro.y);
     imu_data[5].push_back(gyro.z);

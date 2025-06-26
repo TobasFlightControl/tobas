@@ -1,0 +1,6 @@
+uint8 accel_cutoff  # [Hz]
+uint8 gyro_cutoff   # [Hz]
+uint8 dgyro_cutoff  # [Hz]
+---
+bool success
+string message

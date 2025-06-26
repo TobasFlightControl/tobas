@@ -79,7 +79,7 @@ void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const Sr
 {
   if (pt_.get(keyWithSection(req->section, req->key), res->value)) {
     res->success = true;
-    res->message = "";
+    res->message.clear();
   }
   else {
     res->success = false;
@@ -93,7 +93,7 @@ void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const Sr
   pt_.set(keyWithSection(req->section, req->key), req->value);
 
   res->success = true;
-  res->message = "";
+  res->message.clear();
 }
 
 void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
@@ -104,7 +104,7 @@ void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const T
   }
 
   res->success = true;
-  res->message = "";
+  res->message.clear();
 }
 
 inline string PropertyServer::keyWithSection(const string& section, const string& key)

@@ -29,7 +29,6 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node) : ssh
   controller_params_ = new ParamBlockWidget(node, "Flight Controller");
   observer_params_ = new ParamBlockWidget(node, "State Estimator");
   rc_teleop_params_ = new ParamBlockWidget(node, "Radio Control");
-  imu_preprocess_params_ = new ParamBlockWidget(node, "IMU Preprocess");
 
   reset();
 
@@ -48,7 +47,6 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node) : ssh
   param_rows->addWidget(controller_params_);
   param_rows->addWidget(observer_params_);
   param_rows->addWidget(rc_teleop_params_);
-  param_rows->addWidget(imu_preprocess_params_);
   param_rows->addStretch();
 
   // Connection
@@ -66,12 +64,10 @@ void ParameterTuningWidget::reset()
   controller_params_->clear();
   observer_params_->clear();
   rc_teleop_params_->clear();
-  imu_preprocess_params_->clear();
 
   controller_params_->setVisible(false);
   observer_params_->setVisible(false);
   rc_teleop_params_->setVisible(false);
-  imu_preprocess_params_->setVisible(false);
 }
 
 bool ParameterTuningWidget::updateTBSPath(const fs::path& tbs_path)
@@ -99,9 +95,6 @@ bool ParameterTuningWidget::saveLocal()
   if (!rc_teleop_params_->saveLocal(common::getRcTeleopDynamicParamsPath(tbs_path_))) {
     return false;
   }
-  if (!imu_preprocess_params_->saveLocal(common::getImuPreprocessDynamicParamsPath(tbs_path_))) {
-    return false;
-  }
 
   return true;
 }
@@ -117,9 +110,6 @@ bool ParameterTuningWidget::saveRemote()
     return false;
   }
   if (!rc_teleop_params_->saveRemote(common::getRcTeleopDynamicParamsPath(remote_tbs_path))) {
-    return false;
-  }
-  if (!imu_preprocess_params_->saveRemote(common::getImuPreprocessDynamicParamsPath(remote_tbs_path))) {
     return false;
   }
 
@@ -142,15 +132,11 @@ void ParameterTuningWidget::onLoadButtonClicked()
   if (!rc_teleop_params_->load(drone_.name, tobas::node::kRcTeleop)) {
     return;
   }
-  if (!imu_preprocess_params_->load(drone_.name, tobas::node::kImuPreprocess)) {
-    return;
-  }
 
   // 読み込みと同時に可視化
   controller_params_->setVisible(true);
   observer_params_->setVisible(true);
   rc_teleop_params_->setVisible(true);
-  imu_preprocess_params_->setVisible(true);
 
   save_button_->setEnabled(true);
   reset_button_->setEnabled(true);
@@ -201,10 +187,6 @@ void ParameterTuningWidget::onResetButtonClicked()
   }
 
   if (!rc_teleop_params_->setToDefaults()) {
-    return;
-  }
-
-  if (!imu_preprocess_params_->setToDefaults()) {
     return;
   }
 

@@ -5,7 +5,7 @@
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
+#include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
@@ -26,17 +26,17 @@ private:
   // Config
   math::EllipseTransformer mag_trans_;
 
-  tobas_msgs::MagneticFieldStamped::ConstSharedPtr prev_mag_;
+  tobas_msgs::MagneticField::ConstSharedPtr prev_mag_;
   ptree::PropertyTree pt_;
 
-  ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
-  ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_sub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
+  ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_in);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -112,11 +112,11 @@ bool MagnetometerHandlerNode::getConfig()
 
 void MagnetometerHandlerNode::registerPubSub()
 {
-  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
   mag_sub_ = createSubscriber(real::kMagTopic, &self::magCb, this);
 }
 
-void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_in)
+void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in)
 {
   // First message
   if (!prev_mag_) {
@@ -134,7 +134,7 @@ void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticFieldStamped::Cons
   prev_mag_ = mag_in;
 
   // Publish a calibrated data
-  auto mag_out = std::make_unique<tobas_msgs::MagneticFieldStamped>(*mag_in);
+  auto mag_out = std::make_unique<tobas_msgs::MagneticField>(*mag_in);
   mag_out->mag.data = mag_trans_.transform(mag_in->mag.data);  // Project data to unit sphere
   mag_pub_->publish(move(mag_out));
 }

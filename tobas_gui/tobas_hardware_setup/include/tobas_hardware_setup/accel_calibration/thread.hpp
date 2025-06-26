@@ -43,7 +43,7 @@ private:
   bool getAccelMean(Eigen::Vector3d& des);
 
 private Q_SLOTS:
-  void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
+  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
 };
 }  // namespace hw
 }  // namespace gui

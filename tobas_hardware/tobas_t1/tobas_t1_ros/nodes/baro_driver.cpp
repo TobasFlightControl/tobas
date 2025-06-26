@@ -2,7 +2,7 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_t1_core/ilps22qs.hpp>
 
-#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 
 #include "./common.hpp"
 
@@ -20,7 +20,7 @@ public:
 
 private:
   t1::ILPS22QS baro_;
-  ros2::PublisherPtr<tobas_msgs::msg::FluidPressureStamped> baro_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> baro_pub_;
   ros2::TimerPtr initialize_timer_;
 
   void initialize();
@@ -39,7 +39,7 @@ void BaroDriverNode::initialize()
     return;
   }
 
-  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(real::kAirPressureTopic);
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(real::kAirPressureTopic);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -48,7 +48,7 @@ void BaroDriverNode::initialize()
 void BaroDriverNode::mainTimerCb()
 {
   // Create messages
-  auto msg = std::make_unique<tobas_msgs::msg::FluidPressureStamped>();
+  auto msg = std::make_unique<tobas_msgs::msg::FluidPressure>();
 
   // Fill headers
   msg->header.stamp = get_clock()->now();

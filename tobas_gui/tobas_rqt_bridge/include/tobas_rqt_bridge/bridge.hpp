@@ -29,8 +29,8 @@ Q_SIGNALS:
   void rotorStatesReceived(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
   void sbusReceived(const tobas_msgs::msg::Sbus::ConstSharedPtr& msg);
   void gnssReceived(const tobas_msgs::Gnss::ConstSharedPtr& msg);
-  void rawImuReceived(const tobas_msgs::ImuStamped::ConstSharedPtr& msg);
-  void rawMagReceived(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& msg);
+  void rawImuReceived(const tobas_msgs::Imu::ConstSharedPtr& msg);
+  void rawMagReceived(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
   void odomReceived(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void rcInputReceived(const tobas_msgs::RCInput::ConstSharedPtr& msg);
   void messageReceived(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
