@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_dsp REQUIRED)
 find_package(tobas_ic_drivers REQUIRED)
 find_package(tobas_property_tree REQUIRED)
 find_package(tobas_tools REQUIRED)
@@ -22,6 +23,7 @@ find_package(tobas_hardware_common REQUIRED)
 find_package(tobas_t1_core REQUIRED)
 
 set(AMENT_DEPENDENCIES
+    tobas_dsp
     tobas_ic_drivers
     tobas_property_tree
     tobas_tools
