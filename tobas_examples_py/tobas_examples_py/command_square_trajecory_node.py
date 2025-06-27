@@ -3,6 +3,8 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
+from action_msgs.msg import GoalStatus
+
 from tobas_command_msgs.msg import PosVelYaw
 from tobas_mission_msgs.action import Takeoff
 
@@ -34,11 +36,11 @@ class CommandSquareTrajectoryNode(Node):
         takeoff_goal.duration = self.INTERVAL
 
         # アクションを実行
-        takeoff_result: Takeoff.Result = self._takeoff_client.send_goal(takeoff_goal)
+        takeoff_response: Takeoff.Impl.GetResultService.Response = self._takeoff_client.send_goal(takeoff_goal)
 
         # アクションの結果を取得
-        self._takeoff_client
-        if takeoff_result.success:
+        if takeoff_response.status != GoalStatus.STATUS_SUCCEEDED:
+            takeoff_result = takeoff_response.result
             self.get_logger().error(f"Takeoff action failed: {takeoff_result.message}")
             return
 
