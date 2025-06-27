@@ -65,8 +65,7 @@ class ErrorStateKalmanFilter
 
   // その他
   static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
-  static constexpr double kDoMeasGravMinGValue = 0.1;  // [G]
-  static constexpr double kDoMeasGravMaxGValue = 2.;   // [G]
+  static constexpr double kFreeFallAccelNormThresh = 0.1;  // [G]
 
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Vector<double, kStateSize>;
