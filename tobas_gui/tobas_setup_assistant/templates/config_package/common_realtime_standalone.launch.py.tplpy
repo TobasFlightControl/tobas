@@ -162,6 +162,15 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
+            package="tobas_config_servers",
+            executable="imu_filter_config_server",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
             package="tobas_state_checker",
             executable="pre_arm_checker",
             namespace=DRONE_NAME,

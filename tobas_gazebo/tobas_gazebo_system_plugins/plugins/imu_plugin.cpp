@@ -95,7 +95,7 @@ private:
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_imu_filter_srv_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
@@ -112,12 +112,6 @@ GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0., 1.)
   acc_lpf_.setValue(gz::math::Vector3d::Zero);
   gyro_lpf_.setValue(gz::math::Vector3d::Zero);
   dgyro_lpf_.setValue(gz::math::Vector3d::Zero);
-
-  // TODO: 消す
-  acc_lpf_.setCutoffFrequency(30);
-  gyro_lpf_.setCutoffFrequency(40);
-  dgyro_lpf_.setCutoffFrequency(20);
-  lpf_initialized_ = true;
 }
 
 void GazeboImuPlugin::Configure(
@@ -167,7 +161,7 @@ void GazeboImuPlugin::Configure(
     rotor_state_subs_.push_back(sub);
   }
 
-  config_imu_filter_srv_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
+  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
     tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
 }
 
@@ -330,6 +324,8 @@ void GazeboImuPlugin::configureImuFilterCb(
     res->message = "Failed to set D-gyro LPF cutoff frequency.";
     return;
   }
+
+  lpf_initialized_ = true;
 
   res->success = true;
   res->message.clear();

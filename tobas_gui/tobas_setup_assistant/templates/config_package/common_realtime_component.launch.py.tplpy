@@ -190,6 +190,12 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(
+                    package="tobas_config_servers",
+                    plugin="ImuFilterConfigServer",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
                     package="tobas_state_checker",
                     plugin="PreArmCheckerNode",
                     namespace=DRONE_NAME,
