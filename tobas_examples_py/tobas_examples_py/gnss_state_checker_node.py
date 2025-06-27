@@ -19,7 +19,7 @@ class GnssStateCheckerNode(Node):
 
     def _gnss_callback(self, gnss: Gnss) -> None:
         message = Message()
-        message.stamp = gnss.header.stamp
+        message.header.stamp = gnss.header.stamp
         message.name = self.get_name()
 
         if gnss.fix_type == Gnss.FIX_3D:

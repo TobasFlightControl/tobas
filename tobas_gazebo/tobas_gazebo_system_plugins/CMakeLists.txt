@@ -20,9 +20,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(geometry_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
-find_package(laser_geometry REQUIRED)
+find_package(tobas_dsp REQUIRED)
 find_package(tobas_geomag REQUIRED)
 find_package(tobas_nlp REQUIRED)
 find_package(tobas_node REQUIRED)
@@ -31,6 +30,7 @@ find_package(tobas_wind_model REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
+find_package(tobas_gazebo_conversions REQUIRED)
 find_package(tobas_gazebo_tools REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 
@@ -39,27 +39,28 @@ find_package(gz-sim REQUIRED)
 find_package(gz_plugin_vendor REQUIRED)
 find_package(gz-plugin REQUIRED)
 
+set(AMENT_DEPENDENCIES
+    std_srvs
+    tobas_dsp
+    tobas_geomag
+    tobas_nlp
+    tobas_node
+    tobas_tools
+    tobas_wind_model
+    tobas_msgs_adapter
+    tobas_drone_tools
+    tobas_gazebo_common
+    tobas_gazebo_conversions
+    tobas_gazebo_tools
+    tobas_gazebo_msgs
+)
+
 include_directories(include ${OpenCV_INCLUDE_DIRS})
 
 # Build common library
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(
-  ${PROJECT_NAME}
-  geometry_msgs
-  std_srvs
-  laser_geometry
-  tobas_geomag
-  tobas_nlp
-  tobas_node
-  tobas_tools
-  tobas_wind_model
-  tobas_msgs_adapter
-  tobas_drone_tools
-  tobas_gazebo_common
-  tobas_gazebo_tools
-  tobas_gazebo_msgs
-)
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
 
 # Build each plugin

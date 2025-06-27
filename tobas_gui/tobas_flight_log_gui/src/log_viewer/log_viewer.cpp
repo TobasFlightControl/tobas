@@ -157,7 +157,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
         raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_msg));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuTopic))) {
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
         filt_imu_data_.push_back(imu_cov_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {

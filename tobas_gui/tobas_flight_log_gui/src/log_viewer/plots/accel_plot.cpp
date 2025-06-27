@@ -58,15 +58,15 @@ void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
-    const auto& lin_vel = odom.accel.linear;
-    val_data[0].push_back(lin_vel.x);
-    val_data[1].push_back(lin_vel.y);
-    val_data[2].push_back(lin_vel.z);
+    const auto& lin_acc = odom.accel.linear;
+    val_data[0].push_back(lin_acc.x);
+    val_data[1].push_back(lin_acc.y);
+    val_data[2].push_back(lin_acc.z);
 
-    const auto& ang_vel = odom.accel.angular;
-    val_data[3].push_back(ang_vel.x);
-    val_data[4].push_back(ang_vel.y);
-    val_data[5].push_back(ang_vel.z);
+    const auto& ang_acc = odom.accel.angular;
+    val_data[3].push_back(ang_acc.x);
+    val_data[4].push_back(ang_acc.y);
+    val_data[5].push_back(ang_acc.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
@@ -83,15 +83,15 @@ void AccelPlotWidget::updateTargetSamples(
   for (const auto& ctrl_fb : ctrl_fb_msgs) {
     t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
 
-    const auto& lin_vel = ctrl_fb.target_accel;
-    val_data[0].push_back(lin_vel.x);
-    val_data[1].push_back(lin_vel.y);
-    val_data[2].push_back(lin_vel.z);
+    const auto& lin_acc = ctrl_fb.target_accel;
+    val_data[0].push_back(lin_acc.x);
+    val_data[1].push_back(lin_acc.y);
+    val_data[2].push_back(lin_acc.z);
 
-    const auto& ang_vel = ctrl_fb.target_dgyro;
-    val_data[3].push_back(ang_vel.x);
-    val_data[4].push_back(ang_vel.y);
-    val_data[5].push_back(ang_vel.z);
+    const auto& ang_acc = ctrl_fb.target_dgyro;
+    val_data[3].push_back(ang_acc.x);
+    val_data[4].push_back(ang_acc.y);
+    val_data[5].push_back(ang_acc.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {

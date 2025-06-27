@@ -18,8 +18,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
-#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
-#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
@@ -34,10 +33,8 @@
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_msgs_adapter/imu_stamped.hpp>
-#include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
-#include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/imu.hpp>
+#include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
@@ -76,10 +73,8 @@ private:
   tobas_drone_msgs::msg::Drone drone_;
   tobas_kdl_msgs::msg::Tree tree_;
   tobas_msgs::msg::RCInput rcin_;
-  tobas_msgs::msg::ImuWithCovarianceStamped imu_;
-  tobas_msgs::msg::ImuStamped imu_raw_;
-  tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
-  tobas_msgs::msg::MagneticFieldStamped mag_raw_;
+  tobas_msgs::msg::Imu imu_;
+  tobas_msgs::msg::MagneticField mag_;
   tobas_msgs::msg::Gnss gnss_;
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
@@ -147,8 +142,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<std_msgs::msg::String>(tobas::kRobotDescriptionTopic, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
-  addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
-  addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
+  addStandardMsgSub<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessesTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
@@ -169,10 +163,9 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::kDroneTopic, true, true);
   addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKdlTreeTopic, true, true);
   addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, tobas::kRcInputTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::ImuWithCovarianceStamped>(imu_, tobas::kImuTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::ImuStamped>(imu_raw_, tobas::kImuRawTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldWithCovarianceStamped>(mag_, tobas::kMagTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldStamped>(mag_raw_, tobas::kMagRawTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::kImuRawTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::kImuFiltTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::MagneticField>(mag_, tobas::kMagTopic);
   addTypeAdaptedMsgSub<tobas_msgs::Gnss>(gnss_, tobas::kGnssTopic);
   addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);

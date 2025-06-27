@@ -8,9 +8,8 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>geometry_msgs</depend>
 	<depend>std_srvs</depend>
-	<depend>laser_geometry</depend>
+	<depend>tobas_dsp</depend>
 	<depend>tobas_geomag</depend>
 	<depend>tobas_nlp</depend>
 	<depend>tobas_node</depend>
@@ -19,6 +18,7 @@
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_drone_tools</depend>
 	<depend>tobas_gazebo_common</depend>
+	<depend>tobas_gazebo_conversions</depend>
 	<depend>tobas_gazebo_tools</depend>
 	<depend>tobas_gazebo_msgs</depend>
 

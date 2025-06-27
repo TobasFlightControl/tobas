@@ -1,6 +1,6 @@
-#include "tobas_gazebo_system_plugins/conversions/gazebo_kdl.hpp"
+#include "tobas_gazebo_conversions/gazebo_kdl.hpp"
 
-#include "tobas_gazebo_system_plugins/conversions/gazebo_eigen.hpp"
+#include "tobas_gazebo_conversions/gazebo_eigen.hpp"
 
 using namespace gz::math;
 

@@ -37,9 +37,7 @@ void ImuPlotWidget::setTimeScale(double t_start, double t_stop)
   }
 }
 
-void ImuPlotWidget::setData(
-  const QVector<tobas_msgs::msg::ImuStamped>& raw_msgs,
-  const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_msgs)
+void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& raw_msgs, const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
   updateRawSamples(raw_msgs);
   updateFilteredSamples(filt_msgs);
@@ -49,7 +47,7 @@ void ImuPlotWidget::setData(
   }
 }
 
-void ImuPlotWidget::updateRawSamples(const QVector<tobas_msgs::msg::ImuStamped>& raw_msgs)
+void ImuPlotWidget::updateRawSamples(const QVector<tobas_msgs::msg::Imu>& raw_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -57,12 +55,12 @@ void ImuPlotWidget::updateRawSamples(const QVector<tobas_msgs::msg::ImuStamped>&
   for (const auto& imu : raw_msgs) {
     t_data.push_back(ros2::seconds(imu.header.stamp));
 
-    const auto& accel = imu.imu.accel;
+    const auto& accel = imu.accel;
     val_data[0].push_back(accel.x);
     val_data[1].push_back(accel.y);
     val_data[2].push_back(accel.z);
 
-    const auto& gyro = imu.imu.gyro;
+    const auto& gyro = imu.gyro;
     val_data[3].push_back(gyro.x);
     val_data[4].push_back(gyro.y);
     val_data[5].push_back(gyro.z);
@@ -73,7 +71,7 @@ void ImuPlotWidget::updateRawSamples(const QVector<tobas_msgs::msg::ImuStamped>&
   }
 }
 
-void ImuPlotWidget::updateFilteredSamples(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_msgs)
+void ImuPlotWidget::updateFilteredSamples(const QVector<tobas_msgs::msg::Imu>& filt_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -81,12 +79,12 @@ void ImuPlotWidget::updateFilteredSamples(const QVector<tobas_msgs::msg::ImuWith
   for (const auto& imu : filt_msgs) {
     t_data.push_back(ros2::seconds(imu.header.stamp));
 
-    const auto& accel = imu.imu.imu.accel;
+    const auto& accel = imu.accel;
     val_data[0].push_back(accel.x);
     val_data[1].push_back(accel.y);
     val_data[2].push_back(accel.z);
 
-    const auto& gyro = imu.imu.imu.gyro;
+    const auto& gyro = imu.gyro;
     val_data[3].push_back(gyro.x);
     val_data[4].push_back(gyro.y);
     val_data[5].push_back(gyro.z);

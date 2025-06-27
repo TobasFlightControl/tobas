@@ -623,8 +623,11 @@ T BaseNode::declareParam(const std::string& name)
   try {
     return declare_parameter<T>(name);
   }
-  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException& e) {
-    TOBAS_EXIT(e.what());
+  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
+    TOBAS_EXIT("Parameter \"", name, "\" is not initialized.");
+  }
+  catch (const std::exception& e) {
+    TOBAS_EXIT("Unexptected error while declaring \"", name, "\": ", e.what());
   }
 }
 
@@ -644,6 +647,9 @@ T BaseNode::declareParam(const std::string& name, const T& _default)
     }
 
     return _default;
+  }
+  catch (const std::exception& e) {
+    TOBAS_EXIT("Unexptected error while declaring \"", name, "\": ", e.what());
   }
 }
 }  // namespace tobas

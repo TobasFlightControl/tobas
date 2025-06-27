@@ -27,49 +27,49 @@ std::string getTBSUserCppName(const std::filesystem::path& tbs_path);
 /* 拡張子を除くTobasユーザPythonパッケージ名を返す． */
 std::string getTBSUserPyName(const std::filesystem::path& tbs_path);
 
-/* PC上のバックアップディレクトリの絶対パスを返す． */
+/* バックアップディレクトリの絶対パスを返す． */
 std::filesystem::path getBackupPath(const std::filesystem::path& tbs_path);
 
-/* PC上のTobasメタパッケージの絶対パスを返す． */
+/* Tobasメタパッケージの絶対パスを返す． */
 std::filesystem::path getTBSMetaPath(const std::filesystem::path& tbs_path);
 
-/* PC上のTobas設定パッケージの絶対パスを返す． */
+/* Tobas設定パッケージの絶対パスを返す． */
 std::filesystem::path getTBSConfigPath(const std::filesystem::path& tbs_path);
 
-/* PC上のTobasユーザMsgパッケージの絶対パスを返す． */
+/* TobasユーザMsgパッケージの絶対パスを返す． */
 std::filesystem::path getTBSUserMsgPath(const std::filesystem::path& tbs_path);
 
-/* PC上のTobasユーザC++パッケージの絶対パスを返す． */
+/* TobasユーザC++パッケージの絶対パスを返す． */
 std::filesystem::path getTBSUserCppPath(const std::filesystem::path& tbs_path);
 
-/* PC上のTobasユーザPythonパッケージの絶対パスを返す． */
+/* TobasユーザPythonパッケージの絶対パスを返す． */
 std::filesystem::path getTBSUserPyPath(const std::filesystem::path& tbs_path);
 
-/* PC上の drone.tbsdrn の絶対パスを返す． */
+/* drone.tbsdrn の絶対パスを返す． */
 std::filesystem::path getTBSDRNPath(const std::filesystem::path& tbs_path);
 
-/* PC上の drone.xacro の絶対パスを返す． */
+/* drone.xacro の絶対パスを返す． */
 std::filesystem::path getModifiedURDFPath(const std::filesystem::path& tbs_path);
 
-/* PC上の meshディレクトリの絶対パスを返す． */
+/* meshディレクトリの絶対パスを返す． */
 std::filesystem::path getMeshPath(const std::filesystem::path& tbs_path);
 
-/* PC上の controller_dynamic.yaml の絶対パスを返す． */
-std::filesystem::path getControllerDynamicParamsPath(const std::filesystem::path& tbs_path);
+/* imu_filter_dynamic.yaml の絶対パスを返す． */
+std::filesystem::path getImuFilterDynamicParamsPath(const std::filesystem::path& tbs_path);
 
-/* PC上の observer_dynamic.yaml の絶対パスを返す． */
+/* observer_dynamic.yaml の絶対パスを返す． */
 std::filesystem::path getObserverDynamicParamsPath(const std::filesystem::path& tbs_path);
 
-/* PC上の rc_teleop_dynamic.yaml の絶対パスを返す． */
+/* controller_dynamic.yaml の絶対パスを返す． */
+std::filesystem::path getControllerDynamicParamsPath(const std::filesystem::path& tbs_path);
+
+/* rc_teleop_dynamic.yaml の絶対パスを返す． */
 std::filesystem::path getRcTeleopDynamicParamsPath(const std::filesystem::path& tbs_path);
 
-/* PC上の imu_preprocess_dynamic.yaml の絶対パスを返す． */
-std::filesystem::path getImuPreprocessDynamicParamsPath(const std::filesystem::path& tbs_path);
-
-/* PC上のバックアップ用設定ファイルの絶対パスを返す． */
+/* バックアップ用設定ファイルの絶対パスを返す． */
 std::filesystem::path getSettingsPath(const std::filesystem::path& tbs_path);
 
-/* PC上のバックアップ用オリジナルURDFの絶対パスを返す． */
+/* バックアップ用オリジナルURDFの絶対パスを返す． */
 std::filesystem::path getOriginalURDFPath(const std::filesystem::path& tbs_path);
 }  // namespace common
 }  // namespace gui

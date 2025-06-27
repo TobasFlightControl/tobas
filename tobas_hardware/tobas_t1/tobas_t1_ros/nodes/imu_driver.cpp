@@ -1,9 +1,12 @@
+#include <tobas_constants/constants.hpp>
+#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
-#include <tobas_msgs_adapter/imu_stamped.hpp>
+#include <tobas_msgs/srv/configure_imu_filter.hpp>
+#include <tobas_msgs_adapter/imu.hpp>
 
 #include "./common.hpp"
 
@@ -12,7 +15,7 @@ using namespace std;
 class ImuDriverNode : public hardware::BaseSensorNode
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.0";
-  static constexpr auto kSamplingPeriod = 2500us;  // 400Hz
+  static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
 
   using self = ImuDriverNode;
   using super = hardware::BaseSensorNode;
@@ -22,32 +25,46 @@ public:
 
 private:
   stm::ISM330DLC imu_;
-  ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
-  tobas::ImuSamplingTimePublisher sampling_time_pub_;
-  ros2::TimerPtr initialize_timer_;
 
-  void initialize();
+  kdl::Vector acc_raw_, gyro_raw_, prev_gyro_raw_;
+  dsp::LowPassFilterP1<kdl::Vector> acc_lpf_, gyro_lpf_, dgyro_lpf_;
+  bool lpf_initialized_ = false;
+  bool pub_switch_ = false;
+
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
+  tobas::ImuSamplingTimePublisher sampling_time_pub_;
+
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
+
+  ros2::TimerPtr init_imu_driver_timer_;
+
   bool initializeImuDriver();
 
+  void configureImuFilterCb(
+    const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res);
+
+  void initiImuDriverTimerCb();
   void mainTimerCb();
 };
 
 ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("t1_imu_driver", options)
 {
-  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initialize, this);
-}
+  prev_gyro_raw_.setZero();
 
-void ImuDriverNode::initialize()
-{
-  if (!initializeImuDriver()) {
-    return;
-  }
+  acc_lpf_.setValue(kdl::Vector::Zero());
+  gyro_lpf_.setValue(kdl::Vector::Zero());
+  dgyro_lpf_.setValue(kdl::Vector::Zero());
 
-  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(real::kImuTopic);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuRawTopic);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuFiltTopic);
   sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
 
-  initialize_timer_->cancel();
-  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
+    tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
+
+  init_imu_driver_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initiImuDriverTimerCb, this);
 }
 
 bool ImuDriverNode::initializeImuDriver()
@@ -80,27 +97,93 @@ bool ImuDriverNode::initializeImuDriver()
   return true;
 }
 
+void ImuDriverNode::configureImuFilterCb(
+  const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res)
+{
+  if (!acc_lpf_.setCutoffFrequency(req->accel_cutoff)) {
+    res->success = false;
+    res->message = "Failed to set accel LPF cutoff frequency.";
+    return;
+  }
+
+  if (!gyro_lpf_.setCutoffFrequency(req->gyro_cutoff)) {
+    res->success = false;
+    res->message = "Failed to set gyro LPF cutoff frequency.";
+    return;
+  }
+
+  if (!dgyro_lpf_.setCutoffFrequency(req->dgyro_cutoff)) {
+    res->success = false;
+    res->message = "Failed to set D-gyro LPF cutoff frequency.";
+    return;
+  }
+
+  lpf_initialized_ = true;
+
+  res->success = true;
+  res->message.clear();
+}
+
+void ImuDriverNode::initiImuDriverTimerCb()
+{
+  if (!initializeImuDriver()) {
+    return;
+  }
+
+  init_imu_driver_timer_->cancel();
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+}
+
 void ImuDriverNode::mainTimerCb()
 {
   // Get current time
   const auto now = get_clock()->now();
 
-  // Create IMU message
-  auto msg = std::make_unique<tobas_msgs::ImuStamped>();
-  msg->header.stamp = now;
-
   // Read IMU data
-  if (!imu_.readAccel(msg->imu.accel.x(), msg->imu.accel.y(), msg->imu.accel.z())) {
+  if (!imu_.readAccel(acc_raw_.x(), acc_raw_.y(), acc_raw_.z())) {
     TOBAS_FATAL("Failed to read accelerometer.");
     return;
   }
-  if (!imu_.readGyro(msg->imu.gyro.x(), msg->imu.gyro.y(), msg->imu.gyro.z())) {
+  if (!imu_.readGyro(gyro_raw_.x(), gyro_raw_.y(), gyro_raw_.z())) {
     TOBAS_FATAL("Failed to read gyroscope.");
     return;
   }
 
-  // Publish IMU message
-  imu_pub_->publish(move(msg));
+  // Compute D-Gyro
+  constexpr auto dt = static_cast<double>(kSamplingPeriod.count()) * 1e-6;
+  const auto dgyro_raw = (gyro_raw_ - prev_gyro_raw_) / dt;
+  prev_gyro_raw_ = gyro_raw_;
+
+  // Filter IMU data
+  if (lpf_initialized_) {
+    acc_lpf_.update(acc_raw_, dt);
+    gyro_lpf_.update(gyro_raw_, dt);
+    dgyro_lpf_.update(dgyro_raw, dt);
+  }
+
+  // 生データとフィルタ済みデータを交互に発行
+  if (pub_switch_) {
+    // Publish raw IMU message
+    auto imu_raw = std::make_unique<tobas_msgs::Imu>();
+    imu_raw->header.stamp = now;
+    imu_raw->accel = acc_raw_;
+    imu_raw->gyro = gyro_raw_;
+    imu_raw->dgyro = dgyro_raw;
+    imu_raw_pub_->publish(move(imu_raw));
+  }
+  else {
+    if (lpf_initialized_) {
+      // Publish filtered IMU message
+      auto imu_filt = std::make_unique<tobas_msgs::Imu>();
+      imu_filt->header.stamp = now;
+      imu_filt->accel = acc_lpf_.getValue();
+      imu_filt->gyro = gyro_lpf_.getValue();
+      imu_filt->dgyro = dgyro_lpf_.getValue();
+      imu_filt_pub_->publish(move(imu_filt));
+    }
+  }
+  pub_switch_ = !pub_switch_;
 
   // Publish sampling time
   sampling_time_pub_.publish(now);

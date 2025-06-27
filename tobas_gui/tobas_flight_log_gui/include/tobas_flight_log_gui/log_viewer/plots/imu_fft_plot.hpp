@@ -2,7 +2,7 @@
 
 #include <eigen3/unsupported/Eigen/FFT>
 
-#include <tobas_msgs/msg/imu_stamped.hpp>
+#include <tobas_msgs/msg/imu.hpp>
 
 #include "./common.hpp"
 
@@ -19,7 +19,7 @@ class ImuFftPlotWidget : public QWidget
 public:
   explicit ImuFftPlotWidget();
 
-  void setData(const QVector<tobas_msgs::msg::ImuStamped>& imu_msgs);
+  void setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs);
 
 private:
   Eigen::FFT<double> fft_;

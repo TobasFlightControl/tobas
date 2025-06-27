@@ -29,7 +29,7 @@ void MagPlotWidget::setTimeScale(double t_start, double t_stop)
   }
 }
 
-void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& mag_msgs)
+void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& mag_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, 3> mag_data;
@@ -37,9 +37,9 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticFieldWithCova
   for (const auto& mag : mag_msgs) {
     t_data.push_back(ros2::seconds(mag.header.stamp));
 
-    mag_data[0].push_back(mag.mag.mag.x);
-    mag_data[1].push_back(mag.mag.mag.y);
-    mag_data[2].push_back(mag.mag.mag.z);
+    mag_data[0].push_back(mag.mag.x);
+    mag_data[1].push_back(mag.mag.y);
+    mag_data[2].push_back(mag.mag.z);
   }
 
   for (size_t i = 0; i < 3; ++i) {

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_gazebo_tools)
+project(tobas_gazebo_conversions)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
@@ -20,17 +20,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(gz_sim_vendor REQUIRED)
-find_package(gz-sim REQUIRED)
+find_package(gz_math_vendor REQUIRED)
+find_package(gz-math REQUIRED)
+find_package(gz_msgs_vendor REQUIRED)
+find_package(gz-msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tobas_kdl REQUIRED)
 
-set(AMENT_DEPENDENCIES)
+set(AMENT_DEPENDENCIES geometry_msgs tobas_kdl)
 
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim)
+target_link_libraries(${PROJECT_NAME} gz-math::gz-math gz-msgs::gz-msgs)
 
 install(
   TARGETS ${PROJECT_NAME}

@@ -51,7 +51,7 @@ def generate_launch_description():
             executable="observer",
             name="observer",
             namespace=DRONE_NAME,
-            parameters=[],  # TODO
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "observer_static_standalone.yaml"])],
             remappings=tf_remap,
             ros_arguments=ros_args,
             output=output,
@@ -63,17 +63,8 @@ def generate_launch_description():
             executable="controller",
             name="controller",
             namespace=DRONE_NAME,
-            parameters=[],  # TODO
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "controller_static_standalone.yaml"])],
             remappings=odom_remap,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_preprocess",
-            executable="imu_preprocess",
-            namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,
         )
@@ -103,26 +94,8 @@ def generate_launch_description():
             package="tobas_rc_teleop",
             executable="rc_teleop",
             namespace=DRONE_NAME,
-            parameters=[],  # TODO
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static_standalone.yaml"])],
             remappings=odom_remap,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_preprocess",
-            executable="mag_preprocess",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_preprocess",
-            executable="air_pressure_preprocess",
-            namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,
         )
@@ -182,6 +155,15 @@ def generate_launch_description():
         Node(
             package="tobas_rosbag_recorder",
             executable="rosbag_recorder",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_config_servers",
+            executable="imu_filter_config_server",
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,

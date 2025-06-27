@@ -216,6 +216,7 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
   }
 
   res->success = true;
+  res->message.clear();
 }
 
 void RotorControllerNode::publishArmingTimerCb()

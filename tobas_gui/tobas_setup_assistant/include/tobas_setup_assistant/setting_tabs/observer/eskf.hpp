@@ -39,9 +39,6 @@ private:
   const BarometerWidget* baro_;
   const GnssWidget* gnss_;
 
-  QCheckBox* adaptive_imu_noise_;
-  QCheckBox* adaptive_mag_noise_;
-  QCheckBox* adaptive_baro_noise_;
   QCheckBox* adaptive_gnss_noise_;
   QCheckBox* adaptive_grav_noise_;
   QCheckBox* do_acc_bias_estimation_;

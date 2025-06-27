@@ -5,12 +5,11 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-#include <tobas_msgs_adapter/imu_stamped.hpp>
+#include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
-using namespace std;
 using namespace real::handler::imu;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 class ImuHandlerNode : public tobas::BaseNode
 {
@@ -18,24 +17,41 @@ class ImuHandlerNode : public tobas::BaseNode
   using super = tobas::BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
+  static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
+  static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
+
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  enum stage_t
+  {
+    MEASURE_GYRO_BIAS,
+    PUBLISH,
+  } stage_ = MEASURE_GYRO_BIAS;
+
   // Config
   kdl::Vector acc_bias_;  // [m/s^2]
 
-  tobas_msgs::ImuStamped::ConstSharedPtr prev_imu_;
+  // ジャイロバイアス関連
+  kdl::Vector gyro_bias_;
+  size_t gyro_bias_cnt_ = 0;
+  std::array<algo::Kahan<double>, 3> gyro_sum_;
+
   ptree::PropertyTree pt_;
 
-  ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
-  ros2::SubscriberPtr<tobas_msgs::ImuStamped> imu_sub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
+  ros2::SubscriberPtr<tobas_msgs::Imu> imu_raw_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Imu> imu_filt_sub_;
+
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in);
+  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_in);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -54,8 +70,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real
     return;
   }
 
-  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
+  registerPubSub();
 }
 
 bool ImuHandlerNode::getConfig()
@@ -80,35 +95,72 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
+  imu_raw_sub_ = createSubscriber(real::kImuRawTopic, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(real::kImuFiltTopic, &self::imuFiltCb, this);
 }
 
-void ImuHandlerNode::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in)
+void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 {
-  // First message
-  if (!prev_imu_) {
-    prev_imu_ = imu_in;
+  switch (stage_) {
+    case MEASURE_GYRO_BIAS: {
+      // 角速度が大きすぎる場合はやり直し
+      if (imu_raw_in->gyro.norm() > kStaticGyroThreshold) {
+        TOBAS_WARN_THROTTLE(
+          1., "Perturbation is detected while measuring gyro bias: ", imu_raw_in->gyro, " [rad/s]. Retrying...");
+        gyro_bias_cnt_ = 0;
+        for (size_t i = 0; i < 3; ++i) {
+          gyro_sum_[i].reset();
+        }
+        break;
+      }
+
+      // 角速度を加算
+      for (size_t i = 0; i < 3; ++i) {
+        gyro_sum_[i].add(imu_raw_in->gyro(i));
+      }
+
+      // データが溜まったら角速度の平均をバイアスの推定値として次のステージに進む
+      if (++gyro_bias_cnt_ == kMeasureGyroBiasCount) {
+        for (size_t i = 0; i < 3; ++i) {
+          gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;
+        }
+        TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_);
+        stage_ = PUBLISH;
+      }
+
+      break;
+    }
+    case PUBLISH: {
+      // Create IMU message
+      auto imu_raw_out = std::make_unique<tobas_msgs::Imu>();
+      imu_raw_out->header = imu_raw_in->header;
+      imu_raw_out->accel = imu_raw_in->accel - acc_bias_;
+      imu_raw_out->gyro = imu_raw_in->gyro - gyro_bias_;
+
+      // Publish message
+      imu_raw_pub_->publish(std::move(imu_raw_out));
+
+      break;
+    }
+  }
+}
+
+void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_in)
+{
+  if (stage_ != PUBLISH) {
     return;
   }
 
-  // Verify that the sensor data is updated
-  if (imu_in->imu.accel == prev_imu_->imu.accel) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Accelerometer data has not been updated—skipping message.");
-    return;
-  }
-  if (imu_in->imu.gyro == prev_imu_->imu.gyro) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Gyroscope data has not been updated—skipping message.");
-    return;
-  }
+  // Create IMU message
+  auto imu_filt_out = std::make_unique<tobas_msgs::Imu>();
+  imu_filt_out->header = imu_filt_in->header;
+  imu_filt_out->accel = imu_filt_in->accel - acc_bias_;
+  imu_filt_out->gyro = imu_filt_in->gyro - gyro_bias_;
 
-  // Update the latest data
-  prev_imu_ = imu_in;
-
-  // Publish a calibrated data
-  auto imu_out = std::make_unique<tobas_msgs::ImuStamped>(*imu_in);
-  imu_out->imu.accel -= acc_bias_;  // Remove accel bias
-  imu_pub_->publish(move(imu_out));
+  // Publish message
+  imu_filt_pub_->publish(std::move(imu_filt_out));
 }
 
 void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res)
@@ -128,7 +180,7 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
     return;
   }
 
-  if (!imu_pub_) {
+  if (!imu_raw_pub_ || !imu_filt_pub_) {
     registerPubSub();
   }
 

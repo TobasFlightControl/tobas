@@ -12,12 +12,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_dsp REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_node tobas_tools tobas_msgs_adapter tobas_drone_msgs_adapter)
+set(AMENT_DEPENDENCIES tobas_dsp tobas_node tobas_tools tobas_msgs_adapter tobas_drone_msgs_adapter)
 
 include_directories(include)
 

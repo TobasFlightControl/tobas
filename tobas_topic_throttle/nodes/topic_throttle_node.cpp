@@ -10,8 +10,8 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
-#include <tobas_msgs_adapter/imu_stamped.hpp>
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
+#include <tobas_msgs_adapter/imu.hpp>
+#include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
@@ -74,8 +74,8 @@ private:
   TopicThrottle<tobas_msgs::msg::RotorStateArray> rotor_states_throttle_;
   TopicThrottle<tobas_msgs::msg::JointStateArray> joint_states_throttle_;
   TopicThrottle<tobas_msgs::Odometry> odom_throttle_;
-  TopicThrottle<tobas_msgs::ImuStamped> real_imu_throttle_;
-  TopicThrottle<tobas_msgs::MagneticFieldStamped> real_mag_throttle_;
+  TopicThrottle<tobas_msgs::Imu> real_imu_throttle_;
+  TopicThrottle<tobas_msgs::MagneticField> real_mag_throttle_;
 
   ros2::TimerPtr initialize_timer_;
 };
@@ -96,7 +96,7 @@ void TopicThrottleNode::initialize()
   rotor_states_throttle_.initialize(node, tobas::kRotorStatesTopic);
   joint_states_throttle_.initialize(node, tobas::kJointStatesTopic);
   odom_throttle_.initialize(node, tobas::kOdometryTopic);
-  real_imu_throttle_.initialize(node, real::kImuTopic);
+  real_imu_throttle_.initialize(node, real::kImuRawTopic);
   real_mag_throttle_.initialize(node, real::kMagTopic);
 
   initialize_timer_->cancel();

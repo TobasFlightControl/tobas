@@ -20,8 +20,6 @@ struct Odometry
   Eigen::Matrix3d orientation_covariance;
   Eigen::Matrix3d velocity_covariance;
   Eigen::Matrix3d gyro_covariance;
-  Eigen::Matrix3d accel_covariance;
-  Eigen::Matrix3d dgyro_covariance;
   int8_t status;
 
   using SharedPtr = std::shared_ptr<Odometry>;
@@ -46,8 +44,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::Odometry, tobas_msgs::msg::Odometry>
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.orientation_covariance, dst.orientation_covariance);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.velocity_covariance, dst.velocity_covariance);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.gyro_covariance, dst.gyro_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.accel_covariance, dst.accel_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.dgyro_covariance, dst.dgyro_covariance);
     dst.status = src.status;
   }
 
@@ -61,8 +57,6 @@ struct rclcpp::TypeAdapter<tobas_msgs::Odometry, tobas_msgs::msg::Odometry>
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.orientation_covariance, dst.orientation_covariance);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.velocity_covariance, dst.velocity_covariance);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.gyro_covariance, dst.gyro_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.accel_covariance, dst.accel_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.dgyro_covariance, dst.dgyro_covariance);
     dst.status = src.status;
   }
 };

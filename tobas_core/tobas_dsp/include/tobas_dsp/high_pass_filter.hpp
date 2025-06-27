@@ -23,7 +23,7 @@ public:
   bool setCutoffFrequency(const double& fc);
 
 private:
-  double wc_ = NAN;  // [rad/s]
+  double wc_ = std::numeric_limits<double>::max();  // [rad/s]
   T y_, prev_u_;
 };
 

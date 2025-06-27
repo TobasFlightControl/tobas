@@ -1,5 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_wind_model/dryden.hpp>
 
@@ -8,7 +9,6 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

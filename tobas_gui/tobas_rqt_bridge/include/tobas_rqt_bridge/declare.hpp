@@ -14,8 +14,8 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_msgs_adapter/imu_stamped.hpp>
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
+#include <tobas_msgs_adapter/imu.hpp>
+#include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
@@ -33,8 +33,8 @@ Q_DECLARE_METATYPE(tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::RotorStateArray::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Sbus::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::Gnss::ConstSharedPtr);
-Q_DECLARE_METATYPE(tobas_msgs::ImuStamped::ConstSharedPtr);
-Q_DECLARE_METATYPE(tobas_msgs::MagneticFieldStamped::ConstSharedPtr);
+Q_DECLARE_METATYPE(tobas_msgs::Imu::ConstSharedPtr);
+Q_DECLARE_METATYPE(tobas_msgs::MagneticField::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::Odometry::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::RCInput::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_std_msgs::msg::Message::ConstSharedPtr);

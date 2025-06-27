@@ -90,9 +90,9 @@ fs::path getMeshPath(const fs::path& tbs_path)
   return getTBSConfigPath(tbs_path) / "mesh";
 }
 
-fs::path getControllerDynamicParamsPath(const fs::path& tbs_path)
+fs::path getImuFilterDynamicParamsPath(const fs::path& tbs_path)
 {
-  return getTBSConfigPath(tbs_path) / "config" / "controller_dynamic.yaml";
+  return getTBSConfigPath(tbs_path) / "config" / "imu_filter_dynamic.yaml";
 }
 
 fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
@@ -100,14 +100,14 @@ fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
   return getTBSConfigPath(tbs_path) / "config" / "observer_dynamic.yaml";
 }
 
+fs::path getControllerDynamicParamsPath(const fs::path& tbs_path)
+{
+  return getTBSConfigPath(tbs_path) / "config" / "controller_dynamic.yaml";
+}
+
 fs::path getRcTeleopDynamicParamsPath(const fs::path& tbs_path)
 {
   return getTBSConfigPath(tbs_path) / "config" / "rc_teleop_dynamic.yaml";
-}
-
-fs::path getImuPreprocessDynamicParamsPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "config" / "imu_preprocess_dynamic.yaml";
 }
 
 fs::path getSettingsPath(const fs::path& tbs_path)

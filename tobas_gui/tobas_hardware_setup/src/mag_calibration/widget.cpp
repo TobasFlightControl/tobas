@@ -314,7 +314,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
 }
 
-void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
+void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw)
 {
   // 最初のデータからスケールを決定
   if (cnt_ == 0) {

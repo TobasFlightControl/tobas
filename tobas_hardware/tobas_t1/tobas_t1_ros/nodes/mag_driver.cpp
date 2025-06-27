@@ -2,7 +2,7 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_t1_core/iis2mdc.hpp>
 
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
+#include <tobas_msgs_adapter/magnetic_field.hpp>
 
 #include "./common.hpp"
 
@@ -20,7 +20,7 @@ public:
 
 private:
   t1::IIS2MDC mag_;
-  ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::TimerPtr initialize_timer_;
 
   void initialize();
@@ -39,7 +39,7 @@ void MagDriverNode::initialize()
     return;
   }
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::kMagTopic);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
@@ -48,7 +48,7 @@ void MagDriverNode::initialize()
 void MagDriverNode::mainTimerCb()
 {
   // Create messages
-  auto msg = std::make_unique<tobas_msgs::MagneticFieldStamped>();
+  auto msg = std::make_unique<tobas_msgs::MagneticField>();
 
   // Fill headers
   msg->header.stamp = get_clock()->now();

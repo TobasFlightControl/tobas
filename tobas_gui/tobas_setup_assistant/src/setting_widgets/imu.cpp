@@ -25,12 +25,6 @@ ImuWidget::ImuWidget()
   gyro_noise_density_->setSuffix(" mdps/√Hz");
   addWidget(gyro_noise_density_);
 
-  gyro_offset_norm_ = new ParamGetterWidget_SpinBox("Gyroscope Initial Offset Norm", "");  // TODO
-  gyro_offset_norm_->setMinimum(0);
-  gyro_offset_norm_->setValue(2);  // ISM330DLC
-  gyro_offset_norm_->setSuffix(" dps");
-  addWidget(gyro_offset_norm_);
-
   gyro_random_walk_ = new ParamGetterWidget_DoubleSpinBox("Gyroscope Bias Random Walk", "");  // TODO
   gyro_random_walk_->setDecimals(6);
   gyro_random_walk_->setMinimum(0.);
@@ -49,12 +43,6 @@ ImuWidget::ImuWidget()
   acc_noise_density_->setValue(170);  // ISM330DLC
   acc_noise_density_->setSuffix(" ug/√Hz");
   addWidget(acc_noise_density_);
-
-  acc_offset_norm_ = new ParamGetterWidget_SpinBox("Accelerometer Initial Offset Norm", "");  // TODO
-  acc_offset_norm_->setMinimum(0.);
-  acc_offset_norm_->setValue(40);  // ISM330DLC
-  acc_offset_norm_->setSuffix(" mg");
-  addWidget(acc_offset_norm_);
 
   acc_random_walk_ = new ParamGetterWidget_DoubleSpinBox("Accelerometer Bias Random Walk", "");  // TODO
   acc_random_walk_->setDecimals(6);
@@ -109,11 +97,9 @@ YAML::Node ImuWidget::dump() const
   node[offset_->name()] = offset_->getValue();
   node[update_rate_->name()] = update_rate_->getValue();
   node[gyro_noise_density_->name()] = gyro_noise_density_->getValue();
-  node[gyro_offset_norm_->name()] = gyro_offset_norm_->getValue();
   node[gyro_random_walk_->name()] = gyro_random_walk_->getValue();
   node[gyro_bias_corr_time_->name()] = gyro_bias_corr_time_->getValue();
   node[acc_noise_density_->name()] = acc_noise_density_->getValue();
-  node[acc_offset_norm_->name()] = acc_offset_norm_->getValue();
   node[acc_random_walk_->name()] = acc_random_walk_->getValue();
   node[acc_bias_corr_time_->name()] = acc_bias_corr_time_->getValue();
 
@@ -125,11 +111,9 @@ void ImuWidget::load(const YAML::Node& node)
   offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
   update_rate_->setValue(node[update_rate_->name()].as<int>());
   gyro_noise_density_->setValue(node[gyro_noise_density_->name()].as<double>());
-  gyro_offset_norm_->setValue(node[gyro_offset_norm_->name()].as<double>());
   gyro_random_walk_->setValue(node[gyro_random_walk_->name()].as<double>());
   gyro_bias_corr_time_->setValue(node[gyro_bias_corr_time_->name()].as<int>());
   acc_noise_density_->setValue(node[acc_noise_density_->name()].as<double>());
-  acc_offset_norm_->setValue(node[acc_offset_norm_->name()].as<double>());
   acc_random_walk_->setValue(node[acc_random_walk_->name()].as<double>());
   acc_bias_corr_time_->setValue(node[acc_bias_corr_time_->name()].as<int>());
 }
@@ -149,11 +133,6 @@ double ImuWidget::gyroNoiseDensity() const
   return (tobas_std::kDeg2Rad * 1e-3) * gyro_noise_density_->getValue();
 }
 
-double ImuWidget::gyroOffsetNorm() const
-{
-  return tobas_std::kDeg2Rad * gyro_offset_norm_->getValue();
-}
-
 double ImuWidget::gyroRandomWalk() const
 {
   return gyro_random_walk_->getValue();
@@ -167,11 +146,6 @@ int ImuWidget::gyroBiasCorrTime() const
 double ImuWidget::accNoiseDensity() const
 {
   return (tobas_std::kGravity * 1e-6) * acc_noise_density_->getValue();
-}
-
-double ImuWidget::accOffsetNorm() const
-{
-  return (tobas_std::kGravity * 1e-3) * acc_offset_norm_->getValue();
 }
 
 double ImuWidget::accRandomWalk() const

@@ -13,6 +13,7 @@
 	<exec_depend>tobas_command_msgs</exec_depend>
 	<exec_depend>tobas_command_msgs_adapter</exec_depend>
 	<exec_depend>tobas_components_rt</exec_depend>
+	<exec_depend>tobas_config_servers</exec_depend>
 	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
@@ -38,7 +39,6 @@
 	<exec_depend>tobas_msgs_adapter</exec_depend>
 	<exec_depend>tobas_node</exec_depend>
 	<exec_depend>tobas_pose_pid</exec_depend>
-	<exec_depend>tobas_preprocess</exec_depend>
 	<exec_depend>tobas_property</exec_depend>
 	<exec_depend>tobas_rc_teleop</exec_depend>
 	<exec_depend>tobas_real</exec_depend>

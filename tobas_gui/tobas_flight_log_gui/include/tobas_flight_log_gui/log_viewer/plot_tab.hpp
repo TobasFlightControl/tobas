@@ -35,9 +35,9 @@ class PlotTabWidget : public qt::TabWidget
 public:
   explicit PlotTabWidget(
     const QVector<tobas_msgs::msg::Odometry>& odom_data,
-    const QVector<tobas_msgs::msg::ImuStamped>& raw_imu_data,
-    const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_imu_data,
-    const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& mag_data,
+    const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
+    const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
+    const QVector<tobas_msgs::msg::MagneticField>& mag_data,
     const QVector<tobas_msgs::msg::Gnss>& gnss_data,
     const QVector<tobas_msgs::msg::Battery>& battery_data,
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
@@ -55,9 +55,9 @@ public:
 
 private:
   const QVector<tobas_msgs::msg::Odometry>& odom_data_;
-  const QVector<tobas_msgs::msg::ImuStamped>& raw_imu_data_;
-  const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& filt_imu_data_;
-  const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& mag_data_;
+  const QVector<tobas_msgs::msg::Imu>& raw_imu_data_;
+  const QVector<tobas_msgs::msg::Imu>& filt_imu_data_;
+  const QVector<tobas_msgs::msg::MagneticField>& mag_data_;
   const QVector<tobas_msgs::msg::Gnss>& gnss_data_;
   const QVector<tobas_msgs::msg::Battery>& battery_data_;
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data_;

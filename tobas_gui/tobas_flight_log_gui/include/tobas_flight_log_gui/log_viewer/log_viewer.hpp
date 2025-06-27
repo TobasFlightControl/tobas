@@ -32,9 +32,9 @@ private:
   std::unordered_set<std::string> decode_fail_topics_;
 
   QVector<tobas_msgs::msg::Odometry> odom_data_;
-  QVector<tobas_msgs::msg::ImuStamped> raw_imu_data_;
-  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> filt_imu_data_;
-  QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data_;
+  QVector<tobas_msgs::msg::Imu> raw_imu_data_;
+  QVector<tobas_msgs::msg::Imu> filt_imu_data_;
+  QVector<tobas_msgs::msg::MagneticField> mag_data_;
   QVector<tobas_msgs::msg::Gnss> gnss_data_;
   QVector<tobas_msgs::msg::Battery> battery_data_;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data_;
@@ -47,9 +47,9 @@ private:
   QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data_;
 
   MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
-  MessageDecoder<tobas_msgs::msg::ImuStamped> imu_decoder_;
-  MessageDecoder<tobas_msgs::msg::ImuWithCovarianceStamped> imu_cov_decoder_;
-  MessageDecoder<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_cov_decoder_;
+  MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;
+  MessageDecoder<tobas_msgs::msg::Imu> imu_cov_decoder_;
+  MessageDecoder<tobas_msgs::msg::MagneticField> mag_cov_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorStateArray> cur_rotor_states_decoder_;

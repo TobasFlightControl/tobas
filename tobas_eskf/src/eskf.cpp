@@ -405,19 +405,12 @@ double ErrorStateKalmanFilter::measureIMU(
   // 自由落下中もしくは加速度が大きすぎる場合は全く姿勢を反映していない恐れがあるため，重力方向の観測を行うのはその間の加速度に限る．
   const auto acc_norm = acc_meas.norm();
   const auto gravity = getGravity(x_);
-  if (acc_norm < kDoMeasGravMinGValue * gravity) {
-    cerr << "Attitude correction cannot be performed because accel norm is lower than " << kDoMeasGravMinGValue << "G. "
-         << endl;
+  if (acc_norm < kFreeFallAccelNormThresh * gravity) {
+    cerr << "Attitude correction cannot be performed because the aircraft is in free fall." << endl;
     return INFINITY;
   }
-  else if (acc_norm > kDoMeasGravMaxGValue * gravity) {
-    cerr << "Attitude correction cannot be performed because accel norm is greater than " << kDoMeasGravMaxGValue
-         << "G. " << endl;
-    return INFINITY;
-  }
-  else {
-    return measureGravity(acc_meas, grav_cov, time);
-  }
+
+  return measureGravity(acc_meas, grav_cov, time);
 }
 
 double ErrorStateKalmanFilter::measurePosition(
