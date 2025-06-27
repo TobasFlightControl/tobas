@@ -37,7 +37,7 @@ private:
 
   ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuFilter> config_ss_;
 
-  ros2::TimerPtr init_imu_driver_timer_;
+  ros2::TimerPtr initialize_timer_;
 
   bool initializeImuDriver();
 
@@ -45,7 +45,7 @@ private:
     const tobas_msgs::srv::ConfigureImuFilter::Request::ConstSharedPtr& req,
     const tobas_msgs::srv::ConfigureImuFilter::Response::SharedPtr& res);
 
-  void initiImuDriverTimerCb();
+  void initializeTimerCb();
   void mainTimerCb();
 };
 
@@ -57,14 +57,7 @@ ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("t1_imu
   gyro_lpf_.setValue(kdl::Vector::Zero());
   dgyro_lpf_.setValue(kdl::Vector::Zero());
 
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuRawTopic);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuFiltTopic);
-  sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
-
-  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
-
-  init_imu_driver_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initiImuDriverTimerCb, this);
+  initialize_timer_ = createWallTimer(t1::kRetryInitializationInterval, &self::initializeTimerCb, this);
 }
 
 bool ImuDriverNode::initializeImuDriver()
@@ -125,13 +118,20 @@ void ImuDriverNode::configureImuFilterCb(
   res->message.clear();
 }
 
-void ImuDriverNode::initiImuDriverTimerCb()
+void ImuDriverNode::initializeTimerCb()
 {
   if (!initializeImuDriver()) {
     return;
   }
 
-  init_imu_driver_timer_->cancel();
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuRawTopic);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuFiltTopic);
+  sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
+
+  config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
+    tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
+
+  initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
