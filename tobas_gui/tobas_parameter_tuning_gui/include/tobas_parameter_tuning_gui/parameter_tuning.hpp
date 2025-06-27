@@ -38,8 +38,9 @@ private:
   QPushButton* save_button_;
   QPushButton* reset_button_;
 
-  ParamBlockWidget* controller_params_;
+  ParamBlockWidget* imu_filter_params_;
   ParamBlockWidget* observer_params_;
+  ParamBlockWidget* controller_params_;
   ParamBlockWidget* rc_teleop_params_;
 
   bool saveLocal();

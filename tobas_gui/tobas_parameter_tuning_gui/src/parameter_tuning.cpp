@@ -26,8 +26,9 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node) : ssh
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
   reset_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  controller_params_ = new ParamBlockWidget(node, "Flight Controller");
+  imu_filter_params_ = new ParamBlockWidget(node, "IMU Filter");
   observer_params_ = new ParamBlockWidget(node, "State Estimator");
+  controller_params_ = new ParamBlockWidget(node, "Flight Controller");
   rc_teleop_params_ = new ParamBlockWidget(node, "Radio Control");
 
   reset();
@@ -44,8 +45,9 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node) : ssh
   button_cols->addStretch();
 
   const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
-  param_rows->addWidget(controller_params_);
+  param_rows->addWidget(imu_filter_params_);
   param_rows->addWidget(observer_params_);
+  param_rows->addWidget(controller_params_);
   param_rows->addWidget(rc_teleop_params_);
   param_rows->addStretch();
 
@@ -61,12 +63,14 @@ void ParameterTuningWidget::reset()
   save_button_->setEnabled(false);
   reset_button_->setEnabled(false);
 
-  controller_params_->clear();
+  imu_filter_params_->clear();
   observer_params_->clear();
+  controller_params_->clear();
   rc_teleop_params_->clear();
 
-  controller_params_->setVisible(false);
+  imu_filter_params_->setVisible(false);
   observer_params_->setVisible(false);
+  controller_params_->setVisible(false);
   rc_teleop_params_->setVisible(false);
 }
 
@@ -86,10 +90,13 @@ bool ParameterTuningWidget::updateTBSPath(const fs::path& tbs_path)
 
 bool ParameterTuningWidget::saveLocal()
 {
-  if (!controller_params_->saveLocal(common::getControllerDynamicParamsPath(tbs_path_))) {
+  if (!imu_filter_params_->saveLocal(common::getImuFilterDynamicParamsPath(tbs_path_))) {
     return false;
   }
   if (!observer_params_->saveLocal(common::getObserverDynamicParamsPath(tbs_path_))) {
+    return false;
+  }
+  if (!controller_params_->saveLocal(common::getControllerDynamicParamsPath(tbs_path_))) {
     return false;
   }
   if (!rc_teleop_params_->saveLocal(common::getRcTeleopDynamicParamsPath(tbs_path_))) {
@@ -103,10 +110,13 @@ bool ParameterTuningWidget::saveRemote()
 {
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path_);
 
-  if (!controller_params_->saveRemote(common::getControllerDynamicParamsPath(remote_tbs_path))) {
+  if (!imu_filter_params_->saveRemote(common::getImuFilterDynamicParamsPath(remote_tbs_path))) {
     return false;
   }
   if (!observer_params_->saveRemote(common::getObserverDynamicParamsPath(remote_tbs_path))) {
+    return false;
+  }
+  if (!controller_params_->saveRemote(common::getControllerDynamicParamsPath(remote_tbs_path))) {
     return false;
   }
   if (!rc_teleop_params_->saveRemote(common::getRcTeleopDynamicParamsPath(remote_tbs_path))) {
@@ -123,10 +133,13 @@ void ParameterTuningWidget::onLoadButtonClicked()
     return;
   }
 
-  if (!controller_params_->load(drone_.name, tobas::node::kController)) {
+  if (!imu_filter_params_->load(drone_.name, tobas::node::kImuFilterConfigServer)) {
     return;
   }
   if (!observer_params_->load(drone_.name, tobas::node::kObserver)) {
+    return;
+  }
+  if (!controller_params_->load(drone_.name, tobas::node::kController)) {
     return;
   }
   if (!rc_teleop_params_->load(drone_.name, tobas::node::kRcTeleop)) {
@@ -134,8 +147,9 @@ void ParameterTuningWidget::onLoadButtonClicked()
   }
 
   // 読み込みと同時に可視化
-  controller_params_->setVisible(true);
+  imu_filter_params_->setVisible(true);
   observer_params_->setVisible(true);
+  controller_params_->setVisible(true);
   rc_teleop_params_->setVisible(true);
 
   save_button_->setEnabled(true);
@@ -178,14 +192,15 @@ void ParameterTuningWidget::onResetButtonClicked()
     return;
   }
 
-  if (!controller_params_->setToDefaults()) {
+  if (!imu_filter_params_->setToDefaults()) {
     return;
   }
-
   if (!observer_params_->setToDefaults()) {
     return;
   }
-
+  if (!controller_params_->setToDefaults()) {
+    return;
+  }
   if (!rc_teleop_params_->setToDefaults()) {
     return;
   }

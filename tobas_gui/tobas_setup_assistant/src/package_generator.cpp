@@ -390,10 +390,13 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
-  if (!createEmptyYaml(common::getControllerDynamicParamsPath(tbs_path), false)) {
+  if (!createEmptyYaml(common::getImuFilterDynamicParamsPath(tbs_path), false)) {
     return false;
   }
   if (!createEmptyYaml(common::getObserverDynamicParamsPath(tbs_path), false)) {
+    return false;
+  }
+  if (!createEmptyYaml(common::getControllerDynamicParamsPath(tbs_path), false)) {
     return false;
   }
   if (!createEmptyYaml(common::getRcTeleopDynamicParamsPath(tbs_path), false)) {
@@ -419,10 +422,10 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generatePreArmCheckConfig(config_dir)) {
     return false;
   }
-  if (!generateControllerStaticConfig(config_dir)) {
+  if (!generateObserverStaticConfig(config_dir)) {
     return false;
   }
-  if (!generateObserverStaticConfig(config_dir)) {
+  if (!generateControllerStaticConfig(config_dir)) {
     return false;
   }
   if (!generateRcTeleopStaticConfig(config_dir)) {
@@ -695,27 +698,6 @@ bool PackageGenerator::generatePreArmCheckConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir)
-{
-  const auto static_params = settings_->controller->staticParams();
-  TOBAS_CHECK(static_params.IsMap());
-
-  // For component
-  const auto node_component = static_params;
-  if (!saveYamlNode(config_dir / "controller_static.yaml", node_component)) {
-    return false;
-  }
-
-  // For standalone
-  YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kController][kROSParamsKey] = static_params;
-  if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
-    return false;
-  }
-
-  return true;
-}
-
 bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
 {
   const auto static_params = settings_->observer->staticParams();
@@ -731,6 +713,27 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][tobas::node::kObserver][kROSParamsKey] = static_params;
   if (!saveYamlNode(config_dir / "observer_static_standalone.yaml", node_standalone)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir)
+{
+  const auto static_params = settings_->controller->staticParams();
+  TOBAS_CHECK(static_params.IsMap());
+
+  // For component
+  const auto node_component = static_params;
+  if (!saveYamlNode(config_dir / "controller_static.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"][tobas::node::kController][kROSParamsKey] = static_params;
+  if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
     return false;
   }
 

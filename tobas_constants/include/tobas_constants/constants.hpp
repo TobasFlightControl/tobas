@@ -118,8 +118,9 @@ static constexpr char kForwardCommandController[] = "forward_command_controller/
 namespace node
 {
 static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
-static constexpr char kController[] = "controller";
+static constexpr char kImuFilterConfigServer[] = "imu_filter_config_server";
 static constexpr char kObserver[] = "observer";
+static constexpr char kController[] = "controller";
 static constexpr char kRcTeleop[] = "rc_teleop";
 }  // namespace node
 
