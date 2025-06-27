@@ -21,12 +21,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
+find_package(tobas_gazebo_conversions REQUIRED)
 find_package(tobas_gazebo_tools REQUIRED)
 
 find_package(gz_sim_vendor REQUIRED)
 find_package(gz-sim REQUIRED)
 find_package(gz_plugin_vendor REQUIRED)
 find_package(gz-plugin REQUIRED)
+
+set(AMENT_DEPENDENCIES tobas_gazebo_common tobas_gazebo_conversions tobas_gazebo_tools)
 
 # add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
@@ -36,7 +39,7 @@ include_directories(include)
 # Build common library
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} tobas_gazebo_common tobas_gazebo_tools)
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 # Build each plugin
 file(GLOB PLUGIN_DIR_PATHS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*)

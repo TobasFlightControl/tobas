@@ -8,6 +8,8 @@
 #include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_kdl.hpp>
+#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -19,7 +21,6 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;

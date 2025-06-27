@@ -1,4 +1,5 @@
 #include <tobas_constants/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_geomag/core.hpp>
@@ -10,7 +11,6 @@
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
 #include "tobas_gazebo_system_plugins/random.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 

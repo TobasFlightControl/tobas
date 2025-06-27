@@ -7,7 +7,7 @@
 #include <gz/rendering/RenderingIface.hh>
 
 #include <tobas_gazebo_common/constants.hpp>
-#include <tobas_gazebo_tools/conversion.hpp>
+#include <tobas_gazebo_conversions/gazebo_msg.hpp>
 
 #include "./LookAtCamera.hpp"
 

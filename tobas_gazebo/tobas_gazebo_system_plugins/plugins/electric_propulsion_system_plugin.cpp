@@ -4,6 +4,7 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -19,7 +20,6 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 

@@ -1,5 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
@@ -9,7 +10,6 @@
 #include <tobas_msgs/msg/battery.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/gazebo_msg.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 using namespace std;

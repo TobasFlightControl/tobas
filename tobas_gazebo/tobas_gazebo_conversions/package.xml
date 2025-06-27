@@ -1,6 +1,6 @@
 <package format="3">
 
-	<name>tobas_gazebo_gui_plugins</name>
+	<name>tobas_gazebo_conversions</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -8,9 +8,8 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_gazebo_common</depend>
-	<depend>tobas_gazebo_conversions</depend>
-	<depend>tobas_gazebo_tools</depend>
+	<depend>geometry_msgs</depend>
+	<depend>tobas_kdl</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
