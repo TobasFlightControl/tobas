@@ -47,7 +47,7 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package="tobas_eskf",
-            executable="observer",
+            executable="eskf_node",
             name="observer",
             namespace=DRONE_NAME,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "observer_static_standalone.yaml"])],
