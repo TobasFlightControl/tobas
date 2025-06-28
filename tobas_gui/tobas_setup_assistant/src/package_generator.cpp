@@ -117,10 +117,6 @@ inja::json PackageGenerator::createTemplateData()
   tpl_data["controller_plugin"] = settings_->controller->pluginName().toStdString();
   tpl_data["actions_pkg"] = flightActionsPackage();
 
-  // Observer
-  tpl_data["observer_pkg"] = settings_->observer->observerPackage().toStdString();
-  tpl_data["observer_plugin"] = settings_->observer->pluginName().toStdString();
-
   // Hardware
   tpl_data["hardware_pkg"] = settings_->hardware->hardwarePackage();
 

@@ -29,9 +29,9 @@
 
 using namespace Eigen;
 
-class ObserverNode : public tobas::BaseNode
+class ErrorStateKalmanFilterNode : public tobas::BaseNode
 {
-  using self = ObserverNode;
+  using self = ErrorStateKalmanFilterNode;
   using super = tobas::BaseNode;
 
   using ImuMsg = tobas_msgs::Imu;
@@ -64,7 +64,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
 public:
-  explicit ObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   // 固定値
@@ -173,7 +173,8 @@ private:
   void setGnssOriginCb(const SetOrigin::Request::ConstSharedPtr& req, const SetOrigin::Response::SharedPtr& res);
 };
 
-ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::node::kObserver, options), tf_br_(this)
+ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options)
+  : super(tobas::node::kObserver, options), tf_br_(this)
 {
   getStaticRosParams();
 
@@ -258,7 +259,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   set_gnss_origin_ss_ = createService<SetOrigin>(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 }
 
-void ObserverNode::getStaticRosParams()
+void ErrorStateKalmanFilterNode::getStaticRosParams()
 {
   frame_id_ = getStringParam("frame_id", "unknown");  // 空文字だとTFが警告文を出す
   use_bar_ = getBoolParam("use_barometer", kDefaultUseBarometer);
@@ -279,7 +280,7 @@ void ObserverNode::getStaticRosParams()
   gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
 }
 
-bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
+bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
 {
   // 地磁気の参照値を設定
   if (!eskf_.setMagneticFieldRef(mag_W)) {
@@ -331,7 +332,7 @@ bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
   return true;
 }
 
-void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
+void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
 {
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -376,7 +377,7 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   odom.accel.angular = imu_filt_->dgyro;
 }
 
-void ObserverNode::publishGNSSOrigin() const
+void ErrorStateKalmanFilterNode::publishGNSSOrigin() const
 {
   auto gnss_origin = std::make_unique<GnssOriginMsg>();
 
@@ -388,7 +389,7 @@ void ObserverNode::publishGNSSOrigin() const
   gnss_origin_pub_->publish(move(gnss_origin));
 }
 
-void ObserverNode::publishFeedback(const std_msgs::msg::Header& header) const
+void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& header) const
 {
   // Create
   auto feedback = std::make_unique<FeedbackMsg>();
@@ -423,7 +424,7 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header) const
   feedback_pub_->publish(move(feedback));
 }
 
-double ObserverNode::calcGravMeasNoiseStddev(const Vector3d& acc) const
+double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Vector3d& acc) const
 {
   // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
   // 加速度の大きさと重力加速度との誤差が大きいほど重力以外の加速度が生じているため加速度による姿勢の観測が不確かだと考えるのは直感的だが，
@@ -437,39 +438,39 @@ double ObserverNode::calcGravMeasNoiseStddev(const Vector3d& acc) const
   return std::min(grav_stddev, grav_stddev_max_);
 }
 
-Matrix3d ObserverNode::calcGravMeasNoiseCov(const Vector3d& acc) const
+Matrix3d ErrorStateKalmanFilterNode::calcGravMeasNoiseCov(const Vector3d& acc) const
 {
   const auto grav_stddev = calcGravMeasNoiseStddev(acc);
   const auto grav_var = math::sqr(grav_stddev);
   return Vector3d::Constant(grav_var).asDiagonal();
 }
 
-double ObserverNode::initAccelBiasStddev() const
+double ErrorStateKalmanFilterNode::initAccelBiasStddev() const
 {
   return do_acc_bias_estimation_ ? 1. : 0.;
 }
 
-double ObserverNode::initGyroBiasStddev() const
+double ErrorStateKalmanFilterNode::initGyroBiasStddev() const
 {
   return do_gyro_bias_estimation_ ? 0.1 : 0.;
 }
 
-double ObserverNode::initMagHardBiasStddev() const
+double ErrorStateKalmanFilterNode::initMagHardBiasStddev() const
 {
   return do_mag_hard_bias_estimation_ ? 0.1 : 0.;
 }
 
-double ObserverNode::initMagSoftBiasStddev() const
+double ErrorStateKalmanFilterNode::initMagSoftBiasStddev() const
 {
   return do_mag_soft_bias_estimation_ ? 0.1 : 0.;
 }
 
-double ObserverNode::initGravBiasStddev() const
+double ErrorStateKalmanFilterNode::initGravBiasStddev() const
 {
   return do_grav_estimation_ ? 0.1 : 0.;
 }
 
-bool ObserverNode::fixedAccMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(const double& p)
 {
   const auto acc_stddev = p;  // [m/s^2]
   const auto acc_var = math::sqr(acc_stddev);
@@ -478,7 +479,7 @@ bool ObserverNode::fixedAccMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::fixedGyroMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(const double& p)
 {
   const auto gyro_stddev = p;  // [rad/s]
   const auto gyro_var = math::sqr(gyro_stddev);
@@ -487,7 +488,7 @@ bool ObserverNode::fixedGyroMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::fixedMagMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(const double& p)
 {
   const auto mag_stddev = p * 1e-2 / tobas_std::kGeomagScale;  // [-]
   const auto mag_var = math::sqr(mag_stddev);
@@ -496,7 +497,7 @@ bool ObserverNode::fixedMagMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::fixedHeadMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedHeadMeasNoiseStddevCb(const double& p)
 {
   const auto head_stddev = p;  // [rad]
   fixed_head_var_ = math::sqr(head_stddev);
@@ -504,7 +505,7 @@ bool ObserverNode::fixedHeadMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::fixedBaroAltMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedBaroAltMeasNoiseStddevCb(const double& p)
 {
   const auto baro_alt_stddev = p;  // [m]
   fixed_baro_alt_var_ = math::sqr(baro_alt_stddev);
@@ -512,7 +513,7 @@ bool ObserverNode::fixedBaroAltMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::fixedGnssPosMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_gnss_noise_);
 
@@ -523,7 +524,7 @@ bool ObserverNode::fixedGnssPosMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::fixedGnssVelMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_gnss_noise_);
 
@@ -534,7 +535,7 @@ bool ObserverNode::fixedGnssVelMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::fixedGravMeasNoiseStddevCb(const double& p)
+bool ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_grav_noise_);
 
@@ -545,28 +546,28 @@ bool ObserverNode::fixedGravMeasNoiseStddevCb(const double& p)
   return true;
 }
 
-bool ObserverNode::adaptiveGravMeasNoiseStddevMinCb(const double& p)
+bool ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMinCb(const double& p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_min_ = p;
   return true;
 }
 
-bool ObserverNode::adaptiveGravMeasNoiseStddevMaxCb(const double& p)
+bool ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMaxCb(const double& p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_max_ = p;
   return true;
 }
 
-bool ObserverNode::adaptiveGravMeasNoiseStddevRateCb(const double& p)
+bool ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevRateCb(const double& p)
 {
   assert(adaptive_grav_noise_);
   grav_stddev_rate_ = p;
   return true;
 }
 
-bool ObserverNode::accBiasProcNoiseDensityCb(const double& p)
+bool ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_acc_bias_estimation_);
 
@@ -574,7 +575,7 @@ bool ObserverNode::accBiasProcNoiseDensityCb(const double& p)
   return eskf_.setAccBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::gyroBiasProcNoiseDensityCb(const double& p)
+bool ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_gyro_bias_estimation_);
 
@@ -582,7 +583,7 @@ bool ObserverNode::gyroBiasProcNoiseDensityCb(const double& p)
   return eskf_.setGyroBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::magHardBiasProcNoiseDensityCb(const double& p)
+bool ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_hard_bias_estimation_);
 
@@ -590,7 +591,7 @@ bool ObserverNode::magHardBiasProcNoiseDensityCb(const double& p)
   return eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::magSoftBiasProcNoiseDensityCb(const double& p)
+bool ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_soft_bias_estimation_);
 
@@ -598,7 +599,7 @@ bool ObserverNode::magSoftBiasProcNoiseDensityCb(const double& p)
   return eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::gravProcNoiseDensityCb(const double& p)
+bool ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
 {
   assert(do_grav_estimation_);
 
@@ -606,7 +607,7 @@ bool ObserverNode::gravProcNoiseDensityCb(const double& p)
   return eskf_.setGravProcNoiseDensity(nd);
 }
 
-void ObserverNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
+void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
 {
   // Compute IMU time
   const auto cur_time = ros2::chronoFromRosTime(imu_raw->header.stamp);
@@ -669,12 +670,12 @@ void ObserverNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
   publishFeedback(imu_raw->header);
 }
 
-void ObserverNode::imuFiltCb(const ImuMsg::ConstSharedPtr& imu_filt)
+void ErrorStateKalmanFilterNode::imuFiltCb(const ImuMsg::ConstSharedPtr& imu_filt)
 {
   imu_filt_ = imu_filt;
 }
 
-void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
+void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
 {
   if (!imu_raw_) {
     return;
@@ -700,7 +701,7 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   }
 }
 
-void ObserverNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
+void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
 {
   if (!imu_raw_) {
     return;
@@ -722,7 +723,7 @@ void ObserverNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
   eskf_.measureAltitude(z_m, z_var, stamp);
 }
 
-void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
+void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 {
   if (!imu_raw_ || !imu_filt_) {
     return;
@@ -780,7 +781,9 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, pos_cov, vel_meas, vel_cov, imu2gnss, gyro_meas, stamp);
 }
 
-void ObserverNode::getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr&, const GetOrigin::Response::SharedPtr& res)
+void ErrorStateKalmanFilterNode::getGnssOriginCb(
+  const GetOrigin::Request::ConstSharedPtr&,
+  const GetOrigin::Response::SharedPtr& res)
 {
   if (!gnss_fix_) {
     res->success = false;
@@ -795,7 +798,7 @@ void ObserverNode::getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr&, co
   res->message.clear();
 }
 
-void ObserverNode::setGnssOriginCb(
+void ErrorStateKalmanFilterNode::setGnssOriginCb(
   const SetOrigin::Request::ConstSharedPtr& req,
   const SetOrigin::Response::SharedPtr& res)
 {
@@ -814,4 +817,4 @@ void ObserverNode::setGnssOriginCb(
   res->message.clear();
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ObserverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(ErrorStateKalmanFilterNode)

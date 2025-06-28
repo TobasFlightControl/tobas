@@ -1,37 +1,45 @@
 #pragma once
 
-#include "../barometer.hpp"
-#include "../gnss.hpp"
-#include "../imu.hpp"
-#include "./base.hpp"
+#include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+
+#include "./barometer.hpp"
+#include "./base_setting.hpp"
+#include "./gnss.hpp"
+#include "./imu.hpp"
 #include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
 namespace sa
 {
-class ErrorStateKalmanFilterWidget : public BaseObserverWidget
+class ObserverWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
+  using self = ObserverWidget;
+  using super = BaseSettingWidget;
+
 public:
-  explicit ErrorStateKalmanFilterWidget(
+  explicit ObserverWidget(
     const RobotInfo& robot,
     const ImuWidget* imu,
     const BarometerWidget* baro,
     const GnssWidget* gnss);
 
   const char* name() const override;
+  const char* title() const override;
   const char* description() const override;
-  QString observerPackage() const override;
-  QString pluginName() const override;
 
-  YAML::Node staticParams() const override;
+  void onOpened() override;
+  void updateInternalDataStructures() override;
+  bool isValid() override;
 
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  bool isValid() override;
+  YAML::Node staticParams() const;
 
 private:
   const RobotInfo& robot_;
@@ -47,5 +55,5 @@ private:
   QCheckBox* do_mag_soft_bias_estimation_;
   QCheckBox* do_grav_estimation_;
 };
-}  // namespace sa
+};  // namespace sa
 }  // namespace gui

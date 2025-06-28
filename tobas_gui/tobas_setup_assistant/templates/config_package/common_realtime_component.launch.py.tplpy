@@ -12,8 +12,6 @@ DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
 USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
-OBSERVER_PKG = "{{ observer_pkg }}"
-OBSERVER_PLUGIN = "{{ observer_plugin }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
 CONTROLLER_PLUGIN = "{{ controller_plugin }}"
 
@@ -81,8 +79,8 @@ def generate_launch_description():
             target_container=f"{DRONE_NAME}/component_manager_1",
             composable_node_descriptions=[
                 ComposableNode(
-                    package=OBSERVER_PKG,
-                    plugin=OBSERVER_PLUGIN,
+                    package="tobas_eskf",
+                    plugin="ErrorStateKalmanFilterNode",
                     name="observer",
                     namespace=DRONE_NAME,
                     parameters=[

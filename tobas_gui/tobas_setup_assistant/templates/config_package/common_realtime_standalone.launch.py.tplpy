@@ -8,7 +8,6 @@ from launch_ros.substitutions import FindPackageShare
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
-OBSERVER_PKG = "{{ observer_pkg }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
 
 # Arguments
@@ -47,7 +46,7 @@ def generate_launch_description():
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
         Node(
-            package=OBSERVER_PKG,
+            package="tobas_eskf",
             executable="observer",
             name="observer",
             namespace=DRONE_NAME,

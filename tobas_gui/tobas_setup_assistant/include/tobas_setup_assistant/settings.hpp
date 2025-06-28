@@ -12,7 +12,7 @@
 #include "./setting_tabs/imu.hpp"
 #include "./setting_tabs/joint_config.hpp"
 #include "./setting_tabs/magnetometer.hpp"
-#include "./setting_tabs/observer/observer.hpp"
+#include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
