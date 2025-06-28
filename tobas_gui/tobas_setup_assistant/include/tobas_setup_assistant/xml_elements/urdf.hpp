@@ -55,7 +55,7 @@ void addBarometerPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double altitude_zero,
-  double pressure_variance);
+  double noise_stddev);
 
 void addGNSSPlugin(
   tinyxml2::XMLElement* robot,

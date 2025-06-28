@@ -168,7 +168,7 @@ void addBarometerPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double altitude_zero,
-  double pressure_variance)
+  double noise_stddev)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "gazebo::GazeboBarometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -176,7 +176,7 @@ void addBarometerPlugin(
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
-  plugin->InsertNewChildElement("pressureVariance")->SetText(pressure_variance);
+  plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
 }
 
 void addGNSSPlugin(

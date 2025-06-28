@@ -94,6 +94,91 @@ const char* HardwareWidget::hardwarePackage() const
   return selected()->hardwarePackage();
 }
 
+int HardwareWidget::imuUpdateRate() const
+{
+  return selected()->imuUpdateRate();
+}
+
+double HardwareWidget::gyroNoiseDensity() const
+{
+  return selected()->gyroNoiseDensity();
+}
+
+double HardwareWidget::gyroRandomWalk() const
+{
+  return selected()->gyroRandomWalk();
+}
+
+int HardwareWidget::gyroBiasCorrTime() const
+{
+  return selected()->gyroBiasCorrTime();
+}
+
+double HardwareWidget::accNoiseDensity() const
+{
+  return selected()->accNoiseDensity();
+}
+
+double HardwareWidget::accRandomWalk() const
+{
+  return selected()->accRandomWalk();
+}
+
+int HardwareWidget::accBiasCorrTime() const
+{
+  return selected()->accBiasCorrTime();
+}
+
+int HardwareWidget::magUpdateRate() const
+{
+  return selected()->magUpdateRate();
+}
+
+double HardwareWidget::magNoiseStddev() const
+{
+  return selected()->magNoiseStddev();
+}
+
+double HardwareWidget::magHardBiasNorm() const
+{
+  return selected()->magHardBiasNorm();
+}
+
+int HardwareWidget::presUpdateRate() const
+{
+  return selected()->presUpdateRate();
+}
+
+double HardwareWidget::presNoiseStddev() const
+{
+  return selected()->presNoiseStddev();
+}
+
+int HardwareWidget::gnssUpdateRate() const
+{
+  return selected()->gnssUpdateRate();
+}
+
+double HardwareWidget::gnssHorizontalPositionAccuracy() const
+{
+  return selected()->gnssHorizontalPositionAccuracy();
+}
+
+double HardwareWidget::gnssVerticalPositionAccuracy() const
+{
+  return selected()->gnssVerticalPositionAccuracy();
+}
+
+double HardwareWidget::gnssHorizontalVelocityStddev() const
+{
+  return selected()->gnssHorizontalVelocityStddev();
+}
+
+double HardwareWidget::gnssVerticalVelocityStddev() const
+{
+  return selected()->gnssVerticalVelocityStddev();
+}
+
 void HardwareWidget::setCurrentHardware(int index)
 {
   hardwares_->setCurrentIndex(index);

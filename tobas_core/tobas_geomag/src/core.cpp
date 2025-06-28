@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <tobas_std_tools/console.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 using namespace std;
 
@@ -11,45 +12,45 @@ namespace geomag
 {
 Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double lon)
 {
-  const double x = mag_field_itrs.x * 1e+9;
-  const double y = mag_field_itrs.y * 1e+9;
-  const double z = mag_field_itrs.z * 1e+9;
-  const double phi = lat * (M_PI / 180.);
-  const double lam = lon * (M_PI / 180.);
-  const double sphi = sin(phi);
-  const double cphi = cos(phi);
-  const double slam = sin(lam);
-  const double clam = cos(lam);
-  const double x1 = clam * x + slam * y;
-  const double north = -sphi * x1 + cphi * z;
-  const double east = -slam * x + clam * y;
-  const double down = -cphi * x1 + -sphi * z;
-  const double horizontal = sqrt(north * north + east * east);
-  const double total = sqrt(horizontal * horizontal + down * down);
-  const double inclination = atan2(down, horizontal) * (180. / M_PI);
-  const double declination = atan2(east, north) * (180. / M_PI);
+  const auto& x = mag_field_itrs.x;                                      // [G]
+  const auto& y = mag_field_itrs.y;                                      // [G]
+  const auto& z = mag_field_itrs.z;                                      // [G]
+  const auto phi = tobas_std::deg2rad(lat);                              // [rad]
+  const auto lam = tobas_std::deg2rad(lon);                              // [rad]
+  const auto sphi = sin(phi);                                            // [-]
+  const auto cphi = cos(phi);                                            // [-]
+  const auto slam = sin(lam);                                            // [-]
+  const auto clam = cos(lam);                                            // [-]
+  const auto x1 = clam * x + slam * y;                                   // [G]
+  const auto north = -sphi * x1 + cphi * z;                              // [G]
+  const auto east = -slam * x + clam * y;                                // [G]
+  const auto down = -cphi * x1 + -sphi * z;                              // [G]
+  const auto horizontal = sqrt(north * north + east * east);             // [G]
+  const auto total = sqrt(horizontal * horizontal + down * down);        // [G]
+  const auto inclination = tobas_std::rad2deg(atan2(down, horizontal));  // [deg]
+  const auto declination = tobas_std::rad2deg(atan2(east, north));       // [deg]
   return { north, east, down, horizontal, total, inclination, declination };
 }
 
 Vector ecefFromGeodetic(double lat, double lon, double h)
 {
   // Convert to radians
-  const double phi = lat * (M_PI / 180.);
-  const double lam = lon * (M_PI / 180.);
+  const auto phi = tobas_std::deg2rad(lat);
+  const auto lam = tobas_std::deg2rad(lon);
 
   // WGS 84 constants
-  constexpr double a = 6378137.;
+  constexpr double a = 6378137.;  // [m]
   constexpr double f = 1. / 298.257223563;
   constexpr double e2 = f * (2 - f);
   constexpr double e2m = (1 - f) * (1 - f);
 
-  const double sphi = sinf(phi);
-  const double cphi = cosf(phi);
-  const double slam = sinf(lam);
-  const double clam = cosf(lam);
-  const double n = a / sqrt(1. - e2 * (sphi * sphi));
-  const double z = (e2m * n + h) * sphi;
-  const double r = (n + h) * cphi;
+  const auto sphi = sinf(phi);
+  const auto cphi = cosf(phi);
+  const auto slam = sinf(lam);
+  const auto clam = cosf(lam);
+  const auto n = a / sqrt(1. - e2 * (sphi * sphi));
+  const auto z = (e2m * n + h) * sphi;
+  const auto r = (n + h) * cphi;
   return { r * clam, r * slam, z };
 }
 
@@ -58,9 +59,9 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
   // Mean radius of  ellipsoid in meters from section 1.2 of the WMM2015 Technical report
   constexpr double EARTH_R = 6371200.;
 
-  const double x = position_itrs.x;
-  const double y = position_itrs.y;
-  const double z = position_itrs.z;
+  const double& x = position_itrs.x;
+  const double& y = position_itrs.y;
+  const double& z = position_itrs.z;
   const double rsqrd = x * x + y * y + z * z;
 
   double px = 0.;
@@ -122,7 +123,7 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
       }
     }
   }
-  return { -px * 1e-9, -py * 1e-9, -pz * 1e-9 };
+  return { -px * 1e-5, -py * 1e-5, -pz * 1e-5 };
 }
 
 Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, const ConstModel& WMM)
@@ -138,8 +139,8 @@ Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, co
     PRINT_WARN("It is time to replace the WMM data with the latest version.");
   }
 
-  const auto ecef = geomag::ecefFromGeodetic(lat, lon, h);
-  const auto mag_field = geomag::magFieldFromECEF(dyear, ecef, WMM);
+  const auto ecef = geomag::ecefFromGeodetic(lat, lon, h);            // [m]
+  const auto mag_field = geomag::magFieldFromECEF(dyear, ecef, WMM);  // [G]
   return geomag::elementsFromMagField(mag_field, lat, lon);
 }
 }  // namespace geomag

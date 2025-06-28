@@ -9,12 +9,7 @@ namespace gui
 {
 namespace sa
 {
-ObserverWidget::ObserverWidget(
-  const RobotInfo& robot,
-  const ImuWidget* imu,
-  const BarometerWidget* baro,
-  const GnssWidget* gnss)
-  : robot_(robot), imu_(imu), baro_(baro), gnss_(gnss)
+ObserverWidget::ObserverWidget()
 {
   adaptive_gnss_noise_ = new QCheckBox("Adaptive GNSS Measurement Noise");
   adaptive_gnss_noise_->setChecked(true);
@@ -103,25 +98,39 @@ void ObserverWidget::load(const YAML::Node& node)
   do_grav_estimation_->setChecked(node[do_grav_estimation_->text()].as<bool>());
 }
 
-YAML::Node ObserverWidget::staticParams() const
+bool ObserverWidget::adaptiveGnssNoise() const
 {
-  YAML::Node node(YAML::NodeType::Map);
+  return adaptive_gnss_noise_->isChecked();
+}
 
-  node["frame_id"] = robot_.tree().getRootName();
-  node["use_barometer"] = false;  // TODO: 選択できるように
-  node["use_gnss"] = gnss_->equipped();
-  node["adaptive_gnss_noise"] = adaptive_gnss_noise_->isChecked();
-  node["adaptive_grav_noise"] = adaptive_grav_noise_->isChecked();
-  node["do_acc_bias_estimation"] = do_acc_bias_estimation_->isChecked();
-  node["do_gyro_bias_estimation"] = do_gyro_bias_estimation_->isChecked();
-  node["do_mag_hard_bias_estimation"] = do_mag_hard_bias_estimation_->isChecked();
-  node["do_mag_soft_bias_estimation"] = do_mag_soft_bias_estimation_->isChecked();
-  node["do_gravity_estimation"] = do_grav_estimation_->isChecked();
-  node["imu_offset"] = imu_->offset();
-  node["barometer_offset"] = baro_->offset();
-  node["gnss_offset"] = gnss_->offset();
+bool ObserverWidget::adaptiveGravityNoise() const
+{
+  return adaptive_grav_noise_->isChecked();
+}
 
-  return node;
+bool ObserverWidget::doAccelBiasEstimation() const
+{
+  return do_acc_bias_estimation_->isChecked();
+}
+
+bool ObserverWidget::doGyroBiasEstimation() const
+{
+  return do_gyro_bias_estimation_->isChecked();
+}
+
+bool ObserverWidget::doMagHardBiasEstimation() const
+{
+  return do_mag_hard_bias_estimation_->isChecked();
+}
+
+bool ObserverWidget::doMagSoftBiasEstimation() const
+{
+  return do_mag_soft_bias_estimation_->isChecked();
+}
+
+bool ObserverWidget::doGravityEstimation() const
+{
+  return do_grav_estimation_->isChecked();
 }
 }  // namespace sa
 }  // namespace gui

@@ -34,8 +34,8 @@ private:
   string link_name_;
   size_t update_rate_;
   gz::math::Vector3d offset_;  // B_Pos_BS
-  double alt_0_;
-  double pressure_var_;
+  double alt_0_;               // [m]
+  double noise_stddev_;        // [Pa]
 
   const cmp::WorldPose* pose_W_;
   RateManager::SharedPtr rate_manager_;
@@ -69,7 +69,7 @@ void GazeboBarometerPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   rate_manager_ = make_shared<RateManager>(update_rate_);
-  pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
+  pressure_noise_ = NormalDistribution(0., noise_stddev_);
 
   pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
 }
@@ -80,7 +80,7 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
   getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
   getSdfParam(sdf, "altitudeZero", alt_0_, NON_NEGATIVE);
-  getSdfParam(sdf, "pressureVariance", pressure_var_, NON_NEGATIVE);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, NON_NEGATIVE);
 }
 
 void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

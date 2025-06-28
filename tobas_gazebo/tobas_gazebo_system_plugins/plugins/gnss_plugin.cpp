@@ -24,15 +24,6 @@ class GazeboGnssPlugin : public BaseNode,
                          public gz::sim::ISystemConfigure,
                          public gz::sim::ISystemPostUpdate
 {
-  // Default values
-  static constexpr size_t kDefaultUpdateRate = 5;       // [Hz]
-  static constexpr double kDefaultDelay = 0.1;          // [s]
-  static constexpr double kDefaultPosCorrTime = 10.;    // [s]
-  static constexpr double kDefaultHorPosAccuracy = 2;   // [m]
-  static constexpr double kDefaultVerPosAccuracy = 4.;  // [m]
-  static constexpr double kDefaultHorVelStdDev = 0.1;   // [m/s]
-  static constexpr double kDefaultVerVelStdDev = 0.1;   // [m/s]
-
   using HistoryType = tuple<chrono::steady_clock::duration, gz::math::Pose3d, gz::math::Vector3d, gz::math::Vector3d>;
 
 public:
@@ -50,16 +41,16 @@ private:
   // SDF parameters
   string link_name_;
   size_t update_rate_;         // 更新頻度 [Hz]
-  gz::math::Vector3d offset_;  // B_Pos_BS
+  gz::math::Vector3d offset_;  // B_Pos_BS [m]
   double delay_;               // GNSSの遅延時間 [s]
-  double pos_corr_time_;
-  double hor_pos_accuracy_;
-  double ver_pos_accuracy_;
-  double hor_vel_stddev_;
-  double ver_vel_stddev_;
-  double lat_0_;  // 原点の北緯
-  double lon_0_;  // 原点の東経
-  double alt_0_;  // 原点の高度
+  double pos_corr_time_;       // OU過程の相関時定数 [s]
+  double hor_pos_accuracy_;    // 水平位置精度 (誤差の期待値) [m]
+  double ver_pos_accuracy_;    // 垂直位置精度 (誤差の期待値) [m]
+  double hor_vel_stddev_;      // 水平速度のノイズの標準偏差 [m/s]
+  double ver_vel_stddev_;      // 垂直速度のノイズの標準偏差 [m/s]
+  double lat_0_;               // 原点の北緯 [deg]
+  double lon_0_;               // 原点の東経 [deg]
+  double alt_0_;               // 原点の高度 [m]
 
   RateManager::SharedPtr rate_manager_;
 
@@ -121,16 +112,16 @@ void GazeboGnssPlugin::Configure(
 void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
   getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
 
-  getSdfParam(sdf, "delay", delay_, kDefaultDelay, NON_NEGATIVE);
-  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kDefaultPosCorrTime, POSITIVE);
+  getSdfParam(sdf, "delay", delay_, NON_NEGATIVE);
+  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, POSITIVE);
 
-  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, kDefaultHorPosAccuracy, NON_NEGATIVE);
-  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kDefaultVerPosAccuracy, NON_NEGATIVE);
-  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kDefaultHorVelStdDev, NON_NEGATIVE);
-  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kDefaultVerVelStdDev, NON_NEGATIVE);
+  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, NON_NEGATIVE);
+  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, NON_NEGATIVE);
+  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, NON_NEGATIVE);
+  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, NON_NEGATIVE);
 
   getSdfParam(sdf, "latitudeZero", lat_0_);
   getSdfParam(sdf, "longitudeZero", lon_0_);

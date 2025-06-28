@@ -13,17 +13,11 @@ namespace ublox
 /**
  * @brief A Linux driver of u-blox ZED-F9P using SPI interface and UBX protocol.
  *
- * Product Page: https://www.u-blox.com/en/product/zed-f9p-module
- *
- * Product Summary: https://content.u-blox.com/sites/default/files/ZED-F9P_ProductSummary_UBX-17005151.pdf
- *
- * Integration Manual: https://content.u-blox.com/sites/default/files/ZED-F9P_IntegrationManual_UBX-18010802.pdf
+ * [Product Page](https://www.u-blox.com/en/product/zed-f9p-module)
  *
  * Interface Description:
- *
- * L1/L2: https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf
- *
- * L1/L5: https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf
+ * - [L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
+ * - [L1/L5](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf)
  */
 class ZEDF9P
 {

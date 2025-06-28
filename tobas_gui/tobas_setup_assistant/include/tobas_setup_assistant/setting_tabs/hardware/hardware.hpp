@@ -36,6 +36,44 @@ public:
 
   const char* hardwarePackage() const;
 
+  /* [Hz] */
+  int imuUpdateRate() const;
+  /* [rad/s/√Hz] */
+  double gyroNoiseDensity() const;
+  /* [rad/s^2/√Hz] */
+  double gyroRandomWalk() const;
+  /* [s] */
+  int gyroBiasCorrTime() const;
+  /* [m/s^2/√Hz] */
+  double accNoiseDensity() const;
+  /* [m/s^3/√Hz] */
+  double accRandomWalk() const;
+  /* [s] */
+  int accBiasCorrTime() const;
+
+  /* [Hz] */
+  int magUpdateRate() const;
+  /* [G] */
+  double magNoiseStddev() const;
+  /* [G] */
+  double magHardBiasNorm() const;
+
+  /* [Hz] */
+  int presUpdateRate() const;
+  /* [Pa] */
+  double presNoiseStddev() const;
+
+  /* [Hz] */
+  int gnssUpdateRate() const;
+  /* [m] */
+  double gnssHorizontalPositionAccuracy() const;
+  /* [m] */
+  double gnssVerticalPositionAccuracy() const;
+  /* [m/s] */
+  double gnssHorizontalVelocityStddev() const;
+  /* [m/s] */
+  double gnssVerticalVelocityStddev() const;
+
 private Q_SLOTS:
   void setCurrentHardware(int index);
 

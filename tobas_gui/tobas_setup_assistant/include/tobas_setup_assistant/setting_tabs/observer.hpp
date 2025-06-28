@@ -1,14 +1,12 @@
 #pragma once
 
+#include <QCheckBox>
+
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "./barometer.hpp"
 #include "./base_setting.hpp"
-#include "./gnss.hpp"
-#include "./imu.hpp"
-#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
@@ -22,11 +20,7 @@ class ObserverWidget : public BaseSettingWidget
   using super = BaseSettingWidget;
 
 public:
-  explicit ObserverWidget(
-    const RobotInfo& robot,
-    const ImuWidget* imu,
-    const BarometerWidget* baro,
-    const GnssWidget* gnss);
+  explicit ObserverWidget();
 
   const char* name() const override;
   const char* title() const override;
@@ -39,14 +33,15 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  YAML::Node staticParams() const;
+  bool adaptiveGnssNoise() const;
+  bool adaptiveGravityNoise() const;
+  bool doAccelBiasEstimation() const;
+  bool doGyroBiasEstimation() const;
+  bool doMagHardBiasEstimation() const;
+  bool doMagSoftBiasEstimation() const;
+  bool doGravityEstimation() const;
 
 private:
-  const RobotInfo& robot_;
-  const ImuWidget* imu_;
-  const BarometerWidget* baro_;
-  const GnssWidget* gnss_;
-
   QCheckBox* adaptive_gnss_noise_;
   QCheckBox* adaptive_grav_noise_;
   QCheckBox* do_acc_bias_estimation_;

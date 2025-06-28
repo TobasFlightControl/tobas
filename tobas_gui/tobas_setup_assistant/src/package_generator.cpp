@@ -12,6 +12,7 @@
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
+#include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
@@ -696,18 +697,30 @@ bool PackageGenerator::generatePreArmCheckConfig(const fs::path& config_dir)
 
 bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
 {
-  const auto static_params = settings_->observer->staticParams();
-  TOBAS_CHECK(static_params.IsMap());
+  YAML::Node params(YAML::NodeType::Map);
+  params["frame_id"] = robot_.tree().getRootName();
+  params["use_barometer"] = false;  // TODO: Position Source
+  params["use_gnss"] = true;        // TODO: Position Source
+  params["adaptive_gnss_noise"] = settings_->observer->adaptiveGnssNoise();
+  params["adaptive_grav_noise"] = settings_->observer->adaptiveGravityNoise();
+  params["do_acc_bias_estimation"] = settings_->observer->doAccelBiasEstimation();
+  params["do_gyro_bias_estimation"] = settings_->observer->doGyroBiasEstimation();
+  params["do_mag_hard_bias_estimation"] = settings_->observer->doMagHardBiasEstimation();
+  params["do_mag_soft_bias_estimation"] = settings_->observer->doMagSoftBiasEstimation();
+  params["do_gravity_estimation"] = settings_->observer->doGravityEstimation();
+  params["imu_offset"] = Eigen::Vector3d::Zero().eval();        // TODO
+  params["barometer_offset"] = Eigen::Vector3d::Zero().eval();  // TODO
+  params["gnss_offset"] = Eigen::Vector3d::Zero().eval();       // TODO
 
   // For component
-  const auto node_component = static_params;
+  const auto node_component = params;
   if (!saveYamlNode(config_dir / "observer_static.yaml", node_component)) {
     return false;
   }
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kObserver][kROSParamsKey] = static_params;
+  node_standalone["/**"][tobas::node::kObserver][kROSParamsKey] = params;
   if (!saveYamlNode(config_dir / "observer_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -717,18 +730,18 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
 
 bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir)
 {
-  const auto static_params = settings_->controller->staticParams();
-  TOBAS_CHECK(static_params.IsMap());
+  const auto params = settings_->controller->staticParams();
+  TOBAS_CHECK(params.IsMap());
 
   // For component
-  const auto node_component = static_params;
+  const auto node_component = params;
   if (!saveYamlNode(config_dir / "controller_static.yaml", node_component)) {
     return false;
   }
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kController][kROSParamsKey] = static_params;
+  node_standalone["/**"][tobas::node::kController][kROSParamsKey] = params;
   if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -738,21 +751,20 @@ bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir
 
 bool PackageGenerator::generateRcTeleopStaticConfig(const fs::path& config_dir)
 {
-  // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
-  YAML::Node static_params(YAML::NodeType::Map);
-  static_params["acrobat_mode"] = settings_->controller->acrobatModeCommand();
-  static_params["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
-  static_params["loiter_mode"] = settings_->controller->loiterModeCommand();
+  YAML::Node params(YAML::NodeType::Map);
+  params["acrobat_mode"] = settings_->controller->acrobatModeCommand();
+  params["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
+  params["loiter_mode"] = settings_->controller->loiterModeCommand();
 
   // For component
-  const auto node_component = static_params;
+  const auto node_component = params;
   if (!saveYamlNode(config_dir / "rc_teleop_static.yaml", node_component)) {
     return false;
   }
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kRcTeleop][kROSParamsKey] = static_params;
+  node_standalone["/**"][tobas::node::kRcTeleop][kROSParamsKey] = params;
   if (!saveYamlNode(config_dir / "rc_teleop_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -947,10 +959,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   const auto config_pkg_name = common::getTBSConfigName(tbsPath());
 
   const auto& prop = settings_->propulsion_system;
-  const auto& imu = settings_->imu;
-  const auto& mag = settings_->magnetometer;
-  const auto& baro = settings_->barometer;
-  const auto& gnss = settings_->gnss;
+  const auto& fmu = settings_->hardware;
   const auto& sim = settings_->simulation;
 
   const auto drone = createDrone();
@@ -969,14 +978,14 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    imu->updateRate(),
-    imu->offset(),
-    imu->gyroNoiseDensity(),
-    imu->gyroRandomWalk(),
-    imu->gyroBiasCorrTime(),
-    imu->accNoiseDensity(),
-    imu->accRandomWalk(),
-    imu->accBiasCorrTime(),
+    fmu->imuUpdateRate(),
+    Eigen::Vector3d::Zero(),  // TODO
+    fmu->gyroNoiseDensity(),
+    fmu->gyroRandomWalk(),
+    fmu->gyroBiasCorrTime(),
+    fmu->accNoiseDensity(),
+    fmu->accRandomWalk(),
+    fmu->accBiasCorrTime(),
     rotor_link_names);
 
   // Magnetometer plugin
@@ -984,31 +993,37 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    mag->updateRate(),
-    mag->offset(),
+    fmu->magUpdateRate(),
+    Eigen::Vector3d::Zero(),  // TODO
     sim->latitudeZero(),
     sim->longitudeZero(),
     sim->altitudeZero(),
-    mag->noiseStddev(),
-    mag->hardBiasNorm());
+    fmu->magNoiseStddev(),
+    fmu->magHardBiasNorm());
 
   // Barometer plugin
   xml::addBarometerPlugin(
-    robot, ns, root_name, baro->updateRate(), baro->offset(), sim->altitudeZero(), baro->pressureVariance());
+    robot,
+    ns,
+    root_name,
+    fmu->presUpdateRate(),
+    Eigen::Vector3d::Zero(),  // TODO
+    sim->altitudeZero(),
+    fmu->presNoiseStddev());
 
   // GNSS plugin
   xml::addGNSSPlugin(
     robot,
     ns,
     root_name,
-    gnss->updateRate(),
-    gnss->offset(),
-    gnss->delay(),
-    gnss->positionCorrectionTime(),
-    gnss->horizontalPositionAccuracy(),
-    gnss->verticalPositionAccuracy(),
-    gnss->horizontalVelocityStddev(),
-    gnss->verticalVelocityStddev(),
+    fmu->gnssUpdateRate(),
+    Eigen::Vector3d::Zero(),  // TODO
+    0.1,
+    10.,
+    fmu->gnssHorizontalPositionAccuracy(),
+    fmu->gnssVerticalPositionAccuracy(),
+    fmu->gnssHorizontalVelocityStddev(),
+    fmu->gnssVerticalVelocityStddev(),
     sim->latitudeZero(),
     sim->longitudeZero(),
     sim->altitudeZero());

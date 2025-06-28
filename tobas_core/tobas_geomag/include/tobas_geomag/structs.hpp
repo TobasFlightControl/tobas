@@ -16,20 +16,18 @@ struct Vector
 
 struct Elements
 {
-  double north;       // Local north magnetic field (nT)
-  double east;        // Local east magnetic field (nT)
-  double down;        // Local down magnetic field (nT)
-  double horizontal;  // Local horizontal magnetic field intensity (nT)
-  double total;       // Local total magnetic field intensity (nT)
+  double north;       // Local north magnetic field [G]
+  double east;        // Local east magnetic field [G]
+  double down;        // Local down magnetic field [G]
+  double horizontal;  // Local horizontal magnetic field intensity [G]
+  double total;       // Local total magnetic field intensity [G]
 
-  // Also called the dip angle,
-  // the angle measured from the horizontal plane to the magnetic field vector;
-  // a downward field is positive (deg)
+  // Also called the dip angle, the angle measured from the horizontal plane to the magnetic field vector,
+  // a downward field is positive [deg]
   double inclination;
 
-  // Also called the magnetic variation,
-  // the angle between true north and the horizontal component of the field,
-  // a eastward magnetic field of true North is positive (deg)
+  // Also called the magnetic variation, the angle between true north and the horizontal component of the field,
+  // a eastward magnetic field of true North is positive [deg]
   double declination;
 };
 

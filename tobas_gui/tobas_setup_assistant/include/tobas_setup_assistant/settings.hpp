@@ -2,16 +2,11 @@
 
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
-#include "./robot_info.hpp"
 #include "./setting_tabs/author_information.hpp"
-#include "./setting_tabs/barometer.hpp"
 #include "./setting_tabs/controller/controller.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
-#include "./setting_tabs/gnss.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
-#include "./setting_tabs/imu.hpp"
 #include "./setting_tabs/joint_config.hpp"
-#include "./setting_tabs/magnetometer.hpp"
 #include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
@@ -37,10 +32,6 @@ public:
   propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
   JointConfigurationWidget* joint_config;
-  ImuWidget* imu;
-  MagnetometerWidget* magnetometer;
-  BarometerWidget* barometer;
-  GnssWidget* gnss;
   RcInputWidget* rc_input;
   ControllerWidget* controller;
   ObserverWidget* observer;

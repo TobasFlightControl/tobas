@@ -12,13 +12,9 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, _signals);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
   joint_config = new JointConfigurationWidget(robot, _signals, propulsion_system, fixed_wing);
-  imu = new ImuWidget();
-  magnetometer = new MagnetometerWidget();
-  barometer = new BarometerWidget();
-  gnss = new GnssWidget();
   rc_input = new RcInputWidget();
   controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
-  observer = new ObserverWidget(robot, imu, barometer, gnss);
+  observer = new ObserverWidget();
   hardware = new HardwareWidget();
   pre_arm_check = new PreArmCheckWidget();
   simulation = new SimulationWidget();
@@ -29,10 +25,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   addTab(propulsion_system, propulsion_system->name());
   // addTab(fixed_wing, fixed_wing->name());  // TODO
   addTab(joint_config, joint_config->name());
-  addTab(imu, imu->name());
-  addTab(magnetometer, magnetometer->name());
-  addTab(barometer, barometer->name());
-  addTab(gnss, gnss->name());
   addTab(rc_input, rc_input->name());
   addTab(controller, controller->name());
   addTab(observer, observer->name());
