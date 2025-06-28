@@ -699,8 +699,7 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
 {
   YAML::Node params(YAML::NodeType::Map);
   params["frame_id"] = robot_.tree().getRootName();
-  params["use_barometer"] = false;  // TODO: Position Source
-  params["use_gnss"] = true;        // TODO: Position Source
+  params["position_source"] = "gnss";  // TODO: 選択できるようにする
   params["adaptive_gnss_noise"] = settings_->observer->adaptiveGnssNoise();
   params["adaptive_grav_noise"] = settings_->observer->adaptiveGravityNoise();
   params["do_acc_bias_estimation"] = settings_->observer->doAccelBiasEstimation();

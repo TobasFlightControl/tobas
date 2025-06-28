@@ -46,8 +46,8 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   using SetOrigin = tobas_msgs::srv::SetGnssOrigin;
 
   // Default parameters
-  static constexpr bool kDefaultUseBarometer = false;
-  static constexpr bool kDefaultUseGnss = true;
+  static constexpr char kDefaultFrameId[] = "unknown";  // 空文字だとTFが警告文を出すため適当なデフォルト値を設定
+  static constexpr char kDefaultPositionSource[] = "gnss";
   static constexpr bool kDefaultAdaptiveGnssNoise = true;
   static constexpr bool kDefaultAdaptiveGravNoise = false;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
@@ -67,11 +67,16 @@ public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  enum struct PositionSource
+  {
+    kGnss,
+    kAirPressure,
+  };
+
   // 固定値
-  double lat_0_;       // 緯度のゼロ点 (Base Frame)
-  double lon_0_;       // 経度のゼロ点 (Base Frame)
-  double alt_0_gnss_;  // GNSS高度のゼロ点 (Base Frame)
-  double alt_0_bar_;   // 気圧高度のゼロ点 (Base Frame)
+  double lat_0_;  // 緯度のゼロ点 (Base Frame)
+  double lon_0_;  // 経度のゼロ点 (Base Frame)
+  double alt_0_;  // 高度のゼロ点 (Base Frame)
 
   Vector3d pos_meas_;
   ImuMsg::ConstSharedPtr imu_raw_, imu_filt_;
@@ -86,8 +91,7 @@ private:
 
   // Static parameters
   std::string frame_id_;
-  bool use_bar_;
-  bool use_gnss_;
+  PositionSource pos_src_;
   bool adaptive_gnss_noise_;
   bool adaptive_grav_noise_;
   bool do_acc_bias_estimation_;
@@ -96,7 +100,7 @@ private:
   bool do_mag_soft_bias_estimation_;
   bool do_grav_estimation_;
   Vector3d imu_offset_;   // [m] ルートリンクに対するIMUの位置 (Local)
-  Vector3d bar_offset_;   // [m] ルートリンクに対する気圧センサの位置 (Local)
+  Vector3d baro_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
   Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
 
   // Dynamic parameters
@@ -121,7 +125,7 @@ private:
   ros2::SubscriberPtr<ImuMsg> imu_raw_sub_;
   ros2::SubscriberPtr<ImuMsg> imu_filt_sub_;
   ros2::SubscriberPtr<MagMsg> mag_sub_;
-  ros2::SubscriberPtr<BaroMsg> bar_sub_;
+  ros2::SubscriberPtr<BaroMsg> baro_sub_;
   ros2::SubscriberPtr<GnssMsg> gnss_sub_;
 
   // Services
@@ -145,6 +149,9 @@ private:
   double initMagHardBiasStddev() const;
   double initMagSoftBiasStddev() const;
   double initGravBiasStddev() const;
+
+  static const char* positionSourceEnumToString(const PositionSource& e);
+  static bool positionSourceStringToEnum(const std::string& s, PositionSource& e);
 
   bool fixedAccMeasNoiseStddevCb(const double& p);
   bool fixedGyroMeasNoiseStddevCb(const double& p);
@@ -247,12 +254,8 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
   imu_filt_sub_ = createSubscriber(tobas::kImuFiltTopic, &self::imuFiltCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
-  if (use_bar_) {
-    bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::baroCb, this);
-  }
-  if (use_gnss_) {
-    gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
-  }
+  baro_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::baroCb, this);
+  gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
 
   // Register service servers
   get_gnss_origin_ss_ = createService<GetOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
@@ -261,11 +264,16 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
 
 void ErrorStateKalmanFilterNode::getStaticRosParams()
 {
-  frame_id_ = getStringParam("frame_id", "unknown");  // 空文字だとTFが警告文を出す
-  use_bar_ = getBoolParam("use_barometer", kDefaultUseBarometer);
-  use_gnss_ = getBoolParam("use_gnss", kDefaultUseGnss);
+  frame_id_ = getStringParam("frame_id", kDefaultFrameId);
+
+  const auto pos_src = getStringParam("position_source", kDefaultPositionSource);
+  if (!positionSourceStringToEnum(pos_src, pos_src_)) {
+    TOBAS_EXIT("Invalid position source: ", pos_src);
+  }
+
   adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise", kDefaultAdaptiveGnssNoise);
   adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise", kDefaultAdaptiveGravNoise);
+
   do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", kDefaultDoAccBiasEstimation);
   do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", kDefaultDoGyroBiasEstimation);
   do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation", kDefaultDoMagHardBiasEstimation);
@@ -273,10 +281,10 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
   do_grav_estimation_ = getBoolParam("do_gravity_estimation", kDefaultDoGravEstimation);
 
   const auto imu_offset = getDoubleArrayParam("imu_offset", std::vector<double>(3, 0.));
-  const auto bar_offset = getDoubleArrayParam("barometer_offset", std::vector<double>(3, 0.));
+  const auto baro_offset = getDoubleArrayParam("barometer_offset", std::vector<double>(3, 0.));
   const auto gnss_offset = getDoubleArrayParam("gnss_offset", std::vector<double>(3, 0.));
   imu_offset_ = Map<const Vector3d>(imu_offset.data());
-  bar_offset_ = Map<const Vector3d>(bar_offset.data());
+  baro_offset_ = Map<const Vector3d>(baro_offset.data());
   gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
 }
 
@@ -384,7 +392,7 @@ void ErrorStateKalmanFilterNode::publishGNSSOrigin() const
   gnss_origin->header.stamp = get_clock()->now();
   gnss_origin->latitude = lat_0_;
   gnss_origin->longitude = lon_0_;
-  gnss_origin->altitude = alt_0_gnss_;
+  gnss_origin->altitude = alt_0_;
 
   gnss_origin_pub_->publish(move(gnss_origin));
 }
@@ -468,6 +476,33 @@ double ErrorStateKalmanFilterNode::initMagSoftBiasStddev() const
 double ErrorStateKalmanFilterNode::initGravBiasStddev() const
 {
   return do_grav_estimation_ ? 0.1 : 0.;
+}
+
+const char* ErrorStateKalmanFilterNode::positionSourceEnumToString(const PositionSource& e)
+{
+  switch (e) {
+    case PositionSource::kGnss:
+      return "gnss";
+    case PositionSource::kAirPressure:
+      return "air_pressure";
+    default:
+      throw;
+  }
+}
+
+bool ErrorStateKalmanFilterNode::positionSourceStringToEnum(const std::string& s, PositionSource& e)
+{
+  if (s == "gnss") {
+    e = PositionSource::kGnss;
+    return true;
+  }
+  else if (s == "air_pressure") {
+    e = PositionSource::kAirPressure;
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 bool ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(const double& p)
@@ -703,6 +738,10 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
 void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
 {
+  if (pos_src_ != PositionSource::kAirPressure) {
+    return;
+  }
+
   if (!imu_raw_) {
     return;
   }
@@ -710,21 +749,25 @@ void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
   if (!baro_) {
-    alt_0_bar_ = tobas_std::pressureToAltitude(baro->pressure);
+    alt_0_ = tobas_std::pressureToAltitude(baro->pressure);
   }
 
   baro_ = baro;
 
-  // TODO: bar_offsetを考慮
+  // TODO: baro_offsetを考慮
   const auto z_abs = tobas_std::pressureToAltitude(baro->pressure);
   const auto z_var = fixed_baro_alt_var_;
-  const auto z_m = z_abs - alt_0_bar_;
+  const auto z_m = z_abs - alt_0_;
   const auto stamp = ros2::chronoFromRosTime(baro->header.stamp);
   eskf_.measureAltitude(z_m, z_var, stamp);
 }
 
 void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 {
+  if (pos_src_ != PositionSource::kGnss) {
+    return;
+  }
+
   if (!imu_raw_ || !imu_filt_) {
     return;
   }
@@ -743,14 +786,14 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     // TODO: IMUフレームに変換
     lat_0_ = gnss->latitude;
     lon_0_ = gnss->longitude;
-    alt_0_gnss_ = gnss->altitude;
+    alt_0_ = gnss->altitude;
 
     // GNSSの初期位置を発行
     publishGNSSOrigin();
 
     // GNSSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
-    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gnss_, tim::yearFraction());
+    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_, tim::yearFraction());
     Vector3d mag_W(mag.north, -mag.east, -mag.down);  // NWU coordinates
     if (!setMagneticFieldRef(mag_W)) {
       return;
@@ -772,7 +815,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
   // 位置の観測値
   tobas_std::gnssToCartRelative(gnss->latitude, gnss->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
-  pos_meas_.z() = gnss->altitude - alt_0_gnss_;  // FIXME: 気圧高度と競合しそう
+  pos_meas_.z() = gnss->altitude - alt_0_;  // FIXME: 気圧高度と競合しそう
 
   // ESKFを更新
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
