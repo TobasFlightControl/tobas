@@ -1,5 +1,5 @@
 Package: tobas
-Maintainer: Masayoshi Dohi <masa0u0masa1215@gmail.com>
+Maintainer: Masayoshi Dohi <m.dohi@tobas.jp>
 Architecture: amd64
 Version: 2.5.0
 Description: Tobas Flight Controller
