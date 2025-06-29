@@ -168,7 +168,6 @@ private:
 
   enum ctrl4_c_t : uint8_t
   {
-
     DEN_XL_EN = 1 << 7,
     SLEEP = 1 << 6,
     INT2_ON_INT1 = 1 << 5,
