@@ -34,6 +34,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  const char* fmuName() const;
   const char* hardwarePackage() const;
 
   /* [Hz] */
@@ -73,6 +74,8 @@ public:
   double gnssHorizontalVelocityStddev() const;
   /* [m/s] */
   double gnssVerticalVelocityStddev() const;
+
+  int numPwmChannels() const;
 
 private Q_SLOTS:
   void setCurrentHardware(int index);

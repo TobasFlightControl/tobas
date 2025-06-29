@@ -46,7 +46,7 @@ public:
   void updateInternalDataStructures();
 
   bool isValid();
-  bool isPwmChannelsUnique();
+  bool isPwmChannelsValid();
 
   YAML::Node dump() const;
   bool load(const YAML::Node& node);

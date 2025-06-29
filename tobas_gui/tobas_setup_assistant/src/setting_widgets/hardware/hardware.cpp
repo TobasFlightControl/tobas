@@ -89,6 +89,11 @@ void HardwareWidget::load(const YAML::Node& node)
   }
 }
 
+const char* HardwareWidget::fmuName() const
+{
+  return selected()->name();
+}
+
 const char* HardwareWidget::hardwarePackage() const
 {
   return selected()->hardwarePackage();
@@ -177,6 +182,11 @@ double HardwareWidget::gnssHorizontalVelocityStddev() const
 double HardwareWidget::gnssVerticalVelocityStddev() const
 {
   return selected()->gnssVerticalVelocityStddev();
+}
+
+int HardwareWidget::numPwmChannels() const
+{
+  return selected()->numPwmChannels();
 }
 
 void HardwareWidget::setCurrentHardware(int index)

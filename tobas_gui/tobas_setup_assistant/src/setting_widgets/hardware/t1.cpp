@@ -18,7 +18,7 @@ T1Widget::T1Widget()
 
 const char* T1Widget::name() const
 {
-  return "T1 | Tobas";
+  return "Tobas T1";
 }
 
 const char* T1Widget::description() const
@@ -128,6 +128,11 @@ double T1Widget::gnssHorizontalVelocityStddev() const
 double T1Widget::gnssVerticalVelocityStddev() const
 {
   return 0.05;  // FIXME: 精度 (Accurasy) と標準偏差は異なる
+}
+
+int T1Widget::numPwmChannels() const
+{
+  return 8;
 }
 }  // namespace sa
 }  // namespace gui

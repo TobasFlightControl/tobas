@@ -68,8 +68,8 @@ bool SettingsWidget::isValid()
     }
   }
 
-  // PWMチャンネルが被ってないことを確認
-  if (!isPwmChannelsUnique()) {
+  // 有効なPWMチャンネルであることを確認
+  if (!isPwmChannelsValid()) {
     return false;
   }
 
@@ -79,7 +79,7 @@ bool SettingsWidget::isValid()
   return true;
 }
 
-bool SettingsWidget::isPwmChannelsUnique()
+bool SettingsWidget::isPwmChannelsValid()
 {
   // 全てのPWMチャンネルを収集
   std::vector<int> channel_list;
@@ -114,9 +114,16 @@ bool SettingsWidget::isPwmChannelsUnique()
     }
   }
 
-  // PWMチャンネルがユニークであることを確認
   std::unordered_set<int> channel_set;
   for (const auto& channel : channel_list) {
+    // PWMチャンネルがハードウェアでサポートされていることを確認
+    if (channel >= hardware->numPwmChannels()) {
+      const auto fmu_name = QString(hardware->fmuName());
+      qt::qErrorBox(this, "FMU \"" + fmu_name + "\" does not support PWM channel " + QString::number(channel) + ".");
+      return false;
+    }
+
+    // PWMチャンネルがユニークであることを確認
     if (!channel_set.insert(channel).second) {
       qt::qErrorBox(this, "PWM channel " + QString::number(channel) + " is duplicated.");
       return false;

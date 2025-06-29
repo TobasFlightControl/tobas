@@ -59,6 +59,8 @@ public:
   virtual double gnssHorizontalVelocityStddev() const = 0;
   /* [m/s] */
   virtual double gnssVerticalVelocityStddev() const = 0;
+
+  virtual int numPwmChannels() const = 0;
 };
 }  // namespace sa
 }  // namespace gui

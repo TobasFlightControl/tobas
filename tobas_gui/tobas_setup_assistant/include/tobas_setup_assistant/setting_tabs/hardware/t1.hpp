@@ -43,6 +43,8 @@ public:
   double gnssVerticalPositionAccuracy() const override;
   double gnssHorizontalVelocityStddev() const override;
   double gnssVerticalVelocityStddev() const override;
+
+  int numPwmChannels() const override;
 };
 }  // namespace sa
 }  // namespace gui
