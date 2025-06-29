@@ -2,6 +2,7 @@
 
 #include <tobas_git/core.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -12,11 +13,11 @@ namespace sa
 AuthorInformationWidget::AuthorInformationWidget()
 {
   name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
-  name_->setValue(QString::fromStdString(git::getGitConfigValue("user.name")));
+  name_->setValue(getDefaultName());
   addWidget(name_);
 
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
-  email_->setValue(QString::fromStdString(git::getGitConfigValue("user.email")));
+  email_->setValue(getDefaultEmail());
   addWidget(email_);
 
   addStretch();
@@ -94,6 +95,31 @@ QString AuthorInformationWidget::authorName() const
 QString AuthorInformationWidget::authorEmail() const
 {
   return email_->getValue();
+}
+
+QString AuthorInformationWidget::getDefaultName()
+{
+  const auto git_user_name = git::getGitConfigValue("user.name");
+  if (!git_user_name.empty()) {
+    return QString::fromStdString(git_user_name);
+  }
+
+  const auto user_name = ros2::getUserName();
+  if (user_name) {
+    return QString(user_name);
+  }
+
+  return QString("todo");
+}
+
+QString AuthorInformationWidget::getDefaultEmail()
+{
+  const auto git_user_email = git::getGitConfigValue("user.email");
+  if (!git_user_email.empty()) {
+    return QString::fromStdString(git_user_email);
+  }
+
+  return QString("todo@todo.todo");
 }
 }  // namespace sa
 }  // namespace gui
