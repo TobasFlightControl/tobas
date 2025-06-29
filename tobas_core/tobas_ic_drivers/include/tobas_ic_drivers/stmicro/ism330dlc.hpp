@@ -145,7 +145,6 @@ private:
 
   enum ctrl2_g_t : uint8_t
   {
-
     ODR_G_26HZ = 0b0010 << 4,
     ODR_G_52HZ = 0b0011 << 4,
     ODR_G_104HZ = 0b0100 << 4,
@@ -186,7 +185,6 @@ private:
 
   enum ctrl6_c_t : uint8_t
   {
-
     TRIG_EN = 1 << 7,
     LVL1_EN = 1 << 6,
     LVL2_EN = 1 << 5,
@@ -200,7 +198,6 @@ private:
 
   enum ctrl7_g_t : uint8_t
   {
-
     G_HM_MODE_DISABLE = 1 << 7,
     HP_EN_G = 1 << 6,
     HPM_G_16MHZ = 00 << 4,
@@ -212,7 +209,6 @@ private:
 
   enum ctrl8_xl_t : uint8_t
   {
-
     LPF2_XL_EN = 1 << 7,
     HPCF_XL_50 = 0b00 << 5,   // fc = ODR/50
     HPCF_XL_100 = 0b01 << 5,  // fc = ODR/100
