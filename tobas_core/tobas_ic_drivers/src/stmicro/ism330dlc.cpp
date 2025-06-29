@@ -23,7 +23,7 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
 
-  // Set full scales
+  // Set default full scales
   if (!setAccelFullScale(fs_xl_t::FS_XL_2G)) {
     return false;
   }
