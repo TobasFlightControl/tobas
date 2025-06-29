@@ -23,11 +23,11 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  if (!imu.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_6660HZ)) {
+  if (!imu.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
     cerr << "Failed to set accelerometer output data rate." << endl;
     return EXIT_FAILURE;
   }
-  if (!imu.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_6660HZ)) {
+  if (!imu.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
     cerr << "Failed to set gyroscope output data rate." << endl;
     return EXIT_FAILURE;
   }

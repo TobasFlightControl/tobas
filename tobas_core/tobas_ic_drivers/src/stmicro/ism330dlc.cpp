@@ -67,14 +67,14 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
     case odr_xl_t::ODR_XL_833HZ:
       ctrl1_xl |= ODR_XL_833HZ;
       break;
-    case odr_xl_t::ODR_XL_1660HZ:
-      ctrl1_xl |= ODR_XL_1660HZ;
+    case odr_xl_t::ODR_XL_1666HZ:
+      ctrl1_xl |= ODR_XL_1666HZ;
       break;
-    case odr_xl_t::ODR_XL_3330HZ:
-      ctrl1_xl |= ODR_XL_3330HZ;
+    case odr_xl_t::ODR_XL_3332HZ:
+      ctrl1_xl |= ODR_XL_3332HZ;
       break;
-    case odr_xl_t::ODR_XL_6660HZ:
-      ctrl1_xl |= ODR_XL_6660HZ;
+    case odr_xl_t::ODR_XL_6664HZ:
+      ctrl1_xl |= ODR_XL_6664HZ;
       break;
     default:
       cerr << "Invalid accelerometer output data rate type: " << (int)odr << endl;
@@ -116,14 +116,14 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
     case odr_g_t::ODR_G_833HZ:
       ctrl2_g |= ODR_G_833HZ;
       break;
-    case odr_g_t::ODR_G_1660HZ:
-      ctrl2_g |= ODR_G_1660HZ;
+    case odr_g_t::ODR_G_1666HZ:
+      ctrl2_g |= ODR_G_1666HZ;
       break;
-    case odr_g_t::ODR_G_3330HZ:
-      ctrl2_g |= ODR_G_3330HZ;
+    case odr_g_t::ODR_G_3332HZ:
+      ctrl2_g |= ODR_G_3332HZ;
       break;
-    case odr_g_t::ODR_G_6660HZ:
-      ctrl2_g |= ODR_G_6660HZ;
+    case odr_g_t::ODR_G_6664HZ:
+      ctrl2_g |= ODR_G_6664HZ;
       break;
     default:
       cerr << "Invalid gyroscope output data rate type: " << (int)odr << endl;
