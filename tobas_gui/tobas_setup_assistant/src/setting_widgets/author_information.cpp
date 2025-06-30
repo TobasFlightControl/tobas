@@ -35,7 +35,7 @@ const char* AuthorInformationWidget::title() const
 
 const char* AuthorInformationWidget::description() const
 {
-  return "Enter the name and email address of the person administering the Tobas package "
+  return "Enter the name and email address of the person administering the Tobas project "
          "that you're creating with the Setup Assistant. "
          "This step is important for keeping track of package ownership and for any necessary future communications.";
 }

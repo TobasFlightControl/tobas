@@ -196,7 +196,7 @@ void SetupAssistantWidget::onNewButtonClicked()
     return;
   }
 
-  // Tobasパッケージのパスをクリア
+  // Tobasプロジェクトのパスをクリア
   tbs_path_->clear();
 
   qt::qInfoBox(this, "URDF is loaded successfully. Configure the settings for each tab.");
@@ -211,7 +211,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
   }
 
-  // Tobasパッケージのパスを取得
+  // Tobasプロジェクトのパスを取得
   common::TbsProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;

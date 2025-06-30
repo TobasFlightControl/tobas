@@ -141,7 +141,7 @@ bool SimulationWidget::startSITL()
   progress.show();
 
   // Tobasパッケージをビルド
-  progress.setLabelText("Building Tobas package.");
+  progress.setLabelText("Building Tobas project packages.");
   if (!buildLocalPackage()) {
     progress.close();
     return false;

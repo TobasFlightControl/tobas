@@ -129,7 +129,7 @@ bool ParameterTuningWidget::saveRemote()
 void ParameterTuningWidget::onLoadButtonClicked()
 {
   if (drone_.name.empty()) {
-    qt::qWarnBox(this, "Tobas package is not loaded yet.");
+    qt::qWarnBox(this, "Tobas project is not loaded yet.");
     return;
   }
 

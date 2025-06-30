@@ -38,7 +38,7 @@ HardwareSetupWidget::HardwareSetupWidget(
 
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
-  // Tobasパッケージが読み込まれるまでは無効化
+  // Tobasプロジェクトが読み込まれるまでは無効化
   setEnabledConfigDependentWidgets(false);
 }
 

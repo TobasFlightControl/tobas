@@ -42,7 +42,7 @@ bool PackageGenerator::generatePackage()
 
   // Tobasパッケージを作成
   if (!path::createDirectories(tbs_path)) {
-    qt::qErrorBox(settings_, "Failed to create Tobas package path.");
+    qt::qErrorBox(settings_, "Failed to create Tobas project path.");
     return false;
   }
 

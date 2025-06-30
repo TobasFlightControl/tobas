@@ -12,7 +12,7 @@ namespace gui
 {
 namespace common
 {
-bool sourceTobasPackage(const fs::path& tbs_path)
+bool sourceTobasProject(const fs::path& tbs_path)
 {
   constexpr char AMENT_PREFIX_PATH[] = "AMENT_PREFIX_PATH";
 

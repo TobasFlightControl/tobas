@@ -47,7 +47,7 @@ const std::string& LocalPackageBuilder::getOutput() const
 
 bool LocalPackageBuilder::colconBuild(const fs::path& tbs_path)
 {
-  // Navigate to the Tobas package
+  // Navigate to the Tobas project directory
   if (chdir(tbs_path.c_str()) != 0) {
     std::cerr << "Failed to navigate to \"" << tbs_path << "\"." << std::endl;
     return false;
@@ -79,7 +79,7 @@ bool LocalPackageBuilder::colconBuild(const fs::path& tbs_path)
     install_path.string(),
     meta_name);
 
-  // Build Tobas package
+  // Build Tobas project packages
   std::cout << "Executing \"" << build_cmd << "\" on " << tbs_path << "." << std::endl;
   if (!command_executor_.execute(build_cmd)) {
     std::cerr << "Failed to build \"" << meta_name << "\"." << std::endl;

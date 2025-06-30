@@ -180,7 +180,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
   }
 
-  // Tobasパッケージのパスを取得
+  // Tobasプロジェクトのパスを取得
   common::TbsProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
@@ -327,7 +327,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     progress.progressStep();
   }
 
-  // Tobasパッケージを送信
+  // Tobasプロジェクトを送信
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
@@ -338,7 +338,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // Tobasパッケージをビルド
+  // Tobasプロジェクトをビルド
   progress.setLabelText("Building Tobas configuration package.");
   if (!package_builder_.build(remote_tbs_path)) {
     progress.close();
