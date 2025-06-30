@@ -6,6 +6,7 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/package.hpp>
+#include <tobas_gui_common/tbs_project_dialog.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_ros2_tools/xacro.hpp>
@@ -211,20 +212,14 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // Tobasパッケージのパスを取得
-  const auto options = QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
-  const auto tbs_path =
-    QFileDialog::getExistingDirectory(this, kTitle, QString::fromStdString(last_opened_dir), options);
-
-  // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-  if (tbs_path.isEmpty()) {
+  common::TbsProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  if (dialog.exec() != QDialog::Accepted) {
     return;
   }
+  const auto tbs_path = dialog.selectedFiles().first();
 
-  // 拡張子をチェック
-  if (!tbs_path.endsWith(tobas::kTBSExtension)) {
-    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
-    return;
-  }
+  // パスをテキストに設定
+  tbs_path_->setText(tbs_path);
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
@@ -247,9 +242,6 @@ void SetupAssistantWidget::onLoadButtonClicked()
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
-
-  // Tobasパッケージのパスを設定
-  tbs_path_->setText(tbs_path);
 
   // ユーザ設定を読み込む
   const auto settings_path = common::getSettingsPath(tbs_path.toStdString());

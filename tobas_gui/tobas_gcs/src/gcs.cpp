@@ -10,6 +10,7 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/package.hpp>
+#include <tobas_gui_common/tbs_project_dialog.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -180,20 +181,11 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Tobasパッケージのパスを取得
-  const auto options = QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
-  const auto tbs_path =
-    QFileDialog::getExistingDirectory(this, kTitle, QString::fromStdString(last_opened_dir), options);
-
-  // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-  if (tbs_path.isEmpty()) {
+  common::TbsProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-
-  // 拡張子をチェック
-  if (!tbs_path.endsWith(tobas::kTBSExtension)) {
-    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
-    return;
-  }
+  const auto tbs_path = dialog.selectedFiles().first();
 
   // パスをテキストに設定
   tbs_path_->setText(tbs_path);

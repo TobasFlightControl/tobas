@@ -21,18 +21,33 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
 
-set(AMENT_DEPENDENCIES Qt5Core ament_index_cpp tobas_std_tools tobas_linux tobas_constants tobas_ssh_client)
+set(AMENT_DEPENDENCIES
+    Qt5Core
+    Qt5Widgets
+    ament_index_cpp
+    tobas_std_tools
+    tobas_linux
+    tobas_constants
+    tobas_ssh_client
+)
+
+add_definitions(-DQT_NO_KEYWORDS)
+set(CMAKE_AUTOMOC ON)
+
+file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/*.hpp)
+qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE EXE_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
