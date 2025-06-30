@@ -48,22 +48,22 @@ public:
   QStringList jointNames() const;
 
 private Q_SLOTS:
-  void RobotNameTextChanged(const QString& name);
-  void NewButtonClicked();
-  void LoadButtonClicked();
-  void SaveButtonClicked();
-  void SaveAsButtonClicked();
-  void EnableVisualCheckBoxToggled(bool checked);
-  void EnableCollisionCheckBoxToggled(bool checked);
-  void EnableInertiaCheckBoxToggled(bool checked);
-  void LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
-  void LinkTreeWidgetItemChanged(QTreeWidgetItem* item, int column);
-  void LinkTreeContextMenuRequested(const QPoint&);
-  void AddLinkActionToggled(bool);
-  void RemoveLinkActionToggled(bool);
-  void CloneLinkActionToggled(bool);
-  void OnUpdate();
-  void LinkDialogChanged();
+  void onRobotNameTextChanged(const QString& name);
+  void onNewButtonClicked();
+  void onLoadButtonClicked();
+  void onSaveButtonClicked();
+  void onSaveAsButtonClicked();
+  void onEnableVisualCheckBoxToggled(bool checked);
+  void onEnableCollisionCheckBoxToggled(bool checked);
+  void onEnableInertiaCheckBoxToggled(bool checked);
+  void onLinkTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
+  void onLinkTreeWidgetItemChanged(QTreeWidgetItem* item, int column);
+  void onLinkTreeContextMenuRequested(const QPoint&);
+  void onAddLinkActionToggled(bool);
+  void onRemoveLinkActionToggled(bool);
+  void onCloneLinkActionToggled(bool);
+  void onUpdate();
+  void onLinkDialogChanged();
 
 private:
   ros2::AsyncNodeManager node_manager_;  // Qtと別のスレッドで動作するノード

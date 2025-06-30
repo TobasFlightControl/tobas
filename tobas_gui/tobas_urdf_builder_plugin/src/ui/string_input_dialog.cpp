@@ -30,7 +30,7 @@ StringInputDialog::StringInputDialog(
   cols->addWidget(label);
 
   line_edit_ = new QLineEdit(default_text);
-  connect(line_edit_, &QLineEdit::textChanged, this, &self::LineEditTextChanged);
+  connect(line_edit_, &QLineEdit::textChanged, this, &self::onLineEditTextChanged);
   cols->addWidget(line_edit_);
 
   warn_label_ = new QLabel();
@@ -51,7 +51,7 @@ QString StringInputDialog::getText() const
   return line_edit_->text();
 }
 
-void StringInputDialog::LineEditTextChanged(const QString& text)
+void StringInputDialog::onLineEditTextChanged(const QString& text)
 {
   if (text.isEmpty()) {
     warn_label_->setText("Please set text.");

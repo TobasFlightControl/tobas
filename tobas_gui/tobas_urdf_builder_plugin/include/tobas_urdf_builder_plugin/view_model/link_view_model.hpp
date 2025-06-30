@@ -17,7 +17,6 @@ namespace ub
 namespace view_model
 {
 class LinkViewModel;
-
 using LinkViewModelPtr = std::shared_ptr<LinkViewModel>;
 using V_LinkViewModelPtr = std::vector<LinkViewModelPtr>;
 

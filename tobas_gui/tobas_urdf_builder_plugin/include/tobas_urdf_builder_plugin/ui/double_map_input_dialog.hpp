@@ -30,7 +30,7 @@ public:
   const double& getValue(const QString& field) const;
 
 private Q_SLOTS:
-  void SpinBoxValueChanged(double value);
+  void onSpinBoxValueChanged(double value);
 
 private:
   std::map<QString, double> field2value_;

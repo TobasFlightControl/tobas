@@ -29,7 +29,7 @@ public:
   QString getText() const;
 
 private Q_SLOTS:
-  void LineEditTextChanged(const QString& text);
+  void onLineEditTextChanged(const QString& text);
 
 private:
   const QStringList& excludeds_;

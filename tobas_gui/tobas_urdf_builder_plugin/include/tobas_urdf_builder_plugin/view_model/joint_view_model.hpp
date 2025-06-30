@@ -14,10 +14,6 @@ namespace ub
 {
 namespace view_model
 {
-class JointViewModel;
-using JointViewModelPtr = std::shared_ptr<JointViewModel>;
-using V_JointViewModelPtr = std::vector<JointViewModelPtr>;
-
 class JointViewModel : public BaseViewModel<urdf::Joint, JointViewModel>
 {
 public:
@@ -51,6 +47,9 @@ public:
 private:
   JointLimitsViewModelPtr limits_;
 };
+
+using JointViewModelPtr = std::shared_ptr<JointViewModel>;
+using V_JointViewModelPtr = std::vector<JointViewModelPtr>;
 }  // namespace view_model
 }  // namespace ub
 }  // namespace gui
