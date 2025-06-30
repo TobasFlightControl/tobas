@@ -77,8 +77,8 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   tbs_path_->setReadOnly(true);
   tbs_path_->setFocusPolicy(Qt::NoFocus);
 
-  load_btn_ = new QPushButton("Load");
-  write_btn_ = new QPushButton("Write");
+  load_btn_ = new QPushButton("Load Project");
+  write_btn_ = new QPushButton("Write Project");
 
   load_btn_->setEnabled(true);
   write_btn_->setEnabled(false);
