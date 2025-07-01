@@ -9,8 +9,8 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/package.hpp>
-#include <tobas_gui_common/tbs_project_dialog.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -180,8 +180,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
   }
 
-  // Tobasプロジェクトのパスを取得
-  common::TbsProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  // プロジェクトのパスを取得
+  common::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
@@ -200,17 +200,15 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path.toStdString());
+  const auto tbsdrn_path = common::getProjTbsDrnPath(tbs_path.toStdString());
   if (!fs::is_regular_file(tbsdrn_path)) {
     qt::qErrorBox(
-      this,
-      "\"" + QString::fromStdString(tbsdrn_path) +
-        "\" does not exist. Please create a new Tobas configuration package.");
+      this, "\"" + QString::fromStdString(tbsdrn_path) + "\" does not exist. Please create a new Tobas project.");
     return;
   }
 
   // kdl::Treeをロード
-  const auto urdf_path = common::getOriginalURDFPath(tbs_path.toStdString());
+  const auto urdf_path = common::getProjBackupUrdfPath(tbs_path.toStdString());
   if (!kdl::treeFromFile(urdf_path, tree_)) {
     qt::qErrorBox(this, "Failed to load robot tree.");
     return;
@@ -229,7 +227,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   write_btn_->setEnabled(true);
 
   // ロードが成功したことを示すダイアログ
-  qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
+  qt::qInfoBox(this, "Tobas project is loaded successfully.");
 }
 
 void GroundControlStationWidget::onWriteButtonClicked()
@@ -255,8 +253,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
 
   const auto tbs_path = tbsPath();
-  const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path);
-  const auto config_pkg_name = common::getTBSConfigName(tbs_path);
+  const auto remote_tbs_path = common::getProjRemotePath(tbs_path);
+  const auto config_pkg_name = common::getProjCfgPkgName(tbs_path);
 
   // 進捗バーを作成
   qt::ProgressDialog progress(kTitle, 9, this);
@@ -327,25 +325,23 @@ void GroundControlStationWidget::onWriteButtonClicked()
     progress.progressStep();
   }
 
-  // Tobasプロジェクトを送信
-  progress.setLabelText("Sending Tobas configuration package to the flight controller.");
-  const auto mesh_path = common::getMeshPath(tbs_path);
+  // プロジェクトを送信
+  progress.setLabelText("Sending Tobas project to the flight controller.");
+  const auto mesh_path = common::getProjCfgMeshDirPath(tbs_path);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(tbs_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
     progress.close();
-    qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
 
-  // Tobasプロジェクトをビルド
-  progress.setLabelText("Building Tobas configuration package.");
+  // プロジェクトをビルド
+  progress.setLabelText("Building Tobas project.");
   if (!package_builder_.build(remote_tbs_path)) {
     progress.close();
     qt::qErrorBox(
-      this,
-      "Failed to build the Tobas configuration package:\n\n" +
-        QString::fromStdString(package_builder_.getErrorMessage()));
+      this, "Failed to build the Tobas project:\n\n" + QString::fromStdString(package_builder_.getErrorMessage()));
     return;
   }
   progress.progressStep();
@@ -365,7 +361,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   progress.close();
-  qt::qInfoBox(this, "Tobas configuration package is installed successfully.");
+  qt::qInfoBox(this, "Tobas project is installed successfully.");
 }
 
 void GroundControlStationWidget::onRestartButtonClicked(bool checked)

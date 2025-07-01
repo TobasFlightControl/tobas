@@ -7,12 +7,12 @@ namespace gui
 {
 namespace common
 {
-class TbsProjectDialog : public QFileDialog
+class LoadProjectDialog : public QFileDialog
 {
   Q_OBJECT
 
 public:
-  explicit TbsProjectDialog(QWidget* parent, const QString& dir);
+  explicit LoadProjectDialog(QWidget* parent, const QString& dir);
 
 private:
   QSortFilterProxyModel* proxy_;

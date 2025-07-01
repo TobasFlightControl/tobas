@@ -24,8 +24,8 @@ bool sourceTobasProject(const fs::path& tbs_path)
   }
 
   // Set new paths
-  const auto config_path = getTBSConfigPath(tbs_path);
-  const auto user_path = getTBSConfigPath(tbs_path);
+  const auto config_path = getProjCfgPkgPath(tbs_path);
+  const auto user_path = getProjCfgPkgPath(tbs_path);
   const auto new_paths = config_path.string() + ":" + user_path.string() + ":" + old_paths;
   if (setenv(AMENT_PREFIX_PATH, new_paths.c_str(), 1) != 0) {
     std::cerr << "Failed to set \"" << AMENT_PREFIX_PATH << "\"." << std::endl;

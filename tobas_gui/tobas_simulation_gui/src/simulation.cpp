@@ -76,12 +76,12 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 {
   reset();
 
-  if (!kdl::treeFromFile(common::getOriginalURDFPath(tbs_path), tree_)) {
+  if (!kdl::treeFromFile(common::getProjBackupUrdfPath(tbs_path), tree_)) {
     qt::qErrorBox(this, "Failed to load kdl tree.");
     return false;
   }
 
-  if (!drone_.load(common::getTBSDRNPath(tbs_path))) {
+  if (!drone_.load(common::getProjTbsDrnPath(tbs_path))) {
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return false;
   }
@@ -240,11 +240,11 @@ bool SimulationWidget::startHITL()
   progress.progressStep();
 
   // Tobasパッケージを送信
-  progress.setLabelText("Sending Tobas configuration package to the flight controller.");
-  const auto mesh_path = common::getMeshPath(tbs_path_);
+  progress.setLabelText("Sending Tobas project to the flight controller.");
+  const auto mesh_path = common::getProjCfgMeshDirPath(tbs_path_);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(tbs_path_, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
-    qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
   }
@@ -252,7 +252,7 @@ bool SimulationWidget::startHITL()
 
   // リモートパッケージをビルド
   progress.setLabelText("Building Tobas remote package.");
-  const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path_);
+  const auto remote_tbs_path = common::getProjRemotePath(tbs_path_);
   if (!remote_pkg_builder_.build(remote_tbs_path)) {
     qt::qErrorBox(
       this,
@@ -361,7 +361,7 @@ bool SimulationWidget::buildLocalPackage()
 bool SimulationWidget::launchGazebo(bool launch_core)
 {
   const auto install_path = ros2::expandUser(tobas::kColconWSPathHome) / "install";
-  const auto config_pkg_name = common::getTBSConfigName(tbs_path_);
+  const auto config_pkg_name = common::getProjCfgPkgName(tbs_path_);
   const std::map<std::string, std::string> args{
     { "world_path", sim_settings_->worldPath().string() },
     { "launch_core", boolToText(launch_core) },

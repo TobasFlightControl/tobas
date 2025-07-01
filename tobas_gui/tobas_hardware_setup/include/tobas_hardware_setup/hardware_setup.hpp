@@ -45,7 +45,7 @@ private:
   RotorTestWidget* rotor_test_;
   JointTestWidget* joint_test_;
 
-  /* Tobasプロジェクトに依存した項目の有効/無効を制御． */
+  /* プロジェクトに依存した項目の有効/無効を制御． */
   void setEnabledConfigDependentWidgets(bool enabled);
 };
 }  // namespace hw

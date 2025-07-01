@@ -116,7 +116,7 @@ void URDFBuilderPanel::onLoadButtonClicked()
   // URDFまたはXACROのパスを取得
   const auto last_opened_dir = getLastOpenedDir();
   const auto file_path = QFileDialog::getOpenFileName(
-    this, tr("Load URDF"), last_opened_dir, tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
+    this, "Load URDF", last_opened_dir, "Robot Description (*.urdf *.xacro);;All Files (*)");
 
   if (file_path.isEmpty()) {
     return;
@@ -166,16 +166,20 @@ void URDFBuilderPanel::onSaveButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "URDFBuilderPanel::onSaveButtonClicked");
 
-  if (!isValid()) {
-    return;
-  }
+  const auto cur_urdf_path = ui_->Path->text();
 
-  if (ui_->Path->text().isEmpty()) {
+  if (cur_urdf_path.isEmpty()) {
     onSaveAsButtonClicked();
     return;
   }
 
-  saveURDF(ui_->Path->text());
+  if (!isValid()) {
+    return;
+  }
+
+  if (!saveURDF(cur_urdf_path)) {
+    return;
+  }
 }
 
 void URDFBuilderPanel::onSaveAsButtonClicked()
@@ -188,9 +192,7 @@ void URDFBuilderPanel::onSaveAsButtonClicked()
 
   const auto last_opened_dir = getLastOpenedDir();
   SaveUrdfDialog dialog(this, last_opened_dir);
-
-  const auto result = dialog.exec();
-  if (result != QDialog::Accepted) {
+  if (dialog.exec() != QDialog::Accepted) {
     return;
   }
   const auto file_path = dialog.selectedFiles().first();

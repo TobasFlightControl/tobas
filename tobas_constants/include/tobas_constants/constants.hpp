@@ -165,7 +165,7 @@ static constexpr double kTypicalErrorPeriod = 1.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;  // [s]
 
 // Others
-static constexpr char kTBSExtension[] = ".TBS";
+static constexpr char kProjectExtension[] = ".TBS";
 static constexpr char kPropertyServerName[] = "/property_server";
 static constexpr char kMinimulURDF[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
 static constexpr double kMinAirSpeedThresh = 0.1;          // [m/s] 空力計算を行う最小風速

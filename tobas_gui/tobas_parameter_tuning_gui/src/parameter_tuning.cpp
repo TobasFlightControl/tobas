@@ -78,7 +78,7 @@ bool ParameterTuningWidget::updateTBSPath(const fs::path& tbs_path)
 {
   reset();
 
-  if (!drone_.load(common::getTBSDRNPath(tbs_path))) {
+  if (!drone_.load(common::getProjTbsDrnPath(tbs_path))) {
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return false;
   }
@@ -90,16 +90,16 @@ bool ParameterTuningWidget::updateTBSPath(const fs::path& tbs_path)
 
 bool ParameterTuningWidget::saveLocal()
 {
-  if (!imu_filter_params_->saveLocal(common::getImuFilterDynamicParamsPath(tbs_path_))) {
+  if (!imu_filter_params_->saveLocal(common::getProjImuFiltDynParamsPath(tbs_path_))) {
     return false;
   }
-  if (!observer_params_->saveLocal(common::getObserverDynamicParamsPath(tbs_path_))) {
+  if (!observer_params_->saveLocal(common::getProjObsvDynParamsPath(tbs_path_))) {
     return false;
   }
-  if (!controller_params_->saveLocal(common::getControllerDynamicParamsPath(tbs_path_))) {
+  if (!controller_params_->saveLocal(common::getProjCtrlDynParamsPath(tbs_path_))) {
     return false;
   }
-  if (!rc_teleop_params_->saveLocal(common::getRcTeleopDynamicParamsPath(tbs_path_))) {
+  if (!rc_teleop_params_->saveLocal(common::getProjRcTeleopDynParamsPath(tbs_path_))) {
     return false;
   }
 
@@ -108,18 +108,18 @@ bool ParameterTuningWidget::saveLocal()
 
 bool ParameterTuningWidget::saveRemote()
 {
-  const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path_);
+  const auto remote_tbs_path = common::getProjRemotePath(tbs_path_);
 
-  if (!imu_filter_params_->saveRemote(common::getImuFilterDynamicParamsPath(remote_tbs_path))) {
+  if (!imu_filter_params_->saveRemote(common::getProjImuFiltDynParamsPath(remote_tbs_path))) {
     return false;
   }
-  if (!observer_params_->saveRemote(common::getObserverDynamicParamsPath(remote_tbs_path))) {
+  if (!observer_params_->saveRemote(common::getProjObsvDynParamsPath(remote_tbs_path))) {
     return false;
   }
-  if (!controller_params_->saveRemote(common::getControllerDynamicParamsPath(remote_tbs_path))) {
+  if (!controller_params_->saveRemote(common::getProjCtrlDynParamsPath(remote_tbs_path))) {
     return false;
   }
-  if (!rc_teleop_params_->saveRemote(common::getRcTeleopDynamicParamsPath(remote_tbs_path))) {
+  if (!rc_teleop_params_->saveRemote(common::getProjRcTeleopDynParamsPath(remote_tbs_path))) {
     return false;
   }
 
@@ -180,8 +180,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
       return;
     }
 
-    qt::qInfoBox(
-      this, "Dynamic parameters are saved only to PC. Write the Tobas Configuration Package to apply them to the FC.");
+    qt::qInfoBox(this, "Dynamic parameters are saved only to PC. Write the Tobas project to apply them to the FC.");
   }
 }
 

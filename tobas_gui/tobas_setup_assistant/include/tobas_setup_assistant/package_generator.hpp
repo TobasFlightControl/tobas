@@ -14,7 +14,7 @@ namespace gui
 {
 namespace sa
 {
-class PackageGenerator
+class ProjectGenerator
 {
   static constexpr char kROSParamsKey[] = "ros__parameters";
 
@@ -22,9 +22,9 @@ class PackageGenerator
   static constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
 
 public:
-  explicit PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
+  explicit ProjectGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
 
-  bool generatePackage();
+  bool generateProject(const std::filesystem::path& tbs_path);
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -38,31 +38,30 @@ private:
   std::shared_ptr<TemplateGenerator> user_py_env_;
 
   /* ROS Packageのタブで指定されたTobasパッケージのパスへのエイリアス． */
-  std::string tbsPath() const;
   std::string flightActionsPackage() const;
 
-  inja::json createTemplateData();
+  inja::json createTemplateData(const std::filesystem::path& tbs_path);
 
   tobas::Drone createDrone();
 
   bool hasServoJoint() const;
 
-  bool generateMetaPackage(const inja::json& data);
-  bool generateConfigPackage(const inja::json& data);
-  bool generateUserMsgPackage(const inja::json& data);
-  bool generateUserCppPackage(const inja::json& data);
-  bool generateUserPyPackage(const inja::json& data);
-  bool generateBackupFiles();
+  bool generateMetaPackage(const std::filesystem::path& tbs_path, const inja::json& data);
+  bool generateConfigPackage(const std::filesystem::path& tbs_path, const inja::json& data);
+  bool generateUserMsgPackage(const std::filesystem::path& tbs_path, const inja::json& data);
+  bool generateUserCppPackage(const std::filesystem::path& tbs_path, const inja::json& data);
+  bool generateUserPyPackage(const std::filesystem::path& tbs_path, const inja::json& data);
+  bool generateBackupFiles(const std::filesystem::path& tbs_path);
 
-  bool generateControllerManagerLaunch(const std::filesystem::path& launch_dir);
-  bool generateJointControllerManagerConfig(const std::filesystem::path& config_dir);
-  bool generateJointControllerConfigs(const std::filesystem::path& config_dir);
-  bool generateDroneConfig(const std::filesystem::path& config_dir);
-  bool generatePreArmCheckConfig(const std::filesystem::path& config_dir);
-  bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
-  bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
-  bool generateRcTeleopStaticConfig(const std::filesystem::path& config_dir);
-  bool generateModifiedURDF(const std::filesystem::path& mesh_dir);
+  bool generateControllerManagerLaunch(const std::filesystem::path& tbs_path);
+  bool generateJointControllerManagerConfig(const std::filesystem::path& tbs_path);
+  bool generateJointControllerConfigs(const std::filesystem::path& tbs_path);
+  bool generateDroneConfig(const std::filesystem::path& tbs_path);
+  bool generatePreArmCheckConfig(const std::filesystem::path& tbs_path);
+  bool generateObserverStaticConfig(const std::filesystem::path& tbs_path);
+  bool generateControllerStaticConfig(const std::filesystem::path& tbs_path);
+  bool generateRcTeleopStaticConfig(const std::filesystem::path& tbs_path);
+  bool generateModifiedUrdf(const std::filesystem::path& tbs_path);
 
   /* 空のファイルを作成する． */
   bool createEmptyFile(const std::filesystem::path& file_path);
@@ -74,16 +73,16 @@ private:
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
 
   /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& mesh_dir);
+  bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
 
   /* オリジナルURDFの全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  bool replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem);
+  bool replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
 
   /* プロペラジョイントのlimitタグを削除する． */
   bool removePropellerJointLimits(tinyxml2::XMLElement* robot);
 
   /* Gazeboプラグイン等をXMLに追加する． */
-  bool addXMLElements(tinyxml2::XMLElement* robot);
+  bool addXmlElements(tinyxml2::XMLElement* robot, const std::filesystem::path& tbs_path);
 };
 }  // namespace sa
 }  // namespace gui

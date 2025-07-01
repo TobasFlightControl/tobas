@@ -9,115 +9,130 @@ namespace gui
 {
 namespace common
 {
-fs::path getRemoteTBSPath(const fs::path& tbs_path)
+fs::path getProjRemotePath(const fs::path& tbs_path)
 {
   return "/etc/tobas/colcon_ws/src" / tbs_path.filename();
 }
 
-std::string getTBSName(const fs::path& tbs_path)
+std::string getProjName(const fs::path& tbs_path)
 {
-  TOBAS_CHECK(tbs_path.extension() == tobas::kTBSExtension);
+  TOBAS_CHECK(tbs_path.extension() == tobas::kProjectExtension);
   return tbs_path.stem();
 }
 
-std::string getTBSMetaName(const fs::path& tbs_path)
+std::string getProjMetaPkgName(const fs::path& tbs_path)
 {
-  return getTBSName(tbs_path);
+  return getProjName(tbs_path);
 }
 
-std::string getTBSConfigName(const fs::path& tbs_path)
+std::string getProjCfgPkgName(const fs::path& tbs_path)
 {
-  return getTBSName(tbs_path) + "_config";
+  return getProjName(tbs_path) + "_config";
 }
 
-std::string getTBSUserMsgName(const fs::path& tbs_path)
+std::string getProjUserMsgPkgName(const fs::path& tbs_path)
 {
-  return getTBSName(tbs_path) + "_user_msgs";
+  return getProjName(tbs_path) + "_user_msgs";
 }
 
-std::string getTBSUserCppName(const fs::path& tbs_path)
+std::string getProjUserCppPkgName(const fs::path& tbs_path)
 {
-  return getTBSName(tbs_path) + "_user_cpp";
+  return getProjName(tbs_path) + "_user_cpp";
 }
 
-std::string getTBSUserPyName(const fs::path& tbs_path)
+std::string getProjUserPyPkgName(const fs::path& tbs_path)
 {
-  return getTBSName(tbs_path) + "_user_py";
+  return getProjName(tbs_path) + "_user_py";
 }
 
-fs::path getBackupPath(const fs::path& tbs_path)
+fs::path getProjMetaPkgPath(const fs::path& tbs_path)
+{
+  return tbs_path / getProjMetaPkgName(tbs_path);
+}
+
+fs::path getProjCfgPkgPath(const fs::path& tbs_path)
+{
+  return tbs_path / getProjCfgPkgName(tbs_path);
+}
+
+fs::path getProjUserMsgPkgPath(const fs::path& tbs_path)
+{
+  return tbs_path / getProjUserMsgPkgName(tbs_path);
+}
+
+fs::path getProjUserCppPkgPath(const fs::path& tbs_path)
+{
+  return tbs_path / getProjUserCppPkgName(tbs_path);
+}
+
+fs::path getProjUserPyPkgPath(const fs::path& tbs_path)
+{
+  return tbs_path / getProjUserPyPkgName(tbs_path);
+}
+
+fs::path getProjCfgConfigDirPath(const fs::path& tbs_path)
+{
+  return getProjCfgPkgPath(tbs_path) / "config";
+}
+
+fs::path getProjCfgLaunchDirPath(const fs::path& tbs_path)
+{
+  return getProjCfgPkgPath(tbs_path) / "launch";
+}
+
+fs::path getProjCfgMeshDirPath(const fs::path& tbs_path)
+{
+  return getProjCfgPkgPath(tbs_path) / "meshes";
+}
+
+fs::path getProjCfgUrdfDirPath(const fs::path& tbs_path)
+{
+  return getProjCfgPkgPath(tbs_path) / "urdf";
+}
+
+fs::path getProjXacroPath(const fs::path& tbs_path)
+{
+  return getProjCfgUrdfDirPath(tbs_path) / "drone.xacro";
+}
+
+fs::path getProjTbsDrnPath(const fs::path& tbs_path)
+{
+  return getProjCfgConfigDirPath(tbs_path) / "drone.tbsdrn";
+}
+
+fs::path getProjImuFiltDynParamsPath(const fs::path& tbs_path)
+{
+  return getProjCfgConfigDirPath(tbs_path) / "imu_filter_dynamic.yaml";
+}
+
+fs::path getProjObsvDynParamsPath(const fs::path& tbs_path)
+{
+  return getProjCfgConfigDirPath(tbs_path) / "observer_dynamic.yaml";
+}
+
+fs::path getProjCtrlDynParamsPath(const fs::path& tbs_path)
+{
+  return getProjCfgConfigDirPath(tbs_path) / "controller_dynamic.yaml";
+}
+
+fs::path getProjRcTeleopDynParamsPath(const fs::path& tbs_path)
+{
+  return getProjCfgConfigDirPath(tbs_path) / "rc_teleop_dynamic.yaml";
+}
+
+fs::path getProjBackupDirPath(const fs::path& tbs_path)
 {
   return tbs_path / "backup";
 }
 
-fs::path getTBSMetaPath(const fs::path& tbs_path)
+fs::path getProjBackupSettingsPath(const fs::path& tbs_path)
 {
-  return tbs_path / getTBSMetaName(tbs_path);
+  return getProjBackupDirPath(tbs_path) / "settings.yaml";
 }
 
-fs::path getTBSConfigPath(const fs::path& tbs_path)
+fs::path getProjBackupUrdfPath(const fs::path& tbs_path)
 {
-  return tbs_path / getTBSConfigName(tbs_path);
-}
-
-fs::path getTBSUserMsgPath(const fs::path& tbs_path)
-{
-  return tbs_path / getTBSUserMsgName(tbs_path);
-}
-
-fs::path getTBSUserCppPath(const fs::path& tbs_path)
-{
-  return tbs_path / getTBSUserCppName(tbs_path);
-}
-
-fs::path getTBSUserPyPath(const fs::path& tbs_path)
-{
-  return tbs_path / getTBSUserPyName(tbs_path);
-}
-
-fs::path getTBSDRNPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "config" / "drone.tbsdrn";
-}
-
-fs::path getModifiedURDFPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "urdf" / "drone.xacro";
-}
-
-fs::path getMeshPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "mesh";
-}
-
-fs::path getImuFilterDynamicParamsPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "config" / "imu_filter_dynamic.yaml";
-}
-
-fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "config" / "observer_dynamic.yaml";
-}
-
-fs::path getControllerDynamicParamsPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "config" / "controller_dynamic.yaml";
-}
-
-fs::path getRcTeleopDynamicParamsPath(const fs::path& tbs_path)
-{
-  return getTBSConfigPath(tbs_path) / "config" / "rc_teleop_dynamic.yaml";
-}
-
-fs::path getSettingsPath(const fs::path& tbs_path)
-{
-  return getBackupPath(tbs_path) / "settings.yaml";
-}
-
-fs::path getOriginalURDFPath(const fs::path& tbs_path)
-{
-  return getBackupPath(tbs_path) / "original.urdf";
+  return getProjBackupDirPath(tbs_path) / "original.urdf";
 }
 }  // namespace common
 }  // namespace gui

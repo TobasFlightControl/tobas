@@ -5,13 +5,15 @@
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/package.hpp>
-#include <tobas_gui_common/tbs_project_dialog.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_ros2_tools/xacro.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
+
+#include "tobas_setup_assistant/save_project_dialog.hpp"
 
 namespace fs = std::filesystem;
 
@@ -32,6 +34,9 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   new_btn_ = new QPushButton("New");
   load_btn_ = new QPushButton("Load");
   save_btn_ = new QPushButton("Save");
+  save_as_btn_ = new QPushButton("Save As");
+
+  enableSaveButtons(false);
 
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる
@@ -40,13 +45,14 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   jsp_ = new JointStatePublisherWidget(node, robot_);
   settings_ = new SettingsWidget(node, robot_, signals_);
 
-  pkg_generator_ = std::make_unique<PackageGenerator>(node, robot_, settings_);
+  prj_gen_ = std::make_unique<ProjectGenerator>(node, robot_, settings_);
 
   // Layout
   const auto pkg_cols = new QHBoxLayout();
   pkg_cols->addWidget(new_btn_);
   pkg_cols->addWidget(load_btn_);
   pkg_cols->addWidget(save_btn_);
+  pkg_cols->addWidget(save_as_btn_);
   pkg_cols->addWidget(tbs_path_);
 
   const auto viewer_cols = new QHBoxLayout();
@@ -66,6 +72,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   connect(new_btn_, &QPushButton::clicked, this, &self::onNewButtonClicked);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(save_btn_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
+  connect(save_as_btn_, &QPushButton::clicked, this, &self::onSaveAsButtonClicked);
 }
 
 void SetupAssistantWidget::reset()
@@ -73,14 +80,19 @@ void SetupAssistantWidget::reset()
   rviz_->resetTime();
 }
 
+void SetupAssistantWidget::enableSaveButtons(bool enable)
+{
+  save_btn_->setEnabled(enable);
+  save_as_btn_->setEnabled(enable);
+}
+
 bool SetupAssistantWidget::createUrdfText(const fs::path& tbs_path, std::string& text_out)
 {
   // URDFの存在を確認
-  const auto urdf_path = common::getOriginalURDFPath(tbs_path);
+  const auto urdf_path = common::getProjBackupUrdfPath(tbs_path);
   if (!fs::is_regular_file(urdf_path)) {
     qt::qErrorBox(
-      this,
-      "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas configuration package.");
+      this, "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas project.");
     return false;
   }
 
@@ -100,7 +112,7 @@ bool SetupAssistantWidget::createUrdfText(const fs::path& tbs_path, std::string&
   const auto robot = doc.RootElement();
 
   // configパッケージが未ビルドでもメッシュパスが解析できるように絶対パスに変換
-  if (!resolveMeshPaths(common::getTBSConfigPath(tbs_path), robot)) {
+  if (!resolveMeshPaths(common::getProjCfgPkgPath(tbs_path), robot)) {
     return false;
   }
 
@@ -196,8 +208,11 @@ void SetupAssistantWidget::onNewButtonClicked()
     return;
   }
 
-  // Tobasプロジェクトのパスをクリア
+  // プロジェクトのパスをクリア
   tbs_path_->clear();
+
+  // 保存ボタンを有効化
+  enableSaveButtons(true);
 
   qt::qInfoBox(this, "URDF is loaded successfully. Configure the settings for each tab.");
 }
@@ -211,12 +226,13 @@ void SetupAssistantWidget::onLoadButtonClicked()
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
   }
 
-  // Tobasプロジェクトのパスを取得
-  common::TbsProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  // プロジェクトのパスを取得
+  common::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
   const auto tbs_path = dialog.selectedFiles().first();
+  assert(tbs_path.endsWith(tobas::kProjectExtension));
 
   // パスをテキストに設定
   tbs_path_->setText(tbs_path);
@@ -244,17 +260,20 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // ユーザ設定を読み込む
-  const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
+  const auto settings_path = common::getProjBackupSettingsPath(tbs_path.toStdString());
   YAML::Node node;
   if (!yaml::load(settings_path, node)) {
-    qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas configuration package.");
+    qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
     return;
   }
   if (!settings_->load(node)) {
     return;
   }
 
-  qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
+  // 保存ボタンを有効化
+  enableSaveButtons(true);
+
+  qt::qInfoBox(this, "Tobas project is loaded successfully.");
 }
 
 void SetupAssistantWidget::onSaveButtonClicked()
@@ -264,8 +283,50 @@ void SetupAssistantWidget::onSaveButtonClicked()
     return;
   }
 
+  // 現在のプロジェクトパスを取得
+  const auto cur_tbs_path = tbs_path_->text();
+
+  // プロジェクトパスが設定されていない場合は名前を付けて保存
+  if (cur_tbs_path.isEmpty()) {
+    onSaveAsButtonClicked();
+    return;
+  }
+
+  // プロジェクトを作成
+  if (!prj_gen_->generateProject(cur_tbs_path.toStdString())) {
+    return;
+  }
+
+  qt::qInfoBox(this, "Tobas project is updated.");
+}
+
+void SetupAssistantWidget::onSaveAsButtonClicked()
+{
+  // 前回開いたパスを取得
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+  }
+
+  // プロジェクトのパスを取得
+  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  if (dialog.exec() != QDialog::Accepted) {
+    return;
+  }
+  const auto tbs_path = dialog.selectedFiles().first();
+  assert(tbs_path.endsWith(tobas::kProjectExtension));
+
+  // ユーザが開いたディレクトリを保存
+  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey_Save, par_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+  if (property_client_.save() < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+
   // 読み込んでいないパッケージパスが既に存在する場合は置換するかどうかをユーザに確認
-  const auto tbs_path = settings_->ros_package->tbsPath();
   if (tbs_path != tbs_path_->text() && fs::exists(tbs_path.toStdString())) {
     if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
       return;
@@ -276,15 +337,15 @@ void SetupAssistantWidget::onSaveButtonClicked()
     }
   }
 
-  // パッケージを作成
-  if (!pkg_generator_->generatePackage()) {
+  // プロジェクトを作成
+  if (!prj_gen_->generateProject(tbs_path.toStdString())) {
     return;
   }
 
-  // 新たなパスを設定
+  // プロジェクトのパスを設定
   tbs_path_->setText(tbs_path);
 
-  qt::qInfoBox(this, "Tobas configuration package is generated successfully.");
+  qt::qInfoBox(this, "New Tobas project is generated.");
 }
 }  // namespace sa
 }  // namespace gui

@@ -24,7 +24,7 @@ namespace gui
 {
 namespace sa
 {
-PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
+ProjectGenerator::ProjectGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
   : node_(node), robot_(robot), settings_(settings)
 {
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
@@ -36,10 +36,8 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
   user_py_env_ = std::make_shared<TemplateGenerator>(templates_path / "user_py_package");
 }
 
-bool PackageGenerator::generatePackage()
+bool ProjectGenerator::generateProject(const fs::path& tbs_path)
 {
-  const auto tbs_path = tbsPath();
-
   // Tobasパッケージを作成
   if (!path::createDirectories(tbs_path)) {
     qt::qErrorBox(settings_, "Failed to create Tobas project path.");
@@ -47,53 +45,48 @@ bool PackageGenerator::generatePackage()
   }
 
   // テンプレート用アイテムを作成
-  const auto tpl_data = createTemplateData();
+  const auto tpl_data = createTemplateData(tbs_path);
 
   // メタパッケージを作成
-  if (!generateMetaPackage(tpl_data)) {
+  if (!generateMetaPackage(tbs_path, tpl_data)) {
     return false;
   }
 
   // 設定パッケージを作成
-  if (!generateConfigPackage(tpl_data)) {
+  if (!generateConfigPackage(tbs_path, tpl_data)) {
     return false;
   }
 
   // ユーザ用Msgパッケージを作成
-  if (!fs::is_directory(common::getTBSUserMsgPath(tbs_path))) {
-    if (!generateUserMsgPackage(tpl_data)) {
+  if (!fs::is_directory(common::getProjUserMsgPkgPath(tbs_path))) {
+    if (!generateUserMsgPackage(tbs_path, tpl_data)) {
       return false;
     }
   }
 
   // ユーザ用C++パッケージを作成
-  if (!fs::is_directory(common::getTBSUserCppPath(tbs_path))) {
-    if (!generateUserCppPackage(tpl_data)) {
+  if (!fs::is_directory(common::getProjUserCppPkgPath(tbs_path))) {
+    if (!generateUserCppPackage(tbs_path, tpl_data)) {
       return false;
     }
   }
 
   // ユーザ用Pythonパッケージを作成
-  if (!fs::is_directory(common::getTBSUserPyPath(tbs_path))) {
-    if (!generateUserPyPackage(tpl_data)) {
+  if (!fs::is_directory(common::getProjUserPyPkgPath(tbs_path))) {
+    if (!generateUserPyPackage(tbs_path, tpl_data)) {
       return false;
     }
   }
 
   // バックアップファイルを作成
-  if (!generateBackupFiles()) {
+  if (!generateBackupFiles(tbs_path)) {
     return false;
   }
 
   return true;
 }
 
-std::string PackageGenerator::tbsPath() const
-{
-  return settings_->ros_package->tbsPath().toStdString();
-}
-
-std::string PackageGenerator::flightActionsPackage() const
+std::string ProjectGenerator::flightActionsPackage() const
 {
   if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_YAW)) {
     return "tobas_mr_actions";
@@ -107,7 +100,7 @@ std::string PackageGenerator::flightActionsPackage() const
   }
 }
 
-inja::json PackageGenerator::createTemplateData()
+inja::json ProjectGenerator::createTemplateData(const fs::path& tbs_path)
 {
   inja::json tpl_data;
 
@@ -126,16 +119,16 @@ inja::json PackageGenerator::createTemplateData()
   tpl_data["author_email"] = settings_->author_info->authorEmail().toStdString();
 
   // Ros Package
-  tpl_data["meta_pkg_name"] = common::getTBSMetaName(tbsPath());
-  tpl_data["config_pkg_name"] = common::getTBSConfigName(tbsPath());
-  tpl_data["user_msg_pkg_name"] = common::getTBSUserMsgName(tbsPath());
-  tpl_data["user_cpp_pkg_name"] = common::getTBSUserCppName(tbsPath());
-  tpl_data["user_py_pkg_name"] = common::getTBSUserPyName(tbsPath());
+  tpl_data["meta_pkg_name"] = common::getProjMetaPkgName(tbs_path);
+  tpl_data["config_pkg_name"] = common::getProjCfgPkgName(tbs_path);
+  tpl_data["user_msg_pkg_name"] = common::getProjUserMsgPkgName(tbs_path);
+  tpl_data["user_cpp_pkg_name"] = common::getProjUserCppPkgName(tbs_path);
+  tpl_data["user_py_pkg_name"] = common::getProjUserPyPkgName(tbs_path);
 
   return tpl_data;
 }
 
-tobas::Drone PackageGenerator::createDrone()
+tobas::Drone ProjectGenerator::createDrone()
 {
   tobas::Drone drone;
 
@@ -327,7 +320,7 @@ tobas::Drone PackageGenerator::createDrone()
   return drone;
 }
 
-bool PackageGenerator::hasServoJoint() const
+bool ProjectGenerator::hasServoJoint() const
 {
   const auto& joint_config = settings_->joint_config;
   for (int i = 0; i < joint_config->numJoints(); ++i) {
@@ -338,10 +331,9 @@ bool PackageGenerator::hasServoJoint() const
   return false;
 }
 
-bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
+bool ProjectGenerator::generateMetaPackage(const fs::path& tbs_path, const inja::json& tpl_data)
 {
-  const auto tbs_path = tbsPath();
-  const auto meta_pkg_path = common::getTBSMetaPath(tbs_path);
+  const auto meta_pkg_path = common::getProjMetaPkgPath(tbs_path);
   fs::create_directory(meta_pkg_path);
 
   meta_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", meta_pkg_path);
@@ -354,21 +346,20 @@ bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
   return true;
 }
 
-bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
+bool ProjectGenerator::generateConfigPackage(const fs::path& tbs_path, const inja::json& tpl_data)
 {
-  const auto tbs_path = tbsPath();
-  const auto pkg_path = common::getTBSConfigPath(tbs_path);
+  const auto pkg_path = common::getProjCfgPkgPath(tbs_path);
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
-  const auto config_dir = pkg_path / "config";
-  const auto launch_dir = pkg_path / "launch";
-  const auto urdf_dir = pkg_path / "urdf";
-  const auto mesh_dir = pkg_path / "meshes";
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
+  const auto launch_dir = common::getProjCfgLaunchDirPath(tbs_path);
+  const auto mesh_dir = common::getProjCfgMeshDirPath(tbs_path);
+  const auto urdf_dir = common::getProjCfgUrdfDirPath(tbs_path);
   fs::create_directory(config_dir);
   fs::create_directory(launch_dir);
-  fs::create_directory(urdf_dir);
   fs::create_directory(mesh_dir);
+  fs::create_directory(urdf_dir);
 
   // テンプレートから生成
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
@@ -387,16 +378,16 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
-  if (!createEmptyYaml(common::getImuFilterDynamicParamsPath(tbs_path), false)) {
+  if (!createEmptyYaml(common::getProjImuFiltDynParamsPath(tbs_path), false)) {
     return false;
   }
-  if (!createEmptyYaml(common::getObserverDynamicParamsPath(tbs_path), false)) {
+  if (!createEmptyYaml(common::getProjObsvDynParamsPath(tbs_path), false)) {
     return false;
   }
-  if (!createEmptyYaml(common::getControllerDynamicParamsPath(tbs_path), false)) {
+  if (!createEmptyYaml(common::getProjCtrlDynParamsPath(tbs_path), false)) {
     return false;
   }
-  if (!createEmptyYaml(common::getRcTeleopDynamicParamsPath(tbs_path), false)) {
+  if (!createEmptyYaml(common::getProjRcTeleopDynParamsPath(tbs_path), false)) {
     return false;
   }
 
@@ -404,41 +395,40 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
     return false;
   }
-  if (!generateControllerManagerLaunch(launch_dir)) {
+  if (!generateControllerManagerLaunch(tbs_path)) {
     return false;
   }
-  if (!generateJointControllerManagerConfig(config_dir)) {
+  if (!generateJointControllerManagerConfig(tbs_path)) {
     return false;
   }
-  if (!generateJointControllerConfigs(config_dir)) {
+  if (!generateJointControllerConfigs(tbs_path)) {
     return false;
   }
-  if (!generateDroneConfig(config_dir)) {
+  if (!generateDroneConfig(tbs_path)) {
     return false;
   }
-  if (!generatePreArmCheckConfig(config_dir)) {
+  if (!generatePreArmCheckConfig(tbs_path)) {
     return false;
   }
-  if (!generateObserverStaticConfig(config_dir)) {
+  if (!generateObserverStaticConfig(tbs_path)) {
     return false;
   }
-  if (!generateControllerStaticConfig(config_dir)) {
+  if (!generateControllerStaticConfig(tbs_path)) {
     return false;
   }
-  if (!generateRcTeleopStaticConfig(config_dir)) {
+  if (!generateRcTeleopStaticConfig(tbs_path)) {
     return false;
   }
-  if (!generateModifiedURDF(mesh_dir)) {
+  if (!generateModifiedUrdf(tbs_path)) {
     return false;
   }
 
   return true;
 }
 
-bool PackageGenerator::generateUserMsgPackage(const inja::json& tpl_data)
+bool ProjectGenerator::generateUserMsgPackage(const fs::path& tbs_path, const inja::json& tpl_data)
 {
-  const auto tbs_path = tbsPath();
-  const auto pkg_path = common::getTBSUserMsgPath(tbs_path);
+  const auto pkg_path = common::getProjUserMsgPkgPath(tbs_path);
 
   // パッケージを作成
   fs::create_directory(pkg_path);
@@ -455,10 +445,9 @@ bool PackageGenerator::generateUserMsgPackage(const inja::json& tpl_data)
   return true;
 }
 
-bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
+bool ProjectGenerator::generateUserCppPackage(const fs::path& tbs_path, const inja::json& tpl_data)
 {
-  const auto tbs_path = tbsPath();
-  const auto pkg_path = common::getTBSUserCppPath(tbs_path);
+  const auto pkg_path = common::getProjUserCppPkgPath(tbs_path);
 
   // パッケージを作成
   fs::create_directory(pkg_path);
@@ -487,11 +476,10 @@ bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
   return true;
 }
 
-bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
+bool ProjectGenerator::generateUserPyPackage(const fs::path& tbs_path, const inja::json& tpl_data)
 {
-  const auto tbs_path = tbsPath();
-  const auto pkg_path = common::getTBSUserPyPath(tbs_path);
-  const auto pkg_name = common::getTBSUserPyName(tbs_path);
+  const auto pkg_path = common::getProjUserPyPkgPath(tbs_path);
+  const auto pkg_name = common::getProjUserPyPkgName(tbs_path);
 
   // パッケージを作成
   fs::create_directory(pkg_path);
@@ -528,27 +516,25 @@ bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
   return true;
 }
 
-bool PackageGenerator::generateBackupFiles()
+bool ProjectGenerator::generateBackupFiles(const fs::path& tbs_path)
 {
-  const auto tbs_path = tbsPath();
-
   // ディレクトリを作成
-  const auto backup_dir = common::getBackupPath(tbs_path);
+  const auto backup_dir = common::getProjBackupDirPath(tbs_path);
   fs::create_directory(backup_dir);
 
   // 設定ファイル
   const auto backup_data = settings_->dump();
-  if (!saveYamlNode(common::getSettingsPath(tbs_path), backup_data)) {
+  if (!saveYamlNode(common::getProjBackupSettingsPath(tbs_path), backup_data)) {
     return false;
   }
 
   // Save original URDF
   const auto doc = urdf::exportURDF(*robot_.urdf());
   const auto robot = doc->RootElement();
-  if (!replaceOriginalUrdfMeshFilePaths(robot)) {
+  if (!replaceOriginalUrdfMeshFilePaths(robot, tbs_path)) {
     return false;
   }
-  if (doc->SaveFile(common::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS) {
+  if (doc->SaveFile(common::getProjBackupUrdfPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the original URDF.");
     return false;
   }
@@ -556,7 +542,7 @@ bool PackageGenerator::generateBackupFiles()
   return true;
 }
 
-bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_dir)
+bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
 {
   const auto& ns = robot_.robotName();
   const auto& joint_config = settings_->joint_config;
@@ -568,8 +554,8 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
 
   // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
   if (hasServoJoint()) {
-    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-    const auto config_dir = "$(find-pkg-share " + config_pkg_name + ")/config/";
+    const auto cfg_pkg_name = common::getProjCfgPkgName(tbs_path);
+    const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
 
     // Joint state broadcaster
     const auto jsb_name = std::string(tobas::node::kJointStateBroadcaster);
@@ -594,6 +580,7 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   }
 
   // XMLを保存
+  const auto launch_dir = common::getProjCfgLaunchDirPath(tbs_path);
   if (doc->SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
     return false;
@@ -602,7 +589,7 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   return true;
 }
 
-bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& config_dir)
+bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_path)
 {
   // Controller manager
   YAML::Node manager_params_node(YAML::NodeType::Map);
@@ -626,6 +613,7 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
   root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
 
   // Save data
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
   if (!saveYamlNode(config_dir / "joint_controller_manager.yaml", root_node)) {
     return false;
   }
@@ -633,7 +621,7 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
   return true;
 }
 
-bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir)
+bool ProjectGenerator::generateJointControllerConfigs(const fs::path& tbs_path)
 {
   const auto joint_config = settings_->joint_config;
 
@@ -654,6 +642,7 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
     root_node["/**"][ctrl_name][kROSParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
 
     // Save data
+    const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
     if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
       return false;
     }
@@ -662,11 +651,12 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
   return true;
 }
 
-bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
+bool ProjectGenerator::generateDroneConfig(const fs::path& tbs_path)
 {
   const auto drone = createDrone();
 
-  if (!drone.save(config_dir / "drone.tbsdrn")) {
+  const auto tbsdrn_path = common::getProjTbsDrnPath(tbs_path);
+  if (!drone.save(tbsdrn_path)) {
     qt::qErrorBox(settings_, "Failed to save drone configuration.");
     return false;
   }
@@ -674,7 +664,7 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generatePreArmCheckConfig(const fs::path& config_dir)
+bool ProjectGenerator::generatePreArmCheckConfig(const fs::path& tbs_path)
 {
   YAML::Node node(YAML::NodeType::Map);
   node["check_node_connection"] = settings_->pre_arm_check->checkNodeConnection();
@@ -688,6 +678,7 @@ bool PackageGenerator::generatePreArmCheckConfig(const fs::path& config_dir)
   node["check_attitude_accuracy"] = settings_->pre_arm_check->checkAttitudeAccuracy();
   node["check_heading_accuracy"] = settings_->pre_arm_check->checkHeadingAccuracy();
 
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
   if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node)) {
     return false;
   }
@@ -695,7 +686,7 @@ bool PackageGenerator::generatePreArmCheckConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
+bool ProjectGenerator::generateObserverStaticConfig(const fs::path& tbs_path)
 {
   YAML::Node params(YAML::NodeType::Map);
   params["frame_id"] = robot_.tree().getRootName();
@@ -710,6 +701,8 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   params["imu_offset"] = Eigen::Vector3d::Zero().eval();        // TODO
   params["barometer_offset"] = Eigen::Vector3d::Zero().eval();  // TODO
   params["gnss_offset"] = Eigen::Vector3d::Zero().eval();       // TODO
+
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
 
   // For component
   const auto node_component = params;
@@ -727,10 +720,12 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir)
+bool ProjectGenerator::generateControllerStaticConfig(const fs::path& tbs_path)
 {
   const auto params = settings_->controller->staticParams();
   TOBAS_CHECK(params.IsMap());
+
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
 
   // For component
   const auto node_component = params;
@@ -748,12 +743,14 @@ bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir
   return true;
 }
 
-bool PackageGenerator::generateRcTeleopStaticConfig(const fs::path& config_dir)
+bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& tbs_path)
 {
   YAML::Node params(YAML::NodeType::Map);
   params["acrobat_mode"] = settings_->controller->acrobatModeCommand();
   params["stabilize_mode"] = settings_->controller->stabilizeModeCommand();
   params["loiter_mode"] = settings_->controller->loiterModeCommand();
+
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
 
   // For component
   const auto node_component = params;
@@ -771,25 +768,25 @@ bool PackageGenerator::generateRcTeleopStaticConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateModifiedURDF(const fs::path& mesh_dir)
+bool ProjectGenerator::generateModifiedUrdf(const fs::path& tbs_path)
 {
   // Export the original URDF
   const auto doc = urdf::exportURDF(*robot_.urdf());
   const auto robot = doc->RootElement();
 
   // Modify robot
-  if (!resolveModifiedUrdfMeshFilePaths(robot, mesh_dir)) {
+  if (!resolveModifiedUrdfMeshFilePaths(robot, tbs_path)) {
     return false;
   }
   if (!removePropellerJointLimits(robot)) {
     return false;
   }
-  if (!addXMLElements(robot)) {
+  if (!addXmlElements(robot, tbs_path)) {
     return false;
   }
 
   // Save modified URDF
-  if (doc->SaveFile(common::getModifiedURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS) {
+  if (doc->SaveFile(common::getProjXacroPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the modified URDF.");
     return false;
   }
@@ -797,7 +794,7 @@ bool PackageGenerator::generateModifiedURDF(const fs::path& mesh_dir)
   return true;
 }
 
-bool PackageGenerator::createEmptyFile(const fs::path& file_path)
+bool ProjectGenerator::createEmptyFile(const fs::path& file_path)
 {
   if (!path::createFilePath(file_path)) {
     qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\".");
@@ -807,7 +804,7 @@ bool PackageGenerator::createEmptyFile(const fs::path& file_path)
   return true;
 }
 
-bool PackageGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite)
+bool ProjectGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite)
 {
   if (!overwrite && fs::is_regular_file(file_path)) {
     return true;
@@ -820,7 +817,7 @@ bool PackageGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite
   return true;
 }
 
-bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node)
+bool ProjectGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node)
 {
   if (!yaml::save(path, node)) {
     qt::qErrorBox(settings_, "Failed to save \"" + QString::fromStdString(path) + "\".");
@@ -830,7 +827,7 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
   return true;
 }
 
-bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& mesh_dir)
+bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& tbs_path)
 {
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
@@ -846,6 +843,7 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
     }
 
     // 必要に応じてメッシュファイルをTobasパッケージ以下にコピー
+    const auto mesh_dir = common::getProjCfgMeshDirPath(tbs_path);
     const auto base_name = src_path.filename();
     const auto dst_path = mesh_dir / base_name;
     if (fs::exists(dst_path)) {
@@ -877,14 +875,14 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
     // メッシュファイルへのパスを置換
     // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
     // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
-    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-    const auto new_filename = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
+    const auto cfg_pkg_name = common::getProjCfgPkgName(tbs_path);
+    const auto new_filename = "file://$(find " + cfg_pkg_name + ")/meshes/" + base_name.string();
     elem->SetAttribute("filename", new_filename.c_str());
   }
 
   // 再帰的に子要素もチェック
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (!resolveModifiedUrdfMeshFilePaths(child, mesh_dir)) {
+    if (!resolveModifiedUrdfMeshFilePaths(child, tbs_path)) {
       return false;
     }
   }
@@ -892,7 +890,7 @@ bool PackageGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
   return true;
 }
 
-bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
+bool ProjectGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& tbs_path)
 {
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
@@ -903,16 +901,16 @@ bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* el
 
     const auto src_path = ros2::resolveURI(filename);
     const auto base_name = src_path.filename().string();
-    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+    const auto cfg_pkg_name = common::getProjCfgPkgName(tbs_path);
 
     // config_pkgからの相対パスで指定
-    const auto new_filename = "package://" + config_pkg_name + "/meshes/" + base_name;
+    const auto new_filename = "package://" + cfg_pkg_name + "/meshes/" + base_name;
     elem->SetAttribute("filename", new_filename.c_str());
   }
 
   // 再帰的に子要素もチェック
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (!replaceOriginalUrdfMeshFilePaths(child)) {
+    if (!replaceOriginalUrdfMeshFilePaths(child, tbs_path)) {
       return false;
     }
   }
@@ -920,7 +918,7 @@ bool PackageGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* el
   return true;
 }
 
-bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
+bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 {
   std::set<std::string> prop_jnt_names;
   const auto& prop = settings_->propulsion_system;
@@ -951,11 +949,11 @@ bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
   return true;
 }
 
-bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
+bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::path& tbs_path)
 {
   const auto& ns = robot_.robotName();
   const auto& root_name = robot_.tree().getRootName();
-  const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+  const auto cfg_pkg_name = common::getProjCfgPkgName(tbs_path);
 
   const auto& prop = settings_->propulsion_system;
   const auto& fmu = settings_->hardware;
@@ -1132,7 +1130,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Gazebo ROS2 control plugin
   // XXX: This must be defined after GazeboSimSystem
   if (hasServoJoint()) {
-    xml::addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
+    xml::addGazeboSimROS2ControlPlugin(robot, ns, cfg_pkg_name, "config/joint_controller_manager.yaml");
   }
 
   // Base static joint for debug

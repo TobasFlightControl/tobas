@@ -23,6 +23,7 @@ class SetupAssistantWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey_New[] = "last_opened_dir/setup_assistant/new";
   static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/setup_assistant/load";
+  static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/setup_assistant/save";
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
@@ -41,14 +42,16 @@ private:
   QPushButton* new_btn_;
   QPushButton* load_btn_;
   QPushButton* save_btn_;
+  QPushButton* save_as_btn_;
 
   RvizWidget* rviz_;
   FrameTreeWidget* frame_tree_;
   JointStatePublisherWidget* jsp_;
   SettingsWidget* settings_;
 
-  std::unique_ptr<PackageGenerator> pkg_generator_;
+  std::unique_ptr<ProjectGenerator> prj_gen_;
 
+  void enableSaveButtons(bool enable);
   bool createUrdfText(const std::filesystem::path& tbs_path, std::string& text_out);
   bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
 
@@ -58,6 +61,7 @@ private Q_SLOTS:
   void onNewButtonClicked();
   void onLoadButtonClicked();
   void onSaveButtonClicked();
+  void onSaveAsButtonClicked();
 };
 }  // namespace sa
 }  // namespace gui

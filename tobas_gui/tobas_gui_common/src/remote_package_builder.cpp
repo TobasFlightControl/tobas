@@ -16,7 +16,7 @@ RemotePackageBuilder::RemotePackageBuilder(rclcpp::Node::SharedPtr node) : node_
 
 bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
 {
-  const auto meta_pkg_name = common::getTBSMetaName(remote_tbs_path);
+  const auto meta_pkg_name = common::getProjMetaPkgName(remote_tbs_path);
 
   // XXX: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
   const auto ros2_setup_bash = (fs::path(tobas::kROS2JazzyInstallPath) / "setup.bash").string();

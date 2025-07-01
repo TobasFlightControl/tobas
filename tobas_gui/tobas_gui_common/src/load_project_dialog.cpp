@@ -1,4 +1,4 @@
-#include "tobas_gui_common/tbs_project_dialog.hpp"
+#include "tobas_gui_common/load_project_dialog.hpp"
 
 #include <QAbstractItemView>
 #include <QFileSystemModel>
@@ -10,7 +10,7 @@ namespace gui
 {
 namespace common
 {
-TbsProjectDialog::TbsProjectDialog(QWidget* parent, const QString& dir) : QFileDialog(parent)
+LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir) : QFileDialog(parent)
 {
   setWindowTitle("Select Tobas Project (*.TBS)");
   setNameFilter("Tobas Project (*.TBS)");
@@ -28,13 +28,13 @@ TbsProjectDialog::TbsProjectDialog(QWidget* parent, const QString& dir) : QFileD
   }
 
   // ダブルクリック (activated) されたら確定させる
-  connect(view, &QAbstractItemView::activated, this, &TbsProjectDialog::onItemActivated);
+  connect(view, &QAbstractItemView::activated, this, &LoadProjectDialog::onItemActivated);
 }
 
-void TbsProjectDialog::onItemActivated(const QModelIndex& index)
+void LoadProjectDialog::onItemActivated(const QModelIndex& index)
 {
   const auto path = proxy_->data(index, QFileSystemModel::FilePathRole).toString();
-  if (path.endsWith(tobas::kTBSExtension)) {
+  if (path.endsWith(tobas::kProjectExtension)) {
     accept();
   }
 }

@@ -19,7 +19,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   pre_arm_check = new PreArmCheckWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
-  ros_package = new RosPackageWidget(node, robot);
 
   // 各タブを追加
   addTab(propulsion_system, propulsion_system->name());
@@ -32,7 +31,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   addTab(pre_arm_check, pre_arm_check->name());
   addTab(simulation, simulation->name());
   addTab(author_info, author_info->name());
-  addTab(ros_package, ros_package->name());
 
   // 各タブを初期化
   for (int i = 0; i < count(); ++i) {

@@ -11,7 +11,6 @@
 #include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
-#include "./setting_tabs/ros_package.hpp"
 #include "./setting_tabs/simulation.hpp"
 
 namespace gui
@@ -39,7 +38,6 @@ public:
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
-  RosPackageWidget* ros_package;
 
   explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals);
 

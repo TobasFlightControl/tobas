@@ -1,22 +1,21 @@
-#include "tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
+#include "tobas_setup_assistant/save_project_dialog.hpp"
 
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QKeyEvent>
 
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/path.hpp>
 
 namespace gui
 {
-namespace ub
+namespace sa
 {
-namespace ui
-{
-SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
-  : QFileDialog(parent, "Save URDF", dir, "URDF (*.urdf);;All Files (*)")
+SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir)
+  : QFileDialog(parent, "Save Tobas Project", dir, "Tobas Project (*.TBS);;All Files (*)")
 {
   setAcceptMode(QFileDialog::AcceptSave);
-  setDefaultSuffix("urdf");
+  setDefaultSuffix("TBS");
   setOption(QFileDialog::DontUseNativeDialog, true);
 
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
@@ -24,10 +23,10 @@ SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
 
   line_edit_ = findChild<QLineEdit*>("fileNameEdit");
   line_edit_->installEventFilter(this);
-  connect(line_edit_, &QLineEdit::textChanged, this, &SaveUrdfDialog::onLineEditTextChanged);
+  connect(line_edit_, &QLineEdit::textChanged, this, &SaveProjectDialog::onLineEditTextChanged);
 }
 
-bool SaveUrdfDialog::eventFilter(QObject* obj, QEvent* event)
+bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
 {
   if (obj == line_edit_ && event->type() == QEvent::KeyPress) {
     const auto key_event = static_cast<QKeyEvent*>(event);
@@ -45,17 +44,16 @@ bool SaveUrdfDialog::eventFilter(QObject* obj, QEvent* event)
   return QFileDialog::eventFilter(obj, event);
 }
 
-void SaveUrdfDialog::onLineEditTextChanged()
+void SaveProjectDialog::onLineEditTextChanged()
 {
   // Enable the save button only if the file name is valid
   const auto file_name = line_edit_->text();
   if (file_name.contains('.')) {
-    save_button_->setEnabled(file_name.endsWith(".urdf") && !qt::getBaseName(file_name).isEmpty());
+    save_button_->setEnabled(file_name.endsWith(tobas::kProjectExtension) && !qt::getBaseName(file_name).isEmpty());
   }
   else {
     save_button_->setEnabled(file_name.length() > 0);
   }
 }
-}  // namespace ui
-}  // namespace ub
+}  // namespace sa
 }  // namespace gui

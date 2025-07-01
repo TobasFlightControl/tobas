@@ -66,7 +66,7 @@ bool LocalPackageBuilder::colconBuild(const fs::path& tbs_path)
   }
 
   // Create build command
-  const auto meta_name = getTBSMetaName(tbs_path);
+  const auto meta_name = getProjMetaPkgName(tbs_path);
   const auto build_cmd = format(
     "colcon build "
     "--merge-install "
