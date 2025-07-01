@@ -581,7 +581,6 @@ public:
   KinematicsBase();
 
 protected:
-  rclcpp::Node::SharedPtr node_;
   RobotModelConstPtr robot_model_;
   std::string robot_description_;
   std::string group_name_;
