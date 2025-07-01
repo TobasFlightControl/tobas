@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include <QWidget>
 
-#include <tobas_gui_common/remote_package_builder.hpp>
+#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
 
@@ -56,7 +56,7 @@ private:
 
   ptree::PropertyClient property_client_;
   ssh::SSHClient ssh_client_;
-  common::RemotePackageBuilder package_builder_;
+  common::RemoteProjectBuilder remote_proj_builder_;
   ConfigurationEnvParser config_env_parser_;
 
   QLineEdit* tbs_path_;

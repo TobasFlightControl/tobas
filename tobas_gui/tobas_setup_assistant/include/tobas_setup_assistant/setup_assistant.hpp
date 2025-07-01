@@ -5,7 +5,7 @@
 #include "./constants.hpp"
 #include "./frame_tree.hpp"
 #include "./joint_state_publisher.hpp"
-#include "./package_generator.hpp"
+#include "./project_generator.hpp"
 #include "./rotor_marker_publisher.hpp"
 #include "./rviz.hpp"
 #include "./settings.hpp"

@@ -1,11 +1,11 @@
-#include "tobas_setup_assistant/package_generator.hpp"
+#include "tobas_setup_assistant/project_generator.hpp"
 
 #include <urdf_parser/urdf_parser.h>
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/command.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_gui_common/path.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>

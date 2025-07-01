@@ -10,7 +10,7 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_gui_common/path.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -33,7 +33,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , bridge_(node)
   , property_client_(node, tobas::kPropertyServerName, kPackageName)
   , ssh_client_(node)
-  , package_builder_(node)
+  , remote_proj_builder_(node)
   , restart_thread_(node)
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
@@ -338,10 +338,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトをビルド
   progress.setLabelText("Building Tobas project.");
-  if (!package_builder_.build(remote_tbs_path)) {
+  if (!remote_proj_builder_.build(remote_tbs_path)) {
     progress.close();
     qt::qErrorBox(
-      this, "Failed to build the Tobas project:\n\n" + QString::fromStdString(package_builder_.getErrorMessage()));
+      this, "Failed to build the Tobas project:\n\n" + QString::fromStdString(remote_proj_builder_.getErrorMessage()));
     return;
   }
   progress.progressStep();

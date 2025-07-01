@@ -1,8 +1,8 @@
-#include "tobas_gui_common/remote_package_builder.hpp"
+#include "tobas_gui_common/remote_project_builder.hpp"
 
 #include <tobas_constants/constants.hpp>
 
-#include "tobas_gui_common/package.hpp"
+#include "tobas_gui_common/path.hpp"
 
 namespace fs = std::filesystem;
 
@@ -10,11 +10,11 @@ namespace gui
 {
 namespace common
 {
-RemotePackageBuilder::RemotePackageBuilder(rclcpp::Node::SharedPtr node) : node_(node), ssh_client_(node)
+RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : node_(node), ssh_client_(node)
 {
 }
 
-bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
+bool RemoteProjectBuilder::build(const fs::path& remote_tbs_path)
 {
   const auto meta_pkg_name = common::getProjMetaPkgName(remote_tbs_path);
 
@@ -55,12 +55,12 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
   return false;
 }
 
-const std::string& RemotePackageBuilder::getOutput() const
+const std::string& RemoteProjectBuilder::getOutput() const
 {
   return output_;
 }
 
-const char* RemotePackageBuilder::getErrorMessage() const
+const char* RemoteProjectBuilder::getErrorMessage() const
 {
   return ssh_client_.errorMessage();
 }

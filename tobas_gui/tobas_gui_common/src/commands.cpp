@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "tobas_gui_common/package.hpp"
+#include "tobas_gui_common/path.hpp"
 
 namespace fs = std::filesystem;
 

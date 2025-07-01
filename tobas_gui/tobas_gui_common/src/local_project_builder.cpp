@@ -1,4 +1,4 @@
-#include "tobas_gui_common/local_package_builder.hpp"
+#include "tobas_gui_common/local_project_builder.hpp"
 
 #include <unistd.h>
 
@@ -8,7 +8,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-#include "tobas_gui_common/package.hpp"
+#include "tobas_gui_common/path.hpp"
 
 namespace fs = std::filesystem;
 
@@ -16,11 +16,11 @@ namespace gui
 {
 namespace common
 {
-LocalPackageBuilder::LocalPackageBuilder()
+LocalProjectBuilder::LocalProjectBuilder()
 {
 }
 
-bool LocalPackageBuilder::build(const fs::path& tbs_path)
+bool LocalProjectBuilder::build(const fs::path& tbs_path)
 {
   // ビルドできれば終了
   if (colconBuild(tbs_path)) {
@@ -40,12 +40,12 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   return false;
 }
 
-const std::string& LocalPackageBuilder::getOutput() const
+const std::string& LocalProjectBuilder::getOutput() const
 {
   return command_executor_.getOutput();
 }
 
-bool LocalPackageBuilder::colconBuild(const fs::path& tbs_path)
+bool LocalProjectBuilder::colconBuild(const fs::path& tbs_path)
 {
   // Navigate to the Tobas project directory
   if (chdir(tbs_path.c_str()) != 0) {
@@ -89,7 +89,7 @@ bool LocalPackageBuilder::colconBuild(const fs::path& tbs_path)
   return true;
 }
 
-bool LocalPackageBuilder::colconCleanWorkspace()
+bool LocalProjectBuilder::colconCleanWorkspace()
 {
   // Navigate to the colcon workspace
   const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);

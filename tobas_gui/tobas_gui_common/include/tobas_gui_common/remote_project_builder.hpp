@@ -8,10 +8,10 @@ namespace gui
 {
 namespace common
 {
-class RemotePackageBuilder
+class RemoteProjectBuilder
 {
 public:
-  explicit RemotePackageBuilder(rclcpp::Node::SharedPtr node);
+  explicit RemoteProjectBuilder(rclcpp::Node::SharedPtr node);
 
   bool build(const std::filesystem::path& remote_tbs_path);
 

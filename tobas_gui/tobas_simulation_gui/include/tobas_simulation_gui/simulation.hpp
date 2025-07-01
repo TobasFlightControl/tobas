@@ -3,8 +3,8 @@
 #include <QPushButton>
 
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_gui_common/local_package_builder.hpp>
-#include <tobas_gui_common/remote_package_builder.hpp>
+#include <tobas_gui_common/local_project_builder.hpp>
+#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
@@ -43,8 +43,8 @@ protected:
 private:
   linux::CommandExecutor cmd_executor_;
   ssh::SSHClient ssh_client_;
-  common::LocalPackageBuilder local_pkg_builder_;
-  common::RemotePackageBuilder remote_pkg_builder_;
+  common::LocalProjectBuilder local_proj_builder_;
+  common::RemoteProjectBuilder remote_proj_builder_;
 
   std::filesystem::path tbs_path_;
   kdl::Tree tree_;

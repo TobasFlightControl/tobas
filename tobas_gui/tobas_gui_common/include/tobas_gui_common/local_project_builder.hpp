@@ -8,10 +8,10 @@ namespace gui
 {
 namespace common
 {
-class LocalPackageBuilder
+class LocalProjectBuilder
 {
 public:
-  explicit LocalPackageBuilder();
+  explicit LocalProjectBuilder();
 
   bool build(const std::filesystem::path& tbs_path);
 

@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_gui_common/path.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_linux/errer.hpp>
@@ -24,7 +24,7 @@ namespace gui
 namespace sim
 {
 SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : ssh_client_(node), remote_pkg_builder_(node)
+  : ssh_client_(node), remote_proj_builder_(node)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -253,10 +253,10 @@ bool SimulationWidget::startHITL()
   // リモートパッケージをビルド
   progress.setLabelText("Building Tobas remote package.");
   const auto remote_tbs_path = common::getProjRemotePath(tbs_path_);
-  if (!remote_pkg_builder_.build(remote_tbs_path)) {
+  if (!remote_proj_builder_.build(remote_tbs_path)) {
     qt::qErrorBox(
       this,
-      "Failed to build the Tobas remote package:\n\n" + QString::fromStdString(remote_pkg_builder_.getErrorMessage()));
+      "Failed to build the Tobas remote package:\n\n" + QString::fromStdString(remote_proj_builder_.getErrorMessage()));
     progress.close();
     return false;
   }
@@ -349,9 +349,9 @@ bool SimulationWidget::terminateHITL()
 
 bool SimulationWidget::buildLocalPackage()
 {
-  if (!local_pkg_builder_.build(tbs_path_)) {
+  if (!local_proj_builder_.build(tbs_path_)) {
     qt::qErrorBox(
-      this, "Failed to build Tobas local package:\n\n" + QString::fromStdString(local_pkg_builder_.getOutput()));
+      this, "Failed to build Tobas local package:\n\n" + QString::fromStdString(local_proj_builder_.getOutput()));
     return false;
   }
 

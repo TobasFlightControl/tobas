@@ -6,7 +6,7 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/load_project_dialog.hpp>
-#include <tobas_gui_common/package.hpp>
+#include <tobas_gui_common/path.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_ros2_tools/xacro.hpp>
