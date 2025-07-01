@@ -44,7 +44,6 @@ enum kinematic_error_t
   IK_SEED_OUTSIDE_LIMITS,              /* Ik seed is out of bound */
   SOLVER_NOT_ACTIVE,                   /* Solver isn't active */
   NO_SOLUTION                          /* A valid joint solution that can reach this pose(s) could not be found */
-
 };
 
 /* A set of options for the kinematics solver */
