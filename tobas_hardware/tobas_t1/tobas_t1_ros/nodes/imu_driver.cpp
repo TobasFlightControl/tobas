@@ -26,6 +26,7 @@ public:
 private:
   stm::ISM330DLC imu_;
 
+  rclcpp::Time t_prev_;
   kdl::Vector acc_raw_, gyro_raw_, prev_gyro_raw_;
   dsp::LowPassFilterP1<kdl::Vector> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
@@ -133,6 +134,8 @@ void ImuDriverNode::initializeTimerCb()
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+
+  t_prev_ = get_clock()->now();
 }
 
 void ImuDriverNode::mainTimerCb()
@@ -150,8 +153,11 @@ void ImuDriverNode::mainTimerCb()
     return;
   }
 
+  // Compute time difference
+  const auto dt = (now - t_prev_).seconds();  // [s]
+  t_prev_ = now;
+
   // Compute D-Gyro
-  constexpr auto dt = static_cast<double>(kSamplingPeriod.count()) * 1e-6;
   const auto dgyro_raw = (gyro_raw_ - prev_gyro_raw_) / dt;
   prev_gyro_raw_ = gyro_raw_;
 
