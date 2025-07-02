@@ -36,10 +36,9 @@ bool IIS2MDC::readMag(double& mx, double& my, double& mz)
     return false;
   }
 
-  // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
-  mx = mag_buf_[0] * kSensitivity;
-  my = -mag_buf_[1] * kSensitivity;
-  mz = mag_buf_[2] * kSensitivity;
+  mx = static_cast<double>(mag_buf_[0]) * kSensitivity;
+  my = -static_cast<double>(mag_buf_[1]) * kSensitivity;
+  mz = static_cast<double>(mag_buf_[2]) * kSensitivity;
 
   return true;
 }
