@@ -243,24 +243,26 @@ bool RCInputCalibrationWidget::saveParamsGCS()
     return false;
   }
 
-  pt.set(kRollLeftKey, roll_range_->getLower());
-  pt.set(kRollRightKey, roll_range_->getUpper());
-  pt.set(kPitchUpKey, pitch_range_->getLower());
-  pt.set(kPitchDownKey, pitch_range_->getUpper());
-  pt.set(kYawLeftKey, yaw_range_->getLower());
-  pt.set(kYawRightKey, yaw_range_->getUpper());
-  pt.set(kThrotUpKey, throt_range_->getLower());
-  pt.set(kThrotDownKey, throt_range_->getUpper());
+  const auto ns = '/' + drone_.name;
 
-  pt.set(kEnableOnKey, enable_range_->getLower());
-  pt.set(kEnableOffKey, enable_range_->getUpper());
-  pt.set(kKillOnKey, kill_range_->getLower());
-  pt.set(kKillOffKey, kill_range_->getUpper());
-  pt.set(kModeAcrobatKey, mode_range_->getUpper());
-  pt.set(kModeStabilizeKey, mode_range_->getMiddle());
-  pt.set(kModeLoiterKey, mode_range_->getLower());
-  pt.set(kSubModeOnKey, sub_mode_range_->getLower());
-  pt.set(kSubModeOffKey, sub_mode_range_->getUpper());
+  pt.set(ns, kRollLeftKey, roll_range_->getLower());
+  pt.set(ns, kRollRightKey, roll_range_->getUpper());
+  pt.set(ns, kPitchUpKey, pitch_range_->getLower());
+  pt.set(ns, kPitchDownKey, pitch_range_->getUpper());
+  pt.set(ns, kYawLeftKey, yaw_range_->getLower());
+  pt.set(ns, kYawRightKey, yaw_range_->getUpper());
+  pt.set(ns, kThrotUpKey, throt_range_->getLower());
+  pt.set(ns, kThrotDownKey, throt_range_->getUpper());
+
+  pt.set(ns, kEnableOnKey, enable_range_->getLower());
+  pt.set(ns, kEnableOffKey, enable_range_->getUpper());
+  pt.set(ns, kKillOnKey, kill_range_->getLower());
+  pt.set(ns, kKillOffKey, kill_range_->getUpper());
+  pt.set(ns, kModeAcrobatKey, mode_range_->getUpper());
+  pt.set(ns, kModeStabilizeKey, mode_range_->getMiddle());
+  pt.set(ns, kModeLoiterKey, mode_range_->getLower());
+  pt.set(ns, kSubModeOnKey, sub_mode_range_->getLower());
+  pt.set(ns, kSubModeOffKey, sub_mode_range_->getUpper());
 
   std::array<int, tobas::kMaxNumOfGpsw> gpsw_on, gpsw_off;
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
@@ -271,8 +273,8 @@ bool RCInputCalibrationWidget::saveParamsGCS()
     gpsw_on[i] = std::numeric_limits<uint16_t>::max();
     gpsw_off[i] = 0;
   }
-  pt.set(kGpswOnKey, gpsw_on);
-  pt.set(kGpswOffKey, gpsw_off);
+  pt.set(ns, kGpswOnKey, gpsw_on);
+  pt.set(ns, kGpswOffKey, gpsw_off);
 
   if (!pt.save()) {
     qt::qErrorBox(this, "Failed to save calibration results on GCS.");
