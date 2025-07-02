@@ -138,6 +138,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       imu_raw_out->header = imu_raw_in->header;
       imu_raw_out->accel = imu_raw_in->accel - acc_bias_;
       imu_raw_out->gyro = imu_raw_in->gyro - gyro_bias_;
+      imu_raw_out->dgyro = imu_raw_in->dgyro;
 
       // Publish message
       imu_raw_pub_->publish(std::move(imu_raw_out));
@@ -158,6 +159,7 @@ void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_i
   imu_filt_out->header = imu_filt_in->header;
   imu_filt_out->accel = imu_filt_in->accel - acc_bias_;
   imu_filt_out->gyro = imu_filt_in->gyro - gyro_bias_;
+  imu_filt_out->dgyro = imu_filt_in->dgyro;
 
   // Publish message
   imu_filt_pub_->publish(std::move(imu_filt_out));
