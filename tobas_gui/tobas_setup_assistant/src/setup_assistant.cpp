@@ -266,14 +266,15 @@ void SetupAssistantWidget::onLoadButtonClicked()
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
     return;
   }
-  if (!settings_->load(node)) {
-    return;
+
+  // ユーザ設定を書くウィジェットに反映
+  // 失敗してもリセットはしない
+  if (settings_->load(node)) {
+    qt::qInfoBox(this, "Tobas project is loaded successfully.");
   }
 
   // 保存ボタンを有効化
   enableSaveButtons(true);
-
-  qt::qInfoBox(this, "Tobas project is loaded successfully.");
 }
 
 void SetupAssistantWidget::onSaveButtonClicked()
