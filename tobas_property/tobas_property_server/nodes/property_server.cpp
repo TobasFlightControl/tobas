@@ -49,8 +49,6 @@ private:
   void setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
 
   void saveFileCb(const Trigger::Request::ConstSharedPtr& req, const Trigger::Response::SharedPtr& res);
-
-  string keyWithSection(const string& section, const string& key);
 };
 
 PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
@@ -77,7 +75,7 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
 template <typename SrvType>
 void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  if (pt_.get(keyWithSection(req->section, req->key), res->value)) {
+  if (pt_.get(req->section, req->key, res->value)) {
     res->success = true;
     res->message.clear();
   }
@@ -90,7 +88,7 @@ void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const Sr
 template <typename SrvType>
 void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  pt_.set(keyWithSection(req->section, req->key), req->value);
+  pt_.set(req->section, req->key, req->value);
 
   res->success = true;
   res->message.clear();
@@ -105,11 +103,6 @@ void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const T
 
   res->success = true;
   res->message.clear();
-}
-
-inline string PropertyServer::keyWithSection(const string& section, const string& key)
-{
-  return section + "." + key;
 }
 }  // namespace ptree
 

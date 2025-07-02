@@ -31,7 +31,14 @@ public:
   template <typename T, size_t N>
   void set(const std::string& key, const std::array<T, N>& arr);
 
+  template <typename T>
+  bool get(const std::string& section, const std::string& key, T& value) const;
+  template <typename T>
+  void set(const std::string& section, const std::string& key, const T& value);
+
   inline const std::filesystem::path& filePath() const;
+
+  static std::string sectionedKey(const std::string& section, const std::string& key);
 
 private:
   std::filesystem::path file_path_;
@@ -134,6 +141,18 @@ void PropertyTree::set(const std::string& key, const std::array<T, N>& arr)
 
   root_node_.erase(key);
   root_node_.add_child(key, list_node);
+}
+
+template <typename T>
+bool PropertyTree::get(const std::string& section, const std::string& key, T& value) const
+{
+  return get(sectionedKey(section, key), value);
+}
+
+template <typename T>
+void PropertyTree::set(const std::string& section, const std::string& key, const T& value)
+{
+  set(sectionedKey(section, key), value);
 }
 
 inline const std::filesystem::path& PropertyTree::filePath() const
