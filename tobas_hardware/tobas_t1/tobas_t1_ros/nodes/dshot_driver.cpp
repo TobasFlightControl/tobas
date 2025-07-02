@@ -218,7 +218,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       TOBAS_ERROR("Rotor channel ", erotor->channel, " is out of range.");
       continue;
     }
-    if (!pt_.get(kGainKeyPrefix + to_string(erotor->channel), gains_.at(erotor->channel))) {
+    if (!pt_.get(ns(), kGainKeyPrefix + to_string(erotor->channel), gains_.at(erotor->channel))) {
       TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
@@ -313,7 +313,7 @@ void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, con
 {
   for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
     const auto key = kGainKeyPrefix + to_string(ch);
-    pt_.set(key, gains_.at(ch));
+    pt_.set(ns(), key, gains_.at(ch));
   }
 
   if (!pt_.save()) {

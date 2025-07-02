@@ -75,17 +75,17 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real
 
 bool ImuHandlerNode::getConfig()
 {
-  if (!pt_.get(kOffsetXKey, acc_bias_.x())) {
+  if (!pt_.get(ns(), kOffsetXKey, acc_bias_.x())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kOffsetYKey, acc_bias_.y())) {
+  if (!pt_.get(ns(), kOffsetYKey, acc_bias_.y())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kOffsetZKey, acc_bias_.z())) {
+  if (!pt_.get(ns(), kOffsetZKey, acc_bias_.z())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
@@ -138,6 +138,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       imu_raw_out->header = imu_raw_in->header;
       imu_raw_out->accel = imu_raw_in->accel - acc_bias_;
       imu_raw_out->gyro = imu_raw_in->gyro - gyro_bias_;
+      imu_raw_out->dgyro = imu_raw_in->dgyro;
 
       // Publish message
       imu_raw_pub_->publish(std::move(imu_raw_out));
@@ -158,6 +159,7 @@ void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_i
   imu_filt_out->header = imu_filt_in->header;
   imu_filt_out->accel = imu_filt_in->accel - acc_bias_;
   imu_filt_out->gyro = imu_filt_in->gyro - gyro_bias_;
+  imu_filt_out->dgyro = imu_filt_in->dgyro;
 
   // Publish message
   imu_filt_pub_->publish(std::move(imu_filt_out));
@@ -171,9 +173,9 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   acc_bias_.z(req->offset_z);
 
   // Save parameters
-  pt_.set(kOffsetXKey, req->offset_x);
-  pt_.set(kOffsetYKey, req->offset_y);
-  pt_.set(kOffsetZKey, req->offset_z);
+  pt_.set(ns(), kOffsetXKey, req->offset_x);
+  pt_.set(ns(), kOffsetYKey, req->offset_y);
+  pt_.set(ns(), kOffsetZKey, req->offset_z);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";

@@ -47,7 +47,7 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 400;    // [Hz]
-  static constexpr double kDefaultVibrationForceCoef = 0.5;  // [-]
+  static constexpr double kDefaultVibrationForceCoef = 1.5;  // [-]
   static constexpr double kDefaultMaxModelErrorRate = 0.;    // [-]
 
   using self = GazeboElectricPropulsionSystemPlugin;
@@ -355,7 +355,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
   state_msg_gt->rotation_speed = direction_ * velocity_;
   state_msg_gt->current = current;
-  state_msg_gt->vibration_force = vibration_coef_ * thrust * sin(num_blades_ * position_);  // TODO: 倍周波も考慮
+  state_msg_gt->vibration_force = vibration_coef_ * thrust * sin(position_);  // TODO: 倍周波も考慮
   state_gt_pub_->publish(move(state_msg_gt));
 }
 

@@ -39,11 +39,11 @@ void AccelRateController::initialize(tobas::BaseNode* node, tobas::flight_mode_t
   node->addDynamicIntParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 180, 0, 360, " dps");
   node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360, " dps");
   node->addDynamicIntParam(
-    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
+    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
     addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
   accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::kAccelCmdTopic);
   rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::kRateCmdTopic);

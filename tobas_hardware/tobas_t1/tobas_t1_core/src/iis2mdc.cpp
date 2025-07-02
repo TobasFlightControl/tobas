@@ -36,10 +36,9 @@ bool IIS2MDC::readMag(double& mx, double& my, double& mz)
     return false;
   }
 
-  // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
-  mx = mag_buf_[0] * kSensitivity;
-  my = -mag_buf_[1] * kSensitivity;
-  mz = mag_buf_[2] * kSensitivity;
+  mx = static_cast<double>(mag_buf_[0]) * kSensitivity;
+  my = -static_cast<double>(mag_buf_[1]) * kSensitivity;
+  mz = static_cast<double>(mag_buf_[2]) * kSensitivity;
 
   return true;
 }
@@ -63,13 +62,12 @@ bool IIS2MDC::checkWhoAmI()
 
 bool IIS2MDC::configure()
 {
-  // XXX: サンプリング周波数が高いほどモータなど外部磁場の影響を受けやすくなる．おそらく電流値を下げるのが大事．
   if (!i2c_.writeByte(CFG_REG_A, COMP_TEMP_EN | ODR_100HZ | MD_CONTINUOUS, true)) {
     cerr << "Failed to write to CFG_REG_A." << endl;
     return false;
   }
 
-  if (!i2c_.writeByte(CFG_REG_B, OFF_CANC | LPF, true)) {
+  if (!i2c_.writeByte(CFG_REG_B, LPF, true)) {
     cerr << "Failed to write to CFG_REG_B." << endl;
     return false;
   }

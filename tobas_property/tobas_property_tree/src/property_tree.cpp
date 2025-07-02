@@ -5,7 +5,7 @@
 #include <tobas_path_tools/core.hpp>
 
 using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace ptree
 {
@@ -60,5 +60,15 @@ bool PropertyTree::save()
   }
 
   return true;
+}
+
+string PropertyTree::sectionedKey(const string& section, const string& key)
+{
+  if (section.empty()) {
+    return key;
+  }
+  else {
+    return section + "." + key;
+  }
 }
 }  // namespace ptree

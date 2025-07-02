@@ -33,7 +33,7 @@ bool ILPS22QS::readPressure(double& pressure)
     return false;
   }
 
-  pressure = pres_lsb_ / pres_scale_;
+  pressure = static_cast<double>(pres_lsb_) / pres_scale_;
 
   return true;
 }
@@ -44,7 +44,7 @@ bool ILPS22QS::readTemperature(double& temperature)
     return false;
   }
 
-  temperature = temp_lsb_ / kTempScale;
+  temperature = static_cast<double>(temp_lsb_) / kTempScale;
 
   return true;
 }
