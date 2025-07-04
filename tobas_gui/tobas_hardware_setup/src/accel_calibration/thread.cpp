@@ -27,11 +27,9 @@ void AccelCalibrationThread::run()
   // https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/commander/accelerometer_calibration.cpp
 
   // Top
-  if (!getAccelMean(acc_top_)) {
+  if (!getAccelMean(acc_top_, { 0., 0., tobas_std::kGravity })) {
     return;
   }
-
-  // TODO: 明らかにおかしな値だった場合は失敗を返す
 
   // オフセットを計算
   const Eigen::Vector3d acc_offset = acc_top_ - Eigen::Vector3d(0, 0, tobas_std::kGravity);
@@ -65,7 +63,7 @@ void AccelCalibrationThread::setNamespace(const std::string& ns)
   ns_ = ns;
 }
 
-bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
+bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vector3d& ref)
 {
   // 初期化
   cnt_ = 0;
@@ -93,6 +91,13 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   // 平均を計算
   for (size_t i = 0; i < 3; ++i) {
     des(i) = acc_sum_.at(i).get() / cnt_;
+  }
+
+  // 参照ベクトルからのオフセットが大きすぎたら失敗
+  const Eigen::Vector3d offset = ref - des;
+  if (offset.norm() > kAccelOffsetNormThresh) {
+    Q_EMIT finished(false, "Acceleration error is too high—verify that the FMU is correctly oriented.");
+    return false;
   }
 
   return true;
