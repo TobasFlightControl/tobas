@@ -84,9 +84,8 @@ propulsion_system_t ElectricPropulsionSystemConfig::type() const
 
 double ElectricPropulsionSystemConfig::minSpeed(const string& link_name)
 {
-  // TODO: モータやプロペラのパラメータから最小回転数を決定
-  (void)link_name;
-  return tobas_std::rpm2rps(300);
+  const auto rotor = getRotor(link_name);
+  return rotor->min_speed;
 }
 
 double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)

@@ -25,19 +25,23 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  /* Number of poles [-] */
+  int numPoles() const;
+
   /* Kv [rad/s/V] */
   double kv() const;
 
   /* Internal resistance [Ω] */
   double internalResistance() const;
 
-  /* Number of poles [-] */
-  int numPoles() const;
+  /* Minimum rotation speed [rad/s] */
+  double minimumSpeed() const;
 
 private:
+  ParamGetterWidget_SpinBox* num_poles_;
   ParamGetterWidget_SpinBox* kv_;
   ParamGetterWidget_SpinBox* resistance_;
-  ParamGetterWidget_SpinBox* num_poles_;
+  ParamGetterWidget_SpinBox* min_speed_;
 };
 }  // namespace electric
 }  // namespace propulsion

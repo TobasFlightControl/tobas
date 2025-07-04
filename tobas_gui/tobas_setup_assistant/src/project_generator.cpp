@@ -198,6 +198,7 @@ tobas::Drone ProjectGenerator::createDrone()
         rotor->num_poles = unit_widget->motor()->numPoles();
         rotor->kv = unit_widget->motor()->kv();
         rotor->internal_resistance = unit_widget->motor()->internalResistance();
+        rotor->min_speed = unit_widget->motor()->minimumSpeed();
         rotor->propeller_diameter = unit_widget->propeller()->diameter();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
         TOBAS_CHECK(eprop->rotors.insert({ link_name, rotor }).second);
