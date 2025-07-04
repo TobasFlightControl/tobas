@@ -38,13 +38,15 @@ public:
 
   inline const std::filesystem::path& filePath() const;
 
-  static std::string sectionedKey(const std::string& section, const std::string& key);
-
 private:
   std::filesystem::path file_path_;
   std::filesystem::path parent_dir_;
 
   boost::property_tree::ptree root_node_;
+
+  bool erase(boost::property_tree::ptree& node, boost::property_tree::path path);
+
+  static std::string sectionedKey(const std::string& section, const std::string& key);
 };
 
 template <typename T>
@@ -97,8 +99,7 @@ void PropertyTree::set(const std::string& key, const std::vector<T>& vec)
     list_node.push_back(std::make_pair("", elem_node));
   }
 
-  root_node_.erase(key);
-  root_node_.add_child(key, list_node);
+  root_node_.put_child(key, list_node);
 }
 
 template <typename T, size_t N>
@@ -139,8 +140,7 @@ void PropertyTree::set(const std::string& key, const std::array<T, N>& arr)
     list_node.push_back(std::make_pair("", elem_node));
   }
 
-  root_node_.erase(key);
-  root_node_.add_child(key, list_node);
+  root_node_.put_child(key, list_node);
 }
 
 template <typename T>

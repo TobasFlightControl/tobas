@@ -25,12 +25,12 @@ ostream& operator<<(ostream& os, const vector<T>& vec)
 
 int main()
 {
-  static constexpr char kIntKey[] = "int";
-  static constexpr char kDoubleKey[] = "double";
-  static constexpr char kStringKey[] = "string";
-  static constexpr char kIntListKey[] = "int_list";
-  static constexpr char kDoubleListKey[] = "double_list";
-  static constexpr char kStringListKey[] = "string_list";
+  static constexpr char kIntKey[] = "ns.int";
+  static constexpr char kDoubleKey[] = "ns.double";
+  static constexpr char kStringKey[] = "ns.string";
+  static constexpr char kIntListKey[] = "ns.int_list";
+  static constexpr char kDoubleListKey[] = "ns.double_list";
+  static constexpr char kStringListKey[] = "ns.string_list";
 
   ptree::PropertyTree pt;
 
