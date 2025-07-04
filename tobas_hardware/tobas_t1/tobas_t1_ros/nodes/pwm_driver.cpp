@@ -7,8 +7,6 @@
 
 #include "./common.hpp"
 
-using namespace std;
-
 class PwmDriverNode : public tobas::BaseNode
 {
   using self = PwmDriverNode;

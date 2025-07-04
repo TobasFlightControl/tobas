@@ -8,8 +8,6 @@
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-using namespace std;
-
 class ICEPropulsionSystemHandlerNode : public tobas::BaseNode
 {
   using self = ICEPropulsionSystemHandlerNode;
@@ -22,7 +20,7 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas::ICEPropulsionSystemConfig::ConstSharedPtr iprop_;
 
-  map<string, double> pitch_angles_;
+  std::map<std::string, double> pitch_angles_;
   bool is_commanded_ = false;
 
   ros2::PublisherPtr<tobas_msgs::msg::PwmArray> pwms_pub_;

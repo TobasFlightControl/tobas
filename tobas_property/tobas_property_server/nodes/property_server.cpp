@@ -14,7 +14,6 @@
 #include <tobas_property_msgs/srv/set_int.hpp>
 #include <tobas_property_msgs/srv/set_string.hpp>
 
-using namespace std;
 using namespace std_srvs::srv;
 using namespace tobas_property_msgs::srv;
 
@@ -60,7 +59,7 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
   }
 
   // Advertise service servers
-  const auto prefix = string(get_name()) + "/";
+  const auto prefix = std::string(get_name()) + "/";
   get_bool_ss_ = createService<GetBool>(prefix + kGetBoolSrv, &self::getCb<GetBool>, this);
   get_int_ss_ = createService<GetInt>(prefix + kGetIntSrv, &self::getCb<GetInt>, this);
   get_double_ss_ = createService<GetDouble>(prefix + kGetDoubleSrv, &self::getCb<GetDouble>, this);

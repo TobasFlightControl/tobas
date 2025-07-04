@@ -12,8 +12,6 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
-using namespace std;
-
 /* 推進系の目標推力を実現する． */
 class RotorControllerNode : public tobas::BaseNode
 {
@@ -117,7 +115,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       // Convert target thrusts to target speeds
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto erotor = eprop->getRotor(elem.link_name);
-        const auto tar_thrust = max(elem.thrust, 0.);
+        const auto tar_thrust = std::max(elem.thrust, 0.);
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = elem.link_name;
         tar_speeds_msg->speeds.back().speed = erotor->speedFromThrust(tar_thrust);
@@ -138,7 +136,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       double K = 0.;
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto irotor = iprop->getRotor(elem.link_name);
-        const auto tar_thrust = max(elem.thrust, 0.);
+        const auto tar_thrust = std::max(elem.thrust, 0.);
         thrust_sum += tar_thrust;
         torque_sum += irotor->moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
         K += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::cube(irotor->gear_ratio);
@@ -163,7 +161,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
         for (const auto& elem : tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);
-          const auto tar_thrust = max(elem.thrust, 0.);
+          const auto tar_thrust = std::max(elem.thrust, 0.);
           ice_cmd_msg->pitch_angles.emplace_back();
           ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
           ice_cmd_msg->pitch_angles.back().angle = irotor->pitchFromThrust(engine_speed, tar_thrust);

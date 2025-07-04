@@ -7,7 +7,7 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class RotorAnomalyDetectorNode : public tobas::BaseNode
 {
@@ -30,7 +30,7 @@ private:
   };
 
   tobas::Drone::ConstSharedPtr drone_;
-  map<string, RotorData> data_;  // Link Name -> RotorData
+  std::map<std::string, RotorData> data_;  // Link Name -> RotorData
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_pub_;
 

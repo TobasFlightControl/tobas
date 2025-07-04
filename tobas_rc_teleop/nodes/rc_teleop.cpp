@@ -23,8 +23,6 @@
 #include "tobas_rc_teleop/rate_throttle.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 class RCTeleopNode : public tobas::BaseNode
@@ -60,14 +58,14 @@ private:
     RUNNING,
   } stage_ = CHECK_PREREQUISITES;
 
-  const map<tobas::flight_mode_t, const char*> mode2str_{
+  const std::map<tobas::flight_mode_t, const char*> mode2str_{
     { tobas::flight_mode_t::ACROBAT, "Acrobat" },
     { tobas::flight_mode_t::STABILIZE, "Stabilize" },
     { tobas::flight_mode_t::LOITER, "Loiter" },
   };
 
   // rosparams
-  map<tobas::flight_mode_t, tobas::rc_command_t> modes_;
+  std::map<tobas::flight_mode_t, tobas::rc_command_t> modes_;
 
   // Mutables
   tobas::flight_mode_t cur_mode_;
@@ -78,7 +76,7 @@ private:
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   // Controllers
-  map<tobas::flight_mode_t, unique_ptr<BaseController>> controllers_;
+  std::map<tobas::flight_mode_t, std::unique_ptr<BaseController>> controllers_;
 
   // PubSub
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;

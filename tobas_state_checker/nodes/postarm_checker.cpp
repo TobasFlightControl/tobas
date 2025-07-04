@@ -11,8 +11,7 @@
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 
-using namespace std;
-using namespace Eigen;
+using namespace std::chrono_literals;
 
 class PostArmCheckerNode : public tobas::BaseNode
 {

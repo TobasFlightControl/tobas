@@ -13,9 +13,8 @@
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
-using namespace std;
 using namespace real::handler::rcin;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 class RCInputHandlerNode : public tobas::BaseNode
 {
@@ -34,9 +33,9 @@ private:
   tobas_std::Range<uint16_t> throt_range_;
   uint16_t enable_on_, enable_off_;
   uint16_t kill_on_, kill_off_;
-  map<tobas::flight_mode_t, uint16_t> modes_;
+  std::map<tobas::flight_mode_t, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
-  array<uint16_t, tobas::kMaxNumOfGpsw> gpsw_on_, gpsw_off_;
+  std::array<uint16_t, tobas::kMaxNumOfGpsw> gpsw_on_, gpsw_off_;
 
   ptree::PropertyTree pt_;
 
@@ -178,7 +177,7 @@ void RCInputHandlerNode::registerPubSub()
 tobas::flight_mode_t RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 {
   tobas::flight_mode_t res = tobas::flight_mode_t::LOITER;  // コンパイラ警告を抑制するために適当に初期化
-  auto min_dist = numeric_limits<uint16_t>::max();
+  auto min_dist = std::numeric_limits<uint16_t>::max();
 
   for (const auto& [mode, period_ref] : modes_) {
     const auto dist = abs(period - period_ref);

@@ -8,7 +8,7 @@
 
 #include <tobas_msgs/msg/cpu.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class CpuHandlerNode : public tobas::BaseNode
 {
@@ -24,7 +24,7 @@ public:
 
 private:
   int temp_millidegrees_;
-  string cpu_line_, token_;
+  std::string cpu_line_, token_;
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
   linux::CommandExecutor command_executor_;
 
@@ -49,7 +49,7 @@ CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("real
 
 bool CpuHandlerNode::getTemperature(double& temp)
 {
-  ifstream temp_file(kTemperatureFilePath);
+  std::ifstream temp_file(kTemperatureFilePath);
   if (!temp_file) {
     TOBAS_ERROR("Failed to open ", kTemperatureFilePath, ".");
     return false;
@@ -74,7 +74,7 @@ bool CpuHandlerNode::getFrequency(uint64_t& freq)
 bool CpuHandlerNode::getLoad(double& load)
 {
   // ファイルを読み込む
-  ifstream stat_file(kStatisticsFilePath);
+  std::ifstream stat_file(kStatisticsFilePath);
   if (!stat_file) {
     TOBAS_ERROR("Failed to open ", kStatisticsFilePath, ".");
     return false;
@@ -87,7 +87,7 @@ bool CpuHandlerNode::getLoad(double& load)
   }
 
   // CPUの行を空白で区切る
-  istringstream iss(cpu_line_);
+  std::istringstream iss(cpu_line_);
 
   // CPU使用時間を取得 (http://my-web-site.iobb.net/~yuki/2017-10/raspberry-pi/cpustat/)
   // 最初のトークン（"cpu"）を読み飛ばす

@@ -9,9 +9,8 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-using namespace std;
 using namespace real::handler::mag;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 class MagnetometerHandlerNode : public tobas::BaseNode
 {

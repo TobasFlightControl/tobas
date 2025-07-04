@@ -4,8 +4,6 @@
 
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 
-using namespace std;
-
 class BarometerHandlerNode : public tobas::BaseNode
 {
   using self = BarometerHandlerNode;

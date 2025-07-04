@@ -6,7 +6,7 @@
 
 #include "./common.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class MagDriverNode : public hardware::BaseSensorNode
 {

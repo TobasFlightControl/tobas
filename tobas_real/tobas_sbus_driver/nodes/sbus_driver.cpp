@@ -5,7 +5,7 @@
 
 #include "tobas_sbus_driver/sbus.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class SbusDriverNode : public tobas::BaseNode
 {
@@ -16,7 +16,7 @@ public:
   explicit SbusDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  string device_;
+  std::string device_;
   tobas::SBUS sbus_;
   ros2::PublisherPtr<tobas_msgs::msg::Sbus> sbus_pub_;
   ros2::TimerPtr initialize_timer_;
@@ -26,7 +26,7 @@ private:
 };
 
 SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
-  : super("sbus_driver", options), sbus_(bind(&self::onPacket, this, placeholders::_1))
+  : super("sbus_driver", options), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
 {
   device_ = getStringParam("device");
 

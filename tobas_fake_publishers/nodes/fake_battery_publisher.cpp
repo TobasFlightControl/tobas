@@ -3,7 +3,7 @@
 
 #include <tobas_msgs/msg/battery.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class FakeBatteryPublisherNode : public tobas::BaseNode
 {

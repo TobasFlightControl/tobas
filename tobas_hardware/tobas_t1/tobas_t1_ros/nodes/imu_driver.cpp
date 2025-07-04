@@ -10,7 +10,7 @@
 
 #include "./common.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class ImuDriverNode : public hardware::BaseSensorNode
 {

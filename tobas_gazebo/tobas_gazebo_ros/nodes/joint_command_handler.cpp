@@ -8,8 +8,6 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-using namespace std;
-
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboのトランスミッションに指令する．
  */
@@ -27,7 +25,8 @@ private:
   bool eff_commanded_ = false;
   tobas::Drone::ConstSharedPtr drone_;
 
-  unordered_map<string, pair<tobas::jnt_cmd_iface_t, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>> ctrl_map_;
+  std::unordered_map<std::string, std::pair<tobas::jnt_cmd_iface_t, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>>
+    ctrl_map_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;

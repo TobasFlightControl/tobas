@@ -3,7 +3,7 @@
 
 #include <tobas_msgs_adapter/gnss.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class FakeGNSSPublisherNode : public tobas::BaseNode
 {

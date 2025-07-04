@@ -8,7 +8,6 @@
 #include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_string.hpp>
 
-using namespace std;
 using namespace tobas_dparam_msgs::srv;
 
 namespace dparam
@@ -23,7 +22,7 @@ public:
 
 private:
   rclcpp::CallbackGroup::SharedPtr cb_group_;
-  vector<rclcpp::ServiceBase::SharedPtr> services_;
+  std::vector<rclcpp::ServiceBase::SharedPtr> services_;
 
   template <typename SrvType, typename ValueType>
   void callback(const typename SrvType::Request::ConstSharedPtr& req, const typename SrvType::Response::SharedPtr& res);
@@ -36,7 +35,7 @@ DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& options) : sup
   services_.push_back(createService<SetBool>(kSetBoolSrv, &self::callback<SetBool, bool>, this, cb_group_));
   services_.push_back(createService<SetInt>(kSetIntSrv, &self::callback<SetInt, long>, this, cb_group_));
   services_.push_back(createService<SetDouble>(kSetDoubleSrv, &self::callback<SetDouble, long>, this, cb_group_));
-  services_.push_back(createService<SetString>(kSetStringSrv, &self::callback<SetString, string>, this, cb_group_));
+  services_.push_back(createService<SetString>(kSetStringSrv, &self::callback<SetString, std::string>, this, cb_group_));
 }
 
 template <typename SrvType, typename ValueType>
@@ -57,7 +56,7 @@ void DynamicParamServer::callback(
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
-  const auto node = make_shared<dparam::DynamicParamServer>();
+  const auto node = std::make_shared<dparam::DynamicParamServer>();
   rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), 2);
   exec.add_node(node);
   exec.spin();

@@ -9,8 +9,6 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 
-using namespace std;
-
 class ElectricRotorCommandHandlerNode : public tobas::BaseNode
 {
   using self = ElectricRotorCommandHandlerNode;
@@ -23,7 +21,7 @@ private:
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
-  map<string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
+  std::map<std::string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
   tobas::ControlLatencyPublisher latency_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
