@@ -24,7 +24,7 @@ bool EngineModel::initialize(const sdf::ElementConstPtr& sdf)
   newton_.initialize(
     bind(&self::speedFunc, this, std::placeholders::_1), bind(&self::speedFuncDeriv, this, std::placeholders::_1));
 
-  normal_ = NormalDistribution(0., vibration_force_variation_rate_);
+  rice_ = RiceDistribution(1., vibration_force_variation_rate_);
 
   return true;
 }
@@ -43,7 +43,7 @@ double EngineModel::getVibrationForce()
 {
   // 往復慣性力を正弦波と振幅の変動で表現
   // TODO: 実機データを分析してより正確な振動モデルを構築
-  return vibration_force_coef_ * (1. + normal_(rnd_gen_)) * math::sqr(getSpeed()) * sin(position_ * cycles_);
+  return vibration_force_coef_ * rice_(rnd_gen_) * math::sqr(getSpeed()) * sin(position_ * cycles_);
 }
 
 void EngineModel::setThrottle(const double& throttle)

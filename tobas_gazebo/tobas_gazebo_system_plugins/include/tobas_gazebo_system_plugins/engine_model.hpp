@@ -54,7 +54,7 @@ private:
   // Random
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
-  NormalDistribution normal_;
+  RiceDistribution rice_;
 
   bool getSdfParams(const sdf::ElementConstPtr& sdf);
 
