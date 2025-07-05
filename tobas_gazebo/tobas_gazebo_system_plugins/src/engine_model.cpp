@@ -88,19 +88,19 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  getSdfParam(sdf, "engineCycles", cycles_, 2);
+  getSdfParam(sdf, "engineCycles", cycles_, kDefaultEngineCycles);
   if (cycles_ <= 0) {
     gzerr << "Engine cycles must be positive." << endl;
     return false;
   }
 
-  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, 0.0015);
+  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, kDefaultVibrationForceCoef);
   if (vibration_force_coef_ < 0.) {
     gzerr << "The vibration force coefficient must be non-negative." << endl;
     return false;
   }
 
-  getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, 0.5);
+  getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, kDefaultVibrationForceVariationRate);
   if (vibration_force_variation_rate_ < 0.) {
     gzerr << "The vibration force variation rate must be non-negative." << endl;
     return false;

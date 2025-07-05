@@ -12,6 +12,10 @@ class EngineModel
 {
   using self = EngineModel;
 
+  static constexpr int kDefaultEngineCycles = 2;
+  static constexpr double kDefaultVibrationForceCoef = 0.0015;
+  static constexpr double kDefaultVibrationForceVariationRate = 0.5;
+
 public:
   explicit EngineModel(const ICERotorModelMap& rotors);
 
