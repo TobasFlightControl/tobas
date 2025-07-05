@@ -46,9 +46,10 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
   static constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
   // Default parameters
-  static constexpr size_t kDefaultPublishStateRate = 400;    // [Hz]
-  static constexpr double kDefaultVibrationForceCoef = 1.5;  // [-]
-  static constexpr double kDefaultMaxModelErrorRate = 0.;    // [-]
+  static constexpr size_t kDefaultPublishStateRate = 400;             // [Hz]
+  static constexpr double kDefaultVibrationForceCoef = 1.5;           // [-]
+  static constexpr double kDefaultVibrationForceVariationRate = 0.3;  // [-]
+  static constexpr double kDefaultMaxModelErrorRate = 0.;             // [-]
 
   using self = GazeboElectricPropulsionSystemPlugin;
   using BreakSrv = std_srvs::srv::Trigger;
@@ -76,7 +77,8 @@ private:
   int direction_;                // Turning direction: 1(CCW) or -1(CW)
   double max_current_;           // [A] ESCの最大電流
   size_t publish_state_rate_;    // [Hz]
-  double vibration_coef_;        // [-]
+  double vib_force_coef_;        // [-]
+  double vib_force_var_rate_;    // [-]
   double max_model_error_rate_;  // [-]
 
   double throttle_ = 0.;  // [0, 1]
@@ -88,6 +90,11 @@ private:
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   bool is_intact_ = true;
   RateManager::SharedPtr publish_state_rate_manager_;
+
+  // Random
+  std::random_device rnd_dev_;
+  std::mt19937 rnd_gen_;
+  RiceDistribution rice_;
 
   // Gazebo objects
   shared_ptr<gz::sim::Joint> joint_;
@@ -121,7 +128,7 @@ private:
   void breakCb(const BreakSrv::Request::ConstSharedPtr& req, const BreakSrv::Response::SharedPtr& res);
 };
 
-GazeboElectricPropulsionSystemPlugin::GazeboElectricPropulsionSystemPlugin()
+GazeboElectricPropulsionSystemPlugin::GazeboElectricPropulsionSystemPlugin() : rnd_gen_(rnd_dev_())
 {
 }
 
@@ -133,6 +140,8 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 {
   initialize("gazebo_electric_propulsion_system_plugin", sdf);
   getSdfParams(sdf);
+
+  rice_ = RiceDistribution(1., vib_force_var_rate_);
 
   publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
   addModelError();
@@ -214,7 +223,9 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
   getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, NON_NEGATIVE);
-  getSdfParam(sdf, "vibrationForceCoefficient", vibration_coef_, kDefaultVibrationForceCoef, NON_NEGATIVE);
+  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, kDefaultVibrationForceCoef, NON_NEGATIVE);
+  getSdfParam(
+    sdf, "vibrationForceVariationRate", vib_force_var_rate_, kDefaultVibrationForceVariationRate, NON_NEGATIVE);
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
@@ -355,7 +366,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
   state_msg_gt->rotation_speed = direction_ * velocity_;
   state_msg_gt->current = current;
-  state_msg_gt->vibration_force = vibration_coef_ * thrust * sin(position_);  // TODO: 倍周波も考慮
+  state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(position_) * rice_(rnd_gen_);  // TODO: 倍周波も考慮
   state_gt_pub_->publish(move(state_msg_gt));
 }
 
