@@ -42,6 +42,7 @@ double EngineModel::getPosition() const
 double EngineModel::getVibrationForce()
 {
   // 往復慣性力を正弦波と振幅の変動で表現
+  // 振幅の変動率を正規分布Nを用いて (1 + n) で表すと負になる恐れがあるため，1を中心とするライス分布を使用．
   // TODO: 実機データを分析してより正確な振動モデルを構築
   return vibration_force_coef_ * math::sqr(getSpeed()) * sin(position_ * cycles_) * rice_(rnd_gen_);
 }
