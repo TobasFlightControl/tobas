@@ -39,23 +39,23 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 
 bool treeFromFile(const string& file, Tree& tree)
 {
-  const auto robot_model = urdf::parseURDFFile(file);
-  return treeFromUrdfModel(*robot_model, tree);
+  const auto model = urdf::parseURDFFile(file);
+  return treeFromUrdfModel(*model, tree);
 }
 
 bool treeFromString(const string& xml, Tree& tree)
 {
-  const auto robot_model = urdf::parseURDF(xml);
-  if (!robot_model) {
+  const auto model = urdf::parseURDF(xml);
+  if (!model) {
     cerr << "Failed to generate robot model." << endl;
     return false;
   }
-  return treeFromUrdfModel(*robot_model, tree);
+  return treeFromUrdfModel(*model, tree);
 }
 
-bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
+bool treeFromUrdfModel(const urdf::ModelInterface& model, Tree& tree)
 {
-  const auto root_link = robot_model.getRoot();
+  const auto root_link = model.getRoot();
   if (!root_link) {
     cerr << "Failed to get root link." << endl;
     return false;
