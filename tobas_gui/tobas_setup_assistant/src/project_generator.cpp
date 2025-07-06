@@ -549,9 +549,9 @@ bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
   const auto& joint_config = settings_->joint_config;
 
   // XMLを作成
-  const auto doc = new tinyxml2::XMLDocument();
-  const auto launch = doc->NewElement("launch");
-  doc->InsertFirstChild(launch);
+  tinyxml2::XMLDocument doc;
+  const auto launch = doc.NewElement("launch");
+  doc.InsertFirstChild(launch);
 
   // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
   if (hasServoJoint()) {
@@ -582,7 +582,7 @@ bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
 
   // XMLを保存
   const auto launch_dir = common::getProjCfgLaunchDirPath(tbs_path);
-  if (doc->SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
+  if (doc.SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
     return false;
   }
