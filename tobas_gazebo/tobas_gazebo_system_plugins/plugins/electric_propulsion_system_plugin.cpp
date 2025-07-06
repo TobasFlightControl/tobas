@@ -362,11 +362,12 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   }
 
   // Publish ground-truth state
+  // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築 (倍周波も考慮)
   auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
   state_msg_gt->rotation_speed = direction_ * velocity_;
   state_msg_gt->current = current;
-  state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(position_) * rice_(rnd_gen_);  // TODO: 倍周波も考慮
+  state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(position_) * rice_(rnd_gen_);
   state_gt_pub_->publish(move(state_msg_gt));
 }
 
