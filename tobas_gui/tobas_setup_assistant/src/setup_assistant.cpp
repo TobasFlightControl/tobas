@@ -98,7 +98,7 @@ bool SetupAssistantWidget::createUrdfText(const fs::path& tbs_path, std::string&
 
   // XACROを解析
   std::string urdf_text;
-  if (!ros2::xacro(urdf_path, urdf_text)) {
+  if (!ros2::parseXacroFromPath(urdf_path, urdf_text)) {
     qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
     return false;
   }
@@ -197,7 +197,7 @@ void SetupAssistantWidget::onNewButtonClicked()
 
   // XACROを解析
   std::string urdf_text;
-  if (!ros2::xacro(urdf_path.toStdString(), urdf_text)) {
+  if (!ros2::parseXacroFromPath(urdf_path.toStdString(), urdf_text)) {
     qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
     return;
   }
