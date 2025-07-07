@@ -8,6 +8,10 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<depend>urdf</depend>
+	<depend>urdfdom</depend>
+	<depend>tobas_ros2_tools</depend>
+
 	<export>
 		<build_type>ament_cmake</build_type>
 	</export>
