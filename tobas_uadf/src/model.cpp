@@ -17,7 +17,7 @@ void Model::clear()
   control_surfaces.clear();
 }
 
-bool Model::valid()
+bool Model::valid() const
 {
   // URDFが存在する
   if (!urdf) {

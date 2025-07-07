@@ -23,6 +23,6 @@ public:
 
   void clear();
 
-  bool valid();
+  bool valid() const;
 };
 }  // namespace uadf
