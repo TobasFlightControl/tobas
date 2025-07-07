@@ -20,9 +20,9 @@
 
   <!-- Load robot description -->
   <arg name="xacro_path" default="$(find-pkg-share {{ config_pkg_name }})/urdf/drone.xacro"/>
-  <arg name="urdf_content" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug)')"/>
+  <arg name="urdf_text" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug)')"/>
   <node pkg="robot_state_publisher" exec="robot_state_publisher" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
-    <param name="robot_description" value="$(var urdf_content)"/>
+    <param name="robot_description" value="$(var urdf_text)"/>
     <remap from="/tf" to="tf"/>
     <remap from="/tf_static" to="tf_static"/>
   </node>
