@@ -9,32 +9,32 @@
 namespace kdl
 {
 /**
- * @brief Constructs a tobas_kdl tree from a file, given the file name.
+ * @brief Constructs a KDL tree from a file, given the file name.
  *
- * @param file The filename from where to read the xml
- * @param tree The resulting tobas_kdl Tree
+ * @param path The filename from where to read the xml
+ * @param tree The resulting KDL Tree
  *
  * @return true on success, false on failure
  */
-bool treeFromFile(const std::string& file, Tree& tree);
+bool treeFromPath(const std::string& path, Tree& tree);
 
 /**
- * @brief Constructs a tobas_kdl tree from a string containing xml.
+ * @brief Constructs a KDL tree from a string containing xml.
  *
  * @param xml A string containing the xml description of the robot
- * @param tree The resulting tobas_kdl Tree
+ * @param tree The resulting KDL Tree
  *
  * @return true on success, false on failure
  */
-bool treeFromString(const std::string& xml, Tree& tree);
+bool treeFromText(const std::string& xml, Tree& tree);
 
 /**
- * @brief Constructs a tobas_kdl tree from a URDF robot model.
+ * @brief Constructs a KDL tree from a URDF robot model.
  *
  * @param robot_model The URDF robot model
- * @param tree The resulting tobas_kdl Tree
+ * @param tree The resulting KDL Tree
  *
  * @return true on success, false on failure
  */
-bool treeFromUrdfModel(const urdf::ModelInterface& model, Tree& tree);
+bool treeFromUrdf(const urdf::ModelInterface& model, Tree& tree);
 }  // namespace kdl
