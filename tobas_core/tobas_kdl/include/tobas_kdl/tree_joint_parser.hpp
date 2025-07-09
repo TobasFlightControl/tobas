@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <map>
 
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
@@ -16,11 +16,10 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  inline const std::vector<std::string>& jointNames() const;
   inline const std::string& jointName(const size_t& q_nr) const;
 
-  inline const std::unordered_map<std::string, size_t>& jointIndexMap() const;
   inline const size_t& jointIndex(const std::string& jnt_name) const;
+  inline const std::string& segmentName(const std::string& jnt_name) const;
 
   inline const JntArray& lowerLimits() const;
   inline double lowerLimit(const size_t& q_nr) const;
@@ -43,7 +42,8 @@ public:
 
 private:
   std::vector<std::string> jnt_names_;
-  std::unordered_map<std::string, size_t> jnt_idx_;
+  std::map<std::string, size_t> jnt_indexes_;
+  std::map<std::string, std::string> seg_names_;
   JntArray lower_limits_;
   JntArray upper_limits_;
   JntArray max_velocities_;
@@ -57,24 +57,19 @@ private:
   void parseJntNamesStep(const SegmentMap::const_iterator& segment);
 };
 
-inline const std::vector<std::string>& TreeJointParser::jointNames() const
-{
-  return jnt_names_;
-}
-
 inline const std::string& TreeJointParser::jointName(const size_t& q_nr) const
 {
   return jnt_names_.at(q_nr);
 }
 
-inline const std::unordered_map<std::string, size_t>& TreeJointParser::jointIndexMap() const
-{
-  return jnt_idx_;
-}
-
 inline const size_t& TreeJointParser::jointIndex(const std::string& jnt_name) const
 {
-  return jnt_idx_.at(jnt_name);
+  return jnt_indexes_.at(jnt_name);
+}
+
+inline const std::string& TreeJointParser::segmentName(const std::string& jnt_name) const
+{
+  return seg_names_.at(jnt_name);
 }
 
 inline const JntArray& TreeJointParser::lowerLimits() const
@@ -141,6 +136,6 @@ inline double TreeJointParser::maxEffort(const std::string& jnt_name) const
 
 inline bool TreeJointParser::exist(const std::string& jnt_name) const
 {
-  return jnt_idx_.contains(jnt_name);
+  return jnt_indexes_.contains(jnt_name);
 }
 }  // namespace kdl

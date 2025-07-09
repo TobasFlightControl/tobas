@@ -1,6 +1,5 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
-#include <urdf_parser/urdf_parser.h>
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
@@ -12,6 +11,7 @@
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
+#include <tobas_uadf/exporter.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
@@ -529,14 +529,14 @@ bool ProjectGenerator::generateBackupFiles(const fs::path& tbs_path)
     return false;
   }
 
-  // Save original URDF
-  const auto doc = urdf::exportURDF(*robot_.urdf());
+  // Save original UADF
+  const auto doc = uadf::exportUADF(robot_.uadf());
   const auto robot = doc->RootElement();
   if (!replaceOriginalUrdfMeshFilePaths(robot, tbs_path)) {
     return false;
   }
-  if (doc->SaveFile(common::getProjBackupUrdfPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the original URDF.");
+  if (doc->SaveFile(common::getProjBackupUadfPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(settings_, "Failed to save the original UADF.");
     return false;
   }
 
@@ -772,7 +772,7 @@ bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& tbs_path)
 bool ProjectGenerator::generateModifiedUrdf(const fs::path& tbs_path)
 {
   // Export the original URDF
-  const auto doc = urdf::exportURDF(*robot_.urdf());
+  const auto doc = robot_.urdfDocument();
   const auto robot = doc->RootElement();
 
   // Modify robot

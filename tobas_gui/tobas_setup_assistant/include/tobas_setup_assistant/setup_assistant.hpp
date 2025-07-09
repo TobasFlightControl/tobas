@@ -32,7 +32,6 @@ public:
 
 private:
   RobotInfo robot_;
-  Signals signals_;
   RotorMarkerPublisher rotor_marker_publisher_;
 
   ptree::PropertyClient property_client_;
@@ -52,7 +51,6 @@ private:
   std::unique_ptr<ProjectGenerator> prj_gen_;
 
   void enableSaveButtons(bool enable);
-  bool createUrdfText(const std::filesystem::path& tbs_path, std::string& text_out);
   bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
 
 private Q_SLOTS:

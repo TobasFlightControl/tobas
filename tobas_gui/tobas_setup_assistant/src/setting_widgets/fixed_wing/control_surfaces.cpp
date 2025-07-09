@@ -1,7 +1,8 @@
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/selected_links.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surfaces.hpp"
 
 #include <QDebug>
 #include <QLabel>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/font.hpp>
@@ -17,8 +18,11 @@ namespace sa
 {
 namespace fixed_wing
 {
-SelectedLinksWidget::SelectedLinksWidget(const RobotInfo& robot) : super(0, kNumCols), robot_(robot)
+ControlSurfacesWidget::ControlSurfacesWidget(const RobotInfo& robot) : super(0, kNumCols), robot_(robot)
 {
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
   setHorizontalHeaderLabels({
     kLinkNameLabel,
     kJointNameLabel,
@@ -33,55 +37,76 @@ SelectedLinksWidget::SelectedLinksWidget(const RobotInfo& robot) : super(0, kNum
   setColumnsWidth(kColWidth);
 }
 
-void SelectedLinksWidget::updateInternalDataStructures()
+void ControlSurfacesWidget::updateInternalDataStructures()
 {
   removeAll();
+
+  for (const auto& [joint_name, _] : robot_.uadf().control_surfaces) {
+    const auto link_name = QString::fromStdString(robot_.linkName(joint_name));
+    add(link_name);
+  }
 }
 
-YAML::Node SelectedLinksWidget::dump(const QString& link_name) const
+bool ControlSurfacesWidget::isValid()
+{
+  return true;
+}
+
+YAML::Node ControlSurfacesWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  const auto row = find(link_name);
+  for (int row = 0; row < rowCount(); ++row) {
+    YAML::Node sub_node(YAML::NodeType::Map);
+    sub_node[kJointNameLabel] = jointName(row);
+    sub_node[kLiftCoefLabel] = liftCoef(row);
+    sub_node[kDragCoefLabel] = dragCoef(row);
+    sub_node[kSideCoefLabel] = sideCoef(row);
+    sub_node[kRollCoefLabel] = rollCoef(row);
+    sub_node[kPitchCoefLabel] = pitchCoef(row);
+    sub_node[kYawCoefLabel] = yawCoef(row);
 
-  node[kLinkNameLabel] = linkName(row);
-  node[kJointNameLabel] = jointName(row);
-  node[kLiftCoefLabel] = liftCoef(row);
-  node[kDragCoefLabel] = dragCoef(row);
-  node[kSideCoefLabel] = sideCoef(row);
-  node[kRollCoefLabel] = rollCoef(row);
-  node[kPitchCoefLabel] = pitchCoef(row);
-  node[kYawCoefLabel] = yawCoef(row);
+    const auto link_name = linkName(row);
+    node[link_name.toStdString()] = sub_node;
+  }
 
   return node;
 }
 
-void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
+void ControlSurfacesWidget::load(const YAML::Node& node)
 {
-  const auto row = find(link_name);
+  for (const auto& pair : node) {
+    const auto link_name = pair.first.as<QString>();
+    const auto& sub_node = pair.second;
 
-  linkName(row, node[kLinkNameLabel].as<QString>());
-  jointName(row, node[kJointNameLabel].as<QString>());
-  liftCoef(row, node[kLiftCoefLabel].as<double>());
-  dragCoef(row, node[kDragCoefLabel].as<double>());
-  sideCoef(row, node[kSideCoefLabel].as<double>());
-  rollCoef(row, node[kRollCoefLabel].as<double>());
-  pitchCoef(row, node[kPitchCoefLabel].as<double>());
-  yawCoef(row, node[kYawCoefLabel].as<double>());
+    const auto row = find(link_name);
+    if (row < 0) {
+      throw std::runtime_error("Failed to find CS link \"" + link_name.toStdString() + "\".");
+    }
+
+    linkName(row, link_name);
+    jointName(row, sub_node[kJointNameLabel].as<QString>());
+    liftCoef(row, sub_node[kLiftCoefLabel].as<double>());
+    dragCoef(row, sub_node[kDragCoefLabel].as<double>());
+    sideCoef(row, sub_node[kSideCoefLabel].as<double>());
+    rollCoef(row, sub_node[kRollCoefLabel].as<double>());
+    pitchCoef(row, sub_node[kPitchCoefLabel].as<double>());
+    yawCoef(row, sub_node[kYawCoefLabel].as<double>());
+  }
 }
 
-int SelectedLinksWidget::numUnits() const
+int ControlSurfacesWidget::numUnits() const
 {
   return rowCount();
 }
 
-QString SelectedLinksWidget::selected() const
+QString ControlSurfacesWidget::selected() const
 {
   const auto row = currentRow();
   return row >= 0 ? linkName(row) : "";
 }
 
-int SelectedLinksWidget::find(const QString& link_name) const
+int ControlSurfacesWidget::find(const QString& link_name) const
 {
   for (int row = 0; row < rowCount(); ++row) {
     if (linkName(row) == link_name) {
@@ -93,7 +118,7 @@ int SelectedLinksWidget::find(const QString& link_name) const
   return -1;
 }
 
-void SelectedLinksWidget::add(const QString& link_name)
+void ControlSurfacesWidget::add(const QString& link_name)
 {
   const auto seg_it = robot_.tree().getSegment(link_name.toStdString());
   const auto& joint = seg_it->second.segment.joint();
@@ -148,103 +173,103 @@ void SelectedLinksWidget::add(const QString& link_name)
   setCellWidget(row, kYawCoefCol, c_yaw_delta);
 }
 
-void SelectedLinksWidget::remove(const QString& link_name)
+void ControlSurfacesWidget::remove(const QString& link_name)
 {
   const auto row = find(link_name);
   removeRow(row);
 }
 
-QString SelectedLinksWidget::linkName(int row) const
+QString ControlSurfacesWidget::linkName(int row) const
 {
   const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
   return cell->text();
 }
 
-QString SelectedLinksWidget::jointName(int row) const
+QString ControlSurfacesWidget::jointName(int row) const
 {
   const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kJointNameCol));
   return cell->text();
 }
 
-double SelectedLinksWidget::liftCoef(int row) const
+double ControlSurfacesWidget::liftCoef(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
   return cell->value();
 }
 
-double SelectedLinksWidget::dragCoef(int row) const
+double ControlSurfacesWidget::dragCoef(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
   return cell->value();
 }
 
-double SelectedLinksWidget::sideCoef(int row) const
+double ControlSurfacesWidget::sideCoef(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
   return cell->value();
 }
 
-double SelectedLinksWidget::rollCoef(int row) const
+double ControlSurfacesWidget::rollCoef(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
   return cell->value();
 }
 
-double SelectedLinksWidget::pitchCoef(int row) const
+double ControlSurfacesWidget::pitchCoef(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
   return cell->value();
 }
 
-double SelectedLinksWidget::yawCoef(int row) const
+double ControlSurfacesWidget::yawCoef(int row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->value();
 }
 
-void SelectedLinksWidget::linkName(int row, const QString& text)
+void ControlSurfacesWidget::linkName(int row, const QString& text)
 {
   const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
   return cell->setText(text);
 }
 
-void SelectedLinksWidget::jointName(int row, const QString& text)
+void ControlSurfacesWidget::jointName(int row, const QString& text)
 {
   const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kJointNameCol));
   return cell->setText(text);
 }
 
-void SelectedLinksWidget::liftCoef(int row, double value)
+void ControlSurfacesWidget::liftCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
   return cell->setValue(value);
 }
 
-void SelectedLinksWidget::dragCoef(int row, double value)
+void ControlSurfacesWidget::dragCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
   return cell->setValue(value);
 }
 
-void SelectedLinksWidget::sideCoef(int row, double value)
+void ControlSurfacesWidget::sideCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
   return cell->setValue(value);
 }
 
-void SelectedLinksWidget::rollCoef(int row, double value)
+void ControlSurfacesWidget::rollCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
   return cell->setValue(value);
 }
 
-void SelectedLinksWidget::pitchCoef(int row, double value)
+void ControlSurfacesWidget::pitchCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
   return cell->setValue(value);
 }
 
-void SelectedLinksWidget::yawCoef(int row, double value)
+void ControlSurfacesWidget::yawCoef(int row, double value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->setValue(value);

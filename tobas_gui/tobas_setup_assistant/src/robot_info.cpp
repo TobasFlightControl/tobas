@@ -1,10 +1,11 @@
 #include "tobas_setup_assistant/robot_info.hpp"
 
-#include <iostream>
-
 #include <urdf_parser/urdf_parser.h>
 
 #include <tobas_kdl_parser/kdl_parser.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_uadf/parser.hpp>
+#include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
 
@@ -12,46 +13,40 @@ namespace gui
 {
 namespace sa
 {
-RobotInfo::RobotInfo() : axis_solver_(tree_)
+RobotInfo::RobotInfo(QWidget* parent) : parent_(parent), jnt_parser_(tree_), axis_solver_(tree_)
 {
 }
 
-bool RobotInfo::loadFromText(const std::string& urdf_text)
+bool RobotInfo::loadFromXml(const tinyxml2::XMLDocument* uadf_doc)
 {
-  // Parse URDF
-  urdf_ = urdf::parseURDF(urdf_text);
-  if (!urdf_) {
-    std::cerr << "Failed to parse URDF." << std::endl;
+  if (!uadf::parseFromXml(uadf_doc, uadf_)) {
     return false;
   }
 
-  // Update URDF text
-  urdf_text_ = urdf_text;
-
-  // Load KDL tree
-  if (!kdl::treeFromUrdfModel(*urdf_, tree_)) {
-    std::cerr << "Failed to load KDL tree." << std::endl;
-    return false;
-  }
-
-  // Update KDL objects
-  q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
-  if (!axis_solver_.updateInternalDataStructures()) {
-    return false;
-  }
-
-  Q_EMIT loaded();
-  return true;
+  return loadCommon();
 }
 
-const std::string& RobotInfo::urdfText() const
+bool RobotInfo::loadFromText(const std::string& uadf_text)
 {
-  return urdf_text_;
+  if (!uadf::parseFromText(uadf_text, uadf_)) {
+    return false;
+  }
+
+  return loadCommon();
 }
 
-urdf::ModelInterfaceConstSharedPtr RobotInfo::urdf() const
+bool RobotInfo::loadFromPath(const std::string& uadf_path)
 {
-  return urdf_;
+  if (!uadf::parseFromPath(uadf_path, uadf_)) {
+    return false;
+  }
+
+  return loadCommon();
+}
+
+const uadf::Model& RobotInfo::uadf() const
+{
+  return uadf_;
 }
 
 const kdl::Tree& RobotInfo::tree() const
@@ -61,12 +56,28 @@ const kdl::Tree& RobotInfo::tree() const
 
 const std::string& RobotInfo::robotName() const
 {
-  return urdf_->getName();
+  return uadf_.urdf->getName();
 }
 
-bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis)
+const std::string& RobotInfo::linkName(const std::string& joint_name) const
 {
-  const auto seg_it = tree_.getSegment(seg_name);
+  jnt_parser_.segmentName(joint_name);
+}
+
+tinyxml2::XMLDocument* RobotInfo::urdfDocument() const
+{
+  return urdf::exportURDF(*uadf_.urdf);
+}
+
+std::string RobotInfo::urdfText() const
+{
+  const auto doc = urdfDocument();
+  return xml::xmlDocumentToString(doc);
+}
+
+bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis)
+{
+  const auto seg_it = tree_.getSegment(link_name);
 
   // 問題なくルートリンクまで遡れた場合はtrue．
   if (seg_it == tree_.getRootSegment()) {
@@ -77,8 +88,11 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl:
   // つまり，可動関節で且つジョイント軸が目標と平行でないリンクが存在する場合はfalse．
   const auto& joint = seg_it->second.segment.joint();
   if (joint.type != kdl::Joint::FIXED) {
-    if (axis_solver_.JntToCart(q_zeros_, seg_name) < 0) {
-      std::cerr << "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage() << std::endl;
+    if (axis_solver_.JntToCart(q_zeros_, link_name) < 0) {
+      qt::qErrorBox(
+        parent_,
+        "Failed to get the joint axis of " + QString::fromStdString(link_name) + ":\n\n" +
+          QString::fromStdString(axis_solver_.errorMessage()));
       return false;
     }
     const auto& cur_axis = axis_solver_.getAxis();
@@ -92,17 +106,44 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl:
   return isJntAxisAlwaysCollinear(par_name, tar_axis);
 }
 
-tobas::rotor_axis_t RobotInfo::rotorAxisType(const std::string& seg_name)
+tobas::rotor_axis_t RobotInfo::rotorAxisType(const std::string& link_name)
 {
-  if (isJntAxisAlwaysCollinear(seg_name, kdl::Vector::UnitX())) {
+  if (isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitX())) {
     return tobas::rotor_axis_t::X_POSITIVE;
   }
-  else if (isJntAxisAlwaysCollinear(seg_name, kdl::Vector::UnitZ())) {
+  else if (isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitZ())) {
     return tobas::rotor_axis_t::Z_POSITIVE;
   }
   else {
     return tobas::rotor_axis_t::UNKNOWN;
   }
+}
+
+bool RobotInfo::loadCommon()
+{
+  // Check UADF validity
+  if (!uadf_.valid()) {
+    qt::qErrorBox(parent_, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
+    return false;
+  }
+
+  // Load KDL tree
+  if (!kdl::treeFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(parent_, "Failed to load KDL tree.");
+    return false;
+  }
+
+  // Update KDL objects
+  q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
+  if (!jnt_parser_.updateInternalDataStructures()) {
+    return false;
+  }
+  if (!axis_solver_.updateInternalDataStructures()) {
+    return false;
+  }
+
+  Q_EMIT loaded();
+  return true;
 }
 }  // namespace sa
 }  // namespace gui

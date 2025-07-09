@@ -28,7 +28,7 @@ class PropulsionSystemWidget : public BaseSettingWidget
   static constexpr int kIceId = kElectricId + 1;
 
 public:
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
+  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
   const char* name() const override;
   const char* title() const override;
@@ -45,8 +45,6 @@ public:
   int numUnits() const;
 
   QString linkName(int index) const;
-  bool isTiltRotor(int index) const;
-  QString tiltJointName(int index) const;
 
   BasePropulsionSystemWidget* widget(int index);
   const BasePropulsionSystemWidget* widget(int index) const;

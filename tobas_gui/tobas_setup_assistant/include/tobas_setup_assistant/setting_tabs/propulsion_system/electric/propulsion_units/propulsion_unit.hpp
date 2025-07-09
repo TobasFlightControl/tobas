@@ -6,7 +6,6 @@
 
 #include "./aerodynamics/aerodynamics.hpp"
 #include "./esc.hpp"
-#include "./general/general.hpp"
 #include "./motor.hpp"
 #include "./propeller.hpp"
 
@@ -18,7 +17,7 @@ namespace propulsion
 {
 namespace electric
 {
-class SelectedLinkWidget : public QWidget
+class PropulsionUnitWidget : public QWidget
 {
   Q_OBJECT
 
@@ -32,19 +31,14 @@ Q_SIGNALS:
   void copyToAllButtonClicked();
 
 public:
-  explicit SelectedLinkWidget(
-    rclcpp::Node::SharedPtr node,
-    const RobotInfo& robot,
-    Signals& _signals,
-    const QString& link_name);
+  explicit PropulsionUnitWidget(rclcpp::Node::SharedPtr node, const QString& link_name);
 
   bool isValid();
-  void copyFrom(const SelectedLinkWidget* src);
+  void copyFrom(const PropulsionUnitWidget* src);
 
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  const GeneralWidget* general() const;
   const ESCWidget* esc() const;
   const MotorWidget* motor() const;
   const PropellerWidget* propeller() const;
@@ -56,7 +50,6 @@ private:
   QPushButton* copy_from_left_button_;
   QPushButton* copy_to_all_button_;
 
-  GeneralWidget* general_;
   ESCWidget* esc_;
   MotorWidget* motor_;
   PropellerWidget* propeller_;

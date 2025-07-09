@@ -20,10 +20,9 @@ namespace sa
 {
 JointConfigurationWidget::JointConfigurationWidget(
   const RobotInfo& robot,
-  const Signals& _signals,
   const propulsion::PropulsionSystemWidget* propulsion,
   const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), signals_(_signals), propulsion_(propulsion), fixed_wing_(fixed_wing)
+  : robot_(robot),  propulsion_(propulsion), fixed_wing_(fixed_wing)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
@@ -43,14 +42,6 @@ JointConfigurationWidget::JointConfigurationWidget(
   });
   addWidget(table_);
 
-  connect(&signals_, &Signals::rotorLinkAdded, this, &self::onRotorLinkAdded);
-  connect(&signals_, &Signals::rotorLinkRemoved, this, &self::onRotorLinkRemoved);
-  connect(&signals_, &Signals::isTiltRotorStateChanged, this, &self::onIsTiltRotorStateChanged);
-  connect(&signals_, &Signals::tiltJointNameChanged, this, &self::onTiltJointNameChanged);
-
-  const auto css = fixed_wing_->controlSurfaces();
-  connect(css, &fixed_wing::ControlSurfacesWidget::linkAdded, this, &self::onControlSurfaceLinkAdded);
-  connect(css, &fixed_wing::ControlSurfacesWidget::linkRemoved, this, &self::onControlSurfaceLinkRemoved);
 }
 
 const char* JointConfigurationWidget::name() const

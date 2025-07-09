@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
+#include <QCheckBox>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -9,18 +11,18 @@ namespace sa
 {
 namespace propulsion
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
 {
   type_buttons_ = new QButtonGroup(this);
   propulsion_stack_ = new qt::StackedWidget();
 
-  const auto eprop = new electric::PropulsionSystemWidget(node, robot, _signals);
+  const auto eprop = new electric::PropulsionSystemWidget(node, robot);
   const auto eprop_ckb = new QCheckBox(eprop->name());
   type_buttons_->addButton(eprop_ckb);
   type_buttons_->setId(eprop_ckb, kElectricId);
   propulsion_stack_->addWidget(eprop);
 
-  const auto iprop = new ice::PropulsionSystemWidget(node, robot, _signals);
+  const auto iprop = new ice::PropulsionSystemWidget(node, robot);
   const auto iprop_ckb = new QCheckBox(iprop->name());
   type_buttons_->addButton(iprop_ckb);
   type_buttons_->setId(iprop_ckb, kIceId);
@@ -121,15 +123,7 @@ QString PropulsionSystemWidget::linkName(int index) const
   return selected()->linkName(index);
 }
 
-bool PropulsionSystemWidget::isTiltRotor(int index) const
-{
-  return selected()->isTiltRotor(index);
-}
 
-QString PropulsionSystemWidget::tiltJointName(int index) const
-{
-  return selected()->tiltJointName(index);
-}
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
 {

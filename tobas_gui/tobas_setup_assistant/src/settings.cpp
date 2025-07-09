@@ -7,11 +7,11 @@ namespace gui
 {
 namespace sa
 {
-SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals)
+SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
 {
-  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, _signals);
+  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
-  joint_config = new JointConfigurationWidget(robot, _signals, propulsion_system, fixed_wing);
+  joint_config = new JointConfigurationWidget(robot, propulsion_system, fixed_wing);
   rc_input = new RcInputWidget();
   controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
   observer = new ObserverWidget();
@@ -92,7 +92,7 @@ bool SettingsWidget::isPwmChannelsValid()
       const auto engine = iprop->engine;
       channel_list.push_back(engine->hardwareIface()->pwmChannel());
 
-      const auto units = iprop->units->selected();
+      const auto units = iprop->units;
       for (int i = 0; i < iprop->numUnits(); ++i) {
         const auto unit_widget = units->widget(i);
         const auto pwm_channel = unit_widget->hardwareIface()->pwmChannel();

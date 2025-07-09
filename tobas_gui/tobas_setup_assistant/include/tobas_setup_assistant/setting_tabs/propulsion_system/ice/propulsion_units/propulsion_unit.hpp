@@ -5,7 +5,6 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "./aerodynamics/aerodynamics.hpp"
-#include "./general.hpp"
 #include "./hardware_interface.hpp"
 #include "./propeller.hpp"
 #include "./transmission.hpp"
@@ -18,7 +17,7 @@ namespace propulsion
 {
 namespace ice
 {
-class SelectedLinkWidget : public QWidget
+class PropulsionUnitWidget : public QWidget
 {
   Q_OBJECT
 
@@ -32,15 +31,14 @@ Q_SIGNALS:
   void copyToAllButtonClicked();
 
 public:
-  explicit SelectedLinkWidget();
+  explicit PropulsionUnitWidget();
 
   bool isValid();
-  void copyFrom(const SelectedLinkWidget* src);
+  void copyFrom(const PropulsionUnitWidget* src);
 
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  const GeneralWidget* general() const;
   const TransmissionWidget* transmission() const;
   const PropellerWidget* propeller() const;
   const VPitchHardwareIfaceWidget* hardwareIface() const;
@@ -52,7 +50,6 @@ private:
   QPushButton* copy_from_left_button_;
   QPushButton* copy_to_all_button_;
 
-  GeneralWidget* general_;
   TransmissionWidget* transmission_;
   PropellerWidget* propeller_;
   VPitchHardwareIfaceWidget* hw_iface_;

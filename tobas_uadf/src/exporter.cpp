@@ -24,8 +24,10 @@ tinyxml2::XMLDocument* exportUADF(const Model& model)
         switch (thrust.direction) {
           case Thrust::CW:
             direction->SetAttribute("value", "cw");
+            break;
           case Thrust::CCW:
             direction->SetAttribute("value", "ccw");
+            break;
           default:
             throw;
         }

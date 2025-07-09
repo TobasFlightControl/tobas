@@ -1,5 +1,7 @@
 #pragma once
 
+#include <yaml-cpp/yaml.h>
+
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
@@ -12,12 +14,12 @@ namespace sa
 {
 namespace fixed_wing
 {
-class AerodynamicsCoefficientsWidget : public BaseSelectedLinkSettingWidget
+class AerodynamicsCoefficientsWidget : public QWidget
 {
   Q_OBJECT
 
   using self = AerodynamicsCoefficientsWidget;
-  using super = BaseSelectedLinkSettingWidget;
+  using super = QWidget;
 
   static constexpr int kButtonWidth = 180;
   static constexpr int kButtonHeight = 60;
@@ -26,11 +28,11 @@ class AerodynamicsCoefficientsWidget : public BaseSelectedLinkSettingWidget
 public:
   explicit AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node);
 
-  void updateInternalDataStructures() override;
-  bool isValid() override;
+  void updateInternalDataStructures();
+  bool isValid();
 
-  YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  YAML::Node dump() const;
+  void load(const YAML::Node& node);
 
   double c_lift_0() const;
   double c_lift_alpha() const;

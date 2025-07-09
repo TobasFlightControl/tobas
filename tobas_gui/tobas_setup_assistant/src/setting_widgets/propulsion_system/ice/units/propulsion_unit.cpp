@@ -1,4 +1,4 @@
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/selected_link.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propulsion_unit.hpp"
 
 #include <tobas_qt_tools/cast.hpp>
 
@@ -10,7 +10,7 @@ namespace propulsion
 {
 namespace ice
 {
-SelectedLinkWidget::SelectedLinkWidget()
+PropulsionUnitWidget::PropulsionUnitWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -33,13 +33,11 @@ SelectedLinkWidget::SelectedLinkWidget()
   tabs_->setTabSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
-  general_ = new GeneralWidget();
   transmission_ = new TransmissionWidget();
   propeller_ = new PropellerWidget();
   hw_iface_ = new VPitchHardwareIfaceWidget();
   aerodynamics_ = new AerodynamicsWidget();
 
-  tabs_->addTab(general_, general_->name());
   tabs_->addTab(transmission_, transmission_->name());
   tabs_->addTab(propeller_, propeller_->name());
   tabs_->addTab(hw_iface_, hw_iface_->name());
@@ -52,7 +50,7 @@ SelectedLinkWidget::SelectedLinkWidget()
   connect(copy_from_left_button_, &QPushButton::clicked, [this]() { Q_EMIT copyFromLeftButtonClicked(); });
 }
 
-bool SelectedLinkWidget::isValid()
+bool PropulsionUnitWidget::isValid()
 {
   for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
@@ -64,7 +62,7 @@ bool SelectedLinkWidget::isValid()
   return true;
 }
 
-void SelectedLinkWidget::copyFrom(const SelectedLinkWidget* src)
+void PropulsionUnitWidget::copyFrom(const PropulsionUnitWidget* src)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
     const auto des_widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
@@ -73,7 +71,7 @@ void SelectedLinkWidget::copyFrom(const SelectedLinkWidget* src)
   }
 }
 
-YAML::Node SelectedLinkWidget::dump() const
+YAML::Node PropulsionUnitWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -85,7 +83,7 @@ YAML::Node SelectedLinkWidget::dump() const
   return node;
 }
 
-void SelectedLinkWidget::load(const YAML::Node& node)
+void PropulsionUnitWidget::load(const YAML::Node& node)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
@@ -93,27 +91,22 @@ void SelectedLinkWidget::load(const YAML::Node& node)
   }
 }
 
-const GeneralWidget* SelectedLinkWidget::general() const
-{
-  return general_;
-}
-
-const TransmissionWidget* SelectedLinkWidget::transmission() const
+const TransmissionWidget* PropulsionUnitWidget::transmission() const
 {
   return transmission_;
 }
 
-const PropellerWidget* SelectedLinkWidget::propeller() const
+const PropellerWidget* PropulsionUnitWidget::propeller() const
 {
   return propeller_;
 }
 
-const VPitchHardwareIfaceWidget* SelectedLinkWidget::hardwareIface() const
+const VPitchHardwareIfaceWidget* PropulsionUnitWidget::hardwareIface() const
 {
   return hw_iface_;
 }
 
-const AerodynamicsWidget* SelectedLinkWidget::aerodynamics() const
+const AerodynamicsWidget* PropulsionUnitWidget::aerodynamics() const
 {
   return aerodynamics_;
 }

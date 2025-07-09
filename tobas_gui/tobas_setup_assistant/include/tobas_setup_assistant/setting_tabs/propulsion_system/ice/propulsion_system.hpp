@@ -26,7 +26,7 @@ public:
   EngineWidget* engine;
   PropulsionUnitsWidget* units;
 
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
+  explicit PropulsionSystemWidget( const RobotInfo& robot);
 
   const char* name() const override;
 
@@ -41,8 +41,6 @@ public:
   int numUnits() const override;
 
   QString linkName(int index) const override;
-  bool isTiltRotor(int index) const override;
-  QString tiltJointName(int index) const override;
 };
 };  // namespace ice
 }  // namespace propulsion

@@ -1,6 +1,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/propulsion_units.hpp"
 
-#include <tobas_qt_tools/font.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/stream.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
@@ -11,48 +13,45 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
-  : signals_(_signals)
+PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
+  : node_(node), robot_(robot)
 {
-  const auto available_links_label = new QLabel("Available Links");
-  available_links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
-  available_links_label->setAlignment(Qt::AlignLeft);
-
-  available_ = new AvailableLinksWidget(robot);
-  selected_ = new SelectedLinksWidget(node, robot, _signals);
-
-  // Layout
-  const auto rows = new QVBoxLayout();
-  rows->addWidget(available_links_label);
-  rows->addWidget(available_);
-  rows->addWidget(selected_);
-  setLayout(rows);
-
-  // Connection
-  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
-  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
-}
-
-void PropulsionUnitsWidget::clear()
-{
-  while (selected_->numUnits() > 0) {
-    selected_->removeLink(selected_->linkName(0));
-  }
+  enableWheelEvent(false);
+  setTabSize(kTabWidth, kTabHeight);
 }
 
 void PropulsionUnitsWidget::updateInternalDataStructures()
 {
-  available_->updateInternalDataStructures();
-  selected_->updateInternalDataStructures();
+  removeAllTabs();
+
+  for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+    // プロペラリンク名を取得
+    const auto link_name = QString::fromStdString(robot_.linkName(joint_name));
+
+    // タブを追加
+    const auto link_widget = new PropulsionUnitWidget(node_, link_name);
+    addTab(link_widget, link_name);
+
+    // Connection
+    connect(
+      link_widget,
+      &PropulsionUnitWidget::copyFromLeftButtonClicked,
+      this,
+      std::bind(&self::onCopyFromLeftButtonClicked, this, link_name));
+    connect(
+      link_widget,
+      &PropulsionUnitWidget::copyToAllButtonClicked,
+      this,
+      std::bind(&self::onCopyToAllButtonClicked, this, link_name));
+  }
 }
 
 bool PropulsionUnitsWidget::isValid()
 {
-  if (!available_->isValid()) {
-    return false;
-  }
-  if (!selected_->isValid()) {
-    return false;
+  for (int i = 0; i < count(); ++i) {
+    if (!widget(i)->isValid()) {
+      return false;
+    }
   }
 
   return true;
@@ -62,9 +61,9 @@ YAML::Node PropulsionUnitsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  for (int i = 0; i < selected_->count(); ++i) {
-    const auto link_name = selected_->linkName(i);
-    node[link_name.toStdString()] = selected_->widget(i)->dump();
+  for (int i = 0; i < count(); ++i) {
+    const auto link_name = linkName(i);
+    node[link_name] = widget(i)->dump();
   }
 
   return node;
@@ -75,36 +74,86 @@ void PropulsionUnitsWidget::load(const YAML::Node& node)
   for (const auto& pair : node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
-
-    // リンクをAvailableからSelectedに移動させる
-    available_->removeLink(link_name);
-
-    // 選択リンクの設定を更新
-    selected_->widget(link_name)->load(sub_node);
+    widget(link_name)->load(sub_node);
   }
 }
 
-const AvailableLinksWidget* PropulsionUnitsWidget::available() const
+int PropulsionUnitsWidget::numUnits() const
 {
-  return available_;
+  return count();
 }
 
-const SelectedLinksWidget* PropulsionUnitsWidget::selected() const
+QString PropulsionUnitsWidget::linkName(int index) const
 {
-  return selected_;
+  return tabText(index);
 }
 
-void PropulsionUnitsWidget::onAvailableLinkRemoved(const QString& link_name)
+int PropulsionUnitsWidget::index(const QString& link_name) const
 {
-  selected_->addLink(link_name);
-  Q_EMIT signals_.rotorLinkAdded(link_name);
+  for (int i = 0; i < count(); ++i) {
+    if (linkName(i) == link_name) {
+      return i;
+    }
+  }
+
+  qWarning() << link_name << " is not selected as a propulsion system.";
+  return -1;
 }
 
-void PropulsionUnitsWidget::onSelectedLinkRemoved(const QString& link_name)
+PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index)
 {
-  available_->addLink(link_name);
-  available_->sortItems();
-  Q_EMIT signals_.rotorLinkRemoved(link_name);
+  return qt::qPointerCast<PropulsionUnitWidget>(super::widget(index));
+}
+
+const PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index) const
+{
+  return qt::qConstPointerCast<PropulsionUnitWidget>(super::widget(index));
+}
+
+PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name)
+{
+  return widget(index(link_name));
+}
+
+const PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name) const
+{
+  return widget(index(link_name));
+}
+
+void PropulsionUnitsWidget::onCopyFromLeftButtonClicked(const QString& link_name)
+{
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "PropulsionUnitsWidget::onCopyFromLeftButtonClicked(" << link_name << ")");
+
+  const auto dst_idx = index(link_name);
+  const auto src_idx = dst_idx - 1;
+  if (src_idx < 0) {
+    qt::qWarnBox(this, "There are no tabs on the left side.");
+    return;
+  }
+
+  const auto dst_widget = widget(dst_idx);
+  const auto src_widget = widget(src_idx);
+  dst_widget->copyFrom(src_widget);
+
+  qt::qInfoBox(this, "The settings of \"" + linkName(src_idx) + "\" have been copied to \"" + link_name + "\".");
+}
+
+void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)
+{
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "PropulsionUnitsWidget::onCopyToAllButtonClicked(" << link_name << ")");
+
+  const auto src_idx = index(link_name);
+  const auto src_widget = widget(src_idx);
+
+  for (int dst_idx = 0; dst_idx < count(); ++dst_idx) {
+    if (dst_idx == src_idx) {
+      continue;
+    }
+    const auto dst_widget = widget(dst_idx);
+    dst_widget->copyFrom(src_widget);
+  }
+
+  qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other selected links.");
 }
 }  // namespace electric
 }  // namespace propulsion

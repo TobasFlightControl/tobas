@@ -39,7 +39,7 @@ public:
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals);
+  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot);
 
   void updateInternalDataStructures();
 

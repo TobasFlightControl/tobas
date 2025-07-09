@@ -8,10 +8,10 @@ namespace propulsion
 {
 namespace ice
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+PropulsionSystemWidget::PropulsionSystemWidget(const RobotInfo& robot)
 {
   engine = new EngineWidget();
-  units = new PropulsionUnitsWidget(node, robot, _signals);
+  units = new PropulsionUnitsWidget(robot);
 
   addTab(engine, kEngineTitle);
   addTab(units, kPropulsionUnitTitle);
@@ -68,22 +68,12 @@ tobas::propulsion_system_t PropulsionSystemWidget::type() const
 
 int PropulsionSystemWidget::numUnits() const
 {
-  return units->selected()->count();
+  return units->count();
 }
 
 QString PropulsionSystemWidget::linkName(int index) const
 {
-  return units->selected()->linkName(index);
-}
-
-bool PropulsionSystemWidget::isTiltRotor(int) const
-{
-  return false;
-}
-
-QString PropulsionSystemWidget::tiltJointName(int) const
-{
-  return "";
+  return units->linkName(index);
 }
 }  // namespace ice
 }  // namespace propulsion

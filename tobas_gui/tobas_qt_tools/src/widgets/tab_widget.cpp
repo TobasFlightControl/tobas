@@ -1,5 +1,6 @@
 #include "tobas_qt_tools/widgets/tab_widget.hpp"
 
+#include <QTabBar>
 #include <QWheelEvent>
 
 #include <tobas_std_tools/check.hpp>
@@ -8,20 +9,35 @@
 
 namespace qt
 {
-void TabBar::enableWheelEvent(bool enable)
+namespace
 {
-  enable_wheel_event_ = enable;
-}
+class TabBar : public QTabBar
+{
+  Q_OBJECT
 
-void TabBar::wheelEvent(QWheelEvent* event)
-{
-  if (enable_wheel_event_) {
-    super::wheelEvent(event);
+  using super = QTabBar;
+
+public:
+  void enableWheelEvent(bool enable)
+  {
+    enable_wheel_event_ = enable;
   }
-  else {
-    event->ignore();
+
+protected:
+  void wheelEvent(QWheelEvent* event) override
+  {
+    if (enable_wheel_event_) {
+      super::wheelEvent(event);
+    }
+    else {
+      event->ignore();
+    }
   }
-}
+
+private:
+  bool enable_wheel_event_ = true;
+};
+}  // namespace
 
 TabWidget::TabWidget(QWidget* parent) : super(parent)
 {
@@ -57,5 +73,14 @@ void TabWidget::setTabSize(int width, int height)
 {
   const auto qss = std::format("QTabBar::tab {{ width: {}px; height: {}px; }}", width, height);
   setStyleSheet(QString::fromStdString(qss));
+}
+
+void TabWidget::removeAllTabs()
+{
+  while (count() > 0) {
+    const auto first_widget = widget(0);  // 先頭ページを取得
+    removeTab(0);                         // タブバーから外す
+    first_widget->deleteLater();          // メモリを解放
+  }
 }
 }  // namespace qt

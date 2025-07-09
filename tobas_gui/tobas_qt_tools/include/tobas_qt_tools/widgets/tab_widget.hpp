@@ -1,26 +1,9 @@
 #pragma once
 
-#include <QTabBar>
 #include <QTabWidget>
 
 namespace qt
 {
-class TabBar : public QTabBar
-{
-  Q_OBJECT
-
-  using super = QTabBar;
-
-public:
-  void enableWheelEvent(bool enable);
-
-protected:
-  void wheelEvent(QWheelEvent* event) override;
-
-private:
-  bool enable_wheel_event_ = true;
-};
-
 /**
  * ===== QtabWidgetとの違い =====
  * - イテレータを定義
@@ -46,5 +29,8 @@ public:
   void setTabWidth(int width);
   void setTabHeight(int height);
   void setTabSize(int width, int height);
+
+  /* 全てのタブを削除してメモリを開放する． */
+  void removeAllTabs();
 };
 }  // namespace qt

@@ -130,9 +130,9 @@ fs::path getProjBackupSettingsPath(const fs::path& tbs_path)
   return getProjBackupDirPath(tbs_path) / "settings.yaml";
 }
 
-fs::path getProjBackupUrdfPath(const fs::path& tbs_path)
+fs::path getProjBackupUadfPath(const fs::path& tbs_path)
 {
-  return getProjBackupDirPath(tbs_path) / "original.urdf";
+  return getProjBackupDirPath(tbs_path) / "original.uadf";
 }
 }  // namespace common
 }  // namespace gui

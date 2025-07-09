@@ -12,11 +12,11 @@ namespace sa
 {
 namespace fixed_wing
 {
-class SelectedLinksWidget : public qt::TableWidget
+class ControlSurfacesWidget : public qt::TableWidget
 {
   Q_OBJECT
 
-  using self = SelectedLinksWidget;
+  using self = ControlSurfacesWidget;
   using super = qt::TableWidget;
 
   static constexpr int kColWidth = 120;
@@ -44,12 +44,13 @@ class SelectedLinksWidget : public qt::TableWidget
   static constexpr char kYawCoefLabel[] = "Yaw Coef";
 
 public:
-  explicit SelectedLinksWidget(const RobotInfo& robot);
+  explicit ControlSurfacesWidget(const RobotInfo& robot);
 
   void updateInternalDataStructures();
+  bool isValid();
 
-  YAML::Node dump(const QString& link_name) const;
-  void load(const QString& link_name, const YAML::Node& node);
+  YAML::Node dump() const;
+  void load(const YAML::Node& node);
 
   /* 登録されている制御面の個数． */
   int numUnits() const;

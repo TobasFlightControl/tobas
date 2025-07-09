@@ -8,10 +8,10 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
 {
   battery = new BatteryWidget();
-  units = new PropulsionUnitsWidget(node, robot, _signals);
+  units = new PropulsionUnitsWidget(node, robot);
 
   addTab(battery, kBatteryTitle);
   addTab(units, kPropulsionUnitTitle);
@@ -68,22 +68,12 @@ tobas::propulsion_system_t PropulsionSystemWidget::type() const
 
 int PropulsionSystemWidget::numUnits() const
 {
-  return units->selected()->count();
+  return units->count();
 }
 
 QString PropulsionSystemWidget::linkName(int index) const
 {
-  return units->selected()->linkName(index);
-}
-
-bool PropulsionSystemWidget::isTiltRotor(int index) const
-{
-  return units->selected()->widget(index)->general()->isTiltRotor();
-}
-
-QString PropulsionSystemWidget::tiltJointName(int index) const
-{
-  return units->selected()->widget(index)->general()->tiltJointName();
+  return units->linkName(index);
 }
 }  // namespace electric
 }  // namespace propulsion

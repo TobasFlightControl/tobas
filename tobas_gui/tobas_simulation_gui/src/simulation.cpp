@@ -16,6 +16,7 @@
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_ros2_tools/xacro.hpp>
 
 namespace fs = std::filesystem;
 
@@ -76,19 +77,26 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 {
   reset();
 
-  if (!kdl::treeFromFile(common::getProjBackupUrdfPath(tbs_path), tree_)) {
-    qt::qErrorBox(this, "Failed to load kdl tree.");
+  // Load KDL tree
+  const auto xacro_path = common::getProjXacroPath(tbs_path);
+  std::string urdf_text;
+  if (!ros2::parseXacroFromPath(xacro_path, urdf_text)) {
+    qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
+    return;
+  }
+  if (!kdl::treeFromText(urdf_text, tree_)) {
+    qt::qErrorBox(this, "Failed to load KDL tree.");
     return false;
   }
 
-  if (!drone_.load(common::getProjTbsDrnPath(tbs_path))) {
+  // Load drone configuration
+  const auto tbsdrn_path = common::getProjTbsDrnPath(tbs_path);
+  if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return false;
   }
 
-  const auto& ns = drone_.name;
-
-  dynamic_config_->updateNamespace(ns);
+  dynamic_config_->updateNamespace(drone_.name);
   commanders_->updateInternalDataStructures();
 
   tbs_path_ = tbs_path;

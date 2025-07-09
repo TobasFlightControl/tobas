@@ -11,6 +11,8 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_ros2_tools/xacro.hpp>
 #include <tobas_string_tools/core.hpp>
+#include <tobas_string_tools/stream.hpp>
+#include <tobas_xml_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_setup_assistant/save_project_dialog.hpp"
@@ -22,7 +24,8 @@ namespace gui
 namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
-  : rotor_marker_publisher_(node, robot_, signals_)
+  : robot_(this)
+  , rotor_marker_publisher_(node, robot_, signals_)
   , property_client_(node, tobas::kPropertyServerName, kPackageName)
   , rsp_client_(node, "robot_state_publisher")
 {
@@ -86,44 +89,6 @@ void SetupAssistantWidget::enableSaveButtons(bool enable)
   save_as_btn_->setEnabled(enable);
 }
 
-bool SetupAssistantWidget::createUrdfText(const fs::path& tbs_path, std::string& text_out)
-{
-  // URDFの存在を確認
-  const auto urdf_path = common::getProjBackupUrdfPath(tbs_path);
-  if (!fs::is_regular_file(urdf_path)) {
-    qt::qErrorBox(
-      this, "\"" + QString::fromStdString(urdf_path) + "\" does not exist. Please create a new Tobas project.");
-    return false;
-  }
-
-  // XACROを解析
-  std::string urdf_text;
-  if (!ros2::parseXacroFromPath(urdf_path, urdf_text)) {
-    qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
-    return false;
-  }
-
-  // XMLを読み込む
-  tinyxml2::XMLDocument doc;
-  if (doc.Parse(urdf_text.c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(this, "Failed to parse URDF.");
-    return false;
-  }
-  const auto robot = doc.RootElement();
-
-  // configパッケージが未ビルドでもメッシュパスが解析できるように絶対パスに変換
-  if (!resolveMeshPaths(common::getProjCfgPkgPath(tbs_path), robot)) {
-    return false;
-  }
-
-  // メッシュパス変換後のURDFを出力
-  tinyxml2::XMLPrinter printer;
-  doc.Print(&printer);
-  text_out = printer.CStr();
-
-  return true;
-}
-
 bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tinyxml2::XMLElement* elem)
 {
   if (strcmp(elem->Name(), "mesh") == 0) {
@@ -176,18 +141,18 @@ void SetupAssistantWidget::onNewButtonClicked()
     last_opened_dir = fs::path(ament_index_cpp::get_package_share_directory("tobas_description")) / "urdf";
   }
 
-  // URDFのパスを取得
+  // UADFのパスを取得
   const auto options = QFileDialog::DontUseNativeDialog;
-  const auto urdf_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_opened_dir), "Robot Description (*.urdf *.xacro)", nullptr, options);
+  const auto uadf_path = QFileDialog::getOpenFileName(
+    this, kTitle, QString::fromStdString(last_opened_dir), "Aircraft Description (*.uadf)", nullptr, options);
 
   // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-  if (urdf_path.isEmpty()) {
+  if (uadf_path.isEmpty()) {
     return;
   }
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(urdf_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(uadf_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey_New, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
   }
@@ -195,16 +160,8 @@ void SetupAssistantWidget::onNewButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
-  // XACROを解析
-  std::string urdf_text;
-  if (!ros2::parseXacroFromPath(urdf_path.toStdString(), urdf_text)) {
-    qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
-    return;
-  }
-
-  // メッシュファイルパス解析済みのURDFを作成
-  if (!robot_.loadFromText(urdf_text)) {
-    qt::qErrorBox(this, "Failed to load robot description.");
+  // UADFを読み込む
+  if (!robot_.loadFromPath(uadf_path.toStdString())) {
     return;
   }
 
@@ -214,7 +171,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   // 保存ボタンを有効化
   enableSaveButtons(true);
 
-  qt::qInfoBox(this, "URDF is loaded successfully. Configure the settings for each tab.");
+  qt::qInfoBox(this, "UADF is loaded successfully. Configure the settings for each tab.");
 }
 
 void SetupAssistantWidget::onLoadButtonClicked()
@@ -231,14 +188,13 @@ void SetupAssistantWidget::onLoadButtonClicked()
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const auto tbs_path = dialog.selectedFiles().first();
-  assert(tbs_path.endsWith(tobas::kProjectExtension));
+  const fs::path tbs_path = dialog.selectedFiles().first().toStdString();
 
   // パスをテキストに設定
-  tbs_path_->setText(tbs_path);
+  tbs_path_->setText(QString::fromStdString(tbs_path));
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  const auto par_dir = tbs_path.parent_path();
   if (property_client_.set(kLastOpenedDirKey_Load, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
   }
@@ -246,21 +202,31 @@ void SetupAssistantWidget::onLoadButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
-  // config_pkgのビルドなしで解析可能なURDFを作成
-  std::string urdf_text;
-  if (!createUrdfText(tbs_path.toStdString(), urdf_text)) {
+  // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
+  std::string uadf_text;
+  if (!str::readText(common::getProjBackupUadfPath(tbs_path), uadf_text)) {
+    qt::qErrorBox(this, "Failed to read " + QString::fromStdString(tbs_path));
+    return;
+  }
+  tinyxml2::XMLDocument uadf_doc;
+  if (uadf_doc.Parse(uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(this, "Failed to parse UADF document.");
+    return;
+  }
+  const auto robot = uadf_doc.RootElement();
+  if (!resolveMeshPaths(common::getProjCfgPkgPath(tbs_path), robot)) {
     return;
   }
 
-  // URDFをロード
+  // メッシュパスを解決したバックアップUADFをロード
   // Qtのイベント処理はスタックだからこの時点で設定が各ウィジェットに反映される
-  if (!robot_.loadFromText(urdf_text)) {
+  if (!robot_.loadFromXml(&uadf_doc)) {
     qt::qErrorBox(this, "Failed to load robot description.");
     return;
   }
 
   // ユーザ設定を読み込む
-  const auto settings_path = common::getProjBackupSettingsPath(tbs_path.toStdString());
+  const auto settings_path = common::getProjBackupSettingsPath(tbs_path);
   YAML::Node node;
   if (!yaml::load(settings_path, node)) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");

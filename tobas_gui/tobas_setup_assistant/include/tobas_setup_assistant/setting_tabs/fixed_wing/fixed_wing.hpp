@@ -5,7 +5,7 @@
 
 #include "../base_setting.hpp"
 #include "./aero_coefs.hpp"
-#include "./control_surface/control_surfaces.hpp"
+#include "./control_surfaces.hpp"
 #include "./vehicle.hpp"
 
 namespace gui

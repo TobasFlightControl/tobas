@@ -1,12 +1,15 @@
 #pragma once
 
-#include <urdf/model.h>
+#include <tinyxml2.h>
 #include <QObject>
+#include <QWidget>
 
 #include <tobas_drone_core/propulsion_system/rotor_axis.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_uadf/model.hpp>
 
 namespace gui
 {
@@ -22,29 +25,38 @@ Q_SIGNALS:
   void loaded();
 
 public:
-  explicit RobotInfo();
+  explicit RobotInfo(QWidget* parent);
 
-  bool loadFromText(const std::string& urdf_text);
+  bool loadFromXml(const tinyxml2::XMLDocument* uadf_doc);
+  bool loadFromText(const std::string& uadf_text);
+  bool loadFromPath(const std::string& uadf_path);
 
-  const std::string& urdfText() const;
-  urdf::ModelInterfaceConstSharedPtr urdf() const;
+  const uadf::Model& uadf() const;
   const kdl::Tree& tree() const;
 
   const std::string& robotName() const;
+  const std::string& linkName(const std::string& joint_name) const;
+
+  tinyxml2::XMLDocument* urdfDocument() const;
+  std::string urdfText() const;
 
   /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
-  bool isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis);
+  bool isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis);
 
-  tobas::rotor_axis_t rotorAxisType(const std::string& seg_name);
+  tobas::rotor_axis_t rotorAxisType(const std::string& link_name);
 
 private:
-  // URDF information
-  std::string urdf_text_;
-  urdf::ModelInterfaceSharedPtr urdf_;
+  QWidget* const parent_;
+
+  // Model information
+  uadf::Model uadf_;
   kdl::Tree tree_;
 
   kdl::JntArray q_zeros_;
+  kdl::TreeJointParser jnt_parser_;
   kdl::TreeJointAxisSolver axis_solver_;
+
+  bool loadCommon();
 };
 }  // namespace sa
 }  // namespace gui
