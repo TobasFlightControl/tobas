@@ -9,6 +9,7 @@
 #include "./rotor_marker_publisher.hpp"
 #include "./rviz.hpp"
 #include "./settings.hpp"
+#include "./signals.hpp"
 
 namespace gui
 {
@@ -32,6 +33,7 @@ public:
 
 private:
   RobotInfo robot_;
+  Signals sig_;
   RotorMarkerPublisher rotor_marker_publisher_;
 
   ptree::PropertyClient property_client_;

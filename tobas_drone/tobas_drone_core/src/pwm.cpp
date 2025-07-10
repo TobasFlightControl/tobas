@@ -1,7 +1,6 @@
 #include "tobas_drone_core/pwm.hpp"
 
 #include <tobas_math/core.hpp>
-#include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std;
@@ -12,16 +11,6 @@ bool PwmConfig::isValid() const
 {
   if (name.empty()) {
     cerr << "PWM name is empty." << endl;
-    return false;
-  }
-
-  if (!period_range.isValid()) {
-    cerr << "Invalid PWM period range." << endl;
-    return false;
-  }
-
-  if (!value_range.isValid()) {
-    cerr << "Invalid PWM value range." << endl;
     return false;
   }
 
@@ -46,10 +35,6 @@ bool PwmConfig::load(const YAML::Node& node)
     return false;
   }
 
-  if (!yaml::load(kReverseKey, node, reverse)) {
-    return false;
-  }
-
   return true;
 }
 
@@ -61,33 +46,30 @@ YAML::Node PwmConfig::dump() const
   node[kNameKey] = name;
   node[kPeriodRangeKey] = period_range;
   node[kValueRangeKey] = value_range;
-  node[kReverseKey] = reverse;
 
   return node;
 }
 
 uint16_t PwmConfig::periodFromValue(double value) const
 {
-  uint16_t period;
-  if (reverse) {
-    period = math::remap<double>(value, value_range.lower, value_range.upper, period_range.upper, period_range.lower);
-  }
-  else {
-    period = math::remap<double>(value, value_range.lower, value_range.upper, period_range.lower, period_range.upper);
-  }
-
-  return period_range.clamp(period);
+  const auto period =
+    math::remap<double>(value, value_range.first, value_range.second, period_range.first, period_range.second);
+  return clampPeriod(period);
 }
 
 double PwmConfig::valueFromPeriod(uint16_t period) const
 {
-  period = period_range.clamp(period);
+  period = clampPeriod(period);
+  return math::remap<double>(period, period_range.first, period_range.second, value_range.first, value_range.second);
+}
 
-  if (reverse) {
-    return math::remap<double>(period, period_range.lower, period_range.upper, value_range.upper, value_range.lower);
+uint16_t PwmConfig::clampPeriod(uint16_t period) const
+{
+  if (period_range.first < period_range.second) {
+    return clamp(period, period_range.first, period_range.second);
   }
   else {
-    return math::remap<double>(period, period_range.lower, period_range.upper, value_range.lower, value_range.upper);
+    return clamp(period, period_range.second, period_range.first);
   }
 }
 }  // namespace tobas

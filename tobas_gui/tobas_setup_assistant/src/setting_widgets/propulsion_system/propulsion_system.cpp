@@ -11,7 +11,8 @@ namespace sa
 {
 namespace propulsion
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& sig)
+  : sig_(sig)
 {
   type_buttons_ = new QButtonGroup(this);
   propulsion_stack_ = new qt::StackedWidget();
@@ -22,7 +23,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   type_buttons_->setId(eprop_ckb, kElectricId);
   propulsion_stack_->addWidget(eprop);
 
-  const auto iprop = new ice::PropulsionSystemWidget(node, robot);
+  const auto iprop = new ice::PropulsionSystemWidget(robot);
   const auto iprop_ckb = new QCheckBox(iprop->name());
   type_buttons_->addButton(iprop_ckb);
   type_buttons_->setId(iprop_ckb, kIceId);
@@ -123,8 +124,6 @@ QString PropulsionSystemWidget::linkName(int index) const
   return selected()->linkName(index);
 }
 
-
-
 BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
 {
   return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
@@ -153,7 +152,11 @@ void PropulsionSystemWidget::onPropulsionTypeChanged(int index)
     propulsion->reset();
   }
 
+  // 推進系のウィジェットを切り替える
   propulsion_stack_->setCurrentIndex(index);
+
+  // 推進系の型が変わったことを他のウィジェットに通知
+  Q_EMIT sig_.propulsionTypeChanged(widget(index)->type());
 }
 }  // namespace propulsion
 }  // namespace sa

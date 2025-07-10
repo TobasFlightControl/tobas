@@ -21,11 +21,6 @@ const char* T1Widget::name() const
   return "Tobas T1";
 }
 
-const char* T1Widget::description() const
-{
-  return "";  // TODO
-}
-
 YAML::Node T1Widget::dump() const
 {
   return YAML::Node(YAML::NodeType::Map);
@@ -131,6 +126,11 @@ double T1Widget::gnssVerticalVelocityStddev() const
 }
 
 int T1Widget::numPwmChannels() const
+{
+  return 8;
+}
+
+int T1Widget::numDShotChannels() const
 {
   return 8;
 }

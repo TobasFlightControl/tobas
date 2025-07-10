@@ -39,12 +39,11 @@ public:
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot);
+  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig);
 
   void updateInternalDataStructures();
 
   bool isValid();
-  bool isPwmChannelsValid();
 
   YAML::Node dump() const;
   bool load(const YAML::Node& node);

@@ -25,7 +25,7 @@ namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : robot_(this)
-  , rotor_marker_publisher_(node, robot_, signals_)
+  , rotor_marker_publisher_(node, robot_, sig_)
   , property_client_(node, tobas::kPropertyServerName, kPackageName)
   , rsp_client_(node, "robot_state_publisher")
 {
@@ -46,7 +46,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   rviz_ = new RvizWidget(robot_);
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);
   jsp_ = new JointStatePublisherWidget(node, robot_);
-  settings_ = new SettingsWidget(node, robot_, signals_);
+  settings_ = new SettingsWidget(node, robot_, sig_);
 
   prj_gen_ = std::make_unique<ProjectGenerator>(node, robot_, settings_);
 

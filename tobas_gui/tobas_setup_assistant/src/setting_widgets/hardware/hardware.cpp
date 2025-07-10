@@ -10,15 +10,17 @@ namespace gui
 {
 namespace sa
 {
-HardwareWidget::HardwareWidget()
+HardwareWidget::HardwareWidget(const RobotInfo& robot, const Signals& sig)
 {
   type_ = new qt::ComboBox();
   hardwares_ = new qt::StackedWidget();
-  description_ = new qt::DescriptionWidget("", kBodyPSize);
+  pwm_ = new PwmWidget(robot, sig);
+  dshot_ = new DShotWidget(robot, sig);
 
   addWidget(type_);
-  addWidget(description_);
   addWidget(hardwares_);
+  addWidget(pwm_);
+  addWidget(dshot_);
 
   hardwares_->addWidget(new T1Widget());
 
@@ -27,8 +29,9 @@ HardwareWidget::HardwareWidget()
     type_->addItem(hardware->name());
   }
 
-  connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
   setCurrentHardware(0);
+
+  connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
 }
 
 const char* HardwareWidget::name() const
@@ -192,7 +195,10 @@ int HardwareWidget::numPwmChannels() const
 void HardwareWidget::setCurrentHardware(int index)
 {
   hardwares_->setCurrentIndex(index);
-  description_->setText(selected()->description());
+
+  const auto hardware = qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
+  pwm_->setNumChannels(hardware->numPwmChannels());
+  dshot_->setNumChannels(hardware->numDShotChannels());
 }
 
 BaseHardwareWidget* HardwareWidget::selected()

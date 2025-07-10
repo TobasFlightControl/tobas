@@ -7,15 +7,15 @@ namespace gui
 {
 namespace sa
 {
-SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
+SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig)
 {
-  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot);
+  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, sig);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
   joint_config = new JointConfigurationWidget(robot, propulsion_system, fixed_wing);
   rc_input = new RcInputWidget();
   controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
   observer = new ObserverWidget();
-  hardware = new HardwareWidget();
+  hardware = new HardwareWidget(robot, sig);
   pre_arm_check = new PreArmCheckWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
@@ -66,67 +66,8 @@ bool SettingsWidget::isValid()
     }
   }
 
-  // 有効なPWMチャンネルであることを確認
-  if (!isPwmChannelsValid()) {
-    return false;
-  }
-
   // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
   // TODO
-
-  return true;
-}
-
-bool SettingsWidget::isPwmChannelsValid()
-{
-  // 全てのPWMチャンネルを収集
-  std::vector<int> channel_list;
-
-  switch (propulsion_system->type()) {
-    case tobas::propulsion_system_t::ELECTRIC: {
-      break;
-    }
-    case tobas::propulsion_system_t::ICE: {
-      const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(propulsion_system->selected());
-
-      const auto engine = iprop->engine;
-      channel_list.push_back(engine->hardwareIface()->pwmChannel());
-
-      const auto units = iprop->units;
-      for (int i = 0; i < iprop->numUnits(); ++i) {
-        const auto unit_widget = units->widget(i);
-        const auto pwm_channel = unit_widget->hardwareIface()->pwmChannel();
-        channel_list.push_back(pwm_channel);
-      }
-
-      break;
-    }
-    default: {
-      throw;
-    }
-  }
-
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (joint_config->getHardwareInterface(i) == tobas::hw_iface_t::PWM) {
-      channel_list.push_back(joint_config->getPwmChannel(i));
-    }
-  }
-
-  std::unordered_set<int> channel_set;
-  for (const auto& channel : channel_list) {
-    // PWMチャンネルがハードウェアでサポートされていることを確認
-    if (channel >= hardware->numPwmChannels()) {
-      const auto fmu_name = QString(hardware->fmuName());
-      qt::qErrorBox(this, "FMU \"" + fmu_name + "\" does not support PWM channel " + QString::number(channel) + ".");
-      return false;
-    }
-
-    // PWMチャンネルがユニークであることを確認
-    if (!channel_set.insert(channel).second) {
-      qt::qErrorBox(this, "PWM channel " + QString::number(channel) + " is duplicated.");
-      return false;
-    }
-  }
 
   return true;
 }

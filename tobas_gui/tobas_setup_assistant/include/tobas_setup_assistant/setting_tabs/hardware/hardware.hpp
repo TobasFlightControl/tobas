@@ -1,11 +1,12 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
 #include "./base.hpp"
+#include "./dshot.hpp"
+#include "./pwm.hpp"
 
 namespace gui
 {
@@ -21,7 +22,7 @@ class HardwareWidget : public BaseSettingWidget
   static constexpr char kTypeKey[] = "hardware_type";
 
 public:
-  explicit HardwareWidget();
+  explicit HardwareWidget(const RobotInfo& robot, const Signals& sig);
 
   const char* name() const override;
   const char* title() const override;
@@ -77,16 +78,17 @@ public:
 
   int numPwmChannels() const;
 
-private Q_SLOTS:
-  void setCurrentHardware(int index);
-
 private:
   qt::ComboBox* type_;
   qt::StackedWidget* hardwares_;
-  qt::DescriptionWidget* description_;
+  PwmWidget* pwm_;
+  DShotWidget* dshot_;
 
   BaseHardwareWidget* selected();
   const BaseHardwareWidget* selected() const;
+
+private Q_SLOTS:
+  void setCurrentHardware(int index);
 };
 };  // namespace sa
 }  // namespace gui

@@ -26,7 +26,7 @@ public:
   EngineWidget* engine;
   PropulsionUnitsWidget* units;
 
-  explicit PropulsionSystemWidget( const RobotInfo& robot);
+  explicit PropulsionSystemWidget(const RobotInfo& robot);
 
   const char* name() const override;
 

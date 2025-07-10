@@ -21,7 +21,6 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
     dst.max_period = src.period_range.upper;
     dst.min_value = src.value_range.lower;
     dst.max_value = src.value_range.upper;
-    dst.reverse = src.reverse;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -32,7 +31,6 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
     dst.period_range.upper = src.max_period;
     dst.value_range.lower = src.min_value;
     dst.value_range.upper = src.max_value;
-    dst.reverse = src.reverse;
   }
 };
 
