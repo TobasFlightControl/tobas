@@ -17,20 +17,20 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
   {
     dst.channel = src.channel;
     dst.name = src.name;
-    dst.min_period = src.period_range.lower;
-    dst.max_period = src.period_range.upper;
-    dst.min_value = src.value_range.lower;
-    dst.max_value = src.value_range.upper;
+    dst.min_period = src.period_range.first;
+    dst.max_period = src.period_range.second;
+    dst.min_value = src.value_range.first;
+    dst.max_value = src.value_range.second;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.channel = src.channel;
     dst.name = src.name;
-    dst.period_range.lower = src.min_period;
-    dst.period_range.upper = src.max_period;
-    dst.value_range.lower = src.min_value;
-    dst.value_range.upper = src.max_value;
+    dst.period_range.first = src.min_period;
+    dst.period_range.second = src.max_period;
+    dst.value_range.first = src.min_value;
+    dst.value_range.second = src.max_value;
   }
 };
 

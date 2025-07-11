@@ -2,6 +2,7 @@
 
 #include <ranges>
 
+#include <QDebug>
 #include <QHeaderView>
 
 #include <tobas_qt_tools/message.hpp>

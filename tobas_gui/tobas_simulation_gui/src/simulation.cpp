@@ -82,7 +82,7 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
   std::string urdf_text;
   if (!ros2::parseXacroFromPath(xacro_path, urdf_text)) {
     qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
-    return;
+    return false;
   }
   if (!kdl::treeFromText(urdf_text, tree_)) {
     qt::qErrorBox(this, "Failed to load KDL tree.");

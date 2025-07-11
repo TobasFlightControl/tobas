@@ -1,11 +1,15 @@
 #pragma once
 
+#include <QTabBar>
 #include <QTabWidget>
+#include <QWheelEvent>
 
 namespace qt
 {
 class TabBar : public QTabBar
 {
+  Q_OBJECT
+
   using super = QTabBar;
 
 public:
