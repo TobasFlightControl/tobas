@@ -11,9 +11,9 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
 {
   propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, sig);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
-  joint_config = new JointConfigurationWidget(robot, propulsion_system, fixed_wing);
+  joint_config = new JointConfigurationWidget(robot);
   rc_input = new RcInputWidget();
-  controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
+  controller = new ControllerWidget(robot);
   observer = new ObserverWidget();
   hardware = new HardwareWidget(robot, sig);
   pre_arm_check = new PreArmCheckWidget();
@@ -41,9 +41,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   // レイアウト
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   setTabSize(kTabWidth, kTabHeight);
-
-  // Connection
-  connect(this, &self::currentChanged, this, &self::onCurrentChanged);
 }
 
 void SettingsWidget::updateInternalDataStructures()
@@ -150,7 +147,6 @@ bool SettingsWidget::load(const YAML::Node& node)
   for (int i = 0; i < count(); ++i) {
     const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
     try {
-      tab->onOpened();
       tab->load(node[tab->name()]);
     }
     catch (const std::exception& e) {
@@ -160,12 +156,6 @@ bool SettingsWidget::load(const YAML::Node& node)
   }
 
   return success;
-}
-
-void SettingsWidget::onCurrentChanged(int index)
-{
-  const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(widget(index));
-  cur_widget->onOpened();
 }
 }  // namespace sa
 }  // namespace gui

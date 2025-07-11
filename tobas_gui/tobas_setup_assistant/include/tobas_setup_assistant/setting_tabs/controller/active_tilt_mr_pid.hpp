@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../fixed_wing/fixed_wing.hpp"
-#include "../propulsion_system/propulsion_system.hpp"
+#include <QCheckBox>
+
 #include "./base.hpp"
 #include "tobas_setup_assistant/robot_info.hpp"
 
@@ -16,10 +16,7 @@ class ActiveTiltMultirotorPIDWidget : public BaseControllerWidget
   static constexpr int kMinNumProp = 3;
 
 public:
-  explicit ActiveTiltMultirotorPIDWidget(
-    RobotInfo& robot,
-    const propulsion::PropulsionSystemWidget* propulsion_system,
-    const fixed_wing::FixedWingWidget* fixed_wing);
+  explicit ActiveTiltMultirotorPIDWidget(RobotInfo& robot);
 
   const char* name() const override;
   const char* description() const override;
@@ -40,8 +37,6 @@ public:
 
 private:
   RobotInfo& robot_;
-  const propulsion::PropulsionSystemWidget* propulsion_system_;
-  const fixed_wing::FixedWingWidget* fixed_wing_;
 
   QCheckBox* do_dist_comp_trans_;
   QCheckBox* do_dist_comp_rot_;

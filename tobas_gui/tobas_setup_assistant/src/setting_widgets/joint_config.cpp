@@ -18,11 +18,7 @@ namespace gui
 {
 namespace sa
 {
-JointConfigurationWidget::JointConfigurationWidget(
-  const RobotInfo& robot,
-  const propulsion::PropulsionSystemWidget* propulsion,
-  const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_(propulsion), fixed_wing_(fixed_wing)
+JointConfigurationWidget::JointConfigurationWidget(const RobotInfo& robot) : robot_(robot)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
@@ -43,10 +39,6 @@ const char* JointConfigurationWidget::title() const
 const char* JointConfigurationWidget::description() const
 {
   return "";  // TODO
-}
-
-void JointConfigurationWidget::onOpened()
-{
 }
 
 void JointConfigurationWidget::updateInternalDataStructures()

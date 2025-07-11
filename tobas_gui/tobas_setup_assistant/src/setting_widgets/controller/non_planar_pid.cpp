@@ -9,11 +9,7 @@ namespace gui
 {
 namespace sa
 {
-NonPlanarPIDWidget::NonPlanarPIDWidget(
-  RobotInfo& robot,
-  const propulsion::PropulsionSystemWidget* propulsion_system,
-  const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
+NonPlanarPIDWidget::NonPlanarPIDWidget(RobotInfo& robot) : robot_(robot)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -92,21 +88,21 @@ void NonPlanarPIDWidget::load(const YAML::Node& node)
 
 bool NonPlanarPIDWidget::isApplicable()
 {
-  // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing()) {
+  // 固定翼の操舵面をもたない
+  if (robot_.uadf().control_surfaces.size() > 0) {
     return false;
   }
 
   // プロペラの個数条件
-  if (propulsion_system_->numUnits() < kMinNumProp) {
+  if (robot_.uadf().thrusts.size() < kMinNumProp) {
     return false;
   }
 
   // 少なくとも1つのプロペラが鉛直上方向以外を向いている
   bool tilted_rotor_found = false;
-  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
-    const auto link_name = propulsion_system_->linkName(i);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ())) {
+  for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+    const auto& link_name = robot_.linkName(joint_name);
+    if (!robot_.isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitZ())) {
       tilted_rotor_found = true;
       break;
     }

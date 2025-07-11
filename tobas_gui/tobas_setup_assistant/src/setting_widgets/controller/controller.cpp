@@ -14,11 +14,7 @@ namespace gui
 {
 namespace sa
 {
-ControllerWidget::ControllerWidget(
-  RobotInfo& robot,
-  const propulsion::PropulsionSystemWidget* propulsion_system,
-  const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
+ControllerWidget::ControllerWidget(RobotInfo& robot)
 {
   type_ = new qt::ComboBox();
   controllers_ = new qt::StackedWidget();
@@ -28,10 +24,10 @@ ControllerWidget::ControllerWidget(
   addWidget(description_);
   addWidget(controllers_);
 
-  controllers_->addWidget(new MultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
-  controllers_->addWidget(new NonPlanarPIDWidget(robot_, propulsion_system_, fixed_wing_));
-  controllers_->addWidget(new ActiveTiltMultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
-  controllers_->addWidget(new FixedWingLQRWidget(robot_, propulsion_system_, fixed_wing_));
+  controllers_->addWidget(new MultirotorPIDWidget(robot));
+  controllers_->addWidget(new NonPlanarPIDWidget(robot));
+  controllers_->addWidget(new ActiveTiltMultirotorPIDWidget(robot));
+  controllers_->addWidget(new FixedWingLQRWidget(robot));
   controllers_->addWidget(new CustomControllerWidget());
 
   for (int i = 0; i < controllers_->count(); ++i) {
@@ -60,18 +56,13 @@ const char* ControllerWidget::description() const
          "so it's acceptable to leave them at their default settings initially.";
 }
 
-void ControllerWidget::onOpened()
+void ControllerWidget::updateInternalDataStructures()
 {
   // 現在の機体設定で適用可能な選択肢のみ選択可能にする
   for (int i = 0; i < controllers_->count(); ++i) {
     const auto controller = widget(i);
     type_->setItemEnabled(i, controller->isApplicable());
   }
-}
-
-void ControllerWidget::updateInternalDataStructures()
-{
-  return;
 }
 
 bool ControllerWidget::isValid()

@@ -40,11 +40,6 @@ const char* AuthorInformationWidget::description() const
          "This step is important for keeping track of package ownership and for any necessary future communications.";
 }
 
-void AuthorInformationWidget::onOpened()
-{
-  return;
-}
-
 void AuthorInformationWidget::updateInternalDataStructures()
 {
   return;

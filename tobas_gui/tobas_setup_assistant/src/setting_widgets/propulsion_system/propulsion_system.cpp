@@ -57,10 +57,6 @@ const char* PropulsionSystemWidget::description() const
   return "";  // TODO
 }
 
-void PropulsionSystemWidget::onOpened()
-{
-}
-
 void PropulsionSystemWidget::updateInternalDataStructures()
 {
   for (int i = 0; i < propulsion_stack_->count(); ++i) {

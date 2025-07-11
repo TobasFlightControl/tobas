@@ -49,14 +49,8 @@ const char* HardwareWidget::description() const
   return "";  // TODO
 }
 
-void HardwareWidget::onOpened()
-{
-  return;
-}
-
 void HardwareWidget::updateInternalDataStructures()
 {
-  return;
 }
 
 bool HardwareWidget::isValid()

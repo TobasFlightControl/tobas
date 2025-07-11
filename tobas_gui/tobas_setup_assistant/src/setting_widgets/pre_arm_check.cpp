@@ -58,10 +58,6 @@ const char* PreArmCheckWidget::description() const
   return "";  // TODO
 }
 
-void PreArmCheckWidget::onOpened()
-{
-}
-
 void PreArmCheckWidget::updateInternalDataStructures()
 {
 }

@@ -49,9 +49,6 @@ public:
 
   YAML::Node dump() const;
   bool load(const YAML::Node& node);
-
-private Q_SLOTS:
-  void onCurrentChanged(int index);
 };
 }  // namespace sa
 }  // namespace gui

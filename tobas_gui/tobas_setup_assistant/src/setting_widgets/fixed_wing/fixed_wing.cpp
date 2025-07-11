@@ -55,10 +55,6 @@ const char* FixedWingWidget::description() const
          "Please choose a setup method and enter the required information.";
 }
 
-void FixedWingWidget::onOpened()
-{
-}
-
 void FixedWingWidget::updateInternalDataStructures()
 {
   vehicle_->updateInternalDataStructures();

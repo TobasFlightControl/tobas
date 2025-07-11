@@ -4,6 +4,7 @@
 
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_uadf/parser.hpp>
 #include <tobas_xml_tools/core.hpp>
 
@@ -88,13 +89,7 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl
   // つまり，可動関節で且つジョイント軸が目標と平行でないリンクが存在する場合はfalse．
   const auto& joint = seg_it->second.segment.joint();
   if (joint.type != kdl::Joint::FIXED) {
-    if (axis_solver_.JntToCart(q_zeros_, link_name) < 0) {
-      qt::qErrorBox(
-        parent_,
-        "Failed to get the joint axis of " + QString::fromStdString(link_name) + ":\n\n" +
-          QString::fromStdString(axis_solver_.errorMessage()));
-      return false;
-    }
+    TOBAS_CHECK(axis_solver_.JntToCart(q_zeros_, link_name) == kdl::SolverI::E_NOERROR);
     const auto& cur_axis = axis_solver_.getAxis();
     if (cur_axis.argument(tar_axis) > kJntAxisCollinearTol) {
       return false;

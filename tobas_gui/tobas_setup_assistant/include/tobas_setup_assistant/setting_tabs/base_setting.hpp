@@ -30,9 +30,6 @@ public:
   virtual const char* title() const = 0;
   virtual const char* description() const = 0;
 
-  /* タブが開かれた時に呼ばれるコールバック．表示内容が他のタブの状態に依存する場合に使う． */
-  virtual void onOpened() = 0;
-
   /* URDFの変化に合わせて内部状態を更新する． */
   virtual void updateInternalDataStructures() = 0;
 

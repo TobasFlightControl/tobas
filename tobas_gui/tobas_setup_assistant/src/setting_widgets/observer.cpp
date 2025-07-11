@@ -57,11 +57,6 @@ const char* ObserverWidget::description() const
   return "";  // TODO
 }
 
-void ObserverWidget::onOpened()
-{
-  return;
-}
-
 void ObserverWidget::updateInternalDataStructures()
 {
   return;

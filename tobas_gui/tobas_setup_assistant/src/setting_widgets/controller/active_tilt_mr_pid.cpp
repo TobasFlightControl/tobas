@@ -9,11 +9,7 @@ namespace gui
 {
 namespace sa
 {
-ActiveTiltMultirotorPIDWidget::ActiveTiltMultirotorPIDWidget(
-  RobotInfo& robot,
-  const propulsion::PropulsionSystemWidget* propulsion_system,
-  const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
+ActiveTiltMultirotorPIDWidget::ActiveTiltMultirotorPIDWidget(RobotInfo& robot) : robot_(robot)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -96,27 +92,24 @@ void ActiveTiltMultirotorPIDWidget::load(const YAML::Node& node)
 
 bool ActiveTiltMultirotorPIDWidget::isApplicable()
 {
-  // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing()) {
+  // 固定翼の操舵面をもたない
+  if (robot_.uadf().control_surfaces.size() > 0) {
     return false;
   }
 
   // プロペラの個数条件
-  if (propulsion_system_->numUnits() < kMinNumProp) {
+  if (robot_.uadf().thrusts.size() < kMinNumProp) {
     return false;
   }
 
-  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
-    // 全てティルトロータ
-    // TODO: アクティブティルトと固定モータの混合モデルも許容
-    if (!propulsion_system_->isTiltRotor(i)) {
-      return false;
-    }
-
-    // TODO: ティルト軸とロータ軸が直行する (cf. tobas_drone_tools/tr_mixer_pinv)
-
-    // TODO: プロペラリンクとティルト軸の距離が閾値以下
+  // 全てティルトロータ
+  // TODO: アクティブティルトと固定モータの混合モデルも許容
+  if (robot_.uadf().thrusts.size() != robot_.uadf().tilts.size()) {
+    return false;
   }
+
+  // TODO: ティルト軸とロータ軸が直行する (cf. tobas_drone_tools/tr_mixer_pinv)
+  // TODO: プロペラリンクとティルト軸の距離が閾値以下
 
   return true;
 }
