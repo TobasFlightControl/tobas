@@ -5,7 +5,6 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "./aerodynamics/aerodynamics.hpp"
-#include "./hardware_interface.hpp"
 #include "./propeller.hpp"
 #include "./transmission.hpp"
 
@@ -41,7 +40,6 @@ public:
 
   const TransmissionWidget* transmission() const;
   const PropellerWidget* propeller() const;
-  const VPitchHardwareIfaceWidget* hardwareIface() const;
   const AerodynamicsWidget* aerodynamics() const;
 
 private:
@@ -52,7 +50,6 @@ private:
 
   TransmissionWidget* transmission_;
   PropellerWidget* propeller_;
-  VPitchHardwareIfaceWidget* hw_iface_;
   AerodynamicsWidget* aerodynamics_;
 };
 }  // namespace ice

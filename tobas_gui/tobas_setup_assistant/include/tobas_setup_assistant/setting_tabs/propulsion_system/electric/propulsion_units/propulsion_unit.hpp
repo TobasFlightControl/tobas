@@ -31,7 +31,7 @@ Q_SIGNALS:
   void copyToAllButtonClicked();
 
 public:
-  explicit PropulsionUnitWidget(rclcpp::Node::SharedPtr node, const QString& link_name);
+  explicit PropulsionUnitWidget(rclcpp::Node::SharedPtr node);
 
   bool isValid();
   void copyFrom(const PropulsionUnitWidget* src);

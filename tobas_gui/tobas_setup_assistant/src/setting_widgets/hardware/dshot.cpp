@@ -2,6 +2,7 @@
 
 #include <ranges>
 
+#include <QDebug>
 #include <QHeaderView>
 
 #include <tobas_qt_tools/message.hpp>
@@ -57,6 +58,29 @@ void DShotWidget::setNumChannels(int num)
 QString DShotWidget::targetName(int channel) const
 {
   return target_names_.at(channel)->currentText();
+}
+
+bool DShotWidget::contains(const QString& target_name) const
+{
+  for (int channel = 0; channel < rowCount(); ++channel) {
+    if (targetName(channel) == target_name) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+int DShotWidget::channel(const QString& target_name) const
+{
+  for (int channel = 0; channel < rowCount(); ++channel) {
+    if (targetName(channel) == target_name) {
+      return channel;
+    }
+  }
+
+  qWarning() << "Failed to find \"" << target_name << "\".";
+  return -1;
 }
 
 void DShotWidget::addLastChannel()

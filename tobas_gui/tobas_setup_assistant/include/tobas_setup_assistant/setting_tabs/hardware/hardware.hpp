@@ -35,6 +35,9 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  const PwmWidget* pwm() const;
+  const DShotWidget* dshot() const;
+
   const char* fmuName() const;
   const char* hardwarePackage() const;
 
@@ -77,6 +80,7 @@ public:
   double gnssVerticalVelocityStddev() const;
 
   int numPwmChannels() const;
+  int numDShotChannels() const;
 
 private:
   qt::ComboBox* type_;

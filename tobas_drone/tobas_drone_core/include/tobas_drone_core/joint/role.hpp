@@ -6,7 +6,6 @@ namespace tobas
 {
 enum struct jnt_role_t : uint8_t
 {
-  ROTOR,
   TILT_JOINT,
   CONTROL_SURFACE,
   LANDING_GEAR,

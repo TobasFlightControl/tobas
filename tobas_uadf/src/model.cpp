@@ -13,8 +13,8 @@ void Model::clear()
   urdf.reset();
 
   thrusts.clear();
-  tilts.clear();
   control_surfaces.clear();
+  tilts.clear();
 }
 
 bool Model::valid() const

@@ -32,11 +32,11 @@ tinyxml2::XMLDocument* exportUADF(const Model& model)
             throw;
         }
       }
-      else if (model.tilts.contains(joint_name)) {
-        child->SetAttribute("type", "tilt");
-      }
       else if (model.control_surfaces.contains(joint_name)) {
         child->SetAttribute("type", "cs");
+      }
+      else if (model.tilts.contains(joint_name)) {
+        child->SetAttribute("type", "tilt");
       }
     }
   }

@@ -29,15 +29,15 @@ class PwmWidget : public qt::TableWidget
   static constexpr char kPwmPeriodLbLabel[] = "PWM Period (LB)";
   static constexpr char kPwmPeriodUbLabel[] = "PWM Period (UB)";
 
+public:
   // Special target labels
   static constexpr char kEngineThrotLabel[] = "Engine Throttle";
 
-public:
   enum struct TargetType
   {
     kThrust,
-    kTiltJoint,
     kControlSurface,
+    kTiltJoint,
     kEngineThrottle,
   };
 
@@ -51,8 +51,11 @@ public:
   QString targetName(int channel) const;
   TargetType targetType(int channel) const;
 
-  uint16_t pwmPeriodLb(int channel) const;  // [us]
-  uint16_t pwmPeriodUb(int channel) const;  // [us]
+  uint16_t periodLb(int channel) const;  // [us]
+  uint16_t periodUb(int channel) const;  // [us]
+
+  bool contains(const QString& target_name) const;
+  int channel(const QString& target_name) const;
 
 private:
   const RobotInfo& robot_;

@@ -47,24 +47,10 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
 
 bool PropulsionUnitsWidget::isValid()
 {
-  const auto num_rotors = count();
-
-  // それぞれのタブの設定が有効であることを確認
-  for (int i = 0; i < num_rotors; ++i) {
+  for (int i = 0; i < count(); ++i) {
     if (!widget(i)->isValid()) {
       return false;
     }
-  }
-
-  // チャンネルが重複していないことを確認
-  QSet<int> channels;
-  for (int i = 0; i < num_rotors; ++i) {
-    const auto channel = widget(i)->hardwareIface()->pwmChannel();
-    if (channels.contains(channel)) {
-      qt::qErrorBox(this, "PWM channel " + QString::number(channel) + " is duplicated.");
-      return false;
-    }
-    channels.insert(channel);
   }
 
   return true;

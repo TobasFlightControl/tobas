@@ -62,15 +62,6 @@ bool parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
 
         uadf_model.thrusts[joint_name] = thrust;
       }
-      else if (strcmp(joint_type, "tilt") == 0) {
-        child->SetAttribute("type", "revolute");
-
-        TiltJoint tilt;
-
-        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {}
-
-        uadf_model.tilts[joint_name] = tilt;
-      }
       else if (strcmp(joint_type, "cs") == 0) {
         child->SetAttribute("type", "revolute");
 
@@ -79,6 +70,15 @@ bool parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
         for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {}
 
         uadf_model.control_surfaces[joint_name] = cs;
+      }
+      else if (strcmp(joint_type, "tilt") == 0) {
+        child->SetAttribute("type", "revolute");
+
+        TiltJoint tilt;
+
+        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement()) {}
+
+        uadf_model.tilts[joint_name] = tilt;
       }
     }
   }

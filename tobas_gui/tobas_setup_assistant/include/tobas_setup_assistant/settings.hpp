@@ -28,6 +28,8 @@ class SettingsWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
+  const RobotInfo& robot_;
+
   propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
   JointConfigurationWidget* joint_config;

@@ -29,7 +29,7 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
     const auto link_name = QString::fromStdString(robot_.linkName(joint_name));
 
     // タブを追加
-    const auto link_widget = new PropulsionUnitWidget(node_, link_name);
+    const auto link_widget = new PropulsionUnitWidget(node_);
     addTab(link_widget, link_name);
 
     // Connection

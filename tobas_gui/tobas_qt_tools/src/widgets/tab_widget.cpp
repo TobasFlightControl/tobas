@@ -9,35 +9,20 @@
 
 namespace qt
 {
-namespace
+void TabBar::enableWheelEvent(bool enable)
 {
-class TabBar : public QTabBar
+  enable_wheel_event_ = enable;
+}
+
+void TabBar::wheelEvent(QWheelEvent* event)
 {
-  Q_OBJECT
-
-  using super = QTabBar;
-
-public:
-  void enableWheelEvent(bool enable)
-  {
-    enable_wheel_event_ = enable;
+  if (enable_wheel_event_) {
+    super::wheelEvent(event);
   }
-
-protected:
-  void wheelEvent(QWheelEvent* event) override
-  {
-    if (enable_wheel_event_) {
-      super::wheelEvent(event);
-    }
-    else {
-      event->ignore();
-    }
+  else {
+    event->ignore();
   }
-
-private:
-  bool enable_wheel_event_ = true;
-};
-}  // namespace
+}
 
 TabWidget::TabWidget(QWidget* parent) : super(parent)
 {

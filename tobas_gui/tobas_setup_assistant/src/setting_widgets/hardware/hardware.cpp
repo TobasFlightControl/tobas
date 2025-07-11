@@ -92,6 +92,16 @@ void HardwareWidget::load(const YAML::Node& node)
   }
 }
 
+const PwmWidget* HardwareWidget::pwm() const
+{
+  return pwm_;
+}
+
+const DShotWidget* HardwareWidget::dshot() const
+{
+  return dshot_;
+}
+
 const char* HardwareWidget::fmuName() const
 {
   return selected()->name();
@@ -190,6 +200,11 @@ double HardwareWidget::gnssVerticalVelocityStddev() const
 int HardwareWidget::numPwmChannels() const
 {
   return selected()->numPwmChannels();
+}
+
+int HardwareWidget::numDShotChannels() const
+{
+  return selected()->numDShotChannels();
 }
 
 void HardwareWidget::setCurrentHardware(int index)

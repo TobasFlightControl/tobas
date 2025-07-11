@@ -7,7 +7,7 @@ namespace gui
 {
 namespace sa
 {
-SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig)
+SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig) : robot_(robot)
 {
   propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, sig);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
@@ -62,6 +62,65 @@ bool SettingsWidget::isValid()
     const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(widget(i));
     if (!cur_widget->isValid()) {
       setCurrentWidget(cur_widget);
+      return false;
+    }
+  }
+
+  switch (propulsion_system->type()) {
+    case tobas::propulsion_system_t::ELECTRIC: {
+      // 電動モータのDShotチャンネルが設定されていることを確認
+      for (const auto& elem : robot_.uadf().thrusts) {
+        const auto joint_name = QString::fromStdString(elem.first);
+        if (!hardware->dshot()->contains(joint_name)) {
+          qt::qWarnBox(this, "Please specify a DShot channel for electric rotor \"" + joint_name + "\".");
+          setCurrentWidget(hardware);
+          return false;
+        }
+      }
+
+      break;
+    }
+    case tobas::propulsion_system_t::ICE: {
+      // 可変ピッチプロペラのPWMチャンネルが設定されていることを確認
+      for (const auto& elem : robot_.uadf().thrusts) {
+        const auto joint_name = QString::fromStdString(elem.first);
+        if (!hardware->pwm()->contains(joint_name)) {
+          qt::qWarnBox(this, "Please specify a PWM channel for variable pitch \"" + joint_name + "\".");
+          setCurrentWidget(hardware);
+          return false;
+        }
+      }
+
+      // エンジンスロットルのPWMチャンネルが設定されていることを確認
+      if (!hardware->pwm()->contains(PwmWidget::kEngineThrotLabel)) {
+        qt::qWarnBox(this, "Please specify a PWM channel for engine throttle.");
+        setCurrentWidget(hardware);
+        return false;
+      }
+
+      break;
+    }
+    default: {
+      throw;
+    }
+  }
+
+  // 固定翼の操舵面のPWMチャンネルが設定されていることを確認
+  for (const auto& elem : robot_.uadf().control_surfaces) {
+    const auto joint_name = QString::fromStdString(elem.first);
+    if (!hardware->pwm()->contains(joint_name)) {
+      qt::qWarnBox(this, "Please specify a PWM channel for control surface \"" + joint_name + "\".");
+      setCurrentWidget(hardware);
+      return false;
+    }
+  }
+
+  // ティルトジョイントのPWMチャンネルが設定されていることを確認
+  for (const auto& elem : robot_.uadf().tilts) {
+    const auto joint_name = QString::fromStdString(elem.first);
+    if (!hardware->pwm()->contains(joint_name)) {
+      qt::qWarnBox(this, "Please specify a PWM channel for active tilt joint \"" + joint_name + "\".");
+      setCurrentWidget(hardware);
       return false;
     }
   }

@@ -10,7 +10,7 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node, const QString& link_name)
+PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

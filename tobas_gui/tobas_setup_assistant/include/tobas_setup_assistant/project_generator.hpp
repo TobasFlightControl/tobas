@@ -83,6 +83,8 @@ private:
 
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXmlElements(tinyxml2::XMLElement* robot, const std::filesystem::path& tbs_path);
+
+  static tobas::turning_direction_t turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
 };
 }  // namespace sa
 }  // namespace gui

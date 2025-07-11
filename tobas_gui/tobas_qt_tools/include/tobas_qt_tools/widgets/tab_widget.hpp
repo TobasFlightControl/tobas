@@ -4,6 +4,20 @@
 
 namespace qt
 {
+class TabBar : public QTabBar
+{
+  using super = QTabBar;
+
+public:
+  void enableWheelEvent(bool enable);
+
+protected:
+  void wheelEvent(QWheelEvent* event) override;
+
+private:
+  bool enable_wheel_event_ = true;
+};
+
 /**
  * ===== QtabWidgetとの違い =====
  * - イテレータを定義

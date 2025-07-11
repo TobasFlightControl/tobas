@@ -35,12 +35,10 @@ PropulsionUnitWidget::PropulsionUnitWidget()
 
   transmission_ = new TransmissionWidget();
   propeller_ = new PropellerWidget();
-  hw_iface_ = new VPitchHardwareIfaceWidget();
   aerodynamics_ = new AerodynamicsWidget();
 
   tabs_->addTab(transmission_, transmission_->name());
   tabs_->addTab(propeller_, propeller_->name());
-  tabs_->addTab(hw_iface_, hw_iface_->name());
   tabs_->addTab(aerodynamics_, aerodynamics_->name());
 
   rows->addStretch();
@@ -99,11 +97,6 @@ const TransmissionWidget* PropulsionUnitWidget::transmission() const
 const PropellerWidget* PropulsionUnitWidget::propeller() const
 {
   return propeller_;
-}
-
-const VPitchHardwareIfaceWidget* PropulsionUnitWidget::hardwareIface() const
-{
-  return hw_iface_;
 }
 
 const AerodynamicsWidget* PropulsionUnitWidget::aerodynamics() const

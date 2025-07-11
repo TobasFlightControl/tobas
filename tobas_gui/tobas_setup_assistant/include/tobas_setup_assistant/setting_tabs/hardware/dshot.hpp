@@ -34,6 +34,9 @@ public:
 
   QString targetName(int channel) const;
 
+  bool contains(const QString& target_name) const;
+  int channel(const QString& target_name) const;
+
 private:
   const RobotInfo& robot_;
 

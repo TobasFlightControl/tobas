@@ -70,11 +70,11 @@ PwmWidget::TargetType PwmWidget::targetType(int channel) const
   if (robot_.uadf().thrusts.contains(target_name)) {
     return TargetType::kThrust;
   }
-  else if (robot_.uadf().tilts.contains(target_name)) {
-    return TargetType::kTiltJoint;
-  }
   else if (robot_.uadf().control_surfaces.contains(target_name)) {
     return TargetType::kControlSurface;
+  }
+  else if (robot_.uadf().tilts.contains(target_name)) {
+    return TargetType::kTiltJoint;
   }
   else if (target_name == kEngineThrotLabel) {
     return TargetType::kEngineThrottle;
@@ -84,14 +84,37 @@ PwmWidget::TargetType PwmWidget::targetType(int channel) const
   }
 }
 
-uint16_t PwmWidget::pwmPeriodLb(int channel) const
+uint16_t PwmWidget::periodLb(int channel) const
 {
   return periods_lb_.at(channel)->value();
 }
 
-uint16_t PwmWidget::pwmPeriodUb(int channel) const
+uint16_t PwmWidget::periodUb(int channel) const
 {
   return periods_ub_.at(channel)->value();
+}
+
+bool PwmWidget::contains(const QString& target_name) const
+{
+  for (int channel = 0; channel < rowCount(); ++channel) {
+    if (targetName(channel) == target_name) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+int PwmWidget::channel(const QString& target_name) const
+{
+  for (int channel = 0; channel < rowCount(); ++channel) {
+    if (targetName(channel) == target_name) {
+      return channel;
+    }
+  }
+
+  qWarning() << "Failed to find \"" << target_name << "\".";
+  return -1;
 }
 
 void PwmWidget::addLastChannel()

@@ -71,6 +71,18 @@ void JointConfigurationWidget::updateInternalDataStructures()
       continue;
     }
 
+    // UADFに記載のあるジョイントはスキップ
+    const auto& uadf = robot_.uadf();
+    if (uadf.thrusts.contains(joint.name)) {
+      continue;
+    }
+    if (uadf.control_surfaces.contains(joint.name)) {
+      continue;
+    }
+    if (uadf.tilts.contains(joint.name)) {
+      continue;
+    }
+
     // テーブルに追加
     addLink(link_name);
   }

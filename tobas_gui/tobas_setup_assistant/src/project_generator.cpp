@@ -135,39 +135,6 @@ tobas::Drone ProjectGenerator::createDrone()
   // Drone Name
   drone.name = robot_.robotName();
 
-  // Joints
-  const auto& joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    tobas::JointConfig joint;
-    joint.name = joint_config->getJointName(i).toStdString();
-    joint.role = joint_config->getRole(i);
-    joint.cmd_iface = joint_config->getCommandInterface(i);
-    joint.hw_iface = joint_config->getHardwareInterface(i);
-    joint.home_pos = joint_config->getHomePosition(i);
-    drone.joints[joint.name] = joint;
-
-    switch (joint.hw_iface) {
-      case tobas::hw_iface_t::PWM: {
-        tobas::PwmConfig pwm;
-        pwm.channel = joint_config->getPwmChannel(i);
-        pwm.name = joint.name;
-        pwm.period_range.lower = joint_config->getPwmMinPeriod(i);
-        pwm.period_range.upper = joint_config->getPwmMaxPeriod(i);
-        pwm.value_range.lower = joint_config->getPwmMinAngle(i);
-        pwm.value_range.upper = joint_config->getPwmMaxAngle(i);
-        pwm.reverse = joint_config->getPwmReverse(i);
-        TOBAS_CHECK(drone.pwms.insert({ joint.name, pwm }).second);
-        break;
-      }
-      case tobas::hw_iface_t::OTHER: {
-        break;
-      }
-      default: {
-        throw;
-      }
-    }
-  }
-
   // Propulsion System
   switch (settings_->propulsion_system->type()) {
     case tobas::propulsion_system_t::ELECTRIC: {
@@ -183,18 +150,25 @@ tobas::Drone ProjectGenerator::createDrone()
       eprop->battery.max_current = battery_widget->maxCurrent();
 
       // Rotors
-      const auto units_widget = eprop_widget->units->selected();
       for (int i = 0; i < eprop_widget->numUnits(); ++i) {
+        const auto unit_widget = eprop_widget->units->widget(i);
         const auto link_name = eprop_widget->linkName(i).toStdString();
-        const auto unit_widget = units_widget->widget(i);
 
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
+        const auto& par_ele = cur_ele.parent->second;
+        const auto& par_seg = par_ele.segment;
+        const auto& par_jnt = par_seg.joint();
+
+        // Rotor
         const auto rotor = std::make_shared<tobas::ElectricRotorConfig>();
         rotor->link_name = link_name;
-        rotor->direction = unit_widget->general()->direction();
+        rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
         rotor->axis = robot_.rotorAxisType(link_name);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
-        rotor->tilt_joint_name = unit_widget->general()->tiltJointName().toStdString();
-        rotor->channel = unit_widget->general()->channel();
+        rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
+        rotor->channel = settings_->hardware->dshot()->channel(QString::fromStdString(cur_jnt.name));  // TODO: PWM対応
         rotor->num_poles = unit_widget->motor()->numPoles();
         rotor->kv = unit_widget->motor()->kv();
         rotor->internal_resistance = unit_widget->motor()->internalResistance();
@@ -202,6 +176,17 @@ tobas::Drone ProjectGenerator::createDrone()
         rotor->propeller_diameter = unit_widget->propeller()->diameter();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
         TOBAS_CHECK(eprop->rotors.insert({ link_name, rotor }).second);
+
+        // Tilt Joint
+        if (robot_.uadf().tilts.contains(par_jnt.name)) {
+          tobas::JointConfig joint;
+          joint.name = par_jnt.name;
+          joint.role = tobas::jnt_role_t::TILT_JOINT;
+          joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+          joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          joint.home_pos = 0.;
+          drone.joints[joint.name] = joint;
+        }
       }
 
       drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
@@ -215,47 +200,66 @@ tobas::Drone ProjectGenerator::createDrone()
       // Engine
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
-      iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
+      iprop->engine.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
 
       // TODO: PWM以外のインターフェースに対応
       tobas::PwmConfig engine_pwm;
-      engine_pwm.channel = engine_widget->hardwareIface()->pwmChannel();
+      const auto engine_pwm_channel = settings_->hardware->pwm()->channel(PwmWidget::kEngineThrotLabel);
+      engine_pwm.channel = engine_pwm_channel;
       engine_pwm.name = tobas::pwm::kEngineThrottleKey;
-      engine_pwm.period_range.lower = engine_widget->hardwareIface()->pwmPeriodZeroThrot();
-      engine_pwm.period_range.upper = engine_widget->hardwareIface()->pwmPeriodFullThrot();
-      engine_pwm.value_range.lower = tobas::kMinThrot;
-      engine_pwm.value_range.upper = tobas::kMaxThrot;
-      engine_pwm.reverse = false;
+      engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);
+      engine_pwm.period_range.second = settings_->hardware->pwm()->periodUb(engine_pwm_channel);
+      engine_pwm.value_range.first = tobas::kMinThrot;
+      engine_pwm.value_range.second = tobas::kMaxThrot;
       TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
 
       // Rotors
-      const auto units_widget = iprop_widget->units->selected();
       for (int i = 0; i < iprop_widget->numUnits(); ++i) {
+        const auto unit_widget = iprop_widget->units->widget(i);
         const auto link_name = iprop_widget->linkName(i).toStdString();
-        const auto unit_widget = units_widget->widget(i);
 
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
+        const auto& par_ele = cur_ele.parent->second;
+        const auto& par_seg = par_ele.segment;
+        const auto& par_jnt = par_seg.joint();
+
+        // Rotor
         const auto rotor = std::make_shared<tobas::ICERotorConfig>();
         rotor->link_name = link_name;
-        rotor->direction = unit_widget->general()->direction();
+        rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
         rotor->axis = robot_.rotorAxisType(link_name);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
-        rotor->tilt_joint_name = "";
+        rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
         rotor->pitch_ref = unit_widget->propeller()->pitchAngleRef();
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
-        rotor->hw_iface = tobas::hw_iface_t::PWM;
+        rotor->hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
         TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
 
+        // Variable Pitch Interface
         // TODO: PWM以外のインターフェースに対応
         tobas::PwmConfig pitch_pwm;
-        pitch_pwm.channel = unit_widget->hardwareIface()->pwmChannel();
+        const auto vpp_pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(cur_jnt.name));
+        pitch_pwm.channel = vpp_pwm_channel;
         pitch_pwm.name = link_name;
-        pitch_pwm.period_range.lower = unit_widget->hardwareIface()->pwmPeriodMinPitch();
-        pitch_pwm.period_range.upper = unit_widget->hardwareIface()->pwmPeriodMaxPitch();
-        pitch_pwm.value_range = unit_widget->propeller()->pitchAngleLimit();
-        pitch_pwm.reverse = false;
+        pitch_pwm.period_range.first = settings_->hardware->pwm()->periodLb(vpp_pwm_channel);
+        pitch_pwm.period_range.second = settings_->hardware->pwm()->periodUb(vpp_pwm_channel);
+        pitch_pwm.value_range = unit_widget->propeller()->pitchAngleLimit().toPair();
         TOBAS_CHECK(drone.pwms.insert({ link_name, pitch_pwm }).second);
+
+        // Tilt Joint
+        if (robot_.uadf().tilts.contains(par_jnt.name)) {
+          tobas::JointConfig joint;
+          joint.name = par_jnt.name;
+          joint.role = tobas::jnt_role_t::TILT_JOINT;
+          joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+          joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          joint.home_pos = 0.;
+          drone.joints[joint.name] = joint;
+        }
       }
 
       drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
@@ -298,9 +302,13 @@ tobas::Drone ProjectGenerator::createDrone()
     drone.fixed_wing->aerodynamics.c_yaw_r = aero_coefs->c_yaw_r();
 
     // Control Surfaces
-    const auto css = settings_->fixed_wing->controlSurfaces()->selected();
+    const auto css = settings_->fixed_wing->controlSurfaces();
     for (int i = 0; i < css->numUnits(); ++i) {
       const auto link_name = css->linkName(i).toStdString();
+
+      const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+      const auto& cur_seg = cur_ele.segment;
+      const auto& cur_jnt = cur_seg.joint();
 
       tobas::ControlSurface cs;
       cs.link_name = link_name;
@@ -310,9 +318,28 @@ tobas::Drone ProjectGenerator::createDrone()
       cs.c_roll_delta = css->rollCoef(i);
       cs.c_pitch_delta = css->pitchCoef(i);
       cs.c_yaw_delta = css->yawCoef(i);
-
       drone.fixed_wing->control_surfaces[link_name] = cs;
+
+      tobas::JointConfig joint;
+      joint.name = cur_jnt.name;
+      joint.role = tobas::jnt_role_t::CONTROL_SURFACE;
+      joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+      joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+      joint.home_pos = 0.;
+      drone.joints[joint.name] = joint;
     }
+  }
+
+  // Extra Joints
+  const auto& joint_config = settings_->joint_config;
+  for (int i = 0; i < joint_config->numJoints(); ++i) {
+    tobas::JointConfig joint;
+    joint.name = joint_config->getJointName(i).toStdString();
+    joint.role = joint_config->getRole(i);
+    joint.cmd_iface = joint_config->getCommandInterface(i);
+    joint.hw_iface = tobas::hw_iface_t::OTHER;  // TODO: 選択できるようにする
+    joint.home_pos = joint_config->getHomePosition(i);
+    drone.joints[joint.name] = joint;
   }
 
   // RC Input
@@ -1031,7 +1058,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
     case tobas::propulsion_system_t::ELECTRIC: {
       const auto eprop = qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
       const auto battery = eprop->battery;
-      const auto units = eprop->units->selected();
+      const auto units = eprop->units;
+      ;
 
       // Battery plugin
       constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
@@ -1049,9 +1077,11 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
       // Rotor plugins
       for (int i = 0; i < units->numUnits(); ++i) {
         const auto link_name = eprop->linkName(i).toStdString();
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
 
         const auto unit = units->widget(i);
-        const auto general = unit->general();
         const auto esc = unit->esc();
         const auto motor = unit->motor();
         const auto propeller = unit->propeller();
@@ -1067,7 +1097,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
           aero->motorConst(),
           aero->momentConst(),
           aero->dragConst(),
-          general->direction(),
+          turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction),
           esc->maxCurrent(),
           sim->maxModelErrorRate());
       }
@@ -1077,7 +1107,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
     case tobas::propulsion_system_t::ICE: {
       const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(prop->selected());
       const auto engine = iprop->engine;
-      const auto units = iprop->units->selected();
+      const auto units = iprop->units;
 
       xml::EngineParam engine_param;
       engine_param.engine_const = engine->dynamics()->engineConstant();
@@ -1086,11 +1116,16 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
 
       std::vector<xml::ICERotorParam> rotor_params;
       for (int i = 0; i < units->numUnits(); ++i) {
+        const auto link_name = iprop->linkName(i).toStdString();
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
+
         const auto unit = units->widget(i);
 
         xml::ICERotorParam rotor_param;
         rotor_param.link_name = iprop->linkName(i).toStdString();
-        rotor_param.direction = unit->general()->direction();
+        rotor_param.direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
         rotor_param.gear_ratio = unit->transmission()->gearRatio();
         rotor_param.num_blades = unit->propeller()->numBlade();
         rotor_param.pitch_angle_limit = unit->propeller()->pitchAngleLimit();
@@ -1139,5 +1174,18 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
 
   return true;
 }
+
+tobas::turning_direction_t ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
+{
+  switch (src) {
+    case uadf::Thrust::CW:
+      return tobas::turning_direction_t::CW;
+    case uadf::Thrust::CCW:
+      return tobas::turning_direction_t::CCW;
+    default:
+      throw;
+  }
+}
+
 }  // namespace sa
 }  // namespace gui
