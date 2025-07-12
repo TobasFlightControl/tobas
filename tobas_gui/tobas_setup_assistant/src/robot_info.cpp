@@ -67,7 +67,11 @@ const std::string& RobotInfo::linkName(const std::string& joint_name) const
 
 tinyxml2::XMLDocument* RobotInfo::urdfDocument() const
 {
+// FIXME: Avoid deprecated function
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   return urdf::exportURDF(*uadf_.urdf);
+#pragma GCC diagnostic pop
 }
 
 std::string RobotInfo::urdfText() const

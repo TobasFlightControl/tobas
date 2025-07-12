@@ -102,9 +102,17 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 
 bool URDFViewModel::saveRobot(const QString& file_path)
 {
-  // URDFを修正してXMLに変換
-  urdf_->root_link_->inertial.reset();        // ルートリンクのイナーシャを削除
-  const auto doc = urdf::exportURDF(*urdf_);  // TiXmlは生ポインタで扱うのが基本
+  // ルートリンクのイナーシャを削除
+  urdf_->root_link_->inertial.reset();
+
+// URDFを書き出す
+// FIXME: Avoid deprecated function
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  const auto doc = urdf::exportURDF(*urdf_);
+#pragma GCC diagnostic pop
+
+  // 不要なテクスチャを削除
   removeTextureTagsWithoutFilename(doc->RootElement());
 
   // XMLを保存
