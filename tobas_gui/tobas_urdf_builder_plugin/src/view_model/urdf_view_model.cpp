@@ -60,7 +60,7 @@ const LinkViewModelPtr& URDFViewModel::rootLinkViewModel() const
 QStringList URDFViewModel::linkNames() const
 {
   QStringList result;
-  transform(
+  std::transform(
     urdf_->links_.begin(),
     urdf_->links_.end(),
     std::back_inserter(result),
@@ -71,7 +71,7 @@ QStringList URDFViewModel::linkNames() const
 QStringList URDFViewModel::jointNames() const
 {
   QStringList result;
-  transform(
+  std::transform(
     urdf_->joints_.begin(),
     urdf_->joints_.end(),
     std::back_inserter(result),
