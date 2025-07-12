@@ -53,7 +53,6 @@
 	<exec_depend>tobas_tools</exec_depend>
 	<exec_depend>tobas_topic_throttle</exec_depend>
 	<exec_depend>tobas_tree_server</exec_depend>
-	<exec_depend>tobas_uadf</exec_depend>
 	<exec_depend>tobas_wind_model</exec_depend>
 
 	<export>
