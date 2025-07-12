@@ -8,6 +8,7 @@ XACRO の航空機拡張．
 ### 特殊なジョイント
 
 - `thrust`: 推進モジュール
-  - `direction`: 回転方向 (`cw` or `ccw`)
+  - `direction`: 回転方向
+    - `value`: `cw`/`ccw`
 - `cs`: 固定翼の操舵面
 - `tilt`: ティルトジョイント
