@@ -2,7 +2,6 @@
 
 #include <QDebug>
 #include <QHeaderView>
-#include <magic_enum/magic_enum.hpp>
 
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -348,7 +347,6 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
     kRoleLabel_Manipulation,
     kRoleLabel_Other,
   });
-  TOBAS_CHECK(static_cast<size_t>(role->count()) == magic_enum::enum_count<tobas::jnt_role_t>());
 
   // Command Interface
   const auto cmd_iface = new qt::ComboBox();
