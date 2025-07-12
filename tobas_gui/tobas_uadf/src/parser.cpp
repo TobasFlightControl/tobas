@@ -4,7 +4,6 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-#include <tobas_ros2_tools/xacro.hpp>
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 
@@ -83,14 +82,8 @@ bool parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
     }
   }
 
-  // XACROを出力
-  const auto xacro_text = xml::xmlDocumentToString(&uadf_doc_cp);
-
-  // XACROを解析
-  std::string urdf_text;
-  if (!ros2::parseXacroFromText(xacro_text, urdf_text)) {
-    return false;
-  }
+  // URDFを書き出す
+  const auto urdf_text = xml::xmlDocumentToString(&uadf_doc_cp);
 
   // URDFを解析
   uadf_model.urdf = urdf::parseURDF(urdf_text);

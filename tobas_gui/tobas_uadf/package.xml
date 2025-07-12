@@ -10,7 +10,7 @@
 
 	<depend>urdf</depend>
 	<depend>urdfdom</depend>
-	<depend>tobas_ros2_tools</depend>
+	<depend>tobas_xml_tools</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
