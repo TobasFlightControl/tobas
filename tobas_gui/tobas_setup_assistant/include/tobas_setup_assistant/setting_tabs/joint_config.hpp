@@ -4,6 +4,8 @@
 #include <QPushButton>
 
 #include <tobas_drone_core/joint/joint.hpp>
+#include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 
 #include "./base_setting.hpp"

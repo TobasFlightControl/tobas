@@ -25,7 +25,7 @@ namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : robot_(this)
-  , rotor_marker_publisher_(node, robot_, sig_)
+  , rotor_marker_publisher_(node, robot_)
   , property_client_(node, tobas::kPropertyServerName, kPackageName)
   , rsp_client_(node, "robot_state_publisher")
 {

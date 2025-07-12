@@ -24,7 +24,6 @@ public:
 
   virtual const char* name() const = 0;
 
-  virtual void reset() = 0;
   virtual void updateInternalDataStructures() = 0;
   virtual bool isValid() = 0;
 

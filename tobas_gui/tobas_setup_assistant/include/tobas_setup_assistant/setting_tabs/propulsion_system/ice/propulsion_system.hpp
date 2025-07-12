@@ -30,7 +30,6 @@ public:
 
   const char* name() const override;
 
-  void reset() override;
   void updateInternalDataStructures() override;
   bool isValid() override;
 

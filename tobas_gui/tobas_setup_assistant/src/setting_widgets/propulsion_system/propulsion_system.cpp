@@ -142,12 +142,6 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 
 void PropulsionSystemWidget::onPropulsionTypeChanged(int index)
 {
-  // 全ての設定をリセット
-  for (int i = 0; i < propulsion_stack_->count(); ++i) {
-    const auto propulsion = widget(i);
-    propulsion->reset();
-  }
-
   // 推進系のウィジェットを切り替える
   propulsion_stack_->setCurrentIndex(index);
 

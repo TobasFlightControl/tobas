@@ -26,7 +26,6 @@ class PropulsionUnitsWidget : public qt::TabWidget
 public:
   explicit PropulsionUnitsWidget(const RobotInfo& robot);
 
-  void clear();
   void updateInternalDataStructures();
   bool isValid();
 

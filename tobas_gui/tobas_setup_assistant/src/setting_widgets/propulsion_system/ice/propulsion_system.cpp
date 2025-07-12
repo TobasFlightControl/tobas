@@ -22,11 +22,6 @@ const char* PropulsionSystemWidget::name() const
   return "ICE Propulsion System";
 }
 
-void PropulsionSystemWidget::reset()
-{
-  units->clear();
-}
-
 void PropulsionSystemWidget::updateInternalDataStructures()
 {
   units->updateInternalDataStructures();

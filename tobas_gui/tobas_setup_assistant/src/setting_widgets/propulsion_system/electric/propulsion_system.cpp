@@ -22,11 +22,6 @@ const char* PropulsionSystemWidget::name() const
   return "Electric Propulsion System";
 }
 
-void PropulsionSystemWidget::reset()
-{
-  units->clear();
-}
-
 void PropulsionSystemWidget::updateInternalDataStructures()
 {
   units->updateInternalDataStructures();
