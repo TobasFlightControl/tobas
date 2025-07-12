@@ -62,7 +62,7 @@ const std::string& RobotInfo::robotName() const
 
 const std::string& RobotInfo::linkName(const std::string& joint_name) const
 {
-  jnt_parser_.segmentName(joint_name);
+  return jnt_parser_.segmentName(joint_name);
 }
 
 tinyxml2::XMLDocument* RobotInfo::urdfDocument() const

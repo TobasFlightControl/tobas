@@ -16,6 +16,8 @@ PwmWidget::PwmWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNum
 {
   horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
   setHorizontalHeaderLabels({ kTargetNameLabel, kPwmPeriodLbLabel, kPwmPeriodUbLabel });
+
+  connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
 
 YAML::Node PwmWidget::dump() const

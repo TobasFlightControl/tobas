@@ -16,6 +16,8 @@ DShotWidget::DShotWidget(const RobotInfo& robot, const Signals& sig) : super(0, 
 {
   horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
   setHorizontalHeaderLabels({ kTargetNameLabel });
+
+  connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
 
 YAML::Node DShotWidget::dump() const
