@@ -165,8 +165,14 @@ void SetupAssistantWidget::onNewButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
+  // XACROを解析
+  std::string uadf_text;
+  if (!ros2::parseXacroFromPath(uadf_path.toStdString(), uadf_text)) {
+    return;
+  }
+
   // UADFを読み込む
-  if (!robot_.loadFromPath(uadf_path.toStdString())) {
+  if (!robot_.loadFromText(uadf_text)) {
     return;
   }
 

@@ -21,6 +21,7 @@ RobotInfo::RobotInfo(QWidget* parent) : parent_(parent), jnt_parser_(tree_), axi
 bool RobotInfo::loadFromXml(const tinyxml2::XMLDocument* uadf_doc)
 {
   if (!uadf::parseFromXml(uadf_doc, uadf_)) {
+    qt::qErrorBox(parent_, "Failed to parse UADF.");
     return false;
   }
 
@@ -30,6 +31,7 @@ bool RobotInfo::loadFromXml(const tinyxml2::XMLDocument* uadf_doc)
 bool RobotInfo::loadFromText(const std::string& uadf_text)
 {
   if (!uadf::parseFromText(uadf_text, uadf_)) {
+    qt::qErrorBox(parent_, "Failed to parse UADF.");
     return false;
   }
 
@@ -39,6 +41,7 @@ bool RobotInfo::loadFromText(const std::string& uadf_text)
 bool RobotInfo::loadFromPath(const std::string& uadf_path)
 {
   if (!uadf::parseFromPath(uadf_path, uadf_)) {
+    qt::qErrorBox(parent_, "Failed to parse UADF.");
     return false;
   }
 

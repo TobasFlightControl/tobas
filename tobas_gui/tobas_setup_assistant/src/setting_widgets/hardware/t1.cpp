@@ -10,10 +10,6 @@ namespace sa
 {
 T1Widget::T1Widget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
-  rows->addStretch();
 }
 
 const char* T1Widget::name() const

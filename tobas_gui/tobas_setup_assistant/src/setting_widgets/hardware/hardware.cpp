@@ -17,11 +17,6 @@ HardwareWidget::HardwareWidget(const RobotInfo& robot, const Signals& sig)
   pwm_ = new PwmWidget(robot, sig);
   dshot_ = new DShotWidget(robot, sig);
 
-  addWidget(type_);
-  addWidget(hardwares_);
-  addWidget(pwm_);
-  addWidget(dshot_);
-
   hardwares_->addWidget(new T1Widget());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
@@ -31,6 +26,14 @@ HardwareWidget::HardwareWidget(const RobotInfo& robot, const Signals& sig)
 
   setCurrentHardware(0);
 
+  // Layout
+  addWidget(type_);
+  addWidget(hardwares_);
+  addWidget(pwm_);
+  addWidget(dshot_);
+  addStretch();
+
+  // Connection
   connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
 }
 
