@@ -15,11 +15,11 @@ namespace gui
 {
 namespace sa
 {
-class JointConfigurationWidget : public BaseSettingWidget
+class ExtraJointsWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = JointConfigurationWidget;
+  using self = ExtraJointsWidget;
   using super = BaseSettingWidget;
 
   // Columns
@@ -50,7 +50,7 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr char kCmdIfaceLabel_None[] = "None";
 
 public:
-  explicit JointConfigurationWidget(const RobotInfo& robot);
+  explicit ExtraJointsWidget(const RobotInfo& robot);
 
   const char* name() const override;
   const char* title() const override;

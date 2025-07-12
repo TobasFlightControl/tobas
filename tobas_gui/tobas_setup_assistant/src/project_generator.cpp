@@ -331,14 +331,14 @@ tobas::Drone ProjectGenerator::createDrone()
   }
 
   // Extra Joints
-  const auto& joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
+  const auto& extra_joints = settings_->extra_joints;
+  for (int i = 0; i < extra_joints->numJoints(); ++i) {
     tobas::JointConfig joint;
-    joint.name = joint_config->getJointName(i).toStdString();
-    joint.role = joint_config->getRole(i);
-    joint.cmd_iface = joint_config->getCommandInterface(i);
+    joint.name = extra_joints->getJointName(i).toStdString();
+    joint.role = extra_joints->getRole(i);
+    joint.cmd_iface = extra_joints->getCommandInterface(i);
     joint.hw_iface = tobas::hw_iface_t::OTHER;  // TODO: 選択できるようにする
-    joint.home_pos = joint_config->getHomePosition(i);
+    joint.home_pos = extra_joints->getHomePosition(i);
     drone.joints[joint.name] = joint;
   }
 
@@ -350,9 +350,9 @@ tobas::Drone ProjectGenerator::createDrone()
 
 bool ProjectGenerator::hasServoJoint() const
 {
-  const auto& joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (tobas::isServoJoint(joint_config->getRole(i))) {
+  const auto& extra_joints = settings_->extra_joints;
+  for (int i = 0; i < extra_joints->numJoints(); ++i) {
+    if (tobas::isServoJoint(extra_joints->getRole(i))) {
       return true;
     }
   }
@@ -573,7 +573,7 @@ bool ProjectGenerator::generateBackupFiles(const fs::path& tbs_path)
 bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
 {
   const auto& ns = robot_.robotName();
-  const auto& joint_config = settings_->joint_config;
+  const auto& extra_joints = settings_->extra_joints;
 
   // XMLを作成
   tinyxml2::XMLDocument doc;
@@ -593,12 +593,12 @@ bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
     xml::addNodeParam(jsb_node, "use_sim_time", "true");
 
     // コントローラごとにノードを立ち上げる
-    for (int i = 0; i < joint_config->numJoints(); ++i) {
-      if (!tobas::isServoJoint(joint_config->getRole(i))) {
+    for (int i = 0; i < extra_joints->numJoints(); ++i) {
+      if (!tobas::isServoJoint(extra_joints->getRole(i))) {
         continue;
       }
 
-      const auto joint_name = joint_config->getJointName(i).toStdString();
+      const auto joint_name = extra_joints->getJointName(i).toStdString();
       const auto ctrl_name = joint_name + "_controller";
       const auto ctrl_param = config_dir + ctrl_name + ".yaml";
       const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
@@ -625,13 +625,13 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
   manager_params_node[tobas::node::kJointStateBroadcaster]["type"] = tobas::ctrl_manager::type::kJointStateBroadcaster;
 
   // Each joint controllers
-  const auto joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (!tobas::isServoJoint(joint_config->getRole(i))) {
+  const auto extra_joints = settings_->extra_joints;
+  for (int i = 0; i < extra_joints->numJoints(); ++i) {
+    if (!tobas::isServoJoint(extra_joints->getRole(i))) {
       continue;
     }
 
-    const auto jnt_name = joint_config->getJointName(i).toStdString();
+    const auto jnt_name = extra_joints->getJointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
     manager_params_node[ctrl_name]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
   }
@@ -651,19 +651,19 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
 
 bool ProjectGenerator::generateJointControllerConfigs(const fs::path& tbs_path)
 {
-  const auto joint_config = settings_->joint_config;
+  const auto extra_joints = settings_->extra_joints;
 
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (!tobas::isServoJoint(joint_config->getRole(i))) {
+  for (int i = 0; i < extra_joints->numJoints(); ++i) {
+    if (!tobas::isServoJoint(extra_joints->getRole(i))) {
       continue;
     }
 
-    const auto jnt_name = joint_config->getJointName(i).toStdString();
+    const auto jnt_name = extra_joints->getJointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
 
     YAML::Node ctrl_params_node(YAML::NodeType::Map);
     ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::textFromEnum(joint_config->getCommandInterface(i));
+    ctrl_params_node["interface_name"] = tobas::textFromEnum(extra_joints->getCommandInterface(i));
 
     // Create data
     YAML::Node root_node(YAML::NodeType::Map);

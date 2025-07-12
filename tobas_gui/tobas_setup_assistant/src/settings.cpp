@@ -11,7 +11,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
 {
   propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, sig);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
-  joint_config = new JointConfigurationWidget(robot);
+  extra_joints = new ExtraJointsWidget(robot);
   rc_input = new RcInputWidget();
   controller = new ControllerWidget(robot);
   observer = new ObserverWidget();
@@ -23,7 +23,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   // 各タブを追加
   addTab(propulsion_system, propulsion_system->name());
   // addTab(fixed_wing, fixed_wing->name());  // TODO
-  addTab(joint_config, joint_config->name());
+  addTab(extra_joints, extra_joints->name());
   addTab(rc_input, rc_input->name());
   addTab(controller, controller->name());
   addTab(observer, observer->name());

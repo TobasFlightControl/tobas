@@ -4,9 +4,9 @@
 
 #include "./setting_tabs/author_information.hpp"
 #include "./setting_tabs/controller/controller.hpp"
+#include "./setting_tabs/extra_joints.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
-#include "./setting_tabs/joint_config.hpp"
 #include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
@@ -32,7 +32,7 @@ public:
 
   propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
-  JointConfigurationWidget* joint_config;
+  ExtraJointsWidget* extra_joints;
   RcInputWidget* rc_input;
   ControllerWidget* controller;
   ObserverWidget* observer;

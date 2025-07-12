@@ -1,4 +1,4 @@
-#include "tobas_setup_assistant/setting_tabs/joint_config.hpp"
+#include "tobas_setup_assistant/setting_tabs/extra_joints.hpp"
 
 #include <QDebug>
 #include <QHeaderView>
@@ -17,7 +17,7 @@ namespace gui
 {
 namespace sa
 {
-JointConfigurationWidget::JointConfigurationWidget(const RobotInfo& robot) : robot_(robot)
+ExtraJointsWidget::ExtraJointsWidget(const RobotInfo& robot) : robot_(robot)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
@@ -25,22 +25,22 @@ JointConfigurationWidget::JointConfigurationWidget(const RobotInfo& robot) : rob
   addWidget(table_);
 }
 
-const char* JointConfigurationWidget::name() const
+const char* ExtraJointsWidget::name() const
 {
   return "Joint Config";
 }
 
-const char* JointConfigurationWidget::title() const
+const char* ExtraJointsWidget::title() const
 {
   return "Configure Joints";
 }
 
-const char* JointConfigurationWidget::description() const
+const char* ExtraJointsWidget::description() const
 {
   return "";  // TODO
 }
 
-void JointConfigurationWidget::updateInternalDataStructures()
+void ExtraJointsWidget::updateInternalDataStructures()
 {
   clear();
 
@@ -79,12 +79,12 @@ void JointConfigurationWidget::updateInternalDataStructures()
   }
 }
 
-bool JointConfigurationWidget::isValid()
+bool ExtraJointsWidget::isValid()
 {
   return true;
 }
 
-YAML::Node JointConfigurationWidget::dump() const
+YAML::Node ExtraJointsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -101,7 +101,7 @@ YAML::Node JointConfigurationWidget::dump() const
   return node;
 }
 
-void JointConfigurationWidget::load(const YAML::Node& node)
+void ExtraJointsWidget::load(const YAML::Node& node)
 {
   // 各フィールドの値と有効無効を設定
   for (const auto& pair : node) {
@@ -119,17 +119,17 @@ void JointConfigurationWidget::load(const YAML::Node& node)
   }
 }
 
-QString JointConfigurationWidget::getLinkName(int row) const
+QString ExtraJointsWidget::getLinkName(int row) const
 {
   return link_name_.at(row)->text();
 }
 
-QString JointConfigurationWidget::getJointName(int row) const
+QString ExtraJointsWidget::getJointName(int row) const
 {
   return joint_name_.at(row)->text();
 }
 
-tobas::jnt_role_t JointConfigurationWidget::getRole(int row) const
+tobas::jnt_role_t ExtraJointsWidget::getRole(int row) const
 {
   const auto text = role_.at(row)->currentText();
 
@@ -150,7 +150,7 @@ tobas::jnt_role_t JointConfigurationWidget::getRole(int row) const
   }
 }
 
-tobas::jnt_cmd_iface_t JointConfigurationWidget::getCommandInterface(int row) const
+tobas::jnt_cmd_iface_t ExtraJointsWidget::getCommandInterface(int row) const
 {
   const auto text = cmd_iface_.at(row)->currentText();
 
@@ -171,12 +171,12 @@ tobas::jnt_cmd_iface_t JointConfigurationWidget::getCommandInterface(int row) co
   }
 }
 
-double JointConfigurationWidget::getHomePosition(int row) const
+double ExtraJointsWidget::getHomePosition(int row) const
 {
   return tobas_std::deg2rad(home_pos_.at(row)->value());
 }
 
-void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
+void ExtraJointsWidget::setRole(int row, tobas::jnt_role_t value)
 {
   QString text;
   switch (value) {
@@ -199,7 +199,7 @@ void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
   role_.at(row)->setCurrentText(text);
 }
 
-void JointConfigurationWidget::setCommandInterface(int row, tobas::jnt_cmd_iface_t value)
+void ExtraJointsWidget::setCommandInterface(int row, tobas::jnt_cmd_iface_t value)
 {
   QString text;
   switch (value) {
@@ -222,17 +222,17 @@ void JointConfigurationWidget::setCommandInterface(int row, tobas::jnt_cmd_iface
   cmd_iface_.at(row)->setCurrentText(text);
 }
 
-void JointConfigurationWidget::setHomePosition(int row, double value)
+void ExtraJointsWidget::setHomePosition(int row, double value)
 {
   home_pos_.at(row)->setValue(std::round(tobas_std::rad2deg(value)));
 }
 
-int JointConfigurationWidget::numJoints() const
+int ExtraJointsWidget::numJoints() const
 {
   return table_->rowCount();
 }
 
-int JointConfigurationWidget::findLink(const QString& link_name) const
+int ExtraJointsWidget::findLink(const QString& link_name) const
 {
   for (int row = 0; row < table_->rowCount(); ++row) {
     if (getLinkName(row) == link_name) {
@@ -244,7 +244,7 @@ int JointConfigurationWidget::findLink(const QString& link_name) const
   return -1;
 }
 
-int JointConfigurationWidget::findJoint(const QString& joint_name) const
+int ExtraJointsWidget::findJoint(const QString& joint_name) const
 {
   for (int row = 0; row < table_->rowCount(); ++row) {
     if (getJointName(row) == joint_name) {
@@ -256,7 +256,7 @@ int JointConfigurationWidget::findJoint(const QString& joint_name) const
   return -1;
 }
 
-void JointConfigurationWidget::clear()
+void ExtraJointsWidget::clear()
 {
   table_->removeAll();
 
@@ -267,7 +267,7 @@ void JointConfigurationWidget::clear()
   home_pos_.clear();
 }
 
-void JointConfigurationWidget::reset(int row)
+void ExtraJointsWidget::reset(int row)
 {
   role_.at(row)->setCurrentText(kRoleLabel_Other);
 
@@ -275,7 +275,7 @@ void JointConfigurationWidget::reset(int row)
   updateEnability(row);
 }
 
-void JointConfigurationWidget::setDefaultValues(int row)
+void ExtraJointsWidget::setDefaultValues(int row)
 {
   // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
   switch (getRole(row)) {
@@ -299,7 +299,7 @@ void JointConfigurationWidget::setDefaultValues(int row)
   home_pos_.at(row)->setValue(0);
 }
 
-void JointConfigurationWidget::updateEnability(int row)
+void ExtraJointsWidget::updateEnability(int row)
 {
   // 役割によるフィールド
   switch (getRole(row)) {
@@ -328,7 +328,7 @@ void JointConfigurationWidget::updateEnability(int row)
   }
 }
 
-void JointConfigurationWidget::addLink(const std::string& link_name)
+void ExtraJointsWidget::addLink(const std::string& link_name)
 {
   const auto row = table_->rowCount();
 
@@ -385,7 +385,7 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
 }
 
-void JointConfigurationWidget::onRoleChanged(int row)
+void ExtraJointsWidget::onRoleChanged(int row)
 {
   setDefaultValues(row);
   updateEnability(row);
