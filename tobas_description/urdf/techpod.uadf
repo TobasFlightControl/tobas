@@ -1,0 +1,258 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="techpod">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
+
+  <!-- Component masses -->
+  <xacro:property name="mass_fuselage" value="2.05"/>
+  <xacro:property name="mass_aileron" value="0.1"/>
+  <xacro:property name="mass_flap" value="0.1"/>
+  <xacro:property name="mass_elevator" value="0.1"/>
+  <xacro:property name="mass_rudder" value="0.1"/>
+  <xacro:property name="mass_propeller" value="0.1"/>
+
+  <!-- Main body properties -->
+  <xacro:property name="body_length" value="1.088"/>
+  <xacro:property name="body_width" value="2.591"/>
+  <xacro:property name="body_height" value="0.303"/>
+  <xacro:property name="body_mesh_file" value="package://tobas_description/meshes/techpod/techpod_body.dae"/>
+
+  <!-- Aileron properties -->
+  <xacro:property name="aileron_length" value="0.053"/>
+  <xacro:property name="aileron_width" value="0.349"/>
+  <xacro:property name="aileron_height" value="0.013"/>
+  <xacro:property name="aileron_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_left.dae"/>
+  <xacro:property name="aileron_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_aileron_right.dae"/>
+
+  <!-- Elevator properties -->
+  <xacro:property name="elevator_length" value="0.051"/>
+  <xacro:property name="elevator_width" value="0.457"/>
+  <xacro:property name="elevator_height" value="0.012"/>
+  <xacro:property name="elevator_mesh_file" value="package://tobas_description/meshes/techpod/techpod_elevator.dae"/>
+
+  <!-- Flap properties -->
+  <xacro:property name="flap_length" value="0.076"/>
+  <xacro:property name="flap_width" value="0.459"/>
+  <xacro:property name="flap_height" value="0.016"/>
+  <xacro:property name="flap_left_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_left.dae"/>
+  <xacro:property name="flap_right_mesh_file" value="package://tobas_description/meshes/techpod/techpod_flap_right.dae"/>
+
+  <!-- Rudder properties -->
+  <xacro:property name="rudder_length" value="0.129"/>
+  <xacro:property name="rudder_width" value="0.018"/>
+  <xacro:property name="rudder_height" value="0.241"/>
+  <xacro:property name="rudder_mesh_file" value="package://tobas_description/meshes/techpod/techpod_rudder.dae"/>
+
+  <!-- Propeller properties -->
+  <xacro:property name="propeller_radius" value="0.1"/>
+  <xacro:property name="propeller_height" value="0.003"/>
+  <xacro:property name="propeller_mesh_file" value="package://tobas_description/meshes/techpod/propeller.dae"/>
+
+  <!-- Wheel properties -->
+  <xacro:property name="wheel_mass" value="0.1"/>
+  <xacro:property name="wheel_radius" value="0.05"/>
+  <xacro:property name="wheel_height" value="0.025"/>
+
+  <!-- Inertia of the main body -->
+  <xacro:property name="body_inertia">
+    <inertia ixx="0.16632" ixy="0.0" ixz="0.0755" iyy="0.3899" iyz="0.0" izz="0.5243"/>
+  </xacro:property>
+
+  <!-- Inertia of the aileron, assuming it is a cuboid -->
+  <xacro:property name="aileron_inertia">
+    <xacro:box_inertia x="${aileron_length}" y="${aileron_width}" z="${aileron_height}" mass="${mass_aileron}"/>
+  </xacro:property>
+
+  <!-- Inertia of the elevator, assuming it is a cuboid -->
+  <xacro:property name="elevator_inertia">
+    <xacro:box_inertia x="${elevator_length}" y="${elevator_width}" z="${elevator_height}" mass="${mass_elevator}"/>
+  </xacro:property>
+
+  <!-- Inertia of the flap, assuming it is a cuboid -->
+  <xacro:property name="flap_inertia">
+    <xacro:box_inertia x="${flap_length}" y="${flap_width}" z="${flap_height}" mass="${mass_flap}"/>
+  </xacro:property>
+
+  <!-- Inertia of the rudder, assuming it is a cuboid -->
+  <xacro:property name="rudder_inertia">
+    <xacro:box_inertia x="${rudder_length}" y="${rudder_width}" z="${rudder_height}" mass="${mass_rudder}"/>
+  </xacro:property>
+
+  <!-- Inertia of the propeller, assuming it is a cylinder -->
+  <xacro:property name="propeller_inertia">
+    <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${mass_propeller}"/>
+  </xacro:property>
+
+  <!-- Inertia of the wheels, assuming it is a cylinder -->
+  <xacro:property name="wheel_inertia">
+    <xacro:cylinder_inertia radius="${wheel_radius}" length="${wheel_height}" mass="${wheel_mass}"/>
+  </xacro:property>
+
+  <!-- Base Link -->
+  <link name="base_link"></link>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_link_inertia"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link_inertia">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="${body_mesh_file}" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${body_length} ${body_width} ${body_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="${mass_fuselage}"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <xacro:insert_block name="body_inertia"/>
+    </inertial>
+  </link>
+
+  <!-- Wheels -->
+  <xacro:macro name="wheel" params="suffix *origin">
+    <joint name="techpod/wheel_${suffix}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="techpod/wheel_${suffix}"/>
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="techpod/wheel_${suffix}">
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <xacro:insert_block name="wheel_inertia"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_height}" radius="${wheel_radius}"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder length="${wheel_height}" radius="${wheel_radius}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <xacro:wheel suffix="left">
+    <origin xyz="0.3 0.2 -0.2" rpy="${pi / 2} 0 0"/>
+  </xacro:wheel>
+
+  <xacro:wheel suffix="right">
+    <origin xyz="0.3 -0.2 -0.2" rpy="${pi / 2} 0 0"/>
+  </xacro:wheel>
+
+  <xacro:wheel suffix="rear">
+    <origin xyz="-0.3 0 -0.2" rpy="${pi / 2} 0 0"/>
+  </xacro:wheel>
+
+  <!-- Control Surfaces -->
+  <xacro:macro name="control_surface" params="name mass mesh_file length width height *axis *joint_origin *link_origin *inertia">
+    <joint name="${name}_joint" type="cs">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <xacro:insert_block name="joint_origin"/>
+      <xacro:insert_block name="axis"/>
+      <limit lower="-${20.0*deg2rad}" upper="${20.0*deg2rad}" velocity="10.0" effort="1e+6"/>
+    </joint>
+
+    <link name="${name}">
+      <visual>
+        <xacro:insert_block name="link_origin"/>
+        <geometry>
+          <mesh filename="${mesh_file}" scale="1 1 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <xacro:insert_block name="link_origin"/>
+        <geometry>
+          <box size="${length} ${width} ${height}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <xacro:insert_block name="link_origin"/>
+        <mass value="${mass}"/>
+        <xacro:insert_block name="inertia"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <xacro:control_surface name="aileron_left" mass="${mass_aileron}" mesh_file="${aileron_left_mesh_file}" length="${aileron_length}" width="${aileron_width}" height="${aileron_height}">
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0.1095 0.99245 0.115" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <xacro:insert_block name="aileron_inertia"/>
+  </xacro:control_surface>
+
+  <xacro:control_surface name="aileron_right" mass="${mass_aileron}" mesh_file="${aileron_right_mesh_file}" length="${aileron_length}" width="${aileron_width}" height="${aileron_height}">
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.1095 -0.99245 0.115" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <xacro:insert_block name="aileron_inertia"/>
+  </xacro:control_surface>
+
+  <xacro:control_surface name="elevator" mass="${mass_elevator}" mesh_file="${elevator_mesh_file}" length="${elevator_length}" width="${elevator_width}" height="${elevator_height}">
+    <axis xyz="0 -1 0"/>
+    <origin xyz="-0.555 0 0.26" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <xacro:insert_block name="elevator_inertia"/>
+  </xacro:control_surface>
+
+  <xacro:control_surface name="rudder" mass="${mass_rudder}" mesh_file="${rudder_mesh_file}" length="${rudder_length}" width="${rudder_width}" height="${rudder_height}">
+    <axis xyz="0 0 1"/>
+    <origin xyz="-0.428 0 0" rpy="0 -0.25 0"/>
+    <origin xyz="0 0 0" rpy="0 0.25 0"/>
+    <xacro:insert_block name="rudder_inertia"/>
+  </xacro:control_surface>
+
+  <xacro:control_surface name="flap_left" mass="${mass_flap}" mesh_file="${flap_left_mesh_file}" length="${flap_length}" width="${flap_width}" height="${flap_height}">
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0.101 0.382 0.1185" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <xacro:insert_block name="flap_inertia"/>
+  </xacro:control_surface>
+
+  <xacro:control_surface name="flap_right" mass="${mass_flap}" mesh_file="${flap_right_mesh_file}" length="${flap_length}" width="${flap_width}" height="${flap_height}">
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.101 -0.382 0.1185" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <xacro:insert_block name="flap_inertia"/>
+  </xacro:control_surface>
+
+  <!-- Propeller -->
+  <joint name="propeller_joint" type="thrust">
+    <parent link="base_link"/>
+    <child link="propeller"/>
+    <origin xyz="-0.025 0 0.15" rpy="0 ${pi / 2} 0"/>
+    <axis xyz="0 0 1"/>
+    <direction value="cw"/>
+  </joint>
+
+  <link name="propeller">
+    <inertial>
+      <mass value="${mass_propeller}"/>
+      <xacro:insert_block name="propeller_inertia"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="${propeller_mesh_file}" scale="${propeller_radius} ${propeller_radius} ${propeller_radius}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.005" radius="${propeller_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+
+</robot>

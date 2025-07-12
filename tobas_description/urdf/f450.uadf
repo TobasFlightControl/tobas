@@ -1,10 +1,10 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="f450">
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/fmu/tobas_t1.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/battery/sigp_3s_2250mah_60c.xacro"/>
-  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.uadf"/>
 
   <!-- Properties -->
   <xacro:property name="frame_width" value="0.35"/>

@@ -165,7 +165,7 @@
     <xacro:damping_factor link ="link${self}"/>
 
     <!-- rotor -->
-    <joint name="rotor${self}" type="continuous">
+    <joint name="rotor${self}" type="thrust">
       <parent link="link${self}"/>
       <child link="thrust${self}"/>
       <xacro:if value="${tilt_mode == 1}">
@@ -179,8 +179,13 @@
       <xacro:unless value="${tilt_mode == 1}">
         <origin rpy="0 0 0" xyz="${link_length* 0.5} 0 0.013"/>
       </xacro:unless>
-      <!-- <axis xyz="0 0 ${rotor_direction}"/> -->
       <axis xyz="0 0 1"/>
+      <xacro:if value="${rotor_direction == 1}">
+        <direction value="ccw"/>
+      </xacro:if>
+      <xacro:if value="${rotor_direction == -1}">
+        <direction value="cw"/>
+      </xacro:if>
     </joint>
 
     <link name="thrust${self}">
@@ -230,24 +235,24 @@
       <xacro:if value="${self == 1}">
         <xacro:if value="${old_version == 1}">
           <xacro:standard_leg_old_version parent="link${self}">
-            <origin xyz="${head_leg_offset_old_version} 0.0 0" rpy="0 0 0"/>
+            <origin xyz="${head_leg_offset_old_version} 0 0" rpy="0 0 0"/>
           </xacro:standard_leg_old_version>
         </xacro:if>
         <xacro:unless value="${old_version == 1}">
           <xacro:standard_leg_end parent="link${self}">
-            <origin xyz="${head_leg_offset} 0.0 0" rpy="0 0 0"/>
+            <origin xyz="${head_leg_offset} 0 0" rpy="0 0 0"/>
           </xacro:standard_leg_end>
         </xacro:unless>
       </xacro:if>
       <xacro:unless value="${self == 1}">
         <xacro:if value="${old_version == 1}">
           <xacro:standard_leg_old_version parent="link${self}">
-            <origin xyz="${general_leg_offset_old_version} 0.0 0" rpy="0 0 0"/>
+            <origin xyz="${general_leg_offset_old_version} 0 0" rpy="0 0 0"/>
           </xacro:standard_leg_old_version>
         </xacro:if>
         <xacro:unless value="${old_version == 1}">
           <xacro:standard_leg_joint parent="link${self}">
-            <origin xyz="0.0 0.0 0" rpy="0 0 0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
           </xacro:standard_leg_joint>
         </xacro:unless>
 
@@ -255,12 +260,12 @@
         <xacro:if value="${self == links}">
           <xacro:if value="${old_version == 1}">
             <xacro:standard_leg_old_version parent="link${self}" self= "${self + 1}">
-              <origin xyz="${end_leg_offset_old_version} 0.0 0" rpy="0 0 0"/>
+              <origin xyz="${end_leg_offset_old_version} 0 0" rpy="0 0 0"/>
             </xacro:standard_leg_old_version>
           </xacro:if>
           <xacro:unless value="${old_version == 1}">
             <xacro:standard_leg_end parent="link${self}" self= "${self + 1}">
-              <origin xyz="${end_leg_offset} 0.0 0" rpy="0 0 0"/>
+              <origin xyz="${end_leg_offset} 0 0" rpy="0 0 0"/>
             </xacro:standard_leg_end>
           </xacro:unless>
         </xacro:if>

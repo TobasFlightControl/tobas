@@ -1,8 +1,7 @@
-<robot
-  xmlns:xacro="http://ros.org/wiki/xacro" name="s900">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="s900">
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
 
   <!-- Properties: https://www.dji.com/jp/spreading-wings-s900 -->
   <xacro:property name="center_frame_width" value="0.3"/>
@@ -147,9 +146,9 @@
   <xacro:macro name="propulsion_system" params="index yaw_deg origin_x origin_y direction">
     <!-- Arm -->
     <joint name="arm_${index}_joint" type="fixed">
-      <origin xyz="${origin_x} ${origin_y} -0.015" rpy="0 ${-3.238*deg2rad} ${yaw_deg*deg2rad}"/>
       <parent link="base_link"/>
       <child link="arm_${index}"/>
+      <origin xyz="${origin_x} ${origin_y} -0.015" rpy="0 ${-3.238*deg2rad} ${yaw_deg*deg2rad}"/>
     </joint>
     <link name="arm_${index}">
       <visual>
@@ -198,11 +197,12 @@
     </link>
 
     <!-- Propeller -->
-    <joint name="propeller_${index}_joint" type="continuous">
-      <origin xyz="0 0 ${motor_height}" rpy="0 0 0"/>
-      <axis xyz="0 0 1"/>
+    <joint name="propeller_${index}_joint" type="thrust">
       <parent link="motor_${index}"/>
       <child link="propeller_${index}"/>
+      <origin xyz="0 0 ${motor_height}" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <direction value="${direction}"/>
     </joint>
     <link name="propeller_${index}">
       <visual>

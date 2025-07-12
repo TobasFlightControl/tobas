@@ -12,11 +12,12 @@
     <xacro:property name="link_name" value="propeller_${index}"/>
     <xacro:property name="joint_name" value="${link_name}_joint"/>
 
-    <joint name="${joint_name}" type="continuous">
-      <xacro:insert_block name="origin"/>
-      <axis xyz="0 0 1"/>
+    <joint name="${joint_name}" type="thrust">
       <parent link="${parent}"/>
       <child link="${link_name}"/>
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <direction value="${direction}"/>
     </joint>
 
     <link name="${link_name}">

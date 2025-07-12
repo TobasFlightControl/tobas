@@ -2,7 +2,7 @@
 
   <!-- basic kinematics model -->
   <xacro:include filename="$(find tobas_description)/urdf/components/hydrus/common.xacro"/>
-  <xacro:include filename="$(find tobas_description)/urdf/components/hydrus/link.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/hydrus/link.uadf"/>
 
   <xacro:hydrus_link links="4" self="1" rotor_direction="-1" with_battery="0"/>
   <xacro:hydrus_link links="4" self="2" rotor_direction="1" with_battery="0"/>
