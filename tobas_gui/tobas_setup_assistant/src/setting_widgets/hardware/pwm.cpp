@@ -20,6 +20,20 @@ PwmWidget::PwmWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNum
   connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
 
+void PwmWidget::updateInternalDataStructures()
+{
+  // 現在の行数を保存
+  const auto rows = rowCount();
+
+  // 設定をリセットするために一旦全削除
+  removeAll();
+
+  // 更新された選択肢でチャンネルを加え直す
+  for (int _ = 0; _ < rows; ++_) {
+    addLastChannel();
+  }
+}
+
 YAML::Node PwmWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Sequence);
@@ -159,7 +173,7 @@ void PwmWidget::addLastChannel()
   const auto period_ub = new qt::SpinBox();
   period_ub->setMinimum(1);
   period_ub->setMaximum(2499);
-  period_lb->setValue(2000);
+  period_ub->setValue(2000);
   period_ub->setSuffix(" us");
 
   // Insert table row

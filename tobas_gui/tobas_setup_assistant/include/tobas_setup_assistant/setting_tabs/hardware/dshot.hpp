@@ -27,6 +27,8 @@ class DShotWidget : public qt::TableWidget
 public:
   explicit DShotWidget(const RobotInfo& robot, const Signals& sig);
 
+  void updateInternalDataStructures();
+
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 

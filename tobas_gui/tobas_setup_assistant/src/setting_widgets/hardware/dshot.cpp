@@ -20,6 +20,20 @@ DShotWidget::DShotWidget(const RobotInfo& robot, const Signals& sig) : super(0, 
   connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
 
+void DShotWidget::updateInternalDataStructures()
+{
+  // 現在の行数を保存
+  const auto rows = rowCount();
+
+  // 設定をリセットするために一旦全削除
+  removeAll();
+
+  // 更新された選択肢でチャンネルを加え直す
+  for (int _ = 0; _ < rows; ++_) {
+    addLastChannel();
+  }
+}
+
 YAML::Node DShotWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Sequence);

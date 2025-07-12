@@ -54,6 +54,8 @@ const char* HardwareWidget::description() const
 
 void HardwareWidget::updateInternalDataStructures()
 {
+  pwm_->updateInternalDataStructures();
+  dshot_->updateInternalDataStructures();
 }
 
 bool HardwareWidget::isValid()
