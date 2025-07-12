@@ -90,12 +90,12 @@ void MultirotorPIDWidget::load(const YAML::Node& node)
 bool MultirotorPIDWidget::isApplicable()
 {
   // 固定翼の操舵面をもたない
-  if (robot_.uadf().control_surfaces.size() == 0) {
+  if (robot_.uadf().control_surfaces.size() > 0) {
     return false;
   }
 
   // プロペラの個数条件
-  if (robot_.uadf().thrusts.size() > kMinNumProp) {
+  if (robot_.uadf().thrusts.size() < kMinNumProp) {
     return false;
   }
 
