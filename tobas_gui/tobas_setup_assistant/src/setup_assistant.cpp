@@ -144,7 +144,12 @@ void SetupAssistantWidget::onNewButtonClicked()
   // UADFのパスを取得
   const auto options = QFileDialog::DontUseNativeDialog;
   const auto uadf_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_opened_dir), "Aircraft Description (*.uadf)", nullptr, options);
+    this,
+    "Select Aircraft Description (*.uadf)",
+    QString::fromStdString(last_opened_dir),
+    "Aircraft Description (*.uadf)",
+    nullptr,
+    options);
 
   // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
   if (uadf_path.isEmpty()) {

@@ -65,8 +65,7 @@ void ParamGetterWidget_DirDialog::onBrowseButtonClicked()
 
   const auto options = QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
   const auto path = QFileDialog::getExistingDirectory(this, kTitle, QString::fromStdString(last_opened_dir), options);
-  if (path.isEmpty())  // Cancelの場合
-  {
+  if (path.isEmpty()) {
     return;
   }
 

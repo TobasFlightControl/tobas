@@ -66,8 +66,7 @@ void ParamGetterWidget_FileDialog::onBrowseButtonClicked()
   const auto options = QFileDialog::DontUseNativeDialog;
   const auto path =
     QFileDialog::getOpenFileName(this, kTitle, QString::fromStdString(last_opened_dir), init_filter_, nullptr, options);
-  if (path.isEmpty())  // Cancelの場合
-  {
+  if (path.isEmpty()) {
     return;
   }
 
