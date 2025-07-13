@@ -33,6 +33,7 @@ public:
   explicit DShotWidget(const RobotInfo& robot, const Signals& sig);
 
   void updateInternalDataStructures();
+  bool isValid();
 
   YAML::Node dump() const;
   void load(const YAML::Node& node);

@@ -81,6 +81,13 @@ bool HardwareWidget::isValid()
     return false;
   }
 
+  if (!pwm_->isValid()) {
+    return false;
+  }
+  if (!dshot_->isValid()) {
+    return false;
+  }
+
   return true;
 }
 
