@@ -133,8 +133,13 @@ void DShotWidget::addLastChannel()
   }
 
   // Bidirectional
-  const auto bidirectional = new QCheckBox();
-  bidirectional->setChecked(true);   // デフォルトで双方向通信
+  const auto bidirectional = new QPushButton();
+  bidirectional->setCheckable(true);
+  setBidirectionalButtonText(bidirectional, true);  // デフォルトで双方向通信
+  connect(
+    bidirectional,
+    &QPushButton::toggled,
+    std::bind(&self::onBidirectionalButtonToggled, this, bidirectional, std::placeholders::_1));
   bidirectional->setEnabled(false);  // TODO: 単方向にも対応
 
   // Insert table row
@@ -161,6 +166,16 @@ void DShotWidget::removeLastChannel()
 
   if (!target_name.isEmpty()) {
     qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
+  }
+}
+
+void DShotWidget::setBidirectionalButtonText(QPushButton* button, bool checked)
+{
+  if (checked) {
+    button->setText("Enabled");
+  }
+  else {
+    button->setText("Disabled");
   }
 }
 
@@ -208,6 +223,11 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
   }
 
   prop_type_ = new_prop_type;
+}
+
+void DShotWidget::onBidirectionalButtonToggled(QPushButton* button, bool checked)
+{
+  setBidirectionalButtonText(button, checked);
 }
 }  // namespace hw
 }  // namespace sa

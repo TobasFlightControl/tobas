@@ -1,7 +1,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QCheckBox>
+#include <QPushButton>
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
@@ -51,13 +51,16 @@ private:
   tobas::propulsion_system_t prop_type_ = tobas::propulsion_system_t::ELECTRIC;
 
   QVector<qt::ComboBox*> target_names_;
-  QVector<QCheckBox*> bidirectional_;
+  QVector<QPushButton*> bidirectional_;
 
   void addLastChannel();
   void removeLastChannel();
 
+  void setBidirectionalButtonText(QPushButton* button, bool checked);
+
 private Q_SLOTS:
   void onPropulsionTypeChanged(const tobas::propulsion_system_t& new_prop_type);
+  void onBidirectionalButtonToggled(QPushButton* button, bool checked);
 };
 }  // namespace hw
 }  // namespace sa
