@@ -87,6 +87,7 @@ private:
 
   void
   addJointControllerNode(tinyxml2::XMLElement* launch, const std::string& cfg_pkg_name, const std::string& ctrl_name);
+
   bool generateJointControllerConfig(
     const std::filesystem::path& tbs_path,
     const std::string& jnt_name,
