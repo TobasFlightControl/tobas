@@ -238,7 +238,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
 
   // Check topics
   if (!battery_gt_) {
-    if (info.simTime > kWarnStartTime) {
+    if (info.simTime > kCheckTopicWarnStartTime) {
       TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
     }
     return;

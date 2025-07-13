@@ -185,7 +185,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (rotor_vibration_forces_.size() < rotor_link_names_.size()) {
-    if (info.simTime > kWarnStartTime) {
+    if (info.simTime > kCheckTopicWarnStartTime) {
       const auto num_not_received = rotor_link_names_.size() - rotor_vibration_forces_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
