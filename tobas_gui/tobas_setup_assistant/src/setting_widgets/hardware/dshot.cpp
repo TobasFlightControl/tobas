@@ -175,7 +175,7 @@ void DShotWidget::addLastChannel()
   // Bidirectional
   const auto bidirectional = new QPushButton();
   bidirectional->setCheckable(true);
-  setBidirectionalButtonText(bidirectional, true);  // デフォルトで双方向通信
+  setBidirectionalButtonChecked(bidirectional, true);  // デフォルトで双方向通信
   connect(
     bidirectional,
     &QPushButton::toggled,
@@ -204,6 +204,12 @@ void DShotWidget::removeLastChannel()
   if (!target_name.isEmpty()) {
     qt::qWarnBox(this, "PWM configuration for \"" + target_name + "\" has been removed.");
   }
+}
+
+void DShotWidget::setBidirectionalButtonChecked(QPushButton* button, bool checked)
+{
+  button->setChecked(checked);
+  setBidirectionalButtonText(button, checked);
 }
 
 void DShotWidget::setBidirectionalButtonText(QPushButton* button, bool checked)

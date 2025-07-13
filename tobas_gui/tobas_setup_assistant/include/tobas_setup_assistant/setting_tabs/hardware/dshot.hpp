@@ -60,6 +60,7 @@ private:
   void addLastChannel();
   void removeLastChannel();
 
+  void setBidirectionalButtonChecked(QPushButton* button, bool checked);
   void setBidirectionalButtonText(QPushButton* button, bool checked);
 
 private Q_SLOTS:

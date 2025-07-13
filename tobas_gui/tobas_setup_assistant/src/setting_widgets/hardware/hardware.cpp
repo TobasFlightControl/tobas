@@ -34,11 +34,11 @@ HardwareWidget::HardwareWidget(const RobotInfo& robot, const Signals& sig)
 
   // Layout
   const auto pwm_rows = new QVBoxLayout();
-  pwm_rows->addWidget(new qt::Label("PWM", kLabelPSize, QFont::Bold));
+  pwm_rows->addWidget(new qt::Label(kPwmLabel, kLabelPSize, QFont::Bold));
   pwm_rows->addWidget(pwm_);
 
   const auto dshot_rows = new QVBoxLayout();
-  dshot_rows->addWidget(new qt::Label("DShot", kLabelPSize, QFont::Bold));
+  dshot_rows->addWidget(new qt::Label(kDShotLabel, kLabelPSize, QFont::Bold));
   dshot_rows->addWidget(dshot_);
 
   const auto rcout_cols = new QHBoxLayout();
@@ -102,6 +102,9 @@ YAML::Node HardwareWidget::dump() const
     node[hardware->name()] = hardware->dump();
   }
 
+  node[kPwmLabel] = pwm_->dump();
+  node[kDShotLabel] = dshot_->dump();
+
   return node;
 }
 
@@ -113,6 +116,9 @@ void HardwareWidget::load(const YAML::Node& node)
     const auto hardware = qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(i));
     hardware->load(node[hardware->name()]);
   }
+
+  pwm_->load(node[kPwmLabel]);
+  dshot_->load(node[kDShotLabel]);
 }
 
 const PwmWidget* HardwareWidget::pwm() const

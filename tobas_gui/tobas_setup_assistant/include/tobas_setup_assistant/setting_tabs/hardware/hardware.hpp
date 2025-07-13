@@ -23,6 +23,9 @@ class HardwareWidget : public BaseSettingWidget
 
   static constexpr char kTypeKey[] = "hardware_type";
 
+  static constexpr char kPwmLabel[] = "PWM";
+  static constexpr char kDShotLabel[] = "DShot";
+
 public:
   explicit HardwareWidget(const RobotInfo& robot, const Signals& sig);
 
