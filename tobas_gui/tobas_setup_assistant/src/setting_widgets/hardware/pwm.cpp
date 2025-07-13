@@ -46,6 +46,9 @@ bool PwmWidget::isValid()
   QSet<QString> target_name_set;
   for (int channel = 0; channel < rowCount(); ++channel) {
     const auto target_name = targetName(channel);
+    if (target_name.isEmpty()) {
+      continue;
+    }
     if (target_name_set.contains(target_name)) {
       qt::qErrorBox(this, "PWM target \"" + target_name + "\" is duplicated.");
       return false;
