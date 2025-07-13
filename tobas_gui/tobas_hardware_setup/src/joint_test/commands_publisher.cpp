@@ -44,6 +44,11 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
       continue;
     }
 
+    if (!drone_.pwms.contains(joint.name)) {
+      qt::qErrorBox(this, "PWM configuration of joint \"" + QString::fromStdString(joint.name) + "\" does not exist.");
+      continue;
+    }
+
     const auto& pwm = drone_.pwms.at(joint.name);
     const auto& ch = pwm.channel;
     if (ch >= kChannelSize) {
