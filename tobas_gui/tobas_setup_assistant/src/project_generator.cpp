@@ -179,13 +179,25 @@ tobas::Drone ProjectGenerator::createDrone()
 
         // Tilt Joint
         if (robot_.uadf().tilts.contains(par_jnt.name)) {
-          tobas::JointConfig joint;
-          joint.name = par_jnt.name;
-          joint.role = tobas::jnt_role_t::TILT_JOINT;
-          joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
-          joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
-          joint.home_pos = 0.;
-          drone.joints[joint.name] = joint;
+          tobas::JointConfig tilt_joint;
+          tilt_joint.name = par_jnt.name;
+          tilt_joint.role = tobas::jnt_role_t::TILT_JOINT;
+          tilt_joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+          tilt_joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          tilt_joint.home_pos = 0.;
+          TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
+
+          if (tilt_joint.hw_iface == tobas::hw_iface_t::PWM) {
+            tobas::PwmConfig tilt_pwm;
+            const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
+            tilt_pwm.channel = pwm_channel;
+            tilt_pwm.name = par_jnt.name;
+            tilt_pwm.period_range.first = settings_->hardware->pwm()->periodLb(pwm_channel);
+            tilt_pwm.period_range.second = settings_->hardware->pwm()->periodUb(pwm_channel);
+            tilt_pwm.value_range.first = par_jnt.lower_limit;
+            tilt_pwm.value_range.second = par_jnt.upper_limit;
+            TOBAS_CHECK(drone.pwms.insert({ link_name, tilt_pwm }).second);
+          }
         }
       }
 
@@ -202,16 +214,17 @@ tobas::Drone ProjectGenerator::createDrone()
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
       iprop->engine.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
 
-      // TODO: PWM以外のインターフェースに対応
-      tobas::PwmConfig engine_pwm;
-      const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
-      engine_pwm.channel = engine_pwm_channel;
-      engine_pwm.name = tobas::pwm::kEngineThrottleKey;
-      engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);
-      engine_pwm.period_range.second = settings_->hardware->pwm()->periodUb(engine_pwm_channel);
-      engine_pwm.value_range.first = tobas::kMinThrot;
-      engine_pwm.value_range.second = tobas::kMaxThrot;
-      TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+      if (iprop->engine.hw_iface == tobas::hw_iface_t::PWM) {
+        tobas::PwmConfig engine_pwm;
+        const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
+        engine_pwm.channel = engine_pwm_channel;
+        engine_pwm.name = tobas::pwm::kEngineThrottleKey;
+        engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);
+        engine_pwm.period_range.second = settings_->hardware->pwm()->periodUb(engine_pwm_channel);
+        engine_pwm.value_range.first = tobas::kMinThrot;
+        engine_pwm.value_range.second = tobas::kMaxThrot;
+        TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+      }
 
       // Rotors
       for (int i = 0; i < iprop_widget->numUnits(); ++i) {
@@ -252,13 +265,25 @@ tobas::Drone ProjectGenerator::createDrone()
 
         // Tilt Joint
         if (robot_.uadf().tilts.contains(par_jnt.name)) {
-          tobas::JointConfig joint;
-          joint.name = par_jnt.name;
-          joint.role = tobas::jnt_role_t::TILT_JOINT;
-          joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
-          joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
-          joint.home_pos = 0.;
-          drone.joints[joint.name] = joint;
+          tobas::JointConfig tilt_joint;
+          tilt_joint.name = par_jnt.name;
+          tilt_joint.role = tobas::jnt_role_t::TILT_JOINT;
+          tilt_joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+          tilt_joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          tilt_joint.home_pos = 0.;
+          TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
+
+          if (tilt_joint.hw_iface == tobas::hw_iface_t::PWM) {
+            tobas::PwmConfig tilt_pwm;
+            const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
+            tilt_pwm.channel = pwm_channel;
+            tilt_pwm.name = par_jnt.name;
+            tilt_pwm.period_range.first = settings_->hardware->pwm()->periodLb(pwm_channel);
+            tilt_pwm.period_range.second = settings_->hardware->pwm()->periodUb(pwm_channel);
+            tilt_pwm.value_range.first = par_jnt.lower_limit;
+            tilt_pwm.value_range.second = par_jnt.upper_limit;
+            TOBAS_CHECK(drone.pwms.insert({ link_name, tilt_pwm }).second);
+          }
         }
       }
 
