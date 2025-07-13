@@ -215,7 +215,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
   std::string uadf_text;
-  if (!str::readText(common::getProjBackupUadfPath(tbs_path), uadf_text)) {
+  if (!str::readText(common::getProjOriginalUadfPath(tbs_path), uadf_text)) {
     qt::qErrorBox(this, "Failed to read " + QString::fromStdString(tbs_path));
     return;
   }

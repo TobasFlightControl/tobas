@@ -61,6 +61,7 @@ private:
   bool generateObserverStaticConfig(const std::filesystem::path& tbs_path);
   bool generateControllerStaticConfig(const std::filesystem::path& tbs_path);
   bool generateRcTeleopStaticConfig(const std::filesystem::path& tbs_path);
+  bool generateOriginalUadf(const std::filesystem::path& tbs_path);
   bool generateModifiedUrdf(const std::filesystem::path& tbs_path);
 
   /* 空のファイルを作成する． */
@@ -76,7 +77,7 @@ private:
   bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
 
   /* オリジナルURDFの全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  bool replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
+  bool replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
 
   /* プロペラジョイントのlimitタグを削除する． */
   bool removePropellerJointLimits(tinyxml2::XMLElement* robot);

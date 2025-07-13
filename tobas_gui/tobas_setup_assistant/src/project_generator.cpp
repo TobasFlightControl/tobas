@@ -447,6 +447,9 @@ bool ProjectGenerator::generateConfigPackage(const fs::path& tbs_path, const inj
   if (!generateRcTeleopStaticConfig(tbs_path)) {
     return false;
   }
+  if (!generateOriginalUadf(tbs_path)) {
+    return false;
+  }
   if (!generateModifiedUrdf(tbs_path)) {
     return false;
   }
@@ -553,17 +556,6 @@ bool ProjectGenerator::generateBackupFiles(const fs::path& tbs_path)
   // 設定ファイル
   const auto backup_data = settings_->dump();
   if (!saveYamlNode(common::getProjBackupSettingsPath(tbs_path), backup_data)) {
-    return false;
-  }
-
-  // Save original UADF
-  const auto doc = uadf::exportUADF(robot_.uadf());
-  const auto robot = doc->RootElement();
-  if (!replaceOriginalUrdfMeshFilePaths(robot, tbs_path)) {
-    return false;
-  }
-  if (doc->SaveFile(common::getProjBackupUadfPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the original UADF.");
     return false;
   }
 
@@ -796,13 +788,33 @@ bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& tbs_path)
   return true;
 }
 
+bool ProjectGenerator::generateOriginalUadf(const std::filesystem::path& tbs_path)
+{
+  // Export the original UADF
+  const auto doc = uadf::exportUADF(robot_.uadf());
+  const auto robot = doc->RootElement();
+
+  // Modify
+  if (!replaceOriginalUadfMeshFilePaths(robot, tbs_path)) {
+    return false;
+  }
+
+  // Save
+  if (doc->SaveFile(common::getProjOriginalUadfPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(settings_, "Failed to save the original UADF.");
+    return false;
+  }
+
+  return true;
+}
+
 bool ProjectGenerator::generateModifiedUrdf(const fs::path& tbs_path)
 {
   // Export the original URDF
   const auto doc = robot_.urdfDocument();
   const auto robot = doc->RootElement();
 
-  // Modify robot
+  // Modify
   if (!resolveModifiedUrdfMeshFilePaths(robot, tbs_path)) {
     return false;
   }
@@ -813,7 +825,7 @@ bool ProjectGenerator::generateModifiedUrdf(const fs::path& tbs_path)
     return false;
   }
 
-  // Save modified URDF
+  // Save
   if (doc->SaveFile(common::getProjXacroPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the modified URDF.");
     return false;
@@ -918,7 +930,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
   return true;
 }
 
-bool ProjectGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& tbs_path)
+bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& tbs_path)
 {
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
@@ -938,7 +950,7 @@ bool ProjectGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* el
 
   // 再帰的に子要素もチェック
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (!replaceOriginalUrdfMeshFilePaths(child, tbs_path)) {
+    if (!replaceOriginalUadfMeshFilePaths(child, tbs_path)) {
       return false;
     }
   }

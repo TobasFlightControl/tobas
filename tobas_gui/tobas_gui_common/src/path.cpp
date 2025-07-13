@@ -90,6 +90,11 @@ fs::path getProjCfgUrdfDirPath(const fs::path& tbs_path)
   return getProjCfgPkgPath(tbs_path) / "urdf";
 }
 
+fs::path getProjOriginalUadfPath(const fs::path& tbs_path)
+{
+  return getProjCfgUrdfDirPath(tbs_path) / "original.uadf";
+}
+
 fs::path getProjXacroPath(const fs::path& tbs_path)
 {
   return getProjCfgUrdfDirPath(tbs_path) / "drone.xacro";
@@ -128,11 +133,6 @@ fs::path getProjBackupDirPath(const fs::path& tbs_path)
 fs::path getProjBackupSettingsPath(const fs::path& tbs_path)
 {
   return getProjBackupDirPath(tbs_path) / "settings.yaml";
-}
-
-fs::path getProjBackupUadfPath(const fs::path& tbs_path)
-{
-  return getProjBackupDirPath(tbs_path) / "original.uadf";
 }
 }  // namespace common
 }  // namespace gui

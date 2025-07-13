@@ -16,7 +16,7 @@
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/util.hpp>
-#include <tobas_ros2_tools/xacro.hpp>
+#include <tobas_uadf/parser.hpp>
 
 namespace fs = std::filesystem;
 
@@ -78,13 +78,13 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
   reset();
 
   // Load KDL tree
-  const auto xacro_path = common::getProjXacroPath(tbs_path);
-  std::string urdf_text;
-  if (!ros2::parseXacroFromPath(xacro_path, urdf_text)) {
-    qt::qErrorBox(this, "Failed to convert XACRO to URDF.");
+  const auto uadf_path = common::getProjOriginalUadfPath(tbs_path);
+  uadf::Model uadf_model;
+  if (!uadf::parseFromPath(uadf_path, uadf_model)) {
+    qt::qErrorBox(this, "Failed to load UADF.");
     return false;
   }
-  if (!kdl::treeFromText(urdf_text, tree_)) {
+  if (!kdl::treeFromUrdf(*uadf_model.urdf, tree_)) {
     qt::qErrorBox(this, "Failed to load KDL tree.");
     return false;
   }

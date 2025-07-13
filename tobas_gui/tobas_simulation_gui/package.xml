@@ -19,6 +19,7 @@
   <depend>tobas_qt_tools</depend>
   <depend>tobas_rqt_bridge</depend>
   <depend>tobas_gui_common</depend>
+  <depend>tobas_uadf</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -31,6 +31,7 @@ find_package(tobas_gazebo_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_rqt_bridge REQUIRED)
 find_package(tobas_gui_common REQUIRED)
+find_package(tobas_uadf REQUIRED)
 
 set(AMENT_DEPENDENCIES
     tobas_kdl_parser
@@ -44,6 +45,7 @@ set(AMENT_DEPENDENCIES
     tobas_qt_tools
     tobas_rqt_bridge
     tobas_gui_common
+    tobas_uadf
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
