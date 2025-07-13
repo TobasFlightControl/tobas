@@ -183,6 +183,7 @@ void PwmWidget::addLastChannel()
 
   // Insert table row
   insertRow(row);
+  setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);
   setCellWidget(row, kPwmPeriodLbCol, period_lb);
   setCellWidget(row, kPwmPeriodUbCol, period_ub);

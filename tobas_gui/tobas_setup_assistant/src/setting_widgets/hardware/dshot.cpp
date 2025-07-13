@@ -144,6 +144,7 @@ void DShotWidget::addLastChannel()
 
   // Insert table row
   insertRow(row);
+  setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);
   setCellWidget(row, kBidirectionalCol, bidirectional);
 
