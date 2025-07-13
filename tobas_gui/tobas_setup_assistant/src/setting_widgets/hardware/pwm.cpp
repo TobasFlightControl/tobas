@@ -80,8 +80,8 @@ void PwmWidget::load(const YAML::Node& node)
 {
   for (const auto& [channel, sub_node] : std::views::enumerate(node)) {
     targetNameWidget(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
-    periodLbWidget(channel)->setValue(sub_node[kPeriodLbLabel].as<int>());
-    periodUbWidget(channel)->setValue(sub_node[kPeriodUbLabel].as<int>());
+    periodLbWidget(channel)->setValue(sub_node[kPeriodLbLabel].as<double>());
+    periodUbWidget(channel)->setValue(sub_node[kPeriodUbLabel].as<double>());
   }
 }
 
@@ -126,12 +126,12 @@ PwmWidget::TargetType PwmWidget::targetType(int channel) const
   }
 }
 
-uint16_t PwmWidget::periodLb(int channel) const
+double PwmWidget::periodLb(int channel) const
 {
   return periodLbWidget(channel)->value();
 }
 
-uint16_t PwmWidget::periodUb(int channel) const
+double PwmWidget::periodUb(int channel) const
 {
   return periodUbWidget(channel)->value();
 }
@@ -164,14 +164,14 @@ qt::ComboBox* PwmWidget::targetNameWidget(int row)
   return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
-qt::SpinBox* PwmWidget::periodLbWidget(int row)
+qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row)
 {
-  return qt::qPointerCast<qt::SpinBox>(cellWidget(row, kPeriodLbCol));
+  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
 }
 
-qt::SpinBox* PwmWidget::periodUbWidget(int row)
+qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row)
 {
-  return qt::qPointerCast<qt::SpinBox>(cellWidget(row, kPeriodUbCol));
+  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
 }
 
 const qt::ComboBox* PwmWidget::targetNameWidget(int row) const
@@ -179,14 +179,14 @@ const qt::ComboBox* PwmWidget::targetNameWidget(int row) const
   return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
 }
 
-const qt::SpinBox* PwmWidget::periodLbWidget(int row) const
+const qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::SpinBox>(cellWidget(row, kPeriodLbCol));
+  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
 }
 
-const qt::SpinBox* PwmWidget::periodUbWidget(int row) const
+const qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
 {
-  return qt::qConstPointerCast<qt::SpinBox>(cellWidget(row, kPeriodUbCol));
+  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
 }
 
 void PwmWidget::addLastChannel()
@@ -218,16 +218,18 @@ void PwmWidget::addLastChannel()
   }
 
   // PWM period (LB)
-  const auto period_lb = new qt::SpinBox();
-  period_lb->setMinimum(1);
-  period_lb->setMaximum(2499);
+  const auto period_lb = new qt::DoubleSpinBox();
+  period_lb->setDecimals(kPeriodDecimals);
+  period_lb->setMinimum(0);
+  period_lb->setMaximum(2500);
   period_lb->setValue(1000);
   period_lb->setSuffix(" us");
 
   // PWM period (UB)
-  const auto period_ub = new qt::SpinBox();
-  period_ub->setMinimum(1);
-  period_ub->setMaximum(2499);
+  const auto period_ub = new qt::DoubleSpinBox();
+  period_ub->setDecimals(kPeriodDecimals);
+  period_ub->setMinimum(0);
+  period_ub->setMaximum(2500);
   period_ub->setValue(2000);
   period_ub->setSuffix(" us");
 

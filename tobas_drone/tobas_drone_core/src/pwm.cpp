@@ -14,6 +14,11 @@ bool PwmConfig::isValid() const
     return false;
   }
 
+  if (period_range.first <= 0. || period_range.second <= 0.) {
+    cerr << "PWM period range of \"" << name << "\" must be positive." << endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -50,20 +55,14 @@ YAML::Node PwmConfig::dump() const
   return node;
 }
 
-uint16_t PwmConfig::periodFromValue(double value) const
+double PwmConfig::periodFromValue(double value) const
 {
   const auto period =
-    math::remap<double>(value, value_range.first, value_range.second, period_range.first, period_range.second);
+    math::remap(value, value_range.first, value_range.second, period_range.first, period_range.second);
   return clampPeriod(period);
 }
 
-double PwmConfig::valueFromPeriod(uint16_t period) const
-{
-  period = clampPeriod(period);
-  return math::remap<double>(period, period_range.first, period_range.second, value_range.first, value_range.second);
-}
-
-uint16_t PwmConfig::clampPeriod(uint16_t period) const
+double PwmConfig::clampPeriod(double period) const
 {
   if (period_range.first < period_range.second) {
     return clamp(period, period_range.first, period_range.second);

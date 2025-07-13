@@ -31,6 +31,8 @@ class PwmWidget : public qt::TableWidget
   static constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
   static constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
 
+  static constexpr int kPeriodDecimals = 2;
+
 public:
   // Special target labels
   static constexpr char kEngineThrotLabel[] = "Engine Throttle";
@@ -56,8 +58,8 @@ public:
   QString targetName(int channel) const;
   TargetType targetType(int channel) const;
 
-  uint16_t periodLb(int channel) const;  // [us]
-  uint16_t periodUb(int channel) const;  // [us]
+  double periodLb(int channel) const;  // [us]
+  double periodUb(int channel) const;  // [us]
 
   bool contains(const QString& target_name) const;
   int channel(const QString& target_name) const;
@@ -68,12 +70,12 @@ private:
   tobas::propulsion_system_t prop_type_ = tobas::propulsion_system_t::ELECTRIC;
 
   qt::ComboBox* targetNameWidget(int row);
-  qt::SpinBox* periodLbWidget(int row);
-  qt::SpinBox* periodUbWidget(int row);
+  qt::DoubleSpinBox* periodLbWidget(int row);
+  qt::DoubleSpinBox* periodUbWidget(int row);
 
   const qt::ComboBox* targetNameWidget(int row) const;
-  const qt::SpinBox* periodLbWidget(int row) const;
-  const qt::SpinBox* periodUbWidget(int row) const;
+  const qt::DoubleSpinBox* periodLbWidget(int row) const;
+  const qt::DoubleSpinBox* periodUbWidget(int row) const;
 
   void addLastChannel();
   void removeLastChannel();
