@@ -23,13 +23,13 @@ class PwmWidget : public qt::TableWidget
   using super = qt::TableWidget;
 
   static constexpr int kTargetNameCol = 0;
-  static constexpr int kPwmPeriodLbCol = kTargetNameCol + 1;
-  static constexpr int kPwmPeriodUbCol = kPwmPeriodLbCol + 1;
-  static constexpr int kNumCols = kPwmPeriodUbCol + 1;
+  static constexpr int kPeriodLbCol = kTargetNameCol + 1;
+  static constexpr int kPeriodUbCol = kPeriodLbCol + 1;
+  static constexpr int kNumCols = kPeriodUbCol + 1;
 
   static constexpr char kTargetNameLabel[] = "Target";
-  static constexpr char kPwmPeriodLbLabel[] = "PWM Period (LB)";
-  static constexpr char kPwmPeriodUbLabel[] = "PWM Period (UB)";
+  static constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
+  static constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
 
 public:
   // Special target labels
@@ -67,9 +67,13 @@ private:
 
   tobas::propulsion_system_t prop_type_ = tobas::propulsion_system_t::ELECTRIC;
 
-  QVector<qt::ComboBox*> target_names_;
-  QVector<qt::SpinBox*> periods_lb_;  // [us]
-  QVector<qt::SpinBox*> periods_ub_;  // [us]
+  qt::ComboBox* targetNameWidget(int row);
+  qt::SpinBox* periodLbWidget(int row);
+  qt::SpinBox* periodUbWidget(int row);
+
+  const qt::ComboBox* targetNameWidget(int row) const;
+  const qt::SpinBox* periodLbWidget(int row) const;
+  const qt::SpinBox* periodUbWidget(int row) const;
 
   void addLastChannel();
   void removeLastChannel();

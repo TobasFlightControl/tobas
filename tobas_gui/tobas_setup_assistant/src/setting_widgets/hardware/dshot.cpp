@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QHeaderView>
 
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -62,8 +63,8 @@ YAML::Node DShotWidget::dump() const
   for (int channel = 0; channel < rowCount(); ++channel) {
     YAML::Node sub_node(YAML::NodeType::Map);
 
-    sub_node[kTargetNameLabel] = target_names_.at(channel)->currentText();
-    sub_node[kBidirectionalLabel] = bidirectional_.at(channel)->isChecked();
+    sub_node[kTargetNameLabel] = targetNameWidget(channel)->currentText();
+    sub_node[kBidirectionalLabel] = bidirectionalWidget(channel)->isChecked();
 
     node.push_back(sub_node);
   }
@@ -74,8 +75,8 @@ YAML::Node DShotWidget::dump() const
 void DShotWidget::load(const YAML::Node& node)
 {
   for (const auto& [channel, sub_node] : std::views::enumerate(node)) {
-    target_names_.at(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
-    bidirectional_.at(channel)->setChecked(sub_node[kBidirectionalLabel].as<bool>());
+    targetNameWidget(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
+    bidirectionalWidget(channel)->setChecked(sub_node[kBidirectionalLabel].as<bool>());
   }
 }
 
@@ -96,12 +97,12 @@ void DShotWidget::setNumChannels(int num)
 
 QString DShotWidget::targetName(int channel) const
 {
-  return target_names_.at(channel)->currentText();
+  return targetNameWidget(channel)->currentText();
 }
 
 bool DShotWidget::bidirectional(int channel) const
 {
-  return bidirectional_.at(channel)->isChecked();
+  return bidirectionalWidget(channel)->isChecked();
 }
 
 bool DShotWidget::contains(const QString& target_name) const
@@ -125,6 +126,26 @@ int DShotWidget::channel(const QString& target_name) const
 
   qWarning() << "Failed to find \"" << target_name << "\".";
   return -1;
+}
+
+qt::ComboBox* DShotWidget::targetNameWidget(int row)
+{
+  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+}
+
+QPushButton* DShotWidget::bidirectionalWidget(int row)
+{
+  return qt::qPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
+}
+
+const qt::ComboBox* DShotWidget::targetNameWidget(int row) const
+{
+  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+}
+
+const QPushButton* DShotWidget::bidirectionalWidget(int row) const
+{
+  return qt::qConstPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
 }
 
 void DShotWidget::addLastChannel()
@@ -163,10 +184,6 @@ void DShotWidget::addLastChannel()
   setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);
   setCellWidget(row, kBidirectionalCol, bidirectional);
-
-  // Save each field
-  target_names_.append(target_name);
-  bidirectional_.append(bidirectional);
 }
 
 void DShotWidget::removeLastChannel()
@@ -205,7 +222,9 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
   // 前の推進系の不要な選択肢を外す
   switch (prop_type_) {
     case tobas::propulsion_system_t::ELECTRIC: {
-      for (const auto& target_name : target_names_) {
+      for (int channel = 0; channel < rowCount(); ++channel) {
+        const auto target_name = targetNameWidget(channel);
+
         for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
           if (target_name->currentText().toStdString() == joint_name) {
             target_name->setCurrentText("");
@@ -225,7 +244,9 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
   // 新しい推進系の選択肢を追加
   switch (prop_type_) {
     case tobas::propulsion_system_t::ELECTRIC: {
-      for (const auto& target_name : target_names_) {
+      for (int channel = 0; channel < rowCount(); ++channel) {
+        const auto target_name = targetNameWidget(channel);
+
         for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
           target_name->addItem(QString::fromStdString(joint_name));
         }

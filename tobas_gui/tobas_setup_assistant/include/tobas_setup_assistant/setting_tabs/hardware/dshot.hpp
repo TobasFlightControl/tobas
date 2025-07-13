@@ -51,8 +51,11 @@ private:
 
   tobas::propulsion_system_t prop_type_ = tobas::propulsion_system_t::ELECTRIC;
 
-  QVector<qt::ComboBox*> target_names_;
-  QVector<QPushButton*> bidirectional_;
+  qt::ComboBox* targetNameWidget(int row);
+  QPushButton* bidirectionalWidget(int row);
+
+  const qt::ComboBox* targetNameWidget(int row) const;
+  const QPushButton* bidirectionalWidget(int row) const;
 
   void addLastChannel();
   void removeLastChannel();

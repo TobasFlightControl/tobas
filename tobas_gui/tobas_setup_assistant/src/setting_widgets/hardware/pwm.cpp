@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QHeaderView>
 
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -20,7 +21,7 @@ PwmWidget::PwmWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNum
 {
   horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   horizontalHeader()->setMinimumSectionSize(kTableHeaderSectionSize);
-  setHorizontalHeaderLabels({ kTargetNameLabel, kPwmPeriodLbLabel, kPwmPeriodUbLabel });
+  setHorizontalHeaderLabels({ kTargetNameLabel, kPeriodLbLabel, kPeriodUbLabel });
 
   connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
@@ -62,9 +63,9 @@ YAML::Node PwmWidget::dump() const
   for (int channel = 0; channel < rowCount(); ++channel) {
     YAML::Node sub_node(YAML::NodeType::Map);
 
-    sub_node[kTargetNameLabel] = target_names_.at(channel)->currentText();
-    sub_node[kPwmPeriodLbLabel] = periods_lb_.at(channel)->value();
-    sub_node[kPwmPeriodUbLabel] = periods_ub_.at(channel)->value();
+    sub_node[kTargetNameLabel] = targetNameWidget(channel)->currentText();
+    sub_node[kPeriodLbLabel] = periodLbWidget(channel)->value();
+    sub_node[kPeriodUbLabel] = periodUbWidget(channel)->value();
 
     node.push_back(sub_node);
   }
@@ -75,9 +76,9 @@ YAML::Node PwmWidget::dump() const
 void PwmWidget::load(const YAML::Node& node)
 {
   for (const auto& [channel, sub_node] : std::views::enumerate(node)) {
-    target_names_.at(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
-    periods_lb_.at(channel)->setValue(sub_node[kPwmPeriodLbLabel].as<int>());
-    periods_ub_.at(channel)->setValue(sub_node[kPwmPeriodUbLabel].as<int>());
+    targetNameWidget(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
+    periodLbWidget(channel)->setValue(sub_node[kPeriodLbLabel].as<int>());
+    periodUbWidget(channel)->setValue(sub_node[kPeriodUbLabel].as<int>());
   }
 }
 
@@ -98,7 +99,7 @@ void PwmWidget::setNumChannels(int num)
 
 QString PwmWidget::targetName(int channel) const
 {
-  return target_names_.at(channel)->currentText();
+  return targetNameWidget(channel)->currentText();
 }
 
 PwmWidget::TargetType PwmWidget::targetType(int channel) const
@@ -124,12 +125,12 @@ PwmWidget::TargetType PwmWidget::targetType(int channel) const
 
 uint16_t PwmWidget::periodLb(int channel) const
 {
-  return periods_lb_.at(channel)->value();
+  return periodLbWidget(channel)->value();
 }
 
 uint16_t PwmWidget::periodUb(int channel) const
 {
-  return periods_ub_.at(channel)->value();
+  return periodUbWidget(channel)->value();
 }
 
 bool PwmWidget::contains(const QString& target_name) const
@@ -153,6 +154,36 @@ int PwmWidget::channel(const QString& target_name) const
 
   qWarning() << "Failed to find \"" << target_name << "\".";
   return -1;
+}
+
+qt::ComboBox* PwmWidget::targetNameWidget(int row)
+{
+  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+}
+
+qt::SpinBox* PwmWidget::periodLbWidget(int row)
+{
+  return qt::qPointerCast<qt::SpinBox>(cellWidget(row, kPeriodLbCol));
+}
+
+qt::SpinBox* PwmWidget::periodUbWidget(int row)
+{
+  return qt::qPointerCast<qt::SpinBox>(cellWidget(row, kPeriodUbCol));
+}
+
+const qt::ComboBox* PwmWidget::targetNameWidget(int row) const
+{
+  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+}
+
+const qt::SpinBox* PwmWidget::periodLbWidget(int row) const
+{
+  return qt::qConstPointerCast<qt::SpinBox>(cellWidget(row, kPeriodLbCol));
+}
+
+const qt::SpinBox* PwmWidget::periodUbWidget(int row) const
+{
+  return qt::qConstPointerCast<qt::SpinBox>(cellWidget(row, kPeriodUbCol));
 }
 
 void PwmWidget::addLastChannel()
@@ -201,13 +232,8 @@ void PwmWidget::addLastChannel()
   insertRow(row);
   setVerticalHeaderItem(row, new QTableWidgetItem("CH" + QString::number(row)));
   setCellWidget(row, kTargetNameCol, target_name);
-  setCellWidget(row, kPwmPeriodLbCol, period_lb);
-  setCellWidget(row, kPwmPeriodUbCol, period_ub);
-
-  // Save each field
-  target_names_.append(target_name);
-  periods_lb_.append(period_lb);
-  periods_ub_.append(period_ub);
+  setCellWidget(row, kPeriodLbCol, period_lb);
+  setCellWidget(row, kPeriodUbCol, period_ub);
 }
 
 void PwmWidget::removeLastChannel()
@@ -239,7 +265,9 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_pr
       break;
     }
     case tobas::propulsion_system_t::ICE: {
-      for (const auto& target_name : target_names_) {
+      for (int channel = 0; channel < rowCount(); ++channel) {
+        const auto target_name = targetNameWidget(channel);
+
         for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
           if (target_name->currentText().toStdString() == joint_name) {
             target_name->setCurrentText("");
@@ -265,7 +293,9 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_pr
       break;
     }
     case tobas::propulsion_system_t::ICE: {
-      for (const auto& target_name : target_names_) {
+      for (int channel = 0; channel < rowCount(); ++channel) {
+        const auto target_name = targetNameWidget(channel);
+
         for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
           target_name->addItem(QString::fromStdString(joint_name));
         }

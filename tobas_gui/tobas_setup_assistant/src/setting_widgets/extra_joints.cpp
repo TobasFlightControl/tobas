@@ -3,10 +3,9 @@
 #include <QDebug>
 #include <QHeaderView>
 
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
@@ -91,9 +90,9 @@ YAML::Node ExtraJointsWidget::dump() const
   for (int row = 0; row < table_->rowCount(); ++row) {
     YAML::Node sub_node(YAML::NodeType::Map);
 
-    sub_node[kRoleLabel] = role_.at(row)->currentText();
-    sub_node[kCmdIfaceLabel] = cmd_iface_.at(row)->currentText();
-    sub_node[kHomePosLabel] = home_pos_.at(row)->value();
+    sub_node[kRoleLabel] = roleWidget(row)->currentText();
+    sub_node[kCmdIfaceLabel] = commandIfaceWidget(row)->currentText();
+    sub_node[kHomePosLabel] = homePositionWidget(row)->value();
 
     node[getLinkName(row)] = sub_node;
   }
@@ -111,9 +110,9 @@ void ExtraJointsWidget::load(const YAML::Node& node)
     const auto row = findLink(link_name);
     TOBAS_CHECK(row >= 0);
 
-    role_.at(row)->setCurrentText(sub_node[kRoleLabel].as<QString>());
-    cmd_iface_.at(row)->setCurrentText(sub_node[kCmdIfaceLabel].as<QString>());
-    home_pos_.at(row)->setValue(sub_node[kHomePosLabel].as<int>());
+    roleWidget(row)->setCurrentText(sub_node[kRoleLabel].as<QString>());
+    commandIfaceWidget(row)->setCurrentText(sub_node[kCmdIfaceLabel].as<QString>());
+    homePositionWidget(row)->setValue(sub_node[kHomePosLabel].as<int>());
 
     updateEnability(row);
   }
@@ -121,17 +120,17 @@ void ExtraJointsWidget::load(const YAML::Node& node)
 
 QString ExtraJointsWidget::getLinkName(int row) const
 {
-  return link_name_.at(row)->text();
+  return linkNameWidget(row)->text();
 }
 
 QString ExtraJointsWidget::getJointName(int row) const
 {
-  return joint_name_.at(row)->text();
+  return jointNameWidget(row)->text();
 }
 
 tobas::jnt_role_t ExtraJointsWidget::getRole(int row) const
 {
-  const auto text = role_.at(row)->currentText();
+  const auto text = roleWidget(row)->currentText();
 
   if (text == kRoleLabel_LandingGear) {
     return tobas::jnt_role_t::LANDING_GEAR;
@@ -152,7 +151,7 @@ tobas::jnt_role_t ExtraJointsWidget::getRole(int row) const
 
 tobas::jnt_cmd_iface_t ExtraJointsWidget::getCommandInterface(int row) const
 {
-  const auto text = cmd_iface_.at(row)->currentText();
+  const auto text = commandIfaceWidget(row)->currentText();
 
   if (text == kCmdIfaceLabel_Position) {
     return tobas::jnt_cmd_iface_t::POSITION;
@@ -173,7 +172,7 @@ tobas::jnt_cmd_iface_t ExtraJointsWidget::getCommandInterface(int row) const
 
 double ExtraJointsWidget::getHomePosition(int row) const
 {
-  return tobas_std::deg2rad(home_pos_.at(row)->value());
+  return tobas_std::deg2rad(homePositionWidget(row)->value());
 }
 
 void ExtraJointsWidget::setRole(int row, tobas::jnt_role_t value)
@@ -196,7 +195,7 @@ void ExtraJointsWidget::setRole(int row, tobas::jnt_role_t value)
       throw;
   }
 
-  role_.at(row)->setCurrentText(text);
+  roleWidget(row)->setCurrentText(text);
 }
 
 void ExtraJointsWidget::setCommandInterface(int row, tobas::jnt_cmd_iface_t value)
@@ -219,12 +218,12 @@ void ExtraJointsWidget::setCommandInterface(int row, tobas::jnt_cmd_iface_t valu
       throw;
   }
 
-  cmd_iface_.at(row)->setCurrentText(text);
+  commandIfaceWidget(row)->setCurrentText(text);
 }
 
 void ExtraJointsWidget::setHomePosition(int row, double value)
 {
-  home_pos_.at(row)->setValue(std::round(tobas_std::rad2deg(value)));
+  homePositionWidget(row)->setValue(std::round(tobas_std::rad2deg(value)));
 }
 
 int ExtraJointsWidget::numJoints() const
@@ -256,20 +255,64 @@ int ExtraJointsWidget::findJoint(const QString& joint_name) const
   return -1;
 }
 
+QLabel* ExtraJointsWidget::linkNameWidget(int row)
+{
+  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
+}
+
+QLabel* ExtraJointsWidget::jointNameWidget(int row)
+{
+  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
+}
+
+qt::ComboBox* ExtraJointsWidget::roleWidget(int row)
+{
+  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kRoleCol));
+}
+
+qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row)
+{
+  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
+}
+
+qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row)
+{
+  return qt::qPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
+}
+
+const QLabel* ExtraJointsWidget::linkNameWidget(int row) const
+{
+  return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
+}
+
+const QLabel* ExtraJointsWidget::jointNameWidget(int row) const
+{
+  return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
+}
+
+const qt::ComboBox* ExtraJointsWidget::roleWidget(int row) const
+{
+  return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(row, kRoleCol));
+}
+
+const qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row) const
+{
+  return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
+}
+
+const qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row) const
+{
+  return qt::qConstPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
+}
+
 void ExtraJointsWidget::clear()
 {
   table_->removeAll();
-
-  link_name_.clear();
-  joint_name_.clear();
-  role_.clear();
-  cmd_iface_.clear();
-  home_pos_.clear();
 }
 
 void ExtraJointsWidget::reset(int row)
 {
-  role_.at(row)->setCurrentText(kRoleLabel_Other);
+  roleWidget(row)->setCurrentText(kRoleLabel_Other);
 
   setDefaultValues(row);
   updateEnability(row);
@@ -280,23 +323,23 @@ void ExtraJointsWidget::setDefaultValues(int row)
   // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
   switch (getRole(row)) {
     case tobas::jnt_role_t::LANDING_GEAR:
-      cmd_iface_.at(row)->setCurrentText(kCmdIfaceLabel_Position);
+      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
-      cmd_iface_.at(row)->setCurrentText(kCmdIfaceLabel_None);
+      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
       break;
     case tobas::jnt_role_t::MANIPULATION:
-      cmd_iface_.at(row)->setCurrentText(kCmdIfaceLabel_Position);
+      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
       break;
     case tobas::jnt_role_t::OTHER:
-      cmd_iface_.at(row)->setCurrentText(kCmdIfaceLabel_None);
+      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
       break;
     default:
       throw;
   }
 
   // 共通のデフォルト値
-  home_pos_.at(row)->setValue(0);
+  homePositionWidget(row)->setValue(0);
 }
 
 void ExtraJointsWidget::updateEnability(int row)
@@ -304,24 +347,24 @@ void ExtraJointsWidget::updateEnability(int row)
   // 役割によるフィールド
   switch (getRole(row)) {
     case tobas::jnt_role_t::LANDING_GEAR:
-      role_.at(row)->setEnabled(true);
-      cmd_iface_.at(row)->setEnabled(true);
-      home_pos_.at(row)->setEnabled(true);
+      roleWidget(row)->setEnabled(true);
+      commandIfaceWidget(row)->setEnabled(true);
+      homePositionWidget(row)->setEnabled(true);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
-      role_.at(row)->setEnabled(true);
-      cmd_iface_.at(row)->setEnabled(false);
-      home_pos_.at(row)->setEnabled(false);
+      roleWidget(row)->setEnabled(true);
+      commandIfaceWidget(row)->setEnabled(false);
+      homePositionWidget(row)->setEnabled(false);
       break;
     case tobas::jnt_role_t::MANIPULATION:
-      role_.at(row)->setEnabled(true);
-      cmd_iface_.at(row)->setEnabled(true);
-      home_pos_.at(row)->setEnabled(true);
+      roleWidget(row)->setEnabled(true);
+      commandIfaceWidget(row)->setEnabled(true);
+      homePositionWidget(row)->setEnabled(true);
       break;
     case tobas::jnt_role_t::OTHER:
-      role_.at(row)->setEnabled(true);
-      cmd_iface_.at(row)->setEnabled(false);
-      home_pos_.at(row)->setEnabled(false);
+      roleWidget(row)->setEnabled(true);
+      commandIfaceWidget(row)->setEnabled(false);
+      homePositionWidget(row)->setEnabled(false);
       break;
     default:
       throw;
@@ -370,13 +413,6 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
   table_->setCellWidget(row, kRoleCol, role);
   table_->setCellWidget(row, kCmdIfaceCol, cmd_iface);
   table_->setCellWidget(row, kHomePosCol, home_pos);
-
-  // Save each field
-  link_name_.append(link_name_label);
-  joint_name_.append(joint_name_label);
-  role_.append(role);
-  cmd_iface_.append(cmd_iface);
-  home_pos_.append(home_pos);
 
   // Reset
   reset(row);

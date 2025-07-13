@@ -88,11 +88,17 @@ private:
 
   qt::TableWidget* table_;
 
-  QVector<QLabel*> link_name_;
-  QVector<QLabel*> joint_name_;
-  QVector<qt::ComboBox*> role_;
-  QVector<qt::ComboBox*> cmd_iface_;
-  QVector<qt::SpinBox*> home_pos_;  // [deg]
+  QLabel* linkNameWidget(int row);
+  QLabel* jointNameWidget(int row);
+  qt::ComboBox* roleWidget(int row);
+  qt::ComboBox* commandIfaceWidget(int row);
+  qt::SpinBox* homePositionWidget(int row);
+
+  const QLabel* linkNameWidget(int row) const;
+  const QLabel* jointNameWidget(int row) const;
+  const qt::ComboBox* roleWidget(int row) const;
+  const qt::ComboBox* commandIfaceWidget(int row) const;
+  const qt::SpinBox* homePositionWidget(int row) const;
 
   void clear();
   void reset(int row);
