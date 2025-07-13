@@ -8,14 +8,19 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
+
 namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 DShotWidget::DShotWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNumCols), robot_(robot)
 {
-  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
-  setHorizontalHeaderLabels({ kTargetNameLabel });
+  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  horizontalHeader()->setMinimumSectionSize(kTableHeaderSectionSize);
+  setHorizontalHeaderLabels({ kTargetNameLabel, kBidirectionalLabel });
 
   connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
@@ -76,6 +81,11 @@ QString DShotWidget::targetName(int channel) const
   return target_names_.at(channel)->currentText();
 }
 
+bool DShotWidget::bidirectional(int channel) const
+{
+  return bidirectional_.at(channel)->isChecked();
+}
+
 bool DShotWidget::contains(const QString& target_name) const
 {
   for (int channel = 0; channel < rowCount(); ++channel) {
@@ -106,12 +116,6 @@ void DShotWidget::addLastChannel()
   // Target name
   const auto target_name = new qt::ComboBox();
   target_name->addItem("");  // 未選択
-  for (const auto& [joint_name, _] : robot_.uadf().tilts) {
-    target_name->addItem(QString::fromStdString(joint_name));
-  }
-  for (const auto& [joint_name, _] : robot_.uadf().control_surfaces) {
-    target_name->addItem(QString::fromStdString(joint_name));
-  }
   switch (prop_type_) {
     case tobas::propulsion_system_t::ELECTRIC: {
       for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
@@ -126,12 +130,19 @@ void DShotWidget::addLastChannel()
       throw;
   }
 
+  // Bidirectional
+  const auto bidirectional = new QCheckBox();
+  bidirectional->setChecked(true);   // デフォルトで双方向通信
+  bidirectional->setEnabled(false);  // TODO: 単方向にも対応
+
   // Insert table row
   insertRow(row);
   setCellWidget(row, kTargetNameCol, target_name);
+  setCellWidget(row, kBidirectionalCol, bidirectional);
 
   // Save each field
   target_names_.append(target_name);
+  bidirectional_.append(bidirectional);
 }
 
 void DShotWidget::removeLastChannel()
@@ -196,5 +207,6 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
 
   prop_type_ = new_prop_type;
 }
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

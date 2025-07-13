@@ -8,6 +8,8 @@ namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 T1Widget::T1Widget()
 {
 }
@@ -130,5 +132,6 @@ int T1Widget::numDShotChannels() const
 {
   return 8;
 }
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

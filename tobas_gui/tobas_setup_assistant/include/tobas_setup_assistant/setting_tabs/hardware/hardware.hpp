@@ -12,6 +12,8 @@ namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 class HardwareWidget : public BaseSettingWidget
 {
   Q_OBJECT
@@ -93,5 +95,6 @@ private:
 private Q_SLOTS:
   void setCurrentHardware(int index);
 };
-};  // namespace sa
+};  // namespace hw
+}  // namespace sa
 }  // namespace gui

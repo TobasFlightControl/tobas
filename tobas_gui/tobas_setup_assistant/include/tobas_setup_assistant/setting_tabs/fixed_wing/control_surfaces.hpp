@@ -10,7 +10,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 class ControlSurfacesWidget : public qt::TableWidget
 {
@@ -87,6 +87,6 @@ public:
 private:
   const RobotInfo& robot_;
 };
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

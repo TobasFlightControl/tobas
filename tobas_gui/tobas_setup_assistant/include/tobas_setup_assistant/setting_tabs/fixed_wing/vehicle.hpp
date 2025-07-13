@@ -12,7 +12,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 class VehicleParametersWidget : public QWidget
 {
@@ -43,6 +43,6 @@ private:
   ParamGetterWidget_Vector3d* aerodynamic_center_;
   ParamGetterWidget_DoubleRange* alpha_limit_;
 };
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

@@ -9,7 +9,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 bool VSPAEROParser::parse(const std::string& stab_path)
 {
@@ -158,6 +158,6 @@ double VSPAEROParser::c_yaw_r() const
 {
   return c_yaw_r_;
 }
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

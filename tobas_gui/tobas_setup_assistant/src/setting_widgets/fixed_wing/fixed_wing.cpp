@@ -6,7 +6,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
 {
@@ -130,6 +130,6 @@ void FixedWingWidget::setSettingWidgetsEnabled(bool enabled)
     widget->setEnabled(enabled);
   }
 }
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

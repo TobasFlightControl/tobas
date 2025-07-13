@@ -8,7 +8,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 VehicleParametersWidget::VehicleParametersWidget()
 {
@@ -109,6 +109,6 @@ tobas_std::Range<double> VehicleParametersWidget::alphaLimit() const
 {
   return alpha_limit_->getValue();
 }
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

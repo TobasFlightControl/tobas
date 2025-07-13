@@ -204,7 +204,7 @@ tobas::Drone ProjectGenerator::createDrone()
 
       // TODO: PWM以外のインターフェースに対応
       tobas::PwmConfig engine_pwm;
-      const auto engine_pwm_channel = settings_->hardware->pwm()->channel(PwmWidget::kEngineThrotLabel);
+      const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
       engine_pwm.channel = engine_pwm_channel;
       engine_pwm.name = tobas::pwm::kEngineThrottleKey;
       engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);

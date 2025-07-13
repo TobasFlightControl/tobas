@@ -10,12 +10,12 @@ namespace sa
 SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig) : robot_(robot)
 {
   propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, sig);
-  fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
+  fixed_wing = new fw::FixedWingWidget(node, robot);
   extra_joints = new ExtraJointsWidget(robot);
   rc_input = new RcInputWidget();
   controller = new ControllerWidget(robot);
   observer = new ObserverWidget();
-  hardware = new HardwareWidget(robot, sig);
+  hardware = new hw::HardwareWidget(robot, sig);
   pre_arm_check = new PreArmCheckWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
@@ -89,7 +89,7 @@ bool SettingsWidget::isValid()
       }
 
       // エンジンスロットルのPWMチャンネルが設定されていることを確認
-      if (!hardware->pwm()->contains(PwmWidget::kEngineThrotLabel)) {
+      if (!hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
         qt::qWarnBox(this, "Please specify a PWM channel for engine throttle.");
         setCurrentWidget(hardware);
         return false;

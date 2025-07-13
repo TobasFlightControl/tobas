@@ -1,7 +1,11 @@
 #include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
 
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
@@ -9,6 +13,8 @@
 namespace gui
 {
 namespace sa
+{
+namespace hw
 {
 HardwareWidget::HardwareWidget(const RobotInfo& robot, const Signals& sig)
 {
@@ -27,10 +33,21 @@ HardwareWidget::HardwareWidget(const RobotInfo& robot, const Signals& sig)
   setCurrentHardware(0);
 
   // Layout
+  const auto pwm_rows = new QVBoxLayout();
+  pwm_rows->addWidget(new qt::Label("PWM", kLabelPSize, QFont::Bold));
+  pwm_rows->addWidget(pwm_);
+
+  const auto dshot_rows = new QVBoxLayout();
+  dshot_rows->addWidget(new qt::Label("DShot", kLabelPSize, QFont::Bold));
+  dshot_rows->addWidget(dshot_);
+
+  const auto rcout_cols = new QHBoxLayout();
+  rcout_cols->addLayout(pwm_rows, 1);
+  rcout_cols->addLayout(dshot_rows, 1);
+
   addWidget(type_);
   addWidget(hardwares_);
-  addWidget(pwm_);
-  addWidget(dshot_);
+  addLayout(rcout_cols);
   addStretch();
 
   // Connection
@@ -224,5 +241,6 @@ const BaseHardwareWidget* HardwareWidget::selected() const
 {
   return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->currentWidget());
 }
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

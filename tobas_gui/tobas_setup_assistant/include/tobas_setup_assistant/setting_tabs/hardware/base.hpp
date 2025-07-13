@@ -7,6 +7,8 @@ namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 class BaseHardwareWidget : public QWidget
 {
   Q_OBJECT
@@ -62,5 +64,6 @@ public:
   virtual int numPwmChannels() const = 0;
   virtual int numDShotChannels() const = 0;
 };
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

@@ -8,13 +8,18 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
+
 namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 PwmWidget::PwmWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNumCols), robot_(robot)
 {
   horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  horizontalHeader()->setMinimumSectionSize(kTableHeaderSectionSize);
   setHorizontalHeaderLabels({ kTargetNameLabel, kPwmPeriodLbLabel, kPwmPeriodUbLabel });
 
   connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
@@ -259,5 +264,6 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_pr
 
   prop_type_ = new_prop_type;
 }
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

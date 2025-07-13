@@ -16,7 +16,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 ControlSurfacesWidget::ControlSurfacesWidget(const RobotInfo& robot) : super(0, kNumCols), robot_(robot)
 {
@@ -274,6 +274,6 @@ void ControlSurfacesWidget::yawCoef(int row, double value)
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
   return cell->setValue(value);
 }
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

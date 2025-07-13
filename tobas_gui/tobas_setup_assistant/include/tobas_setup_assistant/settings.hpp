@@ -31,12 +31,12 @@ public:
   const RobotInfo& robot_;
 
   propulsion::PropulsionSystemWidget* propulsion_system;
-  fixed_wing::FixedWingWidget* fixed_wing;
+  fw::FixedWingWidget* fixed_wing;
   ExtraJointsWidget* extra_joints;
   RcInputWidget* rc_input;
   ControllerWidget* controller;
   ObserverWidget* observer;
-  HardwareWidget* hardware;
+  hw::HardwareWidget* hardware;
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;

@@ -13,6 +13,8 @@ namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 class PwmWidget : public qt::TableWidget
 {
   Q_OBJECT
@@ -74,5 +76,6 @@ private:
 private Q_SLOTS:
   void onPropulsionTypeChanged(const tobas::propulsion_system_t& new_prop_type);
 };
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

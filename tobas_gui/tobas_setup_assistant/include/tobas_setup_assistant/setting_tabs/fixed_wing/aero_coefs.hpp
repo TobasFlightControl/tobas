@@ -11,7 +11,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 class AerodynamicsCoefficientsWidget : public QWidget
 {
@@ -76,6 +76,6 @@ private:
   qt::DoubleSpinBox* c_yaw_p_;
   qt::DoubleSpinBox* c_yaw_r_;
 };
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

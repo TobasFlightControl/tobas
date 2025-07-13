@@ -12,7 +12,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 class FixedWingWidget : public BaseSettingWidget
 {
@@ -59,6 +59,6 @@ private:
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
-};  // namespace fixed_wing
+};  // namespace fw
 }  // namespace sa
 }  // namespace gui

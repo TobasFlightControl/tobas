@@ -6,6 +6,8 @@ namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 class T1Widget : public BaseHardwareWidget
 {
   Q_OBJECT
@@ -46,5 +48,6 @@ public:
   int numPwmChannels() const override;
   int numDShotChannels() const override;
 };
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

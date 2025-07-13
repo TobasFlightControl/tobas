@@ -6,7 +6,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 class VSPAEROParser
 {
@@ -55,6 +55,6 @@ private:
   double c_yaw_p_;
   double c_yaw_r_;
 };
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

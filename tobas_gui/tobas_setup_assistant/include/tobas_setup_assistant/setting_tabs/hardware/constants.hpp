@@ -4,9 +4,9 @@ namespace gui
 {
 namespace sa
 {
-namespace fw
+namespace hw
 {
-static constexpr int kStabilityCoefDecimals = 6;
-}  // namespace fw
+static constexpr int kTableHeaderSectionSize = 150;
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui
