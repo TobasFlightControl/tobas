@@ -168,6 +168,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   // XACROを解析
   std::string uadf_text;
   if (!ros2::parseXacroFromPath(uadf_path.toStdString(), uadf_text)) {
+    qt::qErrorBox(this, "Failed to parse XACRO.");
     return;
   }
 
