@@ -27,12 +27,12 @@ ExtraJointsWidget::ExtraJointsWidget(const RobotInfo& robot) : robot_(robot)
 
 const char* ExtraJointsWidget::name() const
 {
-  return "Joint Config";
+  return "Extra Joints";
 }
 
 const char* ExtraJointsWidget::title() const
 {
-  return "Configure Joints";
+  return "Configure Extra Joints";
 }
 
 const char* ExtraJointsWidget::description() const
