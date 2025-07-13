@@ -59,9 +59,9 @@ YAML::Node PwmWidget::dump() const
 void PwmWidget::load(const YAML::Node& node)
 {
   for (const auto& [channel, sub_node] : std::views::enumerate(node)) {
-    target_names_[channel]->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
-    periods_lb_[channel]->setValue(sub_node[kPwmPeriodLbLabel].as<int>());
-    periods_ub_[channel]->setValue(sub_node[kPwmPeriodUbLabel].as<int>());
+    target_names_.at(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
+    periods_lb_.at(channel)->setValue(sub_node[kPwmPeriodLbLabel].as<int>());
+    periods_ub_.at(channel)->setValue(sub_node[kPwmPeriodUbLabel].as<int>());
   }
 }
 

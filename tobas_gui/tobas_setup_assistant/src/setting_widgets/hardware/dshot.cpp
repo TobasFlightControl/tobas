@@ -47,6 +47,7 @@ YAML::Node DShotWidget::dump() const
     YAML::Node sub_node(YAML::NodeType::Map);
 
     sub_node[kTargetNameLabel] = target_names_.at(channel)->currentText();
+    sub_node[kBidirectionalLabel] = bidirectional_.at(channel)->isChecked();
 
     node.push_back(sub_node);
   }
@@ -57,7 +58,8 @@ YAML::Node DShotWidget::dump() const
 void DShotWidget::load(const YAML::Node& node)
 {
   for (const auto& [channel, sub_node] : std::views::enumerate(node)) {
-    target_names_[channel]->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
+    target_names_.at(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
+    bidirectional_.at(channel)->setChecked(sub_node[kBidirectionalLabel].as<bool>());
   }
 }
 
