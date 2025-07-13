@@ -14,7 +14,7 @@ namespace sa
 {
 PwmWidget::PwmWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNumCols), robot_(robot)
 {
-  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
+  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   setHorizontalHeaderLabels({ kTargetNameLabel, kPwmPeriodLbLabel, kPwmPeriodUbLabel });
 
   connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
