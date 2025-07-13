@@ -16,7 +16,7 @@ namespace sa
 {
 class ProjectGenerator
 {
-  static constexpr char kROSParamsKey[] = "ros__parameters";
+  static constexpr char kRosParamsKey[] = "ros__parameters";
 
   static constexpr char kDoNotEditThisPackage[] = "DO_NOT_EDIT_THIS_PACKAGE";
   static constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
@@ -84,6 +84,15 @@ private:
 
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXmlElements(tinyxml2::XMLElement* robot, const std::filesystem::path& tbs_path);
+
+  void
+  addJointControllerNode(tinyxml2::XMLElement* launch, const std::string& cfg_pkg_name, const std::string& ctrl_name);
+  bool generateJointControllerConfig(
+    const std::filesystem::path& tbs_path,
+    const std::string& jnt_name,
+    const tobas::jnt_cmd_iface_t& cmd_iface);
+
+  static std::string jointControllerName(const std::string& jnt_name);
 
   static tobas::turning_direction_t turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
 };

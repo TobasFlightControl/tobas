@@ -350,12 +350,17 @@ tobas::Drone ProjectGenerator::createDrone()
 
 bool ProjectGenerator::hasServoJoint() const
 {
+  if (robot_.uadf().tilts.size() > 0 || robot_.uadf().control_surfaces.size() > 0) {
+    return true;
+  }
+
   const auto& extra_joints = settings_->extra_joints;
   for (int i = 0; i < extra_joints->numJoints(); ++i) {
     if (tobas::isServoJoint(extra_joints->getRole(i))) {
       return true;
     }
   }
+
   return false;
 }
 
@@ -564,42 +569,35 @@ bool ProjectGenerator::generateBackupFiles(const fs::path& tbs_path)
 
 bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
 {
-  const auto& ns = robot_.robotName();
-  const auto& extra_joints = settings_->extra_joints;
-
-  // XMLを作成
+  // Create XML
   tinyxml2::XMLDocument doc;
   const auto launch = doc.NewElement("launch");
   doc.InsertFirstChild(launch);
 
-  // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
+  // サーボジョイントが存在する場合に限りcontroller_managerを立ち上げる
   if (hasServoJoint()) {
     const auto cfg_pkg_name = common::getProjCfgPkgName(tbs_path);
-    const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
 
-    // Joint state broadcaster
-    const auto jsb_name = std::string(tobas::node::kJointStateBroadcaster);
-    const auto jsb_param = config_dir + jsb_name + ".yaml";
-    const auto jsb_args = jsb_name + " --param-file " + jsb_param;
-    const auto jsb_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
-    xml::addNodeParam(jsb_node, "use_sim_time", "true");
+    // Add joint state broadcaster
+    addJointControllerNode(launch, cfg_pkg_name, tobas::node::kJointStateBroadcaster);
 
-    // コントローラごとにノードを立ち上げる
-    for (int i = 0; i < extra_joints->numJoints(); ++i) {
-      if (!tobas::isServoJoint(extra_joints->getRole(i))) {
+    // Add joint controllers
+    for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
+    }
+    for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
+    }
+    for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
+      if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
         continue;
       }
-
-      const auto joint_name = extra_joints->getJointName(i).toStdString();
-      const auto ctrl_name = joint_name + "_controller";
-      const auto ctrl_param = config_dir + ctrl_name + ".yaml";
-      const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
-      const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
-      xml::addNodeParam(ctrl_node, "use_sim_time", "true");
+      const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
+      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
     }
   }
 
-  // XMLを保存
+  // Save XML
   const auto launch_dir = common::getProjCfgLaunchDirPath(tbs_path);
   if (doc.SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
@@ -617,20 +615,23 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
   manager_params_node[tobas::node::kJointStateBroadcaster]["type"] = tobas::ctrl_manager::type::kJointStateBroadcaster;
 
   // Each joint controllers
-  const auto extra_joints = settings_->extra_joints;
-  for (int i = 0; i < extra_joints->numJoints(); ++i) {
-    if (!tobas::isServoJoint(extra_joints->getRole(i))) {
+  for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
+  }
+  for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
+  }
+  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
+    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
       continue;
     }
-
-    const auto jnt_name = extra_joints->getJointName(i).toStdString();
-    const auto ctrl_name = jnt_name + "_controller";
-    manager_params_node[ctrl_name]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
+    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
+    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
   }
 
   // Create data
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
+  root_node[robot_.robotName()]["controller_manager"][kRosParamsKey] = manager_params_node;
 
   // Save data
   const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
@@ -643,27 +644,26 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
 
 bool ProjectGenerator::generateJointControllerConfigs(const fs::path& tbs_path)
 {
-  const auto extra_joints = settings_->extra_joints;
+  for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::jnt_cmd_iface_t::POSITION)) {
+      return false;
+    }
+  }
 
-  for (int i = 0; i < extra_joints->numJoints(); ++i) {
-    if (!tobas::isServoJoint(extra_joints->getRole(i))) {
+  for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::jnt_cmd_iface_t::POSITION)) {
+      return false;
+    }
+  }
+
+  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
+    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
       continue;
     }
 
-    const auto jnt_name = extra_joints->getJointName(i).toStdString();
-    const auto ctrl_name = jnt_name + "_controller";
-
-    YAML::Node ctrl_params_node(YAML::NodeType::Map);
-    ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::textFromEnum(extra_joints->getCommandInterface(i));
-
-    // Create data
-    YAML::Node root_node(YAML::NodeType::Map);
-    root_node["/**"][ctrl_name][kROSParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
-
-    // Save data
-    const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
-    if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
+    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
+    const auto cmd_iface = settings_->extra_joints->getCommandInterface(i);
+    if (!generateJointControllerConfig(tbs_path, jnt_name, cmd_iface)) {
       return false;
     }
   }
@@ -732,7 +732,7 @@ bool ProjectGenerator::generateObserverStaticConfig(const fs::path& tbs_path)
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kObserver][kROSParamsKey] = params;
+  node_standalone["/**"][tobas::node::kObserver][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "observer_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -755,7 +755,7 @@ bool ProjectGenerator::generateControllerStaticConfig(const fs::path& tbs_path)
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kController][kROSParamsKey] = params;
+  node_standalone["/**"][tobas::node::kController][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -780,7 +780,7 @@ bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& tbs_path)
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kRcTeleop][kROSParamsKey] = params;
+  node_standalone["/**"][tobas::node::kRcTeleop][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "rc_teleop_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -1187,6 +1187,48 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
   return true;
 }
 
+void ProjectGenerator::addJointControllerNode(
+  tinyxml2::XMLElement* launch,
+  const std::string& cfg_pkg_name,
+  const std::string& ctrl_name)
+{
+  const auto& ns = robot_.robotName();
+  const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
+  const auto ctrl_param = config_dir + ctrl_name + ".yaml";
+  const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
+  const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
+  xml::addNodeParam(ctrl_node, "use_sim_time", "true");
+}
+
+bool ProjectGenerator::generateJointControllerConfig(
+  const std::filesystem::path& tbs_path,
+  const std::string& jnt_name,
+  const tobas::jnt_cmd_iface_t& cmd_iface)
+{
+  const auto ctrl_name = jointControllerName(jnt_name);
+
+  YAML::Node ctrl_params_node(YAML::NodeType::Map);
+  ctrl_params_node["joints"].push_back(jnt_name);
+  ctrl_params_node["interface_name"] = tobas::textFromEnum(cmd_iface);
+
+  // Create data
+  YAML::Node root_node(YAML::NodeType::Map);
+  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
+
+  // Save data
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
+  if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
+    return false;
+  }
+
+  return true;
+}
+
+std::string ProjectGenerator::jointControllerName(const std::string& jnt_name)
+{
+  return jnt_name + "_controller";
+}
+
 tobas::turning_direction_t ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
 {
   switch (src) {
@@ -1198,6 +1240,5 @@ tobas::turning_direction_t ProjectGenerator::turningDirectionUadfToTbsdrn(const 
       throw;
   }
 }
-
 }  // namespace sa
 }  // namespace gui
