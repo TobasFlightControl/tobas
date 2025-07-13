@@ -245,7 +245,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
   }
 
   // 新しい推進系の選択肢を追加
-  switch (prop_type_) {
+  switch (new_prop_type) {
     case tobas::propulsion_system_t::ELECTRIC: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);

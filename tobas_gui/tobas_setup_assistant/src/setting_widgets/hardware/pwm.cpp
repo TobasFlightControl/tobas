@@ -291,7 +291,7 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_pr
   }
 
   // 新しい推進系の選択肢を追加
-  switch (prop_type_) {
+  switch (new_prop_type) {
     case tobas::propulsion_system_t::ELECTRIC: {
       break;
     }
