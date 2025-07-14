@@ -1,4 +1,7 @@
 # https://store.tmotor.com/product/mn4010-kv475-motor-navigator-type.html
+# Item No.: MN4010 KV475
+# Voltage (V): 22.2
+# Prop: T-MOTOR 13.44CF
 
 Current [A],Thrust [g],RPM,Rotation Speed [rad/s],Thrust,Torque,Moment Constant [m]
 4.8,810,5600,586.4306287,7.9385265,0.096498155,0.012155676
