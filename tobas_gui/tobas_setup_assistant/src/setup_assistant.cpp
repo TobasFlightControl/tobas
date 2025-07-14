@@ -78,11 +78,6 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   connect(save_as_btn_, &QPushButton::clicked, this, &self::onSaveAsButtonClicked);
 }
 
-void SetupAssistantWidget::reset()
-{
-  rviz_->resetTime();
-}
-
 void SetupAssistantWidget::enableSaveButtons(bool enable)
 {
   save_btn_->setEnabled(enable);

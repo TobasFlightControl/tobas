@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_property_client/property_client.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 
 #include "./constants.hpp"
@@ -28,8 +29,6 @@ class SetupAssistantWidget : public QWidget
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
-
-  void reset();
 
 private:
   RobotInfo robot_;
