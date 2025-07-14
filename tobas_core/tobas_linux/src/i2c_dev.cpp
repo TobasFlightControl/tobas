@@ -9,7 +9,7 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_linux/errer.hpp"
+#include "tobas_linux/error.hpp"
 
 using namespace std;
 

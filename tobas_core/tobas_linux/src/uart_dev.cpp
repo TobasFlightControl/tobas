@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_linux/errer.hpp"
+#include "tobas_linux/error.hpp"
 #include "tobas_linux/termios2.hpp"
 
 using namespace std;

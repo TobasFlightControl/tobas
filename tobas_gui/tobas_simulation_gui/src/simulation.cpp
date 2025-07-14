@@ -9,7 +9,7 @@
 #include <tobas_gui_common/path.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
-#include <tobas_linux/errer.hpp>
+#include <tobas_linux/error.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
