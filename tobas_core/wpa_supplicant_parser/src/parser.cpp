@@ -1,9 +1,9 @@
 #include "wpa_supplicant_parser/parser.hpp"
 
-#include <fstream>
 #include <iostream>
 
 #include <tobas_string_tools/core.hpp>
+#include <tobas_string_tools/stream.hpp>
 
 using namespace std;
 namespace fs = filesystem;
@@ -125,34 +125,19 @@ bool WpaSupplicantParser::parseFromText(const string& text)
   return true;
 }
 
-bool WpaSupplicantParser::parseFromFile(const fs::path& path)
+bool WpaSupplicantParser::parseFromPath(const fs::path& path)
 {
-  ifstream file(path);
-  if (!file) {
-    cerr << "Failed to open file: " << path << endl;
+  string text;
+  if (!str::readText(path, text)) {
     return false;
   }
 
-  stringstream buffer;
-  buffer << file.rdbuf();  // ファイル全体を文字列に読み込む
-  file.close();
-
-  const auto text = buffer.str();
-  return parseFromText(text);  // テキストからパース
+  return parseFromText(text);
 }
 
 bool WpaSupplicantParser::write(const fs::path& path)
 {
-  ofstream file(path);
-  if (!file) {
-    cerr << "Failed to open file for writing: " << path << endl;
-    return false;
-  }
-
-  file << exportText();  // テキスト形式で書き込む
-  file.close();
-
-  return true;
+  return str::writeText(path, exportText());
 }
 
 string WpaSupplicantParser::exportText() const

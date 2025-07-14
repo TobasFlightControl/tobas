@@ -31,12 +31,6 @@ QHBoxLayout* createFixedHeightQHBoxLayout(int height, QBoxLayout* parent);
 /* レイアウト内の全ての要素を削除する． */
 void clearLayout(QLayout* layout);
 
-/* 複数のウィジェットを縦に並べたウィジェットを作成する． */
-QWidget* createVerticalWidgetsContainer(const std::vector<QWidget*>& widgets);
-
-/* 複数のウィジェットを横に並べたウィジェットを作成する． */
-QWidget* createHorizontalWidgetsContainer(const std::vector<QWidget*>& widgets);
-
 /* ScrollWidgetを挟んでQVBoxLayoutを作成する． */
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent);
 }  // namespace qt

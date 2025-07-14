@@ -1,15 +1,18 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
 #include "./base.hpp"
+#include "./dshot.hpp"
+#include "./pwm.hpp"
 
 namespace gui
 {
 namespace sa
+{
+namespace hw
 {
 class HardwareWidget : public BaseSettingWidget
 {
@@ -20,19 +23,24 @@ class HardwareWidget : public BaseSettingWidget
 
   static constexpr char kTypeKey[] = "hardware_type";
 
+  static constexpr char kPwmLabel[] = "PWM";
+  static constexpr char kDShotLabel[] = "DShot";
+
 public:
-  explicit HardwareWidget();
+  explicit HardwareWidget(const RobotInfo& robot, const Signals& sig);
 
   const char* name() const override;
   const char* title() const override;
   const char* description() const override;
 
-  void onOpened() override;
   void updateInternalDataStructures() override;
   bool isValid() override;
 
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
+
+  const PwmWidget* pwm() const;
+  const DShotWidget* dshot() const;
 
   const char* fmuName() const;
   const char* hardwarePackage() const;
@@ -76,17 +84,20 @@ public:
   double gnssVerticalVelocityStddev() const;
 
   int numPwmChannels() const;
-
-private Q_SLOTS:
-  void setCurrentHardware(int index);
+  int numDShotChannels() const;
 
 private:
   qt::ComboBox* type_;
   qt::StackedWidget* hardwares_;
-  qt::DescriptionWidget* description_;
+  PwmWidget* pwm_;
+  DShotWidget* dshot_;
 
   BaseHardwareWidget* selected();
   const BaseHardwareWidget* selected() const;
+
+private Q_SLOTS:
+  void setCurrentHardware(int index);
 };
-};  // namespace sa
+};  // namespace hw
+}  // namespace sa
 }  // namespace gui

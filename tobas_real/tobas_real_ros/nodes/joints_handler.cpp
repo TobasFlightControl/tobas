@@ -17,8 +17,6 @@ class JointsHandlerNode : public tobas::BaseNode
   using self = JointsHandlerNode;
   using super = tobas::BaseNode;
 
-  static constexpr double kJointLimitMargin = 1e-3;
-
 public:
   explicit JointsHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -70,20 +68,7 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super
 
 double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::PwmConfig& pwm, double cmd_pos)
 {
-  // Check joint position limit
-  if (!pwm.value_range.inRange(cmd_pos, kJointLimitMargin)) {
-    TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod,
-      "Commanded position of joint \"",
-      pwm.name,
-      "\" is out of range: ",
-      cmd_pos,
-      " ∉ ",
-      pwm.value_range);
-    cmd_pos = pwm.value_range.clamp(cmd_pos);
-  }
-
-  // Compute PWM period
+  cmd_pos = std::clamp(cmd_pos, pwm.value_range.first, pwm.value_range.second);
   return pwm.periodFromValue(cmd_pos);
 }
 

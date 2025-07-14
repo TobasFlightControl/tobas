@@ -35,6 +35,7 @@ public:
   inline T range() const;
   inline T mean() const;
 
+  inline std::pair<T, T> toPair() const;
   inline std::string toString() const;
 
   template <typename U>
@@ -128,6 +129,12 @@ template <typename T>
 inline T Range<T>::mean() const
 {
   return (lower + upper) / 2;
+}
+
+template <typename T>
+inline std::pair<T, T> Range<T>::toPair() const
+{
+  return { lower, upper };
 }
 
 template <typename T>

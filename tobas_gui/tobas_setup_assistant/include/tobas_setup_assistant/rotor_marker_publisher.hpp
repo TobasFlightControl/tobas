@@ -7,7 +7,6 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
-#include "tobas_setup_assistant/signals.hpp"
 
 namespace gui
 {
@@ -23,9 +22,11 @@ class RotorMarkerPublisher : public QObject
   static constexpr double kArrowLength = 0.2;  // TODO: 想定される推力の最大値を矢印の長さに反映
 
 public:
-  explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
+  explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
   void updateInternalDataStructures();
+
+  void publishMarkers();
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -35,14 +36,8 @@ private:
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
   QTimer publish_markers_timer_;
 
-  /* 指定されたリンクのマーカのアクションを設定する． */
-  void setAction(const QString& link_name, int action);
-
-  void publishTimerCb();
-
 private Q_SLOTS:
-  void onRotorLinkAdded(const QString& link_name);
-  void onRotorLinkRemoved(const QString& link_name);
+  void publishTimerCb();
 };
 }  // namespace sa
 }  // namespace gui

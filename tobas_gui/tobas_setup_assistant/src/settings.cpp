@@ -7,15 +7,15 @@ namespace gui
 {
 namespace sa
 {
-SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals)
+SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig) : robot_(robot)
 {
-  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, _signals);
-  fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
-  joint_config = new JointConfigurationWidget(robot, _signals, propulsion_system, fixed_wing);
+  propulsion_system = new propulsion::PropulsionSystemWidget(node, robot, sig);
+  fixed_wing = new fw::FixedWingWidget(node, robot);
+  extra_joints = new ExtraJointsWidget(robot);
   rc_input = new RcInputWidget();
-  controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
+  controller = new ControllerWidget(robot);
   observer = new ObserverWidget();
-  hardware = new HardwareWidget();
+  hardware = new hw::HardwareWidget(robot, sig);
   pre_arm_check = new PreArmCheckWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
@@ -23,7 +23,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   // 各タブを追加
   addTab(propulsion_system, propulsion_system->name());
   // addTab(fixed_wing, fixed_wing->name());  // TODO
-  addTab(joint_config, joint_config->name());
+  addTab(extra_joints, extra_joints->name());
   addTab(rc_input, rc_input->name());
   addTab(controller, controller->name());
   addTab(observer, observer->name());
@@ -41,9 +41,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, S
   // レイアウト
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   setTabSize(kTabWidth, kTabHeight);
-
-  // Connection
-  connect(this, &self::currentChanged, this, &self::onCurrentChanged);
 }
 
 void SettingsWidget::updateInternalDataStructures()
@@ -66,37 +63,36 @@ bool SettingsWidget::isValid()
     }
   }
 
-  // 有効なPWMチャンネルであることを確認
-  if (!isPwmChannelsValid()) {
-    return false;
-  }
-
-  // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
-  // TODO
-
-  return true;
-}
-
-bool SettingsWidget::isPwmChannelsValid()
-{
-  // 全てのPWMチャンネルを収集
-  std::vector<int> channel_list;
-
   switch (propulsion_system->type()) {
     case tobas::propulsion_system_t::ELECTRIC: {
+      // 電動モータのDShotチャンネルが設定されていることを確認
+      for (const auto& elem : robot_.uadf().thrusts) {
+        const auto joint_name = QString::fromStdString(elem.first);
+        if (!hardware->dshot()->contains(joint_name)) {
+          qt::qWarnBox(this, "Please specify a DShot channel for electric rotor \"" + joint_name + "\".");
+          setCurrentWidget(hardware);
+          return false;
+        }
+      }
+
       break;
     }
     case tobas::propulsion_system_t::ICE: {
-      const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(propulsion_system->selected());
+      // 可変ピッチプロペラのPWMチャンネルが設定されていることを確認
+      for (const auto& elem : robot_.uadf().thrusts) {
+        const auto joint_name = QString::fromStdString(elem.first);
+        if (!hardware->pwm()->contains(joint_name)) {
+          qt::qWarnBox(this, "Please specify a PWM channel for variable pitch \"" + joint_name + "\".");
+          setCurrentWidget(hardware);
+          return false;
+        }
+      }
 
-      const auto engine = iprop->engine;
-      channel_list.push_back(engine->hardwareIface()->pwmChannel());
-
-      const auto units = iprop->units->selected();
-      for (int i = 0; i < iprop->numUnits(); ++i) {
-        const auto unit_widget = units->widget(i);
-        const auto pwm_channel = unit_widget->hardwareIface()->pwmChannel();
-        channel_list.push_back(pwm_channel);
+      // エンジンスロットルのPWMチャンネルが設定されていることを確認
+      if (!hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
+        qt::qWarnBox(this, "Please specify a PWM channel for engine throttle.");
+        setCurrentWidget(hardware);
+        return false;
       }
 
       break;
@@ -106,27 +102,28 @@ bool SettingsWidget::isPwmChannelsValid()
     }
   }
 
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (joint_config->getHardwareInterface(i) == tobas::hw_iface_t::PWM) {
-      channel_list.push_back(joint_config->getPwmChannel(i));
-    }
-  }
-
-  std::unordered_set<int> channel_set;
-  for (const auto& channel : channel_list) {
-    // PWMチャンネルがハードウェアでサポートされていることを確認
-    if (channel >= hardware->numPwmChannels()) {
-      const auto fmu_name = QString(hardware->fmuName());
-      qt::qErrorBox(this, "FMU \"" + fmu_name + "\" does not support PWM channel " + QString::number(channel) + ".");
-      return false;
-    }
-
-    // PWMチャンネルがユニークであることを確認
-    if (!channel_set.insert(channel).second) {
-      qt::qErrorBox(this, "PWM channel " + QString::number(channel) + " is duplicated.");
+  // 固定翼の操舵面のPWMチャンネルが設定されていることを確認
+  for (const auto& elem : robot_.uadf().control_surfaces) {
+    const auto joint_name = QString::fromStdString(elem.first);
+    if (!hardware->pwm()->contains(joint_name)) {
+      qt::qWarnBox(this, "Please specify a PWM channel for control surface \"" + joint_name + "\".");
+      setCurrentWidget(hardware);
       return false;
     }
   }
+
+  // ティルトジョイントのPWMチャンネルが設定されていることを確認
+  for (const auto& elem : robot_.uadf().tilts) {
+    const auto joint_name = QString::fromStdString(elem.first);
+    if (!hardware->pwm()->contains(joint_name)) {
+      qt::qWarnBox(this, "Please specify a PWM channel for active tilt joint \"" + joint_name + "\".");
+      setCurrentWidget(hardware);
+      return false;
+    }
+  }
+
+  // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
+  // TODO
 
   return true;
 }
@@ -150,7 +147,6 @@ bool SettingsWidget::load(const YAML::Node& node)
   for (int i = 0; i < count(); ++i) {
     const auto tab = qt::qPointerCast<BaseSettingWidget>(widget(i));
     try {
-      tab->onOpened();
       tab->load(node[tab->name()]);
     }
     catch (const std::exception& e) {
@@ -160,12 +156,6 @@ bool SettingsWidget::load(const YAML::Node& node)
   }
 
   return success;
-}
-
-void SettingsWidget::onCurrentChanged(int index)
-{
-  const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(widget(index));
-  cur_widget->onOpened();
 }
 }  // namespace sa
 }  // namespace gui

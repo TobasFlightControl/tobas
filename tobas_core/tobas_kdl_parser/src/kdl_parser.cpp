@@ -1,14 +1,16 @@
+#include "tobas_kdl_parser/kdl_parser.hpp"
+
 #include <iostream>
 
 #include <urdf_parser/urdf_parser.h>
 
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 
-#include "tobas_kdl_parser/kdl_parser.hpp"
-
 using namespace std;
 
 namespace kdl
+{
+namespace
 {
 /* Recursive function to walk through tree. */
 void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
@@ -36,26 +38,27 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
     addChildrenToTree(child, tree);
   }
 }
+}  // namespace
 
-bool treeFromFile(const string& file, Tree& tree)
+bool treeFromPath(const string& path, Tree& tree)
 {
-  const auto robot_model = urdf::parseURDFFile(file);
-  return treeFromUrdfModel(*robot_model, tree);
+  const auto model = urdf::parseURDFFile(path);
+  return treeFromUrdf(*model, tree);
 }
 
-bool treeFromString(const string& xml, Tree& tree)
+bool treeFromText(const string& xml, Tree& tree)
 {
-  const auto robot_model = urdf::parseURDF(xml);
-  if (!robot_model) {
+  const auto model = urdf::parseURDF(xml);
+  if (!model) {
     cerr << "Failed to generate robot model." << endl;
     return false;
   }
-  return treeFromUrdfModel(*robot_model, tree);
+  return treeFromUrdf(*model, tree);
 }
 
-bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
+bool treeFromUrdf(const urdf::ModelInterface& model, Tree& tree)
 {
-  const auto root_link = robot_model.getRoot();
+  const auto root_link = model.getRoot();
   if (!root_link) {
     cerr << "Failed to get root link." << endl;
     return false;

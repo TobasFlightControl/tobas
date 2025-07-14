@@ -18,6 +18,7 @@
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_uadf/parser.hpp>
 
 #include "tobas_gcs/app_button.hpp"
 #include "tobas_gcs/constants.hpp"
@@ -208,9 +209,14 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // kdl::Treeをロード
-  const auto urdf_path = common::getProjBackupUrdfPath(tbs_path.toStdString());
-  if (!kdl::treeFromFile(urdf_path, tree_)) {
-    qt::qErrorBox(this, "Failed to load robot tree.");
+  const auto uadf_path = common::getProjOriginalUadfPath(tbs_path.toStdString());
+  uadf::Model uadf_model;
+  if (!uadf::parseFromPath(uadf_path, uadf_model)) {
+    qt::qErrorBox(this, "Failed to load UADF.");
+    return;
+  }
+  if (!kdl::treeFromUrdf(*uadf_model.urdf, tree_)) {
+    qt::qErrorBox(this, "Failed to load KDL tree.");
     return;
   }
 

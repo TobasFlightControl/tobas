@@ -142,7 +142,7 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   }
 
   if (rotor_currents_.size() < rotor_link_names_.size()) {
-    if (info.simTime > kWarnStartTime) {
+    if (info.simTime > kCheckTopicWarnStartTime) {
       const auto num_not_received = rotor_link_names_.size() - rotor_currents_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }

@@ -54,6 +54,9 @@ std::filesystem::path getProjCfgMeshDirPath(const std::filesystem::path& tbs_pat
 /* 設定パッケージのurdfディレクトリの絶対パスを返す． */
 std::filesystem::path getProjCfgUrdfDirPath(const std::filesystem::path& tbs_path);
 
+/* original.uadf の絶対パスを返す． */
+std::filesystem::path getProjOriginalUadfPath(const std::filesystem::path& tbs_path);
+
 /* drone.xacro の絶対パスを返す． */
 std::filesystem::path getProjXacroPath(const std::filesystem::path& tbs_path);
 
@@ -77,8 +80,5 @@ std::filesystem::path getProjBackupDirPath(const std::filesystem::path& tbs_path
 
 /* バックアップ用設定ファイルの絶対パスを返す． */
 std::filesystem::path getProjBackupSettingsPath(const std::filesystem::path& tbs_path);
-
-/* バックアップ用オリジナルURDFの絶対パスを返す． */
-std::filesystem::path getProjBackupUrdfPath(const std::filesystem::path& tbs_path);
 }  // namespace common
 }  // namespace gui

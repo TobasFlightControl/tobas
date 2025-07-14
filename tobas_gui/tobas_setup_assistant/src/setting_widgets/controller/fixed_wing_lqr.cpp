@@ -6,11 +6,7 @@ namespace gui
 {
 namespace sa
 {
-FixedWingLQRWidget::FixedWingLQRWidget(
-  RobotInfo& robot,
-  const propulsion::PropulsionSystemWidget* propulsion_system,
-  const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
+FixedWingLQRWidget::FixedWingLQRWidget(RobotInfo& robot) : robot_(robot)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -71,25 +67,20 @@ void FixedWingLQRWidget::load(const YAML::Node&)
 
 bool FixedWingLQRWidget::isApplicable()
 {
-  // 固定翼を持つ
-  if (!fixed_wing_->hasFixedWing()) {
-    return false;
-  }
-
-  // 制御面の個数条件
-  if (fixed_wing_->controlSurfaces()->numUnits() < kMinNumCS) {
+  // 固定翼の操舵面の個数条件
+  if (robot_.uadf().control_surfaces.size() < kMinNumCS) {
     return false;
   }
 
   // プロペラの個数条件
-  if (propulsion_system_->numUnits() < kMinNumProp) {
+  if (robot_.uadf().thrusts.size() < kMinNumProp) {
     return false;
   }
 
   // X軸正方向のプロペラのみ
-  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
-    const auto link_name = propulsion_system_->linkName(i);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitX())) {
+  for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+    const auto& link_name = robot_.linkName(joint_name);
+    if (!robot_.isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitX())) {
       return false;
     }
   }

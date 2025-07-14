@@ -8,22 +8,15 @@ namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 T1Widget::T1Widget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
-  rows->addStretch();
 }
 
 const char* T1Widget::name() const
 {
   return "Tobas T1";
-}
-
-const char* T1Widget::description() const
-{
-  return "";  // TODO
 }
 
 YAML::Node T1Widget::dump() const
@@ -134,5 +127,11 @@ int T1Widget::numPwmChannels() const
 {
   return 8;
 }
+
+int T1Widget::numDShotChannels() const
+{
+  return 8;
+}
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

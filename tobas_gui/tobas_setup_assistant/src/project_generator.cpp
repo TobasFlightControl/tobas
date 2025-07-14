@@ -1,6 +1,5 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
-#include <urdf_parser/urdf_parser.h>
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
@@ -12,6 +11,7 @@
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
+#include <tobas_uadf/exporter.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
@@ -135,39 +135,6 @@ tobas::Drone ProjectGenerator::createDrone()
   // Drone Name
   drone.name = robot_.robotName();
 
-  // Joints
-  const auto& joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    tobas::JointConfig joint;
-    joint.name = joint_config->getJointName(i).toStdString();
-    joint.role = joint_config->getRole(i);
-    joint.cmd_iface = joint_config->getCommandInterface(i);
-    joint.hw_iface = joint_config->getHardwareInterface(i);
-    joint.home_pos = joint_config->getHomePosition(i);
-    drone.joints[joint.name] = joint;
-
-    switch (joint.hw_iface) {
-      case tobas::hw_iface_t::PWM: {
-        tobas::PwmConfig pwm;
-        pwm.channel = joint_config->getPwmChannel(i);
-        pwm.name = joint.name;
-        pwm.period_range.lower = joint_config->getPwmMinPeriod(i);
-        pwm.period_range.upper = joint_config->getPwmMaxPeriod(i);
-        pwm.value_range.lower = joint_config->getPwmMinAngle(i);
-        pwm.value_range.upper = joint_config->getPwmMaxAngle(i);
-        pwm.reverse = joint_config->getPwmReverse(i);
-        TOBAS_CHECK(drone.pwms.insert({ joint.name, pwm }).second);
-        break;
-      }
-      case tobas::hw_iface_t::OTHER: {
-        break;
-      }
-      default: {
-        throw;
-      }
-    }
-  }
-
   // Propulsion System
   switch (settings_->propulsion_system->type()) {
     case tobas::propulsion_system_t::ELECTRIC: {
@@ -183,18 +150,25 @@ tobas::Drone ProjectGenerator::createDrone()
       eprop->battery.max_current = battery_widget->maxCurrent();
 
       // Rotors
-      const auto units_widget = eprop_widget->units->selected();
       for (int i = 0; i < eprop_widget->numUnits(); ++i) {
+        const auto unit_widget = eprop_widget->units->widget(i);
         const auto link_name = eprop_widget->linkName(i).toStdString();
-        const auto unit_widget = units_widget->widget(i);
 
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
+        const auto& par_ele = cur_ele.parent->second;
+        const auto& par_seg = par_ele.segment;
+        const auto& par_jnt = par_seg.joint();
+
+        // Rotor
         const auto rotor = std::make_shared<tobas::ElectricRotorConfig>();
         rotor->link_name = link_name;
-        rotor->direction = unit_widget->general()->direction();
+        rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
         rotor->axis = robot_.rotorAxisType(link_name);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
-        rotor->tilt_joint_name = unit_widget->general()->tiltJointName().toStdString();
-        rotor->channel = unit_widget->general()->channel();
+        rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
+        rotor->channel = settings_->hardware->dshot()->channel(QString::fromStdString(cur_jnt.name));  // TODO: PWM対応
         rotor->num_poles = unit_widget->motor()->numPoles();
         rotor->kv = unit_widget->motor()->kv();
         rotor->internal_resistance = unit_widget->motor()->internalResistance();
@@ -202,6 +176,29 @@ tobas::Drone ProjectGenerator::createDrone()
         rotor->propeller_diameter = unit_widget->propeller()->diameter();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
         TOBAS_CHECK(eprop->rotors.insert({ link_name, rotor }).second);
+
+        // Tilt Joint
+        if (robot_.uadf().tilts.contains(par_jnt.name)) {
+          tobas::JointConfig tilt_joint;
+          tilt_joint.name = par_jnt.name;
+          tilt_joint.role = tobas::jnt_role_t::TILT_JOINT;
+          tilt_joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+          tilt_joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          tilt_joint.home_pos = 0.;
+          TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
+
+          if (tilt_joint.hw_iface == tobas::hw_iface_t::PWM) {
+            tobas::PwmConfig tilt_pwm;
+            const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
+            tilt_pwm.channel = pwm_channel;
+            tilt_pwm.name = par_jnt.name;
+            tilt_pwm.period_range.first = settings_->hardware->pwm()->periodLb(pwm_channel);
+            tilt_pwm.period_range.second = settings_->hardware->pwm()->periodUb(pwm_channel);
+            tilt_pwm.value_range.first = par_jnt.lower_limit;
+            tilt_pwm.value_range.second = par_jnt.upper_limit;
+            TOBAS_CHECK(drone.pwms.insert({ link_name, tilt_pwm }).second);
+          }
+        }
       }
 
       drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
@@ -215,47 +212,79 @@ tobas::Drone ProjectGenerator::createDrone()
       // Engine
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
-      iprop->engine.hw_iface = tobas::hw_iface_t::PWM;
+      iprop->engine.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
 
-      // TODO: PWM以外のインターフェースに対応
-      tobas::PwmConfig engine_pwm;
-      engine_pwm.channel = engine_widget->hardwareIface()->pwmChannel();
-      engine_pwm.name = tobas::pwm::kEngineThrottleKey;
-      engine_pwm.period_range.lower = engine_widget->hardwareIface()->pwmPeriodZeroThrot();
-      engine_pwm.period_range.upper = engine_widget->hardwareIface()->pwmPeriodFullThrot();
-      engine_pwm.value_range.lower = tobas::kMinThrot;
-      engine_pwm.value_range.upper = tobas::kMaxThrot;
-      engine_pwm.reverse = false;
-      TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+      if (iprop->engine.hw_iface == tobas::hw_iface_t::PWM) {
+        tobas::PwmConfig engine_pwm;
+        const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
+        engine_pwm.channel = engine_pwm_channel;
+        engine_pwm.name = tobas::pwm::kEngineThrottleKey;
+        engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);
+        engine_pwm.period_range.second = settings_->hardware->pwm()->periodUb(engine_pwm_channel);
+        engine_pwm.value_range.first = tobas::kMinThrot;
+        engine_pwm.value_range.second = tobas::kMaxThrot;
+        TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+      }
 
       // Rotors
-      const auto units_widget = iprop_widget->units->selected();
       for (int i = 0; i < iprop_widget->numUnits(); ++i) {
+        const auto unit_widget = iprop_widget->units->widget(i);
         const auto link_name = iprop_widget->linkName(i).toStdString();
-        const auto unit_widget = units_widget->widget(i);
 
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
+        const auto& par_ele = cur_ele.parent->second;
+        const auto& par_seg = par_ele.segment;
+        const auto& par_jnt = par_seg.joint();
+
+        // Rotor
         const auto rotor = std::make_shared<tobas::ICERotorConfig>();
         rotor->link_name = link_name;
-        rotor->direction = unit_widget->general()->direction();
+        rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
         rotor->axis = robot_.rotorAxisType(link_name);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
-        rotor->tilt_joint_name = "";
+        rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
         rotor->pitch_ref = unit_widget->propeller()->pitchAngleRef();
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
-        rotor->hw_iface = tobas::hw_iface_t::PWM;
+        rotor->hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
         TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
 
+        // Variable Pitch Interface
         // TODO: PWM以外のインターフェースに対応
         tobas::PwmConfig pitch_pwm;
-        pitch_pwm.channel = unit_widget->hardwareIface()->pwmChannel();
+        const auto vpp_pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(cur_jnt.name));
+        pitch_pwm.channel = vpp_pwm_channel;
         pitch_pwm.name = link_name;
-        pitch_pwm.period_range.lower = unit_widget->hardwareIface()->pwmPeriodMinPitch();
-        pitch_pwm.period_range.upper = unit_widget->hardwareIface()->pwmPeriodMaxPitch();
-        pitch_pwm.value_range = unit_widget->propeller()->pitchAngleLimit();
-        pitch_pwm.reverse = false;
+        pitch_pwm.period_range.first = settings_->hardware->pwm()->periodLb(vpp_pwm_channel);
+        pitch_pwm.period_range.second = settings_->hardware->pwm()->periodUb(vpp_pwm_channel);
+        pitch_pwm.value_range = unit_widget->propeller()->pitchAngleLimit().toPair();
         TOBAS_CHECK(drone.pwms.insert({ link_name, pitch_pwm }).second);
+
+        // Tilt Joint
+        if (robot_.uadf().tilts.contains(par_jnt.name)) {
+          tobas::JointConfig tilt_joint;
+          tilt_joint.name = par_jnt.name;
+          tilt_joint.role = tobas::jnt_role_t::TILT_JOINT;
+          tilt_joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+          tilt_joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          tilt_joint.home_pos = 0.;
+          TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
+
+          if (tilt_joint.hw_iface == tobas::hw_iface_t::PWM) {
+            tobas::PwmConfig tilt_pwm;
+            const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
+            tilt_pwm.channel = pwm_channel;
+            tilt_pwm.name = par_jnt.name;
+            tilt_pwm.period_range.first = settings_->hardware->pwm()->periodLb(pwm_channel);
+            tilt_pwm.period_range.second = settings_->hardware->pwm()->periodUb(pwm_channel);
+            tilt_pwm.value_range.first = par_jnt.lower_limit;
+            tilt_pwm.value_range.second = par_jnt.upper_limit;
+            TOBAS_CHECK(drone.pwms.insert({ link_name, tilt_pwm }).second);
+          }
+        }
       }
 
       drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
@@ -298,9 +327,13 @@ tobas::Drone ProjectGenerator::createDrone()
     drone.fixed_wing->aerodynamics.c_yaw_r = aero_coefs->c_yaw_r();
 
     // Control Surfaces
-    const auto css = settings_->fixed_wing->controlSurfaces()->selected();
+    const auto css = settings_->fixed_wing->controlSurfaces();
     for (int i = 0; i < css->numUnits(); ++i) {
       const auto link_name = css->linkName(i).toStdString();
+
+      const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+      const auto& cur_seg = cur_ele.segment;
+      const auto& cur_jnt = cur_seg.joint();
 
       tobas::ControlSurface cs;
       cs.link_name = link_name;
@@ -310,9 +343,28 @@ tobas::Drone ProjectGenerator::createDrone()
       cs.c_roll_delta = css->rollCoef(i);
       cs.c_pitch_delta = css->pitchCoef(i);
       cs.c_yaw_delta = css->yawCoef(i);
-
       drone.fixed_wing->control_surfaces[link_name] = cs;
+
+      tobas::JointConfig joint;
+      joint.name = cur_jnt.name;
+      joint.role = tobas::jnt_role_t::CONTROL_SURFACE;
+      joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
+      joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+      joint.home_pos = 0.;
+      drone.joints[joint.name] = joint;
     }
+  }
+
+  // Extra Joints
+  const auto& extra_joints = settings_->extra_joints;
+  for (int i = 0; i < extra_joints->numJoints(); ++i) {
+    tobas::JointConfig joint;
+    joint.name = extra_joints->getJointName(i).toStdString();
+    joint.role = extra_joints->getRole(i);
+    joint.cmd_iface = extra_joints->getCommandInterface(i);
+    joint.hw_iface = tobas::hw_iface_t::OTHER;  // TODO: 選択できるようにする
+    joint.home_pos = extra_joints->getHomePosition(i);
+    drone.joints[joint.name] = joint;
   }
 
   // RC Input
@@ -323,12 +375,17 @@ tobas::Drone ProjectGenerator::createDrone()
 
 bool ProjectGenerator::hasServoJoint() const
 {
-  const auto& joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (tobas::isServoJoint(joint_config->getRole(i))) {
+  if (robot_.uadf().tilts.size() > 0 || robot_.uadf().control_surfaces.size() > 0) {
+    return true;
+  }
+
+  const auto& extra_joints = settings_->extra_joints;
+  for (int i = 0; i < extra_joints->numJoints(); ++i) {
+    if (tobas::isServoJoint(extra_joints->getRole(i))) {
       return true;
     }
   }
+
   return false;
 }
 
@@ -418,6 +475,9 @@ bool ProjectGenerator::generateConfigPackage(const fs::path& tbs_path, const inj
     return false;
   }
   if (!generateRcTeleopStaticConfig(tbs_path)) {
+    return false;
+  }
+  if (!generateOriginalUadf(tbs_path)) {
     return false;
   }
   if (!generateModifiedUrdf(tbs_path)) {
@@ -529,60 +589,42 @@ bool ProjectGenerator::generateBackupFiles(const fs::path& tbs_path)
     return false;
   }
 
-  // Save original URDF
-  const auto doc = urdf::exportURDF(*robot_.urdf());
-  const auto robot = doc->RootElement();
-  if (!replaceOriginalUrdfMeshFilePaths(robot, tbs_path)) {
-    return false;
-  }
-  if (doc->SaveFile(common::getProjBackupUrdfPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the original URDF.");
-    return false;
-  }
-
   return true;
 }
 
 bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
 {
-  const auto& ns = robot_.robotName();
-  const auto& joint_config = settings_->joint_config;
+  // Create XML
+  tinyxml2::XMLDocument doc;
+  const auto launch = doc.NewElement("launch");
+  doc.InsertFirstChild(launch);
 
-  // XMLを作成
-  const auto doc = new tinyxml2::XMLDocument();
-  const auto launch = doc->NewElement("launch");
-  doc->InsertFirstChild(launch);
-
-  // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
+  // サーボジョイントが存在する場合に限りcontroller_managerを立ち上げる
   if (hasServoJoint()) {
     const auto cfg_pkg_name = common::getProjCfgPkgName(tbs_path);
-    const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
 
-    // Joint state broadcaster
-    const auto jsb_name = std::string(tobas::node::kJointStateBroadcaster);
-    const auto jsb_param = config_dir + jsb_name + ".yaml";
-    const auto jsb_args = jsb_name + " --param-file " + jsb_param;
-    const auto jsb_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
-    xml::addNodeParam(jsb_node, "use_sim_time", "true");
+    // Add joint state broadcaster
+    addJointControllerNode(launch, cfg_pkg_name, tobas::node::kJointStateBroadcaster);
 
-    // コントローラごとにノードを立ち上げる
-    for (int i = 0; i < joint_config->numJoints(); ++i) {
-      if (!tobas::isServoJoint(joint_config->getRole(i))) {
+    // Add joint controllers
+    for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
+    }
+    for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
+    }
+    for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
+      if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
         continue;
       }
-
-      const auto joint_name = joint_config->getJointName(i).toStdString();
-      const auto ctrl_name = joint_name + "_controller";
-      const auto ctrl_param = config_dir + ctrl_name + ".yaml";
-      const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
-      const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
-      xml::addNodeParam(ctrl_node, "use_sim_time", "true");
+      const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
+      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
     }
   }
 
-  // XMLを保存
+  // Save XML
   const auto launch_dir = common::getProjCfgLaunchDirPath(tbs_path);
-  if (doc->SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
+  if (doc.SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
     return false;
   }
@@ -598,20 +640,23 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
   manager_params_node[tobas::node::kJointStateBroadcaster]["type"] = tobas::ctrl_manager::type::kJointStateBroadcaster;
 
   // Each joint controllers
-  const auto joint_config = settings_->joint_config;
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (!tobas::isServoJoint(joint_config->getRole(i))) {
+  for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
+  }
+  for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
+  }
+  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
+    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
       continue;
     }
-
-    const auto jnt_name = joint_config->getJointName(i).toStdString();
-    const auto ctrl_name = jnt_name + "_controller";
-    manager_params_node[ctrl_name]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
+    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
+    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
   }
 
   // Create data
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
+  root_node[robot_.robotName()]["controller_manager"][kRosParamsKey] = manager_params_node;
 
   // Save data
   const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
@@ -624,27 +669,26 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
 
 bool ProjectGenerator::generateJointControllerConfigs(const fs::path& tbs_path)
 {
-  const auto joint_config = settings_->joint_config;
+  for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::jnt_cmd_iface_t::POSITION)) {
+      return false;
+    }
+  }
 
-  for (int i = 0; i < joint_config->numJoints(); ++i) {
-    if (!tobas::isServoJoint(joint_config->getRole(i))) {
+  for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::jnt_cmd_iface_t::POSITION)) {
+      return false;
+    }
+  }
+
+  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
+    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
       continue;
     }
 
-    const auto jnt_name = joint_config->getJointName(i).toStdString();
-    const auto ctrl_name = jnt_name + "_controller";
-
-    YAML::Node ctrl_params_node(YAML::NodeType::Map);
-    ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::textFromEnum(joint_config->getCommandInterface(i));
-
-    // Create data
-    YAML::Node root_node(YAML::NodeType::Map);
-    root_node["/**"][ctrl_name][kROSParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
-
-    // Save data
-    const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
-    if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
+    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
+    const auto cmd_iface = settings_->extra_joints->getCommandInterface(i);
+    if (!generateJointControllerConfig(tbs_path, jnt_name, cmd_iface)) {
       return false;
     }
   }
@@ -713,7 +757,7 @@ bool ProjectGenerator::generateObserverStaticConfig(const fs::path& tbs_path)
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kObserver][kROSParamsKey] = params;
+  node_standalone["/**"][tobas::node::kObserver][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "observer_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -736,7 +780,7 @@ bool ProjectGenerator::generateControllerStaticConfig(const fs::path& tbs_path)
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kController][kROSParamsKey] = params;
+  node_standalone["/**"][tobas::node::kController][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
     return false;
   }
@@ -761,8 +805,28 @@ bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& tbs_path)
 
   // For standalone
   YAML::Node node_standalone(YAML::NodeType::Map);
-  node_standalone["/**"][tobas::node::kRcTeleop][kROSParamsKey] = params;
+  node_standalone["/**"][tobas::node::kRcTeleop][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "rc_teleop_static_standalone.yaml", node_standalone)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateOriginalUadf(const std::filesystem::path& tbs_path)
+{
+  // Export the original UADF
+  const auto doc = uadf::exportUADF(robot_.uadf());
+  const auto robot = doc->RootElement();
+
+  // Modify
+  if (!replaceOriginalUadfMeshFilePaths(robot, tbs_path)) {
+    return false;
+  }
+
+  // Save
+  if (doc->SaveFile(common::getProjOriginalUadfPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(settings_, "Failed to save the original UADF.");
     return false;
   }
 
@@ -772,10 +836,10 @@ bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& tbs_path)
 bool ProjectGenerator::generateModifiedUrdf(const fs::path& tbs_path)
 {
   // Export the original URDF
-  const auto doc = urdf::exportURDF(*robot_.urdf());
+  const auto doc = robot_.urdfDocument();
   const auto robot = doc->RootElement();
 
-  // Modify robot
+  // Modify
   if (!resolveModifiedUrdfMeshFilePaths(robot, tbs_path)) {
     return false;
   }
@@ -786,7 +850,7 @@ bool ProjectGenerator::generateModifiedUrdf(const fs::path& tbs_path)
     return false;
   }
 
-  // Save modified URDF
+  // Save
   if (doc->SaveFile(common::getProjXacroPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS) {
     qt::qErrorBox(settings_, "Failed to save the modified URDF.");
     return false;
@@ -891,7 +955,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
   return true;
 }
 
-bool ProjectGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& tbs_path)
+bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem, const fs::path& tbs_path)
 {
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
@@ -911,7 +975,7 @@ bool ProjectGenerator::replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* el
 
   // 再帰的に子要素もチェック
   for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (!replaceOriginalUrdfMeshFilePaths(child, tbs_path)) {
+    if (!replaceOriginalUadfMeshFilePaths(child, tbs_path)) {
       return false;
     }
   }
@@ -1031,7 +1095,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
     case tobas::propulsion_system_t::ELECTRIC: {
       const auto eprop = qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
       const auto battery = eprop->battery;
-      const auto units = eprop->units->selected();
+      const auto units = eprop->units;
+      ;
 
       // Battery plugin
       constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
@@ -1049,9 +1114,11 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
       // Rotor plugins
       for (int i = 0; i < units->numUnits(); ++i) {
         const auto link_name = eprop->linkName(i).toStdString();
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
 
         const auto unit = units->widget(i);
-        const auto general = unit->general();
         const auto esc = unit->esc();
         const auto motor = unit->motor();
         const auto propeller = unit->propeller();
@@ -1067,7 +1134,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
           aero->motorConst(),
           aero->momentConst(),
           aero->dragConst(),
-          general->direction(),
+          turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction),
           esc->maxCurrent(),
           sim->maxModelErrorRate());
       }
@@ -1077,7 +1144,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
     case tobas::propulsion_system_t::ICE: {
       const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(prop->selected());
       const auto engine = iprop->engine;
-      const auto units = iprop->units->selected();
+      const auto units = iprop->units;
 
       xml::EngineParam engine_param;
       engine_param.engine_const = engine->dynamics()->engineConstant();
@@ -1086,11 +1153,16 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
 
       std::vector<xml::ICERotorParam> rotor_params;
       for (int i = 0; i < units->numUnits(); ++i) {
+        const auto link_name = iprop->linkName(i).toStdString();
+        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_seg = cur_ele.segment;
+        const auto& cur_jnt = cur_seg.joint();
+
         const auto unit = units->widget(i);
 
         xml::ICERotorParam rotor_param;
         rotor_param.link_name = iprop->linkName(i).toStdString();
-        rotor_param.direction = unit->general()->direction();
+        rotor_param.direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
         rotor_param.gear_ratio = unit->transmission()->gearRatio();
         rotor_param.num_blades = unit->propeller()->numBlade();
         rotor_param.pitch_angle_limit = unit->propeller()->pitchAngleLimit();
@@ -1138,6 +1210,60 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
   xml::addBaseStaticJoint(robot, robot_.tree().getRootName());
 
   return true;
+}
+
+void ProjectGenerator::addJointControllerNode(
+  tinyxml2::XMLElement* launch,
+  const std::string& cfg_pkg_name,
+  const std::string& ctrl_name)
+{
+  const auto& ns = robot_.robotName();
+  const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
+  const auto ctrl_param = config_dir + ctrl_name + ".yaml";
+  const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
+  const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
+  xml::addNodeParam(ctrl_node, "use_sim_time", "true");
+}
+
+bool ProjectGenerator::generateJointControllerConfig(
+  const std::filesystem::path& tbs_path,
+  const std::string& jnt_name,
+  const tobas::jnt_cmd_iface_t& cmd_iface)
+{
+  const auto ctrl_name = jointControllerName(jnt_name);
+
+  YAML::Node ctrl_params_node(YAML::NodeType::Map);
+  ctrl_params_node["joints"].push_back(jnt_name);
+  ctrl_params_node["interface_name"] = tobas::textFromEnum(cmd_iface);
+
+  // Create data
+  YAML::Node root_node(YAML::NodeType::Map);
+  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
+
+  // Save data
+  const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
+  if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
+    return false;
+  }
+
+  return true;
+}
+
+std::string ProjectGenerator::jointControllerName(const std::string& jnt_name)
+{
+  return jnt_name + "_controller";
+}
+
+tobas::turning_direction_t ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
+{
+  switch (src) {
+    case uadf::Thrust::CW:
+      return tobas::turning_direction_t::CW;
+    case uadf::Thrust::CCW:
+      return tobas::turning_direction_t::CCW;
+    default:
+      throw;
+  }
 }
 }  // namespace sa
 }  // namespace gui

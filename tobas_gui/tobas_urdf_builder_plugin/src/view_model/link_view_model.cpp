@@ -42,7 +42,7 @@ void LinkViewModel::sync()
 
   // collision, collision_array
   model_->collision_array.clear();
-  transform(
+  std::transform(
     collisions_.begin(),
     collisions_.end(),
     back_inserter(model_->collision_array),
@@ -56,7 +56,7 @@ void LinkViewModel::sync()
 
   // visual, visual_array
   model_->visual_array.clear();
-  transform(
+  std::transform(
     visuals_.begin(),
     visuals_.end(),
     back_inserter(model_->visual_array),

@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
+#include <QCheckBox>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -9,18 +11,19 @@ namespace sa
 {
 namespace propulsion
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& sig)
+  : sig_(sig)
 {
   type_buttons_ = new QButtonGroup(this);
   propulsion_stack_ = new qt::StackedWidget();
 
-  const auto eprop = new electric::PropulsionSystemWidget(node, robot, _signals);
+  const auto eprop = new electric::PropulsionSystemWidget(node, robot);
   const auto eprop_ckb = new QCheckBox(eprop->name());
   type_buttons_->addButton(eprop_ckb);
   type_buttons_->setId(eprop_ckb, kElectricId);
   propulsion_stack_->addWidget(eprop);
 
-  const auto iprop = new ice::PropulsionSystemWidget(node, robot, _signals);
+  const auto iprop = new ice::PropulsionSystemWidget(robot);
   const auto iprop_ckb = new QCheckBox(iprop->name());
   type_buttons_->addButton(iprop_ckb);
   type_buttons_->setId(iprop_ckb, kIceId);
@@ -52,10 +55,6 @@ const char* PropulsionSystemWidget::title() const
 const char* PropulsionSystemWidget::description() const
 {
   return "";  // TODO
-}
-
-void PropulsionSystemWidget::onOpened()
-{
 }
 
 void PropulsionSystemWidget::updateInternalDataStructures()
@@ -121,16 +120,6 @@ QString PropulsionSystemWidget::linkName(int index) const
   return selected()->linkName(index);
 }
 
-bool PropulsionSystemWidget::isTiltRotor(int index) const
-{
-  return selected()->isTiltRotor(index);
-}
-
-QString PropulsionSystemWidget::tiltJointName(int index) const
-{
-  return selected()->tiltJointName(index);
-}
-
 BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
 {
   return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
@@ -153,13 +142,11 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 
 void PropulsionSystemWidget::onPropulsionTypeChanged(int index)
 {
-  // 全ての設定をリセット
-  for (int i = 0; i < propulsion_stack_->count(); ++i) {
-    const auto propulsion = widget(i);
-    propulsion->reset();
-  }
-
+  // 推進系のウィジェットを切り替える
   propulsion_stack_->setCurrentIndex(index);
+
+  // 推進系の型が変わったことを他のウィジェットに通知
+  Q_EMIT sig_.propulsionTypeChanged(widget(index)->type());
 }
 }  // namespace propulsion
 }  // namespace sa

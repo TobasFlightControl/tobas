@@ -18,7 +18,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node)
   : node_(node), property_client_(node)
@@ -40,97 +40,97 @@ AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget(rclcpp::Node::Sha
   rows->addLayout(form_);
 
   c_lift_0_ = new qt::DoubleSpinBox();
-  c_lift_0_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_lift_0_->setDecimals(kStabilityCoefDecimals);
   c_lift_0_->setValue(0.2127);
   c_lift_0_->setSuffix(" [-]");
   form_->addRow(new QLabel("c_lift_0"), c_lift_0_);
 
   c_lift_alpha_ = new qt::DoubleSpinBox();
-  c_lift_alpha_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_lift_alpha_->setDecimals(kStabilityCoefDecimals);
   c_lift_alpha_->setValue(10.806);
   c_lift_alpha_->setSuffix(" [/rad]");
   form_->addRow(new QLabel("c_lift_alpha"), c_lift_alpha_);
 
   c_drag_0_ = new qt::DoubleSpinBox();
-  c_drag_0_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_drag_0_->setDecimals(kStabilityCoefDecimals);
   c_drag_0_->setValue(0.136);
   c_drag_0_->setSuffix(" [-]");
   form_->addRow(new QLabel("c_drag_0"), c_drag_0_);
 
   c_drag_alpha_ = new qt::DoubleSpinBox();
-  c_drag_alpha_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_drag_alpha_->setDecimals(kStabilityCoefDecimals);
   c_drag_alpha_->setValue(0.6737);
   c_drag_alpha_->setSuffix(" [/rad]");
   form_->addRow(new QLabel("c_drag_alpha"), c_drag_alpha_);
 
   c_side_beta_ = new qt::DoubleSpinBox();
-  c_side_beta_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_side_beta_->setDecimals(kStabilityCoefDecimals);
   c_side_beta_->setValue(-0.3073);
   c_side_beta_->setSuffix(" [/rad]");
   form_->addRow(new QLabel("c_side_beta"), c_side_beta_);
 
   c_roll_beta_ = new qt::DoubleSpinBox();
-  c_roll_beta_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_roll_beta_->setDecimals(kStabilityCoefDecimals);
   c_roll_beta_->setValue(-0.0154);
   c_roll_beta_->setSuffix(" [/rad]");
   form_->addRow(new QLabel("c_roll_beta"), c_roll_beta_);
 
   c_roll_p_ = new qt::DoubleSpinBox();
-  c_roll_p_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_roll_p_->setDecimals(kStabilityCoefDecimals);
   c_roll_p_->setValue(-0.1647);
   c_roll_p_->setSuffix(" [s/rad]");
   form_->addRow(new QLabel("c_roll_p"), c_roll_p_);
 
   c_roll_r_ = new qt::DoubleSpinBox();
-  c_roll_r_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_roll_r_->setDecimals(kStabilityCoefDecimals);
   c_roll_r_->setValue(0.0117);
   c_roll_r_->setSuffix(" [s/rad]");
   form_->addRow(new QLabel("c_roll_r"), c_roll_r_);
 
   c_pitch_0_ = new qt::DoubleSpinBox();
-  c_pitch_0_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_pitch_0_->setDecimals(kStabilityCoefDecimals);
   c_pitch_0_->setValue(0.0435);
   c_pitch_0_->setSuffix(" [-]");
   form_->addRow(new QLabel("c_pitch_0"), c_pitch_0_);
 
   c_pitch_alpha_ = new qt::DoubleSpinBox();
-  c_pitch_alpha_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_pitch_alpha_->setDecimals(kStabilityCoefDecimals);
   c_pitch_alpha_->setValue(-2.969);
   c_pitch_alpha_->setSuffix(" [/rad]");
   form_->addRow(new QLabel("c_pitch_alpha"), c_pitch_alpha_);
 
   c_pitch_abs_beta_ = new qt::DoubleSpinBox();
-  c_pitch_abs_beta_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_pitch_abs_beta_->setDecimals(kStabilityCoefDecimals);
   c_pitch_abs_beta_->setSuffix(" [/rad]");
   c_pitch_abs_beta_->setValue(0.0);
   form_->addRow(new QLabel("c_pitch_abs_beta"), c_pitch_abs_beta_);
 
   c_pitch_alpha_rate_ = new qt::DoubleSpinBox();
-  c_pitch_alpha_rate_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_pitch_alpha_rate_->setDecimals(kStabilityCoefDecimals);
   c_pitch_alpha_rate_->setSuffix(" [s/rad]");
   c_pitch_alpha_rate_->setValue(0.0);
   form_->addRow(new QLabel("c_pitch_alpha_rate"), c_pitch_alpha_rate_);
 
   c_pitch_q_ = new qt::DoubleSpinBox();
-  c_pitch_q_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_pitch_q_->setDecimals(kStabilityCoefDecimals);
   c_pitch_q_->setSuffix(" [s/rad]");
   c_pitch_q_->setValue(-106.1542);
   form_->addRow(new QLabel("c_pitch_q"), c_pitch_q_);
 
   c_yaw_beta_ = new qt::DoubleSpinBox();
-  c_yaw_beta_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_yaw_beta_->setDecimals(kStabilityCoefDecimals);
   c_yaw_beta_->setSuffix(" [/rad]");
   c_yaw_beta_->setValue(0.043);
   form_->addRow(new QLabel("c_yaw_beta"), c_yaw_beta_);
 
   c_yaw_p_ = new qt::DoubleSpinBox();
-  c_yaw_p_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_yaw_p_->setDecimals(kStabilityCoefDecimals);
   c_yaw_p_->setSuffix(" [s/rad]");
   c_yaw_p_->setValue(0.0);
   form_->addRow(new QLabel("c_yaw_p"), c_yaw_p_);
 
   c_yaw_r_ = new qt::DoubleSpinBox();
-  c_yaw_r_->setDecimals(fixed_wing::kStabilityCoefDecimals);
+  c_yaw_r_->setDecimals(kStabilityCoefDecimals);
   c_yaw_r_->setSuffix(" [s/rad]");
   c_yaw_r_->setValue(-0.0827);
   form_->addRow(new QLabel("c_yaw_r"), c_yaw_r_);
@@ -302,6 +302,6 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "Coefficients are loaded successfully.");
 }
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

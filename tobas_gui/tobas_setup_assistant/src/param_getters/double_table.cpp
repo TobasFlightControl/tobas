@@ -177,8 +177,7 @@ void ParamGetterWidget_DoubleTable::loadCSV()
 {
   // Get CSV file path
   const auto file_path = getCSVFilePath();
-  if (file_path.isEmpty())  // Cancelの場合
-  {
+  if (file_path.isEmpty()) {
     return;
   }
 

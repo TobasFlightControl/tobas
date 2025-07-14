@@ -37,7 +37,7 @@ public:
   void clear();
 
   bool parseFromText(const std::string& text);
-  bool parseFromFile(const std::filesystem::path& path);
+  bool parseFromPath(const std::filesystem::path& path);
 
   /* 設定をファイルに保存する． */
   bool write(const std::filesystem::path& path);

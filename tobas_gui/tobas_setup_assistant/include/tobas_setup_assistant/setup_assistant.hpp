@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_property_client/property_client.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 
 #include "./constants.hpp"
@@ -9,6 +10,7 @@
 #include "./rotor_marker_publisher.hpp"
 #include "./rviz.hpp"
 #include "./settings.hpp"
+#include "./signals.hpp"
 
 namespace gui
 {
@@ -28,11 +30,9 @@ class SetupAssistantWidget : public QWidget
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 
-  void reset();
-
 private:
   RobotInfo robot_;
-  Signals signals_;
+  Signals sig_;
   RotorMarkerPublisher rotor_marker_publisher_;
 
   ptree::PropertyClient property_client_;
@@ -52,7 +52,6 @@ private:
   std::unique_ptr<ProjectGenerator> prj_gen_;
 
   void enableSaveButtons(bool enable);
-  bool createUrdfText(const std::filesystem::path& tbs_path, std::string& text_out);
   bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
 
 private Q_SLOTS:

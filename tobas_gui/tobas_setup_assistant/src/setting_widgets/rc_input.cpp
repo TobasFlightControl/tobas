@@ -32,14 +32,8 @@ const char* RcInputWidget::description() const
   return "";  // TODO
 }
 
-void RcInputWidget::onOpened()
-{
-  return;
-}
-
 void RcInputWidget::updateInternalDataStructures()
 {
-  return;
 }
 
 bool RcInputWidget::isValid()

@@ -5,14 +5,14 @@
 
 #include "../base_setting.hpp"
 #include "./aero_coefs.hpp"
-#include "./control_surface/control_surfaces.hpp"
+#include "./control_surfaces.hpp"
 #include "./vehicle.hpp"
 
 namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 class FixedWingWidget : public BaseSettingWidget
 {
@@ -34,7 +34,6 @@ public:
   const char* title() const override;
   const char* description() const override;
 
-  void onOpened() override;
   void updateInternalDataStructures() override;
   bool isValid() override;
 
@@ -60,6 +59,6 @@ private:
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
-};  // namespace fixed_wing
+};  // namespace fw
 }  // namespace sa
 }  // namespace gui

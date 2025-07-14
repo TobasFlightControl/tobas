@@ -6,7 +6,7 @@ namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
 {
@@ -53,10 +53,6 @@ const char* FixedWingWidget::description() const
 {
   return "Set up the fixed-wing configuration. "
          "Please choose a setup method and enter the required information.";
-}
-
-void FixedWingWidget::onOpened()
-{
 }
 
 void FixedWingWidget::updateInternalDataStructures()
@@ -134,6 +130,6 @@ void FixedWingWidget::setSettingWidgetsEnabled(bool enabled)
     widget->setEnabled(enabled);
   }
 }
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

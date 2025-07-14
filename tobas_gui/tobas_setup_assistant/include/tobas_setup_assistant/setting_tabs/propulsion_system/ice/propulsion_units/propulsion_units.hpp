@@ -1,8 +1,9 @@
 #pragma once
 
-#include "./available_links.hpp"
-#include "./selected_links.hpp"
-#include "tobas_setup_assistant/signals.hpp"
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
+
+#include "./propulsion_unit.hpp"
+#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
@@ -12,35 +13,43 @@ namespace propulsion
 {
 namespace ice
 {
-class PropulsionUnitsWidget : public QWidget
+class PropulsionUnitsWidget : public qt::TabWidget
 {
   Q_OBJECT
 
   using self = PropulsionUnitsWidget;
-  using super = QWidget;
+  using super = qt::TabWidget;
+
+  static constexpr int kTabWidth = 150;
+  static constexpr int kTabHeight = 50;
 
 public:
-  explicit PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
+  explicit PropulsionUnitsWidget(const RobotInfo& robot);
 
-  void clear();
   void updateInternalDataStructures();
   bool isValid();
 
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  const AvailableLinksWidget* available() const;
-  const SelectedLinksWidget* selected() const;
+  int numUnits() const;
 
-private Q_SLOTS:
-  void onAvailableLinkRemoved(const QString& link_name);
-  void onSelectedLinkRemoved(const QString& link_name);
+  QString linkName(int index) const;
+
+  /* タブのインデックスを返す．存在しなければ-1を返す． */
+  int index(const QString& link_name) const;
+
+  PropulsionUnitWidget* widget(int index);
+  const PropulsionUnitWidget* widget(int index) const;
+  PropulsionUnitWidget* widget(const QString& link_name);
+  const PropulsionUnitWidget* widget(const QString& link_name) const;
 
 private:
-  Signals& signals_;
+  const RobotInfo& robot_;
 
-  AvailableLinksWidget* available_;
-  SelectedLinksWidget* selected_;
+private Q_SLOTS:
+  void onCopyFromLeftButtonClicked(const QString& link_name);
+  void onCopyToAllButtonClicked(const QString& link_name);
 };
 };  // namespace ice
 }  // namespace propulsion

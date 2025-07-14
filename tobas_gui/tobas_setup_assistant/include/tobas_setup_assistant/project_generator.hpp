@@ -16,7 +16,7 @@ namespace sa
 {
 class ProjectGenerator
 {
-  static constexpr char kROSParamsKey[] = "ros__parameters";
+  static constexpr char kRosParamsKey[] = "ros__parameters";
 
   static constexpr char kDoNotEditThisPackage[] = "DO_NOT_EDIT_THIS_PACKAGE";
   static constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
@@ -61,6 +61,7 @@ private:
   bool generateObserverStaticConfig(const std::filesystem::path& tbs_path);
   bool generateControllerStaticConfig(const std::filesystem::path& tbs_path);
   bool generateRcTeleopStaticConfig(const std::filesystem::path& tbs_path);
+  bool generateOriginalUadf(const std::filesystem::path& tbs_path);
   bool generateModifiedUrdf(const std::filesystem::path& tbs_path);
 
   /* 空のファイルを作成する． */
@@ -76,13 +77,25 @@ private:
   bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
 
   /* オリジナルURDFの全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  bool replaceOriginalUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
+  bool replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
 
   /* プロペラジョイントのlimitタグを削除する． */
   bool removePropellerJointLimits(tinyxml2::XMLElement* robot);
 
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXmlElements(tinyxml2::XMLElement* robot, const std::filesystem::path& tbs_path);
+
+  void
+  addJointControllerNode(tinyxml2::XMLElement* launch, const std::string& cfg_pkg_name, const std::string& ctrl_name);
+
+  bool generateJointControllerConfig(
+    const std::filesystem::path& tbs_path,
+    const std::string& jnt_name,
+    const tobas::jnt_cmd_iface_t& cmd_iface);
+
+  static std::string jointControllerName(const std::string& jnt_name);
+
+  static tobas::turning_direction_t turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
 };
 }  // namespace sa
 }  // namespace gui

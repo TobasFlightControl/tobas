@@ -1,7 +1,5 @@
 #include "tobas_qt_tools/widgets/tab_widget.hpp"
 
-#include <QWheelEvent>
-
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_qt_tools/cast.hpp"
@@ -57,5 +55,14 @@ void TabWidget::setTabSize(int width, int height)
 {
   const auto qss = std::format("QTabBar::tab {{ width: {}px; height: {}px; }}", width, height);
   setStyleSheet(QString::fromStdString(qss));
+}
+
+void TabWidget::removeAllTabs()
+{
+  while (count() > 0) {
+    const auto first_widget = widget(0);  // 先頭ページを取得
+    removeTab(0);                         // タブバーから外す
+    first_widget->deleteLater();          // メモリを解放
+  }
 }
 }  // namespace qt

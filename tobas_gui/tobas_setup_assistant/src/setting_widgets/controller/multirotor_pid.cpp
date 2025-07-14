@@ -10,11 +10,7 @@ namespace gui
 {
 namespace sa
 {
-MultirotorPIDWidget::MultirotorPIDWidget(
-  RobotInfo& robot,
-  const propulsion::PropulsionSystemWidget* propulsion_system,
-  const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
+MultirotorPIDWidget::MultirotorPIDWidget(RobotInfo& robot) : robot_(robot)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -93,20 +89,20 @@ void MultirotorPIDWidget::load(const YAML::Node& node)
 
 bool MultirotorPIDWidget::isApplicable()
 {
-  // 固定翼を持たない
-  if (fixed_wing_->hasFixedWing()) {
+  // 固定翼の操舵面をもたない
+  if (robot_.uadf().control_surfaces.size() > 0) {
     return false;
   }
 
   // プロペラの個数条件
-  if (propulsion_system_->numUnits() < kMinNumProp) {
+  if (robot_.uadf().thrusts.size() < kMinNumProp) {
     return false;
   }
 
   // Z軸正方向のプロペラのみ
-  for (int i = 0; i < propulsion_system_->numUnits(); ++i) {
-    const auto link_name = propulsion_system_->linkName(i);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ())) {
+  for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+    const auto& link_name = robot_.linkName(joint_name);
+    if (!robot_.isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitZ())) {
       return false;
     }
   }

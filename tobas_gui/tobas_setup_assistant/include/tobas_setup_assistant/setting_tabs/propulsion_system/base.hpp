@@ -24,7 +24,6 @@ public:
 
   virtual const char* name() const = 0;
 
-  virtual void reset() = 0;
   virtual void updateInternalDataStructures() = 0;
   virtual bool isValid() = 0;
 
@@ -35,8 +34,6 @@ public:
   virtual int numUnits() const = 0;
 
   virtual QString linkName(int index) const = 0;
-  virtual bool isTiltRotor(int index) const = 0;
-  virtual QString tiltJointName(int index) const = 0;
 };
 }  // namespace propulsion
 }  // namespace sa

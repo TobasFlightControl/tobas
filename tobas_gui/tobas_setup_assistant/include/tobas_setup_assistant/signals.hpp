@@ -2,6 +2,8 @@
 
 #include <QObject>
 
+#include <tobas_drone_core/propulsion_system/type.hpp>
+
 namespace gui
 {
 namespace sa
@@ -16,11 +18,7 @@ class Signals : public QObject
   Q_OBJECT
 
 Q_SIGNALS:
-  void rotorLinkAdded(const QString& link_name);
-  void rotorLinkRemoved(const QString& link_name);
-
-  void isTiltRotorStateChanged(const QString& link_name, bool is_tilt);
-  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
+  void propulsionTypeChanged(const tobas::propulsion_system_t& type);
 };
 }  // namespace sa
 }  // namespace gui

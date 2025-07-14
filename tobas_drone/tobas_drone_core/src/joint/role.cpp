@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#define ROTOR_TEXT "rotor"
 #define TILT_JOINT_TEXT "tilt_joint"
 #define CONTROL_SURFACE_TEXT "control_surface"
 #define LANDING_GEAR_TEXT "landing_gear"
@@ -17,8 +16,6 @@ namespace tobas
 string textFromEnum(jnt_role_t role)
 {
   switch (role) {
-    case jnt_role_t::ROTOR:
-      return ROTOR_TEXT;
     case jnt_role_t::TILT_JOINT:
       return TILT_JOINT_TEXT;
     case jnt_role_t::CONTROL_SURFACE:
@@ -38,11 +35,7 @@ string textFromEnum(jnt_role_t role)
 
 bool enumFromText(const string& text, jnt_role_t& dst)
 {
-  if (text == ROTOR_TEXT) {
-    dst = jnt_role_t::ROTOR;
-    return true;
-  }
-  else if (text == TILT_JOINT_TEXT) {
+  if (text == TILT_JOINT_TEXT) {
     dst = jnt_role_t::TILT_JOINT;
     return true;
   }
@@ -75,8 +68,6 @@ bool enumFromText(const string& text, jnt_role_t& dst)
 bool isServoJoint(jnt_role_t role)
 {
   switch (role) {
-    case jnt_role_t::ROTOR:
-      return false;
     case jnt_role_t::TILT_JOINT:
       return true;
     case jnt_role_t::CONTROL_SURFACE:

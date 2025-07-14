@@ -2,6 +2,7 @@
 
 #include <QTabBar>
 #include <QTabWidget>
+#include <QWheelEvent>
 
 namespace qt
 {
@@ -46,5 +47,8 @@ public:
   void setTabWidth(int width);
   void setTabHeight(int height);
   void setTabSize(int width, int height);
+
+  /* 全てのタブを削除してメモリを開放する． */
+  void removeAllTabs();
 };
 }  // namespace qt

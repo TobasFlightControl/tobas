@@ -40,7 +40,7 @@ def generate_launch_description():
 
     # Parse URDF
     xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
-    urdf_content = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
+    urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
 
     # Launch Tobas core software
     # XXX: To ensure stable registration of components, the component managers are launched first.
@@ -99,7 +99,7 @@ def generate_launch_description():
                     package="robot_state_publisher",
                     plugin="robot_state_publisher::RobotStatePublisher",
                     namespace=DRONE_NAME,
-                    parameters=[{"robot_description": urdf_content}],
+                    parameters=[{"robot_description": urdf_text}],
                     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
                     extra_arguments=extra_arguments,
                 ),

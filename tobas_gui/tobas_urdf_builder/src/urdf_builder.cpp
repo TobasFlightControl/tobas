@@ -21,10 +21,5 @@ URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
   setLayout(rows);
   rows->addWidget(rviz_manager_.widget());
 }
-
-void URDFBuilder::reset()
-{
-  rviz_manager_.resetTime();
-}
 }  // namespace ub
 }  // namespace gui

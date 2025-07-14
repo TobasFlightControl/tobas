@@ -16,7 +16,7 @@ endif()
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow") # TODO: -Werror
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
@@ -26,12 +26,14 @@ find_package(inja_ament REQUIRED)
 find_package(rapidcsv_ament REQUIRED)
 find_package(magic_enum_ament REQUIRED)
 find_package(tobas_string_tools REQUIRED)
+find_package(tobas_xml_tools REQUIRED)
 find_package(tobas_git REQUIRED)
 find_package(tobas_kdl_parser REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_visualization_msgs REQUIRED)
+find_package(tobas_uadf REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_rviz_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
@@ -43,12 +45,14 @@ set(AMENT_DEPENDENCIES
     rapidcsv_ament
     magic_enum_ament
     tobas_string_tools
+    tobas_xml_tools
     tobas_git
     tobas_kdl_parser
     tobas_ros2_tools
     tobas_property_client
     tobas_drone_msgs_adapter
     tobas_visualization_msgs
+    tobas_uadf
     tobas_qt_tools
     tobas_rviz_wrapper
     tobas_gui_common

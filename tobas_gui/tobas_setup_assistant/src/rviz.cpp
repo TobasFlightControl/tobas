@@ -77,8 +77,9 @@ void RvizWidget::updateInternalDataStructures()
   rviz_manager_.setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
-  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, robot_.urdfText()));
-  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, robot_.urdfText()));
+  const auto urdf_text = robot_.urdfText();
+  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
+  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_text));
 
   // ロボットモデルをリロード
   reload_->setBool(false);

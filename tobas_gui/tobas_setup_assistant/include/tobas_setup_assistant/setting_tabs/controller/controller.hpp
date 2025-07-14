@@ -5,8 +5,6 @@
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
-#include "../fixed_wing/fixed_wing.hpp"
-#include "../propulsion_system/propulsion_system.hpp"
 #include "./base.hpp"
 #include "tobas_setup_assistant/robot_info.hpp"
 
@@ -24,16 +22,12 @@ class ControllerWidget : public BaseSettingWidget
   static constexpr char kTypeKey[] = "controller_type";
 
 public:
-  explicit ControllerWidget(
-    RobotInfo& robot,
-    const propulsion::PropulsionSystemWidget* propulsion_system,
-    const fixed_wing::FixedWingWidget* fixed_wing);
+  explicit ControllerWidget(RobotInfo& robot);
 
   const char* name() const override;
   const char* title() const override;
   const char* description() const override;
 
-  void onOpened() override;
   void updateInternalDataStructures() override;
   bool isValid() override;
 
@@ -55,10 +49,6 @@ private Q_SLOTS:
   void setCurrentController(int index);
 
 private:
-  RobotInfo& robot_;
-  const propulsion::PropulsionSystemWidget* propulsion_system_;
-  const fixed_wing::FixedWingWidget* fixed_wing_;
-
   qt::ComboBox* type_;
   qt::StackedWidget* controllers_;
   qt::DescriptionWidget* description_;

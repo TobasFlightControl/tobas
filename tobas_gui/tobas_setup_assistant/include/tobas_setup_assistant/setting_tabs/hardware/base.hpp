@@ -7,13 +7,14 @@ namespace gui
 {
 namespace sa
 {
+namespace hw
+{
 class BaseHardwareWidget : public QWidget
 {
   Q_OBJECT
 
 public:
   virtual const char* name() const = 0;
-  virtual const char* description() const = 0;
 
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
@@ -61,6 +62,8 @@ public:
   virtual double gnssVerticalVelocityStddev() const = 0;
 
   virtual int numPwmChannels() const = 0;
+  virtual int numDShotChannels() const = 0;
 };
+}  // namespace hw
 }  // namespace sa
 }  // namespace gui

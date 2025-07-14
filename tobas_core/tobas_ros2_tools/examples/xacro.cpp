@@ -12,13 +12,13 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  string urdf_content;
-  if (!ros2::xacro(argv[1], urdf_content)) {
+  string urdf_text;
+  if (!ros2::parseXacroFromPath(argv[1], urdf_text)) {
     return EXIT_FAILURE;
   }
 
   cout << "URDF Content:" << endl;
-  cout << urdf_content << endl;
+  cout << urdf_text << endl;
 
   return EXIT_SUCCESS;
 }

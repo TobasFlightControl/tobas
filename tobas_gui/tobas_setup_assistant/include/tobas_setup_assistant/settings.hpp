@@ -4,9 +4,9 @@
 
 #include "./setting_tabs/author_information.hpp"
 #include "./setting_tabs/controller/controller.hpp"
+#include "./setting_tabs/extra_joints.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
-#include "./setting_tabs/joint_config.hpp"
 #include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
@@ -28,29 +28,27 @@ class SettingsWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
+  const RobotInfo& robot_;
+
   propulsion::PropulsionSystemWidget* propulsion_system;
-  fixed_wing::FixedWingWidget* fixed_wing;
-  JointConfigurationWidget* joint_config;
+  fw::FixedWingWidget* fixed_wing;
+  ExtraJointsWidget* extra_joints;
   RcInputWidget* rc_input;
   ControllerWidget* controller;
   ObserverWidget* observer;
-  HardwareWidget* hardware;
+  hw::HardwareWidget* hardware;
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals);
+  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig);
 
   void updateInternalDataStructures();
 
   bool isValid();
-  bool isPwmChannelsValid();
 
   YAML::Node dump() const;
   bool load(const YAML::Node& node);
-
-private Q_SLOTS:
-  void onCurrentChanged(int index);
 };
 }  // namespace sa
 }  // namespace gui
