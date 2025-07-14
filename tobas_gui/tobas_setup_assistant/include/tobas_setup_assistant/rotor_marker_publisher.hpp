@@ -26,6 +26,8 @@ public:
 
   void updateInternalDataStructures();
 
+  void publishMarkers();
+
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
@@ -34,6 +36,7 @@ private:
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
   QTimer publish_markers_timer_;
 
+private Q_SLOTS:
   void publishTimerCb();
 };
 }  // namespace sa

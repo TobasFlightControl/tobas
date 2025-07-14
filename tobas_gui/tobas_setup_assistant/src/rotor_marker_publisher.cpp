@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/rotor_marker_publisher.hpp"
 
+#include <ranges>
+
 #include <QDebug>
 
 #include <tobas_kdl_conversions/kdl_msg.hpp>
@@ -20,15 +22,24 @@ RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const R
 
 void RotorMarkerPublisher::updateInternalDataStructures()
 {
-  markers_.markers.clear();
+  // マーカの発行を停止
   publish_markers_timer_.stop();
+
+  // 現在のマーカを全て非表示にする
+  for (auto& marker : markers_.markers) {
+    marker.action = visualization_msgs::msg::Marker::DELETE;
+  }
+  publishMarkers();
+
+  // 全てのマーカを削除
+  markers_.markers.clear();
 
   const auto& uadf = robot_.uadf();
   const auto& urdf = uadf.urdf;
 
   // プロペラリンクのマーカを追加
-  size_t id = 0;
-  for (const auto& [joint_name, thrust] : uadf.thrusts) {
+  for (const auto& [id, elem] : std::views::enumerate(uadf.thrusts)) {
+    const auto& [joint_name, thrust] = elem;
     const auto& link_name = robot_.linkName(joint_name);
     const auto urdf_joint = urdf->getJoint(joint_name);
 
@@ -41,7 +52,7 @@ void RotorMarkerPublisher::updateInternalDataStructures()
     visualization_msgs::msg::Marker marker;
 
     marker.header.frame_id = link_name;
-    marker.id = id++;
+    marker.id = id;
     marker.type = visualization_msgs::msg::Marker::ARROW;
     marker.action = visualization_msgs::msg::Marker::ADD;
 
@@ -80,7 +91,7 @@ void RotorMarkerPublisher::updateInternalDataStructures()
   publish_markers_timer_.start(100);
 }
 
-void RotorMarkerPublisher::publishTimerCb()
+void RotorMarkerPublisher::publishMarkers()
 {
   // Fill timestamps
   const auto now = node_->get_clock()->now();
@@ -91,6 +102,11 @@ void RotorMarkerPublisher::publishTimerCb()
   // Publish markers
   auto markers_ptr = make_unique<visualization_msgs::msg::MarkerArray>(markers_);
   markers_pub_->publish(std::move(markers_ptr));
+}
+
+void RotorMarkerPublisher::publishTimerCb()
+{
+  publishMarkers();
 }
 }  // namespace sa
 }  // namespace gui
