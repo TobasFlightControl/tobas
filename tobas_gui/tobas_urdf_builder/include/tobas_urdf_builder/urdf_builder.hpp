@@ -15,8 +15,6 @@ class URDFBuilder : public QWidget
 public:
   explicit URDFBuilder();
 
-  void reset();
-
 private:
   rviz::RvizFrameManager rviz_manager_;
 };
