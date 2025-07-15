@@ -6,6 +6,12 @@
 
 namespace qt
 {
+TabBar::TabBar()
+{
+  // 無効時に文字を薄くする
+  setStyleSheet("QTabBar::tab:disabled { color: palette(midlight); }");
+}
+
 void TabBar::enableWheelEvent(bool enable)
 {
   enable_wheel_event_ = enable;
@@ -30,6 +36,13 @@ void TabWidget::enableWheelEvent(bool enable)
 {
   const auto tab_bar = qPointerCast<TabBar>(tabBar());
   tab_bar->enableWheelEvent(enable);
+}
+
+void TabWidget::setTabEnabled(QWidget* tab, bool enabled)
+{
+  const auto idx = indexOf(tab);
+  TOBAS_CHECK(idx >= 0);
+  tabBar()->setTabEnabled(idx, enabled);
 }
 
 void TabWidget::setTabVisible(QWidget* tab, bool visible)

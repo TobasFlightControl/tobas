@@ -13,6 +13,8 @@ class TabBar : public QTabBar
   using super = QTabBar;
 
 public:
+  explicit TabBar();
+
   void enableWheelEvent(bool enable);
 
 protected:
@@ -42,6 +44,7 @@ public:
    */
   virtual void enableWheelEvent(bool enable);
 
+  void setTabEnabled(QWidget* tab, bool enabled);
   void setTabVisible(QWidget* tab, bool visible);
 
   void setTabWidth(int width);
