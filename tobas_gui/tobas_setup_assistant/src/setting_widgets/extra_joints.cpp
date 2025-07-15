@@ -19,8 +19,9 @@ namespace sa
 ExtraJointsWidget::ExtraJointsWidget(const RobotInfo& robot) : robot_(robot)
 {
   table_ = new qt::TableWidget(0, kNumCols);
-  table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
+  table_->setHeaderSectionsClickable(false);
   table_->setHorizontalHeaderLabels({ kLinkNameLabel, kJointNameLabel, kRoleLabel, kCmdIfaceLabel, kHomePosLabel });
+  table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
   addWidget(table_);
 }
 

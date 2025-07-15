@@ -19,9 +19,12 @@ namespace hw
 {
 DShotWidget::DShotWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNumCols), robot_(robot)
 {
-  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  horizontalHeader()->setMinimumSectionSize(kTableHeaderSectionSize);
   setHorizontalHeaderLabels({ kTargetNameLabel, kBidirectionalLabel });
+  setHeaderSectionsClickable(false);
+
+  const auto hor_header = horizontalHeader();
+  hor_header->setSectionResizeMode(QHeaderView::ResizeToContents);
+  hor_header->setMinimumSectionSize(kTableHeaderSectionSize);
 
   connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }

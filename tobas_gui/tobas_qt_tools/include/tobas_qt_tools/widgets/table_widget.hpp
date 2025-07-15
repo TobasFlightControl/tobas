@@ -25,5 +25,8 @@ public:
 
   /* 内容に合わせてテーブルの高さを調整する． */
   void resizeHeightToContents();
+
+  /* クリック可否を一括で設定する． */
+  void setHeaderSectionsClickable(bool clickable);
 };
 }  // namespace qt

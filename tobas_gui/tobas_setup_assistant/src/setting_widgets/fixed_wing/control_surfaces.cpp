@@ -1,6 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surfaces.hpp"
 
 #include <QDebug>
+#include <QHeaderView>
 #include <QLabel>
 #include <QVBoxLayout>
 
@@ -33,8 +34,9 @@ ControlSurfacesWidget::ControlSurfacesWidget(const RobotInfo& robot) : super(0, 
     kPitchCoefLabel,
     kYawCoefLabel,
   });
-
   setColumnsWidth(kColWidth);
+  setHeaderSectionsClickable(false);
+  horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 }
 
 void ControlSurfacesWidget::updateInternalDataStructures()

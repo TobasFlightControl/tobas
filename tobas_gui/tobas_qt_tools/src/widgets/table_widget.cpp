@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/widgets/table_widget.hpp"
 
+#include <QHeaderView>
+
 namespace qt
 {
 void TableWidget::removeAll()
@@ -23,5 +25,11 @@ void TableWidget::resizeHeightToContents()
     total_height += rowHeight(row);
   }
   setFixedHeight(total_height);
+}
+
+void TableWidget::setHeaderSectionsClickable(bool clickable)
+{
+  horizontalHeader()->setSectionsClickable(clickable);
+  verticalHeader()->setSectionsClickable(clickable);
 }
 }  // namespace qt
