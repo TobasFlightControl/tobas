@@ -11,12 +11,13 @@ namespace gui
 {
 namespace sa
 {
-SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir)
+SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name)
   : QFileDialog(parent, "Save Tobas Project", dir, "Tobas Project (*.TBS);;All Files (*)")
 {
   setAcceptMode(QFileDialog::AcceptSave);
-  setDefaultSuffix("TBS");
   setOption(QFileDialog::DontUseNativeDialog, true);
+  setDefaultSuffix("TBS");
+  selectFile(dflt_name);
 
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
   save_button_ = button_box->button(QDialogButtonBox::Save);

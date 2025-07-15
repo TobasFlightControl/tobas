@@ -13,7 +13,7 @@ class SaveProjectDialog : public QFileDialog
   Q_OBJECT
 
 public:
-  explicit SaveProjectDialog(QWidget* parent, const QString& dir);
+  explicit SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name);
 
 protected:
   bool eventFilter(QObject* obj, QEvent* event) override;

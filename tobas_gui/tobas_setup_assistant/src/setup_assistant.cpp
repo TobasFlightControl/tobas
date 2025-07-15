@@ -284,7 +284,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // プロジェクトのパスを取得
-  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), QString::fromStdString(robot_.robotName()));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
