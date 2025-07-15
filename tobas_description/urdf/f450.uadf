@@ -3,7 +3,7 @@
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/fmu/tobas_t1.xacro"/>
-  <xacro:include filename="$(find tobas_description)/urdf/components/battery/sigp_3s_2250mah_60c.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/hrb_3s_5000mah_50c.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.uadf"/>
 
   <!-- Properties -->
@@ -43,13 +43,13 @@
 
   <!-- Flight Controller -->
   <xacro:tobas_t1 parent="base_link">
-    <origin xyz="0 0.015 0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:tobas_t1>
 
   <!-- Battery -->
-  <xacro:sigp_3s_2250mah_60c link_name="battery" parent="base_link">
-    <origin xyz="-0.037 0 -0.023" rpy="0 0 0"/>
-  </xacro:sigp_3s_2250mah_60c>
+  <xacro:hrb_3s_5000mah_50c link_name="battery" parent="base_link">
+    <origin xyz="0 0 -0.025" rpy="0 0 0"/>
+  </xacro:hrb_3s_5000mah_50c>
 
   <!-- Propellers -->
   <xacro:macro name="propeller" params="index direction yaw_deg">

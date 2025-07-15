@@ -7,7 +7,7 @@
     <xacro:property name="x" value="0.090"/>
     <xacro:property name="y" value="0.062"/>
     <xacro:property name="z" value="0.028"/>
-    <xacro:property name="mass" value="0.2"/>
+    <xacro:property name="mass" value="0.16"/>
 
     <joint name="fmu_joint" type="fixed">
       <xacro:insert_block name="origin"/>
