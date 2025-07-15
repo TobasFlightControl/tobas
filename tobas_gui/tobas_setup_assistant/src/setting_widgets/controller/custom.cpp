@@ -49,11 +49,6 @@ const char* CustomControllerWidget::name() const
   return "Use Custom Controller";
 }
 
-const char* CustomControllerWidget::description() const
-{
-  return "";  // TODO: APIの案内など
-}
-
 QString CustomControllerWidget::controllerPackage() const
 {
   return package_->getValue();

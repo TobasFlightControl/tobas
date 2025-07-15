@@ -25,7 +25,6 @@ public:
   explicit CustomControllerWidget();
 
   const char* name() const override;
-  const char* description() const override;
   QString controllerPackage() const override;
   QString pluginName() const override;
 

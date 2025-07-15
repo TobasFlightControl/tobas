@@ -19,13 +19,6 @@ const char* FixedWingLQRWidget::name() const
   return "Fixed Wing LQR";
 }
 
-const char* FixedWingLQRWidget::description() const
-{
-  return "Control the fixed-wing aircraft using LQR (Linear Quadratic Regulator). "
-         "While this method is computationally light, it does not consider hard constraints, "
-         "which may lead to the issuance of commands outside the permissible range.";
-}
-
 QString FixedWingLQRWidget::controllerPackage() const
 {
   return "tobas_fixed_wing_lqd";

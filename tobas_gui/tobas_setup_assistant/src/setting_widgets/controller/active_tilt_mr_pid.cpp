@@ -30,15 +30,6 @@ const char* ActiveTiltMultirotorPIDWidget::name() const
   return "Active Tilt Multirotor PID";
 }
 
-const char* ActiveTiltMultirotorPIDWidget::description() const
-{
-  return "This is a PID controller for active-tilt multirotors.\n"
-         "The airframe must satisfy the following conditions:\n"
-         "  - All rotors have active tilt joint.\n"
-         "  - Tilt axes are perpendicular to corresponding rotor axes.\n"
-         "  - Propellers are generally located on corresponding rotor axes.";
-}
-
 QString ActiveTiltMultirotorPIDWidget::controllerPackage() const
 {
   return "tobas_tiltrotor_pid";

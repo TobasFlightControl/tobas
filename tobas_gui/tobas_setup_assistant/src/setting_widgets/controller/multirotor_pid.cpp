@@ -31,11 +31,6 @@ const char* MultirotorPIDWidget::name() const
   return "Multirotor PID";
 }
 
-const char* MultirotorPIDWidget::description() const
-{
-  return "This controller for planar multirotors employs PID for both position and attitude control.";
-}
-
 QString MultirotorPIDWidget::controllerPackage() const
 {
   return "tobas_multirotor_pid";

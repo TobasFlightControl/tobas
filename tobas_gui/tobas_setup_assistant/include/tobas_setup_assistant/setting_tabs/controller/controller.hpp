@@ -1,7 +1,6 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
@@ -51,7 +50,6 @@ private Q_SLOTS:
 private:
   qt::ComboBox* type_;
   qt::StackedWidget* controllers_;
-  qt::DescriptionWidget* description_;
 
   BaseControllerWidget* widget(int index);
   const BaseControllerWidget* widget(int index) const;

@@ -18,10 +18,8 @@ ControllerWidget::ControllerWidget(RobotInfo& robot)
 {
   type_ = new qt::ComboBox();
   controllers_ = new qt::StackedWidget();
-  description_ = new qt::DescriptionWidget("", kBodyPSize);
 
   addWidget(type_);
-  addWidget(description_);
   addWidget(controllers_);
 
   controllers_->addWidget(new MultirotorPIDWidget(robot));
@@ -141,7 +139,6 @@ bool ControllerWidget::isCommandCompatible(tobas::rc_command_t command) const
 void ControllerWidget::setCurrentController(int index)
 {
   controllers_->setCurrentIndex(index);
-  description_->setText(selected()->description());
 }
 
 BaseControllerWidget* ControllerWidget::widget(int index)

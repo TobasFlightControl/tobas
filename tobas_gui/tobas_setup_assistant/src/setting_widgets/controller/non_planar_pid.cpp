@@ -30,11 +30,6 @@ const char* NonPlanarPIDWidget::name() const
   return "Non-Planar Multirotor PID";
 }
 
-const char* NonPlanarPIDWidget::description() const
-{
-  return "This is a PID controller for non-planar multirotors.";
-}
-
 QString NonPlanarPIDWidget::controllerPackage() const
 {
   return "tobas_nonplanar_pid";
