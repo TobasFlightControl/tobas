@@ -1,6 +1,5 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_t1_core/dshot.hpp>
@@ -190,7 +189,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // Set moment constants
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    const auto moment_const = erotor->motor_const * erotor->moment_const / math::quar(erotor->propeller_diameter);
+    const auto moment_const = erotor->motor_const * erotor->moment_const / std::pow(erotor->propeller_diameter, 5);
     if (!dshot_.setMomentConstant(erotor->channel, moment_const)) {
       TOBAS_ERROR("Failed to set moment constant of channel ", erotor->channel, ".");
       return;
