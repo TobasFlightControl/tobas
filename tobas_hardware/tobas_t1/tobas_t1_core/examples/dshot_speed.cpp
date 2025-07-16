@@ -2,19 +2,23 @@
 #include <iostream>
 #include <thread>
 
-#include <tobas_t1_core/dshot.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
+
+#include "tobas_t1_core/dshot.hpp"
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 4) {
-    cerr << "Usage: " << argv[0] << " <Channel> <Gain> <Target RPM>" << endl;
+  if (argc != 6) {
+    cerr << "Usage: " << argv[0] << " <Channel> <KV> <Prop Diameter> <Poles> <Target RPM>" << endl;
     return EXIT_FAILURE;
   }
-  const size_t channel = stoi(argv[1]);
-  const uint8_t gain = stoi(argv[2]);
-  const uint16_t tar_rpm = stoi(argv[3]);
+  const auto channel = stoi(argv[1]);
+  const auto kv = stoi(argv[2]);  // [rpm/V]
+  const auto d = stoi(argv[3]);   // [inch]
+  const auto poles = stoi(argv[3]);
+  const auto tar_rpm = stoi(argv[4]);
 
   t1::DShot dshot;
 
@@ -22,7 +26,7 @@ int main(int argc, char** argv)
     throw runtime_error("Failed to initialize DShot driver.");
   }
 
-  if (!dshot.setKv(channel, 920 * (M_PI / 30))) {
+  if (!dshot.setKv(channel, tobas_std::rpm2rps(kv))) {
     throw runtime_error("Failed to set Kv.");
   }
   if (!dshot.transfer()) {
@@ -30,7 +34,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setInternalResistance(channel, 0.25)) {
+  if (!dshot.setInternalResistance(channel, 0.25)) {  // Typical value
     throw runtime_error("Failed to set internal resistance.");
   }
   if (!dshot.transfer()) {
@@ -38,7 +42,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setPropellerDiameter(channel, 9 * 0.0254)) {
+  if (!dshot.setPropellerDiameter(channel, tobas_std::meter2inch(d))) {
     throw runtime_error("Failed to set propeller diameter.");
   }
   if (!dshot.transfer()) {
@@ -46,7 +50,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setMomentConstant(channel, 5.442e-5)) {
+  if (!dshot.setMomentConstant(channel, 2e-4)) {  // Typical value
     throw runtime_error("Failed to set moment constant.");
   }
   if (!dshot.transfer()) {
@@ -54,7 +58,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setNumPoles(channel, 14)) {
+  if (!dshot.setNumPoles(channel, poles)) {
     throw runtime_error("Failed to set the number of poles.");
   }
   if (!dshot.transfer()) {
@@ -62,16 +66,8 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setSpeedControlGain(channel, gain)) {
-    throw runtime_error("Failed to set the speed control gain.");
-  }
-  if (!dshot.transfer()) {
-    throw runtime_error("Failed to send the speed control gain.");
-  }
-  this_thread::sleep_for(1ms);
-
   while (true) {
-    if (!dshot.setTargetSpeed(channel, tar_rpm * (M_PI / 30))) {
+    if (!dshot.setTargetSpeed(channel, tobas_std::rpm2rps(tar_rpm))) {
       throw runtime_error("Failed to set target speed.");
     }
 
