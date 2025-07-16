@@ -10,15 +10,16 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  if (argc != 6) {
-    cerr << "Usage: " << argv[0] << " <Channel> <KV> <Prop Diameter> <Poles> <Target RPM>" << endl;
+  if (argc != 7) {
+    cerr << "Usage: " << argv[0] << " <Channel> <KV> <Prop Diameter> <Poles> <Gain> <Target RPM>" << endl;
     return EXIT_FAILURE;
   }
   const auto channel = stoi(argv[1]);
   const auto kv = stoi(argv[2]);  // [rpm/V]
   const auto d = stoi(argv[3]);   // [inch]
-  const auto poles = stoi(argv[3]);
-  const auto tar_rpm = stoi(argv[4]);
+  const auto poles = stoi(argv[4]);
+  const auto gain = stoi(argv[5]);
+  const auto tar_rpm = stoi(argv[6]);
 
   t1::DShot dshot;
 
@@ -42,7 +43,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setPropellerDiameter(channel, tobas_std::meter2inch(d))) {
+  if (!dshot.setPropellerDiameter(channel, tobas_std::inch2meter(d))) {
     throw runtime_error("Failed to set propeller diameter.");
   }
   if (!dshot.transfer()) {
@@ -63,6 +64,14 @@ int main(int argc, char** argv)
   }
   if (!dshot.transfer()) {
     throw runtime_error("Failed to send the number of poles.");
+  }
+  this_thread::sleep_for(1ms);
+
+  if (!dshot.setSpeedControlGain(channel, gain)) {
+    throw runtime_error("Failed to set the speed control gain.");
+  }
+  if (!dshot.transfer()) {
+    throw runtime_error("Failed to send the speed control gain.");
   }
   this_thread::sleep_for(1ms);
 
