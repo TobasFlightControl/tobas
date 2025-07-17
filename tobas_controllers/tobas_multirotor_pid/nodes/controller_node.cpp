@@ -612,16 +612,12 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
   }
 
   // Check command range
-  if (angle_cmd->angle.roll <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.roll) {
+  if (fabs(angle_cmd->angle.roll) > M_PI_2) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;
   }
-  if (angle_cmd->angle.pitch <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.pitch) {
+  if (fabs(angle_cmd->angle.pitch) > M_PI_2) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
-    return;
-  }
-  if (angle_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < angle_cmd->throttle) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
     return;
   }
 
@@ -631,18 +627,12 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
 
   // コマンドを更新
   tar_angle_ = std::make_shared<kdl::Euler>(angle_cmd->angle);
-  tar_thrust_ = max_thrust_sum_ * angle_cmd->throttle;
+  tar_thrust_ = max_thrust_sum_ * std::clamp(angle_cmd->throttle, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd)
 {
   if (!isCommandAccepted(rate_cmd->level)) {
-    return;
-  }
-
-  // Check command range
-  if (rate_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < rate_cmd->throttle) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
     return;
   }
 
@@ -653,7 +643,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
 
   // コマンドを更新
   tar_gyro_ = std::make_shared<kdl::Vector>(rate_cmd->rate);
-  tar_thrust_ = max_thrust_sum_ * rate_cmd->throttle;
+  tar_thrust_ = max_thrust_sum_ * std::clamp(rate_cmd->throttle, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
 void ControllerNode::checkTopicsTimerCb()
