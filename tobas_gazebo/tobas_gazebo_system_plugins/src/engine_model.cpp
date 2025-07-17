@@ -44,7 +44,8 @@ double EngineModel::getVibrationForce()
   // 往復慣性力を正弦波と振幅の変動で表現
   // 振幅の変動率を正規分布Nを用いて (1 + n) で表すと負になる恐れがあるため，1を中心とするライス分布を使用．
   // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築
-  return vibration_force_coef_ * math::sqr(getSpeed()) * sin(position_ * cycles_) * rice_(rnd_gen_);
+  const auto amp = vibration_force_coef_ * math::sqr(getSpeed());
+  return amp * (sin(position_) + vibration_double_freq_coef_ * sin(position_ * 2)) * rice_(rnd_gen_);
 }
 
 void EngineModel::setThrottle(const double& throttle)
@@ -89,12 +90,6 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  getSdfParam(sdf, "engineCycles", cycles_, kDefaultEngineCycles);
-  if (cycles_ <= 0) {
-    gzerr << "Engine cycles must be positive." << endl;
-    return false;
-  }
-
   getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, kDefaultVibrationForceCoef);
   if (vibration_force_coef_ < 0.) {
     gzerr << "The vibration force coefficient must be non-negative." << endl;
@@ -104,6 +99,12 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, kDefaultVibrationForceVariationRate);
   if (vibration_force_variation_rate_ < 0.) {
     gzerr << "The vibration force variation rate must be non-negative." << endl;
+    return false;
+  }
+
+  getSdfParam(sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, kDefaultVibrationDoubleFreqCoef);
+  if (vibration_double_freq_coef_ < 0.) {
+    gzerr << "The vibration double frequency coefficient must be non-negative." << endl;
     return false;
   }
 

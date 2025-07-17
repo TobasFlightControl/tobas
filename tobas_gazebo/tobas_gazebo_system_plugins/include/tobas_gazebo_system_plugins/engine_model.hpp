@@ -12,9 +12,9 @@ class EngineModel
 {
   using self = EngineModel;
 
-  static constexpr int kDefaultEngineCycles = 2;
   static constexpr double kDefaultVibrationForceCoef = 0.0015;
-  static constexpr double kDefaultVibrationForceVariationRate = 0.5;
+  static constexpr double kDefaultVibrationForceVariationRate = 0.2;
+  static constexpr double kDefaultVibrationDoubleFreqCoef = 1.;
 
 public:
   explicit EngineModel(const ICERotorModelMap& rotors);
@@ -41,9 +41,9 @@ private:
   std::pair<double, double> engine_const_;  // A, B (memo: 3-28)
   double time_const_up_;                    // [s]
   double time_const_down_;                  // [s]
-  int cycles_;
-  double vibration_force_coef_;            // [N/(rad/s)^2]
-  double vibration_force_variation_rate_;  // [-]
+  double vibration_force_coef_;             // [N/(rad/s)^2]
+  double vibration_force_variation_rate_;   // [-]
+  double vibration_double_freq_coef_;       // [-]
 
   // Command
   double throttle_ = 0.;  // スロットル開度 [0, 1]
