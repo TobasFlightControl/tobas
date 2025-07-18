@@ -53,6 +53,8 @@ private:
 
 private Q_SLOTS:
   void onValueChanged(double value, const std::string& jnt_name);
+
+  void onZeroButtonClicked();
   void onCenterButtonClicked();
   void onRandomButtonClicked();
 };

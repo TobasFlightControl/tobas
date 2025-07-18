@@ -22,14 +22,17 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   scroll_area->setLayout(slider_rows_);
 
+  const auto zero_button = new QPushButton("Zero");
   const auto center_button = new QPushButton("Center");
   const auto random_button = new QPushButton("Random");
 
+  zero_button->setFixedHeight(kButtonHeight);
   center_button->setFixedHeight(kButtonHeight);
   random_button->setFixedHeight(kButtonHeight);
 
   // Layout
   const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(zero_button);
   button_cols->addWidget(center_button);
   button_cols->addWidget(random_button);
 
@@ -40,6 +43,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   setLayout(rows);
 
   // Connection
+  connect(zero_button, &QPushButton::clicked, this, &self::onZeroButtonClicked);
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_timer_, &QTimer::timeout, this, &self::publish);
@@ -119,6 +123,13 @@ void JointStatePublisherWidget::onValueChanged(double value, const std::string& 
   }
 
   js_.position.at(idx) = value;
+}
+
+void JointStatePublisherWidget::onZeroButtonClicked()
+{
+  for (auto& slider : sliders_) {
+    slider->setValue(0.);
+  }
 }
 
 void JointStatePublisherWidget::onCenterButtonClicked()
