@@ -7,6 +7,7 @@
 #include "./frame_tree.hpp"
 #include "./joint_state_publisher.hpp"
 #include "./project_generator.hpp"
+#include "./robot_properties.hpp"
 #include "./rotor_marker_publisher.hpp"
 #include "./rviz.hpp"
 #include "./settings.hpp"
@@ -46,6 +47,7 @@ private:
 
   RvizWidget* rviz_;
   FrameTreeWidget* frame_tree_;
+  RobotPropertiesWidget* properties_;
   JointStatePublisherWidget* jsp_;
   SettingsWidget* settings_;
 

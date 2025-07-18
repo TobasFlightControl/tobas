@@ -45,6 +45,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   // さもないと確保時にメモリ配置が変わってセグフォになる
   rviz_ = new RvizWidget(robot_);
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);
+  properties_ = new RobotPropertiesWidget(robot_);
   jsp_ = new JointStatePublisherWidget(node, robot_);
   settings_ = new SettingsWidget(node, robot_, sig_);
 
@@ -58,8 +59,12 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   pkg_cols->addWidget(save_as_btn_);
   pkg_cols->addWidget(tbs_path_);
 
+  const auto info_rows = new QVBoxLayout();
+  info_rows->addWidget(frame_tree_, 1);
+  info_rows->addWidget(properties_, 1);
+
   const auto viewer_cols = new QHBoxLayout();
-  viewer_cols->addWidget(frame_tree_, 1);
+  viewer_cols->addLayout(info_rows, 1);
   viewer_cols->addWidget(rviz_, 2);
   viewer_cols->addWidget(jsp_, 1);
 
@@ -119,6 +124,7 @@ void SetupAssistantWidget::onRobotLoaded()
   settings_->updateInternalDataStructures();
   rviz_->updateInternalDataStructures();
   frame_tree_->updateInternalDataStructures();
+  properties_->updateInternalDataStructures();
   jsp_->updateInternalDataStructures();
 
   // Update RSP parameter
