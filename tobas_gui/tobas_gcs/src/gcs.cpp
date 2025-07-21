@@ -211,12 +211,13 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // kdl::Treeをロード
   const auto uadf_path = common::getProjOriginalUadfPath(tbs_path.toStdString());
   uadf::Model uadf_model;
-  if (!uadf::parseFromPath(uadf_path, uadf_model)) {
-    qt::qErrorBox(this, "Failed to load UADF.");
+  uadf::Parser uadf_parser;
+  if (!uadf_parser.parseFromPath(uadf_path, uadf_model)) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser.errorMessage()));
     return;
   }
   if (!kdl::treeFromUrdf(*uadf_model.urdf, tree_)) {
-    qt::qErrorBox(this, "Failed to load KDL tree.");
+    qt::qErrorBox(this, "Failed to parse KDL tree.");
     return;
   }
 

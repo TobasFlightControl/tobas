@@ -23,8 +23,9 @@ find_package(ament_cmake REQUIRED)
 find_package(urdf REQUIRED)
 find_package(urdfdom REQUIRED)
 find_package(tobas_xml_tools REQUIRED)
+find_package(tobas_ros2_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES urdf urdfdom tobas_xml_tools)
+set(AMENT_DEPENDENCIES urdf urdfdom tobas_xml_tools tobas_ros2_tools)
 
 include_directories(include)
 

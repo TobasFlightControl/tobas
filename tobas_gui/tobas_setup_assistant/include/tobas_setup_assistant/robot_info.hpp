@@ -10,6 +10,7 @@
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_uadf/model.hpp>
+#include <tobas_uadf/parser.hpp>
 
 namespace gui
 {
@@ -51,6 +52,8 @@ private:
   // Model information
   uadf::Model uadf_;
   kdl::Tree tree_;
+
+  uadf::Parser uadf_parser_;
 
   kdl::JntArray q_zeros_;
   kdl::TreeJointParser jnt_parser_;

@@ -7,9 +7,15 @@
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 
+using namespace std;
+
 namespace uadf
 {
-bool parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
+Parser::Parser() : oh_(console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
+{
+}
+
+bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
 {
   // モデルを初期化
   uadf_model.clear();
@@ -20,10 +26,6 @@ bool parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
 
   // ルート要素を取得
   const auto robot = uadf_doc_cp.RootElement();
-  if (strcmp(robot->Name(), "robot") != 0) {
-    std::cerr << "The root name of UADF must be \"robot\"." << std::endl;
-    return false;
-  }
 
   // 特殊なジョイント型をURDFに変換
   for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
@@ -48,14 +50,15 @@ bool parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
               thrust.direction = Thrust::CCW;
             }
             else {
-              std::cerr << "Direction must be \"cw\" or \"ccw\"." << std::endl;
+              error_msg_ = "Thrust joint \"" + string(joint_name) + "\" has invalid direction \"" + string(direction) +
+                           "\". It must be \"cw\" or \"ccw\".";
               return false;
             }
           }
         }
 
         if (!direction_found) {
-          std::cerr << "Thrust joint \"" << joint_name << "\" does not have any \"direction\" element." << std::endl;
+          error_msg_ = "Thrust joint \"" + string(joint_name) + "\" has no \"direction\" element.";
           return false;
         }
 
@@ -86,29 +89,42 @@ bool parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_model)
   const auto urdf_text = xml::xmlDocumentToString(&uadf_doc_cp);
 
   // URDFを解析
+  console_bridge::useOutputHandler(&oh_);  // エラーメッセージをキャプチャ
   uadf_model.urdf = urdf::parseURDF(urdf_text);
+  if (!uadf_model.urdf) {
+    error_msg_ = oh_.message();
+    oh_.clear();
+    return false;
+  }
+  console_bridge::restorePreviousOutputHandler();
 
   return true;
 }
 
-bool parseFromText(const std::string& uadf_text, Model& uadf_model)
+bool Parser::parseFromText(const string& uadf_text, Model& uadf_model)
 {
   tinyxml2::XMLDocument uadf_doc;
   if (uadf_doc.Parse(uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
-    std::cerr << "Failed to parse UADF document." << std::endl;
+    error_msg_ = uadf_doc.ErrorStr();
     return false;
   }
 
   return parseFromXml(&uadf_doc, uadf_model);
 }
 
-bool parseFromPath(const std::string& uadf_path, Model& uadf_model)
+bool Parser::parseFromPath(const string& uadf_path, Model& uadf_model)
 {
-  std::string uadf_text;
+  string uadf_text;
   if (!str::readText(uadf_path, uadf_text)) {
+    error_msg_ = "Failed to open file: " + uadf_path;
     return false;
   }
 
   return parseFromText(uadf_text, uadf_model);
+}
+
+const string& Parser::errorMessage() const
+{
+  return error_msg_;
 }
 }  // namespace uadf

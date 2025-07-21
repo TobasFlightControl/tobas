@@ -5,7 +5,6 @@
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_uadf/parser.hpp>
 #include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
@@ -20,8 +19,8 @@ RobotInfo::RobotInfo(QWidget* parent) : parent_(parent), jnt_parser_(tree_), axi
 
 bool RobotInfo::loadFromXml(const tinyxml2::XMLDocument* uadf_doc)
 {
-  if (!uadf::parseFromXml(uadf_doc, uadf_)) {
-    qt::qErrorBox(parent_, "Failed to parse UADF.");
+  if (!uadf_parser_.parseFromXml(uadf_doc, uadf_)) {
+    qt::qErrorBox(parent_, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return false;
   }
 
@@ -30,8 +29,8 @@ bool RobotInfo::loadFromXml(const tinyxml2::XMLDocument* uadf_doc)
 
 bool RobotInfo::loadFromText(const std::string& uadf_text)
 {
-  if (!uadf::parseFromText(uadf_text, uadf_)) {
-    qt::qErrorBox(parent_, "Failed to parse UADF.");
+  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
+    qt::qErrorBox(parent_, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return false;
   }
 
@@ -40,8 +39,8 @@ bool RobotInfo::loadFromText(const std::string& uadf_text)
 
 bool RobotInfo::loadFromPath(const std::string& uadf_path)
 {
-  if (!uadf::parseFromPath(uadf_path, uadf_)) {
-    qt::qErrorBox(parent_, "Failed to parse UADF.");
+  if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
+    qt::qErrorBox(parent_, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return false;
   }
 
