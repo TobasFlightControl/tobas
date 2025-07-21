@@ -4,6 +4,7 @@
 
 namespace console_bridge
 {
+/* コンソール出力を文字列として保持する． */
 class OutputHandlerText : public OutputHandler
 {
 public:
