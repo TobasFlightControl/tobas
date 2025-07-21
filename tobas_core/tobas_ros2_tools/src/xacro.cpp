@@ -47,7 +47,7 @@ bool parseXacroFromText(const std::string& xacro_text, std::string& urdf_text)
   }
 
   // 一時ファイルを開く
-  const auto fp = ::fdopen(fd, "wb");  // fd は mkstemp の戻り値
+  const auto fp = ::fdopen(fd, "wb");
   if (!fp) {
     std::cerr << "Failed to open " << tmp_xacro_path << "." << std::endl;
     return false;
