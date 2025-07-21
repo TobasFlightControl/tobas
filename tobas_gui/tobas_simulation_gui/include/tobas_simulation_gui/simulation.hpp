@@ -5,9 +5,12 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
+#include <tobas_uadf/model.hpp>
+#include <tobas_uadf/parser.hpp>
 
 #include "./commanders/commanders.hpp"
 #include "./dynamic_configuration/dynamic_configuration.hpp"
@@ -43,10 +46,13 @@ protected:
 private:
   linux::CommandExecutor cmd_executor_;
   ssh::SSHClient ssh_client_;
+  uadf::Parser uadf_parser_;
+  kdl::TreeParser tree_parser_;
   common::LocalProjectBuilder local_proj_builder_;
   common::RemoteProjectBuilder remote_proj_builder_;
 
   std::filesystem::path tbs_path_;
+  uadf::Model uadf_;
   kdl::Tree tree_;
   tobas::Drone drone_;
   pid_t launch_pid_ = -1;

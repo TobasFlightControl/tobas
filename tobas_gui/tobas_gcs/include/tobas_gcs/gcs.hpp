@@ -5,8 +5,11 @@
 #include <QWidget>
 
 #include <tobas_gui_common/remote_project_builder.hpp>
+#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
+#include <tobas_uadf/model.hpp>
+#include <tobas_uadf/parser.hpp>
 
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
@@ -51,11 +54,14 @@ private:
   const rclcpp::Node::SharedPtr node_;
   RosQtBridge bridge_;
 
+  uadf::Model uadf_;
   kdl::Tree tree_;
   tobas::Drone drone_;
 
   ptree::PropertyClient property_client_;
   ssh::SSHClient ssh_client_;
+  uadf::Parser uadf_parser_;
+  kdl::TreeParser tree_parser_;
   common::RemoteProjectBuilder remote_proj_builder_;
   ConfigurationEnvParser config_env_parser_;
 

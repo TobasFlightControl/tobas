@@ -8,7 +8,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/path.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
-#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_linux/error.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -16,7 +15,6 @@
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/util.hpp>
-#include <tobas_uadf/parser.hpp>
 
 namespace fs = std::filesystem;
 
@@ -79,21 +77,20 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 
   // Load KDL tree
   const auto uadf_path = common::getProjOriginalUadfPath(tbs_path);
-  uadf::Model uadf_model;
-  uadf::Parser uadf_parser;
-  if (!uadf_parser.parseFromPath(uadf_path, uadf_model)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser.errorMessage()));
+  if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return false;
   }
-  if (!kdl::treeFromUrdf(*uadf_model.urdf, tree_)) {
-    qt::qErrorBox(this, "Failed to parse KDL tree.");
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     return false;
   }
 
   // Load drone configuration
   const auto tbsdrn_path = common::getProjTbsDrnPath(tbs_path);
   if (!drone_.load(tbsdrn_path)) {
-    qt::qErrorBox(this, "Failed to load drone configurations.");
+    qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
   }
 

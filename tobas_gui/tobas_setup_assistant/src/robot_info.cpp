@@ -2,7 +2,6 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-#include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_xml_tools/core.hpp>
@@ -129,8 +128,9 @@ bool RobotInfo::loadCommon()
   }
 
   // Load KDL tree
-  if (!kdl::treeFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(parent_, "Failed to load KDL tree.");
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      parent_, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
     return false;
   }
 

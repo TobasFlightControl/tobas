@@ -1,9 +1,5 @@
 #include "tobas_uadf/parser.hpp"
 
-#include <iostream>
-
-#include <urdf_parser/urdf_parser.h>
-
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 
@@ -11,7 +7,7 @@ using namespace std;
 
 namespace uadf
 {
-Parser::Parser() : oh_(console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
+Parser::Parser()
 {
 }
 
@@ -89,14 +85,11 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
   const auto urdf_text = xml::xmlDocumentToString(&uadf_doc_cp);
 
   // URDFを解析
-  console_bridge::useOutputHandler(&oh_);  // エラーメッセージをキャプチャ
-  uadf_model.urdf = urdf::parseURDF(urdf_text);
+  uadf_model.urdf = urdf_parser_.parseFromText(urdf_text);
   if (!uadf_model.urdf) {
-    error_msg_ = oh_.message();
-    oh_.clear();
+    error_msg_ = urdf_parser_.errorMessage();
     return false;
   }
-  console_bridge::restorePreviousOutputHandler();
 
   return true;
 }

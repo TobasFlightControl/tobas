@@ -20,12 +20,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(urdf REQUIRED)
-find_package(urdfdom REQUIRED)
 find_package(tobas_xml_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES urdf urdfdom tobas_xml_tools tobas_ros2_tools)
+set(AMENT_DEPENDENCIES tobas_xml_tools tobas_ros2_tools)
 
 include_directories(include)
 

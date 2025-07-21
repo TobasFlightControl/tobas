@@ -78,7 +78,7 @@ bool ParameterTuningWidget::updateTBSPath(const fs::path& tbs_path)
   reset();
 
   if (!drone_.load(common::getProjTbsDrnPath(tbs_path))) {
-    qt::qErrorBox(this, "Failed to load drone configurations.");
+    qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
   }
 

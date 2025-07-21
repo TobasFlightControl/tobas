@@ -2,39 +2,30 @@
 
 #include <string>
 
-#include <urdf_model/model.h>
+#include <urdf_model/types.h>
 
 #include <tobas_kdl/tree.hpp>
+#include <tobas_ros2_tools/urdf_parser.hpp>
 
 namespace kdl
 {
-/**
- * @brief Constructs a KDL tree from a file, given the file name.
- *
- * @param path The filename from where to read the xml
- * @param tree The resulting KDL Tree
- *
- * @return true on success, false on failure
- */
-bool treeFromPath(const std::string& path, Tree& tree);
+class TreeParser
+{
+public:
+  explicit TreeParser();
 
-/**
- * @brief Constructs a KDL tree from a string containing xml.
- *
- * @param xml A string containing the xml description of the robot
- * @param tree The resulting KDL Tree
- *
- * @return true on success, false on failure
- */
-bool treeFromText(const std::string& xml, Tree& tree);
+  bool parseFromPath(const std::string& path, Tree& tree);
+  bool parseFromText(const std::string& xml, Tree& tree);
+  bool parseFromUrdf(const urdf::ModelInterface& model, Tree& tree);
 
-/**
- * @brief Constructs a KDL tree from a URDF robot model.
- *
- * @param robot_model The URDF robot model
- * @param tree The resulting KDL Tree
- *
- * @return true on success, false on failure
- */
-bool treeFromUrdf(const urdf::ModelInterface& model, Tree& tree);
+  const std::string& errorMessage() const;
+
+private:
+  std::string error_msg_;
+
+  ros2::UrdfParser urdf_parser_;
+
+  /* Recursive function to walk through tree. */
+  static void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree);
+};
 }  // namespace kdl

@@ -11,6 +11,8 @@
 	<depend>rclcpp</depend>
 	<depend>ament_index_cpp</depend>
 	<depend>tf2_ros</depend>
+	<depend>urdf</depend>
+	<depend>urdfdom</depend>
 	<depend>tobas_std_tools</depend>
 	<depend>tobas_string_tools</depend>
 	<depend>tobas_path_tools</depend>
