@@ -10,7 +10,7 @@ class CommandExecutor
 public:
   explicit CommandExecutor();
 
-  bool execute(const std::string& command);
+  bool execute(std::string command);
 
   inline const std::string& getOutput() const;
 

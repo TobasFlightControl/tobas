@@ -1,24 +1,30 @@
-#include "tobas_ros2_tools/xacro.hpp"
+#include "tobas_setup_assistant/xacro_parser.hpp"
 
 #include <fstream>
 #include <iostream>
 
-#include "tobas_ros2_tools/path.hpp"
+#include <tobas_ros2_tools/path.hpp>
 
-namespace ros2
+namespace gui
 {
-bool parseXacroFromPath(const std::string& xacro_path, std::string& urdf_text)
+namespace sa
+{
+XacroParser::XacroParser()
+{
+}
+
+bool XacroParser::parseFromPath(const std::string& xacro_path, std::string& urdf_text)
 {
   // 一時的なURDFのパスを作成
   std::string tmp_urdf_path;
-  if (createTemporalFile(tmp_urdf_path) < 0) {
+  if (ros2::createTemporalFile(tmp_urdf_path) < 0) {
     std::cerr << "Failed to create a temporal URDF path." << std::endl;
     return false;
   }
 
   // XACROを展開してURDFを作成
   const auto command = "xacro " + xacro_path + " > " + tmp_urdf_path;
-  if (system(command.c_str()) != EXIT_SUCCESS) {
+  if (!command_executor_.execute(command)) {
     std::cerr << "Failed to convert XACRO to URDF." << std::endl;
     return false;
   }
@@ -36,11 +42,11 @@ bool parseXacroFromPath(const std::string& xacro_path, std::string& urdf_text)
   return true;
 }
 
-bool parseXacroFromText(const std::string& xacro_text, std::string& urdf_text)
+bool XacroParser::parseFromText(const std::string& xacro_text, std::string& urdf_text)
 {
   // 一時的なXACROのパスを作成
   std::string tmp_xacro_path;
-  const auto fd = createTemporalFile(tmp_xacro_path);
+  const auto fd = ros2::createTemporalFile(tmp_xacro_path);
   if (fd < 0) {
     std::cerr << "Failed to create a temporal XACRO path." << std::endl;
     return false;
@@ -68,6 +74,12 @@ bool parseXacroFromText(const std::string& xacro_text, std::string& urdf_text)
   }
 
   // 保存したXACROからURDFを生成
-  return parseXacroFromPath(tmp_xacro_path, urdf_text);
-}  // namespace ros2
-}  // namespace ros2
+  return parseFromPath(tmp_xacro_path, urdf_text);
+}
+
+const std::string& XacroParser::getOutput() const
+{
+  return command_executor_.getOutput();
+}
+}  // namespace sa
+}  // namespace gui

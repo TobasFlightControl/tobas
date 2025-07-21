@@ -12,6 +12,7 @@
 #include "./rviz.hpp"
 #include "./settings.hpp"
 #include "./signals.hpp"
+#include "./xacro_parser.hpp"
 
 namespace gui
 {
@@ -38,6 +39,7 @@ private:
 
   ptree::PropertyClient property_client_;
   ros2::SyncParamClient rsp_client_;
+  XacroParser xacro_parser_;
 
   QLineEdit* tbs_path_;
   QPushButton* new_btn_;

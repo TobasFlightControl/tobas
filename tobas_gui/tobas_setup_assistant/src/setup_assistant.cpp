@@ -9,13 +9,13 @@
 #include <tobas_gui_common/path.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
-#include <tobas_ros2_tools/xacro.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_setup_assistant/save_project_dialog.hpp"
+#include "tobas_setup_assistant/xacro_parser.hpp"
 
 namespace fs = std::filesystem;
 
@@ -168,8 +168,8 @@ void SetupAssistantWidget::onNewButtonClicked()
 
   // XACROを解析
   std::string uadf_text;
-  if (!ros2::parseXacroFromPath(uadf_path.toStdString(), uadf_text)) {
-    qt::qErrorBox(this, "Failed to parse XACRO.");
+  if (!xacro_parser_.parseFromPath(uadf_path.toStdString(), uadf_text)) {
+    qt::qErrorBox(this, "Failed to parse XACRO:\n\n" + QString::fromStdString(xacro_parser_.getOutput()));
     return;
   }
 
