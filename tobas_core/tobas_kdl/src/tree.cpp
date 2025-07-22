@@ -11,28 +11,28 @@ Tree::Tree(const string& root_name) : root_name_(root_name)
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
 }
 
-Tree::Tree(const Tree& in)
+Tree::Tree(const Tree& arg)
 {
   segments_.clear();
-  root_name_ = in.root_name_;
+  root_name_ = arg.root_name_;
   nj_ = 0;
   ns_ = 0;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
-  if (!addTree(in, root_name_)) {
+  if (!addTree(arg, root_name_)) {
     throw runtime_error("Failed to add \"" + root_name_ + "\".");
   }
 }
 
-Tree& Tree::operator=(const Tree& in)
+Tree& Tree::operator=(const Tree& arg)
 {
   segments_.clear();
-  root_name_ = in.root_name_;
+  root_name_ = arg.root_name_;
   nj_ = 0;
   ns_ = 0;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
-  if (!addTree(in, root_name_)) {
+  if (!addTree(arg, root_name_)) {
     throw runtime_error("Failed to add \"" + root_name_ + "\".");
   }
 

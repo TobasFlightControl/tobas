@@ -44,7 +44,7 @@ public:
    * @brief コピーコンストラクタ．
    * TreeElementのメンバ変数にポインタが含まれるため，オブジェクトをコピーするためには明示的にコピーコンストラクタを定義する必要がある．
    */
-  Tree(const Tree& in);
+  Tree(const Tree& arg);
   Tree& operator=(const Tree& arg);
 
   /* 6DoFの浮遊リンク系． */
