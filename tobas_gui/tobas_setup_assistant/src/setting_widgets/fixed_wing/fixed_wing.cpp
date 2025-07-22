@@ -8,7 +8,7 @@ namespace sa
 {
 namespace fw
 {
-FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
+FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf) : node_(node)
 {
   has_fixed_wing_ = new QCheckBox("Fixed-Wing Configuration");
   has_fixed_wing_->setFont(qt::DefaultFont(kBodyPSize));
@@ -33,7 +33,7 @@ FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& 
 
   // Control Surfaces
   setting_rows_->addWidget(new qt::Label(kControlSurfacesLabel, kTitlePSize));
-  control_surfaces_ = new ControlSurfacesWidget(robot_);
+  control_surfaces_ = new ControlSurfacesWidget(uadf);
   setting_rows_->addWidget(control_surfaces_);
 
   setSettingWidgetsEnabled(kDefaultHasFixedWing);

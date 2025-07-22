@@ -1,15 +1,19 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
-#include "./base.hpp"
-#include "tobas_setup_assistant/robot_info.hpp"
+#include "./active_tilt_multicopter.hpp"
+#include "./fixed_wing.hpp"
+#include "./non_planar_multicopter.hpp"
+#include "./planar_multicopter.hpp"
+#include "tobas_setup_assistant/frame_type.hpp"
 
 namespace gui
 {
 namespace sa
+{
+namespace ctrl
 {
 class ControllerWidget : public BaseSettingWidget
 {
@@ -18,10 +22,8 @@ class ControllerWidget : public BaseSettingWidget
   using self = ControllerWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kTypeKey[] = "controller_type";
-
 public:
-  explicit ControllerWidget(RobotInfo& robot);
+  explicit ControllerWidget();
 
   const char* name() const override;
   const char* title() const override;
@@ -32,6 +34,8 @@ public:
 
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
+
+  void setFrameType(const FrameType& type);
 
   QString controllerPackage() const;
   QString pluginName() const;
@@ -48,8 +52,12 @@ private Q_SLOTS:
   void setCurrentController(int index);
 
 private:
-  qt::ComboBox* type_;
-  qt::StackedWidget* controllers_;
+  qt::StackedWidget* stack_;
+
+  PlanarMulticopterWidget* planar_multicopter_;
+  NonPlanarMulticopterWidget* nonplanar_multicopter_;
+  ActiveTiltMulticopterWidget* active_tilt_multicopter_;
+  FixedWingWidget* fixed_wing_;
 
   BaseControllerWidget* widget(int index);
   const BaseControllerWidget* widget(int index) const;
@@ -57,5 +65,6 @@ private:
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;
 };
+}  // namespace ctrl
 };  // namespace sa
 }  // namespace gui

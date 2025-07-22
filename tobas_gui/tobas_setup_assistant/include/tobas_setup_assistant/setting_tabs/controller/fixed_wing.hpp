@@ -1,13 +1,14 @@
 #pragma once
 
 #include "./base.hpp"
-#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
 namespace sa
 {
-class FixedWingLQRWidget : public BaseControllerWidget
+namespace ctrl
+{
+class FixedWingWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
@@ -15,7 +16,7 @@ class FixedWingLQRWidget : public BaseControllerWidget
   static constexpr int kMinNumCS = 2;
 
 public:
-  explicit FixedWingLQRWidget(RobotInfo& robot);
+  explicit FixedWingWidget();
 
   const char* name() const override;
   QString controllerPackage() const override;
@@ -30,11 +31,8 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  bool isApplicable() override;
   bool isValid() override;
-
-private:
-  RobotInfo& robot_;
 };
+}  // namespace ctrl
 }  // namespace sa
 }  // namespace gui

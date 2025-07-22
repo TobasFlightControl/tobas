@@ -13,8 +13,8 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot)
+PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
+  : node_(node), uadf_(uadf)
 {
   enableWheelEvent(false);
   setTabSize(kTabWidth, kTabHeight);
@@ -24,9 +24,9 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
 {
   removeAllTabs();
 
-  for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+  for (const auto& [joint_name, _] : uadf_.thrusts) {
     // プロペラリンク名を取得
-    const auto link_name = QString::fromStdString(robot_.linkName(joint_name));
+    const auto link_name = QString::fromStdString(uadf_.urdf->getJoint(joint_name)->child_link_name);
 
     // タブを追加
     const auto link_widget = new PropulsionUnitWidget(node_);

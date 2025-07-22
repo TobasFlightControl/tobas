@@ -28,7 +28,7 @@ class FixedWingWidget : public BaseSettingWidget
   static constexpr bool kDefaultHasFixedWing = false;
 
 public:
-  explicit FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
 
   const char* name() const override;
   const char* title() const override;
@@ -50,7 +50,6 @@ private Q_SLOTS:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const RobotInfo& robot_;
 
   QCheckBox* has_fixed_wing_;
   QVBoxLayout* setting_rows_;

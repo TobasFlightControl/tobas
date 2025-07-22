@@ -55,15 +55,14 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
     const auto& p = par_joint.axis();                      // 祖父母リンクから見たティルト軸
     const auto& q = par_seg.frame().M * cur_joint.axis();  // 親リンクのジョイントフレームから見たロータ軸
 
-    // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
     if (par_joint.name != rotor->tilt_joint_name) {
       cerr << "Tilt joint name of rotor " << rotor->link_name << " mismatch." << endl;
       return false;
     }
 
-    if (!p.isOrthogonal(q)) {
+    if (!p.isPerpendicular(q)) {
       cerr << "The axes of tilt joint " << par_joint.name << " and rotor joint " << cur_joint.name
-           << " must be orthogonal." << endl;
+           << " must be perpendicular to each other." << endl;
       return false;
     }
 

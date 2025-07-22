@@ -64,7 +64,7 @@ public:
   inline double argument(const Vector& rhs) const;
 
   /* 2つのベクトルが直行するかどうかを判定する． */
-  inline bool isOrthogonal(const Vector& rhs) const;
+  inline bool isPerpendicular(const Vector& rhs) const;
 
   /* Clamp each value. */
   inline Vector clamp(const double& lb, const double& ub) const;
@@ -228,7 +228,7 @@ inline double Vector::argument(const Vector& rhs) const
   return ::acos(this->normalized().dot(rhs.normalized()));
 }
 
-inline bool Vector::isOrthogonal(const Vector& rhs) const
+inline bool Vector::isPerpendicular(const Vector& rhs) const
 {
   return tobas_std::isClose(this->dot(rhs), 0.);
 }

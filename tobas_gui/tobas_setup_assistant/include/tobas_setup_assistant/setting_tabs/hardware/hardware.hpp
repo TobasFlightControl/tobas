@@ -27,7 +27,7 @@ class HardwareWidget : public BaseSettingWidget
   static constexpr char kDShotLabel[] = "DShot";
 
 public:
-  explicit HardwareWidget(const RobotInfo& robot, const Signals& sig);
+  explicit HardwareWidget(const uadf::Model& uadf, const Signals& sig);
 
   const char* name() const override;
   const char* title() const override;

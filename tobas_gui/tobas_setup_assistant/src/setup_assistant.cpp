@@ -8,7 +8,9 @@
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/path.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/urdf_exporter.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
@@ -17,6 +19,8 @@
 #include "tobas_setup_assistant/save_project_dialog.hpp"
 #include "tobas_setup_assistant/xacro_parser.hpp"
 
+#define IS_NOT_SUPPORTED "is not supported."
+
 namespace fs = std::filesystem;
 
 namespace gui
@@ -24,10 +28,11 @@ namespace gui
 namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
-  : robot_(this)
-  , rotor_marker_publisher_(node, robot_)
+  : jnt_parser_(tree_)
+  , axis_solver_(tree_)
   , property_client_(node, tobas::kPropertyServerName, kPackageName)
   , rsp_client_(node, "robot_state_publisher")
+  , rotor_marker_publisher_(node, uadf_)
 {
   // Package manager
   tbs_path_ = new QLineEdit();
@@ -43,13 +48,13 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
 
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる
-  rviz_ = new RvizWidget(robot_);
-  frame_tree_ = new FrameTreeWidget(robot_, rviz_);
-  properties_ = new RobotPropertiesWidget(robot_);
-  jsp_ = new JointStatePublisherWidget(node, robot_);
-  settings_ = new SettingsWidget(node, robot_, sig_);
+  rviz_ = new RvizWidget(uadf_, tree_);
+  frame_tree_ = new FrameTreeWidget(tree_, rviz_);
+  properties_ = new RobotPropertiesWidget(tree_);
+  jsp_ = new JointStatePublisherWidget(node, tree_);
+  settings_ = new SettingsWidget(node, uadf_, tree_, sig_);
 
-  prj_gen_ = std::make_unique<ProjectGenerator>(node, robot_, settings_);
+  prj_gen_ = std::make_unique<ProjectGenerator>(node, uadf_, tree_, settings_);
 
   // Layout
   const auto pkg_cols = new QHBoxLayout();
@@ -76,11 +81,15 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   setLayout(root_rows);
 
   // Connection
-  connect(&robot_, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(new_btn_, &QPushButton::clicked, this, &self::onNewButtonClicked);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(save_btn_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
   connect(save_as_btn_, &QPushButton::clicked, this, &self::onSaveAsButtonClicked);
+}
+
+void SetupAssistantWidget::reset()
+{
+  // TODO: 全ての設定を起動時の状態に戻す
 }
 
 void SetupAssistantWidget::enableSaveButtons(bool enable)
@@ -118,8 +127,64 @@ bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tin
   return true;
 }
 
-void SetupAssistantWidget::onRobotLoaded()
+bool SetupAssistantWidget::loadFromXml(const tinyxml2::XMLDocument* uadf_doc)
 {
+  if (!uadf_parser_.parseFromXml(uadf_doc, uadf_)) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    return false;
+  }
+
+  // Check UADF validity
+  if (!uadf_.valid()) {
+    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
+    return false;
+  }
+
+  // Load KDL tree
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+    return false;
+  }
+
+  return true;
+}
+
+bool SetupAssistantWidget::loadFromText(const std::string& uadf_text)
+{
+  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    return false;
+  }
+
+  // Check UADF validity
+  if (!uadf_.valid()) {
+    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
+    return false;
+  }
+
+  // Load KDL tree
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+    return false;
+  }
+
+  return true;
+}
+
+bool SetupAssistantWidget::updateInternalDataStructures()
+{
+  // Update KDL objects
+  q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
+  if (!jnt_parser_.updateInternalDataStructures()) {
+    return false;
+  }
+  if (!axis_solver_.updateInternalDataStructures()) {
+    return false;
+  }
+
+  // Update widgets
   rotor_marker_publisher_.updateInternalDataStructures();
   settings_->updateInternalDataStructures();
   rviz_->updateInternalDataStructures();
@@ -128,9 +193,158 @@ void SetupAssistantWidget::onRobotLoaded()
   jsp_->updateInternalDataStructures();
 
   // Update RSP parameter
-  if (!rsp_client_.setParam("robot_description", robot_.urdfText())) {
+  const auto urdf_doc = ros2::exportUrdf(*uadf_.urdf);
+  const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
+  if (!rsp_client_.setParam("robot_description", urdf_text)) {
     qt::qErrorBox(this, "Failed to update robot state publisher.");
+    return false;
   }
+
+  // フレーム型を決定
+  const auto frame_type = determineFrameType();
+  if (frame_type == FrameType::kUndefined) {
+    return false;
+  }
+
+  // フレーム型をウィジェットに反映
+  properties_->setFrameType(frame_type);
+  settings_->controller->setFrameType(frame_type);
+
+  return true;
+}
+
+FrameType SetupAssistantWidget::determineFrameType()
+{
+  QString msg = "Airframe\n";
+
+  if (uadf_.control_surfaces.size() == 0) {  // 固定翼をもたない
+    msg += "  - which does not have fixed wings\n";
+
+    if (uadf_.tilts.size() == 0)  // チルトロータをもたない
+    {
+      msg += "  - which does not have any tilt rotors\n";
+
+      if (uadf_.thrusts.size() < 3)  // プロペラの枚数が3枚未満
+      {
+        msg += "  - which has fewer than 3 propellers\n";
+
+        // TODO: 2枚なら制御可能かも
+        qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+        return FrameType::kUndefined;
+      }
+      else  // プロペラの枚数が3枚以上
+      {
+        msg += "  - which has 3 or more propellers\n";
+
+        if (allThrustJointAxesAlwaysCollinear(kdl::Vector::UnitZ()))  // 全てのプロペラの回転軸が常にZ+
+        {
+          msg += "  - whose propeller rotation axes all always point toward Z+\n";
+
+          // TODO: 可操作度による分類
+          return FrameType::kPlanarMulticopter;
+        }
+        else  // 少なくとも1つのプロペラの回転軸がZ+以外を向く場合がある
+        {
+          msg += "  - which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
+
+          // TODO: 可操作度による分類
+          return FrameType::kNonPlanarMulticopter;
+        }
+      }
+    }
+    else  // チルトロータをもつ場合
+    {
+      msg += "  - which has at least one tilt rotors\n";
+
+      if (allTiltRotorAxesPerpendicular())  // 全てのチルト軸とロータ軸が直行する
+      {
+        msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis.\n";
+
+        // TODO: 可操作度による分類
+        return FrameType::kActiveTiltMulticopter;
+      }
+      else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
+        msg += "  - which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
+
+        // TODO: チルト軸と回転軸が直行しないモデルにも対応
+        qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+        return FrameType::kUndefined;
+      }
+    }
+  }
+  else  // 固定翼をもつ場合
+  {
+    msg += "  - which has fixed wings\n";
+
+    // TODO: 固定翼に対応
+    qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+    return FrameType::kUndefined;
+  }
+}
+
+bool SetupAssistantWidget::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis)
+{
+  const auto seg_it = tree_.getSegment(link_name);
+
+  // 問題なくルートリンクまで遡れた場合はtrue．
+  if (seg_it == tree_.getRootSegment()) {
+    return true;
+  }
+
+  // ある関節角に対し，チェーンを構成する全てのジョイント軸が目標と平行であることが必要十分条件．
+  // つまり，可動関節で且つジョイント軸が目標と平行でないリンクが存在する場合はfalse．
+  const auto& joint = seg_it->second.segment.joint();
+  if (joint.type != kdl::Joint::kFixed) {
+    TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
+    const auto& cur_axis = axis_solver_.getAxis();
+    if (cur_axis.argument(tar_axis) > kJntAxisCollinearTol) {
+      return false;
+    }
+  }
+
+  // 親リンクについて調べる
+  const auto& par_name = seg_it->second.parent->first;
+  return isJntAxisAlwaysCollinear(par_name, tar_axis);
+}
+
+bool SetupAssistantWidget::allThrustJointAxesAlwaysCollinear(const kdl::Vector& tar_axis)
+{
+  for (const auto& [joint_name, _] : uadf_.thrusts) {
+    const auto& link_name = jnt_parser_.segmentName(joint_name);
+    if (!isJntAxisAlwaysCollinear(link_name, tar_axis)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool SetupAssistantWidget::allTiltRotorAxesPerpendicular()
+{
+  for (const auto& [tilt_joint_name, _] : uadf_.tilts) {
+    const auto tilt_joint_urdf = uadf_.urdf->getJoint(tilt_joint_name);
+    const auto& tilt_link_name = tilt_joint_urdf->child_link_name;
+    const auto tilt_link_urdf = uadf_.urdf->getLink(tilt_link_name);
+    const auto& thrust_joint_urdf = tilt_link_urdf->child_joints.front();
+    const auto& thrust_link_name = thrust_joint_urdf->child_link_name;
+
+    const auto& thrust_elem = tree_.getSegment(thrust_link_name)->second;
+    const auto& thrust_seg = thrust_elem.segment;
+    const auto& thrust_joint_kdl = thrust_seg.joint();
+
+    const auto& tilt_elem = tree_.getSegment(tilt_link_name)->second;
+    const auto& tilt_seg = tilt_elem.segment;
+    const auto& tilt_joint_kdl = tilt_seg.joint();
+
+    const auto& p = tilt_joint_kdl.axis();                         // 祖父母リンクから見たティルト軸
+    const auto& q = tilt_seg.frame().M * thrust_joint_kdl.axis();  // 親リンクのジョイントフレームから見たロータ軸
+
+    if (!p.isPerpendicular(q)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void SetupAssistantWidget::onNewButtonClicked()
@@ -174,7 +388,14 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // UADFを読み込む
-  if (!robot_.loadFromText(uadf_text)) {
+  if (!loadFromText(uadf_text)) {
+    reset();
+    return;
+  }
+
+  // 内部状態を更新
+  if (!updateInternalDataStructures()) {
+    reset();
     return;
   }
 
@@ -231,10 +452,15 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
-  // メッシュパスを解決したバックアップUADFをロード
-  // Qtのイベント処理はスタックだからこの時点で設定が各ウィジェットに反映される
-  if (!robot_.loadFromXml(&uadf_doc)) {
-    qt::qErrorBox(this, "Failed to load robot description.");
+  // メッシュパスを解決したバックアップUADFを読み込む
+  if (!loadFromXml(&uadf_doc)) {
+    reset();
+    return;
+  }
+
+  // 内部状態を更新
+  if (!updateInternalDataStructures()) {
+    reset();
     return;
   }
 
@@ -243,6 +469,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   YAML::Node node;
   if (!yaml::load(settings_path, node)) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
+    reset();
     return;
   }
 
@@ -290,7 +517,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // プロジェクトのパスを取得
-  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), QString::fromStdString(robot_.robotName()));
+  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), QString::fromStdString(uadf_.urdf->getName()));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }

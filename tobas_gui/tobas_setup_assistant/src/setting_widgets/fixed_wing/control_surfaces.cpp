@@ -19,7 +19,7 @@ namespace sa
 {
 namespace fw
 {
-ControlSurfacesWidget::ControlSurfacesWidget(const RobotInfo& robot) : super(0, kNumCols), robot_(robot)
+ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0, kNumCols), uadf_(uadf)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -43,9 +43,9 @@ void ControlSurfacesWidget::updateInternalDataStructures()
 {
   removeAll();
 
-  for (const auto& [joint_name, _] : robot_.uadf().control_surfaces) {
-    const auto link_name = QString::fromStdString(robot_.linkName(joint_name));
-    add(link_name);
+  for (const auto& [joint_name, _] : uadf_.control_surfaces) {
+    const auto& link_name = uadf_.urdf->getJoint(joint_name)->child_link_name;
+    add(QString::fromStdString(link_name));
   }
 }
 
@@ -122,8 +122,7 @@ int ControlSurfacesWidget::find(const QString& link_name) const
 
 void ControlSurfacesWidget::add(const QString& link_name)
 {
-  const auto seg_it = robot_.tree().getSegment(link_name.toStdString());
-  const auto& joint = seg_it->second.segment.joint();
+  const auto joint = uadf_.urdf->getLink(link_name.toStdString())->parent_joint;
 
   const auto row = rowCount();
   insertRow(row);
@@ -133,7 +132,7 @@ void ControlSurfacesWidget::add(const QString& link_name)
   link_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kLinkNameCol, link_name_label);
 
-  const auto joint_name_label = new QLabel(QString::fromStdString(joint.name));
+  const auto joint_name_label = new QLabel(QString::fromStdString(joint->name));
   joint_name_label->setFont(qt::DefaultFont(kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);

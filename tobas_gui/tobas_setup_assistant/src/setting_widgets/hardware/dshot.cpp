@@ -17,7 +17,7 @@ namespace sa
 {
 namespace hw
 {
-DShotWidget::DShotWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNumCols), robot_(robot)
+DShotWidget::DShotWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
 {
   setHorizontalHeaderLabels({ kTargetNameLabel, kBidirectionalLabel });
   setHeaderSectionsClickable(false);
@@ -163,7 +163,7 @@ void DShotWidget::addLastChannel()
   target_name->addItem("");  // 未選択
   switch (prop_type_) {
     case tobas::PropulsionSystem::kElectric: {
-      for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+      for (const auto& [joint_name, _] : uadf_.thrusts) {
         target_name->addItem(QString::fromStdString(joint_name));
       }
       break;
@@ -237,7 +237,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
-        for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+        for (const auto& [joint_name, _] : uadf_.thrusts) {
           if (target_name->currentText().toStdString() == joint_name) {
             target_name->setCurrentText("");
           }
@@ -259,7 +259,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_pro
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
-        for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+        for (const auto& [joint_name, _] : uadf_.thrusts) {
           target_name->addItem(QString::fromStdString(joint_name));
         }
       }

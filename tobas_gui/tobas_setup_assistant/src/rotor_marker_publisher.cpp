@@ -11,8 +11,8 @@ namespace gui
 {
 namespace sa
 {
-RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot)
+RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
+  : node_(node), uadf_(uadf)
 {
   markers_pub_ =
     ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array", false, true);
@@ -34,24 +34,20 @@ void RotorMarkerPublisher::updateInternalDataStructures()
   // 全てのマーカを削除
   markers_.markers.clear();
 
-  const auto& uadf = robot_.uadf();
-  const auto& urdf = uadf.urdf;
-
   // プロペラリンクのマーカを追加
-  for (const auto& [id, elem] : std::views::enumerate(uadf.thrusts)) {
+  for (const auto& [id, elem] : std::views::enumerate(uadf_.thrusts)) {
     const auto& [joint_name, thrust] = elem;
-    const auto& link_name = robot_.linkName(joint_name);
-    const auto urdf_joint = urdf->getJoint(joint_name);
+    const auto joint = uadf_.urdf->getJoint(joint_name);
 
     // 推力の作用線
     const auto arrow_start = kdl::Vector::Zero();
-    const auto arrow_end = kdl::vectorUrdfToKdl(urdf_joint->axis) * kArrowLength;
+    const auto arrow_end = kdl::vectorUrdfToKdl(joint->axis) * kArrowLength;
     const auto arrow_scale = kdl::Vector(0.1, 0.2, 0.3) * kArrowLength;
 
     // マーカを作成
     visualization_msgs::msg::Marker marker;
 
-    marker.header.frame_id = link_name;
+    marker.header.frame_id = joint->child_link_name;
     marker.id = id;
     marker.type = visualization_msgs::msg::Marker::ARROW;
     marker.action = visualization_msgs::msg::Marker::ADD;

@@ -5,8 +5,8 @@
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
+#include <tobas_uadf/model.hpp>
 
-#include "tobas_setup_assistant/robot_info.hpp"
 #include "tobas_setup_assistant/signals.hpp"
 
 namespace gui
@@ -45,7 +45,7 @@ public:
     kEngineThrottle,
   };
 
-  explicit PwmWidget(const RobotInfo& robot, const Signals& sig);
+  explicit PwmWidget(const uadf::Model& uadf, const Signals& sig);
 
   void updateInternalDataStructures();
   bool isValid();
@@ -65,7 +65,7 @@ public:
   int channel(const QString& target_name) const;
 
 private:
-  const RobotInfo& robot_;
+  const uadf::Model& uadf_;
 
   tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
 

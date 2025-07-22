@@ -4,7 +4,7 @@
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-#include "./robot_info.hpp"
+#include "./frame_type.hpp"
 
 namespace gui
 {
@@ -18,17 +18,17 @@ class RobotPropertiesWidget : public qt::ScrollArea
   using super = qt::ScrollArea;
 
 public:
-  explicit RobotPropertiesWidget(const RobotInfo& robot);
+  explicit RobotPropertiesWidget(const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
-private:
-  const RobotInfo& robot_;
+  void setFrameType(const FrameType& type);
 
+private:
   kdl::TreeMassHolder mass_holder_;
 
-  qt::FramedLabel* mass_;
   qt::FramedLabel* frame_type_;
+  qt::FramedLabel* mass_;
 };
 }  // namespace sa
 }  // namespace gui

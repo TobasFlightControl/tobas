@@ -5,8 +5,8 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>
+#include <tobas_kdl/tree.hpp>
 
-#include "./robot_info.hpp"
 #include "./settings.hpp"
 #include "./template_generator.hpp"
 
@@ -22,14 +22,19 @@ class ProjectGenerator
   static constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
 
 public:
-  explicit ProjectGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
+  explicit ProjectGenerator(
+    rclcpp::Node::SharedPtr node,
+    const uadf::Model& uadf,
+    const kdl::Tree& tree,
+    SettingsWidget* settings);
 
   bool generateProject(const std::filesystem::path& tbs_path);
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  RobotInfo& robot_;
-  SettingsWidget* settings_;
+  const uadf::Model& uadf_;
+  const kdl::Tree& tree_;
+  SettingsWidget* const settings_;
 
   std::shared_ptr<TemplateGenerator> meta_env_;
   std::shared_ptr<TemplateGenerator> config_env_;

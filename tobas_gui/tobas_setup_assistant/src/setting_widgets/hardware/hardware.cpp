@@ -16,12 +16,12 @@ namespace sa
 {
 namespace hw
 {
-HardwareWidget::HardwareWidget(const RobotInfo& robot, const Signals& sig)
+HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 {
   type_ = new qt::ComboBox();
   hardwares_ = new qt::StackedWidget();
-  pwm_ = new PwmWidget(robot, sig);
-  dshot_ = new DShotWidget(robot, sig);
+  pwm_ = new PwmWidget(uadf, sig);
+  dshot_ = new DShotWidget(uadf, sig);
 
   hardwares_->addWidget(new T1Widget());
 

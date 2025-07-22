@@ -3,20 +3,21 @@
 #include <QCheckBox>
 
 #include "./base.hpp"
-#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
 namespace sa
 {
-class NonPlanarPIDWidget : public BaseControllerWidget
+namespace ctrl
+{
+class NonPlanarMulticopterWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
   static constexpr int kMinNumProp = 3;
 
 public:
-  explicit NonPlanarPIDWidget(RobotInfo& robot);
+  explicit NonPlanarMulticopterWidget();
 
   const char* name() const override;
   QString controllerPackage() const override;
@@ -31,14 +32,12 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  bool isApplicable() override;
   bool isValid() override;
 
 private:
-  RobotInfo& robot_;
-
   QCheckBox* do_dist_comp_trans_;
   QCheckBox* do_dist_comp_rot_;
 };
+}  // namespace ctrl
 }  // namespace sa
 }  // namespace gui

@@ -16,7 +16,7 @@ namespace gui
 {
 namespace sa
 {
-ExtraJointsWidget::ExtraJointsWidget(const RobotInfo& robot) : robot_(robot)
+ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree) : uadf_(uadf), tree_(tree)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHeaderSectionsClickable(false);
@@ -44,8 +44,8 @@ void ExtraJointsWidget::updateInternalDataStructures()
 {
   clear();
 
-  for (const auto& [link_name, elem] : robot_.tree().getSegments()) {
-    if (link_name == robot_.tree().getRootName()) {
+  for (const auto& [link_name, elem] : tree_.getSegments()) {
+    if (link_name == tree_.getRootName()) {
       continue;
     }
 
@@ -63,14 +63,13 @@ void ExtraJointsWidget::updateInternalDataStructures()
     }
 
     // UADFに記載のあるジョイントはスキップ
-    const auto& uadf = robot_.uadf();
-    if (uadf.thrusts.contains(joint.name)) {
+    if (uadf_.thrusts.contains(joint.name)) {
       continue;
     }
-    if (uadf.control_surfaces.contains(joint.name)) {
+    if (uadf_.control_surfaces.contains(joint.name)) {
       continue;
     }
-    if (uadf.tilts.contains(joint.name)) {
+    if (uadf_.tilts.contains(joint.name)) {
       continue;
     }
 
@@ -376,7 +375,7 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
 {
   const auto row = table_->rowCount();
 
-  const auto seg_it = robot_.tree().getSegment(link_name);
+  const auto seg_it = tree_.getSegment(link_name);
   const auto& joint = seg_it->second.segment.joint();
 
   // Name

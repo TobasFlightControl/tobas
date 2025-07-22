@@ -1,4 +1,4 @@
-#include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/non_planar_multicopter.hpp"
 
 #include <QVBoxLayout>
 
@@ -9,7 +9,9 @@ namespace gui
 {
 namespace sa
 {
-NonPlanarPIDWidget::NonPlanarPIDWidget(RobotInfo& robot) : robot_(robot)
+namespace ctrl
+{
+NonPlanarMulticopterWidget::NonPlanarMulticopterWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -25,37 +27,37 @@ NonPlanarPIDWidget::NonPlanarPIDWidget(RobotInfo& robot) : robot_(robot)
   rows->addStretch();
 }
 
-const char* NonPlanarPIDWidget::name() const
+const char* NonPlanarMulticopterWidget::name() const
 {
   return "Non-Planar Multirotor PID";
 }
 
-QString NonPlanarPIDWidget::controllerPackage() const
+QString NonPlanarMulticopterWidget::controllerPackage() const
 {
   return "tobas_nonplanar_pid";
 }
 
-QString NonPlanarPIDWidget::pluginName() const
+QString NonPlanarMulticopterWidget::pluginName() const
 {
   return "ControllerNode";
 }
 
-tobas::RcCommand NonPlanarPIDWidget::acrobatModeCommand() const
+tobas::RcCommand NonPlanarMulticopterWidget::acrobatModeCommand() const
 {
   return tobas::RcCommand::kAccelRate;
 }
 
-tobas::RcCommand NonPlanarPIDWidget::stabilizeModeCommand() const
+tobas::RcCommand NonPlanarMulticopterWidget::stabilizeModeCommand() const
 {
   return tobas::RcCommand::kAccelAngle;
 }
 
-tobas::RcCommand NonPlanarPIDWidget::loiterModeCommand() const
+tobas::RcCommand NonPlanarMulticopterWidget::loiterModeCommand() const
 {
   return tobas::RcCommand::kPosVelAngle;
 }
 
-YAML::Node NonPlanarPIDWidget::staticParams() const
+YAML::Node NonPlanarMulticopterWidget::staticParams() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -65,7 +67,7 @@ YAML::Node NonPlanarPIDWidget::staticParams() const
   return node;
 }
 
-YAML::Node NonPlanarPIDWidget::dump() const
+YAML::Node NonPlanarMulticopterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -75,43 +77,16 @@ YAML::Node NonPlanarPIDWidget::dump() const
   return node;
 }
 
-void NonPlanarPIDWidget::load(const YAML::Node& node)
+void NonPlanarMulticopterWidget::load(const YAML::Node& node)
 {
   do_dist_comp_trans_->setChecked(node[do_dist_comp_trans_->text()].as<bool>());
   do_dist_comp_rot_->setChecked(node[do_dist_comp_rot_->text()].as<bool>());
 }
 
-bool NonPlanarPIDWidget::isApplicable()
-{
-  // 固定翼の操舵面をもたない
-  if (robot_.uadf().control_surfaces.size() > 0) {
-    return false;
-  }
-
-  // プロペラの個数条件
-  if (robot_.uadf().thrusts.size() < kMinNumProp) {
-    return false;
-  }
-
-  // 少なくとも1つのプロペラが鉛直上方向以外を向いている
-  bool tilted_rotor_found = false;
-  for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
-    const auto& link_name = robot_.linkName(joint_name);
-    if (!robot_.isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitZ())) {
-      tilted_rotor_found = true;
-      break;
-    }
-  }
-  if (!tilted_rotor_found) {
-    return false;
-  }
-
-  return true;
-}
-
-bool NonPlanarPIDWidget::isValid()
+bool NonPlanarMulticopterWidget::isValid()
 {
   return true;
 }
+}  // namespace ctrl
 }  // namespace sa
 }  // namespace gui

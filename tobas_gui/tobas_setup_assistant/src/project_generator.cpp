@@ -9,6 +9,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/path.hpp>
+#include <tobas_ros2_tools/urdf_exporter.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_uadf/exporter.hpp>
@@ -24,8 +25,12 @@ namespace gui
 {
 namespace sa
 {
-ProjectGenerator::ProjectGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
-  : node_(node), robot_(robot), settings_(settings)
+ProjectGenerator::ProjectGenerator(
+  rclcpp::Node::SharedPtr node,
+  const uadf::Model& uadf,
+  const kdl::Tree& tree,
+  SettingsWidget* settings)
+  : node_(node), uadf_(uadf), tree_(tree), settings_(settings)
 {
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto templates_path = pkg_path / "templates";
@@ -104,7 +109,7 @@ inja::json ProjectGenerator::createTemplateData(const fs::path& tbs_path)
 {
   inja::json tpl_data;
 
-  tpl_data["drone_name"] = robot_.robotName();
+  tpl_data["drone_name"] = uadf_.urdf->getName();
 
   // Controller
   tpl_data["controller_pkg"] = settings_->controller->controllerPackage().toStdString();
@@ -133,7 +138,7 @@ tobas::Drone ProjectGenerator::createDrone()
   tobas::Drone drone;
 
   // Drone Name
-  drone.name = robot_.robotName();
+  drone.name = uadf_.urdf->getName();
 
   // Propulsion System
   switch (settings_->propulsion_system->type()) {
@@ -154,7 +159,7 @@ tobas::Drone ProjectGenerator::createDrone()
         const auto unit_widget = eprop_widget->units->widget(i);
         const auto link_name = eprop_widget->linkName(i).toStdString();
 
-        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_ele = tree_.getSegment(link_name)->second;
         const auto& cur_seg = cur_ele.segment;
         const auto& cur_jnt = cur_seg.joint();
         const auto& par_ele = cur_ele.parent->second;
@@ -164,9 +169,9 @@ tobas::Drone ProjectGenerator::createDrone()
         // Rotor
         const auto rotor = std::make_shared<tobas::ElectricRotorConfig>();
         rotor->link_name = link_name;
-        rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
+        rotor->direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
-        rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
+        rotor->tilt_joint_name = uadf_.tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->channel = settings_->hardware->dshot()->channel(QString::fromStdString(cur_jnt.name));  // TODO: PWM対応
         rotor->num_poles = unit_widget->motor()->numPoles();
         rotor->kv = unit_widget->motor()->kv();
@@ -177,7 +182,7 @@ tobas::Drone ProjectGenerator::createDrone()
         TOBAS_CHECK(eprop->rotors.insert({ link_name, rotor }).second);
 
         // Tilt Joint
-        if (robot_.uadf().tilts.contains(par_jnt.name)) {
+        if (uadf_.tilts.contains(par_jnt.name)) {
           tobas::JointConfig tilt_joint;
           tilt_joint.name = par_jnt.name;
           tilt_joint.role = tobas::JointRole::kTiltJoint;
@@ -230,7 +235,7 @@ tobas::Drone ProjectGenerator::createDrone()
         const auto unit_widget = iprop_widget->units->widget(i);
         const auto link_name = iprop_widget->linkName(i).toStdString();
 
-        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_ele = tree_.getSegment(link_name)->second;
         const auto& cur_seg = cur_ele.segment;
         const auto& cur_jnt = cur_seg.joint();
         const auto& par_ele = cur_ele.parent->second;
@@ -240,9 +245,9 @@ tobas::Drone ProjectGenerator::createDrone()
         // Rotor
         const auto rotor = std::make_shared<tobas::ICERotorConfig>();
         rotor->link_name = link_name;
-        rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
+        rotor->direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
-        rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
+        rotor->tilt_joint_name = uadf_.tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
         rotor->pitch_ref = unit_widget->propeller()->pitchAngleRef();
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
@@ -262,7 +267,7 @@ tobas::Drone ProjectGenerator::createDrone()
         TOBAS_CHECK(drone.pwms.insert({ link_name, pitch_pwm }).second);
 
         // Tilt Joint
-        if (robot_.uadf().tilts.contains(par_jnt.name)) {
+        if (uadf_.tilts.contains(par_jnt.name)) {
           tobas::JointConfig tilt_joint;
           tilt_joint.name = par_jnt.name;
           tilt_joint.role = tobas::JointRole::kTiltJoint;
@@ -329,7 +334,7 @@ tobas::Drone ProjectGenerator::createDrone()
     for (int i = 0; i < css->numUnits(); ++i) {
       const auto link_name = css->linkName(i).toStdString();
 
-      const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+      const auto& cur_ele = tree_.getSegment(link_name)->second;
       const auto& cur_seg = cur_ele.segment;
       const auto& cur_jnt = cur_seg.joint();
 
@@ -373,7 +378,7 @@ tobas::Drone ProjectGenerator::createDrone()
 
 bool ProjectGenerator::hasServoJoint() const
 {
-  if (robot_.uadf().tilts.size() > 0 || robot_.uadf().control_surfaces.size() > 0) {
+  if (uadf_.tilts.size() > 0 || uadf_.control_surfaces.size() > 0) {
     return true;
   }
 
@@ -605,10 +610,10 @@ bool ProjectGenerator::generateControllerManagerLaunch(const fs::path& tbs_path)
     addJointControllerNode(launch, cfg_pkg_name, tobas::node::kJointStateBroadcaster);
 
     // Add joint controllers
-    for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+    for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
       addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
     }
-    for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+    for (const auto& [jnt_name, _] : uadf_.tilts) {
       addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
     }
     for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
@@ -638,10 +643,10 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
   manager_params_node[tobas::node::kJointStateBroadcaster]["type"] = tobas::ctrl_manager::type::kJointStateBroadcaster;
 
   // Each joint controllers
-  for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+  for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
     manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
   }
-  for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+  for (const auto& [jnt_name, _] : uadf_.tilts) {
     manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
   }
   for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
@@ -654,7 +659,7 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
 
   // Create data
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node[robot_.robotName()]["controller_manager"][kRosParamsKey] = manager_params_node;
+  root_node[uadf_.urdf->getName()]["controller_manager"][kRosParamsKey] = manager_params_node;
 
   // Save data
   const auto config_dir = common::getProjCfgConfigDirPath(tbs_path);
@@ -667,13 +672,13 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
 
 bool ProjectGenerator::generateJointControllerConfigs(const fs::path& tbs_path)
 {
-  for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
+  for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
     if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::JointCommandInterface::kPosition)) {
       return false;
     }
   }
 
-  for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
+  for (const auto& [jnt_name, _] : uadf_.tilts) {
     if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::JointCommandInterface::kPosition)) {
       return false;
     }
@@ -732,7 +737,7 @@ bool ProjectGenerator::generatePreArmCheckConfig(const fs::path& tbs_path)
 bool ProjectGenerator::generateObserverStaticConfig(const fs::path& tbs_path)
 {
   YAML::Node params(YAML::NodeType::Map);
-  params["frame_id"] = robot_.tree().getRootName();
+  params["frame_id"] = tree_.getRootName();
   params["position_source"] = "gnss";  // TODO: 選択できるようにする
   params["adaptive_gnss_noise"] = settings_->observer->adaptiveGnssNoise();
   params["adaptive_grav_noise"] = settings_->observer->adaptiveGravityNoise();
@@ -814,7 +819,7 @@ bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& tbs_path)
 bool ProjectGenerator::generateOriginalUadf(const std::filesystem::path& tbs_path)
 {
   // Export the original UADF
-  const auto doc = uadf::exportUADF(robot_.uadf());
+  const auto doc = uadf::exportUADF(uadf_);
   const auto robot = doc->RootElement();
 
   // Modify
@@ -834,7 +839,7 @@ bool ProjectGenerator::generateOriginalUadf(const std::filesystem::path& tbs_pat
 bool ProjectGenerator::generateModifiedUrdf(const fs::path& tbs_path)
 {
   // Export the original URDF
-  const auto doc = robot_.urdfDocument();
+  const auto doc = ros2::exportUrdf(*uadf_.urdf);
   const auto robot = doc->RootElement();
 
   // Modify
@@ -987,7 +992,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
   const auto& prop = settings_->propulsion_system;
   for (int i = 0; i < prop->numUnits(); ++i) {
     const auto link_name = prop->linkName(i).toStdString();
-    const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
+    const auto jnt_name = tree_.getSegment(link_name)->second.segment.joint().name;
     prop_jnt_names.insert(jnt_name);
   }
 
@@ -1014,8 +1019,8 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 
 bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::path& tbs_path)
 {
-  const auto& ns = robot_.robotName();
-  const auto& root_name = robot_.tree().getRootName();
+  const auto& ns = uadf_.urdf->getName();
+  const auto& root_name = tree_.getRootName();
   const auto cfg_pkg_name = common::getProjCfgPkgName(tbs_path);
 
   const auto& prop = settings_->propulsion_system;
@@ -1112,7 +1117,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
       // Rotor plugins
       for (int i = 0; i < units->numUnits(); ++i) {
         const auto link_name = eprop->linkName(i).toStdString();
-        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_ele = tree_.getSegment(link_name)->second;
         const auto& cur_seg = cur_ele.segment;
         const auto& cur_jnt = cur_seg.joint();
 
@@ -1132,7 +1137,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
           aero->motorConst(),
           aero->momentConst(),
           aero->dragConst(),
-          turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction),
+          turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction),
           esc->maxCurrent(),
           sim->maxModelErrorRate());
       }
@@ -1152,7 +1157,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
       std::vector<xml::ICERotorParam> rotor_params;
       for (int i = 0; i < units->numUnits(); ++i) {
         const auto link_name = iprop->linkName(i).toStdString();
-        const auto& cur_ele = robot_.tree().getSegment(link_name)->second;
+        const auto& cur_ele = tree_.getSegment(link_name)->second;
         const auto& cur_seg = cur_ele.segment;
         const auto& cur_jnt = cur_seg.joint();
 
@@ -1160,7 +1165,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
 
         xml::ICERotorParam rotor_param;
         rotor_param.link_name = iprop->linkName(i).toStdString();
-        rotor_param.direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
+        rotor_param.direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor_param.gear_ratio = unit->transmission()->gearRatio();
         rotor_param.num_blades = unit->propeller()->numBlade();
         rotor_param.pitch_angle_limit = unit->propeller()->pitchAngleLimit();
@@ -1205,7 +1210,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
   }
 
   // Base static joint for debug
-  xml::addBaseStaticJoint(robot, robot_.tree().getRootName());
+  xml::addBaseStaticJoint(robot, tree_.getRootName());
 
   return true;
 }
@@ -1215,7 +1220,7 @@ void ProjectGenerator::addJointControllerNode(
   const std::string& cfg_pkg_name,
   const std::string& ctrl_name)
 {
-  const auto& ns = robot_.robotName();
+  const auto& ns = uadf_.urdf->getName();
   const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
   const auto ctrl_param = config_dir + ctrl_name + ".yaml";
   const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;

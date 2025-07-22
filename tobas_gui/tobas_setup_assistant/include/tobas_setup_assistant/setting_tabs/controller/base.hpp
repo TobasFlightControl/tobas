@@ -9,6 +9,8 @@ namespace gui
 {
 namespace sa
 {
+namespace ctrl
+{
 class BaseControllerWidget : public QWidget
 {
   Q_OBJECT
@@ -28,14 +30,9 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
-  /**
-   * @brief ハードウェアの構造のみから，制御器が適用可能かどうかを返す．
-   * @note 実験データによるモータの設定など，個別の設定方法に依存してはならない．
-   */
-  virtual bool isApplicable() = 0;
-
   /* ユーザ設定が有効な場合にtrueを返す． */
   virtual bool isValid() = 0;
 };
+}  // namespace ctrl
 }  // namespace sa
 }  // namespace gui

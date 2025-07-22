@@ -4,9 +4,9 @@
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
+#include <tobas_kdl/tree.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
-
-#include "./robot_info.hpp"
+#include <tobas_uadf/model.hpp>
 
 namespace gui
 {
@@ -24,7 +24,7 @@ class RvizWidget : public QWidget
   static constexpr bool kDefaultInertiaEnabled = false;
 
 public:
-  explicit RvizWidget(const RobotInfo& robot);
+  explicit RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
@@ -44,7 +44,8 @@ private Q_SLOTS:
   void onInertiaBoxToggled(bool checked);
 
 private:
-  const RobotInfo& robot_;
+  const uadf::Model& uadf_;
+  const kdl::Tree& tree_;
 
   rviz::RvizFrameManager rviz_manager_;
   rviz_common::Display* display_;

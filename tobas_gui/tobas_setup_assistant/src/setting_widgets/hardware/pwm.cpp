@@ -17,7 +17,7 @@ namespace sa
 {
 namespace hw
 {
-PwmWidget::PwmWidget(const RobotInfo& robot, const Signals& sig) : super(0, kNumCols), robot_(robot)
+PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
 {
   setHorizontalHeaderLabels({ kTargetNameLabel, kPeriodLbLabel, kPeriodUbLabel });
   setHeaderSectionsClickable(false);
@@ -112,13 +112,13 @@ PwmWidget::TargetType PwmWidget::targetType(int channel) const
 {
   const auto target_name = targetName(channel).toStdString();
 
-  if (robot_.uadf().thrusts.contains(target_name)) {
+  if (uadf_.thrusts.contains(target_name)) {
     return TargetType::kThrust;
   }
-  else if (robot_.uadf().control_surfaces.contains(target_name)) {
+  else if (uadf_.control_surfaces.contains(target_name)) {
     return TargetType::kControlSurface;
   }
-  else if (robot_.uadf().tilts.contains(target_name)) {
+  else if (uadf_.tilts.contains(target_name)) {
     return TargetType::kTiltJoint;
   }
   else if (target_name == kEngineThrotLabel) {
@@ -199,10 +199,10 @@ void PwmWidget::addLastChannel()
   // Target name
   const auto target_name = new qt::ComboBox();
   target_name->addItem("");  // 未選択
-  for (const auto& [joint_name, _] : robot_.uadf().tilts) {
+  for (const auto& [joint_name, _] : uadf_.tilts) {
     target_name->addItem(QString::fromStdString(joint_name));
   }
-  for (const auto& [joint_name, _] : robot_.uadf().control_surfaces) {
+  for (const auto& [joint_name, _] : uadf_.control_surfaces) {
     target_name->addItem(QString::fromStdString(joint_name));
   }
   switch (prop_type_) {
@@ -210,7 +210,7 @@ void PwmWidget::addLastChannel()
       break;
     }
     case tobas::PropulsionSystem::kIce: {
-      for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+      for (const auto& [joint_name, _] : uadf_.thrusts) {
         target_name->addItem(QString::fromStdString(joint_name));
       }
       target_name->addItem(kEngineThrotLabel);
@@ -276,7 +276,7 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
-        for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+        for (const auto& [joint_name, _] : uadf_.thrusts) {
           if (target_name->currentText().toStdString() == joint_name) {
             target_name->setCurrentText("");
           }
@@ -304,7 +304,7 @@ void PwmWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
-        for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
+        for (const auto& [joint_name, _] : uadf_.thrusts) {
           target_name->addItem(QString::fromStdString(joint_name));
         }
 

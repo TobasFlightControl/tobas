@@ -11,19 +11,19 @@ namespace sa
 {
 namespace propulsion
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& sig)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig)
   : sig_(sig)
 {
   type_buttons_ = new QButtonGroup(this);
   propulsion_stack_ = new qt::StackedWidget();
 
-  const auto eprop = new electric::PropulsionSystemWidget(node, robot);
+  const auto eprop = new electric::PropulsionSystemWidget(node, uadf);
   const auto eprop_ckb = new QCheckBox(eprop->name());
   type_buttons_->addButton(eprop_ckb);
   type_buttons_->setId(eprop_ckb, kElectricId);
   propulsion_stack_->addWidget(eprop);
 
-  const auto iprop = new ice::PropulsionSystemWidget(robot);
+  const auto iprop = new ice::PropulsionSystemWidget(uadf);
   const auto iprop_ckb = new QCheckBox(iprop->name());
   type_buttons_->addButton(iprop_ckb);
   type_buttons_->setId(iprop_ckb, kIceId);

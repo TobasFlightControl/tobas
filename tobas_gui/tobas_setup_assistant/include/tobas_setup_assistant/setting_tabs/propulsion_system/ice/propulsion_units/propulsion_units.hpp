@@ -1,9 +1,9 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
+#include <tobas_uadf/model.hpp>
 
 #include "./propulsion_unit.hpp"
-#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
@@ -24,7 +24,7 @@ class PropulsionUnitsWidget : public qt::TabWidget
   static constexpr int kTabHeight = 50;
 
 public:
-  explicit PropulsionUnitsWidget(const RobotInfo& robot);
+  explicit PropulsionUnitsWidget(const uadf::Model& uadf);
 
   void updateInternalDataStructures();
   bool isValid();
@@ -45,7 +45,7 @@ public:
   const PropulsionUnitWidget* widget(const QString& link_name) const;
 
 private:
-  const RobotInfo& robot_;
+  const uadf::Model& uadf_;
 
 private Q_SLOTS:
   void onCopyFromLeftButtonClicked(const QString& link_name);

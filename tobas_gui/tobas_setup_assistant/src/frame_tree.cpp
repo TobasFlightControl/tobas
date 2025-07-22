@@ -6,7 +6,7 @@ namespace gui
 {
 namespace sa
 {
-FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : robot_(robot), rviz_(rviz)
+FrameTreeWidget::FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz) : tree_(tree), rviz_(rviz)
 {
   setColumnCount(1);
   setHeaderLabels({ "Frames Tree" });
@@ -26,7 +26,7 @@ void FrameTreeWidget::updateInternalDataStructures()
 
   // ルートリンクから再帰的にリンクをTreeに追加していく．
   // cf. https://doc.qt.io/qtforpython/tutorials/basictutorial/treewidget.html
-  const auto& root_name = robot_.tree().getRootName();
+  const auto& root_name = tree_.getRootName();
   const auto root_item = new QTreeWidgetItem({ QString::fromStdString(root_name) });
   addTreeItemsRec(root_item);
   insertTopLevelItem(0, root_item);
@@ -50,11 +50,11 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
 {
   const auto parent_name = parent_item->text(0).toStdString();
 
-  if (robot_.tree().isEndSegment(parent_name)) {
+  if (tree_.isEndSegment(parent_name)) {
     return;
   }
 
-  const auto parent_it = robot_.tree().getSegment(parent_name);
+  const auto parent_it = tree_.getSegment(parent_name);
   for (const auto& child_it : parent_it->second.children) {
     const auto& child_name = child_it->first;
     const auto child_item = new QTreeWidgetItem({ QString::fromStdString(child_name) });

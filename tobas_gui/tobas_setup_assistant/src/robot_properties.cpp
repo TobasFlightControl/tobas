@@ -7,24 +7,28 @@ namespace gui
 {
 namespace sa
 {
-RobotPropertiesWidget::RobotPropertiesWidget(const RobotInfo& robot) : robot_(robot), mass_holder_(robot.tree())
+RobotPropertiesWidget::RobotPropertiesWidget(const kdl::Tree& tree) : mass_holder_(tree)
 {
-  mass_ = new qt::FramedLabel();
   frame_type_ = new qt::FramedLabel();
+  mass_ = new qt::FramedLabel();
 
   const auto form = new qt::FormLayout();
   form->setHorizontalSpacing(30);
   setLayout(form);
-  form->addRow("Total Mass", mass_);
   form->addRow("Frame Type", frame_type_);
+  form->addRow("Total Mass", mass_);
 }
 
 void RobotPropertiesWidget::updateInternalDataStructures()
 {
   TOBAS_CHECK(mass_holder_.updateInternalDataStructures());
   mass_->setText(QString::number(mass_holder_.getMass()) + " kg");
+}
 
-  // TODO: Set frame type
+void RobotPropertiesWidget::setFrameType(const FrameType& type)
+{
+  const auto text = QString::fromStdString(textFromEnum(type));
+  frame_type_->setText(text);
 }
 }  // namespace sa
 }  // namespace gui

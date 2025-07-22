@@ -3,8 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-
-#include "tobas_setup_assistant/robot_info.hpp"
+#include <tobas_uadf/model.hpp>
 
 namespace gui
 {
@@ -44,7 +43,7 @@ class ControlSurfacesWidget : public qt::TableWidget
   static constexpr char kYawCoefLabel[] = "Yaw Coef";
 
 public:
-  explicit ControlSurfacesWidget(const RobotInfo& robot);
+  explicit ControlSurfacesWidget(const uadf::Model& uadf);
 
   void updateInternalDataStructures();
   bool isValid();
@@ -85,7 +84,7 @@ public:
   void yawCoef(int row, double value);
 
 private:
-  const RobotInfo& robot_;
+  const uadf::Model& uadf_;
 };
 }  // namespace fw
 }  // namespace sa

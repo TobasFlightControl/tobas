@@ -3,13 +3,15 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include <tobas_drone_core/joint/joint.hpp>
+#include <tobas_drone_core/joint/command_interface.hpp>
+#include <tobas_drone_core/joint/role.hpp>
+#include <tobas_kdl/tree.hpp>
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
+#include <tobas_uadf/model.hpp>
 
 #include "./base_setting.hpp"
-#include "tobas_setup_assistant/robot_info.hpp"
 
 namespace gui
 {
@@ -50,7 +52,7 @@ class ExtraJointsWidget : public BaseSettingWidget
   static constexpr char kCmdIfaceLabel_None[] = "None";
 
 public:
-  explicit ExtraJointsWidget(const RobotInfo& robot);
+  explicit ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree);
 
   const char* name() const override;
   const char* title() const override;
@@ -84,7 +86,8 @@ public:
   int findJoint(const QString& joint_name) const;
 
 private:
-  const RobotInfo& robot_;
+  const uadf::Model& uadf_;
+  const kdl::Tree& tree_;
 
   qt::TableWidget* table_;
 

@@ -8,10 +8,10 @@ namespace propulsion
 {
 namespace ice
 {
-PropulsionSystemWidget::PropulsionSystemWidget(const RobotInfo& robot)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
 {
   engine = new EngineWidget();
-  units = new PropulsionUnitsWidget(robot);
+  units = new PropulsionUnitsWidget(uadf);
 
   addTab(engine, kEngineTitle);
   addTab(units, kPropulsionUnitTitle);

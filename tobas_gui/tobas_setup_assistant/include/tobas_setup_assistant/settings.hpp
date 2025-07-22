@@ -28,20 +28,20 @@ class SettingsWidget : public qt::VerticalTabWidget
   static constexpr int kTabWidth = 70;
 
 public:
-  const RobotInfo& robot_;
+  const uadf::Model& uadf_;
 
   propulsion::PropulsionSystemWidget* propulsion_system;
   fw::FixedWingWidget* fixed_wing;
   ExtraJointsWidget* extra_joints;
   RcInputWidget* rc_input;
-  ControllerWidget* controller;
+  ctrl::ControllerWidget* controller;
   ObserverWidget* observer;
   hw::HardwareWidget* hardware;
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& sig);
+  explicit SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);
 
   void updateInternalDataStructures();
 

@@ -13,8 +13,8 @@ namespace gui
 {
 namespace sa
 {
-JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot), rnd_gen_(rnd_dev_())
+JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree)
+  : node_(node), tree_(tree), rnd_gen_(rnd_dev_())
 {
   slider_rows_ = new QVBoxLayout();
 
@@ -61,7 +61,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   sliders_.clear();
   qt::clearLayout(slider_rows_);
 
-  for (const auto& [_, elem] : robot_.tree().getSegments()) {
+  for (const auto& [_, elem] : tree_.getSegments()) {
     const auto& joint = elem.segment.joint();
     if (joint.type == kdl::Joint::kFixed) {
       continue;

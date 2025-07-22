@@ -8,10 +8,10 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
 {
   battery = new BatteryWidget();
-  units = new PropulsionUnitsWidget(node, robot);
+  units = new PropulsionUnitsWidget(node, uadf);
 
   addTab(battery, kBatteryTitle);
   addTab(units, kPropulsionUnitTitle);

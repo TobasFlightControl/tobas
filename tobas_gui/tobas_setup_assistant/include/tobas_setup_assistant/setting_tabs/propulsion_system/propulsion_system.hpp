@@ -29,7 +29,7 @@ class PropulsionSystemWidget : public BaseSettingWidget
   static constexpr int kIceId = kElectricId + 1;
 
 public:
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& sig);
+  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig);
 
   const char* name() const override;
   const char* title() const override;
