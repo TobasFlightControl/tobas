@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#define TILT_JOINT_TEXT "tilt_joint"
-#define CONTROL_SURFACE_TEXT "control_surface"
-#define LANDING_GEAR_TEXT "landing_gear"
-#define PASSIVE_WHEEL_TEXT "passive_wheel"
-#define MANIPULATION_TEXT "manipulation"
-#define OTHER_TEXT "other"
+#define TILT_JOINT "tilt_joint"
+#define CONTROL_SURFACE "control_surface"
+#define LANDING_GEAR "landing_gear"
+#define PASSIVE_WHEEL "passive_wheel"
+#define MANIPULATION "manipulation"
+#define OTHER "other"  
 
 using namespace std;
 
@@ -17,17 +17,17 @@ string textFromEnum(JointRole role)
 {
   switch (role) {
     case JointRole::kTiltJoint:
-      return TILT_JOINT_TEXT;
+      return TILT_JOINT;
     case JointRole::kControlSurface:
-      return CONTROL_SURFACE_TEXT;
+      return CONTROL_SURFACE;
     case JointRole::kLandingGear:
-      return LANDING_GEAR_TEXT;
+      return LANDING_GEAR;
     case JointRole::kPassiveWheel:
-      return PASSIVE_WHEEL_TEXT;
+      return PASSIVE_WHEEL;
     case JointRole::kManipulation:
-      return MANIPULATION_TEXT;
+      return MANIPULATION;
     case JointRole::kOther:
-      return OTHER_TEXT;
+      return OTHER;
     default:
       throw;
   }
@@ -35,27 +35,27 @@ string textFromEnum(JointRole role)
 
 bool enumFromText(const string& text, JointRole& dst)
 {
-  if (text == TILT_JOINT_TEXT) {
+  if (text == TILT_JOINT) {
     dst = JointRole::kTiltJoint;
     return true;
   }
-  else if (text == CONTROL_SURFACE_TEXT) {
+  else if (text == CONTROL_SURFACE) {
     dst = JointRole::kControlSurface;
     return true;
   }
-  else if (text == LANDING_GEAR_TEXT) {
+  else if (text == LANDING_GEAR) {
     dst = JointRole::kLandingGear;
     return true;
   }
-  else if (text == PASSIVE_WHEEL_TEXT) {
+  else if (text == PASSIVE_WHEEL) {
     dst = JointRole::kPassiveWheel;
     return true;
   }
-  else if (text == MANIPULATION_TEXT) {
+  else if (text == MANIPULATION) {
     dst = JointRole::kManipulation;
     return true;
   }
-  else if (text == OTHER_TEXT) {
+  else if (text == OTHER) {
     dst = JointRole::kOther;
     return true;
   }
