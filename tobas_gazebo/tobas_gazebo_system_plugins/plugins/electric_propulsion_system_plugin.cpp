@@ -208,25 +208,25 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
 {
   getSdfParam(sdf, "linkName", link_name_);
 
-  getSdfParam(sdf, "kv", kv_, POSITIVE);
-  getSdfParam(sdf, "internalResistance", resistance_, POSITIVE);
-  getSdfParam(sdf, "numberOfBlades", num_blades_, POSITIVE);
+  getSdfParam(sdf, "kv", kv_, kPositive);
+  getSdfParam(sdf, "internalResistance", resistance_, kPositive);
+  getSdfParam(sdf, "numberOfBlades", num_blades_, kPositive);
 
-  getSdfParam(sdf, "motorConstant", motor_const_, POSITIVE);
-  getSdfParam(sdf, "momentConstant", moment_const_, POSITIVE);
-  getSdfParam(sdf, "dragConstant", drag_const_, NON_NEGATIVE);
+  getSdfParam(sdf, "motorConstant", motor_const_, kPositive);
+  getSdfParam(sdf, "momentConstant", moment_const_, kPositive);
+  getSdfParam(sdf, "dragConstant", drag_const_, kNonNegative);
 
   if (!getTurningDirection(sdf, direction_)) {
     TOBAS_EXIT("Failed to get turning direction.");
   }
 
-  getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
+  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
 
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, NON_NEGATIVE);
-  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, kDefaultVibrationForceCoef, NON_NEGATIVE);
+  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
+  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, kDefaultVibrationForceCoef, kNonNegative);
   getSdfParam(
-    sdf, "vibrationForceVariationRate", vib_force_var_rate_, kDefaultVibrationForceVariationRate, NON_NEGATIVE);
-  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
+    sdf, "vibrationForceVariationRate", vib_force_var_rate_, kDefaultVibrationForceVariationRate, kNonNegative);
+  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, kNonNegative);
 }
 
 void GazeboElectricPropulsionSystemPlugin::PreUpdate(

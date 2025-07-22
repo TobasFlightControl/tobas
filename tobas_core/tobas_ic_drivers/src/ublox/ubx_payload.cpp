@@ -144,14 +144,14 @@ void NAV_PVT::decode(const uint8_t* p)
   tAcc = algo::decodeU32(p + 12);
   nano = algo::decodeI32(p + 16);
 
-  fixType = static_cast<fix_type_t>(algo::decodeU8(p + 20));
+  fixType = static_cast<FixType>(algo::decodeU8(p + 20));
 
   const auto flags = algo::decodeU8(p + 21);
   gnssFixOk = (flags >> 0) & 1;
   diffSoln = (flags >> 1) & 1;
-  psmState = static_cast<payload::NAV_PVT::psm_state_t>((flags >> 2) & 0b111);
+  psmState = static_cast<payload::NAV_PVT::PowerSaveModeState>((flags >> 2) & 0b111);
   headVehValid = (flags >> 5) & 1;
-  carrSoln = static_cast<payload::NAV_PVT::carr_soln_t>((flags >> 6) & 0b11);
+  carrSoln = static_cast<payload::NAV_PVT::CarrierPhaseRangeSolution>((flags >> 6) & 0b11);
 
   const auto flags2 = algo::decodeU8(p + 22);
   confirmedAvai = (flags2 >> 5) & 1;
@@ -216,7 +216,7 @@ void NAV_SLAS::decode(const uint8_t*)
 void NAV_STATUS::decode(const uint8_t* p)
 {
   iTOW = algo::decodeU32(p + 0);
-  gpsFix = static_cast<fix_type_t>(algo::decodeU8(p + 4));
+  gpsFix = static_cast<FixType>(algo::decodeU8(p + 4));
 
   const auto flags = algo::decodeU8(p + 5);
   gpsFixOk = (flags >> 0) & 1;
@@ -226,11 +226,11 @@ void NAV_STATUS::decode(const uint8_t* p)
 
   const auto fixStat = algo::decodeU8(p + 6);
   diffCorr = (fixStat >> 0) & 1;
-  mapMatching = static_cast<payload::NAV_STATUS::map_matching_t>((fixStat >> 6) & 0b11);
+  mapMatching = static_cast<payload::NAV_STATUS::MapMatchingStatus>((fixStat >> 6) & 0b11);
 
   const auto flags2 = algo::decodeU8(p + 7);
-  psmState = static_cast<payload::NAV_STATUS::psm_state_t>((flags2 >> 0) & 0b11);
-  spoofDetState = static_cast<payload::NAV_STATUS::spoof_det_state>((flags2 >> 3) & 0b11);
+  psmState = static_cast<payload::NAV_STATUS::PowerSaveModeState>((flags2 >> 0) & 0b11);
+  spoofDetState = static_cast<payload::NAV_STATUS::SpoofDetectionState>((flags2 >> 3) & 0b11);
 
   ttff = algo::decodeU32(p + 8);
   msss = algo::decodeU32(p + 12);

@@ -4,28 +4,28 @@
 
 namespace tobas
 {
-enum struct jnt_role_t : uint8_t
+enum struct JointRole
 {
-  TILT_JOINT,
-  CONTROL_SURFACE,
-  LANDING_GEAR,
-  PASSIVE_WHEEL,
-  MANIPULATION,
-  OTHER,
+  kTiltJoint,
+  kControlSurface,
+  kLandingGear,
+  kPassiveWheel,
+  kManipulation,
+  kOther,
 };
 
-std::string textFromEnum(jnt_role_t role);
-bool enumFromText(const std::string& text, jnt_role_t& dst);
+std::string textFromEnum(JointRole role);
+bool enumFromText(const std::string& text, JointRole& dst);
 
-bool isServoJoint(jnt_role_t role);
+bool isServoJoint(JointRole role);
 }  // namespace tobas
 
 namespace YAML
 {
 template <>
-struct convert<tobas::jnt_role_t>
+struct convert<tobas::JointRole>
 {
-  static Node encode(const tobas::jnt_role_t& rhs);
-  static bool decode(const Node& node, tobas::jnt_role_t& rhs);
+  static Node encode(const tobas::JointRole& rhs);
+  static bool decode(const Node& node, tobas::JointRole& rhs);
 };
 }  // namespace YAML

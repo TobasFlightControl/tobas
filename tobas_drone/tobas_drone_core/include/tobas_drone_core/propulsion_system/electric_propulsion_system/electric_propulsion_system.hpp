@@ -23,7 +23,7 @@ public:
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;
 
-  propulsion_system_t type() const override;
+  PropulsionSystem type() const override;
 
   double minSpeed(const std::string& link_name) override;
   double maxSpeed(const std::string& link_name) override;

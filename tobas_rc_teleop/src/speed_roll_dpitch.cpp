@@ -31,7 +31,7 @@ bool SpeedRollDeltaPitchController::requireAngularVelocity()
   return false;
 }
 
-void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
+void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 0, 20, " m/s");
   node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 0, 80, " m/s");

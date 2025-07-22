@@ -13,7 +13,7 @@ namespace sa
 {
 CustomControllerWidget::CustomControllerWidget()
 {
-  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::rc_command_t>());
+  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::RcCommand>());
 
   package_ = new ParamGetterWidget_LineEdit("Controller Package Name", "");
   plugin_ = new ParamGetterWidget_LineEdit("Controller Plugin Name", "");
@@ -59,17 +59,17 @@ QString CustomControllerWidget::pluginName() const
   return plugin_->getValue();
 }
 
-tobas::rc_command_t CustomControllerWidget::acrobatModeCommand() const
+tobas::RcCommand CustomControllerWidget::acrobatModeCommand() const
 {
   return command_map_.at(acrobat_mode_->getValue());
 }
 
-tobas::rc_command_t CustomControllerWidget::stabilizeModeCommand() const
+tobas::RcCommand CustomControllerWidget::stabilizeModeCommand() const
 {
   return command_map_.at(stabilize_mode_->getValue());
 }
 
-tobas::rc_command_t CustomControllerWidget::loiterModeCommand() const
+tobas::RcCommand CustomControllerWidget::loiterModeCommand() const
 {
   return command_map_.at(loiter_mode_->getValue());
 }

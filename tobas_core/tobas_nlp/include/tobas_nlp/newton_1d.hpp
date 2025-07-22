@@ -12,7 +12,7 @@ namespace nlp
 class NewtonSolver1d
 {
 public:
-  enum ErrorCode
+  enum Error
   {
     kNoError = 0,
     kMaxIterationExceeded = -1,
@@ -23,16 +23,16 @@ public:
 
   void initialize(std::function<double(double)> f, std::function<double(double)> dfdx);
 
-  ErrorCode solve(double& x);
+  Error solve(double& x);
 
-  ErrorCode errorCode() const;
+  Error errorCode() const;
   const char* errorMessage() const;
 
   bool setMaximumIterations(size_t max_iter);
   bool setAbsoluteTolerance(double abs_tol);
 
 private:
-  ErrorCode error_code_;
+  Error error_code_;
 
   std::function<double(double)> f_;
   std::function<double(double)> dfdx_;

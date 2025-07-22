@@ -63,7 +63,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
   for (const auto& [_, elem] : robot_.tree().getSegments()) {
     const auto& joint = elem.segment.joint();
-    if (joint.type == kdl::Joint::FIXED) {
+    if (joint.type == kdl::Joint::kFixed) {
       continue;
     }
 
@@ -75,7 +75,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
     auto lower_limit = joint.lower_limit;
     auto upper_limit = joint.upper_limit;
-    if (joint.type == kdl::Joint::ROTATION && upper_limit - lower_limit > 2 * M_PI) {
+    if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > 2 * M_PI) {
       lower_limit = -M_PI;
       upper_limit = +M_PI;
     }

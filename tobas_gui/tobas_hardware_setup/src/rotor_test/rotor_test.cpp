@@ -109,7 +109,7 @@ void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
 
-  if (drone_.prop->type() == tobas::propulsion_system_t::ELECTRIC) {
+  if (drone_.prop->type() == tobas::PropulsionSystem::kElectric) {
     eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
 
     // モータとして登録されているチャンネルの設定

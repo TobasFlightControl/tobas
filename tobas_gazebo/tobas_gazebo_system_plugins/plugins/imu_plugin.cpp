@@ -172,16 +172,16 @@ void GazeboImuPlugin::Configure(
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
   getSdfParam(sdf, "offset", offset_);
 
-  getSdfParam(sdf, "accelNoiseDensity", acc_noise_density_, NON_NEGATIVE);
-  getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, NON_NEGATIVE);
-  getSdfParam(sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, POSITIVE);
+  getSdfParam(sdf, "accelNoiseDensity", acc_noise_density_, kNonNegative);
+  getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, kNonNegative);
+  getSdfParam(sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, kPositive);
 
-  getSdfParam(sdf, "gyroNoiseDensity", gyro_noise_density_, NON_NEGATIVE);
-  getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, NON_NEGATIVE);
-  getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, POSITIVE);
+  getSdfParam(sdf, "gyroNoiseDensity", gyro_noise_density_, kNonNegative);
+  getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, kNonNegative);
+  getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, kPositive);
 
   getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
 }

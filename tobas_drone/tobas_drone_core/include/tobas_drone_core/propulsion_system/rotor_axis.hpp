@@ -9,11 +9,11 @@ namespace tobas
  * kdl::Treeからランタイムに判定することもできるが，SetupAssistantとControllerで判定基準が異なると困るため，
  * Droneの設定の時点でタイプを確定させておく．
  */
-enum rotor_axis_t : uint8_t
+enum rotor_axis_t
 {
   X_POSITIVE,
   Z_POSITIVE,
-  UNKNOWN,
+  kUnknown,
 };
 
 std::string textFromEnum(rotor_axis_t interface);

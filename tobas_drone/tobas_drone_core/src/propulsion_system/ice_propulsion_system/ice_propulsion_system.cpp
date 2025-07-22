@@ -83,9 +83,9 @@ YAML::Node ICEPropulsionSystemConfig::dump() const
   return node;
 }
 
-propulsion_system_t ICEPropulsionSystemConfig::type() const
+PropulsionSystem ICEPropulsionSystemConfig::type() const
 {
-  return propulsion_system_t::ICE;
+  return PropulsionSystem::kIce;
 }
 
 double ICEPropulsionSystemConfig::minSpeed(const string&)

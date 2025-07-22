@@ -67,7 +67,7 @@ tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const std::st
 }
 
 tinyxml2::XMLElement*
-addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface, double init_value = 0.)
+addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::JointCommandInterface interface, double init_value = 0.)
 {
   const auto state_if_elem = joint->InsertNewChildElement("state_interface");
   state_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
@@ -79,7 +79,7 @@ addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interf
   return state_if_elem;
 }
 
-tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface)
+tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::JointCommandInterface interface)
 {
   const auto command_if_elem = joint->InsertNewChildElement("command_interface");
   command_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
@@ -221,7 +221,7 @@ void addElectricPropulsionSystemPlugin(
   double motor_const,
   double moment_const,
   double drag_const,
-  tobas::turning_direction_t direction,
+  tobas::TurningDirection direction,
   double max_current,
   double max_model_error_rate)
 {
@@ -372,9 +372,9 @@ void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfi
     joint->SetAttribute("name", jnt_name.c_str());
 
     // robot/ros2_control/joint/state_interface
-    addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::POSITION, jnt_cfg.home_pos);
-    addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::VELOCITY);
-    addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::EFFORT);
+    addROS2ControlStateIF(joint, tobas::JointCommandInterface::kPosition, jnt_cfg.home_pos);
+    addROS2ControlStateIF(joint, tobas::JointCommandInterface::kVelocity);
+    addROS2ControlStateIF(joint, tobas::JointCommandInterface::kEffort);
 
     // robot/ros2_control/joint/command_interface
     addROS2ControlCommandIF(joint, jnt_cfg.cmd_iface);

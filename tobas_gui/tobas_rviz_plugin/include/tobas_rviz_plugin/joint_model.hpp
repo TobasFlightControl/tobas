@@ -86,7 +86,7 @@ public:
     PRISMATIC,
     PLANAR,
     FLOATING,
-    FIXED
+    FIXED,
   };
 
   /* The datatype for the joint bounds */

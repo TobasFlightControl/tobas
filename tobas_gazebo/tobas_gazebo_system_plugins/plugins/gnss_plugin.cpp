@@ -112,16 +112,16 @@ void GazeboGnssPlugin::Configure(
 void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
   getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
 
-  getSdfParam(sdf, "delay", delay_, NON_NEGATIVE);
-  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, POSITIVE);
+  getSdfParam(sdf, "delay", delay_, kNonNegative);
+  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kPositive);
 
-  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, NON_NEGATIVE);
-  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, NON_NEGATIVE);
-  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, NON_NEGATIVE);
-  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, NON_NEGATIVE);
+  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, kNonNegative);
+  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kNonNegative);
+  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kNonNegative);
+  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kNonNegative);
 
   getSdfParam(sdf, "latitudeZero", lat_0_);
   getSdfParam(sdf, "longitudeZero", lon_0_);

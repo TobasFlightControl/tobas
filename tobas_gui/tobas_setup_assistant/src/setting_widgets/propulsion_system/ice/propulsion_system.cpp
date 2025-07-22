@@ -56,9 +56,9 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   units->load(node[kPropulsionUnitTitle]);
 }
 
-tobas::propulsion_system_t PropulsionSystemWidget::type() const
+tobas::PropulsionSystem PropulsionSystemWidget::type() const
 {
-  return tobas::propulsion_system_t::ICE;
+  return tobas::PropulsionSystem::kIce;
 }
 
 int PropulsionSystemWidget::numUnits() const

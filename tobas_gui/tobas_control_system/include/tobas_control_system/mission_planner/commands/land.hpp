@@ -10,9 +10,9 @@ struct LandData : public BaseCommandData
 {
   using SharedPtr = std::shared_ptr<LandData>;
 
-  command_t type() const
+  Command type() const
   {
-    return command_t::LAND;
+    return Command::kLand;
   }
 };
 

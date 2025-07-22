@@ -31,7 +31,7 @@ public:
 
 private:
   /* 8.5.3: Commands */
-  enum command_t : uint8_t
+  enum Command : uint8_t
   {
     RESET = 0b00000110,      // Reset the device
     START = 0b00001000,      // Start of restart conversions
@@ -44,7 +44,7 @@ private:
   };
 
   /* 8.6: Register Map (p.39) */
-  enum register_t : uint8_t
+  enum Register : uint8_t
   {
     CFG_REG_0 = 0b00 << 2,  // Configuration Register 0
     CFG_REG_1 = 0b01 << 2,  // Configuration Register 1
@@ -52,7 +52,7 @@ private:
     CFG_REG_3 = 0b11 << 2,  // Configuration Register 3
   };
 
-  enum config_t : uint8_t
+  enum Config : uint8_t
   {
     // Configuration Register 0
     MUX_AIN0_AVSS = 0b1000 << 4,

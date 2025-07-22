@@ -23,13 +23,13 @@ bool TreeJacobianSolver::updateInternalDataStructures()
 int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_in.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
   if (!tree_.hasSegment(seg_name)) {
-    return setDefaultError(E_OUT_OF_RANGE);
+    return setDefaultError(kOutputRange);
   }
 
   // Initialize
@@ -50,7 +50,7 @@ int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     T_total_ = T_local * T_total_;
 
     // get the twist of the segment:
-    if (seg.joint().type != Joint::FIXED) {
+    if (seg.joint().type != Joint::kFixed) {
       auto t_local = seg.jacobian(q_in(q_nr));
       // transform the endpoint of the local twist to the global endpoint:
       t_local = t_local.refPoint(T_total_.p - T_local.p);
@@ -67,7 +67,7 @@ int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
   // Change the base of the complete jacobian from the endpoint to the base
   J_out_.changeBase(T_total_.M);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeJacobianSolver::resize()

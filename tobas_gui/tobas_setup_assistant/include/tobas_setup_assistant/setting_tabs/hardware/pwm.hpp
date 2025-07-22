@@ -67,7 +67,7 @@ public:
 private:
   const RobotInfo& robot_;
 
-  tobas::propulsion_system_t prop_type_ = tobas::propulsion_system_t::ELECTRIC;
+  tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
 
   qt::ComboBox* targetNameWidget(int row);
   qt::DoubleSpinBox* periodLbWidget(int row);
@@ -81,7 +81,7 @@ private:
   void removeLastChannel();
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(const tobas::propulsion_system_t& new_prop_type);
+  void onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type);
 };
 }  // namespace hw
 }  // namespace sa

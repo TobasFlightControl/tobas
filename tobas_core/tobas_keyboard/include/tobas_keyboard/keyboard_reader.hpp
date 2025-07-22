@@ -4,7 +4,7 @@
 
 namespace keyboard
 {
-enum keycode_t : char
+enum KeyCode : char
 {
   ENTER = 0x0A,
   ESC = 0x1B,

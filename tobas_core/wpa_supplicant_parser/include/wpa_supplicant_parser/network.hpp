@@ -10,7 +10,7 @@ struct Network
 {
   std::string ssid = "";
   std::string psk = "";
-  key_mgmt_t key_mgmt = WPA_PSK;
+  KeyManagement key_mgmt = WPA_PSK;
   int priority = 0;
 };
 }  // namespace wpa

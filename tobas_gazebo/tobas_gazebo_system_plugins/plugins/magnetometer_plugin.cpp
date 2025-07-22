@@ -98,15 +98,15 @@ void GazeboMagnetometerPlugin::Configure(
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
   getSdfParam(sdf, "offset", offset_);
 
   getSdfParam(sdf, "latitudeZero", lat_0_);
   getSdfParam(sdf, "longitudeZero", lon_0_);
   getSdfParam(sdf, "altitudeZero", alt_0_);
 
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, NON_NEGATIVE);
-  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, NON_NEGATIVE);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
+  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

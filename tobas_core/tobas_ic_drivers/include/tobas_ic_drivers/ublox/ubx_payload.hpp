@@ -8,7 +8,7 @@ namespace ublox
 namespace payload
 {
 // GNSSfix Type
-enum fix_type_t : uint8_t
+enum FixType : uint8_t
 {
   NO_FIX = 0,
   DEAD_RECKONING_ONLY = 1,
@@ -206,12 +206,12 @@ struct NAV_PVT : public Payload
   uint32_t tAcc;  // Time accuracy estimate (UTC) [ns]
   int32_t nano;   // Fraction of second, range -1e9 .. 1e9 (UTC) [ns]
 
-  fix_type_t fixType;  // GNSSfix Type
+  FixType fixType;  // GNSSfix Type
 
   // flags: Fix status flags
-  bool gnssFixOk;             // Valid fix (i.e within DOP & accuracy masks)
-  bool diffSoln;              // Differential corrections were applied
-  enum psm_state_t : uint8_t  // Power Save Mode state
+  bool gnssFixOk;                    // Valid fix (i.e within DOP & accuracy masks)
+  bool diffSoln;                     // Differential corrections were applied
+  enum PowerSaveModeState : uint8_t  // Power Save Mode state
   {
     NOT_ACTIVE = 0,
     ENABLED = 1,
@@ -220,8 +220,8 @@ struct NAV_PVT : public Payload
     POWER_OPTIMIXED_TRACKING = 4,
     INACTIVE = 4,
   } psmState;
-  bool headVehValid;          // Heading of vehicle is valid
-  enum carr_soln_t : uint8_t  // Carrier phase range solution status
+  bool headVehValid;                        // Heading of vehicle is valid
+  enum CarrierPhaseRangeSolution : uint8_t  // Carrier phase range solution status
   {
     NONE = 0,      // No carrier phase range solution
     FLOATING = 1,  // Carrier phase range solution with floating ambiguities
@@ -311,8 +311,8 @@ struct NAV_SLAS : public Payload
 
 struct NAV_STATUS : public Payload
 {
-  uint32_t iTOW;      // GPS time of week [ms]
-  fix_type_t gpsFix;  // GPSfix Type, this value does not qualify a fix as valid and within the limits
+  uint32_t iTOW;   // GPS time of week [ms]
+  FixType gpsFix;  // GPSfix Type, this value does not qualify a fix as valid and within the limits
 
   // flags: Navigation Status Flags
   bool gpsFixOk;  // Position and velocity valid and within DOP and ACC Masks
@@ -321,8 +321,8 @@ struct NAV_STATUS : public Payload
   bool towSet;    // Time of Week valid
 
   // fixStat: Fix Status Information
-  bool diffCorr;                 // Differential corrections available
-  enum map_matching_t : uint8_t  // Map matching status
+  bool diffCorr;                    // Differential corrections available
+  enum MapMatchingStatus : uint8_t  // Map matching status
   {
     // None
     NONE = 0b00,
@@ -337,14 +337,14 @@ struct NAV_STATUS : public Payload
   } mapMatching;
 
   // flags2: Further information about navigation output
-  enum psm_state_t : uint8_t  // Power save mode state
+  enum PowerSaveModeState : uint8_t  // Power save mode state
   {
     ACQUISITION = 0,
     TRACKING = 1,
     POWER_OPTIMIXED_TRACKING = 2,
     INACTIVE = 3,
   } psmState;
-  enum spoof_det_state : uint8_t  // Spoofing detection state
+  enum SpoofDetectionState : uint8_t  // Spoofing detection state
   {
     UNKNOWN_OR_DEACTIVATED = 0,
     NO_SPOOFING_INDICATED = 1,

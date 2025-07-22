@@ -40,19 +40,19 @@ QString ActiveTiltMultirotorPIDWidget::pluginName() const
   return "ControllerNode";
 }
 
-tobas::rc_command_t ActiveTiltMultirotorPIDWidget::acrobatModeCommand() const
+tobas::RcCommand ActiveTiltMultirotorPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::ACCEL_RATE;
+  return tobas::RcCommand::kAccelRate;
 }
 
-tobas::rc_command_t ActiveTiltMultirotorPIDWidget::stabilizeModeCommand() const
+tobas::RcCommand ActiveTiltMultirotorPIDWidget::stabilizeModeCommand() const
 {
-  return tobas::rc_command_t::ACCEL_ANGLE;
+  return tobas::RcCommand::kAccelAngle;
 }
 
-tobas::rc_command_t ActiveTiltMultirotorPIDWidget::loiterModeCommand() const
+tobas::RcCommand ActiveTiltMultirotorPIDWidget::loiterModeCommand() const
 {
-  return tobas::rc_command_t::POS_VEL_ANGLE;
+  return tobas::RcCommand::kPosVelAngle;
 }
 
 YAML::Node ActiveTiltMultirotorPIDWidget::staticParams() const

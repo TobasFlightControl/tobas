@@ -19,7 +19,7 @@ public:
   virtual bool requireLinearVelocity() = 0;
   virtual bool requireAngularVelocity() = 0;
 
-  virtual void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) = 0;
+  virtual void initialize(tobas::BaseNode* node, tobas::FlightMode mode) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
   virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
 
@@ -46,7 +46,7 @@ protected:
   static inline double expo(double x, double exp);
 
   /* テキストにフライトモードのプリフィックスを与える． */
-  static std::string addMode(const std::string& text, tobas::flight_mode_t mode);
+  static std::string addMode(const std::string& text, tobas::FlightMode mode);
 };
 
 inline double BaseController::deadband(double x) const

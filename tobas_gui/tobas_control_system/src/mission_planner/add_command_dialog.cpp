@@ -15,7 +15,7 @@ AddCommandDialog::AddCommandDialog(QWidget* parent) : super(parent)
 
   command_list_ = new qt::ListWidget();
   command_list_->setSelectionMode(QListWidget::SingleSelection);
-  for (const auto& cmd : magic_enum::enum_values<command_t>()) {
+  for (const auto& cmd : magic_enum::enum_values<Command>()) {
     command_list_->addItem(commandToText(cmd));
   }
 
@@ -39,7 +39,7 @@ AddCommandDialog::AddCommandDialog(QWidget* parent) : super(parent)
   connect(ok_button, &QPushButton::clicked, this, &self::onOkClicked);
 }
 
-command_t AddCommandDialog::selectedCommand() const
+Command AddCommandDialog::selectedCommand() const
 {
   return selected_command_;
 }

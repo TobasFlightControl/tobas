@@ -33,10 +33,10 @@ bool TreeIkSolverVel_pinv::updateInternalDataStructures()
 int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_in.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   const auto num_points = v_in.size();
@@ -84,11 +84,11 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
 
   // QPを解く
   if (!qp_solver_.solve()) {
-    return setDefaultError(E_QP_FAILED);
+    return setDefaultError(kQpFailed);
   }
   qd_out_.data = qp_solver_.solution();
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeIkSolverVel_pinv::setWeightTS(const Vector6d& Wt)

@@ -82,32 +82,32 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
   // Add joints of current robot
   for (const auto& [jnt_name, joint] : drone_.joints) {
     // Joints for manipulation only
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       continue;
     }
 
     tobas_msgs::msg::JointState cmd;
     cmd.name = jnt_name;
     switch (joint.cmd_iface) {
-      case tobas::jnt_cmd_iface_t::POSITION:
+      case tobas::JointCommandInterface::kPosition:
         cmd.position = joint.home_pos;
         cmd.velocity = NAN;
         cmd.effort = NAN;
         tar_js_pos_.states.push_back(cmd);
         break;
-      case tobas::jnt_cmd_iface_t::VELOCITY:
+      case tobas::JointCommandInterface::kVelocity:
         cmd.position = joint.home_pos;
         cmd.velocity = NAN;
         cmd.effort = NAN;
         tar_js_vel_.states.push_back(cmd);
         break;
-      case tobas::jnt_cmd_iface_t::EFFORT:
+      case tobas::JointCommandInterface::kEffort:
         cmd.position = joint.home_pos;
         cmd.velocity = 0.;
         cmd.effort = NAN;
         tar_js_eff_.states.push_back(cmd);
         break;
-      case tobas::jnt_cmd_iface_t::NONE:
+      case tobas::JointCommandInterface::kNone:
         break;
       default:
         qt::qErrorBox(this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
@@ -230,7 +230,7 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
   bool jnt_found = false;
 
   switch (joint.cmd_iface) {
-    case tobas::jnt_cmd_iface_t::POSITION: {
+    case tobas::JointCommandInterface::kPosition: {
       for (auto& cmd : tar_js_pos_.states) {
         if (cmd.name == jnt_name) {
           cmd.position = value;
@@ -246,7 +246,7 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
 
       break;
     }
-    case tobas::jnt_cmd_iface_t::VELOCITY: {
+    case tobas::JointCommandInterface::kVelocity: {
       for (auto& cmd : tar_js_vel_.states) {
         if (cmd.name == jnt_name) {
           cmd.position = value;
@@ -262,7 +262,7 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
 
       break;
     }
-    case tobas::jnt_cmd_iface_t::EFFORT: {
+    case tobas::JointCommandInterface::kEffort: {
       for (auto& cmd : tar_js_eff_.states) {
         if (cmd.name == jnt_name) {
           cmd.position = value;
@@ -278,7 +278,7 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
 
       break;
     }
-    case tobas::jnt_cmd_iface_t::NONE: {
+    case tobas::JointCommandInterface::kNone: {
       break;
     }
     default: {

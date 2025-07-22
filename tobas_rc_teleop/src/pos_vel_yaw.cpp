@@ -31,7 +31,7 @@ bool PosVelYawController::requireAngularVelocity()
   return false;
 }
 
-void PosVelYawController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
+void PosVelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");

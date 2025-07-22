@@ -28,7 +28,7 @@ public:
 
 private:
   /* 8: Register mapping (p.32) */
-  enum register_t : uint8_t
+  enum Register : uint8_t
   {
     // Interface control register
     IF_CTRL = 0x0E,
@@ -54,12 +54,12 @@ private:
     TEMP_OUT_H = 0x2C,
   };
 
-  enum who_am_i_t : uint8_t
+  enum WhoAmI : uint8_t
   {
     WHO_AM_I = 0b10110100,
   };
 
-  enum config_t : uint8_t
+  enum Config : uint8_t
   {
     // CTRL_REG1
     ODR_0HZ = 0b0000 << 3,
@@ -96,7 +96,7 @@ private:
     IF_ADD_INC = 1 << 0,
   };
 
-  enum status_t : uint8_t
+  enum Status : uint8_t
   {
     TEMP_OVERRUN = 1 << 5,
     PRES_OVERRUN = 1 << 4,

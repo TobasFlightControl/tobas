@@ -17,7 +17,7 @@ class SimulationSettingsWidget : public QWidget
 public:
   explicit SimulationSettingsWidget(rclcpp::Node::SharedPtr node);
 
-  loop_type_t loopType() const;
+  LoopType loopType() const;
   std::filesystem::path worldPath() const;
 
 private:

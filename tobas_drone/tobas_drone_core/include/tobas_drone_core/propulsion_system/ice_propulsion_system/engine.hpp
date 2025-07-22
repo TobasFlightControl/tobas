@@ -15,7 +15,7 @@ class EngineConfig
 
 public:
   std::pair<double, double> engine_const = { 0., 0. };  // A, B (memo: 3-28)
-  hw_iface_t hw_iface = hw_iface_t::OTHER;
+  HardwareInterface hw_iface = HardwareInterface::kOther;
 
   bool isValid() const;
 

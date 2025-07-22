@@ -14,32 +14,32 @@ UBXScanner::UBXScanner()
 void UBXScanner::reset()
 {
   pos_ = 0;
-  state_ = Sync1;
+  state_ = kSync1;
 }
 
 bool UBXScanner::update(const uint8_t& data)
 {
-  if (state_ != Done) {
+  if (state_ != kDone) {
     buffer_[pos_++] = data;
   }
 
   switch (state_) {
-    case Sync1:
+    case kSync1:
       if (data == kUbxSync1) {
-        state_ = Sync2;
+        state_ = kSync2;
       }
       else {
         reset();
       }
       break;
 
-    case Sync2:
+    case kSync2:
       switch (data) {
         case kUbxSync1:
-          state_ = Sync1;
+          state_ = kSync1;
           break;
         case kUbxSync2:
-          state_ = Class;
+          state_ = kClass;
           break;
         default:
           reset();
@@ -47,43 +47,43 @@ bool UBXScanner::update(const uint8_t& data)
       }
       break;
 
-    case Class:
-      state_ = ID;
+    case kClass:
+      state_ = kId;
       break;
 
-    case ID:
-      state_ = Length1;
+    case kId:
+      state_ = kLength1;
       break;
 
-    case Length1:
+    case kLength1:
       payload_length_ = data;
-      state_ = Length2;
+      state_ = kLength2;
       break;
 
-    case Length2:
+    case kLength2:
       payload_length_ += data << 8;
       if (messageLength() > kUbxBufferLength) {
         cerr << "The size of payload is larger than that of UBX buffer." << endl;
         return false;
       }
-      state_ = Payload;
+      state_ = kPayload;
       break;
 
-    case Payload:
+    case kPayload:
       if (pos_ == kUbxHeaderLength + payload_length_) {
-        state_ = CK_A;
+        state_ = kCkA;
       }
       break;
 
-    case CK_A:
-      state_ = CK_B;
+    case kCkA:
+      state_ = kCkB;
       break;
 
-    case CK_B:
-      state_ = Done;
+    case kCkB:
+      state_ = kDone;
       break;
 
-    case Done:
+    case kDone:
       break;
 
     default:

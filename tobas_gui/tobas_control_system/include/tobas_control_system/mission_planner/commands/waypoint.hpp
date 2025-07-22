@@ -19,13 +19,13 @@ struct WaypointData : public BaseCommandData
   double latitude;
   double longitude;
   double altitude;
-  altitude_frame_t altitude_frame;
+  AltitudeFrame altitude_frame;
   double acceptance_radius;
   double duration;
 
-  command_t type() const
+  Command type() const
   {
-    return command_t::WAYPOINT;
+    return Command::kWaypoint;
   }
 };
 
@@ -45,14 +45,14 @@ public:
   double latitude() const;
   double longitude() const;
   double altitude() const;
-  altitude_frame_t altitudeFrame() const;
+  AltitudeFrame altitudeFrame() const;
   double acceptanceRadius() const;
   double duration() const;
 
   void latitude(double value);
   void longitude(double value);
   void altitude(double value);
-  void altitudeFrame(altitude_frame_t value);
+  void altitudeFrame(AltitudeFrame value);
   void acceptanceRadius(double value);
   void duration(double value);
 

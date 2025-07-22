@@ -26,12 +26,12 @@ class ContactEstimator
   static constexpr double kDefaultContactForceErfVariance = 25.;  // [N^2]
 
 public:
-  enum state_t
+  enum State
   {
-    Contact,
-    Swing,
-    Early,
-    Late,
+    kContact,
+    kSwing,
+    kEarly,
+    kLate,
   };
 
   explicit ContactEstimator(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
@@ -62,7 +62,7 @@ private:
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeMassHolder mass_holder_;
 
-  std::vector<state_t> states_;  // FSMの状態
+  std::vector<State> states_;  // FSMの状態
   ctrl::KalmanFilter kf_;
 
   double erfden_pred_, erfden_height_, erfden_force_;

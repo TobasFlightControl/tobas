@@ -166,966 +166,966 @@ string WpaSupplicantParser::exportText() const
   return oss.str();
 }
 
-bool WpaSupplicantParser::parseCountryCode(const string& src, country_code_t& dst)
+bool WpaSupplicantParser::parseCountryCode(const string& src, CountryCode& dst)
 {
   if (src == country_code::Afghanistan) {
-    dst = country_code_t::AF;
+    dst = CountryCode::AF;
     return true;
   }
   else if (src == country_code::Albania) {
-    dst = country_code_t::AL;
+    dst = CountryCode::AL;
     return true;
   }
   else if (src == country_code::Algeria) {
-    dst = country_code_t::DZ;
+    dst = CountryCode::DZ;
     return true;
   }
   else if (src == country_code::American_Samoa) {
-    dst = country_code_t::AS;
+    dst = CountryCode::AS;
     return true;
   }
   else if (src == country_code::Andorra) {
-    dst = country_code_t::AD;
+    dst = CountryCode::AD;
     return true;
   }
   else if (src == country_code::Angola) {
-    dst = country_code_t::AO;
+    dst = CountryCode::AO;
     return true;
   }
   else if (src == country_code::Anguilla) {
-    dst = country_code_t::AI;
+    dst = CountryCode::AI;
     return true;
   }
   else if (src == country_code::Antarctica) {
-    dst = country_code_t::AQ;
+    dst = CountryCode::AQ;
     return true;
   }
   else if (src == country_code::Antigua_and_Barbuda) {
-    dst = country_code_t::AG;
+    dst = CountryCode::AG;
     return true;
   }
   else if (src == country_code::Argentina) {
-    dst = country_code_t::AR;
+    dst = CountryCode::AR;
     return true;
   }
   else if (src == country_code::Armenia) {
-    dst = country_code_t::AM;
+    dst = CountryCode::AM;
     return true;
   }
   else if (src == country_code::Aruba) {
-    dst = country_code_t::AW;
+    dst = CountryCode::AW;
     return true;
   }
   else if (src == country_code::Australia) {
-    dst = country_code_t::AU;
+    dst = CountryCode::AU;
     return true;
   }
   else if (src == country_code::Austria) {
-    dst = country_code_t::AT;
+    dst = CountryCode::AT;
     return true;
   }
   else if (src == country_code::Azerbaijan) {
-    dst = country_code_t::AZ;
+    dst = CountryCode::AZ;
     return true;
   }
   else if (src == country_code::Bahamas) {
-    dst = country_code_t::BS;
+    dst = CountryCode::BS;
     return true;
   }
   else if (src == country_code::Bahrain) {
-    dst = country_code_t::BH;
+    dst = CountryCode::BH;
     return true;
   }
   else if (src == country_code::Bangladesh) {
-    dst = country_code_t::BD;
+    dst = CountryCode::BD;
     return true;
   }
   else if (src == country_code::Barbados) {
-    dst = country_code_t::BB;
+    dst = CountryCode::BB;
     return true;
   }
   else if (src == country_code::Belarus) {
-    dst = country_code_t::BY;
+    dst = CountryCode::BY;
     return true;
   }
   else if (src == country_code::Belgium) {
-    dst = country_code_t::BE;
+    dst = CountryCode::BE;
     return true;
   }
   else if (src == country_code::Belize) {
-    dst = country_code_t::BZ;
+    dst = CountryCode::BZ;
     return true;
   }
   else if (src == country_code::Benin) {
-    dst = country_code_t::BJ;
+    dst = CountryCode::BJ;
     return true;
   }
   else if (src == country_code::Bermuda) {
-    dst = country_code_t::BM;
+    dst = CountryCode::BM;
     return true;
   }
   else if (src == country_code::Bhutan) {
-    dst = country_code_t::BT;
+    dst = CountryCode::BT;
     return true;
   }
   else if (src == country_code::Bolivia) {
-    dst = country_code_t::BO;
+    dst = CountryCode::BO;
     return true;
   }
   else if (src == country_code::Bosnia_and_Herzegovina) {
-    dst = country_code_t::BA;
+    dst = CountryCode::BA;
     return true;
   }
   else if (src == country_code::Botswana) {
-    dst = country_code_t::BW;
+    dst = CountryCode::BW;
     return true;
   }
   else if (src == country_code::Brazil) {
-    dst = country_code_t::BR;
+    dst = CountryCode::BR;
     return true;
   }
   else if (src == country_code::British_Indian_OceanTerritory) {
-    dst = country_code_t::IO;
+    dst = CountryCode::IO;
     return true;
   }
   else if (src == country_code::British_Virgin_Islands) {
-    dst = country_code_t::VG;
+    dst = CountryCode::VG;
     return true;
   }
   else if (src == country_code::Brunei) {
-    dst = country_code_t::BN;
+    dst = CountryCode::BN;
     return true;
   }
   else if (src == country_code::Bulgaria) {
-    dst = country_code_t::BG;
+    dst = CountryCode::BG;
     return true;
   }
   else if (src == country_code::Burkina_Faso) {
-    dst = country_code_t::BF;
+    dst = CountryCode::BF;
     return true;
   }
   else if (src == country_code::Burundi) {
-    dst = country_code_t::BI;
+    dst = CountryCode::BI;
     return true;
   }
   else if (src == country_code::Cambodia) {
-    dst = country_code_t::KH;
+    dst = CountryCode::KH;
     return true;
   }
   else if (src == country_code::Cameroon) {
-    dst = country_code_t::CM;
+    dst = CountryCode::CM;
     return true;
   }
   else if (src == country_code::Canad) {
-    dst = country_code_t::CA;
+    dst = CountryCode::CA;
     return true;
   }
   else if (src == country_code::Cape_Verde) {
-    dst = country_code_t::CV;
+    dst = CountryCode::CV;
     return true;
   }
   else if (src == country_code::Cayman_Islands) {
-    dst = country_code_t::KY;
+    dst = CountryCode::KY;
     return true;
   }
   else if (src == country_code::Central_African_Republic) {
-    dst = country_code_t::CF;
+    dst = CountryCode::CF;
     return true;
   }
   else if (src == country_code::Chad) {
-    dst = country_code_t::TD;
+    dst = CountryCode::TD;
     return true;
   }
   else if (src == country_code::Chile) {
-    dst = country_code_t::CL;
+    dst = CountryCode::CL;
     return true;
   }
   else if (src == country_code::China) {
-    dst = country_code_t::CN;
+    dst = CountryCode::CN;
     return true;
   }
   else if (src == country_code::Christmas_Island) {
-    dst = country_code_t::CX;
+    dst = CountryCode::CX;
     return true;
   }
   else if (src == country_code::Cocos_Islands) {
-    dst = country_code_t::CC;
+    dst = CountryCode::CC;
     return true;
   }
   else if (src == country_code::Colombia) {
-    dst = country_code_t::CO;
+    dst = CountryCode::CO;
     return true;
   }
   else if (src == country_code::Comoros) {
-    dst = country_code_t::KM;
+    dst = CountryCode::KM;
     return true;
   }
   else if (src == country_code::Cook_Islands) {
-    dst = country_code_t::CK;
+    dst = CountryCode::CK;
     return true;
   }
   else if (src == country_code::Costa_Rica) {
-    dst = country_code_t::CR;
+    dst = CountryCode::CR;
     return true;
   }
   else if (src == country_code::Croatia) {
-    dst = country_code_t::HR;
+    dst = CountryCode::HR;
     return true;
   }
   else if (src == country_code::Cuba) {
-    dst = country_code_t::CU;
+    dst = CountryCode::CU;
     return true;
   }
   else if (src == country_code::Curacao) {
-    dst = country_code_t::CW;
+    dst = CountryCode::CW;
     return true;
   }
   else if (src == country_code::Cyprus) {
-    dst = country_code_t::CY;
+    dst = CountryCode::CY;
     return true;
   }
   else if (src == country_code::Czech_Republic) {
-    dst = country_code_t::CZ;
+    dst = CountryCode::CZ;
     return true;
   }
   else if (src == country_code::Democratic_Republic_of_the_Congo) {
-    dst = country_code_t::CD;
+    dst = CountryCode::CD;
     return true;
   }
   else if (src == country_code::Denmark) {
-    dst = country_code_t::DK;
+    dst = CountryCode::DK;
     return true;
   }
   else if (src == country_code::Djibouti) {
-    dst = country_code_t::DJ;
+    dst = CountryCode::DJ;
     return true;
   }
   else if (src == country_code::Dominica) {
-    dst = country_code_t::DM;
+    dst = CountryCode::DM;
     return true;
   }
   else if (src == country_code::Dominican_Republic) {
-    dst = country_code_t::DO;
+    dst = CountryCode::DO;
     return true;
   }
   else if (src == country_code::East_Timor) {
-    dst = country_code_t::TL;
+    dst = CountryCode::TL;
     return true;
   }
   else if (src == country_code::Ecuador) {
-    dst = country_code_t::EC;
+    dst = CountryCode::EC;
     return true;
   }
   else if (src == country_code::Egypt) {
-    dst = country_code_t::EG;
+    dst = CountryCode::EG;
     return true;
   }
   else if (src == country_code::El_Salvador) {
-    dst = country_code_t::SV;
+    dst = CountryCode::SV;
     return true;
   }
   else if (src == country_code::Equatorial_Guinea) {
-    dst = country_code_t::GQ;
+    dst = CountryCode::GQ;
     return true;
   }
   else if (src == country_code::Eritrea) {
-    dst = country_code_t::ER;
+    dst = CountryCode::ER;
     return true;
   }
   else if (src == country_code::Estonia) {
-    dst = country_code_t::EE;
+    dst = CountryCode::EE;
     return true;
   }
   else if (src == country_code::Ethiopia) {
-    dst = country_code_t::ET;
+    dst = CountryCode::ET;
     return true;
   }
   else if (src == country_code::Falkland_Islands) {
-    dst = country_code_t::FK;
+    dst = CountryCode::FK;
     return true;
   }
   else if (src == country_code::Faroe_Islands) {
-    dst = country_code_t::FO;
+    dst = CountryCode::FO;
     return true;
   }
   else if (src == country_code::Fiji) {
-    dst = country_code_t::FJ;
+    dst = CountryCode::FJ;
     return true;
   }
   else if (src == country_code::Finland) {
-    dst = country_code_t::FI;
+    dst = CountryCode::FI;
     return true;
   }
   else if (src == country_code::France) {
-    dst = country_code_t::FR;
+    dst = CountryCode::FR;
     return true;
   }
   else if (src == country_code::French_Polynesia) {
-    dst = country_code_t::PF;
+    dst = CountryCode::PF;
     return true;
   }
   else if (src == country_code::Gabon) {
-    dst = country_code_t::GA;
+    dst = CountryCode::GA;
     return true;
   }
   else if (src == country_code::Gambia) {
-    dst = country_code_t::GM;
+    dst = CountryCode::GM;
     return true;
   }
   else if (src == country_code::Georgia) {
-    dst = country_code_t::GE;
+    dst = CountryCode::GE;
     return true;
   }
   else if (src == country_code::Germany) {
-    dst = country_code_t::DE;
+    dst = CountryCode::DE;
     return true;
   }
   else if (src == country_code::Ghana) {
-    dst = country_code_t::GH;
+    dst = CountryCode::GH;
     return true;
   }
   else if (src == country_code::Gibraltar) {
-    dst = country_code_t::GI;
+    dst = CountryCode::GI;
     return true;
   }
   else if (src == country_code::Greece) {
-    dst = country_code_t::GR;
+    dst = CountryCode::GR;
     return true;
   }
   else if (src == country_code::Greenland) {
-    dst = country_code_t::GL;
+    dst = CountryCode::GL;
     return true;
   }
   else if (src == country_code::Grenada) {
-    dst = country_code_t::GD;
+    dst = CountryCode::GD;
     return true;
   }
   else if (src == country_code::Guam) {
-    dst = country_code_t::GU;
+    dst = CountryCode::GU;
     return true;
   }
   else if (src == country_code::Guatemala) {
-    dst = country_code_t::GT;
+    dst = CountryCode::GT;
     return true;
   }
   else if (src == country_code::Guernsey) {
-    dst = country_code_t::GG;
+    dst = CountryCode::GG;
     return true;
   }
   else if (src == country_code::Guinea) {
-    dst = country_code_t::GN;
+    dst = CountryCode::GN;
     return true;
   }
   else if (src == country_code::Guinea_Bissau) {
-    dst = country_code_t::GW;
+    dst = CountryCode::GW;
     return true;
   }
   else if (src == country_code::Guyana) {
-    dst = country_code_t::GY;
+    dst = CountryCode::GY;
     return true;
   }
   else if (src == country_code::Haiti) {
-    dst = country_code_t::HT;
+    dst = CountryCode::HT;
     return true;
   }
   else if (src == country_code::Honduras) {
-    dst = country_code_t::HN;
+    dst = CountryCode::HN;
     return true;
   }
   else if (src == country_code::Hong_Kong) {
-    dst = country_code_t::HK;
+    dst = CountryCode::HK;
     return true;
   }
   else if (src == country_code::Hungary) {
-    dst = country_code_t::HU;
+    dst = CountryCode::HU;
     return true;
   }
   else if (src == country_code::Iceland) {
-    dst = country_code_t::IS;
+    dst = CountryCode::IS;
     return true;
   }
   else if (src == country_code::India) {
-    dst = country_code_t::IN;
+    dst = CountryCode::IN;
     return true;
   }
   else if (src == country_code::Indonesia) {
-    dst = country_code_t::ID;
+    dst = CountryCode::ID;
     return true;
   }
   else if (src == country_code::Iran) {
-    dst = country_code_t::IR;
+    dst = CountryCode::IR;
     return true;
   }
   else if (src == country_code::Iraq) {
-    dst = country_code_t::IQ;
+    dst = CountryCode::IQ;
     return true;
   }
   else if (src == country_code::Ireland) {
-    dst = country_code_t::IE;
+    dst = CountryCode::IE;
     return true;
   }
   else if (src == country_code::Isle_of_Man) {
-    dst = country_code_t::IM;
+    dst = CountryCode::IM;
     return true;
   }
   else if (src == country_code::Israel) {
-    dst = country_code_t::IL;
+    dst = CountryCode::IL;
     return true;
   }
   else if (src == country_code::Italy) {
-    dst = country_code_t::IT;
+    dst = CountryCode::IT;
     return true;
   }
   else if (src == country_code::Ivory_Coast) {
-    dst = country_code_t::CI;
+    dst = CountryCode::CI;
     return true;
   }
   else if (src == country_code::Jamaica) {
-    dst = country_code_t::JM;
+    dst = CountryCode::JM;
     return true;
   }
   else if (src == country_code::Japan) {
-    dst = country_code_t::JP;
+    dst = CountryCode::JP;
     return true;
   }
   else if (src == country_code::Jersey) {
-    dst = country_code_t::JE;
+    dst = CountryCode::JE;
     return true;
   }
   else if (src == country_code::Jordan) {
-    dst = country_code_t::JO;
+    dst = CountryCode::JO;
     return true;
   }
   else if (src == country_code::Kazakhsta) {
-    dst = country_code_t::KZ;
+    dst = CountryCode::KZ;
     return true;
   }
   else if (src == country_code::Kenya) {
-    dst = country_code_t::KE;
+    dst = CountryCode::KE;
     return true;
   }
   else if (src == country_code::Kiribati) {
-    dst = country_code_t::KI;
+    dst = CountryCode::KI;
     return true;
   }
   else if (src == country_code::Kosovo) {
-    dst = country_code_t::XK;
+    dst = CountryCode::XK;
     return true;
   }
   else if (src == country_code::Kuwait) {
-    dst = country_code_t::KW;
+    dst = CountryCode::KW;
     return true;
   }
   else if (src == country_code::Kyrgyzstan) {
-    dst = country_code_t::KG;
+    dst = CountryCode::KG;
     return true;
   }
   else if (src == country_code::Laos) {
-    dst = country_code_t::LA;
+    dst = CountryCode::LA;
     return true;
   }
   else if (src == country_code::Latvia) {
-    dst = country_code_t::LV;
+    dst = CountryCode::LV;
     return true;
   }
   else if (src == country_code::Lebanon) {
-    dst = country_code_t::LB;
+    dst = CountryCode::LB;
     return true;
   }
   else if (src == country_code::Lesotho) {
-    dst = country_code_t::LS;
+    dst = CountryCode::LS;
     return true;
   }
   else if (src == country_code::Liberia) {
-    dst = country_code_t::LR;
+    dst = CountryCode::LR;
     return true;
   }
   else if (src == country_code::Libya) {
-    dst = country_code_t::LY;
+    dst = CountryCode::LY;
     return true;
   }
   else if (src == country_code::Liechtenstein) {
-    dst = country_code_t::LI;
+    dst = CountryCode::LI;
     return true;
   }
   else if (src == country_code::Lithuania) {
-    dst = country_code_t::LT;
+    dst = CountryCode::LT;
     return true;
   }
   else if (src == country_code::Luxembourg) {
-    dst = country_code_t::LU;
+    dst = CountryCode::LU;
     return true;
   }
   else if (src == country_code::Macau) {
-    dst = country_code_t::MO;
+    dst = CountryCode::MO;
     return true;
   }
   else if (src == country_code::Macedonia) {
-    dst = country_code_t::MK;
+    dst = CountryCode::MK;
     return true;
   }
   else if (src == country_code::Madagascar) {
-    dst = country_code_t::MG;
+    dst = CountryCode::MG;
     return true;
   }
   else if (src == country_code::Malawi) {
-    dst = country_code_t::MW;
+    dst = CountryCode::MW;
     return true;
   }
   else if (src == country_code::Malaysia) {
-    dst = country_code_t::MY;
+    dst = CountryCode::MY;
     return true;
   }
   else if (src == country_code::Maldives) {
-    dst = country_code_t::MV;
+    dst = CountryCode::MV;
     return true;
   }
   else if (src == country_code::Mali) {
-    dst = country_code_t::ML;
+    dst = CountryCode::ML;
     return true;
   }
   else if (src == country_code::Malta) {
-    dst = country_code_t::MT;
+    dst = CountryCode::MT;
     return true;
   }
   else if (src == country_code::Marshall_Islands) {
-    dst = country_code_t::MH;
+    dst = CountryCode::MH;
     return true;
   }
   else if (src == country_code::Mauritania) {
-    dst = country_code_t::MR;
+    dst = CountryCode::MR;
     return true;
   }
   else if (src == country_code::Mauritius) {
-    dst = country_code_t::MU;
+    dst = CountryCode::MU;
     return true;
   }
   else if (src == country_code::Mayotte) {
-    dst = country_code_t::YT;
+    dst = CountryCode::YT;
     return true;
   }
   else if (src == country_code::Mexico) {
-    dst = country_code_t::MX;
+    dst = CountryCode::MX;
     return true;
   }
   else if (src == country_code::Micronesia) {
-    dst = country_code_t::FM;
+    dst = CountryCode::FM;
     return true;
   }
   else if (src == country_code::Moldova) {
-    dst = country_code_t::MD;
+    dst = CountryCode::MD;
     return true;
   }
   else if (src == country_code::Monaco) {
-    dst = country_code_t::MC;
+    dst = CountryCode::MC;
     return true;
   }
   else if (src == country_code::Mongolia) {
-    dst = country_code_t::MN;
+    dst = CountryCode::MN;
     return true;
   }
   else if (src == country_code::Montenegro) {
-    dst = country_code_t::ME;
+    dst = CountryCode::ME;
     return true;
   }
   else if (src == country_code::Montserrat) {
-    dst = country_code_t::MS;
+    dst = CountryCode::MS;
     return true;
   }
   else if (src == country_code::Morocco) {
-    dst = country_code_t::MA;
+    dst = CountryCode::MA;
     return true;
   }
   else if (src == country_code::Mozambique) {
-    dst = country_code_t::MZ;
+    dst = CountryCode::MZ;
     return true;
   }
   else if (src == country_code::Myanmar) {
-    dst = country_code_t::MM;
+    dst = CountryCode::MM;
     return true;
   }
   else if (src == country_code::Namibia) {
-    dst = country_code_t::NA;
+    dst = CountryCode::NA;
     return true;
   }
   else if (src == country_code::Nauru) {
-    dst = country_code_t::NR;
+    dst = CountryCode::NR;
     return true;
   }
   else if (src == country_code::Nepal) {
-    dst = country_code_t::NP;
+    dst = CountryCode::NP;
     return true;
   }
   else if (src == country_code::Netherlands) {
-    dst = country_code_t::NL;
+    dst = CountryCode::NL;
     return true;
   }
   else if (src == country_code::Netherlands_Antilles) {
-    dst = country_code_t::AN;
+    dst = CountryCode::AN;
     return true;
   }
   else if (src == country_code::New_Caledonia) {
-    dst = country_code_t::NC;
+    dst = CountryCode::NC;
     return true;
   }
   else if (src == country_code::New_Zealand) {
-    dst = country_code_t::NZ;
+    dst = CountryCode::NZ;
     return true;
   }
   else if (src == country_code::Nicaragua) {
-    dst = country_code_t::NI;
+    dst = CountryCode::NI;
     return true;
   }
   else if (src == country_code::Niger) {
-    dst = country_code_t::NE;
+    dst = CountryCode::NE;
     return true;
   }
   else if (src == country_code::Nigeria) {
-    dst = country_code_t::NG;
+    dst = CountryCode::NG;
     return true;
   }
   else if (src == country_code::Niue) {
-    dst = country_code_t::NU;
+    dst = CountryCode::NU;
     return true;
   }
   else if (src == country_code::North_Korea) {
-    dst = country_code_t::KP;
+    dst = CountryCode::KP;
     return true;
   }
   else if (src == country_code::Northern_Mariana_Islands) {
-    dst = country_code_t::MP;
+    dst = CountryCode::MP;
     return true;
   }
   else if (src == country_code::Norway) {
-    dst = country_code_t::NO;
+    dst = CountryCode::NO;
     return true;
   }
   else if (src == country_code::Oman) {
-    dst = country_code_t::OM;
+    dst = CountryCode::OM;
     return true;
   }
   else if (src == country_code::Pakistan) {
-    dst = country_code_t::PK;
+    dst = CountryCode::PK;
     return true;
   }
   else if (src == country_code::Palau) {
-    dst = country_code_t::PW;
+    dst = CountryCode::PW;
     return true;
   }
   else if (src == country_code::Palestine) {
-    dst = country_code_t::PS;
+    dst = CountryCode::PS;
     return true;
   }
   else if (src == country_code::Panama) {
-    dst = country_code_t::PA;
+    dst = CountryCode::PA;
     return true;
   }
   else if (src == country_code::Papua_New_Guinea) {
-    dst = country_code_t::PG;
+    dst = CountryCode::PG;
     return true;
   }
   else if (src == country_code::Paraguay) {
-    dst = country_code_t::PY;
+    dst = CountryCode::PY;
     return true;
   }
   else if (src == country_code::Peru) {
-    dst = country_code_t::PE;
+    dst = CountryCode::PE;
     return true;
   }
   else if (src == country_code::Philippines) {
-    dst = country_code_t::PH;
+    dst = CountryCode::PH;
     return true;
   }
   else if (src == country_code::Pitcairn) {
-    dst = country_code_t::PN;
+    dst = CountryCode::PN;
     return true;
   }
   else if (src == country_code::Poland) {
-    dst = country_code_t::PL;
+    dst = CountryCode::PL;
     return true;
   }
   else if (src == country_code::Portugal) {
-    dst = country_code_t::PT;
+    dst = CountryCode::PT;
     return true;
   }
   else if (src == country_code::Puerto_Rico) {
-    dst = country_code_t::PR;
+    dst = CountryCode::PR;
     return true;
   }
   else if (src == country_code::Qatar) {
-    dst = country_code_t::QA;
+    dst = CountryCode::QA;
     return true;
   }
   else if (src == country_code::Republic_of_the_Congo) {
-    dst = country_code_t::CG;
+    dst = CountryCode::CG;
     return true;
   }
   else if (src == country_code::Reunion) {
-    dst = country_code_t::RE;
+    dst = CountryCode::RE;
     return true;
   }
   else if (src == country_code::Romania) {
-    dst = country_code_t::RO;
+    dst = CountryCode::RO;
     return true;
   }
   else if (src == country_code::Russi) {
-    dst = country_code_t::RU;
+    dst = CountryCode::RU;
     return true;
   }
   else if (src == country_code::Rwanda) {
-    dst = country_code_t::RW;
+    dst = CountryCode::RW;
     return true;
   }
   else if (src == country_code::Saint_Barthelemy) {
-    dst = country_code_t::BL;
+    dst = CountryCode::BL;
     return true;
   }
   else if (src == country_code::Saint_Helena) {
-    dst = country_code_t::SH;
+    dst = CountryCode::SH;
     return true;
   }
   else if (src == country_code::Saint_Kitts_and_Nevis) {
-    dst = country_code_t::KN;
+    dst = CountryCode::KN;
     return true;
   }
   else if (src == country_code::Saint_Lucia) {
-    dst = country_code_t::LC;
+    dst = CountryCode::LC;
     return true;
   }
   else if (src == country_code::Saint_Martin) {
-    dst = country_code_t::MF;
+    dst = CountryCode::MF;
     return true;
   }
   else if (src == country_code::Saint_Pierre_and_Miquelon) {
-    dst = country_code_t::PM;
+    dst = CountryCode::PM;
     return true;
   }
   else if (src == country_code::Saint_Vincent_and_the_Grenadines) {
-    dst = country_code_t::VC;
+    dst = CountryCode::VC;
     return true;
   }
   else if (src == country_code::Samoa) {
-    dst = country_code_t::WS;
+    dst = CountryCode::WS;
     return true;
   }
   else if (src == country_code::San_Marino) {
-    dst = country_code_t::SM;
+    dst = CountryCode::SM;
     return true;
   }
   else if (src == country_code::Sao_Tome_and_Principe) {
-    dst = country_code_t::ST;
+    dst = CountryCode::ST;
     return true;
   }
   else if (src == country_code::Saudi_Arabia) {
-    dst = country_code_t::SA;
+    dst = CountryCode::SA;
     return true;
   }
   else if (src == country_code::Senegal) {
-    dst = country_code_t::SN;
+    dst = CountryCode::SN;
     return true;
   }
   else if (src == country_code::Serbia) {
-    dst = country_code_t::RS;
+    dst = CountryCode::RS;
     return true;
   }
   else if (src == country_code::Seychelles) {
-    dst = country_code_t::SC;
+    dst = CountryCode::SC;
     return true;
   }
   else if (src == country_code::Sierra_Leone) {
-    dst = country_code_t::SL;
+    dst = CountryCode::SL;
     return true;
   }
   else if (src == country_code::Singapore) {
-    dst = country_code_t::SG;
+    dst = CountryCode::SG;
     return true;
   }
   else if (src == country_code::Sint_Maarten) {
-    dst = country_code_t::SX;
+    dst = CountryCode::SX;
     return true;
   }
   else if (src == country_code::Slovakia) {
-    dst = country_code_t::SK;
+    dst = CountryCode::SK;
     return true;
   }
   else if (src == country_code::Slovenia) {
-    dst = country_code_t::SI;
+    dst = CountryCode::SI;
     return true;
   }
   else if (src == country_code::Solomon_Islands) {
-    dst = country_code_t::SB;
+    dst = CountryCode::SB;
     return true;
   }
   else if (src == country_code::Somalia) {
-    dst = country_code_t::SO;
+    dst = CountryCode::SO;
     return true;
   }
   else if (src == country_code::South_Africa) {
-    dst = country_code_t::ZA;
+    dst = CountryCode::ZA;
     return true;
   }
   else if (src == country_code::South_Korea) {
-    dst = country_code_t::KR;
+    dst = CountryCode::KR;
     return true;
   }
   else if (src == country_code::South_Sudan) {
-    dst = country_code_t::SS;
+    dst = CountryCode::SS;
     return true;
   }
   else if (src == country_code::Spain) {
-    dst = country_code_t::ES;
+    dst = CountryCode::ES;
     return true;
   }
   else if (src == country_code::Sri_Lanka) {
-    dst = country_code_t::LK;
+    dst = CountryCode::LK;
     return true;
   }
   else if (src == country_code::Sudan) {
-    dst = country_code_t::SD;
+    dst = CountryCode::SD;
     return true;
   }
   else if (src == country_code::Suriname) {
-    dst = country_code_t::SR;
+    dst = CountryCode::SR;
     return true;
   }
   else if (src == country_code::Svalbard_and_Jan_Mayen) {
-    dst = country_code_t::SJ;
+    dst = CountryCode::SJ;
     return true;
   }
   else if (src == country_code::Swaziland) {
-    dst = country_code_t::SZ;
+    dst = CountryCode::SZ;
     return true;
   }
   else if (src == country_code::Sweden) {
-    dst = country_code_t::SE;
+    dst = CountryCode::SE;
     return true;
   }
   else if (src == country_code::Switzerland) {
-    dst = country_code_t::CH;
+    dst = CountryCode::CH;
     return true;
   }
   else if (src == country_code::Syria) {
-    dst = country_code_t::SY;
+    dst = CountryCode::SY;
     return true;
   }
   else if (src == country_code::Taiwan) {
-    dst = country_code_t::TW;
+    dst = CountryCode::TW;
     return true;
   }
   else if (src == country_code::Tajikistan) {
-    dst = country_code_t::TJ;
+    dst = CountryCode::TJ;
     return true;
   }
   else if (src == country_code::Tanzania) {
-    dst = country_code_t::TZ;
+    dst = CountryCode::TZ;
     return true;
   }
   else if (src == country_code::Thailand) {
-    dst = country_code_t::TH;
+    dst = CountryCode::TH;
     return true;
   }
   else if (src == country_code::Togo) {
-    dst = country_code_t::TG;
+    dst = CountryCode::TG;
     return true;
   }
   else if (src == country_code::Tokelau) {
-    dst = country_code_t::TK;
+    dst = CountryCode::TK;
     return true;
   }
   else if (src == country_code::Tonga) {
-    dst = country_code_t::TO;
+    dst = CountryCode::TO;
     return true;
   }
   else if (src == country_code::Trinidad_and_Tobago) {
-    dst = country_code_t::TT;
+    dst = CountryCode::TT;
     return true;
   }
   else if (src == country_code::Tunisia) {
-    dst = country_code_t::TN;
+    dst = CountryCode::TN;
     return true;
   }
   else if (src == country_code::Turkey) {
-    dst = country_code_t::TR;
+    dst = CountryCode::TR;
     return true;
   }
   else if (src == country_code::Turkmenistan) {
-    dst = country_code_t::TM;
+    dst = CountryCode::TM;
     return true;
   }
   else if (src == country_code::Turks_and_Caicos_Islands) {
-    dst = country_code_t::TC;
+    dst = CountryCode::TC;
     return true;
   }
   else if (src == country_code::Tuvalu) {
-    dst = country_code_t::TV;
+    dst = CountryCode::TV;
     return true;
   }
   else if (src == country_code::US_Virgin_Islands) {
-    dst = country_code_t::VI;
+    dst = CountryCode::VI;
     return true;
   }
   else if (src == country_code::Uganda) {
-    dst = country_code_t::UG;
+    dst = CountryCode::UG;
     return true;
   }
   else if (src == country_code::Ukraine) {
-    dst = country_code_t::UA;
+    dst = CountryCode::UA;
     return true;
   }
   else if (src == country_code::United_Arab_Emirates) {
-    dst = country_code_t::AE;
+    dst = CountryCode::AE;
     return true;
   }
   else if (src == country_code::United_Kingdom) {
-    dst = country_code_t::GB;
+    dst = CountryCode::GB;
     return true;
   }
   else if (src == country_code::United_State) {
-    dst = country_code_t::US;
+    dst = CountryCode::US;
     return true;
   }
   else if (src == country_code::Uruguay) {
-    dst = country_code_t::UY;
+    dst = CountryCode::UY;
     return true;
   }
   else if (src == country_code::Uzbekistan) {
-    dst = country_code_t::UZ;
+    dst = CountryCode::UZ;
     return true;
   }
   else if (src == country_code::Vanuatu) {
-    dst = country_code_t::VU;
+    dst = CountryCode::VU;
     return true;
   }
   else if (src == country_code::Vatican) {
-    dst = country_code_t::VA;
+    dst = CountryCode::VA;
     return true;
   }
   else if (src == country_code::Venezuela) {
-    dst = country_code_t::VE;
+    dst = CountryCode::VE;
     return true;
   }
   else if (src == country_code::Vietnam) {
-    dst = country_code_t::VN;
+    dst = CountryCode::VN;
     return true;
   }
   else if (src == country_code::Wallis_and_Futuna) {
-    dst = country_code_t::WF;
+    dst = CountryCode::WF;
     return true;
   }
   else if (src == country_code::Western_Sahara) {
-    dst = country_code_t::EH;
+    dst = CountryCode::EH;
     return true;
   }
   else if (src == country_code::Yemen) {
-    dst = country_code_t::YE;
+    dst = CountryCode::YE;
     return true;
   }
   else if (src == country_code::Zambia) {
-    dst = country_code_t::ZM;
+    dst = CountryCode::ZM;
     return true;
   }
   else if (src == country_code::Zimbabwe) {
-    dst = country_code_t::ZW;
+    dst = CountryCode::ZW;
     return true;
   }
   else {
@@ -1136,13 +1136,13 @@ bool WpaSupplicantParser::parseCountryCode(const string& src, country_code_t& ds
   return true;
 }
 
-bool WpaSupplicantParser::parseKeyManagement(const string& src, key_mgmt_t& dst)
+bool WpaSupplicantParser::parseKeyManagement(const string& src, KeyManagement& dst)
 {
   if (src == key_mgmt::WPA_PSK) {
-    dst = key_mgmt_t::WPA_PSK;
+    dst = KeyManagement::WPA_PSK;
   }
   else if (src == key_mgmt::WPA_EAP) {
-    dst = key_mgmt_t::WPA_EAP;
+    dst = KeyManagement::WPA_EAP;
   }
   else {
     cerr << "Invalid key management method: " << src << endl;
@@ -1152,500 +1152,500 @@ bool WpaSupplicantParser::parseKeyManagement(const string& src, key_mgmt_t& dst)
   return true;
 }
 
-const char* WpaSupplicantParser::countryCodeToString(country_code_t cc)
+const char* WpaSupplicantParser::countryCodeToString(CountryCode cc)
 {
   switch (cc) {
-    case country_code_t::AF:
+    case CountryCode::AF:
       return country_code::Afghanistan;
-    case country_code_t::AL:
+    case CountryCode::AL:
       return country_code::Albania;
-    case country_code_t::DZ:
+    case CountryCode::DZ:
       return country_code::Algeria;
-    case country_code_t::AS:
+    case CountryCode::AS:
       return country_code::American_Samoa;
-    case country_code_t::AD:
+    case CountryCode::AD:
       return country_code::Andorra;
-    case country_code_t::AO:
+    case CountryCode::AO:
       return country_code::Angola;
-    case country_code_t::AI:
+    case CountryCode::AI:
       return country_code::Anguilla;
-    case country_code_t::AQ:
+    case CountryCode::AQ:
       return country_code::Antarctica;
-    case country_code_t::AG:
+    case CountryCode::AG:
       return country_code::Antigua_and_Barbuda;
-    case country_code_t::AR:
+    case CountryCode::AR:
       return country_code::Argentina;
-    case country_code_t::AM:
+    case CountryCode::AM:
       return country_code::Armenia;
-    case country_code_t::AW:
+    case CountryCode::AW:
       return country_code::Aruba;
-    case country_code_t::AU:
+    case CountryCode::AU:
       return country_code::Australia;
-    case country_code_t::AT:
+    case CountryCode::AT:
       return country_code::Austria;
-    case country_code_t::AZ:
+    case CountryCode::AZ:
       return country_code::Azerbaijan;
-    case country_code_t::BS:
+    case CountryCode::BS:
       return country_code::Bahamas;
-    case country_code_t::BH:
+    case CountryCode::BH:
       return country_code::Bahrain;
-    case country_code_t::BD:
+    case CountryCode::BD:
       return country_code::Bangladesh;
-    case country_code_t::BB:
+    case CountryCode::BB:
       return country_code::Barbados;
-    case country_code_t::BY:
+    case CountryCode::BY:
       return country_code::Belarus;
-    case country_code_t::BE:
+    case CountryCode::BE:
       return country_code::Belgium;
-    case country_code_t::BZ:
+    case CountryCode::BZ:
       return country_code::Belize;
-    case country_code_t::BJ:
+    case CountryCode::BJ:
       return country_code::Benin;
-    case country_code_t::BM:
+    case CountryCode::BM:
       return country_code::Bermuda;
-    case country_code_t::BT:
+    case CountryCode::BT:
       return country_code::Bhutan;
-    case country_code_t::BO:
+    case CountryCode::BO:
       return country_code::Bolivia;
-    case country_code_t::BA:
+    case CountryCode::BA:
       return country_code::Bosnia_and_Herzegovina;
-    case country_code_t::BW:
+    case CountryCode::BW:
       return country_code::Botswana;
-    case country_code_t::BR:
+    case CountryCode::BR:
       return country_code::Brazil;
-    case country_code_t::IO:
+    case CountryCode::IO:
       return country_code::British_Indian_OceanTerritory;
-    case country_code_t::VG:
+    case CountryCode::VG:
       return country_code::British_Virgin_Islands;
-    case country_code_t::BN:
+    case CountryCode::BN:
       return country_code::Brunei;
-    case country_code_t::BG:
+    case CountryCode::BG:
       return country_code::Bulgaria;
-    case country_code_t::BF:
+    case CountryCode::BF:
       return country_code::Burkina_Faso;
-    case country_code_t::BI:
+    case CountryCode::BI:
       return country_code::Burundi;
-    case country_code_t::KH:
+    case CountryCode::KH:
       return country_code::Cambodia;
-    case country_code_t::CM:
+    case CountryCode::CM:
       return country_code::Cameroon;
-    case country_code_t::CA:
+    case CountryCode::CA:
       return country_code::Canad;
-    case country_code_t::CV:
+    case CountryCode::CV:
       return country_code::Cape_Verde;
-    case country_code_t::KY:
+    case CountryCode::KY:
       return country_code::Cayman_Islands;
-    case country_code_t::CF:
+    case CountryCode::CF:
       return country_code::Central_African_Republic;
-    case country_code_t::TD:
+    case CountryCode::TD:
       return country_code::Chad;
-    case country_code_t::CL:
+    case CountryCode::CL:
       return country_code::Chile;
-    case country_code_t::CN:
+    case CountryCode::CN:
       return country_code::China;
-    case country_code_t::CX:
+    case CountryCode::CX:
       return country_code::Christmas_Island;
-    case country_code_t::CC:
+    case CountryCode::CC:
       return country_code::Cocos_Islands;
-    case country_code_t::CO:
+    case CountryCode::CO:
       return country_code::Colombia;
-    case country_code_t::KM:
+    case CountryCode::KM:
       return country_code::Comoros;
-    case country_code_t::CK:
+    case CountryCode::CK:
       return country_code::Cook_Islands;
-    case country_code_t::CR:
+    case CountryCode::CR:
       return country_code::Costa_Rica;
-    case country_code_t::HR:
+    case CountryCode::HR:
       return country_code::Croatia;
-    case country_code_t::CU:
+    case CountryCode::CU:
       return country_code::Cuba;
-    case country_code_t::CW:
+    case CountryCode::CW:
       return country_code::Curacao;
-    case country_code_t::CY:
+    case CountryCode::CY:
       return country_code::Cyprus;
-    case country_code_t::CZ:
+    case CountryCode::CZ:
       return country_code::Czech_Republic;
-    case country_code_t::CD:
+    case CountryCode::CD:
       return country_code::Democratic_Republic_of_the_Congo;
-    case country_code_t::DK:
+    case CountryCode::DK:
       return country_code::Denmark;
-    case country_code_t::DJ:
+    case CountryCode::DJ:
       return country_code::Djibouti;
-    case country_code_t::DM:
+    case CountryCode::DM:
       return country_code::Dominica;
-    case country_code_t::DO:
+    case CountryCode::DO:
       return country_code::Dominican_Republic;
-    case country_code_t::TL:
+    case CountryCode::TL:
       return country_code::East_Timor;
-    case country_code_t::EC:
+    case CountryCode::EC:
       return country_code::Ecuador;
-    case country_code_t::EG:
+    case CountryCode::EG:
       return country_code::Egypt;
-    case country_code_t::SV:
+    case CountryCode::SV:
       return country_code::El_Salvador;
-    case country_code_t::GQ:
+    case CountryCode::GQ:
       return country_code::Equatorial_Guinea;
-    case country_code_t::ER:
+    case CountryCode::ER:
       return country_code::Eritrea;
-    case country_code_t::EE:
+    case CountryCode::EE:
       return country_code::Estonia;
-    case country_code_t::ET:
+    case CountryCode::ET:
       return country_code::Ethiopia;
-    case country_code_t::FK:
+    case CountryCode::FK:
       return country_code::Falkland_Islands;
-    case country_code_t::FO:
+    case CountryCode::FO:
       return country_code::Faroe_Islands;
-    case country_code_t::FJ:
+    case CountryCode::FJ:
       return country_code::Fiji;
-    case country_code_t::FI:
+    case CountryCode::FI:
       return country_code::Finland;
-    case country_code_t::FR:
+    case CountryCode::FR:
       return country_code::France;
-    case country_code_t::PF:
+    case CountryCode::PF:
       return country_code::French_Polynesia;
-    case country_code_t::GA:
+    case CountryCode::GA:
       return country_code::Gabon;
-    case country_code_t::GM:
+    case CountryCode::GM:
       return country_code::Gambia;
-    case country_code_t::GE:
+    case CountryCode::GE:
       return country_code::Georgia;
-    case country_code_t::DE:
+    case CountryCode::DE:
       return country_code::Germany;
-    case country_code_t::GH:
+    case CountryCode::GH:
       return country_code::Ghana;
-    case country_code_t::GI:
+    case CountryCode::GI:
       return country_code::Gibraltar;
-    case country_code_t::GR:
+    case CountryCode::GR:
       return country_code::Greece;
-    case country_code_t::GL:
+    case CountryCode::GL:
       return country_code::Greenland;
-    case country_code_t::GD:
+    case CountryCode::GD:
       return country_code::Grenada;
-    case country_code_t::GU:
+    case CountryCode::GU:
       return country_code::Guam;
-    case country_code_t::GT:
+    case CountryCode::GT:
       return country_code::Guatemala;
-    case country_code_t::GG:
+    case CountryCode::GG:
       return country_code::Guernsey;
-    case country_code_t::GN:
+    case CountryCode::GN:
       return country_code::Guinea;
-    case country_code_t::GW:
+    case CountryCode::GW:
       return country_code::Guinea_Bissau;
-    case country_code_t::GY:
+    case CountryCode::GY:
       return country_code::Guyana;
-    case country_code_t::HT:
+    case CountryCode::HT:
       return country_code::Haiti;
-    case country_code_t::HN:
+    case CountryCode::HN:
       return country_code::Honduras;
-    case country_code_t::HK:
+    case CountryCode::HK:
       return country_code::Hong_Kong;
-    case country_code_t::HU:
+    case CountryCode::HU:
       return country_code::Hungary;
-    case country_code_t::IS:
+    case CountryCode::IS:
       return country_code::Iceland;
-    case country_code_t::IN:
+    case CountryCode::IN:
       return country_code::India;
-    case country_code_t::ID:
+    case CountryCode::ID:
       return country_code::Indonesia;
-    case country_code_t::IR:
+    case CountryCode::IR:
       return country_code::Iran;
-    case country_code_t::IQ:
+    case CountryCode::IQ:
       return country_code::Iraq;
-    case country_code_t::IE:
+    case CountryCode::IE:
       return country_code::Ireland;
-    case country_code_t::IM:
+    case CountryCode::IM:
       return country_code::Isle_of_Man;
-    case country_code_t::IL:
+    case CountryCode::IL:
       return country_code::Israel;
-    case country_code_t::IT:
+    case CountryCode::IT:
       return country_code::Italy;
-    case country_code_t::CI:
+    case CountryCode::CI:
       return country_code::Ivory_Coast;
-    case country_code_t::JM:
+    case CountryCode::JM:
       return country_code::Jamaica;
-    case country_code_t::JP:
+    case CountryCode::JP:
       return country_code::Japan;
-    case country_code_t::JE:
+    case CountryCode::JE:
       return country_code::Jersey;
-    case country_code_t::JO:
+    case CountryCode::JO:
       return country_code::Jordan;
-    case country_code_t::KZ:
+    case CountryCode::KZ:
       return country_code::Kazakhsta;
-    case country_code_t::KE:
+    case CountryCode::KE:
       return country_code::Kenya;
-    case country_code_t::KI:
+    case CountryCode::KI:
       return country_code::Kiribati;
-    case country_code_t::XK:
+    case CountryCode::XK:
       return country_code::Kosovo;
-    case country_code_t::KW:
+    case CountryCode::KW:
       return country_code::Kuwait;
-    case country_code_t::KG:
+    case CountryCode::KG:
       return country_code::Kyrgyzstan;
-    case country_code_t::LA:
+    case CountryCode::LA:
       return country_code::Laos;
-    case country_code_t::LV:
+    case CountryCode::LV:
       return country_code::Latvia;
-    case country_code_t::LB:
+    case CountryCode::LB:
       return country_code::Lebanon;
-    case country_code_t::LS:
+    case CountryCode::LS:
       return country_code::Lesotho;
-    case country_code_t::LR:
+    case CountryCode::LR:
       return country_code::Liberia;
-    case country_code_t::LY:
+    case CountryCode::LY:
       return country_code::Libya;
-    case country_code_t::LI:
+    case CountryCode::LI:
       return country_code::Liechtenstein;
-    case country_code_t::LT:
+    case CountryCode::LT:
       return country_code::Lithuania;
-    case country_code_t::LU:
+    case CountryCode::LU:
       return country_code::Luxembourg;
-    case country_code_t::MO:
+    case CountryCode::MO:
       return country_code::Macau;
-    case country_code_t::MK:
+    case CountryCode::MK:
       return country_code::Macedonia;
-    case country_code_t::MG:
+    case CountryCode::MG:
       return country_code::Madagascar;
-    case country_code_t::MW:
+    case CountryCode::MW:
       return country_code::Malawi;
-    case country_code_t::MY:
+    case CountryCode::MY:
       return country_code::Malaysia;
-    case country_code_t::MV:
+    case CountryCode::MV:
       return country_code::Maldives;
-    case country_code_t::ML:
+    case CountryCode::ML:
       return country_code::Mali;
-    case country_code_t::MT:
+    case CountryCode::MT:
       return country_code::Malta;
-    case country_code_t::MH:
+    case CountryCode::MH:
       return country_code::Marshall_Islands;
-    case country_code_t::MR:
+    case CountryCode::MR:
       return country_code::Mauritania;
-    case country_code_t::MU:
+    case CountryCode::MU:
       return country_code::Mauritius;
-    case country_code_t::YT:
+    case CountryCode::YT:
       return country_code::Mayotte;
-    case country_code_t::MX:
+    case CountryCode::MX:
       return country_code::Mexico;
-    case country_code_t::FM:
+    case CountryCode::FM:
       return country_code::Micronesia;
-    case country_code_t::MD:
+    case CountryCode::MD:
       return country_code::Moldova;
-    case country_code_t::MC:
+    case CountryCode::MC:
       return country_code::Monaco;
-    case country_code_t::MN:
+    case CountryCode::MN:
       return country_code::Mongolia;
-    case country_code_t::ME:
+    case CountryCode::ME:
       return country_code::Montenegro;
-    case country_code_t::MS:
+    case CountryCode::MS:
       return country_code::Montserrat;
-    case country_code_t::MA:
+    case CountryCode::MA:
       return country_code::Morocco;
-    case country_code_t::MZ:
+    case CountryCode::MZ:
       return country_code::Mozambique;
-    case country_code_t::MM:
+    case CountryCode::MM:
       return country_code::Myanmar;
-    case country_code_t::NA:
+    case CountryCode::NA:
       return country_code::Namibia;
-    case country_code_t::NR:
+    case CountryCode::NR:
       return country_code::Nauru;
-    case country_code_t::NP:
+    case CountryCode::NP:
       return country_code::Nepal;
-    case country_code_t::NL:
+    case CountryCode::NL:
       return country_code::Netherlands;
-    case country_code_t::AN:
+    case CountryCode::AN:
       return country_code::Netherlands_Antilles;
-    case country_code_t::NC:
+    case CountryCode::NC:
       return country_code::New_Caledonia;
-    case country_code_t::NZ:
+    case CountryCode::NZ:
       return country_code::New_Zealand;
-    case country_code_t::NI:
+    case CountryCode::NI:
       return country_code::Nicaragua;
-    case country_code_t::NE:
+    case CountryCode::NE:
       return country_code::Niger;
-    case country_code_t::NG:
+    case CountryCode::NG:
       return country_code::Nigeria;
-    case country_code_t::NU:
+    case CountryCode::NU:
       return country_code::Niue;
-    case country_code_t::KP:
+    case CountryCode::KP:
       return country_code::North_Korea;
-    case country_code_t::MP:
+    case CountryCode::MP:
       return country_code::Northern_Mariana_Islands;
-    case country_code_t::NO:
+    case CountryCode::NO:
       return country_code::Norway;
-    case country_code_t::OM:
+    case CountryCode::OM:
       return country_code::Oman;
-    case country_code_t::PK:
+    case CountryCode::PK:
       return country_code::Pakistan;
-    case country_code_t::PW:
+    case CountryCode::PW:
       return country_code::Palau;
-    case country_code_t::PS:
+    case CountryCode::PS:
       return country_code::Palestine;
-    case country_code_t::PA:
+    case CountryCode::PA:
       return country_code::Panama;
-    case country_code_t::PG:
+    case CountryCode::PG:
       return country_code::Papua_New_Guinea;
-    case country_code_t::PY:
+    case CountryCode::PY:
       return country_code::Paraguay;
-    case country_code_t::PE:
+    case CountryCode::PE:
       return country_code::Peru;
-    case country_code_t::PH:
+    case CountryCode::PH:
       return country_code::Philippines;
-    case country_code_t::PN:
+    case CountryCode::PN:
       return country_code::Pitcairn;
-    case country_code_t::PL:
+    case CountryCode::PL:
       return country_code::Poland;
-    case country_code_t::PT:
+    case CountryCode::PT:
       return country_code::Portugal;
-    case country_code_t::PR:
+    case CountryCode::PR:
       return country_code::Puerto_Rico;
-    case country_code_t::QA:
+    case CountryCode::QA:
       return country_code::Qatar;
-    case country_code_t::CG:
+    case CountryCode::CG:
       return country_code::Republic_of_the_Congo;
-    case country_code_t::RE:
+    case CountryCode::RE:
       return country_code::Reunion;
-    case country_code_t::RO:
+    case CountryCode::RO:
       return country_code::Romania;
-    case country_code_t::RU:
+    case CountryCode::RU:
       return country_code::Russi;
-    case country_code_t::RW:
+    case CountryCode::RW:
       return country_code::Rwanda;
-    case country_code_t::BL:
+    case CountryCode::BL:
       return country_code::Saint_Barthelemy;
-    case country_code_t::SH:
+    case CountryCode::SH:
       return country_code::Saint_Helena;
-    case country_code_t::KN:
+    case CountryCode::KN:
       return country_code::Saint_Kitts_and_Nevis;
-    case country_code_t::LC:
+    case CountryCode::LC:
       return country_code::Saint_Lucia;
-    case country_code_t::MF:
+    case CountryCode::MF:
       return country_code::Saint_Martin;
-    case country_code_t::PM:
+    case CountryCode::PM:
       return country_code::Saint_Pierre_and_Miquelon;
-    case country_code_t::VC:
+    case CountryCode::VC:
       return country_code::Saint_Vincent_and_the_Grenadines;
-    case country_code_t::WS:
+    case CountryCode::WS:
       return country_code::Samoa;
-    case country_code_t::SM:
+    case CountryCode::SM:
       return country_code::San_Marino;
-    case country_code_t::ST:
+    case CountryCode::ST:
       return country_code::Sao_Tome_and_Principe;
-    case country_code_t::SA:
+    case CountryCode::SA:
       return country_code::Saudi_Arabia;
-    case country_code_t::SN:
+    case CountryCode::SN:
       return country_code::Senegal;
-    case country_code_t::RS:
+    case CountryCode::RS:
       return country_code::Serbia;
-    case country_code_t::SC:
+    case CountryCode::SC:
       return country_code::Seychelles;
-    case country_code_t::SL:
+    case CountryCode::SL:
       return country_code::Sierra_Leone;
-    case country_code_t::SG:
+    case CountryCode::SG:
       return country_code::Singapore;
-    case country_code_t::SX:
+    case CountryCode::SX:
       return country_code::Sint_Maarten;
-    case country_code_t::SK:
+    case CountryCode::SK:
       return country_code::Slovakia;
-    case country_code_t::SI:
+    case CountryCode::SI:
       return country_code::Slovenia;
-    case country_code_t::SB:
+    case CountryCode::SB:
       return country_code::Solomon_Islands;
-    case country_code_t::SO:
+    case CountryCode::SO:
       return country_code::Somalia;
-    case country_code_t::ZA:
+    case CountryCode::ZA:
       return country_code::South_Africa;
-    case country_code_t::KR:
+    case CountryCode::KR:
       return country_code::South_Korea;
-    case country_code_t::SS:
+    case CountryCode::SS:
       return country_code::South_Sudan;
-    case country_code_t::ES:
+    case CountryCode::ES:
       return country_code::Spain;
-    case country_code_t::LK:
+    case CountryCode::LK:
       return country_code::Sri_Lanka;
-    case country_code_t::SD:
+    case CountryCode::SD:
       return country_code::Sudan;
-    case country_code_t::SR:
+    case CountryCode::SR:
       return country_code::Suriname;
-    case country_code_t::SJ:
+    case CountryCode::SJ:
       return country_code::Svalbard_and_Jan_Mayen;
-    case country_code_t::SZ:
+    case CountryCode::SZ:
       return country_code::Swaziland;
-    case country_code_t::SE:
+    case CountryCode::SE:
       return country_code::Sweden;
-    case country_code_t::CH:
+    case CountryCode::CH:
       return country_code::Switzerland;
-    case country_code_t::SY:
+    case CountryCode::SY:
       return country_code::Syria;
-    case country_code_t::TW:
+    case CountryCode::TW:
       return country_code::Taiwan;
-    case country_code_t::TJ:
+    case CountryCode::TJ:
       return country_code::Tajikistan;
-    case country_code_t::TZ:
+    case CountryCode::TZ:
       return country_code::Tanzania;
-    case country_code_t::TH:
+    case CountryCode::TH:
       return country_code::Thailand;
-    case country_code_t::TG:
+    case CountryCode::TG:
       return country_code::Togo;
-    case country_code_t::TK:
+    case CountryCode::TK:
       return country_code::Tokelau;
-    case country_code_t::TO:
+    case CountryCode::TO:
       return country_code::Tonga;
-    case country_code_t::TT:
+    case CountryCode::TT:
       return country_code::Trinidad_and_Tobago;
-    case country_code_t::TN:
+    case CountryCode::TN:
       return country_code::Tunisia;
-    case country_code_t::TR:
+    case CountryCode::TR:
       return country_code::Turkey;
-    case country_code_t::TM:
+    case CountryCode::TM:
       return country_code::Turkmenistan;
-    case country_code_t::TC:
+    case CountryCode::TC:
       return country_code::Turks_and_Caicos_Islands;
-    case country_code_t::TV:
+    case CountryCode::TV:
       return country_code::Tuvalu;
-    case country_code_t::VI:
+    case CountryCode::VI:
       return country_code::US_Virgin_Islands;
-    case country_code_t::UG:
+    case CountryCode::UG:
       return country_code::Uganda;
-    case country_code_t::UA:
+    case CountryCode::UA:
       return country_code::Ukraine;
-    case country_code_t::AE:
+    case CountryCode::AE:
       return country_code::United_Arab_Emirates;
-    case country_code_t::GB:
+    case CountryCode::GB:
       return country_code::United_Kingdom;
-    case country_code_t::US:
+    case CountryCode::US:
       return country_code::United_State;
-    case country_code_t::UY:
+    case CountryCode::UY:
       return country_code::Uruguay;
-    case country_code_t::UZ:
+    case CountryCode::UZ:
       return country_code::Uzbekistan;
-    case country_code_t::VU:
+    case CountryCode::VU:
       return country_code::Vanuatu;
-    case country_code_t::VA:
+    case CountryCode::VA:
       return country_code::Vatican;
-    case country_code_t::VE:
+    case CountryCode::VE:
       return country_code::Venezuela;
-    case country_code_t::VN:
+    case CountryCode::VN:
       return country_code::Vietnam;
-    case country_code_t::WF:
+    case CountryCode::WF:
       return country_code::Wallis_and_Futuna;
-    case country_code_t::EH:
+    case CountryCode::EH:
       return country_code::Western_Sahara;
-    case country_code_t::YE:
+    case CountryCode::YE:
       return country_code::Yemen;
-    case country_code_t::ZM:
+    case CountryCode::ZM:
       return country_code::Zambia;
-    case country_code_t::ZW:
+    case CountryCode::ZW:
       return country_code::Zimbabwe;
     default:
       throw;
   }
 }
 
-const char* WpaSupplicantParser::keyManagementToString(key_mgmt_t key_mgmt)
+const char* WpaSupplicantParser::keyManagementToString(KeyManagement key_mgmt)
 {
   switch (key_mgmt) {
-    case key_mgmt_t::WPA_PSK:
+    case KeyManagement::WPA_PSK:
       return key_mgmt::WPA_PSK;
-    case key_mgmt_t::WPA_EAP:
+    case KeyManagement::WPA_EAP:
       return key_mgmt::WPA_EAP;
     default:
       throw;

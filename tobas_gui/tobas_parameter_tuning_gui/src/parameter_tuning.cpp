@@ -159,7 +159,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
 
 void ParameterTuningWidget::onSaveButtonClicked()
 {
-  if (ssh_client_.connect() == ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.connect() == ssh::SSHClient::kNoError) {
     if (!saveRemote()) {
       return;
     }

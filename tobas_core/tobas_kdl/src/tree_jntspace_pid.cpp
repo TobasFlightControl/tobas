@@ -32,10 +32,10 @@ int TreeJntSpacePID::CartToJnt(
   const JntArray& qdd_ff)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (cur_q.rows() != nj_ || cur_qd.rows() != nj_ || tar_q.rows() != nj_ || tar_qd.rows() != nj_ || qdd_ff.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // Compute target joint accelerations
@@ -47,7 +47,7 @@ int TreeJntSpacePID::CartToJnt(
     return copyError(rne_);
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 int TreeJntSpacePID::CartToJnt(

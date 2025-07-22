@@ -81,7 +81,7 @@ public:
    * @param q_init initial joint position.
    * @param T_base_goal goal position expressed with respect to the robot base.
    * @param q_out  joint position that achieves the specified goal position (if successful).
-   * @return E_NOERROR if successful,
+   * @return kNoError if successful,
    *         E_GRADIENT_JOINTS_TOO_SMALL the gradient of \f$ E \f$ towards the joints is to small,
    *         E_INCREMENT_JOINTS_TOO_SMALL if joint position increments are to small,
    *         E_MAX_ITER_EXCEEDED if number of iterations is exceeded.

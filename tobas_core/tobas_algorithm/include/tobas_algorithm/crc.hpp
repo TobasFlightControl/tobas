@@ -66,7 +66,7 @@ protected:
 class CRC16Right : public CRC16
 {
 public:
-  enum poly_t : uint16_t
+  enum Polynomial : uint16_t
   {
     CRC_16_CCITT = 0x8408,
     CRC_16_IBM = 0xA001,
@@ -83,7 +83,7 @@ protected:
 class CRC16Left : public CRC16
 {
 public:
-  enum poly_t : uint16_t
+  enum Polynomial : uint16_t
   {
     CRC_16_CCITT = 0x1021,
     CRC_16_IBM = 0x8005,
@@ -100,7 +100,7 @@ protected:
 class CRC32Right : public CRC32
 {
 public:
-  enum poly_t : uint32_t
+  enum Polynomial : uint32_t
   {
     CRC_32 = 0xEDB88320,
     CRC_32C = 0x82F63B78,
@@ -118,7 +118,7 @@ protected:
 class CRC32Left : public CRC32
 {
 public:
-  enum poly_t : uint32_t
+  enum Polynomial : uint32_t
   {
     CRC_32 = 0x04C11DB7,
     CRC_32C = 0x1EDC6F41,

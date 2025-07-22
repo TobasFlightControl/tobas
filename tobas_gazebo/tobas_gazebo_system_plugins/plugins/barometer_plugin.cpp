@@ -78,9 +78,9 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
-  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
-  getSdfParam(sdf, "altitudeZero", alt_0_, NON_NEGATIVE);
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
+  getSdfParam(sdf, "altitudeZero", alt_0_, kNonNegative);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
 }
 
 void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

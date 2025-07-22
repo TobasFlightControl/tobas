@@ -36,13 +36,13 @@ public:
   QString controllerPackage() const;
   QString pluginName() const;
 
-  tobas::rc_command_t acrobatModeCommand() const;
-  tobas::rc_command_t stabilizeModeCommand() const;
-  tobas::rc_command_t loiterModeCommand() const;
+  tobas::RcCommand acrobatModeCommand() const;
+  tobas::RcCommand stabilizeModeCommand() const;
+  tobas::RcCommand loiterModeCommand() const;
 
   YAML::Node staticParams() const;
 
-  bool isCommandCompatible(tobas::rc_command_t command) const;
+  bool isCommandCompatible(tobas::RcCommand command) const;
 
 private Q_SLOTS:
   void setCurrentController(int index);

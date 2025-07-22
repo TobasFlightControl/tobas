@@ -46,29 +46,29 @@ public:
   explicit RCTeleopNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  enum stage_t
+  enum Stage
   {
     // Pre-Arm
-    CHECK_PREREQUISITES,
-    WAIT_FOR_ARMING,
+    kCheckPrerequisites,
+    kWaitForArming,
 
     // Post-Arm
-    WAIT_FOR_ENABLE,
-    WAIT_FOR_THROTTLE,
-    RUNNING,
-  } stage_ = CHECK_PREREQUISITES;
+    kWaitForEnable,
+    kWaitForThrottle,
+    kRunning,
+  } stage_ = kCheckPrerequisites;
 
-  const std::map<tobas::flight_mode_t, const char*> mode2str_{
-    { tobas::flight_mode_t::ACROBAT, "Acrobat" },
-    { tobas::flight_mode_t::STABILIZE, "Stabilize" },
-    { tobas::flight_mode_t::LOITER, "Loiter" },
+  const std::map<tobas::FlightMode, const char*> mode2str_{
+    { tobas::FlightMode::kAcrobat, "Acrobat" },
+    { tobas::FlightMode::kStabilize, "Stabilize" },
+    { tobas::FlightMode::kLoiter, "Loiter" },
   };
 
   // rosparams
-  std::map<tobas::flight_mode_t, tobas::rc_command_t> modes_;
+  std::map<tobas::FlightMode, tobas::RcCommand> modes_;
 
   // Mutables
-  tobas::flight_mode_t cur_mode_;
+  tobas::FlightMode cur_mode_;
   rclcpp::Time t_arm_start_;
   rclcpp::Time t_disarm_start_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
@@ -76,7 +76,7 @@ private:
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   // Controllers
-  std::map<tobas::flight_mode_t, std::unique_ptr<BaseController>> controllers_;
+  std::map<tobas::FlightMode, std::unique_ptr<BaseController>> controllers_;
 
   // PubSub
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
@@ -95,7 +95,7 @@ private:
   bool isArmCommand(const tobas_msgs::RCInput& rcin);
   bool isDisarmCommand(const tobas_msgs::RCInput& rcin);
 
-  bool isFlightModeApplicable(tobas::flight_mode_t mode);
+  bool isFlightModeApplicable(tobas::FlightMode mode);
 
   /* アーム後の共通処理．返り値がtrueならば離脱． */
   bool postArmCommonProcess(const tobas_msgs::RCInput& rcin);
@@ -108,7 +108,7 @@ private:
 
 RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::node::kRcTeleop, options)
 {
-  TOBAS_CHECK(mode2str_.size() == magic_enum::enum_count<tobas::flight_mode_t>());
+  TOBAS_CHECK(mode2str_.size() == magic_enum::enum_count<tobas::FlightMode>());
 
   getStaticRosParams();
   initializeControllers();
@@ -123,13 +123,13 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::no
 
 void RCTeleopNode::getStaticRosParams()
 {
-  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>()) {
+  for (const auto& mode : magic_enum::enum_values<tobas::FlightMode>()) {
     modes_[mode];
   }
 
-  TOBAS_CHECK(tobas::enumFromText(getStringParam("acrobat_mode"), modes_.at(tobas::flight_mode_t::ACROBAT)));
-  TOBAS_CHECK(tobas::enumFromText(getStringParam("stabilize_mode"), modes_.at(tobas::flight_mode_t::STABILIZE)));
-  TOBAS_CHECK(tobas::enumFromText(getStringParam("loiter_mode"), modes_.at(tobas::flight_mode_t::LOITER)));
+  TOBAS_CHECK(tobas::enumFromText(getStringParam("acrobat_mode"), modes_.at(tobas::FlightMode::kAcrobat)));
+  TOBAS_CHECK(tobas::enumFromText(getStringParam("stabilize_mode"), modes_.at(tobas::FlightMode::kStabilize)));
+  TOBAS_CHECK(tobas::enumFromText(getStringParam("loiter_mode"), modes_.at(tobas::FlightMode::kLoiter)));
 }
 
 void RCTeleopNode::initializeControllers()
@@ -137,28 +137,28 @@ void RCTeleopNode::initializeControllers()
   // 各フライトモードに対応するコントローラを設定
   for (const auto& [mode, cmd] : modes_) {
     switch (cmd) {
-      case tobas::rc_command_t::RATE_THROTTLE:
+      case tobas::RcCommand::kRateThrottle:
         controllers_[mode] = std::make_unique<RateThrottleController>();
         break;
-      case tobas::rc_command_t::ANGLE_THROTTLE:
+      case tobas::RcCommand::kAngleThrottle:
         controllers_[mode] = std::make_unique<AngleThrottleController>();
         break;
-      case tobas::rc_command_t::ACCEL_YAW:
+      case tobas::RcCommand::kAccelYaw:
         controllers_[mode] = std::make_unique<AccelYawController>();
         break;
-      case tobas::rc_command_t::POS_VEL_YAW:
+      case tobas::RcCommand::kPosVelYaw:
         controllers_[mode] = std::make_unique<PosVelYawController>();
         break;
-      case tobas::rc_command_t::ACCEL_RATE:
+      case tobas::RcCommand::kAccelRate:
         controllers_[mode] = std::make_unique<AccelRateController>();
         break;
-      case tobas::rc_command_t::ACCEL_ANGLE:
+      case tobas::RcCommand::kAccelAngle:
         controllers_[mode] = std::make_unique<AccelAngleController>();
         break;
-      case tobas::rc_command_t::POS_VEL_ANGLE:
+      case tobas::RcCommand::kPosVelAngle:
         controllers_[mode] = std::make_unique<PosVelAngleController>();
         break;
-      case tobas::rc_command_t::SPEED_ROLL_DPITCH:
+      case tobas::RcCommand::kSpeedRollDPitch:
         controllers_[mode] = std::make_unique<SpeedRollDeltaPitchController>();
         break;
       default:
@@ -186,7 +186,7 @@ bool RCTeleopNode::postArmCommonProcess(const tobas_msgs::RCInput& rcin)
   // ディスアームされていればステージをリセット
   if (!arming_->data) {
     t_arm_start_ = rcin.header.stamp;
-    stage_ = CHECK_PREREQUISITES;
+    stage_ = kCheckPrerequisites;
     return true;
   }
 
@@ -199,9 +199,9 @@ bool RCTeleopNode::postArmCommonProcess(const tobas_msgs::RCInput& rcin)
 
   // Enableスイッチがオフならば待機モードに戻る
   if (!rcin.enable) {
-    if (stage_ != WAIT_FOR_ENABLE) {
+    if (stage_ != kWaitForEnable) {
       TOBAS_INFO("RC control is disabled.");
-      stage_ = WAIT_FOR_ENABLE;
+      stage_ = kWaitForEnable;
     }
 
     t_disarm_start_ = rcin.header.stamp;
@@ -253,7 +253,7 @@ bool RCTeleopNode::isDisarmCommand(const tobas_msgs::RCInput& rcin)
          rcin.yaw > tobas::kRcInputMax - kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
 }
 
-bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
+bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
 {
   const auto& controller = controllers_.at(mode);
 
@@ -314,7 +314,7 @@ void RCTeleopNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstShared
 void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   switch (stage_) {
-    case CHECK_PREREQUISITES: {
+    case kCheckPrerequisites: {
       if (!odom_) {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for odometry.");
         break;
@@ -329,11 +329,11 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       }
 
       t_arm_start_ = rcin->header.stamp;
-      stage_ = WAIT_FOR_ARMING;
+      stage_ = kWaitForArming;
       break;
     }
 
-    case WAIT_FOR_ARMING: {
+    case kWaitForArming: {
       // アームされていれば次のステージに以降
       // プログラムモードから制御を奪う場合のために，アームコマンドの確認の前に現在のアーム状態の確認を行う．
       if (arming_->data) {
@@ -344,7 +344,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           break;
         }
 
-        stage_ = WAIT_FOR_ENABLE;
+        stage_ = kWaitForEnable;
         break;
       }
 
@@ -386,7 +386,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       }
     }
 
-    case WAIT_FOR_ENABLE: {
+    case kWaitForEnable: {
       if (postArmCommonProcess(*rcin)) {
         break;
       }
@@ -408,11 +408,11 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       cur_mode_ = rcin->mode;
       TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
 
-      stage_ = WAIT_FOR_THROTTLE;
+      stage_ = kWaitForThrottle;
       break;
     }
 
-    case WAIT_FOR_THROTTLE: {
+    case kWaitForThrottle: {
       if (postArmCommonProcess(*rcin)) {
         break;
       }
@@ -421,7 +421,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         // スロットルが上がっていればコマンド送信開始
         TOBAS_INFO("The throttle lever has risen, starting RC command transmission.");
         t_disarm_start_ = rcin->header.stamp;
-        stage_ = RUNNING;
+        stage_ = kRunning;
       }
       else {
         // アーム直後でスロットルが下がったままならばアイドルコマンドを送信
@@ -432,7 +432,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       break;
     }
 
-    case RUNNING: {
+    case kRunning: {
       if (postArmCommonProcess(*rcin)) {
         break;
       }

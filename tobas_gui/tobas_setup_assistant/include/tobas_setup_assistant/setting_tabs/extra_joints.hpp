@@ -65,13 +65,13 @@ public:
   // Getters
   QString getLinkName(int row) const;
   QString getJointName(int row) const;
-  tobas::jnt_role_t getRole(int row) const;
-  tobas::jnt_cmd_iface_t getCommandInterface(int row) const;
+  tobas::JointRole getRole(int row) const;
+  tobas::JointCommandInterface getCommandInterface(int row) const;
   double getHomePosition(int row) const;  // [rad]
 
   // Setters
-  void setRole(int row, tobas::jnt_role_t value);
-  void setCommandInterface(int row, tobas::jnt_cmd_iface_t value);
+  void setRole(int row, tobas::JointRole value);
+  void setCommandInterface(int row, tobas::JointCommandInterface value);
   void setHomePosition(int row, double value);  // [rad]
 
   /* 登録されているジョイント数． */

@@ -41,19 +41,19 @@ QString MultirotorPIDWidget::pluginName() const
   return "ControllerNode";
 }
 
-tobas::rc_command_t MultirotorPIDWidget::acrobatModeCommand() const
+tobas::RcCommand MultirotorPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::RATE_THROTTLE;
+  return tobas::RcCommand::kRateThrottle;
 }
 
-tobas::rc_command_t MultirotorPIDWidget::stabilizeModeCommand() const
+tobas::RcCommand MultirotorPIDWidget::stabilizeModeCommand() const
 {
-  return tobas::rc_command_t::ACCEL_YAW;
+  return tobas::RcCommand::kAccelYaw;
 }
 
-tobas::rc_command_t MultirotorPIDWidget::loiterModeCommand() const
+tobas::RcCommand MultirotorPIDWidget::loiterModeCommand() const
 {
-  return tobas::rc_command_t::POS_VEL_YAW;
+  return tobas::RcCommand::kPosVelYaw;
 }
 
 YAML::Node MultirotorPIDWidget::staticParams() const

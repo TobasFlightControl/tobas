@@ -15,13 +15,13 @@ struct ReturnToHomeData : public BaseCommandData
   using SharedPtr = std::shared_ptr<ReturnToHomeData>;
 
   double altitude;
-  altitude_frame_t altitude_frame;
+  AltitudeFrame altitude_frame;
   double acceptance_radius;
   double duration;
 
-  command_t type() const
+  Command type() const
   {
-    return command_t::RETURN_TO_HOME;
+    return Command::kReturnToHome;
   }
 };
 
@@ -39,7 +39,7 @@ public:
   BaseCommandData::SharedPtr data() const override;
 
   double altitude() const;
-  altitude_frame_t altitudeFrame() const;
+  AltitudeFrame altitudeFrame() const;
   double acceptanceRadius() const;
   double duration() const;
 

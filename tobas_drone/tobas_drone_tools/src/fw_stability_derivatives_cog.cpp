@@ -23,7 +23,7 @@ bool StabilityDerivativesCG::updateInternalDataStructures()
 
 int StabilityDerivativesCG::update(const kdl::JntArray& q)
 {
-  error_code_ = E_NO_ERROR;
+  error_code_ = kNoError;
 
   // エイリアス
   const auto& aero = drone_.fixed_wing->aerodynamics;
@@ -31,7 +31,7 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   // CoGを更新
   if (inertia_solver_.JntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
-    return error_code_ = E_ERROR;
+    return error_code_ = kError;
   }
   const auto cog = inertia_solver_.getInertia().getCOG();
 

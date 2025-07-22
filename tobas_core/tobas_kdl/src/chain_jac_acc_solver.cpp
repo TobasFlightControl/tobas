@@ -21,16 +21,16 @@ bool ChainJacAccSolver::updateInternalDataStructures()
 int ChainJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   j_ = 0;
   for (size_t i = 0; i < ns_; ++i) {
     const auto& seg = chain_.getSegment(i);
-    if (seg.joint().type != Joint::FIXED) {
+    if (seg.joint().type != Joint::kFixed) {
       qj_ = q(j_);
       qdj_ = qd(j_);
       ++j_;
@@ -60,7 +60,7 @@ int ChainJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
     Jdqd_out_ = X_[i].M * Jdqd_out_;
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void ChainJacAccSolver::resize()

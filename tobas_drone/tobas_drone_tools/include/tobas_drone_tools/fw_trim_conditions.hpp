@@ -26,7 +26,7 @@ public:
    * @param rho 大気密度 [kg/m^3]
    * @param q 関節角 [rad]
    *
-   * @return ErrorCode Error code
+   * @return Error Error code
    */
   int update(double V, const double& rho, const kdl::JntArray& q);
 

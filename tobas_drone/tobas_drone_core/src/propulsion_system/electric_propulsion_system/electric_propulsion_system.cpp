@@ -77,9 +77,9 @@ YAML::Node ElectricPropulsionSystemConfig::dump() const
   return node;
 }
 
-propulsion_system_t ElectricPropulsionSystemConfig::type() const
+PropulsionSystem ElectricPropulsionSystemConfig::type() const
 {
-  return propulsion_system_t::ELECTRIC;
+  return PropulsionSystem::kElectric;
 }
 
 double ElectricPropulsionSystemConfig::minSpeed(const string& link_name)

@@ -91,11 +91,11 @@ private:
   bool generateJointControllerConfig(
     const std::filesystem::path& tbs_path,
     const std::string& jnt_name,
-    const tobas::jnt_cmd_iface_t& cmd_iface);
+    const tobas::JointCommandInterface& cmd_iface);
 
   static std::string jointControllerName(const std::string& jnt_name);
 
-  static tobas::turning_direction_t turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
+  static tobas::TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
 };
 }  // namespace sa
 }  // namespace gui

@@ -83,16 +83,16 @@ void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   for (const auto& [_, joint] : drone_->joints) {
     switch (joint.cmd_iface) {
-      case tobas::jnt_cmd_iface_t::POSITION:
+      case tobas::JointCommandInterface::kPosition:
         has_pos = true;
         break;
-      case tobas::jnt_cmd_iface_t::VELOCITY:
+      case tobas::JointCommandInterface::kVelocity:
         has_vel = true;
         break;
-      case tobas::jnt_cmd_iface_t::EFFORT:
+      case tobas::JointCommandInterface::kEffort:
         has_eff = true;
         break;
-      case tobas::jnt_cmd_iface_t::NONE:
+      case tobas::JointCommandInterface::kNone:
         break;
       default:
         TOBAS_ERROR("Invalid joint command interface.");
@@ -146,7 +146,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
     // Fill commands
     switch (joint.hw_iface) {
-      case tobas::hw_iface_t::PWM: {
+      case tobas::HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
         pwms->pwms.emplace_back();
@@ -161,7 +161,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
         break;
       }
-      case tobas::hw_iface_t::OTHER: {
+      case tobas::HardwareInterface::kOther: {
         break;
       }
       default: {
@@ -223,13 +223,13 @@ void JointsHandlerNode::positionResetTimerCb()
       continue;
     }
 
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
       continue;
     }
 
     // Fill commands
     switch (joint.hw_iface) {
-      case tobas::hw_iface_t::PWM: {
+      case tobas::HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(joint.name);
 
         pwms->pwms.emplace_back();
@@ -244,7 +244,7 @@ void JointsHandlerNode::positionResetTimerCb()
 
         break;
       }
-      case tobas::hw_iface_t::OTHER: {
+      case tobas::HardwareInterface::kOther: {
         break;
       }
       default: {

@@ -503,12 +503,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   // 現在の速度を使って状態方程式を更新
   const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure);
   switch (eom_.update(odom_ned_.twist.vel.norm(), rho, q_0_)) {
-    case tobas::SolverI::E_NO_ERROR:
+    case tobas::SolverI::kNoError:
       break;
-    case tobas::SolverI::E_WARN:
+    case tobas::SolverI::kWarn:
       TOBAS_WARN(eom_.errorMessage());
       break;
-    case tobas::SolverI::E_ERROR:
+    case tobas::SolverI::kError:
       TOBAS_ERROR(eom_.errorMessage());
       return;
     default:

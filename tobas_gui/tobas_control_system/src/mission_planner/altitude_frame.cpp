@@ -12,25 +12,25 @@ namespace gui
 {
 namespace gcs
 {
-const char* altFrameToText(altitude_frame_t frame)
+const char* altFrameToText(AltitudeFrame frame)
 {
   switch (frame) {
-    case altitude_frame_t::MEAN_SEA_LEVEL:
+    case AltitudeFrame::kMeanSeaLevel:
       return MEAN_SEA_LEVEL_LABEL;
-    case altitude_frame_t::RELATIVE_TO_HOME:
+    case AltitudeFrame::kRelativeToHome:
       return RELATIVE_TO_HOME_LABEL;
     default:
       throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)frame));
   }
 }
 
-altitude_frame_t textToAltFrame(const char* text)
+AltitudeFrame textToAltFrame(const char* text)
 {
   if (strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
-    return altitude_frame_t::MEAN_SEA_LEVEL;
+    return AltitudeFrame::kMeanSeaLevel;
   }
   else if (strcmp(text, RELATIVE_TO_HOME_LABEL) == 0) {
-    return altitude_frame_t::RELATIVE_TO_HOME;
+    return AltitudeFrame::kRelativeToHome;
   }
   else {
     throw std::runtime_error(std::format("Invalid altitude frame text: {}", text));

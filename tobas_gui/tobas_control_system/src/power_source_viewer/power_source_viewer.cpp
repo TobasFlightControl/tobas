@@ -29,11 +29,11 @@ void PowerSourceViewerWidget::updateInternalDataStructures()
 
   // 推進系によって表示するウィジェットを切り替える
   switch (drone_.prop->type()) {
-    case tobas::propulsion_system_t::ELECTRIC:
+    case tobas::PropulsionSystem::kElectric:
       battery_viewer_->updateInternalDataStructures();
       setCurrentWidget(battery_viewer_);
       break;
-    case tobas::propulsion_system_t::ICE:
+    case tobas::PropulsionSystem::kIce:
       engine_viewer_->updateInternalDataStructures();
       setCurrentWidget(engine_viewer_);
       break;

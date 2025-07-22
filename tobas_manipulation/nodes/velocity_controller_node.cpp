@@ -139,11 +139,11 @@ bool VelocityControllerNode::jointSpaceControl(
   // Fill output message
   for (const auto& tar_state : tar_js.states) {
     const auto& joint = drone_->joints.at(tar_state.name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       TOBAS_WARN("The role of joint \"", tar_state.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kVelocity) {
       TOBAS_WARN("The command interface of joint \"", tar_state.name, "\" must be \"VELOCITY\".");
       continue;
     }
@@ -194,11 +194,11 @@ bool VelocityControllerNode::taskSpaceControl(
   // Fill output message
   for (const auto& jnt_name : active_jnt_names) {
     const auto& joint = drone_->joints.at(jnt_name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       TOBAS_WARN("The role of joint \"", jnt_name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kVelocity) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" must be \"VELOCITY\".");
       continue;
     }
@@ -245,10 +245,10 @@ void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // 速度指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
-    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION) {
+    if (jnt_cfg.role != tobas::JointRole::kManipulation) {
       continue;
     }
-    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (jnt_cfg.cmd_iface != tobas::JointCommandInterface::kVelocity) {
       continue;
     }
     home_js_.states.emplace_back();

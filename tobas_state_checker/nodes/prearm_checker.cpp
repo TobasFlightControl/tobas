@@ -236,14 +236,14 @@ void PreArmCheckerNode::mainTimerCb()
 
   // 推進系のタイプよる場合分け
   switch (drone_->prop->type()) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       // 未使用項目を無視
       // TODO
 
       const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
       // バッテリー電圧が定格電圧以上
-      if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::propulsion_system_t::ELECTRIC) {
+      if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::PropulsionSystem::kElectric) {
         if (!battery_) {
           prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
           prearm_check->ok = false;
@@ -261,7 +261,7 @@ void PreArmCheckerNode::mainTimerCb()
 
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       // 未使用項目を無視
       prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
 

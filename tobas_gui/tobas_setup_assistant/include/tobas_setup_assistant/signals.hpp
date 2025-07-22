@@ -18,7 +18,7 @@ class Signals : public QObject
   Q_OBJECT
 
 Q_SIGNALS:
-  void propulsionTypeChanged(const tobas::propulsion_system_t& type);
+  void propulsionTypeChanged(const tobas::PropulsionSystem& type);
 };
 }  // namespace sa
 }  // namespace gui

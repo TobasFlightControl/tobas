@@ -72,7 +72,7 @@ struct rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>
         added_segs.insert(elem.segment.name);
 
         // 可動関節の場合は次の番号の関節をもつリンクを探索
-        if (elem.segment.joint.type != kdl::Joint::FIXED) {
+        if (elem.segment.joint.type != kdl::Joint::kFixed) {
           ++q_nr;
         }
       }

@@ -26,7 +26,7 @@ public:
 
 private:
   /* 7: Register mapping (p.27) */
-  enum register_t : uint8_t
+  enum Register : uint8_t
   {
     // Who I am ID
     WHO_AM_I_REG = 0x4F,
@@ -49,12 +49,12 @@ private:
     TEMP_OUT_H_REG = 0x6F,
   };
 
-  enum who_am_i_t : uint8_t
+  enum WhoAmI : uint8_t
   {
     WHO_AM_I = 0b01000000,
   };
 
-  enum config_t : uint8_t
+  enum Config : uint8_t
   {
     // CFG_REG_A
     COMP_TEMP_EN = 1 << 7,

@@ -170,7 +170,7 @@ bool ParamBlockWidget::saveRemote(const fs::path& path)
 
   // FCに書き込む
   const auto config_text = yaml::dump(config);
-  if (ssh_client_.sftpWrite(path, config_text, true) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.sftpWrite(path, config_text, true) != ssh::SSHClient::kNoError) {
     qt::qErrorBox(this, "Failed to save configuration to FC: " + QString(ssh_client_.errorMessage()));
     return false;
   }
@@ -192,7 +192,7 @@ bool ParamBlockWidget::setToDefaults()
       continue;
     }
 
-    if (dparam_client_->setInt(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
+    if (dparam_client_->setInt(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
@@ -208,7 +208,7 @@ bool ParamBlockWidget::setToDefaults()
       continue;
     }
 
-    if (dparam_client_->setDouble(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR) {
+    if (dparam_client_->setDouble(name, config.dflt) != dparam::DynamicParamClient::kNoError) {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
@@ -254,7 +254,7 @@ void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& na
   auto& config = int_configs_.at(name);
   config.line_edit->setText(QString::number(value) + config.prefix);
 
-  if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
+  if (dparam_client_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }
@@ -276,7 +276,7 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string&
   auto& config = double_configs_.at(name);
   config.line_edit->setText(QString::number(config.step * value) + config.prefix);
 
-  if (dparam_client_->setDouble(name, value) != dparam::DynamicParamClient::E_NO_ERROR) {
+  if (dparam_client_->setDouble(name, value) != dparam::DynamicParamClient::kNoError) {
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
   }
 }

@@ -105,7 +105,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
   }
 
   switch (drone_->prop->type()) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
       // Create target speeds message
@@ -126,7 +126,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       break;
     }
-    case tobas::propulsion_system_t::ICE:  // 参照ピッチ角を用いて推力を実現する (memo: 3-27)
+    case tobas::PropulsionSystem::kIce:  // 参照ピッチ角を用いて推力を実現する (memo: 3-27)
     {
       const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
 

@@ -47,13 +47,13 @@ public:
 
 protected:
   /* SDFパラメータの制約． */
-  enum sdf_constr_t : uint8_t
+  enum SdfConstraint
   {
-    NONE,
-    POSITIVE,
-    NEGATIVE,
-    NON_NEGATIVE,
-    NON_POSITIVE,
+    kNone,
+    kPositive,
+    kNegative,
+    kNonNegative,
+    kNonPositive,
   };
 
   rclcpp::Node::SharedPtr node_;
@@ -130,21 +130,22 @@ protected:
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
   template <typename T>
-  void checkConstraint(const std::string& name, const T& param, const sdf_constr_t& constr) const;
+  void checkConstraint(const std::string& name, const T& param, const SdfConstraint& constr) const;
 
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const;
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const;
   template <typename T>
-  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const sdf_constr_t& constr) const;
+  void
+  getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const SdfConstraint& constr) const;
   template <typename T>
   void getSdfParam(
     const sdf::ElementConstPtr& sdf,
     const std::string& name,
     T& param,
     const T& dflt,
-    const sdf_constr_t& constr) const;
+    const SdfConstraint& constr) const;
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
   template <typename T>
@@ -332,27 +333,27 @@ inline void BaseNode::fatalThrottle(const char* file, int line, double period, c
 }
 
 template <typename T>
-void BaseNode::checkConstraint(const std::string& name, const T& param, const sdf_constr_t& constr) const
+void BaseNode::checkConstraint(const std::string& name, const T& param, const SdfConstraint& constr) const
 {
   switch (constr) {
-    case NONE:
+    case kNone:
       break;
-    case POSITIVE:
+    case kPositive:
       if (param <= 0) {
         TOBAS_EXIT(name, " must be positive.");
       }
       break;
-    case NEGATIVE:
+    case kNegative:
       if (param >= 0) {
         TOBAS_EXIT(name, " must be negative.");
       }
       break;
-    case NON_NEGATIVE:
+    case kNonNegative:
       if (param < 0) {
         TOBAS_EXIT(name, " must be non-negative.");
       }
       break;
-    case NON_POSITIVE:
+    case kNonPositive:
       if (param > 0) {
         TOBAS_EXIT(name, " must be non-positive.");
       }
@@ -384,7 +385,7 @@ void BaseNode::getSdfParam(
   const sdf::ElementConstPtr& sdf,
   const std::string& name,
   T& param,
-  const sdf_constr_t& constr) const
+  const SdfConstraint& constr) const
 {
   getSdfParam(sdf, name, param);
   checkConstraint(name, param, constr);
@@ -396,7 +397,7 @@ void BaseNode::getSdfParam(
   const std::string& name,
   T& param,
   const T& dflt,
-  const sdf_constr_t& constr) const
+  const SdfConstraint& constr) const
 {
   getSdfParam(sdf, name, param, dflt);
   checkConstraint(name, param, constr);

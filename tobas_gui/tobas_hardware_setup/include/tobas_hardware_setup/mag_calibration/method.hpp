@@ -4,11 +4,11 @@ namespace gui
 {
 namespace hw
 {
-enum mag_calibration_method
+enum MagCalibrationMethod
 {
-  BOUNDING,
-  SPHERE_FITTING,
-  ELLIPSE_FITTING,
+  kBounding,
+  kSphereFitting,
+  kEllipseFitting,
 };
 }  // namespace hw
 }  // namespace gui

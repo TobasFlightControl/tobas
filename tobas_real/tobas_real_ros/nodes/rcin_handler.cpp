@@ -33,7 +33,7 @@ private:
   tobas_std::Range<uint16_t> throt_range_;
   uint16_t enable_on_, enable_off_;
   uint16_t kill_on_, kill_off_;
-  std::map<tobas::flight_mode_t, uint16_t> modes_;
+  std::map<tobas::FlightMode, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
   std::array<uint16_t, tobas::kMaxNumOfGpsw> gpsw_on_, gpsw_off_;
 
@@ -45,7 +45,7 @@ private:
 
   bool getConfig();
   void registerPubSub();
-  tobas::flight_mode_t getClosestFlightMode(uint16_t period);
+  tobas::FlightMode getClosestFlightMode(uint16_t period);
 
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
@@ -61,7 +61,7 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
   }
 
   // Initialize mode map
-  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>()) {
+  for (const auto& mode : magic_enum::enum_values<tobas::FlightMode>()) {
     modes_[mode];
   }
 
@@ -134,15 +134,15 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
-  if (!pt_.get(ns(), kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT))) {
+  if (!pt_.get(ns(), kModeAcrobatKey, modes_.at(tobas::FlightMode::kAcrobat))) {
     TOBAS_ERROR("Failed to get \"", kModeAcrobatKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kModeStabilizeKey, modes_.at(tobas::flight_mode_t::STABILIZE))) {
+  if (!pt_.get(ns(), kModeStabilizeKey, modes_.at(tobas::FlightMode::kStabilize))) {
     TOBAS_ERROR("Failed to get \"", kModeStabilizeKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kModeLoiterKey, modes_.at(tobas::flight_mode_t::LOITER))) {
+  if (!pt_.get(ns(), kModeLoiterKey, modes_.at(tobas::FlightMode::kLoiter))) {
     TOBAS_ERROR("Failed to get \"", kModeLoiterKey, "\".");
     return false;
   }
@@ -174,9 +174,9 @@ void RCInputHandlerNode::registerPubSub()
   sbus_sub_ = createSubscriber(tobas::kSbusTopic, &self::sbusCb, this);
 }
 
-tobas::flight_mode_t RCInputHandlerNode::getClosestFlightMode(uint16_t period)
+tobas::FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 {
-  tobas::flight_mode_t res = tobas::flight_mode_t::LOITER;  // コンパイラ警告を抑制するために適当に初期化
+  tobas::FlightMode res = tobas::FlightMode::kLoiter;  // コンパイラ警告を抑制するために適当に初期化
   auto min_dist = std::numeric_limits<uint16_t>::max();
 
   for (const auto& [mode, period_ref] : modes_) {
@@ -241,9 +241,9 @@ void RCInputHandlerNode::setParamsCb(
   enable_off_ = req->enable_off;
   kill_on_ = req->kill_on;
   kill_off_ = req->kill_off;
-  modes_.at(tobas::flight_mode_t::ACROBAT) = req->mode_acrobat;
-  modes_.at(tobas::flight_mode_t::STABILIZE) = req->mode_stabilize;
-  modes_.at(tobas::flight_mode_t::LOITER) = req->mode_loiter;
+  modes_.at(tobas::FlightMode::kAcrobat) = req->mode_acrobat;
+  modes_.at(tobas::FlightMode::kStabilize) = req->mode_stabilize;
+  modes_.at(tobas::FlightMode::kLoiter) = req->mode_loiter;
   sub_mode_on_ = req->sub_mode_on;
   sub_mode_off_ = req->sub_mode_off;
   gpsw_on_ = req->gpsw_on;

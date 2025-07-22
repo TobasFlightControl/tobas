@@ -21,27 +21,27 @@ int SolverI::setDefaultError(const int& error_code)
 string SolverI::defaultErrorMessage(const int& error_code) const
 {
   switch (error_code) {
-    case E_NOERROR:
+    case kNoError:
       return "";  // 正常時はメモリ割り当てを回避しパフォーマンスを向上させるためにエラーメッセージを空文字にしておく．
-    case E_NO_CONVERGE:
+    case kNoConverge:
       return "Failed to converge";
-    case E_UNDEFINED:
+    case kUndefined:
       return "Undefined value";
-    case E_NOT_UP_TO_DATE:
+    case kNotUpToDate:
       return "Internal data structures not up to date with Tree or Chain";
-    case E_SIZE_MISMATCH:
+    case kSizeMismatch:
       return "The size of the input does not match the internal state";
-    case E_MAX_ITERATIONS_EXCEEDED:
+    case kMaxIterationExceeded:
       return "The maximum number of iterations is exceeded";
-    case E_OUT_OF_RANGE:
+    case kOutputRange:
       return "The requested index is out of range";
-    case E_NOT_IMPLEMENTED:
+    case kNotImplemented:
       return "The requested function is not yet implemented";
-    case E_SVD_FAILED:
+    case kSvdFailed:
       return "SVD failed";
-    case E_NOT_FOUND:
+    case kNotFound:
       return "Something is not found";
-    case E_NEGATIVE_DELTA_TIME:
+    case kNegativeDeltaTime:
       return "Delta time is negative";
     default:
       return "UNKNOWN ERROR";

@@ -32,7 +32,7 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   scroll_rows->addStretch();
 }
 
-loop_type_t SimulationSettingsWidget::loopType() const
+LoopType SimulationSettingsWidget::loopType() const
 {
   return type_->loopType();
 }

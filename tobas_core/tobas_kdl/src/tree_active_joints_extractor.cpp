@@ -11,7 +11,7 @@ TreeActiveJointsExtractor::TreeActiveJointsExtractor(const Tree& tree) : super(t
 int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
 
   active_joints_vec_.clear();
@@ -21,14 +21,14 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
 
   for (const auto& seg_name : endpoints) {
     if (!tree_.hasSegment(seg_name)) {
-      return setDefaultError(E_OUT_OF_RANGE);
+      return setDefaultError(kOutputRange);
     }
 
     auto it = tree_.getSegment(seg_name);
     while (it != root) {
       const auto& ele = it->second;
       const auto& joint = ele.segment.joint();
-      if (joint.type != Joint::FIXED && !active_joints_set_.contains(joint.name)) {
+      if (joint.type != Joint::kFixed && !active_joints_set_.contains(joint.name)) {
         active_joints_vec_.push_back(joint.name);
         active_joints_set_.insert(joint.name);
       }
@@ -36,6 +36,6 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
     }
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 }  // namespace kdl

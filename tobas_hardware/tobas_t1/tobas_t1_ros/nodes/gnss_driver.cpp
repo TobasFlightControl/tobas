@@ -32,7 +32,7 @@ private:
   ublox::payload::NAV_VELNED velned_;
   ublox::payload::NAV_COV cov_;
 
-  std::map<ublox::ZEDF9P::ubx_nav_id_t, bool> is_received_;
+  std::map<ublox::ZEDF9P::UbxNavId, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr initialize_timer_;

@@ -20,58 +20,56 @@ TOBAS_CLASS_FORWARD(JointModelGroup);
 TOBAS_CLASS_FORWARD(RobotState);
 TOBAS_CLASS_FORWARD(RobotModel);
 
-/* Flags for choosing the type discretization method applied on the redundant joints during an ik query */
-enum discretization_method_t
+/* Flags for choosing the type discretization method applied on the redundant joints during an ik query. */
+enum DiscretizationMethod
 {
-  NO_DISCRETIZATION = 1, /* The redundant joints will be fixed at their current value. */
-  ALL_DISCRETIZED,       /* All redundant joints will be discretized uniformly */
-  SOME_DISCRETIZED, /* Some redundant joints will be discretized uniformly. The unused redundant joints will be fixed at
-                       their current value */
-  ALL_RANDOM_SAMPLED, /* the discretization for each redundant joint will be randomly generated.*/
-  SOME_RANDOM_SAMPLED /* the discretization for some redundant joint will be randomly generated. The unused redundant
-                         joints will be fixed at their current value. */
+  // The redundant joints will be fixed at their current value.
+  kNoDiscretization = 1,
+  // All redundant joints will be discretized uniformly.
+  kAllDiscretized,
+  // Some redundant joints will be discretized uniformly.
+  // The unused redundant joints will be fixed at their current value.
+  kSomeDiscretized,
+  // The discretization for each redundant joint will be randomly generated.
+  kAllRandomSampled,
+  // The discretization for some redundant joint will be randomly generated.
+  // The unused redundant joints will be fixed at their current value.
+  kSomeRandomSampled,
 };
 
-/* Kinematic error codes that occur in a ik quer y*/
-enum kinematic_error_t
+/* Kinematic error codes that occur in a ik query. */
+enum KinematicError
 {
-  OK = 1,                              /* No errors*/
-  UNSUPORTED_DISCRETIZATION_REQUESTED, /* Discretization method isn't supported by this implementation */
-  DISCRETIZATION_NOT_INITIALIZED,      /* Discretization values for the redundancy has not been set. See
-                                          setSearchDiscretization(...) method*/
-  MULTIPLE_TIPS_NOT_SUPPORTED,         /* Only single tip link support is allowed */
-  EMPTY_TIP_POSES,                     /* Empty ik_poses array passed */
-  IK_SEED_OUTSIDE_LIMITS,              /* Ik seed is out of bound */
-  SOLVER_NOT_ACTIVE,                   /* Solver isn't active */
-  NO_SOLUTION                          /* A valid joint solution that can reach this pose(s) could not be found */
+  kOk = 1,                            // No errors
+  kUnsuportedDiscretizationRequired,  // Discretization method isn't supported by this implementation
+  kDiscretizationNotInitialized,      // Discretization values for the redundancy has not been set
+  kMultipleTipsNotSupported,          // Only single tip link support is allowed
+  kEmptyTipPoses,                     // Empty ik_poses array passed
+  kIkSeedOutsideLimits,               // Ik seed is out of bound
+  kSolverNotActive,                   // Solver isn't active
+  kNoSolution,                        // A valid joint solution that can reach this pose(s) could not be found
 };
 
 /* A set of options for the kinematics solver */
 struct KinematicsQueryOptions
 {
-  KinematicsQueryOptions()
-    : lock_redundant_joints(false)
-    , return_approximate_solution(false)
-    , discretization_method(discretization_method_t::NO_DISCRETIZATION)
-  {
-  }
+  bool lock_redundant_joints = false;        // KinematicsQueryOptions#lock_redundant_joints.
+  bool return_approximate_solution = false;  // KinematicsQueryOptions#return_approximate_solution.
 
-  bool lock_redundant_joints;                    /* KinematicsQueryOptions#lock_redundant_joints. */
-  bool return_approximate_solution;              /* KinematicsQueryOptions#return_approximate_solution. */
-  discretization_method_t discretization_method; /* Enumeration value that indicates the method for discretizing the
-                                                    redundant. joints KinematicsQueryOptions#discretization_method. */
+  // Enumeration value that indicates the method for discretizing the redundant.
+  DiscretizationMethod discretization_method = DiscretizationMethod::kNoDiscretization;
 };
 
 /**
  * @brief Reports result details of an ik query
  *
  * This struct is used as an output argument of the getPositionIK(...) method that returns multiple joint solutions.
- * It contains the type of error that led to a failure or kinematic_error_ts::OK when a set of joint solutions is found.
+ * It contains the type of error that led to a failure or KinematicError::kOk when a set of joint solutions is found.
  * The solution percentage shall provide a ratio of solutions found over solutions searched.
  */
 struct KinematicsResult
 {
-  kinematic_error_t kinematic_error; /* Error code that indicates the type of failure */
+  KinematicError kinematic_error; /* Error code that indicates the type of failure */
   double solution_percentage; /* The percentage of solutions achieved over the total number of solutions explored. */
 };
 
@@ -120,8 +118,8 @@ public:
    * 'getPositionIK(...)' with a zero initialized seed.
    *
    * Some planners (e.g. IKFast) support getting multiple joint solutions for a single pose.
-   * This can be enabled using the |discretization_method_t| enum and choosing an option that is not
-   * |NO_DISCRETIZATION|.
+   * This can be enabled using the |DiscretizationMethod| enum and choosing an option that is not
+   * |kNoDiscretization|.
    *
    * @param ik_poses  The desired pose of each tip link
    * @param ik_seed_state an initial guess solution for the inverse kinematics
@@ -131,7 +129,7 @@ public:
    *                  TODO(dave): This dual behavior is confusing and should be changed in a future refactor of this API
    * @param result A struct that reports the results of the query
    * @param options An option struct which contains the type of redundancy discretization used. This default
-   *                implementation only supports the KinematicSearches::NO_DISCRETIZATION method; requesting any
+   *                implementation only supports the KinematicSearches::kNoDiscretization method; requesting any
    *                other will result in failure.
    *
    * @return True if a valid set of solutions was found, false otherwise.
@@ -551,9 +549,9 @@ public:
 
   /**
    * @brief Returns the set of supported kinematics discretization search types.  This implementation only supports
-   * the discretization_method_t::ONE search.
+   * the DiscretizationMethod::ONE search.
    */
-  std::vector<discretization_method_t> getSupporteddiscretization_method_t() const
+  std::vector<DiscretizationMethod> getSupporteddiscretization_method_t() const
   {
     return supported_methods_;
   }
@@ -589,7 +587,7 @@ protected:
   double default_timeout_;
   std::vector<unsigned int> redundant_joint_indices_;
   std::map<int, double> redundant_joint_discretization_;
-  std::vector<discretization_method_t> supported_methods_;
+  std::vector<DiscretizationMethod> supported_methods_;
 
   /** Store some core variables passed via initialize().
    *

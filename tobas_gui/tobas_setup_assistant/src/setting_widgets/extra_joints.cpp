@@ -52,12 +52,12 @@ void ExtraJointsWidget::updateInternalDataStructures()
     const auto& joint = elem.segment.joint();
 
     // 可動関節でなければスキップ
-    if (joint.type == kdl::Joint::FIXED) {
+    if (joint.type == kdl::Joint::kFixed) {
       continue;
     }
 
     // TODO: 直動ジョイントにも対応
-    if (joint.type == kdl::Joint::TRANSLATION) {
+    if (joint.type == kdl::Joint::kTranslation) {
       qt::qWarnBox(this, "Translational joint is not supported yet.");
       continue;
     }
@@ -129,42 +129,42 @@ QString ExtraJointsWidget::getJointName(int row) const
   return jointNameWidget(row)->text();
 }
 
-tobas::jnt_role_t ExtraJointsWidget::getRole(int row) const
+tobas::JointRole ExtraJointsWidget::getRole(int row) const
 {
   const auto text = roleWidget(row)->currentText();
 
   if (text == kRoleLabel_LandingGear) {
-    return tobas::jnt_role_t::LANDING_GEAR;
+    return tobas::JointRole::kLandingGear;
   }
   else if (text == kRoleLabel_PassiveWheel) {
-    return tobas::jnt_role_t::PASSIVE_WHEEL;
+    return tobas::JointRole::kPassiveWheel;
   }
   else if (text == kRoleLabel_Manipulation) {
-    return tobas::jnt_role_t::MANIPULATION;
+    return tobas::JointRole::kManipulation;
   }
   else if (text == kRoleLabel_Other) {
-    return tobas::jnt_role_t::OTHER;
+    return tobas::JointRole::kOther;
   }
   else {
     throw;
   }
 }
 
-tobas::jnt_cmd_iface_t ExtraJointsWidget::getCommandInterface(int row) const
+tobas::JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) const
 {
   const auto text = commandIfaceWidget(row)->currentText();
 
   if (text == kCmdIfaceLabel_Position) {
-    return tobas::jnt_cmd_iface_t::POSITION;
+    return tobas::JointCommandInterface::kPosition;
   }
   else if (text == kCmdIfaceLabel_Velocity) {
-    return tobas::jnt_cmd_iface_t::VELOCITY;
+    return tobas::JointCommandInterface::kVelocity;
   }
   else if (text == kCmdIfaceLabel_Effort) {
-    return tobas::jnt_cmd_iface_t::EFFORT;
+    return tobas::JointCommandInterface::kEffort;
   }
   else if (text == kCmdIfaceLabel_None) {
-    return tobas::jnt_cmd_iface_t::NONE;
+    return tobas::JointCommandInterface::kNone;
   }
   else {
     throw;
@@ -176,20 +176,20 @@ double ExtraJointsWidget::getHomePosition(int row) const
   return tobas_std::deg2rad(homePositionWidget(row)->value());
 }
 
-void ExtraJointsWidget::setRole(int row, tobas::jnt_role_t value)
+void ExtraJointsWidget::setRole(int row, tobas::JointRole value)
 {
   QString text;
   switch (value) {
-    case tobas::jnt_role_t::LANDING_GEAR:
+    case tobas::JointRole::kLandingGear:
       text = kRoleLabel_LandingGear;
       break;
-    case tobas::jnt_role_t::PASSIVE_WHEEL:
+    case tobas::JointRole::kPassiveWheel:
       text = kRoleLabel_PassiveWheel;
       break;
-    case tobas::jnt_role_t::MANIPULATION:
+    case tobas::JointRole::kManipulation:
       text = kRoleLabel_Manipulation;
       break;
-    case tobas::jnt_role_t::OTHER:
+    case tobas::JointRole::kOther:
       text = kRoleLabel_Other;
       break;
     default:
@@ -199,20 +199,20 @@ void ExtraJointsWidget::setRole(int row, tobas::jnt_role_t value)
   roleWidget(row)->setCurrentText(text);
 }
 
-void ExtraJointsWidget::setCommandInterface(int row, tobas::jnt_cmd_iface_t value)
+void ExtraJointsWidget::setCommandInterface(int row, tobas::JointCommandInterface value)
 {
   QString text;
   switch (value) {
-    case tobas::jnt_cmd_iface_t::POSITION:
+    case tobas::JointCommandInterface::kPosition:
       text = kCmdIfaceLabel_Position;
       break;
-    case tobas::jnt_cmd_iface_t::VELOCITY:
+    case tobas::JointCommandInterface::kVelocity:
       text = kCmdIfaceLabel_Velocity;
       break;
-    case tobas::jnt_cmd_iface_t::EFFORT:
+    case tobas::JointCommandInterface::kEffort:
       text = kCmdIfaceLabel_Effort;
       break;
-    case tobas::jnt_cmd_iface_t::NONE:
+    case tobas::JointCommandInterface::kNone:
       text = kCmdIfaceLabel_None;
       break;
     default:
@@ -323,16 +323,16 @@ void ExtraJointsWidget::setDefaultValues(int row)
 {
   // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
   switch (getRole(row)) {
-    case tobas::jnt_role_t::LANDING_GEAR:
+    case tobas::JointRole::kLandingGear:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
       break;
-    case tobas::jnt_role_t::PASSIVE_WHEEL:
+    case tobas::JointRole::kPassiveWheel:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
       break;
-    case tobas::jnt_role_t::MANIPULATION:
+    case tobas::JointRole::kManipulation:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
       break;
-    case tobas::jnt_role_t::OTHER:
+    case tobas::JointRole::kOther:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
       break;
     default:
@@ -347,22 +347,22 @@ void ExtraJointsWidget::updateEnability(int row)
 {
   // 役割によるフィールド
   switch (getRole(row)) {
-    case tobas::jnt_role_t::LANDING_GEAR:
+    case tobas::JointRole::kLandingGear:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(true);
       homePositionWidget(row)->setEnabled(true);
       break;
-    case tobas::jnt_role_t::PASSIVE_WHEEL:
+    case tobas::JointRole::kPassiveWheel:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(false);
       homePositionWidget(row)->setEnabled(false);
       break;
-    case tobas::jnt_role_t::MANIPULATION:
+    case tobas::JointRole::kManipulation:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(true);
       homePositionWidget(row)->setEnabled(true);
       break;
-    case tobas::jnt_role_t::OTHER:
+    case tobas::JointRole::kOther:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(false);
       homePositionWidget(row)->setEnabled(false);

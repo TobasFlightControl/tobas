@@ -84,7 +84,7 @@ void GazeboGroundTruthStatePlugin::Configure(
 void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 
 void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

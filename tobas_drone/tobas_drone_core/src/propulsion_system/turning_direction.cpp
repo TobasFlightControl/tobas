@@ -9,26 +9,26 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(turning_direction_t cmd_iface)
+string textFromEnum(TurningDirection cmd_iface)
 {
   switch (cmd_iface) {
-    case turning_direction_t::CCW:
+    case TurningDirection::CCW:
       return CCW_TEXT;
-    case turning_direction_t::CW:
+    case TurningDirection::CW:
       return CW_TEXT;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, turning_direction_t& dst)
+bool enumFromText(const string& text, TurningDirection& dst)
 {
   if (text == CCW_TEXT) {
-    dst = tobas::turning_direction_t::CCW;
+    dst = tobas::TurningDirection::CCW;
     return true;
   }
   else if (text == CW_TEXT) {
-    dst = tobas::turning_direction_t::CW;
+    dst = tobas::TurningDirection::CW;
     return true;
   }
   else {
@@ -40,14 +40,14 @@ bool enumFromText(const string& text, turning_direction_t& dst)
 
 namespace YAML
 {
-Node convert<tobas::turning_direction_t>::encode(const tobas::turning_direction_t& rhs)
+Node convert<tobas::TurningDirection>::encode(const tobas::TurningDirection& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::turning_direction_t>::decode(const Node& node, tobas::turning_direction_t& rhs)
+bool convert<tobas::TurningDirection>::decode(const Node& node, tobas::TurningDirection& rhs)
 {
   if (!node.IsScalar()) {
     return false;

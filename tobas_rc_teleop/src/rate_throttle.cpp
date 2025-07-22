@@ -30,7 +30,7 @@ bool RateThrottleController::requireAngularVelocity()
   return true;
 }
 
-void RateThrottleController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
+void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicIntParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 90, 0, 360, " dps");
   node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45, 0, 360, " dps");

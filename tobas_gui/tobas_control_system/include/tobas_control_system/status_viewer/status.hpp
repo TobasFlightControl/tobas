@@ -19,7 +19,7 @@ class StatusWidget : public QWidget
   static constexpr auto kUnknownColor = Qt::gray;
 
 public:
-  enum status_t : uint8_t
+  enum Status
   {
     PASSED = 0,
     FAILED = 1,
@@ -30,7 +30,7 @@ public:
 
   void reset();
 
-  void setStatus(status_t status);
+  void setStatus(Status status);
   void setStatus(uint8_t status);
   void setStatus(bool ok);
 

@@ -35,6 +35,6 @@ int TreeBoundingBoxSolver::solve(const JntArray& q)
     }
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 }  // namespace kdl

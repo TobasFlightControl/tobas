@@ -185,10 +185,10 @@ void MagCalibrationWidget::onFinishButtonClicked()
   const Eigen::VectorXd yz = y.cwiseProduct(z);
   const Eigen::VectorXd zx = z.cwiseProduct(x);
 
-  constexpr auto kCalibMethod = BOUNDING;  // TODO: 手法を選べるようにする
+  constexpr auto kCalibMethod = kBounding;  // TODO: 手法を選べるようにする
 
   // 楕円体の係数を求める
-  if (kCalibMethod == BOUNDING) {
+  if (kCalibMethod == kBounding) {
     // https://okasho-engineer.com/magnetic-sensor-calibration/
     const auto x_min = x.minCoeff();
     const auto x_max = x.maxCoeff();
@@ -225,7 +225,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
     Eigen::VectorXd ce0(size);
     ce0.fill(-mag_trans_.c);
 
-    if (kCalibMethod == SPHERE_FITTING) {
+    if (kCalibMethod == kSphereFitting) {
       // 球体でフィッティング．
       // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
       Eigen::MatrixXd CE(size, 4);
@@ -242,7 +242,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
       mag_trans_.b_y = coefs(2);
       mag_trans_.b_z = coefs(3);
     }
-    else if (kCalibMethod == ELLIPSE_FITTING) {
+    else if (kCalibMethod == kEllipseFitting) {
       // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
       // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
       Eigen::MatrixXd CE(size, 9);

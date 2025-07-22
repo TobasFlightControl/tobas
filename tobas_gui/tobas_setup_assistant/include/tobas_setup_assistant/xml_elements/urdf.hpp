@@ -83,7 +83,7 @@ void addElectricPropulsionSystemPlugin(
   double motor_const,
   double moment_const,
   double drag_const,
-  tobas::turning_direction_t direction,
+  tobas::TurningDirection direction,
   double max_current,
   double max_model_error_rate);
 
@@ -97,7 +97,7 @@ struct EngineParam
 struct ICERotorParam
 {
   std::string link_name;
-  tobas::turning_direction_t direction;
+  tobas::TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
   tobas_std::Range<double> pitch_angle_limit;

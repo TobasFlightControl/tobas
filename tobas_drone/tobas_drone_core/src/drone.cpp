@@ -110,7 +110,7 @@ bool Drone::load(const YAML::Node& root_node)
   }
 
   // Propulsion System
-  propulsion_system_t prop_type;
+  PropulsionSystem prop_type;
   if (!yaml::load(kPropulsionSystemTypeKey, root_node, prop_type)) {
     return false;
   }
@@ -122,7 +122,7 @@ bool Drone::load(const YAML::Node& root_node)
   }
 
   switch (prop_type) {
-    case propulsion_system_t::ELECTRIC: {
+    case PropulsionSystem::kElectric: {
       const auto eprop = make_shared<ElectricPropulsionSystemConfig>();
       if (!eprop->load(prop_node)) {
         cerr << "Failed to load the configurations of electric propulsion system." << endl;
@@ -131,7 +131,7 @@ bool Drone::load(const YAML::Node& root_node)
       prop = static_pointer_cast<PropulsionSystemConfig>(eprop);
       break;
     }
-    case propulsion_system_t::ICE: {
+    case PropulsionSystem::kIce: {
       const auto iprop = make_shared<ICEPropulsionSystemConfig>();
       if (!iprop->load(prop_node)) {
         cerr << "Failed to load the configurations of ICE propulsion system." << endl;

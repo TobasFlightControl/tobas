@@ -15,10 +15,10 @@ namespace linux
 class UARTdev
 {
 public:
-  enum parity_mode_t : tcflag_t
+  enum ParityMode : tcflag_t
   {
-    PARITY_ODD,
-    PARITY_EVEN,
+    kOdd,
+    kEven,
   };
 
   explicit UARTdev();
@@ -30,7 +30,7 @@ public:
   bool setDataBits(uint8_t data_bits);
   bool setSingleStopBit();
   bool setDoubleStopBit();
-  bool enableParity(parity_mode_t mode);
+  bool enableParity(ParityMode mode);
   bool disableParity();
   bool enableHungupClose();
   bool disableHungupClose();

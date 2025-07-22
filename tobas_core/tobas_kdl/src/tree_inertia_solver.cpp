@@ -23,16 +23,16 @@ bool TreeInertiaSolver::updateInternalDataStructures()
 int TreeInertiaSolver::JntToCart(const JntArray& q)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   const auto root_it = tree_.getRootSegment();
   step(root_it, q);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeInertiaSolver::initialize()
@@ -54,7 +54,7 @@ void TreeInertiaSolver::step(const SegmentMap::const_iterator& cur_it, const Jnt
   const auto& par_name = par_it->first;
 
   // Forward calculation
-  const auto& qj = cur_seg.joint().type == Joint::FIXED ? 0. : q(cur_ele.q_nr);
+  const auto& qj = cur_seg.joint().type == Joint::kFixed ? 0. : q(cur_ele.q_nr);
   X_.at(cur_name) = cur_seg.pose(qj);
   I_.at(cur_name) = cur_seg.inertia();
 

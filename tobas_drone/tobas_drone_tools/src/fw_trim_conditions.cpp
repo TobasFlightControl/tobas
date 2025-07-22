@@ -75,26 +75,26 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   assert(V > 0);
   assert(rho > 0);
 
-  error_code_ = E_NO_ERROR;
+  error_code_ = kNoError;
 
   if (q.rows() != tree_.getNrOfJoints()) {
     error_msg_ = kErrorSizeMismatch;
-    return error_code_ = E_ERROR;
+    return error_code_ = kError;
   }
 
   // 速度が有効な範囲内にあるかチェック
   const auto speed_limit = speedLimit(rho);
   if (V < speed_limit.lower) {
-    if (error_code_ > E_WARN) {
+    if (error_code_ > kWarn) {
       error_msg_ = "Speed is too low: " + to_string(V) + " < " + to_string(speed_limit.lower);
-      error_code_ = E_WARN;
+      error_code_ = kWarn;
     }
     V = speed_limit.lower;
   }
   else if (V > speed_limit.upper) {
-    if (error_code_ > E_WARN) {
+    if (error_code_ > kWarn) {
       error_msg_ = "Speed is too high: " + to_string(V) + " > " + to_string(speed_limit.upper);
-      error_code_ = E_WARN;
+      error_code_ = kWarn;
     }
     V = speed_limit.upper;
   }
@@ -105,14 +105,14 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 
   // CoGまわりの安定微係数
   asd_cog_.update(q);
-  if (updateError(asd_cog_) <= E_ERROR) {
+  if (updateError(asd_cog_) <= kError) {
     return error_code_;
   }
   const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
   const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_link_name_);
   if (c_pitch_elev_cg == 0) {
     error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
-    return error_code_ = E_ERROR;
+    return error_code_ = kError;
   }
 
   // 引数に依存する定数
@@ -130,18 +130,18 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   u_ = V * cos(alpha_);
 
   if (!drone_.fixed_wing->vehicle.alpha_limit.inRange(alpha_)) {
-    if (error_code_ > E_WARN) {
+    if (error_code_ > kWarn) {
       error_msg_ = "The angle of attack in the trimmed condition is outside the valid range.";
-      error_code_ = E_WARN;
+      error_code_ = kWarn;
     }
     alpha_ = drone_.fixed_wing->vehicle.alpha_limit.clamp(alpha_);
   }
 
   const auto& joint = tree_.getSegment(elev_cs.link_name)->second.segment.joint();
   if (elevator_ < joint.lower_limit || joint.upper_limit < elevator_) {
-    if (error_code_ > E_WARN) {
+    if (error_code_ > kWarn) {
       error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
-      error_code_ = E_WARN;
+      error_code_ = kWarn;
     }
     elevator_ = clamp(elevator_, joint.lower_limit, joint.upper_limit);
   }

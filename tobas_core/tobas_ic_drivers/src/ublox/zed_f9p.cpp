@@ -39,14 +39,14 @@ bool ZEDF9P::update(bool nonblock)
     }
 
     // データが来てなければ終了
-    if (scanner_.state() == UBXScanner::Sync1) {
+    if (scanner_.state() == UBXScanner::kSync1) {
       return false;
     }
   }
 
   // メッセージを1つスキャン
   rate_.start();
-  while (scanner_.state() != UBXScanner::Done) {
+  while (scanner_.state() != UBXScanner::kDone) {
     if (!spi_.transfer(1)) {
       return false;
     }
@@ -65,7 +65,7 @@ bool ZEDF9P::update(bool nonblock)
   return true;
 }
 
-bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
+bool ZEDF9P::enableMsg(UbxClass cls, uint8_t id, bool enable)
 {
   CfgValSet<uint8_t, 1> cfg;
 
@@ -223,7 +223,7 @@ bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::configureDynamicsModel(dynamics_model_t model)
+bool ZEDF9P::configureDynamicsModel(DynamicsModel model)
 {
   CfgValSet<uint8_t, 1> cfg;
 
@@ -457,7 +457,7 @@ bool ZEDF9P::disableNavIc()
   return enableNavIc(false);
 }
 
-bool ZEDF9P::enableProtocol(cfg_protocol_t prot, bool enable)
+bool ZEDF9P::enableProtocol(CfgProtocol prot, bool enable)
 {
   CfgValSet<uint8_t, 2> cfg;
 
@@ -491,7 +491,7 @@ bool ZEDF9P::enableUsb(bool enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size)
+bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
 {
   UbxHeader header;
   header.sync1 = kUbxSync1;
@@ -513,7 +513,7 @@ bool ZEDF9P::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t 
   return true;
 }
 
-bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
+bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
 {
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
@@ -570,7 +570,7 @@ bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
   return false;
 }
 
-bool ZEDF9P::configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size)
+bool ZEDF9P::configure(UbxCfgId cfg_id, const void* msg, uint16_t size)
 {
   if (!sendMessage(CLASS_CFG, cfg_id, msg, size)) {
     return false;
@@ -853,7 +853,7 @@ size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t 
   return dest_offset + size;
 }
 
-uint32_t ZEDF9P::configKeyID(cfg_size_t size, cfg_group_t group, uint8_t id)
+uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
 {
   return (size << 28) | (group << 16) | id;
 }

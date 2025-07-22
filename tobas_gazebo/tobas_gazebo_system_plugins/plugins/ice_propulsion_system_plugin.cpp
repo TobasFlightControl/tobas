@@ -202,7 +202,7 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
 
 void GazeboICEPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
 }
 
 void GazeboICEPropulsionSystemPlugin::registerPubSub()

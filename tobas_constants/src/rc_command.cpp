@@ -15,62 +15,62 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(rc_command_t role)
+string textFromEnum(RcCommand role)
 {
   switch (role) {
-    case rc_command_t::RATE_THROTTLE:
+    case RcCommand::kRateThrottle:
       return RATE_THROTTLE_TEXT;
-    case rc_command_t::ANGLE_THROTTLE:
+    case RcCommand::kAngleThrottle:
       return ANGLE_THROTTLE_TEXT;
-    case rc_command_t::ACCEL_YAW:
+    case RcCommand::kAccelYaw:
       return ACCEL_YAW_TEXT;
-    case rc_command_t::POS_VEL_YAW:
+    case RcCommand::kPosVelYaw:
       return POS_VEL_YAW_TEXT;
-    case rc_command_t::ACCEL_RATE:
+    case RcCommand::kAccelRate:
       return ACCEL_RATE_TEXT;
-    case rc_command_t::ACCEL_ANGLE:
+    case RcCommand::kAccelAngle:
       return ACCEL_ANGLE_TEXT;
-    case rc_command_t::POS_VEL_ANGLE:
+    case RcCommand::kPosVelAngle:
       return POS_VEL_ANGLE_TEXT;
-    case rc_command_t::SPEED_ROLL_DPITCH:
+    case RcCommand::kSpeedRollDPitch:
       return SPEED_ROLL_DPITCH_TEXT;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, rc_command_t& dst)
+bool enumFromText(const string& text, RcCommand& dst)
 {
   if (text == RATE_THROTTLE_TEXT) {
-    dst = rc_command_t::RATE_THROTTLE;
+    dst = RcCommand::kRateThrottle;
     return true;
   }
   else if (text == ANGLE_THROTTLE_TEXT) {
-    dst = rc_command_t::ANGLE_THROTTLE;
+    dst = RcCommand::kAngleThrottle;
     return true;
   }
   else if (text == ACCEL_YAW_TEXT) {
-    dst = rc_command_t::ACCEL_YAW;
+    dst = RcCommand::kAccelYaw;
     return true;
   }
   else if (text == POS_VEL_YAW_TEXT) {
-    dst = rc_command_t::POS_VEL_YAW;
+    dst = RcCommand::kPosVelYaw;
     return true;
   }
   else if (text == ACCEL_RATE_TEXT) {
-    dst = rc_command_t::ACCEL_RATE;
+    dst = RcCommand::kAccelRate;
     return true;
   }
   else if (text == ACCEL_ANGLE_TEXT) {
-    dst = rc_command_t::ACCEL_ANGLE;
+    dst = RcCommand::kAccelAngle;
     return true;
   }
   else if (text == POS_VEL_ANGLE_TEXT) {
-    dst = rc_command_t::POS_VEL_ANGLE;
+    dst = RcCommand::kPosVelAngle;
     return true;
   }
   else if (text == SPEED_ROLL_DPITCH_TEXT) {
-    dst = rc_command_t::SPEED_ROLL_DPITCH;
+    dst = RcCommand::kSpeedRollDPitch;
     return true;
   }
   else {
@@ -82,14 +82,14 @@ bool enumFromText(const string& text, rc_command_t& dst)
 
 namespace YAML
 {
-Node convert<tobas::rc_command_t>::encode(const tobas::rc_command_t& rhs)
+Node convert<tobas::RcCommand>::encode(const tobas::RcCommand& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::rc_command_t>::decode(const Node& node, tobas::rc_command_t& rhs)
+bool convert<tobas::RcCommand>::decode(const Node& node, tobas::RcCommand& rhs)
 {
   if (!node.IsScalar()) {
     return false;

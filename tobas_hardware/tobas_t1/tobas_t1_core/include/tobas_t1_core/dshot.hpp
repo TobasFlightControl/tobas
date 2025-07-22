@@ -14,7 +14,7 @@ public:
   static constexpr size_t kChannelSize = 8;
   static constexpr size_t kSPIBufSize = kChannelSize + 1;  // Data + CRC32
 
-  enum command_t : uint16_t
+  enum Command : uint16_t
   {
     DSHOT_CMD_MOTOR_STOP = 0,
     DSHOT_CMD_BEEP1 = 1,

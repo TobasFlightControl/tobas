@@ -15,7 +15,7 @@ ReadThread::ReadThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 void ReadThread::run()
 {
   std::vector<std::string> list;
-  if (ssh_client_.list(tobas::kRosbagDirRoot, list) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.list(tobas::kRosbagDirRoot, list) != ssh::SSHClient::kNoError) {
     Q_EMIT finished(false, ssh_client_.errorMessage(), {});
     return;
   }

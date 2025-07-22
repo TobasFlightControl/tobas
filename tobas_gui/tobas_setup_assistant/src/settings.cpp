@@ -64,7 +64,7 @@ bool SettingsWidget::isValid()
   }
 
   switch (propulsion_system->type()) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       // 電動モータのDShotチャンネルが設定されていることを確認
       for (const auto& elem : robot_.uadf().thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
@@ -77,7 +77,7 @@ bool SettingsWidget::isValid()
 
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       // 可変ピッチプロペラのPWMチャンネルが設定されていることを確認
       for (const auto& elem : robot_.uadf().thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);

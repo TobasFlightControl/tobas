@@ -23,33 +23,33 @@ SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
 bool SSHClient::fileExists(const fs::path& file_path)
 {
   string output;
-  return execute("[ -f " + file_path.string() + " ]", output) == E_NO_ERROR;
+  return execute("[ -f " + file_path.string() + " ]", output) == kNoError;
 }
 
 bool SSHClient::dirExists(const fs::path& dir_path)
 {
   string output;
-  return execute("[ -d " + dir_path.string() + " ]", output) == E_NO_ERROR;
+  return execute("[ -d " + dir_path.string() + " ]", output) == kNoError;
 }
 
-SSHClient::error_t SSHClient::connect()
+SSHClient::Error SSHClient::connect()
 {
   const auto req = make_shared<Connect::Request>();
 
   if (!connect_sc_.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = connect_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-SSHClient::error_t SSHClient::execute(const string& command, string& output, bool superuser, bool background)
+SSHClient::Error SSHClient::execute(const string& command, string& output, bool superuser, bool background)
 {
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "SSHClient::execute(" << command << ")");
 
@@ -59,45 +59,45 @@ SSHClient::error_t SSHClient::execute(const string& command, string& output, boo
   req->background = background;
 
   if (!execute_sc_.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = execute_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->error_output;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
   output = res->output;
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-SSHClient::error_t SSHClient::execute(const string& command, bool superuser, bool background)
+SSHClient::Error SSHClient::execute(const string& command, bool superuser, bool background)
 {
   string output;
   return execute(command, output, superuser, background);
 }
 
-SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& local_path)
+SSHClient::Error SSHClient::scpGet(const string& remote_path, const string& local_path)
 {
   const auto req = make_shared<ScpGet::Request>();
   req->remote_path = remote_path;
   req->local_path = local_path;
 
   if (!scp_get_sc_.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = scp_get_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-SSHClient::error_t SSHClient::scpPut(
+SSHClient::Error SSHClient::scpPut(
   const string& local_dir,
   const string& remote_dir,
   bool parents,
@@ -112,39 +112,39 @@ SSHClient::error_t SSHClient::scpPut(
   req->superuser = superuser;
 
   if (!scp_put_sc_.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = scp_put_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, bool superuser)
+SSHClient::Error SSHClient::sftpRead(const string& remote_path, string& text, bool superuser)
 {
   const auto req = make_shared<SftpRead::Request>();
   req->remote_path = remote_path;
   req->superuser = superuser;
 
   if (!sftp_read_sc_.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = sftp_read_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
   text = res->text;
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string& text, bool superuser)
+SSHClient::Error SSHClient::sftpWrite(const string& remote_path, const string& text, bool superuser)
 {
   const auto req = make_shared<SftpWrite::Request>();
   req->remote_path = remote_path;
@@ -152,38 +152,38 @@ SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string&
   req->superuser = superuser;
 
   if (!sftp_write_sc_.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = sftp_write_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-SSHClient::error_t SSHClient::list(const string& pardir, vector<string>& dst)
+SSHClient::Error SSHClient::list(const string& pardir, vector<string>& dst)
 {
   const auto req = make_shared<List::Request>();
   req->pardir = pardir;
 
   if (!list_sc_.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = list_sc_.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
   dst = res->entries;
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-SSHClient::error_t SSHClient::errorCode() const
+SSHClient::Error SSHClient::errorCode() const
 {
   return error_code_;
 }
@@ -191,11 +191,11 @@ SSHClient::error_t SSHClient::errorCode() const
 const char* SSHClient::errorMessage() const
 {
   switch (error_code_) {
-    case E_NO_ERROR:
+    case kNoError:
       return "";
-    case E_SERVICE_NOT_READY:
+    case kServiceNotReady:
       return "Service server is not ready.";
-    case E_SERVER_ERROR:
+    case kServerError:
       return server_error_msg_.c_str();
     default:
       return "Unknown error";

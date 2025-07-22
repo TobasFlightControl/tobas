@@ -53,7 +53,7 @@ double WaypointWidget::altitude() const
   return altitude_->value();
 }
 
-altitude_frame_t WaypointWidget::altitudeFrame() const
+AltitudeFrame WaypointWidget::altitudeFrame() const
 {
   return altitude_frame_->value();
 }
@@ -83,7 +83,7 @@ void WaypointWidget::altitude(double value)
   altitude_->setValue(value);
 }
 
-void WaypointWidget::altitudeFrame(altitude_frame_t value)
+void WaypointWidget::altitudeFrame(AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
 }

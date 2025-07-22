@@ -18,7 +18,7 @@ struct BaseCommandData
 {
   using SharedPtr = std::shared_ptr<BaseCommandData>;
 
-  virtual command_t type() const = 0;
+  virtual Command type() const = 0;
 };
 
 class BaseCommandWidget : public QWidget

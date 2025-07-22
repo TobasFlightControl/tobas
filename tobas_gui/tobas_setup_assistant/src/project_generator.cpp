@@ -88,7 +88,7 @@ bool ProjectGenerator::generateProject(const fs::path& tbs_path)
 
 std::string ProjectGenerator::flightActionsPackage() const
 {
-  if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_YAW)) {
+  if (settings_->controller->isCommandCompatible(tobas::RcCommand::kPosVelYaw)) {
     return "tobas_mr_actions";
   }
   else {
@@ -137,7 +137,7 @@ tobas::Drone ProjectGenerator::createDrone()
 
   // Propulsion System
   switch (settings_->propulsion_system->type()) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       const auto eprop_widget =
         qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(settings_->propulsion_system->selected());
       const auto eprop = std::make_shared<tobas::ElectricPropulsionSystemConfig>();
@@ -181,13 +181,13 @@ tobas::Drone ProjectGenerator::createDrone()
         if (robot_.uadf().tilts.contains(par_jnt.name)) {
           tobas::JointConfig tilt_joint;
           tilt_joint.name = par_jnt.name;
-          tilt_joint.role = tobas::jnt_role_t::TILT_JOINT;
-          tilt_joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
-          tilt_joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          tilt_joint.role = tobas::JointRole::kTiltJoint;
+          tilt_joint.cmd_iface = tobas::JointCommandInterface::kPosition;
+          tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
           tilt_joint.home_pos = 0.;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
-          if (tilt_joint.hw_iface == tobas::hw_iface_t::PWM) {
+          if (tilt_joint.hw_iface == tobas::HardwareInterface::kPwm) {
             tobas::PwmConfig tilt_pwm;
             const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
             tilt_pwm.channel = pwm_channel;
@@ -204,7 +204,7 @@ tobas::Drone ProjectGenerator::createDrone()
       drone.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       const auto iprop_widget =
         qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(settings_->propulsion_system->selected());
       const auto iprop = std::make_shared<tobas::ICEPropulsionSystemConfig>();
@@ -212,9 +212,9 @@ tobas::Drone ProjectGenerator::createDrone()
       // Engine
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
-      iprop->engine.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+      iprop->engine.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
 
-      if (iprop->engine.hw_iface == tobas::hw_iface_t::PWM) {
+      if (iprop->engine.hw_iface == tobas::HardwareInterface::kPwm) {
         tobas::PwmConfig engine_pwm;
         const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
         engine_pwm.channel = engine_pwm_channel;
@@ -249,7 +249,7 @@ tobas::Drone ProjectGenerator::createDrone()
         rotor->pitch_ref = unit_widget->propeller()->pitchAngleRef();
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
-        rotor->hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+        rotor->hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
         TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
 
         // Variable Pitch Interface
@@ -267,13 +267,13 @@ tobas::Drone ProjectGenerator::createDrone()
         if (robot_.uadf().tilts.contains(par_jnt.name)) {
           tobas::JointConfig tilt_joint;
           tilt_joint.name = par_jnt.name;
-          tilt_joint.role = tobas::jnt_role_t::TILT_JOINT;
-          tilt_joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
-          tilt_joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+          tilt_joint.role = tobas::JointRole::kTiltJoint;
+          tilt_joint.cmd_iface = tobas::JointCommandInterface::kPosition;
+          tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
           tilt_joint.home_pos = 0.;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
-          if (tilt_joint.hw_iface == tobas::hw_iface_t::PWM) {
+          if (tilt_joint.hw_iface == tobas::HardwareInterface::kPwm) {
             tobas::PwmConfig tilt_pwm;
             const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(par_jnt.name));
             tilt_pwm.channel = pwm_channel;
@@ -347,9 +347,9 @@ tobas::Drone ProjectGenerator::createDrone()
 
       tobas::JointConfig joint;
       joint.name = cur_jnt.name;
-      joint.role = tobas::jnt_role_t::CONTROL_SURFACE;
-      joint.cmd_iface = tobas::jnt_cmd_iface_t::POSITION;
-      joint.hw_iface = tobas::hw_iface_t::PWM;  // TODO: 選択できるようにする
+      joint.role = tobas::JointRole::kControlSurface;
+      joint.cmd_iface = tobas::JointCommandInterface::kPosition;
+      joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
       joint.home_pos = 0.;
       drone.joints[joint.name] = joint;
     }
@@ -362,7 +362,7 @@ tobas::Drone ProjectGenerator::createDrone()
     joint.name = extra_joints->getJointName(i).toStdString();
     joint.role = extra_joints->getRole(i);
     joint.cmd_iface = extra_joints->getCommandInterface(i);
-    joint.hw_iface = tobas::hw_iface_t::OTHER;  // TODO: 選択できるようにする
+    joint.hw_iface = tobas::HardwareInterface::kOther;  // TODO: 選択できるようにする
     joint.home_pos = extra_joints->getHomePosition(i);
     drone.joints[joint.name] = joint;
   }
@@ -670,13 +670,13 @@ bool ProjectGenerator::generateJointControllerManagerConfig(const fs::path& tbs_
 bool ProjectGenerator::generateJointControllerConfigs(const fs::path& tbs_path)
 {
   for (const auto& [jnt_name, _] : robot_.uadf().control_surfaces) {
-    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::jnt_cmd_iface_t::POSITION)) {
+    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::JointCommandInterface::kPosition)) {
       return false;
     }
   }
 
   for (const auto& [jnt_name, _] : robot_.uadf().tilts) {
-    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::jnt_cmd_iface_t::POSITION)) {
+    if (!generateJointControllerConfig(tbs_path, jnt_name, tobas::JointCommandInterface::kPosition)) {
       return false;
     }
   }
@@ -1092,7 +1092,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
 
   // Propulsion system plugins
   switch (drone.prop->type()) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       const auto eprop = qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
       const auto battery = eprop->battery;
       const auto units = eprop->units;
@@ -1141,7 +1141,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
 
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       const auto iprop = qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(prop->selected());
       const auto engine = iprop->engine;
       const auto units = iprop->units;
@@ -1228,7 +1228,7 @@ void ProjectGenerator::addJointControllerNode(
 bool ProjectGenerator::generateJointControllerConfig(
   const std::filesystem::path& tbs_path,
   const std::string& jnt_name,
-  const tobas::jnt_cmd_iface_t& cmd_iface)
+  const tobas::JointCommandInterface& cmd_iface)
 {
   const auto ctrl_name = jointControllerName(jnt_name);
 
@@ -1254,13 +1254,13 @@ std::string ProjectGenerator::jointControllerName(const std::string& jnt_name)
   return jnt_name + "_controller";
 }
 
-tobas::turning_direction_t ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
+tobas::TurningDirection ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
 {
   switch (src) {
     case uadf::Thrust::CW:
-      return tobas::turning_direction_t::CW;
+      return tobas::TurningDirection::CW;
     case uadf::Thrust::CCW:
-      return tobas::turning_direction_t::CCW;
+      return tobas::TurningDirection::CCW;
     default:
       throw;
   }

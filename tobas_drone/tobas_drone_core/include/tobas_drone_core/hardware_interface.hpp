@@ -4,22 +4,22 @@
 
 namespace tobas
 {
-enum struct hw_iface_t : uint8_t
+enum struct HardwareInterface
 {
-  PWM,
-  OTHER,
+  kPwm,
+  kOther,
 };
 
-std::string textFromEnum(hw_iface_t value);
-bool enumFromText(const std::string& text, hw_iface_t& dst);
+std::string textFromEnum(HardwareInterface value);
+bool enumFromText(const std::string& text, HardwareInterface& dst);
 }  // namespace tobas
 
 namespace YAML
 {
 template <>
-struct convert<tobas::hw_iface_t>
+struct convert<tobas::HardwareInterface>
 {
-  static Node encode(const tobas::hw_iface_t& rhs);
-  static bool decode(const Node& node, tobas::hw_iface_t& rhs);
+  static Node encode(const tobas::HardwareInterface& rhs);
+  static bool decode(const Node& node, tobas::HardwareInterface& rhs);
 };
 }  // namespace YAML

@@ -49,7 +49,7 @@ public:
 private:
   const RobotInfo& robot_;
 
-  tobas::propulsion_system_t prop_type_ = tobas::propulsion_system_t::ELECTRIC;
+  tobas::PropulsionSystem prop_type_ = tobas::PropulsionSystem::kElectric;
 
   qt::ComboBox* targetNameWidget(int row);
   QPushButton* bidirectionalWidget(int row);
@@ -64,7 +64,7 @@ private:
   void setBidirectionalButtonText(QPushButton* button, bool checked);
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(const tobas::propulsion_system_t& new_prop_type);
+  void onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type);
   void onBidirectionalButtonToggled(QPushButton* button, bool checked);
 };
 }  // namespace hw

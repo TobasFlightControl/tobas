@@ -267,7 +267,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
@@ -276,7 +276,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -286,7 +286,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // 環境変数を読み込む
   progress.setLabelText("Getting environment variables.");
   std::string cur_env_content;
-  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SSHClient::E_NO_ERROR) {  // ファイルが存在しなくても続行
+  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SSHClient::kNoError) {  // ファイルが存在しなくても続行
     if (!config_env_parser_.parseFromText(cur_env_content)) {
       progress.close();
       qt::qErrorBox(this, "Failed to parse configuration file.");
@@ -317,7 +317,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     // 環境変数を更新
     progress.setLabelText("Setting environment variables.");
     config_env_parser_.config_pkg = config_pkg_name;
-    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SSHClient::E_NO_ERROR) {
+    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SSHClient::kNoError) {
       progress.close();
       qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
       return;
@@ -333,7 +333,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.setLabelText("Sending Tobas project to the flight controller.");
   const auto mesh_path = common::getProjCfgMeshDirPath(tbs_path);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(tbs_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.scpPut(tbs_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -352,7 +352,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // サービスを再起動
   progress.setLabelText("Restarting the flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;

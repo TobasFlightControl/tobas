@@ -18,7 +18,7 @@ void NewtonSolver1d::initialize(std::function<double(double)> f, std::function<d
   dfdx_ = dfdx;
 }
 
-NewtonSolver1d::ErrorCode NewtonSolver1d::solve(double& x)
+NewtonSolver1d::Error NewtonSolver1d::solve(double& x)
 {
   for (size_t iter = 0; iter < max_iter_; ++iter) {
     const auto f = f_(x);
@@ -59,7 +59,7 @@ NewtonSolver1d::ErrorCode NewtonSolver1d::solve(double& x)
   return error_code_ = kMaxIterationExceeded;
 }
 
-NewtonSolver1d::ErrorCode NewtonSolver1d::errorCode() const
+NewtonSolver1d::Error NewtonSolver1d::errorCode() const
 {
   return error_code_;
 }

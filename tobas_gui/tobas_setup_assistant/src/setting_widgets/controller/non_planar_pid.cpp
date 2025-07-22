@@ -40,19 +40,19 @@ QString NonPlanarPIDWidget::pluginName() const
   return "ControllerNode";
 }
 
-tobas::rc_command_t NonPlanarPIDWidget::acrobatModeCommand() const
+tobas::RcCommand NonPlanarPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::ACCEL_RATE;
+  return tobas::RcCommand::kAccelRate;
 }
 
-tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const
+tobas::RcCommand NonPlanarPIDWidget::stabilizeModeCommand() const
 {
-  return tobas::rc_command_t::ACCEL_ANGLE;
+  return tobas::RcCommand::kAccelAngle;
 }
 
-tobas::rc_command_t NonPlanarPIDWidget::loiterModeCommand() const
+tobas::RcCommand NonPlanarPIDWidget::loiterModeCommand() const
 {
-  return tobas::rc_command_t::POS_VEL_ANGLE;
+  return tobas::RcCommand::kPosVelAngle;
 }
 
 YAML::Node NonPlanarPIDWidget::staticParams() const

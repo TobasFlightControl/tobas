@@ -21,15 +21,15 @@ bool TreeJacAccSolver::updateInternalDataStructures()
 int TreeJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   JntToCartRec(tree_.getRootSegment(), q, qd);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeJacAccSolver::initialize()
@@ -51,7 +51,7 @@ void TreeJacAccSolver::JntToCartRec(const SegmentMap::const_iterator& segment, c
   // Do forward calculations
   const auto& j = segment->second.q_nr;
   double qj, qdj;
-  if (seg.joint().type != Joint::FIXED) {
+  if (seg.joint().type != Joint::kFixed) {
     qj = q(j);
     qdj = qd(j);
   }

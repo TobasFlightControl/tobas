@@ -45,7 +45,7 @@ private:
   kdl::TreeJointParser joint_parser_;
 
   std::array<std::string, kChannelSize> jnt_names_;
-  std::array<tobas::jnt_cmd_iface_t, kChannelSize> cmd_iface_;
+  std::array<tobas::JointCommandInterface, kChannelSize> cmd_iface_;
   std::array<double, kChannelSize> home_pos_;
   std::array<qt::DoubleSliderDisplay*, kChannelSize> commanders_;
 

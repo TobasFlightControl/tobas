@@ -11,15 +11,15 @@ ChainFkSolverVel_recursive::ChainFkSolverVel_recursive(const Chain& chain) : sup
 int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& qd_in, int _seg_nr)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_in.rows() != nj_ || qd_in.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   const size_t seg_nr = _seg_nr >= 0 ? _seg_nr : chain_.getNrOfSegments();
   if (seg_nr > chain_.getNrOfSegments()) {
-    return setDefaultError(E_OUT_OF_RANGE);
+    return setDefaultError(kOutputRange);
   }
 
   p_out_.setIdentity();
@@ -27,7 +27,7 @@ int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& 
 
   for (size_t i = 0; i < seg_nr; ++i) {
     const auto& seg = chain_.getSegment(i);
-    if (seg.joint().type != Joint::FIXED) {
+    if (seg.joint().type != Joint::kFixed) {
       qj_ = q_in(j_);
       qdj_ = qd_in(j_);
       ++j_;  // Increase joint number only if the segment has a joint
@@ -39,6 +39,6 @@ int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& 
     p_out_ = p_out_ * FrameVel(seg.pose(qj_), seg.twist(qj_, qdj_));
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 }  // namespace kdl

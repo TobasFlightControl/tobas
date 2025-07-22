@@ -42,10 +42,10 @@ void ChainIkSolverPos_LM::displayJacobian(const JntArray& jval)
 int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_goal)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_init.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   VectorXd q = q_init.data;
@@ -54,7 +54,7 @@ int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_g
   double delta_pos_norm = delta_pos.norm();
   if (delta_pos_norm < eps_cart_) {
     q_out_.data = q;
-    return setDefaultError(E_NOERROR);
+    return setDefaultError(kNoError);
   }
   computeJacobian(q);
   jac_ = L_.asDiagonal() * jac_;
@@ -97,7 +97,7 @@ int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_g
       delta_pos_norm = delta_pos_new_norm;
       if (delta_pos_norm < eps_cart_) {
         q_out_.data = q;
-        return setDefaultError(E_NOERROR);
+        return setDefaultError(kNoError);
       }
       computeJacobian(q_new);
       jac_ = L_.asDiagonal() * jac_;
@@ -111,7 +111,7 @@ int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_g
     }
   }
   q_out_.data = q;
-  return setDefaultError(E_MAX_ITERATIONS_EXCEEDED);
+  return setDefaultError(kMaxIterationExceeded);
 }
 
 bool ChainIkSolverPos_LM::setMaxIter(const size_t& max_iter)
@@ -169,7 +169,7 @@ void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
   size_t j = 0;                      // joint index
   for (size_t i = 0; i < ns_; ++i) {
     const auto& seg = chain_.getSegment(i);
-    if (seg.joint().type != Joint::FIXED) {
+    if (seg.joint().type != Joint::kFixed) {
       T_base_jointroot_[j] = T_base_head_;
       T_base_head_ = T_base_head_ * seg.pose(q(j));
       T_base_jointtip_[j] = T_base_head_;
@@ -186,7 +186,7 @@ void ChainIkSolverPos_LM::computeJacobian(const VectorXd& q)
   size_t j = 0;
   for (size_t i = 0; i < ns_; ++i) {
     const auto& seg = chain_.getSegment(i);
-    if (seg.joint().type != Joint::FIXED) {
+    if (seg.joint().type != Joint::kFixed) {
       // compute twist of the end effector motion caused by joint[j];
       // expressed in base frame, with vel. ref. point equal to the end effector
       const auto t = (T_base_jointroot_[j].M * seg.jacobian(q(j))).refPoint(T_base_head_.p - T_base_jointtip_[j].p);
@@ -201,7 +201,7 @@ void ChainIkSolverPos_LM::enforceJointLimits(Eigen::VectorXd& q)
   size_t j = 0;
   for (size_t i = 0; i < ns_; ++i) {
     const auto& joint = chain_.getSegment(i).joint();
-    if (joint.type != Joint::FIXED) {
+    if (joint.type != Joint::kFixed) {
       q(j) = clamp(q(j), joint.lower_limit, joint.upper_limit);
       ++j;
     }

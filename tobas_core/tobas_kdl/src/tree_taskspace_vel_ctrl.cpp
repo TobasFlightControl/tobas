@@ -45,7 +45,7 @@ int TreeTaskSpaceVelCtrl::CartToJnt(const JntArray& cur_q, const FrameMap& tar_p
     return copyError(ik_);
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeTaskSpaceVelCtrl::setLinearTimeConst(const Vector& t)

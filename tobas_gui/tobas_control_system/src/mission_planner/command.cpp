@@ -14,35 +14,35 @@ namespace gui
 {
 namespace gcs
 {
-const char* commandToText(command_t cmd)
+const char* commandToText(Command cmd)
 {
   switch (cmd) {
-    case command_t::WAYPOINT:
+    case Command::kWaypoint:
       return WAYPOINT_LABEL;
-    case command_t::TAKEOFF:
+    case Command::kTakeoff:
       return TAKEOFF_LABEL;
-    case command_t::LAND:
+    case Command::kLand:
       return LAND_LABEL;
-    case command_t::RETURN_TO_HOME:
+    case Command::kReturnToHome:
       return RETURN_TO_HOME_LABEL;
     default:
       throw std::runtime_error(std::format("Invalid command type: {}", (int)cmd));
   }
 }
 
-command_t textToCommand(const char* text)
+Command textToCommand(const char* text)
 {
   if (strcmp(text, WAYPOINT_LABEL) == 0) {
-    return command_t::WAYPOINT;
+    return Command::kWaypoint;
   }
   else if (strcmp(text, TAKEOFF_LABEL) == 0) {
-    return command_t::TAKEOFF;
+    return Command::kTakeoff;
   }
   else if (strcmp(text, LAND_LABEL) == 0) {
-    return command_t::LAND;
+    return Command::kLand;
   }
   else if (strcmp(text, RETURN_TO_HOME_LABEL) == 0) {
-    return command_t::RETURN_TO_HOME;
+    return Command::kReturnToHome;
   }
   else {
     throw std::runtime_error(std::format("Invalid command text: {}", text));

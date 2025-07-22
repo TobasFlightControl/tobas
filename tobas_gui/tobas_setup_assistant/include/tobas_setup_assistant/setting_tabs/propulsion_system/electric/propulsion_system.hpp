@@ -36,7 +36,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  tobas::propulsion_system_t type() const override;
+  tobas::PropulsionSystem type() const override;
   int numUnits() const override;
 
   QString linkName(int index) const override;

@@ -67,11 +67,11 @@ bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArra
   // 位置コマンドをそのまま流すだけ
   for (const auto& cmd : tar_js_->states) {
     const auto& joint = drone_->joints.at(cmd.name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       TOBAS_WARN("The role of joint \"", cmd.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
       TOBAS_WARN("The command interface of joint \"", cmd.name, "\" must be \"POSITION\".");
       continue;
     }
@@ -99,10 +99,10 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // 位置指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
-    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION) {
+    if (jnt_cfg.role != tobas::JointRole::kManipulation) {
       continue;
     }
-    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
+    if (jnt_cfg.cmd_iface != tobas::JointCommandInterface::kPosition) {
       continue;
     }
     home_js_.states.emplace_back();

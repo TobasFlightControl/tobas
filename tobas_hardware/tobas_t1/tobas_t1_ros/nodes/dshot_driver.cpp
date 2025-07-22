@@ -138,7 +138,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (!drone->prop) {
     return;
   }
-  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC) {
+  if (drone->prop->type() != tobas::PropulsionSystem::kElectric) {
     return;
   }
 

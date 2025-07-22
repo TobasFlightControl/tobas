@@ -105,7 +105,7 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   }
 }
 
-tobas::propulsion_system_t PropulsionSystemWidget::type() const
+tobas::PropulsionSystem PropulsionSystemWidget::type() const
 {
   return selected()->type();
 }

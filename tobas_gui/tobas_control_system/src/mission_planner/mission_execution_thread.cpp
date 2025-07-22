@@ -61,13 +61,13 @@ bool MissionExecutionThread::execute(BaseCommandData::SharedPtr command)
   RCLCPP_INFO_STREAM(node_->get_logger(), "Execute command: " << commandToText(cmd_type));
 
   switch (cmd_type) {
-    case command_t::WAYPOINT:
+    case Command::kWaypoint:
       return execute(boost::polymorphic_pointer_downcast<WaypointData>(command));
-    case command_t::TAKEOFF:
+    case Command::kTakeoff:
       return execute(boost::polymorphic_pointer_downcast<TakeoffData>(command));
-    case command_t::LAND:
+    case Command::kLand:
       return execute(boost::polymorphic_pointer_downcast<LandData>(command));
-    case command_t::RETURN_TO_HOME:
+    case Command::kReturnToHome:
       return execute(boost::polymorphic_pointer_downcast<ReturnToHomeData>(command));
     default:
       Q_EMIT finished(false, std::format("Unknown command type: {}", (int)cmd_type).c_str());

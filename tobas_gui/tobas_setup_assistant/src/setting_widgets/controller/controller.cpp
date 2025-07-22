@@ -111,17 +111,17 @@ QString ControllerWidget::pluginName() const
   return selected()->pluginName();
 }
 
-tobas::rc_command_t ControllerWidget::acrobatModeCommand() const
+tobas::RcCommand ControllerWidget::acrobatModeCommand() const
 {
   return selected()->acrobatModeCommand();
 }
 
-tobas::rc_command_t ControllerWidget::stabilizeModeCommand() const
+tobas::RcCommand ControllerWidget::stabilizeModeCommand() const
 {
   return selected()->stabilizeModeCommand();
 }
 
-tobas::rc_command_t ControllerWidget::loiterModeCommand() const
+tobas::RcCommand ControllerWidget::loiterModeCommand() const
 {
   return selected()->loiterModeCommand();
 }
@@ -131,7 +131,7 @@ YAML::Node ControllerWidget::staticParams() const
   return selected()->staticParams();
 }
 
-bool ControllerWidget::isCommandCompatible(tobas::rc_command_t command) const
+bool ControllerWidget::isCommandCompatible(tobas::RcCommand command) const
 {
   return command == acrobatModeCommand() || command == stabilizeModeCommand() || command == loiterModeCommand();
 }

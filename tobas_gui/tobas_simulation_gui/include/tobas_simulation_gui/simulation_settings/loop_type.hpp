@@ -7,7 +7,7 @@ namespace gui
 {
 namespace sim
 {
-enum loop_type_t
+enum LoopType
 {
   SITL,
   HITL,
@@ -23,7 +23,7 @@ class LoopTypeWidget : public QWidget
 public:
   explicit LoopTypeWidget();
 
-  loop_type_t loopType() const;
+  LoopType loopType() const;
 
 private:
   QButtonGroup* ckb_group_;

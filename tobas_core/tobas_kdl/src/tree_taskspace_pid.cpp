@@ -44,13 +44,13 @@ int TreeTaskSpacePID::CartToJnt(
   const WrenchMap& f_ext)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (cur_q.rows() != nj_ || cur_qd.rows() != nj_) {
-    setDefaultError(E_SIZE_MISMATCH);
+    setDefaultError(kSizeMismatch);
   }
   if (tar_p.size() != tar_v.size() || tar_p.size() != a_ff.size()) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // Create target acceleration map
@@ -60,7 +60,7 @@ int TreeTaskSpacePID::CartToJnt(
     const auto& seg_name = tar_pi.first;
     if (tar_vi.first != seg_name || ai_ff.first != seg_name) {
       error_msg_ = "The keys of input maps do not match.";
-      return (error_code_ = E_OUT_OF_RANGE);
+      return (error_code_ = kOutputRange);
     }
 
     // Compute current frame and twist
@@ -86,7 +86,7 @@ int TreeTaskSpacePID::CartToJnt(
     return copyError(rne_);
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeTaskSpacePID::setLinearStiffness(const Vector& kp)

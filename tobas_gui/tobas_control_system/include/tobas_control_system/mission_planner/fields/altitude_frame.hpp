@@ -18,8 +18,8 @@ public:
 
   const char* label() const override;
 
-  altitude_frame_t value() const;
-  void setValue(altitude_frame_t value);
+  AltitudeFrame value() const;
+  void setValue(AltitudeFrame value);
 
 private:
   qt::ComboBox* combobox_;

@@ -23,16 +23,16 @@ bool TreeIdSolver_RNE::updateInternalDataStructures()
 int TreeIdSolver_RNE::CartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // Do the recursion here
   rneStep(tree_.getRootSegment(), q, qd, qdd, f_ext);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeIdSolver_RNE::initialize()
@@ -61,7 +61,7 @@ void TreeIdSolver_RNE::rneStep(
 
   // Do forward calculations involving velocity & acceleration of this segment
   const auto& j = cur_ele.q_nr;
-  if (cur_seg.joint().type != Joint::FIXED) {
+  if (cur_seg.joint().type != Joint::kFixed) {
     qj_ = q(j);
     qdj_ = qd(j);
     qddj_ = qdd(j);
@@ -101,7 +101,7 @@ void TreeIdSolver_RNE::rneStep(
 
   // Do backward calculations involving wrenches and joint efforts
   // If there is a moving joint, evaluate its effort
-  if (cur_seg.joint().type != Joint::FIXED) {
+  if (cur_seg.joint().type != Joint::kFixed) {
     effort_out_(j) = Sj.dot(f_.at(cur_name));
     // TODO: inertia, damping, frictionの補償をすべき？
   }

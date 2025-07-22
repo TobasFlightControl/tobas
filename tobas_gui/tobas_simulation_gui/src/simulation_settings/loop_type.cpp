@@ -36,7 +36,7 @@ LoopTypeWidget::LoopTypeWidget()
   setLayout(rows);
 }
 
-loop_type_t LoopTypeWidget::loopType() const
+LoopType LoopTypeWidget::loopType() const
 {
   const auto checked_button = ckb_group_->checkedButton();
 

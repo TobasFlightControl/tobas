@@ -93,8 +93,8 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl
   // ある関節角に対し，チェーンを構成する全てのジョイント軸が目標と平行であることが必要十分条件．
   // つまり，可動関節で且つジョイント軸が目標と平行でないリンクが存在する場合はfalse．
   const auto& joint = seg_it->second.segment.joint();
-  if (joint.type != kdl::Joint::FIXED) {
-    TOBAS_CHECK(axis_solver_.JntToCart(q_zeros_, link_name) == kdl::SolverI::E_NOERROR);
+  if (joint.type != kdl::Joint::kFixed) {
+    TOBAS_CHECK(axis_solver_.JntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
     const auto& cur_axis = axis_solver_.getAxis();
     if (cur_axis.argument(tar_axis) > kJntAxisCollinearTol) {
       return false;
@@ -115,7 +115,7 @@ tobas::rotor_axis_t RobotInfo::rotorAxisType(const std::string& link_name)
     return tobas::rotor_axis_t::Z_POSITIVE;
   }
   else {
-    return tobas::rotor_axis_t::UNKNOWN;
+    return tobas::rotor_axis_t::kUnknown;
   }
 }
 

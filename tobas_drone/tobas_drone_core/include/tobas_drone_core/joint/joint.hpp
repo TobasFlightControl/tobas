@@ -24,9 +24,9 @@ class JointConfig
 
 public:
   std::string name = "";
-  jnt_role_t role = jnt_role_t::OTHER;
-  jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::NONE;
-  hw_iface_t hw_iface = hw_iface_t::OTHER;
+  JointRole role = JointRole::kOther;
+  JointCommandInterface cmd_iface = JointCommandInterface::kNone;
+  HardwareInterface hw_iface = HardwareInterface::kOther;
   double home_pos = 0.;  // [rad | m]
 
   bool isValid() const;

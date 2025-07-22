@@ -162,13 +162,13 @@ void DShotWidget::addLastChannel()
   const auto target_name = new qt::ComboBox();
   target_name->addItem("");  // 未選択
   switch (prop_type_) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       for (const auto& [joint_name, _] : robot_.uadf().thrusts) {
         target_name->addItem(QString::fromStdString(joint_name));
       }
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       break;
     }
     default:
@@ -225,7 +225,7 @@ void DShotWidget::setBidirectionalButtonText(QPushButton* button, bool checked)
   }
 }
 
-void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_prop_type)
+void DShotWidget::onPropulsionTypeChanged(const tobas::PropulsionSystem& new_prop_type)
 {
   if (new_prop_type == prop_type_) {
     return;
@@ -233,7 +233,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
 
   // 前の推進系の不要な選択肢を外す
   switch (prop_type_) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -246,7 +246,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
       }
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       break;
     }
     default:
@@ -255,7 +255,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
 
   // 新しい推進系の選択肢を追加
   switch (new_prop_type) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
 
@@ -265,7 +265,7 @@ void DShotWidget::onPropulsionTypeChanged(const tobas::propulsion_system_t& new_
       }
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       break;
     }
     default:

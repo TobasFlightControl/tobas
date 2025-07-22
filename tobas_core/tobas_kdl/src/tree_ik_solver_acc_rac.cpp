@@ -38,10 +38,10 @@ bool TreeIkSolverAcc_RAC::updateInternalDataStructures()
 int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_in.rows() != nj_ || qd_in.rows()) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   const auto num_points = acc_in.size();
@@ -95,11 +95,11 @@ int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, 
 
   // QPを解く
   if (!qp_solver_.solve()) {
-    return setDefaultError(E_QP_FAILED);
+    return setDefaultError(kQpFailed);
   }
   qdd_out_.data = qp_solver_.solution();
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeIkSolverAcc_RAC::setWeightTS(const Vector6d& Wt)

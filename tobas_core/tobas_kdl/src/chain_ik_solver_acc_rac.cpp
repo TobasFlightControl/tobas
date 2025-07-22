@@ -32,10 +32,10 @@ bool ChainIkSolverAcc_RAC::updateInternalDataStructures()
 int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const Vector& acc_ref)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // 目標加速度を計算
@@ -54,16 +54,16 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
   // TODO: eigen::minimizeWeightedNorm
   qdd_out_.data = jac.data.topRows(3).jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff.data);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const Accel& acc_ref)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // 目標加速度を計算
@@ -83,6 +83,6 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
   // TODO: eigen::minimizeWeightedNorm
   qdd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff_ravel);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 }  // namespace kdl

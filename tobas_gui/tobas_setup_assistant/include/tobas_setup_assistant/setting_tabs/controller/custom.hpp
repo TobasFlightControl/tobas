@@ -28,9 +28,9 @@ public:
   QString controllerPackage() const override;
   QString pluginName() const override;
 
-  tobas::rc_command_t acrobatModeCommand() const override;
-  tobas::rc_command_t stabilizeModeCommand() const override;
-  tobas::rc_command_t loiterModeCommand() const override;
+  tobas::RcCommand acrobatModeCommand() const override;
+  tobas::RcCommand stabilizeModeCommand() const override;
+  tobas::RcCommand loiterModeCommand() const override;
 
   YAML::Node staticParams() const override;
 
@@ -41,15 +41,15 @@ public:
   bool isValid() override;
 
 private:
-  const std::map<QString, tobas::rc_command_t> command_map_{
-    { kRateThrottleLabel, tobas::rc_command_t::RATE_THROTTLE },
-    { kAngleThrottleLabel, tobas::rc_command_t::ANGLE_THROTTLE },
-    { kAccelYawLabel, tobas::rc_command_t::ACCEL_YAW },
-    { kPosVelYawLabel, tobas::rc_command_t::POS_VEL_YAW },
-    { kAccelRateLabel, tobas::rc_command_t::ACCEL_RATE },
-    { kAccelAngleLabel, tobas::rc_command_t::ACCEL_ANGLE },
-    { kPosVelAngleLabel, tobas::rc_command_t::POS_VEL_ANGLE },
-    { kSpeedRollDeltaPitchLabel, tobas::rc_command_t::SPEED_ROLL_DPITCH },
+  const std::map<QString, tobas::RcCommand> command_map_{
+    { kRateThrottleLabel, tobas::RcCommand::kRateThrottle },
+    { kAngleThrottleLabel, tobas::RcCommand::kAngleThrottle },
+    { kAccelYawLabel, tobas::RcCommand::kAccelYaw },
+    { kPosVelYawLabel, tobas::RcCommand::kPosVelYaw },
+    { kAccelRateLabel, tobas::RcCommand::kAccelRate },
+    { kAccelAngleLabel, tobas::RcCommand::kAccelAngle },
+    { kPosVelAngleLabel, tobas::RcCommand::kPosVelAngle },
+    { kSpeedRollDeltaPitchLabel, tobas::RcCommand::kSpeedRollDPitch },
   };
 
   ParamGetterWidget_LineEdit* package_;

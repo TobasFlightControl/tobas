@@ -31,13 +31,13 @@ bool TreeIkSolverPos_Online::updateInternalDataStructures()
 int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_in.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
   if (dt < 0) {
-    return setDefaultError(E_NEGATIVE_DELTA_TIME);
+    return setDefaultError(kNegativeDeltaTime);
   }
 
   // Compute delta twists
@@ -66,7 +66,7 @@ int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in
   const auto& ub = jntparser_.upperLimits().data;
   q_out_.data = q_out_.data.cwiseMax(lb).cwiseMin(ub);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeIkSolverPos_Online::setMaxLinearVelocity(const double& max_linvel)

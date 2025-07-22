@@ -25,7 +25,7 @@ int TreeJointAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)
 {
   const auto cur_it = tree_.getSegment(seg_name);
   if (cur_it == tree_.getSegments().end()) {
-    return setDefaultError(E_OUT_OF_RANGE);
+    return setDefaultError(kOutputRange);
   }
 
   const auto& cur_ele = cur_it->second;
@@ -37,6 +37,6 @@ int TreeJointAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)
   }
 
   axis_out_ = fk_solver_.getFrame().M * cur_jnt.axis();
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 }  // namespace kdl

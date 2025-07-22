@@ -13,50 +13,50 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(jnt_role_t role)
+string textFromEnum(JointRole role)
 {
   switch (role) {
-    case jnt_role_t::TILT_JOINT:
+    case JointRole::kTiltJoint:
       return TILT_JOINT_TEXT;
-    case jnt_role_t::CONTROL_SURFACE:
+    case JointRole::kControlSurface:
       return CONTROL_SURFACE_TEXT;
-    case jnt_role_t::LANDING_GEAR:
+    case JointRole::kLandingGear:
       return LANDING_GEAR_TEXT;
-    case jnt_role_t::PASSIVE_WHEEL:
+    case JointRole::kPassiveWheel:
       return PASSIVE_WHEEL_TEXT;
-    case jnt_role_t::MANIPULATION:
+    case JointRole::kManipulation:
       return MANIPULATION_TEXT;
-    case jnt_role_t::OTHER:
+    case JointRole::kOther:
       return OTHER_TEXT;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, jnt_role_t& dst)
+bool enumFromText(const string& text, JointRole& dst)
 {
   if (text == TILT_JOINT_TEXT) {
-    dst = jnt_role_t::TILT_JOINT;
+    dst = JointRole::kTiltJoint;
     return true;
   }
   else if (text == CONTROL_SURFACE_TEXT) {
-    dst = jnt_role_t::CONTROL_SURFACE;
+    dst = JointRole::kControlSurface;
     return true;
   }
   else if (text == LANDING_GEAR_TEXT) {
-    dst = jnt_role_t::LANDING_GEAR;
+    dst = JointRole::kLandingGear;
     return true;
   }
   else if (text == PASSIVE_WHEEL_TEXT) {
-    dst = jnt_role_t::PASSIVE_WHEEL;
+    dst = JointRole::kPassiveWheel;
     return true;
   }
   else if (text == MANIPULATION_TEXT) {
-    dst = jnt_role_t::MANIPULATION;
+    dst = JointRole::kManipulation;
     return true;
   }
   else if (text == OTHER_TEXT) {
-    dst = jnt_role_t::OTHER;
+    dst = JointRole::kOther;
     return true;
   }
   else {
@@ -65,20 +65,20 @@ bool enumFromText(const string& text, jnt_role_t& dst)
   }
 }
 
-bool isServoJoint(jnt_role_t role)
+bool isServoJoint(JointRole role)
 {
   switch (role) {
-    case jnt_role_t::TILT_JOINT:
+    case JointRole::kTiltJoint:
       return true;
-    case jnt_role_t::CONTROL_SURFACE:
+    case JointRole::kControlSurface:
       return true;
-    case jnt_role_t::LANDING_GEAR:
+    case JointRole::kLandingGear:
       return true;
-    case jnt_role_t::PASSIVE_WHEEL:
+    case JointRole::kPassiveWheel:
       return false;
-    case jnt_role_t::MANIPULATION:
+    case JointRole::kManipulation:
       return true;
-    case jnt_role_t::OTHER:
+    case JointRole::kOther:
       return false;
     default:
       throw;
@@ -88,14 +88,14 @@ bool isServoJoint(jnt_role_t role)
 
 namespace YAML
 {
-Node convert<tobas::jnt_role_t>::encode(const tobas::jnt_role_t& rhs)
+Node convert<tobas::JointRole>::encode(const tobas::JointRole& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::jnt_role_t>::decode(const Node& node, tobas::jnt_role_t& rhs)
+bool convert<tobas::JointRole>::decode(const Node& node, tobas::JointRole& rhs)
 {
   if (!node.IsScalar()) {
     return false;

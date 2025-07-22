@@ -3,7 +3,7 @@
 /* Country Codes: https://countrycode.org/ */
 namespace wpa
 {
-enum country_code_t
+enum CountryCode
 {
   AF,
   AL,

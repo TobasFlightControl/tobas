@@ -45,7 +45,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
     return;
   }
 
-  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC) {
+  if (drone->prop->type() != tobas::PropulsionSystem::kElectric) {
     return;
   }
 

@@ -133,10 +133,10 @@ bool DualActiveSetSolver::solve()
     iai_(i) = i;
   }
 
-  state_t state = CHOOSE_VIOLATED_CONSTRAINT;
+  State state = kChooseViolatedConstraint;
   while (true) {
     switch (state) {
-      case CHOOSE_VIOLATED_CONSTRAINT: {
+      case kChooseViolatedConstraint: {
 #ifdef TRACE_SOLVER
         cout << "x:\n" << x_.transpose() << endl;
 #endif
@@ -170,10 +170,10 @@ bool DualActiveSetSolver::solve()
         A_old_.head(iq_) = A_.head(iq_);
         x_old_ = x_;
 
-        state = CHECK_FEASIBILITY;
+        state = kCheckFeasibility;
         break;
       }
-      case CHECK_FEASIBILITY: {
+      case kCheckFeasibility: {
         for (Index i = 0; i < m_; ++i) {
           if (s_(i) < ss_ && iai_(i) != -1 && iaexcl_[i]) {
             ss_ = s_(i);
@@ -197,10 +197,10 @@ bool DualActiveSetSolver::solve()
         cout << "np:\n" << np_.transpose() << endl;
 #endif
 
-        state = DETERMINE_STEP_DIRECTION;
+        state = kDetermineStepDirection;
         break;
       }
-      case DETERMINE_STEP_DIRECTION: {
+      case kDetermineStepDirection: {
         // Compute z = H np: the step direction in the primal space (through J, see the paper)
         d_ = J_.transpose() * np_;
         z_ = J_.rightCols(n_ - iq_) * d_.tail(n_ - iq_);
@@ -274,7 +274,7 @@ bool DualActiveSetSolver::solve()
           cout << "A:\n" << A_.head(iq_ + 1).transpose() << endl;
 #endif
 
-          state = DETERMINE_STEP_DIRECTION;
+          state = kDetermineStepDirection;
           break;
         }
 
@@ -322,7 +322,7 @@ bool DualActiveSetSolver::solve()
             }
             x_ = x_old_;
 
-            state = CHECK_FEASIBILITY;
+            state = kCheckFeasibility;
             break;
           }
           else {
@@ -335,7 +335,7 @@ bool DualActiveSetSolver::solve()
           cout << "iai:\n" << iai_.transpose() << endl;
 #endif
 
-          state = CHOOSE_VIOLATED_CONSTRAINT;
+          state = kChooseViolatedConstraint;
           break;
         }
 
@@ -361,7 +361,7 @@ bool DualActiveSetSolver::solve()
         cout << "s:\n" << s_.transpose() << endl;
 #endif
 
-        state = DETERMINE_STEP_DIRECTION;
+        state = kDetermineStepDirection;
         break;
       }
     }

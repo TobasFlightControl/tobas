@@ -32,7 +32,7 @@ public:
 
 private:
   /* 7: Register mapping (p.22) */
-  enum register_t : uint8_t
+  enum Register : uint8_t
   {
     // Who I am ID
     WHO_AM_I_REG = 0x40,
@@ -71,12 +71,12 @@ private:
     DIG_Z2_MSB_REG = 0x69,
   };
 
-  enum chip_id_t : uint8_t
+  enum ChipId : uint8_t
   {
     CHIP_ID = 0x32,
   };
 
-  enum config_t : uint8_t
+  enum Config : uint8_t
   {
     // CFG_REG_A
     SOFT_RST_A = 1 << 7,

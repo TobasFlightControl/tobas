@@ -10,21 +10,21 @@ class DynamicParamClient
 public:
   using SharedPtr = std::shared_ptr<DynamicParamClient>;
 
-  enum error_t
+  enum Error
   {
-    E_NO_ERROR = 0,
-    E_SERVICE_NOT_READY = -1,
-    E_SERVER_ERROR = -2,
+    kNoError = 0,
+    kServiceNotReady = -1,
+    kServerError = -2,
   };
 
   explicit DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name, const std::string& ns = "");
 
-  error_t setBool(const std::string& param_name, const bool& value);
-  error_t setInt(const std::string& param_name, const long& value);
-  error_t setDouble(const std::string& param_name, const long& value);
-  error_t setString(const std::string& param_name, const std::string& value);
+  Error setBool(const std::string& param_name, const bool& value);
+  Error setInt(const std::string& param_name, const long& value);
+  Error setDouble(const std::string& param_name, const long& value);
+  Error setString(const std::string& param_name, const std::string& value);
 
-  error_t errorCode() const;
+  Error errorCode() const;
   const char* errorMessage() const;
 
 private:
@@ -32,14 +32,14 @@ private:
   const std::string node_name_;
   const std::string ns_;
 
-  error_t error_code_ = E_NO_ERROR;
+  Error error_code_ = kNoError;
 
   template <typename SrvType, const char* SrvName, typename T>
-  error_t setParam(const std::string& param_name, T& value);
+  Error setParam(const std::string& param_name, T& value);
 };
 
 template <typename SrvType, const char* SrvName, typename T>
-DynamicParamClient::error_t DynamicParamClient::setParam(const std::string& param_name, T& value)
+DynamicParamClient::Error DynamicParamClient::setParam(const std::string& param_name, T& value)
 {
   ros2::SyncServiceClient<SrvType> sc(node_, path::join(ns_, SrvName));
 
@@ -49,14 +49,14 @@ DynamicParamClient::error_t DynamicParamClient::setParam(const std::string& para
   req->value = value;
 
   if (!sc.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = sc.getResponse();
   if (!res->success) {
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 }  // namespace dparam

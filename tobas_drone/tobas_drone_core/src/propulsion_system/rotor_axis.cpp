@@ -17,7 +17,7 @@ string textFromEnum(rotor_axis_t axis)
       return X_POSITIVE_TEXT;
     case rotor_axis_t::Z_POSITIVE:
       return Z_POSITIVE_TEXT;
-    case rotor_axis_t::UNKNOWN:
+    case rotor_axis_t::kUnknown:
       return UNKNOWN_TEXT;
     default:
       throw;
@@ -35,7 +35,7 @@ bool enumFromText(const string& text, rotor_axis_t& dst)
     return true;
   }
   else if (text == UNKNOWN_TEXT) {
-    dst = tobas::rotor_axis_t::UNKNOWN;
+    dst = tobas::rotor_axis_t::kUnknown;
     return true;
   }
   else {

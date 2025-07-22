@@ -51,14 +51,14 @@ void SQP::initialize(
   }
 }
 
-SQP::error_t SQP::solve()
+SQP::Error SQP::solve()
 {
   iter_ = 0;
 
   while (true) {
     // 繰り返し回数の上限チェック
     if (++iter_ > max_iter_) {
-      return error_code_ = E_MAX_ITERATION_EXCEEDED;
+      return error_code_ = kMaxIterationExceeded;
     }
 
     // ラグランジュ関数のヘッセ行列を計算
@@ -79,7 +79,7 @@ SQP::error_t SQP::solve()
     qp_.problem.h = -h_(x_);
 
     if (!qp_.solve()) {
-      return error_code_ = E_QP_FAILED;
+      return error_code_ = kQpFailed;
     }
 
     const auto& dx = qp_.solution();
@@ -100,7 +100,7 @@ SQP::error_t SQP::solve()
     // 終了判定
     // cf. https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
     if ((dx.cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
-      return error_code_ = E_NO_ERROR;
+      return error_code_ = kNoError;
     }
   }
 }
@@ -115,7 +115,7 @@ size_t SQP::iterations() const
   return iter_;
 }
 
-SQP::error_t SQP::errorCode() const
+SQP::Error SQP::errorCode() const
 {
   return error_code_;
 }
@@ -123,11 +123,11 @@ SQP::error_t SQP::errorCode() const
 const char* SQP::errorMessage() const
 {
   switch (error_code_) {
-    case E_NO_ERROR:
+    case kNoError:
       return "No error.";
-    case E_MAX_ITERATION_EXCEEDED:
+    case kMaxIterationExceeded:
       return "The number of iterations exceeded the limit.";
-    case E_QP_FAILED:
+    case kQpFailed:
       return qp_.errorMessage().c_str();
     default:
       return "Unknown error.";

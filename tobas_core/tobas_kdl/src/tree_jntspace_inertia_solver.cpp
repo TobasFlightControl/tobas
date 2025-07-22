@@ -27,10 +27,10 @@ bool TreeJntSpaceInertiaSolver::updateInternalDataStructures()
 int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || jntarray_null_.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   if (rne_.CartToJnt(q, jntarray_null_, jntarray_null_) < 0) {
@@ -46,7 +46,7 @@ int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
     H_out_.data.col(i) = m.data;
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeJntSpaceInertiaSolver::resize()

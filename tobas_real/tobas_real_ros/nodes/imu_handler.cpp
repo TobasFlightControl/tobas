@@ -24,11 +24,11 @@ public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  enum stage_t
+  enum Stage
   {
-    MEASURE_GYRO_BIAS,
-    PUBLISH,
-  } stage_ = MEASURE_GYRO_BIAS;
+    kMeasureGyroBias,
+    kPublish,
+  } stage_ = kMeasureGyroBias;
 
   // Config
   kdl::Vector acc_bias_;  // [m/s^2]
@@ -104,7 +104,7 @@ void ImuHandlerNode::registerPubSub()
 void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 {
   switch (stage_) {
-    case MEASURE_GYRO_BIAS: {
+    case kMeasureGyroBias: {
       // 角速度が大きすぎる場合はやり直し
       if (imu_raw_in->gyro.norm() > kStaticGyroThreshold) {
         TOBAS_WARN_THROTTLE(
@@ -127,12 +127,12 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
           gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;
         }
         TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_);
-        stage_ = PUBLISH;
+        stage_ = kPublish;
       }
 
       break;
     }
-    case PUBLISH: {
+    case kPublish: {
       // Create IMU message
       auto imu_raw_out = std::make_unique<tobas_msgs::Imu>();
       imu_raw_out->header = imu_raw_in->header;
@@ -150,7 +150,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 
 void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_in)
 {
-  if (stage_ != PUBLISH) {
+  if (stage_ != kPublish) {
     return;
   }
 

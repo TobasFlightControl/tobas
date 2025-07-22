@@ -54,11 +54,11 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   assert(rho > 0.);
   assert(q.rows() == tree_.getNrOfJoints());
 
-  error_code_ = E_NO_ERROR;
+  error_code_ = kNoError;
 
   // トリム状態を更新
   trim_.update(V, rho, q);
-  if (updateError(trim_) <= E_ERROR) {
+  if (updateError(trim_) <= kError) {
     return error_code_;
   }
 
@@ -70,7 +70,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   // 重心と慣性テンソル
   if (inertia_solver_.JntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
-    return error_code_ = E_ERROR;
+    return error_code_ = kError;
   }
   const auto& I_base = inertia_solver_.getInertia();
   const auto P_base_cog = I_base.getCOG();
@@ -174,7 +174,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     const auto& rotor = x_rotors_.rotor(i);
     if (fk_solver_.JntToCart(q, rotor->link_name) < 0) {
       error_msg_ = fk_solver_.errorMessage();
-      return error_code_ = E_ERROR;
+      return error_code_ = kError;
     }
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto d = rotor->sign();
@@ -223,8 +223,8 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     auto thrust = thrust_sum / x_rotors_.count();  // TODO: 横の釣り合いも考慮して分配
     const auto max_thrust = drone_.prop->maxThrust(x_rotors_.linkName(i));
     if (thrust > max_thrust) {
-      if (error_code_ > E_WARN) {
-        error_code_ = E_WARN;
+      if (error_code_ > kWarn) {
+        error_code_ = kWarn;
         error_msg_ = "Thrust force is over the maximum limit: " + to_string(thrust) + " > " + to_string(max_thrust);
       }
       thrust = max_thrust;

@@ -63,10 +63,10 @@ void HardwareSetupWidget::updateInternalDataStructures()
   joint_test_->updateInternalDataStructures();
 
   switch (drone_.prop->type()) {
-    case tobas::propulsion_system_t::ELECTRIC:
+    case tobas::PropulsionSystem::kElectric:
       tabs_->setTabEnabled(rotor_test_, true);
       break;
-    case tobas::propulsion_system_t::ICE:
+    case tobas::PropulsionSystem::kIce:
       tabs_->setTabEnabled(rotor_test_, false);
       break;
     default:

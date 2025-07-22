@@ -55,14 +55,14 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
 
   // Engine
   switch (iprop_->engine.hw_iface) {
-    case tobas::hw_iface_t::PWM: {
+    case tobas::HardwareInterface::kPwm: {
       const auto& pwm_cfg = drone_->pwms.at(tobas::pwm::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
       pwms->pwms.back().period = pwm_cfg.periodFromValue(0.);
       break;
     }
-    case tobas::hw_iface_t::OTHER: {
+    case tobas::HardwareInterface::kOther: {
       break;
     }
     default: {
@@ -83,14 +83,14 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
 
     // Set command
     switch (irotor->hw_iface) {
-      case tobas::hw_iface_t::PWM: {
+      case tobas::HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(link_name);
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = pwm_cfg.channel;
         pwms->pwms.back().period = pwm_cfg.periodFromValue(cmd_angle);
         break;
       }
-      case tobas::hw_iface_t::OTHER: {
+      case tobas::HardwareInterface::kOther: {
         break;
       }
       default: {
@@ -114,7 +114,7 @@ void ICEPropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
     return;
   }
 
-  if (drone->prop->type() != tobas::propulsion_system_t::ICE) {
+  if (drone->prop->type() != tobas::PropulsionSystem::kIce) {
     return;
   }
 
@@ -167,14 +167,14 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
 
   // Engine
   switch (iprop_->engine.hw_iface) {
-    case tobas::hw_iface_t::PWM: {
+    case tobas::HardwareInterface::kPwm: {
       const auto& pwm_cfg = drone_->pwms.at(tobas::pwm::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
       pwms->pwms.back().period = pwm_cfg.periodFromValue(ice_cmd->engine_throttle);
       break;
     }
-    case tobas::hw_iface_t::OTHER: {
+    case tobas::HardwareInterface::kOther: {
       break;
     }
     default: {
@@ -214,14 +214,14 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
 
     // Set command
     switch (irotor->hw_iface) {
-      case tobas::hw_iface_t::PWM: {
+      case tobas::HardwareInterface::kPwm: {
         const auto& pwm_cfg = drone_->pwms.at(link_name);
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = pwm_cfg.channel;
         pwms->pwms.back().period = pwm_cfg.periodFromValue(cmd_angle);
         break;
       }
-      case tobas::hw_iface_t::OTHER: {
+      case tobas::HardwareInterface::kOther: {
         break;
       }
       default: {
