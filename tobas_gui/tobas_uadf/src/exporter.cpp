@@ -1,17 +1,13 @@
 #include "tobas_uadf/exporter.hpp"
 
-#include <urdf_parser/urdf_parser.h>
+#include <tobas_ros2_tools/urdf_exporter.hpp>
 
 namespace uadf
 {
 tinyxml2::XMLDocument* exportUADF(const Model& model)
 {
-// 基となるXMLを作成
-// FIXME: Avoid deprecated function
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  const auto doc = urdf::exportURDF(*model.urdf);
-#pragma GCC diagnostic pop
+  // 基となるXMLを作成
+  const auto doc = ros2::exportUrdf(*model.urdf);
 
   // ルートノードを取得
   const auto robot = doc->RootElement();

@@ -2,8 +2,7 @@
 
 #include <queue>
 
-#include <urdf_parser/urdf_parser.h>
-
+#include <tobas_ros2_tools/urdf_exporter.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/vector.hpp>
 
@@ -105,12 +104,8 @@ bool URDFViewModel::saveRobot(const QString& file_path)
   // ルートリンクのイナーシャを削除
   urdf_->root_link_->inertial.reset();
 
-// URDFを書き出す
-// FIXME: Avoid deprecated function
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  const auto doc = urdf::exportURDF(*urdf_);
-#pragma GCC diagnostic pop
+  // URDFを書き出す
+  const auto doc = ros2::exportUrdf(*urdf_);
 
   // 不要なテクスチャを削除
   removeTextureTagsWithoutFilename(doc->RootElement());
