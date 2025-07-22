@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-#define POSITION_TEXT "position"
-#define VELOCITY_TEXT "velocity"
-#define EFFORT_TEXT "effort"
-#define NONE_TEXT "none"
+#define POSITION "position"
+#define VELOCITY "velocity"
+#define EFFORT "effort"
+#define NONE "none"
 
 using namespace std;
 
@@ -15,13 +15,13 @@ string textFromEnum(JointCommandInterface value)
 {
   switch (value) {
     case JointCommandInterface::kPosition:
-      return POSITION_TEXT;
+      return POSITION;
     case JointCommandInterface::kVelocity:
-      return VELOCITY_TEXT;
+      return VELOCITY;
     case JointCommandInterface::kEffort:
-      return EFFORT_TEXT;
+      return EFFORT;
     case JointCommandInterface::kNone:
-      return NONE_TEXT;
+      return NONE;
     default:
       throw;
   }
@@ -29,19 +29,19 @@ string textFromEnum(JointCommandInterface value)
 
 bool enumFromText(const string& text, JointCommandInterface& dst)
 {
-  if (text == POSITION_TEXT) {
+  if (text == POSITION) {
     dst = tobas::JointCommandInterface::kPosition;
     return true;
   }
-  else if (text == VELOCITY_TEXT) {
+  else if (text == VELOCITY) {
     dst = tobas::JointCommandInterface::kVelocity;
     return true;
   }
-  else if (text == EFFORT_TEXT) {
+  else if (text == EFFORT) {
     dst = tobas::JointCommandInterface::kEffort;
     return true;
   }
-  else if (text == NONE_TEXT) {
+  else if (text == NONE) {
     dst = tobas::JointCommandInterface::kNone;
     return true;
   }
