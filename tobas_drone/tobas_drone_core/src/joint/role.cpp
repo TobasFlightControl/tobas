@@ -7,7 +7,7 @@
 #define LANDING_GEAR "landing_gear"
 #define PASSIVE_WHEEL "passive_wheel"
 #define MANIPULATION "manipulation"
-#define OTHER "other"  
+#define OTHER "other"
 
 using namespace std;
 
