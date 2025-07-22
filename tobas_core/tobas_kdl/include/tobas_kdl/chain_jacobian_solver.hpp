@@ -20,10 +20,9 @@ public:
   virtual bool updateInternalDataStructures() override;
 
   /**
-   * Calculate the jacobian expressed in the base frame of the
-   * chain, with reference point at the end effector of the
-   * *chain. The algorithm is similar to the one used in
-   * kdl::ChainFkSolverVel_recursive
+   * Calculate the jacobian expressed in the base frame of the chain,
+   * with reference point at the end effector of the *chain.
+   * The algorithm is similar to the one used in kdl::ChainFkSolverVel_recursive
    *
    * @param q_in input joint positions
    * @param jac output jacobian
