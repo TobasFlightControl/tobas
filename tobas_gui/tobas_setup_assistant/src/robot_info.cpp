@@ -94,7 +94,7 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl
   // つまり，可動関節で且つジョイント軸が目標と平行でないリンクが存在する場合はfalse．
   const auto& joint = seg_it->second.segment.joint();
   if (joint.type != kdl::Joint::kFixed) {
-    TOBAS_CHECK(axis_solver_.JntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
+    TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
     const auto& cur_axis = axis_solver_.getAxis();
     if (cur_axis.argument(tar_axis) > kJntAxisCollinearTol) {
       return false;

@@ -17,7 +17,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int CartToJnt(const JntArray& cur_q, const FrameMap& tar_p);
+  int cartToJnt(const JntArray& cur_q, const FrameMap& tar_p);
 
   bool setLinearTimeConst(const Vector& t);
   bool setAngularTimeConst(const Vector& t);

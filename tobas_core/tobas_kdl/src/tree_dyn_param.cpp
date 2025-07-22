@@ -28,15 +28,15 @@ bool TreeDynParam::updateInternalDataStructures()
   return true;
 }
 
-int TreeDynParam::JntToCoriolis(const JntArray& q, const JntArray& qd)
+int TreeDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)
 {
-  rne_coriolis_.CartToJnt(q, qd, jntarray_null_);
+  rne_coriolis_.cartToJnt(q, qd, jntarray_null_);
   return copyError(rne_coriolis_);
 }
 
-int TreeDynParam::JntToGravity(const JntArray& q)
+int TreeDynParam::jntToGravity(const JntArray& q)
 {
-  rne_gravity_.CartToJnt(q, jntarray_null_, jntarray_null_);
+  rne_gravity_.cartToJnt(q, jntarray_null_, jntarray_null_);
   return copyError(rne_gravity_);
 }
 

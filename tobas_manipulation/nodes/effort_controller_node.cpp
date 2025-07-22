@@ -142,7 +142,7 @@ bool EffortControllerNode::jointSpaceControl(
   const auto& tar_qd = tar_js_conv_.getVelocity();
 
   // PIDで関節トルクを計算
-  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0) {
+  if (pid_js_.cartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0) {
     TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
     return false;
   }
@@ -202,7 +202,7 @@ bool EffortControllerNode::taskSpaceControl(
   // PIDで関節トルクを計算
   const auto& cur_q = cur_js_conv_.getPosition();
   const auto& cur_qd = cur_js_conv_.getVelocity();
-  if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0) {
+  if (pid_ts_.cartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0) {
     TOBAS_ERROR("Cartesian PID failed: ", pid_ts_.errorMessage());
     return false;
   }

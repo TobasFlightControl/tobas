@@ -21,7 +21,7 @@ bool TreeJointAxisSolver::updateInternalDataStructures()
   return true;
 }
 
-int TreeJointAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)
+int TreeJointAxisSolver::jntToCart(const JntArray& q_in, const string& seg_name)
 {
   const auto cur_it = tree_.getSegment(seg_name);
   if (cur_it == tree_.getSegments().end()) {
@@ -32,7 +32,7 @@ int TreeJointAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)
   const auto& cur_jnt = cur_ele.segment.joint();
   const auto& par_name = cur_ele.parent->first;
 
-  if (fk_solver_.JntToCart(q_in, par_name) < 0) {
+  if (fk_solver_.jntToCart(q_in, par_name) < 0) {
     return copyError(fk_solver_);
   }
 

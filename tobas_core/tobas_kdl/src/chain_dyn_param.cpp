@@ -27,15 +27,15 @@ bool ChainDynParam::updateInternalDataStructures()
   return true;
 }
 
-int ChainDynParam::JntToCoriolis(const JntArray& q, const JntArray& qd)
+int ChainDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)
 {
-  rne_coriolis_.CartToJnt(q, qd, zero_jntarray_, zero_wrenches_, zero_vector_);
+  rne_coriolis_.cartToJnt(q, qd, zero_jntarray_, zero_wrenches_, zero_vector_);
   return copyError(rne_coriolis_);
 }
 
-int ChainDynParam::JntToGravity(const JntArray& q, const Vector& grav)
+int ChainDynParam::jntToGravity(const JntArray& q, const Vector& grav)
 {
-  rne_gravity_.CartToJnt(q, zero_jntarray_, zero_jntarray_, zero_wrenches_, grav);
+  rne_gravity_.cartToJnt(q, zero_jntarray_, zero_jntarray_, zero_wrenches_, grav);
   return copyError(rne_gravity_);
 }
 

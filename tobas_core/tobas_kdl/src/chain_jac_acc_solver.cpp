@@ -18,7 +18,7 @@ bool ChainJacAccSolver::updateInternalDataStructures()
   return true;
 }
 
-int ChainJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
+int ChainJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

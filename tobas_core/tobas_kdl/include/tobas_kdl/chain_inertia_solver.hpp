@@ -16,7 +16,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int JntToCart(const JntArray& q);
+  int jntToCart(const JntArray& q);
 
   inline const RigidBodyInertia& getInertia() const;
 

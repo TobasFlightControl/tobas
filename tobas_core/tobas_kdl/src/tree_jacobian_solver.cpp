@@ -20,7 +20,7 @@ bool TreeJacobianSolver::updateInternalDataStructures()
   return true;
 }
 
-int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
+int TreeJacobianSolver::jntToJac(const JntArray& q_in, const string& seg_name)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

@@ -30,7 +30,7 @@ bool ChainJacobianSolver::setLockedJoints(const vector<bool> locked_joints)
   return true;
 }
 
-int ChainJacobianSolver::JntToJac(const JntArray& q_in, int _seg_nr)
+int ChainJacobianSolver::jntToJac(const JntArray& q_in, int _seg_nr)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

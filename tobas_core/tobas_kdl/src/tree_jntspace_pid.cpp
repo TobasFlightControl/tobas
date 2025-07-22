@@ -24,7 +24,7 @@ bool TreeJntSpacePID::updateInternalDataStructures()
   return true;
 }
 
-int TreeJntSpacePID::CartToJnt(
+int TreeJntSpacePID::cartToJnt(
   const JntArray& cur_q,
   const JntArray& cur_qd,
   const JntArray& tar_q,
@@ -43,20 +43,20 @@ int TreeJntSpacePID::CartToJnt(
   const auto tar_qdd = qdd_ff + kp_ * (tar_q - cur_q) + kd_ * (tar_qd - cur_qd);
 
   // Compute target joint efforts
-  if (rne_.CartToJnt(cur_q, cur_qd, tar_qdd) < 0) {
+  if (rne_.cartToJnt(cur_q, cur_qd, tar_qdd) < 0) {
     return copyError(rne_);
   }
 
   return setDefaultError(kNoError);
 }
 
-int TreeJntSpacePID::CartToJnt(
+int TreeJntSpacePID::cartToJnt(
   const JntArray& cur_q,
   const JntArray& cur_qd,
   const JntArray& tar_q,
   const JntArray& tar_qd)
 {
-  return CartToJnt(cur_q, cur_qd, tar_q, tar_qd, zeros_);
+  return cartToJnt(cur_q, cur_qd, tar_q, tar_qd, zeros_);
 }
 
 bool TreeJntSpacePID::setStiffness(const double& kp)

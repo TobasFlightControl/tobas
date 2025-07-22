@@ -31,7 +31,7 @@ public:
    *
    * @return if < 0 something went wrong
    */
-  virtual int CartToJnt(const JntArray& q_init, const Frame& p_in) = 0;
+  virtual int cartToJnt(const JntArray& q_init, const Frame& p_in) = 0;
 
   const JntArray& getPositions() const
   {
@@ -65,7 +65,7 @@ public:
    *
    * @return if < 0 something went wrong
    */
-  virtual int CartToJnt(const JntArray& q_in, const Vector& v_in) = 0;
+  virtual int cartToJnt(const JntArray& q_in, const Vector& v_in) = 0;
 
   /**
    * Calculate inverse velocity kinematics, from joint positions
@@ -77,7 +77,7 @@ public:
    *
    * @return if < 0 something went wrong
    */
-  virtual int CartToJnt(const JntArray& q_in, const Twist& v_in) = 0;
+  virtual int cartToJnt(const JntArray& q_in, const Twist& v_in) = 0;
 
   const JntArray& getVelocities() const
   {
@@ -110,7 +110,7 @@ public:
    *
    * @return if < 0 something went wrong.
    */
-  virtual int CartToJnt(const JntArray& q_in, const JntArray& qd_in, const Vector& a_in) = 0;
+  virtual int cartToJnt(const JntArray& q_in, const JntArray& qd_in, const Vector& a_in) = 0;
 
   /**
    * Calculate inverse acceleration kinematics, from joint positions
@@ -122,7 +122,7 @@ public:
    *
    * @return if < 0 something went wrong.
    */
-  virtual int CartToJnt(const JntArray& q_in, const JntArray& qd_in, const Accel& a_in) = 0;
+  virtual int cartToJnt(const JntArray& q_in, const JntArray& qd_in, const Accel& a_in) = 0;
 
   const JntArray& getAccelerations() const
   {

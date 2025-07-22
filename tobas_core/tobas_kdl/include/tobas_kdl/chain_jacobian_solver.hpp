@@ -30,7 +30,7 @@ public:
    * @param seg_nr The final segment to compute
    * @return success/error code
    */
-  int JntToJac(const JntArray& q_in, int seg_nr = -1);
+  int jntToJac(const JntArray& q_in, int seg_nr = -1);
 
   /**
    * @param locked_joints new values for locked joints

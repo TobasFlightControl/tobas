@@ -30,7 +30,7 @@ bool TreeIkSolverVel_pinv::updateInternalDataStructures()
   return true;
 }
 
-int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
+int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);
@@ -48,7 +48,7 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
   size_t i = 0;
   for (const auto& [seg_name, twist] : v_in) {
     // Update big jacobian
-    if (jnt2jac_.JntToJac(q_in, seg_name) < 0) {
+    if (jnt2jac_.jntToJac(q_in, seg_name) < 0) {
       return copyError(jnt2jac_);
     }
     J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;

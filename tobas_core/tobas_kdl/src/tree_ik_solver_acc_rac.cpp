@@ -35,7 +35,7 @@ bool TreeIkSolverAcc_RAC::updateInternalDataStructures()
   return true;
 }
 
-int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
+int TreeIkSolverAcc_RAC::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);
@@ -48,7 +48,7 @@ int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   const auto eq_dim = 6 * num_points;
 
   // Update Jdqd
-  if (jnt2jdqd_.JntToCart(q_in, qd_in) < 0) {
+  if (jnt2jdqd_.jntToCart(q_in, qd_in) < 0) {
     return copyError(jnt2jdqd_);
   }
 
@@ -58,7 +58,7 @@ int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   size_t i = 0;
   for (const auto& [seg_name, accel] : acc_in) {
     // Update big jacobian
-    if (jnt2jac_.JntToJac(q_in, seg_name) < 0) {
+    if (jnt2jac_.jntToJac(q_in, seg_name) < 0) {
       return copyError(jnt2jac_);
     }
     J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;

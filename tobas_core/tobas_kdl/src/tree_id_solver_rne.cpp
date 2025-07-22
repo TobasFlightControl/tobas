@@ -20,7 +20,7 @@ bool TreeIdSolver_RNE::updateInternalDataStructures()
   return true;
 }
 
-int TreeIdSolver_RNE::CartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext)
+int TreeIdSolver_RNE::cartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

@@ -17,7 +17,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int CartToJnt(const JntArray& q_in, const TwistMap& v_in) override;
+  int cartToJnt(const JntArray& q_in, const TwistMap& v_in) override;
 
   const Eigen::Vector6d& getWeightTS() const;
   bool setWeightTS(const Eigen::Vector6d& Wt);

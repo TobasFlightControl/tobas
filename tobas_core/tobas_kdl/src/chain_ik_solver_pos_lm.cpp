@@ -39,7 +39,7 @@ void ChainIkSolverPos_LM::displayJacobian(const JntArray& jval)
   cout << "Singular values : " << svd_.singularValues().transpose() << endl;
 }
 
-int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_goal)
+int ChainIkSolverPos_LM::cartToJnt(const JntArray& q_init, const Frame& T_base_goal)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

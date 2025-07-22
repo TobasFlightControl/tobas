@@ -15,7 +15,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int JntToJac(const JntArray& q, const std::string& seg_name);
+  int jntToJac(const JntArray& q, const std::string& seg_name);
 
   inline const Jacobian& getJacobian() const;
 

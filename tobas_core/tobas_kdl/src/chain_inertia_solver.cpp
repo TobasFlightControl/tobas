@@ -20,7 +20,7 @@ bool ChainInertiaSolver::updateInternalDataStructures()
   return true;
 }
 
-int ChainInertiaSolver::JntToCart(const JntArray& q)
+int ChainInertiaSolver::jntToCart(const JntArray& q)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

@@ -14,8 +14,8 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int JntToCoriolis(const JntArray& q, const JntArray& qd);
-  int JntToGravity(const JntArray& q, const Vector& grav);
+  int jntToCoriolis(const JntArray& q, const JntArray& qd);
+  int jntToGravity(const JntArray& q, const Vector& grav);
 
   inline const JntArray& getCoriolisEffort() const;
   inline const JntArray& getGravityEffort() const;

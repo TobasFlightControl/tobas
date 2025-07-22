@@ -19,7 +19,7 @@ bool TreeFkSolverPosAll::updateInternalDataStructures()
   return true;
 }
 
-int TreeFkSolverPosAll::JntToCart(const JntArray& q)
+int TreeFkSolverPosAll::jntToCart(const JntArray& q)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

@@ -29,7 +29,7 @@ bool ChainIkSolverAcc_RAC::updateInternalDataStructures()
   return true;
 }
 
-int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const Vector& acc_ref)
+int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const Vector& acc_ref)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);
@@ -39,13 +39,13 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
   }
 
   // 目標加速度を計算
-  if (jnt2jdqd_.JntToCart(q, qd) < 0) {
+  if (jnt2jdqd_.jntToCart(q, qd) < 0) {
     return copyError(jnt2jdqd_);
   }
   const auto acc_diff = acc_ref - jnt2jdqd_.getJdqd().linear;
 
   // ヤコビアンを更新
-  if (jnt2jac_.JntToJac(q) < 0) {
+  if (jnt2jac_.jntToJac(q) < 0) {
     return copyError(jnt2jac_);
   }
   const auto& jac = jnt2jac_.getJacobian();
@@ -57,7 +57,7 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
   return setDefaultError(kNoError);
 }
 
-int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const Accel& acc_ref)
+int ChainIkSolverAcc_RAC::cartToJnt(const JntArray& q, const JntArray& qd, const Accel& acc_ref)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);
@@ -67,14 +67,14 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
   }
 
   // 目標加速度を計算
-  if (jnt2jdqd_.JntToCart(q, qd) < 0) {
+  if (jnt2jdqd_.jntToCart(q, qd) < 0) {
     return copyError(jnt2jdqd_);
   }
   const auto acc_diff = acc_ref - jnt2jdqd_.getJdqd();
   const auto acc_diff_ravel = acc_diff.ravel();
 
   // ヤコビアンを更新
-  if (jnt2jac_.JntToJac(q) < 0) {
+  if (jnt2jac_.jntToJac(q) < 0) {
     return copyError(jnt2jac_);
   }
   const auto& jac = jnt2jac_.getJacobian();

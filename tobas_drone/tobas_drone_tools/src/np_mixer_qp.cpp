@@ -45,13 +45,13 @@ bool NonPlanarMixer_QP::solve(
   const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0) {
+  if (fk_solver_.jntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0) {
+  if (inertia_solver_.jntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }

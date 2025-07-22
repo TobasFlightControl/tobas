@@ -119,13 +119,13 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   }
 
   // 順運動学を計算
-  if (fk_solver_.JntToCart(js_converter_.getPosition()) < 0) {
+  if (fk_solver_.jntToCart(js_converter_.getPosition()) < 0) {
     TOBAS_ERROR("Forward kinematics failed: ", fk_solver_.errorMessage());
     return;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(js_converter_.getPosition()) < 0) {
+  if (inertia_solver_.jntToCart(js_converter_.getPosition()) < 0) {
     TOBAS_ERROR("Inertia solver failed: ", inertia_solver_.errorMessage());
     return;
   }

@@ -152,7 +152,7 @@ void GroundForceController::initializeMPC()
 
 double GroundForceController::calcMass()
 {
-  inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
+  inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
   return inertia_solver_.getInertia().getMass();
 }
 

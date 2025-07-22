@@ -26,13 +26,13 @@ bool TreeTaskSpaceVelCtrl::updateInternalDataStructures()
   return true;
 }
 
-int TreeTaskSpaceVelCtrl::CartToJnt(const JntArray& cur_q, const FrameMap& tar_p)
+int TreeTaskSpaceVelCtrl::cartToJnt(const JntArray& cur_q, const FrameMap& tar_p)
 {
   // Create target twist map
   TwistMap tar_v;
   for (const auto& [seg_name, frame] : tar_p) {
     // Compute current frame and twist
-    if (fk_.JntToCart(cur_q, seg_name) < 0) {
+    if (fk_.jntToCart(cur_q, seg_name) < 0) {
       return copyError(fk_);
     }
 
@@ -41,7 +41,7 @@ int TreeTaskSpaceVelCtrl::CartToJnt(const JntArray& cur_q, const FrameMap& tar_p
   }
 
   // Compute target joint velocities
-  if (ik_.CartToJnt(cur_q, tar_v) < 0) {
+  if (ik_.cartToJnt(cur_q, tar_v) < 0) {
     return copyError(ik_);
   }
 

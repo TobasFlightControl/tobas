@@ -35,7 +35,7 @@ bool TreeTaskSpacePID::updateInternalDataStructures()
   return true;
 }
 
-int TreeTaskSpacePID::CartToJnt(
+int TreeTaskSpacePID::cartToJnt(
   const JntArray& cur_q,
   const JntArray& cur_qd,
   const FrameMap& tar_p,
@@ -64,7 +64,7 @@ int TreeTaskSpacePID::CartToJnt(
     }
 
     // Compute current frame and twist
-    if (fk_.JntToCart(cur_q, cur_qd, seg_name) < 0) {
+    if (fk_.jntToCart(cur_q, cur_qd, seg_name) < 0) {
       return copyError(fk_);
     }
     const auto& cur_pv = fk_.getFrameVel();
@@ -77,12 +77,12 @@ int TreeTaskSpacePID::CartToJnt(
   }
 
   // Compute target joint accelerations
-  if (rac_.CartToJnt(cur_q, cur_qd, tar_a) < 0) {
+  if (rac_.cartToJnt(cur_q, cur_qd, tar_a) < 0) {
     return copyError(rac_);
   }
 
   // Compute target joint efforts
-  if (rne_.CartToJnt(cur_q, cur_qd, rac_.getAccelerations(), f_ext) < 0) {
+  if (rne_.cartToJnt(cur_q, cur_qd, rac_.getAccelerations(), f_ext) < 0) {
     return copyError(rne_);
   }
 

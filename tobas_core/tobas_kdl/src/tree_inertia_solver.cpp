@@ -20,7 +20,7 @@ bool TreeInertiaSolver::updateInternalDataStructures()
   return true;
 }
 
-int TreeInertiaSolver::JntToCart(const JntArray& q)
+int TreeInertiaSolver::jntToCart(const JntArray& q)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

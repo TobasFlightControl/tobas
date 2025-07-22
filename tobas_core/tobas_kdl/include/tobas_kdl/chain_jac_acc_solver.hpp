@@ -19,7 +19,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int JntToCart(const JntArray& q, const JntArray& qd);
+  int jntToCart(const JntArray& q, const JntArray& qd);
 
   inline const Accel& getJdqd() const;
 

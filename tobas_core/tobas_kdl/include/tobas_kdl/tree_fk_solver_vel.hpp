@@ -13,7 +13,7 @@ class TreeFkSolverVel : public TreeSolverI
 public:
   explicit TreeFkSolverVel(const Tree& tree);
 
-  int JntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name);
+  int jntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name);
 
   inline const FrameVel& getFrameVel() const;
 

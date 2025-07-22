@@ -181,7 +181,7 @@ bool VelocityControllerNode::taskSpaceControl(
 
   // 目標関節速度を計算
   const auto& cur_q = cur_js_conv_.getPosition();
-  if (vel_ctrl_.CartToJnt(cur_q, tar_p) < 0) {
+  if (vel_ctrl_.cartToJnt(cur_q, tar_p) < 0) {
     TOBAS_ERROR("Cartesian controller failed: ", vel_ctrl_.errorMessage());
     return false;
   }

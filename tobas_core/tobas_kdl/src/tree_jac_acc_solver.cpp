@@ -18,7 +18,7 @@ bool TreeJacAccSolver::updateInternalDataStructures()
   return true;
 }
 
-int TreeJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
+int TreeJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);
@@ -27,7 +27,7 @@ int TreeJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
     return setDefaultError(kSizeMismatch);
   }
 
-  JntToCartRec(tree_.getRootSegment(), q, qd);
+  jntToCartRec(tree_.getRootSegment(), q, qd);
 
   return setDefaultError(kNoError);
 }
@@ -42,7 +42,7 @@ void TreeJacAccSolver::initialize()
   }
 }
 
-void TreeJacAccSolver::JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd)
+void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd)
 {
   const auto& seg = segment->second.segment;
   const auto& seg_name = segment->first;
@@ -78,7 +78,7 @@ void TreeJacAccSolver::JntToCartRec(const SegmentMap::const_iterator& segment, c
 
   // propagate calculations over each child segment
   for (const auto& child : segment->second.children) {
-    JntToCartRec(child, q, qd);
+    jntToCartRec(child, q, qd);
   }
 }
 }  // namespace kdl

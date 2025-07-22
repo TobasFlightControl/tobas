@@ -31,7 +31,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int CartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt);
+  int cartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt);
 
   bool setMaxLinearVelocity(const double& max_linvel);
   bool setMaxAngularVelocity(const double& max_angvel);

@@ -16,7 +16,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int JntToCart(const JntArray& q);
+  int jntToCart(const JntArray& q);
 
   inline const Frame& getFrame(const std::string& seg_name) const;
   inline const FrameMap& getFrames() const;

@@ -21,7 +21,7 @@ bool TreeBoundingBoxSolver::updateInternalDataStructures()
 
 int TreeBoundingBoxSolver::solve(const JntArray& q)
 {
-  if (fk_solver_.JntToCart(q) < 0) {
+  if (fk_solver_.jntToCart(q) < 0) {
     return copyError(fk_solver_);
   }
 

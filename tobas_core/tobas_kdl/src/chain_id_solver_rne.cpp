@@ -18,7 +18,7 @@ bool ChainIdSolver_RNE::updateInternalDataStructures()
   return true;
 }
 
-int ChainIdSolver_RNE::CartToJnt(
+int ChainIdSolver_RNE::cartToJnt(
   const JntArray& q,
   const JntArray& qd,
   const JntArray& qdd,
@@ -79,7 +79,7 @@ int ChainIdSolver_RNE::CartToJnt(
   return setDefaultError(kNoError);
 }
 
-int ChainIdSolver_RNE::CartToJnt(
+int ChainIdSolver_RNE::cartToJnt(
   const JntArray& q,
   const JntArray& qd,
   const JntArray& qdd,

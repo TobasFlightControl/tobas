@@ -8,7 +8,7 @@ TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 {
 }
 
-int TreeFkSolverVel::JntToCart(const JntArray& q, const JntArray& qd, const string& seg_name)
+int TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const string& seg_name)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

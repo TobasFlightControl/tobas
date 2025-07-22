@@ -68,7 +68,7 @@ bool SwingLegController::update(
       t_switch_[l] = cur_time;
 
       // {gnd}から見た{gnd}に対する{foot}の初期位置を計算
-      if (fk_solver_.JntToCart(q, foot_names_[l]) < 0) {
+      if (fk_solver_.jntToCart(q, foot_names_[l]) < 0) {
         cerr << "FK failed: " << fk_solver_.errorMessage() << endl;
         return false;
       }
@@ -175,7 +175,7 @@ void SwingLegController::setThighOrigins()
   const auto q0 = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
   for (size_t l = 0; l < nc_; ++l) {
-    if (fk_solver_.JntToCart(q0, thigh_names_[l]) < 0) {
+    if (fk_solver_.jntToCart(q0, thigh_names_[l]) < 0) {
       throw runtime_error("FK failed: " + fk_solver_.errorMessage());
     }
     thigh_0_[l] = fk_solver_.getFrame().p;

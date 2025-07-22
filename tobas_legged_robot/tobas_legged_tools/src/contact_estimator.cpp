@@ -153,7 +153,7 @@ VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntA
 {
   VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l) {
-    fk_solver_.JntToCart(q, foot_names_[l]);
+    fk_solver_.jntToCart(q, foot_names_[l]);
     const auto F_Pos_FC = T.M * fk_solver_.getFrame().p;
     const auto height = T.p.z() + F_Pos_FC.z();
     res(l) = 0.5 * (1 + erf((kMeanFootHeight - height) / erfden_height_));

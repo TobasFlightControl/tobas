@@ -8,7 +8,7 @@ ChainFkSolverPos::ChainFkSolverPos(const Chain& chain) : super(chain)
 {
 }
 
-int ChainFkSolverPos::JntToCart(const JntArray& q_in, int _seg_nr)
+int ChainFkSolverPos::jntToCart(const JntArray& q_in, int _seg_nr)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

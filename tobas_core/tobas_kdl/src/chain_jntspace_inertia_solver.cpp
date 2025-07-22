@@ -20,7 +20,7 @@ bool ChainJntSpaceInertiaSolver::updateInternalDataStructures()
   return true;
 }
 
-int ChainJntSpaceInertiaSolver::JntToMass(const JntArray& q)
+int ChainJntSpaceInertiaSolver::jntToMass(const JntArray& q)
 {
   if (!isUpToDate()) {
     return setDefaultError(kNotUpToDate);

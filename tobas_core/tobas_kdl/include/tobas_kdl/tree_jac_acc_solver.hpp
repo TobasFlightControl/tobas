@@ -19,7 +19,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int JntToCart(const JntArray& q, const JntArray& qd);
+  int jntToCart(const JntArray& q, const JntArray& qd);
 
   inline const Accel& getJdqd(const std::string& seg_name) const;
 
@@ -30,7 +30,7 @@ private:
   AccelMap Jdqd_out_;
 
   void initialize();
-  void JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
+  void jntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
 };
 
 inline const Accel& TreeJacAccSolver::getJdqd(const std::string& seg_name) const

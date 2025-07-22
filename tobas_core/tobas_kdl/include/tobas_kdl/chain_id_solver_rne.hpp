@@ -16,14 +16,14 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int CartToJnt(
+  int cartToJnt(
     const JntArray& q,
     const JntArray& qd,
     const JntArray& qdd,
     const Wrenches& forces,  // 各フレームにかかる力を各フレームから見たもの
     const Vector& grav);
 
-  int CartToJnt(
+  int cartToJnt(
     const JntArray& q,
     const JntArray& qd,
     const JntArray& qdd,

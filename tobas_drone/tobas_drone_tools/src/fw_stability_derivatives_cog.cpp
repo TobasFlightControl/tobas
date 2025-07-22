@@ -29,7 +29,7 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   const auto& aero = drone_.fixed_wing->aerodynamics;
 
   // CoGを更新
-  if (inertia_solver_.JntToCart(q) < 0) {
+  if (inertia_solver_.jntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
     return error_code_ = kError;
   }

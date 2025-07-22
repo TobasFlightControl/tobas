@@ -68,7 +68,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 重心と慣性テンソル
-  if (inertia_solver_.JntToCart(q) < 0) {
+  if (inertia_solver_.jntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
     return error_code_ = kError;
   }
@@ -172,7 +172,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto I_cog_inv = I_cog.data.inverse();
   for (size_t i = 0; i < x_rotors_.count(); ++i) {
     const auto& rotor = x_rotors_.rotor(i);
-    if (fk_solver_.JntToCart(q, rotor->link_name) < 0) {
+    if (fk_solver_.jntToCart(q, rotor->link_name) < 0) {
       error_msg_ = fk_solver_.errorMessage();
       return error_code_ = kError;
     }
