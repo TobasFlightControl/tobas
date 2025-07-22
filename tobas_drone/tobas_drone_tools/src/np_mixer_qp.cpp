@@ -65,7 +65,7 @@ bool NonPlanarMixer_QP::solve(
     const auto& rotor = rotor_it.second;
 
     // 回転軸を求める
-    const auto elem = tree_.getSegment(rotor->link_name)->second;
+    const auto& elem = tree_.getSegment(rotor->link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 

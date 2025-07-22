@@ -42,7 +42,6 @@ private:
 
   kdl::TreeMassHolder mass_holder_;
   tobas::TreeJointStateConverter js_converter_;
-  tobas::RotorAxisExtractor z_rotors_;
 
   // Static parameters
   bool do_dist_comp_trans_;
@@ -143,7 +142,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::node::kController, options)
   , mass_holder_(tree_)
   , js_converter_(tree_)
-  , z_rotors_(drone_, tobas::Z_POSITIVE)
   , acc_atti_conv_(tree_)
   , mixer_(drone_, tree_)
 {
@@ -205,9 +203,6 @@ bool ControllerNode::updateInternalDataStructures()
   if (!js_converter_.updateInternalDataStructures()) {
     return false;
   }
-  if (!z_rotors_.updateInternalDataStructures()) {
-    return false;
-  }
   if (!acc_atti_conv_.updateInternalDataStructures()) {
     return false;
   }
@@ -217,8 +212,7 @@ bool ControllerNode::updateInternalDataStructures()
 
   // Update the maximum total thrust
   max_thrust_sum_ = 0.;
-  for (size_t idx = 0; idx < z_rotors_.count(); ++idx) {
-    const auto& link_name = z_rotors_.rotor(idx)->link_name;
+  for (const auto& [link_name, _] : drone_.prop->rotors) {
     const auto thrust_at_full_thort = drone_.prop->thrustFromThrottle(link_name, tobas::kMaxThrot);
     max_thrust_sum_ += thrust_at_full_thort;
   }

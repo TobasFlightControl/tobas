@@ -31,10 +31,6 @@ bool RotorConfig::load(const YAML::Node& node)
     return false;
   }
 
-  if (!yaml::load(kAxisKey, node, axis)) {
-    return false;
-  }
-
   if (!yaml::load(kMomentConstKey, node, moment_const)) {
     return false;
   }
@@ -52,7 +48,6 @@ YAML::Node RotorConfig::dump() const
 
   node[kLinkNameKey] = link_name;
   node[kDirectionKey] = direction;
-  node[kAxisKey] = axis;
   node[kMomentConstKey] = moment_const;
   node[kTiltJointName] = tilt_joint_name;
 

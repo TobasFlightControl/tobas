@@ -149,7 +149,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
     else {
       const auto& rotor = drone_.prop->rotors.at(rotor_state.link_name);
 
-      const auto elem = tree_.getSegment(rotor->link_name)->second;
+      const auto& elem = tree_.getSegment(rotor->link_name)->second;
       const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
       const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 

@@ -2,7 +2,6 @@
 
 #include <map>
 
-#include "./rotor_axis.hpp"
 #include "./turning_direction.hpp"
 
 namespace tobas
@@ -11,7 +10,6 @@ class RotorConfig
 {
   static constexpr char kLinkNameKey[] = "link_name";
   static constexpr char kDirectionKey[] = "direction";
-  static constexpr char kAxisKey[] = "axis";
   static constexpr char kMomentConstKey[] = "moment_constant";
   static constexpr char kTiltJointName[] = "tilt_joint_name";
 
@@ -21,7 +19,6 @@ public:
 
   std::string link_name = "";                          // プロペラのリンク名
   TurningDirection direction = TurningDirection::CCW;  // 回転方向: CCW or CW
-  rotor_axis_t axis = rotor_axis_t::kUnknown;          // 回転軸
   double moment_const = 0.;                            // 反トルク係数 [m]
   std::string tilt_joint_name = "";  // ティルトジョイント名 (空文字の場合は固定軸)
 

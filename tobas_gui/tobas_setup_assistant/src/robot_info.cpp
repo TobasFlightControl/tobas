@@ -106,19 +106,6 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl
   return isJntAxisAlwaysCollinear(par_name, tar_axis);
 }
 
-tobas::rotor_axis_t RobotInfo::rotorAxisType(const std::string& link_name)
-{
-  if (isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitX())) {
-    return tobas::rotor_axis_t::X_POSITIVE;
-  }
-  else if (isJntAxisAlwaysCollinear(link_name, kdl::Vector::UnitZ())) {
-    return tobas::rotor_axis_t::Z_POSITIVE;
-  }
-  else {
-    return tobas::rotor_axis_t::kUnknown;
-  }
-}
-
 bool RobotInfo::loadCommon()
 {
   // Check UADF validity

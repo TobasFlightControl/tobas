@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QWidget>
 
-#include <tobas_drone_core/propulsion_system/rotor_axis.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
@@ -44,8 +43,6 @@ public:
 
   /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
   bool isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis);
-
-  tobas::rotor_axis_t rotorAxisType(const std::string& link_name);
 
 private:
   QWidget* const parent_;

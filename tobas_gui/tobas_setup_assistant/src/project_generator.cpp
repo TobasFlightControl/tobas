@@ -165,7 +165,6 @@ tobas::Drone ProjectGenerator::createDrone()
         const auto rotor = std::make_shared<tobas::ElectricRotorConfig>();
         rotor->link_name = link_name;
         rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
-        rotor->axis = robot_.rotorAxisType(link_name);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
         rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->channel = settings_->hardware->dshot()->channel(QString::fromStdString(cur_jnt.name));  // TODO: PWM対応
@@ -242,7 +241,6 @@ tobas::Drone ProjectGenerator::createDrone()
         const auto rotor = std::make_shared<tobas::ICERotorConfig>();
         rotor->link_name = link_name;
         rotor->direction = turningDirectionUadfToTbsdrn(robot_.uadf().thrusts.at(cur_jnt.name).direction);
-        rotor->axis = robot_.rotorAxisType(link_name);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
         rotor->tilt_joint_name = robot_.uadf().tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();

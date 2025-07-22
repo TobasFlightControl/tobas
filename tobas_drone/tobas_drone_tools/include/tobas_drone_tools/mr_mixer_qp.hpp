@@ -7,7 +7,6 @@
 #include <tobas_time_tools/stopwatch.hpp>
 
 #include "./mixer.hpp"
-#include "./rotor_axis_extractor.hpp"
 
 namespace tobas
 {
@@ -46,7 +45,6 @@ private:
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  RotorAxisExtractor z_rotors_;
 
   quadprog::DualActiveSetSolver qp_;  // QPソルバー
   Eigen::Diagonal3d Q_;               // EoMの重み

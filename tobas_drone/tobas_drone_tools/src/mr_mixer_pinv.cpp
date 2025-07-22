@@ -1,5 +1,7 @@
 #include "tobas_drone_tools/mr_mixer_pinv.hpp"
 
+#include <ranges>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
@@ -10,7 +12,7 @@ using namespace Eigen;
 namespace tobas
 {
 MultiRotorMixer_pinv::MultiRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
@@ -26,14 +28,11 @@ bool MultiRotorMixer_pinv::updateInternalDataStructures()
   if (!inertia_solver_.updateInternalDataStructures()) {
     return false;
   }
-  if (!z_rotors_.updateInternalDataStructures()) {
-    return false;
-  }
 
-  E_.conservativeResize(NoChange, z_rotors_.count());
+  E_.conservativeResize(NoChange, drone_.prop->numRotors());
   E_.bottomRows<1>().setOnes();  // 推力和等式の左辺
 
-  x_.conservativeResize(z_rotors_.count());
+  x_.conservativeResize(drone_.prop->numRotors());
 
   return true;
 }
@@ -63,24 +62,24 @@ bool MultiRotorMixer_pinv::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // EoM行列等式の左辺
-  for (size_t i = 0; i < z_rotors_.count(); ++i) {
-    const auto& rotor = z_rotors_.rotor(i);
+  for (const auto& [idx, pair] : views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = pair.second;
 
     if (rotor_alive_.at(rotor->link_name)) {
       const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
 
-      const auto elem = tree_.getSegment(rotor->link_name)->second;
+      const auto& elem = tree_.getSegment(rotor->link_name)->second;
       const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
       const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
       const auto d = rotor->sign();
       const auto& cm = rotor->moment_const;
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
-      E_.block<3, 1>(0, i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
+      E_.block<3, 1>(0, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
     }
     else {
       // ロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
-      E_.block<3, 1>(0, i).setZero();
+      E_.block<3, 1>(0, idx).setZero();
     }
   }
 

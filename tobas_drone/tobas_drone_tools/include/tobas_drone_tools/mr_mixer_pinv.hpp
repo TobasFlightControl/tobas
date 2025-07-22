@@ -4,7 +4,6 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
 #include "./mixer.hpp"
-#include "./rotor_axis_extractor.hpp"
 
 namespace tobas
 {
@@ -14,8 +13,6 @@ namespace tobas
 class MultiRotorMixer_pinv : public Mixer
 {
   using super = Mixer;
-
-  static constexpr double kThrustClampMargin = 1e-3;  // [N]
 
 public:
   explicit MultiRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
@@ -34,7 +31,6 @@ public:
 private:
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  RotorAxisExtractor z_rotors_;
 
   Eigen::Matrix4Xd E_;
   Eigen::Vector4d f_;

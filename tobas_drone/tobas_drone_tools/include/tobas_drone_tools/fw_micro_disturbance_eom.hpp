@@ -3,7 +3,6 @@
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 
 #include "./fw_trim_conditions.hpp"
-#include "./rotor_axis_extractor.hpp"
 #include "./solver_i.hpp"
 
 namespace tobas
@@ -131,7 +130,6 @@ private:
 
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
 
   size_t u_size_;
@@ -375,26 +373,26 @@ inline double MicroDisturbanceEoM::u_thrust() const
 
 inline const double& MicroDisturbanceEoM::alpha_delta(const size_t& cs_idx) const
 {
-  return B_(kStateIdx_alpha, x_rotors_.count() + cs_idx);
+  return B_(kStateIdx_alpha, drone_.prop->numRotors() + cs_idx);
 }
 
 inline const double& MicroDisturbanceEoM::beta_delta(const size_t& cs_idx) const
 {
-  return B_(kStateIdx_beta, x_rotors_.count() + cs_idx);
+  return B_(kStateIdx_beta, drone_.prop->numRotors() + cs_idx);
 }
 
 inline const double& MicroDisturbanceEoM::p_delta(const size_t& cs_idx) const
 {
-  return B_(kStateIdx_p, x_rotors_.count() + cs_idx);
+  return B_(kStateIdx_p, drone_.prop->numRotors() + cs_idx);
 }
 
 inline const double& MicroDisturbanceEoM::q_delta(const size_t& cs_idx) const
 {
-  return B_(kStateIdx_q, x_rotors_.count() + cs_idx);
+  return B_(kStateIdx_q, drone_.prop->numRotors() + cs_idx);
 }
 
 inline const double& MicroDisturbanceEoM::r_delta(const size_t& cs_idx) const
 {
-  return B_(kStateIdx_r, x_rotors_.count() + cs_idx);
+  return B_(kStateIdx_r, drone_.prop->numRotors() + cs_idx);
 }
 }  // namespace tobas

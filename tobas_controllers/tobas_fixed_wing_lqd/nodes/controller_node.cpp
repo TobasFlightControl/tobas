@@ -3,7 +3,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_control/lqd.hpp>
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
-#include <tobas_drone_tools/rotor_axis_extractor.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
@@ -50,7 +49,6 @@ private:
   kdl::Tree tree_;
 
   kdl::TreeMassHolder mass_holder_;
-  tobas::RotorAxisExtractor x_rotors_;
   tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
   // 固定値
@@ -124,10 +122,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kController, options)
-  , mass_holder_(tree_)
-  , x_rotors_(drone_, tobas::X_POSITIVE)
-  , eom_(drone_, tree_)
+  : super(tobas::node::kController, options), mass_holder_(tree_), eom_(drone_, tree_)
 {
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
@@ -161,9 +156,6 @@ bool ControllerNode::initialize()
   if (!mass_holder_.updateInternalDataStructures()) {
     return false;
   }
-  if (!x_rotors_.updateInternalDataStructures()) {
-    return false;
-  }
   if (!eom_.updateInternalDataStructures()) {
     return false;
   }
@@ -184,8 +176,8 @@ bool ControllerNode::initialize()
 
   // 制御入力のスケール
   lqd_.input_scale.resize(eom_.inputSize());
-  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / x_rotors_.count();
-  lqd_.input_scale.head(x_rotors_.count()).fill(thrust_scale);
+  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / drone_.prop->numRotors();
+  lqd_.input_scale.head(drone_.prop->numRotors()).fill(thrust_scale);
   lqd_.input_scale.tail(drone_.fixed_wing->numControlSurfaces()).fill(M_PI);
 
   lqd_.state_weight.resize(eom_.kStateSize);
@@ -238,15 +230,15 @@ void ControllerNode::updateSetStateVector()
 
 void ControllerNode::publishThrusts(const Eigen::VectorXd& thrusts)
 {
-  assert(static_cast<size_t>(thrusts.size()) == x_rotors_.count());
+  assert(static_cast<size_t>(thrusts.size()) == drone_.prop->numRotors());
 
   auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
   thrusts_msg->header.stamp = odom_ned_.header.stamp;
 
-  for (int i = 0; i < thrusts.rows(); ++i) {
+  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     thrusts_msg->thrusts.emplace_back();
-    thrusts_msg->thrusts.back().link_name = x_rotors_.linkName(i);
-    thrusts_msg->thrusts.back().thrust = std::max(thrusts(i), 0.);
+    thrusts_msg->thrusts.back().link_name = elem.first;
+    thrusts_msg->thrusts.back().thrust = std::max(thrusts(idx), 0.);
   }
 
   tar_thrusts_pub_->publish(std::move(thrusts_msg));
@@ -322,13 +314,13 @@ void ControllerNode::updateAngularVelicityWeight()
 void ControllerNode::updateThrustWeightLog10()
 {
   const auto thrust_weight = exp10(params_.thrust_weight_log10);
-  lqd_.input_weight.head(x_rotors_.count()).fill(thrust_weight);
+  lqd_.input_weight.head(drone_.prop->numRotors()).fill(thrust_weight);
 }
 
 void ControllerNode::updateThrustRateWeightLog10()
 {
   const auto thrust_rate_weight = exp10(params_.thrust_rate_weight_log10);
-  lqd_.input_rate_weight.head(x_rotors_.count()).fill(thrust_rate_weight);
+  lqd_.input_rate_weight.head(drone_.prop->numRotors()).fill(thrust_rate_weight);
 }
 
 void ControllerNode::updateDeflectionWeightLog10()
@@ -526,7 +518,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   const Eigen::VectorXd du = lqd_.solve(dt);
   const Eigen::VectorXd u = eom_.trimInput() + du;
 
-  const Eigen::VectorXd thrusts = u.head(x_rotors_.count());
+  const Eigen::VectorXd thrusts = u.head(drone_.prop->numRotors());
   const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
 
   // Publish

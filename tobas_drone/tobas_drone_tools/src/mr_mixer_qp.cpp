@@ -1,5 +1,7 @@
 #include "tobas_drone_tools/mr_mixer_qp.hpp"
 
+#include <ranges>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
@@ -10,7 +12,7 @@ using namespace Eigen;
 namespace tobas
 {
 MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE), stopwatch_(100)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), stopwatch_(100)
 {
 }
 
@@ -24,9 +26,6 @@ bool MultiRotorMixer_QP::updateInternalDataStructures()
     return false;
   }
   if (!inertia_solver_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!z_rotors_.updateInternalDataStructures()) {
     return false;
   }
 
@@ -64,27 +63,27 @@ bool MultiRotorMixer_QP::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // EoM行列等式の左辺
-  for (size_t i = 0; i < z_rotors_.count(); ++i) {
-    const auto& rotor = z_rotors_.rotor(i);
+  for (const auto& [idx, pair] : views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = pair.second;
 
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
 
-    const auto elem = tree_.getSegment(rotor->link_name)->second;
+    const auto& elem = tree_.getSegment(rotor->link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     const auto d = rotor->sign();
     const auto& cm = rotor->moment_const;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
-    G_.col(i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
+    G_.col(idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
   // EoM行列等式の右辺
   h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // 重み
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / z_rotors_.count();  // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                       // [Nm]
+  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
   Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
@@ -97,8 +96,8 @@ bool MultiRotorMixer_QP::solve(
   // 同時に合計推力の範囲を計算
   double max_thrust_sum = 0.;
   double min_thrust_sum = 0.;
-  for (size_t i = 0; i < z_rotors_.count(); ++i) {
-    const auto& rotor = z_rotors_.rotor(i);
+  for (const auto& [idx, pair] : views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = pair.second;
 
     double max_thrust, min_thrust;
     if (rotor_alive_.at(rotor->link_name)) {
@@ -110,8 +109,8 @@ bool MultiRotorMixer_QP::solve(
       min_thrust = 0.;
     }
 
-    qp_.problem.b(i) = max_thrust;
-    qp_.problem.b(z_rotors_.count() + i) = -min_thrust;
+    qp_.problem.b(idx) = max_thrust;
+    qp_.problem.b(drone_.prop->numRotors() + idx) = -min_thrust;
     max_thrust_sum += max_thrust;
     min_thrust_sum += min_thrust;
   }
@@ -161,7 +160,9 @@ bool MultiRotorMixer_QP::setThrustWeight(double p)
 
 void MultiRotorMixer_QP::resizeAndFill()
 {
-  qp_.resize(z_rotors_.count(), 1, z_rotors_.count() * 2);
+  const auto nr = drone_.prop->numRotors();
+
+  qp_.resize(nr, 1, nr * 2);
   qp_.setZero();
 
   // QPの決定変数のスケール．推力のみなので統一してよい．
@@ -169,10 +170,10 @@ void MultiRotorMixer_QP::resizeAndFill()
 
   // QPPの定数部分
   qp_.problem.G.fill(1);
-  qp_.problem.A.topRows(z_rotors_.count()).diagonal().fill(1);
-  qp_.problem.A.bottomRows(z_rotors_.count()).diagonal().fill(-1);
+  qp_.problem.A.topRows(nr).diagonal().fill(1);
+  qp_.problem.A.bottomRows(nr).diagonal().fill(-1);
 
-  R_.resize(z_rotors_.count());
-  G_.resize(NoChange, z_rotors_.count());
+  R_.resize(nr);
+  G_.resize(NoChange, nr);
 }
 }  // namespace tobas

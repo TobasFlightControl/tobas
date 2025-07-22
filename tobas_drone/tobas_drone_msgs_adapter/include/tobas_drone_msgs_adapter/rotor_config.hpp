@@ -17,7 +17,6 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
   {
     dst.link_name = src.link_name;
     dst.direction = static_cast<uint8_t>(src.direction);
-    dst.axis = static_cast<uint8_t>(src.axis);
     dst.moment_const = src.moment_const;
     dst.tilt_joint_name = src.tilt_joint_name;
   }
@@ -26,7 +25,6 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
   {
     dst.link_name = src.link_name;
     dst.direction = static_cast<tobas::TurningDirection>(src.direction);
-    dst.axis = static_cast<tobas::rotor_axis_t>(src.axis);
     dst.moment_const = src.moment_const;
     dst.tilt_joint_name = src.tilt_joint_name;
   }
