@@ -56,8 +56,11 @@ private:
   qt::ListWidget* basic_list_;
   qt::ListWidget* additional_list_;
 
+  int getIndex(BaseSettingWidget* page) const;
   void addEntry(QListWidget* list, BaseSettingWidget* page);
   void setCurrentWidget(BaseSettingWidget* page);
+  void setPageEnabled(int idx, bool enabled);
+  void setListItemEnabled(QListWidgetItem* item, bool enabled);
 
 private Q_SLOTS:
   void onListItemChanged(QListWidgetItem* item);

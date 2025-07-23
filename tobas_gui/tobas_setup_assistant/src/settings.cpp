@@ -4,6 +4,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_std_tools/check.hpp>
 
 namespace gui
 {
@@ -51,13 +52,9 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   connect(basic_list_, &QListWidget::currentRowChanged, additional_list_, &qt::ListWidget::deselect);
   connect(additional_list_, &QListWidget::currentRowChanged, basic_list_, &qt::ListWidget::deselect);
 
-  // Default page
-  basic_list_->setCurrentRow(0);
-
   // Disable all pages
   for (int i = 0; i < stack_->count(); ++i) {
-    const auto page = qt::qPointerCast<BaseSettingWidget>(stack_->widget(i));
-    page->setEnabled(false);
+    setPageEnabled(i, false);
   }
 
   // Layout
@@ -72,8 +69,16 @@ void SettingsWidget::updateInternalDataStructures()
   for (int i = 0; i < stack_->count(); ++i) {
     const auto page = qt::qPointerCast<BaseSettingWidget>(stack_->widget(i));
     page->updateInternalDataStructures();
-    page->setEnabled(true);
+    setPageEnabled(i, true);
   }
+
+  // 固定翼を持たない場合は設定を無効化
+  if (uadf_.control_surfaces.size() == 0) {
+    setPageEnabled(getIndex(fixed_wing), false);
+  }
+
+  // Default page
+  basic_list_->setCurrentRow(0);
 }
 
 bool SettingsWidget::isValid()
@@ -179,6 +184,13 @@ bool SettingsWidget::load(const YAML::Node& node)
   return success;
 }
 
+int SettingsWidget::getIndex(BaseSettingWidget* page) const
+{
+  const auto idx = stack_->indexOf(page);
+  TOBAS_CHECK(idx >= 0);
+  return idx;
+}
+
 void SettingsWidget::addEntry(QListWidget* list, BaseSettingWidget* page)
 {
   const auto idx = stack_->addWidget(page);
@@ -188,11 +200,7 @@ void SettingsWidget::addEntry(QListWidget* list, BaseSettingWidget* page)
 
 void SettingsWidget::setCurrentWidget(BaseSettingWidget* page)
 {
-  const auto idx = stack_->indexOf(page);
-  if (idx < 0) {
-    qWarning() << "\"" << page->name() << "\" is not found.";
-    return;
-  }
+  const auto idx = getIndex(page);
 
   if (idx < basic_list_->count()) {
     toolbox_->setCurrentWidget(basic_list_);
@@ -201,6 +209,33 @@ void SettingsWidget::setCurrentWidget(BaseSettingWidget* page)
   else {
     toolbox_->setCurrentWidget(additional_list_);
     additional_list_->setCurrentRow(idx - basic_list_->count());
+  }
+}
+
+void SettingsWidget::setPageEnabled(int idx, bool enabled)
+{
+  const auto page = stack_->widget(idx);
+  page->setEnabled(enabled);
+
+  if (idx < basic_list_->count()) {
+    const auto item = basic_list_->item(idx);
+    setListItemEnabled(item, enabled);
+  }
+  else {
+    const auto item = additional_list_->item(idx - basic_list_->count());
+    setListItemEnabled(item, enabled);
+  }
+}
+
+void SettingsWidget::setListItemEnabled(QListWidgetItem* item, bool enabled)
+{
+  constexpr auto kEnableFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+
+  if (enabled) {
+    item->setFlags(item->flags() | kEnableFlags);
+  }
+  else {
+    item->setFlags(item->flags() & ~kEnableFlags);
   }
 }
 

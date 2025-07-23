@@ -1,8 +1,5 @@
 #pragma once
 
-#include <QCheckBox>
-#include <QVBoxLayout>
-
 #include "../base_setting.hpp"
 #include "./aero_coefs.hpp"
 #include "./control_surfaces.hpp"
@@ -25,8 +22,6 @@ class FixedWingWidget : public BaseSettingWidget
   static constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
-  static constexpr bool kDefaultHasFixedWing = false;
-
 public:
   explicit FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
 
@@ -40,19 +35,12 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  bool hasFixedWing() const;
   const VehicleParametersWidget* vehicle() const;
   const AerodynamicsCoefficientsWidget* aeroCoefs() const;
   const ControlSurfacesWidget* controlSurfaces() const;
 
-private Q_SLOTS:
-  void setSettingWidgetsEnabled(bool enabled);
-
 private:
   const rclcpp::Node::SharedPtr node_;
-
-  QCheckBox* has_fixed_wing_;
-  QVBoxLayout* setting_rows_;
 
   VehicleParametersWidget* vehicle_;
   AerodynamicsCoefficientsWidget* aero_coefs_;

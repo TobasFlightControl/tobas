@@ -299,7 +299,7 @@ tobas::Drone ProjectGenerator::createDrone()
   }
 
   // Fixed Wing
-  if (settings_->fixed_wing->hasFixedWing()) {
+  if (uadf_.control_surfaces.size() > 0) {
     drone.fixed_wing = std::make_shared<tobas::FixedWingConfig>();
 
     // Vehicle
