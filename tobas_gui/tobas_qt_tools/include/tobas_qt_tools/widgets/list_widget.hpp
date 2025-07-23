@@ -23,8 +23,11 @@ public:
 
   void remove(QListWidgetItem* item);
 
+  /* 何も選択しない状態にする． */
+  void deselect();
+
   /* リストにテキストが含まれる場合にtrueを返す． */
-  bool contains(const QString& text);
+  bool contains(const QString& text) const;
 
   /* 選択中のアイテムのうち，最も上のものを返す．存在しない場合はNULLを返す． */
   QListWidgetItem* selectedItem();

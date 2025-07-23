@@ -1,6 +1,9 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
+#include <QToolBox>
+
+#include <tobas_qt_tools/widgets/list_widget.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "./setting_tabs/author_information.hpp"
 #include "./setting_tabs/controller/controller.hpp"
@@ -17,19 +20,14 @@ namespace gui
 {
 namespace sa
 {
-class SettingsWidget : public qt::VerticalTabWidget
+class SettingsWidget : public QWidget
 {
   Q_OBJECT
 
   using self = SettingsWidget;
-  using super = qt::VerticalTabWidget;
-
-  static constexpr int kTabHeight = 30;  // 30以上無いと何故かTabBarの文字が横に見切れてしまう
-  static constexpr int kTabWidth = 70;
+  using super = QWidget;
 
 public:
-  const uadf::Model& uadf_;
-
   propulsion::PropulsionSystemWidget* propulsion_system;
   fw::FixedWingWidget* fixed_wing;
   hw::HardwareWidget* hardware;
@@ -49,6 +47,20 @@ public:
 
   YAML::Node dump() const;
   bool load(const YAML::Node& node);
+
+private:
+  const uadf::Model& uadf_;
+
+  QToolBox* toolbox_;
+  qt::StackedWidget* stack_;
+  qt::ListWidget* basic_list_;
+  qt::ListWidget* additional_list_;
+
+  void addEntry(QListWidget* list, BaseSettingWidget* page);
+  void setCurrentWidget(BaseSettingWidget* page);
+
+private Q_SLOTS:
+  void onListItemChanged(QListWidgetItem* item);
 };
 }  // namespace sa
 }  // namespace gui

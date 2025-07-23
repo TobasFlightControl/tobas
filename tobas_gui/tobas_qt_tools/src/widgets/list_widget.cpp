@@ -10,7 +10,14 @@ void ListWidget::remove(QListWidgetItem* item)
   takeItem(row(item));
 }
 
-bool ListWidget::contains(const QString& text)
+void ListWidget::deselect()
+{
+  blockSignals(true);
+  setCurrentRow(-1);
+  blockSignals(false);
+}
+
+bool ListWidget::contains(const QString& text) const
 {
   const auto items = findItems(text, Qt::MatchExactly);
   return items.size() > 0;
