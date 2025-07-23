@@ -11,26 +11,33 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   : uadf_(uadf)
 {
   propulsion_system = new propulsion::PropulsionSystemWidget(node, uadf, sig);
-  fixed_wing = new fw::FixedWingWidget(node, uadf);
-  extra_joints = new ExtraJointsWidget(uadf, tree);
-  rc_input = new RcInputWidget();
-  controller = new ctrl::ControllerWidget();
-  observer = new ObserverWidget();
-  hardware = new hw::HardwareWidget(uadf, sig);
-  pre_arm_check = new PreArmCheckWidget();
-  simulation = new SimulationWidget();
-  author_info = new AuthorInformationWidget();
-
-  // 各タブを追加
   addTab(propulsion_system, propulsion_system->name());
+
+  fixed_wing = new fw::FixedWingWidget(node, uadf);
   // addTab(fixed_wing, fixed_wing->name());  // TODO
-  addTab(extra_joints, extra_joints->name());
-  addTab(rc_input, rc_input->name());
-  addTab(controller, controller->name());
-  addTab(observer, observer->name());
+
+  hardware = new hw::HardwareWidget(uadf, sig);
   addTab(hardware, hardware->name());
+
+  controller = new ctrl::ControllerWidget();
+  addTab(controller, controller->name());
+
+  observer = new ObserverWidget();
+  addTab(observer, observer->name());
+
+  rc_input = new RcInputWidget();
+  addTab(rc_input, rc_input->name());
+
+  extra_joints = new ExtraJointsWidget(uadf, tree);
+  addTab(extra_joints, extra_joints->name());
+
+  pre_arm_check = new PreArmCheckWidget();
   addTab(pre_arm_check, pre_arm_check->name());
+
+  simulation = new SimulationWidget();
   addTab(simulation, simulation->name());
+
+  author_info = new AuthorInformationWidget();
   addTab(author_info, author_info->name());
 
   // 各タブを初期化

@@ -32,11 +32,11 @@ public:
 
   propulsion::PropulsionSystemWidget* propulsion_system;
   fw::FixedWingWidget* fixed_wing;
-  ExtraJointsWidget* extra_joints;
-  RcInputWidget* rc_input;
+  hw::HardwareWidget* hardware;
   ctrl::ControllerWidget* controller;
   ObserverWidget* observer;
-  hw::HardwareWidget* hardware;
+  RcInputWidget* rc_input;
+  ExtraJointsWidget* extra_joints;
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
