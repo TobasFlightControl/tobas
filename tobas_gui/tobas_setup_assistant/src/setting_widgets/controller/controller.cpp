@@ -30,12 +30,12 @@ ControllerWidget::ControllerWidget()
 
 const char* ControllerWidget::name() const
 {
-  return "Controller";
+  return "Flight Controller";
 }
 
 const char* ControllerWidget::title() const
 {
-  return "Setup Controller";
+  return "Setup Flight Controller";
 }
 
 const char* ControllerWidget::description() const

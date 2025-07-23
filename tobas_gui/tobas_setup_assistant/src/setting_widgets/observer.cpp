@@ -44,12 +44,12 @@ ObserverWidget::ObserverWidget()
 
 const char* ObserverWidget::name() const
 {
-  return "Observer";
+  return "State Estimator";
 }
 
 const char* ObserverWidget::title() const
 {
-  return "Setup Observer";
+  return "Setup State Estimator";
 }
 
 const char* ObserverWidget::description() const

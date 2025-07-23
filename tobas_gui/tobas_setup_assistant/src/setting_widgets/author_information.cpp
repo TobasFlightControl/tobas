@@ -25,7 +25,7 @@ AuthorInformationWidget::AuthorInformationWidget()
 
 const char* AuthorInformationWidget::name() const
 {
-  return "Author Info";
+  return "Author Information";
 }
 
 const char* AuthorInformationWidget::title() const

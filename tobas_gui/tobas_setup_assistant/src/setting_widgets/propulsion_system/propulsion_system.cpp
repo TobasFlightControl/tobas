@@ -44,7 +44,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 
 const char* PropulsionSystemWidget::name() const
 {
-  return "Propulsion";
+  return "Propulsion System";
 }
 
 const char* PropulsionSystemWidget::title() const

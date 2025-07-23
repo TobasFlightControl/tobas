@@ -56,12 +56,12 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 
 const char* HardwareWidget::name() const
 {
-  return "Hardware";
+  return "Flight Management Unit";
 }
 
 const char* HardwareWidget::title() const
 {
-  return "Select Flight Controller Hardware";
+  return "Select Flight Management Unit";
 }
 
 const char* HardwareWidget::description() const

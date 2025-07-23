@@ -45,7 +45,7 @@ PreArmCheckWidget::PreArmCheckWidget()
 
 const char* PreArmCheckWidget::name() const
 {
-  return "PreArm Check";
+  return "Pre-Arm Check";
 }
 
 const char* PreArmCheckWidget::title() const
