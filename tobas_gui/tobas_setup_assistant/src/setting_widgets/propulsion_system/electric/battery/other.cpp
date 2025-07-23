@@ -18,14 +18,14 @@ BatteryWidget_Other::BatteryWidget_Other()
   nominal_voltage_ = new ParamGetterWidget_DoubleSpinBox("Nominal Voltage", "Nominal voltage of the battery.");
   nominal_voltage_->setDecimals(1);
   nominal_voltage_->setMinimum(0.1);
-  nominal_voltage_->setValue(14.8);
+  nominal_voltage_->setValue(11.1);
   nominal_voltage_->setSuffix(" V");
   rows->addWidget(nominal_voltage_);
 
   max_voltage_ = new ParamGetterWidget_DoubleSpinBox("Maximum Voltage", "Maximum voltage of the battery.");
   max_voltage_->setDecimals(1);
   max_voltage_->setMinimum(0.1);
-  max_voltage_->setValue(16.8);
+  max_voltage_->setValue(12.6);
   max_voltage_->setSuffix(" V");
   rows->addWidget(max_voltage_);
 
@@ -33,14 +33,13 @@ BatteryWidget_Other::BatteryWidget_Other()
     "Voltage Threshold", "Voltage at which the discharge characteristics change abruptly.");
   sag_voltage_->setDecimals(1);
   sag_voltage_->setMinimum(0.1);
-  sag_voltage_->setValue(13.6);
+  sag_voltage_->setValue(10.2);
   sag_voltage_->setSuffix(" V");
   rows->addWidget(sag_voltage_);
 
-  max_current_ = new ParamGetterWidget_DoubleSpinBox("Maximum Current", "Maximum current of the battery.");
-  max_current_->setDecimals(1);
-  max_current_->setMinimum(0.1);
-  max_current_->setValue(200.);
+  max_current_ = new ParamGetterWidget_SpinBox("Maximum Current", "Maximum current of the battery.");
+  max_current_->setMinimum(1);
+  max_current_->setValue(250);
   max_current_->setSuffix(" A");
   rows->addWidget(max_current_);
 
@@ -53,7 +52,7 @@ BatteryWidget_Other::BatteryWidget_Other()
 
   registance_ = new ParamGetterWidget_SpinBox("Internal Registance", "Internal resistance value per cell.");
   registance_->setMinimum(0);
-  registance_->setValue(12);
+  registance_->setValue(9);
   registance_->setSuffix(" mΩ");
   rows->addWidget(registance_);
 
@@ -116,17 +115,17 @@ double BatteryWidget_Other::sagVoltage()
 
 double BatteryWidget_Other::maxCurrent()
 {
-  return max_current_->getValue();
+  return static_cast<double>(max_current_->getValue());
 }
 
 double BatteryWidget_Other::capacity()
 {
-  return capacity_->getValue() * 3600 * 1e-3;
+  return static_cast<double>(capacity_->getValue() * 3600) * 1e-3;
 }
 
 double BatteryWidget_Other::internalRegistance()
 {
-  return registance_->getValue() * 1e-3;
+  return static_cast<double>(registance_->getValue()) * 1e-3;
 }
 }  // namespace electric
 }  // namespace propulsion

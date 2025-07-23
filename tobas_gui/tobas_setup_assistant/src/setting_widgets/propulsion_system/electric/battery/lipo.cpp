@@ -16,7 +16,7 @@ BatteryWidget_LiPo::BatteryWidget_LiPo()
   num_cells_ = new ParamGetterWidget_SpinBox("Number of Cells", "The number of cells in the battery.");
   num_cells_->setMinimum(1);
   num_cells_->setMaximum(100);
-  num_cells_->setValue(4);
+  num_cells_->setValue(3);
   rows->addWidget(num_cells_);
 
   capacity_ = new ParamGetterWidget_SpinBox(
