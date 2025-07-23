@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/msg/magnetic_field_with_covariance_stamped.hpp>
+#include <tobas_msgs/msg/magnetic_field.hpp>
 
 #include "./common.hpp"
 
@@ -16,7 +16,7 @@ public:
   explicit MagPlotWidget();
 
   void setTimeScale(double t_start, double t_stop);
-  void setData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& mag_msgs);
+  void setData(const QVector<tobas_msgs::msg::MagneticField>& mag_msgs);
 
 private:
   std::array<QwtPlot2*, 3> mag_plots_;

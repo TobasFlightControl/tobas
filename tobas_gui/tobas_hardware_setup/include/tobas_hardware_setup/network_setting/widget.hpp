@@ -39,7 +39,7 @@ public:
   void reset() override;
 
 private:
-  wpa::WPASupplicantParser wpa_parser_;
+  wpa::WpaSupplicantParser wpa_parser_;
 
   QPushButton* read_button_;
   QPushButton* write_button_;

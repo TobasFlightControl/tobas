@@ -3,8 +3,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -23,7 +22,7 @@ void DownloadThread::run()
     fs::create_directories(local_pardir);
   }
 
-  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::E_NO_ERROR) {
+  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::kNoError) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;
   }

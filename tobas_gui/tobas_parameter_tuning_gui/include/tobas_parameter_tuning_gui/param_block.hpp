@@ -4,11 +4,12 @@
 
 #include <yaml-cpp/yaml.h>
 #include <QLabel>
-#include <QWidget>
+#include <QLineEdit>
+#include <QPushButton>
 
 #include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/slider_text.hpp>
+#include <tobas_qt_tools/widgets/slider.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
 
@@ -18,14 +19,25 @@ namespace param
 {
 struct IntConfig
 {
-  int dflt;
-  qt::IntSliderTextWidget* slider;
+  long dflt;
+  QString prefix;
+
+  QPushButton* down_button_;
+  QPushButton* up_button_;
+  qt::Slider* slider;
+  QLineEdit* line_edit;
 };
 
 struct DoubleConfig
 {
-  double dflt;
-  qt::DoubleSliderTextWidget* slider;
+  double step;
+  long dflt;
+  QString prefix;
+
+  QPushButton* down_button_;
+  QPushButton* up_button_;
+  qt::Slider* slider;
+  QLineEdit* line_edit;
 };
 
 class ParamBlockWidget : public QWidget
@@ -36,13 +48,17 @@ class ParamBlockWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kLabelPSize = 12;
+  static constexpr int kParamNameWidth = 250;
+  static constexpr int kLineEditWidth = 150;
   static constexpr auto kLoadParamTimeout = std::chrono::seconds(3);
 
 public:
   explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label);
 
   bool load(const std::string& ns, const std::string& node_name);
-  bool save(const std::filesystem::path& local_path, const std::filesystem::path& remote_path);
+
+  bool saveLocal(const std::filesystem::path& path);
+  bool saveRemote(const std::filesystem::path& path);
 
   void clear();
 
@@ -62,12 +78,14 @@ private:
 
   YAML::Node createCurrentConfig() const;
 
-  bool saveLocal(const std::filesystem::path& path, const YAML::Node& node);
-  bool saveRemote(const std::filesystem::path& path, const YAML::Node& node);
-
 private Q_SLOTS:
-  void onIntParamChanged(int value, const std::string& name);
-  void onDoubleParamChanged(double value, const std::string& name);
+  void onIntDownButtonClicked(const std::string& name);
+  void onIntUpButtonClicked(const std::string& name);
+  void onIntSliderValueChanged(long value, const std::string& name);
+
+  void onDoubleDownButtonClicked(const std::string& name);
+  void onDoubleUpButtonClicked(const std::string& name);
+  void onDoubleSliderValueChanged(long value, const std::string& name);
 };
 }  // namespace param
 }  // namespace gui

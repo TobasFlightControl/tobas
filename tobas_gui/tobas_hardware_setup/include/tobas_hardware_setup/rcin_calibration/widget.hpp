@@ -7,9 +7,7 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_ros2_tools/rate_manager.hpp>
 #include <tobas_ros2_tools/register.hpp>
-
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/sbus.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include "../base.hpp"
 
@@ -40,7 +38,7 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr double kTopicRate = 30.;  // [Hz]
 
 public:
-  explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
+  explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
 
   const char* name() const override;
   const char* title() const override;
@@ -51,6 +49,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  const RosQtBridge& bridge_;
   const tobas::Drone& drone_;
 
   ros2::RateManager rate_;
@@ -72,21 +71,20 @@ private:
   std::array<QLabel*, tobas::kMaxNumOfGpsw> gpsw_labels_;
   std::array<qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+  QMetaObject::Connection sbus_conn_;
 
   size_t numOfGpswChannels() const;
 
   bool saveParamsGCS();
   bool saveParamsFC();
 
-  void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-
 private Q_SLOTS:
   void onStartButtonClicked();
   void onCancelButtonClicked();
   void onFinishButtonClicked();
+
+  void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace hw
 }  // namespace gui

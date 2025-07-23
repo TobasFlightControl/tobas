@@ -31,6 +31,7 @@ public:
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
   const Eigen::VectorXd& getThrusts() const;
+  double getThrust(size_t idx) const;
 
   bool setLinearWeight(double p);
   bool setAngularWeight(double p);

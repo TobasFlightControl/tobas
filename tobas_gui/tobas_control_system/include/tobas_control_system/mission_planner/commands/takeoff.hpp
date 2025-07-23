@@ -15,13 +15,13 @@ struct TakeoffData : public BaseCommandData
   using SharedPtr = std::shared_ptr<TakeoffData>;
 
   double altitude;
-  altitude_frame_t altitude_frame;
+  AltitudeFrame altitude_frame;
   double altitude_tolerance;
   double duration;
 
-  command_t type() const
+  Command type() const
   {
-    return command_t::TAKEOFF;
+    return Command::kTakeoff;
   }
 };
 
@@ -39,7 +39,7 @@ public:
   BaseCommandData::SharedPtr data() const override;
 
   double altitude() const;
-  altitude_frame_t altitudeFrame() const;
+  AltitudeFrame altitudeFrame() const;
   double altitudeTolerance() const;
   double duration() const;
 

@@ -17,7 +17,7 @@ class FlightLogWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit FlightLogWidget(rclcpp::Node::SharedPtr node);
+  explicit FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void reset();
   void updateNamespace(const std::string& ns);

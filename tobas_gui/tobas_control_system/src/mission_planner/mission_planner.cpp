@@ -3,8 +3,6 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -17,7 +15,8 @@ namespace gui
 {
 namespace gcs
 {
-MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_(node), mission_thread_(node)
+MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+  : node_(node), mission_thread_(node)
 {
   map_ = new MapWidget();
 
@@ -75,6 +74,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&mission_thread_, &MissionExecutionThread::finished, this, &self::onMissionFinished);
+  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
 }
 
 void MissionPlannerWidget::reset()
@@ -94,11 +95,6 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
   reset();
 
   mission_thread_.setNamespace(ns);
-
-  gnss_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGnssTopic), &self::gnssCb, this);
-  odom_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -167,7 +163,7 @@ void MissionPlannerWidget::commandsToMap()
     const auto cmd_widget = getCommandWidget(item);
 
     switch (cmd_type) {
-      case command_t::WAYPOINT: {
+      case Command::kWaypoint: {
         const auto waypoint = qt::qConstPointerCast<WaypointWidget>(cmd_widget);
         const auto latitude = waypoint->latitude();
         const auto longitude = waypoint->longitude();
@@ -189,15 +185,15 @@ void MissionPlannerWidget::commandsToMap()
 
         break;
       }
-      case command_t::TAKEOFF: {
+      case Command::kTakeoff: {
         // TODO
         break;
       }
-      case command_t::LAND: {
+      case Command::kLand: {
         // TODO
         break;
       }
-      case command_t::RETURN_TO_HOME: {
+      case Command::kReturnToHome: {
         // TODO
         break;
       }
@@ -230,21 +226,6 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
   return res;
 }
 
-void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
-{
-  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
-    return;
-  }
-
-  map_->setArrowPosition(gnss->latitude, gnss->longitude);
-}
-
-void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
-{
-  const auto yaw = odom->frame.M.getYaw();
-  map_->setArrowRotation(-tobas_std::rad2deg(yaw));
-}
-
 void MissionPlannerWidget::onLoadButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onLoadButtonClicked");
@@ -273,7 +254,7 @@ void MissionPlannerWidget::onAddButtonClicked()
   const auto cmd_type = dialog.selectedCommand();
   BaseCommandWidget* cmd_widget;
   switch (cmd_type) {
-    case command_t::WAYPOINT: {
+    case Command::kWaypoint: {
       const auto center = map_->getCenter();
       const auto waypoint = new WaypointWidget();
       waypoint->latitude(center.latitude());
@@ -281,15 +262,15 @@ void MissionPlannerWidget::onAddButtonClicked()
       cmd_widget = waypoint;
       break;
     }
-    case command_t::TAKEOFF: {
+    case Command::kTakeoff: {
       cmd_widget = new TakeoffWidget();
       break;
     }
-    case command_t::LAND: {
+    case Command::kLand: {
       cmd_widget = new LandWidget();
       break;
     }
-    case command_t::RETURN_TO_HOME: {
+    case Command::kReturnToHome: {
       cmd_widget = new ReturnToHomeWidget();
       break;
     }
@@ -494,7 +475,7 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
     const auto cmd_type = textToCommand(item->text().toUtf8());
-    if (cmd_type == command_t::WAYPOINT) {
+    if (cmd_type == Command::kWaypoint) {
       ++cur_idx;
     }
     if (cur_idx == index) {
@@ -522,6 +503,21 @@ void MissionPlannerWidget::onMissionFinished(bool success, const QString& messag
   }
 
   setEditMode();
+}
+
+void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+{
+  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
+    return;
+  }
+
+  map_->setArrowPosition(gnss->latitude, gnss->longitude);
+}
+
+void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+{
+  const auto yaw = odom->frame.M.getYaw();
+  map_->setArrowRotation(-tobas_std::rad2deg(yaw));
 }
 }  // namespace gcs
 }  // namespace gui

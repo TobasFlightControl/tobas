@@ -4,6 +4,7 @@
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {
@@ -42,9 +43,11 @@ void RotorSpeedPlotWidget::setData(
     return;
   }
 
-  const auto& cur_states = cur_msgs.at(0);
-  if (cur_states.states.size() != num_rotors_) {
-    updateInternalDataStructures(cur_states);
+  const auto& first_msg = cur_msgs.first();
+  if (first_msg.states.size() != num_rotors_) {
+    if (!updateInternalDataStructures(first_msg)) {
+      return;
+    }
   }
 
   updateCurrentSpeedSamples(cur_msgs);
@@ -55,31 +58,41 @@ void RotorSpeedPlotWidget::setData(
   }
 }
 
-void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg)
+bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg)
 {
   clear();
 
-  num_rotors_ = msg.states.size();
-
-  for (const auto& [idx, state] : std::views::enumerate(msg.states)) {
-    if (!name2idx_.insert({ state.link_name, idx }).second) {
-      qWarning() << "Rotor \"" << QString::fromStdString(state.link_name) << "\" is duplicated.";
-      continue;
+  for (const auto& [idx, elem] : std::views::enumerate(msg.states)) {
+    if (elem.link_name.empty()) {
+      qWarning() << "Rotor link name is empty.";
+      return false;
     }
 
-    plots_.push_back(new QwtPlot2());
+    if (!name2idx_.insert({ elem.link_name, idx }).second) {
+      qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
+      return false;
+    }
 
-    // N行2列の格子状に配置
-    grid_->addWidget(plots_.back(), idx / 2, idx % 2);
+    ++num_rotors_;
 
-    cur_speed_curves_.push_back("Current Speed (" + QString::fromStdString(state.link_name) + ")");
-    cur_speed_curves_.back().setPen(kCurrentValueColor, kLineWidth);
-    cur_speed_curves_.back().attach(plots_.back());
+    const auto plot = new QwtPlot2();
+    plot->setAxisNoLabel(QwtPlot::xBottom);
+    grid_->addWidget(plot, idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
 
-    tar_speed_curves_.push_back("Target Speed (" + QString::fromStdString(state.link_name) + ")");
-    tar_speed_curves_.back().setPen(kTargetValueColor, kLineWidth);
-    tar_speed_curves_.back().attach(plots_.back());
+    qwt::QwtPlotCurveWrapper cur_speed_curve("Current RPM (" + QString::fromStdString(elem.link_name) + ")");
+    cur_speed_curve.setPen(kCurrentValueColor, kLineWidth);
+    cur_speed_curve.attach(plot);
+
+    qwt::QwtPlotCurveWrapper tar_speed_curve("Target RPM (" + QString::fromStdString(elem.link_name) + ")");
+    tar_speed_curve.setPen(kTargetValueColor, kLineWidth);
+    tar_speed_curve.attach(plot);
+
+    plots_.push_back(plot);
+    cur_speed_curves_.push_back(cur_speed_curve);
+    tar_speed_curves_.push_back(tar_speed_curve);
   }
+
+  return true;
 }
 
 void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs)
@@ -93,20 +106,20 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
       continue;
     }
 
-    for (const auto& state : msg.states) {
-      if (!name2idx_.contains(state.link_name)) {
-        qWarning() << "Rotor \"" << QString::fromStdString(state.link_name) << "\" is not registered.";
+    for (const auto& elem : msg.states) {
+      if (!name2idx_.contains(elem.link_name)) {
+        qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is not registered.";
         continue;
       }
 
-      if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
+      if (elem.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
         continue;
       }
 
-      const auto& idx = name2idx_[state.link_name];
+      const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(state.speed);
+      speed_data[idx].push_back(tobas_std::rps2rpm(elem.speed));
     }
   }
 
@@ -135,7 +148,7 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
       const auto& idx = name2idx_[speed.link_name];
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(speed.speed);
+      speed_data[idx].push_back(tobas_std::rps2rpm(speed.speed));
     }
   }
 

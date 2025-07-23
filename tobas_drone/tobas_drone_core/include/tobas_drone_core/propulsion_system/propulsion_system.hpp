@@ -18,12 +18,14 @@ public:
 
   RotorConfigMap rotors;
 
+  virtual void clear();
+
   virtual bool isValid() const = 0;
 
   virtual bool load(const YAML::Node& node) = 0;
   virtual YAML::Node dump() const = 0;
 
-  virtual propulsion_system_t type() const = 0;
+  virtual PropulsionSystem type() const = 0;
 
   virtual double minSpeed(const std::string& link_name) = 0;
   virtual double maxSpeed(const std::string& link_name) = 0;

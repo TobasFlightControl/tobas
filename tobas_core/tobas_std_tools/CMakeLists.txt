@@ -14,8 +14,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_algorithm REQUIRED)
 find_package(tobas_math REQUIRED)
+find_package(tobas_time_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_algorithm tobas_math)
+set(AMENT_DEPENDENCIES tobas_algorithm tobas_math tobas_time_tools)
 
 include_directories(include)
 

@@ -24,15 +24,21 @@ bool ElectricPropulsionSystemConfig::isValid() const
   return true;
 }
 
-bool ElectricPropulsionSystemConfig::load(const YAML::Node& node)
+bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
 {
+  clear();
+
   // Rotors
-  rotors.clear();
-  if (!node[kRotorsKey].IsSequence()) {
-    cerr << "Rotors field is not defined." << endl;
+  const auto rotors_node = root_node[kRotorsKey];
+  if (!rotors_node.IsDefined()) {
+    cerr << "\"" << kRotorsKey << "\" is not defined." << endl;
     return false;
   }
-  for (const auto& rotor_node : node[kRotorsKey]) {
+  if (!rotors_node.IsSequence()) {
+    cerr << "\"" << kRotorsKey << "\" must be a sequence." << endl;
+    return false;
+  }
+  for (const auto& rotor_node : rotors_node) {
     const auto rotor = make_shared<ElectricRotorConfig>();
     if (!rotor->load(rotor_node)) {
       cerr << "Failed to load the configurations of rotors." << endl;
@@ -42,11 +48,12 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& node)
   }
 
   // Battery
-  if (!node[kBatteryKey].IsDefined()) {
-    cerr << "Battery field is not defined." << endl;
+  const auto battery_node = root_node[kBatteryKey];
+  if (!battery_node.IsDefined()) {
+    cerr << "\"" << kBatteryKey << "\" is not defined." << endl;
     return false;
   }
-  if (!battery.load(node[kBatteryKey])) {
+  if (!battery.load(battery_node)) {
     cerr << "Failed to load the configurations of battery." << endl;
     return false;
   }
@@ -70,16 +77,15 @@ YAML::Node ElectricPropulsionSystemConfig::dump() const
   return node;
 }
 
-propulsion_system_t ElectricPropulsionSystemConfig::type() const
+PropulsionSystem ElectricPropulsionSystemConfig::type() const
 {
-  return propulsion_system_t::ELECTRIC;
+  return PropulsionSystem::kElectric;
 }
 
 double ElectricPropulsionSystemConfig::minSpeed(const string& link_name)
 {
-  // TODO: モータやプロペラのパラメータから最小回転数を決定
-  (void)link_name;
-  return tobas_std::rpm2rps(300);
+  const auto rotor = getRotor(link_name);
+  return rotor->min_speed;
 }
 
 double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)

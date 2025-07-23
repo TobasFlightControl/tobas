@@ -7,7 +7,7 @@
 
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class TreeServerNode : public tobas::BaseNode
 {
@@ -18,6 +18,8 @@ public:
   explicit TreeServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  kdl::TreeParser tree_parser_;
+
   ros2::PublisherPtr<kdl::Tree> tree_pub_;
   ros2::SubscriberPtr<std_msgs::msg::String> description_sub_;
   ros2::TimerPtr initialize_timer_;
@@ -45,8 +47,8 @@ void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& 
   TOBAS_INFO("New robot description is received.");
 
   auto tree = std::make_unique<kdl::Tree>();
-  if (!kdl::treeFromString(msg->data, *tree)) {
-    TOBAS_ERROR("Failed to parse robot description.");
+  if (!tree_parser_.parseFromText(msg->data, *tree)) {
+    TOBAS_ERROR("Failed to parse robot description: ", tree_parser_.errorMessage());
     return;
   }
 

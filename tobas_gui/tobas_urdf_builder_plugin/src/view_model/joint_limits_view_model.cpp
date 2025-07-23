@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -50,5 +50,5 @@ void JointLimitsViewModel::velocity(double velocity)
   model_->velocity = velocity;
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

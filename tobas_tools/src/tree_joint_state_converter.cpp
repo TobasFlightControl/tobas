@@ -28,7 +28,7 @@ bool TreeJointStateConverter::updateInternalDataStructures()
 int TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
 
   for (const auto& state : msg.states) {
@@ -40,11 +40,11 @@ int TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg
     }
     catch (const std::exception& e) {
       error_msg_ = e.what();
-      return error_code_ = E_NOERROR;
+      return error_code_ = kNoError;
     }
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeJointStateConverter::resize()

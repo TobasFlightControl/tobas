@@ -9,26 +9,26 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(hw_iface_t value)
+string textFromEnum(HardwareInterface value)
 {
   switch (value) {
-    case hw_iface_t::PWM:
+    case HardwareInterface::kPwm:
       return PWM_TEXT;
-    case hw_iface_t::OTHER:
+    case HardwareInterface::kOther:
       return OTHER_TEXT;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, hw_iface_t& dst)
+bool enumFromText(const string& text, HardwareInterface& dst)
 {
   if (text == PWM_TEXT) {
-    dst = tobas::hw_iface_t::PWM;
+    dst = tobas::HardwareInterface::kPwm;
     return true;
   }
   else if (text == OTHER_TEXT) {
-    dst = tobas::hw_iface_t::OTHER;
+    dst = tobas::HardwareInterface::kOther;
     return true;
   }
   else {
@@ -40,14 +40,14 @@ bool enumFromText(const string& text, hw_iface_t& dst)
 
 namespace YAML
 {
-Node convert<tobas::hw_iface_t>::encode(const tobas::hw_iface_t& rhs)
+Node convert<tobas::HardwareInterface>::encode(const tobas::HardwareInterface& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::hw_iface_t>::decode(const Node& node, tobas::hw_iface_t& rhs)
+bool convert<tobas::HardwareInterface>::decode(const Node& node, tobas::HardwareInterface& rhs)
 {
   if (!node.IsScalar()) {
     return false;

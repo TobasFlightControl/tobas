@@ -1,6 +1,5 @@
 #include "tobas_t1_core/iis2mdc.hpp"
 
-#include <bitset>
 #include <iostream>
 
 using namespace std;
@@ -33,42 +32,27 @@ bool IIS2MDC::initialize()
 
 bool IIS2MDC::readMag(double& mx, double& my, double& mz)
 {
-  if (!readRegs(OUTX_L_REG, 6)) {
+  if (!i2c_.readBytes(OUTX_L_REG | kMultiReadFlag, sizeof(mag_buf_), mag_buf_)) {
     return false;
   }
 
-  // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
-  mx = static_cast<int16_t>((i2c_.rx[1] << 8) | i2c_.rx[0]) * kSensitivity;
-  my = -static_cast<int16_t>((i2c_.rx[3] << 8) | i2c_.rx[2]) * kSensitivity;
-  mz = static_cast<int16_t>((i2c_.rx[5] << 8) | i2c_.rx[4]) * kSensitivity;
-
-  return true;
-}
-
-bool IIS2MDC::writeReg(const uint8_t& addr, const uint8_t& data)
-{
-  i2c_.tx[0] = data;
-  return i2c_.writeBytes(addr, 1);
-}
-
-bool IIS2MDC::readRegs(const uint8_t& addr, const size_t& bytes)
-{
-  if (!i2c_.readBytes(addr | kMultiReadFlag, bytes)) {
-    cerr << "Failed to read " << bytes << " bytes from " << bitset<8>(addr) << "." << endl;
-    return false;
-  }
+  mx = static_cast<double>(mag_buf_[0]) * kSensitivity;
+  my = -static_cast<double>(mag_buf_[1]) * kSensitivity;
+  mz = static_cast<double>(mag_buf_[2]) * kSensitivity;
 
   return true;
 }
 
 bool IIS2MDC::checkWhoAmI()
 {
-  if (!readRegs(WHO_AM_I_REG, 1)) {
+  uint8_t byte;
+
+  if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
     cerr << "Failed to read WHO_AM_I data." << endl;
     return false;
   }
 
-  if (i2c_.rx[0] != WHO_AM_I) {
+  if (byte != WHO_AM_I) {
     cerr << "Magnetometer is not recognized." << endl;
     return false;
   }
@@ -78,18 +62,17 @@ bool IIS2MDC::checkWhoAmI()
 
 bool IIS2MDC::configure()
 {
-  // XXX: サンプリング周波数が高いほどモータなど外部磁場の影響を受けやすくなる．おそらく電流値を下げるのが大事．
-  if (!writeReg(CFG_REG_A, COMP_TEMP_EN | ODR_100HZ | MD_CONTINUOUS)) {
+  if (!i2c_.writeByte(CFG_REG_A, COMP_TEMP_EN | ODR_100HZ | MD_CONTINUOUS, true)) {
     cerr << "Failed to write to CFG_REG_A." << endl;
     return false;
   }
 
-  if (!writeReg(CFG_REG_B, OFF_CANC | LPF)) {
+  if (!i2c_.writeByte(CFG_REG_B, LPF, true)) {
     cerr << "Failed to write to CFG_REG_B." << endl;
     return false;
   }
 
-  if (!writeReg(CFG_REG_C, 0)) {
+  if (!i2c_.writeByte(CFG_REG_C, 0x00, true)) {
     cerr << "Failed to write to CFG_REG_C." << endl;
     return false;
   }

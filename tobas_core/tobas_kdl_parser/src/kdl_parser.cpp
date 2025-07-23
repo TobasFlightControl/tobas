@@ -1,17 +1,70 @@
-#include <iostream>
-
-#include <urdf_parser/urdf_parser.h>
+#include "tobas_kdl_parser/kdl_parser.hpp"
 
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
-
-#include "tobas_kdl_parser/kdl_parser.hpp"
 
 using namespace std;
 
 namespace kdl
 {
-/* Recursive function to walk through tree. */
-void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
+TreeParser::TreeParser()
+{
+}
+
+bool TreeParser::parseFromPath(const string& path, Tree& tree)
+{
+  const auto model = urdf_parser_.parseFromPath(path);
+  if (!model) {
+    error_msg_ = urdf_parser_.errorMessage();
+    return false;
+  }
+
+  return parseFromUrdf(*model, tree);
+}
+
+bool TreeParser::parseFromText(const string& xml, Tree& tree)
+{
+  const auto model = urdf_parser_.parseFromText(xml);
+  if (!model) {
+    error_msg_ = urdf_parser_.errorMessage();
+    return false;
+  }
+
+  return parseFromUrdf(*model, tree);
+}
+
+bool TreeParser::parseFromUrdf(const urdf::ModelInterface& model, Tree& tree)
+{
+  const auto root_link = model.getRoot();
+  if (!root_link) {
+    error_msg_ = "Failed to get root link.";
+    return false;
+  }
+
+  tree = Tree(root_link->name);
+
+  // Error if root link has inertia. KDL does not support this.
+  if (root_link->inertial) {
+    error_msg_ = "The root link \"" + root_link->name +
+                 "\" has an inertia specified in the URDF, "
+                 "but KDL does not support a root link with an inertia. "
+                 "As a workaround, you can add an extra dummy link to your URDF.";
+    return false;
+  }
+
+  // Add all children
+  for (const auto& child : root_link->child_links) {
+    addChildrenToTree(child, tree);
+  }
+
+  return true;
+}
+
+const string& TreeParser::errorMessage() const
+{
+  return error_msg_;
+}
+
+void TreeParser::addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
   // Construct the KDL joint
   const auto joint = jointUrdfToKdl(*root->parent_joint);
@@ -35,46 +88,5 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
   for (const auto& child : root->child_links) {
     addChildrenToTree(child, tree);
   }
-}
-
-bool treeFromFile(const string& file, Tree& tree)
-{
-  const auto robot_model = urdf::parseURDFFile(file);
-  return treeFromUrdfModel(*robot_model, tree);
-}
-
-bool treeFromString(const string& xml, Tree& tree)
-{
-  const auto robot_model = urdf::parseURDF(xml);
-  if (!robot_model) {
-    cerr << "Failed to generate robot model." << endl;
-    return false;
-  }
-  return treeFromUrdfModel(*robot_model, tree);
-}
-
-bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
-{
-  const auto root_link = robot_model.getRoot();
-  if (!root_link) {
-    cerr << "Failed to get root link." << endl;
-    return false;
-  }
-
-  tree = Tree(root_link->name);
-
-  // Warn if root link has inertia. tobas_kdl does not support this
-  if (root_link->inertial) {
-    cerr << "The root link " << root_link->name << " has an inertia specified in the URDF, "
-         << "but tobas_kdl does not support a root link with an inertia. "
-         << "As a workaround, you can add an extra dummy link to your URDF." << endl;
-  }
-
-  // Add all children
-  for (const auto& child : root_link->child_links) {
-    addChildrenToTree(child, tree);
-  }
-
-  return true;
 }
 }  // namespace kdl

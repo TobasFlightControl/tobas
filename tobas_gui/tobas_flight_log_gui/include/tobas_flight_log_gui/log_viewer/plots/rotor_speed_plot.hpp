@@ -35,7 +35,7 @@ private:
   size_t num_rotors_;                                 // The number of rotors
   std::unordered_map<std::string, size_t> name2idx_;  // Link Name -> Index
 
-  void updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg);
+  bool updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg);
 
   void updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs);
   void updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs);

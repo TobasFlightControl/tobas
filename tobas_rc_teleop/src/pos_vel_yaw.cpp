@@ -1,6 +1,7 @@
 #include "tobas_rc_teleop/pos_vel_yaw.hpp"
 
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 using namespace std;
 
@@ -30,17 +31,18 @@ bool PosVelYawController::requireAngularVelocity()
   return false;
 }
 
-void PosVelYawController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
+void PosVelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
-    addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 6., 0., 10.);
-  node->addDynamicDoubleParam(addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 4., 0., 10.);
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, M_PI_2, 0., M_PI * 2);
+    addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
+  node->addDynamicDoubleParam(
+    addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
+  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360, " dps");
   node->addDynamicIntParam(
-    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
+    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
     addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelYaw>(tobas::kPosVelYawCmdTopic);
 }
@@ -101,9 +103,9 @@ bool PosVelYawController::maxVerticalVelocityCb(const double& p)
   return true;
 }
 
-bool PosVelYawController::maxHeadingRateCb(const double& p)
+bool PosVelYawController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = p;
+  max_head_rate_ = tobas_std::deg2rad(p);
   return true;
 }
 

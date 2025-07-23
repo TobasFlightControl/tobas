@@ -28,11 +28,12 @@ void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
   rviz_common::Config config;
   reader.readFile(config, config_path);
 
-  // Setup visualization frame
+  // Initialize visualization frame
   frame_ = new rviz_common::VisualizationFrame(node_, parent);
-  frame_->initialize(node_);
-  frame_->setHelpPath("");
-  frame_->setSplashPath("");
+  frame_->setSplashPath("");  // Do not show a splash image.
+  frame_->initialize(node_);  // The initialization method must be called after the splash path is set.
+
+  // Configure visualization frame
   frame_->load(config);
   frame_->setMenuBar(nullptr);
   frame_->setStatusBar(nullptr);

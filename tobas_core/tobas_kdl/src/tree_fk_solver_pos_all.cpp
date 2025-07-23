@@ -19,13 +19,13 @@ bool TreeFkSolverPosAll::updateInternalDataStructures()
   return true;
 }
 
-int TreeFkSolverPosAll::JntToCart(const JntArray& q)
+int TreeFkSolverPosAll::jntToCart(const JntArray& q)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   const auto root_it = tree_.getRootSegment();
@@ -37,7 +37,7 @@ int TreeFkSolverPosAll::JntToCart(const JntArray& q)
     recursiveFk(q, frames_.at(root_name), child_it);
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeFkSolverPosAll::recursiveFk(const JntArray& q, const Frame& par_frame, const SegmentMap::const_iterator& cur_it)

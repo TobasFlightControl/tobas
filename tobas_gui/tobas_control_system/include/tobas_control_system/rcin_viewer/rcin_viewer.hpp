@@ -14,10 +14,9 @@ class RCInputViewerWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit RCInputViewerWidget(rclcpp::Node::SharedPtr node);
+  explicit RCInputViewerWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
   ThrottlesViewer* throttles_viewer_;

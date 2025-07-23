@@ -20,7 +20,7 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
+  void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
@@ -48,8 +48,8 @@ private:
 
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxAttitudeCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
+  bool maxAttitudeCb(const long& p);
+  bool maxHeadingRateCb(const long& p);
   bool horizontalAccelExpoCb(const long& p);
   bool verticalAccelExpoCb(const long& p);
   bool attitudeExpoCb(const long& p);

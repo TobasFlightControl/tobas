@@ -2,11 +2,9 @@
 
 #include <QThread>
 #include <eigen3/Eigen/Core>
-#include <rclcpp/node.hpp>
 
 #include <tobas_algorithm/kahan.hpp>
-
-#include <tobas_msgs_adapter/imu_stamped.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 namespace gui
 {
@@ -20,13 +18,14 @@ class AccelCalibrationThread : public QThread
   using super = QThread;
 
   static constexpr size_t kDataCount = 200;
-  static constexpr double kCollectDataTimeout = 10.;  // [s]
+  static constexpr double kCollectDataTimeout = 10.;     // [s]
+  static constexpr double kAccelOffsetNormThresh = 0.3;  // [m/s^2]
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit AccelCalibrationThread(rclcpp::Node::SharedPtr node);
+  explicit AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void run() override;
 
@@ -34,6 +33,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  const RosQtBridge& bridge_;
 
   std::string ns_;
 
@@ -41,8 +41,10 @@ private:
   std::array<algo::Kahan<double>, 3> acc_sum_;
   Eigen::Vector3d acc_top_;
 
-  bool getAccelMean(Eigen::Vector3d& des);
-  void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
+  bool getAccelMean(Eigen::Vector3d& des, const Eigen::Vector3d& ref);
+
+private Q_SLOTS:
+  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
 };
 }  // namespace hw
 }  // namespace gui

@@ -16,7 +16,7 @@ public:
   bool updateInternalDataStructures() override;
 
   /* ルートリンク周りの質量特性を計算する． */
-  int JntToCart(const JntArray& q);
+  int jntToCart(const JntArray& q);
 
   inline const RigidBodyInertia& getInertia() const;
 

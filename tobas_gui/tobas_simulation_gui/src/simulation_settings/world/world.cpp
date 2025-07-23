@@ -35,7 +35,7 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   }
 
   // Default
-  widgets_.at(0)->checkbox->setChecked(true);
+  widgets_.front()->checkbox->setChecked(true);
 }
 
 fs::path WorldWidget::worldPath() const

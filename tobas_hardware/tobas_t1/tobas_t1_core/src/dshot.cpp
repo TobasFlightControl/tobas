@@ -22,7 +22,9 @@ bool DShot::initialize()
   half_num_poles_.fill(1);
 
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
-    setThrottle(ch, DSHOT_CMD_MOTOR_STOP);
+    if (!setThrottle(ch, DSHOT_CMD_MOTOR_STOP)) {
+      return false;
+    }
   }
 
   return true;
@@ -182,7 +184,7 @@ bool DShot::setMomentConstant(size_t ch, double moment_const)
     cerr << "Moment constant is too small." << endl;
     return false;
   }
-  if (moment_const_scaled >= (1 << 16)) {
+  if (moment_const_scaled >= (1 << 24)) {
     cerr << "Moment constant is too large." << endl;
     return false;
   }

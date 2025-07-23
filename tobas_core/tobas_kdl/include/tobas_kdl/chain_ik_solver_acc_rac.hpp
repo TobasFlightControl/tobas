@@ -16,8 +16,8 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int CartToJnt(const JntArray& q, const JntArray& qd, const Vector& a) override;
-  int CartToJnt(const JntArray& q, const JntArray& qd, const Accel& a) override;
+  int cartToJnt(const JntArray& q, const JntArray& qd, const Vector& a) override;
+  int cartToJnt(const JntArray& q, const JntArray& qd, const Accel& a) override;
 
 private:
   ChainJacobianSolver jnt2jac_;

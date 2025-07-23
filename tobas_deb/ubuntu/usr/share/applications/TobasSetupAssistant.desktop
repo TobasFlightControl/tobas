@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=TobasSetupAssistant
+Icon=/opt/tobas/share/tobas_setup_assistant/resources/icon.png
+Exec=/usr/bin/tobas_setup_assistant
+Terminal=false
+StartupNotify=true

@@ -2,40 +2,31 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
-
 namespace gui
 {
 namespace gcs
 {
-OtherStatusViewerWidget::OtherStatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
+OtherStatusViewerWidget::OtherStatusViewerWidget(const RosQtBridge& bridge)
 {
   arming_status_ = new StatusWidget("Rotors Armed");
   gnss_status_ = new StatusWidget("GNSS 3D Fix");
 
+  // Layout
   const auto rows = new QVBoxLayout();
   rows->addWidget(arming_status_);
   rows->addWidget(gnss_status_);
   rows->addStretch();
-
   setLayout(rows);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
 }
 
 void OtherStatusViewerWidget::reset()
 {
   arming_status_->reset();
   gnss_status_->reset();
-}
-
-void OtherStatusViewerWidget::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-  gnss_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGnssTopic), &self::gnssCb, this);
 }
 
 void OtherStatusViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

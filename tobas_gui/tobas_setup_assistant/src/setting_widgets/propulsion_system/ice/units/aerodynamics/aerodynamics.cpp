@@ -19,20 +19,27 @@ AerodynamicsWidget::AerodynamicsWidget()
   setLayout(rows);
 
   method_name_ = new qt::ComboBox();
+
+  const auto manual = new AerodynamicsWidget_Manual();
+
   methods_ = new qt::StackedWidget();
-
-  rows->addWidget(method_name_);
-  rows->addWidget(methods_);
-
-  methods_->addWidget(new AerodynamicsWidget_Manual());
+  methods_->addWidget(manual);
 
   for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method_name_->addItem(method->name());
   }
 
+  // Layout
+  rows->addWidget(method_name_);
+  rows->addWidget(methods_);
+
+  // Connection
   connect(
     method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
+
+  // Default
+  method_name_->setCurrentText(manual->name());
 }
 
 const char* AerodynamicsWidget::name() const

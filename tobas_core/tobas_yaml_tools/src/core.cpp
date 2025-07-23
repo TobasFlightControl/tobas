@@ -4,6 +4,7 @@
 #include <iostream>
 
 using namespace std;
+namespace fs = std::filesystem;
 
 namespace yaml
 {
@@ -18,9 +19,9 @@ string dump(const YAML::Node& node)
   return res.str();
 }
 
-bool load(const filesystem::path& path, YAML::Node& node)
+bool load(const fs::path& path, YAML::Node& node)
 {
-  if (!filesystem::exists(path)) {
+  if (!fs::exists(path)) {
     cerr << path << " does not exist." << endl;
     return false;
   }
@@ -36,7 +37,7 @@ bool load(const filesystem::path& path, YAML::Node& node)
   return true;
 }
 
-bool save(const filesystem::path& path, const YAML::Node& node)
+bool save(const fs::path& path, const YAML::Node& node)
 {
   ofstream fout(path);
   if (!fout.is_open()) {

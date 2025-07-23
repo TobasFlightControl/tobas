@@ -16,7 +16,7 @@
 #include "tobas_manipulation/constants.hpp"
 #include "tobas_manipulation/util.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class EffortControllerNode : public tobas::BaseNode
 {
@@ -68,12 +68,12 @@ private:
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& efforts_msg);
 
-  bool jointStiffnessCb(const double& p);
-  bool jointDamping(const double& p);
-  bool linearStiffnessCb(const double& p);
-  bool angularStiffnessCb(const double& p);
-  bool linearDampingCb(const double& p);
-  bool angularDampingCb(const double& p);
+  bool jointStiffnessCb(const long& p);
+  bool jointDamping(const long& p);
+  bool linearStiffnessCb(const long& p);
+  bool angularStiffnessCb(const long& p);
+  bool linearDampingCb(const long& p);
+  bool angularDampingCb(const long& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -101,12 +101,12 @@ void EffortControllerNode::initialize()
   // shared_from_thisはコンストラクタでは呼べない
   tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
 
-  addDynamicDoubleParam("joint_stiffness", &self::jointStiffnessCb, this, 25., 0.1, 100.);
-  addDynamicDoubleParam("joint_damping", &self::jointDamping, this, 10., 0.1, 20.);
-  addDynamicDoubleParam("linear_stiffness", &self::linearStiffnessCb, this, 25., 0.1, 100.);
-  addDynamicDoubleParam("angular_stiffness", &self::angularStiffnessCb, this, 25., 0.1, 100.);
-  addDynamicDoubleParam("linear_damping", &self::linearDampingCb, this, 10., 0.1, 20.);
-  addDynamicDoubleParam("angular_damping", &self::angularDampingCb, this, 10., 0.1, 20.);
+  addDynamicIntParam("joint_stiffness", &self::jointStiffnessCb, this, 25, 1, 100);
+  addDynamicIntParam("joint_damping", &self::jointDamping, this, 10, 1, 20);
+  addDynamicIntParam("linear_stiffness", &self::linearStiffnessCb, this, 25, 1, 100);
+  addDynamicIntParam("angular_stiffness", &self::angularStiffnessCb, this, 25, 1, 100);
+  addDynamicIntParam("linear_damping", &self::linearDampingCb, this, 10, 1, 20);
+  addDynamicIntParam("angular_damping", &self::angularDampingCb, this, 10, 1, 20);
 
   efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
 
@@ -142,7 +142,7 @@ bool EffortControllerNode::jointSpaceControl(
   const auto& tar_qd = tar_js_conv_.getVelocity();
 
   // PIDで関節トルクを計算
-  if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0) {
+  if (pid_js_.cartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0) {
     TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
     return false;
   }
@@ -151,11 +151,11 @@ bool EffortControllerNode::jointSpaceControl(
   // Fill output message
   for (const auto& tar_state : tar_js.states) {
     const auto& joint = drone_->joints.at(tar_state.name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       TOBAS_WARN("The role of joint \"", tar_state.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kEffort) {
       TOBAS_WARN("The command interface of joint \"", tar_state.name, "\" must be \"EFFORT\".");
       continue;
     }
@@ -202,7 +202,7 @@ bool EffortControllerNode::taskSpaceControl(
   // PIDで関節トルクを計算
   const auto& cur_q = cur_js_conv_.getPosition();
   const auto& cur_qd = cur_js_conv_.getVelocity();
-  if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0) {
+  if (pid_ts_.cartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0) {
     TOBAS_ERROR("Cartesian PID failed: ", pid_ts_.errorMessage());
     return false;
   }
@@ -215,11 +215,11 @@ bool EffortControllerNode::taskSpaceControl(
   // Fill output message
   for (const auto& jnt_name : active_jnt_names) {
     const auto& joint = drone_->joints.at(jnt_name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       TOBAS_WARN("The role of joint \"", jnt_name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kEffort) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" must be \"EFFORT\".");
       continue;
     }
@@ -232,7 +232,7 @@ bool EffortControllerNode::taskSpaceControl(
   return true;
 }
 
-bool EffortControllerNode::jointStiffnessCb(const double& p)
+bool EffortControllerNode::jointStiffnessCb(const long& p)
 {
   if (!pid_js_.setStiffness(p)) {
     TOBAS_ERROR("Failed to set joint stiffness.");
@@ -242,7 +242,7 @@ bool EffortControllerNode::jointStiffnessCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::jointDamping(const double& p)
+bool EffortControllerNode::jointDamping(const long& p)
 {
   if (!pid_js_.setDamping(p)) {
     TOBAS_ERROR("Failed to set joint damping.");
@@ -252,7 +252,7 @@ bool EffortControllerNode::jointDamping(const double& p)
   return true;
 }
 
-bool EffortControllerNode::linearStiffnessCb(const double& p)
+bool EffortControllerNode::linearStiffnessCb(const long& p)
 {
   if (!pid_ts_.setLinearStiffness(p)) {
     TOBAS_ERROR("Failed to set linear stiffness.");
@@ -262,7 +262,7 @@ bool EffortControllerNode::linearStiffnessCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::angularStiffnessCb(const double& p)
+bool EffortControllerNode::angularStiffnessCb(const long& p)
 {
   if (!pid_ts_.setAngularStiffness(p)) {
     TOBAS_ERROR("Failed to set angular stiffness.");
@@ -272,7 +272,7 @@ bool EffortControllerNode::angularStiffnessCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::linearDampingCb(const double& p)
+bool EffortControllerNode::linearDampingCb(const long& p)
 {
   if (!pid_ts_.setLinearDamping(p)) {
     TOBAS_ERROR("Failed to set linear damping.");
@@ -282,7 +282,7 @@ bool EffortControllerNode::linearDampingCb(const double& p)
   return true;
 }
 
-bool EffortControllerNode::angularDampingCb(const double& p)
+bool EffortControllerNode::angularDampingCb(const long& p)
 {
   if (!pid_ts_.setAngularDamping(p)) {
     TOBAS_ERROR("Failed to set angular damping.");
@@ -300,10 +300,10 @@ void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // 力指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
-    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION) {
+    if (jnt_cfg.role != tobas::JointRole::kManipulation) {
       continue;
     }
-    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
+    if (jnt_cfg.cmd_iface != tobas::JointCommandInterface::kEffort) {
       continue;
     }
     home_js_.states.emplace_back();
@@ -355,7 +355,7 @@ void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
 {
-  if (tree_.getNrOfJoints() == 0) {
+  if (tree_.empty()) {
     return;
   }
   if (home_js_.states.size() == 0) {
@@ -367,6 +367,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
 
   // Create joint efforts command
   auto efforts_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  efforts_msg->header.stamp = cur_js->header.stamp;
 
   // Joint space control or Task space control
   if (tar_js_) {

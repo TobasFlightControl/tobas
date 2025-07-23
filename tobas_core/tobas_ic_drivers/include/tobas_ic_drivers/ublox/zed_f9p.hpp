@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_linux/spi_dev.hpp>
-#include <tobas_std_tools/rate.hpp>
+#include <tobas_time_tools/rate.hpp>
 
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
@@ -13,17 +13,11 @@ namespace ublox
 /**
  * @brief A Linux driver of u-blox ZED-F9P using SPI interface and UBX protocol.
  *
- * Product Page: https://www.u-blox.com/en/product/zed-f9p-module
- *
- * Product Summary: https://content.u-blox.com/sites/default/files/ZED-F9P_ProductSummary_UBX-17005151.pdf
- *
- * Integration Manual: https://content.u-blox.com/sites/default/files/ZED-F9P_IntegrationManual_UBX-18010802.pdf
+ * [Product Page](https://www.u-blox.com/en/product/zed-f9p-module)
  *
  * Interface Description:
- *
- * L1/L2: https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf
- *
- * L1/L5: https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf
+ * - [L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
+ * - [L1/L5](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf)
  */
 class ZEDF9P
 {
@@ -38,7 +32,7 @@ private:
   static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
-  enum ubx_class_t : uint8_t
+  enum UbxClass : uint8_t
   {
     CLASS_ACK = 0x05,
     CLASS_CFG = 0x06,
@@ -54,20 +48,20 @@ public:
     CLASS_UPD = 0x09,
   };
 
-  enum ubx_ack_id_t : uint8_t
+  enum UbxAckId : uint8_t
   {
     ACK_ACK = 0x01,
     ACK_NAK = 0x00,
   };
 
-  enum ubx_cfg_id_t : uint8_t
+  enum UbxCfgId : uint8_t
   {
     CFG_VALDEL = 0x8C,
     CFG_VALGET = 0x8B,
     CFG_VALSET = 0x8A,
   };
 
-  enum ubx_nav_id_t : uint8_t
+  enum UbxNavId : uint8_t
   {
     NAV_CLOCK = 0x22,      // Clock solution
     NAV_COV = 0x36,        // Covariance matrices
@@ -102,7 +96,7 @@ public:
   };
 
   /* Constants for CFG-NAVSPG-DYNMODEL */
-  enum dynamics_model_t : uint8_t
+  enum DynamicsModel : uint8_t
   {
     PORTABLE = 0,
     STATIONARY = 2,
@@ -119,7 +113,7 @@ public:
   };
 
   /* SPI Protocol Key ID */
-  enum cfg_protocol_t : uint8_t
+  enum CfgProtocol : uint8_t
   {
     UBX = 0x01,
     NMEA = 0x02,
@@ -134,8 +128,8 @@ public:
 
   /* ===== Configurations =====*/
 
-  bool enableMsg(ubx_class_t cls, uint8_t id, bool enable);
-  bool configureDynamicsModel(dynamics_model_t model);
+  bool enableMsg(UbxClass cls, uint8_t id, bool enable);
+  bool configureDynamicsModel(DynamicsModel model);
   bool configureMeasurementRate(uint16_t period_ms);
 
   bool enableGps();
@@ -159,7 +153,7 @@ public:
   bool enableNavIc();
   bool disableNavIc();
 
-  bool enableProtocol(cfg_protocol_t prot, bool enable);
+  bool enableProtocol(CfgProtocol prot, bool enable);
 
   /* RF174ケーブルの長さからアナログ伝達の遅延を設定する． */
   bool setAntennaLength(uint8_t length_m);
@@ -168,14 +162,14 @@ public:
 
   /* ===== Getters ===== */
 
-  inline ubx_class_t latestClass() const;
+  inline UbxClass latestClass() const;
   inline uint8_t latestId() const;
 
   inline const uint8_t* payload() const;
 
 private:
   /* Supported storage size identifiers */
-  enum cfg_size_t : uint8_t
+  enum CfgSize : uint8_t
   {
     ONE_BIT = 0x01,  // Only the LSB is used
     ONE_BYTE = 0x02,
@@ -184,7 +178,7 @@ private:
     EIGHT_BYTES = 0x05,
   };
 
-  enum cfg_group_t : uint8_t
+  enum CfgGroup : uint8_t
   {
     CFG_BDS = 0x34,           // BeiDou System Configuration
     CFG_GEOFENCE = 0x24,      // Geofencing Configuration
@@ -255,11 +249,12 @@ private:
     const uint8_t version = 0x00;  // Message version, set to 0
 
     // The layers where the configuration should be applied
-    const enum cfg_layer_t : uint8_t {
+    enum CfgLayer : uint8_t
+    {
       RAM = 0b001,
       BBR = 0b010,
       FLASH = 0b100,
-    } layers = RAM;
+    } const layers = RAM;
 
     const uint8_t reserved1[2] = { 0 };  // Reserved
 
@@ -273,11 +268,11 @@ private:
 
   UBXScanner scanner_;
 
-  tobas_std::Rate rate_;
+  tim::Rate rate_;
 
-  bool sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size);
-  bool waitForAcknowledge(ubx_class_t cls, uint8_t id);
-  bool configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size);
+  bool sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size);
+  bool waitForAcknowledge(UbxClass cls, uint8_t id);
+  bool configure(UbxCfgId cfg_id, const void* msg, uint16_t size);
   bool verifyMessage() const;
 
   bool enableGps(bool enable);
@@ -316,12 +311,12 @@ private:
   static size_t spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset = 0);
 
   /* Configuration Key ID | 6.2 Configuration Items */
-  static uint32_t configKeyID(cfg_size_t size, cfg_group_t group, uint8_t id);
+  static uint32_t configKeyID(CfgSize size, CfgGroup group, uint8_t id);
 };
 
-inline ZEDF9P::ubx_class_t ZEDF9P::latestClass() const
+inline ZEDF9P::UbxClass ZEDF9P::latestClass() const
 {
-  return static_cast<ubx_class_t>(*scanner_.getClass());
+  return static_cast<UbxClass>(*scanner_.getClass());
 }
 
 inline uint8_t ZEDF9P::latestId() const

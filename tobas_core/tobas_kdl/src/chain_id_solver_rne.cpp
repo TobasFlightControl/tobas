@@ -18,7 +18,7 @@ bool ChainIdSolver_RNE::updateInternalDataStructures()
   return true;
 }
 
-int ChainIdSolver_RNE::CartToJnt(
+int ChainIdSolver_RNE::cartToJnt(
   const JntArray& q,
   const JntArray& qd,
   const JntArray& qdd,
@@ -26,10 +26,10 @@ int ChainIdSolver_RNE::CartToJnt(
   const Vector& grav)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_ || forces.size() != ns_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // Update gravity
@@ -38,7 +38,7 @@ int ChainIdSolver_RNE::CartToJnt(
   // Sweep from root to leaf
   j_ = 0;
   for (size_t i = 0; i < ns_; ++i) {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
+    if (chain_.getSegment(i).joint().type != Joint::kFixed) {
       qj_ = q(j_);
       qdj_ = qd(j_);
       qddj_ = qdd(j_);
@@ -68,7 +68,7 @@ int ChainIdSolver_RNE::CartToJnt(
   // Sweep from leaf to root
   j_ = nj_ - 1;
   for (int i = ns_ - 1; i >= 0; --i) {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
+    if (chain_.getSegment(i).joint().type != Joint::kFixed) {
       effort_out_(j_--) = S_[i].dot(f_[i]);
     }
     if (i != 0) {
@@ -76,10 +76,10 @@ int ChainIdSolver_RNE::CartToJnt(
     }
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
-int ChainIdSolver_RNE::CartToJnt(
+int ChainIdSolver_RNE::cartToJnt(
   const JntArray& q,
   const JntArray& qd,
   const JntArray& qdd,
@@ -87,10 +87,10 @@ int ChainIdSolver_RNE::CartToJnt(
   const Vector& grav)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // Update gravity
@@ -98,7 +98,7 @@ int ChainIdSolver_RNE::CartToJnt(
 
   // Sweep from root to leaf
   for (size_t i = 0; i < ns_; ++i) {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
+    if (chain_.getSegment(i).joint().type != Joint::kFixed) {
       qj_ = q(j_);
       qdj_ = qd(j_);
       qddj_ = qdd(j_);
@@ -136,7 +136,7 @@ int ChainIdSolver_RNE::CartToJnt(
   // Sweep from leaf to root
   j_ = nj_ - 1;
   for (int i = ns_ - 1; i >= 0; --i) {
-    if (chain_.getSegment(i).joint().type != Joint::FIXED) {
+    if (chain_.getSegment(i).joint().type != Joint::kFixed) {
       effort_out_(j_--) = S_[i].dot(f_[i]);
     }
     if (i != 0) {
@@ -144,7 +144,7 @@ int ChainIdSolver_RNE::CartToJnt(
     }
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void ChainIdSolver_RNE::resize()

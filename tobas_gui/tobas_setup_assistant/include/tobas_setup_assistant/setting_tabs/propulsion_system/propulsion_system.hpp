@@ -8,6 +8,7 @@
 #include "./base.hpp"
 #include "./electric/propulsion_system.hpp"
 #include "./ice/propulsion_system.hpp"
+#include "tobas_setup_assistant/signals.hpp"
 
 namespace gui
 {
@@ -28,25 +29,22 @@ class PropulsionSystemWidget : public BaseSettingWidget
   static constexpr int kIceId = kElectricId + 1;
 
 public:
-  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals);
+  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig);
 
   const char* name() const override;
   const char* title() const override;
   const char* description() const override;
 
-  void onOpened() override;
   void updateInternalDataStructures() override;
   bool isValid() override;
 
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  tobas::propulsion_system_t type() const;
+  tobas::PropulsionSystem type() const;
   int numUnits() const;
 
   QString linkName(int index) const;
-  bool isTiltRotor(int index) const;
-  QString tiltJointName(int index) const;
 
   BasePropulsionSystemWidget* widget(int index);
   const BasePropulsionSystemWidget* widget(int index) const;
@@ -55,6 +53,8 @@ public:
   const BasePropulsionSystemWidget* selected() const;
 
 private:
+  Signals& sig_;
+
   QButtonGroup* type_buttons_;
   qt::StackedWidget* propulsion_stack_;
 

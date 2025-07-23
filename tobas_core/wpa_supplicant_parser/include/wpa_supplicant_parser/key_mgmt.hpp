@@ -2,7 +2,7 @@
 
 namespace wpa
 {
-enum key_mgmt_t
+enum KeyManagement
 {
   WPA_PSK,
   WPA_EAP,

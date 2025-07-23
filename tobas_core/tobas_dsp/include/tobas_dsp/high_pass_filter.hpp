@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 #include "./base_filter.hpp"
@@ -19,10 +20,10 @@ public:
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
 
-  bool setCutoffFrequency(const double& curoff_freq);
+  bool setCutoffFrequency(const double& fc);
 
 private:
-  double T_ = 0.;
+  double wc_ = std::numeric_limits<double>::max();  // [rad/s]
   T y_, prev_u_;
 };
 
@@ -36,13 +37,10 @@ void HighPassFilter<T>::update(const T& u, const double& dt)
 {
   assert(dt >= 0.);
 
-  if (dt > T_) {
-    y_ = u;
-  }
-  else {
-    y_ = ((T_ - dt) * y_ + T_ * (u - prev_u_)) / (T_ + dt);
-  }
+  const auto wc = prewarp(wc_, dt);
+  const auto tau = 2. / wc;
 
+  y_ = dt < tau ? ((tau - dt) * y_ + tau * (u - prev_u_)) / (tau + dt) : u;
   prev_u_ = u;
 }
 
@@ -59,14 +57,14 @@ inline void HighPassFilter<T>::setValue(const T& x)
 }
 
 template <typename T>
-bool HighPassFilter<T>::setCutoffFrequency(const double& cutoff_freq)
+bool HighPassFilter<T>::setCutoffFrequency(const double& fc)
 {
-  if (cutoff_freq <= 0) {
+  if (fc <= 0.) {
     std::cerr << "The cutoff frequency of high-pass filter must be positive." << std::endl;
     return false;
   }
 
-  T_ = 2 * timeConstFromCutoff(cutoff_freq);
+  wc_ = 2. * M_PI * fc;  // Hz -> rad/s
   return true;
 }
 }  // namespace dsp

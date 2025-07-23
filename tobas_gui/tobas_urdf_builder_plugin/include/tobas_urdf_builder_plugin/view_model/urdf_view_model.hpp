@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -64,5 +64,5 @@ private:
   static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element);
 };
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

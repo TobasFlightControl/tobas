@@ -29,7 +29,7 @@ private:
   size_t num_rotors_;                                 // The number of rotors
   std::unordered_map<std::string, size_t> name2idx_;  // Link Name -> Index
 
-  void updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg);
+  bool updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg);
 };
 }  // namespace log
 }  // namespace gui

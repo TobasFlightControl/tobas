@@ -18,7 +18,7 @@ using UpdateLinkDialogUIPtr = std::shared_ptr<UpdateLinkDialogUI>;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -29,6 +29,7 @@ class UpdateLinkDialog : public QDialog
   Q_OBJECT
 
   using self = UpdateLinkDialog;
+  using super = QDialog;
 
   static constexpr char kConfigKey_VisualGeometryMeshBrowseDir[] = "visual_geometry_mesh_dir";
   static constexpr char kConfigKey_CollisionGeometryMeshBrowseDir[] = "collision_geometry_mesh_dir";
@@ -47,36 +48,36 @@ public:
   const view_model::LinkViewModelPtr& viewModel() const;
 
 private Q_SLOTS:
-  void VisualGeometryTypeComboBoxIndexChanged(int index);
-  void CollisionGeometryTypeComboBoxIndexChanged(int index);
-  void JointParentComboBoxIndexChanged(int index);
-  void JointTypeComboBoxIndexChanged(int index);
-  void JointSpinBoxValueChanged(double);
-  void VisualSpinBoxValueChanged(double);
-  void CollisionSpinBoxValueChanged(double);
-  void InertialSpinBoxValueChanged(double);
-  void LinkNameLineEditTextChanged(const QString& text);
-  void JointNameLineEditTextChanged(const QString& text);
-  void VisualNameLineEditTextChanged(const QString& text);
-  void VisualGeometryMeshPathLineEditTextChanged(const QString& text);
-  void CollisionNameLineEditTextChanged(const QString& text);
-  void CollisionGeometryMeshPathEditTextChanged(const QString& text);
-  void MaterialNameLineEditTextChanged(const QString& text);
-  void MaterialTexturePathLineEditTextChanged(const QString& text);
-  void VisualListWidgetItemClicked(QListWidgetItem*);
-  void CollisionListWidgetItemClicked(QListWidgetItem*);
-  void RenameLinkButtonClicked();
-  void RenameJointButtonClicked();
-  void AddVisualButtonClicked();
-  void RemoveVisualButtonClicked();
-  void AddCollisionButtonClicked();
-  void RemoveCollisionButtonClicked();
-  void VisualGeometryMeshBrowseButtonClicked();
-  void CollisionGeometryMeshBrowseButtonClicked();
-  void MaterialColorPickButtonClicked();
-  void BuildInertiaBoxButtonClicked();
-  void BuildInertiaCylinderButtonClicked();
-  void BuildInertiaSphereButtonClicked();
+  void onVisualGeometryTypeComboBoxIndexChanged(int index);
+  void onCollisionGeometryTypeComboBoxIndexChanged(int index);
+  void onJointParentComboBoxIndexChanged(int index);
+  void onJointTypeComboBoxIndexChanged(int index);
+  void onJointSpinBoxValueChanged(double);
+  void onVisualSpinBoxValueChanged(double);
+  void onCollisionSpinBoxValueChanged(double);
+  void onInertialSpinBoxValueChanged(double);
+  void onLinkNameLineEditTextChanged(const QString& text);
+  void onJointNameLineEditTextChanged(const QString& text);
+  void onVisualNameLineEditTextChanged(const QString& text);
+  void onVisualGeometryMeshPathLineEditTextChanged(const QString& text);
+  void onCollisionNameLineEditTextChanged(const QString& text);
+  void onCollisionGeometryMeshPathEditTextChanged(const QString& text);
+  void onMaterialNameLineEditTextChanged(const QString& text);
+  void onMaterialTexturePathLineEditTextChanged(const QString& text);
+  void onVisualListWidgetItemClicked(QListWidgetItem*);
+  void onCollisionListWidgetItemClicked(QListWidgetItem*);
+  void onRenameLinkButtonClicked();
+  void onRenameJointButtonClicked();
+  void onAddVisualButtonClicked();
+  void onRemoveVisualButtonClicked();
+  void onAddCollisionButtonClicked();
+  void onRemoveCollisionButtonClicked();
+  void onVisualGeometryMeshBrowseButtonClicked();
+  void onCollisionGeometryMeshBrowseButtonClicked();
+  void onMaterialColorPickButtonClicked();
+  void onBuildInertiaBoxButtonClicked();
+  void onBuildInertiaCylinderButtonClicked();
+  void onBuildInertiaSphereButtonClicked();
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -112,5 +113,5 @@ private:
   static void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type);
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -22,22 +22,27 @@ bool ElectricRotorConfig::isValid() const
     return false;
   }
 
-  if (kv <= 0) {
+  if (kv <= 0.) {
     cerr << "Kv value must be positive." << endl;
     return false;
   }
 
-  if (internal_resistance <= 0) {
+  if (internal_resistance <= 0.) {
     cerr << "Internal resistance must be positive." << endl;
     return false;
   }
 
-  if (propeller_diameter <= 0) {
+  if (min_speed < 0.) {
+    cerr << "Minimum rotation speed must be non-negative." << endl;
+    return false;
+  }
+
+  if (propeller_diameter <= 0.) {
     cerr << "Propeller diameter must be positive." << endl;
     return false;
   }
 
-  if (motor_const <= 0) {
+  if (motor_const <= 0.) {
     cerr << "Motor constant must be positive." << endl;
     return false;
   }
@@ -67,6 +72,10 @@ bool ElectricRotorConfig::load(const YAML::Node& node)
     return false;
   }
 
+  if (!yaml::load(kMinSpeed, node, min_speed)) {
+    return false;
+  }
+
   if (!yaml::load(kPropellerDiameterKey, node, propeller_diameter)) {
     return false;
   }
@@ -86,6 +95,7 @@ YAML::Node ElectricRotorConfig::dump() const
   node[kNumPolesKey] = num_poles;
   node[kKvKey] = kv;
   node[kInternalResistanceKey] = internal_resistance;
+  node[kMinSpeed] = min_speed;
   node[kPropellerDiameterKey] = propeller_diameter;
   node[kMotorConstKey] = motor_const;
 

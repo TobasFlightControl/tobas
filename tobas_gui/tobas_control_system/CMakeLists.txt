@@ -31,6 +31,7 @@ find_package(tobas_std_msgs REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_mission_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_rqt_bridge REQUIRED)
 
 set(AMENT_DEPENDENCIES
     Qt5QuickWidgets
@@ -44,6 +45,7 @@ set(AMENT_DEPENDENCIES
     tobas_msgs_adapter
     tobas_mission_msgs
     tobas_qt_tools
+    tobas_rqt_bridge
 )
 
 add_definitions(-DQT_NO_KEYWORDS)

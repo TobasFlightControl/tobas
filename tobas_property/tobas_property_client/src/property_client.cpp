@@ -22,27 +22,27 @@ PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& ns, c
 {
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, bool& value)
+PropertyClient::Error PropertyClient::get(const string& key, bool& value)
 {
   return getProperty<GetBool, kGetBoolSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, int& value)
+PropertyClient::Error PropertyClient::get(const string& key, int& value)
 {
   return getProperty<GetInt, kGetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, double& value)
+PropertyClient::Error PropertyClient::get(const string& key, double& value)
 {
   return getProperty<GetDouble, kGetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, string& value)
+PropertyClient::Error PropertyClient::get(const string& key, string& value)
 {
   return getProperty<GetString, kGetStringSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value)
+PropertyClient::Error PropertyClient::get(const string& key, uint8_t& value)
 {
   int tmp;
 
@@ -51,14 +51,14 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value)
   }
 
   if (tmp < 0 || UINT8_MAX < tmp) {
-    return error_code_ = E_OUT_OF_RANGE;
+    return error_code_ = kOutputRange;
   }
 
   value = static_cast<uint8_t>(tmp);
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value)
+PropertyClient::Error PropertyClient::get(const string& key, uint16_t& value)
 {
   int tmp;
 
@@ -67,73 +67,73 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value)
   }
 
   if (tmp < 0 || UINT16_MAX < tmp) {
-    return error_code_ = E_OUT_OF_RANGE;
+    return error_code_ = kOutputRange;
   }
 
   value = static_cast<uint16_t>(tmp);
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, float& value)
+PropertyClient::Error PropertyClient::get(const string& key, float& value)
 {
   return getProperty<GetDouble, kGetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const bool& value)
+PropertyClient::Error PropertyClient::set(const string& key, const bool& value)
 {
   return setProperty<SetBool, kSetBoolSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const int& value)
+PropertyClient::Error PropertyClient::set(const string& key, const int& value)
 {
   return setProperty<SetInt, kSetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const double& value)
+PropertyClient::Error PropertyClient::set(const string& key, const double& value)
 {
   return setProperty<SetDouble, kSetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const string& value)
+PropertyClient::Error PropertyClient::set(const string& key, const string& value)
 {
   return setProperty<SetString, kSetStringSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const uint8_t& value)
+PropertyClient::Error PropertyClient::set(const string& key, const uint8_t& value)
 {
   return setProperty<SetInt, kSetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const uint16_t& value)
+PropertyClient::Error PropertyClient::set(const string& key, const uint16_t& value)
 {
   return setProperty<SetInt, kSetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const float& value)
+PropertyClient::Error PropertyClient::set(const string& key, const float& value)
 {
   return setProperty<SetDouble, kSetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::save()
+PropertyClient::Error PropertyClient::save()
 {
   ros2::SyncServiceClient<Trigger> sc(node_, path::join(ns_, kSaveFileSrv));
 
   const auto req = make_shared<Trigger::Request>();
 
   if (!sc.call(req)) {
-    return error_code_ = E_SERVICE_NOT_READY;
+    return error_code_ = kServiceNotReady;
   }
 
   const auto res = sc.getResponse();
   if (!res->success) {
     server_error_msg_ = res->message;
-    return error_code_ = E_SERVER_ERROR;
+    return error_code_ = kServerError;
   }
 
-  return error_code_ = E_NO_ERROR;
+  return error_code_ = kNoError;
 }
 
-PropertyClient::error_t PropertyClient::errorCode() const
+PropertyClient::Error PropertyClient::errorCode() const
 {
   return error_code_;
 }
@@ -141,13 +141,13 @@ PropertyClient::error_t PropertyClient::errorCode() const
 const char* PropertyClient::errorMessage() const
 {
   switch (error_code_) {
-    case E_NO_ERROR:
+    case kNoError:
       return "";
-    case E_SERVICE_NOT_READY:
+    case kServiceNotReady:
       return "Property server is not ready.";
-    case E_OUT_OF_RANGE:
+    case kOutputRange:
       return "The property value is out of numerical range.";
-    case E_SERVER_ERROR:
+    case kServerError:
       return server_error_msg_.c_str();
     default:
       throw;

@@ -14,7 +14,7 @@ using AddLinkDialogUIPtr = std::shared_ptr<AddLinkDialogUI>;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -25,14 +25,15 @@ class AddLinkDialog : public QDialog
   Q_OBJECT
 
   using self = AddLinkDialog;
+  using super = QDialog;
 
 public:
   explicit AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm);
 
 private Q_SLOTS:
-  void LinkNameLineEditTextChanged(const QString& text);
-  void JointNameLineEditTextChanged(const QString& text);
-  void JointParentComboBoxIndexChanged(int index);
+  void onLinkNameLineEditTextChanged(const QString& text);
+  void onJointNameLineEditTextChanged(const QString& text);
+  void onJointParentComboBoxIndexChanged(int index);
 
 private:
   URDFBuilderPanel* main_;
@@ -43,5 +44,5 @@ private:
   void enableOkButton(bool enable);
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

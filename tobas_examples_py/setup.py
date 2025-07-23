@@ -34,7 +34,7 @@ setup(
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="Masayoshi Dohi",
-    maintainer_email="masa0u0masa1215@gmail.com",
+    maintainer_email="m.dohi@tobas.jp",
     description="TODO",
     license="TODO",
     tests_require=["pytest"],

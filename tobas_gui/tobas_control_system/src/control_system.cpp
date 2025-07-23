@@ -7,17 +7,21 @@ namespace gui
 {
 namespace gcs
 {
-ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone) : drone_(drone)
+ControlSystemWidget::ControlSystemWidget(
+  rclcpp::Node::SharedPtr node,
+  const RosQtBridge& bridge,
+  const tobas::Drone& drone)
+  : drone_(drone)
 {
   // Components
-  pose_viewer_ = new PoseViewerWidget(node);
-  power_source_viewer_ = new PowerSourceViewerWidget(node, drone);
-  cpu_viewer_ = new CPUViewerWidget(node);
-  rcin_viewer_ = new rcin::RCInputViewerWidget(node);
-  rotors_viewer_ = new RotorsViewerWiddget(node, drone);
-  console_ = new ConsoleWidget(node);
-  status_viewer_ = new StatusViewerWidget(node);
-  mission_planner_ = new MissionPlannerWidget(node);
+  pose_viewer_ = new PoseViewerWidget(bridge);
+  power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
+  cpu_viewer_ = new CPUViewerWidget(bridge);
+  rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
+  rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
+  console_ = new ConsoleWidget(bridge);
+  status_viewer_ = new StatusViewerWidget(bridge);
+  mission_planner_ = new MissionPlannerWidget(node, bridge);
 
   // Layout
   const auto cols3 = new QHBoxLayout();
@@ -59,13 +63,10 @@ void ControlSystemWidget::reset()
 
 void ControlSystemWidget::updateInternalDataStructures()
 {
-  pose_viewer_->updateNamespace(drone_.name);
+  reset();
+
   power_source_viewer_->updateInternalDataStructures();
-  cpu_viewer_->updateNamespace(drone_.name);
-  rcin_viewer_->updateNamespace(drone_.name);
   rotors_viewer_->updateInternalDataStructures();
-  console_->updateNamespace(drone_.name);
-  status_viewer_->updateNamespace(drone_.name);
   mission_planner_->updateNamespace(drone_.name);
 }
 }  // namespace gcs

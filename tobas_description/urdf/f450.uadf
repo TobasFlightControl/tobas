@@ -1,0 +1,66 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="f450">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/fmu/tobas_t1.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/hrb_3s_5000mah_50c.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.uadf"/>
+
+  <!-- Properties -->
+  <xacro:property name="frame_width" value="0.35"/>
+  <xacro:property name="frame_height" value="0.06"/>
+  <xacro:property name="propeller_offset" value="0.225"/>
+
+  <!-- Base Link -->
+  <link name="base_link"/>
+
+  <!-- Frame -->
+  <joint name="frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="frame"/>
+  </joint>
+  <link name="frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/f450/frame.stl" scale="1 1 1"/>
+      </geometry>
+      <xacro:insert_block name="black"/>
+    </visual>
+    <inertial>
+      <mass value="0.55346"/>
+      <origin xyz="0 0 -4.136e-3" rpy="0 0 0"/>
+      <inertia ixx="8.128e-3" ixy="0" ixz="0" iyy="8.193e-3" iyz="0" izz="1.597e-2"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 ${-frame_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${frame_width} ${frame_width} ${frame_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Flight Controller -->
+  <xacro:tobas_t1 parent="base_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:tobas_t1>
+
+  <!-- Battery -->
+  <xacro:hrb_3s_5000mah_50c link_name="battery" parent="base_link">
+    <origin xyz="0 0 -0.025" rpy="0 0 0"/>
+  </xacro:hrb_3s_5000mah_50c>
+
+  <!-- Propellers -->
+  <xacro:macro name="propeller" params="index direction yaw_deg">
+    <xacro:phantom3_0945 parent="base_link" index="${index}" direction="${direction}">
+      <origin xyz="${propeller_offset*cos(yaw_deg*deg2rad)} ${propeller_offset*sin(yaw_deg*deg2rad)} 0.0247" rpy="0 0 ${yaw_deg*deg2rad}"/>
+    </xacro:phantom3_0945>
+  </xacro:macro>
+
+  <xacro:propeller index="0" direction="ccw" yaw_deg="-45"/>
+  <xacro:propeller index="1" direction="ccw" yaw_deg="135"/>
+  <xacro:propeller index="2" direction="cw" yaw_deg="45"/>
+  <xacro:propeller index="3" direction="cw" yaw_deg="-135"/>
+
+</robot>

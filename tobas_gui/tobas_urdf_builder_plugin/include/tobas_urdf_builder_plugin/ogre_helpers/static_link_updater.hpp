@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ogre
 {
@@ -38,5 +38,5 @@ private:
   Ogre::Matrix4 findTransform(const urdf::LinkConstSharedPtr& link);
 };
 }  // namespace ogre
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

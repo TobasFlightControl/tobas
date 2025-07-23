@@ -2,17 +2,15 @@
 
 #include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
-using namespace std;
-
 using JointType = decltype(urdf::Joint::type);
 
-static const map<JointType, QString> kJointTypeToNameMap = {
+static const std::map<JointType, QString> kJointTypeToNameMap = {
   { urdf::Joint::FIXED, "Fixed" },           { urdf::Joint::REVOLUTE, "Revolute" },
   { urdf::Joint::CONTINUOUS, "Continuous" }, { urdf::Joint::PRISMATIC, "Prismatic" },
   { urdf::Joint::FLOATING, "Floating" },     { urdf::Joint::PLANAR, "Planar" },
 };
 
-static const map<QString, JointType> kJointNameToTypeMap = {
+static const std::map<QString, JointType> kJointNameToTypeMap = {
   { "Fixed", urdf::Joint::FIXED },           { "Revolute", urdf::Joint::REVOLUTE },
   { "Continuous", urdf::Joint::CONTINUOUS }, { "Prismatic", urdf::Joint::PRISMATIC },
   { "Floating", urdf::Joint::FLOATING },     { "Planar", urdf::Joint::PLANAR },
@@ -20,7 +18,7 @@ static const map<QString, JointType> kJointNameToTypeMap = {
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -124,5 +122,5 @@ bool JointViewModel::isFixed() const
   return model_->type == urdf::Joint::FIXED;
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

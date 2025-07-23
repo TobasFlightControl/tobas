@@ -23,7 +23,7 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     tobas_std_msgs::PairFloat64Adapter::convert_to_custom(src.engine_const, dst.engine_const);
-    dst.hw_iface = static_cast<tobas::hw_iface_t>(src.hw_iface);
+    dst.hw_iface = static_cast<tobas::HardwareInterface>(src.hw_iface);
   }
 };
 

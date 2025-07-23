@@ -1,14 +1,22 @@
 #!/bin/bash
 
+# Check user and host
+if [ "$(id -un)" != "pi" ] || [ "$(hostname -s)" != "tobas" ]; then
+  echo "This script can only be executed on RPi." >&2
+  exit 1
+fi
+
 # Set paths
 COLCON_WS=~/colcon_ws
 RELEASE_DIR=${COLCON_WS}/debug
 INSTALL_BASE=${RELEASE_DIR}/install
 BUILD_BASE=${RELEASE_DIR}/build
-export COLCON_LOG_PATH=${RELEASE_DIR}/log
 
 # Navigate to the colcon workspace
 cd ${COLCON_WS}
+
+# Set log path
+export COLCON_LOG_PATH=${RELEASE_DIR}/log
 
 # Limit the number of threads used to build a single package
 export MAKEFLAGS="-j1"
@@ -16,7 +24,7 @@ export MAKEFLAGS="-j1"
 # Build
 colcon build --merge-install --symlink-install --parallel-workers 1 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Debug $1 $2
 if [ $? -ne 0 ]; then
-  echo "Failed to build."
+  echo "Failed to build." >&2
   exit 1
 fi
 

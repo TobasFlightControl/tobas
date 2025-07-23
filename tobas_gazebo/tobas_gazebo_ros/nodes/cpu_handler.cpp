@@ -3,7 +3,7 @@
 
 #include <tobas_msgs/msg/cpu.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class CpuHandlerNode : public tobas::BaseNode
 {

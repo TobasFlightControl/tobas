@@ -1,5 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
@@ -9,7 +10,6 @@
 #include <tobas_msgs/msg/battery.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/gazebo_msg.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 using namespace std;
@@ -75,7 +75,6 @@ private:
   ros2::ServiceServerPtr<std_srvs::srv::Empty> charge_srv_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerPubSub();
   double currentVoltage();
 
   void chargeCb(
@@ -102,25 +101,6 @@ void GazeboBatteryPlugin::Configure(
   voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
-  registerPubSub();
-  charge_srv_ = createService<std_srvs::srv::Empty>(kChargeBatterySrv, &self::chargeCb, this);
-}
-
-void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
-  getSdfParam(sdf, "maxVoltage", max_voltage_, POSITIVE);
-  getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
-  getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
-  getSdfParam(sdf, "currentCapacity", capacity_, POSITIVE);
-  getSdfParam(sdf, "internalRegistance", registance_, NON_NEGATIVE);
-  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
-  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, NON_NEGATIVE);
-  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
-}
-
-void GazeboBatteryPlugin::registerPubSub()
-{
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
@@ -130,12 +110,29 @@ void GazeboBatteryPlugin::registerPubSub()
     const auto qos = ros2::makeQoS(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
     {
-      assert(msg->current >= 0.);
+      if (msg->current < 0.) {
+        TOBAS_WARN("Battery current must be non-negative.");
+      }
       rotor_currents_[link_name] = msg->current;
     };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
+
+  charge_srv_ = createService<std_srvs::srv::Empty>(kChargeBatterySrv, &self::chargeCb, this);
+}
+
+void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
+  getSdfParam(sdf, "maxVoltage", max_voltage_, kPositive);
+  getSdfParam(sdf, "sagVoltage", sag_voltage_, kNonNegative);
+  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
+  getSdfParam(sdf, "currentCapacity", capacity_, kPositive);
+  getSdfParam(sdf, "internalRegistance", registance_, kNonNegative);
+  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, kNonNegative);
+  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, kNonNegative);
+  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
 }
 
 void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -145,7 +142,7 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   }
 
   if (rotor_currents_.size() < rotor_link_names_.size()) {
-    if (info.simTime > kWarnStartTime) {
+    if (info.simTime > kCheckTopicWarnStartTime) {
       const auto num_not_received = rotor_link_names_.size() - rotor_currents_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }

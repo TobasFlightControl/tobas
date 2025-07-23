@@ -1,67 +1,69 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
+#include <QToolBox>
 
-#include "./robot_info.hpp"
+#include <tobas_qt_tools/widgets/list_widget.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+
 #include "./setting_tabs/author_information.hpp"
-#include "./setting_tabs/barometer.hpp"
 #include "./setting_tabs/controller/controller.hpp"
+#include "./setting_tabs/extra_joints.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
-#include "./setting_tabs/gnss.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
-#include "./setting_tabs/imu.hpp"
-#include "./setting_tabs/joint_config.hpp"
-#include "./setting_tabs/magnetometer.hpp"
-#include "./setting_tabs/observer/observer.hpp"
+#include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
-#include "./setting_tabs/ros_package.hpp"
 #include "./setting_tabs/simulation.hpp"
 
 namespace gui
 {
 namespace sa
 {
-class SettingsWidget : public qt::VerticalTabWidget
+class SettingsWidget : public QWidget
 {
   Q_OBJECT
 
   using self = SettingsWidget;
-  using super = qt::VerticalTabWidget;
-
-  static constexpr int kTabHeight = 30;  // 30以上無いと何故かTabBarの文字が横に見切れてしまう
-  static constexpr int kTabWidth = 70;
+  using super = QWidget;
 
 public:
   propulsion::PropulsionSystemWidget* propulsion_system;
-  fixed_wing::FixedWingWidget* fixed_wing;
-  JointConfigurationWidget* joint_config;
-  ImuWidget* imu;
-  MagnetometerWidget* magnetometer;
-  BarometerWidget* barometer;
-  GnssWidget* gnss;
-  RcInputWidget* rc_input;
-  ControllerWidget* controller;
+  fw::FixedWingWidget* fixed_wing;
+  hw::HardwareWidget* hardware;
+  ctrl::ControllerWidget* controller;
   ObserverWidget* observer;
-  HardwareWidget* hardware;
+  RcInputWidget* rc_input;
+  ExtraJointsWidget* extra_joints;
   PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
-  RosPackageWidget* ros_package;
 
-  explicit SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Signals& _signals);
+  explicit SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);
 
   void updateInternalDataStructures();
 
   bool isValid();
-  bool isPwmChannelsUnique();
 
   YAML::Node dump() const;
   bool load(const YAML::Node& node);
 
+private:
+  const uadf::Model& uadf_;
+
+  QToolBox* toolbox_;
+  qt::StackedWidget* stack_;
+  qt::ListWidget* basic_list_;
+  qt::ListWidget* additional_list_;
+
+  int getIndex(BaseSettingWidget* page) const;
+  void addEntry(QListWidget* list, BaseSettingWidget* page);
+  void setCurrentWidget(BaseSettingWidget* page);
+  void setPageEnabled(int idx, bool enabled);
+  void setListItemEnabled(QListWidgetItem* item, bool enabled);
+
 private Q_SLOTS:
-  void onCurrentChanged(int index);
+  void onListItemChanged(QListWidgetItem* item);
 };
 }  // namespace sa
 }  // namespace gui

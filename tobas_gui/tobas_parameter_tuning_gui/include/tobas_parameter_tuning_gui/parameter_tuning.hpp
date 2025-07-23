@@ -32,14 +32,19 @@ private:
   std::filesystem::path tbs_path_;
   tobas::Drone drone_;
 
+  ssh::SSHClient ssh_client_;
+
   QPushButton* load_button_;
   QPushButton* save_button_;
   QPushButton* reset_button_;
 
-  ParamBlockWidget* controller_params_;
+  ParamBlockWidget* imu_filter_params_;
   ParamBlockWidget* observer_params_;
+  ParamBlockWidget* controller_params_;
   ParamBlockWidget* rc_teleop_params_;
-  ParamBlockWidget* imu_preprocess_params_;
+
+  bool saveLocal();
+  bool saveRemote();
 
 private Q_SLOTS:
   void onLoadButtonClicked();

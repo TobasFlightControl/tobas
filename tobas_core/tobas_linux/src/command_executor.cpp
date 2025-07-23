@@ -11,10 +11,20 @@ CommandExecutor::CommandExecutor()
 {
 }
 
-bool CommandExecutor::execute(const string& command)
+bool CommandExecutor::execute(string command)
 {
-  // 標準エラーを標準出力にリダイレクトしてコマンドを実行
-  unique_ptr<FILE, int (*)(FILE*)> pipe(popen((command + " 2>&1").c_str(), "r"), pclose);
+  // 標準エラー出力を標準出力にリダイレクト
+  // TODO: より複雑なリダイレクトコマンドに対応
+  const auto pos = command.find('>');
+  if (pos == string::npos) {
+    command += " 2>&1";  // リダイレクトが無ければ末尾に追加
+  }
+  else {
+    command.insert(pos, " 2>&1 1");  // 標準出力のみをファイル出力するよう途中に挿入
+  }
+
+  // コマンドを実行
+  unique_ptr<FILE, int (*)(FILE*)> pipe(popen((command).c_str(), "r"), pclose);
   if (!pipe) {
     cerr << "popen() failed." << endl;
     return false;
@@ -27,7 +37,9 @@ bool CommandExecutor::execute(const string& command)
   }
 
   // 出力末尾のの改行コードを削除
-  output_.pop_back();
+  if (!output_.empty() && output_.back() == '\n') {
+    output_.pop_back();
+  }
 
   // 終了ステータスを取得
   const auto status = pclose(pipe.release());

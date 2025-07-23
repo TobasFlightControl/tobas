@@ -7,6 +7,8 @@ namespace gui
 {
 namespace log
 {
+namespace
+{
 class NoLabelScaleDraw : public QwtScaleDraw
 {
 public:
@@ -15,6 +17,23 @@ public:
     return QwtText("");  // 空のラベルを返す
   }
 };
+
+class UnitScaleDraw : public QwtScaleDraw
+{
+public:
+  explicit UnitScaleDraw(const QString& unit) : unit_(unit)
+  {
+  }
+
+  QwtText label(double v) const override
+  {
+    return QwtText(QString::number(v) + " " + unit_);
+  }
+
+private:
+  QString unit_;
+};
+}  // namespace
 
 QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
 {
@@ -29,9 +48,16 @@ QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
   legend_item->setMaxColumns(1);                             // 1列に並べる
   legend_item->setBackgroundMode(QwtPlotLegendItem::LegendBackground);
   legend_item->setBorderPen(QPen(Qt::black, 1));  // 黒の枠線
+}
 
-  // X軸のラベルを削除
-  setAxisScaleDraw(QwtPlot::xBottom, new NoLabelScaleDraw());
+void QwtPlot2::setAxisNoLabel(const QwtPlot::Axis& axis)
+{
+  setAxisScaleDraw(axis, new NoLabelScaleDraw());
+}
+
+void QwtPlot2::setAxisLabelUnit(const QwtPlot::Axis& axis, const QString& unit)
+{
+  setAxisScaleDraw(axis, new UnitScaleDraw(unit));
 }
 }  // namespace log
 }  // namespace gui

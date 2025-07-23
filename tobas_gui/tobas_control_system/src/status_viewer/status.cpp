@@ -27,7 +27,7 @@ void StatusWidget::reset()
   led_->setColor(kUnknownColor);
 }
 
-void StatusWidget::setStatus(status_t status)
+void StatusWidget::setStatus(Status status)
 {
   switch (status) {
     case PASSED:
@@ -48,7 +48,7 @@ void StatusWidget::setStatus(status_t status)
 
 void StatusWidget::setStatus(uint8_t status)
 {
-  setStatus(static_cast<status_t>(status));
+  setStatus(static_cast<Status>(status));
 }
 
 void StatusWidget::setStatus(bool ok)

@@ -1,13 +1,17 @@
 #include "tobas_qt_tools/widgets/tab_widget.hpp"
 
-#include <QWheelEvent>
-
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_qt_tools/cast.hpp"
 
 namespace qt
 {
+TabBar::TabBar()
+{
+  // 無効時に文字を薄くする
+  setStyleSheet("QTabBar::tab:disabled { color: palette(midlight); }");
+}
+
 void TabBar::enableWheelEvent(bool enable)
 {
   enable_wheel_event_ = enable;
@@ -34,6 +38,13 @@ void TabWidget::enableWheelEvent(bool enable)
   tab_bar->enableWheelEvent(enable);
 }
 
+void TabWidget::setTabEnabled(QWidget* tab, bool enabled)
+{
+  const auto idx = indexOf(tab);
+  TOBAS_CHECK(idx >= 0);
+  tabBar()->setTabEnabled(idx, enabled);
+}
+
 void TabWidget::setTabVisible(QWidget* tab, bool visible)
 {
   const auto idx = indexOf(tab);
@@ -57,5 +68,14 @@ void TabWidget::setTabSize(int width, int height)
 {
   const auto qss = std::format("QTabBar::tab {{ width: {}px; height: {}px; }}", width, height);
   setStyleSheet(QString::fromStdString(qss));
+}
+
+void TabWidget::removeAllTabs()
+{
+  while (count() > 0) {
+    const auto first_widget = widget(0);  // 先頭ページを取得
+    removeTab(0);                         // タブバーから外す
+    first_widget->deleteLater();          // メモリを解放
+  }
 }
 }  // namespace qt

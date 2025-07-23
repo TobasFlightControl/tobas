@@ -19,6 +19,8 @@ LoopTypeWidget::LoopTypeWidget()
   sitl_ckb_ = new QCheckBox("SITL (Simulation in the Loop)");
   hitl_ckb_ = new QCheckBox("HITL (Hardware in the Loop)");
 
+  hitl_ckb_->setEnabled(false);  // TODO: HITLできるようにして有効化
+
   ckb_group_->addButton(sitl_ckb_);
   ckb_group_->addButton(hitl_ckb_);
 
@@ -34,7 +36,7 @@ LoopTypeWidget::LoopTypeWidget()
   setLayout(rows);
 }
 
-loop_type_t LoopTypeWidget::loopType() const
+LoopType LoopTypeWidget::loopType() const
 {
   const auto checked_button = ckb_group_->checkedButton();
 

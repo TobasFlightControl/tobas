@@ -12,6 +12,8 @@ class MRControllerFeedbackPlotWidget : public QWidget
 {
   Q_OBJECT
 
+  static constexpr size_t kNumAxes = 6;
+
 public:
   explicit MRControllerFeedbackPlotWidget();
 
@@ -19,10 +21,8 @@ public:
   void setData(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& msgs);
 
 private:
-  std::array<QwtPlot2*, 3> pos_ei_plots_;
-  std::array<QwtPlot2*, 3> rot_ei_plots_;
-  std::array<qwt::QwtPlotCurveWrapper, 3> pos_ei_curves_;
-  std::array<qwt::QwtPlotCurveWrapper, 3> rot_ei_curves_;
+  std::array<QwtPlot2*, kNumAxes> ei_plots_;
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes> ei_curves_;
 };
 }  // namespace log
 }  // namespace gui

@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 class URDFBuilder : public QWidget
 {
@@ -15,10 +15,8 @@ class URDFBuilder : public QWidget
 public:
   explicit URDFBuilder();
 
-  void reset();
-
 private:
   rviz::RvizFrameManager rviz_manager_;
 };
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

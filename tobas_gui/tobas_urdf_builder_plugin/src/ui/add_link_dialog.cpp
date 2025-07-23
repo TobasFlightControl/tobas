@@ -8,12 +8,12 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
 AddLinkDialog::AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm)
-  : QDialog(main), main_(main), ui_(new Ui::AddLinkDialogUI()), link_vm_(link_vm)
+  : super(main), main_(main), ui_(new Ui::AddLinkDialogUI()), link_vm_(link_vm)
 {
   ui_->setupUi(this);
 
@@ -25,16 +25,16 @@ AddLinkDialog::AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_nam
   setWindowTitle("Add Link");  // setupUiの後に呼ぶ必要がある
   enableOkButton(false);
 
-  connect(ui_->LinkNameLineEdit, &QLineEdit::textChanged, this, &self::LinkNameLineEditTextChanged);
-  connect(ui_->JointNameLineEdit, &QLineEdit::textChanged, this, &self::JointNameLineEditTextChanged);
+  connect(ui_->LinkNameLineEdit, &QLineEdit::textChanged, this, &self::onLinkNameLineEditTextChanged);
+  connect(ui_->JointNameLineEdit, &QLineEdit::textChanged, this, &self::onJointNameLineEditTextChanged);
   connect(
     ui_->JointParentLinkComboBox,
     QOverload<int>::of(&QComboBox::currentIndexChanged),
     this,
-    &self::JointParentComboBoxIndexChanged);
+    &self::onJointParentComboBoxIndexChanged);
 }
 
-void AddLinkDialog::LinkNameLineEditTextChanged(const QString& text)
+void AddLinkDialog::onLinkNameLineEditTextChanged(const QString& text)
 {
   link_vm_.name(text);
   link_vm_.sync();
@@ -42,7 +42,7 @@ void AddLinkDialog::LinkNameLineEditTextChanged(const QString& text)
   checkValidity();
 }
 
-void AddLinkDialog::JointNameLineEditTextChanged(const QString& text)
+void AddLinkDialog::onJointNameLineEditTextChanged(const QString& text)
 {
   link_vm_.joint()->name(text);
   link_vm_.sync();
@@ -50,7 +50,7 @@ void AddLinkDialog::JointNameLineEditTextChanged(const QString& text)
   checkValidity();
 }
 
-void AddLinkDialog::JointParentComboBoxIndexChanged(int)
+void AddLinkDialog::onJointParentComboBoxIndexChanged(int)
 {
   link_vm_.joint()->parentLinkName(ui_->JointParentLinkComboBox->currentText());
   link_vm_.sync();
@@ -94,5 +94,5 @@ void AddLinkDialog::enableOkButton(bool enable)
   ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

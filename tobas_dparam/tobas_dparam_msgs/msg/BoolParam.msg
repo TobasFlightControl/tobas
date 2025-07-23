@@ -1,3 +1,3 @@
 string name
-bool value
 bool dflt
+bool value

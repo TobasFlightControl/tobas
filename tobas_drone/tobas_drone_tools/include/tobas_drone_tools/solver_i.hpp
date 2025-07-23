@@ -14,11 +14,11 @@ protected:
   static constexpr char kOutOfRange[] = "The requested index is out of range";
 
 public:
-  enum error_t : int
+  enum Error : int
   {
-    E_NO_ERROR = 0,  // エラーなし
-    E_WARN = -1,     // 警告のみで処理続行
-    E_ERROR = -2,    // 処理を停止すべき重大なエラー
+    kNoError = 0,  // エラーなし
+    kWarn = -1,    // 警告のみで処理続行
+    kError = -2,   // 処理を停止すべき重大なエラー
   };
 
   virtual bool updateInternalDataStructures() = 0;
@@ -27,7 +27,7 @@ public:
   inline const std::string& errorMessage() const;
 
 protected:
-  int error_code_ = E_NO_ERROR;
+  int error_code_ = kNoError;
   std::string error_msg_;
 
   /* 引数のエラーコードの方が深刻な場合はエラーを更新し，現在のエラーコードを返す． */

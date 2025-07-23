@@ -55,21 +55,18 @@ repos:
         entry: black
         language: system
         files: \.(py|tplpy)$
-        exclude: tobas_example_packages/
       - id: clang-format
         name: clang-format
         entry: clang-format
         language: system
         args: ["-fallback-style=none", "-i"]
         files: \.(cpp|hpp|tplcpp|tplhpp)$
-        exclude: tobas_example_packages/
       - id: cmake-format
         name: cmake-format
         entry: cmake-format
         language: system
         args: ["-i"]
         files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
-        exclude: tobas_example_packages/
       - id: cmake-lint
         name: cmake-lint
         entry: cmake-lint
@@ -77,4 +74,3 @@ repos:
         args:
           - "--suppress-decorations"
         files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
-        exclude: tobas_example_packages/

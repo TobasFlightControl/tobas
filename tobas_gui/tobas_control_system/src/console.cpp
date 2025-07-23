@@ -1,45 +1,38 @@
 #include "tobas_control_system/console.hpp"
 
+#include <QDebug>
 #include <QHeaderView>
 #include <QVBoxLayout>
-
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
 
 namespace gui
 {
 namespace gcs
 {
-ConsoleWidget::ConsoleWidget(rclcpp::Node::SharedPtr node) : node_(node)
+ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
-  table_->horizontalHeader()->setSectionResizeMode(kStampCol, QHeaderView::ResizeToContents);
-  table_->horizontalHeader()->setSectionResizeMode(kNameCol, QHeaderView::ResizeToContents);
-  table_->horizontalHeader()->setSectionResizeMode(kLevelCol, QHeaderView::ResizeToContents);
-  table_->horizontalHeader()->setSectionResizeMode(kMessageCol, QHeaderView::Stretch);
+  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);  // 編集禁止
+  table_->setSelectionMode(QAbstractItemView::NoSelection);    // 選択禁止
+  table_->setFocusPolicy(Qt::NoFocus);                         // フォーカス禁止
+  table_->setHeaderSectionsClickable(false);                   // ヘッダのクリック禁止
+
+  const auto hor_header = table_->horizontalHeader();
+  hor_header->setSectionResizeMode(kStampCol, QHeaderView::ResizeToContents);
+  hor_header->setSectionResizeMode(kNameCol, QHeaderView::ResizeToContents);
+  hor_header->setSectionResizeMode(kLevelCol, QHeaderView::ResizeToContents);
+  hor_header->setSectionResizeMode(kMessageCol, QHeaderView::Stretch);
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(table_);
-
   setLayout(rows);
 
-  setEnabled(false);
+  connect(&bridge, &RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
 }
 
 void ConsoleWidget::reset()
 {
   table_->removeAll();
-}
-
-void ConsoleWidget::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  message_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kMessageTopic), &self::messageCb, this);
-
-  setEnabled(true);
 }
 
 void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg)
@@ -93,7 +86,7 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
       message_item->setForeground(kFatalColor);
       break;
     default:
-      RCLCPP_WARN_STREAM(node_->get_logger(), "Unknown message level: " << static_cast<int>(msg->level));
+      qWarning() << "Unknown message level: " << static_cast<int>(msg->level);
       level_item->setText("Unknown");
       level_item->setForeground(kUnknownColor);
       message_item->setForeground(kUnknownColor);

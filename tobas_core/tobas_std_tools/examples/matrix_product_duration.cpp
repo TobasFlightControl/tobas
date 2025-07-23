@@ -2,7 +2,7 @@
 
 #include <eigen3/Eigen/Core>
 
-#include <tobas_std_tools/stopwatch.hpp>
+#include <tobas_time_tools/stopwatch.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -13,7 +13,7 @@ void process(int n, int iter)
   const auto A = Matrix<T, Dynamic, Dynamic>::Random(n, n);
   const auto B = Matrix<T, Dynamic, Dynamic>::Random(n, n);
 
-  tobas_std::Stopwatch stopwatch(iter);
+  tim::Stopwatch stopwatch(iter);
 
   for (int i = 0; i < iter; ++i) {
     cout << "Iter " << i << endl;

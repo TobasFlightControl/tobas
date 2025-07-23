@@ -45,13 +45,13 @@ bool NonPlanarMixer_QP::solve(
   const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0) {
+  if (fk_solver_.jntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0) {
+  if (inertia_solver_.jntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -65,7 +65,7 @@ bool NonPlanarMixer_QP::solve(
     const auto& rotor = rotor_it.second;
 
     // 回転軸を求める
-    const auto elem = tree_.getSegment(rotor->link_name)->second;
+    const auto& elem = tree_.getSegment(rotor->link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
@@ -126,9 +126,14 @@ bool NonPlanarMixer_QP::solve(
   return true;
 }
 
-const VectorXd& NonPlanarMixer_QP::getThrusts() const
+const Eigen::VectorXd& NonPlanarMixer_QP::getThrusts() const
 {
   return qp_.solution();
+}
+
+double NonPlanarMixer_QP::getThrust(size_t idx) const
+{
+  return thrustDeadband(qp_.solution()(idx));
 }
 
 bool NonPlanarMixer_QP::setLinearWeight(double p)

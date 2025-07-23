@@ -35,7 +35,7 @@ def generate_launch_description():
     # Launch setup assistant
     setup_assistant = Node(
         package="tobas_urdf_builder",
-        executable="main",
+        executable="TobasURDFBuilder",
         ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),

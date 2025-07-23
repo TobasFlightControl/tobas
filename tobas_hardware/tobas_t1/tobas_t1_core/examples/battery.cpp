@@ -1,14 +1,14 @@
 #include <iostream>
 #include <thread>
 
-#include <tobas_t1_core/battery.hpp>
+#include "tobas_t1_core/battery.hpp"
 
 using namespace std;
 
 int main()
 {
   t1::Battery battery;
-  double voltage, current;
+  float voltage, current;
 
   if (!battery.initialize()) {
     cerr << "Failed to initialize ADC." << endl;

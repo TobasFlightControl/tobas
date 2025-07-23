@@ -4,8 +4,9 @@
 
 namespace tobas_std
 {
-static constexpr double kGravity = 9.80665;           // [m/s^2]
-static constexpr double kStandardAirDensity = 1.225;  // [kg/m^3]
+static constexpr double kGravity = 9.80665;           // [m/s^2] 重力加速度
+static constexpr double kStandardAirDensity = 1.225;  // [kg/m^3] 標準大気における大気密度
+static constexpr double kGeomagScale = 0.5;           // [G] 地磁気の磁束密度の大きさ
 
 static constexpr double kDeg2Rad = M_PI / 180;  // deg -> rad
 static constexpr double kRad2Deg = 180 / M_PI;  // rad -> deg

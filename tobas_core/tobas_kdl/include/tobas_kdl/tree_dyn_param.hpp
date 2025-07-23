@@ -22,14 +22,14 @@ public:
    * @param q 関節角
    * @param qd 関節角速度
    */
-  int JntToCoriolis(const JntArray& q, const JntArray& qd);
+  int jntToCoriolis(const JntArray& q, const JntArray& qd);
 
   /**
    * @brief 重力により発生するトルクを計算する
    *
    * @param q 関節角
    */
-  int JntToGravity(const JntArray& q);
+  int jntToGravity(const JntArray& q);
 
   inline const JntArray& getCoriolisEffort() const;
   inline const JntArray& getGravityEffort() const;

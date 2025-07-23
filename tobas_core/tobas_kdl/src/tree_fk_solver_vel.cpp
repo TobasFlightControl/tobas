@@ -8,21 +8,21 @@ TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 {
 }
 
-int TreeFkSolverVel::JntToCart(const JntArray& q, const JntArray& qd, const string& seg_name)
+int TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const string& seg_name)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || qd.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
   if (!tree_.hasSegment(seg_name)) {
-    return setDefaultError(E_OUT_OF_RANGE);
+    return setDefaultError(kOutputRange);
   }
 
   const auto seg_it = tree_.getSegment(seg_name);
   p_out_ = recursiveFk(q, qd, seg_it);
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, const SegmentMap::const_iterator& cur_it)

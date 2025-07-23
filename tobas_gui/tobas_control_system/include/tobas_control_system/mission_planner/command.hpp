@@ -4,15 +4,15 @@ namespace gui
 {
 namespace gcs
 {
-enum command_t
+enum struct Command
 {
-  WAYPOINT,
-  TAKEOFF,
-  LAND,
-  RETURN_TO_HOME,
+  kWaypoint,
+  kTakeoff,
+  kLand,
+  kReturnToHome,
 };
 
-const char* commandToText(command_t cmd);
-command_t textToCommand(const char* text);
+const char* commandToText(Command cmd);
+Command textToCommand(const char* text);
 }  // namespace gcs
 }  // namespace gui

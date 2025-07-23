@@ -1,7 +1,7 @@
 #include "tobas_legged_tools/joint_space_dynamics.hpp"
 
 #include <tobas_eigen_tools/core.hpp>
-#include <tobas_eigen_tools/geometry.hpp>
+#include <tobas_eigen_tools/kinematics.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -152,7 +152,7 @@ bool JointSpaceDynamics::solve(
 
   // ヤコビアンを更新
   for (size_t l = 0; l < nc_; ++l) {
-    if (jac_solver_.JntToJac(cur_q_, foot_names_[l]) < 0) {
+    if (jac_solver_.jntToJac(cur_q_, foot_names_[l]) < 0) {
       error_msg_ = "Jacobian solver failed: " + jac_solver_.errorMessage();
       return false;
     }
@@ -175,13 +175,13 @@ bool JointSpaceDynamics::solve(
   }
 
   // 外力項を除いたトルクを計算
-  if (rne_.CartToJnt(cur_q_, cur_qd_, tar_qdd_) < 0) {
+  if (rne_.cartToJnt(cur_q_, cur_qd_, tar_qdd_) < 0) {
     error_msg_ = "RNE failed: " + rne_.errorMessage();
     return false;
   }
 
   // 質量行列を計算
-  if (mass_solver_.JntToMass(cur_q_) < 0) {
+  if (mass_solver_.jntToMass(cur_q_) < 0) {
     error_msg_ = "Mass solver failed: " + mass_solver_.errorMessage();
     return false;
   }
@@ -227,7 +227,7 @@ bool JointSpaceDynamics::solve(
 
 double JointSpaceDynamics::calcMass()
 {
-  inertia_solver_.JntToCart(kdl::JntArray::Zero(nj_));
+  inertia_solver_.jntToCart(kdl::JntArray::Zero(nj_));
   return inertia_solver_.getInertia().getMass();
 }
 

@@ -12,7 +12,7 @@ public:
   enum MotionModel
   {
     HOLONOMIC,  // default
-    DIFF_DRIVE
+    DIFF_DRIVE,
   };
 
   PlanarJointModel(const std::string& name, size_t joint_index, size_t first_variable_index);

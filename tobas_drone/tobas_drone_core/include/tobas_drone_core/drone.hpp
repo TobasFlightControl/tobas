@@ -32,11 +32,15 @@ public:
   using ConstSharedPtr = std::shared_ptr<const Drone>;
 
   std::string name = "";                   // The name of this drone
-  JointConfigMap joints;                   // The joint configurations (joint name -> config)
+  JointConfigMap joints;                   // The servo joint configurations (joint name -> config)
   PwmConfigMap pwms;                       // The PWM configurations (joint name -> config)
   PropulsionSystemConfig::SharedPtr prop;  // The propulsion system configurations
   FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configurations
   uint32_t num_sbus_channels = 0;          // The number of S.BUS channels
+
+  inline bool empty() const;
+
+  void clear();
 
   bool isValid() const;
 
@@ -48,4 +52,9 @@ public:
 
   bool hasServoJoint() const;
 };
+
+inline bool Drone::empty() const
+{
+  return prop == nullptr;
+}
 }  // namespace tobas

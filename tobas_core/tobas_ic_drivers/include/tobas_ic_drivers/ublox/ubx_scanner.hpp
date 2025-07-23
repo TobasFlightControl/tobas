@@ -21,18 +21,18 @@ static constexpr size_t kUbxBufferLength = 256;
 class UBXScanner
 {
 public:
-  enum state_t : uint8_t
+  enum State
   {
-    Sync1,
-    Sync2,
-    Class,
-    ID,
-    Length1,
-    Length2,
-    Payload,
-    CK_A,
-    CK_B,
-    Done,
+    kSync1,
+    kSync2,
+    kClass,
+    kId,
+    kLength1,
+    kLength2,
+    kPayload,
+    kCkA,
+    kCkB,
+    kDone,
   };
 
   explicit UBXScanner();
@@ -40,7 +40,7 @@ public:
   void reset();
   bool update(const uint8_t& data);
 
-  inline state_t state() const;
+  inline State state() const;
   inline size_t messageLength() const;
 
   inline const uint8_t* getSync1() const;
@@ -56,10 +56,10 @@ private:
   uint8_t buffer_[kUbxBufferLength];  // Buffer for UBX message
   size_t payload_length_;             // Length of current message payload
   size_t pos_;                        // Indicates current buffer offset
-  state_t state_;                     // Current scanner state
+  State state_;                       // Current scanner state
 };
 
-inline UBXScanner::state_t UBXScanner::state() const
+inline UBXScanner::State UBXScanner::state() const
 {
   return state_;
 }

@@ -21,7 +21,6 @@ public:
   const char* title() const override;
   const char* description() const override;
 
-  void onOpened() override;
   void updateInternalDataStructures() override;
   bool isValid() override;
 
@@ -34,6 +33,9 @@ public:
 private:
   ParamGetterWidget_LineEdit* name_;
   ParamGetterWidget_LineEdit* email_;
+
+  static QString getDefaultName();
+  static QString getDefaultEmail();
 };
 };  // namespace sa
 }  // namespace gui

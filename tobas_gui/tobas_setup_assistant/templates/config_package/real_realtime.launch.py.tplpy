@@ -9,6 +9,8 @@ from launch_ros.substitutions import FindPackageShare
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
+USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
+USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
 HARDWARE_PKG = "{{ hardware_pkg }}"
 
 # Arguments
@@ -31,12 +33,14 @@ def generate_launch_description():
     multiprocess = LaunchConfiguration(MULTIPROCESS)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+    user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
     hw_pkg_share = FindPackageShare(HARDWARE_PKG)
     extra_arguments = [{"use_intra_process_comms": True}]
 
     # Parse URDF
     xacro_path = PathJoinSubstitution([FindPackageShare(CONFIG_PKG_NAME), "urdf", "drone.xacro"])
-    urdf_content = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
+    urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
 
     # Launch Tobas core software
     # XXX: To ensure stable registration of components, the component managers are launched first.
@@ -95,7 +99,7 @@ def generate_launch_description():
                     package="robot_state_publisher",
                     plugin="robot_state_publisher::RobotStatePublisher",
                     namespace=DRONE_NAME,
-                    parameters=[{"robot_description": urdf_content}],
+                    parameters=[{"robot_description": urdf_text}],
                     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
                     extra_arguments=extra_arguments,
                 ),
@@ -146,6 +150,22 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
             ],
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_cpp_pkg_share, "launch", "real_realtime.launch.py"])
+            )
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_py_pkg_share, "launch", "real_realtime.launch.py"])
+            )
         )
     )
 

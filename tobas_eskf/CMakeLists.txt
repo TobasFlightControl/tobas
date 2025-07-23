@@ -32,7 +32,7 @@ ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ObserverNode" EXECUTABLE observer)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ErrorStateKalmanFilterNode" EXECUTABLE eskf_node)
 
 install(
   TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node

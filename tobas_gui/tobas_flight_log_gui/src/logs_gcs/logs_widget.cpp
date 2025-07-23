@@ -140,7 +140,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
 
   try {
     for (const auto& entry : fs::directory_iterator(rosbag_dir)) {
-      if (!fs::remove_all(entry.path())) {
+      if (fs::remove_all(entry.path()) == 0) {
         qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
         return;
       }
@@ -163,7 +163,7 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
     return;
   }
 
-  if (!fs::remove_all(log_path)) {
+  if (fs::remove_all(log_path) == 0) {
     qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(log_path));
     return;
   }

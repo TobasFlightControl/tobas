@@ -1,9 +1,6 @@
 #pragma once
 
-#include <tobas_ros2_tools/register.hpp>
-
-#include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./status.hpp"
 
@@ -19,14 +16,11 @@ class PreArmCheckViewerWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node);
+  explicit PreArmCheckViewerWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   StatusWidget* node_connection_status_;
   StatusWidget* battery_voltage_status_;
   StatusWidget* cpu_temp_status_;
@@ -41,9 +35,7 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
-
+private Q_SLOTS:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 };

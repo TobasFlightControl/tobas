@@ -14,7 +14,6 @@
 #include <tobas_property_msgs/srv/set_int.hpp>
 #include <tobas_property_msgs/srv/set_string.hpp>
 
-using namespace std;
 using namespace std_srvs::srv;
 using namespace tobas_property_msgs::srv;
 
@@ -49,8 +48,6 @@ private:
   void setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
 
   void saveFileCb(const Trigger::Request::ConstSharedPtr& req, const Trigger::Response::SharedPtr& res);
-
-  string keyWithSection(const string& section, const string& key);
 };
 
 PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
@@ -62,7 +59,7 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
   }
 
   // Advertise service servers
-  const auto prefix = string(get_name()) + "/";
+  const auto prefix = std::string(get_name()) + "/";
   get_bool_ss_ = createService<GetBool>(prefix + kGetBoolSrv, &self::getCb<GetBool>, this);
   get_int_ss_ = createService<GetInt>(prefix + kGetIntSrv, &self::getCb<GetInt>, this);
   get_double_ss_ = createService<GetDouble>(prefix + kGetDoubleSrv, &self::getCb<GetDouble>, this);
@@ -77,9 +74,9 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
 template <typename SrvType>
 void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  if (pt_.get(keyWithSection(req->section, req->key), res->value)) {
+  if (pt_.get(req->section, req->key, res->value)) {
     res->success = true;
-    res->message = "";
+    res->message.clear();
   }
   else {
     res->success = false;
@@ -90,10 +87,10 @@ void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const Sr
 template <typename SrvType>
 void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  pt_.set(keyWithSection(req->section, req->key), req->value);
+  pt_.set(req->section, req->key, req->value);
 
   res->success = true;
-  res->message = "";
+  res->message.clear();
 }
 
 void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
@@ -104,12 +101,7 @@ void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const T
   }
 
   res->success = true;
-  res->message = "";
-}
-
-inline string PropertyServer::keyWithSection(const string& section, const string& key)
-{
-  return section + "." + key;
+  res->message.clear();
 }
 }  // namespace ptree
 

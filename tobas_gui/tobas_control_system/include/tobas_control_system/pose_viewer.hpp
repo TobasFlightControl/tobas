@@ -1,10 +1,8 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/widget.hpp>
-#include <tobas_ros2_tools/register.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-
-#include <tobas_msgs_adapter/odometry.hpp>
 
 namespace gui
 {
@@ -30,21 +28,13 @@ class PoseViewerWidget : public qt::Widget
   static constexpr int kYawTickLength = 10;
 
 public:
-  explicit PoseViewerWidget(rclcpp::Node::SharedPtr node);
+  explicit PoseViewerWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
-  // 現在のオイラー角
-  double roll_, pitch_, yaw_;
-
-  // 機体から見た地平線の方程式
-  double slope_, y_intercept_;
-
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  double roll_, pitch_, yaw_;   // 現在のオイラー角
+  double slope_, y_intercept_;  // 機体から見た地平線の方程式
 
   void paintEvent(QPaintEvent* event) override;
 
@@ -67,6 +57,7 @@ private:
   /* ヨー角 [rad] をウィンドウ幅に変換する． */
   double yawToWidth(double yaw) const;
 
+private Q_SLOTS:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
 }  // namespace gcs

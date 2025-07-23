@@ -23,7 +23,7 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
 
-  // Set full scales
+  // Set default full scales
   if (!setAccelFullScale(fs_xl_t::FS_XL_2G)) {
     return false;
   }
@@ -67,14 +67,14 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
     case odr_xl_t::ODR_XL_833HZ:
       ctrl1_xl |= ODR_XL_833HZ;
       break;
-    case odr_xl_t::ODR_XL_1660HZ:
-      ctrl1_xl |= ODR_XL_1660HZ;
+    case odr_xl_t::ODR_XL_1666HZ:
+      ctrl1_xl |= ODR_XL_1666HZ;
       break;
-    case odr_xl_t::ODR_XL_3330HZ:
-      ctrl1_xl |= ODR_XL_3330HZ;
+    case odr_xl_t::ODR_XL_3332HZ:
+      ctrl1_xl |= ODR_XL_3332HZ;
       break;
-    case odr_xl_t::ODR_XL_6660HZ:
-      ctrl1_xl |= ODR_XL_6660HZ;
+    case odr_xl_t::ODR_XL_6664HZ:
+      ctrl1_xl |= ODR_XL_6664HZ;
       break;
     default:
       cerr << "Invalid accelerometer output data rate type: " << (int)odr << endl;
@@ -116,14 +116,14 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
     case odr_g_t::ODR_G_833HZ:
       ctrl2_g |= ODR_G_833HZ;
       break;
-    case odr_g_t::ODR_G_1660HZ:
-      ctrl2_g |= ODR_G_1660HZ;
+    case odr_g_t::ODR_G_1666HZ:
+      ctrl2_g |= ODR_G_1666HZ;
       break;
-    case odr_g_t::ODR_G_3330HZ:
-      ctrl2_g |= ODR_G_3330HZ;
+    case odr_g_t::ODR_G_3332HZ:
+      ctrl2_g |= ODR_G_3332HZ;
       break;
-    case odr_g_t::ODR_G_6660HZ:
-      ctrl2_g |= ODR_G_6660HZ;
+    case odr_g_t::ODR_G_6664HZ:
+      ctrl2_g |= ODR_G_6664HZ;
       break;
     default:
       cerr << "Invalid gyroscope output data rate type: " << (int)odr << endl;
@@ -232,9 +232,9 @@ bool ISM330DLC::readAccel(double& ax, double& ay, double& az)
   }
 
   // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
-  ax = static_cast<int16_t>((res_[1] << 8) | res_[0]) * acc_scale_;
-  ay = static_cast<int16_t>((res_[3] << 8) | res_[2]) * acc_scale_;
-  az = static_cast<int16_t>((res_[5] << 8) | res_[4]) * acc_scale_;
+  ax = static_cast<double>(static_cast<int16_t>((res_[1] << 8) | res_[0])) * acc_scale_;
+  ay = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * acc_scale_;
+  az = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * acc_scale_;
 
   return true;
 }
@@ -245,9 +245,9 @@ bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
     return false;
   }
 
-  gx = static_cast<int16_t>((res_[1] << 8) | res_[0]) * gyro_scale_;
-  gy = static_cast<int16_t>((res_[3] << 8) | res_[2]) * gyro_scale_;
-  gz = static_cast<int16_t>((res_[5] << 8) | res_[4]) * gyro_scale_;
+  gx = static_cast<double>(static_cast<int16_t>((res_[1] << 8) | res_[0])) * gyro_scale_;
+  gy = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * gyro_scale_;
+  gz = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * gyro_scale_;
 
   return true;
 }

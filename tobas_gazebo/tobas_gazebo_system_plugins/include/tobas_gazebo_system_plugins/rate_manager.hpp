@@ -13,10 +13,10 @@ public:
   explicit RateManager(const size_t& update_rate);
 
   /* 実行可能な周期ならばtrue． */
-  bool update(const std::chrono::steady_clock::duration& time);
+  bool update(const std::chrono::steady_clock::duration& cur_time);
 
 private:
   const size_t update_rate_;
-  std::chrono::steady_clock::duration t_next_;
+  std::chrono::steady_clock::duration next_time_;
 };
 }  // namespace gazebo

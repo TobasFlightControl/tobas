@@ -8,8 +8,6 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-using namespace std;
-
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboのトランスミッションに指令する．
  */
@@ -27,7 +25,10 @@ private:
   bool eff_commanded_ = false;
   tobas::Drone::ConstSharedPtr drone_;
 
-  unordered_map<string, pair<tobas::jnt_cmd_iface_t, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>> ctrl_map_;
+  std::unordered_map<
+    std::string,
+    std::pair<tobas::JointCommandInterface, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>>
+    ctrl_map_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
@@ -82,7 +83,7 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   for (const auto& [_, joint] : drone->joints) {
     const auto controller_name = joint.name + "_controller";
     const auto topic = controller_name + "/commands";
-    ctrl_map_[joint.name] = { static_cast<tobas::jnt_cmd_iface_t>(joint.cmd_iface),
+    ctrl_map_[joint.name] = { static_cast<tobas::JointCommandInterface>(joint.cmd_iface),
                               createPublisher<std_msgs::msg::Float64MultiArray>(topic, false, true) };
   }
 
@@ -107,7 +108,7 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
+    if (cmd_iface != tobas::JointCommandInterface::kPosition) {
       TOBAS_ERROR(
         "The command interface of joint \"",
         jnt_name,
@@ -135,7 +136,7 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (cmd_iface != tobas::JointCommandInterface::kVelocity) {
       TOBAS_ERROR(
         "The command interface of joint \"",
         jnt_name,
@@ -162,7 +163,7 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     }
 
     const auto& cmd_iface = ctrl_map_[jnt_name].first;
-    if (cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
+    if (cmd_iface != tobas::JointCommandInterface::kEffort) {
       TOBAS_ERROR(
         "The command interface of joint \"",
         jnt_name,
@@ -185,7 +186,7 @@ void JointCommandHandlerNode::positionResetTimerCb()
     if (!joint.isServoJoint()) {
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
       continue;
     }
 
@@ -207,7 +208,7 @@ void JointCommandHandlerNode::velocityResetTimerCb()
     if (!joint.isServoJoint()) {
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kVelocity) {
       continue;
     }
 
@@ -215,9 +216,9 @@ void JointCommandHandlerNode::velocityResetTimerCb()
   }
 
   if (vel_commanded_) {
-    pos_commanded_ = false;
+    vel_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ",
+      "All joints with velocity command interface are reset to home position because ",
       tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }
@@ -229,7 +230,7 @@ void JointCommandHandlerNode::effortResetTimerCb()
     if (!joint.isServoJoint()) {
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kEffort) {
       continue;
     }
 
@@ -237,9 +238,9 @@ void JointCommandHandlerNode::effortResetTimerCb()
   }
 
   if (eff_commanded_) {
-    pos_commanded_ = false;
+    eff_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ",
+      "All joints with effort command interface are reset to home position because ",
       tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");
   }

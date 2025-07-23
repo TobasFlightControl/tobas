@@ -5,7 +5,7 @@
 #include <tobas_path_tools/core.hpp>
 
 using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace ptree
 {
@@ -60,5 +60,45 @@ bool PropertyTree::save()
   }
 
   return true;
+}
+
+bool PropertyTree::erase(boost::property_tree::ptree& node, boost::property_tree::path path)
+{
+  if (path.empty()) {
+    cerr << "Path is empty." << endl;
+    return false;
+  }
+
+  // パスの先頭要素を取得
+  const auto child_name = path.reduce();
+
+  // 名前空間がなければ要素を消して終了
+  if (path.empty()) {
+    if (node.erase(child_name) == 0) {
+      cerr << "Failed to erase key \"" << child_name << "\"." << endl;
+      return false;
+    }
+    return true;
+  }
+
+  // 入れ子になってたら再帰的に呼び出す
+  auto child_node_opt = node.get_child_optional(child_name);
+  if (!child_node_opt) {
+    cerr << "Failed to get child node \"" << child_name << "\"." << endl;
+    return false;
+  }
+
+  auto& child_node = child_node_opt.get();
+  return erase(child_node, path);
+}
+
+string PropertyTree::sectionedKey(const string& section, const string& key)
+{
+  if (section.empty()) {
+    return key;
+  }
+  else {
+    return section + "." + key;
+  }
 }
 }  // namespace ptree

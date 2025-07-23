@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=TobasURDFBuilder
+Icon=/opt/tobas/share/tobas_urdf_builder/resources/icon.png
+Exec=/usr/bin/tobas_urdf_builder
+Terminal=false
+StartupNotify=true
+
+# TODO: UADFに対応させたら表示
+Hidden=true

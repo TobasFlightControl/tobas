@@ -13,7 +13,7 @@ class TreeFkSolverPos : public TreeSolverI
 public:
   explicit TreeFkSolverPos(const Tree& tree);
 
-  int JntToCart(const JntArray& q, const std::string& seg_name);
+  int jntToCart(const JntArray& q, const std::string& seg_name);
 
   inline const Frame& getFrame() const;
 

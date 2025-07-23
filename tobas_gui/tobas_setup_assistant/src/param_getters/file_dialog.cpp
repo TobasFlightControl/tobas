@@ -9,7 +9,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_string_tools/core.hpp>
 
-using namespace std;
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -57,7 +57,7 @@ void ParamGetterWidget_FileDialog::onTextChanged(const QString& text)
 
 void ParamGetterWidget_FileDialog::onBrowseButtonClicked()
 {
-  string last_opened_dir;
+  std::string last_opened_dir;
   if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = rcutils_get_home_dir();
@@ -66,15 +66,14 @@ void ParamGetterWidget_FileDialog::onBrowseButtonClicked()
   const auto options = QFileDialog::DontUseNativeDialog;
   const auto path =
     QFileDialog::getOpenFileName(this, kTitle, QString::fromStdString(last_opened_dir), init_filter_, nullptr, options);
-  if (path.isEmpty())  // Cancelの場合
-  {
+  if (path.isEmpty()) {
     return;
   }
 
   path_->setText(path);
 
   // 最後に開かれたパスを保存
-  const auto par_dir = filesystem::path(path.toStdString()).parent_path();
+  const auto par_dir = fs::path(path.toStdString()).parent_path();
   if (property_client_.set(last_opend_dir_key_, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;

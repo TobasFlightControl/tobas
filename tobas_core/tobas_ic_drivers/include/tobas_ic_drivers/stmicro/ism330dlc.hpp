@@ -22,9 +22,9 @@ public:
     ODR_XL_208HZ,
     ODR_XL_416HZ,
     ODR_XL_833HZ,
-    ODR_XL_1660HZ,
-    ODR_XL_3330HZ,
-    ODR_XL_6660HZ,
+    ODR_XL_1666HZ,
+    ODR_XL_3332HZ,
+    ODR_XL_6664HZ,
   };
 
   enum struct fs_xl_t : uint8_t
@@ -43,9 +43,9 @@ public:
     ODR_G_208HZ,
     ODR_G_416HZ,
     ODR_G_833HZ,
-    ODR_G_1660HZ,
-    ODR_G_3330HZ,
-    ODR_G_6660HZ,
+    ODR_G_1666HZ,
+    ODR_G_3332HZ,
+    ODR_G_6664HZ,
   };
 
   enum struct fs_g_t : uint8_t
@@ -130,9 +130,9 @@ private:
     ODR_XL_208HZ = 0b0101 << 4,
     ODR_XL_416HZ = 0b0110 << 4,
     ODR_XL_833HZ = 0b0111 << 4,
-    ODR_XL_1660HZ = 0b1000 << 4,
-    ODR_XL_3330HZ = 0b1001 << 4,
-    ODR_XL_6660HZ = 0b1010 << 4,
+    ODR_XL_1666HZ = 0b1000 << 4,
+    ODR_XL_3332HZ = 0b1001 << 4,
+    ODR_XL_6664HZ = 0b1010 << 4,
     FS_XL_2G = 0b00 << 2,
     FS_XL_4G = 0b10 << 2,
     FS_XL_8G = 0b11 << 2,
@@ -145,16 +145,15 @@ private:
 
   enum ctrl2_g_t : uint8_t
   {
-
     ODR_G_26HZ = 0b0010 << 4,
     ODR_G_52HZ = 0b0011 << 4,
     ODR_G_104HZ = 0b0100 << 4,
     ODR_G_208HZ = 0b0101 << 4,
     ODR_G_416HZ = 0b0110 << 4,
     ODR_G_833HZ = 0b0111 << 4,
-    ODR_G_1660HZ = 0b1000 << 4,
-    ODR_G_3330HZ = 0b1001 << 4,
-    ODR_G_6660HZ = 0b1010 << 4,
+    ODR_G_1666HZ = 0b1000 << 4,
+    ODR_G_3332HZ = 0b1001 << 4,
+    ODR_G_6664HZ = 0b1010 << 4,
     FS_G_125DPS = 0b001 << 1,
     FS_G_250DPS = 0b000 << 1,
     FS_G_500DPS = 0b010 << 1,
@@ -169,7 +168,6 @@ private:
 
   enum ctrl4_c_t : uint8_t
   {
-
     DEN_XL_EN = 1 << 7,
     SLEEP = 1 << 6,
     INT2_ON_INT1 = 1 << 5,
@@ -186,7 +184,6 @@ private:
 
   enum ctrl6_c_t : uint8_t
   {
-
     TRIG_EN = 1 << 7,
     LVL1_EN = 1 << 6,
     LVL2_EN = 1 << 5,
@@ -200,7 +197,6 @@ private:
 
   enum ctrl7_g_t : uint8_t
   {
-
     G_HM_MODE_DISABLE = 1 << 7,
     HP_EN_G = 1 << 6,
     HPM_G_16MHZ = 00 << 4,
@@ -212,7 +208,6 @@ private:
 
   enum ctrl8_xl_t : uint8_t
   {
-
     LPF2_XL_EN = 1 << 7,
     HPCF_XL_50 = 0b00 << 5,   // fc = ODR/50
     HPCF_XL_100 = 0b01 << 5,  // fc = ODR/100

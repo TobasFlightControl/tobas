@@ -35,7 +35,7 @@ bool SBUS::initialize(const char* device)
     return false;
   }
 
-  if (!uart_.enableParity(linux::UARTdev::PARITY_EVEN)) {
+  if (!uart_.enableParity(linux::UARTdev::kEven)) {
     return false;
   }
 

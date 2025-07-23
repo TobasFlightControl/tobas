@@ -37,8 +37,8 @@ struct rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedW
 
     dst.control_surfaces.clear();
     for (const auto& cs : src.control_surfaces) {
-      dst.control_surfaces[cs.channel] = tobas::ControlSurface();
-      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_custom(cs, dst.control_surfaces.at(cs.channel));
+      dst.control_surfaces[cs.link_name] = tobas::ControlSurface();
+      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_custom(cs, dst.control_surfaces.at(cs.link_name));
     }
   }
 };

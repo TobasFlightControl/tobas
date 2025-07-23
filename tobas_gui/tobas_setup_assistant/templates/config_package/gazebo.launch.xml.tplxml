@@ -12,7 +12,7 @@
   <arg name="launch_core" default="true"/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
-  <arg name="z" default="0.3" description="Initial Z position in meters."/>
+  <arg name="z" default="1.0" description="Initial Z position in meters."/>
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
 
   <!-- Set common parameters -->
@@ -20,9 +20,9 @@
 
   <!-- Load robot description -->
   <arg name="xacro_path" default="$(find-pkg-share {{ config_pkg_name }})/urdf/drone.xacro"/>
-  <arg name="urdf_content" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug)')"/>
+  <arg name="urdf_text" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug)')"/>
   <node pkg="robot_state_publisher" exec="robot_state_publisher" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
-    <param name="robot_description" value="$(var urdf_content)"/>
+    <param name="robot_description" value="$(var urdf_text)"/>
     <remap from="/tf" to="tf"/>
     <remap from="/tf_static" to="tf_static"/>
   </node>
@@ -75,5 +75,14 @@
   <!-- Launch user nodes -->
   <include file="$(find-pkg-share {{ user_cpp_pkg_name }})/launch/gazebo.launch.py"/>
   <include file="$(find-pkg-share {{ user_py_pkg_name }})/launch/gazebo.launch.py"/>
+
+  <!-- Launch nodes for debug -->
+  <node pkg="tobas_matrix_euler_conversion" exec="matrix_euler_converter" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
+    <remap from="euler" to="gazebo/euler"/>
+  </node>
+  <node pkg="tobas_matrix_euler_conversion" exec="matrix_euler_converter" name="gazebo_matrix_euler_converter" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
+    <remap from="odom" to="gazebo/ground_truth/odom"/>
+    <remap from="euler" to="gazebo/ground_truth/euler"/>
+  </node>
 
 </launch>

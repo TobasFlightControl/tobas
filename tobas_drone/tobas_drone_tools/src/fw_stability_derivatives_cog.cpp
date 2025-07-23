@@ -23,15 +23,15 @@ bool StabilityDerivativesCG::updateInternalDataStructures()
 
 int StabilityDerivativesCG::update(const kdl::JntArray& q)
 {
-  error_code_ = E_NO_ERROR;
+  error_code_ = kNoError;
 
   // エイリアス
   const auto& aero = drone_.fixed_wing->aerodynamics;
 
   // CoGを更新
-  if (inertia_solver_.JntToCart(q) < 0) {
+  if (inertia_solver_.jntToCart(q) < 0) {
     error_msg_ = inertia_solver_.errorMessage();
-    return error_code_ = E_ERROR;
+    return error_code_ = kError;
   }
   const auto cog = inertia_solver_.getInertia().getCOG();
 
@@ -43,9 +43,9 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   c_pitch_alpha_cg_ = aero.c_pitch_alpha + dx_c * aero.c_lift_alpha;
   c_yaw_beta_cg_ = aero.c_yaw_beta + dx_b * aero.c_side_beta;
 
-  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces) {
-    c_pitch_delta_cg_[channel] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;
-    c_yaw_delta_cg_[channel] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
+  for (const auto& [link_name, cs] : drone_.fixed_wing->control_surfaces) {
+    c_pitch_delta_cg_[link_name] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;
+    c_yaw_delta_cg_[link_name] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
   }
 
   return error_code_;

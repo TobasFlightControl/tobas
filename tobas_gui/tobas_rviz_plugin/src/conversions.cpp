@@ -535,7 +535,7 @@ void streamToRobotState(RobotState& state, const std::string& line, const std::s
   // For each item/column
   for (std::size_t i = 0; i < state.getVariableCount(); ++i) {
     // Get a variable
-    if (!std::getline(line_stream, cell, separator[0])) {
+    if (!std::getline(line_stream, cell, separator.front())) {
       RCLCPP_ERROR(getLogger(), "Missing variable %s", state.getVariableNames()[i].c_str());
     }
     state.getVariablePositions()[i] = std::stod(cell);

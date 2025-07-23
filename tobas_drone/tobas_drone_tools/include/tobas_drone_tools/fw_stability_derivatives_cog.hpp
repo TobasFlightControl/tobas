@@ -21,8 +21,8 @@ public:
 
   inline const double& cPitchAlpha() const;
   inline const double& cYawBeta() const;
-  inline const double& cPitchDelta(size_t channel) const;
-  inline const double& cYawDelta(size_t channel) const;
+  inline const double& cPitchDelta(const std::string& link_name) const;
+  inline const double& cYawDelta(const std::string& link_name) const;
 
 private:
   const Drone& drone_;
@@ -32,8 +32,8 @@ private:
 
   double c_pitch_alpha_cg_;
   double c_yaw_beta_cg_;
-  std::map<size_t, double> c_pitch_delta_cg_;
-  std::map<size_t, double> c_yaw_delta_cg_;
+  std::map<std::string, double> c_pitch_delta_cg_;
+  std::map<std::string, double> c_yaw_delta_cg_;
 
   void clear();
 };
@@ -48,13 +48,13 @@ inline const double& StabilityDerivativesCG::cYawBeta() const
   return c_yaw_beta_cg_;
 }
 
-inline const double& StabilityDerivativesCG::cPitchDelta(size_t channel) const
+inline const double& StabilityDerivativesCG::cPitchDelta(const std::string& link_name) const
 {
-  return c_pitch_delta_cg_.at(channel);
+  return c_pitch_delta_cg_.at(link_name);
 }
 
-inline const double& StabilityDerivativesCG::cYawDelta(size_t channel) const
+inline const double& StabilityDerivativesCG::cYawDelta(const std::string& link_name) const
 {
-  return c_yaw_delta_cg_.at(channel);
+  return c_yaw_delta_cg_.at(link_name);
 }
 }  // namespace tobas

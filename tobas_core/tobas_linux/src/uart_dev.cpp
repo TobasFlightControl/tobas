@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_linux/errer.hpp"
+#include "tobas_linux/error.hpp"
 #include "tobas_linux/termios2.hpp"
 
 using namespace std;
@@ -174,13 +174,13 @@ bool UARTdev::setDoubleStopBit()
   return setConfig();
 }
 
-bool UARTdev::enableParity(parity_mode_t mode)
+bool UARTdev::enableParity(ParityMode mode)
 {
   switch (mode) {
-    case PARITY_ODD:
+    case kOdd:
       options_.c_cflag |= PARODD;
       break;
-    case PARITY_EVEN:
+    case kEven:
       options_.c_cflag &= ~PARODD;
       break;
     default:

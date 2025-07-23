@@ -272,14 +272,14 @@ public:
   void getVariableRandomPositions(random_numbers::RandomNumberGenerator& rng, std::vector<double>& values) const
   {
     values.resize(variable_count_);
-    getVariableRandomPositions(rng, &values[0]);
+    getVariableRandomPositions(rng, &values.front());
   }
 
   /* Compute the default values for a RobotState */
   void getVariableDefaultPositions(std::vector<double>& values) const
   {
     values.resize(variable_count_);
-    getVariableDefaultPositions(&values[0]);
+    getVariableDefaultPositions(&values.front());
   }
 
   /* Compute the random values for a RobotState */

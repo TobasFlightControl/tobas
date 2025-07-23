@@ -6,11 +6,10 @@ namespace gui
 {
 namespace gcs
 {
-PowerSourceViewerWidget::PowerSourceViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : drone_(drone)
+PowerSourceViewerWidget::PowerSourceViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
-  battery_viewer_ = new BatteryViewerWidget(node, drone);
-  engine_viewer_ = new EngineViewerWidget(node, drone);
+  battery_viewer_ = new BatteryViewerWidget(bridge, drone);
+  engine_viewer_ = new EngineViewerWidget(bridge, drone);
 
   addWidget(battery_viewer_);
   addWidget(engine_viewer_);
@@ -30,11 +29,11 @@ void PowerSourceViewerWidget::updateInternalDataStructures()
 
   // 推進系によって表示するウィジェットを切り替える
   switch (drone_.prop->type()) {
-    case tobas::propulsion_system_t::ELECTRIC:
+    case tobas::PropulsionSystem::kElectric:
       battery_viewer_->updateInternalDataStructures();
       setCurrentWidget(battery_viewer_);
       break;
-    case tobas::propulsion_system_t::ICE:
+    case tobas::PropulsionSystem::kIce:
       engine_viewer_->updateInternalDataStructures();
       setCurrentWidget(engine_viewer_);
       break;

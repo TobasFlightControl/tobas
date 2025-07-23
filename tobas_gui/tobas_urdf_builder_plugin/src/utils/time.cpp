@@ -2,20 +2,18 @@
 
 #include <chrono>
 
-using namespace std;
-
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace utils
 {
 int timeNowMilliseconds()
 {
-  const auto now = chrono::system_clock::now().time_since_epoch();
-  const auto ms = chrono::duration_cast<chrono::milliseconds>(now);
+  const auto now = std::chrono::system_clock::now().time_since_epoch();
+  const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now);
   return static_cast<int>(ms.count());
 }
 }  // namespace utils
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

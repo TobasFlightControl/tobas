@@ -9,6 +9,10 @@ enabling precise flight performance even for unconventional frames not supported
 
 [Tobas User Guide](https://tobas-wiki-ja.readthedocs.io/ja/stable/)
 
+## Supported Motor Controller Firmware
+
+- v1.1
+
 ## Setup from source (Ubuntu 24.04 LTS)
 
 1. [Install ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
@@ -86,7 +90,7 @@ $ colcon build --packages-up-to tobas
 ### Launch Tobas GCS
 
 ```bash
-$ ros2 launch tobas_gui_core gui.launch.py
+$ ros2 launch tobas_gcs gcs.launch.py
 ```
 
 ### Launch Gazebo simulation

@@ -26,14 +26,14 @@ public:
    * @param rho 大気密度 [kg/m^3]
    * @param q 関節角 [rad]
    *
-   * @return ErrorCode Error code
+   * @return Error Error code
    */
   int update(double V, const double& rho, const kdl::JntArray& q);
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
-  inline const size_t& elevatorChannel() const;
+  inline const std::string& elevatorLinkName() const;
 
   /* 迎角 [rad] */
   inline const double& alpha() const;
@@ -73,9 +73,9 @@ private:
   StabilityDerivativesCG asd_cog_;
 
   // 固定値
-  double W_;             // 機体の重量 [N]
-  size_t elev_channel_;  // ピッチ回転の釣り合いに使う舵面のチャンネル
-  double a_, b_;         // (2.9-49)の定数部分
+  double W_;                    // 機体の重量 [N]
+  std::string elev_link_name_;  // ピッチ回転の釣り合いに使う舵面
+  double a_, b_;                // (2.9-49)の定数部分
 
   double alpha_;     // トリム時の迎角 [rad]
   double elevator_;  // トリム時の昇降舵の偏角 [rad]
@@ -90,9 +90,9 @@ inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() co
   return asd_cog_;
 }
 
-inline const size_t& TrimConditions::elevatorChannel() const
+inline const std::string& TrimConditions::elevatorLinkName() const
 {
-  return elev_channel_;
+  return elev_link_name_;
 }
 
 inline const double& TrimConditions::alpha() const

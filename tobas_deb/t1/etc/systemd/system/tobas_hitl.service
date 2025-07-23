@@ -5,7 +5,7 @@ After=network-online.target
 [Service]
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
-EnvironmentFile=/etc/tobas/config_pkg.env
+EnvironmentFile=/etc/tobas/config.env
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && /opt/ros/jazzy/ros2cli/bin/ros2 launch ${TOBAS_CONFIG_PKG} hitl.launch.py'
 Restart=no
 CPUSchedulingPolicy=rr

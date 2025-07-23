@@ -1,0 +1,486 @@
+#include "tobas_gcs/gcs.hpp"
+
+#include <QApplication>
+#include <QButtonGroup>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
+#include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/load_project_dialog.hpp>
+#include <tobas_gui_common/path.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <tobas_ros2_tools/util.hpp>
+
+#include "tobas_gcs/app_button.hpp"
+#include "tobas_gcs/constants.hpp"
+
+namespace fs = std::filesystem;
+
+namespace gui
+{
+namespace gcs
+{
+GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
+  : node_(node)
+  , bridge_(node)
+  , property_client_(node, tobas::kPropertyServerName, kPackageName)
+  , ssh_client_(node)
+  , remote_proj_builder_(node)
+  , restart_thread_(node)
+  , shutdown_thread_(node)
+  , spinner_(Qt::WindowModal, this)
+{
+  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
+  const auto rsrc_path = pkg_path / "resources";
+
+  // Applications
+  hardware_setup_ = new hw::HardwareSetupWidget(node, bridge_, tree_, drone_);
+  control_system_ = new gcs::ControlSystemWidget(node, bridge_, drone_);
+  param_tuning_ = new param::ParameterTuningWidget(node);
+  flight_log_ = new log::FlightLogWidget(node, bridge_);
+  simulation_ = new sim::SimulationWidget(node, bridge_);
+
+  // TODO: 別々のアイコンを設定
+  const auto hardware_setup_btn = new AppButton("Hardware Setup", QString::fromStdString(rsrc_path / "app.png"));
+  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "app.png"));
+  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "app.png"));
+  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "app.png"));
+  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "app.png"));
+
+  const auto app_sw = new qt::StackedWidget();
+  app_sw->addWidget(hardware_setup_);
+  app_sw->addWidget(control_system_);
+  app_sw->addWidget(param_tuning_);
+  app_sw->addWidget(flight_log_);
+  app_sw->addWidget(simulation_);
+
+  const auto btn_group = new QButtonGroup(this);
+  int btn_id = 0;
+  btn_group->addButton(hardware_setup_btn, btn_id++);
+  btn_group->addButton(control_system_btn, btn_id++);
+  btn_group->addButton(param_tuning_btn, btn_id++);
+  btn_group->addButton(flight_log_btn, btn_id++);
+  btn_group->addButton(simulation_btn, btn_id++);
+  btn_group->buttons().first()->setChecked(true);
+
+  // Package manager
+  tbs_path_ = new QLineEdit();
+  tbs_path_->setMaximumWidth(kPathMaxWidth);
+  tbs_path_->setReadOnly(true);
+  tbs_path_->setFocusPolicy(Qt::NoFocus);
+
+  load_btn_ = new QPushButton("Load Project");
+  write_btn_ = new QPushButton("Write Project");
+
+  load_btn_->setEnabled(true);
+  write_btn_->setEnabled(false);
+
+  // Power control buttons
+  restart_btn_ = new RestartButton(kPowerButtonRadius);
+  shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
+
+  // Layout
+  const auto pkg_btn_cols = new QHBoxLayout();
+  pkg_btn_cols->addWidget(load_btn_);
+  pkg_btn_cols->addWidget(write_btn_);
+
+  const auto pkg_rows = new QVBoxLayout();
+  pkg_rows->addWidget(tbs_path_);
+  pkg_rows->addLayout(pkg_btn_cols);
+
+  const auto header_cols = new QHBoxLayout();
+  header_cols->addWidget(hardware_setup_btn, 1);
+  header_cols->addWidget(control_system_btn, 1);
+  header_cols->addWidget(param_tuning_btn, 1);
+  header_cols->addWidget(flight_log_btn, 1);
+  header_cols->addWidget(simulation_btn, 1);
+  header_cols->addStretch();
+  header_cols->addLayout(pkg_rows);
+  qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // スペースが足りなければ潰れる
+  header_cols->addWidget(restart_btn_);
+  header_cols->addWidget(shutdown_btn_);
+
+  const auto rows = new QVBoxLayout();
+  rows->addLayout(header_cols);
+  rows->addWidget(app_sw);
+
+  setLayout(rows);
+
+  // Connection
+  connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
+  connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
+  connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
+  connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  connect(&restart_thread_, &RestartThread::finished, this, &self::onRestartThreadFinished);
+  connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
+  connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
+  connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
+  connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+}
+
+void GroundControlStationWidget::reset()
+{
+  hardware_setup_->reset();
+  control_system_->reset();
+  param_tuning_->reset();
+  flight_log_->reset();
+  simulation_->reset();
+
+  arming_.reset();
+}
+
+void GroundControlStationWidget::updateInternalDataStructures()
+{
+  reset();
+
+  bridge_.initialize(drone_.name);
+
+  hardware_setup_->updateInternalDataStructures();
+  control_system_->updateInternalDataStructures();
+  param_tuning_->updateTBSPath(tbsPath());
+  flight_log_->updateNamespace(drone_.name);
+  simulation_->updateTBSPath(tbsPath());
+}
+
+void GroundControlStationWidget::closeEvent(QCloseEvent* event)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::closeEvent");
+
+  hardware_setup_->close();
+  control_system_->close();
+  param_tuning_->close();
+  flight_log_->close();
+  simulation_->close();
+
+  event->accept();
+}
+
+fs::path GroundControlStationWidget::tbsPath() const
+{
+  return tbs_path_->text().toStdString();
+}
+
+void GroundControlStationWidget::onLoadButtonClicked()
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onLoadButtonClicked");
+
+  // 前回開いたパスを取得
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+    last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+  }
+
+  // プロジェクトのパスを取得
+  common::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  if (dialog.exec() != QDialog::Accepted) {
+    return;
+  }
+  const auto tbs_path = dialog.selectedFiles().first();
+
+  // パスをテキストに設定
+  tbs_path_->setText(tbs_path);
+
+  // ユーザが開いたディレクトリを保存
+  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  }
+  if (property_client_.save() < 0) {
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  }
+
+  // 機体設定ファイルの存在を確認
+  const auto tbsdrn_path = common::getProjTbsDrnPath(tbs_path.toStdString());
+  if (!fs::is_regular_file(tbsdrn_path)) {
+    qt::qErrorBox(
+      this, "\"" + QString::fromStdString(tbsdrn_path) + "\" does not exist. Please create a new Tobas project.");
+    return;
+  }
+
+  // Load KDL tree
+  const auto uadf_path = common::getProjOriginalUadfPath(tbs_path.toStdString());
+  if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    return;
+  }
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+    return;
+  }
+
+  // Load drone configuration
+  if (!drone_.load(tbsdrn_path)) {
+    qt::qErrorBox(this, "Failed to load drone configuration.");
+    return;
+  }
+
+  // 内部状態を更新
+  updateInternalDataStructures();
+
+  // Writeボタンを有効化
+  write_btn_->setEnabled(true);
+
+  // ロードが成功したことを示すダイアログ
+  qt::qInfoBox(this, "Tobas project is loaded successfully.");
+}
+
+void GroundControlStationWidget::onWriteButtonClicked()
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onWriteButtonClicked");
+
+  // アームされていないことを確認
+  if (!arming_) {
+    if (!qt::yesOrNo(
+          this,
+          "This operation will restart the flight control software, "
+          "so it can only be performed when the aircraft is completely stationary. "
+          "Do you want to proceed?",
+          qt::QMessageLevel::WARN)) {
+      return;
+    }
+  }
+  else {
+    if (arming_->data) {
+      qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+      return;
+    }
+  }
+
+  const auto tbs_path = tbsPath();
+  const auto remote_tbs_path = common::getProjRemotePath(tbs_path);
+  const auto config_pkg_name = common::getProjCfgPkgName(tbs_path);
+
+  // 進捗バーを作成
+  qt::ProgressDialog progress(kTitle, 9, this);
+  progress.setCancelButton(nullptr);
+  progress.show();
+
+  // SSH接続
+  progress.setLabelText("Connecting to the flight controller.");
+  if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // サービスを停止
+  progress.setLabelText("Stopping Tobas real service.");
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // 環境変数を読み込む
+  progress.setLabelText("Getting environment variables.");
+  std::string cur_env_content;
+  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SSHClient::kNoError) {  // ファイルが存在しなくても続行
+    if (!config_env_parser_.parseFromText(cur_env_content)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to parse configuration file.");
+      return;
+    }
+  }
+  else {
+    qWarning() << "Failed to get environment variables: " << ssh_client_.errorMessage();
+  }
+  progress.progressStep();
+
+  // パッケージが代わる場合は競合を避けるためにクリーンビルド
+  if (config_pkg_name != config_env_parser_.config_pkg) {
+    // ワークスペースを初期化
+    progress.setLabelText("Initializing colcon workspace.");
+    if (ssh_client_.execute(std::format("rm -rf {}", tobas::kColconWSPathRoot), true)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    if (ssh_client_.execute(std::format("mkdir -p {}/src", tobas::kColconWSPathRoot), true)) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    progress.progressStep();
+
+    // 環境変数を更新
+    progress.setLabelText("Setting environment variables.");
+    config_env_parser_.config_pkg = config_pkg_name;
+    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SSHClient::kNoError) {
+      progress.close();
+      qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
+      return;
+    }
+    progress.progressStep();
+  }
+  else {
+    progress.progressStep();
+    progress.progressStep();
+  }
+
+  // プロジェクトを送信
+  progress.setLabelText("Sending Tobas project to the flight controller.");
+  const auto mesh_path = common::getProjCfgMeshDirPath(tbs_path);
+  const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
+  if (ssh_client_.scpPut(tbs_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // プロジェクトをビルド
+  progress.setLabelText("Building Tobas project.");
+  if (!remote_proj_builder_.build(remote_tbs_path)) {
+    progress.close();
+    qt::qErrorBox(
+      this, "Failed to build the Tobas project:\n\n" + QString::fromStdString(remote_proj_builder_.getErrorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // サービスを再起動
+  progress.setLabelText("Restarting the flight controller.");
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // リロード
+  progress.setLabelText("Reloading.");
+  reset();
+  progress.progressStep();
+
+  progress.close();
+  qt::qInfoBox(this, "Tobas project is installed successfully.");
+}
+
+void GroundControlStationWidget::onRestartButtonClicked(bool checked)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRestartButtonClicked");
+
+  if (!checked) {
+    return;
+  }
+
+  // アームされていないことを確認
+  if (arming_ && arming_->data) {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  // 本当に再起動してよいか確認
+  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::QMessageLevel::WARN)) {
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  // Tobasサービスを再起動
+  restart_thread_.start();
+
+  spinner_.show();
+  spinner_.start();
+}
+
+void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onShutdownButtonClicked");
+
+  if (!checked) {
+    return;
+  }
+
+  // アームされていないことを確認
+  if (arming_ && arming_->data) {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    shutdown_btn_->setChecked(false);
+    return;
+  }
+
+  // 本当にシャットダウンしてよいか確認
+  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN)) {
+    shutdown_btn_->setChecked(false);
+    return;
+  }
+
+  // ラズパイをシャットダウン
+  shutdown_thread_.start();
+
+  spinner_.show();
+  spinner_.start();
+}
+
+void GroundControlStationWidget::onRestartThreadFinished(bool success, const QString& message)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRestartThreadFinished");
+
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success) {
+    qt::qErrorBox(this, message);
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  // TFの時間戻りを避けるために各ウィジェットをリセット
+  reset();
+
+  qt::qInfoBox(this, "Flight controller is restarted successfully.");
+  restart_btn_->setChecked(false);
+}
+
+void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QString& message)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onShutdownThreadFinished");
+
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success) {
+    qt::qErrorBox(this, message);
+    shutdown_btn_->setChecked(false);
+    return;
+  }
+
+  // GUIを完全に落とす
+  close();
+  QApplication::quit();
+}
+
+void GroundControlStationWidget::onSimRealStateChanged()
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onSimRealStateChanged");
+
+  // シミュレーションウィジェット以外リセット
+  hardware_setup_->reset();
+  control_system_->reset();
+  param_tuning_->reset();
+  flight_log_->reset();
+
+  arming_.reset();
+
+  // イベントループを進めて画面の更新を確実に反映させる
+  QApplication::processEvents();
+}
+
+void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
+}
+}  // namespace gcs
+}  // namespace gui

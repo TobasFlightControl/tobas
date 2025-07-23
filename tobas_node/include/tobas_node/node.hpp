@@ -160,18 +160,21 @@ public:
     const std::string& name,
     bool (Obj::*fp)(const long&),
     Obj* obj,
-    const long& _default = 0,
-    const long& _min = std::numeric_limits<long>::lowest(),
-    const long& _max = std::numeric_limits<long>::max());
+    const long& _default,
+    const long& _min,
+    const long& _max,
+    const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicDoubleParam(
     const std::string& name,
     bool (Obj::*fp)(const double&),
     Obj* obj,
-    const double& _default = 0.,
-    const double& _min = std::numeric_limits<double>::lowest(),
-    const double& _max = std::numeric_limits<double>::max());
+    const double& step,
+    const long& _default,
+    const long& _min,
+    const long& _max,
+    const std::string& prefix = "");
 
   template <typename Obj>
   void addDynamicStringParam(
@@ -179,34 +182,6 @@ public:
     bool (Obj::*fp)(const std::string&),
     Obj* obj,
     const std::string& _default = "");
-
-  template <typename Obj>
-  void addDynamicBoolArrayParam(
-    const std::string& name,
-    bool (Obj::*fp)(const std::vector<bool>&),
-    Obj* obj,
-    const std::vector<bool>& _default = {});
-
-  template <typename Obj>
-  void addDynamicIntArrayParam(
-    const std::string& name,
-    bool (Obj::*fp)(const std::vector<long>&),
-    Obj* obj,
-    const std::vector<long>& _default = {});
-
-  template <typename Obj>
-  void addDynamicDoubleArrayParam(
-    const std::string& name,
-    bool (Obj::*fp)(const std::vector<double>&),
-    Obj* obj,
-    const std::vector<double>& _default = {});
-
-  template <typename Obj>
-  void addDynamicStringArrayParam(
-    const std::string& name,
-    bool (Obj::*fp)(const std::vector<std::string>&),
-    Obj* obj,
-    const std::vector<std::string>& _default = {});
 
   bool getBoolParam(const std::string& name);
   long getIntParam(const std::string& name);
@@ -285,7 +260,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   size_t queue_size)
 {
   const auto qos = ros2::makeQoS(latch, reliable, queue_size);
-  auto cb = std::bind(fp, obj, std::placeholders::_1);
+  const auto cb = std::bind(fp, obj, std::placeholders::_1);
   return create_subscription<MsgType>(topic_name, qos, cb);
 }
 
@@ -313,9 +288,9 @@ ros2::ActionServerPtr<ActionType> BaseNode::createAction(
 {
   // Callback functions need to return quickly to avoid blocking the executor,
   // so we declare a lambda function to be called inside a new thread.
-  auto handle_accepted = [execute, obj](ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+  const auto handle_accepted = [execute, obj](ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   {
-    auto execute_in_thread = [execute, obj, goal_handle]() { return (obj->*execute)(goal_handle); };
+    const auto execute_in_thread = [execute, obj, goal_handle]() { return (obj->*execute)(goal_handle); };
     std::thread(execute_in_thread).detach();
   };
 
@@ -386,9 +361,10 @@ void BaseNode::addDynamicIntParam(
   Obj* obj,
   const long& _default,
   const long& _min,
-  const long& _max)
+  const long& _max,
+  const std::string& prefix)
 {
-  assert(_min <= _default && _default <= _max);
+  TOBAS_ASSERT(_min <= _default && _default <= _max);
 
   if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
@@ -399,22 +375,7 @@ void BaseNode::addDynamicIntParam(
 
   const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
   {
-    auto value = param.as_int();
-    if (value < _min || _max < value) {
-      value = std::clamp(value, _min, _max);
-      TOBAS_WARN(
-        "You attempted to set \"",
-        name,
-        "\" to ",
-        value,
-        ", but since it was outside the range [",
-        _min,
-        ", ",
-        _max,
-        "], it was clamped to ",
-        value,
-        ".");
-    }
+    const auto value = std::clamp(param.as_int(), _min, _max);
     if ((obj->*fp)(value)) {
       for (auto& int_param : dparams_.ints) {
         if (int_param.name == name) {
@@ -433,6 +394,7 @@ void BaseNode::addDynamicIntParam(
   dparam.dflt = _default;
   dparam.min = _min;
   dparam.max = _max;
+  dparam.prefix = prefix;
   dparams_.ints.push_back(dparam);
 }
 
@@ -441,11 +403,13 @@ void BaseNode::addDynamicDoubleParam(
   const std::string& name,
   bool (Obj::*fp)(const double&),
   Obj* obj,
-  const double& _default,
-  const double& _min,
-  const double& _max)
+  const double& step,
+  const long& _default,
+  const long& _min,
+  const long& _max,
+  const std::string& prefix)
 {
-  assert(_min <= _default && _default <= _max);
+  TOBAS_ASSERT(_min <= _default && _default <= _max);
 
   if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
@@ -454,25 +418,10 @@ void BaseNode::addDynamicDoubleParam(
 
   declare_parameter(name, _default);
 
-  const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj, step, _min, _max](const rclcpp::Parameter& param)
   {
-    auto value = param.as_double();
-    if (value < _min || _max < value) {
-      value = std::clamp(value, _min, _max);
-      TOBAS_WARN(
-        "You attempted to set \"",
-        name,
-        "\" to ",
-        value,
-        ", but since it was outside the range [",
-        _min,
-        ", ",
-        _max,
-        "], it was clamped to ",
-        value,
-        ".");
-    }
-    if ((obj->*fp)(value)) {
+    const auto value = std::clamp(param.as_int(), _min, _max);
+    if ((obj->*fp)(step * value)) {
       for (auto& double_param : dparams_.doubles) {
         if (double_param.name == name) {
           double_param.value = value;
@@ -487,9 +436,11 @@ void BaseNode::addDynamicDoubleParam(
 
   tobas_dparam_msgs::msg::DoubleParam dparam;
   dparam.name = name;
+  dparam.step = step;
   dparam.dflt = _default;
   dparam.min = _min;
   dparam.max = _max;
+  dparam.prefix = prefix;
   dparams_.doubles.push_back(dparam);
 }
 
@@ -527,150 +478,6 @@ void BaseNode::addDynamicStringParam(
   dparam.name = name;
   dparam.dflt = _default;
   dparams_.strings.push_back(dparam);
-}
-
-template <typename Obj>
-void BaseNode::addDynamicBoolArrayParam(
-  const std::string& name,
-  bool (Obj::*fp)(const std::vector<bool>&),
-  Obj* obj,
-  const std::vector<bool>& _default)
-{
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
-    return;
-  }
-
-  declare_parameter(name, _default);
-
-  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
-  {
-    const auto& value = param.as_bool_array();
-    if ((obj->*fp)(value)) {
-      for (auto& bool_array_param : dparams_.bool_arrays) {
-        if (bool_array_param.name == name) {
-          bool_array_param.value = value;
-          break;
-        }
-      }
-      TOBAS_INFO("Boolean array parameter \"", name, "\" is updated successfully.");
-    }
-  };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
-  dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::BoolArrayParam dparam;
-  dparam.name = name;
-  dparam.dflt = _default;
-  dparams_.bool_arrays.push_back(dparam);
-}
-
-template <typename Obj>
-void BaseNode::addDynamicIntArrayParam(
-  const std::string& name,
-  bool (Obj::*fp)(const std::vector<long>&),
-  Obj* obj,
-  const std::vector<long>& _default)
-{
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
-    return;
-  }
-
-  declare_parameter(name, _default);
-
-  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
-  {
-    const auto& value = param.as_integer_array();
-    if ((obj->*fp)(value)) {
-      for (auto& int_array_param : dparams_.int_arrays) {
-        if (int_array_param.name == name) {
-          int_array_param.value = value;
-          break;
-        }
-      }
-      TOBAS_INFO("Integer array parameter \"", name, "\" is updated successfully.");
-    }
-  };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
-  dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::IntArrayParam dparam;
-  dparam.name = name;
-  dparam.dflt = _default;
-  dparams_.int_arrays.push_back(dparam);
-}
-
-template <typename Obj>
-void BaseNode::addDynamicDoubleArrayParam(
-  const std::string& name,
-  bool (Obj::*fp)(const std::vector<double>&),
-  Obj* obj,
-  const std::vector<double>& _default)
-{
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
-    return;
-  }
-
-  declare_parameter(name, _default);
-
-  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
-  {
-    const auto& value = param.as_double_array();
-    if ((obj->*fp)(value)) {
-      for (auto& double_array_param : dparams_.double_arrays) {
-        if (double_array_param.name == name) {
-          double_array_param.value = value;
-          break;
-        }
-      }
-      TOBAS_INFO("Double array parameter \"", name, "\" is updated successfully.");
-    }
-  };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
-  dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::DoubleArrayParam dparam;
-  dparam.name = name;
-  dparam.dflt = _default;
-  dparams_.double_arrays.push_back(dparam);
-}
-
-template <typename Obj>
-void BaseNode::addDynamicStringArrayParam(
-  const std::string& name,
-  bool (Obj::*fp)(const std::vector<std::string>&),
-  Obj* obj,
-  const std::vector<std::string>& _default)
-{
-  if (has_parameter(name)) {
-    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
-    return;
-  }
-
-  declare_parameter(name, _default);
-
-  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
-  {
-    const auto& value = param.as_string_array();
-    if ((obj->*fp)(value)) {
-      for (auto& string_array_param : dparams_.string_arrays) {
-        if (string_array_param.name == name) {
-          string_array_param.value = value;
-          break;
-        }
-      }
-      TOBAS_INFO("String array parameter \"", name, "\" is updated successfully.");
-    }
-  };
-  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
-  dparam_handles_.push_back(cb_handle);
-
-  tobas_dparam_msgs::msg::StringArrayParam dparam;
-  dparam.name = name;
-  dparam.dflt = _default;
-  dparams_.string_arrays.push_back(dparam);
 }
 
 template <typename... Args>
@@ -816,8 +623,11 @@ T BaseNode::declareParam(const std::string& name)
   try {
     return declare_parameter<T>(name);
   }
-  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException& e) {
-    TOBAS_EXIT(e.what());
+  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&) {
+    TOBAS_EXIT("Parameter \"", name, "\" is not initialized.");
+  }
+  catch (const std::exception& e) {
+    TOBAS_EXIT("Unexptected error while declaring \"", name, "\": ", e.what());
   }
 }
 
@@ -837,6 +647,9 @@ T BaseNode::declareParam(const std::string& name, const T& _default)
     }
 
     return _default;
+  }
+  catch (const std::exception& e) {
+    TOBAS_EXIT("Unexptected error while declaring \"", name, "\": ", e.what());
   }
 }
 }  // namespace tobas

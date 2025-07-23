@@ -2,6 +2,6 @@
 
 namespace dsp
 {
-/* カットオフ周波数から一次フィルタの時定数を計算する． */
-double timeConstFromCutoff(const double& cutoff_freq);
+/* 双一次変換のプリわーピング． */
+double prewarp(double wc, double dt);
 }  // namespace dsp

@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -46,5 +46,5 @@ private:
   view_model::CollisionViewModelPtr vm_;
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

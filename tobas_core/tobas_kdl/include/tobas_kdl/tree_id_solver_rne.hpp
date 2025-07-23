@@ -41,7 +41,7 @@ public:
    * @param qdd The current joint accelerations
    * @param f_ext The external forces (no gravity) on the segments
    */
-  int CartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext = WrenchMap())
+  int cartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext = WrenchMap())
     override;
 
 private:

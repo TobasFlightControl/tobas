@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -37,5 +37,5 @@ public:
 
 using MaterialViewModelPtr = std::shared_ptr<MaterialViewModel>;
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

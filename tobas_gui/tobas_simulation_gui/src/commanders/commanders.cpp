@@ -11,7 +11,11 @@ namespace gui
 {
 namespace sim
 {
-CommandersWidget::CommandersWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
+CommandersWidget::CommandersWidget(
+  rclcpp::Node::SharedPtr node,
+  const RosQtBridge& bridge,
+  const kdl::Tree& tree,
+  const tobas::Drone& drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -21,7 +25,7 @@ CommandersWidget::CommandersWidget(rclcpp::Node::SharedPtr node, const kdl::Tree
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  base_pose_commander_ = new BasePoseCommanderWidget(node, drone);
+  base_pose_commander_ = new BasePoseCommanderWidget(node, bridge, drone);
   scroll_rows->addWidget(base_pose_commander_);
 
   jointpos_commander_ = new JointPositionCommanderWidget(node, tree, drone);

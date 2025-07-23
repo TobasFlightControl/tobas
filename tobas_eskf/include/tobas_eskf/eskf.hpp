@@ -8,7 +8,6 @@
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_std_tools/geometry.hpp>
-#include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 
 namespace eskf
@@ -66,8 +65,7 @@ class ErrorStateKalmanFilter
 
   // その他
   static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
-  static constexpr double kDoMeasGravMinGValue = 0.1;  // [G]
-  static constexpr double kDoMeasGravMaxGValue = 2.;   // [G]
+  static constexpr double kFreeFallAccelNormThresh = 0.1;  // [G]
 
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Vector<double, kStateSize>;
@@ -213,9 +211,9 @@ public:
     const Eigen::Matrix3d& mag_cov,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureMagneticFieldYaw(
+  double measureMagneticFieldHead(
     const Eigen::Vector3d& mag_meas,
-    const Eigen::Matrix3d& mag_cov,
+    const double& yaw_var,
     const std::chrono::steady_clock::time_point& time);
 
 private:
@@ -224,11 +222,11 @@ private:
   bool enable_cov_symmetrisation_ = false;
   bool enable_cov_initialization_ = false;
   bool enable_joseph_form_ = true;
-  double acc_bias_proc_noise_density_ = 0.;   // [m/s^2/√Hz] 加速度バイアスのプロセスノイズ密度
-  double gyro_bias_proc_noise_density_ = 0.;  // [rad/s/√Hz] ジャイロバイアスのプロセスノイズ密度
-  double mag_hard_bias_proc_noise_density_ = 0.;  // [/√Hz] 地磁気ハードアイアンバイアスのプロセスノイズ密度
-  double mag_soft_bias_proc_noise_density_ = 0.;  // [/√Hz] 地磁気ソフトアイアンバイアスのプ密度ノイズ密度
-  double grav_proc_noise_density_ = 0.;  // [m/s^2/√Hz] 重力加速度のプロセスノイズ密度
+  double acc_bias_proc_noise_density_ = 0.;   // [m/s^3/√Hz] 加速度バイアスのプロセスノイズ密度
+  double gyro_bias_proc_noise_density_ = 0.;  // [rad/s^2/√Hz] ジャイロバイアスのプロセスノイズ密度
+  double mag_hard_bias_proc_noise_density_ = 0.;  // [/s/√Hz] 地磁気ハードアイアンバイアスのプロセスノイズ密度
+  double mag_soft_bias_proc_noise_density_ = 0.;  // [/s/√Hz] 地磁気ソフトアイアンバイアスのプ密度ノイズ密度
+  double grav_proc_noise_density_ = 0.;  // [m/s^3/√Hz] 重力加速度のプロセスノイズ密度
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
@@ -249,8 +247,6 @@ private:
   std::chrono::steady_clock::time_point t_last_imu_;
   tobas_std::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
-
-  tobas_std::Stopwatch stopwatch_;
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;

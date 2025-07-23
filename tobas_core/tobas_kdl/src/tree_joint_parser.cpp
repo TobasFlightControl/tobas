@@ -25,7 +25,8 @@ bool TreeJointParser::updateInternalDataStructures()
 void TreeJointParser::resize()
 {
   jnt_names_.resize(nj_);
-  jnt_idx_.clear();
+  jnt_indexes_.clear();
+  seg_names_.clear();
   lower_limits_.resize(nj_);
   upper_limits_.resize(nj_);
   max_velocities_.resize(nj_);
@@ -42,10 +43,11 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segmen
   const auto& seg = segment->second.segment;
   const auto& jnt = seg.joint();
   const auto& q_nr = segment->second.q_nr;
-  if (seg.joint().type != Joint::FIXED) {
+  if (seg.joint().type != Joint::kFixed) {
     const auto& name = seg.joint().name;
     jnt_names_[q_nr] = name;
-    jnt_idx_[name] = q_nr;
+    jnt_indexes_[name] = q_nr;
+    seg_names_[name] = seg.name();
     lower_limits_(q_nr) = jnt.lower_limit;
     upper_limits_(q_nr) = jnt.upper_limit;
     max_velocities_(q_nr) = jnt.max_velocity;

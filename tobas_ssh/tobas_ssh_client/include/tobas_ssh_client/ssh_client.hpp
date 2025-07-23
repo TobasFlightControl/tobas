@@ -32,36 +32,37 @@ class SSHClient
 public:
   using SharedPtr = std::shared_ptr<SSHClient>;
 
-  enum error_t
+  enum Error
   {
-    E_NO_ERROR = 0,
-    E_SERVICE_NOT_READY = -1,
-    E_SERVER_ERROR = -2,
+    kNoError = 0,
+    kServiceNotReady = -1,
+    kServerError = -2,
   };
 
   explicit SSHClient(rclcpp::Node::SharedPtr node);
 
-  error_t connect();
+  Error connect();
 
-  error_t execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
-  error_t execute(const std::string& command, bool superuser = false, bool background = false);
+  Error execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
+  Error execute(const std::string& command, bool superuser = false, bool background = false);
 
-  error_t scpGet(const std::string& remote_path, const std::string& local_path);
-  error_t scpPut(
+  Error scpGet(const std::string& remote_path, const std::string& local_path);
+  Error scpPut(
     const std::string& local_dir,
     const std::string& remote_dir,
+    bool parents,
     const std::vector<std::string>& exclude_dirs,
     bool superuser = false);
 
-  error_t sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
-  error_t sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
+  Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
+  Error sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
 
-  error_t list(const std::string& pardir, std::vector<std::string>& dst);
+  Error list(const std::string& pardir, std::vector<std::string>& dst);
 
   bool fileExists(const std::filesystem::path& file_path);
   bool dirExists(const std::filesystem::path& dir_path);
 
-  error_t errorCode() const;
+  Error errorCode() const;
   const char* errorMessage() const;
 
 private:
@@ -69,13 +70,13 @@ private:
 
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Connect> connect_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Execute> execute_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SCPGet> scp_get_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SCPPut> scp_put_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SFTPRead> sftp_read_sc_;
-  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SFTPWrite> sftp_write_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::ScpGet> scp_get_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::ScpPut> scp_put_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpRead> sftp_read_sc_;
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SftpWrite> sftp_write_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::List> list_sc_;
 
-  error_t error_code_ = E_NO_ERROR;
+  Error error_code_ = kNoError;
   std::string server_error_msg_;
 };
 }  // namespace ssh

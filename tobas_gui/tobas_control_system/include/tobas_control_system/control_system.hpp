@@ -18,7 +18,7 @@ class ControlSystemWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
+  explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
 
   void reset();
   void updateInternalDataStructures();

@@ -54,14 +54,8 @@ const char* SimulationWidget::description() const
          "To enhance the accuracy of the simulation, please input information about the actual operating environment.";
 }
 
-void SimulationWidget::onOpened()
-{
-  return;
-}
-
 void SimulationWidget::updateInternalDataStructures()
 {
-  return;
 }
 
 bool SimulationWidget::isValid()

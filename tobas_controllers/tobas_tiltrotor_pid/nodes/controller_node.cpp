@@ -27,9 +27,6 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_std_msgs/msg/bool_stamped.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 class ControllerNode : public tobas::BaseNode
 {
   using self = ControllerNode;
@@ -87,7 +84,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_livelinesses_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVel> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Accel> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Angle> angle_cmd_sub_;
@@ -127,7 +124,7 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses);
   void positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd);
@@ -145,22 +142,25 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register dynamic parameters
   // XXX: I制御は姿勢変化が大きいと逆効果なため，デフォルトではオフにする．
-  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 5., 1., 50.);
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 5., 0.1, 25.);
-  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0., 0., 1.);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0., 0., 1.);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0., 0., 10.);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0., 0., 10.);
-  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 8., 0., 20.);
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 0., 10.);
-  addDynamicIntParam("tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 10, 0, 45);
-  addDynamicIntParam("tilt_axis_singular_declination_ub", &self::tiltAsixSingularDeclinationUBCb, this, 20, 0, 45);
+  addDynamicDoubleParam(
+    "horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 1., 10, 1, 50, " rad/s");
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 1., 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.1, 0, 0, 10);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.1, 0, 0, 10);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 1., 0, 0, 10);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 1., 0, 0, 10);
+  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
+  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
+  addDynamicIntParam(
+    "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 10, 0, 45, " deg");
+  addDynamicIntParam(
+    "tilt_axis_singular_declination_ub", &self::tiltAsixSingularDeclinationUBCb, this, 20, 0, 45, " deg");
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -176,7 +176,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   }
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
+  rotor_livelinesses_sub_ = createSubscriber(tobas::kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(tobas::kPosVelCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(tobas::kAccelCmdTopic, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(tobas::kAngleCmdTopic, &self::angleCommandCb, this);
@@ -466,17 +466,17 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 推力を発行
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     tar_thrusts->header.stamp = odom->header.stamp;
-    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
       tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
     }
-    tar_thrusts_pub_->publish(move(tar_thrusts));
+    tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
     // ティルト角を発行
     auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
     tar_angles->header.stamp = odom->header.stamp;
-    for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       const auto& rotor = rotor_it.second;
       if (rotor->tilt_joint_name.empty()) {
         continue;
@@ -485,14 +485,14 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       tar_angles->commands.back().name = rotor->tilt_joint_name;
       tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
     }
-    tar_angles_pub_->publish(move(tar_angles));
+    tar_angles_pub_->publish(std::move(tar_angles));
 
     // フィードバックメッセージを埋める
     feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
     feedback->target_dgyro = *tar_dgyro_;
 
     // フィードバックメッセージを発行
-    feedback_pub_->publish(move(feedback));
+    feedback_pub_->publish(std::move(feedback));
   }
 }
 
@@ -532,13 +532,13 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 }
 
-void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
+void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses)
 {
   if (!mixer_.isInitialized()) {
     return;
   }
 
-  for (const auto& data : rotor_liveliness->data) {
+  for (const auto& data : rotor_livelinesses->data) {
     if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
       TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
     }

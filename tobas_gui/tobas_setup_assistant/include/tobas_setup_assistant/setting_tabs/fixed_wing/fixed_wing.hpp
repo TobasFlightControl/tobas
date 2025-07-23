@@ -1,18 +1,15 @@
 #pragma once
 
-#include <QCheckBox>
-#include <QVBoxLayout>
-
 #include "../base_setting.hpp"
 #include "./aero_coefs.hpp"
-#include "./control_surface/control_surfaces.hpp"
+#include "./control_surfaces.hpp"
 #include "./vehicle.hpp"
 
 namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
 class FixedWingWidget : public BaseSettingWidget
 {
@@ -25,41 +22,30 @@ class FixedWingWidget : public BaseSettingWidget
   static constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
   static constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
-  static constexpr bool kDefaultHasFixedWing = false;
-
 public:
-  explicit FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
 
   const char* name() const override;
   const char* title() const override;
   const char* description() const override;
 
-  void onOpened() override;
   void updateInternalDataStructures() override;
   bool isValid() override;
 
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  bool hasFixedWing() const;
   const VehicleParametersWidget* vehicle() const;
   const AerodynamicsCoefficientsWidget* aeroCoefs() const;
   const ControlSurfacesWidget* controlSurfaces() const;
 
-private Q_SLOTS:
-  void setSettingWidgetsEnabled(bool enabled);
-
 private:
   const rclcpp::Node::SharedPtr node_;
-  const RobotInfo& robot_;
-
-  QCheckBox* has_fixed_wing_;
-  QVBoxLayout* setting_rows_;
 
   VehicleParametersWidget* vehicle_;
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
-};  // namespace fixed_wing
+};  // namespace fw
 }  // namespace sa
 }  // namespace gui

@@ -9,11 +9,9 @@
 #include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
 
-using namespace std;
-
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ogre
 {
@@ -42,7 +40,7 @@ struct OgreController::PImpl
   struct RvizPrivate_
   {
     rviz_default_plugins::robot::Robot* robot;
-    vector<shared_ptr<rviz_rendering::Axes>> axes;
+    std::vector<std::shared_ptr<rviz_rendering::Axes>> axes;
   } rviz;
 
   struct OgrePrivate_
@@ -118,8 +116,8 @@ void OgreController::reloadAxes(const view_model::URDFViewModel& vm)
       continue;
     }
 
-    const auto axes =
-      make_shared<rviz_rendering::Axes>(pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius);
+    const auto axes = std::make_shared<rviz_rendering::Axes>(
+      pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius);
     axes->setPosition(position);
     axes->setOrientation(orientation);
     pimpl_->rviz.axes.push_back(axes);
@@ -184,5 +182,5 @@ void OgreController::setInertiaVisible(bool visible)
   pimpl_->rviz.robot->setInertiaVisible(visible);
 }
 }  // namespace ogre
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

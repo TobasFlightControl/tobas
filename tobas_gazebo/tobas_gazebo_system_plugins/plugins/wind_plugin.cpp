@@ -1,5 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_wind_model/dryden.hpp>
 
@@ -8,7 +9,6 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 namespace cmp = gz::sim::components;
@@ -52,10 +52,10 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  enum gust_state_t : uint8_t
+  enum GustState
   {
-    GUST,
-    NO_GUST,
+    kOn,
+    kOff,
   };
 
   // SDF parameters
@@ -66,7 +66,7 @@ private:
 
   tobas_gazebo_msgs::msg::WindParams params_;
   chrono::steady_clock::duration gust_state_change_time_;
-  gust_state_t gust_state_ = NO_GUST;
+  GustState gust_state_ = kOff;
   double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
 
@@ -124,9 +124,9 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   // 突風
   const auto t_gust = chrono::duration<double>(info.simTime - gust_state_change_time_).count();  // [s]
   switch (gust_state_) {
-    case GUST: {
+    case kOn: {
       if (t_gust > params_.gust_duration) {
-        gust_state_ = NO_GUST;
+        gust_state_ = kOff;
         gust_state_change_time_ = info.simTime;
         break;
       }
@@ -135,9 +135,9 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
       gust_speed_ = 0.5 * max_gust_speed * (1 - cos(2 * M_PI * t_gust / params_.gust_duration));
       break;
     }
-    case NO_GUST: {
+    case kOff: {
       if (t_gust > params_.gust_interval) {
-        gust_state_ = GUST;
+        gust_state_ = kOn;
         gust_state_change_time_ = info.simTime;
         break;
       }

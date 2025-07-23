@@ -42,12 +42,12 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     if (src.prop) {
       dst.prop_type = static_cast<int8_t>(src.prop->type());
       switch (src.prop->type()) {
-        case tobas::propulsion_system_t::ELECTRIC: {
+        case tobas::PropulsionSystem::kElectric: {
           const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(src.prop);
           tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_ros_message(*eprop, dst.eprop);
           break;
         }
-        case tobas::propulsion_system_t::ICE: {
+        case tobas::PropulsionSystem::kIce: {
           const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(src.prop);
           tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_ros_message(*iprop, dst.iprop);
           break;
@@ -97,14 +97,14 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
 
     // Propulsion System
     if (src.prop_type >= 0) {
-      switch (static_cast<tobas::propulsion_system_t>(src.prop_type)) {
-        case tobas::propulsion_system_t::ELECTRIC: {
+      switch (static_cast<tobas::PropulsionSystem>(src.prop_type)) {
+        case tobas::PropulsionSystem::kElectric: {
           const auto eprop = std::make_shared<tobas::ElectricPropulsionSystemConfig>();
           tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_custom(src.eprop, *eprop);
           dst.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
           break;
         }
-        case tobas::propulsion_system_t::ICE: {
+        case tobas::PropulsionSystem::kIce: {
           const auto iprop = std::make_shared<tobas::ICEPropulsionSystemConfig>();
           tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_custom(src.iprop, *iprop);
           dst.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);

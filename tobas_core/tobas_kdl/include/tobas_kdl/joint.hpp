@@ -16,16 +16,16 @@ namespace kdl
 class Joint
 {
 public:
-  enum joint_type_t : uint8_t
+  enum JointType
   {
-    ROTATION,
-    TRANSLATION,
-    FIXED,
+    kRotation,
+    kTranslation,
+    kFixed,
   };
 
   std::string name = "";
-  Joint::joint_type_t type = FIXED;
-  Vector origin = Vector::Zero();
+  Joint::JointType type = kFixed;
+  Vector origin = Vector::Zero();  // The position of the drive shaft wrt. the parent frame
   double damping = 0.;
   double friction = 0.;
   double lower_limit = -INFINITY;
@@ -59,7 +59,7 @@ public:
   /* Compute the second derivative of the rotation matrix with respect to the joint position. */
   inline Eigen::Matrix3d rotGrad2(double q) const;
 
-  static inline const char* typeToText(joint_type_t type);
+  static inline const char* typeToText(JointType type);
 
   inline friend std::ostream& operator<<(std::ostream& os, const Joint& arg);
 
@@ -85,11 +85,11 @@ inline void Joint::axis(const Vector& axis)
 inline Frame Joint::pose(double q) const
 {
   switch (type) {
-    case ROTATION:
+    case kRotation:
       return Frame(Rotation::Rot(axis_, q), origin);
-    case TRANSLATION:
+    case kTranslation:
       return Frame(origin + (axis_ * q));
-    case FIXED:
+    case kFixed:
       return Frame::Identity();
     default:
       throw;
@@ -99,11 +99,11 @@ inline Frame Joint::pose(double q) const
 inline Twist Joint::twist(double qd) const
 {
   switch (type) {
-    case ROTATION:
+    case kRotation:
       return Twist(Vector::Zero(), axis_ * qd);
-    case TRANSLATION:
+    case kTranslation:
       return Twist(axis_ * qd, Vector::Zero());
-    case FIXED:
+    case kFixed:
       return Twist::Zero();
     default:
       throw;
@@ -113,11 +113,11 @@ inline Twist Joint::twist(double qd) const
 inline Accel Joint::accel(double qdd) const
 {
   switch (type) {
-    case ROTATION:
+    case kRotation:
       return Accel(Vector::Zero(), axis_ * qdd);
-    case TRANSLATION:
+    case kTranslation:
       return Accel(axis_ * qdd, Vector::Zero());
-    case FIXED:
+    case kFixed:
       return Accel::Zero();
     default:
       throw;
@@ -127,11 +127,11 @@ inline Accel Joint::accel(double qdd) const
 inline SegmentJacobian Joint::jacobian() const
 {
   switch (type) {
-    case ROTATION:
+    case kRotation:
       return SegmentJacobian(Vector::Zero(), axis_);
-    case TRANSLATION:
+    case kTranslation:
       return SegmentJacobian(axis_, Vector::Zero());
-    case FIXED:
+    case kFixed:
       return SegmentJacobian::Zero();
     default:
       throw;
@@ -140,7 +140,7 @@ inline SegmentJacobian Joint::jacobian() const
 
 inline Eigen::Matrix3d Joint::rotGrad(double q) const
 {
-  if (type == ROTATION) {
+  if (type == kRotation) {
     return eigen::skew(axis_.data) * Rotation::Rot(axis_, q).data;
   }
   else {
@@ -150,7 +150,7 @@ inline Eigen::Matrix3d Joint::rotGrad(double q) const
 
 inline Eigen::Matrix3d Joint::rotGrad2(double q) const
 {
-  if (type == ROTATION) {
+  if (type == kRotation) {
     return eigen::skew2(axis_.data) * Rotation::Rot(axis_, q).data;
   }
   else {
@@ -158,14 +158,14 @@ inline Eigen::Matrix3d Joint::rotGrad2(double q) const
   }
 }
 
-inline const char* Joint::typeToText(joint_type_t type)
+inline const char* Joint::typeToText(JointType type)
 {
   switch (type) {
-    case ROTATION:
+    case kRotation:
       return "Rotation";
-    case TRANSLATION:
+    case kTranslation:
       return "Translation";
-    case FIXED:
+    case kFixed:
       return "Fixed";
     default:
       throw;

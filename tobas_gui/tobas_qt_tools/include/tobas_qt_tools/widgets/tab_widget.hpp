@@ -2,6 +2,7 @@
 
 #include <QTabBar>
 #include <QTabWidget>
+#include <QWheelEvent>
 
 namespace qt
 {
@@ -12,6 +13,8 @@ class TabBar : public QTabBar
   using super = QTabBar;
 
 public:
+  explicit TabBar();
+
   void enableWheelEvent(bool enable);
 
 protected:
@@ -41,10 +44,14 @@ public:
    */
   virtual void enableWheelEvent(bool enable);
 
+  void setTabEnabled(QWidget* tab, bool enabled);
   void setTabVisible(QWidget* tab, bool visible);
 
   void setTabWidth(int width);
   void setTabHeight(int height);
   void setTabSize(int width, int height);
+
+  /* 全てのタブを削除してメモリを開放する． */
+  void removeAllTabs();
 };
 }  // namespace qt

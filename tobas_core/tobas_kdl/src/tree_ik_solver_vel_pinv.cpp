@@ -30,13 +30,13 @@ bool TreeIkSolverVel_pinv::updateInternalDataStructures()
   return true;
 }
 
-int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
+int TreeIkSolverVel_pinv::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_in.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   const auto num_points = v_in.size();
@@ -48,7 +48,7 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
   size_t i = 0;
   for (const auto& [seg_name, twist] : v_in) {
     // Update big jacobian
-    if (jnt2jac_.JntToJac(q_in, seg_name) < 0) {
+    if (jnt2jac_.jntToJac(q_in, seg_name) < 0) {
       return copyError(jnt2jac_);
     }
     J_.block(6 * i, 0, 6, nj_) = jnt2jac_.getJacobian().data;
@@ -84,11 +84,11 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
 
   // QPを解く
   if (!qp_solver_.solve()) {
-    return setDefaultError(E_QP_FAILED);
+    return setDefaultError(kQpFailed);
   }
   qd_out_.data = qp_solver_.solution();
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeIkSolverVel_pinv::setWeightTS(const Vector6d& Wt)

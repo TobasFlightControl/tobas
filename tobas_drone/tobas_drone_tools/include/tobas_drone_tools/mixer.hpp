@@ -10,6 +10,8 @@ namespace tobas
  */
 class Mixer
 {
+  static constexpr double kZeroThrustThresh = 1e-2;  // [N]
+
 public:
   explicit Mixer(const Drone& drone, const kdl::Tree& tree);
 
@@ -25,6 +27,9 @@ protected:
 
   std::map<std::string, bool> rotor_alive_;
 
+  /* 閾値未満の微小推力をゼロにする． */
+  inline double thrustDeadband(double thrust) const;
+
 private:
   bool is_initialized_ = false;
 };
@@ -32,5 +37,10 @@ private:
 inline bool Mixer::isInitialized() const
 {
   return is_initialized_;
+}
+
+inline double Mixer::thrustDeadband(double thrust) const
+{
+  return thrust < kZeroThrustThresh ? 0. : thrust;
 }
 }  // namespace tobas

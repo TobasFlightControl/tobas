@@ -3,7 +3,7 @@
 	<name>tobas_core</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
-	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
@@ -18,6 +18,7 @@
 	<exec_depend>tobas_geomag</exec_depend>
 	<exec_depend>tobas_git</exec_depend>
 	<exec_depend>tobas_ic_drivers</exec_depend>
+	<exec_depend>tobas_ic_drivers_ros</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>
 	<exec_depend>tobas_kdl_conversions</exec_depend>
 	<exec_depend>tobas_kdl_msgs</exec_depend>
@@ -35,6 +36,8 @@
 	<exec_depend>tobas_std_tools</exec_depend>
 	<exec_depend>tobas_std_tools_py</exec_depend>
 	<exec_depend>tobas_string_tools</exec_depend>
+	<exec_depend>tobas_time_tools</exec_depend>
+	<exec_depend>tobas_xml_tools</exec_depend>
 	<exec_depend>tobas_yaml_tools</exec_depend>
 	<exec_depend>wpa_supplicant_parser</exec_depend>
 

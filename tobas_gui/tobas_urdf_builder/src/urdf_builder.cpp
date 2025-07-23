@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
 {
@@ -21,10 +21,5 @@ URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
   setLayout(rows);
   rows->addWidget(rviz_manager_.widget());
 }
-
-void URDFBuilder::reset()
-{
-  rviz_manager_.resetTime();
-}
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

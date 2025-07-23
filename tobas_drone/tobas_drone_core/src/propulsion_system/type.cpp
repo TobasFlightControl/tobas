@@ -9,26 +9,26 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(propulsion_system_t cmd_iface)
+string textFromEnum(PropulsionSystem cmd_iface)
 {
   switch (cmd_iface) {
-    case propulsion_system_t::ELECTRIC:
+    case PropulsionSystem::kElectric:
       return ELECTRIC_TEXT;
-    case propulsion_system_t::ICE:
+    case PropulsionSystem::kIce:
       return ICE_TEXT;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, propulsion_system_t& dst)
+bool enumFromText(const string& text, PropulsionSystem& dst)
 {
   if (text == ELECTRIC_TEXT) {
-    dst = tobas::propulsion_system_t::ELECTRIC;
+    dst = tobas::PropulsionSystem::kElectric;
     return true;
   }
   else if (text == ICE_TEXT) {
-    dst = tobas::propulsion_system_t::ICE;
+    dst = tobas::PropulsionSystem::kIce;
     return true;
   }
   else {
@@ -40,14 +40,14 @@ bool enumFromText(const string& text, propulsion_system_t& dst)
 
 namespace YAML
 {
-Node convert<tobas::propulsion_system_t>::encode(const tobas::propulsion_system_t& rhs)
+Node convert<tobas::PropulsionSystem>::encode(const tobas::PropulsionSystem& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::propulsion_system_t>::decode(const Node& node, tobas::propulsion_system_t& rhs)
+bool convert<tobas::PropulsionSystem>::decode(const Node& node, tobas::PropulsionSystem& rhs)
 {
   if (!node.IsScalar()) {
     return false;

@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.25)
+project({{ user_msg_pkg_name }})
+
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+set(AMENT_DEPENDENCIES)
+
+file(GLOB_RECURSE IFACE_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} msg/*.msg srv/*.srv action/*.action)
+if(IFACE_FILES)
+  rosidl_generate_interfaces(${PROJECT_NAME} ${IFACE_FILES} DEPENDENCIES ${AMENT_DEPENDENCIES})
+endif()
+
+ament_export_dependencies(rosidl_default_runtime ${AMENT_DEPENDENCIES})
+
+ament_package()

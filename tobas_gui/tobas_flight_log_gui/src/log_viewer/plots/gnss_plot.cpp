@@ -9,45 +9,51 @@ namespace gui
 namespace log
 {
 GnssPlotWidget::GnssPlotWidget()
-  : latitude_curve_("Latitude")
-  , longitude_curve_("Longitude")
-  , altitude_curve_("Altitude")
-  , north_speed_curve_("North Speed")
-  , west_speed_curve_("West Speed")
-  , up_speed_curve_("Up Speed")
+  : latitude_curve_("Latitude [deg]")
+  , longitude_curve_("Longitude [deg]")
+  , altitude_curve_("Altitude [deg]")
+  , north_speed_curve_("North Speed [m/s]")
+  , west_speed_curve_("West Speed [m/s]")
+  , up_speed_curve_("Up Speed [m/s]")
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
 
   latitude_plot_ = new QwtPlot2();
+  latitude_plot_->setAxisNoLabel(QwtPlot::xBottom);
   latitude_curve_.setPen(Qt::black, kLineWidth);
   latitude_curve_.attach(latitude_plot_);
-  grid->addWidget(latitude_plot_, 0, 0);
+  grid->addWidget(latitude_plot_, 0, 0, 1, 1);
 
   longitude_plot_ = new QwtPlot2();
+  longitude_plot_->setAxisNoLabel(QwtPlot::xBottom);
   longitude_curve_.setPen(Qt::black, kLineWidth);
   longitude_curve_.attach(longitude_plot_);
-  grid->addWidget(longitude_plot_, 1, 0);
+  grid->addWidget(longitude_plot_, 1, 0, 1, 1);
 
   altitude_plot_ = new QwtPlot2();
+  altitude_plot_->setAxisNoLabel(QwtPlot::xBottom);
   altitude_curve_.setPen(Qt::black, kLineWidth);
   altitude_curve_.attach(altitude_plot_);
-  grid->addWidget(altitude_plot_, 2, 0);
+  grid->addWidget(altitude_plot_, 2, 0, 1, 1);
 
   north_speed_plot_ = new QwtPlot2();
+  north_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
   north_speed_curve_.setPen(Qt::black, kLineWidth);
   north_speed_curve_.attach(north_speed_plot_);
-  grid->addWidget(north_speed_plot_, 0, 1);
+  grid->addWidget(north_speed_plot_, 0, 1, 1, 1);
 
   west_speed_plot_ = new QwtPlot2();
+  west_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
   west_speed_curve_.setPen(Qt::black, kLineWidth);
   west_speed_curve_.attach(west_speed_plot_);
-  grid->addWidget(west_speed_plot_, 1, 1);
+  grid->addWidget(west_speed_plot_, 1, 1, 1, 1);
 
   up_speed_plot_ = new QwtPlot2();
+  up_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
   up_speed_curve_.setPen(Qt::black, kLineWidth);
   up_speed_curve_.attach(up_speed_plot_);
-  grid->addWidget(up_speed_plot_, 2, 1);
+  grid->addWidget(up_speed_plot_, 2, 1, 1, 1);
 }
 
 void GnssPlotWidget::setTimeScale(double t_start, double t_stop)

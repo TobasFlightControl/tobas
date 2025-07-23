@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -36,5 +36,5 @@ const view_model::CollisionViewModelPtr& CollisionListWidgetItem::viewModel() co
   return vm_;
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

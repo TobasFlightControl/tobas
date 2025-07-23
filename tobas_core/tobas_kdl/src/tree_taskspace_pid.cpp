@@ -35,7 +35,7 @@ bool TreeTaskSpacePID::updateInternalDataStructures()
   return true;
 }
 
-int TreeTaskSpacePID::CartToJnt(
+int TreeTaskSpacePID::cartToJnt(
   const JntArray& cur_q,
   const JntArray& cur_qd,
   const FrameMap& tar_p,
@@ -44,13 +44,13 @@ int TreeTaskSpacePID::CartToJnt(
   const WrenchMap& f_ext)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (cur_q.rows() != nj_ || cur_qd.rows() != nj_) {
-    setDefaultError(E_SIZE_MISMATCH);
+    setDefaultError(kSizeMismatch);
   }
   if (tar_p.size() != tar_v.size() || tar_p.size() != a_ff.size()) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
   // Create target acceleration map
@@ -60,11 +60,11 @@ int TreeTaskSpacePID::CartToJnt(
     const auto& seg_name = tar_pi.first;
     if (tar_vi.first != seg_name || ai_ff.first != seg_name) {
       error_msg_ = "The keys of input maps do not match.";
-      return (error_code_ = E_OUT_OF_RANGE);
+      return (error_code_ = kOutputRange);
     }
 
     // Compute current frame and twist
-    if (fk_.JntToCart(cur_q, cur_qd, seg_name) < 0) {
+    if (fk_.jntToCart(cur_q, cur_qd, seg_name) < 0) {
       return copyError(fk_);
     }
     const auto& cur_pv = fk_.getFrameVel();
@@ -77,16 +77,16 @@ int TreeTaskSpacePID::CartToJnt(
   }
 
   // Compute target joint accelerations
-  if (rac_.CartToJnt(cur_q, cur_qd, tar_a) < 0) {
+  if (rac_.cartToJnt(cur_q, cur_qd, tar_a) < 0) {
     return copyError(rac_);
   }
 
   // Compute target joint efforts
-  if (rne_.CartToJnt(cur_q, cur_qd, rac_.getAccelerations(), f_ext) < 0) {
+  if (rne_.cartToJnt(cur_q, cur_qd, rac_.getAccelerations(), f_ext) < 0) {
     return copyError(rne_);
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeTaskSpacePID::setLinearStiffness(const Vector& kp)

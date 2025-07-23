@@ -29,7 +29,7 @@ Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double l
 Vector ecefFromGeodetic(double lat, double lon, double h);
 
 /**
- * @brief Return the magnetic field in International Terrestrial Reference System coordinates, units Tesla.
+ * @brief Return the magnetic field in International Terrestrial Reference System coordinates, units gauss.
  *
  * @param dyear The decimal year, for example 2015.0.
  * @param position_itrs The location where the field is predicted, units m.

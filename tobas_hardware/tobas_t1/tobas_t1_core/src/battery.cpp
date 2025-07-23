@@ -1,8 +1,6 @@
 #include "tobas_t1_core/battery.hpp"
 
-#include <iostream>
-
-using namespace std;
+#include <bit>
 
 namespace t1
 {
@@ -19,14 +17,14 @@ bool Battery::initialize()
   return true;
 }
 
-bool Battery::read(double& voltage, double& current)
+bool Battery::read(float& voltage, float& current)
 {
   if (!spi_.transfer(sizeof(tx_buf_))) {
     return false;
   }
 
-  voltage = static_cast<double>(rx_buf_[0]) * 1e-6;
-  current = static_cast<double>(static_cast<int32_t>(rx_buf_[1])) * 1e-6;
+  voltage = std::bit_cast<float>(rx_buf_[0]);
+  current = std::bit_cast<float>(rx_buf_[1]);
 
   return true;
 }

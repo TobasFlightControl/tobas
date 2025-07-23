@@ -14,7 +14,7 @@
 
 #include "tobas_dynamixel_handler/constants.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 using namespace dynamixel;
 using namespace tobas_dynamixel_handler;
 
@@ -47,24 +47,24 @@ public:
 private:
   dynamixel::PortHandler* poh_;
   dynamixel::PacketHandler* pah_;
-  unique_ptr<dynamixel::GroupSyncRead> pos_sync_read_;
-  unique_ptr<dynamixel::GroupSyncRead> vel_sync_read_;
-  unique_ptr<dynamixel::GroupSyncRead> current_sync_read_;
-  unique_ptr<dynamixel::GroupSyncRead> pwm_sync_read_;
-  unique_ptr<dynamixel::GroupSyncRead> voltage_sync_read_;
-  unique_ptr<dynamixel::GroupSyncRead> temp_sync_read_;
-  unique_ptr<dynamixel::GroupSyncRead> hes_sync_read_;
-  unique_ptr<dynamixel::GroupSyncWrite> pos_sync_write_;
-  unique_ptr<dynamixel::GroupSyncWrite> vel_sync_write_;
+  std::unique_ptr<dynamixel::GroupSyncRead> pos_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> vel_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> current_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> pwm_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> voltage_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> temp_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> hes_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncWrite> pos_sync_write_;
+  std::unique_ptr<dynamixel::GroupSyncWrite> vel_sync_write_;
 
-  vector<int32_t> goal_positions_;
-  vector<int32_t> goal_velocities_;
+  std::vector<int32_t> goal_positions_;
+  std::vector<int32_t> goal_velocities_;
   tobas_dynamixel_msgs::msg::MotorState motor_state_;
   bool is_enabled_ = true;
 
   // rosparams
-  vector<string> jnt_names_;
-  string device_name_;
+  std::vector<std::string> jnt_names_;
+  std::string device_name_;
   float protocol_version_;
   size_t baudrate_;
   uint8_t return_delay_time_;
@@ -74,7 +74,7 @@ private:
   bool read_position_;
   bool read_voltage_;
   bool read_temperature_;
-  unordered_map<string, DynamixelConfig> motors_;
+  std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
   ros2::PublisherPtr<tobas_dynamixel_msgs::msg::MotorStateArray> motor_states_pub_;
@@ -226,10 +226,10 @@ void DynamixelHandlerNode::registerSubscribers()
 bool DynamixelHandlerNode::setMinimumLatency()
 {
   const auto pos = device_name_.rfind('/');
-  const auto port = pos == string::npos ? device_name_ : device_name_.substr(pos + 1);
+  const auto port = pos == std::string::npos ? device_name_ : device_name_.substr(pos + 1);
   const auto file_path = "/sys/bus/usb-serial/devices/" + port + "/latency_timer";
 
-  ofstream file(file_path);
+  std::ofstream file(file_path);
   if (!file.is_open()) {
     return false;
   }
@@ -244,8 +244,8 @@ bool DynamixelHandlerNode::setMinimumLatency()
 void DynamixelHandlerNode::getMotorConfigs()
 {
   DynamixelConfig cfg;
-  string operating_mode;
-  unordered_set<uint8_t> used_ids;
+  std::string operating_mode;
+  std::unordered_set<uint8_t> used_ids;
   uint16_t model_number;
   uint8_t temp_limit;
   uint16_t max_voltage_limit;
@@ -625,7 +625,7 @@ void DynamixelHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointComm
 
     auto tar_vel = velocities->commands[i].data;
     if (fabs(tar_vel) > cfg.vel_limit) {
-      tar_vel = clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
+      tar_vel = std::clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
       TOBAS_WARN("Target velocity of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_vel);
     }
 

@@ -23,7 +23,7 @@ public:
    *
    * @param q 関節角
    */
-  int JntToMass(const JntArray& q);
+  int jntToMass(const JntArray& q);
 
   inline const JntSpaceInertiaMatrix& getMass() const;
 

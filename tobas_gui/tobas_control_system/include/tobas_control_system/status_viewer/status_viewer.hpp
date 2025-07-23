@@ -20,10 +20,9 @@ class StatusViewerWidget : public qt::ScrollArea
   static constexpr int kLabelPSize = 18;
 
 public:
-  explicit StatusViewerWidget(rclcpp::Node::SharedPtr node);
+  explicit StatusViewerWidget(const RosQtBridge& bridge);
 
   void reset();
-  void updateNamespace(const std::string& ns);
 
 private:
   PreArmCheckViewerWidget* prearm_check_viewer_;

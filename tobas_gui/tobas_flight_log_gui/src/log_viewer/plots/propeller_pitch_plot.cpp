@@ -4,6 +4,7 @@
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {
@@ -39,9 +40,11 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
     return;
   }
 
-  const auto& first_msg = msgs.at(0);
+  const auto& first_msg = msgs.first();
   if (first_msg.pitch_angles.size() != num_rotors_) {
-    updateInternalDataStructures(first_msg);
+    if (!updateInternalDataStructures(first_msg)) {
+      return;
+    }
   }
 
   QVector<QVector<double>> t_data(num_rotors_);
@@ -62,7 +65,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
       const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      pitch_data[idx].push_back(elem.angle);
+      pitch_data[idx].push_back(tobas_std::rad2deg(elem.angle));
     }
   }
 
@@ -75,27 +78,36 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
   }
 }
 
-void PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg)
+bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg)
 {
   clear();
 
-  num_rotors_ = msg.pitch_angles.size();
-
   for (const auto& [idx, elem] : std::views::enumerate(msg.pitch_angles)) {
-    if (!name2idx_.insert({ elem.link_name, idx }).second) {
-      qWarning() << "VPP \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
-      continue;
+    if (elem.link_name.empty()) {
+      qWarning() << "Rotor link name is empty.";
+      return false;
     }
 
-    plots_.push_back(new QwtPlot2());
+    if (!name2idx_.insert({ elem.link_name, idx }).second) {
+      qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
+      return false;
+    }
 
-    // N行2列の格子状に配置
-    grid_->addWidget(plots_.back(), idx / 2, idx % 2);
+    ++num_rotors_;
 
-    curves_.push_back("Pitch Angle (" + QString::fromStdString(elem.link_name) + ")");
-    curves_.back().setPen(kCurrentValueColor, kLineWidth);
-    curves_.back().attach(plots_.back());
+    const auto plot = new QwtPlot2();
+    plot->setAxisNoLabel(QwtPlot::xBottom);
+    grid_->addWidget(plot, idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
+
+    qwt::QwtPlotCurveWrapper curve("Pitch Angle [deg] (" + QString::fromStdString(elem.link_name) + ")");
+    curve.setPen(kCurrentValueColor, kLineWidth);
+    curve.attach(plot);
+
+    plots_.push_back(plot);
+    curves_.push_back(curve);
   }
+
+  return true;
 }
 }  // namespace log
 }  // namespace gui

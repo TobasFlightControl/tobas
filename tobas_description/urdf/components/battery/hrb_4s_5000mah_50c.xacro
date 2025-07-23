@@ -2,8 +2,8 @@
 
   <xacro:include filename="$(find tobas_description)/urdf/components/battery/base.xacro"/>
 
-  <xacro:macro name="hrb_4s_5000mah_50c" params="parent *origin">
-    <xacro:base_lipo parent="${parent}" x="0.155" y="0.048" z="0.032" mass="0.496">
+  <xacro:macro name="hrb_4s_5000mah_50c" params="link_name parent *origin">
+    <xacro:base_lipo link_name="${link_name}" parent="${parent}" x="0.155" y="0.048" z="0.032" mass="0.496">
       <xacro:insert_block name="origin"/>
       <xacro:insert_block name="yellow"/>
     </xacro:base_lipo>

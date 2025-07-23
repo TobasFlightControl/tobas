@@ -9,14 +9,12 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-using namespace std;
-
 namespace gui
 {
 namespace sa
 {
-JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
-  : node_(node), robot_(robot), rnd_gen_(rnd_dev_())
+JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree)
+  : node_(node), tree_(tree), rnd_gen_(rnd_dev_())
 {
   slider_rows_ = new QVBoxLayout();
 
@@ -24,14 +22,17 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   scroll_area->setLayout(slider_rows_);
 
+  const auto zero_button = new QPushButton("Zero");
   const auto center_button = new QPushButton("Center");
   const auto random_button = new QPushButton("Random");
 
+  zero_button->setFixedHeight(kButtonHeight);
   center_button->setFixedHeight(kButtonHeight);
   random_button->setFixedHeight(kButtonHeight);
 
   // Layout
   const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(zero_button);
   button_cols->addWidget(center_button);
   button_cols->addWidget(random_button);
 
@@ -42,6 +43,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   setLayout(rows);
 
   // Connection
+  connect(zero_button, &QPushButton::clicked, this, &self::onZeroButtonClicked);
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_timer_, &QTimer::timeout, this, &self::publish);
@@ -59,9 +61,9 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   sliders_.clear();
   qt::clearLayout(slider_rows_);
 
-  for (const auto& [_, elem] : robot_.tree().getSegments()) {
+  for (const auto& [_, elem] : tree_.getSegments()) {
     const auto& joint = elem.segment.joint();
-    if (joint.type == kdl::Joint::FIXED) {
+    if (joint.type == kdl::Joint::kFixed) {
       continue;
     }
 
@@ -73,7 +75,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
     auto lower_limit = joint.lower_limit;
     auto upper_limit = joint.upper_limit;
-    if (joint.type == kdl::Joint::ROTATION && upper_limit - lower_limit > 2 * M_PI) {
+    if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > 2 * M_PI) {
       lower_limit = -M_PI;
       upper_limit = +M_PI;
     }
@@ -86,7 +88,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
       slider,
       &qt::DoubleSliderDisplay::valueChanged,
       this,
-      bind(&self::onValueChanged, this, placeholders::_1, joint.name));
+      std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name));
 
     sliders_.push_back(slider);
     slider_rows_->addWidget(slider);
@@ -107,12 +109,12 @@ void JointStatePublisherWidget::publish()
   auto js = make_unique<sensor_msgs::msg::JointState>(js_);
   js_pub_->publish(std::move(js));
 
-  auto drs = make_unique<tobas_visualization_msgs::msg::DisplayRobotState>();
+  auto drs = std::make_unique<tobas_visualization_msgs::msg::DisplayRobotState>();
   drs->state.joint_state = js_;
   drs_pub_->publish(std::move(drs));
 }
 
-void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_name)
+void JointStatePublisherWidget::onValueChanged(double value, const std::string& jnt_name)
 {
   const auto idx = tobas_std::index(js_.name, jnt_name);
   if (idx < 0) {
@@ -121,6 +123,13 @@ void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_n
   }
 
   js_.position.at(idx) = value;
+}
+
+void JointStatePublisherWidget::onZeroButtonClicked()
+{
+  for (auto& slider : sliders_) {
+    slider->setValue(0.);
+  }
 }
 
 void JointStatePublisherWidget::onCenterButtonClicked()
@@ -134,7 +143,7 @@ void JointStatePublisherWidget::onCenterButtonClicked()
 void JointStatePublisherWidget::onRandomButtonClicked()
 {
   for (auto& slider : sliders_) {
-    uniform_real_distribution<double> uniform(slider->getMinimum(), slider->getMaximum());
+    std::uniform_real_distribution<double> uniform(slider->getMinimum(), slider->getMaximum());
     const auto value = uniform(rnd_gen_);
     slider->setValue(value);
   }

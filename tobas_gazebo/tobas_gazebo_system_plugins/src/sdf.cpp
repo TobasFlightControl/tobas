@@ -15,7 +15,7 @@ bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst)
   }
   const auto direction_text = sdf->Get<string>(kDirectionKey);
 
-  tobas::turning_direction_t direction_enum;
+  tobas::TurningDirection direction_enum;
   if (!tobas::enumFromText(direction_text, direction_enum)) {
     return false;
   }

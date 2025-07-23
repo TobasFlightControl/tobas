@@ -8,11 +8,11 @@ namespace nlp
 class SQP
 {
 public:
-  enum error_t
+  enum Error
   {
-    E_NO_ERROR = 0,
-    E_MAX_ITERATION_EXCEEDED = -1,
-    E_QP_FAILED = -2,
+    kNoError = 0,
+    kMaxIterationExceeded = -1,
+    kQpFailed = -2,
   };
 
   explicit SQP();
@@ -29,12 +29,12 @@ public:
     std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dGdx,
     std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dHdx);
 
-  error_t solve();
+  Error solve();
 
   const Eigen::VectorXd& optimal() const;
   size_t iterations() const;
 
-  error_t errorCode() const;
+  Error errorCode() const;
   const char* errorMessage() const;
 
   bool setMaximumIterations(size_t max_iter);
@@ -42,7 +42,7 @@ public:
   bool setVariableScales(const Eigen::VectorXd& x_scale);
 
 private:
-  error_t error_code_;
+  Error error_code_;
 
   Eigen::Index n_;  // The number of optimization variables
   Eigen::Index m_;  // The number of inequality constraints

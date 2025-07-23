@@ -89,42 +89,6 @@ void clearLayout(QLayout* layout)
   }
 }
 
-QWidget* createVerticalWidgetsContainer(const std::vector<QWidget*>& widgets)
-{
-  // コンテナウィジェットを作成
-  const auto container = new QWidget();
-
-  // 垂直レイアウトを作成
-  const auto rows = new QVBoxLayout();
-  container->setLayout(rows);
-
-  // 受け取ったウィジェットをレイアウトに追加
-  for (const auto widget : widgets) {
-    rows->addWidget(widget);
-  }
-
-  // コンテナウィジェットを返す
-  return container;
-}
-
-QWidget* createHorizontalWidgetsContainer(const std::vector<QWidget*>& widgets)
-{
-  // コンテナウィジェットを作成
-  const auto container = new QWidget();
-
-  // 水平レイアウトを作成
-  const auto cols = new QHBoxLayout();
-  container->setLayout(cols);
-
-  // 受け取ったウィジェットをレイアウトに追加
-  for (const auto widget : widgets) {
-    cols->addWidget(widget);
-  }
-
-  // コンテナウィジェットを返す
-  return container;
-}
-
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent)
 {
   const auto scroll_area = new qt::ScrollArea();

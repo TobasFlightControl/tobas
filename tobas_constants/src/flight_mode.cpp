@@ -10,32 +10,32 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(flight_mode_t role)
+string textFromEnum(FlightMode role)
 {
   switch (role) {
-    case flight_mode_t::ACROBAT:
+    case FlightMode::kAcrobat:
       return ACROBAT_TEXT;
-    case flight_mode_t::STABILIZE:
+    case FlightMode::kStabilize:
       return STABILIZE_TEXT;
-    case flight_mode_t::LOITER:
+    case FlightMode::kLoiter:
       return LOITER_TEXT;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, flight_mode_t& dst)
+bool enumFromText(const string& text, FlightMode& dst)
 {
   if (text == ACROBAT_TEXT) {
-    dst = flight_mode_t::ACROBAT;
+    dst = FlightMode::kAcrobat;
     return true;
   }
   else if (text == STABILIZE_TEXT) {
-    dst = flight_mode_t::STABILIZE;
+    dst = FlightMode::kStabilize;
     return true;
   }
   else if (text == LOITER_TEXT) {
-    dst = flight_mode_t::LOITER;
+    dst = FlightMode::kLoiter;
     return true;
   }
   else {
@@ -47,14 +47,14 @@ bool enumFromText(const string& text, flight_mode_t& dst)
 
 namespace YAML
 {
-Node convert<tobas::flight_mode_t>::encode(const tobas::flight_mode_t& rhs)
+Node convert<tobas::FlightMode>::encode(const tobas::FlightMode& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::flight_mode_t>::decode(const Node& node, tobas::flight_mode_t& rhs)
+bool convert<tobas::FlightMode>::decode(const Node& node, tobas::FlightMode& rhs)
 {
   if (!node.IsScalar()) {
     return false;

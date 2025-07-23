@@ -4,8 +4,6 @@
 
 #include "tobas_rviz_plugin/conversions.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false)
@@ -354,9 +352,6 @@ void RobotStateDisplay::unsetLinkColor(rviz_default_plugins::robot::Robot* robot
   }
 }
 
-// ******************************************************************************************
-// Load
-// ******************************************************************************************
 void RobotStateDisplay::initializeLoader()
 {
   if (robot_description_property_->getStdString().empty()) {
@@ -418,9 +413,6 @@ void RobotStateDisplay::onEnable()
   calculateOffsetPosition();
 }
 
-// ******************************************************************************************
-// Disable
-// ******************************************************************************************
 void RobotStateDisplay::onDisable()
 {
   robot_state_subscriber_.reset();
@@ -441,9 +433,6 @@ void RobotStateDisplay::update(float wall_dt, float ros_dt)
   }
 }
 
-// ******************************************************************************************
-// Calculate Offset Position
-// ******************************************************************************************
 void RobotStateDisplay::calculateOffsetPosition()
 {
   if (!robot_model_) {

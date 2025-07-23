@@ -8,10 +8,10 @@ namespace propulsion
 {
 namespace ice
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
 {
   engine = new EngineWidget();
-  units = new PropulsionUnitsWidget(node, robot, _signals);
+  units = new PropulsionUnitsWidget(uadf);
 
   addTab(engine, kEngineTitle);
   addTab(units, kPropulsionUnitTitle);
@@ -20,11 +20,6 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 const char* PropulsionSystemWidget::name() const
 {
   return "ICE Propulsion System";
-}
-
-void PropulsionSystemWidget::reset()
-{
-  units->clear();
 }
 
 void PropulsionSystemWidget::updateInternalDataStructures()
@@ -61,29 +56,19 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   units->load(node[kPropulsionUnitTitle]);
 }
 
-tobas::propulsion_system_t PropulsionSystemWidget::type() const
+tobas::PropulsionSystem PropulsionSystemWidget::type() const
 {
-  return tobas::propulsion_system_t::ICE;
+  return tobas::PropulsionSystem::kIce;
 }
 
 int PropulsionSystemWidget::numUnits() const
 {
-  return units->selected()->count();
+  return units->count();
 }
 
 QString PropulsionSystemWidget::linkName(int index) const
 {
-  return units->selected()->linkName(index);
-}
-
-bool PropulsionSystemWidget::isTiltRotor(int) const
-{
-  return false;
-}
-
-QString PropulsionSystemWidget::tiltJointName(int) const
-{
-  return "";
+  return units->linkName(index);
 }
 }  // namespace ice
 }  // namespace propulsion

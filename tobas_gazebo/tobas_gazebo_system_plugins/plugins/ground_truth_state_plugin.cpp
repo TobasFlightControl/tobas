@@ -1,13 +1,12 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/geometry.hpp>
 
 #include <tobas_msgs_adapter/odometry.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 using namespace std;
@@ -85,7 +84,7 @@ void GazeboGroundTruthStatePlugin::Configure(
 void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 
 void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -118,6 +117,12 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
 
   // Update angular acceleration (Local)
   vectorGazeboToKDL(dgyro_B_->Data(), odom->accel.angular);
+
+  // Update covariances
+  odom->position_covariance.setZero();
+  odom->orientation_covariance.setZero();
+  odom->velocity_covariance.setZero();
+  odom->gyro_covariance.setZero();
 
   // Publish state message
   odom_pub_->publish(move(odom));

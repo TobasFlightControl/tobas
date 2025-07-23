@@ -7,13 +7,12 @@
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
-#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
 
 namespace gui
 {
@@ -33,7 +32,7 @@ class BasePoseCommanderWidget : public QWidget
   static constexpr double kHomeAltitude = 3.;  // [m]
 
 public:
-  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
+  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -62,16 +61,10 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> pos_vel_yaw_pub_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-
   ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
 
   void publishCurrentCommand();
   bool armRotors(bool arming);
-
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
 private Q_SLOTS:
   void onArmRequested();
@@ -80,6 +73,9 @@ private Q_SLOTS:
   void onValueChanged();
 
   void onHomeButtonClicked();
+
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
 }  // namespace sim
 }  // namespace gui

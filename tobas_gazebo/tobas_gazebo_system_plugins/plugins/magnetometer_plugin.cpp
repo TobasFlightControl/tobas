@@ -1,16 +1,16 @@
 #include <tobas_constants/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/geometry.hpp>
-#include <tobas_std_tools/time.hpp>
+#include <tobas_std_tools/gnss.hpp>
+#include <tobas_time_tools/util.hpp>
 
-#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
+#include <tobas_msgs_adapter/magnetic_field.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/conversions/conversions.hpp"
 #include "tobas_gazebo_system_plugins/random.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
@@ -19,6 +19,11 @@ namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
+/**
+ * @brief Gazebo Magnetometer plugin
+ *
+ * - 初期バイアスはキャリブレーション済みの想定．
+ */
 class GazeboMagnetometerPlugin : public BaseNode,
                                  public gz::sim::System,
                                  public gz::sim::ISystemConfigure,
@@ -43,20 +48,20 @@ private:
   double lat_0_;               // [deg] 原点の北緯
   double lon_0_;               // [deg] 原点の東経
   double alt_0_;               // [m] 原点の高度
-  double noise_stddev_;        // [nT]
-  double hard_bias_norm_;      // [nT]
+  double noise_stddev_;        // [G]
+  double hard_bias_norm_;      // [G]
 
   RateManager::SharedPtr rate_manager_;
 
   const cmp::WorldPose* pose_W_;
 
-  gz::math::Vector3d hard_bias_;  // [nT]
+  gz::math::Vector3d hard_bias_;  // [G]
   double lat_, lon_;              // [deg] Current position
 
   random_device rnd_dev_;
   NormalDistribution3d::SharedPtr noise_;
 
-  ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
@@ -87,21 +92,21 @@ void GazeboMagnetometerPlugin::Configure(
 
   noise_ = make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
 }
 
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
   getSdfParam(sdf, "offset", offset_);
 
   getSdfParam(sdf, "latitudeZero", lat_0_);
   getSdfParam(sdf, "longitudeZero", lon_0_);
   getSdfParam(sdf, "altitudeZero", alt_0_);
 
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, NON_NEGATIVE);
-  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, NON_NEGATIVE);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
+  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -122,17 +127,17 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
   // 経緯度と高度から地磁気の参照値を計算
   // TODO: WMMの誤差を考慮
-  const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tobas_std::yearFraction());
+  const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tim::yearFraction());
 
   // 機体座標系から見た地磁気を計算
-  const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [nT]
-  const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);      // [nT]
+  const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [G]
+  const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);      // [G]
 
   // ノイズを加えて地磁気のスケールで正規化した値を観測する
   const auto field_meas = (field_B + noise_->get() + hard_bias_) / mag.total;  // [-]
 
   // Create message
-  auto mag_msg = make_unique<tobas_msgs::MagneticFieldStamped>();
+  auto mag_msg = make_unique<tobas_msgs::MagneticField>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(field_meas, mag_msg->mag);

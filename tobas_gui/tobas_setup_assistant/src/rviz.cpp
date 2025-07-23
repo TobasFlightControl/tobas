@@ -10,6 +10,8 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
+#include <tobas_ros2_tools/urdf_exporter.hpp>
+#include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
 
@@ -19,7 +21,8 @@ namespace gui
 {
 namespace sa
 {
-RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("rviz_robot_state_display")
+RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
+  : uadf_(uadf), tree_(tree), rviz_manager_("rviz_robot_state_display")
 {
   // Declare rosparams
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, tobas::kMinimulURDF);
@@ -73,12 +76,14 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
 void RvizWidget::updateInternalDataStructures()
 {
   // 固定フレームをルートリンクに設定
-  const auto& root_name = robot_.tree().getRootName();
+  const auto& root_name = tree_.getRootName();
   rviz_manager_.setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
-  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, robot_.urdfText()));
-  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, robot_.urdfText()));
+  const auto urdf_doc = ros2::exportUrdf(*uadf_.urdf);
+  const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
+  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
+  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_text));
 
   // ロボットモデルをリロード
   reload_->setBool(false);

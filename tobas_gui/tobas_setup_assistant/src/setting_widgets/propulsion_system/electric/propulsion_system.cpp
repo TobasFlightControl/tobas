@@ -8,10 +8,10 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
 {
   battery = new BatteryWidget();
-  units = new PropulsionUnitsWidget(node, robot, _signals);
+  units = new PropulsionUnitsWidget(node, uadf);
 
   addTab(battery, kBatteryTitle);
   addTab(units, kPropulsionUnitTitle);
@@ -20,11 +20,6 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 const char* PropulsionSystemWidget::name() const
 {
   return "Electric Propulsion System";
-}
-
-void PropulsionSystemWidget::reset()
-{
-  units->clear();
 }
 
 void PropulsionSystemWidget::updateInternalDataStructures()
@@ -61,29 +56,19 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   units->load(node[kPropulsionUnitTitle]);
 }
 
-tobas::propulsion_system_t PropulsionSystemWidget::type() const
+tobas::PropulsionSystem PropulsionSystemWidget::type() const
 {
-  return tobas::propulsion_system_t::ELECTRIC;
+  return tobas::PropulsionSystem::kElectric;
 }
 
 int PropulsionSystemWidget::numUnits() const
 {
-  return units->selected()->count();
+  return units->count();
 }
 
 QString PropulsionSystemWidget::linkName(int index) const
 {
-  return units->selected()->linkName(index);
-}
-
-bool PropulsionSystemWidget::isTiltRotor(int index) const
-{
-  return units->selected()->widget(index)->general()->isTiltRotor();
-}
-
-QString PropulsionSystemWidget::tiltJointName(int index) const
-{
-  return units->selected()->widget(index)->general()->tiltJointName();
+  return units->linkName(index);
 }
 }  // namespace electric
 }  // namespace propulsion

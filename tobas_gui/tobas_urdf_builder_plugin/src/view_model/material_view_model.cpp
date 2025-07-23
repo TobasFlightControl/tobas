@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -63,5 +63,5 @@ void MaterialViewModel::textureFileName(const QString& filename)
   model_->texture_filename = filename.toStdString();
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

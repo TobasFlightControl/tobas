@@ -20,7 +20,7 @@ public:
 
   bool updateInternalDataStructures() override;
 
-  int CartToJnt(
+  int cartToJnt(
     const JntArray& cur_q,
     const JntArray& cur_qd,
     const FrameMap& tar_p,

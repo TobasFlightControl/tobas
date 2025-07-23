@@ -4,22 +4,22 @@
 
 namespace tobas
 {
-enum turning_direction_t : uint8_t
+enum struct TurningDirection
 {
   CCW,
   CW,
 };
 
-std::string textFromEnum(turning_direction_t interface);
-bool enumFromText(const std::string& text, turning_direction_t& dst);
+std::string textFromEnum(TurningDirection interface);
+bool enumFromText(const std::string& text, TurningDirection& dst);
 
 /* CCW = 1, CW = -1 */
-inline constexpr int sign(turning_direction_t direction)
+inline constexpr int sign(TurningDirection direction)
 {
   switch (direction) {
-    case turning_direction_t::CCW:
+    case TurningDirection::CCW:
       return 1;
-    case turning_direction_t::CW:
+    case TurningDirection::CW:
       return -1;
     default:
       throw;
@@ -30,9 +30,9 @@ inline constexpr int sign(turning_direction_t direction)
 namespace YAML
 {
 template <>
-struct convert<tobas::turning_direction_t>
+struct convert<tobas::TurningDirection>
 {
-  static Node encode(const tobas::turning_direction_t& rhs);
-  static bool decode(const Node& node, tobas::turning_direction_t& rhs);
+  static Node encode(const tobas::TurningDirection& rhs);
+  static bool decode(const Node& node, tobas::TurningDirection& rhs);
 };
 }  // namespace YAML

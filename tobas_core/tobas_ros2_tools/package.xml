@@ -3,7 +3,7 @@
 	<name>tobas_ros2_tools</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
-	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
@@ -11,6 +11,8 @@
 	<depend>rclcpp</depend>
 	<depend>ament_index_cpp</depend>
 	<depend>tf2_ros</depend>
+	<depend>urdf</depend>
+	<depend>urdfdom</depend>
 	<depend>tobas_std_tools</depend>
 	<depend>tobas_string_tools</depend>
 	<depend>tobas_path_tools</depend>

@@ -2,8 +2,6 @@
 
 #include <format>
 
-using namespace std;
-
 namespace qt
 {
 LampWidget::LampWidget(QWidget* parent) : super(parent)
@@ -34,7 +32,7 @@ void LampWidget::draw()
 {
   const auto radius = sizeHint().height() / 2;
   const auto grad = c_.mean(RGBColor::White());
-  const auto qss = format(QSS, radius, grad.r, grad.g, grad.b, c_.r, c_.g, c_.b, c_.r, c_.g, c_.b);
+  const auto qss = std::format(QSS, radius, grad.r, grad.g, grad.b, c_.r, c_.g, c_.b, c_.r, c_.g, c_.b);
   setStyleSheet(QString::fromStdString(qss));
 }
 }  // namespace qt

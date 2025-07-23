@@ -4,23 +4,23 @@
 
 namespace tobas
 {
-enum struct flight_mode_t : uint8_t
+enum struct FlightMode
 {
-  ACROBAT,
-  STABILIZE,
-  LOITER,
+  kAcrobat,
+  kStabilize,
+  kLoiter,
 };
 
-std::string textFromEnum(flight_mode_t role);
-bool enumFromText(const std::string& text, flight_mode_t& dst);
+std::string textFromEnum(FlightMode role);
+bool enumFromText(const std::string& text, FlightMode& dst);
 }  // namespace tobas
 
 namespace YAML
 {
 template <>
-struct convert<tobas::flight_mode_t>
+struct convert<tobas::FlightMode>
 {
-  static Node encode(const tobas::flight_mode_t& rhs);
-  static bool decode(const Node& node, tobas::flight_mode_t& rhs);
+  static Node encode(const tobas::FlightMode& rhs);
+  static bool decode(const Node& node, tobas::FlightMode& rhs);
 };
 }  // namespace YAML

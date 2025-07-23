@@ -119,15 +119,15 @@ void jointUrdfToKdl(const urdf::Joint& u, Joint& k)
   k.name = u.name;
 
   if (u.type == urdf::Joint::FIXED) {
-    k.type = Joint::FIXED;
+    k.type = Joint::kFixed;
   }
   else {
     // Type
     if (u.type == urdf::Joint::REVOLUTE || u.type == urdf::Joint::CONTINUOUS) {
-      k.type = Joint::ROTATION;
+      k.type = Joint::kRotation;
     }
     else if (u.type == urdf::Joint::PRISMATIC) {
-      k.type = Joint::TRANSLATION;
+      k.type = Joint::kTranslation;
     }
     else {
       throw runtime_error("Unknown joint type of joint: " + u.name);

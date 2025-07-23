@@ -3,7 +3,7 @@
 	<name>tobas_kdl_sympy</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
-	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
 	<exec_depend>python3-numpy</exec_depend>

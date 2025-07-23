@@ -23,6 +23,7 @@ struct rclcpp::TypeAdapter<tobas::ElectricRotorConfig, tobas_drone_msgs::msg::El
     dst.num_poles = src.num_poles;
     dst.kv = src.kv;
     dst.internal_resistance = src.internal_resistance;
+    dst.min_speed = src.min_speed;
     dst.propeller_diameter = src.propeller_diameter;
     dst.motor_const = src.motor_const;
   }
@@ -35,6 +36,7 @@ struct rclcpp::TypeAdapter<tobas::ElectricRotorConfig, tobas_drone_msgs::msg::El
     dst.num_poles = src.num_poles;
     dst.kv = src.kv;
     dst.internal_resistance = src.internal_resistance;
+    dst.min_speed = src.min_speed;
     dst.propeller_diameter = src.propeller_diameter;
     dst.motor_const = src.motor_const;
   }

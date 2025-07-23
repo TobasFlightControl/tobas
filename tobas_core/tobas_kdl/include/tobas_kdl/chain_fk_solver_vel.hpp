@@ -20,7 +20,7 @@ public:
   explicit ChainFkSolverVel_recursive(const Chain& chain);
 
   /* Calculate forward position and velocity kinematics, from joint coordinates to cartesian coordinates. */
-  int JntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1);
+  int jntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1);
 
   inline const FrameVel& getFrameVel() const;
 

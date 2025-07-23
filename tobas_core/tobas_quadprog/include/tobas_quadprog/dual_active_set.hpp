@@ -24,11 +24,11 @@ public:
   Eigen::VectorXd getLagrangeMultipliersIneq() const;
 
 private:
-  enum state_t
+  enum State
   {
-    CHOOSE_VIOLATED_CONSTRAINT,
-    CHECK_FEASIBILITY,
-    DETERMINE_STEP_DIRECTION,
+    kChooseViolatedConstraint,
+    kCheckFeasibility,
+    kDetermineStepDirection,
   };
 
   Eigen::Index n_;   // The number of optimization variables

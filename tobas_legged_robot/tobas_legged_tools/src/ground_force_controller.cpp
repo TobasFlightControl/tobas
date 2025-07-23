@@ -108,8 +108,8 @@ bool GroundForceController::solve(
   }
 
   // Update current state
-  mpc_.current_state << roll_pred[0], pitch_pred[0], cur_z, cur_gyro.x(), cur_gyro.y(), cur_gyro.z(), cur_vel.x(),
-    cur_vel.y(), cur_vel.z(), tobas_std::kGravity;
+  mpc_.current_state << roll_pred.front(), pitch_pred.front(), cur_z, cur_gyro.x(), cur_gyro.y(), cur_gyro.z(),
+    cur_vel.x(), cur_vel.y(), cur_vel.z(), tobas_std::kGravity;
 
   // Update set state
   mpc_.set_state << 0, 0, tar_z, 0, 0, tar_yawrate, tar_vx, tar_vy, 0;
@@ -122,7 +122,7 @@ bool GroundForceController::solve(
   // Prediction
   const auto& u = mpc_.optimalControlInput();
   x_rate_ = cont_.A * mpc_.current_state + cont_.B * u;
-  x_next_ = mpc_.discrete_dynamics[0].A * mpc_.current_state + mpc_.discrete_dynamics[0].B * u;
+  x_next_ = mpc_.discrete_dynamics.front().A * mpc_.current_state + mpc_.discrete_dynamics.front().B * u;
 
   return true;
 }
@@ -152,7 +152,7 @@ void GroundForceController::initializeMPC()
 
 double GroundForceController::calcMass()
 {
-  inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
+  inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
   return inertia_solver_.getInertia().getMass();
 }
 

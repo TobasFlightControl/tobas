@@ -119,7 +119,7 @@ public:
   }
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   std::string action_name_;
   typename rclcpp_action::Client<ActionType>::SharedPtr client_;
   typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult result_;

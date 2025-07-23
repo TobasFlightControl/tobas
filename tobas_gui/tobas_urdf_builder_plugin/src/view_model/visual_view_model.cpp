@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -55,5 +55,5 @@ const MaterialViewModelPtr& VisualViewModel::material()
   return material_vm_;
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

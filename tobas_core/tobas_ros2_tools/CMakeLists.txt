@@ -16,6 +16,8 @@ find_package(Eigen3 REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(urdf REQUIRED)
+find_package(urdfdom REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_string_tools REQUIRED)
 find_package(tobas_path_tools REQUIRED)
@@ -25,6 +27,8 @@ set(AMENT_DEPENDENCIES
     rclcpp
     ament_index_cpp
     tf2_ros
+    urdf
+    urdfdom
     tobas_std_tools
     tobas_string_tools
     tobas_path_tools
@@ -36,15 +40,6 @@ file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR}
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE EXE_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
-set(TARGETS_TO_INSTALL "")
-foreach(file_path IN LISTS EXE_FILES)
-  get_filename_component(NAME ${file_path} NAME_WE)
-  add_executable(${NAME} ${file_path})
-  target_link_libraries(${NAME} ${PROJECT_NAME})
-  list(APPEND TARGETS_TO_INSTALL ${NAME})
-endforeach()
-
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}
@@ -55,7 +50,6 @@ install(
   DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

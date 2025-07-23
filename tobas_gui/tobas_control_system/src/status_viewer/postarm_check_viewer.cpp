@@ -2,14 +2,11 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
-
 namespace gui
 {
 namespace gcs
 {
-PostArmCheckViewerWidget::PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
+PostArmCheckViewerWidget::PostArmCheckViewerWidget(const RosQtBridge& bridge)
 {
   gyro_noise_status_ = new StatusWidget("Gyroscope Noise Level");
   accel_noise_status_ = new StatusWidget("Accelerometer Noise Level");
@@ -17,6 +14,7 @@ PostArmCheckViewerWidget::PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node)
   mag_alignment_status_ = new StatusWidget("Magnetic Field Alignment");
   latency_status_ = new StatusWidget("Control Latency");
 
+  // Layout
   const auto rows = new QVBoxLayout();
   rows->addWidget(gyro_noise_status_);
   rows->addWidget(accel_noise_status_);
@@ -24,8 +22,11 @@ PostArmCheckViewerWidget::PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node)
   rows->addWidget(mag_alignment_status_);
   rows->addWidget(latency_status_);
   rows->addStretch();
-
   setLayout(rows);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::postArmCheckReceived, this, &self::postArmCheckCb, Qt::QueuedConnection);
 }
 
 void PostArmCheckViewerWidget::reset()
@@ -35,16 +36,6 @@ void PostArmCheckViewerWidget::reset()
   mag_offset_status_->reset();
   mag_alignment_status_->reset();
   latency_status_->reset();
-}
-
-void PostArmCheckViewerWidget::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-  postarm_check_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPostArmCheckTopic), &self::postArmCheckCb, this);
 }
 
 void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -63,12 +54,10 @@ void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
 {
   if (!arming_) {
-    reset();
     return;
   }
 
   if (!arming_->data) {
-    reset();
     return;
   }
 

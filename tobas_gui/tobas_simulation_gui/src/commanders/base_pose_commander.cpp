@@ -15,7 +15,10 @@ namespace gui
 {
 namespace sim
 {
-BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
+BasePoseCommanderWidget::BasePoseCommanderWidget(
+  rclcpp::Node::SharedPtr node,
+  const RosQtBridge& bridge,
+  const tobas::Drone& drone)
   : node_(node), drone_(drone)
 {
   const auto title = new qt::Label("Base Pose", kLabelPSize, QFont::Bold);
@@ -80,6 +83,8 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, c
   connect(cmd_pitch_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(cmd_yaw_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
 }
 
 void BasePoseCommanderWidget::updateInternalDataStructures()
@@ -90,9 +95,6 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
   pos_vel_pub_ = ros2::createPublisher<tobas_command_msgs::PosVel>(node_, path::join(ns, tobas::kPosVelCmdTopic));
   pos_vel_yaw_pub_ =
     ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::kPosVelYawCmdTopic));
-
-  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
-  odom_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kOdometryTopic), &self::odomCb, this);
 
   set_arm_sc_ =
     std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::kSetArmSrv));
@@ -179,16 +181,6 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
   return true;
 }
 
-void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
-}
-
-void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
-{
-  odom_ = odom;
-}
-
 void BasePoseCommanderWidget::onArmRequested()
 {
   if (!arming_) {
@@ -257,6 +249,16 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
   cmd_roll_->setValue(0.);
   cmd_pitch_->setValue(0.);
   cmd_yaw_->setValue(0.);
+}
+
+void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
+}
+
+void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+{
+  odom_ = odom;
 }
 }  // namespace sim
 }  // namespace gui

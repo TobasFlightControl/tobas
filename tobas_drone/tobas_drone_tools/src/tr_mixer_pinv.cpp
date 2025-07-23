@@ -31,6 +31,12 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
   const auto nr = drone_.prop->numRotors();
 
   A_.resize(nr);
+  E_.conservativeResize(NoChange, 2 * nr);
+  x_.conservativeResize(2 * nr);
+
+  thrust_points_.clear();
+  is_singular_.clear();
+
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
@@ -49,28 +55,37 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
     const auto& p = par_joint.axis();                      // 祖父母リンクから見たティルト軸
     const auto& q = par_seg.frame().M * cur_joint.axis();  // 親リンクのジョイントフレームから見たロータ軸
 
-    // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
     if (par_joint.name != rotor->tilt_joint_name) {
       cerr << "Tilt joint name of rotor " << rotor->link_name << " mismatch." << endl;
       return false;
     }
 
-    if (!p.isOrthogonal(q)) {
+    if (!p.isPerpendicular(q)) {
       cerr << "The axes of tilt joint " << par_joint.name << " and rotor joint " << cur_joint.name
-           << " must be orthogonal." << endl;
+           << " must be perpendicular to each other." << endl;
       return false;
     }
 
-    // TODO: プロペラリンクとティルト軸の距離が閾値以下であることを保証
+    // 祖父母リンクから見た推力の作用点を保存
+    const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
+    const auto& rotor_pos = gpar_T_cur.p;
+    const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
+    thrust_points_[rotor->link_name] = thrust_pos;
+
+    // プロペラリンクとティルト軸の距離が十分に小さいことを保証
+    // TODO: サイズや推力など，何らかの根拠に基づいて不安定にならない閾値を決める．
+    const auto rotor_offset = rotor_pos - thrust_pos;
+    const auto rotor_offset_norm = rotor_offset.norm();
+    if (rotor_offset_norm > INFINITY) {
+      cerr << "The distance between propeller \"" << rotor->link_name
+           << "\" and its tilt axis is too large: " << rotor_offset_norm << endl;
+      return false;
+    }
 
     A_.at(idx).col(0) = q.data;
     A_.at(idx).col(1) = (p * q).data;
   }
 
-  E_.conservativeResize(NoChange, 2 * nr);
-  x_.conservativeResize(2 * nr);
-
-  is_singular_.clear();
   for (const auto& [_, rotor] : drone_.prop->rotors) {
     is_singular_[rotor->link_name] = false;
   }
@@ -88,13 +103,13 @@ bool TiltRotorMixer_pinv::solve(
   const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
-  if (fk_solver_.JntToCart(cur_q) < 0) {
+  if (fk_solver_.jntToCart(cur_q) < 0) {
     cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
     return false;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(cur_q) < 0) {
+  if (inertia_solver_.jntToCart(cur_q) < 0) {
     cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
@@ -106,19 +121,18 @@ bool TiltRotorMixer_pinv::solve(
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
-    // ロータリンクとその親要素を取得
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
     const auto& par_elem = cur_elem.parent->second;
-    const auto& gpar_elem = par_elem.parent->second;
-
-    // 祖父母フレームの姿勢行列を取得
-    const auto& gpar_seg = gpar_elem.segment;
-    const auto& B_Rot_gpar = fk_solver_.getFrame(gpar_seg.name()).M;
-
-    // ティルト軸と鉛直方向の偏角を計算
     const auto& par_seg = par_elem.segment;
     const auto& par_joint = par_seg.joint();
-    const auto tilt_axis_B = B_Rot_gpar * par_joint.axis();
+    const auto& gpar_elem = par_elem.parent->second;
+    const auto& gpar_seg = gpar_elem.segment;
+
+    // 祖父母フレームを取得
+    const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+
+    // ティルト軸と鉛直方向の偏角を計算
+    const auto tilt_axis_B = B_T_gpar.M * par_joint.axis();
     const auto tilt_axis_W = cur_rot * tilt_axis_B;
     auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
     if (declination > M_PI_2) {
@@ -144,14 +158,14 @@ bool TiltRotorMixer_pinv::solve(
       E_.block<3, 2>(0, col).setZero();
       E_.block<3, 2>(3, col).setZero();
     }
-    {
-      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
+    else {
+      const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(rotor->link_name);
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
       const auto d = rotor->sign();
       const auto& cm = rotor->moment_const;
 
-      const Matrix<double, 3, 2> B = B_Rot_gpar.data * A_.at(idx);
+      const Matrix<double, 3, 2> B = B_T_gpar.M.data * A_.at(idx);
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
       const auto D = C * B;
 
@@ -189,7 +203,7 @@ bool TiltRotorMixer_pinv::solve(
 
 double TiltRotorMixer_pinv::getThrust(size_t idx) const
 {
-  return x_.segment<2>(2 * idx).norm();
+  return thrustDeadband(x_.segment<2>(2 * idx).norm());
 }
 
 double TiltRotorMixer_pinv::getTiltAngle(size_t idx) const

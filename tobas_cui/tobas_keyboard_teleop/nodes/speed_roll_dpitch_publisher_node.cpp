@@ -10,11 +10,9 @@
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 
 #include "tobas_keyboard_teleop/constants.hpp"
-
-using namespace std;
 
 namespace tobas_keyboard_teleop
 {
@@ -71,7 +69,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
 
   // Timer
   ros2::TimerPtr process_timer_;
@@ -83,7 +81,7 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& msg);
+  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg);
 
   void mainTimerCb();
   void checkTopicsTimerCb();
@@ -138,7 +136,7 @@ bool SpeedRollDeltaPitchPublisherNode::initialize()
   cmd_.delta_pitch = 0.;
 
   // インストラクションの表示を開始
-  cout << kInstruction << endl;
+  std::cout << kInstruction << std::endl;
   instruction_timer_ = createTimer(kInstructionTimerPeriod, &self::instructionTimerCb, this);
 
   return true;
@@ -156,10 +154,9 @@ void SpeedRollDeltaPitchPublisherNode::treeCb(const kdl::Tree::ConstSharedPtr& t
   tree_received_ = true;
 }
 
-void SpeedRollDeltaPitchPublisherNode::airPressureCb(
-  const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& msg)
+void SpeedRollDeltaPitchPublisherNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg)
 {
-  air_density_ = tobas_std::pressureToDensity(msg->pressure.pressure);
+  air_density_ = tobas_std::pressureToDensity(msg->pressure);
   pressure_received_ = true;
 }
 
@@ -199,22 +196,22 @@ void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
       break;
     }
     case keyboard::UP: {
-      cmd_.delta_pitch = clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+      cmd_.delta_pitch = std::clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
       TOBAS_INFO("Nose up");
       break;
     }
     case keyboard::DOWN: {
-      cmd_.delta_pitch = clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+      cmd_.delta_pitch = std::clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
       TOBAS_INFO("Nose down");
       break;
     }
     case keyboard::LEFT: {
-      cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
+      cmd_.roll = std::clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
       TOBAS_INFO("Turn left");
       break;
     }
     case keyboard::RIGHT: {
-      cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
+      cmd_.roll = std::clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
       TOBAS_INFO("Turn right");
       break;
     }
@@ -222,7 +219,7 @@ void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
 
   // コマンドを発行
   auto cmd_ptr = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>(cmd_);
-  cmd_pub_->publish(move(cmd_ptr));
+  cmd_pub_->publish(std::move(cmd_ptr));
 }
 
 void SpeedRollDeltaPitchPublisherNode::checkTopicsTimerCb()
@@ -242,7 +239,7 @@ void SpeedRollDeltaPitchPublisherNode::checkTopicsTimerCb()
 
 void SpeedRollDeltaPitchPublisherNode::instructionTimerCb()
 {
-  TOBAS_INFO(kInstruction);
+  std::cout << kInstruction << std::endl;
 }
 }  // namespace tobas_keyboard_teleop
 

@@ -3,7 +3,7 @@
 	<name>tobas_gui</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
-	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
@@ -11,9 +11,8 @@
 	<exec_depend>tobas_control_system</exec_depend>
 	<exec_depend>tobas_flight_log_gui</exec_depend>
 	<exec_depend>tobas_gui_common</exec_depend>
-	<exec_depend>tobas_gui_core</exec_depend>
+	<exec_depend>tobas_gcs</exec_depend>
 	<exec_depend>tobas_hardware_setup</exec_depend>
-	<exec_depend>tobas_homepage</exec_depend>
 	<exec_depend>tobas_parameter_tuning_gui</exec_depend>
 	<exec_depend>tobas_qt_tools</exec_depend>
 	<exec_depend>tobas_qwt_wrapper</exec_depend>
@@ -21,6 +20,7 @@
 	<exec_depend>tobas_rviz_wrapper</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_simulation_gui</exec_depend>
+	<exec_depend>tobas_uadf</exec_depend>
 	<exec_depend>tobas_urdf_builder</exec_depend>
 	<exec_depend>tobas_urdf_builder_plugin</exec_depend>
 	<exec_depend>tobas_visualization_msgs</exec_depend>

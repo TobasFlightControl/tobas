@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -30,12 +30,12 @@ public:
   const double& getValue(const QString& field) const;
 
 private Q_SLOTS:
-  void SpinBoxValueChanged(double value);
+  void onSpinBoxValueChanged(double value);
 
 private:
   std::map<QString, double> field2value_;
   std::map<QDoubleSpinBox*, QString> spinbox2field_;
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

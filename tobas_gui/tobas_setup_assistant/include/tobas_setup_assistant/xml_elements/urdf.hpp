@@ -29,11 +29,9 @@ void addIMUPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
-  double gyro_offset_norm,
   double gyro_random_walk,
   double gyro_bias_corr_time,
   double acc_noise_density,
-  double acc_offset_norm,
   double acc_random_walk,
   double acc_bias_corr_time,
   const std::vector<std::string>& rotor_link_names);
@@ -57,7 +55,7 @@ void addBarometerPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double altitude_zero,
-  double pressure_variance);
+  double noise_stddev);
 
 void addGNSSPlugin(
   tinyxml2::XMLElement* robot,
@@ -85,7 +83,7 @@ void addElectricPropulsionSystemPlugin(
   double motor_const,
   double moment_const,
   double drag_const,
-  tobas::turning_direction_t direction,
+  tobas::TurningDirection direction,
   double max_current,
   double max_model_error_rate);
 
@@ -99,7 +97,7 @@ struct EngineParam
 struct ICERotorParam
 {
   std::string link_name;
-  tobas::turning_direction_t direction;
+  tobas::TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
   tobas_std::Range<double> pitch_angle_limit;
@@ -118,7 +116,7 @@ void addICEPropulsionSystemPlugin(
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
-  const std::string& link_name,
+  const std::string& base_link_name,
   double altitude_zero,
   const tobas::FixedWingConfig& fixed_wing);
 

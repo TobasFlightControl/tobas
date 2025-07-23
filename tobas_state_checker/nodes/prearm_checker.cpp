@@ -14,8 +14,7 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-using namespace std;
-using namespace Eigen;
+using namespace std::chrono_literals;
 
 class PreArmCheckerNode : public tobas::BaseNode
 {
@@ -64,7 +63,7 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
 
   rclcpp::Time t_last_large_interval_;
-  array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
+  std::array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
 
   ros2::PublisherPtr<tobas_msgs::msg::PreArmCheck> prearm_check_pub_;
 
@@ -237,14 +236,14 @@ void PreArmCheckerNode::mainTimerCb()
 
   // 推進系のタイプよる場合分け
   switch (drone_->prop->type()) {
-    case tobas::propulsion_system_t::ELECTRIC: {
+    case tobas::PropulsionSystem::kElectric: {
       // 未使用項目を無視
       // TODO
 
       const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
       // バッテリー電圧が定格電圧以上
-      if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::propulsion_system_t::ELECTRIC) {
+      if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::PropulsionSystem::kElectric) {
         if (!battery_) {
           prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
           prearm_check->ok = false;
@@ -262,7 +261,7 @@ void PreArmCheckerNode::mainTimerCb()
 
       break;
     }
-    case tobas::propulsion_system_t::ICE: {
+    case tobas::PropulsionSystem::kIce: {
       // 未使用項目を無視
       prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
 
@@ -322,7 +321,7 @@ void PreArmCheckerNode::mainTimerCb()
     }
     else {
       const auto [roll, pitch, _] = odom_->frame.M.getRPY();
-      if (max(fabs(roll), fabs(pitch)) > kAttitudeThresh) {
+      if (std::max(fabs(roll), fabs(pitch)) > kAttitudeThresh) {
         prearm_check->attitude_too_steep = tobas_msgs::msg::PreArmCheck::FAILED;
         prearm_check->ok = false;
       }
@@ -353,8 +352,8 @@ void PreArmCheckerNode::mainTimerCb()
       prearm_check->ok = false;
     }
     else {
-      const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
-      const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
+      const Eigen::Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
+      const auto hor_pos_var = std::max(pos_cov_diag.x(), pos_cov_diag.y());
       const auto ver_pos_var = pos_cov_diag.z();
       if (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh)) {
         prearm_check->position_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;

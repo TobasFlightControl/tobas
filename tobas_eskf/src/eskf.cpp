@@ -14,7 +14,7 @@ using namespace Eigen;
 
 namespace eskf
 {
-ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow), stopwatch_(100)
+ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
 {
   // 観測方程式の固定部分を埋める
   H_pos_.setZero();
@@ -384,9 +384,7 @@ double ErrorStateKalmanFilter::measureIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269)第一項: 共分散行列の予測値を更新
-  // stopwatch_.start();
   P_ = F_x_ * P_.selfadjointView<Lower>() * F_x_.transpose();  // TODO: 必要な部分のみ計算
-  // stopwatch_.stop();
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov_fixed * W_Rot_B.transpose() * dt2;
@@ -407,19 +405,12 @@ double ErrorStateKalmanFilter::measureIMU(
   // 自由落下中もしくは加速度が大きすぎる場合は全く姿勢を反映していない恐れがあるため，重力方向の観測を行うのはその間の加速度に限る．
   const auto acc_norm = acc_meas.norm();
   const auto gravity = getGravity(x_);
-  if (acc_norm < kDoMeasGravMinGValue * gravity) {
-    cerr << "Attitude correction cannot be performed because accel norm is lower than " << kDoMeasGravMinGValue << "G. "
-         << endl;
+  if (acc_norm < kFreeFallAccelNormThresh * gravity) {
+    cerr << "Attitude correction cannot be performed because the aircraft is in free fall." << endl;
     return INFINITY;
   }
-  else if (acc_norm > kDoMeasGravMaxGValue * gravity) {
-    cerr << "Attitude correction cannot be performed because accel norm is greater than " << kDoMeasGravMaxGValue
-         << "G. " << endl;
-    return INFINITY;
-  }
-  else {
-    return measureGravity(acc_meas, grav_cov, time);
-  }
+
+  return measureGravity(acc_meas, grav_cov, time);
 }
 
 double ErrorStateKalmanFilter::measurePosition(
@@ -567,9 +558,9 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
   return correct(delta_mag, mag_cov, H_mag_);
 }
 
-double ErrorStateKalmanFilter::measureMagneticFieldYaw(
+double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const Vector3d& mag_meas,
-  const Matrix3d& mag_cov,
+  const double& yaw_var,
   const steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.) {
@@ -594,12 +585,6 @@ double ErrorStateKalmanFilter::measureMagneticFieldYaw(
   const auto yaw_ref = atan2(mag_W_.y(), mag_W_.x());
   const auto yaw_meas = yaw_ref - atan2(my, mx);
   const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
-
-  // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
-  const auto mx_std = sqrt(mag_cov(0, 0));
-  const auto my_std = sqrt(mag_cov(1, 1));
-  const auto yaw_std = (fabs(mx) * my_std + fabs(my) * mx_std) / (math::sqr(mx) + math::sqr(my));
-  const auto yaw_var = math::sqr(yaw_std);
 
   // 出力方程式を更新
   H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = hamiltonToYawOutputMatrix(x) * getQ_dtheta(x);

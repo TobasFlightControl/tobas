@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -30,5 +30,5 @@ public:
 
 using JointLimitsViewModelPtr = std::shared_ptr<JointLimitsViewModel>;
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

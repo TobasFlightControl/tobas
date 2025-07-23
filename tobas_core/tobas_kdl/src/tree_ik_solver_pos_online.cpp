@@ -28,22 +28,22 @@ bool TreeIkSolverPos_Online::updateInternalDataStructures()
   return true;
 }
 
-int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt)
+int TreeIkSolverPos_Online::cartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q_in.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
   if (dt < 0) {
-    return setDefaultError(E_NEGATIVE_DELTA_TIME);
+    return setDefaultError(kNegativeDeltaTime);
   }
 
   // Compute delta twists
   TwistMap delta_twists;
   for (const auto& [seg_name, frame] : p_in) {
-    if (fksolver_.JntToCart(q_in, seg_name) < 0) {
+    if (fksolver_.jntToCart(q_in, seg_name) < 0) {
       return copyError(fksolver_);
     }
     auto delta_t = (frame - fksolver_.getFrame()).toTwist();
@@ -52,7 +52,7 @@ int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in
   }
 
   // Compute delta q
-  if (iksolver_.CartToJnt(q_in, delta_twists) < 0) {
+  if (iksolver_.cartToJnt(q_in, delta_twists) < 0) {
     return copyError(iksolver_);
   }
   auto delta_q = iksolver_.getVelocities();
@@ -66,7 +66,7 @@ int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in
   const auto& ub = jntparser_.upperLimits().data;
   q_out_.data = q_out_.data.cwiseMax(lb).cwiseMin(ub);
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 bool TreeIkSolverPos_Online::setMaxLinearVelocity(const double& max_linvel)

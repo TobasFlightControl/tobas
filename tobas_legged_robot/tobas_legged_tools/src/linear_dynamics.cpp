@@ -48,7 +48,7 @@ void LinearDynamics::updateB(const double& roll, const double& pitch, const kdl:
 {
   // B: Base, G: CoG, F: Footprint, C: Contact
 
-  if (inertia_solver_.JntToCart(q) < 0) {
+  if (inertia_solver_.jntToCart(q) < 0) {
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   }
 
@@ -66,7 +66,7 @@ void LinearDynamics::updateB(const double& roll, const double& pitch, const kdl:
 
   for (size_t l = 0; l < nc_; ++l) {
     if (is_stand[l]) {
-      if (fk_solver_.JntToCart(q, foot_names_[l]) < 0) {
+      if (fk_solver_.jntToCart(q, foot_names_[l]) < 0) {
         throw runtime_error("FK solver failed: " + fk_solver_.errorMessage());
       }
 

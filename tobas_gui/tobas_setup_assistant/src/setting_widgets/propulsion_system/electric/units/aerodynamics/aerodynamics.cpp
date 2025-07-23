@@ -22,23 +22,33 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWi
   setLayout(rows);
 
   method_name_ = new qt::ComboBox();
+
+  const auto manual = new AerodynamicsWidget_Manual();
+  const auto blade_theory = new AerodynamicsWidget_BladeTheory(propeller);
+  const auto thrust_stand = new AerodynamicsWidget_ThrustStand(node, propeller);
+  const auto uiuc = new AerodynamicsWidget_UIUC(node, propeller);
+
   methods_ = new qt::StackedWidget();
-
-  rows->addWidget(method_name_);
-  rows->addWidget(methods_);
-
-  methods_->addWidget(new AerodynamicsWidget_Manual());
-  methods_->addWidget(new AerodynamicsWidget_BladeTheory(propeller));
-  methods_->addWidget(new AerodynamicsWidget_ThrustStand(node, propeller));
-  methods_->addWidget(new AerodynamicsWidget_UIUC(node, propeller));
+  methods_->addWidget(manual);
+  methods_->addWidget(blade_theory);
+  methods_->addWidget(thrust_stand);
+  methods_->addWidget(uiuc);
 
   for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
     method_name_->addItem(method->name());
   }
 
+  // Layout
+  rows->addWidget(method_name_);
+  rows->addWidget(methods_);
+
+  // Connection
   connect(
     method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
+
+  // Default
+  method_name_->setCurrentText(thrust_stand->name());
 }
 
 const char* AerodynamicsWidget::name() const

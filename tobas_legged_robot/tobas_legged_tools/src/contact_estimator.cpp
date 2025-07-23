@@ -53,33 +53,33 @@ void ContactEstimator::update(
     const auto contact_detected = (kf_.state()(l) > kContactProbThreshold);  // 接触検知されたか否か
 
     switch (states_[l]) {
-      case Contact: {
+      case kContact: {
         if (!cpg_states[l]) {
-          states_[l] = Swing;
+          states_[l] = kSwing;
         }
         break;
       }
-      case Swing: {
+      case kSwing: {
         if (cpg_states[l] && contact_detected) {
-          states_[l] = Contact;
+          states_[l] = kContact;
         }
         else if (cpg_states[l]) {
-          states_[l] = Late;
+          states_[l] = kLate;
         }
         else if (contact_detected) {
-          states_[l] = Early;
+          states_[l] = kEarly;
         }
         break;
       }
-      case Early: {
+      case kEarly: {
         if (cpg_states[l]) {
-          states_[l] = Contact;
+          states_[l] = kContact;
         }
         break;
       }
-      case Late: {
+      case kLate: {
         if (contact_detected) {
-          states_[l] = Contact;
+          states_[l] = kContact;
         }
         break;
       }
@@ -95,7 +95,7 @@ void ContactEstimator::reset()
   const auto ones = VectorXd::Ones(nc_);
   kf_.initialize(ones, ones.asDiagonal());
 
-  tobas_std::fill(states_, Contact);
+  tobas_std::fill(states_, kContact);
 }
 
 void ContactEstimator::setPredictionVariance(const double& var)
@@ -118,7 +118,7 @@ void ContactEstimator::setContactForceVariance(const double& var)
 
 bool ContactEstimator::isContact(const size_t& idx) const
 {
-  return states_[idx] == Contact || states_[idx] == Early;
+  return states_[idx] == kContact || states_[idx] == kEarly;
 }
 
 double ContactEstimator::contactProbability(const size_t& idx) const
@@ -153,7 +153,7 @@ VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntA
 {
   VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l) {
-    fk_solver_.JntToCart(q, foot_names_[l]);
+    fk_solver_.jntToCart(q, foot_names_[l]);
     const auto F_Pos_FC = T.M * fk_solver_.getFrame().p;
     const auto height = T.p.z() + F_Pos_FC.z();
     res(l) = 0.5 * (1 + erf((kMeanFootHeight - height) / erfden_height_));

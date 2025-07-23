@@ -4,53 +4,38 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/fixed_wing_lqr.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
-#include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
-
 namespace gui
 {
 namespace sa
 {
-ControllerWidget::ControllerWidget(
-  RobotInfo& robot,
-  const propulsion::PropulsionSystemWidget* propulsion_system,
-  const fixed_wing::FixedWingWidget* fixed_wing)
-  : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
+namespace ctrl
 {
-  type_ = new qt::ComboBox();
-  controllers_ = new qt::StackedWidget();
-  description_ = new qt::DescriptionWidget("", kBodyPSize);
+ControllerWidget::ControllerWidget()
+{
+  stack_ = new qt::StackedWidget();
+  addWidget(stack_);
 
-  addWidget(type_);
-  addWidget(description_);
-  addWidget(controllers_);
+  planar_multicopter_ = new PlanarMulticopterWidget();
+  stack_->addWidget(planar_multicopter_);
 
-  controllers_->addWidget(new MultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
-  controllers_->addWidget(new NonPlanarPIDWidget(robot_, propulsion_system_, fixed_wing_));
-  controllers_->addWidget(new ActiveTiltMultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
-  controllers_->addWidget(new FixedWingLQRWidget(robot_, propulsion_system_, fixed_wing_));
-  controllers_->addWidget(new CustomControllerWidget());
+  nonplanar_multicopter_ = new NonPlanarMulticopterWidget();
+  stack_->addWidget(nonplanar_multicopter_);
 
-  for (int i = 0; i < controllers_->count(); ++i) {
-    const auto controller = widget(i);
-    type_->addItem(controller->name());
-  }
+  active_tilt_multicopter_ = new ActiveTiltMulticopterWidget();
+  stack_->addWidget(active_tilt_multicopter_);
 
-  connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentController);
-  setCurrentController(0);
+  fixed_wing_ = new FixedWingWidget();
+  stack_->addWidget(fixed_wing_);
 }
 
 const char* ControllerWidget::name() const
 {
-  return "Controller";
+  return "Flight Controller";
 }
 
 const char* ControllerWidget::title() const
 {
-  return "Setup Controller";
+  return "Setup Flight Controller";
 }
 
 const char* ControllerWidget::description() const
@@ -60,27 +45,12 @@ const char* ControllerWidget::description() const
          "so it's acceptable to leave them at their default settings initially.";
 }
 
-void ControllerWidget::onOpened()
-{
-  // 現在の機体設定で適用可能な選択肢のみ選択可能にする
-  for (int i = 0; i < controllers_->count(); ++i) {
-    const auto controller = widget(i);
-    type_->setItemEnabled(i, controller->isApplicable());
-  }
-}
-
 void ControllerWidget::updateInternalDataStructures()
 {
-  return;
 }
 
 bool ControllerWidget::isValid()
 {
-  if (!selected()->isApplicable()) {
-    qt::qErrorBox(this, "The selected controller is not applicable to the airframe.");
-    return false;
-  }
-
   if (!selected()->isValid()) {
     return false;
   }
@@ -92,9 +62,7 @@ YAML::Node ControllerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kTypeKey] = type_->currentText();
-
-  for (int i = 0; i < controllers_->count(); ++i) {
+  for (int i = 0; i < stack_->count(); ++i) {
     const auto controller = widget(i);
     node[controller->name()] = controller->dump();
   }
@@ -104,11 +72,31 @@ YAML::Node ControllerWidget::dump() const
 
 void ControllerWidget::load(const YAML::Node& node)
 {
-  type_->setCurrentText(node[kTypeKey].as<QString>());
-
-  for (int i = 0; i < controllers_->count(); ++i) {
+  for (int i = 0; i < stack_->count(); ++i) {
     const auto controller = widget(i);
     controller->load(node[controller->name()]);
+  }
+}
+
+void ControllerWidget::setFrameType(const FrameType& type)
+{
+  switch (type) {
+    case FrameType::kUndefined:
+      throw;  // TODO: 何かしら表示 (カスタムコントローラ？)
+    case FrameType::kPlanarMulticopter:
+      stack_->setCurrentWidget(planar_multicopter_);
+      break;
+    case FrameType::kNonPlanarMulticopter:
+      stack_->setCurrentWidget(nonplanar_multicopter_);
+      break;
+    case FrameType::kActiveTiltMulticopter:
+      stack_->setCurrentWidget(active_tilt_multicopter_);
+      break;
+    case FrameType::kFixedWing:
+      stack_->setCurrentWidget(fixed_wing_);
+      break;
+    default:
+      throw;
   }
 }
 
@@ -122,17 +110,17 @@ QString ControllerWidget::pluginName() const
   return selected()->pluginName();
 }
 
-tobas::rc_command_t ControllerWidget::acrobatModeCommand() const
+tobas::RcCommand ControllerWidget::acrobatModeCommand() const
 {
   return selected()->acrobatModeCommand();
 }
 
-tobas::rc_command_t ControllerWidget::stabilizeModeCommand() const
+tobas::RcCommand ControllerWidget::stabilizeModeCommand() const
 {
   return selected()->stabilizeModeCommand();
 }
 
-tobas::rc_command_t ControllerWidget::loiterModeCommand() const
+tobas::RcCommand ControllerWidget::loiterModeCommand() const
 {
   return selected()->loiterModeCommand();
 }
@@ -142,35 +130,35 @@ YAML::Node ControllerWidget::staticParams() const
   return selected()->staticParams();
 }
 
-bool ControllerWidget::isCommandCompatible(tobas::rc_command_t command) const
+bool ControllerWidget::isCommandCompatible(tobas::RcCommand command) const
 {
   return command == acrobatModeCommand() || command == stabilizeModeCommand() || command == loiterModeCommand();
 }
 
 void ControllerWidget::setCurrentController(int index)
 {
-  controllers_->setCurrentIndex(index);
-  description_->setText(selected()->description());
+  stack_->setCurrentIndex(index);
 }
 
 BaseControllerWidget* ControllerWidget::widget(int index)
 {
-  return qt::qPointerCast<BaseControllerWidget>(controllers_->widget(index));
+  return qt::qPointerCast<BaseControllerWidget>(stack_->widget(index));
 }
 
 const BaseControllerWidget* ControllerWidget::widget(int index) const
 {
-  return qt::qConstPointerCast<BaseControllerWidget>(controllers_->widget(index));
+  return qt::qConstPointerCast<BaseControllerWidget>(stack_->widget(index));
 }
 
 BaseControllerWidget* ControllerWidget::selected()
 {
-  return qt::qPointerCast<BaseControllerWidget>(controllers_->currentWidget());
+  return qt::qPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
 const BaseControllerWidget* ControllerWidget::selected() const
 {
-  return qt::qConstPointerCast<BaseControllerWidget>(controllers_->currentWidget());
+  return qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
+}  // namespace ctrl
 }  // namespace sa
 }  // namespace gui

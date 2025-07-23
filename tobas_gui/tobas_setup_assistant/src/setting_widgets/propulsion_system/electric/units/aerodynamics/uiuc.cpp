@@ -79,7 +79,7 @@ double AerodynamicsWidget_UIUC::motorConst() const
   const auto CT = data_mat.col(1).mean();
   const auto d = propeller_->diameter();
   const auto rho = tobas_std::kStandardAirDensity;  // TODO: ランタイムの気圧変化を考慮
-  return (CT * rho * math::quat(d)) / (4 * math::sqr(M_PI));
+  return (CT * rho * math::quar(d)) / math::sqr(2 * M_PI);
 }
 
 double AerodynamicsWidget_UIUC::momentConst() const

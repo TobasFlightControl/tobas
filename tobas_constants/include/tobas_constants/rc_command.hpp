@@ -4,28 +4,28 @@
 
 namespace tobas
 {
-enum struct rc_command_t : uint8_t
+enum struct RcCommand
 {
-  RATE_THROTTLE,
-  ANGLE_THROTTLE,
-  ACCEL_YAW,
-  POS_VEL_YAW,
-  ACCEL_RATE,
-  ACCEL_ANGLE,
-  POS_VEL_ANGLE,
-  SPEED_ROLL_DPITCH,
+  kRateThrottle,
+  kAngleThrottle,
+  kAccelYaw,
+  kPosVelYaw,
+  kAccelRate,
+  kAccelAngle,
+  kPosVelAngle,
+  kSpeedRollDPitch,
 };
 
-std::string textFromEnum(rc_command_t role);
-bool enumFromText(const std::string& text, rc_command_t& dst);
+std::string textFromEnum(RcCommand role);
+bool enumFromText(const std::string& text, RcCommand& dst);
 }  // namespace tobas
 
 namespace YAML
 {
 template <>
-struct convert<tobas::rc_command_t>
+struct convert<tobas::RcCommand>
 {
-  static Node encode(const tobas::rc_command_t& rhs);
-  static bool decode(const Node& node, tobas::rc_command_t& rhs);
+  static Node encode(const tobas::RcCommand& rhs);
+  static bool decode(const Node& node, tobas::RcCommand& rhs);
 };
 }  // namespace YAML

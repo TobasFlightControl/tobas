@@ -1,7 +1,8 @@
+#include <ranges>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_control/lqd.hpp>
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
-#include <tobas_drone_tools/rotor_axis_extractor.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
@@ -17,13 +18,10 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/control_surface_deflections.hpp>
-#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
+#include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-
-using namespace std;
-using namespace Eigen;
 
 struct ControllerParameters
 {
@@ -51,7 +49,6 @@ private:
   kdl::Tree tree_;
 
   kdl::TreeMassHolder mass_holder_;
-  tobas::RotorAxisExtractor x_rotors_;
   tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
   // 固定値
@@ -62,8 +59,8 @@ private:
   bool tree_received_ = false;
   bool topics_received_ = false;
   tobas::CommandLevelHandler cmd_level_handler_;
-  tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr air_pressure_;  // 大気圧
-  tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                                   // 現在の状態 (NWU座標系)
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // 大気圧
+  tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                         // 現在の状態 (NWU座標系)
   tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
   tobas_msgs::Odometry odom_ned_;                                         // 現在の状態 (NED座標系)
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // ロータのアーム状態
@@ -73,12 +70,12 @@ private:
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> tar_angles_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
@@ -89,8 +86,8 @@ private:
   bool initialize();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishThrusts(const VectorXd& thrusts);
-  void publishDeflections(const VectorXd& deflections);
+  void publishThrusts(const Eigen::VectorXd& thrusts);
+  void publishDeflections(const Eigen::VectorXd& deflections);
   bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
 
   void updateForwardSpeedWeight();
@@ -117,7 +114,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& pressure);
+  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
   void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
 
@@ -125,10 +122,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kController, options)
-  , mass_holder_(tree_)
-  , x_rotors_(drone_, tobas::X_POSITIVE)
-  , eom_(drone_, tree_)
+  : super(tobas::node::kController, options), mass_holder_(tree_), eom_(drone_, tree_)
 {
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
@@ -143,7 +137,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
-  deflections_pub_ = createPublisher<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
+  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
 
   // Register subscribers
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
@@ -160,9 +154,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 bool ControllerNode::initialize()
 {
   if (!mass_holder_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!x_rotors_.updateInternalDataStructures()) {
     return false;
   }
   if (!eom_.updateInternalDataStructures()) {
@@ -185,8 +176,8 @@ bool ControllerNode::initialize()
 
   // 制御入力のスケール
   lqd_.input_scale.resize(eom_.inputSize());
-  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / x_rotors_.count();
-  lqd_.input_scale.head(x_rotors_.count()).fill(thrust_scale);
+  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / drone_.prop->numRotors();
+  lqd_.input_scale.head(drone_.prop->numRotors()).fill(thrust_scale);
   lqd_.input_scale.tail(drone_.fixed_wing->numControlSurfaces()).fill(M_PI);
 
   lqd_.state_weight.resize(eom_.kStateSize);
@@ -194,7 +185,7 @@ bool ControllerNode::initialize()
   lqd_.input_rate_weight.resize(eom_.inputSize());
   lqd_.current_state.resize(eom_.kStateSize);
   lqd_.target_state.resize(eom_.kStateSize);
-  lqd_.last_input = VectorXd::Zero(eom_.inputSize());
+  lqd_.last_input = Eigen::VectorXd::Zero(eom_.inputSize());
 
   updateParameters();
 
@@ -223,7 +214,7 @@ void ControllerNode::updateSetStateVector()
   const auto& trim = eom_.trimCondition();
 
   // 失速しないように速度制限をした上で目標推力を計算
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure.pressure);
+  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure);
   const auto tar_speed = trim.speedLimit(rho).clamp(cmd_ned_.speed);
   const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
 
@@ -237,26 +228,39 @@ void ControllerNode::updateSetStateVector()
   lqd_.target_state(eom_.kStateIdx_r) = 0.;
 }
 
-void ControllerNode::publishThrusts(const VectorXd& thrusts)
+void ControllerNode::publishThrusts(const Eigen::VectorXd& thrusts)
 {
+  assert(static_cast<size_t>(thrusts.size()) == drone_.prop->numRotors());
+
   auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
   thrusts_msg->header.stamp = odom_ned_.header.stamp;
 
-  for (int i = 0; i < thrusts.rows(); ++i) {
+  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     thrusts_msg->thrusts.emplace_back();
-    thrusts_msg->thrusts.back().link_name = x_rotors_.linkName(i);
-    thrusts_msg->thrusts.back().thrust = max(thrusts(i), 0.);
+    thrusts_msg->thrusts.back().link_name = elem.first;
+    thrusts_msg->thrusts.back().thrust = std::max(thrusts(idx), 0.);
   }
 
-  tar_thrusts_pub_->publish(move(thrusts_msg));
+  tar_thrusts_pub_->publish(std::move(thrusts_msg));
 }
 
-void ControllerNode::publishDeflections(const VectorXd& deflections)
+void ControllerNode::publishDeflections(const Eigen::VectorXd& deflections)
 {
-  auto deflections_msg = std::make_unique<tobas_msgs::msg::ControlSurfaceDeflections>();
-  deflections_msg->header.stamp = odom_ned_.header.stamp;
-  deflections_msg->deflections = eigen::toStdVector(deflections);
-  deflections_pub_->publish(move(deflections_msg));
+  assert(static_cast<size_t>(deflections.size()) == drone_.fixed_wing->numControlSurfaces());
+
+  auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  tar_angles_msg->header.stamp = odom_ned_.header.stamp;
+
+  for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& link_name = cs_item.first;
+    const auto& joint = tree_.getSegment(link_name)->second.segment.joint();
+
+    tar_angles_msg->commands.emplace_back();
+    tar_angles_msg->commands.back().name = joint.name;
+    tar_angles_msg->commands.back().data = deflections(idx);
+  }
+
+  tar_angles_pub_->publish(std::move(tar_angles_msg));
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
@@ -310,13 +314,13 @@ void ControllerNode::updateAngularVelicityWeight()
 void ControllerNode::updateThrustWeightLog10()
 {
   const auto thrust_weight = exp10(params_.thrust_weight_log10);
-  lqd_.input_weight.head(x_rotors_.count()).fill(thrust_weight);
+  lqd_.input_weight.head(drone_.prop->numRotors()).fill(thrust_weight);
 }
 
 void ControllerNode::updateThrustRateWeightLog10()
 {
   const auto thrust_rate_weight = exp10(params_.thrust_rate_weight_log10);
-  lqd_.input_rate_weight.head(x_rotors_.count()).fill(thrust_rate_weight);
+  lqd_.input_rate_weight.head(drone_.prop->numRotors()).fill(thrust_rate_weight);
 }
 
 void ControllerNode::updateDeflectionWeightLog10()
@@ -463,7 +467,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   }
 }
 
-void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& pressure)
+void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure)
 {
   air_pressure_ = pressure;
 }
@@ -489,14 +493,14 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   tobas::speedRollDeltaPitchNwuToNed(*cmd_nwu_, cmd_ned_);
 
   // 現在の速度を使って状態方程式を更新
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure.pressure);
+  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure);
   switch (eom_.update(odom_ned_.twist.vel.norm(), rho, q_0_)) {
-    case tobas::SolverI::E_NO_ERROR:
+    case tobas::SolverI::kNoError:
       break;
-    case tobas::SolverI::E_WARN:
+    case tobas::SolverI::kWarn:
       TOBAS_WARN(eom_.errorMessage());
       break;
-    case tobas::SolverI::E_ERROR:
+    case tobas::SolverI::kError:
       TOBAS_ERROR(eom_.errorMessage());
       return;
     default:
@@ -511,11 +515,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   updateSetStateVector();
 
   // 最適制御入力を求める
-  const VectorXd du = lqd_.solve(dt);
-  const VectorXd u = eom_.trimInput() + du;
+  const Eigen::VectorXd du = lqd_.solve(dt);
+  const Eigen::VectorXd u = eom_.trimInput() + du;
 
-  const VectorXd thrusts = u.head(x_rotors_.count());
-  const VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
+  const Eigen::VectorXd thrusts = u.head(drone_.prop->numRotors());
+  const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
 
   // Publish
   publishThrusts(thrusts);

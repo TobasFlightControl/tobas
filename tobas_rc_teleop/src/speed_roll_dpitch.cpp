@@ -1,6 +1,7 @@
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 using namespace std;
 
@@ -30,12 +31,12 @@ bool SpeedRollDeltaPitchController::requireAngularVelocity()
   return false;
 }
 
-void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::flight_mode_t mode)
+void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
-  node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 5., 0., 10.);
-  node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 20., 0., 40.);
-  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, M_PI_2, 0., M_PI);
-  node->addDynamicDoubleParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, M_PI_4, 0., M_PI_2);
+  node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 0, 20, " m/s");
+  node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 0, 80, " m/s");
+  node->addDynamicIntParam(addMode("max_roll", mode), &self::maxRollCb, this, 90, 0, 180, " deg");
+  node->addDynamicIntParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, 45, 0, 90, " deg");
   node->addDynamicIntParam(addMode("speed_expo", mode), &self::speedExpoCb, this, 0, 0, kExpoScale);
   node->addDynamicIntParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);
@@ -85,15 +86,15 @@ bool SpeedRollDeltaPitchController::maxSpeedCb(const double& p)
   return true;
 }
 
-bool SpeedRollDeltaPitchController::maxRollCb(const double& p)
+bool SpeedRollDeltaPitchController::maxRollCb(const long& p)
 {
-  max_roll_ = p;
+  max_roll_ = tobas_std::deg2rad(p);
   return true;
 }
 
-bool SpeedRollDeltaPitchController::maxDeltaPitchCb(const double& p)
+bool SpeedRollDeltaPitchController::maxDeltaPitchCb(const long& p)
 {
-  max_dpitch_ = p;
+  max_dpitch_ = tobas_std::deg2rad(p);
   return true;
 }
 

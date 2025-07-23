@@ -6,6 +6,11 @@ using namespace std;
 
 namespace tobas
 {
+void FixedWingConfig::clear()
+{
+  control_surfaces.clear();
+}
+
 bool FixedWingConfig::isValid() const
 {
   if (!vehicle.isValid()) {
@@ -28,41 +33,45 @@ bool FixedWingConfig::isValid() const
   return true;
 }
 
-bool FixedWingConfig::load(const YAML::Node& node)
+bool FixedWingConfig::load(const YAML::Node& root_node)
 {
+  clear();
+
   // Vehicle
-  if (!node[kVehicleKey].IsDefined()) {
-    cerr << "Vehicle parameters field is not defined." << endl;
+  const auto vehicle_node = root_node[kVehicleKey];
+  if (!vehicle_node.IsDefined()) {
+    cerr << "\"" << kVehicleKey << "\" is not defined." << endl;
     return false;
   }
-  if (!vehicle.load(node[kVehicleKey])) {
+  if (!vehicle.load(vehicle_node)) {
     cerr << "Failed to load vehicle parameters." << endl;
     return false;
   }
 
   // Aerodynamics
-  if (!node[kAerodynamicsKey].IsDefined()) {
-    cerr << "Aerodynamics parameters field is not defined." << endl;
+  const auto aero_node = root_node[kAerodynamicsKey];
+  if (!aero_node.IsDefined()) {
+    cerr << "\"" << kAerodynamicsKey << "\" is not defined." << endl;
     return false;
   }
-  if (!aerodynamics.load(node[kAerodynamicsKey])) {
+  if (!aerodynamics.load(aero_node)) {
     cerr << "Failed to load aerodynamic parameters." << endl;
     return false;
   }
 
   // Control surfaces
-  control_surfaces.clear();
-  if (!node[kControlSurfacesKey].IsSequence()) {
-    cerr << "Control surface field is not defined." << endl;
+  const auto css_node = root_node[kControlSurfacesKey];
+  if (!css_node.IsSequence()) {
+    cerr << "\"" << kControlSurfacesKey << "\" is not defined." << endl;
     return false;
   }
-  for (const auto& cs_node : node[kControlSurfacesKey]) {
+  for (const auto& cs_node : css_node) {
     ControlSurface cs;
     if (!cs.load(cs_node)) {
       cerr << "Failed to load the configurations of control surfaces." << endl;
       return false;
     }
-    control_surfaces[cs.channel] = cs;
+    control_surfaces[cs.link_name] = cs;
   }
 
   return true;

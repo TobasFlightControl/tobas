@@ -24,29 +24,29 @@ bool TreeJntSpaceInertiaSolver::updateInternalDataStructures()
   return true;
 }
 
-int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
+int TreeJntSpaceInertiaSolver::jntToMass(const JntArray& q)
 {
   if (!isUpToDate()) {
-    return setDefaultError(E_NOT_UP_TO_DATE);
+    return setDefaultError(kNotUpToDate);
   }
   if (q.rows() != nj_ || jntarray_null_.rows() != nj_) {
-    return setDefaultError(E_SIZE_MISMATCH);
+    return setDefaultError(kSizeMismatch);
   }
 
-  if (rne_.CartToJnt(q, jntarray_null_, jntarray_null_) < 0) {
+  if (rne_.cartToJnt(q, jntarray_null_, jntarray_null_) < 0) {
     return copyError(rne_);
   }
   const auto bias = rne_.getEfforts();  // 次で値が書き換わるためコピー
 
   for (size_t i = 0; i < nj_; ++i) {
-    if (rne_.CartToJnt(q, jntarray_null_, elements_[i]) < 0) {
+    if (rne_.cartToJnt(q, jntarray_null_, elements_[i]) < 0) {
       return copyError(rne_);
     }
     const auto m = rne_.getEfforts() - bias;
     H_out_.data.col(i) = m.data;
   }
 
-  return setDefaultError(E_NOERROR);
+  return setDefaultError(kNoError);
 }
 
 void TreeJntSpaceInertiaSolver::resize()

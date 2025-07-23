@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace utils
 {
@@ -30,5 +30,5 @@ urdf::JointCalibrationSharedPtr clone(const urdf::JointCalibrationSharedPtr& cal
 urdf::JointSharedPtr clone(const urdf::JointSharedPtr& joint);
 urdf::LinkSharedPtr clone(const urdf::LinkSharedPtr& link);
 }  // namespace utils
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

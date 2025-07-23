@@ -1,42 +1,31 @@
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
 {
 namespace sa
 {
-namespace fixed_wing
+namespace fw
 {
-FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
+FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf) : node_(node)
 {
-  has_fixed_wing_ = new QCheckBox("Fixed-Wing Configuration");
-  has_fixed_wing_->setFont(qt::DefaultFont(kBodyPSize));
-  has_fixed_wing_->setChecked(kDefaultHasFixedWing);
-  connect(has_fixed_wing_, &QCheckBox::toggled, this, &self::setSettingWidgetsEnabled);
-  addWidget(has_fixed_wing_);
-
-  addSpacing(50);
-
-  setting_rows_ = new QVBoxLayout();
-  addLayout(setting_rows_);
-
   // Vehicle
-  setting_rows_->addWidget(new qt::Label(kVehicleLabel, kTitlePSize));
+  addWidget(new qt::Label(kVehicleLabel, kTitlePSize));
   vehicle_ = new VehicleParametersWidget();
-  setting_rows_->addWidget(vehicle_);
+  addWidget(vehicle_);
 
   // Aerodynamic Coefficients
-  setting_rows_->addWidget(new qt::Label(kAeroCoefsLabel, kTitlePSize));
+  addWidget(new qt::Label(kAeroCoefsLabel, kTitlePSize));
   aero_coefs_ = new AerodynamicsCoefficientsWidget(node_);
-  setting_rows_->addWidget(aero_coefs_);
+  addWidget(aero_coefs_);
 
   // Control Surfaces
-  setting_rows_->addWidget(new qt::Label(kControlSurfacesLabel, kTitlePSize));
-  control_surfaces_ = new ControlSurfacesWidget(robot_);
-  setting_rows_->addWidget(control_surfaces_);
-
-  setSettingWidgetsEnabled(kDefaultHasFixedWing);
+  addWidget(new qt::Label(kControlSurfacesLabel, kTitlePSize));
+  control_surfaces_ = new ControlSurfacesWidget(uadf);
+  addWidget(control_surfaces_);
 }
 
 const char* FixedWingWidget::name() const
@@ -55,10 +44,6 @@ const char* FixedWingWidget::description() const
          "Please choose a setup method and enter the required information.";
 }
 
-void FixedWingWidget::onOpened()
-{
-}
-
 void FixedWingWidget::updateInternalDataStructures()
 {
   vehicle_->updateInternalDataStructures();
@@ -68,10 +53,6 @@ void FixedWingWidget::updateInternalDataStructures()
 
 bool FixedWingWidget::isValid()
 {
-  if (!hasFixedWing()) {
-    return true;
-  }
-
   if (!vehicle_->isValid()) {
     return false;
   }
@@ -89,8 +70,6 @@ YAML::Node FixedWingWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[has_fixed_wing_->text().toStdString()] = has_fixed_wing_->isChecked();
-
   node[kVehicleLabel] = vehicle_->dump();
   node[kAeroCoefsLabel] = aero_coefs_->dump();
   node[kControlSurfacesLabel] = control_surfaces_->dump();
@@ -100,16 +79,9 @@ YAML::Node FixedWingWidget::dump() const
 
 void FixedWingWidget::load(const YAML::Node& node)
 {
-  has_fixed_wing_->setChecked(node[has_fixed_wing_->text().toStdString()].as<bool>());
-
   vehicle_->load(node[kVehicleLabel]);
   aero_coefs_->load(node[kAeroCoefsLabel]);
   control_surfaces_->load(node[kControlSurfacesLabel]);
-}
-
-bool FixedWingWidget::hasFixedWing() const
-{
-  return has_fixed_wing_->isChecked();
 }
 
 const VehicleParametersWidget* FixedWingWidget::vehicle() const
@@ -126,14 +98,6 @@ const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
   return control_surfaces_;
 }
-
-void FixedWingWidget::setSettingWidgetsEnabled(bool enabled)
-{
-  for (int row = 0; row < setting_rows_->count(); ++row) {
-    const auto widget = setting_rows_->itemAt(row)->widget();
-    widget->setEnabled(enabled);
-  }
-}
-}  // namespace fixed_wing
+}  // namespace fw
 }  // namespace sa
 }  // namespace gui

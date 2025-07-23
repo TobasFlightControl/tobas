@@ -4,10 +4,9 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
-#include <tobas_std_tools/stopwatch.hpp>
+#include <tobas_time_tools/stopwatch.hpp>
 
 #include "./mixer.hpp"
-#include "./rotor_axis_extractor.hpp"
 
 namespace tobas
 {
@@ -32,7 +31,7 @@ public:
     const double& tar_thrusts_sum,
     const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
-  const Eigen::VectorXd& getThrusts() const;
+  double getThrust(size_t idx) const;
 
   bool setBaseWeight(double p);
   bool setThrustWeight(double p);
@@ -46,7 +45,6 @@ private:
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  RotorAxisExtractor z_rotors_;
 
   quadprog::DualActiveSetSolver qp_;  // QPソルバー
   Eigen::Diagonal3d Q_;               // EoMの重み
@@ -54,7 +52,7 @@ private:
   Eigen::Matrix3Xd G_;                // EoM行列等式の左辺
   Eigen::Vector3d h_;                 // EoM行列等式の右辺
 
-  tobas_std::Stopwatch stopwatch_;
+  tim::Stopwatch stopwatch_;
 
   void resizeAndFill();
 };

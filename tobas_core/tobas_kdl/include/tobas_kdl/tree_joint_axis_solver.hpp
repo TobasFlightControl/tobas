@@ -15,7 +15,7 @@ public:
   bool updateInternalDataStructures() override;
 
   /* Compute joint axis wrt. the root frame. */
-  int JntToCart(const JntArray& q_in, const std::string& seg_name);
+  int jntToCart(const JntArray& q_in, const std::string& seg_name);
 
   inline const Vector& getAxis() const;
 

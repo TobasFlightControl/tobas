@@ -15,7 +15,7 @@
 #include "tobas_manipulation/constants.hpp"
 #include "tobas_manipulation/util.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class VelocityControllerNode : public tobas::BaseNode
 {
@@ -96,9 +96,9 @@ void VelocityControllerNode::initialize()
   // shared_from_thisはコンストラクタでは呼べない
   tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
 
-  addDynamicDoubleParam("joint_time_constant", &self::jointTimeConstCb, this, 0.3, 0.01, 1.);
-  addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.5, 0.01, 1.);
-  addDynamicDoubleParam("angular_time_constant", &self::angularTimeConstCb, this, 0.5, 0.01, 1.);
+  addDynamicDoubleParam("joint_time_constant", &self::jointTimeConstCb, this, 0.1, 3, 1, 10, " s");
+  addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.1, 5, 1, 10, " s");
+  addDynamicDoubleParam("angular_time_constant", &self::angularTimeConstCb, this, 0.1, 5, 1, 10, " s");
 
   velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
 
@@ -139,11 +139,11 @@ bool VelocityControllerNode::jointSpaceControl(
   // Fill output message
   for (const auto& tar_state : tar_js.states) {
     const auto& joint = drone_->joints.at(tar_state.name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       TOBAS_WARN("The role of joint \"", tar_state.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kVelocity) {
       TOBAS_WARN("The command interface of joint \"", tar_state.name, "\" must be \"VELOCITY\".");
       continue;
     }
@@ -181,7 +181,7 @@ bool VelocityControllerNode::taskSpaceControl(
 
   // 目標関節速度を計算
   const auto& cur_q = cur_js_conv_.getPosition();
-  if (vel_ctrl_.CartToJnt(cur_q, tar_p) < 0) {
+  if (vel_ctrl_.cartToJnt(cur_q, tar_p) < 0) {
     TOBAS_ERROR("Cartesian controller failed: ", vel_ctrl_.errorMessage());
     return false;
   }
@@ -194,11 +194,11 @@ bool VelocityControllerNode::taskSpaceControl(
   // Fill output message
   for (const auto& jnt_name : active_jnt_names) {
     const auto& joint = drone_->joints.at(jnt_name);
-    if (joint.role != tobas::jnt_role_t::MANIPULATION) {
+    if (joint.role != tobas::JointRole::kManipulation) {
       TOBAS_WARN("The role of joint \"", jnt_name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (joint.cmd_iface != tobas::JointCommandInterface::kVelocity) {
       TOBAS_WARN("The command interface of joint \"", jnt_name, "\" must be \"VELOCITY\".");
       continue;
     }
@@ -245,10 +245,10 @@ void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // 速度指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
-    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION) {
+    if (jnt_cfg.role != tobas::JointRole::kManipulation) {
       continue;
     }
-    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY) {
+    if (jnt_cfg.cmd_iface != tobas::JointCommandInterface::kVelocity) {
       continue;
     }
     home_js_.states.emplace_back();
@@ -295,7 +295,7 @@ void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
 {
-  if (tree_.getNrOfJoints() == 0) {
+  if (tree_.empty()) {
     return;
   }
   if (home_js_.states.size() == 0) {
@@ -307,6 +307,7 @@ void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
 
   // Create joint velocities command
   auto velocities_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  velocities_msg->header.stamp = cur_js->header.stamp;
 
   // Joint space control or Task space control
   if (tar_js_) {

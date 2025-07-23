@@ -8,10 +8,7 @@
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
-#include <tobas_ros2_tools/register.hpp>
-
-#include <tobas_msgs/msg/rosbag_state.hpp>
-#include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./start_thread.hpp"
 #include "./stop_thread.hpp"
@@ -31,14 +28,12 @@ class FlightLogRecorderWidget : public QWidget
   static constexpr int kButtonHeight = 60;
 
 public:
-  explicit FlightLogRecorderWidget(rclcpp::Node::SharedPtr node);
+  explicit FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void reset();
   void updateNamespace(const std::string& ns);
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-
   QLineEdit* log_name_;
   qt::ToggleButton* start_stop_button_;
   QLCDNumber* duration_;
@@ -52,11 +47,7 @@ private:
 
   tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::RosbagState> rosbag_state_sub_;
-
   void clearRosbagStateViewerWidgets();
-
-  void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state);
 
 private Q_SLOTS:
   void onStartRequested();
@@ -64,6 +55,8 @@ private Q_SLOTS:
 
   void onStartThreadFinished(bool success, const QString& message);
   void onStopThreadFinished(bool success, const QString& message);
+
+  void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state);
 };
 }  // namespace log
 }  // namespace gui

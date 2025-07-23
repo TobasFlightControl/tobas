@@ -37,7 +37,7 @@ double TakeoffWidget::altitude() const
   return altitude_->value();
 }
 
-altitude_frame_t TakeoffWidget::altitudeFrame() const
+AltitudeFrame TakeoffWidget::altitudeFrame() const
 {
   return altitude_frame_->value();
 }

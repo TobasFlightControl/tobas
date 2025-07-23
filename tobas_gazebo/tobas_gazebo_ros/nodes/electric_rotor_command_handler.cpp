@@ -2,13 +2,12 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_tools/control_latency_publisher.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
-
-using namespace std;
 
 class ElectricRotorCommandHandlerNode : public tobas::BaseNode
 {
@@ -22,7 +21,8 @@ private:
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
-  map<string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
+  std::map<std::string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
+  tobas::ControlLatencyPublisher latency_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
@@ -45,7 +45,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
     return;
   }
 
-  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC) {
+  if (drone->prop->type() != tobas::PropulsionSystem::kElectric) {
     return;
   }
 
@@ -57,6 +57,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
     const auto topic = path::join(gazebo::kRotorThrottleCmdTopicNS, link_name);
     throttle_pubs_[link_name] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
+  latency_pub_.initialize(shared_from_this());
 
   // Register subscribers
   battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
@@ -94,6 +95,9 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
     // Publish throttle message
     throttle_pubs_.at(speed.link_name)->publish(move(throttle));
   }
+
+  // Publish control latency
+  latency_pub_.publish(tar_speeds->header.stamp);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ElectricRotorCommandHandlerNode)

@@ -39,7 +39,7 @@ dtoverlay=spi0-2cs
 dtoverlay=spi1-3cs
 
 # Enable I2C interface
-dtoverlay=i2c1-pi5,baudrate=1000000
+dtoverlay=i2c1-pi5,baudrate=400000
 
 # Enable UART interfaces
 dtparam=uart0=on

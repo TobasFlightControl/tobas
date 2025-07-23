@@ -3,7 +3,7 @@
   <name>tobas_simulation_gui</name>
   <version>0.0.0</version>
   <description>TODO</description>
-  <maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>TODO</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
@@ -17,7 +17,9 @@
   <depend>tobas_gazebo_common</depend>
   <depend>tobas_gazebo_msgs</depend>
   <depend>tobas_qt_tools</depend>
+  <depend>tobas_rqt_bridge</depend>
   <depend>tobas_gui_common</depend>
+  <depend>tobas_uadf</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

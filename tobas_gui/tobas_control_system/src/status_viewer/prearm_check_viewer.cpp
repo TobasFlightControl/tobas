@@ -2,14 +2,11 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
-
 namespace gui
 {
 namespace gcs
 {
-PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
+PreArmCheckViewerWidget::PreArmCheckViewerWidget(const RosQtBridge& bridge)
 {
   node_connection_status_ = new StatusWidget("Node Connection");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
@@ -23,6 +20,7 @@ PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) :
   head_accuracy_status_ = new StatusWidget("Heading Estimation Accurate");
   ready_status_ = new StatusWidget("Ready to Arm");
 
+  // Layout
   const auto rows = new QVBoxLayout();
   rows->addWidget(node_connection_status_);
   rows->addWidget(battery_voltage_status_);
@@ -36,8 +34,11 @@ PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) :
   rows->addWidget(head_accuracy_status_);
   rows->addWidget(ready_status_);
   rows->addStretch();
-
   setLayout(rows);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::preArmCheckReceived, this, &self::preArmCheckCb, Qt::QueuedConnection);
 }
 
 void PreArmCheckViewerWidget::reset()
@@ -53,16 +54,6 @@ void PreArmCheckViewerWidget::reset()
   atti_accuracy_status_->reset();
   head_accuracy_status_->reset();
   ready_status_->reset();
-}
-
-void PreArmCheckViewerWidget::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-  prearm_check_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPreArmCheckTopic), &self::preArmCheckCb, this);
 }
 
 void PreArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -81,12 +72,10 @@ void PreArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShare
 void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
   if (!arming_) {
-    reset();
     return;
   }
 
   if (arming_->data) {
-    reset();
     return;
   }
 

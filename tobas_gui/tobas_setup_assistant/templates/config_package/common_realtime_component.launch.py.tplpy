@@ -10,8 +10,8 @@ from launch_ros.substitutions import FindPackageShare
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
-OBSERVER_PKG = "{{ observer_pkg }}"
-OBSERVER_PLUGIN = "{{ observer_plugin }}"
+USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
+USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
 CONTROLLER_PLUGIN = "{{ controller_plugin }}"
 
@@ -45,6 +45,8 @@ def generate_launch_description():
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+    user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
 
     odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
     tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
@@ -77,8 +79,8 @@ def generate_launch_description():
             target_container=f"{DRONE_NAME}/component_manager_1",
             composable_node_descriptions=[
                 ComposableNode(
-                    package=OBSERVER_PKG,
-                    plugin=OBSERVER_PLUGIN,
+                    package="tobas_eskf",
+                    plugin="ErrorStateKalmanFilterNode",
                     name="observer",
                     namespace=DRONE_NAME,
                     parameters=[
@@ -98,15 +100,6 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
                     ],
                     remappings=odom_remap,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_preprocess",
-                    plugin="ImuPreprocessNode",
-                    namespace=DRONE_NAME,
-                    parameters=[
-                        PathJoinSubstitution([config_pkg_share, "config", "imu_preprocess_dynamic.yaml"]),
-                    ],
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(
@@ -139,18 +132,6 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
                     ],
                     remappings=odom_remap,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_preprocess",
-                    plugin="MagPreprocessNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_preprocess",
-                    plugin="AirPressurePreprocessNode",
-                    namespace=DRONE_NAME,
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(
@@ -207,6 +188,13 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(
+                    package="tobas_config_servers",
+                    plugin="ImuFilterConfigServer",
+                    namespace=DRONE_NAME,
+                    parameters=[PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"])],
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
                     package="tobas_state_checker",
                     plugin="PreArmCheckerNode",
                     namespace=DRONE_NAME,
@@ -241,6 +229,22 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
             ],
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_cpp_pkg_share, "launch", "common_realtime.launch.py"])
+            )
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([user_py_pkg_share, "launch", "common_realtime.launch.py"])
+            )
         )
     )
 

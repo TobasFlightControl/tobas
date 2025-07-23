@@ -37,7 +37,7 @@ double ReturnToHomeWidget::altitude() const
   return altitude_->value();
 }
 
-altitude_frame_t ReturnToHomeWidget::altitudeFrame() const
+AltitudeFrame ReturnToHomeWidget::altitudeFrame() const
 {
   return altitude_frame_->value();
 }

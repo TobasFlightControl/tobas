@@ -2,10 +2,9 @@
 #include <gz/transport/Node.hh>
 
 #include <tobas_gazebo_common/constants.hpp>
-#include <tobas_gazebo_tools/conversion.hpp>
+#include <tobas_gazebo_conversions/gazebo_msg.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/geometry.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 

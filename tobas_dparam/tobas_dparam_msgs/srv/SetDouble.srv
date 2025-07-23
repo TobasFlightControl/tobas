@@ -1,5 +1,5 @@
 string node_name
 string param_name
-float64 value
+int64 value
 ---
 bool success

@@ -5,12 +5,11 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-#include <tobas_msgs_adapter/imu_stamped.hpp>
+#include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
-using namespace std;
 using namespace real::handler::imu;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 class ImuHandlerNode : public tobas::BaseNode
 {
@@ -18,23 +17,41 @@ class ImuHandlerNode : public tobas::BaseNode
   using super = tobas::BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
+  static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
+  static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
+
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  enum Stage
+  {
+    kMeasureGyroBias,
+    kPublish,
+  } stage_ = kMeasureGyroBias;
+
   // Config
   kdl::Vector acc_bias_;  // [m/s^2]
 
+  // ジャイロバイアス関連
+  kdl::Vector gyro_bias_;
+  size_t gyro_bias_cnt_ = 0;
+  std::array<algo::Kahan<double>, 3> gyro_sum_;
+
   ptree::PropertyTree pt_;
 
-  ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
-  ros2::SubscriberPtr<tobas_msgs::ImuStamped> imu_sub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
+  ros2::SubscriberPtr<tobas_msgs::Imu> imu_raw_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Imu> imu_filt_sub_;
+
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in);
+  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_in);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -53,23 +70,22 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real
     return;
   }
 
-  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
+  registerPubSub();
 }
 
 bool ImuHandlerNode::getConfig()
 {
-  if (!pt_.get(kOffsetXKey, acc_bias_.x())) {
+  if (!pt_.get(ns(), kOffsetXKey, acc_bias_.x())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kOffsetYKey, acc_bias_.y())) {
+  if (!pt_.get(ns(), kOffsetYKey, acc_bias_.y())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
 
-  if (!pt_.get(kOffsetZKey, acc_bias_.z())) {
+  if (!pt_.get(ns(), kOffsetZKey, acc_bias_.z())) {
     TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
     return false;
   }
@@ -79,15 +95,74 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
-  imu_sub_ = createSubscriber(real::kImuTopic, &self::imuCb, this);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
+  imu_raw_sub_ = createSubscriber(real::kImuRawTopic, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(real::kImuFiltTopic, &self::imuFiltCb, this);
 }
 
-void ImuHandlerNode::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in)
+void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 {
-  auto imu_out = std::make_unique<tobas_msgs::ImuStamped>(*imu_in);
-  imu_out->imu.accel -= acc_bias_;  // Remove accel bias
-  imu_pub_->publish(move(imu_out));
+  switch (stage_) {
+    case kMeasureGyroBias: {
+      // 角速度が大きすぎる場合はやり直し
+      if (imu_raw_in->gyro.norm() > kStaticGyroThreshold) {
+        TOBAS_WARN_THROTTLE(
+          1., "Perturbation is detected while measuring gyro bias: ", imu_raw_in->gyro, " [rad/s]. Retrying...");
+        gyro_bias_cnt_ = 0;
+        for (size_t i = 0; i < 3; ++i) {
+          gyro_sum_[i].reset();
+        }
+        break;
+      }
+
+      // 角速度を加算
+      for (size_t i = 0; i < 3; ++i) {
+        gyro_sum_[i].add(imu_raw_in->gyro(i));
+      }
+
+      // データが溜まったら角速度の平均をバイアスの推定値として次のステージに進む
+      if (++gyro_bias_cnt_ == kMeasureGyroBiasCount) {
+        for (size_t i = 0; i < 3; ++i) {
+          gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;
+        }
+        TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_);
+        stage_ = kPublish;
+      }
+
+      break;
+    }
+    case kPublish: {
+      // Create IMU message
+      auto imu_raw_out = std::make_unique<tobas_msgs::Imu>();
+      imu_raw_out->header = imu_raw_in->header;
+      imu_raw_out->accel = imu_raw_in->accel - acc_bias_;
+      imu_raw_out->gyro = imu_raw_in->gyro - gyro_bias_;
+      imu_raw_out->dgyro = imu_raw_in->dgyro;
+
+      // Publish message
+      imu_raw_pub_->publish(std::move(imu_raw_out));
+
+      break;
+    }
+  }
+}
+
+void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_in)
+{
+  if (stage_ != kPublish) {
+    return;
+  }
+
+  // Create IMU message
+  auto imu_filt_out = std::make_unique<tobas_msgs::Imu>();
+  imu_filt_out->header = imu_filt_in->header;
+  imu_filt_out->accel = imu_filt_in->accel - acc_bias_;
+  imu_filt_out->gyro = imu_filt_in->gyro - gyro_bias_;
+  imu_filt_out->dgyro = imu_filt_in->dgyro;
+
+  // Publish message
+  imu_filt_pub_->publish(std::move(imu_filt_out));
 }
 
 void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res)
@@ -98,16 +173,16 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
   acc_bias_.z(req->offset_z);
 
   // Save parameters
-  pt_.set(kOffsetXKey, req->offset_x);
-  pt_.set(kOffsetYKey, req->offset_y);
-  pt_.set(kOffsetZKey, req->offset_z);
+  pt_.set(ns(), kOffsetXKey, req->offset_x);
+  pt_.set(ns(), kOffsetYKey, req->offset_y);
+  pt_.set(ns(), kOffsetZKey, req->offset_z);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";
     return;
   }
 
-  if (!imu_pub_) {
+  if (!imu_raw_pub_ || !imu_filt_pub_) {
     registerPubSub();
   }
 

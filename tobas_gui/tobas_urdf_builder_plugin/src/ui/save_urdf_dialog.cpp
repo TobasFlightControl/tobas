@@ -4,16 +4,16 @@
 #include <QEvent>
 #include <QKeyEvent>
 
-#include "tobas_urdf_builder_plugin/utils/string.hpp"
+#include <tobas_qt_tools/path.hpp>
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
 SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
-  : QFileDialog(parent, tr("Save URDF"), dir, tr("URDF (*.urdf);;All Files (*)"))
+  : QFileDialog(parent, "Save URDF", dir, "URDF (*.urdf);;All Files (*)")
 {
   setAcceptMode(QFileDialog::AcceptSave);
   setDefaultSuffix("urdf");
@@ -50,12 +50,12 @@ void SaveUrdfDialog::onLineEditTextChanged()
   // Enable the save button only if the file name is valid
   const auto file_name = line_edit_->text();
   if (file_name.contains('.')) {
-    save_button_->setEnabled(file_name.endsWith(".urdf") && !utils::getBaseName(file_name).isEmpty());
+    save_button_->setEnabled(file_name.endsWith(".urdf") && !qt::getBaseName(file_name).isEmpty());
   }
   else {
     save_button_->setEnabled(file_name.length() > 0);
   }
 }
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

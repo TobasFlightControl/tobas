@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ui
 {
@@ -29,7 +29,7 @@ public:
   QString getText() const;
 
 private Q_SLOTS:
-  void LineEditTextChanged(const QString& text);
+  void onLineEditTextChanged(const QString& text);
 
 private:
   const QStringList& excludeds_;
@@ -41,5 +41,5 @@ private:
   void enableOkButton(bool enable);
 };
 }  // namespace ui
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

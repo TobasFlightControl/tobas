@@ -7,7 +7,7 @@
     <xacro:property name="x" value="0.090"/>
     <xacro:property name="y" value="0.062"/>
     <xacro:property name="z" value="0.028"/>
-    <xacro:property name="mass" value="0.2"/>
+    <xacro:property name="mass" value="0.16"/>
 
     <joint name="fmu_joint" type="fixed">
       <xacro:insert_block name="origin"/>
@@ -23,14 +23,14 @@
         <xacro:insert_block name="red"/>
       </visual>
       <collision>
-        <origin xyz="0 0 0.009" rpy="0 0 0"/>
+        <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
         <geometry>
           <box size="${x} ${y} ${z}"/>
         </geometry>
       </collision>
       <inertial>
         <mass value="${mass}"/>
-        <origin xyz="0 0 0.009" rpy="0 0 0"/>
+        <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
         <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
       </inertial>
     </link>

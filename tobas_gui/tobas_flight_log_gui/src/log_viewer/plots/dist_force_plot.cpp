@@ -9,58 +9,50 @@ namespace gui
 namespace log
 {
 DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
-  : force_curves_{ "Force X", "Force Y", "Force Z" }, torque_curves_{ "Torque X", "Torque Y", "Torque Z" }
+  : curves_{ "Force X [N]", "Force Y [N]", "Force Z [N]", "Torque X [Nm]", "Torque Y [Nm]", "Torque Z [Nm]" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i) {
-    force_plots_[i] = new QwtPlot2();
-    force_curves_[i].setPen(kColorXYZ[i], kLineWidth);
-    force_curves_[i].attach(force_plots_[i]);
-    grid->addWidget(force_plots_[i], i, 0);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    plots_[i] = new QwtPlot2();
+    plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
+    grid->addWidget(plots_[i], i % 3, i / 3, 1, 1);
 
-    torque_plots_[i] = new QwtPlot2();
-    torque_curves_[i].setPen(kColorXYZ[i], kLineWidth);
-    torque_curves_[i].attach(torque_plots_[i]);
-    grid->addWidget(torque_plots_[i], i, 1);
+    curves_[i].setPen(kColorXYZ[i % 3], kLineWidth);
+    curves_[i].attach(plots_[i]);
   }
 }
 
 void DisturbanceForcePlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i) {
-    force_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-    torque_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  for (auto& plot : plots_) {
+    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
 }
 
 void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_msg)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, 3> force_data;
-  std::array<QVector<double>, 3> torque_data;
+  std::array<QVector<double>, kNumAxes> val_data;
 
   for (const auto& dist_force : dist_force_msg) {
     t_data.push_back(ros2::seconds(dist_force.header.stamp));
 
     const auto& force = dist_force.wrench.force;
-    force_data[0].push_back(force.x);
-    force_data[1].push_back(force.y);
-    force_data[2].push_back(force.z);
+    val_data[0].push_back(force.x);
+    val_data[1].push_back(force.y);
+    val_data[2].push_back(force.z);
 
     const auto& torque = dist_force.wrench.torque;
-    torque_data[0].push_back(torque.x);
-    torque_data[1].push_back(torque.y);
-    torque_data[2].push_back(torque.z);
+    val_data[3].push_back(torque.x);
+    val_data[4].push_back(torque.y);
+    val_data[5].push_back(torque.z);
   }
 
-  for (size_t i = 0; i < 3; ++i) {
-    force_curves_[i].setSamples(t_data, force_data[i]);
-    force_plots_[i]->replot();
-
-    torque_curves_[i].setSamples(t_data, torque_data[i]);
-    torque_plots_[i]->replot();
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    curves_[i].setSamples(t_data, val_data[i]);
+    plots_[i]->replot();
   }
 }
 }  // namespace log

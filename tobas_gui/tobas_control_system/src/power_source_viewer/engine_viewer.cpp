@@ -2,9 +2,7 @@
 
 #include <format>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
@@ -15,8 +13,7 @@ namespace gui
 {
 namespace gcs
 {
-EngineViewerWidget::EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone)
+EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
   fuel_quantity_ = new qt::HPositionBarWidget();
   oil_temp_ = new qt::HPositionBarWidget();
@@ -29,6 +26,9 @@ EngineViewerWidget::EngineViewerWidget(rclcpp::Node::SharedPtr node, const tobas
   form->addVAlignedRow(new qt::Label("Fuel Quantity", kLabelPSize), fuel_quantity_);
   form->addVAlignedRow(new qt::Label("Oil Temperature", kLabelPSize), oil_temp_);
   setLayout(form);
+
+  // Connection
+  connect(&bridge, &RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
 }
 
 void EngineViewerWidget::reset()
@@ -44,7 +44,7 @@ void EngineViewerWidget::updateInternalDataStructures()
 {
   reset();
 
-  if (drone_.prop->type() == tobas::propulsion_system_t::ICE) {
+  if (drone_.prop->type() == tobas::PropulsionSystem::kIce) {
     iprop_ = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_.prop);
 
     fuel_quantity_->setLower(0.);
@@ -54,13 +54,9 @@ void EngineViewerWidget::updateInternalDataStructures()
     oil_temp_->setLower(kMinOilTemp);
     oil_temp_->setMinimum(kMinOilTemp);
     oil_temp_->setMaximum(kMaxOilTemp);
-
-    engine_state_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kEngineStateTopic), &self::engineStateCb, this);
   }
   else {
     iprop_.reset();
-    engine_state_sub_.reset();
   }
 }
 
@@ -103,6 +99,10 @@ void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
 
 void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
 {
+  if (!iprop_) {
+    return;
+  }
+
   updateFuelQuantity(engine_state->fuel_quantity);
   updateOilTemperature(engine_state->oil_temperature);
 }

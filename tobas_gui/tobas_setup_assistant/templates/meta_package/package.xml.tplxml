@@ -9,6 +9,7 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>{{ config_pkg_name }}</exec_depend>
+	<exec_depend>{{ user_msg_pkg_name }}</exec_depend>
 	<exec_depend>{{ user_cpp_pkg_name }}</exec_depend>
 	<exec_depend>{{ user_py_pkg_name }}</exec_depend>
 

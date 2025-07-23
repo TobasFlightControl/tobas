@@ -17,14 +17,18 @@ public:
 
   void setTimeScale(double t_start, double t_stop);
 
-  void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& sampling_time_msgs);
-  void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& ctrl_latency_msgs);
+  void setData(
+    const QVector<tobas_msgs::msg::Latency>& sampling_time_msgs,
+    const QVector<tobas_msgs::msg::Latency>& ctrl_latency_msgs);
 
 private:
   QwtPlot2* sampling_time_plot_;
   QwtPlot2* ctrl_latency_plot_;
   qwt::QwtPlotCurveWrapper sampling_time_curve_;
   qwt::QwtPlotCurveWrapper ctrl_latency_curve_;
+
+  void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& msgs);
+  void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& msgs);
 };
 }  // namespace log
 }  // namespace gui

@@ -31,7 +31,7 @@ public:
    *
    * @return if < 0 something went wrong.
    */
-  virtual int CartToJnt(const JntArray& q_init, const FrameMap& p_in) = 0;
+  virtual int cartToJnt(const JntArray& q_init, const FrameMap& p_in) = 0;
 
   /* Get resulting joint positions. */
   const JntArray& getPositions() const
@@ -64,7 +64,7 @@ public:
    *
    * @return if < 0 something went wrong.
    */
-  virtual int CartToJnt(const JntArray& q_in, const TwistMap& v_in) = 0;
+  virtual int cartToJnt(const JntArray& q_in, const TwistMap& v_in) = 0;
 
   /* Get resulting joint velocities. */
   const JntArray& getVelocities() const
@@ -98,7 +98,7 @@ public:
    *
    * @return if < 0 something went wrong.
    */
-  virtual int CartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in) = 0;
+  virtual int cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in) = 0;
 
   /* Get resulting joint accelerations. */
   const JntArray& getAccelerations() const

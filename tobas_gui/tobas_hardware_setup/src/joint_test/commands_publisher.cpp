@@ -40,7 +40,12 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
   // PWMサーボとして登録されているチャンネルの設定
   std::unordered_set<size_t> pwm_channels;
   for (const auto& [_, joint] : drone_.joints) {
-    if (joint.hw_iface != tobas::hw_iface_t::PWM) {
+    if (joint.hw_iface != tobas::HardwareInterface::kPwm) {
+      continue;
+    }
+
+    if (!drone_.pwms.contains(joint.name)) {
+      qt::qErrorBox(this, "PWM configuration of joint \"" + QString::fromStdString(joint.name) + "\" does not exist.");
       continue;
     }
 
@@ -54,7 +59,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     commanders_[ch]->setText("CH" + QString::number(ch) + ": " + QString::fromStdString(joint.name));
 
     switch (joint.cmd_iface) {
-      case tobas::jnt_cmd_iface_t::POSITION: {
+      case tobas::JointCommandInterface::kPosition: {
         const auto min_pos = joint_parser_.lowerLimit(joint.name);
         const auto max_pos = joint_parser_.upperLimit(joint.name);
         if (std::isinf(min_pos) || std::isinf(max_pos)) {
@@ -69,7 +74,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::jnt_cmd_iface_t::VELOCITY: {
+      case tobas::JointCommandInterface::kVelocity: {
         auto max_vel = joint_parser_.maxVelocity(joint.name);
         if (std::isinf(max_vel)) {
           max_vel = kDefaultMaxVel;
@@ -82,7 +87,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::jnt_cmd_iface_t::EFFORT: {
+      case tobas::JointCommandInterface::kEffort: {
         auto max_eff = joint_parser_.maxEffort(joint.name);
         if (std::isinf(max_eff)) {
           max_eff = kDefaultMaxEff;
@@ -95,7 +100,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         break;
       }
-      case tobas::jnt_cmd_iface_t::NONE: {
+      case tobas::JointCommandInterface::kNone: {
         qt::qErrorBox(this, "The command interface of joint \"" + QString::fromStdString(joint.name) + "\" is not set.");
         continue;
       }
@@ -118,7 +123,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     }
 
     jnt_names_[ch].clear();
-    cmd_iface_[ch] = tobas::jnt_cmd_iface_t::NONE;
+    cmd_iface_[ch] = tobas::JointCommandInterface::kNone;
     home_pos_[ch] = 0.;
 
     commanders_[ch]->setText("CH" + QString::number(ch) + ": unregistered");
@@ -142,16 +147,16 @@ void JointCommandsPublisherWidget::start()
   // コマンダーを有効化
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
     switch (cmd_iface_[ch]) {
-      case tobas::jnt_cmd_iface_t::POSITION:
+      case tobas::JointCommandInterface::kPosition:
         commanders_[ch]->setValue(home_pos_[ch], true);
         break;
-      case tobas::jnt_cmd_iface_t::VELOCITY:
+      case tobas::JointCommandInterface::kVelocity:
         commanders_[ch]->setValue(0., true);
         break;
-      case tobas::jnt_cmd_iface_t::EFFORT:
+      case tobas::JointCommandInterface::kEffort:
         commanders_[ch]->setValue(0., true);
         break;
-      case tobas::jnt_cmd_iface_t::NONE:
+      case tobas::JointCommandInterface::kNone:
         continue;
       default:
         throw;
@@ -186,22 +191,22 @@ void JointCommandsPublisherWidget::publishCurrentValues()
   // Fill messages
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
     switch (cmd_iface_[ch]) {
-      case tobas::jnt_cmd_iface_t::POSITION:
+      case tobas::JointCommandInterface::kPosition:
         tar_pos->commands.emplace_back();
         tar_pos->commands.back().name = jnt_names_[ch];
         tar_pos->commands.back().data = commanders_[ch]->getValue();
         break;
-      case tobas::jnt_cmd_iface_t::VELOCITY:
+      case tobas::JointCommandInterface::kVelocity:
         tar_vel->commands.emplace_back();
         tar_vel->commands.back().name = jnt_names_[ch];
         tar_vel->commands.back().data = commanders_[ch]->getValue();
         break;
-      case tobas::jnt_cmd_iface_t::EFFORT:
+      case tobas::JointCommandInterface::kEffort:
         tar_eff->commands.emplace_back();
         tar_eff->commands.back().name = jnt_names_[ch];
         tar_eff->commands.back().data = commanders_[ch]->getValue();
         break;
-      case tobas::jnt_cmd_iface_t::NONE:
+      case tobas::JointCommandInterface::kNone:
         continue;
       default:
         throw;

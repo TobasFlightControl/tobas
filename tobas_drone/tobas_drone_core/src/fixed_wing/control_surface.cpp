@@ -22,10 +22,6 @@ bool ControlSurface::isValid() const
 
 bool ControlSurface::load(const YAML::Node& node)
 {
-  if (!yaml::load(kChannelKey, node, channel)) {
-    return false;
-  }
-
   if (!yaml::load(kLinkNameKey, node, link_name)) {
     return false;
   }
@@ -61,7 +57,6 @@ YAML::Node ControlSurface::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kChannelKey] = channel;
   node[kLinkNameKey] = link_name;
   node[kCLiftDeltaKey] = c_lift_delta;
   node[kCDragAbsDeltaKey] = c_drag_abs_delta;

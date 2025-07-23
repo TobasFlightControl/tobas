@@ -16,7 +16,8 @@ namespace gui
 {
 namespace hw
 {
-AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node) : node_(node)
+AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+  : node_(node), bridge_(bridge)
 {
 }
 
@@ -26,11 +27,9 @@ void AccelCalibrationThread::run()
   // https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/commander/accelerometer_calibration.cpp
 
   // Top
-  if (!getAccelMean(acc_top_)) {
+  if (!getAccelMean(acc_top_, { 0., 0., tobas_std::kGravity })) {
     return;
   }
-
-  // TODO: 明らかにおかしな値だった場合は失敗を返す
 
   // オフセットを計算
   const Eigen::Vector3d acc_offset = acc_top_ - Eigen::Vector3d(0, 0, tobas_std::kGravity);
@@ -64,7 +63,7 @@ void AccelCalibrationThread::setNamespace(const std::string& ns)
   ns_ = ns;
 }
 
-bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
+bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vector3d& ref)
 {
   // 初期化
   cnt_ = 0;
@@ -73,8 +72,7 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   }
 
   // 一時的にIMUの購読を開始
-  auto imu_sub =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kImuTopic), &self::imuCb, this);
+  const auto imu_conn = connect(&bridge_, &RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout)) {
@@ -88,21 +86,28 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   }
 
   // IMUの購読を終了
-  imu_sub.reset();
+  disconnect(imu_conn);
 
   // 平均を計算
   for (size_t i = 0; i < 3; ++i) {
     des(i) = acc_sum_.at(i).get() / cnt_;
   }
 
+  // 参照ベクトルからのオフセットが大きすぎたら失敗
+  const Eigen::Vector3d offset = ref - des;
+  if (offset.norm() > kAccelOffsetNormThresh) {
+    Q_EMIT finished(false, "Acceleration error is too high—verify that the FMU is correctly oriented.");
+    return false;
+  }
+
   return true;
 }
 
-void AccelCalibrationThread::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
+void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
 {
   ++cnt_;
   for (size_t i = 0; i < 3; ++i) {
-    acc_sum_.at(i).add(imu_raw->imu.accel(i));
+    acc_sum_.at(i).add(imu_raw->accel(i));
   }
 }
 }  // namespace hw

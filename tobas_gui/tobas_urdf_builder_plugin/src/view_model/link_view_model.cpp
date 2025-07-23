@@ -2,11 +2,9 @@
 
 #include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
-using namespace std;
-
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace view_model
 {
@@ -44,7 +42,7 @@ void LinkViewModel::sync()
 
   // collision, collision_array
   model_->collision_array.clear();
-  transform(
+  std::transform(
     collisions_.begin(),
     collisions_.end(),
     back_inserter(model_->collision_array),
@@ -58,7 +56,7 @@ void LinkViewModel::sync()
 
   // visual, visual_array
   model_->visual_array.clear();
-  transform(
+  std::transform(
     visuals_.begin(),
     visuals_.end(),
     back_inserter(model_->visual_array),
@@ -149,5 +147,5 @@ void LinkViewModel::remove(const CollisionViewModelPtr& collision)
   sync();
 }
 }  // namespace view_model
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

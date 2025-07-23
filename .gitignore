@@ -3,4 +3,5 @@
 *.ui.autosave
 build/
 log/
+__pycache__/
 tobas_deb/ubuntu/opt/

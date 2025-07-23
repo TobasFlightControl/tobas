@@ -23,7 +23,7 @@ SpeedmeterWidget::SpeedmeterWidget()
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
   // QMLを読み込む
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPkgName));
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto qml_path = pkg_path / "qml/SpeedMeter.qml";
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 }

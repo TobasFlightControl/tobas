@@ -13,6 +13,8 @@ class PosePlotWidget : public QWidget
 {
   Q_OBJECT
 
+  static constexpr size_t kNumAxes = 6;
+
 public:
   explicit PosePlotWidget();
 
@@ -22,13 +24,10 @@ public:
     const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs);
 
 private:
-  std::array<QwtPlot2*, 3> pos_plots_;
-  std::array<QwtPlot2*, 3> rot_plots_;
+  std::array<QwtPlot2*, kNumAxes> plots_;
 
-  std::array<qwt::QwtPlotCurveWrapper, 3> cur_pos_curves_;
-  std::array<qwt::QwtPlotCurveWrapper, 3> cur_rot_curves_;
-  std::array<qwt::QwtPlotCurveWrapper, 3> tar_pos_curves_;
-  std::array<qwt::QwtPlotCurveWrapper, 3> tar_rot_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes> cur_curves_;
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes> tar_curves_;
 
   void updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs);
   void updateTargetSamples(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs);

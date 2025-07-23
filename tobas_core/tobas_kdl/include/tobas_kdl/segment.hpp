@@ -62,7 +62,7 @@ public:
    */
   inline Eigen::Matrix3d rotGrad2(double q) const;
 
-  /* Request the frame from the end of the joint to the tip of the segment. */
+  /* Request the frame from the end of the joint (= drive shaft) to the tip of the segment. */
   inline Frame frame() const;
 
   /* Request the inertia of the segment. */
@@ -119,7 +119,7 @@ inline const Joint& Segment::joint() const
 
 inline Frame Segment::frame() const
 {
-  return joint_.pose(0) * f_tip_;
+  return joint_.pose(0.) * f_tip_;
 }
 
 inline const RigidBodyInertia& Segment::inertia() const

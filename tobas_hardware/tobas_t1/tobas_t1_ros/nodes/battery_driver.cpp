@@ -6,7 +6,7 @@
 
 #include "./common.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
@@ -20,6 +20,8 @@ public:
 
 private:
   t1::Battery battery_;
+  float voltage_, current_;
+
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
   ros2::TimerPtr initialize_timer_;
 
@@ -47,19 +49,23 @@ void BatteryDriverNode::initialize()
 
 void BatteryDriverNode::mainTimerCb()
 {
-  // Create messages
-  auto msg = std::make_unique<tobas_msgs::msg::Battery>();
-
-  // Fill headers
-  msg->header.stamp = get_clock()->now();
-
   // Read data
-  if (!battery_.read(msg->voltage, msg->current)) {
-    TOBAS_FATAL("Failed to read battery state.");
+  if (!battery_.read(voltage_, current_)) {
+    TOBAS_ERROR("Failed to read battery state.");
+    return;
+  }
+
+  // Check data
+  if (voltage_ < 0 || current_ < 0) {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery state is unavailable.");
     return;
   }
 
   // Publish message
+  auto msg = std::make_unique<tobas_msgs::msg::Battery>();
+  msg->header.stamp = get_clock()->now();
+  msg->voltage = static_cast<double>(voltage_);
+  msg->current = static_cast<double>(current_);
   battery_pub_->publish(move(msg));
 }
 

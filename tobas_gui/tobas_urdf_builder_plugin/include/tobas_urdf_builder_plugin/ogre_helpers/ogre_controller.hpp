@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ogre
 {
@@ -50,5 +50,5 @@ private:
   std::unordered_set<std::string> hidden_links_;
 };
 }  // namespace ogre
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

@@ -30,6 +30,7 @@ find_package(tobas_drone_core REQUIRED)
 find_package(tobas_real_common REQUIRED)
 find_package(tobas_real_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_rqt_bridge REQUIRED)
 find_package(tobas_rviz_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
@@ -44,6 +45,7 @@ set(AMENT_DEPENDENCIES
     tobas_real_common
     tobas_real_msgs
     tobas_qt_tools
+    tobas_rqt_bridge
     tobas_rviz_wrapper
     tobas_gui_common
 )

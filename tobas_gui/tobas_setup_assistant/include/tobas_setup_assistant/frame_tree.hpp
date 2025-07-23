@@ -2,6 +2,8 @@
 
 #include <QTreeWidget>
 
+#include <tobas_kdl/tree.hpp>
+
 #include "./rviz.hpp"
 
 namespace gui
@@ -16,7 +18,7 @@ class FrameTreeWidget : public QTreeWidget
   using super = QTreeWidget;
 
 public:
-  explicit FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz);
+  explicit FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz);
 
   void updateInternalDataStructures();
 
@@ -27,8 +29,8 @@ private Q_SLOTS:
   void resizeColumns();
 
 private:
-  const RobotInfo& robot_;
-  RvizWidget* rviz_;
+  const kdl::Tree& tree_;
+  RvizWidget* const rviz_;
 
   void addTreeItemsRec(QTreeWidgetItem* parent_item);
 };

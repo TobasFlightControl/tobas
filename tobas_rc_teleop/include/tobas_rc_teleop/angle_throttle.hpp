@@ -19,7 +19,7 @@ public:
   bool requireLinearVelocity() override;
   bool requireAngularVelocity() override;
 
-  void initialize(tobas::BaseNode* node, tobas::flight_mode_t mode) override;
+  void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
@@ -37,8 +37,8 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
-  bool maxAttitudeCb(const double& p);
-  bool maxHeadingRateCb(const double& p);
+  bool maxAttitudeCb(const long& p);
+  bool maxHeadingRateCb(const long& p);
   bool attitudeExpoCb(const long& p);
   bool headingExpoCb(const long& p);
   bool throttleExpoCb(const long& p);

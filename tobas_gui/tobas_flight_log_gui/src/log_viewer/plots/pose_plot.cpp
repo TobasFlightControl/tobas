@@ -5,44 +5,38 @@
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
 {
 namespace log
 {
 PosePlotWidget::PosePlotWidget()
-  : cur_pos_curves_{ "Current X", "Current Y", "Current Z" }
-  , cur_rot_curves_{ "Current Roll", "Current Pitch", "Current Yaw" }
-  , tar_pos_curves_{ "Target X", "Target Y", "Target Z" }
-  , tar_rot_curves_{ "Target Roll", "Target Pitch", "Target Yaw" }
+  : cur_curves_{ "Current X [m]",      "Current Y [m]",       "Current Z [m]",
+                 "Current Roll [deg]", "Current Pitch [deg]", "Current Yaw [deg]" }
+  , tar_curves_{ "Target X [m]",      "Target Y [m]",       "Target Z [m]",
+                 "Target Roll [deg]", "Target Pitch [deg]", "Target Yaw [deg]" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  for (size_t i = 0; i < 3; ++i) {
-    pos_plots_[i] = new QwtPlot2();
-    rot_plots_[i] = new QwtPlot2();
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    plots_[i] = new QwtPlot2();
+    plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
+    grid->addWidget(plots_[i], i % 3, i / 3, 1, 1);
 
-    grid->addWidget(pos_plots_[i], i, 0);
-    grid->addWidget(rot_plots_[i], i, 1);
+    cur_curves_[i].setPen(kCurrentValueColor, kLineWidth);
+    cur_curves_[i].attach(plots_[i]);
 
-    cur_pos_curves_[i].setPen(kCurrentValueColor, kLineWidth);
-    cur_rot_curves_[i].setPen(kCurrentValueColor, kLineWidth);
-    tar_pos_curves_[i].setPen(kTargetValueColor, kLineWidth);
-    tar_rot_curves_[i].setPen(kTargetValueColor, kLineWidth);
-
-    cur_pos_curves_[i].attach(pos_plots_[i]);
-    cur_rot_curves_[i].attach(rot_plots_[i]);
-    tar_pos_curves_[i].attach(pos_plots_[i]);
-    tar_rot_curves_[i].attach(rot_plots_[i]);
+    tar_curves_[i].setPen(kTargetValueColor, kLineWidth);
+    tar_curves_[i].attach(plots_[i]);
   }
 }
 
 void PosePlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i) {
-    pos_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-    rot_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  for (auto& plot : plots_) {
+    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
 }
 
@@ -53,62 +47,57 @@ void PosePlotWidget::setData(
   updateCurrentSamples(odom_msgs);
   updateTargetSamples(ctrl_fb_msgs);
 
-  for (size_t i = 0; i < 3; ++i) {
-    pos_plots_[i]->replot();
-    rot_plots_[i]->replot();
+  for (auto& plot : plots_) {
+    plot->replot();
   }
 }
 
 void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, 3> pos_data;
-  std::array<QVector<double>, 3> rot_data;
+  std::array<QVector<double>, kNumAxes> val_data;
 
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
     const auto& pos = odom.frame.trans;
-    pos_data[0].push_back(pos.x);
-    pos_data[1].push_back(pos.y);
-    pos_data[2].push_back(pos.z);
+    val_data[0].push_back(pos.x);
+    val_data[1].push_back(pos.y);
+    val_data[2].push_back(pos.z);
 
     const kdl::Rotation rot(odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
-    rot_data[0].push_back(roll);
-    rot_data[1].push_back(pitch);
-    rot_data[2].push_back(yaw);
+    val_data[3].push_back(tobas_std::rad2deg(roll));
+    val_data[4].push_back(tobas_std::rad2deg(pitch));
+    val_data[5].push_back(tobas_std::rad2deg(yaw));
   }
 
-  for (size_t i = 0; i < 3; ++i) {
-    cur_pos_curves_[i].setSamples(t_data, pos_data[i]);
-    cur_rot_curves_[i].setSamples(t_data, rot_data[i]);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    cur_curves_[i].setSamples(t_data, val_data[i]);
   }
 }
 
 void PosePlotWidget::updateTargetSamples(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, 3> pos_data;
-  std::array<QVector<double>, 3> rot_data;
+  std::array<QVector<double>, kNumAxes> val_data;
 
   for (const auto& ctrl_fb : ctrl_fb_msgs) {
     t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
 
     const auto& pos = ctrl_fb.target_position;
-    pos_data[0].push_back(pos.x);
-    pos_data[1].push_back(pos.y);
-    pos_data[2].push_back(pos.z);
+    val_data[0].push_back(pos.x);
+    val_data[1].push_back(pos.y);
+    val_data[2].push_back(pos.z);
 
     const auto& rot = ctrl_fb.target_angle;
-    rot_data[0].push_back(rot.roll);
-    rot_data[1].push_back(rot.pitch);
-    rot_data[2].push_back(rot.yaw);
+    val_data[3].push_back(tobas_std::rad2deg(rot.roll));
+    val_data[4].push_back(tobas_std::rad2deg(rot.pitch));
+    val_data[5].push_back(tobas_std::rad2deg(rot.yaw));
   }
 
-  for (size_t i = 0; i < 3; ++i) {
-    tar_pos_curves_[i].setSamples(t_data, pos_data[i]);
-    tar_rot_curves_[i].setSamples(t_data, rot_data[i]);
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    tar_curves_[i].setSamples(t_data, val_data[i]);
   }
 }
 }  // namespace log

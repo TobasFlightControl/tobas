@@ -95,12 +95,12 @@ int main(int argc, char** argv)
     }
   }
   else if (parity == "odd") {
-    if (!uart.enableParity(linux::UARTdev::parity_mode_t::PARITY_ODD)) {
+    if (!uart.enableParity(linux::UARTdev::ParityMode::kOdd)) {
       return EXIT_FAILURE;
     }
   }
   else if (parity == "even") {
-    if (!uart.enableParity(linux::UARTdev::parity_mode_t::PARITY_EVEN)) {
+    if (!uart.enableParity(linux::UARTdev::ParityMode::kEven)) {
       return EXIT_FAILURE;
     }
   }

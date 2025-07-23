@@ -2,47 +2,47 @@
 
 #include <iostream>
 
-#define POSITION_TEXT "position"
-#define VELOCITY_TEXT "velocity"
-#define EFFORT_TEXT "effort"
-#define NONE_TEXT "none"
+#define POSITION "position"
+#define VELOCITY "velocity"
+#define EFFORT "effort"
+#define NONE "none"
 
 using namespace std;
 
 namespace tobas
 {
-string textFromEnum(jnt_cmd_iface_t value)
+string textFromEnum(JointCommandInterface value)
 {
   switch (value) {
-    case jnt_cmd_iface_t::POSITION:
-      return POSITION_TEXT;
-    case jnt_cmd_iface_t::VELOCITY:
-      return VELOCITY_TEXT;
-    case jnt_cmd_iface_t::EFFORT:
-      return EFFORT_TEXT;
-    case jnt_cmd_iface_t::NONE:
-      return NONE_TEXT;
+    case JointCommandInterface::kPosition:
+      return POSITION;
+    case JointCommandInterface::kVelocity:
+      return VELOCITY;
+    case JointCommandInterface::kEffort:
+      return EFFORT;
+    case JointCommandInterface::kNone:
+      return NONE;
     default:
       throw;
   }
 }
 
-bool enumFromText(const string& text, jnt_cmd_iface_t& dst)
+bool enumFromText(const string& text, JointCommandInterface& dst)
 {
-  if (text == POSITION_TEXT) {
-    dst = tobas::jnt_cmd_iface_t::POSITION;
+  if (text == POSITION) {
+    dst = tobas::JointCommandInterface::kPosition;
     return true;
   }
-  else if (text == VELOCITY_TEXT) {
-    dst = tobas::jnt_cmd_iface_t::VELOCITY;
+  else if (text == VELOCITY) {
+    dst = tobas::JointCommandInterface::kVelocity;
     return true;
   }
-  else if (text == EFFORT_TEXT) {
-    dst = tobas::jnt_cmd_iface_t::EFFORT;
+  else if (text == EFFORT) {
+    dst = tobas::JointCommandInterface::kEffort;
     return true;
   }
-  else if (text == NONE_TEXT) {
-    dst = tobas::jnt_cmd_iface_t::NONE;
+  else if (text == NONE) {
+    dst = tobas::JointCommandInterface::kNone;
     return true;
   }
   else {
@@ -54,14 +54,14 @@ bool enumFromText(const string& text, jnt_cmd_iface_t& dst)
 
 namespace YAML
 {
-Node convert<tobas::jnt_cmd_iface_t>::encode(const tobas::jnt_cmd_iface_t& rhs)
+Node convert<tobas::JointCommandInterface>::encode(const tobas::JointCommandInterface& rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
   return Node(tobas::textFromEnum(rhs));
 }
 
-bool convert<tobas::jnt_cmd_iface_t>::decode(const Node& node, tobas::jnt_cmd_iface_t& rhs)
+bool convert<tobas::JointCommandInterface>::decode(const Node& node, tobas::JointCommandInterface& rhs)
 {
   if (!node.IsScalar()) {
     return false;

@@ -5,6 +5,7 @@
 
 namespace tobas
 {
+// Throttle
 static constexpr double kMinThrot = 0.;  // The minimum throttle
 static constexpr double kMaxThrot = 1.;  // The maximum throttle
 
@@ -31,18 +32,16 @@ static constexpr char kEngineStateTopic[] = "engine_state";
 static constexpr char kCpuTopic[] = "cpu";
 static constexpr char kSbusTopic[] = "sbus";
 static constexpr char kRcInputTopic[] = "rc_input";
-static constexpr char kImuTopic[] = "imu";
 static constexpr char kImuRawTopic[] = "imu_raw";
+static constexpr char kImuFiltTopic[] = "imu_filtered";
 static constexpr char kMagTopic[] = "magnetic_field";
-static constexpr char kMagRawTopic[] = "magnetic_field_raw";
 static constexpr char kAirPressureTopic[] = "air_pressure";
-static constexpr char kAirPressureRawTopic[] = "air_pressure_raw";
 static constexpr char kGnssTopic[] = "gnss";
 static constexpr char kGnssOriginTopic[] = "gnss_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
-static constexpr char kRotorLivelinessTopic[] = "rotor_liveliness";
+static constexpr char kRotorLivelinessesTopic[] = "rotor_livelinesses";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEventTopic[] = "event";
@@ -60,7 +59,6 @@ static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kIcePropulsionSystemCmdTopic[] = "command/ice_propulsion_system";
-static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 // High Command
 static constexpr char kRateCmdTopic[] = "command/rate";
@@ -97,6 +95,7 @@ static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kRosbagRecordStartSrv[] = "rosbag_record_start";
 static constexpr char kRosbagRecordStopSrv[] = "rosbag_record_stop";
 static constexpr char kRosbagCleanSrv[] = "rosbag_clean";
+static constexpr char kConfigureImuFilterSrv[] = "configure_imu_filter";
 static constexpr char kGetRotorControlGainsSrv[] = "get_rotor_control_gains";
 static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
 static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
@@ -120,10 +119,10 @@ static constexpr char kForwardCommandController[] = "forward_command_controller/
 namespace node
 {
 static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
-static constexpr char kController[] = "controller";
+static constexpr char kImuFilterConfigServer[] = "imu_filter_config_server";
 static constexpr char kObserver[] = "observer";
+static constexpr char kController[] = "controller";
 static constexpr char kRcTeleop[] = "rc_teleop";
-static constexpr char kImuPreprocess[] = "imu_preprocess";
 }  // namespace node
 
 // PWM keys
@@ -148,28 +147,28 @@ static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
 static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
 static constexpr char kRosbagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
+static constexpr char kConfigEnvPath[] = "/etc/tobas/config.env";
 
 // Scale
 constexpr auto kAccelScale = 10.;   // [m/s^2]
 constexpr auto kDGyroScale = 100.;  // [rad/s^2]
 
+// Common period & timeout
+static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
+static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(5);
+static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(500);
+static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
+
 // Console message period
+static constexpr double kTypicalInfoPeriod = 5.;   // [s]
+static constexpr double kTypicalWarnPeriod = 3.;   // [s]
+static constexpr double kTypicalErrorPeriod = 1.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;  // [s]
 
 // Others
-static constexpr char kTBSExtension[] = ".TBS";
+static constexpr char kProjectExtension[] = ".TBS";
 static constexpr char kPropertyServerName[] = "/property_server";
-static constexpr char kUnknown[] = "unknown";
 static constexpr char kMinimulURDF[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
-static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
-static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
-static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速
-static constexpr double kTypicalInfoPeriod = 5.;         // [s]
-static constexpr double kTypicalWarnPeriod = 3.;         // [s]
-static constexpr double kTypicalErrorPeriod = 1.;        // [s]
-static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
-static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(5);
-static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(200);
-static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
+static constexpr double kMinAirSpeedThresh = 0.1;          // [m/s] 空力計算を行う最小風速
 static constexpr size_t kMaxRosbagSize = 5'000'000'000UL;  // [byte]
 }  // namespace tobas

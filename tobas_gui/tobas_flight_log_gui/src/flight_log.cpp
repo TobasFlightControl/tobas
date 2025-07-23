@@ -8,9 +8,9 @@ namespace gui
 {
 namespace log
 {
-FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
+FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
 {
-  recorder_ = new FlightLogRecorderWidget(node);
+  recorder_ = new FlightLogRecorderWidget(node, bridge);
   logs_fc_ = new FlightLogsWidgetFC(node);
   logs_gcs_ = new FlightLogsWidgetGCS();
   log_viewer_ = new FlightLogViewerWidget();

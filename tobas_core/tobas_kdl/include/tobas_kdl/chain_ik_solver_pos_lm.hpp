@@ -81,12 +81,12 @@ public:
    * @param q_init initial joint position.
    * @param T_base_goal goal position expressed with respect to the robot base.
    * @param q_out  joint position that achieves the specified goal position (if successful).
-   * @return E_NOERROR if successful,
+   * @return kNoError if successful,
    *         E_GRADIENT_JOINTS_TOO_SMALL the gradient of \f$ E \f$ towards the joints is to small,
    *         E_INCREMENT_JOINTS_TOO_SMALL if joint position increments are to small,
    *         E_MAX_ITER_EXCEEDED if number of iterations is exceeded.
    */
-  virtual int CartToJnt(const JntArray& q_init, const Frame& T_base_goal) override;
+  virtual int cartToJnt(const JntArray& q_init, const Frame& T_base_goal) override;
 
   bool setMaxIter(const size_t& max_iter);
   bool setEpsilonCart(const double& eps_cart);
@@ -115,7 +115,7 @@ private:
 
   Eigen::JacobiSVD<Eigen::Matrix6Xd> svd_;
   Eigen::Matrix6Xd jac_;  // the last value for the Jacobian after an execution of compute_jacobian.
-  Eigen::VectorXd grad_;  // the gradient of the error criterion after an execution of CartToJnt.
+  Eigen::VectorXd grad_;  // the gradient of the error criterion after an execution of cartToJnt.
   // the last value for the position of the tip of the robot (head) with respect to the base, after an execution of
   // compute_jacobian.
   Frame T_base_head_;

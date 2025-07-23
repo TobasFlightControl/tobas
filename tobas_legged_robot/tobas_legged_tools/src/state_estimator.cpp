@@ -112,7 +112,7 @@ void StateEstimator::update(
   for (size_t l = 0; l < nc_; ++l) {
     if (is_stand[l]) {
       // 順運動学
-      if (fk_solver_.JntToCart(q, qd, foot_names_[l]) < 0) {
+      if (fk_solver_.jntToCart(q, qd, foot_names_[l]) < 0) {
         throw runtime_error("FK failed: " + fk_solver_.errorMessage());
       }
       const auto& foot_pos = fk_solver_.getFrameVel().p.p;

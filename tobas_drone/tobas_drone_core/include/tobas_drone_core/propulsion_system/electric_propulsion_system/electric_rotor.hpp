@@ -19,6 +19,7 @@ class ElectricRotorConfig : public RotorConfig
   static constexpr char kNumPolesKey[] = "num_poles";
   static constexpr char kKvKey[] = "kv";
   static constexpr char kInternalResistanceKey[] = "internal_resistance";
+  static constexpr char kMinSpeed[] = "minimum_speed";
   static constexpr char kPropellerDiameterKey[] = "propeller_diameter";
   static constexpr char kMotorConstKey[] = "motor_constant";
 
@@ -30,6 +31,7 @@ public:
   uint32_t num_poles = 0;           // モータの極数
   double kv = 0.;                   // モータのKV値 [rad/s/V]
   double internal_resistance = 0.;  // モータの内部抵抗 [Ω]
+  double min_speed = 0.;            // モータの最小回転数 [rad/s]
   double propeller_diameter = 0.;   // プロペラの直径 [m]
   double motor_const = 0.;          // 推力係数 [kg*m/rad^2]
 

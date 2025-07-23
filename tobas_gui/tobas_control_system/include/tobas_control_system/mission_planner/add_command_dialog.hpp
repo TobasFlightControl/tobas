@@ -20,11 +20,11 @@ class AddCommandDialog : public QDialog
 public:
   explicit AddCommandDialog(QWidget* parent);
 
-  command_t selectedCommand() const;
+  Command selectedCommand() const;
 
 private:
   qt::ListWidget* command_list_;
-  command_t selected_command_;
+  Command selected_command_;
 
 private Q_SLOTS:
   void onOkClicked();

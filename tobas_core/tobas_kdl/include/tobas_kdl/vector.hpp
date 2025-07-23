@@ -64,7 +64,7 @@ public:
   inline double argument(const Vector& rhs) const;
 
   /* 2つのベクトルが直行するかどうかを判定する． */
-  inline bool isOrthogonal(const Vector& rhs) const;
+  inline bool isPerpendicular(const Vector& rhs) const;
 
   /* Clamp each value. */
   inline Vector clamp(const double& lb, const double& ub) const;
@@ -81,6 +81,9 @@ public:
   inline Vector inverse() const;
 
   inline bool isFinite() const;
+
+  /* An exact comparison. */
+  inline bool operator==(const Vector& rhs) const;
 
   /* Adds a vector from the Vector object itself. */
   inline Vector& operator+=(const Vector& arg);
@@ -225,7 +228,7 @@ inline double Vector::argument(const Vector& rhs) const
   return ::acos(this->normalized().dot(rhs.normalized()));
 }
 
-inline bool Vector::isOrthogonal(const Vector& rhs) const
+inline bool Vector::isPerpendicular(const Vector& rhs) const
 {
   return tobas_std::isClose(this->dot(rhs), 0.);
 }
@@ -281,6 +284,11 @@ inline Vector Vector::inverse() const
 bool Vector::isFinite() const
 {
   return eigen::isFinite(data);
+}
+
+inline bool Vector::operator==(const Vector& rhs) const
+{
+  return data.cwiseEqual(rhs.data).all();
 }
 
 inline Vector& Vector::operator+=(const Vector& arg)

@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/rotor_marker_publisher.hpp"
 
+#include <ranges>
+
 #include <QDebug>
 
 #include <tobas_kdl_conversions/kdl_msg.hpp>
@@ -9,55 +11,68 @@ namespace gui
 {
 namespace sa
 {
-RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const RobotInfo& robot, Signals& _signals)
-  : node_(node), robot_(robot)
+RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
+  : node_(node), uadf_(uadf)
 {
   markers_pub_ =
     ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array", false, true);
 
-  connect(&_signals, &Signals::rotorLinkAdded, this, &self::onRotorLinkAdded);
-  connect(&_signals, &Signals::rotorLinkRemoved, this, &self::onRotorLinkRemoved);
   connect(&publish_markers_timer_, &QTimer::timeout, this, &self::publishTimerCb);
 }
 
 void RotorMarkerPublisher::updateInternalDataStructures()
 {
-  markers_.markers.clear();
+  // マーカの発行を停止
   publish_markers_timer_.stop();
 
-  // 全ての可動リンクのマーカを保持しておく
-  size_t id = 0;
-  for (const auto& [link_name, elem] : robot_.tree().getSegments()) {
-    // ジョイントを取得
-    const auto& kdl_joint = elem.segment.joint();
-    if (kdl_joint.type != kdl::Joint::ROTATION) {
-      continue;
-    }
-    const auto urdf_joint = robot_.urdf()->getJoint(kdl_joint.name);
+  // 現在のマーカを全て非表示にする
+  for (auto& marker : markers_.markers) {
+    marker.action = visualization_msgs::msg::Marker::DELETE;
+  }
+  publishMarkers();
+
+  // 全てのマーカを削除
+  markers_.markers.clear();
+
+  // プロペラリンクのマーカを追加
+  for (const auto& [id, elem] : std::views::enumerate(uadf_.thrusts)) {
+    const auto& [joint_name, thrust] = elem;
+    const auto joint = uadf_.urdf->getJoint(joint_name);
 
     // 推力の作用線
     const auto arrow_start = kdl::Vector::Zero();
-    const auto arrow_end = kdl::vectorUrdfToKdl(urdf_joint->axis) * kArrowLength;
+    const auto arrow_end = kdl::vectorUrdfToKdl(joint->axis) * kArrowLength;
     const auto arrow_scale = kdl::Vector(0.1, 0.2, 0.3) * kArrowLength;
 
     // マーカを作成
     visualization_msgs::msg::Marker marker;
 
-    marker.header.frame_id = link_name;
-    marker.id = id++;
+    marker.header.frame_id = joint->child_link_name;
+    marker.id = id;
     marker.type = visualization_msgs::msg::Marker::ARROW;
-    marker.action = visualization_msgs::msg::Marker::DELETE;  // デフォルトでは非表示
+    marker.action = visualization_msgs::msg::Marker::ADD;
 
     marker.points.resize(2);
     kdl::pointKDLToMsg(arrow_start, marker.points.at(0));
     kdl::pointKDLToMsg(arrow_end, marker.points.at(1));
     kdl::vectorKDLToMsg(arrow_scale, marker.scale);
 
-    // TODO: 回転方向によって色分け
-    marker.color.r = 1.0;
-    marker.color.g = 0.4;
-    marker.color.b = 0.7;
+    // 回転方向によって色分け
     marker.color.a = 1.0;
+    switch (thrust.direction) {
+      case uadf::Thrust::CW:
+        marker.color.r = 1.0;
+        marker.color.g = 0.5;
+        marker.color.b = 0.0;
+        break;
+      case uadf::Thrust::CCW:
+        marker.color.r = 0.0;
+        marker.color.g = 0.5;
+        marker.color.b = 1.0;
+        break;
+      default:
+        throw;
+    }
 
     marker.lifetime = rclcpp::Duration::from_nanoseconds(0);  // 無限の生存期間
     marker.frame_locked = true;                               // TFが変化してもフレームに固定
@@ -66,23 +81,13 @@ void RotorMarkerPublisher::updateInternalDataStructures()
     markers_.markers.push_back(marker);
   }
 
+  // TODO: ティルトジョイントと操舵面のマーカも表示
+
   // マーカを発行開始
   publish_markers_timer_.start(100);
 }
 
-void RotorMarkerPublisher::setAction(const QString& link_name, int action)
-{
-  for (auto& marker : markers_.markers) {
-    if (marker.header.frame_id == link_name.toStdString()) {
-      marker.action = action;
-      return;
-    }
-  }
-
-  qWarning() << link_name << " not found.";
-}
-
-void RotorMarkerPublisher::publishTimerCb()
+void RotorMarkerPublisher::publishMarkers()
 {
   // Fill timestamps
   const auto now = node_->get_clock()->now();
@@ -95,16 +100,9 @@ void RotorMarkerPublisher::publishTimerCb()
   markers_pub_->publish(std::move(markers_ptr));
 }
 
-void RotorMarkerPublisher::onRotorLinkAdded(const QString& link_name)
+void RotorMarkerPublisher::publishTimerCb()
 {
-  // 指定リンクのマーカを表示
-  setAction(link_name, visualization_msgs::msg::Marker::ADD);
-}
-
-void RotorMarkerPublisher::onRotorLinkRemoved(const QString& link_name)
-{
-  // 指定リンクのマーカを非表示
-  setAction(link_name, visualization_msgs::msg::Marker::DELETE);
+  publishMarkers();
 }
 }  // namespace sa
 }  // namespace gui

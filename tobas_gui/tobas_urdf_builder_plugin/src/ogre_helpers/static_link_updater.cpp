@@ -12,7 +12,7 @@ static inline Ogre::Quaternion URDFRotationToOgre(const urdf::Rotation& r)
 
 namespace gui
 {
-namespace urdf_builder
+namespace ub
 {
 namespace ogre
 {
@@ -77,5 +77,5 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& l
   return result;
 }
 }  // namespace ogre
-}  // namespace urdf_builder
+}  // namespace ub
 }  // namespace gui

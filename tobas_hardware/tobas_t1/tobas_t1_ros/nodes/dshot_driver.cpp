@@ -1,6 +1,5 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_t1_core/dshot.hpp>
@@ -14,8 +13,9 @@
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 
-using namespace std;
-namespace fs = filesystem;
+using namespace std::chrono_literals;
+
+namespace fs = std::filesystem;
 
 class DShotDriverNode : public tobas::BaseNode
 {
@@ -35,7 +35,7 @@ private:
   t1::DShot dshot_;
 
   ptree::PropertyTree pt_;
-  array<uint8_t, t1::DShot::kChannelSize> gains_ = { 0 };
+  std::array<uint8_t, t1::DShot::kChannelSize> gains_ = { 0 };
   bool is_commanded_ = false;
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
@@ -138,7 +138,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (!drone->prop) {
     return;
   }
-  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC) {
+  if (drone->prop->type() != tobas::PropulsionSystem::kElectric) {
     return;
   }
 
@@ -189,7 +189,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // Set moment constants
   for (const auto& [link_name, _] : eprop->rotors) {
     const auto erotor = eprop->getRotor(link_name);
-    const auto moment_const = erotor->motor_const * erotor->moment_const / math::quat(erotor->propeller_diameter);
+    const auto moment_const = erotor->motor_const * erotor->moment_const / std::pow(erotor->propeller_diameter, 5);
     if (!dshot_.setMomentConstant(erotor->channel, moment_const)) {
       TOBAS_ERROR("Failed to set moment constant of channel ", erotor->channel, ".");
       return;
@@ -218,7 +218,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       TOBAS_ERROR("Rotor channel ", erotor->channel, " is out of range.");
       continue;
     }
-    if (!pt_.get(kGainKeyPrefix + to_string(erotor->channel), gains_.at(erotor->channel))) {
+    if (!pt_.get(ns(), kGainKeyPrefix + std::to_string(erotor->channel), gains_.at(erotor->channel))) {
       TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
@@ -293,7 +293,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
   for (const auto& gain : req->gains) {
     if (!dshot_.setSpeedControlGain(gain.channel, gain.gain)) {
       res->success = false;
-      res->message = "Rotor control gain of channel " + to_string((int)gain.channel) + " is rejected.";
+      res->message = "Rotor control gain of channel " + std::to_string((int)gain.channel) + " is rejected.";
       return;
     }
     gains_.at(gain.channel) = gain.gain;
@@ -312,8 +312,8 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
 void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, const SaveGains::Response::SharedPtr& res)
 {
   for (size_t ch = 0; ch < t1::DShot::kChannelSize; ++ch) {
-    const auto key = kGainKeyPrefix + to_string(ch);
-    pt_.set(key, gains_.at(ch));
+    const auto key = kGainKeyPrefix + std::to_string(ch);
+    pt_.set(ns(), key, gains_.at(ch));
   }
 
   if (!pt_.save()) {

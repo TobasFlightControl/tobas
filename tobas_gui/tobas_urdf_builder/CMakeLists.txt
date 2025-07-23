@@ -40,6 +40,7 @@ ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})
+set_target_properties(main PROPERTIES OUTPUT_NAME "TobasURDFBuilder")
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -52,7 +53,7 @@ install(
 )
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config launch resources DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

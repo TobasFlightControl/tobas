@@ -1,18 +1,19 @@
 #include "tobas_control_system/pose_viewer.hpp"
 
+#include <QDebug>
 #include <QPainter>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_math/core.hpp>
-#include <tobas_path_tools/join.hpp>
 
 namespace gui
 {
 namespace gcs
 {
-PoseViewerWidget::PoseViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
+PoseViewerWidget::PoseViewerWidget(const RosQtBridge& bridge)
 {
   reset();
+
+  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
 }
 
 void PoseViewerWidget::reset()
@@ -25,14 +26,6 @@ void PoseViewerWidget::reset()
   y_intercept_ = height() / 2;
 
   update();
-}
-
-void PoseViewerWidget::updateNamespace(const std::string& ns)
-{
-  reset();
-
-  odom_sub_ = ros2::createSubscriber<tobas_msgs::Odometry>(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
 }
 
 void PoseViewerWidget::paintEvent(QPaintEvent*)
@@ -147,7 +140,7 @@ void PoseViewerWidget::drawSky(QPainter& painter)
     points = { OO, WO, WH, OH };
   }
   else {
-    RCLCPP_ERROR(node_->get_logger(), "Impossible ground-sky pattern.");
+    qWarning() << "Impossible ground-sky pattern.";
     return;
   }
 
