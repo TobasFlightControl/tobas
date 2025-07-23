@@ -102,8 +102,8 @@ $ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
 ## TO-DO List (2025)
 
 - [x] Support for active-tilt multicopters
-- [ ] Support for engine-driven models
-- [ ] Support for variable-pitch multicopters
+- [x] Support for engine-driven models
+- [x] Support for variable-pitch multicopters
 - [ ] Support for fixed-wing
 - [ ] Support for VTOL
 - [ ] CM5-based FMU
