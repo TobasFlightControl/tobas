@@ -517,7 +517,8 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // プロジェクトのパスを取得
-  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), QString::fromStdString(uadf_.urdf->getName()));
+  const auto dflt_proj_name = "tobas_" + QString::fromStdString(uadf_.urdf->getName());
+  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), dflt_proj_name);
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
