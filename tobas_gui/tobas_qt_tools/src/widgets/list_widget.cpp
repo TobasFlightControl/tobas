@@ -5,18 +5,6 @@
 
 namespace qt
 {
-void ListWidget::remove(QListWidgetItem* item)
-{
-  takeItem(row(item));
-}
-
-void ListWidget::deselect()
-{
-  blockSignals(true);
-  setCurrentRow(-1);
-  blockSignals(false);
-}
-
 bool ListWidget::contains(const QString& text) const
 {
   const auto items = findItems(text, Qt::MatchExactly);
@@ -32,6 +20,41 @@ QListWidgetItem* ListWidget::selectedItem()
   else {
     return nullptr;
   }
+}
+
+const QListWidgetItem* ListWidget::selectedItem() const
+{
+  const auto& selected_items = selectedItems();
+  if (selected_items.size() > 0) {
+    return selected_items.first();
+  }
+  else {
+    return nullptr;
+  }
+}
+
+void ListWidget::remove(QListWidgetItem* item)
+{
+  takeItem(row(item));
+}
+
+void ListWidget::deselect()
+{
+  blockSignals(true);
+  setCurrentRow(-1);
+  blockSignals(false);
+}
+
+void ListWidget::shrinkToContents()
+{
+  const auto rows = count();
+  const auto row_height = sizeHintForRow(0);  // 行の高さ
+  const auto frame = 2 * frameWidth();
+  const auto margin = contentsMargins().top() + contentsMargins().bottom();
+
+  setFixedHeight(rows * row_height + frame + margin);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 }
 
 void ListWidget::dropEvent(QDropEvent* event)
