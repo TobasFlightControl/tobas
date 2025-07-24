@@ -22,7 +22,6 @@ static constexpr int kMinRotorCtrlGain = 0;
 static constexpr int kMaxRotorCtrlGain = 30;
 
 // ROS topics
-static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
 static constexpr char kMessageTopic[] = "message";
 static constexpr char kDroneTopic[] = "drone";
 static constexpr char kKdlTreeTopic[] = "kdl_tree";
@@ -44,7 +43,6 @@ static constexpr char kRotorStatesTopic[] = "rotor_states";
 static constexpr char kRotorLivelinessesTopic[] = "rotor_livelinesses";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
-static constexpr char kEventTopic[] = "event";
 static constexpr char kImuSamplingTimeTopic[] = "imu_sampling_time";
 static constexpr char kControlLatencyTopic[] = "control_latency";
 static constexpr char kArmingTopic[] = "arming";
