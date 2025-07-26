@@ -1,11 +1,20 @@
 <launch>
 
   <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/empty.world"/>
+  <arg name="headless" default="false"/>
   <arg name="verbose" default="3"/>
 
-  <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
-    <arg name="gz_args" value="$(var world_path) -r -v $(var verbose)"/>
-  </include>
+  <!-- cf. `$ gz sim -h` -->
+  <group if="$(var headless)">
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+      <arg name="gz_args" value="$(var world_path) -r -s -v $(var verbose)"/>
+    </include>
+  </group>
+  <group unless="$(var headless)">
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+      <arg name="gz_args" value="$(var world_path) -r -v $(var verbose)"/>
+    </include>
+  </group>
 
   <!-- Bridge communication between ROS and Gazebo Transport: https://index.ros.org/p/ros_gz_bridge/ -->
   <!-- cf. https://github.com/gazebosim/ros_gz/issues/341 -->
