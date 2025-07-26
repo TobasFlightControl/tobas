@@ -47,6 +47,9 @@ public:
 
   void updateInternalDataStructures();
 
+  void start();
+  void stop();
+
   int numRegisteredChannels() const;
 
 private:
@@ -62,6 +65,7 @@ private:
   std::array<bool, kChannelSize> registered_;
   std::array<RotorWidget*, kChannelSize> rotor_widgets_;
 
+  bool running_ = false;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
