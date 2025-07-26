@@ -83,4 +83,11 @@ size_t closestIndex(const std::array<T, N>& arr, const T& a)
 
   return closest_idx;
 }
+
+/* 特定の要素の個数を数える． */
+template <typename T, size_t N>
+inline size_t count(const std::array<T, N>& arr, const T& val)
+{
+  return std::count(arr.begin(), arr.end(), val);
+}
 }  // namespace tobas_std

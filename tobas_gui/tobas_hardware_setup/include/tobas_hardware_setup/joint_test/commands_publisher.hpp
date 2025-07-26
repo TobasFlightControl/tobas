@@ -37,6 +37,8 @@ public:
   void start();
   void stop();
 
+  int numRegisteredChannels() const;
+
 private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
@@ -47,6 +49,7 @@ private:
   std::array<std::string, kChannelSize> jnt_names_;
   std::array<tobas::JointCommandInterface, kChannelSize> cmd_iface_;
   std::array<double, kChannelSize> home_pos_;
+  std::array<bool, kChannelSize> registered_;
   std::array<qt::DoubleSliderDisplay*, kChannelSize> commanders_;
 
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> pos_pub_;

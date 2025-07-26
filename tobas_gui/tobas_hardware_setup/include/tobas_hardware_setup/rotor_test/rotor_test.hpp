@@ -47,6 +47,8 @@ public:
 
   void updateInternalDataStructures();
 
+  int numRegisteredChannels() const;
+
 private:
   const rclcpp::Node::SharedPtr node_;
   const RosQtBridge& bridge_;
@@ -57,6 +59,7 @@ private:
   QPushButton* stop_button_;
   QPushButton* save_button_;
 
+  std::array<bool, kChannelSize> registered_;
   std::array<RotorWidget*, kChannelSize> rotor_widgets_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

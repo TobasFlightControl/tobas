@@ -34,6 +34,8 @@ public:
 
   void updateInternalDataStructures();
 
+  int numRegisteredChannels() const;
+
 private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;

@@ -17,9 +17,13 @@ class BaseHardwareSetupWidget : public qt::ScrollArea
 public:
   explicit BaseHardwareSetupWidget();
 
+  /* タブに表示される名前． */
   virtual const char* name() const = 0;
+
+  /* ページ上部に表示されるタイトル． */
   virtual const char* title() const = 0;
 
+  /* ロボットの構造を変えずにウィジェットを初期化する． */
   virtual void reset() = 0;
 
 protected:

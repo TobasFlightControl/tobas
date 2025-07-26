@@ -62,16 +62,9 @@ void HardwareSetupWidget::updateInternalDataStructures()
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
 
-  switch (drone_.prop->type()) {
-    case tobas::PropulsionSystem::kElectric:
-      tabs_->setTabEnabled(rotor_test_, true);
-      break;
-    case tobas::PropulsionSystem::kIce:
-      tabs_->setTabEnabled(rotor_test_, false);
-      break;
-    default:
-      throw;
-  }
+  // テスト系は1つ以上のチャンネルが登録されているときのみ有効化
+  tabs_->setTabEnabled(rotor_test_, rotor_test_->numRegisteredChannels() > 0);
+  tabs_->setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
 
   // 各タブを有効化
   setEnabledConfigDependentWidgets(true);

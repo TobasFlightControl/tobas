@@ -5,6 +5,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_std_tools/array.hpp>
 
 #include "tobas_hardware_setup/constants.hpp"
 
@@ -109,11 +110,17 @@ void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
 
+  // 初期化
+  registered_.fill(false);
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+    const auto text = "CH" + QString::number(ch) + ": unregistered";
+    rotor_widgets_.at(ch)->setText(text);
+  }
+
   if (drone_.prop->type() == tobas::PropulsionSystem::kElectric) {
     eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
 
     // モータとして登録されているチャンネルの設定
-    QSet<size_t> rotor_channels;
     for (const auto& [link_name, _] : eprop_->rotors) {
       const auto erotor = eprop_->getRotor(link_name);
 
@@ -122,7 +129,7 @@ void RotorTestWidget::updateInternalDataStructures()
         continue;
       }
 
-      rotor_channels.insert(erotor->channel);
+      registered_.at(erotor->channel) = true;
 
       const auto text = "CH" + QString::number(erotor->channel) + ": " + QString::fromStdString(link_name);
       rotor_widgets_.at(erotor->channel)->setText(text);
@@ -132,14 +139,6 @@ void RotorTestWidget::updateInternalDataStructures()
     }
 
     // モータとして登録されていないチャンネルの設定
-    for (size_t ch = 0; ch < kChannelSize; ++ch) {
-      if (rotor_channels.contains(ch)) {
-        continue;
-      }
-
-      const auto text = "CH" + QString::number(ch) + ": unregistered";
-      rotor_widgets_.at(ch)->setText(text);
-    }
 
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
@@ -160,6 +159,11 @@ void RotorTestWidget::updateInternalDataStructures()
     set_gains_sc_.reset();
     save_gains_sc_.reset();
   }
+}
+
+int RotorTestWidget::numRegisteredChannels() const
+{
+  return tobas_std::count(registered_, true);
 }
 
 void RotorTestWidget::publishTargetSppeds()
@@ -239,7 +243,6 @@ void RotorTestWidget::onStartButtonClicked()
 
 void RotorTestWidget::onStopButtonClicked()
 {
-  // ウィジェットを初期化
   reset();
 
   qt::qInfoBox(this, "Rotor test is finished.");

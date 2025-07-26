@@ -80,6 +80,11 @@ void JointTestWidget::updateInternalDataStructures()
   commands_publisher_->updateInternalDataStructures();
 }
 
+int JointTestWidget::numRegisteredChannels() const
+{
+  return commands_publisher_->numRegisteredChannels();
+}
+
 void JointTestWidget::onStartButtonClicked()
 {
   // アームされていないことを確認

@@ -6,6 +6,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/check.hpp>
 
 namespace gui
@@ -37,8 +38,20 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 {
   TOBAS_CHECK(joint_parser_.updateInternalDataStructures());
 
+  // 初期化
+  jnt_names_.fill("");
+  cmd_iface_.fill(tobas::JointCommandInterface::kNone);
+  home_pos_.fill(0.);
+  registered_.fill(false);
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+    commanders_[ch]->setText("CH" + QString::number(ch) + ": unregistered");
+    commanders_[ch]->setMinimum(0.);
+    commanders_[ch]->setMaximum(0.);
+    commanders_[ch]->setSuffix("");
+    commanders_[ch]->setEnabled(false);
+  }
+
   // PWMサーボとして登録されているチャンネルの設定
-  std::unordered_set<size_t> pwm_channels;
   for (const auto& [_, joint] : drone_.joints) {
     if (joint.hw_iface != tobas::HardwareInterface::kPwm) {
       continue;
@@ -112,25 +125,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     jnt_names_[ch] = joint.name;
     cmd_iface_[ch] = joint.cmd_iface;
     home_pos_[ch] = joint.home_pos;
-
-    pwm_channels.insert(ch);
-  }
-
-  // PWMサーボとして登録されていないチャンネルを無効化
-  for (size_t ch = 0; ch < kChannelSize; ++ch) {
-    if (pwm_channels.contains(ch)) {
-      continue;
-    }
-
-    jnt_names_[ch].clear();
-    cmd_iface_[ch] = tobas::JointCommandInterface::kNone;
-    home_pos_[ch] = 0.;
-
-    commanders_[ch]->setText("CH" + QString::number(ch) + ": unregistered");
-    commanders_[ch]->setMinimum(0.);
-    commanders_[ch]->setMaximum(0.);
-    commanders_[ch]->setSuffix("");
-    commanders_[ch]->setEnabled(false);
+    registered_[ch] = true;
   }
 
   // トピックを更新
@@ -179,6 +174,11 @@ void JointCommandsPublisherWidget::stop()
 
   // タイマーを停止
   publish_timer_.stop();
+}
+
+int JointCommandsPublisherWidget::numRegisteredChannels() const
+{
+  return tobas_std::count(registered_, true);
 }
 
 void JointCommandsPublisherWidget::publishCurrentValues()
