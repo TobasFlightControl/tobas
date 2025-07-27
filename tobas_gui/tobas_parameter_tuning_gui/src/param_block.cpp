@@ -1,5 +1,6 @@
 #include "tobas_parameter_tuning_gui/param_block.hpp"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QStyle>
 #include <QVBoxLayout>
@@ -21,7 +22,8 @@ namespace gui
 {
 namespace param
 {
-ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label) : node_(node), ssh_client_(node)
+ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::string& node_name, const QString& label)
+  : node_(node), node_name_(node_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -34,16 +36,15 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& 
   rows->addLayout(form_);
 }
 
-bool ParamBlockWidget::load(const std::string& ns, const std::string& node_name)
+bool ParamBlockWidget::load(const std::string& ns)
 {
-  node_name_ = node_name;
-  dparam_client_ = make_shared<dparam::DynamicParamClient>(node_, node_name, ns);
+  dparam_client_ = make_shared<dparam::DynamicParamClient>(node_, node_name_, ns);
 
   clear();
 
   // Get dynamic parameters
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, node_name, tobas::kGetDynamicParamsSrv));
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, node_name_, tobas::kGetDynamicParamsSrv));
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req, kLoadParamTimeout)) {
     qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
@@ -139,7 +140,7 @@ bool ParamBlockWidget::load(const std::string& ns, const std::string& node_name)
   return true;
 }
 
-bool ParamBlockWidget::saveLocal(const fs::path& path)
+bool ParamBlockWidget::save(const fs::path& path)
 {
   const auto config = createCurrentConfig();
 
@@ -152,26 +153,6 @@ bool ParamBlockWidget::saveLocal(const fs::path& path)
   // PCに保存
   if (!yaml::save(path, config)) {
     qt::qErrorBox(this, "Failed to save configuration to PC.");
-    return false;
-  }
-
-  return true;
-}
-
-bool ParamBlockWidget::saveRemote(const fs::path& path)
-{
-  const auto config = createCurrentConfig();
-
-  // 設定ファイルが存在することを確認
-  if (!ssh_client_.fileExists(path)) {
-    qt::qErrorBox(this, QString::fromStdString(path) + " does not exist on FC.");
-    return false;
-  }
-
-  // FCに書き込む
-  const auto config_text = yaml::dump(config);
-  if (ssh_client_.sftpWrite(path, config_text, true) != ssh::SSHClient::kNoError) {
-    qt::qErrorBox(this, "Failed to save configuration to FC: " + QString(ssh_client_.errorMessage()));
     return false;
   }
 

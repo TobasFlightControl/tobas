@@ -19,6 +19,7 @@ class ParameterTuningWidget : public QWidget
   using self = ParameterTuningWidget;
   using super = QWidget;
 
+  static constexpr size_t kNumBlocks = 4;
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
@@ -26,25 +27,18 @@ public:
   explicit ParameterTuningWidget(rclcpp::Node::SharedPtr node);
 
   void reset();
-  bool updateTBSPath(const std::filesystem::path& tbs_path);
+  bool updateProject(const std::filesystem::path& tbs_path);
 
 private:
   std::filesystem::path tbs_path_;
   tobas::Drone drone_;
 
-  ssh::SSHClient ssh_client_;
+  const std::array<std::string, kNumBlocks> file_names_;
+  const std::array<ParamBlockWidget*, kNumBlocks> blocks_;
 
   QPushButton* load_button_;
   QPushButton* save_button_;
   QPushButton* reset_button_;
-
-  ParamBlockWidget* imu_filter_params_;
-  ParamBlockWidget* observer_params_;
-  ParamBlockWidget* controller_params_;
-  ParamBlockWidget* rc_teleop_params_;
-
-  bool saveLocal();
-  bool saveRemote();
 
 private Q_SLOTS:
   void onLoadButtonClicked();

@@ -11,7 +11,6 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/slider.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
 
 namespace gui
 {
@@ -53,23 +52,21 @@ class ParamBlockWidget : public QWidget
   static constexpr auto kLoadParamTimeout = std::chrono::seconds(3);
 
 public:
-  explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label);
+  explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const std::string& node_name, const QString& label);
 
-  bool load(const std::string& ns, const std::string& node_name);
-
-  bool saveLocal(const std::filesystem::path& path);
-  bool saveRemote(const std::filesystem::path& path);
-
+  bool load(const std::string& ns);
+  bool save(const std::filesystem::path& path);
   void clear();
-
   bool setToDefaults();
+
+  const QString& errorMessage() const;
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  ssh::SSHClient ssh_client_;
+  const std::string node_name_;
+
   dparam::DynamicParamClient::SharedPtr dparam_client_;
 
-  std::string node_name_;
   std::map<std::string, IntConfig> int_configs_;
   std::map<std::string, DoubleConfig> double_configs_;
 
