@@ -23,16 +23,16 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWi
 
   method_name_ = new qt::ComboBox();
 
-  const auto manual = new AerodynamicsWidget_Manual();
-  const auto blade_theory = new AerodynamicsWidget_BladeTheory(propeller);
   const auto thrust_stand = new AerodynamicsWidget_ThrustStand(node, propeller);
   const auto uiuc = new AerodynamicsWidget_UIUC(node, propeller);
+  const auto blade_theory = new AerodynamicsWidget_BladeTheory(propeller);
+  const auto manual = new AerodynamicsWidget_Manual();
 
   methods_ = new qt::StackedWidget();
-  methods_->addWidget(manual);
-  methods_->addWidget(blade_theory);
   methods_->addWidget(thrust_stand);
   methods_->addWidget(uiuc);
+  methods_->addWidget(blade_theory);
+  methods_->addWidget(manual);
 
   for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
