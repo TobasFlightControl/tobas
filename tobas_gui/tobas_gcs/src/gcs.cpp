@@ -145,9 +145,9 @@ void GroundControlStationWidget::updateInternalDataStructures()
 
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
-  param_tuning_->updateTBSPath(tbsPath());
+  param_tuning_->updateProject(tbsPath());
   flight_log_->updateNamespace(drone_.name);
-  simulation_->updateTBSPath(tbsPath());
+  simulation_->updateProject(tbsPath());
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)

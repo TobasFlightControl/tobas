@@ -58,10 +58,10 @@ private Q_SLOTS:
   void onDownloadButtonClicked(const QString& log_name);
   void onDeleteButtonClicked(const QString& log_name);
 
-  void onReadFinished(bool success, const QString& message, const QStringList& log_names);
-  void onCleanFinished(bool success, const QString& message);
-  void onDownloadFinished(bool success, const QString& message);
-  void onDeleteFinished(bool success, const QString& message);
+  void onReadThreadFinished(bool success, const QString& message, const QStringList& log_names);
+  void onCleanThreadFinished(bool success, const QString& message);
+  void onDownloadThreadFinished(bool success, const QString& message);
+  void onDeleteThreadFinished(bool success, const QString& message);
 };
 }  // namespace log
 }  // namespace gui

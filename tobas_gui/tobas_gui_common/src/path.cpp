@@ -107,22 +107,22 @@ fs::path getProjTbsDrnPath(const fs::path& tbs_path)
 
 fs::path getProjImuFiltDynParamsPath(const fs::path& tbs_path)
 {
-  return getProjCfgConfigDirPath(tbs_path) / "imu_filter_dynamic.yaml";
+  return getProjCfgConfigDirPath(tbs_path) / kImuFilterDynamicParamFileName;
 }
 
 fs::path getProjObsvDynParamsPath(const fs::path& tbs_path)
 {
-  return getProjCfgConfigDirPath(tbs_path) / "observer_dynamic.yaml";
+  return getProjCfgConfigDirPath(tbs_path) / kObserverDynamicParamFileName;
 }
 
 fs::path getProjCtrlDynParamsPath(const fs::path& tbs_path)
 {
-  return getProjCfgConfigDirPath(tbs_path) / "controller_dynamic.yaml";
+  return getProjCfgConfigDirPath(tbs_path) / kControllerDynamicParamFileName;
 }
 
 fs::path getProjRcTeleopDynParamsPath(const fs::path& tbs_path)
 {
-  return getProjCfgConfigDirPath(tbs_path) / "rc_teleop_dynamic.yaml";
+  return getProjCfgConfigDirPath(tbs_path) / kRcTeleopDynamicParamFileName;
 }
 
 fs::path getProjBackupDirPath(const fs::path& tbs_path)

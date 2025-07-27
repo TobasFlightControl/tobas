@@ -6,6 +6,11 @@ namespace gui
 {
 namespace common
 {
+static constexpr char kImuFilterDynamicParamFileName[] = "imu_filter_dynamic.yaml";
+static constexpr char kObserverDynamicParamFileName[] = "observer_dynamic.yaml";
+static constexpr char kControllerDynamicParamFileName[] = "controller_dynamic.yaml";
+static constexpr char kRcTeleopDynamicParamFileName[] = "rc_teleop_dynamic.yaml";
+
 /* FC側のTobasパッケージのパスを返す． */
 std::filesystem::path getProjRemotePath(const std::filesystem::path& tbs_path);
 

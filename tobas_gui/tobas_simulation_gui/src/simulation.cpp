@@ -71,7 +71,7 @@ void SimulationWidget::reset()
   commanders_->setEnabled(false);
 }
 
-bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
+bool SimulationWidget::updateProject(const fs::path& tbs_path)
 {
   reset();
 

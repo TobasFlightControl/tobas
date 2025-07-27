@@ -38,7 +38,7 @@ public:
   explicit SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void reset();
-  bool updateTBSPath(const std::filesystem::path& tbs_path);
+  bool updateProject(const std::filesystem::path& tbs_path);
 
 protected:
   void closeEvent(QCloseEvent* event) override;
