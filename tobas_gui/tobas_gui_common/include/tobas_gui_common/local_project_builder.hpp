@@ -13,14 +13,14 @@ class LocalProjectBuilder
 public:
   explicit LocalProjectBuilder();
 
-  bool build(const std::filesystem::path& tbs_path);
+  bool build(const std::filesystem::path& proj_path);
 
   const std::string& getOutput() const;
 
 private:
   linux::CommandExecutor command_executor_;
 
-  bool colconBuild(const std::filesystem::path& tbs_path);
+  bool colconBuild(const std::filesystem::path& proj_path);
   bool colconCleanWorkspace();
 };
 }  // namespace common

@@ -35,9 +35,9 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   , rotor_marker_publisher_(node, uadf_)
 {
   // Package manager
-  tbs_path_ = new QLineEdit();
-  tbs_path_->setReadOnly(true);
-  tbs_path_->setFocusPolicy(Qt::NoFocus);
+  proj_path_ = new QLineEdit();
+  proj_path_->setReadOnly(true);
+  proj_path_->setFocusPolicy(Qt::NoFocus);
 
   new_btn_ = new QPushButton("New");
   load_btn_ = new QPushButton("Load");
@@ -62,7 +62,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   pkg_cols->addWidget(load_btn_);
   pkg_cols->addWidget(save_btn_);
   pkg_cols->addWidget(save_as_btn_);
-  pkg_cols->addWidget(tbs_path_);
+  pkg_cols->addWidget(proj_path_);
 
   const auto info_rows = new QVBoxLayout();
   info_rows->addWidget(frame_tree_, 1);
@@ -400,7 +400,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // プロジェクトのパスをクリア
-  tbs_path_->clear();
+  proj_path_->clear();
 
   // 保存ボタンを有効化
   enableSaveButtons(true);
@@ -422,13 +422,13 @@ void SetupAssistantWidget::onLoadButtonClicked()
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const fs::path tbs_path = dialog.selectedFiles().first().toStdString();
+  const fs::path proj_path = dialog.selectedFiles().first().toStdString();
 
   // パスをテキストに設定
-  tbs_path_->setText(QString::fromStdString(tbs_path));
+  proj_path_->setText(QString::fromStdString(proj_path));
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = tbs_path.parent_path();
+  const auto par_dir = proj_path.parent_path();
   if (property_client_.set(kLastOpenedDirKey_Load, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
   }
@@ -438,8 +438,8 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
   std::string uadf_text;
-  if (!str::readText(common::getProjOriginalUadfPath(tbs_path), uadf_text)) {
-    qt::qErrorBox(this, "Failed to read " + QString::fromStdString(tbs_path));
+  if (!str::readText(common::getProjOriginalUadfPath(proj_path), uadf_text)) {
+    qt::qErrorBox(this, "Failed to read " + QString::fromStdString(proj_path));
     return;
   }
   tinyxml2::XMLDocument uadf_doc;
@@ -448,7 +448,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
   const auto robot = uadf_doc.RootElement();
-  if (!resolveMeshPaths(common::getProjCfgPkgPath(tbs_path), robot)) {
+  if (!resolveMeshPaths(common::getProjCfgPkgPath(proj_path), robot)) {
     return;
   }
 
@@ -465,7 +465,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // ユーザ設定を読み込む
-  const auto settings_path = common::getProjBackupSettingsPath(tbs_path);
+  const auto settings_path = common::getProjBackupSettingsPath(proj_path);
   YAML::Node node;
   if (!yaml::load(settings_path, node)) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
@@ -491,16 +491,16 @@ void SetupAssistantWidget::onSaveButtonClicked()
   }
 
   // 現在のプロジェクトパスを取得
-  const auto cur_tbs_path = tbs_path_->text();
+  const auto cur_proj_path = proj_path_->text();
 
   // プロジェクトパスが設定されていない場合は名前を付けて保存
-  if (cur_tbs_path.isEmpty()) {
+  if (cur_proj_path.isEmpty()) {
     onSaveAsButtonClicked();
     return;
   }
 
   // プロジェクトを作成
-  if (!prj_gen_->generateProject(cur_tbs_path.toStdString())) {
+  if (!prj_gen_->generateProject(cur_proj_path.toStdString())) {
     return;
   }
 
@@ -522,11 +522,11 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const auto tbs_path = dialog.selectedFiles().first();
-  assert(tbs_path.endsWith(tobas::kProjectExtension));
+  const auto proj_path = dialog.selectedFiles().first();
+  assert(proj_path.endsWith(tobas::kProjectExtension));
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(proj_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey_Save, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
   }
@@ -535,23 +535,23 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // 読み込んでいないパッケージパスが既に存在する場合は置換するかどうかをユーザに確認
-  if (tbs_path != tbs_path_->text() && fs::exists(tbs_path.toStdString())) {
-    if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
+  if (proj_path != proj_path_->text() && fs::exists(proj_path.toStdString())) {
+    if (!qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
       return;
     }
-    if (fs::remove_all(tbs_path.toStdString()) == 0) {
-      qt::qErrorBox(this, "Failed to remove " + tbs_path);
+    if (fs::remove_all(proj_path.toStdString()) == 0) {
+      qt::qErrorBox(this, "Failed to remove " + proj_path);
       return;
     }
   }
 
   // プロジェクトを作成
-  if (!prj_gen_->generateProject(tbs_path.toStdString())) {
+  if (!prj_gen_->generateProject(proj_path.toStdString())) {
     return;
   }
 
   // プロジェクトのパスを設定
-  tbs_path_->setText(tbs_path);
+  proj_path_->setText(proj_path);
 
   qt::qInfoBox(this, "New Tobas project is generated.");
 }

@@ -38,7 +38,7 @@ public:
   explicit SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void reset();
-  bool updateProject(const std::filesystem::path& tbs_path);
+  bool updateProject(const std::filesystem::path& proj_path);
 
 protected:
   void closeEvent(QCloseEvent* event) override;
@@ -51,7 +51,7 @@ private:
   common::LocalProjectBuilder local_proj_builder_;
   common::RemoteProjectBuilder remote_proj_builder_;
 
-  std::filesystem::path tbs_path_;
+  std::filesystem::path proj_path_;
   uadf::Model uadf_;
   kdl::Tree tree_;
   tobas::Drone drone_;

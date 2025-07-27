@@ -65,7 +65,7 @@ private:
   common::RemoteProjectBuilder remote_proj_builder_;
   ConfigurationEnvParser config_env_parser_;
 
-  QLineEdit* tbs_path_;
+  QLineEdit* proj_path_;
   QPushButton* load_btn_;
   QPushButton* write_btn_;
 
@@ -85,7 +85,7 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  std::filesystem::path tbsPath() const;
+  std::filesystem::path projectPath() const;
 
 private Q_SLOTS:
   void onLoadButtonClicked();

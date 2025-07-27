@@ -20,10 +20,10 @@ LocalProjectBuilder::LocalProjectBuilder()
 {
 }
 
-bool LocalProjectBuilder::build(const fs::path& tbs_path)
+bool LocalProjectBuilder::build(const fs::path& proj_path)
 {
   // ビルドできれば終了
-  if (colconBuild(tbs_path)) {
+  if (colconBuild(proj_path)) {
     return true;
   }
 
@@ -33,7 +33,7 @@ bool LocalProjectBuilder::build(const fs::path& tbs_path)
   }
 
   // クリーンビルドできれば終了
-  if (colconBuild(tbs_path)) {
+  if (colconBuild(proj_path)) {
     return true;
   }
 
@@ -45,11 +45,11 @@ const std::string& LocalProjectBuilder::getOutput() const
   return command_executor_.getOutput();
 }
 
-bool LocalProjectBuilder::colconBuild(const fs::path& tbs_path)
+bool LocalProjectBuilder::colconBuild(const fs::path& proj_path)
 {
   // Navigate to the Tobas project directory
-  if (chdir(tbs_path.c_str()) != 0) {
-    std::cerr << "Failed to navigate to \"" << tbs_path << "\"." << std::endl;
+  if (chdir(proj_path.c_str()) != 0) {
+    std::cerr << "Failed to navigate to \"" << proj_path << "\"." << std::endl;
     return false;
   }
 
@@ -66,7 +66,7 @@ bool LocalProjectBuilder::colconBuild(const fs::path& tbs_path)
   }
 
   // Create build command
-  const auto meta_name = getProjMetaPkgName(tbs_path);
+  const auto meta_name = getProjMetaPkgName(proj_path);
   const auto build_cmd = format(
     "colcon build "
     "--merge-install "
@@ -80,7 +80,7 @@ bool LocalProjectBuilder::colconBuild(const fs::path& tbs_path)
     meta_name);
 
   // Build Tobas project packages
-  std::cout << "Executing \"" << build_cmd << "\" on " << tbs_path << "." << std::endl;
+  std::cout << "Executing \"" << build_cmd << "\" on " << proj_path << "." << std::endl;
   if (!command_executor_.execute(build_cmd)) {
     std::cerr << "Failed to build \"" << meta_name << "\"." << std::endl;
     return false;

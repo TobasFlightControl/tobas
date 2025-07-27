@@ -27,10 +27,10 @@ public:
   explicit ParameterTuningWidget(rclcpp::Node::SharedPtr node);
 
   void reset();
-  bool updateProject(const std::filesystem::path& tbs_path);
+  bool updateProject(const std::filesystem::path& proj_path);
 
 private:
-  std::filesystem::path tbs_path_;
+  std::filesystem::path proj_path_;
   tobas::Drone drone_;
 
   const std::array<std::string, kNumBlocks> file_names_;

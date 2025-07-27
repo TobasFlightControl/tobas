@@ -6,6 +6,6 @@ namespace gui
 {
 namespace common
 {
-bool sourceTobasProject(const std::filesystem::path& tbs_path);
+bool sourceTobasProject(const std::filesystem::path& proj_path);
 }  // namespace common
 }  // namespace gui

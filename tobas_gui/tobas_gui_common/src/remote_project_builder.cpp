@@ -14,9 +14,9 @@ RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : node_
 {
 }
 
-bool RemoteProjectBuilder::build(const fs::path& remote_tbs_path)
+bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
 {
-  const auto meta_pkg_name = common::getProjMetaPkgName(remote_tbs_path);
+  const auto meta_pkg_name = common::getProjMetaPkgName(remote_proj_path);
 
   // XXX: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
   const auto ros2_setup_bash = (fs::path(tobas::kROS2JazzyInstallPath) / "setup.bash").string();

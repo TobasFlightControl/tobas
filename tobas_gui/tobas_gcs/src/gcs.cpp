@@ -71,10 +71,10 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   btn_group->buttons().first()->setChecked(true);
 
   // Package manager
-  tbs_path_ = new QLineEdit();
-  tbs_path_->setMaximumWidth(kPathMaxWidth);
-  tbs_path_->setReadOnly(true);
-  tbs_path_->setFocusPolicy(Qt::NoFocus);
+  proj_path_ = new QLineEdit();
+  proj_path_->setMaximumWidth(kPathMaxWidth);
+  proj_path_->setReadOnly(true);
+  proj_path_->setFocusPolicy(Qt::NoFocus);
 
   load_btn_ = new QPushButton("Load Project");
   write_btn_ = new QPushButton("Write Project");
@@ -92,7 +92,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   pkg_btn_cols->addWidget(write_btn_);
 
   const auto pkg_rows = new QVBoxLayout();
-  pkg_rows->addWidget(tbs_path_);
+  pkg_rows->addWidget(proj_path_);
   pkg_rows->addLayout(pkg_btn_cols);
 
   const auto header_cols = new QHBoxLayout();
@@ -145,9 +145,9 @@ void GroundControlStationWidget::updateInternalDataStructures()
 
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
-  param_tuning_->updateProject(tbsPath());
+  param_tuning_->updateProject(projectPath());
   flight_log_->updateNamespace(drone_.name);
-  simulation_->updateProject(tbsPath());
+  simulation_->updateProject(projectPath());
 }
 
 void GroundControlStationWidget::closeEvent(QCloseEvent* event)
@@ -163,9 +163,9 @@ void GroundControlStationWidget::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-fs::path GroundControlStationWidget::tbsPath() const
+fs::path GroundControlStationWidget::projectPath() const
 {
-  return tbs_path_->text().toStdString();
+  return proj_path_->text().toStdString();
 }
 
 void GroundControlStationWidget::onLoadButtonClicked()
@@ -184,13 +184,13 @@ void GroundControlStationWidget::onLoadButtonClicked()
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const auto tbs_path = dialog.selectedFiles().first();
+  const auto proj_path = dialog.selectedFiles().first();
 
   // パスをテキストに設定
-  tbs_path_->setText(tbs_path);
+  proj_path_->setText(proj_path);
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(proj_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
   }
@@ -199,7 +199,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getProjTbsDrnPath(tbs_path.toStdString());
+  const auto tbsdrn_path = common::getProjTbsDrnPath(proj_path.toStdString());
   if (!fs::is_regular_file(tbsdrn_path)) {
     qt::qErrorBox(
       this, "\"" + QString::fromStdString(tbsdrn_path) + "\" does not exist. Please create a new Tobas project.");
@@ -207,7 +207,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load KDL tree
-  const auto uadf_path = common::getProjOriginalUadfPath(tbs_path.toStdString());
+  const auto uadf_path = common::getProjOriginalUadfPath(proj_path.toStdString());
   if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return;
@@ -256,9 +256,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
     }
   }
 
-  const auto tbs_path = tbsPath();
-  const auto remote_tbs_path = common::getProjRemotePath(tbs_path);
-  const auto config_pkg_name = common::getProjCfgPkgName(tbs_path);
+  const auto proj_path = projectPath();
+  const auto remote_proj_path = common::getProjRemotePath(proj_path);
+  const auto config_pkg_name = common::getProjCfgPkgName(proj_path);
 
   // 進捗バーを作成
   qt::ProgressDialog progress(kTitle, 9, this);
@@ -331,9 +331,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトを送信
   progress.setLabelText("Sending Tobas project to the flight controller.");
-  const auto mesh_path = common::getProjCfgMeshDirPath(tbs_path);
+  const auto mesh_path = common::getProjCfgMeshDirPath(proj_path);
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(tbs_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -342,7 +342,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトをビルド
   progress.setLabelText("Building Tobas project.");
-  if (!remote_proj_builder_.build(remote_tbs_path)) {
+  if (!remote_proj_builder_.build(remote_proj_path)) {
     progress.close();
     qt::qErrorBox(
       this, "Failed to build the Tobas project:\n\n" + QString::fromStdString(remote_proj_builder_.getErrorMessage()));

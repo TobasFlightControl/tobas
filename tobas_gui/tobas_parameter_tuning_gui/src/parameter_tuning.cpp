@@ -73,15 +73,15 @@ void ParameterTuningWidget::reset()
   }
 }
 
-bool ParameterTuningWidget::updateProject(const fs::path& tbs_path)
+bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
   // Update project path
-  tbs_path_ = tbs_path;
+  proj_path_ = proj_path;
 
   // Load drone configuration
-  const auto tbsdrn_path = common::getProjTbsDrnPath(tbs_path);
+  const auto tbsdrn_path = common::getProjTbsDrnPath(proj_path);
   if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
@@ -111,7 +111,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
 
 void ParameterTuningWidget::onSaveButtonClicked()
 {
-  const auto config_dir_path = common::getProjCfgConfigDirPath(tbs_path_);
+  const auto config_dir_path = common::getProjCfgConfigDirPath(proj_path_);
 
   for (const auto& [block, file_name] : std::views::zip(blocks_, file_names_)) {
     const auto file_path = config_dir_path / file_name;

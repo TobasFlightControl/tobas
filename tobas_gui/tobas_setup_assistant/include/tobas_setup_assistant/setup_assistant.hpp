@@ -60,7 +60,7 @@ private:
   Signals sig_;
   RotorMarkerPublisher rotor_marker_publisher_;
 
-  QLineEdit* tbs_path_;
+  QLineEdit* proj_path_;
   QPushButton* new_btn_;
   QPushButton* load_btn_;
   QPushButton* save_btn_;
