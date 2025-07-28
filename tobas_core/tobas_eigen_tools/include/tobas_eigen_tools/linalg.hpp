@@ -105,7 +105,7 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   const auto right = AT_W1 * b;
 
   // Solve linear equation
-  // NOTE: QR分解は決定不全問題の最小二乗解を与えない
+  // XXX: QR分解は決定不全問題の最小二乗解を与えない
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
 }  // namespace eigen

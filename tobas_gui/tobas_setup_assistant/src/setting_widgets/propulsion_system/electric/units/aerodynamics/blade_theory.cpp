@@ -8,7 +8,7 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget_BladeTheory::AerodynamicsWidget_BladeTheory(PropellerWidget* propeller) : propeller_(propeller)
+AerodynamicsWidget_BladeTheory::AerodynamicsWidget_BladeTheory(const PropellerWidget* propeller) : propeller_(propeller)
 {
 }
 

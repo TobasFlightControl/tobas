@@ -1,11 +1,11 @@
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
-#include <rapidcsv.h>
+#include <filesystem>
+
 #include <rcutils/env.h>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPushButton>
-#include <filesystem>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -13,6 +13,8 @@
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
+
+#include "tobas_setup_assistant/rapidcsv.hpp"
 
 namespace fs = std::filesystem;
 
@@ -70,7 +72,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   connect(add_row_btn, &QPushButton::clicked, this, &self::addRow);
   connect(delete_row_btn, &QPushButton::clicked, this, &self::deleteRow);
   connect(clear_btn, &QPushButton::clicked, table_, &qt::TableWidget::removeAll);
-  connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCSV);
+  connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCsv);
 }
 
 Eigen::MatrixXd ParamGetterWidget_DoubleTable::getValue() const
@@ -173,32 +175,23 @@ void ParamGetterWidget_DoubleTable::deleteRow()
   table_->removeRow(row);
 }
 
-void ParamGetterWidget_DoubleTable::loadCSV()
+void ParamGetterWidget_DoubleTable::loadCsv()
 {
   // Get CSV file path
-  const auto file_path = getCSVFilePath();
+  const auto file_path = getCsvPath();
   if (file_path.isEmpty()) {
     return;
   }
 
   // Load CSV
-  rapidcsv::Document doc(
-    file_path.toStdString(),
-    rapidcsv::LabelParams(),
-    rapidcsv::SeparatorParams(),
-    rapidcsv::ConverterParams(),
-    rapidcsv::LineReaderParams(true, '#', true)  // Skip comment and blank lines
-  );
+  const auto doc = csv::load(file_path.toStdString());
 
   // Read data
   std::vector<std::vector<double>> columns(num_entry_);
   for (int i = 0; i < num_entry_; ++i) {
     const auto& label = labels_.at(i);
-    try {
-      columns[i] = doc.GetColumn<double>(label.toStdString());
-    }
-    catch (...) {
-      qt::qErrorBox(this, "Field \"" + label + "\" does not exist.");
+    if (!csv::getColumn(doc, label.toStdString(), columns[i])) {
+      qt::qErrorBox(this, "Failed to get column: " + label);
       return;
     }
   }
@@ -229,7 +222,7 @@ void ParamGetterWidget_DoubleTable::onCellValueChanged()
   Q_EMIT dataChanged();
 }
 
-QString ParamGetterWidget_DoubleTable::getCSVFilePath()
+QString ParamGetterWidget_DoubleTable::getCsvPath()
 {
   std::string last_opened_dir;
   if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {

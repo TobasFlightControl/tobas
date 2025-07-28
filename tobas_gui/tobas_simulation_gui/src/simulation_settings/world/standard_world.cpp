@@ -15,8 +15,7 @@ WorldWidget_Standard::WorldWidget_Standard() : super("Standard World")
   cols_->addWidget(combo_box_);
 
   // Add world names
-  const auto world_dir_path = worldDirectoryPath();
-  for (const auto& entry : fs::recursive_directory_iterator(world_dir_path)) {
+  for (const auto& entry : fs::recursive_directory_iterator(worldDirectoryPath())) {
     if (entry.is_regular_file() && entry.path().extension() == ".world") {
       const auto world_name = entry.path().stem().string();
       combo_box_->addItem(QString::fromStdString(world_name));

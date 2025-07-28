@@ -51,7 +51,7 @@ public:
 private Q_SLOTS:
   void addRow();
   void deleteRow();
-  void loadCSV();
+  void loadCsv();
   void onCellValueChanged();
 
 private:
@@ -70,7 +70,7 @@ private:
 
   ptree::PropertyClient property_client_;
 
-  QString getCSVFilePath();
+  QString getCsvPath();
   bool isValidData(const Eigen::MatrixXd& src);
   void saveLastOpenedDir(const std::string& dir);
 };

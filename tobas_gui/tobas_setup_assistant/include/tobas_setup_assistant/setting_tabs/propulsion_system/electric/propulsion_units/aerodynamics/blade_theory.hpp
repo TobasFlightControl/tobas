@@ -20,7 +20,7 @@ class AerodynamicsWidget_BladeTheory : public AerodynamicsWidget_Base
   Q_OBJECT
 
 public:
-  explicit AerodynamicsWidget_BladeTheory(PropellerWidget* propeller);
+  explicit AerodynamicsWidget_BladeTheory(const PropellerWidget* propeller);
 
   const char* name() const override;
   const char* description() const override;
@@ -36,7 +36,7 @@ public:
   double dragConst() const override;
 
 private:
-  PropellerWidget* propeller_;
+  const PropellerWidget* const propeller_;
 
   BladeTheory bladeTheory() const;
 };
