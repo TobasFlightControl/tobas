@@ -3,8 +3,6 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/manual.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/preset.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/thrust_stand.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/uiuc.hpp"
@@ -27,15 +25,11 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   const auto preset = new AerodynamicsWidget_Preset(propeller);
   const auto thrust_stand = new AerodynamicsWidget_ThrustStand(node, propeller);
   const auto uiuc = new AerodynamicsWidget_UIUC(node, propeller);
-  const auto blade_theory = new AerodynamicsWidget_BladeTheory(propeller);
-  const auto manual = new AerodynamicsWidget_Manual();
 
   methods_ = new qt::StackedWidget();
   methods_->addWidget(preset);
   methods_->addWidget(thrust_stand);
   methods_->addWidget(uiuc);
-  methods_->addWidget(blade_theory);
-  methods_->addWidget(manual);
 
   for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
@@ -49,9 +43,6 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   // Connection
   connect(
     method_name_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
-
-  // Default
-  method_name_->setCurrentText(preset->name());
 }
 
 const char* AerodynamicsWidget::name() const

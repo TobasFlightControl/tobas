@@ -4,8 +4,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/blade_theory.hpp"
 
 namespace gui
 {
