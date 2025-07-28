@@ -1,11 +1,11 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/uiuc.hpp"
 
-#include <tobas_math/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
 namespace gui
 {
@@ -15,7 +15,7 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
+AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
   : node_(node), propeller_(propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
@@ -76,19 +76,18 @@ void AerodynamicsWidget_UIUC::load(const YAML::Node& node)
 double AerodynamicsWidget_UIUC::motorConst() const
 {
   const auto data_mat = data_->getValue();
-  const auto CT = data_mat.col(1).mean();
+  const auto ct = data_mat.col(1).eval();
   const auto d = propeller_->diameter();
-  const auto rho = tobas_std::kStandardAirDensity;  // TODO: ランタイムの気圧変化を考慮
-  return (CT * rho * math::quar(d)) / math::sqr(2 * M_PI);
+  return motorConstFromUiuc(ct, d);
 }
 
 double AerodynamicsWidget_UIUC::momentConst() const
 {
   const auto data_mat = data_->getValue();
-  const auto CT = data_mat.col(1).mean();
-  const auto CP = data_mat.col(2).mean();
+  const auto ct = data_mat.col(1).eval();
+  const auto cp = data_mat.col(2).eval();
   const auto d = propeller_->diameter();
-  return (d * CP) / (2 * M_PI * CT);
+  return momentConstFromUiuc(ct, cp, d);
 }
 
 double AerodynamicsWidget_UIUC::dragConst() const

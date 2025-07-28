@@ -5,6 +5,7 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
 namespace gui
 {
@@ -14,7 +15,9 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
+AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(
+  rclcpp::Node::SharedPtr node,
+  const PropellerWidget* propeller)
   : node_(node), propeller_(propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
@@ -37,7 +40,7 @@ const char* AerodynamicsWidget_ThrustStand::name() const
 
 const char* AerodynamicsWidget_ThrustStand::description() const
 {
-  // NOTE: テキスト中に改行コードを入れるとハイパーリンクが機能しない
+  // XXX: テキスト中に改行コードを入れるとハイパーリンクが機能しない
   return "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
          "For example, see the "
          "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>";
@@ -78,10 +81,9 @@ double AerodynamicsWidget_ThrustStand::motorConst() const
   // TODO: 外れ値を除去
   // TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
   const auto data_mat = data_->getValue();
-  const Eigen::VectorXd rpm = data_mat.col(0);
-  const Eigen::VectorXd thrust = data_mat.col(1);
-  const Eigen::VectorXd omega2 = (rpm * tobas_std::kRpmToRps).cwiseAbs2();
-  return thrust.dot(omega2) / omega2.dot(omega2);  // 最小2乗解 (memo: 2-28)
+  const auto rpms = data_mat.col(0).eval();
+  const auto thrusts = data_mat.col(1).eval();
+  return motorConstFromThrustStand(rpms, thrusts);
 }
 
 double AerodynamicsWidget_ThrustStand::momentConst() const
@@ -89,9 +91,9 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
   // TODO: 外れ値を除去
   // TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
   const auto data_mat = data_->getValue();
-  const Eigen::VectorXd thrust = data_mat.col(1);
-  const Eigen::VectorXd torque = data_mat.col(2);
-  return torque.dot(thrust) / thrust.dot(thrust);  // 最小2乗解 (memo: 2-28)
+  const auto thrusts = data_mat.col(1).eval();
+  const auto torques = data_mat.col(2).eval();
+  return momentConstFromThrustStand(thrusts, torques);
 }
 
 double AerodynamicsWidget_ThrustStand::dragConst() const

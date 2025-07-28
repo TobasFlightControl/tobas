@@ -22,7 +22,7 @@ class AerodynamicsWidget_UIUC : public AerodynamicsWidget_Base
   static constexpr int kTableColWidth = 180;
 
 public:
-  explicit AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, PropellerWidget* propeller);
+  explicit AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
 
   const char* name() const override;
   const char* description() const override;
@@ -39,7 +39,8 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  PropellerWidget* propeller_;
+  const PropellerWidget* const propeller_;
+
   ParamGetterWidget_DoubleTable* data_;
 };
 }  // namespace electric

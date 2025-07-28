@@ -117,10 +117,17 @@ concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const Eigen
 }
 
 /* Eigen::Vectorをstd::vectorに変換する． */
-template <typename T, int Rows>
-inline std::vector<T> toStdVector(const Eigen::Matrix<T, Rows, 1>& v)
+template <typename T, int Size>
+inline std::vector<T> toStdVector(const Eigen::Vector<T, Size>& v)
 {
   return std::vector<T>(v.data(), v.data() + v.size());
+}
+
+/* std::vectorをEigen::Vectorに変換する． */
+template <typename T>
+inline Eigen::Vector<T, Eigen::Dynamic> fromStdVector(const std::vector<T>& vec)
+{
+  return Eigen::Map<const Eigen::Vector<T, Eigen::Dynamic>>(vec.data(), vec.size());
 }
 
 /* 行列が正方の場合にtrueを返す． */
@@ -220,9 +227,9 @@ Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Col
 }
 
 /* ベクトルの分散を計算する． */
-template <typename Scalar, int Rows>
-inline Scalar variance(const Eigen::Matrix<Scalar, Rows, 1>& A)
+template <typename Scalar, int Size>
+inline Scalar variance(const Eigen::Vector<Scalar, Size>& v)
 {
-  return varianceCol(A)(0);
+  return varianceCol(v)(0);
 }
 }  // namespace eigen
