@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <tobas_math/core.hpp>
+#include <tobas_math/definitions.hpp>
 
 using namespace std;
 
@@ -85,7 +86,7 @@ bool CycloidGenerator3d::get(const double& t, Vector& p) const
 void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector& p) const
 {
   const auto theta = computeTheta(t);
-  const auto tmp = (theta - sin(theta)) / (2 * M_PI);
+  const auto tmp = (theta - sin(theta)) / M_2PI;
 
   p.x(p0_.x() + p_diff_.x() * tmp);
   p.y(p0_.y() + p_diff_.y() * tmp);
@@ -109,7 +110,7 @@ void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector&
 void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector& a) const
 {
   const auto theta = computeTheta(t);
-  const auto tmp = 2 * M_PI / TT_ * sin(theta);
+  const auto tmp = M_2PI / TT_ * sin(theta);
 
   a.x(p_diff_.x() * tmp);
   a.y(p_diff_.y() * tmp);
@@ -121,6 +122,6 @@ void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector&
 double CycloidGenerator3d::computeTheta(const double& t) const
 {
   assert(t >= 0);
-  return 2 * M_PI * t / T_;
+  return M_2PI * t / T_;
 }
 }  // namespace kdl

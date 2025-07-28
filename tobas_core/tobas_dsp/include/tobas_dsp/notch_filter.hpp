@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <tobas_math/core.hpp>
+#include <tobas_math/definitions.hpp>
 
 #include "./base_filter.hpp"
 #include "./utils.hpp"
@@ -106,7 +107,7 @@ bool NotchFilter<T>::setCenterFrequency(const double& fn_hz)
     return false;
   }
 
-  wn_ = (2 * M_PI) * fn_hz;
+  wn_ = *fn_hz;
   return true;
 }
 

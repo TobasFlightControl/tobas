@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <tobas_math/core.hpp>
+#include <tobas_math/definitions.hpp>
 
 #include "./base_filter.hpp"
 #include "./utils.hpp"
@@ -89,7 +90,7 @@ bool LowPassFilterP2<T>::setCutoffFrequency(const double& fc)
     return false;
   }
 
-  wn_ = 2. * M_PI * fc;
+  wn_ = M_2PI * fc;
   return true;
 }
 

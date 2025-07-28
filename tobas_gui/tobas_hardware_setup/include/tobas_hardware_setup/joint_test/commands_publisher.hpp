@@ -7,6 +7,7 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
@@ -25,9 +26,9 @@ class JointCommandsPublisherWidget : public QWidget
 
   static constexpr int kChannelSize = 8;  // TODO: ハードウェアの最大チャンネル数に合わせる
   static constexpr int kMaxRows = kChannelSize / 2;
-  static constexpr int kPublishPeriod = 10;           // [ms]
-  static constexpr double kDefaultMaxVel = 2 * M_PI;  // [rad/s]
-  static constexpr double kDefaultMaxEff = 10.;       // [Nm]
+  static constexpr int kPublishPeriod = 10;        // [ms]
+  static constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
+  static constexpr double kDefaultMaxEff = 10.;    // [Nm]
 
 public:
   explicit JointCommandsPublisherWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);

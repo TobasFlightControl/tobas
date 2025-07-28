@@ -5,6 +5,8 @@
 
 #include <geometric_shapes/check_isometry.h>
 
+#include <tobas_math/definitions.hpp>
+
 namespace tobas
 {
 RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
@@ -108,18 +110,18 @@ void RevoluteJointModel::interpolate(const double* from, const double* to, const
     }
     else {
       if (diff > 0.) {
-        diff = 2. * M_PI - diff;
+        diff = M_2PI - diff;
       }
       else {
-        diff = -2. * M_PI - diff;
+        diff = -M_2PI - diff;
       }
       state[0] = from[0] - diff * t;
       // input states are within bounds, so the following check is sufficient
       if (state[0] > M_PI) {
-        state[0] -= 2. * M_PI;
+        state[0] -= M_2PI;
       }
       else if (state[0] < -M_PI) {
-        state[0] += 2. * M_PI;
+        state[0] += M_2PI;
       }
     }
   }
@@ -131,8 +133,8 @@ void RevoluteJointModel::interpolate(const double* from, const double* to, const
 double RevoluteJointModel::distance(const double* values1, const double* values2) const
 {
   if (continuous_) {
-    double d = fmod(fabs(values1[0] - values2[0]), 2. * M_PI);
-    return (d > M_PI) ? 2. * M_PI - d : d;
+    double d = fmod(fabs(values1[0] - values2[0]), M_2PI);
+    return (d > M_PI) ? M_2PI - d : d;
   }
   else {
     return fabs(values1[0] - values2[0]);
@@ -153,14 +155,14 @@ bool RevoluteJointModel::harmonizePosition(double* values, const JointModel::Bou
 {
   bool modified = false;
   if (*values < other_bounds[0].min_position_) {
-    while (*values + 2 * M_PI <= other_bounds[0].max_position_) {
-      *values += 2 * M_PI;
+    while (*values + M_2PI <= other_bounds[0].max_position_) {
+      *values += M_2PI;
       modified = true;
     }
   }
   else if (*values > other_bounds[0].max_position_) {
-    while (*values - 2 * M_PI >= other_bounds[0].min_position_) {
-      *values -= 2 * M_PI;
+    while (*values - M_2PI >= other_bounds[0].min_position_) {
+      *values -= M_2PI;
       modified = true;
     }
   }
@@ -172,12 +174,12 @@ bool RevoluteJointModel::enforcePositionBounds(double* values, const Bounds& bou
   if (continuous_) {
     double& v = values[0];
     if (v <= -M_PI || v > M_PI) {
-      v = fmod(v, 2. * M_PI);
+      v = fmod(v, M_2PI);
       if (v <= -M_PI) {
-        v += 2. * M_PI;
+        v += M_2PI;
       }
       else if (v > M_PI) {
-        v -= 2. * M_PI;
+        v -= M_2PI;
       }
     }
   }

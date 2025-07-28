@@ -4,6 +4,8 @@
 #include <cmath>
 #include <iostream>
 
+#include <tobas_math/definitions.hpp>
+
 #include "./base_filter.hpp"
 #include "./utils.hpp"
 
@@ -64,7 +66,7 @@ bool HighPassFilter<T>::setCutoffFrequency(const double& fc)
     return false;
   }
 
-  wc_ = 2. * M_PI * fc;  // Hz -> rad/s
+  wc_ = M_2PI * fc;  // Hz -> rad/s
   return true;
 }
 }  // namespace dsp

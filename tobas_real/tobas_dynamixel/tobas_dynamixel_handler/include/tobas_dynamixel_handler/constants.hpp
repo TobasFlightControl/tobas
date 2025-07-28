@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <tobas_math/definitions.hpp>
+
 namespace tobas_dynamixel_handler
 {
 // Constants
@@ -12,7 +14,7 @@ static constexpr double kRpm2Rps = M_PI / 30;   // rpm -> rad/s
 static constexpr size_t kMinimumLatency = 1;
 
 // Decoding Scale Factors
-static constexpr double kDecodeFactorPos = (2 * M_PI) / (1 << 12);
+static constexpr double kDecodeFactorPos = M_2PI / (1 << 12);
 static constexpr double kDecodeFactorVel = 0.229 * kRpm2Rps;
 static constexpr double kDecodeFactorAcc = 214.577 * kRpm2Rps * kRpm2Rps;
 static constexpr double kDecodeFactorPwm = 100. / 855;

@@ -30,6 +30,7 @@ find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(srdfdom REQUIRED)
+find_package(tobas_math REQUIRED)
 find_package(tobas_visualization_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
@@ -43,6 +44,7 @@ set(AMENT_DEPENDENCIES
     rviz_default_plugins
     rviz_rendering
     srdfdom
+    tobas_math
     tobas_visualization_msgs
 )
 

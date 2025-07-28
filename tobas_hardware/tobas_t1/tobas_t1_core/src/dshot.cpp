@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 using namespace std;
@@ -259,7 +260,7 @@ double DShot::getSpeed(size_t ch)
   const auto eperiod_us = (base << exp);
 
   const auto period_us = eperiod_us * half_num_poles_.at(ch);
-  return (2 * M_PI * 1e+6) / static_cast<double>(period_us);
+  return (M_2PI * 1e+6) / static_cast<double>(period_us);
 }
 
 double DShot::getTemperature(size_t ch)

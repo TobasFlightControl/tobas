@@ -2,6 +2,7 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_wind_model/dryden.hpp>
 
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
@@ -132,7 +133,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
       }
 
       const auto max_gust_speed = params_.mean_speed * params_.gust_speed_factor;
-      gust_speed_ = 0.5 * max_gust_speed * (1 - cos(2 * M_PI * t_gust / params_.gust_duration));
+      gust_speed_ = 0.5 * max_gust_speed * (1 - cos(M_2PI * t_gust / params_.gust_duration));
       break;
     }
     case kOff: {
