@@ -36,9 +36,6 @@ public:
   /* [m] */
   virtual double momentConst() const = 0;
 
-  /* [kg/rad] */
-  virtual double dragConst() const = 0;
-
 protected:
   void addWidget(QWidget* widget);
   void addLayout(QLayout* layout);

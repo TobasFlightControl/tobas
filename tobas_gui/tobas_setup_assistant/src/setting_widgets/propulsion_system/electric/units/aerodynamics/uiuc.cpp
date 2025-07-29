@@ -5,7 +5,6 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/blade_theory.hpp"
 
 namespace gui
 {
@@ -16,10 +15,10 @@ namespace propulsion
 namespace electric
 {
 AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
-  : node_(node), propeller_(propeller)
+  : propeller_(propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node_,
+    node,
     "Measurements in static condition",
     { "RPM", "CT", "CP" },
     "Please input experimental data from the Thrust Stand.");
@@ -88,14 +87,6 @@ double AerodynamicsWidget_UIUC::momentConst() const
   const auto cp = data_mat.col(2).eval();
   const auto d = propeller_->diameter();
   return momentConstFromUiuc(ct, cp, d);
-}
-
-double AerodynamicsWidget_UIUC::dragConst() const
-{
-  // TODO: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-  const BladeTheory blade(
-    propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle());
-  return blade.dragConst();
 }
 }  // namespace electric
 }  // namespace propulsion

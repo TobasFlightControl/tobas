@@ -10,7 +10,6 @@
 
 #include "tobas_setup_assistant/rapidcsv.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/blade_theory.hpp"
 
 namespace fs = std::filesystem;
 
@@ -122,14 +121,6 @@ double AerodynamicsWidget_Preset::momentConst() const
       throw;
     }
   }
-}
-
-double AerodynamicsWidget_Preset::dragConst() const
-{
-  // TODO: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-  const BladeTheory blade(
-    propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle());
-  return blade.dragConst();
 }
 
 fs::path AerodynamicsWidget_Preset::getCurrentDataPath() const

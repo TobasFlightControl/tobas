@@ -5,7 +5,6 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
-#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/blade_theory.hpp"
 
 namespace gui
 {
@@ -15,13 +14,10 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(
-  rclcpp::Node::SharedPtr node,
-  const PropellerWidget* propeller)
-  : node_(node), propeller_(propeller)
+AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node_,
+    node,
     "Data from thrust stand",
     { "RPM", "Thrust", "Torque" },
     "Please input experimental data from the Thrust Stand.");
@@ -94,14 +90,6 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
   const auto thrusts = data_mat.col(1).eval();
   const auto torques = data_mat.col(2).eval();
   return momentConstFromThrustStand(thrusts, torques);
-}
-
-double AerodynamicsWidget_ThrustStand::dragConst() const
-{
-  // TODO: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-  const BladeTheory blade(
-    propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle());
-  return blade.dragConst();
 }
 }  // namespace electric
 }  // namespace propulsion

@@ -17,8 +17,8 @@ int main()
     if (c < 0) {
       cout << "Failed to read keyboard." << endl;
     }
-    else if (c == 0)
-      ;
+    else if (c == 0) {
+    }
     else if (c < 0x21) {
       cout << "Special Command : " << HEX_STREAM(c) << endl;
     }

@@ -43,6 +43,8 @@ public:
   double dragConst() const;
 
 private:
+  const PropellerWidget* const propeller_;
+
   qt::ComboBox* method_name_;
   qt::StackedWidget* methods_;
 

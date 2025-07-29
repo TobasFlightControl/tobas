@@ -27,7 +27,7 @@ public:
   void load(const YAML::Node& node) override;
 
   /* [-] */
-  int numBlade() const;
+  int numBlades() const;
 
   /* [rad] */
   double pitchAngleRef() const;

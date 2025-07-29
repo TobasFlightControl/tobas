@@ -43,7 +43,6 @@ public:
 
   double motorConst() const override;
   double momentConst() const override;
-  double dragConst() const override;
 
 private:
   const PropellerWidget* const propeller_;

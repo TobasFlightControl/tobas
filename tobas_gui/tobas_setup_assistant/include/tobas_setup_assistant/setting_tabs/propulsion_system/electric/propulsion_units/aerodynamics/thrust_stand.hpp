@@ -1,8 +1,5 @@
 #pragma once
 
-#include <rclcpp/node.hpp>
-
-#include "../propeller.hpp"
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
@@ -26,7 +23,7 @@ class AerodynamicsWidget_ThrustStand : public AerodynamicsWidget_Base
   static constexpr int kTableColWidth = 180;
 
 public:
-  explicit AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
+  explicit AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node);
 
   const char* name() const override;
   const char* description() const override;
@@ -39,12 +36,8 @@ public:
 
   double motorConst() const override;
   double momentConst() const override;
-  double dragConst() const override;
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  const PropellerWidget* const propeller_;
-
   ParamGetterWidget_DoubleTable* data_;
 };
 }  // namespace electric

@@ -3,6 +3,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/blade_theory.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/preset.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/thrust_stand.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/uiuc.hpp"
@@ -16,6 +17,7 @@ namespace propulsion
 namespace electric
 {
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
+  : propeller_(propeller)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -23,7 +25,7 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   method_name_ = new qt::ComboBox();
 
   const auto preset = new AerodynamicsWidget_Preset(propeller);
-  const auto thrust_stand = new AerodynamicsWidget_ThrustStand(node, propeller);
+  const auto thrust_stand = new AerodynamicsWidget_ThrustStand(node);
   const auto uiuc = new AerodynamicsWidget_UIUC(node, propeller);
 
   methods_ = new qt::StackedWidget();
@@ -108,7 +110,9 @@ double AerodynamicsWidget::momentConst() const
 
 double AerodynamicsWidget::dragConst() const
 {
-  return selected()->dragConst();
+  const BladeTheory blade(
+    propeller_->numBlades(), propeller_->radius(), propeller_->meanChord(), propeller_->twistAngle());
+  return blade.dragConst();
 }
 
 AerodynamicsWidget_Base* AerodynamicsWidget::selected()

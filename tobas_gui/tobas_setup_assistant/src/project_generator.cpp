@@ -1099,7 +1099,6 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
       const auto eprop = qt::qConstPointerCast<propulsion::electric::PropulsionSystemWidget>(prop->selected());
       const auto battery = eprop->battery;
       const auto units = eprop->units;
-      ;
 
       // Battery plugin
       constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
@@ -1133,7 +1132,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
           link_name,
           motor->kv(),
           motor->internalResistance(),
-          propeller->numBlade(),
+          propeller->numBlades(),
           aero->motorConst(),
           aero->momentConst(),
           aero->dragConst(),
@@ -1167,7 +1166,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
         rotor_param.link_name = iprop->linkName(i).toStdString();
         rotor_param.direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor_param.gear_ratio = unit->transmission()->gearRatio();
-        rotor_param.num_blades = unit->propeller()->numBlade();
+        rotor_param.num_blades = unit->propeller()->numBlades();
         rotor_param.pitch_angle_limit = unit->propeller()->pitchAngleLimit();
         rotor_param.max_pitch_angle_rate = unit->propeller()->maxPitchAngleRate();
         rotor_param.motor_const = unit->aerodynamics()->motorConst();

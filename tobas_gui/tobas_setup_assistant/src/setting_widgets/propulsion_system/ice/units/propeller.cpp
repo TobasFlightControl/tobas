@@ -87,7 +87,7 @@ void PropellerWidget::load(const YAML::Node& node)
   max_pitch_rate_->setValue(node[max_pitch_rate_->name()].as<int>());
 }
 
-int PropellerWidget::numBlade() const
+int PropellerWidget::numBlades() const
 {
   return num_blade_->getValue();
 }
