@@ -33,7 +33,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
-  // Setup robot_model_display
+  // Set up robot_model_display
   display_ = rviz_manager_.getDisplay("RobotState");
 
   // 使用するプロパティを取得
