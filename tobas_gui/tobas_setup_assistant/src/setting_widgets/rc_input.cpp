@@ -29,7 +29,9 @@ const char* RcInputWidget::title() const
 
 const char* RcInputWidget::description() const
 {
-  return "";  // TODO
+  return "Configure the parameters for transmitter-based remote operation. "
+         "Tobas supports S.BUS and S.BUS2 receiver protocols. "
+         "Enter the appropriate values in each field.";
 }
 
 void RcInputWidget::updateInternalDataStructures()

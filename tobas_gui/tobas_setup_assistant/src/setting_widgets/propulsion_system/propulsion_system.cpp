@@ -54,7 +54,12 @@ const char* PropulsionSystemWidget::title() const
 
 const char* PropulsionSystemWidget::description() const
 {
-  return "";  // TODO
+  return "Build the mathematical model for your propulsion system. "
+         "Tobas supports two configurations:\n"
+         "  1. Electric – battery‑powered with fixed‑pitch propellers\n"
+         "  2. ICE – an internal‑combustion engine driving variable‑pitch propellers through gearboxes\n"
+         "An accurate propulsion model is critical to maximizing aircraft performance. "
+         "Select the appropriate architecture and enter the required parameters for each field.";
 }
 
 void PropulsionSystemWidget::updateInternalDataStructures()

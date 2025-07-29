@@ -35,14 +35,14 @@ const char* ControllerWidget::name() const
 
 const char* ControllerWidget::title() const
 {
-  return "Setup Flight Controller";
+  return "Set up Flight Controller";
 }
 
 const char* ControllerWidget::description() const
 {
-  return "Configure the flight controller by selecting one method and setting its parameters. "
-         "You can fine-tune the parameters later, "
-         "so it's acceptable to leave them at their default settings initially.";
+  return "Configure the flight controller algorithm. "
+         "Setup Assistant analyzed your UADF, and a controller suited to the airframe has been assigned automatically. "
+         "The static parameters of the controller are listed below.";
 }
 
 void ControllerWidget::updateInternalDataStructures()

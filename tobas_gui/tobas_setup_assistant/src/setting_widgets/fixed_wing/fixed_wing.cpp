@@ -40,8 +40,13 @@ const char* FixedWingWidget::title() const
 
 const char* FixedWingWidget::description() const
 {
-  return "Set up the fixed-wing configuration. "
-         "Please choose a setup method and enter the required information.";
+  return "Build the mathematical model for the fixed wing and its control surfaces. "
+         "In addition to the general airframe specifications, "
+         "supply the stability derivatives for the main wing and each control surface. "
+         "<a href="
+         "'https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics'"
+         ">VSPAERO</a> "
+         "analysis results can be imported for the main wing if available.";
 }
 
 void FixedWingWidget::updateInternalDataStructures()

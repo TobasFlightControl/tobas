@@ -20,9 +20,6 @@ class BaseSettingWidget : public qt::ScrollArea
   using self = BaseSettingWidget;
   using super = qt::ScrollArea;
 
-protected:
-  static constexpr int kDescriptionHeight = 100;
-
 public:
   explicit BaseSettingWidget();
 

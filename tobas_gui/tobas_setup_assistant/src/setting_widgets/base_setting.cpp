@@ -16,7 +16,6 @@ BaseSettingWidget::BaseSettingWidget()
   title_->setAlignment(Qt::AlignTop);
 
   description_ = new qt::DescriptionWidget("", kBodyPSize);
-  description_->setFixedHeight(kDescriptionHeight);
 
   // Layout
   header_rows_ = new QVBoxLayout();
@@ -27,6 +26,7 @@ BaseSettingWidget::BaseSettingWidget()
 
   const auto rows = new QVBoxLayout();
   rows->addLayout(header_rows_);
+  rows->addSpacing(30);
   rows->addLayout(content_rows_);
 
   setLayout(rows);

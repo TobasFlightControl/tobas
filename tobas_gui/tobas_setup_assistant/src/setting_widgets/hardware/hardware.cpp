@@ -66,7 +66,9 @@ const char* HardwareWidget::title() const
 
 const char* HardwareWidget::description() const
 {
-  return "";  // TODO
+  return "Configure hardware connections. "
+         "Select the FMU you intend to use, "
+         "then freely assign each hardware interface to any PWM or DShot channel.";
 }
 
 void HardwareWidget::updateInternalDataStructures()
