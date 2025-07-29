@@ -74,7 +74,12 @@ void SettingsWidget::updateInternalDataStructures()
 
   // 固定翼を持たない場合は設定を無効化
   if (uadf_.control_surfaces.size() == 0) {
-    setPageEnabled(getIndex(fixed_wing), false);
+    setPageEnabled(fixed_wing, false);
+  }
+
+  // 追加ジョイントを持たない場合は設定を無効化
+  if (extra_joints->numJoints() == 0) {
+    setPageEnabled(extra_joints, false);
   }
 
   // Default page
@@ -225,6 +230,11 @@ void SettingsWidget::setPageEnabled(int idx, bool enabled)
     const auto item = additional_list_->item(idx - basic_list_->count());
     setListItemEnabled(item, enabled);
   }
+}
+
+void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled)
+{
+  setPageEnabled(getIndex(page), enabled);
 }
 
 void SettingsWidget::setListItemEnabled(QListWidgetItem* item, bool enabled)

@@ -60,6 +60,7 @@ private:
   void addEntry(QListWidget* list, BaseSettingWidget* page);
   void setCurrentWidget(BaseSettingWidget* page);
   void setPageEnabled(int idx, bool enabled);
+  void setPageEnabled(BaseSettingWidget* page, bool enabled);
   void setListItemEnabled(QListWidgetItem* item, bool enabled);
 
 private Q_SLOTS:
