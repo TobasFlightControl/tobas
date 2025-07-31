@@ -108,7 +108,7 @@ bool SettingsWidget::isValid()
       for (const auto& elem : uadf_.thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->dshot()->contains(joint_name)) {
-          qt::qWarnBox(this, "Please specify basic_list_ DShot channel for electric rotor \"" + joint_name + "\".");
+          qt::qWarnBox(this, "Please specify a DShot channel for electric rotor \"" + joint_name + "\".");
           setCurrentWidget(hardware);
           return false;
         }
@@ -121,7 +121,7 @@ bool SettingsWidget::isValid()
       for (const auto& elem : uadf_.thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->pwm()->contains(joint_name)) {
-          qt::qWarnBox(this, "Please specify basic_list_ PWM channel for variable pitch \"" + joint_name + "\".");
+          qt::qWarnBox(this, "Please specify a PWM channel for variable pitch \"" + joint_name + "\".");
           setCurrentWidget(hardware);
           return false;
         }
@@ -129,7 +129,7 @@ bool SettingsWidget::isValid()
 
       // エンジンスロットルのPWMチャンネルが設定されていることを確認
       if (!hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
-        qt::qWarnBox(this, "Please specify basic_list_ PWM channel for engine throttle.");
+        qt::qWarnBox(this, "Please specify a PWM channel for engine throttle.");
         setCurrentWidget(hardware);
         return false;
       }
@@ -145,7 +145,7 @@ bool SettingsWidget::isValid()
   for (const auto& elem : uadf_.control_surfaces) {
     const auto joint_name = QString::fromStdString(elem.first);
     if (!hardware->pwm()->contains(joint_name)) {
-      qt::qWarnBox(this, "Please specify basic_list_ PWM channel for control surface \"" + joint_name + "\".");
+      qt::qWarnBox(this, "Please specify a PWM channel for control surface \"" + joint_name + "\".");
       setCurrentWidget(hardware);
       return false;
     }
@@ -155,7 +155,7 @@ bool SettingsWidget::isValid()
   for (const auto& elem : uadf_.tilts) {
     const auto joint_name = QString::fromStdString(elem.first);
     if (!hardware->pwm()->contains(joint_name)) {
-      qt::qWarnBox(this, "Please specify basic_list_ PWM channel for active tilt joint \"" + joint_name + "\".");
+      qt::qWarnBox(this, "Please specify a PWM channel for active tilt joint \"" + joint_name + "\".");
       setCurrentWidget(hardware);
       return false;
     }
