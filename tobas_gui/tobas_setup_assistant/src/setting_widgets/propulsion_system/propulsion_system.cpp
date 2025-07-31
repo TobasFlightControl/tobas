@@ -1,6 +1,6 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
-#include <QCheckBox>
+#include <QRadioButton>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
@@ -18,13 +18,13 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   propulsion_stack_ = new qt::StackedWidget();
 
   const auto eprop = new electric::PropulsionSystemWidget(node, uadf);
-  const auto eprop_ckb = new QCheckBox(eprop->name());
+  const auto eprop_ckb = new QRadioButton(eprop->name());
   type_buttons_->addButton(eprop_ckb);
   type_buttons_->setId(eprop_ckb, kElectricId);
   propulsion_stack_->addWidget(eprop);
 
   const auto iprop = new ice::PropulsionSystemWidget(uadf);
-  const auto iprop_ckb = new QCheckBox(iprop->name());
+  const auto iprop_ckb = new QRadioButton(iprop->name());
   type_buttons_->addButton(iprop_ckb);
   type_buttons_->setId(iprop_ckb, kIceId);
   propulsion_stack_->addWidget(iprop);
