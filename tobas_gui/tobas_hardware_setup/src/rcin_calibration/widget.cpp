@@ -235,7 +235,7 @@ size_t RCInputCalibrationWidget::numOfGpswChannels() const
   return drone_.num_sbus_channels - tobas::kMinSbusChannels;
 }
 
-bool RCInputCalibrationWidget::saveParamsGCS()
+bool RCInputCalibrationWidget::saveParamsToGcs()
 {
   ptree::PropertyTree pt;
   if (!pt.initialize((ros2::expandUser(tobas::kConfigDirHome) / kConfigFileName))) {
@@ -284,7 +284,7 @@ bool RCInputCalibrationWidget::saveParamsGCS()
   return true;
 }
 
-bool RCInputCalibrationWidget::saveParamsFC()
+bool RCInputCalibrationWidget::saveParamsToFc()
 {
   const auto req = std::make_shared<tobas_real_msgs::srv::SetRcInputParams::Request>();
 
@@ -420,10 +420,10 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     }
   }
 
-  if (!saveParamsGCS()) {
+  if (!saveParamsToGcs()) {
     return;
   }
-  if (!saveParamsFC()) {
+  if (!saveParamsToFc()) {
     return;
   }
 

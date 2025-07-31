@@ -75,8 +75,8 @@ private:
 
   size_t numOfGpswChannels() const;
 
-  bool saveParamsGCS();
-  bool saveParamsFC();
+  bool saveParamsToGcs();
+  bool saveParamsToFc();
 
 private Q_SLOTS:
   void onStartButtonClicked();
