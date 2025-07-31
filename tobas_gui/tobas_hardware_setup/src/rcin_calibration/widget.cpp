@@ -417,8 +417,8 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     return;
   }
 
-  qt::qInfoBox(this, "Radio calibration finished successfully.");
   reset();
+  qt::qInfoBox(this, "Radio calibration finished successfully.");
 }
 
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
