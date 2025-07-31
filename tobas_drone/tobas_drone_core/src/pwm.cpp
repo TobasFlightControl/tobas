@@ -1,6 +1,5 @@
 #include "tobas_drone_core/pwm.hpp"
 
-#include <tobas_math/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std;
@@ -53,22 +52,5 @@ YAML::Node PwmConfig::dump() const
   node[kValueRangeKey] = value_range;
 
   return node;
-}
-
-double PwmConfig::periodFromValue(double value) const
-{
-  const auto period =
-    math::remap(value, value_range.first, value_range.second, period_range.first, period_range.second);
-  return clampPeriod(period);
-}
-
-double PwmConfig::clampPeriod(double period) const
-{
-  if (period_range.first < period_range.second) {
-    return clamp(period, period_range.first, period_range.second);
-  }
-  else {
-    return clamp(period, period_range.second, period_range.first);
-  }
 }
 }  // namespace tobas
