@@ -19,6 +19,7 @@ find_package(tobas_property_tree REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_drone_core REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
 find_package(tobas_real_msgs REQUIRED)
@@ -31,6 +32,7 @@ set(AMENT_DEPENDENCIES
     tobas_node
     tobas_tools
     tobas_msgs_adapter
+    tobas_drone_core
     tobas_drone_msgs_adapter
     tobas_real_common
     tobas_real_msgs
