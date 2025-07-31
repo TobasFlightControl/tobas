@@ -364,58 +364,48 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 {
   // メッセージの受信を確認
   if (!roll_range_->hasValue()) {
-    qt::qErrorBox(this, "No S.BUS message is received.");
-    reset();
+    qt::qWarnBox(this, "No S.BUS message is received.");
     return;
   }
 
   // 各チャンネルの値の範囲をチェック
   if (roll_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Roll channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Roll channel is too narrow.");
     return;
   }
   if (pitch_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Pitch channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Pitch channel is too narrow.");
     return;
   }
   if (yaw_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Yaw channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Yaw channel is too narrow.");
     return;
   }
   if (throt_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Throttle channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Throttle channel is too narrow.");
     return;
   }
 
   if (enable_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Enable channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Enable channel is too narrow.");
     return;
   }
   if (kill_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Kill channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Kill channel is too narrow.");
     return;
   }
   if (mode_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Mode channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Mode channel is too narrow.");
     return;
   }
   if (sub_mode_range_->getRange() < kMinSignalRange) {
-    qt::qErrorBox(this, "The signal range of Sub-Mode channel is too narrow.");
-    reset();
+    qt::qWarnBox(this, "The signal range of Sub-Mode channel is too narrow.");
     return;
   }
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     if (gpsw_ranges_.at(i)->getRange() < kMinSignalRange) {
-      qt::qErrorBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
-      reset();
+      qt::qWarnBox(this, "The signal range of GPSw " + QString::number(i + 1) + " channel is too narrow.");
       return;
     }
   }
