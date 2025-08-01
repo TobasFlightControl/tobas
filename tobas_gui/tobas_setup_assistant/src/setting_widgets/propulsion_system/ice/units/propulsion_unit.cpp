@@ -41,8 +41,6 @@ PropulsionUnitWidget::PropulsionUnitWidget()
   tabs_->addTab(propeller_, propeller_->name());
   tabs_->addTab(aerodynamics_, aerodynamics_->name());
 
-  rows->addStretch();
-
   // Connection
   connect(copy_to_all_button_, &QPushButton::clicked, [this]() { Q_EMIT copyToAllButtonClicked(); });
   connect(copy_from_left_button_, &QPushButton::clicked, [this]() { Q_EMIT copyFromLeftButtonClicked(); });
