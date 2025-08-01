@@ -2,7 +2,7 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./dynamics/dynamics.hpp"
+#include "./dynamics.hpp"
 #include "./response.hpp"
 
 namespace gui
@@ -27,7 +27,7 @@ class EngineWidget : public qt::TabWidget
   static constexpr char kResponseLabel[] = "Response";
 
 public:
-  explicit EngineWidget();
+  explicit EngineWidget(rclcpp::Node::SharedPtr node);
 
   bool isValid();
 

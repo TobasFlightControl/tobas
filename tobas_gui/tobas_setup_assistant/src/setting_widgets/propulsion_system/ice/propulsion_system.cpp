@@ -8,9 +8,9 @@ namespace propulsion
 {
 namespace ice
 {
-PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
+PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
 {
-  engine = new EngineWidget();
+  engine = new EngineWidget(node);
   units = new PropulsionUnitsWidget(uadf);
 
   addTab(engine, kEngineTitle);

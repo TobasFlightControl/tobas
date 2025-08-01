@@ -23,7 +23,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   type_buttons_->setId(eprop_ckb, kElectricId);
   propulsion_stack_->addWidget(eprop);
 
-  const auto iprop = new ice::PropulsionSystemWidget(uadf);
+  const auto iprop = new ice::PropulsionSystemWidget(node, uadf);
   const auto iprop_ckb = new QRadioButton(iprop->name());
   type_buttons_->addButton(iprop_ckb);
   type_buttons_->setId(iprop_ckb, kIceId);

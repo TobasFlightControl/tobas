@@ -12,20 +12,20 @@ namespace ice
 {
 AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
 {
-  motor_const_ = new ParamGetterWidget_LinearEquation("Motor Constant", "", "CT", "φ");  // TODO
+  motor_const_ = new ParamGetterWidget_LinearEquation("Motor Constant", "CT", "φ");  // TODO: Description
   motor_const_->setDecimals(9);
   motor_const_->setValue({ 4.471e-3, 1.887e-2 });
   motor_const_->setSuffix(" kg m/rad^2");
   addWidget(motor_const_);
 
-  moment_const_ = new ParamGetterWidget_DoubleSpinBox("Moment Constant", "");  // TODO
+  moment_const_ = new ParamGetterWidget_DoubleSpinBox("Moment Constant");  // TODO: Description
   moment_const_->setDecimals(6);
   moment_const_->setMinimum(0.);
   moment_const_->setValue(0.06);
   moment_const_->setSuffix(" m");
   addWidget(moment_const_);
 
-  drag_const_ = new ParamGetterWidget_LinearEquation("Drag Constant", "", "CH", "φ");  // TODO
+  drag_const_ = new ParamGetterWidget_LinearEquation("Drag Constant", "CH", "φ");  // TODO: Description
   drag_const_->setDecimals(6);
   drag_const_->setValue({ 0.01, 0.01 });
   drag_const_->setSuffix(" kg/rad");

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <yaml-cpp/yaml.h>
 
-#include "./base.hpp"
+#include "tobas_setup_assistant/param_getters/double_table.hpp"
 
 namespace gui
 {
@@ -17,10 +16,8 @@ class EngineDynamicsWidget : public QWidget
 {
   Q_OBJECT
 
-  static constexpr char kMethodNameKey[] = "method_name";
-
 public:
-  explicit EngineDynamicsWidget();
+  explicit EngineDynamicsWidget(rclcpp::Node::SharedPtr node);
 
   bool isValid();
 
@@ -30,11 +27,7 @@ public:
   std::pair<double, double> engineConstant() const;
 
 private:
-  qt::ComboBox* method_name_;
-  qt::StackedWidget* methods_;
-
-  EngineDynamicsWidget_Base* selected();
-  const EngineDynamicsWidget_Base* selected() const;
+  ParamGetterWidget_DoubleTable* data_;
 };
 }  // namespace ice
 }  // namespace propulsion

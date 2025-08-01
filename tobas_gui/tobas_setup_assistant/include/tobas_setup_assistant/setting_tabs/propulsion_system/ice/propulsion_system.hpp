@@ -26,7 +26,7 @@ public:
   EngineWidget* engine;
   PropulsionUnitsWidget* units;
 
-  explicit PropulsionSystemWidget(const uadf::Model& uadf);
+  explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
 
   const char* name() const override;
 

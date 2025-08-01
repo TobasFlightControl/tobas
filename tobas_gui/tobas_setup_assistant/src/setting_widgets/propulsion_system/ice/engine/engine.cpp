@@ -8,12 +8,12 @@ namespace propulsion
 {
 namespace ice
 {
-EngineWidget::EngineWidget()
+EngineWidget::EngineWidget(rclcpp::Node::SharedPtr node)
 {
   enableWheelEvent(false);
   setTabSize(kTabWidth, kTabHeight);
 
-  dynamics_ = new EngineDynamicsWidget();
+  dynamics_ = new EngineDynamicsWidget(node);
   response_ = new EngineResponseWidget();
 
   addTab(dynamics_, kDynamicsLabel);
