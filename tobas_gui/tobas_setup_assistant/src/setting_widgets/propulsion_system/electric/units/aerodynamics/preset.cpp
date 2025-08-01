@@ -24,7 +24,6 @@ namespace electric
 AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* propeller) : propeller_(propeller)
 {
   data_name_ = new qt::ComboBox();
-  addWidget(data_name_);
 
   // Add thrust data names
   for (const auto& entry : fs::recursive_directory_iterator(thrustStandDataDir())) {
@@ -43,6 +42,10 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
   }
 
   data_name_->sort();
+
+  // Layout
+  rows_->addWidget(data_name_);
+  rows_->addStretch();
 }
 
 const char* AerodynamicsWidget_Preset::name() const

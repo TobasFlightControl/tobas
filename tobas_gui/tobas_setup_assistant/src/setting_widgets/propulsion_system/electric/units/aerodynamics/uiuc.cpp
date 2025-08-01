@@ -28,7 +28,8 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, c
   data_->setSuffix({ " rpm", " N", " Nm" });
   data_->table()->setFixedHeight(kDataTableHeight);
   data_->table()->setColumnsWidth(kDataTableColWidth);
-  addWidget(data_);
+
+  rows_->addWidget(data_);
 }
 
 const char* AerodynamicsWidget_UIUC::name() const
