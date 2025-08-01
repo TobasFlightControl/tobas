@@ -4,6 +4,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
 namespace gui
@@ -22,10 +23,10 @@ AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::Sha
     { "RPM", "Thrust", "Torque" },
     "Please input experimental data from the Thrust Stand.");
   data_->setDecimals({ 0, 6, 6 });
-  data_->setMinimum({ 1e-1, 1e-6, 1e-6 });
+  data_->setMinimum({ 1, 1e-6, 1e-6 });
   data_->setSuffix({ " rpm", " N", " Nm" });
-  data_->table()->setFixedHeight(kTableHeight);
-  data_->table()->setColumnsWidth(kTableColWidth);
+  data_->table()->setFixedHeight(kDataTableHeight);
+  data_->table()->setColumnsWidth(kDataTableColWidth);
   addWidget(data_);
 }
 

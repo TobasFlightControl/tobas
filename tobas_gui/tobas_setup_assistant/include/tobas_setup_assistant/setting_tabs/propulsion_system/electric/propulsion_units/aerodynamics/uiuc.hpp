@@ -16,9 +16,6 @@ class AerodynamicsWidget_UIUC : public AerodynamicsWidget_Base
 {
   Q_OBJECT
 
-  static constexpr int kTableHeight = 500;
-  static constexpr int kTableColWidth = 180;
-
 public:
   explicit AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
 

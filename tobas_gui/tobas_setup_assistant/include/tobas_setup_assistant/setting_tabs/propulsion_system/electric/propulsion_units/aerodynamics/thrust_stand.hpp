@@ -19,9 +19,6 @@ class AerodynamicsWidget_ThrustStand : public AerodynamicsWidget_Base
 {
   Q_OBJECT
 
-  static constexpr int kTableHeight = 500;
-  static constexpr int kTableColWidth = 180;
-
 public:
   explicit AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node);
 
