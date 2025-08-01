@@ -19,7 +19,7 @@ Q_SIGNALS:
   void valueChanged(int value);
 
 public:
-  explicit ParamGetterWidget_SpinBox(const QString& param_name, const QString& description_text);
+  explicit ParamGetterWidget_SpinBox(const QString& param_name, const QString& description_text = "");
 
   int getValue() const override;
   bool setValue(const int& src) override;

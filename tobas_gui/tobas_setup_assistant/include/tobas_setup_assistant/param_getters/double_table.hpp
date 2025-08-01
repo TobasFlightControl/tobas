@@ -33,7 +33,7 @@ public:
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
     const QStringList& labels,
-    const QString& description_text);
+    const QString& description_text = "");
 
   Eigen::MatrixXd getValue() const override;
   bool setValue(const Eigen::MatrixXd& src) override;

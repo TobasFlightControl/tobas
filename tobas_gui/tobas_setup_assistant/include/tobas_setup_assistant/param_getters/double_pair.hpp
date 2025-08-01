@@ -21,7 +21,7 @@ Q_SIGNALS:
   void valueChanged(std::pair<double, double> value);
 
 public:
-  explicit ParamGetterWidget_DoublePair(const QString& param_name, const QString& description_text);
+  explicit ParamGetterWidget_DoublePair(const QString& param_name, const QString& description_text = "");
 
   std::pair<double, double> getValue() const override;
   bool setValue(const std::pair<double, double>& src) override;

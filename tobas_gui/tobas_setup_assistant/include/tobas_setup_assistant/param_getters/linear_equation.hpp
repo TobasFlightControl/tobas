@@ -21,9 +21,9 @@ Q_SIGNALS:
 public:
   explicit ParamGetterWidget_LinearEquation(
     const QString& param_name,
-    const QString& description_text,
     const QString& left,
-    const QString& value);
+    const QString& value,
+    const QString& description_text = "");
 
   ValueType getValue() const override;
   bool setValue(const ValueType& src) override;

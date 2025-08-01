@@ -26,7 +26,7 @@ public:
   explicit ParamGetterWidget_FileDialog(
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
-    const QString& description_text);
+    const QString& description_text = "");
 
   QString getValue() const override;
   bool setValue(const QString& src) override;

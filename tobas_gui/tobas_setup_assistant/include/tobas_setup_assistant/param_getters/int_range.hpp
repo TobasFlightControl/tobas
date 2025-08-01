@@ -20,7 +20,7 @@ Q_SIGNALS:
   void valueChanged(const ValueType& value);
 
 public:
-  explicit ParamGetterWidget_IntRange(const QString& param_name, const QString& description_text);
+  explicit ParamGetterWidget_IntRange(const QString& param_name, const QString& description_text = "");
 
   ValueType getValue() const override;
   bool setValue(const ValueType& src) override;

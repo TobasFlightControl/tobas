@@ -20,7 +20,7 @@ Q_SIGNALS:
   void valueChanged(Eigen::Vector3d value);
 
 public:
-  explicit ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text);
+  explicit ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text = "");
 
   Eigen::Vector3d getValue() const override;
   bool setValue(const Eigen::Vector3d& src) override;
