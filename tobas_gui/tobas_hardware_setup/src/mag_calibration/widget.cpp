@@ -178,12 +178,12 @@ void MagCalibrationWidget::onFinishButtonClicked()
     y(i) = mag_data_[i].y();
     z(i) = mag_data_[i].z();
   }
-  const Eigen::VectorXd xx = x.cwiseProduct(x);
-  const Eigen::VectorXd yy = y.cwiseProduct(y);
-  const Eigen::VectorXd zz = z.cwiseProduct(z);
-  const Eigen::VectorXd xy = x.cwiseProduct(y);
-  const Eigen::VectorXd yz = y.cwiseProduct(z);
-  const Eigen::VectorXd zx = z.cwiseProduct(x);
+  const auto xx = x.cwiseProduct(x).eval();
+  const auto yy = y.cwiseProduct(y).eval();
+  const auto zz = z.cwiseProduct(z).eval();
+  const auto xy = x.cwiseProduct(y).eval();
+  const auto yz = y.cwiseProduct(z).eval();
+  const auto zx = z.cwiseProduct(x).eval();
 
   constexpr auto kCalibMethod = kBounding;  // TODO: 手法を選べるようにする
 
@@ -228,9 +228,9 @@ void MagCalibrationWidget::onFinishButtonClicked()
     if (kCalibMethod == kSphereFitting) {
       // 球体でフィッティング．
       // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
-      Eigen::MatrixXd CE(size, 4);
+      Eigen::MatrixX4d CE(size, 4);
       CE << xx + yy + zz, x, y, z;
-      const Eigen::Vector4d coefs = CE.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(ce0);
+      const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
       mag_trans_.a_xx = coefs(0);
       mag_trans_.a_yy = coefs(0);
@@ -245,9 +245,9 @@ void MagCalibrationWidget::onFinishButtonClicked()
     else if (kCalibMethod == kEllipseFitting) {
       // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
       // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
-      Eigen::MatrixXd CE(size, 9);
+      Eigen::Matrix<double, Eigen::Dynamic, 9> CE(size, 9);
       CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
-      const Eigen::Matrix<double, 9, 1> coefs = CE.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(ce0);
+      const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
       mag_trans_.a_xx = coefs(0);
       mag_trans_.a_yy = coefs(1);
