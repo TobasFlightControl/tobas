@@ -229,7 +229,10 @@ void MagCalibrationWidget::onFinishButtonClicked()
       // 球体でフィッティング．
       // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
       Eigen::MatrixX4d CE(size, 4);
-      CE << xx + yy + zz, x, y, z;
+      CE.col(0) = xx + yy + zz;
+      CE.col(1) = x;
+      CE.col(2) = y;
+      CE.col(3) = z;
       const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
       mag_trans_.a_xx = coefs(0);
@@ -246,7 +249,15 @@ void MagCalibrationWidget::onFinishButtonClicked()
       // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
       // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
       Eigen::Matrix<double, Eigen::Dynamic, 9> CE(size, 9);
-      CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
+      CE.col(0) = xx;
+      CE.col(1) = yy;
+      CE.col(2) = zz;
+      CE.col(3) = 2 * xy;
+      CE.col(4) = 2 * yz;
+      CE.col(5) = 2 * zx;
+      CE.col(6) = x;
+      CE.col(7) = y;
+      CE.col(8) = z;
       const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
       mag_trans_.a_xx = coefs(0);
