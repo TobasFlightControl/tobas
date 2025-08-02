@@ -23,24 +23,25 @@ BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, doub
 
 std::pair<double, double> BladeTheory::motorConst() const
 {
-  const auto scale = 4 * M_PI * rho_ * math::quar(R_);
   const auto lam = lambda();
   const auto dlam = lambdaDeriv();
 
   const auto ct = 2 * math::sqr(lam);
   const auto dct = 4 * lam * dlam;
 
+  const auto scale = 4 * M_PI * rho_ * math::quar(R_);
   return { scale * ct, scale * dct };
 }
 
 std::pair<double, double> BladeTheory::momentConst() const
 {
-  return { R_ * lambda(), R_ * lambdaDeriv() };
+  const auto lam = lambda();
+  const auto dlam = lambdaDeriv();
+  return { R_ * lam, R_ * dlam };
 }
 
 std::pair<double, double> BladeTheory::dragConst() const
 {
-  const auto scale = 4 * M_PI * rho_ * math::cube(R_);
   const auto sig = sigma();
   const auto lam = lambda();
   const auto dlam = lambdaDeriv();
@@ -58,6 +59,7 @@ std::pair<double, double> BladeTheory::dragConst() const
   const auto dch = (a * sig / 24) * ((6 * lam - 4 * b1c) + (3 * theta_ + 9 * b1c) * dlam + (6 * b0 + 2 * b1s) * db0 +
                                      (9 * lam - 2 * theta_) * db1c + 2 * b0 * db1s);
 
+  const auto scale = 4 * M_PI * rho_ * math::cube(R_);
   return { scale * ch, scale * dch };
 }
 
@@ -75,7 +77,7 @@ double BladeTheory::lambda() const
 double BladeTheory::lambdaDeriv() const
 {
   const auto a_B_sigma = a * B * sigma();
-  return (2 * B / 3) / sqrt(1 + (64. / 3) * theta_ / a_B_sigma);
+  return (2 * B / 3) / sqrt(1 + (64 * theta_) / (3 * a_B_sigma));
 }
 }  // namespace ice
 }  // namespace propulsion
