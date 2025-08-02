@@ -11,7 +11,7 @@ namespace propulsion
 {
 namespace ice
 {
-/* Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] */
+/* 可変ピッチプロペラの空力パラメータをブレード理論とテイラー展開で近似する (memo: 3-36) */
 class BladeTheory
 {
   static constexpr double a = M_2PI;    // 2D lift curve slope (ideal value)
