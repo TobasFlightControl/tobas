@@ -132,7 +132,7 @@ bool Drone::load(const YAML::Node& root_node)
       break;
     }
     case PropulsionSystem::kIce: {
-      const auto iprop = make_shared<ICEPropulsionSystemConfig>();
+      const auto iprop = make_shared<IcePropulsionSystemConfig>();
       if (!iprop->load(prop_node)) {
         cerr << "Failed to load the configurations of ICE propulsion system." << endl;
         return false;

@@ -128,7 +128,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
     }
     case tobas::PropulsionSystem::kIce:  // 参照ピッチ角を用いて推力を実現する (memo: 3-27)
     {
-      const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
+      const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
 
       // エンジン軸にかかる合計トルクとその係数を求める
       double thrust_sum = 0.;

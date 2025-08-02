@@ -265,7 +265,7 @@ void PreArmCheckerNode::mainTimerCb()
       // 未使用項目を無視
       prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
 
-      const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
+      const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
       (void)iprop;  // TODO
 
       break;

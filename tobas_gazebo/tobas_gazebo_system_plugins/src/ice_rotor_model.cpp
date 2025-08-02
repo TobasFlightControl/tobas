@@ -11,7 +11,7 @@ namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
-bool ICERotorModel::initialize(
+bool IceRotorModel::initialize(
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   const gz::sim::Model& model)
@@ -27,67 +27,67 @@ bool ICERotorModel::initialize(
   return true;
 }
 
-const string& ICERotorModel::getLinkName() const
+const string& IceRotorModel::getLinkName() const
 {
   return link_name_;
 }
 
-int ICERotorModel::getDirection() const
+int IceRotorModel::getDirection() const
 {
   return direction_;
 }
 
-double ICERotorModel::getGearRatio() const
+double IceRotorModel::getGearRatio() const
 {
   return gear_ratio_;
 }
 
-size_t ICERotorModel::getNumBlades() const
+size_t IceRotorModel::getNumBlades() const
 {
   return num_blades_;
 }
 
-double ICERotorModel::getMotorConst() const
+double IceRotorModel::getMotorConst() const
 {
   return getMotorConst(getPitchAngle());
 }
 
-double ICERotorModel::getMomentConst() const
+double IceRotorModel::getMomentConst() const
 {
   return moment_const_;
 }
 
-double ICERotorModel::getDragConst() const
+double IceRotorModel::getDragConst() const
 {
   return getDragConst(getPitchAngle());
 }
 
-double ICERotorModel::getPitchAngle() const
+double IceRotorModel::getPitchAngle() const
 {
   return pitch_angle_.getCurrentPosition();
 }
 
-double ICERotorModel::getSpeed(const double& engine_speed) const
+double IceRotorModel::getSpeed(const double& engine_speed) const
 {
   return engine_speed / gear_ratio_;
 }
 
-double ICERotorModel::getVelocity(const double& engine_speed) const
+double IceRotorModel::getVelocity(const double& engine_speed) const
 {
   return getSpeed(engine_speed) * direction_;
 }
 
-double ICERotorModel::getThrust(const double& engine_speed) const
+double IceRotorModel::getThrust(const double& engine_speed) const
 {
   return getMotorConst() * math::sqr(getSpeed(engine_speed));
 }
 
-void ICERotorModel::setTargetPitchAngle(const double& tar_pitch)
+void IceRotorModel::setTargetPitchAngle(const double& tar_pitch)
 {
   pitch_angle_.setTargetPosition(tar_pitch);
 }
 
-void ICERotorModel::applyWrench(
+void IceRotorModel::applyWrench(
   gz::sim::EntityComponentManager& ecm,
   const double& engine_speed,
   const gz::math::Vector3d& wind_vel_W)
@@ -121,18 +121,18 @@ void ICERotorModel::applyWrench(
   parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, drag_torque_W);
 }
 
-void ICERotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, const double& engine_pos)
+void IceRotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, const double& engine_pos)
 {
   const auto pos = engine_pos / gear_ratio_ * direction_;
   joint_->ResetPosition(ecm, { pos / kRotorSpeedSlowdownSim });
 }
 
-void ICERotorModel::step(const double& dt)
+void IceRotorModel::step(const double& dt)
 {
   pitch_angle_.step(dt);
 }
 
-bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
+bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   if (!getSdfParam(sdf, "linkName", link_name_)) {
     return false;
@@ -200,8 +200,8 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   if (!getSdfParam(sdf, "dragConstant", drag_const_)) {
     return false;
   }
-  if (drag_const_.second <= 0.) {
-    gzerr << "The second term of drag constant must be positive." << endl;
+  if (drag_const_.second < 0.) {
+    gzerr << "The second term of drag constant must be non-negative." << endl;
     return false;
   }
   if (getDragConst(pitch_angle_.pos_limit.lower) <= 0.) {
@@ -212,7 +212,7 @@ bool ICERotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   return true;
 }
 
-bool ICERotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model)
+bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model)
 {
   // Get joint
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
@@ -274,12 +274,12 @@ bool ICERotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   return true;
 }
 
-double ICERotorModel::getMotorConst(double pitch_angle) const
+double IceRotorModel::getMotorConst(double pitch_angle) const
 {
   return max(motor_const_.first + motor_const_.second * pitch_angle, 0.);
 }
 
-double ICERotorModel::getDragConst(double pitch_angle) const
+double IceRotorModel::getDragConst(double pitch_angle) const
 {
   return max(drag_const_.first + drag_const_.second * pitch_angle, 0.);
 }

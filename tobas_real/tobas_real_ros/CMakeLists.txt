@@ -48,7 +48,7 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputHandlerNode"
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointsHandlerNode" EXECUTABLE joints_handler)
 rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "ICEPropulsionSystemHandlerNode" EXECUTABLE ice_propulsion_system_handler
+  ${PROJECT_NAME}_node PLUGIN "IcePropulsionSystemHandlerNode" EXECUTABLE ice_propulsion_system_handler
 )
 
 install(

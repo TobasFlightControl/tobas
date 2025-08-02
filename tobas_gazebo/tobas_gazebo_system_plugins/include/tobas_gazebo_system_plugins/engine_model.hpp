@@ -17,7 +17,7 @@ class EngineModel
   static constexpr double kDefaultVibrationDoubleFreqCoef = 1.;
 
 public:
-  explicit EngineModel(const ICERotorModelMap& rotors);
+  explicit EngineModel(const IceRotorModelMap& rotors);
 
   bool initialize(const sdf::ElementConstPtr& sdf);
 
@@ -35,7 +35,7 @@ public:
   bool step(const double& dt);
 
 private:
-  const ICERotorModelMap& rotors_;
+  const IceRotorModelMap& rotors_;
 
   // SDF parameters
   std::pair<double, double> engine_const_;  // A, B (memo: 3-28)

@@ -20,7 +20,8 @@ PropellerWidget::PropellerWidget()
   setLayout(rows);
 
   num_blades_ = new ParamGetterWidget_SpinBox("Number of Blades", "");
-  num_blades_->setMinimum(1);
+  num_blades_->setMinimum(2);
+  num_blades_->setMaximum(5);
   num_blades_->setValue(2);
   rows->addWidget(num_blades_);
 
@@ -32,8 +33,7 @@ PropellerWidget::PropellerWidget()
 
   pitch_ = new ParamGetterWidget_DoubleSpinBox("Propeller Pitch", "");
   pitch_->setDecimals(1);
-  pitch_->setSingleStep(0.5);
-  pitch_->setMinimum(0.5);
+  pitch_->setMinimum(0.1);
   pitch_->setValue(4.5);
   pitch_->setSuffix(" inch");
   rows->addWidget(pitch_);
@@ -116,14 +116,14 @@ double PropellerWidget::radius() const
   return diameter() / 2;
 }
 
-double PropellerWidget::pitch() const
+double PropellerWidget::pitchLength() const
 {
   return tobas_std::inch2meter(pitch_->getValue());
 }
 
-double PropellerWidget::twistAngle() const
+double PropellerWidget::pitchAngle() const
 {
-  return atan(pitch() / (M_PI * diameter()));
+  return atan(pitchLength() / (M_PI * diameter()));
 }
 
 double PropellerWidget::minChord() const
@@ -139,7 +139,6 @@ double PropellerWidget::maxChord() const
 double PropellerWidget::meanChord() const
 {
   // 平均翼弦長を単純に最小値と最大値の平均で計算
-  //
   return (minChord() + maxChord()) / 2;
 }
 }  // namespace electric

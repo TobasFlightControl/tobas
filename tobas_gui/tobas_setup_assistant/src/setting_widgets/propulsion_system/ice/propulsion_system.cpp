@@ -11,7 +11,7 @@ namespace ice
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
 {
   engine = new EngineWidget(node);
-  units = new PropulsionUnitsWidget(uadf);
+  units = new PropulsionUnitsWidget(node, uadf);
 
   addTab(engine, kEngineTitle);
   addTab(units, kPropulsionUnitTitle);

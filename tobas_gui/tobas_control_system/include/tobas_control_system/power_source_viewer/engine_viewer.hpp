@@ -32,7 +32,7 @@ public:
 
 private:
   const tobas::Drone& drone_;
-  tobas::ICEPropulsionSystemConfig::ConstSharedPtr iprop_;
+  tobas::IcePropulsionSystemConfig::ConstSharedPtr iprop_;
 
   qt::HPositionBarWidget* fuel_quantity_;
   qt::HPositionBarWidget* oil_temp_;

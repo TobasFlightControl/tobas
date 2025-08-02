@@ -18,7 +18,7 @@ namespace
 double ratioLeastSquare(const Eigen::VectorXd& num, const Eigen::VectorXd& den)
 {
   assert(num.size() == den.size());
-  return num.dot(den) / den.dot(den);
+  return num.dot(den) / den.squaredNorm();
 }
 }  // namespace
 

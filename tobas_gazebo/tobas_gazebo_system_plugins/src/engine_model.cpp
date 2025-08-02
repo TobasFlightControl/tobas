@@ -7,7 +7,7 @@ using namespace std;
 
 namespace gazebo
 {
-EngineModel::EngineModel(const ICERotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
+EngineModel::EngineModel(const IceRotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
 {
 }
 

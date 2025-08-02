@@ -10,7 +10,7 @@ namespace propulsion
 {
 namespace ice
 {
-PropulsionUnitWidget::PropulsionUnitWidget()
+PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -35,7 +35,7 @@ PropulsionUnitWidget::PropulsionUnitWidget()
 
   transmission_ = new TransmissionWidget();
   propeller_ = new PropellerWidget();
-  aerodynamics_ = new AerodynamicsWidget();
+  aerodynamics_ = new AerodynamicsWidget(node, propeller_);
 
   tabs_->addTab(transmission_, transmission_->name());
   tabs_->addTab(propeller_, propeller_->name());

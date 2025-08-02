@@ -4,7 +4,7 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./aerodynamics/aerodynamics.hpp"
+#include "./aerodynamics.hpp"
 #include "./propeller.hpp"
 #include "./transmission.hpp"
 
@@ -30,7 +30,7 @@ Q_SIGNALS:
   void copyToAllButtonClicked();
 
 public:
-  explicit PropulsionUnitWidget();
+  explicit PropulsionUnitWidget(rclcpp::Node::SharedPtr node);
 
   bool isValid();
   void copyFrom(const PropulsionUnitWidget* src);

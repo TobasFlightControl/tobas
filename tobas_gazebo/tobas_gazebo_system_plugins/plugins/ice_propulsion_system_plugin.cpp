@@ -24,7 +24,7 @@ using namespace std::chrono;
 namespace gazebo
 {
 /* Simulates engine and propellers. */
-class GazeboICEPropulsionSystemPlugin : public BaseNode,
+class GazeboIcePropulsionSystemPlugin : public BaseNode,
                                         public gz::sim::System,
                                         public gz::sim::ISystemConfigure,
                                         public gz::sim::ISystemPreUpdate,
@@ -39,10 +39,10 @@ class GazeboICEPropulsionSystemPlugin : public BaseNode,
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
 
-  using self = GazeboICEPropulsionSystemPlugin;
+  using self = GazeboIcePropulsionSystemPlugin;
 
 public:
-  explicit GazeboICEPropulsionSystemPlugin();
+  explicit GazeboIcePropulsionSystemPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -54,7 +54,7 @@ public:
   void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  ICERotorModelMap rotors_;
+  IceRotorModelMap rotors_;
   EngineModel engine_;
 
   // SDF parameters
@@ -83,11 +83,11 @@ private:
   void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt);
 };
 
-GazeboICEPropulsionSystemPlugin::GazeboICEPropulsionSystemPlugin() : engine_(rotors_)
+GazeboIcePropulsionSystemPlugin::GazeboIcePropulsionSystemPlugin() : engine_(rotors_)
 {
 }
 
-void GazeboICEPropulsionSystemPlugin::Configure(
+void GazeboIcePropulsionSystemPlugin::Configure(
   const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
@@ -110,7 +110,7 @@ void GazeboICEPropulsionSystemPlugin::Configure(
     TOBAS_EXIT("Please specify \"", kRotorKey, "\" elements.");
   }
   while (rotor_elem) {
-    ICERotorModel rotor;
+    IceRotorModel rotor;
 
     if (!rotor.initialize(rotor_elem, ecm, model)) {
       TOBAS_EXIT("Failed to initialize ICE rotor model.");
@@ -137,7 +137,7 @@ void GazeboICEPropulsionSystemPlugin::Configure(
   registerPubSub();
 }
 
-void GazeboICEPropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
+void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
   // Update the previous simulation step time
   ros2::timeChronoToMsg(info.simTime, prev_sim_time_);
@@ -155,7 +155,7 @@ void GazeboICEPropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
   }
 }
 
-void GazeboICEPropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
+void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   // Step simulation
   const auto dt = duration<double>(info.dt).count();
@@ -200,12 +200,12 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
   engine_state_gt_pub_->publish(std::move(engine_state_gt));
 }
 
-void GazeboICEPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
 }
 
-void GazeboICEPropulsionSystemPlugin::registerPubSub()
+void GazeboIcePropulsionSystemPlugin::registerPubSub()
 {
   latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
   engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(tobas::kEngineStateTopic);
@@ -222,7 +222,7 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
   wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
 
-void GazeboICEPropulsionSystemPlugin::iceCommandCb(
+void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
 {
   // 最後にコマンドを受け取った時刻を更新
@@ -261,15 +261,15 @@ void GazeboICEPropulsionSystemPlugin::iceCommandCb(
   latency_pub_->publish(std::move(latency));
 }
 
-void GazeboICEPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
+void GazeboIcePropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
 {
   vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
 }
 }  // namespace gazebo
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboICEPropulsionSystemPlugin,
+  gazebo::GazeboIcePropulsionSystemPlugin,
   gz::sim::System,
-  gazebo::GazeboICEPropulsionSystemPlugin::ISystemConfigure,
-  gazebo::GazeboICEPropulsionSystemPlugin::ISystemPreUpdate,
-  gazebo::GazeboICEPropulsionSystemPlugin::ISystemPostUpdate)
+  gazebo::GazeboIcePropulsionSystemPlugin::ISystemConfigure,
+  gazebo::GazeboIcePropulsionSystemPlugin::ISystemPreUpdate,
+  gazebo::GazeboIcePropulsionSystemPlugin::ISystemPostUpdate)

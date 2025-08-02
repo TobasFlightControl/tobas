@@ -9,7 +9,7 @@ using namespace std;
 
 namespace tobas
 {
-bool ICEPropulsionSystemConfig::isValid() const
+bool IcePropulsionSystemConfig::isValid() const
 {
   // Rotors
   for (const auto& [_, rotor] : rotors) {
@@ -27,7 +27,7 @@ bool ICEPropulsionSystemConfig::isValid() const
   return true;
 }
 
-bool ICEPropulsionSystemConfig::load(const YAML::Node& root_node)
+bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
 {
   clear();
 
@@ -42,7 +42,7 @@ bool ICEPropulsionSystemConfig::load(const YAML::Node& root_node)
     return false;
   }
   for (const auto& rotor_node : rotors_node) {
-    const auto rotor = make_shared<ICERotorConfig>();
+    const auto rotor = make_shared<IceRotorConfig>();
     if (!rotor->load(rotor_node)) {
       cerr << "Failed to load the configurations of rotors." << endl;
       return false;
@@ -67,7 +67,7 @@ bool ICEPropulsionSystemConfig::load(const YAML::Node& root_node)
   return true;
 }
 
-YAML::Node ICEPropulsionSystemConfig::dump() const
+YAML::Node IcePropulsionSystemConfig::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -83,27 +83,27 @@ YAML::Node ICEPropulsionSystemConfig::dump() const
   return node;
 }
 
-PropulsionSystem ICEPropulsionSystemConfig::type() const
+PropulsionSystem IcePropulsionSystemConfig::type() const
 {
   return PropulsionSystem::kIce;
 }
 
-double ICEPropulsionSystemConfig::minSpeed(const string&)
+double IcePropulsionSystemConfig::minSpeed(const string&)
 {
   return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxSpeed(const string& link_name)
+double IcePropulsionSystemConfig::maxSpeed(const string& link_name)
 {
   return maxEngineSpeed() / getRotor(link_name)->gear_ratio;
 }
 
-double ICEPropulsionSystemConfig::minThrust(const string&)
+double IcePropulsionSystemConfig::minThrust(const string&)
 {
   return 0.;
 }
 
-double ICEPropulsionSystemConfig::maxThrust(const string& link_name)
+double IcePropulsionSystemConfig::maxThrust(const string& link_name)
 {
   const auto rotor = getRotor(link_name);
   const auto max_motor_const = rotor->motorConst(rotor->pitch_limit.upper);
@@ -111,14 +111,14 @@ double ICEPropulsionSystemConfig::maxThrust(const string& link_name)
   return max_motor_const * math::sqr(max_speed);
 }
 
-double ICEPropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle)
+double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle)
 {
   const auto rotor = getRotor(link_name);
   const auto engine_speed = computeEngineSpeed(throttle);
   return rotor->thrustFromPitch(engine_speed, rotor->pitch_ref);  // XXX: 参照ピッチ角のときの推力を返す
 }
 
-double ICEPropulsionSystemConfig::maxEngineSpeed()
+double IcePropulsionSystemConfig::maxEngineSpeed()
 {
   // フルスロット時のエンジン回転数を1度だけ計算
   if (!max_engine_speed_.has_value()) {
@@ -128,7 +128,7 @@ double ICEPropulsionSystemConfig::maxEngineSpeed()
   return max_engine_speed_.value();
 }
 
-double ICEPropulsionSystemConfig::computeEngineSpeed(double throttle) const
+double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
 {
   // FIXME: 実際はゼロスロットルでもトルクは発生する (アイドリング)
   if (throttle <= std::numeric_limits<double>::epsilon()) {
@@ -152,7 +152,7 @@ double ICEPropulsionSystemConfig::computeEngineSpeed(double throttle) const
   return engine_speed;
 }
 
-double ICEPropulsionSystemConfig::speedFunc(double throttle, double omega) const
+double IcePropulsionSystemConfig::speedFunc(double throttle, double omega) const
 {
   const auto& B = engine.engine_const.second;
   const auto f = calc_f(throttle);
@@ -160,30 +160,30 @@ double ICEPropulsionSystemConfig::speedFunc(double throttle, double omega) const
   return f * math::sqr(k) * math::quar(omega) + k * omega - B;
 }
 
-double ICEPropulsionSystemConfig::speedFuncDeriv(double throttle, double omega) const
+double IcePropulsionSystemConfig::speedFuncDeriv(double throttle, double omega) const
 {
   const auto f = calc_f(throttle);
   const auto k = calc_k();
   return 4 * f * math::sqr(k) * math::cube(omega) + k;
 }
 
-double ICEPropulsionSystemConfig::calc_phi(double throttle) const
+double IcePropulsionSystemConfig::calc_phi(double throttle) const
 {
   return M_PI_2 * throttle;
 }
 
-double ICEPropulsionSystemConfig::calc_f(double throttle) const
+double IcePropulsionSystemConfig::calc_f(double throttle) const
 {
   const auto& A = engine.engine_const.first;
   const auto phi = calc_phi(throttle);
   return math::sqr(A / (1 - cos(phi)));
 }
 
-double ICEPropulsionSystemConfig::calc_k() const
+double IcePropulsionSystemConfig::calc_k() const
 {
   double res = 0.;
   for (const auto& [_, rotor] : rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor);
+    const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
     res += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::cube(irotor->gear_ratio);
   }
   return res;

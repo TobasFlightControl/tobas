@@ -8,17 +8,17 @@
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-class ICEPropulsionSystemHandlerNode : public tobas::BaseNode
+class IcePropulsionSystemHandlerNode : public tobas::BaseNode
 {
-  using self = ICEPropulsionSystemHandlerNode;
+  using self = IcePropulsionSystemHandlerNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit ICEPropulsionSystemHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas::Drone::ConstSharedPtr drone_;
-  tobas::ICEPropulsionSystemConfig::ConstSharedPtr iprop_;
+  tobas::IcePropulsionSystemConfig::ConstSharedPtr iprop_;
 
   std::map<std::string, double> pitch_angles_;
   bool is_commanded_ = false;
@@ -42,13 +42,13 @@ private:
   void autoStopTimerCb();
 };
 
-ICEPropulsionSystemHandlerNode::ICEPropulsionSystemHandlerNode(const rclcpp::NodeOptions& options)
+IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options)
   : super("real_ice_propulsion_system_handler", options)
 {
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
 }
 
-void ICEPropulsionSystemHandlerNode::stopActuator()
+void IcePropulsionSystemHandlerNode::stopActuator()
 {
   // Create command message
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
@@ -73,7 +73,7 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
 
   // Pitch angles
   for (const auto& [_, rotor] : iprop_->rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor);
+    const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
 
     const auto& link_name = irotor->link_name;
     const auto& cmd_angle = irotor->pitch_ref;
@@ -108,7 +108,7 @@ void ICEPropulsionSystemHandlerNode::stopActuator()
   }
 }
 
-void ICEPropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void IcePropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   if (!drone->prop) {
     return;
@@ -119,12 +119,12 @@ void ICEPropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   }
 
   drone_ = drone;
-  iprop_ = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone->prop);
+  iprop_ = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone->prop);
 
   // Initialize pitch angle map
   pitch_angles_.clear();
   for (const auto& [_, rotor] : iprop_->rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor);
+    const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
     pitch_angles_[irotor->link_name] = irotor->pitch_ref;
   }
 
@@ -141,13 +141,13 @@ void ICEPropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 }
 
-void ICEPropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
+void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
 {
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   rotor_states->header.stamp = engine_state->header.stamp;
 
   for (const auto& [link_name, rotor] : iprop_->rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor);
+    const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
 
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = link_name;
@@ -159,7 +159,7 @@ void ICEPropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::Engine
   rotor_states_pub_->publish(move(rotor_states));
 }
 
-void ICEPropulsionSystemHandlerNode::iceCommandCb(
+void IcePropulsionSystemHandlerNode::iceCommandCb(
   const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
 {
   // Create command message
@@ -194,7 +194,7 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
       TOBAS_ERROR("Rotor link \"", link_name, "\" is not found.");
       continue;
     }
-    const auto irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(rotor_it->second);
+    const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor_it->second);
 
     // Check pitch angle limit
     if (!irotor->pitch_limit.inRange(cmd_angle)) {
@@ -248,7 +248,7 @@ void ICEPropulsionSystemHandlerNode::iceCommandCb(
   is_commanded_ = true;
 }
 
-void ICEPropulsionSystemHandlerNode::autoStopTimerCb()
+void IcePropulsionSystemHandlerNode::autoStopTimerCb()
 {
   stopActuator();
 
@@ -261,4 +261,4 @@ void ICEPropulsionSystemHandlerNode::autoStopTimerCb()
   }
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ICEPropulsionSystemHandlerNode);
+RCLCPP_COMPONENTS_REGISTER_NODE(IcePropulsionSystemHandlerNode);

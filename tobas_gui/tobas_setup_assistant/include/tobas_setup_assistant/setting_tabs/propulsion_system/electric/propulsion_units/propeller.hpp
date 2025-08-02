@@ -36,10 +36,10 @@ public:
   double radius() const;
 
   /* Pitch length at the propeller tip [m] */
-  double pitch() const;
+  double pitchLength() const;
 
-  /* Twist angle at the propeller tip [rad] */
-  double twistAngle() const;
+  /* Pitch angle at the propeller tip [rad] */
+  double pitchAngle() const;
 
   /* Minimum blade chord length [m] */
   double minChord() const;

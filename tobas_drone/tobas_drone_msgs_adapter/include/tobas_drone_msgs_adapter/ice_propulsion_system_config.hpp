@@ -10,11 +10,11 @@
 #include "./ice_rotor_config.hpp"
 
 template <>
-struct rclcpp::TypeAdapter<tobas::ICEPropulsionSystemConfig, tobas_drone_msgs::msg::ICEPropulsionSystemConfig>
+struct rclcpp::TypeAdapter<tobas::IcePropulsionSystemConfig, tobas_drone_msgs::msg::IcePropulsionSystemConfig>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas::ICEPropulsionSystemConfig;
-  using ros_message_type = tobas_drone_msgs::msg::ICEPropulsionSystemConfig;
+  using custom_type = tobas::IcePropulsionSystemConfig;
+  using ros_message_type = tobas_drone_msgs::msg::IcePropulsionSystemConfig;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -22,9 +22,9 @@ struct rclcpp::TypeAdapter<tobas::ICEPropulsionSystemConfig, tobas_drone_msgs::m
 
     dst.rotors.clear();
     for (const auto& [_, src_rotor] : src.rotors) {
-      const auto src_irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(src_rotor);
+      const auto src_irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(src_rotor);
       dst.rotors.emplace_back();
-      tobas_drone_msgs::ICERotorConfigAdapter::convert_to_ros_message(*src_irotor, dst.rotors.back());
+      tobas_drone_msgs::IceRotorConfigAdapter::convert_to_ros_message(*src_irotor, dst.rotors.back());
     }
   }
 
@@ -34,8 +34,8 @@ struct rclcpp::TypeAdapter<tobas::ICEPropulsionSystemConfig, tobas_drone_msgs::m
 
     dst.rotors.clear();
     for (const auto& src_irotor : src.rotors) {
-      const auto dst_irotor = std::make_shared<tobas::ICERotorConfig>();
-      tobas_drone_msgs::ICERotorConfigAdapter::convert_to_custom(src_irotor, *dst_irotor);
+      const auto dst_irotor = std::make_shared<tobas::IceRotorConfig>();
+      tobas_drone_msgs::IceRotorConfigAdapter::convert_to_custom(src_irotor, *dst_irotor);
       dst.rotors[src_irotor.rotor.link_name] = dst_irotor;
     }
   }
@@ -43,10 +43,10 @@ struct rclcpp::TypeAdapter<tobas::ICEPropulsionSystemConfig, tobas_drone_msgs::m
 
 namespace tobas_drone_msgs
 {
-using ICEPropulsionSystemConfigAdapter =
-  rclcpp::TypeAdapter<tobas::ICEPropulsionSystemConfig, tobas_drone_msgs::msg::ICEPropulsionSystemConfig>;
+using IcePropulsionSystemConfigAdapter =
+  rclcpp::TypeAdapter<tobas::IcePropulsionSystemConfig, tobas_drone_msgs::msg::IcePropulsionSystemConfig>;
 }  // namespace tobas_drone_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas::ICEPropulsionSystemConfig,
-  tobas_drone_msgs::msg::ICEPropulsionSystemConfig);
+  tobas::IcePropulsionSystemConfig,
+  tobas_drone_msgs::msg::IcePropulsionSystemConfig);

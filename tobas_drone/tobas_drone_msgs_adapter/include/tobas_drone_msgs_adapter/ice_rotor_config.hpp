@@ -11,11 +11,11 @@
 #include "./rotor_config.hpp"
 
 template <>
-struct rclcpp::TypeAdapter<tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERotorConfig>
+struct rclcpp::TypeAdapter<tobas::IceRotorConfig, tobas_drone_msgs::msg::IceRotorConfig>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas::ICERotorConfig;
-  using ros_message_type = tobas_drone_msgs::msg::ICERotorConfig;
+  using custom_type = tobas::IceRotorConfig;
+  using ros_message_type = tobas_drone_msgs::msg::IceRotorConfig;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -42,7 +42,7 @@ struct rclcpp::TypeAdapter<tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERoto
 
 namespace tobas_drone_msgs
 {
-using ICERotorConfigAdapter = rclcpp::TypeAdapter<tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERotorConfig>;
+using IceRotorConfigAdapter = rclcpp::TypeAdapter<tobas::IceRotorConfig, tobas_drone_msgs::msg::IceRotorConfig>;
 }  // namespace tobas_drone_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERotorConfig);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::IceRotorConfig, tobas_drone_msgs::msg::IceRotorConfig);

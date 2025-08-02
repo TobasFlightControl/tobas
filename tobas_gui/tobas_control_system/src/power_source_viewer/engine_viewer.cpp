@@ -45,7 +45,7 @@ void EngineViewerWidget::updateInternalDataStructures()
   reset();
 
   if (drone_.prop->type() == tobas::PropulsionSystem::kIce) {
-    iprop_ = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_.prop);
+    iprop_ = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_.prop);
 
     fuel_quantity_->setLower(0.);
     fuel_quantity_->setMinimum(0.);

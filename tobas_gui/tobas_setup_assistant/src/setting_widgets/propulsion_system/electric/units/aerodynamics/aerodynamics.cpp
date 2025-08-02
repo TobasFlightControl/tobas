@@ -111,7 +111,7 @@ double AerodynamicsWidget::momentConst() const
 double AerodynamicsWidget::dragConst() const
 {
   const BladeTheory blade(
-    propeller_->numBlades(), propeller_->radius(), propeller_->meanChord(), propeller_->twistAngle());
+    propeller_->numBlades(), propeller_->radius(), propeller_->meanChord(), propeller_->pitchAngle());
   return blade.dragConst();
 }
 

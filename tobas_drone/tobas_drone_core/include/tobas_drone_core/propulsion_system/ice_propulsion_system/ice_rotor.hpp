@@ -11,7 +11,7 @@
 namespace tobas
 {
 /* Gear + Propeller */
-class ICERotorConfig : public RotorConfig
+class IceRotorConfig : public RotorConfig
 {
   using super = RotorConfig;
 
@@ -22,8 +22,8 @@ class ICERotorConfig : public RotorConfig
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
 public:
-  using SharedPtr = std::shared_ptr<ICERotorConfig>;
-  using ConstSharedPtr = std::shared_ptr<const ICERotorConfig>;
+  using SharedPtr = std::shared_ptr<IceRotorConfig>;
+  using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;
 
   double gear_ratio = 0.;  // 減速比 [-]
   double pitch_ref = 0.;   // プロペラピッチ角の参照値 (最も効率の良いピッチ角) [rad]
@@ -52,22 +52,22 @@ public:
   inline double pitchFromThrust(double engine_speed, double thrust) const;
 };
 
-inline double ICERotorConfig::motorConst(double pitch_angle) const
+inline double IceRotorConfig::motorConst(double pitch_angle) const
 {
   return motor_const.first + motor_const.second * pitch_angle;
 }
 
-inline double ICERotorConfig::speedEngineToRotor(double engine_speed) const
+inline double IceRotorConfig::speedEngineToRotor(double engine_speed) const
 {
   return engine_speed / gear_ratio;
 }
 
-inline double ICERotorConfig::speedRotorToEngine(double rotor_speed) const
+inline double IceRotorConfig::speedRotorToEngine(double rotor_speed) const
 {
   return rotor_speed * gear_ratio;
 }
 
-inline double ICERotorConfig::thrustFromPitch(double engine_speed, double pitch_angle) const
+inline double IceRotorConfig::thrustFromPitch(double engine_speed, double pitch_angle) const
 {
   assert(engine_speed >= 0.);
 
@@ -75,7 +75,7 @@ inline double ICERotorConfig::thrustFromPitch(double engine_speed, double pitch_
   return motorConst(pitch_angle) * math::sqr(rot_speed);
 }
 
-inline double ICERotorConfig::pitchFromThrust(double engine_speed, double thrust) const
+inline double IceRotorConfig::pitchFromThrust(double engine_speed, double thrust) const
 {
   assert(engine_speed > 0.);
 

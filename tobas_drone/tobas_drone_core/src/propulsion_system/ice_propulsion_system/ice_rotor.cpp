@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas
 {
-bool ICERotorConfig::isValid() const
+bool IceRotorConfig::isValid() const
 {
   if (!super::isValid()) {
     return false;
@@ -35,7 +35,7 @@ bool ICERotorConfig::isValid() const
   return true;
 }
 
-bool ICERotorConfig::load(const YAML::Node& node)
+bool IceRotorConfig::load(const YAML::Node& node)
 {
   if (!super::load(node)) {
     return false;
@@ -64,7 +64,7 @@ bool ICERotorConfig::load(const YAML::Node& node)
   return true;
 }
 
-YAML::Node ICERotorConfig::dump() const
+YAML::Node IceRotorConfig::dump() const
 {
   auto node = super::dump();
 

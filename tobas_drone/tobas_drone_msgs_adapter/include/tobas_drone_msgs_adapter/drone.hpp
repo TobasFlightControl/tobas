@@ -48,8 +48,8 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         case tobas::PropulsionSystem::kIce: {
-          const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(src.prop);
-          tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_ros_message(*iprop, dst.iprop);
+          const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(src.prop);
+          tobas_drone_msgs::IcePropulsionSystemConfigAdapter::convert_to_ros_message(*iprop, dst.iprop);
           break;
         }
         default: {
@@ -105,8 +105,8 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         case tobas::PropulsionSystem::kIce: {
-          const auto iprop = std::make_shared<tobas::ICEPropulsionSystemConfig>();
-          tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_custom(src.iprop, *iprop);
+          const auto iprop = std::make_shared<tobas::IcePropulsionSystemConfig>();
+          tobas_drone_msgs::IcePropulsionSystemConfigAdapter::convert_to_custom(src.iprop, *iprop);
           dst.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
           break;
         }

@@ -10,10 +10,10 @@
 
 namespace gazebo
 {
-class ICERotorModel;
-using ICERotorModelMap = std::map<std::string, ICERotorModel>;
+class IceRotorModel;
+using IceRotorModelMap = std::map<std::string, IceRotorModel>;
 
-class ICERotorModel
+class IceRotorModel
 {
 public:
   bool initialize(const sdf::ElementConstPtr& sdf, gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);

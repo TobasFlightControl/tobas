@@ -5,7 +5,7 @@ tobas_drone_msgs/PwmConfig[] pwms
 
 int8 prop_type
 tobas_drone_msgs/ElectricPropulsionSystemConfig eprop
-tobas_drone_msgs/ICEPropulsionSystemConfig iprop
+tobas_drone_msgs/IcePropulsionSystemConfig iprop
 
 bool has_fixed_wing
 tobas_drone_msgs/FixedWingConfig fixed_wing

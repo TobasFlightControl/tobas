@@ -1,13 +1,11 @@
 #pragma once
 
-#include <rclcpp/node.hpp>
+#include <yaml-cpp/yaml.h>
 
-#include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include "tobas_setup_assistant/param_getters/double_table.hpp"
 
-#include "../base.hpp"
-#include "../propeller.hpp"
 #include "./base.hpp"
+#include "./propeller.hpp"
 
 namespace gui
 {
@@ -21,10 +19,8 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
-  static constexpr char kMethodNameKey[] = "method_name";
-
 public:
-  explicit AerodynamicsWidget();
+  explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
 
   const char* name() const override;
   bool isValid() override;
@@ -43,11 +39,11 @@ public:
   std::pair<double, double> dragConst() const;
 
 private:
-  qt::ComboBox* method_name_;
-  qt::StackedWidget* methods_;
+  const PropellerWidget* const propeller_;
 
-  AerodynamicsWidget_Base* selected();
-  const AerodynamicsWidget_Base* selected() const;
+  ParamGetterWidget_DoubleTable* data_;
+
+  std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> getData() const;
 };
 }  // namespace ice
 }  // namespace propulsion

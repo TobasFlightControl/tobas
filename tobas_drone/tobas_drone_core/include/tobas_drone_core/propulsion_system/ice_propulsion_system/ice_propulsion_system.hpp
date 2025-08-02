@@ -8,15 +8,15 @@
 
 namespace tobas
 {
-class ICEPropulsionSystemConfig : public PropulsionSystemConfig
+class IcePropulsionSystemConfig : public PropulsionSystemConfig
 {
-  using self = ICEPropulsionSystemConfig;
+  using self = IcePropulsionSystemConfig;
 
   static constexpr char kEngineKey[] = "engine";
 
 public:
-  using SharedPtr = std::shared_ptr<ICEPropulsionSystemConfig>;
-  using ConstSharedPtr = std::shared_ptr<const ICEPropulsionSystemConfig>;
+  using SharedPtr = std::shared_ptr<IcePropulsionSystemConfig>;
+  using ConstSharedPtr = std::shared_ptr<const IcePropulsionSystemConfig>;
 
   EngineConfig engine;
 
@@ -35,8 +35,8 @@ public:
 
   double thrustFromThrottle(const std::string& link_name, double throttle) override;
 
-  inline ICERotorConfig::SharedPtr getRotor(const std::string& link_name);
-  inline ICERotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;
+  inline IceRotorConfig::SharedPtr getRotor(const std::string& link_name);
+  inline IceRotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;
 
 private:
   std::optional<double> max_engine_speed_;
@@ -56,13 +56,13 @@ private:
   double calc_k() const;
 };
 
-inline ICERotorConfig::SharedPtr ICEPropulsionSystemConfig::getRotor(const std::string& link_name)
+inline IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name)
 {
-  return boost::polymorphic_pointer_downcast<ICERotorConfig>(rotors.at(link_name));
+  return boost::polymorphic_pointer_downcast<IceRotorConfig>(rotors.at(link_name));
 }
 
-inline ICERotorConfig::ConstSharedPtr ICEPropulsionSystemConfig::getRotor(const std::string& link_name) const
+inline IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name) const
 {
-  return boost::polymorphic_pointer_downcast<ICERotorConfig>(rotors.at(link_name));
+  return boost::polymorphic_pointer_downcast<IceRotorConfig>(rotors.at(link_name));
 }
 }  // namespace tobas

@@ -211,7 +211,7 @@ tobas::Drone ProjectGenerator::createDrone()
     case tobas::PropulsionSystem::kIce: {
       const auto iprop_widget =
         qt::qConstPointerCast<propulsion::ice::PropulsionSystemWidget>(settings_->propulsion_system->selected());
-      const auto iprop = std::make_shared<tobas::ICEPropulsionSystemConfig>();
+      const auto iprop = std::make_shared<tobas::IcePropulsionSystemConfig>();
 
       // Engine
       const auto engine_widget = iprop_widget->engine;
@@ -243,13 +243,13 @@ tobas::Drone ProjectGenerator::createDrone()
         const auto& par_jnt = par_seg.joint();
 
         // Rotor
-        const auto rotor = std::make_shared<tobas::ICERotorConfig>();
+        const auto rotor = std::make_shared<tobas::IceRotorConfig>();
         rotor->link_name = link_name;
         rotor->direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
         rotor->tilt_joint_name = uadf_.tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
-        rotor->pitch_ref = unit_widget->propeller()->pitchAngleRef();
+        rotor->pitch_ref = 0.;  // TODO: 最も高校率な位置に設定できるようにする
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
         rotor->hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
@@ -1153,7 +1153,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
       engine_param.time_const_up = engine->response()->timeConstUp();
       engine_param.time_const_down = engine->response()->timeConstDown();
 
-      std::vector<xml::ICERotorParam> rotor_params;
+      std::vector<xml::IceRotorParam> rotor_params;
       for (int i = 0; i < units->numUnits(); ++i) {
         const auto link_name = iprop->linkName(i).toStdString();
         const auto& cur_ele = tree_.getSegment(link_name)->second;
@@ -1162,7 +1162,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
 
         const auto unit = units->widget(i);
 
-        xml::ICERotorParam rotor_param;
+        xml::IceRotorParam rotor_param;
         rotor_param.link_name = iprop->linkName(i).toStdString();
         rotor_param.direction = turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction);
         rotor_param.gear_ratio = unit->transmission()->gearRatio();
@@ -1176,7 +1176,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
         rotor_params.push_back(rotor_param);
       }
 
-      xml::addICEPropulsionSystemPlugin(robot, ns, engine_param, rotor_params);
+      xml::addIcePropulsionSystemPlugin(robot, ns, engine_param, rotor_params);
 
       break;
     }
