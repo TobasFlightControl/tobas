@@ -315,8 +315,8 @@ void MagCalibrationWidget::onFinishButtonClicked()
   pc_calib->header.frame_id = tobas::kWorldFrame;
   pc_calib->points.resize(size);
   for (int i = 0; i < size; ++i) {
-    const Eigen::Vector3d p_calib = mag_trans_.transform(mag_data_[i]);
-    const Eigen::Vector3f p_disp = p_calib.cast<float>() * kRvizPointScale;
+    const auto p_calib = mag_trans_.transform(mag_data_[i]);
+    const auto p_disp = p_calib.cast<float>() * kRvizPointScale;
     tf::point32EigenToMsg(p_disp, pc_calib->points[i]);
   }
   pc_pub_->publish(std::move(pc_calib));
