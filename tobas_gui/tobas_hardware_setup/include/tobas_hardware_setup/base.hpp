@@ -3,14 +3,11 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
-
 namespace gui
 {
 namespace hw
 {
-class BaseHardwareSetupWidget : public qt::ScrollArea
+class BaseHardwareSetupWidget : public QWidget
 {
   Q_OBJECT
 

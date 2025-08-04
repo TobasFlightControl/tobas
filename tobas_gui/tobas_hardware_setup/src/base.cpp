@@ -12,14 +12,19 @@ namespace hw
 {
 BaseHardwareSetupWidget::BaseHardwareSetupWidget()
 {
-  rows_ = new QVBoxLayout();
-  setLayout(rows_);
+  // QTabWidgetのデフォルトの背景色は白すぎるため，ベース色に固定．
+  setAutoFillBackground(true);
+  auto pal = palette();
+  pal.setColor(QPalette::Window, pal.color(QPalette::Base));
 
   title_ = new QLabel();
   title_->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
-  rows_->addWidget(title_, 0, Qt::AlignTop);
 
+  rows_ = new QVBoxLayout();
+  rows_->addWidget(title_, 0, Qt::AlignTop);
   rows_->addSpacing(50);
+
+  setLayout(rows_);
 
   QTimer::singleShot(0, this, &BaseHardwareSetupWidget::initialize);
 }
