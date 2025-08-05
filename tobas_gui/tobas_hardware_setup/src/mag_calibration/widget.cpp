@@ -1,18 +1,24 @@
 #include "tobas_hardware_setup/mag_calibration/widget.hpp"
 
 #include <filesystem>
+#include <ranges>
 
+#include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/core.hpp>
+#include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/array.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
@@ -35,34 +41,34 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
     "3. Confirm that the point cloud forms a neat ellipsoid on the screen below.\n\n"
     "4. Press \"Finish\" button.\n\n",
     kBodyPSize);
-  rows_->addWidget(instruction);
-
-  const auto cols = new QHBoxLayout();
-  rows_->addLayout(cols);
 
   start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  cols->addWidget(start_button_);
-
   finish_button_ = new QPushButton("Finish");
-  finish_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  finish_button_->setEnabled(false);
-  connect(finish_button_, &QPushButton::clicked, this, &self::onFinishButtonClicked);
-  cols->addWidget(finish_button_);
-
   cancel_button_ = new QPushButton("Cancel");
-  cancel_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  cancel_button_->setEnabled(false);
-  connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
-  cols->addWidget(cancel_button_);
 
-  cols->addStretch();
+  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  finish_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  cancel_button_->setFixedSize(kButtonWidth, kButtonHeight);
+
+  finish_button_->setEnabled(false);
+  cancel_button_->setEnabled(false);
+
+  progress_bar_ = new QProgressBar();
+
+  for (size_t i = 0; i < kFaceSize; ++i) {
+    face_circles_.at(i) = new qt::CircleWidget();
+    face_circles_.at(i)->setLineWidth(kCircleLineWidth);
+  }
+  face_circles_.at(kTopIdx)->setText("Top");
+  face_circles_.at(kBottomIdx)->setText("Bottom");
+  face_circles_.at(kFrontIdx)->setText("Front");
+  face_circles_.at(kBackIdx)->setText("Back");
+  face_circles_.at(kLeftIdx)->setText("Left");
+  face_circles_.at(kRightIdx)->setText("Right");
 
   const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/mag_calibration.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
-  rows_->addWidget(rviz_manager_.widget());
 
   // 固定フレームを設定
   // TFが出ているフレームでなければならない
@@ -78,8 +84,32 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   ps_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointStampedTopic);
   pc_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kRvizPointCloudTopic, false, true);
 
-  // Other connections
+  // Layout
+  const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(start_button_);
+  button_cols->addWidget(finish_button_);
+  button_cols->addWidget(cancel_button_);
+  button_cols->addStretch();
+
+  const auto face_cols = new QHBoxLayout();
+  for (const auto& face_circle : face_circles_) {
+    face_cols->addWidget(face_circle);
+  }
+
+  rows_->addWidget(instruction);
+  rows_->addLayout(button_cols);
+  rows_->addWidget(progress_bar_);
+  rows_->addLayout(face_cols, 1);
+  rows_->addWidget(rviz_manager_.widget(), 4);
+
+  // Connection
+  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
+  connect(finish_button_, &QPushButton::clicked, this, &self::onFinishButtonClicked);
+  connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+
+  reset();
 }
 
 const char* MagCalibrationWidget::name() const
@@ -99,6 +129,7 @@ void MagCalibrationWidget::reset()
   rviz_manager_.resetTime();
 
   arming_.reset();
+  odom_.reset();
 }
 
 void MagCalibrationWidget::setNamespace(const std::string& ns)
@@ -108,6 +139,20 @@ void MagCalibrationWidget::setNamespace(const std::string& ns)
   ns_ = ns;
 }
 
+void MagCalibrationWidget::paintEvent(QPaintEvent*)
+{
+  // 最小のポイントサイズを決める
+  auto psize = INT32_MAX;
+  for (const auto& face_circle : face_circles_) {
+    psize = std::min(psize, face_circle->calcMaxTextPointSize());
+  }
+
+  // 最小のポイントサイズに揃える
+  for (const auto& face_circle : face_circles_) {
+    face_circle->setTextPointSize(psize);
+  }
+}
+
 void MagCalibrationWidget::resetToPreStart()
 {
   disconnect(mag_conn_);
@@ -115,15 +160,77 @@ void MagCalibrationWidget::resetToPreStart()
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
+
+  progress_bar_->setValue(0);
+
+  for (const auto& face_circle : face_circles_) {
+    face_circle->setFillColor(kCircleFillColorIncomplete);
+    face_circle->setLineColor(kCircleLineColorDeselected);
+  }
+
+  rot_angles_.fill(0.);
+  completed_.fill(false);
+}
+
+size_t MagCalibrationWidget::computeFaceIndex() const
+{
+  const auto& R_W_B = odom_->frame.M;
+
+  // 世界座標系から見た各軸のZ成分を取得
+  const auto axz = R_W_B.axisX().z();
+  const auto ayz = R_W_B.axisY().z();
+  const auto azz = R_W_B.axisZ().z();
+
+  const auto abs_axz = fabs(axz);
+  const auto abs_ayz = fabs(ayz);
+  const auto abs_azz = fabs(azz);
+
+  // 要素の大小関係から現在上を向いている面を決定
+  if (abs_axz >= std::max(abs_ayz, abs_azz)) {
+    if (axz > 0.) {
+      return kFrontIdx;
+    }
+    else {
+      return kBackIdx;
+    }
+  }
+  else if (abs_ayz >= std::max(abs_azz, abs_axz)) {
+    if (ayz > 0.) {
+      return kLeftIdx;
+    }
+    else {
+      return kRightIdx;
+    }
+  }
+  else if (abs_azz >= std::max(abs_axz, abs_ayz)) {
+    if (azz > 0.) {
+      return kTopIdx;
+    }
+    else {
+      return kBottomIdx;
+    }
+  }
+  else {
+    throw std::runtime_error("Impossible orientation.");
+  }
 }
 
 void MagCalibrationWidget::onStartButtonClicked()
 {
-  // アームされていないことを確認
+  // 必要なトピックが受け取れていることを確認
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
+  if (!odom_) {
+    qt::qWarnBox(
+      this,
+      "This operation cannot be performed because the odometry is not received yet. "
+      "Please check whether the accelerometer has been calibrated.");
+    return;
+  }
+
+  // アームされていないことを確認
   if (arming_->data) {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     return;
@@ -147,7 +254,6 @@ void MagCalibrationWidget::onStartButtonClicked()
   pc_pub_->publish(std::move(pc_empty));
 
   start_button_->setEnabled(false);
-  finish_button_->setEnabled(true);
   cancel_button_->setEnabled(true);
 
   qt::qInfoBox(this, "Magnetometer calibration is started.");
@@ -161,22 +267,23 @@ void MagCalibrationWidget::onCancelButtonClicked()
 
 void MagCalibrationWidget::onFinishButtonClicked()
 {
-  const auto size = std::min(cnt_, kMaxDataSize);
-  if (size < kMinDataSize) {
+  if (cnt_ < kMinDataSize) {
     qt::qWarnBox(this, "The number of collected samples is too small.");
     return;
   }
 
+  // TODO: 密度の均一化
   // TODO: 外れ値の除去
-  // TODO: データが均一になるように間引く
-  // TODO: データがきれいな楕円体を描いているかどうかをチェック
+
+  const auto size = cnt_;  // TODO: 前処理後の点数
 
   // データを整理
   Eigen::VectorXd x(size), y(size), z(size);
   for (int i = 0; i < size; ++i) {
-    x(i) = mag_data_[i].x();
-    y(i) = mag_data_[i].y();
-    z(i) = mag_data_[i].z();
+    const auto& mag = mag_data_.at(i);
+    x(i) = mag.x();
+    y(i) = mag.y();
+    z(i) = mag.z();
   }
   const auto xx = x.cwiseProduct(x).eval();
   const auto yy = y.cwiseProduct(y).eval();
@@ -188,6 +295,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   constexpr auto kCalibMethod = kBounding;  // TODO: 手法を選べるようにする
 
   // 楕円体の係数を求める
+  math::EllipseTransformer mag_trans;
   if (kCalibMethod == kBounding) {
     // https://okasho-engineer.com/magnetic-sensor-calibration/
     const auto x_min = x.minCoeff();
@@ -207,23 +315,23 @@ void MagCalibrationWidget::onFinishButtonClicked()
     const auto ry2 = math::sqr(ry);
     const auto rz2 = math::sqr(rz);
 
-    mag_trans_.a_xx = 1 / rx2;
-    mag_trans_.a_yy = 1 / ry2;
-    mag_trans_.a_zz = 1 / rz2;
-    mag_trans_.a_xy = 0;
-    mag_trans_.a_yz = 0;
-    mag_trans_.a_zx = 0;
-    mag_trans_.b_x = -2 * x0 / rx2;
-    mag_trans_.b_y = -2 * y0 / ry2;
-    mag_trans_.b_z = -2 * z0 / rz2;
-    mag_trans_.c = math::sqr(x0) / rx2 + math::sqr(y0) / ry2 + math::sqr(z0) / rz2 - 1;
+    mag_trans.a_xx = 1 / rx2;
+    mag_trans.a_yy = 1 / ry2;
+    mag_trans.a_zz = 1 / rz2;
+    mag_trans.a_xy = 0;
+    mag_trans.a_yz = 0;
+    mag_trans.a_zx = 0;
+    mag_trans.b_x = -2 * x0 / rx2;
+    mag_trans.b_y = -2 * y0 / ry2;
+    mag_trans.b_z = -2 * z0 / rz2;
+    mag_trans.c = math::sqr(x0) / rx2 + math::sqr(y0) / ry2 + math::sqr(z0) / rz2 - 1;
   }
   else {
     // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
     // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
-    mag_trans_.c = -(xx + yy + zz).mean();
+    mag_trans.c = -(xx + yy + zz).mean();
     Eigen::VectorXd ce0(size);
-    ce0.fill(-mag_trans_.c);
+    ce0.fill(-mag_trans.c);
 
     if (kCalibMethod == kSphereFitting) {
       // 球体でフィッティング．
@@ -235,15 +343,15 @@ void MagCalibrationWidget::onFinishButtonClicked()
       CE.col(3) = z;
       const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
-      mag_trans_.a_xx = coefs(0);
-      mag_trans_.a_yy = coefs(0);
-      mag_trans_.a_zz = coefs(0);
-      mag_trans_.a_xy = 0;
-      mag_trans_.a_yz = 0;
-      mag_trans_.a_zx = 0;
-      mag_trans_.b_x = coefs(1);
-      mag_trans_.b_y = coefs(2);
-      mag_trans_.b_z = coefs(3);
+      mag_trans.a_xx = coefs(0);
+      mag_trans.a_yy = coefs(0);
+      mag_trans.a_zz = coefs(0);
+      mag_trans.a_xy = 0;
+      mag_trans.a_yz = 0;
+      mag_trans.a_zx = 0;
+      mag_trans.b_x = coefs(1);
+      mag_trans.b_y = coefs(2);
+      mag_trans.b_z = coefs(3);
     }
     else if (kCalibMethod == kEllipseFitting) {
       // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
@@ -260,15 +368,15 @@ void MagCalibrationWidget::onFinishButtonClicked()
       CE.col(8) = z;
       const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
-      mag_trans_.a_xx = coefs(0);
-      mag_trans_.a_yy = coefs(1);
-      mag_trans_.a_zz = coefs(2);
-      mag_trans_.a_xy = coefs(3);
-      mag_trans_.a_yz = coefs(4);
-      mag_trans_.a_zx = coefs(5);
-      mag_trans_.b_x = coefs(6);
-      mag_trans_.b_y = coefs(7);
-      mag_trans_.b_z = coefs(8);
+      mag_trans.a_xx = coefs(0);
+      mag_trans.a_yy = coefs(1);
+      mag_trans.a_zz = coefs(2);
+      mag_trans.a_xy = coefs(3);
+      mag_trans.a_yz = coefs(4);
+      mag_trans.a_zx = coefs(5);
+      mag_trans.b_x = coefs(6);
+      mag_trans.b_y = coefs(7);
+      mag_trans.b_z = coefs(8);
     }
     else {
       throw;
@@ -276,23 +384,25 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
 
   // 楕円体であることを確認
-  if (!mag_trans_.initialize()) {
+  if (!mag_trans.initialize()) {
     qt::qErrorBox(this, "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.");
     return;
   }
 
+  // TODO: データがきれいな楕円体を描いているかどうかをチェック
+
   // パラメータを作成
   const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
-  req->a_xx = mag_trans_.a_xx;
-  req->a_yy = mag_trans_.a_yy;
-  req->a_zz = mag_trans_.a_zz;
-  req->a_xy = mag_trans_.a_xy;
-  req->a_yz = mag_trans_.a_yz;
-  req->a_zx = mag_trans_.a_zx;
-  req->b_x = mag_trans_.b_x;
-  req->b_y = mag_trans_.b_y;
-  req->b_z = mag_trans_.b_z;
-  req->c = mag_trans_.c;
+  req->a_xx = mag_trans.a_xx;
+  req->a_yy = mag_trans.a_yy;
+  req->a_zz = mag_trans.a_zz;
+  req->a_xy = mag_trans.a_xy;
+  req->a_yz = mag_trans.a_yz;
+  req->a_zx = mag_trans.a_zx;
+  req->b_x = mag_trans.b_x;
+  req->b_y = mag_trans.b_y;
+  req->b_z = mag_trans.b_z;
+  req->c = mag_trans.c;
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
@@ -315,9 +425,9 @@ void MagCalibrationWidget::onFinishButtonClicked()
   pc_calib->header.frame_id = tobas::kWorldFrame;
   pc_calib->points.resize(size);
   for (int i = 0; i < size; ++i) {
-    const auto p_calib = mag_trans_.transform(mag_data_[i]);
+    const auto p_calib = mag_trans.transform(mag_data_.at(i).data);
     const auto p_disp = p_calib.cast<float>() * kRvizPointScale;
-    tf::point32EigenToMsg(p_disp, pc_calib->points[i]);
+    tf::point32EigenToMsg(p_disp, pc_calib->points.at(i));
   }
   pc_pub_->publish(std::move(pc_calib));
 
@@ -325,31 +435,97 @@ void MagCalibrationWidget::onFinishButtonClicked()
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
 }
 
-void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw)
+void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
 {
-  // 最初のデータからスケールを決定
+  const auto& mag = msg->mag;
+
+  // 最初のデータ
   if (cnt_ == 0) {
-    mag_norm_ = mag_raw->mag.norm();
+    mag_norm_ = mag.norm();
     if (mag_norm_ == 0.) {
-      RCLCPP_WARN(node_->get_logger(), "The first magnetic field is zero.");
+      qWarning() << "Zero magnetic field is received.";
       return;
     }
+
+    last_time_ = msg->header.stamp;
+    cur_face_idx_ = computeFaceIndex();
+    face_circles_.at(cur_face_idx_)->setLineColor(kCircleLineColorSelected);
+  }
+
+  // 最大点数に達したら強制終了
+  if (cnt_ >= kMaxDataSize) {
+    resetToPreStart();
+    qt::qErrorBox(this, "Magnetometer sample limit reached. Calibration canceled.");
+    return;
   }
 
   // データを追加
-  mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->mag.data;
+  mag_data_.at(cnt_++) = mag;
 
   // 表示用メッセージを発行
   auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();
-  point_msg->header = mag_raw->header;
+  point_msg->header = msg->header;
   point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
-  kdl::pointKDLToMsg(mag_raw->mag * (kRvizPointScale / mag_norm_), point_msg->point);
+  kdl::pointKDLToMsg(mag * (kRvizPointScale / mag_norm_), point_msg->point);
   ps_pub_->publish(std::move(point_msg));
+
+  // 時刻を更新
+  const auto& cur_time = msg->header.stamp;
+  const auto dt = (cur_time - last_time_).seconds();
+  last_time_ = cur_time;
+
+  // 現在の向きを円の外枠の色で表示
+  const auto new_face_idx = computeFaceIndex();
+  if (new_face_idx != cur_face_idx_) {
+    face_circles_.at(cur_face_idx_)->setLineColor(kCircleLineColorDeselected);
+    face_circles_.at(new_face_idx)->setLineColor(kCircleLineColorSelected);
+    cur_face_idx_ = new_face_idx;
+  }
+
+  if (!finish_button_->isEnabled()) {
+    // 現在の向きの回転量を更新
+    if (!completed_.at(cur_face_idx_)) {
+      // グローバルZ軸回りの回転速さを計算
+      const auto W_gyro = odom_->frame.M * odom_->twist.rot;
+      const auto yawrate = fabs(W_gyro.z());
+
+      // 回転を検知したら回転量を積分
+      // 回転が速すぎると十分にサンプリングできないため上限を定める
+      if (yawrate > kMinYawRate) {
+        rot_angles_.at(cur_face_idx_) += std::min(yawrate, kMaxYawRate) * dt;
+      }
+
+      // 十分回転したら完了
+      if (rot_angles_.at(cur_face_idx_) > kYawAngleThresh) {
+        face_circles_.at(cur_face_idx_)->setFillColor(kCircleFillColorComplete);
+        completed_.at(cur_face_idx_) = true;
+      }
+    }
+
+    // 進捗バーを更新
+    double progress = 0.;  // [-]
+    for (const auto& [rot_angle, completed] : std::views::zip(rot_angles_, completed_)) {
+      const auto face_progress = completed ? 1. : rot_angle / kYawAngleThresh;
+      progress += face_progress / kFaceSize;
+    }
+    progress_bar_->setValue(static_cast<int>(progress * 100.));
+
+    // 全ての面のデータが十分に溜まったらFinishボタンを有効化
+    if (tobas_std::allEqual(completed_, true)) {
+      finish_button_->setEnabled(true);
+      progress_bar_->setValue(100);
+    }
+  }
 }
 
-void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)
 {
-  arming_ = arming;
+  arming_ = msg;
+}
+
+void MagCalibrationWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg)
+{
+  odom_ = msg;
 }
 }  // namespace hw
 }  // namespace gui

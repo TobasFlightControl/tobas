@@ -1,5 +1,6 @@
 #include "tobas_hardware_setup/hardware_setup.hpp"
 
+#include <QApplication>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
@@ -19,7 +20,7 @@ HardwareSetupWidget::HardwareSetupWidget(
   setLayout(rows);
 
   tabs_ = new qt::VerticalTabWidget();
-  tabs_->enableWheelEvent(false);  // 不可視なタブのウィジェットを表示しないように
+  tabs_->enableWheelEvent(false);
   rows->addWidget(tabs_);
 
   network_setting_ = new NetworkSettingWidget(node);

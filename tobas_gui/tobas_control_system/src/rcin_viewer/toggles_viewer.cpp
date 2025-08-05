@@ -51,9 +51,9 @@ TogglesViewer::TogglesViewer(const RosQtBridge& bridge)
 
 void TogglesViewer::reset()
 {
-  acrobat_mode_->setColor(kOffColor);
-  stabilize_mode_->setColor(kOffColor);
-  loiter_mode_->setColor(kOffColor);
+  acrobat_mode_->setFillColor(kOffColor);
+  stabilize_mode_->setFillColor(kOffColor);
+  loiter_mode_->setFillColor(kOffColor);
 
   kill_->setChecked(false);
   sub_mode_->setChecked(false);
@@ -97,24 +97,24 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
   if (rcin->enable) {
     if (rcin->mode == tobas::FlightMode::kStabilize) {
-      stabilize_mode_->setColor(kOnColorEnable);
+      stabilize_mode_->setFillColor(kOnColorEnable);
     }
     else {
-      stabilize_mode_->setColor(kOffColor);
+      stabilize_mode_->setFillColor(kOffColor);
     }
 
     if (rcin->mode == tobas::FlightMode::kAcrobat) {
-      acrobat_mode_->setColor(kOnColorEnable);
+      acrobat_mode_->setFillColor(kOnColorEnable);
     }
     else {
-      acrobat_mode_->setColor(kOffColor);
+      acrobat_mode_->setFillColor(kOffColor);
     }
 
     if (rcin->mode == tobas::FlightMode::kLoiter) {
-      loiter_mode_->setColor(kOnColorEnable);
+      loiter_mode_->setFillColor(kOnColorEnable);
     }
     else {
-      loiter_mode_->setColor(kOffColor);
+      loiter_mode_->setFillColor(kOffColor);
     }
 
     kill_->setOnColor(kOnColorEnable);
@@ -122,24 +122,24 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
   }
   else {
     if (rcin->mode == tobas::FlightMode::kStabilize) {
-      stabilize_mode_->setColor(kOnColorDisable);
+      stabilize_mode_->setFillColor(kOnColorDisable);
     }
     else {
-      stabilize_mode_->setColor(kOffColor);
+      stabilize_mode_->setFillColor(kOffColor);
     }
 
     if (rcin->mode == tobas::FlightMode::kAcrobat) {
-      acrobat_mode_->setColor(kOnColorDisable);
+      acrobat_mode_->setFillColor(kOnColorDisable);
     }
     else {
-      acrobat_mode_->setColor(kOffColor);
+      acrobat_mode_->setFillColor(kOffColor);
     }
 
     if (rcin->mode == tobas::FlightMode::kLoiter) {
-      loiter_mode_->setColor(kOnColorDisable);
+      loiter_mode_->setFillColor(kOnColorDisable);
     }
     else {
-      loiter_mode_->setColor(kOffColor);
+      loiter_mode_->setFillColor(kOffColor);
     }
 
     kill_->setOnColor(kOnColorDisable);

@@ -24,20 +24,20 @@ StatusWidget::StatusWidget(const QString& text)
 
 void StatusWidget::reset()
 {
-  led_->setColor(kUnknownColor);
+  led_->setFillColor(kUnknownColor);
 }
 
 void StatusWidget::setStatus(Status status)
 {
   switch (status) {
     case PASSED:
-      led_->setColor(kPassedColor);
+      led_->setFillColor(kPassedColor);
       break;
     case FAILED:
-      led_->setColor(kFailedColor);
+      led_->setFillColor(kFailedColor);
       break;
     case IGNORED:
-      led_->setColor(kIgnoredColor);
+      led_->setFillColor(kIgnoredColor);
       break;
     default:
       qWarning() << "Unknown status: " << status;

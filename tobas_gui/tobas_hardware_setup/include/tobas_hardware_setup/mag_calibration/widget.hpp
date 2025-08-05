@@ -1,9 +1,10 @@
 #pragma once
 
+#include <QProgressBar>
 #include <QPushButton>
 #include <rviz_common/properties/property.hpp>
 
-#include <tobas_math/ellipse_transformer.hpp>
+#include <tobas_qt_tools/widgets/circle_widget.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
@@ -31,6 +32,23 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
   static constexpr double kRvizPointScale = 10.;
+  static constexpr double kMinYawRate = M_PI / 30;     // [rad/s]
+  static constexpr double kMaxYawRate = M_PI_2;        // [rad/s]
+  static constexpr double kYawAngleThresh = 4 * M_PI;  // [rad]
+
+  static constexpr int kCircleLineWidth = 10;
+  static constexpr auto kCircleFillColorComplete = Qt::green;
+  static constexpr auto kCircleFillColorIncomplete = Qt::gray;
+  static constexpr auto kCircleLineColorSelected = Qt::red;
+  static constexpr auto kCircleLineColorDeselected = Qt::black;
+
+  static constexpr size_t kTopIdx = 0;
+  static constexpr size_t kBottomIdx = kTopIdx + 1;
+  static constexpr size_t kFrontIdx = kBottomIdx + 1;
+  static constexpr size_t kBackIdx = kFrontIdx + 1;
+  static constexpr size_t kLeftIdx = kBackIdx + 1;
+  static constexpr size_t kRightIdx = kLeftIdx + 1;
+  static constexpr size_t kFaceSize = kRightIdx + 1;
 
 public:
   explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
@@ -41,6 +59,9 @@ public:
   void reset() override;
 
   void setNamespace(const std::string& ns);
+
+protected:
+  void paintEvent(QPaintEvent* event) override;
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -53,11 +74,20 @@ private:
   QPushButton* finish_button_;
   QPushButton* cancel_button_;
 
+  QProgressBar* progress_bar_;
+  std::array<qt::CircleWidget*, kFaceSize> face_circles_;
+
+  // 計測用の変数とバッファ
   int cnt_;
   double mag_norm_;
-  std::array<Eigen::Vector3d, kMaxDataSize> mag_data_;
-  math::EllipseTransformer mag_trans_;
+  builtin_interfaces::msg::Time last_time_;
+  size_t cur_face_idx_;
+  std::array<double, kFaceSize> rot_angles_;
+  std::array<bool, kFaceSize> completed_;
+  std::array<kdl::Vector, kMaxDataSize> mag_data_;
+
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  tobas_msgs::Odometry::ConstSharedPtr odom_;
 
   rviz_common::properties::Property* ps_history_length_;
 
@@ -69,13 +99,16 @@ private:
   /* キャリブレーション開始前の状態にリセットする． */
   void resetToPreStart();
 
+  size_t computeFaceIndex() const;
+
 private Q_SLOTS:
   void onStartButtonClicked();
   void onCancelButtonClicked();
   void onFinishButtonClicked();
 
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg);
 };
 }  // namespace hw
 }  // namespace gui

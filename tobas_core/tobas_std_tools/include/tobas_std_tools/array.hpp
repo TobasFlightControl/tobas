@@ -66,7 +66,7 @@ T fmean(const std::array<T, N>& arr)
 
 /* 最も近い値のインデックスを返す． */
 template <typename T, size_t N>
-size_t closestIndex(const std::array<T, N>& arr, const T& a)
+size_t closestIndex(const std::array<T, N>& arr, const T& val)
 {
   assert(N > 0);
 
@@ -74,7 +74,7 @@ size_t closestIndex(const std::array<T, N>& arr, const T& a)
   T closest_dist = std::numeric_limits<T>::max();
 
   for (size_t i = 0; i < N; ++i) {
-    const T dist = std::abs(arr[i] - a);
+    const T dist = std::abs(arr[i] - val);
     if (dist < closest_dist) {
       closest_dist = dist;
       closest_idx = i;
@@ -89,5 +89,12 @@ template <typename T, size_t N>
 inline size_t count(const std::array<T, N>& arr, const T& val)
 {
   return std::count(arr.begin(), arr.end(), val);
+}
+
+/* 全ての要素が等しい場合にtrueを返す． */
+template <typename T, size_t N>
+inline bool allEqual(const std::array<T, N>& arr, const T& target)
+{
+  return std::all_of(arr.begin(), arr.end(), [&target](const auto& val) { return val == target; });
 }
 }  // namespace tobas_std
