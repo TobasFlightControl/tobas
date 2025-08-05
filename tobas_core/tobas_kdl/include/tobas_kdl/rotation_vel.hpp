@@ -25,15 +25,9 @@ public:
 
   inline void setIdentity();
 
-  inline VectorVel UnitX() const;
-  inline VectorVel UnitY() const;
-  inline VectorVel UnitZ() const;
   inline RotationVel inverse() const;
   inline VectorVel inverse(const VectorVel& arg) const;
   inline VectorVel inverse(const Vector& arg) const;
-  inline void doRotX(const doubleVel& angle);
-  inline void doRotY(const doubleVel& angle);
-  inline void doRotZ(const doubleVel& angle);
 
   inline VectorVel operator*(const VectorVel& arg) const;
   inline VectorVel operator*(const Vector& arg) const;
@@ -86,21 +80,6 @@ inline void RotationVel::setIdentity()
   w.setZero();
 }
 
-inline VectorVel RotationVel::UnitX() const
-{
-  return VectorVel(R.UnitX(), w * R.UnitX());
-}
-
-inline VectorVel RotationVel::UnitY() const
-{
-  return VectorVel(R.UnitY(), w * R.UnitY());
-}
-
-inline VectorVel RotationVel::UnitZ() const
-{
-  return VectorVel(R.UnitZ(), w * R.UnitZ());
-}
-
 inline RotationVel RotationVel::inverse() const
 {
   return RotationVel(R.inverse(), -R.inverse(w));
@@ -116,24 +95,6 @@ inline VectorVel RotationVel::inverse(const Vector& arg) const
 {
   const auto tmp = R.inverse(arg);
   return VectorVel(tmp, R.inverse(-w * arg));
-}
-
-inline void RotationVel::doRotX(const doubleVel& angle)
-{
-  w += R * Vector(angle.grad, 0, 0);
-  R.doRotX(angle.t);
-}
-
-inline void RotationVel::doRotY(const doubleVel& angle)
-{
-  w += R * Vector(0, angle.grad, 0);
-  R.doRotY(angle.t);
-}
-
-inline void RotationVel::doRotZ(const doubleVel& angle)
-{
-  w += R * Vector(0, 0, angle.grad);
-  R.doRotZ(angle.t);
 }
 
 inline VectorVel RotationVel::operator*(const VectorVel& arg) const

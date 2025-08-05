@@ -11,149 +11,6 @@ using namespace std;
 
 namespace kdl
 {
-Rotation Rotation::Quaternion(double x, double y, double z, double w)
-{
-  assert(tobas_std::isClose(math::norm(x, y, z, w), 1.));
-
-  const auto tx = 2 * x;
-  const auto ty = 2 * y;
-  const auto tz = 2 * z;
-  const auto twx = tx * w;
-  const auto twy = ty * w;
-  const auto twz = tz * w;
-  const auto txx = tx * x;
-  const auto txy = ty * x;
-  const auto txz = tz * x;
-  const auto tyy = ty * y;
-  const auto tyz = tz * y;
-  const auto tzz = tz * z;
-
-  return Rotation(
-    1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
-}
-
-void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
-{
-  const auto trace = data.trace();
-  if (trace > EPS) {
-    const auto s = 0.5 / sqrt(trace + 1.);
-    w = 0.25 / s;
-    x = (data(2, 1) - data(1, 2)) * s;
-    y = (data(0, 2) - data(2, 0)) * s;
-    z = (data(1, 0) - data(0, 1)) * s;
-  }
-  else {
-    if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2)) {
-      const auto s = 2. * sqrt(1. + data(0, 0) - data(1, 1) - data(2, 2));
-      w = (data(2, 1) - data(1, 2)) / s;
-      x = 0.25 * s;
-      y = (data(0, 1) + data(1, 0)) / s;
-      z = (data(0, 2) + data(2, 0)) / s;
-    }
-    else if (data(1, 1) > data(2, 2)) {
-      const auto s = 2. * sqrt(1. + data(1, 1) - data(0, 0) - data(2, 2));
-      w = (data(0, 2) - data(2, 0)) / s;
-      x = (data(0, 1) + data(1, 0)) / s;
-      y = 0.25 * s;
-      z = (data(1, 2) + data(2, 1)) / s;
-    }
-    else {
-      const auto s = 2. * sqrt(1. + data(2, 2) - data(0, 0) - data(1, 1));
-      w = (data(1, 0) - data(0, 1)) / s;
-      x = (data(0, 2) + data(2, 0)) / s;
-      y = (data(1, 2) + data(2, 1)) / s;
-      z = 0.25 * s;
-    }
-  }
-}
-
-Rotation Rotation::RPY(double roll, double pitch, double yaw)
-{
-  const auto ca = cos(yaw);
-  const auto sa = sin(yaw);
-  const auto cb = cos(pitch);
-  const auto sb = sin(pitch);
-  const auto cc = cos(roll);
-  const auto sc = sin(roll);
-
-  const auto xx = ca * cb;
-  const auto yx = ca * sb * sc - sa * cc;
-  const auto zx = ca * sb * cc + sa * sc;
-  const auto xy = sa * cb;
-  const auto yy = sa * sb * sc + ca * cc;
-  const auto zy = sa * sb * cc - ca * sc;
-  const auto xz = -sb;
-  const auto yz = cb * sc;
-  const auto zz = cb * cc;
-
-  return Rotation(xx, yx, zx, xy, yy, zy, xz, yz, zz);
-}
-
-void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
-{
-  pitch = atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
-  if (fabs(pitch) > (M_PI_2 - EPS)) {
-    yaw = atan2(-data(0, 1), data(1, 1));
-    roll = 0.;
-  }
-  else {
-    roll = atan2(data(2, 1), data(2, 2));
-    yaw = atan2(data(1, 0), data(0, 0));
-  }
-}
-
-tuple<double, double, double> Rotation::getRPY() const
-{
-  double roll, pitch, yaw;
-  getRPY(roll, pitch, yaw);
-  return { roll, pitch, yaw };
-}
-
-void Rotation::doRotX(double angle)
-{
-  const auto cs = cos(angle);
-  const auto sn = sin(angle);
-  const auto x1 = cs * data(0, 1) + sn * data(0, 2);
-  const auto x2 = cs * data(1, 1) + sn * data(1, 2);
-  const auto x3 = cs * data(2, 1) + sn * data(2, 2);
-  data(0, 2) = -sn * data(0, 1) + cs * data(0, 2);
-  data(1, 2) = -sn * data(1, 1) + cs * data(1, 2);
-  data(2, 2) = -sn * data(2, 1) + cs * data(2, 2);
-  data(0, 1) = x1;
-  data(1, 1) = x2;
-  data(2, 1) = x3;
-}
-
-void Rotation::doRotY(double angle)
-{
-  const auto cs = cos(angle);
-  const auto sn = sin(angle);
-  const auto x1 = cs * data(0, 0) - sn * data(0, 2);
-  const auto x2 = cs * data(1, 0) - sn * data(1, 2);
-  const auto x3 = cs * data(2, 0) - sn * data(2, 2);
-  data(0, 2) = sn * data(0, 0) + cs * data(0, 2);
-  data(1, 2) = sn * data(1, 0) + cs * data(1, 2);
-  data(2, 2) = sn * data(2, 0) + cs * data(2, 2);
-  data(0, 0) = x1;
-  data(1, 0) = x2;
-  data(2, 0) = x3;
-}
-
-void Rotation::doRotZ(double angle)
-{
-  const auto cs = cos(angle);
-  const auto sn = sin(angle);
-  const auto x1 = cs * data(0, 0) + sn * data(0, 1);
-  const auto x2 = cs * data(1, 0) + sn * data(1, 1);
-  const auto x3 = cs * data(2, 0) + sn * data(2, 1);
-  data(0, 1) = -sn * data(0, 0) + cs * data(0, 1);
-  data(1, 1) = -sn * data(1, 0) + cs * data(1, 1);
-  data(2, 1) = -sn * data(2, 0) + cs * data(2, 1);
-  data(0, 0) = x1;
-  data(1, 0) = x2;
-  data(2, 0) = x3;
-}
-
 Rotation Rotation::RotX(double angle)
 {
   const auto cs = cos(angle);
@@ -211,6 +68,104 @@ Rotation Rotation::Rot(const Vector& axis, double angle)
 Rotation Rotation::Rot(const Vector& vec)
 {
   return Rotation::Rot(vec.normalized(), vec.norm());
+}
+
+Rotation Rotation::RPY(double roll, double pitch, double yaw)
+{
+  const auto ca = cos(yaw);
+  const auto sa = sin(yaw);
+  const auto cb = cos(pitch);
+  const auto sb = sin(pitch);
+  const auto cc = cos(roll);
+  const auto sc = sin(roll);
+
+  const auto xx = ca * cb;
+  const auto yx = ca * sb * sc - sa * cc;
+  const auto zx = ca * sb * cc + sa * sc;
+  const auto xy = sa * cb;
+  const auto yy = sa * sb * sc + ca * cc;
+  const auto zy = sa * sb * cc - ca * sc;
+  const auto xz = -sb;
+  const auto yz = cb * sc;
+  const auto zz = cb * cc;
+
+  return Rotation(xx, yx, zx, xy, yy, zy, xz, yz, zz);
+}
+
+Rotation Rotation::Quaternion(double x, double y, double z, double w)
+{
+  assert(tobas_std::isClose(math::norm(x, y, z, w), 1.));
+
+  const auto tx = 2 * x;
+  const auto ty = 2 * y;
+  const auto tz = 2 * z;
+  const auto twx = tx * w;
+  const auto twy = ty * w;
+  const auto twz = tz * w;
+  const auto txx = tx * x;
+  const auto txy = ty * x;
+  const auto txz = tz * x;
+  const auto tyy = ty * y;
+  const auto tyz = tz * y;
+  const auto tzz = tz * z;
+
+  return Rotation(
+    1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
+}
+
+void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
+{
+  const auto trace = data.trace();
+  if (trace > EPS) {
+    const auto s = 0.5 / sqrt(trace + 1.);
+    w = 0.25 / s;
+    x = (data(2, 1) - data(1, 2)) * s;
+    y = (data(0, 2) - data(2, 0)) * s;
+    z = (data(1, 0) - data(0, 1)) * s;
+  }
+  else {
+    if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2)) {
+      const auto s = 2. * sqrt(1. + data(0, 0) - data(1, 1) - data(2, 2));
+      w = (data(2, 1) - data(1, 2)) / s;
+      x = 0.25 * s;
+      y = (data(0, 1) + data(1, 0)) / s;
+      z = (data(0, 2) + data(2, 0)) / s;
+    }
+    else if (data(1, 1) > data(2, 2)) {
+      const auto s = 2. * sqrt(1. + data(1, 1) - data(0, 0) - data(2, 2));
+      w = (data(0, 2) - data(2, 0)) / s;
+      x = (data(0, 1) + data(1, 0)) / s;
+      y = 0.25 * s;
+      z = (data(1, 2) + data(2, 1)) / s;
+    }
+    else {
+      const auto s = 2. * sqrt(1. + data(2, 2) - data(0, 0) - data(1, 1));
+      w = (data(1, 0) - data(0, 1)) / s;
+      x = (data(0, 2) + data(2, 0)) / s;
+      y = (data(1, 2) + data(2, 1)) / s;
+      z = 0.25 * s;
+    }
+  }
+}
+
+void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
+{
+  pitch = atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
+  if (fabs(pitch) > (M_PI_2 - EPS)) {
+    yaw = atan2(-data(0, 1), data(1, 1));
+    roll = 0.;
+  }
+  else {
+    roll = atan2(data(2, 1), data(2, 2));
+    yaw = atan2(data(1, 0), data(0, 0));
+  }
+}
+
+tuple<double, double, double> Rotation::getRPY() const
+{
+  double roll, pitch, yaw;
+  getRPY(roll, pitch, yaw);
+  return { roll, pitch, yaw };
 }
 
 Vector Rotation::getRot() const

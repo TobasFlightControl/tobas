@@ -3,6 +3,7 @@
 #include "./accel.hpp"
 #include "./segment_jacobian.hpp"
 #include "./twist.hpp"
+#include "./vector.hpp"
 #include "./wrench.hpp"
 
 namespace kdl
@@ -30,104 +31,37 @@ public:
   inline explicit Rotation(const Vector& x, const Vector& y, const Vector& z);
   inline explicit Rotation(const Eigen::Matrix3d& _data);
 
-  // Gives back an identity rotation matrix
+  /* Gives back an identity rotation matrix. */
   static inline Rotation Identity();
 
-  inline void setIdentity();
-
-  // Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set
-  inline double& operator()(int i, int j);
-  // Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set
-  inline double operator()(int i, int j) const;
-
-  // Sets the value of *this to its inverse.
-  inline void setInverse();
-  // Gives back the inverse rotation matrix of *this.
-  inline Rotation inverse() const;
-  // The same as R.inverse()*v but more efficient.
-  inline Vector inverse(const Vector& v) const;
-  // The same as R.inverse()*arg but more efficient.
-  inline Twist inverse(const Twist& arg) const;
-  // The same as R.inverse()*arg but more efficient.
-  inline Accel inverse(const Accel& arg) const;
-  // The same as R.inverse()*arg but more efficient.
-  inline Wrench inverse(const Wrench& arg) const;
-  // The same as R.inverse()*arg but more efficient.
-  inline SegmentJacobian inverse(const SegmentJacobian& arg) const;
-
-  // The DoRot... functions apply a rotation R to *this,such that *this = *this * Rot..
-  // DoRot... functions are only defined when they can be executed more efficiently
-  void doRotX(double angle);
-  // The DoRot... functions apply a rotation R to *this,such that *this = *this * Rot..
-  // DoRot... functions are only defined when they can be executed more efficiently
-  void doRotY(double angle);
-  // The DoRot... functions apply a rotation R to *this,such that *this = *this * Rot..
-  // DoRot... functions are only defined when they can be executed more efficiently
-  void doRotZ(double angle);
-
-  // The Rot... static functions give the value of the appropriate rotation matrix back.
+  /* The Rot... static functions give the value of the appropriate rotation matrix back. */
   static Rotation RotX(double angle);
-  // The Rot... static functions give the value of the appropriate rotation matrix back.
+  /* The Rot... static functions give the value of the appropriate rotation matrix back. */
   static Rotation RotY(double angle);
-  // The Rot... static functions give the value of the appropriate rotation matrix back.
+  /* The Rot... static functions give the value of the appropriate rotation matrix back. */
   static Rotation RotZ(double angle);
 
-  // Along an arbitrary axes. Axis must be normalized.
-  // returns identity rotation matrix in the case that the norm of axis is to small to be used.
-  // R = exp(ω)
+  /**
+   * @brief Along an arbitrary axes. Axis must be normalized.
+   * Returns identity rotation matrix in the case that the norm of axis is to small to be used.
+   * R = exp(ω)
+   */
   static Rotation Rot(const Vector& axis, double angle);
   static Rotation Rot(const Vector& vec);
 
-  // Returns a vector with the direction of the equiv. axis and its norm is angle.
-  // ω = log(R)
-  Vector getRot() const;
-
-  // Returns the rotation angle around the equiv. axis.
-  std::pair<double, Vector> getAngleAxis() const;
-
-  // Gives back a rotation matrix specified with Quaternion convention.
-  // The norm of (x,y,z,w) should be equal to 1.
-  static Rotation Quaternion(double x, double y, double z, double w);
-
-  // Get the quaternion of this matrix.
-  void getQuaternion(double& x, double& y, double& z, double& w) const;
-
-  /**
-   *
-   * Gives back a rotation matrix specified with RPY convention:
-   * first rotate around X with roll, then around the
-   *              old Y with pitch, then around old Z with yaw
-   *
-   * Invariants:
-   *  - RPY(roll,pitch,yaw) == RPY( roll +/- PI, PI-pitch, yaw +/- PI )
-   *  - angles + 2*k*PI
-   */
+  /* Gives back a rotation matrix specified with ZYX euler angles. */
   static Rotation RPY(double roll, double pitch, double yaw);
 
-  /**  Gives back a vector in RPY coordinates, variables are bound by
-       -  -PI <= roll <= PI
-       -   -PI <= Yaw  <= PI
-       -  -PI/2 <= PITCH <= PI/2
+  /* Gives back a rotation matrix specified with Quaternion convention. */
+  static Rotation Quaternion(double x, double y, double z, double w);
 
-     convention :
-     - first rotate around X with roll,
-     - then around the old Y with pitch,
-     - then around old Z with yaw
+  inline void setIdentity();
+  inline void setInverse();
 
-     if pitch == PI/2 or pitch == -PI/2, multiple solutions for gamma and alpha exist.  The solution
-  where roll==0 is chosen.
-
-     Invariants:
-     - RPY(roll,pitch,yaw) == RPY( roll +/- PI, PI-pitch, yaw +/- PI )
-     - angles + 2*k*PI
-
-  **/
-  void getRPY(double& roll, double& pitch, double& yaw) const;
-  std::tuple<double, double, double> getRPY() const;
-
-  inline double getYaw() const;
-
-  inline double trace() const;
+  /* Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set. */
+  inline double& operator()(int i, int j);
+  /* Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set. */
+  inline double operator()(int i, int j) const;
 
   inline Rotation operator*(const Rotation& rhs) const;
   inline Vector operator*(const Vector& rhs) const;
@@ -139,18 +73,45 @@ public:
   /* Compute the difference of two rotations wrt. the same frame. */
   inline Rotation operator-(const Rotation& rhs) const;
 
-  // Access to the underlying unitvectors of the rotation matrix
-  inline Vector UnitX() const;
-  // Access to the underlying unitvectors of the rotation matrix
-  inline void UnitX(const Vector& X);
-  // Access to the underlying unitvectors of the rotation matrix
-  inline Vector UnitY() const;
-  // Access to the underlying unitvectors of the rotation matrix
-  inline void UnitY(const Vector& X);
-  // Access to the underlying unitvectors of the rotation matrix
-  inline Vector UnitZ() const;
-  // Access to the underlying unitvectors of the rotation matrix
-  inline void UnitZ(const Vector& X);
+  /* Gives back the inverse rotation matrix of *this. */
+  inline Rotation inverse() const;
+  /* The same as R.inverse()*v but more efficient. */
+  inline Vector inverse(const Vector& v) const;
+  /* The same as R.inverse()*arg but more efficient. */
+  inline Twist inverse(const Twist& arg) const;
+  /* The same as R.inverse()*arg but more efficient. */
+  inline Accel inverse(const Accel& arg) const;
+  /* The same as R.inverse()*arg but more efficient. */
+  inline Wrench inverse(const Wrench& arg) const;
+  /* The same as R.inverse()*arg but more efficient. */
+  inline SegmentJacobian inverse(const SegmentJacobian& arg) const;
+
+  /* X axis of the child frame wrt. the parent frame. The same as R*(1,0,0). */
+  inline Vector axisX() const;
+  /* Y axis of the child frame wrt. the parent frame. The same as R*(0,1,0). */
+  inline Vector axisY() const;
+  /* Z axis of the child frame wrt. the parent frame. The same as R*(0,0,1). */
+  inline Vector axisZ() const;
+
+  /**
+   * @brief Returns a vector with the direction of the equiv. axis and its norm is angle.
+   * ω = log(R)
+   */
+  Vector getRot() const;
+
+  /* Returns the rotation angle around the equiv. axis. */
+  std::pair<double, Vector> getAngleAxis() const;
+
+  /* Get the quaternion of this matrix. */
+  void getQuaternion(double& x, double& y, double& z, double& w) const;
+
+  /* Get ZYX euler angles. */
+  void getRPY(double& roll, double& pitch, double& yaw) const;
+  std::tuple<double, double, double> getRPY() const;
+
+  inline double getYaw() const;
+
+  inline double trace() const;
 
   inline friend std::ostream& operator<<(std::ostream& os, const Rotation& arg);
 };
@@ -189,6 +150,23 @@ inline Rotation Rotation::Identity()
 inline void Rotation::setIdentity()
 {
   data.setIdentity();
+}
+
+inline void Rotation::setInverse()
+{
+  data.transposeInPlace();
+}
+
+inline double& Rotation::operator()(int i, int j)
+{
+  assert(0 <= i && i <= 2 && 0 <= j && j <= 2);
+  return data(i, j);
+}
+
+inline double Rotation::operator()(int i, int j) const
+{
+  assert(0 <= i && i <= 2 && 0 <= j && j <= 2);
+  return data(i, j);
 }
 
 inline Rotation Rotation::operator*(const Rotation& rhs) const
@@ -256,21 +234,19 @@ inline SegmentJacobian Rotation::inverse(const SegmentJacobian& arg) const
   return SegmentJacobian(inverse(arg.linear), inverse(arg.angular));
 }
 
-inline double& Rotation::operator()(int i, int j)
+inline Vector Rotation::axisX() const
 {
-  assert(0 <= i && i <= 2 && 0 <= j && j <= 2);
-  return data(i, j);
+  return kdl::Vector(data.col(0));
 }
 
-inline double Rotation::operator()(int i, int j) const
+inline Vector Rotation::axisY() const
 {
-  assert(0 <= i && i <= 2 && 0 <= j && j <= 2);
-  return data(i, j);
+  return kdl::Vector(data.col(1));
 }
 
-inline void Rotation::setInverse()
+inline Vector Rotation::axisZ() const
 {
-  data.transposeInPlace();
+  return kdl::Vector(data.col(2));
 }
 
 inline double Rotation::getYaw() const
@@ -281,36 +257,6 @@ inline double Rotation::getYaw() const
 inline double Rotation::trace() const
 {
   return data.trace();
-}
-
-inline Vector Rotation::UnitX() const
-{
-  return Vector(data.col(0));
-}
-
-inline void Rotation::UnitX(const Vector& X)
-{
-  data.col(0) = X.data;
-}
-
-inline Vector Rotation::UnitY() const
-{
-  return Vector(data.col(1));
-}
-
-inline void Rotation::UnitY(const Vector& X)
-{
-  data.col(1) = X.data;
-}
-
-inline Vector Rotation::UnitZ() const
-{
-  return Vector(data.col(2));
-}
-
-inline void Rotation::UnitZ(const Vector& X)
-{
-  data.col(2) = X.data;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const Rotation& arg)
