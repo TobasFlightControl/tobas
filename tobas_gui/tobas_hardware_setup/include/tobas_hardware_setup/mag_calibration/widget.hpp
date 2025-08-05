@@ -81,7 +81,7 @@ private:
   int cnt_;
   double mag_norm_;
   builtin_interfaces::msg::Time last_time_;
-  size_t cur_face_idx_;
+  size_t last_face_idx_;
   std::array<double, kFaceSize> rot_angles_;
   std::array<bool, kFaceSize> completed_;
   std::array<kdl::Vector, kMaxDataSize> mag_data_;

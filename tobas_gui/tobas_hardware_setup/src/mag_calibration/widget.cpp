@@ -180,7 +180,6 @@ size_t MagCalibrationWidget::computeFaceIndex() const
   const auto axz = R_W_B.axisX().z();
   const auto ayz = R_W_B.axisY().z();
   const auto azz = R_W_B.axisZ().z();
-
   const auto abs_axz = fabs(axz);
   const auto abs_ayz = fabs(ayz);
   const auto abs_azz = fabs(azz);
@@ -448,8 +447,8 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
     }
 
     last_time_ = msg->header.stamp;
-    cur_face_idx_ = computeFaceIndex();
-    face_circles_.at(cur_face_idx_)->setLineColor(kCircleLineColorSelected);
+    last_face_idx_ = computeFaceIndex();
+    face_circles_.at(last_face_idx_)->setLineColor(kCircleLineColorSelected);
   }
 
   // 最大点数に達したら強制終了
@@ -475,16 +474,16 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
   last_time_ = cur_time;
 
   // 現在の向きを円の外枠の色で表示
-  const auto new_face_idx = computeFaceIndex();
-  if (new_face_idx != cur_face_idx_) {
-    face_circles_.at(cur_face_idx_)->setLineColor(kCircleLineColorDeselected);
-    face_circles_.at(new_face_idx)->setLineColor(kCircleLineColorSelected);
-    cur_face_idx_ = new_face_idx;
+  const auto face_idx = computeFaceIndex();
+  if (face_idx != last_face_idx_) {
+    face_circles_.at(last_face_idx_)->setLineColor(kCircleLineColorDeselected);
+    face_circles_.at(face_idx)->setLineColor(kCircleLineColorSelected);
+    last_face_idx_ = face_idx;
   }
 
   if (!finish_button_->isEnabled()) {
     // 現在の向きの回転量を更新
-    if (!completed_.at(cur_face_idx_)) {
+    if (!completed_.at(face_idx)) {
       // グローバルZ軸回りの回転速さを計算
       const auto W_gyro = odom_->frame.M * odom_->twist.rot;
       const auto yawrate = fabs(W_gyro.z());
@@ -492,13 +491,13 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
       // 回転を検知したら回転量を積分
       // 回転が速すぎると十分にサンプリングできないため上限を定める
       if (yawrate > kMinYawRate) {
-        rot_angles_.at(cur_face_idx_) += std::min(yawrate, kMaxYawRate) * dt;
+        rot_angles_.at(face_idx) += std::min(yawrate, kMaxYawRate) * dt;
       }
 
       // 十分回転したら完了
-      if (rot_angles_.at(cur_face_idx_) > kYawAngleThresh) {
-        face_circles_.at(cur_face_idx_)->setFillColor(kCircleFillColorComplete);
-        completed_.at(cur_face_idx_) = true;
+      if (rot_angles_.at(face_idx) > kYawAngleThresh) {
+        face_circles_.at(face_idx)->setFillColor(kCircleFillColorComplete);
+        completed_.at(face_idx) = true;
       }
     }
 
