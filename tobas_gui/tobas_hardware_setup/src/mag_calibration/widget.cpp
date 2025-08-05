@@ -55,16 +55,12 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
 
   progress_bar_ = new QProgressBar();
 
-  for (size_t i = 0; i < kFaceSize; ++i) {
-    face_circles_.at(i) = new qt::CircleWidget();
-    face_circles_.at(i)->setLineWidth(kCircleLineWidth);
-  }
-  face_circles_.at(kTopIdx)->setText("Top");
-  face_circles_.at(kBottomIdx)->setText("Bottom");
-  face_circles_.at(kFrontIdx)->setText("Front");
-  face_circles_.at(kBackIdx)->setText("Back");
-  face_circles_.at(kLeftIdx)->setText("Left");
-  face_circles_.at(kRightIdx)->setText("Right");
+  face_circles_.at(kTopIdx) = new FaceCircleWidget("Top");
+  face_circles_.at(kBottomIdx) = new FaceCircleWidget("Bottom");
+  face_circles_.at(kFrontIdx) = new FaceCircleWidget("Front");
+  face_circles_.at(kBackIdx) = new FaceCircleWidget("Back");
+  face_circles_.at(kLeftIdx) = new FaceCircleWidget("Left");
+  face_circles_.at(kRightIdx) = new FaceCircleWidget("Right");
 
   const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/mag_calibration.rviz";
@@ -164,8 +160,8 @@ void MagCalibrationWidget::resetToPreStart()
   progress_bar_->setValue(0);
 
   for (const auto& face_circle : face_circles_) {
-    face_circle->setFillColor(kCircleFillColorIncomplete);
-    face_circle->setLineColor(kCircleLineColorDeselected);
+    face_circle->setProgress(0.);
+    face_circle->setSelected(false);
   }
 
   rot_angles_.fill(0.);
@@ -448,7 +444,7 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
 
     last_time_ = msg->header.stamp;
     last_face_idx_ = computeFaceIndex();
-    face_circles_.at(last_face_idx_)->setLineColor(kCircleLineColorSelected);
+    face_circles_.at(last_face_idx_)->setSelected(true);
   }
 
   // 最大点数に達したら強制終了
@@ -476,8 +472,8 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
   // 現在の向きを円の外枠の色で表示
   const auto face_idx = computeFaceIndex();
   if (face_idx != last_face_idx_) {
-    face_circles_.at(last_face_idx_)->setLineColor(kCircleLineColorDeselected);
-    face_circles_.at(face_idx)->setLineColor(kCircleLineColorSelected);
+    face_circles_.at(last_face_idx_)->setSelected(false);
+    face_circles_.at(face_idx)->setSelected(true);
     last_face_idx_ = face_idx;
   }
 
@@ -494,20 +490,23 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
         rot_angles_.at(face_idx) += std::min(yawrate, kMaxYawRate) * dt;
       }
 
+      // 個別の進捗を更新
+      const auto progress = rot_angles_.at(face_idx) / kYawAngleThresh;  // [-]
+      face_circles_.at(face_idx)->setProgress(progress);
+
       // 十分回転したら完了
-      if (rot_angles_.at(face_idx) > kYawAngleThresh) {
-        face_circles_.at(face_idx)->setFillColor(kCircleFillColorComplete);
+      if (progress > 1.) {
         completed_.at(face_idx) = true;
       }
     }
 
-    // 進捗バーを更新
-    double progress = 0.;  // [-]
+    // 全体の進捗バーを更新
+    double total_progress = 0.;  // [-]
     for (const auto& [rot_angle, completed] : std::views::zip(rot_angles_, completed_)) {
-      const auto face_progress = completed ? 1. : rot_angle / kYawAngleThresh;
-      progress += face_progress / kFaceSize;
+      const auto progress = completed ? 1. : rot_angle / kYawAngleThresh;
+      total_progress += progress / kFaceSize;
     }
-    progress_bar_->setValue(static_cast<int>(progress * 100.));
+    progress_bar_->setValue(static_cast<int>(total_progress * 100.));
 
     // 全ての面のデータが十分に溜まったらFinishボタンを有効化
     if (tobas_std::allEqual(completed_, true)) {

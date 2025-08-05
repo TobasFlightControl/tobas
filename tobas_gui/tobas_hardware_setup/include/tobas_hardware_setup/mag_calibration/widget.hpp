@@ -4,7 +4,6 @@
 #include <QPushButton>
 #include <rviz_common/properties/property.hpp>
 
-#include <tobas_qt_tools/widgets/circle_widget.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
@@ -13,6 +12,7 @@
 #include <sensor_msgs/msg/point_cloud.hpp>
 
 #include "../base.hpp"
+#include "./face_circle.hpp"
 
 namespace gui
 {
@@ -35,12 +35,6 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr double kMinYawRate = M_PI / 30;     // [rad/s]
   static constexpr double kMaxYawRate = M_PI_2;        // [rad/s]
   static constexpr double kYawAngleThresh = 4 * M_PI;  // [rad]
-
-  static constexpr int kCircleLineWidth = 10;
-  static constexpr auto kCircleFillColorComplete = Qt::green;
-  static constexpr auto kCircleFillColorIncomplete = Qt::gray;
-  static constexpr auto kCircleLineColorSelected = Qt::red;
-  static constexpr auto kCircleLineColorDeselected = Qt::black;
 
   static constexpr size_t kTopIdx = 0;
   static constexpr size_t kBottomIdx = kTopIdx + 1;
@@ -75,7 +69,7 @@ private:
   QPushButton* cancel_button_;
 
   QProgressBar* progress_bar_;
-  std::array<qt::CircleWidget*, kFaceSize> face_circles_;
+  std::array<FaceCircleWidget*, kFaceSize> face_circles_;
 
   // 計測用の変数とバッファ
   int cnt_;
