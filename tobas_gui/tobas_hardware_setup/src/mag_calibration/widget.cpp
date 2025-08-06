@@ -32,7 +32,7 @@ namespace gui
 namespace hw
 {
 MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), bridge_(bridge), rviz_manager_("rviz_mag_calibration")
+  : node_(node), rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Start\" button.\n\n"
@@ -102,6 +102,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(finish_button_, &QPushButton::clicked, this, &self::onFinishButtonClicked);
   connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
+  connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
 
@@ -151,8 +152,6 @@ void MagCalibrationWidget::paintEvent(QPaintEvent*)
 
 void MagCalibrationWidget::resetToPreStart()
 {
-  disconnect(mag_conn_);
-
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
@@ -164,6 +163,8 @@ void MagCalibrationWidget::resetToPreStart()
     face_circle->setSelected(false);
   }
 
+  running_ = false;
+  cnt_ = 0;
   rot_angles_.fill(0.);
   completed_.fill(false);
 }
@@ -231,12 +232,6 @@ void MagCalibrationWidget::onStartButtonClicked()
     return;
   }
 
-  // カウンターをリセット
-  cnt_ = 0;
-
-  // 一時的に地磁気を購読
-  mag_conn_ = connect(&bridge_, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
-
   // 一度クリアしてから描画する点の個数を設定
   // FIXME: History Lengthの最小値は1であり，この方法でクリアしようとしても前のデータが1つ残ってしまう．
   ps_history_length_->setValue(1);
@@ -251,6 +246,7 @@ void MagCalibrationWidget::onStartButtonClicked()
   start_button_->setEnabled(false);
   cancel_button_->setEnabled(true);
 
+  running_ = true;
   qt::qInfoBox(this, "Magnetometer calibration is started.");
 }
 
@@ -432,6 +428,10 @@ void MagCalibrationWidget::onFinishButtonClicked()
 
 void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
 {
+  if (!running_) {
+    return;
+  }
+
   const auto& mag = msg->mag;
 
   // 最初のデータ

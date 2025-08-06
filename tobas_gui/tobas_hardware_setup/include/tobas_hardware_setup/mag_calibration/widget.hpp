@@ -59,7 +59,6 @@ protected:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const RosQtBridge& bridge_;
   rviz::RvizFrameManager rviz_manager_;
 
   std::string ns_;
@@ -72,6 +71,7 @@ private:
   std::array<FaceCircleWidget*, kFaceSize> face_circles_;
 
   // 計測用の変数とバッファ
+  bool running_;
   int cnt_;
   double mag_norm_;
   builtin_interfaces::msg::Time last_time_;
@@ -87,8 +87,6 @@ private:
 
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> ps_pub_;
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> pc_pub_;
-
-  QMetaObject::Connection mag_conn_;
 
   /* キャリブレーション開始前の状態にリセットする． */
   void resetToPreStart();
