@@ -54,6 +54,12 @@ public:
   /* 最大の要素を取得する． */
   inline double max() const;
 
+  /* 2つのベクトルのそれぞれの要素について最小値を計算する． */
+  inline Vector min(const Vector& rhs) const;
+
+  /* 2つのベクトルのそれぞれの要素について最大値を計算する． */
+  inline Vector max(const Vector& rhs) const;
+
   /* 2つのベクトルの内積を計算する． */
   inline double dot(const Vector& rhs) const;
 
@@ -73,6 +79,7 @@ public:
   inline void setZero();
 
   inline double norm() const;
+  inline double squaredNorm() const;
   inline void normalize();
   inline Vector normalized() const;
 
@@ -218,6 +225,16 @@ inline double Vector::dot(const Vector& rhs) const
   return data.dot(rhs.data);
 }
 
+inline Vector Vector::min(const Vector& rhs) const
+{
+  return Vector(data.cwiseMin(rhs.data));
+}
+
+inline Vector Vector::max(const Vector& rhs) const
+{
+  return Vector(data.cwiseMax(rhs.data));
+}
+
 inline Vector Vector::hadamard(const Vector& rhs) const
 {
   return Vector(data.cwiseProduct(rhs.data));
@@ -253,15 +270,20 @@ inline double Vector::norm() const
   return data.norm();
 }
 
+inline double Vector::squaredNorm() const
+{
+  return data.squaredNorm();
+}
+
 inline void Vector::normalize()
 {
-  assert(this->norm() > 0.);
+  assert(this->squaredNorm() > 0.);
   data.normalize();
 }
 
 inline Vector Vector::normalized() const
 {
-  assert(this->norm() > 0.);
+  assert(this->squaredNorm() > 0.);
   return Vector(data.normalized());
 }
 

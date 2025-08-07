@@ -8,6 +8,7 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
+#include <tobas_eigen_tools/hash.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_math/ellipse_transformer.hpp>
@@ -18,6 +19,7 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/array.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
@@ -169,6 +171,11 @@ void MagCalibrationWidget::resetToPreStart()
   completed_.fill(false);
 }
 
+int MagCalibrationWidget::numActiveSamples() const
+{
+  return std::count(active_.begin(), active_.begin() + cnt_, true);
+}
+
 size_t MagCalibrationWidget::computeFaceIndex() const
 {
   const auto& R_W_B = odom_->frame.M;
@@ -208,6 +215,105 @@ size_t MagCalibrationWidget::computeFaceIndex() const
   }
   else {
     throw std::runtime_error("Impossible orientation.");
+  }
+}
+
+void MagCalibrationWidget::subsample()
+{
+  static constexpr int N = 100;
+  std::unordered_map<Eigen::Vector3i, std::set<int>> groups;
+
+  // バウンディングボックスを求める
+  auto lb = kdl::Vector::Constant(std::numeric_limits<double>::max());
+  auto ub = kdl::Vector::Constant(std::numeric_limits<double>::lowest());
+  for (int pi = 0; pi < cnt_; ++pi) {
+    if (!active_.at(pi)) {
+      continue;
+    }
+    const auto& p = buf_.at(pi);
+    lb = lb.min(p);
+    ub = ub.max(p);
+  }
+  const auto d = (ub - lb) / N;  // 1つの領域の幅
+
+  // 各点をグリッドに割り当てる
+  Eigen::Vector3i gi;  // Grid index
+  for (int pi = 0; pi < cnt_; ++pi) {
+    if (!active_.at(pi)) {
+      continue;
+    }
+    const auto& p = buf_.at(pi);
+    for (int i = 0; i < 3; ++i) {
+      gi(i) = std::clamp(static_cast<int>((p(i) - lb(i)) / d(i)), 0, N - 1);
+    }
+    groups[gi].insert(pi);
+  }
+
+  // 同じ領域に複数の点が存在する場合は平均でまとめる
+  for (const auto& [_, group] : groups) {
+    const auto group_size = group.size();
+    if (group_size < 2) {
+      continue;
+    }
+
+    // 同じ領域に属する点の平均を計算
+    auto sum = kdl::Vector::Zero();
+    for (const auto& pi : group) {
+      sum += buf_.at(pi);
+    }
+    const auto mean = sum / group_size;
+
+    // 最初の要素に平均値を入れ，それ以外を無効化する
+    for (const auto& [i, pi] : std::views::enumerate(group)) {
+      if (i == 0) {
+        buf_.at(pi) = mean;
+      }
+      else {
+        TOBAS_CHECK(active_.at(pi));
+        active_.at(pi) = false;
+      }
+    }
+  }
+}
+
+void MagCalibrationWidget::removeOutliers()
+{
+  const auto size = numActiveSamples();
+
+  // 平均点を求める
+  auto sum = kdl::Vector::Zero();
+  for (int pi = 0; pi < cnt_; ++pi) {
+    if (!active_.at(pi)) {
+      continue;
+    }
+    sum += buf_.at(pi);
+  }
+  const auto mean = sum / size;
+
+  // 平均点からの距離の標準偏差を求める
+  double dist2_sum = 0.;
+  for (int pi = 0; pi < cnt_; ++pi) {
+    if (!active_.at(pi)) {
+      continue;
+    }
+    const auto& p = buf_.at(pi);
+    const auto dist2 = (p - mean).squaredNorm();
+    dist2_sum += dist2;
+  }
+  const auto dist_var = dist2_sum / size;
+  const auto dist_stddev = sqrt(dist_var);
+
+  // 平均点からの距離が大きく外れているものを弾く
+  for (int pi = 0; pi < cnt_; ++pi) {
+    if (!active_.at(pi)) {
+      continue;
+    }
+    const auto& p = buf_.at(pi);
+    const auto dist = (p - mean).norm();
+    if (dist > dist_stddev * 3) {  // Zスコア法の典型的な閾値
+      qWarning() << "Point (" << p.x() << ", " << p.y() << ", " << p.z() << ") was identified as an outlier.";
+      active_.at(pi) = false;
+    }
   }
 }
 
@@ -258,24 +364,37 @@ void MagCalibrationWidget::onCancelButtonClicked()
 
 void MagCalibrationWidget::onFinishButtonClicked()
 {
+  TOBAS_CHECK(cnt_ <= kMaxDataSize);
+
   if (cnt_ < kMinDataSize) {
     qt::qWarnBox(this, "The number of collected samples is too small.");
     return;
   }
 
-  // TODO: 密度の均一化
-  // TODO: 外れ値の除去
+  // サンプル分だけ有効化
+  std::fill(active_.begin(), active_.begin() + cnt_, true);
 
-  const auto size = cnt_;  // TODO: 前処理後の点数
+  // 前処理
+  subsample();
+  removeOutliers();
+
+  // 有効なサンプル数を計算
+  const auto size = numActiveSamples();
 
   // データを整理
   Eigen::VectorXd x(size), y(size), z(size);
-  for (int i = 0; i < size; ++i) {
-    const auto& mag = mag_data_.at(i);
-    x(i) = mag.x();
-    y(i) = mag.y();
-    z(i) = mag.z();
+  int idx = 0;
+  for (int pi = 0; pi < cnt_; ++pi) {
+    if (!active_.at(pi)) {
+      continue;
+    }
+    const auto& mag = buf_.at(pi);
+    x(idx) = mag.x();
+    y(idx) = mag.y();
+    z(idx) = mag.z();
+    ++idx;
   }
+  TOBAS_CHECK(idx == size);
   const auto xx = x.cwiseProduct(x).eval();
   const auto yy = y.cwiseProduct(y).eval();
   const auto zz = z.cwiseProduct(z).eval();
@@ -283,7 +402,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   const auto yz = y.cwiseProduct(z).eval();
   const auto zx = z.cwiseProduct(x).eval();
 
-  constexpr auto kCalibMethod = kBounding;  // TODO: 手法を選べるようにする
+  constexpr auto kCalibMethod = kEllipseFitting;  // TODO: 手法を選べるようにする
 
   // 楕円体の係数を求める
   math::EllipseTransformer mag_trans;
@@ -416,7 +535,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   pc_calib->header.frame_id = tobas::kWorldFrame;
   pc_calib->points.resize(size);
   for (int i = 0; i < size; ++i) {
-    const auto p_calib = mag_trans.transform(mag_data_.at(i).data);
+    const auto p_calib = mag_trans.transform(buf_.at(i).data);
     const auto p_disp = p_calib.cast<float>() * kRvizPointScale;
     tf::point32EigenToMsg(p_disp, pc_calib->points.at(i));
   }
@@ -455,7 +574,7 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
   }
 
   // データを追加
-  mag_data_.at(cnt_++) = mag;
+  buf_.at(cnt_++) = mag;
 
   // 表示用メッセージを発行
   auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();

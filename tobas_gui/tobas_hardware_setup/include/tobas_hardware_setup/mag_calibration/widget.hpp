@@ -28,7 +28,7 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr char kRvizPointStampedTopic[] = "rviz/magnetic_field_raw";
   static constexpr char kRvizPointCloudTopic[] = "rviz/magnetic_field_calib";
   static constexpr int kMinDataSize = 500;
-  static constexpr int kMaxDataSize = 50000;  // 8[B] * 3 * 50000 = 1200000[B] = 1.2[MB]
+  static constexpr int kMaxDataSize = 10000;
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
   static constexpr double kRvizPointScale = 10.;
@@ -70,7 +70,7 @@ private:
   QProgressBar* progress_bar_;
   std::array<FaceCircleWidget*, kFaceSize> face_circles_;
 
-  // 計測用の変数とバッファ
+  // 計測用の変数
   bool running_;
   int cnt_;
   double mag_norm_;
@@ -78,20 +78,31 @@ private:
   size_t last_face_idx_;
   std::array<double, kFaceSize> rot_angles_;
   std::array<bool, kFaceSize> completed_;
-  std::array<kdl::Vector, kMaxDataSize> mag_data_;
+  std::array<kdl::Vector, kMaxDataSize> buf_;
+  std::array<bool, kMaxDataSize> active_;
 
+  // ROS messages
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
 
+  // Rviz
   rviz_common::properties::Property* ps_history_length_;
 
+  // ROS Pub/Sub
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> ps_pub_;
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> pc_pub_;
 
   /* キャリブレーション開始前の状態にリセットする． */
   void resetToPreStart();
 
+  int numActiveSamples() const;
   size_t computeFaceIndex() const;
+
+  /* 密度を均一化: https://www.jstage.jst.go.jp/article/pscjspe/2011A/0/2011A_0_277/_pdf/-char/ja */
+  void subsample();
+
+  /* 外れ値を除去: https://www.codexa.net/python-outlier/ */
+  void removeOutliers();
 
 private Q_SLOTS:
   void onStartButtonClicked();
