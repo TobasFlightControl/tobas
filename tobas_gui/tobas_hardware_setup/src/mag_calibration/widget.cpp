@@ -533,11 +533,14 @@ void MagCalibrationWidget::onFinishButtonClicked()
   auto pc_calib = std::make_unique<sensor_msgs::msg::PointCloud>();
   pc_calib->header.stamp = node_->get_clock()->now();
   pc_calib->header.frame_id = tobas::kWorldFrame;
-  pc_calib->points.resize(size);
-  for (int i = 0; i < size; ++i) {
-    const auto p_calib = mag_trans.transform(buf_.at(i).data);
+  for (int pi = 0; pi < cnt_; ++pi) {
+    if (!active_.at(pi)) {
+      continue;
+    }
+    const auto p_calib = mag_trans.transform(buf_.at(pi).data);
     const auto p_disp = p_calib.cast<float>() * kRvizPointScale;
-    tf::point32EigenToMsg(p_disp, pc_calib->points.at(i));
+    pc_calib->points.emplace_back();
+    tf::point32EigenToMsg(p_disp, pc_calib->points.back());
   }
   pc_pub_->publish(std::move(pc_calib));
 
