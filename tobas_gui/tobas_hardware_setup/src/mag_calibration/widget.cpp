@@ -221,7 +221,6 @@ size_t MagCalibrationWidget::computeFaceIndex() const
 void MagCalibrationWidget::subsample()
 {
   static constexpr int N = 100;
-  std::unordered_map<Eigen::Vector3i, std::set<int>> groups;
 
   // バウンディングボックスを求める
   auto lb = kdl::Vector::Constant(std::numeric_limits<double>::max());
@@ -237,7 +236,8 @@ void MagCalibrationWidget::subsample()
   const auto d = (ub - lb) / N;  // 1つの領域の幅
 
   // 各点をグリッドに割り当てる
-  Eigen::Vector3i gi;  // Grid index
+  Eigen::Vector3i gi;                                         // Grid index
+  std::unordered_map<Eigen::Vector3i, std::set<int>> groups;  // 疎なのでハッシュテーブルで管理
   for (int pi = 0; pi < cnt_; ++pi) {
     if (!active_.at(pi)) {
       continue;
