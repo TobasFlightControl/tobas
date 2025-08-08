@@ -49,7 +49,7 @@ bool EllipseTransformer::initialize()
   b_ = -0.5 * A_inv * b;
 
   const Vector3d S = (Lam / W).cwiseSqrt();
-  T_ = P * S.asDiagonal() * P.transpose();
+  T_inv_ = P * S.asDiagonal() * P.transpose();
 
   return true;
 }

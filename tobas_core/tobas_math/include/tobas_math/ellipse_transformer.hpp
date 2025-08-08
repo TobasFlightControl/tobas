@@ -32,12 +32,13 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const EllipseTransformer& arg);
 
 private:
-  Eigen::Vector3d b_;  // Hard-iron bias
-  Eigen::Matrix3d T_;  // Soft-iron bias
+  Eigen::Vector3d b_;      // Hard-iron bias
+  Eigen::Matrix3d T_inv_;  // Soft-iron bias (inverse)
 };
 
 inline Eigen::Vector3d EllipseTransformer::transform(const Eigen::Vector3d& x) const
 {
-  return T_ * (x - b_);
+  // xm = T xt + b <=> xt = T^(-1) (xm - b)
+  return T_inv_ * (x - b_);
 }
 }  // namespace math
