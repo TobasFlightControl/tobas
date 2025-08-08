@@ -36,10 +36,10 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   : node_(node), rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click \"Start\", and the magnetic data will appear in the view below.\n\n"
+    "1. Click \"Start\", and the magnetic field points (white) will begin appearing in the view.\n\n"
     "2. With each face up, rotate the FC around the gravity vector until the gauge is full and green.\n\n"
-    "3. Confirm that the point cloud forms a neat ellipsoid on the screen below.\n\n"
-    "4. When all six faces are green and the progress bar reaches 100%, click \"Finish.\"\n\n",
+    "3. When all six faces are green and the progress bar reaches 100%, click \"Finish.\"\n\n"
+    "4. Confirm that the calibrated point cloud (green) draws a neat sphere around the origin.\n\n",
     kBodyPSize);
 
   start_button_ = new QPushButton("Start");
