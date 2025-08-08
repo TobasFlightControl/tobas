@@ -34,7 +34,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
   // Set up robot_model_display
-  display_ = rviz_manager_.getDisplay("RobotState");
+  display_ = rviz_manager_.getDisplays("RobotState").at(0);
 
   // 使用するプロパティを取得
   enable_visual_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Visual Enabled"));

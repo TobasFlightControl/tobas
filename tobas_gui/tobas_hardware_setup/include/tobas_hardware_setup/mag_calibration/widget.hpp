@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <rviz_common/properties/property.hpp>
 
+#include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
@@ -25,8 +26,10 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   using self = MagCalibrationWidget;
   using super = BaseHardwareSetupWidget;
 
-  static constexpr char kRvizPointStampedTopic[] = "rviz/magnetic_field_raw";
-  static constexpr char kRvizPointCloudTopic[] = "rviz/magnetic_field_calib";
+  static constexpr char kSampledPointsTopic[] = "rviz/mag_calibration/sampled";
+  static constexpr char kUsedPointsTopic[] = "rviz/mag_calibration/used";
+  static constexpr char kRemovedPointsTopic[] = "rviz/mag_calibration/removed";
+  static constexpr char kCalibratedPointsTopic[] = "rviz/mag_calibration/calibrated";
   static constexpr int kMinDataSize = 500;
   static constexpr int kMaxDataSize = 10000;
   static constexpr int kButtonWidth = 100;
@@ -35,6 +38,7 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr double kMinYawRate = M_PI / 30;     // [rad/s]
   static constexpr double kMaxYawRate = M_PI_2;        // [rad/s]
   static constexpr double kYawAngleThresh = 4 * M_PI;  // [rad]
+  static constexpr double kZScoreThresh = 2.;
 
   static constexpr size_t kTopIdx = 0;
   static constexpr size_t kBottomIdx = kTopIdx + 1;
@@ -73,7 +77,6 @@ private:
   // 計測用の変数
   bool running_;
   int cnt_;
-  double mag_norm_;
   builtin_interfaces::msg::Time last_time_;
   size_t last_face_idx_;
   std::array<double, kFaceSize> rot_angles_;
@@ -85,15 +88,17 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
 
-  // Rviz
-  rviz_common::properties::Property* ps_history_length_;
-
   // ROS Pub/Sub
-  ros2::PublisherPtr<geometry_msgs::msg::PointStamped> ps_pub_;
-  ros2::PublisherPtr<sensor_msgs::msg::PointCloud> pc_pub_;
+  ros2::PublisherPtr<geometry_msgs::msg::PointStamped> samples_pub_;
+  ros2::PublisherPtr<sensor_msgs::msg::PointCloud> used_pub_;
+  ros2::PublisherPtr<sensor_msgs::msg::PointCloud> removed_pub_;
+  ros2::PublisherPtr<sensor_msgs::msg::PointCloud> calibrated_pub_;
 
   /* キャリブレーション開始前の状態にリセットする． */
   void resetToPreStart();
+
+  /* 画面上の点群を消去する． */
+  void clearDisplayPoints();
 
   int numActiveSamples() const;
   size_t computeFaceIndex() const;
@@ -103,6 +108,9 @@ private:
 
   /* 外れ値を除去: https://www.codexa.net/python-outlier/ */
   void removeOutliers();
+
+  /* 結果の点群を表示する． */
+  void displayResult(const math::EllipseTransformer& mag_trans);
 
 private Q_SLOTS:
   void onStartButtonClicked();
