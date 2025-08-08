@@ -121,7 +121,7 @@ void RotorTestWidget::updateInternalDataStructures()
   if (drone_.prop->type() == tobas::PropulsionSystem::kElectric) {
     eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
 
-    // モータとして登録されているチャンネルの設定
+    // モータを登録
     for (const auto& [link_name, _] : eprop_->rotors) {
       const auto erotor = eprop_->getRotor(link_name);
 
@@ -138,8 +138,6 @@ void RotorTestWidget::updateInternalDataStructures()
       const auto max_rpm = tobas_std::rps2rpm(drone_.prop->maxSpeed(link_name));
       rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
     }
-
-    // モータとして登録されていないチャンネルの設定
 
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
