@@ -23,13 +23,13 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
 
   const auto instruction = new qt::DescriptionWidget(
     "1. Connect the ESCs to the FC in the correct order.\n\n"
-    "2. Press \"Start\" button to enable motors.\n\n"
-    "3. For each channel, confirm the following:\n"
+    "2. Click \"Start\" to enable motors.\n\n"
+    "3. For each channel, confirm the followings:\n"
     "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
     "   - The motor does not rotate when the command RPM is 0.\n\n"
     "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n\n"
-    "5. Press \"Save\" button to save the control gains.\n\n"
-    "6. Press \"Stop\" button to disable motors.\n\n",
+    "5. Click \"Save\" to save the control gains.\n\n"
+    "6. Click \"Stop\" to disable motors.\n\n",
     kBodyPSize);
   rows_->addWidget(instruction);
 

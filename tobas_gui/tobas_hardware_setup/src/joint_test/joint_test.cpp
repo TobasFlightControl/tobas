@@ -20,10 +20,10 @@ JointTestWidget::JointTestWidget(
   : node_(node), tree_(tree), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Press \"Start\" button to start joint test.\n\n"
+    "1. Click \"Start\" to start joint test.\n\n"
     "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"
-    "3. If any joint does not behave as expected, please review the URDF or Setup Assistant settings.\n\n"
-    "4. Press \"Stop\" button to stop joint test.\n\n",
+    "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n\n"
+    "4. Click \"Stop\" to stop joint test.\n\n",
     kBodyPSize);
 
   start_button_ = new QPushButton("Start");

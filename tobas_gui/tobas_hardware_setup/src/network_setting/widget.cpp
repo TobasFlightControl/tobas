@@ -13,9 +13,9 @@ NetworkSettingWidget::NetworkSettingWidget(rclcpp::Node::SharedPtr node)
   : spinner_(Qt::WindowModal, this), read_thread_(node), write_thread_(node)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Press \"Read\" button to read current network settings.\n\n"
+    "1. Click \"Read\" to read current network settings.\n\n"
     "2. Add the settings for your network to the list.\n\n"
-    "3. Press \"Write\" button to reflect the changes .\n\n",
+    "3. Click \"Write\" to reflect the changes.\n\n",
     kBodyPSize);
 
   read_button_ = new QPushButton("Read");

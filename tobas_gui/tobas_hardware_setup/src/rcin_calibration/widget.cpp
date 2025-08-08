@@ -29,10 +29,10 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   : node_(node), bridge_(bridge), drone_(drone), rate_(kTopicRate)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Press \"Start\" button.\n\n"
+    "1. Click \"Start\" to begin displaying S.BUS data in the view.\n\n"
     "2. For each channel, operate the stick or switch to ensure it covers the entire range. "
     "If the stick's movement is opposite to that of the bar, adjust the transmitter settings accordingly.\n\n"
-    "3. Press \"Finish\" button.\n\n",
+    "3. When the full range of all channels has been covered, click \"Finish.\"\n\n",
     kBodyPSize);
 
   const auto button_cols = new QHBoxLayout();

@@ -12,8 +12,8 @@ namespace hw
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(node, bridge)
 {
-  const auto instruction = new qt::DescriptionWidget(
-    "Press \"Start\" button with the flight controller\'s TOP surface facing up.\n\n", kBodyPSize);
+  const auto instruction =
+    new qt::DescriptionWidget("Click \"Start\" with the flight controller\'s TOP surface facing up.\n\n", kBodyPSize);
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);

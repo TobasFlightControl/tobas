@@ -22,7 +22,7 @@ BaseHardwareSetupWidget::BaseHardwareSetupWidget()
 
   rows_ = new QVBoxLayout();
   rows_->addWidget(title_, 0, Qt::AlignTop);
-  rows_->addSpacing(50);
+  rows_->addSpacing(30);
 
   setLayout(rows_);
 
