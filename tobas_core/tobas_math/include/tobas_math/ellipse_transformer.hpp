@@ -27,16 +27,17 @@ public:
   void setIdentity();
   bool initialize();
 
-  Eigen::Vector3d transform(const Eigen::Vector3d& x) const;
-
-  const Eigen::Vector3d& getCenter() const;
-  const Eigen::Vector3d& getRadius() const;
+  inline Eigen::Vector3d transform(const Eigen::Vector3d& x) const;
 
   friend std::ostream& operator<<(std::ostream& os, const EllipseTransformer& arg);
 
 private:
-  Eigen::Vector3d center_;  // 元の座標系における中心
-  Eigen::Vector3d radius_;  // 3軸方向の半径
-  Eigen::Matrix3d PSPt_;
+  Eigen::Vector3d b_;  // Hard-iron bias
+  Eigen::Matrix3d T_;  // Soft-iron bias
 };
+
+inline Eigen::Vector3d EllipseTransformer::transform(const Eigen::Vector3d& x) const
+{
+  return T_ * (x - b_);
+}
 }  // namespace math

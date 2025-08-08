@@ -45,27 +45,13 @@ bool EllipseTransformer::initialize()
     return false;
   }
 
+  const Matrix3d A_inv = P * Lam_inv.asDiagonal() * P.transpose();
+  b_ = -0.5 * A_inv * b;
+
   const Vector3d S = (Lam / W).cwiseSqrt();
-  PSPt_ = P * S.asDiagonal() * P.transpose();
-  center_ = -0.5 * P * Lam_inv.asDiagonal() * P.transpose() * b;
-  radius_ = S.cwiseInverse();
+  T_ = P * S.asDiagonal() * P.transpose();
 
   return true;
-}
-
-Vector3d EllipseTransformer::transform(const Vector3d& x) const
-{
-  return PSPt_ * (x - center_);
-}
-
-const Vector3d& EllipseTransformer::getCenter() const
-{
-  return center_;
-}
-
-const Vector3d& EllipseTransformer::getRadius() const
-{
-  return radius_;
 }
 
 ostream& operator<<(ostream& os, const EllipseTransformer& arg)
