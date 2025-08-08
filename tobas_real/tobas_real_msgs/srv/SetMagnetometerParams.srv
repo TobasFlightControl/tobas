@@ -1,13 +1,5 @@
-float64 a_xx
-float64 a_yy
-float64 a_zz
-float64 a_xy
-float64 a_yz
-float64 a_zx
-float64 b_x
-float64 b_y
-float64 b_z
-float64 c
+float64[3] hard_bias
+float64[6] soft_bias
 ---
 bool success
 string message

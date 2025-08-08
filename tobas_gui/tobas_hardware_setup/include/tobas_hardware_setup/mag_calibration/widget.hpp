@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include <rviz_common/properties/property.hpp>
 
-#include <tobas_math/ellipse_transformer.hpp>
+#include <tobas_eigen_tools/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
@@ -109,8 +109,19 @@ private:
   /* 外れ値を除去: https://www.codexa.net/python-outlier/ */
   void removeOutliers();
 
+  /* 球体近似でオフセットを求める． */
+  bool
+  computeHardBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector3d& dst);
+
+  /* 楕円体近似で歪みを求める． */
+  bool
+  computeSoftBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector6d& dst);
+
+  /* FCのパラメータを更新する． */
+  bool updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias);
+
   /* 結果の点群を表示する． */
-  void displayResult(const math::EllipseTransformer& mag_trans);
+  void displayResult(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias);
 
 private Q_SLOTS:
   void onStartButtonClicked();

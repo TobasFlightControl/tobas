@@ -1,6 +1,7 @@
 #include <tobas_constants/constants.hpp>
+#include <tobas_eigen_tools/core.hpp>
+#include <tobas_eigen_tools/ellipse_transformer.hpp>
 #include <tobas_linux/core.hpp>
-#include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -23,7 +24,7 @@ public:
 
 private:
   // Config
-  math::EllipseTransformer mag_trans_;
+  eigen::EllipseTransformer mag_trans_;
 
   tobas_msgs::MagneticField::ConstSharedPtr prev_mag_;
   ptree::PropertyTree pt_;
@@ -55,56 +56,25 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
     return;
   }
 
-  if (!mag_trans_.initialize()) {
-    TOBAS_ERROR("Failed to initialize ellipse transformer. This node will not work.");
-    return;
-  }
-
   registerPubSub();
 }
 
 bool MagnetometerHandlerNode::getConfig()
 {
-  if (!pt_.get(ns(), kAxxKey, mag_trans_.a_xx)) {
-    TOBAS_ERROR("Failed to get \"", kAxxKey, "\" from configuration file.");
+  std::array<double, 3> hard_bias;
+  std::array<double, 6> soft_bias;
+
+  if (!pt_.get(ns(), kHardBiasKey, hard_bias)) {
+    TOBAS_ERROR("Failed to get \"", kHardBiasKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(ns(), kAyyKey, mag_trans_.a_yy)) {
-    TOBAS_ERROR("Failed to get \"", kAyyKey, "\" from configuration file.");
+  if (!pt_.get(ns(), kSoftBiasKey, soft_bias)) {
+    TOBAS_ERROR("Failed to get \"", kSoftBiasKey, "\" from configuration file.");
     return false;
   }
-  if (!pt_.get(ns(), kAzzKey, mag_trans_.a_zz)) {
-    TOBAS_ERROR("Failed to get \"", kAzzKey, "\" from configuration file.");
-    return false;
-  }
-  if (!pt_.get(ns(), kAxyKey, mag_trans_.a_xy)) {
-    TOBAS_ERROR("Failed to get \"", kAxyKey, "\" from configuration file.");
-    return false;
-  }
-  if (!pt_.get(ns(), kAyzKey, mag_trans_.a_yz)) {
-    TOBAS_ERROR("Failed to get \"", kAyzKey, "\" from configuration file.");
-    return false;
-  }
-  if (!pt_.get(ns(), kAzxKey, mag_trans_.a_zx)) {
-    TOBAS_ERROR("Failed to get \"", kAzxKey, "\" from configuration file.");
-    return false;
-  }
-  if (!pt_.get(ns(), kBxKey, mag_trans_.b_x)) {
-    TOBAS_ERROR("Failed to get \"", kBxKey, "\" from configuration file.");
-    return false;
-  }
-  if (!pt_.get(ns(), kByKey, mag_trans_.b_y)) {
-    TOBAS_ERROR("Failed to get \"", kByKey, "\" from configuration file.");
-    return false;
-  }
-  if (!pt_.get(ns(), kBzKey, mag_trans_.b_z)) {
-    TOBAS_ERROR("Failed to get \"", kBzKey, "\" from configuration file.");
-    return false;
-  }
-  if (!pt_.get(ns(), kCKey, mag_trans_.c)) {
-    TOBAS_ERROR("Failed to get \"", kCKey, "\" from configuration file.");
-    return false;
-  }
+
+  mag_trans_.setHardBias(eigen::fromStdArray(hard_bias));
+  mag_trans_.setSoftBias(eigen::fromStdArray(soft_bias));
 
   return true;
 }
@@ -142,40 +112,13 @@ void MagnetometerHandlerNode::setParamsCb(
   const SetParams::Request::ConstSharedPtr& req,
   const SetParams::Response::SharedPtr& res)
 {
-  // Copy transformer
-  const auto mag_trans_old = mag_trans_;
-
   // Update parameters
-  mag_trans_.a_xx = req->a_xx;
-  mag_trans_.a_yy = req->a_yy;
-  mag_trans_.a_zz = req->a_zz;
-  mag_trans_.a_xy = req->a_xy;
-  mag_trans_.a_yz = req->a_yz;
-  mag_trans_.a_zx = req->a_zx;
-  mag_trans_.b_x = req->b_x;
-  mag_trans_.b_y = req->b_y;
-  mag_trans_.b_z = req->b_z;
-  mag_trans_.c = req->c;
-
-  // Verify parameters
-  if (!mag_trans_.initialize()) {
-    res->success = false;
-    res->message = "Failed to initialize ellipse transformer.";
-    mag_trans_ = mag_trans_old;
-    return;
-  }
+  mag_trans_.setHardBias(eigen::fromStdArray(req->hard_bias));
+  mag_trans_.setSoftBias(eigen::fromStdArray(req->soft_bias));
 
   // Save parameters
-  pt_.set(ns(), kAxxKey, req->a_xx);
-  pt_.set(ns(), kAyyKey, req->a_yy);
-  pt_.set(ns(), kAzzKey, req->a_zz);
-  pt_.set(ns(), kAxyKey, req->a_xy);
-  pt_.set(ns(), kAyzKey, req->a_yz);
-  pt_.set(ns(), kAzxKey, req->a_zx);
-  pt_.set(ns(), kBxKey, req->b_x);
-  pt_.set(ns(), kByKey, req->b_y);
-  pt_.set(ns(), kBzKey, req->b_z);
-  pt_.set(ns(), kCKey, req->c);
+  pt_.set(ns(), kHardBiasKey, req->hard_bias);
+  pt_.set(ns(), kSoftBiasKey, req->soft_bias);
   if (!pt_.save()) {
     res->success = false;
     res->message = "Failed to save parameters.";

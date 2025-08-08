@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include <eigen3/Eigen/Core>
@@ -117,8 +118,8 @@ concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const Eigen
 }
 
 /* Eigen::Vectorをstd::vectorに変換する． */
-template <typename T, int Size>
-inline std::vector<T> toStdVector(const Eigen::Vector<T, Size>& v)
+template <typename T, int N>
+inline std::vector<T> toStdVector(const Eigen::Vector<T, N>& v)
 {
   return std::vector<T>(v.data(), v.data() + v.size());
 }
@@ -128,6 +129,24 @@ template <typename T>
 inline Eigen::Vector<T, Eigen::Dynamic> fromStdVector(const std::vector<T>& vec)
 {
   return Eigen::Map<const Eigen::Vector<T, Eigen::Dynamic>>(vec.data(), vec.size());
+}
+
+/* Eigen::Vectorをstd::arrayに変換する． */
+template <typename T, int N>
+inline std::array<T, N> toStdArray(const Eigen::Vector<T, N>& v)
+{
+  static_assert(N >= 0);
+  std::array<double, N> arr{};
+  std::copy_n(v.data(), N, arr.begin());
+  return arr;
+}
+
+/* std::arrayをEigen::Vectorに変換する． */
+template <typename T, size_t N>
+inline Eigen::Vector<T, N> fromStdArray(const std::array<T, N>& arr)
+{
+  static_assert(N >= 0);
+  return Eigen::Map<const Eigen::Vector<T, N>>(arr.data(), N);
 }
 
 /* 行列が正方の場合にtrueを返す． */

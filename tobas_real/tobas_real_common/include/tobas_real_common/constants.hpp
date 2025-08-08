@@ -38,16 +38,8 @@ namespace mag
 static constexpr char kConfigFileName[] = "magnetometer.json";
 static constexpr char kSetParamSrv[] = "real/set_magnetometer_parameters";
 
-static constexpr char kAxxKey[] = "a_xx";
-static constexpr char kAyyKey[] = "a_yy";
-static constexpr char kAzzKey[] = "a_zz";
-static constexpr char kAxyKey[] = "a_xy";
-static constexpr char kAyzKey[] = "a_yz";
-static constexpr char kAzxKey[] = "a_zx";
-static constexpr char kBxKey[] = "b_x";
-static constexpr char kByKey[] = "b_y";
-static constexpr char kBzKey[] = "b_z";
-static constexpr char kCKey[] = "c";
+static constexpr char kHardBiasKey[] = "hard_bias";
+static constexpr char kSoftBiasKey[] = "soft_bias";
 }  // namespace mag
 
 namespace rcin

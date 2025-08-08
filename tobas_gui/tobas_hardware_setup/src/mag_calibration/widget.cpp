@@ -1,6 +1,7 @@
 #include "tobas_hardware_setup/mag_calibration/widget.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <ranges>
 
 #include <QDebug>
@@ -24,7 +25,6 @@
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
 #include "tobas_hardware_setup/constants.hpp"
-#include "tobas_hardware_setup/mag_calibration/method.hpp"
 
 namespace fs = std::filesystem;
 
@@ -36,11 +36,10 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   : node_(node), rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Press \"Start\" button.\n\n"
-    "2. For each of the 6 faces of the FC, "
-    "slowly rotate the FC twice around the direction of gravity with the face pointing upwards.\n\n"
+    "1. Click \"Start\", and the magnetic data will appear in the view below.\n\n"
+    "2. With each face up, rotate the FC around the gravity vector until the gauge is full and green.\n\n"
     "3. Confirm that the point cloud forms a neat ellipsoid on the screen below.\n\n"
-    "4. Press \"Finish\" button.\n\n",
+    "4. When all six faces are green and the progress bar reaches 100%, click \"Finish.\"\n\n",
     kBodyPSize);
 
   start_button_ = new QPushButton("Start");
@@ -340,8 +339,140 @@ void MagCalibrationWidget::removeOutliers()
   }
 }
 
-void MagCalibrationWidget::displayResult(const math::EllipseTransformer& mag_trans)
+bool MagCalibrationWidget::computeHardBias(
+  const Eigen::VectorXd& x,
+  const Eigen::VectorXd& y,
+  const Eigen::VectorXd& z,
+  Eigen::Vector3d& dst)
 {
+  const auto size = numActiveSamples();
+
+  const auto xx = x.cwiseProduct(x).eval();
+  const auto yy = y.cwiseProduct(y).eval();
+  const auto zz = z.cwiseProduct(z).eval();
+
+  // 適当にスケールを決める
+  const auto scale = (xx + yy + zz).mean();
+  Eigen::VectorXd ce0(size);
+  ce0.fill(scale);
+
+  // 球体でフィッティング
+  // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
+  Eigen::MatrixX4d CE(size, 4);
+  CE.col(0) = xx + yy + zz;
+  CE.col(1) = x;
+  CE.col(2) = y;
+  CE.col(3) = z;
+  const auto sol = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
+
+  eigen::EllipseCoefficients coefs;
+  coefs.a_xx = sol(0);
+  coefs.a_yy = sol(0);
+  coefs.a_zz = sol(0);
+  coefs.a_xy = 0;
+  coefs.a_yz = 0;
+  coefs.a_zx = 0;
+  coefs.b_x = sol(1);
+  coefs.b_y = sol(2);
+  coefs.b_z = sol(3);
+  coefs.c = -scale;
+
+  eigen::EllipseTransformer trans;
+  if (!trans.initialize(coefs)) {
+    qt::qErrorBox(this, "Sphere fitting failed.");
+    return false;
+  }
+
+  // オフセットのみ使用
+  dst = trans.getHardBias();
+  return true;
+}
+
+bool MagCalibrationWidget::computeSoftBias(
+  const Eigen::VectorXd& x,
+  const Eigen::VectorXd& y,
+  const Eigen::VectorXd& z,
+  Eigen::Vector6d& dst)
+{
+  const auto size = numActiveSamples();
+
+  const auto xx = x.cwiseProduct(x).eval();
+  const auto yy = y.cwiseProduct(y).eval();
+  const auto zz = z.cwiseProduct(z).eval();
+  const auto xy = x.cwiseProduct(y).eval();
+  const auto yz = y.cwiseProduct(z).eval();
+  const auto zx = z.cwiseProduct(x).eval();
+
+  // 適当にスケールを決める
+  const auto scale = (xx + yy + zz).mean();
+  Eigen::VectorXd ce0(size);
+  ce0.fill(scale);
+
+  // 原点中心の楕円体でフィッティング
+  // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + c = 0
+  // cf. 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
+  Eigen::MatrixX6d CE(size, 6);
+  CE.col(0) = xx;
+  CE.col(1) = yy;
+  CE.col(2) = zz;
+  CE.col(3) = 2 * xy;
+  CE.col(4) = 2 * yz;
+  CE.col(5) = 2 * zx;
+  const auto sol = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
+
+  eigen::EllipseCoefficients coefs;
+  coefs.a_xx = sol(0);
+  coefs.a_yy = sol(1);
+  coefs.a_zz = sol(2);
+  coefs.a_xy = sol(3);
+  coefs.a_yz = sol(4);
+  coefs.a_zx = sol(5);
+  coefs.b_x = 0;
+  coefs.b_y = 0;
+  coefs.b_z = 0;
+  coefs.c = -scale;
+
+  eigen::EllipseTransformer trans;
+  if (!trans.initialize(coefs)) {
+    qt::qErrorBox(this, "Ellipsoid fitting failed.");
+    return false;
+  }
+
+  dst = trans.getSoftBias();
+  return true;
+}
+
+bool MagCalibrationWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
+{
+  // パラメータを作成
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
+  req->hard_bias = eigen::toStdArray(hard_bias);
+  req->soft_bias = eigen::toStdArray(soft_bias);
+
+  // パラメータを更新
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
+  if (!sc.call(req, kSetParamTimeout)) {
+    qt::qErrorBox(this, "Failed to send calibration results.");
+    return false;
+  }
+
+  // 結果を確認
+  const auto res = sc.getResponse();
+  if (!res->success) {
+    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    return false;
+  }
+
+  return true;
+}
+
+void MagCalibrationWidget::displayResult(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
+{
+  eigen::EllipseTransformer trans;
+  trans.setHardBias(hard_bias);
+  trans.setSoftBias(soft_bias);
+
   auto used_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto removed_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto calibrated_points = std::make_unique<sensor_msgs::msg::PointCloud>();
@@ -362,7 +493,7 @@ void MagCalibrationWidget::displayResult(const math::EllipseTransformer& mag_tra
       used_points->points.emplace_back();
       tf::point32EigenToMsg(p_raw.cast<float>() * kRvizPointScale, used_points->points.back());
 
-      const auto p_calib = mag_trans.transform(p_raw);
+      const auto p_calib = trans.transform(p_raw);
       calibrated_points->points.emplace_back();
       tf::point32EigenToMsg(p_calib.cast<float>() * kRvizPointScale, calibrated_points->points.back());
     }
@@ -448,144 +579,41 @@ void MagCalibrationWidget::onFinishButtonClicked()
     ++idx;
   }
   TOBAS_CHECK(idx == size);
-  const auto xx = x.cwiseProduct(x).eval();
-  const auto yy = y.cwiseProduct(y).eval();
-  const auto zz = z.cwiseProduct(z).eval();
-  const auto xy = x.cwiseProduct(y).eval();
-  const auto yz = y.cwiseProduct(z).eval();
-  const auto zx = z.cwiseProduct(x).eval();
 
-  constexpr auto kCalibMethod = kEllipseFitting;  // TODO: 手法を選べるようにする
-
-  // 楕円体の係数を求める
-  math::EllipseTransformer mag_trans;
-  if (kCalibMethod == kBounding) {
-    // https://okasho-engineer.com/magnetic-sensor-calibration/
-    const auto x_min = x.minCoeff();
-    const auto x_max = x.maxCoeff();
-    const auto y_min = y.minCoeff();
-    const auto y_max = y.maxCoeff();
-    const auto z_min = z.minCoeff();
-    const auto z_max = z.maxCoeff();
-
-    const auto x0 = (x_min + x_max) / 2;
-    const auto y0 = (y_min + y_max) / 2;
-    const auto z0 = (z_min + z_max) / 2;
-    const auto rx = (x_max - x_min) / 2;
-    const auto ry = (y_max - y_min) / 2;
-    const auto rz = (z_max - z_min) / 2;
-    const auto rx2 = math::sqr(rx);
-    const auto ry2 = math::sqr(ry);
-    const auto rz2 = math::sqr(rz);
-
-    mag_trans.a_xx = 1 / rx2;
-    mag_trans.a_yy = 1 / ry2;
-    mag_trans.a_zz = 1 / rz2;
-    mag_trans.a_xy = 0;
-    mag_trans.a_yz = 0;
-    mag_trans.a_zx = 0;
-    mag_trans.b_x = -2 * x0 / rx2;
-    mag_trans.b_y = -2 * y0 / ry2;
-    mag_trans.b_z = -2 * z0 / rz2;
-    mag_trans.c = math::sqr(x0) / rx2 + math::sqr(y0) / ry2 + math::sqr(z0) / rz2 - 1;
-  }
-  else {
-    // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
-    // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
-    mag_trans.c = -(xx + yy + zz).mean();
-    Eigen::VectorXd ce0(size);
-    ce0.fill(-mag_trans.c);
-
-    if (kCalibMethod == kSphereFitting) {
-      // 球体でフィッティング．
-      // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
-      Eigen::MatrixX4d CE(size, 4);
-      CE.col(0) = xx + yy + zz;
-      CE.col(1) = x;
-      CE.col(2) = y;
-      CE.col(3) = z;
-      const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
-
-      mag_trans.a_xx = coefs(0);
-      mag_trans.a_yy = coefs(0);
-      mag_trans.a_zz = coefs(0);
-      mag_trans.a_xy = 0;
-      mag_trans.a_yz = 0;
-      mag_trans.a_zx = 0;
-      mag_trans.b_x = coefs(1);
-      mag_trans.b_y = coefs(2);
-      mag_trans.b_z = coefs(3);
-    }
-    else if (kCalibMethod == kEllipseFitting) {
-      // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
-      // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
-      Eigen::Matrix<double, Eigen::Dynamic, 9> CE(size, 9);
-      CE.col(0) = xx;
-      CE.col(1) = yy;
-      CE.col(2) = zz;
-      CE.col(3) = 2 * xy;
-      CE.col(4) = 2 * yz;
-      CE.col(5) = 2 * zx;
-      CE.col(6) = x;
-      CE.col(7) = y;
-      CE.col(8) = z;
-      const auto coefs = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
-
-      mag_trans.a_xx = coefs(0);
-      mag_trans.a_yy = coefs(1);
-      mag_trans.a_zz = coefs(2);
-      mag_trans.a_xy = coefs(3);
-      mag_trans.a_yz = coefs(4);
-      mag_trans.a_zx = coefs(5);
-      mag_trans.b_x = coefs(6);
-      mag_trans.b_y = coefs(7);
-      mag_trans.b_z = coefs(8);
-    }
-    else {
-      throw;
-    }
-  }
-
-  // 楕円体であることを確認
-  if (!mag_trans.initialize()) {
-    qt::qErrorBox(this, "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.");
+  // 球体近似でハードアイアンバイアスを計算
+  Eigen::Vector3d hard_bias;
+  if (!computeHardBias(x, y, z, hard_bias)) {
     return;
   }
 
-  // TODO: データがきれいな楕円体を描いているかどうかをチェック
+  // データを原点中心に移動する
+  x = x.array() - hard_bias.x();
+  y = y.array() - hard_bias.y();
+  z = z.array() - hard_bias.z();
 
-  // パラメータを作成
-  const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
-  req->a_xx = mag_trans.a_xx;
-  req->a_yy = mag_trans.a_yy;
-  req->a_zz = mag_trans.a_zz;
-  req->a_xy = mag_trans.a_xy;
-  req->a_yz = mag_trans.a_yz;
-  req->a_zx = mag_trans.a_zx;
-  req->b_x = mag_trans.b_x;
-  req->b_y = mag_trans.b_y;
-  req->b_z = mag_trans.b_z;
-  req->c = mag_trans.c;
-
-  // パラメータを更新
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout)) {
-    qt::qErrorBox(this, "Failed to send calibration results.");
+  // 楕円体近似でソフトアイアンバイアスを計算
+  // 展開式を用いた線形回帰はユークリッド距離の最小化ではないが，データが原点中心ならばそれに近くなる
+  // TODO: 写像後の点の原点からの距離の2乗と1の誤差の総和を目的関数にできればより実用に堪えると思われる
+  Eigen::Vector6d soft_bias;
+  if (!computeSoftBias(x, y, z, soft_bias)) {
     return;
   }
 
-  // 結果を確認
-  const auto res = sc.getResponse();
-  if (!res->success) {
-    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+  // FCのパラメータを更新
+  if (!updateRemoteParameters(hard_bias, soft_bias)) {
     return;
   }
-
-  rviz_manager_.resetTime();
 
   // 結果を表示
-  displayResult(mag_trans);
+  rviz_manager_.resetTime();
+  displayResult(hard_bias, soft_bias);
+
+  // デバッグ情報を表示
+  std::cout << "The number of samples before preprocessing: " << cnt_ << std::endl;
+  std::cout << "The number of samples after preprocessing: " << size << std::endl;
+  std::cout << "The number of removed samples: " << cnt_ - size << std::endl;
+  std::cout << "Hard-iron bias: " << hard_bias.transpose() << std::endl;
+  std::cout << "Soft-iron bias: " << soft_bias.transpose() << std::endl;
 
   resetToPreStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
