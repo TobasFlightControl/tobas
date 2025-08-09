@@ -2,11 +2,13 @@
 
 #include <filesystem>
 
+#include <rcutils/env.h>
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/path.hpp>
+#include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/urdf_exporter.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -415,6 +417,9 @@ void SetupAssistantWidget::onLoadButtonClicked()
   if (property_client_.get(kLastOpenedDirKey_Load, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    if (!fs::is_directory(last_opened_dir)) {
+      last_opened_dir = rcutils_get_home_dir();
+    }
   }
 
   // プロジェクトのパスを取得
@@ -514,6 +519,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    path::createDirectories(last_opened_dir, true);
   }
 
   // プロジェクトのパスを取得
