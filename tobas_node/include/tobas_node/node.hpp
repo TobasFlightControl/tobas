@@ -52,6 +52,8 @@ class BaseNode : public rclcpp::Node
   using super = rclcpp::Node;
   using self = BaseNode;
 
+  static constexpr long kMaxDynamicParamSteps = INT64_MAX;  // TODO: 調整しやすいよう最大でも20段階くらいに制限したい
+
 public:
   explicit BaseNode(const std::string& node_name, const rclcpp::NodeOptions& options);
 
@@ -365,6 +367,7 @@ void BaseNode::addDynamicIntParam(
   const std::string& prefix)
 {
   TOBAS_ASSERT(_min <= _default && _default <= _max);
+  TOBAS_ASSERT(_max - _min < kMaxDynamicParamSteps);
 
   if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
@@ -410,6 +413,7 @@ void BaseNode::addDynamicDoubleParam(
   const std::string& prefix)
 {
   TOBAS_ASSERT(_min <= _default && _default <= _max);
+  TOBAS_ASSERT(_max - _min < kMaxDynamicParamSteps);
 
   if (has_parameter(name)) {
     TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
