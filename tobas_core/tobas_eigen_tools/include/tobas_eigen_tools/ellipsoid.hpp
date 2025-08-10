@@ -7,7 +7,7 @@
 namespace eigen
 {
 /* axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0 */
-struct EllipseCoefficients
+struct EllipsoidCoefficients
 {
   double a_xx;
   double a_yy;
@@ -25,12 +25,12 @@ struct EllipseCoefficients
  * @brief 任意の楕円体 (x^T A x + b^T x + c = 0) を原点中心の単位球に射影する．
  * https://rikei-tawamure.com/entry/2021/09/27/111205
  */
-class EllipseTransformer
+class Ellipsoid
 {
 public:
-  explicit EllipseTransformer();
+  explicit Ellipsoid();
 
-  bool initialize(const EllipseCoefficients& coefs);
+  bool initialize(const EllipsoidCoefficients& coefs);
 
   /* 単位球に設定． */
   void setIdentity();
@@ -41,16 +41,22 @@ public:
   Eigen::Vector6d getSoftBias() const;
   void setSoftBias(const Eigen::Vector6d& t);
 
-  inline Eigen::Vector3d transform(const Eigen::Vector3d& x) const;
+  inline Eigen::Vector3d fromUnitSphere(const Eigen::Vector3d& x) const;
+  inline Eigen::Vector3d toUnitSphere(const Eigen::Vector3d& x) const;
 
 private:
   Eigen::Vector3d b_;      // Hard-iron bias
+  Eigen::Matrix3d T_;      // Soft-iron bias
   Eigen::Matrix3d T_inv_;  // Soft-iron bias (inverse)
 };
 
-inline Eigen::Vector3d EllipseTransformer::transform(const Eigen::Vector3d& x) const
+inline Eigen::Vector3d Ellipsoid::fromUnitSphere(const Eigen::Vector3d& x) const
 {
-  // xm = T xt + b <=> xt = T^(-1) (xm - b)
+  return T_ * (x + b_);
+}
+
+inline Eigen::Vector3d Ellipsoid::toUnitSphere(const Eigen::Vector3d& x) const
+{
   return T_inv_ * (x - b_);
 }
 }  // namespace eigen

@@ -365,7 +365,7 @@ bool MagCalibrationWidget::computeHardBias(
   CE.col(3) = z;
   const auto sol = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
-  eigen::EllipseCoefficients coefs;
+  eigen::EllipsoidCoefficients coefs;
   coefs.a_xx = sol(0);
   coefs.a_yy = sol(0);
   coefs.a_zz = sol(0);
@@ -377,14 +377,14 @@ bool MagCalibrationWidget::computeHardBias(
   coefs.b_z = sol(3);
   coefs.c = -scale;
 
-  eigen::EllipseTransformer trans;
-  if (!trans.initialize(coefs)) {
+  eigen::Ellipsoid ellipsoid;
+  if (!ellipsoid.initialize(coefs)) {
     qt::qErrorBox(this, "Sphere fitting failed.");
     return false;
   }
 
   // オフセットのみ使用
-  dst = trans.getHardBias();
+  dst = ellipsoid.getHardBias();
   return true;
 }
 
@@ -420,7 +420,7 @@ bool MagCalibrationWidget::computeSoftBias(
   CE.col(5) = 2 * zx;
   const auto sol = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
-  eigen::EllipseCoefficients coefs;
+  eigen::EllipsoidCoefficients coefs;
   coefs.a_xx = sol(0);
   coefs.a_yy = sol(1);
   coefs.a_zz = sol(2);
@@ -432,13 +432,13 @@ bool MagCalibrationWidget::computeSoftBias(
   coefs.b_z = 0;
   coefs.c = -scale;
 
-  eigen::EllipseTransformer trans;
-  if (!trans.initialize(coefs)) {
+  eigen::Ellipsoid ellipsoid;
+  if (!ellipsoid.initialize(coefs)) {
     qt::qErrorBox(this, "Ellipsoid fitting failed.");
     return false;
   }
 
-  dst = trans.getSoftBias();
+  dst = ellipsoid.getSoftBias();
   return true;
 }
 
@@ -469,9 +469,9 @@ bool MagCalibrationWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bi
 
 void MagCalibrationWidget::displayResult(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
 {
-  eigen::EllipseTransformer trans;
-  trans.setHardBias(hard_bias);
-  trans.setSoftBias(soft_bias);
+  eigen::Ellipsoid ellipsoid;
+  ellipsoid.setHardBias(hard_bias);
+  ellipsoid.setSoftBias(soft_bias);
 
   auto used_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto removed_points = std::make_unique<sensor_msgs::msg::PointCloud>();
@@ -493,7 +493,7 @@ void MagCalibrationWidget::displayResult(const Eigen::Vector3d& hard_bias, const
       used_points->points.emplace_back();
       tf::point32EigenToMsg(p_raw.cast<float>() * kRvizPointScale, used_points->points.back());
 
-      const auto p_calib = trans.transform(p_raw);
+      const auto p_calib = ellipsoid.toUnitSphere(p_raw);
       calibrated_points->points.emplace_back();
       tf::point32EigenToMsg(p_calib.cast<float>() * kRvizPointScale, calibrated_points->points.back());
     }

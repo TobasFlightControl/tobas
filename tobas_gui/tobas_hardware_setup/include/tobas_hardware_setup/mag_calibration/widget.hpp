@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include <rviz_common/properties/property.hpp>
 
-#include <tobas_eigen_tools/ellipse_transformer.hpp>
+#include <tobas_eigen_tools/ellipsoid.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>

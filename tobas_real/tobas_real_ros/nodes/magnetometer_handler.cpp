@@ -1,6 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_tools/core.hpp>
-#include <tobas_eigen_tools/ellipse_transformer.hpp>
+#include <tobas_eigen_tools/ellipsoid.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
@@ -24,7 +24,7 @@ public:
 
 private:
   // Config
-  eigen::EllipseTransformer mag_trans_;
+  eigen::Ellipsoid ellipsoid_;
 
   tobas_msgs::MagneticField::ConstSharedPtr prev_mag_;
   ptree::PropertyTree pt_;
@@ -73,8 +73,8 @@ bool MagnetometerHandlerNode::getConfig()
     return false;
   }
 
-  mag_trans_.setHardBias(eigen::fromStdArray(hard_bias));
-  mag_trans_.setSoftBias(eigen::fromStdArray(soft_bias));
+  ellipsoid_.setHardBias(eigen::fromStdArray(hard_bias));
+  ellipsoid_.setSoftBias(eigen::fromStdArray(soft_bias));
 
   return true;
 }
@@ -104,7 +104,7 @@ void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstShared
 
   // Publish a calibrated data
   auto mag_out = std::make_unique<tobas_msgs::MagneticField>(*mag_in);
-  mag_out->mag.data = mag_trans_.transform(mag_in->mag.data);  // Project data to unit sphere
+  mag_out->mag.data = ellipsoid_.toUnitSphere(mag_in->mag.data);
   mag_pub_->publish(move(mag_out));
 }
 
@@ -113,8 +113,8 @@ void MagnetometerHandlerNode::setParamsCb(
   const SetParams::Response::SharedPtr& res)
 {
   // Update parameters
-  mag_trans_.setHardBias(eigen::fromStdArray(req->hard_bias));
-  mag_trans_.setSoftBias(eigen::fromStdArray(req->soft_bias));
+  ellipsoid_.setHardBias(eigen::fromStdArray(req->hard_bias));
+  ellipsoid_.setSoftBias(eigen::fromStdArray(req->soft_bias));
 
   // Save parameters
   pt_.set(ns(), kHardBiasKey, req->hard_bias);
