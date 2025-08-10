@@ -52,7 +52,7 @@ private:
 
 inline Eigen::Vector3d Ellipsoid::fromUnitSphere(const Eigen::Vector3d& x) const
 {
-  return T_ * (x + b_);
+  return T_ * x + b_;
 }
 
 inline Eigen::Vector3d Ellipsoid::toUnitSphere(const Eigen::Vector3d& x) const
