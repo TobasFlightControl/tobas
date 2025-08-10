@@ -14,6 +14,12 @@ Ellipsoid::Ellipsoid()
   setIdentity();
 }
 
+Ellipsoid::Ellipsoid(const Vector3d& b, const Vector6d& t)
+{
+  setHardBias(b);
+  setSoftBias(t);
+}
+
 bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
 {
   // 楕円の方程式: x^T A x + b^T x + c = 0
@@ -27,24 +33,20 @@ bool Ellipsoid::initialize(const EllipsoidCoefficients& coefs)
   const Vector3d Lam = eigen_solver.eigenvalues();
   const Matrix3d P = eigen_solver.eigenvectors();
 
-  // Aが正定値対象であることを確認
-  if (!(Lam.array() > 0.).all()) {
-    cerr << "Matrix A must be positive definite." << endl;
-    return false;
-  }
-
   const Vector3d Lam_inv = Lam.cwiseInverse();
   const Matrix3d A_inv = P * Lam_inv.asDiagonal() * P.transpose();
   const Vector3d A_inv_b = A_inv * b;
   const auto W = 0.25 * b.dot(A_inv_b) - coefs.c;
 
-  // 楕円体の成立条件を満たすことを確認
-  if (W <= 0.) {
-    cerr << "Failed to construct an ellipsoid." << endl;
+  // 主軸方向の半径を計算
+  const Vector3d r2 = W * Lam_inv;
+  if (!(r2.array() > 0.).all()) {
+    cerr << "The given equation does not define an ellipsoid." << endl;
     return false;
   }
+  const Vector3d r = r2.cwiseSqrt();
 
-  const Vector3d r = (W * Lam_inv).cwiseSqrt();  // Radius
+  // バイアスを計算
   b_ = -0.5 * A_inv_b;
   T_ = P * r.asDiagonal() * P.transpose();
   T_inv_ = P * r.cwiseInverse().asDiagonal() * P.transpose();

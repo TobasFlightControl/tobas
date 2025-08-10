@@ -20,6 +20,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(tobas_eigen_conversions REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
 find_package(wpa_supplicant_parser REQUIRED)
@@ -35,6 +38,9 @@ find_package(tobas_rviz_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
+    geometry_msgs
+    sensor_msgs
+    visualization_msgs
     tobas_eigen_conversions
     tobas_kdl_conversions
     wpa_supplicant_parser

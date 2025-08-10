@@ -18,9 +18,9 @@ Visualization Manager:
       Class: rviz_default_plugins/PointStamped
       Color: 255; 255; 255
       Enabled: true
-      History Length: 1
+      History Length: 100000
       Name: PointStamped
-      Radius: 0.1
+      Radius: 0.05
       Topic:
         Depth: 1
         Durability Policy: Volatile
@@ -36,7 +36,7 @@ Visualization Manager:
       Enabled: true
       Name: PointCloud
       Selectable: false
-      Size (m): 0.1
+      Size (m): 0.05
       Style: Spheres
       Topic:
         Depth: 1
@@ -54,7 +54,7 @@ Visualization Manager:
       Enabled: true
       Name: PointCloud
       Selectable: false
-      Size (m): 0.1
+      Size (m): 0.05
       Style: Spheres
       Topic:
         Depth: 1
@@ -72,7 +72,7 @@ Visualization Manager:
       Enabled: true
       Name: PointCloud
       Selectable: false
-      Size (m): 0.1
+      Size (m): 0.05
       Style: Spheres
       Topic:
         Depth: 1
@@ -82,14 +82,13 @@ Visualization Manager:
         Reliability Policy: Best Effort
         Value: undefined
       Use Fixed Frame: true
-    - Class: rviz_default_plugins/Marker
+    - Class: rviz_default_plugins/MarkerArray
       Enabled: true
-      Name: Marker
+      Name: MarkerArray
       Namespaces: {}
       Topic:
         Depth: 1
         Durability Policy: Volatile
-        Filter size: 1
         History Policy: Keep Last
         Reliability Policy: Best Effort
         Value: undefined

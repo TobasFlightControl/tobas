@@ -22,13 +22,15 @@ struct EllipsoidCoefficients
 };
 
 /**
- * @brief 任意の楕円体 (x^T A x + b^T x + c = 0) を原点中心の単位球に射影する．
+ * @brief 3次元楕円体の数理表現．
+ *
  * https://rikei-tawamure.com/entry/2021/09/27/111205
  */
 class Ellipsoid
 {
 public:
   explicit Ellipsoid();
+  explicit Ellipsoid(const Eigen::Vector3d& b, const Eigen::Vector6d& t);
 
   bool initialize(const EllipsoidCoefficients& coefs);
 
@@ -41,7 +43,10 @@ public:
   Eigen::Vector6d getSoftBias() const;
   void setSoftBias(const Eigen::Vector6d& t);
 
+  /* 単位球を楕円体に写像する． */
   inline Eigen::Vector3d fromUnitSphere(const Eigen::Vector3d& x) const;
+
+  /* 楕円体を単位球に写像する． */
   inline Eigen::Vector3d toUnitSphere(const Eigen::Vector3d& x) const;
 
 private:

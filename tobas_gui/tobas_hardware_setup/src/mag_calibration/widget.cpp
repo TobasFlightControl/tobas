@@ -70,33 +70,31 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   // TFが出ているフレームでなければならない
   rviz_manager_.setFixedFrame(tobas::kWorldFrame);
 
-  const auto ps_displays = rviz_manager_.getDisplays("PointStamped");
-  if (ps_displays.size() != 1) {
-    throw std::runtime_error("The number of \"PointStamped\" mismatch.");
-  }
+  const auto point_stamped_displays = rviz_manager_.getDisplays("PointStamped");
+  TOBAS_CHECK(point_stamped_displays.size() == 1);
+  const auto& samples_display = point_stamped_displays.at(0);
 
-  const auto pc_displays = rviz_manager_.getDisplays("PointCloud");
-  if (pc_displays.size() != 3) {
-    throw std::runtime_error("The number of \"PointCloud\" mismatch.");
-  }
+  const auto point_cloud_displays = rviz_manager_.getDisplays("PointCloud");
+  TOBAS_CHECK(point_cloud_displays.size() == 3);
+  const auto& used_display = point_cloud_displays.at(0);
+  const auto& removed_display = point_cloud_displays.at(1);
+  const auto& calibrated_display = point_cloud_displays.at(2);
 
-  const auto& samples_display = ps_displays.at(0);
+  const auto marker_array_displays = rviz_manager_.getDisplays("MarkerArray");
+  TOBAS_CHECK(marker_array_displays.size() == 1);
+  const auto& ellipsoid_display = marker_array_displays.at(0);
+
   samples_display->subProp("Topic")->setValue(kSampledPointsTopic);
-  samples_display->subProp("History Length")->setValue(kMaxDataSize);
-
-  const auto& used_display = pc_displays.at(0);
   used_display->subProp("Topic")->setValue(kUsedPointsTopic);
-
-  const auto& removed_display = pc_displays.at(1);
   removed_display->subProp("Topic")->setValue(kRemovedPointsTopic);
-
-  const auto& calibrated_display = pc_displays.at(2);
   calibrated_display->subProp("Topic")->setValue(kCalibratedPointsTopic);
+  ellipsoid_display->subProp("Topic")->setValue(kEllipsoidTopic);
 
   samples_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kSampledPointsTopic);
   used_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kUsedPointsTopic);
   removed_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kRemovedPointsTopic);
   calibrated_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kCalibratedPointsTopic);
+  ellipsoid_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node_, kEllipsoidTopic);
 
   // Layout
   const auto button_cols = new QHBoxLayout();
@@ -467,12 +465,8 @@ bool MagCalibrationWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bi
   return true;
 }
 
-void MagCalibrationWidget::displayResult(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
+void MagCalibrationWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoid)
 {
-  eigen::Ellipsoid ellipsoid;
-  ellipsoid.setHardBias(hard_bias);
-  ellipsoid.setSoftBias(soft_bias);
-
   auto used_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto removed_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto calibrated_points = std::make_unique<sensor_msgs::msg::PointCloud>();
@@ -506,6 +500,68 @@ void MagCalibrationWidget::displayResult(const Eigen::Vector3d& hard_bias, const
   used_pub_->publish(std::move(used_points));
   removed_pub_->publish(std::move(removed_points));
   calibrated_pub_->publish(std::move(calibrated_points));
+}
+
+void MagCalibrationWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid)
+{
+  auto markers = std::make_unique<visualization_msgs::msg::MarkerArray>();
+
+  visualization_msgs::msg::Marker marker;
+  marker.header.stamp = node_->get_clock()->now();
+  marker.header.frame_id = tobas::kWorldFrame;
+  marker.id = 0;
+  marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
+  marker.action = visualization_msgs::msg::Marker::ADD;
+  marker.scale.x = 0.02;  // LINE_STRIPの場合はy,zは無視される
+  marker.color.r = 0.0;
+  marker.color.g = 0.0;
+  marker.color.b = 1.0;
+  marker.color.a = 1.0;
+  marker.lifetime = rclcpp::Duration::from_nanoseconds(0);
+
+  // theta固定のラインを追加
+  for (int theta_deg = -90; theta_deg < 90; theta_deg += kEllipsoidLineStep) {
+    marker.points.clear();
+
+    const auto theta = tobas_std::deg2rad(theta_deg);
+    for (int phi_deg = 0; phi_deg <= 360; ++phi_deg) {
+      const auto phi = tobas_std::deg2rad(phi_deg);
+      addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
+    }
+
+    markers->markers.push_back(marker);
+    ++marker.id;
+  }
+
+  // phi固定のラインを追加
+  for (int phi_deg = 0; phi_deg < 360; phi_deg += kEllipsoidLineStep) {
+    marker.points.clear();
+
+    const auto phi = tobas_std::deg2rad(phi_deg);
+    for (int theta_deg = -90; theta_deg <= 90; ++theta_deg) {
+      const auto theta = tobas_std::deg2rad(theta_deg);
+      addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
+    }
+
+    markers->markers.push_back(marker);
+    ++marker.id;
+  }
+
+  // マーカを発行
+  ellipsoid_pub_->publish(std::move(markers));
+}
+
+void MagCalibrationWidget::addEllipsoidPoint(
+  double theta,
+  double phi,
+  const eigen::Ellipsoid& ellipsoid,
+  std::vector<geometry_msgs::msg::Point>& points)
+{
+  const Eigen::Vector3d p(cos(theta) * cos(phi), cos(theta) * sin(phi), sin(theta));  // Unit sphere
+  const Eigen::Vector3d q = ellipsoid.fromUnitSphere(p);                              // Ellipsoid
+
+  points.emplace_back();
+  tf::pointEigenToMsg(kRvizPointScale * q, points.back());
 }
 
 void MagCalibrationWidget::onStartButtonClicked()
@@ -606,7 +662,9 @@ void MagCalibrationWidget::onFinishButtonClicked()
 
   // 結果を表示
   rviz_manager_.resetTime();
-  displayResult(hard_bias, soft_bias);
+  const eigen::Ellipsoid ellipsoid(hard_bias, soft_bias);
+  displayPointClouds(ellipsoid);
+  displayEllipsoidWireFrame(ellipsoid);
 
   // デバッグ情報を表示
   std::cout << "The number of samples before preprocessing: " << cnt_ << std::endl;

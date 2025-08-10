@@ -11,6 +11,7 @@
 
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
 #include "../base.hpp"
 #include "./face_circle.hpp"
@@ -30,15 +31,17 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr char kUsedPointsTopic[] = "rviz/mag_calibration/used";
   static constexpr char kRemovedPointsTopic[] = "rviz/mag_calibration/removed";
   static constexpr char kCalibratedPointsTopic[] = "rviz/mag_calibration/calibrated";
+  static constexpr char kEllipsoidTopic[] = "rviz/mag_calibration/ellipsoid";
   static constexpr int kMinDataSize = 500;
-  static constexpr int kMaxDataSize = 10000;
+  static constexpr int kMaxDataSize = 10000;  // Rvizの仕様で最大100000
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
   static constexpr double kRvizPointScale = 10.;
   static constexpr double kMinYawRate = M_PI / 30;     // [rad/s]
   static constexpr double kMaxYawRate = M_PI_2;        // [rad/s]
-  static constexpr double kYawAngleThresh = 4 * M_PI;  // [rad]
+  static constexpr double kYawAngleThresh = 8 * M_PI;  // [rad]
   static constexpr double kZScoreThresh = 2.;
+  static constexpr int kEllipsoidLineStep = 20;  // [deg]
 
   static constexpr size_t kTopIdx = 0;
   static constexpr size_t kBottomIdx = kTopIdx + 1;
@@ -93,6 +96,7 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> used_pub_;
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> removed_pub_;
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> calibrated_pub_;
+  ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> ellipsoid_pub_;
 
   /* キャリブレーション開始前の状態にリセットする． */
   void resetToPreStart();
@@ -121,7 +125,15 @@ private:
   bool updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias);
 
   /* 結果の点群を表示する． */
-  void displayResult(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias);
+  void displayPointClouds(const eigen::Ellipsoid& ellipsoid);
+
+  /* 推定された楕円体を表示する． */
+  void displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid);
+  void addEllipsoidPoint(
+    double theta,
+    double phi,
+    const eigen::Ellipsoid& ellipsoid,
+    std::vector<geometry_msgs::msg::Point>& points);
 
 private Q_SLOTS:
   void onStartButtonClicked();
