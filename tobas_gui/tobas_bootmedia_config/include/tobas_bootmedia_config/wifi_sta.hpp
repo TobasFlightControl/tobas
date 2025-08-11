@@ -1,0 +1,56 @@
+#pragma once
+
+#include <QPushButton>
+
+#include <tobas_qt_tools/widgets/table_widget.hpp>
+#include <wpa_supplicant_parser/parser.hpp>
+
+#include "./base.hpp"
+
+namespace gui
+{
+namespace bm
+{
+class WifiStationWidget : public BaseConfigWidget
+{
+  Q_OBJECT
+
+  using self = WifiStationWidget;
+  using super = BaseConfigWidget;
+
+  static constexpr int kColWidth = 200;
+  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonHeight = 40;
+
+  static constexpr int kSSIDCol = 0;
+  static constexpr int kPSKCol = 1;
+  static constexpr int kNumCols = 2;
+
+public:
+  explicit WifiStationWidget();
+
+  const char* name() const override;
+  const char* title() const override;
+
+  void reset() override;
+
+private:
+  wpa::WpaSupplicantParser wpa_parser_;
+
+  QPushButton* read_button_;
+  QPushButton* write_button_;
+  QPushButton* add_button_;
+  QPushButton* remove_button_;
+
+  qt::TableWidget* table_;
+
+  void addRow(const std::string& ssid, const std::string& psk);
+
+private Q_SLOTS:
+  void onReadButtonClicked();
+  void onWriteButtonClicked();
+  void onAddButtonClicked();
+  void onRemoveButtonClicked();
+};
+}  // namespace bm
+}  // namespace gui
