@@ -15,7 +15,7 @@ class BootmediaConfigWidget : public QWidget
   using self = BootmediaConfigWidget;
   using super = QWidget;
 
-  static constexpr int kTabHeight = 35;  // これ以上無いと何故かTabBarの文字が横に見切れてしまう
+  static constexpr int kTabHeight = 35;
   static constexpr int kTabWidth = 70;
 
 public:
