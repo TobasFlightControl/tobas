@@ -17,8 +17,7 @@ find_package(ament_cmake REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBGIT2 REQUIRED libgit2)
 
-include_directories(include)
-include_directories(${LIBGIT2_INCLUDE_DIRS})
+include_directories(include ${LIBGIT2_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
