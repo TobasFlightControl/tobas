@@ -2,7 +2,7 @@
 
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
-#include "./wifi_sta.hpp"
+#include "./wifi_client.hpp"
 
 namespace gui
 {
@@ -26,7 +26,7 @@ public:
 private:
   qt::VerticalTabWidget* tabs_;
 
-  WifiStationWidget* wifi_sta_;
+  WifiClientWidget* wifi_client_;
 
   void setTabsEnabled(bool enabled);
 };

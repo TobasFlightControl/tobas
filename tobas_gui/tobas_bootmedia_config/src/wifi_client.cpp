@@ -1,4 +1,4 @@
-#include "tobas_bootmedia_config/wifi_sta.hpp"
+#include "tobas_bootmedia_config/wifi_client.hpp"
 
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -9,7 +9,7 @@ namespace gui
 {
 namespace bm
 {
-WifiStationWidget::WifiStationWidget()
+WifiClientWidget::WifiClientWidget()
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Read\" to read current network settings.\n\n"
@@ -56,21 +56,21 @@ WifiStationWidget::WifiStationWidget()
   connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
 }
 
-const char* WifiStationWidget::name() const
+const char* WifiClientWidget::name() const
 {
   return "Network Setting";
 }
 
-const char* WifiStationWidget::title() const
+const char* WifiClientWidget::title() const
 {
   return "Configure Wireless Network";
 }
 
-void WifiStationWidget::reset()
+void WifiClientWidget::reset()
 {
 }
 
-void WifiStationWidget::addRow(const std::string& ssid, const std::string& psk)
+void WifiClientWidget::addRow(const std::string& ssid, const std::string& psk)
 {
   const auto row = table_->rowCount();
   table_->insertRow(row);
@@ -78,22 +78,22 @@ void WifiStationWidget::addRow(const std::string& ssid, const std::string& psk)
   table_->setItem(row, kPSKCol, new QTableWidgetItem(QString::fromStdString(psk)));
 }
 
-void WifiStationWidget::onReadButtonClicked()
+void WifiClientWidget::onReadButtonClicked()
 {
   // TODO
 }
 
-void WifiStationWidget::onWriteButtonClicked()
+void WifiClientWidget::onWriteButtonClicked()
 {
   // TODO
 }
 
-void WifiStationWidget::onAddButtonClicked()
+void WifiClientWidget::onAddButtonClicked()
 {
   addRow("", "");
 }
 
-void WifiStationWidget::onRemoveButtonClicked()
+void WifiClientWidget::onRemoveButtonClicked()
 {
   const auto row = table_->currentRow();
   if (row >= 0) {

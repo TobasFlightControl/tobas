@@ -11,11 +11,11 @@ namespace gui
 {
 namespace bm
 {
-class WifiStationWidget : public BaseConfigWidget
+class WifiClientWidget : public BaseConfigWidget
 {
   Q_OBJECT
 
-  using self = WifiStationWidget;
+  using self = WifiClientWidget;
   using super = BaseConfigWidget;
 
   static constexpr int kColWidth = 200;
@@ -27,7 +27,7 @@ class WifiStationWidget : public BaseConfigWidget
   static constexpr int kNumCols = 2;
 
 public:
-  explicit WifiStationWidget();
+  explicit WifiClientWidget();
 
   const char* name() const override;
   const char* title() const override;

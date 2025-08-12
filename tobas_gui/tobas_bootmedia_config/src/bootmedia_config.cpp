@@ -18,9 +18,9 @@ BootmediaConfigWidget::BootmediaConfigWidget()
   tabs_->enableWheelEvent(false);
   rows->addWidget(tabs_);
 
-  wifi_sta_ = new WifiStationWidget();
+  wifi_client_ = new WifiClientWidget();
 
-  tabs_->addTab(wifi_sta_, wifi_sta_->name());
+  tabs_->addTab(wifi_client_, wifi_client_->name());
 
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
@@ -34,12 +34,12 @@ void BootmediaConfigWidget::reset()
     widget->reset();
   }
 
-  tabs_->setCurrentWidget(wifi_sta_);
+  tabs_->setCurrentWidget(wifi_client_);
 }
 
 void BootmediaConfigWidget::setTabsEnabled(bool enabled)
 {
-  wifi_sta_->setEnabled(enabled);
+  wifi_client_->setEnabled(enabled);
 }
 }  // namespace bm
 }  // namespace gui
