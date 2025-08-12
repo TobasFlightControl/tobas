@@ -13,6 +13,7 @@
 	<exec_depend>tobas_flight_log_gui</exec_depend>
 	<exec_depend>tobas_gui_common</exec_depend>
 	<exec_depend>tobas_gcs</exec_depend>
+	<exec_depend>tobas_git</exec_depend>
 	<exec_depend>tobas_hardware_setup</exec_depend>
 	<exec_depend>tobas_parameter_tuning_gui</exec_depend>
 	<exec_depend>tobas_qt_tools</exec_depend>
