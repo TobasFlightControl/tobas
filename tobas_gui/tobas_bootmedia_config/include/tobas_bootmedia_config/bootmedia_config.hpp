@@ -2,6 +2,7 @@
 
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
+#include "./media_manager.hpp"
 #include "./wifi_client.hpp"
 
 namespace gui
@@ -24,11 +25,16 @@ public:
   void reset();
 
 private:
+  MediaManagerWidget* media_manager_;
   qt::VerticalTabWidget* tabs_;
 
   WifiClientWidget* wifi_client_;
 
   void setTabsEnabled(bool enabled);
+
+private Q_SLOTS:
+  void onMediaConnected();
+  void onMediaDisconnected();
 };
 }  // namespace bm
 }  // namespace gui

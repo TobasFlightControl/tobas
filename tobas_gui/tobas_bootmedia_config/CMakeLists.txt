@@ -21,10 +21,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
+find_package(tobas_udev REQUIRED)
 find_package(wpa_supplicant_parser REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES ament_index_cpp wpa_supplicant_parser tobas_qt_tools)
+set(AMENT_DEPENDENCIES ament_index_cpp tobas_udev wpa_supplicant_parser tobas_qt_tools)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
@@ -37,6 +38,7 @@ include_directories(include)
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(${PROJECT_NAME})
 
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})

@@ -1,9 +1,10 @@
 #include "tobas_bootmedia_config/bootmedia_config.hpp"
 
-#include <QApplication>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
 
 namespace gui
 {
@@ -11,20 +12,32 @@ namespace bm
 {
 BootmediaConfigWidget::BootmediaConfigWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  media_manager_ = new MediaManagerWidget();
 
   tabs_ = new qt::VerticalTabWidget();
   tabs_->enableWheelEvent(false);
-  rows->addWidget(tabs_);
+  tabs_->setTabSize(kTabWidth, kTabHeight);
 
   wifi_client_ = new WifiClientWidget();
 
   tabs_->addTab(wifi_client_, wifi_client_->name());
 
-  tabs_->setTabSize(kTabWidth, kTabHeight);
-
   setTabsEnabled(false);
+
+  // Layout
+  const auto header_cols = new QHBoxLayout();
+  header_cols->addStretch(1);
+  header_cols->addWidget(media_manager_);
+
+  const auto root_rows = new QVBoxLayout();
+  root_rows->addLayout(header_cols);
+  root_rows->addWidget(tabs_);
+
+  setLayout(root_rows);
+
+  // Connection
+  connect(media_manager_, &MediaManagerWidget::connected, this, &self::onMediaConnected);
+  connect(media_manager_, &MediaManagerWidget::disconnected, this, &self::onMediaDisconnected);
 }
 
 void BootmediaConfigWidget::reset()
@@ -33,13 +46,29 @@ void BootmediaConfigWidget::reset()
     const auto widget = qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
     widget->reset();
   }
-
-  tabs_->setCurrentWidget(wifi_client_);
 }
 
 void BootmediaConfigWidget::setTabsEnabled(bool enabled)
 {
-  wifi_client_->setEnabled(enabled);
+  for (int i = 0; i < tabs_->count(); ++i) {
+    const auto widget = qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
+    widget->setEnabled(enabled);
+  }
+}
+
+void BootmediaConfigWidget::onMediaConnected()
+{
+  setTabsEnabled(true);
+
+  qt::qInfoBox(this, "The boot media has been mounted successfully.");
+}
+
+void BootmediaConfigWidget::onMediaDisconnected()
+{
+  reset();
+  setTabsEnabled(false);
+
+  qt::qInfoBox(this, "The boot media has been unmounted successfully.");
 }
 }  // namespace bm
 }  // namespace gui
