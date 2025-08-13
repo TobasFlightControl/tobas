@@ -38,17 +38,14 @@ std::string toUpper(std::string arg);
 /* 文字列中の特定の文字列を別の文字列に変換する． */
 std::string replace(std::string str, const std::string& from, const std::string& to);
 
+/* 文字列から制御文字を削除する． */
+std::string sanitize(const char* s);
+
 /* 部分文字列が含まれるかどうかを調べる． */
 bool contains(const std::string& str, const std::string& sub);
 
 /* 部分文字列が含まれるかどうかを調べる． */
 bool contains(const std::string& str, const char& sub);
-
-/* C++20以降のstring::starts_withと同じ． */
-bool startsWith(const std::string& str, const std::string& prefix);
-
-/* C++20以降のstring::ends_withと同じ． */
-bool endsWith(const std::string& str, const std::string& suffix);
 
 /* ファイル名に不正な文字列が含まれていないかどうかを調べる． */
 bool isValidFileName(const std::string& file_name);

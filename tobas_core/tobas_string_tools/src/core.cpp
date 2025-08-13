@@ -134,6 +134,45 @@ string replace(string str, const string& from, const string& to)
   return str;
 }
 
+string sanitize(const char* s)
+{
+  if (!s) {
+    return {};
+  }
+
+  string out(s);
+
+  // 改行・タブ類をスペースに
+  for (auto& c : out) {
+    switch (c) {
+      case '\n':
+      case '\r':
+      case '\t':
+      case '\v':
+      case '\f':
+        c = ' ';
+        break;
+      default:
+        break;
+    }
+  }
+
+  // 他の制御文字 (0x00-0x1F, 0x7F) を削除
+  out.erase(remove_if(out.begin(), out.end(), [](unsigned char ch) { return (ch < 0x20 || ch == 0x7F); }), out.end());
+
+  // 連続スペースを1つに
+  out.erase(unique(out.begin(), out.end(), [](char a, char b) { return a == ' ' && b == ' '; }), out.end());
+
+  // 前後のスペースをトリム
+  auto notspace = [](unsigned char c) { return c != ' '; };
+  auto first = find_if(out.begin(), out.end(), notspace);
+  if (first == out.end()) {
+    return {};  // 全部スペース
+  }
+  auto last = find_if(out.rbegin(), out.rend(), notspace).base();
+  return string(first, last);
+}
+
 bool contains(const string& str, const string& sub)
 {
   return str.find(sub) != string::npos;
@@ -142,22 +181,6 @@ bool contains(const string& str, const string& sub)
 bool contains(const string& str, const char& sub)
 {
   return str.find(sub) != string::npos;
-}
-
-bool startsWith(const string& str, const string& prefix)
-{
-  if (prefix.size() > str.size()) {
-    return false;
-  }
-  return std::equal(prefix.begin(), prefix.end(), str.begin());
-}
-
-bool endsWith(const string& str, const string& suffix)
-{
-  if (suffix.size() > str.size()) {
-    return false;
-  }
-  return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
 }
 
 bool isValidFileName(const string& file_name)
