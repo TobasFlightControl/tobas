@@ -6,6 +6,7 @@
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
+#include <tobas_udev/core.hpp>
 
 #include "./bootmedia.hpp"
 
@@ -30,8 +31,10 @@ Q_SIGNALS:
 public:
   explicit MediaManagerWidget();
 
+  bool isConnected() const;
+
 private:
-  QMap<QString, Bootmedia> medias_;
+  std::unordered_map<QString, Bootmedia> medias_;
 
   qt::ComboBox* media_name_;
   qt::ToggleButton* connect_btn_;

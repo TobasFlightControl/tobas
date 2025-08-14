@@ -59,16 +59,12 @@ void BootmediaConfigWidget::setTabsEnabled(bool enabled)
 void BootmediaConfigWidget::onMediaConnected()
 {
   setTabsEnabled(true);
-
-  qt::qInfoBox(this, "The boot media has been mounted successfully.");
 }
 
 void BootmediaConfigWidget::onMediaDisconnected()
 {
   reset();
   setTabsEnabled(false);
-
-  qt::qInfoBox(this, "The boot media has been unmounted successfully.");
 }
 }  // namespace bm
 }  // namespace gui

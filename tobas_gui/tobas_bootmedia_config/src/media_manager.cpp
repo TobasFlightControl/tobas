@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QHBoxLayout>
 
-#include <tobas_udev/core.hpp>
+#include <tobas_qt_tools/message.hpp>
 
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
@@ -32,8 +32,12 @@ MediaManagerWidget::MediaManagerWidget()
   connect(connect_btn_, &qt::ToggleButton::checked, this, &self::onConnectRequested);
   connect(connect_btn_, &qt::ToggleButton::unchecked, this, &self::onDisconnectRequested);
 
-  scan_timer_.setInterval(1s);
-  scan_timer_.start();
+  scan_timer_.start(1s);
+}
+
+bool MediaManagerWidget::isConnected() const
+{
+  return connect_btn_->isChecked();
 }
 
 std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_device* dev)
@@ -81,6 +85,8 @@ void MediaManagerWidget::onScanTimerTimeout()
   udev_enumerate_scan_devices(en);
   const auto devs = udev_enumerate_get_list_entry(en);
 
+  // 有効なメディアを探索
+  std::unordered_map<QString, Bootmedia> new_medias;
   for (auto it = devs; it; it = udev_list_entry_get_next(it)) {
     const auto syspath = udev_list_entry_get_name(it);
     const auto disk = udev_device_new_from_syspath(udev_ctx, syspath);
@@ -112,11 +118,53 @@ void MediaManagerWidget::onScanTimerTimeout()
     // デバイスを開放
     udev_device_unref(disk);
 
-    // TODO
+    // メディアを追加
+    const Bootmedia media(vendor.c_str(), model.c_str(), devnode.c_str());
+    new_medias[media.string()] = media;
   }
 
+  // udevを開放
   udev_enumerate_unref(en);
   udev_unref(udev_ctx);
+
+  // 存在しないメディアをまとめる (ループ内で削除するとイテレータが狂うため)
+  QSet<QString> removed_medias;
+  for (const auto& [cur_media_name, _] : medias_) {
+    if (!new_medias.contains(cur_media_name)) {
+      removed_medias.insert(cur_media_name);
+    }
+  }
+
+  // 存在しないメディアを選択肢から削除
+  for (const auto& removed_media : removed_medias) {
+    qInfo() << "Remove: " << removed_media;
+
+    // 接続中に切断された場合
+    if (isConnected() && media_name_->currentText() == removed_media) {
+      qt::qErrorBox(this, "The connected media was ejected unexpectedly.");
+      media_name_->setEnabled(true);
+      connect_btn_->setChecked(false);
+      Q_EMIT disconnected();
+    }
+
+    medias_.erase(removed_media);
+    media_name_->removeText(removed_media);
+  }
+
+  // 新たなメディアを選択肢に追加
+  for (const auto& [new_media_name, new_media] : new_medias) {
+    if (!medias_.contains(new_media_name)) {
+      qInfo() << "Add: " << new_media_name;
+
+      medias_[new_media_name] = new_media;
+      media_name_->addItem(new_media_name);
+    }
+  }
+
+  // 未接続時は有効なメディアが存在する場合に限りConnectボタンを有効化
+  if (!isConnected()) {
+    connect_btn_->setEnabled(medias_.size() > 0);
+  }
 }
 
 void MediaManagerWidget::onConnectRequested()
