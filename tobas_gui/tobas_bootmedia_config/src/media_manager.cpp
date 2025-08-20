@@ -1,12 +1,20 @@
 #include "tobas_bootmedia_config/media_manager.hpp"
 
+#include <sys/mount.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <QDebug>
 #include <QHBoxLayout>
 
+#include <tobas_linux/core.hpp>
+#include <tobas_linux/error.hpp>
 #include <tobas_qt_tools/message.hpp>
 
+#include "tobas_bootmedia_config/constants.hpp"
+
 using namespace std::chrono_literals;
-namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -38,6 +46,16 @@ MediaManagerWidget::MediaManagerWidget()
 bool MediaManagerWidget::isConnected() const
 {
   return connect_btn_->isChecked();
+}
+
+const BootMedia& MediaManagerWidget::currentBootMedia() const
+{
+  const auto media_name = media_name_->currentText();
+  if (media_name.isEmpty()) {
+    throw std::runtime_error("Boot media is not selected.");
+  }
+
+  return medias_.at(media_name);
 }
 
 std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_device* dev)
@@ -86,7 +104,7 @@ void MediaManagerWidget::onScanTimerTimeout()
   const auto devs = udev_enumerate_get_list_entry(en);
 
   // 有効なメディアを探索
-  std::unordered_map<QString, Bootmedia> new_medias;
+  std::unordered_map<QString, BootMedia> new_medias;
   for (auto it = devs; it; it = udev_list_entry_get_next(it)) {
     const auto syspath = udev_list_entry_get_name(it);
     const auto disk = udev_device_new_from_syspath(udev_ctx, syspath);
@@ -119,7 +137,7 @@ void MediaManagerWidget::onScanTimerTimeout()
     udev_device_unref(disk);
 
     // メディアを追加
-    const Bootmedia media(vendor.c_str(), model.c_str(), devnode.c_str());
+    const BootMedia media(vendor.c_str(), model.c_str(), devnode.c_str());
     new_medias[media.string()] = media;
   }
 
@@ -169,12 +187,68 @@ void MediaManagerWidget::onScanTimerTimeout()
 
 void MediaManagerWidget::onConnectRequested()
 {
-  // TODO
+  // 管理者権限を確認
+  if (!linux::isSuperUser()) {
+    qt::qErrorBox(this, "Permission denied. Run as root (or use sudo) to perform this operation.");
+    connect_btn_->setChecked(false);
+    return;
+  }
+
+  // マウント先のディレクトリを作成
+  if (mkdir(kBootPath, kPermission) < 0 && errno != EEXIST) {
+    qt::qErrorBox(this, "Failed to create " + QString(kBootPath) + ".");
+    connect_btn_->setChecked(false);
+    return;
+  }
+  if (mkdir(kRootPath, kPermission) < 0 && errno != EEXIST) {
+    qt::qErrorBox(this, "Failed to create " + QString(kRootPath) + ".");
+    connect_btn_->setChecked(false);
+    return;
+  }
+
+  // 外部ストレージをマウント
+  const auto& media = currentBootMedia();
+  const auto sdx1 = media.devnode + '1';
+  const auto sdx2 = media.devnode + '2';
+  if (mount(sdx1.toUtf8().constData(), kBootPath, "vfat", MS_NOATIME, nullptr) < 0) {
+    qt::qErrorBox(this, "Failed to mount " + sdx1 + " on " + kBootPath + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(false);
+    return;
+  }
+  if (mount(sdx2.toUtf8().constData(), kRootPath, "ext4", MS_NOATIME, nullptr) < 0) {
+    qt::qErrorBox(this, "Failed to mount " + sdx2 + " on " + kRootPath + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(false);
+    return;
+  }
+
+  // TODO: TobasOSであることを確認 (バージョンチェックも)
+
+  // マウント中はメディア名を変更できないようにする
+  media_name_->setEnabled(false);
+
+  qt::qInfoBox(this, "The boot media was mounted successfully.");
+  Q_EMIT connected(media);
 }
 
 void MediaManagerWidget::onDisconnectRequested()
 {
-  // TODO
+  // カーネルの書き込みキャッシュをストレージに吐き出す
+  sync();
+
+  // 外部ストレージをアンマウント
+  if (umount2(kBootPath, 0) < 0) {
+    qt::qErrorBox(this, "Failed to unmount " + QString(kBootPath) + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(true);
+    return;
+  }
+  if (umount2(kRootPath, 0) < 0) {
+    qt::qErrorBox(this, "Failed to unmount " + QString(kRootPath) + ": " + linux::strError().c_str());
+    connect_btn_->setChecked(true);
+    return;
+  }
+
+  qt::qInfoBox(this, "The boot media was unmounted successfully.");
+  Q_EMIT disconnected();
 }
 }  // namespace bm
 }  // namespace gui

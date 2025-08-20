@@ -4,7 +4,7 @@ namespace gui
 {
 namespace bm
 {
-QString Bootmedia::string() const
+QString BootMedia::string() const
 {
   QString res;
 
@@ -16,8 +16,8 @@ QString Bootmedia::string() const
     res += model + " ";
   }
 
-  if (!root_path.isEmpty()) {
-    res += "(" + root_path + ")";
+  if (!devnode.isEmpty()) {
+    res += "(" + devnode + ")";
   }
 
   return res.trimmed();

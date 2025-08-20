@@ -7,16 +7,16 @@ namespace gui
 {
 namespace bm
 {
-class Bootmedia
+class BootMedia
 {
 public:
   QString vendor;
   QString model;
-  QString root_path;
+  QString devnode;
 
   QString string() const;
 };
 }  // namespace bm
 }  // namespace gui
 
-Q_DECLARE_METATYPE(gui::bm::Bootmedia);
+Q_DECLARE_METATYPE(gui::bm::BootMedia);

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <filesystem>
-
 #include <QTimer>
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
@@ -24,8 +22,10 @@ class MediaManagerWidget : public QWidget
   static constexpr int kMediaNameWidth = 600;
   static constexpr int kConnectButtonWidth = 100;
 
+  static constexpr mode_t kPermission = 0755;  // rwxr-xr-x
+
 Q_SIGNALS:
-  void connected(const Bootmedia& media);
+  void connected(const BootMedia& media);
   void disconnected();
 
 public:
@@ -34,12 +34,14 @@ public:
   bool isConnected() const;
 
 private:
-  std::unordered_map<QString, Bootmedia> medias_;
+  std::unordered_map<QString, BootMedia> medias_;
 
   qt::ComboBox* media_name_;
   qt::ToggleButton* connect_btn_;
 
   QTimer scan_timer_;
+
+  const BootMedia& currentBootMedia() const;
 
   static std::pair<std::string, std::string> getVendorAndModel(udev_device* dev);
 
