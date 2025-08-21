@@ -16,7 +16,7 @@ StringInputDialog::StringInputDialog(
   const QString& name,
   const QString& default_text,
   const QStringList& excludes)
-  : QDialog(parent), excludeds_(excludes)
+  : super(parent), excludeds_(excludes)
 {
   setWindowTitle(title);
 
