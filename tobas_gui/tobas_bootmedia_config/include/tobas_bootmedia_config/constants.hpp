@@ -17,5 +17,6 @@ static constexpr int kCtrlButtonHeight = 40;
 
 static constexpr char kBootPath[] = "/mnt/bootfs";
 static constexpr char kRootPath[] = "/mnt/rootfs";
+static constexpr char kHomePath[] = "/mnt/rootfs/home/pi";
 }  // namespace bm
 }  // namespace gui

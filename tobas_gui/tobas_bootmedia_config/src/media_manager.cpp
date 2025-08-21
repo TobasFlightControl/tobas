@@ -36,9 +36,9 @@ MediaManagerWidget::MediaManagerWidget()
   cols->addWidget(connect_btn_);
 
   // Connection
-  connect(&scan_timer_, &QTimer::timeout, this, &self::onScanTimerTimeout);
   connect(connect_btn_, &qt::ToggleButton::checked, this, &self::onConnectRequested);
   connect(connect_btn_, &qt::ToggleButton::unchecked, this, &self::onDisconnectRequested);
+  connect(&scan_timer_, &QTimer::timeout, this, &self::onScanTimerTimeout);
 
   scan_timer_.start(1s);
 }

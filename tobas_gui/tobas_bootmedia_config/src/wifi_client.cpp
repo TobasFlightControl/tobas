@@ -1,6 +1,7 @@
 #include "tobas_bootmedia_config/wifi_client.hpp"
 
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_string_tools/stream.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
 
@@ -12,19 +13,15 @@ WifiClientWidget::WifiClientWidget()
 {
   read_button_ = new QPushButton("Read");
   read_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-  read_button_->setEnabled(true);
 
   write_button_ = new QPushButton("Write");
   write_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-  write_button_->setEnabled(false);
 
   add_button_ = new QPushButton("Add");
   add_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-  add_button_->setEnabled(false);
 
   remove_button_ = new QPushButton("Remove");
   remove_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-  remove_button_->setEnabled(false);
 
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "SSID", "PSK" });
@@ -60,6 +57,12 @@ const char* WifiClientWidget::title() const
 
 void WifiClientWidget::reset()
 {
+  read_button_->setEnabled(true);
+  write_button_->setEnabled(false);
+  add_button_->setEnabled(false);
+  remove_button_->setEnabled(false);
+
+  table_->removeAll();
 }
 
 void WifiClientWidget::addRow(const std::string& ssid, const std::string& psk)
@@ -70,14 +73,57 @@ void WifiClientWidget::addRow(const std::string& ssid, const std::string& psk)
   table_->setItem(row, kPSKCol, new QTableWidgetItem(QString::fromStdString(psk)));
 }
 
+std::string WifiClientWidget::configPath()
+{
+  return std::string(kRootPath) + "/etc/wpa_supplicant/wpa_supplicant.conf";
+}
+
 void WifiClientWidget::onReadButtonClicked()
 {
-  // TODO
+  // 設定ファイルを読み込む
+  std::string text;
+  if (!str::readText(configPath(), text)) {
+    qt::qErrorBox(this, "Failed to read network configuration file.");
+    return;
+  }
+
+  // 設定ファイルを解析
+  if (!wpa_parser_.parseFromText(text)) {
+    qt::qErrorBox(this, "Failed to parse network configuration.");
+    return;
+  }
+
+  // 現在の設定をテーブルに反映
+  table_->removeAll();
+  for (const auto& network : wpa_parser_.networks) {
+    addRow(network.ssid, network.psk);
+  }
+
+  // 編集用ボタンを有効化
+  write_button_->setEnabled(true);
+  add_button_->setEnabled(true);
+  remove_button_->setEnabled(true);
+
+  qt::qInfoBox(this, "Network configuration is read successfully.");
 }
 
 void WifiClientWidget::onWriteButtonClicked()
 {
-  // TODO
+  // テーブルの内容を反映
+  wpa_parser_.networks.clear();
+  for (int row = 0; row < table_->rowCount(); ++row) {
+    wpa_parser_.networks.emplace_back();
+    wpa_parser_.networks.back().ssid = table_->item(row, kSSIDCol)->text().toStdString();
+    wpa_parser_.networks.back().psk = table_->item(row, kPSKCol)->text().toStdString();
+  }
+
+  // 設定を書き込む
+  if (!str::writeText(configPath(), wpa_parser_.exportText())) {
+    qt::qErrorBox(this, "Failed to write network configuration.");
+    return;
+  }
+
+  qt::qInfoBox(this, "Network configuration is written successfully.");
 }
 
 void WifiClientWidget::onAddButtonClicked()

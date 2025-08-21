@@ -22,6 +22,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 
   tabs_->addTab(wifi_client_, wifi_client_->name());
 
+  reset();
   setTabsEnabled(false);
 
   // Layout
