@@ -4,6 +4,7 @@
 #include <tobas_string_tools/stream.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
+#include "tobas_bootmedia_config/wifi_client/add_wifi_dialog.hpp"
 
 namespace gui
 {
@@ -13,9 +14,6 @@ WifiClientWidget::WifiClientWidget()
 {
   read_button_ = new QPushButton("Read");
   read_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-
-  write_button_ = new QPushButton("Write");
-  write_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
 
   add_button_ = new QPushButton("Add");
   add_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
@@ -30,7 +28,6 @@ WifiClientWidget::WifiClientWidget()
   // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(read_button_);
-  cols->addWidget(write_button_);
   cols->addWidget(add_button_);
   cols->addWidget(remove_button_);
   cols->addStretch();
@@ -40,7 +37,6 @@ WifiClientWidget::WifiClientWidget()
 
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
-  connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
   connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
 }
@@ -58,7 +54,6 @@ const char* WifiClientWidget::title() const
 void WifiClientWidget::reset()
 {
   read_button_->setEnabled(true);
-  write_button_->setEnabled(false);
   add_button_->setEnabled(false);
   remove_button_->setEnabled(false);
 
@@ -75,12 +70,31 @@ QString WifiClientWidget::getPsk(int row) const
   return table_->item(row, kPskCol)->text();
 }
 
-void WifiClientWidget::addRow(const std::string& ssid, const std::string& psk)
+void WifiClientWidget::addRow(const QString& ssid, const QString& psk)
 {
   const auto row = table_->rowCount();
   table_->insertRow(row);
-  table_->setItem(row, kSsidCol, new QTableWidgetItem(QString::fromStdString(ssid)));
-  table_->setItem(row, kPskCol, new QTableWidgetItem(QString::fromStdString(psk)));
+  table_->setItem(row, kSsidCol, new QTableWidgetItem(ssid));
+  table_->setItem(row, kPskCol, new QTableWidgetItem(psk));
+}
+
+bool WifiClientWidget::writeCurrentConfig()
+{
+  // テーブルの内容を反映
+  wpa_parser_.networks.clear();
+  for (int row = 0; row < table_->rowCount(); ++row) {
+    wpa_parser_.networks.emplace_back();
+    wpa_parser_.networks.back().ssid = getSsid(row).toStdString();
+    wpa_parser_.networks.back().psk = getPsk(row).toStdString();
+  }
+
+  // 設定を書き込む
+  if (!str::writeText(configPath(), wpa_parser_.exportText())) {
+    qt::qErrorBox(this, "Failed to write network configuration.");
+    return false;
+  }
+
+  return true;
 }
 
 std::string WifiClientWidget::configPath()
@@ -106,54 +120,55 @@ void WifiClientWidget::onReadButtonClicked()
   // 現在の設定をテーブルに反映
   table_->removeAll();
   for (const auto& network : wpa_parser_.networks) {
-    addRow(network.ssid, network.psk);
+    addRow(QString::fromStdString(network.ssid), QString::fromStdString(network.psk));
   }
 
   // 編集用ボタンを有効化
-  write_button_->setEnabled(true);
   add_button_->setEnabled(true);
   remove_button_->setEnabled(true);
 
   qt::qInfoBox(this, "Network configuration is read successfully.");
 }
 
-void WifiClientWidget::onWriteButtonClicked()
+void WifiClientWidget::onAddButtonClicked()
 {
-  // テーブルの内容を反映
-  wpa_parser_.networks.clear();
-  for (int row = 0; row < table_->rowCount(); ++row) {
-    wpa_parser_.networks.emplace_back();
-    wpa_parser_.networks.back().ssid = getSsid(row).toStdString();
-    wpa_parser_.networks.back().psk = getPsk(row).toStdString();
-  }
-
-  // 設定を書き込む
-  if (!str::writeText(configPath(), wpa_parser_.exportText())) {
-    qt::qErrorBox(this, "Failed to write network configuration.");
+  // ダイアログでネットワークを取得
+  AddWifiDialog dialog(this);
+  const auto result = dialog.exec();
+  if (result != QDialog::Accepted) {
     return;
   }
 
-  qt::qInfoBox(this, "Network configuration is written successfully.");
-}
+  // テーブルにネットワークを追加
+  addRow(dialog.getSsid(), dialog.getPsk());
 
-void WifiClientWidget::onAddButtonClicked()
-{
-  addRow("", "");
+  // 現在の設定をメディアに反映
+  if (!writeCurrentConfig()) {
+    reset();
+  }
 }
 
 void WifiClientWidget::onRemoveButtonClicked()
 {
+  // 消すべき行を取得
   const auto row = table_->currentRow();
   if (row < 0) {
     qt::qWarnBox(this, "Please select the network to remove.");
     return;
   }
 
+  // 本当に消して大丈夫か確認
   if (!qt::yesOrNo(this, "Are you sure you want to remove \"" + getSsid(row) + "\"?", qt::WARN)) {
     return;
   }
 
+  // ネットワークをテーブルから削除
   table_->removeRow(row);
+
+  // 現在の設定をメディアに反映
+  if (!writeCurrentConfig()) {
+    reset();
+  }
 }
 }  // namespace bm
 }  // namespace gui

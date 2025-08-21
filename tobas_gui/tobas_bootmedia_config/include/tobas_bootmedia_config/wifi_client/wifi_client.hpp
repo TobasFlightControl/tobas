@@ -36,7 +36,6 @@ private:
   wpa::WpaSupplicantParser wpa_parser_;
 
   QPushButton* read_button_;
-  QPushButton* write_button_;
   QPushButton* add_button_;
   QPushButton* remove_button_;
 
@@ -45,13 +44,13 @@ private:
   QString getSsid(int row) const;
   QString getPsk(int row) const;
 
-  void addRow(const std::string& ssid, const std::string& psk);
+  void addRow(const QString& ssid, const QString& psk);
+  bool writeCurrentConfig();
 
   static std::string configPath();
 
 private Q_SLOTS:
   void onReadButtonClicked();
-  void onWriteButtonClicked();
   void onAddButtonClicked();
   void onRemoveButtonClicked();
 };
