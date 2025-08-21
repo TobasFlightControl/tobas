@@ -22,8 +22,12 @@ WifiClientWidget::WifiClientWidget()
   remove_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
 
   table_ = new qt::TableWidget(0, kNumCols);
-  table_->setHorizontalHeaderLabels({ "SSID", "PSK" });
+  table_->setHorizontalHeaderLabels({ "SSID", "PSK", "Priority" });
   table_->setColumnsWidth(kColWidth);
+  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);    // 編集禁止
+  table_->setSelectionBehavior(QAbstractItemView::SelectRows);   // 行単位で選択
+  table_->setSelectionMode(QAbstractItemView::SingleSelection);  // 1行だけ選択
+  table_->setHeaderSectionsClickable(false);                     // ヘッダのクリック禁止
 
   // Layout
   const auto cols = new QHBoxLayout();
@@ -43,12 +47,12 @@ WifiClientWidget::WifiClientWidget()
 
 const char* WifiClientWidget::name() const
 {
-  return "Network Setting";
+  return "Wi-Fi Client";
 }
 
 const char* WifiClientWidget::title() const
 {
-  return "Configure Wireless Network";
+  return "Configure Wi-Fi Client";
 }
 
 void WifiClientWidget::reset()
@@ -70,12 +74,22 @@ QString WifiClientWidget::getPsk(int row) const
   return table_->item(row, kPskCol)->text();
 }
 
-void WifiClientWidget::addRow(const QString& ssid, const QString& psk)
+int WifiClientWidget::getPriority(int row) const
+{
+  return table_->item(row, kPriorityCol)->data(Qt::EditRole).toInt();
+}
+
+void WifiClientWidget::addRow(const QString& ssid, const QString& psk, int priority)
 {
   const auto row = table_->rowCount();
   table_->insertRow(row);
+
   table_->setItem(row, kSsidCol, new QTableWidgetItem(ssid));
   table_->setItem(row, kPskCol, new QTableWidgetItem(psk));
+
+  const auto priority_it = new QTableWidgetItem();
+  priority_it->setData(Qt::EditRole, priority);
+  table_->setItem(row, kPriorityCol, priority_it);
 }
 
 bool WifiClientWidget::writeCurrentConfig()
@@ -86,6 +100,7 @@ bool WifiClientWidget::writeCurrentConfig()
     wpa_parser_.networks.emplace_back();
     wpa_parser_.networks.back().ssid = getSsid(row).toStdString();
     wpa_parser_.networks.back().psk = getPsk(row).toStdString();
+    wpa_parser_.networks.back().priority = getPriority(row);
   }
 
   // 設定を書き込む
@@ -120,7 +135,7 @@ void WifiClientWidget::onReadButtonClicked()
   // 現在の設定をテーブルに反映
   table_->removeAll();
   for (const auto& network : wpa_parser_.networks) {
-    addRow(QString::fromStdString(network.ssid), QString::fromStdString(network.psk));
+    addRow(QString::fromStdString(network.ssid), QString::fromStdString(network.psk), network.priority);
   }
 
   // 編集用ボタンを有効化
@@ -140,11 +155,12 @@ void WifiClientWidget::onAddButtonClicked()
   }
 
   // テーブルにネットワークを追加
-  addRow(dialog.getSsid(), dialog.getPsk());
+  addRow(dialog.getSsid(), dialog.getPsk(), dialog.getPriority());
 
   // 現在の設定をメディアに反映
   if (!writeCurrentConfig()) {
     reset();
+    return;
   }
 }
 
@@ -168,6 +184,7 @@ void WifiClientWidget::onRemoveButtonClicked()
   // 現在の設定をメディアに反映
   if (!writeCurrentConfig()) {
     reset();
+    return;
   }
 }
 }  // namespace bm

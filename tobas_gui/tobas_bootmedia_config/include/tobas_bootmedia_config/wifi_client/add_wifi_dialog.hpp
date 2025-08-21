@@ -6,6 +6,8 @@
 #include <QDialogButtonBox>
 #include <QLineEdit>
 
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 namespace gui
 {
 namespace bm
@@ -20,12 +22,14 @@ class AddWifiDialog : public QDialog
 public:
   explicit AddWifiDialog(QWidget* parent);
 
-  const QString getSsid() const;
-  const QString getPsk() const;
+  QString getSsid() const;
+  QString getPsk() const;
+  int getPriority() const;
 
 private:
   QLineEdit* ssid_;
   QLineEdit* psk_;
+  qt::SpinBox* priority_;
 
   QDialogButtonBox* btn_box_;
 

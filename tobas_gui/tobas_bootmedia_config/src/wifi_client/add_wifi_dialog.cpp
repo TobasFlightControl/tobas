@@ -15,6 +15,11 @@ AddWifiDialog::AddWifiDialog(QWidget* parent) : super(parent)
   ssid_ = new QLineEdit();
   psk_ = new QLineEdit();
 
+  priority_ = new qt::SpinBox();
+  priority_->setMinimum(0);
+  priority_->setMaximum(99);
+  priority_->setValue(0);
+
   btn_box_ = new QDialogButtonBox();
   btn_box_->setOrientation(Qt::Horizontal);
   btn_box_->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
@@ -24,6 +29,7 @@ AddWifiDialog::AddWifiDialog(QWidget* parent) : super(parent)
   const auto form = new QFormLayout();
   form->addRow("SSID", ssid_);
   form->addRow("PSK", psk_);
+  form->addRow("Priority", priority_);
 
   const auto rows = new QVBoxLayout();
   rows->addLayout(form);
@@ -38,14 +44,19 @@ AddWifiDialog::AddWifiDialog(QWidget* parent) : super(parent)
   connect(btn_box_, &QDialogButtonBox::rejected, this, &self::reject);
 }
 
-const QString AddWifiDialog::getSsid() const
+QString AddWifiDialog::getSsid() const
 {
   return ssid_->text();
 }
 
-const QString AddWifiDialog::getPsk() const
+QString AddWifiDialog::getPsk() const
 {
   return psk_->text();
+}
+
+int AddWifiDialog::getPriority() const
+{
+  return priority_->value();
 }
 
 bool AddWifiDialog::isAcceptable() const

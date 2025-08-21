@@ -18,11 +18,12 @@ class WifiClientWidget : public BaseConfigWidget
   using self = WifiClientWidget;
   using super = BaseConfigWidget;
 
-  static constexpr int kColWidth = 200;
+  static constexpr int kColWidth = 300;
 
   static constexpr int kSsidCol = 0;
   static constexpr int kPskCol = 1;
-  static constexpr int kNumCols = 2;
+  static constexpr int kPriorityCol = 2;
+  static constexpr int kNumCols = 3;
 
 public:
   explicit WifiClientWidget();
@@ -43,8 +44,9 @@ private:
 
   QString getSsid(int row) const;
   QString getPsk(int row) const;
+  int getPriority(int row) const;
 
-  void addRow(const QString& ssid, const QString& psk);
+  void addRow(const QString& ssid, const QString& psk, int priority);
   bool writeCurrentConfig();
 
   static std::string configPath();

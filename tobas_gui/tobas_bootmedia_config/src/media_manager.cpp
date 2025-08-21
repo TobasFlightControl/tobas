@@ -226,8 +226,9 @@ void MediaManagerWidget::onConnectRequested()
   // マウント中はメディア名を変更できないようにする
   media_name_->setEnabled(false);
 
-  qt::qInfoBox(this, "The boot media was mounted successfully.");
   Q_EMIT connected(media);
+
+  qt::qInfoBox(this, "The boot media was mounted successfully.");
 }
 
 void MediaManagerWidget::onDisconnectRequested()
@@ -247,8 +248,9 @@ void MediaManagerWidget::onDisconnectRequested()
     return;
   }
 
-  qt::qInfoBox(this, "The boot media was unmounted successfully.");
   Q_EMIT disconnected();
+
+  qt::qInfoBox(this, "The boot media was unmounted successfully.");
 }
 }  // namespace bm
 }  // namespace gui
