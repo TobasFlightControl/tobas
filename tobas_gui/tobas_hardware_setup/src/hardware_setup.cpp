@@ -38,7 +38,7 @@ HardwareSetupWidget::HardwareSetupWidget(
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
   // プロジェクトが読み込まれるまでは無効化
-  setEnabledConfigDependentWidgets(false);
+  setTabsEnabled(false);
 }
 
 void HardwareSetupWidget::reset()
@@ -64,19 +64,18 @@ void HardwareSetupWidget::updateInternalDataStructures()
   tabs_->setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
 
   // 各タブを有効化
-  setEnabledConfigDependentWidgets(true);
+  setTabsEnabled(true);
 
   // タブを表示・非表示した際の歪みを整える
   tabs_->update();
 }
 
-void HardwareSetupWidget::setEnabledConfigDependentWidgets(bool enabled)
+void HardwareSetupWidget::setTabsEnabled(bool enabled)
 {
-  accel_calib_->setEnabled(enabled);
-  mag_calib_->setEnabled(enabled);
-  rcin_calib_->setEnabled(enabled);
-  rotor_test_->setEnabled(enabled);
-  joint_test_->setEnabled(enabled);
+  for (int i = 0; i < tabs_->count(); ++i) {
+    const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
+    widget->setEnabled(enabled);
+  }
 }
 }  // namespace hw
 }  // namespace gui
