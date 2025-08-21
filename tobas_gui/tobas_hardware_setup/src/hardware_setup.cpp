@@ -23,14 +23,12 @@ HardwareSetupWidget::HardwareSetupWidget(
   tabs_->enableWheelEvent(false);
   rows->addWidget(tabs_);
 
-  network_setting_ = new NetworkSettingWidget(node);
   accel_calib_ = new AccelCalibrationWidget(node, bridge);
   mag_calib_ = new MagCalibrationWidget(node, bridge);
   rcin_calib_ = new RCInputCalibrationWidget(node, bridge, drone);
   rotor_test_ = new RotorTestWidget(node, bridge, drone);
   joint_test_ = new JointTestWidget(node, bridge, tree, drone);
 
-  tabs_->addTab(network_setting_, network_setting_->name());
   tabs_->addTab(accel_calib_, accel_calib_->name());
   tabs_->addTab(mag_calib_, mag_calib_->name());
   tabs_->addTab(rcin_calib_, rcin_calib_->name());
@@ -49,8 +47,6 @@ void HardwareSetupWidget::reset()
     const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
     widget->reset();
   }
-
-  tabs_->setCurrentWidget(network_setting_);
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()
