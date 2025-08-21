@@ -1,4 +1,4 @@
-#include "tobas_bootmedia_config/wifi_client.hpp"
+#include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
 
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_string_tools/stream.hpp>
