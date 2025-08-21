@@ -444,7 +444,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
   std::string uadf_text;
   if (!str::readText(common::getProjOriginalUadfPath(proj_path), uadf_text)) {
-    qt::qErrorBox(this, "Failed to read " + QString::fromStdString(proj_path));
+    qt::qErrorBox(this, "Failed to open file: " + QString::fromStdString(proj_path));
     return;
   }
   tinyxml2::XMLDocument uadf_doc;
