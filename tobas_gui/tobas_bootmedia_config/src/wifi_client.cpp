@@ -65,12 +65,22 @@ void WifiClientWidget::reset()
   table_->removeAll();
 }
 
+QString WifiClientWidget::getSsid(int row) const
+{
+  return table_->item(row, kSsidCol)->text();
+}
+
+QString WifiClientWidget::getPsk(int row) const
+{
+  return table_->item(row, kPskCol)->text();
+}
+
 void WifiClientWidget::addRow(const std::string& ssid, const std::string& psk)
 {
   const auto row = table_->rowCount();
   table_->insertRow(row);
-  table_->setItem(row, kSSIDCol, new QTableWidgetItem(QString::fromStdString(ssid)));
-  table_->setItem(row, kPSKCol, new QTableWidgetItem(QString::fromStdString(psk)));
+  table_->setItem(row, kSsidCol, new QTableWidgetItem(QString::fromStdString(ssid)));
+  table_->setItem(row, kPskCol, new QTableWidgetItem(QString::fromStdString(psk)));
 }
 
 std::string WifiClientWidget::configPath()
@@ -113,8 +123,8 @@ void WifiClientWidget::onWriteButtonClicked()
   wpa_parser_.networks.clear();
   for (int row = 0; row < table_->rowCount(); ++row) {
     wpa_parser_.networks.emplace_back();
-    wpa_parser_.networks.back().ssid = table_->item(row, kSSIDCol)->text().toStdString();
-    wpa_parser_.networks.back().psk = table_->item(row, kPSKCol)->text().toStdString();
+    wpa_parser_.networks.back().ssid = getSsid(row).toStdString();
+    wpa_parser_.networks.back().psk = getPsk(row).toStdString();
   }
 
   // 設定を書き込む
@@ -134,9 +144,16 @@ void WifiClientWidget::onAddButtonClicked()
 void WifiClientWidget::onRemoveButtonClicked()
 {
   const auto row = table_->currentRow();
-  if (row >= 0) {
-    table_->removeRow(row);
+  if (row < 0) {
+    qt::qWarnBox(this, "Please select the network to remove.");
+    return;
   }
+
+  if (!qt::yesOrNo(this, "Are you sure you want to remove \"" + getSsid(row) + "\"?", qt::WARN)) {
+    return;
+  }
+
+  table_->removeRow(row);
 }
 }  // namespace bm
 }  // namespace gui

@@ -20,8 +20,8 @@ class WifiClientWidget : public BaseConfigWidget
 
   static constexpr int kColWidth = 200;
 
-  static constexpr int kSSIDCol = 0;
-  static constexpr int kPSKCol = 1;
+  static constexpr int kSsidCol = 0;
+  static constexpr int kPskCol = 1;
   static constexpr int kNumCols = 2;
 
 public:
@@ -41,6 +41,9 @@ private:
   QPushButton* remove_button_;
 
   qt::TableWidget* table_;
+
+  QString getSsid(int row) const;
+  QString getPsk(int row) const;
 
   void addRow(const std::string& ssid, const std::string& psk);
 
