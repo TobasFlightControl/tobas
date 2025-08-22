@@ -4,8 +4,8 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QLineEdit>
 
+#include <tobas_qt_tools/widgets/password_edit.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
 namespace gui
@@ -28,7 +28,7 @@ public:
 
 private:
   QLineEdit* ssid_;
-  QLineEdit* psk_;
+  qt::PasswordEdit* psk_;
   qt::SpinBox* priority_;
 
   QDialogButtonBox* btn_box_;

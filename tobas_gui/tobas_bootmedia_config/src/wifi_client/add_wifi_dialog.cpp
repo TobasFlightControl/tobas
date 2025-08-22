@@ -13,7 +13,7 @@ AddWifiDialog::AddWifiDialog(QWidget* parent) : super(parent)
   setWindowTitle("Add New Network");
 
   ssid_ = new QLineEdit();
-  psk_ = new QLineEdit();
+  psk_ = new qt::PasswordEdit();
 
   priority_ = new qt::SpinBox();
   priority_->setMinimum(0);
