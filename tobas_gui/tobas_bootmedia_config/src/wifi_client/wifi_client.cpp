@@ -1,5 +1,7 @@
 #include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
 
+#include <QDebug>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_string_tools/stream.hpp>
 
@@ -71,12 +73,12 @@ QString WifiClientWidget::getSsid(int row) const
 
 QString WifiClientWidget::getPsk(int row) const
 {
-  return table_->item(row, kPskCol)->text();
+  return table_->item(row, kPskCol)->data(Qt::UserRole).toString();
 }
 
 int WifiClientWidget::getPriority(int row) const
 {
-  return table_->item(row, kPriorityCol)->data(Qt::EditRole).toInt();
+  return table_->item(row, kPriorityCol)->data(Qt::DisplayRole).toInt();
 }
 
 void WifiClientWidget::addRow(const QString& ssid, const QString& psk, int priority)
@@ -85,10 +87,14 @@ void WifiClientWidget::addRow(const QString& ssid, const QString& psk, int prior
   table_->insertRow(row);
 
   table_->setItem(row, kSsidCol, new QTableWidgetItem(ssid));
-  table_->setItem(row, kPskCol, new QTableWidgetItem(psk));
+
+  const auto psk_it = new QTableWidgetItem();
+  psk_it->setData(Qt::UserRole, psk);  // 平文をUserRoleで保持 (EditRoleはDisplayRoleとリンクしているため使えない)
+  psk_it->setData(Qt::DisplayRole, QString(psk.size(), QChar(0x25CF)));  // 黒丸で表示
+  table_->setItem(row, kPskCol, psk_it);
 
   const auto priority_it = new QTableWidgetItem();
-  priority_it->setData(Qt::EditRole, priority);
+  priority_it->setData(Qt::DisplayRole, priority);
   table_->setItem(row, kPriorityCol, priority_it);
 }
 
