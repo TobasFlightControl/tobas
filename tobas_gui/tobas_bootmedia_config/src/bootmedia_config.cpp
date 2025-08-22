@@ -19,8 +19,10 @@ BootmediaConfigWidget::BootmediaConfigWidget()
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
   wifi_client_ = new WifiClientWidget();
+  wifi_hotspot_ = new WifiHotspotWidget();
 
   tabs_->addTab(wifi_client_, wifi_client_->name());
+  tabs_->addTab(wifi_hotspot_, wifi_hotspot_->name());
 
   reset();
   setTabsEnabled(false);

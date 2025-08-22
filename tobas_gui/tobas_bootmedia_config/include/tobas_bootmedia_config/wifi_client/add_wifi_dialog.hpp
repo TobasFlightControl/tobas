@@ -4,6 +4,7 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QLineEdit>
 
 #include <tobas_qt_tools/widgets/password_edit.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>

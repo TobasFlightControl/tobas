@@ -4,6 +4,7 @@
 
 #include "./media_manager.hpp"
 #include "./wifi_client/wifi_client.hpp"
+#include "./wifi_hotspot/wifi_hotspot.hpp"
 
 namespace gui
 {
@@ -29,6 +30,7 @@ private:
   qt::VerticalTabWidget* tabs_;
 
   WifiClientWidget* wifi_client_;
+  WifiHotspotWidget* wifi_hotspot_;
 
   void setTabsEnabled(bool enabled);
 
