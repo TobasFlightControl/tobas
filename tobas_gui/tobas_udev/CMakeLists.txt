@@ -20,7 +20,7 @@ pkg_check_modules(UDEV REQUIRED libudev)
 include_directories(include ${UDEV_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_libraries(${PROJECT_NAME} ${UDEV_LIBRARIES})
 
