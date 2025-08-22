@@ -15,13 +15,14 @@ namespace bm
 WifiClientWidget::WifiClientWidget()
 {
   read_button_ = new QPushButton("Read");
-  read_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-
   add_button_ = new QPushButton("Add");
-  add_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
-
   remove_button_ = new QPushButton("Remove");
+  clear_button_ = new QPushButton("Clear");
+
+  read_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
+  add_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
   remove_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
+  clear_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
 
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "SSID", "PSK", "Priority" });
@@ -36,6 +37,7 @@ WifiClientWidget::WifiClientWidget()
   cols->addWidget(read_button_);
   cols->addWidget(add_button_);
   cols->addWidget(remove_button_);
+  cols->addWidget(clear_button_);
   cols->addStretch();
 
   rows_->addLayout(cols);
@@ -45,6 +47,7 @@ WifiClientWidget::WifiClientWidget()
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
   connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
+  connect(clear_button_, &QPushButton::clicked, this, &self::onClearButtonClicked);
 }
 
 const char* WifiClientWidget::name() const
@@ -62,6 +65,7 @@ void WifiClientWidget::reset()
   read_button_->setEnabled(true);
   add_button_->setEnabled(false);
   remove_button_->setEnabled(false);
+  clear_button_->setEnabled(false);
 
   table_->removeAll();
 }
@@ -147,6 +151,7 @@ void WifiClientWidget::onReadButtonClicked()
   // 編集用ボタンを有効化
   add_button_->setEnabled(true);
   remove_button_->setEnabled(true);
+  clear_button_->setEnabled(true);
 
   qt::qInfoBox(this, "Network configuration is read successfully.");
 }
@@ -179,13 +184,30 @@ void WifiClientWidget::onRemoveButtonClicked()
     return;
   }
 
-  // 本当に消して大丈夫か確認
+  // 本当に選択したネットワークを消して大丈夫か確認
   if (!qt::yesOrNo(this, "Are you sure you want to remove \"" + getSsid(row) + "\"?", qt::WARN)) {
     return;
   }
 
   // ネットワークをテーブルから削除
   table_->removeRow(row);
+
+  // 現在の設定をメディアに反映
+  if (!writeCurrentConfig()) {
+    reset();
+    return;
+  }
+}
+
+void WifiClientWidget::onClearButtonClicked()
+{
+  // 本当に全削除して大丈夫か確認
+  if (!qt::yesOrNo(this, "Are you sure you want to remove all networks?", qt::WARN)) {
+    return;
+  }
+
+  // ネットワークをテーブルから削除
+  table_->removeAll();
 
   // 現在の設定をメディアに反映
   if (!writeCurrentConfig()) {

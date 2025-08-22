@@ -39,6 +39,7 @@ private:
   QPushButton* read_button_;
   QPushButton* add_button_;
   QPushButton* remove_button_;
+  QPushButton* clear_button_;
 
   qt::TableWidget* table_;
 
@@ -55,6 +56,7 @@ private Q_SLOTS:
   void onReadButtonClicked();
   void onAddButtonClicked();
   void onRemoveButtonClicked();
+  void onClearButtonClicked();
 };
 }  // namespace bm
 }  // namespace gui
