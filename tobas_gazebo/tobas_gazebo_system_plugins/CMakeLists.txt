@@ -58,16 +58,16 @@ set(AMENT_DEPENDENCIES
 include_directories(include ${OpenCV_INCLUDE_DIRS})
 
 # Build common library
-file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
 
 # Build each plugin
-file(GLOB_RECURSE PLUGIN_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
+file(GLOB_RECURSE PLUGIN_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
 set(TARGETS_TO_INSTALL "")
 
-foreach(file_path IN LISTS PLUGIN_CPP_FILES)
+foreach(file_path IN LISTS PLUGIN_TARGETS)
   get_filename_component(FILE_NAME ${file_path} NAME_WE)
   set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
   add_library(${PLUGIN_NAME} SHARED ${file_path})
