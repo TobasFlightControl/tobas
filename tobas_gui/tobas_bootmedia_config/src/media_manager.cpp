@@ -248,6 +248,9 @@ void MediaManagerWidget::onDisconnectRequested()
     return;
   }
 
+  // 再びメディア名を選択可能にする
+  media_name_->setEnabled(true);
+
   Q_EMIT disconnected();
 
   qt::qInfoBox(this, "The boot media was unmounted successfully.");
