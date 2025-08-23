@@ -38,7 +38,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
 {
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rsrc_path = pkg_path / "resources";
 
   // Applications

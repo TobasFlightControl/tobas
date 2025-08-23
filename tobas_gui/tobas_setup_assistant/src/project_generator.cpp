@@ -32,7 +32,7 @@ ProjectGenerator::ProjectGenerator(
   SettingsWidget* settings)
   : node_(node), uadf_(uadf), tree_(tree), settings_(settings)
 {
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto templates_path = pkg_path / "templates";
   meta_env_ = std::make_shared<TemplateGenerator>(templates_path / "meta_package");
   config_env_ = std::make_shared<TemplateGenerator>(templates_path / "config_package");
