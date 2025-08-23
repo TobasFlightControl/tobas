@@ -10,6 +10,7 @@ int main(int argc, char** argv)
     cerr << "Usage: " << argv[0] << " <password>" << endl;
     return EXIT_FAILURE;
   }
+
   const auto password = argv[1];
 
   tobas::crypt::Yescrypt crypt;
