@@ -4,6 +4,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include "tobas_bootmedia_config/constants.hpp"
+
 namespace gui
 {
 namespace bm
@@ -61,7 +63,17 @@ int AddWifiDialog::getPriority() const
 
 bool AddWifiDialog::isAcceptable() const
 {
-  return !getSsid().isEmpty() && !getPsk().isEmpty();
+  const auto ssid = getSsid();
+  if (ssid.isEmpty()) {
+    return false;
+  }
+
+  const auto psk = getPsk();
+  if (psk.length() < kWpaPskMinLength) {
+    return false;
+  }
+
+  return true;
 }
 
 void AddWifiDialog::enableOkButton(bool enable)

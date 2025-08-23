@@ -94,7 +94,7 @@ void WifiClientWidget::addRow(const QString& ssid, const QString& psk, int prior
 
   const auto psk_it = new QTableWidgetItem();
   psk_it->setData(Qt::UserRole, psk);  // 平文をUserRoleで保持 (EditRoleはDisplayRoleとリンクしているため使えない)
-  psk_it->setData(Qt::DisplayRole, QString(psk.size(), QChar(0x25CF)));  // 黒丸で表示
+  psk_it->setData(Qt::DisplayRole, QString(psk.length(), QChar(0x25CF)));  // 黒丸で表示
   table_->setItem(row, kPskCol, psk_it);
 
   const auto priority_it = new QTableWidgetItem();

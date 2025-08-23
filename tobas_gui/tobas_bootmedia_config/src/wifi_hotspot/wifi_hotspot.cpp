@@ -72,7 +72,17 @@ QString WifiHotspotWidget::getPsk() const
 
 bool WifiHotspotWidget::isAcceptable() const
 {
-  return !getSsid().isEmpty() && !getPsk().isEmpty();
+  const auto ssid = getSsid();
+  if (ssid.isEmpty()) {
+    return false;
+  }
+
+  const auto psk = getPsk();
+  if (psk.length() < kWpaPskMinLength) {
+    return false;
+  }
+
+  return true;
 }
 
 void WifiHotspotWidget::onWriteButtonClicked()
