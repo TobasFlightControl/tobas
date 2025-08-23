@@ -3,6 +3,7 @@
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./hostname/hostname.hpp"
+#include "./login_password/login_password.hpp"
 #include "./media_manager.hpp"
 #include "./wifi_client/wifi_client.hpp"
 #include "./wifi_hotspot/wifi_hotspot.hpp"
@@ -31,6 +32,7 @@ private:
   qt::VerticalTabWidget* tabs_;
 
   HostnameWidget* hostname_;
+  LoginPasswordWidget* login_password_;
   WifiClientWidget* wifi_client_;
   WifiHotspotWidget* wifi_hotspot_;
 
