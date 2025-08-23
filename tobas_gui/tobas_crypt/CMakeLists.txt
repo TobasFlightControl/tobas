@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_udev)
+project(tobas_crypt)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
@@ -20,17 +20,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_linux REQUIRED)
 
-# Search for libudev
+# Search for libcrypt
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(UDEV REQUIRED libudev)
+pkg_check_modules(CRYPT REQUIRED libcrypt)
 
-include_directories(include ${UDEV_INCLUDE_DIRS})
+set(AMENT_DEPENDENCIES tobas_linux)
+
+include_directories(include ${CRYPT_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} ${UDEV_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${CRYPT_LIBRARIES})
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")
@@ -54,6 +57,6 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies()
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

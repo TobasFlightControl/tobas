@@ -15,10 +15,6 @@ find_package(ament_cmake REQUIRED)
 find_package(cxxopts_ament REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 
-# Search for libcrypt
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(CRYPT REQUIRED libcrypt)
-
 set(AMENT_DEPENDENCIES cxxopts_ament tobas_std_tools)
 
 include_directories(include ${CRYPT_INCLUDE_DIRS})
@@ -26,7 +22,6 @@ include_directories(include ${CRYPT_INCLUDE_DIRS})
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} ${CRYPT_LIBRARIES})
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")

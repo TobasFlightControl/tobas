@@ -1,6 +1,5 @@
-#include "tobas_linux/crypt.hpp"
+#include "tobas_crypt/crypt.hpp"
 
-#include <crypt.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,39 +13,12 @@
 using namespace std;
 using namespace chrono;
 
-namespace linux
+namespace tobas
+{
+namespace crypt
 {
 namespace
 {
-/* 乱数で crypt 互換 base64 のソルト文字列 (./0-9A-Za-z) を生成する． */
-string makeSalt(size_t len)
-{
-  constexpr char kUrandomPath[] = "/dev/urandom";
-  auto fd = ::open(kUrandomPath, O_RDONLY);
-  if (fd < 0) {
-    cerr << "Failed to open " << kUrandomPath << ": " << linux::strError() << endl;
-    return {};
-  }
-
-  vector<unsigned char> buf(len);
-  const auto n = ::read(fd, buf.data(), buf.size());
-  ::close(fd);
-
-  if (n != static_cast<ssize_t>(buf.size())) {
-    cerr << "Failed to read urandom." << endl;
-    return {};
-  }
-
-  constexpr char tbl[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  string s;
-  s.resize(len);
-  for (size_t i = 0; i < len; ++i) {
-    s[i] = tbl[buf[i] & 63];  // 0..63 -> 64種
-  }
-
-  return s;
-}
-
 /* /etc/shadow を行単位で読み込む． */
 vector<string> readLines(const string& path)
 {
@@ -96,21 +68,6 @@ string joinShadow(const vector<string>& fields)
     ss << fields[i];
   }
   return ss.str();
-}
-
-/* パスワードとソルトからハッシュを生成する． */
-string crypt(const string& password, const string& salt)
-{
-  struct crypt_data data;
-  memset(&data, 0, sizeof(data));
-
-  const auto out = ::crypt_r(password.c_str(), salt.c_str(), &data);
-  if (!out) {
-    cerr << "crypt_r failed: " << linux::strError() << endl;
-    return {};
-  }
-
-  return string(out);
 }
 
 /* ファイルを安全に上書きする． */
@@ -183,39 +140,19 @@ bool atomicOverwrite(const string& path, const string& content)
 }
 }  // namespace
 
-string crypt_sha512(const string& password, int rounds)
+bool setShadowPassword(
+  const string& _shadow_path,
+  const string& _username,
+  const string& _new_password,
+  const Crypt& _crypt)
 {
-  // Create salt
-  auto salt = makeSalt(16);
-  if (salt.empty()) {
-    return {};
-  }
-  salt = "$6$rounds=" + to_string(rounds) + "$" + salt;
-
-  return crypt(password, salt);
-}
-
-string crypt_yescrypt(const string& password)
-{
-  // Create salt
-  char salt[CRYPT_GENSALT_OUTPUT_SIZE]{};
-  if (!crypt_gensalt_rn("$y$", 0, nullptr, 0, salt, sizeof(salt))) {
-    cerr << "crypt_gensalt_rn failed: " << linux::strError() << endl;
-    return {};
-  }
-
-  return crypt(password, salt);
-}
-
-bool setShadowPassword(const string& shadow_path, const string& username, const string& new_password)
-{
-  auto lines = readLines(shadow_path);
+  auto lines = readLines(_shadow_path);
   if (lines.size() == 0) {
     return false;
   }
 
   // ハッシュを生成
-  const auto hash = crypt_yescrypt(new_password);
+  const auto hash = _crypt.crypt(_new_password);
   if (hash.empty()) {
     return false;
   }
@@ -236,7 +173,7 @@ bool setShadowPassword(const string& shadow_path, const string& username, const 
       continue;
     }
 
-    if (fields[0] == username) {
+    if (fields[0] == _username) {
       // フィールド数が足りなければ埋める
       constexpr size_t kMinNumFields = 9;
       if (fields.size() < kMinNumFields) {
@@ -252,7 +189,7 @@ bool setShadowPassword(const string& shadow_path, const string& username, const 
   }
 
   if (!found) {
-    cerr << "user not found in shadow: " << username << endl;
+    cerr << "user not found in shadow: " << _username << endl;
     return false;
   }
 
@@ -266,10 +203,11 @@ bool setShadowPassword(const string& shadow_path, const string& username, const 
   }
 
   // ファイルを安全に上書き
-  if (!atomicOverwrite(shadow_path, out.str())) {
+  if (!atomicOverwrite(_shadow_path, out.str())) {
     return false;
   }
 
   return true;
 }
-}  // namespace linux
+}  // namespace crypt
+}  // namespace tobas

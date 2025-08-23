@@ -10,7 +10,7 @@
 
   <depend>ament_index_cpp</depend>
   <depend>inja_ament</depend>
-  <depend>tobas_linux</depend>
+  <depend>tobas_crypt</depend>
   <depend>tobas_udev</depend>
   <depend>wpa_supplicant_parser</depend>
   <depend>tobas_qt_tools</depend>
