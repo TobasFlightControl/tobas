@@ -3,11 +3,15 @@
 #include <QDebug>
 #include <QFormLayout>
 #include <QVBoxLayout>
+#include <inja/inja.hpp>
 
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
+#include "tobas_bootmedia_config/util.hpp"
+
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -73,7 +77,21 @@ bool WifiHotspotWidget::isAcceptable() const
 
 void WifiHotspotWidget::onWriteButtonClicked()
 {
-  // TODO
+  // Create data
+  inja::json tpl_data;
+  tpl_data["ssid"] = getSsid().toStdString();
+  tpl_data["psk"] = getPsk().toStdString();
+
+  // Get paths
+  const auto tpl_path = getPkgShareDir() / "templates/hostapd.conf";
+  const auto out_path = fs::path(kRootPath) / "etc/hostapd/hostapd.conf";
+
+  // Generate file
+  inja::Environment env;
+  const auto temp = env.parse_template(tpl_path);
+  env.write(temp, tpl_data, out_path);
+
+  qt::qInfoBox(this, "Access point configuration was written successfully.");
 }
 
 void WifiHotspotWidget::onTextChanged()

@@ -21,12 +21,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
+find_package(inja_ament REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_udev REQUIRED)
 find_package(wpa_supplicant_parser REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES ament_index_cpp tobas_linux tobas_udev wpa_supplicant_parser tobas_qt_tools)
+set(AMENT_DEPENDENCIES ament_index_cpp inja_ament tobas_linux tobas_udev wpa_supplicant_parser tobas_qt_tools)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
