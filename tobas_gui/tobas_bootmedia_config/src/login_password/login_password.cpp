@@ -15,6 +15,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -73,7 +75,7 @@ void LoginPasswordWidget::onWriteButtonClicked()
   const auto shadow_path = fs::path(kRootPath) / "etc/shadow";
   const auto pswd = pswd1_->text().toStdString();
 
-  if (!tobas::crypt::setShadowPassword(shadow_path, kUserName, pswd, tobas::crypt::Yescrypt())) {
+  if (!crypt::setShadowPassword(shadow_path, kUserName, pswd, crypt::Yescrypt())) {
     qt::qErrorBox(this, "Failed to update login password.");
     return;
   }
@@ -157,3 +159,4 @@ void LoginPasswordWidget::onTextChanged()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

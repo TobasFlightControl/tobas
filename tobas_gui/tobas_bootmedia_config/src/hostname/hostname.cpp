@@ -14,6 +14,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -201,3 +203,4 @@ void HostnameWidget::onWriteButtonClicked()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

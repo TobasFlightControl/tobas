@@ -3,6 +3,8 @@
 #include <QMetaType>
 #include <QString>
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -18,5 +20,6 @@ public:
 };
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas
 
-Q_DECLARE_METATYPE(gui::bm::BootMedia);
+Q_DECLARE_METATYPE(tobas::gui::bm::BootMedia);

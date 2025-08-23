@@ -6,6 +6,8 @@
 
 #include "tobas_bootmedia_config/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -35,3 +37,4 @@ void BaseConfigWidget::initialize()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

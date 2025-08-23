@@ -16,6 +16,8 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -257,3 +259,4 @@ void MediaManagerWidget::onDisconnectRequested()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

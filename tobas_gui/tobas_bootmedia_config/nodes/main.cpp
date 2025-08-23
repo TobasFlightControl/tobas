@@ -7,7 +7,7 @@
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 
 #include "tobas_bootmedia_config/bootmedia_config.hpp"
-#include "tobas_bootmedia_config/constants.hpp"
+#include "tobas_bootmedia_config/util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -20,8 +20,8 @@ int main(int argc, char** argv)
 {
   // GUIを表示
   QApplication qapp(argc, argv);
-  const auto widget = new gui::bm::BootmediaConfigWidget();
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(gui::bm::kPackageName));
+  const auto widget = new tobas::gui::bm::BootmediaConfigWidget();
+  const auto pkg_path = tobas::gui::bm::getPkgShareDir();
   const auto icon_path = pkg_path / "resources/icon.png";
   qt::MainWidget main("Tobas Bootmedia Config", QString::fromStdString(icon_path), widget);
   main.show();

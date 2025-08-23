@@ -9,6 +9,8 @@
 #include <tobas_qt_tools/widgets/password_edit.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -42,3 +44,4 @@ private Q_SLOTS:
 };
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

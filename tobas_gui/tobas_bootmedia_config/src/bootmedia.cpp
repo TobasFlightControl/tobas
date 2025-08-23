@@ -1,5 +1,7 @@
 #include "tobas_bootmedia_config/bootmedia.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -24,3 +26,4 @@ QString BootMedia::string() const
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

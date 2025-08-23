@@ -6,6 +6,8 @@
 
 #include "tobas_bootmedia_config/constants.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -87,3 +89,4 @@ void AddWifiDialog::onTextChanged()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

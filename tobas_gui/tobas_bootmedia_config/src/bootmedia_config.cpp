@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -75,3 +77,4 @@ void BootmediaConfigWidget::onMediaDisconnected()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

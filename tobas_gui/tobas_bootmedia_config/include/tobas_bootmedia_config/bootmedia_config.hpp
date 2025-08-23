@@ -8,6 +8,8 @@
 #include "./wifi_client/wifi_client.hpp"
 #include "./wifi_hotspot/wifi_hotspot.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -44,3 +46,4 @@ private Q_SLOTS:
 };
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

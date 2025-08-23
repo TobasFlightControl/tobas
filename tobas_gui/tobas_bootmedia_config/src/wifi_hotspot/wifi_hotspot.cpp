@@ -13,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -116,3 +118,4 @@ void WifiHotspotWidget::onTextChanged()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

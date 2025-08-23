@@ -8,6 +8,8 @@
 #include "tobas_bootmedia_config/constants.hpp"
 #include "tobas_bootmedia_config/wifi_client/add_wifi_dialog.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -217,3 +219,4 @@ void WifiClientWidget::onClearButtonClicked()
 }
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas

@@ -8,6 +8,8 @@
 
 #include "./bootmedia.hpp"
 
+namespace tobas
+{
 namespace gui
 {
 namespace bm
@@ -52,3 +54,4 @@ private Q_SLOTS:
 };
 }  // namespace bm
 }  // namespace gui
+}  // namespace tobas
