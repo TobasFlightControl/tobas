@@ -2,6 +2,7 @@
 
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
+#include "./hostname/hostname.hpp"
 #include "./media_manager.hpp"
 #include "./wifi_client/wifi_client.hpp"
 #include "./wifi_hotspot/wifi_hotspot.hpp"
@@ -29,6 +30,7 @@ private:
   MediaManagerWidget* media_manager_;
   qt::VerticalTabWidget* tabs_;
 
+  HostnameWidget* hostname_;
   WifiClientWidget* wifi_client_;
   WifiHotspotWidget* wifi_hotspot_;
 

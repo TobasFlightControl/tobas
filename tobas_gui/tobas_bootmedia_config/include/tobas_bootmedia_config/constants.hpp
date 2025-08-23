@@ -14,6 +14,7 @@ static constexpr int kBodyPSize = 9;
 
 static constexpr int kCtrlButtonWidth = 100;
 static constexpr int kCtrlButtonHeight = 40;
+static constexpr int kFormSpacing = 30;
 
 static constexpr char kBootPath[] = "/mnt/bootfs";
 static constexpr char kRootPath[] = "/mnt/rootfs";

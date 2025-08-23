@@ -27,7 +27,7 @@ WifiHotspotWidget::WifiHotspotWidget()
 
   // Layout
   const auto form = new QFormLayout();
-  form->setHorizontalSpacing(30);
+  form->setHorizontalSpacing(kFormSpacing);
   form->addRow("New SSID", ssid_);
   form->addRow("New PSK", psk_);
 
@@ -98,8 +98,14 @@ void WifiHotspotWidget::onWriteButtonClicked()
 
   // Generate file
   inja::Environment env;
-  const auto temp = env.parse_template(tpl_path);
-  env.write(temp, tpl_data, out_path);
+  try {
+    const auto temp = env.parse_template(tpl_path);
+    env.write(temp, tpl_data, out_path);
+  }
+  catch (const std::exception& e) {
+    qt::qErrorBox(this, "Failed to write AP configuration: " + QString(e.what()));
+    return;
+  }
 
   qt::qInfoBox(this, "Access point configuration was written successfully.");
 }
