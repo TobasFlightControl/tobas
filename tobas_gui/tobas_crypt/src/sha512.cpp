@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <cinttypes>
 #include <iostream>
 #include <vector>
 
@@ -26,7 +27,7 @@ string Sha512::createSalt() const
     return {};
   }
 
-  vector<unsigned char> buf(kLength);
+  vector<uint8_t> buf(kLength);
   const auto n = ::read(fd, buf.data(), buf.size());
   ::close(fd);
 

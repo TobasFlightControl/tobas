@@ -23,14 +23,14 @@ find_package(ament_cmake REQUIRED)
 
 # Search for libudev
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(UDEV REQUIRED libudev)
+pkg_check_modules(LIBUDEV REQUIRED libudev)
 
-include_directories(include ${UDEV_INCLUDE_DIRS})
+include_directories(include ${LIBUDEV_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} ${UDEV_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${LIBUDEV_LIBRARIES})
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")

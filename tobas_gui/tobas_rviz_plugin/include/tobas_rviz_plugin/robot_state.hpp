@@ -1753,7 +1753,7 @@ private:
   std::vector<Eigen::Isometry3d> global_link_transforms_;  ///< Transforms from model frame to link frame for each link
   std::vector<Eigen::Isometry3d> global_collision_body_transforms_;  ///< Transforms from model frame to collision
                                                                      ///< bodies
-  std::vector<unsigned char> dirty_joint_transforms_;
+  std::vector<uint8_t> dirty_joint_transforms_;
 
   /* All attached bodies that are part of this state, indexed by their name */
   std::map<std::string, std::unique_ptr<AttachedBody>> attached_body_map_;

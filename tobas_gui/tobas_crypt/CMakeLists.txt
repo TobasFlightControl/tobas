@@ -24,16 +24,16 @@ find_package(tobas_linux REQUIRED)
 
 # Search for libcrypt
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(CRYPT REQUIRED libcrypt)
+pkg_check_modules(LIBCRYPT REQUIRED libcrypt)
 
 set(AMENT_DEPENDENCIES tobas_linux)
 
-include_directories(include ${CRYPT_INCLUDE_DIRS})
+include_directories(include ${LIBCRYPT_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} ${CRYPT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${LIBCRYPT_LIBRARIES})
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")

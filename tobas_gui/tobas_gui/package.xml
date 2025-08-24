@@ -24,7 +24,7 @@
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_simulation_gui</exec_depend>
 	<exec_depend>tobas_ssh</exec_depend>
-	<exec_depend>tobas_ssh_authkey_parser</exec_depend>
+	<exec_depend>tobas_ssh_authkey</exec_depend>
 	<exec_depend>tobas_uadf</exec_depend>
 	<exec_depend>tobas_udev</exec_depend>
 	<exec_depend>tobas_urdf_builder</exec_depend>
