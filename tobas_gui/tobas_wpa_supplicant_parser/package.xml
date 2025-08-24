@@ -1,6 +1,6 @@
 <package format="3">
 
-	<name>wpa_supplicant_parser</name>
+	<name>tobas_wpa_supplicant_parser</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
