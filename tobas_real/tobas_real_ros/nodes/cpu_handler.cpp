@@ -90,7 +90,7 @@ bool CpuHandlerNode::getLoad(double& load)
   std::istringstream iss(cpu_line_);
 
   // CPU使用時間を取得 (http://my-web-site.iobb.net/~yuki/2017-10/raspberry-pi/cpustat/)
-  // 最初のトークン（"cpu"）を読み飛ばす
+  // 最初のトークン ("cpu") を読み飛ばす
   iss >> token_;
 
   // (01) Time spent in user mode

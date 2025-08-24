@@ -74,7 +74,7 @@ void gnssToCartRelative(
   const auto phi_0 = deg2rad(latitude_0);
   const auto lam_0 = deg2rad(longitude_0);
 
-  // 定数 (a, F: 世界測地系-測地基準系1980（GRS80）楕円体)
+  // 定数 (a, F: 世界測地系-測地基準系1980 (GRS80) 楕円体)
   constexpr double m0 = 0.9999;
   constexpr double a = 6378137.;
   constexpr double F = 298.257222101;
@@ -142,7 +142,7 @@ void cartToGnssRelative(
   const auto phi_0 = deg2rad(latitude_0);
   const auto lam_0 = deg2rad(longitude_0);
 
-  // 定数 (a, F: 世界測地系-測地基準系1980（GRS80）楕円体)
+  // 定数 (a, F: 世界測地系-測地基準系1980 (GRS80) 楕円体)
   constexpr double a = 6378137.;
   constexpr double m0 = 0.9999;
   constexpr double F = 298.257222101;
