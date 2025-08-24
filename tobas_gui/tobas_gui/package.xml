@@ -23,6 +23,7 @@
 	<exec_depend>tobas_rviz_wrapper</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_simulation_gui</exec_depend>
+	<exec_depend>tobas_ssh</exec_depend>
 	<exec_depend>tobas_uadf</exec_depend>
 	<exec_depend>tobas_udev</exec_depend>
 	<exec_depend>tobas_urdf_builder</exec_depend>
