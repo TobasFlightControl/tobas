@@ -88,7 +88,7 @@ inline Eigen::Quaterniond quaternionFromHamilton(const Eigen::Vector4d& ham)
 /* Quaterniondをハミルトン(w,x,y,z)に変換． */
 inline Eigen::Vector4d hamiltonFromQuaternion(const Eigen::Quaterniond& q)
 {
-  // XXX: Quaternionの要素はメモリ上で連続しているとは限らないため，coeffsを呼ぶとコンパイルエラーになる恐れがある．
+  // Quaternionの要素はメモリ上で連続しているとは限らないため，coeffsを呼ぶとコンパイルエラーになる恐れがある．
   return Eigen::Vector4d(q.w(), q.x(), q.y(), q.z());
 }
 

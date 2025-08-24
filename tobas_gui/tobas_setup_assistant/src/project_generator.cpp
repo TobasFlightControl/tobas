@@ -1203,7 +1203,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
   xml::addGazeboROS2SimSystem(robot, drone.joints);
 
   // Gazebo ROS2 control plugin
-  // XXX: This must be defined after GazeboSimSystem
+  // This must be defined after GazeboSimSystem
   if (hasServoJoint()) {
     xml::addGazeboSimROS2ControlPlugin(robot, ns, cfg_pkg_name, "config/joint_controller_manager.yaml");
   }
@@ -1240,7 +1240,7 @@ bool ProjectGenerator::generateJointControllerConfig(
 
   // Create data
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
+  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // 名前空間を指定すると読み込みに失敗する
 
   // Save data
   const auto config_dir = common::getProjCfgConfigDirPath(proj_path);

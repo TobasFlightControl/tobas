@@ -33,7 +33,7 @@ const char* AerodynamicsWidget_ThrustStand::name() const
 
 const char* AerodynamicsWidget_ThrustStand::description() const
 {
-  // XXX: テキスト中に改行コードを入れるとハイパーリンクが機能しない
+  // テキスト中に改行コードを入れるとハイパーリンクが機能しない
   return "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
          "For example, see "
          "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>.";

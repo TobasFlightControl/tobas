@@ -22,7 +22,7 @@ export COLCON_LOG_PATH=${RELEASE_DIR}/log
 export MAKEFLAGS="-j1"
 
 # Build
-# XXX: The "-march=native" option has little impact on speeding up performance on ARM CPUs.
+# The "-march=native" option has little impact on speeding up performance on ARM CPUs.
 colcon build --merge-install --parallel-workers 1 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Release $1 $2
 if [ $? -ne 0 ]; then
   echo "Failed to build." >&2

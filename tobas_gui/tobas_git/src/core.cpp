@@ -18,7 +18,7 @@ string getGitConfigValue(const char* key)
 
   if (git_config_open_default(&config) == 0) {
     if (git_config_get_entry(&entry, config, key) == 0) {
-      value = entry->value;  // XXX: git側のメモリは開放されるためコピーする必要がある
+      value = entry->value;  // git側のメモリは開放されるためコピーする必要がある
       git_config_entry_free(entry);
     }
     else {

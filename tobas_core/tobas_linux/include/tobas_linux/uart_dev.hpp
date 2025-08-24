@@ -1,6 +1,6 @@
 #pragma once
 
-#include <termios.h>  // XXX: <asm/termios.h>ではダメ
+#include <termios.h>  // <asm/termios.h>ではダメ
 
 #include <cstddef>
 #include <cstdint>

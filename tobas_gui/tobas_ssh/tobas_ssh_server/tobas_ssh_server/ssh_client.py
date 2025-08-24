@@ -21,7 +21,7 @@ class SSHClientWrapper:
         self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def connect(self) -> None:
-        # XXX: 未接続時にコマンドを実行すると"SSH session not active"というエラーが出る可能性があるため，is_connected()による確認は行わない．
+        # 未接続時にコマンドを実行すると"SSH session not active"というエラーが出る可能性があるため，is_connected()による確認は行わない．
 
         # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:

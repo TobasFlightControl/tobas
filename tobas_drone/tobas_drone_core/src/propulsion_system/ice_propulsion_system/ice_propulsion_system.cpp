@@ -115,7 +115,7 @@ double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_nam
 {
   const auto rotor = getRotor(link_name);
   const auto engine_speed = computeEngineSpeed(throttle);
-  return rotor->thrustFromPitch(engine_speed, rotor->pitch_ref);  // XXX: 参照ピッチ角のときの推力を返す
+  return rotor->thrustFromPitch(engine_speed, rotor->pitch_ref);  // 参照ピッチ角のときの推力を返す
 }
 
 double IcePropulsionSystemConfig::maxEngineSpeed()

@@ -83,7 +83,7 @@ bool NonPlanarMixer_QP::solve(
   // 並進EoMの右辺
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
-  eom_trans_right_W.z(max(eom_trans_right_W.z(), 0.));  // XXX: 鉛直下方向に推力を出さないよう制限
+  eom_trans_right_W.z(max(eom_trans_right_W.z(), 0.));  // 鉛直下方向に推力を出さないよう制限
   h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
   // 回転EoMの右辺

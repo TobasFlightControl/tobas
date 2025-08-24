@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include <X11/XKBlib.h>  // XXX: ヘッダでインクルードすると#defineが衝突する恐れあり
+#include <X11/XKBlib.h>  // ヘッダでインクルードすると#defineが衝突する恐れあり
 
 using namespace std;
 

@@ -18,7 +18,7 @@ RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 
 void RotorSpeedPlotWidget::clear()
 {
-  // XXX: レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
+  // レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
   plots_.clear();
   cur_speed_curves_.clear();
   tar_speed_curves_.clear();

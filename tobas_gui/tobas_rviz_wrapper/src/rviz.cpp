@@ -2,7 +2,7 @@
 
 #include <OgreMaterialManager.h>
 #include <rviz_common/display_group.hpp>
-#include <rviz_common/visualization_frame.hpp>  // XXX: rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
+#include <rviz_common/visualization_frame.hpp>  // rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/yaml_config_reader.hpp>
 

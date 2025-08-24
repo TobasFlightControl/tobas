@@ -38,7 +38,7 @@ bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
   const auto ldlt = A.ldlt();
   const auto D = ldlt.vectorD();
   const auto tol = std::numeric_limits<typename Derived::Scalar>::epsilon() * A.cwiseAbs().maxCoeff() * 100;
-  return D.minCoeff() >= -tol;  // XXX: ldlt.isPositive()は数値誤差で極小の負の固有値が含まれる際にfalseを返してしまう
+  return D.minCoeff() >= -tol;  // ldlt.isPositive()は数値誤差で極小の負の固有値が含まれる際にfalseを返してしまう
 }
 
 /* 行列が正定値対象行列かどうかを判定する． */
@@ -105,7 +105,7 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   const auto right = AT_W1 * b;
 
   // Solve linear equation
-  // XXX: QR分解は決定不全問題の最小二乗解を与えない
+  // QR分解は決定不全問題の最小二乗解を与えない
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
 }  // namespace eigen

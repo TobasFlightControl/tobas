@@ -43,7 +43,7 @@ def generate_launch_description():
     urdf_text = Command([FindExecutable(name="xacro"), " ", xacro_path, f" DEBUG:=false"])
 
     # Launch Tobas core software
-    # XXX: To ensure stable registration of components, the component managers are launched first.
+    # To ensure stable registration of components, the component managers are launched first.
     ld.add_action(
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
