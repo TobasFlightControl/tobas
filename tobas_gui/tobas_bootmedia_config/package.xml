@@ -11,6 +11,7 @@
   <depend>ament_index_cpp</depend>
   <depend>inja_ament</depend>
   <depend>tobas_crypt</depend>
+  <depend>tobas_ssh_authkey</depend>
   <depend>tobas_udev</depend>
   <depend>tobas_wpa_supplicant</depend>
   <depend>tobas_qt_tools</depend>

@@ -1,6 +1,10 @@
 #include "tobas_ssh_authkey/parse.hpp"
 
+#include <fstream>
+#include <string>
 #include <tobas_string_tools/core.hpp>
+
+namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -46,5 +50,37 @@ std::expected<Data, std::string> parseLine(const std::string& line)
   return res;
 }
 
+std::expected<std::vector<Data>, std::string> parseFile(const fs::path& path)
+{
+  std::ifstream file(path);
+  if (!file) {
+    return std::unexpected("Failed to open " + path.string() + ".");
+  }
+
+  size_t row = 0;
+  std::string line;
+  std::vector<Data> res;
+
+  while (std::getline(file, line)) {
+    ++row;
+
+    // 空行やコメント行をスキップ
+    if (line.empty() || line.starts_with('#')) {
+      continue;
+    }
+
+    // 1行だけ解析
+    const auto data = parseLine(line);
+    if (!data) {
+      file.close();
+      return std::unexpected("Failed to parse line " + std::to_string(row) + ": " + data.error());
+    }
+
+    res.push_back(data.value());
+  }
+
+  file.close();
+  return res;
+}
 }  // namespace sak
 }  // namespace tobas

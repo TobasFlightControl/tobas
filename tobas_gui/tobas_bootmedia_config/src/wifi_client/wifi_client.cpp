@@ -116,12 +116,14 @@ bool WifiClientWidget::writeCurrentConfig()
   }
 
   // 設定を書き込む
+  const auto path = configPath();
   const auto text = wpa_exporter_.exportText(wpa_data_);
-  if (!str::writeText(configPath(), text)) {
-    qt::qErrorBox(this, "Failed to write network configuration.");
+  if (!str::writeText(path, text)) {
+    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(path));
     return false;
   }
 
+  qt::qInfoBox(this, "Network configuration is updated successfully.");
   return true;
 }
 

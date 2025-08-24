@@ -23,11 +23,20 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(inja_ament REQUIRED)
 find_package(tobas_crypt REQUIRED)
+find_package(tobas_ssh_authkey REQUIRED)
 find_package(tobas_udev REQUIRED)
 find_package(tobas_wpa_supplicant REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES ament_index_cpp inja_ament tobas_crypt tobas_udev tobas_wpa_supplicant tobas_qt_tools)
+set(AMENT_DEPENDENCIES
+    ament_index_cpp
+    inja_ament
+    tobas_crypt
+    tobas_ssh_authkey
+    tobas_udev
+    tobas_wpa_supplicant
+    tobas_qt_tools
+)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)

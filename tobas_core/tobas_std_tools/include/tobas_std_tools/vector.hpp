@@ -311,4 +311,12 @@ ssize_t index(const std::vector<T>& vec, const T& value)
     return -1;
   }
 }
+
+/* 指定したインデックスの要素を削除する (O(N))． */
+template <typename T>
+void eraseIndex(std::vector<T>& vec, size_t idx)
+{
+  assert(idx < vec.size());
+  vec.erase(vec.begin() + static_cast<std::ptrdiff_t>(idx));
+}
 }  // namespace tobas_std

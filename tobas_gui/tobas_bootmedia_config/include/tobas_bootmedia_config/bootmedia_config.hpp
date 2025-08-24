@@ -5,6 +5,7 @@
 #include "./hostname/hostname.hpp"
 #include "./login_password/login_password.hpp"
 #include "./media_manager.hpp"
+#include "./ssh_authorized_keys/ssh_authorized_keys.hpp"
 #include "./wifi_client/wifi_client.hpp"
 #include "./wifi_hotspot/wifi_hotspot.hpp"
 
@@ -35,6 +36,7 @@ private:
 
   HostnameWidget* hostname_;
   LoginPasswordWidget* login_password_;
+  SshAuthorizedKeysWidget* ssh_keys_;
   WifiClientWidget* wifi_client_;
   WifiHotspotWidget* wifi_hotspot_;
 

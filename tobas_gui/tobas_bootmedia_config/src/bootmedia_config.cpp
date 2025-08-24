@@ -22,11 +22,13 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 
   hostname_ = new HostnameWidget();
   login_password_ = new LoginPasswordWidget();
+  ssh_keys_ = new SshAuthorizedKeysWidget();
   wifi_client_ = new WifiClientWidget();
   wifi_hotspot_ = new WifiHotspotWidget();
 
   tabs_->addTab(hostname_, hostname_->name());
   tabs_->addTab(login_password_, login_password_->name());
+  tabs_->addTab(ssh_keys_, ssh_keys_->name());
   tabs_->addTab(wifi_client_, wifi_client_->name());
   tabs_->addTab(wifi_hotspot_, wifi_hotspot_->name());
 
