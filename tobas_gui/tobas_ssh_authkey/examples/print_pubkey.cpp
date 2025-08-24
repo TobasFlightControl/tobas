@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <tobas_ssh_authkey/export.hpp>
 #include <tobas_ssh_authkey/parse.hpp>
 #include <tobas_ssh_authkey/prettify.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -21,17 +22,27 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  const auto data = tobas::sak::parseLine(str::trim(raw_text));
+  const auto original_line = str::trim(raw_text);
+
+  const auto data = tobas::sak::parseLine(original_line);
   if (!data) {
     cerr << data.error() << endl;
     return EXIT_FAILURE;
   }
 
-  const auto pretty_line = tobas::sak::prettify(data.value());
-  if (!pretty_line) {
-    cerr << pretty_line.error() << endl;
+  const auto exported_line = tobas::sak::exportLine(data.value());
+  if (!exported_line) {
+    cerr << exported_line.error() << endl;
     return EXIT_FAILURE;
   }
 
-  cout << pretty_line.value() << endl;
+  const auto prettified_line = tobas::sak::prettify(data.value());
+  if (!prettified_line) {
+    cerr << prettified_line.error() << endl;
+    return EXIT_FAILURE;
+  }
+
+  cout << "Original  : " << original_line << endl;
+  cout << "Exported  : " << exported_line.value() << endl;
+  cout << "Prettified: " << prettified_line.value() << endl;
 }
