@@ -1,8 +1,10 @@
 #pragma once
 
-/* Country Codes: https://countrycode.org/ */
+namespace tobas
+{
 namespace wpa
 {
+/* Country Codes: https://countrycode.org/ */
 enum CountryCode
 {
   AF,
@@ -491,3 +493,4 @@ static constexpr char Zambia[] = "ZM";
 static constexpr char Zimbabwe[] = "ZW";
 }  // namespace country_code
 }  // namespace wpa
+}  // namespace tobas

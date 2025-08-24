@@ -24,12 +24,13 @@
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_simulation_gui</exec_depend>
 	<exec_depend>tobas_ssh</exec_depend>
+	<exec_depend>tobas_ssh_authkey_parser</exec_depend>
 	<exec_depend>tobas_uadf</exec_depend>
 	<exec_depend>tobas_udev</exec_depend>
 	<exec_depend>tobas_urdf_builder</exec_depend>
 	<exec_depend>tobas_urdf_builder_plugin</exec_depend>
 	<exec_depend>tobas_visualization_msgs</exec_depend>
-	<exec_depend>tobas_wpa_supplicant_parser</exec_depend>
+	<exec_depend>tobas_wpa_supplicant</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

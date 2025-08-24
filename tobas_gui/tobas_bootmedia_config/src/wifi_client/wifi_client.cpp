@@ -107,16 +107,17 @@ void WifiClientWidget::addRow(const QString& ssid, const QString& psk, int prior
 bool WifiClientWidget::writeCurrentConfig()
 {
   // テーブルの内容を反映
-  wpa_parser_.networks.clear();
+  wpa_data_.networks.clear();
   for (int row = 0; row < table_->rowCount(); ++row) {
-    wpa_parser_.networks.emplace_back();
-    wpa_parser_.networks.back().ssid = getSsid(row).toStdString();
-    wpa_parser_.networks.back().psk = getPsk(row).toStdString();
-    wpa_parser_.networks.back().priority = getPriority(row);
+    wpa_data_.networks.emplace_back();
+    wpa_data_.networks.back().ssid = getSsid(row).toStdString();
+    wpa_data_.networks.back().psk = getPsk(row).toStdString();
+    wpa_data_.networks.back().priority = getPriority(row);
   }
 
   // 設定を書き込む
-  if (!str::writeText(configPath(), wpa_parser_.exportText())) {
+  const auto text = wpa_exporter_.exportText(wpa_data_);
+  if (!str::writeText(configPath(), text)) {
     qt::qErrorBox(this, "Failed to write network configuration.");
     return false;
   }
@@ -139,14 +140,14 @@ void WifiClientWidget::onReadButtonClicked()
   }
 
   // 設定ファイルを解析
-  if (!wpa_parser_.parseFromText(text)) {
+  if (!wpa_parser_.parseFromText(text, wpa_data_)) {
     qt::qErrorBox(this, "Failed to parse network configuration.");
     return;
   }
 
   // 現在の設定をテーブルに反映
   table_->removeAll();
-  for (const auto& network : wpa_parser_.networks) {
+  for (const auto& network : wpa_data_.networks) {
     addRow(QString::fromStdString(network.ssid), QString::fromStdString(network.psk), network.priority);
   }
 

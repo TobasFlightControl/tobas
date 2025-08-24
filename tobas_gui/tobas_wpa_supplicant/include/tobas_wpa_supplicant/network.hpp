@@ -4,6 +4,8 @@
 
 #include "./key_mgmt.hpp"
 
+namespace tobas
+{
 namespace wpa
 {
 struct Network
@@ -14,3 +16,4 @@ struct Network
   int priority = 0;
 };
 }  // namespace wpa
+}  // namespace tobas

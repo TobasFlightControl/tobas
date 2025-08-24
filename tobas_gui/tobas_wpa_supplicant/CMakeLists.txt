@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_wpa_supplicant_parser)
+project(tobas_wpa_supplicant)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")

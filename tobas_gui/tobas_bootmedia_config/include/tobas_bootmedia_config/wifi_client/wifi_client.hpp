@@ -3,7 +3,8 @@
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_wpa_supplicant_parser/parser.hpp>
+#include <tobas_wpa_supplicant/export.hpp>
+#include <tobas_wpa_supplicant/parse.hpp>
 
 #include "../base.hpp"
 
@@ -36,7 +37,9 @@ public:
   void reset() override;
 
 private:
-  wpa::WpaSupplicantParser wpa_parser_;
+  wpa::Data wpa_data_;
+  wpa::Parser wpa_parser_;
+  wpa::Exporter wpa_exporter_;
 
   QPushButton* read_button_;
   QPushButton* add_button_;

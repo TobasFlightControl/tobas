@@ -13,7 +13,6 @@
   <depend>visualization_msgs</depend>
   <depend>tobas_eigen_conversions</depend>
   <depend>tobas_kdl_conversions</depend>
-  <depend>tobas_wpa_supplicant_parser</depend>
   <depend>tobas_property_tree</depend>
   <depend>tobas_ssh_client</depend>
   <depend>tobas_msgs_adapter</depend>

@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <tobas_wpa_supplicant_parser/parser.hpp>
-
-using namespace std;
+#include <tobas_string_tools/stream.hpp>
+#include <tobas_wpa_supplicant/export.hpp>
+#include <tobas_wpa_supplicant/parse.hpp>
 
 int main()
 {
@@ -29,16 +29,18 @@ int main()
 
   constexpr char output_path[] = "/tmp/wpa_supplicant.conf";
 
-  wpa::WpaSupplicantParser parser;
-
-  if (!parser.parseFromText(input_text)) {
+  tobas::wpa::Parser parser;
+  tobas::wpa::Data data;
+  if (!parser.parseFromText(input_text, data)) {
     return EXIT_FAILURE;
   }
 
-  if (!parser.write(output_path)) {
+  tobas::wpa::Exporter exporter;
+  const auto text = exporter.exportText(data);
+  if (!str::writeText(output_path, text)) {
     return EXIT_FAILURE;
   }
 
-  cout << "Configuration file is saved as \"" << output_path << "\"." << endl;
+  std::cout << "Configuration file is saved as \"" << output_path << "\"." << std::endl;
   return EXIT_SUCCESS;
 }

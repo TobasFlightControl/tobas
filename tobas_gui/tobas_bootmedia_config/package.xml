@@ -12,7 +12,7 @@
   <depend>inja_ament</depend>
   <depend>tobas_crypt</depend>
   <depend>tobas_udev</depend>
-  <depend>tobas_wpa_supplicant_parser</depend>
+  <depend>tobas_wpa_supplicant</depend>
   <depend>tobas_qt_tools</depend>
 
   <export>
