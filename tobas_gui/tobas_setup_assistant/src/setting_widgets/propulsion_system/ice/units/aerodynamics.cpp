@@ -22,7 +22,8 @@ namespace ice
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
   : propeller_(propeller)
 {
-  data_ = new ParamGetterWidget_DoubleTable(node, "Propeller Single Test Data", { "RPM", "Pitch", "Thrust", "Torque" });
+  data_ = new ParamGetterWidget_DoubleTable(
+    node, "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch", "Thrust", "Torque" });
   data_->setDecimals({ 0, 2, 6, 6 });
   data_->setMinimum({ 1, -90, 1e-6, 1e-6 });
   data_->setMaximum({ INFINITY, 90, INFINITY, INFINITY });

@@ -4,7 +4,6 @@ namespace gui
 {
 namespace gcs
 {
-static constexpr char kTitle[] = "Tobas";
 static constexpr char kPackageName[] = "tobas_gcs";
 
 static constexpr int kTitlePSize = 18;

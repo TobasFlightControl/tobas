@@ -25,11 +25,13 @@ namespace sa
 ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   rclcpp::Node::SharedPtr node,
   const QString& param_name,
+  const QString& title,
   const QStringList& labels,
   const QString& description_text)
   : super(param_name, description_text)
   , node_(node)
   , last_opend_dir_key_("last_opened_dir/double_table/" + str::replace(param_name.toStdString(), " ", "_"))
+  , title_(title)
   , labels_(labels)
   , num_entry_(labels.size())
   , property_client_(node, tobas::kPropertyServerName, kPackageName)
@@ -232,7 +234,7 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
 
   const auto options = QFileDialog::DontUseNativeDialog;
   const auto file_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_opened_dir), "CSV File (*.csv)", nullptr, options);
+    this, title_, QString::fromStdString(last_opened_dir), "CSV File (*.csv)", nullptr, options);
 
   // 最後に開かれたパスを保存
   if (!file_path.isEmpty()) {

@@ -362,7 +362,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   const auto options = QFileDialog::DontUseNativeDialog;
   const auto uadf_path = QFileDialog::getOpenFileName(
     this,
-    "Select Aircraft Description (*.uadf)",
+    "Select Aircraft Description",
     QString::fromStdString(last_opened_dir),
     "Aircraft Description (*.uadf)",
     nullptr,

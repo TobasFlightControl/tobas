@@ -265,7 +265,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = common::getProjCfgPkgName(proj_path);
 
   // 進捗バーを作成
-  qt::ProgressDialog progress(kTitle, 9, this);
+  qt::ProgressDialog progress("Write Tobas Project", 9, this);
   progress.setCancelButton(nullptr);
   progress.show();
 

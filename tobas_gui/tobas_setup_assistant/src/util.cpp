@@ -1,0 +1,18 @@
+#include "tobas_setup_assistant/util.hpp"
+
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
+#include "tobas_setup_assistant/constants.hpp"
+
+namespace fs = std::filesystem;
+
+namespace gui
+{
+namespace sa
+{
+fs::path getPkgShareDir()
+{
+  return ament_index_cpp::get_package_share_directory(kPackageName);
+}
+}  // namespace sa
+}  // namespace gui

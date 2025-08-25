@@ -446,7 +446,7 @@ void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
 
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
+    this, "Select Mesh File", QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }
@@ -479,7 +479,7 @@ void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
 
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
+    this, "Select Mesh File", QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }

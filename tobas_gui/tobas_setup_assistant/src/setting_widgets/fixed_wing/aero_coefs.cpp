@@ -257,9 +257,13 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   }
 
   // paramsのパスを取得
-  const auto options = QFileDialog::DontUseNativeDialog;
   const auto file_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_opened_dir), "OpenVSP Stability Derivatives (*.stab)", nullptr, options);
+    this,
+    "Select OpenVSP Stability Output File",
+    QString::fromStdString(last_opened_dir),
+    "OpenVSP Stability Derivatives (*.stab)",
+    nullptr,
+    QFileDialog::DontUseNativeDialog);
 
   // キャンセルの場合は何もせずに終了
   if (file_path.isEmpty()) {

@@ -1,7 +1,6 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
 #include <QDebug>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/path.hpp>
@@ -17,6 +16,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
+#include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
 namespace fs = std::filesystem;
@@ -32,8 +32,7 @@ ProjectGenerator::ProjectGenerator(
   SettingsWidget* settings)
   : node_(node), uadf_(uadf), tree_(tree), settings_(settings)
 {
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto templates_path = pkg_path / "templates";
+  const auto templates_path = getPkgShareDir() / "templates";
   meta_env_ = std::make_shared<TemplateGenerator>(templates_path / "meta_package");
   config_env_ = std::make_shared<TemplateGenerator>(templates_path / "config_package");
   user_msg_env_ = std::make_shared<TemplateGenerator>(templates_path / "user_msg_package");
