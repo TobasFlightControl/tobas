@@ -11,10 +11,10 @@
 
 namespace fs = std::filesystem;
 
-static void sigIntHandler(int)
-{
-  QApplication::quit();
-}
+// static void sigIntHandler(int)
+// {
+//   QApplication::quit();
+// }
 
 int main(int argc, char** argv)
 {
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
   main.show();
 
   // Ctrl+Cで即終了
-  signal(SIGINT, sigIntHandler);
+  // signal(SIGINT, sigIntHandler);
 
   // アプリケーションの終了時に全てのノードを落とす
   const auto result = qapp.exec();

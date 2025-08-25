@@ -59,6 +59,22 @@ void BootmediaConfigWidget::reset()
   }
 }
 
+void BootmediaConfigWidget::closeEvent(QCloseEvent* event)
+{
+  if (media_manager_->isConnected()) {
+    if (!qt::yesOrNo(
+          this,
+          "You’re attempting to close the application while the boot device is still connected. "
+          "Are you sure you want to exit?",
+          qt::QMessageLevel::WARN)) {
+      event->ignore();
+      return;
+    }
+  }
+
+  event->accept();
+}
+
 void BootmediaConfigWidget::setTabsEnabled(bool enabled)
 {
   for (int i = 0; i < tabs_->count(); ++i) {

@@ -24,7 +24,11 @@ MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* 
 
 void MainWidget::closeEvent(QCloseEvent* event)
 {
-  widget_->close();
-  event->accept();
+  if (widget_->close()) {
+    event->accept();
+  }
+  else {
+    event->ignore();
+  }
 }
 }  // namespace qt

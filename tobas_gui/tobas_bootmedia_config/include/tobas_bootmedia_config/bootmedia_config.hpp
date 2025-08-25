@@ -30,6 +30,9 @@ public:
 
   void reset();
 
+protected:
+  void closeEvent(QCloseEvent* event) override;
+
 private:
   MediaManagerWidget* media_manager_;
   qt::VerticalTabWidget* tabs_;

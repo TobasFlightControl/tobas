@@ -54,7 +54,7 @@ const BootMedia& MediaManagerWidget::currentBootMedia() const
 {
   const auto media_name = media_name_->currentText();
   if (media_name.isEmpty()) {
-    throw std::runtime_error("Boot media is not selected.");
+    throw std::runtime_error("Boot device is not selected.");
   }
 
   return medias_.at(media_name);
@@ -230,7 +230,7 @@ void MediaManagerWidget::onConnectRequested()
 
   Q_EMIT connected(media);
 
-  qt::qInfoBox(this, "The boot media was mounted successfully.");
+  qt::qInfoBox(this, "The boot device was mounted successfully.");
 }
 
 void MediaManagerWidget::onDisconnectRequested()
@@ -255,7 +255,7 @@ void MediaManagerWidget::onDisconnectRequested()
 
   Q_EMIT disconnected();
 
-  qt::qInfoBox(this, "The boot media was unmounted successfully.");
+  qt::qInfoBox(this, "The boot device was unmounted successfully.");
 }
 }  // namespace bm
 }  // namespace gui
