@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
 {
@@ -32,5 +32,5 @@ void StatusViewerWidget::reset()
   postarm_check_viewer_->reset();
   other_status_viewer_->reset();
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class PoseViewerWidget : public qt::Widget
 {
@@ -60,5 +60,5 @@ private:
 private Q_SLOTS:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

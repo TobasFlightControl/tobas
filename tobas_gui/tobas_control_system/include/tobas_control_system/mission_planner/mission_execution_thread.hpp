@@ -14,7 +14,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class MissionExecutionThread : public QThread
 {
@@ -66,5 +66,5 @@ private:
   bool execute(WaypointData::SharedPtr command);
   bool execute(ReturnToHomeData::SharedPtr command);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

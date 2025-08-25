@@ -78,7 +78,7 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   hw::HardwareSetupWidget* hardware_setup_;
-  gcs::ControlSystemWidget* control_system_;
+  ctrl::ControlSystemWidget* control_system_;
   param::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
   sim::SimulationWidget* simulation_;

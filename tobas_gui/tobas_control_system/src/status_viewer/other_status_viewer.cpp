@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 OtherStatusViewerWidget::OtherStatusViewerWidget(const RosQtBridge& bridge)
 {
@@ -38,5 +38,5 @@ void OtherStatusViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gns
 {
   gnss_status_->setStatus(gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 MapWidget::MapWidget()
 {
@@ -108,5 +108,5 @@ void MapWidget::onWaypointMoved(int index, double latitude, double longitude)
 {
   Q_EMIT waypointMoved(index, latitude, longitude);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class EngineViewerWidget : public QWidget
 {
@@ -43,5 +43,5 @@ private:
 private Q_SLOTS:
   void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

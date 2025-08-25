@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 namespace rcin
 {
@@ -28,5 +28,5 @@ void RCInputViewerWidget::reset()
   toggles_viewer_->reset();
 }
 }  // namespace rcin
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

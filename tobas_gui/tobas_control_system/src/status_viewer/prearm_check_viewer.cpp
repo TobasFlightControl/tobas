@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 PreArmCheckViewerWidget::PreArmCheckViewerWidget(const RosQtBridge& bridge)
 {
@@ -91,5 +91,5 @@ void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::
   head_accuracy_status_->setStatus(prearm_check->heading_inaccurate);
   ready_status_->setStatus(prearm_check->ok);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

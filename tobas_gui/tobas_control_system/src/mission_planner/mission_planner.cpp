@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : node_(node), mission_thread_(node)
@@ -519,5 +519,5 @@ void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& od
   const auto yaw = odom->frame.M.getYaw();
   map_->setArrowRotation(-tobas_std::rad2deg(yaw));
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

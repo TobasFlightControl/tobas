@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 PowerSourceViewerWidget::PowerSourceViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
@@ -41,5 +41,5 @@ void PowerSourceViewerWidget::updateInternalDataStructures()
       throw;
   }
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

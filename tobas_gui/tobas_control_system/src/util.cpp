@@ -8,11 +8,11 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 fs::path getPkgShareDir()
 {
   return ament_index_cpp::get_package_share_directory(kPackageName);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

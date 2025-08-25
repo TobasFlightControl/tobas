@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 namespace field
 {
@@ -24,5 +24,5 @@ private:
   qt::DoubleSpinBox* spinbox_;
 };
 }  // namespace field
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -10,7 +10,7 @@ using namespace tobas_mission_msgs::action;
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 MissionExecutionThread::MissionExecutionThread(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -227,5 +227,5 @@ bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
 
   return true;
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 StatusWidget::StatusWidget(const QString& text)
 {
@@ -56,5 +56,5 @@ void StatusWidget::setStatus(bool ok)
   const auto status = ok ? PASSED : FAILED;
   setStatus(status);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

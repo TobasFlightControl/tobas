@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
 {
@@ -96,5 +96,5 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
   table_->setItem(0, kLevelCol, level_item);
   table_->setItem(0, kMessageCol, message_item);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

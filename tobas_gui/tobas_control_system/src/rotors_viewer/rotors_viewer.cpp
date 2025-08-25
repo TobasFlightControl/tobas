@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
@@ -86,5 +86,5 @@ QString RotorsViewerWiddget::bottomText(int rpm)
 {
   return QString::number(rpm) + " RPM";
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

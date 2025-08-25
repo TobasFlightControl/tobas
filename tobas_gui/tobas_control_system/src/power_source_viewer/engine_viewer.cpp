@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
@@ -106,5 +106,5 @@ void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::Const
   updateFuelQuantity(engine_state->fuel_quantity);
   updateOilTemperature(engine_state->oil_temperature);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

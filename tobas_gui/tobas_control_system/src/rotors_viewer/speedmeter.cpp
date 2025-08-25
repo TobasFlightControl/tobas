@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 SpeedmeterWidget::SpeedmeterWidget()
 {
@@ -119,5 +119,5 @@ QObject* SpeedmeterWidget::getBottomTextObject() const
   TOBAS_CHECK(bottom_text);
   return bottom_text;
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

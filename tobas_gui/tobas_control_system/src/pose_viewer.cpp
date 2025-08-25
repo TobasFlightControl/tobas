@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 PoseViewerWidget::PoseViewerWidget(const RosQtBridge& bridge)
 {
@@ -347,5 +347,5 @@ void PoseViewerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 再描画
   update();
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

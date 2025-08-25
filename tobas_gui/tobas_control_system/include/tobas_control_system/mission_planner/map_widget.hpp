@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 /**
  * @brief Open Street Mapを埋め込んだウィジェット．
@@ -49,5 +49,5 @@ private:
 private Q_SLOTS:
   void onWaypointMoved(int index, double latitude, double longitude);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

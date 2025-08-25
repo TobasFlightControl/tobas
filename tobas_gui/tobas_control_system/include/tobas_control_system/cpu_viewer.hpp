@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class CPUViewerWidget : public QWidget
 {
@@ -34,5 +34,5 @@ private:
 private Q_SLOTS:
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

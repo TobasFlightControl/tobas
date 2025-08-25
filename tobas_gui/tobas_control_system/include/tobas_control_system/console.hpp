@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class ConsoleWidget : public QWidget
 {
@@ -41,5 +41,5 @@ private:
 private Q_SLOTS:
   void messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui
