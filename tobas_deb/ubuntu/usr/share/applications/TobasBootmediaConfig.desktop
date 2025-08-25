@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=TobasBootmediaConfig
+Icon=/opt/tobas/share/tobas_bootmedia_config/resources/icon.png
+Exec=pkexec /usr/bin/tobas_bootmedia_config
+Terminal=false
+StartupNotify=true
