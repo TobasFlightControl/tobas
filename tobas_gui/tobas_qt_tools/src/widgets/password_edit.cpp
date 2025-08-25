@@ -17,9 +17,25 @@ PasswordEdit::PasswordEdit(QWidget* parent) : super(parent)
   toggle_ = addAction(eye_off_, QLineEdit::TrailingPosition);
   toggle_->setCheckable(true);
 
-  setMode(false);
+  hideText();
 
   connect(toggle_, &QAction::toggled, this, &self::onIconToggled);
+}
+
+void PasswordEdit::showText()
+{
+  setMode(true);
+}
+
+void PasswordEdit::hideText()
+{
+  setMode(false);
+}
+
+void PasswordEdit::reset()
+{
+  clear();
+  hideText();
 }
 
 void PasswordEdit::setMode(bool on)

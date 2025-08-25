@@ -15,6 +15,12 @@ class PasswordEdit : public QLineEdit
 public:
   explicit PasswordEdit(QWidget* parent = nullptr);
 
+  void showText();
+  void hideText();
+
+  /* 起動時の状態に戻す (clear + hide)． */
+  void reset();
+
 private:
   QIcon eye_on_;
   QIcon eye_off_;

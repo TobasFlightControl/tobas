@@ -62,8 +62,8 @@ const char* LoginPasswordWidget::title() const
 
 void LoginPasswordWidget::reset()
 {
-  pswd1_->clear();
-  pswd2_->clear();
+  pswd1_->reset();
+  pswd2_->reset();
 
   warn_text_->clear();
 

@@ -57,7 +57,7 @@ const char* WifiHotspotWidget::title() const
 void WifiHotspotWidget::reset()
 {
   ssid_->clear();
-  psk_->clear();
+  psk_->reset();
 
   write_button_->setEnabled(false);
 }
