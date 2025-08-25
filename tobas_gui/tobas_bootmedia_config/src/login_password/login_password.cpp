@@ -9,6 +9,7 @@
 #include <tobas_crypt/crypt.hpp>
 #include <tobas_crypt/yescrypt.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/string.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
@@ -95,16 +96,11 @@ void LoginPasswordWidget::onTextChanged()
     return;
   }
 
-  constexpr ushort NUL = 0x0000;
-  constexpr ushort LF = 0x000A;
-  constexpr ushort CR = 0x000D;
-  for (const auto& ch : pswd1) {
-    const auto u = ch.unicode();
-    if (u == NUL || u == LF || u == CR) {
-      warn_text_->setText("Password must not contain control characters.");
-      write_button_->setEnabled(false);
-      return;
-    }
+  // 制御文字はダメ
+  if (qt::containsControlChars(pswd1)) {
+    warn_text_->setText("Password must not contain control characters.");
+    write_button_->setEnabled(false);
+    return;
   }
 
   // バイト長チェック
