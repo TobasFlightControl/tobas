@@ -1,17 +1,12 @@
 #include "tobas_control_system/mission_planner/map_widget.hpp"
 
-#include <filesystem>
-
 #include <QtQml/QQmlContext>
 #include <QtQuick/QQuickItem>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_control_system/constants.hpp"
 #include "tobas_control_system/mission_planner/system_info.hpp"
-
-namespace fs = std::filesystem;
+#include "tobas_control_system/util.hpp"
 
 namespace gui
 {
@@ -35,8 +30,7 @@ MapWidget::MapWidget()
   rootContext()->setContextProperty(system_info->modelName(), system_info);
 
   // QMLを読み込む
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto qml_path = pkg_path / "qml/Map.qml";
+  const auto qml_path = getPkgShareDir() / "qml/Map.qml";
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 
   // Connection

@@ -4,8 +4,8 @@
 
 namespace gui
 {
-namespace hw
+namespace gcs
 {
 std::filesystem::path getPkgShareDir();
-}  // namespace hw
+}  // namespace gcs
 }  // namespace gui

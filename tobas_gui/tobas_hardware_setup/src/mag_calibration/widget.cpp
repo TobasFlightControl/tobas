@@ -1,11 +1,9 @@
 #include "tobas_hardware_setup/mag_calibration/widget.hpp"
 
-#include <filesystem>
 #include <iostream>
 #include <ranges>
 
 #include <QDebug>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
@@ -25,8 +23,7 @@
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
 #include "tobas_hardware_setup/constants.hpp"
-
-namespace fs = std::filesystem;
+#include "tobas_hardware_setup/util.hpp"
 
 namespace gui
 {
@@ -62,8 +59,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   face_circles_.at(kLeftIdx) = new FaceCircleWidget("Left");
   face_circles_.at(kRightIdx) = new FaceCircleWidget("Right");
 
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto rviz_config_path = pkg_path / "config/mag_calibration.rviz";
+  const auto rviz_config_path = getPkgShareDir() / "config/mag_calibration.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
   // 固定フレームを設定

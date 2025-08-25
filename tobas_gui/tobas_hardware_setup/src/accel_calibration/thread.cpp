@@ -10,7 +10,6 @@
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 #include "tobas_hardware_setup/constants.hpp"
-#include "tobas_hardware_setup/util.hpp"
 
 namespace gui
 {
@@ -75,14 +74,23 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vec
   const auto imu_conn = connect(&bridge_, &RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
 
   // データが溜まるまで待機
-  if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout)) {
-    if (cnt_ == 0) {
-      Q_EMIT finished(false, "IMU data is not received.");
+  const auto clock = node_->get_clock();
+  const auto start_time = clock->now();
+  rclcpp::Rate rate(100., clock);
+  while (rclcpp::ok()) {
+    if (cnt_ >= kDataCount) {
+      break;
     }
-    else {
-      Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
+    if ((clock->now() - start_time).seconds() > kCollectDataTimeout) {
+      if (cnt_ == 0) {
+        Q_EMIT finished(false, "IMU data is not received.");
+      }
+      else {
+        Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
+      }
+      return false;
     }
-    return false;
+    rate.sleep();
   }
 
   // IMUの購読を終了

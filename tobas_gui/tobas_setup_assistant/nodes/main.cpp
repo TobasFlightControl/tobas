@@ -1,5 +1,3 @@
-#include <filesystem>
-
 #include <QApplication>
 
 #include <tobas_gui_common/argument.hpp>

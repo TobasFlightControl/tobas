@@ -7,7 +7,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
@@ -21,6 +20,7 @@
 
 #include "tobas_gcs/app_button.hpp"
 #include "tobas_gcs/constants.hpp"
+#include "tobas_gcs/util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -38,8 +38,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
 {
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto rsrc_path = pkg_path / "resources";
+  const auto rsrc_path = getPkgShareDir() / "resources";
 
   // Applications
   hardware_setup_ = new hw::HardwareSetupWidget(node, bridge_, tree_, drone_);
