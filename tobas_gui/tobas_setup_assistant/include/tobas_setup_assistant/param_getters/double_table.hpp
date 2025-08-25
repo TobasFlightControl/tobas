@@ -32,6 +32,7 @@ public:
   explicit ParamGetterWidget_DoubleTable(
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
+    const QString& title,
     const QStringList& labels,
     const QString& description_text = "");
 
@@ -57,6 +58,7 @@ private Q_SLOTS:
 private:
   const rclcpp::Node::SharedPtr node_;
   const std::string last_opend_dir_key_;
+  const QString title_;
   const QStringList labels_;
   const int num_entry_;
 

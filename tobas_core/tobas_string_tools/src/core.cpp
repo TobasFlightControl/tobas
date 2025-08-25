@@ -10,84 +10,84 @@ using namespace std;
 
 namespace str
 {
-vector<string> split(const string& str, const char& del)
+vector<string> split(const string& s, const char& c)
 {
   vector<string> res;
-  if (str.find(del) == string::npos) {
-    res.push_back(str);
+  if (s.find(c) == string::npos) {
+    res.push_back(s);
   }
   else {
     size_t first = 0;
-    size_t last = str.find_first_of(del);
-    while (first < str.size()) {
-      string subStr(str, first, last - first);
+    size_t last = s.find_first_of(c);
+    while (first < s.size()) {
+      string subStr(s, first, last - first);
       res.push_back(subStr);
       first = last + 1;
-      last = str.find_first_of(del, first);
+      last = s.find_first_of(c, first);
       if (last == string::npos) {
-        last = str.size();
+        last = s.size();
       }
     }
   }
   return res;
 }
 
-pair<string, string> rsplit(const string& str, const char& c)
+pair<string, string> rsplit(const string& s, const char& c)
 {
   // 最後の'/'を探す
-  size_t pos = str.rfind(c);
+  size_t pos = s.rfind(c);
 
   if (pos != string::npos) {
-    string before = str.substr(0, pos);
-    string after = str.substr(pos + 1);
+    string before = s.substr(0, pos);
+    string after = s.substr(pos + 1);
     return { before, after };
   }
   else {
-    cerr << "String \"" << str << "\" does not contain '" << c << "'" << endl;
-    return { str, "" };
+    cerr << "String \"" << s << "\" does not contain '" << c << "'" << endl;
+    return { s, "" };
   }
 }
 
-string lstrip(const string& str, const string& del)
+string lstrip(const string& s, const string& del)
 {
-  if (str.find(del) == 0) {
-    return str.substr(del.length());
+  if (s.find(del) == 0) {
+    return s.substr(del.length());
   }
   else {
-    return str;
+    return s;
   }
 }
 
-string rstrip(const string& str, const string& del)
+string rstrip(const string& s, const string& del)
 {
-  if (str.size() >= del.size() && str.compare(str.size() - del.size(), del.size(), del) == 0) {
-    return str.substr(0, str.size() - del.size());
+  if (s.size() >= del.size() && s.compare(s.size() - del.size(), del.size(), del) == 0) {
+    return s.substr(0, s.size() - del.size());
   }
   else {
-    return str;
+    return s;
   }
 }
 
-string stripQuates(const string& str)
+string stripQuates(const string& s)
 {
-  if (str.front() == '"' && str.back() == '"') {
-    return str.substr(1, str.size() - 2);
+  if (s.front() == '"' && s.back() == '"') {
+    return s.substr(1, s.size() - 2);
   }
-  return str;
+  return s;
 }
 
-string trim(const string& str)
+string trim(const string& s)
 {
   // 空文字のときはそのまま返す．でないとfind_(first, last)_not_ofがinfを返してしまう．
-  if (str == "") {
-    return "";
+  if (s.empty()) {
+    return {};
   }
 
   static constexpr char del[] = " \t\n\r\f\v";
-  const auto first = str.find_first_not_of(del);
-  const auto last = str.find_last_not_of(del);
+  const auto first = s.find_first_not_of(del);
+  const auto last = s.find_last_not_of(del);
 
-  return str.substr(first, last - first + 1);
+  return s.substr(first, last - first + 1);
 }
 
 vector<string> splitLines(const string& text)
@@ -101,10 +101,10 @@ vector<string> splitLines(const string& text)
   return lines;
 }
 
-string deleteNl(const string& str)
+string deleteNl(const string& s)
 {
   string res;
-  for (const auto& ch : str) {
+  for (const auto& ch : s) {
     if (ch != '\r' && ch != '\n') {
       res += ch;
     }
@@ -124,40 +124,63 @@ string toUpper(string arg)
   return arg;
 }
 
-string replace(string str, const string& from, const string& to)
+string replace(string s, const string& from, const string& to)
 {
   size_t start_pos = 0;
-  while ((start_pos = str.find(from, start_pos)) != string::npos) {
-    str.replace(start_pos, from.length(), to);
+  while ((start_pos = s.find(from, start_pos)) != string::npos) {
+    s.replace(start_pos, from.length(), to);
     start_pos += to.length();  // 次の検索位置を設定
   }
-  return str;
+  return s;
 }
 
-bool contains(const string& str, const string& sub)
+string sanitize(const char* s)
 {
-  return str.find(sub) != string::npos;
-}
-
-bool contains(const string& str, const char& sub)
-{
-  return str.find(sub) != string::npos;
-}
-
-bool startsWith(const string& str, const string& prefix)
-{
-  if (prefix.size() > str.size()) {
-    return false;
+  if (!s) {
+    return {};
   }
-  return std::equal(prefix.begin(), prefix.end(), str.begin());
+
+  string out(s);
+
+  // 改行・タブ類をスペースに
+  for (auto& c : out) {
+    switch (c) {
+      case '\n':
+      case '\r':
+      case '\t':
+      case '\v':
+      case '\f':
+        c = ' ';
+        break;
+      default:
+        break;
+    }
+  }
+
+  // 他の制御文字 (0x00-0x1F, 0x7F) を削除
+  out.erase(remove_if(out.begin(), out.end(), [](uint8_t ch) { return (ch < 0x20 || ch == 0x7F); }), out.end());
+
+  // 連続スペースを1つに
+  out.erase(unique(out.begin(), out.end(), [](char a, char b) { return a == ' ' && b == ' '; }), out.end());
+
+  // 前後のスペースをトリム
+  auto notspace = [](uint8_t c) { return c != ' '; };
+  auto first = find_if(out.begin(), out.end(), notspace);
+  if (first == out.end()) {
+    return {};  // 全部スペース
+  }
+  auto last = find_if(out.rbegin(), out.rend(), notspace).base();
+  return string(first, last);
 }
 
-bool endsWith(const string& str, const string& suffix)
+bool contains(const string& s, const string& sub)
 {
-  if (suffix.size() > str.size()) {
-    return false;
-  }
-  return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+  return s.find(sub) != string::npos;
+}
+
+bool contains(const string& s, const char& sub)
+{
+  return s.find(sub) != string::npos;
 }
 
 bool isValidFileName(const string& file_name)

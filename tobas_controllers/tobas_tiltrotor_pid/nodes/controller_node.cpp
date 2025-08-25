@@ -141,7 +141,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
   // Register dynamic parameters
-  // XXX: I制御は姿勢変化が大きいと逆効果なため，デフォルトではオフにする．
+  // I制御は姿勢変化が大きいと逆効果なため，デフォルトではオフにする．
   addDynamicDoubleParam(
     "horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");

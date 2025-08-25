@@ -22,23 +22,20 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(tobas_math REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES Qt5Core Qt5Widgets tobas_math tobas_std_tools)
+set(AMENT_DEPENDENCIES Qt5Core Qt5Widgets ament_index_cpp tobas_math tobas_std_tools)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
-file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/widgets/*.hpp
-                                                                               include/${PROJECT_NAME}/layouts/*.hpp
-)
-qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
-
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
+# AUTOMOCのためにヘッダをターゲットに入れる必要がある
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(
@@ -51,6 +48,7 @@ install(
   DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(DIRECTORY resources DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

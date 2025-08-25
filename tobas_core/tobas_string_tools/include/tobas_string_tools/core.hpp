@@ -5,29 +5,29 @@
 
 namespace str
 {
-/* 文字列をdelで区切ってvectorにして返す． */
-std::vector<std::string> split(const std::string& str, const char& del);
+/* 文字列を区切ってvectorにして返す． */
+std::vector<std::string> split(const std::string& s, const char& c);
 
 /* 文字列を最後の指定文字で区切る． */
-std::pair<std::string, std::string> rsplit(const std::string& str, const char& c);
+std::pair<std::string, std::string> rsplit(const std::string& s, const char& c);
 
 /* 先頭の特定の文字列を削除する． */
-std::string lstrip(const std::string& str, const std::string& del);
+std::string lstrip(const std::string& s, const std::string& del);
 
 /* 末尾の特定の文字列を削除する． */
-std::string rstrip(const std::string& str, const std::string& del);
+std::string rstrip(const std::string& s, const std::string& del);
 
 /* 引用符を削除する． */
-std::string stripQuates(const std::string& str);
+std::string stripQuates(const std::string& s);
 
 /* 行頭・行末の空白，タブに加えて改行などの制御文字を削除する． */
-std::string trim(const std::string& str);
+std::string trim(const std::string& s);
 
 /* 行を分割する． */
 std::vector<std::string> splitLines(const std::string& text);
 
 /* 文字列中の改行コードを削除． */
-std::string deleteNl(const std::string& str);
+std::string deleteNl(const std::string& s);
 
 /* 小文字に変換． */
 std::string toLower(std::string arg);
@@ -36,19 +36,16 @@ std::string toLower(std::string arg);
 std::string toUpper(std::string arg);
 
 /* 文字列中の特定の文字列を別の文字列に変換する． */
-std::string replace(std::string str, const std::string& from, const std::string& to);
+std::string replace(std::string s, const std::string& from, const std::string& to);
+
+/* 文字列から制御文字を削除する． */
+std::string sanitize(const char* s);
 
 /* 部分文字列が含まれるかどうかを調べる． */
-bool contains(const std::string& str, const std::string& sub);
+bool contains(const std::string& s, const std::string& sub);
 
 /* 部分文字列が含まれるかどうかを調べる． */
-bool contains(const std::string& str, const char& sub);
-
-/* C++20以降のstring::starts_withと同じ． */
-bool startsWith(const std::string& str, const std::string& prefix);
-
-/* C++20以降のstring::ends_withと同じ． */
-bool endsWith(const std::string& str, const std::string& suffix);
+bool contains(const std::string& s, const char& sub);
 
 /* ファイル名に不正な文字列が含まれていないかどうかを調べる． */
 bool isValidFileName(const std::string& file_name);

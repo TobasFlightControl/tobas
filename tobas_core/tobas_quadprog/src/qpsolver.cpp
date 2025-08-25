@@ -119,7 +119,7 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
   scaled.b /= P_diag_max;
 
   // TODO: 各制約条件について，係数の絶対値の最大値が1になるようにスケーリング
-  // XXX: これを行う場合は随伴変数が変化することに注意
+  // これを行う場合は随伴変数が変化することに注意
 
   return scaled;
 }

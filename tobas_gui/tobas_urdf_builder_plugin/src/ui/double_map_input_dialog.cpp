@@ -14,7 +14,7 @@ namespace ub
 namespace ui
 {
 DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names)
-  : QDialog(parent)
+  : super(parent)
 {
   setWindowTitle(title);
 

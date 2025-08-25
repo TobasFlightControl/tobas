@@ -18,7 +18,7 @@ PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 
 void PropellerPitchPlotWidget::clear()
 {
-  // XXX: レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
+  // レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
   plots_.clear();
   curves_.clear();
   qt::clearLayout(grid_);

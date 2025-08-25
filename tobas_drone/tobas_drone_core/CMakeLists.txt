@@ -22,12 +22,12 @@ set(AMENT_DEPENDENCIES tobas_nlp tobas_kdl tobas_yaml_tools tobas_constants)
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE TEST_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} tests/*.cpp)
-ament_add_gtest(${PROJECT_NAME}_test ${TEST_CPP_FILES})
+file(GLOB_RECURSE TEST_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} tests/*.cpp)
+ament_add_gtest(${PROJECT_NAME}_test ${TEST_TARGETS})
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 
 install(

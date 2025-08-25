@@ -38,8 +38,8 @@ set(AMENT_DEPENDENCIES
 
 include_directories(include)
 
-file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
-add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuHandlerNode" EXECUTABLE imu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagnetometerHandlerNode" EXECUTABLE magnetometer_handler)

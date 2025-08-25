@@ -1,7 +1,6 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
 #include <QDebug>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/path.hpp>
@@ -17,6 +16,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
+#include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
 namespace fs = std::filesystem;
@@ -32,8 +32,7 @@ ProjectGenerator::ProjectGenerator(
   SettingsWidget* settings)
   : node_(node), uadf_(uadf), tree_(tree), settings_(settings)
 {
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto templates_path = pkg_path / "templates";
+  const auto templates_path = getPkgShareDir() / "templates";
   meta_env_ = std::make_shared<TemplateGenerator>(templates_path / "meta_package");
   config_env_ = std::make_shared<TemplateGenerator>(templates_path / "config_package");
   user_msg_env_ = std::make_shared<TemplateGenerator>(templates_path / "user_msg_package");
@@ -1203,7 +1202,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot, const fs::pat
   xml::addGazeboROS2SimSystem(robot, drone.joints);
 
   // Gazebo ROS2 control plugin
-  // XXX: This must be defined after GazeboSimSystem
+  // This must be defined after GazeboSimSystem
   if (hasServoJoint()) {
     xml::addGazeboSimROS2ControlPlugin(robot, ns, cfg_pkg_name, "config/joint_controller_manager.yaml");
   }
@@ -1240,7 +1239,7 @@ bool ProjectGenerator::generateJointControllerConfig(
 
   // Create data
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
+  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // 名前空間を指定すると読み込みに失敗する
 
   // Save data
   const auto config_dir = common::getProjCfgConfigDirPath(proj_path);

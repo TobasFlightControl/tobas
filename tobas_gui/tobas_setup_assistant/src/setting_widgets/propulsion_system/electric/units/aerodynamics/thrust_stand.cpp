@@ -17,7 +17,8 @@ namespace electric
 {
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node)
 {
-  data_ = new ParamGetterWidget_DoubleTable(node, "Data from thrust stand", { "RPM", "Thrust", "Torque" });
+  data_ = new ParamGetterWidget_DoubleTable(
+    node, "Data from thrust stand", "Select Test Data", { "RPM", "Thrust", "Torque" });
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1, 1e-6, 1e-6 });
   data_->setSuffix({ " rpm", " N", " Nm" });
@@ -33,7 +34,7 @@ const char* AerodynamicsWidget_ThrustStand::name() const
 
 const char* AerodynamicsWidget_ThrustStand::description() const
 {
-  // XXX: テキスト中に改行コードを入れるとハイパーリンクが機能しない
+  // テキスト中に改行コードを入れるとハイパーリンクが機能しない
   return "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
          "For example, see "
          "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>.";

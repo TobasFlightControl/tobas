@@ -882,7 +882,7 @@ const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel* joint)
     return variable_joint_transforms_[idx];
   }
 
-  unsigned char& dirty = dirty_joint_transforms_[idx];
+  uint8_t& dirty = dirty_joint_transforms_[idx];
   if (dirty) {
     joint->computeTransform(&position_.at(joint->getFirstVariableIndex()), variable_joint_transforms_[idx]);
     dirty = 0;

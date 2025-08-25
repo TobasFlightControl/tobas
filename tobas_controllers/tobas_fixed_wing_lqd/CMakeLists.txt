@@ -25,8 +25,8 @@ set(AMENT_DEPENDENCIES tobas_control tobas_node tobas_tools tobas_drone_tools to
 
 include_directories(include)
 
-file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
-add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ControllerNode" EXECUTABLE controller)
 

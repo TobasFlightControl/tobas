@@ -47,7 +47,7 @@ double yearFraction(const system_clock::time_point& tp)
   const auto tm = timePointToTm(tp);
   const auto year = tm.tm_year + 1900;  // 年
   const auto is_leap_year = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
-  const auto day_of_year = tm.tm_yday;                 // 年の中の現在の日数（0から始まる）
+  const auto day_of_year = tm.tm_yday;                 // 年の中の現在の日数 (0から始まる)
   const auto days_in_year = is_leap_year ? 366 : 365;  // 閏年の場合は366日
   return year + static_cast<double>(day_of_year) / days_in_year;
 }

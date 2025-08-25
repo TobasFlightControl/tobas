@@ -15,7 +15,7 @@ LoopTypeWidget::LoopTypeWidget()
   ckb_group_ = new QButtonGroup(this);
   ckb_group_->setExclusive(true);
 
-  // XXX: 選択肢の文が長すぎると500pxに収まらなくなる
+  // 選択肢の文が長すぎると500pxに収まらなくなる
   sitl_ckb_ = new QCheckBox("SITL (Simulation in the Loop)");
   hitl_ckb_ = new QCheckBox("HITL (Hardware in the Loop)");
 

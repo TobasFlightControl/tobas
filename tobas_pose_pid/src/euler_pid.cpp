@@ -119,7 +119,7 @@ void EulerPID::updateGain()
 
 kdl::Vector EulerPID::computeProportionalError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy)
 {
-  // XXX: 2つのオイラー角を結ぶ直線は回転における最短距離ではないことに注意
+  // 2つのオイラー角を結ぶ直線は回転における最短距離ではないことに注意
   const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
   const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
   const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);

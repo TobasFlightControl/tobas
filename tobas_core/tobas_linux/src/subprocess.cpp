@@ -43,7 +43,7 @@ pid_t createSubprocess(const vector<char*>& _argv)
 
 pid_t createSubprocess(const string& command)
 {
-  // XXX: const_castはコピーをとらないため，プロセス作成時にコマンドのメモリが有効なことを保証する必要がある．
+  // const_castはコピーをとらないため，プロセス作成時にコマンドのメモリが有効なことを保証する必要がある．
   vector<char*> argv;
   argv.push_back(const_cast<char*>("/bin/bash"));
   argv.push_back(const_cast<char*>("-c"));

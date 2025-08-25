@@ -370,7 +370,7 @@ double ErrorStateKalmanFilter::measureIMU(
   // (260) ノミナル状態のキネマティクス
   x_.segment<3>(kPosIdx) += vel_W * dt;
   if (enable_second_integral_) {
-    x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * dt2;  // XXX: 積分誤差増大リスクあり
+    x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * dt2;  // 積分誤差増大リスクあり
   }
   x_.segment<3>(kVelIdx) += acc_grav_W * dt;
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(q * delta_q);

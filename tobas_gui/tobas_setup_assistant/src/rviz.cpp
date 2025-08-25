@@ -1,11 +1,8 @@
 #include "tobas_setup_assistant/rviz.hpp"
 
-#include <filesystem>
-
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -14,8 +11,7 @@
 #include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
-
-namespace fs = std::filesystem;
+#include "tobas_setup_assistant/util.hpp"
 
 namespace gui
 {
@@ -29,8 +25,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
 
   // Initialize Rviz
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
+  const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
   // Set up robot_model_display

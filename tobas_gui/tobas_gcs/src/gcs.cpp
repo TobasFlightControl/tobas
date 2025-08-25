@@ -38,7 +38,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
 {
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rsrc_path = pkg_path / "resources";
 
   // Applications
@@ -265,7 +265,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = common::getProjCfgPkgName(proj_path);
 
   // 進捗バーを作成
-  qt::ProgressDialog progress(kTitle, 9, this);
+  qt::ProgressDialog progress("Write Tobas Project", 9, this);
   progress.setCancelButton(nullptr);
   progress.show();
 

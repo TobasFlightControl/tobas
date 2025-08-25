@@ -18,7 +18,7 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
 {
   const auto meta_pkg_name = common::getProjMetaPkgName(remote_proj_path);
 
-  // XXX: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
+  // Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
   const auto ros2_setup_bash = (fs::path(tobas::kROS2JazzyInstallPath) / "setup.bash").string();
   const auto tobas_setup_bash = (fs::path(tobas::kTobasInstallPath) / "local_setup.bash").string();
   const auto pre_cmd = std::format(
@@ -29,12 +29,12 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
     tobas_setup_bash,
     tobas::kColconWSPathRoot);
 
-  // XXX: ルート権限だと--symlink-installが機能しない
+  // ルート権限だと--symlink-installが機能しない
   const auto build_cmd = std::format(
     "colcon build "
     "--merge-install "
     "--parallel-workers $(nproc) "
-    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "  // XXX: コンパイラを指定
+    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "  // コンパイラを指定
     "--packages-up-to {}",
     meta_pkg_name);
 

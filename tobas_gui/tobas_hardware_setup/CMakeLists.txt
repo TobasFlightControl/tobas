@@ -25,7 +25,6 @@ find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(tobas_eigen_conversions REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
-find_package(wpa_supplicant_parser REQUIRED)
 find_package(tobas_property_tree REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
@@ -43,7 +42,6 @@ set(AMENT_DEPENDENCIES
     visualization_msgs
     tobas_eigen_conversions
     tobas_kdl_conversions
-    wpa_supplicant_parser
     tobas_property_tree
     tobas_ssh_client
     tobas_msgs_adapter
@@ -59,13 +57,10 @@ set(AMENT_DEPENDENCIES
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
-file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/*.hpp)
-qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
-
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(

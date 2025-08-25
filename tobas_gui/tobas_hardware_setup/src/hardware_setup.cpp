@@ -23,14 +23,12 @@ HardwareSetupWidget::HardwareSetupWidget(
   tabs_->enableWheelEvent(false);
   rows->addWidget(tabs_);
 
-  network_setting_ = new NetworkSettingWidget(node);
   accel_calib_ = new AccelCalibrationWidget(node, bridge);
   mag_calib_ = new MagCalibrationWidget(node, bridge);
   rcin_calib_ = new RCInputCalibrationWidget(node, bridge, drone);
   rotor_test_ = new RotorTestWidget(node, bridge, drone);
   joint_test_ = new JointTestWidget(node, bridge, tree, drone);
 
-  tabs_->addTab(network_setting_, network_setting_->name());
   tabs_->addTab(accel_calib_, accel_calib_->name());
   tabs_->addTab(mag_calib_, mag_calib_->name());
   tabs_->addTab(rcin_calib_, rcin_calib_->name());
@@ -40,7 +38,7 @@ HardwareSetupWidget::HardwareSetupWidget(
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
   // プロジェクトが読み込まれるまでは無効化
-  setEnabledConfigDependentWidgets(false);
+  setTabsEnabled(false);
 }
 
 void HardwareSetupWidget::reset()
@@ -49,8 +47,6 @@ void HardwareSetupWidget::reset()
     const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
     widget->reset();
   }
-
-  tabs_->setCurrentWidget(network_setting_);
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()
@@ -68,19 +64,18 @@ void HardwareSetupWidget::updateInternalDataStructures()
   tabs_->setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
 
   // 各タブを有効化
-  setEnabledConfigDependentWidgets(true);
+  setTabsEnabled(true);
 
   // タブを表示・非表示した際の歪みを整える
   tabs_->update();
 }
 
-void HardwareSetupWidget::setEnabledConfigDependentWidgets(bool enabled)
+void HardwareSetupWidget::setTabsEnabled(bool enabled)
 {
-  accel_calib_->setEnabled(enabled);
-  mag_calib_->setEnabled(enabled);
-  rcin_calib_->setEnabled(enabled);
-  rotor_test_->setEnabled(enabled);
-  joint_test_->setEnabled(enabled);
+  for (int i = 0; i < tabs_->count(); ++i) {
+    const auto widget = qt::qPointerCast<BaseHardwareSetupWidget>(tabs_->widget(i));
+    widget->setEnabled(enabled);
+  }
 }
 }  // namespace hw
 }  // namespace gui
