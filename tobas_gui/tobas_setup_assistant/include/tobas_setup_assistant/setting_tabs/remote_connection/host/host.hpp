@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QButtonGroup>
-#include <QGridLayout>
 #include <QRadioButton>
+
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "./base.hpp"
 
@@ -43,7 +44,7 @@ public:
 private:
   QVector<Line> lines_;
 
-  void addRow(QGridLayout* grid, QButtonGroup* group, BaseHostWidget* widget);
+  void addRow(qt::FormLayout* form, QButtonGroup* group, BaseHostWidget* widget);
 
   void updateEnabled();
 

@@ -1,7 +1,6 @@
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/host.hpp"
 
 #include <QDebug>
-#include <QLabel>
 
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/hostname.hpp"
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv4.hpp"
@@ -15,19 +14,15 @@ namespace rc
 {
 HostWidget::HostWidget()
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
-
-  grid->setColumnStretch(kButtonCol, 0);
-  grid->setColumnStretch(kLabelCol, 0);
-  grid->setColumnStretch(kWidgetCol, 1);
+  const auto form = new qt::FormLayout();
+  setLayout(form);
 
   const auto group = new QButtonGroup();
   group->setExclusive(true);
 
-  addRow(grid, group, new HostnameWidget());
-  addRow(grid, group, new IPv4Widget());
-  addRow(grid, group, new IPv6Widget());
+  addRow(form, group, new HostnameWidget());
+  addRow(form, group, new IPv4Widget());
+  addRow(form, group, new IPv6Widget());
 
   // Default
   getRadio(0)->setChecked(true);
@@ -66,18 +61,11 @@ QString HostWidget::host() const
   return getWidget(findCurrentRow())->host();
 }
 
-void HostWidget::addRow(QGridLayout* grid, QButtonGroup* group, BaseHostWidget* widget)
+void HostWidget::addRow(qt::FormLayout* form, QButtonGroup* group, BaseHostWidget* widget)
 {
-  const int row = rowCount();
-
-  const auto button = new QRadioButton();
-  const auto label = new QLabel(widget->label());
-
-  group->addButton(button, row);
-
-  grid->addWidget(button, row, kButtonCol);
-  grid->addWidget(label, row, kLabelCol);
-  grid->addWidget(widget, row, kWidgetCol);
+  const auto button = new QRadioButton(widget->label());
+  group->addButton(button, rowCount());
+  form->addVAlignedRow(button, widget);
 
   Line line;
   line.button = button;
