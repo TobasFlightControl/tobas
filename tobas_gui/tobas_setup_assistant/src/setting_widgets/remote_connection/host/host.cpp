@@ -4,6 +4,7 @@
 #include <QLabel>
 
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/hostname.hpp"
+#include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv4.hpp"
 
 namespace gui
 {
@@ -24,6 +25,7 @@ HostWidget::HostWidget()
   group->setExclusive(true);
 
   addRow(grid, group, new HostnameWidget());
+  addRow(grid, group, new IPv4Widget());
 
   // Default
   getRadio(0)->setChecked(true);
