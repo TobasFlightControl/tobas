@@ -13,17 +13,12 @@ namespace sa
 {
 namespace rc
 {
-
 class HostWidget : public QWidget
 {
   Q_OBJECT
 
   using self = HostWidget;
   using super = QWidget;
-
-  static constexpr int kButtonCol = 0;
-  static constexpr int kLabelCol = 1;
-  static constexpr int kWidgetCol = 2;
 
   struct Line
   {
