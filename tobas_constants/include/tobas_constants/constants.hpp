@@ -164,6 +164,7 @@ static constexpr double kTypicalErrorPeriod = 1.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;  // [s]
 
 // Others
+static constexpr char kFmuUserName[] = "pi";
 static constexpr char kProjectExtension[] = ".TBS";
 static constexpr char kPropertyServerName[] = "/property_server";
 static constexpr char kMinimulURDF[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";

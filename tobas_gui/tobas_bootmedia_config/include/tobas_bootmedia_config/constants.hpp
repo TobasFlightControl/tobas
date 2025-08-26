@@ -16,7 +16,6 @@ static constexpr int kCtrlButtonWidth = 100;
 static constexpr int kCtrlButtonHeight = 40;
 static constexpr int kFormSpacing = 30;
 
-static constexpr char kUserName[] = "pi";
 static constexpr char kBootPath[] = "/mnt/bootfs";
 static constexpr char kRootPath[] = "/mnt/rootfs";
 static constexpr char kHomePath[] = "/mnt/rootfs/home/pi";

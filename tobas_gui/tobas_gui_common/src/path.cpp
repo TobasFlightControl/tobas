@@ -105,6 +105,11 @@ fs::path getProjTbsDrnPath(const fs::path& proj_path)
   return getProjCfgConfigDirPath(proj_path) / "drone.tbsdrn";
 }
 
+fs::path getProjSshEndpointPath(const fs::path& proj_path)
+{
+  return getProjCfgConfigDirPath(proj_path) / "ssh_endpoint.yaml";
+}
+
 fs::path getProjImuFiltDynParamsPath(const fs::path& proj_path)
 {
   return getProjCfgConfigDirPath(proj_path) / kImuFilterDynamicParamFileName;

@@ -1,7 +1,8 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 
-from tobas_ssh_msgs.srv import Connect, Execute, List, ScpGet, ScpPut, SftpRead, SftpWrite
+from tobas_ssh_msgs.srv import *
 
 from .ssh_client import SSHClientWrapper
 
@@ -12,13 +13,17 @@ class SSHServerNode(Node):
     def __init__(self) -> None:
         super().__init__("ssh_server")
 
-        host = self.declare_parameter("host", "").get_parameter_value().string_value
-        port = self.declare_parameter("port", 22).get_parameter_value().integer_value
-        user = self.declare_parameter("user", "").get_parameter_value().string_value
-        passwd = self.declare_parameter("passwd", "").get_parameter_value().string_value
+        host = self.get_parameter("host")
+        user = self.get_parameter("user")
 
-        self._ssh_client = SSHClientWrapper(host, port, user, passwd)
+        if host.type_ != Parameter.Type.NOT_SET and user.type_ != Parameter.Type.NOT_SET:
+            self._cli = SSHClientWrapper(host, user=user)
+            self._create_ssh_services()
+            self._client_ready_info(host, user)
 
+        self._set_endpoint_ss = self.create_service(SetEndpoint, "ssh/set_endpoint", self._set_endpoint_cb)
+
+    def _create_ssh_services(self) -> None:
         self._connect_ss = self.create_service(Connect, "ssh/connect", self._connect_cb)
         self._execute_ss = self.create_service(Execute, "ssh/execute", self._execute_cb)
         self._scp_get_ss = self.create_service(ScpGet, "ssh/scp_get", self._scp_get_cb)
@@ -27,18 +32,32 @@ class SSHServerNode(Node):
         self._sftp_write_ss = self.create_service(SftpWrite, "ssh/sftp_write", self._sftp_write_cb)
         self._list_ss = self.create_service(List, "ssh/list", self._list_cb)
 
+    def _client_ready_info(self, host: str, user: str) -> None:
+        self.get_logger().info(f"SSH client initialized for {user}@{host}.")
+
     def _connect(self) -> bool:
         try:
-            self._ssh_client.connect()
+            self._cli.connect()
         except Exception as e:
             self.get_logger().warning(f"{e}")
             return False
 
         return True
 
+    def _set_endpoint_cb(self, req: SetEndpoint.Request, res: SetEndpoint.Response) -> SetEndpoint.Response:
+        if self._cli is None:
+            self._cli = SSHClientWrapper(req.host, user=req.user)
+            self._create_ssh_services()
+        else:
+            self._cli.close()
+            self._cli = SSHClientWrapper(req.host, user=req.user)
+
+        self._client_ready_info(req.host, req.user)
+        return res
+
     def _connect_cb(self, req: Connect.Request, res: Connect.Response) -> Execute.Response:
         try:
-            self._ssh_client.connect()
+            self._cli.connect()
         except Exception as e:
             res.success = False
             res.message = str(e)
@@ -55,20 +74,20 @@ class SSHServerNode(Node):
 
         if req.superuser:
             if req.background:
-                self._ssh_client.exec_command_bg_super(req.command)
+                self._cli.exec_command_bg_super(req.command)
                 res.success = True
                 res.output = ""
                 res.error_output = ""
             else:
-                res.success, res.output, res.error_output = self._ssh_client.exec_command_super(req.command)
+                res.success, res.output, res.error_output = self._cli.exec_command_super(req.command)
         else:
             if req.background:
-                self._ssh_client.exec_command_bg(req.command)
+                self._cli.exec_command_bg(req.command)
                 res.success = True
                 res.output = ""
                 res.error_output = ""
             else:
-                res.success, res.output, res.error_output = self._ssh_client.exec_command(req.command)
+                res.success, res.output, res.error_output = self._cli.exec_command(req.command)
 
         return res
 
@@ -79,7 +98,7 @@ class SSHServerNode(Node):
             return res
 
         try:
-            self._ssh_client.scp_get(req.remote_path, req.local_path)
+            self._cli.scp_get(req.remote_path, req.local_path)
             res.success = True
         except Exception as e:
             res.success = False
@@ -97,9 +116,9 @@ class SSHServerNode(Node):
         if req.parents:
             mkdir_command = f"mkdir -p {req.remote_dir}"
             if req.superuser:
-                success, _, error_output = self._ssh_client.exec_command_super(mkdir_command)
+                success, _, error_output = self._cli.exec_command_super(mkdir_command)
             else:
-                success, _, error_output = self._ssh_client.exec_command(mkdir_command)
+                success, _, error_output = self._cli.exec_command(mkdir_command)
             if not success:
                 res.success = False
                 res.message = f"Failed to create remote directory {req.remote_dir}: {error_output}"
@@ -107,14 +126,14 @@ class SSHServerNode(Node):
 
         if req.superuser:
             try:
-                self._ssh_client.scp_put_dir_super(req.local_dir, req.remote_dir, req.exclude_dirs)
+                self._cli.scp_put_dir_super(req.local_dir, req.remote_dir, req.exclude_dirs)
                 res.success = True
             except Exception as e:
                 res.success = False
                 res.message = f"SCP-Put with superuser privilege failed: {e}"
         else:
             try:
-                self._ssh_client.scp_put_dir(req.local_dir, req.remote_dir, req.exclude_dirs)
+                self._cli.scp_put_dir(req.local_dir, req.remote_dir, req.exclude_dirs)
                 res.success = True
             except Exception as e:
                 res.success = False
@@ -130,14 +149,14 @@ class SSHServerNode(Node):
 
         if req.superuser:
             try:
-                res.text = self._ssh_client.sftp_read_super(req.remote_path)
+                res.text = self._cli.sftp_read_super(req.remote_path)
                 res.success = True
             except Exception as e:
                 res.success = False
                 res.message = f"SFTP-Read with superuser privilege failed: {e}"
         else:
             try:
-                res.text = self._ssh_client.sftp_read(req.remote_path)
+                res.text = self._cli.sftp_read(req.remote_path)
                 res.success = True
             except Exception as e:
                 res.success = False
@@ -153,14 +172,14 @@ class SSHServerNode(Node):
 
         if req.superuser:
             try:
-                self._ssh_client.sftp_write_super(req.remote_path, req.text)
+                self._cli.sftp_write_super(req.remote_path, req.text)
                 res.success = True
             except Exception as e:
                 res.success = False
                 res.message = f"SFTP-Write with superuser privilege failed: {e}"
         else:
             try:
-                self._ssh_client.sftp_write(req.remote_path, req.text)
+                self._cli.sftp_write(req.remote_path, req.text)
                 res.success = True
             except Exception as e:
                 res.success = False
@@ -175,7 +194,7 @@ class SSHServerNode(Node):
             return res
 
         try:
-            res.entries = self._ssh_client.list(req.pardir)
+            res.entries = self._cli.list(req.pardir)
             res.success = True
         except Exception as e:
             res.success = False

@@ -204,17 +204,13 @@ YAML::Node Drone::dump() const
 
 bool Drone::load(const fs::path& path)
 {
-  if (path.extension() != kDroneExt) {
-    cerr << "Invalid extension: " << path.extension() << endl;
+  const auto node = yaml::load(path);
+  if (!node) {
+    cerr << node.error() << endl;
     return false;
   }
 
-  YAML::Node node;
-  if (!yaml::load(path, node)) {
-    return false;
-  }
-
-  if (!load(node)) {
+  if (!load(node.value())) {
     cerr << "Failed to load drone." << endl;
     return false;
   }
@@ -224,11 +220,6 @@ bool Drone::load(const fs::path& path)
 
 bool Drone::save(const fs::path& path) const
 {
-  if (path.extension() != kDroneExt) {
-    cerr << "Invalid extension: " << path.extension() << endl;
-    return false;
-  }
-
   const auto node = dump();
 
   if (!yaml::save(path, node)) {

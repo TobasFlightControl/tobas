@@ -471,8 +471,8 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // ユーザ設定を読み込む
   const auto settings_path = common::getProjBackupSettingsPath(proj_path);
-  YAML::Node node;
-  if (!yaml::load(settings_path, node)) {
+  const auto node = yaml::load(settings_path);
+  if (!node) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
     reset();
     return;
@@ -480,7 +480,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // ユーザ設定を書くウィジェットに反映
   // 失敗してもリセットはしない
-  if (settings_->load(node)) {
+  if (settings_->load(node.value())) {
     qt::qInfoBox(this, "Tobas project is loaded successfully.");
   }
 

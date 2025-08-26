@@ -3,45 +3,40 @@
 #include <fstream>
 #include <iostream>
 
-using namespace std;
 namespace fs = std::filesystem;
 
 namespace yaml
 {
-string dump(const YAML::Node& node)
+std::string dump(const YAML::Node& node)
 {
   YAML::Emitter emitter;
   emitter << node;
 
-  stringstream res;
-  res << emitter.c_str() << endl;
+  std::stringstream res;
+  res << emitter.c_str() << std::endl;
 
   return res.str();
 }
 
-bool load(const fs::path& path, YAML::Node& node)
+std::expected<YAML::Node, std::string> load(const fs::path& path)
 {
   if (!fs::exists(path)) {
-    cerr << path << " does not exist." << endl;
-    return false;
+    return std::unexpected(path.string() + " does not exist.");
   }
 
   try {
-    node = YAML::LoadFile(path);
+    return YAML::LoadFile(path);
   }
-  catch (const exception& e) {
-    cerr << "Failed to load yaml: " << e.what() << endl;
-    return false;
+  catch (const std::exception& e) {
+    return std::unexpected("Failed to load " + path.string() + ": " + e.what());
   }
-
-  return true;
 }
 
 bool save(const fs::path& path, const YAML::Node& node)
 {
-  ofstream fout(path);
+  std::ofstream fout(path);
   if (!fout.is_open()) {
-    cerr << "Failed to open \"" << path << "\" for writing." << endl;
+    std::cerr << "Failed to open \"" << path << "\" for writing." << std::endl;
     return false;
   }
 

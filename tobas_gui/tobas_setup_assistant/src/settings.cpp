@@ -20,6 +20,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   propulsion_system = new propulsion::PropulsionSystemWidget(node, uadf, sig);
   fixed_wing = new fw::FixedWingWidget(node, uadf);
   hardware = new hw::HardwareWidget(uadf, sig);
+  remote_connection = new rc::RemoteConnectionWidget();
   controller = new ctrl::ControllerWidget();
   observer = new ObserverWidget();
   rc_input = new RcInputWidget();
@@ -35,6 +36,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   addEntry(basic_list_, propulsion_system);
   addEntry(basic_list_, fixed_wing);
   addEntry(basic_list_, hardware);
+  addEntry(basic_list_, remote_connection);
 
   // Additional settings
   additional_list_ = new qt::ListWidget();

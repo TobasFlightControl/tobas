@@ -2,6 +2,7 @@ import os
 import os.path as osp
 import socket
 import paramiko
+from paramiko.config import SSH_PORT
 from scp import SCPClient
 from typing import Tuple, List
 
@@ -9,23 +10,41 @@ from typing import Tuple, List
 class SSHClientWrapper:
     UTF_8 = "utf-8"
 
-    def __init__(self, host: str, port: int, user: str, passwd: str) -> None:
+    def __init__(
+        self,
+        host: str,
+        port: int = SSH_PORT,
+        user: str = None,
+        passwd: str = None,
+        reject_missing_host: bool = True,  # 未登録のホストは拒否すべき
+    ) -> None:
         self._host = host
         self._port = port
         self._user = user
         self._passwd = passwd
 
-        # TODO: AutoAddPolicyは脆弱なので，予めサーバーのホストキーをクライアントに登録する
-        self._ssh_client = paramiko.SSHClient()
-        self._ssh_client.load_system_host_keys()
-        self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self._cli = paramiko.SSHClient()
+
+        # ~/.ssh/known_hosts を読み込む
+        self._cli.load_system_host_keys()
+
+        # サーバの公開鍵がクライアントの known_hosts に含まれない場合の対応
+        if reject_missing_host:
+            missing_host_policy = paramiko.RejectPolicy()
+        else:
+            missing_host_policy = paramiko.AutoAddPolicy()
+        self._cli.set_missing_host_key_policy(missing_host_policy)
 
     def connect(self) -> None:
-        # 未接続時にコマンドを実行すると"SSH session not active"というエラーが出る可能性があるため，is_connected()による確認は行わない．
+        """
+        サーバに接続する．
 
-        # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
+        Note
+        ----
+        未接続時にコマンドを実行すると"SSH session not active"エラーの可能性があるため，is_connected()による確認は行わない．
+        """
         try:
-            self._ssh_client.connect(
+            self._cli.connect(
                 hostname=self._host,
                 port=self._port,
                 username=self._user,
@@ -41,7 +60,7 @@ class SSHClientWrapper:
             raise RuntimeError(f"Unexpected error occurred: {e}")
 
     def close(self) -> None:
-        self._ssh_client.close()
+        self._cli.close()
 
     def exec_command(self, command: str) -> Tuple[bool, str, str]:
         """
@@ -58,7 +77,7 @@ class SSHClientWrapper:
         error_output: str
         """
         try:
-            _, stdout, stderr = self._ssh_client.exec_command(command)
+            _, stdout, stderr = self._cli.exec_command(command)
         except AttributeError:
             return False, "", "No network connection."
 
@@ -79,7 +98,7 @@ class SSHClientWrapper:
 
     def exec_command_bg(self, command: str) -> None:
         """バックグラウンドでコマンドを実行．"""
-        self._ssh_client.exec_command(command + " &")
+        self._cli.exec_command(command + " &")
 
     def exec_command_bg_super(self, command: str) -> None:
         """バックグラウンドでsudoコマンドを実行．"""
@@ -96,7 +115,7 @@ class SSHClientWrapper:
         local_path : str
             ローカルディレクトリの絶対パス．
         """
-        with SCPClient(self._ssh_client.get_transport()) as scp:
+        with SCPClient(self._cli.get_transport()) as scp:
             scp.get(remote_path=remote_path, local_path=local_path, recursive=True)
 
     def scp_put_dir(self, _local_dir: str, _remote_dir: str, _exclude_dirs: List[str] = []) -> None:
@@ -117,7 +136,7 @@ class SSHClientWrapper:
 
         local_dir_base = osp.basename(_local_dir.rstrip("/"))
 
-        with SCPClient(self._ssh_client.get_transport()) as scp:
+        with SCPClient(self._cli.get_transport()) as scp:
             for root, _, files in os.walk(_local_dir):
                 # 除外ディレクトリだった場合は，ディレクトリのみ作成して中身は送信しない
                 if self._is_excluded_dir(root, _exclude_dirs):
@@ -165,7 +184,7 @@ class SSHClientWrapper:
     def sftp_read(self, remote_path: str) -> str:
         assert not remote_path.endswith("/")
 
-        with self._ssh_client.open_sftp() as sftp:
+        with self._cli.open_sftp() as sftp:
             with sftp.open(remote_path, "r") as f:
                 text = f.read().decode(self.UTF_8)
         return text
@@ -182,7 +201,7 @@ class SSHClientWrapper:
     def sftp_write(self, remote_path: str, text: str) -> None:
         assert not remote_path.endswith("/")
 
-        with self._ssh_client.open_sftp() as sftp:
+        with self._cli.open_sftp() as sftp:
             with sftp.file(remote_path, "w") as f:
                 f.write(text)
 
@@ -201,7 +220,7 @@ class SSHClientWrapper:
 
     def list(self, remote_pardir: str) -> List[str]:
         """lsコマンド．"""
-        with self._ssh_client.open_sftp() as sftp:
+        with self._cli.open_sftp() as sftp:
             return sftp.listdir(remote_pardir)
 
     def file_exists(self, file_path: str) -> bool:

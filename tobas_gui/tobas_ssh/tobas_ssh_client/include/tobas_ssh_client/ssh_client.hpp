@@ -10,6 +10,7 @@
 #include <tobas_ssh_msgs/srv/list.hpp>
 #include <tobas_ssh_msgs/srv/scp_get.hpp>
 #include <tobas_ssh_msgs/srv/scp_put.hpp>
+#include <tobas_ssh_msgs/srv/set_endpoint.hpp>
 #include <tobas_ssh_msgs/srv/sftp_read.hpp>
 #include <tobas_ssh_msgs/srv/sftp_write.hpp>
 
@@ -21,6 +22,7 @@ namespace ssh
  */
 class SSHClient
 {
+  static constexpr char kSetEndpointSrv[] = "ssh/set_endpoint";
   static constexpr char kConnectSrv[] = "ssh/connect";
   static constexpr char kExecuteSrv[] = "ssh/execute";
   static constexpr char kSCPGetSrv[] = "ssh/scp_get";
@@ -40,6 +42,8 @@ public:
   };
 
   explicit SSHClient(rclcpp::Node::SharedPtr node);
+
+  Error setEndpoint(const std::string& host, const std::string& user);
 
   Error connect();
 
@@ -68,6 +72,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
+  ros2::SyncServiceClient<tobas_ssh_msgs::srv::SetEndpoint> set_endpoint_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Connect> connect_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::Execute> execute_sc_;
   ros2::SyncServiceClient<tobas_ssh_msgs::srv::ScpGet> scp_get_sc_;

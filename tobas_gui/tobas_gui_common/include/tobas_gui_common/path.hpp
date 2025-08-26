@@ -68,6 +68,9 @@ std::filesystem::path getProjXacroPath(const std::filesystem::path& proj_path);
 /* drone.tbsdrn の絶対パスを返す． */
 std::filesystem::path getProjTbsDrnPath(const std::filesystem::path& proj_path);
 
+/* ssh_endpoint.yaml の絶対パスを返す． */
+std::filesystem::path getProjSshEndpointPath(const std::filesystem::path& proj_path);
+
 /* imu_filter_dynamic.yaml の絶対パスを返す． */
 std::filesystem::path getProjImuFiltDynParamsPath(const std::filesystem::path& proj_path);
 

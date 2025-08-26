@@ -17,6 +17,7 @@
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_string_tools/stream.hpp>
 
 #include "tobas_gcs/app_button.hpp"
 #include "tobas_gcs/constants.hpp"
@@ -141,6 +142,11 @@ void GroundControlStationWidget::updateInternalDataStructures()
 {
   reset();
 
+  if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SSHClient::kNoError) {
+    qt::qErrorBox(this, "Failed to set SSH endpoint:\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+
   bridge_.initialize(drone_.name);
 
   hardware_setup_->updateInternalDataStructures();
@@ -224,6 +230,13 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // Load drone configuration
   if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
+    return;
+  }
+
+  // Load SSH endpoint
+  const auto ssh_endpoint_path = common::getProjSshEndpointPath(proj_path.toStdString());
+  if (!ssh_endpoint_.load(ssh_endpoint_path)) {
+    qt::qErrorBox(this, "Failed to load SSH endpoint.");
     return;
   }
 

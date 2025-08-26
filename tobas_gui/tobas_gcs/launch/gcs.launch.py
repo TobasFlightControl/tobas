@@ -32,17 +32,6 @@ def generate_launch_description():
     ]:
         ros_args += ["--log-level", f"{node_name}:=WARN"]
 
-    # Launch robot state publisher with minimul URDF
-    minimul_urdf = '<robot name="empty"><link name="root"/></robot>'
-    ld.add_action(
-        Node(
-            package="robot_state_publisher",
-            executable="robot_state_publisher",
-            parameters=[{"robot_description": minimul_urdf}],
-            output=output,
-        )
-    )
-
     # Launch property server
     ld.add_action(
         Node(
@@ -59,7 +48,6 @@ def generate_launch_description():
             package="tobas_ssh_server",
             executable="ssh_server_node",
             name="ssh_server",
-            parameters=[{"host": "tobas.local", "port": 22, "user": "pi", "passwd": "raspberry"}],
             ros_arguments=ros_args,
             output=output,
         )

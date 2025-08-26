@@ -1,5 +1,6 @@
 #pragma once
 
+#include <expected>
 #include <filesystem>
 #include <iostream>
 
@@ -29,6 +30,6 @@ bool load(const std::string& key, const YAML::Node& parent, T& value)
 /* YAML::Nodeをテキストに変換する． */
 std::string dump(const YAML::Node& node);
 
-bool load(const std::filesystem::path& path, YAML::Node& node);
+std::expected<YAML::Node, std::string> load(const std::filesystem::path& path);
 bool save(const std::filesystem::path& path, const YAML::Node& node);
 }  // namespace yaml

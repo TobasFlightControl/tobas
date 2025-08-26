@@ -17,8 +17,6 @@ namespace tobas
  */
 class Drone
 {
-  static constexpr char kDroneExt[] = ".tbsdrn";
-
   static constexpr char kNameKey[] = "name";
   static constexpr char kJointsKey[] = "joints";
   static constexpr char kPwmsKey[] = "pwms";

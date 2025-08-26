@@ -2,14 +2,14 @@
 
 #include <tobas_ros2_tools/register.hpp>
 
-using namespace std;
 using namespace tobas_ssh_msgs::srv;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace ssh
 {
 SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
   : node_(node)
+  , set_endpoint_sc_(node, kSetEndpointSrv)
   , connect_sc_(node, kConnectSrv)
   , execute_sc_(node, kExecuteSrv)
   , scp_get_sc_(node, kSCPGetSrv)
@@ -22,19 +22,32 @@ SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
 
 bool SSHClient::fileExists(const fs::path& file_path)
 {
-  string output;
+  std::string output;
   return execute("[ -f " + file_path.string() + " ]", output) == kNoError;
 }
 
 bool SSHClient::dirExists(const fs::path& dir_path)
 {
-  string output;
+  std::string output;
   return execute("[ -d " + dir_path.string() + " ]", output) == kNoError;
+}
+
+SSHClient::Error SSHClient::setEndpoint(const std::string& host, const std::string& user)
+{
+  const auto req = std::make_shared<SetEndpoint::Request>();
+  req->host = host;
+  req->user = user;
+
+  if (!set_endpoint_sc_.call(req)) {
+    return error_code_ = kServiceNotReady;
+  }
+
+  return error_code_ = kNoError;
 }
 
 SSHClient::Error SSHClient::connect()
 {
-  const auto req = make_shared<Connect::Request>();
+  const auto req = std::make_shared<Connect::Request>();
 
   if (!connect_sc_.call(req)) {
     return error_code_ = kServiceNotReady;
@@ -49,11 +62,9 @@ SSHClient::Error SSHClient::connect()
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::execute(const string& command, string& output, bool superuser, bool background)
+SSHClient::Error SSHClient::execute(const std::string& command, std::string& output, bool superuser, bool background)
 {
-  RCLCPP_DEBUG_STREAM(node_->get_logger(), "SSHClient::execute(" << command << ")");
-
-  const auto req = make_shared<Execute::Request>();
+  const auto req = std::make_shared<Execute::Request>();
   req->command = command;
   req->superuser = superuser;
   req->background = background;
@@ -72,15 +83,15 @@ SSHClient::Error SSHClient::execute(const string& command, string& output, bool 
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::execute(const string& command, bool superuser, bool background)
+SSHClient::Error SSHClient::execute(const std::string& command, bool superuser, bool background)
 {
-  string output;
+  std::string output;
   return execute(command, output, superuser, background);
 }
 
-SSHClient::Error SSHClient::scpGet(const string& remote_path, const string& local_path)
+SSHClient::Error SSHClient::scpGet(const std::string& remote_path, const std::string& local_path)
 {
-  const auto req = make_shared<ScpGet::Request>();
+  const auto req = std::make_shared<ScpGet::Request>();
   req->remote_path = remote_path;
   req->local_path = local_path;
 
@@ -98,13 +109,13 @@ SSHClient::Error SSHClient::scpGet(const string& remote_path, const string& loca
 }
 
 SSHClient::Error SSHClient::scpPut(
-  const string& local_dir,
-  const string& remote_dir,
+  const std::string& local_dir,
+  const std::string& remote_dir,
   bool parents,
-  const vector<string>& exclude_dirs,
+  const std::vector<std::string>& exclude_dirs,
   bool superuser)
 {
-  const auto req = make_shared<ScpPut::Request>();
+  const auto req = std::make_shared<ScpPut::Request>();
   req->local_dir = local_dir;
   req->remote_dir = remote_dir;
   req->parents = parents;
@@ -124,9 +135,9 @@ SSHClient::Error SSHClient::scpPut(
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::sftpRead(const string& remote_path, string& text, bool superuser)
+SSHClient::Error SSHClient::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
 {
-  const auto req = make_shared<SftpRead::Request>();
+  const auto req = std::make_shared<SftpRead::Request>();
   req->remote_path = remote_path;
   req->superuser = superuser;
 
@@ -144,9 +155,9 @@ SSHClient::Error SSHClient::sftpRead(const string& remote_path, string& text, bo
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::sftpWrite(const string& remote_path, const string& text, bool superuser)
+SSHClient::Error SSHClient::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
 {
-  const auto req = make_shared<SftpWrite::Request>();
+  const auto req = std::make_shared<SftpWrite::Request>();
   req->remote_path = remote_path;
   req->text = text;
   req->superuser = superuser;
@@ -164,9 +175,9 @@ SSHClient::Error SSHClient::sftpWrite(const string& remote_path, const string& t
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::list(const string& pardir, vector<string>& dst)
+SSHClient::Error SSHClient::list(const std::string& pardir, std::vector<std::string>& dst)
 {
-  const auto req = make_shared<List::Request>();
+  const auto req = std::make_shared<List::Request>();
   req->pardir = pardir;
 
   if (!list_sc_.call(req)) {
