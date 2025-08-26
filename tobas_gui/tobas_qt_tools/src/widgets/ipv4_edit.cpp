@@ -50,7 +50,7 @@ uint32_t IPv4Edit::toInt() const
   for (size_t i = 0; i < kNumFields; ++i) {
     const auto shift = 8 * i;
     const auto value = getFieldValue(i);
-    res |= (value << shift);
+    res |= (static_cast<uint32_t>(value) << shift);
   }
 
   return res;
@@ -89,7 +89,9 @@ uint8_t IPv4Edit::getFieldValue(size_t idx) const
     return 0;
   }
 
-  const auto value = text.toInt();
+  bool ok = false;
+  const auto value = text.toInt(&ok, 10);
+  TOBAS_CHECK(ok);
   TOBAS_CHECK(0 <= value && value <= UINT8_MAX);
   return static_cast<uint8_t>(value);
 }
