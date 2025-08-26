@@ -55,10 +55,10 @@ LandServerNode::LandServerNode(const rclcpp::NodeOptions& options) : super("land
 
 bool LandServerNode::disarmRotors()
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
-
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = false;
+
+  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
   if (!sc.call(req)) {
     TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
     return false;
