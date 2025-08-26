@@ -22,7 +22,7 @@ IPv6Widget::IPv6Widget()
 
 const char* IPv6Widget::label() const
 {
-  return "IPv6";
+  return "IPv6 (Hex)";
 }
 
 bool IPv6Widget::isValid()
