@@ -5,6 +5,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/hostname.hpp"
 #include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv4.hpp"
+#include "tobas_setup_assistant/setting_tabs/remote_connection/host/ipv6.hpp"
 
 namespace gui
 {
@@ -26,6 +27,7 @@ HostWidget::HostWidget()
 
   addRow(grid, group, new HostnameWidget());
   addRow(grid, group, new IPv4Widget());
+  addRow(grid, group, new IPv6Widget());
 
   // Default
   getRadio(0)->setChecked(true);
