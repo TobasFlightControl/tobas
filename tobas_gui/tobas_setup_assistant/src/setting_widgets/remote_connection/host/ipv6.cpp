@@ -22,7 +22,7 @@ IPv6Widget::IPv6Widget()
 
 const char* IPv6Widget::label() const
 {
-  return "IPv6 (Hex)";
+  return "IPv6 (HEX)";
 }
 
 bool IPv6Widget::isValid()
@@ -52,7 +52,7 @@ void IPv6Widget::load(const YAML::Node& node)
 
 QString IPv6Widget::host() const
 {
-  return ipv6_->toString();
+  return '[' + ipv6_->toString() + ']';  // コロンの衝突を防ぐためのカッコをつける
 }
 }  // namespace rc
 }  // namespace sa

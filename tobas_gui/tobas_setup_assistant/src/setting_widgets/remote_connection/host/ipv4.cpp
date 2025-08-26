@@ -21,7 +21,7 @@ IPv4Widget::IPv4Widget()
 
 const char* IPv4Widget::label() const
 {
-  return "IPv4 (Decimal)";
+  return "IPv4 (DEC)";
 }
 
 bool IPv4Widget::isValid()
