@@ -60,6 +60,8 @@ void HostWidget::load(const YAML::Node& node)
     button->setChecked(sub_node[kIsCheckedKey].as<bool>());
     widget->load(sub_node[kSettingsKey]);
   }
+
+  updateEnabled();
 }
 
 QString HostWidget::host() const
