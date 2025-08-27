@@ -1,41 +1,44 @@
 #!/bin/bash
 
-# ROSの依存解決はdebではできないため，別でインストール用アプリケーションを作成している
+# 依存パッケージをインストールする．
+# ROSの依存解決はdebではできないため，別でインストール用アプリケーションを作成している．
+
+set -euo pipefail
 
 # ===== Install ROS2 Jazzy: https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html =====
 # Set locale
-sudo apt update &&
-sudo apt install -y locales &&
-sudo locale-gen en_US en_US.UTF-8 &&
-sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 &&
-export LANG=en_US.UTF-8 &&
+sudo apt update
+sudo apt install -y locales
+sudo locale-gen en_US en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
 
 # Enable required repositories
-sudo apt install -y software-properties-common &&
-yes "" | sudo add-apt-repository universe &&
-sudo apt update &&
-sudo apt install -y curl &&
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg &&
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null &&
-sudo apt update &&
-sudo apt upgrade -y &&
+sudo apt install -y software-properties-common
+yes "" | sudo add-apt-repository universe
+sudo apt update
+sudo apt install -y curl
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+sudo apt update
+sudo apt upgrade -y
 
 # Install development tools (optional)
-sudo apt install -y ros-dev-tools &&
-sudo apt install -y python3-colcon-common-extensions &&
-sudo apt install -y python3-colcon-clean &&
+sudo apt install -y ros-dev-tools
+sudo apt install -y python3-colcon-common-extensions
+sudo apt install -y python3-colcon-clean
 
 # Install ROS 2
-sudo apt install -y ros-jazzy-desktop-full &&
+sudo apt install -y ros-jazzy-desktop-full
 
 # Initialize rosdep
 sudo rosdep init || true  # 既に初期化済みの場合も正常終了
-rosdep update &&
+rosdep update
 
 # ===== Install ROS dependencies of Tobas =====
-# pipを使うと依存管理が面倒なので，Pythonパッケージも極力package.xmlに書いてaptで管理する
-source /opt/ros/jazzy/setup.bash &&
-rosdep install --from-paths /opt/tobas/share/ -yi &&
+# pipを使うと依存管理が面倒なので，Pythonパッケージも極力package.xmlに書いてaptで管理する．
+source /opt/ros/jazzy/setup.bash
+rosdep install --from-paths /opt/tobas/share/ -yi
 
 echo -e "\033[32mInstallation finished successfully. Please close this terminal.\033[0m"
 sleep infinity

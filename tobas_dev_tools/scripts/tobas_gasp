@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# エラーが出たら異常終了
+# Git Add/Stage/Push
+
 set -euo pipefail
 
 # 使い方チェック
