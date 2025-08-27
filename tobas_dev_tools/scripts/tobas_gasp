@@ -2,7 +2,7 @@
 
 # Git Add/Stage/Push
 
-set -euo pipefail
+set -eu
 
 # 使い方チェック
 if [ $# -eq 0 ]; then
