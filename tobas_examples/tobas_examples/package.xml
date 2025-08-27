@@ -1,6 +1,6 @@
 <package format="3">
 
-	<name>tobas</name>
+	<name>tobas_examples</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
@@ -8,11 +8,8 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_core</exec_depend>
-	<exec_depend>tobas_examples</exec_depend>
-	<exec_depend>tobas_gui</exec_depend>
-	<exec_depend>tobas_sdk</exec_depend>
-	<exec_depend>tobas_third_party</exec_depend>
+	<exec_depend>tobas_code_style</exec_depend>
+	<exec_depend>tobas_examples_py</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
