@@ -55,7 +55,7 @@ class SSHClientWrapper:
         except paramiko.SSHException as e:
             raise RuntimeError(f"Failed to establish an SSH connection: {e}")
         except socket.error as e:
-            raise RuntimeError(f"Failed to connect to the server: {e}")
+            raise RuntimeError(f"Failed to connect to {self._user}@{self._host}: {e}")
         except Exception as e:
             raise RuntimeError(f"Unexpected error occurred: {e}")
 
