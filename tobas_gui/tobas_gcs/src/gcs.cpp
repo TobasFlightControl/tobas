@@ -32,7 +32,7 @@ namespace gcs
 GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
   : node_(node)
   , bridge_(node)
-  , property_client_(node, tobas::kPropertyServerName, kPackageName)
+  , property_client_(node, kPackageName)
   , ssh_client_(node)
   , remote_proj_builder_(node)
   , restart_thread_(node)

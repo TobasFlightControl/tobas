@@ -59,16 +59,15 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
   }
 
   // Advertise service servers
-  const auto prefix = std::string(get_name()) + "/";
-  get_bool_ss_ = createService<GetBool>(prefix + kGetBoolSrv, &self::getCb<GetBool>, this);
-  get_int_ss_ = createService<GetInt>(prefix + kGetIntSrv, &self::getCb<GetInt>, this);
-  get_double_ss_ = createService<GetDouble>(prefix + kGetDoubleSrv, &self::getCb<GetDouble>, this);
-  get_string_ss_ = createService<GetString>(prefix + kGetStringSrv, &self::getCb<GetString>, this);
-  set_bool_ss_ = createService<SetBool>(prefix + kSetBoolSrv, &self::setCb<SetBool>, this);
-  set_int_ss_ = createService<SetInt>(prefix + kSetIntSrv, &self::setCb<SetInt>, this);
-  set_double_ss_ = createService<SetDouble>(prefix + kSetDoubleSrv, &self::setCb<SetDouble>, this);
-  set_string_ss_ = createService<SetString>(prefix + kSetStringSrv, &self::setCb<SetString>, this);
-  save_file_ss_ = createService<Trigger>(prefix + kSaveFileSrv, &self::saveFileCb, this);
+  get_bool_ss_ = createService<GetBool>(kGetBoolSrv, &self::getCb<GetBool>, this);
+  get_int_ss_ = createService<GetInt>(kGetIntSrv, &self::getCb<GetInt>, this);
+  get_double_ss_ = createService<GetDouble>(kGetDoubleSrv, &self::getCb<GetDouble>, this);
+  get_string_ss_ = createService<GetString>(kGetStringSrv, &self::getCb<GetString>, this);
+  set_bool_ss_ = createService<SetBool>(kSetBoolSrv, &self::setCb<SetBool>, this);
+  set_int_ss_ = createService<SetInt>(kSetIntSrv, &self::setCb<SetInt>, this);
+  set_double_ss_ = createService<SetDouble>(kSetDoubleSrv, &self::setCb<SetDouble>, this);
+  set_string_ss_ = createService<SetString>(kSetStringSrv, &self::setCb<SetString>, this);
+  save_file_ss_ = createService<Trigger>(kSaveFileSrv, &self::saveFileCb, this);
 }
 
 template <typename SrvType>

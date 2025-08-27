@@ -32,7 +32,7 @@ namespace sa
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : jnt_parser_(tree_)
   , axis_solver_(tree_)
-  , property_client_(node, tobas::kPropertyServerName, kPackageName)
+  , property_client_(node, kPackageName)
   , rsp_client_(node, "robot_state_publisher")
   , rotor_marker_publisher_(node, uadf_)
 {

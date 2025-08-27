@@ -34,7 +34,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   , title_(title)
   , labels_(labels)
   , num_entry_(labels.size())
-  , property_client_(node, tobas::kPropertyServerName, kPackageName)
+  , property_client_(node, kPackageName)
 {
   TOBAS_CHECK(num_entry_ > 0);
 

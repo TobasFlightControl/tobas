@@ -15,7 +15,7 @@ namespace gui
 namespace sim
 {
 WorldWidget_Custom::WorldWidget_Custom(rclcpp::Node::SharedPtr node)
-  : super("Custom World"), node_(node), property_client_(node, tobas::kPropertyServerName, kPackageName)
+  : super("Custom World"), node_(node), property_client_(node, kPackageName)
 {
   file_text_ = new QLineEdit();
   file_text_->setReadOnly(true);

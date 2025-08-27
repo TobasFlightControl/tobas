@@ -4,7 +4,6 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
 #include <tobas_ros2_tools/urdf_exporter.hpp>
@@ -21,8 +20,9 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   : uadf_(uadf), tree_(tree), rviz_manager_("rviz_robot_state_display")
 {
   // Declare rosparams
-  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, tobas::kMinimulURDF);
-  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
+  constexpr char kMinimulUrdf[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
+  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, kMinimulUrdf);
+  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, kMinimulUrdf);  // MoveItが要求
 
   // Initialize Rviz
   const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";

@@ -17,8 +17,7 @@ using namespace tobas_property_msgs::srv;
 
 namespace ptree
 {
-PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& ns, const string& section)
-  : node_(node), ns_(ns), section_(section)
+PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& section) : node_(node), section_(section)
 {
 }
 
@@ -116,7 +115,7 @@ PropertyClient::Error PropertyClient::set(const string& key, const float& value)
 
 PropertyClient::Error PropertyClient::save()
 {
-  ros2::SyncServiceClient<Trigger> sc(node_, path::join(ns_, kSaveFileSrv));
+  ros2::SyncServiceClient<Trigger> sc(node_, kSaveFileSrv);
 
   const auto req = make_shared<Trigger::Request>();
 

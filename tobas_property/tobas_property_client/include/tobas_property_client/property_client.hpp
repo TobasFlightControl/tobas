@@ -2,7 +2,6 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_property_common/constants.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
@@ -25,10 +24,7 @@ public:
     kServerError = -3,
   };
 
-  explicit PropertyClient(
-    rclcpp::Node::SharedPtr node,
-    const std::string& ns = "",
-    const std::string& section = "DEFAULT");
+  explicit PropertyClient(rclcpp::Node::SharedPtr node, const std::string& section = "DEFAULT");
 
   Error get(const std::string& key, bool& value);
   Error get(const std::string& key, int& value);
@@ -55,7 +51,6 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const std::string ns_;
   const std::string section_;
 
   Error error_code_ = kNoError;
@@ -73,7 +68,7 @@ PropertyClient::Error PropertyClient::getProperty(const std::string& key, T& val
 {
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "Get property requested: " << key);
 
-  ros2::SyncServiceClient<SrvType> sc(node_, path::join(ns_, SrvName));
+  ros2::SyncServiceClient<SrvType> sc(node_, SrvName);
 
   const auto req = std::make_shared<typename SrvType::Request>();
   req->section = section_;
@@ -99,7 +94,7 @@ PropertyClient::Error PropertyClient::setProperty(const std::string& key, T& val
 {
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "Set property requested: " << key << ", " << value);
 
-  ros2::SyncServiceClient<SrvType> sc(node_, path::join(ns_, SrvName));
+  ros2::SyncServiceClient<SrvType> sc(node_, SrvName);
 
   const auto req = std::make_shared<typename SrvType::Request>();
   req->section = section_;

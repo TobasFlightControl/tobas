@@ -13,12 +13,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(std_srvs REQUIRED)
-find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_common REQUIRED)
 find_package(tobas_property_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES std_srvs tobas_path_tools tobas_ros2_tools tobas_property_common tobas_property_msgs)
+set(AMENT_DEPENDENCIES std_srvs tobas_ros2_tools tobas_property_common tobas_property_msgs)
 
 include_directories(include)
 

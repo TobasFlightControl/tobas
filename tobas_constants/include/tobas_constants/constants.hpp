@@ -166,8 +166,6 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;  // [s]
 // Others
 static constexpr char kFmuUserName[] = "pi";
 static constexpr char kProjectExtension[] = ".TBS";
-static constexpr char kPropertyServerName[] = "/property_server";
-static constexpr char kMinimulURDF[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
 static constexpr double kMinAirSpeedThresh = 0.1;          // [m/s] 空力計算を行う最小風速
 static constexpr size_t kMaxRosbagSize = 5'000'000'000UL;  // [byte]
 }  // namespace tobas

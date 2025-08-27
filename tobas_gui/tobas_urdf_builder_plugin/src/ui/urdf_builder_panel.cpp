@@ -10,8 +10,6 @@
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
 
-#include <tobas_constants/constants.hpp>
-
 #include "ui_urdf_builder_panel.h"
 
 #include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
@@ -37,7 +35,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
   : rviz_common::Panel(parent)
   , node_manager_(0, nullptr, "urdf_builder")
   , node_(node_manager_.node())
-  , property_client_(node_, tobas::kPropertyServerName, kPropertySection)
+  , property_client_(node_, kPropertySection)
 {
   ui_ = new Ui::URDFBuilderPanelUI();
   ui_->setupUi(this);
