@@ -8,10 +8,13 @@
 
 namespace tobas
 {
-namespace sak
+namespace ssh
+{
+namespace ak
 {
 std::expected<Data, std::string> parseLine(const std::string& line);
 
 std::expected<std::vector<Data>, std::string> parseFile(const std::filesystem::path& path);
-}  // namespace sak
+}  // namespace ak
+}  // namespace ssh
 }  // namespace tobas

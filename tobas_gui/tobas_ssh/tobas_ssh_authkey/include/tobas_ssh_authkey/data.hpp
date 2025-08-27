@@ -7,7 +7,9 @@
 
 namespace tobas
 {
-namespace sak
+namespace ssh
+{
+namespace ak
 {
 struct Data
 {
@@ -15,5 +17,6 @@ struct Data
   ssh_key key = nullptr;
   std::string comment = "";
 };
-}  // namespace sak
+}  // namespace ak
+}  // namespace ssh
 }  // namespace tobas

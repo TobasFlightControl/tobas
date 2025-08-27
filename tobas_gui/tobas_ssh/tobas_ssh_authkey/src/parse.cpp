@@ -8,7 +8,9 @@ namespace fs = std::filesystem;
 
 namespace tobas
 {
-namespace sak
+namespace ssh
+{
+namespace ak
 {
 std::expected<Data, std::string> parseLine(const std::string& line)
 {
@@ -82,5 +84,6 @@ std::expected<std::vector<Data>, std::string> parseFile(const fs::path& path)
   file.close();
   return res;
 }
-}  // namespace sak
+}  // namespace ak
+}  // namespace ssh
 }  // namespace tobas

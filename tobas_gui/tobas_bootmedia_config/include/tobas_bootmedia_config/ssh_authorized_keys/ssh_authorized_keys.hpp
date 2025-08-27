@@ -41,10 +41,10 @@ private:
   QPushButton* remove_button_;
   QPushButton* clear_button_;
 
-  std::vector<sak::Data> keys_;
+  std::vector<ssh::ak::Data> keys_;
   qt::ListWidget* list_;
 
-  void addKey(const sak::Data& key);
+  void addKey(const ssh::ak::Data& key);
   bool writeCurrentConfig();
 
   static std::string authorizedKeysPath();

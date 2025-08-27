@@ -2,7 +2,9 @@
 
 namespace tobas
 {
-namespace sak
+namespace ssh
+{
+namespace ak
 {
 namespace
 {
@@ -67,5 +69,6 @@ std::expected<std::string, std::string> prettify(const Data& src)
 
   return std::string(key_type_name) + " " + fp_sha256 + " " + src.comment;
 }
-}  // namespace sak
+}  // namespace ak
+}  // namespace ssh
 }  // namespace tobas

@@ -24,19 +24,19 @@ int main(int argc, char** argv)
 
   const auto original_line = str::trim(raw_text);
 
-  const auto data = tobas::sak::parseLine(original_line);
+  const auto data = tobas::ssh::ak::parseLine(original_line);
   if (!data) {
     cerr << data.error() << endl;
     return EXIT_FAILURE;
   }
 
-  const auto exported_line = tobas::sak::exportLine(data.value());
+  const auto exported_line = tobas::ssh::ak::exportLine(data.value());
   if (!exported_line) {
     cerr << exported_line.error() << endl;
     return EXIT_FAILURE;
   }
 
-  const auto prettified_line = tobas::sak::prettify(data.value());
+  const auto prettified_line = tobas::ssh::ak::prettify(data.value());
   if (!prettified_line) {
     cerr << prettified_line.error() << endl;
     return EXIT_FAILURE;

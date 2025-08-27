@@ -4,7 +4,9 @@
 
 namespace tobas
 {
-namespace sak
+namespace ssh
+{
+namespace ak
 {
 std::expected<std::string, std::string> exportLine(const Data& src)
 {
@@ -31,5 +33,6 @@ std::expected<std::string, std::string> exportLine(const Data& src)
 
   return line;
 }
-}  // namespace sak
+}  // namespace ak
+}  // namespace ssh
 }  // namespace tobas

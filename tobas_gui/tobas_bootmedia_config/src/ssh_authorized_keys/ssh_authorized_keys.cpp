@@ -73,11 +73,11 @@ void SshAuthorizedKeysWidget::reset()
   list_->clear();
 }
 
-void SshAuthorizedKeysWidget::addKey(const sak::Data& key)
+void SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& key)
 {
   keys_.push_back(key);
 
-  const auto key_disp = sak::prettify(key).value();
+  const auto key_disp = ssh::ak::prettify(key).value();
   list_->addItem(QString::fromStdString(key_disp));
 }
 
@@ -86,7 +86,7 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
   // 全ての鍵をテキストに出力
   std::string content;
   for (const auto& key : keys_) {
-    const auto line = sak::exportLine(key);
+    const auto line = ssh::ak::exportLine(key);
     if (!line) {
       qt::qErrorBox(this, "Failed to export SSH key: " + QString::fromStdString(line.error()));
       return false;
@@ -116,7 +116,7 @@ void SshAuthorizedKeysWidget::onReadButtonClicked()
 
   if (fs::exists(file_path)) {
     // ファイルを解析して鍵を取得
-    const auto keys = sak::parseFile(authorizedKeysPath());
+    const auto keys = ssh::ak::parseFile(authorizedKeysPath());
     if (!keys) {
       qt::qErrorBox(this, QString::fromStdString(keys.error()));
       return;
@@ -156,7 +156,7 @@ void SshAuthorizedKeysWidget::onAddButtonClicked()
 
   // 鍵を解析
   const auto line = dialog.getKey().toStdString();
-  const auto key = sak::parseLine(line);
+  const auto key = ssh::ak::parseLine(line);
   if (!key) {
     qt::qErrorBox(this, "Invalid key: " + QString::fromStdString(key.error()));
     return;
