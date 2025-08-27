@@ -79,13 +79,13 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
 
   load_btn_ = new QPushButton("Load Project");
   write_btn_ = new QPushButton("Write Project");
-
-  load_btn_->setEnabled(true);
   write_btn_->setEnabled(false);
 
   // Power control buttons
   restart_btn_ = new RestartButton(kPowerButtonRadius);
   shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
+  restart_btn_->setEnabled(false);
+  shutdown_btn_->setEnabled(false);
 
   // Layout
   const auto pkg_btn_cols = new QHBoxLayout();
@@ -243,8 +243,10 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // 内部状態を更新
   updateInternalDataStructures();
 
-  // Writeボタンを有効化
+  // 制御ボタンを有効化
   write_btn_->setEnabled(true);
+  restart_btn_->setEnabled(true);
+  shutdown_btn_->setEnabled(true);
 
   // ロードが成功したことを示すダイアログ
   qt::qInfoBox(this, "Tobas project is loaded successfully.");

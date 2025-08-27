@@ -31,6 +31,18 @@ RestartButton::RestartButton(int radius) : super("↻")
       background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #006600, stop:1 #003300);
       padding-top: 2px;
     }
+    QPushButton:disabled {
+      background-color: qlineargradient(
+        spread:pad,
+        x1:0.5,
+        y1:0,
+        x2:0.5,
+        y2:1,
+        stop:0 rgba(102,255,102,0.5),
+        stop:1 rgba(0,153,0,0.5));
+      border-color: rgba(0,0,0,0.5);
+      color: rgba(255,255,255,0.5);
+    }
   )";
   qss = qss.arg(radius).arg(font_size).arg(diameter);
   setStyleSheet(qss);
