@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_rviz_wrapper)
 
-file(READ "/etc/os-release" OS_RELEASE_CONTENT)
-if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
-  message(STATUS "This package is skipped on Raspberry Pi.")
-  find_package(ament_cmake REQUIRED)
-  ament_package()
-  return()
-endif()
-
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
