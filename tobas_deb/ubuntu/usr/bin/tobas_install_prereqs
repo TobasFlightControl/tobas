@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# 依存パッケージをインストールする．
-# ROSの依存解決はdebではできないため，別でインストール用アプリケーションを作成している．
-
 set -euo pipefail
 
 # ===== Install ROS2 Jazzy: https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html =====
@@ -36,7 +33,6 @@ sudo rosdep init || true  # 既に初期化済みの場合も正常終了
 rosdep update
 
 # ===== Install ROS dependencies of Tobas =====
-# pipを使うと依存管理が面倒なので，Pythonパッケージも極力package.xmlに書いてaptで管理する．
 source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths /opt/tobas/share/ -yi
 
