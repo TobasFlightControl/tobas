@@ -13,13 +13,14 @@ class SSHServerNode(Node):
     def __init__(self) -> None:
         super().__init__("ssh_server")
 
-        host = self.get_parameter("host")
-        user = self.get_parameter("user")
+        host = self.get_parameter_or("host")
+        user = self.get_parameter_or("user")
 
+        self._cli = None
         if host.type_ != Parameter.Type.NOT_SET and user.type_ != Parameter.Type.NOT_SET:
-            self._cli = SSHClientWrapper(host, user=user)
+            self._cli = SSHClientWrapper(host.value, user=user.value)
             self._create_ssh_services()
-            self._client_ready_info(host, user)
+            self._client_ready_info(host.value, user.value)
 
         self._set_endpoint_ss = self.create_service(SetEndpoint, "ssh/set_endpoint", self._set_endpoint_cb)
 
