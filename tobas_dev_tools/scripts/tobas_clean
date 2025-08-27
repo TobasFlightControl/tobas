@@ -30,11 +30,14 @@ cd /etc/tobas/colcon_ws/
 sudo colcon clean workspace -y
 sudo rm -rf ./src/*
 
-# Clear network settings
+# Clear Wi-Fi client settings
 sudo sed -i '4,$ d' /etc/wpa_supplicant/wpa_supplicant.conf
 if [ $? -ne 0 ]; then
   echo "Failed to edit /etc/wpa_supplicant/wpa_supplicant.conf." >&2
   exit 1
 fi
+
+# Clear Wi-Fi hotspot settings
+rm -rf /etc/hostapd/hostapd.conf
 
 echo -e "\033[32mCleaning finished successfully.\033[0m"
