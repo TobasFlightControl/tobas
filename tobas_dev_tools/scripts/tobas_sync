@@ -1,13 +1,29 @@
 #!/bin/bash
 
-# Check user and host
-if [ "$(id -un)" = "pi" ] && [ "$(hostname -s)" = "tobas" ]; then
+set -eu
+
+# Show usage
+if [ $# -eq 0 ]; then
+  echo "Usage: $(basename "$0") <host>"
+  exit 1
+fi
+
+# Check username
+if [ "$(id -un)" = "pi" ]; then
   echo "This script cannot be executed on RPi." >&2
   exit 1
 fi
 
-# Tobasリポジトリの親ディレクトリに移動
-cd $(realpath $(dirname "$0"))/../../../
+# Navigate to Tobas root path
+cd $(realpath $(dirname "$0"))/../../
 
-# Gitが追跡しているファイルのみリモートと同期
-rsync -av --delete --exclude-from=./tobas/.gitignore --exclude .git/ ./tobas pi@tobas:~/colcon_ws/src/
+# Sync
+rsync -av --delete \
+  tobas tobas_core tobas_dev_tools tobas_sdk tobas_third_party \
+  --exclude-from .gitignore \
+  --exclude .git/ \
+  --exclude tobas_cui/ \
+  --exclude tobas_description/ \
+  --exclude tobas_gazebo/ \
+  --exclude tobas_legged_robot/ \
+  pi@$1:~/colcon_ws/src/tobas/

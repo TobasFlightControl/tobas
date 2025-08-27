@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Check user and host
-if [ "$(id -un)" != "pi" ] || [ "$(hostname -s)" != "tobas" ]; then
+# Check username
+if [ "$(id -un)" != "pi" ]; then
   echo "This script can only be executed on RPi." >&2
   exit 1
 fi
