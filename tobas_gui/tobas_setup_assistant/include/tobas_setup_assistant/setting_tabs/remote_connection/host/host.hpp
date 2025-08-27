@@ -20,11 +20,8 @@ class HostWidget : public QWidget
   using self = HostWidget;
   using super = QWidget;
 
-  struct Line
-  {
-    QRadioButton* button;
-    BaseHostWidget* widget;
-  };
+  static constexpr char kIsCheckedKey[] = "is_checked";
+  static constexpr char kSettingsKey[] = "settings";
 
 public:
   explicit HostWidget();
@@ -37,7 +34,8 @@ public:
   QString host() const;
 
 private:
-  QVector<Line> lines_;
+  QVector<QRadioButton*> buttons_;
+  QVector<BaseHostWidget*> widgets_;
 
   void addRow(qt::FormLayout* form, QButtonGroup* group, BaseHostWidget* widget);
 
@@ -45,12 +43,6 @@ private:
 
   int rowCount() const;
   int findCurrentRow() const;
-
-  QRadioButton* getRadio(int row);
-  const QRadioButton* getRadio(int row) const;
-
-  BaseHostWidget* getWidget(int row);
-  const BaseHostWidget* getWidget(int row) const;
 
 private Q_SLOTS:
   void onButtonGroupIdClicked();

@@ -66,6 +66,7 @@ private:
   bool generateObserverStaticConfig(const std::filesystem::path& proj_path);
   bool generateControllerStaticConfig(const std::filesystem::path& proj_path);
   bool generateRcTeleopStaticConfig(const std::filesystem::path& proj_path);
+  bool generateSshEndpointConfig(const std::filesystem::path& proj_path);
   bool generateOriginalUadf(const std::filesystem::path& proj_path);
   bool generateModifiedUrdf(const std::filesystem::path& proj_path);
 

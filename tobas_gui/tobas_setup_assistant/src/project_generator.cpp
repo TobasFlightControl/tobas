@@ -1,9 +1,8 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
-#include <QDebug>
-
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/path.hpp>
+#include <tobas_gui_common/ssh_endpoint.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -479,6 +478,9 @@ bool ProjectGenerator::generateConfigPackage(const fs::path& proj_path, const in
   if (!generateRcTeleopStaticConfig(proj_path)) {
     return false;
   }
+  if (!generateSshEndpointConfig(proj_path)) {
+    return false;
+  }
   if (!generateOriginalUadf(proj_path)) {
     return false;
   }
@@ -815,7 +817,21 @@ bool ProjectGenerator::generateRcTeleopStaticConfig(const fs::path& proj_path)
   return true;
 }
 
-bool ProjectGenerator::generateOriginalUadf(const std::filesystem::path& proj_path)
+bool ProjectGenerator::generateSshEndpointConfig(const fs::path& proj_path)
+{
+  common::SshEndpoint ssh_endpoint;
+  ssh_endpoint.host = settings_->remote_connection->host().toStdString();
+  ssh_endpoint.user = tobas::kFmuUserName;
+
+  if (!ssh_endpoint.save(common::getProjSshEndpointPath(proj_path))) {
+    qt::qErrorBox(settings_, "Failed to save the SSH endpoint.");
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateOriginalUadf(const fs::path& proj_path)
 {
   // Export the original UADF
   const auto doc = uadf::exportUADF(uadf_);
@@ -1227,7 +1243,7 @@ void ProjectGenerator::addJointControllerNode(
 }
 
 bool ProjectGenerator::generateJointControllerConfig(
-  const std::filesystem::path& proj_path,
+  const fs::path& proj_path,
   const std::string& jnt_name,
   const tobas::JointCommandInterface& cmd_iface)
 {

@@ -61,6 +61,11 @@ void RemoteConnectionWidget::load(const YAML::Node& node)
 {
   host_->load(node[kHostLabel]);
 }
+
+QString RemoteConnectionWidget::host() const
+{
+  return host_->host();
+}
 }  // namespace rc
 }  // namespace sa
 }  // namespace gui
