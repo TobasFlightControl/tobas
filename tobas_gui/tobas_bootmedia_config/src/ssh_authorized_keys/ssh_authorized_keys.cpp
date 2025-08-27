@@ -1,5 +1,6 @@
 #include "tobas_bootmedia_config/ssh_authorized_keys/ssh_authorized_keys.hpp"
 
+#include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ssh_authkey/export.hpp>
 #include <tobas_ssh_authkey/parse.hpp>
@@ -9,6 +10,8 @@
 
 #include "tobas_bootmedia_config/constants.hpp"
 #include "tobas_bootmedia_config/ssh_authorized_keys/add_key_dialog.hpp"
+
+namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -92,9 +95,9 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
   }
 
   // 設定を書き込む
-  const auto path = authorizedKeysPath();
-  if (!str::writeText(path, content)) {
-    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(path));
+  const auto file_path = authorizedKeysPath();
+  if (!str::writeText(file_path, content)) {
+    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(file_path));
     return false;
   }
 
@@ -109,18 +112,29 @@ std::string SshAuthorizedKeysWidget::authorizedKeysPath()
 
 void SshAuthorizedKeysWidget::onReadButtonClicked()
 {
-  // ファイルを解析して鍵を取得
-  const auto keys = sak::parseFile(authorizedKeysPath());
-  if (!keys) {
-    qt::qErrorBox(this, QString::fromStdString(keys.error()));
-    return;
-  }
+  const auto file_path = authorizedKeysPath();
 
-  // 現在の鍵をリストに反映
-  keys_.clear();
-  list_->clear();
-  for (const auto& key : keys.value()) {
-    addKey(key);
+  if (fs::exists(file_path)) {
+    // ファイルを解析して鍵を取得
+    const auto keys = sak::parseFile(authorizedKeysPath());
+    if (!keys) {
+      qt::qErrorBox(this, QString::fromStdString(keys.error()));
+      return;
+    }
+
+    // 現在の鍵をリストに反映
+    keys_.clear();
+    list_->clear();
+    for (const auto& key : keys.value()) {
+      addKey(key);
+    }
+  }
+  else {
+    // ファイルが存在しなければ作る
+    if (!path::createFilePath(file_path)) {
+      qt::qErrorBox(this, "Failed to create file: " + QString::fromStdString(file_path));
+      return;
+    }
   }
 
   // 編集用ボタンを有効化

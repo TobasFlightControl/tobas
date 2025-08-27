@@ -22,6 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(inja_ament REQUIRED)
+find_package(tobas_path_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_crypt REQUIRED)
 find_package(tobas_ssh_authkey REQUIRED)
@@ -32,6 +33,7 @@ find_package(tobas_qt_tools REQUIRED)
 set(AMENT_DEPENDENCIES
     ament_index_cpp
     inja_ament
+    tobas_path_tools
     tobas_constants
     tobas_crypt
     tobas_ssh_authkey
