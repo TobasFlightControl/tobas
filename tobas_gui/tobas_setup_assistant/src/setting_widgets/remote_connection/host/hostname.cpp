@@ -52,7 +52,7 @@ void HostnameWidget::load(const YAML::Node& node)
 
 QString HostnameWidget::host() const
 {
-  return hostname_->text();
+  return hostname_->text() + ".local";
 }
 }  // namespace rc
 }  // namespace sa
