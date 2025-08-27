@@ -1,5 +1,6 @@
 #include "tobas_setup_assistant/setting_tabs/remote_connection/remote_connection.hpp"
 
+#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
@@ -11,6 +12,8 @@ namespace rc
 RemoteConnectionWidget::RemoteConnectionWidget()
 {
   addWidget(new qt::Label(kHostLabel, kLabelPSize, QFont::Bold));
+  addWidget(new qt::DescriptionWidget(
+    "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", kBodyPSize));
 
   host_ = new HostWidget();
   addWidget(host_);
@@ -30,8 +33,10 @@ const char* RemoteConnectionWidget::title() const
 
 const char* RemoteConnectionWidget::description() const
 {
-  return "Configure the settings required for remote communication with the flight controller. "
-         "Please enter appropriate values in each field.";
+  return "Configure the settings required to connect remotely "
+         "from the ground control station (GCS) to the flight controller (FC). "
+         "Enter your flight controller’s settings in each field. "
+         "These are GCS-side settings and do not change any configuration on the FC.";
 }
 
 void RemoteConnectionWidget::updateInternalDataStructures()
