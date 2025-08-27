@@ -41,4 +41,3 @@ else
   fi
   git push -u "$remote" HEAD
 fi
-bash ${PARDIR}/tobas_build_release --packages-select $1
