@@ -16,6 +16,7 @@ rm -rf ~/.emacs.d/*
 rm -rf ~/.vscode-server/*
 rm ~/.bash_history*
 rm ~/.python_history*
+rm ~/.wget-hsts
 
 # Remove personal information
 rm -rf ~/.gnupg/*
