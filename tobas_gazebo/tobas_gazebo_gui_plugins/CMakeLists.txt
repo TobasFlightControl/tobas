@@ -31,9 +31,6 @@ find_package(gz-plugin REQUIRED)
 
 set(AMENT_DEPENDENCIES tobas_gazebo_common tobas_gazebo_conversions tobas_gazebo_tools)
 
-# add_definitions(-DQT_NO_KEYWORDS)
-set(CMAKE_AUTOMOC ON)
-
 include_directories(include)
 
 # Build common library
