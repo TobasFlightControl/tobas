@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
 #include "./base.hpp"
 

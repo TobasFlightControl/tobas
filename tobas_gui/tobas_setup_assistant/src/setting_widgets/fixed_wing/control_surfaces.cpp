@@ -7,7 +7,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/font.hpp>
-#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"

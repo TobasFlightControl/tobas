@@ -21,7 +21,7 @@ public:
   void setValue(int value);
 
 private:
-  qt::SpinBox* spinbox_;
+  qt::SpinBox* spin_box_;
 };
 }  // namespace field
 }  // namespace ctrl

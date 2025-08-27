@@ -10,16 +10,16 @@ namespace field
 {
 AltitudeWidget::AltitudeWidget()
 {
-  spinbox_ = new qt::DoubleSpinBox();
-  spinbox_->setDecimals(2);
-  spinbox_->setValue(5.);
-  spinbox_->setSuffix(" m");
+  spin_box_ = new qt::DoubleSpinBox();
+  spin_box_->setDecimals(2);
+  spin_box_->setValue(5.);
+  spin_box_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
-  cols->addWidget(spinbox_);
+  cols->addWidget(spin_box_);
 
-  connect(spinbox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
 }
 
 const char* AltitudeWidget::label() const
@@ -29,12 +29,12 @@ const char* AltitudeWidget::label() const
 
 double AltitudeWidget::value() const
 {
-  return spinbox_->value();
+  return spin_box_->value();
 }
 
 void AltitudeWidget::setValue(double value)
 {
-  spinbox_->setValue(value);
+  spin_box_->setValue(value);
 }
 }  // namespace field
 }  // namespace ctrl

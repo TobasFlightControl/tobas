@@ -3,7 +3,7 @@
 #include <eigen3/Eigen/Core>
 
 #include "./base.hpp"
-#include "./scalar_getter.hpp"
+#include "./double_getter.hpp"
 
 namespace gui
 {

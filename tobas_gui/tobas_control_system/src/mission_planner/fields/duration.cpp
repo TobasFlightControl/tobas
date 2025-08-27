@@ -10,16 +10,16 @@ namespace field
 {
 DurationWidget::DurationWidget()
 {
-  spinbox_ = new qt::SpinBox();
-  spinbox_->setMinimum(1);
-  spinbox_->setValue(10);
-  spinbox_->setSuffix(" s");
+  spin_box_ = new qt::SpinBox();
+  spin_box_->setMinimum(1);
+  spin_box_->setValue(10);
+  spin_box_->setSuffix(" s");
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
-  cols->addWidget(spinbox_);
+  cols->addWidget(spin_box_);
 
-  connect(spinbox_, QOverload<int>::of(&QSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<int>::of(&QSpinBox::valueChanged), this, &BaseField::updated);
 }
 
 const char* DurationWidget::label() const
@@ -29,12 +29,12 @@ const char* DurationWidget::label() const
 
 int DurationWidget::value() const
 {
-  return spinbox_->value();
+  return spin_box_->value();
 }
 
 void DurationWidget::setValue(int value)
 {
-  spinbox_->setValue(value);
+  spin_box_->setValue(value);
 }
 }  // namespace field
 }  // namespace ctrl

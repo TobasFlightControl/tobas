@@ -3,7 +3,7 @@
 #include <tobas_std_tools/range.hpp>
 
 #include "./base.hpp"
-#include "./scalar_getter.hpp"
+#include "./int_getter.hpp"
 
 namespace gui
 {

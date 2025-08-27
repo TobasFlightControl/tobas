@@ -10,17 +10,17 @@ namespace field
 {
 AltitudeToleranceWidget::AltitudeToleranceWidget()
 {
-  spinbox_ = new qt::DoubleSpinBox();
-  spinbox_->setDecimals(2);
-  spinbox_->setMinimum(1e-2);
-  spinbox_->setValue(1.);
-  spinbox_->setSuffix(" m");
+  spin_box_ = new qt::DoubleSpinBox();
+  spin_box_->setDecimals(2);
+  spin_box_->setMinimum(1e-2);
+  spin_box_->setValue(1.);
+  spin_box_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
-  cols->addWidget(spinbox_);
+  cols->addWidget(spin_box_);
 
-  connect(spinbox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
 }
 
 const char* AltitudeToleranceWidget::label() const
@@ -30,12 +30,12 @@ const char* AltitudeToleranceWidget::label() const
 
 double AltitudeToleranceWidget::value() const
 {
-  return spinbox_->value();
+  return spin_box_->value();
 }
 
 void AltitudeToleranceWidget::setValue(double value)
 {
-  spinbox_->setValue(value);
+  spin_box_->setValue(value);
 }
 }  // namespace field
 }  // namespace ctrl
