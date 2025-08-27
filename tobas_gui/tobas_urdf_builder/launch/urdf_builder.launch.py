@@ -28,6 +28,7 @@ def generate_launch_description():
         executable="property_server",
         ros_arguments=ros_args,
         output=output,
+        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
     ld.add_action(property_server)
 
