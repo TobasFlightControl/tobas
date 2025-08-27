@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# エラーが出たら異常終了
+set -euo pipefail
+
+# 使い方チェック
+if [ $# -eq 0 ]; then
+  echo "Usage: $(basename "$0") <commit message>"
+  exit 1
+fi
+
+# リポジトリのルートに移動
+PARDIR=$(realpath $(dirname "$0"))
+cd ${PARDIR}/../../
+
+# リポジトリ内か確認
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "Error: not a git repository (run inside a repo)."
+  exit 1
+fi
+
+# 全ての変更をステージ
+git add -A
+
+# 変更があればコミット
+if ! git diff --cached --quiet; then
+  msg="$*" # 全ての引数をメッセージにまとめる
+  git commit -m "$msg"
+else
+  echo "Nothing to commit (working tree clean after add)."
+fi
+
+# プッシュ: upstream が設定されていればそれを使う．なければ最初のリモートに -u で設定．
+if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+  git push
+else
+  remote="$(git remote | head -n1 || true)"
+  if [ -z "$remote" ]; then
+    echo "No remote configured. Set a remote (e.g., 'origin') then run again."
+    exit 2
+  fi
+  git push -u "$remote" HEAD
+fi
+bash ${PARDIR}/tobas_build_release --packages-select $1
