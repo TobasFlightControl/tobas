@@ -155,8 +155,7 @@ bool TiltRotorMixer_pinv::solve(
     const auto col = 2 * idx;
     if (is_singular_.at(rotor->link_name) || !rotor_alive_.at(rotor->link_name)) {
       // 特異状態もしくはロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
-      E_.block<3, 2>(0, col).setZero();
-      E_.block<3, 2>(3, col).setZero();
+      E_.middleCols<2>(col).setZero();
     }
     else {
       const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(rotor->link_name);
