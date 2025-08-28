@@ -34,7 +34,7 @@ const char* ActiveTiltMulticopterWidget::name() const
 
 QString ActiveTiltMulticopterWidget::controllerPackage() const
 {
-  return "tobas_tiltrotor_pid";
+  return "tobas_random_axis_tilt_multi_controller";
 }
 
 QString ActiveTiltMulticopterWidget::pluginName() const

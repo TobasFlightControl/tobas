@@ -89,7 +89,7 @@ void ControllerWidget::setFrameType(const FrameType& type)
     case FrameType::kNonPlanarMulticopter:
       stack_->setCurrentWidget(nonplanar_multicopter_);
       break;
-    case FrameType::kActiveTiltMulticopter:
+    case FrameType::kRandomAxisTiltMulticopter:
       stack_->setCurrentWidget(active_tilt_multicopter_);
       break;
     case FrameType::kFixedWing:

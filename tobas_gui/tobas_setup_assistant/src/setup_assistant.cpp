@@ -263,7 +263,7 @@ FrameType SetupAssistantWidget::determineFrameType()
         msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis.\n";
 
         // TODO: 可操作度による分類
-        return FrameType::kActiveTiltMulticopter;
+        return FrameType::kRandomAxisTiltMulticopter;
       }
       else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
         msg += "  - which has a tilt axis that is not perpendicular to the propeller rotation axis\n";

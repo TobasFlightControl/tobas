@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_tiltrotor_pid)
+project(tobas_fixed_wing_controller)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,14 +12,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_control REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_pose_pid REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_debug_msgs_adapter REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_node tobas_pose_pid tobas_tools tobas_drone_tools tobas_drone_msgs_adapter
+set(AMENT_DEPENDENCIES tobas_control tobas_node tobas_tools tobas_drone_tools tobas_drone_msgs_adapter
                        tobas_debug_msgs_adapter
 )
 

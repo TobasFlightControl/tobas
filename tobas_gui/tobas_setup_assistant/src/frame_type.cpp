@@ -23,7 +23,7 @@ string textFromEnum(FrameType arg)
       return PLANAR_MULTICOPTER;
     case FrameType::kNonPlanarMulticopter:
       return NON_PLANAR_MULTICOPTER;
-    case FrameType::kActiveTiltMulticopter:
+    case FrameType::kRandomAxisTiltMulticopter:
       return ACTIVE_TILT_MULTICOPTER;
     case FrameType::kFixedWing:
       return FIXED_WING;
@@ -47,7 +47,7 @@ bool enumFromText(const string& text, FrameType& dst)
     return true;
   }
   else if (text == ACTIVE_TILT_MULTICOPTER) {
-    dst = FrameType::kActiveTiltMulticopter;
+    dst = FrameType::kRandomAxisTiltMulticopter;
     return true;
   }
   else if (text == FIXED_WING) {

@@ -34,7 +34,7 @@ const char* NonPlanarMulticopterWidget::name() const
 
 QString NonPlanarMulticopterWidget::controllerPackage() const
 {
-  return "tobas_nonplanar_pid";
+  return "tobas_nonplanar_multi_controller";
 }
 
 QString NonPlanarMulticopterWidget::pluginName() const

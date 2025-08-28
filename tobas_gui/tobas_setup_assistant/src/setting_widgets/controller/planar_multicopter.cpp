@@ -35,7 +35,7 @@ const char* PlanarMulticopterWidget::name() const
 
 QString PlanarMulticopterWidget::controllerPackage() const
 {
-  return "tobas_multirotor_pid";
+  return "tobas_planar_multi_controller";
 }
 
 QString PlanarMulticopterWidget::pluginName() const

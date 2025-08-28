@@ -23,7 +23,7 @@ const char* FixedWingWidget::name() const
 
 QString FixedWingWidget::controllerPackage() const
 {
-  return "tobas_fixed_wing_lqd";
+  return "tobas_fixed_wing_controller";
 }
 
 QString FixedWingWidget::pluginName() const
