@@ -1,0 +1,5 @@
+#!/bin/bash
+
+find ${ROS2_WORKSPACE}/src/tobas/ -type f \( -not -path "*/tobas_external/*" -and -not -path "*/tmp/*" \) | \
+  grep -E "\.hpp$|\.cpp$" | \
+  xargs clang-format -i
