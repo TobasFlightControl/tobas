@@ -90,8 +90,7 @@ void SettingsWidget::updateInternalDataStructures()
   }
 
   // Default page
-  toolbox_->setCurrentWidget(basic_list_);
-  basic_list_->setCurrentRow(0);
+  setCurrentPage(0);
 }
 
 bool SettingsWidget::isValid()
@@ -100,7 +99,7 @@ bool SettingsWidget::isValid()
   for (int i = 0; i < stack_->count(); ++i) {
     const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(stack_->widget(i));
     if (!cur_widget->isValid()) {
-      setCurrentWidget(cur_widget);
+      setCurrentPage(cur_widget);
       return false;
     }
   }
@@ -112,7 +111,7 @@ bool SettingsWidget::isValid()
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->dshot()->contains(joint_name)) {
           qt::qWarnBox(this, "Please specify a DShot channel for electric rotor \"" + joint_name + "\".");
-          setCurrentWidget(hardware);
+          setCurrentPage(hardware);
           return false;
         }
       }
@@ -125,7 +124,7 @@ bool SettingsWidget::isValid()
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->pwm()->contains(joint_name)) {
           qt::qWarnBox(this, "Please specify a PWM channel for variable pitch \"" + joint_name + "\".");
-          setCurrentWidget(hardware);
+          setCurrentPage(hardware);
           return false;
         }
       }
@@ -133,7 +132,7 @@ bool SettingsWidget::isValid()
       // エンジンスロットルのPWMチャンネルが設定されていることを確認
       if (!hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
         qt::qWarnBox(this, "Please specify a PWM channel for engine throttle.");
-        setCurrentWidget(hardware);
+        setCurrentPage(hardware);
         return false;
       }
 
@@ -149,7 +148,7 @@ bool SettingsWidget::isValid()
     const auto joint_name = QString::fromStdString(elem.first);
     if (!hardware->pwm()->contains(joint_name)) {
       qt::qWarnBox(this, "Please specify a PWM channel for control surface \"" + joint_name + "\".");
-      setCurrentWidget(hardware);
+      setCurrentPage(hardware);
       return false;
     }
   }
@@ -159,7 +158,7 @@ bool SettingsWidget::isValid()
     const auto joint_name = QString::fromStdString(elem.first);
     if (!hardware->pwm()->contains(joint_name)) {
       qt::qWarnBox(this, "Please specify a PWM channel for active tilt joint \"" + joint_name + "\".");
-      setCurrentWidget(hardware);
+      setCurrentPage(hardware);
       return false;
     }
   }
@@ -211,10 +210,8 @@ void SettingsWidget::addEntry(QListWidget* list, BaseSettingWidget* page)
   item->setData(Qt::UserRole, idx);
 }
 
-void SettingsWidget::setCurrentWidget(BaseSettingWidget* page)
+void SettingsWidget::setCurrentPage(int idx)
 {
-  const auto idx = getIndex(page);
-
   if (idx < basic_list_->count()) {
     toolbox_->setCurrentWidget(basic_list_);
     basic_list_->setCurrentRow(idx);
@@ -223,6 +220,11 @@ void SettingsWidget::setCurrentWidget(BaseSettingWidget* page)
     toolbox_->setCurrentWidget(additional_list_);
     additional_list_->setCurrentRow(idx - basic_list_->count());
   }
+}
+
+void SettingsWidget::setCurrentPage(BaseSettingWidget* page)
+{
+  setCurrentPage(getIndex(page));
 }
 
 void SettingsWidget::setPageEnabled(int idx, bool enabled)

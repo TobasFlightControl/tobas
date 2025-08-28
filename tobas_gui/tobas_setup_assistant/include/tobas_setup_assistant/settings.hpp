@@ -60,7 +60,8 @@ private:
 
   int getIndex(BaseSettingWidget* page) const;
   void addEntry(QListWidget* list, BaseSettingWidget* page);
-  void setCurrentWidget(BaseSettingWidget* page);
+  void setCurrentPage(int idx);
+  void setCurrentPage(BaseSettingWidget* page);
   void setPageEnabled(int idx, bool enabled);
   void setPageEnabled(BaseSettingWidget* page, bool enabled);
   void setListItemEnabled(QListWidgetItem* item, bool enabled);
