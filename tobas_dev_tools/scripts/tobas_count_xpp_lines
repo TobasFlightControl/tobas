@@ -1,6 +1,11 @@
 #!/bin/bash
 
-find ${ROS2_WORKSPACE}/src/tobas/ -type f \( -not -path "*/tobas_external/*" \) | \
+set -eu
+
+PARDIR=$(realpath $(dirname "$0"))
+cd ${PARDIR}/../../
+
+find ./ -type f \( -not -path "*/tobas_external/*" \) | \
   grep -E "\.hpp$|\.cpp$" | \
   xargs cat | \
   wc -l
