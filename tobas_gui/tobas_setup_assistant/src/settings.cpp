@@ -90,6 +90,7 @@ void SettingsWidget::updateInternalDataStructures()
   }
 
   // Default page
+  toolbox_->setCurrentWidget(basic_list_);
   basic_list_->setCurrentRow(0);
 }
 
