@@ -17,7 +17,7 @@ class RandomAxisTiltMulticopterWidget : public BaseControllerWidget
 public:
   explicit RandomAxisTiltMulticopterWidget();
 
-  const char* name() const override;
+  FrameType frameType() const override;
   QString controllerPackage() const override;
   QString pluginName() const override;
 

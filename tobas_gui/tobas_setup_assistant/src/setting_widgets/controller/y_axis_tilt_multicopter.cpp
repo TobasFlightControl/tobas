@@ -27,9 +27,9 @@ YAxisTiltMulticopterWidget::YAxisTiltMulticopterWidget()
   rows->addStretch();
 }
 
-const char* YAxisTiltMulticopterWidget::name() const
+FrameType YAxisTiltMulticopterWidget::frameType() const
 {
-  return "Active Tilt Multirotor PID";
+  return FrameType::kYAxisTiltMulticopter;
 }
 
 QString YAxisTiltMulticopterWidget::controllerPackage() const

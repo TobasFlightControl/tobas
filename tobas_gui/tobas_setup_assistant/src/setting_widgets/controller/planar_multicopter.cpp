@@ -28,9 +28,9 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
   rows->addStretch();
 }
 
-const char* PlanarMulticopterWidget::name() const
+FrameType PlanarMulticopterWidget::frameType() const
 {
-  return "Multirotor PID";
+  return FrameType::kPlanarMulticopter;
 }
 
 QString PlanarMulticopterWidget::controllerPackage() const

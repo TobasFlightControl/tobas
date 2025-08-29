@@ -27,9 +27,9 @@ RandomAxisTiltMulticopterWidget::RandomAxisTiltMulticopterWidget()
   rows->addStretch();
 }
 
-const char* RandomAxisTiltMulticopterWidget::name() const
+FrameType RandomAxisTiltMulticopterWidget::frameType() const
 {
-  return "Active Tilt Multirotor PID";
+  return FrameType::kRandomAxisTiltMulticopter;
 }
 
 QString RandomAxisTiltMulticopterWidget::controllerPackage() const

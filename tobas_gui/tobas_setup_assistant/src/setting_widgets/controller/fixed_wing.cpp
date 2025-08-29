@@ -16,9 +16,9 @@ FixedWingWidget::FixedWingWidget()
   rows->addStretch();
 }
 
-const char* FixedWingWidget::name() const
+FrameType FixedWingWidget::frameType() const
 {
-  return "Fixed Wing LQR";
+  return FrameType::kFixedWing;
 }
 
 QString FixedWingWidget::controllerPackage() const

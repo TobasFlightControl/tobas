@@ -27,9 +27,9 @@ NonPlanarMulticopterWidget::NonPlanarMulticopterWidget()
   rows->addStretch();
 }
 
-const char* NonPlanarMulticopterWidget::name() const
+FrameType NonPlanarMulticopterWidget::frameType() const
 {
-  return "Non-Planar Multirotor PID";
+  return FrameType::kNonPlanarMulticopter;
 }
 
 QString NonPlanarMulticopterWidget::controllerPackage() const

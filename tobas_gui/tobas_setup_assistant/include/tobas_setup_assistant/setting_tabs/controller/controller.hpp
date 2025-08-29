@@ -3,11 +3,7 @@
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
-#include "./fixed_wing.hpp"
-#include "./non_planar_multicopter.hpp"
-#include "./planar_multicopter.hpp"
-#include "./random_axis_tilt_multicopter.hpp"
-#include "./y_axis_tilt_multicopter.hpp"
+#include "./base.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
 namespace gui
@@ -54,12 +50,6 @@ private Q_SLOTS:
 
 private:
   qt::StackedWidget* stack_;
-
-  PlanarMulticopterWidget* planar_multicopter_;
-  NonPlanarMulticopterWidget* non_planar_multicopter_;
-  YAxisTiltMulticopterWidget* y_axis_tilt_multicopter_;
-  RandomAxisTiltMulticopterWidget* random_axis_tilt_multicopter_;
-  FixedWingWidget* fixed_wing_;
 
   BaseControllerWidget* widget(int index);
   const BaseControllerWidget* widget(int index) const;
