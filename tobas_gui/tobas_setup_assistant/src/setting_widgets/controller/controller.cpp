@@ -18,11 +18,11 @@ ControllerWidget::ControllerWidget()
   planar_multicopter_ = new PlanarMulticopterWidget();
   stack_->addWidget(planar_multicopter_);
 
-  nonplanar_multicopter_ = new NonPlanarMulticopterWidget();
-  stack_->addWidget(nonplanar_multicopter_);
+  non_planar_multicopter_ = new NonPlanarMulticopterWidget();
+  stack_->addWidget(non_planar_multicopter_);
 
-  active_tilt_multicopter_ = new ActiveTiltMulticopterWidget();
-  stack_->addWidget(active_tilt_multicopter_);
+  random_axis_tilt_multicopter_ = new RandomAxisTiltMulticopterWidget();
+  stack_->addWidget(random_axis_tilt_multicopter_);
 
   fixed_wing_ = new FixedWingWidget();
   stack_->addWidget(fixed_wing_);
@@ -87,10 +87,13 @@ void ControllerWidget::setFrameType(const FrameType& type)
       stack_->setCurrentWidget(planar_multicopter_);
       break;
     case FrameType::kNonPlanarMulticopter:
-      stack_->setCurrentWidget(nonplanar_multicopter_);
+      stack_->setCurrentWidget(non_planar_multicopter_);
+      break;
+    case FrameType::kYAxisTiltMulticopter:
+      throw;  // TODO
       break;
     case FrameType::kRandomAxisTiltMulticopter:
-      stack_->setCurrentWidget(active_tilt_multicopter_);
+      stack_->setCurrentWidget(random_axis_tilt_multicopter_);
       break;
     case FrameType::kFixedWing:
       stack_->setCurrentWidget(fixed_wing_);

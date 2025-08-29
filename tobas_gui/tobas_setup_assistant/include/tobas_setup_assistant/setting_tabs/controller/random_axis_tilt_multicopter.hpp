@@ -10,14 +10,14 @@ namespace sa
 {
 namespace ctrl
 {
-class ActiveTiltMulticopterWidget : public BaseControllerWidget
+class RandomAxisTiltMulticopterWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
   static constexpr int kMinNumProp = 3;
 
 public:
-  explicit ActiveTiltMulticopterWidget();
+  explicit RandomAxisTiltMulticopterWidget();
 
   const char* name() const override;
   QString controllerPackage() const override;

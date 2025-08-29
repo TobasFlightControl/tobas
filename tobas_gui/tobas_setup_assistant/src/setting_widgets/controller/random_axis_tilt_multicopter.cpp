@@ -1,4 +1,4 @@
-#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_multicopter.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 
 #include <QVBoxLayout>
 
@@ -11,7 +11,7 @@ namespace sa
 {
 namespace ctrl
 {
-ActiveTiltMulticopterWidget::ActiveTiltMulticopterWidget()
+RandomAxisTiltMulticopterWidget::RandomAxisTiltMulticopterWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -27,37 +27,37 @@ ActiveTiltMulticopterWidget::ActiveTiltMulticopterWidget()
   rows->addStretch();
 }
 
-const char* ActiveTiltMulticopterWidget::name() const
+const char* RandomAxisTiltMulticopterWidget::name() const
 {
   return "Active Tilt Multirotor PID";
 }
 
-QString ActiveTiltMulticopterWidget::controllerPackage() const
+QString RandomAxisTiltMulticopterWidget::controllerPackage() const
 {
   return "tobas_random_axis_tilt_multi_controller";
 }
 
-QString ActiveTiltMulticopterWidget::pluginName() const
+QString RandomAxisTiltMulticopterWidget::pluginName() const
 {
   return "ControllerNode";
 }
 
-tobas::RcCommand ActiveTiltMulticopterWidget::acrobatModeCommand() const
+tobas::RcCommand RandomAxisTiltMulticopterWidget::acrobatModeCommand() const
 {
   return tobas::RcCommand::kAccelRate;
 }
 
-tobas::RcCommand ActiveTiltMulticopterWidget::stabilizeModeCommand() const
+tobas::RcCommand RandomAxisTiltMulticopterWidget::stabilizeModeCommand() const
 {
   return tobas::RcCommand::kAccelAngle;
 }
 
-tobas::RcCommand ActiveTiltMulticopterWidget::loiterModeCommand() const
+tobas::RcCommand RandomAxisTiltMulticopterWidget::loiterModeCommand() const
 {
   return tobas::RcCommand::kPosVelAngle;
 }
 
-YAML::Node ActiveTiltMulticopterWidget::staticParams() const
+YAML::Node RandomAxisTiltMulticopterWidget::staticParams() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -67,7 +67,7 @@ YAML::Node ActiveTiltMulticopterWidget::staticParams() const
   return node;
 }
 
-YAML::Node ActiveTiltMulticopterWidget::dump() const
+YAML::Node RandomAxisTiltMulticopterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -77,13 +77,13 @@ YAML::Node ActiveTiltMulticopterWidget::dump() const
   return node;
 }
 
-void ActiveTiltMulticopterWidget::load(const YAML::Node& node)
+void RandomAxisTiltMulticopterWidget::load(const YAML::Node& node)
 {
   do_dist_comp_trans_->setChecked(node[do_dist_comp_trans_->text()].as<bool>());
   do_dist_comp_rot_->setChecked(node[do_dist_comp_rot_->text()].as<bool>());
 }
 
-bool ActiveTiltMulticopterWidget::isValid()
+bool RandomAxisTiltMulticopterWidget::isValid()
 {
   return true;
 }
