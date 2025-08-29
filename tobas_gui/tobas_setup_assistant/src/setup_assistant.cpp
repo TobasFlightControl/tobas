@@ -338,7 +338,7 @@ bool SetupAssistantWidget::allTiltRotorAxesPerpendicular()
     const auto& tilt_seg = tilt_elem.segment;
     const auto& tilt_joint_kdl = tilt_seg.joint();
 
-    const auto& p = tilt_joint_kdl.axis();                         // 祖父母リンクから見たティルト軸
+    const auto& p = tilt_joint_kdl.axis();                         // 祖父母リンクから見たチルト軸
     const auto& q = tilt_seg.frame().M * thrust_joint_kdl.axis();  // 親リンクのジョイントフレームから見たロータ軸
 
     if (!p.isPerpendicular(q)) {

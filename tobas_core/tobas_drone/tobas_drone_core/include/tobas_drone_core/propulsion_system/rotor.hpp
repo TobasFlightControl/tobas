@@ -20,7 +20,7 @@ public:
   std::string link_name = "";                          // プロペラのリンク名
   TurningDirection direction = TurningDirection::CCW;  // 回転方向: CCW or CW
   double moment_const = 0.;                            // 反トルク係数 [m]
-  std::string tilt_joint_name = "";  // ティルトジョイント名 (空文字の場合は固定軸)
+  std::string tilt_joint_name = "";                    // チルトジョイント名 (空文字の場合は固定軸)
 
   virtual bool isValid() const;
 

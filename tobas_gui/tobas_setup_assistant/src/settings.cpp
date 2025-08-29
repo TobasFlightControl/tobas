@@ -153,7 +153,7 @@ bool SettingsWidget::isValid()
     }
   }
 
-  // ティルトジョイントのPWMチャンネルが設定されていることを確認
+  // チルトジョイントのPWMチャンネルが設定されていることを確認
   for (const auto& elem : uadf_.tilts) {
     const auto joint_name = QString::fromStdString(elem.first);
     if (!hardware->pwm()->contains(joint_name)) {

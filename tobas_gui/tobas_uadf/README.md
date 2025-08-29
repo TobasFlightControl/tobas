@@ -11,4 +11,4 @@ XACRO の航空機拡張．
   - `direction`: 回転方向
     - `value`: `cw`/`ccw`
 - `cs`: 固定翼の操舵面
-- `tilt`: ティルトジョイント
+- `tilt`: チルトジョイント
