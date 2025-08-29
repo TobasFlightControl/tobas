@@ -13,19 +13,19 @@ class Frame;
 using FrameMap = std::map<std::string, Frame>;
 
 /**
-  @brief represents a frame transformation in 3D space (rotation + translation)
-
-    if V2 = Frame*V1 (V2 expressed in frame A, V1 expressed in frame B)
-    then V2 = Frame.M*V1+Frame.p
-
-    Frame.M contains columns that represent the axes of frame B wrt frame A
-    Frame.p contains the origin of frame B expressed in frame A.
-*/
+ * @brief represents a frame transformation in 3D space (rotation + translation)
+ *
+ * If V2 = Frame*V1 (V2 expressed in frame A, V1 expressed in frame B)
+ * then V2 = Frame.M*V1+Frame.p
+ *
+ * Frame.M contains columns that represent the axes of frame B wrt frame A.
+ * Frame.p contains the origin of frame B expressed in frame A.
+ */
 class Frame
 {
 public:
-  Vector p;    // Origine of the Frame
-  Rotation M;  // Orientation of the Frame
+  Vector p;    // Origin of the frame
+  Rotation M;  // Orientation of the frame
 
   inline explicit Frame(const Rotation& R, const Vector& V);
   // The rotation matrix defaults to identity
@@ -37,90 +37,78 @@ public:
   // @return the identity transformation Frame(Rotation::Identity(),Vector::Zero()).
   static inline Frame Identity();
 
-  /*
-  // DH_Craig1989 : constructs a transformationmatrix
-  // T_link(i-1)_link(i) with the Denavit-Hartenberg convention as
-  // described in the Craigs book: Craig, J. J.,Introduction to
-  // Robotics: Mechanics and Control, Addison-Wesley,
-  // isbn:0-201-10326-5, 1986.
-  //
-  // Note that the frame is a redundant way to express the information
-  // in the DH-convention.
-  // \verbatim
-  // Parameters in full : a(i-1),alpha(i-1),d(i),theta(i)
-  //
-  //  axis i-1 is connected by link i-1 to axis i numbering axis 1
-  //  to axis n link 0 (immobile base) to link n
-  //
-  //  link length a(i-1) length of the mutual perpendicular line
-  //  (normal) between the 2 axes.  This normal runs from (i-1) to
-  //  (i) axis.
-  //
-  //  link twist alpha(i-1): construct plane perpendicular to the
-  //  normal project axis(i-1) and axis(i) into plane angle from
-  //  (i-1) to (i) measured in the direction of the normal
-  //
-  //  link offset d(i) signed distance between normal (i-1) to (i)
-  //  and normal (i) to (i+1) along axis i joint angle theta(i)
-  //  signed angle between normal (i-1) to (i) and normal (i) to
-  //  (i+1) along axis i
-  //
-  //   First and last joints : a(0)= a(n) = 0
-  //   alpha(0) = alpha(n) = 0
-  //
-  //   PRISMATIC : theta(1) = 0 d(1) arbitrarily
-  //
-  //   REVOLUTE : theta(1) arbitrarily d(1) = 0
-  //
-  //   Not unique : if intersecting joint axis 2 choices for normal
-  //   Frame assignment of the DH convention : Z(i-1) follows axis
-  //   (i-1) X(i-1) is the normal between axis(i-1) and axis(i)
-  //   Y(i-1) follows out of Z(i-1) and X(i-1)
-  //
-  //     a(i-1)     = distance from Z(i-1) to Z(i) along X(i-1)
-  //     alpha(i-1) = angle between Z(i-1) to Z(i) along X(i-1)
-  //     d(i)       = distance from X(i-1) to X(i) along Z(i)
-  //     theta(i)   = angle between X(i-1) to X(i) along X(i)
-  // \endverbatim
-  */
+  /**
+   * @brief Constructs a transformation matrix T_link(i-1)_link(i)
+   * with the Denavit-Hartenberg convention as described in the Craigs book:
+   * Craig, J. J.,Introduction to Robotics: Mechanics and Control, Addison-Wesley, isbn:0-201-10326-5, 1986.
+   *
+   * Note that the frame is a redundant way to express the information in the DH-convention.
+   * Parameters in full : a(i-1), alpha(i-1), d(i), theta(i)
+   *
+   * Axis (i-1) is connected by link (i-1) to axis (i)
+   * numbering axis (1) to axis (n) link (0) (immobile base) to link (n)
+   *
+   * Link length a(i-1): Length of the mutual perpendicular line (normal) between the 2 axes.
+   * This normal runs from (i-1) to (i) axis.
+   *
+   * Link twist alpha(i-1): Construct plane perpendicular to the normal project axis(i-1) and axis(i)
+   * into plane angle from (i-1) to (i) measured in the direction of the normal
+   *
+   * Link offset d(i): Signed distance between normal (i-1) to (i) and normal (i) to (i+1)
+   * along axis (i) joint angle theta(i) signed angle
+   * between normal (i-1) to (i) and normal (i) to (i+1) along axis (i)
+   *
+   * First and last joints : a(0)= a(n) = 0
+   * alpha(0) = alpha(n) = 0
+   *
+   * PRISMATIC : theta(1) = 0 d(1) arbitrarily
+   * REVOLUTE  : theta(1) arbitrarily d(1) = 0
+   *
+   * a(i-1)     = distance from Z(i-1) to Z(i) along X(i-1)
+   * alpha(i-1) = angle between Z(i-1) to Z(i) along X(i-1)
+   * d(i)       = distance from X(i-1) to X(i) along Z(i)
+   * theta(i)   = angle between X(i-1) to X(i) along X(i)
+   */
   static inline Frame DH_Craig1989(double a, double alpha, double d, double theta);
 
-  // DH : constructs a transformationmatrix T_link(i-1)_link(i) with
-  // the Denavit-Hartenberg convention as described in the original
-  // publictation: Denavit, J. and Hartenberg, R. S., A kinematic
-  // notation for lower-pair mechanisms based on matrices, ASME
-  // Journal of Applied Mechanics, 23:215-221, 1955.
+  /**
+   * @brief Constructs a transformationmatrix T_link(i-1)_link(i) with the Denavit-Hartenberg convention
+   * as described in the original publictation:
+   * Denavit, J. and Hartenberg, R. S.,
+   * A kinematic notation for lower-pair mechanisms based on matrices,
+   * ASME Journal of Applied Mechanics, 23:215-221, 1955.
+   */
   static inline Frame DH(double a, double alpha, double d, double theta);
 
   inline Eigen::Matrix4d matrix() const;
 
   inline void setIdentity();
 
-  // Treats a frame as a 4x4 matrix and returns element i,j
-  // Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set
+  /**
+   * @brief Treats a frame as a 4x4 matrix and returns element i,j.
+   * Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set.
+   */
   inline double operator()(int i, int j);
-  // Treats a frame as a 4x4 matrix and returns element i,j
-  // Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set
+  /**
+   * @brief Treats a frame as a 4x4 matrix and returns element i,j.
+   * Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set.
+   */
   inline double operator()(int i, int j) const;
 
-  // The twist <t_this> is expressed wrt the current
-  // frame.  This frame is integrated into an updated frame with
-  // <samplefrequency>.  Very simple first order integration rule.
+  /**
+   * @brief The twist <t_this> is expressed wrt the current frame.
+   * This frame is integrated into an updated frame with <samplefrequency>.
+   * Very simple first order integration rule.
+   */
   inline void integrate(const Twist& t_this, double frequency);
 
   /* フレームを6次元ベクトルに変換． */
   inline Twist toTwist() const;
 
-  // = inverse
-  // Gives back inverse transformation of a Frame
   inline Frame inverse() const;
-  // The same as p2=R.inverse()*p but more efficient.
   inline Vector inverse(const Vector& arg) const;
-  // The same as p2=R.inverse()*p but more efficient.
   inline Twist inverse(const Twist& arg) const;
-  // The same as p2=R.inverse()*p but more efficient.
   inline Accel inverse(const Accel& arg) const;
-  // The same as p2=R.inverse()*p but more efficient.
   inline Wrench inverse(const Wrench& arg) const;
 
   inline Vector operator*(const Vector& arg) const;

@@ -16,7 +16,7 @@ namespace kdl
  *   - by using a Levenberg-Marquardt method that automatically adapts the damping when
  *     computing the inverse damped least squares inverse velocity kinematics.
  *   - by using an internal implementation of forward position kinematics and the
- *     Jacobian kinematics.  This implementation is more numerically robust,
+ *     Jacobian kinematics. This implementation is more numerically robust,
  *     is able to cache previous computations, and implements an \f$ \mathcal{O}(N) \f$
  *     algorithm for the computation of the Jacobian (with \f$N\f$, the number of joints, and for
  *     a fixed size task space).
@@ -68,7 +68,7 @@ public:
    * max_iter specifies the maximum number of iterations. @param eps_jnt specifies that the
    * algorithm has to stop when the computed joint angle increments are smaller then _eps_joints.
    * This is to avoid unnecessary computations up to _maxiter when the joint angle increments are so
-   * small that they effectively (in floating point) do not change the joint angles any more.  The
+   * small that they effectively (in floating point) do not change the joint angles any more. The
    * default is a few digits above numerical accuracy.
    */
   explicit ChainIkSolverPos_LM(const Chain& chain);

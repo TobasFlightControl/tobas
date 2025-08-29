@@ -1782,7 +1782,7 @@ bool RobotState::setFromIK(
       const KinematicsBase& solver_ref = *solver;
       RCLCPP_ERROR(
         getLogger(),
-        "Kinematics solver %s does not support joint group %s.  Error: %s",
+        "Kinematics solver %s does not support joint group %s. Error: %s",
         typeid(solver_ref).name(),
         jmg->getName().c_str(),
         error_msg.c_str());

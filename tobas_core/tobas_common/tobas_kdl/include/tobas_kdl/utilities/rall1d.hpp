@@ -9,7 +9,7 @@ namespace kdl
  *  This template class has 3 template parameters :
  *  -   T contains the type of the value.
  *  -   V contains the type of the gradient (can be a vector-like type).
- *  -   S defines a scalar type that can operate on Rall1d.  This is the type that
+ *  -   S defines a scalar type that can operate on Rall1d. This is the type that
  *      is used to give back values of norm() etc.
  *
  * S is useful when you recurse a Rall1d object into itself to create a 2nd, 3rd, 4th,..

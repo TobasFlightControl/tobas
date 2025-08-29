@@ -17,7 +17,7 @@ public:
    * @brief Constructor
    *
    * @param scene_manager The scene manager this object is associated with
-   * @param parent_node A scene node to use as the parent of this object.  If nullptr, uses the root scene node.
+   * @param parent_node A scene node to use as the parent of this object. If nullptr, uses the root scene node.
    */
   MeshShape(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node = nullptr);
   ~MeshShape() override;
