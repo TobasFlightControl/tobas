@@ -65,8 +65,10 @@ static constexpr char kAngleCmdTopic[] = "command/angle";
 static constexpr char kAngleThrottleCmdTopic[] = "command/angle_throttle";
 static constexpr char kAccelCmdTopic[] = "command/accel";
 static constexpr char kAccelYawCmdTopic[] = "command/accel_yaw";
+static constexpr char kAccelPitchYawCmdTopic[] = "command/accel_pitch_yaw";
 static constexpr char kPosVelCmdTopic[] = "command/pos_vel";
 static constexpr char kPosVelYawCmdTopic[] = "command/pos_vel_yaw";
+static constexpr char kPosVelPitchYawCmdTopic[] = "command/pos_vel_pitch_yaw";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
 // Joint Command
 static constexpr char kJointPosCmdTopic[] = "command/joint_positions";

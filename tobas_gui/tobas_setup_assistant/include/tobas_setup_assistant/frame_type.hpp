@@ -11,6 +11,7 @@ enum struct FrameType
   kUndefined,
   kPlanarMulticopter,
   kNonPlanarMulticopter,
+  kYAxisTiltMulticopter,
   kRandomAxisTiltMulticopter,
   kFixedWing,
 };

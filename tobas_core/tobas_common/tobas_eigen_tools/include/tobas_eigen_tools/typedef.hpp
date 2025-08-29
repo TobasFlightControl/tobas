@@ -4,16 +4,28 @@
 
 namespace Eigen
 {
+#define PP_CAT2_(a, b) a##b
+#define PP_CAT2(a, b) PP_CAT2_(a, b)
+#define PP_CAT3(a, b, c) PP_CAT2(PP_CAT2(a, b), c)
+#define EIGEN_TYPEDEF(N, ...)                                                                                          \
+  using PP_CAT3(Vector, N, d) = Vector<__VA_ARGS__, N>;                                                                \
+  using PP_CAT3(Matrix, N, d) = Matrix<__VA_ARGS__, N, N>;                                                             \
+  using PP_CAT3(Matrix, N, Xd) = Matrix<__VA_ARGS__, N, Dynamic>;                                                      \
+  using PP_CAT3(MatrixX, N, d) = Matrix<__VA_ARGS__, Dynamic, N>;                                                      \
+  using PP_CAT3(Diagonal, N, d) = DiagonalMatrix<__VA_ARGS__, N>;
+
+EIGEN_TYPEDEF(2, double);
+EIGEN_TYPEDEF(3, double);
+EIGEN_TYPEDEF(4, double);
+EIGEN_TYPEDEF(5, double);
+EIGEN_TYPEDEF(6, double);
+
+#undef EIGEN_TYPEDEF
+#undef PP_CAT3
+#undef PP_CAT2
+#undef PP_CAT2_
+
+// Other types
 using Scalard = Matrix<double, 1, 1>;
-
-using Vector6d = Vector<double, 6>;
-using Matrix6d = Matrix<double, 6, 6>;
-using Matrix6Xd = Matrix<double, 6, Dynamic>;
-using MatrixX6d = Matrix<double, Dynamic, 6>;
-
-using Diagonal2d = DiagonalMatrix<double, 2>;
-using Diagonal3d = DiagonalMatrix<double, 3>;
-using Diagonal4d = DiagonalMatrix<double, 4>;
-using Diagonal6d = DiagonalMatrix<double, 6>;
 using DiagonalXd = DiagonalMatrix<double, Dynamic>;
 }  // namespace Eigen

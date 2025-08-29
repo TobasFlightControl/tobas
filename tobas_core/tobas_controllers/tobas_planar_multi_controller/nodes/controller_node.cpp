@@ -75,7 +75,8 @@ private:
   tobas_command_msgs::PosVelYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
   tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
   std::shared_ptr<kdl::Euler> tar_angle_;             // 目標オイラー角 (世界座標系)
-  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標ジャイロ (機体座標系P)
+  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標角速度 (機体座標系P)
+  kdl::Vector tar_dgyro_;                             // 目標角加速度
   double tar_thrust_;                                 // 目標推力
 
   // Publishers
@@ -215,8 +216,8 @@ bool ControllerNode::updateInternalDataStructures()
   // Update the maximum total thrust
   max_thrust_sum_ = 0.;
   for (const auto& [link_name, _] : drone_.prop->rotors) {
-    const auto thrust_at_full_thort = drone_.prop->thrustFromThrottle(link_name, tobas::kMaxThrot);
-    max_thrust_sum_ += thrust_at_full_thort;
+    const auto thrust_at_full_throt = drone_.prop->thrustFromThrottle(link_name, tobas::kMaxThrot);
+    max_thrust_sum_ += thrust_at_full_throt;
   }
 
   return true;
@@ -492,22 +493,31 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     feedback->angle_integral_error = rot_ei_;
   }
 
-  // 角速度制御器
   if (tar_gyro_) {
-    // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
-    const auto atti_kd = atti_wn * atti_zeta_ * 2;
-    const auto head_kd = head_wn * head_zeta_ * 2;
-    const kdl::Vector kd(atti_kd, atti_kd, head_kd);
+    // 角速度制御器
+    {
+      // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
+      const auto atti_kd = atti_wn * atti_zeta_ * 2;
+      const auto head_kd = head_wn * head_zeta_ * 2;
+      const kdl::Vector kd(atti_kd, atti_kd, head_kd);
 
-    // 目標角加速度を計算
-    const auto& cur_gyro = odom->twist.rot;
-    const auto tar_dgyro = kd.hadamard(*tar_gyro_ - cur_gyro);
+      // 目標角加速度を計算
+      tar_dgyro_ = kd.hadamard(*tar_gyro_ - odom->twist.rot);
 
-    // プロペラの推力を計算
-    const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-    if (!mixer_.solve(js_converter_.getPosition(), cur_gyro, tar_dgyro, tar_thrust_, dist_torque_B)) {
-      TOBAS_FATAL("Failed to solve mixing equation.");
-      return;
+      // フィードバックメッセージを埋める
+      feedback->target_gyro = *tar_gyro_;
+    }
+
+    // ミキサー
+    {
+      const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
+      if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro_, tar_thrust_, dist_torque_B)) {
+        TOBAS_FATAL("Failed to solve mixing equation.");
+        return;
+      }
+
+      // フィードバックメッセージを埋める
+      feedback->target_dgyro = tar_dgyro_;
     }
 
     // 目標推力を発行
@@ -519,10 +529,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       thrusts_msg->thrusts.back().thrust = mixer_.getThrust(idx);  // 微小値はゼロに固定
     }
     tar_thrusts_pub_->publish(std::move(thrusts_msg));
-
-    // フィードバックメッセージを埋める
-    feedback->target_gyro = *tar_gyro_;
-    feedback->target_dgyro = tar_dgyro;
 
     // フィードバックメッセージを発行
     feedback_pub_->publish(std::move(feedback));

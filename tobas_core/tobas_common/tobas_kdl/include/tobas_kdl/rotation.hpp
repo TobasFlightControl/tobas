@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_math/linalg.hpp>
+
 #include "./accel.hpp"
 #include "./segment_jacobian.hpp"
 #include "./twist.hpp"
@@ -109,6 +111,7 @@ public:
   void getRPY(double& roll, double& pitch, double& yaw) const;
   std::tuple<double, double, double> getRPY() const;
 
+  inline double getPitch() const;
   inline double getYaw() const;
 
   inline double trace() const;
@@ -247,6 +250,11 @@ inline Vector Rotation::axisY() const
 inline Vector Rotation::axisZ() const
 {
   return kdl::Vector(data.col(2));
+}
+
+inline double Rotation::getPitch() const
+{
+  return ::atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
 }
 
 inline double Rotation::getYaw() const

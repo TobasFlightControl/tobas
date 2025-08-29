@@ -1,6 +1,5 @@
 #include "tobas_kdl/rotation.hpp"
 
-#include <tobas_math/linalg.hpp>
 #include <tobas_std_tools/float.hpp>
 
 #include "tobas_kdl/utilities/utility.hpp"
@@ -150,7 +149,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
-  pitch = atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
+  pitch = getPitch();
   if (fabs(pitch) > (M_PI_2 - EPS)) {
     yaw = atan2(-data(0, 1), data(1, 1));
     roll = 0.;
