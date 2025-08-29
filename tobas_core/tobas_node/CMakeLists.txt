@@ -8,7 +8,7 @@ endif()
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
@@ -19,9 +19,7 @@ find_package(tobas_msgs REQUIRED)
 find_package(tobas_dparam_msgs REQUIRED)
 find_package(tobas_constants REQUIRED)
 
-set(AMENT_DEPENDENCIES rclcpp_components tobas_std_tools tobas_ros2_tools tobas_msgs tobas_dparam_msgs
-                       tobas_constants
-)
+set(AMENT_DEPENDENCIES rclcpp_components tobas_std_tools tobas_ros2_tools tobas_msgs tobas_dparam_msgs tobas_constants)
 
 include_directories(include)
 

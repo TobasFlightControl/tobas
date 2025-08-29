@@ -5,7 +5,9 @@
 #define RATE_THROTTLE_TEXT "rate_throttle"
 #define ANGLE_THROTTLE_TEXT "angle_throttle"
 #define ACCEL_YAW_TEXT "accel_yaw"
+#define ACCEL_PITCH_YAW_TEXT "accel_pitch_yaw"
 #define POS_VEL_YAW_TEXT "pos_vel_yaw"
+#define POS_VEL_PITCH_YAW_TEXT "pos_vel_pitch_yaw"
 #define ACCEL_RATE_TEXT "accel_rate"
 #define ACCEL_ANGLE_TEXT "accel_angle"
 #define POS_VEL_ANGLE_TEXT "pos_vel_angle"
@@ -24,8 +26,12 @@ string textFromEnum(RcCommand role)
       return ANGLE_THROTTLE_TEXT;
     case RcCommand::kAccelYaw:
       return ACCEL_YAW_TEXT;
+    case RcCommand::kAccelPitchYaw:
+      return ACCEL_PITCH_YAW_TEXT;
     case RcCommand::kPosVelYaw:
       return POS_VEL_YAW_TEXT;
+    case RcCommand::kPosVelPitchYaw:
+      return POS_VEL_PITCH_YAW_TEXT;
     case RcCommand::kAccelRate:
       return ACCEL_RATE_TEXT;
     case RcCommand::kAccelAngle:
@@ -53,8 +59,16 @@ bool enumFromText(const string& text, RcCommand& dst)
     dst = RcCommand::kAccelYaw;
     return true;
   }
+  else if (text == ACCEL_PITCH_YAW_TEXT) {
+    dst = RcCommand::kAccelPitchYaw;
+    return true;
+  }
   else if (text == POS_VEL_YAW_TEXT) {
     dst = RcCommand::kPosVelYaw;
+    return true;
+  }
+  else if (text == POS_VEL_PITCH_YAW_TEXT) {
+    dst = RcCommand::kPosVelPitchYaw;
     return true;
   }
   else if (text == ACCEL_RATE_TEXT) {
