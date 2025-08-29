@@ -95,6 +95,8 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
   pos_vel_pub_ = ros2::createPublisher<tobas_command_msgs::PosVel>(node_, path::join(ns, tobas::kPosVelCmdTopic));
   pos_vel_yaw_pub_ =
     ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::kPosVelYawCmdTopic));
+  pos_vel_pitch_yaw_pub_ =
+    ros2::createPublisher<tobas_command_msgs::PosVelPitchYaw>(node_, path::join(ns, tobas::kPosVelPitchYawCmdTopic));
 
   set_arm_sc_ =
     std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::kSetArmSrv));
@@ -160,6 +162,17 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     msg->pos.z() = cmd_z_->getValue();
     msg->yaw = cmd_yaw_->getValue();
     pos_vel_yaw_pub_->publish(std::move(msg));
+  }
+
+  if (pos_vel_pitch_yaw_pub_) {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
+    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->pos.x() = cmd_x_->getValue();
+    msg->pos.y() = cmd_y_->getValue();
+    msg->pos.z() = cmd_z_->getValue();
+    msg->pitch = cmd_pitch_->getValue();
+    msg->yaw = cmd_yaw_->getValue();
+    pos_vel_pitch_yaw_pub_->publish(std::move(msg));
   }
 }
 
