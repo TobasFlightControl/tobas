@@ -100,7 +100,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
   callback_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
-  addTopicLogicToIface<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
   addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKdlTreeTopic, tobas::kKdlTreeTopic, true, true);
   addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(tobas::kBatteryTopic), tobas::kBatteryTopic);

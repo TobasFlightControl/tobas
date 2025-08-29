@@ -7,7 +7,7 @@
 
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
-#include <tobas_std_msgs/msg/bool_stamped.hpp>
+#include <tobas_msgs/msg/landed_state.hpp>
 
 using namespace std::chrono_literals;
 
@@ -35,7 +35,7 @@ private:
   kdl::Tree tree_;
   kdl::TreeMassHolder mass_holder_;
 
-  ros2::PublisherPtr<tobas_std_msgs::msg::BoolStamped> landed_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::LandedState> landed_pub_;
 
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
@@ -61,7 +61,7 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("switch_time_threshold", &self::switchTimeThreshCb, this, 0.5, 2, 0, 10, " s");
   addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 30, 1, 99, " %");
 
-  landed_pub_ = createPublisher<tobas_std_msgs::msg::BoolStamped>(tobas::kLandedTopic);
+  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::kLandedTopic);
 
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
@@ -71,7 +71,7 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
 
 void LandingDetectorNode::publishLandedState(const builtin_interfaces::msg::Time& stamp)
 {
-  auto msg = std::make_unique<tobas_std_msgs::msg::BoolStamped>();
+  auto msg = std::make_unique<tobas_msgs::msg::LandedState>();
   msg->header.stamp = stamp;
   msg->data = landed_;
   landed_pub_->publish(move(msg));

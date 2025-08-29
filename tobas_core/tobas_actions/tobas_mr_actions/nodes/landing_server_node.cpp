@@ -6,9 +6,9 @@
 #include <tobas_tools/util.hpp>
 
 #include <tobas_mission_msgs/action/land.hpp>
+#include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_std_msgs/msg/bool_stamped.hpp>
 
 #include "tobas_mr_actions/common.hpp"
 
@@ -25,18 +25,18 @@ public:
 
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_std_msgs::msg::BoolStamped::ConstSharedPtr landed_;
+  tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   CommandType cmd_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::ActionServerPtr<ActionType> as_;
 
   bool disarmRotors();
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
+  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
@@ -78,7 +78,7 @@ void LandServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   odom_ = odom;
 }
 
-void LandServerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
+void LandServerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
   landed_ = landed;
 }

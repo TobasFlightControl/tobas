@@ -39,7 +39,7 @@ private:
   qt::TableWidget* table_;
 
 private Q_SLOTS:
-  void messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
+  void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg);
 };
 }  // namespace ctrl
 }  // namespace gui

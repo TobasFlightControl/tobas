@@ -158,7 +158,7 @@ private:
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
 
-  ros2::PublisherPtr<tobas_std_msgs::msg::Message> message_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
 
   void gazeboLog(uint8_t level, const std::string& text) const;
 
@@ -199,7 +199,7 @@ template <typename... Args>
 void BaseNode::log(uint8_t level, const Args&... args) const
 {
   // Create message
-  auto message = std::make_unique<tobas_std_msgs::msg::Message>();
+  auto message = std::make_unique<tobas_msgs::msg::Message>();
   message->header.stamp = node_->get_clock()->now();
   message->level = level;
   message->name = node_->get_name();
@@ -245,91 +245,91 @@ void BaseNode::logThrottle(const char* file, int line, uint8_t level, double per
 template <typename... Args>
 inline void BaseNode::debug(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::LEVEL_DEBUG, args...);
+  log(tobas_msgs::msg::Message::LEVEL_DEBUG, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::info(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::LEVEL_INFO, args...);
+  log(tobas_msgs::msg::Message::LEVEL_INFO, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::warn(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::LEVEL_WARN, args...);
+  log(tobas_msgs::msg::Message::LEVEL_WARN, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::error(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::LEVEL_ERROR, args...);
+  log(tobas_msgs::msg::Message::LEVEL_ERROR, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::fatal(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::LEVEL_FATAL, args...);
+  log(tobas_msgs::msg::Message::LEVEL_FATAL, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::debugOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_DEBUG, args...);
+  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_DEBUG, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::infoOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_INFO, args...);
+  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_INFO, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::warnOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_WARN, args...);
+  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_WARN, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::errorOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_ERROR, args...);
+  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_ERROR, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::fatalOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, args...);
+  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_FATAL, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::debugThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_DEBUG, period, args...);
+  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_DEBUG, period, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::infoThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_INFO, period, args...);
+  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_INFO, period, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::warnThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_WARN, period, args...);
+  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_WARN, period, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::errorThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_ERROR, period, args...);
+  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_ERROR, period, args...);
 }
 
 template <typename... Args>
 inline void BaseNode::fatalThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, period, args...);
+  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_FATAL, period, args...);
 }
 
 template <typename T>

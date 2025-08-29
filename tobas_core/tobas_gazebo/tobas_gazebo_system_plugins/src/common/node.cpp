@@ -30,7 +30,7 @@ void BaseNode::initialize(const string& name, const sdf::ElementConstPtr& sdf)
   auto spin = [this]() { executor_->spin(); };
   spin_thread_ = thread(spin);
 
-  message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(tobas::kMessageTopic);
 }
 
 const string& BaseNode::name() const
@@ -46,19 +46,19 @@ const std::string& BaseNode::ns() const
 void BaseNode::gazeboLog(uint8_t level, const string& text) const
 {
   switch (level) {
-    case tobas_std_msgs::msg::Message::LEVEL_DEBUG:
+    case tobas_msgs::msg::Message::LEVEL_DEBUG:
       tbsdbg << text << endl;
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_INFO:
+    case tobas_msgs::msg::Message::LEVEL_INFO:
       tbsmsg << text << endl;
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_WARN:
+    case tobas_msgs::msg::Message::LEVEL_WARN:
       tbswarn << text << endl;
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_ERROR:
+    case tobas_msgs::msg::Message::LEVEL_ERROR:
       tbserr << text << endl;
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_FATAL:
+    case tobas_msgs::msg::Message::LEVEL_FATAL:
       tbserr << text << endl;
       break;
     default:

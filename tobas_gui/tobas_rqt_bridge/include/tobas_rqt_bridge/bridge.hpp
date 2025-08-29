@@ -33,7 +33,7 @@ Q_SIGNALS:
   void rawMagReceived(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
   void odomReceived(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void rcInputReceived(const tobas_msgs::RCInput::ConstSharedPtr& msg);
-  void messageReceived(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
+  void messageReceived(const tobas_msgs::msg::Message::ConstSharedPtr& msg);
 
 public:
   explicit RosQtBridge(rclcpp::Node::SharedPtr node);

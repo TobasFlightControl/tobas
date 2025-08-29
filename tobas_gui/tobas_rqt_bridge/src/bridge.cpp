@@ -31,7 +31,7 @@ void RosQtBridge::initialize(const std::string& ns)
   add<tobas_msgs::MagneticField, &self::rawMagReceived>(ns, real::kMagTopic);
   add<tobas_msgs::Odometry, &self::odomReceived>(ns, tobas::kOdometryTopic);
   add<tobas_msgs::RCInput, &self::rcInputReceived>(ns, tobas::kRcInputTopic);
-  add<tobas_std_msgs::msg::Message, &self::messageReceived>(ns, tobas::kMessageTopic);
+  add<tobas_msgs::msg::Message, &self::messageReceived>(ns, tobas::kMessageTopic);
 }
 
 template <typename MsgType, auto SignalType>

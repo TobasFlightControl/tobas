@@ -37,4 +37,4 @@ Q_DECLARE_METATYPE(tobas_msgs::Imu::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::MagneticField::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::Odometry::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::RCInput::ConstSharedPtr);
-Q_DECLARE_METATYPE(tobas_std_msgs::msg::Message::ConstSharedPtr);
+Q_DECLARE_METATYPE(tobas_msgs::msg::Message::ConstSharedPtr);

@@ -138,7 +138,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic);
 
   // Resister subscribers for standard messages
-  addStandardMsgSub<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
+  addStandardMsgSub<tobas_msgs::msg::Message>(tobas::kMessageTopic);
   addStandardMsgSub<std_msgs::msg::String>(tobas::kRobotDescriptionTopic, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);

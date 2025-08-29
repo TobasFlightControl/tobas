@@ -18,10 +18,10 @@
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_std_msgs/msg/bool_stamped.hpp>
 
 #include "tobas_x_axis_tilt_multi_controller/mixer.hpp"
 #include "tobas_x_axis_tilt_multi_controller/translational_eom.hpp"
@@ -62,7 +62,7 @@ private:
   CommandLevelHandler cmd_level_handler_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
-  tobas_std_msgs::msg::BoolStamped::ConstSharedPtr landed_;
+  tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
@@ -82,7 +82,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
-  ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_livelinesses_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVelPitchYaw> pos_cmd_sub_;
@@ -116,7 +116,7 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
-  void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
+  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses);
   void positionCommandCb(const tobas_command_msgs::PosVelPitchYaw::ConstSharedPtr& pos_cmd);
@@ -445,7 +445,7 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
   js_received_ = true;
 }
 
-void ControllerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
+void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
   if (landed->data) {
     resetIntegralErrors();

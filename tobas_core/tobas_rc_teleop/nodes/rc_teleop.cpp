@@ -9,11 +9,11 @@
 #include <tobas_std_tools/check.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
+#include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
-#include <tobas_std_msgs/msg/bool_stamped.hpp>
 
 #include "tobas_rc_teleop/accel_angle.hpp"
 #include "tobas_rc_teleop/accel_pitch_yaw.hpp"
@@ -77,7 +77,7 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
-  tobas_std_msgs::msg::BoolStamped::ConstSharedPtr landed_;
+  tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
 
   // Controllers
   std::map<tobas::FlightMode, std::unique_ptr<BaseController>> controllers_;
@@ -86,7 +86,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
-  ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
   // Service
@@ -108,7 +108,7 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
-  void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
+  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 
@@ -324,7 +324,7 @@ void RCTeleopNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstShared
   prearm_check_ = prearm_check;
 }
 
-void RCTeleopNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
+void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
   landed_ = landed;
 }

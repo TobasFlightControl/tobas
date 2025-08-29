@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
-from tobas_std_msgs.msg import Message
+from tobas_msgs.msg import Message
 from tobas_msgs.msg import Gnss
 
 

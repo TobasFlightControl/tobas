@@ -13,7 +13,7 @@ BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
 {
   RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
 
-  message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(kMessageTopic);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(kMessageTopic);
   get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
     node_name + "/" + tobas::kGetDynamicParamsSrv, &self::getDParamCb, this);
 }
@@ -201,19 +201,19 @@ vector<string> BaseNode::getStringArrayParam(const string& name, const vector<st
 void BaseNode::rclcppLog(uint8_t level, const string& text) const
 {
   switch (level) {
-    case tobas_std_msgs::msg::Message::LEVEL_DEBUG:
+    case tobas_msgs::msg::Message::LEVEL_DEBUG:
       RCLCPP_DEBUG_STREAM(get_logger(), text);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_INFO:
+    case tobas_msgs::msg::Message::LEVEL_INFO:
       RCLCPP_INFO_STREAM(get_logger(), text);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_WARN:
+    case tobas_msgs::msg::Message::LEVEL_WARN:
       RCLCPP_WARN_STREAM(get_logger(), text);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_ERROR:
+    case tobas_msgs::msg::Message::LEVEL_ERROR:
       RCLCPP_ERROR_STREAM(get_logger(), text);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_FATAL:
+    case tobas_msgs::msg::Message::LEVEL_FATAL:
       RCLCPP_FATAL_STREAM(get_logger(), text);
       break;
     default:
