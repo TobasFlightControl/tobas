@@ -3,8 +3,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 SpeedRollDeltaPitchController::SpeedRollDeltaPitchController()
@@ -51,7 +49,7 @@ void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // コマンドを作成
-  auto cmd = make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
+  auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
   cmd->header = rcin.header;
 
   const auto throttle = expo(remap(rcin.throttle, 0., 1.), speed_expo_);  // [-1, 1] -> [0, 1] -> [0, 1]
@@ -61,13 +59,13 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);
 
   // コマンドを発行
-  cmd_pub_->publish(move(cmd));
+  cmd_pub_->publish(std::move(cmd));
 }
 
 bool SpeedRollDeltaPitchController::minSpeedCb(const double& p)
 {
   if (p >= max_speed_) {
-    cerr << "Minimum speed must be lower than maximum speed." << endl;
+    std::cerr << "Minimum speed must be lower than maximum speed." << std::endl;
     return false;
   }
 
@@ -78,7 +76,7 @@ bool SpeedRollDeltaPitchController::minSpeedCb(const double& p)
 bool SpeedRollDeltaPitchController::maxSpeedCb(const double& p)
 {
   if (p <= min_speed_) {
-    cerr << "Maximum speed must be greater than minimum speed." << endl;
+    std::cerr << "Maximum speed must be greater than minimum speed." << std::endl;
     return false;
   }
 

@@ -2,8 +2,6 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 AccelRateController::AccelRateController()
@@ -94,22 +92,22 @@ void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
 
 void AccelRateController::publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc)
 {
-  auto cmd = make_unique<tobas_command_msgs::Accel>();
+  auto cmd = std::make_unique<tobas_command_msgs::Accel>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->accel = acc;
 
-  accel_pub_->publish(move(cmd));
+  accel_pub_->publish(std::move(cmd));
 }
 
 void AccelRateController::publishRate(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& rate)
 {
-  auto cmd = make_unique<tobas_command_msgs::Rate>();
+  auto cmd = std::make_unique<tobas_command_msgs::Rate>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->rate = rate;
 
-  rate_pub_->publish(move(cmd));
+  rate_pub_->publish(std::move(cmd));
 }
 
 bool AccelRateController::maxHorizontalAccelCb(const double& p)

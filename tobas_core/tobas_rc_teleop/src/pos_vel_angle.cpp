@@ -3,8 +3,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 PosVelAngleController::PosVelAngleController()
@@ -112,23 +110,23 @@ void PosVelAngleController::publishPosVel(
   const kdl::Vector& pos,
   const kdl::Vector& vel)
 {
-  auto cmd = make_unique<tobas_command_msgs::PosVel>();
+  auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->pos = pos;
   cmd->vel = vel;
 
-  pos_vel_pub_->publish(move(cmd));
+  pos_vel_pub_->publish(std::move(cmd));
 }
 
 void PosVelAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
 {
-  auto cmd = make_unique<tobas_command_msgs::Angle>();
+  auto cmd = std::make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->angle = angle;
 
-  angle_pub_->publish(move(cmd));
+  angle_pub_->publish(std::move(cmd));
 }
 
 bool PosVelAngleController::maxHorizontalVelocityCb(const double& p)

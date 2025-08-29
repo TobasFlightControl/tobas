@@ -3,8 +3,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 AccelYawController::AccelYawController()
@@ -69,14 +67,14 @@ void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msg
   tar_yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto cmd = make_unique<tobas_command_msgs::AccelYaw>();
+  auto cmd = std::make_unique<tobas_command_msgs::AccelYaw>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->accel = kdl::Rotation::RotZ(tar_yaw_) * tar_acc_G_;  // 地面座標系から世界座標系に変換
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行
-  cmd_pub_->publish(move(cmd));
+  cmd_pub_->publish(std::move(cmd));
 }
 
 bool AccelYawController::maxHorizontalAccelCb(const double& p)

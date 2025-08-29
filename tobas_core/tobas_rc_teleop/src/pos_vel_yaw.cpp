@@ -3,8 +3,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 PosVelYawController::PosVelYawController()
@@ -80,7 +78,7 @@ void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
 
   // コマンドを作成
-  auto cmd = make_unique<tobas_command_msgs::PosVelYaw>();
+  auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->pos = tar_pos_W_;
@@ -88,7 +86,7 @@ void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行
-  cmd_pub_->publish(move(cmd));
+  cmd_pub_->publish(std::move(cmd));
 }
 
 bool PosVelYawController::maxHorizontalVelocityCb(const double& p)

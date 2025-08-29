@@ -3,8 +3,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 AccelAngleController::AccelAngleController()
@@ -103,22 +101,22 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
 
 void AccelAngleController::publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc)
 {
-  auto cmd = make_unique<tobas_command_msgs::Accel>();
+  auto cmd = std::make_unique<tobas_command_msgs::Accel>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->accel = acc;
 
-  accel_pub_->publish(move(cmd));
+  accel_pub_->publish(std::move(cmd));
 }
 
 void AccelAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
 {
-  auto cmd = make_unique<tobas_command_msgs::Angle>();
+  auto cmd = std::make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->angle = angle;
 
-  angle_pub_->publish(move(cmd));
+  angle_pub_->publish(std::move(cmd));
 }
 
 bool AccelAngleController::maxHorizontalAccelCb(const double& p)

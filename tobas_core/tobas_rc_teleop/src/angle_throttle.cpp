@@ -3,8 +3,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 namespace tobas_rc_teleop
 {
 AngleThrottleController::AngleThrottleController()
@@ -59,7 +57,7 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto cmd = make_unique<tobas_command_msgs::AngleThrottle>();
+  auto cmd = std::make_unique<tobas_command_msgs::AngleThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
@@ -70,7 +68,7 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd->throttle = expo(deadband(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot)), throt_expo_);
 
   // コマンドを発行
-  cmd_pub_->publish(move(cmd));
+  cmd_pub_->publish(std::move(cmd));
 }
 
 bool AngleThrottleController::maxAttitudeCb(const long& p)
