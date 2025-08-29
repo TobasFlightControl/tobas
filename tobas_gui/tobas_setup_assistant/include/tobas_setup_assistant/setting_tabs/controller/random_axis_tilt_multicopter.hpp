@@ -14,8 +14,6 @@ class RandomAxisTiltMulticopterWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
-  static constexpr int kMinNumProp = 3;
-
 public:
   explicit RandomAxisTiltMulticopterWidget();
 

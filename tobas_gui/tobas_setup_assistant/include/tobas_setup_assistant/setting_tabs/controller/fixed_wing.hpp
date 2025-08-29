@@ -12,9 +12,6 @@ class FixedWingWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
-  static constexpr int kMinNumProp = 1;
-  static constexpr int kMinNumCS = 2;
-
 public:
   explicit FixedWingWidget();
 

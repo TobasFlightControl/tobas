@@ -7,6 +7,7 @@
 #include "./non_planar_multicopter.hpp"
 #include "./planar_multicopter.hpp"
 #include "./random_axis_tilt_multicopter.hpp"
+#include "./y_axis_tilt_multicopter.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
 namespace gui
@@ -56,6 +57,7 @@ private:
 
   PlanarMulticopterWidget* planar_multicopter_;
   NonPlanarMulticopterWidget* non_planar_multicopter_;
+  YAxisTiltMulticopterWidget* y_axis_tilt_multicopter_;
   RandomAxisTiltMulticopterWidget* random_axis_tilt_multicopter_;
   FixedWingWidget* fixed_wing_;
 

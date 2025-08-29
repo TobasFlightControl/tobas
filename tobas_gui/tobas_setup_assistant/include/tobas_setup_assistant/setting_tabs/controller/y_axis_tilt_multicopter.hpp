@@ -10,12 +10,12 @@ namespace sa
 {
 namespace ctrl
 {
-class PlanarMulticopterWidget : public BaseControllerWidget
+class YAxisTiltMulticopterWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
 public:
-  explicit PlanarMulticopterWidget();
+  explicit YAxisTiltMulticopterWidget();
 
   const char* name() const override;
   QString controllerPackage() const override;
