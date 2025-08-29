@@ -5,16 +5,16 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 
-#include "./mixer.hpp"
+#include "./mixer_i.hpp"
 
 namespace tobas
 {
 /**
  * @brief 制約を考慮した非平面配置マルチコプターの推力ミキシング (memo: 2-49)
  */
-class NonPlanarMixer_QP : public Mixer
+class NonPlanarMixer_QP : public MixerI
 {
-  using super = Mixer;
+  using super = MixerI;
 
 public:
   explicit NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree);

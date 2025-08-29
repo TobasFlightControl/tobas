@@ -7,7 +7,6 @@
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
@@ -112,9 +111,9 @@ bool TiltRotorMixer_SQP::solve(
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   d_.tail<3>() = eom_rot_right_B.data;
 
-  // FIXME: ティルトヘキサでティルト角の制限が30degを超えるとSQPが収束しないことがある
+  // FIXME: チルトヘキサでチルト角の制限が30degを超えるとSQPが収束しないことがある
   // TODO: 目的関数や制約に三角関数が含まれていると局所解のリスクが上がるため，x,yと等式制約に置換してみる
-  // TODO: プロペラ位置とイナーシャの，ティルト角による変化を考慮
+  // TODO: プロペラ位置とイナーシャの，チルト角による変化を考慮
 
   // Update weights
   const auto linear_scale = mass * kAccelScale;                                     // [N]
@@ -356,7 +355,7 @@ const MatrixXd& TiltRotorMixer_SQP::calc_N(const VectorXd& theta)
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
-    // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
+    // TODO: チルトジョイントがロータジョイントの直接の親じゃない場合にも対応
     if (!rotor->tilt_joint_name.empty()) {
       const auto& par_elem = elem.parent->second;
       const auto& gpar_elem = par_elem.parent->second;

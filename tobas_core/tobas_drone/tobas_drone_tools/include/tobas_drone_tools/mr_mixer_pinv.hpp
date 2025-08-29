@@ -3,16 +3,16 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
-#include "./mixer.hpp"
+#include "./mixer_i.hpp"
 
 namespace tobas
 {
 /**
  * @brief 疑似逆行列を用いたマルチコプターの推力ミキシング
  */
-class MultiRotorMixer_pinv : public Mixer
+class MultiRotorMixer_pinv : public MixerI
 {
-  using super = Mixer;
+  using super = MixerI;
 
 public:
   explicit MultiRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);

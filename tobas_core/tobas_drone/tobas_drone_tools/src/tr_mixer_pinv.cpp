@@ -6,7 +6,6 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
-#include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
@@ -52,19 +51,8 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
     const auto& par_seg = par_elem.segment;
     const auto& par_joint = par_seg.joint();
 
-    const auto& p = par_joint.axis();                      // 祖父母リンクから見たティルト軸
+    const auto& p = par_joint.axis();                      // 祖父母リンクから見たチルト軸
     const auto& q = par_seg.frame().M * cur_joint.axis();  // 親リンクのジョイントフレームから見たロータ軸
-
-    if (par_joint.name != rotor->tilt_joint_name) {
-      cerr << "Tilt joint name of rotor " << rotor->link_name << " mismatch." << endl;
-      return false;
-    }
-
-    if (!p.isPerpendicular(q)) {
-      cerr << "The axes of tilt joint " << par_joint.name << " and rotor joint " << cur_joint.name
-           << " must be perpendicular to each other." << endl;
-      return false;
-    }
 
     // 祖父母リンクから見た推力の作用点を保存
     const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
@@ -72,7 +60,7 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
     const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
     thrust_points_[rotor->link_name] = thrust_pos;
 
-    // プロペラリンクとティルト軸の距離が十分に小さいことを保証
+    // プロペラリンクとチルト軸の距離が十分に小さいことを保証
     // TODO: サイズや推力など，何らかの根拠に基づいて不安定にならない閾値を決める．
     const auto rotor_offset = rotor_pos - thrust_pos;
     const auto rotor_offset_norm = rotor_offset.norm();
@@ -131,7 +119,7 @@ bool TiltRotorMixer_pinv::solve(
     // 祖父母フレームを取得
     const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
 
-    // ティルト軸と鉛直方向の偏角を計算
+    // チルト軸と鉛直方向の偏角を計算
     const auto tilt_axis_B = B_T_gpar.M * par_joint.axis();
     const auto tilt_axis_W = cur_rot * tilt_axis_B;
     auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
@@ -183,12 +171,11 @@ bool TiltRotorMixer_pinv::solve(
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   f_.tail<3>() = eom_rot_right_B.data;
 
-  // Ex = f の最小二乗解を求める
-  // 冗長自由度がある場合はxのL2ノルムを最小化する
+  // Ex = f の最小二乗解 (冗長自由度がある場合はxのL2ノルム最小化)
   // TODO: 推力の絶対値の制約を考慮．凸最適化問題にすれば良さそう．
   x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
 
-  // 特異状態に対応する解を最小値に固定
+  // 特異状態に対応する推力解がゼロになってしまっているため，最小値に固定
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     if (is_singular_.at(rotor->link_name)) {

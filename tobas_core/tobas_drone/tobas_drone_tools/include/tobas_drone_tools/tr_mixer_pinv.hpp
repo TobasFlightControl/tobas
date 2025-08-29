@@ -4,16 +4,16 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
-#include "./mixer.hpp"
+#include "./mixer_i.hpp"
 
 namespace tobas
 {
 /**
- * @brief ティルトロータマルチコプターのミキシングを変数変換で解く． (memo: 3-16)
+ * @brief チルトロータマルチコプターのミキシングを変数変換で解く． (memo: 3-16)
  */
-class TiltRotorMixer_pinv : public Mixer
+class TiltRotorMixer_pinv : public MixerI
 {
-  using super = Mixer;
+  using super = MixerI;
 
   static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
 
@@ -53,6 +53,6 @@ private:
   Eigen::VectorXd x_;
 
   std::map<std::string, kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
-  std::map<std::string, bool> is_singular_;           // 各ティルトロータが特異状態かどうか
+  std::map<std::string, bool> is_singular_;           // 各チルトロータが特異状態かどうか
 };
 }  // namespace tobas

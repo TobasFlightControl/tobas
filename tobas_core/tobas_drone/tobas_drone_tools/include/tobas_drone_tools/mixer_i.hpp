@@ -8,12 +8,12 @@ namespace tobas
 /**
  * @brief ミキサーの基底クラス．
  */
-class Mixer
+class MixerI
 {
   static constexpr double kZeroThrustThresh = 1e-2;  // [N]
 
 public:
-  explicit Mixer(const Drone& drone, const kdl::Tree& tree);
+  explicit MixerI(const Drone& drone, const kdl::Tree& tree);
 
   virtual bool updateInternalDataStructures();
 
@@ -34,12 +34,12 @@ private:
   bool is_initialized_ = false;
 };
 
-inline bool Mixer::isInitialized() const
+inline bool MixerI::isInitialized() const
 {
   return is_initialized_;
 }
 
-inline double Mixer::thrustDeadband(double thrust) const
+inline double MixerI::thrustDeadband(double thrust) const
 {
   return thrust < kZeroThrustThresh ? 0. : thrust;
 }

@@ -12,12 +12,12 @@
 namespace tobas
 {
 /**
- * @brief ティルトロータマルチコプターのミキシングをSQPで解く． (memo: 3-12)
+ * @brief チルトロータマルチコプターのミキシングをSQPで解く． (memo: 3-12)
  */
-class TiltRotorMixer_SQP : public Mixer
+class TiltRotorMixer_SQP : public MixerI
 {
   using self = TiltRotorMixer_SQP;
-  using super = Mixer;
+  using super = MixerI;
 
   static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
 

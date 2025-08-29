@@ -6,16 +6,16 @@
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_time_tools/stopwatch.hpp>
 
-#include "./mixer.hpp"
+#include "./mixer_i.hpp"
 
 namespace tobas
 {
 /**
  * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)
  */
-class MultiRotorMixer_QP : public Mixer
+class MultiRotorMixer_QP : public MixerI
 {
-  using super = Mixer;
+  using super = MixerI;
 
   static constexpr double kThrustClampMargin = 1e-3;  // [N]
 
