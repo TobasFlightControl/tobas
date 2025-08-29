@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-namespace x_axis_tilt_multicopter
+namespace y_axis_tilt_multicopter
 {
 /* memo: 3-39 */
 class Mixer : public MixerI
@@ -42,5 +42,5 @@ private:
 
   std::map<std::string, kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
 };
-}  // namespace x_axis_tilt_multicopter
+}  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

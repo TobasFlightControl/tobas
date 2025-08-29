@@ -13,7 +13,7 @@ using namespace Eigen;
 
 namespace tobas
 {
-namespace x_axis_tilt_multicopter
+namespace y_axis_tilt_multicopter
 {
 Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
@@ -152,5 +152,5 @@ double Mixer::getTiltAngle(size_t idx) const
   const auto ty = x_(2 * idx + 1);
   return atan2(ty, tx);
 }
-}  // namespace x_axis_tilt_multicopter
+}  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

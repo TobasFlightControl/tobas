@@ -9,7 +9,7 @@ using namespace std;
 
 namespace tobas
 {
-namespace x_axis_tilt_multicopter
+namespace y_axis_tilt_multicopter
 {
 TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tobas_std::kGravity)
 {
@@ -56,5 +56,5 @@ bool TranslationalEoM::update(
 
   return true;
 }
-}  // namespace x_axis_tilt_multicopter
+}  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

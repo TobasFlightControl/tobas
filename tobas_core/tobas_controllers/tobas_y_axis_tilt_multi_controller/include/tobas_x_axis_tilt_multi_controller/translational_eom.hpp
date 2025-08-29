@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-namespace x_axis_tilt_multicopter
+namespace y_axis_tilt_multicopter
 {
 /* memo: 3-38 */
 class TranslationalEoM
@@ -28,5 +28,5 @@ private:
 
   const kdl::Vector grav_W_;
 };
-}  // namespace x_axis_tilt_multicopter
+}  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

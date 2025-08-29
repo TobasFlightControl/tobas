@@ -28,7 +28,7 @@
 
 namespace tobas
 {
-namespace x_axis_tilt_multicopter
+namespace y_axis_tilt_multicopter
 {
 class ControllerNode : public BaseNode
 {
@@ -541,7 +541,7 @@ void ControllerNode::checkTopicsTimerCb()
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
-}  // namespace x_axis_tilt_multicopter
+}  // namespace y_axis_tilt_multicopter
 }  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas::x_axis_tilt_multicopter::ControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::y_axis_tilt_multicopter::ControllerNode)
