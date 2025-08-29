@@ -7,7 +7,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_std_tools/stream.hpp>
 
-#include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_msgs/msg/message.hpp>
 
 #define tbsdbg gzdbg << "[" << name_ << "] "
 #define tbsmsg gzmsg << "[" << name_ << "] "

@@ -8,7 +8,7 @@
 #include <tobas_std_tools/vector.hpp>
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
-#include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_msgs/msg/message.hpp>
 
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \

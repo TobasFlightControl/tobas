@@ -15,11 +15,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
-find_package(tobas_std_msgs REQUIRED)
+find_package(tobas_msgs REQUIRED)
 find_package(tobas_dparam_msgs REQUIRED)
 find_package(tobas_constants REQUIRED)
 
-set(AMENT_DEPENDENCIES rclcpp_components tobas_std_tools tobas_ros2_tools tobas_std_msgs tobas_dparam_msgs
+set(AMENT_DEPENDENCIES rclcpp_components tobas_std_tools tobas_ros2_tools tobas_msgs tobas_dparam_msgs
                        tobas_constants
 )
 

@@ -7,6 +7,7 @@
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
@@ -18,7 +19,6 @@
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
-#include <tobas_std_msgs/msg/message.hpp>
 
 // tobas_ros_interfaceで扱うトピックのうち，FCからPCに流れるもの
 Q_DECLARE_METATYPE(tobas_msgs::msg::Arming::ConstSharedPtr);

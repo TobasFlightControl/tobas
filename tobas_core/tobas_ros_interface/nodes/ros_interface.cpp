@@ -22,6 +22,7 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field.hpp>
+#include <tobas_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/odometry.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -41,7 +42,6 @@
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
-#include <tobas_std_msgs/msg/message.hpp>
 
 #define DEFAULT_NUM_THREADS 4
 #define MIN_NUM_THREADS 2
