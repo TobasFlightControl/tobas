@@ -60,16 +60,6 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
     const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
     thrust_points_[rotor->link_name] = thrust_pos;
 
-    // プロペラリンクとチルト軸の距離が十分に小さいことを保証
-    // TODO: サイズや推力など，何らかの根拠に基づいて不安定にならない閾値を決める．
-    const auto rotor_offset = rotor_pos - thrust_pos;
-    const auto rotor_offset_norm = rotor_offset.norm();
-    if (rotor_offset_norm > INFINITY) {
-      cerr << "The distance between propeller \"" << rotor->link_name
-           << "\" and its tilt axis is too large: " << rotor_offset_norm << endl;
-      return false;
-    }
-
     A_.at(idx).col(0) = q.data;
     A_.at(idx).col(1) = (p * q).data;
   }
@@ -194,8 +184,8 @@ double TiltRotorMixer_pinv::getThrust(size_t idx) const
 
 double TiltRotorMixer_pinv::getTiltAngle(size_t idx) const
 {
-  const auto tx = x_(2 * idx);
-  const auto ty = x_(2 * idx + 1);
+  const auto& tx = x_(2 * idx);
+  const auto& ty = x_(2 * idx + 1);
   return atan2(ty, tx);
 }
 
