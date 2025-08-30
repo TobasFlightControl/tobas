@@ -21,6 +21,7 @@ bool TreeJointStateConverter::updateInternalDataStructures()
   }
 
   resize();
+  setZero();
 
   return true;
 }
