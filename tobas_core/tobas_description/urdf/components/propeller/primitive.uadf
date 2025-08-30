@@ -1,0 +1,43 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
+
+  <xacro:macro name="primitive_propeller" params="parent index direction diameter_inch width height mass *origin">
+
+    <xacro:property name="diameter" value="${diameter_inch*inch2meter}"/>
+    <xacro:property name="radius" value="${diameter/2}"/>
+
+    <xacro:property name="link_name" value="propeller_${index}"/>
+    <xacro:property name="joint_name" value="${link_name}_joint"/>
+
+    <joint name="${joint_name}" type="thrust">
+      <parent link="${parent}"/>
+      <child link="${link_name}"/>
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <direction value="${direction}"/>
+    </joint>
+
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <box size="${width} ${diameter} ${height}"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${height/2}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${width} ${diameter} ${height}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="${mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:box_inertia x="${width}" y="${diameter}" z="${height}" mass="${mass}"/>
+      </inertial>
+    </link>
+
+  </xacro:macro>
+
+</robot>
