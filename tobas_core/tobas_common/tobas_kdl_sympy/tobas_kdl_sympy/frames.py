@@ -65,7 +65,7 @@ class Vector:
         v2 = other.normalize()
         return sympy.acos(v1.dot(v2))
 
-    def is_collinear(self, other: Vector, tol: float = 1e-6) -> bool:
+    def is_parallel(self, other: Vector, tol: float = 1e-6) -> bool:
         """他方と常に平行 (同方向) となる場合にTrueを返す．"""
         # 偏角を計算
         angle = self.argument(other)
@@ -79,7 +79,7 @@ class Vector:
 
         return angle < tol
 
-    def is_collinear_legacy(self, other: Vector, same_direction_only: bool = False) -> True:
+    def is_parallel_legacy(self, other: Vector, same_direction_only: bool = False) -> True:
         """他方と常に平行となる場合にTrueを返す．この手法だと許容範囲 (tolerance) が設定できない．"""
         # 比例係数を定義
         k = sympy.symbols("k")
