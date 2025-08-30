@@ -87,7 +87,7 @@ void ControllerWidget::setFrameType(const FrameType& type)
     }
   }
 
-  throw std::runtime_error("Controller widget not found for \"" + textFromEnum(type) + "\".");
+  throw std::runtime_error("Controller not found for frame type: " + textFromEnum(type));
 }
 
 QString ControllerWidget::controllerPackage() const
