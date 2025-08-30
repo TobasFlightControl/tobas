@@ -40,7 +40,9 @@ private:
   Eigen::Vector5d f_;
   Eigen::VectorXd x_;
 
-  std::map<std::string, kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
+  std::vector<kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
+  std::vector<int> tilt_axis_signs_;        // 機体座標系から見たチルト軸のY成分の符号
+  std::vector<double> tilt_offsets_;        // 現在の姿勢におけるチルト角のオフセット [rad]
 };
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

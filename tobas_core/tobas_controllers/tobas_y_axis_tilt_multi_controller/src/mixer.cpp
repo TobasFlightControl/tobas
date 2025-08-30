@@ -2,10 +2,12 @@
 
 #include <ranges>
 
+#include <tobas_algorithm/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
+#include <tobas_std_tools/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
@@ -28,16 +30,23 @@ bool Mixer::updateInternalDataStructures()
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
+  // 順運動学を計算
+  if (!fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()))) {
+    cerr << fk_solver_.errorMessage() << endl;
+    return false;
+  }
+
   const auto nr = drone_.prop->numRotors();
 
   E_.conservativeResize(NoChange, 2 * nr);
   for (int i = 0; i < nr; ++i) {
     E_.block<2, 2>(3, 2 * i).diagonal().setIdentity();
   }
-
   x_.conservativeResize(2 * nr);
 
-  thrust_points_.clear();
+  thrust_points_.resize(nr);
+  tilt_axis_signs_.resize(nr);
+  tilt_offsets_.resize(nr);
 
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -52,22 +61,24 @@ bool Mixer::updateInternalDataStructures()
     const auto& par_elem = cur_elem.parent->second;
     const auto& par_seg = par_elem.segment;
     const auto& par_joint = par_seg.joint();
+    const auto& gpar_elem = par_elem.parent->second;
+    const auto& gpar_seg = gpar_elem.segment;
 
     // 祖父母リンクから見た推力の作用点を保存
     const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
     const auto& rotor_pos = gpar_T_cur.p;
     const auto thrust_pos = eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, rotor_pos.data);
-    thrust_points_[rotor->link_name] = thrust_pos;
+    thrust_points_.at(idx) = thrust_pos;
 
-    // プロペラリンクとチルト軸の距離が十分に小さいことを保証
-    // TODO: サイズや推力など，何らかの根拠に基づいて不安定にならない閾値を決める．
-    const auto rotor_offset = rotor_pos - thrust_pos;
-    const auto rotor_offset_norm = rotor_offset.norm();
-    if (rotor_offset_norm > INFINITY) {
-      cerr << "The distance between propeller \"" << rotor->link_name
-           << "\" and its tilt axis is too large: " << rotor_offset_norm << endl;
+    // チルト軸の符号を保存
+    const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+    const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // ベースリンクから見たチルト軸
+    const auto tilt_axis_y = tilt_axis.normalized().y();
+    if (!tobas_std::isClose(fabs(tilt_axis_y), 1.)) {
+      cerr << "Tilt axis must be parallel to the Y axis." << endl;
       return false;
     }
+    tilt_axis_signs_.at(idx) = math::sign(tilt_axis_y);
   }
 
   return true;
@@ -100,30 +111,35 @@ bool Mixer::solve(
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
-    // 祖父母フレームを取得
     const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
     const auto& par_elem = cur_elem.parent->second;
     const auto& gpar_elem = par_elem.parent->second;
-    const auto& gpar_seg = gpar_elem.segment;
-    const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
 
     // 運動方程式の左辺を計算
-    const auto col = 2 * idx;
+    const auto col_tx = 2 * idx;
+    const auto col_tz = col_tx + 1;
     if (rotor_alive_.at(rotor->link_name)) {
-      const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(rotor->link_name);
+      const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
+      const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(idx);
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
       const auto d_cm = rotor->sign() * rotor->moment_const;
-      E_(0, col) = -d_cm;
-      E_(1, col) = B_Pos_G2P.z();
-      E_(2, col) = -B_Pos_G2P.y();
-      E_(0, col + 1) = B_Pos_G2P.y();
-      E_(1, col + 1) = -B_Pos_G2P.x();
-      E_(2, col + 1) = -d_cm;
+      E_(0, col_tx) = -d_cm;
+      E_(1, col_tx) = B_Pos_G2P.z();
+      E_(2, col_tx) = -B_Pos_G2P.y();
+      E_(0, col_tz) = B_Pos_G2P.y();
+      E_(1, col_tz) = -B_Pos_G2P.x();
+      E_(2, col_tz) = -d_cm;
     }
     else {
       // ロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
-      E_.middleCols<2>(col).setZero();
+      E_.middleCols<2>(col_tx).setZero();
     }
+
+    // 現在の関節角におけるチルト角の垂直上方向からのオフセットを保存
+    const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
+    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // ベースリンクから見た回転軸
+    assert(tobas_std::isClose(n.y(), 0.));
+    tilt_offsets_.at(idx) = atan2(n.x(), n.z());
   }
 
   // 運動方程式の右辺
@@ -148,9 +164,9 @@ double Mixer::getThrust(size_t idx) const
 
 double Mixer::getTiltAngle(size_t idx) const
 {
-  const auto tx = x_(2 * idx);
-  const auto ty = x_(2 * idx + 1);
-  return atan2(ty, tx);
+  const auto& tx = x_(2 * idx);
+  const auto& tz = x_(2 * idx + 1);
+  return tilt_axis_signs_.at(idx) * algo::wrapPi(atan2(tx, tz) - tilt_offsets_.at(idx));
 }
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas
