@@ -229,28 +229,22 @@ FrameType SetupAssistantWidget::determineFrameType()
       if (uadf_.thrusts.size() < 3)  // プロペラの枚数が3枚未満
       {
         msg += "  - which has fewer than 3 propellers\n";
-
-        // TODO: 2枚なら制御可能かも
         qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
-        return FrameType::kUndefined;
+        return FrameType::kUndefined;  // TODO: 2枚なら制御可能かも
       }
       else  // プロペラの枚数が3枚以上
       {
         msg += "  - which has 3 or more propellers\n";
 
-        if (allThrustJointAxesAlwaysCollinear(kdl::Vector::UnitZ()))  // 全てのプロペラの回転軸が常にZ+
+        if (allThrustJointAxesAlwaysParallel(kdl::Vector::UnitZ(), true))  // 全てのプロペラの回転軸が常にZ+
         {
-          msg += "  - whose propeller rotation axes all always point toward Z+\n";
-
-          // TODO: 可操作度による分類
-          return FrameType::kPlanarMulticopter;
+          msg += "  - whose propeller rotation axes all point toward Z+\n";
+          return FrameType::kPlanarMulticopter;  // TODO: 可操作度による分類
         }
         else  // 少なくとも1つのプロペラの回転軸がZ+以外を向く場合がある
         {
           msg += "  - which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
-
-          // TODO: 可操作度による分類
-          return FrameType::kNonPlanarMulticopter;
+          return FrameType::kNonPlanarMulticopter;  // TODO: 可操作度による分類
         }
       }
     }
@@ -260,31 +254,45 @@ FrameType SetupAssistantWidget::determineFrameType()
 
       if (allTiltRotorAxesPerpendicular())  // 全てのチルト軸とロータ軸が直行する
       {
-        msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis.\n";
+        msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
 
-        // TODO: 可操作度による分類
-        return FrameType::kRandomAxisTiltMulticopter;
+        if (allTiltJointAxesAlwaysParallel()) {  // 全てのチルト軸が常に互いに平行
+          msg += "  - whose tilt axes are all parallel to each other\n";
+
+          if (allTiltJointAxesAlwaysParallel(kdl::Vector::UnitY(), false)) {  // 全てのチルト軸が常にY軸平行
+            msg += "  - whose tilt axes are parallel to the Y axis\n";
+            return FrameType::kYAxisTiltMulticopter;
+          }
+          else {  // 全てのチルト軸が常にY軸平行でない
+            msg += "  - whose tilt axes are not parallel to the Y axis\n";
+            qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+            return FrameType::kUndefined;
+          }
+        }
+        else {  // 平行でないチルト軸の組が存在する
+          msg += "  - there exists a pair of non-parallel tilt axes\n";
+          return FrameType::kRandomAxisTiltMulticopter;
+        }
       }
       else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
         msg += "  - which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
-
-        // TODO: チルト軸と回転軸が直行しないモデルにも対応
         qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
-        return FrameType::kUndefined;
+        return FrameType::kUndefined;  // TODO: チルト軸と回転軸が直行しないモデルにも対応
       }
     }
   }
   else  // 固定翼をもつ場合
   {
     msg += "  - which has fixed wings\n";
-
-    // TODO: 固定翼に対応
     qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
-    return FrameType::kUndefined;
+    return FrameType::kUndefined;  // TODO: 固定翼に対応
   }
 }
 
-bool SetupAssistantWidget::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis)
+bool SetupAssistantWidget::isJntAxisAlwaysParallel(
+  const std::string& link_name,
+  const kdl::Vector& tar_axis,
+  bool same_direction_only)
 {
   const auto seg_it = tree_.getSegment(link_name);
 
@@ -299,21 +307,21 @@ bool SetupAssistantWidget::isJntAxisAlwaysCollinear(const std::string& link_name
   if (joint.type != kdl::Joint::kFixed) {
     TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
     const auto& cur_axis = axis_solver_.getAxis();
-    if (cur_axis.argument(tar_axis) > kJntAxisCollinearTol) {
+    if (!cur_axis.isParallel(tar_axis, same_direction_only, kJntAxisParallelTol)) {
       return false;
     }
   }
 
   // 親リンクについて調べる
   const auto& par_name = seg_it->second.parent->first;
-  return isJntAxisAlwaysCollinear(par_name, tar_axis);
+  return isJntAxisAlwaysParallel(par_name, tar_axis, same_direction_only);
 }
 
-bool SetupAssistantWidget::allThrustJointAxesAlwaysCollinear(const kdl::Vector& tar_axis)
+bool SetupAssistantWidget::allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
 {
   for (const auto& [joint_name, _] : uadf_.thrusts) {
     const auto& link_name = jnt_parser_.segmentName(joint_name);
-    if (!isJntAxisAlwaysCollinear(link_name, tar_axis)) {
+    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
       return false;
     }
   }
@@ -347,6 +355,35 @@ bool SetupAssistantWidget::allTiltRotorAxesPerpendicular()
   }
 
   return true;
+}
+
+bool SetupAssistantWidget::allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
+{
+  for (const auto& [joint_name, _] : uadf_.tilts) {
+    const auto& link_name = jnt_parser_.segmentName(joint_name);
+    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool SetupAssistantWidget::allTiltJointAxesAlwaysParallel()
+{
+  if (uadf_.tilts.empty()) {
+    qWarning() << "The drone has no tilt joints.";
+    return false;
+  }
+
+  // チルト軸を1つ取得
+  const auto& first_tilt_joint_name = uadf_.tilts.cbegin()->first;
+  const auto& first_tilt_link_name = jnt_parser_.segmentName(first_tilt_joint_name);
+  TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, first_tilt_link_name) == kdl::SolverI::kNoError);
+  const auto first_tilt_joint_axis = axis_solver_.getAxis().clone();
+
+  // 最初のチルト軸と他全てが平行ならば全てのチルト軸が互いに平行と言える
+  return allTiltJointAxesAlwaysParallel(first_tilt_joint_axis, false);
 }
 
 void SetupAssistantWidget::onNewButtonClicked()

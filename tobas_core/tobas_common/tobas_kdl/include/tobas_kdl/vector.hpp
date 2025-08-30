@@ -3,7 +3,6 @@
 #include <map>
 
 #include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_std_tools/float.hpp>
@@ -46,6 +45,8 @@ public:
   inline void y(double y);
   inline void z(double z);
 
+  inline Vector clone() const;
+
   inline void fill(double value);
 
   /* 最小の要素を取得する． */
@@ -71,6 +72,11 @@ public:
 
   /* 2つのベクトルが直行するかどうかを判定する． */
   inline bool isPerpendicular(const Vector& rhs) const;
+
+  /* 2つのベクトルが平行かどうかを判定する． */
+  bool
+  isParallel(const Vector& rhs, bool same_direction_only = false, double angle_tol_rad = 1e-3, double zero_tol = 1e-12)
+    const;
 
   /* Clamp each value. */
   inline Vector clamp(const double& lb, const double& ub) const;
@@ -203,6 +209,11 @@ inline void Vector::y(double y)
 inline void Vector::z(double z)
 {
   data.z() = z;
+}
+
+inline Vector Vector::clone() const
+{
+  return Vector(data);
 }
 
 inline void Vector::fill(double value)

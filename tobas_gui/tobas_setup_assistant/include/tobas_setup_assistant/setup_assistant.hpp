@@ -37,7 +37,7 @@ class SetupAssistantWidget : public QWidget
   static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/setup_assistant/load";
   static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/setup_assistant/save";
 
-  static constexpr double kJntAxisCollinearTol = tobas_std::deg2rad(5);
+  static constexpr double kJntAxisParallelTol = tobas_std::deg2rad(5);  // [rad]
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
@@ -87,13 +87,19 @@ private:
   FrameType determineFrameType();
 
   /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
-  bool isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis);
+  bool isJntAxisAlwaysParallel(const std::string& link_name, const kdl::Vector& tar_axis, bool same_direction_only);
 
-  /* 全てのスラストジョイントの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
-  bool allThrustJointAxesAlwaysCollinear(const kdl::Vector& tar_axis);
+  /* 全てのスラストジョイントの軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  bool allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
 
   /* 全てのチルト軸とロータ軸が直行するかどうかを調べる． */
   bool allTiltRotorAxesPerpendicular();
+
+  /* 全てのチルトジョイントの軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  bool allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
+
+  /* 全てのチルトジョイントの軸が互いに平行かどうかを調べる． */
+  bool allTiltJointAxesAlwaysParallel();
 
 private Q_SLOTS:
   void onNewButtonClicked();
