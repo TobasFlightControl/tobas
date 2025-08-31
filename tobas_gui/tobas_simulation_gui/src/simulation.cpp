@@ -372,6 +372,12 @@ bool SimulationWidget::launchGazebo(bool launch_core)
     { "world_path", sim_settings_->worldPath().string() },
     { "user_debug", std::format("{}", sim_settings_->userDebug()) },
     { "launch_core", boolToText(launch_core) },
+    { "x", std::to_string(sim_settings_->x()) },
+    { "y", std::to_string(sim_settings_->y()) },
+    { "z", std::to_string(sim_settings_->z()) },
+    { "roll", std::to_string(sim_settings_->roll()) },
+    { "pitch", std::to_string(sim_settings_->pitch()) },
+    { "yaw", std::to_string(sim_settings_->yaw()) },
   };
 
   launch_pid_ = common::roslaunch(install_path, config_pkg_name, "gazebo.launch.xml", args);

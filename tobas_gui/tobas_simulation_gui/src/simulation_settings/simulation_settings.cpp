@@ -29,6 +29,9 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   world_ = new WorldWidget(node);
   scroll_rows->addWidget(world_);
 
+  pose_ = new PoseWidget();
+  scroll_rows->addWidget(pose_);
+
   debug_ = new DebugWidget();
   scroll_rows->addWidget(debug_);
 
@@ -43,6 +46,36 @@ LoopType SimulationSettingsWidget::loopType() const
 fs::path SimulationSettingsWidget::worldPath() const
 {
   return world_->worldPath();
+}
+
+double SimulationSettingsWidget::x() const
+{
+  return pose_->x();
+}
+
+double SimulationSettingsWidget::y() const
+{
+  return pose_->y();
+}
+
+double SimulationSettingsWidget::z() const
+{
+  return pose_->z();
+}
+
+double SimulationSettingsWidget::roll() const
+{
+  return pose_->roll();
+}
+
+double SimulationSettingsWidget::pitch() const
+{
+  return pose_->pitch();
+}
+
+double SimulationSettingsWidget::yaw() const
+{
+  return pose_->yaw();
 }
 
 bool SimulationSettingsWidget::userDebug() const
