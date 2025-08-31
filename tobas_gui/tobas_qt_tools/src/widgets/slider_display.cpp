@@ -98,16 +98,21 @@ void IntSliderDisplay::setText(const QString& text)
 void IntSliderDisplay::setSuffix(const QString& suffix)
 {
   suffix_ = suffix;
-  value_->setText(QString::number(getValue()) + suffix_);
+  updateValueText(getValue());
+}
+
+void IntSliderDisplay::updateValueText(int value)
+{
+  value_->setText(QString::number(value) + suffix_);
 }
 
 void IntSliderDisplay::onSliderValueChanged(int value)
 {
-  value_->setText(QString::number(value) + suffix_);
+  updateValueText(value);
   Q_EMIT valueChanged(value);
 }
 
-DoubleSliderDisplay::DoubleSliderDisplay(int decimals, QWidget* parent) : super(parent), decimals_(decimals)
+DoubleSliderDisplay::DoubleSliderDisplay(QWidget* parent) : super(parent)
 {
   DefaultFont font(TEXT_PSIZE, QFont::Bold);
 
@@ -159,6 +164,11 @@ QString DoubleSliderDisplay::getSuffix() const
   return suffix_;
 }
 
+int DoubleSliderDisplay::getDecimals() const
+{
+  return decimals_;
+}
+
 void DoubleSliderDisplay::setValue(double value, bool block_signal)
 {
   slider_->blockSignals(true);
@@ -196,12 +206,23 @@ void DoubleSliderDisplay::setText(const QString& text)
 void DoubleSliderDisplay::setSuffix(const QString& suffix)
 {
   suffix_ = suffix;
-  value_->setText(QString::number(getValue(), 'f', decimals_) + suffix_);
+  updateValueText(getValue());
+}
+
+void DoubleSliderDisplay::setDecimals(int decimals)
+{
+  decimals_ = decimals;
+  updateValueText(getValue());
+}
+
+void DoubleSliderDisplay::updateValueText(double value)
+{
+  value_->setText(QString::number(value, 'f', decimals_) + suffix_);
 }
 
 void DoubleSliderDisplay::onSliderValueChanged(double value)
 {
-  value_->setText(QString::number(value, 'f', decimals_) + suffix_);
+  updateValueText(value);
   Q_EMIT valueChanged(value);
 }
 }  // namespace qt
