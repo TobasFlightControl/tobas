@@ -9,23 +9,23 @@ WorldWidget_Base::WorldWidget_Base(const QString& label)
   cols_ = new QHBoxLayout();
   setLayout(cols_);
 
-  checkbox = new QCheckBox(label);
-  cols_->addWidget(checkbox);
+  radio_button = new QRadioButton(label);
+  cols_->addWidget(radio_button);
 
-  connect(checkbox, &QCheckBox::toggled, this, &WorldWidget_Base::onCheckBoxToggled);
+  connect(radio_button, &QRadioButton::toggled, this, &WorldWidget_Base::onRadioButtonToggled);
 }
 
 bool WorldWidget_Base::isChecked() const
 {
-  return checkbox->isChecked();
+  return radio_button->isChecked();
 }
 
 void WorldWidget_Base::setChecked(bool checked)
 {
-  checkbox->setChecked(checked);
+  radio_button->setChecked(checked);
 }
 
-void WorldWidget_Base::onCheckBoxToggled(bool checked)
+void WorldWidget_Base::onRadioButtonToggled(bool checked)
 {
   setContentsEnabled(checked);
 }

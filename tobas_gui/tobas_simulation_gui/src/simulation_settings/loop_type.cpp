@@ -12,38 +12,38 @@ namespace sim
 {
 LoopTypeWidget::LoopTypeWidget()
 {
-  ckb_group_ = new QButtonGroup(this);
-  ckb_group_->setExclusive(true);
+  btn_group_ = new QButtonGroup(this);
+  btn_group_->setExclusive(true);
 
   // 選択肢の文が長すぎると500pxに収まらなくなる
-  sitl_ckb_ = new QCheckBox("SITL (Simulation in the Loop)");
-  hitl_ckb_ = new QCheckBox("HITL (Hardware in the Loop)");
+  sitl_btn_ = new QRadioButton("SITL (Simulation in the Loop)");
+  hitl_btn_ = new QRadioButton("HITL (Hardware in the Loop)");
 
-  hitl_ckb_->setEnabled(false);  // TODO: HITLできるようにして有効化
+  hitl_btn_->setEnabled(false);  // TODO: HITLできるようにして有効化
 
-  ckb_group_->addButton(sitl_ckb_);
-  ckb_group_->addButton(hitl_ckb_);
+  btn_group_->addButton(sitl_btn_);
+  btn_group_->addButton(hitl_btn_);
 
   // Default
-  sitl_ckb_->setChecked(true);
+  sitl_btn_->setChecked(true);
 
   // Layout
   const auto rows = new QVBoxLayout();
   rows->addWidget(new qt::Label("Simulation Type", kLabelPSize, QFont::Bold));
-  rows->addWidget(sitl_ckb_);
-  rows->addWidget(hitl_ckb_);
+  rows->addWidget(sitl_btn_);
+  rows->addWidget(hitl_btn_);
 
   setLayout(rows);
 }
 
 LoopType LoopTypeWidget::loopType() const
 {
-  const auto checked_button = ckb_group_->checkedButton();
+  const auto checked_button = btn_group_->checkedButton();
 
-  if (checked_button == sitl_ckb_) {
+  if (checked_button == sitl_btn_) {
     return SITL;
   }
-  else if (checked_button == hitl_ckb_) {
+  else if (checked_button == hitl_btn_) {
     return HITL;
   }
   else {

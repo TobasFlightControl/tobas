@@ -25,17 +25,17 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   widgets_.push_back(new WorldWidget_Standard());
   widgets_.push_back(new WorldWidget_Custom(node));
 
-  const auto ckb_group = new QButtonGroup(this);
-  ckb_group->setExclusive(true);
+  const auto btn_group = new QButtonGroup(this);
+  btn_group->setExclusive(true);
 
   for (const auto& widget : widgets_) {
     rows->addWidget(widget);
-    ckb_group->addButton(widget->checkbox);
+    btn_group->addButton(widget->radio_button);
     widget->setContentsEnabled(false);
   }
 
   // Default
-  widgets_.front()->checkbox->setChecked(true);
+  widgets_.front()->setChecked(true);
 }
 
 fs::path WorldWidget::worldPath() const

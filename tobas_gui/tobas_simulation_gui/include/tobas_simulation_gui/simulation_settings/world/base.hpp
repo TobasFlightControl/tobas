@@ -2,8 +2,8 @@
 
 #include <filesystem>
 
-#include <QCheckBox>
 #include <QHBoxLayout>
+#include <QRadioButton>
 
 namespace gui
 {
@@ -14,7 +14,7 @@ class WorldWidget_Base : public QWidget
   Q_OBJECT
 
 public:
-  QCheckBox* checkbox;
+  QRadioButton* radio_button;
 
   explicit WorldWidget_Base(const QString& label);
 
@@ -28,7 +28,8 @@ protected:
   QHBoxLayout* cols_;
 
 private Q_SLOTS:
-  void onCheckBoxToggled(bool checked);
+
+  void onRadioButtonToggled(bool checked);
 };
 }  // namespace sim
 }  // namespace gui
