@@ -23,8 +23,8 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-#include "tobas_x_axis_tilt_multi_controller/mixer.hpp"
-#include "tobas_x_axis_tilt_multi_controller/translational_eom.hpp"
+#include "tobas_y_axis_tilt_multi_controller/mixer.hpp"
+#include "tobas_y_axis_tilt_multi_controller/translational_eom.hpp"
 
 namespace tobas
 {

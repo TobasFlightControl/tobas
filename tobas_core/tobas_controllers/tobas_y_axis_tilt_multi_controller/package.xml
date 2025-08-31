@@ -1,6 +1,6 @@
 <package format="3">
 
-	<name>tobas_x_axis_tilt_multi_controller</name>
+	<name>tobas_y_axis_tilt_multi_controller</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>

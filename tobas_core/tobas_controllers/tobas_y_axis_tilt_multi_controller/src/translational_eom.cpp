@@ -1,4 +1,4 @@
-#include "tobas_x_axis_tilt_multi_controller/translational_eom.hpp"
+#include "tobas_y_axis_tilt_multi_controller/translational_eom.hpp"
 
 #include <iostream>
 
