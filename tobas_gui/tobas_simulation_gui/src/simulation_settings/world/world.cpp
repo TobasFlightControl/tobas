@@ -1,6 +1,8 @@
 #include "tobas_simulation_gui/simulation_settings/world/world.hpp"
 
 #include <QButtonGroup>
+#include <QDebug>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
@@ -22,36 +24,65 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   const auto label = new qt::Label("World", kLabelPSize, QFont::Bold);
   rows->addWidget(label);
 
-  widgets_.push_back(new WorldWidget_Standard());
-  widgets_.push_back(new WorldWidget_Custom(node));
+  const auto form = new qt::FormLayout();
+  rows->addLayout(form);
 
-  const auto btn_group = new QButtonGroup(this);
+  const auto btn_group = new QButtonGroup();
   btn_group->setExclusive(true);
 
-  for (const auto& widget : widgets_) {
-    rows->addWidget(widget);
-    btn_group->addButton(widget->radio_button);
-    widget->setContentsEnabled(false);
-  }
+  addRow(form, btn_group, new WorldWidget_Standard(), "Standard World");
+  addRow(form, btn_group, new CustomWorldWidget(node), "Custom World");
 
   // Default
-  widgets_.front()->setChecked(true);
+  buttons_.at(0)->setChecked(true);
+  updateEnabled();
+
+  connect(btn_group, &QButtonGroup::idClicked, this, &self::onButtonGroupIdClicked);
 }
 
 fs::path WorldWidget::worldPath() const
 {
-  return selected()->worldPath();
+  return widgets_.at(findCurrentRow())->worldPath();
 }
 
-const WorldWidget_Base* WorldWidget::selected() const
+void WorldWidget::addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label)
 {
-  for (const auto& widget : widgets_) {
-    if (widget->isChecked()) {
-      return widget;
+  const auto button = new QRadioButton(label);
+  btn_group->addButton(button, rowCount());
+  form->addVAlignedRow(button, widget);
+
+  buttons_.append(button);
+  widgets_.append(widget);
+}
+
+void WorldWidget::updateEnabled()
+{
+  for (int i = 0; i < rowCount(); ++i) {
+    widgets_.at(i)->setEnabled(buttons_.at(i)->isChecked());
+  }
+}
+
+int WorldWidget::rowCount() const
+{
+  assert(buttons_.size() == widgets_.size());
+  return buttons_.size();
+}
+
+int WorldWidget::findCurrentRow() const
+{
+  for (int i = 0; i < rowCount(); ++i) {
+    if (buttons_.at(i)->isChecked()) {
+      return i;
     }
   }
 
-  throw std::runtime_error("No method is selected.");
+  qWarning() << "No button is checked.";
+  return -1;
+}
+
+void WorldWidget::onButtonGroupIdClicked()
+{
+  updateEnabled();
 }
 }  // namespace sim
 }  // namespace gui

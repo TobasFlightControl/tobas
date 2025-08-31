@@ -17,18 +17,18 @@ HostWidget::HostWidget()
   const auto form = new qt::FormLayout();
   setLayout(form);
 
-  const auto group = new QButtonGroup();
-  group->setExclusive(true);
+  const auto btn_group = new QButtonGroup();
+  btn_group->setExclusive(true);
 
-  addRow(form, group, new HostnameWidget());
-  addRow(form, group, new IPv4Widget());
-  addRow(form, group, new IPv6Widget());
+  addRow(form, btn_group, new HostnameWidget());
+  addRow(form, btn_group, new IPv4Widget());
+  addRow(form, btn_group, new IPv6Widget());
 
   // Default
   buttons_.at(0)->setChecked(true);
   updateEnabled();
 
-  connect(group, &QButtonGroup::idClicked, this, &self::onButtonGroupIdClicked);
+  connect(btn_group, &QButtonGroup::idClicked, this, &self::onButtonGroupIdClicked);
 }
 
 bool HostWidget::isValid()
@@ -69,10 +69,10 @@ QString HostWidget::host() const
   return widgets_.at(findCurrentRow())->host();
 }
 
-void HostWidget::addRow(qt::FormLayout* form, QButtonGroup* group, BaseHostWidget* widget)
+void HostWidget::addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseHostWidget* widget)
 {
   const auto button = new QRadioButton(widget->label());
-  group->addButton(button, rowCount());
+  btn_group->addButton(button, rowCount());
   form->addVAlignedRow(button, widget);
 
   buttons_.append(button);
