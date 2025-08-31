@@ -2,9 +2,13 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+
+#include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
 {
@@ -12,8 +16,13 @@ namespace sim
 {
 PoseWidget::PoseWidget()
 {
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
+  rows->addWidget(new qt::Label("Initial Pose", kLabelPSize, QFont::Bold));
+
   const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  rows->addLayout(cols);
 
   const auto xyz_form = new qt::FormLayout();
   cols->addLayout(xyz_form, 1);
