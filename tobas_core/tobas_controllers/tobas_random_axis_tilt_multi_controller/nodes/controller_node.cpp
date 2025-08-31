@@ -446,19 +446,25 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
   // ミキサー
   if (acc_cmd_ && tar_dgyro_) {
-    // ミキシング方程式を解く
-    const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
-    const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-    if (!mixer_.solve(
-          js_converter_.getPosition(),
-          odom->frame.M,
-          odom->twist.rot,
-          acc_cmd_->accel,
-          *tar_dgyro_,
-          dist_force_W,
-          dist_torque_B)) {
-      TOBAS_FATAL("Failed to solve mixing equation.");
-      return;
+    {
+      // ミキシング方程式を解く
+      const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
+      const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
+      if (!mixer_.solve(
+            js_converter_.getPosition(),
+            odom->frame.M,
+            odom->twist.rot,
+            acc_cmd_->accel,
+            *tar_dgyro_,
+            dist_force_W,
+            dist_torque_B)) {
+        TOBAS_FATAL("Failed to solve mixing equation.");
+        return;
+      }
+
+      // フィードバックメッセージを埋める
+      feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
+      feedback->target_dgyro = *tar_dgyro_;
     }
 
     // 推力を発行
@@ -484,10 +490,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
     }
     tar_angles_pub_->publish(std::move(tar_angles));
-
-    // フィードバックメッセージを埋める
-    feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
-    feedback->target_dgyro = *tar_dgyro_;
 
     // フィードバックメッセージを発行
     feedback_pub_->publish(std::move(feedback));
