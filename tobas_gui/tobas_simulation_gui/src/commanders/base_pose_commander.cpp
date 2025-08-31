@@ -216,18 +216,16 @@ void BasePoseCommanderWidget::onArmRequested()
   cmd_xyz_[0]->setValue(cur_pos.x());
   cmd_xyz_[1]->setValue(cur_pos.y());
   cmd_xyz_[2]->setValue(cur_pos.z());
-  cmd_rpy_[0]->setValue(cur_rpy.roll);
-  cmd_rpy_[1]->setValue(cur_rpy.pitch);
-  cmd_rpy_[2]->setValue(cur_rpy.yaw);
+  cmd_rpy_[0]->setValue(tobas_std::rad2deg(cur_rpy.roll));
+  cmd_rpy_[1]->setValue(tobas_std::rad2deg(cur_rpy.pitch));
+  cmd_rpy_[2]->setValue(tobas_std::rad2deg(cur_rpy.yaw));
 
   // 有効化
   home_button_->setEnabled(true);
   for (const auto& cmd : cmd_xyz_) {
-    cmd->setValue(0.);
     cmd->setEnabled(true);
   }
   for (const auto& cmd : cmd_rpy_) {
-    cmd->setValue(0);
     cmd->setEnabled(true);
   }
 
@@ -255,9 +253,9 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
   cmd_xyz_[0]->setValue(0.);
   cmd_xyz_[1]->setValue(0.);
   cmd_xyz_[2]->setValue(kHomeAltitude);
-  cmd_rpy_[0]->setValue(0.);
-  cmd_rpy_[1]->setValue(0.);
-  cmd_rpy_[2]->setValue(0.);
+  cmd_rpy_[0]->setValue(0);
+  cmd_rpy_[1]->setValue(0);
+  cmd_rpy_[2]->setValue(0);
 }
 
 void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
