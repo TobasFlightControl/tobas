@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_std_tools/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
@@ -38,6 +39,7 @@ bool TranslationalEoM::update(
   const auto cos_pitch = cos(tar_pitch);
   const auto sin_pitch = sin(tar_pitch);
 
+  // 3つ目の回転軸回りの回転角を計算
   const auto den = fx * sin_pitch - fz * cos_pitch;
   if (den == 0.) {
     cerr << "Free fall is commanded." << endl;
@@ -46,13 +48,18 @@ bool TranslationalEoM::update(
   const auto sin_phi = clamp(fy / den, -1., 1.);
   const auto phi = asin(sin_phi);
 
+  // 3つ目の回転行列を計算
   const kdl::Vector n(cos_pitch, 0., sin_pitch);
   const auto rot_x = kdl::Rotation::Rot(n, phi);
-  rot_out = kdl::Rotation::RPY(0., tar_pitch, tar_yaw) * rot_x;
 
+  // 機体座標系から見た推力和を計算
   const auto u = rot_x.inverse(f);
+  assert(tobas_std::isClose(u.y(), 0., 1e-3));
   ux_out = u.x();
   uz_out = u.z();
+
+  // 非線形方程式を解いた後の目標姿勢行列を計算
+  rot_out = kdl::Rotation::RPY(0., tar_pitch, tar_yaw) * rot_x;
 
   return true;
 }
