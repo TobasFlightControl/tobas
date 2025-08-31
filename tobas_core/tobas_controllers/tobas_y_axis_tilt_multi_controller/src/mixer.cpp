@@ -27,11 +27,17 @@ bool Mixer::updateInternalDataStructures()
     return false;
   }
 
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures()) {
+    cerr << fk_solver_.errorMessage() << endl;
+    return false;
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
+    cerr << inertia_solver_.errorMessage() << endl;
+    return false;
+  }
 
   // 順運動学を計算
-  if (!fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()))) {
+  if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
     cerr << fk_solver_.errorMessage() << endl;
     return false;
   }
@@ -39,8 +45,8 @@ bool Mixer::updateInternalDataStructures()
   const auto nr = drone_.prop->numRotors();
 
   E_.conservativeResize(NoChange, 2 * nr);
-  for (int i = 0; i < nr; ++i) {
-    E_.block<2, 2>(3, 2 * i).diagonal().setIdentity();
+  for (size_t i = 0; i < nr; ++i) {
+    E_.block<2, 2>(3, 2 * i).setIdentity();
   }
   x_.conservativeResize(2 * nr);
 
@@ -104,7 +110,6 @@ bool Mixer::solve(
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
-  const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -131,7 +136,7 @@ bool Mixer::solve(
       E_(2, col_tz) = -d_cm;
     }
     else {
-      // ロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
+      // ロータが死んでいる時は推力から機体の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
       E_.middleCols<2>(col_tx).setZero();
     }
 
@@ -144,7 +149,7 @@ bool Mixer::solve(
 
   // 運動方程式の右辺
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
-  f_.tail<3>() = eom_rot_right_B.data;
+  f_.head<3>() = eom_rot_right_B.data;
 
   // 推力和の条件
   f_(3) = ux;
