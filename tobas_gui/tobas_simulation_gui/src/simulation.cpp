@@ -370,6 +370,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   const auto config_pkg_name = common::getProjCfgPkgName(proj_path_);
   const std::map<std::string, std::string> args{
     { "world_path", sim_settings_->worldPath().string() },
+    { "user_debug", std::format("{}", sim_settings_->userDebug()) },
     { "launch_core", boolToText(launch_core) },
   };
 

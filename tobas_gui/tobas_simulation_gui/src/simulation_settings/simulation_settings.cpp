@@ -29,6 +29,9 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   world_ = new WorldWidget(node);
   scroll_rows->addWidget(world_);
 
+  debug_ = new DebugWidget();
+  scroll_rows->addWidget(debug_);
+
   scroll_rows->addStretch();
 }
 
@@ -40,6 +43,11 @@ LoopType SimulationSettingsWidget::loopType() const
 fs::path SimulationSettingsWidget::worldPath() const
 {
   return world_->worldPath();
+}
+
+bool SimulationSettingsWidget::userDebug() const
+{
+  return debug_->userDebug();
 }
 }  // namespace sim
 }  // namespace gui
