@@ -33,7 +33,7 @@ private:
   ros2::SyncServiceClient<SetSrv>::SharedPtr set_sc_;
 
   qt::DoubleSliderTextWidget* mean_speed_;
-  qt::DoubleSliderTextWidget* direction_;
+  qt::IntSliderTextWidget* direction_;
   qt::DoubleSliderTextWidget* gust_speed_factor_;
   qt::DoubleSliderTextWidget* gust_duration_;
   qt::DoubleSliderTextWidget* gust_interval_;

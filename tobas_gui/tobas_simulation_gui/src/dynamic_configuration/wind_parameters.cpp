@@ -7,6 +7,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_simulation_gui/constants.hpp"
 
@@ -18,18 +19,18 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
   const auto title = new qt::Label("Wind Parameters", kLabelPSize, QFont::Bold);
 
-  mean_speed_ = new qt::DoubleSliderTextWidget(0., 20.);
-  direction_ = new qt::DoubleSliderTextWidget(-M_PI, M_PI);
-  gust_speed_factor_ = new qt::DoubleSliderTextWidget(0., 10.);
-  gust_duration_ = new qt::DoubleSliderTextWidget(0., 10.);
-  gust_interval_ = new qt::DoubleSliderTextWidget(0., 30.);
+  mean_speed_ = new qt::DoubleSliderTextWidget(0., 20., 1);
+  direction_ = new qt::IntSliderTextWidget(-180, 180);
+  gust_speed_factor_ = new qt::DoubleSliderTextWidget(0., 10., 1);
+  gust_duration_ = new qt::DoubleSliderTextWidget(0., 10., 1);
+  gust_interval_ = new qt::DoubleSliderTextWidget(0., 30., 1);
 
   reset();
 
   // Layout
   const auto form = new qt::FormLayout();
   form->addVAlignedRow("Mean Speed [m/s]", mean_speed_);
-  form->addVAlignedRow("Direction [rad]", direction_);
+  form->addVAlignedRow("Direction [deg]", direction_);
   form->addVAlignedRow("Gust Speed Factor [-]", gust_speed_factor_);
   form->addVAlignedRow("Gust Duration [s]", gust_duration_);
   form->addVAlignedRow("Gust Interval [s]", gust_interval_);
@@ -42,7 +43,7 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 
   // Connection
   connect(mean_speed_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
-  connect(direction_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
+  connect(direction_, &qt::IntSliderTextWidget::valueChanged, this, &self::onValueChanged);
   connect(gust_speed_factor_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
   connect(gust_duration_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
   connect(gust_interval_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
@@ -76,7 +77,7 @@ bool WindParamsWidget::start()
 void WindParamsWidget::reset()
 {
   mean_speed_->set(0.);
-  direction_->set(0.);
+  direction_->set(0);
   gust_speed_factor_->set(0.);
   gust_duration_->set(0.);
   gust_interval_->set(0.);
@@ -95,7 +96,7 @@ bool WindParamsWidget::loadCurrentParams()
   const auto& cur_params = get_res->params;
 
   mean_speed_->set(cur_params.mean_speed);
-  direction_->set(cur_params.direction);
+  direction_->set(tobas_std::rad2deg(cur_params.direction));
   gust_speed_factor_->set(cur_params.gust_speed_factor);
   gust_duration_->set(cur_params.gust_duration);
   gust_interval_->set(cur_params.gust_interval);
@@ -107,7 +108,7 @@ void WindParamsWidget::onValueChanged()
 {
   const auto set_req = std::make_shared<SetSrv::Request>();
   set_req->params.mean_speed = mean_speed_->get();
-  set_req->params.direction = direction_->get();
+  set_req->params.direction = tobas_std::deg2rad(direction_->get());
   set_req->params.gust_speed_factor = gust_speed_factor_->get();
   set_req->params.gust_duration = gust_duration_->get();
   set_req->params.gust_interval = gust_interval_->get();
