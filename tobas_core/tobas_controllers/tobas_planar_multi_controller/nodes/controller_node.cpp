@@ -526,7 +526,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
-      thrusts_msg->thrusts.back().thrust = mixer_.getThrust(idx);  // 微小値はゼロに固定
+      thrusts_msg->thrusts.back().thrust = mixer_.getThrust(idx);
     }
     tar_thrusts_pub_->publish(std::move(thrusts_msg));
 
