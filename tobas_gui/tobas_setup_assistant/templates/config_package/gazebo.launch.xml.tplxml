@@ -14,6 +14,8 @@
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
   <arg name="z" default="1.0" description="Initial Z position in meters."/>
+  <arg name="roll" default="0.0" description="Initial roll angle in radians."/>
+  <arg name="pitch" default="0.0" description="Initial pitch angle in radians."/>
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
 
   <!-- Set common parameters -->
@@ -39,7 +41,7 @@
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
     <!-- Spawn robot in Gazebo -->
-    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
+    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -R $(var roll) -P $(var pitch) -Y $(var yaw)" output="$(var output)"/>
 
     <!-- Launch Gazebo nodes -->
     <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
