@@ -17,6 +17,7 @@
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/arming.hpp>
+#include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -74,6 +75,7 @@ private:
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> tar_angles_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::MultiRotorControllerFeedback> feedback_pub_;
 
   // Subscribers
@@ -157,6 +159,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(kRotorThrustsCmdTopic);
+  tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MultiRotorControllerFeedback>(kMRCtrlFeedbackTopic);
 
   // Register subscribers
@@ -403,7 +406,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // ミキサー
     {
-      // プロペラの推力を計算
+      // ミキシング方程式を解く
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
       if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro_, ux_, uz_, dist_torque_B)) {
         TOBAS_FATAL("Failed to solve mixing equation.");
@@ -414,15 +417,29 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       feedback->target_dgyro = tar_dgyro_;
     }
 
-    // 目標推力を発行
-    auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-    thrusts_msg->header.stamp = odom->header.stamp;
+    // 推力を発行
+    auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
+    tar_thrusts->header.stamp = odom->header.stamp;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
-      thrusts_msg->thrusts.emplace_back();
-      thrusts_msg->thrusts.back().link_name = rotor_it.first;
-      thrusts_msg->thrusts.back().thrust = mixer_.getThrust(idx);  // 微小値はゼロに固定
+      tar_thrusts->thrusts.emplace_back();
+      tar_thrusts->thrusts.back().link_name = rotor_it.first;
+      tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
     }
-    tar_thrusts_pub_->publish(std::move(thrusts_msg));
+    tar_thrusts_pub_->publish(std::move(tar_thrusts));
+
+    // チルト角を発行
+    auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+    tar_angles->header.stamp = odom->header.stamp;
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+      const auto& rotor = rotor_it.second;
+      if (rotor->tilt_joint_name.empty()) {
+        continue;
+      }
+      tar_angles->commands.emplace_back();
+      tar_angles->commands.back().name = rotor->tilt_joint_name;
+      tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
+    }
+    tar_angles_pub_->publish(std::move(tar_angles));
 
     // フィードバックメッセージを発行
     feedback_pub_->publish(std::move(feedback));
