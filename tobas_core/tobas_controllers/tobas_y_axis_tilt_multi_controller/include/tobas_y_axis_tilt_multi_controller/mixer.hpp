@@ -42,7 +42,7 @@ private:
 
   std::vector<kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
   std::vector<int> tilt_axis_signs_;        // 機体座標系から見たチルト軸のY成分の符号
-  std::vector<double> tilt_offsets_;        // 現在の姿勢におけるチルト角のオフセット [rad]
+  std::vector<double> tilt_offsets_;        // 機体座標系から見たチルト角のオフセット [rad]
 };
 }  // namespace y_axis_tilt_multicopter
 }  // namespace tobas

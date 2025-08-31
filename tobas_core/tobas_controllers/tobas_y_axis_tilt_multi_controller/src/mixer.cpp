@@ -85,6 +85,16 @@ bool Mixer::updateInternalDataStructures()
       return false;
     }
     tilt_axis_signs_.at(idx) = math::sign(tilt_axis_y);
+
+    // チルトジョイントの角度が0のときのチルト角の垂直上方向からのオフセットを保存
+    // FIXME: 機体自体がY軸周りに折れ曲がる場合はこのオフセットが変化する！
+    const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
+    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // ベースリンクから見た回転軸
+    if (!tobas_std::isClose(n.y(), 0.)) {
+      cerr << "The Y component of the propeller’s axis of rotation must be zero." << endl;
+      return false;
+    }
+    tilt_offsets_.at(idx) = atan2(n.x(), n.z());
   }
 
   return true;
@@ -139,12 +149,6 @@ bool Mixer::solve(
       // ロータが死んでいる時は推力から機体の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
       E_.middleCols<2>(col_tx).setZero();
     }
-
-    // 現在の関節角におけるチルト角の垂直上方向からのオフセットを保存
-    const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
-    const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // ベースリンクから見た回転軸
-    assert(tobas_std::isClose(n.y(), 0., 1e-3));
-    tilt_offsets_.at(idx) = atan2(n.x(), n.z());
   }
 
   // 運動方程式の右辺
