@@ -1,4 +1,4 @@
-#include "tobas_drone_tools/tr_mixer_pinv.hpp"
+#include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
 
 #include <ranges>
 
@@ -13,12 +13,14 @@ using namespace Eigen;
 
 namespace tobas
 {
-TiltRotorMixer_pinv::TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree)
+        namespace random_axis_tilt_multicopter
+{
+PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
-bool TiltRotorMixer_pinv::updateInternalDataStructures()
+bool PinvMixer::updateInternalDataStructures()
 {
   if (!super::updateInternalDataStructures()) {
     return false;
@@ -71,7 +73,7 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
   return true;
 }
 
-bool TiltRotorMixer_pinv::solve(
+bool PinvMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -177,19 +179,19 @@ bool TiltRotorMixer_pinv::solve(
   return true;
 }
 
-double TiltRotorMixer_pinv::getThrust(size_t idx) const
+double PinvMixer::getThrust(size_t idx) const
 {
   return thrustDeadband(x_.segment<2>(2 * idx).norm());
 }
 
-double TiltRotorMixer_pinv::getTiltAngle(size_t idx) const
+double PinvMixer::getTiltAngle(size_t idx) const
 {
   const auto& tx = x_(2 * idx);
   const auto& ty = x_(2 * idx + 1);
   return atan2(ty, tx);
 }
 
-bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationLB(double lb_rad)
+bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
 {
   if (lb_rad < 0.) {
     cerr << "The lower bind of singular tilt axis declination must be non-negative." << endl;
@@ -200,7 +202,7 @@ bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationLB(double lb_rad)
   return true;
 }
 
-bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationUB(double ub_rad)
+bool PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
 {
   if (ub_rad < 0.) {
     cerr << "The upper bind of singular tilt axis declination must be non-negative." << endl;
@@ -211,3 +213,4 @@ bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationUB(double ub_rad)
   return true;
 }
 }  // namespace tobas
+}

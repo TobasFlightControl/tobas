@@ -3,22 +3,21 @@
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
-
-#include "./mixer_i.hpp"
+#include <tobas_drone_tools/mixer_i.hpp>
 
 namespace tobas
 {
-/**
- * @brief チルトロータマルチコプターのミキシングを変数変換で解く． (memo: 3-16)
- */
-class TiltRotorMixer_pinv : public MixerI
+      namespace random_axis_tilt_multicopter
+{
+/* チルトロータマルチコプターのミキシングを変数変換で解く (memo: 3-16)． */
+class PinvMixer : public MixerI
 {
   using super = MixerI;
 
   static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
 
 public:
-  explicit TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
+  explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures() override;
 
@@ -56,3 +55,4 @@ private:
   std::map<std::string, bool> is_singular_;           // 各チルトロータが特異状態かどうか
 };
 }  // namespace tobas
+}

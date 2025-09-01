@@ -23,6 +23,10 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
+namespace tobas
+{
+namespace fixed_wing
+{
 struct ControllerParameters
 {
   long forward_speed_weight;
@@ -560,5 +564,7 @@ void ControllerNode::checkTopicsTimerCb()
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
+}  // namespace fixed_wing
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fixed_wing::ControllerNode)

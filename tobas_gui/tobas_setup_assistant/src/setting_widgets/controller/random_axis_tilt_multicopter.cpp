@@ -39,7 +39,7 @@ QString RandomAxisTiltMulticopterWidget::controllerPackage() const
 
 QString RandomAxisTiltMulticopterWidget::pluginName() const
 {
-  return "ControllerNode";
+  return "tobas::random_axis_tilt_multicopter::ControllerNode";
 }
 
 tobas::RcCommand RandomAxisTiltMulticopterWidget::acrobatModeCommand() const

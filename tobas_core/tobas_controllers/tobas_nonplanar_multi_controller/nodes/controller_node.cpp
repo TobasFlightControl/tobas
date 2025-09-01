@@ -2,7 +2,6 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_drone_tools/np_mixer_qp.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_pose_pid/angle_axis_pi.hpp>
@@ -26,10 +25,16 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-class ControllerNode : public tobas::BaseNode
+#include "tobas_nonplanar_multi_controller/mixer_qp.hpp"
+
+namespace tobas
+{
+namespace nonplanar_multicopter
+{
+class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
-  using super = tobas::BaseNode;
+  using super = BaseNode;
 
   static constexpr long kMaxWeight = 100;
 
@@ -37,19 +42,19 @@ public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone drone_;
+  Drone drone_;
   kdl::Tree tree_;
 
-  tobas::TreeJointStateConverter js_converter_;
+  TreeJointStateConverter js_converter_;
 
   // Static parameters
   bool do_dist_comp_trans_;
   bool do_dist_comp_rot_;
 
   // Controllers
-  tobas::PositionPID pos_pid_;
-  tobas::AngleAxisPI rot_pi_;
-  tobas::NonPlanarMixer_QP mixer_;
+  PositionPID pos_pid_;
+  AngleAxisPI rot_pi_;
+  QpMixer mixer_;
   double atti_wn_, head_wn_;      // [rad/s]
   double atti_zeta_, head_zeta_;  // [-]
   kdl::Vector gyro_gain_;
@@ -59,7 +64,7 @@ private:
   bool tree_received_ = false;
   bool js_received_ = false;
   bool topics_received_ = false;
-  tobas::CommandLevelHandler cmd_level_handler_;
+  CommandLevelHandler cmd_level_handler_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
@@ -77,7 +82,7 @@ private:
   ros2::PublisherPtr<tobas_debug_msgs::MulticopterControllerFeedback> feedback_pub_;
 
   // Subscribers
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
@@ -118,7 +123,7 @@ private:
   bool mixerAngularWeightCb(const long& p);
   bool mixerThrustWeightLog10Cb(const long& p);
 
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
@@ -135,7 +140,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
+  : super(node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // Get static parameters
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
@@ -163,26 +168,26 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicIntParam("mixer_thrust_weight_log10", &self::mixerThrustWeightLog10Cb, this, -6, -9, 0);
 
   // Register publishers
-  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
-  feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(tobas::kMRCtrlFeedbackTopic);
+  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(kRotorThrustsCmdTopic);
+  feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(kMRCtrlFeedbackTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  drone_sub_ = createSubscriber(kDroneTopic, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(kKdlTreeTopic, &self::treeCb, this, true, true);
+  odom_sub_ = createSubscriber(kOdometryTopic, &self::odomCb, this);
   if (do_dist_comp_trans_ || do_dist_comp_rot_) {
-    dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+    dist_force_sub_ = createSubscriber(kDisturbanceForceTopic, &self::disturbanceForceCb, this);
   }
-  landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  rotor_livelinesses_sub_ = createSubscriber(tobas::kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
-  pos_cmd_sub_ = createSubscriber(tobas::kPosVelCmdTopic, &self::positionCommandCb, this);
-  acc_cmd_sub_ = createSubscriber(tobas::kAccelCmdTopic, &self::accelCommandCb, this);
-  angle_cmd_sub_ = createSubscriber(tobas::kAngleCmdTopic, &self::angleCommandCb, this);
-  rate_cmd_sub_ = createSubscriber(tobas::kRateCmdTopic, &self::rateCommandCb, this);
+  landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
+  arming_sub_ = createSubscriber(kArmingTopic, &self::armingCb, this);
+  rotor_livelinesses_sub_ = createSubscriber(kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
+  pos_cmd_sub_ = createSubscriber(kPosVelCmdTopic, &self::positionCommandCb, this);
+  acc_cmd_sub_ = createSubscriber(kAccelCmdTopic, &self::accelCommandCb, this);
+  angle_cmd_sub_ = createSubscriber(kAngleCmdTopic, &self::angleCommandCb, this);
+  rate_cmd_sub_ = createSubscriber(kRateCmdTopic, &self::rateCommandCb, this);
 
   // Register timers
-  check_topics_timer_ = createTimer(tobas::kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
+  check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
 bool ControllerNode::updateInternalDataStructures()
@@ -221,17 +226,17 @@ bool ControllerNode::updateHeadingPDGain()
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
 {
   if (!topics_received_) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
     return false;
   }
 
   if (!arming_->data) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
     return false;
   }
 
   if (!cmd_level_handler_.update(level.data, get_clock()->now())) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
 
@@ -342,12 +347,12 @@ bool ControllerNode::mixerThrustWeightLog10Cb(const long& p)
   return mixer_.setThrustWeight(exp10(p));
 }
 
-void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
   if (drone->hasServoJoint()) {
-    js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
+    js_sub_ = createSubscriber(kJointStatesTopic, &self::jointStateCb, this);
   }
   else {
     js_sub_.reset();
@@ -585,42 +590,44 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
 void ControllerNode::checkTopicsTimerCb()
 {
   if (!drone_received_) {
-    TOBAS_WARN("Waiting for \"", tobas::kDroneTopic, "\".");
+    TOBAS_WARN("Waiting for \"", kDroneTopic, "\".");
     return;
   }
 
   if (!tree_received_) {
-    TOBAS_WARN("Waiting for \"", tobas::kKdlTreeTopic, "\".");
+    TOBAS_WARN("Waiting for \"", kKdlTreeTopic, "\".");
     return;
   }
 
   if (!odom_) {
-    TOBAS_WARN("Waiting for \"", tobas::kOdometryTopic, "\".");
+    TOBAS_WARN("Waiting for \"", kOdometryTopic, "\".");
     return;
   }
 
   if (dist_force_sub_ && !dist_force_) {
-    TOBAS_WARN("Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
+    TOBAS_WARN("Waiting for \"", kDisturbanceForceTopic, "\".");
     return;
   }
 
   if (js_sub_ && !js_received_) {
-    TOBAS_WARN("Waiting for \"", tobas::kJointStatesTopic, "\".");
+    TOBAS_WARN("Waiting for \"", kJointStatesTopic, "\".");
     return;
   }
 
   if (!landed_) {
-    TOBAS_WARN("Waiting for \"", tobas::kLandedTopic, "\".");
+    TOBAS_WARN("Waiting for \"", kLandedTopic, "\".");
     return;
   }
 
   if (!arming_) {
-    TOBAS_WARN("Waiting for \"", tobas::kArmingTopic, "\".");
+    TOBAS_WARN("Waiting for \"", kArmingTopic, "\".");
     return;
   }
 
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
+}  // namespace nonplanar_multicopter
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::nonplanar_multicopter::ControllerNode)

@@ -1,4 +1,4 @@
-#include "tobas_drone_tools/mr_mixer_pinv.hpp"
+#include "tobas_planar_multi_controller/mixer_pinv.hpp"
 
 #include <ranges>
 
@@ -10,12 +10,14 @@ using namespace Eigen;
 
 namespace tobas
 {
-MultiRotorMixer_pinv::MultiRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree)
+namespace planar_multicopter
+{
+PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
-bool MultiRotorMixer_pinv::updateInternalDataStructures()
+bool PinvMixer::updateInternalDataStructures()
 {
   if (!super::updateInternalDataStructures()) {
     return false;
@@ -36,7 +38,7 @@ bool MultiRotorMixer_pinv::updateInternalDataStructures()
   return true;
 }
 
-bool MultiRotorMixer_pinv::solve(
+bool PinvMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
@@ -95,8 +97,9 @@ bool MultiRotorMixer_pinv::solve(
   return true;
 }
 
-double MultiRotorMixer_pinv::getThrust(size_t idx) const
+double PinvMixer::getThrust(size_t idx) const
 {
   return thrustDeadband(x_(idx));
 }
+}  // namespace planar_multicopter
 }  // namespace tobas

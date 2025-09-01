@@ -1,4 +1,4 @@
-#include "tobas_drone_tools/mr_accel_attitude_converter.hpp"
+#include "tobas_planar_multi_controller/translational_eom.hpp"
 
 #include <iostream>
 
@@ -11,17 +11,18 @@ using namespace std;
 
 namespace tobas
 {
-AccelAttitudeConverter::AccelAttitudeConverter(const kdl::Tree& tree)
-  : mass_holder_(tree), grav_W_(0, 0, -tobas_std::kGravity)
+namespace planar_multicopter
+{
+TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tobas_std::kGravity)
 {
 }
 
-bool AccelAttitudeConverter::updateInternalDataStructures()
+bool TranslationalEoM::updateInternalDataStructures()
 {
   return mass_holder_.updateInternalDataStructures();
 }
 
-void AccelAttitudeConverter::update(
+void TranslationalEoM::update(
   const kdl::Rotation& cur_rot,
   const kdl::Vector& tar_acc_W,
   const kdl::Vector& ext_force_W,
@@ -53,7 +54,7 @@ void AccelAttitudeConverter::update(
   thrust_out = z / (cos(roll_) * cos(pitch_));  // 現在の姿勢でZ軸加速度を満たす解
 }
 
-bool AccelAttitudeConverter::setMaxAttitude(double p)
+bool TranslationalEoM::setMaxAttitude(double p)
 {
   if (p <= 0.) {
     cerr << "Maximum attitude must be positive." << endl;
@@ -63,4 +64,5 @@ bool AccelAttitudeConverter::setMaxAttitude(double p)
   cfg_.max_attitude = p;
   return true;
 }
+}  // namespace planar_multicopter
 }  // namespace tobas

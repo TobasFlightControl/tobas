@@ -1,4 +1,4 @@
-#include "tobas_drone_tools/np_mixer_qp.hpp"
+#include "tobas_nonplanar_multi_controller/mixer_qp.hpp"
 
 #include <ranges>
 
@@ -11,12 +11,14 @@ using namespace Eigen;
 
 namespace tobas
 {
-NonPlanarMixer_QP::NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree)
+    namespace nonplanar_multicopter
+{
+QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
-bool NonPlanarMixer_QP::updateInternalDataStructures()
+bool QpMixer::updateInternalDataStructures()
 {
   if (!super::updateInternalDataStructures()) {
     return false;
@@ -34,7 +36,7 @@ bool NonPlanarMixer_QP::updateInternalDataStructures()
   return true;
 }
 
-bool NonPlanarMixer_QP::solve(
+bool QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -125,17 +127,17 @@ bool NonPlanarMixer_QP::solve(
   return true;
 }
 
-const Eigen::VectorXd& NonPlanarMixer_QP::getThrusts() const
+const Eigen::VectorXd& QpMixer::getThrusts() const
 {
   return qp_.solution();
 }
 
-double NonPlanarMixer_QP::getThrust(size_t idx) const
+double QpMixer::getThrust(size_t idx) const
 {
   return thrustDeadband(qp_.solution()(idx));
 }
 
-bool NonPlanarMixer_QP::setLinearWeight(double p)
+bool QpMixer::setLinearWeight(double p)
 {
   if (p <= 0.) {
     cerr << "Linear weight must be positive." << endl;
@@ -146,7 +148,7 @@ bool NonPlanarMixer_QP::setLinearWeight(double p)
   return true;
 }
 
-bool NonPlanarMixer_QP::setAngularWeight(double p)
+bool QpMixer::setAngularWeight(double p)
 {
   if (p <= 0.) {
     cerr << "Angular weight must be positive." << endl;
@@ -157,7 +159,7 @@ bool NonPlanarMixer_QP::setAngularWeight(double p)
   return true;
 }
 
-bool NonPlanarMixer_QP::setThrustWeight(double p)
+bool QpMixer::setThrustWeight(double p)
 {
   if (p <= 0.) {
     cerr << "Thrust weight must be positive." << endl;
@@ -168,7 +170,7 @@ bool NonPlanarMixer_QP::setThrustWeight(double p)
   return true;
 }
 
-void NonPlanarMixer_QP::resizeAndFill()
+void QpMixer::resizeAndFill()
 {
   const auto nr = drone_.prop->numRotors();
 
@@ -186,3 +188,4 @@ void NonPlanarMixer_QP::resizeAndFill()
   G_.resize(NoChange, nr);
 }
 }  // namespace tobas
+}

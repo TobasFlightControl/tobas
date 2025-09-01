@@ -1,21 +1,20 @@
 #pragma once
 
+#include <tobas_drone_tools/mixer_i.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
-#include "./mixer_i.hpp"
-
 namespace tobas
 {
-/**
- * @brief 疑似逆行列を用いたマルチコプターの推力ミキシング
- */
-class MultiRotorMixer_pinv : public MixerI
+namespace planar_multicopter
+{
+/* 疑似逆行列を用いたマルチコプターの推力ミキシング． */
+class PinvMixer : public MixerI
 {
   using super = MixerI;
 
 public:
-  explicit MultiRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
+  explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures() override;
 
@@ -36,4 +35,5 @@ private:
   Eigen::Vector4d f_;
   Eigen::VectorXd x_;
 };
+}  // namespace planar_multicopter
 }  // namespace tobas

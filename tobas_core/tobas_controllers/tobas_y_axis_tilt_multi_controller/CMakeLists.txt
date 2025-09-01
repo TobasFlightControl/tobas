@@ -37,7 +37,7 @@ rclcpp_components_register_node(
 )
 
 install(
-  TARGETS ${PROJECT_NAME}_node
+  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
   EXPORT ${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
@@ -45,7 +45,9 @@ install(
   INCLUDES
   DESTINATION include
 )
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

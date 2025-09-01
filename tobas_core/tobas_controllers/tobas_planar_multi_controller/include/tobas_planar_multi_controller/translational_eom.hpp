@@ -4,10 +4,13 @@
 
 namespace tobas
 {
-class AccelAttitudeConverter
+namespace planar_multicopter
+{
+/* 並進の運動方程式を用いて，加速度から推力と姿勢角を求める． */
+class TranslationalEoM
 {
 public:
-  explicit AccelAttitudeConverter(const kdl::Tree& tree);
+  explicit TranslationalEoM(const kdl::Tree& tree);
 
   bool updateInternalDataStructures();
 
@@ -32,4 +35,5 @@ private:
   const kdl::Vector grav_W_;
   double roll_, pitch_, yaw_;
 };
+}  // namespace planar_multicopter
 }  // namespace tobas

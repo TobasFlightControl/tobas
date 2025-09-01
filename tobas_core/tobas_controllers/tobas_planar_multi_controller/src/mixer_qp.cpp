@@ -1,4 +1,4 @@
-#include "tobas_drone_tools/mr_mixer_qp.hpp"
+#include "tobas_planar_multi_controller/mixer_qp.hpp"
 
 #include <ranges>
 
@@ -11,12 +11,14 @@ using namespace Eigen;
 
 namespace tobas
 {
-MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree)
+namespace planar_multicopter
+{
+QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), stopwatch_(100)
 {
 }
 
-bool MultiRotorMixer_QP::updateInternalDataStructures()
+bool QpMixer::updateInternalDataStructures()
 {
   if (!super::updateInternalDataStructures()) {
     return false;
@@ -34,7 +36,7 @@ bool MultiRotorMixer_QP::updateInternalDataStructures()
   return true;
 }
 
-bool MultiRotorMixer_QP::solve(
+bool QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
@@ -131,12 +133,12 @@ bool MultiRotorMixer_QP::solve(
   return true;
 }
 
-double MultiRotorMixer_QP::getThrust(size_t idx) const
+double QpMixer::getThrust(size_t idx) const
 {
   return thrustDeadband(qp_.solution()(idx));
 }
 
-bool MultiRotorMixer_QP::setBaseWeight(double p)
+bool QpMixer::setBaseWeight(double p)
 {
   if (p <= 0.) {
     cerr << "Base weight must be positive." << endl;
@@ -147,7 +149,7 @@ bool MultiRotorMixer_QP::setBaseWeight(double p)
   return true;
 }
 
-bool MultiRotorMixer_QP::setThrustWeight(double p)
+bool QpMixer::setThrustWeight(double p)
 {
   if (p <= 0.) {
     cerr << "Thrust weight must be positive." << endl;
@@ -158,7 +160,7 @@ bool MultiRotorMixer_QP::setThrustWeight(double p)
   return true;
 }
 
-void MultiRotorMixer_QP::resizeAndFill()
+void QpMixer::resizeAndFill()
 {
   const auto nr = drone_.prop->numRotors();
 
@@ -176,4 +178,5 @@ void MultiRotorMixer_QP::resizeAndFill()
   R_.resize(nr);
   G_.resize(NoChange, nr);
 }
+}  // namespace planar_multicopter
 }  // namespace tobas

@@ -6,23 +6,23 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_nlp/sqp.hpp>
-
-#include <tobas_drone_tools/np_mixer_qp.hpp>
+#include <tobas_drone_tools/mixer_i.hpp>
+#include <tobas_nonplanar_multi_controller/mixer_qp.hpp>
 
 namespace tobas
 {
-/**
- * @brief チルトロータマルチコプターのミキシングをSQPで解く． (memo: 3-12)
- */
-class TiltRotorMixer_SQP : public MixerI
+        namespace random_axis_tilt_multicopter
 {
-  using self = TiltRotorMixer_SQP;
+/* チルトロータマルチコプターのミキシングをSQPで解く (memo: 3-12)． */
+class SqpMixer : public MixerI
+{
+  using self = SqpMixer;
   using super = MixerI;
 
   static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
 
 public:
-  explicit TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree);
+  explicit SqpMixer(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures();
 
@@ -53,7 +53,7 @@ private:
   kdl::TreeJointParser joint_parser_;
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  NonPlanarMixer_QP np_mixer_;
+  nonplanar_multicopter::QpMixer np_mixer_;
 
   nlp::SQP sqp_;
 
@@ -99,3 +99,4 @@ private:
   Eigen::Tensor4Xd calc_dC_dtheta_2(const Eigen::VectorXd& theta);
 };
 }  // namespace tobas
+}
