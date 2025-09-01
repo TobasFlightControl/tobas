@@ -5,6 +5,7 @@
 #include <QPushButton>
 
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_gui_common/project_paths.hpp>
 
 #include "./param_block.hpp"
 
@@ -30,7 +31,7 @@ public:
   bool updateProject(const std::filesystem::path& proj_path);
 
 private:
-  std::filesystem::path proj_path_;
+  common::ProjectPaths proj_paths_;
   tobas::Drone drone_;
 
   const std::array<std::string, kNumBlocks> file_names_;

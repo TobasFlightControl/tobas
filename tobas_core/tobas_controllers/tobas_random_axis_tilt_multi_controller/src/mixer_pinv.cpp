@@ -13,7 +13,7 @@ using namespace Eigen;
 
 namespace tobas
 {
-        namespace random_axis_tilt_multicopter
+namespace random_axis_tilt_multicopter
 {
 PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
@@ -212,5 +212,5 @@ bool PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
   cfg_.singular_declination_ub = ub_rad;
   return true;
 }
+}  // namespace random_axis_tilt_multicopter
 }  // namespace tobas
-}

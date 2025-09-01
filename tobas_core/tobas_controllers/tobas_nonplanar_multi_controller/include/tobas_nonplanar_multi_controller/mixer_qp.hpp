@@ -1,14 +1,14 @@
 #pragma once
 
+#include <tobas_drone_tools/mixer_i.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
-#include <tobas_drone_tools/mixer_i.hpp>
 
 namespace tobas
 {
-  namespace nonplanar_multicopter
+namespace nonplanar_multicopter
 {
 /**
  * @brief 制約を考慮した非平面配置マルチコプターの推力ミキシング (memo: 2-49)
@@ -57,5 +57,5 @@ private:
 
   void resizeAndFill();
 };
+}  // namespace nonplanar_multicopter
 }  // namespace tobas
-}

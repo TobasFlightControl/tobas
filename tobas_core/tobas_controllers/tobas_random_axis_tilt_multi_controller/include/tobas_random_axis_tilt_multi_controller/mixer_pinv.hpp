@@ -1,13 +1,13 @@
 #pragma once
 
+#include <tobas_drone_tools/mixer_i.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
-#include <tobas_drone_tools/mixer_i.hpp>
 
 namespace tobas
 {
-      namespace random_axis_tilt_multicopter
+namespace random_axis_tilt_multicopter
 {
 /* チルトロータマルチコプターのミキシングを変数変換で解く (memo: 3-16)． */
 class PinvMixer : public MixerI
@@ -54,5 +54,5 @@ private:
   std::map<std::string, kdl::Vector> thrust_points_;  // 祖父母リンクから見た推力の作用点
   std::map<std::string, bool> is_singular_;           // 各チルトロータが特異状態かどうか
 };
+}  // namespace random_axis_tilt_multicopter
 }  // namespace tobas
-}

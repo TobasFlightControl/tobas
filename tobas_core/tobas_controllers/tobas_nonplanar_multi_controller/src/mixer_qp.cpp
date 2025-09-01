@@ -11,7 +11,7 @@ using namespace Eigen;
 
 namespace tobas
 {
-    namespace nonplanar_multicopter
+namespace nonplanar_multicopter
 {
 QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
@@ -187,5 +187,5 @@ void QpMixer::resizeAndFill()
   R_.resize(nr);
   G_.resize(NoChange, nr);
 }
+}  // namespace nonplanar_multicopter
 }  // namespace tobas
-}

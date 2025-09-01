@@ -7,7 +7,7 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/load_project_dialog.hpp>
-#include <tobas_gui_common/path.hpp>
+#include <tobas_gui_common/project_paths.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/urdf_exporter.hpp>
@@ -465,6 +465,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
+  const common::ProjectPaths proj_paths(proj_path);
 
   // パスをテキストに設定
   proj_path_->setText(QString::fromStdString(proj_path));
@@ -480,7 +481,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
   std::string uadf_text;
-  if (!str::readText(common::getProjOriginalUadfPath(proj_path), uadf_text)) {
+  if (!str::readText(proj_paths.originalUadfPath(), uadf_text)) {
     qt::qErrorBox(this, "Failed to open file: " + QString::fromStdString(proj_path));
     return;
   }
@@ -490,7 +491,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
   const auto robot = uadf_doc.RootElement();
-  if (!resolveMeshPaths(common::getProjCfgPkgPath(proj_path), robot)) {
+  if (!resolveMeshPaths(proj_paths.cfgPkgPath(), robot)) {
     return;
   }
 
@@ -507,7 +508,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // ユーザ設定を読み込む
-  const auto settings_path = common::getProjBackupSettingsPath(proj_path);
+  const auto settings_path = proj_paths.backupSettingsPath();
   const auto node = yaml::load(settings_path);
   if (!node) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");

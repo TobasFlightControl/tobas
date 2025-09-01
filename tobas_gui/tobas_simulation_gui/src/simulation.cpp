@@ -6,7 +6,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_gui_common/path.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_linux/error.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -75,8 +74,11 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
 {
   reset();
 
+  // Update project path
+  proj_paths_.setProjPath(proj_path);
+
   // Load KDL tree
-  const auto uadf_path = common::getProjOriginalUadfPath(proj_path);
+  const auto uadf_path = proj_paths_.originalUadfPath();
   if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return false;
@@ -88,7 +90,7 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
   }
 
   // Load drone configuration
-  const auto tbsdrn_path = common::getProjTbsDrnPath(proj_path);
+  const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
@@ -97,7 +99,6 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
   dynamic_config_->updateNamespace(drone_.name);
   commanders_->updateInternalDataStructures();
 
-  proj_path_ = proj_path;
   setEnabled(true);
 
   return true;
@@ -247,9 +248,10 @@ bool SimulationWidget::startHITL()
 
   // Tobasパッケージを送信
   progress.setLabelText("Sending Tobas project to the flight controller.");
-  const auto mesh_path = common::getProjCfgMeshDirPath(proj_path_);
+  const auto& proj_path = proj_paths_.getProjPath();
+  const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(proj_path_, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -258,7 +260,7 @@ bool SimulationWidget::startHITL()
 
   // リモートパッケージをビルド
   progress.setLabelText("Building Tobas remote package.");
-  const auto remote_proj_path = common::getProjRemotePath(proj_path_);
+  const auto remote_proj_path = proj_paths_.remoteProjPath();
   if (!remote_proj_builder_.build(remote_proj_path)) {
     qt::qErrorBox(
       this,
@@ -355,7 +357,7 @@ bool SimulationWidget::terminateHITL()
 
 bool SimulationWidget::buildLocalPackage()
 {
-  if (!local_proj_builder_.build(proj_path_)) {
+  if (!local_proj_builder_.build(proj_paths_.getProjPath())) {
     qt::qErrorBox(
       this, "Failed to build Tobas local package:\n\n" + QString::fromStdString(local_proj_builder_.getOutput()));
     return false;
@@ -367,7 +369,7 @@ bool SimulationWidget::buildLocalPackage()
 bool SimulationWidget::launchGazebo(bool launch_core)
 {
   const auto install_path = ros2::expandUser(tobas::kColconWSPathHome) / "install";
-  const auto config_pkg_name = common::getProjCfgPkgName(proj_path_);
+  const auto config_pkg_name = proj_paths_.cfgPkgName();
   const std::map<std::string, std::string> args{
     { "world_path", sim_settings_->worldPath().string() },
     { "user_debug", std::format("{}", sim_settings_->userDebug()) },

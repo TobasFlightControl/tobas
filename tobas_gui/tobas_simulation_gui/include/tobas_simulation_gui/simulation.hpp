@@ -4,6 +4,7 @@
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
+#include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_linux/command_executor.hpp>
@@ -48,10 +49,10 @@ private:
   ssh::SSHClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
+  common::ProjectPaths proj_paths_;
   common::LocalProjectBuilder local_proj_builder_;
   common::RemoteProjectBuilder remote_proj_builder_;
 
-  std::filesystem::path proj_path_;
   uadf::Model uadf_;
   kdl::Tree tree_;
   tobas::Drone drone_;

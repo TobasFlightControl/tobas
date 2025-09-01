@@ -8,7 +8,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-#include "tobas_gui_common/path.hpp"
+#include "tobas_gui_common/project_paths.hpp"
 
 namespace fs = std::filesystem;
 
@@ -66,8 +66,8 @@ bool LocalProjectBuilder::colconBuild(const fs::path& proj_path)
   }
 
   // Create build command
-  const auto meta_name = getProjMetaPkgName(proj_path);
-  const auto build_cmd = format(
+  const auto meta_name = common::ProjectPaths(proj_path).metaPkgName();
+  const auto build_cmd = std::format(
     "colcon build "
     "--merge-install "
     "--parallel-workers $(nproc) "

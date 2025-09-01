@@ -10,7 +10,6 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
-#include <tobas_gui_common/path.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -188,18 +187,19 @@ void GroundControlStationWidget::onLoadButtonClicked()
     }
   }
 
-  // プロジェクトのパスを取得
+  // プロジェクトのパスを更新
   common::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const auto proj_path = dialog.selectedFiles().first();
+  const fs::path proj_path = dialog.selectedFiles().first().toStdString();
+  proj_paths_.setProjPath(proj_path);
 
   // パスをテキストに設定
-  proj_path_->setText(proj_path);
+  proj_path_->setText(QString::fromStdString(proj_path));
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(proj_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(proj_path).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
   }
@@ -208,7 +208,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getProjTbsDrnPath(proj_path.toStdString());
+  const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!fs::is_regular_file(tbsdrn_path)) {
     qt::qErrorBox(
       this, "\"" + QString::fromStdString(tbsdrn_path) + "\" does not exist. Please create a new Tobas project.");
@@ -216,7 +216,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load KDL tree
-  const auto uadf_path = common::getProjOriginalUadfPath(proj_path.toStdString());
+  const auto uadf_path = proj_paths_.originalUadfPath();
   if (!uadf_parser_.parseFromPath(uadf_path, uadf_)) {
     qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
     return;
@@ -234,7 +234,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load SSH endpoint
-  const auto ssh_endpoint_path = common::getProjSshEndpointPath(proj_path.toStdString());
+  const auto ssh_endpoint_path = proj_paths_.sshEndpointPath();
   if (!ssh_endpoint_.load(ssh_endpoint_path)) {
     qt::qErrorBox(this, "Failed to load SSH endpoint.");
     return;
@@ -275,8 +275,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
 
   const auto proj_path = projectPath();
-  const auto remote_proj_path = common::getProjRemotePath(proj_path);
-  const auto config_pkg_name = common::getProjCfgPkgName(proj_path);
+  const auto remote_proj_path = proj_paths_.remoteProjPath();
+  const auto config_pkg_name = proj_paths_.cfgPkgName();
 
   // 進捗バーを作成
   qt::ProgressDialog progress("Write Tobas Project", 9, this);
@@ -349,7 +349,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトを送信
   progress.setLabelText("Sending Tobas project to the flight controller.");
-  const auto mesh_path = common::getProjCfgMeshDirPath(proj_path);
+  const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
     progress.close();

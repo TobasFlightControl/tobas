@@ -6,6 +6,7 @@
 
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
+#include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ssh_endpoint.hpp>
 #include <tobas_hardware_setup/hardware_setup.hpp>
@@ -63,6 +64,7 @@ private:
   ssh::SSHClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
+  common::ProjectPaths proj_paths_;
   common::RemoteProjectBuilder remote_proj_builder_;
   common::SshEndpoint ssh_endpoint_;
   ConfigurationEnvParser config_env_parser_;

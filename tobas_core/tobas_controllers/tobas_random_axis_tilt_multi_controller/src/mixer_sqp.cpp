@@ -14,7 +14,7 @@ using namespace Eigen;
 
 namespace tobas
 {
-        namespace random_axis_tilt_multicopter
+namespace random_axis_tilt_multicopter
 {
 SqpMixer::SqpMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), joint_parser_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
@@ -443,5 +443,5 @@ Tensor4Xd SqpMixer::calc_dC_dtheta_2(const VectorXd& theta)
 {
   return B_ * calc_dN_dtheta_2(theta);
 }
+}  // namespace random_axis_tilt_multicopter
 }  // namespace tobas
-}

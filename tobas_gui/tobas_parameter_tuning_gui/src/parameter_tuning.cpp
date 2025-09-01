@@ -6,7 +6,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_gui_common/path.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
@@ -18,10 +17,10 @@ namespace gui
 namespace param
 {
 ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
-  : file_names_{ common::kImuFilterDynamicParamFileName,
-                 common::kObserverDynamicParamFileName,
-                 common::kControllerDynamicParamFileName,
-                 common::kRcTeleopDynamicParamFileName }
+  : file_names_{ common::ProjectPaths::kImuFilterDynamicParamFileName,
+                 common::ProjectPaths::kObserverDynamicParamFileName,
+                 common::ProjectPaths::kControllerDynamicParamFileName,
+                 common::ProjectPaths::kRcTeleopDynamicParamFileName }
   , blocks_{ new ParamBlockWidget(node, tobas::node::kImuFilterConfigServer, "IMU Filter"),
              new ParamBlockWidget(node, tobas::node::kObserver, "State Estimator"),
              new ParamBlockWidget(node, tobas::node::kController, "Flight Controller"),
@@ -78,10 +77,10 @@ bool ParameterTuningWidget::updateProject(const fs::path& proj_path)
   reset();
 
   // Update project path
-  proj_path_ = proj_path;
+  proj_paths_.setProjPath(proj_path);
 
   // Load drone configuration
-  const auto tbsdrn_path = common::getProjTbsDrnPath(proj_path);
+  const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone_.load(tbsdrn_path)) {
     qt::qErrorBox(this, "Failed to load drone configuration.");
     return false;
@@ -111,7 +110,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
 
 void ParameterTuningWidget::onSaveButtonClicked()
 {
-  const auto config_dir_path = common::getProjCfgConfigDirPath(proj_path_);
+  const auto config_dir_path = proj_paths_.cfgConfigDirPath();
 
   for (const auto& [block, file_name] : std::views::zip(blocks_, file_names_)) {
     const auto file_path = config_dir_path / file_name;

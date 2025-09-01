@@ -1,17 +1,17 @@
 #pragma once
 
+#include <tobas_drone_tools/mixer_i.hpp>
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_nlp/sqp.hpp>
-#include <tobas_drone_tools/mixer_i.hpp>
 #include <tobas_nonplanar_multi_controller/mixer_qp.hpp>
 
 namespace tobas
 {
-        namespace random_axis_tilt_multicopter
+namespace random_axis_tilt_multicopter
 {
 /* チルトロータマルチコプターのミキシングをSQPで解く (memo: 3-12)． */
 class SqpMixer : public MixerI
@@ -98,5 +98,5 @@ private:
   Eigen::Tensor3Xd calc_dC_dtheta(const Eigen::VectorXd& theta);
   Eigen::Tensor4Xd calc_dC_dtheta_2(const Eigen::VectorXd& theta);
 };
+}  // namespace random_axis_tilt_multicopter
 }  // namespace tobas
-}
