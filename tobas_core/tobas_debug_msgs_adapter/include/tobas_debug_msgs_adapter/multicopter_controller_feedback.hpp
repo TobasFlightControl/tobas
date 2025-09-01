@@ -5,11 +5,11 @@
 #include <tobas_kdl_msgs_adapter/euler.hpp>
 #include <tobas_kdl_msgs_adapter/vector.hpp>
 
-#include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
+#include <tobas_debug_msgs/msg/multicopter_controller_feedback.hpp>
 
 namespace tobas_debug_msgs
 {
-struct MultiRotorControllerFeedback
+struct MulticopterControllerFeedback
 {
   std_msgs::msg::Header header;
   kdl::Vector target_position;
@@ -21,18 +21,18 @@ struct MultiRotorControllerFeedback
   kdl::Vector position_integral_error;
   kdl::Vector angle_integral_error;
 
-  using SharedPtr = std::shared_ptr<MultiRotorControllerFeedback>;
-  using ConstSharedPtr = std::shared_ptr<const MultiRotorControllerFeedback>;
+  using SharedPtr = std::shared_ptr<MulticopterControllerFeedback>;
+  using ConstSharedPtr = std::shared_ptr<const MulticopterControllerFeedback>;
 };
 }  // namespace tobas_debug_msgs
 
 template <>
 struct rclcpp::
-  TypeAdapter<tobas_debug_msgs::MultiRotorControllerFeedback, tobas_debug_msgs::msg::MultiRotorControllerFeedback>
+  TypeAdapter<tobas_debug_msgs::MulticopterControllerFeedback, tobas_debug_msgs::msg::MulticopterControllerFeedback>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_debug_msgs::MultiRotorControllerFeedback;
-  using ros_message_type = tobas_debug_msgs::msg::MultiRotorControllerFeedback;
+  using custom_type = tobas_debug_msgs::MulticopterControllerFeedback;
+  using ros_message_type = tobas_debug_msgs::msg::MulticopterControllerFeedback;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -63,10 +63,10 @@ struct rclcpp::
 
 namespace tobas_debug_msgs
 {
-using MultiRotorControllerFeedbackAdapter =
-  rclcpp::TypeAdapter<tobas_debug_msgs::MultiRotorControllerFeedback, tobas_debug_msgs::msg::MultiRotorControllerFeedback>;
+using MultiRotorControllerFeedbackAdapter = rclcpp::
+  TypeAdapter<tobas_debug_msgs::MulticopterControllerFeedback, tobas_debug_msgs::msg::MulticopterControllerFeedback>;
 }  // namespace tobas_debug_msgs
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas_debug_msgs::MultiRotorControllerFeedback,
-  tobas_debug_msgs::msg::MultiRotorControllerFeedback);
+  tobas_debug_msgs::MulticopterControllerFeedback,
+  tobas_debug_msgs::msg::MulticopterControllerFeedback);

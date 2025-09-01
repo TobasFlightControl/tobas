@@ -10,7 +10,7 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
-#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_debug_msgs_adapter/multicopter_controller_feedback.hpp>
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
@@ -79,7 +79,7 @@ private:
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
-  tobas_debug_msgs::msg::MultiRotorControllerFeedback mr_ctrl_fb_;
+  tobas_debug_msgs::msg::MulticopterControllerFeedback mr_ctrl_fb_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RosbagState> rosbag_state_pub_;
@@ -170,7 +170,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, tobas::kObsvFeedbackTopic);
-  addTypeAdaptedMsgSub<tobas_debug_msgs::MultiRotorControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);
+  addTypeAdaptedMsgSub<tobas_debug_msgs::MulticopterControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);
 
   // Register services
   start_srv_ = createService<StartSrv>(tobas::kRosbagRecordStartSrv, &self::startCb, this);

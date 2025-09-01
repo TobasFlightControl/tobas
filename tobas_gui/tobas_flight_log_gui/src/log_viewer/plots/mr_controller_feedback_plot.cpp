@@ -34,7 +34,7 @@ void MRControllerFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
   }
 }
 
-void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& msgs)
+void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> ei_data;

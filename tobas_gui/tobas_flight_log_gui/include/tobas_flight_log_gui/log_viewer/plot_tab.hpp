@@ -47,7 +47,7 @@ public:
     const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
     const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
     const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
-    const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& mr_ctrl_fb_data);
+    const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data);
 
   void clear();
   void setTimeScale(double t_start, double t_stop);
@@ -67,7 +67,7 @@ private:
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data_;
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data_;
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& mr_ctrl_fb_data_;
+  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data_;
 
   PosePlotWidget* pose_plot_;
   TwistPlotWidget* twist_plot_;

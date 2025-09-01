@@ -44,7 +44,7 @@ private:
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data_;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data_;
-  QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_data_;
+  QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_data_;
 
   MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
   MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;
@@ -59,7 +59,7 @@ private:
   MessageDecoder<tobas_msgs::msg::Latency> ctrl_latency_decoder_;
   MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> dist_force_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
-  MessageDecoder<tobas_debug_msgs::msg::MultiRotorControllerFeedback> mr_ctrl_fb_decoder_;
+  MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
 
   std::array<PlotTabWidget*, 3> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;

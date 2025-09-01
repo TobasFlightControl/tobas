@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
+#include <tobas_debug_msgs/msg/multicopter_controller_feedback.hpp>
 
 #include "./common.hpp"
 
@@ -18,7 +18,7 @@ public:
   explicit MRControllerFeedbackPlotWidget();
 
   void setTimeScale(double t_start, double t_stop);
-  void setData(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& msgs);
+  void setData(const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> ei_plots_;
