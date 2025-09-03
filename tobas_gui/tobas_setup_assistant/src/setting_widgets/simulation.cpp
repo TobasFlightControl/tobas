@@ -31,7 +31,7 @@ SimulationWidget::SimulationWidget()
   max_model_error_rate_ = new ParamGetterWidget_SpinBox("Max Model Error Rate", "");
   max_model_error_rate_->setMinimum(0);
   max_model_error_rate_->setMaximum(100);
-  max_model_error_rate_->setValue(10);
+  max_model_error_rate_->setValue(0);  // TODO: モデル化誤差の入り方を再検討して正の値に
   max_model_error_rate_->setSuffix(" %");
   addWidget(max_model_error_rate_);
 
