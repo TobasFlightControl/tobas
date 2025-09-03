@@ -121,7 +121,8 @@ private:
   bool maxVerticalAccelCb(const double& p);
   bool mixerLinearWeightCb(const long& p);
   bool mixerAngularWeightCb(const long& p);
-  bool mixerThrustWeightLog10Cb(const long& p);
+  bool mixerThrustWeightLog2Cb(const long& p);
+  bool mixerDeltaThrustWeightLog2Cb(const long& p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -165,7 +166,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
   addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
   addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
-  addDynamicIntParam("mixer_thrust_weight_log10", &self::mixerThrustWeightLog10Cb, this, -6, -9, 0);
+  addDynamicIntParam("mixer_thrust_weight_log2", &self::mixerThrustWeightLog2Cb, this, -20, -30, 0);
+  addDynamicIntParam("mixer_delta_thrust_weight_log2", &self::mixerDeltaThrustWeightLog2Cb, this, -20, -30, 0);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(kRotorThrustsCmdTopic);
@@ -342,9 +344,14 @@ bool ControllerNode::mixerAngularWeightCb(const long& p)
   return mixer_.setAngularWeight(static_cast<double>(p) / static_cast<double>(kMaxWeight));
 }
 
-bool ControllerNode::mixerThrustWeightLog10Cb(const long& p)
+bool ControllerNode::mixerThrustWeightLog2Cb(const long& p)
 {
-  return mixer_.setThrustWeight(exp10(p));
+  return mixer_.setThrustWeight(exp2(p));
+}
+
+bool ControllerNode::mixerDeltaThrustWeightLog2Cb(const long& p)
+{
+  return mixer_.setDeltaThrustWeight(exp2(p));
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

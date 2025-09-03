@@ -3,6 +3,7 @@
 #include <ranges>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_eigen_tools/operators.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -98,24 +99,30 @@ bool QpMixer::solve(
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
+  S_.diagonal().fill(cfg_.delta_thrust_weight / math::sqr(thrust_scale));
 
-  // コスト関数
-  qp_.problem.P = G_.transpose() * Q_ * G_;
-  qp_.problem.P.diagonal() += R_.diagonal();
-  qp_.problem.q = -G_.transpose() * Q_ * h_;
+  // 推力を決定変数としたときの目的関数
+  const MatrixXd P = G_.transpose() * Q_ * G_ + R_;
+  const VectorXd q = -G_.transpose() * Q_ * h_;
 
-  // 不等式制約
+  // 推力を決定変数としたときの不等式制約
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     if (rotor_alive_.at(rotor->link_name)) {
-      qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
-      qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
+      b_(idx) = drone_.prop->maxThrust(rotor->link_name);
+      b_(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }
     else {
-      qp_.problem.b(idx) = 0.;
-      qp_.problem.b(drone_.prop->numRotors() + idx) = 0.;
+      b_(idx) = 0.;
+      b_(drone_.prop->numRotors() + idx) = 0.;
     }
   }
+
+  // QPPの決定変数を推力からその変化量に変換 (memo: 3-40)
+  qp_.problem.P = P + S_;
+  qp_.problem.q = q + P * x_prev_;
+  qp_.problem.A = A_;
+  qp_.problem.b = b_ - A_ * x_prev_;
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
@@ -124,17 +131,21 @@ bool QpMixer::solve(
     return false;
   }
 
+  // 解を保存
+  const auto& x_delta = qp_.solution();
+  x_prev_ += x_delta;
+
   return true;
 }
 
 const Eigen::VectorXd& QpMixer::getThrusts() const
 {
-  return qp_.solution();
+  return x_prev_;
 }
 
 double QpMixer::getThrust(size_t idx) const
 {
-  return thrustDeadband(qp_.solution()(idx));
+  return thrustDeadband(x_prev_(idx));
 }
 
 bool QpMixer::setLinearWeight(double p)
@@ -170,22 +181,37 @@ bool QpMixer::setThrustWeight(double p)
   return true;
 }
 
+bool QpMixer::setDeltaThrustWeight(double p)
+{
+  if (p <= 0.) {
+    cerr << "Delta thrust weight must be positive." << endl;
+    return false;
+  }
+
+  cfg_.delta_thrust_weight = p;
+  return true;
+}
+
 void QpMixer::resizeAndFill()
 {
-  const auto nr = drone_.prop->numRotors();
+  const auto var_size = drone_.prop->numRotors();
+  const auto ineq_size = var_size * 2;
 
-  qp_.resize(nr, 0, nr * 2);
-  qp_.setZero();
+  qp_.resize(var_size, 0, ineq_size);
+  qp_.x_scale.setOnes();  // QPの決定変数は推力のみなのでスケールは統一してよい
 
-  // QPの決定変数のスケール．推力のみなので統一してよい．
-  qp_.x_scale.setOnes();
+  R_.resize(var_size);
+  S_.resize(var_size);
 
-  // QPPの定数部分
-  qp_.problem.A.topRows(nr).diagonal().fill(1);
-  qp_.problem.A.bottomRows(nr).diagonal().fill(-1);
+  G_.resize(NoChange, var_size);
 
-  R_.resize(nr);
-  G_.resize(NoChange, nr);
+  A_ = MatrixXd::Zero(ineq_size, var_size);
+  A_.topRows(var_size).diagonal().fill(1);
+  A_.bottomRows(var_size).diagonal().fill(-1);
+
+  b_.resize(ineq_size);
+
+  x_prev_ = VectorXd::Zero(var_size);
 }
 }  // namespace nonplanar_multicopter
 }  // namespace tobas
