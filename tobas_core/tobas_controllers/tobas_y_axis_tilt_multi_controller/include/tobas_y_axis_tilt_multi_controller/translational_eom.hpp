@@ -14,7 +14,13 @@ public:
 
   bool updateInternalDataStructures();
 
-  bool update(
+  /**
+   * @brief 並進の運動方程式を解き，目標加速度を2軸推力とロール角に変換する．
+   *
+   * ロール系と他の系を分離するためには現在のピッチ，ヨーを用いて計算すべきだが，
+   * ジンバルロックによりヨー角が不安定になる恐れがあるため，それらの目標値を用いて計算する．
+   */
+  bool solve(
     const kdl::Vector& tar_acc_W,
     const double& tar_pitch,
     const double& tar_yaw,

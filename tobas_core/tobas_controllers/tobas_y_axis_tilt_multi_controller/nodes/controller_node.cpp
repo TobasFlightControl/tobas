@@ -380,8 +380,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     {
       // 推力和と目標姿勢を計算
       const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
-      if (!trans_eom_.update(acc_cmd_->accel, acc_cmd_->pitch, acc_cmd_->yaw, dist_force_W, ux_, uz_, tar_rot_)) {
-        TOBAS_FATAL("Non-linear conversion failed.");
+      if (!trans_eom_.solve(acc_cmd_->accel, acc_cmd_->pitch, acc_cmd_->yaw, dist_force_W, ux_, uz_, tar_rot_)) {
+        TOBAS_FATAL("Failed to solve translational EoM.");
         return;
       }
 

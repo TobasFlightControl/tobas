@@ -21,7 +21,7 @@ bool TranslationalEoM::updateInternalDataStructures()
   return mass_holder_.updateInternalDataStructures();
 }
 
-bool TranslationalEoM::update(
+bool TranslationalEoM::solve(
   const kdl::Vector& tar_acc_W,
   const double& tar_pitch,
   const double& tar_yaw,
