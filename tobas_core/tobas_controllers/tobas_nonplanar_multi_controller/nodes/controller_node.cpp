@@ -57,7 +57,7 @@ private:
   QpMixer mixer_;
   double atti_wn_, head_wn_;      // [rad/s]
   double atti_zeta_, head_zeta_;  // [-]
-  kdl::Vector gyro_gain_;
+  kdl::Vector rate_gain_;
 
   // Mutable variables
   bool drone_received_ = false;
@@ -207,22 +207,22 @@ bool ControllerNode::updateInternalDataStructures()
 bool ControllerNode::updateAttitudePDGain()
 {
   // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
-  const auto kp = atti_wn_ / atti_zeta_ / 2;
-  const auto kd = atti_wn_ * atti_zeta_ * 2;
+  const auto angle_gain = atti_wn_ / atti_zeta_ / 2;
+  const auto rate_gain = atti_wn_ * atti_zeta_ * 2;
 
-  gyro_gain_.x(kd);
-  gyro_gain_.y(kd);
-  return rot_pi_.setProportionalGain(0, kp) && rot_pi_.setProportionalGain(1, kp);
+  rate_gain_.x(rate_gain);
+  rate_gain_.y(rate_gain);
+  return rot_pi_.setProportionalGain(0, angle_gain) && rot_pi_.setProportionalGain(1, angle_gain);
 }
 
 bool ControllerNode::updateHeadingPDGain()
 {
   // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
-  const auto kp = head_wn_ / head_zeta_ / 2;
-  const auto kd = head_wn_ * head_zeta_ * 2;
+  const auto angle_gain = head_wn_ / head_zeta_ / 2;
+  const auto rate_gain = head_wn_ * head_zeta_ * 2;
 
-  gyro_gain_.z(kd);
-  return rot_pi_.setProportionalGain(2, kp);
+  rate_gain_.z(rate_gain);
+  return rot_pi_.setProportionalGain(2, angle_gain);
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
@@ -456,7 +456,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
 
     // 目標角加速度を計算
-    *tar_dgyro_ = gyro_gain_.hadamard(rate_cmd_->rate - odom->twist.rot);
+    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - odom->twist.rot);
 
     // フィードバックメッセージを埋める
     feedback->target_gyro = rate_cmd_->rate;
