@@ -22,29 +22,35 @@ public:
     const kdl::Vector& tar_pos,
     const kdl::Vector& tar_vel);
 
+  bool setProportionalGain(int idx, double value);
+  bool setIntegralGain(int idx, double value);
+  bool setDerivativeGain(int idx, double value);
+
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);
-  bool setIntegralGain(int idx, double value);
+
   bool setMaximumAccel(int idx, double value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();
 
 private:
-  // Config
-  kdl::Vector natural_freq_ = { 1., 1., 1. };               // [rad/s]
-  kdl::Vector damp_ratio_ = { 1., 1., 1. };                 // [-]
-  kdl::Vector max_acc_ = { INFINITY, INFINITY, INFINITY };  // [m/s^2]
-
   // Gain
-  kdl::Vector kp_;
-  kdl::Vector kd_;
+  kdl::Vector kp_ = { 1., 1., 1. };  // [/s^2]
   kdl::Vector ki_ = { 0., 0., 0. };  // [/s^3]
+  kdl::Vector kd_ = { 2., 2., 2. };  // [/s]
+
+  // Second-order form
+  kdl::Vector natural_freq_ = { 1., 1., 1. };  // [rad/s]
+  kdl::Vector damp_ratio_ = { 1., 1., 1. };    // [-]
 
   // Error
   kdl::Vector ei_ = kdl::Vector::Zero();
 
-  void updateGain();
+  // Limit
+  kdl::Vector max_acc_ = { INFINITY, INFINITY, INFINITY };  // [m/s^2]
+
+  void setGainFromSecondOrderFrom();
 };
 
 inline const kdl::Vector& PositionPID::getIntegralError() const

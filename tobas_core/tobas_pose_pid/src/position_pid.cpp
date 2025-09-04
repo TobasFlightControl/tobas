@@ -10,7 +10,6 @@ namespace tobas
 {
 PositionPID::PositionPID()
 {
-  updateGain();
 }
 
 kdl::Vector PositionPID::updatePID(
@@ -27,8 +26,7 @@ kdl::Vector PositionPID::updatePID(
   const auto ed = tar_vel - cur_vel;
 
   for (size_t i = 0; i < 3; ++i) {
-    // I制御を行う場合
-    if (ki_(i) > 0.) {
+    if (ki_(i) > 0.) {  // I制御を行う場合
       // 積分誤差を蓄積
       ei_(i) += ep(i) * dt;
 
@@ -38,6 +36,11 @@ kdl::Vector PositionPID::updatePID(
       const auto min_ei = (-max_acc_(i) - tar_acc_p) / ki_(i);
       const auto max_ei = (max_acc_(i) - tar_acc_p) / ki_(i);
       ei_(i) = clamp(ei_(i), min_ei, max_ei);
+    }
+    else  // I制御を行わない場合
+    {
+      // 積分誤差をリセット
+      ei_(i) = 0.;
     }
   }
 
@@ -65,36 +68,18 @@ kdl::Vector PositionPID::updatePD(
   return cmd_acc.clamp(-max_acc_, max_acc_);
 }
 
-bool PositionPID::setNaturalFreq(int idx, double value)
+bool PositionPID::setProportionalGain(int idx, double value)
 {
   if (!checkIndex(idx)) {
     return false;
   }
 
   if (value < 0.) {
-    cerr << "Natural frequency must be non-negative." << endl;
+    cerr << "Proportional gain must be non-negative." << endl;
     return false;
   }
 
-  natural_freq_(idx) = value;
-  updateGain();
-
-  return true;
-}
-
-bool PositionPID::setDampingRatio(int idx, double value)
-{
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.) {
-    cerr << "Damping ratio must be non-negative." << endl;
-    return false;
-  }
-
-  damp_ratio_(idx) = value;
-  updateGain();
+  kp_(idx) = value;
 
   return true;
 }
@@ -111,7 +96,56 @@ bool PositionPID::setIntegralGain(int idx, double value)
   }
 
   ki_(idx) = value;
-  ei_(idx) = 0.;  // ゲインを変更したら積分誤差をリセット
+
+  return true;
+}
+
+bool PositionPID::setDerivativeGain(int idx, double value)
+{
+  if (!checkIndex(idx)) {
+    return false;
+  }
+
+  if (value < 0.) {
+    cerr << "Derivative gain must be non-negative." << endl;
+    return false;
+  }
+
+  kd_(idx) = value;
+
+  return true;
+}
+
+bool PositionPID::setNaturalFreq(int idx, double value)
+{
+  if (!checkIndex(idx)) {
+    return false;
+  }
+
+  if (value < 0.) {
+    cerr << "Natural frequency must be non-negative." << endl;
+    return false;
+  }
+
+  natural_freq_(idx) = value;
+  setGainFromSecondOrderFrom();
+
+  return true;
+}
+
+bool PositionPID::setDampingRatio(int idx, double value)
+{
+  if (!checkIndex(idx)) {
+    return false;
+  }
+
+  if (value < 0.) {
+    cerr << "Damping ratio must be non-negative." << endl;
+    return false;
+  }
+
+  damp_ratio_(idx) = value;
+  setGainFromSecondOrderFrom();
 
   return true;
 }
@@ -132,7 +166,7 @@ bool PositionPID::setMaximumAccel(int idx, double value)
   return true;
 }
 
-void PositionPID::updateGain()
+void PositionPID::setGainFromSecondOrderFrom()
 {
   kp_ = natural_freq_.sqr();
   kd_ = 2 * damp_ratio_.hadamard(natural_freq_);
