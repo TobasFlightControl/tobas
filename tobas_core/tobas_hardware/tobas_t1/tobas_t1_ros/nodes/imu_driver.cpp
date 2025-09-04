@@ -78,12 +78,12 @@ bool ImuDriverNode::initializeImuDriver()
     return false;
   }
 
-  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_4G)) {
+  if (!imu_.setAccelFullScale(stm::ISM330DLC::fs_xl_t::FS_XL_8G)) {
     TOBAS_ERROR("Failed to set accelerometer full scale.");
     return false;
   }
 
-  if (!imu_.setGyroFullScale(stm::ISM330DLC::fs_g_t::FS_G_500DPS)) {
+  if (!imu_.setGyroFullScale(stm::ISM330DLC::fs_g_t::FS_G_1000DPS)) {
     TOBAS_ERROR("Failed to set gyroscope full scale.");
     return false;
   }
