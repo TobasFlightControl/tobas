@@ -44,17 +44,17 @@ QString YAxisTiltMulticopterWidget::pluginName() const
 
 tobas::RcCommand YAxisTiltMulticopterWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kAccelRate;
+  return tobas::RcCommand::kAccelPitchYaw;  // TODO
 }
 
 tobas::RcCommand YAxisTiltMulticopterWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kAccelAngle;
+  return tobas::RcCommand::kAccelPitchYaw;
 }
 
 tobas::RcCommand YAxisTiltMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAngle;
+  return tobas::RcCommand::kPosVelPitchYaw;
 }
 
 YAML::Node YAxisTiltMulticopterWidget::staticParams() const
