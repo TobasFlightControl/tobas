@@ -14,7 +14,7 @@ public:
 
   bool updateInternalDataStructures();
 
-  void update(
+  bool solve(
     const kdl::Rotation& cur_rot,
     const kdl::Vector& tar_acc_W,
     const kdl::Vector& ext_force_W,

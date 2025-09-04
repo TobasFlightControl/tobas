@@ -22,7 +22,7 @@ bool TranslationalEoM::updateInternalDataStructures()
   return mass_holder_.updateInternalDataStructures();
 }
 
-void TranslationalEoM::update(
+bool TranslationalEoM::solve(
   const kdl::Rotation& cur_rot,
   const kdl::Vector& tar_acc_W,
   const kdl::Vector& ext_force_W,
@@ -44,14 +44,25 @@ void TranslationalEoM::update(
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
   algo::clamp2d(x, y, max_xy_norm);
 
-  // 3元非線形方程式の解析解を計算
+  // 現在のオイラー角を計算
   cur_rot.getRPY(roll_, pitch_, yaw_);
+
+  // 姿勢角が90度を超える場合は実現できない
+  if (fabs(roll_) > M_PI_2 || fabs(pitch_) > M_PI_2) {
+    cerr << "Cannot solve translational EoM because the aircraft is upside-down." << endl;
+    return false;
+  }
+
+  // 姿勢追従と方位追従を分離するために現在の方位角で目標姿勢角を計算
   const auto cos_yaw = cos(yaw_);
   const auto sin_yaw = sin(yaw_);
   pitch_out = atan2(x * cos_yaw + y * sin_yaw, z);
   roll_out = atan2(cos(pitch_out) * (x * sin_yaw - y * cos_yaw), z);
-  // thrust_out = z / (cos(pitch_out) * cos(roll_out));  // 非線形方程式の解析解
-  thrust_out = z / (cos(roll_) * cos(pitch_));  // 現在の姿勢でZ軸加速度を満たす解
+
+  // 高度追従と姿勢追従を分離するために現在の姿勢で目標推力を計算
+  thrust_out = z / (cos(roll_) * cos(pitch_));
+
+  return true;
 }
 
 bool TranslationalEoM::setMaxAttitude(double p)

@@ -633,7 +633,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 推力和と目標姿勢を計算
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
-    trans_eom_.update(odom->frame.M, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch);
+    if (!trans_eom_.solve(
+          odom->frame.M, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch)) {
+      TOBAS_FATAL("Failed to solve translational EoM.");
+      return;
+    }
 
     // ヨー角はそのまま流す
     tar_angle_->yaw = acc_cmd_->yaw;
@@ -651,10 +655,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       tar_gyro_ = std::make_shared<kdl::Vector>();
     }
 
-    // 現在のオイラー角を計算
+    // 回転角的にはクォータニオンや回転行列で目標姿勢と現在姿勢の誤差を計算し，それを角軸ベクトルに変換したものが最短距離だが，
+    // その場合は方位のみの追従誤差がモデル化誤差によって姿勢の動きに変換されて不安定になる恐れがあるため，
+    // 姿勢と方位を分離する目的でオイラー角で回転誤差を計算している．
     const kdl::Euler cur_rpy(odom->frame.M);
-
-    // 誤差を計算
     const auto ep = computeEulerError(cur_rpy, *tar_angle_);
 
     // 浮遊していれば積分誤差を蓄積
