@@ -4,8 +4,8 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_std_tools/trajectory.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_trajectory_generators/cubic.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
@@ -180,9 +180,9 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // 軌道を生成
   // TODO: 最高速度を考慮して起動を作成
   const auto goal_pos = computeGoalPosition(goal);
-  tobas_std::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
-  tobas_std::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
-  tobas_std::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
+  traj::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
+  traj::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
+  traj::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
   const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());  // [s]
 
   // メモリ確保

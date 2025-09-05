@@ -1,8 +1,8 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_std_tools/trajectory.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_trajectory_generators/cubic.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
@@ -164,7 +164,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto goal = goal_handle->get_goal();
 
   // 軌道を生成
-  tobas_std::CubicSpline traj_z(start_pos.z(), goal->target_altitude, goal->duration);
+  traj::CubicSpline traj_z(start_pos.z(), goal->target_altitude, goal->duration);
   const auto duration = traj_z.duration();  // [s]
 
   // 目標状態の固定部分を作成

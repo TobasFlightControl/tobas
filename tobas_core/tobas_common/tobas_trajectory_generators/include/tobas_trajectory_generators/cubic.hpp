@@ -1,15 +1,9 @@
 #pragma once
 
-namespace tobas_std
-{
-/* 軌道生成器の基底クラス */
-class BaseTrajectory
-{
-public:
-  virtual void get(const double& t, double& p, double& v, double& a) = 0;
-  virtual double duration() = 0;
-};
+#include "./base.hpp"
 
+namespace traj
+{
 /* 3次多項式軌道生成 (ロボティクス, p.192) */
 class CubicSpline : public BaseTrajectory
 {
@@ -23,4 +17,4 @@ private:
   double T_;
   double a0_, a1_, a2_, a3_;
 };
-}  // namespace tobas_std
+}  // namespace traj
