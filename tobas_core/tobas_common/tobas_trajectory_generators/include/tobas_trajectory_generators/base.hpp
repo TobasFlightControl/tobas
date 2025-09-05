@@ -2,15 +2,19 @@
 
 namespace traj
 {
+struct TrajectoryPoint
+{
+  double p;
+  double v;
+  double a;
+};
+
 /* 軌道生成器の基底クラス */
-class BaseTrajectory
+class TrajectoryGenerator
 {
 public:
-  virtual void get(const double& t, double& p, double& v, double& a) = 0;
-  virtual double duration() = 0;
-
-  virtual void get(const double& t, double& p);
-  virtual void get(const double& t, double& p, double& v);
+  virtual TrajectoryPoint get(const double& t) const = 0;
+  virtual double duration() const = 0;
 
 private:
   double dummy_;

@@ -5,15 +5,13 @@
 namespace traj
 {
 /* 3次多項式軌道生成 (ロボティクス, p.192) */
-class CubicSpline : public BaseTrajectory
+class CubicSpline : public TrajectoryGenerator
 {
 public:
   explicit CubicSpline(const double& p0, const double& pf, const double& T);
 
-  void get(const double& t, double& p, double& v, double& a) override;
-  double duration() override;
-
-  using BaseTrajectory::get;
+  TrajectoryPoint get(const double& t) const override;
+  double duration() const override;
 
 private:
   const double T_;

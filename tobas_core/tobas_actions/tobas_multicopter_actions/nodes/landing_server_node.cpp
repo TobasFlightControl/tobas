@@ -134,11 +134,10 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto goal = goal_handle->get_goal();
 
   // 起動を生成
-  traj::LinearSpline traj_roll(start_rpy.roll, 0., fabs(start_rpy.roll) / kAttitudeRecoveryRate);
-  traj::LinearSpline traj_pitch(start_rpy.pitch, 0., fabs(start_rpy.pitch) / kAttitudeRecoveryRate);
-
-  // メモリ確保
-  double tar_roll, tar_pitch;
+  const auto roll_duration = fabs(start_rpy.roll) / kAttitudeRecoveryRate;
+  const auto pitch_duration = fabs(start_rpy.pitch) / kAttitudeRecoveryRate;
+  const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
+  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., pitch_duration);
 
   // 姿勢を戻しながら下降
   rclcpp::Rate rate(kCommandRate, get_clock());
@@ -161,10 +160,15 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     const auto cur_time = get_clock()->now();
     const auto dt = (cur_time - start_time).seconds();
     const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), start_pos.z() - kVerticalSpeed * dt);
-    const auto tar_vel = goal_handle->is_canceling() ? kdl::Vector::Zero() : kdl::Vector(0., 0., -kVerticalSpeed);
-    traj_roll.get(dt, tar_roll);
-    traj_pitch.get(dt, tar_pitch);
+    kdl::Vector tar_vel(0., 0., -kVerticalSpeed);
+    const auto tar_roll = traj_roll.get(dt).p;
+    const auto tar_pitch = traj_pitch.get(dt).p;
     const auto& tar_yaw = start_rpy.yaw;
+
+    // アクション中止の場合は目標速度を0にする
+    if (goal_handle->is_canceling()) {
+      tar_vel.setZero();
+    }
 
     // コマンドを発行
     {

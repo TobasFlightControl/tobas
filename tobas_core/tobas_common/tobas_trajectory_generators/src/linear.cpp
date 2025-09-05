@@ -12,15 +12,13 @@ LinearSpline::LinearSpline(const double& p0, const double& pf, const double& T) 
   v_ = (pf - p0) / T;
 }
 
-void LinearSpline::get(const double& _t, double& p, double& v, double& a)
+TrajectoryPoint LinearSpline::get(const double& _t) const
 {
   const auto t = std::clamp(_t, 0., T_);
-  p = p0_ + v * t;
-  v = v_;
-  a = 0.;
+  return { p0_ + v_ * t, v_, 0. };
 }
 
-double LinearSpline::duration()
+double LinearSpline::duration() const
 {
   return T_;
 }

@@ -181,15 +181,11 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // 軌道を生成
   // TODO: 最高速度を考慮して起動を作成
   const auto goal_pos = computeGoalPosition(goal);
-  traj::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
-  traj::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
-  traj::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
-  traj::LinearSpline traj_roll(start_rpy.roll, 0., goal->duration);
-  traj::LinearSpline traj_pitch(start_rpy.pitch, 0., goal->duration);
-
-  // メモリ確保
-  kdl::Vector tar_pos, tar_vel;
-  double tar_roll, tar_pitch;
+  const traj::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
+  const traj::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
+  const traj::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
+  const traj::LinearSpline traj_roll(start_rpy.roll, 0., goal->duration);
+  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., goal->duration);
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
@@ -215,14 +211,16 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     }
 
     // 現在の時刻における目標状態を取得
-    traj_x.get(dt, tar_pos.x(), tar_vel.x());
-    traj_y.get(dt, tar_pos.y(), tar_vel.y());
-    traj_z.get(dt, tar_pos.z(), tar_vel.z());
-    traj_roll.get(dt, tar_roll);
-    traj_pitch.get(dt, tar_pitch);
+    const auto traj_point_x = traj_x.get(dt);
+    const auto traj_point_y = traj_y.get(dt);
+    const auto traj_point_z = traj_z.get(dt);
+    const kdl::Vector tar_pos(traj_point_x.p, traj_point_y.p, traj_point_z.p);
+    kdl::Vector tar_vel(traj_point_x.v, traj_point_y.v, traj_point_z.v);
+    const auto tar_roll = traj_roll.get(dt).p;
+    const auto tar_pitch = traj_pitch.get(dt).p;
     const auto& tar_yaw = start_rpy.yaw;
 
-    // アクション中止の場合は現在の目標位置で停止を指令
+    // アクション中止の場合は目標速度を0にする
     if (goal_handle->is_canceling()) {
       tar_vel.setZero();
     }

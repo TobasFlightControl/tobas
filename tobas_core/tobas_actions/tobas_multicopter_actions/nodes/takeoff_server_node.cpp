@@ -164,7 +164,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto goal = goal_handle->get_goal();
 
   // 軌道を生成
-  traj::CubicSpline traj_z(start_pos.z(), goal->target_altitude, goal->duration);
+  const traj::CubicSpline traj_z(start_pos.z(), goal->target_altitude, goal->duration);
 
   // 目標状態の固定部分を作成
   kdl::Vector tar_pos(start_pos.x(), start_pos.y(), NAN);
@@ -194,7 +194,9 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     }
 
     // 鉛直方向の軌道を生成
-    traj_z.get(dt, tar_pos.z(), tar_vel.z());
+    const auto traj_point_z = traj_z.get(dt);
+    tar_pos.z(traj_point_z.p);
+    tar_vel.z(traj_point_z.v);
 
     // アクション中止の場合は目標速度を0にする
     if (goal_handle->is_canceling()) {
