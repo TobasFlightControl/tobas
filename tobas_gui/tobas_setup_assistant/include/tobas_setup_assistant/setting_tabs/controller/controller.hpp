@@ -32,6 +32,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  FrameType getFrameType() const;
   void setFrameType(const FrameType& type);
 
   QString controllerPackage() const;
@@ -42,8 +43,6 @@ public:
   tobas::RcCommand loiterModeCommand() const;
 
   YAML::Node staticParams() const;
-
-  bool isCommandCompatible(tobas::RcCommand command) const;
 
 private Q_SLOTS:
   void setCurrentController(int index);

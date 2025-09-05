@@ -78,6 +78,11 @@ void ControllerWidget::load(const YAML::Node& node)
   }
 }
 
+FrameType ControllerWidget::getFrameType() const
+{
+  return selected()->frameType();
+}
+
 void ControllerWidget::setFrameType(const FrameType& type)
 {
   for (int i = 0; i < stack_->count(); ++i) {
@@ -118,11 +123,6 @@ tobas::RcCommand ControllerWidget::loiterModeCommand() const
 YAML::Node ControllerWidget::staticParams() const
 {
   return selected()->staticParams();
-}
-
-bool ControllerWidget::isCommandCompatible(tobas::RcCommand command) const
-{
-  return command == acrobatModeCommand() || command == stabilizeModeCommand() || command == loiterModeCommand();
 }
 
 void ControllerWidget::setCurrentController(int index)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_mr_actions)
+project(tobas_multicopter_actions)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -18,13 +18,17 @@ find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_mission_msgs REQUIRED)
 
+set(AMENT_DEPENDENCIES tobas_kdl_conversions tobas_node tobas_tools tobas_msgs_adapter tobas_mission_msgs)
+
 include_directories(include)
+
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
-ament_target_dependencies(
-  ${PROJECT_NAME}_node tobas_kdl_conversions tobas_node tobas_tools tobas_msgs_adapter tobas_mission_msgs
-)
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TakeoffServerNode" EXECUTABLE takeoff_server)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "LandServerNode" EXECUTABLE land_server)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MoveServerNode" EXECUTABLE move_server)

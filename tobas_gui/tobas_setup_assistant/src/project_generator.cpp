@@ -94,14 +94,15 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
 
 std::string ProjectGenerator::flightActionsPackage() const
 {
-  if (settings_->controller->isCommandCompatible(tobas::RcCommand::kPosVelYaw)) {
-    return "tobas_mr_actions";
+  const auto frame_type = settings_->controller->getFrameType();
+
+  if (
+    frame_type == FrameType::kPlanarMulticopter || frame_type == FrameType::kNonPlanarMulticopter ||
+    frame_type == FrameType::kYAxisTiltMulticopter || frame_type == FrameType::kRandomAxisTiltMulticopter) {
+    return "tobas_multicopter_actions";
   }
   else {
-    qt::qWarnBox(
-      settings_,
-      "The functions for takeoff, landing, and autonomous movement "
-      "corresponding to the selected controller have not been implemented yet.");
+    qt::qWarnBox(settings_, "Mission planner is not supported for this frame type.");
     return "tobas_dummy_pkg";
   }
 }

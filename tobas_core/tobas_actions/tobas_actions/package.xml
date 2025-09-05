@@ -8,7 +8,7 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_mr_actions</exec_depend>
+	<exec_depend>tobas_multicopter_actions</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

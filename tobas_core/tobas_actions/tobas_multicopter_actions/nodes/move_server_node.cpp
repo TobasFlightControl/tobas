@@ -7,12 +7,16 @@
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_tools/util.hpp>
 
+#include <tobas_command_msgs_adapter/angle.hpp>
+#include <tobas_command_msgs_adapter/pos_vel.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_pitch_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
 #include <tobas_mission_msgs/action/move.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
-#include "tobas_mr_actions/common.hpp"
+#include "tobas_multicopter_actions/common.hpp"
 
 class MoveServerNode : public tobas::BaseNode
 {
@@ -27,16 +31,19 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
-  CommandType cmd_;
-  double dummy_;
 
-  ros2::PublisherPtr<CommandType> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> pos_vel_yaw_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelPitchYaw> pos_vel_pitch_yaw_pub_;
+
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
+
   ros2::ActionServerPtr<ActionType> as_;
 
-  bool computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos);
+  kdl::Vector computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -49,7 +56,10 @@ private:
 
 MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("move_server", options)
 {
-  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelYawCmdTopic);
+  angle_pub_ = createPublisher<tobas_command_msgs::Angle>(tobas::kAngleCmdTopic);
+  pos_vel_pub_ = createPublisher<tobas_command_msgs::PosVel>(tobas::kPosVelCmdTopic);
+  pos_vel_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelYaw>(tobas::kPosVelYawCmdTopic);
+  pos_vel_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelPitchYaw>(tobas::kPosVelPitchYawCmdTopic);
 
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
@@ -58,8 +68,10 @@ MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("move
   as_ = createAction(tobas::kMoveAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
-bool MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos)
+kdl::Vector MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal)
 {
+  kdl::Vector goal_pos;
+
   const auto& tar_lat = goal->target_latitude;
   const auto& tar_lon = goal->target_longitude;
   const auto& lat_0 = gnss_origin_->latitude;
@@ -70,7 +82,7 @@ bool MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr&
   // TODO: 目標高度がMSLで与えられた場合にも対応
   goal_pos.z(goal->target_altitude);
 
-  return true;
+  return goal_pos;
 }
 
 void MoveServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
@@ -126,7 +138,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
-  // Check if necessary topics are received
+  // Check topics
   if (!odom_) {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
@@ -157,36 +169,34 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     return;
   }
 
+  // 初期状態を取得
+  const auto start_time = get_clock()->now();
+  const auto start_pos = odom_->frame.p.clone();
+  const kdl::Euler start_rpy(odom_->frame.M);
+
   // Get goal
   const auto goal = goal_handle->get_goal();
 
-  // 目標位置
-  kdl::Vector goal_pos;
-  if (!computeGoalPosition(goal, goal_pos)) {
-    result->message = "Failed to compute the goal position.";
-    goal_handle->abort(result);
-    return;
-  }
-
   // 軌道を生成
   // TODO: 最高速度を考慮して起動を作成
-  tobas_std::CubicSpline traj_x(odom_->frame.p.x(), goal_pos.x(), goal->duration);
-  tobas_std::CubicSpline traj_y(odom_->frame.p.y(), goal_pos.y(), goal->duration);
-  tobas_std::CubicSpline traj_z(odom_->frame.p.z(), goal_pos.z(), goal->duration);
-  const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());
+  const auto goal_pos = computeGoalPosition(goal);
+  tobas_std::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
+  tobas_std::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
+  tobas_std::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
+  const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());  // [s]
 
-  // 初期状態
-  const auto start_time = get_clock()->now();
-  const auto start_yaw = odom_->frame.M.getYaw();
+  // メモリ確保
+  kdl::Vector tar_pos, tar_vel, tar_acc;
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // 開始からの経過時間を計算
-    const auto t = (get_clock()->now() - start_time).seconds();
+    const auto cur_time = get_clock()->now();
+    const auto dt = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0 && t > duration + goal->timeout) {
+    if (goal->timeout > 0 && dt > duration + goal->timeout) {
       result->message = "Timeout before reaching the goal position.";
       goal_handle->abort(result);
       return;
@@ -195,39 +205,75 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto pos_error = goal_pos - cur_pos;
-    if (t > duration && pos_error.norm() < goal->acceptance_radius) {
+    if (dt > duration && pos_error.norm() < goal->acceptance_radius) {
       result->message.clear();
       goal_handle->succeed(result);
       return;
     }
 
-    // コマンドを作成
-    cmd_.level = goal->level;
-
-    // ヨー角は初期状態を維持
-    cmd_.yaw = start_yaw;
-
     // 現在の時刻における目標状態を取得
-    traj_x.get(t, cmd_.pos.x(), cmd_.vel.x(), dummy_);
-    traj_y.get(t, cmd_.pos.y(), cmd_.vel.y(), dummy_);
-    traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), dummy_);
+    traj_x.get(dt, tar_pos.x(), tar_vel.x(), tar_acc.x());
+    traj_y.get(dt, tar_pos.y(), tar_vel.y(), tar_acc.y());
+    traj_z.get(dt, tar_pos.z(), tar_vel.z(), tar_acc.z());
+    const auto tar_roll = approachZeroLinear(start_rpy.roll, kAttitudeRecoveryRate, dt);
+    const auto tar_pitch = approachZeroLinear(start_rpy.pitch, kAttitudeRecoveryRate, dt);
+    const auto& tar_yaw = start_rpy.yaw;
+
+    // アクション中止の場合は現在の目標位置で停止を指令
+    if (goal_handle->is_canceling()) {
+      tar_vel.setZero();
+      tar_acc.setZero();
+    }
 
     // コマンドを発行
-    auto cmd_ptr = std::make_unique<CommandType>(cmd_);
-    cmd_pub_->publish(move(cmd_ptr));
+    {
+      auto cmd = std::make_unique<tobas_command_msgs::Angle>();
+      cmd->header.stamp = cur_time;
+      cmd->level = goal->level;
+      cmd->angle.roll = tar_roll;
+      cmd->angle.pitch = tar_pitch;
+      cmd->angle.yaw = tar_yaw;
+      angle_pub_->publish(std::move(cmd));
+    }
+    {
+      auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
+      cmd->header.stamp = cur_time;
+      cmd->level = goal->level;
+      cmd->pos = tar_pos;
+      cmd->vel = tar_vel;
+      pos_vel_pub_->publish(std::move(cmd));
+    }
+    {
+      auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
+      cmd->header.stamp = cur_time;
+      cmd->level = goal->level;
+      cmd->pos = tar_pos;
+      cmd->vel = tar_vel;
+      cmd->yaw = tar_yaw;
+      pos_vel_yaw_pub_->publish(std::move(cmd));
+    }
+    {
+      auto cmd = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
+      cmd->header.stamp = cur_time;
+      cmd->level = goal->level;
+      cmd->pos = tar_pos;
+      cmd->vel = tar_vel;
+      cmd->pitch = tar_pitch;
+      cmd->yaw = tar_yaw;
+      pos_vel_pitch_yaw_pub_->publish(std::move(cmd));
+    }
 
     // フィードバックを発行
     auto feedback = std::make_unique<ActionType::Feedback>();
     kdl::vectorKDLToMsg(cur_pos, feedback->current_position);
-    kdl::vectorKDLToMsg(cmd_.pos, feedback->target_position);
-    kdl::vectorKDLToMsg(cmd_.pos - cur_pos, feedback->position_error);
+    kdl::vectorKDLToMsg(tar_pos, feedback->target_position);
+    kdl::vectorKDLToMsg(tar_pos - cur_pos, feedback->position_error);
     goal_handle->publish_feedback(move(feedback));
 
-    // アクション中止の場合は目標速度を0にして終了
+    // アクション中止の場合は終了
     if (goal_handle->is_canceling()) {
-      cmd_.vel.setZero();
-      cmd_pub_->publish(cmd_);
-
+      assert(tar_vel.squaredNorm() == 0.);
+      assert(tar_acc.squaredNorm() == 0.);
       result->message.clear();
       goal_handle->canceled(result);
       return;
