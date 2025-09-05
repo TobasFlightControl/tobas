@@ -49,7 +49,6 @@ private:
   const uadf::Model& uadf_;
 
 private Q_SLOTS:
-  void onCopyFromLeftButtonClicked(const QString& link_name);
   void onCopyToAllButtonClicked(const QString& link_name);
 };
 };  // namespace ice

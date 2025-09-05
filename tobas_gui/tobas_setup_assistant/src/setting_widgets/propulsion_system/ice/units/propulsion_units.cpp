@@ -35,11 +35,6 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
     // Connection
     connect(
       link_widget,
-      &PropulsionUnitWidget::copyFromLeftButtonClicked,
-      this,
-      std::bind(&self::onCopyFromLeftButtonClicked, this, link_name));
-    connect(
-      link_widget,
       &PropulsionUnitWidget::copyToAllButtonClicked,
       this,
       std::bind(&self::onCopyToAllButtonClicked, this, link_name));
@@ -118,22 +113,6 @@ PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name)
 const PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name) const
 {
   return widget(index(link_name));
-}
-
-void PropulsionUnitsWidget::onCopyFromLeftButtonClicked(const QString& link_name)
-{
-  const auto dst_idx = index(link_name);
-  const auto src_idx = dst_idx - 1;
-  if (src_idx < 0) {
-    qt::qWarnBox(this, "There are no tabs on the left side.");
-    return;
-  }
-
-  const auto dst_widget = widget(dst_idx);
-  const auto src_widget = widget(src_idx);
-  dst_widget->copyFrom(src_widget);
-
-  qt::qInfoBox(this, "The settings of \"" + linkName(src_idx) + "\" have been copied to \"" + link_name + "\".");
 }
 
 void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)

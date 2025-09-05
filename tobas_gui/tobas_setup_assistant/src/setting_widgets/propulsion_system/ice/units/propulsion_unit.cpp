@@ -1,6 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propulsion_unit.hpp"
 
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/util.hpp>
 
 namespace gui
 {
@@ -18,13 +19,9 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   const auto button_cols = new QHBoxLayout();
   rows->addLayout(button_cols);
 
-  copy_from_left_button_ = new QPushButton("Copy From Left");
-  copy_from_left_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(copy_from_left_button_);
-
-  copy_to_all_button_ = new QPushButton("Copy To All");
-  copy_to_all_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(copy_to_all_button_);
+  copy_to_all_btn_ = new QPushButton("Copy To All");
+  copy_to_all_btn_->setFixedSize(kButtonWidth, kButtonHeight);
+  qt::addWidgetCenter(copy_to_all_btn_, rows);
 
   button_cols->addStretch();
 
@@ -42,8 +39,7 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   tabs_->addTab(aerodynamics_, aerodynamics_->name());
 
   // Connection
-  connect(copy_to_all_button_, &QPushButton::clicked, [this]() { Q_EMIT copyToAllButtonClicked(); });
-  connect(copy_from_left_button_, &QPushButton::clicked, [this]() { Q_EMIT copyFromLeftButtonClicked(); });
+  connect(copy_to_all_btn_, &QPushButton::clicked, [this]() { Q_EMIT copyToAllButtonClicked(); });
 }
 
 bool PropulsionUnitWidget::isValid()

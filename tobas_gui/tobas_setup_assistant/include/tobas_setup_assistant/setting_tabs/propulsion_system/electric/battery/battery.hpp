@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "./base.hpp"
@@ -13,12 +14,12 @@ namespace propulsion
 {
 namespace electric
 {
-class BatteryWidget : public QWidget
+class BatteryWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
   using self = BatteryWidget;
-  using super = QWidget;
+  using super = qt::ScrollArea;
 
   static constexpr char kTypeKey[] = "battery_type";
 

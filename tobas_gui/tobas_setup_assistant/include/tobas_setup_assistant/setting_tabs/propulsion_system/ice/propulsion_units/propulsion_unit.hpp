@@ -26,7 +26,6 @@ class PropulsionUnitWidget : public QWidget
   static constexpr int kTabHeight = 45;
 
 Q_SIGNALS:
-  void copyFromLeftButtonClicked();
   void copyToAllButtonClicked();
 
 public:
@@ -45,8 +44,7 @@ public:
 private:
   qt::TabWidget* tabs_;
 
-  QPushButton* copy_from_left_button_;
-  QPushButton* copy_to_all_button_;
+  QPushButton* copy_to_all_btn_;
 
   TransmissionWidget* transmission_;
   PropellerWidget* propeller_;
