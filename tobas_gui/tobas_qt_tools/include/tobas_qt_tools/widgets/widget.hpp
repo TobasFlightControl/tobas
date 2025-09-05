@@ -22,6 +22,9 @@ public:
   /* 枠内に収まるテキストの最大のポイントサイズを計算する． */
   int calcMaxTextPointSize(const QString& text, const QPoint& center) const;
 
+  /* 背景色を設定する． */
+  void setBackgroundColor(QPalette::ColorRole cr);
+
 protected:
   /* テキストを書く． */
   void drawText(QPainter& painter, const QString& text, const QPoint& center, const QFont& font);

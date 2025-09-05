@@ -3,11 +3,13 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#include <tobas_qt_tools/widgets/widget.hpp>
+
 namespace gui
 {
 namespace hw
 {
-class BaseHardwareSetupWidget : public QWidget
+class BaseHardwareSetupWidget : public qt::Widget
 {
   Q_OBJECT
 

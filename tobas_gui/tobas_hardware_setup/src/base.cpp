@@ -12,10 +12,7 @@ namespace hw
 {
 BaseHardwareSetupWidget::BaseHardwareSetupWidget()
 {
-  // QTabWidgetのデフォルトの背景色は白すぎるため，ベース色に固定．
-  setAutoFillBackground(true);
-  auto pal = palette();
-  pal.setColor(QPalette::Window, pal.color(QPalette::Base));
+  setBackgroundColor(QPalette::Base);
 
   title_ = new QLabel();
   title_->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
