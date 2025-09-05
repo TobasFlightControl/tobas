@@ -55,11 +55,16 @@ public:
 private:
   Signals& sig_;
 
-  QButtonGroup* type_buttons_;
+  QButtonGroup* type_btn_group_;
   qt::StackedWidget* propulsion_stack_;
 
+  int cur_idx_;
+
+  void setCurrentButtonIndex(int index);
+  void setCurrentIndex(int index);
+
 private Q_SLOTS:
-  void onPropulsionTypeChanged(int index);
+  void onPropulsionTypeClicked(int new_idx);
 };
 };  // namespace propulsion
 }  // namespace sa
