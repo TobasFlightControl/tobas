@@ -2,6 +2,7 @@
 
   <arg name="log_level" default="info"/>
   <arg name="output" default="screen"/>
+  <arg name="localhost_only" default="true"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="user_debug" default="false"/>
   <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/empty.world"/>
@@ -17,6 +18,11 @@
   <arg name="roll" default="0.0" description="Initial roll angle in radians."/>
   <arg name="pitch" default="0.0" description="Initial pitch angle in radians."/>
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
+
+  <!-- Set environment variables -->
+  <group if="$(var localhost_only)">
+    <set_env name="ROS_AUTOMATIC_DISCOVERY_RANGE" value="LOCALHOST"/>
+  </group>
 
   <!-- Set common parameters -->
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
