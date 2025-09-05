@@ -4,6 +4,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_trajectory_generators/linear.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
@@ -18,7 +19,8 @@
 
 class LandServerNode : public tobas::BaseNode
 {
-  static constexpr double kVerticalSpeed = 0.3;  // [m/s]
+  static constexpr double kVerticalSpeed = 0.3;              // [m/s]
+  static constexpr double kAttitudeRecoveryRate = M_PI / 6;  // [rad/s]
 
   using self = LandServerNode;
   using super = tobas::BaseNode;
@@ -131,6 +133,13 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // Get goal
   const auto goal = goal_handle->get_goal();
 
+  // 起動を生成
+  traj::LinearSpline traj_roll(start_rpy.roll, 0., fabs(start_rpy.roll) / kAttitudeRecoveryRate);
+  traj::LinearSpline traj_pitch(start_rpy.pitch, 0., fabs(start_rpy.pitch) / kAttitudeRecoveryRate);
+
+  // メモリ確保
+  double tar_roll, tar_pitch;
+
   // 姿勢を戻しながら下降
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
@@ -153,8 +162,8 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     const auto dt = (cur_time - start_time).seconds();
     const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), start_pos.z() - kVerticalSpeed * dt);
     const auto tar_vel = goal_handle->is_canceling() ? kdl::Vector::Zero() : kdl::Vector(0., 0., -kVerticalSpeed);
-    const auto tar_roll = approachZeroLinear(start_rpy.roll, kAttitudeRecoveryRate, dt);
-    const auto tar_pitch = approachZeroLinear(start_rpy.pitch, kAttitudeRecoveryRate, dt);
+    traj_roll.get(dt, tar_roll);
+    traj_pitch.get(dt, tar_pitch);
     const auto& tar_yaw = start_rpy.yaw;
 
     // コマンドを発行

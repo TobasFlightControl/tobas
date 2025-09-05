@@ -4,11 +4,11 @@
 
 namespace traj
 {
-/* 3次多項式軌道生成 (ロボティクス, p.192) */
-class CubicSpline : public BaseTrajectory
+/* 直線軌道生成 */
+class LinearSpline : public BaseTrajectory
 {
 public:
-  explicit CubicSpline(const double& p0, const double& pf, const double& T);
+  explicit LinearSpline(const double& p0, const double& pf, const double& T);
 
   void get(const double& t, double& p, double& v, double& a) override;
   double duration() override;
@@ -16,7 +16,7 @@ public:
   using BaseTrajectory::get;
 
 private:
-  const double T_;
-  double a0_, a1_, a2_, a3_;
+  const double p0_, T_;
+  double v_;
 };
 }  // namespace traj

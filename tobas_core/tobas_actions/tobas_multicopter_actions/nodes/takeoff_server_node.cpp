@@ -165,12 +165,10 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
 
   // 軌道を生成
   traj::CubicSpline traj_z(start_pos.z(), goal->target_altitude, goal->duration);
-  const auto duration = traj_z.duration();  // [s]
 
   // 目標状態の固定部分を作成
   kdl::Vector tar_pos(start_pos.x(), start_pos.y(), NAN);
   kdl::Vector tar_vel(0., 0., NAN);
-  kdl::Vector tar_acc(0., 0., NAN);
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
@@ -180,7 +178,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     const auto dt = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0. && dt > duration + goal->timeout) {
+    if (goal->timeout > 0. && dt > goal->duration + goal->timeout) {
       result->message = "Timeout before reaching the target altitude.";
       goal_handle->abort(result);
       return;
@@ -189,19 +187,18 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto alt_error = fabs(goal->target_altitude - cur_pos.z());
-    if (dt > duration && alt_error < goal->altitude_tolerance) {
+    if (dt > goal->duration && alt_error < goal->altitude_tolerance) {
       result->message.clear();
       goal_handle->succeed(result);
       return;
     }
 
     // 鉛直方向の軌道を生成
-    traj_z.get(dt, tar_pos.z(), tar_vel.z(), tar_acc.z());
+    traj_z.get(dt, tar_pos.z(), tar_vel.z());
 
     // アクション中止の場合は目標速度を0にする
     if (goal_handle->is_canceling()) {
       tar_vel.setZero();
-      tar_acc.setZero();
     }
 
     // コマンドを発行
@@ -245,7 +242,6 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     // アクション中止の場合は終了
     if (goal_handle->is_canceling()) {
       assert(tar_vel.squaredNorm() == 0.);
-      assert(tar_acc.squaredNorm() == 0.);
       result->message.clear();
       goal_handle->canceled(result);
       return;

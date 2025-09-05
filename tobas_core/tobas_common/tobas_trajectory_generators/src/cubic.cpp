@@ -7,11 +7,10 @@
 
 namespace traj
 {
-CubicSpline::CubicSpline(const double& p0, const double& pf, const double& T)
+CubicSpline::CubicSpline(const double& p0, const double& pf, const double& T) : T_(T)
 {
   assert(T > 0);
 
-  T_ = T;
   a0_ = p0;
   a1_ = 0;
   a2_ = (3 / math::sqr(T)) * (pf - p0);

@@ -6,6 +6,7 @@
 #include <tobas_std_tools/gnss.hpp>
 #include <tobas_tools/util.hpp>
 #include <tobas_trajectory_generators/cubic.hpp>
+#include <tobas_trajectory_generators/linear.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
@@ -183,10 +184,12 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   traj::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
   traj::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
   traj::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
-  const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());  // [s]
+  traj::LinearSpline traj_roll(start_rpy.roll, 0., goal->duration);
+  traj::LinearSpline traj_pitch(start_rpy.pitch, 0., goal->duration);
 
   // メモリ確保
-  kdl::Vector tar_pos, tar_vel, tar_acc;
+  kdl::Vector tar_pos, tar_vel;
+  double tar_roll, tar_pitch;
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
@@ -196,7 +199,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     const auto dt = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0 && dt > duration + goal->timeout) {
+    if (goal->timeout > 0 && dt > goal->duration + goal->timeout) {
       result->message = "Timeout before reaching the goal position.";
       goal_handle->abort(result);
       return;
@@ -205,24 +208,23 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto pos_error = goal_pos - cur_pos;
-    if (dt > duration && pos_error.norm() < goal->acceptance_radius) {
+    if (dt > goal->duration && pos_error.norm() < goal->acceptance_radius) {
       result->message.clear();
       goal_handle->succeed(result);
       return;
     }
 
     // 現在の時刻における目標状態を取得
-    traj_x.get(dt, tar_pos.x(), tar_vel.x(), tar_acc.x());
-    traj_y.get(dt, tar_pos.y(), tar_vel.y(), tar_acc.y());
-    traj_z.get(dt, tar_pos.z(), tar_vel.z(), tar_acc.z());
-    const auto tar_roll = approachZeroLinear(start_rpy.roll, kAttitudeRecoveryRate, dt);
-    const auto tar_pitch = approachZeroLinear(start_rpy.pitch, kAttitudeRecoveryRate, dt);
+    traj_x.get(dt, tar_pos.x(), tar_vel.x());
+    traj_y.get(dt, tar_pos.y(), tar_vel.y());
+    traj_z.get(dt, tar_pos.z(), tar_vel.z());
+    traj_roll.get(dt, tar_roll);
+    traj_pitch.get(dt, tar_pitch);
     const auto& tar_yaw = start_rpy.yaw;
 
     // アクション中止の場合は現在の目標位置で停止を指令
     if (goal_handle->is_canceling()) {
       tar_vel.setZero();
-      tar_acc.setZero();
     }
 
     // コマンドを発行
@@ -273,7 +275,6 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // アクション中止の場合は終了
     if (goal_handle->is_canceling()) {
       assert(tar_vel.squaredNorm() == 0.);
-      assert(tar_acc.squaredNorm() == 0.);
       result->message.clear();
       goal_handle->canceled(result);
       return;
