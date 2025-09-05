@@ -16,7 +16,6 @@ namespace electric
 PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
   : node_(node), uadf_(uadf)
 {
-  enableWheelEvent(false);
   setTabSize(kTabWidth, kTabHeight);
 }
 
