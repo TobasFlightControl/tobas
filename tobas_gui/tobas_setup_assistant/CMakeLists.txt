@@ -73,10 +73,6 @@ install(
   DESTINATION include
 )
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
-install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY config data launch resources templates DESTINATION share/${PROJECT_NAME})
-
-ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()
