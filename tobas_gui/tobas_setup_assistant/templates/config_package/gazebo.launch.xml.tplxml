@@ -13,7 +13,7 @@
   <arg name="launch_core" default="true"/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
-  <arg name="z" default="1.0" description="Initial Z position in meters."/>
+  <arg name="z" default="0.5" description="Initial Z position in meters."/>
   <arg name="roll" default="0.0" description="Initial roll angle in radians."/>
   <arg name="pitch" default="0.0" description="Initial pitch angle in radians."/>
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
