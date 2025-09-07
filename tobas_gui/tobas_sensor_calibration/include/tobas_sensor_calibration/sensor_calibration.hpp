@@ -35,7 +35,12 @@ private:
   MagCalibrationWidget* mag_calib_;
   RCInputCalibrationWidget* rcin_calib_;
 
+  BaseWidget* getWidget(int index);
+
   void setTabsEnabled(bool enabled);
+
+  void setCompleted(int index);
+  void setIncompleted(int index);
 };
 }  // namespace sc
 }  // namespace gui

@@ -1,5 +1,7 @@
 #include "tobas_qt_tools/widgets/tab_widget.hpp"
 
+#include <QStyleOptionTab>
+
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_qt_tools/cast.hpp"
@@ -17,6 +19,23 @@ void TabBar::enableWheelEvent(bool enable)
   enable_wheel_event_ = enable;
 }
 
+void TabBar::setTabBackgroundColor(int index, const QColor& color)
+{
+  colors_[index] = color;
+  update();
+}
+
+void TabBar::clearTabBackgroundColor(int index)
+{
+  if (!colors_.contains(index)) {
+    qWarning() << "No color is set for tab " << index << ".";
+    return;
+  }
+
+  colors_.remove(index);
+  update();
+}
+
 void TabBar::wheelEvent(QWheelEvent* event)
 {
   if (enable_wheel_event_) {
@@ -27,15 +46,39 @@ void TabBar::wheelEvent(QWheelEvent* event)
   }
 }
 
+void TabBar::paintEvent(QPaintEvent*)
+{
+  QStyleOptionTab opt;
+
+  for (int i = 0; i < count(); ++i) {
+    initStyleOption(&opt, i);
+
+    if (colors_.contains(i)) {
+      opt.palette.setColor(QPalette::Button, colors_.value(i));
+    }
+  }
+}
+
 TabWidget::TabWidget(QWidget* parent) : super(parent)
 {
-  setTabBar(new TabBar());
+  tab_bar_ = new TabBar();
+  setTabBar(tab_bar_);
 }
 
 void TabWidget::enableWheelEvent(bool enable)
 {
   const auto tab_bar = qPointerCast<TabBar>(tabBar());
   tab_bar->enableWheelEvent(enable);
+}
+
+void TabWidget::setTabBackgroundColor(int index, const QColor& color)
+{
+  tab_bar_->setTabBackgroundColor(index, color);
+}
+
+void TabWidget::clearTabBackgroundColor(int index)
+{
+  tab_bar_->clearTabBackgroundColor(index);
 }
 
 void TabWidget::setTabEnabled(QWidget* tab, bool enabled)

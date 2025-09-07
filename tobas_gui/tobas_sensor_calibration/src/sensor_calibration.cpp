@@ -31,6 +31,8 @@ SensorCalibrationWidget::SensorCalibrationWidget(
 
   tabs_->setTabSize(kTabWidth, kTabHeight);
 
+  reset();
+
   // プロジェクトが読み込まれるまでは無効化
   setTabsEnabled(false);
 }
@@ -38,8 +40,8 @@ SensorCalibrationWidget::SensorCalibrationWidget(
 void SensorCalibrationWidget::reset()
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = qt::qPointerCast<BaseWidget>(tabs_->widget(i));
-    widget->reset();
+    setIncompleted(i);
+    getWidget(i)->reset();
   }
 }
 
@@ -58,12 +60,26 @@ void SensorCalibrationWidget::updateInternalDataStructures()
   tabs_->update();
 }
 
+BaseWidget* SensorCalibrationWidget::getWidget(int index)
+{
+  return qt::qPointerCast<BaseWidget>(tabs_->widget(index));
+}
+
 void SensorCalibrationWidget::setTabsEnabled(bool enabled)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = qt::qPointerCast<BaseWidget>(tabs_->widget(i));
-    widget->setEnabled(enabled);
+    getWidget(i)->setEnabled(enabled);
   }
+}
+
+void SensorCalibrationWidget::setCompleted(int index)
+{
+  tabs_->setTabBackgroundColor(index, Qt::green);
+}
+
+void SensorCalibrationWidget::setIncompleted(int index)
+{
+  tabs_->setTabBackgroundColor(index, Qt::red);
 }
 }  // namespace sc
 }  // namespace gui
