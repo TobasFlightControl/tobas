@@ -177,6 +177,12 @@ void GroundControlStationWidget::onLoadButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onLoadButtonClicked");
 
+  // シミュレーションの起動中でないことを確認
+  if (simulation_->isRunning()) {
+    qt::qWarnBox(this, "Stop the simulation before loading a new project.");
+    return;
+  }
+
   // 前回開いたパスを取得
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {

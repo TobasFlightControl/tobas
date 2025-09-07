@@ -108,6 +108,11 @@ bool SimulationWidget::updateProject(const fs::path& proj_path)
   return true;
 }
 
+bool SimulationWidget::isRunning() const
+{
+  return launch_pid_ >= 0;
+}
+
 void SimulationWidget::closeEvent(QCloseEvent* event)
 {
   // 親ウィジェットを閉じるときに子プロセスを破棄

@@ -42,6 +42,8 @@ public:
   void reset();
   bool updateProject(const std::filesystem::path& proj_path);
 
+  bool isRunning() const;
+
 protected:
   void closeEvent(QCloseEvent* event) override;
 
