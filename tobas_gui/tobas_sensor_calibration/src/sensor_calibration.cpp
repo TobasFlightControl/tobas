@@ -65,6 +65,11 @@ BaseWidget* SensorCalibrationWidget::getWidget(int index)
   return qt::qPointerCast<BaseWidget>(tabs_->widget(index));
 }
 
+const BaseWidget* SensorCalibrationWidget::getWidget(int index) const
+{
+  return qt::qConstPointerCast<BaseWidget>(tabs_->widget(index));
+}
+
 void SensorCalibrationWidget::setTabsEnabled(bool enabled)
 {
   for (int i = 0; i < tabs_->count(); ++i) {

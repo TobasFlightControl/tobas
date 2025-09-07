@@ -36,6 +36,7 @@ private:
   RCInputCalibrationWidget* rcin_calib_;
 
   BaseWidget* getWidget(int index);
+  const BaseWidget* getWidget(int index) const;
 
   void setTabsEnabled(bool enabled);
 
