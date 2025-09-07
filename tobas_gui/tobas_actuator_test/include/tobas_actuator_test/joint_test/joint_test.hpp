@@ -27,7 +27,6 @@ public:
     const kdl::Tree& tree,
     const tobas::Drone& drone);
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;

@@ -40,7 +40,6 @@ class RotorTestWidget : public BaseWidget
 public:
   explicit RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;

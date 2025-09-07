@@ -9,12 +9,12 @@ namespace gui
 {
 namespace at
 {
-class ActuatorTestWidget : public QWidget
+class ActuatorTestWidget : public qt::VerticalTabWidget
 {
   Q_OBJECT
 
   using self = ActuatorTestWidget;
-  using super = QWidget;
+  using super = qt::VerticalTabWidget;
 
   static constexpr int kTabHeight = 35;  // これ以上無いと何故かTabBarの文字が横に見切れてしまう
   static constexpr int kTabWidth = 70;
@@ -32,10 +32,11 @@ public:
 private:
   const tobas::Drone& drone_;
 
-  qt::VerticalTabWidget* tabs_;
-
   RotorTestWidget* rotor_test_;
   JointTestWidget* joint_test_;
+
+  BaseWidget* getWidget(int index);
+  const BaseWidget* getWidget(int index) const;
 
   void setTabsEnabled(bool enabled);
 };

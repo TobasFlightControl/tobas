@@ -53,11 +53,6 @@ JointTestWidget::JointTestWidget(
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
-const char* JointTestWidget::name() const
-{
-  return "Joint Test";
-}
-
 const char* JointTestWidget::title() const
 {
   return "Test Joints with PWM Interface";

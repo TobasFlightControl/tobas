@@ -1,7 +1,5 @@
 #include "tobas_sensor_calibration/sensor_calibration.hpp"
 
-#include <QVBoxLayout>
-
 #include <tobas_qt_tools/cast.hpp>
 
 namespace gui
@@ -18,15 +16,14 @@ SensorCalibrationWidget::SensorCalibrationWidget(
   enableWheelEvent(false);
 
   accel_calib_ = new AccelCalibrationWidget(node, bridge);
-  addTab(accel_calib_, accel_calib_->name());
+  addTab(accel_calib_, "Accelerometer");
 
   mag_calib_ = new MagCalibrationWidget(node, bridge);
-  addTab(mag_calib_, mag_calib_->name());
+  addTab(mag_calib_, "Magnetometer");
 
   rcin_calib_ = new RCInputCalibrationWidget(node, bridge, drone);
-  addTab(rcin_calib_, rcin_calib_->name());
+  addTab(rcin_calib_, "Radio Control");
 
-  reset();
   setTabsEnabled(false);
 
   // Connection

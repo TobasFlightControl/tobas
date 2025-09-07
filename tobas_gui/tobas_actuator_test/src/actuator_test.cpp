@@ -1,7 +1,5 @@
 #include "tobas_actuator_test/actuator_test.hpp"
 
-#include <QVBoxLayout>
-
 #include <tobas_qt_tools/cast.hpp>
 
 namespace gui
@@ -15,30 +13,22 @@ ActuatorTestWidget::ActuatorTestWidget(
   const tobas::Drone& drone)
   : drone_(drone)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
-  tabs_ = new qt::VerticalTabWidget();
-  tabs_->enableWheelEvent(false);
-  rows->addWidget(tabs_);
+  setTabSize(kTabWidth, kTabHeight);
+  enableWheelEvent(false);
 
   rotor_test_ = new RotorTestWidget(node, bridge, drone);
+  addTab(rotor_test_, "Rotor Test");
+
   joint_test_ = new JointTestWidget(node, bridge, tree, drone);
+  addTab(joint_test_, "Joint Test");
 
-  tabs_->addTab(rotor_test_, rotor_test_->name());
-  tabs_->addTab(joint_test_, joint_test_->name());
-
-  tabs_->setTabSize(kTabWidth, kTabHeight);
-
-  // プロジェクトが読み込まれるまでは無効化
   setTabsEnabled(false);
 }
 
 void ActuatorTestWidget::reset()
 {
-  for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = qt::qPointerCast<BaseWidget>(tabs_->widget(i));
-    widget->reset();
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->reset();
   }
 }
 
@@ -50,21 +40,30 @@ void ActuatorTestWidget::updateInternalDataStructures()
   joint_test_->updateInternalDataStructures();
 
   // テスト系は1つ以上のチャンネルが登録されているときのみ有効化
-  tabs_->setTabEnabled(rotor_test_, rotor_test_->numRegisteredChannels() > 0);
-  tabs_->setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
+  setTabEnabled(rotor_test_, rotor_test_->numRegisteredChannels() > 0);
+  setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
 
   // 各タブを有効化
   setTabsEnabled(true);
 
   // タブを表示・非表示した際の歪みを整える
-  tabs_->update();
+  update();
+}
+
+BaseWidget* ActuatorTestWidget::getWidget(int index)
+{
+  return qt::qPointerCast<BaseWidget>(widget(index));
+}
+
+const BaseWidget* ActuatorTestWidget::getWidget(int index) const
+{
+  return qt::qConstPointerCast<BaseWidget>(widget(index));
 }
 
 void ActuatorTestWidget::setTabsEnabled(bool enabled)
 {
-  for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = qt::qPointerCast<BaseWidget>(tabs_->widget(i));
-    widget->setEnabled(enabled);
+  for (int i = 0; i < count(); ++i) {
+    getWidget(i)->setEnabled(enabled);
   }
 }
 }  // namespace at

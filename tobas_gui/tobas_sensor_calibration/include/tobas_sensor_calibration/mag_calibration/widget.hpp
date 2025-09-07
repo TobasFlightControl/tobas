@@ -54,7 +54,6 @@ class MagCalibrationWidget : public BaseWidget
 public:
   explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
-  const char* name() const override;
   const char* title() const override;
 
   void reset() override;

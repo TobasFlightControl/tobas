@@ -16,9 +16,6 @@ class BaseWidget : public qt::Widget
 public:
   explicit BaseWidget();
 
-  /* タブに表示される名前． */
-  virtual const char* name() const = 0;
-
   /* ページ上部に表示されるタイトル． */
   virtual const char* title() const = 0;
 

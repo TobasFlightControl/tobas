@@ -76,11 +76,6 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
-const char* RotorTestWidget::name() const
-{
-  return "Rotor Test";
-}
-
 const char* RotorTestWidget::title() const
 {
   return "Test Propulsion Rotors";
