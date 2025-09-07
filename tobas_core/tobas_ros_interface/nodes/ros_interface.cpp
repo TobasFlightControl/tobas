@@ -16,6 +16,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/imu.hpp>
@@ -109,6 +110,10 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCpuTopic, tobas::kCpuTopic);
   addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(tobas::kSbusTopic), tobas::kSbusTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(tobas::kRcInputTopic), tobas::kRcInputTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(tobas::kImuFiltTopic), tobas::kImuFiltTopic);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(tobas::addThrotNS(tobas::kMagTopic), tobas::kMagTopic);
+  addTopicLogicToIface<tobas_msgs::msg::FluidPressure>(
+    tobas::addThrotNS(tobas::kAirPressureTopic), tobas::kAirPressureTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gnss>(tobas::kGnssTopic, tobas::kGnssTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
     tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);

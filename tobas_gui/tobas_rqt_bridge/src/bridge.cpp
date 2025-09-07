@@ -15,23 +15,26 @@ void RosQtBridge::initialize(const std::string& ns)
 {
   subscriptions_.clear();
 
-  add<tobas_msgs::msg::Arming, &self::armingReceived>(ns, tobas::kArmingTopic);
+  add<tobas_msgs::msg::Message, &self::messageReceived>(ns, tobas::kMessageTopic);
   add<tobas_msgs::msg::Battery, &self::batteryReceived>(ns, tobas::kBatteryTopic);
-  add<tobas_msgs::msg::Cpu, &self::cpuReceived>(ns, tobas::kCpuTopic);
   add<tobas_msgs::msg::EngineState, &self::engineStateReceived>(ns, tobas::kEngineStateTopic);
-  add<tobas_msgs::msg::JointStateArray, &self::jointStatesReceived>(ns, tobas::kJointStatesTopic);
-  add<tobas_msgs::msg::PostArmCheck, &self::postArmCheckReceived>(ns, tobas::kPostArmCheckTopic);
-  add<tobas_msgs::msg::PreArmCheck, &self::preArmCheckReceived>(ns, tobas::kPreArmCheckTopic);
-  add<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, tobas::kRosbagStateTopic);
-  add<tobas_msgs::msg::RotorLivelinessArray, &self::rotorLivelinessesReceived>(ns, tobas::kRotorLivelinessesTopic);
-  add<tobas_msgs::msg::RotorStateArray, &self::rotorStatesReceived>(ns, tobas::kRotorStatesTopic);
+  add<tobas_msgs::msg::Cpu, &self::cpuReceived>(ns, tobas::kCpuTopic);
   add<tobas_msgs::msg::Sbus, &self::sbusReceived>(ns, tobas::kSbusTopic);
+  add<tobas_msgs::RCInput, &self::rcInputReceived>(ns, tobas::kRcInputTopic);
+  add<tobas_msgs::Imu, &self::imuReceived>(ns, tobas::kImuFiltTopic);
+  add<tobas_msgs::MagneticField, &self::magReceived>(ns, tobas::kMagTopic);
+  add<tobas_msgs::msg::FluidPressure, &self::airPressureReceived>(ns, tobas::kAirPressureTopic);
   add<tobas_msgs::Gnss, &self::gnssReceived>(ns, tobas::kGnssTopic);
+  add<tobas_msgs::msg::RotorStateArray, &self::rotorStatesReceived>(ns, tobas::kRotorStatesTopic);
+  add<tobas_msgs::msg::RotorLivelinessArray, &self::rotorLivelinessesReceived>(ns, tobas::kRotorLivelinessesTopic);
+  add<tobas_msgs::msg::JointStateArray, &self::jointStatesReceived>(ns, tobas::kJointStatesTopic);
+  add<tobas_msgs::Odometry, &self::odomReceived>(ns, tobas::kOdometryTopic);
+  add<tobas_msgs::msg::Arming, &self::armingReceived>(ns, tobas::kArmingTopic);
+  add<tobas_msgs::msg::PreArmCheck, &self::preArmCheckReceived>(ns, tobas::kPreArmCheckTopic);
+  add<tobas_msgs::msg::PostArmCheck, &self::postArmCheckReceived>(ns, tobas::kPostArmCheckTopic);
+  add<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, tobas::kRosbagStateTopic);
   add<tobas_msgs::Imu, &self::rawImuReceived>(ns, real::kImuRawTopic);
   add<tobas_msgs::MagneticField, &self::rawMagReceived>(ns, real::kMagTopic);
-  add<tobas_msgs::Odometry, &self::odomReceived>(ns, tobas::kOdometryTopic);
-  add<tobas_msgs::RCInput, &self::rcInputReceived>(ns, tobas::kRcInputTopic);
-  add<tobas_msgs::msg::Message, &self::messageReceived>(ns, tobas::kMessageTopic);
 }
 
 template <typename MsgType, auto SignalType>

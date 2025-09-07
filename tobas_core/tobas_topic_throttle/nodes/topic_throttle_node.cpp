@@ -7,6 +7,7 @@
 
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
@@ -71,6 +72,9 @@ private:
   TopicThrottle<tobas_msgs::msg::EngineState> engine_state_throttle_;
   TopicThrottle<tobas_msgs::msg::Sbus> sbus_throttle_;
   TopicThrottle<tobas_msgs::RCInput> rcin_throttle_;
+  TopicThrottle<tobas_msgs::Imu> imu_throttle_;
+  TopicThrottle<tobas_msgs::MagneticField> mag_throttle_;
+  TopicThrottle<tobas_msgs::msg::FluidPressure> pres_throttle_;
   TopicThrottle<tobas_msgs::msg::RotorStateArray> rotor_states_throttle_;
   TopicThrottle<tobas_msgs::msg::JointStateArray> joint_states_throttle_;
   TopicThrottle<tobas_msgs::Odometry> odom_throttle_;
@@ -93,6 +97,9 @@ void TopicThrottleNode::initialize()
   engine_state_throttle_.initialize(node, tobas::kEngineStateTopic);
   sbus_throttle_.initialize(node, tobas::kSbusTopic);
   rcin_throttle_.initialize(node, tobas::kRcInputTopic);
+  imu_throttle_.initialize(node, tobas::kImuFiltTopic);
+  mag_throttle_.initialize(node, tobas::kMagTopic);
+  pres_throttle_.initialize(node, tobas::kAirPressureTopic);
   rotor_states_throttle_.initialize(node, tobas::kRotorStatesTopic);
   joint_states_throttle_.initialize(node, tobas::kJointStatesTopic);
   odom_throttle_.initialize(node, tobas::kOdometryTopic);
