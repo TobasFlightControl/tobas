@@ -31,7 +31,7 @@ bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& gra
 bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& target_fqn, ch::nanoseconds timeout)
 {
   if (target_fqn.empty() || !target_fqn.starts_with('/')) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Invaid FQN: " << target_fqn);
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Invalid FQN: " << target_fqn);
     return false;
   }
 
