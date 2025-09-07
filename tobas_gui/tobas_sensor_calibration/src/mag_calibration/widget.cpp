@@ -123,7 +123,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
 
 const char* MagCalibrationWidget::name() const
 {
-  return "Magnetometer\nCalibration";
+  return "Magnetometer";
 }
 
 const char* MagCalibrationWidget::title() const

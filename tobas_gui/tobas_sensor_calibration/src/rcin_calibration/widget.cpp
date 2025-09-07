@@ -157,7 +157,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
 
 const char* RCInputCalibrationWidget::name() const
 {
-  return "Radio Calibration";
+  return "Radio Control";
 }
 
 const char* RCInputCalibrationWidget::title() const

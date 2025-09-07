@@ -1,6 +1,5 @@
 #include "tobas_sensor_calibration/sensor_calibration.hpp"
 
-#include <QApplication>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>

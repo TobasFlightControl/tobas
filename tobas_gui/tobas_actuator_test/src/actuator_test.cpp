@@ -1,6 +1,5 @@
 #include "tobas_actuator_test/actuator_test.hpp"
 
-#include <QApplication>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
