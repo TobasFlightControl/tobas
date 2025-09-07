@@ -1,5 +1,7 @@
 #include "tobas_rviz_plugin/synchronized_string_parameter.hpp"
 
+namespace ch = std::chrono;
+
 namespace tobas
 {
 std::string SynchronizedStringParameter::loadInitialValue(
@@ -91,7 +93,7 @@ bool SynchronizedStringParameter::waitForMessage(const rclcpp::Duration& timeout
   rclcpp::WaitSet wait_set;
   wait_set.add_subscription(string_subscriber_);
 
-  auto ret = wait_set.wait(timeout.to_chrono<std::chrono::duration<double>>());
+  auto ret = wait_set.wait(timeout.to_chrono<ch::duration<double>>());
   if (ret.kind() == rclcpp::WaitResultKind::Ready) {
     std_msgs::msg::String msg;
     rclcpp::MessageInfo info;

@@ -2,12 +2,11 @@
 
 #include <iostream>
 
-using namespace std;
 namespace ch = std::chrono;
 
 namespace tim
 {
-FrequencyMeasure::FrequencyMeasure(const std::chrono::nanoseconds& period) : period_(period)
+FrequencyMeasure::FrequencyMeasure(const ch::nanoseconds& period) : period_(period)
 {
 }
 
@@ -26,7 +25,7 @@ void FrequencyMeasure::count()
   const auto dur = end_time - start_time_;
   if (dur > period_) {
     const auto freq = count_ / ch::duration<double>(dur).count();
-    cout << freq << " Hz" << endl;
+    std::cout << freq << " Hz" << std::endl;
 
     // Reset
     count_ = 0;

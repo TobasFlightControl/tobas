@@ -2,6 +2,8 @@
 
 #include <chrono>
 
+namespace ch = std::chrono;
+
 namespace gui
 {
 namespace ub
@@ -10,8 +12,8 @@ namespace utils
 {
 int timeNowMilliseconds()
 {
-  const auto now = std::chrono::system_clock::now().time_since_epoch();
-  const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now);
+  const auto now = ch::system_clock::now().time_since_epoch();
+  const auto ms = ch::duration_cast<ch::milliseconds>(now);
   return static_cast<int>(ms.count());
 }
 }  // namespace utils
