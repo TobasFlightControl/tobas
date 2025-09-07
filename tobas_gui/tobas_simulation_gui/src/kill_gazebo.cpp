@@ -34,6 +34,7 @@ bool killGazeboLaunch(pid_t pid)
   }
 
   // Kill Gazebo process
+  // FIXME: killコマンドだけだとGazeboサーバが落ちないため無理やり落としているが，このやり方だと他のプロセスにも影響が及ぶ恐れがある．
   linux::CommandExecutor cmd_executor;
   if (!cmd_executor.execute("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh")) {
     qWarning() << "Failed to kill Gazebo process: " << cmd_executor.getOutput().c_str();
