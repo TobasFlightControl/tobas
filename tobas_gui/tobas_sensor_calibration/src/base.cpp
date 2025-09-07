@@ -1,0 +1,34 @@
+#include "tobas_sensor_calibration/base.hpp"
+
+#include <QTimer>
+
+#include <tobas_qt_tools/font.hpp>
+
+#include "tobas_sensor_calibration/constants.hpp"
+
+namespace gui
+{
+namespace sc
+{
+BaseWidget::BaseWidget()
+{
+  setBackgroundColor(QPalette::Base);
+
+  title_ = new QLabel();
+  title_->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
+
+  rows_ = new QVBoxLayout();
+  rows_->addWidget(title_, 0, Qt::AlignTop);
+  rows_->addSpacing(30);
+
+  setLayout(rows_);
+
+  QTimer::singleShot(0, this, &BaseWidget::initialize);
+}
+
+void BaseWidget::initialize()
+{
+  title_->setText(title());
+}
+}  // namespace sc
+}  // namespace gui

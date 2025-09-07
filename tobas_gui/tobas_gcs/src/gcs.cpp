@@ -41,21 +41,24 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   const auto rsrc_path = getPkgShareDir() / "resources";
 
   // Applications
-  hardware_setup_ = new hw::HardwareSetupWidget(node, bridge_, tree_, drone_);
+  sensor_calib_ = new sc::SensorCalibrationWidget(node, bridge_, drone_);
+  actuator_test_ = new at::ActuatorTestWidget(node, bridge_, tree_, drone_);
   control_system_ = new ctrl::ControlSystemWidget(node, bridge_, drone_);
   param_tuning_ = new param::ParameterTuningWidget(node);
   flight_log_ = new log::FlightLogWidget(node, bridge_);
   simulation_ = new sim::SimulationWidget(node, bridge_);
 
   // TODO: 別々のアイコンを設定
-  const auto hardware_setup_btn = new AppButton("Hardware Setup", QString::fromStdString(rsrc_path / "app.png"));
+  const auto sensor_calib_btn = new AppButton("Sensor Calib", QString::fromStdString(rsrc_path / "app.png"));
+  const auto actuator_test_btn = new AppButton("Actuator Test", QString::fromStdString(rsrc_path / "app.png"));
   const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "app.png"));
   const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "app.png"));
   const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "app.png"));
   const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "app.png"));
 
   const auto app_sw = new qt::StackedWidget();
-  app_sw->addWidget(hardware_setup_);
+  app_sw->addWidget(sensor_calib_);
+  app_sw->addWidget(actuator_test_);
   app_sw->addWidget(control_system_);
   app_sw->addWidget(param_tuning_);
   app_sw->addWidget(flight_log_);
@@ -63,7 +66,8 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
 
   const auto btn_group = new QButtonGroup(this);
   int btn_id = 0;
-  btn_group->addButton(hardware_setup_btn, btn_id++);
+  btn_group->addButton(sensor_calib_btn, btn_id++);
+  btn_group->addButton(actuator_test_btn, btn_id++);
   btn_group->addButton(control_system_btn, btn_id++);
   btn_group->addButton(param_tuning_btn, btn_id++);
   btn_group->addButton(flight_log_btn, btn_id++);
@@ -96,7 +100,8 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   pkg_rows->addLayout(pkg_btn_cols);
 
   const auto header_cols = new QHBoxLayout();
-  header_cols->addWidget(hardware_setup_btn, 1);
+  header_cols->addWidget(sensor_calib_btn, 1);
+  header_cols->addWidget(actuator_test_btn, 1);
   header_cols->addWidget(control_system_btn, 1);
   header_cols->addWidget(param_tuning_btn, 1);
   header_cols->addWidget(flight_log_btn, 1);
@@ -128,7 +133,8 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
 
 void GroundControlStationWidget::reset()
 {
-  hardware_setup_->reset();
+  sensor_calib_->reset();
+  actuator_test_->reset();
   control_system_->reset();
   param_tuning_->reset();
   flight_log_->reset();
@@ -148,7 +154,8 @@ void GroundControlStationWidget::updateInternalDataStructures()
 
   bridge_.initialize(drone_.name);
 
-  hardware_setup_->updateInternalDataStructures();
+  sensor_calib_->updateInternalDataStructures();
+  actuator_test_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
   param_tuning_->updateProject(projectPath());
   flight_log_->updateNamespace(drone_.name);
@@ -159,7 +166,8 @@ void GroundControlStationWidget::closeEvent(QCloseEvent* event)
 {
   RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::closeEvent");
 
-  hardware_setup_->close();
+  sensor_calib_->close();
+  actuator_test_->close();
   control_system_->close();
   param_tuning_->close();
   flight_log_->close();
@@ -491,7 +499,7 @@ void GroundControlStationWidget::onSimRealStateChanged()
   RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onSimRealStateChanged");
 
   // シミュレーションウィジェット以外リセット
-  hardware_setup_->reset();
+  sensor_calib_->reset();
   control_system_->reset();
   param_tuning_->reset();
   flight_log_->reset();
