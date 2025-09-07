@@ -29,7 +29,7 @@
 #define L_KV 2.
 
 using namespace std;
-using namespace chrono;
+namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -86,8 +86,8 @@ private:
   double position_ = 0.;  // [rad]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_gt_;
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
-  steady_clock::duration prev_sim_time_;
-  steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
+  ch::steady_clock::duration prev_sim_time_;
+  ch::steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   bool is_intact_ = true;
   RateManager::SharedPtr publish_state_rate_manager_;
 
@@ -118,7 +118,7 @@ private:
   void addModelError();
 
   double velocitySim() const;
-  void applyWrenchAndPublishState(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
+  void applyWrenchAndPublishState(gz::sim::EntityComponentManager& ecm, const ch::steady_clock::duration& cur_time);
   void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle);
@@ -245,13 +245,13 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   }
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
-  const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
+  const auto secs_from_last_cmd = ch::duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeout) {
     throttle_ = 0.;
   }
 
   // Compute time after previous simulation time
-  const auto dt = duration<double>(info.dt).count();
+  const auto dt = ch::duration<double>(info.dt).count();
 
   // Check aliasing
   if (fabs(velocitySim() * dt) > M_PI) {
@@ -299,7 +299,7 @@ double GazeboElectricPropulsionSystemPlugin::velocitySim() const
 
 void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   gz::sim::EntityComponentManager& ecm,
-  const steady_clock::duration& cur_time)
+  const ch::steady_clock::duration& cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering

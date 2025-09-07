@@ -11,7 +11,7 @@
 #include <tobas_linux/error.hpp>
 
 using namespace std;
-using namespace chrono;
+namespace ch = std::chrono;
 
 namespace tobas
 {
@@ -158,7 +158,7 @@ bool setShadowPassword(
   }
 
   // 変更日を取得 (days since epoch)
-  const auto days = duration_cast<hours>(system_clock::now().time_since_epoch()).count() / 24;
+  const auto days = duration_cast<ch::hours>(ch::system_clock::now().time_since_epoch()).count() / 24;
 
   // ユーザのログインパスワードのみ変更
   bool found = false;

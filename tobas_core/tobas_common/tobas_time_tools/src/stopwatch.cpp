@@ -3,7 +3,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace chrono;
+namespace ch = std::chrono;
 
 namespace tim
 {
@@ -16,7 +16,7 @@ Stopwatch::Stopwatch(size_t samples) : samples_(samples)
 
 void Stopwatch::start()
 {
-  start_time_ = steady_clock::now();
+  start_time_ = ch::steady_clock::now();
   running_ = true;
 }
 
@@ -26,8 +26,8 @@ uint64_t Stopwatch::stop()
     return 0;
   }
 
-  const auto end_time = steady_clock::now();
-  const auto duration = duration_cast<microseconds>(end_time - start_time_).count();
+  const auto end_time = ch::steady_clock::now();
+  const auto duration = duration_cast<ch::microseconds>(end_time - start_time_).count();
   sum_duration_ += duration;
 
   if (++count_ == samples_) {

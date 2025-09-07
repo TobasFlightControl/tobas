@@ -9,8 +9,8 @@
 #define E3 Diagonal3d(1, 1, 1)
 
 using namespace std;
-using namespace chrono;
 using namespace Eigen;
+namespace ch = std::chrono;
 
 namespace eskf
 {
@@ -55,7 +55,7 @@ bool ErrorStateKalmanFilter::initialize(
   const Matrix6d& init_mag_soft_bias_cov,
   const double& init_grav,
   const double& init_grav_var,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   // Set initial IMU time
   t_last_imu_ = time;
@@ -335,14 +335,14 @@ double ErrorStateKalmanFilter::measureIMU(
   const Matrix3d& acc_cov,
   const Matrix3d& gyro_cov,
   const Matrix3d& grav_cov,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   assert(eigen::isSymmetricSemiPositiveDefinite(acc_cov));
   assert(eigen::isSymmetricSemiPositiveDefinite(gyro_cov));
   assert(eigen::isSymmetricPositiveDefinite(grav_cov));
 
   // サンプリングタイムを計算して時刻を更新
-  const auto dt = duration<double>(time - t_last_imu_).count();  // [s]
+  const auto dt = ch::duration<double>(time - t_last_imu_).count();  // [s]
   const auto dt2 = math::sqr(dt);
   t_last_imu_ = time;
 
@@ -417,7 +417,7 @@ double ErrorStateKalmanFilter::measurePosition(
   const Vector3d& pos_meas,
   const Matrix3d& pos_cov,
   const Vector3d& offset,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
@@ -431,8 +431,10 @@ double ErrorStateKalmanFilter::measurePosition(
   return correct(delta_pos, pos_cov, H_pos_);
 }
 
-double
-ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov, const steady_clock::time_point& time)
+double ErrorStateKalmanFilter::measureXY(
+  const Vector2d& xy_meas,
+  const Matrix2d& xy_cov,
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
@@ -440,8 +442,10 @@ ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_co
   return correct(delta_xy, xy_cov, H_xy_);
 }
 
-double
-ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var, const steady_clock::time_point& time)
+double ErrorStateKalmanFilter::measureAltitude(
+  const double& z_meas,
+  const double& z_var,
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
@@ -454,7 +458,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   const Matrix3d& vel_cov,
   const Vector3d& offset,
   const Vector3d& gyro_meas,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
@@ -481,7 +485,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   const Matrix3d& vel_cov,
   const Vector3d& offset,
   const Vector3d& gyro_meas,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
@@ -515,7 +519,7 @@ double ErrorStateKalmanFilter::measurePosVel(
 double ErrorStateKalmanFilter::measureQuaternion(
   const Quaterniond& q_meas,
   const Matrix3d& theta_cov,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
@@ -529,7 +533,7 @@ double ErrorStateKalmanFilter::measureQuaternion(
 double ErrorStateKalmanFilter::measureMagneticField3d(
   const Vector3d& mag_meas,
   const Matrix3d& mag_cov,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.) {
     cerr << "Reference magnetic field is not set." << endl;
@@ -561,7 +565,7 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
 double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const Vector3d& mag_meas,
   const double& yaw_var,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.) {
     cerr << "Reference magnetic field is not set." << endl;
@@ -726,7 +730,7 @@ void ErrorStateKalmanFilter::resetStateHistory()
 double ErrorStateKalmanFilter::measureGravity(
   const Vector3d& acc_meas,
   const Matrix3d& grav_cov,
-  const steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 

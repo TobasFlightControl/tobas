@@ -3,7 +3,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace chrono;
+namespace ch = std::chrono;
 
 namespace tim
 {
@@ -15,17 +15,17 @@ void FrequencyMeasure::count()
 {
   // Initialize
   if (count_ == 0) {
-    start_time_ = steady_clock::now();
+    start_time_ = ch::steady_clock::now();
   }
 
   // Increase count
   ++count_;
 
   // Output
-  const auto end_time = steady_clock::now();
+  const auto end_time = ch::steady_clock::now();
   const auto dur = end_time - start_time_;
   if (dur > period_) {
-    const auto freq = count_ / duration<double>(dur).count();
+    const auto freq = count_ / ch::duration<double>(dur).count();
     cout << freq << " Hz" << endl;
 
     // Reset

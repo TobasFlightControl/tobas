@@ -1,11 +1,11 @@
 #include "tobas_time_tools/util.hpp"
 
 using namespace std;
-using namespace chrono;
+namespace ch = std::chrono;
 
 namespace tim
 {
-system_clock::time_point tmToTimePoint(tm tm)
+ch::system_clock::time_point tmToTimePoint(tm tm)
 {
   // UTCで表現されたtmをtime_tに変換
   // https://dev.activebasic.com/egtra/2017/01/03/941/
@@ -15,12 +15,12 @@ system_clock::time_point tmToTimePoint(tm tm)
   }
 
   // time_t -> time_pointの変換にはタイムゾーンは影響しない
-  return system_clock::from_time_t(tt);
+  return ch::system_clock::from_time_t(tt);
 }
 
-tm timePointToTm(const system_clock::time_point& tp)
+tm timePointToTm(const ch::system_clock::time_point& tp)
 {
-  const auto tt = system_clock::to_time_t(tp);
+  const auto tt = ch::system_clock::to_time_t(tp);
   return *gmtime(&tt);
 }
 
@@ -36,13 +36,13 @@ tm tmFromUTC(int year, int month, int day, int hour, int min, int sec)
   return tm;
 }
 
-system_clock::time_point timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano)
+ch::system_clock::time_point timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano)
 {
   const auto tm = tmFromUTC(year, month, day, hour, min, sec);
-  return tmToTimePoint(tm) + nanoseconds(nano);
+  return tmToTimePoint(tm) + ch::nanoseconds(nano);
 }
 
-double yearFraction(const system_clock::time_point& tp)
+double yearFraction(const ch::system_clock::time_point& tp)
 {
   const auto tm = timePointToTm(tp);
   const auto year = tm.tm_year + 1900;  // 年

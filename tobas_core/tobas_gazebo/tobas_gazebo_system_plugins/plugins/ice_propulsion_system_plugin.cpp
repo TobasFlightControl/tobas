@@ -19,7 +19,7 @@
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
-using namespace std::chrono;
+namespace ch = std::chrono;
 
 namespace gazebo
 {
@@ -158,7 +158,7 @@ void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
 void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   // Step simulation
-  const auto dt = duration<double>(info.dt).count();
+  const auto dt = ch::duration<double>(info.dt).count();
   for (auto& [_, rotor] : rotors_) {
     rotor.step(dt);
   }
