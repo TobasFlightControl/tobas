@@ -35,8 +35,8 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
     return false;
   }
 
+  // ノードグラフを取得
   const auto graph = node->get_node_graph_interface();
-  const auto event = graph->get_graph_event();  // グラフ変化でセットされるEvent
 
   // すでに居なければ即終了
   if (!isPresent(graph, target_fqn)) {
@@ -44,14 +44,12 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
     return true;
   }
 
+  // 一定周期で目標ノードの存在を確認
   const auto deadline = ch::steady_clock::now() + timeout;
+  rclcpp::Rate rate(10., node->get_clock());
   while (rclcpp::ok()) {
-    // グラフに何か変化が起きるまで待機
-    const auto remaining = deadline - ch::steady_clock::now();
-    node->wait_for_graph_change(event, remaining);
-
     // タイムアウトの処理
-    if (!event->check_and_clear() || ch::steady_clock::now() > deadline) {
+    if (ch::steady_clock::now() > deadline) {
       RCLCPP_WARN_STREAM(node->get_logger(), "Timed out waiting for \"" << target_fqn << "\" to shut down.");
       return false;
     }
@@ -61,6 +59,8 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
       RCLCPP_INFO_STREAM(node->get_logger(), "\"" << target_fqn << "\" has gone.");
       return true;
     }
+
+    rate.sleep();
   }
 
   return false;
