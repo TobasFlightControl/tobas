@@ -7,7 +7,7 @@
 #define NOT_RECEIVABLE "Not receivable."
 
 using namespace std;
-using namespace chrono;
+namespace ch = std::chrono;
 
 namespace ublox
 {
@@ -521,9 +521,9 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   const auto cls_str = to_string(int(cls));
   const auto id_str = to_string(int(id));
 
-  const auto start_time = steady_clock::now();
+  const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
-  while (duration<double>(steady_clock::now() - start_time).count() < kWaitForGnssAck) {
+  while (ch::steady_clock::now() < deadline) {
     if (!update(false)) {
       return false;
     }
