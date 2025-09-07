@@ -7,8 +7,8 @@ namespace gui
 {
 namespace sim
 {
-bool killGazeboLaunch(pid_t pid);
-bool waitForGazeboToDisappear(rclcpp::Node::SharedPtr node);
+bool killGazeboLaunch(const pid_t& pid);
+bool waitForGazeboToDisappear(const rclcpp::Node::SharedPtr& node);
 
 class KillGazeboThread : public QThread
 {
@@ -22,7 +22,7 @@ public:
 
   void run() override;
 
-  bool setProcessId(pid_t pid);
+  bool setProcessId(const pid_t& pid);
 
 private:
   const rclcpp::Node::SharedPtr node_;

@@ -14,7 +14,7 @@ namespace gui
 {
 namespace sim
 {
-bool killGazeboLaunch(pid_t pid)
+bool killGazeboLaunch(const pid_t& pid)
 {
   if (pid < 0) {
     qWarning() << "Invalid PID: " << pid;
@@ -44,7 +44,7 @@ bool killGazeboLaunch(pid_t pid)
   return true;
 }
 
-bool waitForGazeboToDisappear(rclcpp::Node::SharedPtr node)
+bool waitForGazeboToDisappear(const rclcpp::Node::SharedPtr& node)
 {
   return ros2::waitUntilNodeGone(node, "/tobas_ros_gz_bridge", 30s);
 }
@@ -73,7 +73,7 @@ void KillGazeboThread::run()
   Q_EMIT finished(true, "");
 }
 
-bool KillGazeboThread::setProcessId(pid_t pid)
+bool KillGazeboThread::setProcessId(const pid_t& pid)
 {
   if (pid < 0) {
     qWarning() << "Invalid PID: " << pid;
