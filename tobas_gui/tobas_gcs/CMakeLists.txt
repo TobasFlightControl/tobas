@@ -14,11 +14,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_hardware_setup REQUIRED)
 find_package(tobas_control_system REQUIRED)
-find_package(tobas_parameter_tuning_gui REQUIRED)
+find_package(tobas_parameter_tuning REQUIRED)
 find_package(tobas_flight_log_gui REQUIRED)
 find_package(tobas_simulation_gui REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_hardware_setup tobas_control_system tobas_parameter_tuning_gui tobas_flight_log_gui
+set(AMENT_DEPENDENCIES tobas_hardware_setup tobas_control_system tobas_parameter_tuning tobas_flight_log_gui
                        tobas_simulation_gui
 )
 

@@ -10,7 +10,7 @@
 
   <depend>tobas_hardware_setup</depend>
   <depend>tobas_control_system</depend>
-  <depend>tobas_parameter_tuning_gui</depend>
+  <depend>tobas_parameter_tuning</depend>
   <depend>tobas_flight_log_gui</depend>
   <depend>tobas_simulation_gui</depend>
 

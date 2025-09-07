@@ -1,4 +1,4 @@
-#include "tobas_parameter_tuning_gui/param_block.hpp"
+#include "tobas_parameter_tuning/param_block.hpp"
 
 #include <QDebug>
 #include <QHBoxLayout>

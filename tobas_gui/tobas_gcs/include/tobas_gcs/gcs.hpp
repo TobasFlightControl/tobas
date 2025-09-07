@@ -11,7 +11,7 @@
 #include <tobas_gui_common/ssh_endpoint.hpp>
 #include <tobas_hardware_setup/hardware_setup.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
-#include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
+#include <tobas_parameter_tuning/parameter_tuning.hpp>
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
