@@ -45,8 +45,10 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   proj_paths_.setProjPath(proj_path);
 
   // Tobasパッケージを作成
-  if (!path::createDirectories(proj_path)) {
-    qt::qErrorBox(settings_, "Failed to create Tobas project path.");
+  const auto create_proj_path_res = path::createDirectories(proj_path);
+  if (!create_proj_path_res) {
+    qt::qErrorBox(
+      settings_, "Failed to create Tobas project path:\n" + QString::fromStdString(create_proj_path_res.error()));
     return false;
   }
 
@@ -555,7 +557,7 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
 
   // 空のresourceファイルを作成
   const auto resource_file = pkg_path / "resource" / pkg_name;
-  path::createFilePath(resource_file);
+  TOBAS_CHECK(path::createFilePath(resource_file, true));
 
   // ディレクトリを作成
   const auto launch_dir = pkg_path / "launch";
@@ -883,8 +885,9 @@ bool ProjectGenerator::generateModifiedUrdf()
 
 bool ProjectGenerator::createEmptyFile(const fs::path& file_path)
 {
-  if (!path::createFilePath(file_path)) {
-    qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\".");
+  const auto res = path::createFilePath(file_path);
+  if (!res) {
+    qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
     return false;
   }
 

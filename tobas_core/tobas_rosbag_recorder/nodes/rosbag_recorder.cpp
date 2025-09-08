@@ -378,10 +378,10 @@ void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
 
 void RosbagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
 {
-  path::clearDirectory(rosbag_dir_);
+  const auto clear_dir_res = path::clearDirectory(rosbag_dir_);
 
-  res->success = true;
-  res->message.clear();
+  res->success = clear_dir_res.has_value();
+  res->message = clear_dir_res.error();
 }
 
 void RosbagRecorderNode::mainTimerCb()

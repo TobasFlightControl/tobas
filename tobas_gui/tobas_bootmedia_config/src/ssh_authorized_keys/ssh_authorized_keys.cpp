@@ -131,8 +131,9 @@ void SshAuthorizedKeysWidget::onReadButtonClicked()
   }
   else {
     // ファイルが存在しなければ作る
-    if (!path::createFilePath(file_path)) {
-      qt::qErrorBox(this, "Failed to create file: " + QString::fromStdString(file_path));
+    const auto res = path::createFilePath(file_path);
+    if (!res) {
+      qt::qErrorBox(this, "Failed to create the authorized keys file:\n" + QString::fromStdString(res.error()));
       return;
     }
   }

@@ -20,53 +20,53 @@ bool isWritable(const fs::path& file_path)
   return ofs.good();
 }
 
-bool createDirectories(const fs::path& dir_path, bool exist_ok)
+expected<void, string> createDirectories(const fs::path& dir_path, bool exist_ok)
 {
   if (fs::is_directory(dir_path)) {
     if (exist_ok) {
-      return true;
+      return {};
     }
     else {
-      cerr << "\"" << dir_path << "\" already exists.";
-      return false;
+      return unexpected("\"" + dir_path.string() + "\" already exists.");
     }
   }
 
-  return fs::create_directories(dir_path);
+  error_code ec;
+  if (!fs::create_directories(dir_path, ec)) {
+    return unexpected(ec.message());
+  }
+
+  return {};
 }
 
-bool createFilePath(const fs::path& file_path, bool exist_ok)
+expected<void, string> createFilePath(const fs::path& file_path, bool exist_ok)
 {
   // ファイルの存在を確認
   if (fs::is_regular_file(file_path)) {
     if (exist_ok) {
-      return true;
+      return {};
     }
     else {
-      cerr << "\"" << file_path << "\" already exists.";
-      return false;
+      return unexpected("\"" + file_path.string() + "\" already exists.");
     }
   }
 
   // ファイルのパスからディレクトリ部分のみを取得
   const auto dir_path = fs::path(file_path).parent_path();
 
-  // ディレクトリが存在しなければ作成
-  if (!fs::is_directory(dir_path)) {
-    if (!fs::create_directories(dir_path)) {
-      cerr << "Failed to create \"" << dir_path << "\".";
-      return false;
-    }
+  // ファイルの親ディレクトリまでのパスを作成
+  const auto create_dir_res = createDirectories(dir_path, true);
+  if (!create_dir_res) {
+    return unexpected(create_dir_res.error());
   }
 
   // 空のファイルを作成
   const ofstream file(file_path);
   if (!file) {
-    cerr << "Failed to create \"" << file_path << "\"." << endl;
-    return false;
+    return unexpected("Failed to create \"" + file_path.string() + "\".");
   }
 
-  return true;
+  return {};
 }
 
 size_t computeDirectorySize(const fs::path& dir_path)
@@ -88,15 +88,16 @@ size_t computeDirectorySize(const fs::path& dir_path)
   return total_size;
 }
 
-void clearDirectory(const fs::path& dir_path)
+std::expected<void, std::string> clearDirectory(const fs::path& dir_path)
 {
   if (!fs::is_directory(dir_path)) {
-    cerr << dir_path << " does not exist." << endl;
-    return;
+    return unexpected("\"" + dir_path.string() + "\" does not exist.");
   }
 
   for (const auto& entry : fs::directory_iterator(dir_path)) {
     fs::remove_all(entry);
   }
+
+  return {};
 }
 }  // namespace path

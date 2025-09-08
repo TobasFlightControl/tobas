@@ -557,7 +557,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
-    path::createDirectories(last_opened_dir, true);
+    TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
   }
 
   // プロジェクトのパスを取得
@@ -567,7 +567,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
     return;
   }
   const auto proj_path = dialog.selectedFiles().first();
-  assert(proj_path.endsWith(tobas::kProjectExtension));
+  TOBAS_CHECK(proj_path.endsWith(tobas::kProjectExtension));
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(proj_path.toStdString()).parent_path();
