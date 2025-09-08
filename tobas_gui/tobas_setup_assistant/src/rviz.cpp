@@ -6,7 +6,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
-#include <tobas_ros2_tools/urdf_exporter.hpp>
+#include <tobas_urdf/exporter.hpp>
 #include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
@@ -75,7 +75,7 @@ void RvizWidget::updateInternalDataStructures()
   rviz_manager_.setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
-  const auto urdf_doc = ros2::exportUrdf(*uadf_.urdf);
+  const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_text));

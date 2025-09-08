@@ -4,12 +4,12 @@
 
 #include <tobas_ros2_tools/console_bridge/output_handler_text.hpp>
 
-namespace ros2
+namespace urdf
 {
-class UrdfParser
+class Parser
 {
 public:
-  explicit UrdfParser();
+  explicit Parser();
 
   urdf::ModelInterfaceSharedPtr parseFromPath(const std::string& path);
   urdf::ModelInterfaceSharedPtr parseFromText(const std::string& xml);
@@ -21,4 +21,4 @@ private:
 
   console_bridge::OutputHandlerText oh_;
 };
-}  // namespace ros2
+}  // namespace urdf

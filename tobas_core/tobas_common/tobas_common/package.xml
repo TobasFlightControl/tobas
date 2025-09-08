@@ -31,6 +31,7 @@
 	<exec_depend>tobas_string_tools</exec_depend>
 	<exec_depend>tobas_time_tools</exec_depend>
 	<exec_depend>tobas_trajectory_generators</exec_depend>
+	<exec_depend>tobas_urdf</exec_depend>
 	<exec_depend>tobas_xml_tools</exec_depend>
 	<exec_depend>tobas_yaml_tools</exec_depend>
 

@@ -1,7 +1,5 @@
 #include "tobas_ros2_tools/node.hpp"
 
-#include <tobas_std_tools/vector.hpp>
-
 namespace ch = std::chrono;
 
 namespace ros2

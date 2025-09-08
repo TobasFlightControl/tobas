@@ -12,27 +12,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(Eigen3 REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(ament_index_cpp REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(urdf REQUIRED)
-find_package(urdfdom REQUIRED)
-find_package(tobas_std_tools REQUIRED)
-find_package(tobas_string_tools REQUIRED)
-find_package(tobas_path_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES
-    Eigen3
-    rclcpp
-    ament_index_cpp
-    tf2_ros
-    urdf
-    urdfdom
-    tobas_std_tools
-    tobas_string_tools
-    tobas_path_tools
-)
+set(AMENT_DEPENDENCIES rclcpp tf2_ros)
 
 include_directories(include)
 

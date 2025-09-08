@@ -1,8 +1,8 @@
-#include "tobas_ros2_tools/urdf_exporter.hpp"
+#include "tobas_urdf/exporter.hpp"
 
 #include <urdf_parser/urdf_parser.h>
 
-namespace ros2
+namespace urdf
 {
 tinyxml2::XMLDocument* exportUrdf(const urdf::ModelInterface& model)
 {
@@ -12,4 +12,4 @@ tinyxml2::XMLDocument* exportUrdf(const urdf::ModelInterface& model)
   return urdf::exportURDF(model);
 #pragma GCC diagnostic pop
 }
-}  // namespace ros2
+}  // namespace urdf

@@ -5,7 +5,7 @@
 #include <urdf_model/types.h>
 
 #include <tobas_kdl/tree.hpp>
-#include <tobas_ros2_tools/urdf_parser.hpp>
+#include <tobas_urdf/parser.hpp>
 
 namespace kdl
 {
@@ -23,7 +23,7 @@ public:
 private:
   std::string error_msg_;
 
-  ros2::UrdfParser urdf_parser_;
+  urdf::Parser urdf_parser_;
 
   /* Recursive function to walk through tree. */
   static void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree);

@@ -13,9 +13,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_xml_tools REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
+find_package(tobas_urdf REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_xml_tools tobas_ros2_tools)
+set(AMENT_DEPENDENCIES tobas_xml_tools tobas_urdf)
 
 include_directories(include)
 

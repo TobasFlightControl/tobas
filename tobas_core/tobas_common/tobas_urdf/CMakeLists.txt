@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_kdl_parser)
+project(tobas_urdf)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,10 +12,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_kdl_conversions REQUIRED)
-find_package(tobas_urdf REQUIRED)
+find_package(urdf REQUIRED)
+find_package(urdfdom REQUIRED)
+find_package(ament_index_cpp REQUIRED)
+find_package(tobas_string_tools REQUIRED)
+find_package(tobas_path_tools REQUIRED)
+find_package(tobas_ros2_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES tobas_kdl_conversions tobas_urdf)
+set(AMENT_DEPENDENCIES urdf urdfdom ament_index_cpp tobas_string_tools tobas_path_tools tobas_ros2_tools)
 
 include_directories(include)
 

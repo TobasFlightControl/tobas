@@ -6,11 +6,11 @@
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_ros2_tools/path.hpp>
-#include <tobas_ros2_tools/urdf_exporter.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_uadf/exporter.hpp>
+#include <tobas_urdf/exporter.hpp>
+#include <tobas_urdf/util.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
@@ -860,7 +860,7 @@ bool ProjectGenerator::generateOriginalUadf()
 bool ProjectGenerator::generateModifiedUrdf()
 {
   // Export the original URDF
-  const auto doc = ros2::exportUrdf(*uadf_.urdf);
+  const auto doc = urdf::exportUrdf(*uadf_.urdf);
   const auto robot = doc->RootElement();
 
   // Modify
@@ -926,7 +926,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       return false;
     }
 
-    const auto src_path = ros2::resolveURI(filename);
+    const auto src_path = urdf::resolveURI(filename);
     if (!fs::exists(src_path)) {
       qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
       return false;
@@ -989,7 +989,7 @@ bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* el
       return false;
     }
 
-    const auto src_path = ros2::resolveURI(filename);
+    const auto src_path = urdf::resolveURI(filename);
     const auto base_name = src_path.filename().string();
     const auto cfg_pkg_name = proj_paths_.cfgPkgName();
 

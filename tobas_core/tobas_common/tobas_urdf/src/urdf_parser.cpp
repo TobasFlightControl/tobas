@@ -1,14 +1,14 @@
-#include "tobas_ros2_tools/urdf_parser.hpp"
+#include "tobas_urdf/parser.hpp"
 
 #include <urdf_parser/urdf_parser.h>
 
-namespace ros2
+namespace urdf
 {
-UrdfParser::UrdfParser() : oh_(console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
+Parser::Parser() : oh_(console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
 {
 }
 
-urdf::ModelInterfaceSharedPtr UrdfParser::parseFromPath(const std::string& path)
+urdf::ModelInterfaceSharedPtr Parser::parseFromPath(const std::string& path)
 {
   console_bridge::useOutputHandler(&oh_);
 
@@ -23,7 +23,7 @@ urdf::ModelInterfaceSharedPtr UrdfParser::parseFromPath(const std::string& path)
   return res;
 }
 
-urdf::ModelInterfaceSharedPtr UrdfParser::parseFromText(const std::string& xml)
+urdf::ModelInterfaceSharedPtr Parser::parseFromText(const std::string& xml)
 {
   console_bridge::useOutputHandler(&oh_);
 
@@ -38,8 +38,8 @@ urdf::ModelInterfaceSharedPtr UrdfParser::parseFromText(const std::string& xml)
   return res;
 }
 
-const std::string& UrdfParser::errorMessage() const
+const std::string& Parser::errorMessage() const
 {
   return error_msg_;
 }
-}  // namespace ros2
+}  // namespace urdf

@@ -10,11 +10,11 @@
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_ros2_tools/urdf_exporter.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
+#include <tobas_urdf/exporter.hpp>
 #include <tobas_xml_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
@@ -193,7 +193,7 @@ bool SetupAssistantWidget::updateInternalDataStructures()
   jsp_->updateInternalDataStructures();
 
   // Update RSP parameter
-  const auto urdf_doc = ros2::exportUrdf(*uadf_.urdf);
+  const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   if (!rsp_client_.setParam("robot_description", urdf_text)) {
     qt::qErrorBox(this, "Failed to update robot state publisher.");
@@ -405,7 +405,7 @@ void SetupAssistantWidget::onNewButtonClicked()
     nullptr,
     options);
 
-  // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
+  // キャンセルの場合は何もせずに終了
   if (uadf_path.isEmpty()) {
     return;
   }

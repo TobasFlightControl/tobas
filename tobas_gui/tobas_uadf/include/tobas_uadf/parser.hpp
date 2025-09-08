@@ -2,7 +2,7 @@
 
 #include <tinyxml2.h>
 
-#include <tobas_ros2_tools/urdf_parser.hpp>
+#include <tobas_urdf/parser.hpp>
 
 #include "./model.hpp"
 
@@ -22,6 +22,6 @@ public:
 private:
   std::string error_msg_;
 
-  ros2::UrdfParser urdf_parser_;
+  urdf::Parser urdf_parser_;
 };
 }  // namespace uadf
