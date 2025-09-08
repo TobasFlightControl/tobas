@@ -21,6 +21,7 @@ find_package(tobas_ssh_authkey REQUIRED)
 find_package(tobas_udev REQUIRED)
 find_package(tobas_wpa_supplicant REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
     ament_index_cpp
@@ -32,6 +33,7 @@ set(AMENT_DEPENDENCIES
     tobas_udev
     tobas_wpa_supplicant
     tobas_qt_tools
+    tobas_gui_common
 )
 
 add_definitions(-DQT_NO_KEYWORDS)

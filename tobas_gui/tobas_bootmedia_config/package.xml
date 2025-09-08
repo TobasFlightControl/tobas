@@ -17,6 +17,7 @@
   <depend>tobas_udev</depend>
   <depend>tobas_wpa_supplicant</depend>
   <depend>tobas_qt_tools</depend>
+  <depend>tobas_gui_common</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

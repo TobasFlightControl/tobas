@@ -2,9 +2,8 @@
 
 #include <QTimer>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-
-#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {
@@ -19,7 +18,7 @@ AerodynamicsWidget_Base::AerodynamicsWidget_Base()
   rows_ = new QVBoxLayout();
   setLayout(rows_);
 
-  description_ = new qt::DescriptionWidget("", kBodyPSize);
+  description_ = new qt::DescriptionWidget("", common::kBodyPSize);
   rows_->addWidget(description_);
 
   QTimer::singleShot(0, this, &AerodynamicsWidget_Base::initialize);

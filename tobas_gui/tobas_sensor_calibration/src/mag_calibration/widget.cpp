@@ -8,6 +8,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_eigen_tools/hash.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -37,7 +38,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
     "2. With each face up, rotate the FC around the gravity vector until each gauge is full and green.\n\n"
     "3. When all six faces are green and the progress bar reaches 100%, click \"Finish.\"\n\n"
     "4. Confirm that the calibrated point cloud (green) draws a neat sphere around the origin.\n\n",
-    kBodyPSize);
+    common::kBodyPSize);
 
   start_button_ = new QPushButton("Start");
   finish_button_ = new QPushButton("Finish");

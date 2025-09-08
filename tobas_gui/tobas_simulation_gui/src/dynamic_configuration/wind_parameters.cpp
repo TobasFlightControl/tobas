@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -17,7 +18,7 @@ namespace sim
 {
 WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  const auto title = new qt::Label("Wind Parameters", kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Wind Parameters", common::kLabelPSize, QFont::Bold);
 
   mean_speed_ = new qt::DoubleSliderTextWidget(0., 20., 1);
   direction_ = new qt::IntSliderTextWidget(-180, 180);

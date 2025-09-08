@@ -2,9 +2,8 @@
 
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-
-#include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
 {
@@ -16,7 +15,7 @@ DebugWidget::DebugWidget()
 
   // Layout
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new qt::Label("Debug", kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Debug", common::kLabelPSize, QFont::Bold));
   rows->addWidget(user_debug_);
 
   setLayout(rows);

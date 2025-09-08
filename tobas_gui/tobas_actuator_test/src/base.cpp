@@ -2,9 +2,8 @@
 
 #include <QTimer>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
-
-#include "tobas_actuator_test/constants.hpp"
 
 namespace gui
 {
@@ -15,7 +14,7 @@ BaseWidget::BaseWidget()
   setBackgroundColor(QPalette::Base);
 
   title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
+  title_->setFont(qt::DefaultFont(common::kTitlePSize, QFont::Bold));
 
   rows_ = new QVBoxLayout();
   rows_->addWidget(title_, 0, Qt::AlignTop);

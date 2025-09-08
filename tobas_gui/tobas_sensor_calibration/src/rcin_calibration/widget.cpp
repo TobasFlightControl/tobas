@@ -2,6 +2,7 @@
 
 #include <QDebug>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -33,7 +34,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
     "2. For each channel, operate the stick or switch to ensure it covers the entire range. "
     "If the stick's movement is opposite to that of the bar, adjust the transmitter settings accordingly.\n\n"
     "3. When the full range of all channels has been covered, click \"Finish.\"\n\n",
-    kBodyPSize);
+    common::kBodyPSize);
 
   const auto button_cols = new QHBoxLayout();
 

@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
@@ -34,11 +35,11 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 
   // Layout
   const auto pwm_rows = new QVBoxLayout();
-  pwm_rows->addWidget(new qt::Label(kPwmLabel, kLabelPSize, QFont::Bold));
+  pwm_rows->addWidget(new qt::Label(kPwmLabel, common::kLabelPSize, QFont::Bold));
   pwm_rows->addWidget(pwm_);
 
   const auto dshot_rows = new QVBoxLayout();
-  dshot_rows->addWidget(new qt::Label(kDShotLabel, kLabelPSize, QFont::Bold));
+  dshot_rows->addWidget(new qt::Label(kDShotLabel, common::kLabelPSize, QFont::Bold));
   dshot_rows->addWidget(dshot_);
 
   const auto rcout_cols = new QHBoxLayout();

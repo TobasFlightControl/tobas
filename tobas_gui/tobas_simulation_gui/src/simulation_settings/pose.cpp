@@ -4,11 +4,10 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-
-#include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
 {
@@ -19,7 +18,7 @@ PoseWidget::PoseWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  rows->addWidget(new qt::Label("Initial Pose", kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Initial Pose", common::kLabelPSize, QFont::Bold));
 
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);

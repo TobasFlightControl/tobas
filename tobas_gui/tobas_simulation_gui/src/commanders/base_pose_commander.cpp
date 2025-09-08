@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -28,7 +29,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   const auto header_cols = new QHBoxLayout();
   root_rows->addLayout(header_cols);
 
-  const auto title = new qt::Label("Base Pose", kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Base Pose", common::kLabelPSize, QFont::Bold);
   header_cols->addWidget(title);
   header_cols->addStretch();
 

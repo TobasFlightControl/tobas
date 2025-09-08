@@ -3,10 +3,9 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_string_tools/core.hpp>
-
-#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {
@@ -18,7 +17,7 @@ DoubleGetter::DoubleGetter(const QString& name)
   setLayout(cols);
 
   const auto label = new QLabel(name + ":");
-  label->setFont(qt::DefaultFont(kBodyPSize));
+  label->setFont(qt::DefaultFont(common::kBodyPSize));
   cols->addWidget(label);
 
   data_ = new qt::DoubleSpinBox();

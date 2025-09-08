@@ -1,5 +1,6 @@
 #include "tobas_setup_assistant/setting_tabs/remote_connection/remote_connection.hpp"
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
@@ -11,9 +12,9 @@ namespace rc
 {
 RemoteConnectionWidget::RemoteConnectionWidget()
 {
-  addWidget(new qt::Label(kHostLabel, kLabelPSize, QFont::Bold));
+  addWidget(new qt::Label(kHostLabel, common::kLabelPSize, QFont::Bold));
   addWidget(new qt::DescriptionWidget(
-    "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", kBodyPSize));
+    "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", common::kBodyPSize));
 
   host_ = new HostWidget();
   addWidget(host_);

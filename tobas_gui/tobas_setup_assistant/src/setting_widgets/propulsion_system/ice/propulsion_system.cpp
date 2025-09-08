@@ -3,10 +3,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-
-#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {
@@ -23,11 +22,11 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 
   // Layout
   const auto battery_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Engine", kTitlePSize, QFont::Bold), battery_rows);
+  qt::addWidgetCenter(new qt::Label("Engine", common::kTitlePSize, QFont::Bold), battery_rows);
   battery_rows->addWidget(engine);
 
   const auto units_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Propulsion Units", kTitlePSize, QFont::Bold), units_rows);
+  qt::addWidgetCenter(new qt::Label("Propulsion Units", common::kTitlePSize, QFont::Bold), units_rows);
   units_rows->addWidget(units);
 
   const auto cols = new QHBoxLayout();

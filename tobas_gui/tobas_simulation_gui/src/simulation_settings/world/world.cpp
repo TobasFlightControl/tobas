@@ -4,9 +4,9 @@
 #include <QDebug>
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_simulation_gui/constants.hpp"
 #include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
 #include "tobas_simulation_gui/simulation_settings/world/standard_world.hpp"
 
@@ -21,7 +21,7 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto label = new qt::Label("World", kLabelPSize, QFont::Bold);
+  const auto label = new qt::Label("World", common::kLabelPSize, QFont::Bold);
   rows->addWidget(label);
 
   const auto form = new qt::FormLayout();

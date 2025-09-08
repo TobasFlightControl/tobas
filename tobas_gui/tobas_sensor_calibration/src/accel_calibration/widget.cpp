@@ -1,9 +1,8 @@
 #include "tobas_sensor_calibration/accel_calibration/widget.hpp"
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-
-#include "tobas_sensor_calibration/constants.hpp"
 
 namespace gui
 {
@@ -13,7 +12,7 @@ AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, con
   : spinner_(Qt::WindowModal, this), thread_(node, bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click \"Start\" with the flight controller\'s TOP surface facing up.\n\n", kBodyPSize);
+    "1. Click \"Start\" with the flight controller\'s TOP surface facing up.\n\n", common::kBodyPSize);
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);

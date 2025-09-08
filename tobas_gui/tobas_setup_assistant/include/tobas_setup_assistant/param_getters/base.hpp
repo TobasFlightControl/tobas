@@ -4,10 +4,9 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-
-#include "tobas_setup_assistant/constants.hpp"
 
 namespace gui
 {
@@ -39,12 +38,12 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
   setLayout(rows_);
 
   label_ = new QLabel(param_name);
-  label_->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
+  label_->setFont(qt::DefaultFont(common::kLabelPSize, QFont::Bold));
   label_->setAlignment(Qt::AlignTop);
   rows_->addWidget(label_);
 
   if (!description_text.isEmpty()) {
-    const auto description = new qt::DescriptionWidget(description_text, kBodyPSize);
+    const auto description = new qt::DescriptionWidget(description_text, common::kBodyPSize);
     rows_->addWidget(description);
   }
 }

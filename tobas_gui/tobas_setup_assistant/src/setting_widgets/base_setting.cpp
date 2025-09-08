@@ -2,6 +2,7 @@
 
 #include <QTimer>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
@@ -12,10 +13,10 @@ namespace sa
 BaseSettingWidget::BaseSettingWidget()
 {
   title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
+  title_->setFont(qt::DefaultFont(common::kTitlePSize, QFont::Bold));
   title_->setAlignment(Qt::AlignTop);
 
-  description_ = new qt::DescriptionWidget("", kBodyPSize);
+  description_ = new qt::DescriptionWidget("", common::kBodyPSize);
 
   // Layout
   header_rows_ = new QVBoxLayout();

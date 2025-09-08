@@ -14,6 +14,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 
+#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/rapidcsv.hpp"
 
 namespace fs = std::filesystem;
