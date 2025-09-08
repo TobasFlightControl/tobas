@@ -10,6 +10,7 @@
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -419,6 +420,27 @@ void SetupAssistantWidget::onNewButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
+  // UADFがホーム以下のROSパッケージ内に存在する場合はパッケージをビルドしてパスを通す
+  const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
+  if (pkg_path && pkg_path.value().string().starts_with(rcutils_get_home_dir())) {
+    const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
+    if (!pkg_name) {
+      qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
+      return;
+    }
+
+    const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
+
+    qInfo() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
+    if (!colcon_.build(pkg_path.value(), ws_path)) {
+      qt::qErrorBox(
+        this,
+        "Failed to build \"" + QString::fromStdString(pkg_name.value()) + "\":\n\n" +
+          QString::fromStdString(colcon_.errorMessage()));
+      return;
+    }
+  }
+
   // XACROを解析
   std::string uadf_text;
   if (!xacro_parser_.parseFromPath(uadf_path.toStdString(), uadf_text)) {
@@ -480,14 +502,9 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
-  std::string uadf_text;
-  if (!str::readText(proj_paths.originalUadfPath(), uadf_text)) {
-    qt::qErrorBox(this, "Failed to open file: " + QString::fromStdString(proj_path));
-    return;
-  }
   tinyxml2::XMLDocument uadf_doc;
-  if (uadf_doc.Parse(uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(this, "Failed to parse UADF document.");
+  if (uadf_doc.LoadFile(proj_paths.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(this, "Failed to parse UADF document:\n\n" + QString(uadf_doc.ErrorStr()));
     return;
   }
   const auto robot = uadf_doc.RootElement();

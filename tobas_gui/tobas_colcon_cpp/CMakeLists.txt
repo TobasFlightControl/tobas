@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_gui_common)
+project(tobas_colcon_cpp)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,43 +12,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(tobas_std_tools REQUIRED)
-find_package(tobas_linux)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_ssh_client REQUIRED)
-find_package(tobas_colcon_cpp REQUIRED)
-find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_linux REQUIRED)
+find_package(tobas_ros2_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES
-    Qt5Core
-    Qt5Widgets
-    tobas_std_tools
-    tobas_linux
-    tobas_constants
-    tobas_ssh_client
-    tobas_colcon_cpp
-    tobas_qt_tools
-)
-
-add_definitions(-DQT_NO_KEYWORDS)
-set(CMAKE_AUTOMOC ON)
+set(AMENT_DEPENDENCIES tobas_linux tobas_ros2_tools)
 
 include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-
-file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
-set(TARGETS_TO_INSTALL "")
-foreach(file_path IN LISTS EXEC_TARGETS)
-  get_filename_component(NAME ${file_path} NAME_WE)
-  add_executable(${NAME} ${file_path})
-  target_link_libraries(${NAME} ${PROJECT_NAME})
-  list(APPEND TARGETS_TO_INSTALL ${NAME})
-endforeach()
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -60,7 +33,6 @@ install(
   DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

@@ -353,7 +353,7 @@ bool SimulationWidget::buildLocalPackage()
 {
   if (!local_proj_builder_.build(proj_paths_.getProjPath())) {
     qt::qErrorBox(
-      this, "Failed to build Tobas local package:\n\n" + QString::fromStdString(local_proj_builder_.getOutput()));
+      this, "Failed to build Tobas local package:\n\n" + QString::fromStdString(local_proj_builder_.errorMessage()));
     return false;
   }
 

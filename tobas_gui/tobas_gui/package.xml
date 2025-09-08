@@ -10,6 +10,7 @@
 
 	<exec_depend>tobas_actuator_test</exec_depend>
 	<exec_depend>tobas_bootmedia_config</exec_depend>
+	<exec_depend>tobas_colcon_cpp</exec_depend>
 	<exec_depend>tobas_control_system</exec_depend>
 	<exec_depend>tobas_crypt</exec_depend>
 	<exec_depend>tobas_flight_log_gui</exec_depend>

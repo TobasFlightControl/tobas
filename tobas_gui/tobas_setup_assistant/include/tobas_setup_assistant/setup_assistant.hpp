@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_colcon_cpp/core.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
@@ -56,6 +57,8 @@ private:
 
   ptree::PropertyClient property_client_;
   ros2::SyncParamClient rsp_client_;
+
+  colcon::Colcon colcon_;
 
   Signals sig_;
   RotorMarkerPublisher rotor_marker_publisher_;
