@@ -16,7 +16,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   : node_(node), bridge_(bridge), drone_(drone)
 {
   const auto warning =
-    new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", common::kBodyPSize);
+    new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", cmn::kBodyPSize);
   warning->setStyleSheet("color: red; font-weight: bold;");
   rows_->addWidget(warning);
 
@@ -29,7 +29,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
     "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n\n"
     "5. Click \"Save\" to save the control gains.\n\n"
     "6. Click \"Stop\" to disable motors.\n\n",
-    common::kBodyPSize);
+    cmn::kBodyPSize);
   rows_->addWidget(instruction);
 
   const auto button_cols = new QHBoxLayout();

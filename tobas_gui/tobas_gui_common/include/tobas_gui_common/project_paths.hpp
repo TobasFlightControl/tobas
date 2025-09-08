@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 class ProjectPaths
 {
@@ -100,5 +100,5 @@ public:
 private:
   std::filesystem::path proj_path_;
 };
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

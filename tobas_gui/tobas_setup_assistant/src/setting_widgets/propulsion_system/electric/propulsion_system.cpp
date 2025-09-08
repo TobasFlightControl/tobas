@@ -22,11 +22,11 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 
   // Layout
   const auto battery_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Battery", common::kTitlePSize, QFont::Bold), battery_rows);
+  qt::addWidgetCenter(new qt::Label("Battery", cmn::kTitlePSize, QFont::Bold), battery_rows);
   battery_rows->addWidget(battery);
 
   const auto units_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Propulsion Units", common::kTitlePSize, QFont::Bold), units_rows);
+  qt::addWidgetCenter(new qt::Label("Propulsion Units", cmn::kTitlePSize, QFont::Bold), units_rows);
   units_rows->addWidget(units);
 
   const auto cols = new QHBoxLayout();

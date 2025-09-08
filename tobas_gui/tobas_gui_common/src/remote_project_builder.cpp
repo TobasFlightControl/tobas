@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : node_(node), ssh_client_(node)
 {
@@ -16,7 +16,7 @@ RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : node_
 
 bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
 {
-  const auto meta_pkg_name = common::ProjectPaths(remote_proj_path).metaPkgName();
+  const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
 
   // Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
   const auto ros2_setup_bash = (fs::path(tobas::kROS2JazzyInstallPath) / "setup.bash").string();
@@ -64,5 +64,5 @@ const char* RemoteProjectBuilder::getErrorMessage() const
 {
   return ssh_client_.errorMessage();
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

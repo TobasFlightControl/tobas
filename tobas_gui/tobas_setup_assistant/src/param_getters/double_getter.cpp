@@ -17,7 +17,7 @@ DoubleGetter::DoubleGetter(const QString& name)
   setLayout(cols);
 
   const auto label = new QLabel(name + ":");
-  label->setFont(qt::DefaultFont(common::kBodyPSize));
+  label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   cols->addWidget(label);
 
   data_ = new qt::DoubleSpinBox();

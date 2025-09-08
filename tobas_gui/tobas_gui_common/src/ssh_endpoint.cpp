@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 bool SshEndpoint::load(const fs::path& path)
 {
@@ -41,5 +41,5 @@ bool SshEndpoint::save(const fs::path& path) const
 
   return true;
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

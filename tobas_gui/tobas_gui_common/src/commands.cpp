@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 bool sourceTobasProject(const fs::path& proj_path)
 {
@@ -24,7 +24,7 @@ bool sourceTobasProject(const fs::path& proj_path)
   }
 
   // Set new paths
-  const common::ProjectPaths proj_paths(proj_path);
+  const cmn::ProjectPaths proj_paths(proj_path);
   const auto config_path = proj_paths.cfgPkgPath();
   const auto user_path = proj_paths.cfgPkgPath();
   const auto new_paths = config_path.string() + ":" + user_path.string() + ":" + old_paths;
@@ -35,5 +35,5 @@ bool sourceTobasProject(const fs::path& proj_path)
 
   return false;
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

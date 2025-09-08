@@ -18,7 +18,7 @@ PoseWidget::PoseWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  rows->addWidget(new qt::Label("Initial Pose", common::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Initial Pose", cmn::kLabelPSize, QFont::Bold));
 
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);

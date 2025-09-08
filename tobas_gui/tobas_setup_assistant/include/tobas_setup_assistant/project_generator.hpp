@@ -37,7 +37,7 @@ private:
   const kdl::Tree& tree_;
   SettingsWidget* const settings_;
 
-  common::ProjectPaths proj_paths_;
+  cmn::ProjectPaths proj_paths_;
 
   std::shared_ptr<TemplateGenerator> meta_env_;
   std::shared_ptr<TemplateGenerator> config_env_;

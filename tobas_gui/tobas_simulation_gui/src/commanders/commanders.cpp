@@ -19,7 +19,7 @@ CommandersWidget::CommandersWidget(
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto title = new qt::Label("Commanders", common::kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);

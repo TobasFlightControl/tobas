@@ -460,12 +460,12 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // プロジェクトのパスを取得
-  common::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  cmn::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
-  const common::ProjectPaths proj_paths(proj_path);
+  const cmn::ProjectPaths proj_paths(proj_path);
 
   // パスをテキストに設定
   proj_path_->setText(QString::fromStdString(proj_path));

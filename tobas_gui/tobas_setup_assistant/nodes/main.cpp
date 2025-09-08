@@ -15,7 +15,7 @@ static void sigIntHandler(int)
 int main(int argc, char** argv)
 {
   // X11を強制
-  gui::common::NonRosArgumentParser arg_parser(argc, argv);
+  gui::cmn::NonRosArgumentParser arg_parser(argc, argv);
   if (!arg_parser.setPlatformXcb()) {
     std::cerr << "Failed to set display platform." << std::endl;
     return EXIT_FAILURE;

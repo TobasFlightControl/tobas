@@ -376,7 +376,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
     { "yaw", std::to_string(sim_settings_->yaw()) },
   };
 
-  launch_pid_ = common::roslaunch(install_path, config_pkg_name, "gazebo.launch.xml", args);
+  launch_pid_ = cmn::roslaunch(install_path, config_pkg_name, "gazebo.launch.xml", args);
   if (launch_pid_ < 0) {
     qt::qErrorBox(this, "Failed to start Gazebo process.");
     return false;

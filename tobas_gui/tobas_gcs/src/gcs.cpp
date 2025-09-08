@@ -202,7 +202,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // プロジェクトのパスを更新
-  common::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  cmn::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }

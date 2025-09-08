@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 ProjectPaths::ProjectPaths(const fs::path& proj_path) : proj_path_(proj_path)
 {
@@ -153,5 +153,5 @@ fs::path ProjectPaths::backupSettingsPath() const
 {
   return projBackupDirPath() / "settings.yaml";
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

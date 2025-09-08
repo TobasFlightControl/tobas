@@ -18,7 +18,7 @@ AerodynamicsWidget_Base::AerodynamicsWidget_Base()
   rows_ = new QVBoxLayout();
   setLayout(rows_);
 
-  description_ = new qt::DescriptionWidget("", common::kBodyPSize);
+  description_ = new qt::DescriptionWidget("", cmn::kBodyPSize);
   rows_->addWidget(description_);
 
   QTimer::singleShot(0, this, &AerodynamicsWidget_Base::initialize);

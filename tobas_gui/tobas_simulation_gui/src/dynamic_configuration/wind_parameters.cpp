@@ -18,7 +18,7 @@ namespace sim
 {
 WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  const auto title = new qt::Label("Wind Parameters", common::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Wind Parameters", cmn::kLabelPSize, QFont::Bold);
 
   mean_speed_ = new qt::DoubleSliderTextWidget(0., 20., 1);
   direction_ = new qt::IntSliderTextWidget(-180, 180);

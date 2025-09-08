@@ -53,9 +53,9 @@ private:
   ssh::SSHClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
-  common::ProjectPaths proj_paths_;
-  common::LocalProjectBuilder local_proj_builder_;
-  common::RemoteProjectBuilder remote_proj_builder_;
+  cmn::ProjectPaths proj_paths_;
+  cmn::LocalProjectBuilder local_proj_builder_;
+  cmn::RemoteProjectBuilder remote_proj_builder_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;

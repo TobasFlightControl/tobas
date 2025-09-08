@@ -29,7 +29,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   const auto header_cols = new QHBoxLayout();
   root_rows->addLayout(header_cols);
 
-  const auto title = new qt::Label("Base Pose", common::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Base Pose", cmn::kLabelPSize, QFont::Bold);
   header_cols->addWidget(title);
   header_cols->addStretch();
 

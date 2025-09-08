@@ -12,9 +12,9 @@ namespace rc
 {
 RemoteConnectionWidget::RemoteConnectionWidget()
 {
-  addWidget(new qt::Label(kHostLabel, common::kLabelPSize, QFont::Bold));
+  addWidget(new qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
   addWidget(new qt::DescriptionWidget(
-    "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", common::kBodyPSize));
+    "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", cmn::kBodyPSize));
 
   host_ = new HostWidget();
   addWidget(host_);

@@ -17,10 +17,10 @@ namespace gui
 namespace param
 {
 ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
-  : file_names_{ common::ProjectPaths::kImuFilterDynamicParamFileName,
-                 common::ProjectPaths::kObserverDynamicParamFileName,
-                 common::ProjectPaths::kControllerDynamicParamFileName,
-                 common::ProjectPaths::kRcTeleopDynamicParamFileName }
+  : file_names_{ cmn::ProjectPaths::kImuFilterDynamicParamFileName,
+                 cmn::ProjectPaths::kObserverDynamicParamFileName,
+                 cmn::ProjectPaths::kControllerDynamicParamFileName,
+                 cmn::ProjectPaths::kRcTeleopDynamicParamFileName }
   , blocks_{ new ParamBlockWidget(node, tobas::node::kImuFilterConfigServer, "IMU Filter"),
              new ParamBlockWidget(node, tobas::node::kObserver, "State Estimator"),
              new ParamBlockWidget(node, tobas::node::kController, "Flight Controller"),

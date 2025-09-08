@@ -128,12 +128,12 @@ void ControlSurfacesWidget::add(const QString& link_name)
   insertRow(row);
 
   const auto link_name_label = new QLabel(link_name);
-  link_name_label->setFont(qt::DefaultFont(common::kBodyPSize));
+  link_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   link_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kLinkNameCol, link_name_label);
 
   const auto joint_name_label = new QLabel(QString::fromStdString(joint->name));
-  joint_name_label->setFont(qt::DefaultFont(common::kBodyPSize));
+  joint_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
 

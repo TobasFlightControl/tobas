@@ -65,9 +65,9 @@ private:
   ssh::SSHClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
-  common::ProjectPaths proj_paths_;
-  common::RemoteProjectBuilder remote_proj_builder_;
-  common::SshEndpoint ssh_endpoint_;
+  cmn::ProjectPaths proj_paths_;
+  cmn::RemoteProjectBuilder remote_proj_builder_;
+  cmn::SshEndpoint ssh_endpoint_;
   ConfigurationEnvParser config_env_parser_;
 
   QLineEdit* proj_path_;

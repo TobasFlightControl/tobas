@@ -6,7 +6,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 namespace
 {
@@ -40,5 +40,5 @@ pid_t roslaunch(
 
   return linux::createSubprocess(command);
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

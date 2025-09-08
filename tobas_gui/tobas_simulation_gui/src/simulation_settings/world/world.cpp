@@ -21,7 +21,7 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto label = new qt::Label("World", common::kLabelPSize, QFont::Bold);
+  const auto label = new qt::Label("World", cmn::kLabelPSize, QFont::Bold);
   rows->addWidget(label);
 
   const auto form = new qt::FormLayout();

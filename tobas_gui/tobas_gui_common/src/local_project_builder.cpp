@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 LocalProjectBuilder::LocalProjectBuilder()
 {
@@ -66,7 +66,7 @@ bool LocalProjectBuilder::colconBuild(const fs::path& proj_path)
   }
 
   // Create build command
-  const auto meta_name = common::ProjectPaths(proj_path).metaPkgName();
+  const auto meta_name = cmn::ProjectPaths(proj_path).metaPkgName();
   const auto build_cmd = std::format(
     "colcon build "
     "--merge-install "
@@ -106,5 +106,5 @@ bool LocalProjectBuilder::colconCleanWorkspace()
 
   return true;
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

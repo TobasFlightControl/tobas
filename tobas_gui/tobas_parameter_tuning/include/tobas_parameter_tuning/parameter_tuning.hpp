@@ -31,7 +31,7 @@ public:
   bool updateProject(const std::filesystem::path& proj_path);
 
 private:
-  common::ProjectPaths proj_paths_;
+  cmn::ProjectPaths proj_paths_;
   tobas::Drone drone_;
 
   const std::array<std::string, kNumBlocks> file_names_;

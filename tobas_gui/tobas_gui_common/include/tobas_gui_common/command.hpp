@@ -4,8 +4,8 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 bool sourceTobasProject(const std::filesystem::path& proj_path);
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

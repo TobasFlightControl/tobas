@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 class LocalProjectBuilder
 {
@@ -23,5 +23,5 @@ private:
   bool colconBuild(const std::filesystem::path& proj_path);
   bool colconCleanWorkspace();
 };
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

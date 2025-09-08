@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir) : QFileDialog(parent)
 {
@@ -38,5 +38,5 @@ void LoadProjectDialog::onItemActivated(const QModelIndex& index)
     accept();
   }
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

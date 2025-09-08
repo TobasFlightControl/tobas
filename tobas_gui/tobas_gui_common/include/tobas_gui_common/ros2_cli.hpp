@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 /* 別プロセスで"ros2 run"を起動． */
 pid_t rosrun(
@@ -23,5 +23,5 @@ pid_t roslaunch(
   const std::string& pkg,
   const std::string& name,
   const std::map<std::string, std::string>& args = {});
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

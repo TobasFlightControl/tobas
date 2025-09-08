@@ -823,7 +823,7 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
 
 bool ProjectGenerator::generateSshEndpointConfig()
 {
-  common::SshEndpoint ssh_endpoint;
+  cmn::SshEndpoint ssh_endpoint;
   ssh_endpoint.host = settings_->remote_connection->host().toStdString();
   ssh_endpoint.user = tobas::kFmuUserName;
 

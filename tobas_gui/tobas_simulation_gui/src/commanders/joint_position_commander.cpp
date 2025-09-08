@@ -20,7 +20,7 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
   const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
-  const auto title = new qt::Label("Joint Position", common::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Joint Position", cmn::kLabelPSize, QFont::Bold);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kStartStopButtonWidth, kStartStopButtonHeight);

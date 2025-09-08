@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 class RemoteProjectBuilder
 {
@@ -24,5 +24,5 @@ private:
 
   std::string output_;
 };
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

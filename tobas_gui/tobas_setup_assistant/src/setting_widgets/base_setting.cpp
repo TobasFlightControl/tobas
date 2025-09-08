@@ -13,10 +13,10 @@ namespace sa
 BaseSettingWidget::BaseSettingWidget()
 {
   title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(common::kTitlePSize, QFont::Bold));
+  title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
   title_->setAlignment(Qt::AlignTop);
 
-  description_ = new qt::DescriptionWidget("", common::kBodyPSize);
+  description_ = new qt::DescriptionWidget("", cmn::kBodyPSize);
 
   // Layout
   header_rows_ = new QVBoxLayout();

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 class SshEndpoint
 {
@@ -18,5 +18,5 @@ public:
   bool load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;
 };
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

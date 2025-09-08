@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 NonRosArgumentParser::NonRosArgumentParser(int argc, char** argv)
 {
@@ -55,5 +55,5 @@ bool NonRosArgumentParser::setPlatformXcb()
 
   return true;
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui
