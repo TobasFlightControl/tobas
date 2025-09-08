@@ -12,7 +12,6 @@
 	<depend>urdfdom</depend>
 	<depend>ament_index_cpp</depend>
 	<depend>tobas_string_tools</depend>
-	<depend>tobas_path_tools</depend>
 	<depend>tobas_ros2_tools</depend>
 
 	<export>

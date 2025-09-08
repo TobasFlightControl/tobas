@@ -16,10 +16,9 @@ find_package(urdf REQUIRED)
 find_package(urdfdom REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(tobas_string_tools REQUIRED)
-find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 
-set(AMENT_DEPENDENCIES urdf urdfdom ament_index_cpp tobas_string_tools tobas_path_tools tobas_ros2_tools)
+set(AMENT_DEPENDENCIES urdf urdfdom ament_index_cpp tobas_string_tools tobas_ros2_tools)
 
 include_directories(include)
 

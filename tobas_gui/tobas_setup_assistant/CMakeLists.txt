@@ -21,6 +21,7 @@ find_package(tobas_string_tools REQUIRED)
 find_package(tobas_xml_tools REQUIRED)
 find_package(tobas_git REQUIRED)
 find_package(tobas_kdl_parser REQUIRED)
+find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_urdf REQUIRED)
 find_package(tobas_property_client REQUIRED)
@@ -41,6 +42,7 @@ set(AMENT_DEPENDENCIES
     tobas_xml_tools
     tobas_git
     tobas_kdl_parser
+    tobas_path_tools
     tobas_ros2_tools
     tobas_urdf
     tobas_property_client
