@@ -21,8 +21,6 @@
 #include "tobas_setup_assistant/save_project_dialog.hpp"
 #include "tobas_setup_assistant/xacro_parser.hpp"
 
-#define IS_NOT_SUPPORTED "is not supported."
-
 namespace fs = std::filesystem;
 
 namespace gui
@@ -217,6 +215,8 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 
 FrameType SetupAssistantWidget::determineFrameType()
 {
+  constexpr char kIsNotSupported[] = "is not supported.";
+
   QString msg = "Airframe\n";
 
   if (uadf_.control_surfaces.size() == 0) {  // 固定翼をもたない
@@ -229,7 +229,7 @@ FrameType SetupAssistantWidget::determineFrameType()
       if (uadf_.thrusts.size() < 3)  // プロペラの枚数が3枚未満
       {
         msg += "  - which has fewer than 3 propellers\n";
-        qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+        qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: 2枚なら制御可能かも
       }
       else  // プロペラの枚数が3枚以上
@@ -265,7 +265,7 @@ FrameType SetupAssistantWidget::determineFrameType()
           }
           else {  // 全てのチルト軸が常にY軸平行でない
             msg += "  - whose tilt axes are not parallel to the Y axis\n";
-            qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+            qt::qWarnBox(this, msg + kIsNotSupported);
             return FrameType::kUndefined;
           }
         }
@@ -276,7 +276,7 @@ FrameType SetupAssistantWidget::determineFrameType()
       }
       else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
         msg += "  - which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
-        qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+        qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: チルト軸と回転軸が直行しないモデルにも対応
       }
     }
@@ -284,7 +284,7 @@ FrameType SetupAssistantWidget::determineFrameType()
   else  // 固定翼をもつ場合
   {
     msg += "  - which has fixed wings\n";
-    qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
+    qt::qWarnBox(this, msg + kIsNotSupported);
     return FrameType::kUndefined;  // TODO: 固定翼に対応
   }
 }
