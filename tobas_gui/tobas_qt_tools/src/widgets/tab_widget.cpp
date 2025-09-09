@@ -1,6 +1,7 @@
 #include "tobas_qt_tools/widgets/tab_widget.hpp"
 
 #include <QStyleOptionTab>
+#include <QStylePainter>
 
 #include <tobas_std_tools/check.hpp>
 
@@ -48,6 +49,7 @@ void TabBar::wheelEvent(QWheelEvent* event)
 
 void TabBar::paintEvent(QPaintEvent*)
 {
+  QStylePainter painter(this);
   QStyleOptionTab opt;
 
   for (int i = 0; i < count(); ++i) {
@@ -56,6 +58,9 @@ void TabBar::paintEvent(QPaintEvent*)
     if (colors_.contains(i)) {
       opt.palette.setColor(QPalette::Button, colors_.value(i));
     }
+
+    painter.drawControl(QStyle::CE_TabBarTabShape, opt);
+    painter.drawControl(QStyle::CE_TabBarTabLabel, opt);
   }
 }
 
