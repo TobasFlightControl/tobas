@@ -2,8 +2,6 @@
 
 #include <QStyleOptionTab>
 #include <QStylePainter>
-#include <QTabBar>
-#include <QWheelEvent>
 
 namespace qt
 {
