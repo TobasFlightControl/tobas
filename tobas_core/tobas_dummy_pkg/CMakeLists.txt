@@ -10,11 +10,11 @@ set(AMENT_DEPENDENCIES rclcpp rclcpp_components)
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DummyNode" EXECUTABLE controller)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DummyNode" EXECUTABLE observer)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DummyNode" EXECUTABLE takeoff_server)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DummyNode" EXECUTABLE land_server)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DummyNode" EXECUTABLE move_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::DummyNode" EXECUTABLE controller)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::DummyNode" EXECUTABLE observer)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::DummyNode" EXECUTABLE takeoff_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::DummyNode" EXECUTABLE land_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::DummyNode" EXECUTABLE move_server)
 
 install(
   TARGETS ${PROJECT_NAME}_node
