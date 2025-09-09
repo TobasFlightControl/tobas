@@ -39,6 +39,6 @@ if [ $? -ne 0 ]; then
 fi
 
 # Clear Wi-Fi hotspot settings
-rm -rf /etc/hostapd/hostapd.conf
+sudo rm /etc/hostapd/hostapd.conf*
 
 echo -e "\033[32mCleaning finished successfully.\033[0m"
