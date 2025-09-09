@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class EngineViewerWidget : public QWidget
 {
@@ -32,7 +32,7 @@ public:
 
 private:
   const tobas::Drone& drone_;
-  tobas::ICEPropulsionSystemConfig::ConstSharedPtr iprop_;
+  tobas::IcePropulsionSystemConfig::ConstSharedPtr iprop_;
 
   qt::HPositionBarWidget* fuel_quantity_;
   qt::HPositionBarWidget* oil_temp_;
@@ -43,5 +43,5 @@ private:
 private Q_SLOTS:
   void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

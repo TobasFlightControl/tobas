@@ -4,12 +4,11 @@
 #include <QHBoxLayout>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-
-#include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
 {
@@ -21,7 +20,7 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
   const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
-  const auto title = new qt::Label("Joint Position", kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Joint Position", cmn::kLabelPSize, QFont::Bold);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kStartStopButtonWidth, kStartStopButtonHeight);

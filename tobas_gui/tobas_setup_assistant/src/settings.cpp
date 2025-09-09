@@ -20,6 +20,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   propulsion_system = new propulsion::PropulsionSystemWidget(node, uadf, sig);
   fixed_wing = new fw::FixedWingWidget(node, uadf);
   hardware = new hw::HardwareWidget(uadf, sig);
+  remote_connection = new rc::RemoteConnectionWidget();
   controller = new ctrl::ControllerWidget();
   observer = new ObserverWidget();
   rc_input = new RcInputWidget();
@@ -35,6 +36,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   addEntry(basic_list_, propulsion_system);
   addEntry(basic_list_, fixed_wing);
   addEntry(basic_list_, hardware);
+  addEntry(basic_list_, remote_connection);
 
   // Additional settings
   additional_list_ = new qt::ListWidget();
@@ -72,13 +74,23 @@ void SettingsWidget::updateInternalDataStructures()
     setPageEnabled(i, true);
   }
 
+  // 回転翼を持たない場合は設定を無効化
+  if (uadf_.thrusts.size() == 0) {
+    setPageEnabled(propulsion_system, false);
+  }
+
   // 固定翼を持たない場合は設定を無効化
   if (uadf_.control_surfaces.size() == 0) {
-    setPageEnabled(getIndex(fixed_wing), false);
+    setPageEnabled(fixed_wing, false);
+  }
+
+  // 追加ジョイントを持たない場合は設定を無効化
+  if (extra_joints->numJoints() == 0) {
+    setPageEnabled(extra_joints, false);
   }
 
   // Default page
-  basic_list_->setCurrentRow(0);
+  setCurrentPage(0);
 }
 
 bool SettingsWidget::isValid()
@@ -87,7 +99,7 @@ bool SettingsWidget::isValid()
   for (int i = 0; i < stack_->count(); ++i) {
     const auto cur_widget = qt::qPointerCast<BaseSettingWidget>(stack_->widget(i));
     if (!cur_widget->isValid()) {
-      setCurrentWidget(cur_widget);
+      setCurrentPage(cur_widget);
       return false;
     }
   }
@@ -98,8 +110,8 @@ bool SettingsWidget::isValid()
       for (const auto& elem : uadf_.thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->dshot()->contains(joint_name)) {
-          qt::qWarnBox(this, "Please specify basic_list_ DShot channel for electric rotor \"" + joint_name + "\".");
-          setCurrentWidget(hardware);
+          qt::qWarnBox(this, "Please specify a DShot channel for electric rotor \"" + joint_name + "\".");
+          setCurrentPage(hardware);
           return false;
         }
       }
@@ -111,16 +123,16 @@ bool SettingsWidget::isValid()
       for (const auto& elem : uadf_.thrusts) {
         const auto joint_name = QString::fromStdString(elem.first);
         if (!hardware->pwm()->contains(joint_name)) {
-          qt::qWarnBox(this, "Please specify basic_list_ PWM channel for variable pitch \"" + joint_name + "\".");
-          setCurrentWidget(hardware);
+          qt::qWarnBox(this, "Please specify a PWM channel for variable pitch \"" + joint_name + "\".");
+          setCurrentPage(hardware);
           return false;
         }
       }
 
       // エンジンスロットルのPWMチャンネルが設定されていることを確認
       if (!hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
-        qt::qWarnBox(this, "Please specify basic_list_ PWM channel for engine throttle.");
-        setCurrentWidget(hardware);
+        qt::qWarnBox(this, "Please specify a PWM channel for engine throttle.");
+        setCurrentPage(hardware);
         return false;
       }
 
@@ -135,18 +147,18 @@ bool SettingsWidget::isValid()
   for (const auto& elem : uadf_.control_surfaces) {
     const auto joint_name = QString::fromStdString(elem.first);
     if (!hardware->pwm()->contains(joint_name)) {
-      qt::qWarnBox(this, "Please specify basic_list_ PWM channel for control surface \"" + joint_name + "\".");
-      setCurrentWidget(hardware);
+      qt::qWarnBox(this, "Please specify a PWM channel for control surface \"" + joint_name + "\".");
+      setCurrentPage(hardware);
       return false;
     }
   }
 
-  // ティルトジョイントのPWMチャンネルが設定されていることを確認
+  // チルトジョイントのPWMチャンネルが設定されていることを確認
   for (const auto& elem : uadf_.tilts) {
     const auto joint_name = QString::fromStdString(elem.first);
     if (!hardware->pwm()->contains(joint_name)) {
-      qt::qWarnBox(this, "Please specify basic_list_ PWM channel for active tilt joint \"" + joint_name + "\".");
-      setCurrentWidget(hardware);
+      qt::qWarnBox(this, "Please specify a PWM channel for active tilt joint \"" + joint_name + "\".");
+      setCurrentPage(hardware);
       return false;
     }
   }
@@ -198,10 +210,8 @@ void SettingsWidget::addEntry(QListWidget* list, BaseSettingWidget* page)
   item->setData(Qt::UserRole, idx);
 }
 
-void SettingsWidget::setCurrentWidget(BaseSettingWidget* page)
+void SettingsWidget::setCurrentPage(int idx)
 {
-  const auto idx = getIndex(page);
-
   if (idx < basic_list_->count()) {
     toolbox_->setCurrentWidget(basic_list_);
     basic_list_->setCurrentRow(idx);
@@ -210,6 +220,11 @@ void SettingsWidget::setCurrentWidget(BaseSettingWidget* page)
     toolbox_->setCurrentWidget(additional_list_);
     additional_list_->setCurrentRow(idx - basic_list_->count());
   }
+}
+
+void SettingsWidget::setCurrentPage(BaseSettingWidget* page)
+{
+  setCurrentPage(getIndex(page));
 }
 
 void SettingsWidget::setPageEnabled(int idx, bool enabled)
@@ -225,6 +240,11 @@ void SettingsWidget::setPageEnabled(int idx, bool enabled)
     const auto item = additional_list_->item(idx - basic_list_->count());
     setListItemEnabled(item, enabled);
   }
+}
+
+void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled)
+{
+  setPageEnabled(getIndex(page), enabled);
 }
 
 void SettingsWidget::setListItemEnabled(QListWidgetItem* item, bool enabled)

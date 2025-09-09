@@ -4,6 +4,12 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/controller/fixed_wing.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/non_planar_multicopter.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/planar_multicopter.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
+
 namespace gui
 {
 namespace sa
@@ -15,17 +21,11 @@ ControllerWidget::ControllerWidget()
   stack_ = new qt::StackedWidget();
   addWidget(stack_);
 
-  planar_multicopter_ = new PlanarMulticopterWidget();
-  stack_->addWidget(planar_multicopter_);
-
-  nonplanar_multicopter_ = new NonPlanarMulticopterWidget();
-  stack_->addWidget(nonplanar_multicopter_);
-
-  active_tilt_multicopter_ = new ActiveTiltMulticopterWidget();
-  stack_->addWidget(active_tilt_multicopter_);
-
-  fixed_wing_ = new FixedWingWidget();
-  stack_->addWidget(fixed_wing_);
+  stack_->addWidget(new PlanarMulticopterWidget());
+  stack_->addWidget(new NonPlanarMulticopterWidget());
+  stack_->addWidget(new YAxisTiltMulticopterWidget());
+  stack_->addWidget(new RandomAxisTiltMulticopterWidget());
+  stack_->addWidget(new FixedWingWidget());
 }
 
 const char* ControllerWidget::name() const
@@ -35,14 +35,14 @@ const char* ControllerWidget::name() const
 
 const char* ControllerWidget::title() const
 {
-  return "Setup Flight Controller";
+  return "Set up Flight Controller";
 }
 
 const char* ControllerWidget::description() const
 {
-  return "Configure the flight controller by selecting one method and setting its parameters. "
-         "You can fine-tune the parameters later, "
-         "so it's acceptable to leave them at their default settings initially.";
+  return "Configure the flight controller algorithm. "
+         "Setup Assistant analyzed your UADF, and a controller suited to the airframe has been assigned automatically. "
+         "The static parameters of the controller are listed below.";
 }
 
 void ControllerWidget::updateInternalDataStructures()
@@ -64,7 +64,7 @@ YAML::Node ControllerWidget::dump() const
 
   for (int i = 0; i < stack_->count(); ++i) {
     const auto controller = widget(i);
-    node[controller->name()] = controller->dump();
+    node[textFromEnum(controller->frameType())] = controller->dump();
   }
 
   return node;
@@ -74,30 +74,25 @@ void ControllerWidget::load(const YAML::Node& node)
 {
   for (int i = 0; i < stack_->count(); ++i) {
     const auto controller = widget(i);
-    controller->load(node[controller->name()]);
+    controller->load(node[textFromEnum(controller->frameType())]);
   }
+}
+
+FrameType ControllerWidget::getFrameType() const
+{
+  return selected()->frameType();
 }
 
 void ControllerWidget::setFrameType(const FrameType& type)
 {
-  switch (type) {
-    case FrameType::kUndefined:
-      throw;  // TODO: 何かしら表示 (カスタムコントローラ？)
-    case FrameType::kPlanarMulticopter:
-      stack_->setCurrentWidget(planar_multicopter_);
-      break;
-    case FrameType::kNonPlanarMulticopter:
-      stack_->setCurrentWidget(nonplanar_multicopter_);
-      break;
-    case FrameType::kActiveTiltMulticopter:
-      stack_->setCurrentWidget(active_tilt_multicopter_);
-      break;
-    case FrameType::kFixedWing:
-      stack_->setCurrentWidget(fixed_wing_);
-      break;
-    default:
-      throw;
+  for (int i = 0; i < stack_->count(); ++i) {
+    if (widget(i)->frameType() == type) {
+      stack_->setCurrentIndex(i);
+      return;
+    }
   }
+
+  throw std::runtime_error("Controller not found for frame type: " + textFromEnum(type));
 }
 
 QString ControllerWidget::controllerPackage() const
@@ -128,11 +123,6 @@ tobas::RcCommand ControllerWidget::loiterModeCommand() const
 YAML::Node ControllerWidget::staticParams() const
 {
   return selected()->staticParams();
-}
-
-bool ControllerWidget::isCommandCompatible(tobas::RcCommand command) const
-{
-  return command == acrobatModeCommand() || command == stabilizeModeCommand() || command == loiterModeCommand();
 }
 
 void ControllerWidget::setCurrentController(int index)

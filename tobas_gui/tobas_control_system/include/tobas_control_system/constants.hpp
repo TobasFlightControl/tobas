@@ -2,8 +2,8 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 static constexpr char kPackageName[] = "tobas_control_system";
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

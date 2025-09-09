@@ -1,6 +1,6 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, Shutdown
-from launch.substitutions import LaunchConfiguration
+from launch.actions import SetEnvironmentVariable, DeclareLaunchArgument, Shutdown
+from launch.substitutions import EnvironmentVariable, PathJoinSubstitution, TextSubstitution, LaunchConfiguration
 
 from launch_ros.actions import Node
 
@@ -11,6 +11,18 @@ OUTPUT = "output"
 
 def generate_launch_description():
     ld = LaunchDescription()
+
+    # Add ament prefix path
+    new_prefix = PathJoinSubstitution([EnvironmentVariable("HOME"), "Tobas", "colcon_ws", "install"])
+    set_ament_prefix_path = SetEnvironmentVariable(
+        name="AMENT_PREFIX_PATH",
+        value=[
+            new_prefix,
+            TextSubstitution(text=":"),
+            EnvironmentVariable("AMENT_PREFIX_PATH", default_value=""),
+        ],
+    )
+    ld.add_action(set_ament_prefix_path)
 
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
@@ -32,48 +44,34 @@ def generate_launch_description():
     ]:
         ros_args += ["--log-level", f"{node_name}:=WARN"]
 
-    # Launch robot state publisher with minimul URDF
-    minimul_urdf = '<robot name="empty"><link name="root"/></robot>'
-    ld.add_action(
-        Node(
-            package="robot_state_publisher",
-            executable="robot_state_publisher",
-            parameters=[{"robot_description": minimul_urdf}],
-            output=output,
-        )
-    )
-
     # Launch property server
-    ld.add_action(
-        Node(
-            package="tobas_property_server",
-            executable="property_server",
-            ros_arguments=ros_args,
-            output=output,
-        )
+    run_property_server = Node(
+        package="tobas_property_server",
+        executable="property_server",
+        ros_arguments=ros_args,
+        output=output,
+        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
+    ld.add_action(run_property_server)
 
     # Launch SSH server
-    ld.add_action(
-        Node(
-            package="tobas_ssh_server",
-            executable="ssh_server_node",
-            name="ssh_server",
-            parameters=[{"host": "tobas.local", "port": 22, "user": "pi", "passwd": "raspberry"}],
-            ros_arguments=ros_args,
-            output=output,
-        )
+    run_ssh_server = Node(
+        package="tobas_ssh_server",
+        executable="ssh_server_node",
+        ros_arguments=ros_args,
+        output=output,
+        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
+    ld.add_action(run_ssh_server)
 
-    # Launch main application
-    ld.add_action(
-        Node(
-            package="tobas_gcs",
-            executable="TobasGCS",
-            ros_arguments=ros_args,
-            output=output,
-            on_exit=Shutdown(),
-        )
+    # Launch ground control station
+    run_gcs = Node(
+        package="tobas_gcs",
+        executable="TobasGCS",
+        ros_arguments=ros_args,
+        output=output,
+        on_exit=Shutdown(),
     )
+    ld.add_action(run_gcs)
 
     return ld

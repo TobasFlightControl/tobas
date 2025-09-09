@@ -55,10 +55,10 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(&read_thread_, &ReadThread::finished, this, &self::onReadFinished);
-  connect(&clean_thread_, &CleanThread::finished, this, &self::onCleanFinished);
-  connect(&download_thread_, &DownloadThread::finished, this, &self::onDownloadFinished);
-  connect(&delete_thread_, &DeleteThread::finished, this, &self::onDeleteFinished);
+  connect(&read_thread_, &ReadThread::finished, this, &self::onReadThreadFinished);
+  connect(&clean_thread_, &CleanThread::finished, this, &self::onCleanThreadFinished);
+  connect(&download_thread_, &DownloadThread::finished, this, &self::onDownloadThreadFinished);
+  connect(&delete_thread_, &DeleteThread::finished, this, &self::onDeleteThreadFinished);
 }
 
 void FlightLogsWidgetFC::addLog(const QString& log_name)
@@ -163,7 +163,7 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
   spinner_.start();
 }
 
-void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, const QStringList& log_names)
+void FlightLogsWidgetFC::onReadThreadFinished(bool success, const QString& message, const QStringList& log_names)
 {
   spinner_.hide();
   spinner_.stop();
@@ -189,7 +189,7 @@ void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, co
   clean_button_->setEnabled(true);
 }
 
-void FlightLogsWidgetFC::onCleanFinished(bool success, const QString& message)
+void FlightLogsWidgetFC::onCleanThreadFinished(bool success, const QString& message)
 {
   spinner_.hide();
   spinner_.stop();
@@ -202,7 +202,7 @@ void FlightLogsWidgetFC::onCleanFinished(bool success, const QString& message)
   clearLogs();
 }
 
-void FlightLogsWidgetFC::onDownloadFinished(bool success, const QString& message)
+void FlightLogsWidgetFC::onDownloadThreadFinished(bool success, const QString& message)
 {
   spinner_.hide();
   spinner_.stop();
@@ -215,7 +215,7 @@ void FlightLogsWidgetFC::onDownloadFinished(bool success, const QString& message
   Q_EMIT logDownloaded(download_thread_.getLogName());
 }
 
-void FlightLogsWidgetFC::onDeleteFinished(bool success, const QString& message)
+void FlightLogsWidgetFC::onDeleteThreadFinished(bool success, const QString& message)
 {
   spinner_.hide();
   spinner_.stop();

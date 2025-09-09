@@ -6,6 +6,8 @@
 #include <angles/angles.h>
 #include <geometric_shapes/check_isometry.h>
 
+#include <tobas_math/definitions.hpp>
+
 namespace tobas
 {
 PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
@@ -178,18 +180,18 @@ void PlanarJointModel::interpolate(const double* from, const double* to, const d
     }
     else {
       if (diff > 0.) {
-        diff = 2. * M_PI - diff;
+        diff = M_2PI - diff;
       }
       else {
-        diff = -2. * M_PI - diff;
+        diff = -M_2PI - diff;
       }
       state[2] = from[2] - diff * t;
       // input states are within bounds, so the following check is sufficient
       if (state[2] > M_PI) {
-        state[2] -= 2. * M_PI;
+        state[2] -= M_2PI;
       }
       else if (state[2] < -M_PI) {
-        state[2] += 2. * M_PI;
+        state[2] += M_2PI;
       }
     }
   }
@@ -236,7 +238,7 @@ double PlanarJointModel::distance(const double* values1, const double* values2) 
     double dy = values1[1] - values2[1];
 
     double d = fabs(values1[2] - values2[2]);
-    d = (d > M_PI) ? 2. * M_PI - d : d;
+    d = (d > M_PI) ? M_2PI - d : d;
     return sqrt(dx * dx + dy * dy) + angular_distance_weight_ * d;
   }
   else if (motion_model_ == DIFF_DRIVE) {
@@ -265,12 +267,12 @@ bool PlanarJointModel::normalizeRotation(double* values) const
   if (v >= -M_PI && v <= M_PI) {
     return false;
   }
-  v = fmod(v, 2. * M_PI);
+  v = fmod(v, M_2PI);
   if (v < -M_PI) {
-    v += 2. * M_PI;
+    v += M_2PI;
   }
   else if (v > M_PI) {
-    v -= 2. * M_PI;
+    v -= M_2PI;
   }
   return true;
 }

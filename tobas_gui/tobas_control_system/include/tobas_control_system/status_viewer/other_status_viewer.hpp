@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class OtherStatusViewerWidget : public QWidget
 {
@@ -28,5 +28,5 @@ private Q_SLOTS:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

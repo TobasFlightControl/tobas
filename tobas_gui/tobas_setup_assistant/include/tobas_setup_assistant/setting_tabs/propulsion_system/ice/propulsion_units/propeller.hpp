@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./base.hpp"
+#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/int_range.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
@@ -26,23 +27,44 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  /* [-] */
-  int numBlade() const;
+  /* Number of blades per propeller */
+  int numBlades() const;
 
-  /* [rad] */
-  double pitchAngleRef() const;
+  /* Diameter of the propeller's rotational plane [m] */
+  double diameter() const;
 
-  /* [rad] */
+  /* Radius of the propeller's rotational plane [m] */
+  double radius() const;
+
+  /* Pitch length at the neutoral position [m] */
+  double pitchLengthNeutoral() const;
+
+  /* Pitch angle at the neutoral position [rad] */
+  double pitchAngleNeutoral() const;
+
+  /* Variable pitch angle limit around the neutoral position [rad] */
   tobas_std::Range<double> pitchAngleLimit() const;
 
-  /* [rad/s] */
+  /* Maximum pitch angle rate [rad/s] */
   double maxPitchAngleRate() const;
 
+  /* Minimum blade chord length [m] */
+  double minChord() const;
+
+  /* Maximum blade chord length [m] */
+  double maxChord() const;
+
+  /* Average blade chord length [m] */
+  double meanChord() const;
+
 private:
-  ParamGetterWidget_SpinBox* num_blade_;
-  ParamGetterWidget_SpinBox* pitch_ref_;
-  ParamGetterWidget_IntRange* pitch_limit_;
-  ParamGetterWidget_SpinBox* max_pitch_rate_;
+  ParamGetterWidget_SpinBox* num_blades_;
+  ParamGetterWidget_SpinBox* diameter_;
+  ParamGetterWidget_DoubleSpinBox* pitch_length_neutoral_;
+  ParamGetterWidget_IntRange* pitch_angle_limit_;
+  ParamGetterWidget_SpinBox* max_pitch_angle_rate_;
+  ParamGetterWidget_SpinBox* min_chord_;
+  ParamGetterWidget_SpinBox* max_chord_;
 };
 }  // namespace ice
 }  // namespace propulsion

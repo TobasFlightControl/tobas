@@ -8,18 +8,17 @@ namespace gui
 {
 namespace sim
 {
-class WorldWidget_Standard : public WorldWidget_Base
+class WorldWidget_Standard : public BaseWorldWidget
 {
   Q_OBJECT
 
   using self = WorldWidget_Standard;
-  using super = WorldWidget_Base;
+  using super = BaseWorldWidget;
 
 public:
   explicit WorldWidget_Standard();
 
   std::filesystem::path worldPath() const override;
-  void setContentsEnabled(bool enable) override;
 
 private:
   qt::ComboBox* combo_box_;

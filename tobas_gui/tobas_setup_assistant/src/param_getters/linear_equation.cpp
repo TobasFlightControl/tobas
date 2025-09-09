@@ -8,9 +8,9 @@ namespace sa
 {
 ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
   const QString& param_name,
-  const QString& description_text,
   const QString& left,
-  const QString& value)
+  const QString& value,
+  const QString& description_text)
   : super(param_name, description_text)
 {
   c0_ = new qt::DoubleSpinBox();

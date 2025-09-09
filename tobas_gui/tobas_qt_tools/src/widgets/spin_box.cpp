@@ -19,23 +19,6 @@ void SpinBox::wheelEvent(QWheelEvent* event)
 void SpinBox::focusInEvent(QFocusEvent* event)
 {
   super::focusInEvent(event);
-  QTimer::singleShot(0, this, &DoubleSpinBox::selectAll);
-}
-
-DoubleSpinBox::DoubleSpinBox(QWidget* parent) : super(parent)
-{
-  setMinimum(std::numeric_limits<double>::lowest());
-  setMaximum(std::numeric_limits<double>::max());
-}
-
-void DoubleSpinBox::wheelEvent(QWheelEvent* event)
-{
-  event->ignore();
-}
-
-void DoubleSpinBox::focusInEvent(QFocusEvent* event)
-{
-  super::focusInEvent(event);
-  QTimer::singleShot(0, this, &DoubleSpinBox::selectAll);
+  QTimer::singleShot(0, this, &SpinBox::selectAll);
 }
 }  // namespace qt

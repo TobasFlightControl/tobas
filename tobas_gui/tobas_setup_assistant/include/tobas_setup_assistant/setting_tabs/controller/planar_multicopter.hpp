@@ -14,12 +14,10 @@ class PlanarMulticopterWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
-  static constexpr int kMinNumProp = 3;
-
 public:
   explicit PlanarMulticopterWidget();
 
-  const char* name() const override;
+  FrameType frameType() const override;
   QString controllerPackage() const override;
   QString pluginName() const override;
 
@@ -37,6 +35,7 @@ public:
 private:
   QCheckBox* do_dist_comp_trans_;
   QCheckBox* do_dist_comp_rot_;
+  QCheckBox* standard_second_order_form_tuning_;
 };
 }  // namespace ctrl
 }  // namespace sa

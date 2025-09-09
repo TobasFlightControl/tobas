@@ -2,8 +2,6 @@
 
 #include <QStyleOptionTab>
 #include <QStylePainter>
-#include <QTabBar>
-#include <QWheelEvent>
 
 namespace qt
 {
@@ -20,31 +18,49 @@ QSize VerticalTabBar::tabSizeHint(int index) const
 void VerticalTabBar::paintEvent(QPaintEvent*)
 {
   QStylePainter painter(this);
-  QStyleOptionTab style_option;
+  QStyleOptionTab opt;
 
   for (int i = 0; i < count(); ++i) {
-    initStyleOption(&style_option, i);
-    painter.drawControl(QStyle::CE_TabBarTabShape, style_option);
+    initStyleOption(&opt, i);
+
+    if (colors_.contains(i)) {
+      opt.palette.setColor(QPalette::Button, colors_.value(i));
+    }
+
+    painter.drawControl(QStyle::CE_TabBarTabShape, opt);
     painter.save();
 
-    auto s = style_option.rect.size();
+    auto s = opt.rect.size();
     s.scale(s.width() * 2, s.height() * 2, Qt::KeepAspectRatio);
     QRect rect(QPoint(), s);
-    rect.moveCenter(style_option.rect.center());
-    style_option.rect = rect;
+    rect.moveCenter(opt.rect.center());
+    opt.rect = rect;
 
     const auto center = tabRect(i).center();
     painter.translate(center);
     painter.rotate(90);
-    painter.translate(center * -1);
-    painter.drawControl(QStyle::CE_TabBarTabLabel, style_option);
+    painter.translate(-center);
+
+    painter.drawControl(QStyle::CE_TabBarTabLabel, opt);
     painter.restore();
   }
 }
 
 VerticalTabWidget::VerticalTabWidget(QWidget* parent) : super(parent)
 {
-  setTabBar(new VerticalTabBar());
+  tab_bar_ = new VerticalTabBar();
+  setTabBar(tab_bar_);
+
   setTabPosition(QTabWidget::West);
+}
+
+void VerticalTabWidget::setTabBackgroundColor(int index, const QColor& color)
+{
+  tab_bar_->setTabBackgroundColor(index, color);
+}
+
+void VerticalTabWidget::clearTabBackgroundColor(int index)
+{
+  tab_bar_->clearTabBackgroundColor(index);
 }
 }  // namespace qt

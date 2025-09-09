@@ -1,5 +1,3 @@
-#include <filesystem>
-
 #include <QApplication>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
@@ -7,7 +5,7 @@
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 
 #include <tobas_urdf_builder/urdf_builder.hpp>
-#include <tobas_urdf_builder_plugin/utils/constants.hpp>
+#include <tobas_urdf_builder/util.hpp>
 
 namespace fs = std::filesystem;
 
@@ -19,7 +17,7 @@ static void sigIntHandler(int)
 int main(int argc, char** argv)
 {
   // X11を強制
-  gui::common::NonRosArgumentParser arg_parser(argc, argv);
+  gui::cmn::NonRosArgumentParser arg_parser(argc, argv);
   if (!arg_parser.setPlatformXcb()) {
     std::cerr << "Failed to set display platform." << std::endl;
     return EXIT_FAILURE;
@@ -28,9 +26,8 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   const auto widget = new gui::ub::URDFBuilder();
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(gui::ub::kPackageName));
-  const auto icon_path = pkg_path / "resources/icon.png";
-  qt::MainWidget main(gui::ub::kTitle, QString::fromStdString(icon_path), widget);
+  const auto icon_path = gui::ub::getPkgShareDir() / "resources/icon.png";
+  qt::MainWidget main("Tobas URDF Builder", QString::fromStdString(icon_path), widget);
   main.show();
 
   // Ctrl+Cで即終了

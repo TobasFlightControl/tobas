@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QButtonGroup>
-#include <QCheckBox>
+#include <QRadioButton>
 
 namespace gui
 {
@@ -26,10 +26,10 @@ public:
   LoopType loopType() const;
 
 private:
-  QButtonGroup* ckb_group_;
+  QButtonGroup* btn_group_;
 
-  QCheckBox* sitl_ckb_;
-  QCheckBox* hitl_ckb_;
+  QRadioButton* sitl_btn_;
+  QRadioButton* hitl_btn_;
 };
 }  // namespace sim
 }  // namespace gui

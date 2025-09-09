@@ -32,8 +32,9 @@ public:
   explicit ParamGetterWidget_DoubleTable(
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
+    const QString& title,
     const QStringList& labels,
-    const QString& description_text);
+    const QString& description_text = "");
 
   Eigen::MatrixXd getValue() const override;
   bool setValue(const Eigen::MatrixXd& src) override;
@@ -51,12 +52,13 @@ public:
 private Q_SLOTS:
   void addRow();
   void deleteRow();
-  void loadCSV();
+  void loadCsv();
   void onCellValueChanged();
 
 private:
   const rclcpp::Node::SharedPtr node_;
   const std::string last_opend_dir_key_;
+  const QString title_;
   const QStringList labels_;
   const int num_entry_;
 
@@ -70,7 +72,7 @@ private:
 
   ptree::PropertyClient property_client_;
 
-  QString getCSVFilePath();
+  QString getCsvPath();
   bool isValidData(const Eigen::MatrixXd& src);
   void saveLastOpenedDir(const std::string& dir);
 };

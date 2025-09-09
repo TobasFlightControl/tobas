@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_gui_common)
 
-file(READ "/etc/os-release" OS_RELEASE_CONTENT)
-if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
-  message(STATUS "This package is skipped on Raspberry Pi.")
-  find_package(ament_cmake REQUIRED)
-  ament_package()
-  return()
-endif()
-
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
@@ -22,39 +14,36 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
-find_package(ament_index_cpp REQUIRED)
 find_package(tobas_std_tools REQUIRED)
-find_package(tobas_linux REQUIRED)
+find_package(tobas_linux)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
+find_package(tobas_colcon_cpp REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
     Qt5Core
     Qt5Widgets
-    ament_index_cpp
     tobas_std_tools
     tobas_linux
     tobas_constants
     tobas_ssh_client
+    tobas_colcon_cpp
     tobas_qt_tools
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
-file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/*.hpp)
-qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
-
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE EXE_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
+file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")
-foreach(file_path IN LISTS EXE_FILES)
+foreach(file_path IN LISTS EXEC_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
   target_link_libraries(${NAME} ${PROJECT_NAME})

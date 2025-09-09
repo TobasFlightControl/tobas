@@ -11,20 +11,19 @@ namespace gui
 {
 namespace sim
 {
-class WorldWidget_Custom : public WorldWidget_Base
+class CustomWorldWidget : public BaseWorldWidget
 {
   Q_OBJECT
 
-  using self = WorldWidget_Custom;
-  using super = WorldWidget_Base;
+  using self = CustomWorldWidget;
+  using super = BaseWorldWidget;
 
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir/custom_world";
 
 public:
-  explicit WorldWidget_Custom(rclcpp::Node::SharedPtr node);
+  explicit CustomWorldWidget(rclcpp::Node::SharedPtr node);
 
   std::filesystem::path worldPath() const override;
-  void setContentsEnabled(bool enable) override;
 
 private:
   const rclcpp::Node::SharedPtr node_;

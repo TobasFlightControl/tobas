@@ -5,12 +5,12 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/font.hpp>
-#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 
 namespace gui
@@ -128,12 +128,12 @@ void ControlSurfacesWidget::add(const QString& link_name)
   insertRow(row);
 
   const auto link_name_label = new QLabel(link_name);
-  link_name_label->setFont(qt::DefaultFont(kBodyPSize));
+  link_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   link_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kLinkNameCol, link_name_label);
 
   const auto joint_name_label = new QLabel(QString::fromStdString(joint->name));
-  joint_name_label->setFont(qt::DefaultFont(kBodyPSize));
+  joint_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
 

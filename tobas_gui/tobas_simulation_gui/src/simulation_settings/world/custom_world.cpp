@@ -1,10 +1,11 @@
 #include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
 
-#include <rcutils/env.h>
 #include <QFileDialog>
+#include <QHBoxLayout>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/path.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 #include "tobas_simulation_gui/constants.hpp"
 
@@ -14,37 +15,33 @@ namespace gui
 {
 namespace sim
 {
-WorldWidget_Custom::WorldWidget_Custom(rclcpp::Node::SharedPtr node)
-  : super("Custom World"), node_(node), property_client_(node, tobas::kPropertyServerName, kPackageName)
+CustomWorldWidget::CustomWorldWidget(rclcpp::Node::SharedPtr node) : node_(node), property_client_(node, kPackageName)
 {
+  const auto cols = new QHBoxLayout();
+  setLayout(cols);
+
   file_text_ = new QLineEdit();
   file_text_->setReadOnly(true);
   file_text_->setFocusPolicy(Qt::NoFocus);
-  cols_->addWidget(file_text_);
+  cols->addWidget(file_text_);
 
   browse_button_ = new QPushButton("Browse");
   connect(browse_button_, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
-  cols_->addWidget(browse_button_);
+  cols->addWidget(browse_button_);
 }
 
-fs::path WorldWidget_Custom::worldPath() const
+fs::path CustomWorldWidget::worldPath() const
 {
   return file_text_->text().toStdString();
 }
 
-void WorldWidget_Custom::setContentsEnabled(bool enable)
-{
-  file_text_->setEnabled(enable);
-  browse_button_->setEnabled(enable);
-}
-
-void WorldWidget_Custom::onBrowseButtonClicked()
+void CustomWorldWidget::onBrowseButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::getHomeDir();
   }
 
   // worldのパスを取得

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <QPushButton>
 
 #include <tobas_drone_core/drone.hpp>
@@ -11,6 +13,7 @@
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_pitch_yaw.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
@@ -45,12 +48,8 @@ private:
 
   qt::ToggleButton* arming_button_;
 
-  qt::DoubleSliderDisplay* cmd_x_;
-  qt::DoubleSliderDisplay* cmd_y_;
-  qt::DoubleSliderDisplay* cmd_z_;
-  qt::DoubleSliderDisplay* cmd_roll_;
-  qt::DoubleSliderDisplay* cmd_pitch_;
-  qt::DoubleSliderDisplay* cmd_yaw_;
+  std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
+  std::array<qt::IntSliderDisplay*, 3> cmd_rpy_;     // [deg]
 
   QPushButton* home_button_;
 
@@ -60,6 +59,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> pos_vel_yaw_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelPitchYaw> pos_vel_pitch_yaw_pub_;
 
   ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
 

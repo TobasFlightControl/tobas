@@ -40,7 +40,7 @@ private:
   ParamGetterWidget_DoubleSpinBox* nominal_voltage_;
   ParamGetterWidget_DoubleSpinBox* max_voltage_;
   ParamGetterWidget_DoubleSpinBox* sag_voltage_;
-  ParamGetterWidget_DoubleSpinBox* max_current_;
+  ParamGetterWidget_SpinBox* max_current_;
   ParamGetterWidget_SpinBox* capacity_;
   ParamGetterWidget_SpinBox* registance_;
 };

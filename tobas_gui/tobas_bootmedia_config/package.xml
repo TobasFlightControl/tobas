@@ -1,0 +1,26 @@
+<package format="3">
+
+  <name>tobas_bootmedia_config</name>
+  <version>0.0.0</version>
+  <description>TODO</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>ament_index_cpp</depend>
+  <depend>inja_ament</depend>
+  <depend>tobas_path_tools</depend>
+  <depend>tobas_constants</depend>
+  <depend>tobas_crypt</depend>
+  <depend>tobas_ssh_authkey</depend>
+  <depend>tobas_udev</depend>
+  <depend>tobas_wpa_supplicant</depend>
+  <depend>tobas_qt_tools</depend>
+  <depend>tobas_gui_common</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

@@ -12,6 +12,11 @@ ToggleButton::ToggleButton(const QString& off_text, const QString& on_text, QWid
   connect(this, &super::clicked, this, &self::onClicked);
 }
 
+bool ToggleButton::isChecked() const
+{
+  return checked_;
+}
+
 void ToggleButton::setChecked(bool _checked)
 {
   // 状態が変わらないなら何もしない

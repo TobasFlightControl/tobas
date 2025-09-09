@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class StatusWidget : public QWidget
 {
@@ -37,5 +37,5 @@ public:
 private:
   qt::CircleWidget* led_;
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

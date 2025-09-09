@@ -1,0 +1,21 @@
+<package format="3">
+
+	<name>tobas_controllers</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<exec_depend>tobas_fixed_wing_controller</exec_depend>
+	<exec_depend>tobas_nonplanar_multi_controller</exec_depend>
+	<exec_depend>tobas_planar_multi_controller</exec_depend>
+	<exec_depend>tobas_random_axis_tilt_multi_controller</exec_depend>
+	<exec_depend>tobas_y_axis_tilt_multi_controller</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

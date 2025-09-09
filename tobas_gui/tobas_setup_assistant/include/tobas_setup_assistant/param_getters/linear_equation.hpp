@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
 #include "./base.hpp"
 
@@ -21,9 +21,9 @@ Q_SIGNALS:
 public:
   explicit ParamGetterWidget_LinearEquation(
     const QString& param_name,
-    const QString& description_text,
     const QString& left,
-    const QString& value);
+    const QString& value,
+    const QString& description_text = "");
 
   ValueType getValue() const override;
   bool setValue(const ValueType& src) override;

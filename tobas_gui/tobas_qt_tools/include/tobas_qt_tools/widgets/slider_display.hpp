@@ -34,15 +34,17 @@ public:
   void setText(const QString& text);
   void setSuffix(const QString& suffix);
 
-private Q_SLOTS:
-  void onSliderValueChanged(int value);
-
 private:
   QString suffix_;
 
   QLabel* text_;
   QLineEdit* value_;
   Slider* slider_;
+
+  void updateValueText(int value);
+
+private Q_SLOTS:
+  void onSliderValueChanged(int value);
 };
 
 class DoubleSliderDisplay : public QWidget
@@ -56,13 +58,14 @@ Q_SIGNALS:
   void valueChanged(double value);
 
 public:
-  explicit DoubleSliderDisplay(int decimals = 6, QWidget* parent = nullptr);
+  explicit DoubleSliderDisplay(QWidget* parent = nullptr);
 
   double getValue() const;
   double getMinimum() const;
   double getMaximum() const;
   QString getText() const;
   QString getSuffix() const;
+  int getDecimals() const;
 
   void setValue(double value, bool block_signal = false);
   void setMinimum(double minimum);
@@ -70,16 +73,19 @@ public:
   void setRange(double minimum, double maximum);
   void setText(const QString& text);
   void setSuffix(const QString& suffix);
-
-private Q_SLOTS:
-  void onSliderValueChanged(double value);
+  void setDecimals(int decimals);
 
 private:
-  const int decimals_;
   QString suffix_;
+  int decimals_ = 6;
 
   QLabel* text_;
   QLineEdit* value_;
   DoubleSlider* slider_;
+
+  void updateValueText(double value);
+
+private Q_SLOTS:
+  void onSliderValueChanged(double value);
 };
 }  // namespace qt

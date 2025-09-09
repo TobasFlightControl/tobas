@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 CPUViewerWidget::CPUViewerWidget(const RosQtBridge& bridge)
 {
@@ -74,5 +74,5 @@ void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
     load_->setFillColor(Qt::green);
   }
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

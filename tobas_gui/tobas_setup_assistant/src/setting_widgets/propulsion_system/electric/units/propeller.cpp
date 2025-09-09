@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 namespace gui
@@ -18,31 +19,36 @@ PropellerWidget::PropellerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  num_blade_ = new ParamGetterWidget_SpinBox("Number of Blades", "Number of blades per propeller.");
-  num_blade_->setMinimum(1);
-  num_blade_->setValue(2);
-  rows->addWidget(num_blade_);
+  num_blades_ = new ParamGetterWidget_SpinBox("Number of Blades", "");
+  num_blades_->setMinimum(2);
+  num_blades_->setMaximum(5);
+  num_blades_->setValue(2);
+  rows->addWidget(num_blades_);
 
-  diameter_ = new ParamGetterWidget_SpinBox("Propeller Diameter", "Diameter of the propeller's rotational plane.");
+  diameter_ = new ParamGetterWidget_SpinBox("Propeller Diameter", "");
   diameter_->setMinimum(1);
   diameter_->setValue(9);
   diameter_->setSuffix(" inch");
   rows->addWidget(diameter_);
 
-  blade_chord_ =
-    new ParamGetterWidget_SpinBox("75% Blade Chord", "Chord length at 75% of the distance from the blade's center.");
-  blade_chord_->setMinimum(1);
-  blade_chord_->setValue(15);
-  blade_chord_->setSuffix(" mm");
-  rows->addWidget(blade_chord_);
+  pitch_ = new ParamGetterWidget_DoubleSpinBox("Propeller Pitch", "");
+  pitch_->setDecimals(1);
+  pitch_->setMinimum(0.1);
+  pitch_->setValue(4.5);
+  pitch_->setSuffix(" inch");
+  rows->addWidget(pitch_);
 
-  pitch_angle_ = new ParamGetterWidget_SpinBox(
-    "75% Blade Pitch Angle", "Twist angle at 75% of the distance from the blade's center.");
-  pitch_angle_->setMinimum(1);
-  pitch_angle_->setMaximum(90);
-  pitch_angle_->setValue(15);
-  pitch_angle_->setSuffix(" deg");
-  rows->addWidget(pitch_angle_);
+  min_chord_ = new ParamGetterWidget_SpinBox("Minimum Blade Chord Length", "Typically at the propeller tip.");
+  min_chord_->setMinimum(1);
+  min_chord_->setValue(10);
+  min_chord_->setSuffix(" mm");
+  rows->addWidget(min_chord_);
+
+  max_chord_ = new ParamGetterWidget_SpinBox("Maximum Blade Chord Length", "");
+  max_chord_->setMinimum(1);
+  max_chord_->setValue(30);
+  max_chord_->setSuffix(" mm");
+  rows->addWidget(max_chord_);
 
   rows->addStretch();
 }
@@ -54,6 +60,11 @@ const char* PropellerWidget::name() const
 
 bool PropellerWidget::isValid()
 {
+  if (min_chord_->getValue() > max_chord_->getValue()) {
+    qt::qErrorBox(this, "Blade chord range is invalid.");
+    return false;
+  }
+
   return true;
 }
 
@@ -61,35 +72,38 @@ void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
   const auto derived = qt::qConstPointerCast<PropellerWidget>(src);
 
-  num_blade_->setValue(derived->num_blade_->getValue());
+  num_blades_->setValue(derived->num_blades_->getValue());
   diameter_->setValue(derived->diameter_->getValue());
-  blade_chord_->setValue(derived->blade_chord_->getValue());
-  pitch_angle_->setValue(derived->pitch_angle_->getValue());
+  pitch_->setValue(derived->pitch_->getValue());
+  min_chord_->setValue(derived->min_chord_->getValue());
+  max_chord_->setValue(derived->max_chord_->getValue());
 }
 
 YAML::Node PropellerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[num_blade_->name()] = num_blade_->getValue();
+  node[num_blades_->name()] = num_blades_->getValue();
   node[diameter_->name()] = diameter_->getValue();
-  node[blade_chord_->name()] = blade_chord_->getValue();
-  node[pitch_angle_->name()] = pitch_angle_->getValue();
+  node[pitch_->name()] = pitch_->getValue();
+  node[min_chord_->name()] = min_chord_->getValue();
+  node[max_chord_->name()] = max_chord_->getValue();
 
   return node;
 }
 
 void PropellerWidget::load(const YAML::Node& node)
 {
-  num_blade_->setValue(node[num_blade_->name()].as<int>());
+  num_blades_->setValue(node[num_blades_->name()].as<int>());
   diameter_->setValue(node[diameter_->name()].as<int>());
-  blade_chord_->setValue(node[blade_chord_->name()].as<int>());
-  pitch_angle_->setValue(node[pitch_angle_->name()].as<int>());
+  pitch_->setValue(node[pitch_->name()].as<double>());
+  min_chord_->setValue(node[min_chord_->name()].as<int>());
+  max_chord_->setValue(node[max_chord_->name()].as<int>());
 }
 
-int PropellerWidget::numBlade() const
+int PropellerWidget::numBlades() const
 {
-  return num_blade_->getValue();
+  return num_blades_->getValue();
 }
 
 double PropellerWidget::diameter() const
@@ -102,14 +116,30 @@ double PropellerWidget::radius() const
   return diameter() / 2;
 }
 
-double PropellerWidget::bladeChord() const
+double PropellerWidget::pitchLength() const
 {
-  return blade_chord_->getValue() * 1e-3;
+  return tobas_std::inch2meter(pitch_->getValue());
 }
 
 double PropellerWidget::pitchAngle() const
 {
-  return tobas_std::deg2rad(pitch_angle_->getValue());
+  return atan(pitchLength() / (M_PI * diameter()));
+}
+
+double PropellerWidget::minChord() const
+{
+  return min_chord_->getValue() * 1e-3;
+}
+
+double PropellerWidget::maxChord() const
+{
+  return max_chord_->getValue() * 1e-3;
+}
+
+double PropellerWidget::meanChord() const
+{
+  // 平均翼弦長を単純に最小値と最大値の平均で計算
+  return (minChord() + maxChord()) / 2;
 }
 }  // namespace electric
 }  // namespace propulsion

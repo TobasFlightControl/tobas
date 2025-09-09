@@ -1,0 +1,2 @@
+prepend-non-duplicate;GZ_GUI_PLUGIN_PATH;@CMAKE_INSTALL_PREFIX@/lib/@PROJECT_NAME@/plugins
+prepend-non-duplicate;GZ_GUI_PLUGIN_PATH;/opt/tobas/lib/@PROJECT_NAME@/plugins

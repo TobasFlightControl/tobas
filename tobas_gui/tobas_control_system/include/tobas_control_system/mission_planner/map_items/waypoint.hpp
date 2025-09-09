@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 namespace map
 {
@@ -17,5 +17,5 @@ public:
   QByteArrayList argNames() const override;
 };
 }  // namespace map
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

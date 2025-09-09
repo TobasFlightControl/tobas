@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 enum AltitudeFrame
 {
@@ -14,5 +14,5 @@ enum AltitudeFrame
 
 const char* altFrameToText(AltitudeFrame frame);
 AltitudeFrame textToAltFrame(const char* text);
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

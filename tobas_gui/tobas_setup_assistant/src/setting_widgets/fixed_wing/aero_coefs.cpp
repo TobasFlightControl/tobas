@@ -2,12 +2,12 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QFileDialog>
 #include <QPushButton>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
@@ -253,13 +253,17 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::getHomeDir();
   }
 
   // paramsのパスを取得
-  const auto options = QFileDialog::DontUseNativeDialog;
   const auto file_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_opened_dir), "OpenVSP Stability Derivatives (*.stab)", nullptr, options);
+    this,
+    "Select OpenVSP Stability Output File",
+    QString::fromStdString(last_opened_dir),
+    "OpenVSP Stability Derivatives (*.stab)",
+    nullptr,
+    QFileDialog::DontUseNativeDialog);
 
   // キャンセルの場合は何もせずに終了
   if (file_path.isEmpty()) {

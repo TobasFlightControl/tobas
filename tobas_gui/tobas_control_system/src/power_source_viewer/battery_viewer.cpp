@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
@@ -100,5 +100,5 @@ void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedP
   updateVoltage(battery->voltage);
   updateCurrent(battery->current);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -1,27 +1,22 @@
 #pragma once
 
-#include <filesystem>
-
-#include <tobas_linux/command_executor.hpp>
+#include <tobas_colcon_cpp/core.hpp>
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 class LocalProjectBuilder
 {
 public:
   explicit LocalProjectBuilder();
 
-  bool build(const std::filesystem::path& tbs_path);
+  bool build(const std::filesystem::path& proj_path);
 
-  const std::string& getOutput() const;
+  const std::string& errorMessage() const;
 
 private:
-  linux::CommandExecutor command_executor_;
-
-  bool colconBuild(const std::filesystem::path& tbs_path);
-  bool colconCleanWorkspace();
+  colcon::Colcon colcon_;
 };
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

@@ -4,6 +4,7 @@
 #include <QPushButton>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -75,7 +76,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
     auto lower_limit = joint.lower_limit;
     auto upper_limit = joint.upper_limit;
-    if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > 2 * M_PI) {
+    if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > M_2PI) {
       lower_limit = -M_PI;
       upper_limit = +M_PI;
     }

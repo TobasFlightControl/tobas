@@ -2,10 +2,9 @@
 
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
-
-#include "tobas_simulation_gui/constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -18,7 +17,7 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto title = new qt::Label("Simulation Settings", kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Simulation Settings", cmn::kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
@@ -28,6 +27,12 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
 
   world_ = new WorldWidget(node);
   scroll_rows->addWidget(world_);
+
+  pose_ = new PoseWidget();
+  scroll_rows->addWidget(pose_);
+
+  debug_ = new DebugWidget();
+  scroll_rows->addWidget(debug_);
 
   scroll_rows->addStretch();
 }
@@ -40,6 +45,41 @@ LoopType SimulationSettingsWidget::loopType() const
 fs::path SimulationSettingsWidget::worldPath() const
 {
   return world_->worldPath();
+}
+
+double SimulationSettingsWidget::x() const
+{
+  return pose_->x();
+}
+
+double SimulationSettingsWidget::y() const
+{
+  return pose_->y();
+}
+
+double SimulationSettingsWidget::z() const
+{
+  return pose_->z();
+}
+
+double SimulationSettingsWidget::roll() const
+{
+  return pose_->roll();
+}
+
+double SimulationSettingsWidget::pitch() const
+{
+  return pose_->pitch();
+}
+
+double SimulationSettingsWidget::yaw() const
+{
+  return pose_->yaw();
+}
+
+bool SimulationSettingsWidget::userDebug() const
+{
+  return debug_->userDebug();
 }
 }  // namespace sim
 }  // namespace gui

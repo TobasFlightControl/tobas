@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class RotorsViewerWiddget : public qt::ScrollArea
 {
@@ -42,5 +42,5 @@ private Q_SLOTS:
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

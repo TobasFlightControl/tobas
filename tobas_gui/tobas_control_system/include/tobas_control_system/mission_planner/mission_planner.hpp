@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class MissionPlannerWidget : public QWidget
 {
@@ -87,5 +87,5 @@ private Q_SLOTS:
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

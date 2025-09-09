@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 ControlSystemWidget::ControlSystemWidget(
   rclcpp::Node::SharedPtr node,
@@ -69,5 +69,5 @@ void ControlSystemWidget::updateInternalDataStructures()
   rotors_viewer_->updateInternalDataStructures();
   mission_planner_->updateNamespace(drone_.name);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

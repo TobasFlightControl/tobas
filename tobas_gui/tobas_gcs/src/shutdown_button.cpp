@@ -31,6 +31,18 @@ ShutdownButton::ShutdownButton(int radius) : super("⏻")
       background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #660000, stop:1 #330000);
       padding-top: 2px;
     }
+    QPushButton:disabled {
+      background-color: qlineargradient(
+        spread:pad,
+        x1:0.5,
+        y1:0,
+        x2:0.5,
+        y2:1,
+        stop:0 rgba(255,102,102,0.5),
+        stop:1 rgba(153,0,0,0.5));
+      border-color: rgba(0,0,0,0.5);
+      color: rgba(255,255,255,0.5);
+    }
   )";
   qss = qss.arg(radius).arg(font_size).arg(diameter);
   setStyleSheet(qss);

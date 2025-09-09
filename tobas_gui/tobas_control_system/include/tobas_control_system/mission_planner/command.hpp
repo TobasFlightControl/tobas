@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 enum struct Command
 {
@@ -14,5 +14,5 @@ enum struct Command
 
 const char* commandToText(Command cmd);
 Command textToCommand(const char* text);
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

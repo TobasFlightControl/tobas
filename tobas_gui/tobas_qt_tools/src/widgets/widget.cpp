@@ -1,5 +1,6 @@
 #include "tobas_qt_tools/widgets/widget.hpp"
 
+#include <QDebug>
 #include <QPainter>
 
 namespace qt
@@ -11,6 +12,11 @@ QPoint Widget::getCenter() const
 
 int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) const
 {
+  if (text.isEmpty()) {
+    qWarning() << "Text is empty.";
+    return -1;
+  }
+
   int point_size = 1;
   auto font = this->font();
 
@@ -31,6 +37,13 @@ int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) cons
   }
 
   return point_size;
+}
+
+void Widget::setBackgroundColor(QPalette::ColorRole cr)
+{
+  setAutoFillBackground(true);
+  auto pal = palette();
+  pal.setColor(QPalette::Window, pal.color(cr));
 }
 
 void Widget::drawText(QPainter& painter, const QString& text, const QPoint& center, const QFont& font)

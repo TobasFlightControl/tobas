@@ -14,12 +14,10 @@ class NonPlanarMulticopterWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
-  static constexpr int kMinNumProp = 3;
-
 public:
   explicit NonPlanarMulticopterWidget();
 
-  const char* name() const override;
+  FrameType frameType() const override;
   QString controllerPackage() const override;
   QString pluginName() const override;
 

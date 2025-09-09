@@ -49,12 +49,15 @@ const char* ObserverWidget::name() const
 
 const char* ObserverWidget::title() const
 {
-  return "Setup State Estimator";
+  return "Set up State Estimator";
 }
 
 const char* ObserverWidget::description() const
 {
-  return "";  // TODO
+  return "Configure the state estimator. "
+         "In most cases, the default values should be left unchanged. "
+         "Because modifications can cause the attitude solution to diverge, "
+         "make any changes only with appropriate safety precautions and a clear understanding of their impact.";
 }
 
 void ObserverWidget::updateInternalDataStructures()

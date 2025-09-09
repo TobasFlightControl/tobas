@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class AddCommandDialog : public QDialog
 {
@@ -29,5 +29,5 @@ private:
 private Q_SLOTS:
   void onOkClicked();
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

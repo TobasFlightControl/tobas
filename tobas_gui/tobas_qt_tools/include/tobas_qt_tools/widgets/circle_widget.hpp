@@ -15,9 +15,11 @@ public:
   explicit CircleWidget(QWidget* parent = nullptr);
   explicit CircleWidget(const QString& text, QWidget* parent = nullptr);
 
-  void setColor(Qt::GlobalColor color);
+  void setFillColor(Qt::GlobalColor color);
+  void setLineColor(Qt::GlobalColor color);
+  void setLineWidth(int width);
   void setText(const QString& text);
-  void setTextPointSize(int point_size);
+  void setTextPointSize(int psize);
 
   int getDiameter() const;
   int getRadius() const;
@@ -28,10 +30,13 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  Qt::GlobalColor color_ = Qt::black;
+  Qt::GlobalColor fill_color_ = Qt::transparent;
+  Qt::GlobalColor line_color_ = Qt::transparent;
+  int line_width_ = 0;
   QString text_ = "";
   int text_psize_ = 0;
 
   void drawCircle(QPainter& painter);
+  void drawText(QPainter& painter);
 };
 }  // namespace qt

@@ -2,23 +2,23 @@
 
 #include <tobas_constants/constants.hpp>
 
-#include "tobas_gui_common/path.hpp"
+#include "tobas_gui_common/project_paths.hpp"
 
 namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr node) : node_(node), ssh_client_(node)
 {
 }
 
-bool RemoteProjectBuilder::build(const fs::path& remote_tbs_path)
+bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
 {
-  const auto meta_pkg_name = common::getProjMetaPkgName(remote_tbs_path);
+  const auto meta_pkg_name = cmn::ProjectPaths(remote_proj_path).metaPkgName();
 
-  // XXX: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
+  // Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
   const auto ros2_setup_bash = (fs::path(tobas::kROS2JazzyInstallPath) / "setup.bash").string();
   const auto tobas_setup_bash = (fs::path(tobas::kTobasInstallPath) / "local_setup.bash").string();
   const auto pre_cmd = std::format(
@@ -29,12 +29,12 @@ bool RemoteProjectBuilder::build(const fs::path& remote_tbs_path)
     tobas_setup_bash,
     tobas::kColconWSPathRoot);
 
-  // XXX: ルート権限だと--symlink-installが機能しない
+  // ルート権限だと--symlink-installが機能しない
   const auto build_cmd = std::format(
     "colcon build "
     "--merge-install "
     "--parallel-workers $(nproc) "
-    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "  // XXX: コンパイラを指定
+    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "  // コンパイラを指定
     "--packages-up-to {}",
     meta_pkg_name);
 
@@ -64,5 +64,5 @@ const char* RemoteProjectBuilder::getErrorMessage() const
 {
   return ssh_client_.errorMessage();
 }
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

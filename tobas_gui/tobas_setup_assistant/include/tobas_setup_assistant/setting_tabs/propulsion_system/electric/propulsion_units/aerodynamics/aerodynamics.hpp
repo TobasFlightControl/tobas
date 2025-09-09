@@ -24,7 +24,7 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
   static constexpr char kMethodNameKey[] = "method_name";
 
 public:
-  explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWidget* propeller);
+  explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller);
 
   const char* name() const override;
   bool isValid() override;
@@ -43,6 +43,8 @@ public:
   double dragConst() const;
 
 private:
+  const PropellerWidget* const propeller_;
+
   qt::ComboBox* method_name_;
   qt::StackedWidget* methods_;
 

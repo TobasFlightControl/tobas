@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
 {
@@ -35,7 +35,7 @@ void ConsoleWidget::reset()
   table_->removeAll();
 }
 
-void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg)
+void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg)
 {
   // TODO: ボタンでメッセージのスクリーニング
   // TODO: メッセージにカーソルを重ねると全文を表示 (cf. rqt_console)
@@ -60,27 +60,27 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
   const auto message_item = new QTableWidgetItem(msg->message.c_str());
 
   switch (msg->level) {
-    case tobas_std_msgs::msg::Message::LEVEL_DEBUG:
+    case tobas_msgs::msg::Message::LEVEL_DEBUG:
       level_item->setText("Debug");
       level_item->setForeground(kDebugColor);
       message_item->setForeground(kDebugColor);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_INFO:
+    case tobas_msgs::msg::Message::LEVEL_INFO:
       level_item->setText("Info");
       level_item->setForeground(kInfoColor);
       message_item->setForeground(kInfoColor);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_WARN:
+    case tobas_msgs::msg::Message::LEVEL_WARN:
       level_item->setText("Warn");
       level_item->setForeground(kWarnColor);
       message_item->setForeground(kWarnColor);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_ERROR:
+    case tobas_msgs::msg::Message::LEVEL_ERROR:
       level_item->setText("Error");
       level_item->setForeground(kErrorColor);
       message_item->setForeground(kErrorColor);
       break;
-    case tobas_std_msgs::msg::Message::LEVEL_FATAL:
+    case tobas_msgs::msg::Message::LEVEL_FATAL:
       level_item->setText("Fatal");
       level_item->setForeground(kFatalColor);
       message_item->setForeground(kFatalColor);
@@ -96,5 +96,5 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
   table_->setItem(0, kLevelCol, level_item);
   table_->setItem(0, kMessageCol, message_item);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

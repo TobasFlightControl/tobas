@@ -18,7 +18,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& mr_ctrl_fb_data)
+  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data)
   : odom_data_(odom_data)
   , raw_imu_data_(raw_imu_data)
   , filt_imu_data_(filt_imu_data)

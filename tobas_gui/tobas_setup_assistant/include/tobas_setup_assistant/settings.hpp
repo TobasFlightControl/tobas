@@ -14,6 +14,7 @@
 #include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
+#include "./setting_tabs/remote_connection/remote_connection.hpp"
 #include "./setting_tabs/simulation.hpp"
 
 namespace gui
@@ -31,6 +32,7 @@ public:
   propulsion::PropulsionSystemWidget* propulsion_system;
   fw::FixedWingWidget* fixed_wing;
   hw::HardwareWidget* hardware;
+  rc::RemoteConnectionWidget* remote_connection;
   ctrl::ControllerWidget* controller;
   ObserverWidget* observer;
   RcInputWidget* rc_input;
@@ -58,8 +60,10 @@ private:
 
   int getIndex(BaseSettingWidget* page) const;
   void addEntry(QListWidget* list, BaseSettingWidget* page);
-  void setCurrentWidget(BaseSettingWidget* page);
+  void setCurrentPage(int idx);
+  void setCurrentPage(BaseSettingWidget* page);
   void setPageEnabled(int idx, bool enabled);
+  void setPageEnabled(BaseSettingWidget* page, bool enabled);
   void setListItemEnabled(QListWidgetItem* item, bool enabled);
 
 private Q_SLOTS:

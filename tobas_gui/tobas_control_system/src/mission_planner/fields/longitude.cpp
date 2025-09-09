@@ -4,24 +4,24 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 namespace field
 {
 LongitudeWidget::LongitudeWidget()
 {
-  spinbox_ = new qt::DoubleSpinBox();
-  spinbox_->setDecimals(9);
-  spinbox_->setMinimum(-180.);
-  spinbox_->setMaximum(180.);
-  spinbox_->setValue(0.);
-  spinbox_->setSuffix(" deg");
+  spin_box_ = new qt::DoubleSpinBox();
+  spin_box_->setDecimals(9);
+  spin_box_->setMinimum(-180.);
+  spin_box_->setMaximum(180.);
+  spin_box_->setValue(0.);
+  spin_box_->setSuffix(" deg");
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
-  cols->addWidget(spinbox_);
+  cols->addWidget(spin_box_);
 
-  connect(spinbox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
 }
 
 const char* LongitudeWidget::label() const
@@ -31,13 +31,13 @@ const char* LongitudeWidget::label() const
 
 double LongitudeWidget::value() const
 {
-  return spinbox_->value();
+  return spin_box_->value();
 }
 
 void LongitudeWidget::setValue(double value)
 {
-  spinbox_->setValue(value);
+  spin_box_->setValue(value);
 }
 }  // namespace field
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

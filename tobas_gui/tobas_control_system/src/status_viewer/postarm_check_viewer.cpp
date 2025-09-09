@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 PostArmCheckViewerWidget::PostArmCheckViewerWidget(const RosQtBridge& bridge)
 {
@@ -67,5 +67,5 @@ void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmChec
   mag_alignment_status_->setStatus(!postarm_check->mag_misalignment);
   latency_status_->setStatus(!postarm_check->latency_too_large);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

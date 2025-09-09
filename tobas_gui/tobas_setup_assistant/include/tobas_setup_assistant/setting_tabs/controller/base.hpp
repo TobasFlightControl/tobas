@@ -5,6 +5,8 @@
 
 #include <tobas_constants/rc_command.hpp>
 
+#include "tobas_setup_assistant/frame_type.hpp"
+
 namespace gui
 {
 namespace sa
@@ -16,7 +18,7 @@ class BaseControllerWidget : public QWidget
   Q_OBJECT
 
 public:
-  virtual const char* name() const = 0;
+  virtual FrameType frameType() const = 0;
   virtual QString controllerPackage() const = 0;
   virtual QString pluginName() const = 0;
 

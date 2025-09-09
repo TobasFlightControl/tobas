@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class BatteryViewerWidget : public QWidget
 {
@@ -38,5 +38,5 @@ private:
 private Q_SLOTS:
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

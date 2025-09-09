@@ -2,9 +2,11 @@
 
   <arg name="log_level" default="info"/>
   <arg name="output" default="screen"/>
+  <arg name="localhost_only" default="true"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="user_debug" default="false"/>
   <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/empty.world"/>
+  <arg name="headless" default="false"/>
   <arg name="verbose" default="3"/>
   <arg name="ground_truth" default="false"/>
   <arg name="standalone" default="false"/>
@@ -12,8 +14,15 @@
   <arg name="launch_core" default="true"/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
-  <arg name="z" default="1.0" description="Initial Z position in meters."/>
+  <arg name="z" default="0.5" description="Initial Z position in meters."/>
+  <arg name="roll" default="0.0" description="Initial roll angle in radians."/>
+  <arg name="pitch" default="0.0" description="Initial pitch angle in radians."/>
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
+
+  <!-- Set environment variables -->
+  <group if="$(var localhost_only)">
+    <set_env name="ROS_AUTOMATIC_DISCOVERY_RANGE" value="LOCALHOST"/>
+  </group>
 
   <!-- Set common parameters -->
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
@@ -30,6 +39,7 @@
   <!-- Launch a Gazebo world -->
   <include file="$(find-pkg-share tobas_gazebo_sim)/launch/gazebo.launch.xml">
     <arg name="world_path" value="$(var world_path)"/>
+    <arg name="headless" value="$(var headless)"/>
     <arg name="verbose" value="$(var verbose)"/>
   </include>
 
@@ -37,7 +47,7 @@
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
     <!-- Spawn robot in Gazebo -->
-    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
+    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -R $(var roll) -P $(var pitch) -Y $(var yaw)" output="$(var output)"/>
 
     <!-- Launch Gazebo nodes -->
     <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>

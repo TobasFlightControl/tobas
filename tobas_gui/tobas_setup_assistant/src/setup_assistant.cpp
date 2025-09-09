@@ -6,20 +6,20 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/load_project_dialog.hpp>
-#include <tobas_gui_common/path.hpp>
+#include <tobas_gui_common/project_paths.hpp>
+#include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_ros2_tools/urdf_exporter.hpp>
+#include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
+#include <tobas_urdf/exporter.hpp>
 #include <tobas_xml_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_setup_assistant/save_project_dialog.hpp"
 #include "tobas_setup_assistant/xacro_parser.hpp"
-
-#define IS_NOT_SUPPORTED "is not supported."
 
 namespace fs = std::filesystem;
 
@@ -30,14 +30,14 @@ namespace sa
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : jnt_parser_(tree_)
   , axis_solver_(tree_)
-  , property_client_(node, tobas::kPropertyServerName, kPackageName)
+  , property_client_(node, kPackageName)
   , rsp_client_(node, "robot_state_publisher")
   , rotor_marker_publisher_(node, uadf_)
 {
   // Package manager
-  tbs_path_ = new QLineEdit();
-  tbs_path_->setReadOnly(true);
-  tbs_path_->setFocusPolicy(Qt::NoFocus);
+  proj_path_ = new QLineEdit();
+  proj_path_->setReadOnly(true);
+  proj_path_->setFocusPolicy(Qt::NoFocus);
 
   new_btn_ = new QPushButton("New");
   load_btn_ = new QPushButton("Load");
@@ -62,7 +62,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   pkg_cols->addWidget(load_btn_);
   pkg_cols->addWidget(save_btn_);
   pkg_cols->addWidget(save_as_btn_);
-  pkg_cols->addWidget(tbs_path_);
+  pkg_cols->addWidget(proj_path_);
 
   const auto info_rows = new QVBoxLayout();
   info_rows->addWidget(frame_tree_, 1);
@@ -193,7 +193,7 @@ bool SetupAssistantWidget::updateInternalDataStructures()
   jsp_->updateInternalDataStructures();
 
   // Update RSP parameter
-  const auto urdf_doc = ros2::exportUrdf(*uadf_.urdf);
+  const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   if (!rsp_client_.setParam("robot_description", urdf_text)) {
     qt::qErrorBox(this, "Failed to update robot state publisher.");
@@ -215,6 +215,8 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 
 FrameType SetupAssistantWidget::determineFrameType()
 {
+  constexpr char kIsNotSupported[] = "is not supported.";
+
   QString msg = "Airframe\n";
 
   if (uadf_.control_surfaces.size() == 0) {  // 固定翼をもたない
@@ -227,28 +229,22 @@ FrameType SetupAssistantWidget::determineFrameType()
       if (uadf_.thrusts.size() < 3)  // プロペラの枚数が3枚未満
       {
         msg += "  - which has fewer than 3 propellers\n";
-
-        // TODO: 2枚なら制御可能かも
-        qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
-        return FrameType::kUndefined;
+        qt::qWarnBox(this, msg + kIsNotSupported);
+        return FrameType::kUndefined;  // TODO: 2枚なら制御可能かも
       }
       else  // プロペラの枚数が3枚以上
       {
         msg += "  - which has 3 or more propellers\n";
 
-        if (allThrustJointAxesAlwaysCollinear(kdl::Vector::UnitZ()))  // 全てのプロペラの回転軸が常にZ+
+        if (allThrustJointAxesAlwaysParallel(kdl::Vector::UnitZ(), true))  // 全てのプロペラの回転軸が常にZ+
         {
-          msg += "  - whose propeller rotation axes all always point toward Z+\n";
-
-          // TODO: 可操作度による分類
-          return FrameType::kPlanarMulticopter;
+          msg += "  - whose propeller rotation axes all point toward Z+\n";
+          return FrameType::kPlanarMulticopter;  // TODO: 可操作度による分類
         }
         else  // 少なくとも1つのプロペラの回転軸がZ+以外を向く場合がある
         {
           msg += "  - which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
-
-          // TODO: 可操作度による分類
-          return FrameType::kNonPlanarMulticopter;
+          return FrameType::kNonPlanarMulticopter;  // TODO: 可操作度による分類
         }
       }
     }
@@ -258,31 +254,45 @@ FrameType SetupAssistantWidget::determineFrameType()
 
       if (allTiltRotorAxesPerpendicular())  // 全てのチルト軸とロータ軸が直行する
       {
-        msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis.\n";
+        msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
 
-        // TODO: 可操作度による分類
-        return FrameType::kActiveTiltMulticopter;
+        if (allTiltJointAxesAlwaysParallel()) {  // 全てのチルト軸が常に互いに平行
+          msg += "  - whose tilt axes are all parallel to each other\n";
+
+          if (allTiltJointAxesAlwaysParallel(kdl::Vector::UnitY(), false)) {  // 全てのチルト軸が常にY軸平行
+            msg += "  - whose tilt axes are parallel to the Y axis\n";
+            return FrameType::kYAxisTiltMulticopter;
+          }
+          else {  // 全てのチルト軸が常にY軸平行でない
+            msg += "  - whose tilt axes are not parallel to the Y axis\n";
+            qt::qWarnBox(this, msg + kIsNotSupported);
+            return FrameType::kUndefined;
+          }
+        }
+        else {  // 平行でないチルト軸の組が存在する
+          msg += "  - there exists a pair of non-parallel tilt axes\n";
+          return FrameType::kRandomAxisTiltMulticopter;
+        }
       }
       else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
         msg += "  - which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
-
-        // TODO: チルト軸と回転軸が直行しないモデルにも対応
-        qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
-        return FrameType::kUndefined;
+        qt::qWarnBox(this, msg + kIsNotSupported);
+        return FrameType::kUndefined;  // TODO: チルト軸と回転軸が直行しないモデルにも対応
       }
     }
   }
   else  // 固定翼をもつ場合
   {
     msg += "  - which has fixed wings\n";
-
-    // TODO: 固定翼に対応
-    qt::qWarnBox(this, msg + IS_NOT_SUPPORTED);
-    return FrameType::kUndefined;
+    qt::qWarnBox(this, msg + kIsNotSupported);
+    return FrameType::kUndefined;  // TODO: 固定翼に対応
   }
 }
 
-bool SetupAssistantWidget::isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis)
+bool SetupAssistantWidget::isJntAxisAlwaysParallel(
+  const std::string& link_name,
+  const kdl::Vector& tar_axis,
+  bool same_direction_only)
 {
   const auto seg_it = tree_.getSegment(link_name);
 
@@ -297,21 +307,21 @@ bool SetupAssistantWidget::isJntAxisAlwaysCollinear(const std::string& link_name
   if (joint.type != kdl::Joint::kFixed) {
     TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, link_name) == kdl::SolverI::kNoError);
     const auto& cur_axis = axis_solver_.getAxis();
-    if (cur_axis.argument(tar_axis) > kJntAxisCollinearTol) {
+    if (!cur_axis.isParallel(tar_axis, same_direction_only, kJntAxisParallelTol)) {
       return false;
     }
   }
 
   // 親リンクについて調べる
   const auto& par_name = seg_it->second.parent->first;
-  return isJntAxisAlwaysCollinear(par_name, tar_axis);
+  return isJntAxisAlwaysParallel(par_name, tar_axis, same_direction_only);
 }
 
-bool SetupAssistantWidget::allThrustJointAxesAlwaysCollinear(const kdl::Vector& tar_axis)
+bool SetupAssistantWidget::allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
 {
   for (const auto& [joint_name, _] : uadf_.thrusts) {
     const auto& link_name = jnt_parser_.segmentName(joint_name);
-    if (!isJntAxisAlwaysCollinear(link_name, tar_axis)) {
+    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
       return false;
     }
   }
@@ -336,7 +346,7 @@ bool SetupAssistantWidget::allTiltRotorAxesPerpendicular()
     const auto& tilt_seg = tilt_elem.segment;
     const auto& tilt_joint_kdl = tilt_seg.joint();
 
-    const auto& p = tilt_joint_kdl.axis();                         // 祖父母リンクから見たティルト軸
+    const auto& p = tilt_joint_kdl.axis();                         // 祖父母リンクから見たチルト軸
     const auto& q = tilt_seg.frame().M * thrust_joint_kdl.axis();  // 親リンクのジョイントフレームから見たロータ軸
 
     if (!p.isPerpendicular(q)) {
@@ -345,6 +355,35 @@ bool SetupAssistantWidget::allTiltRotorAxesPerpendicular()
   }
 
   return true;
+}
+
+bool SetupAssistantWidget::allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
+{
+  for (const auto& [joint_name, _] : uadf_.tilts) {
+    const auto& link_name = jnt_parser_.segmentName(joint_name);
+    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool SetupAssistantWidget::allTiltJointAxesAlwaysParallel()
+{
+  if (uadf_.tilts.empty()) {
+    qWarning() << "The drone has no tilt joints.";
+    return false;
+  }
+
+  // チルト軸を1つ取得
+  const auto& first_tilt_joint_name = uadf_.tilts.cbegin()->first;
+  const auto& first_tilt_link_name = jnt_parser_.segmentName(first_tilt_joint_name);
+  TOBAS_CHECK(axis_solver_.jntToCart(q_zeros_, first_tilt_link_name) == kdl::SolverI::kNoError);
+  const auto first_tilt_joint_axis = axis_solver_.getAxis().clone();
+
+  // 最初のチルト軸と他全てが平行ならば全てのチルト軸が互いに平行と言える
+  return allTiltJointAxesAlwaysParallel(first_tilt_joint_axis, false);
 }
 
 void SetupAssistantWidget::onNewButtonClicked()
@@ -360,13 +399,13 @@ void SetupAssistantWidget::onNewButtonClicked()
   const auto options = QFileDialog::DontUseNativeDialog;
   const auto uadf_path = QFileDialog::getOpenFileName(
     this,
-    "Select Aircraft Description (*.uadf)",
+    "Select Aircraft Description",
     QString::fromStdString(last_opened_dir),
     "Aircraft Description (*.uadf)",
     nullptr,
     options);
 
-  // キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
+  // キャンセルの場合は何もせずに終了
   if (uadf_path.isEmpty()) {
     return;
   }
@@ -378,6 +417,27 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
   if (property_client_.save() < 0) {
     qWarning() << property_client_.errorMessage();
+  }
+
+  // UADFがホーム以下のROSパッケージ内に存在する場合はパッケージをビルドしてパスを通す
+  const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
+  if (pkg_path && pkg_path.value().string().starts_with(ros2::getHomeDir())) {
+    const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
+    if (!pkg_name) {
+      qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
+      return;
+    }
+
+    const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
+
+    qInfo() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
+    if (!colcon_.build(pkg_path.value(), ws_path)) {
+      qt::qErrorBox(
+        this,
+        "Failed to build \"" + QString::fromStdString(pkg_name.value()) + "\":\n\n" +
+          QString::fromStdString(colcon_.errorMessage()));
+      return;
+    }
   }
 
   // XACROを解析
@@ -400,7 +460,7 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // プロジェクトのパスをクリア
-  tbs_path_->clear();
+  proj_path_->clear();
 
   // 保存ボタンを有効化
   enableSaveButtons(true);
@@ -415,20 +475,24 @@ void SetupAssistantWidget::onLoadButtonClicked()
   if (property_client_.get(kLastOpenedDirKey_Load, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    if (!fs::is_directory(last_opened_dir)) {
+      last_opened_dir = ros2::getHomeDir();
+    }
   }
 
   // プロジェクトのパスを取得
-  common::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
+  cmn::LoadProjectDialog dialog(this, QString::fromStdString(last_opened_dir));
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const fs::path tbs_path = dialog.selectedFiles().first().toStdString();
+  const fs::path proj_path = dialog.selectedFiles().first().toStdString();
+  const cmn::ProjectPaths proj_paths(proj_path);
 
   // パスをテキストに設定
-  tbs_path_->setText(QString::fromStdString(tbs_path));
+  proj_path_->setText(QString::fromStdString(proj_path));
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = tbs_path.parent_path();
+  const auto par_dir = proj_path.parent_path();
   if (property_client_.set(kLastOpenedDirKey_Load, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
   }
@@ -437,18 +501,13 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // バックアップUADFのメッシュパスを解決 (config_pkgのビルドなしで解析可能に)
-  std::string uadf_text;
-  if (!str::readText(common::getProjOriginalUadfPath(tbs_path), uadf_text)) {
-    qt::qErrorBox(this, "Failed to read " + QString::fromStdString(tbs_path));
-    return;
-  }
   tinyxml2::XMLDocument uadf_doc;
-  if (uadf_doc.Parse(uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(this, "Failed to parse UADF document.");
+  if (uadf_doc.LoadFile(proj_paths.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
+    qt::qErrorBox(this, "Failed to parse UADF document:\n\n" + QString(uadf_doc.ErrorStr()));
     return;
   }
   const auto robot = uadf_doc.RootElement();
-  if (!resolveMeshPaths(common::getProjCfgPkgPath(tbs_path), robot)) {
+  if (!resolveMeshPaths(proj_paths.cfgPkgPath(), robot)) {
     return;
   }
 
@@ -465,9 +524,9 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // ユーザ設定を読み込む
-  const auto settings_path = common::getProjBackupSettingsPath(tbs_path);
-  YAML::Node node;
-  if (!yaml::load(settings_path, node)) {
+  const auto settings_path = proj_paths.backupSettingsPath();
+  const auto node = yaml::load(settings_path);
+  if (!node) {
     qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
     reset();
     return;
@@ -475,7 +534,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
 
   // ユーザ設定を書くウィジェットに反映
   // 失敗してもリセットはしない
-  if (settings_->load(node)) {
+  if (settings_->load(node.value())) {
     qt::qInfoBox(this, "Tobas project is loaded successfully.");
   }
 
@@ -491,16 +550,16 @@ void SetupAssistantWidget::onSaveButtonClicked()
   }
 
   // 現在のプロジェクトパスを取得
-  const auto cur_tbs_path = tbs_path_->text();
+  const auto cur_proj_path = proj_path_->text();
 
   // プロジェクトパスが設定されていない場合は名前を付けて保存
-  if (cur_tbs_path.isEmpty()) {
+  if (cur_proj_path.isEmpty()) {
     onSaveAsButtonClicked();
     return;
   }
 
   // プロジェクトを作成
-  if (!prj_gen_->generateProject(cur_tbs_path.toStdString())) {
+  if (!prj_gen_->generateProject(cur_proj_path.toStdString())) {
     return;
   }
 
@@ -514,18 +573,20 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   if (property_client_.get(kLastOpenedDirKey_Save, last_opened_dir) < 0) {
     qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
+    TOBAS_CHECK(path::createDirectories(last_opened_dir, true));
   }
 
   // プロジェクトのパスを取得
-  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), QString::fromStdString(uadf_.urdf->getName()));
+  const auto dflt_proj_name = "tobas_" + QString::fromStdString(uadf_.urdf->getName());
+  SaveProjectDialog dialog(this, QString::fromStdString(last_opened_dir), dflt_proj_name);
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
-  const auto tbs_path = dialog.selectedFiles().first();
-  assert(tbs_path.endsWith(tobas::kProjectExtension));
+  const auto proj_path = dialog.selectedFiles().first();
+  TOBAS_CHECK(proj_path.endsWith(tobas::kProjectExtension));
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(proj_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey_Save, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
   }
@@ -534,23 +595,23 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   }
 
   // 読み込んでいないパッケージパスが既に存在する場合は置換するかどうかをユーザに確認
-  if (tbs_path != tbs_path_->text() && fs::exists(tbs_path.toStdString())) {
-    if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
+  if (proj_path != proj_path_->text() && fs::exists(proj_path.toStdString())) {
+    if (!qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
       return;
     }
-    if (fs::remove_all(tbs_path.toStdString()) == 0) {
-      qt::qErrorBox(this, "Failed to remove " + tbs_path);
+    if (fs::remove_all(proj_path.toStdString()) == 0) {
+      qt::qErrorBox(this, "Failed to remove " + proj_path);
       return;
     }
   }
 
   // プロジェクトを作成
-  if (!prj_gen_->generateProject(tbs_path.toStdString())) {
+  if (!prj_gen_->generateProject(proj_path.toStdString())) {
     return;
   }
 
   // プロジェクトのパスを設定
-  tbs_path_->setText(tbs_path);
+  proj_path_->setText(proj_path);
 
   qt::qInfoBox(this, "New Tobas project is generated.");
 }

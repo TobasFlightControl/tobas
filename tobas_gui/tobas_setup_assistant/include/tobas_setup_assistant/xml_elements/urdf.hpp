@@ -94,24 +94,24 @@ struct EngineParam
   double time_const_down;
 };
 
-struct ICERotorParam
+struct IceRotorParam
 {
   std::string link_name;
   tobas::TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
-  tobas_std::Range<double> pitch_angle_limit;
-  double max_pitch_angle_rate;
+  tobas_std::Range<double> pitch_angle_limit;  // [rad]
+  double max_pitch_angle_rate;                 // [rad/s]
   std::pair<double, double> motor_const;
   double moment_const;
   std::pair<double, double> drag_const;
 };
 
-void addICEPropulsionSystemPlugin(
+void addIcePropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const EngineParam& engine_param,
-  const std::vector<ICERotorParam>& rotor_params);
+  const std::vector<IceRotorParam>& rotor_params);
 
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,

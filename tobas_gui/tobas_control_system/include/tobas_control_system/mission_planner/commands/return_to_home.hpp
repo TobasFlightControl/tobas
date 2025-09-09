@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 struct ReturnToHomeData : public BaseCommandData
 {
@@ -49,5 +49,5 @@ private:
   field::AcceptanceRadiusWidget* acceptance_radius_;
   field::DurationWidget* duration_;
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

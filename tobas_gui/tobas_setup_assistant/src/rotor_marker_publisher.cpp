@@ -81,7 +81,7 @@ void RotorMarkerPublisher::updateInternalDataStructures()
     markers_.markers.push_back(marker);
   }
 
-  // TODO: ティルトジョイントと操舵面のマーカも表示
+  // TODO: チルトジョイントと操舵面のマーカも表示
 
   // マーカを発行開始
   publish_markers_timer_.start(100);

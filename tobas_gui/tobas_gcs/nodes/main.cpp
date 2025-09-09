@@ -1,14 +1,11 @@
-#include <filesystem>
-
 #include <QApplication>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/argument.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 
-#include "tobas_gcs/constants.hpp"
 #include "tobas_gcs/gcs.hpp"
+#include "tobas_gcs/util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -20,7 +17,7 @@ static void sigIntHandler(int)
 int main(int argc, char** argv)
 {
   // X11を強制
-  gui::common::NonRosArgumentParser arg_parser(argc, argv);
+  gui::cmn::NonRosArgumentParser arg_parser(argc, argv);
   if (!arg_parser.setPlatformXcb()) {
     std::cerr << "Failed to set display platform." << std::endl;
     return EXIT_FAILURE;
@@ -32,9 +29,8 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   const auto widget = new gui::gcs::GroundControlStationWidget(node_manager.node());
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(gui::gcs::kPackageName));
-  const auto icon_path = pkg_path / "resources/icon.png";
-  qt::MainWidget main(gui::gcs::kTitle, QString::fromStdString(icon_path), widget);
+  const auto icon_path = gui::gcs::getPkgShareDir() / "resources/icon.png";
+  qt::MainWidget main("Tobas", QString::fromStdString(icon_path), widget);
   main.show();
 
   // Ctrl+Cで即終了

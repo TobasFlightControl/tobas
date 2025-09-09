@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_rviz_plugin)
 
-file(READ "/etc/os-release" OS_RELEASE_CONTENT)
-if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
-  message(STATUS "This package is skipped on Raspberry Pi.")
-  find_package(ament_cmake REQUIRED)
-  ament_package()
-  return()
-endif()
-
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
@@ -30,6 +22,7 @@ find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(srdfdom REQUIRED)
+find_package(tobas_math REQUIRED)
 find_package(tobas_visualization_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
@@ -43,23 +36,21 @@ set(AMENT_DEPENDENCIES
     rviz_default_plugins
     rviz_rendering
     srdfdom
+    tobas_math
     tobas_visualization_msgs
 )
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
-file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/*.hpp)
-qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
-
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_library(${PROJECT_NAME}_lib STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
+file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
+add_library(${PROJECT_NAME}_lib STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_lib ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
-add_library(${PROJECT_NAME} SHARED ${NODE_CPP_FILES})
+file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
+add_library(${PROJECT_NAME} SHARED ${NODE_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_lib)
 
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)

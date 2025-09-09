@@ -14,7 +14,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class MissionExecutionThread : public QThread
 {
@@ -29,7 +29,7 @@ class MissionExecutionThread : public QThread
 
 Q_SIGNALS:
   // 実行結果を返すためのシグナル．
-  // NOTE: QThreadでGUIを使うとメインスレッドを壊す恐れがあるため，シグナルスロット以外は使用しない．
+  // QThreadでGUIを使うとメインスレッドを壊す恐れがあるため，シグナルスロット以外は使用しない．
   void finished(bool success, const QString& message);
 
 public:
@@ -66,5 +66,5 @@ private:
   bool execute(WaypointData::SharedPtr command);
   bool execute(ReturnToHomeData::SharedPtr command);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

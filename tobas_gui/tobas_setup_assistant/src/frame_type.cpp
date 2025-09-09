@@ -5,7 +5,8 @@
 #define UNDEFINED "Undefined"
 #define PLANAR_MULTICOPTER "Planar Multicopter"
 #define NON_PLANAR_MULTICOPTER "Non-Planar Multicopter"
-#define ACTIVE_TILT_MULTICOPTER "Active Tilt Multicopter"
+#define Y_AXIS_TILT_MULTICOPTER "Y Axis Tilt Multicopter"
+#define RANDOM_AXIS_TILT_MULTICOPTER "Random Axis Tilt Multicopter"
 #define FIXED_WING "Fixed Wing"
 
 using namespace std;
@@ -23,8 +24,10 @@ string textFromEnum(FrameType arg)
       return PLANAR_MULTICOPTER;
     case FrameType::kNonPlanarMulticopter:
       return NON_PLANAR_MULTICOPTER;
-    case FrameType::kActiveTiltMulticopter:
-      return ACTIVE_TILT_MULTICOPTER;
+    case FrameType::kYAxisTiltMulticopter:
+      return Y_AXIS_TILT_MULTICOPTER;
+    case FrameType::kRandomAxisTiltMulticopter:
+      return RANDOM_AXIS_TILT_MULTICOPTER;
     case FrameType::kFixedWing:
       return FIXED_WING;
     default:
@@ -46,8 +49,12 @@ bool enumFromText(const string& text, FrameType& dst)
     dst = FrameType::kNonPlanarMulticopter;
     return true;
   }
-  else if (text == ACTIVE_TILT_MULTICOPTER) {
-    dst = FrameType::kActiveTiltMulticopter;
+  else if (text == Y_AXIS_TILT_MULTICOPTER) {
+    dst = FrameType::kYAxisTiltMulticopter;
+    return true;
+  }
+  else if (text == RANDOM_AXIS_TILT_MULTICOPTER) {
+    dst = FrameType::kRandomAxisTiltMulticopter;
     return true;
   }
   else if (text == FIXED_WING) {

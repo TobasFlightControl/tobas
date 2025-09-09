@@ -55,7 +55,9 @@ const char* PreArmCheckWidget::title() const
 
 const char* PreArmCheckWidget::description() const
 {
-  return "";  // TODO
+  return "Specify the system checks that must pass before the motors are allowed to spin. "
+         "Enable a checkmark for each item to be verified. "
+         "For maximum safety, enabling all checks is strongly recommended.";
 }
 
 void PreArmCheckWidget::updateInternalDataStructures()

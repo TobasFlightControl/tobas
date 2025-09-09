@@ -4,8 +4,6 @@ namespace gui
 {
 namespace ub
 {
-static constexpr char kPackageName[] = "tobas_urdf_builder";
-static constexpr char kTitle[] = "Tobas URDF Builder";
 static constexpr char kPropertySection[] = "urdf_builder";
 static constexpr char kError[] = "ERROR";
 static constexpr float kDefaultRobotAlpha = 0.7;  // FIXME: 1以外だとMeshのときに反映されない

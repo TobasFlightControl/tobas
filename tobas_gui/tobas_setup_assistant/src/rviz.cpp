@@ -1,21 +1,16 @@
 #include "tobas_setup_assistant/rviz.hpp"
 
-#include <filesystem>
-
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
-#include <tobas_ros2_tools/urdf_exporter.hpp>
+#include <tobas_urdf/exporter.hpp>
 #include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
-
-namespace fs = std::filesystem;
+#include "tobas_setup_assistant/util.hpp"
 
 namespace gui
 {
@@ -25,16 +20,16 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   : uadf_(uadf), tree_(tree), rviz_manager_("rviz_robot_state_display")
 {
   // Declare rosparams
-  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, tobas::kMinimulURDF);
-  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
+  constexpr char kMinimulUrdf[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
+  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, kMinimulUrdf);
+  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, kMinimulUrdf);  // MoveItが要求
 
   // Initialize Rviz
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
+  const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
-  // Setup robot_model_display
-  display_ = rviz_manager_.getDisplay("RobotState");
+  // Set up robot_model_display
+  display_ = rviz_manager_.getDisplays("RobotState").at(0);
 
   // 使用するプロパティを取得
   enable_visual_ = qt::qPointerCast<rviz_common::properties::BoolProperty>(display_->subProp("Visual Enabled"));
@@ -80,7 +75,7 @@ void RvizWidget::updateInternalDataStructures()
   rviz_manager_.setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
-  const auto urdf_doc = ros2::exportUrdf(*uadf_.urdf);
+  const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
   const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_text));

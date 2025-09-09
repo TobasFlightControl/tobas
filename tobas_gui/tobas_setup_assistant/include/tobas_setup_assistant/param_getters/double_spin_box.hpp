@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
 #include "./base.hpp"
 
@@ -19,7 +19,7 @@ Q_SIGNALS:
   void valueChanged(double value);
 
 public:
-  explicit ParamGetterWidget_DoubleSpinBox(const QString& param_name, const QString& description_text);
+  explicit ParamGetterWidget_DoubleSpinBox(const QString& param_name, const QString& description_text = "");
 
   double getValue() const override;
   bool setValue(const double& src) override;

@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 const char* commandToText(Command cmd)
 {
@@ -48,5 +48,5 @@ Command textToCommand(const char* text)
     throw std::runtime_error(std::format("Invalid command text: {}", text));
   }
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

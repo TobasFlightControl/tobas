@@ -28,7 +28,7 @@ public:
   void setFixedFrame(const QString& frame);
   void resetTime();
 
-  rviz_common::Display* getDisplay(const QString& name);
+  std::vector<rviz_common::Display*> getDisplays(const QString& name);
 
 private:
   std::shared_ptr<rviz_common::ros_integration::RosNodeAbstraction> node_;

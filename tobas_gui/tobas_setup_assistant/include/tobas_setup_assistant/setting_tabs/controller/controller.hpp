@@ -3,10 +3,7 @@
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
-#include "./active_tilt_multicopter.hpp"
-#include "./fixed_wing.hpp"
-#include "./non_planar_multicopter.hpp"
-#include "./planar_multicopter.hpp"
+#include "./base.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
 namespace gui
@@ -35,6 +32,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  FrameType getFrameType() const;
   void setFrameType(const FrameType& type);
 
   QString controllerPackage() const;
@@ -46,18 +44,11 @@ public:
 
   YAML::Node staticParams() const;
 
-  bool isCommandCompatible(tobas::RcCommand command) const;
-
 private Q_SLOTS:
   void setCurrentController(int index);
 
 private:
   qt::StackedWidget* stack_;
-
-  PlanarMulticopterWidget* planar_multicopter_;
-  NonPlanarMulticopterWidget* nonplanar_multicopter_;
-  ActiveTiltMulticopterWidget* active_tilt_multicopter_;
-  FixedWingWidget* fixed_wing_;
 
   BaseControllerWidget* widget(int index);
   const BaseControllerWidget* widget(int index) const;

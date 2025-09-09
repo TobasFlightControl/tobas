@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 TakeoffWidget::TakeoffWidget()
 {
@@ -51,5 +51,5 @@ double TakeoffWidget::duration() const
 {
   return duration_->value();
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -2,7 +2,7 @@
 
 #include <OgreMaterialManager.h>
 #include <rviz_common/display_group.hpp>
-#include <rviz_common/visualization_frame.hpp>  // XXX: rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
+#include <rviz_common/visualization_frame.hpp>  // rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/yaml_config_reader.hpp>
 
@@ -75,8 +75,10 @@ void RvizFrameManager::setFixedFrame(const QString& frame)
   manager_->setFixedFrame(frame);
 }
 
-rviz_common::Display* RvizFrameManager::getDisplay(const QString& name)
+std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& name)
 {
+  std::vector<rviz_common::Display*> res;
+
   for (int i = 0; i < display_group_->numDisplays(); ++i) {
     const auto display = display_group_->getDisplayAt(i);
 
@@ -86,12 +88,11 @@ rviz_common::Display* RvizFrameManager::getDisplay(const QString& name)
     };
 
     if (display->getName() == name) {
-      return display;
+      res.push_back(display);
     }
   }
 
-  RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to find display named \"" << name.toStdString() << "\"");
-  return nullptr;
+  return res;
 }
 
 void RvizFrameManager::removeDefaultColorMaterials()

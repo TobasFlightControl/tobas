@@ -2,17 +2,20 @@
 
 #include <QDialogButtonBox>
 #include <QEvent>
+#include <QGridLayout>
 #include <QKeyEvent>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/path.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 namespace gui
 {
 namespace sa
 {
 SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name)
-  : QFileDialog(parent, "Save Tobas Project", dir, "Tobas Project (*.TBS);;All Files (*)")
+  : super(parent, "Save Tobas Project", dir, "Tobas Project (*.TBS);;All Files (*)")
 {
   setAcceptMode(QFileDialog::AcceptSave);
   setOption(QFileDialog::DontUseNativeDialog, true);
@@ -22,14 +25,24 @@ SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const 
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
   save_button_ = button_box->button(QDialogButtonBox::Save);
 
-  line_edit_ = findChild<QLineEdit*>("fileNameEdit");
-  line_edit_->installEventFilter(this);
-  connect(line_edit_, &QLineEdit::textChanged, this, &SaveProjectDialog::onLineEditTextChanged);
+  file_name_ = findChild<QLineEdit*>("fileNameEdit");
+  file_name_->installEventFilter(this);
+
+  warn_text_ = new qt::Label();
+  warn_text_->setTextColor(Qt::red);
+
+  // Insert the warning label at the bottom of the grid layout
+  const auto grid = qt::qPointerCast<QGridLayout>(layout());
+  grid->addWidget(warn_text_, grid->rowCount(), 0, 1, grid->columnCount());
+
+  // Connection
+  connect(this, &super::directoryEntered, this, &self::onFilePathChanged);
+  connect(file_name_, &QLineEdit::textChanged, this, &self::onFilePathChanged);
 }
 
 bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
 {
-  if (obj == line_edit_ && event->type() == QEvent::KeyPress) {
+  if (obj == file_name_ && event->type() == QEvent::KeyPress) {
     const auto key_event = static_cast<QKeyEvent*>(event);
     if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
       // Only accept if the save button is enabled
@@ -42,19 +55,52 @@ bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
     }
   }
 
-  return QFileDialog::eventFilter(obj, event);
+  return super::eventFilter(obj, event);
 }
 
-void SaveProjectDialog::onLineEditTextChanged()
+void SaveProjectDialog::onFilePathChanged()
 {
-  // Enable the save button only if the file name is valid
-  const auto file_name = line_edit_->text();
+  const auto dir = directory().absolutePath();
+  const auto file_name = file_name_->text();
+
+  // ホームディレクトリ以下でなければならない
+  if (!dir.startsWith(ros2::getHomeDir())) {
+    warn_text_->setText("The Tobas project must be located under your home directory.");
+    save_button_->setEnabled(false);
+    return;
+  }
+
+  // srcディレクトリ以下でなければならない
+  if (!dir.contains("/src/") && !dir.endsWith("/src")) {
+    warn_text_->setText("The Tobas project must be located under a \"src\" directory.");
+    save_button_->setEnabled(false);
+    return;
+  }
+
+  // ファイル名が設定されていなければならない
+  if (file_name.isEmpty()) {
+    warn_text_->setText("Please specify a file name.");
+    save_button_->setEnabled(false);
+    return;
+  }
+
+  // 拡張子が設定されている場合は決められた拡張子でなければならない
   if (file_name.contains('.')) {
-    save_button_->setEnabled(file_name.endsWith(tobas::kProjectExtension) && !qt::getBaseName(file_name).isEmpty());
+    if (!file_name.endsWith(tobas::kProjectExtension)) {
+      warn_text_->setText("Invalid file extension.");
+      save_button_->setEnabled(false);
+      return;
+    }
+
+    if (qt::getBaseName(file_name).isEmpty()) {
+      warn_text_->setText("The base name of the file is empty.");
+      save_button_->setEnabled(false);
+      return;
+    }
   }
-  else {
-    save_button_->setEnabled(file_name.length() > 0);
-  }
+
+  warn_text_->clear();
+  save_button_->setEnabled(true);
 }
 }  // namespace sa
 }  // namespace gui

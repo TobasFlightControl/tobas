@@ -42,7 +42,7 @@ void PosePlotWidget::setTimeScale(double t_start, double t_stop)
 
 void PosePlotWidget::setData(
   const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
-  const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
+  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
 {
   updateCurrentSamples(odom_msgs);
   updateTargetSamples(ctrl_fb_msgs);
@@ -77,7 +77,8 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
   }
 }
 
-void PosePlotWidget::updateTargetSamples(const QVector<tobas_debug_msgs::msg::MultiRotorControllerFeedback>& ctrl_fb_msgs)
+void PosePlotWidget::updateTargetSamples(
+  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;

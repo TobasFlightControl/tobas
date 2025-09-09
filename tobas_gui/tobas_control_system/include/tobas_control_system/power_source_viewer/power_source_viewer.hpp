@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class PowerSourceViewerWidget : public qt::StackedWidget
 {
@@ -25,5 +25,5 @@ private:
   BatteryViewerWidget* battery_viewer_;
   EngineViewerWidget* engine_viewer_;
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

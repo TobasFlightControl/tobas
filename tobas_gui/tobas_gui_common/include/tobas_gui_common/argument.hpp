@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 /**
  * @brief コマンドライン引数を編集する．
@@ -31,5 +31,5 @@ private:
   int argc_;                 // argcのメモリ確保が必要
   std::vector<char*> argv_;  // argvのメモリ確保が必要
 };
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

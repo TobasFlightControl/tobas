@@ -1,20 +1,15 @@
 #include "tobas_control_system/rotors_viewer/speedmeter.hpp"
 
-#include <filesystem>
-
 #include <QtQml/QQmlContext>
 #include <QtQuick/QQuickItem>
-#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_control_system/constants.hpp"
-
-namespace fs = std::filesystem;
+#include "tobas_control_system/util.hpp"
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 SpeedmeterWidget::SpeedmeterWidget()
 {
@@ -23,8 +18,7 @@ SpeedmeterWidget::SpeedmeterWidget()
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
   // QMLを読み込む
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto qml_path = pkg_path / "qml/SpeedMeter.qml";
+  const auto qml_path = getPkgShareDir() / "qml/SpeedMeter.qml";
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 }
 
@@ -125,5 +119,5 @@ QObject* SpeedmeterWidget::getBottomTextObject() const
   TOBAS_CHECK(bottom_text);
   return bottom_text;
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../blade_theory.hpp"
-#include "../propeller.hpp"
-#include "./base.hpp"
+#include <tobas_math/definitions.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 
 namespace gui
 {
@@ -12,33 +11,44 @@ namespace propulsion
 {
 namespace electric
 {
-/**
- * @brief Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019]
- */
-class AerodynamicsWidget_BladeTheory : public AerodynamicsWidget_Base
+/* Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] */
+class BladeTheory
 {
-  Q_OBJECT
+  static constexpr double a = M_2PI;    // 2D lift curve slope (ideal value)
+  static constexpr double B = 0.9;      // Tip loss factor
+  static constexpr double gamma = 8.0;  // Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
+  static constexpr double C_d0 = 0.02;  // Profile drag coefficient (typical value)
 
 public:
-  explicit AerodynamicsWidget_BladeTheory(PropellerWidget* propeller);
+  explicit BladeTheory(
+    int num_blades,
+    double radius,
+    double blade_chord,
+    double pitch_angle,
+    double air_density = tobas_std::kStandardAirDensity);
 
-  const char* name() const override;
-  const char* description() const override;
-
-  bool isValid() override;
-  void copyFrom(const AerodynamicsWidget_Base* src) override;
-
-  YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
-
-  double motorConst() const override;
-  double momentConst() const override;
-  double dragConst() const override;
+  double motorConst() const;
+  double momentConst() const;
+  double dragConst() const;
 
 private:
-  PropellerWidget* propeller_;
+  const int N_;
+  const double R_;
+  const double c_;
+  const double theta_;
+  const double rho_;
 
-  BladeTheory bladeTheory() const;
+  /* Solidity */
+  double sigma() const;
+
+  /* Inflow ratio */
+  double lambda() const;
+
+  /* Thrust coefficient */
+  double C_T() const;
+
+  /* Horizontal force coefficient (divided by mu) */
+  double C_H() const;
 };
 }  // namespace electric
 }  // namespace propulsion

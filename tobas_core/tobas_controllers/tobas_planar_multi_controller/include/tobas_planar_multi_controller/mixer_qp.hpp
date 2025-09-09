@@ -1,0 +1,59 @@
+#pragma once
+
+#include <tobas_drone_tools/mixer_i.hpp>
+#include <tobas_eigen_tools/typedef.hpp>
+#include <tobas_kdl/tree_fk_solver_pos_all.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
+#include <tobas_quadprog/dual_active_set.hpp>
+#include <tobas_time_tools/stopwatch.hpp>
+
+namespace tobas
+{
+namespace planar_multicopter
+{
+/* 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)． */
+class QpMixer : public MixerI
+{
+  using super = MixerI;
+
+  static constexpr double kThrustClampMargin = 1e-3;  // [N]
+
+public:
+  explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
+
+  bool updateInternalDataStructures() override;
+
+  bool solve(
+    const kdl::JntArray& cur_q,
+    const kdl::Vector& cur_gyro_B,
+    const kdl::Vector& tar_dgyro_B,
+    const double& tar_thrusts_sum,
+    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
+
+  double getThrust(size_t idx) const;
+
+  bool setBaseWeight(double p);
+  bool setThrustWeight(double p);
+
+private:
+  struct Config
+  {
+    double base_weight = 1.;
+    double thrust_weight = 1e-9;
+  } cfg_;
+
+  kdl::TreeFkSolverPosAll fk_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
+
+  quadprog::DualActiveSetSolver qp_;  // QPソルバー
+  Eigen::Diagonal3d Q_;               // EoMの重み
+  Eigen::DiagonalXd R_;               // 推力の重み
+  Eigen::Matrix3Xd G_;                // EoM行列等式の左辺
+  Eigen::Vector3d h_;                 // EoM行列等式の右辺
+
+  tim::Stopwatch stopwatch_;
+
+  void resizeAndFill();
+};
+}  // namespace planar_multicopter
+}  // namespace tobas

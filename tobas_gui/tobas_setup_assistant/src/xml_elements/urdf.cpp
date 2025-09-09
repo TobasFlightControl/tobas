@@ -240,15 +240,15 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }
 
-void addICEPropulsionSystemPlugin(
+void addIcePropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const EngineParam& engine_param,
-  const std::vector<ICERotorParam>& rotor_params)
+  const std::vector<IceRotorParam>& rotor_params)
 {
   // robot/gazebo/plugin
   const auto plugin =
-    addGazeboPlugin(robot, "tobas_gazebo_ice_propulsion_system_plugin", "gazebo::GazeboICEPropulsionSystemPlugin");
+    addGazeboPlugin(robot, "tobas_gazebo_ice_propulsion_system_plugin", "gazebo::GazeboIcePropulsionSystemPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
 
   // robot/gazebo/plugin/engine
@@ -264,12 +264,12 @@ void addICEPropulsionSystemPlugin(
     rotor->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(rotor_param.direction).c_str());
     rotor->InsertNewChildElement("gearRatio")->SetText(rotor_param.gear_ratio);
     rotor->InsertNewChildElement("numberOfBlades")->SetText(rotor_param.num_blades);
-    rotor->InsertNewChildElement("motorConstant")->SetText(toString(rotor_param.motor_const).c_str());
-    rotor->InsertNewChildElement("momentConstant")->SetText(rotor_param.moment_const);
-    rotor->InsertNewChildElement("dragConstant")->SetText(toString(rotor_param.drag_const).c_str());
     rotor->InsertNewChildElement("minPitchAngle")->SetText(rotor_param.pitch_angle_limit.lower);
     rotor->InsertNewChildElement("maxPitchAngle")->SetText(rotor_param.pitch_angle_limit.upper);
     rotor->InsertNewChildElement("maxPitchAngleRate")->SetText(rotor_param.max_pitch_angle_rate);
+    rotor->InsertNewChildElement("motorConstant")->SetText(toString(rotor_param.motor_const).c_str());
+    rotor->InsertNewChildElement("momentConstant")->SetText(rotor_param.moment_const);
+    rotor->InsertNewChildElement("dragConstant")->SetText(toString(rotor_param.drag_const).c_str());
   }
 }
 

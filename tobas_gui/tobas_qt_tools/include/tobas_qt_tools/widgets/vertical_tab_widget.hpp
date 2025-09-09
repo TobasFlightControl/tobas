@@ -23,5 +23,11 @@ class VerticalTabWidget : public TabWidget
 
 public:
   explicit VerticalTabWidget(QWidget* parent = nullptr);
+
+  void setTabBackgroundColor(int index, const QColor& color) override;
+  void clearTabBackgroundColor(int index) override;
+
+private:
+  VerticalTabBar* tab_bar_;
 };
 }  // namespace qt

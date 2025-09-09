@@ -1,13 +1,13 @@
 #include "tobas_uadf/exporter.hpp"
 
-#include <tobas_ros2_tools/urdf_exporter.hpp>
+#include <tobas_urdf/exporter.hpp>
 
 namespace uadf
 {
 tinyxml2::XMLDocument* exportUADF(const Model& model)
 {
   // 基となるXMLを作成
-  const auto doc = ros2::exportUrdf(*model.urdf);
+  const auto doc = urdf::exportUrdf(*model.urdf);
 
   // ルートノードを取得
   const auto robot = doc->RootElement();

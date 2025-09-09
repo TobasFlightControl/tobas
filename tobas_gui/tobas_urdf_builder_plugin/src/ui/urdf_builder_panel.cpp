@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QMenu>
 #include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
@@ -10,7 +9,7 @@
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 #include "ui_urdf_builder_panel.h"
 
@@ -37,10 +36,8 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
   : rviz_common::Panel(parent)
   , node_manager_(0, nullptr, "urdf_builder")
   , node_(node_manager_.node())
-  , property_client_(node_, tobas::kPropertyServerName, kPropertySection)
+  , property_client_(node_, kPropertySection)
 {
-  setWindowTitle(kTitle);
-
   ui_ = new Ui::URDFBuilderPanelUI();
   ui_->setupUi(this);
 
@@ -353,7 +350,7 @@ QString URDFBuilderPanel::getLastOpenedDir()
   std::string last_opened_dir;
   if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0) {
     RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::getHomeDir();
   }
   return QString::fromStdString(last_opened_dir);
 }

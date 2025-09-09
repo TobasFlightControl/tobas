@@ -548,7 +548,7 @@ public:
   }
 
   /**
-   * @brief Returns the set of supported kinematics discretization search types.  This implementation only supports
+   * @brief Returns the set of supported kinematics discretization search types. This implementation only supports
    * the DiscretizationMethod::ONE search.
    */
   std::vector<DiscretizationMethod> getSupporteddiscretization_method_t() const

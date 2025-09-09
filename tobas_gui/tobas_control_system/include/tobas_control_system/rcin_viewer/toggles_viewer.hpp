@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 namespace rcin
 {
@@ -44,5 +44,5 @@ private Q_SLOTS:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

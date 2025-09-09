@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 class PostArmCheckViewerWidget : public QWidget
 {
@@ -33,5 +33,5 @@ private Q_SLOTS:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check);
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

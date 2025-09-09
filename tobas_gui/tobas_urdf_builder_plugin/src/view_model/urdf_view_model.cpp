@@ -2,9 +2,9 @@
 
 #include <queue>
 
-#include <tobas_ros2_tools/urdf_exporter.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/vector.hpp>
+#include <tobas_urdf/exporter.hpp>
 
 namespace gui
 {
@@ -105,7 +105,7 @@ bool URDFViewModel::saveRobot(const QString& file_path)
   urdf_->root_link_->inertial.reset();
 
   // URDFを書き出す
-  const auto doc = ros2::exportUrdf(*urdf_);
+  const auto doc = urdf::exportUrdf(*urdf_);
 
   // 不要なテクスチャを削除
   removeTextureTagsWithoutFilename(doc->RootElement());

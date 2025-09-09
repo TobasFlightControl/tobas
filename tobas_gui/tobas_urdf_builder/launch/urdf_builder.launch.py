@@ -26,9 +26,9 @@ def generate_launch_description():
     property_server = Node(
         package="tobas_property_server",
         executable="property_server",
-        name="property_server",
         ros_arguments=ros_args,
         output=output,
+        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
     ld.add_action(property_server)
 

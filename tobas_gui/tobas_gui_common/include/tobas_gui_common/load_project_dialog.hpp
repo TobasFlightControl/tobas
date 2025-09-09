@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace common
+namespace cmn
 {
 class LoadProjectDialog : public QFileDialog
 {
@@ -20,5 +20,5 @@ private:
 private Q_SLOTS:
   void onItemActivated(const QModelIndex& index);
 };
-}  // namespace common
+}  // namespace cmn
 }  // namespace gui

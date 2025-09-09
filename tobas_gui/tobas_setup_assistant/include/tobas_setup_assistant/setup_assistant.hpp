@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_colcon_cpp/core.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
@@ -37,7 +38,7 @@ class SetupAssistantWidget : public QWidget
   static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/setup_assistant/load";
   static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/setup_assistant/save";
 
-  static constexpr double kJntAxisCollinearTol = tobas_std::deg2rad(5);
+  static constexpr double kJntAxisParallelTol = tobas_std::deg2rad(5);  // [rad]
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
@@ -57,10 +58,12 @@ private:
   ptree::PropertyClient property_client_;
   ros2::SyncParamClient rsp_client_;
 
+  colcon::Colcon colcon_;
+
   Signals sig_;
   RotorMarkerPublisher rotor_marker_publisher_;
 
-  QLineEdit* tbs_path_;
+  QLineEdit* proj_path_;
   QPushButton* new_btn_;
   QPushButton* load_btn_;
   QPushButton* save_btn_;
@@ -74,6 +77,7 @@ private:
 
   std::unique_ptr<ProjectGenerator> prj_gen_;
 
+  /* 全ての設定を起動時の状態に戻す． */
   void reset();
 
   void enableSaveButtons(bool enable);
@@ -87,13 +91,19 @@ private:
   FrameType determineFrameType();
 
   /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
-  bool isJntAxisAlwaysCollinear(const std::string& link_name, const kdl::Vector& tar_axis);
+  bool isJntAxisAlwaysParallel(const std::string& link_name, const kdl::Vector& tar_axis, bool same_direction_only);
 
-  /* 全てのスラストジョイントの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
-  bool allThrustJointAxesAlwaysCollinear(const kdl::Vector& tar_axis);
+  /* 全てのスラストジョイントの軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  bool allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
 
   /* 全てのチルト軸とロータ軸が直行するかどうかを調べる． */
   bool allTiltRotorAxesPerpendicular();
+
+  /* 全てのチルトジョイントの軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  bool allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
+
+  /* 全てのチルトジョイントの軸が互いに平行かどうかを調べる． */
+  bool allTiltJointAxesAlwaysParallel();
 
 private Q_SLOTS:
   void onNewButtonClicked();

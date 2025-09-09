@@ -4,18 +4,20 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include <tobas_actuator_test/actuator_test.hpp>
+#include <tobas_control_system/control_system.hpp>
+#include <tobas_flight_log_gui/flight_log.hpp>
+#include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
+#include <tobas_gui_common/ssh_endpoint.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
+#include <tobas_parameter_tuning/parameter_tuning.hpp>
 #include <tobas_property_client/property_client.hpp>
+#include <tobas_sensor_calibration/sensor_calibration.hpp>
+#include <tobas_simulation_gui/simulation.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_uadf/model.hpp>
 #include <tobas_uadf/parser.hpp>
-
-#include <tobas_control_system/control_system.hpp>
-#include <tobas_flight_log_gui/flight_log.hpp>
-#include <tobas_hardware_setup/hardware_setup.hpp>
-#include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
-#include <tobas_simulation_gui/simulation.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
 
@@ -57,15 +59,18 @@ private:
   uadf::Model uadf_;
   kdl::Tree tree_;
   tobas::Drone drone_;
+  std::string host_;
 
   ptree::PropertyClient property_client_;
   ssh::SSHClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
-  common::RemoteProjectBuilder remote_proj_builder_;
+  cmn::ProjectPaths proj_paths_;
+  cmn::RemoteProjectBuilder remote_proj_builder_;
+  cmn::SshEndpoint ssh_endpoint_;
   ConfigurationEnvParser config_env_parser_;
 
-  QLineEdit* tbs_path_;
+  QLineEdit* proj_path_;
   QPushButton* load_btn_;
   QPushButton* write_btn_;
 
@@ -77,15 +82,16 @@ private:
 
   qt::WaitSpinnerWidget spinner_;
 
-  hw::HardwareSetupWidget* hardware_setup_;
-  gcs::ControlSystemWidget* control_system_;
+  sc::SensorCalibrationWidget* sensor_calib_;
+  at::ActuatorTestWidget* actuator_test_;
+  ctrl::ControlSystemWidget* control_system_;
   param::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
   sim::SimulationWidget* simulation_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  std::filesystem::path tbsPath() const;
+  std::filesystem::path projectPath() const;
 
 private Q_SLOTS:
   void onLoadButtonClicked();

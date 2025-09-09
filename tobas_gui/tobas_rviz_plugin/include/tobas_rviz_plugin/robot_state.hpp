@@ -1157,10 +1157,10 @@ public:
     }
   }
 
-  /* Set all joints to random values.  Values will be within default bounds. */
+  /* Set all joints to random values. Values will be within default bounds. */
   void setToRandomPositions();
 
-  /* Set all joints in \e group to random values.  Values will be within default bounds. */
+  /* Set all joints in \e group to random values. Values will be within default bounds. */
   void setToRandomPositions(const JointModelGroup* group);
 
   /* Set all joints in \e group to random values using a specified random number generator.
@@ -1169,7 +1169,7 @@ public:
 
   /* Set all joints in \e group to random values near the value in \e seed.
    * \e distance is the maximum amount each joint value will vary from the
-   * corresponding value in \e seed.  \distance represents meters for
+   * corresponding value in \e seed. \distance represents meters for
    * prismatic/positional joints and radians for revolute/orientation joints.
    * Resulting values are clamped within default bounds. */
   void setToRandomPositionsNearBy(const JointModelGroup* group, const RobotState& seed, double distance);
@@ -1186,16 +1186,16 @@ public:
 
   /* Set all joints in \e group to random values near the value in \e seed.
    * \e distances \b MUST have the same size as \c
-   * group.getActiveJointModels().  Each value in \e distances is the maximum
+   * group.getActiveJointModels(). Each value in \e distances is the maximum
    * amount the corresponding active joint in \e group will vary from the
-   * corresponding value in \e seed.  \distance represents meters for
+   * corresponding value in \e seed. \distance represents meters for
    * prismatic/positional joints and radians for revolute/orientation joints.
    * Resulting values are clamped within default bounds. */
   void
   setToRandomPositionsNearBy(const JointModelGroup* group, const RobotState& seed, const std::vector<double>& distances);
 
   /* Set all joints in \e group to random values near the value in \e seed, using a specified random number
-   * generator. \e distances \b MUST have the same size as \c group.getActiveJointModels().  Each value in \e distances
+   * generator. \e distances \b MUST have the same size as \c group.getActiveJointModels(). Each value in \e distances
    * is the maximum amount the corresponding active joint in \e group will vary from the corresponding value in \e seed.
    * \distance represents meters for prismatic/positional joints and radians for revolute/orientation joints. Resulting
    * values are clamped within default bounds. */
@@ -1450,8 +1450,8 @@ public:
   /* Add an attached body to this state.
    *
    * This only adds the given body to this RobotState
-   * instance.  It does not change anything about other
-   * representations of the object elsewhere in the system.  So if the
+   * instance. It does not change anything about other
+   * representations of the object elsewhere in the system. So if the
    * body represents an object in a collision_detection::World (like
    * from a planning_scene::PlanningScene), you will likely need to remove the
    * corresponding object from that world to avoid having collisions
@@ -1470,8 +1470,8 @@ public:
    * @param subframe_poses Transforms to points of interest on the object (can be used as end effector link)
    *
    * This only adds the given body to this RobotState
-   * instance.  It does not change anything about other
-   * representations of the object elsewhere in the system.  So if the
+   * instance. It does not change anything about other
+   * representations of the object elsewhere in the system. So if the
    * body represents an object in a collision_detection::World (like
    * from a planning_scene::PlanningScene), you will likely need to remove the
    * corresponding object from that world to avoid having collisions
@@ -1497,8 +1497,8 @@ public:
    * @param subframe_poses Transforms to points of interest on the object (can be used as end effector link)
    *
    * This only adds the given body to this RobotState
-   * instance.  It does not change anything about other
-   * representations of the object elsewhere in the system.  So if the
+   * instance. It does not change anything about other
+   * representations of the object elsewhere in the system. So if the
    * body represents an object in a collision_detection::World (like
    * from a planning_scene::PlanningScene), you will likely need to remove the
    * corresponding object from that world to avoid having collisions
@@ -1753,7 +1753,7 @@ private:
   std::vector<Eigen::Isometry3d> global_link_transforms_;  ///< Transforms from model frame to link frame for each link
   std::vector<Eigen::Isometry3d> global_collision_body_transforms_;  ///< Transforms from model frame to collision
                                                                      ///< bodies
-  std::vector<unsigned char> dirty_joint_transforms_;
+  std::vector<uint8_t> dirty_joint_transforms_;
 
   /* All attached bodies that are part of this state, indexed by their name */
   std::map<std::string, std::unique_ptr<AttachedBody>> attached_body_map_;

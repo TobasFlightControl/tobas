@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -10,6 +9,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/console.hpp>
 
 #include "ui_update_link_dialog.h"
@@ -31,7 +31,7 @@ namespace ui
 UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPanel* main)
   : super(main)
   , node_(node)
-  , property_client_(node, tobas::kPropertyServerName, kPropertySection)
+  , property_client_(node, kPropertySection)
   , main_(main)
   , ui_(new Ui::UpdateLinkDialogUI())
   , link_vm_(new view_model::LinkViewModel())
@@ -441,12 +441,12 @@ void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
   std::string last_dir;
   if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
-    last_dir = rcutils_get_home_dir();
+    last_dir = ros2::getHomeDir();
   }
 
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
+    this, "Select Mesh File", QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }
@@ -474,12 +474,12 @@ void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
   std::string last_dir;
   if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
-    last_dir = rcutils_get_home_dir();
+    last_dir = ros2::getHomeDir();
   }
 
   // メッシュファイルのパスを取得
   const auto file_path = QFileDialog::getOpenFileName(
-    this, kTitle, QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
+    this, "Select Mesh File", QString::fromStdString(last_dir), "Mesh Files (*.stl *.dae);;All Files (*)");
   if (file_path.isEmpty()) {
     return;
   }

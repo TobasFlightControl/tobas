@@ -27,19 +27,19 @@ NonPlanarMulticopterWidget::NonPlanarMulticopterWidget()
   rows->addStretch();
 }
 
-const char* NonPlanarMulticopterWidget::name() const
+FrameType NonPlanarMulticopterWidget::frameType() const
 {
-  return "Non-Planar Multirotor PID";
+  return FrameType::kNonPlanarMulticopter;
 }
 
 QString NonPlanarMulticopterWidget::controllerPackage() const
 {
-  return "tobas_nonplanar_pid";
+  return "tobas_nonplanar_multi_controller";
 }
 
 QString NonPlanarMulticopterWidget::pluginName() const
 {
-  return "ControllerNode";
+  return "tobas::nonplanar_multicopter::ControllerNode";
 }
 
 tobas::RcCommand NonPlanarMulticopterWidget::acrobatModeCommand() const

@@ -1,6 +1,10 @@
 #pragma once
 
+#include <QButtonGroup>
+#include <QRadioButton>
 #include <rclcpp/node.hpp>
+
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "./base.hpp"
 
@@ -21,9 +25,18 @@ public:
   std::filesystem::path worldPath() const;
 
 private:
-  std::vector<WorldWidget_Base*> widgets_;
+  QVector<QRadioButton*> buttons_;
+  QVector<BaseWorldWidget*> widgets_;
 
-  const WorldWidget_Base* selected() const;
+  void addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label);
+
+  void updateEnabled();
+
+  int rowCount() const;
+  int findCurrentRow() const;
+
+private Q_SLOTS:
+  void onButtonGroupIdClicked();
 };
 }  // namespace sim
 }  // namespace gui

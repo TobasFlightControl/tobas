@@ -16,19 +16,19 @@ FixedWingWidget::FixedWingWidget()
   rows->addStretch();
 }
 
-const char* FixedWingWidget::name() const
+FrameType FixedWingWidget::frameType() const
 {
-  return "Fixed Wing LQR";
+  return FrameType::kFixedWing;
 }
 
 QString FixedWingWidget::controllerPackage() const
 {
-  return "tobas_fixed_wing_lqd";
+  return "tobas_fixed_wing_controller";
 }
 
 QString FixedWingWidget::pluginName() const
 {
-  return "ControllerNode";
+  return "tobas::fixed_wing::ControllerNode";
 }
 
 tobas::RcCommand FixedWingWidget::acrobatModeCommand() const

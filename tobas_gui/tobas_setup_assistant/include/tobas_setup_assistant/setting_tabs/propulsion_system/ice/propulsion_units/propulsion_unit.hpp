@@ -4,7 +4,7 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./aerodynamics/aerodynamics.hpp"
+#include "./aerodynamics.hpp"
 #include "./propeller.hpp"
 #include "./transmission.hpp"
 
@@ -26,11 +26,10 @@ class PropulsionUnitWidget : public QWidget
   static constexpr int kTabHeight = 45;
 
 Q_SIGNALS:
-  void copyFromLeftButtonClicked();
   void copyToAllButtonClicked();
 
 public:
-  explicit PropulsionUnitWidget();
+  explicit PropulsionUnitWidget(rclcpp::Node::SharedPtr node);
 
   bool isValid();
   void copyFrom(const PropulsionUnitWidget* src);
@@ -45,8 +44,7 @@ public:
 private:
   qt::TabWidget* tabs_;
 
-  QPushButton* copy_from_left_button_;
-  QPushButton* copy_to_all_button_;
+  QPushButton* copy_to_all_btn_;
 
   TransmissionWidget* transmission_;
   PropellerWidget* propeller_;

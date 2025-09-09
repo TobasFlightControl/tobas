@@ -1,5 +1,12 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_system.hpp"
 
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
+
 namespace gui
 {
 namespace sa
@@ -13,8 +20,20 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   battery = new BatteryWidget();
   units = new PropulsionUnitsWidget(node, uadf);
 
-  addTab(battery, kBatteryTitle);
-  addTab(units, kPropulsionUnitTitle);
+  // Layout
+  const auto battery_rows = new QVBoxLayout();
+  qt::addWidgetCenter(new qt::Label("Battery", cmn::kTitlePSize, QFont::Bold), battery_rows);
+  battery_rows->addWidget(battery);
+
+  const auto units_rows = new QVBoxLayout();
+  qt::addWidgetCenter(new qt::Label("Propulsion Units", cmn::kTitlePSize, QFont::Bold), units_rows);
+  units_rows->addWidget(units);
+
+  const auto cols = new QHBoxLayout();
+  cols->addLayout(battery_rows, 1);
+  cols->addLayout(units_rows, 1);
+
+  setLayout(cols);
 }
 
 const char* PropulsionSystemWidget::name() const

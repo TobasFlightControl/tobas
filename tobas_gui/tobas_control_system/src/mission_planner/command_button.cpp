@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 CommandButton::CommandButton(const QString& text) : super(text)
 {
@@ -10,5 +10,5 @@ CommandButton::CommandButton(const QString& text) : super(text)
   setFixedHeight(kFixedHeight);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

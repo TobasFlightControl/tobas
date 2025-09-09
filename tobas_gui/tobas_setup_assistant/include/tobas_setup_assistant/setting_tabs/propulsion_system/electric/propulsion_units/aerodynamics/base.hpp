@@ -2,7 +2,6 @@
 
 #include <yaml-cpp/yaml.h>
 #include <QVBoxLayout>
-#include <QWidget>
 
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -36,18 +35,11 @@ public:
   /* [m] */
   virtual double momentConst() const = 0;
 
-  /* [kg/rad] */
-  virtual double dragConst() const = 0;
-
 protected:
-  void addWidget(QWidget* widget);
-  void addLayout(QLayout* layout);
+  QVBoxLayout* rows_;
 
 private:
   qt::DescriptionWidget* description_;
-
-  QVBoxLayout* header_rows_;
-  QVBoxLayout* content_rows_;
 
 private Q_SLOTS:
   void initialize();

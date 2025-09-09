@@ -4,7 +4,6 @@
 #include <QWidget>
 
 #include <tobas_drone_core/propulsion_system/type.hpp>
-#include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 namespace gui
 {
@@ -12,7 +11,7 @@ namespace sa
 {
 namespace propulsion
 {
-class BasePropulsionSystemWidget : public qt::TabWidget
+class BasePropulsionSystemWidget : public QWidget
 {
   Q_OBJECT
 
@@ -20,8 +19,6 @@ class BasePropulsionSystemWidget : public qt::TabWidget
   static constexpr int kTabHeight = 50;
 
 public:
-  explicit BasePropulsionSystemWidget();
-
   virtual const char* name() const = 0;
 
   virtual void updateInternalDataStructures() = 0;

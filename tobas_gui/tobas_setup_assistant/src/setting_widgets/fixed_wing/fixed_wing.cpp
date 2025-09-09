@@ -2,6 +2,7 @@
 
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
 namespace gui
@@ -13,17 +14,17 @@ namespace fw
 FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf) : node_(node)
 {
   // Vehicle
-  addWidget(new qt::Label(kVehicleLabel, kTitlePSize));
+  addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
   vehicle_ = new VehicleParametersWidget();
   addWidget(vehicle_);
 
   // Aerodynamic Coefficients
-  addWidget(new qt::Label(kAeroCoefsLabel, kTitlePSize));
+  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
   aero_coefs_ = new AerodynamicsCoefficientsWidget(node_);
   addWidget(aero_coefs_);
 
   // Control Surfaces
-  addWidget(new qt::Label(kControlSurfacesLabel, kTitlePSize));
+  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
   control_surfaces_ = new ControlSurfacesWidget(uadf);
   addWidget(control_surfaces_);
 }
@@ -40,8 +41,13 @@ const char* FixedWingWidget::title() const
 
 const char* FixedWingWidget::description() const
 {
-  return "Set up the fixed-wing configuration. "
-         "Please choose a setup method and enter the required information.";
+  return "Build the mathematical model for the fixed wing and its control surfaces. "
+         "In addition to the general airframe specifications, "
+         "supply the stability derivatives for the main wing and each control surface. "
+         "<a href="
+         "'https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics'"
+         ">VSPAERO</a> "
+         "analysis results can be imported for the main wing if available.";
 }
 
 void FixedWingWidget::updateInternalDataStructures()

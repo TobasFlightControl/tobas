@@ -12,6 +12,8 @@
 #include "tobas_rviz_plugin/console_colers.hpp"
 #include "tobas_rviz_plugin/logger.hpp"
 
+namespace ch = std::chrono;
+
 namespace tobas
 {
 namespace
@@ -882,7 +884,7 @@ const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel* joint)
     return variable_joint_transforms_[idx];
   }
 
-  unsigned char& dirty = dirty_joint_transforms_[idx];
+  uint8_t& dirty = dirty_joint_transforms_[idx];
   if (dirty) {
     joint->computeTransform(&position_.at(joint->getFirstVariableIndex()), variable_joint_transforms_[idx]);
     dirty = 0;
@@ -1782,7 +1784,7 @@ bool RobotState::setFromIK(
       const KinematicsBase& solver_ref = *solver;
       RCLCPP_ERROR(
         getLogger(),
-        "Kinematics solver %s does not support joint group %s.  Error: %s",
+        "Kinematics solver %s does not support joint group %s. Error: %s",
         typeid(solver_ref).name(),
         jmg->getName().c_str(),
         error_msg.c_str());
@@ -2131,7 +2133,7 @@ bool RobotState::setFromIKSubgroups(
     timeout = jmg->getDefaultIKTimeout();
   }
 
-  auto start = std::chrono::system_clock::now();
+  const auto start = ch::steady_clock::now();
   double elapsed = 0;
 
   bool first_seed = true;
@@ -2186,7 +2188,7 @@ bool RobotState::setFromIKSubgroups(
         return true;
       }
     }
-    elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count();
+    elapsed = ch::duration_cast<ch::seconds>(ch::steady_clock::now() - start).count();
     first_seed = false;
   } while (elapsed < timeout);
   return false;

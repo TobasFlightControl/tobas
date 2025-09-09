@@ -5,6 +5,7 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>
+#include <tobas_gui_common/project_paths.hpp>
 #include <tobas_kdl/tree.hpp>
 
 #include "./settings.hpp"
@@ -28,13 +29,15 @@ public:
     const kdl::Tree& tree,
     SettingsWidget* settings);
 
-  bool generateProject(const std::filesystem::path& tbs_path);
+  bool generateProject(const std::filesystem::path& proj_path);
 
 private:
   const rclcpp::Node::SharedPtr node_;
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
   SettingsWidget* const settings_;
+
+  cmn::ProjectPaths proj_paths_;
 
   std::shared_ptr<TemplateGenerator> meta_env_;
   std::shared_ptr<TemplateGenerator> config_env_;
@@ -45,29 +48,30 @@ private:
   /* ROS Packageのタブで指定されたTobasパッケージのパスへのエイリアス． */
   std::string flightActionsPackage() const;
 
-  inja::json createTemplateData(const std::filesystem::path& tbs_path);
+  inja::json createTemplateData();
 
   tobas::Drone createDrone();
 
   bool hasServoJoint() const;
 
-  bool generateMetaPackage(const std::filesystem::path& tbs_path, const inja::json& data);
-  bool generateConfigPackage(const std::filesystem::path& tbs_path, const inja::json& data);
-  bool generateUserMsgPackage(const std::filesystem::path& tbs_path, const inja::json& data);
-  bool generateUserCppPackage(const std::filesystem::path& tbs_path, const inja::json& data);
-  bool generateUserPyPackage(const std::filesystem::path& tbs_path, const inja::json& data);
-  bool generateBackupFiles(const std::filesystem::path& tbs_path);
+  bool generateMetaPackage(const inja::json& data);
+  bool generateConfigPackage(const inja::json& data);
+  bool generateUserMsgPackage(const inja::json& data);
+  bool generateUserCppPackage(const inja::json& data);
+  bool generateUserPyPackage(const inja::json& data);
+  bool generateBackupFiles();
 
-  bool generateControllerManagerLaunch(const std::filesystem::path& tbs_path);
-  bool generateJointControllerManagerConfig(const std::filesystem::path& tbs_path);
-  bool generateJointControllerConfigs(const std::filesystem::path& tbs_path);
-  bool generateDroneConfig(const std::filesystem::path& tbs_path);
-  bool generatePreArmCheckConfig(const std::filesystem::path& tbs_path);
-  bool generateObserverStaticConfig(const std::filesystem::path& tbs_path);
-  bool generateControllerStaticConfig(const std::filesystem::path& tbs_path);
-  bool generateRcTeleopStaticConfig(const std::filesystem::path& tbs_path);
-  bool generateOriginalUadf(const std::filesystem::path& tbs_path);
-  bool generateModifiedUrdf(const std::filesystem::path& tbs_path);
+  bool generateControllerManagerLaunch();
+  bool generateJointControllerManagerConfig();
+  bool generateJointControllerConfigs();
+  bool generateDroneConfig();
+  bool generatePreArmCheckConfig();
+  bool generateObserverStaticConfig();
+  bool generateControllerStaticConfig();
+  bool generateRcTeleopStaticConfig();
+  bool generateSshEndpointConfig();
+  bool generateOriginalUadf();
+  bool generateModifiedUrdf();
 
   /* 空のファイルを作成する． */
   bool createEmptyFile(const std::filesystem::path& file_path);
@@ -79,22 +83,22 @@ private:
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
 
   /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
+  bool resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem);
 
   /* オリジナルURDFの全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  bool replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem, const std::filesystem::path& tbs_path);
+  bool replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem);
 
   /* プロペラジョイントのlimitタグを削除する． */
   bool removePropellerJointLimits(tinyxml2::XMLElement* robot);
 
   /* Gazeboプラグイン等をXMLに追加する． */
-  bool addXmlElements(tinyxml2::XMLElement* robot, const std::filesystem::path& tbs_path);
+  bool addXmlElements(tinyxml2::XMLElement* robot);
 
   void
   addJointControllerNode(tinyxml2::XMLElement* launch, const std::string& cfg_pkg_name, const std::string& ctrl_name);
 
   bool generateJointControllerConfig(
-    const std::filesystem::path& tbs_path,
+
     const std::string& jnt_name,
     const tobas::JointCommandInterface& cmd_iface);
 

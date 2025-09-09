@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone) : drone_(drone)
 {
@@ -45,7 +45,7 @@ void EngineViewerWidget::updateInternalDataStructures()
   reset();
 
   if (drone_.prop->type() == tobas::PropulsionSystem::kIce) {
-    iprop_ = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_.prop);
+    iprop_ = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_.prop);
 
     fuel_quantity_->setLower(0.);
     fuel_quantity_->setMinimum(0.);
@@ -106,5 +106,5 @@ void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::Const
   updateFuelQuantity(engine_state->fuel_quantity);
   updateOilTemperature(engine_state->oil_temperature);
 }
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui

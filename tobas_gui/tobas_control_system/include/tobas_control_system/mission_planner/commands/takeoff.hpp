@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace gcs
+namespace ctrl
 {
 struct TakeoffData : public BaseCommandData
 {
@@ -49,5 +49,5 @@ private:
   field::AltitudeToleranceWidget* altitude_tolerance_;
   field::DurationWidget* duration_;
 };
-}  // namespace gcs
+}  // namespace ctrl
 }  // namespace gui
