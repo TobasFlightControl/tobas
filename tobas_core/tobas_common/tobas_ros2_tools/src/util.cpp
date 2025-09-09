@@ -34,6 +34,11 @@ const char* getUserName()
   return getEnv("USER");
 }
 
+const char* getHomeDir()
+{
+  return rcutils_get_home_dir();
+}
+
 fs::path expandUser(const char* path)
 {
   return rcutils_expand_user(path, rcutils_get_default_allocator());

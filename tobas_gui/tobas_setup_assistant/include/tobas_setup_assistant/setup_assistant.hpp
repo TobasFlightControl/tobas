@@ -77,6 +77,7 @@ private:
 
   std::unique_ptr<ProjectGenerator> prj_gen_;
 
+  /* 全ての設定を起動時の状態に戻す． */
   void reset();
 
   void enableSaveButtons(bool enable);
