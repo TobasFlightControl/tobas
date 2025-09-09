@@ -247,8 +247,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   rotor_livelinesses_sub_ = createSubscriber(kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(kPosVelYawCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(kAccelYawCmdTopic, &self::accelCommandCb, this);
-  angle_cmd_sub_ = createSubscriber(kAngleThrottleCmdTopic, &self::angleCommandCb, this);
-  rate_cmd_sub_ = createSubscriber(kRateThrottleCmdTopic, &self::rateCommandCb, this);
+  angle_cmd_sub_ = createSubscriber(kAngleThrotCmdTopic, &self::angleCommandCb, this);
+  rate_cmd_sub_ = createSubscriber(kRateThrotCmdTopic, &self::rateCommandCb, this);
 
   // Register timers
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);

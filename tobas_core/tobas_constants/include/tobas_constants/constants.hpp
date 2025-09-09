@@ -60,9 +60,9 @@ static constexpr char kIcePropulsionSystemCmdTopic[] = "command/ice_propulsion_s
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 // High Command
 static constexpr char kRateCmdTopic[] = "command/rate";
-static constexpr char kRateThrottleCmdTopic[] = "command/rate_throttle";
+static constexpr char kRateThrotCmdTopic[] = "command/rate_throttle";
 static constexpr char kAngleCmdTopic[] = "command/angle";
-static constexpr char kAngleThrottleCmdTopic[] = "command/angle_throttle";
+static constexpr char kAngleThrotCmdTopic[] = "command/angle_throttle";
 static constexpr char kAccelCmdTopic[] = "command/accel";
 static constexpr char kAccelYawCmdTopic[] = "command/accel_yaw";
 static constexpr char kAccelPitchYawCmdTopic[] = "command/accel_pitch_yaw";
