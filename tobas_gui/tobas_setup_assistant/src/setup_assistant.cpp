@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
@@ -422,7 +421,7 @@ void SetupAssistantWidget::onNewButtonClicked()
 
   // UADFがホーム以下のROSパッケージ内に存在する場合はパッケージをビルドしてパスを通す
   const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
-  if (pkg_path && pkg_path.value().string().starts_with(rcutils_get_home_dir())) {
+  if (pkg_path && pkg_path.value().string().starts_with(ros2::getHomeDir())) {
     const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
     if (!pkg_name) {
       qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
@@ -477,7 +476,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     qWarning() << property_client_.errorMessage();
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
-      last_opened_dir = rcutils_get_home_dir();
+      last_opened_dir = ros2::getHomeDir();
     }
   }
 

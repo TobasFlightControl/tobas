@@ -2,13 +2,14 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QMenu>
 #include <QMessageBox>
 #include <boost/polymorphic_cast.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
+
+#include <tobas_ros2_tools/util.hpp>
 
 #include "ui_urdf_builder_panel.h"
 
@@ -349,7 +350,7 @@ QString URDFBuilderPanel::getLastOpenedDir()
   std::string last_opened_dir;
   if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0) {
     RCLCPP_WARN(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::getHomeDir();
   }
   return QString::fromStdString(last_opened_dir);
 }

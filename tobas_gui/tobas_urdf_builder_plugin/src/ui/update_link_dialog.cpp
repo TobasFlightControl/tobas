@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -10,6 +9,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/console.hpp>
 
 #include "ui_update_link_dialog.h"
@@ -441,7 +441,7 @@ void UpdateLinkDialog::onVisualGeometryMeshBrowseButtonClicked()
   std::string last_dir;
   if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
-    last_dir = rcutils_get_home_dir();
+    last_dir = ros2::getHomeDir();
   }
 
   // メッシュファイルのパスを取得
@@ -474,7 +474,7 @@ void UpdateLinkDialog::onCollisionGeometryMeshBrowseButtonClicked()
   std::string last_dir;
   if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0) {
     PRINT_WARN(property_client_.errorMessage());
-    last_dir = rcutils_get_home_dir();
+    last_dir = ros2::getHomeDir();
   }
 
   // メッシュファイルのパスを取得

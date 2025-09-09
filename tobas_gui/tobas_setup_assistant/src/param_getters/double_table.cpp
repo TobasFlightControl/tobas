@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <rcutils/env.h>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPushButton>
@@ -11,6 +10,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 
@@ -230,7 +230,7 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
   std::string last_opened_dir;
   if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::getHomeDir();
   }
 
   const auto options = QFileDialog::DontUseNativeDialog;

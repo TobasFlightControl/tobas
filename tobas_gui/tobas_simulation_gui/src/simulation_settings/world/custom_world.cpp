@@ -1,11 +1,11 @@
 #include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
 
-#include <rcutils/env.h>
 #include <QFileDialog>
 #include <QHBoxLayout>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/path.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 #include "tobas_simulation_gui/constants.hpp"
 
@@ -41,7 +41,7 @@ void CustomWorldWidget::onBrowseButtonClicked()
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = rcutils_get_home_dir();
+    last_opened_dir = ros2::getHomeDir();
   }
 
   // worldのパスを取得

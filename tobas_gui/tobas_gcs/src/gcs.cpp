@@ -1,6 +1,5 @@
 #include "tobas_gcs/gcs.hpp"
 
-#include <rcutils/env.h>
 #include <QApplication>
 #include <QButtonGroup>
 #include <QFileDialog>
@@ -197,7 +196,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = ros2::expandUser(tobas::kColconWSPathHome) / "src";
     if (!fs::is_directory(last_opened_dir)) {
-      last_opened_dir = rcutils_get_home_dir();
+      last_opened_dir = ros2::getHomeDir();
     }
   }
 

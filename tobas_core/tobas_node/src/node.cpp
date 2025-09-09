@@ -1,8 +1,7 @@
 #include "tobas_node/node.hpp"
 
-#include <rcutils/env.h>
-
 #include <tobas_constants/constants.hpp>
+#include <tobas_ros2_tools/util.hpp>
 
 using namespace std;
 
@@ -236,15 +235,9 @@ string BaseNode::createID(const char* file, int line)
 
 rclcpp::NodeOptions BaseNode::createNodeOptions(rclcpp::NodeOptions options)
 {
-  const char* clock_type = nullptr;
-  const char* error = rcutils_get_env("TOBAS_CLOCK_TYPE", &clock_type);
+  const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
 
-  if (error) {
-    cerr << "Failed to get clock type: " << error << endl;
-    return options;
-  }
-
-  if (strlen(clock_type) == 0) {
+  if (!clock_type) {
     return options;
   }
 
