@@ -4,6 +4,8 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+#include <tobas_qt_tools/widgets/label.hpp>
+
 namespace gui
 {
 namespace sa
@@ -24,6 +26,7 @@ protected:
 private:
   QPushButton* save_button_;
   QLineEdit* file_name_;
+  qt::Label* warn_text_;
 
 private Q_SLOTS:
   void onFilePathChanged();

@@ -1,11 +1,12 @@
 #include "tobas_setup_assistant/save_project_dialog.hpp"
 
-#include <QDebug>
 #include <QDialogButtonBox>
 #include <QEvent>
+#include <QGridLayout>
 #include <QKeyEvent>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
@@ -27,6 +28,14 @@ SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const 
   file_name_ = findChild<QLineEdit*>("fileNameEdit");
   file_name_->installEventFilter(this);
 
+  warn_text_ = new qt::Label();
+  warn_text_->setTextColor(Qt::red);
+
+  // Insert the warning label at the bottom of the grid layout
+  const auto grid = qt::qPointerCast<QGridLayout>(layout());
+  grid->addWidget(warn_text_, grid->rowCount(), 0, 1, grid->columnCount());
+
+  // Connection
   connect(this, &super::directoryEntered, this, &self::onFilePathChanged);
   connect(file_name_, &QLineEdit::textChanged, this, &self::onFilePathChanged);
 }
@@ -56,21 +65,21 @@ void SaveProjectDialog::onFilePathChanged()
 
   // ホームディレクトリ以下でなければならない
   if (!dir.startsWith(ros2::getHomeDir())) {
-    qWarning() << "The directory is not under the home directory.";
+    warn_text_->setText("The Tobas project must be located under your home directory.");
     save_button_->setEnabled(false);
     return;
   }
 
   // srcディレクトリ以下でなければならない
   if (!dir.contains("/src/") && !dir.endsWith("/src")) {
-    qWarning() << "The directory is not under a \"src\" directory.";
+    warn_text_->setText("The Tobas project must be located under a \"src\" directory.");
     save_button_->setEnabled(false);
     return;
   }
 
   // ファイル名が設定されていなければならない
   if (file_name.isEmpty()) {
-    qWarning() << "The file name is empty.";
+    warn_text_->setText("Please specify a file name.");
     save_button_->setEnabled(false);
     return;
   }
@@ -78,18 +87,19 @@ void SaveProjectDialog::onFilePathChanged()
   // 拡張子が設定されている場合は決められた拡張子でなければならない
   if (file_name.contains('.')) {
     if (!file_name.endsWith(tobas::kProjectExtension)) {
-      qWarning() << "Invalid extension.";
+      warn_text_->setText("Invalid file extension.");
       save_button_->setEnabled(false);
       return;
     }
 
     if (qt::getBaseName(file_name).isEmpty()) {
-      qWarning() << "The base name of the file is empty.";
+      warn_text_->setText("The base name of the file is empty.");
       save_button_->setEnabled(false);
       return;
     }
   }
 
+  warn_text_->clear();
   save_button_->setEnabled(true);
 }
 }  // namespace sa
