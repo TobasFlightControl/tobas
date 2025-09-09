@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(magic_enum_ament REQUIRED)
+find_package(tobas_string_tools REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_property_tree REQUIRED)
 find_package(tobas_node REQUIRED)
@@ -26,6 +27,7 @@ find_package(tobas_real_msgs REQUIRED)
 set(AMENT_DEPENDENCIES
     sensor_msgs
     magic_enum_ament
+    tobas_string_tools
     tobas_linux
     tobas_property_tree
     tobas_node

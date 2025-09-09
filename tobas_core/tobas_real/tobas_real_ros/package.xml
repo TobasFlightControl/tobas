@@ -10,6 +10,7 @@
 
 	<depend>sensor_msgs</depend>
 	<depend>magic_enum_ament</depend>
+	<depend>tobas_string_tools</depend>
 	<depend>tobas_linux</depend>
 	<depend>tobas_property_tree</depend>
 	<depend>tobas_node</depend>
