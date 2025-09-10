@@ -67,7 +67,7 @@ RotorWidget::RotorWidget()
 
 void RotorWidget::reset()
 {
-  blockSignals(true);
+  QSignalBlocker block(this);
 
   text_->clear();
 
@@ -78,8 +78,6 @@ void RotorWidget::reset()
   setCurrentRPMBox(0);
   setTargetRPMBox(0);
   setGainBox(0);
-
-  blockSignals(false);
 }
 
 QString RotorWidget::getText() const
@@ -111,6 +109,7 @@ void RotorWidget::setMaximumRPM(int rpm)
 {
   cur_rpm_meter_->setUpperBound(rpm);
 
+  QSignalBlocker block(tar_rpm_slider_);  // 範囲指定でvalueChangedが発行されるのを防ぐ
   tar_rpm_slider_->setUpperBound(rpm);
   tar_rpm_slider_->setTotalSteps(rpm);  // 1刻み
 }
