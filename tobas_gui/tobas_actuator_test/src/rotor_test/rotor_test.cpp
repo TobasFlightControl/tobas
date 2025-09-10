@@ -233,6 +233,8 @@ bool RotorTestWidget::loadCurrentGains()
 
 void RotorTestWidget::onStartButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onStartButtonClicked");
+
   // アームされていないことを確認
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
@@ -250,6 +252,8 @@ void RotorTestWidget::onStartButtonClicked()
 
 void RotorTestWidget::onStopButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onStopButtonClicked");
+
   stop();
 
   qt::qInfoBox(this, "Rotor test is finished.");
@@ -257,6 +261,8 @@ void RotorTestWidget::onStopButtonClicked()
 
 void RotorTestWidget::onSaveButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onSaveButtonClicked");
+
   const auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
 
   if (!save_gains_sc_->call(req, kWaitForService)) {
@@ -273,13 +279,17 @@ void RotorTestWidget::onSaveButtonClicked()
   qt::qInfoBox(this, "Control gains are saved successfully.");
 }
 
-void RotorTestWidget::onTargetRPMChanged(int, size_t)
+void RotorTestWidget::onTargetRPMChanged(int rpm, size_t ch)
 {
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "RotorTestWidget::onTargetRPMChanged(" << rpm << ", " << ch << ")");
+
   publishTargetSppeds();
 }
 
 void RotorTestWidget::onGainChanged(int gain, size_t ch)
 {
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "RotorTestWidget::onGainChanged(" << gain << ", " << ch << ")");
+
   const auto req = std::make_shared<tobas_msgs::srv::SetRotorControlGains::Request>();
   req->gains.emplace_back();
   req->gains.back().channel = ch;
