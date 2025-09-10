@@ -1,5 +1,7 @@
 #include "tobas_actuator_test/rotor_test/rotor_test.hpp"
 
+#include <boost/polymorphic_pointer_cast.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_math/core.hpp>

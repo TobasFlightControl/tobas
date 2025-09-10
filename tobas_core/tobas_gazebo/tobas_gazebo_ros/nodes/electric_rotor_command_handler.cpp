@@ -1,3 +1,5 @@
+#include <boost/polymorphic_pointer_cast.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
@@ -84,7 +86,7 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
     // Check link name
     if (!throttle_pubs_.contains(speed.link_name)) {
       TOBAS_ERROR("Electric rotor \"" + speed.link_name + "\" does not exist.");
-      return;
+      continue;
     }
 
     // Create throttle message
