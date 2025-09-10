@@ -40,9 +40,8 @@ void ListWidget::remove(QListWidgetItem* item)
 
 void ListWidget::deselect()
 {
-  blockSignals(true);
+  const QSignalBlocker block(this);
   setCurrentRow(-1);
-  blockSignals(false);
 }
 
 void ListWidget::shrinkToContents()

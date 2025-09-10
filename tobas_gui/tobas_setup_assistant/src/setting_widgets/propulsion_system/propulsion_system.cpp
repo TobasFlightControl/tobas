@@ -161,9 +161,9 @@ void PropulsionSystemWidget::setCurrentButtonIndex(int index)
   const auto new_btn = type_btn_group_->button(index);
 
   // 全てのシグナルをブロック (nullptrを渡しても問題ない)
-  QSignalBlocker block_group(type_btn_group_);
-  QSignalBlocker block_old_btn(old_btn);
-  QSignalBlocker block_new_btn(new_btn);
+  const QSignalBlocker block_group(type_btn_group_);
+  const QSignalBlocker block_old_btn(old_btn);
+  const QSignalBlocker block_new_btn(new_btn);
 
   // 新しいボタンにチェック (exclusiveなのでold_btnは自動的にチェックが外れる)
   new_btn->setChecked(true);

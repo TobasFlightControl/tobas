@@ -57,16 +57,14 @@ void IntSliderTextWidget::onLineEditReturnPressed()
 
 void IntSliderTextWidget::setSliderValue(int value)
 {
-  slider_->blockSignals(true);
+  const QSignalBlocker block(slider_);
   slider_->setValue(value);
-  slider_->blockSignals(false);
 }
 
 void IntSliderTextWidget::setLineEditText(int value)
 {
-  line_edit_->blockSignals(true);
+  const QSignalBlocker block(line_edit_);
   line_edit_->setText(QString::number(value));
-  line_edit_->blockSignals(false);
 }
 
 DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, int decimals, QWidget* parent)
@@ -119,15 +117,13 @@ void DoubleSliderTextWidget::onLineEditReturnPressed()
 
 void DoubleSliderTextWidget::setSliderValue(double value)
 {
-  slider_->blockSignals(true);
+  const QSignalBlocker block(slider_);
   slider_->setValue(value);
-  slider_->blockSignals(false);
 }
 
 void DoubleSliderTextWidget::setLineEditText(double value)
 {
-  line_edit_->blockSignals(true);
+  const QSignalBlocker block(line_edit_);
   line_edit_->setText(QString::number(value, 'f', decimals_));
-  line_edit_->blockSignals(false);
 }
 }  // namespace qt
