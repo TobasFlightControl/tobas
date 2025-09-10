@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <boost/polymorphic_pointer_cast.hpp>
+
 using namespace std;
 
 namespace tobas
@@ -113,5 +115,25 @@ double ElectricPropulsionSystemConfig::thrustFromThrottle(const std::string& lin
   const auto rotor = getRotor(link_name);
   const auto input_voltage = battery.nominal_voltage * throttle;
   return rotor->thrustFromVoltage(input_voltage);
+}
+
+ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name)
+{
+  const auto it = rotors.find(link_name);
+  if (it == rotors.end()) {
+    cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
+    return nullptr;
+  }
+  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(it->second);
+}
+
+ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name) const
+{
+  const auto it = rotors.find(link_name);
+  if (it == rotors.end()) {
+    cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
+    return nullptr;
+  }
+  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(it->second);
 }
 }  // namespace tobas

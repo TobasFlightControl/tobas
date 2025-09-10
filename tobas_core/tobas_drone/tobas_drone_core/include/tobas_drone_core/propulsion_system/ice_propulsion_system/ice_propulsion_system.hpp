@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/polymorphic_pointer_cast.hpp>
-
 #include "../propulsion_system.hpp"
 #include "./engine.hpp"
 #include "./ice_rotor.hpp"
@@ -35,8 +33,8 @@ public:
 
   double thrustFromThrottle(const std::string& link_name, double throttle) override;
 
-  inline IceRotorConfig::SharedPtr getRotor(const std::string& link_name);
-  inline IceRotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;
+  IceRotorConfig::SharedPtr getRotor(const std::string& link_name);
+  IceRotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;
 
 private:
   std::optional<double> max_engine_speed_;
@@ -55,14 +53,4 @@ private:
   double calc_f(double throttle) const;
   double calc_k() const;
 };
-
-inline IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name)
-{
-  return boost::polymorphic_pointer_downcast<IceRotorConfig>(rotors.at(link_name));
-}
-
-inline IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name) const
-{
-  return boost::polymorphic_pointer_downcast<IceRotorConfig>(rotors.at(link_name));
-}
 }  // namespace tobas

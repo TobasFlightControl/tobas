@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <boost/polymorphic_pointer_cast.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_nlp/newton_1d.hpp>
 
@@ -187,5 +189,25 @@ double IcePropulsionSystemConfig::calc_k() const
     res += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::cube(irotor->gear_ratio);
   }
   return res;
+}
+
+IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name)
+{
+  const auto it = rotors.find(link_name);
+  if (it == rotors.end()) {
+    cerr << "ICE rotor link \"" << link_name << "\" is not found." << endl;
+    return nullptr;
+  }
+  return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);
+}
+
+IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name) const
+{
+  const auto it = rotors.find(link_name);
+  if (it == rotors.end()) {
+    cerr << "ICE rotor link \"" << link_name << "\" is not found." << endl;
+    return nullptr;
+  }
+  return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);
 }
 }  // namespace tobas
