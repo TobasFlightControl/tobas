@@ -3,15 +3,15 @@
 ## Branches
 
 - `${ros-distribution}`: 各 ROS ディストリビューションにおいて動作が保証された最新のブランチ．
-- `${ros-distribution}-develop`: `${ros-distribution}`に対する開発用ブランチ．動作は保証されない．
-- `feature/`: 機能実装用のブランチ．`${ros-distribution}-develop`から派生する．マージ後に削除する．
+- `${ros-distribution}-dev`: `${ros-distribution}`に対する開発用ブランチ．動作は保証されない．
+- `feature/`: 機能実装用のブランチ．`${ros-distribution}-dev`から派生する．マージ後に削除する．
 - `release/`: 後方互換性が保証された各リリース用のブランチ．`${ros-distribution}`から派生する．ここからリリース`vx.x.x`を作る．
 - `hotfix/`: 緊急バグ対応用ブランチ．`${ros-distribution}`またはリリースブランチから派生し，マージ後に削除する．
 
 ### Example Branch Names
 
 - `jazzy`
-- `jazzy-develop`
+- `jazzy-dev`
 - `feature/nonlinear-mpc`
 - `release/v2.5`
 - `hotfix/mag-drivers`
