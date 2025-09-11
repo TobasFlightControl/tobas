@@ -55,9 +55,7 @@ def generate_launch_description():
     )
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                PathJoinSubstitution([user_py_pkg_share, "launch", "real_interface.launch.py"])
-            )
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "real.launch.py"]))
         )
     )
 

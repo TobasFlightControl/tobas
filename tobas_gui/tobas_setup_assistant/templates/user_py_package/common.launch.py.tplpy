@@ -7,7 +7,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Please add the nodes that run on both the actual hardware and exposes external interfaces.
+    # Please add the nodes that run both on real hardware and in simulation.
 
     # ld.add_action(
     #     Node(

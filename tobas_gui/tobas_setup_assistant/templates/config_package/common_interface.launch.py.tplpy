@@ -108,9 +108,7 @@ def generate_launch_description():
     )
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                PathJoinSubstitution([user_py_pkg_share, "launch", "common_interface.launch.py"])
-            )
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "common.launch.py"]))
         )
     )
 

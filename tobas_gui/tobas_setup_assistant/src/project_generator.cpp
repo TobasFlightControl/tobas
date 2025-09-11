@@ -66,24 +66,18 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   }
 
   // ユーザ用Msgパッケージを作成
-  if (!fs::is_directory(proj_paths_.userMsgPkgPath())) {
-    if (!generateUserMsgPackage(tpl_data)) {
-      return false;
-    }
+  if (!generateUserMsgPackage(tpl_data)) {
+    return false;
   }
 
   // ユーザ用C++パッケージを作成
-  if (!fs::is_directory(proj_paths_.userCppPkgPath())) {
-    if (!generateUserCppPackage(tpl_data)) {
-      return false;
-    }
+  if (!generateUserCppPackage(tpl_data)) {
+    return false;
   }
 
   // ユーザ用Pythonパッケージを作成
-  if (!fs::is_directory(proj_paths_.userPyPkgPath())) {
-    if (!generateUserPyPackage(tpl_data)) {
-      return false;
-    }
+  if (!generateUserPyPackage(tpl_data)) {
+    return false;
   }
 
   // バックアップファイルを作成
@@ -569,10 +563,8 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
   user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.cfg.tplini", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.py.tplpy", pkg_path, false);
-  user_py_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
   user_py_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
   user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
 
@@ -885,7 +877,7 @@ bool ProjectGenerator::generateModifiedUrdf()
 
 bool ProjectGenerator::createEmptyFile(const fs::path& file_path)
 {
-  const auto res = path::createFilePath(file_path);
+  const auto res = path::createFilePath(file_path, true);
   if (!res) {
     qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
     return false;

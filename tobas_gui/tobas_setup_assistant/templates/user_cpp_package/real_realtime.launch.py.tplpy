@@ -6,6 +6,6 @@ from launch import LaunchDescription
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Please add nodes that runs only on the actual hardware and requires real-time performance.
+    # Please add nodes that runs only on real hardware and has real-time requirements.
 
     return ld
