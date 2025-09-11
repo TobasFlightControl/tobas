@@ -60,7 +60,12 @@ void SimulationWidget::reset()
   resetDynamicConfig();
   resetCommanders();
 
-  launch_pid_ = -1;
+  if (isRunning()) {
+    killGazeboLaunch(launch_pid_);
+    launch_pid_ = -1;
+    qWarning() << "Gazebo was forcibly shut down.";
+  }
+
   arming_.reset();
 
   start_stop_button_->setChecked(false);
@@ -112,7 +117,7 @@ bool SimulationWidget::isRunning() const
 void SimulationWidget::closeEvent(QCloseEvent* event)
 {
   // 親ウィジェットを閉じるときに子プロセスを破棄
-  if (launch_pid_ >= 0) {
+  if (isRunning()) {
     killGazeboLaunch(launch_pid_);
   }
 
@@ -144,6 +149,7 @@ bool SimulationWidget::startSITL()
   progress.setLabelText("Launching Gazebo.");
   if (!launchGazebo(true)) {
     progress.close();
+    reset();
     return false;
   }
   progress.progressStep();
@@ -152,6 +158,7 @@ bool SimulationWidget::startSITL()
   progress.setLabelText("Starting dynamic configurations.");
   if (!startDynamicConfig()) {
     progress.close();
+    reset();
     return false;
   }
   progress.progressStep();
@@ -160,6 +167,7 @@ bool SimulationWidget::startSITL()
   progress.setLabelText("Starting commanders.");
   if (!startCommanders()) {
     progress.close();
+    reset();
     return false;
   }
   progress.progressStep();
