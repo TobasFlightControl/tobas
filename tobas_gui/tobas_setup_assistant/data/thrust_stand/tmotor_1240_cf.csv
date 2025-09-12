@@ -1,6 +1,7 @@
 # https://store.tmotor.com/product/antigravity-mn2806-evo-motor.html
 # Type: MN2806 EVO
 # Propeller: P12
+# Battery: 4S
 
 RPM,Thrust [g],Torque [Nm],Thrust,Torque,Moment Constant [m]
 2620,161.96,0.03,1.588285034,0.03,0.018888297

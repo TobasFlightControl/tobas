@@ -1,6 +1,7 @@
-# https://store.tmotor.com/product/antigravity-mn2806-evo-motor.html
+# https://store.tmotor.com/product/mn5006-kv300-motor-antigravity-type.html
 # Type: MN5006 KV450
 # Propeller: T-MOTOR P14*4.8" CF
+# Battery: 6S
 
 RPM,Thrust [g],Torque [Nm],Thrust,Torque,Moment Constant [m]
 3983,610,0.11,5.9820565,0.11,0.018388325
