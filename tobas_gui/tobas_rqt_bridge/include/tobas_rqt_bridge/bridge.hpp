@@ -1,9 +1,7 @@
 #pragma once
 
 #include <QObject>
-
-#include <tobas_ros2_tools/definitions.hpp>
-#include <tobas_ros2_tools/qos.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include "./declare.hpp"
 
@@ -35,6 +33,7 @@ Q_SIGNALS:
   void preArmCheckReceived(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& msg);
   void postArmCheckReceived(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& msg);
   void rosbagStateReceived(const tobas_msgs::msg::RosbagState::ConstSharedPtr& msg);
+  void heartbeatReceived(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& msg);
   void rawImuReceived(const tobas_msgs::Imu::ConstSharedPtr& msg);
   void rawMagReceived(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
 
@@ -48,11 +47,6 @@ private:
   std::map<std::string, rclcpp::SubscriptionBase::SharedPtr> subscriptions_;
 
   template <typename MsgType, auto SignalType>
-  void add(
-    const std::string& ns,
-    const std::string& topic,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
+  void add(const std::string& ns, const std::string& topic, bool add_remote_iface_ns = true);
 };
 }  // namespace gui

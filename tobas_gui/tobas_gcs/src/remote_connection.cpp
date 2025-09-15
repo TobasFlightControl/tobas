@@ -1,0 +1,102 @@
+#include "tobas_gcs/remote_connection.hpp"
+
+#include <QApplication>
+#include <QStyle>
+#include <QVBoxLayout>
+
+#include <tobas_qt_tools/util.hpp>
+
+#include "tobas_gcs/util.hpp"
+
+namespace gui
+{
+namespace gcs
+{
+RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : bridge_(bridge)
+{
+  setFixedWidth(kWidgetWidth);
+
+  const auto rsrc_dir = getResourceDir() / "connection";
+  connected_ = QPixmap(QString::fromStdString(rsrc_dir / "connected.png"));
+  disconnected_ = QPixmap(QString::fromStdString(rsrc_dir / "disconnected.png"));
+  unknown_ = QPixmap(QString::fromStdString(rsrc_dir / "unknown.png"));
+
+  icon_ = new QLabel();
+  icon_->setFixedHeight(kIconHeight);
+
+  label_ = new QLabel();
+
+  timeout_timer_.setInterval(kTimeout);
+
+  // Default
+  setUnknown();
+
+  // Layout
+  const auto rows = new QVBoxLayout();
+  qt::addWidgetCenter(icon_, rows);
+  qt::addWidgetCenter(label_, rows);
+  setLayout(rows);
+
+  // Connection
+  connect(&timeout_timer_, &QTimer::timeout, this, &self::onTimeout);
+}
+
+void RemoteConnectionWidget::start()
+{
+  if (is_running_) {
+    return;
+  }
+
+  heartbeat_conn_ = connect(&bridge_, &RosQtBridge::heartbeatReceived, this, &self::heartbeatCb, Qt::QueuedConnection);
+  timeout_timer_.start();
+
+  is_running_ = true;
+}
+
+void RemoteConnectionWidget::stop()
+{
+  if (!is_running_) {
+    return;
+  }
+
+  disconnect(heartbeat_conn_);
+  timeout_timer_.stop();
+
+  is_running_ = false;
+}
+
+void RemoteConnectionWidget::setConnected()
+{
+  setIconPixmap(connected_);
+  label_->setText("Connected");
+}
+
+void RemoteConnectionWidget::setDisonnected()
+{
+  setIconPixmap(disconnected_);
+  label_->setText("Not Connected");
+}
+
+void RemoteConnectionWidget::setUnknown()
+{
+  setIconPixmap(unknown_);
+  label_->setText("Waiting");
+}
+
+void RemoteConnectionWidget::setIconPixmap(const QPixmap& pixmap)
+{
+  icon_->setPixmap(pixmap.scaled(icon_->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+void RemoteConnectionWidget::heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPtr&)
+{
+  setConnected();
+  timeout_timer_.start();
+}
+
+void RemoteConnectionWidget::onTimeout()
+{
+  setDisonnected();
+}
+}  // namespace gcs
+}  // namespace gui

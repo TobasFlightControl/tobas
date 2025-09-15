@@ -3,7 +3,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/qos.hpp>
 
 namespace gui
 {
@@ -33,16 +33,25 @@ void RosQtBridge::initialize(const std::string& ns)
   add<tobas_msgs::msg::PreArmCheck, &self::preArmCheckReceived>(ns, tobas::kPreArmCheckTopic);
   add<tobas_msgs::msg::PostArmCheck, &self::postArmCheckReceived>(ns, tobas::kPostArmCheckTopic);
   add<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, tobas::kRosbagStateTopic);
+  add<tobas_msgs::msg::Heartbeat, &self::heartbeatReceived>(ns, tobas::kHeartbeatTopic, false);
   add<tobas_msgs::Imu, &self::rawImuReceived>(ns, real::kImuRawTopic);
   add<tobas_msgs::MagneticField, &self::rawMagReceived>(ns, real::kMagTopic);
 }
 
 template <typename MsgType, auto SignalType>
-void RosQtBridge::add(const std::string& ns, const std::string& topic, bool latch, bool reliable, size_t queue_size)
+void RosQtBridge::add(const std::string& ns, const std::string& topic, bool add_remote_iface_ns)
 {
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  std::string remote_topic;
+  if (add_remote_iface_ns) {
+    remote_topic = path::join("/", ns, tobas::kRemoteIfaceTopicNS, topic);
+  }
+  else {
+    remote_topic = path::join("/", ns, topic);
+  }
+
+  const auto qos = ros2::makeQoS(false, false, 1);  // 必ず受け取れる設定
   const auto cb = [this](const typename MsgType::ConstSharedPtr& msg) { (this->*SignalType)(msg); };
-  const auto remote_topic = path::join("/", ns, tobas::kRemoteIfaceTopicNS, topic);
+
   subscriptions_[topic] = node_->create_subscription<MsgType>(remote_topic, qos, cb);
 }
 }  // namespace gui

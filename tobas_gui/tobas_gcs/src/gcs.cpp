@@ -37,8 +37,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
 {
-  const auto rsrc_path = getPkgShareDir() / "resources";
-
   // Applications
   sensor_calib_ = new sc::SensorCalibrationWidget(node, bridge_, drone_);
   actuator_test_ = new at::ActuatorTestWidget(node, bridge_, tree_, drone_);
@@ -48,12 +46,13 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   simulation_ = new sim::SimulationWidget(node, bridge_);
 
   // TODO: 別々のアイコンを設定
-  const auto sensor_calib_btn = new AppButton("Sensor Calib", QString::fromStdString(rsrc_path / "app.png"));
-  const auto actuator_test_btn = new AppButton("Actuator Test", QString::fromStdString(rsrc_path / "app.png"));
-  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "app.png"));
-  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "app.png"));
-  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "app.png"));
-  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "app.png"));
+  const auto rsrc_dir = getResourceDir();
+  const auto sensor_calib_btn = new AppButton("Sensor Calib", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto actuator_test_btn = new AppButton("Actuator Test", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_dir / "app.png"));
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(sensor_calib_);
@@ -72,6 +71,10 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   btn_group->addButton(flight_log_btn, btn_id++);
   btn_group->addButton(simulation_btn, btn_id++);
   btn_group->buttons().first()->setChecked(true);
+
+  // Connection checker
+  remote_conn_ = new RemoteConnectionWidget(bridge_);
+  remote_conn_->setMaximumHeight(sensor_calib_btn->height());
 
   // Package manager
   proj_path_ = new QLineEdit();
@@ -106,6 +109,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   header_cols->addWidget(flight_log_btn, 1);
   header_cols->addWidget(simulation_btn, 1);
   header_cols->addStretch();
+  header_cols->addWidget(remote_conn_);
   header_cols->addLayout(pkg_rows);
   qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // スペースが足りなければ潰れる
   header_cols->addWidget(restart_btn_);
@@ -132,6 +136,10 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
 
 void GroundControlStationWidget::reset()
 {
+  remote_conn_->stop();
+  remote_conn_->setUnknown();
+  remote_conn_->start();
+
   sensor_calib_->reset();
   actuator_test_->reset();
   control_system_->reset();
@@ -496,6 +504,11 @@ void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QS
 void GroundControlStationWidget::onSimRealStateChanged()
 {
   RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onSimRealStateChanged");
+
+  // 遠隔接続状態をリセット
+  remote_conn_->stop();
+  remote_conn_->setUnknown();
+  remote_conn_->start();
 
   // シミュレーションウィジェット以外リセット
   sensor_calib_->reset();

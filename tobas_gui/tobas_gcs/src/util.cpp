@@ -14,5 +14,10 @@ fs::path getPkgShareDir()
 {
   return ament_index_cpp::get_package_share_directory(kPackageName);
 }
+
+fs::path getResourceDir()
+{
+  return getPkgShareDir() / "resources";
+}
 }  // namespace gcs
 }  // namespace gui

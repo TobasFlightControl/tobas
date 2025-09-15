@@ -22,6 +22,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 
 #include "./config_env_parser.hpp"
+#include "./remote_connection.hpp"
 #include "./restart_button.hpp"
 #include "./restart_thread.hpp"
 #include "./shutdown_button.hpp"
@@ -59,7 +60,6 @@ private:
   uadf::Model uadf_;
   kdl::Tree tree_;
   tobas::Drone drone_;
-  std::string host_;
 
   ptree::PropertyClient property_client_;
   ssh::SSHClient ssh_client_;
@@ -69,6 +69,8 @@ private:
   cmn::RemoteProjectBuilder remote_proj_builder_;
   cmn::SshEndpoint ssh_endpoint_;
   ConfigurationEnvParser config_env_parser_;
+
+  RemoteConnectionWidget* remote_conn_;
 
   QLineEdit* proj_path_;
   QPushButton* load_btn_;
