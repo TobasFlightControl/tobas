@@ -51,6 +51,8 @@ static constexpr char kPostArmCheckTopic[] = "postarm_check";
 static constexpr char kDisturbanceForceTopic[] = "disturbance_force";
 static constexpr char kLandedTopic[] = "landed";
 static constexpr char kRosbagStateTopic[] = "rosbag_state";
+static constexpr char kHeartbeatTopic[] = "heartbeat";
+static constexpr char kRemoteConnectionTopic[] = "remote_connection";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Low Command

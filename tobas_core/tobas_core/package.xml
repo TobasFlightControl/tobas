@@ -13,6 +13,7 @@
 	<exec_depend>tobas_common</exec_depend>
 	<exec_depend>tobas_components_rt</exec_depend>
 	<exec_depend>tobas_config_servers</exec_depend>
+	<exec_depend>tobas_connection_monitor</exec_depend>
 	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_cui</exec_depend>
