@@ -22,6 +22,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 
 #include "./config_env_parser.hpp"
+#include "./network_checker.hpp"
 #include "./remote_connection.hpp"
 #include "./restart_button.hpp"
 #include "./restart_thread.hpp"
@@ -56,6 +57,7 @@ protected:
 private:
   const rclcpp::Node::SharedPtr node_;
   RosQtBridge bridge_;
+  const NetworkChecker network_checker_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;

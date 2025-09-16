@@ -1,6 +1,5 @@
 #include "tobas_gcs/remote_connection.hpp"
 
-#include <QDebug>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/event.hpp>
@@ -45,7 +44,8 @@ void RemoteConnectionWidget::start()
 
   setUnknown();
 
-  heartbeat_conn_ = connect(&bridge_, &RosQtBridge::heartbeatReceived, this, &self::heartbeatCb, Qt::QueuedConnection);
+  heartbeat_conn_ =
+    connect(&bridge_, &RosQtBridge::remoteHeartbeatReceived, this, &self::heartbeatCb, Qt::QueuedConnection);
   timeout_timer_.start();
 
   is_running_ = true;

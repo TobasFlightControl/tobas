@@ -31,6 +31,7 @@ namespace gcs
 GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
   : node_(node)
   , bridge_(node)
+  , network_checker_(this, bridge_)
   , property_client_(node, kPackageName)
   , ssh_client_(node)
   , remote_proj_builder_(node)
@@ -159,7 +160,7 @@ void GroundControlStationWidget::reset(bool include_simulation)
 void GroundControlStationWidget::updateInternalDataStructures()
 {
   // まずトピックを貼り替えて以前の機体でのコールバックを全て吐ききる
-  bridge_.initialize(drone_.name);
+  bridge_.initializeScopedTopics(drone_.name);
   qt::processAllQueuedEvents();
 
   if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SSHClient::kNoError) {
@@ -292,7 +293,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
           "This operation will restart the flight control software, "
           "so it can only be performed when the aircraft is completely stationary. "
           "Do you want to proceed?",
-          qt::QMessageLevel::WARN)) {
+          qt::WARN)) {
       return;
     }
   }
@@ -431,7 +432,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
   }
 
   // 本当に再起動してよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::WARN)) {
     restart_btn_->setChecked(false);
     return;
   }
@@ -459,7 +460,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
   }
 
   // 本当にシャットダウンしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC?", qt::WARN)) {
     shutdown_btn_->setChecked(false);
     return;
   }
