@@ -495,10 +495,6 @@ void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QS
     shutdown_btn_->setChecked(false);
     return;
   }
-
-  // GUIを完全に落とす
-  close();
-  QApplication::quit();
 }
 
 void GroundControlStationWidget::onSimRealStateChanged()
