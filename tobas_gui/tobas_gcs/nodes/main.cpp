@@ -7,8 +7,6 @@
 #include "tobas_gcs/gcs.hpp"
 #include "tobas_gcs/util.hpp"
 
-namespace fs = std::filesystem;
-
 static void sigIntHandler(int)
 {
   QApplication::quit();

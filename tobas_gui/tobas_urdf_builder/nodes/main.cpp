@@ -7,8 +7,6 @@
 #include <tobas_urdf_builder/urdf_builder.hpp>
 #include <tobas_urdf_builder/util.hpp>
 
-namespace fs = std::filesystem;
-
 static void sigIntHandler(int)
 {
   QApplication::quit();
