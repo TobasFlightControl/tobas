@@ -152,14 +152,16 @@ void GroundControlStationWidget::reset()
 
 void GroundControlStationWidget::updateInternalDataStructures()
 {
-  reset();
+  // まずトピックを貼り替えて以前の機体でのコールバックを全て吐ききる
+  bridge_.initialize(drone_.name);
+  qt::processAllQueuedEvents();
 
   if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SSHClient::kNoError) {
     qt::qErrorBox(this, "Failed to set SSH endpoint:\n" + QString(ssh_client_.errorMessage()));
     return;
   }
 
-  bridge_.initialize(drone_.name);
+  reset();
 
   sensor_calib_->updateInternalDataStructures();
   actuator_test_->updateInternalDataStructures();
