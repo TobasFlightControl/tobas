@@ -81,11 +81,12 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   TOBAS_CHECK(marker_array_displays.size() == 1);
   const auto& ellipsoid_display = marker_array_displays.at(0);
 
-  samples_display->subProp("Topic")->setValue(kSampledPointsTopic);
-  used_display->subProp("Topic")->setValue(kUsedPointsTopic);
-  removed_display->subProp("Topic")->setValue(kRemovedPointsTopic);
-  calibrated_display->subProp("Topic")->setValue(kCalibratedPointsTopic);
-  ellipsoid_display->subProp("Topic")->setValue(kEllipsoidTopic);
+  static constexpr char kTopicProperty[] = "Topic";
+  samples_display->subProp(kTopicProperty)->setValue(kSampledPointsTopic);
+  used_display->subProp(kTopicProperty)->setValue(kUsedPointsTopic);
+  removed_display->subProp(kTopicProperty)->setValue(kRemovedPointsTopic);
+  calibrated_display->subProp(kTopicProperty)->setValue(kCalibratedPointsTopic);
+  ellipsoid_display->subProp(kTopicProperty)->setValue(kEllipsoidTopic);
 
   samples_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kSampledPointsTopic);
   used_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kUsedPointsTopic);
