@@ -18,11 +18,6 @@ class RemoteConnectionWidget : public QWidget
   using self = RemoteConnectionWidget;
   using super = QWidget;
 
-  static constexpr int kWidgetWidth = 120;
-  static constexpr int kIconHeight = 40;
-
-  static constexpr int kTimeout = 5000;  // [ms]
-
 public:
   explicit RemoteConnectionWidget(const RosQtBridge& bridge);
 

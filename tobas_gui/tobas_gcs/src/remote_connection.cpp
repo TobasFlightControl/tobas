@@ -1,7 +1,5 @@
 #include "tobas_gcs/remote_connection.hpp"
 
-#include <QApplication>
-#include <QStyle>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/util.hpp>
@@ -14,22 +12,18 @@ namespace gcs
 {
 RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : bridge_(bridge)
 {
-  setFixedWidth(kWidgetWidth);
-
   const auto rsrc_dir = getResourceDir() / "connection";
   connected_ = QPixmap(QString::fromStdString(rsrc_dir / "connected.png"));
   disconnected_ = QPixmap(QString::fromStdString(rsrc_dir / "disconnected.png"));
   unknown_ = QPixmap(QString::fromStdString(rsrc_dir / "unknown.png"));
 
   icon_ = new QLabel();
-  icon_->setFixedHeight(kIconHeight);
+  icon_->setFixedSize(120, 40);  // サイズを固定しておかないとピクセルマップが大きく表示されてしまう
+  icon_->setAlignment(Qt::AlignCenter);  // QPixmapをQLabelの中央に配置
 
   label_ = new QLabel();
 
-  timeout_timer_.setInterval(kTimeout);
-
-  // Default
-  setUnknown();
+  timeout_timer_.setInterval(5000);
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -80,7 +74,7 @@ void RemoteConnectionWidget::setDisonnected()
 void RemoteConnectionWidget::setUnknown()
 {
   setIconPixmap(unknown_);
-  label_->setText("Waiting");
+  label_->setText("Connecting...");
 }
 
 void RemoteConnectionWidget::setIconPixmap(const QPixmap& pixmap)
