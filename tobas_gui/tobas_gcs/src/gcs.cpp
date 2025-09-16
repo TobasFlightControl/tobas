@@ -10,6 +10,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
@@ -134,20 +135,25 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
-void GroundControlStationWidget::reset()
+void GroundControlStationWidget::reset(bool include_simulation)
 {
-  remote_conn_->stop();
-  remote_conn_->setUnknown();
-  remote_conn_->start();
+  qt::processAllQueuedEvents();
+
+  remote_conn_->restart();
 
   sensor_calib_->reset();
   actuator_test_->reset();
   control_system_->reset();
   param_tuning_->reset();
   flight_log_->reset();
-  simulation_->reset();
+
+  if (include_simulation) {
+    simulation_->reset();
+  }
 
   arming_.reset();
+
+  qt::processAllQueuedEvents();
 }
 
 void GroundControlStationWidget::updateInternalDataStructures()
@@ -453,7 +459,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
   }
 
   // 本当にシャットダウンしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC?", qt::QMessageLevel::WARN)) {
     shutdown_btn_->setChecked(false);
     return;
   }
@@ -478,10 +484,10 @@ void GroundControlStationWidget::onRestartThreadFinished(bool success, const QSt
     return;
   }
 
-  // TFの時間戻りを避けるために各ウィジェットをリセット
   reset();
 
   qt::qInfoBox(this, "Flight controller is restarted successfully.");
+
   restart_btn_->setChecked(false);
 }
 
@@ -497,27 +503,20 @@ void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QS
     shutdown_btn_->setChecked(false);
     return;
   }
+
+  reset();
+
+  qt::qInfoBox(this, "Flight controller is shut down successfully.");
+
+  shutdown_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onSimRealStateChanged()
 {
   RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onSimRealStateChanged");
 
-  // 遠隔接続状態をリセット
-  remote_conn_->stop();
-  remote_conn_->setUnknown();
-  remote_conn_->start();
-
   // シミュレーションウィジェット以外リセット
-  sensor_calib_->reset();
-  control_system_->reset();
-  param_tuning_->reset();
-  flight_log_->reset();
-
-  arming_.reset();
-
-  // イベントループを進めて画面の更新を確実に反映させる
-  QApplication::processEvents();
+  reset(false);
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

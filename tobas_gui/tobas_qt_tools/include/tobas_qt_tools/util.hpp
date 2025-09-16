@@ -33,7 +33,4 @@ void clearLayout(QLayout* layout);
 
 /* ScrollWidgetを挟んでQVBoxLayoutを作成する． */
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent);
-
-/* キューに入っているイベントを全て処理する． */
-void processAllQueuedEvents();
 }  // namespace qt

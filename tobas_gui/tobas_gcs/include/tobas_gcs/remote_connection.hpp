@@ -23,10 +23,7 @@ public:
 
   void start();
   void stop();
-
-  void setConnected();
-  void setDisonnected();
-  void setUnknown();
+  void restart();
 
 private:
   const RosQtBridge& bridge_;
@@ -43,6 +40,10 @@ private:
   QMetaObject::Connection heartbeat_conn_;
 
   bool is_running_ = false;
+
+  void setConnected();
+  void setDisonnected();
+  void setUnknown();
 
   void setIconPixmap(const QPixmap& pixmap);
 

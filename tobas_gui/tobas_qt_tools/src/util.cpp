@@ -1,8 +1,5 @@
 #include "tobas_qt_tools/util.hpp"
 
-#include <QEventLoop>
-#include <QTimer>
-
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
 namespace qt
@@ -96,12 +93,5 @@ QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent)
   scroll_area->setLayout(rows);
 
   return rows;
-}
-
-void processAllQueuedEvents()
-{
-  QEventLoop loop;
-  QTimer::singleShot(0, &loop, &QEventLoop::quit);  // キューの末尾に入るため全てのイベントが処理されてから抜ける
-  loop.exec(QEventLoop::AllEvents | QEventLoop::ExcludeUserInputEvents);  // ネスト中のユーザ操作を拒否 (必須)
 }
 }  // namespace qt

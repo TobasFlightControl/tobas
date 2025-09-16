@@ -47,7 +47,7 @@ class GroundControlStationWidget : public QWidget
 public:
   explicit GroundControlStationWidget(rclcpp::Node::SharedPtr node);
 
-  void reset();
+  void reset(bool include_simulation = true);
   void updateInternalDataStructures();
 
 protected:

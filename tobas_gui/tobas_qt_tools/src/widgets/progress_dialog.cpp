@@ -6,6 +6,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
 
+#include "tobas_qt_tools/event.hpp"
+
 namespace qt
 {
 ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
@@ -21,7 +23,6 @@ ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* par
 void ProgressDialog::show()
 {
   super::show();
-  reflesh();
   reflesh();
 }
 
@@ -55,7 +56,7 @@ void ProgressDialog::progressStep()
 void ProgressDialog::reflesh()
 {
   // イベントスタックの更新後にスリープすることで画面を更新できる
-  QApplication::processEvents();
+  qt::processAllQueuedEvents();
   QThread::msleep(100);
 }
 }  // namespace qt
