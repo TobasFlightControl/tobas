@@ -596,7 +596,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
 
   // 読み込んでいないパッケージパスが既に存在する場合は置換するかどうかをユーザに確認
   if (proj_path != proj_path_->text() && fs::exists(proj_path.toStdString())) {
-    if (!qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
+    if (!qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", qt::WARN)) {
       return;
     }
     if (fs::remove_all(proj_path.toStdString()) == 0) {

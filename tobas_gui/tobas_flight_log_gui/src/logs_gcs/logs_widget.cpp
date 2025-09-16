@@ -129,7 +129,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
 void FlightLogsWidgetGCS::onCleanButtonClicked()
 {
-  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::WARN)) {
     return;
   }
 
@@ -159,7 +159,7 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 {
   const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
   }
 

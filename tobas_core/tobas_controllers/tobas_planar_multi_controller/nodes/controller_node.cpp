@@ -97,7 +97,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_livelinesses_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVelYaw> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AccelYaw> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AngleThrottle> angle_cmd_sub_;
@@ -163,7 +163,7 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void positionCommandCb(const tobas_command_msgs::PosVelYaw::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd);
@@ -244,7 +244,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   }
   landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
   arming_sub_ = createSubscriber(kArmingTopic, &self::armingCb, this);
-  rotor_livelinesses_sub_ = createSubscriber(kRotorLivelinessesTopic, &self::rotorLivelinessCb, this);
+  rotor_liveliness_sub_ = createSubscriber(kRotorLivTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(kPosVelYawCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(kAccelYawCmdTopic, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(kAngleThrotCmdTopic, &self::angleCommandCb, this);
@@ -757,13 +757,13 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 }
 
-void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_livelinesses)
+void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
 {
   if (!mixer_.isInitialized()) {
     return;
   }
 
-  for (const auto& data : rotor_livelinesses->data) {
+  for (const auto& data : rotor_liveliness->data) {
     if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
       TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
     }

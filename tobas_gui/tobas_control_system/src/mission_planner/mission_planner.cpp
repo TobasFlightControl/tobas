@@ -299,7 +299,7 @@ void MissionPlannerWidget::onClearButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onClearButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to clear all the commands?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to clear all the commands?", qt::WARN)) {
     return;
   }
 
@@ -313,7 +313,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCacheButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::WARN)) {
     return;
   }
 
@@ -375,7 +375,7 @@ void MissionPlannerWidget::onExecuteButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onExecuteButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to execute the mission?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to execute the mission?", qt::WARN)) {
     return;
   }
 
@@ -402,7 +402,7 @@ void MissionPlannerWidget::onCancelButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCancelButtonClicked");
 
-  if (!qt::yesOrNo(this, "Do you want to cancel the mission?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to cancel the mission?", qt::WARN)) {
     return;
   }
 

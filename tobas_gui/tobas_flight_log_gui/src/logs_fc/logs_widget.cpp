@@ -115,7 +115,7 @@ void FlightLogsWidgetFC::onReadButtonClicked()
 
 void FlightLogsWidgetFC::onCleanButtonClicked()
 {
-  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", qt::WARN)) {
     return;
   }
 
@@ -130,10 +130,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   const auto rosbag_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   if (fs::exists(rosbag_path)) {
-    if (qt::yesOrNo(
-          this,
-          QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?",
-          qt::QMessageLevel::WARN)) {
+    if (qt::yesOrNo(this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?", qt::WARN)) {
       fs::remove_all(rosbag_path);
     }
     else {
@@ -152,7 +149,7 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
 {
   const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
   }
 

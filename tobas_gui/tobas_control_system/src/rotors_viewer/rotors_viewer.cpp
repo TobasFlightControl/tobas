@@ -13,7 +13,7 @@ RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const tobas:
   setLayout(cols_);
 
   connect(&bridge, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
-  connect(&bridge, &RosQtBridge::rotorLivelinessesReceived, this, &self::rotorLivelinessCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::rotorLivelinessReceived, this, &self::rotorLivelinessCb, Qt::QueuedConnection);
 }
 
 void RotorsViewerWiddget::reset()

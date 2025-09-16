@@ -185,9 +185,7 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
   }
 
   if (!qt::yesOrNo(
-        this,
-        "Changing the propulsion type will reset the wiring settings. Do you want to continue?",
-        qt::QMessageLevel::WARN)) {
+        this, "Changing the propulsion type will reset the wiring settings. Do you want to continue?", qt::WARN)) {
     setCurrentButtonIndex(cur_idx_);
     return;
   }
