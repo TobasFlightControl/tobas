@@ -487,7 +487,7 @@ void GroundControlStationWidget::onRestartThreadFinished(bool success, const QSt
 
   reset();
 
-  qt::qInfoBox(this, "Flight controller is restarted successfully.");
+  qt::qInfoBox(this, "Flight controller was restarted successfully.");
 
   restart_btn_->setChecked(false);
 }
@@ -507,7 +507,7 @@ void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QS
 
   reset();
 
-  qt::qInfoBox(this, "Flight controller is shut down successfully.");
+  qt::qInfoBox(this, "Flight controller was shut down successfully.");
 
   shutdown_btn_->setChecked(false);
 }
