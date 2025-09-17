@@ -19,8 +19,6 @@ class SqpMixer : public MixerI
   using self = SqpMixer;
   using super = MixerI;
 
-  static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
-
 public:
   explicit SqpMixer(const Drone& drone, const kdl::Tree& tree);
 
