@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
+#include <ranges>
+
 #include <QDebug>
 #include <QRadioButton>
 
@@ -100,10 +102,12 @@ YAML::Node PropulsionSystemWidget::dump() const
 
 void PropulsionSystemWidget::load(const YAML::Node& node)
 {
+  // 実際にユーザが操作するときと同じように推進系の型の選択と変更の通知を行う
   const auto type_text = node[kTypeKey].as<QString>();
-  for (const auto& button : type_btn_group_->buttons()) {
+  for (const auto& [idx, button] : std::views::enumerate(type_btn_group_->buttons())) {
     if (button->text() == type_text) {
-      button->setChecked(true);
+      setCurrentIndex(idx);
+      Q_EMIT sig_.propulsionTypeChanged(widget(idx)->type());
       break;
     }
   }
