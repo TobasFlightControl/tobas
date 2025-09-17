@@ -56,6 +56,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}) # colcon_ws/build/${PROJECT_NAM
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${UIC_FILES} ${LIB_TARGETS})
+target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(

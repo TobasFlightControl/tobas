@@ -52,6 +52,7 @@ ament_target_dependencies(${PROJECT_NAME}_lib ${AMENT_DEPENDENCIES})
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${NODE_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_lib)
+target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(

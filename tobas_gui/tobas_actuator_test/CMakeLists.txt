@@ -16,8 +16,9 @@ find_package(std_srvs REQUIRED)
 find_package(tobas_drone_core REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_rqt_bridge REQUIRED)
+find_package(tobas_gui_common REQUIRED)
 
-set(AMENT_DEPENDENCIES std_srvs tobas_drone_core tobas_qt_tools tobas_rqt_bridge)
+set(AMENT_DEPENDENCIES std_srvs tobas_drone_core tobas_qt_tools tobas_rqt_bridge tobas_gui_common)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)

@@ -64,6 +64,7 @@ foreach(file_path IN LISTS PLUGIN_TARGETS)
   set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
   add_library(${PLUGIN_NAME} SHARED ${file_path})
   target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME})
+  target_link_options(${PLUGIN_NAME} PRIVATE -Wl,--no-undefined)
   list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
 endforeach()
 

@@ -20,20 +20,22 @@ find_package(tobas_mission_msgs REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 
+set(AMENT_DEPENDENCIES
+    tobas_keyboard
+    tobas_node
+    tobas_msgs_adapter
+    tobas_command_msgs_adapter
+    tobas_mission_msgs
+    tobas_drone_tools
+    tobas_drone_msgs_adapter
+)
+
 include_directories(include)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
-ament_target_dependencies(
-  ${PROJECT_NAME}_node
-  tobas_keyboard
-  tobas_node
-  tobas_msgs_adapter
-  tobas_command_msgs_adapter
-  tobas_mission_msgs
-  tobas_drone_tools
-  tobas_drone_msgs_adapter
-)
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
+target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(
   ${PROJECT_NAME}_node PLUGIN "tobas_keyboard_teleop::PositionYawPublisherNode" EXECUTABLE position_yaw_publiser
 )
