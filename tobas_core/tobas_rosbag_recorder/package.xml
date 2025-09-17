@@ -10,6 +10,7 @@
 
 	<depend>rosbag2_cpp</depend>
 	<depend>std_srvs</depend>
+	<depend>tobas_path_tools</depend>
 	<depend>tobas_linux</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
