@@ -11,8 +11,8 @@ namespace gui
 namespace log
 {
 MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
-  : ei_curves_{ "X Integral Error [ms]",      "Y Integral Error [ms]",       "Z Integral Error [ms]",
-                "Roll Integral Error [rads]", "Pitch Integral Error [rads]", "Yaw Integral Error [rads]" }
+  : ei_curves_{ "X Integral Error [m*s]",      "Y Integral Error [m*s]",       "Z Integral Error [m*s]",
+                "Roll Integral Error [rad*s]", "Pitch Integral Error [rad*s]", "Yaw Integral Error [rad*s]" }
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
