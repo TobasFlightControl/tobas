@@ -9,7 +9,9 @@
 #include "./plots/gnss_plot.hpp"
 #include "./plots/imu_fft_plot.hpp"
 #include "./plots/imu_plot.hpp"
+#include "./plots/joint_effort_plot.hpp"
 #include "./plots/joint_position_plot.hpp"
+#include "./plots/joint_velocity_plot.hpp"
 #include "./plots/latency_plot.hpp"
 #include "./plots/mag_plot.hpp"
 #include "./plots/mr_controller_feedback_plot.hpp"
@@ -45,6 +47,8 @@ public:
     const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
     const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data,
     const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_positions_data,
+    const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data,
+    const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data,
     const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
     const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
     const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
@@ -67,6 +71,8 @@ private:
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data_;
   const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data_;
   const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_positions_data_;
+  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data_;
+  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data_;
   const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data_;
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data_;
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
@@ -86,6 +92,8 @@ private:
   RotorSpeedPlotWidget* rotor_speed_plot_;
   PropellerPitchPlotWidget* propeller_pitch_plot_;
   JointPositionPlotWidget* joint_pos_plot_;
+  JointVelocityPlotWidget* joint_vel_plot_;
+  JointEffortPlotWidget* joint_eff_plot_;
   LatencyPlotWidget* latency_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;

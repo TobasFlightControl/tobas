@@ -30,6 +30,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       tar_rotor_speeds_data_,
       cur_joint_states_data_,
       tar_joint_positions_data_,
+      tar_joint_velocities_data_,
+      tar_joint_efforts_data_,
       ice_cmd_data_,
       sampling_time_data_,
       ctrl_latency_data_,
@@ -54,18 +56,16 @@ void FlightLogViewerWidget::reset()
   decode_fail_topics_.clear();
 
   odom_decoder_.clearCache();
-  imu_cov_decoder_.clearCache();
-  mag_cov_decoder_.clearCache();
+  mag_decoder_.clearCache();
   gnss_decoder_.clearCache();
   battery_decoder_.clearCache();
-  cur_rotor_states_decoder_.clearCache();
-  tar_rotor_speeds_decoder_.clearCache();
-  cur_joint_states_decoder_.clearCache();
-  tar_joint_positions_decoder_.clearCache();
+  rotor_states_decoder_.clearCache();
+  rotor_speeds_decoder_.clearCache();
+  joint_states_decoder_.clearCache();
+  joint_commands_decoder_.clearCache();
   ice_cmd_decoder_.clearCache();
-  sampling_time_decoder_.clearCache();
-  ctrl_latency_decoder_.clearCache();
-  dist_force_decoder_.clearCache();
+  latency_decoder_.clearCache();
+  wrench_decoder_.clearCache();
   obsv_fb_decoder_.clearCache();
   mr_ctrl_fb_decoder_.clearCache();
 
@@ -133,6 +133,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   tar_rotor_speeds_data_.clear();
   cur_joint_states_data_.clear();
   tar_joint_positions_data_.clear();
+  tar_joint_velocities_data_.clear();
+  tar_joint_efforts_data_.clear();
   ice_cmd_data_.clear();
   sampling_time_data_.clear();
   ctrl_latency_data_.clear();
@@ -164,10 +166,10 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
-        filt_imu_data_.push_back(imu_cov_decoder_.decode(cur_time, ser_msg));
+        filt_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
-        mag_data_.push_back(mag_cov_decoder_.decode(cur_time, ser_msg));
+        mag_data_.push_back(mag_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
         gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_msg));
@@ -176,28 +178,34 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         battery_data_.push_back(battery_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
-        cur_rotor_states_data_.push_back(cur_rotor_states_decoder_.decode(cur_time, ser_msg));
+        cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
-        tar_rotor_speeds_data_.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
+        tar_rotor_speeds_data_.push_back(rotor_speeds_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kJointStatesTopic))) {
-        cur_joint_states_data_.push_back(cur_joint_states_decoder_.decode(cur_time, ser_msg));
+        cur_joint_states_data_.push_back(joint_states_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kJointPosCmdTopic))) {
-        tar_joint_positions_data_.push_back(tar_joint_positions_decoder_.decode(cur_time, ser_msg));
+        tar_joint_positions_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointVelCmdTopic))) {
+        tar_joint_velocities_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
+        tar_joint_efforts_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
         ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
-        sampling_time_data_.push_back(sampling_time_decoder_.decode(cur_time, ser_msg));
+        sampling_time_data_.push_back(latency_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
-        ctrl_latency_data_.push_back(ctrl_latency_decoder_.decode(cur_time, ser_msg));
+        ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
-        dist_force_data_.push_back(dist_force_decoder_.decode(cur_time, ser_msg));
+        dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
         obsv_fb_data_.push_back(obsv_fb_decoder_.decode(cur_time, ser_msg));
