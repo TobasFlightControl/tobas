@@ -28,8 +28,8 @@ public:
 private:
   QVector<QwtPlot2*> plots_;
 
-  QVector<qwt::QwtPlotCurveWrapper> cur_pos_curves_;
-  QVector<qwt::QwtPlotCurveWrapper> tar_pos_curves_;
+  QVector<qwt::QwtPlotCurveWrapper> cur_curves_;
+  QVector<qwt::QwtPlotCurveWrapper> tar_curves_;
 
   QGridLayout* grid_;
 

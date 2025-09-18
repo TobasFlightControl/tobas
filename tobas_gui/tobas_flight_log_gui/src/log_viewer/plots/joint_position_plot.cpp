@@ -19,8 +19,8 @@ void JointPositionPlotWidget::clear()
 {
   // レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
   plots_.clear();
-  cur_pos_curves_.clear();
-  tar_pos_curves_.clear();
+  cur_curves_.clear();
+  tar_curves_.clear();
   qt::clearLayout(grid_);
 
   name2idx_.clear();
@@ -69,66 +69,66 @@ void JointPositionPlotWidget::addJoint(const std::string& name)
   grid_->setRowStretch(row, 1);
   grid_->setColumnStretch(col, 1);
 
-  qwt::QwtPlotCurveWrapper cur_pos_curve("Current Position (" + QString::fromStdString(name) + ")");
-  cur_pos_curve.setPen(kCurrentValueColor, kLineWidth);
-  cur_pos_curve.attach(plot);
+  qwt::QwtPlotCurveWrapper cur_curve("Current Position (" + QString::fromStdString(name) + ")");
+  cur_curve.setPen(kCurrentValueColor, kLineWidth);
+  cur_curve.attach(plot);
 
-  qwt::QwtPlotCurveWrapper tar_pos_curve("Target Position (" + QString::fromStdString(name) + ")");
-  tar_pos_curve.setPen(kTargetValueColor, kLineWidth);
-  tar_pos_curve.attach(plot);
+  qwt::QwtPlotCurveWrapper tar_curve("Target Position (" + QString::fromStdString(name) + ")");
+  tar_curve.setPen(kTargetValueColor, kLineWidth);
+  tar_curve.attach(plot);
 
   plots_.append(plot);
-  cur_pos_curves_.append(cur_pos_curve);
-  tar_pos_curves_.append(tar_pos_curve);
+  cur_curves_.append(cur_curve);
+  tar_curves_.append(tar_curve);
 }
 
 void JointPositionPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::JointStateArray>& msgs)
 {
-  QVector<QVector<double>> t_data(numJoints());
-  QVector<QVector<double>> pos_data(numJoints());
+  QVector<QVector<double>> times(numJoints());
+  QVector<QVector<double>> values(numJoints());
 
   for (const auto& msg : msgs) {
     for (const auto& elem : msg.states) {
       if (!name2idx_.contains(elem.name)) {
         addJoint(elem.name);
-        t_data.append(QVector<double>{});
-        pos_data.append(QVector<double>{});
+        times.append(QVector<double>{});
+        values.append(QVector<double>{});
       }
 
       const auto& idx = name2idx_.at(elem.name);
 
-      t_data[idx].append(ros2::seconds(msg.header.stamp));
-      pos_data[idx].append(elem.position);
+      times[idx].append(ros2::seconds(msg.header.stamp));
+      values[idx].append(elem.position);
     }
   }
 
   for (size_t i = 0; i < numJoints(); ++i) {
-    cur_pos_curves_[i].setSamples(t_data[i], pos_data[i]);
+    cur_curves_[i].setSamples(times[i], values[i]);
   }
 }
 
 void JointPositionPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::JointCommandArray>& msgs)
 {
-  QVector<QVector<double>> t_data(numJoints());
-  QVector<QVector<double>> pos_data(numJoints());
+  QVector<QVector<double>> times(numJoints());
+  QVector<QVector<double>> values(numJoints());
 
   for (const auto& msg : msgs) {
     for (const auto& elem : msg.commands) {
       if (!name2idx_.contains(elem.name)) {
         addJoint(elem.name);
-        t_data.append(QVector<double>{});
-        pos_data.append(QVector<double>{});
+        times.append(QVector<double>{});
+        values.append(QVector<double>{});
       }
 
       const auto& idx = name2idx_[elem.name];
 
-      t_data[idx].append(ros2::seconds(msg.header.stamp));
-      pos_data[idx].append(elem.data);
+      times[idx].append(ros2::seconds(msg.header.stamp));
+      values[idx].append(elem.data);
     }
   }
 
   for (size_t i = 0; i < numJoints(); ++i) {
-    tar_pos_curves_[i].setSamples(t_data[i], pos_data[i]);
+    tar_curves_[i].setSamples(times[i], values[i]);
   }
 }
 }  // namespace log
