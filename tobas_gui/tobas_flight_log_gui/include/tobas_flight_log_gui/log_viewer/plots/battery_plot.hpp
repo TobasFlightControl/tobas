@@ -8,14 +8,16 @@ namespace gui
 {
 namespace log
 {
-class BatteryPlotWidget : public QWidget
+class BatteryPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
 public:
   explicit BatteryPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(const QVector<tobas_msgs::msg::Battery>& batt_msgs);
 
 private:

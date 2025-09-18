@@ -11,15 +11,16 @@ namespace gui
 {
 namespace log
 {
-class JointPositionPlotWidget : public QWidget
+class JointPositionPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
 public:
   explicit JointPositionPlotWidget();
 
-  void clear();
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(
     const QVector<tobas_msgs::msg::JointStateArray>& cur_msgs,
     const QVector<tobas_msgs::msg::JointCommandArray>& tar_msgs);

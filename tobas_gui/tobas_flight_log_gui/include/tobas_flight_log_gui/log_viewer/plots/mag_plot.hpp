@@ -8,14 +8,18 @@ namespace gui
 {
 namespace log
 {
-class MagPlotWidget : public QWidget
+class MagPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
+
+  static constexpr size_t kNumAxes = 3;
 
 public:
   explicit MagPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(const QVector<tobas_msgs::msg::MagneticField>& mag_msgs);
 
 private:

@@ -33,6 +33,15 @@ PosePlotWidget::PosePlotWidget()
   }
 }
 
+void PosePlotWidget::clear()
+{
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    cur_curves_[i].clear();
+    tar_curves_[i].clear();
+    plots_[i]->replot();
+  }
+}
+
 void PosePlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (auto& plot : plots_) {

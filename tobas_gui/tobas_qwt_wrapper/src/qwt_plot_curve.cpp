@@ -27,4 +27,10 @@ void QwtPlotCurveWrapper::attach(QwtPlot* plot)
 {
   impl_->attach(plot);
 }
+
+void QwtPlotCurveWrapper::clear()
+{
+  QVector<double> empty;
+  setSamples(empty, empty);
+}
 }  // namespace qwt

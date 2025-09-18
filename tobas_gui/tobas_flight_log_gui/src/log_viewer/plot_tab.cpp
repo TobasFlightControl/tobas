@@ -1,5 +1,7 @@
 #include "tobas_flight_log_gui/log_viewer/plot_tab.hpp"
 
+#include <tobas_qt_tools/cast.hpp>
+
 namespace gui
 {
 namespace log
@@ -79,28 +81,18 @@ PlotTabWidget::PlotTabWidget(
 
 void PlotTabWidget::clear()
 {
-  rotor_speed_plot_->clear();
-  propeller_pitch_plot_->clear();
-  joint_pos_plot_->clear();
+  for (int i = 0; i < count(); ++i) {
+    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+    plot->clear();
+  }
 }
 
 void PlotTabWidget::setTimeScale(double t_start, double t_stop)
 {
-  pose_plot_->setTimeScale(t_start, t_stop);
-  twist_plot_->setTimeScale(t_start, t_stop);
-  accel_plot_->setTimeScale(t_start, t_stop);
-  imu_plot_->setTimeScale(t_start, t_stop);
-  mag_plot_->setTimeScale(t_start, t_stop);
-  gnss_plot_->setTimeScale(t_start, t_stop);
-  battery_plot_->setTimeScale(t_start, t_stop);
-  engine_plot_->setTimeScale(t_start, t_stop);
-  rotor_speed_plot_->setTimeScale(t_start, t_stop);
-  propeller_pitch_plot_->setTimeScale(t_start, t_stop);
-  joint_pos_plot_->setTimeScale(t_start, t_stop);
-  latency_plot_->setTimeScale(t_start, t_stop);
-  dist_force_plot_->setTimeScale(t_start, t_stop);
-  obsv_fb_plot_->setTimeScale(t_start, t_stop);
-  mr_ctrl_fb_plot_->setTimeScale(t_start, t_stop);
+  for (int i = 0; i < count(); ++i) {
+    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+    plot->setTimeScale(t_start, t_stop);
+  }
 }
 
 void PlotTabWidget::plot()

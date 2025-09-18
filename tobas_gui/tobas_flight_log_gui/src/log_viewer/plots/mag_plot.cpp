@@ -13,7 +13,7 @@ MagPlotWidget::MagPlotWidget() : mag_curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  for (size_t i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < kNumAxes; ++i) {
     mag_plots_[i] = new QwtPlot2();
     mag_plots_[i]->setAxisNoLabel(QwtPlot::xBottom);
     mag_curves_[i].setPen(kColorXYZ[i], kLineWidth);
@@ -22,9 +22,17 @@ MagPlotWidget::MagPlotWidget() : mag_curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [
   }
 }
 
+void MagPlotWidget::clear()
+{
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    mag_curves_[i].clear();
+    mag_plots_[i]->replot();
+  }
+}
+
 void MagPlotWidget::setTimeScale(double t_start, double t_stop)
 {
-  for (size_t i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < kNumAxes; ++i) {
     mag_plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   }
 }
@@ -32,7 +40,7 @@ void MagPlotWidget::setTimeScale(double t_start, double t_stop)
 void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& mag_msgs)
 {
   QVector<double> t_data;
-  std::array<QVector<double>, 3> mag_data;
+  std::array<QVector<double>, kNumAxes> mag_data;
 
   for (const auto& mag : mag_msgs) {
     t_data.push_back(ros2::seconds(mag.header.stamp));
@@ -42,7 +50,7 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& mag_m
     mag_data[2].push_back(mag.mag.z);
   }
 
-  for (size_t i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < kNumAxes; ++i) {
     mag_curves_[i].setSamples(t_data, mag_data[i]);
     mag_plots_[i]->replot();
   }

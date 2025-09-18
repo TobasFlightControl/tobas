@@ -36,11 +36,11 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       dist_force_data_,
       obsv_fb_data_,
       mr_ctrl_fb_data_);
-    rows->addWidget(plot_tab);
+    rows->addWidget(plot_tab, 1);
   }
 
   playback_ctrl_ = new PlaybackControlWidget();
-  rows->addWidget(playback_ctrl_);
+  rows->addWidget(playback_ctrl_, 0);
 
   connect(playback_ctrl_, &PlaybackControlWidget::timeChanged, this, &self::onPlaybackTimeChanged);
 

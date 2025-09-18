@@ -67,6 +67,35 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
   grid->addWidget(gnss_anomaly_score_plot_, 2, 1, 1, 1);
 }
 
+void ObserverFeedbackPlotWidget::clear()
+{
+  for (auto& curve : acc_bias_curves_) {
+    curve.clear();
+  }
+  acc_bias_plot_->replot();
+
+  for (auto& curve : gyro_bias_curves_) {
+    curve.clear();
+  }
+  gyro_bias_plot_->replot();
+
+  for (auto& curve : mag_hard_bias_curves_) {
+    curve.clear();
+  }
+  mag_hard_bias_plot_->replot();
+
+  for (auto& curve : mag_soft_bias_curves_) {
+    curve.clear();
+  }
+  mag_soft_bias_plot_->replot();
+
+  gravity_curve_.clear();
+  gravity_plot_->replot();
+
+  gnss_anomaly_score_curve_.clear();
+  gnss_anomaly_score_plot_->replot();
+}
+
 void ObserverFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   acc_bias_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
@@ -116,27 +145,27 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
   for (size_t i = 0; i < kAccelBiasSize; ++i) {
     acc_bias_curves_[i].setSamples(t_data, acc_bias_data[i]);
   }
+  acc_bias_plot_->replot();
 
   for (size_t i = 0; i < kGyroBiasSize; ++i) {
     gyro_bias_curves_[i].setSamples(t_data, gyro_bias_data[i]);
   }
+  gyro_bias_plot_->replot();
 
   for (size_t i = 0; i < kMagHardBiasSize; ++i) {
     mag_hard_bias_curves_[i].setSamples(t_data, mag_hard_bias_data[i]);
   }
+  mag_hard_bias_plot_->replot();
 
   for (size_t i = 0; i < kMagSoftBiasSize; ++i) {
     mag_soft_bias_curves_[i].setSamples(t_data, mag_soft_bias_data[i]);
   }
+  mag_soft_bias_plot_->replot();
 
   gravity_curve_.setSamples(t_data, gravity_data);
-  gnss_anomaly_score_curve_.setSamples(t_data, gnss_anomaly_score_data);
-
-  acc_bias_plot_->replot();
-  gyro_bias_plot_->replot();
-  mag_hard_bias_plot_->replot();
-  mag_soft_bias_plot_->replot();
   gravity_plot_->replot();
+
+  gnss_anomaly_score_curve_.setSamples(t_data, gnss_anomaly_score_data);
   gnss_anomaly_score_plot_->replot();
 }
 }  // namespace log

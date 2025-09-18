@@ -9,7 +9,7 @@ namespace gui
 {
 namespace log
 {
-class AccelPlotWidget : public QWidget
+class AccelPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
@@ -18,7 +18,9 @@ class AccelPlotWidget : public QWidget
 public:
   explicit AccelPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(
     const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
     const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs);

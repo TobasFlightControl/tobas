@@ -9,7 +9,7 @@ namespace gui
 {
 namespace log
 {
-class TwistPlotWidget : public QWidget
+class TwistPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
@@ -18,7 +18,9 @@ class TwistPlotWidget : public QWidget
 public:
   explicit TwistPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(
     const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
     const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs);

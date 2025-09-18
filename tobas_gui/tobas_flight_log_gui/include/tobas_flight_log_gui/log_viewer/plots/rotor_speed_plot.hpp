@@ -11,15 +11,16 @@ namespace gui
 {
 namespace log
 {
-class RotorSpeedPlotWidget : public QWidget
+class RotorSpeedPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
 public:
   explicit RotorSpeedPlotWidget();
 
-  void clear();
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
     const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs);

@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-class ObserverFeedbackPlotWidget : public QWidget
+class ObserverFeedbackPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
@@ -24,7 +24,9 @@ class ObserverFeedbackPlotWidget : public QWidget
 public:
   explicit ObserverFeedbackPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& msgs);
 
 private:

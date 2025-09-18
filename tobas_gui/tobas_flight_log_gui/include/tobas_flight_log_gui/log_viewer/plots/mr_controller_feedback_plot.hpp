@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-class MRControllerFeedbackPlotWidget : public QWidget
+class MRControllerFeedbackPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
@@ -17,7 +17,9 @@ class MRControllerFeedbackPlotWidget : public QWidget
 public:
   explicit MRControllerFeedbackPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& msgs);
 
 private:

@@ -23,6 +23,12 @@ EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle [%]")
   throttle_curve_.attach(throttle_plot_);
 }
 
+void EnginePlotWidget::clear()
+{
+  throttle_curve_.clear();
+  throttle_plot_->replot();
+}
+
 void EnginePlotWidget::setTimeScale(double t_start, double t_stop)
 {
   throttle_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);

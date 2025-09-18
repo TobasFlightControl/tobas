@@ -27,6 +27,14 @@ MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
   }
 }
 
+void MRControllerFeedbackPlotWidget::clear()
+{
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    ei_curves_[i].clear();
+    ei_plots_[i]->replot();
+  }
+}
+
 void MRControllerFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (auto& plot : ei_plots_) {
