@@ -28,6 +28,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       battery_data_,
       cur_rotor_states_data_,
       tar_rotor_speeds_data_,
+      cur_joint_states_data_,
+      tar_joint_positions_data_,
       ice_cmd_data_,
       sampling_time_data_,
       ctrl_latency_data_,
@@ -58,6 +60,8 @@ void FlightLogViewerWidget::reset()
   battery_decoder_.clearCache();
   cur_rotor_states_decoder_.clearCache();
   tar_rotor_speeds_decoder_.clearCache();
+  cur_joint_states_decoder_.clearCache();
+  tar_joint_positions_decoder_.clearCache();
   ice_cmd_decoder_.clearCache();
   sampling_time_decoder_.clearCache();
   ctrl_latency_decoder_.clearCache();
@@ -127,6 +131,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   battery_data_.clear();
   cur_rotor_states_data_.clear();
   tar_rotor_speeds_data_.clear();
+  cur_joint_states_data_.clear();
+  tar_joint_positions_data_.clear();
   ice_cmd_data_.clear();
   sampling_time_data_.clear();
   ctrl_latency_data_.clear();
@@ -174,6 +180,12 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
         tar_rotor_speeds_data_.push_back(tar_rotor_speeds_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointStatesTopic))) {
+        cur_joint_states_data_.push_back(cur_joint_states_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointPosCmdTopic))) {
+        tar_joint_positions_data_.push_back(tar_joint_positions_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
         ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_msg));

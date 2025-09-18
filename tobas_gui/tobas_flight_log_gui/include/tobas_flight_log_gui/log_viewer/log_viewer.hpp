@@ -39,6 +39,8 @@ private:
   QVector<tobas_msgs::msg::Battery> battery_data_;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data_;
   QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data_;
+  QVector<tobas_msgs::msg::JointStateArray> cur_joint_states_data_;
+  QVector<tobas_msgs::msg::JointCommandArray> tar_joint_positions_data_;
   QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data_;
   QVector<tobas_msgs::msg::Latency> sampling_time_data_;
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
@@ -54,6 +56,8 @@ private:
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorStateArray> cur_rotor_states_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_decoder_;
+  MessageDecoder<tobas_msgs::msg::JointStateArray> cur_joint_states_decoder_;
+  MessageDecoder<tobas_msgs::msg::JointCommandArray> tar_joint_positions_decoder_;
   MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> sampling_time_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> ctrl_latency_decoder_;

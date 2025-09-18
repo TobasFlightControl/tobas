@@ -13,6 +13,8 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::Battery>& battery_data,
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
+  const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data,
+  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_positions_data,
   const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
@@ -27,6 +29,8 @@ PlotTabWidget::PlotTabWidget(
   , battery_data_(battery_data)
   , cur_rotor_states_data_(cur_rotor_states_data)
   , tar_rotor_speeds_data_(tar_rotor_speeds_data)
+  , cur_joint_states_data_(cur_joint_states_data)
+  , tar_joint_positions_data_(tar_joint_positions_data)
   , ice_cmd_data_(ice_cmd_data)
   , sampling_time_data_(sampling_time_data)
   , ctrl_latency_data_(ctrl_latency_data)
@@ -45,6 +49,7 @@ PlotTabWidget::PlotTabWidget(
   engine_plot_ = new EnginePlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
   propeller_pitch_plot_ = new PropellerPitchPlotWidget();
+  joint_pos_plot_ = new JointPositionPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
@@ -61,6 +66,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(engine_plot_, "Engine");
   addTab(rotor_speed_plot_, "Rotor Speed");
   addTab(propeller_pitch_plot_, "VPP Pitch");
+  addTab(joint_pos_plot_, "Joint\nPosition");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
   addTab(obsv_fb_plot_, "Observer");
@@ -75,6 +81,7 @@ void PlotTabWidget::clear()
 {
   rotor_speed_plot_->clear();
   propeller_pitch_plot_->clear();
+  joint_pos_plot_->clear();
 }
 
 void PlotTabWidget::setTimeScale(double t_start, double t_stop)
@@ -89,6 +96,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   engine_plot_->setTimeScale(t_start, t_stop);
   rotor_speed_plot_->setTimeScale(t_start, t_stop);
   propeller_pitch_plot_->setTimeScale(t_start, t_stop);
+  joint_pos_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
   dist_force_plot_->setTimeScale(t_start, t_stop);
   obsv_fb_plot_->setTimeScale(t_start, t_stop);
@@ -136,6 +144,9 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == propeller_pitch_plot_) {
     propeller_pitch_plot_->setData(ice_cmd_data_);
+  }
+  else if (cur_widget == joint_pos_plot_) {
+    joint_pos_plot_->setData(cur_joint_states_data_, tar_joint_positions_data_);
   }
   else if (cur_widget == latency_plot_) {
     latency_plot_->setData(sampling_time_data_, ctrl_latency_data_);
