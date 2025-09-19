@@ -6,7 +6,6 @@
 #include "tobas_gazebo_system_plugins/common/constants.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
-using namespace std;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -27,7 +26,7 @@ bool IceRotorModel::initialize(
   return true;
 }
 
-const string& IceRotorModel::getLinkName() const
+const std::string& IceRotorModel::getLinkName() const
 {
   return link_name_;
 }
@@ -146,7 +145,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (gear_ratio_ <= 0.) {
-    gzerr << "Gear ratio must be positive." << endl;
+    gzerr << "Gear ratio must be positive." << std::endl;
     return false;
   }
 
@@ -154,7 +153,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (num_blades_ <= 0) {
-    gzerr << "The number of blades must be positive." << endl;
+    gzerr << "The number of blades must be positive." << std::endl;
     return false;
   }
 
@@ -165,7 +164,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (!pitch_angle_.pos_limit.isValid()) {
-    gzerr << "Propeller pitch angle limit is invalid." << endl;
+    gzerr << "Propeller pitch angle limit is invalid." << std::endl;
     return false;
   }
 
@@ -173,7 +172,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (pitch_angle_.max_vel < 0.) {
-    gzerr << "The maximum propeller pitch angle rate must be non-negative." << endl;
+    gzerr << "The maximum propeller pitch angle rate must be non-negative." << std::endl;
     return false;
   }
 
@@ -181,11 +180,11 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (motor_const_.second <= 0.) {
-    gzerr << "The second term of motor constant must be positive." << endl;
+    gzerr << "The second term of motor constant must be positive." << std::endl;
     return false;
   }
   if (getMotorConst(pitch_angle_.pos_limit.lower) <= 0.) {
-    gzerr << "The motor constant at the lower pitch angle limit must be positive." << endl;
+    gzerr << "The motor constant at the lower pitch angle limit must be positive." << std::endl;
     return false;
   }
 
@@ -193,7 +192,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (moment_const_ <= 0.) {
-    gzerr << "Moment constant must be positive." << endl;
+    gzerr << "Moment constant must be positive." << std::endl;
     return false;
   }
 
@@ -201,11 +200,11 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (drag_const_.second < 0.) {
-    gzerr << "The second term of drag constant must be non-negative." << endl;
+    gzerr << "The second term of drag constant must be non-negative." << std::endl;
     return false;
   }
   if (getDragConst(pitch_angle_.pos_limit.lower) <= 0.) {
-    gzerr << "The drag constant at the lower pitch angle limit must be positive." << endl;
+    gzerr << "The drag constant at the lower pitch angle limit must be positive." << std::endl;
     return false;
   }
 
@@ -217,12 +216,12 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   // Get joint
   const auto joint_entity = findJointWithChildLink(ecm, link_name_);
   if (!joint_entity.has_value()) {
-    gzerr << "Failed to find the parent joint of rotor link \"" << link_name_ << "\"." << endl;
+    gzerr << "Failed to find the parent joint of rotor link \"" << link_name_ << "\"." << std::endl;
     return false;
   }
-  joint_ = make_shared<gz::sim::Joint>(joint_entity.value());
+  joint_ = std::make_shared<gz::sim::Joint>(joint_entity.value());
   if (!joint_->Valid(ecm)) {
-    gzerr << "Failed to find rotor link \"" << link_name_ << "\"." << endl;
+    gzerr << "Failed to find rotor link \"" << link_name_ << "\"." << std::endl;
     return false;
   }
 
@@ -232,42 +231,42 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   // Check joint type
   const auto joint_type = joint_->Type(ecm).value();
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
-    gzerr << "Joint \"" << joint_name << "\" is not a rotating joint." << endl;
+    gzerr << "Joint \"" << joint_name << "\" is not a rotating joint." << std::endl;
     return false;
   }
 
   // Get child link
   const auto link_entity = model.LinkByName(ecm, link_name_);
-  link_ = make_shared<gz::sim::Link>(link_entity);
+  link_ = std::make_shared<gz::sim::Link>(link_entity);
   if (!link_->Valid(ecm)) {
-    gzerr << "Failed to find the child link \"" << link_name_ << "\"." << endl;
+    gzerr << "Failed to find the child link \"" << link_name_ << "\"." << std::endl;
     return false;
   }
 
   // Get parent link
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
-  parent_link_ = make_shared<gz::sim::Link>(parent_link_entity);
+  parent_link_ = std::make_shared<gz::sim::Link>(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
-    gzerr << "Failed to find the parent link \"" << parent_link_name << "\"." << endl;
+    gzerr << "Failed to find the parent link \"" << parent_link_name << "\"." << std::endl;
     return false;
   }
 
   // Create necessary components
   if (!getComponent<cmp::JointAxis>(joint_entity.value(), ecm)) {
-    gzerr << "Failed to get component JointAxis of joint \"" << joint_name << "\"." << endl;
+    gzerr << "Failed to get component JointAxis of joint \"" << joint_name << "\"." << std::endl;
     return false;
   }
   if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm)) {
-    gzerr << "Failed to get component JointVelocity of joint \"" << joint_name << "\"." << endl;
+    gzerr << "Failed to get component JointVelocity of joint \"" << joint_name << "\"." << std::endl;
     return false;
   }
   if (!getComponent<cmp::WorldPose>(link_entity, ecm)) {
-    gzerr << "Failed to get component WorldPose of link \"" << link_name_ << "\"." << endl;
+    gzerr << "Failed to get component WorldPose of link \"" << link_name_ << "\"." << std::endl;
     return false;
   }
   if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm)) {
-    gzerr << "Failed to get component WorldLinearVelocity of link \"" << link_name_ << "\"." << endl;
+    gzerr << "Failed to get component WorldLinearVelocity of link \"" << link_name_ << "\"." << std::endl;
     return false;
   }
 
@@ -276,11 +275,11 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
 
 double IceRotorModel::getMotorConst(double pitch_angle) const
 {
-  return max(motor_const_.first + motor_const_.second * pitch_angle, 0.);
+  return std::max(motor_const_.first + motor_const_.second * pitch_angle, 0.);
 }
 
 double IceRotorModel::getDragConst(double pitch_angle) const
 {
-  return max(drag_const_.first + drag_const_.second * pitch_angle, 0.);
+  return std::max(drag_const_.first + drag_const_.second * pitch_angle, 0.);
 }
 }  // namespace gazebo

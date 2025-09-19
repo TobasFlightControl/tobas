@@ -95,7 +95,7 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
     throttle->data = eprop_->getRotor(speed.link_name)->throttleFromSpeed(speed.speed, battery_->voltage);  // FF項のみ
 
     // Publish throttle message
-    throttle_pubs_.at(speed.link_name)->publish(move(throttle));
+    throttle_pubs_.at(speed.link_name)->publish(std::move(throttle));
   }
 
   // Publish control latency

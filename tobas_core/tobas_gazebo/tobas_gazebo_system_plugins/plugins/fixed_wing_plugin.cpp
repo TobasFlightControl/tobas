@@ -22,7 +22,7 @@
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 
-using namespace std;
+namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -59,14 +59,14 @@ public:
 
 private:
   // SDF parameters
-  string base_link_name_;
+  std::string base_link_name_;
   double alt_0_;  // 基準点の幾何的高度
   tobas::VehicleParameters vehicle_params_;
   tobas::AerodynamicCoefficients aero_coefs_;
-  map<string, tobas::ControlSurface> control_surfaces_;
+  std::map<std::string, tobas::ControlSurface> control_surfaces_;
 
-  shared_ptr<gz::sim::Link> base_link_;
-  map<string, shared_ptr<gz::sim::Joint>> cs_joints_;  // 制御面のジョイントへのポインタ
+  std::shared_ptr<gz::sim::Link> base_link_;
+  std::map<std::string, std::shared_ptr<gz::sim::Joint>> cs_joints_;  // 制御面のジョイントへのポインタ
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
@@ -83,7 +83,7 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
 
-  double getDeflection(const gz::sim::EntityComponentManager& ecm, const string& link_name) const;
+  double getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const;
 
   double liftCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const;
   double dragCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const;
@@ -131,7 +131,7 @@ void GazeboFixedWingPlugin::Configure(
 
   // Get base link
   const auto base_link_entity = model.LinkByName(ecm, base_link_name_);
-  base_link_ = make_shared<gz::sim::Link>(base_link_entity);
+  base_link_ = std::make_shared<gz::sim::Link>(base_link_entity);
   if (!base_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find base link \"", base_link_name_, "\".");
   }
@@ -148,7 +148,7 @@ void GazeboFixedWingPlugin::Configure(
     if (!joint_entity.has_value()) {
       TOBAS_EXIT("Failed to find the parent joint of control surface link \"", link_name, "\".");
     }
-    const auto joint = make_shared<gz::sim::Joint>(joint_entity.value());
+    const auto joint = std::make_shared<gz::sim::Joint>(joint_entity.value());
     if (!joint->Valid(ecm)) {
       TOBAS_EXIT("Failed to find control surface \"", link_name, "\".");
     }
@@ -224,7 +224,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   // ControlSurface
   if (sdf->HasElement(kControlSurfaceKey)) {
-    unordered_set<string> joint_names;
+    std::unordered_set<std::string> joint_names;
     auto cs_elem = sdf->FindElement(kControlSurfaceKey);
 
     while (cs_elem) {
@@ -273,7 +273,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   const auto& u = vel_B.X();
   const auto& v = vel_B.Y();
   const auto& w = vel_B.Z();
-  const auto V = max(vel_B.Length(), tobas::kMinAirSpeedThresh);  // V > 0 を保証する
+  const auto V = std::max(vel_B.Length(), tobas::kMinAirSpeedThresh);  // V > 0 を保証する
 
   // 迎角と横滑り角
   const auto alpha = tobas::angleOfAttack(u, w);      // 迎角 [rad]
@@ -298,7 +298,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   }
 
   // 時刻と迎角の変化率を更新
-  const auto dt = chrono::duration<double>(info.dt).count();
+  const auto dt = ch::duration<double>(info.dt).count();
   const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
   prev_alpha_ = alpha;
 
@@ -337,17 +337,18 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   base_link_->AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
 
   // デバッグ用メッセージを発行
-  auto debug_msg = make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
+  auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
   ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
   vectorGazeboToMsg(vel_B, debug_msg->relative_body_velocity);
   debug_msg->alpha = alpha;
   debug_msg->beta = beta;
   vectorGazeboToMsg(force_B, debug_msg->air_force);
   vectorGazeboToMsg(torque_B, debug_msg->air_moment);
-  debug_pub_->publish(move(debug_msg));
+  debug_pub_->publish(std::move(debug_msg));
 }
 
-double GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const string& link_name) const
+double
+GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const
 {
   return cs_joints_.at(link_name)->Position(ecm).value().front();
 }

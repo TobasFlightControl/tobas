@@ -4,8 +4,6 @@
 #include <gz/rendering/Scene.hh>
 #include <gz/transport/Node.hh>
 
-using namespace std;
-
 namespace gazebo
 {
 /* cf. gz-gui/src/plugins/camera_tracking/CameraTracking.cc */

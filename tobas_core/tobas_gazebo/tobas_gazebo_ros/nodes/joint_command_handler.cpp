@@ -66,7 +66,7 @@ void JointCommandHandlerNode::publishJointCommand(const std::string& jnt_name, d
   gz_cmd->data.push_back(command);
 
   const auto& publisher = ctrl_map_.at(jnt_name).second;
-  publisher->publish(move(gz_cmd));
+  publisher->publish(std::move(gz_cmd));
 }
 
 void JointCommandHandlerNode::publishJointCommand(const tobas_msgs::msg::JointCommand& cmd)

@@ -69,7 +69,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     for (const auto& [_, state] : rotor_states_) {
       rotor_states_msg->states.push_back(state);
     }
-    rotor_states_pub_->publish(move(rotor_states_msg));
+    rotor_states_pub_->publish(std::move(rotor_states_msg));
 
     // Reset
     rotor_states_.clear();

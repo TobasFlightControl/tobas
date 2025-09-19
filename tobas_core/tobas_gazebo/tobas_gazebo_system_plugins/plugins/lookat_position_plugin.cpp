@@ -8,7 +8,6 @@
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 
-using namespace std;
 namespace cmp = gz::sim::components;
 
 namespace gazebo

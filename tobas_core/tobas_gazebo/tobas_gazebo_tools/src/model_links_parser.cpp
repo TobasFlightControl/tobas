@@ -2,7 +2,6 @@
 
 #include "tobas_gazebo_tools/utils.hpp"
 
-using namespace std;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -14,7 +13,7 @@ ModelLinksParser::ModelLinksParser()
 bool ModelLinksParser::initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm)
 {
   if (!ecm.Component<cmp::Model>(model)) {
-    ignerr << "Model does not exist." << endl;
+    ignerr << "Model does not exist." << std::endl;
     return false;
   }
 

@@ -5,11 +5,13 @@
 
 #include <eigen3/Eigen/Core>
 
-using namespace std;
 using namespace Eigen;
 
 DepthNoiseModel::DepthNoiseModel(const float& min_depth, const float& max_depth)
-  : bad_point_(numeric_limits<float>::quiet_NaN()), rnd_gen_(rnd_dev_()), min_depth_(min_depth), max_depth_(max_depth)
+  : bad_point_(std::numeric_limits<float>::quiet_NaN())
+  , rnd_gen_(rnd_dev_())
+  , min_depth_(min_depth)
+  , max_depth_(max_depth)
 {
 }
 
@@ -96,7 +98,7 @@ void D435DepthNoiseModel::applyNoise(const size_t& width, const size_t& height, 
   // Sample noise for each pixel and transform variance according to error at this depth.
   for (size_t i = 0; i < width * height; ++i) {
     if (inRange(data_vector_map[i])) {
-      data_vector_map[i] += noise_(rnd_gen_) * min(((float)noise(i)), MaxStddev);
+      data_vector_map[i] += noise_(rnd_gen_) * std::min(((float)noise(i)), MaxStddev);
     }
     else {
       data_vector_map[i] = bad_point_;

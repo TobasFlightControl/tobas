@@ -9,7 +9,6 @@
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
-using namespace std;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -76,7 +75,7 @@ void GazeboGroundTruthStatePlugin::Configure(
   acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
   dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
 
-  rate_manager_ = make_shared<RateManager>(update_rate_);
+  rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
   odom_pub_ = createPublisher<tobas_msgs::Odometry>(kOdometryGtTopic);
 }
@@ -125,7 +124,7 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
   odom->gyro_covariance.setZero();
 
   // Publish state message
-  odom_pub_->publish(move(odom));
+  odom_pub_->publish(std::move(odom));
 }
 }  // namespace gazebo
 

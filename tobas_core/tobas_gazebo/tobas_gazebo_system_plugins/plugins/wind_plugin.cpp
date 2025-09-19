@@ -11,7 +11,7 @@
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 
-using namespace std;
+namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -60,13 +60,13 @@ private:
   };
 
   // SDF parameters
-  string link_name_;
+  std::string link_name_;
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
 
   tobas_gazebo_msgs::msg::WindParams params_;
-  chrono::steady_clock::duration gust_state_change_time_;
+  ch::steady_clock::duration gust_state_change_time_;
   GustState gust_state_ = kOff;
   double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
@@ -123,7 +123,7 @@ void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   // 突風
-  const auto t_gust = chrono::duration<double>(info.simTime - gust_state_change_time_).count();  // [s]
+  const auto t_gust = ch::duration<double>(info.simTime - gust_state_change_time_).count();  // [s]
   switch (gust_state_) {
     case kOn: {
       if (t_gust > params_.gust_duration) {
@@ -157,7 +157,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // 乱流成分を更新
   const auto rel_wind_speed = (steady_W - vel_W_->Data()).Length();  // 定常風の相対速度
-  const auto dt = chrono::duration<double>(info.dt).count();
+  const auto dt = ch::duration<double>(info.dt).count();
   dryden_.update(rel_wind_speed, pose_W_->Data().Pos().Z(), dt);
   const gz::math::Vector3d turb_B(dryden_.u(), dryden_.v(), dryden_.w());
 
@@ -165,12 +165,12 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   const auto wind_W = steady_W + pose_W_->Data().Rot().RotateVector(turb_B);
 
   // 風速メッセージを作成
-  auto wind_msg = make_unique<tobas_msgs::Wind>();
+  auto wind_msg = std::make_unique<tobas_msgs::Wind>();
   wind_msg->header.frame_id = tobas::kWorldFrame;
   vectorGazeboToKDL(wind_W, wind_msg->vel);
 
   // 風速を発行
-  wind_pub_->publish(move(wind_msg));
+  wind_pub_->publish(std::move(wind_msg));
 }
 
 void GazeboWindPlugin::getParamsCb(const GetSrv::Request::ConstSharedPtr&, const GetSrv::Response::SharedPtr& res)

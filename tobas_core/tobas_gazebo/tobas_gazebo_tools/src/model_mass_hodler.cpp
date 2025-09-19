@@ -1,6 +1,5 @@
 #include "tobas_gazebo_tools/model_mass_holder.hpp"
 
-using namespace std;
 using namespace gz::sim;
 
 namespace gazebo
@@ -12,7 +11,7 @@ ModelMassHolder::ModelMassHolder()
 bool ModelMassHolder::initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm)
 {
   if (!model_links_parser_.initialize(model, ecm)) {
-    gzerr << "Failed to initialize model links parser." << endl;
+    gzerr << "Failed to initialize model links parser." << std::endl;
     return false;
   }
 

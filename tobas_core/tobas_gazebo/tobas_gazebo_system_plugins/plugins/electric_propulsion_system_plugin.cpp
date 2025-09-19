@@ -28,7 +28,6 @@
 // TODO: 実機の時定数がSIMよりも大きくならないように想定しうる最大値に設定する．時定数を直接設定するほうが現実的かも．
 #define L_KV 2.
 
-using namespace std;
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
@@ -67,7 +66,7 @@ public:
 
 private:
   // SDF parameters
-  string link_name_;
+  std::string link_name_;
   double kv_;                    // [rad/s/V]
   double resistance_;            // [Ω]
   size_t num_blades_;            // [-]
@@ -97,9 +96,9 @@ private:
   RiceDistribution rice_;
 
   // Gazebo objects
-  shared_ptr<gz::sim::Joint> joint_;
-  shared_ptr<gz::sim::Link> link_;
-  shared_ptr<gz::sim::Link> parent_link_;
+  std::shared_ptr<gz::sim::Joint> joint_;
+  std::shared_ptr<gz::sim::Link> link_;
+  std::shared_ptr<gz::sim::Link> parent_link_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
@@ -143,7 +142,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   rice_ = RiceDistribution(1., vib_force_var_rate_);
 
-  publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
+  publish_state_rate_manager_ = std::make_shared<RateManager>(publish_state_rate_);
   addModelError();
 
   // Get robot model
@@ -157,7 +156,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   if (!joint_entity.has_value()) {
     TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
   }
-  joint_ = make_shared<gz::sim::Joint>(joint_entity.value());
+  joint_ = std::make_shared<gz::sim::Joint>(joint_entity.value());
   if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
   }
@@ -173,7 +172,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   // Get child link
   const auto link_entity = model.LinkByName(ecm, link_name_);
-  link_ = make_shared<gz::sim::Link>(link_entity);
+  link_ = std::make_shared<gz::sim::Link>(link_entity);
   if (!link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
   }
@@ -181,7 +180,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   // Get parent link
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
-  parent_link_ = make_shared<gz::sim::Link>(parent_link_entity);
+  parent_link_ = std::make_shared<gz::sim::Link>(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
   }
@@ -278,8 +277,8 @@ void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
 void GazeboElectricPropulsionSystemPlugin::addModelError()
 {
   // 一様乱数を作成
-  random_device rnd_dev;
-  mt19937 rnd_gen(rnd_dev());
+  std::random_device rnd_dev;
+  std::mt19937 rnd_gen(rnd_dev());
   UniformDistribution uniform(-1, 1);
 
   // モータ
@@ -346,7 +345,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
 
   // Publish observed state
   if (publish_state_rate_manager_->update(cur_time)) {
-    auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
+    auto state_msg_obs = std::make_unique<tobas_msgs::msg::RotorState>();
     state_msg_obs->link_name = link_name_;
     if (is_intact_) {
       state_msg_obs->speed = direction_ * velocity_;
@@ -358,17 +357,17 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
       state_msg_obs->thrust = NAN;
       state_msg_obs->status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
     }
-    state_pub_->publish(move(state_msg_obs));
+    state_pub_->publish(std::move(state_msg_obs));
   }
 
   // Publish ground-truth state
   // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築 (倍周波も考慮)
-  auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
+  auto state_msg_gt = std::make_unique<tobas_gazebo_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
   state_msg_gt->rotation_speed = direction_ * velocity_;
   state_msg_gt->current = current;
   state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(position_) * rice_(rnd_gen_);
-  state_gt_pub_->publish(move(state_msg_gt));
+  state_gt_pub_->publish(std::move(state_msg_gt));
 }
 
 void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
@@ -381,7 +380,7 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   const auto Ea = battery_gt_->voltage * throttle_;                                         // 印加電圧
   const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
-  const auto cur_speed = max(direction_ * velocity_, 0.);
+  const auto cur_speed = std::max(direction_ * velocity_, 0.);
 
   // 次の時刻の回転数を求める
   double next_speed;

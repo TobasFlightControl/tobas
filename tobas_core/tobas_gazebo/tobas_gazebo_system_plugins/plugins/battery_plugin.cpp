@@ -12,7 +12,7 @@
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
-using namespace std;
+namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -52,15 +52,15 @@ private:
   double registance_;   // [Ω] 内部抵抗値
   double voltage_noise_stddev_;  // [V] 電圧の観測ノイズの標準偏差
   double current_noise_stddev_;  // [A] 電流の観測ノイズの標準偏差
-  vector<string> rotor_link_names_;
+  std::vector<std::string> rotor_link_names_;
 
-  map<string, double> rotor_currents_;  // [A] 各モータに流れる電流
-  double q_;                            // [As] 現在の電気量
+  std::map<std::string, double> rotor_currents_;  // [A] 各モータに流れる電流
+  double q_;                                      // [As] 現在の電気量
   RateManager::SharedPtr rate_manager_;
 
   // Noise generator
-  random_device rnd_dev_;
-  mt19937 rnd_gen_;
+  std::random_device rnd_dev_;
+  std::mt19937 rnd_gen_;
   NormalDistribution voltage_noise_;
   NormalDistribution current_noise_;
 
@@ -69,7 +69,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_gt_pub_;
 
   // Subscribers
-  vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
+  std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
   // Service servers
   ros2::ServiceServerPtr<std_srvs::srv::Empty> charge_srv_;
@@ -96,7 +96,7 @@ void GazeboBatteryPlugin::Configure(
   getSdfParams(sdf);
 
   q_ = capacity_;
-  rate_manager_ = make_shared<RateManager>(update_rate_);
+  rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
   voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
@@ -144,7 +144,7 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   if (rotor_currents_.size() < rotor_link_names_.size()) {
     if (info.simTime > kCheckTopicWarnStartTime) {
       const auto num_not_received = rotor_link_names_.size() - rotor_currents_.size();
-      TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
+      TOBAS_WARN_THROTTLE(kWarnPeriod, std::to_string(num_not_received), " rotor states are not received yet.");
     }
   }
 
@@ -156,30 +156,30 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   if (current_true > max_current_) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current_true, " > ", max_current_, " [A]");
   }
-  const auto current_obs = max(current_true + current_noise_(rnd_gen_), 0.);  // 観測ノイズを受けた観測電流
+  const auto current_obs = std::max(current_true + current_noise_(rnd_gen_), 0.);  // 観測ノイズを受けた観測電流
 
   // 電気容量の減少
-  const auto dt = chrono::duration<double>(info.dt).count();
-  q_ = max(q_ - current_true * dt, 0.);
+  const auto dt = ch::duration<double>(info.dt).count();
+  q_ = std::max(q_ - current_true * dt, 0.);
 
   // 電圧を計算
-  const auto voltage_in = currentVoltage();                                   // 内部電圧
-  const auto voltage_out = max(voltage_in - registance_ * current_true, 0.);  // 内部抵抗による電圧降下
-  const auto voltage_obs = max(voltage_out + voltage_noise_(rnd_gen_), 0.);   // 観測ノイズを受けた観測電圧
+  const auto voltage_in = currentVoltage();                                        // 内部電圧
+  const auto voltage_out = std::max(voltage_in - registance_ * current_true, 0.);  // 内部抵抗による電圧降下
+  const auto voltage_obs = std::max(voltage_out + voltage_noise_(rnd_gen_), 0.);  // 観測ノイズを受けた観測電圧
 
   // 観測したバッテリーの状態を発行
-  auto battery = make_unique<tobas_msgs::msg::Battery>();
+  auto battery = std::make_unique<tobas_msgs::msg::Battery>();
   ros2::timeChronoToMsg(info.simTime, battery->header.stamp);
   battery->voltage = voltage_obs;
   battery->current = current_obs;
-  battery_pub_->publish(move(battery));
+  battery_pub_->publish(std::move(battery));
 
   // 真のバッテリーの状態を発行
-  auto battery_gt = make_unique<tobas_msgs::msg::Battery>();
+  auto battery_gt = std::make_unique<tobas_msgs::msg::Battery>();
   ros2::timeChronoToMsg(info.simTime, battery_gt->header.stamp);
   battery_gt->voltage = voltage_out;
   battery_gt->current = current_true;
-  battery_gt_pub_->publish(move(battery_gt));
+  battery_gt_pub_->publish(std::move(battery_gt));
 }
 
 double GazeboBatteryPlugin::currentVoltage()
