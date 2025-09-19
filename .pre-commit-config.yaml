@@ -66,11 +66,11 @@ repos:
         entry: cmake-format
         language: system
         args: ["-i"]
-        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        files: (CMakeLists\.txt|.*\.cmake)$
       - id: cmake-lint
         name: cmake-lint
         entry: cmake-lint
         language: system
         args:
           - "--suppress-decorations"
-        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        files: (CMakeLists\.txt|.*\.cmake)$
