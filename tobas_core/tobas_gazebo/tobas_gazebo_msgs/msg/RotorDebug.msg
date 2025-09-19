@@ -1,0 +1,6 @@
+std_msgs/Header header
+geometry_msgs/Vector3 inertia_moment
+geometry_msgs/Vector3 coriolis_moment
+geometry_msgs/Vector3 thrust_force
+geometry_msgs/Vector3 h_force
+geometry_msgs/Vector3 drag_momeent

@@ -5,6 +5,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
+#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -14,6 +15,7 @@
 
 #include <std_srvs/srv/trigger.hpp>
 
+#include <tobas_gazebo_msgs/msg/rotor_debug.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -41,15 +43,10 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
                                              public gz::sim::ISystemPreUpdate
 {
   // Constants
+  static constexpr char kDebugTopicNS[] = "gazebo/rotor_debug";
   static constexpr double kAutoStopTimeout = 0.5;    // [s]
   static constexpr double kMinBatteryVoltage = 3.;   // [V]
   static constexpr double kThrotLimitMargin = 1e-3;  // [-]
-
-  // Default parameters
-  static constexpr size_t kDefaultPublishStateRate = 400;             // [Hz]
-  static constexpr double kDefaultVibrationForceCoef = 1.5;           // [-]
-  static constexpr double kDefaultVibrationForceVariationRate = 0.3;  // [-]
-  static constexpr double kDefaultMaxModelErrorRate = 0.;             // [-]
 
   using self = GazeboElectricPropulsionSystemPlugin;
   using BreakSrv = std_srvs::srv::Trigger;
@@ -110,6 +107,7 @@ private:
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorState> state_gt_pub_;
+  ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorDebug> debug_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::Throttle> throttle_sub_;
@@ -222,11 +220,10 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
 
   getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
 
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
-  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, kDefaultVibrationForceCoef, kNonNegative);
-  getSdfParam(
-    sdf, "vibrationForceVariationRate", vib_force_var_rate_, kDefaultVibrationForceVariationRate, kNonNegative);
-  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, kNonNegative);
+  getSdfParam(sdf, "publishStateRate", publish_state_rate_, 400UL, kNonNegative);
+  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, 1.5, kNonNegative);
+  getSdfParam(sdf, "vibrationForceVariationRate", vib_force_var_rate_, 0.3, kNonNegative);
+  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, 0., kNonNegative);
 }
 
 void GazeboElectricPropulsionSystemPlugin::PreUpdate(
@@ -267,6 +264,7 @@ void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
 {
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
   state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(path::join(kDebugTopicNS, link_name_));
 
   throttle_sub_ = createSubscriber(path::join(kRotorThrottleCmdTopicNS, link_name_), &self::throttleCmdCb, this);
   battery_gt_sub_ = createSubscriber(kBatteryGtTopic, &self::batteryGtCb, this);
@@ -310,11 +308,11 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
 
   // Coriolis moment (Gyro effect)
   const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // wrt. CoM
-  const auto coriolis_moment_W = -angvel_W_->Data().Cross(I_W * (velocity_ * global_axis));
+  const auto coriolis_moment_W = -angvel_W_->Data().Cross(I_W * (velocity_ * global_axis)) * 10;
 
   // External force: Thrust Force
   const auto thrust = motor_const_ * math::sqr(velocity_);
-  const auto thrust_W = thrust * global_axis;
+  const auto thrust_force_W = thrust * global_axis;
 
   // External force: H-force
   const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
@@ -326,7 +324,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto drag_moment_W = (-direction_ * torque) * global_axis;
 
   // Apply force and moment
-  link_->AddWorldWrench(ecm, thrust_W + h_force_W, gz::math::Vector3d::Zero);
+  link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
   parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertia_moment_W + coriolis_moment_W + drag_moment_W);
 
   // Compute electric current
@@ -372,6 +370,16 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   state_msg_gt->current = current;
   state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(position_) * rice_(rnd_gen_);
   state_gt_pub_->publish(std::move(state_msg_gt));
+
+  // Publish debug information
+  auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::RotorDebug>();
+  ros2::timeChronoToMsg(cur_time, debug_msg->header.stamp);
+  vectorGazeboToRos(inertia_moment_W, debug_msg->inertia_moment);
+  vectorGazeboToRos(coriolis_moment_W, debug_msg->coriolis_moment);
+  vectorGazeboToRos(thrust_force_W, debug_msg->thrust_force);
+  vectorGazeboToRos(h_force_W, debug_msg->h_force);
+  vectorGazeboToRos(drag_moment_W, debug_msg->drag_momeent);
+  debug_pub_->publish(std::move(debug_msg));
 }
 
 void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
