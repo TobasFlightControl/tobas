@@ -13,6 +13,7 @@
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
@@ -137,9 +138,9 @@ void GazeboFixedWingPlugin::Configure(
   }
 
   // Create necessary components
-  pose_W_ = getComponent<cmp::WorldPose>(base_link_entity, ecm);
-  vel_W_ = getComponent<cmp::WorldLinearVelocity>(base_link_entity, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(base_link_entity, ecm);
+  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(base_link_entity, ecm));
+  TOBAS_CHECK(vel_W_ = getComponent<cmp::WorldLinearVelocity>(base_link_entity, ecm));
+  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(base_link_entity, ecm));
 
   // Get control surface joint models
   for (const auto& [link_name, _] : control_surfaces_) {
