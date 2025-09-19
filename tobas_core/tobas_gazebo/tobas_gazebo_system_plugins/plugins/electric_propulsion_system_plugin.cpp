@@ -78,9 +78,10 @@ private:
   double vib_force_var_rate_;    // [-]
   double max_model_error_rate_;  // [-]
 
-  double throttle_ = 0.;  // [0, 1]
-  double velocity_ = 0.;  // [rad/s]
-  double position_ = 0.;  // [rad]
+  double throt_ = 0.;  // [0, 1]
+  double acc_ = 0.;    // [rad/s^2]
+  double vel_ = 0.;    // [rad/s]
+  double pos_ = 0.;    // [rad]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_gt_;
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   ch::steady_clock::duration prev_sim_time_;
@@ -122,7 +123,16 @@ private:
   void addModelError();
 
   double velocitySim() const;
+
+  /**
+   * @brief Gazeboには含まれない力を加える．
+   *
+   * - 慣性力とコリオリ力: Gazebo上では低速回転になっているため，回転体の運動により発生するモーメントを別で与える必要がある．
+   *
+   * - 大気から受ける空気力: 推力，反トルク，回転軸と垂直の方向に発生する抗力．
+   */
   void applyWrenchAndPublishState(gz::sim::EntityComponentManager& ecm, const ch::steady_clock::duration& cur_time);
+
   void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle);
@@ -244,7 +254,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = ch::duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeout) {
-    throttle_ = 0.;
+    throt_ = 0.;
   }
 
   // Compute time after previous simulation time
@@ -292,7 +302,7 @@ void GazeboElectricPropulsionSystemPlugin::addModelError()
 
 double GazeboElectricPropulsionSystemPlugin::velocitySim() const
 {
-  return velocity_ / kRotorSpeedSlowdownSim;
+  return vel_ / kRotorSpeedSlowdownSim;
 }
 
 void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
@@ -300,32 +310,34 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const ch::steady_clock::duration& cur_time)
 {
   // Get joint axes
-  const auto& local_axis = jnt_axis_->Data().Xyz();
-  const auto global_axis = pose_W_->Data().Rot().RotateVector(local_axis);
+  const auto& R_W_L = pose_W_->Data().Rot();
+  const auto& axis_L = jnt_axis_->Data().Xyz();
+  const auto axis_W = R_W_L.RotateVector(axis_L);
 
-  // Inertia moment
-  const auto inertia_moment_W = -gz::math::Vector3d::Zero;  // TODO
+  // Inertial moment
+  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // 回転軸上に重心がある想定
+  const auto inertial_moment_W = -(I_W * (acc_ * axis_W));
 
   // Coriolis moment (Gyro effect)
-  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // 回転軸上に重心がある想定
-  const auto coriolis_moment_W = -angvel_W_->Data().Cross(I_W * (velocity_ * global_axis));
+  const auto L_W = I_W * (vel_ * axis_W);  // プロペラの角運動量
+  const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
   // External force: Thrust Force
-  const auto thrust = motor_const_ * math::sqr(velocity_);
-  const auto thrust_force_W = thrust * global_axis;
+  const auto thrust = motor_const_ * math::sqr(vel_);
+  const auto thrust_force_W = thrust * axis_W;
 
   // External force: H-force
   const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
-  const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-fabs(velocity_) * drag_const_) * linvel_perp_W;
+  const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
+  const auto h_force_W = (-fabs(vel_) * drag_const_) * linvel_perp_W;
 
   // External moment: Rotor drag torque
   const auto torque = moment_const_ * thrust;
-  const auto drag_moment_W = (-direction_ * torque) * global_axis;
+  const auto drag_moment_W = (-direction_ * torque) * axis_W;
 
   // Apply force and moment
   link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
-  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertia_moment_W + coriolis_moment_W + drag_moment_W);
+  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertial_moment_W + coriolis_moment_W + drag_moment_W);
 
   // Compute electric current
   const auto kt = 1. / kv_;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
@@ -342,7 +354,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
       max_current_,
       " A.");
     is_intact_ = false;
-    throttle_ = 0.;
+    throt_ = 0.;
   }
 
   // Publish observed state
@@ -350,7 +362,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
     auto state_msg_obs = std::make_unique<tobas_msgs::msg::RotorState>();
     state_msg_obs->link_name = link_name_;
     if (is_intact_) {
-      state_msg_obs->speed = direction_ * velocity_;
+      state_msg_obs->speed = direction_ * vel_;
       state_msg_obs->thrust = thrust;
       state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
     }
@@ -366,15 +378,18 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築 (倍周波も考慮)
   auto state_msg_gt = std::make_unique<tobas_gazebo_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
-  state_msg_gt->rotation_speed = direction_ * velocity_;
+  state_msg_gt->rotation_speed = direction_ * vel_;
   state_msg_gt->current = current;
-  state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(position_) * rice_(rnd_gen_);
+  state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(pos_) * rice_(rnd_gen_);
   state_gt_pub_->publish(std::move(state_msg_gt));
 
   // Publish debug information
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::RotorDebug>();
   ros2::timeChronoToMsg(cur_time, debug_msg->header.stamp);
-  vectorGazeboToRos(inertia_moment_W, debug_msg->inertia_moment);
+  debug_msg->position = pos_;
+  debug_msg->velocity = vel_;
+  debug_msg->acceleration = acc_;
+  vectorGazeboToRos(inertial_moment_W, debug_msg->inertia_moment);
   vectorGazeboToRos(coriolis_moment_W, debug_msg->coriolis_moment);
   vectorGazeboToRos(thrust_force_W, debug_msg->thrust_force);
   vectorGazeboToRos(h_force_W, debug_msg->h_force);
@@ -389,10 +404,10 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   const auto b = resistance_ * kv_ * moment_const_ * motor_const_;
   const auto c = 1. / kv_;
 
-  const auto Ea = battery_gt_->voltage * throttle_;                                         // 印加電圧
+  const auto Ea = battery_gt_->voltage * throt_;                                            // 印加電圧
   const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
-  const auto cur_speed = std::max(direction_ * velocity_, 0.);
+  const auto cur_speed = std::max(direction_ * vel_, 0.);
 
   // 次の時刻の回転数を求める
   double next_speed;
@@ -412,8 +427,10 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   }
 
   // ジョイントの状態を更新
-  position_ += velocity_ * dt;
-  velocity_ = direction_ * next_speed;
+  const auto next_vel = direction_ * next_speed;
+  acc_ = (next_vel - vel_) / dt;  // 数値微分で加速度を計算
+  pos_ += vel_ * dt;              // 前回の速度で積分するのが大事
+  vel_ = next_vel;
 
   // 視認用にGazeboに反映
   joint_->SetVelocity(ecm, { velocitySim() });
@@ -438,7 +455,7 @@ void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs
   if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data) {
     TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
   }
-  throttle_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
+  throt_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
 void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
@@ -457,7 +474,7 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
 {
   if (is_intact_) {
     is_intact_ = false;
-    throttle_ = 0.;
+    throt_ = 0.;
     res->message = "Rotor \"" + link_name_ + "\" has been broken.";
   }
   else {
