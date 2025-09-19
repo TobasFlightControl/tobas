@@ -9,6 +9,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include <std_srvs/srv/trigger.hpp>
@@ -99,6 +100,12 @@ private:
   std::shared_ptr<gz::sim::Joint> joint_;
   std::shared_ptr<gz::sim::Link> link_;
   std::shared_ptr<gz::sim::Link> parent_link_;
+  const cmp::JointAxis* jnt_axis_;
+  const cmp::JointVelocity* jnt_vel_;
+  const cmp::WorldPose* pose_W_;
+  const cmp::WorldLinearVelocity* linvel_W_;
+  const cmp::WorldAngularVelocity* angvel_W_;
+  const cmp::Inertial* inertial_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
@@ -186,18 +193,12 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   }
 
   // Create necessary components
-  if (!getComponent<cmp::JointAxis>(joint_entity.value(), ecm)) {
-    TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name, "\".");
-  }
-  if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm)) {
-    TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name, "\".");
-  }
-  if (!getComponent<cmp::WorldPose>(link_entity, ecm)) {
-    TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name_, "\".");
-  }
-  if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm)) {
-    TOBAS_EXIT("Failed to get component WorldLinearVelocity of link \"", link_name_, "\".");
-  }
+  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity.value(), ecm));
+  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity.value(), ecm));
+  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
+  TOBAS_CHECK(linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm));
+  TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
+  TOBAS_CHECK(inertial_ = getComponent<cmp::Inertial>(link_entity, ecm));
 
   // Register ROS interfaces
   registerROSInterfaces();
@@ -300,30 +301,33 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   gz::sim::EntityComponentManager& ecm,
   const ch::steady_clock::duration& cur_time)
 {
-  // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
-  // II-A. Model of a single propeller near hovering
-  // TODO: Implement other terms
-  // TODO: II-B. Model of the complete quadrotor
-
   // Get joint axes
-  const auto& local_axis = joint_->Axis(ecm).value().front().Xyz();
-  const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
+  const auto& local_axis = jnt_axis_->Data().Xyz();
+  const auto global_axis = pose_W_->Data().Rot().RotateVector(local_axis);
 
-  // (1) first term: Thrust Force
+  // Inertia moment
+  const auto inertia_moment_W = -gz::math::Vector3d::Zero;  // TODO
+
+  // Coriolis moment (Gyro effect)
+  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // wrt. CoM
+  const auto coriolis_moment_W = -angvel_W_->Data().Cross(I_W * (velocity_ * global_axis));
+
+  // External force: Thrust Force
   const auto thrust = motor_const_ * math::sqr(velocity_);
   const auto thrust_W = thrust * global_axis;
-  link_->AddWorldWrench(ecm, thrust_W, gz::math::Vector3d::Zero);
 
-  // (1) second term: H-force
-  const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
-  const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
+  // External force: H-force
+  const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
+  const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(global_axis) * global_axis);
   const auto h_force_W = (-fabs(velocity_) * drag_const_) * linvel_perp_W;
-  link_->AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
 
-  // (2) first term: Rotor drag torque
+  // External moment: Rotor drag torque
   const auto torque = moment_const_ * thrust;
-  const auto drag_torque_W = (-direction_ * torque) * global_axis;
-  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, drag_torque_W);
+  const auto drag_moment_W = (-direction_ * torque) * global_axis;
+
+  // Apply force and moment
+  link_->AddWorldWrench(ecm, thrust_W + h_force_W, gz::math::Vector3d::Zero);
+  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertia_moment_W + coriolis_moment_W + drag_moment_W);
 
   // Compute electric current
   const auto kt = 1. / kv_;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
