@@ -307,8 +307,8 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto inertia_moment_W = -gz::math::Vector3d::Zero;  // TODO
 
   // Coriolis moment (Gyro effect)
-  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // wrt. CoM
-  const auto coriolis_moment_W = -angvel_W_->Data().Cross(I_W * (velocity_ * global_axis)) * 10;
+  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // 回転軸上に重心がある想定
+  const auto coriolis_moment_W = -angvel_W_->Data().Cross(I_W * (velocity_ * global_axis));
 
   // External force: Thrust Force
   const auto thrust = motor_const_ * math::sqr(velocity_);
