@@ -43,7 +43,7 @@ class GazeboFixedWingPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kControlSurfaceKey[] = "controlSurface";
-  static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
+  static constexpr char kDebugTopic[] = "gazebo/fixed_wing_debug";
 
   using self = GazeboFixedWingPlugin;
 
@@ -252,7 +252,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugPubTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugTopic);
   wind_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedCb, this);
 }
 
@@ -340,11 +340,11 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   // デバッグ用メッセージを発行
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
   ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
-  vectorGazeboToMsg(vel_B, debug_msg->relative_body_velocity);
+  vectorGazeboToRos(vel_B, debug_msg->relative_body_velocity);
   debug_msg->alpha = alpha;
   debug_msg->beta = beta;
-  vectorGazeboToMsg(force_B, debug_msg->air_force);
-  vectorGazeboToMsg(torque_B, debug_msg->air_moment);
+  vectorGazeboToRos(force_B, debug_msg->air_force);
+  vectorGazeboToRos(torque_B, debug_msg->air_moment);
   debug_pub_->publish(std::move(debug_msg));
 }
 

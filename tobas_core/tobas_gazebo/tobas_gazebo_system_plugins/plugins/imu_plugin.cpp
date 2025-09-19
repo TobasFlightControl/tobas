@@ -36,7 +36,7 @@ class GazeboImuPlugin : public BaseNode,
                         public gz::sim::ISystemPostUpdate
 {
   // Constants
-  static constexpr char kDebugPubTopic[] = "gazebo/imu_debug";
+  static constexpr char kDebugTopic[] = "gazebo/imu_debug";
 
   static constexpr double kStaticAccThresh = 1.;    // [m/s^2]
   static constexpr double kStaticGyroThresh = 0.1;  // [rad/s]
@@ -151,7 +151,7 @@ void GazeboImuPlugin::Configure(
 
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugTopic);
 
   engine_state_sub_ = createSubscriber(kEngineStateGtTopic, &self::engineStateCb, this);
 
@@ -268,8 +268,8 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
   ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
   debug_msg->header.frame_id = link_name_;
-  vectorGazeboToMsg(acc_bias_, debug_msg->acc_bias);
-  vectorGazeboToMsg(gyro_bias_, debug_msg->gyro_bias);
+  vectorGazeboToRos(acc_bias_, debug_msg->acc_bias);
+  vectorGazeboToRos(gyro_bias_, debug_msg->gyro_bias);
   debug_pub_->publish(std::move(debug_msg));
 }
 

@@ -11,15 +11,15 @@
 
 namespace gazebo
 {
-void vectorGazeboToMsg(const gz::math::Vector3d& g, geometry_msgs::msg::Vector3& m);
-void vectorMsgToGazebo(const geometry_msgs::msg::Vector3& m, gz::math::Vector3d& g);
+void vectorGazeboToRos(const gz::math::Vector3d& g, geometry_msgs::msg::Vector3& m);
+void vectorRosToGazebo(const geometry_msgs::msg::Vector3& m, gz::math::Vector3d& g);
 
-void pointGazeboToMsg(const gz::math::Vector3d& g, geometry_msgs::msg::Point& m);
-void pointMsgToGazebo(const geometry_msgs::msg::Point& m, gz::math::Vector3d& g);
+void pointGazeboToRos(const gz::math::Vector3d& g, geometry_msgs::msg::Point& m);
+void pointRosToGazebo(const geometry_msgs::msg::Point& m, gz::math::Vector3d& g);
 
-void quaternionGazeboToMsg(const gz::math::Quaterniond& g, geometry_msgs::msg::Quaternion& m);
-void quaternionMsgToGazebo(const geometry_msgs::msg::Quaternion& m, gz::math::Quaterniond& g);
+void quaternionGazeboToRos(const gz::math::Quaterniond& g, geometry_msgs::msg::Quaternion& m);
+void quaternionRosToGazebo(const geometry_msgs::msg::Quaternion& m, gz::math::Quaterniond& g);
 
-void poseGazeboToMsg(const gz::math::Pose3d& g, geometry_msgs::msg::Pose& m);
-void poseMsgToGazebo(const geometry_msgs::msg::Pose& m, gz::math::Pose3d& g);
+void poseGazeboToRos(const gz::math::Pose3d& g, geometry_msgs::msg::Pose& m);
+void poseRosToGazebo(const geometry_msgs::msg::Pose& m, gz::math::Pose3d& g);
 }  // namespace gazebo
