@@ -322,7 +322,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto L_W = I_W * (vel_ * axis_W);  // プロペラの角運動量
   const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
-  // External force: Thrust Force
+  // External force: Thrust force
   const auto thrust = motor_const_ * math::sqr(vel_);
   const auto thrust_force_W = thrust * axis_W;
 
@@ -331,11 +331,11 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
   const auto h_force_W = (-fabs(vel_) * drag_const_) * linvel_perp_W;
 
-  // External moment: Rotor drag torque
+  // External moment: Drag torque
   const auto torque = moment_const_ * thrust;
   const auto drag_moment_W = (-direction_ * torque) * axis_W;
 
-  // Apply force and moment
+  // Apply wrench
   link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
   parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertial_moment_W + coriolis_moment_W + drag_moment_W);
 
