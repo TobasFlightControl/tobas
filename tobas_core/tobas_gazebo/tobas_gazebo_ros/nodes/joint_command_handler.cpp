@@ -1,11 +1,10 @@
 #include <tobas_constants/constants.hpp>
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
-
-#include <std_msgs/msg/float64_multi_array.hpp>
-
-#include <controller_manager_msgs/srv/list_controllers.hpp>
+#include <tobas_path_tools/join.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_gazebo_msgs/msg/joint_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
 /**
@@ -27,15 +26,13 @@ private:
 
   std::unordered_map<
     std::string,
-    std::pair<tobas::JointCommandInterface, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>>
+    std::pair<tobas::JointCommandInterface, ros2::PublisherPtr<tobas_gazebo_msgs::msg::JointCommand>>>
     ctrl_map_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
-
-  ros2::ServiceClientPtr<controller_manager_msgs::srv::ListControllers> list_controllers_sc_;
 
   ros2::TimerPtr pos_reset_timer_;
   ros2::TimerPtr vel_reset_timer_;
@@ -62,8 +59,8 @@ JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& opti
 
 void JointCommandHandlerNode::publishJointCommand(const std::string& jnt_name, double command)
 {
-  auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
-  gz_cmd->data.push_back(command);
+  auto gz_cmd = std::make_unique<tobas_gazebo_msgs::msg::JointCommand>();
+  gz_cmd->data = command;
 
   const auto& publisher = ctrl_map_.at(jnt_name).second;
   publisher->publish(std::move(gz_cmd));
@@ -81,10 +78,9 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // Resister publishers
   ctrl_map_.clear();
   for (const auto& [_, joint] : drone->joints) {
-    const auto controller_name = joint.name + "_controller";
-    const auto topic = controller_name + "/commands";
+    const auto topic = path::join(gazebo::kJointCommandTopicNS, joint.name);
     ctrl_map_[joint.name] = { static_cast<tobas::JointCommandInterface>(joint.cmd_iface),
-                              createPublisher<std_msgs::msg::Float64MultiArray>(topic, false, true) };
+                              createPublisher<tobas_gazebo_msgs::msg::JointCommand>(topic, false, true) };
   }
 
   // Resister subscribers

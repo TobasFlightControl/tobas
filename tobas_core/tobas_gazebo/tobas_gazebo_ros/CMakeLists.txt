@@ -12,9 +12,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(std_srvs REQUIRED)
-find_package(controller_manager_msgs REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
@@ -23,9 +20,6 @@ find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
-    sensor_msgs
-    std_srvs
-    controller_manager_msgs
     tobas_node
     tobas_tools
     tobas_drone_msgs_adapter
@@ -47,7 +41,6 @@ rclcpp_components_register_node(
 rclcpp_components_register_node(
   ${PROJECT_NAME}_node PLUGIN "ElectricRotorCommandHandlerNode" EXECUTABLE electric_rotor_command_handler
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointStatesBridge" EXECUTABLE joint_states_bridge)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointCommandHandlerNode" EXECUTABLE joint_command_handler)
 
 install(
