@@ -65,10 +65,7 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES
-  DESTINATION include
 )
-install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 pluginlib_export_plugin_description_file(rviz_common plugin_description.xml)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

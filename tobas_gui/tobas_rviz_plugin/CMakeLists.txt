@@ -54,15 +54,12 @@ add_library(${PROJECT_NAME} SHARED ${NODE_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_lib)
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 
-install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES
-  DESTINATION include
 )
 pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
 
