@@ -58,7 +58,6 @@ target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
 # Build each plugin
 file(GLOB_RECURSE PLUGIN_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
 set(TARGETS_TO_INSTALL "")
-
 foreach(file_path IN LISTS PLUGIN_TARGETS)
   get_filename_component(FILE_NAME ${file_path} NAME_WE)
   set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})

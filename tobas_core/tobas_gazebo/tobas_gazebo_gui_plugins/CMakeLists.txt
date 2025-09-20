@@ -33,17 +33,13 @@ ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 # Build each plugin
 file(GLOB PLUGIN_DIR_PATHS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*)
 set(TARGETS_TO_INSTALL "")
-
 foreach(dir_path IN LISTS PLUGIN_DIR_PATHS)
   get_filename_component(PLUGIN_NAME ${dir_path} NAME_WE)
-
   qt5_wrap_cpp(MOC_SOURCE ${dir_path}/${PLUGIN_NAME}.hpp)
   qt_add_resources(RCC_SOURCE ${dir_path}/${PLUGIN_NAME}.qrc)
-
   add_library(${PLUGIN_NAME} SHARED ${MOC_SOURCE} ${RCC_SOURCE} ${dir_path}/${PLUGIN_NAME}.cpp)
   target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
   target_link_options(${PLUGIN_NAME} PRIVATE -Wl,--no-undefined)
-
   list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
 endforeach()
 

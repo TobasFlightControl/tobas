@@ -26,7 +26,6 @@ ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 set(TARGETS_TO_INSTALL "")
-
 foreach(file_path IN LISTS EXEC_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
