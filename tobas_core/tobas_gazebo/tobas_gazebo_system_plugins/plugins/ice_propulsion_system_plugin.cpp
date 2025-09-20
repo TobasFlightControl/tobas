@@ -99,7 +99,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   publish_state_rate_manager_ = std::make_shared<RateManager>(publish_state_rate_);
 
   // Get robot model
-  gz::sim::Model model(model_entity);
+  const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }

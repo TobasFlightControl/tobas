@@ -25,7 +25,7 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
   node_ = rclcpp::Node::make_shared(name, ns_);
   executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
   executor_->add_node(node_);
-  auto spin = [this]() { executor_->spin(); };
+  const auto spin = [this]() { executor_->spin(); };
   spin_thread_ = std::thread(spin);
 
   message_pub_ = createPublisher<tobas_msgs::msg::Message>(tobas::kMessageTopic);

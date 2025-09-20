@@ -161,7 +161,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   addModelError();
 
   // Get robot model
-  gz::sim::Model model(model_entity);
+  const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
