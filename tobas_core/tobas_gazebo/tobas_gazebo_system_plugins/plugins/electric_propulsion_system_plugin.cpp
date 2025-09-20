@@ -212,30 +212,6 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   registerROSInterfaces();
 }
 
-void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-
-  getSdfParam(sdf, "kv", kv_, kPositive);
-  getSdfParam(sdf, "internalResistance", resistance_, kPositive);
-  getSdfParam(sdf, "numberOfBlades", num_blades_, kPositive);
-
-  getSdfParam(sdf, "motorConstant", motor_const_, kPositive);
-  getSdfParam(sdf, "momentConstant", moment_const_, kPositive);
-  getSdfParam(sdf, "dragConstant", drag_const_, kNonNegative);
-
-  if (!getTurningDirection(sdf, direction_)) {
-    TOBAS_EXIT("Failed to get turning direction.");
-  }
-
-  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
-
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, 400UL, kNonNegative);
-  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, 1.5, kNonNegative);
-  getSdfParam(sdf, "vibrationForceVariationRate", vib_force_var_rate_, 0.3, kNonNegative);
-  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, 0., kNonNegative);
-}
-
 void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const gz::sim::UpdateInfo& info,
   gz::sim::EntityComponentManager& ecm)
@@ -268,6 +244,30 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   // Update simulation state
   applyWrenchAndPublishState(ecm, info.simTime);
   updateJointState(ecm, dt);
+}
+
+void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
+
+  getSdfParam(sdf, "kv", kv_, kPositive);
+  getSdfParam(sdf, "internalResistance", resistance_, kPositive);
+  getSdfParam(sdf, "numberOfBlades", num_blades_, kPositive);
+
+  getSdfParam(sdf, "motorConstant", motor_const_, kPositive);
+  getSdfParam(sdf, "momentConstant", moment_const_, kPositive);
+  getSdfParam(sdf, "dragConstant", drag_const_, kNonNegative);
+
+  if (!getTurningDirection(sdf, direction_)) {
+    TOBAS_EXIT("Failed to get turning direction.");
+  }
+
+  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
+
+  getSdfParam(sdf, "publishStateRate", publish_state_rate_, 400UL, kNonNegative);
+  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, 1.5, kNonNegative);
+  getSdfParam(sdf, "vibrationForceVariationRate", vib_force_var_rate_, 0.3, kNonNegative);
+  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, 0., kNonNegative);
 }
 
 void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()

@@ -80,12 +80,6 @@ void GazeboGroundTruthStatePlugin::Configure(
   odom_pub_ = createPublisher<tobas_msgs::Odometry>(kOdometryGtTopic);
 }
 
-void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
-}
-
 void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime)) {
@@ -125,6 +119,12 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
 
   // Publish state message
   odom_pub_->publish(std::move(odom));
+}
+
+void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 }  // namespace gazebo
 

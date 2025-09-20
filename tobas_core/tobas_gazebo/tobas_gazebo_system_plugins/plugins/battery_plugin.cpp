@@ -122,19 +122,6 @@ void GazeboBatteryPlugin::Configure(
   charge_srv_ = createService<std_srvs::srv::Empty>(kChargeBatterySrv, &self::chargeCb, this);
 }
 
-void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "maxVoltage", max_voltage_, kPositive);
-  getSdfParam(sdf, "sagVoltage", sag_voltage_, kNonNegative);
-  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
-  getSdfParam(sdf, "currentCapacity", capacity_, kPositive);
-  getSdfParam(sdf, "internalRegistance", registance_, kNonNegative);
-  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, kNonNegative);
-  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, kNonNegative);
-  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
-}
-
 void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime)) {
@@ -180,6 +167,19 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
   battery_gt->voltage = voltage_out;
   battery_gt->current = current_true;
   battery_gt_pub_->publish(std::move(battery_gt));
+}
+
+void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
+  getSdfParam(sdf, "maxVoltage", max_voltage_, kPositive);
+  getSdfParam(sdf, "sagVoltage", sag_voltage_, kNonNegative);
+  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
+  getSdfParam(sdf, "currentCapacity", capacity_, kPositive);
+  getSdfParam(sdf, "internalRegistance", registance_, kNonNegative);
+  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, kNonNegative);
+  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, kNonNegative);
+  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
 }
 
 double GazeboBatteryPlugin::currentVoltage()

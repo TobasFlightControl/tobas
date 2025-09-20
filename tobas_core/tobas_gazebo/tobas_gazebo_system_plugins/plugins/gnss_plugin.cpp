@@ -109,39 +109,6 @@ void GazeboGnssPlugin::Configure(
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
 }
 
-void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
-
-  getSdfParam(sdf, "delay", delay_, kNonNegative);
-  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kPositive);
-
-  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, kNonNegative);
-  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kNonNegative);
-  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kNonNegative);
-  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kNonNegative);
-
-  getSdfParam(sdf, "latitudeZero", lat_0_);
-  getSdfParam(sdf, "longitudeZero", lon_0_);
-  getSdfParam(sdf, "altitudeZero", alt_0_);
-}
-
-void GazeboGnssPlugin::setRandomDistribuitons()
-{
-  // 位置の乱数生成器
-  // バイアスの絶対値の期待値が正確度に一致するように位置のSDEの標準偏差を定める (memo: 2-57)
-  const auto hor_dpos_stddev = hor_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
-  const auto ver_dpos_stddev = ver_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
-  const gz::math::Vector3d dpos_stddev(hor_dpos_stddev, hor_dpos_stddev, ver_dpos_stddev);
-  dpos_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, dpos_stddev));
-
-  // 速度の乱数生成器
-  const gz::math::Vector3d vel_stddev(hor_vel_stddev_, hor_vel_stddev_, ver_vel_stddev_);
-  vel_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, vel_stddev));
-}
-
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   // 現在の状態を履歴に追加
@@ -191,6 +158,39 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // メッセージを発行
   gnss_pub_->publish(std::move(gnss_msg));
+}
+
+void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
+  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
+
+  getSdfParam(sdf, "delay", delay_, kNonNegative);
+  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kPositive);
+
+  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, kNonNegative);
+  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kNonNegative);
+  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kNonNegative);
+  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kNonNegative);
+
+  getSdfParam(sdf, "latitudeZero", lat_0_);
+  getSdfParam(sdf, "longitudeZero", lon_0_);
+  getSdfParam(sdf, "altitudeZero", alt_0_);
+}
+
+void GazeboGnssPlugin::setRandomDistribuitons()
+{
+  // 位置の乱数生成器
+  // バイアスの絶対値の期待値が正確度に一致するように位置のSDEの標準偏差を定める (memo: 2-57)
+  const auto hor_dpos_stddev = hor_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
+  const auto ver_dpos_stddev = ver_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
+  const gz::math::Vector3d dpos_stddev(hor_dpos_stddev, hor_dpos_stddev, ver_dpos_stddev);
+  dpos_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, dpos_stddev));
+
+  // 速度の乱数生成器
+  const gz::math::Vector3d vel_stddev(hor_vel_stddev_, hor_vel_stddev_, ver_vel_stddev_);
+  vel_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, vel_stddev));
 }
 
 void GazeboGnssPlugin::fillCovariances(tobas_msgs::Gnss& gnss_msg)
