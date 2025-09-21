@@ -31,7 +31,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;
+  int update_rate_;
   gz::math::Vector3d offset_;  // B_Pos_BS
   double alt_0_;               // [m]
   double noise_stddev_;        // [Pa]

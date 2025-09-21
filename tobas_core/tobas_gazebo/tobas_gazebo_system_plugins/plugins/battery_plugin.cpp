@@ -44,7 +44,7 @@ public:
 
 private:
   // SDF parameters
-  size_t update_rate_;
+  int update_rate_;
   double max_voltage_;  // [V] 満充電時の電圧
   double sag_voltage_;  // [V] 放電特性が急激に変化する電圧．LiPoなら1セルあたり3.4Vくらい．
   double max_current_;  // [A] 最大電流

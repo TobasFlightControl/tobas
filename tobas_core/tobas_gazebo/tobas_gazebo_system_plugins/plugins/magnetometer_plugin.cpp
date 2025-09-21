@@ -42,7 +42,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;         // [Hz] Update rate
+  int update_rate_;            // [Hz] Update rate
   gz::math::Vector3d offset_;  // [m] B_Pos_BS
   double lat_0_;               // [deg] 原点の北緯
   double lon_0_;               // [deg] 原点の東経

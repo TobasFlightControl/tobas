@@ -38,7 +38,7 @@ private:
   struct Param
   {
     std::vector<std::string> joint_names;
-    size_t update_rate;
+    int update_rate;
   } param_;
 
   std::map<std::string, const cmp::JointPosition*> jnt_pos_;

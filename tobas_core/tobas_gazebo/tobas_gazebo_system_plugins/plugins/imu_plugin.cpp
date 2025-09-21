@@ -62,7 +62,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;          // Update rate [Hz]
+  int update_rate_;             // Update rate [Hz]
   gz::math::Vector3d offset_;   // B_Pos_BS
   double acc_noise_density_;    // Accel noise density [m/s^2/√Hz]
   double acc_random_walk_;      // Accel bias random walk [m/s^2/s/√Hz]

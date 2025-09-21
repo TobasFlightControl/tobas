@@ -18,7 +18,7 @@ class GazeboGroundTruthStatePlugin : public BaseNode,
                                      public gz::sim::ISystemConfigure,
                                      public gz::sim::ISystemPostUpdate
 {
-  static constexpr size_t kDefaultUpdateRate = 0;  // [Hz]
+  static constexpr int kDefaultUpdateRate = 0;  // [Hz]
 
   using self = GazeboGroundTruthStatePlugin;
 
@@ -36,7 +36,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;
+  int update_rate_;
 
   const cmp::WorldPose* pose_W_;
   const cmp::LinearVelocity* vel_B_;

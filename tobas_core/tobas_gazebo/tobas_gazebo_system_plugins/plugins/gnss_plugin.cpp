@@ -40,7 +40,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;         // 更新頻度 [Hz]
+  int update_rate_;            // 更新頻度 [Hz]
   gz::math::Vector3d offset_;  // B_Pos_BS [m]
   double delay_;               // GNSSの遅延時間 [s]
   double pos_corr_time_;       // OU過程の相関時定数 [s]
