@@ -130,17 +130,17 @@ void MissionPlannerWidget::listToCommands()
   }
 
   // 選択されているアイテムを取得
-  auto selected_item = command_list_->selectedItem();
+  auto cur_item = command_list_->currentItem();
 
   // 何も選択されていなければ強制的に最初の要素を選択
-  if (!selected_item) {
+  if (!cur_item) {
     command_list_->setCurrentRow(0);
-    selected_item = command_list_->item(0);
+    cur_item = command_list_->item(0);
   }
 
   // 選択アイテムに対応するコマンドを表示
   for (const auto& [item, command] : pairs_) {
-    if (item == selected_item) {
+    if (item == cur_item) {
       commands_->setCurrentWidget(command);
       return;
     }
@@ -155,7 +155,7 @@ void MissionPlannerWidget::commandsToMap()
   int index = 1;
   bool is_first_waypoint = true;
   QGeoCoordinate last_coord;
-  const auto selected_item = command_list_->selectedItem();
+  const auto cur_item = command_list_->currentItem();
 
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto item = command_list_->item(i);
@@ -169,7 +169,7 @@ void MissionPlannerWidget::commandsToMap()
         const auto longitude = waypoint->longitude();
         const auto coord = QGeoCoordinate(latitude, longitude);
 
-        const auto point_color = item == selected_item ? "orange" : "cyan";
+        const auto point_color = item == cur_item ? "orange" : "cyan";
         map_->addWaypoint(index, coord, waypoint->acceptanceRadius(), point_color);
 
         if (is_first_waypoint) {

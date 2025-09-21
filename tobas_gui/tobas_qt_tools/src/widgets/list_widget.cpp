@@ -1,5 +1,6 @@
 #include "tobas_qt_tools/widgets/list_widget.hpp"
 
+#include <QDebug>
 #include <QDropEvent>
 #include <QVariant>
 
@@ -11,36 +12,25 @@ bool ListWidget::contains(const QString& text) const
   return items.size() > 0;
 }
 
-QListWidgetItem* ListWidget::selectedItem()
-{
-  const auto& selected_items = selectedItems();
-  if (selected_items.size() > 0) {
-    return selected_items.first();
-  }
-  else {
-    return nullptr;
-  }
-}
-
-const QListWidgetItem* ListWidget::selectedItem() const
-{
-  const auto& selected_items = selectedItems();
-  if (selected_items.size() > 0) {
-    return selected_items.first();
-  }
-  else {
-    return nullptr;
-  }
-}
-
 void ListWidget::remove(QListWidgetItem* item)
 {
   takeItem(row(item));
 }
 
+void ListWidget::setCurrentText(const QString& text)
+{
+  const auto items = findItems(text, Qt::MatchExactly);
+  if (items.size() == 0) {
+    qWarning() << text << " not found.";
+    return;
+  }
+
+  const auto& item = items.first();
+  setCurrentItem(item);
+}
+
 void ListWidget::deselect()
 {
-  const QSignalBlocker block(this);
   setCurrentRow(-1);
 }
 

@@ -46,12 +46,12 @@ Command AddCommandDialog::selectedCommand() const
 
 void AddCommandDialog::onOkClicked()
 {
-  const auto selected_item = command_list_->selectedItem();
-  if (!selected_item) {
+  const auto cur_item = command_list_->currentItem();
+  if (!cur_item) {
     return;
   }
 
-  selected_command_ = textToCommand(selected_item->text().toUtf8());
+  selected_command_ = textToCommand(cur_item->text().toUtf8());
   accept();
 }
 };  // namespace ctrl
