@@ -31,7 +31,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;
+  int update_rate_;
   gz::math::Vector3d offset_;  // B_Pos_BS
   double alt_0_;               // [m]
   double noise_stddev_;        // [Pa]
@@ -73,15 +73,6 @@ void GazeboBarometerPlugin::Configure(
   pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
 }
 
-void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "altitudeZero", alt_0_, kNonNegative);
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
-}
-
 void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime)) {
@@ -109,6 +100,15 @@ void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz
 
   // Publish the pressure message
   pressure_pub_->publish(std::move(pressure_msg));
+}
+
+void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
+  getSdfParam(sdf, "altitudeZero", alt_0_, kNonNegative);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
 }
 }  // namespace gazebo
 

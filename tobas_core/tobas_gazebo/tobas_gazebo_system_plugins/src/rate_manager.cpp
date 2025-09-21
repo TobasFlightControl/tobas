@@ -5,13 +5,13 @@ namespace ch = std::chrono;
 
 namespace gazebo
 {
-RateManager::RateManager(const size_t& update_rate) : update_rate_(update_rate), next_time_(0ns)
+RateManager::RateManager(int update_rate) : update_rate_(update_rate), next_time_(0ns)
 {
 }
 
 bool RateManager::update(const ch::steady_clock::duration& cur_time)
 {
-  if (update_rate_ == 0) {
+  if (update_rate_ <= 0) {
     return true;
   }
 

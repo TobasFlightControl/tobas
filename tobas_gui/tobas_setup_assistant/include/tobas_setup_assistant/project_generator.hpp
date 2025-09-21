@@ -61,9 +61,6 @@ private:
   bool generateUserPyPackage(const inja::json& data);
   bool generateBackupFiles();
 
-  bool generateControllerManagerLaunch();
-  bool generateJointControllerManagerConfig();
-  bool generateJointControllerConfigs();
   bool generateDroneConfig();
   bool generatePreArmCheckConfig();
   bool generateObserverStaticConfig();
@@ -93,16 +90,6 @@ private:
 
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXmlElements(tinyxml2::XMLElement* robot);
-
-  void
-  addJointControllerNode(tinyxml2::XMLElement* launch, const std::string& cfg_pkg_name, const std::string& ctrl_name);
-
-  bool generateJointControllerConfig(
-
-    const std::string& jnt_name,
-    const tobas::JointCommandInterface& cmd_iface);
-
-  static std::string jointControllerName(const std::string& jnt_name);
 
   static tobas::TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
 };

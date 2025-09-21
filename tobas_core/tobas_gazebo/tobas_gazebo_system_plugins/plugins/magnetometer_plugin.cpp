@@ -42,7 +42,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;         // [Hz] Update rate
+  int update_rate_;            // [Hz] Update rate
   gz::math::Vector3d offset_;  // [m] B_Pos_BS
   double lat_0_;               // [deg] 原点の北緯
   double lon_0_;               // [deg] 原点の東経
@@ -94,20 +94,6 @@ void GazeboMagnetometerPlugin::Configure(
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
 }
 
-void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_);
-
-  getSdfParam(sdf, "latitudeZero", lat_0_);
-  getSdfParam(sdf, "longitudeZero", lon_0_);
-  getSdfParam(sdf, "altitudeZero", alt_0_);
-
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
-  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
-}
-
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime)) {
@@ -143,6 +129,20 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
   // Publish message
   mag_pub_->publish(std::move(mag_msg));
+}
+
+void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
+  getSdfParam(sdf, "offset", offset_);
+
+  getSdfParam(sdf, "latitudeZero", lat_0_);
+  getSdfParam(sdf, "longitudeZero", lon_0_);
+  getSdfParam(sdf, "altitudeZero", alt_0_);
+
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
+  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
 }
 }  // namespace gazebo
 

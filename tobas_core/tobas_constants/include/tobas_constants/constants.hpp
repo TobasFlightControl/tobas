@@ -107,20 +107,9 @@ static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
 
-// Controller Manager
-namespace ctrl_manager
-{
-namespace type
-{
-static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster/JointStateBroadcaster";
-static constexpr char kForwardCommandController[] = "forward_command_controller/ForwardCommandController";
-}  // namespace type
-}  // namespace ctrl_manager
-
 // Node names
 namespace node
 {
-static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
 static constexpr char kImuFilterConfigServer[] = "imu_filter_config_server";
 static constexpr char kObserver[] = "observer";
 static constexpr char kController[] = "controller";

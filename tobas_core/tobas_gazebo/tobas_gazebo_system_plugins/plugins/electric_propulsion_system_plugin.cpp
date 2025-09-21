@@ -63,20 +63,22 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  // SDF parameters
   std::string link_name_;
-  double kv_;                    // [rad/s/V]
-  double resistance_;            // [Ω]
-  size_t num_blades_;            // [-]
-  double motor_const_;           // [N/(rad/s)^2]
-  double moment_const_;          // [m]
-  double drag_const_;            // [N*s^2/rad/m]
-  int direction_;                // Turning direction: 1(CCW) or -1(CW)
-  double max_current_;           // [A] ESCの最大電流
-  size_t publish_state_rate_;    // [Hz]
-  double vib_force_coef_;        // [-]
-  double vib_force_var_rate_;    // [-]
-  double max_model_error_rate_;  // [-]
+  struct Param
+  {
+    double kv;                    // [rad/s/V]
+    double resistance;            // [Ω]
+    size_t num_blades;            // [-]
+    double motor_const;           // [N/(rad/s)^2]
+    double moment_const;          // [m]
+    double drag_const;            // [N*s^2/rad/m]
+    int direction;                // Turning direction: 1(CCW) or -1(CW)
+    double max_current;           // [A] ESCの最大電流
+    size_t publish_state_rate;    // [Hz]
+    double vib_force_coef;        // [-]
+    double vib_force_var_rate;    // [-]
+    double max_model_error_rate;  // [-]
+  } param_;
 
   double throt_ = 0.;  // [0, 1]
   double acc_ = 0.;    // [rad/s^2]
@@ -152,16 +154,17 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_electric_propulsion_system_plugin", sdf);
+  link_name_ = sdf->Get<std::string>("linkName");
+  initialize("gazebo_" + link_name_ + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
-  rice_ = RiceDistribution(1., vib_force_var_rate_);
+  rice_ = RiceDistribution(1., param_.vib_force_var_rate);
 
-  publish_state_rate_manager_ = std::make_shared<RateManager>(publish_state_rate_);
+  publish_state_rate_manager_ = std::make_shared<RateManager>(param_.publish_state_rate);
   addModelError();
 
   // Get robot model
-  gz::sim::Model model(model_entity);
+  const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
@@ -212,30 +215,6 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   registerROSInterfaces();
 }
 
-void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-
-  getSdfParam(sdf, "kv", kv_, kPositive);
-  getSdfParam(sdf, "internalResistance", resistance_, kPositive);
-  getSdfParam(sdf, "numberOfBlades", num_blades_, kPositive);
-
-  getSdfParam(sdf, "motorConstant", motor_const_, kPositive);
-  getSdfParam(sdf, "momentConstant", moment_const_, kPositive);
-  getSdfParam(sdf, "dragConstant", drag_const_, kNonNegative);
-
-  if (!getTurningDirection(sdf, direction_)) {
-    TOBAS_EXIT("Failed to get turning direction.");
-  }
-
-  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
-
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, 400UL, kNonNegative);
-  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, 1.5, kNonNegative);
-  getSdfParam(sdf, "vibrationForceVariationRate", vib_force_var_rate_, 0.3, kNonNegative);
-  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, 0., kNonNegative);
-}
-
 void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const gz::sim::UpdateInfo& info,
   gz::sim::EntityComponentManager& ecm)
@@ -270,6 +249,28 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   updateJointState(ecm, dt);
 }
 
+void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "kv", param_.kv, kPositive);
+  getSdfParam(sdf, "internalResistance", param_.resistance, kPositive);
+  getSdfParam(sdf, "numberOfBlades", param_.num_blades, kPositive);
+
+  getSdfParam(sdf, "motorConstant", param_.motor_const, kPositive);
+  getSdfParam(sdf, "momentConstant", param_.moment_const, kPositive);
+  getSdfParam(sdf, "dragConstant", param_.drag_const, kNonNegative);
+
+  if (!getTurningDirection(sdf, param_.direction)) {
+    TOBAS_EXIT("Failed to get turning direction.");
+  }
+
+  getSdfParam(sdf, "maxCurrent", param_.max_current, kPositive);
+
+  getSdfParam(sdf, "publishStateRate", param_.publish_state_rate, 400UL, kNonNegative);
+  getSdfParam(sdf, "vibrationForceCoefficient", param_.vib_force_coef, 1.5, kNonNegative);
+  getSdfParam(sdf, "vibrationForceVariationRate", param_.vib_force_var_rate, 0.3, kNonNegative);
+  getSdfParam(sdf, "maxModelErrorRate", param_.max_model_error_rate, 0., kNonNegative);
+}
+
 void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
 {
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
@@ -291,13 +292,13 @@ void GazeboElectricPropulsionSystemPlugin::addModelError()
   UniformDistribution uniform(-1, 1);
 
   // モータ
-  kv_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
-  resistance_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  param_.kv *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
+  param_.resistance *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
 
   // プロペラ
-  motor_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
-  moment_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
-  drag_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  param_.motor_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
+  param_.moment_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
+  param_.drag_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
 }
 
 double GazeboElectricPropulsionSystemPlugin::velocitySim() const
@@ -323,35 +324,35 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
   // External force: Thrust force
-  const auto thrust = motor_const_ * math::sqr(vel_);
+  const auto thrust = param_.motor_const * math::sqr(vel_);
   const auto thrust_force_W = thrust * axis_W;
 
   // External force: H-force
   const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
   const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
-  const auto h_force_W = (-fabs(vel_) * drag_const_) * linvel_perp_W;
+  const auto h_force_W = (-fabs(vel_) * param_.drag_const) * linvel_perp_W;
 
   // External moment: Drag torque
-  const auto torque = moment_const_ * thrust;
-  const auto drag_moment_W = (-direction_ * torque) * axis_W;
+  const auto torque = param_.moment_const * thrust;
+  const auto drag_moment_W = (-param_.direction * torque) * axis_W;
 
   // Apply wrench
   link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
   parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertial_moment_W + coriolis_moment_W + drag_moment_W);
 
   // Compute electric current
-  const auto kt = 1. / kv_;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
+  const auto kt = 1. / param_.kv;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
   const auto current = torque / kt;
 
   // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
-  if (current > max_current_) {
+  if (current > param_.max_current) {
     TOBAS_ERROR(
       "The ESC of rotor \"",
       link_name_,
       "\" is critically damaged due to an overcurrent of ",
       current,
       " A, which exceeded its maximum current capacity of ",
-      max_current_,
+      param_.max_current,
       " A.");
     is_intact_ = false;
     throt_ = 0.;
@@ -362,7 +363,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
     auto state_msg_obs = std::make_unique<tobas_msgs::msg::RotorState>();
     state_msg_obs->link_name = link_name_;
     if (is_intact_) {
-      state_msg_obs->speed = direction_ * vel_;
+      state_msg_obs->speed = param_.direction * vel_;
       state_msg_obs->thrust = thrust;
       state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
     }
@@ -378,9 +379,9 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築 (倍周波も考慮)
   auto state_msg_gt = std::make_unique<tobas_gazebo_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
-  state_msg_gt->rotation_speed = direction_ * vel_;
+  state_msg_gt->rotation_speed = param_.direction * vel_;
   state_msg_gt->current = current;
-  state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(pos_) * rice_(rnd_gen_);
+  state_msg_gt->vibration_force = param_.vib_force_coef * thrust * sin(pos_) * rice_(rnd_gen_);
   state_gt_pub_->publish(std::move(state_msg_gt));
 
   // Publish debug information
@@ -400,14 +401,14 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
 void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
 {
   // モータダイナミクスの係数 (memo: 2-78)
-  const auto a = 2. * L_KV * moment_const_ * motor_const_;
-  const auto b = resistance_ * kv_ * moment_const_ * motor_const_;
-  const auto c = 1. / kv_;
+  const auto a = 2. * L_KV * param_.moment_const * param_.motor_const;
+  const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;
+  const auto c = 1. / param_.kv;
 
   const auto Ea = battery_gt_->voltage * throt_;                                            // 印加電圧
   const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
-  const auto cur_speed = std::max(direction_ * vel_, 0.);
+  const auto cur_speed = std::max(param_.direction * vel_, 0.);
 
   // 次の時刻の回転数を求める
   double next_speed;
@@ -427,7 +428,7 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   }
 
   // ジョイントの状態を更新
-  const auto next_vel = direction_ * next_speed;
+  const auto next_vel = param_.direction * next_speed;
   acc_ = (next_vel - vel_) / dt;  // 数値微分で加速度を計算
   pos_ += vel_ * dt;              // 前回の速度で積分するのが大事
   vel_ = next_vel;

@@ -115,11 +115,6 @@ void GazeboWindPlugin::Configure(
   set_params_ss_ = createService<SetSrv>(kSetWindParamsSrv, &self::setParamsCb, this);
 }
 
-void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-}
-
 void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   // 突風
@@ -171,6 +166,11 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // 風速を発行
   wind_pub_->publish(std::move(wind_msg));
+}
+
+void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
 }
 
 void GazeboWindPlugin::getParamsCb(const GetSrv::Request::ConstSharedPtr&, const GetSrv::Response::SharedPtr& res)

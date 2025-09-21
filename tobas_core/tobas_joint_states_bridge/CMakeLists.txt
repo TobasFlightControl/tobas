@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_gazebo_ros)
+project(tobas_joint_states_bridge)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,21 +12,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_tools REQUIRED)
-find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_constants REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_gazebo_common REQUIRED)
-find_package(tobas_gazebo_msgs REQUIRED)
 
-set(AMENT_DEPENDENCIES
-    tobas_node
-    tobas_tools
-    tobas_drone_msgs_adapter
-    tobas_msgs_adapter
-    tobas_gazebo_common
-    tobas_gazebo_msgs
-)
+set(AMENT_DEPENDENCIES sensor_msgs tobas_node tobas_constants tobas_msgs_adapter)
 
 include_directories(include)
 
@@ -34,14 +25,7 @@ file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} 
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
-rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "RotorStatesPublisherNode" EXECUTABLE rotor_states_publisher
-)
-rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "ElectricRotorCommandHandlerNode" EXECUTABLE electric_rotor_command_handler
-)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointCommandHandlerNode" EXECUTABLE joint_command_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointStatesBridgeNode" EXECUTABLE joint_states_bridge)
 
 install(
   TARGETS ${PROJECT_NAME}_node
@@ -52,7 +36,5 @@ install(
   INCLUDES
   DESTINATION include
 )
-
-ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

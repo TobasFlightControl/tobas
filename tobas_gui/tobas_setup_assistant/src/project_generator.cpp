@@ -3,6 +3,7 @@
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -352,7 +353,7 @@ tobas::Drone ProjectGenerator::createDrone()
       joint.cmd_iface = tobas::JointCommandInterface::kPosition;
       joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
       joint.home_pos = 0.;
-      drone.joints[joint.name] = joint;
+      TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
     }
   }
 
@@ -365,7 +366,7 @@ tobas::Drone ProjectGenerator::createDrone()
     joint.cmd_iface = extra_joints->getCommandInterface(i);
     joint.hw_iface = tobas::HardwareInterface::kOther;  // TODO: 選択できるようにする
     joint.home_pos = extra_joints->getHomePosition(i);
-    drone.joints[joint.name] = joint;
+    TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
   }
 
   // RC Input
@@ -423,7 +424,6 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   // テンプレートから生成
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
   config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
-  config_env_->generate(tpl_data, std::string(tobas::node::kJointStateBroadcaster) + ".yaml.tplyaml", config_dir);
   config_env_->generate(tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "component_containers_sp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
@@ -452,15 +452,6 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
 
   // その他
   if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
-    return false;
-  }
-  if (!generateControllerManagerLaunch()) {
-    return false;
-  }
-  if (!generateJointControllerManagerConfig()) {
-    return false;
-  }
-  if (!generateJointControllerConfigs()) {
     return false;
   }
   if (!generateDroneConfig()) {
@@ -589,110 +580,6 @@ bool ProjectGenerator::generateBackupFiles()
   const auto backup_data = settings_->dump();
   if (!saveYamlNode(proj_paths_.backupSettingsPath(), backup_data)) {
     return false;
-  }
-
-  return true;
-}
-
-bool ProjectGenerator::generateControllerManagerLaunch()
-{
-  // Create XML
-  tinyxml2::XMLDocument doc;
-  const auto launch = doc.NewElement("launch");
-  doc.InsertFirstChild(launch);
-
-  // サーボジョイントが存在する場合に限りcontroller_managerを立ち上げる
-  if (hasServoJoint()) {
-    const auto cfg_pkg_name = proj_paths_.cfgPkgName();
-
-    // Add joint state broadcaster
-    addJointControllerNode(launch, cfg_pkg_name, tobas::node::kJointStateBroadcaster);
-
-    // Add joint controllers
-    for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
-      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
-    }
-    for (const auto& [jnt_name, _] : uadf_.tilts) {
-      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
-    }
-    for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
-      if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
-        continue;
-      }
-      const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
-      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
-    }
-  }
-
-  // Save XML
-  const auto launch_dir = proj_paths_.cfgLaunchDirPath();
-  if (doc.SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
-    return false;
-  }
-
-  return true;
-}
-
-bool ProjectGenerator::generateJointControllerManagerConfig()
-{
-  // Controller manager
-  YAML::Node manager_params_node(YAML::NodeType::Map);
-  manager_params_node["update_rate"] = 100;  // TODO: GUIで設定できるように
-  manager_params_node[tobas::node::kJointStateBroadcaster]["type"] = tobas::ctrl_manager::type::kJointStateBroadcaster;
-
-  // Each joint controllers
-  for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
-    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
-  }
-  for (const auto& [jnt_name, _] : uadf_.tilts) {
-    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
-  }
-  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
-    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
-      continue;
-    }
-    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
-    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
-  }
-
-  // Create data
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node[uadf_.urdf->getName()]["controller_manager"][kRosParamsKey] = manager_params_node;
-
-  // Save data
-  const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / "joint_controller_manager.yaml", root_node)) {
-    return false;
-  }
-
-  return true;
-}
-
-bool ProjectGenerator::generateJointControllerConfigs()
-{
-  for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
-    if (!generateJointControllerConfig(jnt_name, tobas::JointCommandInterface::kPosition)) {
-      return false;
-    }
-  }
-
-  for (const auto& [jnt_name, _] : uadf_.tilts) {
-    if (!generateJointControllerConfig(jnt_name, tobas::JointCommandInterface::kPosition)) {
-      return false;
-    }
-  }
-
-  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
-    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
-      continue;
-    }
-
-    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
-    const auto cmd_iface = settings_->extra_joints->getCommandInterface(i);
-    if (!generateJointControllerConfig(jnt_name, cmd_iface)) {
-      return false;
-    }
   }
 
   return true;
@@ -1043,7 +930,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   const auto drone = createDrone();
 
-  // Get rotor channels
+  // Get rotor link names
   std::vector<std::string> rotor_link_names;
   for (const auto& [link_name, _] : drone.prop->rotors) {
     rotor_link_names.push_back(link_name);
@@ -1204,6 +1091,50 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     xml::addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
   }
 
+  // Joint state broadcaster plugin
+  std::vector<std::string> joint_names;
+  for (const auto& [jnt_name, _] : drone.joints) {
+    joint_names.push_back(jnt_name);
+  }
+  xml::addJointStateBroadcasterPlugin(robot, ns, joint_names, 100);  // TODO: GUIで更新レートを調整できるように
+
+  // Joint controller plugins
+  for (const auto& [_, joint] : drone.joints) {
+    if (!joint.isServoJoint()) {
+      continue;
+    }
+
+    switch (joint.cmd_iface) {
+      case tobas::JointCommandInterface::kNone: {
+        break;
+      }
+      case tobas::JointCommandInterface::kPosition: {
+        const auto max_vel = uadf_.urdf->getJoint(joint.name)->limits->velocity;
+        if (max_vel <= 0.) {
+          qWarning() << "The maximum velocity of " << QString::fromStdString(joint.name) << " is invalid: " << max_vel;
+          break;
+        }
+
+        // 最大速度で60deg回転にかかる時間を時定数とする．つまり誤差60degで最大速度が出る．
+        // TODO: サーボモータの仕様 (無付加回転数など) をより正確に再現
+        const auto time_const = M_PI_3 / max_vel;
+        xml::addJointPositionControllerPlugin(robot, ns, joint.name, joint.home_pos, time_const);
+        break;
+      }
+      case tobas::JointCommandInterface::kVelocity: {
+        xml::addJointVelocityControllerPlugin(robot, ns, joint.name, joint.home_pos);
+        break;
+      }
+      case tobas::JointCommandInterface::kEffort: {
+        xml::addJointEffortControllerPlugin(robot, ns, joint.name, joint.home_pos);
+        break;
+      }
+      default: {
+        throw;
+      }
+    }
+  }
+
   // Wind plugin
   xml::addGazeboWindPlugin(robot, ns, root_name);
 
@@ -1213,60 +1144,10 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   // LookAt position plugin
   xml::addGazeboLookAtPositionPlugin(robot, ns, root_name);
 
-  // Gazebo ROS2 control system
-  xml::addGazeboROS2SimSystem(robot, drone.joints);
-
-  // Gazebo ROS2 control plugin
-  // This must be defined after GazeboSimSystem
-  if (hasServoJoint()) {
-    xml::addGazeboSimROS2ControlPlugin(robot, ns, cfg_pkg_name, "config/joint_controller_manager.yaml");
-  }
-
   // Base static joint for debug
   xml::addBaseStaticJoint(robot, tree_.getRootName());
 
   return true;
-}
-
-void ProjectGenerator::addJointControllerNode(
-  tinyxml2::XMLElement* launch,
-  const std::string& cfg_pkg_name,
-  const std::string& ctrl_name)
-{
-  const auto& ns = uadf_.urdf->getName();
-  const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
-  const auto ctrl_param = config_dir + ctrl_name + ".yaml";
-  const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
-  const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
-  xml::addNodeParam(ctrl_node, "use_sim_time", "true");
-}
-
-bool ProjectGenerator::generateJointControllerConfig(
-  const std::string& jnt_name,
-  const tobas::JointCommandInterface& cmd_iface)
-{
-  const auto ctrl_name = jointControllerName(jnt_name);
-
-  YAML::Node ctrl_params_node(YAML::NodeType::Map);
-  ctrl_params_node["joints"].push_back(jnt_name);
-  ctrl_params_node["interface_name"] = tobas::textFromEnum(cmd_iface);
-
-  // Create data
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // 名前空間を指定すると読み込みに失敗する
-
-  // Save data
-  const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
-    return false;
-  }
-
-  return true;
-}
-
-std::string ProjectGenerator::jointControllerName(const std::string& jnt_name)
-{
-  return jnt_name + "_controller";
 }
 
 tobas::TurningDirection ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
