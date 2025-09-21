@@ -38,6 +38,9 @@ private:
 
   qt::ListWidget* log_list_;
 
+  QString currentLogName() const;
+  void setCurrentLogName(const QString& log_name);
+
 private Q_SLOTS:
   void onReadButtonClicked();
   void onCleanButtonClicked();
