@@ -11,15 +11,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(tobas_std_tools REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
-find_package(tobas_msgs REQUIRED)
-find_package(tobas_dparam_msgs REQUIRED)
-find_package(tobas_constants REQUIRED)
-
 set(AMENT_DEPENDENCIES rclcpp_components tobas_std_tools tobas_ros2_tools tobas_msgs tobas_dparam_msgs tobas_constants)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 

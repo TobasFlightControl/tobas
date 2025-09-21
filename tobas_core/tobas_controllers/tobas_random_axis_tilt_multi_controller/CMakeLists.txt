@@ -14,16 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Disable warnings about tensor contraction
 add_compile_options(-Wno-array-bounds)
 
-find_package(ament_cmake REQUIRED)
-find_package(tobas_nlp REQUIRED)
-find_package(tobas_node REQUIRED)
-find_package(tobas_pose_pid REQUIRED)
-find_package(tobas_tools REQUIRED)
-find_package(tobas_drone_tools REQUIRED)
-find_package(tobas_nonplanar_multi_controller REQUIRED)
-find_package(tobas_drone_msgs_adapter REQUIRED)
-find_package(tobas_debug_msgs_adapter REQUIRED)
-
 set(AMENT_DEPENDENCIES
     tobas_nlp
     tobas_node
@@ -34,6 +24,12 @@ set(AMENT_DEPENDENCIES
     tobas_drone_msgs_adapter
     tobas_debug_msgs_adapter
 )
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 

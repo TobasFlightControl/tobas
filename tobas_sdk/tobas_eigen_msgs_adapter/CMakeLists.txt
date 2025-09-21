@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_eigen_msgs_adapter)
 
-find_package(ament_cmake REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(tobas_eigen_msgs REQUIRED)
-
 set(AMENT_DEPENDENCIES Eigen3 tobas_eigen_msgs)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 add_library(${PROJECT_NAME} INTERFACE)
 ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})

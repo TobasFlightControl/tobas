@@ -11,17 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(rosbag2_cpp REQUIRED)
-find_package(tobas_kdl REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
-find_package(tobas_msgs REQUIRED)
-find_package(tobas_debug_msgs REQUIRED)
-find_package(tobas_qt_tools REQUIRED)
-find_package(tobas_rqt_bridge REQUIRED)
-find_package(tobas_qwt_wrapper REQUIRED)
-find_package(tobas_gui_common REQUIRED)
-
 set(AMENT_DEPENDENCIES
     rosbag2_cpp
     tobas_kdl
@@ -33,6 +22,12 @@ set(AMENT_DEPENDENCIES
     tobas_qwt_wrapper
     tobas_gui_common
 )
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)

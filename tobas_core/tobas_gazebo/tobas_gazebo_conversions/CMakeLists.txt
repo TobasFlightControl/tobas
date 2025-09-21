@@ -11,15 +11,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(AMENT_DEPENDENCIES geometry_msgs tobas_kdl)
+
 find_package(ament_cmake REQUIRED)
 find_package(gz_math_vendor REQUIRED)
 find_package(gz-math REQUIRED)
 find_package(gz_msgs_vendor REQUIRED)
 find_package(gz-msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(tobas_kdl REQUIRED)
 
-set(AMENT_DEPENDENCIES geometry_msgs tobas_kdl)
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 

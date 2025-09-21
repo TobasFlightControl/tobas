@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_std_msgs_adapter)
 
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(tobas_std_tools REQUIRED)
-find_package(tobas_std_msgs REQUIRED)
-
 set(AMENT_DEPENDENCIES rclcpp tobas_std_tools tobas_std_msgs)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 add_library(${PROJECT_NAME} INTERFACE)
 ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})

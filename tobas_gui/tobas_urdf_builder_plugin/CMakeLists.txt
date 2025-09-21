@@ -16,19 +16,6 @@ add_compile_options(-Wno-register)
 add_compile_options(-Wno-deprecated-copy)
 add_compile_options(-Wno-unused-but-set-parameter)
 
-find_package(ament_cmake REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(rviz_common REQUIRED)
-find_package(rviz_default_plugins REQUIRED)
-find_package(rviz_rendering REQUIRED)
-find_package(tobas_std_tools REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
-find_package(tobas_urdf REQUIRED)
-find_package(tobas_property_client REQUIRED)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_qt_tools REQUIRED)
-
 set(AMENT_DEPENDENCIES
     Qt5Core
     Qt5Widgets
@@ -42,6 +29,12 @@ set(AMENT_DEPENDENCIES
     tobas_constants
     tobas_qt_tools
 )
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 # CMAKE_AUTOMOCやCMAKE_AUTOUICを使わない流儀
 

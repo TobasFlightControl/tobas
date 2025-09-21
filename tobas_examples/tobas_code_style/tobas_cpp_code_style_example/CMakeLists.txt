@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_cpp_code_style_example)
 
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(mavros_msgs REQUIRED)
-find_package(tobas_math REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
-
 set(AMENT_DEPENDENCIES rclcpp rclcpp_components std_msgs mavros_msgs tobas_math tobas_msgs_adapter)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 

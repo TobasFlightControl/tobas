@@ -11,14 +11,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(AMENT_DEPENDENCIES tobas_string_tools)
+
 find_package(ament_cmake REQUIRED)
-find_package(tobas_string_tools REQUIRED)
 
 # Search for libssh
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBSSH REQUIRED libssh)
 
-set(AMENT_DEPENDENCIES tobas_string_tools)
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include ${LIBSSH_INCLUDE_DIRS})
 

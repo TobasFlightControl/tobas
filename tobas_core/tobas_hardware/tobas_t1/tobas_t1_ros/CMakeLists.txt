@@ -11,17 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(tobas_dsp REQUIRED)
-find_package(tobas_ic_drivers REQUIRED)
-find_package(tobas_property_tree REQUIRED)
-find_package(tobas_tools REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_drone_msgs_adapter REQUIRED)
-find_package(tobas_real_common REQUIRED)
-find_package(tobas_hardware_common REQUIRED)
-find_package(tobas_t1_core REQUIRED)
-
 set(AMENT_DEPENDENCIES
     tobas_dsp
     tobas_ic_drivers
@@ -33,6 +22,12 @@ set(AMENT_DEPENDENCIES
     tobas_hardware_common
     tobas_t1_core
 )
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 

@@ -11,14 +11,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(std_srvs REQUIRED)
-find_package(tobas_node REQUIRED)
-find_package(tobas_tools REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_drone_msgs_adapter REQUIRED)
-
 set(AMENT_DEPENDENCIES std_srvs tobas_node tobas_tools tobas_msgs_adapter tobas_drone_msgs_adapter)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 
