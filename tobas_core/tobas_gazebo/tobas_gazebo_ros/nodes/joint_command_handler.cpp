@@ -8,7 +8,7 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
 /**
- * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboのトランスミッションに指令する．
+ * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboに指令する．
  */
 class JointCommandHandlerNode : public tobas::BaseNode
 {
@@ -19,9 +19,6 @@ public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  bool pos_commanded_ = false;
-  bool vel_commanded_ = false;
-  bool eff_commanded_ = false;
   tobas::Drone::ConstSharedPtr drone_;
 
   std::unordered_map<
@@ -34,10 +31,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
 
-  ros2::TimerPtr pos_reset_timer_;
-  ros2::TimerPtr vel_reset_timer_;
-  ros2::TimerPtr eff_reset_timer_;
-
   void publishJointCommand(const std::string& jnt_name, double command);
   void publishJointCommand(const tobas_msgs::msg::JointCommand& cmd);
 
@@ -45,10 +38,6 @@ private:
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
-
-  void positionResetTimerCb();
-  void velocityResetTimerCb();
-  void effortResetTimerCb();
 };
 
 JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
@@ -87,11 +76,6 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   positions_sub_ = createSubscriber(tobas::kJointPosCmdTopic, &self::jointPositionsCmdCb, this);
   velocities_sub_ = createSubscriber(tobas::kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
   efforts_sub_ = createSubscriber(tobas::kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
-
-  // Resister timers
-  pos_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this);
-  vel_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this);
-  eff_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this);
 }
 
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
@@ -116,9 +100,6 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
 
     publishJointCommand(tbs_cmd);
   }
-
-  pos_commanded_ = true;
-  pos_reset_timer_->reset();
 }
 
 void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
@@ -144,9 +125,6 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
 
     publishJointCommand(tbs_cmd);
   }
-
-  vel_commanded_ = true;
-  vel_reset_timer_->reset();
 }
 
 void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
@@ -170,75 +148,6 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     }
 
     publishJointCommand(tbs_cmd);
-  }
-
-  eff_commanded_ = true;
-  eff_reset_timer_->reset();
-}
-
-void JointCommandHandlerNode::positionResetTimerCb()
-{
-  for (const auto& [_, joint] : drone_->joints) {
-    if (!joint.isServoJoint()) {
-      continue;
-    }
-    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
-      continue;
-    }
-
-    publishJointCommand(joint.name, joint.home_pos);
-  }
-
-  if (pos_commanded_) {
-    pos_commanded_ = false;
-    TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ",
-      tobas::kCommandAutoResetTimeout,
-      " have elapsed since the last command.");
-  }
-}
-
-void JointCommandHandlerNode::velocityResetTimerCb()
-{
-  for (const auto& [_, joint] : drone_->joints) {
-    if (!joint.isServoJoint()) {
-      continue;
-    }
-    if (joint.cmd_iface != tobas::JointCommandInterface::kVelocity) {
-      continue;
-    }
-
-    publishJointCommand(joint.name, joint.home_pos);
-  }
-
-  if (vel_commanded_) {
-    vel_commanded_ = false;
-    TOBAS_WARN(
-      "All joints with velocity command interface are reset to home position because ",
-      tobas::kCommandAutoResetTimeout,
-      " have elapsed since the last command.");
-  }
-}
-
-void JointCommandHandlerNode::effortResetTimerCb()
-{
-  for (const auto& [_, joint] : drone_->joints) {
-    if (!joint.isServoJoint()) {
-      continue;
-    }
-    if (joint.cmd_iface != tobas::JointCommandInterface::kEffort) {
-      continue;
-    }
-
-    publishJointCommand(joint.name, joint.home_pos);
-  }
-
-  if (eff_commanded_) {
-    eff_commanded_ = false;
-    TOBAS_WARN(
-      "All joints with effort command interface are reset to home position because ",
-      tobas::kCommandAutoResetTimeout,
-      " have elapsed since the last command.");
   }
 }
 
