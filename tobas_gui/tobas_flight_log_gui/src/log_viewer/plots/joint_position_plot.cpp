@@ -11,7 +11,7 @@ namespace log
 {
 JointPositionPlotWidget::JointPositionPlotWidget()
 {
-  grid_ = new QGridLayout();
+  grid_ = new qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -21,7 +21,7 @@ void JointPositionPlotWidget::clear()
   plots_.clear();
   cur_curves_.clear();
   tar_curves_.clear();
-  qt::clearLayout(grid_);
+  grid_->clear();
 
   name2idx_.clear();
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QGridLayout>
+#include <tobas_qt_tools/layouts/grid_layout.hpp>
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
@@ -31,7 +31,7 @@ private:
   QVector<qwt::QwtPlotCurveWrapper> cur_curves_;
   QVector<qwt::QwtPlotCurveWrapper> tar_curves_;
 
-  QGridLayout* grid_;
+  qt::GridLayout* grid_;
 
   std::unordered_map<std::string, size_t> name2idx_;  // Joint Name -> Index
 

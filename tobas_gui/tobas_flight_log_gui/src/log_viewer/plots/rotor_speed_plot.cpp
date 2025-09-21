@@ -12,7 +12,7 @@ namespace log
 {
 RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 {
-  grid_ = new QGridLayout();
+  grid_ = new qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -22,7 +22,7 @@ void RotorSpeedPlotWidget::clear()
   plots_.clear();
   cur_speed_curves_.clear();
   tar_speed_curves_.clear();
-  qt::clearLayout(grid_);
+  grid_->clear();
 
   num_rotors_ = 0;
   name2idx_.clear();

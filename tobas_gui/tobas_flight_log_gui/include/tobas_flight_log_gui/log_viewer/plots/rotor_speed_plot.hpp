@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QGridLayout>
+#include <tobas_qt_tools/layouts/grid_layout.hpp>
 
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
@@ -31,7 +31,7 @@ private:
   QVector<qwt::QwtPlotCurveWrapper> cur_speed_curves_;
   QVector<qwt::QwtPlotCurveWrapper> tar_speed_curves_;
 
-  QGridLayout* grid_;
+  qt::GridLayout* grid_;
 
   size_t num_rotors_;                                 // The number of rotors
   std::unordered_map<std::string, size_t> name2idx_;  // Link Name -> Index

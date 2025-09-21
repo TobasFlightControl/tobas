@@ -12,7 +12,7 @@ namespace log
 {
 PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 {
-  grid_ = new QGridLayout();
+  grid_ = new qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -21,7 +21,7 @@ void PropellerPitchPlotWidget::clear()
   // レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
   plots_.clear();
   curves_.clear();
-  qt::clearLayout(grid_);
+  grid_->clear();
 
   num_rotors_ = 0;
   name2idx_.clear();
