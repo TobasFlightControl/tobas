@@ -65,32 +65,12 @@ tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const std::st
 
   return plugin;
 }
-
-tinyxml2::XMLElement*
-addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::JointCommandInterface interface, double init_value = 0.)
-{
-  const auto state_if_elem = joint->InsertNewChildElement("state_interface");
-  state_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
-
-  const auto init_value_elem = state_if_elem->InsertNewChildElement("param");
-  init_value_elem->SetAttribute("name", "initial_value");
-  init_value_elem->SetText(init_value);
-
-  return state_if_elem;
-}
-
-tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::JointCommandInterface interface)
-{
-  const auto command_if_elem = joint->InsertNewChildElement("command_interface");
-  command_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
-  return command_if_elem;
-}
 }  // namespace
 
 void addBatteryPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
-  double update_rate,
+  int update_rate,
   double max_voltage,
   double sag_voltage,
   double max_current,
@@ -113,7 +93,7 @@ void addIMUPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
   double gyro_random_walk,
@@ -141,7 +121,7 @@ void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double latitude_zero,
   double longitude_zero,
@@ -165,7 +145,7 @@ void addBarometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double altitude_zero,
   double noise_stddev)
@@ -183,7 +163,7 @@ void addGNSSPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double delay,
   double position_corr_time,
@@ -328,6 +308,60 @@ void addFixedWingPlugin(
   }
 }
 
+void addJointStateBroadcasterPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::vector<std::string>& joint_names,
+  int update_rate)
+{
+  const auto plugin =
+    addGazeboPlugin(robot, "tobas_gazebo_joint_state_broadcaster_plugin", "gazebo::GazeboJointStateBroadcasterPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+  addList(plugin, "jointNames", joint_names);
+  plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
+}
+
+void addJointPositionControllerPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::string& joint_name,
+  double home_pos,
+  double time_const)
+{
+  const auto plugin = addGazeboPlugin(
+    robot, "tobas_gazebo_joint_position_controller_plugin", "gazebo::GazeboJointPositionControllerPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+  plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
+  plugin->InsertNewChildElement("homePosition")->SetText(home_pos);
+  plugin->InsertNewChildElement("timeConstant")->SetText(time_const);
+}
+
+void addJointVelocityControllerPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::string& joint_name,
+  double home_pos)
+{
+  const auto plugin = addGazeboPlugin(
+    robot, "tobas_gazebo_joint_velocity_controller_plugin", "gazebo::GazeboJointVelocityControllerPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+  plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
+  plugin->InsertNewChildElement("homePosition")->SetText(home_pos);
+}
+
+void addJointEffortControllerPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::string& joint_name,
+  double home_pos)
+{
+  const auto plugin =
+    addGazeboPlugin(robot, "tobas_gazebo_joint_effort_controller_plugin", "gazebo::GazeboJointEffortControllerPlugin");
+  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
+  plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
+  plugin->InsertNewChildElement("homePosition")->SetText(home_pos);
+}
+
 void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_wind_plugin", "gazebo::GazeboWindPlugin");
@@ -349,52 +383,6 @@ void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::strin
     addGazeboPlugin(robot, "tobas_gazebo_lookat_position_plugin", "gazebo::GazeboLookAtPositionPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-}
-
-void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints)
-{
-  // robot/ros2_control
-  const auto ros2_control = robot->InsertNewChildElement("ros2_control");
-  ros2_control->SetAttribute("name", "GazeboSimSystem");
-  ros2_control->SetAttribute("type", "system");
-
-  // robot/ros2_control/hardware
-  const auto hardware = ros2_control->InsertNewChildElement("hardware");
-  hardware->InsertNewChildElement("plugin")->SetText("gz_ros2_control/GazeboSimSystem");
-
-  // robot/ros2_control/joint
-  for (const auto& [jnt_name, jnt_cfg] : joints) {
-    if (!jnt_cfg.isServoJoint()) {
-      continue;
-    }
-
-    const auto joint = ros2_control->InsertNewChildElement("joint");
-    joint->SetAttribute("name", jnt_name.c_str());
-
-    // robot/ros2_control/joint/state_interface
-    addROS2ControlStateIF(joint, tobas::JointCommandInterface::kPosition, jnt_cfg.home_pos);
-    addROS2ControlStateIF(joint, tobas::JointCommandInterface::kVelocity);
-    addROS2ControlStateIF(joint, tobas::JointCommandInterface::kEffort);
-
-    // robot/ros2_control/joint/command_interface
-    addROS2ControlCommandIF(joint, jnt_cfg.cmd_iface);
-  }
-}
-
-void addGazeboSimROS2ControlPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& pkg_name,
-  const std::string& params_rel_path)
-{
-  const auto plugin = addGazeboPlugin(robot, "gz_ros2_control-system", "gz_ros2_control::GazeboSimROS2ControlPlugin");
-
-  const auto params = path::join("$(find " + pkg_name + ")", params_rel_path);
-  plugin->InsertNewChildElement("parameters")->SetText(params.c_str());
-
-  // robot/gazebo/plugin/ros
-  const auto ros = plugin->InsertNewChildElement("ros");
-  ros->InsertNewChildElement("namespace")->SetText(ns.c_str());
 }
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name)
