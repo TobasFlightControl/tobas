@@ -21,6 +21,7 @@ class FlightLogsWidgetGCS : public QWidget
 
 Q_SIGNALS:
   void logSelected(const QString& log_name);
+  void logDeselected();
 
 public:
   explicit FlightLogsWidgetGCS();

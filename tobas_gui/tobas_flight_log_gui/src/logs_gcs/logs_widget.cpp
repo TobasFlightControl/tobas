@@ -183,6 +183,11 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
     return;
   }
 
+  if (log_list_->currentItem()) {
+    log_list_->deselect();
+    Q_EMIT logDeselected();
+  }
+
   clearLogs();
 }
 
@@ -197,6 +202,11 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
   if (fs::remove_all(log_path) == 0) {
     qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(log_path));
     return;
+  }
+
+  if (currentLogName() == log_name) {
+    log_list_->deselect();
+    Q_EMIT logDeselected();
   }
 
   removeLog(log_name);

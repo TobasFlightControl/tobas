@@ -33,6 +33,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   // Connection
   connect(logs_fc_, &FlightLogsWidgetFC::logDownloaded, this, &self::onLogDownloaded);
   connect(logs_gcs_, &FlightLogsWidgetGCS::logSelected, this, &self::onLogSelected);
+  connect(logs_gcs_, &FlightLogsWidgetGCS::logDeselected, this, &self::onLogDeselected);
 }
 
 void FlightLogWidget::reset()
@@ -59,6 +60,11 @@ void FlightLogWidget::onLogDownloaded(const QString& log_name)
 void FlightLogWidget::onLogSelected(const QString& log_name)
 {
   log_viewer_->setLogName(log_name);
+}
+
+void FlightLogWidget::onLogDeselected()
+{
+  log_viewer_->reset();
 }
 }  // namespace log
 }  // namespace gui

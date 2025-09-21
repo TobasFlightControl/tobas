@@ -24,6 +24,8 @@ class FlightLogViewerWidget : public QWidget
 public:
   explicit FlightLogViewerWidget();
 
+  void reset();
+
   void setLogName(const QString& log_name);
 
 private:
@@ -68,7 +70,6 @@ private:
   std::array<PlotTabWidget*, 3> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
 
-  void reset();
   void setPlotData(double time_from_start);
 
 private Q_SLOTS:
