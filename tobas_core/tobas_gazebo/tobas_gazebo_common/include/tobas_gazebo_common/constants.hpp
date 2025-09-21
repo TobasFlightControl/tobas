@@ -14,7 +14,6 @@ static constexpr char kRotorStateTopicNS[] = "gazebo/rotor_state";
 static constexpr char kRotorStateGtTopicNS[] = "gazebo/ground_truth/rotor_state";
 static constexpr char kJointCommandTopicNS[] = "gazebo/joint_command";
 static constexpr char kEngineStateGtTopic[] = "gazebo/ground_truth/engine_state";
-static constexpr char kJointStatesTopic[] = "joint_states";
 
 // ROS Services
 static constexpr char kChargeBatterySrv[] = "gazebo/charge_battery";
