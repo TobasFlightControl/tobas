@@ -37,7 +37,8 @@ private:
   std::string joint_name_;
   struct Param
   {
-    double time_constant;  // [s]
+    double home_pos;    // [rad]
+    double time_const;  // [s]
   } param_;
 
   std::shared_ptr<gz::sim::Joint> joint_;
@@ -85,6 +86,10 @@ void GazeboJointPositionControllerPlugin::Configure(
   TOBAS_CHECK(jnt_pos_ = getComponent<cmp::JointPosition>(joint_entity, ecm));
   TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm));
 
+  // Reset joint position
+  tar_pos_ = param_.home_pos;
+  joint_->ResetPosition(ecm, { tar_pos_ });
+
   // Register ROS interfaces
   registerROSInterfaces();
 }
@@ -92,13 +97,14 @@ void GazeboJointPositionControllerPlugin::Configure(
 void GazeboJointPositionControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
 {
   const auto& cur_pos = jnt_pos_->Data().at(0);
-  const auto tar_vel = (tar_pos_ - cur_pos) / param_.time_constant;
+  const auto tar_vel = (tar_pos_ - cur_pos) / param_.time_const;
   joint_->SetVelocity(ecm, { tar_vel });  // これでジョイントにトルクが発生する
 }
 
 void GazeboJointPositionControllerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "timeConstant", param_.time_constant, kPositive);
+  getSdfParam(sdf, "homePosition", param_.home_pos);
+  getSdfParam(sdf, "timeConstant", param_.time_const, kPositive);
 }
 
 void GazeboJointPositionControllerPlugin::registerROSInterfaces()
