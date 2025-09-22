@@ -2,9 +2,9 @@
 
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
-#include "./accel_calibration/widget.hpp"
+#include "./accel_calibration/accel_calibration.hpp"
 #include "./mag_calibration/mag_calibration.hpp"
-#include "./rcin_calibration/widget.hpp"
+#include "./rcin_calibration/rcin_calibration.hpp"
 
 namespace gui
 {

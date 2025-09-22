@@ -1,4 +1,4 @@
-#include "tobas_sensor_calibration/accel_calibration/widget.hpp"
+#include "tobas_sensor_calibration/accel_calibration/accel_calibration.hpp"
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>

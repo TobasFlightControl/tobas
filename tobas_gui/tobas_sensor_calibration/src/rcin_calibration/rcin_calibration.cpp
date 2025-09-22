@@ -1,4 +1,4 @@
-#include "tobas_sensor_calibration/rcin_calibration/widget.hpp"
+#include "tobas_sensor_calibration/rcin_calibration/rcin_calibration.hpp"
 
 #include <QDebug>
 
