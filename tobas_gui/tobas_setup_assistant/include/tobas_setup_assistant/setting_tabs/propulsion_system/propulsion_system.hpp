@@ -25,9 +25,6 @@ class PropulsionSystemWidget : public BaseSettingWidget
 
   static constexpr char kTypeKey[] = "propulsion_system_type";
 
-  static constexpr int kElectricId = 0;
-  static constexpr int kIceId = kElectricId + 1;
-
 public:
   explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, Signals& sig);
 
@@ -59,6 +56,8 @@ private:
   qt::StackedWidget* propulsion_stack_;
 
   int cur_idx_;
+
+  void addPropulsionSystemWidget(BasePropulsionSystemWidget* widget, int id);
 
   void setCurrentButtonIndex(int index);
   void setCurrentIndex(int index);

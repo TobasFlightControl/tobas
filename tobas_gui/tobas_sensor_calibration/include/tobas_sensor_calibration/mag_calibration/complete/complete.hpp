@@ -20,12 +20,12 @@ namespace gui
 {
 namespace sc
 {
-class MagCalibrationWidget : public BaseWidget
+class CompleteMagCalibWidget : public BaseMagCalibWidget
 {
   Q_OBJECT
 
-  using self = MagCalibrationWidget;
-  using super = BaseWidget;
+  using self = CompleteMagCalibWidget;
+  using super = BaseMagCalibWidget;
 
   static constexpr char kSampledPointsTopic[] = "rviz/mag_calibration/sampled";
   static constexpr char kUsedPointsTopic[] = "rviz/mag_calibration/used";
@@ -52,13 +52,10 @@ class MagCalibrationWidget : public BaseWidget
   static constexpr size_t kFaceSize = kRightIdx + 1;
 
 public:
-  explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
-
-  const char* title() const override;
+  explicit CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
 
   void reset() override;
-
-  void setNamespace(const std::string& ns);
+  void setNamespace(const std::string& ns) override;
 
 protected:
   void paintEvent(QPaintEvent* event) override;

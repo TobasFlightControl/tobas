@@ -1,9 +1,11 @@
-#include "tobas_sensor_calibration/mag_calibration/widget.hpp"
+#include "tobas_sensor_calibration/mag_calibration/complete/complete.hpp"
 
 #include <iostream>
 #include <ranges>
 
 #include <QDebug>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
@@ -30,7 +32,7 @@ namespace gui
 {
 namespace sc
 {
-MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
+CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : node_(node), rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
@@ -106,11 +108,14 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
     face_cols->addWidget(face_circle);
   }
 
-  rows_->addWidget(instruction);
-  rows_->addLayout(button_cols);
-  rows_->addWidget(progress_bar_);
-  rows_->addLayout(face_cols, 1);
-  rows_->addWidget(rviz_manager_.widget(), 4);
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(instruction);
+  rows->addLayout(button_cols);
+  rows->addWidget(progress_bar_);
+  rows->addLayout(face_cols, 1);
+  rows->addWidget(rviz_manager_.widget(), 4);
+
+  setLayout(rows);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
@@ -123,12 +128,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   reset();
 }
 
-const char* MagCalibrationWidget::title() const
-{
-  return "Calibrate Magnetometer";
-}
-
-void MagCalibrationWidget::reset()
+void CompleteMagCalibWidget::reset()
 {
   resetToPreStart();
 
@@ -138,14 +138,12 @@ void MagCalibrationWidget::reset()
   odom_.reset();
 }
 
-void MagCalibrationWidget::setNamespace(const std::string& ns)
+void CompleteMagCalibWidget::setNamespace(const std::string& ns)
 {
-  reset();
-
   ns_ = ns;
 }
 
-void MagCalibrationWidget::paintEvent(QPaintEvent*)
+void CompleteMagCalibWidget::paintEvent(QPaintEvent*)
 {
   // 最小のポイントサイズを決める
   auto psize = INT32_MAX;
@@ -159,7 +157,7 @@ void MagCalibrationWidget::paintEvent(QPaintEvent*)
   }
 }
 
-void MagCalibrationWidget::resetToPreStart()
+void CompleteMagCalibWidget::resetToPreStart()
 {
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
@@ -178,18 +176,18 @@ void MagCalibrationWidget::resetToPreStart()
   completed_.fill(false);
 }
 
-void MagCalibrationWidget::clearDisplayPoints()
+void CompleteMagCalibWidget::clearDisplayPoints()
 {
   // FIXME: クリア後に僅かに遅れて受け取られたPointStampedが表示されてしまうことがある
   return rviz_manager_.resetTime();
 }
 
-int MagCalibrationWidget::numActiveSamples() const
+int CompleteMagCalibWidget::numActiveSamples() const
 {
   return std::count(active_.begin(), active_.begin() + cnt_, true);
 }
 
-size_t MagCalibrationWidget::computeFaceIndex() const
+size_t CompleteMagCalibWidget::computeFaceIndex() const
 {
   const auto& R_W_B = odom_->frame.M;
 
@@ -231,7 +229,7 @@ size_t MagCalibrationWidget::computeFaceIndex() const
   }
 }
 
-void MagCalibrationWidget::subsample()
+void CompleteMagCalibWidget::subsample()
 {
   static constexpr int N = 30;
 
@@ -289,7 +287,7 @@ void MagCalibrationWidget::subsample()
   }
 }
 
-void MagCalibrationWidget::removeOutliers()
+void CompleteMagCalibWidget::removeOutliers()
 {
   const auto size = numActiveSamples();
 
@@ -330,7 +328,7 @@ void MagCalibrationWidget::removeOutliers()
   }
 }
 
-bool MagCalibrationWidget::computeHardBias(
+bool CompleteMagCalibWidget::computeHardBias(
   const Eigen::VectorXd& x,
   const Eigen::VectorXd& y,
   const Eigen::VectorXd& z,
@@ -379,7 +377,7 @@ bool MagCalibrationWidget::computeHardBias(
   return true;
 }
 
-bool MagCalibrationWidget::computeSoftBias(
+bool CompleteMagCalibWidget::computeSoftBias(
   const Eigen::VectorXd& x,
   const Eigen::VectorXd& y,
   const Eigen::VectorXd& z,
@@ -433,7 +431,7 @@ bool MagCalibrationWidget::computeSoftBias(
   return true;
 }
 
-bool MagCalibrationWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
+bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
 {
   // パラメータを作成
   const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
@@ -458,7 +456,7 @@ bool MagCalibrationWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bi
   return true;
 }
 
-void MagCalibrationWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoid)
+void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoid)
 {
   auto used_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto removed_points = std::make_unique<sensor_msgs::msg::PointCloud>();
@@ -495,7 +493,7 @@ void MagCalibrationWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoid)
   calibrated_pub_->publish(std::move(calibrated_points));
 }
 
-void MagCalibrationWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid)
+void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid)
 {
   auto markers = std::make_unique<visualization_msgs::msg::MarkerArray>();
 
@@ -544,7 +542,7 @@ void MagCalibrationWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& ell
   ellipsoid_pub_->publish(std::move(markers));
 }
 
-void MagCalibrationWidget::addEllipsoidPoint(
+void CompleteMagCalibWidget::addEllipsoidPoint(
   double theta,
   double phi,
   const eigen::Ellipsoid& ellipsoid,
@@ -557,7 +555,7 @@ void MagCalibrationWidget::addEllipsoidPoint(
   tf::pointEigenToMsg(kRvizPointScale * q, points.back());
 }
 
-void MagCalibrationWidget::onStartButtonClicked()
+void CompleteMagCalibWidget::onStartButtonClicked()
 {
   // 必要なトピックが受け取れていることを確認
   if (!arming_) {
@@ -587,7 +585,7 @@ void MagCalibrationWidget::onStartButtonClicked()
   qt::qInfoBox(this, "Magnetometer calibration is started.");
 }
 
-void MagCalibrationWidget::onCancelButtonClicked()
+void CompleteMagCalibWidget::onCancelButtonClicked()
 {
   resetToPreStart();
   clearDisplayPoints();
@@ -595,7 +593,7 @@ void MagCalibrationWidget::onCancelButtonClicked()
   qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
 }
 
-void MagCalibrationWidget::onFinishButtonClicked()
+void CompleteMagCalibWidget::onFinishButtonClicked()
 {
   TOBAS_CHECK(cnt_ <= kMaxDataSize);
 
@@ -670,7 +668,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
 }
 
-void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
+void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
 {
   if (!running_) {
     return;
@@ -752,12 +750,12 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr
   }
 }
 
-void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)
+void CompleteMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)
 {
   arming_ = msg;
 }
 
-void MagCalibrationWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg)
+void CompleteMagCalibWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg)
 {
   odom_ = msg;
 }

@@ -1,4 +1,4 @@
-#include "tobas_sensor_calibration/mag_calibration/face_circle.hpp"
+#include "tobas_sensor_calibration/mag_calibration/complete/face_circle.hpp"
 
 #include <QDebug>
 #include <QPainter>

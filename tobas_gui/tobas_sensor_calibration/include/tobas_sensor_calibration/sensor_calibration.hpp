@@ -3,7 +3,7 @@
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./accel_calibration/widget.hpp"
-#include "./mag_calibration/widget.hpp"
+#include "./mag_calibration/mag_calibration.hpp"
 #include "./rcin_calibration/widget.hpp"
 
 namespace gui
