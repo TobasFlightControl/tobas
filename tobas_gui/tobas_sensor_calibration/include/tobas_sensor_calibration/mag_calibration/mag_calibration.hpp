@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QButtonGroup>
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
 
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>

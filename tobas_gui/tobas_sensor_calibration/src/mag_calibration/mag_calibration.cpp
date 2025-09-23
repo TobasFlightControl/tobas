@@ -5,6 +5,7 @@
 #include <tobas_qt_tools/cast.hpp>
 
 #include "tobas_sensor_calibration/mag_calibration/complete/complete.hpp"
+#include "tobas_sensor_calibration/mag_calibration/large_vehicle/large_vehicle.hpp"
 
 namespace gui
 {
@@ -19,6 +20,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
 
   int id = 0;
   addMagCalibWidget(new CompleteMagCalibWidget(node, bridge), "Complete Calibration", id++);
+  addMagCalibWidget(new LargeVehicleMagCalibWidget(node, bridge), "Large Vehicle Calibration", id++);
 
   setCurrentIndex(kDefaultIndex);
 
