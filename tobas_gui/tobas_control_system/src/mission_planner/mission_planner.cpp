@@ -507,7 +507,7 @@ void MissionPlannerWidget::onMissionFinished(bool success, const QString& messag
 
 void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
+  if (gnss->fix_type == tobas_msgs::msg::Gnss::NO_FIX) {
     return;
   }
 
