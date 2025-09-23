@@ -19,7 +19,7 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
   stack_ = new qt::StackedWidget();
 
   int id = 0;
-  addMagCalibWidget(new CompleteMagCalibWidget(node, bridge), "Complete Calibration", id++);
+  addMagCalibWidget(new CompleteMagCalibWidget(node, bridge), "Complete Calibration (Recommended)", id++);
   addMagCalibWidget(new LargeVehicleMagCalibWidget(node, bridge), "Large Vehicle Calibration", id++);
 
   setCurrentIndex(kDefaultIndex);
