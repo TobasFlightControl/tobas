@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QThread>
-#include <eigen3/Eigen/Core>
 
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
@@ -33,15 +32,15 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const RosQtBridge& bridge_;
 
   std::string ns_;
 
+  bool get_data_ = false;
   size_t cnt_;
   std::array<algo::Kahan<double>, 3> acc_sum_;
-  Eigen::Vector3d acc_top_;
+  kdl::Vector acc_top_;
 
-  bool getAccelMean(Eigen::Vector3d& des, const Eigen::Vector3d& ref);
+  bool getAccelMean(kdl::Vector& des, const kdl::Vector& ref);
 
 private Q_SLOTS:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);

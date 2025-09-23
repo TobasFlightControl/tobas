@@ -3,7 +3,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -15,9 +14,9 @@ namespace gui
 {
 namespace sc
 {
-AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), bridge_(bridge)
+AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge) : node_(node)
 {
+  connect(&bridge, &RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
 }
 
 void AccelCalibrationThread::run()
@@ -31,7 +30,7 @@ void AccelCalibrationThread::run()
   }
 
   // オフセットを計算
-  const Eigen::Vector3d acc_offset = acc_top_ - Eigen::Vector3d(0, 0, tobas_std::kGravity);
+  const auto acc_offset = acc_top_ - kdl::Vector(0, 0, tobas_std::kGravity);
 
   // パラメータを作成
   const auto req = std::make_shared<tobas_real_msgs::srv::SetImuParams::Request>();
@@ -62,7 +61,7 @@ void AccelCalibrationThread::setNamespace(const std::string& ns)
   ns_ = ns;
 }
 
-bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vector3d& ref)
+bool AccelCalibrationThread::getAccelMean(kdl::Vector& des, const kdl::Vector& ref)
 {
   // 初期化
   cnt_ = 0;
@@ -70,8 +69,8 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vec
     sum.reset();
   }
 
-  // 一時的にIMUの購読を開始
-  const auto imu_conn = connect(&bridge_, &RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
+  // 加速度データ加算開始
+  get_data_ = true;
 
   // データが溜まるまで待機
   const auto clock = node_->get_clock();
@@ -88,13 +87,14 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vec
       else {
         Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
       }
+      get_data_ = false;
       return false;
     }
     rate.sleep();
   }
 
-  // IMUの購読を終了
-  disconnect(imu_conn);
+  // 加速度データ加算終了
+  get_data_ = false;
 
   // 平均を計算
   for (size_t i = 0; i < 3; ++i) {
@@ -102,9 +102,9 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vec
   }
 
   // 参照ベクトルからのオフセットが大きすぎたら失敗
-  const Eigen::Vector3d offset = ref - des;
+  const auto offset = ref - des;
   if (offset.norm() > kAccelOffsetNormThresh) {
-    Q_EMIT finished(false, "Acceleration error is too high—verify that the FMU is correctly oriented.");
+    Q_EMIT finished(false, "Acceleration error is too high. Verify that the FMU is correctly oriented.");
     return false;
   }
 
@@ -113,6 +113,10 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des, const Eigen::Vec
 
 void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
 {
+  if (!get_data_) {
+    return;
+  }
+
   ++cnt_;
   for (size_t i = 0; i < 3; ++i) {
     acc_sum_.at(i).add(imu_raw->accel(i));
