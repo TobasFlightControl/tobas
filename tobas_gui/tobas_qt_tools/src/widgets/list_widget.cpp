@@ -31,6 +31,7 @@ void ListWidget::setCurrentText(const QString& text)
 
 void ListWidget::deselect()
 {
+  const QSignalBlocker block(this);  // 負の行番号でシグナルが発行されるのを防ぐ
   setCurrentRow(-1);
 }
 
