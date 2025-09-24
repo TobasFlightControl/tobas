@@ -3,13 +3,12 @@
 #include <QThread>
 #include <rclcpp/node.hpp>
 
+#include <tobas_linux/command_executor.hpp>
+
 namespace gui
 {
 namespace sim
 {
-bool killGazeboLaunch(const pid_t& pid);
-bool waitForGazeboToDisappear(const rclcpp::Node::SharedPtr& node);
-
 class KillGazeboThread : public QThread
 {
   Q_OBJECT
@@ -18,16 +17,15 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit KillGazeboThread(rclcpp::Node::SharedPtr node);
+  explicit KillGazeboThread(rclcpp::Node::SharedPtr node, pid_t pid);
 
   void run() override;
 
-  bool setProcessId(const pid_t& pid);
-
 private:
   const rclcpp::Node::SharedPtr node_;
+  const pid_t pid_;
 
-  pid_t pid_ = -1;
+  linux::CommandExecutor cmd_exec_;
 };
 }  // namespace sim
 }  // namespace gui

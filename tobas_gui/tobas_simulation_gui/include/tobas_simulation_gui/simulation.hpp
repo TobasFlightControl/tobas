@@ -8,14 +8,12 @@
 #include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_uadf/model.hpp>
 #include <tobas_uadf/parser.hpp>
 
 #include "./commanders/commanders.hpp"
 #include "./dynamic_configuration/dynamic_configuration.hpp"
-#include "./kill_gazebo.hpp"
 #include "./simulation_settings/simulation_settings.hpp"
 
 namespace gui
@@ -68,9 +66,6 @@ private:
   DynamicConfigWidget* dynamic_config_;
   CommandersWidget* commanders_;
 
-  KillGazeboThread sitl_kill_gazebo_thread_;
-  qt::WaitSpinnerWidget spinner_;
-
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   bool startSITL();
@@ -81,6 +76,7 @@ private:
 
   bool buildLocalPackage();
   bool launchGazebo(bool launch_core);
+  std::expected<void, QString> killGazebo(bool run_spinner = true);
 
   bool startDynamicConfig();
   void resetDynamicConfig();
@@ -93,8 +89,6 @@ private:
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
-
-  void onSitlKillGazeboThreadFinished(bool success, const QString& message);
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
