@@ -21,48 +21,12 @@ AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node, con
 
 void AccelCalibrationThread::run()
 {
-  // TODO: 6面分取得して最小二乗法で同時変換行列を推定
-  // https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/commander/accelerometer_calibration.cpp
-
-  // Top
-  if (!getAccelMean(acc_top_, { 0., 0., tobas_std::kGravity })) {
+  // 必要なトピックが受け取れていることを確認
+  if (!imu_raw_) {
+    Q_EMIT finished(false, "IMU data is not received yet.");
     return;
   }
 
-  // オフセットを計算
-  const auto acc_offset = acc_top_ - kdl::Vector(0, 0, tobas_std::kGravity);
-
-  // パラメータを作成
-  const auto req = std::make_shared<tobas_real_msgs::srv::SetImuParams::Request>();
-  req->offset_x = acc_offset.x();
-  req->offset_y = acc_offset.y();
-  req->offset_z = acc_offset.z();
-
-  // パラメータを更新
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::imu::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout)) {
-    Q_EMIT finished(false, "Failed to send calibration results.");
-    return;
-  }
-
-  // 結果を確認
-  const auto res = sc.getResponse();
-  if (!res->success) {
-    Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
-    return;
-  }
-
-  Q_EMIT finished(true, "Accel calibration finished successfully.");
-}
-
-void AccelCalibrationThread::setNamespace(const std::string& ns)
-{
-  ns_ = ns;
-}
-
-bool AccelCalibrationThread::getAccelMean(kdl::Vector& des, const kdl::Vector& ref)
-{
   // 初期化
   cnt_ = 0;
   for (auto& sum : acc_sum_) {
@@ -81,14 +45,9 @@ bool AccelCalibrationThread::getAccelMean(kdl::Vector& des, const kdl::Vector& r
       break;
     }
     if ((clock->now() - start_time).seconds() > kCollectDataTimeout) {
-      if (cnt_ == 0) {
-        Q_EMIT finished(false, "IMU data is not received.");
-      }
-      else {
-        Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
-      }
+      Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
       get_data_ = false;
-      return false;
+      return;
     }
     rate.sleep();
   }
@@ -97,22 +56,66 @@ bool AccelCalibrationThread::getAccelMean(kdl::Vector& des, const kdl::Vector& r
   get_data_ = false;
 
   // 平均を計算
+  kdl::Vector acc_mean;
   for (size_t i = 0; i < 3; ++i) {
-    des(i) = acc_sum_.at(i).get() / cnt_;
+    acc_mean(i) = acc_sum_.at(i).get() / cnt_;
   }
 
-  // 参照ベクトルからのオフセットが大きすぎたら失敗
-  const auto offset = ref - des;
-  if (offset.norm() > kAccelOffsetNormThresh) {
+  // バイアスを計算
+  const kdl::Vector acc_ref(0, 0, tobas_std::kGravity);
+  const auto acc_bias = acc_mean - acc_ref;
+
+  // バイアスが異常に大きい場合は失敗
+  if (acc_bias.norm() > kAccelBiasNormThresh) {
     Q_EMIT finished(false, "Acceleration error is too high. Verify that the FMU is correctly oriented.");
-    return false;
+    return;
   }
 
-  return true;
+  // パラメータを作成
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetImuParams::Request>();
+  req->offset_x = acc_bias.x();
+  req->offset_y = acc_bias.y();
+  req->offset_z = acc_bias.z();
+
+  // パラメータを更新
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::imu::kSetParamSrv));
+  if (!sc.call(req, kSetParamTimeout)) {
+    Q_EMIT finished(false, "Failed to send calibration results.");
+    return;
+  }
+
+  // 結果を確認
+  const auto res = sc.getResponse();
+  if (!res->success) {
+    Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    return;
+  }
+
+  Q_EMIT finished(true, "Accelerometer calibration finished successfully.");
+}
+
+void AccelCalibrationThread::reset()
+{
+  imu_raw_.reset();
+
+  get_data_ = false;
+  cnt_ = 0;
+
+  for (auto& sum : acc_sum_) {
+    sum.reset();
+  }
+}
+
+void AccelCalibrationThread::setNamespace(const std::string& ns)
+{
+  ns_ = ns;
 }
 
 void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
 {
+  imu_raw_ = imu_raw;
+
   if (!get_data_) {
     return;
   }

@@ -84,6 +84,7 @@ private:
   std::array<bool, kMaxDataSize> active_;
 
   // ROS messages
+  tobas_msgs::MagneticField::ConstSharedPtr mag_raw_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
 

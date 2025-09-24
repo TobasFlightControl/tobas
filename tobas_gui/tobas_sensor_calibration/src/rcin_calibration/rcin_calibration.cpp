@@ -27,7 +27,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   rclcpp::Node::SharedPtr node,
   const RosQtBridge& bridge,
   const tobas::Drone& drone)
-  : node_(node), bridge_(bridge), drone_(drone), rate_(kTopicRate)
+  : node_(node), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click \"Start\" to begin displaying S.BUS data in the view.\n\n"
@@ -151,6 +151,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   rows_->addLayout(rc_range_cols);
 
   // Other connections
+  connect(&bridge, &RosQtBridge::sbusReceived, this, &self::sbusCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
@@ -163,9 +164,14 @@ const char* RCInputCalibrationWidget::title() const
 
 void RCInputCalibrationWidget::reset()
 {
-  disconnect(sbus_conn_);
+  running_ = false;
 
-  rate_.reset();
+  sbus_.reset();
+  arming_.reset();
+
+  start_button_->setEnabled(true);
+  finish_button_->setEnabled(false);
+  cancel_button_->setEnabled(false);
 
   roll_range_->clear();
   pitch_range_->clear();
@@ -195,12 +201,6 @@ void RCInputCalibrationWidget::reset()
     gpsw_range->setLowerText(kOnText);
     gpsw_range->setUpperText(kOffText);
   }
-
-  start_button_->setEnabled(true);
-  finish_button_->setEnabled(false);
-  cancel_button_->setEnabled(false);
-
-  arming_.reset();
 }
 
 void RCInputCalibrationWidget::updateInternalDataStructures()
@@ -340,13 +340,17 @@ void RCInputCalibrationWidget::onStartButtonClicked()
     return;
   }
 
-  // 一時的にSBUSトピックを購読開始
-  sbus_conn_ = connect(&bridge_, &RosQtBridge::sbusReceived, this, &self::sbusCb, Qt::QueuedConnection);
+  // 必要なトピックが受け取れていることを確認
+  if (!sbus_) {
+    qt::qWarnBox(this, "S.BUS is not received yet.");
+    return;
+  }
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);
   cancel_button_->setEnabled(true);
 
+  running_ = true;
   qt::qInfoBox(this, "Radio calibration is started.");
 }
 
@@ -419,7 +423,9 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
-  if (!rate_.update(sbus->header.stamp)) {
+  sbus_ = sbus;
+
+  if (!running_) {
     return;
   }
 

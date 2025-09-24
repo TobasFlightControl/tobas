@@ -17,8 +17,8 @@ class AccelCalibrationThread : public QThread
   using super = QThread;
 
   static constexpr size_t kDataCount = 200;
-  static constexpr double kCollectDataTimeout = 10.;     // [s]
-  static constexpr double kAccelOffsetNormThresh = 0.3;  // [m/s^2]
+  static constexpr double kCollectDataTimeout = 10.;   // [s]
+  static constexpr double kAccelBiasNormThresh = 0.3;  // [m/s^2]
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);
@@ -28,6 +28,7 @@ public:
 
   void run() override;
 
+  void reset();
   void setNamespace(const std::string& ns);
 
 private:
@@ -35,12 +36,11 @@ private:
 
   std::string ns_;
 
+  tobas_msgs::Imu::ConstSharedPtr imu_raw_;
+
   bool get_data_ = false;
   size_t cnt_;
   std::array<algo::Kahan<double>, 3> acc_sum_;
-  kdl::Vector acc_top_;
-
-  bool getAccelMean(kdl::Vector& des, const kdl::Vector& ref);
 
 private Q_SLOTS:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);

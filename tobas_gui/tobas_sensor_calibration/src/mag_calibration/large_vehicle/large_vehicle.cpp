@@ -40,6 +40,8 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(rclcpp::Node::SharedPtr n
 
 void LargeVehicleMagCalibWidget::reset()
 {
+  thread_.reset();
+
   arming_.reset();
 }
 

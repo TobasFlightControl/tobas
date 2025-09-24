@@ -24,10 +24,17 @@ LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(rclcpp::Node::SharedPtr n
 
 void LargeVehicleMagCalibThread::run()
 {
-  if (!gnss_) {
-    Q_EMIT finished(false, "GNSS is not received.");
+  // 必要なトピックが受け取れていることを確認
+  if (!mag_raw_) {
+    Q_EMIT finished(false, "Magnetic field is not received yet.");
     return;
   }
+  if (!gnss_) {
+    Q_EMIT finished(false, "GNSS is not received yet.");
+    return;
+  }
+
+  // 位置情報が取得できていることを確認
   if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
     Q_EMIT finished(false, "GNSS is not fixed.");
     return;
@@ -56,12 +63,7 @@ void LargeVehicleMagCalibThread::run()
       break;
     }
     if ((clock->now() - start_time).seconds() > kCollectDataTimeout) {
-      if (cnt_ == 0) {
-        Q_EMIT finished(false, "Magnetic field is not received.");
-      }
-      else {
-        Q_EMIT finished(false, "Timeout before Magnetic field collection is completed.");
-      }
+      Q_EMIT finished(false, "Timeout before Magnetic field collection is completed.");
       get_data_ = false;
       return;
     }
@@ -111,6 +113,19 @@ void LargeVehicleMagCalibThread::run()
   Q_EMIT finished(true, "Magnetometer calibration finished successfully.");
 }
 
+void LargeVehicleMagCalibThread::reset()
+{
+  mag_raw_.reset();
+  gnss_.reset();
+
+  get_data_ = false;
+  cnt_ = 0;
+
+  for (auto& sum : mag_sum_) {
+    sum.reset();
+  }
+}
+
 void LargeVehicleMagCalibThread::setNamespace(const std::string& ns)
 {
   ns_ = ns;
@@ -118,6 +133,8 @@ void LargeVehicleMagCalibThread::setNamespace(const std::string& ns)
 
 void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw)
 {
+  mag_raw_ = mag_raw;
+
   if (!get_data_) {
     return;
   }

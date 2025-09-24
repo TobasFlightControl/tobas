@@ -27,6 +27,7 @@ public:
 
   void run() override;
 
+  void reset();
   void setNamespace(const std::string& ns);
 
 private:
@@ -34,11 +35,12 @@ private:
 
   std::string ns_;
 
+  tobas_msgs::MagneticField::ConstSharedPtr mag_raw_;
+  tobas_msgs::Gnss::ConstSharedPtr gnss_;
+
   bool get_data_ = false;
   size_t cnt_;
   std::array<algo::Kahan<double>, 3> mag_sum_;
-
-  tobas_msgs::Gnss::ConstSharedPtr gnss_;
 
 private Q_SLOTS:
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw);

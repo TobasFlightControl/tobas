@@ -134,6 +134,7 @@ void CompleteMagCalibWidget::reset()
 
   rviz_manager_.resetTime();
 
+  mag_raw_.reset();
   arming_.reset();
   odom_.reset();
 }
@@ -557,9 +558,19 @@ void CompleteMagCalibWidget::addEllipsoidPoint(
 
 void CompleteMagCalibWidget::onStartButtonClicked()
 {
-  // 必要なトピックが受け取れていることを確認
+  // アームされていないことを確認
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    return;
+  }
+  if (arming_->data) {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
+  // 必要なトピックが受け取れていることを確認
+  if (!mag_raw_) {
+    qt::qWarnBox(this, "Magnetic field is not received yet.");
     return;
   }
   if (!odom_) {
@@ -567,12 +578,6 @@ void CompleteMagCalibWidget::onStartButtonClicked()
       this,
       "This operation cannot be performed because the odometry is not received yet. "
       "Please check whether the accelerometer has been calibrated.");
-    return;
-  }
-
-  // アームされていないことを確認
-  if (arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     return;
   }
 
@@ -670,6 +675,8 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
 
 void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
 {
+  mag_raw_ = msg;
+
   if (!running_) {
     return;
   }

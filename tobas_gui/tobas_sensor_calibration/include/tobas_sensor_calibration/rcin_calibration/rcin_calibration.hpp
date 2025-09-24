@@ -5,7 +5,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
-#include <tobas_ros2_tools/rate_manager.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
@@ -35,8 +34,6 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
-  static constexpr double kTopicRate = 30.;  // [Hz]
-
 public:
   explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const tobas::Drone& drone);
 
@@ -48,10 +45,10 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const RosQtBridge& bridge_;
   const tobas::Drone& drone_;
 
-  ros2::RateManager rate_;
+  bool running_;
+  tobas_msgs::msg::Sbus::ConstSharedPtr sbus_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   QPushButton* start_button_;
@@ -69,8 +66,6 @@ private:
 
   std::array<QLabel*, tobas::kMaxNumOfGpsw> gpsw_labels_;
   std::array<qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
-
-  QMetaObject::Connection sbus_conn_;
 
   size_t numOfGpswChannels() const;
 

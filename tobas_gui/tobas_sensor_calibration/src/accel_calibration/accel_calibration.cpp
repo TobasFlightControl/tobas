@@ -39,6 +39,8 @@ const char* AccelCalibrationWidget::title() const
 
 void AccelCalibrationWidget::reset()
 {
+  thread_.reset();
+
   arming_.reset();
 }
 
