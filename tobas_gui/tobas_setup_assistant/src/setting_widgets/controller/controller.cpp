@@ -5,7 +5,6 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -37,10 +36,9 @@ ControllerWidget::ControllerWidget()
   TOBAS_CHECK(static_cast<size_t>(stack_->count()) == magic_enum::enum_count<FrameType>());
 
   // Layout
-  addWidget(dont_use_builtin_ctrl_);
-  addSpacing(30);
-  addWidget(new qt::Label("Static Configurations", cmn::kLabelPSize, QFont::Bold));
   addWidget(stack_);
+  addStretch();
+  addWidget(dont_use_builtin_ctrl_);
 
   // Connection
   connect(dont_use_builtin_ctrl_, &QCheckBox::toggled, this, &self::onDontUseBuiltinCtrlCheckBoxToggled);
