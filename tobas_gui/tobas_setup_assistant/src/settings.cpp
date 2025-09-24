@@ -196,6 +196,16 @@ bool SettingsWidget::load(const YAML::Node& node)
   return success;
 }
 
+void SettingsWidget::setFrameType(FrameType type)
+{
+  // フレーム型が定義されていなければ制御器の設定を無効化
+  if (type == FrameType::kUndefined) {
+    setPageEnabled(controller, false);
+  }
+
+  controller->setFrameType(type);
+}
+
 int SettingsWidget::getIndex(BaseSettingWidget* page) const
 {
   const auto idx = stack_->indexOf(page);

@@ -200,15 +200,12 @@ bool SetupAssistantWidget::updateInternalDataStructures()
     return false;
   }
 
-  // フレーム型を決定
+  // フレーム型を判定
   const auto frame_type = determineFrameType();
-  if (frame_type == FrameType::kUndefined) {
-    return false;
-  }
 
   // フレーム型をウィジェットに反映
   properties_->setFrameType(frame_type);
-  settings_->controller->setFrameType(frame_type);
+  settings_->setFrameType(frame_type);
 
   return true;
 }

@@ -85,6 +85,11 @@ FrameType ControllerWidget::getFrameType() const
 
 void ControllerWidget::setFrameType(const FrameType& type)
 {
+  if (type == FrameType::kUndefined) {
+    // TODO: Check "Do not launch the built-in contrller" and disable
+    return;
+  }
+
   for (int i = 0; i < stack_->count(); ++i) {
     if (widget(i)->frameType() == type) {
       stack_->setCurrentIndex(i);
