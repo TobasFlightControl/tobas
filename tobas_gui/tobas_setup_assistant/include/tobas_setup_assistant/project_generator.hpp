@@ -27,7 +27,8 @@ public:
     rclcpp::Node::SharedPtr node,
     const uadf::Model& uadf,
     const kdl::Tree& tree,
-    SettingsWidget* settings);
+    const SettingsWidget* settings,
+    QWidget* parent);
 
   bool generateProject(const std::filesystem::path& proj_path);
 
@@ -35,7 +36,8 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
-  SettingsWidget* const settings_;
+  const SettingsWidget* const settings_;
+  QWidget* const parent_;
 
   cmn::ProjectPaths proj_paths_;
 

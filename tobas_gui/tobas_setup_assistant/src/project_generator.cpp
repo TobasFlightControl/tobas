@@ -29,8 +29,9 @@ ProjectGenerator::ProjectGenerator(
   rclcpp::Node::SharedPtr node,
   const uadf::Model& uadf,
   const kdl::Tree& tree,
-  SettingsWidget* settings)
-  : node_(node), uadf_(uadf), tree_(tree), settings_(settings)
+  const SettingsWidget* settings,
+  QWidget* parent)
+  : node_(node), uadf_(uadf), tree_(tree), settings_(settings), parent_(parent)
 {
   const auto templates_path = getPkgShareDir() / "templates";
   meta_env_ = std::make_shared<TemplateGenerator>(templates_path / "meta_package");
@@ -49,7 +50,7 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   const auto create_proj_path_res = path::createDirectories(proj_path);
   if (!create_proj_path_res) {
     qt::qErrorBox(
-      settings_, "Failed to create Tobas project path:\n" + QString::fromStdString(create_proj_path_res.error()));
+      parent_, "Failed to create Tobas project path:\n" + QString::fromStdString(create_proj_path_res.error()));
     return false;
   }
 
@@ -99,7 +100,7 @@ std::string ProjectGenerator::flightActionsPackage() const
     return "tobas_multicopter_actions";
   }
   else {
-    qt::qWarnBox(settings_, "Mission planner is not supported for this frame type.");
+    qt::qWarnBox(parent_, "Mission planner is not supported for this frame type.");
     return "tobas_dummy_pkg";
   }
 }
@@ -591,7 +592,7 @@ bool ProjectGenerator::generateDroneConfig()
 
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone.save(tbsdrn_path)) {
-    qt::qErrorBox(settings_, "Failed to save drone configuration.");
+    qt::qErrorBox(parent_, "Failed to save drone configuration.");
     return false;
   }
 
@@ -709,7 +710,7 @@ bool ProjectGenerator::generateSshEndpointConfig()
   ssh_endpoint.user = tobas::kFmuUserName;
 
   if (!ssh_endpoint.save(proj_paths_.sshEndpointPath())) {
-    qt::qErrorBox(settings_, "Failed to save the SSH endpoint.");
+    qt::qErrorBox(parent_, "Failed to save the SSH endpoint.");
     return false;
   }
 
@@ -729,7 +730,7 @@ bool ProjectGenerator::generateOriginalUadf()
 
   // Save
   if (doc->SaveFile(proj_paths_.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the original UADF.");
+    qt::qErrorBox(parent_, "Failed to save the original UADF.");
     return false;
   }
 
@@ -755,7 +756,7 @@ bool ProjectGenerator::generateModifiedUrdf()
 
   // Save
   if (doc->SaveFile(proj_paths_.xacroPath().c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the modified URDF.");
+    qt::qErrorBox(parent_, "Failed to save the modified URDF.");
     return false;
   }
 
@@ -766,7 +767,7 @@ bool ProjectGenerator::createEmptyFile(const fs::path& file_path)
 {
   const auto res = path::createFilePath(file_path, true);
   if (!res) {
-    qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
+    qt::qErrorBox(parent_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
     return false;
   }
 
@@ -789,7 +790,7 @@ bool ProjectGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite
 bool ProjectGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node)
 {
   if (!yaml::save(path, node)) {
-    qt::qErrorBox(settings_, "Failed to save \"" + QString::fromStdString(path) + "\".");
+    qt::qErrorBox(parent_, "Failed to save \"" + QString::fromStdString(path) + "\".");
     return false;
   }
 
@@ -801,13 +802,13 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
     const auto src_path = urdf::resolveURI(filename);
     if (!fs::exists(src_path)) {
-      qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
+      qt::qErrorBox(parent_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
       return false;
     }
 
@@ -819,13 +820,13 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       // dst_pathが存在するがsrc_pathと内容が異なる場合は，fs::copy_fileでは上書きされないため一度削除した上でコピーする．
       if (!fs::equivalent(src_path, dst_path)) {
         if (!fs::remove(dst_path)) {
-          qt::qErrorBox(settings_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
+          qt::qErrorBox(parent_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
           return false;
         }
 
         if (!fs::copy_file(src_path, dst_path)) {
           qt::qErrorBox(
-            settings_,
+            parent_,
             "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
           return false;
         }
@@ -835,7 +836,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       // dst_pathが存在しない場合は，ただコピーすればよい．
       if (!fs::copy_file(src_path, dst_path)) {
         qt::qErrorBox(
-          settings_,
+          parent_,
           "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
         return false;
       }
@@ -864,7 +865,7 @@ bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* el
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
@@ -901,7 +902,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     if (strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
-        qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
+        qt::qErrorBox(parent_, "Joint element does not have attribute: \"name\"");
         return false;
       }
       if (prop_jnt_names.contains(jnt_name)) {
