@@ -217,62 +217,62 @@ FrameType SetupAssistantWidget::determineFrameType()
   QString msg = "Airframe\n";
 
   if (uadf_.control_surfaces.size() == 0) {  // 固定翼をもたない
-    msg += "  - which does not have fixed wings\n";
+    msg += "  • which does not have fixed wings\n";
 
     if (uadf_.tilts.size() == 0)  // チルトロータをもたない
     {
-      msg += "  - which does not have any tilt rotors\n";
+      msg += "  • which does not have any tilt rotors\n";
 
       if (uadf_.thrusts.size() < 3)  // プロペラの枚数が3枚未満
       {
-        msg += "  - which has fewer than 3 propellers\n";
+        msg += "  • which has fewer than 3 propellers\n";
         qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: 2枚なら制御可能かも
       }
       else  // プロペラの枚数が3枚以上
       {
-        msg += "  - which has 3 or more propellers\n";
+        msg += "  • which has 3 or more propellers\n";
 
         if (allThrustJointAxesAlwaysParallel(kdl::Vector::UnitZ(), true))  // 全てのプロペラの回転軸が常にZ+
         {
-          msg += "  - whose propeller rotation axes all point toward Z+\n";
+          msg += "  • whose propeller rotation axes all point toward Z+\n";
           return FrameType::kPlanarMulticopter;  // TODO: 可操作度による分類
         }
         else  // 少なくとも1つのプロペラの回転軸がZ+以外を向く場合がある
         {
-          msg += "  - which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
+          msg += "  • which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
           return FrameType::kNonPlanarMulticopter;  // TODO: 可操作度による分類
         }
       }
     }
     else  // チルトロータをもつ場合
     {
-      msg += "  - which has at least one tilt rotors\n";
+      msg += "  • which has at least one tilt rotors\n";
 
       if (allTiltRotorAxesPerpendicular())  // 全てのチルト軸とロータ軸が直行する
       {
-        msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
+        msg += "  • which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
 
         if (allTiltJointAxesAlwaysParallel()) {  // 全てのチルト軸が常に互いに平行
-          msg += "  - whose tilt axes are all parallel to each other\n";
+          msg += "  • whose tilt axes are all parallel to each other\n";
 
           if (allTiltJointAxesAlwaysParallel(kdl::Vector::UnitY(), false)) {  // 全てのチルト軸が常にY軸平行
-            msg += "  - whose tilt axes are parallel to the Y axis\n";
+            msg += "  • whose tilt axes are parallel to the Y axis\n";
             return FrameType::kYAxisTiltMulticopter;
           }
           else {  // 全てのチルト軸が常にY軸平行でない
-            msg += "  - whose tilt axes are not parallel to the Y axis\n";
+            msg += "  • whose tilt axes are not parallel to the Y axis\n";
             qt::qWarnBox(this, msg + kIsNotSupported);
             return FrameType::kUndefined;
           }
         }
         else {  // 平行でないチルト軸の組が存在する
-          msg += "  - there exists a pair of non-parallel tilt axes\n";
+          msg += "  • there exists a pair of non-parallel tilt axes\n";
           return FrameType::kRandomAxisTiltMulticopter;
         }
       }
       else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
-        msg += "  - which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
+        msg += "  • which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
         qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: チルト軸と回転軸が直行しないモデルにも対応
       }
@@ -280,7 +280,7 @@ FrameType SetupAssistantWidget::determineFrameType()
   }
   else  // 固定翼をもつ場合
   {
-    msg += "  - which has fixed wings\n";
+    msg += "  • which has fixed wings\n";
     qt::qWarnBox(this, msg + kIsNotSupported);
     return FrameType::kUndefined;  // TODO: 固定翼に対応
   }
