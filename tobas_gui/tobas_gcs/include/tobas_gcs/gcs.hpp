@@ -8,7 +8,6 @@
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ssh_endpoint.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
@@ -68,7 +67,6 @@ private:
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
-  cmn::RemoteProjectBuilder remote_proj_builder_;
   cmn::SshEndpoint ssh_endpoint_;
   ConfigurationEnvParser config_env_parser_;
 

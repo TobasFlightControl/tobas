@@ -9,6 +9,7 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
+#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -34,7 +35,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , network_checker_(this, bridge_)
   , property_client_(node, kPackageName)
   , ssh_client_(node)
-  , remote_proj_builder_(node)
   , restart_thread_(node)
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
@@ -323,7 +323,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   // サービスを停止
-  progress.setLabelText("Stopping Tobas real service.");
+  progress.setLabelText("Stopping the Tobas real service.");
   if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
@@ -378,7 +378,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
 
   // プロジェクトを送信
-  progress.setLabelText("Sending Tobas project to the flight controller.");
+  progress.setLabelText("Sending the Tobas project to the flight controller.");
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
@@ -388,12 +388,12 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // プロジェクトをビルド
-  progress.setLabelText("Building Tobas project.");
-  if (!remote_proj_builder_.build(remote_proj_path)) {
+  // GUIを止めないように別スレッドでプロジェクトをビルド
+  progress.setLabelText("Building the Tobas project.");
+  const auto build_res = cmn::buildRemoteProjectBackground(node_, proj_paths_.remoteProjPath());
+  if (!build_res) {
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + build_res.error());
     progress.close();
-    qt::qErrorBox(
-      this, "Failed to build the Tobas project:\n\n" + QString::fromStdString(remote_proj_builder_.getErrorMessage()));
     return;
   }
   progress.progressStep();
