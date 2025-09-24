@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../param_getters/combo_box.hpp"
-#include "../../param_getters/line_edit.hpp"
+#include <tobas_qt_tools/widgets/combo_box.hpp>
+
 #include "./base.hpp"
 
 namespace gui
@@ -13,6 +13,10 @@ namespace ctrl
 class CustomFrameWidget : public BaseControllerWidget
 {
   Q_OBJECT
+
+  static constexpr char kAcrobatLabel[] = "Acrobat Mode";
+  static constexpr char kStabilizeLabel[] = "Stabilize Mode";
+  static constexpr char kLoiterLabel[] = "Loiter Mode";
 
   static constexpr char kRateThrottleLabel[] = "Angle Rate + Throttle";
   static constexpr char kAngleThrottleLabel[] = "Euler Angle + Throttle";
@@ -57,9 +61,9 @@ private:
     { kSpeedRollDeltaPitchLabel, tobas::RcCommand::kSpeedRollDPitch },
   };
 
-  ParamGetterWidget_ComboBox* acrobat_mode_;
-  ParamGetterWidget_ComboBox* stabilize_mode_;
-  ParamGetterWidget_ComboBox* loiter_mode_;
+  qt::ComboBox* acrobat_mode_;
+  qt::ComboBox* stabilize_mode_;
+  qt::ComboBox* loiter_mode_;
 };
 }  // namespace ctrl
 }  // namespace sa

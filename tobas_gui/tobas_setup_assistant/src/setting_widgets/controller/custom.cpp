@@ -3,7 +3,10 @@
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -17,28 +20,33 @@ CustomFrameWidget::CustomFrameWidget()
 {
   TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::RcCommand>());
 
-  acrobat_mode_ = new ParamGetterWidget_ComboBox("Acrobat Mode", "");
-  stabilize_mode_ = new ParamGetterWidget_ComboBox("Stabilize Mode", "");
-  loiter_mode_ = new ParamGetterWidget_ComboBox("Loiter Mode", "");
+  acrobat_mode_ = new qt::ComboBox();
+  stabilize_mode_ = new qt::ComboBox();
+  loiter_mode_ = new qt::ComboBox();
 
   // Add command choices
   for (const auto& [text, _] : command_map_) {
-    acrobat_mode_->addChoice(text);
-    stabilize_mode_->addChoice(text);
-    loiter_mode_->addChoice(text);
+    acrobat_mode_->addItem(text);
+    stabilize_mode_->addItem(text);
+    loiter_mode_->addItem(text);
   }
 
   // Set default command
-  acrobat_mode_->setValue(kRateThrottleLabel);
-  stabilize_mode_->setValue(kAccelYawLabel);
-  loiter_mode_->setValue(kPosVelYawLabel);
+  acrobat_mode_->setCurrentText(kRateThrottleLabel);
+  stabilize_mode_->setCurrentText(kAccelYawLabel);
+  loiter_mode_->setCurrentText(kPosVelYawLabel);
 
   // Layout
+  const auto form = new qt::FormLayout();
+  form->addRow(kAcrobatLabel, acrobat_mode_);
+  form->addRow(kStabilizeLabel, stabilize_mode_);
+  form->addRow(kLoiterLabel, loiter_mode_);
+
   const auto rows = new QVBoxLayout();
-  rows->addWidget(acrobat_mode_);
-  rows->addWidget(stabilize_mode_);
-  rows->addWidget(loiter_mode_);
+  rows->addWidget(new qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
+  rows->addLayout(form);
   rows->addStretch();
+
   setLayout(rows);
 }
 
@@ -59,17 +67,17 @@ QString CustomFrameWidget::pluginName() const
 
 tobas::RcCommand CustomFrameWidget::acrobatModeCommand() const
 {
-  return command_map_.at(acrobat_mode_->getValue());
+  return command_map_.at(acrobat_mode_->currentText());
 }
 
 tobas::RcCommand CustomFrameWidget::stabilizeModeCommand() const
 {
-  return command_map_.at(stabilize_mode_->getValue());
+  return command_map_.at(stabilize_mode_->currentText());
 }
 
 tobas::RcCommand CustomFrameWidget::loiterModeCommand() const
 {
-  return command_map_.at(loiter_mode_->getValue());
+  return command_map_.at(loiter_mode_->currentText());
 }
 
 YAML::Node CustomFrameWidget::staticParams() const
@@ -81,18 +89,18 @@ YAML::Node CustomFrameWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[acrobat_mode_->name()] = acrobat_mode_->getValue();
-  node[stabilize_mode_->name()] = stabilize_mode_->getValue();
-  node[loiter_mode_->name()] = loiter_mode_->getValue();
+  node[kAcrobatLabel] = acrobat_mode_->currentText();
+  node[kStabilizeLabel] = stabilize_mode_->currentText();
+  node[kLoiterLabel] = loiter_mode_->currentText();
 
   return node;
 }
 
 void CustomFrameWidget::load(const YAML::Node& node)
 {
-  acrobat_mode_->setValue(node[acrobat_mode_->name()].as<QString>());
-  stabilize_mode_->setValue(node[stabilize_mode_->name()].as<QString>());
-  loiter_mode_->setValue(node[loiter_mode_->name()].as<QString>());
+  acrobat_mode_->setCurrentText(node[kAcrobatLabel].as<QString>());
+  stabilize_mode_->setCurrentText(node[kStabilizeLabel].as<QString>());
+  loiter_mode_->setCurrentText(node[kLoiterLabel].as<QString>());
 }
 
 bool CustomFrameWidget::isValid()
