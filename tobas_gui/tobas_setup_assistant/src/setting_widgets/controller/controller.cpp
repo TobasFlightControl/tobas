@@ -38,7 +38,7 @@ ControllerWidget::ControllerWidget()
 
   // Layout
   addWidget(dont_use_builtin_ctrl_);
-  addSpacing(20);
+  addSpacing(30);
   addWidget(new qt::Label("Static Configurations", cmn::kLabelPSize, QFont::Bold));
   addWidget(stack_);
 
