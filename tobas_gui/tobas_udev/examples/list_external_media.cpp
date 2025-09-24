@@ -2,14 +2,11 @@
 
 #include <tobas_udev/core.hpp>
 
-using namespace std;
-namespace fs = filesystem;
-
 int main()
 {
   const auto udev_ctx = udev_new();
   if (!udev_ctx) {
-    cerr << "udev init failed." << endl;
+    std::cerr << "udev init failed." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -47,7 +44,7 @@ int main()
     // デバイスを開放
     udev_device_unref(disk);
 
-    cout << vendor << " " << model << " (" << label1 << ", " << label2 << ") (" << devnode << ")" << endl;
+    std::cout << vendor << " " << model << " (" << label1 << ", " << label2 << ") (" << devnode << ")" << std::endl;
   }
 
   udev_enumerate_unref(en);

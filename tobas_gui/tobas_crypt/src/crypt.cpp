@@ -10,7 +10,6 @@
 
 #include <tobas_linux/error.hpp>
 
-using namespace std;
 namespace ch = std::chrono;
 
 namespace tobas
@@ -20,17 +19,17 @@ namespace crypt
 namespace
 {
 /* /etc/shadow を行単位で読み込む． */
-vector<string> readLines(const string& path)
+std::vector<std::string> readLines(const std::string& path)
 {
-  ifstream ifs(path);
+  std::ifstream ifs(path);
   if (!ifs) {
-    cerr << "Failed to open " << path << ": " << linux::strError() << endl;
+    std::cerr << "Failed to open " << path << ": " << linux::strError() << std::endl;
     return {};
   }
 
-  vector<string> lines;
-  string line;
-  while (getline(ifs, line)) {
+  std::vector<std::string> lines;
+  std::string line;
+  while (std::getline(ifs, line)) {
     lines.push_back(line);
   }
 
@@ -38,14 +37,14 @@ vector<string> readLines(const string& path)
 }
 
 /* コロン区切りを配列に変換する． */
-vector<string> splitShadow(const string& line)
+std::vector<std::string> splitShadow(const std::string& line)
 {
-  vector<string> fields;
+  std::vector<std::string> fields;
   size_t start = 0;
 
   while (true) {
     const auto pos = line.find(':', start);
-    if (pos == string::npos) {
+    if (pos == std::string::npos) {
       fields.push_back(line.substr(start));
       break;
     }
@@ -58,9 +57,9 @@ vector<string> splitShadow(const string& line)
 }
 
 /* 配列をコロン区切りに戻す． */
-string joinShadow(const vector<string>& fields)
+std::string joinShadow(const std::vector<std::string>& fields)
 {
-  ostringstream ss;
+  std::ostringstream ss;
   for (size_t i = 0; i < fields.size(); ++i) {
     if (i) {
       ss << ':';
@@ -71,35 +70,35 @@ string joinShadow(const vector<string>& fields)
 }
 
 /* ファイルを安全に上書きする． */
-bool atomicOverwrite(const string& path, const string& content)
+bool atomicOverwrite(const std::string& path, const std::string& content)
 {
   // 既存のメタデータを保存
   struct stat st;
   if (stat(path.c_str(), &st) < 0) {
-    cerr << "stat failed on " + path + ": " << linux::strError() << endl;
+    std::cerr << "stat failed on " + path + ": " << linux::strError() << std::endl;
     return false;
   }
 
   // 同ディレクトリにテンポラリを作る
   const auto dir = path.substr(0, path.find_last_of('/'));
   auto tmp = dir + "/.shadow.tmp.XXXXXX";
-  vector<char> tmpc(tmp.begin(), tmp.end());
+  std::vector<char> tmpc(tmp.begin(), tmp.end());
   tmpc.push_back('\0');
 
   auto fd = ::mkstemp(tmpc.data());
   if (fd < 0) {
-    cerr << "mkstemp failed: " << linux::strError() << endl;
+    std::cerr << "mkstemp failed: " << linux::strError() << std::endl;
     return false;
   }
   tmp.assign(tmpc.data());
 
   // パーミッション/オーナーを合わせる (安全のため 0640 で上書き)
   if (fchmod(fd, st.st_mode & 0640 ? st.st_mode : 0640) < 0) {
-    cerr << "Failed to change mode." << endl;
+    std::cerr << "Failed to change mode." << std::endl;
     return false;
   }
   if (fchown(fd, st.st_uid, st.st_gid) < 0) {
-    cerr << "Failed to change owner." << endl;
+    std::cerr << "Failed to change owner." << std::endl;
     return false;
   }
 
@@ -108,14 +107,14 @@ bool atomicOverwrite(const string& path, const string& content)
   if (wr != static_cast<ssize_t>(content.size())) {
     ::close(fd);
     ::unlink(tmp.c_str());
-    cerr << "write failed" << endl;
+    std::cerr << "write failed" << std::endl;
     return false;
   }
 
   // 改行で終わっていなければ付与
   if (content.empty() || content.back() != '\n') {
     if (::write(fd, "\n", 1) != 1) {
-      cerr << "write failed: " << linux::strError() << endl;
+      std::cerr << "write failed: " << linux::strError() << std::endl;
       return false;
     }
   }
@@ -124,7 +123,7 @@ bool atomicOverwrite(const string& path, const string& content)
   if (::fsync(fd) < 0) {
     ::close(fd);
     ::unlink(tmp.c_str());
-    cerr << "fsync failed" << endl;
+    std::cerr << "fsync failed" << std::endl;
     return false;
   }
   ::close(fd);
@@ -132,7 +131,7 @@ bool atomicOverwrite(const string& path, const string& content)
   // 原子的に差し替え
   if (::rename(tmp.c_str(), path.c_str()) < 0) {
     ::unlink(tmp.c_str());
-    cerr << "rename failed: " << linux::strError() << endl;
+    std::cerr << "rename failed: " << linux::strError() << std::endl;
     return false;
   }
 
@@ -141,9 +140,9 @@ bool atomicOverwrite(const string& path, const string& content)
 }  // namespace
 
 bool setShadowPassword(
-  const string& _shadow_path,
-  const string& _username,
-  const string& _new_password,
+  const std::string& _shadow_path,
+  const std::string& _username,
+  const std::string& _new_password,
   const Crypt& _crypt)
 {
   auto lines = readLines(_shadow_path);
@@ -180,8 +179,8 @@ bool setShadowPassword(
         fields.resize(kMinNumFields, "");
       }
 
-      fields[1] = hash;             // ハッシュ
-      fields[2] = to_string(days);  // 最終変更日
+      fields[1] = hash;                  // ハッシュ
+      fields[2] = std::to_string(days);  // 最終変更日
       line = joinShadow(fields);
       found = true;
       break;
@@ -189,16 +188,16 @@ bool setShadowPassword(
   }
 
   if (!found) {
-    cerr << "user not found in shadow: " << _username << endl;
+    std::cerr << "user not found in shadow: " << _username << std::endl;
     return false;
   }
 
   // 内容をまとめる
-  ostringstream out;
+  std::ostringstream out;
   for (size_t i = 0; i < lines.size(); ++i) {
     out << lines[i];
     if (i + 1 < lines.size()) {
-      out << endl;
+      out << std::endl;
     }
   }
 
