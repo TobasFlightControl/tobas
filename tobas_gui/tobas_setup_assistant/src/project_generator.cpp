@@ -92,6 +92,11 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
 
 std::string ProjectGenerator::flightActionsPackage() const
 {
+  if (!settings_->controller->useBuiltinContrller()) {
+    qt::qWarnBox(parent_, "You cannot use the mission planner because the builtin controller is not used.");
+    return "tobas_dummy_pkg";
+  }
+
   const auto frame_type = settings_->controller->getFrameType();
 
   if (

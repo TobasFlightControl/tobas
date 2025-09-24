@@ -1,9 +1,15 @@
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 
+#include <magic_enum/magic_enum.hpp>
+
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/fixed_wing.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/non_planar_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/planar_multicopter.hpp"
@@ -18,14 +24,26 @@ namespace ctrl
 {
 ControllerWidget::ControllerWidget()
 {
-  stack_ = new qt::StackedWidget();
-  addWidget(stack_);
+  dont_use_builtin_ctrl_ = new QCheckBox("Do not use the built-in contrller");
 
+  stack_ = new qt::StackedWidget();
+
+  stack_->addWidget(new CustomFrameWidget());
   stack_->addWidget(new PlanarMulticopterWidget());
   stack_->addWidget(new NonPlanarMulticopterWidget());
   stack_->addWidget(new YAxisTiltMulticopterWidget());
   stack_->addWidget(new RandomAxisTiltMulticopterWidget());
   stack_->addWidget(new FixedWingWidget());
+  TOBAS_CHECK(static_cast<size_t>(stack_->count()) == magic_enum::enum_count<FrameType>());
+
+  // Layout
+  addWidget(dont_use_builtin_ctrl_);
+  addSpacing(20);
+  addWidget(new qt::Label("Static Configurations", cmn::kLabelPSize, QFont::Bold));
+  addWidget(stack_);
+
+  // Connection
+  connect(dont_use_builtin_ctrl_, &QCheckBox::toggled, this, &self::onDontUseBuiltinCtrlCheckBoxToggled);
 }
 
 const char* ControllerWidget::name() const
@@ -62,6 +80,8 @@ YAML::Node ControllerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[dont_use_builtin_ctrl_->text()] = dont_use_builtin_ctrl_->isChecked();
+
   for (int i = 0; i < stack_->count(); ++i) {
     const auto controller = widget(i);
     node[textFromEnum(controller->frameType())] = controller->dump();
@@ -72,6 +92,8 @@ YAML::Node ControllerWidget::dump() const
 
 void ControllerWidget::load(const YAML::Node& node)
 {
+  dont_use_builtin_ctrl_->setChecked(node[dont_use_builtin_ctrl_->text()].as<bool>());
+
   for (int i = 0; i < stack_->count(); ++i) {
     const auto controller = widget(i);
     controller->load(node[textFromEnum(controller->frameType())]);
@@ -80,24 +102,29 @@ void ControllerWidget::load(const YAML::Node& node)
 
 FrameType ControllerWidget::getFrameType() const
 {
-  return selected()->frameType();
+  return frame_type_;
 }
 
 void ControllerWidget::setFrameType(const FrameType& type)
 {
+  frame_type_ = type;
+
+  // フレーム型が定義されていなければビルトイン制御器は使えない
   if (type == FrameType::kUndefined) {
-    // TODO: Check "Do not launch the built-in contrller" and disable
-    return;
+    dont_use_builtin_ctrl_->setChecked(true);
+    dont_use_builtin_ctrl_->setEnabled(false);
+  }
+  else {
+    dont_use_builtin_ctrl_->setChecked(false);
+    dont_use_builtin_ctrl_->setEnabled(true);
   }
 
-  for (int i = 0; i < stack_->count(); ++i) {
-    if (widget(i)->frameType() == type) {
-      stack_->setCurrentIndex(i);
-      return;
-    }
-  }
+  showCtrlWidgetWithFrameType(type);
+}
 
-  throw std::runtime_error("Controller not found for frame type: " + textFromEnum(type));
+bool ControllerWidget::useBuiltinContrller() const
+{
+  return !dont_use_builtin_ctrl_->isChecked();
 }
 
 QString ControllerWidget::controllerPackage() const
@@ -130,11 +157,6 @@ YAML::Node ControllerWidget::staticParams() const
   return selected()->staticParams();
 }
 
-void ControllerWidget::setCurrentController(int index)
-{
-  stack_->setCurrentIndex(index);
-}
-
 BaseControllerWidget* ControllerWidget::widget(int index)
 {
   return qt::qPointerCast<BaseControllerWidget>(stack_->widget(index));
@@ -153,6 +175,28 @@ BaseControllerWidget* ControllerWidget::selected()
 const BaseControllerWidget* ControllerWidget::selected() const
 {
   return qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
+}
+
+void ControllerWidget::showCtrlWidgetWithFrameType(const FrameType& type)
+{
+  for (int i = 0; i < stack_->count(); ++i) {
+    if (widget(i)->frameType() == type) {
+      stack_->setCurrentIndex(i);
+      return;
+    }
+  }
+
+  throw std::runtime_error("Controller widget not found for frame type: " + textFromEnum(type));
+}
+
+void ControllerWidget::onDontUseBuiltinCtrlCheckBoxToggled(bool checked)
+{
+  if (checked) {
+    showCtrlWidgetWithFrameType(FrameType::kUndefined);
+  }
+  else {
+    showCtrlWidgetWithFrameType(frame_type_);
+  }
 }
 }  // namespace ctrl
 }  // namespace sa
