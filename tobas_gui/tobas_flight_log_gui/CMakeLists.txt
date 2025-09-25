@@ -13,6 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
     rosbag2_cpp
+    tobas_string_tools
     tobas_kdl
     tobas_ros2_tools
     tobas_msgs

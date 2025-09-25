@@ -15,6 +15,7 @@ set(AMENT_DEPENDENCIES
     Qt5Core
     Qt5Widgets
     tobas_std_tools
+    tobas_yaml_tools
     tobas_linux
     tobas_constants
     tobas_ssh_client

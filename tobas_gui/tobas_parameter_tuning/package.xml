@@ -8,6 +8,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>tobas_string_tools</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_drone_core</depend>
   <depend>tobas_ssh_client</depend>
