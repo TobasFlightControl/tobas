@@ -34,6 +34,9 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   , rsp_client_(node, "robot_state_publisher")
   , rotor_marker_publisher_(node, uadf_)
 {
+  // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要
+  colcon_.setMergeInstall(true);
+
   // Package manager
   proj_path_ = new QLineEdit();
   proj_path_->setReadOnly(true);
