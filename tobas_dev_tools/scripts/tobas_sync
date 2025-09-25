@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -e
 
 # Show usage
 if [ $# -eq 0 ]; then

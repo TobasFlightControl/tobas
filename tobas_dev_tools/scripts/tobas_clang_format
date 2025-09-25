@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -e
 
 PARDIR=$(realpath $(dirname "$0"))
 cd ${PARDIR}/../../
