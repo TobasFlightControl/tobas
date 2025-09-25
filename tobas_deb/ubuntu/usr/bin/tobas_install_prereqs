@@ -2,7 +2,7 @@
 
 set -e
 
-# ===== Install ROS2 Jazzy: https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html =====
+# ===== Install ROS 2 Jazzy: https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html =====
 # Set locale
 locale
 sudo apt update
