@@ -62,14 +62,18 @@ rosdep install -iy --from-paths ~/colcon_ws_install/src --skip-keys "fastcdr rti
 # The "-march=native" option has little impact on speeding up performance on ARM CPUs.
 # MAVLink requires the ROS_PYTHON_VERSION environment variable.
 cd ~/colcon_ws_install/
-sudo env LD_LIBRARY_PATH=/usr/local/lib64 ROS_PYTHON_VERSION=3 colcon build \
-  --merge-install \
-  --parallel-workers $(nproc) \
-  --install-base /opt/ros/jazzy \
-  --cmake-args \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_C_COMPILER=/usr/local/bin/gcc \
-    -DCMAKE_CXX_COMPILER=/usr/local/bin/g++
+sudo \
+  env \
+    LD_LIBRARY_PATH=/usr/local/lib64 \
+    ROS_PYTHON_VERSION=3 \
+  colcon build \
+    --merge-install \
+    --parallel-workers $(nproc) \
+    --install-base /opt/ros/jazzy \
+    --cmake-args \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_C_COMPILER=/usr/local/bin/gcc \
+      -DCMAKE_CXX_COMPILER=/usr/local/bin/g++
 
 # Verify installation is successful
 source /opt/ros/jazzy/setup.bash
