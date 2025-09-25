@@ -126,7 +126,7 @@ static constexpr char kEngineThrottleKey[] = "engine";
 static constexpr char kWorldFrame[] = "world";
 
 // Install Path
-static constexpr char kROS2JazzyInstallPath[] = "/opt/ros/jazzy";
+static constexpr char kRos2JazzyInstallPath[] = "/opt/ros/jazzy";
 static constexpr char kTobasInstallPath[] = "/opt/tobas";
 
 // Resource Path
