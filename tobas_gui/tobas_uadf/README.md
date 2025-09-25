@@ -7,7 +7,7 @@ XACRO の航空機拡張．
 
 ### 特殊なジョイント
 
-- `thrust`: 推進モジュール
+- `thrust`: 推進ユニット
   - `direction`: 回転方向
     - `value`: `cw`/`ccw`
 - `cs`: 固定翼の操舵面

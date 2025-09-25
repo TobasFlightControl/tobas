@@ -8,14 +8,16 @@ namespace gui
 {
 namespace log
 {
-class GnssPlotWidget : public QWidget
+class GnssPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
 public:
   explicit GnssPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs);
 
 private:

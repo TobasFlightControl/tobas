@@ -12,6 +12,7 @@
   <xacro:property name="deg2rad" value="${pi / 180}"/>
   <xacro:property name="rad2deg" value="${180 / pi}"/>
   <xacro:property name="inch2meter" value="0.0254"/>
+  <xacro:property name="gravity" value="9.80665"/>
 
   <!-- Colors -->
   <xacro:property name="black">

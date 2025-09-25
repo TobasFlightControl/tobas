@@ -24,6 +24,14 @@ DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
   }
 }
 
+void DisturbanceForcePlotWidget::clear()
+{
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    curves_[i].clear();
+    plots_[i]->replot();
+  }
+}
+
 void DisturbanceForcePlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (auto& plot : plots_) {

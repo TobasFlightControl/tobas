@@ -11,8 +11,6 @@
 
 #include "./LookAtCamera.hpp"
 
-using namespace std;
-
 namespace gazebo
 {
 LookAtCamera::LookAtCamera()
@@ -43,7 +41,7 @@ bool LookAtCamera::eventFilter(QObject* obj, QEvent* event)
 
 void LookAtCamera::onRender()
 {
-  lock_guard<mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(mutex_);
 
   if (!scene_) {
     scene_ = gz::rendering::sceneFromFirstRenderEngine();
@@ -85,13 +83,13 @@ void LookAtCamera::initialize()
     const auto camera = dynamic_pointer_cast<gz::rendering::Camera>(scene_->NodeByIndex(i));
     if (camera) {
       camera_ = camera;
-      gzdbg << "LookAtCamera is moving camera [" << camera_->Name() << "]" << endl;
+      gzdbg << "LookAtCamera is moving camera [" << camera_->Name() << "]" << std::endl;
       break;
     }
   }
 
   if (!camera_) {
-    gzerr << "Camera is not available." << endl;
+    gzerr << "Camera is not available." << std::endl;
     return;
   }
 
@@ -100,7 +98,7 @@ void LookAtCamera::initialize()
 
 void LookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
 {
-  lock_guard<mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(mutex_);
 
   vector3dMsgToGz(msg, tar_pos_);
 }

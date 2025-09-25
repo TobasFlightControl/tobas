@@ -11,7 +11,7 @@
 #include "tobas_gazebo_system_plugins/random.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
-using namespace std;
+namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -24,7 +24,7 @@ class GazeboGnssPlugin : public BaseNode,
                          public gz::sim::ISystemConfigure,
                          public gz::sim::ISystemPostUpdate
 {
-  using HistoryType = tuple<chrono::steady_clock::duration, gz::math::Pose3d, gz::math::Vector3d, gz::math::Vector3d>;
+  using HistoryType = std::tuple<ch::steady_clock::duration, gz::math::Pose3d, gz::math::Vector3d, gz::math::Vector3d>;
 
 public:
   explicit GazeboGnssPlugin();
@@ -39,8 +39,8 @@ public:
 
 private:
   // SDF parameters
-  string link_name_;
-  size_t update_rate_;         // 更新頻度 [Hz]
+  std::string link_name_;
+  int update_rate_;            // 更新頻度 [Hz]
   gz::math::Vector3d offset_;  // B_Pos_BS [m]
   double delay_;               // GNSSの遅延時間 [s]
   double pos_corr_time_;       // OU過程の相関時定数 [s]
@@ -58,12 +58,12 @@ private:
   const cmp::WorldLinearVelocity* vel_W_;
   const cmp::AngularVelocity* gyro_B_;
 
-  deque<HistoryType> history_;
+  std::deque<HistoryType> history_;
   bool is_history_filled_ = false;
-  chrono::steady_clock::duration t_last_publish_;
+  ch::steady_clock::duration t_last_publish_;
   gz::math::Vector3d pos_bias_ = gz::math::Vector3d::Zero;
 
-  random_device rnd_dev_;
+  std::random_device rnd_dev_;
   NormalDistribution3d::SharedPtr dpos_noise_;
   NormalDistribution3d::SharedPtr vel_noise_;
 
@@ -95,7 +95,7 @@ void GazeboGnssPlugin::Configure(
   getSdfParams(sdf);
   setRandomDistribuitons();
 
-  rate_manager_ = make_shared<RateManager>(update_rate_);
+  rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
@@ -107,6 +107,57 @@ void GazeboGnssPlugin::Configure(
   gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
+}
+
+void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
+{
+  // 現在の状態を履歴に追加
+  const auto& cur_time = info.simTime;
+  history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
+
+  // 古い履歴を削除
+  while (ch::duration<double>(cur_time - std::get<0>(history_.front())).count() > delay_) {
+    history_.pop_front();
+    if (!is_history_filled_) {
+      is_history_filled_ = true;
+    }
+  }
+
+  // オルンシュタイン＝ウーベンレック過程に従って位置のバイアスを更新
+  const auto dt = ch::duration<double>(info.dt).count();
+  pos_bias_ += (dpos_noise_->get() - pos_bias_ / pos_corr_time_) * dt;
+
+  // 更新時刻になっていなければ発行しない
+  if (!rate_manager_->update(info.simTime)) {
+    return;
+  }
+
+  // 履歴が溜まっていなければ発行しない
+  if (!is_history_filled_) {
+    return;
+  }
+
+  // 最新の発行時刻を更新
+  t_last_publish_ = cur_time;
+
+  // 最も古い (= delay分遅れている) 状態を取得
+  ch::steady_clock::duration gnss_time;
+  gz::math::Pose3d T_W_B;
+  gz::math::Vector3d W_Linvel_WB;
+  gz::math::Vector3d B_Angvel_WB;
+  tie(gnss_time, T_W_B, W_Linvel_WB, B_Angvel_WB) = history_.front();
+
+  // GNSSメッセージを作成
+  auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
+  gnss_msg->header.frame_id = link_name_;
+  ros2::timeChronoToMsg(gnss_time, gnss_msg->header.stamp);
+  gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
+  fillCovariances(*gnss_msg);
+  updatePosition(*gnss_msg, T_W_B);
+  updateVelocity(*gnss_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
+
+  // メッセージを発行
+  gnss_pub_->publish(std::move(gnss_msg));
 }
 
 void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -140,57 +191,6 @@ void GazeboGnssPlugin::setRandomDistribuitons()
   // 速度の乱数生成器
   const gz::math::Vector3d vel_stddev(hor_vel_stddev_, hor_vel_stddev_, ver_vel_stddev_);
   vel_noise_.reset(new NormalDistribution3d(rnd_dev_, gz::math::Vector3d::Zero, vel_stddev));
-}
-
-void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
-{
-  // 現在の状態を履歴に追加
-  const auto& cur_time = info.simTime;
-  history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
-
-  // 古い履歴を削除
-  while (chrono::duration<double>(cur_time - get<0>(history_.front())).count() > delay_) {
-    history_.pop_front();
-    if (!is_history_filled_) {
-      is_history_filled_ = true;
-    }
-  }
-
-  // オルンシュタイン＝ウーベンレック過程に従って位置のバイアスを更新
-  const auto dt = chrono::duration<double>(info.dt).count();
-  pos_bias_ += (dpos_noise_->get() - pos_bias_ / pos_corr_time_) * dt;
-
-  // 更新時刻になっていなければ発行しない
-  if (!rate_manager_->update(info.simTime)) {
-    return;
-  }
-
-  // 履歴が溜まっていなければ発行しない
-  if (!is_history_filled_) {
-    return;
-  }
-
-  // 最新の発行時刻を更新
-  t_last_publish_ = cur_time;
-
-  // 最も古い (= delay分遅れている) 状態を取得
-  chrono::steady_clock::duration gnss_time;
-  gz::math::Pose3d T_W_B;
-  gz::math::Vector3d W_Linvel_WB;
-  gz::math::Vector3d B_Angvel_WB;
-  tie(gnss_time, T_W_B, W_Linvel_WB, B_Angvel_WB) = history_.front();
-
-  // GNSSメッセージを作成
-  auto gnss_msg = make_unique<tobas_msgs::Gnss>();
-  gnss_msg->header.frame_id = link_name_;
-  ros2::timeChronoToMsg(gnss_time, gnss_msg->header.stamp);
-  gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
-  fillCovariances(*gnss_msg);
-  updatePosition(*gnss_msg, T_W_B);
-  updateVelocity(*gnss_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
-
-  // メッセージを発行
-  gnss_pub_->publish(move(gnss_msg));
 }
 
 void GazeboGnssPlugin::fillCovariances(tobas_msgs::Gnss& gnss_msg)

@@ -13,11 +13,11 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Add ament prefix path
-    new_prefix = PathJoinSubstitution([EnvironmentVariable("HOME"), "Tobas", "colcon_ws", "install"])
+    new_ament_prefix_path = PathJoinSubstitution([EnvironmentVariable("HOME"), "Tobas", "colcon_ws", "install"])
     set_ament_prefix_path = SetEnvironmentVariable(
         name="AMENT_PREFIX_PATH",
         value=[
-            new_prefix,
+            new_ament_prefix_path,
             TextSubstitution(text=":"),
             EnvironmentVariable("AMENT_PREFIX_PATH", default_value=""),
         ],

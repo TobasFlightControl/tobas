@@ -3,6 +3,7 @@
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -28,8 +29,9 @@ ProjectGenerator::ProjectGenerator(
   rclcpp::Node::SharedPtr node,
   const uadf::Model& uadf,
   const kdl::Tree& tree,
-  SettingsWidget* settings)
-  : node_(node), uadf_(uadf), tree_(tree), settings_(settings)
+  const SettingsWidget* settings,
+  QWidget* parent)
+  : node_(node), uadf_(uadf), tree_(tree), settings_(settings), parent_(parent)
 {
   const auto templates_path = getPkgShareDir() / "templates";
   meta_env_ = std::make_shared<TemplateGenerator>(templates_path / "meta_package");
@@ -48,7 +50,7 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   const auto create_proj_path_res = path::createDirectories(proj_path);
   if (!create_proj_path_res) {
     qt::qErrorBox(
-      settings_, "Failed to create Tobas project path:\n" + QString::fromStdString(create_proj_path_res.error()));
+      parent_, "Failed to create Tobas project path:\n" + QString::fromStdString(create_proj_path_res.error()));
     return false;
   }
 
@@ -66,24 +68,18 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   }
 
   // ユーザ用Msgパッケージを作成
-  if (!fs::is_directory(proj_paths_.userMsgPkgPath())) {
-    if (!generateUserMsgPackage(tpl_data)) {
-      return false;
-    }
+  if (!generateUserMsgPackage(tpl_data)) {
+    return false;
   }
 
   // ユーザ用C++パッケージを作成
-  if (!fs::is_directory(proj_paths_.userCppPkgPath())) {
-    if (!generateUserCppPackage(tpl_data)) {
-      return false;
-    }
+  if (!generateUserCppPackage(tpl_data)) {
+    return false;
   }
 
   // ユーザ用Pythonパッケージを作成
-  if (!fs::is_directory(proj_paths_.userPyPkgPath())) {
-    if (!generateUserPyPackage(tpl_data)) {
-      return false;
-    }
+  if (!generateUserPyPackage(tpl_data)) {
+    return false;
   }
 
   // バックアップファイルを作成
@@ -96,6 +92,11 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
 
 std::string ProjectGenerator::flightActionsPackage() const
 {
+  if (!settings_->controller->useBuiltinContrller()) {
+    qt::qWarnBox(parent_, "You cannot use the mission planner because the builtin controller is not used.");
+    return "tobas_dummy_pkg";
+  }
+
   const auto frame_type = settings_->controller->getFrameType();
 
   if (
@@ -104,7 +105,7 @@ std::string ProjectGenerator::flightActionsPackage() const
     return "tobas_multicopter_actions";
   }
   else {
-    qt::qWarnBox(settings_, "Mission planner is not supported for this frame type.");
+    qt::qWarnBox(parent_, "Mission planner is not supported for this frame type.");
     return "tobas_dummy_pkg";
   }
 }
@@ -358,7 +359,7 @@ tobas::Drone ProjectGenerator::createDrone()
       joint.cmd_iface = tobas::JointCommandInterface::kPosition;
       joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
       joint.home_pos = 0.;
-      drone.joints[joint.name] = joint;
+      TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
     }
   }
 
@@ -371,7 +372,7 @@ tobas::Drone ProjectGenerator::createDrone()
     joint.cmd_iface = extra_joints->getCommandInterface(i);
     joint.hw_iface = tobas::HardwareInterface::kOther;  // TODO: 選択できるようにする
     joint.home_pos = extra_joints->getHomePosition(i);
-    drone.joints[joint.name] = joint;
+    TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
   }
 
   // RC Input
@@ -429,7 +430,6 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   // テンプレートから生成
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
   config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
-  config_env_->generate(tpl_data, std::string(tobas::node::kJointStateBroadcaster) + ".yaml.tplyaml", config_dir);
   config_env_->generate(tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "component_containers_sp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
@@ -458,15 +458,6 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
 
   // その他
   if (!createEmptyFile(pkg_path / kDoNotEditThisPackage)) {
-    return false;
-  }
-  if (!generateControllerManagerLaunch()) {
-    return false;
-  }
-  if (!generateJointControllerManagerConfig()) {
-    return false;
-  }
-  if (!generateJointControllerConfigs()) {
     return false;
   }
   if (!generateDroneConfig()) {
@@ -569,10 +560,8 @@ bool ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
   user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.cfg.tplini", pkg_path, false);
   user_py_env_->generate(tpl_data, "setup.py.tplpy", pkg_path, false);
-  user_py_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
   user_py_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
   user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
 
@@ -602,117 +591,13 @@ bool ProjectGenerator::generateBackupFiles()
   return true;
 }
 
-bool ProjectGenerator::generateControllerManagerLaunch()
-{
-  // Create XML
-  tinyxml2::XMLDocument doc;
-  const auto launch = doc.NewElement("launch");
-  doc.InsertFirstChild(launch);
-
-  // サーボジョイントが存在する場合に限りcontroller_managerを立ち上げる
-  if (hasServoJoint()) {
-    const auto cfg_pkg_name = proj_paths_.cfgPkgName();
-
-    // Add joint state broadcaster
-    addJointControllerNode(launch, cfg_pkg_name, tobas::node::kJointStateBroadcaster);
-
-    // Add joint controllers
-    for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
-      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
-    }
-    for (const auto& [jnt_name, _] : uadf_.tilts) {
-      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
-    }
-    for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
-      if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
-        continue;
-      }
-      const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
-      addJointControllerNode(launch, cfg_pkg_name, jointControllerName(jnt_name));
-    }
-  }
-
-  // Save XML
-  const auto launch_dir = proj_paths_.cfgLaunchDirPath();
-  if (doc.SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
-    return false;
-  }
-
-  return true;
-}
-
-bool ProjectGenerator::generateJointControllerManagerConfig()
-{
-  // Controller manager
-  YAML::Node manager_params_node(YAML::NodeType::Map);
-  manager_params_node["update_rate"] = 100;  // TODO: GUIで設定できるように
-  manager_params_node[tobas::node::kJointStateBroadcaster]["type"] = tobas::ctrl_manager::type::kJointStateBroadcaster;
-
-  // Each joint controllers
-  for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
-    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
-  }
-  for (const auto& [jnt_name, _] : uadf_.tilts) {
-    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
-  }
-  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
-    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
-      continue;
-    }
-    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
-    manager_params_node[jointControllerName(jnt_name)]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
-  }
-
-  // Create data
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node[uadf_.urdf->getName()]["controller_manager"][kRosParamsKey] = manager_params_node;
-
-  // Save data
-  const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / "joint_controller_manager.yaml", root_node)) {
-    return false;
-  }
-
-  return true;
-}
-
-bool ProjectGenerator::generateJointControllerConfigs()
-{
-  for (const auto& [jnt_name, _] : uadf_.control_surfaces) {
-    if (!generateJointControllerConfig(jnt_name, tobas::JointCommandInterface::kPosition)) {
-      return false;
-    }
-  }
-
-  for (const auto& [jnt_name, _] : uadf_.tilts) {
-    if (!generateJointControllerConfig(jnt_name, tobas::JointCommandInterface::kPosition)) {
-      return false;
-    }
-  }
-
-  for (int i = 0; i < settings_->extra_joints->numJoints(); ++i) {
-    if (!tobas::isServoJoint(settings_->extra_joints->getRole(i))) {
-      continue;
-    }
-
-    const auto jnt_name = settings_->extra_joints->getJointName(i).toStdString();
-    const auto cmd_iface = settings_->extra_joints->getCommandInterface(i);
-    if (!generateJointControllerConfig(jnt_name, cmd_iface)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 bool ProjectGenerator::generateDroneConfig()
 {
   const auto drone = createDrone();
 
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
   if (!drone.save(tbsdrn_path)) {
-    qt::qErrorBox(settings_, "Failed to save drone configuration.");
+    qt::qErrorBox(parent_, "Failed to save drone configuration.");
     return false;
   }
 
@@ -830,7 +715,7 @@ bool ProjectGenerator::generateSshEndpointConfig()
   ssh_endpoint.user = tobas::kFmuUserName;
 
   if (!ssh_endpoint.save(proj_paths_.sshEndpointPath())) {
-    qt::qErrorBox(settings_, "Failed to save the SSH endpoint.");
+    qt::qErrorBox(parent_, "Failed to save the SSH endpoint.");
     return false;
   }
 
@@ -850,7 +735,7 @@ bool ProjectGenerator::generateOriginalUadf()
 
   // Save
   if (doc->SaveFile(proj_paths_.originalUadfPath().c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the original UADF.");
+    qt::qErrorBox(parent_, "Failed to save the original UADF.");
     return false;
   }
 
@@ -876,7 +761,7 @@ bool ProjectGenerator::generateModifiedUrdf()
 
   // Save
   if (doc->SaveFile(proj_paths_.xacroPath().c_str()) != tinyxml2::XML_SUCCESS) {
-    qt::qErrorBox(settings_, "Failed to save the modified URDF.");
+    qt::qErrorBox(parent_, "Failed to save the modified URDF.");
     return false;
   }
 
@@ -885,9 +770,9 @@ bool ProjectGenerator::generateModifiedUrdf()
 
 bool ProjectGenerator::createEmptyFile(const fs::path& file_path)
 {
-  const auto res = path::createFilePath(file_path);
+  const auto res = path::createFilePath(file_path, true);
   if (!res) {
-    qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
+    qt::qErrorBox(parent_, "Failed to create \"" + QString::fromStdString(file_path) + "\":\n" + res.error().c_str());
     return false;
   }
 
@@ -910,7 +795,7 @@ bool ProjectGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite
 bool ProjectGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node)
 {
   if (!yaml::save(path, node)) {
-    qt::qErrorBox(settings_, "Failed to save \"" + QString::fromStdString(path) + "\".");
+    qt::qErrorBox(parent_, "Failed to save \"" + QString::fromStdString(path) + "\".");
     return false;
   }
 
@@ -922,13 +807,13 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
     const auto src_path = urdf::resolveURI(filename);
     if (!fs::exists(src_path)) {
-      qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
+      qt::qErrorBox(parent_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
       return false;
     }
 
@@ -940,13 +825,13 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       // dst_pathが存在するがsrc_pathと内容が異なる場合は，fs::copy_fileでは上書きされないため一度削除した上でコピーする．
       if (!fs::equivalent(src_path, dst_path)) {
         if (!fs::remove(dst_path)) {
-          qt::qErrorBox(settings_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
+          qt::qErrorBox(parent_, "Failed to remove " + QString::fromStdString(dst_path) + ".");
           return false;
         }
 
         if (!fs::copy_file(src_path, dst_path)) {
           qt::qErrorBox(
-            settings_,
+            parent_,
             "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
           return false;
         }
@@ -956,7 +841,7 @@ bool ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* el
       // dst_pathが存在しない場合は，ただコピーすればよい．
       if (!fs::copy_file(src_path, dst_path)) {
         qt::qErrorBox(
-          settings_,
+          parent_,
           "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
         return false;
       }
@@ -985,7 +870,7 @@ bool ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* el
   if (strcmp(elem->Name(), "mesh") == 0) {
     const auto filename = elem->Attribute("filename");
     if (!filename) {
-      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      qt::qErrorBox(parent_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
@@ -1022,7 +907,7 @@ bool ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     if (strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
-        qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
+        qt::qErrorBox(parent_, "Joint element does not have attribute: \"name\"");
         return false;
       }
       if (prop_jnt_names.contains(jnt_name)) {
@@ -1051,7 +936,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   const auto drone = createDrone();
 
-  // Get rotor channels
+  // Get rotor link names
   std::vector<std::string> rotor_link_names;
   for (const auto& [link_name, _] : drone.prop->rotors) {
     rotor_link_names.push_back(link_name);
@@ -1212,6 +1097,50 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     xml::addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
   }
 
+  // Joint state broadcaster plugin
+  std::vector<std::string> joint_names;
+  for (const auto& [jnt_name, _] : drone.joints) {
+    joint_names.push_back(jnt_name);
+  }
+  xml::addJointStateBroadcasterPlugin(robot, ns, joint_names, 100);  // TODO: GUIで更新レートを調整できるように
+
+  // Joint controller plugins
+  for (const auto& [_, joint] : drone.joints) {
+    if (!joint.isServoJoint()) {
+      continue;
+    }
+
+    switch (joint.cmd_iface) {
+      case tobas::JointCommandInterface::kNone: {
+        break;
+      }
+      case tobas::JointCommandInterface::kPosition: {
+        const auto max_vel = uadf_.urdf->getJoint(joint.name)->limits->velocity;
+        if (max_vel <= 0.) {
+          qWarning() << "The maximum velocity of " << QString::fromStdString(joint.name) << " is invalid: " << max_vel;
+          break;
+        }
+
+        // 最大速度で60deg回転にかかる時間を時定数とする．つまり誤差60degで最大速度が出る．
+        // TODO: サーボモータの仕様 (無付加回転数など) をより正確に再現
+        const auto time_const = M_PI_3 / max_vel;
+        xml::addJointPositionControllerPlugin(robot, ns, joint.name, joint.home_pos, time_const);
+        break;
+      }
+      case tobas::JointCommandInterface::kVelocity: {
+        xml::addJointVelocityControllerPlugin(robot, ns, joint.name, joint.home_pos);
+        break;
+      }
+      case tobas::JointCommandInterface::kEffort: {
+        xml::addJointEffortControllerPlugin(robot, ns, joint.name, joint.home_pos);
+        break;
+      }
+      default: {
+        throw;
+      }
+    }
+  }
+
   // Wind plugin
   xml::addGazeboWindPlugin(robot, ns, root_name);
 
@@ -1221,60 +1150,10 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   // LookAt position plugin
   xml::addGazeboLookAtPositionPlugin(robot, ns, root_name);
 
-  // Gazebo ROS2 control system
-  xml::addGazeboROS2SimSystem(robot, drone.joints);
-
-  // Gazebo ROS2 control plugin
-  // This must be defined after GazeboSimSystem
-  if (hasServoJoint()) {
-    xml::addGazeboSimROS2ControlPlugin(robot, ns, cfg_pkg_name, "config/joint_controller_manager.yaml");
-  }
-
   // Base static joint for debug
   xml::addBaseStaticJoint(robot, tree_.getRootName());
 
   return true;
-}
-
-void ProjectGenerator::addJointControllerNode(
-  tinyxml2::XMLElement* launch,
-  const std::string& cfg_pkg_name,
-  const std::string& ctrl_name)
-{
-  const auto& ns = uadf_.urdf->getName();
-  const auto config_dir = "$(find-pkg-share " + cfg_pkg_name + ")/config/";
-  const auto ctrl_param = config_dir + ctrl_name + ".yaml";
-  const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
-  const auto ctrl_node = xml::addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
-  xml::addNodeParam(ctrl_node, "use_sim_time", "true");
-}
-
-bool ProjectGenerator::generateJointControllerConfig(
-  const std::string& jnt_name,
-  const tobas::JointCommandInterface& cmd_iface)
-{
-  const auto ctrl_name = jointControllerName(jnt_name);
-
-  YAML::Node ctrl_params_node(YAML::NodeType::Map);
-  ctrl_params_node["joints"].push_back(jnt_name);
-  ctrl_params_node["interface_name"] = tobas::textFromEnum(cmd_iface);
-
-  // Create data
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node["/**"][ctrl_name][kRosParamsKey] = ctrl_params_node;  // 名前空間を指定すると読み込みに失敗する
-
-  // Save data
-  const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node)) {
-    return false;
-  }
-
-  return true;
-}
-
-std::string ProjectGenerator::jointControllerName(const std::string& jnt_name)
-{
-  return jnt_name + "_controller";
 }
 
 tobas::TurningDirection ProjectGenerator::turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)

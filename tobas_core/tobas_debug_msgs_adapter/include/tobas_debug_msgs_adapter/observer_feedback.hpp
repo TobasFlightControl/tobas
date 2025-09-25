@@ -27,7 +27,7 @@ struct ObserverFeedback
   Eigen::Matrix3d accel_bias_cov;
   Eigen::Matrix3d gyro_bias_cov;
   Eigen::Matrix3d mag_hard_bias_cov;
-  Eigen::Matrix6d mag_soft_bias_cov;
+  Eigen::Matrix<double, 6, 6> mag_soft_bias_cov;
   double gravity_var;
 
   double gnss_anomaly_score;

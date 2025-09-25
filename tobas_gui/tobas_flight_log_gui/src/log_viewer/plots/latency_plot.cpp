@@ -27,6 +27,15 @@ LatencyPlotWidget::LatencyPlotWidget()
   rows->addWidget(ctrl_latency_plot_, 1);
 }
 
+void LatencyPlotWidget::clear()
+{
+  sampling_time_curve_.clear();
+  sampling_time_plot_->replot();
+
+  ctrl_latency_curve_.clear();
+  ctrl_latency_plot_->replot();
+}
+
 void LatencyPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   sampling_time_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);

@@ -6,6 +6,8 @@
 
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 
+#include "tobas_flight_log_gui/recorder/constants.hpp"
+
 namespace gui
 {
 namespace log
@@ -21,7 +23,7 @@ void RecordStopThread::run()
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 
-  if (!sc.call(req)) {
+  if (!sc.call(req, kRecordServiceTimeout)) {
     Q_EMIT finished(false, "Flight log recording service is unavailable.");
     return;
   }

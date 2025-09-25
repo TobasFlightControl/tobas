@@ -56,6 +56,27 @@ GnssPlotWidget::GnssPlotWidget()
   grid->addWidget(up_speed_plot_, 2, 1, 1, 1);
 }
 
+void GnssPlotWidget::clear()
+{
+  latitude_curve_.clear();
+  latitude_plot_->replot();
+
+  longitude_curve_.clear();
+  longitude_plot_->replot();
+
+  altitude_curve_.clear();
+  altitude_plot_->replot();
+
+  north_speed_curve_.clear();
+  north_speed_plot_->replot();
+
+  west_speed_curve_.clear();
+  west_speed_plot_->replot();
+
+  up_speed_curve_.clear();
+  up_speed_plot_->replot();
+}
+
 void GnssPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   latitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
@@ -88,17 +109,21 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   }
 
   latitude_curve_.setSamples(t_data, latitude_data);
-  longitude_curve_.setSamples(t_data, longitude_data);
-  altitude_curve_.setSamples(t_data, altitude_data);
-  north_speed_curve_.setSamples(t_data, north_speed_data);
-  west_speed_curve_.setSamples(t_data, west_speed_data);
-  up_speed_curve_.setSamples(t_data, up_speed_data);
-
   latitude_plot_->replot();
+
+  longitude_curve_.setSamples(t_data, longitude_data);
   longitude_plot_->replot();
+
+  altitude_curve_.setSamples(t_data, altitude_data);
   altitude_plot_->replot();
+
+  north_speed_curve_.setSamples(t_data, north_speed_data);
   north_speed_plot_->replot();
+
+  west_speed_curve_.setSamples(t_data, west_speed_data);
   west_speed_plot_->replot();
+
+  up_speed_curve_.setSamples(t_data, up_speed_data);
   up_speed_plot_->replot();
 }
 }  // namespace log

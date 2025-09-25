@@ -50,6 +50,8 @@ public:
   YAML::Node dump() const;
   bool load(const YAML::Node& node);
 
+  void setFrameType(FrameType type);
+
 private:
   const uadf::Model& uadf_;
 

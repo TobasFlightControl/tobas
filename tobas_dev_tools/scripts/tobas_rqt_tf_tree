@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+# Usage
+if [ $# -eq 0 ]; then
+  echo "Usage: $(basename "$0") <namespace>"
+  exit 1
+fi
+
+ros2 run rqt_tf_tree rqt_tf_tree --ros-args -r tf:=/$1/tf -r tf_static:=/$1/tf_static

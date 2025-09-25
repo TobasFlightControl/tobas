@@ -3,7 +3,7 @@
 repos:
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -66,11 +66,11 @@ repos:
         entry: cmake-format
         language: system
         args: ["-i"]
-        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        files: (CMakeLists\.txt|.*\.cmake)$
       - id: cmake-lint
         name: cmake-lint
         entry: cmake-lint
         language: system
         args:
           - "--suppress-decorations"
-        files: (CMakeLists\.txt|.*\.cmake|.*\.tplcmake)$
+        files: (CMakeLists\.txt|.*\.cmake)$

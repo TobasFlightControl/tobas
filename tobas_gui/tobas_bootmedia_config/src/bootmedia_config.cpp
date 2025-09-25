@@ -66,7 +66,7 @@ void BootmediaConfigWidget::closeEvent(QCloseEvent* event)
           this,
           "You’re attempting to close the application while the boot device is still connected. "
           "Are you sure you want to exit?",
-          qt::QMessageLevel::WARN)) {
+          qt::WARN)) {
       event->ignore();
       return;
     }

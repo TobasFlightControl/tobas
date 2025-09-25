@@ -1,3 +1,5 @@
+#include <boost/polymorphic_pointer_cast.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_node/node.hpp>
@@ -253,15 +255,15 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
   // Set target speeds of each channel
-  for (const auto& tar_speed : tar_speeds->speeds) {
-    const auto erotor = eprop_->getRotor(tar_speed.link_name);
+  for (const auto& elem : tar_speeds->speeds) {
+    const auto erotor = eprop_->getRotor(elem.link_name);
     if (!erotor) {
-      TOBAS_ERROR("Rotor \"" + tar_speed.link_name + "\" does not exist.");
+      TOBAS_ERROR("Rotor \"" + elem.link_name + "\" does not exist.");
       continue;
     }
 
-    if (!dshot_.setTargetSpeed(erotor->channel, tar_speed.speed)) {
-      TOBAS_ERROR("Failed to set target speed of rotor \"", tar_speed.link_name, "\".");
+    if (!dshot_.setTargetSpeed(erotor->channel, elem.speed)) {
+      TOBAS_ERROR("Failed to set target speed of rotor \"", elem.link_name, "\".");
       continue;
     }
   }

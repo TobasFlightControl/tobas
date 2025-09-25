@@ -12,7 +12,7 @@ namespace log
 {
 PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 {
-  grid_ = new QGridLayout();
+  grid_ = new qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -21,7 +21,7 @@ void PropellerPitchPlotWidget::clear()
   // レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
   plots_.clear();
   curves_.clear();
-  qt::clearLayout(grid_);
+  grid_->clear();
 
   num_rotors_ = 0;
   name2idx_.clear();
@@ -97,7 +97,13 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
 
     const auto plot = new QwtPlot2();
     plot->setAxisNoLabel(QwtPlot::xBottom);
-    grid_->addWidget(plot, idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
+
+    // ウィジェットをN行2列の格子状に配置
+    const auto row = idx / 2;
+    const auto col = idx % 2;
+    grid_->addWidget(plot, row, col, 1, 1);
+    grid_->setRowStretch(row, 1);
+    grid_->setColumnStretch(col, 1);
 
     qwt::QwtPlotCurveWrapper curve("Pitch Angle [deg] (" + QString::fromStdString(elem.link_name) + ")");
     curve.setPen(kCurrentValueColor, kLineWidth);

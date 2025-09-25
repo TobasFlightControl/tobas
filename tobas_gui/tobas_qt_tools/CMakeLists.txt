@@ -11,14 +11,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(ament_index_cpp REQUIRED)
-find_package(tobas_math REQUIRED)
-find_package(tobas_std_tools REQUIRED)
-
 set(AMENT_DEPENDENCIES Qt5Core Qt5Widgets ament_index_cpp tobas_math tobas_std_tools)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)

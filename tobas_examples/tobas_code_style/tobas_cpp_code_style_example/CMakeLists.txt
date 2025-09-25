@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_cpp_code_style_example)
 
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(mavros_msgs REQUIRED)
-find_package(tobas_math REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
-
 set(AMENT_DEPENDENCIES rclcpp rclcpp_components std_msgs mavros_msgs tobas_math tobas_msgs_adapter)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 
@@ -20,6 +18,7 @@ ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Talker" EXECUTABLE talker)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Listener" EXECUTABLE listener)
 

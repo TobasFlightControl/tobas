@@ -24,6 +24,8 @@ class FlightLogViewerWidget : public QWidget
 public:
   explicit FlightLogViewerWidget();
 
+  void reset();
+
   void setLogName(const QString& log_name);
 
 private:
@@ -39,6 +41,10 @@ private:
   QVector<tobas_msgs::msg::Battery> battery_data_;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data_;
   QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data_;
+  QVector<tobas_msgs::msg::JointStateArray> cur_joint_states_data_;
+  QVector<tobas_msgs::msg::JointCommandArray> tar_joint_positions_data_;
+  QVector<tobas_msgs::msg::JointCommandArray> tar_joint_velocities_data_;
+  QVector<tobas_msgs::msg::JointCommandArray> tar_joint_efforts_data_;
   QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data_;
   QVector<tobas_msgs::msg::Latency> sampling_time_data_;
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
@@ -48,23 +54,22 @@ private:
 
   MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
   MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;
-  MessageDecoder<tobas_msgs::msg::Imu> imu_cov_decoder_;
-  MessageDecoder<tobas_msgs::msg::MagneticField> mag_cov_decoder_;
+  MessageDecoder<tobas_msgs::msg::MagneticField> mag_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
-  MessageDecoder<tobas_msgs::msg::RotorStateArray> cur_rotor_states_decoder_;
-  MessageDecoder<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_decoder_;
+  MessageDecoder<tobas_msgs::msg::RotorStateArray> rotor_states_decoder_;
+  MessageDecoder<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_decoder_;
+  MessageDecoder<tobas_msgs::msg::JointStateArray> joint_states_decoder_;
+  MessageDecoder<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
   MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
-  MessageDecoder<tobas_msgs::msg::Latency> sampling_time_decoder_;
-  MessageDecoder<tobas_msgs::msg::Latency> ctrl_latency_decoder_;
-  MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> dist_force_decoder_;
+  MessageDecoder<tobas_msgs::msg::Latency> latency_decoder_;
+  MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
 
   std::array<PlotTabWidget*, 3> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
 
-  void reset();
   void setPlotData(double time_from_start);
 
 private Q_SLOTS:

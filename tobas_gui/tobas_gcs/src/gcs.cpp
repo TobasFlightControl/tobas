@@ -9,7 +9,9 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
+#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
@@ -30,15 +32,13 @@ namespace gcs
 GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr node)
   : node_(node)
   , bridge_(node)
+  , network_checker_(this, bridge_)
   , property_client_(node, kPackageName)
   , ssh_client_(node)
-  , remote_proj_builder_(node)
   , restart_thread_(node)
   , shutdown_thread_(node)
   , spinner_(Qt::WindowModal, this)
 {
-  const auto rsrc_path = getPkgShareDir() / "resources";
-
   // Applications
   sensor_calib_ = new sc::SensorCalibrationWidget(node, bridge_, drone_);
   actuator_test_ = new at::ActuatorTestWidget(node, bridge_, tree_, drone_);
@@ -48,12 +48,13 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   simulation_ = new sim::SimulationWidget(node, bridge_);
 
   // TODO: 別々のアイコンを設定
-  const auto sensor_calib_btn = new AppButton("Sensor Calib", QString::fromStdString(rsrc_path / "app.png"));
-  const auto actuator_test_btn = new AppButton("Actuator Test", QString::fromStdString(rsrc_path / "app.png"));
-  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "app.png"));
-  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "app.png"));
-  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "app.png"));
-  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "app.png"));
+  const auto rsrc_dir = getResourceDir();
+  const auto sensor_calib_btn = new AppButton("Sensor Calib", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto actuator_test_btn = new AppButton("Actuator Test", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_dir / "app.png"));
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(sensor_calib_);
@@ -72,6 +73,10 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   btn_group->addButton(flight_log_btn, btn_id++);
   btn_group->addButton(simulation_btn, btn_id++);
   btn_group->buttons().first()->setChecked(true);
+
+  // Connection checker
+  remote_conn_ = new RemoteConnectionWidget(bridge_);
+  remote_conn_->setMaximumHeight(sensor_calib_btn->height());
 
   // Package manager
   proj_path_ = new QLineEdit();
@@ -106,6 +111,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   header_cols->addWidget(flight_log_btn, 1);
   header_cols->addWidget(simulation_btn, 1);
   header_cols->addStretch();
+  header_cols->addWidget(remote_conn_);
   header_cols->addLayout(pkg_rows);
   qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // スペースが足りなければ潰れる
   header_cols->addWidget(restart_btn_);
@@ -130,28 +136,39 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
-void GroundControlStationWidget::reset()
+void GroundControlStationWidget::reset(bool include_simulation)
 {
+  qt::processAllQueuedEvents();
+
+  remote_conn_->restart();
+
   sensor_calib_->reset();
   actuator_test_->reset();
   control_system_->reset();
   param_tuning_->reset();
   flight_log_->reset();
-  simulation_->reset();
+
+  if (include_simulation) {
+    simulation_->reset();
+  }
 
   arming_.reset();
+
+  qt::processAllQueuedEvents();
 }
 
 void GroundControlStationWidget::updateInternalDataStructures()
 {
-  reset();
+  // まずトピックを貼り替えて以前の機体でのコールバックを全て吐ききる
+  bridge_.initializeScopedTopics(drone_.name);
+  qt::processAllQueuedEvents();
 
   if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SSHClient::kNoError) {
     qt::qErrorBox(this, "Failed to set SSH endpoint:\n" + QString(ssh_client_.errorMessage()));
     return;
   }
 
-  bridge_.initialize(drone_.name);
+  reset();
 
   sensor_calib_->updateInternalDataStructures();
   actuator_test_->updateInternalDataStructures();
@@ -276,7 +293,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
           "This operation will restart the flight control software, "
           "so it can only be performed when the aircraft is completely stationary. "
           "Do you want to proceed?",
-          qt::QMessageLevel::WARN)) {
+          qt::WARN)) {
       return;
     }
   }
@@ -306,7 +323,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   // サービスを停止
-  progress.setLabelText("Stopping Tobas real service.");
+  progress.setLabelText("Stopping the Tobas real service.");
   if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
@@ -361,7 +378,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
 
   // プロジェクトを送信
-  progress.setLabelText("Sending Tobas project to the flight controller.");
+  progress.setLabelText("Sending the Tobas project to the flight controller.");
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
@@ -371,12 +388,12 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // プロジェクトをビルド
-  progress.setLabelText("Building Tobas project.");
-  if (!remote_proj_builder_.build(remote_proj_path)) {
+  // GUIを止めないように別スレッドでプロジェクトをビルド
+  progress.setLabelText("Building the Tobas project.");
+  const auto build_res = cmn::buildRemoteProjectBackground(node_, proj_paths_.remoteProjPath());
+  if (!build_res) {
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + build_res.error());
     progress.close();
-    qt::qErrorBox(
-      this, "Failed to build the Tobas project:\n\n" + QString::fromStdString(remote_proj_builder_.getErrorMessage()));
     return;
   }
   progress.progressStep();
@@ -415,7 +432,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
   }
 
   // 本当に再起動してよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::WARN)) {
     restart_btn_->setChecked(false);
     return;
   }
@@ -443,7 +460,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
   }
 
   // 本当にシャットダウンしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC?", qt::WARN)) {
     shutdown_btn_->setChecked(false);
     return;
   }
@@ -468,10 +485,10 @@ void GroundControlStationWidget::onRestartThreadFinished(bool success, const QSt
     return;
   }
 
-  // TFの時間戻りを避けるために各ウィジェットをリセット
   reset();
 
-  qt::qInfoBox(this, "Flight controller is restarted successfully.");
+  qt::qInfoBox(this, "Flight controller was restarted successfully.");
+
   restart_btn_->setChecked(false);
 }
 
@@ -488,9 +505,11 @@ void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QS
     return;
   }
 
-  // GUIを完全に落とす
-  close();
-  QApplication::quit();
+  reset();
+
+  qt::qInfoBox(this, "Flight controller was shut down successfully.");
+
+  shutdown_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onSimRealStateChanged()
@@ -498,15 +517,7 @@ void GroundControlStationWidget::onSimRealStateChanged()
   RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onSimRealStateChanged");
 
   // シミュレーションウィジェット以外リセット
-  sensor_calib_->reset();
-  control_system_->reset();
-  param_tuning_->reset();
-  flight_log_->reset();
-
-  arming_.reset();
-
-  // イベントループを進めて画面の更新を確実に反映させる
-  QApplication::processEvents();
+  reset(false);
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

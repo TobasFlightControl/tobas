@@ -14,7 +14,6 @@
 #include "tobas_gazebo_system_plugins/random.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
-using namespace std;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -42,8 +41,8 @@ public:
 
 private:
   // SDF parameters
-  string link_name_;
-  size_t update_rate_;         // [Hz] Update rate
+  std::string link_name_;
+  int update_rate_;            // [Hz] Update rate
   gz::math::Vector3d offset_;  // [m] B_Pos_BS
   double lat_0_;               // [deg] 原点の北緯
   double lon_0_;               // [deg] 原点の東経
@@ -58,7 +57,7 @@ private:
   gz::math::Vector3d hard_bias_;  // [G]
   double lat_, lon_;              // [deg] Current position
 
-  random_device rnd_dev_;
+  std::random_device rnd_dev_;
   NormalDistribution3d::SharedPtr noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
@@ -79,7 +78,7 @@ void GazeboMagnetometerPlugin::Configure(
   initialize("gazebo_magnetometer_plugin", sdf);
   getSdfParams(sdf);
 
-  rate_manager_ = make_shared<RateManager>(update_rate_);
+  rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
@@ -90,23 +89,9 @@ void GazeboMagnetometerPlugin::Configure(
 
   hard_bias_ = createUnitSpherePoint(rnd_dev_) * hard_bias_norm_;
 
-  noise_ = make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
+  noise_ = std::make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
-}
-
-void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_);
-
-  getSdfParam(sdf, "latitudeZero", lat_0_);
-  getSdfParam(sdf, "longitudeZero", lon_0_);
-  getSdfParam(sdf, "altitudeZero", alt_0_);
-
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
-  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -137,13 +122,27 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto field_meas = (field_B + noise_->get() + hard_bias_) / mag.total;  // [-]
 
   // Create message
-  auto mag_msg = make_unique<tobas_msgs::MagneticField>();
+  auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(field_meas, mag_msg->mag);
 
   // Publish message
-  mag_pub_->publish(move(mag_msg));
+  mag_pub_->publish(std::move(mag_msg));
+}
+
+void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
+  getSdfParam(sdf, "offset", offset_);
+
+  getSdfParam(sdf, "latitudeZero", lat_0_);
+  getSdfParam(sdf, "longitudeZero", lon_0_);
+  getSdfParam(sdf, "altitudeZero", alt_0_);
+
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
+  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
 }
 }  // namespace gazebo
 

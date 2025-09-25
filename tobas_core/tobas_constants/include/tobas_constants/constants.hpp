@@ -40,7 +40,7 @@ static constexpr char kGnssOriginTopic[] = "gnss_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
-static constexpr char kRotorLivelinessesTopic[] = "rotor_livelinesses";
+static constexpr char kRotorLivTopic[] = "rotor_liveliness";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kImuSamplingTimeTopic[] = "imu_sampling_time";
@@ -51,6 +51,8 @@ static constexpr char kPostArmCheckTopic[] = "postarm_check";
 static constexpr char kDisturbanceForceTopic[] = "disturbance_force";
 static constexpr char kLandedTopic[] = "landed";
 static constexpr char kRosbagStateTopic[] = "rosbag_state";
+static constexpr char kHeartbeatTopic[] = "heartbeat";
+static constexpr char kRemoteConnectionTopic[] = "remote_connection";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Low Command
@@ -105,20 +107,9 @@ static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
 
-// Controller Manager
-namespace ctrl_manager
-{
-namespace type
-{
-static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster/JointStateBroadcaster";
-static constexpr char kForwardCommandController[] = "forward_command_controller/ForwardCommandController";
-}  // namespace type
-}  // namespace ctrl_manager
-
 // Node names
 namespace node
 {
-static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
 static constexpr char kImuFilterConfigServer[] = "imu_filter_config_server";
 static constexpr char kObserver[] = "observer";
 static constexpr char kController[] = "controller";
@@ -135,7 +126,7 @@ static constexpr char kEngineThrottleKey[] = "engine";
 static constexpr char kWorldFrame[] = "world";
 
 // Install Path
-static constexpr char kROS2JazzyInstallPath[] = "/opt/ros/jazzy";
+static constexpr char kRos2JazzyInstallPath[] = "/opt/ros/jazzy";
 static constexpr char kTobasInstallPath[] = "/opt/tobas";
 
 // Resource Path

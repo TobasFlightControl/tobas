@@ -6,6 +6,6 @@ from launch import LaunchDescription
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Please add nodes that runs only on the actual hardware and exposes external interfaces.
+    # Please add nodes that runs only on real hardware and exposes external interfaces.
 
     return ld

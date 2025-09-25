@@ -21,6 +21,9 @@ public:
 
   void attach(QwtPlot* plot);
 
+  /* サンプルを消去する． */
+  void clear();
+
 private:
   std::shared_ptr<QwtPlotCurve> impl_;
 };

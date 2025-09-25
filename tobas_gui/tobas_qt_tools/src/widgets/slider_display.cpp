@@ -63,9 +63,8 @@ QString IntSliderDisplay::getSuffix() const
 
 void IntSliderDisplay::setValue(int value, bool block_signal)
 {
-  slider_->blockSignals(true);
+  const QSignalBlocker block(slider_);
   slider_->setValue(value);
-  slider_->blockSignals(false);
 
   value_->setText(QString::number(value) + suffix_);
 
@@ -171,9 +170,8 @@ int DoubleSliderDisplay::getDecimals() const
 
 void DoubleSliderDisplay::setValue(double value, bool block_signal)
 {
-  slider_->blockSignals(true);
+  const QSignalBlocker block(slider_);
   slider_->setValue(value);
-  slider_->blockSignals(false);
 
   value_->setText(QString::number(value, 'f', decimals_) + suffix_);
 

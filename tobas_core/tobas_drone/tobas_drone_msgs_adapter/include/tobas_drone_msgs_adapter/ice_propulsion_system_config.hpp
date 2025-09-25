@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/polymorphic_pointer_cast.hpp>
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>

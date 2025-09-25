@@ -128,8 +128,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Gnss>(tobas::kGnssTopic, tobas::kGnssTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
     tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(
-    tobas::kRotorLivelinessesTopic, tobas::kRotorLivelinessesTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivTopic, tobas::kRotorLivTopic);
   addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
     tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
   addTopicLogicToIface<tobas_msgs::msg::Odometry>(tobas::addThrotNS(tobas::kOdometryTopic), tobas::kOdometryTopic);

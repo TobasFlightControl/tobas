@@ -3,6 +3,7 @@
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
+#include <gz/sim/components.hh>
 
 #include <tobas_std_tools/range.hpp>
 
@@ -56,6 +57,12 @@ private:
   std::shared_ptr<gz::sim::Joint> joint_;
   std::shared_ptr<gz::sim::Link> link_;
   std::shared_ptr<gz::sim::Link> parent_link_;
+  const gz::sim::components::JointAxis* jnt_axis_;
+  const gz::sim::components::JointVelocity* jnt_vel_;
+  const gz::sim::components::WorldPose* pose_W_;
+  const gz::sim::components::WorldLinearVelocity* linvel_W_;
+  const gz::sim::components::WorldAngularVelocity* angvel_W_;
+  const gz::sim::components::Inertial* inertial_;
 
   // Other
   SimpleJointModel pitch_angle_;

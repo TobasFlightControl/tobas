@@ -34,6 +34,9 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   , rsp_client_(node, "robot_state_publisher")
   , rotor_marker_publisher_(node, uadf_)
 {
+  // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要
+  colcon_.setMergeInstall(true);
+
   // Package manager
   proj_path_ = new QLineEdit();
   proj_path_->setReadOnly(true);
@@ -54,7 +57,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   jsp_ = new JointStatePublisherWidget(node, tree_);
   settings_ = new SettingsWidget(node, uadf_, tree_, sig_);
 
-  prj_gen_ = std::make_unique<ProjectGenerator>(node, uadf_, tree_, settings_);
+  prj_gen_ = std::make_unique<ProjectGenerator>(node, uadf_, tree_, settings_, this);
 
   // Layout
   const auto pkg_cols = new QHBoxLayout();
@@ -200,15 +203,12 @@ bool SetupAssistantWidget::updateInternalDataStructures()
     return false;
   }
 
-  // フレーム型を決定
+  // フレーム型を判定
   const auto frame_type = determineFrameType();
-  if (frame_type == FrameType::kUndefined) {
-    return false;
-  }
 
   // フレーム型をウィジェットに反映
   properties_->setFrameType(frame_type);
-  settings_->controller->setFrameType(frame_type);
+  settings_->setFrameType(frame_type);
 
   return true;
 }
@@ -220,62 +220,62 @@ FrameType SetupAssistantWidget::determineFrameType()
   QString msg = "Airframe\n";
 
   if (uadf_.control_surfaces.size() == 0) {  // 固定翼をもたない
-    msg += "  - which does not have fixed wings\n";
+    msg += "  • which does not have fixed wings\n";
 
     if (uadf_.tilts.size() == 0)  // チルトロータをもたない
     {
-      msg += "  - which does not have any tilt rotors\n";
+      msg += "  • which does not have any tilt rotors\n";
 
       if (uadf_.thrusts.size() < 3)  // プロペラの枚数が3枚未満
       {
-        msg += "  - which has fewer than 3 propellers\n";
+        msg += "  • which has fewer than 3 propellers\n";
         qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: 2枚なら制御可能かも
       }
       else  // プロペラの枚数が3枚以上
       {
-        msg += "  - which has 3 or more propellers\n";
+        msg += "  • which has 3 or more propellers\n";
 
         if (allThrustJointAxesAlwaysParallel(kdl::Vector::UnitZ(), true))  // 全てのプロペラの回転軸が常にZ+
         {
-          msg += "  - whose propeller rotation axes all point toward Z+\n";
+          msg += "  • whose propeller rotation axes all point toward Z+\n";
           return FrameType::kPlanarMulticopter;  // TODO: 可操作度による分類
         }
         else  // 少なくとも1つのプロペラの回転軸がZ+以外を向く場合がある
         {
-          msg += "  - which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
+          msg += "  • which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
           return FrameType::kNonPlanarMulticopter;  // TODO: 可操作度による分類
         }
       }
     }
     else  // チルトロータをもつ場合
     {
-      msg += "  - which has at least one tilt rotors\n";
+      msg += "  • which has at least one tilt rotors\n";
 
       if (allTiltRotorAxesPerpendicular())  // 全てのチルト軸とロータ軸が直行する
       {
-        msg += "  - which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
+        msg += "  • which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
 
         if (allTiltJointAxesAlwaysParallel()) {  // 全てのチルト軸が常に互いに平行
-          msg += "  - whose tilt axes are all parallel to each other\n";
+          msg += "  • whose tilt axes are all parallel to each other\n";
 
           if (allTiltJointAxesAlwaysParallel(kdl::Vector::UnitY(), false)) {  // 全てのチルト軸が常にY軸平行
-            msg += "  - whose tilt axes are parallel to the Y axis\n";
+            msg += "  • whose tilt axes are parallel to the Y axis\n";
             return FrameType::kYAxisTiltMulticopter;
           }
           else {  // 全てのチルト軸が常にY軸平行でない
-            msg += "  - whose tilt axes are not parallel to the Y axis\n";
+            msg += "  • whose tilt axes are not parallel to the Y axis\n";
             qt::qWarnBox(this, msg + kIsNotSupported);
             return FrameType::kUndefined;
           }
         }
         else {  // 平行でないチルト軸の組が存在する
-          msg += "  - there exists a pair of non-parallel tilt axes\n";
+          msg += "  • there exists a pair of non-parallel tilt axes\n";
           return FrameType::kRandomAxisTiltMulticopter;
         }
       }
       else {  // チルトロータのうち，チルト軸とロータ軸が直行しないものがある
-        msg += "  - which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
+        msg += "  • which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
         qt::qWarnBox(this, msg + kIsNotSupported);
         return FrameType::kUndefined;  // TODO: チルト軸と回転軸が直行しないモデルにも対応
       }
@@ -283,7 +283,7 @@ FrameType SetupAssistantWidget::determineFrameType()
   }
   else  // 固定翼をもつ場合
   {
-    msg += "  - which has fixed wings\n";
+    msg += "  • which has fixed wings\n";
     qt::qWarnBox(this, msg + kIsNotSupported);
     return FrameType::kUndefined;  // TODO: 固定翼に対応
   }
@@ -596,7 +596,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
 
   // 読み込んでいないパッケージパスが既に存在する場合は置換するかどうかをユーザに確認
   if (proj_path != proj_path_->text() && fs::exists(proj_path.toStdString())) {
-    if (!qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN)) {
+    if (!qt::yesOrNo(this, proj_path + " already exists. Do you want to replace it?", qt::WARN)) {
       return;
     }
     if (fs::remove_all(proj_path.toStdString()) == 0) {

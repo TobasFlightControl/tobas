@@ -30,6 +30,15 @@ ImuPlotWidget::ImuPlotWidget()
   }
 }
 
+void ImuPlotWidget::clear()
+{
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    raw_curves_[i].clear();
+    filt_curves_[i].clear();
+    plots_[i]->replot();
+  }
+}
+
 void ImuPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   for (auto& plot : plots_) {

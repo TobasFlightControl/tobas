@@ -178,10 +178,9 @@ bool ParamBlockWidget::setToDefaults()
       return false;
     }
 
-    config.slider->blockSignals(true);
+    const QSignalBlocker block(config.slider);
     config.slider->setValue(config.dflt);
     config.line_edit->setText(QString::number(config.dflt) + config.prefix);
-    config.slider->blockSignals(false);
   }
 
   for (const auto& [name, config] : double_configs_) {
@@ -194,10 +193,9 @@ bool ParamBlockWidget::setToDefaults()
       return false;
     }
 
-    config.slider->blockSignals(true);
+    const QSignalBlocker block(config.slider);
     config.slider->setValue(config.dflt);
     config.line_edit->setText(QString::number(config.step * config.dflt) + config.prefix);
-    config.slider->blockSignals(false);
   }
 
   return true;

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# cf. https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html
+
+set -e
+
+# Check username
+if [ "$(id -un)" = "pi" ]; then
+  echo "This script cannot be executed on RPi." >&2
+  exit 1
+fi
+
+# Set locale
+sudo apt update
+sudo apt install locales
+sudo locale-gen en_US en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+# Enable required repositories
+sudo apt install software-properties-common
+yes "" | sudo add-apt-repository universe
+sudo apt update
+sudo apt install -y curl
+export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}')
+curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb"
+sudo dpkg -i /tmp/ros2-apt-source.deb
+
+# Install development tools (optional)
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y ros-dev-tools
+sudo apt install -y python3-colcon-common-extensions
+sudo apt install -y python3-colcon-clean
+sudo apt install -y ros-jazzy-plotjuggler-ros
+sudo apt install -y ros-jazzy-rqt*
+
+# Install ROS 2
+sudo apt install -y ros-jazzy-desktop-full
+
+# Install additional RMW implementations (optional)
+# TODO: https://docs.ros.org/en/jazzy/How-To-Guides/Working-with-multiple-RMW-implementations.html
+
+# Initialize rosdep
+sudo rosdep init | true
+rosdep update
+
+# Setup environment
+source /opt/ros/jazzy/setup.bash
+echo -e "\033[32mROS 2 Jazzy is installed successfully.\033[0m"

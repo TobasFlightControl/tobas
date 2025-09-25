@@ -1,5 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/propulsion_system.hpp"
 
+#include <ranges>
+
 #include <QDebug>
 #include <QRadioButton>
 
@@ -21,28 +23,15 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 
   propulsion_stack_ = new qt::StackedWidget();
 
-  const auto eprop = new electric::PropulsionSystemWidget(node, uadf);
-  const auto eprop_ckb = new QRadioButton(eprop->name());
-  type_btn_group_->addButton(eprop_ckb);
-  type_btn_group_->setId(eprop_ckb, kElectricId);
-  propulsion_stack_->addWidget(eprop);
+  int id = 0;
+  addPropulsionSystemWidget(new electric::PropulsionSystemWidget(node, uadf), id++);
+  addPropulsionSystemWidget(new ice::PropulsionSystemWidget(node, uadf), id++);
 
-  const auto iprop = new ice::PropulsionSystemWidget(node, uadf);
-  const auto iprop_ckb = new QRadioButton(iprop->name());
-  type_btn_group_->addButton(iprop_ckb);
-  type_btn_group_->setId(iprop_ckb, kIceId);
-  propulsion_stack_->addWidget(iprop);
+  setCurrentIndex(0);  // Default
 
-  // デフォルト
-  setCurrentIndex(0);
-
-  // Layout
-  addWidget(eprop_ckb);
-  addWidget(iprop_ckb);
   addSpacing(50);
   addWidget(propulsion_stack_);
 
-  // Connection
   connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onPropulsionTypeClicked);
 }
 
@@ -100,10 +89,12 @@ YAML::Node PropulsionSystemWidget::dump() const
 
 void PropulsionSystemWidget::load(const YAML::Node& node)
 {
+  // 実際にユーザが操作するときと同じように推進系の型の選択と変更の通知を行う
   const auto type_text = node[kTypeKey].as<QString>();
-  for (const auto& button : type_btn_group_->buttons()) {
+  for (const auto& [idx, button] : std::views::enumerate(type_btn_group_->buttons())) {
     if (button->text() == type_text) {
-      button->setChecked(true);
+      setCurrentIndex(idx);
+      Q_EMIT sig_.propulsionTypeChanged(widget(idx)->type());
       break;
     }
   }
@@ -149,6 +140,14 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
   return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
 }
 
+void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* widget, int id)
+{
+  const auto btn = new QRadioButton(widget->name());
+  type_btn_group_->addButton(btn, id);
+  addWidget(btn);
+  propulsion_stack_->addWidget(widget);
+}
+
 void PropulsionSystemWidget::setCurrentButtonIndex(int index)
 {
   // チェックされているボタンが切り替わらないなら何もしない
@@ -161,9 +160,9 @@ void PropulsionSystemWidget::setCurrentButtonIndex(int index)
   const auto new_btn = type_btn_group_->button(index);
 
   // 全てのシグナルをブロック (nullptrを渡しても問題ない)
-  QSignalBlocker block_group(type_btn_group_);
-  QSignalBlocker block_old_btn(old_btn);
-  QSignalBlocker block_new_btn(new_btn);
+  const QSignalBlocker block_group(type_btn_group_);
+  const QSignalBlocker block_old_btn(old_btn);
+  const QSignalBlocker block_new_btn(new_btn);
 
   // 新しいボタンにチェック (exclusiveなのでold_btnは自動的にチェックが外れる)
   new_btn->setChecked(true);
@@ -185,9 +184,7 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
   }
 
   if (!qt::yesOrNo(
-        this,
-        "Changing the propulsion type will reset the wiring settings. Do you want to continue?",
-        qt::QMessageLevel::WARN)) {
+        this, "Changing the propulsion type will reset the wiring settings. Do you want to continue?", qt::WARN)) {
     setCurrentButtonIndex(cur_idx_);
     return;
   }

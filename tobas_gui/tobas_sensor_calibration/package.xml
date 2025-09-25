@@ -13,6 +13,8 @@
   <depend>visualization_msgs</depend>
   <depend>tobas_eigen_conversions</depend>
   <depend>tobas_kdl_conversions</depend>
+  <depend>tobas_time_tools</depend>
+  <depend>tobas_geomag</depend>
   <depend>tobas_property_tree</depend>
   <depend>tobas_drone_core</depend>
   <depend>tobas_real_common</depend>
@@ -20,6 +22,7 @@
   <depend>tobas_qt_tools</depend>
   <depend>tobas_rqt_bridge</depend>
   <depend>tobas_rviz_wrapper</depend>
+  <depend>tobas_gui_common</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -26,6 +26,15 @@ BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage [V]"), current_
   rows->addWidget(current_plot_, 1);
 }
 
+void BatteryPlotWidget::clear()
+{
+  voltage_curve_.clear();
+  voltage_plot_->replot();
+
+  current_curve_.clear();
+  current_plot_->replot();
+}
+
 void BatteryPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   voltage_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
@@ -46,9 +55,9 @@ void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& batt_ms
   }
 
   voltage_curve_.setSamples(t_data, voltage_data);
-  current_curve_.setSamples(t_data, current_data);
-
   voltage_plot_->replot();
+
+  current_curve_.setSamples(t_data, current_data);
   current_plot_->replot();
 }
 }  // namespace log

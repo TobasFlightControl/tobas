@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QCheckBox>
+
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"
@@ -35,6 +37,8 @@ public:
   FrameType getFrameType() const;
   void setFrameType(const FrameType& type);
 
+  bool useBuiltinContrller() const;
+
   QString controllerPackage() const;
   QString pluginName() const;
 
@@ -44,10 +48,10 @@ public:
 
   YAML::Node staticParams() const;
 
-private Q_SLOTS:
-  void setCurrentController(int index);
-
 private:
+  FrameType frame_type_ = FrameType::kUndefined;
+
+  QCheckBox* dont_use_builtin_ctrl_;
   qt::StackedWidget* stack_;
 
   BaseControllerWidget* widget(int index);
@@ -55,6 +59,11 @@ private:
 
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;
+
+  void showCtrlWidgetWithFrameType(const FrameType& type);
+
+private Q_SLOTS:
+  void onDontUseBuiltinCtrlCheckBoxToggled(bool checked);
 };
 }  // namespace ctrl
 };  // namespace sa

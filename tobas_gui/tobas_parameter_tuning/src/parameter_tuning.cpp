@@ -128,7 +128,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
 void ParameterTuningWidget::onResetButtonClicked()
 {
   // 本当に全てのパラメータをリセットしてよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Are you sure you want to reset all parameters to their defaults?", qt::WARN)) {
     return;
   }
 

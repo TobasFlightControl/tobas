@@ -10,7 +10,7 @@ namespace gui
 {
 namespace log
 {
-class ImuFftPlotWidget : public QWidget
+class ImuFftPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
@@ -18,6 +18,9 @@ class ImuFftPlotWidget : public QWidget
 
 public:
   explicit ImuFftPlotWidget();
+
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
 
   void setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs);
 

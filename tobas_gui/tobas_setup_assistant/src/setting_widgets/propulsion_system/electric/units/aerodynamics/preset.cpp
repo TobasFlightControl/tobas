@@ -41,7 +41,11 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
     }
   }
 
+  // Sort data
   data_name_->sort();
+
+  // Default
+  data_name_->setCurrentText("dji_9450");
 
   // Layout
   rows_->addWidget(data_name_);

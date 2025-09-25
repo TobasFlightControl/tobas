@@ -3,8 +3,6 @@
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 
-using namespace std;
-
 namespace uadf
 {
 Parser::Parser()
@@ -46,15 +44,15 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
               thrust.direction = Thrust::CCW;
             }
             else {
-              error_msg_ = "Thrust joint \"" + string(joint_name) + "\" has invalid direction \"" + string(direction) +
-                           "\". It must be \"cw\" or \"ccw\".";
+              error_msg_ = "Thrust joint \"" + std::string(joint_name) + "\" has invalid direction \"" +
+                           std::string(direction) + "\". It must be \"cw\" or \"ccw\".";
               return false;
             }
           }
         }
 
         if (!direction_found) {
-          error_msg_ = "Thrust joint \"" + string(joint_name) + "\" has no \"direction\" element.";
+          error_msg_ = "Thrust joint \"" + std::string(joint_name) + "\" has no \"direction\" element.";
           return false;
         }
 
@@ -94,7 +92,7 @@ bool Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc, Model& uadf_mod
   return true;
 }
 
-bool Parser::parseFromText(const string& uadf_text, Model& uadf_model)
+bool Parser::parseFromText(const std::string& uadf_text, Model& uadf_model)
 {
   tinyxml2::XMLDocument uadf_doc;
   if (uadf_doc.Parse(uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
@@ -105,9 +103,9 @@ bool Parser::parseFromText(const string& uadf_text, Model& uadf_model)
   return parseFromXml(&uadf_doc, uadf_model);
 }
 
-bool Parser::parseFromPath(const string& uadf_path, Model& uadf_model)
+bool Parser::parseFromPath(const std::string& uadf_path, Model& uadf_model)
 {
-  string uadf_text;
+  std::string uadf_text;
   if (!str::readText(uadf_path, uadf_text)) {
     error_msg_ = "Failed to open file: " + uadf_path;
     return false;
@@ -116,7 +114,7 @@ bool Parser::parseFromPath(const string& uadf_path, Model& uadf_model)
   return parseFromText(uadf_text, uadf_model);
 }
 
-const string& Parser::errorMessage() const
+const std::string& Parser::errorMessage() const
 {
   return error_msg_;
 }

@@ -40,7 +40,7 @@ void CpuHandlerNode::mainTimerCb()
   // TODO: Get CPU information in a cross-platform way
 
   // Publish ROS message
-  cpu_pub_->publish(move(cpu_msg));
+  cpu_pub_->publish(std::move(cpu_msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(CpuHandlerNode)

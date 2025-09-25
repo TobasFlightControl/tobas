@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-class ImuPlotWidget : public QWidget
+class ImuPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
@@ -17,7 +17,9 @@ class ImuPlotWidget : public QWidget
 public:
   explicit ImuPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(const QVector<tobas_msgs::msg::Imu>& raw_msgs, const QVector<tobas_msgs::msg::Imu>& filt_msgs);
 
 private:

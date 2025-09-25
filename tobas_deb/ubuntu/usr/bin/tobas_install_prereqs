@@ -2,7 +2,7 @@
 
 set -e
 
-# ===== Install ROS2 Jazzy: https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html =====
+# ===== Install ROS 2 Jazzy: https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html =====
 # Set locale
 locale
 sudo apt update
@@ -42,5 +42,5 @@ source /opt/ros/jazzy/setup.bash
 # ===== Install ROS dependencies of Tobas =====
 rosdep install --from-paths /opt/tobas/share/ -yi
 
-echo -e "\033[32mInstallation finished successfully. Please close this terminal.\033[0m"
+echo -e "\033[32mInstallation finished successfully.\033[0m"
 sleep infinity

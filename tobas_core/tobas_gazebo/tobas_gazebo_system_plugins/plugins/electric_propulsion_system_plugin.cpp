@@ -5,14 +5,17 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
+#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include <std_srvs/srv/trigger.hpp>
 
+#include <tobas_gazebo_msgs/msg/rotor_debug.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -28,7 +31,6 @@
 // TODO: 実機の時定数がSIMよりも大きくならないように想定しうる最大値に設定する．時定数を直接設定するほうが現実的かも．
 #define L_KV 2.
 
-using namespace std;
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
@@ -41,15 +43,10 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
                                              public gz::sim::ISystemPreUpdate
 {
   // Constants
+  static constexpr char kDebugTopicNS[] = "gazebo/rotor_debug";
   static constexpr double kAutoStopTimeout = 0.5;    // [s]
   static constexpr double kMinBatteryVoltage = 3.;   // [V]
   static constexpr double kThrotLimitMargin = 1e-3;  // [-]
-
-  // Default parameters
-  static constexpr size_t kDefaultPublishStateRate = 400;             // [Hz]
-  static constexpr double kDefaultVibrationForceCoef = 1.5;           // [-]
-  static constexpr double kDefaultVibrationForceVariationRate = 0.3;  // [-]
-  static constexpr double kDefaultMaxModelErrorRate = 0.;             // [-]
 
   using self = GazeboElectricPropulsionSystemPlugin;
   using BreakSrv = std_srvs::srv::Trigger;
@@ -66,24 +63,27 @@ public:
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
-  // SDF parameters
-  string link_name_;
-  double kv_;                    // [rad/s/V]
-  double resistance_;            // [Ω]
-  size_t num_blades_;            // [-]
-  double motor_const_;           // [N/(rad/s)^2]
-  double moment_const_;          // [m]
-  double drag_const_;            // [N*s^2/rad/m]
-  int direction_;                // Turning direction: 1(CCW) or -1(CW)
-  double max_current_;           // [A] ESCの最大電流
-  size_t publish_state_rate_;    // [Hz]
-  double vib_force_coef_;        // [-]
-  double vib_force_var_rate_;    // [-]
-  double max_model_error_rate_;  // [-]
+  std::string link_name_;
+  struct Param
+  {
+    double kv;                    // [rad/s/V]
+    double resistance;            // [Ω]
+    size_t num_blades;            // [-]
+    double motor_const;           // [N/(rad/s)^2]
+    double moment_const;          // [m]
+    double drag_const;            // [N*s^2/rad/m]
+    int direction;                // Turning direction: 1(CCW) or -1(CW)
+    double max_current;           // [A] ESCの最大電流
+    size_t publish_state_rate;    // [Hz]
+    double vib_force_coef;        // [-]
+    double vib_force_var_rate;    // [-]
+    double max_model_error_rate;  // [-]
+  } param_;
 
-  double throttle_ = 0.;  // [0, 1]
-  double velocity_ = 0.;  // [rad/s]
-  double position_ = 0.;  // [rad]
+  double throt_ = 0.;  // [0, 1]
+  double acc_ = 0.;    // [rad/s^2]
+  double vel_ = 0.;    // [rad/s]
+  double pos_ = 0.;    // [rad]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_gt_;
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   ch::steady_clock::duration prev_sim_time_;
@@ -97,13 +97,20 @@ private:
   RiceDistribution rice_;
 
   // Gazebo objects
-  shared_ptr<gz::sim::Joint> joint_;
-  shared_ptr<gz::sim::Link> link_;
-  shared_ptr<gz::sim::Link> parent_link_;
+  std::shared_ptr<gz::sim::Joint> joint_;
+  std::shared_ptr<gz::sim::Link> link_;
+  std::shared_ptr<gz::sim::Link> parent_link_;
+  const cmp::JointAxis* jnt_axis_;
+  const cmp::JointVelocity* jnt_vel_;
+  const cmp::WorldPose* pose_W_;
+  const cmp::WorldLinearVelocity* linvel_W_;
+  const cmp::WorldAngularVelocity* angvel_W_;
+  const cmp::Inertial* inertial_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorState> state_gt_pub_;
+  ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorDebug> debug_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::Throttle> throttle_sub_;
@@ -118,7 +125,16 @@ private:
   void addModelError();
 
   double velocitySim() const;
+
+  /**
+   * @brief Gazeboには含まれない力を加える．
+   *
+   * - 慣性力とコリオリ力: Gazebo上では低速回転になっているため，回転体の運動により発生するモーメントを別で与える必要がある．
+   *
+   * - 大気から受ける空気力: 推力，反トルク，回転軸と垂直の方向に発生する抗力．
+   */
   void applyWrenchAndPublishState(gz::sim::EntityComponentManager& ecm, const ch::steady_clock::duration& cur_time);
+
   void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle);
@@ -138,16 +154,17 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_electric_propulsion_system_plugin", sdf);
+  link_name_ = sdf->Get<std::string>("linkName");
+  initialize("gazebo_" + link_name_ + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
-  rice_ = RiceDistribution(1., vib_force_var_rate_);
+  rice_ = RiceDistribution(1., param_.vib_force_var_rate);
 
-  publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
+  publish_state_rate_manager_ = std::make_shared<RateManager>(param_.publish_state_rate);
   addModelError();
 
   // Get robot model
-  gz::sim::Model model(model_entity);
+  const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
@@ -157,7 +174,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   if (!joint_entity.has_value()) {
     TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
   }
-  joint_ = make_shared<gz::sim::Joint>(joint_entity.value());
+  joint_ = std::make_shared<gz::sim::Joint>(joint_entity.value());
   if (!joint_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
   }
@@ -173,7 +190,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 
   // Get child link
   const auto link_entity = model.LinkByName(ecm, link_name_);
-  link_ = make_shared<gz::sim::Link>(link_entity);
+  link_ = std::make_shared<gz::sim::Link>(link_entity);
   if (!link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
   }
@@ -181,52 +198,21 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   // Get parent link
   const auto parent_link_name = joint_->ParentLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
-  parent_link_ = make_shared<gz::sim::Link>(parent_link_entity);
+  parent_link_ = std::make_shared<gz::sim::Link>(parent_link_entity);
   if (!parent_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
   }
 
   // Create necessary components
-  if (!getComponent<cmp::JointAxis>(joint_entity.value(), ecm)) {
-    TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name, "\".");
-  }
-  if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm)) {
-    TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name, "\".");
-  }
-  if (!getComponent<cmp::WorldPose>(link_entity, ecm)) {
-    TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name_, "\".");
-  }
-  if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm)) {
-    TOBAS_EXIT("Failed to get component WorldLinearVelocity of link \"", link_name_, "\".");
-  }
+  TOBAS_CHECK(jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity.value(), ecm));
+  TOBAS_CHECK(jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity.value(), ecm));
+  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm));
+  TOBAS_CHECK(linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm));
+  TOBAS_CHECK(angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm));
+  TOBAS_CHECK(inertial_ = getComponent<cmp::Inertial>(link_entity, ecm));
 
   // Register ROS interfaces
   registerROSInterfaces();
-}
-
-void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-
-  getSdfParam(sdf, "kv", kv_, kPositive);
-  getSdfParam(sdf, "internalResistance", resistance_, kPositive);
-  getSdfParam(sdf, "numberOfBlades", num_blades_, kPositive);
-
-  getSdfParam(sdf, "motorConstant", motor_const_, kPositive);
-  getSdfParam(sdf, "momentConstant", moment_const_, kPositive);
-  getSdfParam(sdf, "dragConstant", drag_const_, kNonNegative);
-
-  if (!getTurningDirection(sdf, direction_)) {
-    TOBAS_EXIT("Failed to get turning direction.");
-  }
-
-  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
-
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
-  getSdfParam(sdf, "vibrationForceCoefficient", vib_force_coef_, kDefaultVibrationForceCoef, kNonNegative);
-  getSdfParam(
-    sdf, "vibrationForceVariationRate", vib_force_var_rate_, kDefaultVibrationForceVariationRate, kNonNegative);
-  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, kNonNegative);
 }
 
 void GazeboElectricPropulsionSystemPlugin::PreUpdate(
@@ -247,7 +233,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = ch::duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeout) {
-    throttle_ = 0.;
+    throt_ = 0.;
   }
 
   // Compute time after previous simulation time
@@ -263,10 +249,33 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   updateJointState(ecm, dt);
 }
 
+void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "kv", param_.kv, kPositive);
+  getSdfParam(sdf, "internalResistance", param_.resistance, kPositive);
+  getSdfParam(sdf, "numberOfBlades", param_.num_blades, kPositive);
+
+  getSdfParam(sdf, "motorConstant", param_.motor_const, kPositive);
+  getSdfParam(sdf, "momentConstant", param_.moment_const, kPositive);
+  getSdfParam(sdf, "dragConstant", param_.drag_const, kNonNegative);
+
+  if (!getTurningDirection(sdf, param_.direction)) {
+    TOBAS_EXIT("Failed to get turning direction.");
+  }
+
+  getSdfParam(sdf, "maxCurrent", param_.max_current, kPositive);
+
+  getSdfParam(sdf, "publishStateRate", param_.publish_state_rate, 400UL, kNonNegative);
+  getSdfParam(sdf, "vibrationForceCoefficient", param_.vib_force_coef, 1.5, kNonNegative);
+  getSdfParam(sdf, "vibrationForceVariationRate", param_.vib_force_var_rate, 0.3, kNonNegative);
+  getSdfParam(sdf, "maxModelErrorRate", param_.max_model_error_rate, 0., kNonNegative);
+}
+
 void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
 {
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
   state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(path::join(kDebugTopicNS, link_name_));
 
   throttle_sub_ = createSubscriber(path::join(kRotorThrottleCmdTopicNS, link_name_), &self::throttleCmdCb, this);
   battery_gt_sub_ = createSubscriber(kBatteryGtTopic, &self::batteryGtCb, this);
@@ -278,78 +287,83 @@ void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
 void GazeboElectricPropulsionSystemPlugin::addModelError()
 {
   // 一様乱数を作成
-  random_device rnd_dev;
-  mt19937 rnd_gen(rnd_dev());
+  std::random_device rnd_dev;
+  std::mt19937 rnd_gen(rnd_dev());
   UniformDistribution uniform(-1, 1);
 
   // モータ
-  kv_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
-  resistance_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  param_.kv *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
+  param_.resistance *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
 
   // プロペラ
-  motor_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
-  moment_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
-  drag_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  param_.motor_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
+  param_.moment_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
+  param_.drag_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
 }
 
 double GazeboElectricPropulsionSystemPlugin::velocitySim() const
 {
-  return velocity_ / kRotorSpeedSlowdownSim;
+  return vel_ / kRotorSpeedSlowdownSim;
 }
 
 void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   gz::sim::EntityComponentManager& ecm,
   const ch::steady_clock::duration& cur_time)
 {
-  // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
-  // II-A. Model of a single propeller near hovering
-  // TODO: Implement other terms
-  // TODO: II-B. Model of the complete quadrotor
-
   // Get joint axes
-  const auto& local_axis = joint_->Axis(ecm).value().front().Xyz();
-  const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
+  const auto& R_W_L = pose_W_->Data().Rot();
+  const auto& axis_L = jnt_axis_->Data().Xyz();
+  const auto axis_W = R_W_L.RotateVector(axis_L);
 
-  // (1) first term: Thrust Force
-  const auto thrust = motor_const_ * math::sqr(velocity_);
-  const auto thrust_W = thrust * global_axis;
-  link_->AddWorldWrench(ecm, thrust_W, gz::math::Vector3d::Zero);
+  // Inertial moment
+  const auto I_W = link_->WorldInertiaMatrix(ecm).value();  // 回転軸上に重心がある想定
+  const auto inertial_moment_W = -(I_W * (acc_ * axis_W));
 
-  // (1) second term: H-force
-  const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
-  const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-fabs(velocity_) * drag_const_) * linvel_perp_W;
-  link_->AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
+  // Coriolis moment (Gyro effect)
+  const auto L_W = I_W * (vel_ * axis_W);  // プロペラの角運動量
+  const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
-  // (2) first term: Rotor drag torque
-  const auto torque = moment_const_ * thrust;
-  const auto drag_torque_W = (-direction_ * torque) * global_axis;
-  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, drag_torque_W);
+  // External force: Thrust force
+  const auto thrust = param_.motor_const * math::sqr(vel_);
+  const auto thrust_force_W = thrust * axis_W;
+
+  // External force: H-force
+  const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
+  const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
+  const auto h_force_W = (-fabs(vel_) * param_.drag_const) * linvel_perp_W;
+
+  // External moment: Drag torque
+  const auto torque = param_.moment_const * thrust;
+  const auto drag_moment_W = (-param_.direction * torque) * axis_W;
+
+  // Apply wrench
+  link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
+  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, inertial_moment_W + coriolis_moment_W + drag_moment_W);
 
   // Compute electric current
-  const auto kt = 1. / kv_;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
+  const auto kt = 1. / param_.kv;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
   const auto current = torque / kt;
 
   // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
-  if (current > max_current_) {
+  if (current > param_.max_current) {
     TOBAS_ERROR(
       "The ESC of rotor \"",
       link_name_,
       "\" is critically damaged due to an overcurrent of ",
       current,
       " A, which exceeded its maximum current capacity of ",
-      max_current_,
+      param_.max_current,
       " A.");
     is_intact_ = false;
-    throttle_ = 0.;
+    throt_ = 0.;
   }
 
   // Publish observed state
   if (publish_state_rate_manager_->update(cur_time)) {
-    auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
+    auto state_msg_obs = std::make_unique<tobas_msgs::msg::RotorState>();
     state_msg_obs->link_name = link_name_;
     if (is_intact_) {
-      state_msg_obs->speed = direction_ * velocity_;
+      state_msg_obs->speed = param_.direction * vel_;
       state_msg_obs->thrust = thrust;
       state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
     }
@@ -358,30 +372,43 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
       state_msg_obs->thrust = NAN;
       state_msg_obs->status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
     }
-    state_pub_->publish(move(state_msg_obs));
+    state_pub_->publish(std::move(state_msg_obs));
   }
 
   // Publish ground-truth state
   // TODO: 実機のIMUの周波数解析結果を分析してより正確な振動モデルを構築 (倍周波も考慮)
-  auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
+  auto state_msg_gt = std::make_unique<tobas_gazebo_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
-  state_msg_gt->rotation_speed = direction_ * velocity_;
+  state_msg_gt->rotation_speed = param_.direction * vel_;
   state_msg_gt->current = current;
-  state_msg_gt->vibration_force = vib_force_coef_ * thrust * sin(position_) * rice_(rnd_gen_);
-  state_gt_pub_->publish(move(state_msg_gt));
+  state_msg_gt->vibration_force = param_.vib_force_coef * thrust * sin(pos_) * rice_(rnd_gen_);
+  state_gt_pub_->publish(std::move(state_msg_gt));
+
+  // Publish debug information
+  auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::RotorDebug>();
+  ros2::timeChronoToMsg(cur_time, debug_msg->header.stamp);
+  debug_msg->position = pos_;
+  debug_msg->velocity = vel_;
+  debug_msg->acceleration = acc_;
+  vectorGazeboToRos(inertial_moment_W, debug_msg->inertia_moment);
+  vectorGazeboToRos(coriolis_moment_W, debug_msg->coriolis_moment);
+  vectorGazeboToRos(thrust_force_W, debug_msg->thrust_force);
+  vectorGazeboToRos(h_force_W, debug_msg->h_force);
+  vectorGazeboToRos(drag_moment_W, debug_msg->drag_momeent);
+  debug_pub_->publish(std::move(debug_msg));
 }
 
 void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
 {
   // モータダイナミクスの係数 (memo: 2-78)
-  const auto a = 2. * L_KV * moment_const_ * motor_const_;
-  const auto b = resistance_ * kv_ * moment_const_ * motor_const_;
-  const auto c = 1. / kv_;
+  const auto a = 2. * L_KV * param_.moment_const * param_.motor_const;
+  const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;
+  const auto c = 1. / param_.kv;
 
-  const auto Ea = battery_gt_->voltage * throttle_;                                         // 印加電圧
+  const auto Ea = battery_gt_->voltage * throt_;                                            // 印加電圧
   const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
-  const auto cur_speed = max(direction_ * velocity_, 0.);
+  const auto cur_speed = std::max(param_.direction * vel_, 0.);
 
   // 次の時刻の回転数を求める
   double next_speed;
@@ -401,8 +428,10 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   }
 
   // ジョイントの状態を更新
-  position_ += velocity_ * dt;
-  velocity_ = direction_ * next_speed;
+  const auto next_vel = param_.direction * next_speed;
+  acc_ = (next_vel - vel_) / dt;  // 数値微分で加速度を計算
+  pos_ += vel_ * dt;              // 前回の速度で積分するのが大事
+  vel_ = next_vel;
 
   // 視認用にGazeboに反映
   joint_->SetVelocity(ecm, { velocitySim() });
@@ -427,7 +456,7 @@ void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs
   if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data) {
     TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
   }
-  throttle_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
+  throt_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
 void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
@@ -446,7 +475,7 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
 {
   if (is_intact_) {
     is_intact_ = false;
-    throttle_ = 0.;
+    throt_ = 0.;
     res->message = "Rotor \"" + link_name_ + "\" has been broken.";
   }
   else {

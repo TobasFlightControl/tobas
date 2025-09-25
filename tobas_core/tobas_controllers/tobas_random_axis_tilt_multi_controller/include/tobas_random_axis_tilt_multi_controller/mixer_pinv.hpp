@@ -14,8 +14,6 @@ class PinvMixer : public MixerI
 {
   using super = MixerI;
 
-  static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
-
 public:
   explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
 

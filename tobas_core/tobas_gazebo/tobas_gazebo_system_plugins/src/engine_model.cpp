@@ -3,8 +3,6 @@
 #include "tobas_gazebo_system_plugins/engine_model.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
-using namespace std;
-
 namespace gazebo
 {
 EngineModel::EngineModel(const IceRotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
@@ -50,7 +48,7 @@ double EngineModel::getVibrationForce()
 
 void EngineModel::setThrottle(const double& throttle)
 {
-  throttle_ = clamp(throttle, 0., 1.);
+  throttle_ = std::clamp(throttle, 0., 1.);
 }
 
 bool EngineModel::step(const double& dt)
@@ -75,7 +73,7 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (engine_const_.first <= 0. || engine_const_.second <= 0.) {
-    gzerr << "Engine constants must be positive." << endl;
+    gzerr << "Engine constants must be positive." << std::endl;
     return false;
   }
 
@@ -86,25 +84,25 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
   if (time_const_up_ < 0. || time_const_down_ < 0.) {
-    gzerr << "The time constant of engine speed convergence must be non-negative." << endl;
+    gzerr << "The time constant of engine speed convergence must be non-negative." << std::endl;
     return false;
   }
 
   getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, kDefaultVibrationForceCoef);
   if (vibration_force_coef_ < 0.) {
-    gzerr << "The vibration force coefficient must be non-negative." << endl;
+    gzerr << "The vibration force coefficient must be non-negative." << std::endl;
     return false;
   }
 
   getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, kDefaultVibrationForceVariationRate);
   if (vibration_force_variation_rate_ < 0.) {
-    gzerr << "The vibration force variation rate must be non-negative." << endl;
+    gzerr << "The vibration force variation rate must be non-negative." << std::endl;
     return false;
   }
 
   getSdfParam(sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, kDefaultVibrationDoubleFreqCoef);
   if (vibration_double_freq_coef_ < 0.) {
-    gzerr << "The vibration double frequency coefficient must be non-negative." << endl;
+    gzerr << "The vibration double frequency coefficient must be non-negative." << std::endl;
     return false;
   }
 
@@ -120,7 +118,7 @@ double EngineModel::computeSteadySpeed()
 
   double speed = 0.;
   if (newton_.solve(speed) < 0) {
-    gzerr << "Failed to solve engine dynamics equation: " << newton_.errorMessage() << endl;
+    gzerr << "Failed to solve engine dynamics equation: " << newton_.errorMessage() << std::endl;
     return 0.;
   }
 

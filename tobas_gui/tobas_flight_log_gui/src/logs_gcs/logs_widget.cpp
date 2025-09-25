@@ -96,8 +96,35 @@ void FlightLogsWidgetGCS::sortLogs()
   log_list_->sortItems();
 }
 
+QString FlightLogsWidgetGCS::currentLogName() const
+{
+  const auto cur_item = log_list_->currentItem();
+  if (!cur_item) {
+    qWarning() << "Log name not selected.";
+    return "";
+  }
+
+  return cur_item->data(Qt::UserRole).toString();
+}
+
+void FlightLogsWidgetGCS::setCurrentLogName(const QString& log_name)
+{
+  for (int i = 0; i < log_list_->count(); ++i) {
+    const auto item = log_list_->item(i);
+    if (item->data(Qt::UserRole).toString() == log_name) {
+      log_list_->setCurrentItem(item);
+      return;
+    }
+  }
+
+  qWarning() << log_name << " not found.";
+}
+
 void FlightLogsWidgetGCS::onReadButtonClicked()
 {
+  // 現在選択されているアイテムを取得
+  const auto cur_text = currentLogName();
+
   clearLogs();
 
   const auto rosbag_dir = ros2::expandUser(tobas::kRosbagDirHome);
@@ -112,8 +139,7 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
     }
   }
   catch (const std::exception& e) {
-    qt::qErrorBox(
-      this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + QString(e.what()));
+    qt::qErrorBox(this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + e.what());
     return;
   }
 
@@ -124,12 +150,17 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 
   sortLogs();
 
+  // 選択されていたアイテムを再び選択
+  if (!cur_text.isEmpty()) {
+    setCurrentLogName(cur_text);
+  }
+
   clean_button_->setEnabled(true);
 }
 
 void FlightLogsWidgetGCS::onCleanButtonClicked()
 {
-  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::WARN)) {
     return;
   }
 
@@ -152,6 +183,11 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
     return;
   }
 
+  if (log_list_->currentItem()) {
+    log_list_->deselect();
+    Q_EMIT logDeselected();
+  }
+
   clearLogs();
 }
 
@@ -159,13 +195,18 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
 {
   const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
-  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::QMessageLevel::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log \"" + log_name + "\"?", qt::WARN)) {
     return;
   }
 
   if (fs::remove_all(log_path) == 0) {
     qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(log_path));
     return;
+  }
+
+  if (currentLogName() == log_name) {
+    log_list_->deselect();
+    Q_EMIT logDeselected();
   }
 
   removeLog(log_name);

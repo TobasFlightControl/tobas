@@ -1,10 +1,5 @@
 #include "tobas_qt_tools/util.hpp"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-
-#include <tobas_std_tools/console.hpp>
-
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
 namespace qt
@@ -91,7 +86,7 @@ void clearLayout(QLayout* layout)
 
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent)
 {
-  const auto scroll_area = new qt::ScrollArea();
+  const auto scroll_area = new ScrollArea();
   parent->addWidget(scroll_area);
 
   const auto rows = new QVBoxLayout();

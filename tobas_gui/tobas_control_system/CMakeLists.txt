@@ -11,19 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(Qt5QuickWidgets REQUIRED)
-find_package(Qt5Positioning REQUIRED)
-find_package(magic_enum_ament REQUIRED)
-find_package(tobas_path_tools REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_drone_core REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_mission_msgs REQUIRED)
-find_package(tobas_qt_tools REQUIRED)
-find_package(tobas_rqt_bridge REQUIRED)
-
 set(AMENT_DEPENDENCIES
     Qt5QuickWidgets
     Qt5Positioning
@@ -37,6 +24,12 @@ set(AMENT_DEPENDENCIES
     tobas_qt_tools
     tobas_rqt_bridge
 )
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)

@@ -1,19 +1,18 @@
 #include "tobas_udev/core.hpp"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace udv
 {
 namespace
 {
-string sanitize(const char* s)
+std::string sanitize(const char* s)
 {
   if (!s) {
     return {};
   }
 
-  string out(s);
+  std::string out(s);
   for (char& c : out) {
     if (c == '\n' || c == '\t') {
       c = ' ';
@@ -24,25 +23,25 @@ string sanitize(const char* s)
 }
 }  // namespace
 
-string getDevNode(udev_device* dev)
+std::string getDevNode(udev_device* dev)
 {
   const auto devnode = udev_device_get_devnode(dev);
   if (!devnode) {
     return {};
   }
-  return string(devnode);
+  return std::string(devnode);
 }
 
-string getPropertyValue(udev_device* dev, const char* key)
+std::string getPropertyValue(udev_device* dev, const char* key)
 {
   const auto value = udev_device_get_property_value(dev, key);
   if (!value) {
     return {};
   }
-  return string(value);
+  return std::string(value);
 }
 
-string getSysAttrValue(udev_device* dev, const char* attr)
+std::string getSysAttrValue(udev_device* dev, const char* attr)
 {
   const auto value = udev_device_get_sysattr_value(dev, attr);
   if (!value) {
@@ -51,7 +50,7 @@ string getSysAttrValue(udev_device* dev, const char* attr)
   return sanitize(value);
 }
 
-string getBlockLabel(udev* u, const fs::path& devnode)
+std::string getBlockLabel(udev* u, const fs::path& devnode)
 {
   const auto sysname = devnode.filename().c_str();
   const auto dev = udev_device_new_from_subsystem_sysname(u, "block", sysname);

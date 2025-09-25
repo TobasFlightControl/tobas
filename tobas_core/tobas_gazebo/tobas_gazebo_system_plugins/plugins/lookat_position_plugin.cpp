@@ -8,7 +8,6 @@
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 
-using namespace std;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -67,15 +66,15 @@ void GazeboLookAtPositionPlugin::Configure(
   lookat_pos_pub_ = node_.Advertise<gz::msgs::Vector3d>(kLookAtPositionTopic);
 }
 
-void GazeboLookAtPositionPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-}
-
 void GazeboLookAtPositionPlugin::PostUpdate(const gz::sim::UpdateInfo&, const gz::sim::EntityComponentManager&)
 {
   vector3dGzToMsg(pose_W_->Data().Pos(), lookat_pos_);
   lookat_pos_pub_.Publish(lookat_pos_);
+}
+
+void GazeboLookAtPositionPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
 }
 }  // namespace gazebo
 

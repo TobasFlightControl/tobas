@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QThread>
-#include <eigen3/Eigen/Core>
 
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
@@ -18,8 +17,8 @@ class AccelCalibrationThread : public QThread
   using super = QThread;
 
   static constexpr size_t kDataCount = 200;
-  static constexpr double kCollectDataTimeout = 10.;     // [s]
-  static constexpr double kAccelOffsetNormThresh = 0.3;  // [m/s^2]
+  static constexpr double kCollectDataTimeout = 10.;   // [s]
+  static constexpr double kAccelBiasNormThresh = 0.3;  // [m/s^2]
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);
@@ -29,19 +28,19 @@ public:
 
   void run() override;
 
+  void reset();
   void setNamespace(const std::string& ns);
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const RosQtBridge& bridge_;
 
   std::string ns_;
 
+  tobas_msgs::Imu::ConstSharedPtr imu_raw_;
+
+  bool get_data_ = false;
   size_t cnt_;
   std::array<algo::Kahan<double>, 3> acc_sum_;
-  Eigen::Vector3d acc_top_;
-
-  bool getAccelMean(Eigen::Vector3d& des, const Eigen::Vector3d& ref);
 
 private Q_SLOTS:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);

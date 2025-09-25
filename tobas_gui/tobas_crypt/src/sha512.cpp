@@ -9,8 +9,6 @@
 
 #include <tobas_linux/error.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace crypt
@@ -19,31 +17,31 @@ Sha512::Sha512(int rounds) : rounds_(rounds)
 {
 }
 
-string Sha512::createSalt() const
+std::string Sha512::createSalt() const
 {
   const auto fd = ::open(kUrandomPath, O_RDONLY);
   if (fd < 0) {
-    cerr << "Failed to open " << kUrandomPath << ": " << linux::strError() << endl;
+    std::cerr << "Failed to open " << kUrandomPath << ": " << linux::strError() << std::endl;
     return {};
   }
 
-  vector<uint8_t> buf(kLength);
+  std::vector<uint8_t> buf(kLength);
   const auto n = ::read(fd, buf.data(), buf.size());
   ::close(fd);
 
   if (n != static_cast<ssize_t>(buf.size())) {
-    cerr << "Failed to read urandom." << endl;
+    std::cerr << "Failed to read urandom." << std::endl;
     return {};
   }
 
   constexpr char tbl[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  string salt;
+  std::string salt;
   salt.resize(kLength);
   for (size_t i = 0; i < kLength; ++i) {
     salt[i] = tbl[buf[i] & 63];  // 0..63 -> 64種
   }
 
-  return "$6$rounds=" + to_string(rounds_) + "$" + salt;
+  return "$6$rounds=" + std::to_string(rounds_) + "$" + salt;
 }
 }  // namespace crypt
 }  // namespace tobas

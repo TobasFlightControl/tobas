@@ -2,8 +2,6 @@
 
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
-using namespace std;
-
 namespace gazebo
 {
 bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst)
@@ -13,7 +11,7 @@ bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst)
   if (!sdf->HasElement(kDirectionKey)) {
     return false;
   }
-  const auto direction_text = sdf->Get<string>(kDirectionKey);
+  const auto direction_text = sdf->Get<std::string>(kDirectionKey);
 
   tobas::TurningDirection direction_enum;
   if (!tobas::enumFromText(direction_text, direction_enum)) {

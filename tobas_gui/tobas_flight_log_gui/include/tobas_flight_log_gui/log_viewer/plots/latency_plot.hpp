@@ -8,14 +8,15 @@ namespace gui
 {
 namespace log
 {
-class LatencyPlotWidget : public QWidget
+class LatencyPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
 public:
   explicit LatencyPlotWidget();
 
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
 
   void setData(
     const QVector<tobas_msgs::msg::Latency>& sampling_time_msgs,

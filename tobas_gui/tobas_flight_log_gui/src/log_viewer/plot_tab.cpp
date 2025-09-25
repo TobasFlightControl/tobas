@@ -1,5 +1,7 @@
 #include "tobas_flight_log_gui/log_viewer/plot_tab.hpp"
 
+#include <tobas_qt_tools/cast.hpp>
+
 namespace gui
 {
 namespace log
@@ -13,6 +15,10 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::Battery>& battery_data,
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
+  const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data,
+  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_positions_data,
+  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data,
+  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data,
   const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
@@ -27,6 +33,10 @@ PlotTabWidget::PlotTabWidget(
   , battery_data_(battery_data)
   , cur_rotor_states_data_(cur_rotor_states_data)
   , tar_rotor_speeds_data_(tar_rotor_speeds_data)
+  , cur_joint_states_data_(cur_joint_states_data)
+  , tar_joint_positions_data_(tar_joint_positions_data)
+  , tar_joint_velocities_data_(tar_joint_velocities_data)
+  , tar_joint_efforts_data_(tar_joint_efforts_data)
   , ice_cmd_data_(ice_cmd_data)
   , sampling_time_data_(sampling_time_data)
   , ctrl_latency_data_(ctrl_latency_data)
@@ -45,6 +55,9 @@ PlotTabWidget::PlotTabWidget(
   engine_plot_ = new EnginePlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
   propeller_pitch_plot_ = new PropellerPitchPlotWidget();
+  joint_pos_plot_ = new JointPositionPlotWidget();
+  joint_vel_plot_ = new JointVelocityPlotWidget();
+  joint_eff_plot_ = new JointEffortPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
@@ -61,6 +74,9 @@ PlotTabWidget::PlotTabWidget(
   addTab(engine_plot_, "Engine");
   addTab(rotor_speed_plot_, "Rotor Speed");
   addTab(propeller_pitch_plot_, "VPP Pitch");
+  addTab(joint_pos_plot_, "Joint\nPosition");
+  addTab(joint_vel_plot_, "Joint\nVelocity");
+  addTab(joint_eff_plot_, "Joint\nEffort");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
   addTab(obsv_fb_plot_, "Observer");
@@ -73,26 +89,18 @@ PlotTabWidget::PlotTabWidget(
 
 void PlotTabWidget::clear()
 {
-  rotor_speed_plot_->clear();
-  propeller_pitch_plot_->clear();
+  for (int i = 0; i < count(); ++i) {
+    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+    plot->clear();
+  }
 }
 
 void PlotTabWidget::setTimeScale(double t_start, double t_stop)
 {
-  pose_plot_->setTimeScale(t_start, t_stop);
-  twist_plot_->setTimeScale(t_start, t_stop);
-  accel_plot_->setTimeScale(t_start, t_stop);
-  imu_plot_->setTimeScale(t_start, t_stop);
-  mag_plot_->setTimeScale(t_start, t_stop);
-  gnss_plot_->setTimeScale(t_start, t_stop);
-  battery_plot_->setTimeScale(t_start, t_stop);
-  engine_plot_->setTimeScale(t_start, t_stop);
-  rotor_speed_plot_->setTimeScale(t_start, t_stop);
-  propeller_pitch_plot_->setTimeScale(t_start, t_stop);
-  latency_plot_->setTimeScale(t_start, t_stop);
-  dist_force_plot_->setTimeScale(t_start, t_stop);
-  obsv_fb_plot_->setTimeScale(t_start, t_stop);
-  mr_ctrl_fb_plot_->setTimeScale(t_start, t_stop);
+  for (int i = 0; i < count(); ++i) {
+    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+    plot->setTimeScale(t_start, t_stop);
+  }
 }
 
 void PlotTabWidget::plot()
@@ -136,6 +144,15 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == propeller_pitch_plot_) {
     propeller_pitch_plot_->setData(ice_cmd_data_);
+  }
+  else if (cur_widget == joint_pos_plot_) {
+    joint_pos_plot_->setData(cur_joint_states_data_, tar_joint_positions_data_);
+  }
+  else if (cur_widget == joint_vel_plot_) {
+    joint_vel_plot_->setData(cur_joint_states_data_, tar_joint_velocities_data_);
+  }
+  else if (cur_widget == joint_eff_plot_) {
+    joint_eff_plot_->setData(cur_joint_states_data_, tar_joint_efforts_data_);
   }
   else if (cur_widget == latency_plot_) {
     latency_plot_->setData(sampling_time_data_, ctrl_latency_data_);

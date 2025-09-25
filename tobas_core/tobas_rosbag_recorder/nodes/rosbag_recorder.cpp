@@ -144,7 +144,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessesTopic);
+  addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kImuSamplingTimeTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);

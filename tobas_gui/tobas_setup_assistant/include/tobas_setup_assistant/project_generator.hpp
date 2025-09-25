@@ -27,7 +27,8 @@ public:
     rclcpp::Node::SharedPtr node,
     const uadf::Model& uadf,
     const kdl::Tree& tree,
-    SettingsWidget* settings);
+    const SettingsWidget* settings,
+    QWidget* parent);
 
   bool generateProject(const std::filesystem::path& proj_path);
 
@@ -35,7 +36,8 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const uadf::Model& uadf_;
   const kdl::Tree& tree_;
-  SettingsWidget* const settings_;
+  const SettingsWidget* const settings_;
+  QWidget* const parent_;
 
   cmn::ProjectPaths proj_paths_;
 
@@ -61,9 +63,6 @@ private:
   bool generateUserPyPackage(const inja::json& data);
   bool generateBackupFiles();
 
-  bool generateControllerManagerLaunch();
-  bool generateJointControllerManagerConfig();
-  bool generateJointControllerConfigs();
   bool generateDroneConfig();
   bool generatePreArmCheckConfig();
   bool generateObserverStaticConfig();
@@ -93,16 +92,6 @@ private:
 
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXmlElements(tinyxml2::XMLElement* robot);
-
-  void
-  addJointControllerNode(tinyxml2::XMLElement* launch, const std::string& cfg_pkg_name, const std::string& ctrl_name);
-
-  bool generateJointControllerConfig(
-
-    const std::string& jnt_name,
-    const tobas::JointCommandInterface& cmd_iface);
-
-  static std::string jointControllerName(const std::string& jnt_name);
 
   static tobas::TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src);
 };

@@ -32,11 +32,24 @@ ImuFftPlotWidget::ImuFftPlotWidget()
   }
 }
 
+void ImuFftPlotWidget::clear()
+{
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    curves_[i].setSamples(QVector<double>{}, QVector<double>{});
+    plots_[i]->replot();
+  }
+}
+
+void ImuFftPlotWidget::setTimeScale(double, double)
+{
+}
+
 void ImuFftPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& imu_msgs)
 {
   const auto n = static_cast<size_t>(imu_msgs.size());
 
   if (n < 2) {
+    clear();
     return;
   }
 

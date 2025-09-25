@@ -2,7 +2,7 @@
 
 # Git Add/Stage/Push
 
-set -eu
+set -e
 
 # 使い方チェック
 if [ $# -eq 0 ]; then

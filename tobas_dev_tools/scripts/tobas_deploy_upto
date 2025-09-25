@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 PARDIR=$(realpath $(dirname "$0"))
 
 # Stop main service

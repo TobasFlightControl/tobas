@@ -16,7 +16,7 @@ class SSHClientWrapper:
         port: int = SSH_PORT,
         user: str = None,
         passwd: str = None,
-        reject_missing_host: bool = True,  # 未登録のホストは拒否すべき
+        reject_missing_host: bool = False,
     ) -> None:
         self._host = host
         self._port = port

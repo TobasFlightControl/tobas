@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# cf. https://zenn.dev/thorie/articles/548emb-install-ros2-offical-ver-on-raspberry-pi-os
+# Remember to add swap space and generate lacales before executing this script.
+
+set -e
+
+# Check username
+if [ "$(id -un)" != "pi" ]; then
+  echo "This script can only be executed on RPi." >&2
+  exit 1
+fi
+
+# Enable required repositories
+sudo apt install -y software-properties-common
+# sudo add-apt-repository universe
+sudo apt update
+sudo apt install -y curl
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+sudo apt update
+sudo apt upgrade -y
+
+# Install development tools
+sudo apt install -y ros-dev-tools
+sudo apt install -y python3-colcon-common-extensions
+sudo apt install -y python3-colcon-clean
+sudo apt install -y python3-rosdep2
+sudo apt install -y python3-rosdistro-modules
+sudo apt install -y python3-rospkg-modules
+
+# Get ROS 2 source code
+mkdir -p ~/colcon_ws_install/src
+cd ~/colcon_ws_install
+vcs import --input https://raw.githubusercontent.com/ros2/ros2/jazzy/ros2.repos ./src
+
+# Get additional ROS 2 source code (optional)
+cd ~/colcon_ws_install/src
+git clone https://github.com/ros/xacro.git -b ros2 --recursive | true
+git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b ros2 --recursive | true
+
+# Install MAVROS (optional): https://github.com/mavlink/mavros/blob/ros2/mavros/README.md#installation
+sudo apt install -y python3-vcstool python3-rosinstall-generator python3-osrf-pycommon
+cd ~/colcon_ws_install
+rosinstall_generator --format repos mavlink | tee /tmp/mavlink.repos
+rosinstall_generator --format repos --upstream mavros | tee -a /tmp/mavros.repos
+vcs import src < /tmp/mavlink.repos
+vcs import src < /tmp/mavros.repos
+sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh
+cd ~/colcon_ws_install/src
+git clone https://github.com/ros-geographic-info/geographic_info.git -b ros2 --recursive | true
+git clone https://github.com/ros/diagnostics.git -b ros2-jazzy --recursive | true
+
+# Install dependencies
+sudo apt upgrade -y
+sudo rosdep init | true
+rosdep update  # Fails if "python3-rosdep" is installed. Remove it.
+rosdep install -iy --from-paths ~/colcon_ws_install/src --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers"
+
+# Build and install
+# Use the manually installed compilers and libraries.
+# The "-march=native" option has little impact on speeding up performance on ARM CPUs.
+# MAVLink requires the ROS_PYTHON_VERSION environment variable.
+cd ~/colcon_ws_install/
+sudo \
+  env \
+    LD_LIBRARY_PATH=/usr/local/lib64 \
+    ROS_PYTHON_VERSION=3 \
+  colcon build \
+    --merge-install \
+    --parallel-workers $(nproc) \
+    --install-base /opt/ros/jazzy \
+    --cmake-args \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_C_COMPILER=/usr/local/bin/gcc \
+      -DCMAKE_CXX_COMPILER=/usr/local/bin/g++
+
+# Verify installation is successful
+source /opt/ros/jazzy/setup.bash
+echo -e "\033[32mROS 2 Jazzy is installed successfully.\033[0m"

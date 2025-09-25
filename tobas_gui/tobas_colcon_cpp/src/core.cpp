@@ -45,10 +45,8 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   }
 
   // Create a build command
-  const auto build_cmd = std::format(
+  auto build_cmd = std::format(
     "colcon build "
-    "--merge-install "
-    "--parallel-workers $(nproc) "
     "--cmake-args -DCMAKE_BUILD_TYPE=Release "
     "--build-base {} "
     "--install-base {} "
@@ -56,6 +54,20 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
     buildBase(ws_path).string(),
     installBase(ws_path).string(),
     pkg_name.value());
+
+  // Add options
+  if (build_opts_.parallel_workers == 0) {
+    build_cmd += "--parallel-workers $(nproc) ";
+  }
+  else {
+    build_cmd += std::format("--parallel-workers {} ", build_opts_.parallel_workers);
+  }
+  if (build_opts_.merge_install) {
+    build_cmd += "--merge-install ";
+  }
+  if (build_opts_.symlink_install) {
+    build_cmd += "--symlink-install ";
+  }
 
   // Build the Tobas project packages
   std::cout << "Executing \"" << build_cmd << "\" on " << exec_path.value() << "." << std::endl;
@@ -87,6 +99,21 @@ bool Colcon::cleanWorkspace(const fs::path& ws_path)
 const std::string& Colcon::errorMessage() const
 {
   return error_msg_;
+}
+
+void Colcon::setParallelWorkers(size_t num)
+{
+  build_opts_.parallel_workers = num;
+}
+
+void Colcon::setMergeInstall(bool enabled)
+{
+  build_opts_.merge_install = enabled;
+}
+
+void Colcon::setSymlinkInstall(bool enabled)
+{
+  build_opts_.symlink_install = enabled;
 }
 
 fs::path Colcon::buildBase(const fs::path& ws_path)

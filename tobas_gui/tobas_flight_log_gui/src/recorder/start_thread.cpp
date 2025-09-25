@@ -5,6 +5,8 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
+#include "tobas_flight_log_gui/recorder/constants.hpp"
+
 namespace gui
 {
 namespace log
@@ -21,7 +23,7 @@ void RecordStartThread::run()
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name_;
 
-  if (!sc.call(req)) {
+  if (!sc.call(req, kRecordServiceTimeout)) {
     Q_EMIT finished(false, "Flight log recording service is unavailable.");
     return;
   }

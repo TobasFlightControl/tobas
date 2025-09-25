@@ -12,7 +12,7 @@ namespace log
 {
 RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 {
-  grid_ = new QGridLayout();
+  grid_ = new qt::GridLayout();
   setLayout(grid_);
 }
 
@@ -22,7 +22,7 @@ void RotorSpeedPlotWidget::clear()
   plots_.clear();
   cur_speed_curves_.clear();
   tar_speed_curves_.clear();
-  qt::clearLayout(grid_);
+  grid_->clear();
 
   num_rotors_ = 0;
   name2idx_.clear();
@@ -77,7 +77,13 @@ bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
 
     const auto plot = new QwtPlot2();
     plot->setAxisNoLabel(QwtPlot::xBottom);
-    grid_->addWidget(plot, idx / 2, idx % 2, 1, 1);  // N行2列の格子状に配置
+
+    // ウィジェットをN行2列の格子状に配置
+    const auto row = idx / 2;
+    const auto col = idx % 2;
+    grid_->addWidget(plot, row, col, 1, 1);
+    grid_->setRowStretch(row, 1);
+    grid_->setColumnStretch(col, 1);
 
     qwt::QwtPlotCurveWrapper cur_speed_curve("Current RPM (" + QString::fromStdString(elem.link_name) + ")");
     cur_speed_curve.setPen(kCurrentValueColor, kLineWidth);

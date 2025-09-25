@@ -9,13 +9,11 @@
 #define RANDOM_AXIS_TILT_MULTICOPTER "Random Axis Tilt Multicopter"
 #define FIXED_WING "Fixed Wing"
 
-using namespace std;
-
 namespace gui
 {
 namespace sa
 {
-string textFromEnum(FrameType arg)
+std::string textFromEnum(FrameType arg)
 {
   switch (arg) {
     case FrameType::kUndefined:
@@ -35,7 +33,7 @@ string textFromEnum(FrameType arg)
   }
 }
 
-bool enumFromText(const string& text, FrameType& dst)
+bool enumFromText(const std::string& text, FrameType& dst)
 {
   if (text == UNDEFINED) {
     dst = FrameType::kUndefined;
@@ -62,7 +60,7 @@ bool enumFromText(const string& text, FrameType& dst)
     return true;
   }
   else {
-    cerr << "Invalid frame type: " << text << endl;
+    std::cerr << "Invalid frame type: " << text << std::endl;
     return false;
   }
 }
@@ -84,6 +82,6 @@ bool convert<gui::sa::FrameType>::decode(const Node& node, gui::sa::FrameType& r
     return false;
   }
 
-  return gui::sa::enumFromText(node.as<string>(), rhs);
+  return gui::sa::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

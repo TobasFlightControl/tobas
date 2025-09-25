@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QGridLayout>
+#include <tobas_qt_tools/layouts/grid_layout.hpp>
 
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 
@@ -10,21 +10,22 @@ namespace gui
 {
 namespace log
 {
-class PropellerPitchPlotWidget : public QWidget
+class PropellerPitchPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
 public:
   explicit PropellerPitchPlotWidget();
 
-  void clear();
-  void setTimeScale(double t_start, double t_stop);
+  void clear() override;
+  void setTimeScale(double t_start, double t_stop) override;
+
   void setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& msgs);
 
 private:
   QVector<QwtPlot2*> plots_;
   QVector<qwt::QwtPlotCurveWrapper> curves_;
-  QGridLayout* grid_;
+  qt::GridLayout* grid_;
 
   size_t num_rotors_;                                 // The number of rotors
   std::unordered_map<std::string, size_t> name2idx_;  // Link Name -> Index

@@ -21,6 +21,7 @@ class FlightLogsWidgetGCS : public QWidget
 
 Q_SIGNALS:
   void logSelected(const QString& log_name);
+  void logDeselected();
 
 public:
   explicit FlightLogsWidgetGCS();
@@ -37,6 +38,9 @@ private:
   QPushButton* clean_button_;
 
   qt::ListWidget* log_list_;
+
+  QString currentLogName() const;
+  void setCurrentLogName(const QString& log_name);
 
 private Q_SLOTS:
   void onReadButtonClicked();

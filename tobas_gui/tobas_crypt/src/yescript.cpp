@@ -6,8 +6,6 @@
 
 #include <tobas_linux/error.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace crypt
@@ -16,14 +14,14 @@ Yescrypt::Yescrypt()
 {
 }
 
-string Yescrypt::createSalt() const
+std::string Yescrypt::createSalt() const
 {
   char salt[CRYPT_GENSALT_OUTPUT_SIZE]{};
   if (!crypt_gensalt_rn("$y$", 0, nullptr, 0, salt, sizeof(salt))) {
-    cerr << "crypt_gensalt_rn failed: " << linux::strError() << endl;
+    std::cerr << "crypt_gensalt_rn failed: " << linux::strError() << std::endl;
     return {};
   }
-  return string(salt);
+  return std::string(salt);
 }
 }  // namespace crypt
 }  // namespace tobas

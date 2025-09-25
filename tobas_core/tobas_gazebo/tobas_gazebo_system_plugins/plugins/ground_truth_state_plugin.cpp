@@ -9,7 +9,6 @@
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
-using namespace std;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -19,7 +18,7 @@ class GazeboGroundTruthStatePlugin : public BaseNode,
                                      public gz::sim::ISystemConfigure,
                                      public gz::sim::ISystemPostUpdate
 {
-  static constexpr size_t kDefaultUpdateRate = 0;  // [Hz]
+  static constexpr int kDefaultUpdateRate = 0;  // [Hz]
 
   using self = GazeboGroundTruthStatePlugin;
 
@@ -37,7 +36,7 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  size_t update_rate_;
+  int update_rate_;
 
   const cmp::WorldPose* pose_W_;
   const cmp::LinearVelocity* vel_B_;
@@ -76,15 +75,9 @@ void GazeboGroundTruthStatePlugin::Configure(
   acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
   dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
 
-  rate_manager_ = make_shared<RateManager>(update_rate_);
+  rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
   odom_pub_ = createPublisher<tobas_msgs::Odometry>(kOdometryGtTopic);
-}
-
-void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 
 void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -125,7 +118,13 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
   odom->gyro_covariance.setZero();
 
   // Publish state message
-  odom_pub_->publish(move(odom));
+  odom_pub_->publish(std::move(odom));
+}
+
+void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+{
+  getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, kNonNegative);
 }
 }  // namespace gazebo
 

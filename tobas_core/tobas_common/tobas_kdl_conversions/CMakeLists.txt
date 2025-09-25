@@ -11,12 +11,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(urdf REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(tobas_kdl REQUIRED)
-
 set(AMENT_DEPENDENCIES urdf geometry_msgs tobas_kdl)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 

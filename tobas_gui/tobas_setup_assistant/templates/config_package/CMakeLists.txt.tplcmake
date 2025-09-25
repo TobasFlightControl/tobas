@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project({{ config_pkg_name }})
 find_package(ament_cmake REQUIRED)
-install(DIRECTORY config launch meshes urdf DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config launch urdf DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY meshes DESTINATION share/${PROJECT_NAME} OPTIONAL)
 ament_package()

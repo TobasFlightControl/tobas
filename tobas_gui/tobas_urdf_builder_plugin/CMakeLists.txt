@@ -16,19 +16,6 @@ add_compile_options(-Wno-register)
 add_compile_options(-Wno-deprecated-copy)
 add_compile_options(-Wno-unused-but-set-parameter)
 
-find_package(ament_cmake REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(rviz_common REQUIRED)
-find_package(rviz_default_plugins REQUIRED)
-find_package(rviz_rendering REQUIRED)
-find_package(tobas_std_tools REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
-find_package(tobas_urdf REQUIRED)
-find_package(tobas_property_client REQUIRED)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_qt_tools REQUIRED)
-
 set(AMENT_DEPENDENCIES
     Qt5Core
     Qt5Widgets
@@ -43,6 +30,12 @@ set(AMENT_DEPENDENCIES
     tobas_qt_tools
 )
 
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
+
 # CMAKE_AUTOMOCやCMAKE_AUTOUICを使わない流儀
 
 file(GLOB_RECURSE MOC_HEADERS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/ui/*.hpp)
@@ -56,6 +49,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}) # colcon_ws/build/${PROJECT_NAM
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${UIC_FILES} ${LIB_TARGETS})
+target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(
@@ -64,10 +58,7 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES
-  DESTINATION include
 )
-install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 pluginlib_export_plugin_description_file(rviz_common plugin_description.xml)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

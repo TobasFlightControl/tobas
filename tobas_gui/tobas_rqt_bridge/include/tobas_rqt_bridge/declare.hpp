@@ -7,6 +7,7 @@
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/fluid_pressure.hpp>
+#include <tobas_msgs/msg/heartbeat.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
@@ -26,6 +27,8 @@ Q_DECLARE_METATYPE(tobas_msgs::msg::Arming::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Battery::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Cpu::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::EngineState::ConstSharedPtr);
+Q_DECLARE_METATYPE(tobas_msgs::msg::FluidPressure::ConstSharedPtr);
+Q_DECLARE_METATYPE(tobas_msgs::msg::Heartbeat::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::JointStateArray::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Message::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::PostArmCheck::ConstSharedPtr);
@@ -34,7 +37,6 @@ Q_DECLARE_METATYPE(tobas_msgs::msg::RosbagState::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::RotorStateArray::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Sbus::ConstSharedPtr);
-Q_DECLARE_METATYPE(tobas_msgs::msg::FluidPressure::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::Gnss::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::Imu::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::MagneticField::ConstSharedPtr);

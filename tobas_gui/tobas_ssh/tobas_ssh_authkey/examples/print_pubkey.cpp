@@ -6,18 +6,16 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
 
-using namespace std;
-
 int main(int argc, char** argv)
 {
   if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <Path>" << endl;
+    std::cerr << "Usage: " << argv[0] << " <Path>" << std::endl;
     return EXIT_FAILURE;
   }
 
   const auto path = argv[1];
 
-  string raw_text;
+  std::string raw_text;
   if (!str::readText(path, raw_text)) {
     return EXIT_FAILURE;
   }
@@ -26,23 +24,23 @@ int main(int argc, char** argv)
 
   const auto data = tobas::ssh::ak::parseLine(original_line);
   if (!data) {
-    cerr << data.error() << endl;
+    std::cerr << data.error() << std::endl;
     return EXIT_FAILURE;
   }
 
   const auto exported_line = tobas::ssh::ak::exportLine(data.value());
   if (!exported_line) {
-    cerr << exported_line.error() << endl;
+    std::cerr << exported_line.error() << std::endl;
     return EXIT_FAILURE;
   }
 
   const auto prettified_line = tobas::ssh::ak::prettify(data.value());
   if (!prettified_line) {
-    cerr << prettified_line.error() << endl;
+    std::cerr << prettified_line.error() << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "Original  : " << original_line << endl;
-  cout << "Exported  : " << exported_line.value() << endl;
-  cout << "Prettified: " << prettified_line.value() << endl;
+  std::cout << "Original  : " << original_line << std::endl;
+  std::cout << "Exported  : " << exported_line.value() << std::endl;
+  std::cout << "Prettified: " << prettified_line.value() << std::endl;
 }

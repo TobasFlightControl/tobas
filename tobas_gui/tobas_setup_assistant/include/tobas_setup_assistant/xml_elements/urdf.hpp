@@ -14,7 +14,7 @@ namespace xml
 void addBatteryPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
-  double update_rate,
+  int update_rate,
   double max_voltage,
   double sag_voltage,
   double max_current,
@@ -26,7 +26,7 @@ void addIMUPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
   double gyro_random_walk,
@@ -40,7 +40,7 @@ void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double latitude_zero,
   double longitude_zero,
@@ -52,7 +52,7 @@ void addBarometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double altitude_zero,
   double noise_stddev);
@@ -61,7 +61,7 @@ void addGNSSPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  double update_rate,
+  int update_rate,
   const Eigen::Vector3d& offset,
   double delay,
   double position_corr_time,
@@ -120,20 +120,36 @@ void addFixedWingPlugin(
   double altitude_zero,
   const tobas::FixedWingConfig& fixed_wing);
 
+void addJointStateBroadcasterPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::vector<std::string>& joint_names,
+  int update_rate);
+
+void addJointPositionControllerPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::string& joint_name,
+  double home_pos,
+  double time_const);
+
+void addJointVelocityControllerPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::string& joint_name,
+  double home_pos);
+
+void addJointEffortControllerPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::string& joint_name,
+  double home_pos);
+
 void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
 void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
 void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
-
-/* https://github.com/ros-controls/gz_ros2_control/tree/jazzy */
-void addGazeboSimROS2ControlPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& pkg_name,
-  const std::string& params_rel_path);
-
-void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints);
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
 }  // namespace xml

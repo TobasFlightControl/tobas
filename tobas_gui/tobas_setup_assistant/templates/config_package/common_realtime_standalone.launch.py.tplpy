@@ -210,6 +210,15 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
+            package="tobas_joint_states_bridge",
+            executable="joint_states_bridge",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
             package="tobas_topic_throttle",
             executable="topic_throttle",
             namespace=DRONE_NAME,

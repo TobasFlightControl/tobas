@@ -1,4 +1,6 @@
 #!/bin/bash
 
+set -e
+
 PARDIR=$(realpath $(dirname "$0"))
 bash ${PARDIR}/tobas_build_release --packages-select $1

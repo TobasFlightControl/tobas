@@ -8,7 +8,6 @@
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ssh_endpoint.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
@@ -22,6 +21,8 @@
 #include <tobas_msgs/msg/arming.hpp>
 
 #include "./config_env_parser.hpp"
+#include "./network_checker.hpp"
+#include "./remote_connection.hpp"
 #include "./restart_button.hpp"
 #include "./restart_thread.hpp"
 #include "./shutdown_button.hpp"
@@ -46,7 +47,7 @@ class GroundControlStationWidget : public QWidget
 public:
   explicit GroundControlStationWidget(rclcpp::Node::SharedPtr node);
 
-  void reset();
+  void reset(bool include_simulation = true);
   void updateInternalDataStructures();
 
 protected:
@@ -55,20 +56,21 @@ protected:
 private:
   const rclcpp::Node::SharedPtr node_;
   RosQtBridge bridge_;
+  const NetworkChecker network_checker_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;
   tobas::Drone drone_;
-  std::string host_;
 
   ptree::PropertyClient property_client_;
   ssh::SSHClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
-  cmn::RemoteProjectBuilder remote_proj_builder_;
   cmn::SshEndpoint ssh_endpoint_;
   ConfigurationEnvParser config_env_parser_;
+
+  RemoteConnectionWidget* remote_conn_;
 
   QLineEdit* proj_path_;
   QPushButton* load_btn_;

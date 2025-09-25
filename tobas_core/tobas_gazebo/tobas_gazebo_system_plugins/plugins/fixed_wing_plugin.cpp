@@ -13,6 +13,7 @@
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
@@ -22,7 +23,7 @@
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 
-using namespace std;
+namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
 namespace gazebo
@@ -42,7 +43,7 @@ class GazeboFixedWingPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kControlSurfaceKey[] = "controlSurface";
-  static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
+  static constexpr char kDebugTopic[] = "gazebo/fixed_wing_debug";
 
   using self = GazeboFixedWingPlugin;
 
@@ -59,14 +60,14 @@ public:
 
 private:
   // SDF parameters
-  string base_link_name_;
+  std::string base_link_name_;
   double alt_0_;  // 基準点の幾何的高度
   tobas::VehicleParameters vehicle_params_;
   tobas::AerodynamicCoefficients aero_coefs_;
-  map<string, tobas::ControlSurface> control_surfaces_;
+  std::map<std::string, tobas::ControlSurface> control_surfaces_;
 
-  shared_ptr<gz::sim::Link> base_link_;
-  map<string, shared_ptr<gz::sim::Joint>> cs_joints_;  // 制御面のジョイントへのポインタ
+  std::shared_ptr<gz::sim::Link> base_link_;
+  std::map<std::string, std::shared_ptr<gz::sim::Joint>> cs_joints_;  // 制御面のジョイントへのポインタ
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
@@ -83,7 +84,7 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
 
-  double getDeflection(const gz::sim::EntityComponentManager& ecm, const string& link_name) const;
+  double getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const;
 
   double liftCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const;
   double dragCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const;
@@ -124,22 +125,22 @@ void GazeboFixedWingPlugin::Configure(
   getSdfParams(sdf);
 
   // Get robot model
-  gz::sim::Model model(model_entity);
+  const gz::sim::Model model(model_entity);
   if (!model.Valid(ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
   // Get base link
   const auto base_link_entity = model.LinkByName(ecm, base_link_name_);
-  base_link_ = make_shared<gz::sim::Link>(base_link_entity);
+  base_link_ = std::make_shared<gz::sim::Link>(base_link_entity);
   if (!base_link_->Valid(ecm)) {
     TOBAS_EXIT("Failed to find base link \"", base_link_name_, "\".");
   }
 
   // Create necessary components
-  pose_W_ = getComponent<cmp::WorldPose>(base_link_entity, ecm);
-  vel_W_ = getComponent<cmp::WorldLinearVelocity>(base_link_entity, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(base_link_entity, ecm);
+  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(base_link_entity, ecm));
+  TOBAS_CHECK(vel_W_ = getComponent<cmp::WorldLinearVelocity>(base_link_entity, ecm));
+  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(base_link_entity, ecm));
 
   // Get control surface joint models
   for (const auto& [link_name, _] : control_surfaces_) {
@@ -148,7 +149,7 @@ void GazeboFixedWingPlugin::Configure(
     if (!joint_entity.has_value()) {
       TOBAS_EXIT("Failed to find the parent joint of control surface link \"", link_name, "\".");
     }
-    const auto joint = make_shared<gz::sim::Joint>(joint_entity.value());
+    const auto joint = std::make_shared<gz::sim::Joint>(joint_entity.value());
     if (!joint->Valid(ecm)) {
       TOBAS_EXIT("Failed to find control surface \"", link_name, "\".");
     }
@@ -179,6 +180,98 @@ void GazeboFixedWingPlugin::Configure(
   }
 
   registerPubSub();
+}
+
+void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
+{
+  // ベースの状態
+  const auto& T_W_B = pose_W_->Data();
+  const auto& P_W_B = T_W_B.Pos();
+  const auto& R_W_B = T_W_B.Rot();
+
+  // 風に対する相対的な機体速度
+  const auto vel_W = vel_W_->Data() - wind_vel_W_;
+  auto vel_B = R_W_B.RotateVectorReverse(vel_W);
+
+  // NWU -> NED
+  NWU2NED(vel_B);
+
+  // 相対風速
+  const auto& u = vel_B.X();
+  const auto& v = vel_B.Y();
+  const auto& w = vel_B.Z();
+  const auto V = std::max(vel_B.Length(), tobas::kMinAirSpeedThresh);  // V > 0 を保証する
+
+  // 迎角と横滑り角
+  const auto alpha = tobas::angleOfAttack(u, w);      // 迎角 [rad]
+  const auto beta = tobas::angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
+
+  // 迎角の範囲チェック
+  if (!vehicle_params_.alpha_limit.inRange(alpha)) {
+    TOBAS_ERROR_THROTTLE(
+      kErrorPeriod,
+      "The angle of attack ",
+      alpha,
+      " is not within the valid range ",
+      vehicle_params_.alpha_limit,
+      ". The accuracy of the physics simulation may be compromised.");
+  }
+
+  // 最初は変数の初期化だけして終了
+  if (!is_initialized_) {
+    prev_alpha_ = alpha;
+    is_initialized_ = true;
+    return;
+  }
+
+  // 時刻と迎角の変化率を更新
+  const auto dt = ch::duration<double>(info.dt).count();
+  const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
+  prev_alpha_ = alpha;
+
+  // 無次元空力係数
+  const auto force_coefs = nonDimentionalAeroCoefs_Force(ecm, alpha, beta);
+  const auto moment_coefs = nonDimentionalAeroCoefs_Moment(ecm, alpha, beta, alpha_rate, V);
+
+  // 定数部分を計算しておく
+  const auto altitude = alt_0_ + P_W_B.Z();
+  const auto rho = tobas_std::altitudeToDensity(altitude);
+  const auto q_bar = tobas::dynamicPressure(rho, V);  // 動圧 (p.15) [Pa]
+  const auto& S = vehicle_params_.wing_surface;       // 主翼面積 [m^2]
+
+  // 空力中心に働く空気力 (1.8-1)
+  auto force_B = q_bar * S * force_coefs;  // [N]
+
+  // 空力中心に働く空気モーメント (1.8-7)
+  const auto& C_l = moment_coefs.X();                                             // [-]
+  const auto& C_m = moment_coefs.Y();                                             // [-]
+  const auto& C_n = moment_coefs.Z();                                             // [-]
+  const auto& b = vehicle_params_.wing_span;                                      // [m]
+  const auto& c_bar = vehicle_params_.mac;                                        // [m]
+  auto torque_B = q_bar * S * gz::math::Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
+
+  // NED coordinates -> NWU coordinates
+  NED2NWU(force_B);
+  NED2NWU(torque_B);
+
+  // 世界座標系に変換
+  const auto force_W = R_W_B.RotateVector(force_B);
+  const auto torque_W = R_W_B.RotateVector(torque_B);
+
+  // 空気力を作用させる
+  gz::math::Vector3d B_Pos_BC;
+  vectorKDLToGazebo(vehicle_params_.ac, B_Pos_BC);
+  base_link_->AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
+
+  // デバッグ用メッセージを発行
+  auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
+  ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
+  vectorGazeboToRos(vel_B, debug_msg->relative_body_velocity);
+  debug_msg->alpha = alpha;
+  debug_msg->beta = beta;
+  vectorGazeboToRos(force_B, debug_msg->air_force);
+  vectorGazeboToRos(torque_B, debug_msg->air_moment);
+  debug_pub_->publish(std::move(debug_msg));
 }
 
 void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -224,7 +317,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   // ControlSurface
   if (sdf->HasElement(kControlSurfaceKey)) {
-    unordered_set<string> joint_names;
+    std::unordered_set<std::string> joint_names;
     auto cs_elem = sdf->FindElement(kControlSurfaceKey);
 
     while (cs_elem) {
@@ -251,103 +344,12 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugPubTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugTopic);
   wind_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedCb, this);
 }
 
-void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
-{
-  // ベースの状態
-  const auto& T_W_B = pose_W_->Data();
-  const auto& P_W_B = T_W_B.Pos();
-  const auto& R_W_B = T_W_B.Rot();
-
-  // 風に対する相対的な機体速度
-  const auto vel_W = vel_W_->Data() - wind_vel_W_;
-  auto vel_B = R_W_B.RotateVectorReverse(vel_W);
-
-  // NWU -> NED
-  NWU2NED(vel_B);
-
-  // 相対風速
-  const auto& u = vel_B.X();
-  const auto& v = vel_B.Y();
-  const auto& w = vel_B.Z();
-  const auto V = max(vel_B.Length(), tobas::kMinAirSpeedThresh);  // V > 0 を保証する
-
-  // 迎角と横滑り角
-  const auto alpha = tobas::angleOfAttack(u, w);      // 迎角 [rad]
-  const auto beta = tobas::angleOfSideSlip(u, v, w);  // 横滑り角 [rad]
-
-  // 迎角の範囲チェック
-  if (!vehicle_params_.alpha_limit.inRange(alpha)) {
-    TOBAS_ERROR_THROTTLE(
-      kErrorPeriod,
-      "The angle of attack ",
-      alpha,
-      " is not within the valid range ",
-      vehicle_params_.alpha_limit,
-      ". The accuracy of the physics simulation may be compromised.");
-  }
-
-  // 最初は変数の初期化だけして終了
-  if (!is_initialized_) {
-    prev_alpha_ = alpha;
-    is_initialized_ = true;
-    return;
-  }
-
-  // 時刻と迎角の変化率を更新
-  const auto dt = chrono::duration<double>(info.dt).count();
-  const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
-  prev_alpha_ = alpha;
-
-  // 無次元空力係数
-  const auto force_coefs = nonDimentionalAeroCoefs_Force(ecm, alpha, beta);
-  const auto moment_coefs = nonDimentionalAeroCoefs_Moment(ecm, alpha, beta, alpha_rate, V);
-
-  // 定数部分を計算しておく
-  const auto altitude = alt_0_ + P_W_B.Z();
-  const auto rho = tobas_std::altitudeToDensity(altitude);
-  const auto q_bar = tobas::dynamicPressure(rho, V);  // 動圧 (p.15) [Pa]
-  const auto& S = vehicle_params_.wing_surface;       // 主翼面積 [m^2]
-
-  // 空力中心に働く空気力 (1.8-1)
-  auto force_B = q_bar * S * force_coefs;  // [N]
-
-  // 空力中心に働く空気モーメント (1.8-7)
-  const auto& C_l = moment_coefs.X();                                             // [-]
-  const auto& C_m = moment_coefs.Y();                                             // [-]
-  const auto& C_n = moment_coefs.Z();                                             // [-]
-  const auto& b = vehicle_params_.wing_span;                                      // [m]
-  const auto& c_bar = vehicle_params_.mac;                                        // [m]
-  auto torque_B = q_bar * S * gz::math::Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
-
-  // NED coordinates -> NWU coordinates
-  NED2NWU(force_B);
-  NED2NWU(torque_B);
-
-  // 世界座標系に変換
-  const auto force_W = R_W_B.RotateVector(force_B);
-  const auto torque_W = R_W_B.RotateVector(torque_B);
-
-  // 空気力を作用させる
-  gz::math::Vector3d B_Pos_BC;
-  vectorKDLToGazebo(vehicle_params_.ac, B_Pos_BC);
-  base_link_->AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
-
-  // デバッグ用メッセージを発行
-  auto debug_msg = make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
-  ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
-  vectorGazeboToMsg(vel_B, debug_msg->relative_body_velocity);
-  debug_msg->alpha = alpha;
-  debug_msg->beta = beta;
-  vectorGazeboToMsg(force_B, debug_msg->air_force);
-  vectorGazeboToMsg(torque_B, debug_msg->air_moment);
-  debug_pub_->publish(move(debug_msg));
-}
-
-double GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const string& link_name) const
+double
+GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const
 {
   return cs_joints_.at(link_name)->Position(ecm).value().front();
 }

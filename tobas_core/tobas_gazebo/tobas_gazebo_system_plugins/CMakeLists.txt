@@ -11,26 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(ament_cmake REQUIRED)
-find_package(std_srvs REQUIRED)
-find_package(tobas_dsp REQUIRED)
-find_package(tobas_geomag REQUIRED)
-find_package(tobas_nlp REQUIRED)
-find_package(tobas_node REQUIRED)
-find_package(tobas_tools REQUIRED)
-find_package(tobas_wind_model REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_drone_tools REQUIRED)
-find_package(tobas_gazebo_common REQUIRED)
-find_package(tobas_gazebo_conversions REQUIRED)
-find_package(tobas_gazebo_tools REQUIRED)
-find_package(tobas_gazebo_msgs REQUIRED)
-
-find_package(gz_sim_vendor REQUIRED)
-find_package(gz-sim REQUIRED)
-find_package(gz_plugin_vendor REQUIRED)
-find_package(gz-plugin REQUIRED)
-
 set(AMENT_DEPENDENCIES
     std_srvs
     tobas_dsp
@@ -47,6 +27,16 @@ set(AMENT_DEPENDENCIES
     tobas_gazebo_msgs
 )
 
+find_package(ament_cmake REQUIRED)
+find_package(gz_sim_vendor REQUIRED)
+find_package(gz-sim REQUIRED)
+find_package(gz_plugin_vendor REQUIRED)
+find_package(gz-plugin REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
+
 include_directories(include ${OpenCV_INCLUDE_DIRS})
 
 # Build common library
@@ -58,12 +48,12 @@ target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
 # Build each plugin
 file(GLOB_RECURSE PLUGIN_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
 set(TARGETS_TO_INSTALL "")
-
 foreach(file_path IN LISTS PLUGIN_TARGETS)
   get_filename_component(FILE_NAME ${file_path} NAME_WE)
   set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
   add_library(${PLUGIN_NAME} SHARED ${file_path})
   target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME})
+  target_link_options(${PLUGIN_NAME} PRIVATE -Wl,--no-undefined)
   list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
 endforeach()
 

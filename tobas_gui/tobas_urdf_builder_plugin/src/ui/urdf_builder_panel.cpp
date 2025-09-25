@@ -405,7 +405,7 @@ void URDFBuilderPanel::reload()
 
 void URDFBuilderPanel::reloadLinkTree()
 {
-  ui_->LinkTreeWidget->blockSignals(true);
+  const QSignalBlocker block(ui_->LinkTreeWidget);
 
   // 選択されているリンク名を取得
   QString selected_link_name = "";
@@ -457,7 +457,6 @@ void URDFBuilderPanel::reloadLinkTree()
   }
 
   ui_->LinkTreeWidget->expandAll();
-  ui_->LinkTreeWidget->blockSignals(false);
 }
 
 void URDFBuilderPanel::reloadRobot()

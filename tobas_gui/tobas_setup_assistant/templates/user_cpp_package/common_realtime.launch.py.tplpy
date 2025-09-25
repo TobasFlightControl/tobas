@@ -8,7 +8,7 @@ from launch_ros.descriptions import ComposableNode
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Please add the nodes that run on both the actual hardware and requires real-time performance.
+    # Please add the nodes that run both on real hardware and in simulation, with real-time requirements.
 
     # ld.add_action(
     #     LoadComposableNodes(

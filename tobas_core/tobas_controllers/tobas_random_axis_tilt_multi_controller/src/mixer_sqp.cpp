@@ -105,8 +105,7 @@ bool SqpMixer::solve(
 
   // 並進EoMの右辺
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;                // [N]
-  eom_trans_right_W.z(max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));  // 必ず鉛直上方向に推力を出す
+  const auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
   d_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
   // 回転EoMの右辺
