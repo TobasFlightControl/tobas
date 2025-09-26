@@ -12,6 +12,9 @@ DRONE_NAME = "{{ drone_name }}"
 # Arguments
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
+ENABLE_STDOUT_LOGS = "enable_stdout_logs"
+ENABLE_ROSOUT_LOGS = "enable_rosout_logs"
+ENABLE_EXTERNAL_LIB_LOGS = "enable_external_lib_logs"
 
 
 def handle_output(event):
@@ -27,17 +30,31 @@ def generate_launch_description():
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(ENABLE_STDOUT_LOGS, default_value="true"))
+    ld.add_action(DeclareLaunchArgument(ENABLE_ROSOUT_LOGS, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(ENABLE_EXTERNAL_LIB_LOGS, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
+    enable_stdout_logs = LaunchConfiguration(ENABLE_STDOUT_LOGS)
+    enable_rosout_logs = LaunchConfiguration(ENABLE_ROSOUT_LOGS)
+    enable_external_lib_logs = LaunchConfiguration(ENABLE_EXTERNAL_LIB_LOGS)
+
+    ros_args = ["--log-level", log_level]
+    if enable_stdout_logs != "true":
+        ros_args += ["--disable-stdout-logs"]
+    if enable_rosout_logs != "true":
+        ros_args += ["--disable-rosout-logs"]
+    if enable_external_lib_logs != "true":
+        ros_args += ["--disable-external-lib-logs"]
 
     # Launch component containers
     component_containers = Node(
         package="tobas_components_rt",
         executable="component_containers",
         namespace=DRONE_NAME,
-        ros_arguments=["--log-level", log_level],
+        ros_arguments=ros_args,
         output=output,
     )
     ld.add_action(component_containers)
