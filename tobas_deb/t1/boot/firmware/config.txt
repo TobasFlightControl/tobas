@@ -5,6 +5,10 @@
 # The kernel will be started in 64-bit mode
 arm_64bit=1
 
+# The firmware looks for an initramfs file to match the kernel
+# Necessary to run /usr/share/initramfs-tools/scripts/local-premount/firstboot and expand rootfs
+auto_initramfs=1
+
 # Assign the fast UART to GPIOs 4-5 (/dev/serial0)
 dtoverlay=disable-bt
 
