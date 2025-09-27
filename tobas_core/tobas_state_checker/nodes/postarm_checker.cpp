@@ -1,6 +1,4 @@
 #include <tobas_constants/constants.hpp>
-#include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_tools/util.hpp>
@@ -8,19 +6,15 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
-#include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
+#include <tobas_msgs_adapter/vibration_level.hpp>
 
 using namespace std::chrono_literals;
 
 class PostArmCheckerNode : public tobas::BaseNode
 {
   static constexpr auto kMainTimerPeriod = 100ms;
-
-  static constexpr double kNoiseFiltrerHpfCutoff = 30.;       // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
-  static constexpr size_t kNoiseFilterWindowSize = 200;       // 400Hzで0.5s
-  static constexpr double kAccNoiseStddevThresh = 0.3;        // [m/s^2]
-  static constexpr double kGyroNoiseStddevThresh = 0.03;      // [rad/s]
+  static constexpr double kVibrationLevelThresh = 10.;        // [m/s^2]
   static constexpr double kMagLengthErrorThresh = 0.2;        // [-]
   static constexpr double kMagDeclinationThresh = M_PI / 12;  // [rad]
   static constexpr long kLatencyThresh = 1000;                // [us]
@@ -33,23 +27,21 @@ public:
 
 private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::Imu::ConstSharedPtr imu_;
+  tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
   tobas_msgs::msg::Latency::ConstSharedPtr latency_;
-
-  dsp::NoiseVarianceFilter<double, 3, kNoiseFilterWindowSize> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::msg::PostArmCheck> postarm_check_pub_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Imu> imu_sub_;
+  ros2::SubscriberPtr<tobas_msgs::VibrationLevel> vibe_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Latency> ctrl_latency_sub_;
 
   ros2::TimerPtr main_timer_;
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu);
+  void vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe);
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
   void controlLatencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency);
 
@@ -61,7 +53,7 @@ PostArmCheckerNode::PostArmCheckerNode(const rclcpp::NodeOptions& options) : sup
   postarm_check_pub_ = createPublisher<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic);
 
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  imu_sub_ = createSubscriber(tobas::kImuFiltTopic, &self::imuCb, this);
+  vibe_sub_ = createSubscriber(tobas::kVibrationLevelTopic, &self::vibrationLevelCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
   ctrl_latency_sub_ = createSubscriber(tobas::kControlLatencyTopic, &self::controlLatencyCb, this);
 
@@ -72,7 +64,7 @@ void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr&
 {
   // アームされたらインスタンス変数を初期化
   if (!arming_ || (arming_->data && !arming->data)) {
-    imu_.reset();
+    vibe_.reset();
     mag_.reset();
     latency_.reset();
   }
@@ -80,34 +72,13 @@ void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr&
   arming_ = arming;
 }
 
-void PostArmCheckerNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
+void PostArmCheckerNode::vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe)
 {
   if (!arming_ || !arming_->data) {
     return;
   }
 
-  // Initialize noise filters
-  if (!imu_) {
-    if (!acc_noise_.initialize(kNoiseFiltrerHpfCutoff, imu->accel.data)) {
-      TOBAS_ERROR("Failed to initialize accel noise variance filter.");
-    }
-    if (!gyro_noise_.initialize(kNoiseFiltrerHpfCutoff, imu->gyro.data)) {
-      TOBAS_ERROR("Failed to initialize gyro noise variance filter.");
-    }
-
-    imu_ = imu;
-    return;
-  }
-
-  // Compute time difference
-  const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
-
-  // Update noise filters
-  acc_noise_.update(imu->accel.data, dt);
-  gyro_noise_.update(imu->gyro.data, dt);
-
-  // Update latest message
-  imu_ = imu;
+  vibe_ = vibe;
 }
 
 void PostArmCheckerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
@@ -138,19 +109,15 @@ void PostArmCheckerNode::mainTimerCb()
 
   postarm_check->header.stamp = get_clock()->now();
 
-  if (imu_) {
-    // 加速度ノイズの標準偏差
-    const auto acc_noise_var = acc_noise_.noiseVariance().diagonal().maxCoeff();
-    postarm_check->accel_noise_too_large = (acc_noise_var > math::sqr(kAccNoiseStddevThresh));
-
-    // ジャイロノイズの標準偏差
-    const auto gyro_noise_var = gyro_noise_.noiseVariance().diagonal().maxCoeff();
-    postarm_check->gyro_noise_too_large = (gyro_noise_var > math::sqr(kGyroNoiseStddevThresh));
+  if (vibe_) {
+    // Check vibration level
+    // Vibration levels below 30m/s/s are normally acceptable
+    // cf. https://ardupilot.org/copter/docs/common-diagnosing-problems-using-logs.html#vibrations
+    postarm_check->vibration_too_high = vibe_->data.max() > kVibrationLevelThresh;
   }
   else {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "IMU state is not received yet.");
-    postarm_check->gyro_noise_too_large = true;
-    postarm_check->accel_noise_too_large = true;
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Vibration level is not received yet.");
+    postarm_check->vibration_too_high = true;
   }
 
   if (mag_) {

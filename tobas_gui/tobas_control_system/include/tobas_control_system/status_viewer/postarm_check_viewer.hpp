@@ -21,8 +21,7 @@ public:
   void reset();
 
 private:
-  StatusWidget* gyro_noise_status_;
-  StatusWidget* accel_noise_status_;
+  StatusWidget* vibration_level_status_;
   StatusWidget* mag_offset_status_;
   StatusWidget* mag_alignment_status_;
   StatusWidget* latency_status_;

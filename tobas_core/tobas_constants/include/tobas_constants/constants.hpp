@@ -48,6 +48,7 @@ static constexpr char kControlLatencyTopic[] = "control_latency";
 static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "prearm_check";
 static constexpr char kPostArmCheckTopic[] = "postarm_check";
+static constexpr char kVibrationLevelTopic[] = "vibration_level";
 static constexpr char kDisturbanceForceTopic[] = "disturbance_force";
 static constexpr char kLandedTopic[] = "landed";
 static constexpr char kRosbagStateTopic[] = "rosbag_state";

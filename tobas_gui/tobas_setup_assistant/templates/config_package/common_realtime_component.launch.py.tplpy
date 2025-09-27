@@ -221,6 +221,12 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(
+                    package="tobas_vibration_filter",
+                    plugin="VibrationFilterNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
                     package="tobas_joint_states_bridge",
                     plugin="JointStatesBridgeNode",
                     namespace=DRONE_NAME,

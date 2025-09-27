@@ -90,8 +90,10 @@ public:
   inline Vector normalized() const;
 
   inline Vector sqr() const;
+  inline Vector sqrt() const;
   inline Vector cube() const;
   inline Vector inverse() const;
+  inline Vector abs() const;
 
   inline bool isFinite() const;
 
@@ -303,6 +305,12 @@ inline Vector Vector::sqr() const
   return Vector(data.cwiseAbs2());
 }
 
+inline Vector Vector::sqrt() const
+{
+  assert((data.array() > 0.).all());
+  return Vector(data.cwiseSqrt());
+}
+
 inline Vector Vector::cube() const
 {
   return Vector(data.cwiseProduct(data).cwiseProduct(data));
@@ -310,8 +318,13 @@ inline Vector Vector::cube() const
 
 inline Vector Vector::inverse() const
 {
-  assert(x() != 0 && y() != 0 && z() != 0);
+  assert((data.array() != 0.).all());
   return Vector(data.cwiseInverse());
+}
+
+inline Vector Vector::abs() const
+{
+  return Vector(data.cwiseAbs());
 }
 
 bool Vector::isFinite() const
