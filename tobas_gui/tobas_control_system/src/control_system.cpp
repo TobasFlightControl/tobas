@@ -30,21 +30,21 @@ ControlSystemWidget::ControlSystemWidget(
 
   const auto rows2 = new QVBoxLayout();
   rows2->addLayout(cols3, 0);
-  rows2->addWidget(rcin_viewer_, 1);
-  rows2->addWidget(rotors_viewer_, 1);
-  rows2->addWidget(console_, 1);
+  rows2->addWidget(rcin_viewer_, 2);
+  rows2->addWidget(rotors_viewer_, 2);
+  rows2->addWidget(console_, 3);
 
   const auto cols2 = new QHBoxLayout();
   cols2->addLayout(rows2, 3);
   cols2->addWidget(status_viewer_, 1);
 
   const auto rows1 = new QVBoxLayout();
-  rows1->addWidget(pose_viewer_, 1);
-  rows1->addLayout(cols2, 1);
+  rows1->addWidget(pose_viewer_, 2);
+  rows1->addLayout(cols2, 3);
 
   const auto cols1 = new QHBoxLayout();
-  cols1->addLayout(rows1, 1);
-  cols1->addWidget(mission_planner_, 1);
+  cols1->addLayout(rows1, 2);
+  cols1->addWidget(mission_planner_, 3);
 
   setLayout(cols1);
 }

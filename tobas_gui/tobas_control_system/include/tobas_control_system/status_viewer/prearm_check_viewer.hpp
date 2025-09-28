@@ -25,13 +25,13 @@ private:
   StatusWidget* battery_voltage_status_;
   StatusWidget* cpu_temp_status_;
   StatusWidget* rotor_comm_status_;
-  StatusWidget* attitude_level_status_;
+  StatusWidget* level_atti_status_;
   StatusWidget* pos_stability_status_;
   StatusWidget* pos_accuracy_status_;
   StatusWidget* vel_accuracy_status_;
   StatusWidget* atti_accuracy_status_;
   StatusWidget* head_accuracy_status_;
-  StatusWidget* ready_status_;
+  StatusWidget* ready_arm_status_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 

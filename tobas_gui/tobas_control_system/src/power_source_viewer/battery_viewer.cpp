@@ -23,8 +23,8 @@ BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const tobas:
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Battery Voltage", kLabelPSize), voltage_);
-  form->addVAlignedRow(new qt::Label("Battery Current", kLabelPSize), current_);
+  form->addVAlignedRow(new qt::Label("Batt Volt", kLabelPSize), voltage_);
+  form->addVAlignedRow(new qt::Label("Batt Curr", kLabelPSize), current_);
   setLayout(form);
 
   // Connection

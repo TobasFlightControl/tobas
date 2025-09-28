@@ -19,7 +19,7 @@ class EngineViewerWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kLabelPSize = 12;
-  static constexpr int kBarHeight = 40;
+  static constexpr int kBarHeight = 30;
 
   static constexpr double kMinOilTemp = 0.;    // [degC]
   static constexpr double kMaxOilTemp = 130.;  // [degC]

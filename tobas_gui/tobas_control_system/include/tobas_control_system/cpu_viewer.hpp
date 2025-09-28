@@ -15,7 +15,7 @@ class CPUViewerWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kLabelPSize = 12;
-  static constexpr int kBarHeight = 40;
+  static constexpr int kBarHeight = 30;
 
   static constexpr double kMinTemp = 0.;    // [degC]
   static constexpr double kMaxTemp = 100.;  // [degC]

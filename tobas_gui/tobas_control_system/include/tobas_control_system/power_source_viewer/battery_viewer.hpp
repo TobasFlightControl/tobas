@@ -17,7 +17,7 @@ class BatteryViewerWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kLabelPSize = 12;
-  static constexpr int kBarHeight = 40;
+  static constexpr int kBarHeight = 30;
 
 public:
   explicit BatteryViewerWidget(const RosQtBridge& bridge, const tobas::Drone& drone);

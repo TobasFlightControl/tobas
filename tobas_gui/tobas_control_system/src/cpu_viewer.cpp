@@ -25,7 +25,7 @@ CPUViewerWidget::CPUViewerWidget(const RosQtBridge& bridge)
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("CPU Temperature", kLabelPSize), temp_);
+  form->addVAlignedRow(new qt::Label("CPU Temp", kLabelPSize), temp_);
   form->addVAlignedRow(new qt::Label("CPU Load", kLabelPSize), load_);
   setLayout(form);
 
