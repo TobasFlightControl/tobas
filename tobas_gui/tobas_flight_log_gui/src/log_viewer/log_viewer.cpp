@@ -1,5 +1,8 @@
 #include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
 
+#include <ranges>
+
+#include <QGridLayout>
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
@@ -18,7 +21,10 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  for (auto& plot_tab : plot_tabs_) {
+  const auto grid = new QGridLayout();
+  rows->addLayout(grid);
+
+  for (const auto& [idx, plot_tab] : std::views::enumerate(plot_tabs_)) {
     plot_tab = new PlotTabWidget(
       odom_data_,
       raw_imu_data_,
@@ -39,12 +45,18 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       dist_force_data_,
       obsv_fb_data_,
       mr_ctrl_fb_data_);
-    rows->addWidget(plot_tab, 1);
+
+    plot_tab->setCurrentIndex(idx);
+
+    const auto row = idx % 3;
+    const auto col = idx / 3;
+    grid->addWidget(plot_tab, row, col, 1, 1);
+    grid->setRowStretch(row, 1);
+    grid->setColumnStretch(col, 1);
   }
 
   playback_ctrl_ = new PlaybackControlWidget();
   rows->addWidget(playback_ctrl_, 0);
-
   connect(playback_ctrl_, &PlaybackControlWidget::timeChanged, this, &self::onPlaybackTimeChanged);
 
   reset();

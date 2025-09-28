@@ -26,7 +26,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
 
   const auto root_cols = new QHBoxLayout();
   root_cols->addLayout(left_rows, 1);
-  root_cols->addWidget(log_viewer_, 1);
+  root_cols->addWidget(log_viewer_, 2);
 
   setLayout(root_cols);
 
