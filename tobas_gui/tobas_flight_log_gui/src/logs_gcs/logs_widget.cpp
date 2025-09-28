@@ -35,7 +35,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new qt::Label("Ground Control Station", kPSize1, QFont::Bold));
+  cols->addWidget(new qt::Label("Ground Station", kPSize1, QFont::Bold));
   cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
