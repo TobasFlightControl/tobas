@@ -48,6 +48,7 @@ private:
   QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data_;
   QVector<tobas_msgs::msg::Latency> sampling_time_data_;
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
+  QVector<tobas_msgs::msg::VibrationLevel> vibe_data_;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data_;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data_;
   QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_data_;
@@ -63,6 +64,7 @@ private:
   MessageDecoder<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
   MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> latency_decoder_;
+  MessageDecoder<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
   MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;

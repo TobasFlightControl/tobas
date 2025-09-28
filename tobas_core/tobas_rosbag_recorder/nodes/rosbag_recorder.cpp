@@ -24,6 +24,7 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/message.hpp>
+#include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
@@ -38,6 +39,7 @@
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
+#include <tobas_msgs_adapter/vibration_level.hpp>
 
 #define BILLION 1'000'000'000
 
@@ -69,7 +71,7 @@ private:
   rclcpp::Time start_time_;
   size_t msg_cnt_;
 
-  // ROS message buffers
+  // ROS standard message buffers
   tobas_drone_msgs::msg::Drone drone_;
   tobas_kdl_msgs::msg::Tree tree_;
   tobas_msgs::msg::RCInput rcin_;
@@ -77,6 +79,7 @@ private:
   tobas_msgs::msg::MagneticField mag_;
   tobas_msgs::msg::Gnss gnss_;
   tobas_msgs::msg::Odometry odom_;
+  tobas_msgs::msg::VibrationLevel vibe_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
   tobas_debug_msgs::msg::MulticopterControllerFeedback mr_ctrl_fb_;
@@ -133,23 +136,34 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   , ns_(std::string(get_namespace()) + "/")
   , rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
 {
-  // トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
-
+  // Register publishers
   rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic);
 
-  // Resister subscribers for standard messages
+  // Resister subscribers
+  // トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
   addStandardMsgSub<tobas_msgs::msg::Message>(tobas::kMessageTopic);
+  addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::kDroneTopic, true, true);
+  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKdlTreeTopic, true, true);
   addStandardMsgSub<std_msgs::msg::String>(tobas::kRobotDescriptionTopic, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, tobas::kRcInputTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::kImuRawTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::kImuFiltTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::MagneticField>(mag_, tobas::kMagTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Gnss>(gnss_, tobas::kGnssTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kImuSamplingTimeTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
   addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
   addStandardMsgSub<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic);
+  addStandardMsgSub<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::VibrationLevel>(vibe_, tobas::kVibrationLevelTopic);
+  addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::kIcePropulsionSystemCmdTopic);
@@ -157,19 +171,8 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
-  addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
-
-  // Resister subscribers for non-standard messages
-  addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::kDroneTopic, true, true);
-  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKdlTreeTopic, true, true);
-  addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, tobas::kRcInputTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::kImuRawTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::Imu>(imu_, tobas::kImuFiltTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::MagneticField>(mag_, tobas::kMagTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::Gnss>(gnss_, tobas::kGnssTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
-  addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, tobas::kObsvFeedbackTopic);
+  addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::MulticopterControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);
 
   // Register services
@@ -177,6 +180,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   stop_srv_ = createService<StopSrv>(tobas::kRosbagRecordStopSrv, &self::stopCb, this);
   clean_srv_ = createService<CleanSrv>(tobas::kRosbagCleanSrv, &self::cleanCb, this);
 
+  // Start main timer
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 

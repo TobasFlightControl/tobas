@@ -35,6 +35,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       ice_cmd_data_,
       sampling_time_data_,
       ctrl_latency_data_,
+      vibe_data_,
       dist_force_data_,
       obsv_fb_data_,
       mr_ctrl_fb_data_);
@@ -65,6 +66,7 @@ void FlightLogViewerWidget::reset()
   joint_commands_decoder_.clearCache();
   ice_cmd_decoder_.clearCache();
   latency_decoder_.clearCache();
+  vibe_decoder_.clearCache();
   wrench_decoder_.clearCache();
   obsv_fb_decoder_.clearCache();
   mr_ctrl_fb_decoder_.clearCache();
@@ -138,6 +140,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   ice_cmd_data_.clear();
   sampling_time_data_.clear();
   ctrl_latency_data_.clear();
+  vibe_data_.clear();
   dist_force_data_.clear();
   obsv_fb_data_.clear();
   mr_ctrl_fb_data_.clear();
@@ -203,6 +206,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
         ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
+        vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
         dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_msg));

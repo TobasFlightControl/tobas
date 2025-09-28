@@ -20,6 +20,7 @@
 #include "./plots/propeller_pitch_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/twist_plot.hpp"
+#include "./plots/vibration_level_plot.hpp"
 
 namespace gui
 {
@@ -52,6 +53,7 @@ public:
     const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
     const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
     const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
+    const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data,
     const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
     const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
     const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data);
@@ -76,6 +78,7 @@ private:
   const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data_;
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data_;
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
+  const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data_;
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data_;
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data_;
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data_;
@@ -95,6 +98,7 @@ private:
   JointVelocityPlotWidget* joint_vel_plot_;
   JointEffortPlotWidget* joint_eff_plot_;
   LatencyPlotWidget* latency_plot_;
+  VibrationLevelPlotWidget* vibe_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
   MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
