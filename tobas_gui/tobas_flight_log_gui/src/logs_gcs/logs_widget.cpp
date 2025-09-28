@@ -6,7 +6,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -36,12 +35,12 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 
   // Layout
   const auto cols = new QHBoxLayout();
+  cols->addWidget(new qt::Label("Ground Control Station", kPSize1, QFont::Bold));
+  cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
-  cols->addStretch();
 
   const auto rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Ground Control Station", kPSize1, QFont::Bold), rows);
   rows->addLayout(cols);
   rows->addWidget(log_list_);
 
