@@ -230,6 +230,7 @@ void HealthMonitorNode::mainTimerCb()
 
   // 制御スレッドのリアルタイム性
   // FIFOスケジューリングのシングルスレッドなのでIMUのサンプリング間隔だけで判定できる
+  // 通信環境が悪くノードグラフの構築に時間がかかっている場合にリアルタイム性が落ちることがあるため確認必須
   if (do_check_.rt_violation) {
     if (sampling_time_) {
       if (cur_time - t_last_large_interval_ < kRTComplianceCheckTimeWindow) {
