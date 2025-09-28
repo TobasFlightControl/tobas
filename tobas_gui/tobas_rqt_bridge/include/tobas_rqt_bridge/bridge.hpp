@@ -30,8 +30,7 @@ Q_SIGNALS:
   void jointStatesReceived(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& msg);
   void odomReceived(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void armingReceived(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
-  void preArmCheckReceived(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& msg);
-  void postArmCheckReceived(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& msg);
+  void vehicleHealthReceived(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& msg);
   void rosbagStateReceived(const tobas_msgs::msg::RosbagState::ConstSharedPtr& msg);
   void localHeartbeatReceived(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& msg);
   void remoteHeartbeatReceived(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& msg);

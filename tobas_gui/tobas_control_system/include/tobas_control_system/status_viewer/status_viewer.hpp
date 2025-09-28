@@ -1,10 +1,9 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_rqt_bridge/bridge.hpp>
 
-#include "./other_status_viewer.hpp"
-#include "./postarm_check_viewer.hpp"
-#include "./prearm_check_viewer.hpp"
+#include "./status.hpp"
 
 namespace gui
 {
@@ -17,17 +16,34 @@ class StatusViewerWidget : public qt::ScrollArea
   using self = StatusViewerWidget;
   using super = qt::ScrollArea;
 
-  static constexpr int kLabelPSize = 18;
-
 public:
   explicit StatusViewerWidget(const RosQtBridge& bridge);
 
   void reset();
 
 private:
-  PreArmCheckViewerWidget* prearm_check_viewer_;
-  PostArmCheckViewerWidget* postarm_check_viewer_;
-  OtherStatusViewerWidget* other_status_viewer_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+
+  StatusWidget* rt_compliance_status_;
+  StatusWidget* battery_voltage_status_;
+  StatusWidget* cpu_temp_status_;
+  StatusWidget* rotor_comm_status_;
+  StatusWidget* level_atti_status_;
+  StatusWidget* pos_stability_status_;
+  StatusWidget* pos_accuracy_status_;
+  StatusWidget* vel_accuracy_status_;
+  StatusWidget* atti_accuracy_status_;
+  StatusWidget* head_accuracy_status_;
+  StatusWidget* mag_offset_status_;
+  StatusWidget* mag_alignment_status_;
+  StatusWidget* vibration_level_status_;
+
+  StatusWidget* ready_arm_status_;
+  StatusWidget* armed_status_;
+
+private Q_SLOTS:
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
 };
 }  // namespace ctrl
 }  // namespace gui

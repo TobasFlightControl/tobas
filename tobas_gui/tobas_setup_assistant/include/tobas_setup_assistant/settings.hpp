@@ -8,10 +8,10 @@
 #include "./setting_tabs/author_information.hpp"
 #include "./setting_tabs/controller/controller.hpp"
 #include "./setting_tabs/extra_joints.hpp"
+#include "./setting_tabs/failsafe.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
 #include "./setting_tabs/observer.hpp"
-#include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
 #include "./setting_tabs/remote_connection/remote_connection.hpp"
@@ -37,7 +37,7 @@ public:
   ObserverWidget* observer;
   RcInputWidget* rc_input;
   ExtraJointsWidget* extra_joints;
-  PreArmCheckWidget* pre_arm_check;
+  FailsafeWidget* failsafe;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
 

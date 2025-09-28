@@ -463,7 +463,7 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateDroneConfig()) {
     return false;
   }
-  if (!generatePreArmCheckConfig()) {
+  if (!generateHealthMonitorConfig()) {
     return false;
   }
   if (!generateObserverStaticConfig()) {
@@ -604,22 +604,25 @@ bool ProjectGenerator::generateDroneConfig()
   return true;
 }
 
-bool ProjectGenerator::generatePreArmCheckConfig()
+bool ProjectGenerator::generateHealthMonitorConfig()
 {
   YAML::Node node(YAML::NodeType::Map);
-  node["check_node_connection"] = settings_->pre_arm_check->checkNodeConnection();
-  node["check_battery_voltage"] = settings_->pre_arm_check->checkBatteryVoltage();
-  node["check_cpu_temperature"] = settings_->pre_arm_check->checkCPUTemperature();
-  node["check_rotor_communication"] = settings_->pre_arm_check->checkRotorCommunication();
-  node["check_attitude_level"] = settings_->pre_arm_check->checkAttitudeLevel();
-  node["check_position_stability"] = settings_->pre_arm_check->checkPositionStability();
-  node["check_position_accuracy"] = settings_->pre_arm_check->checkPositionAccuracy();
-  node["check_velocity_accuracy"] = settings_->pre_arm_check->checkVelocityAccuracy();
-  node["check_attitude_accuracy"] = settings_->pre_arm_check->checkAttitudeAccuracy();
-  node["check_heading_accuracy"] = settings_->pre_arm_check->checkHeadingAccuracy();
+  node["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
+  node["check_battery_voltage"] = settings_->failsafe->checkBatteryVoltage();
+  node["check_cpu_temperature"] = settings_->failsafe->checkCpuTemperature();
+  node["check_rotor_communication"] = settings_->failsafe->checkRotorCommunication();
+  node["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
+  node["check_position_stability"] = settings_->failsafe->checkPositionStability();
+  node["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();
+  node["check_velocity_accuracy"] = settings_->failsafe->checkVelocityAccuracy();
+  node["check_attitude_accuracy"] = settings_->failsafe->checkAttitudeAccuracy();
+  node["check_heading_accuracy"] = settings_->failsafe->checkHeadingAccuracy();
+  node["check_mag_offset"] = settings_->failsafe->checkMagOffset();
+  node["check_mag_alignment"] = settings_->failsafe->checkMagAlignment();
+  node["check_vibration_level"] = settings_->failsafe->checkVibrationLevel();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node)) {
+  if (!saveYamlNode(config_dir / "health_monitor.yaml", node)) {
     return false;
   }
 

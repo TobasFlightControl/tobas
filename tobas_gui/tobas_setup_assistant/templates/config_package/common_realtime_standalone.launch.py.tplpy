@@ -185,20 +185,10 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_state_checker",
-            executable="pre_arm_checker",
+            package="tobas_health_monitor",
+            executable="health_monitor",
             namespace=DRONE_NAME,
             parameters=[],  # TODO
-            remappings=odom_remap,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_state_checker",
-            executable="post_arm_checker",
-            namespace=DRONE_NAME,
             remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,

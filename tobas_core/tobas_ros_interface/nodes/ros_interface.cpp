@@ -36,14 +36,13 @@
 #include <tobas_msgs/msg/magnetic_field.hpp>
 #include <tobas_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/odometry.hpp>
-#include <tobas_msgs/msg/post_arm_check.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
@@ -133,8 +132,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
     tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
   addTopicLogicToIface<tobas_msgs::msg::Odometry>(tobas::addThrotNS(tobas::kOdometryTopic), tobas::kOdometryTopic);
   addTopicLogicToIface<tobas_msgs::msg::Arming>(tobas::kArmingTopic, tobas::kArmingTopic);
-  addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLogicToIface<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic, tobas::kPostArmCheckTopic);
+  addTopicLogicToIface<tobas_msgs::msg::VehicleHealth>(tobas::kVehicleHealthTopic, tobas::kVehicleHealthTopic);
   addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(real::kImuRawTopic), real::kImuRawTopic);
   addTopicLogicToIface<tobas_msgs::msg::MagneticField>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);

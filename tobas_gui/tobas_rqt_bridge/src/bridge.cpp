@@ -35,8 +35,7 @@ void RosQtBridge::initializeScopedTopics(const std::string& ns)
   addScoped<tobas_msgs::msg::JointStateArray, &self::jointStatesReceived>(ns, path::join(rm, kJointStatesTopic));
   addScoped<tobas_msgs::Odometry, &self::odomReceived>(ns, path::join(rm, kOdometryTopic));
   addScoped<tobas_msgs::msg::Arming, &self::armingReceived>(ns, path::join(rm, kArmingTopic));
-  addScoped<tobas_msgs::msg::PreArmCheck, &self::preArmCheckReceived>(ns, path::join(rm, kPreArmCheckTopic));
-  addScoped<tobas_msgs::msg::PostArmCheck, &self::postArmCheckReceived>(ns, path::join(rm, kPostArmCheckTopic));
+  addScoped<tobas_msgs::msg::VehicleHealth, &self::vehicleHealthReceived>(ns, path::join(rm, kVehicleHealthTopic));
   addScoped<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, path::join(rm, kRosbagStateTopic));
   addScoped<tobas_msgs::msg::Heartbeat, &self::remoteHeartbeatReceived>(ns, kHeartbeatTopic);
   addScoped<tobas_msgs::Imu, &self::rawImuReceived>(ns, path::join(rm, real::kImuRawTopic));

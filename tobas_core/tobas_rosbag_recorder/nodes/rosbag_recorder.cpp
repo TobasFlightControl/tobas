@@ -24,14 +24,13 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/message.hpp>
-#include <tobas_msgs/msg/post_arm_check.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
@@ -160,8 +159,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kImuSamplingTimeTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
   addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
-  addStandardMsgSub<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic);
-  addStandardMsgSub<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic);
+  addStandardMsgSub<tobas_msgs::msg::VehicleHealth>(tobas::kVehicleHealthTopic);
   addTypeAdaptedMsgSub<tobas_msgs::VibrationLevel>(vibe_, tobas::kVibrationLevelTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);

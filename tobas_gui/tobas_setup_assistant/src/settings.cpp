@@ -25,7 +25,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   observer = new ObserverWidget();
   rc_input = new RcInputWidget();
   extra_joints = new ExtraJointsWidget(uadf, tree);
-  pre_arm_check = new PreArmCheckWidget();
+  failsafe = new FailsafeWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
 
@@ -46,7 +46,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   addEntry(additional_list_, observer);
   addEntry(additional_list_, rc_input);
   addEntry(additional_list_, extra_joints);
-  addEntry(additional_list_, pre_arm_check);
+  addEntry(additional_list_, failsafe);
   addEntry(additional_list_, simulation);
   addEntry(additional_list_, author_info);
 

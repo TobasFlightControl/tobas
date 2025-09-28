@@ -1,6 +1,0 @@
-std_msgs/Header header
-
-bool vibration_too_high
-bool mag_offset_too_large
-bool mag_misalignment
-bool latency_too_large

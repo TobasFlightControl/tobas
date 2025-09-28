@@ -10,7 +10,7 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
@@ -76,7 +76,7 @@ private:
   rclcpp::Time t_disarm_start_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
+  tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
 
   // Controllers
@@ -85,7 +85,7 @@ private:
   // PubSub
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
@@ -107,7 +107,7 @@ private:
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
@@ -121,7 +121,7 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::no
 
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
+  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::healthCb, this);
   rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
 
@@ -319,9 +319,9 @@ void RCTeleopNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& armin
   arming_ = arming;
 }
 
-void RCTeleopNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
+void RCTeleopNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
-  prearm_check_ = prearm_check;
+  health_ = health;
 }
 
 void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
@@ -341,8 +341,8 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for arming status.");
         break;
       }
-      if (!prearm_check_) {
-        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Warting for pre-arm check status.");
+      if (!health_) {
+        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Warting for vehicle health status.");
         break;
       }
       if (!landed_) {
@@ -393,7 +393,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           break;
         }
 
-        if (!prearm_check_->ok) {
+        if (!health_->ok) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot arm because pre-arm check failed.");
           t_arm_start_ = rcin->header.stamp;
           break;

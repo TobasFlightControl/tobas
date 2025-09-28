@@ -9,9 +9,9 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
 /* 推進系の目標推力を実現する． */
@@ -27,7 +27,7 @@ public:
 
 private:
   tobas::Drone::ConstSharedPtr drone_;
-  tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
+  tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
 
   bool is_armed_ = false;
 
@@ -37,7 +37,7 @@ private:
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
 
   ros2::ServiceServerPtr<SetArm> set_arm_ss_;
 
@@ -48,7 +48,7 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg);
-  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
 
   void setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res);
 
@@ -64,7 +64,7 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tar_thrusts_sub_ = createSubscriber(tobas::kRotorThrustsCmdTopic, &self::thrustsCmdCb, this);
-  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
+  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::healthCb, this);
 
   set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
 
@@ -193,21 +193,21 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
   auto_disarm_timer_->reset();
 }
 
-void RotorControllerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
+void RotorControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
-  prearm_check_ = prearm_check;
+  health_ = health;
 }
 
 void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res)
 {
   if (!is_armed_ && req->arming) {
-    if (!prearm_check_) {
+    if (!health_) {
       res->success = false;
-      res->message = "Pre-arm check status is not received yet.";
+      res->message = "Vehicle health status is not received yet.";
       return;
     }
 
-    if (!prearm_check_->ok) {
+    if (!health_->ok) {
       res->success = false;
       res->message = "Pre-arm check failed.";
       return;
