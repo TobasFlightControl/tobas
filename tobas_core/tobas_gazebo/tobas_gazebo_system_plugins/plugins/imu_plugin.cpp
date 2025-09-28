@@ -9,6 +9,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_gazebo_msgs/msg/engine_state.hpp>
 #include <tobas_gazebo_msgs/msg/imu_debug.hpp>
@@ -95,6 +96,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
   ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
+  tobas::ImuSamplingTimePublisher sampling_time_pub_;
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::EngineState> engine_state_sub_;
   std::vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
@@ -152,6 +154,7 @@ void GazeboImuPlugin::Configure(
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugTopic);
+  sampling_time_pub_.initialize(node_, node_->now());
 
   engine_state_sub_ = createSubscriber(kEngineStateGtTopic, &self::engineStateCb, this);
 
@@ -227,9 +230,13 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
     return;
   }
 
+  // Get current time
+  builtin_interfaces::msg::Time cur_time;
+  ros2::timeChronoToMsg(info.simTime, cur_time);
+
   // Publish raw IMU message
   auto imu_raw_msg = std::make_unique<tobas_msgs::Imu>();
-  ros2::timeChronoToMsg(info.simTime, imu_raw_msg->header.stamp);
+  imu_raw_msg->header.stamp = cur_time;
   imu_raw_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(acc_meas, imu_raw_msg->accel);
   vectorGazeboToKDL(gyro_meas, imu_raw_msg->gyro);
@@ -239,7 +246,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   // Publish filtered IMU message
   if (lpf_initialized_) {
     auto imu_filt_msg = std::make_unique<tobas_msgs::Imu>();
-    ros2::timeChronoToMsg(info.simTime, imu_filt_msg->header.stamp);
+    imu_filt_msg->header.stamp = cur_time;
     imu_filt_msg->header.frame_id = link_name_;
     vectorGazeboToKDL(acc_lpf_.getValue(), imu_filt_msg->accel);
     vectorGazeboToKDL(gyro_lpf_.getValue(), imu_filt_msg->gyro);
@@ -247,9 +254,12 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
     imu_filt_pub_->publish(std::move(imu_filt_msg));
   }
 
+  // Publish sampling time
+  sampling_time_pub_.publish(cur_time);
+
   // Publish debug message
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
-  ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
+  debug_msg->header.stamp = cur_time;
   debug_msg->header.frame_id = link_name_;
   vectorGazeboToRos(acc_bias_, debug_msg->acc_bias);
   vectorGazeboToRos(gyro_bias_, debug_msg->gyro_bias);
