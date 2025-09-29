@@ -13,7 +13,6 @@ CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
-GROUND_TRUTH = "ground_truth"
 
 
 def generate_launch_description():
@@ -23,13 +22,11 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
-    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
-    ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
 
@@ -42,7 +39,6 @@ def generate_launch_description():
             "log_level": log_level,
             "output": output,
             "use_sim_time": use_sim_time,
-            "ground_truth": ground_truth,
         }.items(),
     )
     # ld.add_action(common_launch)  # FIXME: 通信遅延と大量の通信に係る負荷が課題

@@ -9,7 +9,7 @@ NAMESPACE = "namespace"
 
 def generate_launch_description():
     pkg_name = "tobas_t1_ros"
-    extra_arguments = [{"use_intra_process_comms": True}]
+    extra_args = [{"use_intra_process_comms": True}]
 
     ld = LaunchDescription()
 
@@ -25,19 +25,19 @@ def generate_launch_description():
                     package=pkg_name,
                     plugin="ImuDriverNode",
                     namespace=ns,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="DShotDriverNode",
                     namespace=ns,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="PwmDriverNode",
                     namespace=ns,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
             ],
         )
@@ -52,25 +52,25 @@ def generate_launch_description():
                     package=pkg_name,
                     plugin="MagDriverNode",
                     namespace=ns,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="BaroDriverNode",
                     namespace=ns,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="GnssDriverNode",
                     namespace=ns,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=pkg_name,
                     plugin="BatteryDriverNode",
                     namespace=ns,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
             ],
         )

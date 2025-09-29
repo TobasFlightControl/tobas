@@ -18,7 +18,6 @@ CONTROLLER_PLUGIN = "{{ controller_plugin }}"
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
-GROUND_TRUTH = "ground_truth"
 MULTIPROCESS = "multiprocess"
 
 
@@ -29,14 +28,12 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
-    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
     ld.add_action(DeclareLaunchArgument(MULTIPROCESS, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
-    ground_truth = LaunchConfiguration(GROUND_TRUTH)
     multiprocess = LaunchConfiguration(MULTIPROCESS)
 
     # Set common parameters
@@ -46,10 +43,8 @@ def generate_launch_description():
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
 
-    odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
     tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
-
-    extra_arguments = [{"use_intra_process_comms": True}]
+    extra_args = [{"use_intra_process_comms": True}]
 
     # Launch component containers
     ld.add_action(
@@ -86,7 +81,7 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
                     ],
                     remappings=tf_remap,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=CONTROLLER_PKG,
@@ -97,20 +92,19 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "controller_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
                     ],
-                    remappings=odom_remap,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_rotor_controller",
                     plugin="RotorControllerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_disturbance_observer",
                     plugin="DisturbanceObserverNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
             ],
         )
@@ -129,29 +123,28 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
                     ],
-                    remappings=odom_remap,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_manipulation",
                     plugin="PositionControllerNode",
                     namespace=DRONE_NAME,
-                    remappings=odom_remap + tf_remap,
-                    extra_arguments=extra_arguments,
+                    remappings=tf_remap,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_manipulation",
                     plugin="VelocityControllerNode",
                     namespace=DRONE_NAME,
-                    remappings=odom_remap + tf_remap,
-                    extra_arguments=extra_arguments,
+                    remappings=tf_remap,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_manipulation",
                     plugin="EffortControllerNode",
                     namespace=DRONE_NAME,
-                    remappings=odom_remap + tf_remap,
-                    extra_arguments=extra_arguments,
+                    remappings=tf_remap,
+                    extra_arguments=extra_args,
                 ),
             ],
         )
@@ -166,7 +159,7 @@ def generate_launch_description():
                     package="tobas_tree_server",
                     plugin="TreeServerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_drone_server",
@@ -177,59 +170,57 @@ def generate_launch_description():
                             "tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"]),
                         }
                     ],
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_rosbag_recorder",
                     plugin="RosbagRecorderNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_config_servers",
                     plugin="ImuFilterConfigServer",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"])],
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_health_monitor",
                     plugin="HealthMonitorNode",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "health_monitor.yaml"])],
-                    remappings=odom_remap,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_landing_detection",
                     plugin="LandingDetectorNode",
                     namespace=DRONE_NAME,
-                    remappings=odom_remap,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_rotor_anomaly_detection",
                     plugin="RotorAnomalyDetectorNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_vibration_filter",
                     plugin="VibrationFilterNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_joint_states_bridge",
                     plugin="JointStatesBridgeNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_topic_throttle",
                     plugin="TopicThrottleNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
+                    extra_arguments=extra_args,
                 ),
             ],
         )
