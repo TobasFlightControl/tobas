@@ -711,7 +711,7 @@ void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
 
   // Create TF message
   tf_.header.stamp = odom->header.stamp;
-  transformKDLToMsg(odom->frame, tf_.transform);
+  kdl::transformKDLToMsg(odom->frame, tf_.transform);
 
   // Publish odometry and TF
   odom_pub_->publish(std::move(odom));
