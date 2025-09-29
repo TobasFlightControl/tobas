@@ -17,6 +17,7 @@ ControlSystemWidget::ControlSystemWidget(
   pose_viewer_ = new PoseViewerWidget(bridge);
   power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
   cpu_viewer_ = new CpuViewerWidget(bridge);
+  gnss_viewer_ = new GnssViewerWidget(bridge);
   rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
   rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
   console_ = new ConsoleWidget(bridge);
@@ -25,8 +26,9 @@ ControlSystemWidget::ControlSystemWidget(
 
   // Layout
   const auto cols3 = new QHBoxLayout();
-  cols3->addWidget(power_source_viewer_, 1);
-  cols3->addWidget(cpu_viewer_, 1);
+  cols3->addWidget(power_source_viewer_, 2);
+  cols3->addWidget(cpu_viewer_, 2);
+  cols3->addWidget(gnss_viewer_, 1);
 
   const auto rows2 = new QVBoxLayout();
   rows2->addLayout(cols3, 0);

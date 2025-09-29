@@ -2,6 +2,7 @@
 
 #include "./console.hpp"
 #include "./cpu_viewer.hpp"
+#include "./gnss_viewer.hpp"
 #include "./mission_planner/mission_planner.hpp"
 #include "./pose_viewer.hpp"
 #include "./power_source_viewer/power_source_viewer.hpp"
@@ -29,6 +30,7 @@ private:
   PoseViewerWidget* pose_viewer_;
   PowerSourceViewerWidget* power_source_viewer_;
   CpuViewerWidget* cpu_viewer_;
+  GnssViewerWidget* gnss_viewer_;
   rcin::RCInputViewerWidget* rcin_viewer_;
   RotorsViewerWiddget* rotors_viewer_;
   ConsoleWidget* console_;
