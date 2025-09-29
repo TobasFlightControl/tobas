@@ -39,6 +39,7 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   using BaroMsg = tobas_msgs::msg::FluidPressure;
   using GnssMsg = tobas_msgs::Gnss;
   using OdomMsg = tobas_msgs::Odometry;
+  using MagRefMsg = tobas_msgs::MagneticField;
   using GnssOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
   using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
 
@@ -118,6 +119,7 @@ private:
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
+  ros2::PublisherPtr<MagRefMsg> mag_ref_pub_;
   ros2::PublisherPtr<GnssOriginMsg> gnss_origin_pub_;
   ros2::PublisherPtr<FeedbackMsg> feedback_pub_;
 
@@ -139,7 +141,8 @@ private:
   void getStaticRosParams();
   bool setMagneticFieldRef(const Vector3d& mag_W);
   void fillOdometryMsg(OdomMsg& odom) const;
-  void publishGNSSOrigin() const;
+  void publishMagRef(const Vector3d& mag_W) const;
+  void publishGnssOrigin(double lat, double lon, double alt) const;
   void publishFeedback(const std_msgs::msg::Header& header) const;
   double calcGravMeasNoiseStddev(const Vector3d& acc) const;
   Matrix3d calcGravMeasNoiseCov(const Vector3d& acc) const;
@@ -246,6 +249,7 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
 
   // Register publishers
   odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
+  mag_ref_pub_ = createPublisher<MagRefMsg>(tobas::kMagRefTopic, true, true);
   gnss_origin_pub_ = createPublisher<GnssOriginMsg>(tobas::kGnssOriginTopic, true, true);
   feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObsvFeedbackTopic);
 
@@ -333,6 +337,9 @@ bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
     }
   }
 
+  // 地磁気の参照値を発行
+  publishMagRef(mag_W);
+
   TOBAS_INFO("Reference magnetic field is set to be: ", mag_W.transpose());
   mag_ref_set_ = true;
 
@@ -384,16 +391,26 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
   odom.accel.angular = imu_filt_->dgyro;
 }
 
-void ErrorStateKalmanFilterNode::publishGNSSOrigin() const
+void ErrorStateKalmanFilterNode::publishMagRef(const Vector3d& mag_W) const
 {
-  auto gnss_origin = std::make_unique<GnssOriginMsg>();
+  auto msg = std::make_unique<MagRefMsg>();
 
-  gnss_origin->header.stamp = now();
-  gnss_origin->latitude = lat_0_;
-  gnss_origin->longitude = lon_0_;
-  gnss_origin->altitude = alt_0_;
+  msg->header.stamp = now();
+  msg->mag = mag_W;
 
-  gnss_origin_pub_->publish(std::move(gnss_origin));
+  mag_ref_pub_->publish(std::move(msg));
+}
+
+void ErrorStateKalmanFilterNode::publishGnssOrigin(double lat, double lon, double alt) const
+{
+  auto msg = std::make_unique<GnssOriginMsg>();
+
+  msg->header.stamp = now();
+  msg->latitude = lat;
+  msg->longitude = lon;
+  msg->altitude = alt;
+
+  gnss_origin_pub_->publish(std::move(msg));
 }
 
 void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& header) const
@@ -788,7 +805,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     alt_0_ = gnss->altitude;
 
     // GNSSの初期位置を発行
-    publishGNSSOrigin();
+    publishGnssOrigin(lat_0_, lon_0_, alt_0_);
 
     // GNSSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
@@ -853,7 +870,7 @@ void ErrorStateKalmanFilterNode::setGnssOriginCb(
   lat_0_ = req->latitude;
   lon_0_ = req->longitude;
 
-  publishGNSSOrigin();
+  publishGnssOrigin(lat_0_, lon_0_, alt_0_);
 
   res->success = true;
   res->message.clear();
