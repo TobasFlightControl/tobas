@@ -489,7 +489,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
 {
   // Create message
   auto message = std::make_unique<tobas_msgs::msg::Message>();
-  message->header.stamp = get_clock()->now();
+  message->header.stamp = now();
   message->level = level;
   message->name = get_name();
   message->message = tobas_std::buildString(args...);
@@ -516,17 +516,17 @@ template <typename... Args>
 void BaseNode::logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args)
 {
   const auto id = createID(file, line);
-  const auto now = get_clock()->now();
+  const auto cur_time = now();
   auto it = log_throttle_.find(id);
   if (it == log_throttle_.end()) {
     log(level, args...);
-    log_throttle_[id] = now;
+    log_throttle_[id] = cur_time;
   }
   else {
-    const auto diff = (now - it->second).seconds();
+    const auto diff = (cur_time - it->second).seconds();
     if (diff > period) {
       log(level, args...);
-      it->second = now;
+      it->second = cur_time;
     }
   }
 }

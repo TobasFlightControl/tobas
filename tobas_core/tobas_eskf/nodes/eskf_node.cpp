@@ -388,7 +388,7 @@ void ErrorStateKalmanFilterNode::publishGNSSOrigin() const
 {
   auto gnss_origin = std::make_unique<GnssOriginMsg>();
 
-  gnss_origin->header.stamp = get_clock()->now();
+  gnss_origin->header.stamp = now();
   gnss_origin->latitude = lat_0_;
   gnss_origin->longitude = lon_0_;
   gnss_origin->altitude = alt_0_;

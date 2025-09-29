@@ -63,7 +63,7 @@ void BatteryDriverNode::mainTimerCb()
 
   // Publish message
   auto msg = std::make_unique<tobas_msgs::msg::Battery>();
-  msg->header.stamp = get_clock()->now();
+  msg->header.stamp = now();
   msg->voltage = static_cast<double>(voltage_);
   msg->current = static_cast<double>(current_);
   battery_pub_->publish(move(msg));

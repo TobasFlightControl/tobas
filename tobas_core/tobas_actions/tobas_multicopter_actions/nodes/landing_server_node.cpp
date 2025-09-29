@@ -126,7 +126,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   }
 
   // 初期状態を取得
-  const auto start_time = get_clock()->now();
+  const auto start_time = now();
   const auto start_pos = odom_->frame.p.clone();
   const kdl::Euler start_rpy(odom_->frame.M);
 
@@ -157,7 +157,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     }
 
     // 現在時刻における目標位置姿勢を計算
-    const auto cur_time = get_clock()->now();
+    const auto cur_time = now();
     const auto dt = (cur_time - start_time).seconds();
     const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), start_pos.z() - kVerticalSpeed * dt);
     kdl::Vector tar_vel(0., 0., -kVerticalSpeed);

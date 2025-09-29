@@ -65,7 +65,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
   if (rotor_states_.size() == drone_->prop->numRotors()) {
     // Publish rotor states
     auto rotor_states_msg = std::make_unique<tobas_msgs::msg::RotorStateArray>();
-    rotor_states_msg->header.stamp = get_clock()->now();
+    rotor_states_msg->header.stamp = now();
     for (const auto& [_, state] : rotor_states_) {
       rotor_states_msg->states.push_back(state);
     }

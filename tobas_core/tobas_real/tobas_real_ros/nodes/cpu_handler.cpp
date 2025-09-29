@@ -145,7 +145,7 @@ void CpuHandlerNode::mainTimerCb()
 {
   // Create ROS message
   auto cpu_msg = std::make_unique<tobas_msgs::msg::Cpu>();
-  cpu_msg->header.stamp = get_clock()->now();
+  cpu_msg->header.stamp = now();
 
   // Get CPU temperature
   if (!getTemperature(cpu_msg->temperature)) {

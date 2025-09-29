@@ -256,11 +256,11 @@ void JointsHandlerNode::positionResetTimerCb()
 
   // Publish messages
   if (pwms->pwms.size() > 0) {
-    pwms->header.stamp = get_clock()->now();
+    pwms->header.stamp = now();
     pwms_pub_->publish(move(pwms));
   }
   if (joint_states->states.size() > 0) {
-    joint_states->header.stamp = get_clock()->now();
+    joint_states->header.stamp = now();
     joint_states_pub_->publish(move(joint_states));
   }
 

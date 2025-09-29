@@ -200,7 +200,7 @@ void RotorTestWidget::publishTargetSppeds()
   }
 
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
-  tar_speeds->header.stamp = node_->get_clock()->now();
+  tar_speeds->header.stamp = node_->now();
 
   for (const auto& [link_name, _] : drone_.prop->rotors) {
     const auto erotor = eprop_->getRotor(link_name);

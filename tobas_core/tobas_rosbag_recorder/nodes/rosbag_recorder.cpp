@@ -184,17 +184,17 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
 
 void RosbagRecorderNode::publishRosbagState()
 {
-  const auto now = get_clock()->now();
+  const auto cur_time = now();
 
   auto rosbag_state = std::make_unique<tobas_msgs::msg::RosbagState>();
-  rosbag_state->header.stamp = now;
+  rosbag_state->header.stamp = cur_time;
   rosbag_state->recording = recording_;
 
   if (recording_) {
     const auto file_size = path::computeDirectorySize(file_path_);
 
     rosbag_state->file_path = file_path_;
-    rosbag_state->duration = now - start_time_;
+    rosbag_state->duration = cur_time - start_time_;
     rosbag_state->file_size = file_size;
     rosbag_state->message_count = msg_cnt_;
 
@@ -225,7 +225,7 @@ template <typename MsgType>
 inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
 {
   try {
-    writer_.write(msg, ns_ + topic, get_clock()->now());
+    writer_.write(msg, ns_ + topic, now());
   }
   catch (const std::exception& e) {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
@@ -340,7 +340,7 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   }
 
   recording_ = true;
-  start_time_ = get_clock()->now();
+  start_time_ = now();
   msg_cnt_ = 0;
 
   TOBAS_INFO("Rosbag recording has started.");

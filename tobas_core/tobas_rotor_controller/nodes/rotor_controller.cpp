@@ -75,7 +75,7 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
 void RotorControllerNode::publishArming()
 {
   auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
-  arming_msg->header.stamp = get_clock()->now();
+  arming_msg->header.stamp = now();
   arming_msg->data = is_armed_;
   arming_pub_->publish(move(arming_msg));
 }

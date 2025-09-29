@@ -139,7 +139,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
 
 void LandingDetectorNode::publishTimerCb()
 {
-  publishLandedState(get_clock()->now());
+  publishLandedState(now());
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(LandingDetectorNode)

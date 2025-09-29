@@ -105,7 +105,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
 void JointStatePublisherWidget::publish()
 {
-  js_.header.stamp = node_->get_clock()->now();
+  js_.header.stamp = node_->now();
 
   auto js = make_unique<sensor_msgs::msg::JointState>(js_);
   js_pub_->publish(std::move(js));

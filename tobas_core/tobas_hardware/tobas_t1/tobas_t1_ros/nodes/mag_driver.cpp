@@ -51,7 +51,7 @@ void MagDriverNode::mainTimerCb()
   auto msg = std::make_unique<tobas_msgs::MagneticField>();
 
   // Fill headers
-  msg->header.stamp = get_clock()->now();
+  msg->header.stamp = now();
 
   // Read sensor
   if (!mag_.readMag(msg->mag.x(), msg->mag.y(), msg->mag.z())) {

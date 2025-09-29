@@ -129,7 +129,7 @@ void ImuDriverNode::initializeTimerCb()
 
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuRawTopic);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuFiltTopic);
-  sampling_time_pub_.initialize(shared_from_this(), get_clock()->now());
+  sampling_time_pub_.initialize(shared_from_this(), now());
 
   config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
     tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
@@ -137,13 +137,13 @@ void ImuDriverNode::initializeTimerCb()
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 
-  t_prev_ = get_clock()->now();
+  t_prev_ = now();
 }
 
 void ImuDriverNode::mainTimerCb()
 {
   // Get current time
-  const auto now = get_clock()->now();
+  const auto cur_time = now();
 
   // Read IMU data
   if (!imu_.readAccel(acc_raw_.x(), acc_raw_.y(), acc_raw_.z())) {
@@ -156,8 +156,8 @@ void ImuDriverNode::mainTimerCb()
   }
 
   // Compute time difference
-  const auto dt = (now - t_prev_).seconds();  // [s]
-  t_prev_ = now;
+  const auto dt = (cur_time - t_prev_).seconds();  // [s]
+  t_prev_ = cur_time;
 
   // Compute D-Gyro
   const auto dgyro_raw = (gyro_raw_ - prev_gyro_raw_) / dt;
@@ -174,7 +174,7 @@ void ImuDriverNode::mainTimerCb()
   if (pub_switch_) {
     // Publish raw IMU message
     auto imu_raw = std::make_unique<tobas_msgs::Imu>();
-    imu_raw->header.stamp = now;
+    imu_raw->header.stamp = cur_time;
     imu_raw->accel = acc_raw_;
     imu_raw->gyro = gyro_raw_;
     imu_raw->dgyro = dgyro_raw;
@@ -184,7 +184,7 @@ void ImuDriverNode::mainTimerCb()
     if (lpf_initialized_) {
       // Publish filtered IMU message
       auto imu_filt = std::make_unique<tobas_msgs::Imu>();
-      imu_filt->header.stamp = now;
+      imu_filt->header.stamp = cur_time;
       imu_filt->accel = acc_lpf_.getValue();
       imu_filt->gyro = gyro_lpf_.getValue();
       imu_filt->dgyro = dgyro_lpf_.getValue();
@@ -194,7 +194,7 @@ void ImuDriverNode::mainTimerCb()
   pub_switch_ = !pub_switch_;
 
   // Publish sampling time
-  sampling_time_pub_.publish(now);
+  sampling_time_pub_.publish(cur_time);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ImuDriverNode)

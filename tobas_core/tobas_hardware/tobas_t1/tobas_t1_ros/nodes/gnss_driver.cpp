@@ -218,7 +218,7 @@ void GnssDriverNode::mainTimerCb()
 
   // Fill time stamp
   // TODO: GNSS信号の遅延を測定
-  gnss_msg->header.stamp = get_clock()->now() - rclcpp::Duration::from_nanoseconds(80'000'000);
+  gnss_msg->header.stamp = now() - rclcpp::Duration::from_nanoseconds(80'000'000);
 
   // Fill fix type
   gnss_msg->fix_type = status_.gpsFix;

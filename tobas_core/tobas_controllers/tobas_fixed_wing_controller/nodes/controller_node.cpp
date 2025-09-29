@@ -279,7 +279,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, get_clock()->now())) {
+  if (!cmd_level_handler_.update(level.data, now())) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }

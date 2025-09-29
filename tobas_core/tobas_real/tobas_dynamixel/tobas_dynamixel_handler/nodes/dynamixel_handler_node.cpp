@@ -698,7 +698,7 @@ void DynamixelHandlerNode::mainTimerCb()
     return;
   }
 
-  publishCurrentStates(get_clock()->now());
+  publishCurrentStates(now());
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(DynamixelHandlerNode)

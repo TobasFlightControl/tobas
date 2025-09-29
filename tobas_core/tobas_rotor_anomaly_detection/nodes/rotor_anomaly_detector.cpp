@@ -59,7 +59,7 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
 void RotorAnomalyDetectorNode::publishRotorLiveliness()
 {
   auto rotor_liveliness = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
-  rotor_liveliness->header.stamp = get_clock()->now();
+  rotor_liveliness->header.stamp = now();
 
   for (const auto& [link_name, data] : data_) {
     rotor_liveliness->data.emplace_back();

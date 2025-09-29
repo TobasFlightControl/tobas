@@ -51,7 +51,7 @@ void BaroDriverNode::mainTimerCb()
   auto msg = std::make_unique<tobas_msgs::msg::FluidPressure>();
 
   // Fill headers
-  msg->header.stamp = get_clock()->now();
+  msg->header.stamp = now();
 
   // Read sensor
   if (!baro_.readPressure(msg->pressure)) {

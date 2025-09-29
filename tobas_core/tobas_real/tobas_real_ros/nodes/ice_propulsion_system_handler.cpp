@@ -103,7 +103,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
 
   // Publish command
   if (pwms->pwms.size() > 0) {
-    pwms->header.stamp = get_clock()->now();
+    pwms->header.stamp = now();
     pwms_pub_->publish(move(pwms));
   }
 }

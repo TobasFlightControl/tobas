@@ -91,7 +91,7 @@ bool DShotDriverNode::transferAndSleep()
 void DShotDriverNode::publishRotorStates()
 {
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
-  rotor_states->header.stamp = get_clock()->now();
+  rotor_states->header.stamp = now();
 
   for (const auto& [_, rotor] : eprop_->rotors) {
     const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);

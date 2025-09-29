@@ -171,7 +171,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   }
 
   // 初期状態を取得
-  const auto start_time = get_clock()->now();
+  const auto start_time = now();
   const auto start_pos = odom_->frame.p.clone();
   const kdl::Euler start_rpy(odom_->frame.M);
 
@@ -191,7 +191,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // 開始からの経過時間を計算
-    const auto cur_time = get_clock()->now();
+    const auto cur_time = now();
     const auto dt = (cur_time - start_time).seconds();
 
     // タイムアウトの確認

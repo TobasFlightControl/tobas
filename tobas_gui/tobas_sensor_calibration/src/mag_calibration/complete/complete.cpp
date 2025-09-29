@@ -463,7 +463,7 @@ void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoi
   auto removed_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto calibrated_points = std::make_unique<sensor_msgs::msg::PointCloud>();
 
-  const auto cur_time = node_->get_clock()->now();
+  const auto cur_time = node_->now();
   used_points->header.stamp = cur_time;
   removed_points->header.stamp = cur_time;
   calibrated_points->header.stamp = cur_time;
@@ -499,7 +499,7 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
   auto markers = std::make_unique<visualization_msgs::msg::MarkerArray>();
 
   visualization_msgs::msg::Marker marker;
-  marker.header.stamp = node_->get_clock()->now();
+  marker.header.stamp = node_->now();
   marker.header.frame_id = tobas::kWorldFrame;
   marker.id = 0;
   marker.type = visualization_msgs::msg::Marker::LINE_STRIP;

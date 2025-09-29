@@ -127,7 +127,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
 
   // Create joint positions command
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-  positions_msg->header.stamp = get_clock()->now();
+  positions_msg->header.stamp = now();
 
   // Joint space control or Task space control
   if (tar_js_) {

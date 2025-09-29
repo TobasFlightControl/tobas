@@ -41,7 +41,7 @@ FakeBatteryPublisherNode::FakeBatteryPublisherNode(const rclcpp::NodeOptions& op
 void FakeBatteryPublisherNode::timerCb()
 {
   auto batt_msg = std::make_unique<tobas_msgs::msg::Battery>();
-  batt_msg->header.stamp = get_clock()->now();
+  batt_msg->header.stamp = now();
   batt_msg->voltage = voltage_;
   batt_msg->current = current_;
 

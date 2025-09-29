@@ -41,7 +41,7 @@ FakeGNSSPublisherNode::FakeGNSSPublisherNode(const rclcpp::NodeOptions& options)
 void FakeGNSSPublisherNode::timerCb()
 {
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
-  gnss_msg->header.stamp = get_clock()->now();
+  gnss_msg->header.stamp = now();
   gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
   gnss_msg->latitude = 0.;
   gnss_msg->longitude = 0.;

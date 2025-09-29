@@ -90,9 +90,9 @@ void RotorMarkerPublisher::updateInternalDataStructures()
 void RotorMarkerPublisher::publishMarkers()
 {
   // Fill timestamps
-  const auto now = node_->get_clock()->now();
+  const auto cur_time = node_->now();
   for (auto& marker : markers_.markers) {
-    marker.header.stamp = now;
+    marker.header.stamp = cur_time;
   }
 
   // Publish markers
