@@ -26,16 +26,16 @@ class HealthMonitorNode : public tobas::BaseNode
   static constexpr auto kRTComplianceCheckTimeWindow = 5s;
   static constexpr double kPosDriftThresh = 1.;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
-  static constexpr double kCPUTempThresh = 80.;               // [degC]
-  static constexpr double kAttitudeThresh = M_PI / 12;        // [rad]
-  static constexpr double kHorPosStddevThresh = 1.;           // [m]
-  static constexpr double kVerPosStddevThresh = 2.;           // [m]
-  static constexpr double kVelStddevThresh = 0.3;             // [m/s]
-  static constexpr double kAttiStddevThresh = M_PI / 24;      // [rad]
-  static constexpr double kHeadStddevThresh = M_PI / 12;      // [rad]
-  static constexpr double kMagLengthErrorThresh = 0.2;        // [-]
-  static constexpr double kMagDeclinationThresh = M_PI / 12;  // [rad]
-  static constexpr double kVibrationLevelThresh = 10.;        // [m/s^2]
+  static constexpr double kCPUTempThresh = 80.;              // [degC]
+  static constexpr double kAttitudeThresh = M_PI / 12;       // [rad]
+  static constexpr double kHorPosStddevThresh = 1.;          // [m]
+  static constexpr double kVerPosStddevThresh = 2.;          // [m]
+  static constexpr double kVelStddevThresh = 0.3;            // [m/s]
+  static constexpr double kAttiStddevThresh = M_PI / 24;     // [rad]
+  static constexpr double kHeadStddevThresh = M_PI / 12;     // [rad]
+  static constexpr double kMagLengthErrorThresh = 0.2;       // [-]
+  static constexpr double kMagAlignErrorThresh = M_PI / 12;  // [rad]
+  static constexpr double kVibrationLevelThresh = 10.;       // [m/s^2]
 
   using self = HealthMonitorNode;
   using super = tobas::BaseNode;
@@ -71,6 +71,7 @@ private:
   tobas_msgs::msg::Latency::ConstSharedPtr sampling_time_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
+  tobas_msgs::MagneticField::ConstSharedPtr mag_ref_;
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
 
   rclcpp::Time t_last_large_interval_;
@@ -86,6 +87,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Latency> sampling_time_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
+  ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_ref_sub_;
   ros2::SubscriberPtr<tobas_msgs::VibrationLevel> vibe_sub_;
 
   ros2::TimerPtr main_timer_;
@@ -100,6 +102,7 @@ private:
   void samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
+  void magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref);
   void vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe);
 
   void mainTimerCb();
@@ -124,6 +127,7 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   sampling_time_sub_ = createSubscriber(tobas::kImuSamplingTimeTopic, &self::samplingTimeCb, this);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
+  mag_ref_sub_ = createSubscriber(tobas::kMagRefTopic, &self::magRefCb, this);
   vibe_sub_ = createSubscriber(tobas::kVibrationLevelTopic, &self::vibrationLevelCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
@@ -204,6 +208,11 @@ void HealthMonitorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
 {
   mag_ = mag;
+}
+
+void HealthMonitorNode::magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref)
+{
+  mag_ref_ = mag_ref;
 }
 
 void HealthMonitorNode::vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe)
@@ -457,8 +466,13 @@ void HealthMonitorNode::mainTimerCb()
 
   // 世界座標系から見た地磁気ベクトルが参照と一致するか
   if (do_check_.mag_misalignment) {
-    if (mag_) {
-      // TODO: ESKFから参照地磁気ベクトルを発行して評価
+    if (odom_ && mag_ && mag_ref_) {
+      const auto mag_W = odom_->frame.M * mag_->mag;
+      const auto align_error = mag_W.argument(mag_ref_->mag);  // [rad]
+      if (align_error > kMagAlignErrorThresh) {
+        health->mag_misalignment = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->ok = false;
+      }
     }
     else {
       health->mag_misalignment = tobas_msgs::msg::VehicleHealth::UNKNOWN;
