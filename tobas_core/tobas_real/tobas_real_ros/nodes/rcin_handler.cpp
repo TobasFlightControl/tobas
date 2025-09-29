@@ -221,7 +221,7 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
   }
 
   // Publish message
-  rcin_pub_->publish(move(rcin_msg));
+  rcin_pub_->publish(std::move(rcin_msg));
 }
 
 void RCInputHandlerNode::setParamsCb(

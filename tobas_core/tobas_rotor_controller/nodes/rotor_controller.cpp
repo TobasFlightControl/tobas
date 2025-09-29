@@ -77,7 +77,7 @@ void RotorControllerNode::publishArming()
   auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
   arming_msg->header.stamp = now();
   arming_msg->data = is_armed_;
-  arming_pub_->publish(move(arming_msg));
+  arming_pub_->publish(std::move(arming_msg));
 }
 
 void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -128,7 +128,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       }
 
       // Publish target speeds
-      rotor_speeds_pub_->publish(move(tar_speeds_msg));
+      rotor_speeds_pub_->publish(std::move(tar_speeds_msg));
 
       break;
     }
@@ -179,7 +179,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       }
 
       // コマンドを発行
-      ice_cmd_pub_->publish(move(ice_cmd_msg));
+      ice_cmd_pub_->publish(std::move(ice_cmd_msg));
 
       break;
     }

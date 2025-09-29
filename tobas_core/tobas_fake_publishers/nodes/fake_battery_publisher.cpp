@@ -45,7 +45,7 @@ void FakeBatteryPublisherNode::timerCb()
   batt_msg->voltage = voltage_;
   batt_msg->current = current_;
 
-  batt_pub_->publish(move(batt_msg));
+  batt_pub_->publish(std::move(batt_msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(FakeBatteryPublisherNode)

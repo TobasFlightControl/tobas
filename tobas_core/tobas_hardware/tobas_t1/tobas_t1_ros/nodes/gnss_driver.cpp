@@ -254,7 +254,7 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
 
   // Publish GNSS message
-  gnss_pub_->publish(move(gnss_msg));
+  gnss_pub_->publish(std::move(gnss_msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(GnssDriverNode)

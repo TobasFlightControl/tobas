@@ -55,7 +55,7 @@ void SbusDriverNode::onPacket(const tobas::SBUS::Packet& packet)
   sbus_msg->data = packet.periods;
 
   // Publish message
-  sbus_pub_->publish(move(sbus_msg));
+  sbus_pub_->publish(std::move(sbus_msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(SbusDriverNode)

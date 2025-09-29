@@ -31,7 +31,7 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
 void DroneServerNode::publishDrone()
 {
   auto drone_msg = std::make_unique<tobas::Drone>(drone_);
-  drone_pub_->publish(move(drone_msg));
+  drone_pub_->publish(std::move(drone_msg));
 }
 
 bool DroneServerNode::fileParamCb(const std::string& p)

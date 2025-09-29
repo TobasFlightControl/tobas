@@ -268,7 +268,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     kdl::vectorKDLToMsg(cur_pos, feedback->current_position);
     kdl::vectorKDLToMsg(tar_pos, feedback->target_position);
     kdl::vectorKDLToMsg(tar_pos - cur_pos, feedback->position_error);
-    goal_handle->publish_feedback(move(feedback));
+    goal_handle->publish_feedback(std::move(feedback));
 
     // アクション中止の場合は終了
     if (goal_handle->is_canceling()) {

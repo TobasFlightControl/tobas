@@ -393,7 +393,7 @@ void ErrorStateKalmanFilterNode::publishGNSSOrigin() const
   gnss_origin->longitude = lon_0_;
   gnss_origin->altitude = alt_0_;
 
-  gnss_origin_pub_->publish(move(gnss_origin));
+  gnss_origin_pub_->publish(std::move(gnss_origin));
 }
 
 void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& header) const
@@ -428,7 +428,7 @@ void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& he
   feedback->gnss_anomaly_score = gnss_anomaly_score_;
 
   // Publish
-  feedback_pub_->publish(move(feedback));
+  feedback_pub_->publish(std::move(feedback));
 }
 
 double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Vector3d& acc) const
@@ -697,7 +697,7 @@ void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
   transformKDLToMsg(odom->frame, tf_.transform);
 
   // Publish odometry and TF
-  odom_pub_->publish(move(odom));
+  odom_pub_->publish(std::move(odom));
   tf_br_.sendTransform(tf_);
 
   // Publish feedback

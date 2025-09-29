@@ -64,7 +64,7 @@ void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
   auto vibe = std::make_unique<tobas_msgs::VibrationLevel>();
   vibe->header.stamp = imu->header.stamp;
   vibe->data = acc_vibe_rms;
-  vibe_pub_->publish(move(vibe));
+  vibe_pub_->publish(std::move(vibe));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(VibrationFilterNode)

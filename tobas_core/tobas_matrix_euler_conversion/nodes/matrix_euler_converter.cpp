@@ -34,7 +34,7 @@ void MatrixEulerConverterNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr
   auto euler = std::make_unique<tobas_kdl_msgs::EulerStamped>();
   euler->header = odom->header;
   odom->frame.M.getRPY(euler->euler.roll, euler->euler.pitch, euler->euler.yaw);
-  euler_pub_->publish(move(euler));
+  euler_pub_->publish(std::move(euler));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(MatrixEulerConverterNode)

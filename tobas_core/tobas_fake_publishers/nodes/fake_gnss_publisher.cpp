@@ -50,7 +50,7 @@ void FakeGNSSPublisherNode::timerCb()
   gnss_msg->position_covariance = Eigen::Vector3d::Constant(pos_stddev_).asDiagonal();
   gnss_msg->velocity_covariance = Eigen::Vector3d::Constant(vel_stddev_).asDiagonal();
 
-  gnss_pub_->publish(move(gnss_msg));
+  gnss_pub_->publish(std::move(gnss_msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(FakeGNSSPublisherNode)

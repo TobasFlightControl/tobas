@@ -66,7 +66,7 @@ void BatteryDriverNode::mainTimerCb()
   msg->header.stamp = now();
   msg->voltage = static_cast<double>(voltage_);
   msg->current = static_cast<double>(current_);
-  battery_pub_->publish(move(msg));
+  battery_pub_->publish(std::move(msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(BatteryDriverNode)

@@ -146,7 +146,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
   }
 
   // Publish joint positions command
-  positions_pub_->publish(move(positions_msg));
+  positions_pub_->publish(std::move(positions_msg));
 }
 
 void PositionControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)

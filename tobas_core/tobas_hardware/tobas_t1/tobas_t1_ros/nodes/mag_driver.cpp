@@ -60,7 +60,7 @@ void MagDriverNode::mainTimerCb()
   }
 
   // Publish message
-  mag_pub_->publish(move(msg));
+  mag_pub_->publish(std::move(msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(MagDriverNode)

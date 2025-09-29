@@ -74,7 +74,7 @@ void LandingDetectorNode::publishLandedState(const builtin_interfaces::msg::Time
   auto msg = std::make_unique<tobas_msgs::msg::LandedState>();
   msg->header.stamp = stamp;
   msg->data = landed_;
-  landed_pub_->publish(move(msg));
+  landed_pub_->publish(std::move(msg));
 }
 
 bool LandingDetectorNode::switchTimeThreshCb(const double& p)

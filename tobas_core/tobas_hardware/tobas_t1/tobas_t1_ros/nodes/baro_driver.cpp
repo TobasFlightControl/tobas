@@ -60,7 +60,7 @@ void BaroDriverNode::mainTimerCb()
   }
 
   // Publish message
-  baro_pub_->publish(move(msg));
+  baro_pub_->publish(std::move(msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(BaroDriverNode)

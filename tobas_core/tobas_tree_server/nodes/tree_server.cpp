@@ -52,7 +52,7 @@ void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& 
     return;
   }
 
-  tree_pub_->publish(move(tree));
+  tree_pub_->publish(std::move(tree));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(TreeServerNode)

@@ -110,7 +110,7 @@ void DShotDriverNode::publishRotorStates()
     }
   }
 
-  rotor_states_pub_->publish(move(rotor_states));
+  rotor_states_pub_->publish(std::move(rotor_states));
 }
 
 bool DShotDriverNode::stopRotors()

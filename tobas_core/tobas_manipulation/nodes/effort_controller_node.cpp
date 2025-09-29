@@ -386,7 +386,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
   }
 
   // Publish joint efforts command
-  efforts_pub_->publish(move(efforts_msg));
+  efforts_pub_->publish(std::move(efforts_msg));
 }
 
 void EffortControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)

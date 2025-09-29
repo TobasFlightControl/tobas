@@ -105,7 +105,7 @@ void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstShared
   // Publish a calibrated data
   auto mag_out = std::make_unique<tobas_msgs::MagneticField>(*mag_in);
   mag_out->mag.data = ellipsoid_.toUnitSphere(mag_in->mag.data);
-  mag_pub_->publish(move(mag_out));
+  mag_pub_->publish(std::move(mag_out));
 }
 
 void MagnetometerHandlerNode::setParamsCb(

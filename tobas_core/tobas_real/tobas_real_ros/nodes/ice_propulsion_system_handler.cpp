@@ -104,7 +104,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
   // Publish command
   if (pwms->pwms.size() > 0) {
     pwms->header.stamp = now();
-    pwms_pub_->publish(move(pwms));
+    pwms_pub_->publish(std::move(pwms));
   }
 }
 
@@ -156,7 +156,7 @@ void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::Engine
     rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_ERROR;
   }
 
-  rotor_states_pub_->publish(move(rotor_states));
+  rotor_states_pub_->publish(std::move(rotor_states));
 }
 
 void IcePropulsionSystemHandlerNode::iceCommandCb(
@@ -235,7 +235,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
   // Publish command
   if (pwms->pwms.size() > 0) {
     pwms->header.stamp = ice_cmd->header.stamp;
-    pwms_pub_->publish(move(pwms));
+    pwms_pub_->publish(std::move(pwms));
   }
 
   // Publish control latency

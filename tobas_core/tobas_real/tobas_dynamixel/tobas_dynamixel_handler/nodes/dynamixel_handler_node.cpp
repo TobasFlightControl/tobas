@@ -552,7 +552,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
   }
 
   // Publish motor states message
-  motor_states_pub_->publish(move(motor_states));
+  motor_states_pub_->publish(std::move(motor_states));
 }
 
 void DynamixelHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)

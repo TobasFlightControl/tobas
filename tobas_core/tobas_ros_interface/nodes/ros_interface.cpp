@@ -239,7 +239,7 @@ void ROSInterfaceNode::topicCallback(const typename MsgType::ConstSharedPtr& msg
 {
   auto msg_out = std::make_unique<MsgType>(*msg_in);
   const auto publisher = boost::polymorphic_pointer_downcast<rclcpp::Publisher<MsgType>>(publishers_.at(pub_topic));
-  publisher->publish(move(msg_out));
+  publisher->publish(std::move(msg_out));
 }
 
 template <typename SrvType>

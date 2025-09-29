@@ -326,7 +326,7 @@ void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
   }
 
   // Publish joint velocities command
-  velocities_pub_->publish(move(velocities_msg));
+  velocities_pub_->publish(std::move(velocities_msg));
 }
 
 void VelocityControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)

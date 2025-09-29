@@ -218,7 +218,7 @@ void RosbagRecorderNode::publishRosbagState()
     }
   }
 
-  rosbag_state_pub_->publish(move(rosbag_state));
+  rosbag_state_pub_->publish(std::move(rosbag_state));
 }
 
 template <typename MsgType>

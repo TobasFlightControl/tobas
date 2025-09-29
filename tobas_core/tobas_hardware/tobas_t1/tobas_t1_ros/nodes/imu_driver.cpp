@@ -178,7 +178,7 @@ void ImuDriverNode::mainTimerCb()
     imu_raw->accel = acc_raw_;
     imu_raw->gyro = gyro_raw_;
     imu_raw->dgyro = dgyro_raw;
-    imu_raw_pub_->publish(move(imu_raw));
+    imu_raw_pub_->publish(std::move(imu_raw));
   }
   else {
     if (lpf_initialized_) {
@@ -188,7 +188,7 @@ void ImuDriverNode::mainTimerCb()
       imu_filt->accel = acc_lpf_.getValue();
       imu_filt->gyro = gyro_lpf_.getValue();
       imu_filt->dgyro = dgyro_lpf_.getValue();
-      imu_filt_pub_->publish(move(imu_filt));
+      imu_filt_pub_->publish(std::move(imu_filt));
     }
   }
   pub_switch_ = !pub_switch_;

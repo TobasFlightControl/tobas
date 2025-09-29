@@ -67,7 +67,7 @@ void RotorAnomalyDetectorNode::publishRotorLiveliness()
     rotor_liveliness->data.back().alive = data.is_alive;
   }
 
-  rotor_liveliness_pub_->publish(move(rotor_liveliness));
+  rotor_liveliness_pub_->publish(std::move(rotor_liveliness));
 }
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

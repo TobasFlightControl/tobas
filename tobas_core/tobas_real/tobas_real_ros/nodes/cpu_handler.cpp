@@ -163,7 +163,7 @@ void CpuHandlerNode::mainTimerCb()
   }
 
   // Publish ROS message
-  cpu_pub_->publish(move(cpu_msg));
+  cpu_pub_->publish(std::move(cpu_msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(CpuHandlerNode)
