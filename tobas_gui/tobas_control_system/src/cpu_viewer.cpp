@@ -9,7 +9,7 @@ namespace gui
 {
 namespace ctrl
 {
-CPUViewerWidget::CPUViewerWidget(const RosQtBridge& bridge)
+CpuViewerWidget::CpuViewerWidget(const RosQtBridge& bridge)
 {
   temp_ = new qt::HPositionBarWidget();
   temp_->setFixedHeight(kBarHeight);
@@ -33,7 +33,7 @@ CPUViewerWidget::CPUViewerWidget(const RosQtBridge& bridge)
   connect(&bridge, &RosQtBridge::cpuReceived, this, &self::cpuCb, Qt::QueuedConnection);
 }
 
-void CPUViewerWidget::reset()
+void CpuViewerWidget::reset()
 {
   temp_->setUpper(temp_->getMinimum());
   temp_->setCenterText("");
@@ -42,7 +42,7 @@ void CPUViewerWidget::reset()
   load_->setCenterText("");
 }
 
-void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
+void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
   temp_->setUpper(cpu->temperature);
   temp_->setCenterText(std::format("{:.0f} ℃", cpu->temperature).c_str());

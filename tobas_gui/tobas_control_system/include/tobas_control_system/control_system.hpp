@@ -28,7 +28,7 @@ private:
 
   PoseViewerWidget* pose_viewer_;
   PowerSourceViewerWidget* power_source_viewer_;
-  CPUViewerWidget* cpu_viewer_;
+  CpuViewerWidget* cpu_viewer_;
   rcin::RCInputViewerWidget* rcin_viewer_;
   RotorsViewerWiddget* rotors_viewer_;
   ConsoleWidget* console_;

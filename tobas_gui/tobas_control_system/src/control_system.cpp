@@ -16,7 +16,7 @@ ControlSystemWidget::ControlSystemWidget(
   // Components
   pose_viewer_ = new PoseViewerWidget(bridge);
   power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
-  cpu_viewer_ = new CPUViewerWidget(bridge);
+  cpu_viewer_ = new CpuViewerWidget(bridge);
   rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
   rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
   console_ = new ConsoleWidget(bridge);
