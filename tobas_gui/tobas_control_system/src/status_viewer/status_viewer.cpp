@@ -83,19 +83,19 @@ void StatusViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
     return;
   }
 
-  rt_compliance_status_->setStatus(health->rt_violation);
-  battery_voltage_status_->setStatus(health->battery_voltage_too_low);
-  cpu_temp_status_->setStatus(health->cpu_temperature_too_high);
-  rotor_comm_status_->setStatus(health->rotor_communication_error);
-  level_atti_status_->setStatus(health->attitude_too_steep);
-  pos_stability_status_->setStatus(health->position_unstable);
-  pos_accuracy_status_->setStatus(health->position_inaccurate);
-  vel_accuracy_status_->setStatus(health->velocity_inaccurate);
-  atti_accuracy_status_->setStatus(health->attitude_inaccurate);
-  head_accuracy_status_->setStatus(health->heading_inaccurate);
-  mag_offset_status_->setStatus(health->mag_offset_too_large);
-  mag_alignment_status_->setStatus(health->mag_misalignment);
-  vibration_level_status_->setStatus(health->vibration_too_high);
+  rt_compliance_status_->setStatus(health->realtime_compliance);
+  battery_voltage_status_->setStatus(health->battery_voltage);
+  cpu_temp_status_->setStatus(health->cpu_temperature);
+  rotor_comm_status_->setStatus(health->rotor_communication);
+  level_atti_status_->setStatus(health->attitude_level);
+  pos_stability_status_->setStatus(health->position_stability);
+  pos_accuracy_status_->setStatus(health->position_accuracy);
+  vel_accuracy_status_->setStatus(health->velocity_accuracy);
+  atti_accuracy_status_->setStatus(health->attitude_accuracy);
+  head_accuracy_status_->setStatus(health->heading_accuracy);
+  mag_offset_status_->setStatus(health->mag_offset);
+  mag_alignment_status_->setStatus(health->mag_alignment);
+  vibration_level_status_->setStatus(health->vibration_level);
 
   if (arming_->data) {
     ready_arm_status_->setStatus(StatusWidget::IGNORED);

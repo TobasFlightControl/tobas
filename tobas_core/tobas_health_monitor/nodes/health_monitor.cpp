@@ -47,19 +47,19 @@ private:
   // rosparams
   struct DoCheck
   {
-    bool rt_violation;
-    bool battery_voltage_too_low;
-    bool cpu_temperature_too_high;
-    bool rotor_communication_error;
-    bool attitude_too_steep;
-    bool position_unstable;
-    bool position_inaccurate;
-    bool velocity_inaccurate;
-    bool attitude_inaccurate;
-    bool heading_inaccurate;
-    bool mag_offset_too_large;
-    bool mag_misalignment;
-    bool vibration_too_high;
+    bool realtime_compliance;
+    bool battery_voltage;
+    bool cpu_temperature;
+    bool rotor_communication;
+    bool attitude_level;
+    bool position_stability;
+    bool position_accuracy;
+    bool velocity_accuracy;
+    bool attitude_accuracy;
+    bool heading_accuracy;
+    bool mag_offset;
+    bool mag_alignment;
+    bool vibration_level;
   } do_check_;
 
   tobas::Drone::ConstSharedPtr drone_;
@@ -135,19 +135,19 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
 
 void HealthMonitorNode::getStaticRosParams()
 {
-  do_check_.rt_violation = getBoolParam("check_realtime_compliance", true);
-  do_check_.battery_voltage_too_low = getBoolParam("check_battery_voltage", true);
-  do_check_.cpu_temperature_too_high = getBoolParam("check_cpu_temperature", true);
-  do_check_.rotor_communication_error = getBoolParam("check_rotor_communication", true);
-  do_check_.attitude_too_steep = getBoolParam("check_attitude_level", true);
-  do_check_.position_unstable = getBoolParam("check_position_stability", true);
-  do_check_.position_inaccurate = getBoolParam("check_position_accuracy", true);
-  do_check_.velocity_inaccurate = getBoolParam("check_velocity_accuracy", true);
-  do_check_.attitude_inaccurate = getBoolParam("check_attitude_accuracy", true);
-  do_check_.heading_inaccurate = getBoolParam("check_heading_accuracy", true);
-  do_check_.mag_offset_too_large = getBoolParam("check_mag_offset", true);
-  do_check_.mag_misalignment = getBoolParam("check_mag_alignment", true);
-  do_check_.vibration_too_high = getBoolParam("check_vibration_level", true);
+  do_check_.realtime_compliance = getBoolParam("check_realtime_compliance", true);
+  do_check_.battery_voltage = getBoolParam("check_battery_voltage", true);
+  do_check_.cpu_temperature = getBoolParam("check_cpu_temperature", true);
+  do_check_.rotor_communication = getBoolParam("check_rotor_communication", true);
+  do_check_.attitude_level = getBoolParam("check_attitude_level", true);
+  do_check_.position_stability = getBoolParam("check_position_stability", true);
+  do_check_.position_accuracy = getBoolParam("check_position_accuracy", true);
+  do_check_.velocity_accuracy = getBoolParam("check_velocity_accuracy", true);
+  do_check_.attitude_accuracy = getBoolParam("check_attitude_accuracy", true);
+  do_check_.heading_accuracy = getBoolParam("check_heading_accuracy", true);
+  do_check_.mag_offset = getBoolParam("check_mag_offset", true);
+  do_check_.mag_alignment = getBoolParam("check_mag_alignment", true);
+  do_check_.vibration_level = getBoolParam("check_vibration_level", true);
 }
 
 void HealthMonitorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -240,20 +240,20 @@ void HealthMonitorNode::mainTimerCb()
   // 制御スレッドのリアルタイム性
   // FIFOスケジューリングのシングルスレッドなのでIMUのサンプリング間隔だけで判定できる
   // 通信環境が悪くノードグラフの構築に時間がかかっている場合にリアルタイム性が落ちることがあるため確認必須
-  if (do_check_.rt_violation) {
+  if (do_check_.realtime_compliance) {
     if (sampling_time_) {
       if (cur_time - t_last_large_interval_ < kRTComplianceCheckTimeWindow) {
-        health->rt_violation = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->realtime_compliance = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->rt_violation = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->realtime_compliance = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->rt_violation = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->realtime_compliance = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 推進系のタイプよる場合分け
@@ -265,27 +265,27 @@ void HealthMonitorNode::mainTimerCb()
       const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
       // バッテリー電圧が定格電圧以上
-      if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::PropulsionSystem::kElectric) {
+      if (do_check_.battery_voltage && drone_->prop->type() == tobas::PropulsionSystem::kElectric) {
         if (battery_) {
           if (battery_->voltage < eprop->battery.nominal_voltage) {
-            health->battery_voltage_too_low = tobas_msgs::msg::VehicleHealth::FAILED;
+            health->battery_voltage = tobas_msgs::msg::VehicleHealth::FAILED;
             health->ok = false;
           }
         }
         else {
-          health->battery_voltage_too_low = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+          health->battery_voltage = tobas_msgs::msg::VehicleHealth::UNKNOWN;
           health->ok = false;
         }
       }
       else {
-        health->battery_voltage_too_low = tobas_msgs::msg::VehicleHealth::IGNORED;
+        health->battery_voltage = tobas_msgs::msg::VehicleHealth::IGNORED;
       }
 
       break;
     }
     case tobas::PropulsionSystem::kIce: {
       // 未使用項目を無視
-      health->battery_voltage_too_low = tobas_msgs::msg::VehicleHealth::IGNORED;
+      health->battery_voltage = tobas_msgs::msg::VehicleHealth::IGNORED;
 
       const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
       (void)iprop;  // TODO
@@ -299,207 +299,207 @@ void HealthMonitorNode::mainTimerCb()
   }
 
   // CPU温度
-  if (do_check_.cpu_temperature_too_high) {
+  if (do_check_.cpu_temperature) {
     if (cpu_) {
       if (cpu_->temperature > kCPUTempThresh) {
-        health->cpu_temperature_too_high = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->cpu_temperature = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->cpu_temperature_too_high = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->cpu_temperature = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->cpu_temperature_too_high = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->cpu_temperature = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // モータ状態
-  if (do_check_.rotor_communication_error) {
+  if (do_check_.rotor_communication) {
     if (rotor_liv_) {
       for (const auto& elem : rotor_liv_->data) {
         if (!elem.alive) {
-          health->rotor_communication_error = tobas_msgs::msg::VehicleHealth::FAILED;
+          health->rotor_communication = tobas_msgs::msg::VehicleHealth::FAILED;
           health->ok = false;
           break;
         }
       }
     }
     else {
-      health->rotor_communication_error = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->rotor_communication = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->rotor_communication_error = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->rotor_communication = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 姿勢角
-  if (do_check_.attitude_too_steep && !arming_->data) {
+  if (do_check_.attitude_level && !arming_->data) {
     if (odom_) {
       const auto [roll, pitch, _] = odom_->frame.M.getRPY();
       if (std::max(fabs(roll), fabs(pitch)) > kAttitudeThresh) {
-        health->attitude_too_steep = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->attitude_level = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->attitude_too_steep = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->attitude_level = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->attitude_too_steep = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->attitude_level = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 位置のドリフト
-  if (do_check_.position_unstable && !arming_->data) {
+  if (do_check_.position_stability && !arming_->data) {
     if (odom_) {
       for (const auto& buf : pos_bufs_) {
         if (!buf.isFilled() || buf.range() > kPosDriftThresh) {
-          health->position_unstable = tobas_msgs::msg::VehicleHealth::FAILED;
+          health->position_stability = tobas_msgs::msg::VehicleHealth::FAILED;
           health->ok = false;
           break;
         }
       }
     }
     else {
-      health->position_unstable = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->position_stability = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->position_unstable = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->position_stability = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 位置推定の確かさ
-  if (do_check_.position_inaccurate) {
+  if (do_check_.position_accuracy) {
     if (odom_) {
       const auto pos_cov_diag = odom_->position_covariance.diagonal().eval();
       const auto hor_pos_var = std::max(pos_cov_diag.x(), pos_cov_diag.y());
       const auto ver_pos_var = pos_cov_diag.z();
       if (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh)) {
-        health->position_inaccurate = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->position_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->position_inaccurate = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->position_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->position_inaccurate = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->position_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 速度推定の確かさ
-  if (do_check_.velocity_inaccurate) {
+  if (do_check_.velocity_accuracy) {
     if (odom_) {
       const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
       if (vel_var > math::sqr(kVelStddevThresh)) {
-        health->velocity_inaccurate = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->velocity_inaccurate = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->velocity_inaccurate = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 姿勢推定の確かさ
-  if (do_check_.attitude_inaccurate) {
+  if (do_check_.attitude_accuracy) {
     if (odom_) {
       const auto atti_var = odom_->orientation_covariance.diagonal().head<2>().maxCoeff();
       if (atti_var > math::sqr(kAttiStddevThresh)) {
-        health->attitude_inaccurate = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->attitude_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->attitude_inaccurate = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->attitude_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->attitude_inaccurate = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->attitude_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 方位推定の確かさ
-  if (do_check_.heading_inaccurate) {
+  if (do_check_.heading_accuracy) {
     if (odom_) {
       const auto head_var = odom_->orientation_covariance(2, 2);
       if (head_var > math::sqr(kHeadStddevThresh)) {
-        health->heading_inaccurate = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->heading_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->heading_inaccurate = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->heading_accuracy = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->heading_inaccurate = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->heading_accuracy = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 地磁気オフセット
-  if (do_check_.mag_offset_too_large) {
+  if (do_check_.mag_offset) {
     if (mag_) {
       if (abs(mag_->mag.norm() - 1.) > kMagLengthErrorThresh) {
-        health->mag_offset_too_large = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->mag_offset = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->mag_offset_too_large = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->mag_offset = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->mag_offset_too_large = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->mag_offset = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 世界座標系から見た地磁気ベクトルが参照と一致するか
-  if (do_check_.mag_misalignment) {
+  if (do_check_.mag_alignment) {
     if (odom_ && mag_ && mag_ref_) {
       const auto mag_W = odom_->frame.M * mag_->mag;
       const auto align_error = mag_W.argument(mag_ref_->mag);  // [rad]
       if (align_error > kMagAlignErrorThresh) {
-        health->mag_misalignment = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->mag_alignment = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->mag_misalignment = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->mag_alignment = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->mag_misalignment = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->mag_alignment = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 振動レベル
-  if (do_check_.vibration_too_high) {
+  if (do_check_.vibration_level) {
     if (vibe_) {
       // Vibration levels below 30m/s/s are normally acceptable
       // cf. https://ardupilot.org/copter/docs/common-diagnosing-problems-using-logs.html#vibrations
       if (vibe_->data.max() > kVibrationLevelThresh) {
-        health->vibration_too_high = tobas_msgs::msg::VehicleHealth::FAILED;
+        health->vibration_level = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
     }
     else {
-      health->vibration_too_high = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->vibration_level = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->vibration_too_high = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->vibration_level = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   health_pub_->publish(std::move(health));

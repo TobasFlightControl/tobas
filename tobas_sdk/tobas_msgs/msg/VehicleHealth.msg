@@ -2,19 +2,19 @@ std_msgs/Header header
 
 bool ok
 
-uint8 rt_violation
-uint8 battery_voltage_too_low
-uint8 cpu_temperature_too_high
-uint8 rotor_communication_error
-uint8 attitude_too_steep
-uint8 position_unstable
-uint8 position_inaccurate
-uint8 velocity_inaccurate
-uint8 attitude_inaccurate
-uint8 heading_inaccurate
-uint8 mag_offset_too_large
-uint8 mag_misalignment
-uint8 vibration_too_high
+uint8 realtime_compliance
+uint8 battery_voltage
+uint8 cpu_temperature
+uint8 rotor_communication
+uint8 attitude_level
+uint8 position_stability
+uint8 position_accuracy
+uint8 velocity_accuracy
+uint8 attitude_accuracy
+uint8 heading_accuracy
+uint8 mag_offset
+uint8 mag_alignment
+uint8 vibration_level
 
 uint8 PASSED = 0
 uint8 FAILED = 1
