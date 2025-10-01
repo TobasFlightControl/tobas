@@ -1,7 +1,7 @@
 # https://database.tytorobotics.com/tests/m96y/dji-1045-tm-4014-dmr-3040
 # Do not use rotational speeds below 3000 RPM due to poor measurement accuracy.
 
-RPM,Thrust [kgf],Torque,Thrust,Moment Constant [m]
+RPM,Thrust [kgf],Torque [Nm],Thrust [N],Moment Constant [m]
 # 382,0.001158511,0.000182851,0.011361112,0.016094463
 # 801,0.005524341,0.001289769,0.054175279,0.023807335
 # 1200,0.013185533,0.002540935,0.129305907,0.019650572
