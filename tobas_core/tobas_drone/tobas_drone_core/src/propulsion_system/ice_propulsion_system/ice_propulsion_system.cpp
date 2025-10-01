@@ -145,10 +145,8 @@ double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
 
   double engine_speed = 0.;
   if (newton.solve(engine_speed) < 0) {
-    if (newton.solve(engine_speed) < 0) {
-      cerr << "Failed to solve engine dynamics equation: " << newton.errorMessage() << endl;
-      return 0.;
-    }
+    cerr << "Failed to solve engine dynamics equation: " << newton.errorMessage() << endl;
+    return 0.;
   }
 
   return engine_speed;
