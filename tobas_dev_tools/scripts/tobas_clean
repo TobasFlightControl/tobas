@@ -15,6 +15,7 @@ sudo rm -rf /tmp/*
 sudo rm -rf /var/backups/*
 sudo rm -rf /var/log/*
 sudo rm -rf /var/tmp/*
+sudo rm -rf /var/lib/apt/lists/*
 
 # Clean tobas directory
 sudo rm /etc/tobas/config/*.json
