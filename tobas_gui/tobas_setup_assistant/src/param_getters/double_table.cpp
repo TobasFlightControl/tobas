@@ -43,7 +43,6 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   maximum_.fill(std::numeric_limits<double>::max(), num_entry_);
   default_.fill(kDefaultValue, num_entry_);
   decimals_.fill(kDefaultDecimals, num_entry_);
-  suffix_.fill("", num_entry_);
 
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
@@ -141,12 +140,6 @@ void ParamGetterWidget_DoubleTable::setDefault(const QVector<double>& _default)
   default_ = _default;
 }
 
-void ParamGetterWidget_DoubleTable::setSuffix(const QVector<QString>& suffix)
-{
-  TOBAS_CHECK(suffix.size() == num_entry_);
-  suffix_ = suffix;
-}
-
 int ParamGetterWidget_DoubleTable::count() const
 {
   return table_->rowCount();
@@ -164,7 +157,6 @@ void ParamGetterWidget_DoubleTable::addRow()
     cell->setMaximum(maximum_[col]);
     cell->setValue(default_[col]);
     cell->setDecimals(decimals_[col]);
-    cell->setSuffix(suffix_[col]);
     connect(cell, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onCellValueChanged);
     table_->setCellWidget(rows, col, cell);
   }

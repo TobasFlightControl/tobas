@@ -18,10 +18,9 @@ namespace electric
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node, "Data from thrust stand", "Select Test Data", { "RPM", "Thrust", "Torque" });
+    node, "Data from thrust stand", "Select Test Data", { "RPM", "Thrust [N]", "Torque [Nm]" });
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1, 1e-6, 1e-6 });
-  data_->setSuffix({ " rpm", " N", " Nm" });
   data_->table()->setColumnsWidth(kDataTableColWidth);
 
   rows_->addWidget(data_);

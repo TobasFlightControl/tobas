@@ -22,7 +22,6 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, c
     node, "Measurements in static condition", "Select UIUC Data", { "RPM", "CT", "CP" });
   data_->setDecimals({ 3, 6, 6 });
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
-  data_->setSuffix({ " rpm", " N", " Nm" });
   data_->table()->setColumnsWidth(kDataTableColWidth);
 
   rows_->addWidget(data_);
