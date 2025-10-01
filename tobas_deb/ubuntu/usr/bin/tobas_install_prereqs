@@ -26,6 +26,9 @@ export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrast
 curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
 sudo dpkg -i /tmp/ros2-apt-source.deb
 
+# Remove the manually downloaded file (added)
+rm /tmp/ros2-apt-source.deb
+
 # Install development tools (optional)
 sudo apt update
 sudo apt install -y ros-dev-tools
@@ -48,4 +51,3 @@ source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths /opt/tobas/share/ -yi
 
 echo -e "\033[32mInstallation finished successfully.\033[0m"
-sleep infinity
