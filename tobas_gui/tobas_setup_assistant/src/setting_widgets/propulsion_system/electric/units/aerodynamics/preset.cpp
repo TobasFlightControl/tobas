@@ -160,9 +160,9 @@ AerodynamicsWidget_Preset::parseThrustStandData(const fs::path& path) const
   const auto doc = csv::load(path);
 
   // Read data
-  const auto rpms = eigen::fromStdVector(doc.GetColumn<double>("RPM"));
-  const auto thrusts = eigen::fromStdVector(doc.GetColumn<double>("Thrust"));
-  const auto torques = eigen::fromStdVector(doc.GetColumn<double>("Torque"));
+  const auto rpms = eigen::fromStdVector(doc.GetColumn<double>(kRpmColName));
+  const auto thrusts = eigen::fromStdVector(doc.GetColumn<double>(kThrustColName));
+  const auto torques = eigen::fromStdVector(doc.GetColumn<double>(kTorqueColName));
 
   return { rpms, thrusts, torques };
 }
@@ -174,9 +174,9 @@ AerodynamicsWidget_Preset::parseUiucData(const fs::path& path) const
   const auto doc = csv::load(path);
 
   // Read data
-  const auto rpms = eigen::fromStdVector(doc.GetColumn<double>("RPM"));
-  const auto cts = eigen::fromStdVector(doc.GetColumn<double>("CT"));
-  const auto cps = eigen::fromStdVector(doc.GetColumn<double>("CP"));
+  const auto rpms = eigen::fromStdVector(doc.GetColumn<double>(kRpmColName));
+  const auto cts = eigen::fromStdVector(doc.GetColumn<double>(kUiucCtColName));
+  const auto cps = eigen::fromStdVector(doc.GetColumn<double>(kUiucCpColName));
 
   return { rpms, cts, cps };
 }

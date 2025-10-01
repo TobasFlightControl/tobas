@@ -10,6 +10,12 @@ namespace propulsion
 {
 namespace electric
 {
+static constexpr char kRpmColName[] = "RPM";
+static constexpr char kThrustColName[] = "Thrust [N]";
+static constexpr char kTorqueColName[] = "Torque [Nm]";
+static constexpr char kUiucCtColName[] = "CT";
+static constexpr char kUiucCpColName[] = "CP";
+
 double motorConstFromThrustStand(const Eigen::VectorXd& rpms, const Eigen::VectorXd& thrusts);
 double momentConstFromThrustStand(const Eigen::VectorXd& thrusts, const Eigen::VectorXd& torques);
 
