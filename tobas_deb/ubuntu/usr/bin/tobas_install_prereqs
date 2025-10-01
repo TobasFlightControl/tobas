@@ -12,6 +12,11 @@ sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 export LANG=en_US.UTF-8
 locale
 
+# Delete old (maybe expired) lists (added)
+export APT_SOURCES_DIR=/etc/apt/sources.list.d
+sudo rm -rf ${APT_SOURCES_DIR}/ros2*.list ${APT_SOURCES_DIR}/ros2*.sources
+sudo rm -rf /var/lib/apt/lists/*
+
 # Enable required repositories
 sudo apt install -y software-properties-common
 yes "" | sudo add-apt-repository universe
