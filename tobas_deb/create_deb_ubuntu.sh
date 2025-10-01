@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Set paths
 TOBAS_DEB=$(realpath $(dirname "$0"))
 UBUNTU_WORKSPACE=${TOBAS_DEB}/ubuntu
