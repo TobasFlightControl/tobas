@@ -159,6 +159,7 @@ void ParamGetterWidget_DoubleTable::addRow()
 
   for (int col = 0; col < num_entry_; ++col) {
     const auto cell = new qt::DoubleSpinBox();
+    cell->setButtonSymbols(QAbstractSpinBox::NoButtons);  // 増減ボタンを削除
     cell->setMinimum(minimum_[col]);
     cell->setMaximum(maximum_[col]);
     cell->setValue(default_[col]);
@@ -200,7 +201,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
   }
 
   // Fill data
-  const size_t num_data = columns.front().size();
+  const auto num_data = columns.front().size();
   Eigen::MatrixXd data_array(num_data, num_entry_);
   for (int col = 0; col < num_entry_; ++col) {
     if (columns.at(col).size() != num_data) {
@@ -233,9 +234,8 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
     last_opened_dir = ros2::getHomeDir();
   }
 
-  const auto options = QFileDialog::DontUseNativeDialog;
   const auto file_path = QFileDialog::getOpenFileName(
-    this, title_, QString::fromStdString(last_opened_dir), "CSV File (*.csv)", nullptr, options);
+    this, title_, QString::fromStdString(last_opened_dir), "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
 
   // 最後に開かれたパスを保存
   if (!file_path.isEmpty()) {
@@ -254,7 +254,7 @@ bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
   }
 
   for (int col = 0; col < num_entry_; ++col) {
-    const Eigen::ArrayXd column = src.col(col).array();
+    const auto column = src.col(col).array().eval();
     if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
       qt::qErrorBox(this, "Some values of field \"" + labels_.at(col) + "\" are out of limits.");
       return false;
