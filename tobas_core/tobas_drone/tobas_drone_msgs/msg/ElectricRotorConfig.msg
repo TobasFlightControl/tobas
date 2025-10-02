@@ -7,3 +7,4 @@ float64 internal_resistance
 float64 min_speed
 float64 propeller_diameter
 float64 motor_const
+float64 moment_const

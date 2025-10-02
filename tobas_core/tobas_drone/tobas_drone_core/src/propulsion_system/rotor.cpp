@@ -13,11 +13,6 @@ bool RotorConfig::isValid() const
     return false;
   }
 
-  if (moment_const <= 0) {
-    cerr << "Moment constant must be positive." << endl;
-    return false;
-  }
-
   return true;
 }
 
@@ -28,10 +23,6 @@ bool RotorConfig::load(const YAML::Node& node)
   }
 
   if (!yaml::load(kDirectionKey, node, direction)) {
-    return false;
-  }
-
-  if (!yaml::load(kMomentConstKey, node, moment_const)) {
     return false;
   }
 
@@ -48,7 +39,6 @@ YAML::Node RotorConfig::dump() const
 
   node[kLinkNameKey] = link_name;
   node[kDirectionKey] = direction;
-  node[kMomentConstKey] = moment_const;
   node[kTiltJointName] = tilt_joint_name;
 
   return node;

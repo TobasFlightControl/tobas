@@ -23,13 +23,12 @@ bool IceRotorConfig::isValid() const
     return false;
   }
 
-  if (!pitch_limit.inRange(pitch_ref)) {
-    cerr << "Pitch angle reference is out of its limit." << endl;
+  if (!motor_const.isValid()) {
     return false;
   }
 
-  if (motor_const.second <= 0.) {
-    cerr << "The second term of motor constant must be positive." << endl;
+  if (!moment_const.isValid()) {
+    return false;
   }
 
   return true;
@@ -45,15 +44,15 @@ bool IceRotorConfig::load(const YAML::Node& node)
     return false;
   }
 
-  if (!yaml::load(kPitchReferenceKey, node, pitch_ref)) {
-    return false;
-  }
-
   if (!yaml::load(kPitchLimitKey, node, pitch_limit)) {
     return false;
   }
 
-  if (!yaml::load(kMotorConstKey, node, motor_const)) {
+  if (!motor_const.load(node[kMotorConstKey])) {
+    return false;
+  }
+
+  if (!moment_const.load(node[kMomentConstKey])) {
     return false;
   }
 
@@ -69,9 +68,9 @@ YAML::Node IceRotorConfig::dump() const
   auto node = super::dump();
 
   node[kGearRatioKey] = gear_ratio;
-  node[kPitchReferenceKey] = pitch_ref;
   node[kPitchLimitKey] = pitch_limit;
-  node[kMotorConstKey] = motor_const;
+  node[kMotorConstKey] = motor_const.dump();
+  node[kMomentConstKey] = moment_const.dump();
   node[kHardwareIfaceKey] = hw_iface;
 
   return node;

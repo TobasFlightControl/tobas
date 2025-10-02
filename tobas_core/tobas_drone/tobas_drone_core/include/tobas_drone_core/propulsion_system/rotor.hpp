@@ -10,7 +10,6 @@ class RotorConfig
 {
   static constexpr char kLinkNameKey[] = "link_name";
   static constexpr char kDirectionKey[] = "direction";
-  static constexpr char kMomentConstKey[] = "moment_constant";
   static constexpr char kTiltJointName[] = "tilt_joint_name";
 
 public:
@@ -19,13 +18,15 @@ public:
 
   std::string link_name = "";                          // プロペラのリンク名
   TurningDirection direction = TurningDirection::CCW;  // 回転方向: CCW or CW
-  double moment_const = 0.;                            // 反トルク係数 [m]
   std::string tilt_joint_name = "";                    // チルトジョイント名 (空文字の場合は固定軸)
 
   virtual bool isValid() const;
 
   virtual bool load(const YAML::Node& node);
   virtual YAML::Node dump() const;
+
+  /* 推力と反トルクの比率 [m] */
+  virtual double momentConst() const = 0;
 
   /* CCW = 1, CW = -1 */
   inline int sign() const;

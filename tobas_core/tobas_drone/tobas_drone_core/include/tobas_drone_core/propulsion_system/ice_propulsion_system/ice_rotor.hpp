@@ -7,6 +7,7 @@
 
 #include "../../hardware_interface.hpp"
 #include "../rotor.hpp"
+#include "./aerodynamics.hpp"
 
 namespace tobas
 {
@@ -16,19 +17,19 @@ class IceRotorConfig : public RotorConfig
   using super = RotorConfig;
 
   static constexpr char kGearRatioKey[] = "gear_ratio";
-  static constexpr char kPitchReferenceKey[] = "pitch_reference";
   static constexpr char kPitchLimitKey[] = "pitch_limit";
   static constexpr char kMotorConstKey[] = "motor_constant";
+  static constexpr char kMomentConstKey[] = "moment_constant";
   static constexpr char kHardwareIfaceKey[] = "hw_iface";
 
 public:
   using SharedPtr = std::shared_ptr<IceRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;
 
-  double gear_ratio = 0.;  // 減速比 [-]
-  double pitch_ref = 0.;   // プロペラピッチ角の参照値 (最も効率の良いピッチ角) [rad]
+  double gear_ratio = 0.;                             // 減速比 [-]
   tobas_std::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
-  std::pair<double, double> motor_const = { 0., 0. };  // T = (c0 + c1 φ) ω^2 (φ: プロペラピッチ，ω: プロペラ回転数)
+  VppMotorConstant motor_const;
+  VppMomentConstant moment_const;
   HardwareInterface hw_iface = HardwareInterface::kOther;
 
   bool isValid() const override;
@@ -36,8 +37,14 @@ public:
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;
 
-  /* ピッチ角からプロペラ回転数の2乗と推力の比を求める． */
+  /* 最も効率の良いピッチ角における反トルク係数を求める． */
+  inline double momentConst() const override;
+
+  /* ピッチ角から推力定数を求める． */
   inline double motorConst(double pitch_angle) const;
+
+  /* ピッチ角から反トルク定数を求める． */
+  inline double momentConst(double pitch_angle) const;
 
   /* エンジン回転数からロータ回転数を求める． */
   inline double speedEngineToRotor(double engine_speed) const;
@@ -52,9 +59,19 @@ public:
   inline double pitchFromThrust(double engine_speed, double thrust) const;
 };
 
+inline double IceRotorConfig::momentConst() const
+{
+  return moment_const.compute(moment_const.optimalPitch());
+}
+
 inline double IceRotorConfig::motorConst(double pitch_angle) const
 {
-  return motor_const.first + motor_const.second * pitch_angle;
+  return motor_const.compute(pitch_angle);
+}
+
+inline double IceRotorConfig::momentConst(double pitch_angle) const
+{
+  return moment_const.compute(pitch_angle);
 }
 
 inline double IceRotorConfig::speedEngineToRotor(double engine_speed) const
@@ -80,6 +97,6 @@ inline double IceRotorConfig::pitchFromThrust(double engine_speed, double thrust
   assert(engine_speed > 0.);
 
   const auto rot_speed = speedEngineToRotor(engine_speed);
-  return pitch_limit.clamp((thrust / math::sqr(rot_speed) - motor_const.first) / motor_const.second);
+  return pitch_limit.clamp((thrust / math::sqr(rot_speed) - motor_const.c0) / motor_const.c1);
 }
 }  // namespace tobas
