@@ -27,7 +27,7 @@ WorldWidget_Standard::WorldWidget_Standard()
   }
 
   combo_box_->sort();
-  combo_box_->setCurrentText("flight_training");
+  combo_box_->setCurrentText("baylands");
 }
 
 fs::path WorldWidget_Standard::worldPath() const
