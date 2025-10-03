@@ -27,7 +27,7 @@ WorldWidget_Standard::WorldWidget_Standard()
   }
 
   combo_box_->sort();
-  combo_box_->setCurrentText("baylands");
+  combo_box_->setCurrentText("null_island");
 }
 
 fs::path WorldWidget_Standard::worldPath() const
