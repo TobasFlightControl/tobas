@@ -1,4 +1,4 @@
-<!-- cf. https://app.gazebosim.org/OpenRobotics/fuel/worlds/Tugbot%20in%20Warehouse -->
+<!-- https://app.gazebosim.org/OpenRobotics/fuel/worlds/Tugbot%20in%20Warehouse -->
 
 <sdf version="1.10">
   <world name="warehouse">

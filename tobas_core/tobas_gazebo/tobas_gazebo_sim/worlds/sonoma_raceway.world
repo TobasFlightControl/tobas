@@ -1,4 +1,4 @@
-<!-- cf. https://app.gazebosim.org/OpenRobotics/fuel/worlds/Prius%20on%20Sonoma%20Raceway -->
+<!-- https://app.gazebosim.org/OpenRobotics/fuel/worlds/Prius%20on%20Sonoma%20Raceway -->
 
 <sdf version="1.10">
   <world name="sonoma_raceway">
