@@ -32,14 +32,16 @@ PropellerWidget::PropellerWidget()
   diameter_->setSuffix(" inch");
   rows->addWidget(diameter_);
 
-  pitch_length_neutoral_ = new ParamGetterWidget_DoubleSpinBox("Propeller Pitch (Neutoral)");
+  pitch_length_neutoral_ = new ParamGetterWidget_DoubleSpinBox(
+    "Propeller Pitch (Neutoral)", "The propeller pitch length when the pitch angle is 0°.");
   pitch_length_neutoral_->setDecimals(1);
   pitch_length_neutoral_->setMinimum(0.1);
   pitch_length_neutoral_->setValue(18);
   pitch_length_neutoral_->setSuffix(" inch");
   rows->addWidget(pitch_length_neutoral_);
 
-  pitch_angle_limit_ = new ParamGetterWidget_IntRange("Pitch Angle Limit", "Around the neutoral position");
+  pitch_angle_limit_ = new ParamGetterWidget_IntRange(
+    "Pitch Angle Limit", "Specify the range over which thrust varies linearly with propeller pitch angle.");
   pitch_angle_limit_->setMinimum(-90);
   pitch_angle_limit_->setMaximum(+90);
   pitch_angle_limit_->setValue({ -6, 6 });
