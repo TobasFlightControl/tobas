@@ -71,7 +71,7 @@ void AerodynamicsWidget::load(const YAML::Node& node)
   data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
 }
 
-std::pair<double, double> AerodynamicsWidget::motorConst() const
+tobas::VppMotorConstant AerodynamicsWidget::motorConst() const
 {
   const auto [speed, pitch, thrust, _] = getData();
   const auto num_data = speed.size();
@@ -85,16 +85,34 @@ std::pair<double, double> AerodynamicsWidget::motorConst() const
   const auto c0 = sol(0);
   const auto c1 = sol(1);
 
-  return { c0, c1 };
+  return tobas::VppMotorConstant(c0, c1);
 }
 
-double AerodynamicsWidget::momentConst() const
+tobas::VppMomentConstant AerodynamicsWidget::momentConst() const
 {
-  const auto [_, __, thrust, torque] = getData();
-  return torque.dot(thrust) / thrust.squaredNorm();
+  const auto [c0, c1] = motorConst();
+  const auto phi0 = -c0 / c1;
+
+  const auto [_, pitch, thrust, torque] = getData();
+  const auto num_data = pitch.size();
+
+  Eigen::MatrixX3d Left(num_data, 3);
+  const auto phi = (pitch.array() - phi0).matrix().eval();
+  Left.col(0) = phi;
+  Left.col(1).setOnes();
+  Left.col(2) = phi.cwiseInverse();
+
+  const auto cm = torque.cwiseProduct(thrust.cwiseInverse());
+
+  const auto sol = Left.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(cm).eval();
+  const auto a = sol(0);
+  const auto b = sol(1);
+  const auto c = sol(2);
+
+  return tobas::VppMomentConstant(a, b, c, phi0);
 }
 
-std::pair<double, double> AerodynamicsWidget::dragConst() const
+tobas::VppDragConstant AerodynamicsWidget::dragConst() const
 {
   const BladeTheory blade(
     propeller_->numBlades(), propeller_->radius(), propeller_->meanChord(), propeller_->pitchAngleNeutoral());

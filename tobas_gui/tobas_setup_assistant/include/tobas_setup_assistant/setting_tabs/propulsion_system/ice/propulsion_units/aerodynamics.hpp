@@ -2,6 +2,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
+
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
 #include "./base.hpp"
@@ -29,14 +31,9 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  /* [kg*m/rad^3, kg*m/rad^2] */
-  std::pair<double, double> motorConst() const;
-
-  /* [m] */
-  double momentConst() const;
-
-  /* [kg/rad^2, kg/rad] */
-  std::pair<double, double> dragConst() const;
+  tobas::VppMotorConstant motorConst() const;
+  tobas::VppMomentConstant momentConst() const;
+  tobas::VppDragConstant dragConst() const;
 
 private:
   const PropellerWidget* const propeller_;

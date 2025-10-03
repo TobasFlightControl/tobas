@@ -78,7 +78,7 @@ bool SqpMixer::solve(
 
     // Update B
     const auto d = rotor->sign();
-    const auto& cm = rotor->moment_const;
+    const auto cm = rotor->momentConst();
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
     B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * Diagonal3d(1, 1, 1);

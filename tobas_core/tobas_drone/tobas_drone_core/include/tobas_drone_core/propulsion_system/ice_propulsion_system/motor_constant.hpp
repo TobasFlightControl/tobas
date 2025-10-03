@@ -14,6 +14,14 @@ public:
   double c0;
   double c1;
 
+  inline explicit VppMotorConstant(double _c0, double _c1) : c0(_c0), c1(_c1)
+  {
+  }
+
+  inline explicit VppMotorConstant() : c0(0.), c1(0.)
+  {
+  }
+
   bool isValid() const;
 
   bool load(const YAML::Node& node);

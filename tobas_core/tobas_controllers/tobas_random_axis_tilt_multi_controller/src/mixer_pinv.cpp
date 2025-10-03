@@ -142,7 +142,7 @@ bool PinvMixer::solve(
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
       const auto d = rotor->sign();
-      const auto& cm = rotor->moment_const;
+      const auto cm = rotor->momentConst();
 
       const Matrix<double, 3, 2> B = B_T_gpar.M.data * A_.at(idx);
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);

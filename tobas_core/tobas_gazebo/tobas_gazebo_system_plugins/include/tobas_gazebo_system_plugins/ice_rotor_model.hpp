@@ -5,6 +5,7 @@
 #include <gz/sim/Model.hh>
 #include <gz/sim/components.hh>
 
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_std_tools/range.hpp>
 
 #include "./simple_joint_model.hpp"
@@ -31,6 +32,7 @@ public:
   double getSpeed(const double& engine_speed) const;
   double getVelocity(const double& engine_speed) const;
   double getThrust(const double& engine_speed) const;
+  double getTorque(const double& engine_speed) const;
 
   double getPitchAngle() const;
 
@@ -45,13 +47,13 @@ public:
 
 private:
   // SDF parameters
-  std::string link_name_;                  // プロペラのリンク名
-  int direction_;                          // Turning direction: 1(CCW) or -1(CW)
-  double gear_ratio_;                      // 減速比 [-]
-  size_t num_blades_;                      // プロペラのブレード数
-  std::pair<double, double> motor_const_;  // T = (c0 + c1 φ) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
-  double moment_const_;                    // TODO: ピッチ角による反トルク係数の変化を考慮
-  std::pair<double, double> drag_const_;  // CH = c0 + c1 φ
+  std::string link_name_;  // プロペラのリンク名
+  int direction_;          // Turning direction: 1(CCW) or -1(CW)
+  double gear_ratio_;      // 減速比 [-]
+  size_t num_blades_;      // プロペラのブレード数
+  tobas::VppMotorConstant motor_const_;
+  tobas::VppMomentConstant moment_const_;
+  tobas::VppDragConstant drag_const_;
 
   // Gazebo objects
   std::shared_ptr<gz::sim::Joint> joint_;
@@ -69,8 +71,5 @@ private:
 
   bool getSdfParams(const sdf::ElementConstPtr& sdf);
   bool initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);
-
-  double getMotorConst(double pitch_angle) const;
-  double getDragConst(double pitch_angle) const;
 };
 }  // namespace gazebo

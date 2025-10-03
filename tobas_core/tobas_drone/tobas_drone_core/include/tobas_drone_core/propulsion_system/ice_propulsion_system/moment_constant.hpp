@@ -20,6 +20,14 @@ public:
   double c;
   double phi0;  // 負の失速角 (= 推力がゼロになるピッチ角) [rad]
 
+  inline explicit VppMomentConstant(double _a, double _b, double _c, double _phi0) : a(_a), b(_b), c(_c), phi0(_phi0)
+  {
+  }
+
+  inline explicit VppMomentConstant() : a(0.), b(0.), c(0.), phi0(0.)
+  {
+  }
+
   bool isValid() const;
 
   bool load(const YAML::Node& node);

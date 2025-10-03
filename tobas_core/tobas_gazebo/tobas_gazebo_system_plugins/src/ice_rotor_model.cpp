@@ -3,6 +3,7 @@
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_gazebo_system_plugins/common/constants.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
@@ -49,17 +50,17 @@ size_t IceRotorModel::getNumBlades() const
 
 double IceRotorModel::getMotorConst() const
 {
-  return getMotorConst(getPitchAngle());
+  return motor_const_.compute(getPitchAngle());
 }
 
 double IceRotorModel::getMomentConst() const
 {
-  return moment_const_;
+  return moment_const_.compute(getPitchAngle());
 }
 
 double IceRotorModel::getDragConst() const
 {
-  return getDragConst(getPitchAngle());
+  return drag_const_.compute(getPitchAngle());
 }
 
 double IceRotorModel::getPitchAngle() const
@@ -80,6 +81,11 @@ double IceRotorModel::getVelocity(const double& engine_speed) const
 double IceRotorModel::getThrust(const double& engine_speed) const
 {
   return getMotorConst() * math::sqr(getSpeed(engine_speed));
+}
+
+double IceRotorModel::getTorque(const double& engine_speed) const
+{
+  return getMomentConst() * getThrust(engine_speed);
 }
 
 void IceRotorModel::setTargetPitchAngle(const double& tar_pitch)
@@ -105,8 +111,7 @@ void IceRotorModel::applyWrench(
   const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
   // External force: Thrust force
-  const auto thrust = getThrust(engine_speed);
-  const auto thrust_force_W = thrust * axis_W;
+  const auto thrust_force_W = getThrust(engine_speed) * axis_W;
 
   // External force: H-force
   const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W;
@@ -114,8 +119,7 @@ void IceRotorModel::applyWrench(
   const auto h_force_W = (-getSpeed(engine_speed) * getDragConst()) * linvel_perp_W;
 
   // External moment: Drag torque
-  const auto torque = moment_const_ * thrust;
-  const auto drag_moment_W = (-direction_ * torque) * axis_W;
+  const auto drag_moment_W = (-direction_ * getTorque(engine_speed)) * axis_W;
 
   // Apply wrench
   link_->AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
@@ -178,35 +182,35 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "motorConstant", motor_const_)) {
+  gz::math::Vector2d motor_const;
+  if (!getSdfParam(sdf, "motorConstant", motor_const)) {
     return false;
   }
-  if (motor_const_.second <= 0.) {
-    gzerr << "The second term of motor constant must be positive." << std::endl;
-    return false;
-  }
-  if (getMotorConst(pitch_angle_.pos_limit.lower) <= 0.) {
-    gzerr << "The motor constant at the lower pitch angle limit must be positive." << std::endl;
-    return false;
-  }
-
-  if (!getSdfParam(sdf, "momentConstant", moment_const_)) {
-    return false;
-  }
-  if (moment_const_ <= 0.) {
-    gzerr << "Moment constant must be positive." << std::endl;
+  motor_const_.c0 = motor_const.X();
+  motor_const_.c1 = motor_const.Y();
+  if (!motor_const_.isValid()) {
     return false;
   }
 
-  if (!getSdfParam(sdf, "dragConstant", drag_const_)) {
+  gz::math::Vector4d moment_const;
+  if (!getSdfParam(sdf, "momentConstant", moment_const)) {
     return false;
   }
-  if (drag_const_.second < 0.) {
-    gzerr << "The second term of drag constant must be non-negative." << std::endl;
+  moment_const_.a = moment_const.X();
+  moment_const_.b = moment_const.Y();
+  moment_const_.c = moment_const.Z();
+  moment_const_.phi0 = moment_const.W();
+  if (!moment_const_.isValid()) {
     return false;
   }
-  if (getDragConst(pitch_angle_.pos_limit.lower) <= 0.) {
-    gzerr << "The drag constant at the lower pitch angle limit must be positive." << std::endl;
+
+  gz::math::Vector2d drag_const;
+  if (!getSdfParam(sdf, "dragConstant", drag_const)) {
+    return false;
+  }
+  drag_const_.c0 = drag_const.X();
+  drag_const_.c1 = drag_const.Y();
+  if (!drag_const_.isValid()) {
     return false;
   }
 
@@ -265,13 +269,4 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   return true;
 }
 
-double IceRotorModel::getMotorConst(double pitch_angle) const
-{
-  return std::max(motor_const_.first + motor_const_.second * pitch_angle, 0.);
-}
-
-double IceRotorModel::getDragConst(double pitch_angle) const
-{
-  return std::max(drag_const_.first + drag_const_.second * pitch_angle, 0.);
-}
 }  // namespace gazebo

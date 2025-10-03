@@ -137,7 +137,7 @@ bool Mixer::solve(
       const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
       const auto B_Pos_B2P = B_T_gpar * thrust_points_.at(idx);
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
-      const auto d_cm = rotor->sign() * rotor->moment_const;
+      const auto d_cm = rotor->sign() * rotor->momentConst();
       E_(0, col_tx) = -d_cm;
       E_(1, col_tx) = B_Pos_G2P.z();
       E_(2, col_tx) = -B_Pos_G2P.y();

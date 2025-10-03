@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -27,9 +28,9 @@ public:
     double pitch_angle,
     double air_density = tobas_std::kStandardAirDensity);
 
-  std::pair<double, double> motorConst() const;
-  std::pair<double, double> momentConst() const;
-  std::pair<double, double> dragConst() const;
+  tobas::VppMotorConstant motorConst() const;
+  tobas::VppMomentConstant momentConst() const;
+  tobas::VppDragConstant dragConst() const;
 
 private:
   const int N_;

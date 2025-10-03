@@ -76,7 +76,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
 
     const auto& link_name = irotor->link_name;
-    const auto& cmd_angle = irotor->pitch_ref;
+    const auto cmd_angle = irotor->optimalPitch();
 
     // Set current pitch angle
     pitch_angles_.at(link_name) = cmd_angle;
@@ -125,7 +125,7 @@ void IcePropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   pitch_angles_.clear();
   for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
-    pitch_angles_[irotor->link_name] = irotor->pitch_ref;
+    pitch_angles_[irotor->link_name] = irotor->optimalPitch();
   }
 
   // Register publishers

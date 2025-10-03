@@ -37,31 +37,39 @@ public:
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;
 
-  /* 最も効率の良いピッチ角における反トルク係数を求める． */
+  /* 最も効率の良いピッチ角における反トルク係数 [m] を求める． */
   inline double momentConst() const override;
 
-  /* ピッチ角から推力定数を求める． */
+  /* 最も効率の良いピッチ角 [rad] を求める． */
+  inline double optimalPitch() const;
+
+  /* ピッチ角 [rad] から推力定数 [kg*m/rad^2] を求める． */
   inline double motorConst(double pitch_angle) const;
 
-  /* ピッチ角から反トルク定数を求める． */
+  /* ピッチ角 [rad] から反トルク定数 [m] を求める． */
   inline double momentConst(double pitch_angle) const;
 
-  /* エンジン回転数からロータ回転数を求める． */
+  /* エンジン回転数 [rad/s] からロータ回転数 [rad/s] を求める． */
   inline double speedEngineToRotor(double engine_speed) const;
 
-  /* ロータ回転数からエンジン回転数を求める． */
+  /* ロータ回転数 [rad/s] からエンジン回転数 [rad/s] を求める． */
   inline double speedRotorToEngine(double rotor_speed) const;
 
-  /* ピッチ角から推力を求める． */
+  /* ピッチ角 [rad] から推力 [N] を求める． */
   inline double thrustFromPitch(double engine_speed, double pitch_angle) const;
 
-  /* 推力からピッチ角を求める． */
+  /* 推力 [N] からピッチ角 [rad] を求める． */
   inline double pitchFromThrust(double engine_speed, double thrust) const;
 };
 
 inline double IceRotorConfig::momentConst() const
 {
   return moment_const.compute(moment_const.optimalPitch());
+}
+
+inline double IceRotorConfig::optimalPitch() const
+{
+  return moment_const.optimalPitch();
 }
 
 inline double IceRotorConfig::motorConst(double pitch_angle) const

@@ -21,7 +21,7 @@ BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, doub
   TOBAS_CHECK(air_density > 0.);
 }
 
-std::pair<double, double> BladeTheory::motorConst() const
+tobas::VppMotorConstant BladeTheory::motorConst() const
 {
   const auto lam = lambda();
   const auto dlam = lambdaDeriv();
@@ -30,17 +30,17 @@ std::pair<double, double> BladeTheory::motorConst() const
   const auto dct = 4 * lam * dlam;
 
   const auto scale = 4 * M_PI * rho_ * math::quar(R_);
-  return { scale * ct, scale * dct };
+  return tobas::VppMotorConstant(scale * ct, scale * dct);
 }
 
-std::pair<double, double> BladeTheory::momentConst() const
+tobas::VppMomentConstant BladeTheory::momentConst() const
 {
   const auto lam = lambda();
   const auto dlam = lambdaDeriv();
-  return { R_ * lam, R_ * dlam };
+  return tobas::VppMomentConstant(R_ * dlam, R_ * lam, 0., 0.);  // FIXME: 1/φ の項を追加
 }
 
-std::pair<double, double> BladeTheory::dragConst() const
+tobas::VppDragConstant BladeTheory::dragConst() const
 {
   const auto sig = sigma();
   const auto lam = lambda();
@@ -60,7 +60,7 @@ std::pair<double, double> BladeTheory::dragConst() const
                                      (9 * lam - 2 * theta_) * db1c + 2 * b0 * db1s);
 
   const auto scale = 4 * M_PI * rho_ * math::cube(R_);
-  return { scale * ch, scale * dch };
+  return tobas::VppDragConstant(scale * ch, scale * dch);
 }
 
 double BladeTheory::sigma() const

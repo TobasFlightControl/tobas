@@ -254,7 +254,6 @@ tobas::Drone ProjectGenerator::createDrone()
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
         rotor->tilt_joint_name = uadf_.tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
-        rotor->pitch_ref = 0.;  // TODO: 最も高校率な位置に設定できるようにする
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
         rotor->hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする

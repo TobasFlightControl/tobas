@@ -3,7 +3,9 @@
 #include <tinyxml2.h>
 #include <eigen3/Eigen/Core>
 
-#include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
+#include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
 namespace gui
 {
@@ -102,9 +104,9 @@ struct IceRotorParam
   size_t num_blades;
   tobas_std::Range<double> pitch_angle_limit;  // [rad]
   double max_pitch_angle_rate;                 // [rad/s]
-  std::pair<double, double> motor_const;
-  double moment_const;
-  std::pair<double, double> drag_const;
+  tobas::VppMotorConstant motor_const;
+  tobas::VppMomentConstant moment_const;
+  tobas::VppDragConstant drag_const;
 };
 
 void addIcePropulsionSystemPlugin(

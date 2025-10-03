@@ -44,12 +44,12 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
     return false;
   }
   for (const auto& rotor_node : rotors_node) {
-    const auto rotor = make_shared<IceRotorConfig>();
-    if (!rotor->load(rotor_node)) {
+    const auto irotor = make_shared<IceRotorConfig>();
+    if (!irotor->load(rotor_node)) {
       cerr << "Failed to load the configurations of rotors." << endl;
       return false;
     }
-    rotors[rotor->link_name] = rotor;
+    rotors[irotor->link_name] = irotor;
   }
 
   // Engine
@@ -107,17 +107,17 @@ double IcePropulsionSystemConfig::minThrust(const string&)
 
 double IcePropulsionSystemConfig::maxThrust(const string& link_name)
 {
-  const auto rotor = getRotor(link_name);
-  const auto max_motor_const = rotor->motorConst(rotor->pitch_limit.upper);
-  const auto max_speed = maxEngineSpeed() / rotor->gear_ratio;
+  const auto irotor = getRotor(link_name);
+  const auto max_motor_const = irotor->motorConst(irotor->pitch_limit.upper);
+  const auto max_speed = maxEngineSpeed() / irotor->gear_ratio;
   return max_motor_const * math::sqr(max_speed);
 }
 
 double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle)
 {
-  const auto rotor = getRotor(link_name);
+  const auto irotor = getRotor(link_name);
   const auto engine_speed = computeEngineSpeed(throttle);
-  return rotor->thrustFromPitch(engine_speed, rotor->moment_const.optimalPitch());  // 最適ピッチ角のときの推力を返す
+  return irotor->thrustFromPitch(engine_speed, irotor->optimalPitch());  // 最適ピッチ角のときの推力を返す
 }
 
 double IcePropulsionSystemConfig::maxEngineSpeed()
@@ -184,7 +184,7 @@ double IcePropulsionSystemConfig::calc_k() const
   double res = 0.;
   for (const auto& [_, rotor] : rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
-    const auto phi_r = irotor->moment_const.optimalPitch();
+    const auto phi_r = irotor->optimalPitch();
     const auto& n = irotor->gear_ratio;
     res += irotor->motorConst(phi_r) * irotor->momentConst(phi_r) / math::cube(n);
   }

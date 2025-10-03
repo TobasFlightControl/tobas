@@ -76,7 +76,7 @@ bool QpMixer::solve(
 
     // 回転
     const auto d = rotor->sign();
-    const auto& cm = rotor->moment_const;
+    const auto cm = rotor->momentConst();
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.block<3, 1>(3, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;

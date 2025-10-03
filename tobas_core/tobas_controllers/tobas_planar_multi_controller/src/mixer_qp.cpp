@@ -75,7 +75,7 @@ bool QpMixer::solve(
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     const auto d = rotor->sign();
-    const auto& cm = rotor->moment_const;
+    const auto cm = rotor->momentConst();
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.col(idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }

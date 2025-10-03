@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gz/common/Console.hh>
+#include <gz/math/Vector4.hh>
 #include <sdf/sdf.hh>
 
 namespace gazebo
@@ -36,6 +37,30 @@ bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::
 
   param.first = tmp.X();
   param.second = tmp.Y();
+
+  return true;
+}
+
+template <typename T>
+bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, gz::math::Vector4<T>& param)
+{
+  // 文字列として取得 (e.g. "1.0 2.0 3.0 0.5")
+  std::string str;
+  if (!getSdfParam(sdf, name, str)) {
+    return false;
+  }
+
+  std::istringstream iss(str);
+  T x, y, z, w;
+  if (!(iss >> x >> y >> z >> w)) {
+    gzerr << "Invalid vec4: " << str << std::endl;
+    return false;
+  }
+
+  param.X(x);
+  param.Y(y);
+  param.Z(z);
+  param.W(w);
 
   return true;
 }

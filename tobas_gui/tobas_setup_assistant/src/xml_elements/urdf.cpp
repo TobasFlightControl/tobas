@@ -1,6 +1,7 @@
 #include "tobas_setup_assistant/xml_elements/urdf.hpp"
 
 #include <format>
+#include <ranges>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -28,20 +29,34 @@ std::string toString<std::string>(const std::string& data)
 template <>
 std::string toString<double>(const double& data)
 {
-  return std::format("{}", data);  // 最適な表記方法を自動判定
+  // 最適な表記方法を自動判定
+  return std::format("{}", data);
+}
+
+template <>
+std::string toString<std::vector<double>>(const std::vector<double>& data)
+{
+  std::string res;
+  for (const auto& [i, x] : std::views::enumerate(data)) {
+    if (i != 0) {
+      res += ' ';
+    }
+    res += toString(x);
+  }
+  return res;
 }
 
 template <>
 std::string toString<std::pair<double, double>>(const std::pair<double, double>& data)
 {
-  // format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
-  return toString(data.first) + " " + toString(data.second);
+  // format("{} {}", first, second) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
+  return toString(data.first) + ' ' + toString(data.second);
 }
 
 template <>
 std::string toString<Eigen::Vector3d>(const Eigen::Vector3d& data)
 {
-  return toString(data.x()) + " " + toString(data.y()) + " " + toString(data.z());
+  return toString(data.x()) + ' ' + toString(data.y()) + ' ' + toString(data.z());
 }
 
 template <typename T>
@@ -247,9 +262,16 @@ void addIcePropulsionSystemPlugin(
     rotor->InsertNewChildElement("minPitchAngle")->SetText(rotor_param.pitch_angle_limit.lower);
     rotor->InsertNewChildElement("maxPitchAngle")->SetText(rotor_param.pitch_angle_limit.upper);
     rotor->InsertNewChildElement("maxPitchAngleRate")->SetText(rotor_param.max_pitch_angle_rate);
-    rotor->InsertNewChildElement("motorConstant")->SetText(toString(rotor_param.motor_const).c_str());
-    rotor->InsertNewChildElement("momentConstant")->SetText(rotor_param.moment_const);
-    rotor->InsertNewChildElement("dragConstant")->SetText(toString(rotor_param.drag_const).c_str());
+
+    const auto& ct = rotor_param.motor_const;
+    rotor->InsertNewChildElement("motorConstant")->SetText(toString(std::vector<double>{ ct.c0, ct.c1 }).c_str());
+
+    const auto& cm = rotor_param.moment_const;
+    rotor->InsertNewChildElement("momentConstant")
+      ->SetText(toString(std::vector<double>{ cm.a, cm.b, cm.c, cm.phi0 }).c_str());
+
+    const auto& ch = rotor_param.drag_const;
+    rotor->InsertNewChildElement("dragConstant")->SetText(toString(std::vector<double>{ ch.c0, ch.c1 }).c_str());
   }
 }
 
