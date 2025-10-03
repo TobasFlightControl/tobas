@@ -11,6 +11,7 @@
 - [gz-sim](https://github.com/gazebosim/gz-sim/tree/ign-gazebo3/examples/worlds)
 - [Fuel Latest Worlds](https://app.gazebosim.org/fuel/worlds)
   - OpenRobotics のモデルはメッシュをダウンロードする方式が多いからファイル自体は軽量で良い
+- [Gazebo Worlds | PX4](https://docs.px4.io/main/en/sim_gazebo_gz/worlds.html)
 
 ### パッケージからの URI 指定 (dsv.in にパスを正しく設定する必要あり)
 
