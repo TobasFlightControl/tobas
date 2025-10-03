@@ -56,6 +56,7 @@ void ControlSystemWidget::reset()
   pose_viewer_->reset();
   power_source_viewer_->reset();
   cpu_viewer_->reset();
+  gnss_viewer_->reset();
   rcin_viewer_->reset();
   rotors_viewer_->reset();
   console_->reset();
