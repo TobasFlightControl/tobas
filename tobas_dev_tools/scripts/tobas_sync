@@ -24,6 +24,5 @@ rsync -av --delete \
   --exclude .git/ \
   --exclude tobas_cui/ \
   --exclude tobas_description/ \
-  --exclude tobas_gazebo/ \
   --exclude tobas_legged_robot/ \
   pi@$1:~/colcon_ws/src/tobas/
