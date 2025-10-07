@@ -20,7 +20,7 @@ RenderInfo::RenderInfo()
 void RenderInfo::LoadConfig(const tinyxml2::XMLElement*)
 {
   if (title.empty()) {
-    title = "Render Information Plugin";
+    title = "Rendering Information Plugin";
   }
 
   fps_pub_ = node_.Advertise<gz::msgs::Double>(gazebo::kGzRenderFpsTopic);
