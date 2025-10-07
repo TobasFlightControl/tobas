@@ -63,7 +63,7 @@ void GazeboLookAtPositionPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
 
-  lookat_pos_pub_ = node_.Advertise<gz::msgs::Vector3d>(kLookAtPositionTopic);
+  lookat_pos_pub_ = node_.Advertise<gz::msgs::Vector3d>(kGzCameraLookAtTopic);
 }
 
 void GazeboLookAtPositionPlugin::PostUpdate(const gz::sim::UpdateInfo&, const gz::sim::EntityComponentManager&)

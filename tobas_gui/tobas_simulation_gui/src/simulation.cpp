@@ -148,7 +148,7 @@ bool SimulationWidget::startSITL()
   progress.progressStep();
 
   // Gazeboを起動
-  progress.setLabelText("Launching Gazebo.");
+  progress.setLabelText("Launching Gazebo server.");
   if (!launchGazebo(true)) {
     progress.close();
     reset();

@@ -1,3 +1,5 @@
+#include "./LookAtCamera.hpp"
+
 #include <boost/polymorphic_pointer_cast.hpp>
 #include <gz/common/Console.hh>
 #include <gz/gui/Application.hh>
@@ -8,8 +10,6 @@
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_msg.hpp>
-
-#include "./LookAtCamera.hpp"
 
 namespace gazebo
 {
@@ -36,7 +36,7 @@ bool LookAtCamera::eventFilter(QObject* obj, QEvent* event)
     onRender();
   }
 
-  return QObject::eventFilter(obj, event);
+  return super::eventFilter(obj, event);
 }
 
 void LookAtCamera::onRender()
@@ -93,7 +93,7 @@ void LookAtCamera::initialize()
     return;
   }
 
-  node_.Subscribe(kLookAtPositionTopic, &LookAtCamera::lookAtPositionCb, this);
+  node_.Subscribe(kGzCameraLookAtTopic, &LookAtCamera::lookAtPositionCb, this);
 }
 
 void LookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
