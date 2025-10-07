@@ -12,7 +12,7 @@ class RenderInfo : public gz::gui::Plugin
   using self = RenderInfo;
   using super = gz::gui::Plugin;
 
-  static constexpr double kAlpha = 0.01;
+  static constexpr double kAlpha = 0.05;
   static constexpr auto kPublishPeriod = std::chrono::milliseconds(1000);
 
 public:
