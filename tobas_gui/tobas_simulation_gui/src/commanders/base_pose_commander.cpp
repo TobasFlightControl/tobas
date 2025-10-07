@@ -93,7 +93,7 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 
 bool BasePoseCommanderWidget::start()
 {
-  if (!set_arm_sc_->waitForService(kWaitForService)) {
+  if (!set_arm_sc_->waitForService()) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.");
     return false;
   }
@@ -171,7 +171,7 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
 {
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
-  if (!set_arm_sc_->call(req, kWaitForService)) {
+  if (!set_arm_sc_->call(req, kServiceCallTimeout)) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }

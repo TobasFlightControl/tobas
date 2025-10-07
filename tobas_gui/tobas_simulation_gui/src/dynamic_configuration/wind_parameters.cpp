@@ -58,11 +58,11 @@ void WindParamsWidget::updateNamespace(const std::string& ns)
 
 bool WindParamsWidget::start()
 {
-  if (!get_sc_->waitForService(kWaitForService)) {
+  if (!get_sc_->waitForService()) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.");
     return false;
   }
-  if (!set_sc_->waitForService(kWaitForService)) {
+  if (!set_sc_->waitForService()) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.");
     return false;
   }
