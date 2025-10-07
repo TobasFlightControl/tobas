@@ -57,8 +57,8 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBrid
 
 void SimulationWidget::reset()
 {
-  resetDynamicConfig();
-  resetCommanders();
+  dynamic_config_->reset();
+  commanders_->reset();
 
   if (isRunning()) {
     killGazebo();
@@ -158,7 +158,7 @@ bool SimulationWidget::startSITL()
 
   // 動的パラメータを起動
   progress.setLabelText("Starting dynamic configurations.");
-  if (!startDynamicConfig()) {
+  if (!dynamic_config_->start()) {
     progress.close();
     reset();
     return false;
@@ -167,7 +167,7 @@ bool SimulationWidget::startSITL()
 
   // コマンダーを起動
   progress.setLabelText("Starting commanders.");
-  if (!startCommanders()) {
+  if (!commanders_->start()) {
     progress.close();
     reset();
     return false;
@@ -181,10 +181,10 @@ bool SimulationWidget::startSITL()
 void SimulationWidget::terminateSITL()
 {
   // 動的パラメータを終了
-  resetDynamicConfig();
+  dynamic_config_->reset();
 
   // コマンダーを終了
-  resetCommanders();
+  commanders_->reset();
 
   // 別スレッドでGazeboプロセスを終了
   const auto kill_gazebo_res = killGazebo();
@@ -291,7 +291,7 @@ bool SimulationWidget::startHITL()
 
   // 動的パラメータを起動
   progress.setLabelText("Starting dynamic configurations.");
-  if (!startDynamicConfig()) {
+  if (!dynamic_config_->start()) {
     progress.close();
     return false;
   }
@@ -299,7 +299,7 @@ bool SimulationWidget::startHITL()
 
   // コマンダーを起動
   progress.setLabelText("Starting commanders.");
-  if (!startCommanders()) {
+  if (!commanders_->start()) {
     progress.close();
     return false;
   }
@@ -423,26 +423,6 @@ std::expected<void, QString> SimulationWidget::killGazebo(bool run_spinner)
   else {
     return std::unexpected(message);
   }
-}
-
-bool SimulationWidget::startDynamicConfig()
-{
-  return dynamic_config_->start();
-}
-
-void SimulationWidget::resetDynamicConfig()
-{
-  dynamic_config_->reset();
-}
-
-bool SimulationWidget::startCommanders()
-{
-  return commanders_->start();
-}
-
-void SimulationWidget::resetCommanders()
-{
-  commanders_->reset();
 }
 
 std::string SimulationWidget::boolToText(bool arg)
