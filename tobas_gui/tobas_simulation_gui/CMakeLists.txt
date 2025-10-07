@@ -19,6 +19,7 @@ set(AMENT_DEPENDENCIES
     tobas_msgs_adapter
     tobas_command_msgs_adapter
     tobas_gazebo_common
+    tobas_gazebo_tools
     tobas_gazebo_msgs
     tobas_qt_tools
     tobas_rqt_bridge

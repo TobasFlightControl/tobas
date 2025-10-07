@@ -15,6 +15,7 @@
   <depend>tobas_msgs_adapter</depend>
   <depend>tobas_command_msgs_adapter</depend>
   <depend>tobas_gazebo_common</depend>
+  <depend>tobas_gazebo_tools</depend>
   <depend>tobas_gazebo_msgs</depend>
   <depend>tobas_qt_tools</depend>
   <depend>tobas_rqt_bridge</depend>

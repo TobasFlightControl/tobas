@@ -76,6 +76,9 @@ private:
   bool launchGazebo(bool launch_core);
   std::expected<void, QString> killGazebo(bool run_spinner = true);
 
+  bool waitForGazeboServerStart();
+  bool waitForGazeboRenderingStart();
+
   static std::string boolToText(bool arg);
 
 private Q_SLOTS:

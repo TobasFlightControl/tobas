@@ -1,5 +1,7 @@
 #include "tobas_simulation_gui/simulation.hpp"
 
+#include <gz/msgs/double.pb.h>
+#include <gz/msgs/world_stats.pb.h>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDebug>
@@ -7,6 +9,8 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_tools/transport.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
@@ -18,6 +22,7 @@
 
 #include "tobas_simulation_gui/kill_gazebo_thread.hpp"
 
+using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace gui
@@ -133,7 +138,7 @@ bool SimulationWidget::startSITL()
   }
 
   // プログレスバーを作成
-  qt::ProgressDialog progress("Start SITL", 4, this);
+  qt::ProgressDialog progress("Start SITL", 6, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -148,8 +153,26 @@ bool SimulationWidget::startSITL()
   progress.progressStep();
 
   // Gazeboを起動
-  progress.setLabelText("Launching Gazebo server.");
+  progress.setLabelText("Launching the simulation.");
   if (!launchGazebo(true)) {
+    progress.close();
+    reset();
+    return false;
+  }
+  progress.progressStep();
+
+  // Gazeboサーバの起動を待つ
+  progress.setLabelText("Waiting for the Gazebo server to start.");
+  if (!waitForGazeboServerStart()) {
+    progress.close();
+    reset();
+    return false;
+  }
+  progress.progressStep();
+
+  // Gazeboレンダリングの開始を待つ
+  progress.setLabelText("Waiting for Gazebo rendering to start.");
+  if (!waitForGazeboRenderingStart()) {
     progress.close();
     reset();
     return false;
@@ -217,7 +240,7 @@ bool SimulationWidget::startHITL()
   }
 
   // プログレスバーを作成
-  qt::ProgressDialog progress("Start HITL", 9, this);
+  qt::ProgressDialog progress("Start HITL", 11, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -275,6 +298,22 @@ bool SimulationWidget::startHITL()
   progress.setLabelText("Launching Gazebo.");
   if (!launchGazebo(true))  // FIXME: 通信負荷を改善してcoreをRPi側で立ち上げる
   {
+    progress.close();
+    return false;
+  }
+  progress.progressStep();
+
+  // Gazeboサーバの起動を待つ
+  progress.setLabelText("Waiting for the Gazebo server to start.");
+  if (!waitForGazeboServerStart()) {
+    progress.close();
+    return false;
+  }
+  progress.progressStep();
+
+  // Gazeboレンダリングの開始を待つ
+  progress.setLabelText("Waiting for Gazebo rendering to start.");
+  if (!waitForGazeboRenderingStart()) {
     progress.close();
     return false;
   }
@@ -423,6 +462,28 @@ std::expected<void, QString> SimulationWidget::killGazebo(bool run_spinner)
   else {
     return std::unexpected(message);
   }
+}
+
+bool SimulationWidget::waitForGazeboServerStart()
+{
+  gz::msgs::WorldStatistics msg;
+  if (!gazebo::waitForMessage(msg, gazebo::kGzStatsTopic)) {
+    qt::qErrorBox(this, "Failed to start Gazebo server.");
+    return false;
+  }
+
+  return true;
+}
+
+bool SimulationWidget::waitForGazeboRenderingStart()
+{
+  gz::msgs::Double msg;
+  if (!gazebo::waitForMessage(msg, gazebo::kGzRenderFpsTopic)) {
+    qt::qErrorBox(this, "Failed to get Gazebo rendering information.");
+    return false;
+  }
+
+  return true;
 }
 
 std::string SimulationWidget::boolToText(bool arg)
