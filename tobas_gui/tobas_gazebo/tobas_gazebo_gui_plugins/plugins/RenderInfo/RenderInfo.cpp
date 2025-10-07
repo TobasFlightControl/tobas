@@ -39,17 +39,17 @@ bool RenderInfo::eventFilter(QObject* obj, QEvent* event)
 
 void RenderInfo::onRender()
 {
+  const auto now = ch::steady_clock::now();
+
   if (!scene_) {
     scene_ = gz::rendering::sceneFromFirstRenderEngine();
     if (!scene_) {
       return;
     }
 
-    t_last_tick_ = t_last_pub_ = ch::steady_clock::now();
+    t_last_tick_ = t_last_pub_ = now;
     return;
   }
-
-  const auto now = ch::steady_clock::now();
 
   if (now <= t_last_tick_) {
     gzwarn << "The steady clock is not advancing." << std::endl;
