@@ -25,7 +25,7 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
   const auto title = new qt::Label("Joint Position", cmn::kLabelPSize, QFont::Bold);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
-  start_stop_button_->setFixedSize(kStartButtonWidth, kStartButtonHeight);
+  start_stop_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
   cmd_rows_ = new QVBoxLayout();
 

@@ -34,7 +34,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   header_cols->addStretch();
 
   arming_button_ = new qt::ToggleButton("Arm", "Disarm");
-  arming_button_->setFixedSize(kStartButtonWidth, kStartButtonHeight);
+  arming_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
   header_cols->addWidget(arming_button_);
   connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmRequested);
   connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
