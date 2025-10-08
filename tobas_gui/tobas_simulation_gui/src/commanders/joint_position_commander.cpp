@@ -10,6 +10,8 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
+#include "tobas_simulation_gui/commanders/constants.hpp"
+
 namespace gui
 {
 namespace sim
@@ -23,7 +25,7 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
   const auto title = new qt::Label("Joint Position", cmn::kLabelPSize, QFont::Bold);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
-  start_stop_button_->setFixedSize(kStartStopButtonWidth, kStartStopButtonHeight);
+  start_stop_button_->setFixedSize(kStartButtonWidth, kStartButtonHeight);
 
   cmd_rows_ = new QVBoxLayout();
 

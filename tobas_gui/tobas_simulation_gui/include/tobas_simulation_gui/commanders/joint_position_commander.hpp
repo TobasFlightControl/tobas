@@ -25,10 +25,6 @@ class JointPositionCommanderWidget : public QWidget
   using self = JointPositionCommanderWidget;
   using super = QWidget;
 
-  static constexpr int kStartStopButtonWidth = 100;
-  static constexpr int kStartStopButtonHeight = 40;
-  static constexpr int kCommandButtonHeight = 40;
-
   static constexpr int kPublishCommandPeriod = 100;  // [ms]
 
 public:

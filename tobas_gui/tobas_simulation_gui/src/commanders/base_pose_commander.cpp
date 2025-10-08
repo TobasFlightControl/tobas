@@ -11,7 +11,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-#include "tobas_simulation_gui/constants.hpp"
+#include "tobas_simulation_gui/commanders/constants.hpp"
 
 namespace gui
 {
@@ -34,7 +34,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   header_cols->addStretch();
 
   arming_button_ = new qt::ToggleButton("Arm", "Disarm");
-  arming_button_->setFixedSize(kArmingButtonWidth, kArmingButtonHeight);
+  arming_button_->setFixedSize(kStartButtonWidth, kStartButtonHeight);
   header_cols->addWidget(arming_button_);
   connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmRequested);
   connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
