@@ -24,16 +24,16 @@ public:
   int get() const;
   void set(int value);
 
-private Q_SLOTS:
-  void onSliderReleased();
-  void onLineEditReturnPressed();
-
 private:
   Slider* slider_;
   QLineEdit* line_edit_;
 
   void setSliderValue(int value);
   void setLineEditText(int value);
+
+private Q_SLOTS:
+  void onSliderValueChanged();
+  void onLineEditReturnPressed();
 };
 
 class DoubleSliderTextWidget : public QWidget
@@ -52,10 +52,6 @@ public:
   double get() const;
   void set(double value);
 
-private Q_SLOTS:
-  void onSliderReleased();
-  void onLineEditReturnPressed();
-
 private:
   const int decimals_;
   DoubleSlider* slider_;
@@ -63,5 +59,9 @@ private:
 
   void setSliderValue(double value);
   void setLineEditText(double value);
+
+private Q_SLOTS:
+  void onSliderValueChanged();
+  void onLineEditReturnPressed();
 };
 }  // namespace qt

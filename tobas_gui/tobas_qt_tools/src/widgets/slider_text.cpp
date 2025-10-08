@@ -17,7 +17,7 @@ IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* pare
 
   slider_ = new Slider(Qt::Horizontal);
   slider_->setRange(minimum, maximum);
-  connect(slider_, &Slider::sliderReleased, this, &self::onSliderReleased);
+  connect(slider_, &Slider::valueChanged, this, &self::onSliderValueChanged);
   cols->addWidget(slider_);
 
   cols->addWidget(new QLabel(QString::number(maximum)));
@@ -41,7 +41,7 @@ void IntSliderTextWidget::set(int value)
   setLineEditText(value);
 }
 
-void IntSliderTextWidget::onSliderReleased()
+void IntSliderTextWidget::onSliderValueChanged()
 {
   const auto value = slider_->value();
   setLineEditText(value);
@@ -77,7 +77,7 @@ DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, i
 
   slider_ = new DoubleSlider(Qt::Horizontal);
   slider_->setRange(minimum, maximum);
-  connect(slider_, &Slider::sliderReleased, this, &self::onSliderReleased);
+  connect(slider_, &Slider::valueChanged, this, &self::onSliderValueChanged);
   cols->addWidget(slider_);
 
   cols->addWidget(new QLabel(QString::number(maximum, 'f', decimals)));
@@ -101,7 +101,7 @@ void DoubleSliderTextWidget::set(double value)
   setLineEditText(value);
 }
 
-void DoubleSliderTextWidget::onSliderReleased()
+void DoubleSliderTextWidget::onSliderValueChanged()
 {
   const auto value = slider_->value();
   setLineEditText(value);
