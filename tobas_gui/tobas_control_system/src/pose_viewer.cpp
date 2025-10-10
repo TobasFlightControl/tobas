@@ -93,10 +93,10 @@ void PoseViewerWidget::drawSky(QPainter& painter)
     const auto b = (tan_phi / 2) * (w - h * r * sin_phi) + (h / 2) * (1 - r * cos_phi);
 
     // 直線と描画領域の外辺の交点
-    const QPoint XO(int(-b / a), 0);       // 直線と y = 0 の交点
-    const QPoint XH(int((h - b) / a), h);  // 直線と y = h の交点
-    const QPoint OY(0, int(b));            // 直線と x = 0 の交点
-    const QPoint WY(w, int(a * w + b));    // 直線と x = w の交点
+    const QPoint XO(-b / a, 0);       // 直線と y = 0 の交点
+    const QPoint XH((h - b) / a, h);  // 直線と y = h の交点
+    const QPoint OY(0, b);            // 直線と x = 0 の交点
+    const QPoint WY(w, a * w + b);    // 直線と x = w の交点
 
     // 描画領域の四隅がそれぞれ空領域に含まれるかどうかを判定
     const auto OO_sky = isSky(OO, a, b);
