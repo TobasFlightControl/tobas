@@ -47,14 +47,13 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   flight_log_ = new log::FlightLogWidget(node, bridge_);
   simulation_ = new sim::SimulationWidget(node, bridge_);
 
-  // TODO: 別々のアイコンを設定
-  const auto rsrc_dir = getResourceDir();
-  const auto sensor_calib_btn = new AppButton("Sensor Calib", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto actuator_test_btn = new AppButton("Actuator Test", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto rsrc_dir = QString::fromStdString(getResourceDir());
+  const auto sensor_calib_btn = new AppButton("Sensor Calib", rsrc_dir + "/sensor_calibration.svg");
+  const auto actuator_test_btn = new AppButton("Actuator Test", rsrc_dir + "/actuator_test.svg");
+  const auto control_system_btn = new AppButton("Control System", rsrc_dir + "/control_system.svg");
+  const auto param_tuning_btn = new AppButton("Param Tuning", rsrc_dir + "/parameter_tuning.svg");
+  const auto flight_log_btn = new AppButton("Flight Log", rsrc_dir + "/flight_log.svg");
+  const auto simulation_btn = new AppButton("Simulation", rsrc_dir + "/simulation.svg");
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(sensor_calib_);
