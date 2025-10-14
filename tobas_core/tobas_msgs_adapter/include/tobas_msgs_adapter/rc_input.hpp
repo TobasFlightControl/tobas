@@ -15,10 +15,10 @@ struct RCInput
   double pitch;
   double throttle;
   double yaw;
-  bool enable;
-  bool kill;
   tobas::FlightMode mode;
   bool sub_mode;
+  bool enable;
+  bool kill;
   std::array<bool, 8> gpsw;
 
   using SharedPtr = std::shared_ptr<RCInput>;
@@ -40,10 +40,10 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
     dst.pitch = src.pitch;
     dst.throttle = src.throttle;
     dst.yaw = src.yaw;
-    dst.enable = src.enable;
-    dst.kill = src.kill;
     dst.mode = static_cast<uint8_t>(src.mode);
     dst.sub_mode = src.sub_mode;
+    dst.enable = src.enable;
+    dst.kill = src.kill;
     dst.gpsw = src.gpsw;
   }
 
@@ -54,10 +54,10 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
     dst.pitch = src.pitch;
     dst.throttle = src.throttle;
     dst.yaw = src.yaw;
-    dst.enable = src.enable;
-    dst.kill = src.kill;
     dst.mode = static_cast<tobas::FlightMode>(src.mode);
     dst.sub_mode = src.sub_mode;
+    dst.enable = src.enable;
+    dst.kill = src.kill;
     dst.gpsw = src.gpsw;
   }
 };

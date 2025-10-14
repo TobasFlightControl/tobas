@@ -59,10 +59,10 @@ private:
   qt::VPositionBarWidget* pitch_range_;
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
-  qt::HPositionBarWidget* enable_range_;
-  qt::HPositionBarWidget* kill_range_;
   qt::HPositionBarWidget* mode_range_;
   qt::HPositionBarWidget* sub_mode_range_;
+  qt::HPositionBarWidget* enable_range_;
+  qt::HPositionBarWidget* kill_range_;
 
   std::array<QLabel*, tobas::kMaxNumOfGpsw> gpsw_labels_;
   std::array<qt::HPositionBarWidget*, tobas::kMaxNumOfGpsw> gpsw_ranges_;
