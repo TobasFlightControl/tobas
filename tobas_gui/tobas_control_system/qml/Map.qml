@@ -12,9 +12,12 @@ Rectangle {
     id: mapPlugin
     name: "osm"  // itemsoverlay, mapbox, here, esri, osm
 
-    PluginParameter {  // Remove "Api Key Required": https://www.youtube.com/watch?v=VlRMQWqI0S8
+    PluginParameter {  // タイルサーバを指定
       name: "osm.mapping.custom.host"
-      value: "https://tile.openstreetmap.org/"
+      value: "https://tile.openstreetmap.org/"  // Open Street Map: https://www.openstreetmap.org
+      // value: "https://cyberjapandata.gsi.go.jp/xyz/std/"  // 標準地図 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
+      // value: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/"  // 写真 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
+      // value: "https://c.tile.opentopomap.org/"  // OpenTopoMap: https://github.com/der-stefan/OpenTopoMap
     }
     PluginParameter {
       name: "osm.mapping.cache.directory"
@@ -39,7 +42,7 @@ Rectangle {
     id: map
     objectName: "map"  // Qt側からアクセスするためのオブジェクト名
     anchors.fill: parent
-    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1]
+    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1]  // タイルサーバを指定する場合に必要
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
     plugin: mapPlugin
