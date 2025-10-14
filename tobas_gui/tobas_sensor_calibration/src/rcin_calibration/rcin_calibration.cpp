@@ -92,7 +92,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   yaw_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(yaw_range_);
 
-  throt_range_ = new qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
+  throt_range_ = new qt::VPositionBarWidget(kMaxPeriod, kMinPeriod);
   throt_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(throt_range_);
 

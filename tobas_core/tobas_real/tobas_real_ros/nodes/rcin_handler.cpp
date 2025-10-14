@@ -107,11 +107,11 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
-  if (!pt_.get(ns(), kThrotUpKey, throt_range_.upper)) {
+  if (!pt_.get(ns(), kThrotUpKey, throt_range_.lower)) {
     TOBAS_ERROR("Failed to get \"", kThrotUpKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kThrotDownKey, throt_range_.lower)) {
+  if (!pt_.get(ns(), kThrotDownKey, throt_range_.upper)) {
     TOBAS_ERROR("Failed to get \"", kThrotDownKey, "\".");
     return false;
   }
@@ -235,8 +235,8 @@ void RCInputHandlerNode::setParamsCb(
   pitch_range_.lower = req->pitch_down;
   yaw_range_.upper = req->yaw_left;
   yaw_range_.lower = req->yaw_right;
-  throt_range_.upper = req->throttle_up;
-  throt_range_.lower = req->throttle_down;
+  throt_range_.lower = req->throttle_up;
+  throt_range_.upper = req->throttle_down;
   enable_on_ = req->enable_on;
   enable_off_ = req->enable_off;
   kill_on_ = req->kill_on;
