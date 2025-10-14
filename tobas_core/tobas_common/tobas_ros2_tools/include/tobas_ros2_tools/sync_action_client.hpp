@@ -49,7 +49,7 @@ public:
       return {};
     }
 
-    auto send_goal_future = client_->async_send_goal(goal);
+    const auto send_goal_future = client_->async_send_goal(goal);
     send_goal_future.wait();
 
     const auto goal_handle = send_goal_future.get();
@@ -74,7 +74,7 @@ public:
     std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(-1),
     std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
   {
-    auto [goal_handle, get_result_future] = sendGoal(goal);
+    const auto [goal_handle, get_result_future] = sendGoal(goal);
     if (!get_result_future.valid()) {
       return false;
     }
@@ -105,7 +105,7 @@ public:
     std::shared_ptr<rclcpp_action::ClientGoalHandle<ActionType>> goal_handle,
     std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
-    auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
+    const auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
     if (waitForFuture(cancel_goal_future, timeout) != std::future_status::ready) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to cancel \"" << action_name_ << "\" action goal.");
       return false;

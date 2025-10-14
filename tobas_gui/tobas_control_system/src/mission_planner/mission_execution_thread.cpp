@@ -86,7 +86,7 @@ bool MissionExecutionThread::execute(TakeoffData::SharedPtr command)
   goal.timeout = kCommandTimeout;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = takeoff_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = takeoff_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call takeoff action.");
     return false;
@@ -117,7 +117,7 @@ bool MissionExecutionThread::execute(LandData::SharedPtr)
   goal.level.data = kCommandLevel;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = land_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = land_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call land action.");
     return false;
@@ -154,7 +154,7 @@ bool MissionExecutionThread::execute(WaypointData::SharedPtr command)
   goal.timeout = kCommandTimeout;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call move action.");
     return false;
@@ -204,7 +204,7 @@ bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
   goal.timeout = kCommandTimeout;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call move action.");
     return false;
