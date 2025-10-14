@@ -12,6 +12,7 @@ Rectangle {
     id: mapPlugin
     name: "osm"  // itemsoverlay, mapbox, here, esri, osm
 
+    // Tile Server / Tile Sources: https://www.trailnotes.org/FetchMap/TileServeSource.html
     PluginParameter {  // タイルサーバを指定
       name: "osm.mapping.custom.host"
       value: "https://tile.openstreetmap.org/"  // Open Street Map: https://www.openstreetmap.org
