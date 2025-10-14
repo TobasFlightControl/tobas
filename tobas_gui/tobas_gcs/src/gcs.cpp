@@ -48,12 +48,12 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   simulation_ = new sim::SimulationWidget(node, bridge_);
 
   const auto rsrc_dir = QString::fromStdString(getResourceDir() / "tool");
-  const auto sensor_calib_btn = new AppButton("Sensor Calib", rsrc_dir + "/sensor_calibration.png");
-  const auto actuator_test_btn = new AppButton("Actuator Test", rsrc_dir + "/actuator_test.png");
-  const auto control_system_btn = new AppButton("Control System", rsrc_dir + "/control_system.png");
-  const auto param_tuning_btn = new AppButton("Param Tuning", rsrc_dir + "/parameter_tuning.png");
-  const auto flight_log_btn = new AppButton("Flight Log", rsrc_dir + "/flight_log.png");
-  const auto simulation_btn = new AppButton("Simulation", rsrc_dir + "/simulation.png");
+  const auto sensor_calib_btn = new AppButton("Sensor Calib", rsrc_dir + "/sensor_calibration.svg");
+  const auto actuator_test_btn = new AppButton("Actuator Test", rsrc_dir + "/actuator_test.svg");
+  const auto control_system_btn = new AppButton("Control System", rsrc_dir + "/control_system.svg");
+  const auto param_tuning_btn = new AppButton("Param Tuning", rsrc_dir + "/parameter_tuning.svg");
+  const auto flight_log_btn = new AppButton("Flight Log", rsrc_dir + "/flight_log.svg");
+  const auto simulation_btn = new AppButton("Simulation", rsrc_dir + "/simulation.svg");
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(sensor_calib_);
