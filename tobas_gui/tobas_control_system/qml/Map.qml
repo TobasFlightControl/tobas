@@ -3,13 +3,14 @@ import QtLocation 5.15
 import QtPositioning 5.15
 import "./map_constants.js" as Constants
 
+// Qt Location: https://doc.qt.io/archives/qt-5.15/qtlocation-index.html
 Rectangle {
   id: rectangle
 
   // Qt Location Open Street Map Plugin: https://doc.qt.io/archives/qt-5.15/location-plugin-osm.html
   Plugin {
     id: mapPlugin
-    name: "osm"
+    name: "osm"  // itemsoverlay, mapbox, here, esri, osm
 
     PluginParameter {  // Remove "Api Key Required": https://www.youtube.com/watch?v=VlRMQWqI0S8
       name: "osm.mapping.custom.host"
