@@ -6,14 +6,14 @@ import "./map_constants.js" as Constants
 Rectangle {
   id: rectangle
 
+  // Qt Location Open Street Map Plugin: https://doc.qt.io/archives/qt-5.15/location-plugin-osm.html
   Plugin {
     id: mapPlugin
     name: "osm"
 
-    // OSMプラグインのパラメータはTobasの全てのMapオブジェクトで同一にする
-    PluginParameter {
-      name: "osm.mapping.providersrepository.disabled"
-      value: "true"
+    PluginParameter {  // Remove "Api Key Required": https://www.youtube.com/watch?v=VlRMQWqI0S8
+      name: "osm.mapping.custom.host"
+      value: "https://tile.openstreetmap.org/"
     }
     PluginParameter {
       name: "osm.mapping.cache.directory"
@@ -33,11 +33,12 @@ Rectangle {
     }
   }
 
-  // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html#supportedMapTypes-prop
+  // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html
   Map {
     id: map
     objectName: "map"  // Qt側からアクセスするためのオブジェクト名
     anchors.fill: parent
+    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1]
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
     plugin: mapPlugin
