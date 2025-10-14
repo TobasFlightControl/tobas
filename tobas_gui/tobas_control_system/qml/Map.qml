@@ -7,7 +7,7 @@ Rectangle {
   id: rectangle
 
   Plugin {
-    id: osmPlugin
+    id: mapPlugin
     name: "osm"
 
     // OSMプラグインのパラメータはTobasの全てのMapオブジェクトで同一にする
@@ -40,7 +40,7 @@ Rectangle {
     anchors.fill: parent
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
-    plugin: osmPlugin
+    plugin: mapPlugin
     zoomLevel: 0  // 最小
 
     // Arrow
@@ -159,6 +159,8 @@ Rectangle {
   signal setArrowRotation(double angle)
 
   Component.onCompleted: {
+    console.log("Available map service providers:", mapPlugin.availableServiceProviders);
+
     setMapCenter.connect(onSetMapCenter);
     setArrowPosition.connect(onSetArrowPosition);
     setArrowRotation.connect(onSetArrowRotation);
