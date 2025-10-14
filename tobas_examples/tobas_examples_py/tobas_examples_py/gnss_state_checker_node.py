@@ -24,12 +24,8 @@ class GnssStateCheckerNode(Node):
 
         if gnss.fix_type == Gnss.FIX_3D:
             message.level = Message.LEVEL_INFO
-            message.message = "GNSS Fix"
-        else:
-            message.level = Message.LEVEL_WARN
-            message.message = "GNSS No Fix"
-
-        self._message_pub.publish(message)
+            message.message = "GNSS 3D Fix"
+            self._message_pub.publish(message)
 
 
 def main(args=None) -> None:
