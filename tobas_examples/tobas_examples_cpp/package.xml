@@ -11,6 +11,8 @@
 	<depend>tobas_node</depend>
 	<depend>tobas_constants</depend>
 	<depend>tobas_msgs_adapter</depend>
+	<depend>tobas_command_msgs</depend>
+	<depend>tobas_mission_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
