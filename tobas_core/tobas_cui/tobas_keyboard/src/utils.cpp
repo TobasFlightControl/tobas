@@ -1,10 +1,6 @@
 #include "tobas_keyboard/utils.hpp"
 
-#include <stdexcept>
-
 #include <X11/XKBlib.h>  // ヘッダでインクルードすると#defineが衝突する恐れあり
-
-using namespace std;
 
 namespace keyboard
 {
@@ -30,13 +26,13 @@ XkbControlsPtr getKeyboardControls()
   return kb->ctrls;
 }
 
-double getKeyboardRepeatInterval()
+std::expected<uint16_t, const char*> getKeyboardRepeatInterval()
 {
   const auto keyboard = getKeyboardControls();
   if (!keyboard) {
-    throw runtime_error("Failed to get keyboard control.");
+    return std::unexpected("Failed to get keyboard control.");
   }
 
-  return keyboard->repeat_interval * 1e-3;
+  return keyboard->repeat_interval;
 }
 }  // namespace keyboard
