@@ -78,6 +78,7 @@ void RemoteProjectBuilderThread::run()
 {
   if (!builder_.build(proj_path_)) {
     Q_EMIT finished(false, QString::fromStdString(builder_.getErrorMessage()));
+    return;
   }
 
   Q_EMIT finished(true, "");
