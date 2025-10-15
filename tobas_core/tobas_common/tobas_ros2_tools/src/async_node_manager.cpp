@@ -9,9 +9,14 @@ AsyncNodeManager::AsyncNodeManager(int argc, char** argv, const std::string& nod
   }
 
   node_ = rclcpp::Node::make_shared(node_name);
-  executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+  executor_ = std::make_unique<rclcpp::executors::SingleThreadedExecutor>();
   executor_->add_node(node_);
-  executor_thread_ = std::make_shared<std::thread>([this]() { executor_->spin(); });
+  executor_thread_ = std::make_unique<std::thread>([this]() { executor_->spin(); });
+}
+
+AsyncNodeManager::~AsyncNodeManager()
+{
+  executor_->cancel();
 }
 
 rclcpp::Node::SharedPtr AsyncNodeManager::node()
