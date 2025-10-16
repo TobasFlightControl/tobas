@@ -5,7 +5,8 @@ bool ok
 uint8 realtime_compliance
 uint8 battery_voltage
 uint8 cpu_temperature
-uint8 rotor_communication
+uint8 radio_link
+uint8 rotor_links
 uint8 attitude_level
 uint8 position_stability
 uint8 position_accuracy

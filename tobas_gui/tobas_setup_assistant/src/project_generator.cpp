@@ -609,7 +609,8 @@ bool ProjectGenerator::generateHealthMonitorConfig()
   node["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
   node["check_battery_voltage"] = settings_->failsafe->checkBatteryVoltage();
   node["check_cpu_temperature"] = settings_->failsafe->checkCpuTemperature();
-  node["check_rotor_communication"] = settings_->failsafe->checkRotorCommunication();
+  node["check_radio_link"] = settings_->failsafe->checkRadioLink();
+  node["check_rotor_links"] = settings_->failsafe->checkRotorLinks();
   node["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
   node["check_position_stability"] = settings_->failsafe->checkPositionStability();
   node["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();

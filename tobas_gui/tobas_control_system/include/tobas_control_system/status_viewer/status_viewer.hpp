@@ -27,7 +27,8 @@ private:
   StatusWidget* rt_compliance_status_;
   StatusWidget* battery_voltage_status_;
   StatusWidget* cpu_temp_status_;
-  StatusWidget* rotor_comm_status_;
+  StatusWidget* radio_link_status_;
+  StatusWidget* rotor_links_status_;
   StatusWidget* level_atti_status_;
   StatusWidget* pos_stability_status_;
   StatusWidget* pos_accuracy_status_;

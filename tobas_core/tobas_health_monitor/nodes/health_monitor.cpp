@@ -14,6 +14,7 @@
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_msgs_adapter/vibration_level.hpp>
 
 using namespace std::chrono_literals;
@@ -24,6 +25,7 @@ class HealthMonitorNode : public tobas::BaseNode
 
   static constexpr long kImuSamplingTimeThresh = 5000;  // [us]
   static constexpr auto kRTComplianceCheckTimeWindow = 5s;
+  static constexpr auto kRadioConnLostTimeThresh = 500ms;
   static constexpr double kPosDriftThresh = 1.;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
   static constexpr double kCPUTempThresh = 80.;              // [degC]
@@ -50,7 +52,8 @@ private:
     bool realtime_compliance;
     bool battery_voltage;
     bool cpu_temperature;
-    bool rotor_communication;
+    bool radio_link;
+    bool rotor_links;
     bool attitude_level;
     bool position_stability;
     bool position_accuracy;
@@ -74,7 +77,8 @@ private:
   tobas_msgs::MagneticField::ConstSharedPtr mag_ref_;
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
 
-  rclcpp::Time t_last_large_interval_;
+  rclcpp::Time t_last_rt_violation_;
+  rclcpp::Time t_last_rcin_;
   std::array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
 
   ros2::PublisherPtr<tobas_msgs::msg::VehicleHealth> health_pub_;
@@ -83,6 +87,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liv_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Latency> sampling_time_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
@@ -98,6 +103,7 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
   void rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv);
   void samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
@@ -110,7 +116,7 @@ private:
 
 HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   : super("health_monitor", options)
-  , t_last_large_interval_(now())
+  , t_last_rt_violation_(now())
   , pos_bufs_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
                tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
                tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
@@ -123,6 +129,7 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::kBatteryTopic), &self::battCb, this);
   cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
+  rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
   rotor_liv_sub_ = createSubscriber(tobas::kRotorLivTopic, &self::rotorLivCb, this);
   sampling_time_sub_ = createSubscriber(tobas::kImuSamplingTimeTopic, &self::samplingTimeCb, this);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
@@ -135,19 +142,20 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
 
 void HealthMonitorNode::getStaticRosParams()
 {
-  do_check_.realtime_compliance = getBoolParam("check_realtime_compliance", true);
-  do_check_.battery_voltage = getBoolParam("check_battery_voltage", true);
-  do_check_.cpu_temperature = getBoolParam("check_cpu_temperature", true);
-  do_check_.rotor_communication = getBoolParam("check_rotor_communication", true);
-  do_check_.attitude_level = getBoolParam("check_attitude_level", true);
-  do_check_.position_stability = getBoolParam("check_position_stability", true);
-  do_check_.position_accuracy = getBoolParam("check_position_accuracy", true);
-  do_check_.velocity_accuracy = getBoolParam("check_velocity_accuracy", true);
-  do_check_.attitude_accuracy = getBoolParam("check_attitude_accuracy", true);
-  do_check_.heading_accuracy = getBoolParam("check_heading_accuracy", true);
-  do_check_.mag_offset = getBoolParam("check_mag_offset", true);
-  do_check_.mag_alignment = getBoolParam("check_mag_alignment", true);
-  do_check_.vibration_level = getBoolParam("check_vibration_level", true);
+  do_check_.realtime_compliance = getBoolParam("check_realtime_compliance");
+  do_check_.battery_voltage = getBoolParam("check_battery_voltage");
+  do_check_.cpu_temperature = getBoolParam("check_cpu_temperature");
+  do_check_.radio_link = getBoolParam("check_radio_link");
+  do_check_.rotor_links = getBoolParam("check_rotor_links");
+  do_check_.attitude_level = getBoolParam("check_attitude_level");
+  do_check_.position_stability = getBoolParam("check_position_stability");
+  do_check_.position_accuracy = getBoolParam("check_position_accuracy");
+  do_check_.velocity_accuracy = getBoolParam("check_velocity_accuracy");
+  do_check_.attitude_accuracy = getBoolParam("check_attitude_accuracy");
+  do_check_.heading_accuracy = getBoolParam("check_heading_accuracy");
+  do_check_.mag_offset = getBoolParam("check_mag_offset");
+  do_check_.mag_alignment = getBoolParam("check_mag_alignment");
+  do_check_.vibration_level = getBoolParam("check_vibration_level");
 }
 
 void HealthMonitorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -177,6 +185,11 @@ void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
   cpu_ = cpu;
 }
 
+void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+{
+  t_last_rcin_ = rcin->header.stamp;
+}
+
 void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv)
 {
   rotor_liv_ = rotor_liv;
@@ -186,7 +199,7 @@ void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstShar
 {
   // メッセージの時間差を確認
   if (ros2::microseconds(sampling_time->data) > kImuSamplingTimeThresh) {
-    t_last_large_interval_ = now();
+    t_last_rt_violation_ = sampling_time->header.stamp;
   }
 
   sampling_time_ = sampling_time;
@@ -242,7 +255,7 @@ void HealthMonitorNode::mainTimerCb()
   // 通信環境が悪くノードグラフの構築に時間がかかっている場合にリアルタイム性が落ちることがあるため確認必須
   if (do_check_.realtime_compliance) {
     if (sampling_time_) {
-      if (cur_time - t_last_large_interval_ < kRTComplianceCheckTimeWindow) {
+      if (cur_time - t_last_rt_violation_ < kRTComplianceCheckTimeWindow) {
         health->realtime_compliance = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
@@ -315,24 +328,35 @@ void HealthMonitorNode::mainTimerCb()
     health->cpu_temperature = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
+  // RC送信機と受信機の通信
+  if (do_check_.radio_link) {
+    if (t_last_rcin_.nanoseconds() == 0 || cur_time - t_last_rcin_ > kRadioConnLostTimeThresh) {
+      health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
+      health->ok = false;
+    }
+  }
+  else {
+    health->radio_link = tobas_msgs::msg::VehicleHealth::IGNORED;
+  }
+
   // モータ状態
-  if (do_check_.rotor_communication) {
+  if (do_check_.rotor_links) {
     if (rotor_liv_) {
       for (const auto& elem : rotor_liv_->data) {
         if (!elem.alive) {
-          health->rotor_communication = tobas_msgs::msg::VehicleHealth::FAILED;
+          health->rotor_links = tobas_msgs::msg::VehicleHealth::FAILED;
           health->ok = false;
           break;
         }
       }
     }
     else {
-      health->rotor_communication = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->rotor_links = tobas_msgs::msg::VehicleHealth::UNKNOWN;
       health->ok = false;
     }
   }
   else {
-    health->rotor_communication = tobas_msgs::msg::VehicleHealth::IGNORED;
+    health->rotor_links = tobas_msgs::msg::VehicleHealth::IGNORED;
   }
 
   // 姿勢角

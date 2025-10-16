@@ -13,7 +13,8 @@ StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
   rt_compliance_status_ = new StatusWidget("Realtime Compliance");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
   cpu_temp_status_ = new StatusWidget("CPU Temperature");
-  rotor_comm_status_ = new StatusWidget("Rotors Communication");
+  radio_link_status_ = new StatusWidget("Radio Link");
+  rotor_links_status_ = new StatusWidget("Rotor Links");
   level_atti_status_ = new StatusWidget("Level Attitude");
   pos_stability_status_ = new StatusWidget("Position Stability");
   pos_accuracy_status_ = new StatusWidget("Position Accuracy");
@@ -31,7 +32,8 @@ StatusViewerWidget::StatusViewerWidget(const RosQtBridge& bridge)
   rows->addWidget(rt_compliance_status_);
   rows->addWidget(battery_voltage_status_);
   rows->addWidget(cpu_temp_status_);
-  rows->addWidget(rotor_comm_status_);
+  rows->addWidget(radio_link_status_);
+  rows->addWidget(rotor_links_status_);
   rows->addWidget(level_atti_status_);
   rows->addWidget(pos_stability_status_);
   rows->addWidget(pos_accuracy_status_);
@@ -56,7 +58,8 @@ void StatusViewerWidget::reset()
   rt_compliance_status_->reset();
   battery_voltage_status_->reset();
   cpu_temp_status_->reset();
-  rotor_comm_status_->reset();
+  radio_link_status_->reset();
+  rotor_links_status_->reset();
   level_atti_status_->reset();
   pos_stability_status_->reset();
   pos_accuracy_status_->reset();
@@ -86,7 +89,8 @@ void StatusViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
   rt_compliance_status_->setStatus(health->realtime_compliance);
   battery_voltage_status_->setStatus(health->battery_voltage);
   cpu_temp_status_->setStatus(health->cpu_temperature);
-  rotor_comm_status_->setStatus(health->rotor_communication);
+  radio_link_status_->setStatus(health->radio_link);
+  rotor_links_status_->setStatus(health->rotor_links);
   level_atti_status_->setStatus(health->attitude_level);
   pos_stability_status_->setStatus(health->position_stability);
   pos_accuracy_status_->setStatus(health->position_accuracy);

@@ -11,7 +11,8 @@ FailsafeWidget::FailsafeWidget()
   items_[kRtComplianceIdx] = new QCheckBox("Check realtime compliance");
   items_[kBatteryVoltageIdx] = new QCheckBox("Check battery voltage");
   items_[kCpuTempIdx] = new QCheckBox("Check CPU temperature");
-  items_[kRotorCommIdx] = new QCheckBox("Check rotor communication");
+  items_[kRadioLinkIdx] = new QCheckBox("Check radio link");
+  items_[kRotorLinksIdx] = new QCheckBox("Check rotor links");
   items_[kAttiLevelIdx] = new QCheckBox("Check attitude level");
   items_[kPosStabilityIdx] = new QCheckBox("Check position stability");
   items_[kPosAccuracyIdx] = new QCheckBox("Check position accuracy");
@@ -89,9 +90,14 @@ bool FailsafeWidget::checkCpuTemperature() const
   return items_[kCpuTempIdx]->isChecked();
 }
 
-bool FailsafeWidget::checkRotorCommunication() const
+bool FailsafeWidget::checkRadioLink() const
 {
-  return items_[kRotorCommIdx]->isChecked();
+  return items_[kRadioLinkIdx]->isChecked();
+}
+
+bool FailsafeWidget::checkRotorLinks() const
+{
+  return items_[kRotorLinksIdx]->isChecked();
 }
 
 bool FailsafeWidget::checkAttitudeLevel() const
