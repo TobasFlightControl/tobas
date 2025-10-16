@@ -5,18 +5,18 @@
 
 using namespace std::chrono_literals;
 
-class FakeBatteryPublisherNode : public tobas::BaseNode
+class FakeBattPublisherNode : public tobas::BaseNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
   static constexpr double kDefaultVoltage = 14.8;  // [V]
   static constexpr double kDefaultCurrent = 20.;   // [A]
 
-  using self = FakeBatteryPublisherNode;
+  using self = FakeBattPublisherNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit FakeBatteryPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit FakeBattPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   double voltage_;
@@ -28,8 +28,7 @@ private:
   void timerCb();
 };
 
-FakeBatteryPublisherNode::FakeBatteryPublisherNode(const rclcpp::NodeOptions& options)
-  : super("fake_battery_publisher", options)
+FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options) : super("fake_batt_publisher", options)
 {
   voltage_ = getDoubleParam("voltage", kDefaultVoltage);
   current_ = getDoubleParam("current", kDefaultCurrent);
@@ -38,7 +37,7 @@ FakeBatteryPublisherNode::FakeBatteryPublisherNode(const rclcpp::NodeOptions& op
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 
-void FakeBatteryPublisherNode::timerCb()
+void FakeBattPublisherNode::timerCb()
 {
   auto batt_msg = std::make_unique<tobas_msgs::msg::Battery>();
   batt_msg->header.stamp = now();
@@ -48,4 +47,4 @@ void FakeBatteryPublisherNode::timerCb()
   batt_pub_->publish(std::move(batt_msg));
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeBatteryPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(FakeBattPublisherNode)
