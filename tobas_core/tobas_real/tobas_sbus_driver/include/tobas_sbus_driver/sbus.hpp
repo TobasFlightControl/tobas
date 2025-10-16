@@ -22,7 +22,7 @@ public:
     bool ch17;
     bool ch18;
     bool frame_lost;
-    bool failsave_activated;
+    bool failsafe;
   };
 
 private:

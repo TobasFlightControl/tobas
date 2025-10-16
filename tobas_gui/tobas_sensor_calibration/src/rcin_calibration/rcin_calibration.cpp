@@ -422,24 +422,28 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
+  if (sbus->frame_lost) {
+    return;
+  }
+
   sbus_ = sbus;
 
   if (!running_) {
     return;
   }
 
-  roll_range_->setValue(sbus->data.at(real::kRcChannelRoll));
-  pitch_range_->setValue(sbus->data.at(real::kRcChannelPitch));
-  yaw_range_->setValue(sbus->data.at(real::kRcChannelYaw));
-  throt_range_->setValue(sbus->data.at(real::kRcChannelThrot));
+  roll_range_->setValue(sbus->periods.at(real::kRcChannelRoll));
+  pitch_range_->setValue(sbus->periods.at(real::kRcChannelPitch));
+  yaw_range_->setValue(sbus->periods.at(real::kRcChannelYaw));
+  throt_range_->setValue(sbus->periods.at(real::kRcChannelThrot));
 
-  mode_range_->setValue(sbus->data.at(real::kRcChannelMode));
-  sub_mode_range_->setValue(sbus->data.at(real::kRcChannelSubMode));
-  enable_range_->setValue(sbus->data.at(real::kRcChannelEnable));
-  kill_range_->setValue(sbus->data.at(real::kRcChannelKill));
+  mode_range_->setValue(sbus->periods.at(real::kRcChannelMode));
+  sub_mode_range_->setValue(sbus->periods.at(real::kRcChannelSubMode));
+  enable_range_->setValue(sbus->periods.at(real::kRcChannelEnable));
+  kill_range_->setValue(sbus->periods.at(real::kRcChannelKill));
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_ranges_[i]->setValue(sbus->data.at(real::kRcChannelGpsw + i));
+    gpsw_ranges_[i]->setValue(sbus->periods.at(real::kRcChannelGpsw + i));
   }
 }
 

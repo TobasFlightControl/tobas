@@ -125,6 +125,6 @@ void SBUS::decodeFlags(uint8_t flags)
   packet_.ch17 = (flags >> 0) & 1;
   packet_.ch18 = (flags >> 1) & 1;
   packet_.frame_lost = (flags >> 2) & 1;
-  packet_.failsave_activated = (flags >> 3) & 1;
+  packet_.failsafe = (flags >> 3) & 1;
 }
 }  // namespace tobas

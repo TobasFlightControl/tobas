@@ -9,6 +9,15 @@ void onPacket(const tobas::SBUS::Packet& packet)
   for (size_t ch = 0; ch < tobas::SBUS::kChannelSize; ++ch) {
     cout << "Channel " << ch << ": " << packet.periods.at(ch) << endl;
   }
+  cout << "-----" << endl;
+
+  cout << boolalpha;
+  cout << "Channel 17: " << packet.ch17 << endl;
+  cout << "Channel 18: " << packet.ch18 << endl;
+  cout << "Frame Lost: " << packet.frame_lost << endl;
+  cout << "Fail-Safe: " << packet.failsafe << endl;
+  cout << noboolalpha;
+
   cout << endl;
 }
 

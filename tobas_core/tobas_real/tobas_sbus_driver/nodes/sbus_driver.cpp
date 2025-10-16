@@ -56,7 +56,12 @@ void SbusDriverNode::onPacket(const tobas::SBUS::Packet& packet)
   // Create message
   auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
   sbus_msg->header.stamp = now();
-  sbus_msg->data = packet.periods;
+
+  sbus_msg->periods = packet.periods;
+  sbus_msg->ch17 = packet.ch17;
+  sbus_msg->ch18 = packet.ch18;
+  sbus_msg->frame_lost = packet.frame_lost;
+  sbus_msg->failsafe = packet.failsafe;
 
   // Publish message
   sbus_pub_->publish(std::move(sbus_msg));

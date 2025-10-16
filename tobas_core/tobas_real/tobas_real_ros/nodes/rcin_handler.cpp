@@ -192,6 +192,10 @@ tobas::FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
+  if (sbus->frame_lost) {
+    return;
+  }
+
   // Create message
   auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
 
@@ -200,24 +204,25 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
 
   // Fill duty periods for each channel
   rcin_msg->roll = math::remap<double>(
-    sbus->data[real::kRcChannelRoll], roll_range_.lower, roll_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    sbus->periods[real::kRcChannelRoll], roll_range_.lower, roll_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
   rcin_msg->pitch = math::remap<double>(
-    sbus->data[real::kRcChannelPitch], pitch_range_.lower, pitch_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    sbus->periods[real::kRcChannelPitch], pitch_range_.lower, pitch_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
   rcin_msg->yaw = math::remap<double>(
-    sbus->data[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    sbus->periods[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
   rcin_msg->throttle = math::remap<double>(
-    sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    sbus->periods[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
 
-  rcin_msg->mode = getClosestFlightMode(sbus->data[real::kRcChannelMode]);
-  rcin_msg->sub_mode =
-    abs(sbus->data[real::kRcChannelSubMode] - sub_mode_on_) < abs(sbus->data[real::kRcChannelSubMode] - sub_mode_off_);
+  rcin_msg->mode = getClosestFlightMode(sbus->periods[real::kRcChannelMode]);
+  rcin_msg->sub_mode = abs(sbus->periods[real::kRcChannelSubMode] - sub_mode_on_) <
+                       abs(sbus->periods[real::kRcChannelSubMode] - sub_mode_off_);
   rcin_msg->enable =
-    abs(sbus->data[real::kRcChannelEnable] - enable_on_) < abs(sbus->data[real::kRcChannelEnable] - enable_off_);
-  rcin_msg->kill = abs(sbus->data[real::kRcChannelKill] - kill_on_) < abs(sbus->data[real::kRcChannelKill] - kill_off_);
+    abs(sbus->periods[real::kRcChannelEnable] - enable_on_) < abs(sbus->periods[real::kRcChannelEnable] - enable_off_);
+  rcin_msg->kill =
+    abs(sbus->periods[real::kRcChannelKill] - kill_on_) < abs(sbus->periods[real::kRcChannelKill] - kill_off_);
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
     const auto sbus_idx = real::kRcChannelGpsw + i;
-    rcin_msg->gpsw[i] = abs(sbus->data[sbus_idx] - gpsw_on_[i]) < abs(sbus->data[sbus_idx] - gpsw_off_[i]);
+    rcin_msg->gpsw[i] = abs(sbus->periods[sbus_idx] - gpsw_on_[i]) < abs(sbus->periods[sbus_idx] - gpsw_off_[i]);
   }
 
   // Publish message
