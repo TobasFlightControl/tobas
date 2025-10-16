@@ -1,4 +1,4 @@
-#include "tobas_simulation_gui/commanders/joint_position_commander.hpp"
+#include "tobas_simulation_gui/commanders/joint_commander.hpp"
 
 #include <QDebug>
 #include <QHBoxLayout>
