@@ -41,6 +41,10 @@ fs::path SbusWidget::devicePath() const
   }
 
   const auto device_name = device_names_->currentText().toStdString();
+  if (device_name.empty()) {
+    return {};
+  }
+
   return fs::path(kDirPath) / device_name;
 }
 
