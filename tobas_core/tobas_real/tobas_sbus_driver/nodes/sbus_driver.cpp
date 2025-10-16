@@ -28,7 +28,11 @@ private:
 SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
   : super("sbus_driver", options), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
 {
-  device_ = getStringParam("device");
+  device_ = getStringParam("device", "");
+  if (device_.empty()) {
+    TOBAS_WARN("No device name specified. This node will not work.");
+    return;
+  }
 
   sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::kSbusTopic);
 

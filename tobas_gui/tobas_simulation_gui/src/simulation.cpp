@@ -393,11 +393,9 @@ void SimulationWidget::terminateHITL()
   qt::qInfoBox(this, "HITL has been terminated successfully.");
 }
 
-bool SimulationWidget::launchGazebo(bool launch_core)
+std::map<std::string, std::string> SimulationWidget::makeGazeboLaunchArguments(bool launch_core) const
 {
-  const auto config_pkg_name = proj_paths_.cfgPkgName();
-  const std::map<std::string, std::string> args{
-    { "world_path", sim_settings_->worldPath().string() },
+  std::map<std::string, std::string> args{
     { "user_debug", std::format("{}", sim_settings_->userDebug()) },
     { "launch_core", boolToText(launch_core) },
     { "x", std::to_string(sim_settings_->x()) },
@@ -408,7 +406,23 @@ bool SimulationWidget::launchGazebo(bool launch_core)
     { "yaw", std::to_string(sim_settings_->yaw()) },
   };
 
-  launch_pid_ = cmn::roslaunch(config_pkg_name, "gazebo.launch.xml", args);
+  const auto world_path = sim_settings_->worldPath().string();
+  if (!world_path.empty()) {
+    args["world_path"] = world_path;
+  }
+
+  const auto sbus_device = sim_settings_->sbusDevicePath().string();
+  if (!sbus_device.empty()) {
+    args["sbus_device"] = sbus_device;
+  }
+
+  return args;
+}
+
+bool SimulationWidget::launchGazebo(bool launch_core)
+{
+  const auto args = makeGazeboLaunchArguments(launch_core);
+  launch_pid_ = cmn::roslaunch(proj_paths_.cfgPkgName(), "gazebo.launch.xml", args);
   if (launch_pid_ < 0) {
     qt::qErrorBox(this, "Failed to start Gazebo process.");
     return false;

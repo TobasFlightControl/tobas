@@ -31,6 +31,9 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   pose_ = new PoseWidget();
   scroll_rows->addWidget(pose_);
 
+  sbus_ = new SbusWidget();
+  scroll_rows->addWidget(sbus_);
+
   debug_ = new DebugWidget();
   scroll_rows->addWidget(debug_);
 
@@ -75,6 +78,11 @@ double SimulationSettingsWidget::pitch() const
 double SimulationSettingsWidget::yaw() const
 {
   return pose_->yaw();
+}
+
+fs::path SimulationSettingsWidget::sbusDevicePath() const
+{
+  return sbus_->devicePath();
 }
 
 bool SimulationSettingsWidget::userDebug() const
