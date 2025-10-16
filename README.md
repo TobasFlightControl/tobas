@@ -84,6 +84,12 @@ $ cd ~/colcon_ws
 $ colcon build --packages-up-to tobas
 ```
 
+7. Add the user to the `dialout` group (required to read S.BUS over USB during SITL)
+
+```bash
+$ sudo usermod -aG dialout $USER
+```
+
 ## Command Line Interfaces
 
 ### Launch Tobas GCS
