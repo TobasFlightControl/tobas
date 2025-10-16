@@ -72,11 +72,15 @@
   <!-- Launch nodes related to RC input -->
   <group>
     <push_ros_namespace namespace="{{ drone_name }}"/>
-
-    <node pkg="tobas_sbus_driver" exec="sbus_driver" ros_args="--log-level $(var log_level)" output="$(var output)">
-      <param name="device" value="$(var sbus_device)"/>
-    </node>
-    <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <group if="$(eval '\'$(var sbus_device)\' != \'\'')">
+      <node pkg="tobas_sbus_driver" exec="sbus_driver" ros_args="--log-level $(var log_level)" output="$(var output)">
+        <param name="device" value="$(var sbus_device)"/>
+      </node>
+      <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    </group>
+    <group if="$(eval '\'$(var sbus_device)\' == \'\'')">
+      <node pkg="tobas_fake_publishers" exec="fake_rcin_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    </group>
   </group>
 
   <!-- Launch user nodes -->
