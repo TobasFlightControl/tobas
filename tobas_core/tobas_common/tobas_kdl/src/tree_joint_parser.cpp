@@ -38,23 +38,23 @@ void TreeJointParser::parseJntNames()
   parseJntNamesStep(tree_.getRootSegment());
 }
 
-void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segment)
+void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& seg_it)
 {
-  const auto& seg = segment->second.segment;
-  const auto& jnt = seg.joint();
-  const auto& q_nr = segment->second.q_nr;
-  if (seg.joint().type != Joint::kFixed) {
-    const auto& name = seg.joint().name;
-    jnt_names_[q_nr] = name;
-    jnt_indexes_[name] = q_nr;
-    seg_names_[name] = seg.name();
-    lower_limits_(q_nr) = jnt.lower_limit;
-    upper_limits_(q_nr) = jnt.upper_limit;
-    max_velocities_(q_nr) = jnt.max_velocity;
-    max_efforts_(q_nr) = jnt.max_effort;
+  const auto& segment = seg_it->second.segment;
+  const auto& joint = segment.joint();
+  const auto& q_nr = seg_it->second.q_nr;
+
+  if (joint.type != Joint::kFixed) {
+    jnt_names_[q_nr] = joint.name;
+    jnt_indexes_[joint.name] = q_nr;
+    seg_names_[joint.name] = segment.name();
+    lower_limits_(q_nr) = joint.lower_limit;
+    upper_limits_(q_nr) = joint.upper_limit;
+    max_velocities_(q_nr) = joint.max_velocity;
+    max_efforts_(q_nr) = joint.max_effort;
   }
 
-  for (const auto& child : segment->second.children) {
+  for (const auto& child : seg_it->second.children) {
     parseJntNamesStep(child);
   }
 }

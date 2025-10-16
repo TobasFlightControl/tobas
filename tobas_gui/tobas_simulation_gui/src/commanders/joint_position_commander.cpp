@@ -16,13 +16,10 @@ namespace gui
 {
 namespace sim
 {
-JointPositionCommanderWidget::JointPositionCommanderWidget(
-  rclcpp::Node::SharedPtr node,
-  const kdl::Tree& tree,
-  const tobas::Drone& drone)
+JointCommanderWidget::JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
-  const auto title = new qt::Label("Joint Position", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
@@ -65,7 +62,7 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
   connect(&publish_cmd_timer_, &QTimer::timeout, this, &self::onPublishCommandTimerTimeout);
 }
 
-void JointPositionCommanderWidget::updateInternalDataStructures()
+void JointCommanderWidget::updateInternalDataStructures()
 {
   if (!joint_parser_.updateInternalDataStructures()) {
     qt::qErrorBox(this, "Failed to update joint parser.");
@@ -76,49 +73,102 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
   commanders_.clear();
   qt::clearLayout(cmd_rows_);
 
-  tar_js_pos_.states.clear();
-  tar_js_vel_.states.clear();
-  tar_js_eff_.states.clear();
+  tar_js_pos_.commands.clear();
+  tar_js_vel_.commands.clear();
+  tar_js_eff_.commands.clear();
 
   // Add joints of current robot
   for (const auto& [jnt_name, joint] : drone_.joints) {
-    // Joints for manipulation only
-    if (joint.role != tobas::JointRole::kManipulation) {
+    // User active joint only
+    if (joint.role != tobas::JointRole::kUserActive) {
       continue;
     }
 
-    tobas_msgs::msg::JointState cmd;
-    cmd.name = jnt_name;
-    switch (joint.cmd_iface) {
-      case tobas::JointCommandInterface::kPosition:
-        cmd.position = joint.home_pos;
-        cmd.velocity = NAN;
-        cmd.effort = NAN;
-        tar_js_pos_.states.push_back(cmd);
-        break;
-      case tobas::JointCommandInterface::kVelocity:
-        cmd.position = joint.home_pos;
-        cmd.velocity = NAN;
-        cmd.effort = NAN;
-        tar_js_vel_.states.push_back(cmd);
-        break;
-      case tobas::JointCommandInterface::kEffort:
-        cmd.position = joint.home_pos;
-        cmd.velocity = 0.;
-        cmd.effort = NAN;
-        tar_js_eff_.states.push_back(cmd);
-        break;
-      case tobas::JointCommandInterface::kNone:
-        break;
-      default:
-        qt::qErrorBox(this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
-        continue;
+    // Check joint type is not FIXED
+    const auto& jnt_type = joint_parser_.joint(jnt_name).type;
+    if (jnt_type == kdl::Joint::kFixed) {
+      qWarning() << "The joint type of " << jnt_name.c_str() << " is FIXED.";
+      continue;
     }
 
     const auto commander = new qt::DoubleSliderDisplay();
-    commander->setText(QString::fromStdString(jnt_name));
-    commander->setMinimum(joint_parser_.lowerLimit(jnt_name));
-    commander->setMaximum(joint_parser_.upperLimit(jnt_name));
+    commander->setText(jnt_name.c_str());
+
+    switch (joint.cmd_iface) {
+      case tobas::JointCommandInterface::kPosition: {
+        commander->setMinimum(joint_parser_.lowerLimit(jnt_name));
+        commander->setMaximum(joint_parser_.upperLimit(jnt_name));
+        switch (jnt_type) {
+          case kdl::Joint::kRotation:
+            commander->setSuffix(" rad");
+            break;
+          case kdl::Joint::kTranslation:
+            commander->setSuffix(" m");
+            break;
+          default:
+            throw;
+        }
+
+        tobas_msgs::msg::JointCommand cmd;
+        cmd.name = jnt_name;
+        cmd.data = joint.home_pos;
+        tar_js_pos_.commands.push_back(cmd);
+
+        break;
+      }
+      case tobas::JointCommandInterface::kVelocity: {
+        const auto max_vel = joint_parser_.maxVelocity(jnt_name);
+        commander->setMinimum(-max_vel);
+        commander->setMaximum(+max_vel);
+        switch (jnt_type) {
+          case kdl::Joint::kRotation:
+            commander->setSuffix(" rad/s");
+            break;
+          case kdl::Joint::kTranslation:
+            commander->setSuffix(" m/s");
+            break;
+          default:
+            throw;
+        }
+
+        tobas_msgs::msg::JointCommand cmd;
+        cmd.name = jnt_name;
+        cmd.data = 0.;
+        tar_js_vel_.commands.push_back(cmd);
+
+        break;
+      }
+      case tobas::JointCommandInterface::kEffort: {
+        const auto max_eff = joint_parser_.maxEffort(jnt_name);
+        commander->setMinimum(-max_eff);
+        commander->setMaximum(+max_eff);
+        switch (jnt_type) {
+          case kdl::Joint::kRotation:
+            commander->setSuffix(" Nm");
+            break;
+          case kdl::Joint::kTranslation:
+            commander->setSuffix(" N");
+            break;
+          default:
+            throw;
+        }
+
+        tobas_msgs::msg::JointCommand cmd;
+        cmd.name = jnt_name;
+        cmd.data = 0.;
+        tar_js_eff_.commands.push_back(cmd);
+
+        break;
+      }
+      case tobas::JointCommandInterface::kNone: {
+        break;
+      }
+      default: {
+        qt::qErrorBox(this, "The command interface of joint " + QString::fromStdString(jnt_name) + " is invalid.");
+        continue;
+      }
+    }
+
     commander->setValue(0.);
     commander->setEnabled(false);
     connect(
@@ -129,28 +179,28 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
     cmd_rows_->addWidget(commander);
   }
 
+  // Enable joint commander only if at least one commander exists
+  start_stop_button_->setEnabled(commanders_.size() > 0);
+
   // Register command publishers
   const auto& ns = drone_.name;
-  if (tar_js_pos_.states.size() > 0) {
-    tar_js_pos_pub_ =
-      ros2::createPublisher<tobas_msgs::msg::JointStateArray>(node_, path::join(ns, tobas::kPosCtrlJSTopic));
+  if (tar_js_pos_.commands.size() > 0) {
+    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::kJointPosCmdTopic));
   }
-  if (tar_js_vel_.states.size() > 0) {
-    tar_js_vel_pub_ =
-      ros2::createPublisher<tobas_msgs::msg::JointStateArray>(node_, path::join(ns, tobas::kVelCtrlJSTopic));
+  if (tar_js_vel_.commands.size() > 0) {
+    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::kJointVelCmdTopic));
   }
-  if (tar_js_eff_.states.size() > 0) {
-    tar_js_eff_pub_ =
-      ros2::createPublisher<tobas_msgs::msg::JointStateArray>(node_, path::join(ns, tobas::kEffCtrlJSTopic));
+  if (tar_js_eff_.commands.size() > 0) {
+    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::kJointEffCmdTopic));
   }
 }
 
-bool JointPositionCommanderWidget::start()
+bool JointCommanderWidget::start()
 {
   return true;
 }
 
-void JointPositionCommanderWidget::reset()
+void JointCommanderWidget::reset()
 {
   start_stop_button_->setChecked(false);
 
@@ -159,14 +209,14 @@ void JointPositionCommanderWidget::reset()
     commander->setEnabled(false);
   }
 
-  for (auto& state : tar_js_pos_.states) {
-    state.position = 0.;
+  for (auto& cmd : tar_js_pos_.commands) {
+    cmd.data = 0.;
   }
-  for (auto& state : tar_js_vel_.states) {
-    state.position = 0.;
+  for (auto& cmd : tar_js_vel_.commands) {
+    cmd.data = 0.;
   }
-  for (auto& state : tar_js_eff_.states) {
-    state.position = 0.;
+  for (auto& cmd : tar_js_eff_.commands) {
+    cmd.data = 0.;
   }
 
   home_button_->setEnabled(false);
@@ -176,25 +226,25 @@ void JointPositionCommanderWidget::reset()
   publish_cmd_timer_.stop();
 }
 
-void JointPositionCommanderWidget::publishCurrentCommand()
+void JointCommanderWidget::publishCurrentCommand()
 {
   if (tar_js_pos_pub_) {
-    auto tar_js_pos = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_pos_);
+    auto tar_js_pos = std::make_unique<CmdMsg>(tar_js_pos_);
     tar_js_pos_pub_->publish(std::move(tar_js_pos));
   }
 
   if (tar_js_vel_pub_) {
-    auto tar_js_vel = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_vel_);
+    auto tar_js_vel = std::make_unique<CmdMsg>(tar_js_vel_);
     tar_js_vel_pub_->publish(std::move(tar_js_vel));
   }
 
   if (tar_js_eff_pub_) {
-    auto tar_js_eff = std::make_unique<tobas_msgs::msg::JointStateArray>(tar_js_eff_);
+    auto tar_js_eff = std::make_unique<CmdMsg>(tar_js_eff_);
     tar_js_eff_pub_->publish(std::move(tar_js_eff));
   }
 }
 
-void JointPositionCommanderWidget::onStartRequested()
+void JointCommanderWidget::onStartRequested()
 {
   // 初期コマンドをホームポジションに設定して有効化
   for (const auto& [jnt_name, commander] : commanders_) {
@@ -213,17 +263,17 @@ void JointPositionCommanderWidget::onStartRequested()
   qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
-void JointPositionCommanderWidget::onStopRequested()
+void JointCommanderWidget::onStopRequested()
 {
   reset();
 
   qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
-void JointPositionCommanderWidget::onValueChanged(double value, const std::string& jnt_name)
+void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_name)
 {
   if (!drone_.joints.contains(jnt_name)) {
-    qWarning() << "Invalid joint name: " << QString::fromStdString(jnt_name);
+    qWarning() << "Invalid joint name: " << jnt_name.c_str();
     return;
   }
 
@@ -232,48 +282,48 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
 
   switch (joint.cmd_iface) {
     case tobas::JointCommandInterface::kPosition: {
-      for (auto& cmd : tar_js_pos_.states) {
+      for (auto& cmd : tar_js_pos_.commands) {
         if (cmd.name == jnt_name) {
-          cmd.position = value;
+          cmd.data = value;
           jnt_found = true;
           break;
         }
       }
 
       if (!jnt_found) {
-        qWarning() << "Position commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
+        qWarning() << "Position commanded joint " << jnt_name.c_str() << " is not found.";
         return;
       }
 
       break;
     }
     case tobas::JointCommandInterface::kVelocity: {
-      for (auto& cmd : tar_js_vel_.states) {
+      for (auto& cmd : tar_js_vel_.commands) {
         if (cmd.name == jnt_name) {
-          cmd.position = value;
+          cmd.data = value;
           jnt_found = true;
           break;
         }
       }
 
       if (!jnt_found) {
-        qWarning() << "Velocity commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
+        qWarning() << "Velocity commanded joint " << jnt_name.c_str() << " is not found.";
         return;
       }
 
       break;
     }
     case tobas::JointCommandInterface::kEffort: {
-      for (auto& cmd : tar_js_eff_.states) {
+      for (auto& cmd : tar_js_eff_.commands) {
         if (cmd.name == jnt_name) {
-          cmd.position = value;
+          cmd.data = value;
           jnt_found = true;
           break;
         }
       }
 
       if (!jnt_found) {
-        qWarning() << "Effort commanded joint " << QString::fromStdString(jnt_name) << " is not found.";
+        qWarning() << "Effort commanded joint " << jnt_name.c_str() << " is not found.";
         return;
       }
 
@@ -283,7 +333,7 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
       break;
     }
     default: {
-      qWarning() << "The command interface of joint " << QString::fromStdString(jnt_name) << " is invalid.";
+      qWarning() << "The command interface of joint " << jnt_name.c_str() << " is invalid.";
       return;
     }
   }
@@ -291,7 +341,7 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
   publishCurrentCommand();
 }
 
-void JointPositionCommanderWidget::onHomeButtonClicked()
+void JointCommanderWidget::onHomeButtonClicked()
 {
   for (const auto& [jnt_name, commander] : commanders_) {
     commander->setValue(drone_.joints.at(jnt_name).home_pos);
@@ -300,7 +350,7 @@ void JointPositionCommanderWidget::onHomeButtonClicked()
   publishCurrentCommand();
 }
 
-void JointPositionCommanderWidget::onCenterButtonClicked()
+void JointCommanderWidget::onCenterButtonClicked()
 {
   for (const auto& [_, commander] : commanders_) {
     commander->setValue((commander->getMinimum() + commander->getMaximum()) / 2);
@@ -309,7 +359,7 @@ void JointPositionCommanderWidget::onCenterButtonClicked()
   publishCurrentCommand();
 }
 
-void JointPositionCommanderWidget::onRandomButtonClicked()
+void JointCommanderWidget::onRandomButtonClicked()
 {
   for (const auto& [_, commander] : commanders_) {
     std::uniform_real_distribution<double> uniform(commander->getMinimum(), commander->getMaximum());
@@ -318,7 +368,7 @@ void JointPositionCommanderWidget::onRandomButtonClicked()
   }
 }
 
-void JointPositionCommanderWidget::onPublishCommandTimerTimeout()
+void JointCommanderWidget::onPublishCommandTimerTimeout()
 {
   publishCurrentCommand();
 }

@@ -28,7 +28,7 @@ public:
 
 private:
   BasePoseCommanderWidget* base_pose_commander_;
-  JointPositionCommanderWidget* jointpos_commander_;
+  JointCommanderWidget* joint_commander_;
 };
 }  // namespace sim
 }  // namespace gui

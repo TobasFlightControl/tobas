@@ -40,10 +40,9 @@ class ExtraJointsWidget : public BaseSettingWidget
   static constexpr char kHomePosLabel[] = "Home Position";
 
   // Role Labels
-  static constexpr char kRoleLabel_LandingGear[] = "Landing Gear";
-  static constexpr char kRoleLabel_PassiveWheel[] = "Passive Wheel";
   static constexpr char kRoleLabel_Manipulation[] = "Manipulation";
-  static constexpr char kRoleLabel_Other[] = "Other";
+  static constexpr char kRoleLabel_UserActive[] = "User Active";
+  static constexpr char kRoleLabel_UserPassive[] = "User Passive";
 
   // Command Interface Labels
   static constexpr char kCmdIfaceLabel_Position[] = "Position";

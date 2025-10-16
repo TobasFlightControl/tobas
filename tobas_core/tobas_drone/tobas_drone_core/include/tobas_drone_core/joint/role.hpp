@@ -8,10 +8,9 @@ enum struct JointRole
 {
   kTiltJoint,
   kControlSurface,
-  kLandingGear,
-  kPassiveWheel,
   kManipulation,
-  kOther,
+  kUserActive,
+  kUserPassive,
 };
 
 std::string textFromEnum(JointRole role);

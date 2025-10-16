@@ -133,17 +133,14 @@ tobas::JointRole ExtraJointsWidget::getRole(int row) const
 {
   const auto text = roleWidget(row)->currentText();
 
-  if (text == kRoleLabel_LandingGear) {
-    return tobas::JointRole::kLandingGear;
-  }
-  else if (text == kRoleLabel_PassiveWheel) {
-    return tobas::JointRole::kPassiveWheel;
-  }
-  else if (text == kRoleLabel_Manipulation) {
+  if (text == kRoleLabel_Manipulation) {
     return tobas::JointRole::kManipulation;
   }
-  else if (text == kRoleLabel_Other) {
-    return tobas::JointRole::kOther;
+  else if (text == kRoleLabel_UserActive) {
+    return tobas::JointRole::kUserActive;
+  }
+  else if (text == kRoleLabel_UserPassive) {
+    return tobas::JointRole::kUserPassive;
   }
   else {
     throw;
@@ -180,17 +177,14 @@ void ExtraJointsWidget::setRole(int row, tobas::JointRole value)
 {
   QString text;
   switch (value) {
-    case tobas::JointRole::kLandingGear:
-      text = kRoleLabel_LandingGear;
-      break;
-    case tobas::JointRole::kPassiveWheel:
-      text = kRoleLabel_PassiveWheel;
-      break;
     case tobas::JointRole::kManipulation:
       text = kRoleLabel_Manipulation;
       break;
-    case tobas::JointRole::kOther:
-      text = kRoleLabel_Other;
+    case tobas::JointRole::kUserActive:
+      text = kRoleLabel_UserActive;
+      break;
+    case tobas::JointRole::kUserPassive:
+      text = kRoleLabel_UserPassive;
       break;
     default:
       throw;
@@ -313,7 +307,7 @@ void ExtraJointsWidget::clear()
 
 void ExtraJointsWidget::reset(int row)
 {
-  roleWidget(row)->setCurrentText(kRoleLabel_Other);
+  roleWidget(row)->setCurrentText(kRoleLabel_UserActive);
 
   setDefaultValues(row);
   updateEnability(row);
@@ -323,16 +317,13 @@ void ExtraJointsWidget::setDefaultValues(int row)
 {
   // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
   switch (getRole(row)) {
-    case tobas::JointRole::kLandingGear:
-      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
-      break;
-    case tobas::JointRole::kPassiveWheel:
-      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
-      break;
     case tobas::JointRole::kManipulation:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
       break;
-    case tobas::JointRole::kOther:
+    case tobas::JointRole::kUserActive:
+      commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_Position);
+      break;
+    case tobas::JointRole::kUserPassive:
       commandIfaceWidget(row)->setCurrentText(kCmdIfaceLabel_None);
       break;
     default:
@@ -347,22 +338,17 @@ void ExtraJointsWidget::updateEnability(int row)
 {
   // 役割によるフィールド
   switch (getRole(row)) {
-    case tobas::JointRole::kLandingGear:
-      roleWidget(row)->setEnabled(true);
-      commandIfaceWidget(row)->setEnabled(true);
-      homePositionWidget(row)->setEnabled(true);
-      break;
-    case tobas::JointRole::kPassiveWheel:
-      roleWidget(row)->setEnabled(true);
-      commandIfaceWidget(row)->setEnabled(false);
-      homePositionWidget(row)->setEnabled(false);
-      break;
     case tobas::JointRole::kManipulation:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(true);
       homePositionWidget(row)->setEnabled(true);
       break;
-    case tobas::JointRole::kOther:
+    case tobas::JointRole::kUserActive:
+      roleWidget(row)->setEnabled(true);
+      commandIfaceWidget(row)->setEnabled(true);
+      homePositionWidget(row)->setEnabled(true);
+      break;
+    case tobas::JointRole::kUserPassive:
       roleWidget(row)->setEnabled(true);
       commandIfaceWidget(row)->setEnabled(false);
       homePositionWidget(row)->setEnabled(false);
@@ -386,10 +372,9 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
   // Role
   const auto role = new qt::ComboBox();
   role->addItems({
-    kRoleLabel_LandingGear,
-    kRoleLabel_PassiveWheel,
     kRoleLabel_Manipulation,
-    kRoleLabel_Other,
+    kRoleLabel_UserActive,
+    kRoleLabel_UserPassive,
   });
 
   // Command Interface

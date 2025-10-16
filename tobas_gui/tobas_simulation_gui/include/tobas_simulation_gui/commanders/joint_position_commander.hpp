@@ -12,23 +12,24 @@
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
-#include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/joint_command_array.hpp>
 
 namespace gui
 {
 namespace sim
 {
-class JointPositionCommanderWidget : public QWidget
+class JointCommanderWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = JointPositionCommanderWidget;
+  using self = JointCommanderWidget;
   using super = QWidget;
+  using CmdMsg = tobas_msgs::msg::JointCommandArray;
 
   static constexpr int kPublishCommandPeriod = 100;  // [ms]
 
 public:
-  explicit JointPositionCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
+  explicit JointCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
 
   void updateInternalDataStructures();
 
@@ -54,13 +55,13 @@ private:
   QPushButton* center_button_;
   QPushButton* random_button_;
 
-  tobas_msgs::msg::JointStateArray tar_js_pos_;
-  tobas_msgs::msg::JointStateArray tar_js_vel_;
-  tobas_msgs::msg::JointStateArray tar_js_eff_;
+  CmdMsg tar_js_pos_;
+  CmdMsg tar_js_vel_;
+  CmdMsg tar_js_eff_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> tar_js_pos_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> tar_js_vel_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> tar_js_eff_pub_;
+  ros2::PublisherPtr<CmdMsg> tar_js_pos_pub_;
+  ros2::PublisherPtr<CmdMsg> tar_js_vel_pub_;
+  ros2::PublisherPtr<CmdMsg> tar_js_eff_pub_;
 
   QTimer publish_cmd_timer_;
 
