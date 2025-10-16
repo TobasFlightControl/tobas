@@ -57,18 +57,17 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 
 const char* HardwareWidget::name() const
 {
-  return "Flight Management Unit";
+  return "Hardware Interface";
 }
 
 const char* HardwareWidget::title() const
 {
-  return "Select Flight Management Unit";
+  return "Configure Hardware Interface";
 }
 
 const char* HardwareWidget::description() const
 {
-  return "Configure hardware connections. "
-         "Select the FMU you intend to use, "
+  return "Select the FMU you intend to use, "
          "then freely assign each hardware interface to any PWM or DShot channel.";
 }
 
