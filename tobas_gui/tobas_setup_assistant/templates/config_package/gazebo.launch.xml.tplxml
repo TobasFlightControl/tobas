@@ -81,7 +81,7 @@
       <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     </group>
 
-    <!-- If no S.BUS device is specified, start the fake RC input publisher to pass the failsafe. -->
+    <!-- If no S.BUS device is specified, start the fake RC input publisher to pass the radio failsafe. -->
     <group if="$(eval '\'$(var sbus_device)\' == \'\'')">
       <node pkg="tobas_fake_publishers" exec="fake_rcin_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     </group>
