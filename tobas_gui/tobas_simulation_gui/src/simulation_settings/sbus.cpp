@@ -1,6 +1,7 @@
 #include "tobas_simulation_gui/simulation_settings/sbus.hpp"
 
 #include <QFormLayout>
+#include <QSet>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
@@ -52,25 +53,41 @@ void SbusWidget::onScanTimerTimeout()
 
   const QSignalBlocker block(device_names_);
 
-  // シンボリックリンク名を列挙
-  QStringList filenames;
+  // 新しいデバイス名を列挙
+  QSet<QString> new_device_names;
   for (const auto& entry : dir_.entryInfoList(QDir::NoDotAndDotDot | QDir::Files | QDir::System)) {
-    filenames.append(entry.fileName());
+    new_device_names.insert(entry.fileName());
   }
-  filenames.sort(Qt::CaseInsensitive);
 
-  // 既存選択を保存
-  const auto cur_text = device_names_->currentText();
+  // S.BUSドライバを立ち上げない選択肢を与える
+  if (device_names_->count() == 0) {
+    device_names_->addItem("");
+  }
 
-  // 選択肢を更新
-  device_names_->clear();
-  device_names_->addItem("");  // S.BUSドライバを立ち上げない選択肢を与える
-  device_names_->addItems(filenames);
+  // 存在しないデバイスをまとめる (ループ内で削除するとイテレータが狂うため)
+  QSet<QString> removed_device_names;
+  for (int i = 1; i < device_names_->count(); ++i) {  // インデックス0は空文字
+    const auto cur_device_name = device_names_->itemText(i);
+    if (!new_device_names.contains(cur_device_name)) {
+      removed_device_names.insert(cur_device_name);
+    }
+  }
 
-  // 以前の選択がまだ存在すれば復元
-  const auto idx = device_names_->findText(cur_text);
-  if (idx >= 0) {
-    device_names_->setCurrentIndex(idx);
+  // 存在しないデバイスを選択肢から削除
+  for (const auto& removed_device_name : removed_device_names) {
+    device_names_->removeText(removed_device_name);
+  }
+
+  // 新たなデバイスを選択肢に追加
+  for (const auto& new_device_name : new_device_names) {
+    if (!device_names_->contains(new_device_name)) {
+      device_names_->addItem(new_device_name);
+
+      // 最初に追加されたデバイスならば自動でそれを選択
+      if (device_names_->count() == 2) {
+        device_names_->setCurrentIndex(1);
+      }
+    }
   }
 }
 }  // namespace sim
