@@ -28,7 +28,7 @@
   <!-- Set common parameters -->
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
-  <!-- Load robot description -->
+  <!-- Load a robot description -->
   <arg name="xacro_path" default="$(find-pkg-share {{ config_pkg_name }})/urdf/drone.xacro"/>
   <arg name="urdf_text" default="$(command 'xacro $(var xacro_path) DEBUG:=$(var user_debug)')"/>
   <node pkg="robot_state_publisher" exec="robot_state_publisher" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
@@ -47,17 +47,17 @@
   <group>
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
-    <!-- Spawn robot in Gazebo -->
+    <!-- Spawn the robot in Gazebo -->
     <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -R $(var roll) -P $(var pitch) -Y $(var yaw)" output="$(var output)"/>
 
-    <!-- Launch Gazebo nodes -->
+    <!-- Launch the Gazebo nodes -->
     <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="rotor_states_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="electric_rotor_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
   </group>
 
-  <!-- Launch Tobas core software -->
+  <!-- Launch the Tobas core software -->
   <group if="$(var launch_core)">
     <include file="$(find-pkg-share {{ config_pkg_name }})/launch/common.launch.py">
       <arg name="log_level" value="$(var log_level)"/>
@@ -69,15 +69,19 @@
     </include>
   </group>
 
-  <!-- Launch nodes related to RC input -->
+  <!-- Launch the nodes related to RC input -->
   <group>
     <push_ros_namespace namespace="{{ drone_name }}"/>
+
+    <!-- If an S.BUS device is specified, launch the S.BUS driver and the RC input handler. -->
     <group if="$(eval '\'$(var sbus_device)\' != \'\'')">
       <node pkg="tobas_sbus_driver" exec="sbus_driver" ros_args="--log-level $(var log_level)" output="$(var output)">
         <param name="device" value="$(var sbus_device)"/>
       </node>
       <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     </group>
+
+    <!-- If no S.BUS device is specified, start the fake RC input publisher to pass the failsafe. -->
     <group if="$(eval '\'$(var sbus_device)\' == \'\'')">
       <node pkg="tobas_fake_publishers" exec="fake_rcin_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     </group>
@@ -87,7 +91,7 @@
   <include file="$(find-pkg-share {{ user_cpp_pkg_name }})/launch/gazebo.launch.py"/>
   <include file="$(find-pkg-share {{ user_py_pkg_name }})/launch/gazebo.launch.py"/>
 
-  <!-- Launch nodes for debug -->
+  <!-- Launch the nodes for debugging -->
   <node pkg="tobas_matrix_euler_conversion" exec="matrix_euler_converter" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
     <remap from="euler" to="gazebo/euler"/>
   </node>
