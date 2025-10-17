@@ -10,6 +10,7 @@
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/random.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "tobas_gazebo_system_plugins/world.hpp"
 
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
@@ -97,6 +98,14 @@ void GazeboGnssPlugin::Configure(
 
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
+  const auto sc = getWorldSphericalCoordinates(ecm);
+  if (!sc) {
+    TOBAS_EXIT(sc.error());
+  }
+  lat_0_ = sc.value().LatitudeReference().Degree();
+  lon_0_ = sc.value().LongitudeReference().Degree();
+  alt_0_ = sc.value().ElevationReference();
+
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
@@ -141,11 +150,7 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   t_last_publish_ = cur_time;
 
   // 最も古い (= delay分遅れている) 状態を取得
-  ch::steady_clock::duration gnss_time;
-  gz::math::Pose3d T_W_B;
-  gz::math::Vector3d W_Linvel_WB;
-  gz::math::Vector3d B_Angvel_WB;
-  tie(gnss_time, T_W_B, W_Linvel_WB, B_Angvel_WB) = history_.front();
+  const auto& [gnss_time, T_W_B, W_Linvel_WB, B_Angvel_WB] = history_.front();
 
   // GNSSメッセージを作成
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
@@ -173,10 +178,6 @@ void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kNonNegative);
   getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kNonNegative);
   getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kNonNegative);
-
-  getSdfParam(sdf, "latitudeZero", lat_0_);
-  getSdfParam(sdf, "longitudeZero", lon_0_);
-  getSdfParam(sdf, "altitudeZero", alt_0_);
 }
 
 void GazeboGnssPlugin::setRandomDistribuitons()

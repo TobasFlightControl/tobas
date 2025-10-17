@@ -13,6 +13,7 @@
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/random.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
+#include "tobas_gazebo_system_plugins/world.hpp"
 
 namespace cmp = gz::sim::components;
 
@@ -80,6 +81,14 @@ void GazeboMagnetometerPlugin::Configure(
 
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
+  const auto sc = getWorldSphericalCoordinates(ecm);
+  if (!sc) {
+    TOBAS_EXIT(sc.error());
+  }
+  lat_0_ = sc.value().LatitudeReference().Degree();
+  lon_0_ = sc.value().LongitudeReference().Degree();
+  alt_0_ = sc.value().ElevationReference();
+
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
@@ -136,10 +145,6 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
   getSdfParam(sdf, "offset", offset_);
-
-  getSdfParam(sdf, "latitudeZero", lat_0_);
-  getSdfParam(sdf, "longitudeZero", lon_0_);
-  getSdfParam(sdf, "altitudeZero", alt_0_);
 
   getSdfParam(sdf, "noiseStddev", noise_stddev_, kNonNegative);
   getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, kNonNegative);
