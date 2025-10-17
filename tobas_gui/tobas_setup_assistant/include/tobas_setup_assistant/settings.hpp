@@ -15,7 +15,6 @@
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
 #include "./setting_tabs/remote_connection/remote_connection.hpp"
-#include "./setting_tabs/simulation.hpp"
 
 namespace gui
 {
@@ -38,7 +37,6 @@ public:
   RcInputWidget* rc_input;
   ExtraJointsWidget* extra_joints;
   FailsafeWidget* failsafe;
-  SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
 
   explicit SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);
