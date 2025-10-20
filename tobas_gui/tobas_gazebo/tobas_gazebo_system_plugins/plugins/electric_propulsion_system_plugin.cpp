@@ -66,18 +66,17 @@ private:
   std::string link_name_;
   struct Param
   {
-    double kv;                    // [rad/s/V]
-    double resistance;            // [Ω]
-    size_t num_blades;            // [-]
-    double motor_const;           // [N/(rad/s)^2]
-    double moment_const;          // [m]
-    double drag_const;            // [N*s^2/rad/m]
-    int direction;                // Turning direction: 1(CCW) or -1(CW)
-    double max_current;           // [A] ESCの最大電流
-    size_t publish_state_rate;    // [Hz]
-    double vib_force_coef;        // [-]
-    double vib_force_var_rate;    // [-]
-    double max_model_error_rate;  // [-]
+    double kv;                  // [rad/s/V]
+    double resistance;          // [Ω]
+    size_t num_blades;          // [-]
+    double motor_const;         // [N/(rad/s)^2]
+    double moment_const;        // [m]
+    double drag_const;          // [N*s^2/rad/m]
+    int direction;              // Turning direction: 1(CCW) or -1(CW)
+    double max_current;         // [A] ESCの最大電流
+    size_t publish_state_rate;  // [Hz]
+    double vib_force_coef;      // [-]
+    double vib_force_var_rate;  // [-]
   } param_;
 
   double throt_ = 0.;  // [0, 1]
@@ -122,7 +121,6 @@ private:
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerROSInterfaces();
-  void addModelError();
 
   double velocitySim() const;
 
@@ -161,7 +159,6 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   rice_ = RiceDistribution(1., param_.vib_force_var_rate);
 
   publish_state_rate_manager_ = std::make_shared<RateManager>(param_.publish_state_rate);
-  addModelError();
 
   // Get robot model
   const gz::sim::Model model(model_entity);
@@ -268,7 +265,6 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   getSdfParam(sdf, "publishStateRate", param_.publish_state_rate, 400UL, kNonNegative);
   getSdfParam(sdf, "vibrationForceCoefficient", param_.vib_force_coef, 1.5, kNonNegative);
   getSdfParam(sdf, "vibrationForceVariationRate", param_.vib_force_var_rate, 0.3, kNonNegative);
-  getSdfParam(sdf, "maxModelErrorRate", param_.max_model_error_rate, 0., kNonNegative);
 }
 
 void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
@@ -282,23 +278,6 @@ void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
   wind_gt_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedGtCb, this);
 
   break_ss_ = createService<BreakSrv>(path::join(kBreakRotorSrvNS, link_name_), &self::breakCb, this);
-}
-
-void GazeboElectricPropulsionSystemPlugin::addModelError()
-{
-  // 一様乱数を作成
-  std::random_device rnd_dev;
-  std::mt19937 rnd_gen(rnd_dev());
-  UniformDistribution uniform(-1, 1);
-
-  // モータ
-  param_.kv *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
-  param_.resistance *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
-
-  // プロペラ
-  param_.motor_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
-  param_.moment_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
-  param_.drag_const *= (1 + param_.max_model_error_rate * uniform(rnd_gen));
 }
 
 double GazeboElectricPropulsionSystemPlugin::velocitySim() const

@@ -22,6 +22,7 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/world.hpp"
 
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
@@ -123,6 +124,13 @@ void GazeboFixedWingPlugin::Configure(
 {
   initialize("gazebo_fixed_wing_plugin", sdf);
   getSdfParams(sdf);
+
+  // Get the world origin
+  const auto sc = getWorldSphericalCoordinates(ecm);
+  if (!sc) {
+    TOBAS_EXIT(sc.error());
+  }
+  alt_0_ = sc.value().ElevationReference();
 
   // Get robot model
   const gz::sim::Model model(model_entity);
@@ -277,7 +285,6 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "baseLinkName", base_link_name_);
-  getSdfParam(sdf, "altitudeZero", alt_0_, kNonNegative);
 
   // Vehicle
   getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, kPositive);

@@ -104,7 +104,7 @@ void addBatteryPlugin(
   addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 
-void addIMUPlugin(
+void addImuPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
@@ -138,9 +138,6 @@ void addMagnetometerPlugin(
   const std::string& link_name,
   int update_rate,
   const Eigen::Vector3d& offset,
-  double latitude_zero,
-  double longitude_zero,
-  double altitude_zero,
   double noise_stddev,
   double hard_bias_norm)
 {
@@ -149,9 +146,6 @@ void addMagnetometerPlugin(
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("latitudeZero")->SetText(latitude_zero);
-  plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
   plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
   plugin->InsertNewChildElement("hardBiasNorm")->SetText(hard_bias_norm);
 }
@@ -162,7 +156,6 @@ void addBarometerPlugin(
   const std::string& link_name,
   int update_rate,
   const Eigen::Vector3d& offset,
-  double altitude_zero,
   double noise_stddev)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "gazebo::GazeboBarometerPlugin");
@@ -170,11 +163,10 @@ void addBarometerPlugin(
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
   plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
 }
 
-void addGNSSPlugin(
+void addGnssPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
@@ -185,10 +177,7 @@ void addGNSSPlugin(
   double hor_pos_accuracy,
   double ver_pos_accuracy,
   double ver_vel_stddev,
-  double hor_vel_stddev,
-  double latitude_zero,
-  double longitude_zero,
-  double altitude_zero)
+  double hor_vel_stddev)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -201,9 +190,6 @@ void addGNSSPlugin(
   plugin->InsertNewChildElement("verPosAccuracy")->SetText(ver_pos_accuracy);
   plugin->InsertNewChildElement("horVelStdDev")->SetText(hor_vel_stddev);
   plugin->InsertNewChildElement("verVelStdDev")->SetText(ver_vel_stddev);
-  plugin->InsertNewChildElement("latitudeZero")->SetText(latitude_zero);
-  plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
 }
 
 void addElectricPropulsionSystemPlugin(
@@ -217,8 +203,7 @@ void addElectricPropulsionSystemPlugin(
   double moment_const,
   double drag_const,
   tobas::TurningDirection direction,
-  double max_current,
-  double max_model_error_rate)
+  double max_current)
 {
   const auto plugin = addGazeboPlugin(
     robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
@@ -232,7 +217,6 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("dragConstant")->SetText(drag_const);
   plugin->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(direction).c_str());
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
-  plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }
 
 void addIcePropulsionSystemPlugin(
@@ -279,7 +263,6 @@ void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& base_link_name,
-  double altitude_zero,
   const tobas::FixedWingConfig& fixed_wing)
 {
   const auto& vehicle = fixed_wing.vehicle;
@@ -289,7 +272,6 @@ void addFixedWingPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_fixed_wing_plugin", "gazebo::GazeboFixedWingPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("baseLinkName")->SetText(base_link_name.c_str());
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
 
   // Vehicle
   plugin->InsertNewChildElement("wingSurface")->SetText(vehicle.wing_surface);

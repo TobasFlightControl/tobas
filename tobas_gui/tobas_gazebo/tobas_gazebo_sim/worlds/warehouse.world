@@ -63,6 +63,16 @@
       </plugin>
     </gui>
 
+    <!-- Chennai, Tamil Nadu, India -->
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>13.00</latitude_deg>
+      <longitude_deg>80.18</longitude_deg>
+      <elevation>14</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
     <scene>
       <ambient>1 1 1 1</ambient>
       <background>0.3 0.7 0.9 1</background>

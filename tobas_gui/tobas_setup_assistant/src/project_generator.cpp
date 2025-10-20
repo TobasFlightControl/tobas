@@ -935,7 +935,6 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   const auto& prop = settings_->propulsion_system;
   const auto& fmu = settings_->hardware;
-  const auto& sim = settings_->simulation;
 
   const auto drone = createDrone();
 
@@ -949,7 +948,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
 
   // IMU plugin
-  xml::addIMUPlugin(
+  xml::addImuPlugin(
     robot,
     ns,
     root_name,
@@ -970,9 +969,6 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     root_name,
     fmu->magUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
-    sim->latitudeZero(),
-    sim->longitudeZero(),
-    sim->altitudeZero(),
     fmu->magNoiseStddev(),
     fmu->magHardBiasNorm());
 
@@ -983,11 +979,10 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     root_name,
     fmu->presUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
-    sim->altitudeZero(),
     fmu->presNoiseStddev());
 
   // GNSS plugin
-  xml::addGNSSPlugin(
+  xml::addGnssPlugin(
     robot,
     ns,
     root_name,
@@ -998,10 +993,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),
-    fmu->gnssVerticalVelocityStddev(),
-    sim->latitudeZero(),
-    sim->longitudeZero(),
-    sim->altitudeZero());
+    fmu->gnssVerticalVelocityStddev());
 
   // Propulsion system plugins
   switch (drone.prop->type()) {
@@ -1047,8 +1039,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
           aero->momentConst(),
           aero->dragConst(),
           turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction),
-          esc->maxCurrent(),
-          sim->maxModelErrorRate());
+          esc->maxCurrent());
       }
 
       break;
@@ -1097,7 +1088,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Fixed wing plugin
   if (drone.fixed_wing) {
-    xml::addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
+    xml::addFixedWingPlugin(robot, ns, root_name, *drone.fixed_wing);
   }
 
   // Joint state broadcaster plugin
