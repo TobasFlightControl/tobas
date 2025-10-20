@@ -12,8 +12,8 @@ GnssPlotWidget::GnssPlotWidget()
   : latitude_curve_("Latitude [deg]")
   , longitude_curve_("Longitude [deg]")
   , altitude_curve_("Altitude [deg]")
+  , east_speed_curve_("East Speed [m/s]")
   , north_speed_curve_("North Speed [m/s]")
-  , west_speed_curve_("West Speed [m/s]")
   , up_speed_curve_("Up Speed [m/s]")
 {
   const auto grid = new QGridLayout();
@@ -37,17 +37,17 @@ GnssPlotWidget::GnssPlotWidget()
   altitude_curve_.attach(altitude_plot_);
   grid->addWidget(altitude_plot_, 2, 0, 1, 1);
 
+  east_speed_plot_ = new QwtPlot2();
+  east_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
+  east_speed_curve_.setPen(Qt::black, kLineWidth);
+  east_speed_curve_.attach(east_speed_plot_);
+  grid->addWidget(east_speed_plot_, 0, 1, 1, 1);
+
   north_speed_plot_ = new QwtPlot2();
   north_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
   north_speed_curve_.setPen(Qt::black, kLineWidth);
   north_speed_curve_.attach(north_speed_plot_);
-  grid->addWidget(north_speed_plot_, 0, 1, 1, 1);
-
-  west_speed_plot_ = new QwtPlot2();
-  west_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  west_speed_curve_.setPen(Qt::black, kLineWidth);
-  west_speed_curve_.attach(west_speed_plot_);
-  grid->addWidget(west_speed_plot_, 1, 1, 1, 1);
+  grid->addWidget(north_speed_plot_, 1, 1, 1, 1);
 
   up_speed_plot_ = new QwtPlot2();
   up_speed_plot_->setAxisNoLabel(QwtPlot::xBottom);
@@ -67,11 +67,11 @@ void GnssPlotWidget::clear()
   altitude_curve_.clear();
   altitude_plot_->replot();
 
+  east_speed_curve_.clear();
+  east_speed_plot_->replot();
+
   north_speed_curve_.clear();
   north_speed_plot_->replot();
-
-  west_speed_curve_.clear();
-  west_speed_plot_->replot();
 
   up_speed_curve_.clear();
   up_speed_plot_->replot();
@@ -82,8 +82,8 @@ void GnssPlotWidget::setTimeScale(double t_start, double t_stop)
   latitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   longitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   altitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  east_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   north_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  west_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   up_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
 }
 
@@ -117,11 +117,11 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   altitude_curve_.setSamples(t_data, altitude_data);
   altitude_plot_->replot();
 
-  north_speed_curve_.setSamples(t_data, north_speed_data);
-  north_speed_plot_->replot();
+  east_speed_curve_.setSamples(t_data, north_speed_data);
+  east_speed_plot_->replot();
 
-  west_speed_curve_.setSamples(t_data, west_speed_data);
-  west_speed_plot_->replot();
+  north_speed_curve_.setSamples(t_data, west_speed_data);
+  north_speed_plot_->replot();
 
   up_speed_curve_.setSamples(t_data, up_speed_data);
   up_speed_plot_->replot();

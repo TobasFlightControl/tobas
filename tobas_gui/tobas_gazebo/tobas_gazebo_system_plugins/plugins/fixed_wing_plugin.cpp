@@ -201,8 +201,8 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   const auto vel_W = vel_W_->Data() - wind_vel_W_;
   auto vel_B = R_W_B.RotateVectorReverse(vel_W);
 
-  // NWU -> NED
-  NWU2NED(vel_B);
+  // FLU -> FRD
+  FLU2FRD(vel_B);
 
   // 相対風速
   const auto& u = vel_B.X();
@@ -258,9 +258,9 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   const auto& c_bar = vehicle_params_.mac;                                        // [m]
   auto torque_B = q_bar * S * gz::math::Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
 
-  // NED coordinates -> NWU coordinates
-  NED2NWU(force_B);
-  NED2NWU(torque_B);
+  // FRD coordinates -> FLU coordinates
+  FRD2FLU(force_B);
+  FRD2FLU(torque_B);
 
   // 世界座標系に変換
   const auto force_W = R_W_B.RotateVector(force_B);
@@ -496,7 +496,7 @@ gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
 {
   // 角速度
   auto gyro_B = gyro_B_->Data();
-  NWU2NED(gyro_B);
+  FLU2FRD(gyro_B);
   const auto p = gyro_B.X();
   const auto q = gyro_B.Y();
   const auto r = gyro_B.Z();

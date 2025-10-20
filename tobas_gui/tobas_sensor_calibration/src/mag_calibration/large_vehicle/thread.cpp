@@ -43,7 +43,7 @@ void LargeVehicleMagCalibThread::run()
   // 現在位置での地磁気の参照値を求める
   const auto mag =
     geomag::elementsFromGeodetic(gnss_->latitude, gnss_->longitude, gnss_->altitude, tim::yearFraction());
-  const kdl::Vector mag_ref(mag.north, -mag.east, -mag.down);
+  const kdl::Vector mag_ref(mag.north, -mag.east, -mag.down);  // 機体は北向きのためコンパスのXYZはNWUに対応する
 
   // 初期化
   cnt_ = 0;

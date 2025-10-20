@@ -124,8 +124,8 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tim::yearFraction());
 
   // 機体座標系から見た地磁気を計算
-  const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [G]
-  const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);      // [G]
+  const gz::math::Vector3d field_W(mag.east, mag.north, -mag.down);  // ENU coordinates
+  const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);
 
   // ノイズを加えて地磁気のスケールで正規化した値を観測する
   const auto field_meas = (field_B + noise_->get() + hard_bias_) / mag.total;  // [-]

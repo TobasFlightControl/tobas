@@ -11,17 +11,17 @@ bool allGreaterEqual(const gz::math::Vector3<T>& v, T x)
   return v.X() >= x && v.Y() >= x && v.Z() >= x;
 }
 
-/* NWU座標系(Gazebo)からNED座標系(航空力学)に変換． */
+/* FLU (Front-Left-Up) 座標系 (Gazebo) から FRD (Front-Right-Down) 座標系 (航空力学) に変換． */
 template <typename T>
-void NWU2NED(gz::math::Vector3<T>& v)
+void FLU2FRD(gz::math::Vector3<T>& v)
 {
   v.Y() = -v.Y();
   v.Z() = -v.Z();
 }
 
-/* NED座標系(航空力学)からNWU座標系(Gazebo)に変換． */
+/* FRD (Front-Right-Down) 座標系 (航空力学) から FLU (Front-Left-Up) 座標系 (Gazebo) に変換． */
 template <typename T>
-void NED2NWU(gz::math::Vector3<T>& v)
+void FRD2FLU(gz::math::Vector3<T>& v)
 {
   v.Y() = -v.Y();
   v.Z() = -v.Z();

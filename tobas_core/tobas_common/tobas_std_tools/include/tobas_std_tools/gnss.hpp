@@ -32,31 +32,31 @@ void gnssToCartAbsolute(
  * @param longitude 東経[deg]
  * @param latitude_0 原点の北緯[deg]
  * @param longitude_0 原点の東経[deg]
- * @param x 北向きを正と定めたときのX座標[m] (出力)
- * @param y 西向きを正と定めたときのY座標[m] (出力)
+ * @param east 東向きの座標[m] (出力)
+ * @param north 北向きの座標[m] (出力)
  */
 void gnssToCartRelative(
   const double& latitude,
   const double& longitude,
   const double& latitude_0,
   const double& longitude_0,
-  double& x,
-  double& y);
+  double& east,
+  double& north);
 
 /**
  * @brief 平面直行座標を緯度，経度に変換する．
  * cf. https://qiita.com/sw1227/items/e7a590994ad7dcd0e8ab
  *
- * @param x 北向きを正と定めたときのX座標[m]
- * @param y 西向きを正と定めたときのY座標[m]
+ * @param east 東向きの座標[m]
+ * @param north 北向きの座標[m]
  * @param latitude_0 原点の北緯[deg]
  * @param longitude_0 原点の東経[deg]
  * @param latitude 北緯[deg] (出力)
  * @param longitude 東経[deg] (出力)
  */
 void cartToGnssRelative(
-  const double& x,
-  const double& y,
+  const double& east,
+  const double& north,
   const double& latitude_0,
   const double& longitude_0,
   double& latitude,

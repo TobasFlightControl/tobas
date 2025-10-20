@@ -229,8 +229,8 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->altitude = (hpposllh_.height + hpposllh_.heightHp) * 1e-3;  // Height above ellipsoid [m]
 
   // Fill velocity
-  gnss_msg->ground_speed.x(velned_.velN * 1e-2);   // North velocity [m/s]
-  gnss_msg->ground_speed.y(-velned_.velE * 1e-2);  // West velocity [m/s]
+  gnss_msg->ground_speed.x(velned_.velE * 1e-2);   // East velocity [m/s]
+  gnss_msg->ground_speed.y(velned_.velN * 1e-2);   // North velocity [m/s]
   gnss_msg->ground_speed.z(-velned_.velD * 1e-2);  // Up velocity [m/s]
 
   // Fill covariances

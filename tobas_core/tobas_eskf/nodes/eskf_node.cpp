@@ -810,7 +810,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     // GNSSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
     const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_, tim::yearFraction());
-    const Vector3d mag_W(mag.north, -mag.east, -mag.down);  // NWU coordinates
+    const Vector3d mag_W(mag.east, mag.north, -mag.down);  // ENU coordinates
     if (!setMagneticFieldRef(mag_W)) {
       return;
     }

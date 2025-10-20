@@ -5,17 +5,17 @@
 
 namespace tobas
 {
-void odometryNedToNwu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des);
-void odometryNwuToNed(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des);
-void odometryNedToNwu(tobas_msgs::Odometry& arg);
-void odometryNwuToNed(tobas_msgs::Odometry& arg);
+void odometryFrdToFlu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des);
+void odometryFluToFrd(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des);
+void odometryFrdToFlu(tobas_msgs::Odometry& arg);
+void odometryFluToFrd(tobas_msgs::Odometry& arg);
 
-void speedRollDeltaPitchNedToNwu(
+void speedRollDeltaPitchFrdToFlu(
   const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
   tobas_command_msgs::msg::SpeedRollDeltaPitch& des);
-void speedRollDeltaPitchNwuToNed(
+void speedRollDeltaPitchFluToFrd(
   const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
   tobas_command_msgs::msg::SpeedRollDeltaPitch& des);
-void speedRollDeltaPitchNedToNwu(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg);
-void speedRollDeltaPitchNwuToNed(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg);
+void speedRollDeltaPitchFrdToFlu(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg);
+void speedRollDeltaPitchFluToFrd(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg);
 }  // namespace tobas

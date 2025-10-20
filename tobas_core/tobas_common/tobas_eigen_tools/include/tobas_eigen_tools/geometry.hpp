@@ -7,27 +7,27 @@
 
 namespace eigen
 {
-/* 3次元ベクトルをNED座標系からNWU座標系に変換する．Rx(π)をかけるのと同じ． */
-inline void vectorNedToNwu(const Eigen::Vector3d& src, Eigen::Vector3d& des)
+/* 3次元ベクトルを FLU (Front-Left-Up) 座標系から FRD (Front-Right-Down) 座標系に変換する．Rx(π)をかけるのと同じ． */
+inline void vectorFrdToFlu(const Eigen::Vector3d& src, Eigen::Vector3d& des)
 {
   des.x() = src.x();
   des.y() = -src.y();
   des.z() = -src.z();
 }
 
-inline void vectorNwuToNed(const Eigen::Vector3d& src, Eigen::Vector3d& des)
+inline void vectorFluToFrd(const Eigen::Vector3d& src, Eigen::Vector3d& des)
 {
-  vectorNedToNwu(src, des);
+  vectorFrdToFlu(src, des);
 }
 
-inline void vectorNedToNwu(Eigen::Vector3d& arg)
+inline void vectorFrdToFlu(Eigen::Vector3d& arg)
 {
-  vectorNedToNwu(arg, arg);
+  vectorFrdToFlu(arg, arg);
 }
 
-inline void vectorNwuToNed(Eigen::Vector3d& arg)
+inline void vectorFluToFrd(Eigen::Vector3d& arg)
 {
-  vectorNwuToNed(arg, arg);
+  vectorFluToFrd(arg, arg);
 }
 
 inline Eigen::AngleAxisd angleAxisFromVector(const Eigen::Vector3d& w)

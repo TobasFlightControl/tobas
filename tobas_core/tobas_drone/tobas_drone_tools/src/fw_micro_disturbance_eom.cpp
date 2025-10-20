@@ -177,8 +177,8 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
-    Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * cm) * X_AXIS);  // NWU
-    eigen::vectorNwuToNed(v);                                                       // NWU -> NED
+    Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * cm) * X_AXIS);  // FLU
+    eigen::vectorFluToFrd(v);                                                       // FLU -> FRD
     B_.block(kStateIdx_p, idx, 3, 1) = v;
   }
 
