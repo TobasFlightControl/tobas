@@ -15,7 +15,7 @@ class RotorAnomalyDetectorNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   static constexpr rcl_duration_value_t kNoCommTimeout = 100'000'000;     // [ns]
-  static constexpr rcl_duration_value_t kCommRecoveryTime = 500'000'000;  // [ns]
+  static constexpr rcl_duration_value_t kCommRecoveryTime = 300'000'000;  // [ns]
   static constexpr auto kPublishRotorLivelinessPeriod = 1s;
 
 public:
