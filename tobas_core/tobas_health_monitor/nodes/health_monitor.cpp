@@ -187,7 +187,7 @@ void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 
 void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  t_last_rcin_ = rcin->header.stamp;
+  t_last_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
 }
 
 void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv)
@@ -199,7 +199,7 @@ void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstShar
 {
   // メッセージの時間差を確認
   if (ros2::microseconds(sampling_time->data) > kImuSamplingTimeThresh) {
-    t_last_rt_violation_ = sampling_time->header.stamp;
+    t_last_rt_violation_ = rclcpp::Time(sampling_time->header.stamp, get_clock()->get_clock_type());
   }
 
   sampling_time_ = sampling_time;
