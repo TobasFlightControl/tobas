@@ -28,16 +28,16 @@ class HealthMonitorNode : public tobas::BaseNode
   static constexpr auto kRadioConnLostTimeThresh = 500ms;
   static constexpr double kPosDriftThresh = 1.;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
-  static constexpr double kCPUTempThresh = 80.;              // [degC]
-  static constexpr double kAttitudeThresh = M_PI / 12;       // [rad]
-  static constexpr double kHorPosStddevThresh = 1.;          // [m]
-  static constexpr double kVerPosStddevThresh = 2.;          // [m]
-  static constexpr double kVelStddevThresh = 0.3;            // [m/s]
-  static constexpr double kAttiStddevThresh = M_PI / 24;     // [rad]
-  static constexpr double kHeadStddevThresh = M_PI / 12;     // [rad]
-  static constexpr double kMagLengthErrorThresh = 0.2;       // [-]
-  static constexpr double kMagAlignErrorThresh = M_PI / 12;  // [rad]
-  static constexpr double kVibrationLevelThresh = 10.;       // [m/s^2]
+  static constexpr double kCPUTempThresh = 80.;             // [degC]
+  static constexpr double kAttitudeThresh = M_PI / 12;      // [rad]
+  static constexpr double kHorPosStddevThresh = 1.;         // [m]
+  static constexpr double kVerPosStddevThresh = 2.;         // [m]
+  static constexpr double kVelStddevThresh = 0.3;           // [m/s]
+  static constexpr double kAttiStddevThresh = M_PI / 24;    // [rad]
+  static constexpr double kHeadStddevThresh = M_PI / 12;    // [rad]
+  static constexpr double kMagLengthErrorThresh = 0.5;      // [-]
+  static constexpr double kMagAlignErrorThresh = M_PI / 6;  // [rad]
+  static constexpr double kVibrationLevelThresh = 10.;      // [m/s^2]
 
   using self = HealthMonitorNode;
   using super = tobas::BaseNode;
