@@ -54,7 +54,7 @@ tobas::RcCommand PlanarMulticopterWidget::acrobatModeCommand() const
 
 tobas::RcCommand PlanarMulticopterWidget::stabilizeModeCommand() const
 {
-  return tobas::RcCommand::kAccelYaw;
+  return tobas::RcCommand::kAngleThrottle;
 }
 
 tobas::RcCommand PlanarMulticopterWidget::loiterModeCommand() const
