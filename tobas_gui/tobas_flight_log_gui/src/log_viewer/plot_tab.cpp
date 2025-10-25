@@ -56,6 +56,7 @@ PlotTabWidget::PlotTabWidget(
   battery_plot_ = new BatteryPlotWidget();
   engine_plot_ = new EnginePlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
+  rotor_link_plot_ = new RotorLinkPlotWidget();
   propeller_pitch_plot_ = new PropellerPitchPlotWidget();
   joint_pos_plot_ = new JointPositionPlotWidget();
   joint_vel_plot_ = new JointVelocityPlotWidget();
@@ -76,6 +77,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(battery_plot_, "Battery");
   addTab(engine_plot_, "Engine");
   addTab(rotor_speed_plot_, "Rotor Speed");
+  addTab(rotor_link_plot_, "Rotor Link");
   addTab(propeller_pitch_plot_, "VPP Pitch");
   addTab(joint_pos_plot_, "Joint\nPosition");
   addTab(joint_vel_plot_, "Joint\nVelocity");
@@ -145,6 +147,9 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == rotor_speed_plot_) {
     rotor_speed_plot_->setData(cur_rotor_states_data_, tar_rotor_speeds_data_);
+  }
+  else if (cur_widget == rotor_link_plot_) {
+    rotor_link_plot_->setData(cur_rotor_states_data_);
   }
   else if (cur_widget == propeller_pitch_plot_) {
     propeller_pitch_plot_->setData(ice_cmd_data_);

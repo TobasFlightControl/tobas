@@ -19,6 +19,11 @@ public:
 
   void setSamples(const QVector<double>& x_data, const QVector<double>& y_data);
 
+  void setStyleLines();
+  void setStyleSticks();
+  void setStyleSteps();
+  void setStyleDots();
+
   void attach(QwtPlot* plot);
 
   /* サンプルを消去する． */

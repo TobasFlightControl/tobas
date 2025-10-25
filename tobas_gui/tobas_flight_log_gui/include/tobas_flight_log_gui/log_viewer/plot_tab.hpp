@@ -18,6 +18,7 @@
 #include "./plots/observer_feedback_plot.hpp"
 #include "./plots/pose_plot.hpp"
 #include "./plots/propeller_pitch_plot.hpp"
+#include "./plots/rotor_link_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/twist_plot.hpp"
 #include "./plots/vibration_level_plot.hpp"
@@ -93,6 +94,7 @@ private:
   BatteryPlotWidget* battery_plot_;
   EnginePlotWidget* engine_plot_;
   RotorSpeedPlotWidget* rotor_speed_plot_;
+  RotorLinkPlotWidget* rotor_link_plot_;
   PropellerPitchPlotWidget* propeller_pitch_plot_;
   JointPositionPlotWidget* joint_pos_plot_;
   JointVelocityPlotWidget* joint_vel_plot_;

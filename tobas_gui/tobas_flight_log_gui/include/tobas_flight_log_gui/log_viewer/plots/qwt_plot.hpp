@@ -18,6 +18,8 @@ public:
 
   void setAxisNoLabel(const QwtPlot::Axis& axis);
   void setAxisLabelUnit(const QwtPlot::Axis& axis, const QString& unit);
+
+  void setupBinaryPlot(const QString& label0, const QString& label1);
 };
 }  // namespace log
 }  // namespace gui
