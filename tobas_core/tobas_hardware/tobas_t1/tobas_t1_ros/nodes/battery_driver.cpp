@@ -10,7 +10,7 @@ using namespace std::chrono_literals;
 
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 1000ms;  // TODO: SPIデバイスをうまく分離してもっと上げる
+  static constexpr auto kSamplingPeriod = 100ms;  // TODO: SPIデバイスをうまく分離してもっと上げる
 
   using self = BatteryDriverNode;
   using super = hardware::BaseSensorNode;
