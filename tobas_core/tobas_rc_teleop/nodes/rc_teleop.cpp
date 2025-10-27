@@ -57,7 +57,6 @@ private:
 
     // Post-Arm
     kWaitForEnable,
-    kWaitForThrottle,
     kRunning,
   } stage_ = kCheckPrerequisites;
 
@@ -72,8 +71,7 @@ private:
 
   // Mutables
   tobas::FlightMode cur_mode_;
-  rclcpp::Time t_arm_start_;
-  rclcpp::Time t_disarm_start_;
+  builtin_interfaces::msg::Time t_arm_start_, t_disarm_start_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
@@ -97,13 +95,7 @@ private:
   void requestArmingRotors(bool arming);
   void updateWithIdleCommand(const tobas_msgs::RCInput& rcin);
 
-  bool isArmCommand(const tobas_msgs::RCInput& rcin);
-  bool isDisarmCommand(const tobas_msgs::RCInput& rcin);
-
   bool isFlightModeApplicable(tobas::FlightMode mode);
-
-  /* アーム後の共通処理．返り値がtrueならば離脱． */
-  bool postArmCommonProcess(const tobas_msgs::RCInput& rcin);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -194,54 +186,6 @@ void RCTeleopNode::requestArmingRotors(bool arming)
   set_arm_sc_->async_send_request(req);
 }
 
-bool RCTeleopNode::postArmCommonProcess(const tobas_msgs::RCInput& rcin)
-{
-  // ディスアームされていればステージをリセット
-  if (!arming_->data) {
-    t_arm_start_ = rcin.header.stamp;
-    stage_ = kCheckPrerequisites;
-    return true;
-  }
-
-  // Killスイッチがオンならば即ディスアーム
-  if (rcin.kill) {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "The kill switch has been activated. Forcing disarm.");
-    requestArmingRotors(false);
-    return true;
-  }
-
-  // Enableスイッチがオフならば待機モードに戻る
-  if (!rcin.enable) {
-    if (stage_ != kWaitForEnable) {
-      TOBAS_INFO("RC control is disabled.");
-      stage_ = kWaitForEnable;
-    }
-
-    t_disarm_start_ = rcin.header.stamp;
-    return true;
-  }
-
-  // 地上でディスアームコマンドの場合
-  if (landed_->data && isDisarmCommand(rcin)) {
-    TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
-
-    // 安全のためアイドルコマンドを送信
-    updateWithIdleCommand(rcin);
-
-    // ディスアームコマンドが一定時間維持されていればリクエスト
-    if ((rcin.header.stamp - t_disarm_start_).seconds() > kDisarmDuration) {
-      TOBAS_INFO("Requesting disarming rotors...");
-      requestArmingRotors(false);
-      t_disarm_start_ = rcin.header.stamp;
-    }
-
-    return true;
-  }
-
-  t_disarm_start_ = rcin.header.stamp;
-  return false;
-}
-
 void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
 {
   auto idle_rcin = rcin;
@@ -251,24 +195,17 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.yaw = tobas::kRCInputMid;
   idle_rcin.throttle = tobas::kRcInputMin;
 
-  controllers_[cur_mode_]->update(idle_rcin, *odom_);
-}
-
-bool RCTeleopNode::isArmCommand(const tobas_msgs::RCInput& rcin)
-{
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh &&
-         rcin.yaw < tobas::kRcInputMin + kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
-}
-
-bool RCTeleopNode::isDisarmCommand(const tobas_msgs::RCInput& rcin)
-{
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh &&
-         rcin.yaw > tobas::kRcInputMax - kArmThrotThresh && rcin.throttle < tobas::kRcInputMin + kArmThrotThresh;
+  controllers_[tobas::FlightMode::kAcrobat]->update(idle_rcin, *odom_);
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
 {
-  const auto& controller = controllers_.at(mode);
+  const auto controller_it = controllers_.find(mode);
+  if (controller_it == controllers_.end()) {
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)mode);
+    return false;
+  }
+  const auto& controller = controller_it->second;
 
   if (controller->requirePosition()) {
     const auto max_pos_var = odom_->position_covariance.eigenvalues().real().maxCoeff();
@@ -371,10 +308,12 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       }
 
       // アームコマンドが入力されている場合
-      if (isArmCommand(*rcin)) {
+      if (
+        std::max(abs(rcin->roll), abs(rcin->pitch)) < kArmThrotThresh &&
+        rcin->yaw < tobas::kRcInputMin + kArmThrotThresh && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {
         // アームコマンドが一定時間維持されていれば一度アームをリクエスト
         if ((rcin->header.stamp - t_arm_start_).seconds() > kArmDuration) {
-          TOBAS_INFO("Requesting arming rotors...");
+          TOBAS_INFO("Arming rotors...");
           requestArmingRotors(true);
           t_arm_start_ = rcin->header.stamp;
           break;
@@ -399,6 +338,11 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           break;
         }
 
+        if (!isFlightModeApplicable(rcin->mode)) {
+          t_arm_start_ = rcin->header.stamp;
+          break;
+        }
+
         TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Arm commanded.");
         break;
       }
@@ -409,59 +353,45 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
     }
 
     case kWaitForEnable: {
-      if (postArmCommonProcess(*rcin)) {
+      // ディスアームされていればステージをリセット
+      if (!arming_->data) {
+        t_arm_start_ = rcin->header.stamp;
+        stage_ = kCheckPrerequisites;
         break;
       }
 
-      if (!rcin->enable) {
-        break;
-      }
+      // RC入力が有効かつ実行可能な飛行モードだったら次のステージへ
+      if (rcin->enable && isFlightModeApplicable(rcin->mode)) {
+        controllers_.at(rcin->mode)->reset(*odom_);
+        cur_mode_ = rcin->mode;
+        TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
 
-      if (!modes_.contains(rcin->mode)) {
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)rcin->mode);
-        break;
-      }
-
-      if (!isFlightModeApplicable(rcin->mode)) {
-        break;
-      }
-
-      controllers_.at(rcin->mode)->reset(*odom_);
-      cur_mode_ = rcin->mode;
-      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
-
-      stage_ = kWaitForThrottle;
-      break;
-    }
-
-    case kWaitForThrottle: {
-      if (postArmCommonProcess(*rcin)) {
-        break;
-      }
-
-      if (rcin->throttle > tobas::kRcInputMin + kArmThrotThresh) {
-        // スロットルが上がっていればコマンド送信開始
-        TOBAS_INFO("The throttle lever has risen, starting RC command transmission.");
         t_disarm_start_ = rcin->header.stamp;
         stage_ = kRunning;
-      }
-      else {
-        // アーム直後でスロットルが下がったままならばアイドルコマンドを送信
-        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "The throttle lever is lowered, sending an idle command.");
-        updateWithIdleCommand(*rcin);
       }
 
       break;
     }
 
     case kRunning: {
-      if (postArmCommonProcess(*rcin)) {
+      // ディスアームされていればステージをリセット
+      if (!arming_->data) {
+        t_arm_start_ = rcin->header.stamp;
+        stage_ = kCheckPrerequisites;
         break;
       }
 
-      // フライトモードを取得
-      if (!modes_.contains(rcin->mode)) {
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
+      // Killスイッチがオンならば即ディスアーム
+      if (rcin->kill) {
+        TOBAS_WARN_THROTTLE(kWarnPeriod, "The kill switch has been activated. Forcing disarm.");
+        requestArmingRotors(false);
+        break;
+      }
+
+      // Enableスイッチがオフならば待機モードに戻る
+      if (!rcin->enable) {
+        TOBAS_INFO("RC control is disabled.");
+        stage_ = kWaitForEnable;
         break;
       }
 
@@ -471,12 +401,29 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         controllers_[rcin->mode]->reset(*odom_);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
-        break;
       }
 
-      // コマンド送信
-      controllers_[cur_mode_]->update(*rcin, *odom_);
+      if (landed_->data && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {  // 地上でゼロスロットルの場合
+        // 安全のためアイドルコマンドを送信
+        updateWithIdleCommand(*rcin);
 
+        // さらにディスアームコマンドの場合
+        if (std::max(abs(rcin->roll), abs(rcin->pitch)) < kArmThrotThresh && rcin->yaw > tobas::kRcInputMax - kArmThrotThresh) {
+          TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
+          if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisarmDuration) {  // 一定時間維持されていればリクエスト
+            TOBAS_INFO("Disarming rotors...");
+            requestArmingRotors(false);
+            t_disarm_start_ = rcin->header.stamp;
+          }
+          break;  // ディスアームコマンドの開始時刻を更新せずに抜ける
+        }
+      }
+      else {  // それ以外は普通にコマンド送信
+        controllers_[cur_mode_]->update(*rcin, *odom_);
+      }
+
+      // ディスアームコマンドの開始時刻を更新して抜ける
+      t_disarm_start_ = rcin->header.stamp;
       break;
     }
 
