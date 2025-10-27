@@ -1,4 +1,5 @@
 #include <tobas_constants/constants.hpp>
+#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -28,16 +29,17 @@ class HealthMonitorNode : public tobas::BaseNode
   static constexpr auto kRadioConnLostTimeThresh = 500ms;
   static constexpr double kPosDriftThresh = 1.;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
-  static constexpr double kCPUTempThresh = 80.;             // [degC]
-  static constexpr double kAttitudeThresh = M_PI / 12;      // [rad]
-  static constexpr double kHorPosStddevThresh = 1.;         // [m]
-  static constexpr double kVerPosStddevThresh = 2.;         // [m]
-  static constexpr double kVelStddevThresh = 0.3;           // [m/s]
-  static constexpr double kAttiStddevThresh = M_PI / 24;    // [rad]
-  static constexpr double kHeadStddevThresh = M_PI / 12;    // [rad]
-  static constexpr double kMagLengthErrorThresh = 0.5;      // [-]
-  static constexpr double kMagAlignErrorThresh = M_PI / 6;  // [rad]
-  static constexpr double kVibrationLevelThresh = 10.;      // [m/s^2]
+  static constexpr double kCPUTempThresh = 80.;              // [degC]
+  static constexpr double kAttitudeThresh = M_PI / 12;       // [rad]
+  static constexpr double kHorPosStddevThresh = 1.;          // [m]
+  static constexpr double kVerPosStddevThresh = 2.;          // [m]
+  static constexpr double kVelStddevThresh = 0.3;            // [m/s]
+  static constexpr double kAttiStddevThresh = M_PI / 24;     // [rad]
+  static constexpr double kHeadStddevThresh = M_PI / 12;     // [rad]
+  static constexpr double kMagLpfCutoff = 1.;                // [s]
+  static constexpr double kMagLengthErrorThresh = 0.2;       // [-]
+  static constexpr double kMagAlignErrorThresh = M_PI / 12;  // [rad]
+  static constexpr double kVibrationLevelThresh = 10.;       // [m/s^2]
 
   using self = HealthMonitorNode;
   using super = tobas::BaseNode;
@@ -80,6 +82,7 @@ private:
   rclcpp::Time t_last_rt_violation_;
   rclcpp::Time t_last_rcin_;
   std::array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
+  dsp::LowPassFilterP1<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
 
   ros2::PublisherPtr<tobas_msgs::msg::VehicleHealth> health_pub_;
 
@@ -122,6 +125,9 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
                tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
   getStaticRosParams();
+
+  mag_B_lpf_.setCutoffFrequency(kMagLpfCutoff);
+  mag_W_lpf_.setCutoffFrequency(kMagLpfCutoff);
 
   health_pub_ = createPublisher<tobas_msgs::msg::VehicleHealth>(tobas::kVehicleHealthTopic);
 
@@ -220,7 +226,29 @@ void HealthMonitorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
 void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
 {
+  if (!odom_) {
+    return;
+  }
+
+  const auto& mag_B = mag->mag;
+
+  // 世界座標系から見た地磁気ベクトル (理想的には不変ベクトル)
+  // 姿勢と地磁気の時間ずれをなくすためにLPFを通す前に世界座標系に変換する
+  const auto mag_W = odom_->frame.M * mag_B;
+
+  if (!mag_) {
+    mag_B_lpf_.setValue(mag_B);
+    mag_W_lpf_.setValue(mag_W);
+
+    mag_ = mag;
+    return;
+  }
+
+  const auto dt = (mag->header.stamp - mag_->header.stamp).seconds();
   mag_ = mag;
+
+  mag_B_lpf_.update(mag_B, dt);
+  mag_W_lpf_.update(mag_W, dt);
 }
 
 void HealthMonitorNode::magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref)
@@ -474,7 +502,7 @@ void HealthMonitorNode::mainTimerCb()
   // 地磁気オフセット
   if (do_check_.mag_offset) {
     if (mag_) {
-      if (abs(mag_->mag.norm() - 1.) > kMagLengthErrorThresh) {
+      if (abs(mag_B_lpf_.getValue().norm() - 1.) > kMagLengthErrorThresh) {
         health->mag_offset = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
@@ -490,9 +518,8 @@ void HealthMonitorNode::mainTimerCb()
 
   // 世界座標系から見た地磁気ベクトルが参照と一致するか
   if (do_check_.mag_alignment) {
-    if (odom_ && mag_ && mag_ref_) {
-      const auto mag_W = odom_->frame.M * mag_->mag;
-      const auto align_error = mag_W.argument(mag_ref_->mag);  // [rad]
+    if (mag_ && mag_ref_) {
+      const auto align_error = mag_W_lpf_.getValue().argument(mag_ref_->mag);  // [rad]
       if (align_error > kMagAlignErrorThresh) {
         health->mag_alignment = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
