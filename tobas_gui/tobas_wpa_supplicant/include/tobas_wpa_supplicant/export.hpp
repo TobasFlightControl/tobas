@@ -15,7 +15,6 @@ public:
 
 private:
   static const char* countryCodeToString(CountryCode cc);
-  static const char* keyManagementToString(KeyManagement key_mgmt);
 };
 }  // namespace wpa
 }  // namespace tobas

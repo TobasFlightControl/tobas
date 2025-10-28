@@ -71,47 +71,45 @@ bool Parser::parseFromText(const std::string& text, Data& dst)
       continue;
     }
 
-    // ssid
-    if (line.starts_with(kSSIDPrefix)) {
-      if (!in_network_block) {
-        std::cerr << "SSID setting found outside network block." << std::endl;
-        return false;
+    if (in_network_block) {
+      // ssid
+      if (line.starts_with(kSsidPrefix)) {
+        network.ssid = str::stripQuates(line.substr(sizeof(kSsidPrefix) - 1));
+        continue;
       }
-      network.ssid = str::stripQuates(line.substr(sizeof(kSSIDPrefix) - 1));
-      continue;
-    }
 
-    // psk
-    if (line.starts_with(kPSKPrefix)) {
-      if (!in_network_block) {
-        std::cerr << "PSK setting found outside network block." << std::endl;
-        return false;
+      // psk
+      if (line.starts_with(kPskPrefix)) {
+        network.psk = str::stripQuates(line.substr(sizeof(kPskPrefix) - 1));
+        continue;
       }
-      network.psk = str::stripQuates(line.substr(sizeof(kPSKPrefix) - 1));
-      continue;
-    }
 
-    // key_mgmt
-    if (line.starts_with(kKeyMgmtPrefix)) {
-      if (!in_network_block) {
-        std::cerr << "Key management setting found outside network block." << std::endl;
-        return false;
+      // priority
+      if (line.starts_with(kPriorityPrefix)) {
+        network.priority = stoi(line.substr(sizeof(kPriorityPrefix) - 1));
+        continue;
       }
-      const auto key_mgmt_str = line.substr(sizeof(kKeyMgmtPrefix) - 1);
-      if (!parseKeyManagement(key_mgmt_str, network.key_mgmt)) {
-        return false;
-      }
-      continue;
-    }
 
-    // priority
-    if (line.starts_with(kPriorityPrefix)) {
-      if (!in_network_block) {
-        std::cerr << "Priority setting found outside network block." << std::endl;
-        return false;
+      // scan_ssid
+      if (line.starts_with(kScanSsidPrefix)) {
+        network.scan_ssid = static_cast<bool>(stoi(line.substr(sizeof(kScanSsidPrefix) - 1)));
+        continue;
       }
-      network.priority = stoi(line.substr(sizeof(kPriorityPrefix) - 1));
-      continue;
+
+      // key_mgmt
+      if (line.starts_with(kKeyMgmtPrefix)) {
+        const auto key_mgmt_token = line.substr(sizeof(kKeyMgmtPrefix) - 1);
+        if (!enumFromToken(key_mgmt_token, network.key_mgmt)) {
+          return false;
+        }
+        continue;
+      }
+
+      // sae_password
+      if (line.starts_with(kSaePasswordPrefix)) {
+        network.psk = str::stripQuates(line.substr(sizeof(kSaePasswordPrefix) - 1));
+        continue;
+      }
     }
   }
 
@@ -1082,22 +1080,6 @@ bool Parser::parseCountryCode(const std::string& src, CountryCode& dst)
   }
   else {
     std::cerr << "Invalid country code: " << src << std::endl;
-    return false;
-  }
-
-  return true;
-}
-
-bool Parser::parseKeyManagement(const std::string& src, KeyManagement& dst)
-{
-  if (src == key_mgmt::WPA_PSK) {
-    dst = KeyManagement::WPA_PSK;
-  }
-  else if (src == key_mgmt::WPA_EAP) {
-    dst = KeyManagement::WPA_EAP;
-  }
-  else {
-    std::cerr << "Invalid key management method: " << src << std::endl;
     return false;
   }
 

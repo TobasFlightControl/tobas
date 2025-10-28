@@ -10,6 +10,7 @@
 
   <depend>ament_index_cpp</depend>
   <depend>inja_ament</depend>
+  <depend>magic_enum_ament</depend>
   <depend>tobas_path_tools</depend>
   <depend>tobas_constants</depend>
   <depend>tobas_crypt</depend>

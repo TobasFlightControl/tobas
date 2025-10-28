@@ -1,19 +1,22 @@
 #pragma once
 
+#include <string>
+
 namespace tobas
 {
 namespace wpa
 {
-enum KeyManagement
+enum KeyMgmt
 {
-  WPA_PSK,
-  WPA_EAP,
+  NONE,
+  WPA_PSK,  // WPA2-Personal
+  SAE,      // WPA3-Personal
 };
 
-namespace key_mgmt
-{
-static constexpr char WPA_PSK[] = "WPA-PSK";
-static constexpr char WPA_EAP[] = "WPA-EAP";
-}  // namespace key_mgmt
+std::string tokenFromEnum(KeyMgmt key_mgmt);
+bool enumFromToken(const std::string& token, KeyMgmt& dst);
+
+std::string labelFromEnum(KeyMgmt key_mgmt);
+bool enumFromLabel(const std::string& label, KeyMgmt& dst);
 }  // namespace wpa
 }  // namespace tobas
