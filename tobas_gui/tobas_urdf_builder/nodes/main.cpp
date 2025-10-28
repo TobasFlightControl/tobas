@@ -2,6 +2,7 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include <tobas_gui_common/argument.hpp>
+#include <tobas_gui_common/version.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 
 #include <tobas_urdf_builder/urdf_builder.hpp>
@@ -23,9 +24,10 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto widget = new gui::ub::URDFBuilder();
+  const auto title = "Tobas URDF Builder (" + gui::cmn::version() + ")";
   const auto icon_path = gui::ub::getPkgShareDir() / "resources/icon.png";
-  qt::MainWidget main("Tobas URDF Builder", QString::fromStdString(icon_path), widget);
+  const auto widget = new gui::ub::URDFBuilder();
+  qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
   main.show();
 
   // Ctrl+Cで即終了

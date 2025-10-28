@@ -1,6 +1,7 @@
 #include <QApplication>
 
 #include <tobas_gui_common/argument.hpp>
+#include <tobas_gui_common/version.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 
@@ -26,9 +27,10 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto widget = new gui::sa::SetupAssistantWidget(node_manager.node());
+  const auto title = "Tobas Setup Assistant (" + gui::cmn::version() + ")";
   const auto icon_path = gui::sa::getPkgShareDir() / "resources/icon.png";
-  qt::MainWidget main("Tobas Setup Assistant", QString::fromStdString(icon_path), widget);
+  const auto widget = new gui::sa::SetupAssistantWidget(node_manager.node());
+  qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
   main.show();
 
   // Ctrl+Cで即終了
