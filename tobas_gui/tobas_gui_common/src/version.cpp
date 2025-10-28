@@ -1,7 +1,5 @@
 #include "tobas_gui_common/version.hpp"
 
-#include <format>
-
 #include <tobas_constants/version.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
