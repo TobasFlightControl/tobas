@@ -8,8 +8,6 @@ namespace gui
 {
 namespace cmn
 {
-QString currentVersion();
-
 class Version
 {
   static constexpr char kMajorKey[] = "major";
@@ -21,9 +19,16 @@ public:
   int minor = -1;
   int patch = -1;
 
+  explicit Version();
+  explicit Version(int _major, int _minor, int _patch);
+
+  static Version Current();
+
   void setToCurrent();
 
   bool isCompatible() const;
+
+  QString toString() const;
 
   bool load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;

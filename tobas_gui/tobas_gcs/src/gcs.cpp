@@ -10,6 +10,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
+#include <tobas_gui_common/version.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -223,6 +224,23 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
   proj_paths_.setProjPath(proj_path);
+
+  // バージョンチェック
+  cmn::Version version;
+  if (version.load(proj_paths_.versionPath())) {
+    if (!version.isCompatible()) {
+      qt::qWarnBox(
+        this,
+        "The current Tobas version (" + cmn::Version::Current().toString() +
+          ") is incompatible with the version used to create this project (" + version.toString() +
+          "). Please update the project using the Setup Assistant.");
+      return;
+    }
+  }
+  else {
+    qt::qWarnBox(this, "Failed to read the project version. Please update the project using the Setup Assistant.");
+    return;
+  }
 
   // パスをテキストに設定
   proj_path_->setText(QString::fromStdString(proj_path));

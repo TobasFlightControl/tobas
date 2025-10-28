@@ -1,5 +1,7 @@
 #include "tobas_gui_common/version.hpp"
 
+#include <QDebug>
+
 #include <tobas_constants/version.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
@@ -9,10 +11,17 @@ namespace gui
 {
 namespace cmn
 {
-QString currentVersion()
+Version::Version()
 {
-  QString res = "v%1.%2.%3";
-  return res.arg(tobas::version::kMajor).arg(tobas::version::kMinor).arg(tobas::version::kPatch);
+}
+
+Version::Version(int _major, int _minor, int _patch) : major(_major), minor(_minor), patch(_patch)
+{
+}
+
+Version Version::Current()
+{
+  return Version(tobas::version::kMajor, tobas::version::kMinor, tobas::version::kPatch);
 }
 
 void Version::setToCurrent()
@@ -25,18 +34,24 @@ void Version::setToCurrent()
 bool Version::isCompatible() const
 {
   if (major < 0 || minor < 0 || patch < 0) {
-    std::cerr << "Version not initialized." << std::endl;
+    qWarning() << "Version not initialized.";
     return false;
   }
 
   return major == tobas::version::kMajor && minor == tobas::version::kMinor;
 }
 
+QString Version::toString() const
+{
+  QString res = "v%1.%2.%3";
+  return res.arg(major).arg(minor).arg(patch);
+}
+
 bool Version::load(const fs::path& path)
 {
   const auto node = yaml::load(path);
   if (!node) {
-    std::cerr << node.error() << std::endl;
+    qWarning() << QString::fromStdString(node.error());
     return false;
   }
 

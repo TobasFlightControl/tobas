@@ -7,6 +7,7 @@
 
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/project_paths.hpp>
+#include <tobas_gui_common/version.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/package.hpp>
@@ -486,6 +487,29 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
   const cmn::ProjectPaths proj_paths(proj_path);
+
+  // バージョンチェック
+  cmn::Version version;
+  if (version.load(proj_paths.versionPath())) {
+    if (!version.isCompatible()) {
+      if (!qt::yesOrNo(
+            this,
+            "The current Tobas version (" + cmn::Version::Current().toString() +
+              ") is incompatible with the version used to create this project (" + version.toString() +
+              "). Errors may occur during loading. Would you like to proceed?",
+            qt::QMessageLevel::WARN)) {
+        return;
+      }
+    }
+  }
+  else {
+    if (!qt::yesOrNo(
+          this,
+          "Failed to read the project version. Errors may occur during loading. Would you like to proceed?",
+          qt::QMessageLevel::WARN)) {
+      return;
+    }
+  }
 
   // パスをテキストに設定
   proj_path_->setText(QString::fromStdString(proj_path));

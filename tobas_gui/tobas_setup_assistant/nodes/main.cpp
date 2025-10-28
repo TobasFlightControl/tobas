@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto title = "Tobas Setup Assistant (" + gui::cmn::currentVersion() + ")";
+  const auto title = "Tobas Setup Assistant (" + gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = gui::sa::getPkgShareDir() / "resources/icon.png";
   const auto widget = new gui::sa::SetupAssistantWidget(node_manager.node());
   qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
