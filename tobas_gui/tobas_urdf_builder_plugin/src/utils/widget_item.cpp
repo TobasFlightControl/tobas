@@ -1,4 +1,4 @@
-#include "tobas_urdf_builder_plugin/ui/widget_item.hpp"
+#include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
 namespace gui
 {
