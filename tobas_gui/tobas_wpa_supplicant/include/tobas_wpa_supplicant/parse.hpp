@@ -15,7 +15,6 @@ public:
 
 private:
   static bool parseCountryCode(const std::string& src, CountryCode& dst);
-  static bool parseKeyManagement(const std::string& src, KeyMgmt& dst);
 };
 }  // namespace wpa
 }  // namespace tobas
