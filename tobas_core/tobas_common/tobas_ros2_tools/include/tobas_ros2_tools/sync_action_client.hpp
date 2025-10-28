@@ -20,10 +20,13 @@ class SyncActionClient
 {
   static constexpr auto kWaitForServer = std::chrono::seconds(1);
 
+  using Client = rclcpp_action::Client<ActionType>;
+  using GoalHandle = rclcpp_action::ClientGoalHandle<ActionType>;
+
 public:
   using SharedPtr = std::shared_ptr<SyncActionClient>;
 
-  inline explicit SyncActionClient(
+  explicit SyncActionClient(
     rclcpp::Node::SharedPtr node,
     const std::string& name,
     rclcpp::CallbackGroup::SharedPtr group = nullptr)
@@ -39,9 +42,7 @@ public:
    *
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
-  std::pair<
-    std::shared_ptr<rclcpp_action::ClientGoalHandle<ActionType>>,
-    std::shared_future<typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult>>
+  std::pair<std::shared_ptr<GoalHandle>, std::shared_future<typename GoalHandle::WrappedResult>>
   sendGoal(const typename ActionType::Goal& goal)
   {
     if (!client_->wait_for_action_server(kWaitForServer)) {
@@ -96,13 +97,13 @@ public:
   }
 
   std::shared_future<std::shared_ptr<action_msgs::srv::CancelGoal_Response>>
-  cancelGoal(std::shared_ptr<rclcpp_action::ClientGoalHandle<ActionType>> goal_handle)
+  cancelGoal(std::shared_ptr<GoalHandle> goal_handle)
   {
     return client_->async_cancel_goal(goal_handle);
   }
 
   bool cancelGoalAndWait(
-    std::shared_ptr<rclcpp_action::ClientGoalHandle<ActionType>> goal_handle,
+    std::shared_ptr<GoalHandle> goal_handle,
     std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
     const auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
@@ -113,7 +114,7 @@ public:
     return true;
   }
 
-  inline const typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult& getResult() const
+  inline const typename GoalHandle::WrappedResult& getResult() const
   {
     return result_;
   }
@@ -121,7 +122,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   std::string action_name_;
-  typename rclcpp_action::Client<ActionType>::SharedPtr client_;
-  typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult result_;
+  typename Client::SharedPtr client_;
+  typename GoalHandle::WrappedResult result_;
 };
 }  // namespace ros2
