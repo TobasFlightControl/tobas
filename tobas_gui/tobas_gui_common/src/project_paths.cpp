@@ -153,5 +153,10 @@ fs::path ProjectPaths::backupSettingsPath() const
 {
   return projBackupDirPath() / "settings.yaml";
 }
+
+fs::path ProjectPaths::versionPath() const
+{
+  return proj_path_ / "version";
+}
 }  // namespace cmn
 }  // namespace gui

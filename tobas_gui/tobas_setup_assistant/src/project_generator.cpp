@@ -3,6 +3,7 @@
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_gui_common/version.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -84,6 +85,14 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
 
   // バックアップファイルを作成
   if (!generateBackupFiles()) {
+    return false;
+  }
+
+  // バージョンファイルを作成
+  cmn::Version version;
+  version.setToCurrent();
+  if (!version.save(proj_paths_.versionPath())) {
+    qt::qErrorBox(parent_, "Failed to save the current version.");
     return false;
   }
 

@@ -97,6 +97,9 @@ public:
   /* バックアップ用設定ファイルの絶対パスを返す． */
   std::filesystem::path backupSettingsPath() const;
 
+  /* バージョンファイルのパスを返す． */
+  std::filesystem::path versionPath() const;
+
 private:
   std::filesystem::path proj_path_;
 };

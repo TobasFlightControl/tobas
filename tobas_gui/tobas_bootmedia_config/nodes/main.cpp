@@ -9,7 +9,7 @@
 int main(int argc, char** argv)
 {
   QApplication qapp(argc, argv);
-  const auto title = "Tobas Bootmedia Config (" + gui::cmn::version() + ")";
+  const auto title = "Tobas Bootmedia Config (" + gui::cmn::currentVersion() + ")";
   const auto icon_path = tobas::gui::bm::getPkgShareDir() / "resources/icon.png";
   const auto widget = new tobas::gui::bm::BootmediaConfigWidget();
   qt::MainWidget main(title, QString::fromStdString(icon_path), widget);

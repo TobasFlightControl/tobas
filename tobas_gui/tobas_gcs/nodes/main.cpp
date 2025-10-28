@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto title = "Tobas (" + gui::cmn::version() + ")";
+  const auto title = "Tobas (" + gui::cmn::currentVersion() + ")";
   const auto icon_path = gui::gcs::getPkgShareDir() / "resources/icon.png";
   const auto widget = new gui::gcs::GroundControlStationWidget(node_manager.node());
   qt::MainWidget main(title, QString::fromStdString(icon_path), widget);

@@ -2,8 +2,6 @@
 
 #include <tobas_yaml_tools/core.hpp>
 
-#include "tobas_gui_common/project_paths.hpp"
-
 namespace fs = std::filesystem;
 
 namespace gui

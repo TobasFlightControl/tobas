@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
-  const auto title = "Tobas URDF Builder (" + gui::cmn::version() + ")";
+  const auto title = "Tobas URDF Builder (" + gui::cmn::currentVersion() + ")";
   const auto icon_path = gui::ub::getPkgShareDir() / "resources/icon.png";
   const auto widget = new gui::ub::URDFBuilder();
   qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
