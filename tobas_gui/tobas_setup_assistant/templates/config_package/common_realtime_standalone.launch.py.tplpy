@@ -163,7 +163,7 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_health_monitor",
+            package="tobas_failsafe",
             executable="health_monitor",
             namespace=DRONE_NAME,
             parameters=[],  # TODO

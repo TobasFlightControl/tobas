@@ -24,9 +24,9 @@
 	<exec_depend>tobas_drone</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_eskf</exec_depend>
+	<exec_depend>tobas_failsafe</exec_depend>
 	<exec_depend>tobas_fake_publishers</exec_depend>
 	<exec_depend>tobas_hardware</exec_depend>
-	<exec_depend>tobas_health_monitor</exec_depend>
 	<exec_depend>tobas_joint_states_bridge</exec_depend>
 	<exec_depend>tobas_landing_detection</exec_depend>
 	<exec_depend>tobas_legged_robot</exec_depend>
