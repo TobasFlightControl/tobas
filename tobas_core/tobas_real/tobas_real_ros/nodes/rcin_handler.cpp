@@ -61,7 +61,7 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
   }
 
   // Initialize mode map
-  for (const auto& mode : magic_enum::enum_values<tobas::FlightMode>()) {
+  for (const auto mode : magic_enum::enum_values<tobas::FlightMode>()) {
     modes_[mode];
   }
 

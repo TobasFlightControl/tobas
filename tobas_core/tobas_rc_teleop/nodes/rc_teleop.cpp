@@ -122,7 +122,7 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::no
 
 void RCTeleopNode::getStaticRosParams()
 {
-  for (const auto& mode : magic_enum::enum_values<tobas::FlightMode>()) {
+  for (const auto mode : magic_enum::enum_values<tobas::FlightMode>()) {
     modes_[mode];
   }
 

@@ -13,7 +13,7 @@ AltitudeFrameWidget::AltitudeFrameWidget()
 {
   combobox_ = new qt::ComboBox();
   combobox_->addItem(altFrameToText(AltitudeFrame::kRelativeToHome));  // TODO: 他の選択肢も選べるようにする
-  // for (const auto& alt_frame : magic_enum::enum_values<AltitudeFrame>())
+  // for (const auto alt_frame : magic_enum::enum_values<AltitudeFrame>())
   //   combobox_->addItem(altFrameToText(alt_frame));
 
   const auto cols = new QHBoxLayout();
