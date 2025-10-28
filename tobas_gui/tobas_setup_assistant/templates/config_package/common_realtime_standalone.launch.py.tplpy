@@ -173,6 +173,15 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
+            package="tobas_failsafe",
+            executable="failsafe_executor",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
             package="tobas_landing_detection",
             executable="landing_detector",
             namespace=DRONE_NAME,

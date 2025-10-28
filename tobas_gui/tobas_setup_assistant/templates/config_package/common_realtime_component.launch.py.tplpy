@@ -193,6 +193,12 @@ def generate_launch_description():
                     extra_arguments=extra_args,
                 ),
                 ComposableNode(
+                    package="tobas_failsafe",
+                    plugin="FailsafeExecutorNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_args,
+                ),
+                ComposableNode(
                     package="tobas_landing_detection",
                     plugin="LandingDetectorNode",
                     namespace=DRONE_NAME,
