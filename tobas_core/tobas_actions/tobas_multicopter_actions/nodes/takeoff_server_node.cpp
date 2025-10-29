@@ -104,11 +104,6 @@ TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->altitude_tolerance <= 0.) {
-    TOBAS_ERROR("Altitude tolerance must be positive.");
-    return rclcpp_action::GoalResponse::REJECT;
-  }
-
   if (goal->duration <= 0.) {
     TOBAS_ERROR("Target duration must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -187,10 +182,12 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto alt_error = fabs(goal->target_altitude - cur_pos.z());
-    if (dt > goal->duration && alt_error < goal->altitude_tolerance) {
-      result->message.clear();
-      goal_handle->succeed(result);
-      return;
+    if (dt > goal->duration) {
+      if (goal->altitude_tolerance <= 0. || alt_error < goal->altitude_tolerance) {
+        result->message.clear();
+        goal_handle->succeed(result);
+        return;
+      }
     }
 
     // 鉛直方向の軌道を生成

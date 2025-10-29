@@ -114,11 +114,6 @@ MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->acceptance_radius <= 0) {
-    TOBAS_ERROR("Acceptance radius must be positive.");
-    return rclcpp_action::GoalResponse::REJECT;
-  }
-
   if (goal->duration <= 0) {
     TOBAS_ERROR("Target duration must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -204,10 +199,12 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto pos_error = goal_pos - cur_pos;
-    if (dt > goal->duration && pos_error.norm() < goal->acceptance_radius) {
-      result->message.clear();
-      goal_handle->succeed(result);
-      return;
+    if (dt > goal->duration) {
+      if (goal->acceptance_radius <= 0. || pos_error.norm() < goal->acceptance_radius) {
+        result->message.clear();
+        goal_handle->succeed(result);
+        return;
+      }
     }
 
     // 現在の時刻における目標状態を取得
