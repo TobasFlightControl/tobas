@@ -7,7 +7,7 @@
 
 namespace traj
 {
-CubicSpline::CubicSpline(const double& p0, const double& pf, const double& T) : T_(T)
+CubicSpline::CubicSpline(double p0, double pf, double T) : T_(T)
 {
   assert(T > 0);
 
@@ -17,7 +17,7 @@ CubicSpline::CubicSpline(const double& p0, const double& pf, const double& T) : 
   a3_ = (-2 / math::cube(T)) * (pf - p0);
 }
 
-TrajectoryPoint CubicSpline::get(const double& _t) const
+TrajectoryPoint CubicSpline::get(double _t) const
 {
   const auto t = std::clamp(_t, 0., T_);
   const auto p = a0_ + a1_ * t + a2_ * math::sqr(t) + a3_ * math::cube(t);

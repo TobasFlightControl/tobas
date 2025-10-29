@@ -8,9 +8,9 @@ namespace traj
 class CubicSpline : public TrajectoryGenerator
 {
 public:
-  explicit CubicSpline(const double& p0, const double& pf, const double& T);
+  explicit CubicSpline(double p0, double pf, double T);
 
-  TrajectoryPoint get(const double& t) const override;
+  TrajectoryPoint get(double t) const override;
   double duration() const override;
 
 private:

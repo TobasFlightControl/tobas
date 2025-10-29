@@ -13,10 +13,7 @@ struct TrajectoryPoint
 class TrajectoryGenerator
 {
 public:
-  virtual TrajectoryPoint get(const double& t) const = 0;
+  virtual TrajectoryPoint get(double t) const = 0;
   virtual double duration() const = 0;
-
-private:
-  double dummy_;
 };
 }  // namespace traj
