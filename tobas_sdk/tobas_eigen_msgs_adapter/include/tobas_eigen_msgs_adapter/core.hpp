@@ -35,7 +35,9 @@
   namespace tobas_eigen_msgs                                                                                           \
   {                                                                                                                    \
   using AdapterType = rclcpp::TypeAdapter<Eigen::Matrix<Scalar, Rows, Cols>, MsgType>;                                 \
-  }
+  }                                                                                                                    \
+  RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(                                                                        \
+    tobas_eigen_msgs::AdapterType::custom_type, tobas_eigen_msgs::AdapterType::ros_message_type);
 
 #define DEFINE_EIGEN_VECTOR_ADAPTER(MsgType, AdapterType, Scalar, Size)                                                \
   DEFINE_EIGEN_MATRIX_ADAPTER(MsgType, AdapterType, Scalar, Size, 1)
@@ -46,3 +48,6 @@ DEFINE_EIGEN_MATRIX_ADAPTER(tobas_eigen_msgs::msg::Matrix6d, Matrix6dAdapter, do
 DEFINE_EIGEN_VECTOR_ADAPTER(tobas_eigen_msgs::msg::Vector3d, Vector3dAdapter, double, 3);
 DEFINE_EIGEN_VECTOR_ADAPTER(tobas_eigen_msgs::msg::Vector4d, Vector4dAdapter, double, 4);
 DEFINE_EIGEN_VECTOR_ADAPTER(tobas_eigen_msgs::msg::Vector6d, Vector6dAdapter, double, 6);
+
+#undef DEFINE_EIGEN_MATRIX_ADAPTER
+#undef DEFINE_EIGEN_VECTOR_ADAPTER
