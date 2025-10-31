@@ -1,6 +1,6 @@
 <package format="3">
 
-	<name>tobas_matrix_euler_conversion</name>
+	<name>tobas_debug_tools</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>

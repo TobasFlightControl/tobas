@@ -92,10 +92,10 @@
   <include file="$(find-pkg-share {{ user_py_pkg_name }})/launch/gazebo.launch.py"/>
 
   <!-- Launch the nodes for debugging -->
-  <node pkg="tobas_matrix_euler_conversion" exec="matrix_euler_converter" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
+  <node pkg="tobas_debug_tools" exec="matrix_euler_converter" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
     <remap from="euler" to="gazebo/euler"/>
   </node>
-  <node pkg="tobas_matrix_euler_conversion" exec="matrix_euler_converter" name="gazebo_matrix_euler_converter" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
+  <node pkg="tobas_debug_tools" exec="matrix_euler_converter" name="gazebo_matrix_euler_converter" namespace="{{ drone_name }}" ros_args="--log-level $(var log_level)" output="$(var output)">
     <remap from="odom" to="gazebo/ground_truth/odom"/>
     <remap from="euler" to="gazebo/ground_truth/euler"/>
   </node>
