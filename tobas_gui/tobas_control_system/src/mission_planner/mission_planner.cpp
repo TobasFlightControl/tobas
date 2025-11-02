@@ -80,6 +80,7 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
 
 void MissionPlannerWidget::reset()
 {
+  map_->clear();
   map_->setArrowPosition(0., 0.);
   map_->setArrowRotation(0.);
 
