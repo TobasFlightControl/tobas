@@ -19,12 +19,11 @@
 
 class LandServerNode : public tobas::BaseNode
 {
-  static constexpr double kVerticalSpeed = 0.3;              // [m/s]
-  static constexpr double kAttitudeRecoveryRate = M_PI / 6;  // [rad/s]
-
   using self = LandServerNode;
   using super = tobas::BaseNode;
   using ActionType = tobas_mission_msgs::action::Land;
+
+  static constexpr double kAttitudeRecoveryRate = M_PI / 6;  // [rad/s]
 
 public:
   explicit LandServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -96,8 +95,14 @@ void LandServerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr
   landed_ = landed;
 }
 
-rclcpp_action::GoalResponse LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr)
+rclcpp_action::GoalResponse
+LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
+  if (goal->speed <= 0.) {
+    TOBAS_ERROR("Descending speed must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
@@ -108,7 +113,7 @@ rclcpp_action::CancelResponse LandServerNode::handleCancel(ros2::ActionGoalHandl
 
 void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Landing action is requested.");
+  TOBAS_INFO("Land action is requested.");
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
@@ -159,8 +164,8 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // 現在時刻における目標位置姿勢を計算
     const auto cur_time = now();
     const auto dt = (cur_time - start_time).seconds();
-    const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), start_pos.z() - kVerticalSpeed * dt);
-    kdl::Vector tar_vel(0., 0., -kVerticalSpeed);
+    const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), start_pos.z() - goal->speed * dt);
+    kdl::Vector tar_vel(0., 0., -goal->speed);
     const auto tar_roll = traj_roll.get(dt).p;
     const auto tar_pitch = traj_pitch.get(dt).p;
     const auto& tar_yaw = start_rpy.yaw;

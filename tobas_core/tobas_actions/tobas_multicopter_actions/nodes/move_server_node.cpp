@@ -5,8 +5,8 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/gnss.hpp>
 #include <tobas_tools/util.hpp>
-#include <tobas_trajectory_generators/cubic.hpp>
 #include <tobas_trajectory_generators/linear.hpp>
+#include <tobas_trajectory_generators/time_optimal.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
@@ -24,6 +24,8 @@ class MoveServerNode : public tobas::BaseNode
   using self = MoveServerNode;
   using super = tobas::BaseNode;
   using ActionType = tobas_mission_msgs::action::Move;
+
+  static constexpr double kAttitudeRecoveryRate = M_PI / 6;  // [rad/s]
 
 public:
   explicit MoveServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -114,9 +116,42 @@ MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->duration <= 0) {
-    TOBAS_ERROR("Target duration must be positive.");
+  if (goal->max_horizontal_velocity <= 0.) {
+    TOBAS_ERROR("Maximum horizontal velocity must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_vertical_velocity <= 0.) {
+    TOBAS_ERROR("Maximum vertical velocity must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_horizontal_accel <= 0.) {
+    TOBAS_ERROR("Maximum horizontal acceleration must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_vertical_accel <= 0.) {
+    TOBAS_ERROR("Maximum vertical acceleration must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_horizontal_jerk <= 0.) {
+    TOBAS_ERROR("Maximum horizontal jerk must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_vertical_jerk <= 0.) {
+    TOBAS_ERROR("Maximum vertical jerk must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->acceptance_radius <= 0.) {
+    TOBAS_WARN("The acceptance radius is not specified. It will be infinite.");
+  }
+
+  if (goal->timeout <= 0.) {
+    TOBAS_WARN("The timeout is not specified. It will be infinite.");
   }
 
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -129,7 +164,7 @@ rclcpp_action::CancelResponse MoveServerNode::handleCancel(ros2::ActionGoalHandl
 
 void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Moving action is requested.");
+  TOBAS_INFO("Move action is requested.");
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
@@ -169,6 +204,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto start_time = now();
   const auto start_pos = odom_->frame.p.clone();
   const kdl::Euler start_rpy(odom_->frame.M);
+  TOBAS_INFO("Start position: ", start_pos);
 
   // Get goal
   const auto goal = goal_handle->get_goal();
@@ -176,21 +212,29 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // 軌道を生成
   // TODO: 最高速度を考慮して起動を作成
   const auto goal_pos = computeGoalPosition(goal);
-  const traj::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
-  const traj::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
-  const traj::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
-  const traj::LinearSpline traj_roll(start_rpy.roll, 0., goal->duration);
-  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., goal->duration);
+  TOBAS_INFO("Goal position: ", goal_pos);
+  const traj::TimeOptimalTrajectory traj_x(
+    start_pos.x(), goal_pos.x(), goal->max_horizontal_jerk, goal->max_horizontal_accel, goal->max_horizontal_velocity);
+  const traj::TimeOptimalTrajectory traj_y(
+    start_pos.y(), goal_pos.y(), goal->max_horizontal_jerk, goal->max_horizontal_accel, goal->max_horizontal_velocity);
+  const traj::TimeOptimalTrajectory traj_z(
+    start_pos.z(), goal_pos.z(), goal->max_vertical_jerk, goal->max_vertical_accel, goal->max_vertical_velocity);
+  const traj::LinearSpline traj_roll(start_rpy.roll, 0., fabs(start_rpy.roll) / kAttitudeRecoveryRate);
+  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., fabs(start_rpy.pitch) / kAttitudeRecoveryRate);
+
+  // 所要時間を取得
+  const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());
+  TOBAS_INFO("Moving to the target position will take ", duration, " seconds.");
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // 開始からの経過時間を計算
     const auto cur_time = now();
-    const auto dt = (cur_time - start_time).seconds();
+    const auto t = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0 && dt > goal->duration + goal->timeout) {
+    if (goal->timeout > 0 && t > duration + goal->timeout) {
       result->message = "Timeout before reaching the goal position.";
       goal_handle->abort(result);
       return;
@@ -199,7 +243,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto pos_error = goal_pos - cur_pos;
-    if (dt > goal->duration) {
+    if (t > duration) {
       if (goal->acceptance_radius <= 0. || pos_error.norm() < goal->acceptance_radius) {
         result->message.clear();
         goal_handle->succeed(result);
@@ -208,13 +252,13 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     }
 
     // 現在の時刻における目標状態を取得
-    const auto traj_point_x = traj_x.get(dt);
-    const auto traj_point_y = traj_y.get(dt);
-    const auto traj_point_z = traj_z.get(dt);
+    const auto traj_point_x = traj_x.get(t);
+    const auto traj_point_y = traj_y.get(t);
+    const auto traj_point_z = traj_z.get(t);
     const kdl::Vector tar_pos(traj_point_x.p, traj_point_y.p, traj_point_z.p);
     kdl::Vector tar_vel(traj_point_x.v, traj_point_y.v, traj_point_z.v);
-    const auto tar_roll = traj_roll.get(dt).p;
-    const auto tar_pitch = traj_pitch.get(dt).p;
+    const auto tar_roll = traj_roll.get(t).p;
+    const auto tar_pitch = traj_pitch.get(t).p;
     const auto& tar_yaw = start_rpy.yaw;
 
     // アクション中止の場合は目標速度を0にする

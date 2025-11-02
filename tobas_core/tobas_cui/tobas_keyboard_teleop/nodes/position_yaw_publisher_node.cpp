@@ -25,8 +25,10 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   // ゴールを作成
   tobas_mission_msgs::action::Takeoff::Goal goal;
   goal.target_altitude = 3.;
-  goal.altitude_tolerance = 0.1;
-  goal.duration = 5.;
+  goal.max_speed = 1.5;
+  goal.max_accel = 4.;
+  goal.max_jerk = 4.;
+  goal.altitude_tolerance = 0.5;
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {

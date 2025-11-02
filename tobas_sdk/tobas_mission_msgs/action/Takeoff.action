@@ -1,8 +1,13 @@
 # Goal
 tobas_command_msgs/CommandLevel level
+
 float64 target_altitude     # [m]
+
+float64 max_speed           # [m/s]
+float64 max_accel           # [m/s^2]
+float64 max_jerk            # [m/s^3]
+
 float64 altitude_tolerance  # [m] By default, the altitude tolerance is infinite.
-float64 duration            # [s]
 float64 timeout             # [s] Timeout after command duration. By default, timeout is infinite.
 
 ---

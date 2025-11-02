@@ -2,16 +2,17 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <limits>
 
 #include <tobas_math/core.hpp>
 
-#define EPS std::numeric_limits<double>::epsilon()
+#define EPS 1e-6  // 小さすぎると永久に収束しない恐れがある
 
 namespace traj
 {
 TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
-  : p0_(p0), pd_(fabs(pf - p0)), sign_(math::sign(pd_)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
+  : p0_(p0), pd_(fabs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
 {
   assert(pd_ > 0);
   assert(jm_ > 0);
@@ -20,8 +21,10 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
 
   // 時刻の大小関係の制約を満たすように加速度と速度の最大値を調整
   bool ok = false;
+  size_t iter = 0;
   while (!ok) {
     ok = true;
+    ++iter;
 
     // 最大加速度に到達するための条件
     if (math::sqr(am_) > vm_ * jm_) {
@@ -37,6 +40,10 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
       vm_ = (sqrt(math::sqr(b) - 4 * a * c) - b) / (2 * a) - EPS;
       ok = false;
     }
+
+#ifndef NDEBUG
+    std::cout << "Iter " << iter << ": Accel [m/s^2]" << am_ << ", Velocity [m/s]" << vm_ << std::endl;
+#endif
   }
 
   t1_ = am_ / jm_;

@@ -8,13 +8,17 @@ TakeoffWidget::TakeoffWidget()
 {
   altitude_ = new field::AltitudeWidget();
   altitude_frame_ = new field::AltitudeFrameWidget();
+  max_speed_ = new field::TakeoffMaxSpeedWidget();
+  max_accel_ = new field::TakeoffMaxAccelWidget();
+  max_jerk_ = new field::TakeoffMaxJerkWidget();
   altitude_tolerance_ = new field::AltitudeToleranceWidget();
-  duration_ = new field::DurationWidget();
 
   addField(altitude_);
   addField(altitude_frame_);
+  addField(max_speed_);
+  addField(max_accel_);
+  addField(max_jerk_);
   addField(altitude_tolerance_);
-  addField(duration_);
 }
 
 const char* TakeoffWidget::name() const
@@ -27,8 +31,10 @@ BaseCommandData::SharedPtr TakeoffWidget::data() const
   const auto res = std::make_shared<TakeoffData>();
   res->altitude = altitude();
   res->altitude_frame = altitudeFrame();
+  res->max_speed = maxSpeed();
+  res->max_accel = maxAccel();
+  res->max_jerk = maxJerk();
   res->altitude_tolerance = altitudeTolerance();
-  res->duration = duration();
   return res;
 }
 
@@ -42,14 +48,54 @@ AltitudeFrame TakeoffWidget::altitudeFrame() const
   return altitude_frame_->value();
 }
 
+double TakeoffWidget::maxSpeed() const
+{
+  return max_speed_->value();
+}
+
+double TakeoffWidget::maxAccel() const
+{
+  return max_accel_->value();
+}
+
+double TakeoffWidget::maxJerk() const
+{
+  return max_jerk_->value();
+}
+
 double TakeoffWidget::altitudeTolerance() const
 {
   return altitude_tolerance_->value();
 }
 
-double TakeoffWidget::duration() const
+void TakeoffWidget::altitude(double value)
 {
-  return duration_->value();
+  altitude_->setValue(value);
+}
+
+void TakeoffWidget::altitudeFrame(AltitudeFrame value)
+{
+  altitude_frame_->setValue(value);
+}
+
+void TakeoffWidget::maxSpeed(double value)
+{
+  max_speed_->setValue(value);
+}
+
+void TakeoffWidget::maxAccel(double value)
+{
+  max_accel_->setValue(value);
+}
+
+void TakeoffWidget::maxJerk(double value)
+{
+  max_jerk_->setValue(value);
+}
+
+void TakeoffWidget::altitudeTolerance(double value)
+{
+  altitude_tolerance_->setValue(value);
 }
 }  // namespace ctrl
 }  // namespace gui

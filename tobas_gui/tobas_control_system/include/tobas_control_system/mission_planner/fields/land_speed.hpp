@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/spin_box.hpp>
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
 #include "./base.hpp"
 
@@ -10,18 +10,18 @@ namespace ctrl
 {
 namespace field
 {
-class DurationWidget : public BaseField
+class LandSpeedWidget : public BaseField
 {
 public:
-  explicit DurationWidget();
+  explicit LandSpeedWidget();
 
   const char* label() const override;
 
-  int value() const;
-  void setValue(int value);
+  double value() const;
+  void setValue(double value);
 
 private:
-  qt::SpinBox* spin_box_;
+  qt::DoubleSpinBox* spin_box_;
 };
 }  // namespace field
 }  // namespace ctrl
