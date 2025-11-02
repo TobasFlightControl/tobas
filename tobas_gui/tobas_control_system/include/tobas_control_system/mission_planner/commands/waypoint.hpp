@@ -3,6 +3,7 @@
 #include "../fields/acceptance_radius.hpp"
 #include "../fields/altitude.hpp"
 #include "../fields/altitude_frame.hpp"
+#include "../fields/altitude_tolerance.hpp"
 #include "../fields/latitude.hpp"
 #include "../fields/longitude.hpp"
 #include "../fields/max_horizontal_accel.hpp"
@@ -32,6 +33,7 @@ struct WaypointData : public BaseCommandData
   double max_horizontal_jerk;      // [m/s^3]
   double max_vertical_jerk;        // [m/s^3]
   double acceptance_radius;        // [m]
+  double altitude_tolerance;       // [m]
 
   Command type() const
   {
@@ -63,6 +65,7 @@ public:
   double maxHorizontalJerk() const;
   double maxVerticalJerk() const;
   double acceptanceRadius() const;
+  double altitudeTolerance() const;
 
   void latitude(double value);
   void longitude(double value);
@@ -75,6 +78,7 @@ public:
   void maxHorizontalJerk(double value);
   void maxVerticalJerk(double value);
   void acceptanceRadius(double value);
+  void altitudeTolerance(double value);
 
 private:
   field::LatitudeWidget* latitude_;
@@ -88,6 +92,7 @@ private:
   field::MaxHorizontalJerkWidget* max_hor_jerk_;
   field::MaxVerticalJerkWidget* max_ver_jerk_;
   field::AcceptanceRadiusWidget* acceptance_radius_;
+  field::AltitudeToleranceWidget* altitude_tolerance_;
 };
 }  // namespace ctrl
 }  // namespace gui

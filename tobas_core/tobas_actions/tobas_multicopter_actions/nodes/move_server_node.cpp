@@ -1,6 +1,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
+#include <tobas_math/linalg.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/gnss.hpp>
@@ -150,6 +151,10 @@ MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
     TOBAS_WARN("The acceptance radius is not specified. It will be infinite.");
   }
 
+  if (goal->altitude_tolerance <= 0.) {
+    TOBAS_WARN("The altitude tolerance is not specified. It will be infinite.");
+  }
+
   if (goal->timeout <= 0.) {
     TOBAS_WARN("The timeout is not specified. It will be infinite.");
   }
@@ -240,11 +245,17 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
       return;
     }
 
-    // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
+    // 現在の位置を取得
     const auto& cur_pos = odom_->frame.p;
-    const auto pos_error = goal_pos - cur_pos;
+
+    // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     if (t > duration) {
-      if (goal->acceptance_radius <= 0. || pos_error.norm() < goal->acceptance_radius) {
+      const auto pos_err = goal_pos - cur_pos;
+      const auto xy_err_abs = math::norm(pos_err.x(), pos_err.y());
+      const auto z_err_abs = fabs(pos_err.z());
+      const auto hor_ok = goal->acceptance_radius <= 0. || xy_err_abs < goal->acceptance_radius;
+      const auto ver_ok = goal->altitude_tolerance <= 0. || z_err_abs < goal->altitude_tolerance;
+      if (hor_ok && ver_ok) {
         result->message.clear();
         goal_handle->succeed(result);
         return;

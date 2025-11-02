@@ -15,6 +15,7 @@ ReturnToHomeWidget::ReturnToHomeWidget()
   max_hor_jerk_ = new field::MaxHorizontalJerkWidget();
   max_ver_jerk_ = new field::MaxVerticalJerkWidget();
   acceptance_radius_ = new field::AcceptanceRadiusWidget();
+  altitude_tolerance_ = new field::AltitudeToleranceWidget();
 
   addField(altitude_);
   addField(altitude_frame_);
@@ -25,6 +26,7 @@ ReturnToHomeWidget::ReturnToHomeWidget()
   addField(max_hor_jerk_);
   addField(max_ver_jerk_);
   addField(acceptance_radius_);
+  addField(altitude_tolerance_);
 }
 
 const char* ReturnToHomeWidget::name() const
@@ -44,6 +46,7 @@ BaseCommandData::SharedPtr ReturnToHomeWidget::data() const
   res->max_horizontal_jerk = maxHorizontalJerk();
   res->max_vertical_jerk = maxVerticalJerk();
   res->acceptance_radius = acceptanceRadius();
+  res->altitude_tolerance = altitudeTolerance();
   return res;
 }
 
@@ -92,6 +95,11 @@ double ReturnToHomeWidget::acceptanceRadius() const
   return acceptance_radius_->value();
 }
 
+double ReturnToHomeWidget::altitudeTolerance() const
+{
+  return altitude_tolerance_->value();
+}
+
 void ReturnToHomeWidget::altitude(double value)
 {
   altitude_->setValue(value);
@@ -135,6 +143,11 @@ void ReturnToHomeWidget::maxVerticalJerk(double value)
 void ReturnToHomeWidget::acceptanceRadius(double value)
 {
   acceptance_radius_->setValue(value);
+}
+
+void ReturnToHomeWidget::altitudeTolerance(double value)
+{
+  altitude_tolerance_->setValue(value);
 }
 }  // namespace ctrl
 }  // namespace gui

@@ -17,6 +17,7 @@ WaypointWidget::WaypointWidget()
   max_hor_jerk_ = new field::MaxHorizontalJerkWidget();
   max_ver_jerk_ = new field::MaxVerticalJerkWidget();
   acceptance_radius_ = new field::AcceptanceRadiusWidget();
+  altitude_tolerance_ = new field::AltitudeToleranceWidget();
 
   addField(latitude_);
   addField(longitude_);
@@ -29,6 +30,7 @@ WaypointWidget::WaypointWidget()
   addField(max_hor_jerk_);
   addField(max_ver_jerk_);
   addField(acceptance_radius_);
+  addField(altitude_tolerance_);
 }
 
 const char* WaypointWidget::name() const
@@ -50,6 +52,7 @@ BaseCommandData::SharedPtr WaypointWidget::data() const
   res->max_horizontal_jerk = maxHorizontalJerk();
   res->max_vertical_jerk = maxVerticalJerk();
   res->acceptance_radius = acceptanceRadius();
+  res->altitude_tolerance = altitudeTolerance();
   return res;
 }
 
@@ -108,6 +111,11 @@ double WaypointWidget::acceptanceRadius() const
   return acceptance_radius_->value();
 }
 
+double WaypointWidget::altitudeTolerance() const
+{
+  return altitude_tolerance_->value();
+}
+
 void WaypointWidget::latitude(double value)
 {
   latitude_->setValue(value);
@@ -161,6 +169,11 @@ void WaypointWidget::maxVerticalJerk(double value)
 void WaypointWidget::acceptanceRadius(double value)
 {
   acceptance_radius_->setValue(value);
+}
+
+void WaypointWidget::altitudeTolerance(double value)
+{
+  altitude_tolerance_->setValue(value);
 }
 }  // namespace ctrl
 }  // namespace gui
