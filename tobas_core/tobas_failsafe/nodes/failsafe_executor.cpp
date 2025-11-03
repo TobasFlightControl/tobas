@@ -63,9 +63,10 @@ void FailsafeExecutorNode::disarm()
 
 void FailsafeExecutorNode::startLandAction()
 {
+  // TODO: パラメータをSAで指定可能にする
   LandAction::Goal goal;
   goal.level.data = tobas_command_msgs::msg::CommandLevel::DEFENSIVE;
-  goal.speed = 0.7;  // TODO: SAで指定可能に
+  goal.speed = 0.7;
 
   LandClient::SendGoalOptions opts;
   opts.goal_response_callback = [this](const LandGoalHandle::SharedPtr& goal_handle)
