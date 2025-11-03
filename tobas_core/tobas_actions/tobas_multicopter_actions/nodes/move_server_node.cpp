@@ -1,4 +1,3 @@
-#include <tobas_algorithm/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/linalg.hpp>
@@ -214,21 +213,33 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // Get goal
   const auto goal = goal_handle->get_goal();
 
-  // 軌道を生成
-  // TODO: 最高速度を考慮して起動を作成
+  // 目標位置を計算
   const auto goal_pos = computeGoalPosition(goal);
   TOBAS_INFO("Goal position: ", goal_pos);
-  const traj::TimeOptimalTrajectory traj_x(
-    start_pos.x(), goal_pos.x(), goal->max_horizontal_jerk, goal->max_horizontal_accel, goal->max_horizontal_velocity);
-  const traj::TimeOptimalTrajectory traj_y(
-    start_pos.y(), goal_pos.y(), goal->max_horizontal_jerk, goal->max_horizontal_accel, goal->max_horizontal_velocity);
+
+  // 水平面における方向と距離を計算
+  // XYの軌道を別々に生成すると最短経路を通らないことに注意
+  const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
+  const Eigen::Vector2d goal_xy(goal_pos.x(), goal_pos.y());
+  const Eigen::Vector2d xy_diff = goal_xy - start_xy;
+  const auto xy_dir = xy_diff.normalized();  // [-]
+  const auto xy_dist = xy_diff.norm();       // [m]
+  if (xy_dist == 0.) {
+    result->message.clear();
+    goal_handle->succeed(result);
+    return;
+  }
+
+  // 軌道を生成
+  const traj::TimeOptimalTrajectory traj_xy(
+    0., xy_dist, goal->max_horizontal_jerk, goal->max_horizontal_accel, goal->max_horizontal_velocity);
   const traj::TimeOptimalTrajectory traj_z(
     start_pos.z(), goal_pos.z(), goal->max_vertical_jerk, goal->max_vertical_accel, goal->max_vertical_velocity);
   const traj::LinearSpline traj_roll(start_rpy.roll, 0., fabs(start_rpy.roll) / kAttitudeRecoveryRate);
   const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., fabs(start_rpy.pitch) / kAttitudeRecoveryRate);
 
   // 所要時間を取得
-  const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());
+  const auto duration = std::max(traj_xy.duration(), traj_z.duration());
   TOBAS_INFO("Moving to the target position will take ", duration, " seconds.");
 
   // 軌道を発行
@@ -263,11 +274,12 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     }
 
     // 現在の時刻における目標状態を取得
-    const auto traj_point_x = traj_x.get(t);
-    const auto traj_point_y = traj_y.get(t);
+    const auto traj_point_xy = traj_xy.get(t);
+    const Eigen::Vector2d pxy = start_xy + traj_point_xy.p * xy_dir;
+    const Eigen::Vector2d vxy = traj_point_xy.v * xy_dir;
     const auto traj_point_z = traj_z.get(t);
-    const kdl::Vector tar_pos(traj_point_x.p, traj_point_y.p, traj_point_z.p);
-    kdl::Vector tar_vel(traj_point_x.v, traj_point_y.v, traj_point_z.v);
+    const kdl::Vector tar_pos(pxy.x(), pxy.y(), traj_point_z.p);
+    kdl::Vector tar_vel(vxy.x(), vxy.y(), traj_point_z.v);
     const auto tar_roll = traj_roll.get(t).p;
     const auto tar_pitch = traj_pitch.get(t).p;
     const auto& tar_yaw = start_rpy.yaw;
