@@ -78,7 +78,7 @@ double TimeOptimalTrajectory::p(double t) const
     return p(t1_) + (am_ / 2) * t * (t - t1_);
   }
   else if (t <= t3_) {
-    return p(t2_) + vm_ * (t - t2_) + (jm_ / 6) * (math::cube(t3_ - t) - math::cube(t3_ - t2_));
+    return p(t2_) + vm_ * (t - t2_) + (jm_ / 6) * (math::cube(t3_ - t) - math::cube(t1_));
   }
   else if (t <= t4_) {
     return p(t3_) + vm_ * (t - t3_);
