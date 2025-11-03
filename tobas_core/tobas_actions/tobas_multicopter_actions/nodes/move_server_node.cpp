@@ -1,3 +1,4 @@
+#include <tobas_algorithm/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/linalg.hpp>
@@ -25,7 +26,8 @@ class MoveServerNode : public tobas::BaseNode
   using super = tobas::BaseNode;
   using ActionType = tobas_mission_msgs::action::Move;
 
-  static constexpr double kAttitudeRecoveryRate = M_PI / 6;  // [rad/s]
+  static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
+  static constexpr double kHeadingRate = M_PI / 3;   // [rad/s]
 
 public:
   explicit MoveServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -217,26 +219,33 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto goal_pos = computeGoalPosition(goal);
   TOBAS_INFO("Goal position: ", goal_pos);
 
-  // 水平面における方向と距離を計算
-  // XYの軌道を別々に生成すると最短経路を通らないことに注意
+  // 軌道を生成
   const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
   const Eigen::Vector2d goal_xy(goal_pos.x(), goal_pos.y());
-  const Eigen::Vector2d xy_diff = goal_xy - start_xy;
-  const auto xy_dir = xy_diff.normalized();  // [-]
-  const auto xy_dist = xy_diff.norm();       // [m]
+  const Eigen::Vector2d xy_diff = goal_xy - start_xy;  // XYの軌道を別々に生成すると最短経路を通らないことに注意
+  const auto xy_dist = xy_diff.norm();  // [m]
   if (xy_dist == 0.) {
     result->message.clear();
     goal_handle->succeed(result);
     return;
   }
-
-  // 軌道を生成
+  const Eigen::Vector2d xy_dir = xy_diff / xy_dist;
   const traj::TimeOptimalTrajectory traj_xy(
     0., xy_dist, goal->max_horizontal_jerk, goal->max_horizontal_accel, goal->max_horizontal_velocity);
+
   const traj::TimeOptimalTrajectory traj_z(
     start_pos.z(), goal_pos.z(), goal->max_vertical_jerk, goal->max_vertical_accel, goal->max_vertical_velocity);
-  const traj::LinearSpline traj_roll(start_rpy.roll, 0., fabs(start_rpy.roll) / kAttitudeRecoveryRate);
-  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., fabs(start_rpy.pitch) / kAttitudeRecoveryRate);
+
+  const auto roll_duration = fabs(start_rpy.roll) / kAttitudeRate;
+  const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
+
+  const auto pitch_duration = fabs(start_rpy.pitch) / kAttitudeRate;
+  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., pitch_duration);
+
+  const auto goal_yaw = atan2(xy_dir.y(), xy_dir.x());
+  const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
+  const auto yaw_duration = fabs(start_rpy.yaw) / kHeadingRate;
+  const traj::LinearSpline traj_yaw(0., yaw_diff, yaw_duration);
 
   // 所要時間を取得
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
@@ -282,7 +291,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     kdl::Vector tar_vel(vxy.x(), vxy.y(), traj_point_z.v);
     const auto tar_roll = traj_roll.get(t).p;
     const auto tar_pitch = traj_pitch.get(t).p;
-    const auto& tar_yaw = start_rpy.yaw;
+    const auto tar_yaw = algo::wrapPi(start_rpy.yaw + traj_yaw.get(t).p);
 
     // アクション中止の場合は目標速度を0にする
     if (goal_handle->is_canceling()) {
