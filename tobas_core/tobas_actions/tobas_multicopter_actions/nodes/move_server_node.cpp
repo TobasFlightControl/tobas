@@ -6,6 +6,7 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/gnss.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_trajectory_generators/cubic.hpp>
 #include <tobas_trajectory_generators/linear.hpp>
 #include <tobas_trajectory_generators/time_optimal.hpp>
 
@@ -245,7 +246,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto goal_yaw = atan2(xy_dir.y(), xy_dir.x());
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
   const auto yaw_duration = fabs(start_rpy.yaw) / kHeadingRate;
-  const traj::LinearSpline traj_yaw(0., yaw_diff, yaw_duration);
+  const traj::CubicSpline traj_yaw(0., yaw_diff, yaw_duration);
 
   // 所要時間を取得
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
