@@ -260,7 +260,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     const auto t = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0 && t > duration + goal->timeout) {
+    if (goal->timeout > 0. && t > duration + goal->timeout) {
       result->message = "Timeout before reaching the goal position.";
       goal_handle->abort(result);
       return;

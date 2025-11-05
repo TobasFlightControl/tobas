@@ -14,10 +14,13 @@ namespace traj
 TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
   : p0_(p0), pd_(fabs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
 {
-  assert(pd_ > 0);
-  assert(jm_ > 0);
-  assert(am_ > 0);
-  assert(vm_ > 0);
+  assert(jm_ > 0.);
+  assert(am_ > 0.);
+  assert(vm_ > 0.);
+
+  if (pd_ == 0.) {
+    return;
+  }
 
   // 時刻の大小関係の制約を満たすように加速度と速度の最大値を調整
   bool ok = false;
@@ -58,7 +61,12 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
 
 TrajectoryPoint TimeOptimalTrajectory::get(double t) const
 {
-  return { p0_ + sign_ * p(t), sign_ * v(t), sign_ * a(t) };  // 最初に除いた原点と移動方向を反映
+  if (pd_ == 0.) {
+    return { pd_, 0., 0. };
+  }
+
+  // 最初に除いた原点と移動方向を反映
+  return { p0_ + sign_ * p(t), sign_ * v(t), sign_ * a(t) };
 }
 
 double TimeOptimalTrajectory::duration() const

@@ -2,16 +2,24 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_tools/util.hpp>
 
 #include <tobas_mission_msgs/action/land.hpp>
+#include <tobas_mission_msgs/action/move.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 class FailsafeExecutorNode : public tobas::BaseNode
 {
   using self = FailsafeExecutorNode;
   using super = tobas::BaseNode;
+
+  using MoveAction = tobas_mission_msgs::action::Move;
+  using MoveClient = rclcpp_action::Client<MoveAction>;
+  using MoveGoalHandle = rclcpp_action::ClientGoalHandle<MoveAction>;
 
   using LandAction = tobas_mission_msgs::action::Land;
   using LandClient = rclcpp_action::Client<LandAction>;
@@ -24,33 +32,46 @@ private:
   enum State
   {
     kNone,
+    kReturnToLaunch,
     kLand,
   } state_ = kNone;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::Gnss::ConstSharedPtr gnss_;
+  tobas_msgs::Gnss::ConstSharedPtr gnss_arm_;  // アームした地点の座標
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
 
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
 
+  MoveClient::SharedPtr move_ac_;
   LandClient::SharedPtr land_ac_;
 
   void disarm();
 
-  void startLandAction();
+  void startRTL();
+  void startLand();
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };
 
 FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options) : super("failsafe_executor", options)
 {
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::vehicleHealthCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
+  gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
 
+  move_ac_ = rclcpp_action::create_client<MoveAction>(this, tobas::kMoveAction);
   land_ac_ = rclcpp_action::create_client<LandAction>(this, tobas::kLandAction);
 }
 
@@ -61,7 +82,58 @@ void FailsafeExecutorNode::disarm()
   set_arm_sc_->async_send_request(req);
 }
 
-void FailsafeExecutorNode::startLandAction()
+void FailsafeExecutorNode::startRTL()
+{
+  assert(gnss_arm_);
+
+  MoveAction::Goal goal;
+  goal.level.data = tobas_command_msgs::msg::CommandLevel::DEFENSIVE;
+  goal.target_latitude = gnss_arm_->latitude;
+  goal.target_longitude = gnss_arm_->longitude;
+
+  // TODO: パラメータをSAで指定可能にする
+  goal.target_altitude = odom_ ? odom_->frame.p.z() : 15.;
+  goal.max_horizontal_velocity = 5.;
+  goal.max_vertical_velocity = 1.5;
+  goal.max_horizontal_accel = 5.;
+  goal.max_vertical_accel = 3.;
+  goal.max_horizontal_jerk = 4.;
+  goal.max_vertical_jerk = 4.;
+
+  MoveClient::SendGoalOptions opts;
+  opts.goal_response_callback = [this](const MoveGoalHandle::SharedPtr& goal_handle)
+  {
+    if (!goal_handle) {
+      TOBAS_ERROR("Move action goal was rejected by server.");
+      startLand();
+    }
+  };
+  opts.result_callback = [this](const MoveGoalHandle::WrappedResult& result)
+  {
+    switch (result.code) {
+      case rclcpp_action::ResultCode::SUCCEEDED:
+        startLand();  // RTLの次は必ず着陸
+        break;
+      case rclcpp_action::ResultCode::CANCELED:
+        state_ = kNone;
+        break;
+      case rclcpp_action::ResultCode::ABORTED:
+        TOBAS_ERROR("Move action was aborted: ", result.result->message);
+        startLand();
+        break;
+      default:
+        TOBAS_ERROR("Unknown result code: ", (int)result.code);
+        startLand();
+        break;
+    }
+  };
+
+  move_ac_->async_send_goal(goal, opts);
+
+  state_ = kReturnToLaunch;
+}
+
+void FailsafeExecutorNode::startLand()
 {
   // TODO: パラメータをSAで指定可能にする
   LandAction::Goal goal;
@@ -80,8 +152,9 @@ void FailsafeExecutorNode::startLandAction()
   {
     switch (result.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
-        break;
+        break;  // フェイルセーフは必ず着陸で終わる
       case rclcpp_action::ResultCode::CANCELED:
+        state_ = kNone;
         break;
       case rclcpp_action::ResultCode::ABORTED:
         TOBAS_ERROR("Land action was aborted: ", result.result->message);
@@ -99,16 +172,6 @@ void FailsafeExecutorNode::startLandAction()
   state_ = kLand;
 }
 
-void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  // フェイルセーフは全てディスアームに収束するため，ディスアームされたらフェイルセーフが終了したと判定できる．
-  if (!arming->data) {
-    state_ = kNone;
-  }
-
-  arming_ = arming;
-}
-
 void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
   if (!arming_ || !arming_->data) {
@@ -119,20 +182,72 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     case kNone:
       if (health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED) {
         TOBAS_WARN("Radio fail-safe is activated.");
-        startLandAction();
+        if (gnss_arm_ && health->position_accuracy != tobas_msgs::msg::VehicleHealth::FAILED) {
+          startRTL();
+        }
+        else {
+          startLand();
+        }
+      }
+      break;
+
+    case kReturnToLaunch:
+      if (health->radio_link == tobas_msgs::msg::VehicleHealth::PASSED) {
+        move_ac_->async_cancel_all_goals();
       }
       break;
 
     case kLand:
       if (health->radio_link == tobas_msgs::msg::VehicleHealth::PASSED) {
         land_ac_->async_cancel_all_goals();
-        state_ = kNone;
       }
       break;
 
     default:
       throw;
   }
+}
+
+void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  if (!arming_) {
+    arming_ = arming;
+    return;
+  }
+
+  if (arming_->data && !arming->data) {
+    // フェイルセーフは全てディスアームに収束するため，ディスアームされたらフェイルセーフが終了したと判定できる．
+    switch (state_) {
+      case kNone:
+        break;
+      case kReturnToLaunch:
+        move_ac_->async_cancel_all_goals();
+        state_ = kNone;
+        break;
+      case kLand:
+        land_ac_->async_cancel_all_goals();
+        state_ = kNone;
+        break;
+      default:
+        throw;
+    }
+  }
+  else if (!arming_->data && arming->data) {
+    // アームされた地点の座標を保存
+    gnss_arm_ = gnss_;
+  }
+
+  arming_ = arming;
+}
+
+void FailsafeExecutorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+{
+  odom_ = odom;
+}
+
+void FailsafeExecutorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+{
+  gnss_ = gnss;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(FailsafeExecutorNode)
