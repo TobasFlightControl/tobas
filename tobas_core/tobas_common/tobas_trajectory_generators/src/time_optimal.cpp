@@ -18,7 +18,8 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
   assert(am_ > 0.);
   assert(vm_ > 0.);
 
-  if (pd_ == 0.) {
+  // 開始位置と目標位置が一致している場合は例外
+  if (pd_ < EPS) {
     return;
   }
 
@@ -61,7 +62,7 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
 
 TrajectoryPoint TimeOptimalTrajectory::get(double t) const
 {
-  if (pd_ == 0.) {
+  if (pd_ < EPS) {
     return { p0_, 0., 0. };
   }
 
