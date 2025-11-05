@@ -62,7 +62,7 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
 TrajectoryPoint TimeOptimalTrajectory::get(double t) const
 {
   if (pd_ == 0.) {
-    return { pd_, 0., 0. };
+    return { p0_, 0., 0. };
   }
 
   // 最初に除いた原点と移動方向を反映
