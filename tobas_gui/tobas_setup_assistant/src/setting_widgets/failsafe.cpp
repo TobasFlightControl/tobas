@@ -28,6 +28,10 @@ FailsafeWidget::FailsafeWidget()
     addWidget(item);
   }
 
+  // TODO: 地磁気のオフセットを小さくできたらデフォルトをtrueにする
+  items_.at(kMagOffsetIdx)->setChecked(false);
+  items_.at(kMagAlignmentIdx)->setChecked(false);
+
   addStretch();
 }
 
