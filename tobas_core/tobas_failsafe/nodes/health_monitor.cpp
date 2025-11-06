@@ -24,8 +24,9 @@ class HealthMonitorNode : public tobas::BaseNode
 {
   static constexpr auto kMainTimerPeriod = 100ms;
 
-  static constexpr long kImuSamplingTimeThresh = 5000;  // [us]
+  static constexpr auto kImuSamplingTimeThresh = 5ms;
   static constexpr auto kRTComplianceCheckTimeWindow = 5s;
+  static constexpr auto kBattLowVoltageTimeThresh = 10s;
   static constexpr auto kRadioConnLostTimeThresh = 500ms;
   static constexpr double kPosDriftThresh = 1.;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
@@ -70,7 +71,6 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
   tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr rotor_liv_;
   tobas_msgs::msg::Latency::ConstSharedPtr sampling_time_;
@@ -80,6 +80,7 @@ private:
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
 
   rclcpp::Time t_last_rt_violation_;
+  rclcpp::Time t_last_voltage_ok_;
   rclcpp::Time t_last_rcin_;
   std::array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
   dsp::LowPassFilterP1<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
@@ -183,7 +184,22 @@ void HealthMonitorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& 
 
 void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
-  battery_ = battery;
+  if (!drone_) {
+    return;
+  }
+
+  const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+  if (!eprop) {
+    return;
+  }
+
+  // 内部抵抗による電圧降下を補償した電圧を計算
+  const auto voltage = battery->voltage + eprop->battery.internal_resistance * battery->current;
+
+  // 最後に十分な電圧だった時刻を記録
+  if (voltage > eprop->battery.sag_voltage) {
+    t_last_voltage_ok_ = rclcpp::Time(battery->header.stamp, get_clock()->get_clock_type());
+  }
 }
 
 void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
@@ -204,7 +220,7 @@ void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::
 void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time)
 {
   // メッセージの時間差を確認
-  if (ros2::microseconds(sampling_time->data) > kImuSamplingTimeThresh) {
+  if (sampling_time->data > kImuSamplingTimeThresh) {
     t_last_rt_violation_ = rclcpp::Time(sampling_time->header.stamp, get_clock()->get_clock_type());
   }
 
@@ -302,18 +318,10 @@ void HealthMonitorNode::mainTimerCb()
     case tobas::PropulsionSystem::kElectric: {
       const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
-      // バッテリー電圧が定格電圧以上
+      // バッテリー電圧が閾値以上
       if (do_check_.battery_voltage) {
-        if (battery_) {
-          // 内部抵抗による電圧降下を補償した電圧で評価
-          const auto voltage = battery_->voltage + eprop->battery.internal_resistance * battery_->current;
-          if (voltage < eprop->battery.nominal_voltage) {
-            health->battery_voltage = tobas_msgs::msg::VehicleHealth::FAILED;
-            health->ok = false;
-          }
-        }
-        else {
-          health->battery_voltage = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+        if (t_last_voltage_ok_.nanoseconds() == 0 || cur_time - t_last_voltage_ok_ > kBattLowVoltageTimeThresh) {
+          health->battery_voltage = tobas_msgs::msg::VehicleHealth::FAILED;
           health->ok = false;
         }
       }
