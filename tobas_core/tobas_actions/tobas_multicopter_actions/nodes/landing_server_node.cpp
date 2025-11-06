@@ -98,6 +98,8 @@ void LandServerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr
 rclcpp_action::GoalResponse
 LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
+  TOBAS_INFO("Land action is requested.");
+
   if (goal->speed <= 0.) {
     TOBAS_ERROR("Descending speed must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -108,13 +110,12 @@ LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
 
 rclcpp_action::CancelResponse LandServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
+  TOBAS_INFO("Land action is canceled.");
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
 void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Land action is requested.");
-
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 

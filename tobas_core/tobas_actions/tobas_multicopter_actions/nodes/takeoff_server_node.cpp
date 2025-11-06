@@ -99,6 +99,8 @@ void TakeoffServerNode::landedCb(const tobas_msgs::msg::LandedState::ConstShared
 rclcpp_action::GoalResponse
 TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
+  TOBAS_INFO("Takeoff action is requested.");
+
   if (goal->target_altitude <= 0.) {
     TOBAS_ERROR("Target altitude must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -132,13 +134,12 @@ TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::
 
 rclcpp_action::CancelResponse TakeoffServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
+  TOBAS_INFO("Takeoff action is canceled.");
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
 void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Takeoff action is requested.");
-
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 

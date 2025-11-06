@@ -109,6 +109,8 @@ void MoveServerNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::Co
 rclcpp_action::GoalResponse
 MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
+  TOBAS_INFO("Move action is requested.");
+
   if (goal->target_latitude < -90 || 90 < goal->target_latitude) {
     TOBAS_ERROR("Invalid target latitude.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -166,13 +168,12 @@ MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
 
 rclcpp_action::CancelResponse MoveServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
+  TOBAS_INFO("Move action is canceled.");
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
 void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Move action is requested.");
-
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 

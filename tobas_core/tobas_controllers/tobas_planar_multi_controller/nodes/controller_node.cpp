@@ -226,7 +226,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
     addDynamicDoubleParam("yaw/rate_gain", &self::yawRateGainCb, this, 1., 10, 1, 50);
     addDynamicDoubleParam("yaw/integral_gain", &self::yawIntegralGainCb, this, 0.01, default_heading_i_gain, 0, 30);
   }
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR
+  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 10, 4, 30, " m/s^2");
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 30, " m/s^2");

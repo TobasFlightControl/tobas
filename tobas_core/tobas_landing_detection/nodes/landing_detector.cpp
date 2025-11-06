@@ -59,7 +59,7 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   z_force_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
   addDynamicDoubleParam("switch_time_threshold", &self::switchTimeThreshCb, this, 0.5, 2, 0, 10, " s");
-  addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 30, 1, 99, " %");
+  addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 30, 1, 99, " %");  // TODO: 誤着陸を防ぐべき
 
   landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::kLandedTopic);
 
