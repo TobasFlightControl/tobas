@@ -300,15 +300,14 @@ void HealthMonitorNode::mainTimerCb()
   // 推進系のタイプよる場合分け
   switch (drone_->prop->type()) {
     case tobas::PropulsionSystem::kElectric: {
-      // 未使用項目を無視
-      // TODO
-
       const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
       // バッテリー電圧が定格電圧以上
-      if (do_check_.battery_voltage && drone_->prop->type() == tobas::PropulsionSystem::kElectric) {
+      if (do_check_.battery_voltage) {
         if (battery_) {
-          if (battery_->voltage < eprop->battery.nominal_voltage) {
+          // 内部抵抗による電圧降下を補償した電圧で評価
+          const auto voltage = battery_->voltage + eprop->battery.internal_resistance * battery_->current;
+          if (voltage < eprop->battery.nominal_voltage) {
             health->battery_voltage = tobas_msgs::msg::VehicleHealth::FAILED;
             health->ok = false;
           }

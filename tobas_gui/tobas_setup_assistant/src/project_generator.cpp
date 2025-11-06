@@ -167,6 +167,7 @@ tobas::Drone ProjectGenerator::createDrone()
       eprop->battery.max_voltage = battery_widget->maxVoltage();
       eprop->battery.sag_voltage = battery_widget->sagVoltage();
       eprop->battery.max_current = battery_widget->maxCurrent();
+      eprop->battery.internal_resistance = battery_widget->internalRegistance();
 
       // Rotors
       for (int i = 0; i < eprop_widget->numUnits(); ++i) {
