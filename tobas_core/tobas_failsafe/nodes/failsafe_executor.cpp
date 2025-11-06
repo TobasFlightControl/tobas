@@ -31,10 +31,10 @@ public:
 private:
   enum State
   {
-    kNone,
+    kNoFailSafe,
     kReturnToLaunch,
     kLand,
-  } state_ = kNone;
+  } state_ = kNoFailSafe;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
@@ -115,7 +115,7 @@ void FailsafeExecutorNode::startRTL()
         startLand();  // RTLの次は必ず着陸
         break;
       case rclcpp_action::ResultCode::CANCELED:
-        state_ = kNone;
+        state_ = kNoFailSafe;
         break;
       case rclcpp_action::ResultCode::ABORTED:
         TOBAS_ERROR("Move action was aborted: ", result.result->message);
@@ -154,7 +154,7 @@ void FailsafeExecutorNode::startLand()
       case rclcpp_action::ResultCode::SUCCEEDED:
         break;  // フェイルセーフは必ず着陸で終わる
       case rclcpp_action::ResultCode::CANCELED:
-        state_ = kNone;
+        state_ = kNoFailSafe;
         break;
       case rclcpp_action::ResultCode::ABORTED:
         TOBAS_ERROR("Land action was aborted: ", result.result->message);
@@ -179,7 +179,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   }
 
   switch (state_) {
-    case kNone:
+    case kNoFailSafe:
       if (health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED) {
         TOBAS_WARN("Radio fail-safe is activated.");
         if (gnss_arm_ && health->position_accuracy != tobas_msgs::msg::VehicleHealth::FAILED) {
@@ -218,15 +218,15 @@ void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
   if (arming_->data && !arming->data) {
     // フェイルセーフは全てディスアームに収束するため，ディスアームされたらフェイルセーフが終了したと判定できる．
     switch (state_) {
-      case kNone:
+      case kNoFailSafe:
         break;
       case kReturnToLaunch:
         move_ac_->async_cancel_all_goals();
-        state_ = kNone;
+        state_ = kNoFailSafe;
         break;
       case kLand:
         land_ac_->async_cancel_all_goals();
-        state_ = kNone;
+        state_ = kNoFailSafe;
         break;
       default:
         throw;
