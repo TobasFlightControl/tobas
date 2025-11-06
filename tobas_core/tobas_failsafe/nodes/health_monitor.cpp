@@ -26,7 +26,8 @@ class HealthMonitorNode : public tobas::BaseNode
 
   static constexpr auto kImuSamplingTimeThresh = 5ms;
   static constexpr auto kRTComplianceCheckTimeWindow = 5s;
-  static constexpr auto kBattLowVoltageTimeThresh = 10s;
+  static constexpr auto kBattVoltageDownTimeThresh = 10s;
+  static constexpr auto kBattVoltageUpTimeThresh = 30s;
   static constexpr auto kRadioConnLostTimeThresh = 500ms;
   static constexpr double kPosDriftThresh = 1.;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
@@ -71,6 +72,7 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
+  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
   tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr rotor_liv_;
   tobas_msgs::msg::Latency::ConstSharedPtr sampling_time_;
@@ -80,7 +82,8 @@ private:
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
 
   rclcpp::Time t_last_rt_violation_;
-  rclcpp::Time t_last_voltage_ok_;
+  bool batt_voltage_ok_ = true;
+  builtin_interfaces::msg::Time t_last_voltage_ok_, t_last_voltage_ng_;
   rclcpp::Time t_last_rcin_;
   std::array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
   dsp::LowPassFilterP1<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
@@ -196,9 +199,42 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
   // 内部抵抗による電圧降下を補償した電圧を計算
   const auto voltage = battery->voltage + eprop->battery.internal_resistance * battery->current;
 
-  // 最後に十分な電圧だった時刻を記録
-  if (voltage > eprop->battery.sag_voltage) {
-    t_last_voltage_ok_ = rclcpp::Time(battery->header.stamp, get_clock()->get_clock_type());
+  // 初期状態を決める
+  if (!battery_) {
+    battery_ = battery;
+    batt_voltage_ok_ = voltage > eprop->battery.nominal_voltage;
+    return;
+  }
+
+  // 最新のバッテリー状態を更新
+  battery_ = battery;
+
+  // ヒステリシスと時間窓を含めて安定的に状態を切り替える
+  const auto& cur_time = battery->header.stamp;
+  if (batt_voltage_ok_) {
+    // 最後に電圧が閾値を上回った時刻を更新
+    if (voltage > eprop->battery.sag_voltage) {
+      t_last_voltage_ok_ = cur_time;
+    }
+
+    // 一定時間電圧が閾値を下回ったら状態を切り替える
+    if (cur_time - t_last_voltage_ok_ > kBattVoltageDownTimeThresh) {
+      batt_voltage_ok_ = false;
+      t_last_voltage_ng_ = cur_time;
+    }
+  }
+  else {
+    // 最後に電圧が閾値を下回った時刻を更新
+    if (voltage < eprop->battery.nominal_voltage) {
+      t_last_voltage_ng_ = cur_time;
+    }
+
+    // 一定時間電圧が閾値を上回ったら状態を切り替える
+    // 通常，低電圧状態から自然に回復することはないため，切り替えの判断は慎重に行う．
+    if (cur_time - t_last_voltage_ng_ > kBattVoltageUpTimeThresh) {
+      batt_voltage_ok_ = true;
+      t_last_voltage_ok_ = cur_time;
+    }
   }
 }
 
@@ -320,8 +356,14 @@ void HealthMonitorNode::mainTimerCb()
 
       // バッテリー電圧が閾値以上
       if (do_check_.battery_voltage) {
-        if (t_last_voltage_ok_.nanoseconds() == 0 || cur_time - t_last_voltage_ok_ > kBattLowVoltageTimeThresh) {
-          health->battery_voltage = tobas_msgs::msg::VehicleHealth::FAILED;
+        if (battery_) {
+          if (!batt_voltage_ok_) {
+            health->battery_voltage = tobas_msgs::msg::VehicleHealth::FAILED;
+            health->ok = false;
+          }
+        }
+        else {
+          health->battery_voltage = tobas_msgs::msg::VehicleHealth::UNKNOWN;
           health->ok = false;
         }
       }
