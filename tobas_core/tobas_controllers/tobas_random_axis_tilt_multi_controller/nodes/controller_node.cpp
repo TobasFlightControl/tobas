@@ -102,7 +102,7 @@ private:
   bool updateAttitudePDGain();
   bool updateHeadingPDGain();
   void resetCommands();
-  void resetIntegralGains();
+  void resetIntegralErrors();
   bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
 
   bool horizontalNaturalFrequencyCb(const double& p);
@@ -253,7 +253,7 @@ void ControllerNode::resetCommands()
   tar_dgyro_.reset();
 }
 
-void ControllerNode::resetIntegralGains()
+void ControllerNode::resetIntegralErrors()
 {
   pos_pid_.resetIntegralError();
   rot_pi_.resetIntegralError();
@@ -519,10 +519,6 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
-  if (landed->data) {
-    resetIntegralGains();
-  }
-
   landed_ = landed;
 }
 
@@ -530,7 +526,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 {
   if (arming_ && arming_->data && !arming->data) {
     resetCommands();
-    resetIntegralGains();
+    resetIntegralErrors();
     TOBAS_INFO("Controller is reset.");
   }
 

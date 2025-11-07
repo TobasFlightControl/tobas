@@ -29,13 +29,6 @@ kdl::Vector PositionPID::updatePID(
     if (ki_(i) > 0.) {  // I制御を行う場合
       // 積分誤差を蓄積
       ei_(i) += ep(i) * dt;
-
-      // 最大加速度からP加速度を除いた値でI加速度を制限する (動的なアンチワインドアップ)
-      // PI加速度が最大加速度を超える場合，I成分の効果は不安定化とオーバーシュートのみとなってしまう
-      const auto tar_acc_p = clamp(kp_(i) * ep(i), -max_acc_(i), max_acc_(i));
-      const auto min_ei = (-max_acc_(i) - tar_acc_p) / ki_(i);
-      const auto max_ei = (max_acc_(i) - tar_acc_p) / ki_(i);
-      ei_(i) = clamp(ei_(i), min_ei, max_ei);
     }
     else  // I制御を行わない場合
     {
@@ -45,10 +38,8 @@ kdl::Vector PositionPID::updatePID(
   }
 
   // 目標加速度を計算
-  const auto cmd_acc = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
-
-  // 目標加速度を制限して出力
-  return cmd_acc.clamp(-max_acc_, max_acc_);
+  const auto cmd_acc_pd = (kp_.hadamard(ep) + kd_.hadamard(ed)).clamp(-max_acc_, max_acc_);
+  return cmd_acc_pd + ki_.hadamard(ei_);  // 定常誤差が大きい時の誤差の発散を防ぐためI成分は最大加速度を超えて指示可能
 }
 
 kdl::Vector PositionPID::updatePD(

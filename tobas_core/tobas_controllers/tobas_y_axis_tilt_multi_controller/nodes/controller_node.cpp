@@ -464,10 +464,6 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
-  if (landed->data) {
-    resetIntegralErrors();
-  }
-
   landed_ = landed;
 }
 

@@ -12,7 +12,6 @@
 #include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
 #include <tobas_mission_msgs/action/land.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
 #include "tobas_multicopter_actions/common.hpp"
@@ -42,8 +41,6 @@ private:
 
   ros2::ActionServerPtr<ActionType> as_;
 
-  bool disarmRotors();
-
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
 
@@ -63,26 +60,6 @@ LandServerNode::LandServerNode(const rclcpp::NodeOptions& options) : super("land
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
 
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
-}
-
-bool LandServerNode::disarmRotors()
-{
-  const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = false;
-
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
-  if (!sc.call(req)) {
-    TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
-    return false;
-  }
-
-  const auto res = sc.getResponse();
-  if (!res->success) {
-    TOBAS_ERROR("Failed to disarm rotors: ", res->message);
-    return false;
-  }
-
-  return true;
 }
 
 void LandServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
@@ -148,15 +125,9 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // 姿勢を戻しながら下降
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // 着陸検知したらモータを停止して終了
+    // 着陸検知したら終了
     if (landed_->data) {
-      TOBAS_INFO("Landing detected. Stopping motors.");
-      if (!disarmRotors()) {
-        result->message = "Failed to disarm rotors.";
-        goal_handle->abort(result);
-        return;
-      }
-
+      TOBAS_INFO("Landing detected.");
       result->message.clear();
       goal_handle->succeed(result);
       return;
@@ -164,11 +135,12 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
     // 現在時刻における目標位置姿勢を計算
     const auto cur_time = now();
-    const auto dt = (cur_time - start_time).seconds();
-    const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), start_pos.z() - goal->speed * dt);
+    const auto t = (cur_time - start_time).seconds();
+    const auto tar_z = start_pos.z() - goal->speed * t;
+    const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), tar_z);
     kdl::Vector tar_vel(0., 0., -goal->speed);
-    const auto tar_roll = traj_roll.get(dt).p;
-    const auto tar_pitch = traj_pitch.get(dt).p;
+    const auto tar_roll = traj_roll.get(t).p;
+    const auto tar_pitch = traj_pitch.get(t).p;
     const auto& tar_yaw = start_rpy.yaw;
 
     // アクション中止の場合は目標速度を0にする
