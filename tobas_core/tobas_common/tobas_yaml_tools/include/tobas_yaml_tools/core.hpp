@@ -8,6 +8,8 @@
 
 namespace yaml
 {
+static constexpr size_t kDefaultPrecision = 6;
+
 template <typename T>
 bool load(const std::string& key, const YAML::Node& parent, T& value)
 {
@@ -28,8 +30,8 @@ bool load(const std::string& key, const YAML::Node& parent, T& value)
 }
 
 /* YAML::Nodeをテキストに変換する． */
-std::string dump(const YAML::Node& node);
+std::expected<std::string, std::string> dump(const YAML::Node& node, size_t precision = kDefaultPrecision);
 
 std::expected<YAML::Node, std::string> load(const std::filesystem::path& path);
-bool save(const std::filesystem::path& path, const YAML::Node& node);
+bool save(const std::filesystem::path& path, const YAML::Node& node, size_t precision = kDefaultPrecision);
 }  // namespace yaml
