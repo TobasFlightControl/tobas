@@ -51,6 +51,7 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::RCInput::ConstSharedPtr rcin_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
@@ -74,6 +75,7 @@ private Q_SLOTS:
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace sim
 }  // namespace gui

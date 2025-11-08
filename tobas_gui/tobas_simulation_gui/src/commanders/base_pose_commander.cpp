@@ -74,6 +74,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
 
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void BasePoseCommanderWidget::updateInternalDataStructures()
@@ -103,8 +104,11 @@ bool BasePoseCommanderWidget::start()
 
 void BasePoseCommanderWidget::reset()
 {
-  arming_button_->setChecked(false);
+  arming_.reset();
+  odom_.reset();
+  rcin_.reset();
 
+  arming_button_->setChecked(false);
   home_button_->setEnabled(false);
 
   for (const auto& cmd : cmd_xyz_) {
@@ -194,24 +198,27 @@ void BasePoseCommanderWidget::onArmRequested()
 {
   if (!arming_) {
     qt::qWarnBox(this, "Arming status is not received yet.");
-    reset();
-    return;
-  }
-  if (arming_->data) {
-    qt::qWarnBox(this, "The rotors are already armed.");
-    reset();
     return;
   }
   if (!odom_) {
     qt::qWarnBox(this, "Odometry is not received yet.");
-    reset();
+    return;
+  }
+  if (!rcin_) {
+    qt::qWarnBox(this, "RC input is not received yet.");
+    return;
+  }
+
+  if (rcin_->enable) {
+    qt::qWarnBox(this, "GUI teleoperation cannot be started because manual control is enabled.");
     return;
   }
 
   // アーム
-  if (!armRotors(true)) {
-    reset();
-    return;
+  if (!arming_->data) {
+    if (!armRotors(true)) {
+      return;
+    }
   }
 
   // 現在の位置姿勢を取得
@@ -240,8 +247,15 @@ void BasePoseCommanderWidget::onArmRequested()
 
 void BasePoseCommanderWidget::onDisarmRequested()
 {
-  if (!armRotors(false)) {
+  if (!arming_) {
+    qt::qWarnBox(this, "Arming status is not received yet.");
     return;
+  }
+
+  if (arming_->data) {
+    if (!armRotors(false)) {
+      return;
+    }
   }
 
   reset();
@@ -266,15 +280,9 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
 
 void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  if (!arming_) {
-    arming_ = arming;
-    return;
-  }
-
   // 外部からディスアームされたら強制終了
-  if (isRunning() && arming_->data && !arming->data) {
+  if (isRunning() && !arming->data) {
     reset();
-    // ここでメッセージを出すと連続してダイアログが表示されてしまうため出さない
   }
 
   arming_ = arming;
@@ -283,6 +291,16 @@ void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstShare
 void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
+}
+
+void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+{
+  // 手動操縦が有効になったら強制終了
+  if (isRunning() && rcin->enable) {
+    reset();
+  }
+
+  rcin_ = rcin;
 }
 }  // namespace sim
 }  // namespace gui
