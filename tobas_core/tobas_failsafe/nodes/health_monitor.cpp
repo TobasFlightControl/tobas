@@ -28,7 +28,7 @@ class HealthMonitorNode : public tobas::BaseNode
   static constexpr auto kRTComplianceCheckTimeWindow = 5s;
   static constexpr auto kBattVoltageDownTimeThresh = 10s;
   static constexpr auto kBattVoltageUpTimeThresh = 30s;
-  static constexpr auto kRadioConnLostTimeThresh = 500ms;
+  static constexpr auto kRadioLinkLostTimeThresh = 500ms;
   static constexpr double kPosDriftThresh = 1.;  // [m]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
   static constexpr double kCPUTempThresh = 80.;              // [degC]
@@ -407,7 +407,7 @@ void HealthMonitorNode::mainTimerCb()
 
   // RC送信機と受信機の通信
   if (do_check_.radio_link) {
-    if (t_last_rcin_.nanoseconds() == 0 || cur_time - t_last_rcin_ > kRadioConnLostTimeThresh) {
+    if (t_last_rcin_.nanoseconds() == 0 || cur_time - t_last_rcin_ > kRadioLinkLostTimeThresh) {
       health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
       health->ok = false;
     }
