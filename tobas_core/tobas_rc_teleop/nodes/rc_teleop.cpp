@@ -26,6 +26,8 @@
 #include "tobas_rc_teleop/rate_throttle.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
+using namespace std::chrono_literals;
+
 namespace tobas_rc_teleop
 {
 class RCTeleopNode : public tobas::BaseNode
@@ -41,6 +43,8 @@ class RCTeleopNode : public tobas::BaseNode
 
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kWarnPeriod = 1.;            // [s]
+
+  static constexpr auto kRadioLinkLostTimeout = 1s;
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -90,6 +94,9 @@ private:
   // Service
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
 
+  // Timer
+  ros2::TimerPtr rcin_timeout_timer_;
+
   void getStaticRosParams();
   void initializeControllers();
   void requestArmingRotors(bool arming);
@@ -102,6 +109,8 @@ private:
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+
+  void rcInputTimeoutTimerCb();
 };
 
 RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::node::kRcTeleop, options)
@@ -118,6 +127,8 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::no
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
+
+  rcin_timeout_timer_ = createTimer(kRadioLinkLostTimeout, &self::rcInputTimeoutTimerCb, this);
 }
 
 void RCTeleopNode::getStaticRosParams()
@@ -268,6 +279,9 @@ void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& 
 
 void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
+  // 通信チェックタイマーをリセット
+  rcin_timeout_timer_->reset();
+
   switch (stage_) {
     case kCheckPrerequisites: {
       if (!odom_) {
@@ -431,6 +445,15 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       TOBAS_ERROR("Invalid stage: ", (int)stage_);
       break;
     }
+  }
+}
+
+void RCTeleopNode::rcInputTimeoutTimerCb()
+{
+  if (stage_ != kCheckPrerequisites) {
+    // 通信が切れる前のコマンドが残らないようにステージを最初に戻す
+    TOBAS_WARN("Radio link was lost.");
+    stage_ = kCheckPrerequisites;
   }
 }
 }  // namespace tobas_rc_teleop
