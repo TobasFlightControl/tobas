@@ -50,6 +50,8 @@ private:
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
   MissionExecutionThread mission_thread_;
 
+  tobas_msgs::RCInput::ConstSharedPtr rcin_;
+
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();
 
@@ -86,6 +88,7 @@ private Q_SLOTS:
 
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace ctrl
 }  // namespace gui
