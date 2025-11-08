@@ -59,6 +59,8 @@ private:
 
   ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
 
+  bool isRunning() const;
+
   void publishCurrentCommand();
   bool armRotors(bool arming);
 

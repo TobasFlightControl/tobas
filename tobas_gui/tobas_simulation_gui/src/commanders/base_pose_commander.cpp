@@ -117,6 +117,11 @@ void BasePoseCommanderWidget::reset()
   }
 }
 
+bool BasePoseCommanderWidget::isRunning() const
+{
+  return arming_button_->isChecked();
+}
+
 void BasePoseCommanderWidget::publishCurrentCommand()
 {
   const auto tar_x = cmd_xyz_[0]->getValue();
@@ -241,7 +246,7 @@ void BasePoseCommanderWidget::onDisarmRequested()
 
   reset();
 
-  qt::qInfoBox(this, "GUI teleoperation is finished.");
+  qt::qInfoBox(this, "GUI teleoperation was finished.");
 }
 
 void BasePoseCommanderWidget::onValueChanged()
@@ -261,6 +266,17 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
 
 void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
+  if (!arming_) {
+    arming_ = arming;
+    return;
+  }
+
+  // 外部からディスアームされたら強制終了
+  if (isRunning() && arming_->data && !arming->data) {
+    reset();
+    // ここでメッセージを出すと連続してダイアログが表示されてしまうため出さない
+  }
+
   arming_ = arming;
 }
 
