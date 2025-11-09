@@ -154,7 +154,7 @@ bool PinvMixer::solve(
   }
 
   // 並進EoMの右辺
-  const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
+  const kdl::Vector grav_W(0, 0, -tbs::kGravity);
   const auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
   f_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 

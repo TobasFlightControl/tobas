@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 
-namespace tobas_std
+namespace tbs
 {
 /* 与えられたGPS ToW (GPS Time of Week) とNTPサーバから得られたUTCから，GPSの遅延を計算する． */
 long computeGPSDelayFromToW(uint32_t gps_tow_ms);
@@ -61,4 +61,4 @@ void cartToGnssRelative(
   const double& longitude_0,
   double& latitude,
   double& longitude);
-}  // namespace tobas_std
+}  // namespace tbs

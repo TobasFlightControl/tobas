@@ -178,7 +178,7 @@ void JointCommandsPublisherWidget::stop()
 
 int JointCommandsPublisherWidget::numRegisteredChannels() const
 {
-  return tobas_std::count(registered_, true);
+  return tbs::count(registered_, true);
 }
 
 void JointCommandsPublisherWidget::publishCurrentValues()

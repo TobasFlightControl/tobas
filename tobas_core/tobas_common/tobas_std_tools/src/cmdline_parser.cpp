@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace tobas_std
+namespace tbs
 {
 bool commandLineOptionExists(char** begin, char** end, const char* option)
 {
@@ -36,4 +36,4 @@ char* getCommandLineOption(char** begin, char** end, const char* option)
 
   return begin[idx];
 }
-}  // namespace tobas_std
+}  // namespace tbs

@@ -73,13 +73,13 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
 
 bool AngleThrottleController::maxAttitudeCb(const long& p)
 {
-  max_attitude_ = tobas_std::deg2rad(p);
+  max_attitude_ = tbs::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = tobas_std::deg2rad(p);
+  max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 

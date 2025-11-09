@@ -16,29 +16,29 @@ namespace linux
 {
 bool ProcessSettings::init(int argc, char* argv[])
 {
-  if (tobas_std::commandLineOptionExists(argv, argv + argc, "-h")) {
+  if (tbs::commandLineOptionExists(argv, argv + argc, "-h")) {
     printUsage();
     return false;
   }
 
-  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionLockMemory)) {
-    const auto option = tobas_std::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize);
+  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionLockMemory)) {
+    const auto option = tbs::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize);
     lock_memory_ = strcmp(option, "true") == 0 ? true : false;
   }
 
-  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionLockMemorySize)) {
-    lock_memory_size_mb_ = stoi(tobas_std::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize));
+  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionLockMemorySize)) {
+    lock_memory_size_mb_ = stoi(tbs::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize));
     if (lock_memory_size_mb_ > 0) {
       lock_memory_ = true;
     }
   }
 
-  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionPriority)) {
-    process_priority_ = stoi(tobas_std::getCommandLineOption(argv, argv + argc, kOptionPriority));
+  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionPriority)) {
+    process_priority_ = stoi(tbs::getCommandLineOption(argv, argv + argc, kOptionPriority));
   }
 
-  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionCPUAffinity)) {
-    cpu_affinity_ = stoi(tobas_std::getCommandLineOption(argv, argv + argc, kOptionCPUAffinity));
+  if (tbs::commandLineOptionExists(argv, argv + argc, kOptionCPUAffinity)) {
+    cpu_affinity_ = stoi(tbs::getCommandLineOption(argv, argv + argc, kOptionCPUAffinity));
   }
 
   return true;

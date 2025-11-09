@@ -94,8 +94,8 @@ struct IceRotorParam
   tobas::TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
-  tobas_std::Range<double> pitch_angle_limit;  // [rad]
-  double max_pitch_angle_rate;                 // [rad/s]
+  tbs::Range<double> pitch_angle_limit;  // [rad]
+  double max_pitch_angle_rate;           // [rad/s]
   tobas::VppMotorConstant motor_const;
   tobas::VppMomentConstant moment_const;
   tobas::VppDragConstant drag_const;

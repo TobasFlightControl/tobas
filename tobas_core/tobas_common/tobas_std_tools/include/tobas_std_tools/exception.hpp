@@ -3,7 +3,7 @@
 #include <exception>
 #include <string>
 
-namespace tobas_std
+namespace tbs
 {
 class NotImplementedError : public std::exception
 {
@@ -15,4 +15,4 @@ public:
 private:
   std::string msg_;
 };
-}  // namespace tobas_std
+}  // namespace tbs

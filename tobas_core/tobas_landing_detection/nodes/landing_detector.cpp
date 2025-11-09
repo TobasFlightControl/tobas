@@ -132,7 +132,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   const auto& z_force_filtered = z_force_lpf_.getValue();
 
   // Compute the vertical force threshold
-  const auto z_force_thresh = mass_holder_.getMass() * tobas_std::kGravity * switch_mass_rate_;
+  const auto z_force_thresh = mass_holder_.getMass() * tbs::kGravity * switch_mass_rate_;
 
   // 鉛直上方向の力が閾値を超えている状態が一定時間続いたら状態を切り替える
   if ((landed_ && z_force_filtered > z_force_thresh) || (!landed_ && z_force_filtered < z_force_thresh)) {

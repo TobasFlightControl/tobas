@@ -90,10 +90,10 @@ int main(int argc, char** argv)
   const auto delta_rot = M_PI_2 * repeat_interval;                                      // rad/s x s = rad
 
   // 目標値の制限
-  const tobas_std::Range<double> x_limit(-10., 10.);
-  const tobas_std::Range<double> y_limit(-10., 10.);
-  const tobas_std::Range<double> z_limit(-10., 10.);
-  const tobas_std::Range<double> yaw_limit(-M_PI, M_PI);
+  const tbs::Range<double> x_limit(-10., 10.);
+  const tbs::Range<double> y_limit(-10., 10.);
+  const tbs::Range<double> z_limit(-10., 10.);
+  const tbs::Range<double> yaw_limit(-M_PI, M_PI);
 
   // キーボードリーダを作成
   keyboard::KeyboardReader key_reader;

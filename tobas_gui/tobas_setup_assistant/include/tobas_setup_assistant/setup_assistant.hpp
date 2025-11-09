@@ -38,7 +38,7 @@ class SetupAssistantWidget : public QWidget
   static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/setup_assistant/load";
   static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/setup_assistant/save";
 
-  static constexpr double kJntAxisParallelTol = tobas_std::deg2rad(5);  // [rad]
+  static constexpr double kJntAxisParallelTol = tbs::deg2rad(5);  // [rad]
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);

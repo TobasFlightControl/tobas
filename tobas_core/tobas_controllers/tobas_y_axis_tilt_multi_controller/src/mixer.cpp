@@ -80,7 +80,7 @@ bool Mixer::updateInternalDataStructures()
     const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
     const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // ベースリンクから見たチルト軸
     const auto tilt_axis_y = tilt_axis.normalized().y();
-    if (!tobas_std::isClose(fabs(tilt_axis_y), 1.)) {
+    if (!tbs::isClose(fabs(tilt_axis_y), 1.)) {
       cerr << "Tilt axis must be parallel to the Y axis." << endl;
       return false;
     }
@@ -90,7 +90,7 @@ bool Mixer::updateInternalDataStructures()
     // FIXME: 機体自体がY軸周りに折れ曲がる場合はこのオフセットが変化する！
     const auto& B_T_par = fk_solver_.getFrame(par_elem.segment.name());
     const auto n = B_T_par.M * cur_elem.segment.joint().axis();  // ベースリンクから見た回転軸
-    if (!tobas_std::isClose(n.y(), 0.)) {
+    if (!tbs::isClose(n.y(), 0.)) {
       cerr << "The Y component of the propeller’s axis of rotation must be zero." << endl;
       return false;
     }

@@ -169,7 +169,7 @@ bool ControllerNode::initialize()
 
   // 状態変数のスケール
   lqd_.state_scale.resize(eom_.kStateSize);
-  lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(tobas_std::kStandardAirDensity);
+  lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(tbs::kStandardAirDensity);
   lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.fixed_wing->vehicle.alpha_limit.range();
   lqd_.state_scale(eom_.kStateIdx_beta) = M_PI_4;
   lqd_.state_scale(eom_.kStateIdx_phi) = M_PI_4;
@@ -180,7 +180,7 @@ bool ControllerNode::initialize()
 
   // 制御入力のスケール
   lqd_.input_scale.resize(eom_.inputSize());
-  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / drone_.prop->numRotors();
+  const auto thrust_scale = mass_holder_.getMass() * tbs::kGravity / drone_.prop->numRotors();
   lqd_.input_scale.head(drone_.prop->numRotors()).fill(thrust_scale);
   lqd_.input_scale.tail(drone_.fixed_wing->numControlSurfaces()).fill(M_PI);
 
@@ -218,7 +218,7 @@ void ControllerNode::updateSetStateVector()
   const auto& trim = eom_.trimCondition();
 
   // 失速しないように速度制限をした上で目標推力を計算
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure);
+  const auto rho = tbs::pressureToDensity(air_pressure_->pressure);
   const auto tar_speed = trim.speedLimit(rho).clamp(cmd_frd_.speed);
   const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
 
@@ -497,7 +497,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu
   tobas::speedRollDeltaPitchFluToFrd(*cmd_flu_, cmd_frd_);
 
   // 現在の速度を使って状態方程式を更新
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure);
+  const auto rho = tbs::pressureToDensity(air_pressure_->pressure);
   switch (eom_.update(odom_frd_.twist.vel.norm(), rho, q_0_)) {
     case tobas::SolverI::kNoError:
       break;

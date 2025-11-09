@@ -131,9 +131,9 @@ void BasePoseCommanderWidget::publishCurrentCommand()
   const auto tar_x = cmd_xyz_[0]->getValue();
   const auto tar_y = cmd_xyz_[1]->getValue();
   const auto tar_z = cmd_xyz_[2]->getValue();
-  const auto tar_roll = tobas_std::deg2rad(cmd_rpy_[0]->getValue());
-  const auto tar_pitch = tobas_std::deg2rad(cmd_rpy_[1]->getValue());
-  const auto tar_yaw = tobas_std::deg2rad(cmd_rpy_[2]->getValue());
+  const auto tar_roll = tbs::deg2rad(cmd_rpy_[0]->getValue());
+  const auto tar_pitch = tbs::deg2rad(cmd_rpy_[1]->getValue());
+  const auto tar_yaw = tbs::deg2rad(cmd_rpy_[2]->getValue());
 
   if (angle_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::Angle>();
@@ -229,9 +229,9 @@ void BasePoseCommanderWidget::onArmRequested()
   cmd_xyz_[0]->setValue(cur_pos.x());
   cmd_xyz_[1]->setValue(cur_pos.y());
   cmd_xyz_[2]->setValue(cur_pos.z());
-  cmd_rpy_[0]->setValue(tobas_std::rad2deg(cur_rpy.roll));
-  cmd_rpy_[1]->setValue(tobas_std::rad2deg(cur_rpy.pitch));
-  cmd_rpy_[2]->setValue(tobas_std::rad2deg(cur_rpy.yaw));
+  cmd_rpy_[0]->setValue(tbs::rad2deg(cur_rpy.roll));
+  cmd_rpy_[1]->setValue(tbs::rad2deg(cur_rpy.pitch));
+  cmd_rpy_[2]->setValue(tbs::rad2deg(cur_rpy.yaw));
 
   // 有効化
   home_button_->setEnabled(true);

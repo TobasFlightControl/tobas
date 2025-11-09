@@ -45,7 +45,7 @@ bool NonRosArgumentParser::setPlatformXcb()
     return false;
   }
 
-  if (tobas_std::contains<std::string>(args_, "-platform")) {
+  if (tbs::contains<std::string>(args_, "-platform")) {
     std::cerr << "The display platform has already been specified via the arguments." << std::endl;
     return false;
   }

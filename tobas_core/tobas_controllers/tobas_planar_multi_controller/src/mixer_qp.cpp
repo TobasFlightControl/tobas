@@ -84,8 +84,8 @@ bool QpMixer::solve(
   h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // 重み
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                       // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                 // [Nm]
+  const auto thrust_scale = mass * tbs::kGravity / drone_.prop->numRotors();  // [N]
   Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 

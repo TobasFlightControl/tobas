@@ -515,9 +515,9 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
   for (int theta_deg = -90; theta_deg < 90; theta_deg += kEllipsoidLineStep) {
     marker.points.clear();
 
-    const auto theta = tobas_std::deg2rad(theta_deg);
+    const auto theta = tbs::deg2rad(theta_deg);
     for (int phi_deg = 0; phi_deg <= 360; ++phi_deg) {
-      const auto phi = tobas_std::deg2rad(phi_deg);
+      const auto phi = tbs::deg2rad(phi_deg);
       addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
     }
 
@@ -529,9 +529,9 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
   for (int phi_deg = 0; phi_deg < 360; phi_deg += kEllipsoidLineStep) {
     marker.points.clear();
 
-    const auto phi = tobas_std::deg2rad(phi_deg);
+    const auto phi = tbs::deg2rad(phi_deg);
     for (int theta_deg = -90; theta_deg <= 90; ++theta_deg) {
-      const auto theta = tobas_std::deg2rad(theta_deg);
+      const auto theta = tbs::deg2rad(theta_deg);
       addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
     }
 
@@ -750,7 +750,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
     progress_bar_->setValue(static_cast<int>(total_progress * 100.));
 
     // 全ての面のデータが十分に溜まったらFinishボタンを有効化
-    if (tobas_std::allEqual(completed_, true)) {
+    if (tbs::allEqual(completed_, true)) {
       finish_button_->setEnabled(true);
       progress_bar_->setValue(100);
     }

@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace tobas_std
+namespace tbs
 {
 /* degree -> radian */
 inline constexpr double deg2rad(const double& deg)
@@ -63,4 +63,4 @@ inline constexpr double meter2yard(const double& meter)
 {
   return meter / 0.9144;
 }
-}  // namespace tobas_std
+}  // namespace tbs

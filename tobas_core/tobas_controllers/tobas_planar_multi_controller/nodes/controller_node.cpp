@@ -308,7 +308,7 @@ std::pair<kdl::Vector, kdl::Vector> ControllerNode::computeRotGain() const
 
   double thrust_coef;
   if (throttle_gain_thresh_ > 0.) {
-    const auto thrust_thresh = mass_holder_.getMass() * tobas_std::kGravity * throttle_gain_thresh_;
+    const auto thrust_thresh = mass_holder_.getMass() * tbs::kGravity * throttle_gain_thresh_;
     if (tar_thrust_ > thrust_thresh) {
       thrust_coef = 1.;
     }
@@ -540,7 +540,7 @@ bool ControllerNode::maxVerticalAccelCb(const double& p)
 
 bool ControllerNode::maxAttitudeCb(const double& p)
 {
-  return trans_eom_.setMaxAttitude(tobas_std::deg2rad(p));
+  return trans_eom_.setMaxAttitude(tbs::deg2rad(p));
 }
 
 bool ControllerNode::throttleGainThresholdCb(const double& p)

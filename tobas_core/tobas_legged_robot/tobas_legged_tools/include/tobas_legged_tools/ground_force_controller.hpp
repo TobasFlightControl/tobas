@@ -84,7 +84,7 @@ private:
   // Config
   double friction_coef_;
   double foot_diameter_;
-  tobas_std::Range<double> normal_force_range_;
+  tbs::Range<double> normal_force_range_;
 
   kdl::TreeInertiaSolver inertia_solver_;
   kdl::TreeBoundingBoxSolver bb_solver_;

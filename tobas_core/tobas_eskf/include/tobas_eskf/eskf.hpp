@@ -245,7 +245,7 @@ private:
   Eigen::Matrix<double, 3, kDeltaStateSize> H_grav_;
 
   std::chrono::steady_clock::time_point t_last_imu_;
-  tobas_std::TimestampedBuffer<StateVector> x_history_;
+  tbs::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
 
   // Direct value getters
@@ -483,7 +483,7 @@ inline Eigen::Vector3d ErrorStateKalmanFilter::getEuler(const StateVector& x) co
 {
   Eigen::Vector3d rpy;
   const auto q = getQuaternion(x);
-  tobas_std::eulerFromQuaternion(q.x(), q.y(), q.z(), q.w(), rpy.x(), rpy.y(), rpy.z());
+  tbs::eulerFromQuaternion(q.x(), q.y(), q.z(), q.w(), rpy.x(), rpy.y(), rpy.z());
   return rpy;
 }
 

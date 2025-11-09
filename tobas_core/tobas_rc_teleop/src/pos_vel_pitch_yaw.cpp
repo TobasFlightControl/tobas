@@ -118,13 +118,13 @@ bool PosVelPitchYawController::maxVerticalVelocityCb(const double& p)
 
 bool PosVelPitchYawController::maxAttitudeCb(const long& p)
 {
-  max_attitude_ = tobas_std::deg2rad(p);
+  max_attitude_ = tbs::deg2rad(p);
   return true;
 }
 
 bool PosVelPitchYawController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = tobas_std::deg2rad(p);
+  max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 

@@ -9,7 +9,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas_std
+namespace tbs
 {
 long computeGPSDelayFromToW(uint32_t gps_tow_ms)
 {
@@ -205,4 +205,4 @@ void cartToGnssRelative(
   latitude = rad2deg(latitude_rad);
   longitude = rad2deg(longitude_rad);
 }
-}  // namespace tobas_std
+}  // namespace tbs

@@ -108,7 +108,7 @@ double WindParamsWidget::getMeanSpeed() const
 
 double WindParamsWidget::getDirection() const
 {
-  return tobas_std::deg2rad(direction_->get());
+  return tbs::deg2rad(direction_->get());
 }
 
 double WindParamsWidget::getGustSpeedFactor() const
@@ -135,7 +135,7 @@ void WindParamsWidget::setMeanSpeed(double value)
 void WindParamsWidget::setDirection(double value_rad)
 {
   QSignalBlocker speed(direction_);
-  direction_->set(tobas_std::rad2deg(value_rad));
+  direction_->set(tbs::rad2deg(value_rad));
 }
 
 void WindParamsWidget::setGustSpeedFactor(double value)

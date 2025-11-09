@@ -6,7 +6,7 @@
 
 #include "tobas_std_tools/float.hpp"
 
-namespace tobas_std
+namespace tbs
 {
 void quaternionFromEuler(
   const double& roll,
@@ -54,4 +54,4 @@ void eulerFromQuaternion(
     yaw = atan2(2 * (x * y + z * w), 2 * (math::sqr(w) + math::sqr(x)) - 1);
   }
 }
-}  // namespace tobas_std
+}  // namespace tbs

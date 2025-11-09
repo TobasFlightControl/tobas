@@ -260,7 +260,7 @@ inline double Vector::argument(const Vector& rhs) const
 
 inline bool Vector::isPerpendicular(const Vector& rhs) const
 {
-  return tobas_std::isClose(this->dot(rhs), 0.);
+  return tbs::isClose(this->dot(rhs), 0.);
 }
 
 inline Vector Vector::clamp(const double& lb, const double& ub) const

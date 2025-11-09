@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tobas_std::kGravity)
+TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tbs::kGravity)
 {
 }
 
@@ -54,7 +54,7 @@ bool TranslationalEoM::solve(
 
   // 機体座標系から見た推力和を計算
   const auto u = rot_x.inverse(f);
-  assert(tobas_std::isClose(u.y(), 0., 1e-3));
+  assert(tbs::isClose(u.y(), 0., 1e-3));
   ux_out = u.x();
   uz_out = u.z();
 

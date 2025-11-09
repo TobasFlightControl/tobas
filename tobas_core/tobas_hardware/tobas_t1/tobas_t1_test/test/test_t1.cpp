@@ -53,7 +53,7 @@ bool testImu()
     cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
 
-    if (math::norm(ax, ay, az - tobas_std::kGravity) > 1.) {
+    if (math::norm(ax, ay, az - tbs::kGravity) > 1.) {
       cerr << "Anormal accel detected." << endl;
       return false;
     }

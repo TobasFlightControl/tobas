@@ -127,7 +127,7 @@ inline Eigen::Matrix3d skew2(const Eigen::Vector3d& v)
 inline Eigen::Vector3d
 projectPointOnToLine(const Eigen::Vector3d& x0, const Eigen::Vector3d& v, const Eigen::Vector3d& p)
 {
-  assert(tobas_std::isClose(v.norm(), 1.));
+  assert(tbs::isClose(v.norm(), 1.));
   return x0 + v.dot(p - x0) * v;
 }
 }  // namespace eigen

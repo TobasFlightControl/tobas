@@ -4,7 +4,7 @@
 #include <chrono>
 #include <map>
 
-namespace tobas_std
+namespace tbs
 {
 /**
  * @brief 指定した期間内のデータのみを保持するバッファ．
@@ -121,4 +121,4 @@ public:
   double variance() const;
   double stddev() const;
 };
-}  // namespace tobas_std
+}  // namespace tbs

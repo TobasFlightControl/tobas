@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-namespace tobas_std
+namespace tbs
 {
 template <typename T>
 class Range
@@ -149,4 +149,4 @@ std::ostream& operator<<(std::ostream& os, const Range<U>& arg)
   os << "[" << arg.lower << ", " << arg.upper << "]";
   return os;
 }
-}  // namespace tobas_std
+}  // namespace tbs

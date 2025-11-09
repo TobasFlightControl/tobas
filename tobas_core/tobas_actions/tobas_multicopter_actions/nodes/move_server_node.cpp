@@ -82,7 +82,7 @@ kdl::Vector MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSha
   const auto& tar_lon = goal->target_longitude;
   const auto& lat_0 = gnss_origin_->latitude;
   const auto& lon_0 = gnss_origin_->longitude;
-  tobas_std::gnssToCartRelative(tar_lat, tar_lon, lat_0, lon_0, goal_pos.x(), goal_pos.y());
+  tbs::gnssToCartRelative(tar_lat, tar_lon, lat_0, lon_0, goal_pos.x(), goal_pos.y());
 
   // Z軸
   // TODO: 目標高度がMSLで与えられた場合にも対応

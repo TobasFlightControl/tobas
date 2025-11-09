@@ -94,7 +94,7 @@ void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz
   const auto altitude = alt_0_ + W_Pos_WS.Z();
 
   // Compute the air pressure at the current altitude
-  auto pressure = tobas_std::altitudeToPressure(altitude);
+  auto pressure = tbs::altitudeToPressure(altitude);
 
   // Add noise to pressure measurement
   pressure += pressure_noise_(rnd_gen_);

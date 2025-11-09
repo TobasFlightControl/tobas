@@ -27,10 +27,10 @@ public:
 
 private:
   // Config
-  tobas_std::Range<uint16_t> roll_range_;
-  tobas_std::Range<uint16_t> pitch_range_;
-  tobas_std::Range<uint16_t> yaw_range_;
-  tobas_std::Range<uint16_t> throt_range_;
+  tbs::Range<uint16_t> roll_range_;
+  tbs::Range<uint16_t> pitch_range_;
+  tbs::Range<uint16_t> yaw_range_;
+  tbs::Range<uint16_t> throt_range_;
   std::map<tobas::FlightMode, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
   uint16_t enable_on_, enable_off_;

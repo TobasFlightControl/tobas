@@ -85,7 +85,7 @@ private:
   bool batt_voltage_ok_ = true;
   builtin_interfaces::msg::Time t_last_voltage_ok_, t_last_voltage_ng_;
   rclcpp::Time t_last_rcin_;
-  std::array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
+  std::array<tbs::TimestampedBufferDouble, 3> pos_bufs_;
   dsp::LowPassFilterP1<kdl::Vector> mag_B_lpf_, mag_W_lpf_;
 
   ros2::PublisherPtr<tobas_msgs::msg::VehicleHealth> health_pub_;
@@ -124,9 +124,9 @@ private:
 HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   : super("health_monitor", options)
   , t_last_rt_violation_(now())
-  , pos_bufs_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
+  , pos_bufs_{ tbs::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+               tbs::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+               tbs::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
   getStaticRosParams();
 

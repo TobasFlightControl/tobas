@@ -143,13 +143,13 @@ bool PosVelAngleController::maxVerticalVelocityCb(const double& p)
 
 bool PosVelAngleController::maxAttitudeCb(const long& p)
 {
-  max_attitude_ = tobas_std::deg2rad(p);
+  max_attitude_ = tbs::deg2rad(p);
   return true;
 }
 
 bool PosVelAngleController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = tobas_std::deg2rad(p);
+  max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 

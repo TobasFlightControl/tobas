@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     throw runtime_error("Failed to initialize DShot driver.");
   }
 
-  if (!dshot.setKv(channel, tobas_std::rpm2rps(kv))) {
+  if (!dshot.setKv(channel, tbs::rpm2rps(kv))) {
     throw runtime_error("Failed to set Kv.");
   }
   if (!dshot.transfer()) {
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
   }
   this_thread::sleep_for(1ms);
 
-  if (!dshot.setPropellerDiameter(channel, tobas_std::inch2meter(d))) {
+  if (!dshot.setPropellerDiameter(channel, tbs::inch2meter(d))) {
     throw runtime_error("Failed to set propeller diameter.");
   }
   if (!dshot.transfer()) {
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
   this_thread::sleep_for(1ms);
 
   while (true) {
-    if (!dshot.setTargetSpeed(channel, tobas_std::rpm2rps(tar_rpm))) {
+    if (!dshot.setTargetSpeed(channel, tbs::rpm2rps(tar_rpm))) {
       throw runtime_error("Failed to set target speed.");
     }
 

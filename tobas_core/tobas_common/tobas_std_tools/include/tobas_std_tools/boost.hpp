@@ -4,7 +4,7 @@
 
 #include <boost/array.hpp>
 
-namespace tobas_std
+namespace tbs
 {
 /* 加重平均をとる． */
 template <typename T, typename U, size_t N>
@@ -117,4 +117,4 @@ boost::array<T, N> operator+(const boost::array<T, N>& lhs, const boost::array<T
   }
   return res;
 }
-}  // namespace tobas_std
+}  // namespace tbs

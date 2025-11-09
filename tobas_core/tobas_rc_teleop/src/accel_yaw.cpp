@@ -91,7 +91,7 @@ bool AccelYawController::maxVerticalAccelCb(const double& p)
 
 bool AccelYawController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = tobas_std::deg2rad(p);
+  max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 

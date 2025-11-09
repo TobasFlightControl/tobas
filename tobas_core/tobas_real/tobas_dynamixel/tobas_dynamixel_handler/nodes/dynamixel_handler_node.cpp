@@ -26,13 +26,13 @@ struct DynamixelConfig
   bool current_available;
   double current_scaling_factor;  // code -> A
 
-  double temp_limit;                       // [degC]
-  tobas_std::Range<double> voltage_limit;  // [V]
-  double pwm_limit;                        // [%]
-  double current_limit;                    // [A]
-  double acc_limit;                        // [rad/s^2]
-  double vel_limit;                        // [rad/s]
-  tobas_std::Range<double> pos_limit;      // [rad]
+  double temp_limit;                 // [degC]
+  tbs::Range<double> voltage_limit;  // [V]
+  double pwm_limit;                  // [%]
+  double current_limit;              // [A]
+  double acc_limit;                  // [rad/s^2]
+  double vel_limit;                  // [rad/s]
+  tbs::Range<double> pos_limit;      // [rad]
 };
 
 class DynamixelHandlerNode : public tobas::BaseNode

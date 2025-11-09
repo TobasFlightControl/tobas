@@ -170,7 +170,7 @@ tobas::JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) con
 
 double ExtraJointsWidget::getHomePosition(int row) const
 {
-  return tobas_std::deg2rad(homePositionWidget(row)->value());
+  return tbs::deg2rad(homePositionWidget(row)->value());
 }
 
 void ExtraJointsWidget::setRole(int row, tobas::JointRole value)
@@ -218,7 +218,7 @@ void ExtraJointsWidget::setCommandInterface(int row, tobas::JointCommandInterfac
 
 void ExtraJointsWidget::setHomePosition(int row, double value)
 {
-  homePositionWidget(row)->setValue(std::round(tobas_std::rad2deg(value)));
+  homePositionWidget(row)->setValue(std::round(tbs::rad2deg(value)));
 }
 
 int ExtraJointsWidget::numJoints() const
@@ -388,8 +388,8 @@ void ExtraJointsWidget::addLink(const std::string& link_name)
 
   // Home Position
   const auto home_pos = new qt::SpinBox();
-  home_pos->setMinimum(std::round(tobas_std::rad2deg(std::isinf(joint.lower_limit) ? -M_PI : joint.lower_limit)));
-  home_pos->setMaximum(std::round(tobas_std::rad2deg(std::isinf(joint.upper_limit) ? M_PI : joint.upper_limit)));
+  home_pos->setMinimum(std::round(tbs::rad2deg(std::isinf(joint.lower_limit) ? -M_PI : joint.lower_limit)));
+  home_pos->setMaximum(std::round(tbs::rad2deg(std::isinf(joint.upper_limit) ? M_PI : joint.upper_limit)));
   home_pos->setSuffix(" deg");
 
   // Insert table row

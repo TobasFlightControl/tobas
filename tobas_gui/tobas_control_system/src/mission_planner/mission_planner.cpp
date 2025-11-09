@@ -530,7 +530,7 @@ void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   const auto yaw = odom->frame.M.getYaw();
-  map_->setArrowRotation(-tobas_std::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
+  map_->setArrowRotation(-tbs::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
 }
 
 void MissionPlannerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)

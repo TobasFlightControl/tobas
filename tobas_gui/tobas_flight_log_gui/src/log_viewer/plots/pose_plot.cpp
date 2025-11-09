@@ -76,9 +76,9 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
 
     const kdl::Rotation rot(odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
-    val_data[3].push_back(tobas_std::rad2deg(roll));
-    val_data[4].push_back(tobas_std::rad2deg(pitch));
-    val_data[5].push_back(tobas_std::rad2deg(yaw));
+    val_data[3].push_back(tbs::rad2deg(roll));
+    val_data[4].push_back(tbs::rad2deg(pitch));
+    val_data[5].push_back(tbs::rad2deg(yaw));
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
@@ -101,9 +101,9 @@ void PosePlotWidget::updateTargetSamples(
     val_data[2].push_back(pos.z);
 
     const auto& rot = ctrl_fb.target_angle;
-    val_data[3].push_back(tobas_std::rad2deg(rot.roll));
-    val_data[4].push_back(tobas_std::rad2deg(rot.pitch));
-    val_data[5].push_back(tobas_std::rad2deg(rot.yaw));
+    val_data[3].push_back(tbs::rad2deg(rot.roll));
+    val_data[4].push_back(tbs::rad2deg(rot.pitch));
+    val_data[5].push_back(tbs::rad2deg(rot.yaw));
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
