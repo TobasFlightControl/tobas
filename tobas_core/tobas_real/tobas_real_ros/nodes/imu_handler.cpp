@@ -1,9 +1,12 @@
 #include <tobas_constants/constants.hpp>
+#include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_std_tools/check.hpp>
 
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
@@ -18,7 +21,8 @@ class ImuHandlerNode : public tobas::BaseNode
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
   static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
-  static constexpr double kStaticGyroThreshold = 0.2;  // [rad/s]
+  static constexpr double kStaticGyroThreshold = 0.1;  // [rad/s]
+  static constexpr double kGyroLpfCutoff = 30.;        // [Hz]
 
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -37,6 +41,8 @@ private:
   kdl::Vector gyro_bias_;
   size_t gyro_bias_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> gyro_sum_;
+  dsp::LowPassFilterP1<kdl::Vector> gyro_lpf_;
+  tobas_msgs::Imu::ConstSharedPtr imu_raw_in_;
 
   ptree::PropertyTree pt_;
 
@@ -57,6 +63,8 @@ private:
 
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real_imu_handler", options)
 {
+  TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
+
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
@@ -105,10 +113,24 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 {
   switch (stage_) {
     case kMeasureGyroBias: {
+      const auto& gyro_raw = imu_raw_in->gyro;
+
+      if (!imu_raw_in_) {
+        gyro_lpf_.setValue(gyro_raw);
+        imu_raw_in_ = imu_raw_in;
+        break;
+      }
+
+      // 外れ値やノイズの影響を減らすためジャイロをLPFに通す
+      const auto dt = (imu_raw_in->header.stamp - imu_raw_in_->header.stamp).seconds();
+      imu_raw_in_ = imu_raw_in;
+      gyro_lpf_.update(gyro_raw, dt);
+      const auto& gyro_filt = gyro_lpf_.getValue();
+
       // 角速度が大きすぎる場合はやり直し
-      if (imu_raw_in->gyro.norm() > kStaticGyroThreshold) {
+      if (gyro_filt.norm() > kStaticGyroThreshold) {
         TOBAS_WARN_THROTTLE(
-          1., "Perturbation is detected while measuring gyro bias: ", imu_raw_in->gyro, " [rad/s]. Retrying...");
+          1., "Perturbation is detected while measuring gyro bias: ", gyro_filt, " [rad/s]. Retrying...");
         gyro_bias_cnt_ = 0;
         for (size_t i = 0; i < 3; ++i) {
           gyro_sum_[i].reset();
@@ -118,7 +140,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 
       // 角速度を加算
       for (size_t i = 0; i < 3; ++i) {
-        gyro_sum_[i].add(imu_raw_in->gyro(i));
+        gyro_sum_[i].add(gyro_raw(i));
       }
 
       // データが溜まったら角速度の平均をバイアスの推定値として次のステージに進む
