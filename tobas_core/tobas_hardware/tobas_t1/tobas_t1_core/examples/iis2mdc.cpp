@@ -1,10 +1,10 @@
-#include <unistd.h>
-
 #include <iostream>
+#include <thread>
 
 #include "tobas_t1_core/iis2mdc.hpp"
 
 using namespace std;
+using namespace std::chrono_literals;
 
 int main()
 {
@@ -24,7 +24,7 @@ int main()
 
     cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;
 
-    sleep(1);
+    this_thread::sleep_for(1s);
   }
 
   return EXIT_SUCCESS;

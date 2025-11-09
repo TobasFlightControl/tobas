@@ -1,6 +1,5 @@
-#include <unistd.h>
-
 #include <iostream>
+#include <thread>
 
 #include "tobas_t1_core/ilps22qs.hpp"
 
@@ -8,29 +7,29 @@ using namespace std;
 
 int main()
 {
-  t1::ILPS22QS barometer;
-  double pressure, temperature;
+  t1::ILPS22QS baro;
+  double pres, temp;
 
-  if (!barometer.initialize()) {
+  if (!baro.initialize()) {
     cerr << "Failed to initialize barometer." << endl;
     return EXIT_FAILURE;
   }
 
   while (true) {
-    if (!barometer.readPressure(pressure)) {
+    if (!baro.readPressure(pres)) {
       cerr << "Failed to read pressure." << endl;
       return EXIT_FAILURE;
     }
 
-    if (!barometer.readTemperature(temperature)) {
+    if (!baro.readTemperature(temp)) {
       cerr << "Failed to read temperature." << endl;
       return EXIT_FAILURE;
     }
 
-    cout << "Pressure [Pa]     : " << pressure << endl;
-    cout << "Temperature [degC]: " << temperature << endl;
+    cout << "Pressure [hPa]     : " << pres / 100. << endl;
+    cout << "Temperature [degC]: " << temp << endl;
 
-    sleep(1);
+    this_thread::sleep_for(1s);
   }
 
   return EXIT_SUCCESS;
