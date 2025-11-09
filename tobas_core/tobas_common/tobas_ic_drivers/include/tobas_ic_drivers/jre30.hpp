@@ -58,7 +58,9 @@ public:
   explicit JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb);
 
   bool initialize(const char* uart_device);
+
   void start();
+  void stop();
   void spin();
 
 private:
@@ -73,8 +75,8 @@ private:
   std::shared_ptr<JRE30Packet_B> packet_b_;
   std::shared_ptr<JRE30Packet_C> packet_c_;
 
-  std::thread read_thread_;
-  void readThreadFunc();
+  std::jthread read_thread_;
+  void readThreadFunc(std::stop_token st);
 
   bool checkCRC() const;
 };

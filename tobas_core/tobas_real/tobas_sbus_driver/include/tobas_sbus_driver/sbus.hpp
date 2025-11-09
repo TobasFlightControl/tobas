@@ -42,7 +42,9 @@ public:
   explicit SBUS(std::function<void(const Packet&)> packet_cb);
 
   bool initialize(const char* device);
+
   void start();
+  void stop();
   void spin();
 
   inline const Packet& packet() const;
@@ -53,8 +55,8 @@ private:
   linux::UARTdev uart_;
   Packet packet_;
 
-  std::thread read_thread_;
-  void readThreadFunc();
+  std::jthread read_thread_;
+  void readThreadFunc(std::stop_token st);
 
   void decodeData(const std::array<uint8_t, kDataSize>& data);
   void decodeFlags(uint8_t flags);

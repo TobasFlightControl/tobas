@@ -67,7 +67,9 @@ public:
   explicit NssnmfgPEFC(std::function<void(const Packet&)> packet_cb);
 
   bool initialize(const char* uart_device);
+
   void start();
+  void stop();
   void spin();
 
 private:
@@ -77,8 +79,8 @@ private:
   uint8_t buf_[kPacketSize];
   Packet packet_;
 
-  std::thread read_thread_;
-  void readThreadFunc();
+  std::jthread read_thread_;
+  void readThreadFunc(std::stop_token st);
 
   bool checkSum() const;
   void decode();

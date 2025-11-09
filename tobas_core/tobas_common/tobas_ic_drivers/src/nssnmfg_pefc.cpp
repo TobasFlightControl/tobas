@@ -6,7 +6,7 @@ using namespace std;
 
 namespace driver
 {
-NssnmfgPEFC::NssnmfgPEFC(std::function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
+NssnmfgPEFC::NssnmfgPEFC(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 {
 }
 
@@ -37,7 +37,12 @@ bool NssnmfgPEFC::initialize(const char* uart_device)
 
 void NssnmfgPEFC::start()
 {
-  read_thread_ = thread(bind(&NssnmfgPEFC::readThreadFunc, this));
+  read_thread_ = jthread(bind(&NssnmfgPEFC::readThreadFunc, this, placeholders::_1));
+}
+
+void NssnmfgPEFC::stop()
+{
+  read_thread_.request_stop();
 }
 
 void NssnmfgPEFC::spin()
@@ -45,9 +50,9 @@ void NssnmfgPEFC::spin()
   read_thread_.join();
 }
 
-void NssnmfgPEFC::readThreadFunc()
+void NssnmfgPEFC::readThreadFunc(stop_token st)
 {
-  while (true) {
+  while (!st.stop_requested()) {
     // Check header
     if (!uart_.receive(buf_ + kHeaderIdx, 1)) {
       continue;

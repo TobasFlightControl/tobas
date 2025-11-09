@@ -87,7 +87,12 @@ bool JRE30::initialize(const char* uart_device)
 
 void JRE30::start()
 {
-  read_thread_ = thread(bind(&JRE30::readThreadFunc, this));
+  read_thread_ = jthread(bind(&JRE30::readThreadFunc, this, placeholders::_1));
+}
+
+void JRE30::stop()
+{
+  read_thread_.request_stop();
 }
 
 void JRE30::spin()
@@ -95,9 +100,9 @@ void JRE30::spin()
   read_thread_.join();
 }
 
-void JRE30::readThreadFunc()
+void JRE30::readThreadFunc(std::stop_token st)
 {
-  while (true) {
+  while (!st.stop_requested()) {
     // Header
     if (!uart_.receive(buf_ + 0, 1)) {
       continue;
