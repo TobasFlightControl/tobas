@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include <tobas_constants/version.hpp>
+#include <tobas_version/version.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 namespace fs = std::filesystem;
