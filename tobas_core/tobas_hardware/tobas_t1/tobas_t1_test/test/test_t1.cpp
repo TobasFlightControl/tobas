@@ -108,11 +108,11 @@ bool testBarometer()
     return false;
   }
 
-  double press, temp;
+  double pres, temp;
   tim::Rate rate(SAMPLING_PERIOD);
 
   for (int i = 0; i < SAMPLING_COUNT; ++i) {
-    if (!baro.readPressure(press)) {
+    if (!baro.readPressure(pres)) {
       cerr << "Failed to read pressure." << endl;
       return false;
     }
@@ -121,7 +121,7 @@ bool testBarometer()
       return false;
     }
 
-    const auto pres_hpa = press / 100.;
+    const auto pres_hpa = pres / 100.;
 
     cout << "Pressure [hPa]     : " << pres_hpa << endl;
     cout << "Temperature [degC]: " << temp << endl;
