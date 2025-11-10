@@ -10,7 +10,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
-#include <tobas_gui_common/version.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -226,13 +225,12 @@ void GroundControlStationWidget::onLoadButtonClicked()
   proj_paths_.setProjPath(proj_path);
 
   // バージョンチェック
-  cmn::Version version;
-  if (version.load(proj_paths_.versionPath())) {
-    if (!version.isCompatible()) {
+  if (proj_version_.load(proj_paths_.versionPath())) {
+    if (!proj_version_.isCompatible()) {
       qt::qWarnBox(
         this,
         "The current Tobas version (" + cmn::Version::Current().toString() +
-          ") is incompatible with the version used to create this project (" + version.toString() +
+          ") is incompatible with the version used to create this project (" + proj_version_.toString() +
           "). Please update the project using the Setup Assistant.");
       return;
     }
@@ -326,7 +324,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = proj_paths_.cfgPkgName();
 
   // 進捗バーを作成
-  qt::ProgressDialog progress("Write Tobas Project", 9, this);
+  qt::ProgressDialog progress("Write Tobas Project", 10, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -335,6 +333,30 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // FCのバージョンを確認
+  progress.setLabelText("Checking the Tobas version.");
+  std::string fc_ver_text;
+  if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SSHClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to retrieve the firmware version: " + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  cmn::Version fc_version;
+  if (!fc_version.fromString(QString::fromStdString(fc_ver_text))) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to parse the firmware version: " + QString::fromStdString(fc_ver_text));
+    return;
+  }
+  if (!fc_version.isCompatible(proj_version_)) {
+    progress.close();
+    qt::qWarnBox(
+      this,
+      "The firmware version (" + fc_version.toString() +
+        ") is incompatible with the version used to create this project (" + proj_version_.toString() + ").");
     return;
   }
   progress.progressStep();
@@ -363,7 +385,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // パッケージが代わる場合は競合を避けるためにクリーンビルド
+  // パッケージが変わる場合は競合を避けるためにクリーンビルド
   if (config_pkg_name != config_env_parser_.config_pkg) {
     // ワークスペースを初期化
     progress.setLabelText("Initializing colcon workspace.");

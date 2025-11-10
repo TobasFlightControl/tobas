@@ -31,20 +31,58 @@ void Version::setToCurrent()
   patch = tobas::version::kPatch;
 }
 
-bool Version::isCompatible() const
+bool Version::isValid() const
 {
-  if (major < 0 || minor < 0 || patch < 0) {
-    qWarning() << "Version not initialized.";
+  return major >= 0 && minor >= 0 && patch >= 0;
+}
+
+bool Version::isCompatible(const Version& other) const
+{
+  if (!isValid() || !other.isValid()) {
+    qWarning() << "Invalid versions cannot be compared.";
     return false;
   }
 
-  return major == tobas::version::kMajor && minor == tobas::version::kMinor;
+  return major == other.major && minor == other.minor;
+}
+
+bool Version::isCompatible() const
+{
+  return isCompatible(Version::Current());
 }
 
 QString Version::toString() const
 {
   QString res = "v%1.%2.%3";
   return res.arg(major).arg(minor).arg(patch);
+}
+
+bool Version::fromString(QString str)
+{
+  // 接頭詞を削除
+  if (str.startsWith('v', Qt::CaseInsensitive)) {
+    str.remove(0, 1);
+  }
+
+  // 3つに分割
+  const auto parts = str.split('.');
+  if (parts.size() != 3) {
+    qWarning() << "Invalid version format: " << str << ". Expected major.minor.patch (e.g., 1.2.3).";
+    return false;
+  }
+
+  // 数字に変換
+  bool ok1 = false, ok2 = false, ok3 = false;
+  major = parts[0].toInt(&ok1);
+  minor = parts[1].toInt(&ok2);
+  patch = parts[2].toInt(&ok3);
+  if (!ok1 || !ok2 || !ok3) {
+    qWarning() << "Invalid version number: " << str
+               << ". Each component must be an integer in the form major.minor.patch (e.g., 1.2.3).";
+    return false;
+  }
+
+  return true;
 }
 
 bool Version::load(const fs::path& path)
