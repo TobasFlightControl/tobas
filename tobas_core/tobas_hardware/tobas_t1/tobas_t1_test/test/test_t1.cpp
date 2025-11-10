@@ -54,11 +54,11 @@ bool testImu()
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
 
     if (math::norm(ax, ay, az - tbs::kGravity) > 1.) {
-      cerr << "Anormal accel detected." << endl;
+      cerr << "Abnormal accel detected." << endl;
       return false;
     }
     if (math::norm(gx, gy, gz) > 0.3) {
-      cerr << "Anormal gyro detected." << endl;
+      cerr << "Abnormal gyro detected." << endl;
       return false;
     }
 
@@ -89,7 +89,7 @@ bool testMagnetometer()
     cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;
 
     if (math::norm(mx, my, mz) > 1.5) {  // 標準の地磁気の大きさ (0.5くらい) の3倍まで許容
-      cerr << "Anormal magnetic field detected." << endl;
+      cerr << "Abnormal magnetic field detected." << endl;
       return false;
     }
 
@@ -108,11 +108,11 @@ bool testBarometer()
     return false;
   }
 
-  double pres, temp;
+  double press, temp;
   tim::Rate rate(SAMPLING_PERIOD);
 
   for (int i = 0; i < SAMPLING_COUNT; ++i) {
-    if (!baro.readPressure(pres)) {
+    if (!baro.readPressure(press)) {
       cerr << "Failed to read pressure." << endl;
       return false;
     }
@@ -121,17 +121,17 @@ bool testBarometer()
       return false;
     }
 
-    const auto pres_hpa = pres / 100.;
+    const auto pres_hpa = press / 100.;
 
     cout << "Pressure [hPa]     : " << pres_hpa << endl;
     cout << "Temperature [degC]: " << temp << endl;
 
     if (pres_hpa < 900. || 1100. < pres_hpa) {
-      cerr << "Anormal air pressure detected." << endl;
+      cerr << "Abnormal air pressure detected." << endl;
       return false;
     }
     if (temp < 0. || 80. < temp) {
-      cerr << "Anormal temperature detected." << endl;
+      cerr << "Abnormal temperature detected." << endl;
       return false;
     }
 
@@ -163,11 +163,11 @@ bool testPowerSensor()
     cout << "Current [A]: " << curr << endl;
 
     if (volt < 5. || 50. < volt) {
-      cerr << "Anormal voltage detected." << endl;
+      cerr << "Abnormal voltage detected." << endl;
       return false;
     }
     if (curr <= 0. || 10. < curr) {
-      cerr << "Anormal current detected." << endl;
+      cerr << "Abnormal current detected." << endl;
       return false;
     }
 
