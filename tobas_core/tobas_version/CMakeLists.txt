@@ -30,6 +30,13 @@ foreach(file_path IN LISTS EXEC_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
   target_link_libraries(${NAME} ${PROJECT_NAME})
+
+  #[[
+  # 手動でインストールした /usr/local/lib64 への依存を回避するため，標準ライブラリを静的リンクする．
+  # これで LD_LIBRARY_PATH にパスを追加しなくても，例えばSSHで外部からでもバイナリを呼び出せる．
+  #]]
+  target_link_options(${NAME} PRIVATE -static-libstdc++ -static-libgcc)
+
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 
