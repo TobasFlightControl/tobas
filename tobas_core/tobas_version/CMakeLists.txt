@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(tobas_gui_common)
+project(tobas_version)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -11,18 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES
-    Qt5Core
-    Qt5Widgets
-    tobas_std_tools
-    tobas_yaml_tools
-    tobas_linux
-    tobas_constants
-    tobas_version
-    tobas_ssh_client
-    tobas_colcon_cpp
-    tobas_qt_tools
-)
+set(AMENT_DEPENDENCIES)
 
 find_package(ament_cmake REQUIRED)
 
@@ -30,14 +19,10 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-add_definitions(-DQT_NO_KEYWORDS)
-set(CMAKE_AUTOMOC ON)
-
 include_directories(include)
 
-file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+add_library(${PROJECT_NAME} INTERFACE)
+ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")
@@ -45,6 +30,13 @@ foreach(file_path IN LISTS EXEC_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
   target_link_libraries(${NAME} ${PROJECT_NAME})
+
+  #[[
+  # 手動でインストールした /usr/local/lib64 への依存を回避するため，標準ライブラリを静的リンクする．
+  # これで LD_LIBRARY_PATH にパスを追加しなくても，例えばSSHで外部からでもバイナリを呼び出せる．
+  #]]
+  target_link_options(${NAME} PRIVATE -static-libstdc++ -static-libgcc)
+
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 

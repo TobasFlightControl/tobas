@@ -26,12 +26,19 @@ public:
 
   void setToCurrent();
 
+  bool isValid() const;
+
+  bool isCompatible(const Version& other) const;
   bool isCompatible() const;
 
   QString toString() const;
+  bool fromString(QString str);
 
   bool load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;
+
+  /* メンバ変数の宣言順に辞書順比較する比較演算子を自動で定義 (>= C++20) */
+  auto operator<=>(const Version&) const = default;
 };
 }  // namespace cmn
 }  // namespace gui

@@ -12,6 +12,7 @@
 	<depend>tobas_yaml_tools</depend>
 	<depend>tobas_linux</depend>
 	<depend>tobas_constants</depend>
+	<depend>tobas_version</depend>
 	<depend>tobas_ssh_client</depend>
 	<depend>tobas_colcon_cpp</depend>
 	<depend>tobas_qt_tools</depend>
