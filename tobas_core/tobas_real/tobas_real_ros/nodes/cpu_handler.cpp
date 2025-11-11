@@ -12,7 +12,7 @@ using namespace std::chrono_literals;
 
 class CpuHandlerNode : public tobas::BaseNode
 {
-  static constexpr auto kSamplingPeriod = 1s;
+  static constexpr auto kSamplingPeriod = 100ms;
   static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
   static constexpr char kStatisticsFilePath[] = "/proc/stat";
 
