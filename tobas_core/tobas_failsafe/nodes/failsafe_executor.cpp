@@ -335,7 +335,13 @@ void FailsafeExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSha
 
 void FailsafeExecutorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  gnss_ = gnss;
+  // 3次元Fixの場合のみ位置情報を更新
+  if (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+    gnss_ = gnss;
+  }
+  else {
+    gnss_.reset();
+  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(FailsafeExecutorNode)
