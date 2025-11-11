@@ -32,6 +32,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       mag_data_,
       gnss_data_,
       battery_data_,
+      cpu_data_,
       cur_rotor_states_data_,
       tar_rotor_speeds_data_,
       cur_joint_states_data_,
@@ -72,6 +73,7 @@ void FlightLogViewerWidget::reset()
   mag_decoder_.clearCache();
   gnss_decoder_.clearCache();
   battery_decoder_.clearCache();
+  cpu_decoder_.clearCache();
   rotor_states_decoder_.clearCache();
   rotor_speeds_decoder_.clearCache();
   joint_states_decoder_.clearCache();
@@ -143,6 +145,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   mag_data_.clear();
   gnss_data_.clear();
   battery_data_.clear();
+  cpu_data_.clear();
   cur_rotor_states_data_.clear();
   tar_rotor_speeds_data_.clear();
   cur_joint_states_data_.clear();
@@ -191,6 +194,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
         battery_data_.push_back(battery_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
+        cpu_data_.push_back(cpu_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
         cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_msg));

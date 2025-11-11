@@ -13,6 +13,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::MagneticField>& mag_data,
   const QVector<tobas_msgs::msg::Gnss>& gnss_data,
   const QVector<tobas_msgs::msg::Battery>& battery_data,
+  const QVector<tobas_msgs::msg::Cpu>& cpu_data,
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
   const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data,
@@ -32,6 +33,7 @@ PlotTabWidget::PlotTabWidget(
   , mag_data_(mag_data)
   , gnss_data_(gnss_data)
   , battery_data_(battery_data)
+  , cpu_data_(cpu_data)
   , cur_rotor_states_data_(cur_rotor_states_data)
   , tar_rotor_speeds_data_(tar_rotor_speeds_data)
   , cur_joint_states_data_(cur_joint_states_data)
@@ -55,6 +57,7 @@ PlotTabWidget::PlotTabWidget(
   gnss_plot_ = new GnssPlotWidget();
   battery_plot_ = new BatteryPlotWidget();
   engine_plot_ = new EnginePlotWidget();
+  cpu_plot_ = new CpuPlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
   rotor_link_plot_ = new RotorLinkPlotWidget();
   propeller_pitch_plot_ = new PropellerPitchPlotWidget();
@@ -76,6 +79,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(gnss_plot_, "GNSS");
   addTab(battery_plot_, "Battery");
   addTab(engine_plot_, "Engine");
+  addTab(cpu_plot_, "CPU");
   addTab(rotor_speed_plot_, "Rotor Speed");
   addTab(rotor_link_plot_, "Rotor Link");
   addTab(propeller_pitch_plot_, "VPP Pitch");
@@ -144,6 +148,9 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == engine_plot_) {
     engine_plot_->setData(ice_cmd_data_);
+  }
+  else if (cur_widget == cpu_plot_) {
+    cpu_plot_->setData(cpu_data_);
   }
   else if (cur_widget == rotor_speed_plot_) {
     rotor_speed_plot_->setData(cur_rotor_states_data_, tar_rotor_speeds_data_);

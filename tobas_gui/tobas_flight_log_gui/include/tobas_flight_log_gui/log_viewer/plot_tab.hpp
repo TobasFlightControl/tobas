@@ -4,6 +4,7 @@
 
 #include "./plots/accel_plot.hpp"
 #include "./plots/battery_plot.hpp"
+#include "./plots/cpu_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
 #include "./plots/engine_plot.hpp"
 #include "./plots/gnss_plot.hpp"
@@ -45,6 +46,7 @@ public:
     const QVector<tobas_msgs::msg::MagneticField>& mag_data,
     const QVector<tobas_msgs::msg::Gnss>& gnss_data,
     const QVector<tobas_msgs::msg::Battery>& battery_data,
+    const QVector<tobas_msgs::msg::Cpu>& cpu_data,
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
     const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
     const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data,
@@ -70,6 +72,7 @@ private:
   const QVector<tobas_msgs::msg::MagneticField>& mag_data_;
   const QVector<tobas_msgs::msg::Gnss>& gnss_data_;
   const QVector<tobas_msgs::msg::Battery>& battery_data_;
+  const QVector<tobas_msgs::msg::Cpu>& cpu_data_;
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data_;
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data_;
   const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data_;
@@ -93,6 +96,7 @@ private:
   GnssPlotWidget* gnss_plot_;
   BatteryPlotWidget* battery_plot_;
   EnginePlotWidget* engine_plot_;
+  CpuPlotWidget* cpu_plot_;
   RotorSpeedPlotWidget* rotor_speed_plot_;
   RotorLinkPlotWidget* rotor_link_plot_;
   PropellerPitchPlotWidget* propeller_pitch_plot_;
