@@ -99,7 +99,6 @@
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Null Island</uri>
       <pose>9.8 8.35 -0.7 0 0 0</pose>
     </include>
-
     <include>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Coast Water</uri>
       <pose>9.8 8.35 -0.7 0 0 0</pose>
