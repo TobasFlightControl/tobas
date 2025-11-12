@@ -246,33 +246,12 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
         break;
       }
 
-      // 状態が回復してたら復帰
-      if (!radio_link_lost) {
-        TOBAS_INFO("Radio link is recovered.");
-        move_ac_->async_cancel_all_goals();
-        state_ = kNoFailSafe;
-        break;
-      }
-
       break;
     }
     case kLand: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
       if (rcin_ && rcin_->enable) {
         TOBAS_WARN("Canceling the land action because the manual mode is enabled.");
-        land_ac_->async_cancel_all_goals();
-        state_ = kNoFailSafe;
-        break;
-      }
-
-      // フェイルセーフを継続
-      if (batt_voltage_too_low) {
-        break;
-      }
-
-      // 状態が回復してたら復帰
-      if (!radio_link_lost) {
-        TOBAS_INFO("Radio link is recovered.");
         land_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
