@@ -11,28 +11,31 @@ namespace qt
 {
 IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
 {
-  DefaultFont font(TEXT_PSIZE, QFont::Bold);
-
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
-  const auto cols = new QHBoxLayout();
-  rows->addLayout(cols);
+  const DefaultFont font(TEXT_PSIZE, QFont::Bold);
 
   text_ = new QLabel();
   text_->setFont(font);
-  cols->addWidget(text_);
 
   value_ = new QLineEdit();
   value_->setAlignment(Qt::AlignRight);
   value_->setFont(font);
   value_->setReadOnly(true);
   value_->setFocusPolicy(Qt::NoFocus);
-  cols->addWidget(value_);
 
   slider_ = new Slider(Qt::Horizontal);
+
+  // Layout
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(text_);
+  cols->addWidget(value_);
+
+  const auto rows = new QVBoxLayout();
+  rows->addLayout(cols);
   rows->addWidget(slider_);
 
+  setLayout(rows);
+
+  // Connection
   connect(slider_, &Slider::valueChanged, this, &self::onSliderValueChanged);
 }
 
@@ -113,28 +116,31 @@ void IntSliderDisplay::onSliderValueChanged(int value)
 
 DoubleSliderDisplay::DoubleSliderDisplay(QWidget* parent) : super(parent)
 {
-  DefaultFont font(TEXT_PSIZE, QFont::Bold);
-
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
-  const auto cols = new QHBoxLayout();
-  rows->addLayout(cols);
+  const DefaultFont font(TEXT_PSIZE, QFont::Bold);
 
   text_ = new QLabel();
   text_->setFont(font);
-  cols->addWidget(text_);
 
   value_ = new QLineEdit();
   value_->setAlignment(Qt::AlignRight);
   value_->setFont(font);
   value_->setReadOnly(true);
   value_->setFocusPolicy(Qt::NoFocus);
-  cols->addWidget(value_);
 
   slider_ = new DoubleSlider(Qt::Horizontal);
+
+  // Layout
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(text_);
+  cols->addWidget(value_);
+
+  const auto rows = new QVBoxLayout();
+  rows->addLayout(cols);
   rows->addWidget(slider_);
 
+  setLayout(rows);
+
+  // Connection
   connect(slider_, &DoubleSlider::valueChanged, this, &self::onSliderValueChanged);
 }
 
