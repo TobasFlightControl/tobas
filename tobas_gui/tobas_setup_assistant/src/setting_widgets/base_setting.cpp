@@ -50,9 +50,9 @@ void BaseSettingWidget::addLayout(QLayout* layout, int stretch)
   content_rows_->addLayout(layout, stretch);
 }
 
-void BaseSettingWidget::addStretch()
+void BaseSettingWidget::addStretch(int stretch)
 {
-  content_rows_->addStretch();
+  content_rows_->addStretch(stretch);
 }
 
 void BaseSettingWidget::addSpacing(int size)

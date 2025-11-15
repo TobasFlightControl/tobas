@@ -43,7 +43,7 @@ protected:
   void addWidget(QWidget* widget, int stretch = 0);
   void addWidgetCenter(QWidget* widget, int stretch = 0);
   void addLayout(QLayout* layout, int stretch = 0);
-  void addStretch();
+  void addStretch(int stretch = 0);
   void addSpacing(int size);
 
 private:
