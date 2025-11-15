@@ -35,19 +35,19 @@ BaseSettingWidget::BaseSettingWidget()
   QTimer::singleShot(0, this, &self::initialize);
 }
 
-void BaseSettingWidget::addWidget(QWidget* widget)
+void BaseSettingWidget::addWidget(QWidget* widget, int stretch)
 {
-  content_rows_->addWidget(widget);
+  content_rows_->addWidget(widget, stretch);
 }
 
-void BaseSettingWidget::addWidgetCenter(QWidget* widget)
+void BaseSettingWidget::addWidgetCenter(QWidget* widget, int stretch)
 {
-  qt::addWidgetCenter(widget, content_rows_);
+  qt::addWidgetCenter(widget, content_rows_, stretch);
 }
 
-void BaseSettingWidget::addLayout(QLayout* layout)
+void BaseSettingWidget::addLayout(QLayout* layout, int stretch)
 {
-  content_rows_->addLayout(layout);
+  content_rows_->addLayout(layout, stretch);
 }
 
 void BaseSettingWidget::addStretch()

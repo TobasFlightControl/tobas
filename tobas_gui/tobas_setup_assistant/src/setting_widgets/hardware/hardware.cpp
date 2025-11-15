@@ -47,9 +47,9 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   rcout_cols->addLayout(dshot_rows, 1);
 
   addWidget(type_);
-  addWidget(hardwares_);
-  addLayout(rcout_cols);
-  addStretch();
+  addSpacing(50);
+  addWidget(hardwares_, 0);
+  addLayout(rcout_cols, 1);
 
   // Connection
   connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
