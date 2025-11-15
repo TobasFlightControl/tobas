@@ -202,7 +202,12 @@ tobas::Drone ProjectGenerator::createDrone()
           tilt_joint.name = par_jnt.name;
           tilt_joint.role = tobas::JointRole::kTiltJoint;
           tilt_joint.cmd_iface = tobas::JointCommandInterface::kPosition;
-          tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+          if (settings_->hardware->pwm()->contains(QString::fromStdString(par_jnt.name))) {
+            tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;
+          }
+          else {
+            tilt_joint.hw_iface = tobas::HardwareInterface::kOther;
+          }
           tilt_joint.home_pos = 0.;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
@@ -231,7 +236,12 @@ tobas::Drone ProjectGenerator::createDrone()
       // Engine
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
-      iprop->engine.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+      if (settings_->hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
+        iprop->engine.hw_iface = tobas::HardwareInterface::kPwm;
+      }
+      else {
+        iprop->engine.hw_iface = tobas::HardwareInterface::kOther;
+      }
 
       if (iprop->engine.hw_iface == tobas::HardwareInterface::kPwm) {
         tobas::PwmConfig engine_pwm;
@@ -266,7 +276,12 @@ tobas::Drone ProjectGenerator::createDrone()
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
-        rotor->hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+        if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
+          rotor->hw_iface = tobas::HardwareInterface::kPwm;
+        }
+        else {
+          rotor->hw_iface = tobas::HardwareInterface::kOther;
+        }
         TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
 
         // Variable Pitch Interface
@@ -366,7 +381,12 @@ tobas::Drone ProjectGenerator::createDrone()
       joint.name = cur_jnt.name;
       joint.role = tobas::JointRole::kControlSurface;
       joint.cmd_iface = tobas::JointCommandInterface::kPosition;
-      joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+      if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
+        joint.hw_iface = tobas::HardwareInterface::kPwm;
+      }
+      else {
+        joint.hw_iface = tobas::HardwareInterface::kOther;
+      }
       joint.home_pos = 0.;
       TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
     }

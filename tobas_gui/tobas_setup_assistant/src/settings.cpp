@@ -117,47 +117,10 @@ bool SettingsWidget::isValid()
       break;
     }
     case tobas::PropulsionSystem::kIce: {
-      // 可変ピッチプロペラのPWMチャンネルが設定されていることを確認
-      for (const auto& elem : uadf_.thrusts) {
-        const auto joint_name = QString::fromStdString(elem.first);
-        if (!hardware->pwm()->contains(joint_name)) {
-          qt::qWarnBox(this, "Please specify a PWM channel for variable pitch \"" + joint_name + "\".");
-          setCurrentPage(hardware);
-          return false;
-        }
-      }
-
-      // エンジンスロットルのPWMチャンネルが設定されていることを確認
-      if (!hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
-        qt::qWarnBox(this, "Please specify a PWM channel for engine throttle.");
-        setCurrentPage(hardware);
-        return false;
-      }
-
       break;
     }
     default: {
       throw;
-    }
-  }
-
-  // 固定翼の操舵面のPWMチャンネルが設定されていることを確認
-  for (const auto& elem : uadf_.control_surfaces) {
-    const auto joint_name = QString::fromStdString(elem.first);
-    if (!hardware->pwm()->contains(joint_name)) {
-      qt::qWarnBox(this, "Please specify a PWM channel for control surface \"" + joint_name + "\".");
-      setCurrentPage(hardware);
-      return false;
-    }
-  }
-
-  // チルトジョイントのPWMチャンネルが設定されていることを確認
-  for (const auto& elem : uadf_.tilts) {
-    const auto joint_name = QString::fromStdString(elem.first);
-    if (!hardware->pwm()->contains(joint_name)) {
-      qt::qWarnBox(this, "Please specify a PWM channel for active tilt joint \"" + joint_name + "\".");
-      setCurrentPage(hardware);
-      return false;
     }
   }
 
