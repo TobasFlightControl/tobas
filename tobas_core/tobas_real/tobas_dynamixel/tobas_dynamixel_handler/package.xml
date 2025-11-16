@@ -13,6 +13,7 @@
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_dynamixel_msgs</depend>
+	<depend>tobas_dynamixel_ros_interface</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

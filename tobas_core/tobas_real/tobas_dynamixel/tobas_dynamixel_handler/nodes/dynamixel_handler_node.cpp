@@ -3,6 +3,7 @@
 #include <dynamixel_sdk/dynamixel_sdk.h>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_dynamixel_ros_interface/ros_interface.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/range.hpp>
@@ -12,12 +13,12 @@
 #include <tobas_dynamixel_msgs/msg/motor_state_array.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-#include "tobas_dynamixel_handler/constants.hpp"
+#include "./constants.hpp"
 
 using namespace std::chrono_literals;
-using namespace dynamixel;
-using namespace tobas_dynamixel_handler;
 
+namespace tobas_dynamixel
+{
 struct DynamixelConfig
 {
   uint8_t id;
@@ -88,11 +89,11 @@ private:
   // Timer
   ros2::TimerPtr main_timer_;
 
-  void getStaticRosParams();
+  bool getStaticRosParams();
   void registerPublishers();
   void registerSubscribers();
   bool setMinimumLatency();
-  void getMotorConfigs();
+  bool getMotorConfigs();
   void publishCurrentStates(const rclcpp::Time& cur_time);
   bool enableTorques();
   bool disableTorques();
@@ -102,7 +103,7 @@ private:
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
 
-  void enableTorquesServiceCb(
+  void enableTorquesCb(
     const std_srvs::srv::SetBool::Request::ConstSharedPtr& req,
     const std_srvs::srv::SetBool::Response::SharedPtr& res);
   void mainTimerCb();
@@ -111,69 +112,81 @@ private:
 DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) : super("dynamixel_handler", options)
 {
   // Get ROS parameters
-  getStaticRosParams();
+  if (!getStaticRosParams()) {
+    return;
+  }
 
   // Initialize Dynamixel SDK
-  poh_ = PortHandler::getPortHandler(device_name_.c_str());
-  pah_ = PacketHandler::getPacketHandler(protocol_version_);
-  pos_sync_read_ = std::make_unique<GroupSyncRead>(poh_, pah_, kAddrPresentPosition, 4);
-  vel_sync_read_ = std::make_unique<GroupSyncRead>(poh_, pah_, kAddrPresentVelocity, 4);
-  current_sync_read_ = std::make_unique<GroupSyncRead>(poh_, pah_, kAddrPresentCurrent, 2);
-  pwm_sync_read_ = std::make_unique<GroupSyncRead>(poh_, pah_, kAddrPresentPwm, 2);
-  voltage_sync_read_ = std::make_unique<GroupSyncRead>(poh_, pah_, kAddrPresentInputVoltage, 2);
-  temp_sync_read_ = std::make_unique<GroupSyncRead>(poh_, pah_, kAddrPresentTemperature, 1);
-  hes_sync_read_ = std::make_unique<GroupSyncRead>(poh_, pah_, kAddrHardwareErrorStatus, 1);
-  pos_sync_write_ = std::make_unique<GroupSyncWrite>(poh_, pah_, kAddrGoalPosition, 4);
-  vel_sync_write_ = std::make_unique<GroupSyncWrite>(poh_, pah_, kAddrGoalVelocity, 4);
+  poh_ = dynamixel::PortHandler::getPortHandler(device_name_.c_str());
+  pah_ = dynamixel::PacketHandler::getPacketHandler(protocol_version_);
+  pos_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentPosition, 4);
+  vel_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentVelocity, 4);
+  current_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentCurrent, 2);
+  pwm_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentPwm, 2);
+  voltage_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentInputVoltage, 2);
+  temp_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentTemperature, 1);
+  hes_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kHardwareErrorStatus, 1);
+  pos_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalPosition, 4);
+  vel_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalVelocity, 4);
 
   // Open serial port
   if (!poh_->openPort()) {
-    TOBAS_EXIT("Failed to open port '", device_name_, "'");
+    TOBAS_ERROR("Failed to open port \"", device_name_, "\"");
+    return;
   }
 
   // Set baudrate
   if (!poh_->setBaudRate(baudrate_)) {
-    TOBAS_EXIT("Failed to set baudrate to ", baudrate_);
+    TOBAS_ERROR("Failed to set baudrate to ", baudrate_);
+    return;
   }
 
   // Get motor configurations
-  getMotorConfigs();
+  if (!getMotorConfigs()) {
+    return;
+  }
 
   for (const auto& [name, cfg] : motors_) {
-    // Add parameters to GroupSyncRead objects
+    // Add parameters to dynamixel::GroupSyncRead objects
     if (
       !pos_sync_read_->addParam(cfg.id) || !vel_sync_read_->addParam(cfg.id) || !current_sync_read_->addParam(cfg.id) ||
       !pwm_sync_read_->addParam(cfg.id) || !voltage_sync_read_->addParam(cfg.id) ||
       !temp_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id)) {
-      TOBAS_EXIT("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
+      TOBAS_ERROR("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
+      return;
     }
 
     // Disable torque
-    if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0) {
-      TOBAS_EXIT("Failed to disable torque of '", name, "'.");
+    if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kDisable) < 0) {
+      TOBAS_ERROR("Failed to disable torque of \"", name, "\".");
+      return;
     }
 
     // Set return delay time
-    if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrReturnDelayTime, return_delay_time_) < 0) {
-      TOBAS_EXIT("Failed to set return delay time of '", name, "'.");
+    if (pah_->write1ByteTxRx(poh_, cfg.id, address::kReturnDelayTime, return_delay_time_) < 0) {
+      TOBAS_ERROR("Failed to set return delay time of \"", name, "\".");
+      return;
     }
 
     // Set operating mode
-    if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrOperatingMode, cfg.operating_mode) < 0) {
-      TOBAS_EXIT("Failed to set operating mode of '", name, "'.");
+    if (pah_->write1ByteTxRx(poh_, cfg.id, address::kOperatingMode, cfg.operating_mode) < 0) {
+      TOBAS_ERROR("Failed to set operating mode of \"", name, "\".");
+      return;
     }
 
     // Enable torque
-    if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0) {
-      TOBAS_EXIT("Failed to enable torque of '", name, "'.");
+    if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kEnable) < 0) {
+      TOBAS_ERROR("Failed to enable torque of \"", name, "\".");
+      return;
     }
 
-    TOBAS_INFO("'", name, "' is initialized.");
+    TOBAS_INFO("\"", name, "\" is initialized.");
   }
 
   // Reduce latency
   if (!setMinimumLatency()) {
-    TOBAS_EXIT("Failed to set communication latency.");
+    TOBAS_ERROR("Failed to set communication latency.");
+    return;
   }
 
   // Register publishers and subscribers
@@ -181,7 +194,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
   registerSubscribers();
 
   // Register service servers
-  enable_torques_ss_ = createService<std_srvs::srv::SetBool>(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
+  enable_torques_ss_ = createService<std_srvs::srv::SetBool>(service::kEnableTorques, &self::enableTorquesCb, this);
 
   // Start main timer with maximum rate
   main_timer_ = createWallTimer(0s, &self::mainTimerCb, this);
@@ -196,31 +209,38 @@ DynamixelHandlerNode::~DynamixelHandlerNode()
   poh_->closePort();
 }
 
-void DynamixelHandlerNode::getStaticRosParams()
+bool DynamixelHandlerNode::getStaticRosParams()
 {
-  jnt_names_ = getStringArrayParam("joint_names");
-  device_name_ = getStringParam("device_name", kDefaultDeviceName);
-  protocol_version_ = getDoubleParam("protocol_version", kDefaultProtocolVersion);
-  baudrate_ = getIntParam("baudrate", kDefaultBaudRate);
-  return_delay_time_ = getIntParam("return_delay_time", kDefaultReturnDelayTime);
-  read_pwm_ = getBoolParam("read_pwm", kDefaultReadPwm);
-  read_current_ = getBoolParam("read_current", kDefaultReadCurrent);
-  read_velocity_ = getBoolParam("read_velocity", kDefaultReadVelocity);
-  read_position_ = getBoolParam("read_position", kDefaultReadPosition);
-  read_voltage_ = getBoolParam("read_voltage", kDefaultReadVoltage);
-  read_temperature_ = getBoolParam("read_temperature", kDefaultReadTemperature);
+  jnt_names_ = getStringArrayParam("joint_names", {});
+  if (jnt_names_.size() == 0) {
+    TOBAS_ERROR("Joint names are not specified.");
+    return false;
+  }
+
+  device_name_ = getStringParam("device_name", "/dev/ttyUSB0");
+  protocol_version_ = getDoubleParam("protocol_version", 2.0);
+  baudrate_ = getIntParam("baudrate", 57600);
+  return_delay_time_ = getIntParam("return_delay_time", 0);
+  read_pwm_ = getBoolParam("read_pwm", false);
+  read_current_ = getBoolParam("read_current", false);
+  read_velocity_ = getBoolParam("read_velocity", true);
+  read_position_ = getBoolParam("read_position", true);
+  read_voltage_ = getBoolParam("read_voltage", false);
+  read_temperature_ = getBoolParam("read_temperature", false);
+
+  return true;
 }
 
 void DynamixelHandlerNode::registerPublishers()
 {
-  motor_states_pub_ = createPublisher<tobas_dynamixel_msgs::msg::MotorStateArray>(kMotorStatesTopic);
+  motor_states_pub_ = createPublisher<tobas_dynamixel_msgs::msg::MotorStateArray>(topic::kMotorStates);
 }
 
 void DynamixelHandlerNode::registerSubscribers()
 {
-  positions_sub_ = createSubscriber(kJointPosCmdTopic, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
+  positions_sub_ = createSubscriber(topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
 }
 
 bool DynamixelHandlerNode::setMinimumLatency()
@@ -234,14 +254,14 @@ bool DynamixelHandlerNode::setMinimumLatency()
     return false;
   }
 
-  file << kMinimumLatency;  // uint8だと反映されなかった
+  file << 1;  // uint8だと反映されなかった
   file.close();
 
   TOBAS_INFO("Communication latency is updated successfully.");
   return true;
 }
 
-void DynamixelHandlerNode::getMotorConfigs()
+bool DynamixelHandlerNode::getMotorConfigs()
 {
   DynamixelConfig cfg;
   std::string operating_mode;
@@ -259,140 +279,197 @@ void DynamixelHandlerNode::getMotorConfigs()
 
   for (const auto& name : jnt_names_) {
     // ID
-    cfg.id = getIntParam(name + "/id", kDefaultId);
-    if (used_ids.contains(cfg.id)) {
-      TOBAS_EXIT("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
+    const auto id = getIntParam(name + "/id", -1);
+    if (id < 0) {
+      TOBAS_ERROR("Please specify ID for \"", name, "\".");
+      return false;
     }
-    used_ids.insert(cfg.id);
+    if (id > UINT8_MAX) {
+      TOBAS_ERROR("Motor ID must be in range of (0, ", UINT8_MAX, ").");
+      return false;
+    }
+    if (used_ids.contains(id)) {
+      TOBAS_ERROR("Motor ID ", id, " is duplicated.");
+      return false;
+    }
+    cfg.id = id;
+    used_ids.insert(id);
 
-    // Current scaling factor
-    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrModelNumber, &model_number) < 0) {
-      TOBAS_EXIT("Failed to get model number of '", name, "'.");
+    // Current scaling factor: https://www.besttechnology.co.jp/modules/knowledge/?X%20Series%20Control%20table#y2cc93fd
+    if (pah_->read2ByteTxRx(poh_, cfg.id, address::kModelNumber, &model_number) < 0) {
+      TOBAS_ERROR("Failed to get model number of \"", name, "\".");
+      return false;
     }
     switch (model_number) {
-      case kModelNumberXL430W250:
-        cfg.current_available = false;
-        break;
-      case kModelNumberXC430W250:
-        cfg.current_available = false;
-        break;
-      case kModelNumberXM430W350:
+      case model_number::kXC330M181:
+      case model_number::kXC330T181:
+      case model_number::kXC330T288:
         cfg.current_available = true;
-        cfg.current_scaling_factor = 2.69 / 1000;
+        cfg.current_scaling_factor = 1.;
+        break;
+      case model_number::kXL430W250:
+      case model_number::k2XL430W250:
+      case model_number::kXC430W150:
+      case model_number::kXC430W240:
+      case model_number::k2XC430W250:
+        cfg.current_available = false;
+        cfg.current_scaling_factor = 0.;
+        break;
+      case model_number::kXM430W210:
+      case model_number::kXH430W210:
+      case model_number::kXM430W350:
+      case model_number::kXH430W350:
+      case model_number::kXM540W150:
+      case model_number::kXH540W150:
+      case model_number::kXH540V150:
+      case model_number::kXM540W270:
+      case model_number::kXH540W270:
+      case model_number::kXH540V270:
+      case model_number::kXW540T140:
+      case model_number::kXW540T260:
+        break;
+        cfg.current_available = true;
+        cfg.current_scaling_factor = 2.69;
+        break;
+      case model_number::kXH430V210:
+      case model_number::kXH430V350:
+        cfg.current_available = true;
+        cfg.current_scaling_factor = 1.34;
         break;
       default:
-        TOBAS_EXIT("Setting for model number ", model_number, " is not implemented yet.");
+        TOBAS_WARN("Current scaling factor for model number ", model_number, " is unknown");
+        cfg.current_available = false;
+        cfg.current_scaling_factor = 0.;
     }
+    cfg.current_scaling_factor *= 1e-3;  // mA -> A
 
     // Operating mode
-    operating_mode = getStringParam(name + "/operating_mode", kDefaultOperatingMode);
+    operating_mode = getStringParam(name + "/operating_mode", "");
+    if (operating_mode.empty()) {
+      TOBAS_ERROR("Please specify the operating mode for \"", name, "\".");
+      return false;
+    }
     if (operating_mode == "current") {
       if (!cfg.current_available) {
-        TOBAS_EXIT("Current control mode is unavailable for '", name, "'.");
+        TOBAS_ERROR("Current control mode is unavailable for \"", name, "\".");
+        return false;
       }
-      cfg.operating_mode = kControlModePosition;
+      cfg.operating_mode = operating_mode::kPosition;
     }
     else if (operating_mode == "velocity") {
-      cfg.operating_mode = kControlModeVelocity;
+      cfg.operating_mode = operating_mode::kVelocity;
     }
     else if (operating_mode == "position") {
-      cfg.operating_mode = kControlModePosition;
+      cfg.operating_mode = operating_mode::kPosition;
     }
     else if (operating_mode == "extended_position") {
-      cfg.operating_mode = kControlModeExtendedPosition;
+      cfg.operating_mode = operating_mode::kExtendedPosition;
     }
     else if (operating_mode == "current_base_position") {
       if (!cfg.current_available) {
-        TOBAS_EXIT("Current-base position control mode is unavailable for '", name, "'.");
+        TOBAS_ERROR("Current-base position control mode is unavailable for \"", name, "\".");
+        return false;
       }
-      cfg.operating_mode = kControlModeCurrentBasePosition;
+      cfg.operating_mode = operating_mode::kCurrentBasePosition;
     }
     else if (operating_mode == "pwm") {
-      cfg.operating_mode = kControlModePwm;
+      cfg.operating_mode = operating_mode::kPwm;
     }
     else {
-      TOBAS_EXIT("Unknown operating mode for '", name, "'.");
+      TOBAS_ERROR("Unknown operating mode for \"", name, "\".");
+      return false;
     }
 
     // Limits
-    if (pah_->read1ByteTxRx(poh_, cfg.id, kAddrTemperatureLimit, &temp_limit) == 0) {
-      cfg.temp_limit = static_cast<double>(temp_limit) * kDecodeFactorTemp;
+    if (pah_->read1ByteTxRx(poh_, cfg.id, address::kTemperatureLimit, &temp_limit) == 0) {
+      cfg.temp_limit = static_cast<double>(temp_limit) * scale_factor::kTemperature;
     }
     else {
-      TOBAS_EXIT("Failed to get temperature limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get temperature limit of \"", name, "\".");
+      return false;
     }
 
-    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMaxVoltageLimit, &max_voltage_limit) == 0) {
-      cfg.voltage_limit.upper = static_cast<double>(max_voltage_limit) * kDecodeFactorVoltage;
+    if (pah_->read2ByteTxRx(poh_, cfg.id, address::kMaxVoltageLimit, &max_voltage_limit) == 0) {
+      cfg.voltage_limit.upper = static_cast<double>(max_voltage_limit) * scale_factor::kVoltage;
     }
     else {
-      TOBAS_EXIT("Failed to get maximum voltage limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get maximum voltage limit of \"", name, "\".");
+      return false;
     }
 
-    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrMinVoltageLimit, &min_voltage_limit) == 0) {
-      cfg.voltage_limit.lower = static_cast<double>(min_voltage_limit) * kDecodeFactorVoltage;
+    if (pah_->read2ByteTxRx(poh_, cfg.id, address::kMinVoltageLimit, &min_voltage_limit) == 0) {
+      cfg.voltage_limit.lower = static_cast<double>(min_voltage_limit) * scale_factor::kVoltage;
     }
     else {
-      TOBAS_EXIT("Failed to get minimum voltage limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get minimum voltage limit of \"", name, "\".");
+      return false;
     }
 
-    if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrPwmLimit, &pwm_limit) == 0) {
-      cfg.pwm_limit = static_cast<double>(pwm_limit) * kDecodeFactorPwm;
+    if (pah_->read2ByteTxRx(poh_, cfg.id, address::kPwmLimit, &pwm_limit) == 0) {
+      cfg.pwm_limit = static_cast<double>(pwm_limit) * scale_factor::kPwm;
     }
     else {
-      TOBAS_EXIT("Failed to get PWM limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get PWM limit of \"", name, "\".");
+      return false;
     }
 
     if (cfg.current_available) {
-      if (pah_->read2ByteTxRx(poh_, cfg.id, kAddrCurrentLimit, &current_limit) == 0) {
+      if (pah_->read2ByteTxRx(poh_, cfg.id, address::kCurrentLimit, &current_limit) == 0) {
         cfg.current_limit = static_cast<double>(current_limit) * cfg.current_scaling_factor;
       }
       else {
-        TOBAS_EXIT("Failed to get current limit of '", name, "'.");
+        TOBAS_ERROR("Failed to get current limit of \"", name, "\".");
+        return false;
       }
     }
     else {
       cfg.current_limit = NAN;
     }
 
-    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrAccelerationLimit, &acc_limit) == 0) {
-      cfg.acc_limit = static_cast<double>(acc_limit) * kDecodeFactorAcc;
+    if (pah_->read4ByteTxRx(poh_, cfg.id, address::kAccelerationLimit, &acc_limit) == 0) {
+      cfg.acc_limit = static_cast<double>(acc_limit) * scale_factor::kAcceleration;
     }
     else {
-      TOBAS_EXIT("Failed to get acceleration limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get acceleration limit of \"", name, "\".");
+      return false;
     }
 
-    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrVelocityLimit, &vel_limit) == 0) {
-      cfg.vel_limit = static_cast<double>(vel_limit) * kDecodeFactorVel;
+    if (pah_->read4ByteTxRx(poh_, cfg.id, address::kVelocityLimit, &vel_limit) == 0) {
+      cfg.vel_limit = static_cast<double>(vel_limit) * scale_factor::kVelocity;
     }
     else {
-      TOBAS_EXIT("Failed to get velocity limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get velocity limit of \"", name, "\".");
+      return false;
     }
 
-    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMaxPositionLimit, &max_pos_limit) == 0) {
+    if (pah_->read4ByteTxRx(poh_, cfg.id, address::kMaxPositionLimit, &max_pos_limit) == 0) {
       cfg.pos_limit.upper = math::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     }
     else {
-      TOBAS_EXIT("Failed to get maximum position limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get maximum position limit of \"", name, "\".");
+      return false;
     }
 
-    if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMinPositionLimit, &min_pos_limit) == 0) {
+    if (pah_->read4ByteTxRx(poh_, cfg.id, address::kMinPositionLimit, &min_pos_limit) == 0) {
       cfg.pos_limit.lower = math::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     }
     else {
-      TOBAS_EXIT("Failed to get minimum position limit of '", name, "'.");
+      TOBAS_ERROR("Failed to get minimum position limit of \"", name, "\".");
+      return false;
     }
 
     // Insert motor config
     motors_[name] = cfg;
   }
+
+  return true;
 }
 
 bool DynamixelHandlerNode::enableTorques()
 {
   for (const auto& [name, cfg] : motors_) {
-    if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueEnable) < 0) {
-      TOBAS_ERROR("Failed to enable torque of '", name, "'.");
+    if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kEnable) < 0) {
+      TOBAS_ERROR("Failed to enable torque of \"", name, "\".");
       return false;
     }
   }
@@ -404,8 +481,8 @@ bool DynamixelHandlerNode::enableTorques()
 bool DynamixelHandlerNode::disableTorques()
 {
   for (const auto& [name, cfg] : motors_) {
-    if (pah_->write1ByteTxRx(poh_, cfg.id, kAddrToruqeEnable, kTorqueDisable) < 0) {
-      TOBAS_ERROR("Failed to disable torque of '", name, "'.");
+    if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kDisable) < 0) {
+      TOBAS_ERROR("Failed to disable torque of \"", name, "\".");
       return false;
     }
   }
@@ -422,24 +499,24 @@ void DynamixelHandlerNode::printHardwareErrorStatus()
   }
 
   for (const auto& [name, cfg] : motors_) {
-    const uint8_t hes = hes_sync_read_->getData(cfg.id, kAddrHardwareErrorStatus, 1);
-    if (hes & kErrorInputVoltage) {
-      TOBAS_ERROR("Input voltage error in '", name, "'");
+    const uint8_t hes = hes_sync_read_->getData(cfg.id, address::kHardwareErrorStatus, 1);
+    if (hes & hardware_error::kInputVoltage) {
+      TOBAS_ERROR("Input voltage error in \"", name, "\"");
     }
-    if (hes & kErrorHallSensor) {
-      TOBAS_ERROR("Hall sensor error in '", name, "'");
+    if (hes & hardware_error::kHallSensor) {
+      TOBAS_ERROR("Hall sensor error in \"", name, "\"");
     }
-    if (hes & kErrorOverheating) {
-      TOBAS_ERROR("Overheating error in '", name, "'");
+    if (hes & hardware_error::kOverheating) {
+      TOBAS_ERROR("Overheating error in \"", name, "\"");
     }
-    if (hes & kErrorMotorEncoder) {
-      TOBAS_ERROR("Motor encoder error in '", name, "'");
+    if (hes & hardware_error::kMotorEncoder) {
+      TOBAS_ERROR("Motor encoder error in \"", name, "\"");
     }
-    if (hes & kErrorElectricalShock) {
-      TOBAS_ERROR("Electrical shock error in '", name, "'");
+    if (hes & hardware_error::kElectricalShock) {
+      TOBAS_ERROR("Electrical shock error in \"", name, "\"");
     }
-    if (hes & kErrorOverload) {
-      TOBAS_ERROR("Overload error in '", name, "'");
+    if (hes & hardware_error::kOverload) {
+      TOBAS_ERROR("Overload error in \"", name, "\"");
     }
   }
 }
@@ -493,7 +570,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     motor_state_.name = name;
 
     if (read_position_) {
-      const int32_t pos_raw = pos_sync_read_->getData(cfg.id, kAddrPresentPosition, 4);
+      const int32_t pos_raw = pos_sync_read_->getData(cfg.id, address::kPresentPosition, 4);
       motor_state_.position = math::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
     }
     else {
@@ -501,15 +578,15 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     }
 
     if (read_velocity_) {
-      const int32_t vel_raw = vel_sync_read_->getData(cfg.id, kAddrPresentVelocity, 4);
-      motor_state_.velocity = static_cast<double>(vel_raw) * kDecodeFactorVel;
+      const int32_t vel_raw = vel_sync_read_->getData(cfg.id, address::kPresentVelocity, 4);
+      motor_state_.velocity = static_cast<double>(vel_raw) * scale_factor::kVelocity;
     }
     else {
       motor_state_.velocity = NAN;
     }
 
     if (read_current_) {
-      const int16_t current_raw = current_sync_read_->getData(cfg.id, kAddrPresentCurrent, 2);
+      const int16_t current_raw = current_sync_read_->getData(cfg.id, address::kPresentCurrent, 2);
       if (cfg.current_available) {
         motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
         motor_state_.load = NAN;
@@ -525,24 +602,24 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     }
 
     if (read_pwm_) {
-      const int16_t pwm_raw = pwm_sync_read_->getData(cfg.id, kAddrPresentPwm, 2);
-      motor_state_.pwm = static_cast<double>(pwm_raw) * kDecodeFactorPwm;
+      const int16_t pwm_raw = pwm_sync_read_->getData(cfg.id, address::kPresentPwm, 2);
+      motor_state_.pwm = static_cast<double>(pwm_raw) * scale_factor::kPwm;
     }
     else {
       motor_state_.pwm = NAN;
     }
 
     if (read_voltage_) {
-      const uint16_t voltage_yaw = voltage_sync_read_->getData(cfg.id, kAddrPresentInputVoltage, 2);
-      motor_state_.input_voltage = static_cast<double>(voltage_yaw) * kDecodeFactorVoltage;
+      const uint16_t voltage_yaw = voltage_sync_read_->getData(cfg.id, address::kPresentInputVoltage, 2);
+      motor_state_.input_voltage = static_cast<double>(voltage_yaw) * scale_factor::kVoltage;
     }
     else {
       motor_state_.input_voltage = NAN;
     }
 
     if (read_temperature_) {
-      const uint8_t temp_raw = temp_sync_read_->getData(cfg.id, kAddrPresentTemperature, 1);
-      motor_state_.temperature = static_cast<double>(temp_raw) * kDecodeFactorTemp;
+      const uint8_t temp_raw = temp_sync_read_->getData(cfg.id, address::kPresentTemperature, 1);
+      motor_state_.temperature = static_cast<double>(temp_raw) * scale_factor::kTemperature;
     }
     else {
       motor_state_.temperature = NAN;
@@ -569,28 +646,30 @@ void DynamixelHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointComma
   for (size_t i = 0; i < size; ++i) {
     const auto& jnt_name = positions->commands[i].name;
     if (!motors_.contains(jnt_name)) {
-      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
     auto tar_pos = positions->commands[i].data;
-    if (cfg.operating_mode == kControlModePosition) {
+    if (cfg.operating_mode == operating_mode::kPosition) {
       if (cfg.pos_limit.clamp(tar_pos, tar_pos)) {
-        TOBAS_WARN("Target position of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_pos);
+        TOBAS_WARN("Target position of joint \"", jnt_name, "\" is out of limit. The value is clamped to ", tar_pos);
       }
       goal_positions_[i] = math::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     }
-    else if (cfg.operating_mode == kControlModeExtendedPosition || cfg.operating_mode == kControlModeCurrentBasePosition) {
-      goal_positions_[i] = tar_pos / kDecodeFactorPos;
+    else if (
+      cfg.operating_mode == operating_mode::kExtendedPosition ||
+      cfg.operating_mode == operating_mode::kCurrentBasePosition) {
+      goal_positions_[i] = tar_pos / scale_factor::kPosition;
     }
     else {
-      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not position.");
+      TOBAS_ERROR("The operating mode of joint \"", jnt_name, "\" is not position.");
       continue;
     }
 
     if (!pos_sync_write_->addParam(cfg.id, (uint8_t*)&goal_positions_[i])) {
-      TOBAS_ERROR("Failed to set goal position of joint '", jnt_name, "'.");
+      TOBAS_ERROR("Failed to set goal position of joint \"", jnt_name, "\".");
     }
   }
 
@@ -613,25 +692,26 @@ void DynamixelHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointComm
   for (size_t i = 0; i < size; ++i) {
     const auto& jnt_name = velocities->commands[i].name;
     if (!motors_.contains(jnt_name)) {
-      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
-    if (cfg.operating_mode != kControlModeVelocity) {
-      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not velocity.");
+    if (cfg.operating_mode != operating_mode::kVelocity) {
+      TOBAS_ERROR("The operating mode of joint \"", jnt_name, "\" is not velocity.");
       continue;
     }
 
     auto tar_vel = velocities->commands[i].data;
     if (fabs(tar_vel) > cfg.vel_limit) {
       tar_vel = std::clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
-      TOBAS_WARN("Target velocity of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_vel);
+      TOBAS_WARN("Target velocity of joint \"", jnt_name, "\" is out of limit. The value is clamped to ", tar_vel);
     }
 
-    goal_velocities_[i] = tar_vel / kDecodeFactorVel;
+    goal_velocities_[i] = tar_vel / scale_factor::kVelocity;
     if (!vel_sync_write_->addParam(cfg.id, (uint8_t*)&goal_velocities_[i])) {
-      TOBAS_ERROR("Failed to set goal velocity of joint '", jnt_name, "'.");
+      TOBAS_ERROR("Failed to set goal velocity of joint \"", jnt_name, "\".");
+      continue;
     }
   }
 
@@ -652,21 +732,21 @@ void DynamixelHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommand
   for (size_t i = 0; i < size; ++i) {
     const auto& jnt_name = efforts->commands[i].name;
     if (!motors_.contains(jnt_name)) {
-      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
-    if (cfg.operating_mode != kControlModeCurrent && cfg.operating_mode != kControlModePwm) {
-      TOBAS_ERROR("The operating mode of joint '", jnt_name, "' is not effort.");
+    if (cfg.operating_mode != operating_mode::kCurrent && cfg.operating_mode != operating_mode::kPwm) {
+      TOBAS_ERROR("The operating mode of joint \"", jnt_name, "\" is not effort.");
       continue;
     }
 
-    TOBAS_ERROR("Effort control is not implemented yet.");  // TODO
+    TOBAS_WARN("Effort control is not implemented yet.");  // TODO
   }
 }
 
-void DynamixelHandlerNode::enableTorquesServiceCb(
+void DynamixelHandlerNode::enableTorquesCb(
   const std_srvs::srv::SetBool::Request::ConstSharedPtr& req,
   const std_srvs::srv::SetBool::Response::SharedPtr& res)
 {
@@ -700,5 +780,6 @@ void DynamixelHandlerNode::mainTimerCb()
 
   publishCurrentStates(now());
 }
+}  // namespace tobas_dynamixel
 
-RCLCPP_COMPONENTS_REGISTER_NODE(DynamixelHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_dynamixel::DynamixelHandlerNode)

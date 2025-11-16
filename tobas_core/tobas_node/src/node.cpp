@@ -107,93 +107,93 @@ vector<string> BaseNode::getStringArrayParam(const string& name)
   }
 }
 
-bool BaseNode::getBoolParam(const string& name, const bool& _default)
+bool BaseNode::getBoolParam(const string& name, const bool& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_bool();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-long BaseNode::getIntParam(const string& name, const long& _default)
+long BaseNode::getIntParam(const string& name, const long& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_int();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-double BaseNode::getDoubleParam(const string& name, const double& _default)
+double BaseNode::getDoubleParam(const string& name, const double& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_double();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-string BaseNode::getStringParam(const string& name, const string& _default)
+string BaseNode::getStringParam(const string& name, const string& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_string();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-vector<bool> BaseNode::getBoolArrayParam(const string& name, const vector<bool>& _default)
+vector<bool> BaseNode::getBoolArrayParam(const string& name, const vector<bool>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_bool_array();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-vector<uint8_t> BaseNode::getByteArrayParam(const string& name, const vector<uint8_t>& _default)
+vector<uint8_t> BaseNode::getByteArrayParam(const string& name, const vector<uint8_t>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_byte_array();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-vector<long> BaseNode::getIntArrayParam(const string& name, const vector<long>& _default)
+vector<long> BaseNode::getIntArrayParam(const string& name, const vector<long>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_integer_array();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-vector<double> BaseNode::getDoubleArrayParam(const string& name, const vector<double>& _default)
+vector<double> BaseNode::getDoubleArrayParam(const string& name, const vector<double>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_double_array();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
-vector<string> BaseNode::getStringArrayParam(const string& name, const vector<string>& _default)
+vector<string> BaseNode::getStringArrayParam(const string& name, const vector<string>& dflt) noexcept
 {
   if (has_parameter(name)) {
     return get_parameter(name).as_string_array();
   }
   else {
-    return declareParam(name, _default);
+    return declareParam(name, dflt);
   }
 }
 
