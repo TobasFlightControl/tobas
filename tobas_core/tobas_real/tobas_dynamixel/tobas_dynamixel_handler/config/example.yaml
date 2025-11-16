@@ -1,0 +1,10 @@
+joint_names:
+  - "joint_0"
+  - "joint_1"
+
+joint_0:
+  id: 0
+  operating_mode: "position"
+joint_1:
+  id: 1
+  operating_mode: "velocity"
