@@ -28,6 +28,9 @@ target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(
   ${PROJECT_NAME}_node PLUGIN "tobas_dynamixel::DynamixelHandlerNode" EXECUTABLE dynamixel_handler
 )
+rclcpp_components_register_node(
+  ${PROJECT_NAME}_node PLUGIN "tobas_dynamixel::JointStateBridge" EXECUTABLE joint_state_bridge
+)
 
 install(
   TARGETS ${PROJECT_NAME}_node
