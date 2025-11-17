@@ -279,7 +279,7 @@ bool DynamixelHandlerNode::getMotorConfigs()
 
   for (const auto& name : jnt_names_) {
     // ID
-    const auto id = getIntParam(name + "/id", -1);
+    const auto id = getIntParam(name + ".id", -1);
     if (id < 0) {
       TOBAS_ERROR("Please specify ID for \"", name, "\".");
       return false;
@@ -344,7 +344,7 @@ bool DynamixelHandlerNode::getMotorConfigs()
     cfg.current_scaling_factor *= 1e-3;  // mA -> A
 
     // Operating mode
-    operating_mode = getStringParam(name + "/operating_mode", "");
+    operating_mode = getStringParam(name + ".operating_mode", "");
     if (operating_mode.empty()) {
       TOBAS_ERROR("Please specify the operating mode for \"", name, "\".");
       return false;
