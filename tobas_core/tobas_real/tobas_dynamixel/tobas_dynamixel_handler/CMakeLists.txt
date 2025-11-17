@@ -29,7 +29,7 @@ rclcpp_components_register_node(
   ${PROJECT_NAME}_node PLUGIN "tobas_dynamixel::DynamixelHandlerNode" EXECUTABLE dynamixel_handler
 )
 rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "tobas_dynamixel::JointStateBridgeNode" EXECUTABLE joint_state_bridge
+  ${PROJECT_NAME}_node PLUGIN "tobas_dynamixel::DynamixelBridgeNode" EXECUTABLE dynamixel_bridge
 )
 
 install(

@@ -10,8 +10,8 @@
 
 #include <std_srvs/srv/set_bool.hpp>
 
+#include <tobas_dynamixel_msgs/msg/motor_command_array.hpp>
 #include <tobas_dynamixel_msgs/msg/motor_state_array.hpp>
-#include <tobas_msgs/msg/joint_command_array.hpp>
 
 #include "./constants.hpp"
 
@@ -79,9 +79,9 @@ private:
 
   // PubSub
   ros2::PublisherPtr<tobas_dynamixel_msgs::msg::MotorStateArray> motor_states_pub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
+  ros2::SubscriberPtr<tobas_dynamixel_msgs::msg::MotorCommandArray> positions_sub_;
+  ros2::SubscriberPtr<tobas_dynamixel_msgs::msg::MotorCommandArray> velocities_sub_;
+  ros2::SubscriberPtr<tobas_dynamixel_msgs::msg::MotorCommandArray> efforts_sub_;
 
   // Service
   ros2::ServiceServerPtr<std_srvs::srv::SetBool> enable_torques_ss_;
@@ -99,9 +99,9 @@ private:
   bool disableTorques();
   void printHardwareErrorStatus();
 
-  void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
+  void positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& positions);
+  void velocitiesCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& velocities);
+  void effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& efforts);
 
   void enableTorquesCb(
     const std_srvs::srv::SetBool::Request::ConstSharedPtr& req,
@@ -238,9 +238,9 @@ void DynamixelHandlerNode::registerPublishers()
 
 void DynamixelHandlerNode::registerSubscribers()
 {
-  positions_sub_ = createSubscriber(topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
+  positions_sub_ = createSubscriber(topic::kPositionCommand, &self::positionsCmdCb, this);
+  velocities_sub_ = createSubscriber(topic::kVelocityCommand, &self::velocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(topic::kEffortCommand, &self::effortsCmdCb, this);
 }
 
 bool DynamixelHandlerNode::setMinimumLatency()
@@ -632,7 +632,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
   motor_states_pub_->publish(std::move(motor_states));
 }
 
-void DynamixelHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
+void DynamixelHandlerNode::positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& positions)
 {
   if (!is_enabled_) {
     TOBAS_ERROR("Motors are disabled. You cannot command positions.");
@@ -678,7 +678,7 @@ void DynamixelHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointComma
   }
 }
 
-void DynamixelHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
+void DynamixelHandlerNode::velocitiesCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& velocities)
 {
   if (!is_enabled_) {
     TOBAS_ERROR("Motors are disabled. You cannot command velocities.");
@@ -720,7 +720,7 @@ void DynamixelHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointComm
   }
 }
 
-void DynamixelHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
+void DynamixelHandlerNode::effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& efforts)
 {
   if (!is_enabled_) {
     TOBAS_ERROR("Motors are disabled. You cannot command efforts.");
