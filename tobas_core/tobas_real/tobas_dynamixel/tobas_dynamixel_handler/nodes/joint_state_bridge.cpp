@@ -7,13 +7,13 @@
 
 namespace tobas_dynamixel
 {
-class JointStateBridge : public tobas::BaseNode
+class JointStateBridgeNode : public tobas::BaseNode
 {
-  using self = JointStateBridge;
+  using self = JointStateBridgeNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit JointStateBridge(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit JointStateBridgeNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> joint_states_pub_;
@@ -22,13 +22,13 @@ private:
   void motorStatesCb(const tobas_dynamixel_msgs::msg::MotorStateArray::ConstSharedPtr& motor_states);
 };
 
-JointStateBridge::JointStateBridge(const rclcpp::NodeOptions& options) : super("dynamixel_joint_state_bridge", options)
+JointStateBridgeNode::JointStateBridgeNode(const rclcpp::NodeOptions& options) : super("dynamixel_joint_state_bridge", options)
 {
   joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
   motor_states_sub_ = createSubscriber(topic::kMotorStates, &self::motorStatesCb, this);
 }
 
-void JointStateBridge::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorStateArray::ConstSharedPtr& motor_states)
+void JointStateBridgeNode::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorStateArray::ConstSharedPtr& motor_states)
 {
   auto joint_states = std::make_unique<tobas_msgs::msg::JointStateArray>();
   joint_states->header = motor_states->header;
@@ -45,4 +45,4 @@ void JointStateBridge::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorState
 }
 }  // namespace tobas_dynamixel
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_dynamixel::JointStateBridge)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_dynamixel::JointStateBridgeNode)
