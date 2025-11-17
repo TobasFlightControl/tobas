@@ -337,7 +337,7 @@ bool DynamixelHandlerNode::getMotorConfigs()
         cfg.current_scaling_factor = 1.34;
         break;
       default:
-        TOBAS_WARN("Current scaling factor for model number ", model_number, " is unknown");
+        TOBAS_WARN("Current scaling factor for model number ", model_number, " is unknown.");
         cfg.current_available = false;
         cfg.current_scaling_factor = 0.;
     }
@@ -525,7 +525,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
 {
   // Create motor states message
   auto motor_states = std::make_unique<tobas_dynamixel_msgs::msg::MotorStateArray>();
-  motor_states->stamp = cur_time;
+  motor_states->header.stamp = cur_time;
 
   // Read packets
   if (read_position_ && pos_sync_read_->txRxPacket() < 0) {
@@ -593,7 +593,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
       }
       else {
         motor_state_.current = NAN;
-        motor_state_.load = static_cast<double>(current_raw) * 0.1;
+        motor_state_.load = static_cast<double>(current_raw) * scale_factor::kLoad;
       }
     }
     else {
