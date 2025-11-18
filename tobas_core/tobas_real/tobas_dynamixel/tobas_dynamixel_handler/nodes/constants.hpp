@@ -43,10 +43,15 @@ static constexpr uint16_t kGoalPwm = 100;
 static constexpr uint16_t kGoalCurrent = 102;
 static constexpr uint16_t kGoalVelocity = 104;
 static constexpr uint16_t kGoalPosition = 116;
+static constexpr uint16_t kRealtimeTick = 120;
+static constexpr uint16_t kMoving = 122;
+static constexpr uint16_t kMovingStatus = 123;
 static constexpr uint16_t kPresentPwm = 124;
 static constexpr uint16_t kPresentCurrent = 126;
 static constexpr uint16_t kPresentVelocity = 128;
 static constexpr uint16_t kPresentPosition = 132;
+static constexpr uint16_t kVelocityTrajectory = 136;
+static constexpr uint16_t kPositionTrajectory = 140;
 static constexpr uint16_t kPresentInputVoltage = 144;
 static constexpr uint16_t kPresentTemperature = 146;
 }  // namespace address
