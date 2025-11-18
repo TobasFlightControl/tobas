@@ -24,8 +24,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr sub_;
 };
 
-MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options)
-  : tobas::BaseNode("mjpg_decompressor", _options)
+MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options) : tobas::BaseNode("mjpg_decompressor", _options)
 {
   std::string mjpg_topic = getStringParam("mjpg_topic", std::string("image_compressed"));
   sub_ = createSubscriber(mjpg_topic, &MjpgDecompressor::msgCb, this);

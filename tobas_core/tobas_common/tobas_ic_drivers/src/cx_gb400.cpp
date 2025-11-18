@@ -12,7 +12,11 @@ CxGb400::~CxGb400()
 {
 }
 
-bool CxGb400::initialize(const char* video_dev, const CameraPosition& camera_position, bool disable_fullHD, bool disable_video_streaming)
+bool CxGb400::initialize(
+  const char* video_dev,
+  const CameraPosition& camera_position,
+  bool disable_fullHD,
+  bool disable_video_streaming)
 {
   if (!linux::VideoDev::initialize(video_dev, "MJPG", disable_video_streaming, 1280, 720)) {
     std::cerr << "Failed to initialize video device." << std::endl;
@@ -49,7 +53,7 @@ bool CxGb400::initialize(const char* video_dev, const CameraPosition& camera_pos
 
   if (disable_fullHD) {
     uint8_t video_resolution_data = static_cast<uint8_t>(3);
-    struct uvc_xu_control_query set_video_resolution_query = {kUnit1, 0xF, UVC_SET_CUR, 1, &video_resolution_data};
+    struct uvc_xu_control_query set_video_resolution_query = { kUnit1, 0xF, UVC_SET_CUR, 1, &video_resolution_data };
     if (!execUvcControl(set_video_resolution_query)) {
       std::cerr << "Failed to set video resolution data." << std::endl;
       return false;

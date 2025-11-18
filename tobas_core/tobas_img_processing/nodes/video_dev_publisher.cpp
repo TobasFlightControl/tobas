@@ -59,8 +59,7 @@ VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& options)
   else {
     img_publisher_ = createPublisher<sensor_msgs::msg::Image>(image_topic);
   }
-  timer_ = this->createTimer(
-    std::chrono::milliseconds(1000 / kFPS), &VideoDevPublisherNode::timerCallback, this);
+  timer_ = this->createTimer(std::chrono::milliseconds(1000 / kFPS), &VideoDevPublisherNode::timerCallback, this);
 }
 
 bool VideoDevPublisherNode::initialize()
@@ -125,9 +124,7 @@ void VideoDevPublisherNode::timerCallback()
     }
     else {
       TOBAS_WARN(
-        "Current pixel format %u = %s is not supported yet",
-        fmt.pixel_format,
-        camera_.FCC2S(fmt.pixel_format).c_str());
+        "Current pixel format %u = %s is not supported yet", fmt.pixel_format, camera_.FCC2S(fmt.pixel_format).c_str());
     }
     img_publisher_->publish(std::move(message));
   }

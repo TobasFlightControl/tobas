@@ -37,7 +37,12 @@ VideoDev::~VideoDev()
   }
 }
 
-bool VideoDev::initialize(const char* video_dev, const char* pixel_format, const bool& disable_video_streaming, const uint& width, const uint& height)
+bool VideoDev::initialize(
+  const char* video_dev,
+  const char* pixel_format,
+  const bool& disable_video_streaming,
+  const uint& width,
+  const uint& height)
 {
   if (fd_ >= 0) {
     close(fd_);
@@ -54,7 +59,7 @@ bool VideoDev::initialize(const char* video_dev, const char* pixel_format, const
     return false;
   }
 
-  if (!disable_video_streaming){
+  if (!disable_video_streaming) {
     if (!setImgFormat(pixel_format, width, height)) {
       return false;
     }
@@ -294,7 +299,7 @@ bool VideoDev::setImgFormat(const char* pixel_format, const uint& width, const u
     pixel_format[2],
     pixel_format[3]);  // 本来はV4L2_PIX_FMT_MJPET, V4L2_PIX_FMT_YUYVなどと指定する
   fmt_request.fmt.pix.field = V4L2_FIELD_ANY;
-  if ((width != 0) && (height != 0)){
+  if ((width != 0) && (height != 0)) {
     fmt_request.fmt.pix.width = width;
     fmt_request.fmt.pix.height = height;
   }

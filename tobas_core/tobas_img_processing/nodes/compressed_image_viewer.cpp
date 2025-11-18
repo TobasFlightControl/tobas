@@ -8,7 +8,6 @@
 
 #include <sensor_msgs/msg/compressed_image.hpp>
 
-
 class CompressedImageViewer : public tobas::BaseNode
 {
 public:

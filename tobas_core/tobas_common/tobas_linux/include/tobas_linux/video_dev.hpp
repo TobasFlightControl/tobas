@@ -30,7 +30,12 @@ public:
   ~VideoDev();
 
   // 初期動作　device open, memory確保など　pixcel_formatは4文字でMJPG, JPEG, YUYV, etc.
-  bool initialize(const char* video_dev, const char* pixcel_format = "MJPG", const bool& disable_video_streaming = false, const uint& width = 0, const uint& height = 0);
+  bool initialize(
+    const char* video_dev,
+    const char* pixcel_format = "MJPG",
+    const bool& disable_video_streaming = false,
+    const uint& width = 0,
+    const uint& height = 0);
   // サポートしている画像のフォーマットを表示する
   void displaySupportedFormats();
   // access Extension Unit Control directly. ref:

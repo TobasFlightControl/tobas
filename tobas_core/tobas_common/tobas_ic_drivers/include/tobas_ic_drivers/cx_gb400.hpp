@@ -17,18 +17,22 @@ public:
   static constexpr std::chrono::milliseconds kSendAttitudeInterval = std::chrono::milliseconds(200);
   enum CameraPosition : uint8_t
   {
-    kLower = 0x0,           // 機体に下向きで取り付ける（レンズより台が上になる向き）
-    kUpper = 0x1,           // 機体に上向きで取り付ける（レンズより台が下になる向き）
+    kLower = 0x0,         // 機体に下向きで取り付ける（レンズより台が上になる向き）
+    kUpper = 0x1,         // 機体に上向きで取り付ける（レンズより台が下になる向き）
     kUpperYawFix = 0x02,  // 機体に上向きで取り付ける　ヨーは回転フリー
-    Auto = 0x03            // 自動で決定　デフォルト値
+    Auto = 0x03           // 自動で決定　デフォルト値
   };
 
   explicit CxGb400();
   ~CxGb400();
 
-  bool initialize(const char* video_dev, const CameraPosition& camera_position = Auto, bool disable_fullHd = true, bool disable_video_streaming = false);
+  bool initialize(
+    const char* video_dev,
+    const CameraPosition& camera_position = Auto,
+    bool disable_fullHd = true,
+    bool disable_video_streaming = false);
   bool sendCopterAttitude(const double& q_w, const double& q_x, const double& q_y, const double& q_z);
-  // Send gimbal attitude control command. Specify angles in degrees satisfing -115.0 < pitch_deg < 45.0, -85.0 < yaw_deg < 85.0.
+  // Send gimbal attitude control command. Specify angles in degrees satisfying -115.0 < pitch_deg < 45.0, -85.0 < yaw_deg < 85.0.
   bool sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg);
   // 工場出荷リセット．
   bool fullReset();

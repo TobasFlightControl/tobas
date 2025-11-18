@@ -1,8 +1,8 @@
+#include <linux/videodev2.h>
 #include <chrono>
 #include <cstring>
 #include <functional>
 #include <memory>
-#include <linux/videodev2.h>
 #include <string>
 
 #include <eigen3/Eigen/Geometry>
@@ -16,8 +16,8 @@
 #include <tobas_ic_drivers/cx_gb400.hpp>
 #include <tobas_node/node.hpp>
 
-#include <sensor_msgs/msg/image.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
+#include <sensor_msgs/msg/image.hpp>
 
 #include <tobas_msgs/msg/gimbal_attitude_command.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
@@ -66,7 +66,7 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
   disable_video_streaming_ = getBoolParam("disable_video_streaming", false);
   copter_att_sub_ = createSubscriber("odom", &CxGb400PublisherNode::copterAttMsgCb, this);
   gimbal_att_cmd_sub_ = createSubscriber("gimbal_attitude_command", &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
-  if (!disable_video_streaming_){
+  if (!disable_video_streaming_) {
     std::string h264_topic = getStringParam("image_topic", std::string("image"));
     ffmpeg_packet_pub_ = createPublisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>(h264_topic);
     setFFmpegParameters();
@@ -79,13 +79,21 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
 void CxGb400PublisherNode::setFFmpegParameters()
 {
   encoder_.setEncoder("libx264");
-  encoder_.setMeasurePerformance(false); // to suppress error "can't subtract times with different time sources [2 != 1]", somewhere else may be wrong?
+  encoder_.setMeasurePerformance(
+    false);  // to suppress error "can't subtract times with different time sources [2 != 1]", somewhere else may be wrong?
   encoder_.addAVOption("tune", "zerolatency");
 }
 
 void CxGb400PublisherNode::packetReady(
-  const std::string & frame_id, const rclcpp::Time & stamp, const std::string & codec,
-  uint32_t width, uint32_t height, uint64_t pts, uint8_t flags, uint8_t * data, size_t sz)
+  const std::string& frame_id,
+  const rclcpp::Time& stamp,
+  const std::string& codec,
+  uint32_t width,
+  uint32_t height,
+  uint64_t pts,
+  uint8_t flags,
+  uint8_t* data,
+  size_t sz)
 {
   auto msg = std::make_unique<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>();
   msg->header.frame_id = frame_id;
@@ -105,7 +113,7 @@ bool CxGb400PublisherNode::initialize()
     TOBAS_WARN("Failed to initialize camera.");
     return false;
   }
-  if (!disable_video_streaming_){
+  if (!disable_video_streaming_) {
     if (!camera_.startStream()) {
       TOBAS_WARN("Failed to start stream.");
       return false;
@@ -132,7 +140,7 @@ void CxGb400PublisherNode::timerCallback()
     }
     last_send_ = now;
   }
-  if (!disable_video_streaming_){
+  if (!disable_video_streaming_) {
     // take a picture
     if (!camera_.takePicture()) {
       TOBAS_WARN("Failed to take a picture.");
@@ -145,15 +153,15 @@ void CxGb400PublisherNode::timerCallback()
     cv::Mat image = cv::imdecode(cv::Mat(image_data), 1);
     if (!this->encoder_.isInitialized()) {
       if (!this->encoder_.initialize(
-            image.cols, image.rows,
+            image.cols,
+            image.rows,
             std::bind(&CxGb400PublisherNode::packetReady, this, _1, _2, _3, _4, _5, _6, _7, _8, _9))) {
         TOBAS_ERROR("Cannot initialize encoder!");
         return;
       }
     }
     auto message = std::make_shared<sensor_msgs::msg::Image>();
-    message = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image)
-            .toImageMsg();
+    message = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
     encoder_.encodeImage(*message);
   }
 }

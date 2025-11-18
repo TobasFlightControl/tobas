@@ -80,4 +80,3 @@ MJPGであればmjpg_decompressorにより，H.264であればh264_decompressor�
     - image_scale : 送信する映像の幅・高さを何分の1にするか．2を設定すると1/2になって送信される．
 - mjpg_compressor_example.launch.py
   - MJPGの映像を/dev/video0から取得してros topicとしてpublishし，それをH.264に圧縮し，それを解凍する例．解凍後の映像はrviz2で視聴可能．
-
