@@ -328,7 +328,7 @@ tobas::Drone ProjectGenerator::createDrone()
   }
 
   // Fixed Wing
-  if (uadf_.control_surfaces.size() > 0) {
+  if (!uadf_.control_surfaces.empty()) {
     drone.fixed_wing = std::make_shared<tobas::FixedWingConfig>();
 
     // Vehicle
@@ -412,7 +412,7 @@ tobas::Drone ProjectGenerator::createDrone()
 
 bool ProjectGenerator::hasServoJoint() const
 {
-  if (uadf_.tilts.size() > 0 || uadf_.control_surfaces.size() > 0) {
+  if (!uadf_.tilts.empty() || !uadf_.control_surfaces.empty()) {
     return true;
   }
 

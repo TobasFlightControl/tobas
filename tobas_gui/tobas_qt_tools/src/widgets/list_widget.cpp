@@ -9,7 +9,7 @@ namespace qt
 bool ListWidget::contains(const QString& text) const
 {
   const auto items = findItems(text, Qt::MatchExactly);
-  return items.size() > 0;
+  return !items.empty();
 }
 
 void ListWidget::remove(QListWidgetItem* item)

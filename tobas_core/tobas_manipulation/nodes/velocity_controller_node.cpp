@@ -257,7 +257,7 @@ void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.states.size() > 0) {
+  if (!home_js_.states.empty()) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   }
 }

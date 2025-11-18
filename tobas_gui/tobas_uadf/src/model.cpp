@@ -40,7 +40,7 @@ bool Model::valid() const
       return false;
     }
 
-    if (thrust_link->child_joints.size() > 0) {
+    if (!thrust_link->child_joints.empty()) {
       std::cerr << "Thrust link \"" << thrust_link_name << "\" must be an end link." << std::endl;
       return false;
     }
@@ -61,7 +61,7 @@ bool Model::valid() const
       return false;
     }
 
-    if (cs_link->child_joints.size() > 0) {
+    if (!cs_link->child_joints.empty()) {
       std::cerr << "CS link \"" << cs_link_name << "\" must be an end link." << std::endl;
       return false;
     }

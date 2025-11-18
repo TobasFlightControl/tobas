@@ -10,7 +10,7 @@ namespace tbs
 template <typename T>
 T min(const std::unordered_set<T>& set)
 {
-  assert(set.size() > 0);
+  assert(!set.empty());
 
   T res = *set.begin();
   for (const T& elem : set) {
@@ -23,7 +23,7 @@ T min(const std::unordered_set<T>& set)
 template <typename T>
 T max(const std::unordered_set<T>& set)
 {
-  assert(set.size() > 0);
+  assert(!set.empty());
 
   T res = *set.begin();
   for (const T& elem : set) {

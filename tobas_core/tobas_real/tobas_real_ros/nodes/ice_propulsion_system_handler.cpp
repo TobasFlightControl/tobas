@@ -102,7 +102,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
   }
 
   // Publish command
-  if (pwms->pwms.size() > 0) {
+  if (!pwms->pwms.empty()) {
     pwms->header.stamp = now();
     pwms_pub_->publish(std::move(pwms));
   }
@@ -233,7 +233,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
   }
 
   // Publish command
-  if (pwms->pwms.size() > 0) {
+  if (!pwms->pwms.empty()) {
     pwms->header.stamp = ice_cmd->header.stamp;
     pwms_pub_->publish(std::move(pwms));
   }
