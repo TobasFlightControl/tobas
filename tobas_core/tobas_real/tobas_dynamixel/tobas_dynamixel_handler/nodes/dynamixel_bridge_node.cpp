@@ -19,6 +19,9 @@ public:
   explicit DynamixelBridgeNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  // Parameters
+  std::unordered_set<std::string> jnt_names_;
+
   ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> joint_states_pub_;
   ros2::SubscriberPtr<tobas_dynamixel_msgs::msg::MotorStateArray> motor_states_sub_;
 
@@ -40,6 +43,13 @@ private:
 
 DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options) : super("dynamixel_bridge", options)
 {
+  const auto jnt_names = getStringArrayParam("joint_names", {});
+  if (jnt_names.empty()) {
+    TOBAS_ERROR("Joint names are not specified.");
+    return;
+  }
+  jnt_names_.insert(jnt_names.begin(), jnt_names.end());
+
   joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
   motor_states_sub_ = createSubscriber(topic::kMotorStates, &self::motorStatesCb, this);
 
@@ -58,6 +68,9 @@ DynamixelBridgeNode::createMotorCommands(const tobas_msgs::msg::JointCommandArra
   commands_out->header = commands_in->header;
 
   for (const auto& command_in : commands_in->commands) {
+    if (!jnt_names_.contains(command_in.name)) {
+      continue;
+    }
     commands_out->commands.emplace_back();
     commands_out->commands.back().name = command_in.name;
     commands_out->commands.back().data = command_in.data;
@@ -72,6 +85,9 @@ void DynamixelBridgeNode::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorSt
   states_out->header = states_in->header;
 
   for (const auto& state_in : states_in->states) {
+    if (!jnt_names_.contains(state_in.name)) {
+      continue;
+    }
     states_out->states.emplace_back();
     states_out->states.back().name = state_in.name;
     states_out->states.back().position = state_in.position;
@@ -79,25 +95,33 @@ void DynamixelBridgeNode::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorSt
     states_out->states.back().effort = NAN;  // TODO: MotorStateにトルク定数から求めたトルクを含める
   }
 
-  joint_states_pub_->publish(std::move(states_out));
+  if (!states_out->states.empty()) {
+    joint_states_pub_->publish(std::move(states_out));
+  }
 }
 
 void DynamixelBridgeNode::jointPosCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in)
 {
   auto commands_out = createMotorCommands(commands_in);
-  motor_pos_pub_->publish(std::move(commands_out));
+  if (!commands_out->commands.empty()) {
+    motor_pos_pub_->publish(std::move(commands_out));
+  }
 }
 
 void DynamixelBridgeNode::jointVelCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in)
 {
   auto commands_out = createMotorCommands(commands_in);
-  motor_vel_pub_->publish(std::move(commands_out));
+  if (!commands_out->commands.empty()) {
+    motor_vel_pub_->publish(std::move(commands_out));
+  }
 }
 
 void DynamixelBridgeNode::jointEffCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in)
 {
   auto commands_out = createMotorCommands(commands_in);
-  motor_eff_pub_->publish(std::move(commands_out));
+  if (!commands_out->commands.empty()) {
+    motor_eff_pub_->publish(std::move(commands_out));
+  }
 }
 }  // namespace tobas_dynamixel
 
