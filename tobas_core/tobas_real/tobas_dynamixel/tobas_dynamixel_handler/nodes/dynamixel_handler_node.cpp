@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 
 #include <dynamixel_sdk/dynamixel_sdk.h>
@@ -16,6 +17,7 @@
 #include "./constants.hpp"
 
 using namespace std::chrono_literals;
+namespace fs = std::filesystem;
 
 namespace tobas_dynamixel
 {
@@ -113,6 +115,14 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
 {
   // Get ROS parameters
   if (!getStaticRosParams()) {
+    return;
+  }
+
+  // Get the device absolute path
+  std::error_code ec;
+  device_name_ = fs::canonical(device_name_, ec);
+  if (ec) {
+    TOBAS_ERROR(ec.message());
     return;
   }
 
