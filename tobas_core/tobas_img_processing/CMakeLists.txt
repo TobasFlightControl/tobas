@@ -39,8 +39,6 @@ pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
     libavutil
 	libavformat)
 
-include_directories(include)
-
 file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
@@ -62,9 +60,7 @@ install(
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
 )
-install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 

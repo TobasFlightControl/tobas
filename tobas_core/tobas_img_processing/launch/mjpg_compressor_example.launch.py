@@ -9,7 +9,7 @@ def generate_launch_description():
             parameters = [
                 {"use_compressed_image" : True,
                 "device_name" : "/dev/video0",
-                "compressed_image_topic" : "image_compressed"}
+                "image_topic" : "image_compressed"}
             ],
             output='screen'
         ),

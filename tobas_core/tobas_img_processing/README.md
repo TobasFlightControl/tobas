@@ -42,6 +42,13 @@
     - resized_topic : 圧縮後のtopic名．
     - encoding : 圧縮後の動画のencoding．MJPGかH.264．
     - resize_rate : 画像を圧縮する前に画像の幅・高さをこの比率で縮めることにより，さらに圧縮率を上げる場合に設定する．
+- video_dev_publisher
+  - カメラから映像データを取得し，ros topicとしてpublishする．
+  - parameters
+    - use_compressed_image : カメラから取得する映像データがMJPG形式なのかYUYV等の非圧縮形式なのか．
+    - device_name : カメラデバイスがOSにどの名前で認識されているか．
+    - image_topic : publishするros topic名．
+
 
 ## 映像の描画について
 
