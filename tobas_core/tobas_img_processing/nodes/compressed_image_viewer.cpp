@@ -1,9 +1,26 @@
-#include "tobas_img_processing/compressed_image_viewer.hpp"
-
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
+
+#include <tobas_node/node.hpp>
+
+#include <sensor_msgs/msg/compressed_image.hpp>
+
+
+class CompressedImageViewer : public tobas::BaseNode
+{
+public:
+  explicit CompressedImageViewer(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
+  ~CompressedImageViewer();
+
+private:
+  void msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg);
+
+  rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr sub_;
+};
+
 
 CompressedImageViewer::CompressedImageViewer(const rclcpp::NodeOptions& _options)
   : tobas::BaseNode("compressed_image_viewer", _options)
@@ -23,13 +40,11 @@ void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::Const
 {
   try {
     cv::Mat image = cv::imdecode(cv::Mat(msg->data), 1);  // convert compressed image data to cv::Mat
-    // std::cout << "cols : " << image.cols << ", rows : " << image.rows <<", size : " << msg->data.size() << ",
-    // elemSize : " << image.elemSize() << ", total : " << image.total() << std::endl;
     cv::imshow("view", image);
     cv::waitKey(10);
   }
   catch (cv_bridge::Exception& e) {
-    RCLCPP_WARN(this->get_logger(), "Could not convert to image!");
+    TOBAS_WARN("Could not convert to image!");
   }
 }
 

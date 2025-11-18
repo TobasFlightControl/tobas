@@ -12,24 +12,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(ffmpeg_encoder_decoder REQUIRED)
-find_package(ffmpeg_image_transport_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(tobas_ic_drivers REQUIRED)
-find_package(tobas_node REQUIRED)
-find_package(tobas_msgs REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(cv_bridge REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
-    libavcodec
-    libswresample
-    libswscale
-    libavutil
-	libavformat)
 
 set(AMENT_DEPENDENCIES
     rclcpp
@@ -44,8 +26,18 @@ set(AMENT_DEPENDENCIES
 	OpenCV
 	cv_bridge
 	PkgConfig
-	LIBAV
 )
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
+
+pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
+    libavcodec
+    libswresample
+    libswscale
+    libavutil
+	libavformat)
 
 include_directories(include)
 
