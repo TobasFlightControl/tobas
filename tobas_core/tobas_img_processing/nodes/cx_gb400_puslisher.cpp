@@ -56,7 +56,7 @@ bool CxGb400PublisherNode::initialize()
 {
   now_ = std::chrono::system_clock::now();
   last_send_ = now_;
-  if (!camera_.initialize(device_name_.c_str(), camera_.LOWER, true, disable_video_streaming_)) {
+  if (!camera_.initialize(device_name_.c_str(), camera_.kLower, true, disable_video_streaming_)) {
     RCLCPP_WARN(this->get_logger(), "Failed to initialize camera.");
     return false;
   }
@@ -79,7 +79,7 @@ void CxGb400PublisherNode::timerCallback()
   if (!initialized_) {
     initialized_ = initialize();
   }
-  if (std::chrono::duration_cast<std::chrono::milliseconds>(now_ - last_send_) > camera_.att_send_interval) {
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(now_ - last_send_) > camera_.kSendAttitudeInterval) {
     if (!camera_.sendCopterAttitude(
           copter_attitude_.w(), copter_attitude_.x(), copter_attitude_.y(), copter_attitude_.z())) {
       RCLCPP_WARN(this->get_logger(), "Failed to send copter attitude.");
