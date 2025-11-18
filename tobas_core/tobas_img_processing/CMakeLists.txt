@@ -52,8 +52,8 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CompressedImageView
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CxGb400PublisherNode" EXECUTABLE cx_gb400_publisher)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "FFmpegToROSMsgConverter" EXECUTABLE ffmpeg_to_ros_msg_converter)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "H264Decompressor" EXECUTABLE h264_decompressor)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JPEGCompressor" EXECUTABLE jpeg_compressor)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MJPGDecompressor" EXECUTABLE mjpg_decompressor)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MjpgCompressor" EXECUTABLE mjpg_compressor)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MjpgDecompressor" EXECUTABLE mjpg_decompressor)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "VideoDevPublisherNode" EXECUTABLE video_dev_publisher)
 
 install(

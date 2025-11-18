@@ -31,10 +31,17 @@
     - h264_topic : h.264に圧縮された映像データのtopic名．
     - decoded_topic : 解凍された映像データのtopic名．
 - mjpg_decompressor
-  - sensor_msgs::msg::CompressedImage型の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
+  - sensor_msgs::msg::CompressedImage型（MJPGに相当）の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
   - parameters
     - mjpg_topic : mjpgに圧縮された映像データのtopic名．
     - decoded_topic : 解凍された映像データのtopic名．
+- mjpg_compressor
+  - sensor_msgs::msg::CompressedImage型（MJPGに相当）の画像をsubscribeし，圧縮して，MJPGかH.264の動画としてpublishする．
+  - parameters
+    - mjpg_topic : MJPG形式の圧縮予定のtopic名．
+    - resized_topic : 圧縮後のtopic名．
+    - encoding : 圧縮後の動画のencoding．MJPGかH.264．
+    - resize_rate : 画像を圧縮する前に画像の幅・高さをこの比率で縮めることにより，さらに圧縮率を上げる場合に設定する．
 
 ## 映像の描画について
 

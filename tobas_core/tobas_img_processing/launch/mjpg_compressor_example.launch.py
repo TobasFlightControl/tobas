@@ -1,10 +1,5 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import SetEnvironmentVariable,\
-                           IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     return LaunchDescription([
@@ -20,10 +15,10 @@ def generate_launch_description():
         ),
         Node(
             package='tobas_img_processing',
-            executable='jpeg_compressor',
+            executable='mjpg_compressor',
             parameters = [
-                {"jpeg_topic" : "image_compressed",
-                 "jpeg_resized_topic" : "image_compressed_resized",
+                {"mjpg_topic" : "image_compressed",
+                 "resized_topic" : "image_compressed_resized",
                  "encoding" : "H.264"
                 }
             ],

@@ -12,10 +12,10 @@
 /**
  * @brief sensor_msgs::msg::CompressedImage型の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
  */
-class MJPGDecompressor : public tobas::BaseNode
+class MjpgDecompressor : public tobas::BaseNode
 {
 public:
-  explicit MJPGDecompressor(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
+  explicit MjpgDecompressor(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   void msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg);
@@ -24,17 +24,17 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr sub_;
 };
 
-MJPGDecompressor::MJPGDecompressor(const rclcpp::NodeOptions& _options)
+MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options)
   : tobas::BaseNode("mjpg_decompressor", _options)
 {
   std::string mjpg_topic = getStringParam("mjpg_topic", std::string("image_compressed"));
-  sub_ = createSubscriber(mjpg_topic, &MJPGDecompressor::msgCb, this);
+  sub_ = createSubscriber(mjpg_topic, &MjpgDecompressor::msgCb, this);
 
   std::string decoded_topic = getStringParam("decoded_topic", std::string("image_decompressed"));
   pub_ = createPublisher<sensor_msgs::msg::Image>(decoded_topic);
 }
 
-void MJPGDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg)
+void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg)
 {
   try {
     cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
@@ -58,4 +58,4 @@ void MJPGDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstShare
   }
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MJPGDecompressor)
+RCLCPP_COMPONENTS_REGISTER_NODE(MjpgDecompressor)
