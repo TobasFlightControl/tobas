@@ -1,7 +1,43 @@
-#include "tobas_img_processing/ffmpeg_to_ros_msg_converter.hpp"
+extern "C" {
+#include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
+#include <libavutil/time.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+}
+
+#include <rclcpp_components/register_node_macro.hpp>
+
+#include <tobas_node/node.hpp>
 
 #include <sensor_msgs/image_encodings.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
+#include <sensor_msgs/msg/image.hpp>
+
+class FFmpegToROSMsgConverter : public tobas::BaseNode
+{
+public:
+  explicit FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  ~FFmpegToROSMsgConverter();
+
+private:
+  bool initialize();
+  void timerCallback();
+  bool convertFrameToMessage(const AVFrame* frame, const sensor_msgs::msg::Image::UniquePtr& image);
+  enum AVPixelFormat rosToAvPixFormat(const std::string & ros_pix_fmt);
+
+  bool initialized_ = false;
+  std::string input_url_;
+  std::string output_msg_encoding_;
+  std::string frame_id_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr img_pub_;
+  rclcpp::TimerBase::SharedPtr timer_;
+  AVFormatContext* format_context_ = nullptr;
+  AVStream* video_stream_ = nullptr;
+  AVCodecContext* codec_context_ = nullptr;
+  SwsContext* sws_context_ = nullptr;
+  AVFrame* output_frame_ = nullptr;
+};
 
 FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options)
 : tobas::BaseNode("ffmpeg_to_ros_msg_converter", options)
@@ -9,13 +45,12 @@ FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& opti
   std::string ros_image_topic_name = getStringParam("ros_image_topic_name", std::string("image"));
   img_pub_ = createPublisher<sensor_msgs::msg::Image>(ros_image_topic_name);
   std::string protocol = getStringParam("protocol", std::string("srt")); // ffmpegが送信してくるデータのプロトコルの名称．udp, srtなど
-  std::string port_url = getStringParam("port_url", std::string("127.0.0.1:8888")); // ffmpegが送信してくるデータの受信側ipアドレスとport番号
-  input_url_ = protocol + "://" + port_url + "?mode=listener&listen_timeout=5000000";
+  std::string port_uri = getStringParam("port_uri", std::string("127.0.0.1:8888")); // ffmpegが送信してくるデータの受信側ipアドレスとport番号
+  input_url_ = protocol + "://" + port_uri + "?mode=listener&listen_timeout=5000000";
   output_msg_encoding_ = getStringParam("output_msg_encoding", std::string("rgb8"));
   frame_id_ = getStringParam("frame_id", std::string("map"));
   int fps = getIntParam("FPS", 30); // ffmpegが送信してくる映像データのfpsより高い値であればok．
-  timer_ = this->create_wall_timer(
-    std::chrono::milliseconds(1000 / fps), std::bind(&FFmpegToROSMsgConverter::timerCallback, this));
+  timer_ = this->createTimer(std::chrono::milliseconds(1000 / fps), &FFmpegToROSMsgConverter::timerCallback, this);
 }
 
 FFmpegToROSMsgConverter::~FFmpegToROSMsgConverter()
@@ -27,13 +62,13 @@ bool FFmpegToROSMsgConverter::initialize()
 {
   format_context_ = avformat_alloc_context();
   if (avformat_open_input(&format_context_, input_url_.c_str(), nullptr, nullptr) != 0) {
-    RCLCPP_ERROR(this->get_logger(), "Listen timeout. Check connection.");
+    TOBAS_ERROR("Listen timeout. Check connection.");
     avformat_close_input(&format_context_);
     return false;
   }
   // get stream info
   if (avformat_find_stream_info(format_context_, nullptr) < 0) {
-    RCLCPP_ERROR(this->get_logger(), "avformat_find_stream_info failed");
+    TOBAS_ERROR("avformat_find_stream_info failed");
     return false;
   }
   // find video stream
@@ -43,31 +78,31 @@ bool FFmpegToROSMsgConverter::initialize()
       break;
     }
   }
-  if (video_stream_ == nullptr) {
-    RCLCPP_ERROR(this->get_logger(), "no video stream found");
+  if (!video_stream_) {
+    TOBAS_ERROR("no video stream found");
     return false;
   }
 
   // decoder作成
   // find decoder
   const AVCodec* codec = avcodec_find_decoder(video_stream_->codecpar->codec_id);
-  if (codec == nullptr) {
-    RCLCPP_ERROR(this->get_logger(), "No supported decoder");
+  if (!codec) {
+    TOBAS_ERROR("No supported decoder");
     return false;
   }
   // alloc codec context
   codec_context_ = avcodec_alloc_context3(codec);
-  if (codec_context_ == nullptr) {
-    RCLCPP_ERROR(this->get_logger(), "Failed to allocate codec context");
+  if (!codec_context_) {
+    TOBAS_ERROR("Failed to allocate codec context");
     return false;
   }
   // open codec
   if (avcodec_parameters_to_context(codec_context_, video_stream_->codecpar) < 0) {
-    RCLCPP_ERROR(this->get_logger(), "avcodec_parameters_to_context failed");
+    TOBAS_ERROR("avcodec_parameters_to_context failed");
     return false;
   }
   if (avcodec_open2(codec_context_, codec, nullptr) != 0) {
-    RCLCPP_ERROR(this->get_logger(), "avcodec_open2 failed");
+    TOBAS_ERROR("avcodec_open2 failed");
     return false;
   }
 
@@ -82,7 +117,7 @@ void FFmpegToROSMsgConverter::timerCallback()
   // initialize if not initialized
   if (!initialized_) {
     if (!initialize()) {
-      RCLCPP_ERROR(this->get_logger(), "Failed to initialize");
+      TOBAS_ERROR("Failed to initialize");
       return;
     } else {
       initialized_ = true;
@@ -96,7 +131,7 @@ void FFmpegToROSMsgConverter::timerCallback()
   if (result == 0) { // frameが1個読み込まれる
     if (packet.stream_index == video_stream_->index) {
       if (avcodec_send_packet(codec_context_, &packet) != 0) { // decoderにpacketを送りつける
-        RCLCPP_ERROR(this->get_logger(), "avcodec_send_packet failed");
+        TOBAS_ERROR("avcodec_send_packet failed");
       }
       while (avcodec_receive_frame(codec_context_, frame) == 0) { // decodeしてもらったデータをframeに格納する
         auto image_msg = std::make_unique<sensor_msgs::msg::Image>();
@@ -106,7 +141,7 @@ void FFmpegToROSMsgConverter::timerCallback()
                       sensor_msgs::image_encodings::numChannels(output_msg_encoding_);
         image_msg->encoding = output_msg_encoding_;
         if (!convertFrameToMessage(frame, image_msg)) {
-          RCLCPP_ERROR(this->get_logger(), "Failed to convert frame to message");
+          TOBAS_ERROR("Failed to convert frame to message");
         }
         image_msg->header.frame_id = frame_id_;
         image_msg->header.stamp = this->get_clock()->now();
@@ -119,14 +154,14 @@ void FFmpegToROSMsgConverter::timerCallback()
 
 bool FFmpegToROSMsgConverter::convertFrameToMessage(const AVFrame* frame, const sensor_msgs::msg::Image::UniquePtr& image)
 {
-  if (sws_context_ == nullptr) { // initialize
+  if (!sws_context_) { // initialize
     output_frame_->format = rosToAvPixFormat(output_msg_encoding_);
     sws_context_ = sws_getContext(
       frame->width, frame->height, static_cast<AVPixelFormat>(frame->format),         // src
       frame->width, frame->height, static_cast<AVPixelFormat>(rosToAvPixFormat(output_msg_encoding_)),  // dest
       SWS_FAST_BILINEAR | SWS_ACCURATE_RND, NULL, NULL, NULL);
-    if (sws_context_ == nullptr) {
-      RCLCPP_ERROR(this->get_logger(), "Failed to allocate sws_context.");
+    if (!sws_context_) {
+      TOBAS_ERROR("Failed to allocate sws_context.");
       return false;
     }
   }
@@ -178,7 +213,7 @@ enum AVPixelFormat FFmpegToROSMsgConverter::rosToAvPixFormat(const std::string &
   };
   const auto it = ros_to_av_pix_map.find(ros_pix_fmt);
   if (it == ros_to_av_pix_map.end()) {
-    RCLCPP_ERROR(this->get_logger(), "Encoding %s not supported", ros_pix_fmt.c_str());
+    TOBAS_ERROR("Encoding %s not supported", ros_pix_fmt.c_str());
   }
   return (it->second);
 }

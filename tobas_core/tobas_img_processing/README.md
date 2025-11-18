@@ -13,6 +13,15 @@
   - 撮影された映像をros topicにpublishする(disable_video_streaming = falseの場合)．
   - parameters
     - device_name : cx_gb400がOSにどの名前で認識されているか．
-    - disable_video_streaming : このnodeが映像をカメラから取得するか，否か．例えば，ffmpegの機能を使ってros2 topicではなく他の通信形式で送信したいときにはtrueにする．
+    - disable_video_streaming : このnodeが映像をカメラから取得するか，否か．例えば，ffmpegの機能を使ってros topicではなく他の通信形式で送信したいときにはtrueにする．
     - image_topic : このnodeがpublishする映像のros topic名．
     - FPS : frames per second．このnodeが何Hzで回るかを指定する．結局カメラのFPSに相当する．
+- ffmpeg_to_ros_msg_converter
+  - ffmpeg等からros topicではない通信形式で映像が送られてきた際に，その映像を受信し，ros topicとして再びpublishしなおす．
+  - parameters
+    - ros_image_topic_name : 再publishする際のtopic名．
+    - protocol : 受信する映像伝送のプロトコル．
+    - port_uri : 映像を受信するポート．
+    - output_msg_encoding : 再publishする際の動画のencoding．
+    - frame_id : 再publishする際の動画のros topicのframe_id．
+    - FPS : frames per second．送られてくる動画のFPS．

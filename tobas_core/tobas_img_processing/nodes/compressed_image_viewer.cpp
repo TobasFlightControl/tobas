@@ -21,7 +21,6 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr sub_;
 };
 
-
 CompressedImageViewer::CompressedImageViewer(const rclcpp::NodeOptions& _options)
   : tobas::BaseNode("compressed_image_viewer", _options)
 {

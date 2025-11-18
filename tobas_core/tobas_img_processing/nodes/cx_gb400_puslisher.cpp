@@ -58,7 +58,6 @@ private:
   ffmpeg_encoder_decoder::Encoder encoder_;
 };
 
-
 CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
   : tobas::BaseNode("cx_gb400_publisher", options)
 {
