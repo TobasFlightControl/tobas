@@ -49,7 +49,6 @@
     - device_name : カメラデバイスがOSにどの名前で認識されているか．
     - image_topic : publishするros topic名．
 
-
 ## 映像の描画について
 
 映像の描画のためにはrviz2を用いる．
@@ -61,4 +60,24 @@ rviz2を立ち上げ，左下のAddボタンからImageというパネルを追�
 そのため，MJPGやH.264の映像topicの中身を表示する場合には，
 別のnodeにより解凍し，解凍後の映像topicをrviz2により表示する必要がある．
 MJPGであればmjpg_decompressorにより，H.264であればh264_decompressorにより解凍することができる．
+
+## launch files
+- cx_gb400_ffmpeg.launch.py
+  - cx_gb400から映像を取得してffmpegを用いてsrt通信で送信しながら，ジンバルの制御も行う．ros topicでの映像の配信は行わない．
+  - 一例としては，以下のように実行する．
+    ```bash
+    $ ros2 launch tobas_img_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888 # 映像を送信．
+    $ ffplay -fflags nobuffer -autoexit "srt://127.0.0.1:8888?mode=listener" # 映像を受信．
+    ```
+  - ros topicとして再publishし，rviz2で表示したい場合は，次のようにする．
+    ```bash
+    $ ros2 launch tobas_img_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888 # 映像を送信．
+    $ ros2 run tobas_img_processing ffmpeg_to_ros_msg_converter
+    $ rviz2 # image topicをimageとして，表示する．
+    ```
+  - parameters
+    - server_and_port : 送信先のserverのIP addressとport番号．\<ip_address\>:\<port\>と指定する．
+    - image_scale : 送信する映像の幅・高さを何分の1にするか．2を設定すると1/2になって送信される．
+- mjpg_compressor_example.launch.py
+  - MJPGの映像を/dev/video0から取得してros topicとしてpublishし，それをH.264に圧縮し，それを解凍する例．解凍後の映像はrviz2で視聴可能．
 

@@ -1,6 +1,7 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
+# MJPGの映像を/dev/video0から取得してros topicとしてpublishし，それをH.264に圧縮し，それを解凍する例．解凍後の映像はrviz2で視聴可能．
 def generate_launch_description():
     return LaunchDescription([
         Node(

@@ -42,9 +42,7 @@ pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
 file(GLOB_RECURSE NODE_CPP_FILES CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME}_node
-    PkgConfig::LIBAV
-)
+ament_target_dependencies(${PROJECT_NAME}_node LIBAV)
 
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CompressedImageViewer" EXECUTABLE compressed_image_viewer)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CxGb400PublisherNode" EXECUTABLE cx_gb400_publisher)
