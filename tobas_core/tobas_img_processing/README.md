@@ -30,3 +30,21 @@
   - parameters
     - h264_topic : h.264に圧縮された映像データのtopic名．
     - decoded_topic : 解凍された映像データのtopic名．
+- mjpg_decompressor
+  - sensor_msgs::msg::CompressedImage型の画像をsubscribeし，解凍して，sensor_msgs::msg::Image型としてpublishする．
+  - parameters
+    - mjpg_topic : mjpgに圧縮された映像データのtopic名．
+    - decoded_topic : 解凍された映像データのtopic名．
+
+## 映像の描画について
+
+映像の描画のためにはrviz2を用いる．
+rviz2を立ち上げ，左下のAddボタンからImageというパネルを追加する．
+そして，映像topic名を選択し，さらにQoSを調整して（ReliablityをBest Effortに）表示する．
+
+ただし，この映像topicの型はsensor_msgs/msg/Image型である必要がある．
+すなわち圧縮されていない画像である必要がある．
+そのため，MJPGやH.264の映像topicの中身を表示する場合には，
+別のnodeにより解凍し，解凍後の映像topicをrviz2により表示する必要がある．
+MJPGであればmjpg_decompressorにより，H.264であればh264_decompressorにより解凍することができる．
+
