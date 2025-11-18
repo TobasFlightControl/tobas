@@ -10,12 +10,12 @@
 namespace linux
 {
 /**
- * @brief video deviceドライバ．
- *
+ * @brief video deviceドライバ．v4l2 (video for linux 2)を用いてuvcカメラの制御を行う．
+ * 写真撮影，映像の取得，デバイスが対応している形式の取得，UVC commandの送信などが可能．
  */
 class VideoDev
 {
-  static constexpr uint kBufferSize_ = 3;
+  static constexpr uint kBufferSize = 3;
 
 public:
   struct ImgFormat
@@ -35,7 +35,7 @@ public:
   void displaySupportedFormats();
   // access Extension Unit Control directly. ref:
   // https://docs.kernel.org/userspace-api/media/drivers/uvcvideo.html#extension-unit-xu-support
-  bool execUVCControl(const uvc_xu_control_query& query);
+  bool execUvcControl(const uvc_xu_control_query& query);
   // streamをONにしてPCからdeviceのデータを取り出せるようにする
   bool startStream();
   // dequeueして，その分のデータをenqueueする．streamをONにしてからでないと使用不可．
@@ -58,25 +58,25 @@ private:
   struct buffer* buffers;
 
   bool is_stream_on = false;
-  // deviceのcapabilityを確認
+  /* deviceのcapabilityを確認 */
   bool checkCapability();
-  // deviceにbufferを要求する
+  /* deviceにbufferを要求する */
   bool requestDeviceBuffer();
-  // PC側buffer確保
+  /* PC側buffer確保 */
   bool mapBuffer();
-  // device側のbufferのi番目の画像1つ分のメモリを埋める
+  /* device側のbufferのi番目の画像1つ分のメモリを埋める */
   bool enqueue(const uint i);
-  // device側bufferを埋める
+  /* device側bufferを埋める */
   bool fillDeviceBuffer();
-  // deviceにstreamを許可するように通達
-  bool streamON();
-  bool streamOFF();
-  // dequeueする．streamをONにしてからでないと使用不可．errorのときは-1を返す．
+  /* deviceにstreamを許可するように通達 */
+  bool streamOn();
+  /* deviceにstreamを止めるように通達 */
+  bool streamOff();
+  /* dequeueする．streamをONにしてからでないと使用不可．errorのときは-1を返す． */
   int dequeue();
-  // 画像のフォーマットを指定する
-  bool setImgFormat(const char* pixcel_format);
+  /* 画像のフォーマットを指定する */
   bool setImgFormat(const char* pixcel_format, const uint& width = 0, const uint& height = 0);
-  // 画像のフォーマットを取得する
+  /* 画像のフォーマットを取得する */
   bool requestImgFormat();
 };
 }  // namespace linux
