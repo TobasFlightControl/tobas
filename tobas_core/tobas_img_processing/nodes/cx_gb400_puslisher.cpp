@@ -1,16 +1,63 @@
-#include "tobas_img_processing/cx_gb400_publisher.hpp"
-
-#include <linux/videodev2.h>
-
+#include <chrono>
 #include <cstring>
+#include <functional>
+#include <memory>
+#include <linux/videodev2.h>
+#include <string>
 
 #include <cv_bridge/cv_bridge.hpp>
+#include <eigen3/Eigen/Geometry>
+#include <ffmpeg_encoder_decoder/encoder.hpp>
 #include <opencv2/opencv.hpp>
-
+#include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
+
+#include <tobas_ic_drivers/cx_gb400.hpp>
+#include <tobas_node/node.hpp>
+
+#include <sensor_msgs/msg/image.hpp>
+#include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
+
+#include <tobas_msgs/msg/gimbal_attitude_command.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
+
+class CxGb400PublisherNode : public tobas::BaseNode
+{
+public:
+  explicit CxGb400PublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  bool initialize();
+  void setFFmpegParameters();
+  void packetReady(
+    const std::string& frame_id,
+    const rclcpp::Time& stamp,
+    const std::string& codec,
+    uint32_t width,
+    uint32_t height,
+    uint64_t pts,
+    uint8_t flags,
+    uint8_t* data,
+    size_t sz);
+  void timerCallback();
+  void copterAttMsgCb(const tobas_msgs::Odometry::ConstSharedPtr& _msg);
+  void gimbalAttitudeCmdCb(const tobas_msgs::msg::GimbalAttitudeCommand::ConstSharedPtr& _msg);
+  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Publisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>::SharedPtr ffmpeg_packet_pub_;
+  rclcpp::Subscription<tobas_msgs::Odometry>::SharedPtr copter_att_sub_;
+  rclcpp::Subscription<tobas_msgs::msg::GimbalAttitudeCommand>::SharedPtr gimbal_att_cmd_sub_;
+  driver::CxGb400 camera_;
+  Eigen::Quaterniond copter_attitude_ = Eigen::Quaterniond::Identity();
+  rclcpp::Time last_send_;
+  bool initialized_ = false;
+  bool disable_video_streaming_ = false;
+  std::string device_name_;
+  ffmpeg_encoder_decoder::Encoder encoder_;
+};
+
 
 CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
   : tobas::BaseNode("cx_gb400_publisher", options)
@@ -25,8 +72,8 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
     setFFmpegParameters();
   }
   int fps = getIntParam("FPS", 30);
-  timer_ = this->create_wall_timer(
-    std::chrono::milliseconds(1000 / fps), std::bind(&CxGb400PublisherNode::timerCallback, this));
+  timer_ = this->createTimer(std::chrono::milliseconds(1000 / fps), &CxGb400PublisherNode::timerCallback, this);
+  last_send_ = this->now();
 }
 
 void CxGb400PublisherNode::setFFmpegParameters()
@@ -54,20 +101,18 @@ void CxGb400PublisherNode::packetReady(
 
 bool CxGb400PublisherNode::initialize()
 {
-  now_ = std::chrono::system_clock::now();
-  last_send_ = now_;
   if (!camera_.initialize(device_name_.c_str(), camera_.kLower, true, disable_video_streaming_)) {
-    RCLCPP_WARN(this->get_logger(), "Failed to initialize camera.");
+    TOBAS_WARN("Failed to initialize camera.");
     return false;
   }
   if (!disable_video_streaming_){
     if (!camera_.startStream()) {
-      RCLCPP_WARN(this->get_logger(), "Failed to start stream.");
+      TOBAS_WARN("Failed to start stream.");
       return false;
     }
   }
   if (!camera_.sendGimbalCtrl(0.0, 0.0)) {
-    RCLCPP_WARN(this->get_logger(), "Failed to send gimbal control angles.");
+    TOBAS_WARN("Failed to send gimbal control angles.");
     return false;
   }
   return true;
@@ -75,22 +120,22 @@ bool CxGb400PublisherNode::initialize()
 
 void CxGb400PublisherNode::timerCallback()
 {
-  now_ = std::chrono::system_clock::now();
+  rclcpp::Time now = this->now();
   if (!initialized_) {
     initialized_ = initialize();
   }
-  if (std::chrono::duration_cast<std::chrono::milliseconds>(now_ - last_send_) > camera_.kSendAttitudeInterval) {
+  if ((now - last_send_).to_chrono<std::chrono::milliseconds>() > camera_.kSendAttitudeInterval) {
     if (!camera_.sendCopterAttitude(
           copter_attitude_.w(), copter_attitude_.x(), copter_attitude_.y(), copter_attitude_.z())) {
-      RCLCPP_WARN(this->get_logger(), "Failed to send copter attitude.");
+      TOBAS_WARN("Failed to send copter attitude.");
       return;
     }
-    last_send_ = now_;
+    last_send_ = now;
   }
   if (!disable_video_streaming_){
     // take a picture
     if (!camera_.takePicture()) {
-      std::cerr << "Failed to take a picture." << std::endl;
+      TOBAS_WARN("Failed to take a picture.");
       return;
     }
     uint image_size = 0;
@@ -102,7 +147,7 @@ void CxGb400PublisherNode::timerCallback()
       if (!this->encoder_.initialize(
             image.cols, image.rows,
             std::bind(&CxGb400PublisherNode::packetReady, this, _1, _2, _3, _4, _5, _6, _7, _8, _9))) {
-        RCLCPP_ERROR(this->get_logger(), "cannot initialize encoder!");
+        TOBAS_ERROR("Cannot initialize encoder!");
         return;
       }
     }
@@ -121,7 +166,7 @@ void CxGb400PublisherNode::copterAttMsgCb(const tobas_msgs::Odometry::ConstShare
 void CxGb400PublisherNode::gimbalAttitudeCmdCb(const tobas_msgs::msg::GimbalAttitudeCommand::ConstSharedPtr& _msg)
 {
   if (!camera_.sendGimbalCtrl(_msg->pitch, _msg->yaw)) {
-    RCLCPP_WARN(this->get_logger(), "Failed to send gimbal control command.");
+    TOBAS_WARN("Failed to send gimbal control command.");
   }
 }
 
