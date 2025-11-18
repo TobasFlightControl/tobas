@@ -61,7 +61,7 @@ private:
   tobas_dynamixel_msgs::msg::MotorState motor_state_;
   bool is_enabled_ = true;
 
-  // rosparams
+  // Parameters
   std::vector<std::string> jnt_names_;
   std::string device_name_;
   float protocol_version_;
@@ -213,7 +213,7 @@ DynamixelHandlerNode::~DynamixelHandlerNode()
 bool DynamixelHandlerNode::getStaticRosParams()
 {
   jnt_names_ = getStringArrayParam("joint_names", {});
-  if (jnt_names_.size() == 0) {
+  if (jnt_names_.empty()) {
     TOBAS_ERROR("Joint names are not specified.");
     return false;
   }
