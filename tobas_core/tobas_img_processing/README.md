@@ -19,9 +19,14 @@
 - ffmpeg_to_ros_msg_converter
   - ffmpeg等からros topicではない通信形式で映像が送られてきた際に，その映像を受信し，ros topicとして再びpublishしなおす．
   - parameters
-    - ros_image_topic_name : 再publishする際のtopic名．
+    - ros_image_topic : 再publishする際のtopic名．
     - protocol : 受信する映像伝送のプロトコル．
     - port_uri : 映像を受信するポート．
     - output_msg_encoding : 再publishする際の動画のencoding．
     - frame_id : 再publishする際の動画のros topicのframe_id．
     - FPS : frames per second．送られてくる動画のFPS．
+- h264_decompressor
+  - ffmpeg_image_transport_msgs/msg/FFMPEGPacket型のh.264で圧縮された映像をsubscribeして，解凍してpublishする．
+  - parameters
+    - h264_topic : h.264に圧縮された映像データのtopic名．
+    - decoded_topic : 解凍された映像データのtopic名．

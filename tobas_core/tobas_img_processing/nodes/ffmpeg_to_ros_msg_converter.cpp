@@ -42,7 +42,7 @@ private:
 FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options)
 : tobas::BaseNode("ffmpeg_to_ros_msg_converter", options)
 {
-  std::string ros_image_topic_name = getStringParam("ros_image_topic_name", std::string("image"));
+  std::string ros_image_topic_name = getStringParam("ros_image_topic", std::string("image"));
   img_pub_ = createPublisher<sensor_msgs::msg::Image>(ros_image_topic_name);
   std::string protocol = getStringParam("protocol", std::string("srt")); // ffmpegが送信してくるデータのプロトコルの名称．udp, srtなど
   std::string port_uri = getStringParam("port_uri", std::string("127.0.0.1:8888")); // ffmpegが送信してくるデータの受信側ipアドレスとport番号
