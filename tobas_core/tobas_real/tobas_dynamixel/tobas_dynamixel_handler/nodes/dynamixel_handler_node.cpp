@@ -50,12 +50,7 @@ public:
 private:
   dynamixel::PortHandler* poh_;
   dynamixel::PacketHandler* pah_;
-  std::unique_ptr<dynamixel::GroupSyncRead> pos_sync_read_;
-  std::unique_ptr<dynamixel::GroupSyncRead> vel_sync_read_;
-  std::unique_ptr<dynamixel::GroupSyncRead> current_sync_read_;
-  std::unique_ptr<dynamixel::GroupSyncRead> pwm_sync_read_;
-  std::unique_ptr<dynamixel::GroupSyncRead> voltage_sync_read_;
-  std::unique_ptr<dynamixel::GroupSyncRead> temp_sync_read_;
+  std::unique_ptr<dynamixel::GroupSyncRead> core_sync_read_;
   std::unique_ptr<dynamixel::GroupSyncRead> hes_sync_read_;
   std::unique_ptr<dynamixel::GroupSyncWrite> pos_sync_write_;
   std::unique_ptr<dynamixel::GroupSyncWrite> vel_sync_write_;
@@ -71,12 +66,6 @@ private:
   float protocol_version_;
   size_t baudrate_;
   uint8_t return_delay_time_;
-  bool read_pwm_;
-  bool read_current_;
-  bool read_velocity_;
-  bool read_position_;
-  bool read_voltage_;
-  bool read_temperature_;
   std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
@@ -127,16 +116,17 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
   }
 
   // Initialize Dynamixel SDK
-  // TODO: pos, vel, cur, pwm のアドレスは連続しているため同時に取得できるようにする
   poh_ = dynamixel::PortHandler::getPortHandler(device_name_.c_str());
   pah_ = dynamixel::PacketHandler::getPacketHandler(protocol_version_);
-  pos_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentPosition, 4);
-  vel_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentVelocity, 4);
-  current_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentCurrent, 2);
-  pwm_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentPwm, 2);
-  voltage_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentInputVoltage, 2);
-  temp_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentTemperature, 1);
+
+  // Current + Velocity + Position
+  constexpr auto kCoreReadBegin = address::kPresentCurrent;
+  constexpr auto kCoreReadEnd = address::kVelocityTrajectory;
+  constexpr auto kCoreReadLength = kCoreReadEnd - kCoreReadBegin;
+  core_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, kCoreReadBegin, kCoreReadLength);
+
   hes_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kHardwareErrorStatus, 1);
+
   pos_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalPosition, 4);
   vel_sync_write_ = std::make_unique<dynamixel::GroupSyncWrite>(poh_, pah_, address::kGoalVelocity, 4);
 
@@ -159,10 +149,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
 
   for (const auto& [name, cfg] : motors_) {
     // Add parameters to dynamixel::GroupSyncRead objects
-    if (
-      !pos_sync_read_->addParam(cfg.id) || !vel_sync_read_->addParam(cfg.id) || !current_sync_read_->addParam(cfg.id) ||
-      !pwm_sync_read_->addParam(cfg.id) || !voltage_sync_read_->addParam(cfg.id) ||
-      !temp_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id)) {
+    if (!core_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id)) {
       TOBAS_ERROR("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
       return;
     }
@@ -208,9 +195,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
   enable_torques_ss_ = createService<std_srvs::srv::SetBool>(service::kEnableTorques, &self::enableTorquesCb, this);
 
   // Start main timer with maximum rate
-  if (read_position_ || read_velocity_ || read_current_ || read_pwm_ || read_voltage_ || read_temperature_) {
-    main_timer_ = createWallTimer(0s, &self::mainTimerCb, this);
-  }
+  main_timer_ = createWallTimer(0s, &self::mainTimerCb, this);
 }
 
 DynamixelHandlerNode::~DynamixelHandlerNode()
@@ -234,12 +219,6 @@ bool DynamixelHandlerNode::getStaticRosParams()
   protocol_version_ = getDoubleParam("protocol_version", 2.0);
   baudrate_ = getIntParam("baudrate", 57600);
   return_delay_time_ = getIntParam("return_delay_time", 0);
-  read_pwm_ = getBoolParam("read_pwm", false);
-  read_current_ = getBoolParam("read_current", false);
-  read_velocity_ = getBoolParam("read_velocity", true);
-  read_position_ = getBoolParam("read_position", true);
-  read_voltage_ = getBoolParam("read_voltage", false);
-  read_temperature_ = getBoolParam("read_temperature", false);
 
   return true;
 }
@@ -541,40 +520,10 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
   motor_states->header.stamp = cur_time;
 
   // Read packets
-  if (read_position_ && pos_sync_read_->txRxPacket() < 0) {
+  if (core_sync_read_->txRxPacket() < 0) {
     TOBAS_ERROR("Failed to receive a sync packet of present position. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
-    return;
-  }
-  if (read_velocity_ && vel_sync_read_->txRxPacket() < 0) {
-    TOBAS_ERROR("Failed to receive a sync packet of present velocity. Disabling torques.");
-    disableTorques();
-    printHardwareErrorStatus();
-    return;
-  }
-  if (read_current_ && current_sync_read_->txRxPacket() < 0) {
-    TOBAS_ERROR("Failed to receive a sync packet of present current. Disabling torques.");
-    disableTorques();
-    printHardwareErrorStatus();
-    return;
-  }
-  if (read_pwm_ && pwm_sync_read_->txRxPacket() < 0) {
-    TOBAS_ERROR("Failed to receive a sync packet of present PWM. Disabling torques.");
-    disableTorques();
-    printHardwareErrorStatus();
-    return;
-  }
-  if (read_voltage_ && voltage_sync_read_->txRxPacket() < 0) {
-    TOBAS_ERROR("Failed to receive a sync packet of present input voltage. Disabling torques.");
-    disableTorques();
-    printHardwareErrorStatus();
-    return;
-  }
-  if (read_temperature_ && temp_sync_read_->txRxPacket() < 0) {
-    TOBAS_ERROR("Failed to receive a sync packet of present temperature. Disabling torques.");
-    disableTorques();
-    printHardwareErrorStatus();
     return;
   }
 
@@ -582,60 +531,20 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
   for (const auto& [name, cfg] : motors_) {
     motor_state_.name = name;
 
-    if (read_position_) {
-      const int32_t pos_raw = pos_sync_read_->getData(cfg.id, address::kPresentPosition, 4);
-      motor_state_.position = math::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
-    }
-    else {
-      motor_state_.position = NAN;
-    }
+    const int32_t pos_raw = core_sync_read_->getData(cfg.id, address::kPresentPosition, 4);
+    motor_state_.position = math::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
 
-    if (read_velocity_) {
-      const int32_t vel_raw = vel_sync_read_->getData(cfg.id, address::kPresentVelocity, 4);
-      motor_state_.velocity = static_cast<double>(vel_raw) * scale_factor::kVelocity;
-    }
-    else {
-      motor_state_.velocity = NAN;
-    }
+    const int32_t vel_raw = core_sync_read_->getData(cfg.id, address::kPresentVelocity, 4);
+    motor_state_.velocity = static_cast<double>(vel_raw) * scale_factor::kVelocity;
 
-    if (read_current_) {
-      const int16_t current_raw = current_sync_read_->getData(cfg.id, address::kPresentCurrent, 2);
-      if (cfg.current_available) {
-        motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
-        motor_state_.load = NAN;
-      }
-      else {
-        motor_state_.current = NAN;
-        motor_state_.load = static_cast<double>(current_raw) * scale_factor::kLoad;
-      }
+    const int16_t current_raw = core_sync_read_->getData(cfg.id, address::kPresentCurrent, 2);
+    if (cfg.current_available) {
+      motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
+      motor_state_.load = NAN;
     }
     else {
       motor_state_.current = NAN;
-      motor_state_.load = NAN;
-    }
-
-    if (read_pwm_) {
-      const int16_t pwm_raw = pwm_sync_read_->getData(cfg.id, address::kPresentPwm, 2);
-      motor_state_.pwm = static_cast<double>(pwm_raw) * scale_factor::kPwm;
-    }
-    else {
-      motor_state_.pwm = NAN;
-    }
-
-    if (read_voltage_) {
-      const uint16_t voltage_yaw = voltage_sync_read_->getData(cfg.id, address::kPresentInputVoltage, 2);
-      motor_state_.input_voltage = static_cast<double>(voltage_yaw) * scale_factor::kVoltage;
-    }
-    else {
-      motor_state_.input_voltage = NAN;
-    }
-
-    if (read_temperature_) {
-      const uint8_t temp_raw = temp_sync_read_->getData(cfg.id, address::kPresentTemperature, 1);
-      motor_state_.temperature = static_cast<double>(temp_raw) * scale_factor::kTemperature;
-    }
-    else {
-      motor_state_.temperature = NAN;
+      motor_state_.load = static_cast<double>(current_raw) * scale_factor::kLoad;
     }
 
     motor_states->states.push_back(motor_state_);
