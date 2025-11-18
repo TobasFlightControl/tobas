@@ -17,6 +17,7 @@
 #include "./constants.hpp"
 
 using namespace std::chrono_literals;
+namespace ch = std::chrono;
 namespace fs = std::filesystem;
 
 namespace tobas_dynamixel
@@ -64,8 +65,9 @@ private:
   std::vector<std::string> jnt_names_;
   std::string device_name_;
   float protocol_version_;
-  size_t baudrate_;
+  int baudrate_;
   uint8_t return_delay_time_;
+  int state_pub_rate_;
   std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
@@ -78,14 +80,13 @@ private:
   ros2::ServiceServerPtr<std_srvs::srv::SetBool> enable_torques_ss_;
 
   // Timer
-  ros2::TimerPtr main_timer_;
+  ros2::TimerPtr pub_states_timer_;
 
   bool getStaticRosParams();
   void registerPublishers();
   void registerSubscribers();
   bool setMinimumLatency();
   bool getMotorConfigs();
-  void publishCurrentStates(const rclcpp::Time& cur_time);
   bool enableTorques();
   bool disableTorques();
   void printHardwareErrorStatus();
@@ -97,7 +98,8 @@ private:
   void enableTorquesCb(
     const std_srvs::srv::SetBool::Request::ConstSharedPtr& req,
     const std_srvs::srv::SetBool::Response::SharedPtr& res);
-  void mainTimerCb();
+
+  void publishCurrentStatesTimerCb();
 };
 
 DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) : super("dynamixel_handler", options)
@@ -195,7 +197,8 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
   enable_torques_ss_ = createService<std_srvs::srv::SetBool>(service::kEnableTorques, &self::enableTorquesCb, this);
 
   // Start main timer with maximum rate
-  main_timer_ = createWallTimer(0s, &self::mainTimerCb, this);
+  const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1. / state_pub_rate_) : 0s;
+  pub_states_timer_ = createWallTimer(state_pub_period, &self::publishCurrentStatesTimerCb, this);
 }
 
 DynamixelHandlerNode::~DynamixelHandlerNode()
@@ -218,7 +221,19 @@ bool DynamixelHandlerNode::getStaticRosParams()
   device_name_ = getStringParam("device_name", "/dev/ttyUSB0");
   protocol_version_ = getDoubleParam("protocol_version", 2.0);
   baudrate_ = getIntParam("baudrate", 57600);
-  return_delay_time_ = getIntParam("return_delay_time", 0);
+
+  const auto return_delay_time = getIntParam("return_delay_time", 0);
+  if (return_delay_time < 0 || UINT8_MAX < return_delay_time) {
+    TOBAS_ERROR("Invalid return delay time: ", return_delay_time);
+    return false;
+  }
+  return_delay_time_ = static_cast<uint8_t>(return_delay_time);
+
+  state_pub_rate_ = getIntParam("state_publish_rate", 0);
+  if (state_pub_rate_ < 0) {
+    TOBAS_ERROR("State publish rate must be non-negative.");
+    return false;
+  }
 
   return true;
 }
@@ -513,47 +528,6 @@ void DynamixelHandlerNode::printHardwareErrorStatus()
   }
 }
 
-void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
-{
-  // Create motor states message
-  auto motor_states = std::make_unique<tobas_dynamixel_msgs::msg::MotorStateArray>();
-  motor_states->header.stamp = cur_time;
-
-  // Read packets
-  if (core_sync_read_->txRxPacket() < 0) {
-    TOBAS_ERROR("Failed to receive a sync packet of present position. Disabling torques.");
-    disableTorques();
-    printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
-    return;
-  }
-
-  // Compute joint states in the SI unit system
-  for (const auto& [name, cfg] : motors_) {
-    motor_state_.name = name;
-
-    const int32_t pos_raw = core_sync_read_->getData(cfg.id, address::kPresentPosition, 4);
-    motor_state_.position = math::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
-
-    const int32_t vel_raw = core_sync_read_->getData(cfg.id, address::kPresentVelocity, 4);
-    motor_state_.velocity = static_cast<double>(vel_raw) * scale_factor::kVelocity;
-
-    const int16_t current_raw = core_sync_read_->getData(cfg.id, address::kPresentCurrent, 2);
-    if (cfg.current_available) {
-      motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
-      motor_state_.load = NAN;
-    }
-    else {
-      motor_state_.current = NAN;
-      motor_state_.load = static_cast<double>(current_raw) * scale_factor::kLoad;
-    }
-
-    motor_states->states.push_back(motor_state_);
-  }
-
-  // Publish motor states message
-  motor_states_pub_->publish(std::move(motor_states));
-}
-
 void DynamixelHandlerNode::positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& positions)
 {
   if (!is_enabled_) {
@@ -694,13 +668,45 @@ void DynamixelHandlerNode::enableTorquesCb(
   }
 }
 
-void DynamixelHandlerNode::mainTimerCb()
+void DynamixelHandlerNode::publishCurrentStatesTimerCb()
 {
-  if (!is_enabled_) {
+  // Create motor states message
+  auto motor_states = std::make_unique<tobas_dynamixel_msgs::msg::MotorStateArray>();
+  motor_states->header.stamp = now();
+
+  // Read packets
+  if (core_sync_read_->txRxPacket() < 0) {
+    TOBAS_ERROR("Failed to receive a sync packet of present position. Disabling torques.");
+    disableTorques();
+    printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
     return;
   }
 
-  publishCurrentStates(now());
+  // Compute joint states in the SI unit system
+  for (const auto& [name, cfg] : motors_) {
+    motor_state_.name = name;
+
+    const int32_t pos_raw = core_sync_read_->getData(cfg.id, address::kPresentPosition, 4);
+    motor_state_.position = math::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
+
+    const int32_t vel_raw = core_sync_read_->getData(cfg.id, address::kPresentVelocity, 4);
+    motor_state_.velocity = static_cast<double>(vel_raw) * scale_factor::kVelocity;
+
+    const int16_t current_raw = core_sync_read_->getData(cfg.id, address::kPresentCurrent, 2);
+    if (cfg.current_available) {
+      motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
+      motor_state_.load = NAN;
+    }
+    else {
+      motor_state_.current = NAN;
+      motor_state_.load = static_cast<double>(current_raw) * scale_factor::kLoad;
+    }
+
+    motor_states->states.push_back(motor_state_);
+  }
+
+  // Publish motor states message
+  motor_states_pub_->publish(std::move(motor_states));
 }
 }  // namespace tobas_dynamixel
 
