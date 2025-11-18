@@ -36,7 +36,7 @@ void PropellerPitchPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& msgs)
 {
-  if (msgs.size() == 0) {
+  if (msgs.empty()) {
     return;
   }
 

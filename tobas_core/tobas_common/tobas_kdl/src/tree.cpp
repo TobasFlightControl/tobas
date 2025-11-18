@@ -303,7 +303,7 @@ bool Tree::isEndSegment(const string& seg_name) const
   if (seg_it == segments_.end()) {
     return false;
   }
-  return seg_it->second.children.size() == 0;
+  return seg_it->second.children.empty();
 }
 
 bool Tree::isFixedToRoot(const std::string& seg_name) const

@@ -20,7 +20,7 @@ void ListWidget::remove(QListWidgetItem* item)
 void ListWidget::setCurrentText(const QString& text)
 {
   const auto items = findItems(text, Qt::MatchExactly);
-  if (items.size() == 0) {
+  if (items.empty()) {
     qWarning() << text << " not found.";
     return;
   }

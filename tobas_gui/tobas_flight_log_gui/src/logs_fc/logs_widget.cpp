@@ -171,7 +171,7 @@ void FlightLogsWidgetFC::onReadThreadFinished(bool success, const QString& messa
 
   clearLogs();
 
-  if (log_names.size() == 0) {
+  if (log_names.empty()) {
     qt::qWarnBox(this, "There are no flight logs saved on the flight controller.");
     return;
   }

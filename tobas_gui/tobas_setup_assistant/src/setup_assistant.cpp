@@ -220,10 +220,10 @@ FrameType SetupAssistantWidget::determineFrameType()
 
   QString msg = "Airframe\n";
 
-  if (uadf_.control_surfaces.size() == 0) {  // 固定翼をもたない
+  if (uadf_.control_surfaces.empty()) {  // 固定翼をもたない
     msg += "  • which does not have fixed wings\n";
 
-    if (uadf_.tilts.size() == 0)  // チルトロータをもたない
+    if (uadf_.tilts.empty())  // チルトロータをもたない
     {
       msg += "  • which does not have any tilt rotors\n";
 

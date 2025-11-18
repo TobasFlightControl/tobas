@@ -118,7 +118,7 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr&)
 {
-  if (home_js_.states.size() == 0) {
+  if (home_js_.states.empty()) {
     return;
   }
   if (!tar_js_ && !tar_ls_) {

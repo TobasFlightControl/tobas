@@ -298,7 +298,7 @@ void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
   if (tree_.empty()) {
     return;
   }
-  if (home_js_.states.size() == 0) {
+  if (home_js_.states.empty()) {
     return;
   }
   if (!tar_js_ && !tar_ls_) {

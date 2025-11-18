@@ -35,7 +35,7 @@ void RotorLinkPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void RotorLinkPlotWidget::setData(const QVector<tobas_msgs::msg::RotorStateArray>& msgs)
 {
-  if (msgs.size() == 0) {
+  if (msgs.empty()) {
     return;
   }
 

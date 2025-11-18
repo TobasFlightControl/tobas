@@ -358,7 +358,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
   if (tree_.empty()) {
     return;
   }
-  if (home_js_.states.size() == 0) {
+  if (home_js_.states.empty()) {
     return;
   }
   if (!tar_js_ && !tar_ls_) {

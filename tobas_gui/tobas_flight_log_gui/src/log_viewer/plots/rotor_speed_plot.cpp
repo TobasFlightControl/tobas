@@ -39,7 +39,7 @@ void RotorSpeedPlotWidget::setData(
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs)
 {
-  if (cur_msgs.size() == 0) {
+  if (cur_msgs.empty()) {
     return;
   }
 

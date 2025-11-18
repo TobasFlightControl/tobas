@@ -73,12 +73,12 @@ void SettingsWidget::updateInternalDataStructures()
   }
 
   // 回転翼を持たない場合は設定を無効化
-  if (uadf_.thrusts.size() == 0) {
+  if (uadf_.thrusts.empty()) {
     setPageEnabled(propulsion_system, false);
   }
 
   // 固定翼を持たない場合は設定を無効化
-  if (uadf_.control_surfaces.size() == 0) {
+  if (uadf_.control_surfaces.empty()) {
     setPageEnabled(fixed_wing, false);
   }
 
