@@ -117,6 +117,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) :
   }
 
   // Initialize Dynamixel SDK
+  // TODO: pos, vel, cur, pwm のアドレスは連続しているため同時に取得できるようにする
   poh_ = dynamixel::PortHandler::getPortHandler(device_name_.c_str());
   pah_ = dynamixel::PacketHandler::getPacketHandler(protocol_version_);
   pos_sync_read_ = std::make_unique<dynamixel::GroupSyncRead>(poh_, pah_, address::kPresentPosition, 4);
