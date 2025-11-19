@@ -41,7 +41,7 @@ PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, 
   computeVariableBoundsMsg();
 }
 
-unsigned int PlanarJointModel::getStateSpaceDimension() const
+uint32_t PlanarJointModel::getStateSpaceDimension() const
 {
   return 3;
 }
@@ -55,7 +55,7 @@ double PlanarJointModel::getMaximumExtent(const Bounds& other_bounds) const
 
 void PlanarJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
 {
-  for (unsigned int i = 0; i < 2; ++i) {
+  for (uint32_t i = 0; i < 2; ++i) {
     // if zero is a valid value
     if (bounds[i].min_position_ <= 0. && bounds[i].max_position_ >= 0.) {
       values[i] = 0.;
@@ -253,7 +253,7 @@ double PlanarJointModel::distance(const double* values1, const double* values2) 
 
 bool PlanarJointModel::satisfiesPositionBounds(const double* values, const Bounds& bounds, double margin) const
 {
-  for (unsigned int i = 0; i < 3; ++i) {
+  for (uint32_t i = 0; i < 3; ++i) {
     if (values[i] < bounds[i].min_position_ - margin || values[i] > bounds[i].max_position_ + margin) {
       return false;
     }
@@ -280,7 +280,7 @@ bool PlanarJointModel::normalizeRotation(double* values) const
 bool PlanarJointModel::enforcePositionBounds(double* values, const Bounds& bounds) const
 {
   bool result = normalizeRotation(values);
-  for (unsigned int i = 0; i < 2; ++i) {
+  for (uint32_t i = 0; i < 2; ++i) {
     if (values[i] < bounds[i].min_position_) {
       values[i] = bounds[i].min_position_;
       result = true;

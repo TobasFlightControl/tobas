@@ -30,7 +30,7 @@ RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_ind
   computeVariableBoundsMsg();
 }
 
-unsigned int RevoluteJointModel::getStateSpaceDimension() const
+uint32_t RevoluteJointModel::getStateSpaceDimension() const
 {
   return 1;
 }

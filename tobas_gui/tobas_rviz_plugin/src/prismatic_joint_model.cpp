@@ -17,7 +17,7 @@ PrismaticJointModel::PrismaticJointModel(const std::string& name, size_t joint_i
   computeVariableBoundsMsg();
 }
 
-unsigned int PrismaticJointModel::getStateSpaceDimension() const
+uint32_t PrismaticJointModel::getStateSpaceDimension() const
 {
   return 1;
 }

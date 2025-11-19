@@ -459,7 +459,7 @@ public:
    *        (corresponding to the list of joints you get from getJointNames()).
    * @return False if any of the input joint indices are invalid (exceed number of joints)
    */
-  virtual bool setRedundantJoints(const std::vector<unsigned int>& redundant_joint_indices);
+  virtual bool setRedundantJoints(const std::vector<uint32_t>& redundant_joint_indices);
 
   /**
    * @brief Set a set of redundant joints for the kinematics solver to use.
@@ -472,7 +472,7 @@ public:
   /**
    * @brief Get the set of redundant joints
    */
-  virtual void getRedundantJoints(std::vector<unsigned int>& redundant_joint_indices) const
+  virtual void getRedundantJoints(std::vector<uint32_t>& redundant_joint_indices) const
   {
     redundant_joint_indices = redundant_joint_indices_;
   }
@@ -512,7 +512,7 @@ public:
   void setSearchDiscretization(double sd)
   {
     redundant_joint_discretization_.clear();
-    for (unsigned int index : redundant_joint_indices_) {
+    for (uint32_t index : redundant_joint_indices_) {
       redundant_joint_discretization_[index] = sd;
     }
   }
@@ -585,7 +585,7 @@ protected:
   std::vector<std::string> tip_frames_;
 
   double default_timeout_;
-  std::vector<unsigned int> redundant_joint_indices_;
+  std::vector<uint32_t> redundant_joint_indices_;
   std::map<int, double> redundant_joint_discretization_;
   std::vector<DiscretizationMethod> supported_methods_;
 

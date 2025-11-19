@@ -1690,7 +1690,7 @@ private:
   {
     dirty_joint_transforms_[joint->getJointIndex()] = 1;
     dirty_link_transforms_ =
-      dirty_link_transforms_ == nullptr ? joint : robot_model_->getCommonRoot(dirty_link_transforms_, joint);
+      !dirty_link_transforms_ ? joint : robot_model_->getCommonRoot(dirty_link_transforms_, joint);
   }
 
   void markDirtyJointTransforms(const JointModelGroup* group)
@@ -1698,7 +1698,7 @@ private:
     for (const JointModel* jm : group->getActiveJointModels()) {
       dirty_joint_transforms_[jm->getJointIndex()] = 1;
     }
-    dirty_link_transforms_ = dirty_link_transforms_ == nullptr ?
+    dirty_link_transforms_ = !dirty_link_transforms_ ?
                                group->getCommonRoot() :
                                robot_model_->getCommonRoot(dirty_link_transforms_, group->getCommonRoot());
   }

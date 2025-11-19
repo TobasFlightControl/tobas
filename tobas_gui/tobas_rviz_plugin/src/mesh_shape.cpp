@@ -27,7 +27,7 @@ MeshShape::~MeshShape()
 
 void MeshShape::estimateVertexCount(size_t vcount)
 {
-  if (entity_ == nullptr && !started_) {
+  if (!entity_ && !started_) {
     manual_object_->estimateVertexCount(vcount);
   }
 }
@@ -76,7 +76,7 @@ void MeshShape::addColor(const Ogre::ColourValue& color)
   manual_object_->colour(color);
 }
 
-void MeshShape::addTriangle(unsigned int v1, unsigned int v2, unsigned int v3)
+void MeshShape::addTriangle(uint32_t v1, uint32_t v2, uint32_t v3)
 {
   manual_object_->triangle(v1, v2, v3);
 }

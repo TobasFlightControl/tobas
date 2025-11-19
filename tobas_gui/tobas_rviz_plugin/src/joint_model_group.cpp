@@ -28,13 +28,13 @@ bool includesParent(const JointModel* joint, const JointModelGroup* group)
   // if we find that an ancestor is also in the group, then the joint is not a root
   while (joint->getParentLinkModel() != nullptr) {
     joint = joint->getParentLinkModel()->getParentJointModel();
-    if (group->hasJointModel(joint->getName()) && joint->getVariableCount() > 0 && joint->getMimic() == nullptr) {
+    if (group->hasJointModel(joint->getName()) && joint->getVariableCount() > 0 && !joint->getMimic()) {
       found = true;
       break;
     }
     else if (joint->getMimic() != nullptr) {
       const JointModel* mjoint = joint->getMimic();
-      if (group->hasJointModel(mjoint->getName()) && mjoint->getVariableCount() > 0 && mjoint->getMimic() == nullptr) {
+      if (group->hasJointModel(mjoint->getName()) && mjoint->getVariableCount() > 0 && !mjoint->getMimic()) {
         found = true;
       }
       else if (includesParent(mjoint, group)) {
@@ -95,14 +95,14 @@ JointModelGroup::JointModelGroup(
   for (const JointModel* joint_model : joint_model_vector_) {
     joint_model_name_vector_.push_back(joint_model->getName());
     joint_model_map_[joint_model->getName()] = joint_model;
-    unsigned int vc = joint_model->getVariableCount();
+    uint32_t vc = joint_model->getVariableCount();
     if (vc > 0) {
       if (vc > 1) {
         is_single_dof_ = false;
       }
-      const std::vector<std::string>& name_order = joint_model->getVariableNames();
+      const auto& name_order = joint_model->getVariableNames();
 
-      if (joint_model->getMimic() == nullptr) {
+      if (!joint_model->getMimic()) {
         active_joint_model_vector_.push_back(joint_model);
         active_joint_model_name_vector_.push_back(joint_model->getName());
         active_joint_model_start_index_.push_back(variable_count_);
@@ -724,7 +724,7 @@ void JointModelGroup::printGroupInfo(std::ostream& out) const
   if (group_kinematics_.first) {
     out << "  * Kinematics solver bijection:\n";
     out << "    ";
-    for (unsigned int index : group_kinematics_.first.bijection_) {
+    for (uint32_t index : group_kinematics_.first.bijection_) {
       out << index << ' ';
     }
     out << '\n';
@@ -733,7 +733,7 @@ void JointModelGroup::printGroupInfo(std::ostream& out) const
     out << "  * Compound kinematics solver:\n";
     for (const std::pair<const JointModelGroup* const, KinematicsSolver>& it : group_kinematics_.second) {
       out << "    " << it.first->getName() << ':';
-      for (unsigned int index : it.second.bijection_) {
+      for (uint32_t index : it.second.bijection_) {
         out << ' ' << index;
       }
       out << '\n';

@@ -65,7 +65,7 @@ public:
   void addColor(const Ogre::ColourValue& color);
 
   /* Add a triangle by indexing in the defined vertices. */
-  void addTriangle(unsigned int p1, unsigned int p2, unsigned int p3);
+  void addTriangle(uint32_t p1, uint32_t p2, uint32_t p3);
 
   /**
    * @brief Notify that the set of triangles to add is complete.

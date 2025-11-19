@@ -33,7 +33,7 @@ RobotState::RobotState(const RobotModelConstPtr& robot_model)
   , dirty_collision_body_transforms_(nullptr)
   , rng_(nullptr)
 {
-  if (robot_model == nullptr) {
+  if (!robot_model) {
     throw std::invalid_argument("RobotState cannot be constructed with nullptr RobotModelConstPtr");
   }
 
@@ -335,7 +335,7 @@ void RobotState::getMissingKeys(
   const std::vector<std::string>& nm = robot_model_->getVariableNames();
   for (const std::string& variable_name : nm) {
     if (variable_map.find(variable_name) == variable_map.end()) {
-      if (robot_model_->getJointOfVariable(variable_name)->getMimic() == nullptr) {
+      if (!robot_model_->getJointOfVariable(variable_name)->getMimic()) {
         missing_variables.push_back(variable_name);
       }
     }
@@ -1321,7 +1321,7 @@ void RobotState::getRobotMarkers(
 {
   std::size_t cur_num = arr.markers.size();
   getRobotMarkers(arr, link_names, include_attached);
-  unsigned int id = cur_num;
+  uint32_t id = cur_num;
   for (std::size_t i = cur_num; i < arr.markers.size(); ++i, ++id) {
     arr.markers[i].ns = ns;
     arr.markers[i].id = id;
@@ -2137,7 +2137,7 @@ bool RobotState::setFromIKSubgroups(
   double elapsed = 0;
 
   bool first_seed = true;
-  unsigned int attempts = 0;
+  uint32_t attempts = 0;
   do {
     ++attempts;
     RCLCPP_DEBUG(getLogger(), "IK attempt: %d", attempts);

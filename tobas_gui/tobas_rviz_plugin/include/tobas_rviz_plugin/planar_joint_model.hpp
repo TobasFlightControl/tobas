@@ -30,7 +30,7 @@ public:
   bool satisfiesPositionBounds(const double* values, const Bounds& other_bounds, double margin) const override;
 
   void interpolate(const double* from, const double* to, const double t, double* state) const override;
-  unsigned int getStateSpaceDimension() const override;
+  uint32_t getStateSpaceDimension() const override;
   double getMaximumExtent(const Bounds& other_bounds) const override;
   double distance(const double* values1, const double* values2) const override;
 

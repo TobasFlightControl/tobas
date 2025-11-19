@@ -166,7 +166,7 @@ bool FloatingJointModel::normalizeRotation(double* values) const
   }
 }
 
-unsigned int FloatingJointModel::getStateSpaceDimension() const
+uint32_t FloatingJointModel::getStateSpaceDimension() const
 {
   return STATE_SPACE_DIMENSION;
 }
@@ -174,7 +174,7 @@ unsigned int FloatingJointModel::getStateSpaceDimension() const
 bool FloatingJointModel::enforcePositionBounds(double* values, const Bounds& bounds) const
 {
   bool result = normalizeRotation(values);
-  for (unsigned int i = 0; i < 3; ++i) {
+  for (uint32_t i = 0; i < 3; ++i) {
     if (values[i] < bounds[i].min_position_) {
       values[i] = bounds[i].min_position_;
       result = true;
@@ -209,7 +209,7 @@ void FloatingJointModel::computeVariablePositions(const Eigen::Isometry3d& trans
 
 void FloatingJointModel::getVariableDefaultPositions(double* values, const Bounds& bounds) const
 {
-  for (unsigned int i = 0; i < 3; ++i) {
+  for (uint32_t i = 0; i < 3; ++i) {
     // if zero is a valid value
     if (bounds[i].min_position_ <= 0. && bounds[i].max_position_ >= 0.) {
       values[i] = 0.;
