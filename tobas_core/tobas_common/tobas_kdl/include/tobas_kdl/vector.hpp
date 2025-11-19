@@ -5,7 +5,7 @@
 #include <eigen3/Eigen/Core>
 
 #include <tobas_eigen_tools/core.hpp>
-#include <tobas_std_tools/float.hpp>
+#include <tobas_math/float.hpp>
 
 namespace kdl
 {
@@ -260,7 +260,7 @@ inline double Vector::argument(const Vector& rhs) const
 
 inline bool Vector::isPerpendicular(const Vector& rhs) const
 {
-  return tbs::isClose(this->dot(rhs), 0.);
+  return math::isClose(this->dot(rhs), 0.);
 }
 
 inline Vector Vector::clamp(const double& lb, const double& ub) const

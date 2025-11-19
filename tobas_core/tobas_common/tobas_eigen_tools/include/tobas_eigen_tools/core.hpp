@@ -5,7 +5,7 @@
 
 #include <eigen3/Eigen/Core>
 
-#include <tobas_std_tools/float.hpp>
+#include <tobas_math/float.hpp>
 
 namespace eigen
 {

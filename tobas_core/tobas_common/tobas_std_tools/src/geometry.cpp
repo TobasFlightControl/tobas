@@ -3,8 +3,7 @@
 #include <cassert>
 
 #include <tobas_math/core.hpp>
-
-#include "tobas_std_tools/float.hpp"
+#include <tobas_math/float.hpp>
 
 namespace tbs
 {
@@ -39,13 +38,13 @@ void eulerFromQuaternion(
   double& pitch,
   double& yaw)
 {
-  assert(isClose(math::sqr(x) + math::sqr(y) + math::sqr(z) + math::sqr(w), 1.));
+  assert(math::isClose(math::sqr(x) + math::sqr(y) + math::sqr(z) + math::sqr(w), 1.));
 
   const auto sy = -2 * (x * z - y * w);
 
   pitch = asin(sy);
 
-  if (isClose(fabs(sy), 1.)) {
+  if (math::isClose(fabs(sy), 1.)) {
     roll = 0.;
     yaw = atan2(-2 * (x * y - z * w), 2 * (math::sqr(w) + math::sqr(y)) - 1);
   }

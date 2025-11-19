@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES tobas_std_tools tobas_eigen_tools tobas_quadprog)
+set(AMENT_DEPENDENCIES tobas_math tobas_std_tools tobas_eigen_tools tobas_quadprog)
 
 find_package(ament_cmake REQUIRED)
 

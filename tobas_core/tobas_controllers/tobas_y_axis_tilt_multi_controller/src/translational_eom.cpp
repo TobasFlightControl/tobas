@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_std_tools/float.hpp>
+#include <tobas_math/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
@@ -54,7 +54,7 @@ bool TranslationalEoM::solve(
 
   // 機体座標系から見た推力和を計算
   const auto u = rot_x.inverse(f);
-  assert(tbs::isClose(u.y(), 0., 1e-3));
+  assert(math::isClose(u.y(), 0., 1e-3));
   ux_out = u.x();
   uz_out = u.z();
 

@@ -36,7 +36,7 @@ inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& A)
 template <typename Derived>
 inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
 {
-  return isOrthogonal(A) && tbs::isClose(A.determinant(), 1.);
+  return isOrthogonal(A) && math::isClose(A.determinant(), 1.);
 }
 
 /**

@@ -3,7 +3,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
-#include <tobas_std_tools/float.hpp>
+#include <tobas_math/float.hpp>
 
 namespace eigen
 {
@@ -127,7 +127,7 @@ inline Eigen::Matrix3d skew2(const Eigen::Vector3d& v)
 inline Eigen::Vector3d
 projectPointOnToLine(const Eigen::Vector3d& x0, const Eigen::Vector3d& v, const Eigen::Vector3d& p)
 {
-  assert(tbs::isClose(v.norm(), 1.));
+  assert(math::isClose(v.norm(), 1.));
   return x0 + v.dot(p - x0) * v;
 }
 }  // namespace eigen
