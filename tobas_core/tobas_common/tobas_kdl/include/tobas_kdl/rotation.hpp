@@ -57,6 +57,9 @@ public:
   /* Gives back a rotation matrix specified with Quaternion convention. */
   static Rotation Quaternion(double x, double y, double z, double w);
 
+  /* Check validity. */
+  bool isValid(std::string& error_msg) const;
+
   inline void setIdentity();
   inline void setInverse();
 

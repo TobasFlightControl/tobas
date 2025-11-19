@@ -1,5 +1,6 @@
 #include "tobas_kdl/rotation.hpp"
 
+#include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_std_tools/float.hpp>
 
 #include "tobas_kdl/utilities/utility.hpp"
@@ -110,6 +111,16 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
 
   return Rotation(
     1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
+}
+
+bool Rotation::isValid(string& error_msg) const
+{
+  if (!eigen::isSpecialOrthogonal(data)) {
+    error_msg = "Rotation matrix must belong to SO(3).";
+    return false;
+  }
+
+  return true;
 }
 
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const

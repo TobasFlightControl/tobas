@@ -80,6 +80,8 @@ public:
    */
   static inline Frame DH(double a, double alpha, double d, double theta);
 
+  inline bool isValid(std::string& error_msg) const;
+
   inline Eigen::Matrix4d matrix() const;
 
   inline void setIdentity();
@@ -162,6 +164,11 @@ inline Frame Frame::DH(double a, double alpha, double d, double theta)
   const auto sa = ::sin(alpha);
   const auto ca = ::cos(alpha);
   return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(a * ct, a * st, d));
+}
+
+inline bool Frame::isValid(std::string& error_msg) const
+{
+  return M.isValid(error_msg);
 }
 
 inline Eigen::Matrix4d Frame::matrix() const

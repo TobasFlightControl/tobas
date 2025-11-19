@@ -132,6 +132,46 @@ void Tree::clear()
   ns_ = 0;
 }
 
+bool Tree::isValid(string& error_msg) const
+{
+  unordered_set<string> seg_names, jnt_names;
+  return isValidRecursive(getRootSegment(), seg_names, jnt_names, error_msg);
+}
+
+bool Tree::isValidRecursive(
+  const SegmentMap::const_iterator& seg_it,
+  unordered_set<string>& seg_names,
+  unordered_set<string>& jnt_names,
+  string& error_msg) const
+{
+  const auto& elem = seg_it->second;
+  const auto& seg = elem.segment;
+
+  if (!seg.isValid(error_msg)) {
+    return false;
+  }
+
+  const auto& seg_name = seg.name();
+  if (!seg_names.insert(seg_name).second) {
+    error_msg = "Segment name \"" + seg_name + "\" is duplicated.";
+    return false;
+  }
+
+  const auto& jnt_name = seg.joint().name;
+  if (!jnt_names.insert(jnt_name).second) {
+    error_msg = "Joint name \"" + jnt_name + "\" is duplicated.";
+    return false;
+  }
+
+  for (const auto& child_it : elem.children) {
+    if (!isValidRecursive(child_it, seg_names, jnt_names, error_msg)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool Tree::addSegment(const Segment& segment, const string& hook_name)
 {
   if (segments_.contains(segment.name())) {
@@ -306,7 +346,7 @@ bool Tree::isEndSegment(const string& seg_name) const
   return seg_it->second.children.empty();
 }
 
-bool Tree::isFixedToRoot(const std::string& seg_name) const
+bool Tree::isFixedToRoot(const string& seg_name) const
 {
   if (seg_name == root_name_) {
     return true;
@@ -327,15 +367,15 @@ bool Tree::isFixedToRoot(const std::string& seg_name) const
 ostream& operator<<(ostream& os, const Tree& arg)
 {
   for (const auto& [seg_name, elem] : arg.segments_) {
-    os << "Segment:\n" << elem.segment << std::endl;
-    os << "Number: " << elem.q_nr << std::endl;
+    os << "Segment:\n" << elem.segment << endl;
+    os << "Number: " << elem.q_nr << endl;
 
     os << "Parent: ";
     if (seg_name != arg.root_name_) {
-      os << elem.parent->first << std::endl;
+      os << elem.parent->first << endl;
     }
     else {
-      os << "-" << std::endl;
+      os << "-" << endl;
     }
   }
 

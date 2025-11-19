@@ -1,5 +1,7 @@
 #include "tobas_kdl/chain.hpp"
 
+#include <unordered_set>
+
 using namespace std;
 
 namespace kdl
@@ -30,6 +32,31 @@ void Chain::clear()
   nj_ = 0;
   ns_ = 0;
   segments.clear();
+}
+
+bool Chain::isValid(string& error_msg) const
+{
+  unordered_set<string> seg_names, jnt_names;
+
+  for (const auto& seg : segments) {
+    if (!seg.isValid(error_msg)) {
+      return false;
+    }
+
+    const auto& seg_name = seg.name();
+    if (!seg_names.insert(seg_name).second) {
+      error_msg = "Segment name \"" + seg_name + "\" is duplicated.";
+      return false;
+    }
+
+    const auto& jnt_name = seg.joint().name;
+    if (!jnt_names.insert(jnt_name).second) {
+      error_msg = "Joint name \"" + jnt_name + "\" is duplicated.";
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void Chain::addSegment(const Segment& segment)

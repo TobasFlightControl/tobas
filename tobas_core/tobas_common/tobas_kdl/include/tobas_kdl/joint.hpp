@@ -35,6 +35,9 @@ public:
 
   inline explicit Joint();
 
+  /* Check validity. */
+  bool isValid(std::string& error_msg) const;
+
   /* Get the normalized joint axis wrt. the parent frame. */
   inline const Vector& axis() const;
 
@@ -59,9 +62,9 @@ public:
   /* Compute the second derivative of the rotation matrix with respect to the joint position. */
   inline Eigen::Matrix3d rotGrad2(double q) const;
 
-  static inline const char* typeToText(JointType type);
+  static const char* typeToText(JointType type);
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Joint& arg);
+  friend std::ostream& operator<<(std::ostream& os, const Joint& arg);
 
 private:
   Vector axis_ = Vector::UnitZ();  // The normalized joint axis wrt. the parent frame.
@@ -156,34 +159,5 @@ inline Eigen::Matrix3d Joint::rotGrad2(double q) const
   else {
     return Eigen::Matrix3d::Zero();
   }
-}
-
-inline const char* Joint::typeToText(JointType type)
-{
-  switch (type) {
-    case kRotation:
-      return "Rotation";
-    case kTranslation:
-      return "Translation";
-    case kFixed:
-      return "Fixed";
-    default:
-      throw;
-  }
-}
-
-inline std::ostream& operator<<(std::ostream& os, const Joint& arg)
-{
-  os << "Name: " << arg.name << std::endl;
-  os << "Type: " << Joint::typeToText(arg.type) << std::endl;
-  os << "Origin: " << arg.origin << std::endl;
-  os << "Axis: " << arg.axis() << std::endl;
-  os << "Damping: " << arg.damping << std::endl;
-  os << "Friction: " << arg.friction << std::endl;
-  os << "Lower Limit: " << arg.lower_limit << std::endl;
-  os << "Upper Limit: " << arg.upper_limit << std::endl;
-  os << "Max Effort: " << arg.max_effort << std::endl;
-  os << "Max Velocity: " << arg.max_velocity;
-  return os;
 }
 }  // end of namespace kdl

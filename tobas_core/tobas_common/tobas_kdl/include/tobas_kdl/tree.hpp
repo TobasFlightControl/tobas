@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_set>
 
 #include "./chain.hpp"
 
@@ -50,7 +51,11 @@ public:
   /* 6DoFの浮遊リンク系． */
   static Tree FloatingBase(const std::string& world_name, const std::string& base_name);
 
+  /* Clear all segments. */
   void clear();
+
+  /* Check validity. */
+  bool isValid(std::string& error_msg) const;
 
   /**
    * @brief Adds a new segment to the end of the segment with hook_name as seg_name.
@@ -118,6 +123,11 @@ private:
   size_t nj_ = 0;
   size_t ns_ = 0;
 
+  bool isValidRecursive(
+    const SegmentMap::const_iterator& seg_it,
+    std::unordered_set<std::string>& seg_names,
+    std::unordered_set<std::string>& jnt_names,
+    std::string& error_msg) const;
   bool addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
 
