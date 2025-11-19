@@ -9,7 +9,6 @@
 #include <string>
 
 #include <opencv2/opencv.hpp>
-
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
@@ -24,11 +23,10 @@ using namespace std::chrono_literals;
 
 /**
  * @brief tobas_linux packageのVideoDev classを使ってuvcカメラを制御し，画像を取得してpublishする．
- *
  */
 class VideoDevPublisherNode : public tobas::BaseNode
 {
-  static constexpr int kFPS = 30;
+  static constexpr int kFps = 30;
 
 public:
   explicit VideoDevPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -36,30 +34,33 @@ public:
 private:
   bool initialize();
   void timerCallback();
-  rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_img_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr img_publisher_;
+
   linux::VideoDev camera_;
   bool initialized_ = false;
   bool use_compressed_img_;
   std::string device_name_;
 
-  std::string FCC2S(const unsigned int& val);
+  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_img_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr img_publisher_;
+
+  rclcpp::TimerBase::SharedPtr timer_;
 };
 
 VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& options)
   : tobas::BaseNode("video_dev_publisher", options)
 {
   use_compressed_img_ = getBoolParam("use_compressed_image", true);
-  device_name_ = getStringParam("device_name", std::string("/dev/video0"));
-  std::string image_topic = getStringParam("image_topic", std::string("image"));
+  device_name_ = getStringParam("device_name", "/dev/video0");
+  const auto image_topic = getStringParam("image_topic", "image");
+
   if (use_compressed_img_) {
     compressed_img_publisher_ = createPublisher<sensor_msgs::msg::CompressedImage>(image_topic);
   }
   else {
     img_publisher_ = createPublisher<sensor_msgs::msg::Image>(image_topic);
   }
-  timer_ = this->createTimer(std::chrono::milliseconds(1000 / kFPS), &VideoDevPublisherNode::timerCallback, this);
+
+  timer_ = createTimer(std::chrono::milliseconds(1000 / kFps), &VideoDevPublisherNode::timerCallback, this);
 }
 
 bool VideoDevPublisherNode::initialize()
@@ -76,10 +77,12 @@ bool VideoDevPublisherNode::initialize()
       return false;
     }
   }
+
   if (!camera_.startStream()) {
     TOBAS_WARN("Failed to start stream.");
     return false;
   }
+
   TOBAS_INFO("Initialization succeed.");
   return true;
 }
@@ -89,12 +92,15 @@ void VideoDevPublisherNode::timerCallback()
   if (!initialized_) {
     initialized_ = initialize();
   }
+
   if (!camera_.takePicture()) {
     TOBAS_WARN("Failed to take a picture.");
     return;
   }
-  uint image_size = 0;
+
+  uint32_t image_size = 0;
   void* image_ptr = camera_.getImage(image_size);
+
   // using MJPG
   if (use_compressed_img_) {
     auto message_compressed = std::make_unique<sensor_msgs::msg::CompressedImage>();

@@ -26,11 +26,11 @@ private:
 
 MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options) : tobas::BaseNode("mjpg_decompressor", _options)
 {
-  std::string mjpg_topic = getStringParam("mjpg_topic", std::string("image_compressed"));
-  sub_ = createSubscriber(mjpg_topic, &MjpgDecompressor::msgCb, this);
+  const auto decoded_topic = getStringParam("decoded_topic", "image_decompressed");
+  const auto mjpg_topic = getStringParam("mjpg_topic", "image_compressed");
 
-  std::string decoded_topic = getStringParam("decoded_topic", std::string("image_decompressed"));
   pub_ = createPublisher<sensor_msgs::msg::Image>(decoded_topic);
+  sub_ = createSubscriber(mjpg_topic, &MjpgDecompressor::msgCb, this);
 }
 
 void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg)
@@ -52,7 +52,7 @@ void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstShare
     }
     pub_->publish(*cv_ptr->toImageMsg());
   }
-  catch (cv_bridge::Exception& e) {
+  catch (const cv_bridge::Exception&) {
     TOBAS_WARN("Could not convert to image!");
   }
 }

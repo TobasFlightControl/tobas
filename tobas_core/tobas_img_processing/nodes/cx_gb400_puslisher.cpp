@@ -1,15 +1,15 @@
 #include <linux/videodev2.h>
+
 #include <chrono>
 #include <cstring>
 #include <functional>
 #include <memory>
 #include <string>
 
-#include <eigen3/Eigen/Geometry>
-#include <opencv2/opencv.hpp>
-
 #include <cv_bridge/cv_bridge.hpp>
+#include <eigen3/Eigen/Geometry>
 #include <ffmpeg_encoder_decoder/encoder.hpp>
+#include <opencv2/opencv.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
@@ -32,7 +32,7 @@ public:
 
 private:
   bool initialize();
-  void setFFmpegParameters();
+  void setFfmpegParameters();
   void packetReady(
     const std::string& frame_id,
     const rclcpp::Time& stamp,
@@ -43,44 +43,54 @@ private:
     uint8_t flags,
     uint8_t* data,
     size_t sz);
+
   void timerCallback();
+
   void copterAttMsgCb(const tobas_msgs::Odometry::ConstSharedPtr& _msg);
   void gimbalAttitudeCmdCb(const tobas_msgs::msg::GimbalAttitudeCommand::ConstSharedPtr& _msg);
+
+  // Parameters
+  std::string device_name_;
+  bool disable_video_streaming_;
+
   rclcpp::TimerBase::SharedPtr timer_;
+
   rclcpp::Publisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>::SharedPtr ffmpeg_packet_pub_;
   rclcpp::Subscription<tobas_msgs::Odometry>::SharedPtr copter_att_sub_;
   rclcpp::Subscription<tobas_msgs::msg::GimbalAttitudeCommand>::SharedPtr gimbal_att_cmd_sub_;
+
   driver::CxGb400 camera_;
   Eigen::Quaterniond copter_attitude_ = Eigen::Quaterniond::Identity();
   rclcpp::Time last_send_;
   bool initialized_ = false;
-  bool disable_video_streaming_ = false;
-  std::string device_name_;
   ffmpeg_encoder_decoder::Encoder encoder_;
 };
 
 CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
   : tobas::BaseNode("cx_gb400_publisher", options)
 {
-  device_name_ = getStringParam("device_name", std::string("/dev/video0"));
+  device_name_ = getStringParam("device_name", "/dev/video0");
   disable_video_streaming_ = getBoolParam("disable_video_streaming", false);
+  const auto fps = getIntParam("FPS", 30);
+
+  if (!disable_video_streaming_) {
+    const auto h264_topic = getStringParam("image_topic", "image");
+    ffmpeg_packet_pub_ = createPublisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>(h264_topic);
+    setFfmpegParameters();
+  }
+
   copter_att_sub_ = createSubscriber("odom", &CxGb400PublisherNode::copterAttMsgCb, this);
   gimbal_att_cmd_sub_ = createSubscriber("gimbal_attitude_command", &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
-  if (!disable_video_streaming_) {
-    std::string h264_topic = getStringParam("image_topic", std::string("image"));
-    ffmpeg_packet_pub_ = createPublisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>(h264_topic);
-    setFFmpegParameters();
-  }
-  int fps = getIntParam("FPS", 30);
-  timer_ = this->createTimer(std::chrono::milliseconds(1000 / fps), &CxGb400PublisherNode::timerCallback, this);
+
+  timer_ = createTimer(std::chrono::milliseconds(1000 / fps), &CxGb400PublisherNode::timerCallback, this);
   last_send_ = this->now();
 }
 
-void CxGb400PublisherNode::setFFmpegParameters()
+void CxGb400PublisherNode::setFfmpegParameters()
 {
   encoder_.setEncoder("libx264");
-  encoder_.setMeasurePerformance(
-    false);  // to suppress error "can't subtract times with different time sources [2 != 1]", somewhere else may be wrong?
+  // To suppress error "can't subtract times with different time sources [2 != 1]", somewhere else may be wrong?
+  encoder_.setMeasurePerformance(false);
   encoder_.addAVOption("tune", "zerolatency");
 }
 
@@ -128,7 +138,7 @@ bool CxGb400PublisherNode::initialize()
 
 void CxGb400PublisherNode::timerCallback()
 {
-  rclcpp::Time now = this->now();
+  const auto now = this->now();
   if (!initialized_) {
     initialized_ = initialize();
   }
@@ -146,11 +156,11 @@ void CxGb400PublisherNode::timerCallback()
       TOBAS_WARN("Failed to take a picture.");
       return;
     }
-    uint image_size = 0;
+    uint32_t image_size;
     void* image_ptr = camera_.getImage(image_size);
     std::vector<uint8_t> image_data(image_size);
     std::memcpy(&*image_data.begin(), image_ptr, image_size);
-    cv::Mat image = cv::imdecode(cv::Mat(image_data), 1);
+    const auto image = cv::imdecode(cv::Mat(image_data), 1);
     if (!this->encoder_.isInitialized()) {
       if (!this->encoder_.initialize(
             image.cols,

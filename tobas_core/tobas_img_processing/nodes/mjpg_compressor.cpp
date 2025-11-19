@@ -34,9 +34,7 @@ public:
   explicit MjpgCompressor(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  bool initialize();
-  void setFFmpegParameters();
-  void handleAVOptions(const std::string& opt);
+  void setFfmpegParameters();
   void packetReady(
     const std::string& frame_id,
     const rclcpp::Time& stamp,
@@ -48,38 +46,41 @@ private:
     uint8_t* data,
     size_t sz);
   void callback(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg);
-  rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr mjpg_sub_;
+
+  std::string encoding_;      // publishする画像のencoding．MJPGか，H.264か．
+  double resize_rate_ = 1.0;  // resizeする割合
+
+  bool initialized_ = false;
+  ffmpeg_encoder_decoder::Encoder encoder_;  // H.264用encoder
+
   rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr mjpg_resized_pub_;
   rclcpp::Publisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>::SharedPtr ffmpeg_packet_pub_;
-  bool initialized_ = false;
-  // publishする画像のencoding．MJPGか，H.264か．
-  std::string encoding_;
-  // resizeする割合
-  double resize_rate_ = 1.0;
-  // H.264用encoder
-  ffmpeg_encoder_decoder::Encoder encoder_;
+  rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr mjpg_sub_;
 };
 
 MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& options) : tobas::BaseNode("mjpg_compressor", options)
 {
-  std::string mjpg_topic = getStringParam("mjpg_topic", std::string("image_compressed"));
-  mjpg_sub_ = createSubscriber(mjpg_topic, &MjpgCompressor::callback, this);
-  std::string resized_topic = getStringParam("resized_topic", std::string("mjpg_resized"));
-  encoding_ = getStringParam("encoding", std::string("MJPG"));
+  const auto mjpg_topic = getStringParam("mjpg_topic", "image_compressed");
+  const auto resized_topic = getStringParam("resized_topic", "mjpg_resized");
+  encoding_ = getStringParam("encoding", "MJPG");
+  resize_rate_ = getDoubleParam("resize_rate", 1.0);
+
   if (encoding_ == "MJPG") {
     mjpg_resized_pub_ = createPublisher<sensor_msgs::msg::CompressedImage>(resized_topic);
   }
   else if (encoding_ == "H.264") {
     ffmpeg_packet_pub_ = createPublisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>(resized_topic);
-    setFFmpegParameters();
+    setFfmpegParameters();
   }
   else {
-    TOBAS_ERROR("encoding %s is not supported. set MJPG or H.264.", encoding_.c_str());
+    TOBAS_ERROR("encoding ", encoding_, " is not supported. set MJPG or H.264.");
+    return;
   }
-  resize_rate_ = getDoubleParam("resize_rate", 1.0);
+
+  mjpg_sub_ = createSubscriber(mjpg_topic, &MjpgCompressor::callback, this);
 }
 
-void MjpgCompressor::setFFmpegParameters()
+void MjpgCompressor::setFfmpegParameters()
 {
   encoder_.setEncoder("libx264");
   encoder_.setMeasurePerformance(

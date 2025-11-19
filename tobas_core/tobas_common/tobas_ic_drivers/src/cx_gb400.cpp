@@ -14,8 +14,8 @@ CxGb400::~CxGb400()
 
 bool CxGb400::initialize(
   const char* video_dev,
-  const CameraPosition& camera_position,
-  bool disable_fullHD,
+  CameraPosition camera_position,
+  bool disable_full_hd,
   bool disable_video_streaming)
 {
   if (!linux::VideoDev::initialize(video_dev, "MJPG", disable_video_streaming, 1280, 720)) {
@@ -24,8 +24,8 @@ bool CxGb400::initialize(
   }
   // check UAVCAN is turned off (= UVC control is available)
   uint8_t is_uavcan_on = 0;
-  struct uvc_xu_control_query check_UAVCAN_query = { kUnit2, 0x1E, UVC_GET_CUR, 1, &is_uavcan_on };
-  if (!execUvcControl(check_UAVCAN_query)) {
+  struct uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_GET_CUR, 1, &is_uavcan_on };
+  if (!execUvcControl(check_uavcan_query)) {
     std::cerr << "Failed to check UAVCAN query." << std::endl;
     return false;
   }
@@ -43,7 +43,7 @@ bool CxGb400::initialize(
     return false;
   }
 
-  // gymbal restart, どうやら必要ないっぽい　sendAttitudeを200ms間隔で送ると自動でrestartしてくれる
+  // gymbal restart, どうやら必要ないっぽい．sendAttitudeを200ms間隔で送ると自動でrestartしてくれる．
   // uint8_t execute = 0;
   // struct uvc_xu_control_query gymbal_restart = {kUnit2, 0xA, UVC_SET_CUR, 1, &execute};
   // if (!execUvcControl(gymbal_restart)) {
@@ -51,7 +51,7 @@ bool CxGb400::initialize(
   //   return false;
   // }
 
-  if (disable_fullHD) {
+  if (disable_full_hd) {
     uint8_t video_resolution_data = static_cast<uint8_t>(3);
     struct uvc_xu_control_query set_video_resolution_query = { kUnit1, 0xF, UVC_SET_CUR, 1, &video_resolution_data };
     if (!execUvcControl(set_video_resolution_query)) {
@@ -59,6 +59,7 @@ bool CxGb400::initialize(
       return false;
     }
   }
+
   return true;
 }
 
@@ -81,6 +82,7 @@ bool CxGb400::sendCopterAttitude(const double& q_w, const double& q_x, const dou
     std::cerr << "Failed to send attitude." << std::endl;
     return false;
   }
+
   return true;
 }
 
@@ -98,8 +100,8 @@ bool CxGb400::fullReset()
 bool CxGb400::turnOffUavcan()
 {
   uint8_t is_uavcan_on = 0;
-  struct uvc_xu_control_query check_UAVCAN_query = { kUnit2, 0x1E, UVC_SET_CUR, 1, &is_uavcan_on };
-  if (!execUvcControl(check_UAVCAN_query)) {
+  struct uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_SET_CUR, 1, &is_uavcan_on };
+  if (!execUvcControl(check_uavcan_query)) {
     std::cerr << "Failed to turn off UAVCAN." << std::endl;
     return false;
   }
@@ -109,7 +111,7 @@ bool CxGb400::turnOffUavcan()
 bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
 {
   if (pitch_deg > kPitchCmdMax) {
-    std::cerr << "Pitch command is larger than the max value." << std::endl;
+    std::cerr << "Pitch command is larger than the maximum value." << std::endl;
     return false;
   }
   if (pitch_deg < kPitchCmdMin) {
@@ -117,13 +119,14 @@ bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
     return false;
   }
   if (yaw_deg > kYawCmdMax) {
-    std::cerr << "Yaw command is larger than the max value." << std::endl;
+    std::cerr << "Yaw command is larger than the maximum value." << std::endl;
     return false;
   }
   if (yaw_deg < kYawCmdMin) {
     std::cerr << "Yaw command is smaller than the minimum value." << std::endl;
     return false;
   }
+
   GimbalCtrlMsg msg;
   msg.pitch_cmd_type = 0x02;
   msg.yaw_cmd_type = 0x02;
@@ -141,6 +144,7 @@ bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
     std::cerr << "Failed to send gimbal control." << std::endl;
     return false;
   }
+
   return true;
 }
 

@@ -1,23 +1,27 @@
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.actions import SetEnvironmentVariable, IncludeLaunchDescription, ExecuteProcess, DeclareLaunchArgument
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, TextSubstitution
-from launch_ros.substitutions import FindPackageShare
-
 # launch : ros2 launch tobas_img_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888
 # image receive command : ffplay -fflags nobuffer -autoexit "srt://127.0.0.1:8888?mode=listener"
 
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import ExecuteProcess, DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, TextSubstitution
 
-# cx_gb400から映像を取得してffmpegを用いてsrt通信で送信しながら，ジンバルの制御も行う．ros topicでの映像の配信は行わない．
+
 def generate_launch_description():
+    """
+    CX-GB400から映像を取得してffmpegを用いてSRT通信で送信しながら，ジンバルの制御も行う．
+    ROSトピックでの映像の配信は行わない．
+    """
     server_and_port_arg = DeclareLaunchArgument(
-        "server_and_port", default_value="127.0.0.1:8888", description="IP address and port of the image receiver"
+        "server_and_port",
+        default_value="127.0.0.1:8888",
+        description="IP address and port of the image receiver",
     )
     image_scale_arg = DeclareLaunchArgument(
         "image_scale",
         default_value="2",
-        description="Scale the image by this value. If set to 2, the published image will have half the original width and height.",
+        description="Scale the image by this value. "
+        "If set to 2, the published image will have half the original width and height.",
     )
 
     server_and_port = LaunchConfiguration("server_and_port")

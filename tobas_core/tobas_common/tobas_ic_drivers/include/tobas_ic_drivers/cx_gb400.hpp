@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tobas_linux/video_dev.hpp>
-
 #include <chrono>
+
+#include <tobas_linux/video_dev.hpp>
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
@@ -19,8 +19,8 @@ public:
   {
     kLower = 0x0,         // 機体に下向きで取り付ける（レンズより台が上になる向き）
     kUpper = 0x1,         // 機体に上向きで取り付ける（レンズより台が下になる向き）
-    kUpperYawFix = 0x02,  // 機体に上向きで取り付ける　ヨーは回転フリー
-    Auto = 0x03           // 自動で決定　デフォルト値
+    kUpperYawFix = 0x02,  // 機体に上向きで取り付ける（ヨーは回転フリー）
+    kAuto = 0x03,         // 自動で決定（デフォルト）
   };
 
   explicit CxGb400();
@@ -28,15 +28,22 @@ public:
 
   bool initialize(
     const char* video_dev,
-    const CameraPosition& camera_position = Auto,
-    bool disable_fullHd = true,
+    CameraPosition camera_position = kAuto,
+    bool disable_full_hd = true,
     bool disable_video_streaming = false);
+
   bool sendCopterAttitude(const double& q_w, const double& q_x, const double& q_y, const double& q_z);
-  // Send gimbal attitude control command. Specify angles in degrees satisfying -115.0 < pitch_deg < 45.0, -85.0 < yaw_deg < 85.0.
+
+  /**
+   * @brief Send gimbal attitude control command.
+   * Specify angles in degrees satisfying -115.0 < pitch_deg < 45.0, -85.0 < yaw_deg < 85.0.
+   */
   bool sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg);
-  // 工場出荷リセット．
+
+  /* 工場出荷リセット． */
   bool fullReset();
-  // 工場出荷リセット実施後，通常起動前に1回のみ実施する
+
+  /* 工場出荷リセット実施後，通常起動前に1回のみ実施する． */
   bool turnOffUavcan();
 
 private:
@@ -50,7 +57,7 @@ private:
   {
     kUnit1 = 0x6,
     kUnit2 = 0x7,
-    kUnit3 = 0x8
+    kUnit3 = 0x8,
   };
 
   struct PACKED AttitudeMsg

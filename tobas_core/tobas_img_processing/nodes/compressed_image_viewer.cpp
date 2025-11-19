@@ -23,7 +23,7 @@ private:
 CompressedImageViewer::CompressedImageViewer(const rclcpp::NodeOptions& _options)
   : tobas::BaseNode("compressed_image_viewer", _options)
 {
-  const std::string compressed_image_topic = getStringParam("compressed_image_topic", std::string("image_compressed"));
+  const auto compressed_image_topic = getStringParam("compressed_image_topic", "image_compressed");
   sub_ = createSubscriber(compressed_image_topic, &CompressedImageViewer::msgCb, this);
   cv::namedWindow("view", cv::WINDOW_NORMAL);
   cv::startWindowThread();
