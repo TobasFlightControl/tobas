@@ -16,7 +16,7 @@ int writeFile(const char* path, const char* fmt, ...)
   errno = 0;
 
   const auto fd = ::open(path, O_WRONLY | O_CLOEXEC);
-  if (fd == -1) {
+  if (fd < 0) {
     return -errno;
   }
 

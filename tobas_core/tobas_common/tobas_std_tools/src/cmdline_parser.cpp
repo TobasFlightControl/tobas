@@ -29,9 +29,9 @@ char* getCommandLineOption(char** begin, char** end, const char* option)
     }
   }
 
-  if (idx < end_idx - 1 && begin[idx++] == NULL) {
+  if (idx < end_idx - 1 && !begin[idx++]) {
     cerr << "Command line option \"" << option << "\" does not exist." << endl;
-    return NULL;
+    return nullptr;
   }
 
   return begin[idx];
