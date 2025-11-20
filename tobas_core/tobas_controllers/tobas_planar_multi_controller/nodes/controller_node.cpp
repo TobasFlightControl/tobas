@@ -186,10 +186,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   standard_second_order_form_tuning_ = getBoolParam("standard_second_order_form_tuning");
 
   // Iゲインは1~2秒で補正が感じられるくらいに設定するのが良いらしい (GPT o1)
-  const long default_horizontal_i_gain = do_dist_comp_trans_ ? 0 : 10;
-  const long default_vertical_i_gain = do_dist_comp_trans_ ? 0 : 10;
-  const long default_attitude_i_gain = do_dist_comp_rot_ ? 0 : 10;
-  const long default_heading_i_gain = do_dist_comp_rot_ ? 0 : 10;
+  const long default_horizontal_i_gain = do_dist_comp_trans_ ? 1 : 10;
+  const long default_vertical_i_gain = do_dist_comp_trans_ ? 1 : 10;
+  const long default_attitude_i_gain = do_dist_comp_rot_ ? 1 : 10;
+  const long default_heading_i_gain = do_dist_comp_rot_ ? 1 : 10;
 
   // Register dynamic parameters
   if (standard_second_order_form_tuning_) {
@@ -201,30 +201,30 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
     addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
     addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
     addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 30);
-    addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, default_horizontal_i_gain, 0, 30);
-    addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, default_vertical_i_gain, 0, 30);
-    addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 0, 30);
-    addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 0, 30);
+    addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, default_horizontal_i_gain, 1, 30);
+    addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, default_vertical_i_gain, 1, 30);
+    addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
+    addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 1, 30);
   }
   else {
     addDynamicDoubleParam("x/p_gain", &self::xPGainCb, this, 0.2, 5, 1, 30);
-    addDynamicDoubleParam("x/i_gain", &self::xIGainCb, this, 0.01, default_horizontal_i_gain, 0, 30);
+    addDynamicDoubleParam("x/i_gain", &self::xIGainCb, this, 0.01, default_horizontal_i_gain, 1, 30);
     addDynamicDoubleParam("x/d_gain", &self::xDGainCb, this, 0.2, 10, 1, 30);
     addDynamicDoubleParam("y/p_gain", &self::yPGainCb, this, 0.2, 5, 1, 30);
-    addDynamicDoubleParam("y/i_gain", &self::yIGainCb, this, 0.01, default_horizontal_i_gain, 0, 30);
+    addDynamicDoubleParam("y/i_gain", &self::yIGainCb, this, 0.01, default_horizontal_i_gain, 1, 30);
     addDynamicDoubleParam("y/d_gain", &self::yDGainCb, this, 0.2, 10, 1, 30);
     addDynamicDoubleParam("z/p_gain", &self::zPGainCb, this, 0.2, 5, 1, 30);
-    addDynamicDoubleParam("z/i_gain", &self::zIGainCb, this, 0.01, default_vertical_i_gain, 0, 30);
+    addDynamicDoubleParam("z/i_gain", &self::zIGainCb, this, 0.01, default_vertical_i_gain, 1, 30);
     addDynamicDoubleParam("z/d_gain", &self::zDGainCb, this, 0.2, 10, 1, 30);
     addDynamicDoubleParam("roll/angle_gain", &self::rollAngleGainCb, this, 0.5, 10, 1, 50);
     addDynamicDoubleParam("roll/rate_gain", &self::rollRateGainCb, this, 2., 10, 1, 50);
-    addDynamicDoubleParam("roll/integral_gain", &self::rollIntegralGainCb, this, 0.1, default_attitude_i_gain, 0, 30);
+    addDynamicDoubleParam("roll/integral_gain", &self::rollIntegralGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
     addDynamicDoubleParam("pitch/angle_gain", &self::pitchAngleGainCb, this, 0.5, 10, 1, 50);
     addDynamicDoubleParam("pitch/rate_gain", &self::pitchRateGainCb, this, 2., 10, 1, 50);
-    addDynamicDoubleParam("pitch/integral_gain", &self::pitchIntegralGainCb, this, 0.1, default_attitude_i_gain, 0, 30);
+    addDynamicDoubleParam("pitch/integral_gain", &self::pitchIntegralGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
     addDynamicDoubleParam("yaw/angle_gain", &self::yawAngleGainCb, this, 0.25, 10, 1, 50);
     addDynamicDoubleParam("yaw/rate_gain", &self::yawRateGainCb, this, 1., 10, 1, 50);
-    addDynamicDoubleParam("yaw/integral_gain", &self::yawIntegralGainCb, this, 0.01, default_heading_i_gain, 0, 30);
+    addDynamicDoubleParam("yaw/integral_gain", &self::yawIntegralGainCb, this, 0.01, default_heading_i_gain, 1, 30);
   }
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 10, 4, 30, " m/s^2");
