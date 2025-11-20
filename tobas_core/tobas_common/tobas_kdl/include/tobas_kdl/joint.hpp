@@ -35,7 +35,7 @@ public:
 
   inline explicit Joint();
 
-  /* Check validity. */
+  /* Check validity (except for the root joint). */
   bool isValid(std::string& error_msg) const;
 
   /* Get the normalized joint axis wrt. the parent frame. */

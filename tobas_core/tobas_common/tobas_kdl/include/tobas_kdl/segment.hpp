@@ -35,7 +35,7 @@ public:
     const Frame& f_tip = Frame::Identity(),
     const RigidBodyInertia& I = RigidBodyInertia::Zero());
 
-  /* Check validity. */
+  /* Check validity (except for the root segment). */
   bool isValid(std::string& error_msg) const;
 
   /* Request the pose of the segment wrt. the parent frame. */
