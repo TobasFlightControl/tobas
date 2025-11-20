@@ -83,9 +83,6 @@ private:
   void enableSaveButtons(bool enable);
   bool resolveMeshPaths(const std::filesystem::path& config_pkg_path, tinyxml2::XMLElement* elem);
 
-  bool loadFromXml(const tinyxml2::XMLDocument* uadf_doc);
-  bool loadFromText(const std::string& uadf_text);
-
   bool updateInternalDataStructures();
 
   FrameType determineFrameType();

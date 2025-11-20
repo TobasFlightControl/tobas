@@ -93,6 +93,9 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
 
 void SetupAssistantWidget::reset()
 {
+  uadf_.clear();
+  tree_.clear();
+
   // TODO: 全ての設定を起動時の状態に戻す
 }
 
@@ -126,52 +129,6 @@ bool SetupAssistantWidget::resolveMeshPaths(const fs::path& config_pkg_path, tin
     if (!resolveMeshPaths(config_pkg_path, child)) {
       return false;
     }
-  }
-
-  return true;
-}
-
-bool SetupAssistantWidget::loadFromXml(const tinyxml2::XMLDocument* uadf_doc)
-{
-  if (!uadf_parser_.parseFromXml(uadf_doc, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
-    return false;
-  }
-
-  // Check UADF validity
-  if (!uadf_.valid()) {
-    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
-    return false;
-  }
-
-  // Load KDL tree
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
-    return false;
-  }
-
-  return true;
-}
-
-bool SetupAssistantWidget::loadFromText(const std::string& uadf_text)
-{
-  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
-    return false;
-  }
-
-  // Check UADF validity
-  if (!uadf_.valid()) {
-    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
-    return false;
-  }
-
-  // Load KDL tree
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
-    return false;
   }
 
   return true;
@@ -447,8 +404,30 @@ void SetupAssistantWidget::onNewButtonClicked()
     return;
   }
 
-  // UADFを読み込む
-  if (!loadFromText(uadf_text)) {
+  // Load UADF
+  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    reset();
+    return;
+  }
+
+  // Load KDL tree
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+    reset();
+    return;
+  }
+
+  // Check model validity
+  std::string error_msg;
+  if (!uadf_.valid()) {
+    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
+    reset();
+    return;
+  }
+  if (!tree_.isValid(error_msg)) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
     reset();
     return;
   }
@@ -534,8 +513,30 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
-  // メッシュパスを解決したバックアップUADFを読み込む
-  if (!loadFromXml(&uadf_doc)) {
+  // Load the backup UADF whose mesh paths are resolved
+  if (!uadf_parser_.parseFromXml(&uadf_doc, uadf_)) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+    reset();
+    return;
+  }
+
+  // Load KDL tree
+  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
+    qt::qErrorBox(
+      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+    reset();
+    return;
+  }
+
+  // Check model validity
+  std::string error_msg;
+  if (!uadf_.valid()) {
+    qt::qErrorBox(this, "UADF is invalid.");  // TODO: 詳細なエラーメッセージを表示
+    reset();
+    return;
+  }
+  if (!tree_.isValid(error_msg)) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
     reset();
     return;
   }
