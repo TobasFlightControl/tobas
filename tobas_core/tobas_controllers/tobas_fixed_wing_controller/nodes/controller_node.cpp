@@ -8,7 +8,6 @@
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/debug.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_level_handler.hpp>
