@@ -46,9 +46,6 @@ public:
 
   void updateInternalDataStructures();
 
-  void start();
-  void stop();
-
   int numRegisteredChannels() const;
 
 private:

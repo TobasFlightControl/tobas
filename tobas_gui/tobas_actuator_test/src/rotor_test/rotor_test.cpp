@@ -156,38 +156,6 @@ void RotorTestWidget::updateInternalDataStructures()
   }
 }
 
-void RotorTestWidget::start()
-{
-  // 現在のゲインを反映
-  if (!loadCurrentGains()) {
-    return;
-  }
-
-  // モータウィジェットを有効化
-  for (const auto& [link_name, _] : eprop_->rotors) {
-    const auto erotor = eprop_->getRotor(link_name);
-    rotor_widgets_.at(erotor->channel)->setEnabled(true);
-  }
-
-  // 一時的にロータ状態を購読
-  rotor_states_conn_ =
-    connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
-
-  // 一定周期でコマンドを発行
-  update_timer_.start(kUpdatePeriod);
-
-  start_button_->setEnabled(false);
-  stop_button_->setEnabled(true);
-  save_button_->setEnabled(true);
-
-  running_ = true;
-}
-
-void RotorTestWidget::stop()
-{
-  reset();
-}
-
 int RotorTestWidget::numRegisteredChannels() const
 {
   return tbs::count(registered_, true);
@@ -245,7 +213,29 @@ void RotorTestWidget::onStartButtonClicked()
     return;
   }
 
-  start();
+  // 現在のゲインを反映
+  if (!loadCurrentGains()) {
+    return;
+  }
+
+  // モータウィジェットを有効化
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    rotor_widgets_.at(erotor->channel)->setEnabled(true);
+  }
+
+  // 一時的にロータ状態を購読
+  rotor_states_conn_ =
+    connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
+
+  // 一定周期でコマンドを発行
+  update_timer_.start(kUpdatePeriod);
+
+  start_button_->setEnabled(false);
+  stop_button_->setEnabled(true);
+  save_button_->setEnabled(true);
+
+  running_ = true;
 
   qt::qInfoBox(this, "Rotor test is started.");
 }
@@ -254,7 +244,7 @@ void RotorTestWidget::onStopButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onStopButtonClicked");
 
-  stop();
+  reset();
 
   qt::qInfoBox(this, "Rotor test is finished.");
 }
@@ -328,7 +318,7 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 {
   // テスト実行中にアームされたら，強制的にテストを終了する
   if (running_ && arming->data) {
-    stop();
+    reset();
     qt::qWarnBox(this, "Rotor test was terminated because an arming command was issued.");
   }
 
