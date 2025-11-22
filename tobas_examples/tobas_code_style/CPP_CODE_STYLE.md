@@ -97,6 +97,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   1. All other data members (static and non-static)
 - `friend`はなるべく使わず，`public`メンバでのみ外とやりとりする．
 
+<!-- Custom -->
+
+- メンバ変数のゼロ初期化には`= {}`を使う．
+
 ## 関数
 
 - 可読性とパフォーマンスの面から，出力は引数よりも返り値の方が望ましい．
