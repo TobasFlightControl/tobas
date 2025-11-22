@@ -69,9 +69,9 @@ private:
     void* start = nullptr;
     size_t length = 0;
   };
-  struct buffer* buffers;
+  buffer* buffers_;
 
-  bool is_stream_on = false;
+  bool is_stream_on_ = false;
 
   /* deviceのcapabilityを確認． */
   bool checkCapability();

@@ -47,10 +47,10 @@ public:
   bool turnOffUavcan();
 
 private:
-  static constexpr double kPitchCmdMax = 45.0;
-  static constexpr double kPitchCmdMin = -115.0;
-  static constexpr double kYawCmdMax = 85.0;
-  static constexpr double kYawCmdMin = -85.0;
+  static constexpr double kPitchCmdMax = 45.0;    // [deg]
+  static constexpr double kPitchCmdMin = -115.0;  // [deg]
+  static constexpr double kYawCmdMax = 85.0;      // [deg]
+  static constexpr double kYawCmdMin = -85.0;     // [deg]
   static constexpr double kGimbalAngleResolution = 1.0 / 0.01;
 
   enum UnitId : uint8_t

@@ -24,7 +24,7 @@ bool CxGb400::initialize(
   }
   // check UAVCAN is turned off (= UVC control is available)
   uint8_t is_uavcan_on = 0;
-  struct uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_GET_CUR, 1, &is_uavcan_on };
+  const uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_GET_CUR, 1, &is_uavcan_on };
   if (!execUvcControl(check_uavcan_query)) {
     std::cerr << "Failed to check UAVCAN query." << std::endl;
     return false;
@@ -37,7 +37,7 @@ bool CxGb400::initialize(
 
   // set camera position
   uint8_t cam_pos_data = static_cast<uint8_t>(camera_position);
-  struct uvc_xu_control_query set_cam_pos_query = { kUnit2, 0x1B, UVC_SET_CUR, 1, &cam_pos_data };
+  const uvc_xu_control_query set_cam_pos_query = { kUnit2, 0x1B, UVC_SET_CUR, 1, &cam_pos_data };
   if (!execUvcControl(set_cam_pos_query)) {
     std::cerr << "Failed to set camera position." << std::endl;
     return false;
@@ -45,7 +45,7 @@ bool CxGb400::initialize(
 
   // gymbal restart, どうやら必要ないっぽい．sendAttitudeを200ms間隔で送ると自動でrestartしてくれる．
   // uint8_t execute = 0;
-  // struct uvc_xu_control_query gymbal_restart = {kUnit2, 0xA, UVC_SET_CUR, 1, &execute};
+  // const uvc_xu_control_query gymbal_restart = {kUnit2, 0xA, UVC_SET_CUR, 1, &execute};
   // if (!execUvcControl(gymbal_restart)) {
   //   std::cerr << "Failed to restart gymbal." << std::endl;
   //   return false;
@@ -53,7 +53,7 @@ bool CxGb400::initialize(
 
   if (disable_full_hd) {
     uint8_t video_resolution_data = static_cast<uint8_t>(3);
-    struct uvc_xu_control_query set_video_resolution_query = { kUnit1, 0xF, UVC_SET_CUR, 1, &video_resolution_data };
+    const uvc_xu_control_query set_video_resolution_query = { kUnit1, 0xF, UVC_SET_CUR, 1, &video_resolution_data };
     if (!execUvcControl(set_video_resolution_query)) {
       std::cerr << "Failed to set video resolution data." << std::endl;
       return false;
@@ -73,11 +73,11 @@ bool CxGb400::sendCopterAttitude(const double& q_w, const double& q_x, const dou
   union MsgUnion
   {
     AttitudeMsg msg;
-    uint8_t data[8];
+    uint8_t data[sizeof(AttitudeMsg)];
   } msg_union;
   msg_union.msg = msg;
 
-  struct uvc_xu_control_query attitude_query = { kUnit3, 0x02, UVC_SET_CUR, 8, msg_union.data };
+  const uvc_xu_control_query attitude_query = { kUnit3, 0x02, UVC_SET_CUR, 8, msg_union.data };
   if (!execUvcControl(attitude_query)) {
     std::cerr << "Failed to send attitude." << std::endl;
     return false;
@@ -89,7 +89,7 @@ bool CxGb400::sendCopterAttitude(const double& q_w, const double& q_x, const dou
 bool CxGb400::fullReset()
 {
   uint8_t reset = 1;
-  struct uvc_xu_control_query full_reset_query = { kUnit1, 0x05, UVC_SET_CUR, 1, &reset };
+  const uvc_xu_control_query full_reset_query = { kUnit1, 0x05, UVC_SET_CUR, 1, &reset };
   if (!execUvcControl(full_reset_query)) {
     std::cerr << "Failed to execute full reset." << std::endl;
     return false;
@@ -100,7 +100,7 @@ bool CxGb400::fullReset()
 bool CxGb400::turnOffUavcan()
 {
   uint8_t is_uavcan_on = 0;
-  struct uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_SET_CUR, 1, &is_uavcan_on };
+  const uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_SET_CUR, 1, &is_uavcan_on };
   if (!execUvcControl(check_uavcan_query)) {
     std::cerr << "Failed to turn off UAVCAN." << std::endl;
     return false;
@@ -135,11 +135,11 @@ bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
   union MsgUnion
   {
     GimbalCtrlMsg msg;
-    uint8_t data[6];
+    uint8_t data[sizeof(GimbalCtrlMsg)];
   } msg_union;
   msg_union.msg = msg;
 
-  struct uvc_xu_control_query gimbal_ctrl_query = { kUnit3, 0x03, UVC_SET_CUR, 6, msg_union.data };
+  const uvc_xu_control_query gimbal_ctrl_query = { kUnit3, 0x03, UVC_SET_CUR, 6, msg_union.data };
   if (!execUvcControl(gimbal_ctrl_query)) {
     std::cerr << "Failed to send gimbal control." << std::endl;
     return false;
@@ -147,5 +147,4 @@ bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
 
   return true;
 }
-
 }  // namespace driver
