@@ -18,7 +18,7 @@ public:
 
   struct Packet
   {
-    std::array<uint16_t, kChannelSize> periods = { 0 };
+    std::array<uint16_t, kChannelSize> periods = {};
     bool ch17;
     bool ch18;
     bool frame_lost;

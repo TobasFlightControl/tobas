@@ -166,9 +166,9 @@ bool BMM150::configure()
 
 bool BMM150::readTrimRegisters()
 {
-  uint8_t trim_x1y1[2] = { 0 };
-  uint8_t trim_xyz_data[4] = { 0 };
-  uint8_t trim_xy1xy2[10] = { 0 };
+  uint8_t trim_x1y1[2] = {};
+  uint8_t trim_xyz_data[4] = {};
+  uint8_t trim_xy1xy2[10] = {};
   uint16_t temp_msb = 0;
 
   // Trim register value is read

@@ -97,8 +97,8 @@ public:
 private:
   uint8_t dev_addr_;
   int i2c_fd_ = -1;
-  uint8_t tx_[kBufSize + 1] = { 0 };  // Register Address + TX data
-  uint8_t rx_[kBufSize] = { 0 };      // Temporal RX data
+  uint8_t tx_[kBufSize + 1] = {};  // Register Address + TX data
+  uint8_t rx_[kBufSize] = {};      // Temporal RX data
 
   bool checkDataLength(size_t length) const;
   bool selectDevice() const;

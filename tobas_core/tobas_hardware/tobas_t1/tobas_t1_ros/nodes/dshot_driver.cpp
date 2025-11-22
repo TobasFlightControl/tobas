@@ -37,7 +37,7 @@ private:
   t1::DShot dshot_;
 
   ptree::PropertyTree pt_;
-  std::array<uint8_t, t1::DShot::kChannelSize> gains_ = { 0 };
+  std::array<uint8_t, t1::DShot::kChannelSize> gains_ = {};
   bool is_commanded_ = false;
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 

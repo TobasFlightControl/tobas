@@ -86,7 +86,7 @@ private:
   };
 
   linux::I2Cdev i2c_;
-  int16_t mag_buf_[3] = { 0 };  // 正負両方の値を表現するために符号付き16ビット整数型が必須
+  int16_t mag_buf_[3] = {};  // 正負両方の値を表現するために符号付き16ビット整数型が必須
 
   bool checkWhoAmI();
   bool configure();

@@ -28,8 +28,8 @@ public:
 
 private:
   linux::SPIdev spi_;
-  uint16_t tx_buf_[kSPIBufSize] = { 0 };
-  uint16_t rx_buf_[kSPIBufSize] = { 0 };
+  uint16_t tx_buf_[kSPIBufSize] = {};
+  uint16_t rx_buf_[kSPIBufSize] = {};
 
   algo::CRC32Left crc_;
 };
