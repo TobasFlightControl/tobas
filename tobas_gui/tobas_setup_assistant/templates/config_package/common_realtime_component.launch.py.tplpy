@@ -43,7 +43,6 @@ def generate_launch_description():
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
 
-    tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
     extra_args = [{"use_intra_process_comms": True}]
 
     # Launch component containers
@@ -80,7 +79,7 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "observer_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
                     ],
-                    remappings=tf_remap,
+                    remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
                     extra_arguments=extra_args,
                 ),
                 ComposableNode(
@@ -123,27 +122,6 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
                     ],
-                    extra_arguments=extra_args,
-                ),
-                ComposableNode(
-                    package="tobas_manipulation",
-                    plugin="PositionControllerNode",
-                    namespace=DRONE_NAME,
-                    remappings=tf_remap,
-                    extra_arguments=extra_args,
-                ),
-                ComposableNode(
-                    package="tobas_manipulation",
-                    plugin="VelocityControllerNode",
-                    namespace=DRONE_NAME,
-                    remappings=tf_remap,
-                    extra_arguments=extra_args,
-                ),
-                ComposableNode(
-                    package="tobas_manipulation",
-                    plugin="EffortControllerNode",
-                    namespace=DRONE_NAME,
-                    remappings=tf_remap,
                     extra_arguments=extra_args,
                 ),
             ],
