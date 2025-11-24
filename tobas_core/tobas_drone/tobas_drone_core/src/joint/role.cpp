@@ -4,7 +4,6 @@
 
 #define TILT_JOINT "tilt_joint"
 #define CONTROL_SURFACE "control_surface"
-#define MANIPULATION "manipulation"
 #define USER_ACTIVE "user_active"
 #define USER_PASSIVE "user_passive"
 
@@ -19,8 +18,6 @@ string textFromEnum(JointRole role)
       return TILT_JOINT;
     case JointRole::kControlSurface:
       return CONTROL_SURFACE;
-    case JointRole::kManipulation:
-      return MANIPULATION;
     case JointRole::kUserActive:
       return USER_ACTIVE;
     case JointRole::kUserPassive:
@@ -38,10 +35,6 @@ bool enumFromText(const string& text, JointRole& dst)
   }
   else if (text == CONTROL_SURFACE) {
     dst = JointRole::kControlSurface;
-    return true;
-  }
-  else if (text == MANIPULATION) {
-    dst = JointRole::kManipulation;
     return true;
   }
   else if (text == USER_ACTIVE) {
@@ -64,8 +57,6 @@ bool isServoJoint(JointRole role)
     case JointRole::kTiltJoint:
       return true;
     case JointRole::kControlSurface:
-      return true;
-    case JointRole::kManipulation:
       return true;
     case JointRole::kUserActive:
       return true;

@@ -40,7 +40,6 @@ class ExtraJointsWidget : public BaseSettingWidget
   static constexpr char kHomePosLabel[] = "Home Position";
 
   // Role Labels
-  static constexpr char kRoleLabel_Manipulation[] = "Manipulation";
   static constexpr char kRoleLabel_UserActive[] = "User Active";
   static constexpr char kRoleLabel_UserPassive[] = "User Passive";
 

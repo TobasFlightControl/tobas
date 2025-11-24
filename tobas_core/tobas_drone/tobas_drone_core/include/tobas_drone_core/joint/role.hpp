@@ -8,7 +8,6 @@ enum struct JointRole
 {
   kTiltJoint,
   kControlSurface,
-  kManipulation,
   kUserActive,
   kUserPassive,
 };
