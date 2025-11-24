@@ -23,6 +23,7 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/node_name.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
@@ -153,7 +154,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   gz::sim::EventManager&)
 {
   link_name_ = sdf->Get<std::string>("linkName");
-  initialize("gazebo_" + link_name_ + "_controller_plugin", sdf);
+  initialize("gazebo_" + sanitizeNodeName(link_name_) + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
   rice_ = RiceDistribution(1., param_.vib_force_var_rate);

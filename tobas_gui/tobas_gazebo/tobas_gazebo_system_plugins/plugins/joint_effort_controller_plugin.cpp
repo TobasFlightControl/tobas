@@ -9,6 +9,7 @@
 #include <tobas_gazebo_msgs/msg/joint_command.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/node_name.hpp"
 
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
@@ -64,7 +65,7 @@ void GazeboJointEffortControllerPlugin::Configure(
   gz::sim::EventManager&)
 {
   joint_name_ = sdf->Get<std::string>("jointName");
-  initialize("gazebo_" + joint_name_ + "_controller_plugin", sdf);
+  initialize("gazebo_" + sanitizeNodeName(joint_name_) + "_controller_plugin", sdf);
   getSdfParams(sdf);
 
   // Get robot model
