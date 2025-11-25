@@ -195,11 +195,11 @@ void JointCommandsPublisherWidget::publishCurrentValues()
   }
   if (!tar_vel->commands.empty()) {
     tar_vel->header.stamp = node_->now();
-    pos_pub_->publish(std::move(tar_vel));
+    vel_pub_->publish(std::move(tar_vel));
   }
   if (!tar_eff->commands.empty()) {
     tar_eff->header.stamp = node_->now();
-    pos_pub_->publish(std::move(tar_eff));
+    eff_pub_->publish(std::move(tar_eff));
   }
 }
 
