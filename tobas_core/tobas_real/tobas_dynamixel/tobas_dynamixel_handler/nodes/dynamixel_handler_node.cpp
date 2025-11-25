@@ -334,7 +334,6 @@ bool DynamixelHandlerNode::getMotorConfigs()
       case model_number::kXH540V270:
       case model_number::kXW540T140:
       case model_number::kXW540T260:
-        break;
         cfg.current_available = true;
         cfg.current_scaling_factor = 2.69;
         break;
