@@ -676,7 +676,7 @@ void DynamixelHandlerNode::publishCurrentStatesTimerCb()
 
   // Read packets
   if (core_sync_read_->txRxPacket() < 0) {
-    TOBAS_ERROR("Failed to receive a sync packet of present position. Disabling torques.");
+    TOBAS_ERROR("Failed to receive a sync packet of present states. Disabling torques.");
     disableTorques();
     printHardwareErrorStatus();  // FIXME: モータのシャットダウン後はHESの取得もできない
     return;
