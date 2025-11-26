@@ -64,12 +64,12 @@ private:
   bool buffer_mapped_ = false;
   ImgFormat fmt_;
 
-  struct buffer
+  struct Buffer
   {
     void* start = nullptr;
     size_t length = 0;
   };
-  buffer* buffers_;
+  Buffer* buffers_;
 
   bool is_stream_on_ = false;
 

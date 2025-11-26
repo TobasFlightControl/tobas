@@ -206,7 +206,7 @@ bool VideoDev::requestDeviceBuffer()
 
 bool VideoDev::mapBuffer()
 {
-  buffers_ = static_cast<buffer*>(calloc(kBufferSize, sizeof(*buffers_)));
+  buffers_ = static_cast<Buffer*>(calloc(kBufferSize, sizeof(*buffers_)));
   if (!buffers_) {
     std::cerr << "Calloc failed." << std::endl;
     return false;
