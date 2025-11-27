@@ -51,7 +51,7 @@ See [Git Guideline](./GIT_GUIDELINE.md).
 Synchronize the Tobas repository on the PC with the FC.
 
 ```bash
-user@host $ tobas_dev_tools/scripts/tobas_sync
+user@host $ tobas_dev_tools/scripts/tobas_sync ${host}
 ```
 
 ### Build
