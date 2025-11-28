@@ -30,8 +30,8 @@ public:
 
 private:
   std::filesystem::path log_path_;
-  rosbag2_cpp::Reader reader_;
   std::unordered_set<std::string> decode_fail_topics_;
+  rosbag2_cpp::Reader reader_;
 
   QVector<tobas_msgs::msg::Odometry> odom_data_;
   QVector<tobas_msgs::msg::Imu> raw_imu_data_;
@@ -73,6 +73,9 @@ private:
 
   std::array<PlotTabWidget*, 6> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
+
+  bool open(const std::string& rosbag_path);
+  bool reindex(const std::string& rosbag_path);
 
   void setPlotData(double time_from_start);
 
