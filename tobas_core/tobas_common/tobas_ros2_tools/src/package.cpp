@@ -57,7 +57,7 @@ std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
 {
   const auto pkg_path = getPackagePathOf(path);
   if (!pkg_path) {
-    return std::unexpected(path.string() + " is not in a ROS package: " + pkg_path.error());
+    return std::unexpected("\"" + path.string() + "\" is not in a ROS package: " + pkg_path.error());
   }
 
   auto cur = pkg_path.value().parent_path();
@@ -71,5 +71,27 @@ std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
     }
     cur = parent;
   }
+}
+
+bool isAlreadyBuiltAndInstalled(const fs::path& pkg_path)
+{
+  // share直下にある
+  if (pkg_path.parent_path().filename() != "share") {
+    return false;
+  }
+
+  // C++パッケージではない
+  const auto cmake_lists_path = pkg_path / "CMakeLists.txt";
+  if (fs::is_regular_file(cmake_lists_path)) {
+    return false;
+  }
+
+  // Pythonパッケージではない
+  const auto setup_py_path = pkg_path / "setup.py";
+  if (fs::is_regular_file(setup_py_path)) {
+    return false;
+  }
+
+  return true;
 }
 }  // namespace ros2

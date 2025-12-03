@@ -11,6 +11,9 @@ std::expected<std::filesystem::path, std::string> getPackagePathOf(const std::fi
 /* pathが属するパッケージのpackage.xmlのnameを読み取る． */
 std::expected<std::string, std::string> getPackageNameOf(const std::filesystem::path& path);
 
-/* パッケージのパスから最も近いsrcディレクトリの親ディレクトリを返す． */
+/* pathが属するパッケージのパスから最も近いsrcディレクトリの親ディレクトリを返す． */
 std::expected<std::filesystem::path, std::string> estimateWorkspaceOf(const std::filesystem::path& path);
+
+/* パッケージがビルド・インストール済みかどうかを判定する． */
+bool isAlreadyBuiltAndInstalled(const std::filesystem::path& pkg_path);
 }  // namespace ros2

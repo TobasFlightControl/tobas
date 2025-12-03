@@ -376,9 +376,9 @@ void SetupAssistantWidget::onNewButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
-  // UADFがホーム以下のROSパッケージ内に存在する場合はパッケージをビルドしてパスを通す
+  // UADFがインストール済みののROSパッケージ内に存在する場合はパッケージをビルドしてパスを通す
   const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
-  if (pkg_path && pkg_path.value().string().starts_with(ros2::getHomeDir())) {
+  if (pkg_path && !ros2::isAlreadyBuiltAndInstalled(pkg_path.value())) {
     const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
     if (!pkg_name) {
       qt::qErrorBox(this, "Failed to get the ROS package name of the UADF: " + QString::fromStdString(pkg_name.error()));
