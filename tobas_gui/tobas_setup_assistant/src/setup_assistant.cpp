@@ -376,7 +376,7 @@ void SetupAssistantWidget::onNewButtonClicked()
     qWarning() << property_client_.errorMessage();
   }
 
-  // UADFがインストール済みのROSパッケージ内に存在する場合はパッケージをビルドする
+  // UADFがインストール前のROSパッケージ内に存在する場合はパッケージをビルドする
   const auto pkg_path = ros2::getPackagePathOf(uadf_path.toStdString());
   if (pkg_path && !ros2::isAlreadyBuiltAndInstalled(pkg_path.value())) {
     const auto pkg_name = ros2::getPackageNameOf(pkg_path.value());
