@@ -128,13 +128,12 @@ static constexpr char kRos2JazzyInstallPath[] = "/opt/ros/jazzy";
 static constexpr char kTobasInstallPath[] = "/opt/tobas";
 
 // Resource Path
-static constexpr char kResourceDirHome[] = "~/Tobas";
-static constexpr char kResourceDirRoot[] = "/etc/tobas";
-static constexpr char kConfigDirHome[] = "~/Tobas/config";
+// XDG Base Directory Specification: https://specifications.freedesktop.org/basedir/
+static constexpr char kConfigDirHome[] = "~/.local/share/tobas/config";
 static constexpr char kConfigDirRoot[] = "/etc/tobas/config";
-static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
+static constexpr char kColconWSPathHome[] = "~/.local/share/tobas/colcon_ws";
 static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
-static constexpr char kRosbagDirHome[] = "~/Tobas/rosbag";
+static constexpr char kRosbagDirHome[] = "~/.local/share/tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
 static constexpr char kConfigEnvPath[] = "/etc/tobas/config.env";
 
