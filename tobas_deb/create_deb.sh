@@ -4,4 +4,4 @@ set -e
 
 TOBAS_DEB=$(realpath $(dirname "$0"))
 bash ${TOBAS_DEB}/create_deb_ubuntu.sh
-bash ${TOBAS_DEB}/create_deb_t1.sh
+bash ${TOBAS_DEB}/create_deb_fc1xx.sh

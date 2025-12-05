@@ -9,7 +9,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
+#include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
 
 namespace gui
 {
