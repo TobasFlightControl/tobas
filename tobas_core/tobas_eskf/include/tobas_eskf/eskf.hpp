@@ -284,7 +284,6 @@ private:
 
   /**
    * @brief 重力方向の観測．姿勢の修正に用いる．
-   * https://www.dropbox.com/s/ijfnlkvcep1w0f2/%E5%A7%BF%E5%8B%A2%E6%8E%A8%E5%AE%9A%E3%81%AE%E5%9F%BA%E7%A4%8E.pdf
    *
    * @param acc_meas 加速度センサの読み．
    * @param grav_cov 観測による修正量を決めるパラメータ．
