@@ -14,7 +14,7 @@ LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
 {
   setFileMode(Directory);  // ディレクトリのダブルクリックでシグナルを発行させるために必須
   setOptions(ShowDirsOnly | DontUseNativeDialog);
-  setFilter(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot);
+  setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
 
   proxy_ = new QSortFilterProxyModel(this);
   setProxyModel(proxy_);

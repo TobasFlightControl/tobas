@@ -19,7 +19,7 @@ SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const 
 {
   setAcceptMode(QFileDialog::AcceptSave);  // setFileMode(Directory) をやるとSaveボタンが消えることに注意
   setOptions(ShowDirsOnly | DontUseNativeDialog);
-  setFilter(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot);
+  setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
   setDefaultSuffix("TBS");
   selectFile(dflt_name);
 
