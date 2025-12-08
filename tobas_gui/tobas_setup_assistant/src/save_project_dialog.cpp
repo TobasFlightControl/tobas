@@ -17,10 +17,9 @@ namespace sa
 SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name)
   : super(parent, "Save Tobas Project", dir)
 {
-  setAcceptMode(QFileDialog::AcceptSave);
-  setFileMode(Directory);
+  setAcceptMode(QFileDialog::AcceptSave);  // setFileMode(Directory) をやるとSaveボタンが消えることに注意
   setOptions(ShowDirsOnly | DontUseNativeDialog);
-  setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
+  setFilter(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot);
   setDefaultSuffix("TBS");
   selectFile(dflt_name);
 

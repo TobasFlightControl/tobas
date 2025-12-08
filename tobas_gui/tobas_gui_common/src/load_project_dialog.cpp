@@ -12,9 +12,8 @@ namespace cmn
 LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
   : QFileDialog(parent, "Select Tobas Project (*.TBS)", dir, "Tobas Project (*.TBS)")
 {
-  setFileMode(Directory);
   setOptions(ShowDirsOnly | DontUseNativeDialog);
-  setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
+  setFilter(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot);
 
   proxy_ = new QSortFilterProxyModel(this);
   setProxyModel(proxy_);
