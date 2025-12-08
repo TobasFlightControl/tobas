@@ -1,6 +1,6 @@
+#include <tobas_fc1xx_core/ilps22qs.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_fc1xx_core/ilps22qs.hpp>
 
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 

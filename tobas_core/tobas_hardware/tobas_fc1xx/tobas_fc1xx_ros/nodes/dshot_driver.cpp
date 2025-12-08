@@ -2,9 +2,9 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
+#include <tobas_fc1xx_core/dshot.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
-#include <tobas_fc1xx_core/dshot.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
 
 #include <std_srvs/srv/trigger.hpp>

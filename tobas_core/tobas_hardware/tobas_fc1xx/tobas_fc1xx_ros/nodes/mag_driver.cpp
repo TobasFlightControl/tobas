@@ -1,6 +1,6 @@
+#include <tobas_fc1xx_core/iis2mdc.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_fc1xx_core/iis2mdc.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 
