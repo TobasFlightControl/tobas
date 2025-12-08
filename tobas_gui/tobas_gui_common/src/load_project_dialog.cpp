@@ -12,6 +12,7 @@ namespace cmn
 LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
   : QFileDialog(parent, "Select Tobas Project (*.TBS)", dir, "Tobas Project (*.TBS)")
 {
+  setFileMode(Directory);  // ディレクトリのダブルクリックでシグナルを発行させるために必須
   setOptions(ShowDirsOnly | DontUseNativeDialog);
   setFilter(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot);
 
