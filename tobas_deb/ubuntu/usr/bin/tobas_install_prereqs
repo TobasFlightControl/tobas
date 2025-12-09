@@ -51,6 +51,8 @@ source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths /opt/tobas/share/ -yi
 
 # ===== Other settings =====
-sudo usermod -aG dialout ${USER}  # Add user to the dialout group
+# Add user to the dialout group
+sudo usermod -aG dialout ${USER}
+echo ${USER} has been added to the dialout group.
 
-echo -e "\033[32mInstallation finished successfully.\033[0m"
+echo -e "\033[32mInstallation finished successfully. Please restart your PC.\033[0m"
