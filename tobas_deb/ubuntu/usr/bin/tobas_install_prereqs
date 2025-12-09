@@ -50,4 +50,7 @@ source /opt/ros/jazzy/setup.bash
 # ===== Install ROS dependencies of Tobas =====
 rosdep install --from-paths /opt/tobas/share/ -yi
 
+# ===== Other settings =====
+sudo usermod -aG dialout ${USER}  # Add user to the dialout group
+
 echo -e "\033[32mInstallation finished successfully.\033[0m"
