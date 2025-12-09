@@ -51,7 +51,7 @@ source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths /opt/tobas/share/ -yi
 
 # ===== Other settings =====
-# Add user to the dialout group
+# Add user to the dialout group (required to access USB devices)
 sudo usermod -aG dialout ${USER}
 echo ${USER} has been added to the dialout group.
 
