@@ -21,7 +21,7 @@ class WifiClientWidget : public BaseConfigWidget
   using self = WifiClientWidget;
   using super = BaseConfigWidget;
 
-  static constexpr int kColWidth = 300;
+  static constexpr int kColWidth = 150;
 
   static constexpr int kKeyMgmtCol = 0;
   static constexpr int kSsidCol = 1;
