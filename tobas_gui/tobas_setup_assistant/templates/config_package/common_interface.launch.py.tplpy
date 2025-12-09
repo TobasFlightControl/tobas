@@ -16,7 +16,6 @@ USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
-GROUND_TRUTH = "ground_truth"
 
 
 def generate_launch_description():
@@ -26,13 +25,11 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
-    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
-    ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
     # Set common parameters
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
@@ -41,8 +38,7 @@ def generate_launch_description():
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
     user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
 
-    remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
-    ros_args = ["--log-level", log_level]
+    ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
 
     # Launch navigation actions
     ld.add_action(
@@ -50,7 +46,6 @@ def generate_launch_description():
             package=ACTIONS_PKG,
             executable="takeoff_server",
             namespace=DRONE_NAME,
-            remappings=remappings,
             ros_arguments=ros_args,
             output=output,
         )
@@ -60,7 +55,6 @@ def generate_launch_description():
             package=ACTIONS_PKG,
             executable="land_server",
             namespace=DRONE_NAME,
-            remappings=remappings,
             ros_arguments=ros_args,
             output=output,
         )
@@ -70,7 +64,6 @@ def generate_launch_description():
             package=ACTIONS_PKG,
             executable="move_server",
             namespace=DRONE_NAME,
-            remappings=remappings,
             ros_arguments=ros_args,
             output=output,
         )

@@ -3,6 +3,7 @@
 #include "./debug.hpp"
 #include "./loop_type.hpp"
 #include "./pose.hpp"
+#include "./sbus.hpp"
 #include "./world/world.hpp"
 
 namespace gui
@@ -30,12 +31,15 @@ public:
   double pitch() const;  // [rad]
   double yaw() const;    // [rad]
 
+  std::filesystem::path sbusDevicePath() const;
+
   bool userDebug() const;
 
 private:
   LoopTypeWidget* type_;
   WorldWidget* world_;
   PoseWidget* pose_;
+  SbusWidget* sbus_;
   DebugWidget* debug_;
 };
 }  // namespace sim

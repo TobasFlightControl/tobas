@@ -4,13 +4,13 @@
 #include <unordered_set>
 #include <vector>
 
-namespace tobas_std
+namespace tbs
 {
 /* 要素の最小値を返す． */
 template <typename T>
 T min(const std::unordered_set<T>& set)
 {
-  assert(set.size() > 0);
+  assert(!set.empty());
 
   T res = *set.begin();
   for (const T& elem : set) {
@@ -23,7 +23,7 @@ T min(const std::unordered_set<T>& set)
 template <typename T>
 T max(const std::unordered_set<T>& set)
 {
-  assert(set.size() > 0);
+  assert(!set.empty());
 
   T res = *set.begin();
   for (const T& elem : set) {
@@ -31,4 +31,4 @@ T max(const std::unordered_set<T>& set)
   }
   return res;
 }
-}  // namespace tobas_std
+}  // namespace tbs

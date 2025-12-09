@@ -40,10 +40,10 @@ public:
   virtual void load(const YAML::Node& node) = 0;
 
 protected:
-  void addWidget(QWidget* widget);
-  void addWidgetCenter(QWidget* widget);
-  void addLayout(QLayout* layout);
-  void addStretch();
+  void addWidget(QWidget* widget, int stretch = 0);
+  void addWidgetCenter(QWidget* widget, int stretch = 0);
+  void addLayout(QLayout* layout, int stretch = 0);
+  void addStretch(int stretch = 0);
   void addSpacing(int size);
 
 private:

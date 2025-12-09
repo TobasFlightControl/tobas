@@ -1,6 +1,7 @@
 #include "tobas_setup_assistant/xml_elements/urdf.hpp"
 
 #include <format>
+#include <ranges>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -28,20 +29,34 @@ std::string toString<std::string>(const std::string& data)
 template <>
 std::string toString<double>(const double& data)
 {
-  return std::format("{}", data);  // 最適な表記方法を自動判定
+  // 最適な表記方法を自動判定
+  return std::format("{}", data);
+}
+
+template <>
+std::string toString<std::vector<double>>(const std::vector<double>& data)
+{
+  std::string res;
+  for (const auto& [i, x] : std::views::enumerate(data)) {
+    if (i != 0) {
+      res += ' ';
+    }
+    res += toString(x);
+  }
+  return res;
 }
 
 template <>
 std::string toString<std::pair<double, double>>(const std::pair<double, double>& data)
 {
-  // format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
-  return toString(data.first) + " " + toString(data.second);
+  // format("{} {}", first, second) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
+  return toString(data.first) + ' ' + toString(data.second);
 }
 
 template <>
 std::string toString<Eigen::Vector3d>(const Eigen::Vector3d& data)
 {
-  return toString(data.x()) + " " + toString(data.y()) + " " + toString(data.z());
+  return toString(data.x()) + ' ' + toString(data.y()) + ' ' + toString(data.z());
 }
 
 template <typename T>
@@ -89,7 +104,7 @@ void addBatteryPlugin(
   addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 
-void addIMUPlugin(
+void addImuPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
@@ -123,9 +138,6 @@ void addMagnetometerPlugin(
   const std::string& link_name,
   int update_rate,
   const Eigen::Vector3d& offset,
-  double latitude_zero,
-  double longitude_zero,
-  double altitude_zero,
   double noise_stddev,
   double hard_bias_norm)
 {
@@ -134,9 +146,6 @@ void addMagnetometerPlugin(
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("latitudeZero")->SetText(latitude_zero);
-  plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
   plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
   plugin->InsertNewChildElement("hardBiasNorm")->SetText(hard_bias_norm);
 }
@@ -147,7 +156,6 @@ void addBarometerPlugin(
   const std::string& link_name,
   int update_rate,
   const Eigen::Vector3d& offset,
-  double altitude_zero,
   double noise_stddev)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "gazebo::GazeboBarometerPlugin");
@@ -155,11 +163,10 @@ void addBarometerPlugin(
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
   plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
 }
 
-void addGNSSPlugin(
+void addGnssPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
@@ -170,10 +177,7 @@ void addGNSSPlugin(
   double hor_pos_accuracy,
   double ver_pos_accuracy,
   double ver_vel_stddev,
-  double hor_vel_stddev,
-  double latitude_zero,
-  double longitude_zero,
-  double altitude_zero)
+  double hor_vel_stddev)
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -186,9 +190,6 @@ void addGNSSPlugin(
   plugin->InsertNewChildElement("verPosAccuracy")->SetText(ver_pos_accuracy);
   plugin->InsertNewChildElement("horVelStdDev")->SetText(hor_vel_stddev);
   plugin->InsertNewChildElement("verVelStdDev")->SetText(ver_vel_stddev);
-  plugin->InsertNewChildElement("latitudeZero")->SetText(latitude_zero);
-  plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
 }
 
 void addElectricPropulsionSystemPlugin(
@@ -202,8 +203,7 @@ void addElectricPropulsionSystemPlugin(
   double moment_const,
   double drag_const,
   tobas::TurningDirection direction,
-  double max_current,
-  double max_model_error_rate)
+  double max_current)
 {
   const auto plugin = addGazeboPlugin(
     robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
@@ -217,7 +217,6 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("dragConstant")->SetText(drag_const);
   plugin->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(direction).c_str());
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
-  plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }
 
 void addIcePropulsionSystemPlugin(
@@ -247,9 +246,16 @@ void addIcePropulsionSystemPlugin(
     rotor->InsertNewChildElement("minPitchAngle")->SetText(rotor_param.pitch_angle_limit.lower);
     rotor->InsertNewChildElement("maxPitchAngle")->SetText(rotor_param.pitch_angle_limit.upper);
     rotor->InsertNewChildElement("maxPitchAngleRate")->SetText(rotor_param.max_pitch_angle_rate);
-    rotor->InsertNewChildElement("motorConstant")->SetText(toString(rotor_param.motor_const).c_str());
-    rotor->InsertNewChildElement("momentConstant")->SetText(rotor_param.moment_const);
-    rotor->InsertNewChildElement("dragConstant")->SetText(toString(rotor_param.drag_const).c_str());
+
+    const auto& ct = rotor_param.motor_const;
+    rotor->InsertNewChildElement("motorConstant")->SetText(toString(std::vector<double>{ ct.c0, ct.c1 }).c_str());
+
+    const auto& cm = rotor_param.moment_const;
+    rotor->InsertNewChildElement("momentConstant")
+      ->SetText(toString(std::vector<double>{ cm.a, cm.b, cm.c, cm.phi0 }).c_str());
+
+    const auto& ch = rotor_param.drag_const;
+    rotor->InsertNewChildElement("dragConstant")->SetText(toString(std::vector<double>{ ch.c0, ch.c1 }).c_str());
   }
 }
 
@@ -257,7 +263,6 @@ void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& base_link_name,
-  double altitude_zero,
   const tobas::FixedWingConfig& fixed_wing)
 {
   const auto& vehicle = fixed_wing.vehicle;
@@ -267,7 +272,6 @@ void addFixedWingPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_fixed_wing_plugin", "gazebo::GazeboFixedWingPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("baseLinkName")->SetText(base_link_name.c_str());
-  plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
 
   // Vehicle
   plugin->InsertNewChildElement("wingSurface")->SetText(vehicle.wing_surface);

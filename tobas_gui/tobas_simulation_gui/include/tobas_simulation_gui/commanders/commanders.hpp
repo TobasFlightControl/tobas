@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./base_pose_commander.hpp"
-#include "./joint_position_commander.hpp"
+#include "./joint_commander.hpp"
 
 namespace gui
 {
@@ -28,7 +28,7 @@ public:
 
 private:
   BasePoseCommanderWidget* base_pose_commander_;
-  JointPositionCommanderWidget* jointpos_commander_;
+  JointCommanderWidget* joint_commander_;
 };
 }  // namespace sim
 }  // namespace gui

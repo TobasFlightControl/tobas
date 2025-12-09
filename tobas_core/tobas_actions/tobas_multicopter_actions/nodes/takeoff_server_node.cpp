@@ -2,7 +2,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_tools/util.hpp>
-#include <tobas_trajectory_generators/cubic.hpp>
+#include <tobas_trajectory_generators/time_optimal.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
@@ -99,19 +99,34 @@ void TakeoffServerNode::landedCb(const tobas_msgs::msg::LandedState::ConstShared
 rclcpp_action::GoalResponse
 TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
+  TOBAS_INFO("Takeoff action is requested.");
+
   if (goal->target_altitude <= 0.) {
     TOBAS_ERROR("Target altitude must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->altitude_tolerance <= 0.) {
-    TOBAS_ERROR("Altitude tolerance must be positive.");
+  if (goal->max_speed <= 0.) {
+    TOBAS_ERROR("Maximum speed must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->duration <= 0.) {
-    TOBAS_ERROR("Target duration must be positive.");
+  if (goal->max_accel <= 0.) {
+    TOBAS_ERROR("Maximum acceleration must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_jerk <= 0.) {
+    TOBAS_ERROR("Maximum jerk must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->altitude_tolerance <= 0.) {
+    TOBAS_WARN("The altitude tolerance is not specified. It will be infinite.");
+  }
+
+  if (goal->timeout <= 0.) {
+    TOBAS_WARN("The timeout is not specified. It will be infinite.");
   }
 
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -119,13 +134,12 @@ TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::
 
 rclcpp_action::CancelResponse TakeoffServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
+  TOBAS_INFO("Takeoff action is canceled.");
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
 void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Takeoff action is requested.");
-
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
@@ -156,7 +170,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   // TODO: 正常にアームされたかどうかを確認
 
   // 初期状態を取得
-  const auto start_time = get_clock()->now();
+  const auto start_time = now();
   const auto start_pos = odom_->frame.p.clone();
   const auto start_yaw = odom_->frame.M.getYaw();
 
@@ -164,7 +178,12 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto goal = goal_handle->get_goal();
 
   // 軌道を生成
-  const traj::CubicSpline traj_z(start_pos.z(), goal->target_altitude, goal->duration);
+  const traj::TimeOptimalTrajectory traj_z(
+    start_pos.z(), goal->target_altitude, goal->max_jerk, goal->max_accel, goal->max_speed);
+
+  // 所要時間を取得
+  const auto duration = traj_z.duration();
+  TOBAS_INFO("Takeoff will take ", duration, " seconds.");
 
   // 目標状態の固定部分を作成
   kdl::Vector tar_pos(start_pos.x(), start_pos.y(), NAN);
@@ -174,11 +193,11 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // 開始からの経過時間を計算
-    const auto cur_time = get_clock()->now();
+    const auto cur_time = now();
     const auto dt = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0. && dt > goal->duration + goal->timeout) {
+    if (goal->timeout > 0. && dt > duration + goal->timeout) {
       result->message = "Timeout before reaching the target altitude.";
       goal_handle->abort(result);
       return;
@@ -186,11 +205,13 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
-    const auto alt_error = fabs(goal->target_altitude - cur_pos.z());
-    if (dt > goal->duration && alt_error < goal->altitude_tolerance) {
-      result->message.clear();
-      goal_handle->succeed(result);
-      return;
+    const auto alt_err_abs = fabs(goal->target_altitude - cur_pos.z());
+    if (dt > duration) {
+      if (goal->altitude_tolerance <= 0. || alt_err_abs < goal->altitude_tolerance) {
+        result->message.clear();
+        goal_handle->succeed(result);
+        return;
+      }
     }
 
     // 鉛直方向の軌道を生成

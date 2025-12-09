@@ -37,7 +37,7 @@ HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& options)
 void HeartbeatReceiverNode::publishConnectionState(bool connected)
 {
   auto msg = std::make_unique<tobas_msgs::msg::RemoteConnection>();
-  msg->header.stamp = get_clock()->now();
+  msg->header.stamp = now();
   msg->data = connected;
   connection_pub_->publish(std::move(msg));
 }

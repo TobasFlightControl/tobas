@@ -27,7 +27,7 @@ public:
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
 
-  bool setCutoffFrequency(const double& fc);
+  bool setCutoffFrequency(const double& fc_hz);
 
 private:
   double wc_ = std::numeric_limits<double>::max();  // [rad/s]
@@ -64,14 +64,14 @@ inline void LowPassFilterP1<T>::setValue(const T& x)
 }
 
 template <typename T>
-bool LowPassFilterP1<T>::setCutoffFrequency(const double& fc)
+bool LowPassFilterP1<T>::setCutoffFrequency(const double& fc_hz)
 {
-  if (fc <= 0.) {
+  if (fc_hz <= 0.) {
     std::cerr << "The cutoff frequency of P1 low-pass filter must be positive." << std::endl;
     return false;
   }
 
-  wc_ = M_2PI * fc;  // Hz -> rad/s
+  wc_ = M_2PI * fc_hz;  // Hz -> rad/s
   return true;
 }
 }  // namespace dsp

@@ -17,8 +17,8 @@
 #include "tobas_urdf_builder_plugin/ui/add_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
-#include "tobas_urdf_builder_plugin/ui/widget_item.hpp"
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
+#include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
 #define ROBOT_MODEL_UPDATE_INTERVAL 10  // [ms]
 #define INVALID_CHARS " '\"#$%&()^~|,.<>/\\!?"

@@ -10,7 +10,7 @@ namespace linux
 {
 pid_t createSubprocess(const vector<char*>& _argv)
 {
-  if (_argv.size() == 0) {
+  if (_argv.empty()) {
     cerr << "The size of command list is 0." << endl;
     return -1;
   }

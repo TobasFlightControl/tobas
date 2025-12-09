@@ -28,10 +28,29 @@ std::string Exporter::exportText(const Data& src) const
   // Networks
   for (const auto& network : src.networks) {
     oss << "\n" << kStartNetworkBlock << "\n";
-    oss << "\t" << kSSIDPrefix << "\"" << network.ssid << "\"\n";
-    oss << "\t" << kPSKPrefix << "\"" << network.psk << "\"\n";
-    oss << "\t" << kKeyMgmtPrefix << keyManagementToString(network.key_mgmt) << "\n";
+
+    oss << "\t" << kSsidPrefix << "\"" << network.ssid << "\"\n";
     oss << "\t" << kPriorityPrefix << network.priority << "\n";
+
+    if (network.scan_ssid) {
+      oss << "\t" << kScanSsidPrefix << "1\n";
+    }
+
+    oss << "\t" << kKeyMgmtPrefix << tokenFromEnum(network.key_mgmt) << "\n";
+    switch (network.key_mgmt) {
+      case KeyMgmt::NONE:
+        break;
+      case KeyMgmt::WPA_PSK:
+        oss << "\t" << kPskPrefix << "\"" << network.psk << "\"\n";
+        break;
+      case KeyMgmt::SAE:
+        oss << "\t" << kSaePasswordPrefix << "\"" << network.psk << "\"\n";
+        oss << "\t" << kIeee80211wPrefix << 2 << "\n";  // PMF必須
+        break;
+      default:
+        throw;
+    }
+
     oss << kStopNetworkBlock << "\n";
   }
 
@@ -521,18 +540,6 @@ const char* Exporter::countryCodeToString(CountryCode cc)
       return country_code::Zambia;
     case CountryCode::ZW:
       return country_code::Zimbabwe;
-    default:
-      throw;
-  }
-}
-
-const char* Exporter::keyManagementToString(KeyManagement key_mgmt)
-{
-  switch (key_mgmt) {
-    case KeyManagement::WPA_PSK:
-      return key_mgmt::WPA_PSK;
-    case KeyManagement::WPA_EAP:
-      return key_mgmt::WPA_EAP;
     default:
       throw;
   }

@@ -15,10 +15,10 @@ static constexpr size_t kRcChannelRoll = 0;     // CH1
 static constexpr size_t kRcChannelPitch = 1;    // CH2
 static constexpr size_t kRcChannelThrot = 2;    // CH3
 static constexpr size_t kRcChannelYaw = 3;      // CH4
-static constexpr size_t kRcChannelEnable = 4;   // CH5
-static constexpr size_t kRcChannelKill = 5;     // CH6
-static constexpr size_t kRcChannelMode = 6;     // CH7
-static constexpr size_t kRcChannelSubMode = 7;  // CH8
+static constexpr size_t kRcChannelMode = 4;     // CH5
+static constexpr size_t kRcChannelSubMode = 5;  // CH6
+static constexpr size_t kRcChannelEnable = 6;   // CH7
+static constexpr size_t kRcChannelKill = 7;     // CH8
 static constexpr size_t kRcChannelGpsw = 8;     // CH9-16
 
 namespace handler
@@ -55,15 +55,15 @@ static constexpr char kYawLeftKey[] = "yaw/left";
 static constexpr char kYawRightKey[] = "yaw/right";
 static constexpr char kThrotUpKey[] = "throttle/up";
 static constexpr char kThrotDownKey[] = "throttle/down";
-static constexpr char kEnableOnKey[] = "enable/on";
-static constexpr char kEnableOffKey[] = "enable/off";
-static constexpr char kKillOnKey[] = "kill/on";
-static constexpr char kKillOffKey[] = "kill/off";
 static constexpr char kModeAcrobatKey[] = "mode/acrobat";
 static constexpr char kModeStabilizeKey[] = "mode/stabilize";
 static constexpr char kModeLoiterKey[] = "mode/loiter";
 static constexpr char kSubModeOnKey[] = "sub_mode/on";
 static constexpr char kSubModeOffKey[] = "sub_mode/off";
+static constexpr char kEnableOnKey[] = "enable/on";
+static constexpr char kEnableOffKey[] = "enable/off";
+static constexpr char kKillOnKey[] = "kill/on";
+static constexpr char kKillOffKey[] = "kill/off";
 static constexpr char kGpswOnKey[] = "gpsw/on";
 static constexpr char kGpswOffKey[] = "gpsw/off";
 }  // namespace rcin

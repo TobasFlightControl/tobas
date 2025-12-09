@@ -248,7 +248,7 @@ void RobotModel::buildJointInfo()
         variable_names_.push_back(name_order[j]);
         joints_of_variable_.push_back(joint);
       }
-      if (joint->getMimic() == nullptr) {
+      if (!joint->getMimic()) {
         active_joint_model_start_index_.push_back(variable_count_);
         active_joint_model_vector_.push_back(joint);
         active_joint_model_names_vector_.push_back(joint->getName());
@@ -641,7 +641,7 @@ void RobotModel::buildGroupsInfoEndEffectors(const srdf::Model& srdf_model)
         }
 
         // if no parent group was specified, use a default one
-        if (eef_parent_group == nullptr) {
+        if (!eef_parent_group) {
           if (!possible_parent_groups.empty()) {
             // if there are multiple options for the group that contains this end-effector,
             // we pick the group with fewest joints.
@@ -786,7 +786,7 @@ JointModel* RobotModel::buildRecursive(LinkModel* parent, const urdf::Link* urdf
   // construct the joint
   JointModel* joint = constructJointModel(urdf_link, srdf_model);
 
-  if (joint == nullptr) {
+  if (!joint) {
     return nullptr;
   }
 
@@ -1351,7 +1351,7 @@ void RobotModel::getMissingVariableNames(
   std::set<std::string> keys(variables.begin(), variables.end());
   for (const std::string& variable_name : variable_names_) {
     if (keys.find(variable_name) == keys.end()) {
-      if (getJointOfVariable(variable_name)->getMimic() == nullptr) {
+      if (!getJointOfVariable(variable_name)->getMimic()) {
         missing_variables.push_back(variable_name);
       }
     }

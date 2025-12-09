@@ -1,7 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_std_tools/debug.hpp>
 
 #include <std_msgs/msg/string.hpp>
 
@@ -18,11 +17,14 @@ public:
   explicit TreeServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  kdl::Tree tree_;
   kdl::TreeParser tree_parser_;
 
   ros2::PublisherPtr<kdl::Tree> tree_pub_;
   ros2::SubscriberPtr<std_msgs::msg::String> description_sub_;
   ros2::TimerPtr initialize_timer_;
+
+  void publishTree();
 
   void initializeTimerCb();
   void descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg);
@@ -32,6 +34,12 @@ TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree
 {
   // 起動時に既に発行済のURDFを確実に取得するために，Pubscriberの登録を遅延させる．
   initialize_timer_ = createTimer(0s, &self::initializeTimerCb, this);
+}
+
+void TreeServerNode::publishTree()
+{
+  auto tree_msg = std::make_unique<kdl::Tree>(tree_);
+  tree_pub_->publish(std::move(tree_msg));
 }
 
 void TreeServerNode::initializeTimerCb()
@@ -46,13 +54,18 @@ void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& 
 {
   TOBAS_INFO("New robot description is received.");
 
-  auto tree = std::make_unique<kdl::Tree>();
-  if (!tree_parser_.parseFromText(msg->data, *tree)) {
+  if (!tree_parser_.parseFromText(msg->data, tree_)) {
     TOBAS_ERROR("Failed to parse robot description: ", tree_parser_.errorMessage());
     return;
   }
 
-  tree_pub_->publish(move(tree));
+  std::string error_msg;
+  if (!tree_.isValid(error_msg)) {
+    TOBAS_ERROR("KDL tree is invalid: ", error_msg);
+    return;
+  }
+
+  publishTree();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(TreeServerNode)

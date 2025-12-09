@@ -75,7 +75,7 @@ bool QpMixer::solve(
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     const auto d = rotor->sign();
-    const auto& cm = rotor->moment_const;
+    const auto cm = rotor->momentConst();
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.col(idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
@@ -84,8 +84,8 @@ bool QpMixer::solve(
   h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // 重み
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                       // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                 // [Nm]
+  const auto thrust_scale = mass * tbs::kGravity / drone_.prop->numRotors();  // [N]
   Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 

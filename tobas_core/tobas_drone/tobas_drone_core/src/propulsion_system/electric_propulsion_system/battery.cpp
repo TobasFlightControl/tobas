@@ -28,6 +28,11 @@ bool BatteryConfig::isValid() const
     return false;
   }
 
+  if (internal_resistance < 0.) {
+    cerr << "Battery internal resistance must be non-negative." << endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -49,6 +54,10 @@ bool BatteryConfig::load(const YAML::Node& node)
     return false;
   }
 
+  if (!yaml::load(kInternalResistanceKey, node, internal_resistance)) {
+    return false;
+  }
+
   return true;
 }
 
@@ -60,6 +69,7 @@ YAML::Node BatteryConfig::dump() const
   node[kMaxVoltageKey] = max_voltage;
   node[kSagVoltageKey] = sag_voltage;
   node[kMaxCurrentKey] = max_current;
+  node[kInternalResistanceKey] = internal_resistance;
 
   return node;
 }

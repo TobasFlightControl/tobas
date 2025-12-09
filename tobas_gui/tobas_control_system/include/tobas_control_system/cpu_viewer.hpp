@@ -7,15 +7,15 @@ namespace gui
 {
 namespace ctrl
 {
-class CPUViewerWidget : public QWidget
+class CpuViewerWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = CPUViewerWidget;
+  using self = CpuViewerWidget;
   using super = QWidget;
 
   static constexpr int kLabelPSize = 12;
-  static constexpr int kBarHeight = 40;
+  static constexpr int kBarHeight = 30;
 
   static constexpr double kMinTemp = 0.;    // [degC]
   static constexpr double kMaxTemp = 100.;  // [degC]
@@ -23,7 +23,7 @@ class CPUViewerWidget : public QWidget
   static constexpr double kMaxLoad = 100.;  // [%]
 
 public:
-  explicit CPUViewerWidget(const RosQtBridge& bridge);
+  explicit CpuViewerWidget(const RosQtBridge& bridge);
 
   void reset();
 

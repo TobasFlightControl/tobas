@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace tobas_std
+namespace tbs
 {
 double gphToAltitude(const double& gph)
 {
@@ -123,4 +123,4 @@ void pressureToAltitude(const double& pressure, const double& pressure_var, doub
   const auto amp = (c / pressure) * pow(pressure / P0, b);  // 高度ノイズ/気圧ノイズ ~ 1e-2
   altitude_var = math::sqr(amp) * pressure_var;
 }
-}  // namespace tobas_std
+}  // namespace tbs

@@ -135,10 +135,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
   // Iゲインは1~2秒で補正が感じられるくらいに設定するのが良いらしい (GPT o1)
-  const long default_horizontal_i_gain = do_dist_comp_trans_ ? 0 : 10;
-  const long default_vertical_i_gain = do_dist_comp_trans_ ? 0 : 10;
-  const long default_attitude_i_gain = do_dist_comp_rot_ ? 0 : 10;
-  const long default_heading_i_gain = do_dist_comp_rot_ ? 0 : 10;
+  const long default_horizontal_i_gain = do_dist_comp_trans_ ? 1 : 10;
+  const long default_vertical_i_gain = do_dist_comp_trans_ ? 1 : 10;
+  const long default_attitude_i_gain = do_dist_comp_rot_ ? 1 : 10;
+  const long default_heading_i_gain = do_dist_comp_rot_ ? 1 : 10;
 
   // Register dynamic parameters
   addDynamicDoubleParam(
@@ -150,10 +150,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 30);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, default_horizontal_i_gain, 0, 30);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, default_vertical_i_gain, 0, 30);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 0, 30);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 0, 30);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, default_horizontal_i_gain, 1, 30);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, default_vertical_i_gain, 1, 30);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 1, 30);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
 
@@ -206,7 +206,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, get_clock()->now())) {
+  if (!cmd_level_handler_.update(level.data, now())) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -464,10 +464,6 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
-  if (landed->data) {
-    resetIntegralErrors();
-  }
-
   landed_ = landed;
 }
 

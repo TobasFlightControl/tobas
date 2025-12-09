@@ -9,9 +9,9 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
 /* 推進系の目標推力を実現する． */
@@ -27,7 +27,7 @@ public:
 
 private:
   tobas::Drone::ConstSharedPtr drone_;
-  tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
+  tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
 
   bool is_armed_ = false;
 
@@ -37,7 +37,7 @@ private:
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
 
   ros2::ServiceServerPtr<SetArm> set_arm_ss_;
 
@@ -48,7 +48,7 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg);
-  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
 
   void setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res);
 
@@ -64,7 +64,7 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tar_thrusts_sub_ = createSubscriber(tobas::kRotorThrustsCmdTopic, &self::thrustsCmdCb, this);
-  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
+  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::healthCb, this);
 
   set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
 
@@ -75,9 +75,9 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
 void RotorControllerNode::publishArming()
 {
   auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
-  arming_msg->header.stamp = get_clock()->now();
+  arming_msg->header.stamp = now();
   arming_msg->data = is_armed_;
-  arming_pub_->publish(move(arming_msg));
+  arming_pub_->publish(std::move(arming_msg));
 }
 
 void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -128,7 +128,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       }
 
       // Publish target speeds
-      rotor_speeds_pub_->publish(move(tar_speeds_msg));
+      rotor_speeds_pub_->publish(std::move(tar_speeds_msg));
 
       break;
     }
@@ -146,10 +146,13 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           TOBAS_ERROR("ICE Rotor \"" + elem.link_name + "\" does not exist.");
           continue;
         }
+        const auto pitch_opt = irotor->optimalPitch();
+        const auto motor_const = irotor->motorConst(pitch_opt);
+        const auto moment_const = irotor->momentConst(pitch_opt);
         const auto tar_thrust = std::max(elem.thrust, 0.);
         thrust_sum += tar_thrust;
-        torque_sum += irotor->moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
-        K += irotor->motorConst(irotor->pitch_ref) * irotor->moment_const / math::cube(irotor->gear_ratio);
+        torque_sum += moment_const * tar_thrust / irotor->gear_ratio;  // 減速比を考慮
+        K += motor_const * moment_const / math::cube(irotor->gear_ratio);
       }
 
       // コマンドを作成
@@ -163,7 +166,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           const auto irotor = iprop->getRotor(elem.link_name);
           ice_cmd_msg->pitch_angles.emplace_back();
           ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
-          ice_cmd_msg->pitch_angles.back().angle = irotor->pitch_ref;
+          ice_cmd_msg->pitch_angles.back().angle = irotor->optimalPitch();
         }
       }
       else {
@@ -179,7 +182,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       }
 
       // コマンドを発行
-      ice_cmd_pub_->publish(move(ice_cmd_msg));
+      ice_cmd_pub_->publish(std::move(ice_cmd_msg));
 
       break;
     }
@@ -193,21 +196,21 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
   auto_disarm_timer_->reset();
 }
 
-void RotorControllerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
+void RotorControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
-  prearm_check_ = prearm_check;
+  health_ = health;
 }
 
 void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res)
 {
   if (!is_armed_ && req->arming) {
-    if (!prearm_check_) {
+    if (!health_) {
       res->success = false;
-      res->message = "Pre-arm check status is not received yet.";
+      res->message = "Vehicle health status is not received yet.";
       return;
     }
 
-    if (!prearm_check_->ok) {
+    if (!health_->ok) {
       res->success = false;
       res->message = "Pre-arm check failed.";
       return;

@@ -17,8 +17,8 @@
 #include "tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
-#include "tobas_urdf_builder_plugin/ui/widget_item.hpp"
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
+#include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
 namespace fs = std::filesystem;
 

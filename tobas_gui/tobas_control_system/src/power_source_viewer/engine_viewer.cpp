@@ -25,8 +25,8 @@ EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const tobas::D
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Fuel Quantity", kLabelPSize), fuel_quantity_);
-  form->addVAlignedRow(new qt::Label("Oil Temperature", kLabelPSize), oil_temp_);
+  form->addVAlignedRow(new qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
+  form->addVAlignedRow(new qt::Label("Oil Temp", kLabelPSize), oil_temp_);
   setLayout(form);
 
   // Connection

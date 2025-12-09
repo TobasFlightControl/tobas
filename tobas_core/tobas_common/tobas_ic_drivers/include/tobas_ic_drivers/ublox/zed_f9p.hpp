@@ -256,7 +256,7 @@ private:
       FLASH = 0b100,
     } const layers = RAM;
 
-    const uint8_t reserved1[2] = { 0 };  // Reserved
+    const uint8_t reserved1[2] = {};  // Reserved
 
     CfgData<ValueType> data[N];  // Configuration data
   };

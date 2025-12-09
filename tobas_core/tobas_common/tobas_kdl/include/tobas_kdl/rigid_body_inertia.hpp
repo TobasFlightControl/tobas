@@ -7,7 +7,7 @@
 namespace kdl
 {
 /**
- *	@brief 6D Inertia of a rigid body
+ *	@brief 6D Inertia of a rigid body.
  *
  *	The inertia is defined in a certain reference point and a certain reference base.
  *	The reference point does not have to coincide with the origin of the reference frame.
@@ -16,11 +16,10 @@ class RigidBodyInertia
 {
 public:
   /**
-   * This constructor creates a cartesian space inertia matrix,
-   * the arguments are the mass, the vector from the reference point to cog and the rotational
-   * inertia in the cog.
+   * This constructor creates a cartesian space inertia matrix, the arguments are the mass,
+   * the vector from the reference point to cog and the rotational nertia in the cog.
    */
-  inline explicit RigidBodyInertia(
+  explicit RigidBodyInertia(
     double m = 0.,
     const Vector& oc = Vector::Zero(),
     const RotationalInertia& Ic = RotationalInertia::Zero());
@@ -28,26 +27,29 @@ public:
   /* Creates an inertia with zero mass, and zero RotationalInertia */
   static inline RigidBodyInertia Zero();
 
-  /* Get the mass of the rigid body */
+  /* Verify that the rotation matrix belongs to SO(3). */
+  bool isValid(std::string& error_msg) const;
+
+  /* Get the mass of the rigid body. */
   inline const double& getMass() const;
 
-  /* Get the spatial momentum of the rigid body */
+  /* Get the spatial momentum of the rigid body. */
   inline const Vector& getSpatialMomentum() const;
 
-  /* Get the rotational inertia expressed in the reference frame (not the cog) */
+  /* Get the rotational inertia expressed in the reference frame (not the cog). */
   inline const RotationalInertia& getRotationalInertia() const;
 
-  /* Get the center of gravity of the rigid body */
+  /* Get the center of gravity of the rigid body. */
   inline Vector getCOG() const;
 
   /* Get the rotational inertia expressed in the center of gravity. */
   inline RotationalInertia getRotationalInertiaCoG() const;
 
   /**
-   * Reference point change with v the vector from the old to
-   * the new point expressed in the current reference frame
+   * Reference point change with v the vector from the old to the new point
+   * expressed in the current reference frame.
    */
-  inline RigidBodyInertia refPoint(const Vector& p) const;
+  RigidBodyInertia refPoint(const Vector& p) const;
 
   inline RigidBodyInertia operator+(const RigidBodyInertia& rhs) const;
   inline RigidBodyInertia& operator+=(const RigidBodyInertia& rhs);
@@ -57,10 +59,10 @@ public:
   inline SegmentInertia operator*(const SegmentJacobian& rhs) const;
 
   inline friend RigidBodyInertia operator*(double a, const RigidBodyInertia& I);
-  inline friend RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I);
+  friend RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I);
   inline friend RigidBodyInertia operator*(const Rotation& R, const RigidBodyInertia& I);
 
-  inline friend std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg);
+  friend std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg);
 
 private:
   double m_;             // [kg]
@@ -69,14 +71,6 @@ private:
 
   inline explicit RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool mhi);
 };
-
-inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic) : m_(m), h_(m * oc)
-{
-  const auto& c_eig = oc.data;
-  Eigen::Matrix3d tmp = c_eig * c_eig.transpose();
-  tmp.diagonal().array() -= c_eig.dot(c_eig);
-  I_.data = Ic.data - m * tmp;
-}
 
 inline RigidBodyInertia RigidBodyInertia::Zero()
 {
@@ -180,14 +174,6 @@ inline RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I)
 inline RigidBodyInertia operator*(const Rotation& M, const RigidBodyInertia& I)
 {
   return RigidBodyInertia(I.m_, M * I.h_, M * I.I_, true);
-}
-
-inline std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg)
-{
-  os << "Mass: " << arg.m_ << std::endl;
-  os << "Spatial Momentum: " << arg.h_ << std::endl;
-  os << "Rotational Inertia: " << arg.I_;
-  return os;
 }
 
 inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool)

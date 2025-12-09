@@ -22,9 +22,6 @@ void PoseViewerWidget::reset()
   pitch_ = 0.;
   yaw_ = 0.;
 
-  slope_ = 0.;
-  y_intercept_ = height() / 2;
-
   update();
 }
 
@@ -62,90 +59,115 @@ void PoseViewerWidget::drawGround(QPainter& painter)
 
 void PoseViewerWidget::drawSky(QPainter& painter)
 {
-  auto tan_roll = tan(roll_);
-  const auto tan_roll_sign = tan_roll >= 0 ? 1 : -1;
-  tan_roll += tan_roll_sign * 1e-6;  // tan(roll)が0になるのを防ぐ
-  const auto pitch_rate = 2 * pitch_ / kPitchHeightRange;
+  const auto w = width();
+  const auto h = height();
 
+  // 描画領域の四隅の点
   const QPoint OO(0, 0);
-  const QPoint WO(width(), 0);
-  const QPoint OH(0, height());
-  const QPoint WH(width(), height());
-  const QPoint XO(int(width() + (1 - pitch_rate) * height() / tan_roll) / 2, 0);
-  const QPoint XH(int(width() - (1 + pitch_rate) * height() / tan_roll) / 2, height());
-  const QPoint OY(0, int(height() * (1 - pitch_rate) + width() * tan_roll) / 2);
-  const QPoint WY(width(), int(height() * (1 - pitch_rate) - width() * tan_roll) / 2);
+  const QPoint WO(w, 0);
+  const QPoint OH(0, h);
+  const QPoint WH(w, h);
 
-  const auto OO_sky = isSky(OO);
-  const auto WO_sky = isSky(WO);
-  const auto OH_sky = isSky(OH);
-  const auto WH_sky = isSky(WH);
+  // 縦の画角に対するピッチ角の割合
+  const auto r = pitch_ / (kPitchAngleOfView / 2);
 
-  // 空の領域を構成する点群を作成 (memo: 2-59)
+  // 空の領域を構成する点群を作成 (memo: 3-43)
   QVector<QPoint> points;
-  if (!OO_sky && !WO_sky && !OH_sky && !WH_sky)  // 0000
-  {
-    points = {};
-  }
-  else if (!OO_sky && !WO_sky && !OH_sky && WH_sky)  // 0001
-  {
-    points = { WH, XH, WY };
-  }
-  else if (!OO_sky && !WO_sky && OH_sky && !WH_sky)  // 0010
-  {
-    points = { OH, XH, OY };
-  }
-  else if (!OO_sky && !WO_sky && OH_sky && WH_sky)  // 0011
-  {
-    points = { OH, WH, WY, OY };
-  }
-  else if (!OO_sky && WO_sky && !OH_sky && !WH_sky)  // 0100
-  {
-    points = { WO, XO, WY };
-  }
-  else if (!OO_sky && WO_sky && !OH_sky && WH_sky)  // 0101
-  {
-    points = { WO, WH, XH, XO };
-  }
-  else if (!OO_sky && WO_sky && OH_sky && WH_sky)  // 0111
-  {
-    points = { WO, WH, OH, OY, XO };
-  }
-  else if (OO_sky && !WO_sky && !OH_sky && !WH_sky)  // 1000
-  {
-    points = { OO, XO, OY };
-  }
-  else if (OO_sky && !WO_sky && OH_sky && !WH_sky)  // 1010
-  {
-    points = { OO, OH, XH, XO };
-  }
-  else if (OO_sky && !WO_sky && OH_sky && WH_sky)  // 1011
-  {
-    points = { OO, OH, WH, WY, XO };
-  }
-  else if (OO_sky && WO_sky && !OH_sky && !WH_sky)  // 1100
-  {
-    points = { OO, WO, WY, OY };
-  }
-  else if (OO_sky && WO_sky && !OH_sky && WH_sky)  // 1101
-  {
-    points = { OO, WO, WH, XH, OY };
-  }
-  else if (OO_sky && WO_sky && OH_sky && !WH_sky)  // 1110
-  {
-    points = { WO, OO, OH, XH, WY };
-  }
-  else if (OO_sky && WO_sky && OH_sky && WH_sky)  // 1111
-  {
-    points = { OO, WO, WH, OH };
+  if (roll_ == 0.) {
+    const auto y = (h / 2) * (1 - r);
+    if (0. <= y && y <= h) {
+      const QPoint OY(0, y);
+      const QPoint WY(w, y);
+      points = { OO, WO, WY, OY };
+    }
+    else {
+      points = {};
+    }
   }
   else {
-    qWarning() << "Impossible ground-sky pattern.";
-    return;
+    // 直線の方程式: y = ax + b
+    const auto sin_phi = sin(roll_);
+    const auto cos_phi = cos(roll_);
+    const auto tan_phi = tan(roll_);
+    const auto a = -tan_phi;
+    const auto b = (tan_phi / 2) * (w - h * r * sin_phi) + (h / 2) * (1 - r * cos_phi);
+
+    // 直線と描画領域の外辺の交点
+    const QPoint XO(-b / a, 0);       // 直線と y = 0 の交点
+    const QPoint XH((h - b) / a, h);  // 直線と y = h の交点
+    const QPoint OY(0, b);            // 直線と x = 0 の交点
+    const QPoint WY(w, a * w + b);    // 直線と x = w の交点
+
+    // 描画領域の四隅がそれぞれ空領域に含まれるかどうかを判定
+    const auto OO_sky = isSky(OO, a, b);
+    const auto WO_sky = isSky(WO, a, b);
+    const auto OH_sky = isSky(OH, a, b);
+    const auto WH_sky = isSky(WH, a, b);
+
+    if (!OO_sky && !WO_sky && !OH_sky && !WH_sky)  // 0000
+    {
+      points = {};
+    }
+    else if (!OO_sky && !WO_sky && !OH_sky && WH_sky)  // 0001
+    {
+      points = { WH, XH, WY };
+    }
+    else if (!OO_sky && !WO_sky && OH_sky && !WH_sky)  // 0010
+    {
+      points = { OH, XH, OY };
+    }
+    else if (!OO_sky && !WO_sky && OH_sky && WH_sky)  // 0011
+    {
+      points = { OH, WH, WY, OY };
+    }
+    else if (!OO_sky && WO_sky && !OH_sky && !WH_sky)  // 0100
+    {
+      points = { WO, XO, WY };
+    }
+    else if (!OO_sky && WO_sky && !OH_sky && WH_sky)  // 0101
+    {
+      points = { WO, WH, XH, XO };
+    }
+    else if (!OO_sky && WO_sky && OH_sky && WH_sky)  // 0111
+    {
+      points = { WO, WH, OH, OY, XO };
+    }
+    else if (OO_sky && !WO_sky && !OH_sky && !WH_sky)  // 1000
+    {
+      points = { OO, XO, OY };
+    }
+    else if (OO_sky && !WO_sky && OH_sky && !WH_sky)  // 1010
+    {
+      points = { OO, OH, XH, XO };
+    }
+    else if (OO_sky && !WO_sky && OH_sky && WH_sky)  // 1011
+    {
+      points = { OO, OH, WH, WY, XO };
+    }
+    else if (OO_sky && WO_sky && !OH_sky && !WH_sky)  // 1100
+    {
+      points = { OO, WO, WY, OY };
+    }
+    else if (OO_sky && WO_sky && !OH_sky && WH_sky)  // 1101
+    {
+      points = { OO, WO, WH, XH, OY };
+    }
+    else if (OO_sky && WO_sky && OH_sky && !WH_sky)  // 1110
+    {
+      points = { WO, OO, OH, XH, WY };
+    }
+    else if (OO_sky && WO_sky && OH_sky && WH_sky)  // 1111
+    {
+      points = { OO, WO, WH, OH };
+    }
+    else {
+      qWarning() << "Impossible ground-sky pattern.";
+      return;
+    }
   }
 
+  // 描画
   QPolygon polygon(points);
-
   painter.save();
   painter.setBrush(QColor(36, 139, 255));
   painter.drawPolygon(polygon);
@@ -158,7 +180,7 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
 
   // 機体から見た円の中心に移動
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tobas_std::rad2deg(roll_));
+  painter.rotate(-tbs::rad2deg(roll_));
 
   // ウィジェットの大きさに合わせてスケーリング
   scale(painter, true);
@@ -198,24 +220,24 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
 
   // 機体から見た中心位置に移動
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tobas_std::rad2deg(roll_));
+  painter.rotate(-tbs::rad2deg(roll_));
 
   // ウィジェットの大きさに合わせてスケーリング
   scale(painter, true);
 
   // 描画する値の範囲を決める
-  const auto pitch_deg = tobas_std::rad2deg(pitch_);
+  const auto pitch_deg = tbs::rad2deg(pitch_);
   const auto pitch_min = math::floor(pitch_deg - kPitchVisualRange, kScaleInterval);
   const auto pitch_max = math::ceil(pitch_deg + kPitchVisualRange, kScaleInterval);
 
   // 初期位置に移動
-  painter.translate(0, pitchToHeight(tobas_std::deg2rad(pitch_min - pitch_deg)));
+  painter.translate(0, pitchToHeight(tbs::deg2rad(pitch_min - pitch_deg)));
 
   // 各値を描画
   const auto line_half = kPitchLineLength / 2;
   const auto text_x = -line_half - 30;
   const auto text_y = 5;
-  const auto y_interval = pitchToHeight(tobas_std::deg2rad(kScaleInterval));
+  const auto y_interval = pitchToHeight(tbs::deg2rad(kScaleInterval));
   painter.setPen(QPen(Qt::white, kLineWidth));
   for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval) {
     // 目盛りを描画
@@ -233,7 +255,7 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
   // 現在の位置に目印を描く
   painter.save();
   painter.translate(width() / 2, height() / 2);
-  painter.rotate(-tobas_std::rad2deg(roll_));
+  painter.rotate(-tbs::rad2deg(roll_));
   scale(painter, true);
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(-line_half, 0, line_half, 0);
@@ -248,7 +270,7 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   scale(painter, false);
 
   // 中心位置に移動
-  const auto beta = kYawWidthRange / 2;  // [rad]
+  const auto beta = kYawAngleOfView / 2;  // [rad]
   painter.translate(yawToWidth(beta), kYawLineY);
 
   // 数直線を描画
@@ -256,17 +278,17 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.drawLine(-kOriginalSize / 2, 0, kOriginalSize / 2, 0);
 
   // 描画する値の範囲を決める
-  const auto yaw_deg = tobas_std::rad2deg(yaw_);
-  const auto yaw_min = math::floor(tobas_std::rad2deg(yaw_ - beta), kScaleInterval);
-  const auto yaw_max = math::ceil(tobas_std::rad2deg(yaw_ + beta), kScaleInterval);
+  const auto yaw_deg = tbs::rad2deg(yaw_);
+  const auto yaw_min = math::floor(tbs::rad2deg(yaw_ - beta), kScaleInterval);
+  const auto yaw_max = math::ceil(tbs::rad2deg(yaw_ + beta), kScaleInterval);
 
   // 初期位置に移動
-  painter.translate(yawToWidth(tobas_std::deg2rad(yaw_deg - yaw_min)), 0);
+  painter.translate(yawToWidth(tbs::deg2rad(yaw_deg - yaw_min)), 0);
 
   // 各値を描画
   const auto text_x = -10;
   const auto text_y = -kYawTickLength - 20;
-  const auto x_interval = yawToWidth(tobas_std::deg2rad(kScaleInterval));
+  const auto x_interval = yawToWidth(tbs::deg2rad(kScaleInterval));
   for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval) {
     // 目盛りを描画
     painter.drawLine(0, 0, 0, -kYawTickLength);
@@ -309,10 +331,10 @@ void PoseViewerWidget::addGradation(QPainter& painter)
   painter.restore();
 }
 
-bool PoseViewerWidget::isSky(const QPoint& p) const
+bool PoseViewerWidget::isSky(const QPoint& p, double a, double b) const
 {
   const auto left = p.y();
-  const auto right = slope_ * p.x() + y_intercept_;
+  const auto right = a * p.x() + b;
 
   // ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
   if (fabs(roll_) < M_PI_2) {
@@ -323,26 +345,20 @@ bool PoseViewerWidget::isSky(const QPoint& p) const
   }
 }
 
-double PoseViewerWidget::pitchToHeight(double pitch) const
+double PoseViewerWidget::pitchToHeight(double pitch)
 {
-  return kOriginalSize * pitch / kPitchHeightRange;
+  return kOriginalSize * pitch / kPitchAngleOfView;
 }
 
-double PoseViewerWidget::yawToWidth(double yaw) const
+double PoseViewerWidget::yawToWidth(double yaw)
 {
-  return kOriginalSize * yaw / kYawWidthRange;
+  return kOriginalSize * yaw / kYawAngleOfView;
 }
 
 void PoseViewerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   // 現在のオイラー角を更新
   odom->frame.M.getRPY(roll_, pitch_, yaw_);
-
-  // 地平線を更新
-  const auto tan_roll = tan(roll_);
-  const auto alpha = kPitchHeightRange / 2;
-  slope_ = -tan_roll;
-  y_intercept_ = (width() * tan_roll + height() * (1 - pitch_ / alpha)) / 2;
 
   // 再描画
   update();

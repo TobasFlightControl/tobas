@@ -8,7 +8,6 @@
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/debug.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_level_handler.hpp>
@@ -64,11 +63,11 @@ private:
   bool topics_received_ = false;
   tobas::CommandLevelHandler cmd_level_handler_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // 大気圧
-  tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                         // 現在の状態 (NWU座標系)
-  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
-  tobas_msgs::Odometry odom_ned_;                                         // 現在の状態 (NED座標系)
+  tobas_msgs::Odometry::ConstSharedPtr odom_flu_;                         // 現在の状態 (FLU座標系)
+  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // 現在のコマンド (FLU座標系)
+  tobas_msgs::Odometry odom_frd_;                                         // 現在の状態 (FRD座標系)
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // ロータのアーム状態
-  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_ned_;                  // 現在のコマンド (NED座標系)
+  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_frd_;                  // 現在のコマンド (FRD座標系)
   ControllerParameters params_;
   ctrl::LQD lqd_;  // 最適レギュレータ
 
@@ -119,8 +118,8 @@ private:
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
-  void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu);
+  void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_flu);
 
   void checkTopicsTimerCb();
 };
@@ -169,7 +168,7 @@ bool ControllerNode::initialize()
 
   // 状態変数のスケール
   lqd_.state_scale.resize(eom_.kStateSize);
-  lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(tobas_std::kStandardAirDensity);
+  lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(tbs::kStandardAirDensity);
   lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.fixed_wing->vehicle.alpha_limit.range();
   lqd_.state_scale(eom_.kStateIdx_beta) = M_PI_4;
   lqd_.state_scale(eom_.kStateIdx_phi) = M_PI_4;
@@ -180,7 +179,7 @@ bool ControllerNode::initialize()
 
   // 制御入力のスケール
   lqd_.input_scale.resize(eom_.inputSize());
-  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / drone_.prop->numRotors();
+  const auto thrust_scale = mass_holder_.getMass() * tbs::kGravity / drone_.prop->numRotors();
   lqd_.input_scale.head(drone_.prop->numRotors()).fill(thrust_scale);
   lqd_.input_scale.tail(drone_.fixed_wing->numControlSurfaces()).fill(M_PI);
 
@@ -200,17 +199,17 @@ bool ControllerNode::initialize()
 void ControllerNode::updateCurrentStateVector()
 {
   const auto& trim = eom_.trimCondition();
-  const auto [roll, pitch, _] = odom_ned_.frame.M.getRPY();
+  const auto [roll, pitch, _] = odom_frd_.frame.M.getRPY();
 
   // TODO: 横系のトリムも考慮
-  lqd_.current_state(eom_.kStateIdx_u) = odom_ned_.twist.vel.x() - trim.u();
-  lqd_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(odom_ned_.twist.vel.data) - trim.alpha();
-  lqd_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(odom_ned_.twist.vel.data);
+  lqd_.current_state(eom_.kStateIdx_u) = odom_frd_.twist.vel.x() - trim.u();
+  lqd_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(odom_frd_.twist.vel.data) - trim.alpha();
+  lqd_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(odom_frd_.twist.vel.data);
   lqd_.current_state(eom_.kStateIdx_phi) = roll;
   lqd_.current_state(eom_.kStateIdx_theta) = pitch - trim.theta();
-  lqd_.current_state(eom_.kStateIdx_p) = odom_ned_.twist.rot.x();
-  lqd_.current_state(eom_.kStateIdx_q) = odom_ned_.twist.rot.y();
-  lqd_.current_state(eom_.kStateIdx_r) = odom_ned_.twist.rot.z();
+  lqd_.current_state(eom_.kStateIdx_p) = odom_frd_.twist.rot.x();
+  lqd_.current_state(eom_.kStateIdx_q) = odom_frd_.twist.rot.y();
+  lqd_.current_state(eom_.kStateIdx_r) = odom_frd_.twist.rot.z();
 }
 
 void ControllerNode::updateSetStateVector()
@@ -218,15 +217,15 @@ void ControllerNode::updateSetStateVector()
   const auto& trim = eom_.trimCondition();
 
   // 失速しないように速度制限をした上で目標推力を計算
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure);
-  const auto tar_speed = trim.speedLimit(rho).clamp(cmd_ned_.speed);
+  const auto rho = tbs::pressureToDensity(air_pressure_->pressure);
+  const auto tar_speed = trim.speedLimit(rho).clamp(cmd_frd_.speed);
   const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
 
   lqd_.target_state(eom_.kStateIdx_u) = tar_u - trim.u();
   lqd_.target_state(eom_.kStateIdx_alpha) = 0.;
   lqd_.target_state(eom_.kStateIdx_beta) = 0.;
-  lqd_.target_state(eom_.kStateIdx_phi) = cmd_ned_.roll;
-  lqd_.target_state(eom_.kStateIdx_theta) = cmd_ned_.delta_pitch;
+  lqd_.target_state(eom_.kStateIdx_phi) = cmd_frd_.roll;
+  lqd_.target_state(eom_.kStateIdx_theta) = cmd_frd_.delta_pitch;
   lqd_.target_state(eom_.kStateIdx_p) = 0.;
   lqd_.target_state(eom_.kStateIdx_q) = 0.;
   lqd_.target_state(eom_.kStateIdx_r) = 0.;
@@ -237,7 +236,7 @@ void ControllerNode::publishThrusts(const Eigen::VectorXd& thrusts)
   assert(static_cast<size_t>(thrusts.size()) == drone_.prop->numRotors());
 
   auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-  thrusts_msg->header.stamp = odom_ned_.header.stamp;
+  thrusts_msg->header.stamp = odom_frd_.header.stamp;
 
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     thrusts_msg->thrusts.emplace_back();
@@ -253,7 +252,7 @@ void ControllerNode::publishDeflections(const Eigen::VectorXd& deflections)
   assert(static_cast<size_t>(deflections.size()) == drone_.fixed_wing->numControlSurfaces());
 
   auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-  tar_angles_msg->header.stamp = odom_ned_.header.stamp;
+  tar_angles_msg->header.stamp = odom_frd_.header.stamp;
 
   for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& link_name = cs_item.first;
@@ -279,7 +278,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, get_clock()->now())) {
+  if (!cmd_level_handler_.update(level.data, now())) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -466,7 +465,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 
   if (!arming->data) {
-    cmd_nwu_.reset();
+    cmd_flu_.reset();
     lqd_.last_input.setZero();
   }
 }
@@ -476,29 +475,29 @@ void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSh
   air_pressure_ = pressure;
 }
 
-void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu)
+void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu)
 {
-  if (!odom_nwu_) {
-    odom_nwu_ = odom_nwu;
+  if (!odom_flu_) {
+    odom_flu_ = odom_flu;
     return;
   }
 
   // 経過時間を計算してオドメトリを更新
-  const auto dt = (odom_nwu->header.stamp - odom_nwu_->header.stamp).seconds();
-  odom_nwu_ = odom_nwu;
+  const auto dt = (odom_flu->header.stamp - odom_flu_->header.stamp).seconds();
+  odom_flu_ = odom_flu;
 
   // コマンドがなければスキップ
-  if (!cmd_nwu_) {
+  if (!cmd_flu_) {
     return;
   }
 
-  // NWU -> NED
-  tobas::odometryNwuToNed(*odom_nwu_, odom_ned_);
-  tobas::speedRollDeltaPitchNwuToNed(*cmd_nwu_, cmd_ned_);
+  // FLU -> FRD
+  tobas::odometryFluToFrd(*odom_flu_, odom_frd_);
+  tobas::speedRollDeltaPitchFluToFrd(*cmd_flu_, cmd_frd_);
 
   // 現在の速度を使って状態方程式を更新
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure);
-  switch (eom_.update(odom_ned_.twist.vel.norm(), rho, q_0_)) {
+  const auto rho = tbs::pressureToDensity(air_pressure_->pressure);
+  switch (eom_.update(odom_frd_.twist.vel.norm(), rho, q_0_)) {
     case tobas::SolverI::kNoError:
       break;
     case tobas::SolverI::kWarn:
@@ -530,13 +529,13 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   publishDeflections(deflections);
 }
 
-void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu)
+void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_flu)
 {
-  if (!isCommandAccepted(cmd_nwu->level)) {
+  if (!isCommandAccepted(cmd_flu->level)) {
     return;
   }
 
-  cmd_nwu_ = cmd_nwu;
+  cmd_flu_ = cmd_flu;
 }
 
 void ControllerNode::checkTopicsTimerCb()
@@ -556,7 +555,7 @@ void ControllerNode::checkTopicsTimerCb()
     return;
   }
 
-  if (!odom_nwu_) {
+  if (!odom_flu_) {
     TOBAS_WARN("Waiting for \"", tobas::kOdometryTopic, "\".");
     return;
   }

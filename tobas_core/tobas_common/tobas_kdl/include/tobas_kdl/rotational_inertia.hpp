@@ -15,6 +15,8 @@ public:
 
   static inline RotationalInertia Zero();
 
+  bool isValid(std::string& error_msg) const;
+
   inline double ixx() const;
   inline double iyy() const;
   inline double izz() const;

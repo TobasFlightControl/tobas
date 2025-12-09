@@ -407,7 +407,7 @@ public:
    * @brief Get the number of variables that describe this joint group.
    * This includes variables necessary for mimic joints, so will always be >= getActiveVariableCount()
    */
-  unsigned int getVariableCount() const
+  uint32_t getVariableCount() const
   {
     return variable_count_;
   }
@@ -416,7 +416,7 @@ public:
    * @brief Get the number of variables that describe the active joints in this joint group.
    *  This excludes variables necessary for mimic joints.
    */
-  unsigned int getActiveVariableCount() const
+  uint32_t getActiveVariableCount() const
   {
     return active_variable_count_;
   }
@@ -727,10 +727,10 @@ protected:
   std::set<std::string> updated_link_model_with_geometry_name_set_;
 
   /* The number of variables necessary to describe this group of joints */
-  unsigned int variable_count_;
+  uint32_t variable_count_;
 
   /* The number of variables necessary to describe the active joints in this group of joints */
-  unsigned int active_variable_count_;
+  uint32_t active_variable_count_;
 
   /* True if the state of this group is contiguous within the full robot state; this also means that
    * the index values in variable_index_list_ are consecutive integers */

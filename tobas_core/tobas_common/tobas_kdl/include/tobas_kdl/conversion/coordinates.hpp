@@ -6,35 +6,35 @@
 
 namespace kdl
 {
-void vectorNedToNwu(const Vector& src, Vector& des);
-void vectorNwuToNed(const Vector& src, Vector& des);
-void vectorNedToNwu(Vector& arg);
-void vectorNwuToNed(Vector& arg);
+void vectorFrdToFlu(const Vector& src, Vector& des);
+void vectorFluToFrd(const Vector& src, Vector& des);
+void vectorFrdToFlu(Vector& arg);
+void vectorFluToFrd(Vector& arg);
 
-void twistNedToNwu(const Twist& src, Twist& des);
-void twistNwuToNed(const Twist& src, Twist& des);
-void twistNedToNwu(Twist& arg);
-void twistNwuToNed(Twist& arg);
+void twistFrdToFlu(const Twist& src, Twist& des);
+void twistFluToFrd(const Twist& src, Twist& des);
+void twistFrdToFlu(Twist& arg);
+void twistFluToFrd(Twist& arg);
 
-/* 慣性テンソルをNED座標系からNWU座標系に変換する (memo: 2-23)． */
-void rotInertiaNedToNwu(const RotationalInertia& src, RotationalInertia& des);
-void rotInertiaNwuToNed(const RotationalInertia& src, RotationalInertia& des);
-void rotInertiaNedToNwu(RotationalInertia& arg);
-void rotInertiaNwuToNed(RotationalInertia& arg);
+/* 慣性テンソルを FRD (Front-Right-Down) 座標系から FLU (Front-Left-Up) 座標系に変換する (memo: 2-23)． */
+void rotInertiaFrdToFlu(const RotationalInertia& src, RotationalInertia& des);
+void rotInertiaFluToFrd(const RotationalInertia& src, RotationalInertia& des);
+void rotInertiaFrdToFlu(RotationalInertia& arg);
+void rotInertiaFluToFrd(RotationalInertia& arg);
 
-/* 回転がつなぐ2つのフレームを共にNED->NWUに変換するときのオイラー角の変化を求める． */
-void eulerNedToNwu(const Euler& src, Euler& des);
-void eulerNwuToNed(const Euler& src, Euler& des);
-void eulerNedToNwu(Euler& arg);
-void eulerNwuToNed(Euler& arg);
+/* 回転がつなぐ2つのフレームを共にFRD座標系からFLU座標系に変換するときのオイラー角の変化を求める． */
+void eulerFrdToFlu(const Euler& src, Euler& des);
+void eulerFluToFrd(const Euler& src, Euler& des);
+void eulerFrdToFlu(Euler& arg);
+void eulerFluToFrd(Euler& arg);
 
-void rotationNedToNwu(const kdl::Rotation& src, kdl::Rotation& des);
-void rotationNwuToNed(const kdl::Rotation& src, kdl::Rotation& des);
-void rotationNedToNwu(kdl::Rotation& arg);
-void rotationNwuToNed(kdl::Rotation& arg);
+void rotationFrdToFlu(const kdl::Rotation& src, kdl::Rotation& des);
+void rotationFluToFrd(const kdl::Rotation& src, kdl::Rotation& des);
+void rotationFrdToFlu(kdl::Rotation& arg);
+void rotationFluToFrd(kdl::Rotation& arg);
 
-void frameNedToNwu(const kdl::Frame& src, kdl::Frame& des);
-void frameNwuToNed(const kdl::Frame& src, kdl::Frame& des);
-void frameNedToNwu(kdl::Frame& arg);
-void frameNwuToNed(kdl::Frame& arg);
+void frameFrdToFlu(const kdl::Frame& src, kdl::Frame& des);
+void frameFluToFrd(const kdl::Frame& src, kdl::Frame& des);
+void frameFrdToFlu(kdl::Frame& arg);
+void frameFluToFrd(kdl::Frame& arg);
 }  // namespace kdl

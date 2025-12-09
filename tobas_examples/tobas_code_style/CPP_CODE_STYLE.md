@@ -97,6 +97,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   1. All other data members (static and non-static)
 - `friend`はなるべく使わず，`public`メンバでのみ外とやりとりする．
 
+<!-- Custom -->
+
+- メンバ変数のゼロ初期化には`= {}`を使う．
+
 ## 関数
 
 - 可読性とパフォーマンスの面から，出力は引数よりも返り値の方が望ましい．
@@ -106,7 +110,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - 関数の役割は最小限に．1 つの関数は 1 つのことを．
 - オーバーロードは関数の意味が変わらず同じ docstrings で説明できる場合のみ．
 - 未定義動作を起こす恐れがあるため，仮想関数の引数にデフォルト値を与えてはならない．
-- 返り値は`auto`ではなく明確に定義する．
+- ~~返り値は`auto`ではなく明確に定義する．~~ 返り値は明確な意図がある場合を除き`auto`で受ける．
 
 ## ポインタ
 
@@ -115,6 +119,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - 所有権を明確にするため，`std::shared_ptr`よりも`std::unique_ptr`が望ましい．
 - `std::auto_ptr`は使用不可．
 - `NULL`ではなく`nullptr`を使う．
+
+<!-- Custom -->
+
+- NULL 判定は`if (ptr == nullptr)`ではなく`if (!ptr)`と書く．
 
 ## 例外
 
@@ -142,6 +150,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - なるべく用途に合った`size_t`，`strdiff_t`，`time_t`などを使う．
 - その他整数のサイズを保証する場合は`stdint.h`に定義されている整数型を使う．
 - 符号なし整数型はビットパターンなど特殊な場合を除き使用せず，符号は`assert`で保証する．
+
+<!-- Custom -->
+
+- `uint`などの比標準型は使わない．
 
 ## 不動小数型
 
@@ -173,16 +185,29 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - 変数コメント: `/* ... */` or `/** @brief ... */`
 - 実装コメント: `// ...`
 - 一時的なコメントアウト: `// ...`
+
+<!-- Custom -->
+
 - ライセンスボイラープレートやヘッダ上部の説明文は不要 <!-- TODO: Add file comments: https://google.github.io/styleguide/cppguide.html#File_Comments -->
 - コメントは日本語でも構わない <!-- TODO: English only -->
 
 ## フォーマット
 
-- [.clang-format](../.clang-format) に従う．
+- [.clang-format](../../.clang-format) に従う．
 
 ## ROS 2
 
+<!-- Custom -->
+
 - 不特定多数へのゼロコピー転送のため，トピックは`UniquePtr`で発行して`ConstSharedPtr`で購読する．
+- パラメータ取得部，Publisher 作成部，Subscriber 作成部はそれぞれまとめて書くとインターフェースがわかりやすい．
+
+## その他
+
+<!-- Custom -->
+
+- 16 進数の英字は大文字: `0x1a2b` -> `0x1A2B`
+- enum のカンマは最後の要素にもつける
 
 ## 参考
 

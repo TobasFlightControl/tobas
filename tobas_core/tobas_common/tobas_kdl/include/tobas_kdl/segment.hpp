@@ -22,7 +22,7 @@ class Segment
 {
 public:
   /**
-   * Constructor of the segment.
+   * @brief Constructor of the segment.
    *
    * @param name Name of the segment
    * @param joint Joint of the segment
@@ -34,6 +34,9 @@ public:
     const Joint& joint = Joint(),
     const Frame& f_tip = Frame::Identity(),
     const RigidBodyInertia& I = RigidBodyInertia::Zero());
+
+  /* Check validity (except for the root segment). */
+  bool isValid(std::string& error_msg) const;
 
   /* Request the pose of the segment wrt. the parent frame. */
   inline Frame pose(double q) const;
@@ -51,13 +54,13 @@ public:
   inline const Joint& joint() const;
 
   /**
-   * @brief Compute the first derivative of the rotation matrix from the parent segment to the tip of this segment
+   * Compute the first derivative of the rotation matrix from the parent segment to the tip of this segment
    * with respect to the joint position.
    */
   inline Eigen::Matrix3d rotGrad(double q) const;
 
   /**
-   * @brief Compute the second derivative of the rotation matrix from the parent segment to the tip of this segment
+   * Compute the second derivative of the rotation matrix from the parent segment to the tip of this segment
    * with respect to the joint position.
    */
   inline Eigen::Matrix3d rotGrad2(double q) const;
@@ -68,7 +71,7 @@ public:
   /* Request the inertia of the segment. */
   inline const RigidBodyInertia& inertia() const;
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Segment& arg);
+  friend std::ostream& operator<<(std::ostream& os, const Segment& arg);
 
 private:
   std::string name_;
@@ -125,14 +128,5 @@ inline Frame Segment::frame() const
 inline const RigidBodyInertia& Segment::inertia() const
 {
   return I_;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const Segment& arg)
-{
-  os << "Name: " << arg.name_ << std::endl;
-  os << "Joint:\n" << arg.joint_ << std::endl;
-  os << "Frame:\n" << arg.f_tip_ << std::endl;
-  os << "Inertia:\n" << arg.I_;
-  return os;
 }
 }  // end of namespace kdl

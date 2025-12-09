@@ -6,7 +6,7 @@
 
 #include "./assert.hpp"
 
-namespace tobas_std
+namespace tbs
 {
 template <typename T>
 class Buffer
@@ -110,4 +110,4 @@ inline const T& Buffer<T>::getOldest() const
   assert(cur_ > 0);
   return isFull() ? get(cur_ % max_size_) : get(0);
 }
-}  // namespace tobas_std
+}  // namespace tbs

@@ -9,7 +9,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/hardware/t1.hpp"
+#include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
 
 namespace gui
 {
@@ -47,9 +47,9 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   rcout_cols->addLayout(dshot_rows, 1);
 
   addWidget(type_);
-  addWidget(hardwares_);
-  addLayout(rcout_cols);
-  addStretch();
+  addSpacing(50);
+  addWidget(hardwares_, 0);
+  addLayout(rcout_cols, 1);
 
   // Connection
   connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
@@ -57,18 +57,17 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
 
 const char* HardwareWidget::name() const
 {
-  return "Flight Management Unit";
+  return "Hardware Interface";
 }
 
 const char* HardwareWidget::title() const
 {
-  return "Select Flight Management Unit";
+  return "Configure Hardware Interface";
 }
 
 const char* HardwareWidget::description() const
 {
-  return "Configure hardware connections. "
-         "Select the FMU you intend to use, "
+  return "Select the FMU you intend to use, "
          "then freely assign each hardware interface to any PWM or DShot channel.";
 }
 

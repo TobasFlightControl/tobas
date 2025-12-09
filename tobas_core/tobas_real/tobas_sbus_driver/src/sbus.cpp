@@ -42,24 +42,29 @@ bool SBUS::initialize(const char* device)
   return true;
 }
 
+void SBUS::start()
+{
+  read_thread_ = jthread(bind(&SBUS::readThreadFunc, this, placeholders::_1));
+}
+
+void SBUS::stop()
+{
+  read_thread_.request_stop();
+}
+
 void SBUS::spin()
 {
   read_thread_.join();
 }
 
-void SBUS::start()
-{
-  read_thread_ = thread(bind(&SBUS::readThreadFunc, this));
-}
-
-void SBUS::readThreadFunc()
+void SBUS::readThreadFunc(stop_token st)
 {
   const set<uint8_t> end_bytes{ 0x00, 0x04, 0x14, 0x24, 0x34 };
 
   uint8_t start_byte, end_byte, flags;
   array<uint8_t, kDataSize> data;
 
-  while (true) {
+  while (!st.stop_requested()) {
     // インバータが悪いのかLinuxのUARTデバイスにデータが勝手に分割されるため，一括ではなく1バイトずつ取得する．
     // FIXME: SBUSドライバの起動時に偶然スタートバイトでない0x0Fが先頭にきているとバグるはず
 
@@ -125,6 +130,6 @@ void SBUS::decodeFlags(uint8_t flags)
   packet_.ch17 = (flags >> 0) & 1;
   packet_.ch18 = (flags >> 1) & 1;
   packet_.frame_lost = (flags >> 2) & 1;
-  packet_.failsave_activated = (flags >> 3) & 1;
+  packet_.failsafe = (flags >> 3) & 1;
 }
 }  // namespace tobas

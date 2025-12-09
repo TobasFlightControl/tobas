@@ -36,7 +36,7 @@ void PropellerPitchPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& msgs)
 {
-  if (msgs.size() == 0) {
+  if (msgs.empty()) {
     return;
   }
 
@@ -65,7 +65,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
       const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      pitch_data[idx].push_back(tobas_std::rad2deg(elem.angle));
+      pitch_data[idx].push_back(tbs::rad2deg(elem.angle));
     }
   }
 

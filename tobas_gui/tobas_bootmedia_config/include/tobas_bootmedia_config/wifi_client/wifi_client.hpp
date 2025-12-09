@@ -23,10 +23,12 @@ class WifiClientWidget : public BaseConfigWidget
 
   static constexpr int kColWidth = 300;
 
-  static constexpr int kSsidCol = 0;
-  static constexpr int kPskCol = 1;
-  static constexpr int kPriorityCol = 2;
-  static constexpr int kNumCols = 3;
+  static constexpr int kKeyMgmtCol = 0;
+  static constexpr int kSsidCol = 1;
+  static constexpr int kPskCol = 2;
+  static constexpr int kPriorityCol = 3;
+  static constexpr int kHiddenCol = 4;
+  static constexpr int kNumCols = 5;
 
 public:
   explicit WifiClientWidget();
@@ -48,11 +50,13 @@ private:
 
   qt::TableWidget* table_;
 
+  QString getKeyMgmt(int row) const;
   QString getSsid(int row) const;
   QString getPsk(int row) const;
   int getPriority(int row) const;
+  bool getHidden(int row) const;
 
-  void addRow(const QString& ssid, const QString& psk, int priority);
+  void addRow(const QString& key_mgmt, const QString& ssid, const QString& psk, int priority, bool hidden);
   bool writeCurrentConfig();
 
   static std::string configPath();

@@ -5,18 +5,18 @@
 
 using namespace std::chrono_literals;
 
-class FakeGNSSPublisherNode : public tobas::BaseNode
+class FakeGnssPublisherNode : public tobas::BaseNode
 {
   static constexpr auto kSamplingPeriod = 200ms;
 
   static constexpr double kDefaultPosStddev = 3.;   // [m]
   static constexpr double kDefaultVelStddev = 0.3;  // [m/s]
 
-  using self = FakeGNSSPublisherNode;
+  using self = FakeGnssPublisherNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit FakeGNSSPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit FakeGnssPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   double pos_stddev_;
@@ -28,8 +28,7 @@ private:
   void timerCb();
 };
 
-FakeGNSSPublisherNode::FakeGNSSPublisherNode(const rclcpp::NodeOptions& options)
-  : super("fake_battery_publisher", options)
+FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options) : super("fake_batt_publisher", options)
 {
   pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
   vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);
@@ -38,10 +37,10 @@ FakeGNSSPublisherNode::FakeGNSSPublisherNode(const rclcpp::NodeOptions& options)
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 
-void FakeGNSSPublisherNode::timerCb()
+void FakeGnssPublisherNode::timerCb()
 {
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
-  gnss_msg->header.stamp = get_clock()->now();
+  gnss_msg->header.stamp = now();
   gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
   gnss_msg->latitude = 0.;
   gnss_msg->longitude = 0.;
@@ -50,7 +49,7 @@ void FakeGNSSPublisherNode::timerCb()
   gnss_msg->position_covariance = Eigen::Vector3d::Constant(pos_stddev_).asDiagonal();
   gnss_msg->velocity_covariance = Eigen::Vector3d::Constant(vel_stddev_).asDiagonal();
 
-  gnss_pub_->publish(move(gnss_msg));
+  gnss_pub_->publish(std::move(gnss_msg));
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(FakeGNSSPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(FakeGnssPublisherNode)

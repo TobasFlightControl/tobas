@@ -27,8 +27,8 @@ CommandersWidget::CommandersWidget(
   base_pose_commander_ = new BasePoseCommanderWidget(node, bridge, drone);
   scroll_rows->addWidget(base_pose_commander_);
 
-  jointpos_commander_ = new JointPositionCommanderWidget(node, tree, drone);
-  scroll_rows->addWidget(jointpos_commander_);
+  joint_commander_ = new JointCommanderWidget(node, tree, drone);
+  scroll_rows->addWidget(joint_commander_);
 
   scroll_rows->addStretch();
 }
@@ -36,7 +36,7 @@ CommandersWidget::CommandersWidget(
 void CommandersWidget::updateInternalDataStructures()
 {
   base_pose_commander_->updateInternalDataStructures();
-  jointpos_commander_->updateInternalDataStructures();
+  joint_commander_->updateInternalDataStructures();
 }
 
 bool CommandersWidget::start()
@@ -45,7 +45,7 @@ bool CommandersWidget::start()
     return false;
   }
 
-  if (!jointpos_commander_->start()) {
+  if (!joint_commander_->start()) {
     return false;
   }
 
@@ -55,7 +55,7 @@ bool CommandersWidget::start()
 void CommandersWidget::reset()
 {
   base_pose_commander_->reset();
-  jointpos_commander_->reset();
+  joint_commander_->reset();
 }
 }  // namespace sim
 }  // namespace gui

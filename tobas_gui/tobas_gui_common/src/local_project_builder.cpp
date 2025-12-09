@@ -40,6 +40,7 @@ void LocalProjectBuilderThread::run()
 {
   if (!builder_.build(proj_path_)) {
     Q_EMIT finished(false, QString::fromStdString(builder_.errorMessage()));
+    return;
   }
 
   Q_EMIT finished(true, "");

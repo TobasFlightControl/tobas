@@ -20,10 +20,13 @@ class SyncActionClient
 {
   static constexpr auto kWaitForServer = std::chrono::seconds(1);
 
+  using Client = rclcpp_action::Client<ActionType>;
+  using GoalHandle = rclcpp_action::ClientGoalHandle<ActionType>;
+
 public:
   using SharedPtr = std::shared_ptr<SyncActionClient>;
 
-  inline explicit SyncActionClient(
+  explicit SyncActionClient(
     rclcpp::Node::SharedPtr node,
     const std::string& name,
     rclcpp::CallbackGroup::SharedPtr group = nullptr)
@@ -39,9 +42,7 @@ public:
    *
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
-  std::pair<
-    std::shared_ptr<rclcpp_action::ClientGoalHandle<ActionType>>,
-    std::shared_future<typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult>>
+  std::pair<std::shared_ptr<GoalHandle>, std::shared_future<typename GoalHandle::WrappedResult>>
   sendGoal(const typename ActionType::Goal& goal)
   {
     if (!client_->wait_for_action_server(kWaitForServer)) {
@@ -49,7 +50,7 @@ public:
       return {};
     }
 
-    auto send_goal_future = client_->async_send_goal(goal);
+    const auto send_goal_future = client_->async_send_goal(goal);
     send_goal_future.wait();
 
     const auto goal_handle = send_goal_future.get();
@@ -74,7 +75,7 @@ public:
     std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(-1),
     std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
   {
-    auto [goal_handle, get_result_future] = sendGoal(goal);
+    const auto [goal_handle, get_result_future] = sendGoal(goal);
     if (!get_result_future.valid()) {
       return false;
     }
@@ -96,16 +97,16 @@ public:
   }
 
   std::shared_future<std::shared_ptr<action_msgs::srv::CancelGoal_Response>>
-  cancelGoal(std::shared_ptr<rclcpp_action::ClientGoalHandle<ActionType>> goal_handle)
+  cancelGoal(std::shared_ptr<GoalHandle> goal_handle)
   {
     return client_->async_cancel_goal(goal_handle);
   }
 
   bool cancelGoalAndWait(
-    std::shared_ptr<rclcpp_action::ClientGoalHandle<ActionType>> goal_handle,
+    std::shared_ptr<GoalHandle> goal_handle,
     std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
-    auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
+    const auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
     if (waitForFuture(cancel_goal_future, timeout) != std::future_status::ready) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to cancel \"" << action_name_ << "\" action goal.");
       return false;
@@ -113,7 +114,7 @@ public:
     return true;
   }
 
-  inline const typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult& getResult() const
+  inline const typename GoalHandle::WrappedResult& getResult() const
   {
     return result_;
   }
@@ -121,7 +122,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   std::string action_name_;
-  typename rclcpp_action::Client<ActionType>::SharedPtr client_;
-  typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult result_;
+  typename Client::SharedPtr client_;
+  typename GoalHandle::WrappedResult result_;
 };
 }  // namespace ros2

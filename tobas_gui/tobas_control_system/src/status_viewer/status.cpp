@@ -39,6 +39,9 @@ void StatusWidget::setStatus(Status status)
     case IGNORED:
       led_->setFillColor(kIgnoredColor);
       break;
+    case UNKNOWN:
+      led_->setFillColor(kUnknownColor);
+      break;
     default:
       qWarning() << "Unknown status: " << status;
       reset();

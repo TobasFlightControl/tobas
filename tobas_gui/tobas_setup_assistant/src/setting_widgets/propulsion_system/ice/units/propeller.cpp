@@ -32,14 +32,16 @@ PropellerWidget::PropellerWidget()
   diameter_->setSuffix(" inch");
   rows->addWidget(diameter_);
 
-  pitch_length_neutoral_ = new ParamGetterWidget_DoubleSpinBox("Propeller Pitch (Neutoral)");
+  pitch_length_neutoral_ = new ParamGetterWidget_DoubleSpinBox(
+    "Propeller Pitch (Neutoral)", "The propeller pitch length when the pitch angle is 0°.");
   pitch_length_neutoral_->setDecimals(1);
   pitch_length_neutoral_->setMinimum(0.1);
   pitch_length_neutoral_->setValue(18);
   pitch_length_neutoral_->setSuffix(" inch");
   rows->addWidget(pitch_length_neutoral_);
 
-  pitch_angle_limit_ = new ParamGetterWidget_IntRange("Pitch Angle Limit", "Around the neutoral position");
+  pitch_angle_limit_ = new ParamGetterWidget_IntRange(
+    "Pitch Angle Limit", "Specify the range over which thrust varies linearly with propeller pitch angle.");
   pitch_angle_limit_->setMinimum(-90);
   pitch_angle_limit_->setMaximum(+90);
   pitch_angle_limit_->setValue({ -6, 6 });
@@ -121,7 +123,7 @@ void PropellerWidget::load(const YAML::Node& node)
   num_blades_->setValue(node[num_blades_->name()].as<int>());
   diameter_->setValue(node[diameter_->name()].as<int>());
   pitch_length_neutoral_->setValue(node[pitch_length_neutoral_->name()].as<int>());
-  pitch_angle_limit_->setValue(node[pitch_angle_limit_->name()].as<tobas_std::Range<int>>());
+  pitch_angle_limit_->setValue(node[pitch_angle_limit_->name()].as<tbs::Range<int>>());
   max_pitch_angle_rate_->setValue(node[max_pitch_angle_rate_->name()].as<int>());
   min_chord_->setValue(node[min_chord_->name()].as<int>());
   max_chord_->setValue(node[max_chord_->name()].as<int>());
@@ -134,7 +136,7 @@ int PropellerWidget::numBlades() const
 
 double PropellerWidget::diameter() const
 {
-  return tobas_std::inch2meter(diameter_->getValue());
+  return tbs::inch2meter(diameter_->getValue());
 }
 
 double PropellerWidget::radius() const
@@ -144,7 +146,7 @@ double PropellerWidget::radius() const
 
 double PropellerWidget::pitchLengthNeutoral() const
 {
-  return tobas_std::inch2meter(pitch_length_neutoral_->getValue());
+  return tbs::inch2meter(pitch_length_neutoral_->getValue());
 }
 
 double PropellerWidget::pitchAngleNeutoral() const
@@ -152,16 +154,16 @@ double PropellerWidget::pitchAngleNeutoral() const
   return atan(pitchLengthNeutoral() / (M_PI * diameter()));
 }
 
-tobas_std::Range<double> PropellerWidget::pitchAngleLimit() const
+tbs::Range<double> PropellerWidget::pitchAngleLimit() const
 {
-  const auto lower = tobas_std::deg2rad(pitch_angle_limit_->min());
-  const auto upper = tobas_std::deg2rad(pitch_angle_limit_->max());
+  const auto lower = tbs::deg2rad(pitch_angle_limit_->min());
+  const auto upper = tbs::deg2rad(pitch_angle_limit_->max());
   return { lower, upper };
 }
 
 double PropellerWidget::maxPitchAngleRate() const
 {
-  return tobas_std::deg2rad(max_pitch_angle_rate_->getValue());
+  return tbs::deg2rad(max_pitch_angle_rate_->getValue());
 }
 
 double PropellerWidget::minChord() const

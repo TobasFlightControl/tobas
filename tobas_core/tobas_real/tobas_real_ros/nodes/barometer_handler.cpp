@@ -58,7 +58,7 @@ void BarometerHandlerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::C
 
   // Publish a calibrated data
   auto pres_out = std::make_unique<tobas_msgs::msg::FluidPressure>(*pres_in);
-  pres_pub_->publish(move(pres_out));
+  pres_pub_->publish(std::move(pres_out));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(BarometerHandlerNode)

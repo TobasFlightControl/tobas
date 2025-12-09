@@ -92,24 +92,12 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   yaw_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(yaw_range_);
 
-  throt_range_ = new qt::VPositionBarWidget(kMinPeriod, kMaxPeriod);
+  throt_range_ = new qt::VPositionBarWidget(kMaxPeriod, kMinPeriod);
   throt_range_->setFixedWidth(kRangeSideShort);
   stick_cols->addWidget(throt_range_);
 
   // Control Switches
   const auto ctrl_switch_form = new qt::FormLayout();
-
-  enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  enable_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
-
-  ctrl_switch_form->addStretch();
-
-  kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  kill_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
-
-  ctrl_switch_form->addStretch();
 
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
@@ -120,6 +108,18 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
   ctrl_switch_form->addVAlignedRow(std::format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
+
+  ctrl_switch_form->addStretch();
+
+  enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  enable_range_->setFixedHeight(kRangeSideShort);
+  ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
+
+  ctrl_switch_form->addStretch();
+
+  kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
+  kill_range_->setFixedHeight(kRangeSideShort);
+  ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
 
   // General Purpose Switches
   const auto gpsw_form = new qt::FormLayout();
@@ -178,16 +178,10 @@ void RCInputCalibrationWidget::reset()
   yaw_range_->clear();
   throt_range_->clear();
 
-  enable_range_->clear();
-  kill_range_->clear();
   mode_range_->clear();
   sub_mode_range_->clear();
-
-  enable_range_->setLowerText(kOnText);
-  enable_range_->setUpperText(kOffText);
-
-  kill_range_->setLowerText(kOnText);
-  kill_range_->setUpperText(kOffText);
+  enable_range_->clear();
+  kill_range_->clear();
 
   mode_range_->setLowerText("Loiter");
   mode_range_->setCenterText("Stabilize");
@@ -195,6 +189,12 @@ void RCInputCalibrationWidget::reset()
 
   sub_mode_range_->setLowerText(kOnText);
   sub_mode_range_->setUpperText(kOffText);
+
+  enable_range_->setLowerText(kOnText);
+  enable_range_->setUpperText(kOffText);
+
+  kill_range_->setLowerText(kOnText);
+  kill_range_->setUpperText(kOffText);
 
   for (auto& gpsw_range : gpsw_ranges_) {
     gpsw_range->clear();
@@ -250,15 +250,15 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
   pt.set(ns, kThrotUpKey, throt_range_->getLower());
   pt.set(ns, kThrotDownKey, throt_range_->getUpper());
 
-  pt.set(ns, kEnableOnKey, enable_range_->getLower());
-  pt.set(ns, kEnableOffKey, enable_range_->getUpper());
-  pt.set(ns, kKillOnKey, kill_range_->getLower());
-  pt.set(ns, kKillOffKey, kill_range_->getUpper());
   pt.set(ns, kModeAcrobatKey, mode_range_->getUpper());
   pt.set(ns, kModeStabilizeKey, mode_range_->getMiddle());
   pt.set(ns, kModeLoiterKey, mode_range_->getLower());
   pt.set(ns, kSubModeOnKey, sub_mode_range_->getLower());
   pt.set(ns, kSubModeOffKey, sub_mode_range_->getUpper());
+  pt.set(ns, kEnableOnKey, enable_range_->getLower());
+  pt.set(ns, kEnableOffKey, enable_range_->getUpper());
+  pt.set(ns, kKillOnKey, kill_range_->getLower());
+  pt.set(ns, kKillOffKey, kill_range_->getUpper());
 
   std::array<int, tobas::kMaxNumOfGpsw> gpsw_on, gpsw_off;
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
@@ -293,15 +293,15 @@ bool RCInputCalibrationWidget::saveParamsToFc()
   req->throttle_up = throt_range_->getLower();
   req->throttle_down = throt_range_->getUpper();
 
-  req->enable_on = enable_range_->getLower();
-  req->enable_off = enable_range_->getUpper();
-  req->kill_on = kill_range_->getLower();
-  req->kill_off = kill_range_->getUpper();
   req->mode_acrobat = mode_range_->getUpper();
   req->mode_stabilize = mode_range_->getMiddle();
   req->mode_loiter = mode_range_->getLower();
   req->sub_mode_on = sub_mode_range_->getLower();
   req->sub_mode_off = sub_mode_range_->getUpper();
+  req->enable_on = enable_range_->getLower();
+  req->enable_off = enable_range_->getUpper();
+  req->kill_on = kill_range_->getLower();
+  req->kill_off = kill_range_->getUpper();
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
     req->gpsw_on[i] = gpsw_ranges_[i]->getLower();
@@ -385,21 +385,20 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     qt::qWarnBox(this, "The signal range of Throttle channel is too narrow.");
     return;
   }
-
-  if (enable_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Enable channel is too narrow.");
-    return;
-  }
-  if (kill_range_->getRange() < kMinSignalRange) {
-    qt::qWarnBox(this, "The signal range of Kill channel is too narrow.");
-    return;
-  }
   if (mode_range_->getRange() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Mode channel is too narrow.");
     return;
   }
   if (sub_mode_range_->getRange() < kMinSignalRange) {
     qt::qWarnBox(this, "The signal range of Sub-Mode channel is too narrow.");
+    return;
+  }
+  if (enable_range_->getRange() < kMinSignalRange) {
+    qt::qWarnBox(this, "The signal range of Enable channel is too narrow.");
+    return;
+  }
+  if (kill_range_->getRange() < kMinSignalRange) {
+    qt::qWarnBox(this, "The signal range of Kill channel is too narrow.");
     return;
   }
 
@@ -423,24 +422,28 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
+  if (sbus->frame_lost) {
+    return;
+  }
+
   sbus_ = sbus;
 
   if (!running_) {
     return;
   }
 
-  roll_range_->setValue(sbus->data.at(real::kRcChannelRoll));
-  pitch_range_->setValue(sbus->data.at(real::kRcChannelPitch));
-  yaw_range_->setValue(sbus->data.at(real::kRcChannelYaw));
-  throt_range_->setValue(sbus->data.at(real::kRcChannelThrot));
+  roll_range_->setValue(sbus->periods.at(real::kRcChannelRoll));
+  pitch_range_->setValue(sbus->periods.at(real::kRcChannelPitch));
+  yaw_range_->setValue(sbus->periods.at(real::kRcChannelYaw));
+  throt_range_->setValue(sbus->periods.at(real::kRcChannelThrot));
 
-  enable_range_->setValue(sbus->data.at(real::kRcChannelEnable));
-  kill_range_->setValue(sbus->data.at(real::kRcChannelKill));
-  mode_range_->setValue(sbus->data.at(real::kRcChannelMode));
-  sub_mode_range_->setValue(sbus->data.at(real::kRcChannelSubMode));
+  mode_range_->setValue(sbus->periods.at(real::kRcChannelMode));
+  sub_mode_range_->setValue(sbus->periods.at(real::kRcChannelSubMode));
+  enable_range_->setValue(sbus->periods.at(real::kRcChannelEnable));
+  kill_range_->setValue(sbus->periods.at(real::kRcChannelKill));
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_ranges_[i]->setValue(sbus->data.at(real::kRcChannelGpsw + i));
+    gpsw_ranges_[i]->setValue(sbus->periods.at(real::kRcChannelGpsw + i));
   }
 }
 

@@ -44,8 +44,8 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
   if (es.info() != Success) {
     throw runtime_error("Failed to get eigenvalues.");
   }
-  const VectorXd eigvals = es.eigenvalues().real();
-  const MatrixXcd eigvecs = es.eigenvectors();  // 固有ベクトルは虚部も使う必要がある
+  const auto eigvals = es.eigenvalues().real().eval();
+  const auto eigvecs = es.eigenvectors().eval();  // 固有ベクトルは虚部も使う必要がある
 
   // 実部が負の固有値の個数はシステムの次数に等しいはず
   // 0と比較すると未初期化の値がヒットするため，少しマージンを設ける

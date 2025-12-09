@@ -10,12 +10,11 @@
 #include <tobas_msgs/msg/heartbeat.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/message.hpp>
-#include <tobas_msgs/msg/post_arm_check.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
@@ -31,8 +30,7 @@ Q_DECLARE_METATYPE(tobas_msgs::msg::FluidPressure::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Heartbeat::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::JointStateArray::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::Message::ConstSharedPtr);
-Q_DECLARE_METATYPE(tobas_msgs::msg::PostArmCheck::ConstSharedPtr);
-Q_DECLARE_METATYPE(tobas_msgs::msg::PreArmCheck::ConstSharedPtr);
+Q_DECLARE_METATYPE(tobas_msgs::msg::VehicleHealth::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::RosbagState::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::msg::RotorStateArray::ConstSharedPtr);

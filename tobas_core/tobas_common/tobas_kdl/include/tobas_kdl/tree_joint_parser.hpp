@@ -17,9 +17,10 @@ public:
   bool updateInternalDataStructures() override;
 
   inline const std::string& jointName(const size_t& q_nr) const;
-
   inline const size_t& jointIndex(const std::string& jnt_name) const;
   inline const std::string& segmentName(const std::string& jnt_name) const;
+
+  inline const Joint& joint(const std::string& jnt_name) const;
 
   inline const JntArray& lowerLimits() const;
   inline double lowerLimit(const size_t& q_nr) const;
@@ -44,6 +45,7 @@ private:
   std::vector<std::string> jnt_names_;
   std::map<std::string, size_t> jnt_indexes_;
   std::map<std::string, std::string> seg_names_;
+
   JntArray lower_limits_;
   JntArray upper_limits_;
   JntArray max_velocities_;
@@ -54,7 +56,7 @@ private:
   /* 全ての駆動関節名を取得し，RNEと同じ順番に並べる． */
   void parseJntNames();
 
-  void parseJntNamesStep(const SegmentMap::const_iterator& segment);
+  void parseJntNamesStep(const SegmentMap::const_iterator& seg_it);
 };
 
 inline const std::string& TreeJointParser::jointName(const size_t& q_nr) const
@@ -70,6 +72,11 @@ inline const size_t& TreeJointParser::jointIndex(const std::string& jnt_name) co
 inline const std::string& TreeJointParser::segmentName(const std::string& jnt_name) const
 {
   return seg_names_.at(jnt_name);
+}
+
+inline const Joint& TreeJointParser::joint(const std::string& jnt_name) const
+{
+  return tree_.getSegment(segmentName(jnt_name))->second.segment.joint();
 }
 
 inline const JntArray& TreeJointParser::lowerLimits() const

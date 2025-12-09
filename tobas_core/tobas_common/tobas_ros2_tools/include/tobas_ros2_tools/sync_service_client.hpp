@@ -22,7 +22,7 @@ class SyncServiceClient
 public:
   using SharedPtr = std::shared_ptr<SyncServiceClient>;
 
-  inline explicit SyncServiceClient(
+  explicit SyncServiceClient(
     rclcpp::Node::SharedPtr node,
     const std::string& name,
     rclcpp::CallbackGroup::SharedPtr group = nullptr)

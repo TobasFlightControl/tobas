@@ -1,4 +1,4 @@
 # https://www.cfdsupport.com/acoustic-benchmark-propeller-dji-9450.html
 
-RPM,Thrust,Torque
+RPM,Thrust [N],Torque [Nm]
 6000,4.256,0.066

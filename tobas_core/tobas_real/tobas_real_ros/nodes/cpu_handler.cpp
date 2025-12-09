@@ -12,7 +12,7 @@ using namespace std::chrono_literals;
 
 class CpuHandlerNode : public tobas::BaseNode
 {
-  static constexpr auto kSamplingPeriod = 1s;
+  static constexpr auto kSamplingPeriod = 100ms;
   static constexpr char kTemperatureFilePath[] = "/sys/class/thermal/thermal_zone0/temp";
   static constexpr char kStatisticsFilePath[] = "/proc/stat";
 
@@ -145,7 +145,7 @@ void CpuHandlerNode::mainTimerCb()
 {
   // Create ROS message
   auto cpu_msg = std::make_unique<tobas_msgs::msg::Cpu>();
-  cpu_msg->header.stamp = get_clock()->now();
+  cpu_msg->header.stamp = now();
 
   // Get CPU temperature
   if (!getTemperature(cpu_msg->temperature)) {
@@ -163,7 +163,7 @@ void CpuHandlerNode::mainTimerCb()
   }
 
   // Publish ROS message
-  cpu_pub_->publish(move(cpu_msg));
+  cpu_pub_->publish(std::move(cpu_msg));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(CpuHandlerNode)

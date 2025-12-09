@@ -45,9 +45,13 @@ void CustomWorldWidget::onBrowseButtonClicked()
   }
 
   // worldのパスを取得
-  const auto options = QFileDialog::DontUseNativeDialog;
   const auto file_path = QFileDialog::getOpenFileName(
-    this, "Select World File", QString::fromStdString(last_opened_dir), "Gazebo World (*.world)", nullptr, options);
+    this,
+    "Select World File",
+    QString::fromStdString(last_opened_dir),
+    "Gazebo World (*.world)",
+    nullptr,
+    QFileDialog::DontUseNativeDialog);
 
   // キャンセルの場合は何もせずに終了
   if (file_path.isEmpty()) {

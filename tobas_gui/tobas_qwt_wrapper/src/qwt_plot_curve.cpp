@@ -23,6 +23,26 @@ void QwtPlotCurveWrapper::setSamples(const QVector<double>& x_data, const QVecto
   impl_->setSamples(x_data, y_data);
 }
 
+void QwtPlotCurveWrapper::setStyleLines()
+{
+  impl_->setStyle(QwtPlotCurve::Lines);
+}
+
+void QwtPlotCurveWrapper::setStyleSticks()
+{
+  impl_->setStyle(QwtPlotCurve::Sticks);
+}
+
+void QwtPlotCurveWrapper::setStyleSteps()
+{
+  impl_->setStyle(QwtPlotCurve::Steps);
+}
+
+void QwtPlotCurveWrapper::setStyleDots()
+{
+  impl_->setStyle(QwtPlotCurve::Dots);
+}
+
 void QwtPlotCurveWrapper::attach(QwtPlot* plot)
 {
   impl_->attach(plot);

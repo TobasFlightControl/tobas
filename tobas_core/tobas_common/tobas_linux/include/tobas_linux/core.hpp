@@ -14,5 +14,5 @@ std::filesystem::path homeDir();
 std::filesystem::path expandUser(const std::string& path);
 
 /* プログラムがRoot権限で実行されている場合にTrueを返す． */
-bool isSuperUser();
+bool isSuperUser() noexcept;
 }  // namespace linux

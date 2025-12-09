@@ -20,10 +20,10 @@ class PoseViewerWidget : public qt::Widget
   static constexpr int kScaleInterval = 10;  // [deg]
   static constexpr int kRollRadius = 200;    // ロール円の半径
   static constexpr int kRollTickLength = 10;
-  static constexpr double kPitchHeightRange = tobas_std::deg2rad(120);  // [rad]
-  static constexpr int kPitchVisualRange = 25;                          // [deg] 描画するピッチ角の範囲
+  static constexpr double kPitchAngleOfView = tbs::deg2rad(120);  // [rad] 人間の視野角程度
+  static constexpr int kPitchVisualRange = 25;                    // [deg] 描画するピッチ角の範囲
   static constexpr int kPitchLineLength = 100;
-  static constexpr double kYawWidthRange = tobas_std::deg2rad(120);  // [rad]
+  static constexpr double kYawAngleOfView = tbs::deg2rad(120);  // [rad]
   static constexpr int kYawLineY = 60;
   static constexpr int kYawTickLength = 10;
 
@@ -33,8 +33,7 @@ public:
   void reset();
 
 private:
-  double roll_, pitch_, yaw_;   // 現在のオイラー角
-  double slope_, y_intercept_;  // 機体から見た地平線の方程式
+  double roll_, pitch_, yaw_;  // 現在のオイラー角
 
   void paintEvent(QPaintEvent* event) override;
 
@@ -49,13 +48,13 @@ private:
   void addGradation(QPainter& painter);
 
   /* カメラの枠内の点が空に含まれるかどうかを判定する． */
-  bool isSky(const QPoint& p) const;
+  bool isSky(const QPoint& p, double a, double b) const;
 
   /* ピッチ角 [rad] をウィンドウ高さに変換する． */
-  double pitchToHeight(double pitch) const;
+  static double pitchToHeight(double pitch);
 
   /* ヨー角 [rad] をウィンドウ幅に変換する． */
-  double yawToWidth(double yaw) const;
+  static double yawToWidth(double yaw);
 
 private Q_SLOTS:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);

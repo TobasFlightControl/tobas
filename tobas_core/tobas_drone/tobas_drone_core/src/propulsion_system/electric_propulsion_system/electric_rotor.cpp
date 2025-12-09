@@ -47,6 +47,11 @@ bool ElectricRotorConfig::isValid() const
     return false;
   }
 
+  if (moment_const <= 0.) {
+    cerr << "Moment constant must be positive." << endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -84,6 +89,10 @@ bool ElectricRotorConfig::load(const YAML::Node& node)
     return false;
   }
 
+  if (!yaml::load(kMomentConstKey, node, moment_const)) {
+    return false;
+  }
+
   return true;
 }
 
@@ -98,6 +107,7 @@ YAML::Node ElectricRotorConfig::dump() const
   node[kMinSpeed] = min_speed;
   node[kPropellerDiameterKey] = propeller_diameter;
   node[kMotorConstKey] = motor_const;
+  node[kMomentConstKey] = moment_const;
 
   return node;
 }

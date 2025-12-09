@@ -142,7 +142,7 @@ bool PinvMixer::solve(
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
       const auto d = rotor->sign();
-      const auto& cm = rotor->moment_const;
+      const auto cm = rotor->momentConst();
 
       const Matrix<double, 3, 2> B = B_T_gpar.M.data * A_.at(idx);
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
@@ -154,8 +154,12 @@ bool PinvMixer::solve(
   }
 
   // 並進EoMの右辺
-  const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  const auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
+  const kdl::Vector grav_W(0, 0, -tbs::kGravity);
+  auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
+  // 着陸時など加速度の絶対値が小さいとチルト角の解の変化率が相対的に大きくなる．
+  // ミキサーはチルト角の追従の遅延を無視しているため，チルト角の変位が大きくなるのは避けたい．
+  // そのため，最低限鉛直上方向に推力を出すことを保証しておく．
+  eom_trans_right_W.z(max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));
   f_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
   // 回転EoMの右辺

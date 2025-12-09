@@ -4,7 +4,7 @@
  * @brief 標準大気
  * cf. https://pigeon-poppo.com/standard-atmosphere/
  */
-namespace tobas_std
+namespace tbs
 {
 /**
  * @brief ジオポテンシャル高度から幾何高度を求める．
@@ -117,4 +117,4 @@ double pressureToAltitude(const double& pressure);
  * @param altitude_var 幾何高度の分散 [m^2] (出力)
  */
 void pressureToAltitude(const double& pressure, const double& pressure_var, double& altitude, double& altitude_var);
-}  // namespace tobas_std
+}  // namespace tbs

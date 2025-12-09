@@ -13,8 +13,6 @@
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_command_msgs_adapter</depend>
 	<depend>tobas_mission_msgs</depend>
-	<depend>tobas_drone_tools</depend>
-	<depend>tobas_drone_msgs_adapter</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

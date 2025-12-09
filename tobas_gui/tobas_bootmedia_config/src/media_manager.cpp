@@ -183,7 +183,7 @@ void MediaManagerWidget::onScanTimerTimeout()
 
   // 未接続時は有効なメディアが存在する場合に限りConnectボタンを有効化
   if (!isConnected()) {
-    connect_btn_->setEnabled(medias_.size() > 0);
+    connect_btn_->setEnabled(!medias_.empty());
   }
 }
 

@@ -1,0 +1,66 @@
+#include <tobas_fc1xx_core/ilps22qs.hpp>
+#include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_real_common/constants.hpp>
+
+#include <tobas_msgs/msg/fluid_pressure.hpp>
+
+#include "./common.hpp"
+
+using namespace std::chrono_literals;
+
+class BaroDriverNode : public hardware::BaseSensorNode
+{
+  static constexpr auto kSamplingPeriod = 20ms;
+
+  using self = BaroDriverNode;
+  using super = hardware::BaseSensorNode;
+
+public:
+  explicit BaroDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  fc1xx::ILPS22QS baro_;
+  ros2::PublisherPtr<tobas_msgs::msg::FluidPressure> baro_pub_;
+  ros2::TimerPtr initialize_timer_;
+
+  void initialize();
+  void mainTimerCb();
+};
+
+BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_baro_driver", options)
+{
+  initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
+}
+
+void BaroDriverNode::initialize()
+{
+  if (!baro_.initialize()) {
+    TOBAS_ERROR("Failed to initialize Barometer. Retrying...");
+    return;
+  }
+
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(real::kAirPressureTopic);
+
+  initialize_timer_->cancel();
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+}
+
+void BaroDriverNode::mainTimerCb()
+{
+  // Create messages
+  auto msg = std::make_unique<tobas_msgs::msg::FluidPressure>();
+
+  // Fill headers
+  msg->header.stamp = now();
+
+  // Read sensor
+  if (!baro_.readPressure(msg->pressure)) {
+    TOBAS_FATAL("Failed to read barometer.");
+    return;
+  }
+
+  // Publish message
+  baro_pub_->publish(std::move(msg));
+}
+
+RCLCPP_COMPONENTS_REGISTER_NODE(BaroDriverNode)

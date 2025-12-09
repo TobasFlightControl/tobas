@@ -62,7 +62,7 @@ void LinkModel::setGeometry(const std::vector<shapes::ShapeConstPtr>& shapes, co
       // we cannot use shapes::computeShapeExtents() for meshes, since that method does not provide information about
       // the offset of the mesh origin
       const shapes::Mesh* mesh = dynamic_cast<const shapes::Mesh*>(shapes_[i].get());
-      for (unsigned int j = 0; j < mesh->vertex_count; ++j) {
+      for (uint32_t j = 0; j < mesh->vertex_count; ++j) {
         aabb.extend(transform * Eigen::Map<Eigen::Vector3d>(&mesh->vertices[3 * j]));
       }
     }

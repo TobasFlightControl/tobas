@@ -1,6 +1,6 @@
 # https://database.tytorobotics.com/tests/xz7/tarot-4108-380kv-tarot-1355
 
-Throttle [us],RPM,Thrust [kgf],Voltage [V],Current [A],Throttle [-],Rotation Speed [rad/s],Thrust,Torque,Moment Constant [m],Electrical Power [W],Mehanical Power [W],Efficiency [%]
+Throttle [us],RPM,Thrust [kgf],Voltage [V],Current [A],Throttle [-],Rotation Speed [rad/s],Thrust [N],Torque [Nm],Moment Constant [m],Electrical Power [W],Mehanical Power [W],Efficiency [%]
 1939,5763,1.676601859,24.45855951,17.38406466,0.939,603.4999488,16.44184763,0.436856814,0.026569813,399.2526401,263.6430649,66.0341444
 1913,5682,1.612141737,24.43019853,16.65266565,0.913,595.0176486,15.80970977,0.418476956,0.026469617,371.4338981,249.0011743,67.0378163
 1887,5569,1.54053336,24.43380357,15.2474455,0.887,583.1843163,15.10747148,0.383164156,0.02536256,330.4545894,223.4553263,67.62058495

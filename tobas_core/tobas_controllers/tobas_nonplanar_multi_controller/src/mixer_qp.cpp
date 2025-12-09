@@ -76,14 +76,14 @@ bool QpMixer::solve(
 
     // 回転
     const auto d = rotor->sign();
-    const auto& cm = rotor->moment_const;
+    const auto cm = rotor->momentConst();
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.block<3, 1>(3, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
   // 並進EoMの右辺
-  const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
+  const kdl::Vector grav_W(0, 0, -tbs::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
   eom_trans_right_W.z(max(eom_trans_right_W.z(), 0.));  // 鉛直下方向に推力を出さないよう制限
   h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
@@ -93,9 +93,9 @@ bool QpMixer::solve(
   h_.tail<3>() = eom_rot_right_B.data;
 
   // 重み
-  const auto linear_scale = mass * kAccelScale;                                     // [N]
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                       // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
+  const auto linear_scale = mass * kAccelScale;                               // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                 // [Nm]
+  const auto thrust_scale = mass * tbs::kGravity / drone_.prop->numRotors();  // [N]
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));

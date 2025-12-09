@@ -19,10 +19,9 @@ namespace ice
 EngineDynamicsWidget::EngineDynamicsWidget(rclcpp::Node::SharedPtr node)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node, "Engine Torque Test Data", "Select Test Data", { "Throttle", "RPM", "Torque" });
+    node, "Engine Torque Test Data", "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
   data_->setDecimals({ 2, 0, 6 });
   data_->setMinimum({ 1e-2, 1, 1e-6 });
-  data_->setSuffix({ " %", " rpm", " Nm" });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   data_->table()->setColumnsWidth(kDataTableColWidth);
 
@@ -62,9 +61,9 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
   const auto data_mat = data_->getValue();
 
   // データを取り出す
-  const auto throttles = data_mat.col(0) / 100.;               // [-]
-  const auto speeds = data_mat.col(1) * tobas_std::kRpmToRps;  // [rad/s]
-  const auto torques = data_mat.col(2);                        // [Nm]
+  const auto throttles = data_mat.col(0) / 100.;         // [-]
+  const auto speeds = data_mat.col(1) * tbs::kRpmToRps;  // [rad/s]
+  const auto torques = data_mat.col(2);                  // [Nm]
 
   // 線型回帰でエンジンダイナミクスの定数を求める (memo: 3-28)
   const auto phi = M_PI_2 * throttles;  // [rad]

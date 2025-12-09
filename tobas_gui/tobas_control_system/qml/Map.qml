@@ -3,17 +3,22 @@ import QtLocation 5.15
 import QtPositioning 5.15
 import "./map_constants.js" as Constants
 
+// Qt Location: https://doc.qt.io/archives/qt-5.15/qtlocation-index.html
 Rectangle {
   id: rectangle
 
+  // Qt Location Open Street Map Plugin: https://doc.qt.io/archives/qt-5.15/location-plugin-osm.html
   Plugin {
-    id: osmPlugin
-    name: "osm"
+    id: mapPlugin
+    name: "osm"  // itemsoverlay, mapbox, here, esri, osm
 
-    // OSMプラグインのパラメータはTobasの全てのMapオブジェクトで同一にする
-    PluginParameter {
-      name: "osm.mapping.providersrepository.disabled"
-      value: "true"
+    // Tile Server / Tile Sources: https://www.trailnotes.org/FetchMap/TileServeSource.html
+    PluginParameter {  // タイルサーバを指定
+      name: "osm.mapping.custom.host"
+      value: "https://tile.openstreetmap.org/"  // Open Street Map: https://www.openstreetmap.org
+      // value: "https://cyberjapandata.gsi.go.jp/xyz/std/"  // 標準地図 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
+      // value: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/"  // 写真 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
+      // value: "https://c.tile.opentopomap.org/"  // OpenTopoMap: https://github.com/der-stefan/OpenTopoMap
     }
     PluginParameter {
       name: "osm.mapping.cache.directory"
@@ -33,14 +38,15 @@ Rectangle {
     }
   }
 
-  // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html#supportedMapTypes-prop
+  // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html
   Map {
     id: map
     objectName: "map"  // Qt側からアクセスするためのオブジェクト名
     anchors.fill: parent
+    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1]  // タイルサーバを指定する場合に必要
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
-    plugin: osmPlugin
+    plugin: mapPlugin
     zoomLevel: 0  // 最小
 
     // Arrow
@@ -159,6 +165,8 @@ Rectangle {
   signal setArrowRotation(double angle)
 
   Component.onCompleted: {
+    console.log("Available map service providers:", mapPlugin.availableServiceProviders);
+
     setMapCenter.connect(onSetMapCenter);
     setArrowPosition.connect(onSetArrowPosition);
     setArrowRotation.connect(onSetArrowRotation);

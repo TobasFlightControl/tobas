@@ -78,7 +78,7 @@ bool SqpMixer::solve(
 
     // Update B
     const auto d = rotor->sign();
-    const auto& cm = rotor->moment_const;
+    const auto cm = rotor->momentConst();
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
     B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * Diagonal3d(1, 1, 1);
@@ -104,7 +104,7 @@ bool SqpMixer::solve(
   }
 
   // 並進EoMの右辺
-  const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
+  const kdl::Vector grav_W(0, 0, -tbs::kGravity);
   const auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
   d_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
@@ -117,9 +117,9 @@ bool SqpMixer::solve(
   // TODO: プロペラ位置とイナーシャの，チルト角による変化を考慮
 
   // Update weights
-  const auto linear_scale = mass * kAccelScale;                                     // [N]
-  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                       // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
+  const auto linear_scale = mass * kAccelScale;                               // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                 // [Nm]
+  const auto thrust_scale = mass * tbs::kGravity / drone_.prop->numRotors();  // [N]
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
   R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));

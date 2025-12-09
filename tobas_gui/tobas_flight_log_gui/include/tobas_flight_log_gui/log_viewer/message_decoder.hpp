@@ -14,14 +14,14 @@ class MessageDecoder
 public:
   explicit MessageDecoder();
 
-  const MsgType& decode(long time, const rclcpp::SerializedMessage& ser_msg);
+  MsgType decode(rcutils_time_point_value_t time_ns, const rclcpp::SerializedMessage& ser_msg);
 
   void clearCache();
 
 private:
   MsgType msg_;
   rclcpp::Serialization<MsgType> ser_;
-  std::unordered_map<long, MsgType> cache_map_;
+  std::unordered_map<rcutils_time_point_value_t, MsgType> cache_map_;
 };
 
 template <typename MsgType>
@@ -30,14 +30,14 @@ MessageDecoder<MsgType>::MessageDecoder()
 }
 
 template <typename MsgType>
-const MsgType& MessageDecoder<MsgType>::decode(long time, const rclcpp::SerializedMessage& ser_msg)
+MsgType MessageDecoder<MsgType>::decode(rcutils_time_point_value_t time_ns, const rclcpp::SerializedMessage& ser_msg)
 {
-  if (cache_map_.contains(time)) {
-    return cache_map_[time];
+  if (cache_map_.contains(time_ns)) {
+    return cache_map_[time_ns];
   }
   {
     ser_.deserialize_message(&ser_msg, &msg_);
-    cache_map_[time] = msg_;
+    cache_map_[time_ns] = msg_;
     return msg_;
   }
 }

@@ -3,7 +3,9 @@
 #include <tinyxml2.h>
 #include <eigen3/Eigen/Core>
 
-#include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
+#include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
 namespace gui
 {
@@ -22,7 +24,7 @@ void addBatteryPlugin(
   double internal_registance,
   const std::vector<std::string>& rotor_link_names);
 
-void addIMUPlugin(
+void addImuPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
@@ -42,9 +44,6 @@ void addMagnetometerPlugin(
   const std::string& link_name,
   int update_rate,
   const Eigen::Vector3d& offset,
-  double latitude_zero,
-  double longitude_zero,
-  double altitude_zero,
   double noise_stddev,
   double hard_bias_norm);
 
@@ -54,10 +53,9 @@ void addBarometerPlugin(
   const std::string& link_name,
   int update_rate,
   const Eigen::Vector3d& offset,
-  double altitude_zero,
   double noise_stddev);
 
-void addGNSSPlugin(
+void addGnssPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
@@ -68,10 +66,7 @@ void addGNSSPlugin(
   double hor_pos_accuracy,
   double ver_pos_accuracy,
   double hor_vel_stddev,
-  double ver_vel_stddev,
-  double latitude_zero,
-  double longitude_zero,
-  double altitude_zero);
+  double ver_vel_stddev);
 
 void addElectricPropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,
@@ -84,8 +79,7 @@ void addElectricPropulsionSystemPlugin(
   double moment_const,
   double drag_const,
   tobas::TurningDirection direction,
-  double max_current,
-  double max_model_error_rate);
+  double max_current);
 
 struct EngineParam
 {
@@ -100,11 +94,11 @@ struct IceRotorParam
   tobas::TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
-  tobas_std::Range<double> pitch_angle_limit;  // [rad]
-  double max_pitch_angle_rate;                 // [rad/s]
-  std::pair<double, double> motor_const;
-  double moment_const;
-  std::pair<double, double> drag_const;
+  tbs::Range<double> pitch_angle_limit;  // [rad]
+  double max_pitch_angle_rate;           // [rad/s]
+  tobas::VppMotorConstant motor_const;
+  tobas::VppMomentConstant moment_const;
+  tobas::VppDragConstant drag_const;
 };
 
 void addIcePropulsionSystemPlugin(
@@ -117,7 +111,6 @@ void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& base_link_name,
-  double altitude_zero,
   const tobas::FixedWingConfig& fixed_wing);
 
 void addJointStateBroadcasterPlugin(

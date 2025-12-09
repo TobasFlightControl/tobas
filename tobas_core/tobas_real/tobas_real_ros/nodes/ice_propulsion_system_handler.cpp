@@ -76,7 +76,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
 
     const auto& link_name = irotor->link_name;
-    const auto& cmd_angle = irotor->pitch_ref;
+    const auto cmd_angle = irotor->optimalPitch();
 
     // Set current pitch angle
     pitch_angles_.at(link_name) = cmd_angle;
@@ -102,9 +102,9 @@ void IcePropulsionSystemHandlerNode::stopActuator()
   }
 
   // Publish command
-  if (pwms->pwms.size() > 0) {
-    pwms->header.stamp = get_clock()->now();
-    pwms_pub_->publish(move(pwms));
+  if (!pwms->pwms.empty()) {
+    pwms->header.stamp = now();
+    pwms_pub_->publish(std::move(pwms));
   }
 }
 
@@ -125,7 +125,7 @@ void IcePropulsionSystemHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr&
   pitch_angles_.clear();
   for (const auto& [_, rotor] : iprop_->rotors) {
     const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
-    pitch_angles_[irotor->link_name] = irotor->pitch_ref;
+    pitch_angles_[irotor->link_name] = irotor->optimalPitch();
   }
 
   // Register publishers
@@ -156,7 +156,7 @@ void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::Engine
     rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_ERROR;
   }
 
-  rotor_states_pub_->publish(move(rotor_states));
+  rotor_states_pub_->publish(std::move(rotor_states));
 }
 
 void IcePropulsionSystemHandlerNode::iceCommandCb(
@@ -233,9 +233,9 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
   }
 
   // Publish command
-  if (pwms->pwms.size() > 0) {
+  if (!pwms->pwms.empty()) {
     pwms->header.stamp = ice_cmd->header.stamp;
-    pwms_pub_->publish(move(pwms));
+    pwms_pub_->publish(std::move(pwms));
   }
 
   // Publish control latency

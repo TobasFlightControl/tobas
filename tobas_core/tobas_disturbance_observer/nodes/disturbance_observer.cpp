@@ -133,7 +133,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto& mass = inertia.getMass();
-  const auto weight = mass * tobas_std::kGravity;
+  const auto weight = mass * tbs::kGravity;
 
   // 推力がかかる項を計算
   kdl::Vector trans_sum = kdl::Vector::Zero();
@@ -154,7 +154,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
       const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
       const auto d = rotor->sign();
-      const auto& cm = rotor->moment_const;
+      const auto cm = rotor->momentConst();
       const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 

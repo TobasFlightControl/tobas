@@ -9,7 +9,7 @@ namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_IntRange : public ParamGetterWidget<tobas_std::Range<int>>
+class ParamGetterWidget_IntRange : public ParamGetterWidget<tbs::Range<int>>
 {
   Q_OBJECT
 

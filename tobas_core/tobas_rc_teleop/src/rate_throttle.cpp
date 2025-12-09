@@ -30,8 +30,8 @@ bool RateThrottleController::requireAngularVelocity()
 
 void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
-  node->addDynamicIntParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 90, 0, 360, " dps");
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45, 0, 360, " dps");
+  node->addDynamicIntParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 360, 0, 720, " dps");
+  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 360, 0, 720, " dps");
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
@@ -60,13 +60,13 @@ void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas
 
 bool RateThrottleController::maxAttitudeRateCb(const long& p)
 {
-  max_atti_rate_ = tobas_std::deg2rad(p);
+  max_atti_rate_ = tbs::deg2rad(p);
   return true;
 }
 
 bool RateThrottleController::maxHeadingRateCb(const long& p)
 {
-  max_head_rate_ = tobas_std::deg2rad(p);
+  max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 

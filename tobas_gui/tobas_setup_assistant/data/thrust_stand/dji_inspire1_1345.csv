@@ -1,6 +1,6 @@
 # https://shop.xoarintl.com/products/xoar-dji-inspire-1-matrice-100-carbon-fiber-propellers-1345
 
-RPM,Thrust [g],Net Output (Prop Input) [W],Thrust,Speed [rad/s],Torque,Moment Constant [m]
+RPM,Thrust [g],Net Output (Prop Input) [W],Thrust [N],Speed [rad/s],Torque [Nm],Moment Constant [m]
 3512,342.85,24.64,3.362209953,367.77578,0.066997343,0.019926579
 3802,418.36,30.66,4.102710094,398.144509,0.077007215,0.018769841
 4115,495.91,39.21,4.863215802,430.9217923,0.090990989,0.018710045

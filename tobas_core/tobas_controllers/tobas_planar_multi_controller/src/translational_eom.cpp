@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace planar_multicopter
 {
-TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tobas_std::kGravity)
+TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tbs::kGravity)
 {
 }
 

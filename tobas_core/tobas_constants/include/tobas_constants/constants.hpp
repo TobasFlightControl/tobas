@@ -36,18 +36,17 @@ static constexpr char kImuFiltTopic[] = "imu_filtered";
 static constexpr char kMagTopic[] = "magnetic_field";
 static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kGnssTopic[] = "gnss";
-static constexpr char kGnssOriginTopic[] = "gnss_origin";
-static constexpr char kLidarTopic[] = "point_cloud";
-static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
 static constexpr char kRotorLivTopic[] = "rotor_liveliness";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
+static constexpr char kMagRefTopic[] = "magnetic_field_ref";
+static constexpr char kGnssOriginTopic[] = "gnss_origin";
 static constexpr char kImuSamplingTimeTopic[] = "imu_sampling_time";
 static constexpr char kControlLatencyTopic[] = "control_latency";
 static constexpr char kArmingTopic[] = "arming";
-static constexpr char kPreArmCheckTopic[] = "prearm_check";
-static constexpr char kPostArmCheckTopic[] = "postarm_check";
+static constexpr char kVehicleHealthTopic[] = "vehicle_health";
+static constexpr char kVibrationLevelTopic[] = "vibration_level";
 static constexpr char kDisturbanceForceTopic[] = "disturbance_force";
 static constexpr char kLandedTopic[] = "landed";
 static constexpr char kRosbagStateTopic[] = "rosbag_state";
@@ -89,7 +88,6 @@ static constexpr char kMRCtrlFeedbackTopic[] = "feedback/multirotor_controller";
 static constexpr char kFWCtrlFeedbackTopic[] = "feedback/fixed_wing_controller";
 
 // ROS services
-static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kGetDynamicParamsSrv[] = "get_dynamic_parameters";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
@@ -130,13 +128,12 @@ static constexpr char kRos2JazzyInstallPath[] = "/opt/ros/jazzy";
 static constexpr char kTobasInstallPath[] = "/opt/tobas";
 
 // Resource Path
-static constexpr char kResourceDirHome[] = "~/Tobas";
-static constexpr char kResourceDirRoot[] = "/etc/tobas";
-static constexpr char kConfigDirHome[] = "~/Tobas/config";
+// XDG Base Directory Specification: https://specifications.freedesktop.org/basedir/
+static constexpr char kConfigDirHome[] = "~/.local/share/tobas/config";
 static constexpr char kConfigDirRoot[] = "/etc/tobas/config";
-static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
+static constexpr char kColconWSPathHome[] = "~/.local/share/tobas/colcon_ws";
 static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
-static constexpr char kRosbagDirHome[] = "~/Tobas/rosbag";
+static constexpr char kRosbagDirHome[] = "~/.local/share/tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
 static constexpr char kConfigEnvPath[] = "/etc/tobas/config.env";
 

@@ -58,7 +58,6 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
   root_rows->addLayout(name_cols);
   root_rows->addLayout(ctrl_cols);
   root_rows->addLayout(state_form);
-  root_rows->addStretch();
 
   setLayout(root_rows);
 

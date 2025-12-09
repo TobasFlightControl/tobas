@@ -81,12 +81,14 @@ bool MissionExecutionThread::execute(TakeoffData::SharedPtr command)
   Takeoff::Goal goal;
   goal.level.data = kCommandLevel;
   goal.target_altitude = command->altitude;
+  goal.max_speed = command->max_speed;
+  goal.max_accel = command->max_accel;
+  goal.max_jerk = command->max_jerk;
   goal.altitude_tolerance = command->altitude_tolerance;
-  goal.duration = command->duration;
   goal.timeout = kCommandTimeout;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = takeoff_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = takeoff_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call takeoff action.");
     return false;
@@ -110,14 +112,15 @@ bool MissionExecutionThread::execute(TakeoffData::SharedPtr command)
   return true;
 }
 
-bool MissionExecutionThread::execute(LandData::SharedPtr)
+bool MissionExecutionThread::execute(LandData::SharedPtr command)
 {
   // ゴールを作成
   Land::Goal goal;
   goal.level.data = kCommandLevel;
+  goal.speed = command->speed;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = land_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = land_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call land action.");
     return false;
@@ -149,12 +152,17 @@ bool MissionExecutionThread::execute(WaypointData::SharedPtr command)
   goal.target_latitude = command->latitude;
   goal.target_longitude = command->longitude;
   goal.target_altitude = command->altitude;
+  goal.max_horizontal_velocity = command->max_horizontal_velocity;
+  goal.max_vertical_velocity = command->max_vertical_velocity;
+  goal.max_horizontal_accel = command->max_horizontal_accel;
+  goal.max_vertical_accel = command->max_vertical_accel;
+  goal.max_horizontal_jerk = command->max_horizontal_jerk;
+  goal.max_vertical_jerk = command->max_vertical_jerk;
   goal.acceptance_radius = command->acceptance_radius;
-  goal.duration = command->duration;
   goal.timeout = kCommandTimeout;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call move action.");
     return false;
@@ -199,12 +207,17 @@ bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
   goal.target_latitude = get_gnss_origin_res->latitude;
   goal.target_longitude = get_gnss_origin_res->longitude;
   goal.target_altitude = command->altitude;
+  goal.max_horizontal_velocity = command->max_horizontal_velocity;
+  goal.max_vertical_velocity = command->max_vertical_velocity;
+  goal.max_horizontal_accel = command->max_horizontal_accel;
+  goal.max_vertical_accel = command->max_vertical_accel;
+  goal.max_horizontal_jerk = command->max_horizontal_jerk;
+  goal.max_vertical_jerk = command->max_vertical_jerk;
   goal.acceptance_radius = command->acceptance_radius;
-  goal.duration = command->duration;
   goal.timeout = kCommandTimeout;
 
   // アクションを実行
-  auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
+  const auto [goal_handle, get_result_future] = move_ac_->sendGoal(goal);
   if (!get_result_future.valid()) {
     Q_EMIT finished(false, "Failed to call move action.");
     return false;

@@ -6,10 +6,10 @@
 
 using namespace std;
 
-namespace tobas_std
+namespace tbs
 {
 void _printLocation(const char* file, int line)
 {
   cout << GREEN_PREFIX << "Called from file " << file << ", line " << line << COLOR_RESET << endl;
 }
-}  // namespace tobas_std
+}  // namespace tbs

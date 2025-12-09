@@ -20,13 +20,14 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   log_cols->addWidget(logs_fc_, 1);
   log_cols->addWidget(logs_gcs_, 1);
 
-  const auto left_rows = new QVBoxLayout();
-  left_rows->addWidget(recorder_, 1);
-  left_rows->addLayout(log_cols, 1);
+  const auto ctrl_rows = new QVBoxLayout();
+  ctrl_rows->addWidget(recorder_);
+  ctrl_rows->addSpacing(30);
+  ctrl_rows->addLayout(log_cols);
 
   const auto root_cols = new QHBoxLayout();
-  root_cols->addLayout(left_rows, 1);
-  root_cols->addWidget(log_viewer_, 1);
+  root_cols->addLayout(ctrl_rows, 1);
+  root_cols->addWidget(log_viewer_, 2);
 
   setLayout(root_cols);
 

@@ -3,6 +3,7 @@
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_gui_common/version.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -87,6 +88,14 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
     return false;
   }
 
+  // バージョンファイルを作成
+  cmn::Version version;
+  version.setToCurrent();
+  if (!version.save(proj_paths_.versionPath())) {
+    qt::qErrorBox(parent_, "Failed to save the current version.");
+    return false;
+  }
+
   return true;
 }
 
@@ -158,6 +167,7 @@ tobas::Drone ProjectGenerator::createDrone()
       eprop->battery.max_voltage = battery_widget->maxVoltage();
       eprop->battery.sag_voltage = battery_widget->sagVoltage();
       eprop->battery.max_current = battery_widget->maxCurrent();
+      eprop->battery.internal_resistance = battery_widget->internalRegistance();
 
       // Rotors
       for (int i = 0; i < eprop_widget->numUnits(); ++i) {
@@ -192,7 +202,12 @@ tobas::Drone ProjectGenerator::createDrone()
           tilt_joint.name = par_jnt.name;
           tilt_joint.role = tobas::JointRole::kTiltJoint;
           tilt_joint.cmd_iface = tobas::JointCommandInterface::kPosition;
-          tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+          if (settings_->hardware->pwm()->contains(QString::fromStdString(par_jnt.name))) {
+            tilt_joint.hw_iface = tobas::HardwareInterface::kPwm;
+          }
+          else {
+            tilt_joint.hw_iface = tobas::HardwareInterface::kOther;
+          }
           tilt_joint.home_pos = 0.;
           TOBAS_CHECK(drone.joints.insert({ tilt_joint.name, tilt_joint }).second);
 
@@ -221,7 +236,12 @@ tobas::Drone ProjectGenerator::createDrone()
       // Engine
       const auto engine_widget = iprop_widget->engine;
       iprop->engine.engine_const = engine_widget->dynamics()->engineConstant();
-      iprop->engine.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+      if (settings_->hardware->pwm()->contains(hw::PwmWidget::kEngineThrotLabel)) {
+        iprop->engine.hw_iface = tobas::HardwareInterface::kPwm;
+      }
+      else {
+        iprop->engine.hw_iface = tobas::HardwareInterface::kOther;
+      }
 
       if (iprop->engine.hw_iface == tobas::HardwareInterface::kPwm) {
         tobas::PwmConfig engine_pwm;
@@ -254,10 +274,14 @@ tobas::Drone ProjectGenerator::createDrone()
         rotor->moment_const = unit_widget->aerodynamics()->momentConst();
         rotor->tilt_joint_name = uadf_.tilts.contains(par_jnt.name) ? par_jnt.name : "";
         rotor->gear_ratio = unit_widget->transmission()->gearRatio();
-        rotor->pitch_ref = 0.;  // TODO: 最も高校率な位置に設定できるようにする
         rotor->pitch_limit = unit_widget->propeller()->pitchAngleLimit();
         rotor->motor_const = unit_widget->aerodynamics()->motorConst();
-        rotor->hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+        if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
+          rotor->hw_iface = tobas::HardwareInterface::kPwm;
+        }
+        else {
+          rotor->hw_iface = tobas::HardwareInterface::kOther;
+        }
         TOBAS_CHECK(iprop->rotors.insert({ link_name, rotor }).second);
 
         // Variable Pitch Interface
@@ -304,7 +328,7 @@ tobas::Drone ProjectGenerator::createDrone()
   }
 
   // Fixed Wing
-  if (uadf_.control_surfaces.size() > 0) {
+  if (!uadf_.control_surfaces.empty()) {
     drone.fixed_wing = std::make_shared<tobas::FixedWingConfig>();
 
     // Vehicle
@@ -357,7 +381,12 @@ tobas::Drone ProjectGenerator::createDrone()
       joint.name = cur_jnt.name;
       joint.role = tobas::JointRole::kControlSurface;
       joint.cmd_iface = tobas::JointCommandInterface::kPosition;
-      joint.hw_iface = tobas::HardwareInterface::kPwm;  // TODO: 選択できるようにする
+      if (settings_->hardware->pwm()->contains(QString::fromStdString(cur_jnt.name))) {
+        joint.hw_iface = tobas::HardwareInterface::kPwm;
+      }
+      else {
+        joint.hw_iface = tobas::HardwareInterface::kOther;
+      }
       joint.home_pos = 0.;
       TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
     }
@@ -383,7 +412,7 @@ tobas::Drone ProjectGenerator::createDrone()
 
 bool ProjectGenerator::hasServoJoint() const
 {
-  if (uadf_.tilts.size() > 0 || uadf_.control_surfaces.size() > 0) {
+  if (!uadf_.tilts.empty() || !uadf_.control_surfaces.empty()) {
     return true;
   }
 
@@ -463,7 +492,7 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateDroneConfig()) {
     return false;
   }
-  if (!generatePreArmCheckConfig()) {
+  if (!generateHealthMonitorConfig()) {
     return false;
   }
   if (!generateObserverStaticConfig()) {
@@ -604,22 +633,26 @@ bool ProjectGenerator::generateDroneConfig()
   return true;
 }
 
-bool ProjectGenerator::generatePreArmCheckConfig()
+bool ProjectGenerator::generateHealthMonitorConfig()
 {
   YAML::Node node(YAML::NodeType::Map);
-  node["check_node_connection"] = settings_->pre_arm_check->checkNodeConnection();
-  node["check_battery_voltage"] = settings_->pre_arm_check->checkBatteryVoltage();
-  node["check_cpu_temperature"] = settings_->pre_arm_check->checkCPUTemperature();
-  node["check_rotor_communication"] = settings_->pre_arm_check->checkRotorCommunication();
-  node["check_attitude_level"] = settings_->pre_arm_check->checkAttitudeLevel();
-  node["check_position_stability"] = settings_->pre_arm_check->checkPositionStability();
-  node["check_position_accuracy"] = settings_->pre_arm_check->checkPositionAccuracy();
-  node["check_velocity_accuracy"] = settings_->pre_arm_check->checkVelocityAccuracy();
-  node["check_attitude_accuracy"] = settings_->pre_arm_check->checkAttitudeAccuracy();
-  node["check_heading_accuracy"] = settings_->pre_arm_check->checkHeadingAccuracy();
+  node["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
+  node["check_battery_voltage"] = settings_->failsafe->checkBatteryVoltage();
+  node["check_cpu_temperature"] = settings_->failsafe->checkCpuTemperature();
+  node["check_radio_link"] = settings_->failsafe->checkRadioLink();
+  node["check_rotor_links"] = settings_->failsafe->checkRotorLinks();
+  node["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
+  node["check_position_stability"] = settings_->failsafe->checkPositionStability();
+  node["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();
+  node["check_velocity_accuracy"] = settings_->failsafe->checkVelocityAccuracy();
+  node["check_attitude_accuracy"] = settings_->failsafe->checkAttitudeAccuracy();
+  node["check_heading_accuracy"] = settings_->failsafe->checkHeadingAccuracy();
+  node["check_mag_offset"] = settings_->failsafe->checkMagOffset();
+  node["check_mag_alignment"] = settings_->failsafe->checkMagAlignment();
+  node["check_vibration_level"] = settings_->failsafe->checkVibrationLevel();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node)) {
+  if (!saveYamlNode(config_dir / "health_monitor.yaml", node)) {
     return false;
   }
 
@@ -932,7 +965,6 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   const auto& prop = settings_->propulsion_system;
   const auto& fmu = settings_->hardware;
-  const auto& sim = settings_->simulation;
 
   const auto drone = createDrone();
 
@@ -946,7 +978,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
 
   // IMU plugin
-  xml::addIMUPlugin(
+  xml::addImuPlugin(
     robot,
     ns,
     root_name,
@@ -967,9 +999,6 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     root_name,
     fmu->magUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
-    sim->latitudeZero(),
-    sim->longitudeZero(),
-    sim->altitudeZero(),
     fmu->magNoiseStddev(),
     fmu->magHardBiasNorm());
 
@@ -980,11 +1009,10 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     root_name,
     fmu->presUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
-    sim->altitudeZero(),
     fmu->presNoiseStddev());
 
   // GNSS plugin
-  xml::addGNSSPlugin(
+  xml::addGnssPlugin(
     robot,
     ns,
     root_name,
@@ -995,10 +1023,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),
-    fmu->gnssVerticalVelocityStddev(),
-    sim->latitudeZero(),
-    sim->longitudeZero(),
-    sim->altitudeZero());
+    fmu->gnssVerticalVelocityStddev());
 
   // Propulsion system plugins
   switch (drone.prop->type()) {
@@ -1044,8 +1069,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
           aero->momentConst(),
           aero->dragConst(),
           turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction),
-          esc->maxCurrent(),
-          sim->maxModelErrorRate());
+          esc->maxCurrent());
       }
 
       break;
@@ -1094,7 +1118,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Fixed wing plugin
   if (drone.fixed_wing) {
-    xml::addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
+    xml::addFixedWingPlugin(robot, ns, root_name, *drone.fixed_wing);
   }
 
   // Joint state broadcaster plugin

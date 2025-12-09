@@ -15,6 +15,7 @@ set(AMENT_DEPENDENCIES
     sensor_msgs
     magic_enum_ament
     tobas_string_tools
+    tobas_dsp
     tobas_linux
     tobas_property_tree
     tobas_node

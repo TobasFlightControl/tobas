@@ -39,7 +39,7 @@ void RotorSpeedPlotWidget::setData(
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
   const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs)
 {
-  if (cur_msgs.size() == 0) {
+  if (cur_msgs.empty()) {
     return;
   }
 
@@ -125,7 +125,7 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
       const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(tobas_std::rps2rpm(elem.speed));
+      speed_data[idx].push_back(tbs::rps2rpm(elem.speed));
     }
   }
 
@@ -154,7 +154,7 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
       const auto& idx = name2idx_[speed.link_name];
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      speed_data[idx].push_back(tobas_std::rps2rpm(speed.speed));
+      speed_data[idx].push_back(tbs::rps2rpm(speed.speed));
     }
   }
 

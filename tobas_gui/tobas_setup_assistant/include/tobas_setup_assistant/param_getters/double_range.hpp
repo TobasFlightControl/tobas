@@ -9,7 +9,7 @@ namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_DoubleRange : public ParamGetterWidget<tobas_std::Range<double>>
+class ParamGetterWidget_DoubleRange : public ParamGetterWidget<tbs::Range<double>>
 {
   Q_OBJECT
 

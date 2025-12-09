@@ -105,7 +105,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
 
 void JointStatePublisherWidget::publish()
 {
-  js_.header.stamp = node_->get_clock()->now();
+  js_.header.stamp = node_->now();
 
   auto js = make_unique<sensor_msgs::msg::JointState>(js_);
   js_pub_->publish(std::move(js));
@@ -117,7 +117,7 @@ void JointStatePublisherWidget::publish()
 
 void JointStatePublisherWidget::onValueChanged(double value, const std::string& jnt_name)
 {
-  const auto idx = tobas_std::index(js_.name, jnt_name);
+  const auto idx = tbs::index(js_.name, jnt_name);
   if (idx < 0) {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Joint \"" << jnt_name << "\" does not exist.");
     return;

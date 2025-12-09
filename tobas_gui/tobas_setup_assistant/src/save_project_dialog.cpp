@@ -15,10 +15,11 @@ namespace gui
 namespace sa
 {
 SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name)
-  : super(parent, "Save Tobas Project", dir, "Tobas Project (*.TBS);;All Files (*)")
+  : super(parent, "Save Tobas Project", dir)
 {
-  setAcceptMode(QFileDialog::AcceptSave);
-  setOption(QFileDialog::DontUseNativeDialog, true);
+  setAcceptMode(QFileDialog::AcceptSave);  // setFileMode(Directory) をやるとSaveボタンが消えることに注意
+  setOptions(ShowDirsOnly | DontUseNativeDialog);
+  setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
   setDefaultSuffix("TBS");
   selectFile(dflt_name);
 

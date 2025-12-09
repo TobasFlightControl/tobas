@@ -10,7 +10,7 @@ namespace tobas
 /**
  * @brief 迎角 (alpha) を計算する．
  *
- * @param u,w 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @param u,w 風に対する相対的な機体速度 (FRD座標系) [m/s]
  * @return double 迎角 [rad]
  */
 inline double angleOfAttack(const double& u, const double& w)
@@ -21,7 +21,7 @@ inline double angleOfAttack(const double& u, const double& w)
 /**
  * @brief 迎角 (alpha) を計算する．
  *
- * @param linvel_B 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @param linvel_B 風に対する相対的な機体速度 (FRD座標系) [m/s]
  * @return double 迎角 [rad]
  */
 inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
@@ -32,7 +32,7 @@ inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
 /**
  * @brief 横滑り角 (beta) を計算する．
  *
- * @param u,v,w 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @param u,v,w 風に対する相対的な機体速度 (FRD座標系) [m/s]
  * @return double 横滑り角 [rad]
  */
 inline double angleOfSideSlip(const double& u, const double& v, const double& w)
@@ -44,7 +44,7 @@ inline double angleOfSideSlip(const double& u, const double& v, const double& w)
 /**
  * @brief 横滑り角 (beta) を計算する．
  *
- * @param linvel_B 風に対する相対的な機体速度 (NED座標系) [m/s]
+ * @param linvel_B 風に対する相対的な機体速度 (FRD座標系) [m/s]
  * @return double 横滑り角 [rad]
  */
 inline double angleOfSideSlip(const Eigen::Vector3d& linvel_B)

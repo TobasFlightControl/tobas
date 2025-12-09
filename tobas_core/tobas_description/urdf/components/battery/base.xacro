@@ -27,6 +27,6 @@
         <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
       </inertial>
     </link>
-
   </xacro:macro>
+
 </robot>

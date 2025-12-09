@@ -28,7 +28,7 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   // Estimate the workspace path
   const auto exec_path = ros2::estimateWorkspaceOf(pkg_path);
   if (!exec_path) {
-    error_msg_ = "Failed to estimate the workspace path: " + exec_path.error();
+    error_msg_ = "Failed to estimate the workspace path of \"" + pkg_path.string() + "\": " + exec_path.error();
     return false;
   }
 

@@ -33,7 +33,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 }
 }  // namespace std
 
-namespace tobas_std
+namespace tbs
 {
 /* Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
@@ -89,7 +89,7 @@ T fsum(const std::vector<T>& arr, size_t start, size_t size)
 template <typename T>
 T fmean(const std::vector<T>& arr)
 {
-  if (arr.size() == 0) {
+  if (arr.empty()) {
     return 0;
   }
 
@@ -111,7 +111,7 @@ T fmean(const std::vector<T>& arr, size_t start, size_t size)
 template <typename T>
 T variance(const std::vector<T>& arr)
 {
-  if (arr.size() == 0) {
+  if (arr.empty()) {
     return 0;
   }
 
@@ -130,7 +130,7 @@ T variance(const std::vector<T>& arr, size_t start, size_t size)
   const auto stop = start + size;
   assert(stop <= arr.size());
 
-  if (arr.size() == 0) {
+  if (arr.empty()) {
     return 0;
   }
 
@@ -319,4 +319,4 @@ void eraseIndex(std::vector<T>& vec, size_t idx)
   assert(idx < vec.size());
   vec.erase(vec.begin() + static_cast<std::ptrdiff_t>(idx));
 }
-}  // namespace tobas_std
+}  // namespace tbs

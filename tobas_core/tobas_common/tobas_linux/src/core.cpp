@@ -47,7 +47,7 @@ fs::path expandUser(const string& path)
   }
 }
 
-bool isSuperUser()
+bool isSuperUser() noexcept
 {
   return getuid() == 0;
 }

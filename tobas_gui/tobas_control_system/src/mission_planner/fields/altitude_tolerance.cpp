@@ -10,10 +10,12 @@ namespace field
 {
 AltitudeToleranceWidget::AltitudeToleranceWidget()
 {
+  // https://docs.px4.io/main/en/advanced_config/parameter_reference#NAV_MC_ALT_RAD
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
-  spin_box_->setMinimum(1e-2);
-  spin_box_->setValue(1.);
+  spin_box_->setMinimum(0.05);
+  spin_box_->setMaximum(200.);
+  spin_box_->setValue(0.8);
   spin_box_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();

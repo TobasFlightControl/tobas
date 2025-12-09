@@ -82,7 +82,7 @@ void VehicleParametersWidget::load(const YAML::Node& node)
   wing_span_->setValue(node[wing_span_->name()].as<double>());
   mac_->setValue(node[mac_->name()].as<double>());
   aerodynamic_center_->setValue(node[aerodynamic_center_->name()].as<Eigen::Vector3d>());
-  alpha_limit_->setValue(node[alpha_limit_->name()].as<tobas_std::Range<double>>());
+  alpha_limit_->setValue(node[alpha_limit_->name()].as<tbs::Range<double>>());
 }
 
 double VehicleParametersWidget::wingSurface() const
@@ -105,7 +105,7 @@ Eigen::Vector3d VehicleParametersWidget::aerodynamicCenter() const
   return aerodynamic_center_->getValue();
 }
 
-tobas_std::Range<double> VehicleParametersWidget::alphaLimit() const
+tbs::Range<double> VehicleParametersWidget::alphaLimit() const
 {
   return alpha_limit_->getValue();
 }

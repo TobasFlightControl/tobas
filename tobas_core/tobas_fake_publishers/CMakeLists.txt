@@ -11,20 +11,23 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(AMENT_DEPENDENCIES tobas_node tobas_constants tobas_msgs_adapter)
+
 find_package(ament_cmake REQUIRED)
-find_package(tobas_node REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 include_directories(include)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
-ament_target_dependencies(${PROJECT_NAME}_node tobas_node tobas_msgs_adapter)
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
-rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "FakeBatteryPublisherNode" EXECUTABLE fake_battery_publisher
-)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "FakeGNSSPublisherNode" EXECUTABLE fake_gnss_publisher)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "FakeBattPublisherNode" EXECUTABLE fake_batt_publisher)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "FakeGnssPublisherNode" EXECUTABLE fake_gnss_publisher)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "FakeRcInputPublisherNode" EXECUTABLE fake_rcin_publisher)
 
 install(
   TARGETS ${PROJECT_NAME}_node

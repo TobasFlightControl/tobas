@@ -1,6 +1,11 @@
 #include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
 
+#include <ranges>
+
+#include <QDebug>
+#include <QGridLayout>
 #include <QVBoxLayout>
+#include <rosbag2_cpp/reindexer.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -18,7 +23,10 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  for (auto& plot_tab : plot_tabs_) {
+  const auto grid = new QGridLayout();
+  rows->addLayout(grid);
+
+  for (const auto& [idx, plot_tab] : std::views::enumerate(plot_tabs_)) {
     plot_tab = new PlotTabWidget(
       odom_data_,
       raw_imu_data_,
@@ -26,6 +34,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       mag_data_,
       gnss_data_,
       battery_data_,
+      cpu_data_,
       cur_rotor_states_data_,
       tar_rotor_speeds_data_,
       cur_joint_states_data_,
@@ -35,15 +44,22 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       ice_cmd_data_,
       sampling_time_data_,
       ctrl_latency_data_,
+      vibe_data_,
       dist_force_data_,
       obsv_fb_data_,
       mr_ctrl_fb_data_);
-    rows->addWidget(plot_tab, 1);
+
+    plot_tab->setCurrentIndex(idx);
+
+    const auto row = idx % 3;
+    const auto col = idx / 3;
+    grid->addWidget(plot_tab, row, col, 1, 1);
+    grid->setRowStretch(row, 1);
+    grid->setColumnStretch(col, 1);
   }
 
   playback_ctrl_ = new PlaybackControlWidget();
   rows->addWidget(playback_ctrl_, 0);
-
   connect(playback_ctrl_, &PlaybackControlWidget::timeChanged, this, &self::onPlaybackTimeChanged);
 
   reset();
@@ -59,12 +75,14 @@ void FlightLogViewerWidget::reset()
   mag_decoder_.clearCache();
   gnss_decoder_.clearCache();
   battery_decoder_.clearCache();
+  cpu_decoder_.clearCache();
   rotor_states_decoder_.clearCache();
   rotor_speeds_decoder_.clearCache();
   joint_states_decoder_.clearCache();
   joint_commands_decoder_.clearCache();
   ice_cmd_decoder_.clearCache();
   latency_decoder_.clearCache();
+  vibe_decoder_.clearCache();
   wrench_decoder_.clearCache();
   obsv_fb_decoder_.clearCache();
   mr_ctrl_fb_decoder_.clearCache();
@@ -85,12 +103,15 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   log_path_ = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
   // rosbagを開く
-  try {
-    reader_.open(log_path_);
-  }
-  catch (const std::exception& e) {
-    qt::qErrorBox(this, "Failed to open " + QString::fromStdString(log_path_) + ".");
-    return;
+  if (!open(log_path_)) {
+    if (!reindex(log_path_)) {
+      qt::qErrorBox(this, "The log file is broken and failed to fix it.");
+      return;
+    }
+    if (!open(log_path_)) {
+      qt::qErrorBox(this, "Failed to open the log file. The data is probably corrupted.");
+      return;
+    }
   }
 
   // ログの長さを更新
@@ -100,6 +121,38 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
 
   // 時刻0のログを表示
   setPlotData(0.);
+}
+
+bool FlightLogViewerWidget::open(const std::string& rosbag_path)
+{
+  try {
+    reader_.open(rosbag_path);
+  }
+  catch (const std::exception& e) {
+    qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    return false;
+  }
+
+  return true;
+}
+
+bool FlightLogViewerWidget::reindex(const std::string& rosbag_path)
+{
+  rosbag2_cpp::Reindexer reindexer;
+
+  rosbag2_storage::StorageOptions options;
+  options.uri = rosbag_path;
+  options.storage_id = "mcap";
+
+  try {
+    reindexer.reindex(options);
+  }
+  catch (const std::exception& e) {
+    qWarning() << "Failed to reindex " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    return false;
+  }
+
+  return true;
 }
 
 void FlightLogViewerWidget::setPlotData(double time_from_start)
@@ -129,6 +182,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   mag_data_.clear();
   gnss_data_.clear();
   battery_data_.clear();
+  cpu_data_.clear();
   cur_rotor_states_data_.clear();
   tar_rotor_speeds_data_.clear();
   cur_joint_states_data_.clear();
@@ -138,6 +192,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   ice_cmd_data_.clear();
   sampling_time_data_.clear();
   ctrl_latency_data_.clear();
+  vibe_data_.clear();
   dist_force_data_.clear();
   obsv_fb_data_.clear();
   mr_ctrl_fb_data_.clear();
@@ -177,6 +232,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
         battery_data_.push_back(battery_decoder_.decode(cur_time, ser_msg));
       }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
+        cpu_data_.push_back(cpu_decoder_.decode(cur_time, ser_msg));
+      }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
         cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_msg));
       }
@@ -203,6 +261,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
         ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
+        vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
         dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_msg));

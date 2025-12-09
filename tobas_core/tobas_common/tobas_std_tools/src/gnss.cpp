@@ -7,15 +7,15 @@
 
 #include "tobas_std_tools/unit_conversions.hpp"
 
-using namespace std;
+namespace ch = std::chrono;
 
-namespace tobas_std
+namespace tbs
 {
 long computeGPSDelayFromToW(uint32_t gps_tow_ms)
 {
   // 現在のUTC時刻を取得
-  const auto now = chrono::system_clock::now();
-  const auto now_c = chrono::system_clock::to_time_t(now);
+  const auto now = ch::system_clock::now();
+  const auto now_c = ch::system_clock::to_time_t(now);
   const auto utc_time = gmtime(&now_c);
 
   // その週の日曜日0時0分0秒を計算
@@ -23,11 +23,11 @@ long computeGPSDelayFromToW(uint32_t gps_tow_ms)
   utc_time->tm_min = 0;
   utc_time->tm_hour = 0;
   utc_time->tm_mday -= utc_time->tm_wday;  // 現在の曜日から日曜日に戻る
-  const auto start_of_week = chrono::system_clock::from_time_t(mktime(utc_time));
+  const auto start_of_week = ch::system_clock::from_time_t(mktime(utc_time));
 
   // 週のはじめから現在までの経過時間を計算
   const auto duration = now - start_of_week;
-  const auto cur_tow_ms = chrono::duration_cast<chrono::milliseconds>(duration).count();
+  const auto cur_tow_ms = ch::duration_cast<ch::milliseconds>(duration).count();
 
   // GPS TOWと現在のTOWの差を計算
   const auto diff_ms = cur_tow_ms - gps_tow_ms;
@@ -65,8 +65,8 @@ void gnssToCartRelative(
   const double& longitude,
   const double& latitude_0,
   const double& longitude_0,
-  double& x,
-  double& y)
+  double& east,
+  double& north)
 {
   // 緯度経度・平面直角座標系原点をラジアンに直す
   const auto phi = deg2rad(latitude);
@@ -118,21 +118,21 @@ void gnssToCartRelative(
   const auto eta2 = atanh(lam_s / t_);
 
   // (6) x,yの計算
-  x = A_ * (xi2 + a1 * sin(2 * xi2) * cosh(2 * eta2) + a2 * sin(4 * xi2) * cosh(4 * eta2) +
-            a3 * sin(6 * xi2) * cosh(6 * eta2) + a4 * sin(8 * xi2) * cosh(8 * eta2) +
-            a5 * sin(10 * xi2) * cosh(10 * eta2)) -
-      S_;  // [m]
-  y = A_ * (eta2 + a1 * cos(2 * xi2) * sinh(2 * eta2) + a2 * cos(4 * xi2) * sinh(4 * eta2) +
-            a3 * cos(6 * xi2) * sinh(6 * eta2) + a4 * cos(8 * xi2) * sinh(8 * eta2) +
-            a5 * cos(10 * xi2) * sinh(10 * eta2));  // [m]
+  const auto x = A_ * (xi2 + a1 * sin(2 * xi2) * cosh(2 * eta2) + a2 * sin(4 * xi2) * cosh(4 * eta2) +
+                       a3 * sin(6 * xi2) * cosh(6 * eta2) + a4 * sin(8 * xi2) * cosh(8 * eta2) +
+                       a5 * sin(10 * xi2) * cosh(10 * eta2)) -
+                 S_;  // [m]
+  const auto y = A_ * (eta2 + a1 * cos(2 * xi2) * sinh(2 * eta2) + a2 * cos(4 * xi2) * sinh(4 * eta2) +
+                       a3 * cos(6 * xi2) * sinh(6 * eta2) + a4 * cos(8 * xi2) * sinh(8 * eta2) +
+                       a5 * cos(10 * xi2) * sinh(10 * eta2));  // [m]
 
-  // このままだと東が正になっているので反転する
-  y *= -1;
+  east = y;
+  north = x;
 }
 
 void cartToGnssRelative(
-  const double& x,
-  const double& y,
+  const double& east,
+  const double& north,
   const double& latitude_0,
   const double& longitude_0,
   double& latitude,
@@ -182,8 +182,8 @@ void cartToGnssRelative(
                         A4 * sin(8 * phi_0) + A5 * sin(10 * phi_0));
 
   // (3) xi,etaの計算
-  const auto xi = (x + S_) / A_;
-  const auto eta = y / A_;
+  const auto xi = (north + S_) / A_;
+  const auto eta = east / A_;
 
   // (4) xi',eta'の計算
   const auto xi2 = xi - b1 * sin(2 * xi) * cosh(2 * eta) - b2 * sin(4 * xi) * cosh(4 * eta) -
@@ -199,10 +199,10 @@ void cartToGnssRelative(
   // (6) 北緯，東経の計算
   const auto latitude_rad = chi + d1 * sin(2 * chi) + d2 * sin(4 * chi) + d3 * sin(6 * chi) + d4 * sin(8 * chi) +
                             d5 * sin(10 * chi) + d6 * sin(12 * chi);  // [rad]
-  const auto longitude_rad = lam_0 - atan(sinh(eta2) / cos(xi2));     // [rad]
+  const auto longitude_rad = lam_0 + atan(sinh(eta2) / cos(xi2));     // [rad]
 
   // ラジアンを度になおす
   latitude = rad2deg(latitude_rad);
   longitude = rad2deg(longitude_rad);
 }
-}  // namespace tobas_std
+}  // namespace tbs

@@ -15,7 +15,7 @@ class RotorAnomalyDetectorNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   static constexpr rcl_duration_value_t kNoCommTimeout = 100'000'000;     // [ns]
-  static constexpr rcl_duration_value_t kCommRecoveryTime = 500'000'000;  // [ns]
+  static constexpr rcl_duration_value_t kCommRecoveryTime = 300'000'000;  // [ns]
   static constexpr auto kPublishRotorLivelinessPeriod = 1s;
 
 public:
@@ -59,7 +59,7 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
 void RotorAnomalyDetectorNode::publishRotorLiveliness()
 {
   auto rotor_liveliness = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
-  rotor_liveliness->header.stamp = get_clock()->now();
+  rotor_liveliness->header.stamp = now();
 
   for (const auto& [link_name, data] : data_) {
     rotor_liveliness->data.emplace_back();
@@ -67,7 +67,7 @@ void RotorAnomalyDetectorNode::publishRotorLiveliness()
     rotor_liveliness->data.back().alive = data.is_alive;
   }
 
-  rotor_liveliness_pub_->publish(move(rotor_liveliness));
+  rotor_liveliness_pub_->publish(std::move(rotor_liveliness));
 }
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

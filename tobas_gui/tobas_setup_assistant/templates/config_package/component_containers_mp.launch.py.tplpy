@@ -22,6 +22,8 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
+    ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
+
     # Launch component containers
     for i in range(1, 4):
         ld.add_action(
@@ -30,7 +32,7 @@ def generate_launch_description():
                 executable="component_container",
                 name=f"component_manager_{i}",
                 namespace=DRONE_NAME,
-                ros_arguments=["--log-level", log_level],
+                ros_arguments=ros_args,
                 output=output,
             )
         )

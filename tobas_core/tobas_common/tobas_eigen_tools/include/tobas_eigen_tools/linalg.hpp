@@ -16,6 +16,29 @@ inline Eigen::Index matrixRank(const Eigen::MatrixBase<Derived>& A)
   return A.fullPivLu().rank();
 }
 
+/* 正方行列が対称行列かどうかを判定する． */
+template <typename Derived>
+inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
+{
+  assert(isSquare(A));
+  return A.isApprox(A.transpose());
+}
+
+/* 正方行列が直交行列かどうかを判定する． */
+template <typename Derived>
+inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& A)
+{
+  assert(isSquare(A));
+  return (A * A.transpose()).isApprox(Eigen::MatrixBase<Derived>::Identity());
+}
+
+/* 正方行列が特殊直交行列かどうかを判定する． */
+template <typename Derived>
+inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
+{
+  return isOrthogonal(A) && math::isClose(A.determinant(), 1.);
+}
+
 /**
  * @brief 行列が正定値行列かどうかを判定する．
  * cf. https://stackoverflow.com/questions/35227131/
@@ -65,7 +88,7 @@ Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_
   const Derived A_sym = (A + A.transpose()) / 2;
 
   // 固有値分解
-  Eigen::SelfAdjointEigenSolver<Derived> es(A_sym);
+  const Eigen::SelfAdjointEigenSolver<Derived> es(A_sym);
   auto eigenvalues = es.eigenvalues();
 
   // 固有値を修正

@@ -14,7 +14,6 @@ CONTROLLER_PKG = "{{ controller_pkg }}"
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
-GROUND_TRUTH = "ground_truth"
 
 
 def generate_launch_description():
@@ -24,13 +23,11 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
-    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
-    ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
     # Set common parameters
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
@@ -38,10 +35,8 @@ def generate_launch_description():
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
 
-    odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
     tf_remap = [("/tf", "tf"), ("/tf_static", "tf_static")]
-
-    ros_args = ["--log-level", log_level]
+    ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
 
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
@@ -63,7 +58,6 @@ def generate_launch_description():
             name="controller",
             namespace=DRONE_NAME,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "controller_static_standalone.yaml"])],
-            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -94,7 +88,6 @@ def generate_launch_description():
             executable="rc_teleop",
             namespace=DRONE_NAME,
             parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static_standalone.yaml"])],
-            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -104,7 +97,7 @@ def generate_launch_description():
             package="tobas_manipulation",
             executable="position_controller",
             namespace=DRONE_NAME,
-            remappings=odom_remap + tf_remap,
+            remappings=tf_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -114,7 +107,7 @@ def generate_launch_description():
             package="tobas_manipulation",
             executable="velocity_controller",
             namespace=DRONE_NAME,
-            remappings=odom_remap + tf_remap,
+            remappings=tf_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -124,7 +117,7 @@ def generate_launch_description():
             package="tobas_manipulation",
             executable="effort_controller",
             namespace=DRONE_NAME,
-            remappings=odom_remap + tf_remap,
+            remappings=tf_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -170,21 +163,19 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_state_checker",
-            executable="pre_arm_checker",
+            package="tobas_failsafe",
+            executable="health_monitor",
             namespace=DRONE_NAME,
             parameters=[],  # TODO
-            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
     )
     ld.add_action(
         Node(
-            package="tobas_state_checker",
-            executable="post_arm_checker",
+            package="tobas_failsafe",
+            executable="failsafe_executor",
             namespace=DRONE_NAME,
-            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -194,7 +185,6 @@ def generate_launch_description():
             package="tobas_landing_detection",
             executable="landing_detector",
             namespace=DRONE_NAME,
-            remappings=odom_remap,
             ros_arguments=ros_args,
             output=output,
         )
@@ -203,6 +193,15 @@ def generate_launch_description():
         Node(
             package="tobas_rotor_anomaly_detection",
             executable="rotor_anomaly_detector",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_vibration_filter",
+            executable="vibration_filter",
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,

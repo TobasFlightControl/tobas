@@ -18,6 +18,7 @@ set(AMENT_DEPENDENCIES
     tobas_yaml_tools
     tobas_linux
     tobas_constants
+    tobas_version
     tobas_ssh_client
     tobas_colcon_cpp
     tobas_qt_tools

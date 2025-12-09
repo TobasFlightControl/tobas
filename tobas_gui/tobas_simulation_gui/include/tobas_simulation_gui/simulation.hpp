@@ -73,14 +73,12 @@ private:
   bool startHITL();
   void terminateHITL();
 
+  std::map<std::string, std::string> makeGazeboLaunchArguments(bool launch_core) const;
   bool launchGazebo(bool launch_core);
   std::expected<void, QString> killGazebo(bool run_spinner = true);
 
-  bool startDynamicConfig();
-  void resetDynamicConfig();
-
-  bool startCommanders();
-  void resetCommanders();
+  bool waitForGazeboServerStart();
+  bool waitForGazeboRenderingStart();
 
   static std::string boolToText(bool arg);
 

@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(AMENT_DEPENDENCIES
     ament_index_cpp
     inja_ament
+    magic_enum_ament
     tobas_path_tools
     tobas_constants
     tobas_crypt

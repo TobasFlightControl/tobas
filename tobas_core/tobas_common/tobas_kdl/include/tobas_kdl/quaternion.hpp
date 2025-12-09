@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/float.hpp>
+#include <tobas_math/float.hpp>
 #include <tobas_std_tools/geometry.hpp>
 
 #include "./rotation.hpp"
@@ -101,7 +101,7 @@ inline Quaternion Quaternion::RPY(double roll, double pitch, double yaw)
 
 inline void Quaternion::getRPY(double& roll, double& pitch, double& yaw) const
 {
-  tobas_std::eulerFromQuaternion(x, y, z, w, roll, pitch, yaw);
+  tbs::eulerFromQuaternion(x, y, z, w, roll, pitch, yaw);
 }
 
 inline Quaternion Quaternion::complexConjugate() const
@@ -131,7 +131,7 @@ inline Quaternion Quaternion::normalize() const
 
 inline bool Quaternion::isNormalized() const
 {
-  return tobas_std::isClose(this->squaredNorm(), 1.);
+  return math::isClose(this->squaredNorm(), 1.);
 }
 
 inline Quaternion Quaternion::differential(const Vector& angvel) const

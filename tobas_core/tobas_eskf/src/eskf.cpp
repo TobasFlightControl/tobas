@@ -577,7 +577,7 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   // オイラー角を取得
   double roll_pred, pitch_pred, yaw_pred;
   const auto R_W_B = getQuaternion(x);
-  tobas_std::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w(), roll_pred, pitch_pred, yaw_pred);
+  tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w(), roll_pred, pitch_pred, yaw_pred);
 
   // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
   const AngleAxisd R_W_G(yaw_pred, Vector3d::UnitZ());
@@ -732,6 +732,16 @@ double ErrorStateKalmanFilter::measureGravity(
   const Matrix3d& grav_cov,
   const ch::steady_clock::time_point& time)
 {
+  // 参考: 姿勢推定の基礎 (森田 直人)
+  // https://www.dropbox.com/s/ijfnlkvcep1w0f2/%E5%A7%BF%E5%8B%A2%E6%8E%A8%E5%AE%9A%E3%81%AE%E5%9F%BA%E7%A4%8E.pdf
+
+  // 観測方程式:
+  //    a_t = a_b - R^T g (g = [0, 0, -9.8xxxx])
+  // ヤコビアン:
+  //    pda_t/pdq = -2 [R^T g]x
+  //    pda_t/pda_b = E_3
+  //    pda_t/pdg = -R^T (正の重力加速度のみを推定するため符号反転して2列目だけ使う)
+
   const auto& x = x_history_.closestAfterValue(time);
 
   const Matrix3d R_B_W = getDCM(x).transpose();

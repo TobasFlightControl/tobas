@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.25)
+project(tobas_version)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
+endif()
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+set(AMENT_DEPENDENCIES)
+
+find_package(ament_cmake REQUIRED)
+
+foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
+  find_package(${dependency} REQUIRED)
+endforeach()
+
+include_directories(include)
+
+add_library(${PROJECT_NAME} INTERFACE)
+ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
+
+file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
+set(TARGETS_TO_INSTALL "")
+foreach(file_path IN LISTS EXEC_TARGETS)
+  get_filename_component(NAME ${file_path} NAME_WE)
+  add_executable(${NAME} ${file_path})
+  target_link_libraries(${NAME} ${PROJECT_NAME})
+
+  #[[
+  # 手動でインストールした /usr/local/lib64 への依存を回避するため，標準ライブラリを静的リンクする．
+  # これで LD_LIBRARY_PATH にパスを追加しなくても，例えばSSHで外部からでもバイナリを呼び出せる．
+  #]]
+  target_link_options(${NAME} PRIVATE -static-libstdc++ -static-libgcc)
+
+  list(APPEND TARGETS_TO_INSTALL ${NAME})
+endforeach()
+
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include
+)
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
+
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
+
+ament_package()

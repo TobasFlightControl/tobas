@@ -8,7 +8,7 @@
 
 namespace tobas_std_msgs
 {
-using RangeFloat64 = tobas_std::Range<double>;
+using RangeFloat64 = tbs::Range<double>;
 using RangeFloat64Adapter = rclcpp::TypeAdapter<tobas_std_msgs::RangeFloat64, tobas_std_msgs::msg::RangeFloat64>;
 }  // namespace tobas_std_msgs
 

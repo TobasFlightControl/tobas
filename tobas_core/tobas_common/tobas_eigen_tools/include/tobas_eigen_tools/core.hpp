@@ -5,6 +5,8 @@
 
 #include <eigen3/Eigen/Core>
 
+#include <tobas_math/float.hpp>
+
 namespace eigen
 {
 /**
@@ -161,14 +163,6 @@ template <typename Derived>
 inline bool isFinite(const Eigen::MatrixBase<Derived>& x)
 {
   return ((x - x).array() == (x - x).array()).all();
-}
-
-/* 正方行列が対称行列かどうかを判定する． */
-template <typename Derived>
-inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
-{
-  assert(isSquare(A));
-  return A.isApprox(A.transpose());
 }
 
 /* 2つの行列がほとんど等しいときにtrueを返す． */

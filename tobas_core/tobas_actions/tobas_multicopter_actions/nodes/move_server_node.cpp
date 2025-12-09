@@ -1,12 +1,14 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
+#include <tobas_math/linalg.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/gnss.hpp>
 #include <tobas_tools/util.hpp>
 #include <tobas_trajectory_generators/cubic.hpp>
 #include <tobas_trajectory_generators/linear.hpp>
+#include <tobas_trajectory_generators/time_optimal.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel.hpp>
@@ -24,6 +26,9 @@ class MoveServerNode : public tobas::BaseNode
   using self = MoveServerNode;
   using super = tobas::BaseNode;
   using ActionType = tobas_mission_msgs::action::Move;
+
+  static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
+  static constexpr double kHeadingRate = M_PI / 3;   // [rad/s]
 
 public:
   explicit MoveServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -77,7 +82,7 @@ kdl::Vector MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSha
   const auto& tar_lon = goal->target_longitude;
   const auto& lat_0 = gnss_origin_->latitude;
   const auto& lon_0 = gnss_origin_->longitude;
-  tobas_std::gnssToCartRelative(tar_lat, tar_lon, lat_0, lon_0, goal_pos.x(), goal_pos.y());
+  tbs::gnssToCartRelative(tar_lat, tar_lon, lat_0, lon_0, goal_pos.x(), goal_pos.y());
 
   // Z軸
   // TODO: 目標高度がMSLで与えられた場合にも対応
@@ -104,6 +109,8 @@ void MoveServerNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::Co
 rclcpp_action::GoalResponse
 MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
+  TOBAS_INFO("Move action is requested.");
+
   if (goal->target_latitude < -90 || 90 < goal->target_latitude) {
     TOBAS_ERROR("Invalid target latitude.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -114,14 +121,46 @@ MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->acceptance_radius <= 0) {
-    TOBAS_ERROR("Acceptance radius must be positive.");
+  if (goal->max_horizontal_velocity <= 0.) {
+    TOBAS_ERROR("Maximum horizontal velocity must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  if (goal->duration <= 0) {
-    TOBAS_ERROR("Target duration must be positive.");
+  if (goal->max_vertical_velocity <= 0.) {
+    TOBAS_ERROR("Maximum vertical velocity must be positive.");
     return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_horizontal_accel <= 0.) {
+    TOBAS_ERROR("Maximum horizontal acceleration must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_vertical_accel <= 0.) {
+    TOBAS_ERROR("Maximum vertical acceleration must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_horizontal_jerk <= 0.) {
+    TOBAS_ERROR("Maximum horizontal jerk must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->max_vertical_jerk <= 0.) {
+    TOBAS_ERROR("Maximum vertical jerk must be positive.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  if (goal->acceptance_radius <= 0.) {
+    TOBAS_WARN("The acceptance radius is not specified. It will be infinite.");
+  }
+
+  if (goal->altitude_tolerance <= 0.) {
+    TOBAS_WARN("The altitude tolerance is not specified. It will be infinite.");
+  }
+
+  if (goal->timeout <= 0.) {
+    TOBAS_WARN("The timeout is not specified. It will be infinite.");
   }
 
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -129,13 +168,12 @@ MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
 
 rclcpp_action::CancelResponse MoveServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
+  TOBAS_INFO("Move action is canceled.");
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
 void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Moving action is requested.");
-
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
@@ -171,54 +209,91 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   }
 
   // 初期状態を取得
-  const auto start_time = get_clock()->now();
+  const auto start_time = now();
   const auto start_pos = odom_->frame.p.clone();
   const kdl::Euler start_rpy(odom_->frame.M);
+  TOBAS_INFO("Start position: ", start_pos);
 
   // Get goal
   const auto goal = goal_handle->get_goal();
 
-  // 軌道を生成
-  // TODO: 最高速度を考慮して起動を作成
+  // 目標位置を計算
   const auto goal_pos = computeGoalPosition(goal);
-  const traj::CubicSpline traj_x(start_pos.x(), goal_pos.x(), goal->duration);
-  const traj::CubicSpline traj_y(start_pos.y(), goal_pos.y(), goal->duration);
-  const traj::CubicSpline traj_z(start_pos.z(), goal_pos.z(), goal->duration);
-  const traj::LinearSpline traj_roll(start_rpy.roll, 0., goal->duration);
-  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., goal->duration);
+  TOBAS_INFO("Goal position: ", goal_pos);
+
+  // 軌道を生成
+  const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
+  const Eigen::Vector2d goal_xy(goal_pos.x(), goal_pos.y());
+  const Eigen::Vector2d xy_diff = goal_xy - start_xy;  // XYの軌道を別々に生成すると最短経路を通らないことに注意
+  const auto xy_dist = xy_diff.norm();  // [m]
+  if (xy_dist == 0.) {
+    result->message.clear();
+    goal_handle->succeed(result);
+    return;
+  }
+  const Eigen::Vector2d xy_dir = xy_diff / xy_dist;
+  const traj::TimeOptimalTrajectory traj_xy(
+    0., xy_dist, goal->max_horizontal_jerk, goal->max_horizontal_accel, goal->max_horizontal_velocity);
+
+  const traj::TimeOptimalTrajectory traj_z(
+    start_pos.z(), goal_pos.z(), goal->max_vertical_jerk, goal->max_vertical_accel, goal->max_vertical_velocity);
+
+  const auto roll_duration = fabs(start_rpy.roll) / kAttitudeRate;
+  const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
+
+  const auto pitch_duration = fabs(start_rpy.pitch) / kAttitudeRate;
+  const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., pitch_duration);
+
+  const auto goal_yaw = atan2(xy_dir.y(), xy_dir.x());
+  const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
+  const auto yaw_duration = fabs(start_rpy.yaw) / kHeadingRate;
+  const traj::CubicSpline traj_yaw(0., yaw_diff, yaw_duration);
+
+  // 所要時間を取得
+  const auto duration = std::max(traj_xy.duration(), traj_z.duration());
+  TOBAS_INFO("Moving to the target position will take ", duration, " seconds.");
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // 開始からの経過時間を計算
-    const auto cur_time = get_clock()->now();
-    const auto dt = (cur_time - start_time).seconds();
+    const auto cur_time = now();
+    const auto t = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal->timeout > 0 && dt > goal->duration + goal->timeout) {
+    if (goal->timeout > 0. && t > duration + goal->timeout) {
       result->message = "Timeout before reaching the goal position.";
       goal_handle->abort(result);
       return;
     }
 
-    // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
+    // 現在の位置を取得
     const auto& cur_pos = odom_->frame.p;
-    const auto pos_error = goal_pos - cur_pos;
-    if (dt > goal->duration && pos_error.norm() < goal->acceptance_radius) {
-      result->message.clear();
-      goal_handle->succeed(result);
-      return;
+
+    // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
+    if (t > duration) {
+      const auto pos_err = goal_pos - cur_pos;
+      const auto xy_err_abs = math::norm(pos_err.x(), pos_err.y());
+      const auto z_err_abs = fabs(pos_err.z());
+      const auto hor_ok = goal->acceptance_radius <= 0. || xy_err_abs < goal->acceptance_radius;
+      const auto ver_ok = goal->altitude_tolerance <= 0. || z_err_abs < goal->altitude_tolerance;
+      if (hor_ok && ver_ok) {
+        result->message.clear();
+        goal_handle->succeed(result);
+        return;
+      }
     }
 
     // 現在の時刻における目標状態を取得
-    const auto traj_point_x = traj_x.get(dt);
-    const auto traj_point_y = traj_y.get(dt);
-    const auto traj_point_z = traj_z.get(dt);
-    const kdl::Vector tar_pos(traj_point_x.p, traj_point_y.p, traj_point_z.p);
-    kdl::Vector tar_vel(traj_point_x.v, traj_point_y.v, traj_point_z.v);
-    const auto tar_roll = traj_roll.get(dt).p;
-    const auto tar_pitch = traj_pitch.get(dt).p;
-    const auto& tar_yaw = start_rpy.yaw;
+    const auto traj_point_xy = traj_xy.get(t);
+    const Eigen::Vector2d pxy = start_xy + traj_point_xy.p * xy_dir;
+    const Eigen::Vector2d vxy = traj_point_xy.v * xy_dir;
+    const auto traj_point_z = traj_z.get(t);
+    const kdl::Vector tar_pos(pxy.x(), pxy.y(), traj_point_z.p);
+    kdl::Vector tar_vel(vxy.x(), vxy.y(), traj_point_z.v);
+    const auto tar_roll = traj_roll.get(t).p;
+    const auto tar_pitch = traj_pitch.get(t).p;
+    const auto tar_yaw = algo::wrapPi(start_rpy.yaw + traj_yaw.get(t).p);
 
     // アクション中止の場合は目標速度を0にする
     if (goal_handle->is_canceling()) {
@@ -268,7 +343,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     kdl::vectorKDLToMsg(cur_pos, feedback->current_position);
     kdl::vectorKDLToMsg(tar_pos, feedback->target_position);
     kdl::vectorKDLToMsg(tar_pos - cur_pos, feedback->position_error);
-    goal_handle->publish_feedback(move(feedback));
+    goal_handle->publish_feedback(std::move(feedback));
 
     // アクション中止の場合は終了
     if (goal_handle->is_canceling()) {

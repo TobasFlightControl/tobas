@@ -22,7 +22,11 @@ public:
   Chain(const Chain& in);
   Chain& operator=(const Chain& arg);
 
+  /* Clear all segments. */
   void clear();
+
+  /* Check validity. */
+  bool isValid(std::string& error_msg) const;
 
   /**
    * Adds a new segment to the <strong>end</strong> of the chain.

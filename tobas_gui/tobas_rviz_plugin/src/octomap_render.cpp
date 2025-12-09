@@ -125,7 +125,7 @@ void OcTreeRender::octreeDecoding(
   octree->getMetricMin(min_x, min_y, min_z);
   octree->getMetricMax(max_x, max_y, max_z);
 
-  unsigned int render_mode_mask = static_cast<unsigned int>(octree_voxel_rendering);
+  uint32_t render_mode_mask = static_cast<uint32_t>(octree_voxel_rendering);
 
   {
     int step_size = 1 << (octree->getTreeDepth() - octree_depth_);  // for pruning of occluded voxels
@@ -148,7 +148,7 @@ void OcTreeRender::octreeDecoding(
         int diff[2] = { -1, diff_base };
 
         // cells with adjacent faces can occlude a voxel, iterate over the cases x,y,z (idxCase) and +/- (diff)
-        for (unsigned int idx_case = 0; idx_case < 3; ++idx_case) {
+        for (uint32_t idx_case = 0; idx_case < 3; ++idx_case) {
           int idx_0 = idx_case % 3;
           int idx_1 = (idx_case + 1) % 3;
           int idx_2 = (idx_case + 2) % 3;
@@ -198,7 +198,7 @@ void OcTreeRender::octreeDecoding(
         }
 
         // push to point vectors
-        unsigned int depth = it.getDepth();
+        uint32_t depth = it.getDepth();
         point_buf[depth - 1].push_back(new_point);
       }
     }

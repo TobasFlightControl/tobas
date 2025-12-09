@@ -28,7 +28,7 @@ std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr)
 }
 }  // namespace std
 
-namespace tobas_std
+namespace tbs
 {
 /* Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T, size_t N>
@@ -97,4 +97,4 @@ inline bool allEqual(const std::array<T, N>& arr, const T& target)
 {
   return std::all_of(arr.begin(), arr.end(), [&target](const auto& val) { return val == target; });
 }
-}  // namespace tobas_std
+}  // namespace tbs

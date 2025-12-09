@@ -28,10 +28,6 @@ class BasePoseCommanderWidget : public QWidget
   using self = BasePoseCommanderWidget;
   using super = QWidget;
 
-  static constexpr int kArmingButtonWidth = 100;
-  static constexpr int kArmingButtonHeight = 40;
-  static constexpr int kCommandButtonHeight = 40;
-
   static constexpr double kHomeAltitude = 3.;  // [m]
 
 public:
@@ -55,6 +51,7 @@ private:
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::RCInput::ConstSharedPtr rcin_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
@@ -62,6 +59,8 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelPitchYaw> pos_vel_pitch_yaw_pub_;
 
   ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
+
+  bool isRunning() const;
 
   void publishCurrentCommand();
   bool armRotors(bool arming);
@@ -76,6 +75,7 @@ private Q_SLOTS:
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace sim
 }  // namespace gui

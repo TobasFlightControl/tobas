@@ -29,6 +29,9 @@ sudo apt install -y python3-rosdep2
 sudo apt install -y python3-rosdistro-modules
 sudo apt install -y python3-rospkg-modules
 
+# Delete all old source files to update everything to the latest version
+sudo rm -rf ~/colcon_ws_install/src/
+
 # Get ROS 2 source code
 mkdir -p ~/colcon_ws_install/src
 cd ~/colcon_ws_install
@@ -36,8 +39,11 @@ vcs import --input https://raw.githubusercontent.com/ros2/ros2/jazzy/ros2.repos 
 
 # Get additional ROS 2 source code (optional)
 cd ~/colcon_ws_install/src
-git clone https://github.com/ros/xacro.git -b ros2 --recursive | true
-git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b ros2 --recursive | true
+git clone https://github.com/ros/xacro.git -b ros2
+git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b ros2
+git clone https://github.com/ros-misc-utilities/ffmpeg_encoder_decoder.git -b 3.0.1
+git clone https://github.com/ros-misc-utilities/ffmpeg_image_transport_msgs.git -b 1.0.2
+git clone https://github.com/ros-perception/vision_opencv.git -b 4.1.0
 
 # Install MAVROS (optional): https://github.com/mavlink/mavros/blob/ros2/mavros/README.md#installation
 sudo apt install -y python3-vcstool python3-rosinstall-generator python3-osrf-pycommon
@@ -48,8 +54,8 @@ vcs import src < /tmp/mavlink.repos
 vcs import src < /tmp/mavros.repos
 sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh
 cd ~/colcon_ws_install/src
-git clone https://github.com/ros-geographic-info/geographic_info.git -b ros2 --recursive | true
-git clone https://github.com/ros/diagnostics.git -b ros2-jazzy --recursive | true
+git clone https://github.com/ros-geographic-info/geographic_info.git -b ros2
+git clone https://github.com/ros/diagnostics.git -b ros2-jazzy
 
 # Install dependencies
 sudo apt upgrade -y

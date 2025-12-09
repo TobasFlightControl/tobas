@@ -32,12 +32,14 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
+    ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
+
     # Launch component containers
     component_containers = Node(
         package="tobas_components_rt",
         executable="component_containers",
         namespace=DRONE_NAME,
-        ros_arguments=["--log-level", log_level],
+        ros_arguments=ros_args,
         output=output,
     )
     ld.add_action(component_containers)

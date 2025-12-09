@@ -45,7 +45,6 @@ public:
   void setMinimum(const QVector<double>& minimum);
   void setMaximum(const QVector<double>& maximum);
   void setDefault(const QVector<double>& _default);
-  void setSuffix(const QVector<QString>& suffix);
 
   int count() const;
 
@@ -66,7 +65,6 @@ private:
   QVector<double> maximum_;
   QVector<double> default_;
   QVector<int> decimals_;
-  QVector<QString> suffix_;
 
   qt::TableWidget* table_;
 

@@ -30,8 +30,8 @@ public:
 
 private:
   std::filesystem::path log_path_;
-  rosbag2_cpp::Reader reader_;
   std::unordered_set<std::string> decode_fail_topics_;
+  rosbag2_cpp::Reader reader_;
 
   QVector<tobas_msgs::msg::Odometry> odom_data_;
   QVector<tobas_msgs::msg::Imu> raw_imu_data_;
@@ -39,6 +39,7 @@ private:
   QVector<tobas_msgs::msg::MagneticField> mag_data_;
   QVector<tobas_msgs::msg::Gnss> gnss_data_;
   QVector<tobas_msgs::msg::Battery> battery_data_;
+  QVector<tobas_msgs::msg::Cpu> cpu_data_;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data_;
   QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data_;
   QVector<tobas_msgs::msg::JointStateArray> cur_joint_states_data_;
@@ -48,6 +49,7 @@ private:
   QVector<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_data_;
   QVector<tobas_msgs::msg::Latency> sampling_time_data_;
   QVector<tobas_msgs::msg::Latency> ctrl_latency_data_;
+  QVector<tobas_msgs::msg::VibrationLevel> vibe_data_;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data_;
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data_;
   QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_data_;
@@ -57,18 +59,23 @@ private:
   MessageDecoder<tobas_msgs::msg::MagneticField> mag_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
+  MessageDecoder<tobas_msgs::msg::Cpu> cpu_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorStateArray> rotor_states_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_decoder_;
   MessageDecoder<tobas_msgs::msg::JointStateArray> joint_states_decoder_;
   MessageDecoder<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
   MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
   MessageDecoder<tobas_msgs::msg::Latency> latency_decoder_;
+  MessageDecoder<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
   MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
 
-  std::array<PlotTabWidget*, 3> plot_tabs_;
+  std::array<PlotTabWidget*, 6> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
+
+  bool open(const std::string& rosbag_path);
+  bool reindex(const std::string& rosbag_path);
 
   void setPlotData(double time_from_start);
 

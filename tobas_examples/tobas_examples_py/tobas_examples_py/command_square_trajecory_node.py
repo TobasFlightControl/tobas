@@ -17,28 +17,28 @@ class CommandSquareTrajectoryNode(Node):
     def __init__(self) -> None:
         super().__init__("command_square_trajectory")
 
-        # 離陸アクションクライアントの作成
+        # 離陸アクションクライアントを作成
         self._takeoff_client = ActionClient(self, Takeoff, "takeoff_action")
 
         # コマンドのパブリッシャーを作成
         self._command_pub = self.create_publisher(PosVelYaw, "command/pos_vel_yaw", 1)
 
     def run(self) -> None:
-        # アクションサーバーが起動するのを待つ
+        # 離陸アクションサーバーが起動するのを待つ
         self.get_logger().info("Waiting for takeoff action server.")
         if not self._takeoff_client.wait_for_server():
             self.get_logger().error("Failed to connect to takeoff action server.")
             return
 
-        # アクションゴールを作成
+        # 離陸アクションゴールを作成
         takeoff_goal = Takeoff.Goal()
         takeoff_goal.target_altitude = self.ALTITUDE
         takeoff_goal.duration = self.INTERVAL
 
-        # アクションを実行
+        # 離陸アクションを実行
         takeoff_response: Takeoff.Impl.GetResultService.Response = self._takeoff_client.send_goal(takeoff_goal)
 
-        # アクションの結果を取得
+        # 離陸アクションの結果を取得
         if takeoff_response.status != GoalStatus.STATUS_SUCCEEDED:
             takeoff_result = takeoff_response.result
             self.get_logger().error(f"Takeoff action failed: {takeoff_result.message}")

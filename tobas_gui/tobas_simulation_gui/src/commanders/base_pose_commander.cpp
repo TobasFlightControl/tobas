@@ -11,7 +11,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-#include "tobas_simulation_gui/constants.hpp"
+#include "tobas_simulation_gui/commanders/constants.hpp"
 
 namespace gui
 {
@@ -34,7 +34,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
   header_cols->addStretch();
 
   arming_button_ = new qt::ToggleButton("Arm", "Disarm");
-  arming_button_->setFixedSize(kArmingButtonWidth, kArmingButtonHeight);
+  arming_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
   header_cols->addWidget(arming_button_);
   connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmRequested);
   connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
@@ -74,6 +74,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(
 
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void BasePoseCommanderWidget::updateInternalDataStructures()
@@ -93,7 +94,7 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 
 bool BasePoseCommanderWidget::start()
 {
-  if (!set_arm_sc_->waitForService(kWaitForService)) {
+  if (!set_arm_sc_->waitForService()) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.");
     return false;
   }
@@ -103,8 +104,11 @@ bool BasePoseCommanderWidget::start()
 
 void BasePoseCommanderWidget::reset()
 {
-  arming_button_->setChecked(false);
+  arming_.reset();
+  odom_.reset();
+  rcin_.reset();
 
+  arming_button_->setChecked(false);
   home_button_->setEnabled(false);
 
   for (const auto& cmd : cmd_xyz_) {
@@ -117,14 +121,19 @@ void BasePoseCommanderWidget::reset()
   }
 }
 
+bool BasePoseCommanderWidget::isRunning() const
+{
+  return arming_button_->isChecked();
+}
+
 void BasePoseCommanderWidget::publishCurrentCommand()
 {
   const auto tar_x = cmd_xyz_[0]->getValue();
   const auto tar_y = cmd_xyz_[1]->getValue();
   const auto tar_z = cmd_xyz_[2]->getValue();
-  const auto tar_roll = tobas_std::deg2rad(cmd_rpy_[0]->getValue());
-  const auto tar_pitch = tobas_std::deg2rad(cmd_rpy_[1]->getValue());
-  const auto tar_yaw = tobas_std::deg2rad(cmd_rpy_[2]->getValue());
+  const auto tar_roll = tbs::deg2rad(cmd_rpy_[0]->getValue());
+  const auto tar_pitch = tbs::deg2rad(cmd_rpy_[1]->getValue());
+  const auto tar_yaw = tbs::deg2rad(cmd_rpy_[2]->getValue());
 
   if (angle_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::Angle>();
@@ -171,7 +180,7 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
 {
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
-  if (!set_arm_sc_->call(req, kWaitForService)) {
+  if (!set_arm_sc_->call(req, kServiceCallTimeout)) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;
   }
@@ -189,24 +198,27 @@ void BasePoseCommanderWidget::onArmRequested()
 {
   if (!arming_) {
     qt::qWarnBox(this, "Arming status is not received yet.");
-    reset();
-    return;
-  }
-  if (arming_->data) {
-    qt::qWarnBox(this, "The rotors are already armed.");
-    reset();
     return;
   }
   if (!odom_) {
     qt::qWarnBox(this, "Odometry is not received yet.");
-    reset();
+    return;
+  }
+  if (!rcin_) {
+    qt::qWarnBox(this, "RC input is not received yet.");
+    return;
+  }
+
+  if (rcin_->enable) {
+    qt::qWarnBox(this, "GUI teleoperation cannot be started because manual control is enabled.");
     return;
   }
 
   // アーム
-  if (!armRotors(true)) {
-    reset();
-    return;
+  if (!arming_->data) {
+    if (!armRotors(true)) {
+      return;
+    }
   }
 
   // 現在の位置姿勢を取得
@@ -217,9 +229,9 @@ void BasePoseCommanderWidget::onArmRequested()
   cmd_xyz_[0]->setValue(cur_pos.x());
   cmd_xyz_[1]->setValue(cur_pos.y());
   cmd_xyz_[2]->setValue(cur_pos.z());
-  cmd_rpy_[0]->setValue(tobas_std::rad2deg(cur_rpy.roll));
-  cmd_rpy_[1]->setValue(tobas_std::rad2deg(cur_rpy.pitch));
-  cmd_rpy_[2]->setValue(tobas_std::rad2deg(cur_rpy.yaw));
+  cmd_rpy_[0]->setValue(tbs::rad2deg(cur_rpy.roll));
+  cmd_rpy_[1]->setValue(tbs::rad2deg(cur_rpy.pitch));
+  cmd_rpy_[2]->setValue(tbs::rad2deg(cur_rpy.yaw));
 
   // 有効化
   home_button_->setEnabled(true);
@@ -235,13 +247,20 @@ void BasePoseCommanderWidget::onArmRequested()
 
 void BasePoseCommanderWidget::onDisarmRequested()
 {
-  if (!armRotors(false)) {
+  if (!arming_) {
+    qt::qWarnBox(this, "Arming status is not received yet.");
     return;
+  }
+
+  if (arming_->data) {
+    if (!armRotors(false)) {
+      return;
+    }
   }
 
   reset();
 
-  qt::qInfoBox(this, "GUI teleoperation is finished.");
+  qt::qInfoBox(this, "GUI teleoperation was finished.");
 }
 
 void BasePoseCommanderWidget::onValueChanged()
@@ -261,12 +280,27 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
 
 void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
+  // 外部からディスアームされたら強制終了
+  if (isRunning() && !arming->data) {
+    reset();
+  }
+
   arming_ = arming;
 }
 
 void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
+}
+
+void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+{
+  // 手動操縦が有効になったら強制終了
+  if (isRunning() && rcin->enable) {
+    reset();
+  }
+
+  rcin_ = rcin;
 }
 }  // namespace sim
 }  // namespace gui

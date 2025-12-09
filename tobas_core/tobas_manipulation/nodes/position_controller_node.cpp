@@ -19,6 +19,9 @@ public:
   explicit PositionControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  // Parameters
+  std::unordered_set<std::string> jnt_names_;
+
   tobas::Drone::ConstSharedPtr drone_;
 
   tobas_msgs::msg::JointStateArray home_js_;
@@ -50,8 +53,15 @@ private:
 };
 
 PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& options)
-  : super("position_controller", options)
+  : super("jointpos_trajectory_controller", options)
 {
+  const auto jnt_names = getStringArrayParam("joint_names", {});
+  if (jnt_names.empty()) {
+    TOBAS_ERROR("Joint names are not specified.");
+    return;
+  }
+  jnt_names_.insert(jnt_names.begin(), jnt_names.end());
+
   positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
@@ -65,20 +75,15 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
 {
   // 位置コマンドをそのまま流すだけ
-  for (const auto& cmd : tar_js_->states) {
-    const auto& joint = drone_->joints.at(cmd.name);
-    if (joint.role != tobas::JointRole::kManipulation) {
-      TOBAS_WARN("The role of joint \"", cmd.name, "\" must be \"MANIPULATION\".");
-      continue;
+  for (const auto& tar_state : tar_js_->states) {
+    const auto& jnt_name = tar_state.name;
+    if (!jnt_names_.contains(jnt_name)) {
+      TOBAS_ERROR("The target joint \"", jnt_name, "\" is not included in the joint group.");
+      return false;
     }
-    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
-      TOBAS_WARN("The command interface of joint \"", cmd.name, "\" must be \"POSITION\".");
-      continue;
-    }
-
     positions_msg.commands.emplace_back();
-    positions_msg.commands.back().name = cmd.name;
-    positions_msg.commands.back().data = cmd.position;
+    positions_msg.commands.back().name = jnt_name;
+    positions_msg.commands.back().data = tar_state.position;
   }
 
   return true;
@@ -97,28 +102,32 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   home_js_.states.clear();
 
-  // 位置指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone->joints) {
-    if (jnt_cfg.role != tobas::JointRole::kManipulation) {
+  // ジョイントのホームポジションを取得
+  for (const auto& jnt_name : jnt_names_) {
+    const auto joint_it = drone->joints.find(jnt_name);
+    if (joint_it == drone->joints.end()) {
+      TOBAS_WARN("The drone does not have joint \"", jnt_name, "\".");
       continue;
     }
-    if (jnt_cfg.cmd_iface != tobas::JointCommandInterface::kPosition) {
+    const auto& joint = joint_it->second;
+    if (joint.cmd_iface != tobas::JointCommandInterface::kPosition) {
+      TOBAS_WARN("The command interface of joint \"", jnt_name, "\" is not position.");
       continue;
     }
     home_js_.states.emplace_back();
     home_js_.states.back().name = jnt_name;
-    home_js_.states.back().position = jnt_cfg.home_pos;
+    home_js_.states.back().position = joint.home_pos;
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.states.size() > 0) {
+  if (!home_js_.states.empty()) {
     tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   }
 }
 
 void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr&)
 {
-  if (home_js_.states.size() == 0) {
+  if (home_js_.states.empty()) {
     return;
   }
   if (!tar_js_ && !tar_ls_) {
@@ -127,7 +136,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
 
   // Create joint positions command
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-  positions_msg->header.stamp = get_clock()->now();
+  positions_msg->header.stamp = now();
 
   // Joint space control or Task space control
   if (tar_js_) {
@@ -146,7 +155,7 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
   }
 
   // Publish joint positions command
-  positions_pub_->publish(move(positions_msg));
+  positions_pub_->publish(std::move(positions_msg));
 }
 
 void PositionControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)

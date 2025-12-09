@@ -26,6 +26,7 @@ struct rclcpp::TypeAdapter<tobas::ElectricRotorConfig, tobas_drone_msgs::msg::El
     dst.min_speed = src.min_speed;
     dst.propeller_diameter = src.propeller_diameter;
     dst.motor_const = src.motor_const;
+    dst.moment_const = src.moment_const;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -39,6 +40,7 @@ struct rclcpp::TypeAdapter<tobas::ElectricRotorConfig, tobas_drone_msgs::msg::El
     dst.min_speed = src.min_speed;
     dst.propeller_diameter = src.propeller_diameter;
     dst.motor_const = src.motor_const;
+    dst.moment_const = src.moment_const;
   }
 };
 

@@ -30,15 +30,15 @@ $ pre-commit autoupdate
 
 ### C++
 
-See [C++ Code Style](./tobas_code_style/CPP_CODE_STYLE.md).
+See [C++ Code Style](./tobas_examples/tobas_code_style/CPP_CODE_STYLE.md).
 
 ### Python
 
-See [Python Code Style](./tobas_code_style/PYTHON_CODE_STYLE.md).
+See [Python Code Style](./tobas_examples/tobas_code_style/PYTHON_CODE_STYLE.md).
 
 ### CMake
 
-See [CMake Code Style](./tobas_code_style/CMAKE_CODE_STYLE.md).
+See [CMake Code Style](./tobas_examples/tobas_code_style/CMAKE_CODE_STYLE.md).
 
 ## Git
 
@@ -51,7 +51,7 @@ See [Git Guideline](./GIT_GUIDELINE.md).
 Synchronize the Tobas repository on the PC with the FC.
 
 ```bash
-user@host $ tobas_dev_tools/scripts/tobas_sync
+user@host $ tobas_dev_tools/scripts/tobas_sync ${host}
 ```
 
 ### Build

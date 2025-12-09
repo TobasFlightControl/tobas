@@ -6,6 +6,6 @@ using namespace std;
 
 int main()
 {
-  const auto result = tobas_std::buildString("Number: ", 42, " and ", 3.14);
+  const auto result = tbs::buildString("Number: ", 42, " and ", 3.14);
   cout << result << endl;
 }

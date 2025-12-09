@@ -1,0 +1,22 @@
+<package format="3">
+
+	<name>tobas_failsafe</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_dsp</depend>
+	<depend>tobas_node</depend>
+	<depend>tobas_tools</depend>
+	<depend>tobas_msgs_adapter</depend>
+	<depend>tobas_drone_msgs_adapter</depend>
+	<depend>tobas_mission_msgs</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

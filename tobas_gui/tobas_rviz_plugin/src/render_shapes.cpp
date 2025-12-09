@@ -79,8 +79,8 @@ void RenderShapes::renderShape(
         ogre_shape = m;
 
         Ogre::Vector3 normal(0., 0., 0.);
-        for (unsigned int i = 0; i < mesh->triangle_count; ++i) {
-          unsigned int i3 = i * 3;
+        for (uint32_t i = 0; i < mesh->triangle_count; ++i) {
+          uint32_t i3 = i * 3;
           if (mesh->triangle_normals && !mesh->vertex_normals) {
             normal.x = mesh->triangle_normals[i3];
             normal.y = mesh->triangle_normals[i3 + 1];
@@ -88,7 +88,7 @@ void RenderShapes::renderShape(
           }
 
           for (int k = 0; k < 3; ++k) {
-            unsigned int vi = 3 * mesh->triangles[i3 + k];
+            uint32_t vi = 3 * mesh->triangles[i3 + k];
             Ogre::Vector3 v(mesh->vertices[vi], mesh->vertices[vi + 1], mesh->vertices[vi + 2]);
             if (mesh->vertex_normals) {
               Ogre::Vector3 n(mesh->vertex_normals[vi], mesh->vertex_normals[vi + 1], mesh->vertex_normals[vi + 2]);

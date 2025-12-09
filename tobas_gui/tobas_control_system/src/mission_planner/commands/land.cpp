@@ -6,6 +6,9 @@ namespace ctrl
 {
 LandWidget::LandWidget()
 {
+  speed_ = new field::LandSpeedWidget();
+
+  addField(speed_);
 }
 
 const char* LandWidget::name() const
@@ -16,7 +19,18 @@ const char* LandWidget::name() const
 BaseCommandData::SharedPtr LandWidget::data() const
 {
   const auto res = std::make_shared<LandData>();
+  res->speed = speed();
   return res;
+}
+
+double LandWidget::speed() const
+{
+  return speed_->value();
+}
+
+void LandWidget::speed(double value)
+{
+  speed_->setValue(value);
 }
 }  // namespace ctrl
 }  // namespace gui

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace tobas_std
+namespace tbs
 {
 /**
  * @brief ZYXオイラー角からクォータニオンを計算．
@@ -27,4 +27,4 @@ void eulerFromQuaternion(
   double& roll,
   double& pitch,
   double& yaw);
-}  // namespace tobas_std
+}  // namespace tbs

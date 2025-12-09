@@ -31,7 +31,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
 
   for (const auto& [link_name, rotor] : drone_.prop->rotors) {
     const auto meter = new SpeedmeterWidget();
-    meter->setMaximumValue(tobas_std::rps2rpm(drone_.prop->maxSpeed(link_name)));
+    meter->setMaximumValue(tbs::rps2rpm(drone_.prop->maxSpeed(link_name)));
     meter->setTopText(QString::fromStdString(link_name));
 
     meters_[link_name] = meter;
@@ -44,7 +44,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
 void RotorsViewerWiddget::setSpeed(const std::string& link_name, const double& rps)
 {
   const auto& meter = meters_.at(link_name);
-  const auto rpm = static_cast<int>(tobas_std::rps2rpm(rps));
+  const auto rpm = static_cast<int>(tbs::rps2rpm(rps));
   meter->setValue(rpm);
   meter->setBottomText(bottomText(rpm));
 }

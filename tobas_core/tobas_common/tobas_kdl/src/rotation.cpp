@@ -1,6 +1,7 @@
 #include "tobas_kdl/rotation.hpp"
 
-#include <tobas_std_tools/float.hpp>
+#include <tobas_eigen_tools/linalg.hpp>
+#include <tobas_math/float.hpp>
 
 #include "tobas_kdl/utilities/utility.hpp"
 
@@ -34,7 +35,7 @@ Rotation Rotation::RotZ(double angle)
 Rotation Rotation::Rot(const Vector& axis, double angle)
 {
   // Axis must be normalized
-  assert(tobas_std::isClose(axis.norm(), 1.));
+  assert(math::isClose(axis.norm(), 1.));
 
   // The formula
   // R(n, θ) = n n^T + (E - n n^T)) cos(θ) + skew(n) sin(θ) = E + skew(n) sin(θ) + skew(n)^2 (1 - cos(θ))
@@ -93,7 +94,7 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
 
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
-  assert(tobas_std::isClose(math::norm(x, y, z, w), 1.));
+  assert(math::isClose(math::norm(x, y, z, w), 1.));
 
   const auto tx = 2 * x;
   const auto ty = 2 * y;
@@ -110,6 +111,16 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
 
   return Rotation(
     1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
+}
+
+bool Rotation::isValid(string& error_msg) const
+{
+  if (!eigen::isSpecialOrthogonal(data)) {
+    error_msg = "Rotation matrix must belong to SO(3).";
+    return false;
+  }
+
+  return true;
 }
 
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const

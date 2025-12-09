@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace tobas_std
+namespace tbs
 {
 double TimestampedBufferDouble::max() const
 {
@@ -67,4 +67,4 @@ double TimestampedBufferDouble::stddev() const
 {
   return sqrt(this->variance());
 }
-}  // namespace tobas_std
+}  // namespace tbs

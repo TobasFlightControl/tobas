@@ -23,11 +23,10 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   : propeller_(propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
-    node, "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch", "Thrust", "Torque" });
+    node, "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
   data_->setDecimals({ 0, 2, 6, 6 });
   data_->setMinimum({ 1, -90, 1e-6, 1e-6 });
   data_->setMaximum({ INFINITY, 90, INFINITY, INFINITY });
-  data_->setSuffix({ " rpm", " deg", " N", " Nm" });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   data_->table()->setColumnsWidth(kDataTableColWidth);
 
@@ -46,6 +45,21 @@ bool AerodynamicsWidget::isValid()
 {
   if (data_->count() == 0) {
     qt::qErrorBox(this, "Propeller test data is blank.");
+    return false;
+  }
+
+  if (!motorConst().isValid()) {
+    qt::qErrorBox(this, "Failed to estimate the motor constant of the variable pitch propeller.");
+    return false;
+  }
+
+  if (!momentConst().isValid()) {
+    qt::qErrorBox(this, "Failed to estimate the moment constant of the variable pitch propeller.");
+    return false;
+  }
+
+  if (!dragConst().isValid()) {
+    qt::qErrorBox(this, "Failed to estimate the drag constant of the variable pitch propeller.");
     return false;
   }
 
@@ -72,7 +86,7 @@ void AerodynamicsWidget::load(const YAML::Node& node)
   data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
 }
 
-std::pair<double, double> AerodynamicsWidget::motorConst() const
+tobas::VppMotorConstant AerodynamicsWidget::motorConst() const
 {
   const auto [speed, pitch, thrust, _] = getData();
   const auto num_data = speed.size();
@@ -86,16 +100,34 @@ std::pair<double, double> AerodynamicsWidget::motorConst() const
   const auto c0 = sol(0);
   const auto c1 = sol(1);
 
-  return { c0, c1 };
+  return tobas::VppMotorConstant(c0, c1);
 }
 
-double AerodynamicsWidget::momentConst() const
+tobas::VppMomentConstant AerodynamicsWidget::momentConst() const
 {
-  const auto [_, __, thrust, torque] = getData();
-  return torque.dot(thrust) / thrust.squaredNorm();
+  const auto [c0, c1] = motorConst();
+  const auto phi0 = -c0 / c1;
+
+  const auto [_, pitch, thrust, torque] = getData();
+  const auto num_data = pitch.size();
+
+  Eigen::MatrixX3d Left(num_data, 3);
+  const auto phi = (pitch.array() - phi0).matrix().eval();
+  Left.col(0) = phi;
+  Left.col(1).setOnes();
+  Left.col(2) = phi.cwiseInverse();
+
+  const auto cm = torque.cwiseProduct(thrust.cwiseInverse());
+
+  const auto sol = Left.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(cm).eval();
+  const auto a = sol(0);
+  const auto b = sol(1);
+  const auto c = sol(2);
+
+  return tobas::VppMomentConstant(a, b, c, phi0);
 }
 
-std::pair<double, double> AerodynamicsWidget::dragConst() const
+tobas::VppDragConstant AerodynamicsWidget::dragConst() const
 {
   const BladeTheory blade(
     propeller_->numBlades(), propeller_->radius(), propeller_->meanChord(), propeller_->pitchAngleNeutoral());
@@ -112,10 +144,10 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> A
   const auto pitch_limit = propeller_->pitchAngleLimit();
 
   for (int i = 0; i < num_data; ++i) {
-    const auto speed = tobas_std::rpm2rps(data_mat(i, 0));  // [rad/s]
-    const auto pitch = tobas_std::deg2rad(data_mat(i, 1));  // [rad]
-    const auto thrust = data_mat(i, 2);                     // [N]
-    const auto torque = data_mat(i, 3);                     // [Nm]
+    const auto speed = tbs::rpm2rps(data_mat(i, 0));  // [rad/s]
+    const auto pitch = tbs::deg2rad(data_mat(i, 1));  // [rad]
+    const auto thrust = data_mat(i, 2);               // [N]
+    const auto torque = data_mat(i, 3);               // [Nm]
 
     if (pitch_limit.inRange(pitch, 1e-3)) {
       speeds.push_back(speed);

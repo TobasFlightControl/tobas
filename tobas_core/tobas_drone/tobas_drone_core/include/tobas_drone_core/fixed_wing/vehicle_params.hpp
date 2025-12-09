@@ -16,11 +16,11 @@ class VehicleParameters
   static constexpr char kAlphaLimitLKey[] = "alpha_limit";
 
 public:
-  double wing_surface = 0;                          // Wing surface [m^2]
-  double wing_span = 0;                             // Wing span [m]
-  double mac = 0;                                   // Mean Aerodynamic Chord [m]
-  kdl::Vector ac = { 0, 0, 0 };                     // Aerodynamic Center wrt the frame origin (NWU) [m]
-  tobas_std::Range<double> alpha_limit = { 0, 0 };  // Stall angles [rad]
+  double wing_surface = 0;                    // Wing surface [m^2]
+  double wing_span = 0;                       // Wing span [m]
+  double mac = 0;                             // Mean Aerodynamic Chord [m]
+  kdl::Vector ac = { 0, 0, 0 };               // Aerodynamic Center wrt the frame origin (FLU) [m]
+  tbs::Range<double> alpha_limit = { 0, 0 };  // Stall angles [rad]
 
   bool isValid() const;
 

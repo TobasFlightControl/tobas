@@ -47,14 +47,13 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   flight_log_ = new log::FlightLogWidget(node, bridge_);
   simulation_ = new sim::SimulationWidget(node, bridge_);
 
-  // TODO: 別々のアイコンを設定
-  const auto rsrc_dir = getResourceDir();
-  const auto sensor_calib_btn = new AppButton("Sensor Calib", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto actuator_test_btn = new AppButton("Actuator Test", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_dir / "app.png"));
-  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_dir / "app.png"));
+  const auto rsrc_dir = QString::fromStdString(getResourceDir() / "tool");
+  const auto sensor_calib_btn = new AppButton("Sensor Calib", rsrc_dir + "/sensor_calibration.svg");
+  const auto actuator_test_btn = new AppButton("Actuator Test", rsrc_dir + "/actuator_test.svg");
+  const auto control_system_btn = new AppButton("Control System", rsrc_dir + "/control_system.svg");
+  const auto param_tuning_btn = new AppButton("Param Tuning", rsrc_dir + "/parameter_tuning.svg");
+  const auto flight_log_btn = new AppButton("Flight Log", rsrc_dir + "/flight_log.svg");
+  const auto simulation_btn = new AppButton("Simulation", rsrc_dir + "/simulation.svg");
 
   const auto app_sw = new qt::StackedWidget();
   app_sw->addWidget(sensor_calib_);
@@ -225,6 +224,22 @@ void GroundControlStationWidget::onLoadButtonClicked()
   const fs::path proj_path = dialog.selectedFiles().first().toStdString();
   proj_paths_.setProjPath(proj_path);
 
+  // バージョンチェック
+  if (proj_version_.load(proj_paths_.versionPath())) {
+    if (!proj_version_.isCompatible()) {
+      qt::qWarnBox(
+        this,
+        "The current Tobas version (" + cmn::Version::Current().toString() +
+          ") is incompatible with the version used to create this project (" + proj_version_.toString() +
+          "). Please update the project using the Setup Assistant.");
+      return;
+    }
+  }
+  else {
+    qt::qWarnBox(this, "Failed to read the project version. Please update the project using the Setup Assistant.");
+    return;
+  }
+
   // パスをテキストに設定
   proj_path_->setText(QString::fromStdString(proj_path));
 
@@ -309,7 +324,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = proj_paths_.cfgPkgName();
 
   // 進捗バーを作成
-  qt::ProgressDialog progress("Write Tobas Project", 9, this);
+  qt::ProgressDialog progress("Write Tobas Project", 10, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -318,6 +333,30 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // FCのバージョンを確認
+  progress.setLabelText("Checking the Tobas version.");
+  std::string fc_ver_text;
+  if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SSHClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to retrieve the firmware version: " + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  cmn::Version fc_version;
+  if (!fc_version.fromString(QString::fromStdString(fc_ver_text))) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to parse the firmware version: " + QString::fromStdString(fc_ver_text));
+    return;
+  }
+  if (!fc_version.isCompatible(proj_version_)) {
+    progress.close();
+    qt::qWarnBox(
+      this,
+      "The firmware version (" + fc_version.toString() +
+        ") is incompatible with the version used to create this project (" + proj_version_.toString() + ").");
     return;
   }
   progress.progressStep();
@@ -346,7 +385,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // パッケージが代わる場合は競合を避けるためにクリーンビルド
+  // パッケージが変わる場合は競合を避けるためにクリーンビルド
   if (config_pkg_name != config_env_parser_.config_pkg) {
     // ワークスペースを初期化
     progress.setLabelText("Initializing colcon workspace.");

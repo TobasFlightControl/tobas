@@ -367,7 +367,7 @@ public:
   }
 
   /* Get the dimension of the state space that corresponds to this joint */
-  virtual unsigned int getStateSpaceDimension() const = 0;
+  virtual uint32_t getStateSpaceDimension() const = 0;
 
   /* Get the joint this one is mimicking */
   const JointModel* getMimic() const

@@ -19,6 +19,7 @@ struct rclcpp::TypeAdapter<tobas::BatteryConfig, tobas_drone_msgs::msg::BatteryC
     dst.max_voltage = src.max_voltage;
     dst.sag_voltage = src.sag_voltage;
     dst.max_current = src.max_current;
+    dst.internal_resistance = src.internal_resistance;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -27,6 +28,7 @@ struct rclcpp::TypeAdapter<tobas::BatteryConfig, tobas_drone_msgs::msg::BatteryC
     dst.max_voltage = src.max_voltage;
     dst.sag_voltage = src.sag_voltage;
     dst.max_current = src.max_current;
+    dst.internal_resistance = src.internal_resistance;
   }
 };
 

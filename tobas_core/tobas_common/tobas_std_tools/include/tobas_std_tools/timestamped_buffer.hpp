@@ -4,7 +4,7 @@
 #include <chrono>
 #include <map>
 
-namespace tobas_std
+namespace tbs
 {
 /**
  * @brief 指定した期間内のデータのみを保持するバッファ．
@@ -47,13 +47,13 @@ public:
 
   typename MapType::const_iterator first() const
   {
-    assert(map_.size() > 0);
+    assert(!map_.empty());
     return map_.begin();
   }
 
   typename MapType::const_iterator last() const
   {
-    assert(map_.size() > 0);
+    assert(!map_.empty());
     return std::prev(map_.end());
   }
 
@@ -80,7 +80,7 @@ public:
   /* 与えられた時刻以後の最初の値を取得する． */
   const T& closestAfterValue(const TimeType& time) const
   {
-    assert(map_.size() > 0);
+    assert(!map_.empty());
 
     // 与えられた時刻以後の最初の要素を取得
     // lower_bound, upper_boundはキーを挟んでいるわけではなく，前者はキー以上，後者はキーより大きい要素を返す．
@@ -121,4 +121,4 @@ public:
   double variance() const;
   double stddev() const;
 };
-}  // namespace tobas_std
+}  // namespace tbs

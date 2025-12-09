@@ -23,7 +23,7 @@ namespace ctrl
 {
 ControllerWidget::ControllerWidget()
 {
-  dont_use_builtin_ctrl_ = new QCheckBox("Do not use the built-in contrller");
+  dont_use_builtin_ctrl_ = new QCheckBox("Do not use the built-in controller");
 
   stack_ = new qt::StackedWidget();
 

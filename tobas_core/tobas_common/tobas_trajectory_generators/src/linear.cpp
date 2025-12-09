@@ -5,14 +5,14 @@
 
 namespace traj
 {
-LinearSpline::LinearSpline(const double& p0, const double& pf, const double& T) : p0_(p0), T_(T)
+LinearSpline::LinearSpline(double p0, double pf, double T) : p0_(p0), T_(T)
 {
   assert(T > 0);
 
   v_ = (pf - p0) / T;
 }
 
-TrajectoryPoint LinearSpline::get(const double& _t) const
+TrajectoryPoint LinearSpline::get(double _t) const
 {
   const auto t = std::clamp(_t, 0., T_);
   return { p0_ + v_ * t, v_, 0. };

@@ -10,6 +10,7 @@
 
 	<exec_depend>tobas_dynamixel_handler</exec_depend>
 	<exec_depend>tobas_dynamixel_msgs</exec_depend>
+	<exec_depend>tobas_dynamixel_ros_interface</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

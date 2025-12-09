@@ -12,8 +12,9 @@ struct Network
 {
   std::string ssid = "";
   std::string psk = "";
-  KeyManagement key_mgmt = WPA_PSK;
   int priority = 0;
+  bool scan_ssid = false;
+  KeyMgmt key_mgmt = NONE;
 };
 }  // namespace wpa
 }  // namespace tobas

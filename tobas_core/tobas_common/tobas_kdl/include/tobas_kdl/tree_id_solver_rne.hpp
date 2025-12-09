@@ -29,7 +29,7 @@ public:
    * @param tree The kinematic tree to calculate the inverse dynamics for, an internal reference
    * will be stored. @param grav The gravity vector to use during the calculation.
    */
-  explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -tobas_std::kGravity));
+  explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -tbs::kGravity));
 
   bool updateInternalDataStructures() override;
 

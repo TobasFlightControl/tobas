@@ -6,21 +6,16 @@ if [ "$(id -un)" != "pi" ]; then
   exit 1
 fi
 
-# Remove unnecessary files
-sudo rm -rf /tmp/*
-sudo rm -rf /var/tmp/*
-sudo rm -rf /var/log/*
-sudo rm -rf ~/.ros/*
-rm -rf ~/.cache/*
-rm -rf ~/.emacs.d/*
-rm -rf ~/.vscode-server/*
-rm ~/.bash_history*
-rm ~/.python_history*
-rm ~/.wget-hsts
+# Clean apt cache
+sudo apt clean
 
-# Remove personal information
-rm -rf ~/.gnupg/*
-rm -rf ~/.ssh/*
+# Remove unnecessary files
+sudo rm -rf /srv/*
+sudo rm -rf /tmp/*
+sudo rm -rf /var/backups/*
+sudo rm -rf /var/log/*
+sudo rm -rf /var/tmp/*
+sudo rm -rf /var/lib/apt/lists/*
 
 # Clean tobas directory
 sudo rm /etc/tobas/config/*.json

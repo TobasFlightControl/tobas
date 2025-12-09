@@ -146,7 +146,7 @@ bool setShadowPassword(
   const Crypt& _crypt)
 {
   auto lines = readLines(_shadow_path);
-  if (lines.size() == 0) {
+  if (lines.empty()) {
     return false;
   }
 

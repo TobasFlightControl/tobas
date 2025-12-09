@@ -22,6 +22,7 @@ class ElectricRotorConfig : public RotorConfig
   static constexpr char kMinSpeed[] = "minimum_speed";
   static constexpr char kPropellerDiameterKey[] = "propeller_diameter";
   static constexpr char kMotorConstKey[] = "motor_constant";
+  static constexpr char kMomentConstKey[] = "moment_constant";
 
 public:
   using SharedPtr = std::shared_ptr<ElectricRotorConfig>;
@@ -34,11 +35,14 @@ public:
   double min_speed = 0.;            // モータの最小回転数 [rad/s]
   double propeller_diameter = 0.;   // プロペラの直径 [m]
   double motor_const = 0.;          // 推力係数 [kg*m/rad^2]
+  double moment_const = 0.;         // 反トルク係数 [m]
 
   bool isValid() const override;
 
   bool load(const YAML::Node& node) override;
   YAML::Node dump() const override;
+
+  inline double momentConst() const override;
 
   /* 回転数 [rad/s] から印加電圧 [V] を求める． */
   inline double voltageFromSpeed(double tar_speed) const;
@@ -61,6 +65,11 @@ public:
   /* 推力 [N] からスロットル [0,1] を求める． */
   inline double throttleFromThrust(double thrust, double battery_voltage) const;
 };
+
+inline double ElectricRotorConfig::momentConst() const
+{
+  return moment_const;
+}
 
 inline double ElectricRotorConfig::voltageFromSpeed(double tar_speed) const
 {

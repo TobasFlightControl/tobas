@@ -4,10 +4,8 @@
 
 #define TILT_JOINT "tilt_joint"
 #define CONTROL_SURFACE "control_surface"
-#define LANDING_GEAR "landing_gear"
-#define PASSIVE_WHEEL "passive_wheel"
-#define MANIPULATION "manipulation"
-#define OTHER "other"
+#define USER_ACTIVE "user_active"
+#define USER_PASSIVE "user_passive"
 
 using namespace std;
 
@@ -20,14 +18,10 @@ string textFromEnum(JointRole role)
       return TILT_JOINT;
     case JointRole::kControlSurface:
       return CONTROL_SURFACE;
-    case JointRole::kLandingGear:
-      return LANDING_GEAR;
-    case JointRole::kPassiveWheel:
-      return PASSIVE_WHEEL;
-    case JointRole::kManipulation:
-      return MANIPULATION;
-    case JointRole::kOther:
-      return OTHER;
+    case JointRole::kUserActive:
+      return USER_ACTIVE;
+    case JointRole::kUserPassive:
+      return USER_PASSIVE;
     default:
       throw;
   }
@@ -43,20 +37,12 @@ bool enumFromText(const string& text, JointRole& dst)
     dst = JointRole::kControlSurface;
     return true;
   }
-  else if (text == LANDING_GEAR) {
-    dst = JointRole::kLandingGear;
+  else if (text == USER_ACTIVE) {
+    dst = JointRole::kUserActive;
     return true;
   }
-  else if (text == PASSIVE_WHEEL) {
-    dst = JointRole::kPassiveWheel;
-    return true;
-  }
-  else if (text == MANIPULATION) {
-    dst = JointRole::kManipulation;
-    return true;
-  }
-  else if (text == OTHER) {
-    dst = JointRole::kOther;
+  else if (text == USER_PASSIVE) {
+    dst = JointRole::kUserPassive;
     return true;
   }
   else {
@@ -72,13 +58,9 @@ bool isServoJoint(JointRole role)
       return true;
     case JointRole::kControlSurface:
       return true;
-    case JointRole::kLandingGear:
+    case JointRole::kUserActive:
       return true;
-    case JointRole::kPassiveWheel:
-      return false;
-    case JointRole::kManipulation:
-      return true;
-    case JointRole::kOther:
+    case JointRole::kUserPassive:
       return false;
     default:
       throw;

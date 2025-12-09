@@ -2,6 +2,7 @@
 
 #include <QPushButton>
 #include <QTimer>
+#include <QVBoxLayout>
 #include <QWidget>
 
 #include <tobas_drone_core/drone.hpp>
@@ -24,8 +25,6 @@ class JointCommandsPublisherWidget : public QWidget
   using self = JointCommandsPublisherWidget;
   using super = QWidget;
 
-  static constexpr int kChannelSize = 8;  // TODO: ハードウェアの最大チャンネル数に合わせる
-  static constexpr int kMaxRows = kChannelSize / 2;
   static constexpr int kPublishPeriod = 10;        // [ms]
   static constexpr double kDefaultMaxVel = M_2PI;  // [rad/s]
   static constexpr double kDefaultMaxEff = 10.;    // [Nm]
@@ -38,7 +37,7 @@ public:
   void start();
   void stop();
 
-  int numRegisteredChannels() const;
+  size_t numRegisteredChannels() const;
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -47,11 +46,8 @@ private:
 
   kdl::TreeJointParser joint_parser_;
 
-  std::array<std::string, kChannelSize> jnt_names_;
-  std::array<tobas::JointCommandInterface, kChannelSize> cmd_iface_;
-  std::array<double, kChannelSize> home_pos_;
-  std::array<bool, kChannelSize> registered_;
-  std::array<qt::DoubleSliderDisplay*, kChannelSize> commanders_;
+  std::map<std::string, qt::DoubleSliderDisplay*> commanders_;
+  QVBoxLayout* rows_;
 
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> pos_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> vel_pub_;

@@ -1,5 +1,6 @@
 #include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
 
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include <tobas_gazebo_common/constants.hpp>
@@ -10,7 +11,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-#include "tobas_simulation_gui/constants.hpp"
+#include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
 namespace gui
 {
@@ -19,6 +20,9 @@ namespace sim
 WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
   const auto title = new qt::Label("Wind Parameters", cmn::kLabelPSize, QFont::Bold);
+
+  reset_button_ = new QPushButton("Reset");
+  reset_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
   mean_speed_ = new qt::DoubleSliderTextWidget(0., 20., 1);
   direction_ = new qt::IntSliderTextWidget(-180, 180);
@@ -29,6 +33,11 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   reset();
 
   // Layout
+  const auto header_cols = new QHBoxLayout();
+  header_cols->addWidget(title);
+  header_cols->addStretch();
+  header_cols->addWidget(reset_button_);
+
   const auto form = new qt::FormLayout();
   form->addVAlignedRow("Mean Speed [m/s]", mean_speed_);
   form->addVAlignedRow("Direction [deg]", direction_);
@@ -37,12 +46,13 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   form->addVAlignedRow("Gust Interval [s]", gust_interval_);
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(title);
+  rows->addLayout(header_cols);
   rows->addLayout(form);
 
   setLayout(rows);
 
   // Connection
+  connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);
   connect(mean_speed_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
   connect(direction_, &qt::IntSliderTextWidget::valueChanged, this, &self::onValueChanged);
   connect(gust_speed_factor_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
@@ -58,33 +68,95 @@ void WindParamsWidget::updateNamespace(const std::string& ns)
 
 bool WindParamsWidget::start()
 {
-  if (!get_sc_->waitForService(kWaitForService)) {
+  if (!get_sc_->waitForService()) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.");
     return false;
   }
-  if (!set_sc_->waitForService(kWaitForService)) {
+  if (!set_sc_->waitForService()) {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.");
     return false;
   }
 
-  // パラメータの初期値を設定
-  if (!loadCurrentParams()) {
+  // パラメータの初期値を読み込む
+  if (!loadSimParams()) {
     return false;
   }
+
+  // パラメータの初期値を保存
+  init_mean_speed_ = getMeanSpeed();
+  init_direction_ = getDirection();
+  init_gust_speed_factor_ = getGustSpeedFactor();
+  init_gust_duration_ = getGustDuration();
+  init_gust_interval_ = getGustInterval();
 
   return true;
 }
 
 void WindParamsWidget::reset()
 {
-  mean_speed_->set(0.);
-  direction_->set(0);
-  gust_speed_factor_->set(0.);
-  gust_duration_->set(0.);
-  gust_interval_->set(0.);
+  setMeanSpeed(0.);
+  setDirection(0.);
+  setGustSpeedFactor(0.);
+  setGustDuration(0.);
+  setGustInterval(0.);
 }
 
-bool WindParamsWidget::loadCurrentParams()
+double WindParamsWidget::getMeanSpeed() const
+{
+  return mean_speed_->get();
+}
+
+double WindParamsWidget::getDirection() const
+{
+  return tbs::deg2rad(direction_->get());
+}
+
+double WindParamsWidget::getGustSpeedFactor() const
+{
+  return gust_speed_factor_->get();
+}
+
+double WindParamsWidget::getGustDuration() const
+{
+  return gust_duration_->get();
+}
+
+double WindParamsWidget::getGustInterval() const
+{
+  return gust_interval_->get();
+}
+
+void WindParamsWidget::setMeanSpeed(double value)
+{
+  QSignalBlocker speed(mean_speed_);
+  mean_speed_->set(value);
+}
+
+void WindParamsWidget::setDirection(double value_rad)
+{
+  QSignalBlocker speed(direction_);
+  direction_->set(tbs::rad2deg(value_rad));
+}
+
+void WindParamsWidget::setGustSpeedFactor(double value)
+{
+  QSignalBlocker speed(gust_speed_factor_);
+  gust_speed_factor_->set(value);
+}
+
+void WindParamsWidget::setGustDuration(double value)
+{
+  QSignalBlocker speed(gust_duration_);
+  gust_duration_->set(value);
+}
+
+void WindParamsWidget::setGustInterval(double value)
+{
+  QSignalBlocker speed(gust_interval_);
+  gust_interval_->set(value);
+}
+
+bool WindParamsWidget::loadSimParams()
 {
   const auto get_req = std::make_shared<GetSrv::Request>();
 
@@ -96,36 +168,52 @@ bool WindParamsWidget::loadCurrentParams()
   const auto get_res = get_sc_->getResponse();
   const auto& cur_params = get_res->params;
 
-  mean_speed_->set(cur_params.mean_speed);
-  direction_->set(tobas_std::rad2deg(cur_params.direction));
-  gust_speed_factor_->set(cur_params.gust_speed_factor);
-  gust_duration_->set(cur_params.gust_duration);
-  gust_interval_->set(cur_params.gust_interval);
+  setMeanSpeed(cur_params.mean_speed);
+  setDirection(cur_params.direction);
+  setGustSpeedFactor(cur_params.gust_speed_factor);
+  setGustDuration(cur_params.gust_duration);
+  setGustInterval(cur_params.gust_interval);
 
   return true;
 }
 
-void WindParamsWidget::onValueChanged()
+bool WindParamsWidget::sendGuiParams()
 {
   const auto set_req = std::make_shared<SetSrv::Request>();
-  set_req->params.mean_speed = mean_speed_->get();
-  set_req->params.direction = tobas_std::deg2rad(direction_->get());
-  set_req->params.gust_speed_factor = gust_speed_factor_->get();
-  set_req->params.gust_duration = gust_duration_->get();
-  set_req->params.gust_interval = gust_interval_->get();
+  set_req->params.mean_speed = getMeanSpeed();
+  set_req->params.direction = getDirection();
+  set_req->params.gust_speed_factor = getGustSpeedFactor();
+  set_req->params.gust_duration = getGustDuration();
+  set_req->params.gust_interval = getGustInterval();
 
   if (!set_sc_->call(set_req, kServiceCallTimeout)) {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kSetWindParamsSrv) + "\" service.");
-    return;
+    return false;
   }
 
   const auto set_res = set_sc_->getResponse();
   if (!set_res->success) {
     qt::qErrorBox(this, "Failed to set wind parameters.");
-    if (!loadCurrentParams()) {
-      return;
-    }
+    return false;
   }
+
+  return true;
+}
+
+void WindParamsWidget::onResetButtonClicked()
+{
+  setMeanSpeed(init_mean_speed_);
+  setDirection(init_direction_);
+  setGustSpeedFactor(init_gust_speed_factor_);
+  setGustDuration(init_gust_duration_);
+  setGustInterval(init_gust_interval_);
+
+  sendGuiParams();
+}
+
+void WindParamsWidget::onValueChanged()
+{
+  sendGuiParams();
 }
 }  // namespace sim
 }  // namespace gui

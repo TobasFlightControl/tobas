@@ -24,7 +24,7 @@ class JointConfig
 
 public:
   std::string name = "";
-  JointRole role = JointRole::kOther;
+  JointRole role = JointRole::kUserPassive;
   JointCommandInterface cmd_iface = JointCommandInterface::kNone;
   HardwareInterface hw_iface = HardwareInterface::kOther;
   double home_pos = 0.;  // [rad | m]

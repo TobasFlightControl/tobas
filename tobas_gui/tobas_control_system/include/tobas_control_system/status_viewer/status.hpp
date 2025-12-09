@@ -24,6 +24,7 @@ public:
     PASSED = 0,
     FAILED = 1,
     IGNORED = 2,
+    UNKNOWN = 3,
   };
 
   explicit StatusWidget(const QString& text);

@@ -64,7 +64,7 @@ private:
   bool generateBackupFiles();
 
   bool generateDroneConfig();
-  bool generatePreArmCheckConfig();
+  bool generateHealthMonitorConfig();
   bool generateObserverStaticConfig();
   bool generateControllerStaticConfig();
   bool generateRcTeleopStaticConfig();

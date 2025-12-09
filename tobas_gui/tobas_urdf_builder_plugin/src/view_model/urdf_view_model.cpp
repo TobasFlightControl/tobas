@@ -163,10 +163,10 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
     const auto& parent_link = urdf_->links_.at(parent_link_name);
     auto& child_links = parent_link->child_links;
     auto& child_joints = parent_link->child_joints;
-    if (!tobas_std::contains(child_links, link_vm->model())) {
+    if (!tbs::contains(child_links, link_vm->model())) {
       child_links.push_back(link_vm->model());
     }
-    if (!tobas_std::contains(child_joints, joint_vm->model())) {
+    if (!tbs::contains(child_joints, joint_vm->model())) {
       child_joints.push_back(joint_vm->model());
     }
   }

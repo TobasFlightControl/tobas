@@ -10,7 +10,7 @@ ch::system_clock::time_point tmToTimePoint(tm tm)
   // UTCで表現されたtmをtime_tに変換
   // https://dev.activebasic.com/egtra/2017/01/03/941/
   const auto tt = timegm(&tm);
-  if (tt == -1) {
+  if (tt < 0) {
     throw runtime_error("Failed to convert tm to time_t.");
   }
 

@@ -7,9 +7,9 @@
 namespace YAML
 {
 template <typename T>
-struct convert<tobas_std::Range<T>>
+struct convert<tbs::Range<T>>
 {
-  static Node encode(const tobas_std::Range<T>& rhs)
+  static Node encode(const tbs::Range<T>& rhs)
   {
     Node node(NodeType::Sequence);
 
@@ -19,7 +19,7 @@ struct convert<tobas_std::Range<T>>
     return node;
   }
 
-  static bool decode(const Node& node, tobas_std::Range<T>& rhs)
+  static bool decode(const Node& node, tbs::Range<T>& rhs)
   {
     if (!node.IsSequence()) {
       return false;

@@ -131,7 +131,7 @@ void RotorTestWidget::updateInternalDataStructures()
       const auto text = "CH" + QString::number(erotor->channel) + ": " + QString::fromStdString(link_name);
       rotor_widgets_.at(erotor->channel)->setText(text);
 
-      const auto max_rpm = tobas_std::rps2rpm(drone_.prop->maxSpeed(link_name));
+      const auto max_rpm = tbs::rps2rpm(drone_.prop->maxSpeed(link_name));
       rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
     }
 
@@ -156,41 +156,9 @@ void RotorTestWidget::updateInternalDataStructures()
   }
 }
 
-void RotorTestWidget::start()
-{
-  // 現在のゲインを反映
-  if (!loadCurrentGains()) {
-    return;
-  }
-
-  // モータウィジェットを有効化
-  for (const auto& [link_name, _] : eprop_->rotors) {
-    const auto erotor = eprop_->getRotor(link_name);
-    rotor_widgets_.at(erotor->channel)->setEnabled(true);
-  }
-
-  // 一時的にロータ状態を購読
-  rotor_states_conn_ =
-    connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
-
-  // 一定周期でコマンドを発行
-  update_timer_.start(kUpdatePeriod);
-
-  start_button_->setEnabled(false);
-  stop_button_->setEnabled(true);
-  save_button_->setEnabled(true);
-
-  running_ = true;
-}
-
-void RotorTestWidget::stop()
-{
-  reset();
-}
-
 int RotorTestWidget::numRegisteredChannels() const
 {
-  return tobas_std::count(registered_, true);
+  return tbs::count(registered_, true);
 }
 
 void RotorTestWidget::publishTargetSppeds()
@@ -200,14 +168,14 @@ void RotorTestWidget::publishTargetSppeds()
   }
 
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
-  tar_speeds->header.stamp = node_->get_clock()->now();
+  tar_speeds->header.stamp = node_->now();
 
   for (const auto& [link_name, _] : drone_.prop->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
 
     tar_speeds->speeds.emplace_back();
     tar_speeds->speeds.back().link_name = link_name;
-    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotor_widgets_.at(erotor->channel)->getTargetRPM());
+    tar_speeds->speeds.back().speed = tbs::rpm2rps(rotor_widgets_.at(erotor->channel)->getTargetRPM());
   }
 
   tar_speeds_pub_->publish(std::move(tar_speeds));
@@ -245,7 +213,29 @@ void RotorTestWidget::onStartButtonClicked()
     return;
   }
 
-  start();
+  // 現在のゲインを反映
+  if (!loadCurrentGains()) {
+    return;
+  }
+
+  // モータウィジェットを有効化
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    rotor_widgets_.at(erotor->channel)->setEnabled(true);
+  }
+
+  // 一時的にロータ状態を購読
+  rotor_states_conn_ =
+    connect(&bridge_, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
+
+  // 一定周期でコマンドを発行
+  update_timer_.start(kUpdatePeriod);
+
+  start_button_->setEnabled(false);
+  stop_button_->setEnabled(true);
+  save_button_->setEnabled(true);
+
+  running_ = true;
 
   qt::qInfoBox(this, "Rotor test is started.");
 }
@@ -254,7 +244,7 @@ void RotorTestWidget::onStopButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "RotorTestWidget::onStopButtonClicked");
 
-  stop();
+  reset();
 
   qt::qInfoBox(this, "Rotor test is finished.");
 }
@@ -320,7 +310,7 @@ void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::Cons
     }
 
     const auto erotor = eprop_->getRotor(elem.link_name);
-    rotor_widgets_.at(erotor->channel)->setCurrentRPM(tobas_std::rps2rpm(elem.speed));
+    rotor_widgets_.at(erotor->channel)->setCurrentRPM(tbs::rps2rpm(elem.speed));
   }
 }
 
@@ -328,7 +318,7 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& ar
 {
   // テスト実行中にアームされたら，強制的にテストを終了する
   if (running_ && arming->data) {
-    stop();
+    reset();
     qt::qWarnBox(this, "Rotor test was terminated because an arming command was issued.");
   }
 

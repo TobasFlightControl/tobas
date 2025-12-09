@@ -8,7 +8,7 @@ FixedJointModel::FixedJointModel(const std::string& name, size_t joint_index, si
   type_ = FIXED;
 }
 
-unsigned int FixedJointModel::getStateSpaceDimension() const
+uint32_t FixedJointModel::getStateSpaceDimension() const
 {
   return 0;
 }

@@ -9,12 +9,10 @@ namespace yaml
 {
 std::string dump(const YAML::Node& node)
 {
-  YAML::Emitter emitter;
+  std::ostringstream res;
+  YAML::Emitter emitter(res);
   emitter << node;
-
-  std::stringstream res;
-  res << emitter.c_str() << std::endl;
-
+  res << std::endl;
   return res.str();
 }
 

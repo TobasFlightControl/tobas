@@ -4,50 +4,50 @@
 
 namespace kdl
 {
-void vectorNedToNwu(const Vector& src, Vector& des)
+void vectorFrdToFlu(const Vector& src, Vector& des)
 {
   des.x(src.x());
   des.y(-src.y());
   des.z(-src.z());
 }
 
-void vectorNwuToNed(const Vector& src, Vector& des)
+void vectorFluToFrd(const Vector& src, Vector& des)
 {
-  vectorNedToNwu(src, des);
+  vectorFrdToFlu(src, des);
 }
 
-void vectorNedToNwu(Vector& arg)
+void vectorFrdToFlu(Vector& arg)
 {
-  vectorNedToNwu(arg, arg);
+  vectorFrdToFlu(arg, arg);
 }
 
-void vectorNwuToNed(Vector& arg)
+void vectorFluToFrd(Vector& arg)
 {
-  vectorNwuToNed(arg, arg);
+  vectorFluToFrd(arg, arg);
 }
 
-void twistNedToNwu(const Twist& src, Twist& des)
+void twistFrdToFlu(const Twist& src, Twist& des)
 {
-  vectorNedToNwu(src.vel, des.vel);
-  vectorNedToNwu(src.rot, des.rot);
+  vectorFrdToFlu(src.vel, des.vel);
+  vectorFrdToFlu(src.rot, des.rot);
 }
 
-void twistNwuToNed(const Twist& src, Twist& des)
+void twistFluToFrd(const Twist& src, Twist& des)
 {
-  twistNedToNwu(src, des);
+  twistFrdToFlu(src, des);
 }
 
-void twistNedToNwu(Twist& arg)
+void twistFrdToFlu(Twist& arg)
 {
-  twistNedToNwu(arg, arg);
+  twistFrdToFlu(arg, arg);
 }
 
-void twistNwuToNed(Twist& arg)
+void twistFluToFrd(Twist& arg)
 {
-  twistNwuToNed(arg, arg);
+  twistFluToFrd(arg, arg);
 }
 
-void rotInertiaNedToNwu(const RotationalInertia& src, RotationalInertia& des)
+void rotInertiaFrdToFlu(const RotationalInertia& src, RotationalInertia& des)
 {
   des.data(0, 0) = src.data(0, 0);   // xx
   des.data(0, 1) = -src.data(0, 1);  // xy
@@ -60,44 +60,44 @@ void rotInertiaNedToNwu(const RotationalInertia& src, RotationalInertia& des)
   des.data(2, 2) = src.data(2, 2);   // zz
 }
 
-void rotInertiaNwuToNed(const RotationalInertia& src, RotationalInertia& des)
+void rotInertiaFluToFrd(const RotationalInertia& src, RotationalInertia& des)
 {
-  rotInertiaNedToNwu(src, des);
+  rotInertiaFrdToFlu(src, des);
 }
 
-void rotInertiaNedToNwu(RotationalInertia& arg)
+void rotInertiaFrdToFlu(RotationalInertia& arg)
 {
-  rotInertiaNedToNwu(arg, arg);
+  rotInertiaFrdToFlu(arg, arg);
 }
 
-void rotInertiaNwuToNed(RotationalInertia& arg)
+void rotInertiaFluToFrd(RotationalInertia& arg)
 {
-  rotInertiaNwuToNed(arg, arg);
+  rotInertiaFluToFrd(arg, arg);
 }
 
-void eulerNedToNwu(const Euler& src, Euler& des)
+void eulerFrdToFlu(const Euler& src, Euler& des)
 {
   des.roll = src.roll;
   des.pitch = -src.pitch;
   des.yaw = -src.yaw;
 }
 
-void eulerNwuToNed(const Euler& src, Euler& des)
+void eulerFluToFrd(const Euler& src, Euler& des)
 {
-  eulerNedToNwu(src, des);
+  eulerFrdToFlu(src, des);
 }
 
-void eulerNedToNwu(Euler& arg)
+void eulerFrdToFlu(Euler& arg)
 {
-  eulerNedToNwu(arg, arg);
+  eulerFrdToFlu(arg, arg);
 }
 
-void eulerNwuToNed(Euler& arg)
+void eulerFluToFrd(Euler& arg)
 {
-  eulerNwuToNed(arg, arg);
+  eulerFluToFrd(arg, arg);
 }
 
-void rotationNedToNwu(const kdl::Rotation& src, kdl::Rotation& des)
+void rotationFrdToFlu(const kdl::Rotation& src, kdl::Rotation& des)
 {
   des.data(0, 0) = src.data(0, 0);   // xx
   des.data(0, 1) = -src.data(0, 1);  // xy
@@ -110,39 +110,39 @@ void rotationNedToNwu(const kdl::Rotation& src, kdl::Rotation& des)
   des.data(2, 2) = src.data(2, 2);   // zz
 }
 
-void rotationNwuToNed(const kdl::Rotation& src, kdl::Rotation& des)
+void rotationFluToFrd(const kdl::Rotation& src, kdl::Rotation& des)
 {
-  rotationNedToNwu(src, des);
+  rotationFrdToFlu(src, des);
 }
 
-void rotationNedToNwu(kdl::Rotation& arg)
+void rotationFrdToFlu(kdl::Rotation& arg)
 {
-  rotationNedToNwu(arg, arg);
+  rotationFrdToFlu(arg, arg);
 }
 
-void rotationNwuToNed(kdl::Rotation& arg)
+void rotationFluToFrd(kdl::Rotation& arg)
 {
-  rotationNwuToNed(arg, arg);
+  rotationFluToFrd(arg, arg);
 }
 
-void frameNedToNwu(const kdl::Frame& src, kdl::Frame& des)
+void frameFrdToFlu(const kdl::Frame& src, kdl::Frame& des)
 {
-  vectorNedToNwu(src.p, des.p);
-  rotationNedToNwu(src.M, des.M);
+  vectorFrdToFlu(src.p, des.p);
+  rotationFrdToFlu(src.M, des.M);
 }
 
-void frameNwuToNed(const kdl::Frame& src, kdl::Frame& des)
+void frameFluToFrd(const kdl::Frame& src, kdl::Frame& des)
 {
-  frameNedToNwu(src, des);
+  frameFrdToFlu(src, des);
 }
 
-void frameNedToNwu(kdl::Frame& arg)
+void frameFrdToFlu(kdl::Frame& arg)
 {
-  frameNedToNwu(arg, arg);
+  frameFrdToFlu(arg, arg);
 }
 
-void frameNwuToNed(kdl::Frame& arg)
+void frameFluToFrd(kdl::Frame& arg)
 {
-  frameNwuToNed(arg, arg);
+  frameFluToFrd(arg, arg);
 }
 }  // namespace kdl

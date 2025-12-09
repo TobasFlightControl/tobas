@@ -172,13 +172,13 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
   }
 
   // Publish messages
-  if (pwms->pwms.size() > 0) {
+  if (!pwms->pwms.empty()) {
     pwms->header.stamp = positions->header.stamp;
-    pwms_pub_->publish(move(pwms));
+    pwms_pub_->publish(std::move(pwms));
   }
-  if (joint_states->states.size() > 0) {
+  if (!joint_states->states.empty()) {
     joint_states->header.stamp = positions->header.stamp;
-    joint_states_pub_->publish(move(joint_states));
+    joint_states_pub_->publish(std::move(joint_states));
   }
 
   // Reset timeout timer
@@ -255,13 +255,13 @@ void JointsHandlerNode::positionResetTimerCb()
   }
 
   // Publish messages
-  if (pwms->pwms.size() > 0) {
-    pwms->header.stamp = get_clock()->now();
-    pwms_pub_->publish(move(pwms));
+  if (!pwms->pwms.empty()) {
+    pwms->header.stamp = now();
+    pwms_pub_->publish(std::move(pwms));
   }
-  if (joint_states->states.size() > 0) {
-    joint_states->header.stamp = get_clock()->now();
-    joint_states_pub_->publish(move(joint_states));
+  if (!joint_states->states.empty()) {
+    joint_states->header.stamp = now();
+    joint_states_pub_->publish(std::move(joint_states));
   }
 
   // Warn if commanded positions are reset

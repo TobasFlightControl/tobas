@@ -174,7 +174,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
 
   // LSB -> mg -> g -> m/s^2 (Linear acceleration sensitivity | 4.1 Mechanical characteristics)
   acc_scale_ *= 1e-3;
-  acc_scale_ *= tobas_std::kGravity;
+  acc_scale_ *= tbs::kGravity;
 
   return true;
 }
@@ -220,7 +220,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
 
   // mdps -> dps -> rad/s (Angular rate sensitivity | 4.1 Mechanical characteristics)
   gyro_scale_ *= 1e-3;
-  gyro_scale_ *= tobas_std::kDeg2Rad;
+  gyro_scale_ *= tbs::kDeg2Rad;
 
   return true;
 }
