@@ -105,6 +105,8 @@ private:
   Vector3d imu_offset_;   // [m] ルートリンクに対するIMUの位置 (Local)
   Vector3d baro_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
   Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
+  Vector3d slam_origin_offset_; // [m] ルートリンクに対するSLAM原点の位置（Local）
+  Quaterniond slam_origin_rotation_; // ルートリンクに対するSLAM原点座標系の回転（Local）
 
   // Dynamic parameters
   Matrix3d fixed_acc_cov_ = Matrix3d::Identity();       // [m^2/s^4]
@@ -293,9 +295,13 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
   const auto imu_offset = getDoubleArrayParam("imu_offset", std::vector<double>(3, 0.));
   const auto baro_offset = getDoubleArrayParam("barometer_offset", std::vector<double>(3, 0.));
   const auto gnss_offset = getDoubleArrayParam("gnss_offset", std::vector<double>(3, 0.));
+  const auto slam_origin_offset = getDoubleArrayParam("slam_origin_offset", std::vector<double>(3, 0.));
+  const auto slam_origin_rotation_deg = getDoubleArrayParam("slam_origin_rotation_deg", std::vector<double>(3, 0.)); // roll, pitch, yaw (degree)
   imu_offset_ = Map<const Vector3d>(imu_offset.data());
   baro_offset_ = Map<const Vector3d>(baro_offset.data());
   gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
+  slam_origin_offset_ = Map<const Vector3d>(slam_origin_offset.data());
+  slam_origin_rotation_ = eigen::quaternionFromRPY(slam_origin_rotation_deg.at(0) * tbs::kDeg2Rad, slam_origin_rotation_deg.at(1) * tbs::kDeg2Rad, slam_origin_rotation_deg.at(2) * tbs::kDeg2Rad);
 }
 
 bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
@@ -829,6 +835,25 @@ void ErrorStateKalmanFilterNode::poseCb(const PoseMsg::ConstSharedPtr& msg)
 
   const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
   eskf_.measurePose(pose.p.data, quat, msg->frame.covariance, Vector3d::Zero(), stamp);  // TODO: オフセット指定
+}
+
+void ErrorStateKalmanFilterNode::slamOdomCb(const OdomMsg::ConstSharedPtr& slam_odom)
+{
+  if (pos_src_ != PositionSource::kSlam) {
+    return;
+  }
+
+  if (!imu_raw_ || !imu_filt_) {
+    return;
+  }
+
+  const auto slam_origin_rotation_matrix = slam_origin_rotation_.toRotationMatrix();
+  const auto pos_meas = slam_origin_rotation_matrix * slam_odom->frame.p.data;
+  const auto pos_cov = slam_origin_rotation_matrix * slam_odom->position_covariance * slam_origin_rotation_matrix.transpose();
+
+  const Vector3d imu2slam_origin = slam_origin_offset_ - imu_offset_;
+  const auto stamp = ros2::chronoFromRosTime(slam_odom->header.stamp);
+  eskf_.measurePosition(pos_meas, pos_cov, imu2slam_origin, stamp);
 }
 
 void ErrorStateKalmanFilterNode::getGnssOriginCb(
