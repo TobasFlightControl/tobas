@@ -77,4 +77,12 @@ std::string BaseNode::createID(const char* file, int line)
 {
   return std::string(file) + ":" + std::to_string(line);
 }
+
+sdf::ElementConstPtr BaseNode::getSdfChild(const sdf::ElementConstPtr& sdf, const std::string& name) const
+{
+  if (!sdf->HasElement(name)) {
+    TOBAS_EXIT("Please specify \"", name, "\".");
+  }
+  return sdf->FindElement(name);
+}
 }  // namespace gazebo

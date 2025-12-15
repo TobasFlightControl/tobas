@@ -36,6 +36,7 @@ static constexpr char kImuFiltTopic[] = "imu_filtered";
 static constexpr char kMagTopic[] = "magnetic_field";
 static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kGnssTopic[] = "gnss";
+static constexpr char kPointCloud2Topic[] = "point_cloud2";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
 static constexpr char kRotorLivTopic[] = "rotor_liveliness";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
