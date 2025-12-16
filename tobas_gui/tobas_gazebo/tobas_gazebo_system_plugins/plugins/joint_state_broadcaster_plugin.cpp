@@ -25,6 +25,7 @@ class GazeboJointStateBroadcasterPlugin : public BaseNode,
 
 public:
   explicit GazeboJointStateBroadcasterPlugin();
+  ~GazeboJointStateBroadcasterPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -55,6 +56,12 @@ private:
 
 GazeboJointStateBroadcasterPlugin::GazeboJointStateBroadcasterPlugin()
 {
+}
+
+GazeboJointStateBroadcasterPlugin::~GazeboJointStateBroadcasterPlugin()
+{
+  this->executor_->cancel();
+  this->spin_thread_.join();
 }
 
 void GazeboJointStateBroadcasterPlugin::Configure(

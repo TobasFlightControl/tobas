@@ -50,6 +50,7 @@ class GazeboFixedWingPlugin : public BaseNode,
 
 public:
   explicit GazeboFixedWingPlugin();
+  ~GazeboFixedWingPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -114,6 +115,12 @@ private:
 
 GazeboFixedWingPlugin::GazeboFixedWingPlugin()
 {
+}
+
+GazeboFixedWingPlugin::~GazeboFixedWingPlugin()
+{
+  this->executor_->cancel();
+  this->spin_thread_.join();
 }
 
 void GazeboFixedWingPlugin::Configure(

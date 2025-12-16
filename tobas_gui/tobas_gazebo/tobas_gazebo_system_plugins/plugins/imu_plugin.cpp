@@ -52,6 +52,7 @@ class GazeboImuPlugin : public BaseNode,
 
 public:
   explicit GazeboImuPlugin();
+  ~GazeboImuPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -119,6 +120,12 @@ GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0., 1.)
   acc_lpf_.setValue(gz::math::Vector3d::Zero);
   gyro_lpf_.setValue(gz::math::Vector3d::Zero);
   dgyro_lpf_.setValue(gz::math::Vector3d::Zero);
+}
+
+GazeboImuPlugin::~GazeboImuPlugin()
+{
+  this->executor_->cancel();
+  this->spin_thread_.join();
 }
 
 void GazeboImuPlugin::Configure(

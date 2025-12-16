@@ -21,6 +21,7 @@ class GazeboLookAtPositionPlugin : public BaseNode,
 
 public:
   explicit GazeboLookAtPositionPlugin();
+  ~GazeboLookAtPositionPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -45,6 +46,12 @@ private:
 
 GazeboLookAtPositionPlugin::GazeboLookAtPositionPlugin()
 {
+}
+
+GazeboLookAtPositionPlugin::~GazeboLookAtPositionPlugin()
+{
+  this->executor_->cancel();
+  this->spin_thread_.join();
 }
 
 void GazeboLookAtPositionPlugin::Configure(

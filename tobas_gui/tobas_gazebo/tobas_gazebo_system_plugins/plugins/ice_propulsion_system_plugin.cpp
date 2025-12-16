@@ -43,6 +43,7 @@ class GazeboIcePropulsionSystemPlugin : public BaseNode,
 
 public:
   explicit GazeboIcePropulsionSystemPlugin();
+  ~GazeboIcePropulsionSystemPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -85,6 +86,12 @@ private:
 
 GazeboIcePropulsionSystemPlugin::GazeboIcePropulsionSystemPlugin() : engine_(rotors_)
 {
+}
+
+GazeboIcePropulsionSystemPlugin::~GazeboIcePropulsionSystemPlugin()
+{
+  this->executor_->cancel();
+  this->spin_thread_.join();
 }
 
 void GazeboIcePropulsionSystemPlugin::Configure(

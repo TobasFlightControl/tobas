@@ -43,6 +43,7 @@ class GazeboWindPlugin : public BaseNode,
 
 public:
   explicit GazeboWindPlugin();
+  ~GazeboWindPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -84,6 +85,12 @@ private:
 
 GazeboWindPlugin::GazeboWindPlugin()
 {
+}
+
+GazeboWindPlugin::~GazeboWindPlugin()
+{
+  this->executor_->cancel();
+  this->spin_thread_.join();
 }
 
 void GazeboWindPlugin::Configure(
