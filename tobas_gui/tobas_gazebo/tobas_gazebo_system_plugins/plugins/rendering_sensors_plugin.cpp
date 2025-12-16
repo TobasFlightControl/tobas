@@ -38,7 +38,6 @@
 #include <gz/math/Helpers.hh>
 
 #include <gz/rendering/Scene.hh>
-#include <gz/sensors/Util.hh>
 #include <gz/sensors/BoundingBoxCameraSensor.hh>
 #include <gz/sensors/CameraSensor.hh>
 #include <gz/sensors/DepthCameraSensor.hh>
@@ -1213,7 +1212,6 @@ void RenderingSensorsPrivate::UpdateBatteryState(const EntityComponentManager &_
 std::string RenderingSensors::CreateSensor(const Entity &_entity,
     const sdf::Sensor &_sdf, const std::string &_parentName)
 {
-  gzdbg << "in create sensor" << std::endl;
   if (_sdf.Type() == sdf::SensorType::NONE)
   {
     gzerr << "Unable to create sensor. SDF sensor type is NONE." << std::endl;
@@ -1262,7 +1260,7 @@ std::string RenderingSensors::CreateSensor(const Entity &_entity,
     sensor = this->dataPtr->sensorManager.CreateSensor<
       sensors::WideAngleCameraSensor>(_sdf);
   }
-  else if (_sdf.Type() == sdf::SensorType::CUSTOM && gz::sensors::customType(_sdf) == "livox_lidar_sensor")
+  else if (_sdf.Type() == sdf::SensorType::CUSTOM)
   {
     sensor = this->dataPtr->sensorManager.CreateSensor<
       LivoxLidarSensor>(_sdf);
