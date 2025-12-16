@@ -13,7 +13,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
     std_srvs
-    sensor_msgs
     tobas_dsp
     tobas_geomag
     tobas_nlp
@@ -31,13 +30,8 @@ set(AMENT_DEPENDENCIES
 find_package(ament_cmake REQUIRED)
 find_package(gz_sim_vendor REQUIRED)
 find_package(gz-sim REQUIRED)
-find_package(gz-sim8-rendering REQUIRED)
 find_package(gz_plugin_vendor REQUIRED)
 find_package(gz-plugin REQUIRED)
-find_package(gz_sensors_vendor REQUIRED)
-find_package(gz-sensors REQUIRED)
-find_package(gz_rendering_vendor REQUIRED)
-find_package(gz-rendering REQUIRED)
 
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
@@ -49,7 +43,7 @@ include_directories(include ${OpenCV_INCLUDE_DIRS})
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register gz-sensors::gz-sensors gz-sensors::rendering gz-rendering::gz-rendering)
+target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
 
 # Build each plugin
 file(GLOB_RECURSE PLUGIN_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
@@ -59,22 +53,6 @@ foreach(file_path IN LISTS PLUGIN_TARGETS)
   set(PLUGIN_NAME tobas_gazebo_${FILE_NAME})
   add_library(${PLUGIN_NAME} SHARED ${file_path})
   target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME})
-  if (${FILE_NAME} STREQUAL "rendering_sensors_plugin")
-    target_link_libraries(${PLUGIN_NAME}
-    gz-sensors::gz-sensors
-    gz-rendering::gz-rendering
-    gz-sim8::gz-sim8-rendering
-    gz-sensors::boundingbox_camera
-    gz-sensors::camera
-    gz-sensors::depth_camera
-    gz-sensors::gpu_lidar
-    gz-sensors::gz-sensors
-    gz-sensors::lidar
-    gz-sensors::rgbd_camera
-    gz-sensors::segmentation_camera
-    gz-sensors::thermal_camera
-    gz-sensors::wide_angle_camera)
-  endif()
   target_link_options(${PLUGIN_NAME} PRIVATE -Wl,--no-undefined)
   list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
 endforeach()
