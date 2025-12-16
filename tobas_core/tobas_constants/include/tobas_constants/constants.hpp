@@ -41,6 +41,7 @@ static constexpr char kRotorLivTopic[] = "rotor_liveliness";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kExternalPoseTopic[] = "external_pose";
+static constexpr char kPointCloud2Topic[] = "point_cloud2";
 static constexpr char kMagRefTopic[] = "magnetic_field_ref";
 static constexpr char kGnssOriginTopic[] = "gnss_origin";
 static constexpr char kImuSamplingTimeTopic[] = "imu_sampling_time";
