@@ -106,8 +106,11 @@ void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
       sampling_interval_++;
     }
     point_step_ = msg.point_step();
-    setupPointCloudMsg(msg);
     initialized_ = true;
+  }
+
+  if (!point_cloud_msg_) {
+    setupPointCloudMsg(msg);
   }
 
   // まんべんなくsamplingする
@@ -117,19 +120,21 @@ void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
       &point_cloud_msg_->data[livox_lidar_data_index * point_step_],
       &msg.data().c_str()[sampling_index_ * point_step_],
       point_step_);
+
+    // update index where the gpu_ray data will be packed
+    sampling_index_ += sampling_interval_;
+    if (sampling_index_ >= gpu_ray_samples_) {
+      sampling_index_ -= gpu_ray_samples_;
+    }
+
     // update index where the livox_lidar data will be packed
     livox_lidar_data_index += 1;
     if (livox_lidar_data_index >= static_cast<uint>(params_.samples)) {  // sampling completed
       point_cloud_msg_->header.stamp.sec = msg.header().stamp().sec();
       point_cloud_msg_->header.stamp.nanosec = msg.header().stamp().nsec();
       livox_lidar_publisher_->publish(std::move(point_cloud_msg_));
-      setupPointCloudMsg(msg);
       livox_lidar_data_index = 0;
-    }
-    // update index where the gpu_ray data will be packed
-    sampling_index_ += sampling_interval_;
-    if (sampling_index_ >= gpu_ray_samples_) {
-      sampling_index_ -= gpu_ray_samples_;
+      return;
     }
   }
 }
