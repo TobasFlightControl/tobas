@@ -5,16 +5,13 @@
 #include <tobas_ros2_tools/time.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
-#include "tobas_gazebo_system_plugins/rate_manager.hpp"
 
 namespace gazebo
 {
 /* gazeboのgpu lidarをros2でlivox lidarっぽく使用できるようにbridgeする．
    gpu_lidar sensorとgz-sim-sensors-system pluginにより発出されるgz::msgs::PointCloudPacked型のmessageをsubscribeして，
    ros2のsensor_msgs::msg::PointCloud2型のmessageとして再publishする．*/
-class LivoxLidarPlugin : public BaseNode,
-                         public gz::sim::System,
-                         public gz::sim::ISystemConfigure
+class LivoxLidarPlugin : public BaseNode, public gz::sim::System, public gz::sim::ISystemConfigure
 {
 public:
   explicit LivoxLidarPlugin();
@@ -49,8 +46,6 @@ private:
   // livox lidarのデータのどのindexのところにデータをつめるか
   uint livox_lidar_data_index = 0;
 
-  RateManager::SharedPtr rate_manager_;
-
   // gazebo interfaces
   gz::transport::Node node_;
 
@@ -84,8 +79,6 @@ void LivoxLidarPlugin::Configure(
 
   node_.Subscribe(params_.gpu_ray_topic, &LivoxLidarPlugin::gpuRayCb, this);
 
-  rate_manager_ = std::make_shared<RateManager>(params_.update_rate);
-
   livox_lidar_publisher_ = createPublisher<sensor_msgs::msg::PointCloud2>(tobas::kPointCloud2Topic);
 }
 
@@ -104,10 +97,12 @@ void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
     // compute useful parameters
     gpu_ray_samples_ = msg.height() * msg.width();
     sampling_interval_ = gpu_ray_samples_ / params_.samples;
-    if (sampling_interval_ == 0) { // samplesが大きすぎるとsampling_interval_ = 0となり破綻する
+    // samplesが大きすぎるとsampling_interval_ = 0となり破綻する
+    if (sampling_interval_ == 0) {
       sampling_interval_ = 1;
     }
-    while (gpu_ray_samples_ % sampling_interval_ == 0) { // きちっと割り切れてしまうと一部の点しかsamplingされなくなってしまうので，割り切れなくなるまで上げる
+    // きちっと割り切れてしまうと一部の点しかsamplingされなくなってしまうので，割り切れなくなるまで上げる
+    while (gpu_ray_samples_ % sampling_interval_ == 0) {
       sampling_interval_++;
     }
     point_step_ = msg.point_step();
@@ -118,10 +113,13 @@ void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
   // まんべんなくsamplingする
   for (int i = 0; i < params_.samples / sampling_times_; i++) {
     // copy data
-    memcpy(&point_cloud_msg_->data[livox_lidar_data_index * point_step_], &msg.data().c_str()[sampling_index_ * point_step_], point_step_);
+    memcpy(
+      &point_cloud_msg_->data[livox_lidar_data_index * point_step_],
+      &msg.data().c_str()[sampling_index_ * point_step_],
+      point_step_);
     // update index where the livox_lidar data will be packed
     livox_lidar_data_index += 1;
-    if (livox_lidar_data_index >= static_cast<uint>(params_.samples)) { // sampling completed
+    if (livox_lidar_data_index >= static_cast<uint>(params_.samples)) {  // sampling completed
       point_cloud_msg_->header.stamp.sec = msg.header().stamp().sec();
       point_cloud_msg_->header.stamp.nanosec = msg.header().stamp().nsec();
       livox_lidar_publisher_->publish(std::move(point_cloud_msg_));
@@ -188,7 +186,4 @@ void LivoxLidarPlugin::setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg)
 
 }  // namespace gazebo
 
-GZ_ADD_PLUGIN(
-  gazebo::LivoxLidarPlugin,
-  gz::sim::System,
-  gazebo::LivoxLidarPlugin::ISystemConfigure)
+GZ_ADD_PLUGIN(gazebo::LivoxLidarPlugin, gz::sim::System, gazebo::LivoxLidarPlugin::ISystemConfigure)
