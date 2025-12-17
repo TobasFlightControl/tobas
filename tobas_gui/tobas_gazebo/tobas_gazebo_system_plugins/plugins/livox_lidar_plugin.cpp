@@ -14,8 +14,7 @@ namespace gazebo
    ros2のsensor_msgs::msg::PointCloud2型のmessageとして再publishする．*/
 class LivoxLidarPlugin : public BaseNode,
                          public gz::sim::System,
-                         public gz::sim::ISystemConfigure,
-                         public gz::sim::ISystemPostUpdate
+                         public gz::sim::ISystemConfigure
 {
 public:
   explicit LivoxLidarPlugin();
@@ -27,14 +26,28 @@ public:
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager& event_mgr) override;
 
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
-
 private:
   struct Params
   {
     std::string gpu_ray_topic;
+    int gpu_ray_update_rate;
     int update_rate;
+    int samples;
   } params_;
+
+  // 1回publishするまでに何回gpu_rayをsamplingするか
+  int sampling_times_;
+  // gpu_rayから取得したどの点をsamplingするか
+  uint sampling_index_ = 0;
+  bool initialized_ = false;
+  // messageに入っている1つの点の情報にどれくらいのサイズが使われているか
+  uint point_step_;
+  // samplingする間隔
+  uint sampling_interval_;
+  // gpu_rayから送られてくるデータに何点sampleが入っているか
+  uint gpu_ray_samples_;
+  // livox lidarのデータのどのindexのところにデータをつめるか
+  uint livox_lidar_data_index = 0;
 
   RateManager::SharedPtr rate_manager_;
 
@@ -43,9 +56,11 @@ private:
 
   // ros2 interfaces
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud2> livox_lidar_publisher_;
+  sensor_msgs::msg::PointCloud2::UniquePtr point_cloud_msg_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void gpuRayCb(const gz::msgs::PointCloudPacked& msg);
+  void setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg);
 };
 
 LivoxLidarPlugin::LivoxLidarPlugin()
@@ -74,29 +89,101 @@ void LivoxLidarPlugin::Configure(
   livox_lidar_publisher_ = createPublisher<sensor_msgs::msg::PointCloud2>(tobas::kPointCloud2Topic);
 }
 
-void LivoxLidarPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
-{
-  if (!rate_manager_->update(info.simTime)) {
-    return;
-  }
-
-  // gzdbg << "before creating message " <<std::endl;
-  // auto point_cloud_msg = std::unique_ptr<sensor_msgs::msg::PointCloud2>();
-  // ros2::timeChronoToMsg(info.simTime, point_cloud_msg->header.stamp);
-  // livox_lidar_publisher_->publish(std::move(point_cloud_msg));
-  // gzdbg << "after publishing " <<std::endl;
-}
-
 void LivoxLidarPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "gpuRayTopic", params_.gpu_ray_topic);
+  getSdfParam(sdf, "gpuRayUpdateRate", params_.gpu_ray_update_rate);
   getSdfParam(sdf, "updateRate", params_.update_rate);
+  getSdfParam(sdf, "samples", params_.samples);
+  sampling_times_ = params_.gpu_ray_update_rate / params_.update_rate;
 }
 
 void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
 {
-  std::cout << "width : " << msg.width() << std::endl;
-  std::cout << "time : " << msg.header().stamp().sec() << ", " << msg.header().stamp().nsec() << std::endl;
+  if (!initialized_) {
+    // compute useful parameters
+    gpu_ray_samples_ = msg.height() * msg.width();
+    sampling_interval_ = gpu_ray_samples_ / params_.samples;
+    if (sampling_interval_ == 0) { // samplesが大きすぎるとsampling_interval_ = 0となり破綻する
+      sampling_interval_ = 1;
+    }
+    while (gpu_ray_samples_ % sampling_interval_ == 0) { // きちっと割り切れてしまうと一部の点しかsamplingされなくなってしまうので，割り切れなくなるまで上げる
+      sampling_interval_++;
+    }
+    point_step_ = msg.point_step();
+    setupPointCloudMsg(msg);
+    initialized_ = true;
+  }
+
+  // まんべんなくsamplingする
+  for (int i = 0; i < params_.samples / sampling_times_; i++) {
+    // copy data
+    memcpy(&point_cloud_msg_->data[livox_lidar_data_index * point_step_], &msg.data().c_str()[sampling_index_ * point_step_], point_step_);
+    // update index where the livox_lidar data will be packed
+    livox_lidar_data_index += 1;
+    if (livox_lidar_data_index >= static_cast<uint>(params_.samples)) { // sampling completed
+      point_cloud_msg_->header.stamp.sec = msg.header().stamp().sec();
+      point_cloud_msg_->header.stamp.nanosec = msg.header().stamp().nsec();
+      livox_lidar_publisher_->publish(std::move(point_cloud_msg_));
+      setupPointCloudMsg(msg);
+      livox_lidar_data_index = 0;
+    }
+    // update index where the gpu_ray data will be packed
+    sampling_index_ += sampling_interval_;
+    if (sampling_index_ >= gpu_ray_samples_) {
+      sampling_index_ -= gpu_ray_samples_;
+    }
+  }
+}
+
+void LivoxLidarPlugin::setupPointCloudMsg(const gz::msgs::PointCloudPacked& msg)
+{
+  point_cloud_msg_ = std::make_unique<sensor_msgs::msg::PointCloud2>();
+  // fill message field data
+  for (int i = 0; i < msg.field_size(); i++) {
+    sensor_msgs::msg::PointField field;
+    field.name = msg.field(i).name();
+    field.count = msg.field(i).count();
+    field.offset = msg.field(i).offset();
+    switch (msg.field(i).datatype()) {
+      default:
+      case gz::msgs::PointCloudPacked::Field::INT8:
+        field.datatype = sensor_msgs::msg::PointField::INT8;
+        break;
+      case gz::msgs::PointCloudPacked::Field::UINT8:
+        field.datatype = sensor_msgs::msg::PointField::UINT8;
+        break;
+      case gz::msgs::PointCloudPacked::Field::INT16:
+        field.datatype = sensor_msgs::msg::PointField::INT16;
+        break;
+      case gz::msgs::PointCloudPacked::Field::UINT16:
+        field.datatype = sensor_msgs::msg::PointField::UINT16;
+        break;
+      case gz::msgs::PointCloudPacked::Field::INT32:
+        field.datatype = sensor_msgs::msg::PointField::INT32;
+        break;
+      case gz::msgs::PointCloudPacked::Field::UINT32:
+        field.datatype = sensor_msgs::msg::PointField::UINT32;
+        break;
+      case gz::msgs::PointCloudPacked::Field::FLOAT32:
+        field.datatype = sensor_msgs::msg::PointField::FLOAT32;
+        break;
+      case gz::msgs::PointCloudPacked::Field::FLOAT64:
+        field.datatype = sensor_msgs::msg::PointField::FLOAT64;
+        break;
+    }
+    point_cloud_msg_->fields.push_back(field);
+  }
+
+  // setup other message data
+  point_cloud_msg_->header.frame_id = "map";
+  point_cloud_msg_->height = 1;
+  point_cloud_msg_->width = params_.samples;
+  point_cloud_msg_->is_bigendian = msg.is_bigendian();
+  point_cloud_msg_->point_step = msg.point_step();
+  point_cloud_msg_->row_step = params_.samples * point_step_;
+  point_cloud_msg_->is_dense = msg.is_dense();
+  point_cloud_msg_->data.resize(params_.samples * point_step_);
 }
 
 }  // namespace gazebo
@@ -104,5 +191,4 @@ void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
 GZ_ADD_PLUGIN(
   gazebo::LivoxLidarPlugin,
   gz::sim::System,
-  gazebo::LivoxLidarPlugin::ISystemConfigure,
-  gazebo::LivoxLidarPlugin::ISystemPostUpdate)
+  gazebo::LivoxLidarPlugin::ISystemConfigure)
