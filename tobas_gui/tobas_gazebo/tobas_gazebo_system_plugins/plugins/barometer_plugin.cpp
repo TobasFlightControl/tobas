@@ -20,7 +20,6 @@ class GazeboBarometerPlugin : public BaseNode,
 {
 public:
   explicit GazeboBarometerPlugin();
-  ~GazeboBarometerPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -52,12 +51,6 @@ private:
 
 GazeboBarometerPlugin::GazeboBarometerPlugin() : rnd_gen_(rnd_dev_())
 {
-}
-
-GazeboBarometerPlugin::~GazeboBarometerPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboBarometerPlugin::Configure(

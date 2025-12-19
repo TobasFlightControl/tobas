@@ -25,7 +25,6 @@ class GazeboJointVelocityControllerPlugin : public BaseNode,
 
 public:
   explicit GazeboJointVelocityControllerPlugin();
-  ~GazeboJointVelocityControllerPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -57,12 +56,6 @@ private:
 
 GazeboJointVelocityControllerPlugin::GazeboJointVelocityControllerPlugin()
 {
-}
-
-GazeboJointVelocityControllerPlugin::~GazeboJointVelocityControllerPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboJointVelocityControllerPlugin::Configure(

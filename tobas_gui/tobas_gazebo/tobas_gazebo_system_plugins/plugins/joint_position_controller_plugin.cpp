@@ -25,7 +25,6 @@ class GazeboJointPositionControllerPlugin : public BaseNode,
 
 public:
   explicit GazeboJointPositionControllerPlugin();
-  ~GazeboJointPositionControllerPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -59,12 +58,6 @@ private:
 
 GazeboJointPositionControllerPlugin::GazeboJointPositionControllerPlugin()
 {
-}
-
-GazeboJointPositionControllerPlugin::~GazeboJointPositionControllerPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboJointPositionControllerPlugin::Configure(

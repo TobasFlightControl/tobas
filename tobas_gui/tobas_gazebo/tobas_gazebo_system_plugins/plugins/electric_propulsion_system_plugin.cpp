@@ -54,7 +54,6 @@ class GazeboElectricPropulsionSystemPlugin : public BaseNode,
 
 public:
   explicit GazeboElectricPropulsionSystemPlugin();
-  ~GazeboElectricPropulsionSystemPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -146,12 +145,6 @@ private:
 
 GazeboElectricPropulsionSystemPlugin::GazeboElectricPropulsionSystemPlugin() : rnd_gen_(rnd_dev_())
 {
-}
-
-GazeboElectricPropulsionSystemPlugin::~GazeboElectricPropulsionSystemPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboElectricPropulsionSystemPlugin::Configure(

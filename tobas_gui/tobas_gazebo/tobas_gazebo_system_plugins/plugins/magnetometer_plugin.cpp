@@ -31,7 +31,6 @@ class GazeboMagnetometerPlugin : public BaseNode,
 {
 public:
   explicit GazeboMagnetometerPlugin();
-  ~GazeboMagnetometerPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -69,12 +68,6 @@ private:
 
 GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
 {
-}
-
-GazeboMagnetometerPlugin::~GazeboMagnetometerPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboMagnetometerPlugin::Configure(

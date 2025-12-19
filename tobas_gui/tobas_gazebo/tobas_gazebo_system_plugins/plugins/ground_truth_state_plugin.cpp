@@ -24,7 +24,6 @@ class GazeboGroundTruthStatePlugin : public BaseNode,
 
 public:
   explicit GazeboGroundTruthStatePlugin();
-  ~GazeboGroundTruthStatePlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -54,12 +53,6 @@ private:
 
 GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin()
 {
-}
-
-GazeboGroundTruthStatePlugin::~GazeboGroundTruthStatePlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboGroundTruthStatePlugin::Configure(

@@ -15,7 +15,6 @@ class LivoxLidarPlugin : public BaseNode, public gz::sim::System, public gz::sim
 {
 public:
   explicit LivoxLidarPlugin();
-  ~LivoxLidarPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -60,12 +59,6 @@ private:
 
 LivoxLidarPlugin::LivoxLidarPlugin()
 {
-}
-
-LivoxLidarPlugin::~LivoxLidarPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void LivoxLidarPlugin::Configure(

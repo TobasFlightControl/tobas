@@ -33,7 +33,6 @@ class GazeboBatteryPlugin : public BaseNode,
 
 public:
   explicit GazeboBatteryPlugin();
-  ~GazeboBatteryPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -85,12 +84,6 @@ private:
 
 GazeboBatteryPlugin::GazeboBatteryPlugin() : rnd_gen_(rnd_dev_())
 {
-}
-
-GazeboBatteryPlugin::~GazeboBatteryPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboBatteryPlugin::Configure(

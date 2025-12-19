@@ -25,7 +25,6 @@ class GazeboJointEffortControllerPlugin : public BaseNode,
 
 public:
   explicit GazeboJointEffortControllerPlugin();
-  ~GazeboJointEffortControllerPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -57,12 +56,6 @@ private:
 
 GazeboJointEffortControllerPlugin::GazeboJointEffortControllerPlugin()
 {
-}
-
-GazeboJointEffortControllerPlugin::~GazeboJointEffortControllerPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboJointEffortControllerPlugin::Configure(

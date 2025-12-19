@@ -29,7 +29,6 @@ class GazeboGnssPlugin : public BaseNode,
 
 public:
   explicit GazeboGnssPlugin();
-  ~GazeboGnssPlugin();
 
   void Configure(
     const gz::sim::Entity& model,
@@ -85,12 +84,6 @@ private:
 
 GazeboGnssPlugin::GazeboGnssPlugin()
 {
-}
-
-GazeboGnssPlugin::~GazeboGnssPlugin()
-{
-  this->executor_->cancel();
-  this->spin_thread_.join();
 }
 
 void GazeboGnssPlugin::Configure(
