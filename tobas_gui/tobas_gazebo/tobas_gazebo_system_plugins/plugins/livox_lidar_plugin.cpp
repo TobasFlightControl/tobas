@@ -99,11 +99,8 @@ void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
       sampling_interval_++;
     }
     point_step_ = msg.point_step();
-    initialized_ = true;
-  }
-
-  if (!point_cloud_msg_) {
     setupPointCloudMsg(msg);
+    initialized_ = true;
   }
 
   // まんべんなくsamplingする
@@ -127,7 +124,7 @@ void LivoxLidarPlugin::gpuRayCb(const gz::msgs::PointCloudPacked& msg)
       point_cloud_msg_->header.stamp.nanosec = msg.header().stamp().nsec();
       livox_lidar_publisher_->publish(std::move(point_cloud_msg_));
       livox_lidar_data_index = 0;
-      return;
+      setupPointCloudMsg(msg);
     }
   }
 }
