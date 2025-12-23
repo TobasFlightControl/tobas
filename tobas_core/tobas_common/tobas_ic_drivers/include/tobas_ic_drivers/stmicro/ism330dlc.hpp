@@ -67,15 +67,13 @@ public:
   bool setAccelFullScale(fs_xl_t fs);
   bool setGyroFullScale(fs_g_t fs);
 
-  /* Read the current acceleration [m/s^2]. */
-  bool readAccel(double& ax, double& ay, double& az);
-
-  /* Read the current gyro [rad/s]. */
-  bool readGyro(double& gx, double& gy, double& gz);
+  /* Read the current acceleration [m/s^2] and gyro [rad/s]. */
+  bool readImu(double& ax, double& ay, double& az, double& gx, double& gy, double& gz);
 
 private:
-  static constexpr size_t kSPIBufSize = 6 + 1;
-  static constexpr uint32_t kSPIClockFreq = 10'000'000;  // Maximum frequency is 10MHz
+  static constexpr size_t kImuDataSize = 6 * 2;  // Gyro + Accel
+  static constexpr size_t kSpiBufSize = kImuDataSize + 1;
+  static constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz
   static constexpr uint8_t kReadFlag = 0x80;
 
   /* 9: Register mapping (p.37) */
@@ -230,13 +228,13 @@ private:
   };
 
   linux::SPIdev spi_;
-  uint8_t tx_buf_[kSPIBufSize];
-  uint8_t rx_buf_[kSPIBufSize];
+  uint8_t tx_buf_[kSpiBufSize];
+  uint8_t rx_buf_[kSpiBufSize];
 
   double acc_scale_;   // LSB -> m/s^2
   double gyro_scale_;  // LSB -> rad/s
 
-  uint8_t res_[6];  // The results of readRegs are stored.
+  uint8_t res_[kImuDataSize];  // The results of readRegs are stored.
 
   /* 6.5.1: SPI read (p.27) */
   bool readRegs(const uint8_t& addr, const size_t& bytes);

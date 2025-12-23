@@ -15,7 +15,7 @@ ISM330DLC::ISM330DLC()
 
 bool ISM330DLC::initialize(const char* spi_device)
 {
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq)) {
+  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 
@@ -33,6 +33,12 @@ bool ISM330DLC::initialize(const char* spi_device)
 
   // Disable I2C
   if (!writeReg(REG_CTRL4_C, I2C_DISABLE)) {
+    return false;
+  }
+
+  // Discard the initial data stored in the registers
+  double tmp[6];
+  if (!readImu(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])) {
     return false;
   }
 
@@ -225,29 +231,19 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
   return true;
 }
 
-bool ISM330DLC::readAccel(double& ax, double& ay, double& az)
+bool ISM330DLC::readImu(double& gx, double& gy, double& gz, double& ax, double& ay, double& az)
 {
-  if (!readRegs(REG_OUTX_L_XL, 6)) {
+  if (!readRegs(REG_OUTX_L_G, 12)) {
     return false;
   }
 
   // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
-  ax = static_cast<double>(static_cast<int16_t>((res_[1] << 8) | res_[0])) * acc_scale_;
-  ay = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * acc_scale_;
-  az = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * acc_scale_;
-
-  return true;
-}
-
-bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
-{
-  if (!readRegs(REG_OUTX_L_G, 6)) {
-    return false;
-  }
-
   gx = static_cast<double>(static_cast<int16_t>((res_[1] << 8) | res_[0])) * gyro_scale_;
   gy = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * gyro_scale_;
   gz = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * gyro_scale_;
+  ax = static_cast<double>(static_cast<int16_t>((res_[7] << 8) | res_[6])) * acc_scale_;
+  ay = static_cast<double>(static_cast<int16_t>((res_[8] << 8) | res_[8])) * acc_scale_;
+  az = static_cast<double>(static_cast<int16_t>((res_[11] << 8) | res_[10])) * acc_scale_;
 
   return true;
 }

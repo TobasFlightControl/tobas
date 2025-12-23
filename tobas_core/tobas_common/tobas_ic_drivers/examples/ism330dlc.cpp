@@ -15,8 +15,7 @@ int main(int argc, char** argv)
   const auto device = argv[1];
 
   stm::ISM330DLC imu;
-  double ax, ay, az;
-  double gx, gy, gz;
+  double ax, ay, az, gx, gy, gz;
 
   if (!imu.initialize(device)) {
     cerr << "Failed to initialize IMU." << endl;
@@ -33,13 +32,8 @@ int main(int argc, char** argv)
   }
 
   while (true) {
-    if (!imu.readAccel(ax, ay, az)) {
-      cerr << "Failed to read accel." << endl;
-      return EXIT_FAILURE;
-    }
-
-    if (!imu.readGyro(gx, gy, gz)) {
-      cerr << "Failed to read gyro." << endl;
+    if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
+      cerr << "Failed to read IMU." << endl;
       return EXIT_FAILURE;
     }
 
