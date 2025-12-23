@@ -231,7 +231,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
   return true;
 }
 
-bool ISM330DLC::readImu(double& gx, double& gy, double& gz, double& ax, double& ay, double& az)
+bool ISM330DLC::readImu(double& ax, double& ay, double& az, double& gx, double& gy, double& gz)
 {
   if (!readRegs(REG_OUTX_L_G, 12)) {
     return false;
@@ -242,7 +242,7 @@ bool ISM330DLC::readImu(double& gx, double& gy, double& gz, double& ax, double& 
   gy = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * gyro_scale_;
   gz = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * gyro_scale_;
   ax = static_cast<double>(static_cast<int16_t>((res_[7] << 8) | res_[6])) * acc_scale_;
-  ay = static_cast<double>(static_cast<int16_t>((res_[8] << 8) | res_[8])) * acc_scale_;
+  ay = static_cast<double>(static_cast<int16_t>((res_[9] << 8) | res_[8])) * acc_scale_;
   az = static_cast<double>(static_cast<int16_t>((res_[11] << 8) | res_[10])) * acc_scale_;
 
   return true;
