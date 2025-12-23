@@ -24,6 +24,15 @@ bool ILPS22QS::initialize()
     return false;
   }
 
+  // Discard the initial data stored in the registers
+  double tmp;
+  if (!readPressure(tmp)) {
+    return false;
+  }
+  if (!readTemperature(tmp)) {
+    return false;
+  }
+
   return true;
 }
 
