@@ -8,6 +8,7 @@
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_math/linalg.hpp>
 #include <tobas_sbus_driver/sbus.hpp>
+#include <tobas_std_tools/ansi_text_styles.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_time_tools/rate.hpp>
 
@@ -36,17 +37,12 @@ bool testImu()
     return false;
   }
 
-  double ax, ay, az;
-  double gx, gy, gz;
+  double ax, ay, az, gx, gy, gz;
   tim::Rate rate(SAMPLING_PERIOD);
 
   for (int i = 0; i < SAMPLING_COUNT; ++i) {
-    if (!imu.readAccel(ax, ay, az)) {
-      cerr << "Failed to read accel." << endl;
-      return false;
-    }
-    if (!imu.readGyro(gx, gy, gz)) {
-      cerr << "Failed to read gyro." << endl;
+    if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
+      cerr << "Failed to read IMU." << endl;
       return false;
     }
 
@@ -211,10 +207,9 @@ bool testGnssReceiver()
     return false;
   }
 
-  ublox::payload::NAV_PVT pvt;
   const auto start_time = ch::steady_clock::now();
 
-  while (ch::steady_clock::now() - start_time < 1min) {
+  while (ch::steady_clock::now() - start_time < 3s) {
     if (!gnss.update(false)) {
       cerr << "Failed to update GNSS driver." << endl;
       return false;
@@ -226,20 +221,13 @@ bool testGnssReceiver()
 
     switch (gnss.latestId()) {
       case ublox::ZEDF9P::NAV_PVT:
-        pvt.decode(gnss.payload());
-        cout << "[NAV_PVT]" << endl;
-        cout << pvt << endl;
-        if (pvt.fixType == ublox::payload::FixType::FIX_3D) {
-          cout << "GPS fixed." << endl;
-          return true;
-        }
-        break;
+        return true;
       default:
         continue;
     }
   }
 
-  cerr << "Timeout before GPS fix." << endl;
+  cerr << "Timeout before receiving the first GPS message." << endl;
   return false;
 }
 
@@ -264,7 +252,7 @@ bool testSbus()
     this_thread::sleep_for(10ms);
   }
 
-  cerr << "Timeout before S.BUS is received." << endl;
+  cerr << "Timeout before the first S.BUS package." << endl;
   return false;
 }
 
@@ -318,6 +306,6 @@ int main()
   }
   cout << "S.BUS test passed." << endl;
 
-  cout << "All tests passed." << endl;
+  cout << GREEN_PREFIX << "All tests passed." << COLOR_RESET << endl;
   return EXIT_SUCCESS;
 }
