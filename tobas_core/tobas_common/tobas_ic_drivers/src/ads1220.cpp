@@ -16,7 +16,7 @@ ADS1220::ADS1220()
 
 bool ADS1220::initialize(const char* spi_device)
 {
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq)) {
+  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 

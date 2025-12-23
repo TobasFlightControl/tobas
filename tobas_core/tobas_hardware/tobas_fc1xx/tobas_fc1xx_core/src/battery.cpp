@@ -10,7 +10,7 @@ Battery::Battery()
 
 bool Battery::initialize()
 {
-  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSPIClockFreq)) {
+  if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 

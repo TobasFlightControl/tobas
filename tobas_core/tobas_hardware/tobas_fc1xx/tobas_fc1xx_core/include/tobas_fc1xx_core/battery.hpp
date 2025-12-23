@@ -9,9 +9,9 @@ namespace fc1xx
 class Battery
 {
   static constexpr char kSpiDevice[] = "/dev/spidev0.1";
-  static constexpr uint32_t kSPIClockFreq = 30'000'000;  // [Hz]
+  static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
   static constexpr size_t kChannelSize = 2;
-  static constexpr size_t kSPIBufSize = kChannelSize;
+  static constexpr size_t kSpiBufSize = kChannelSize;
 
 public:
   explicit Battery();
@@ -21,7 +21,7 @@ public:
 
 private:
   linux::SPIdev spi_;
-  uint32_t tx_buf_[kSPIBufSize];
-  uint32_t rx_buf_[kSPIBufSize];
+  uint32_t tx_buf_[kSpiBufSize];
+  uint32_t rx_buf_[kSpiBufSize];
 };
 }  // namespace fc1xx
