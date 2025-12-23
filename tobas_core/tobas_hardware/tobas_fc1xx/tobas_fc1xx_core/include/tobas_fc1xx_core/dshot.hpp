@@ -12,7 +12,6 @@ class DShot
 {
 public:
   static constexpr size_t kChannelSize = 8;
-  static constexpr size_t kSPIBufSize = kChannelSize + 1;  // Data + CRC32
 
   enum Command : uint16_t
   {
@@ -65,9 +64,7 @@ private:
   static constexpr uint8_t kSetGainCmd = 7;
 
   static constexpr char kSpiDevice[] = "/dev/spidev1.0";
-  static constexpr uint32_t kSPIClockFreq = 30'000'000;                // [Hz]
-  static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
-  static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
+  static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
 
 public:
   explicit DShot();
@@ -108,8 +105,8 @@ public:
 
 private:
   linux::SPIdev spi_;
-  uint32_t tx_buf_[kSPIBufSize] = {};
-  uint32_t rx_buf_[kSPIBufSize] = {};
+  uint32_t tx_buf_[kChannelSize + 1] = {};
+  uint32_t rx_buf_[kChannelSize + 1] = {};
 
   std::array<uint16_t, kChannelSize> half_num_poles_;
 
