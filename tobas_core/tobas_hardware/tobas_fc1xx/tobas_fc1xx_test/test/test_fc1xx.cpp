@@ -34,7 +34,7 @@ bool testImu()
     return false;
   }
 
-  this_thread::sleep_for(100ms);
+  this_thread::sleep_for(200ms);
 
   double ax, ay, az, gx, gy, gz;
   tim::Rate rate(5ms);
@@ -72,7 +72,7 @@ bool testMagnetometer()
     return false;
   }
 
-  this_thread::sleep_for(100ms);
+  this_thread::sleep_for(200ms);
 
   double mx, my, mz;
   tim::Rate rate(20ms);
@@ -105,7 +105,7 @@ bool testBarometer()
     return false;
   }
 
-  this_thread::sleep_for(100ms);
+  this_thread::sleep_for(200ms);
 
   double pres, temp;
   tim::Rate rate(20ms);
@@ -149,7 +149,7 @@ bool testPowerSensor()
     return EXIT_FAILURE;
   }
 
-  this_thread::sleep_for(100ms);
+  this_thread::sleep_for(200ms);
 
   float volt, curr;
   tim::Rate rate(10ms);
