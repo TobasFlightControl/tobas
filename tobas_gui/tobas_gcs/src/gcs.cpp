@@ -418,9 +418,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトを送信
   progress.setLabelText("Sending the Tobas project to the flight controller.");
-  const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
+  const auto mesh_path = proj_paths_.cfgMeshDirPath();
+  const auto git_path = proj_paths_.getProjPath() / ".git";
+  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SSHClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     return;
