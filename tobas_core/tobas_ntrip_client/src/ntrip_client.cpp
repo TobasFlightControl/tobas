@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 
+#include <boost/beast/core/detail/base64.hpp>
 #include <iostream>
 
 namespace ntrip
@@ -13,7 +14,7 @@ NtripClient::NtripClient()
 {
 }
 
-bool NtripClient::initialize(const char* server_ip, const int& server_port)
+bool NtripClient::initialize(const char* server_ip, const int& server_port, const char* mount_point, const char* user_name, const char* password)
 {
   // TCP通信用のsocketを作成
   socket_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -31,6 +32,13 @@ bool NtripClient::initialize(const char* server_ip, const int& server_port)
     std::cerr << "Failed in connectWithTimeout" << std::endl;
     return false;
   }
+
+  // NTRIP CasterへのHTTP requestを作成する
+  std::string basic_credentials = base64Encode(std::string(user_name) + ":" + std::string(password));
+  std::string http_request = "GET /" + std::string(mount_point) + " HTTP/1.0\r\nUser-Agent: NTRIP ntrip_client_ros\r\n" + "Authorization: Basic " + basic_credentials + "\r\n";
+
+  // HTTP requestを送信
+  send(socket_, http_request.c_str(), http_request.size(), 0);
   return true;
 }
 
@@ -104,5 +112,14 @@ bool NtripClient::connectWithTimeout(int fd, const sockaddr* addr, socklen_t len
   }
 
   return true;
+}
+
+std::string NtripClient::base64Encode(const std::string& src)
+{
+  std::string dst;
+  dst.resize(boost::beast::detail::base64::encoded_size(src.size()));
+  auto real_size = boost::beast::detail::base64::encode(&dst[0], src.c_str(), src.size());
+  dst.resize(real_size);
+  return dst;
 }
 }  // namespace ntrip

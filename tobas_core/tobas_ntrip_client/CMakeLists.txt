@@ -19,4 +19,6 @@ include_directories(include)
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+
 ament_package()
