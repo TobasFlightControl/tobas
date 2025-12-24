@@ -162,25 +162,22 @@ class SSHClientWrapper:
 
     def scp_put_dir_super(self, local_dir: str, remote_dir: str, exclude_dirs: List[str] = []) -> None:
         """SCPでroot権限が必要なリモートディレクトリ以下にローカルディレクトリをコピーする．"""
-        # リモートディレクトリが存在することを確かめる
-        # 存在しなければローカルオブジェクトがそのままリモートディレクトリのパスとして配置されてしまう
-        if not self.dir_exists(remote_dir):
-            raise RuntimeError(f"Remote directory {remote_dir} does not exist.")
-
         # 一時オブジェクトのパス
         tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
 
-        # 一時オブジェクトが存在すれば削除
+        # 一時オブジェクトが存在すれば削除 (paramikoにrsyncがないため)
         if self.dir_exists(tmp_path):
             success, _, error_output = self.exec_command(f"rm -r {tmp_path}")
             if not success:
                 raise RuntimeError(f"{tmp_path} already exists, but failed to remove it: {error_output}")
 
         # 一時オブジェクトに書き込む
+        # 事前に削除しているので確実に同期される
         self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
 
-        # 一時オブジェクトをリモートディレクトリ直下に移動
-        success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_dir}")
+        # 一時オブジェクトをリモートディレクトリ直下に同期
+        # リモートディレクトリが存在しない場合は自動で作成される
+        success, _, error_output = self.exec_command_super(f"rsync -a --delete {tmp_path} {remote_dir}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
 
