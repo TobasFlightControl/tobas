@@ -138,13 +138,8 @@ class SSHClientWrapper:
 
         with SCPClient(self._cli.get_transport()) as scp:
             for root, _, files in os.walk(_local_dir):
-                # 除外ディレクトリだった場合は，ディレクトリのみ作成して中身は送信しない
+                # 除外ディレクトリは送信しない
                 if self._is_excluded_dir(root, _exclude_dirs):
-                    relative_path = osp.relpath(root, _local_dir)
-                    remote_dir = osp.join(_remote_dir, local_dir_base, relative_path)
-                    success, _, error_output = self.exec_command(f"mkdir -p {remote_dir}")
-                    if not success:
-                        raise RuntimeError(f"Failed to create remote directory {root}: {error_output}")
                     continue
 
                 # ファイルを1つずつ送信
@@ -170,11 +165,17 @@ class SSHClientWrapper:
         if not self.dir_exists(remote_dir):
             raise RuntimeError(f"Remote directory {remote_dir} does not exist.")
 
-        # 一時オブジェクトに書き込む
-        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
-
         # 一時オブジェクトのパス
         tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
+
+        # 一時オブジェクトが存在すれば削除
+        if self.dir_exists(tmp_path):
+            success, _, error_output = self.exec_command(f"rm -r {tmp_path}")
+            if not success:
+                raise RuntimeError(f"{tmp_path} already exists, but failed to remove it: {error_output}")
+
+        # 一時オブジェクトに書き込む
+        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
 
         # 一時オブジェクトをリモートディレクトリ以下にコピーする
         success, _, error_output = self.exec_command_super(f"cp -r {tmp_path} {remote_dir}")
