@@ -1,6 +1,9 @@
 #include "tobas_fc1xx_core/battery.hpp"
 
 #include <bit>
+#include <thread>
+
+using namespace std::chrono_literals;
 
 namespace fc1xx
 {
@@ -15,8 +18,11 @@ bool Battery::initialize()
   }
 
   // Discard the initial data
-  if (!spi_.transfer(sizeof(tx_buf_))) {
-    return false;
+  for (int _ = 0; _ < 10; ++_) {
+    std::this_thread::sleep_for(1ms);
+    if (!spi_.transfer(sizeof(tx_buf_))) {
+      return false;
+    }
   }
 
   return true;
