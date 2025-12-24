@@ -177,8 +177,8 @@ class SSHClientWrapper:
         # 一時オブジェクトに書き込む
         self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
 
-        # 一時オブジェクトをリモートディレクトリ以下にコピーする
-        success, _, error_output = self.exec_command_super(f"cp -r {tmp_path} {remote_dir}")
+        # 一時オブジェクトをリモートディレクトリ直下に移動
+        success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_dir}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
 
