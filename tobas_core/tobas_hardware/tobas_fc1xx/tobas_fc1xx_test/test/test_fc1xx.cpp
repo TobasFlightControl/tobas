@@ -12,9 +12,6 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_time_tools/rate.hpp>
 
-#define SAMPLING_PERIOD 100ms
-#define SAMPLING_COUNT 50
-
 using namespace std;
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
@@ -40,9 +37,9 @@ bool testImu()
   this_thread::sleep_for(100ms);
 
   double ax, ay, az, gx, gy, gz;
-  tim::Rate rate(SAMPLING_PERIOD);
+  tim::Rate rate(5ms);
 
-  for (int i = 0; i < SAMPLING_COUNT; ++i) {
+  for (int i = 0; i < 200; ++i) {
     if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
       cerr << "Failed to read IMU." << endl;
       return false;
@@ -78,9 +75,9 @@ bool testMagnetometer()
   this_thread::sleep_for(100ms);
 
   double mx, my, mz;
-  tim::Rate rate(SAMPLING_PERIOD);
+  tim::Rate rate(20ms);
 
-  for (int i = 0; i < SAMPLING_COUNT; ++i) {
+  for (int i = 0; i < 50; ++i) {
     if (!mag.readMag(mx, my, mz)) {
       cerr << "Failed to read magnetic field." << endl;
       return false;
@@ -111,9 +108,9 @@ bool testBarometer()
   this_thread::sleep_for(100ms);
 
   double pres, temp;
-  tim::Rate rate(SAMPLING_PERIOD);
+  tim::Rate rate(20ms);
 
-  for (int i = 0; i < SAMPLING_COUNT; ++i) {
+  for (int i = 0; i < 50; ++i) {
     if (!baro.readPressure(pres)) {
       cerr << "Failed to read pressure." << endl;
       return false;
@@ -155,9 +152,9 @@ bool testPowerSensor()
   this_thread::sleep_for(100ms);
 
   float volt, curr;
-  tim::Rate rate(SAMPLING_PERIOD);
+  tim::Rate rate(10ms);
 
-  for (int i = 0; i < SAMPLING_COUNT; ++i) {
+  for (int i = 0; i < 100; ++i) {
     if (!batt.read(volt, curr)) {
       cerr << "Failed to read battery status." << endl;
       return EXIT_FAILURE;
