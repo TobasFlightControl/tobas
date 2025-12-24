@@ -6,6 +6,8 @@ from paramiko.config import SSH_PORT
 from scp import SCPClient
 from typing import Tuple, List
 
+from .util import is_under_any
+
 
 class SSHClientWrapper:
     UTF_8 = "utf-8"
@@ -139,7 +141,7 @@ class SSHClientWrapper:
         with SCPClient(self._cli.get_transport()) as scp:
             for root, _, files in os.walk(_local_dir):
                 # 除外ディレクトリは送信しない
-                if self._is_excluded_dir(root, _exclude_dirs):
+                if is_under_any(root, _exclude_dirs):
                     continue
 
                 # ファイルを1つずつ送信
@@ -232,10 +234,3 @@ class SSHClientWrapper:
 
     def _sudo_command(self, command: str) -> str:
         return f"echo {self._passwd} | sudo -S bash -c '{command}'"
-
-    def _is_excluded_dir(self, root: str, exclude_dirs: List[str]) -> bool:
-        for exclude_dir in exclude_dirs:
-            if root.startswith(exclude_dir):
-                return True
-
-        return False
