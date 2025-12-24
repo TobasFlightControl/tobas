@@ -27,12 +27,6 @@ bool IIS2MDC::initialize()
     return false;
   }
 
-  // Discard the initial data stored in the registers
-  double tmp[3];
-  if (!readMag(tmp[0], tmp[1], tmp[2])) {
-    return false;
-  }
-
   return true;
 }
 

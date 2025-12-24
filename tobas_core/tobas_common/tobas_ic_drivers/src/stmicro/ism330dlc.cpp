@@ -36,12 +36,6 @@ bool ISM330DLC::initialize(const char* spi_device)
     return false;
   }
 
-  // Discard the initial data stored in the registers
-  double tmp[6];
-  if (!readImu(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5])) {
-    return false;
-  }
-
   return true;
 }
 

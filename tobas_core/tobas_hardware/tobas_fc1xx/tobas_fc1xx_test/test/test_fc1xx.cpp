@@ -37,6 +37,8 @@ bool testImu()
     return false;
   }
 
+  this_thread::sleep_for(100ms);
+
   double ax, ay, az, gx, gy, gz;
   tim::Rate rate(SAMPLING_PERIOD);
 
@@ -73,6 +75,8 @@ bool testMagnetometer()
     return false;
   }
 
+  this_thread::sleep_for(100ms);
+
   double mx, my, mz;
   tim::Rate rate(SAMPLING_PERIOD);
 
@@ -103,6 +107,8 @@ bool testBarometer()
     cerr << "Failed to initialize barometer." << endl;
     return false;
   }
+
+  this_thread::sleep_for(100ms);
 
   double pres, temp;
   tim::Rate rate(SAMPLING_PERIOD);
@@ -145,6 +151,8 @@ bool testPowerSensor()
     cerr << "Failed to initialize ADC." << endl;
     return EXIT_FAILURE;
   }
+
+  this_thread::sleep_for(100ms);
 
   float volt, curr;
   tim::Rate rate(SAMPLING_PERIOD);
