@@ -14,6 +14,11 @@ bool Battery::initialize()
     return false;
   }
 
+  // Discard the initial data
+  if (!spi_.transfer(sizeof(tx_buf_))) {
+    return false;
+  }
+
   return true;
 }
 
