@@ -51,7 +51,7 @@ private:
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::JointCommand> cmd_sub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerROSInterfaces();
+  void registerRosInterfaces();
 
   void commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd);
 };
@@ -92,7 +92,7 @@ void GazeboJointPositionControllerPlugin::Configure(
   joint_->ResetPosition(ecm, { tar_pos_ });
 
   // Register ROS interfaces
-  registerROSInterfaces();
+  registerRosInterfaces();
 }
 
 void GazeboJointPositionControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
@@ -108,7 +108,7 @@ void GazeboJointPositionControllerPlugin::getSdfParams(const sdf::ElementConstPt
   getSdfParam(sdf, "timeConstant", param_.time_const, kPositive);
 }
 
-void GazeboJointPositionControllerPlugin::registerROSInterfaces()
+void GazeboJointPositionControllerPlugin::registerRosInterfaces()
 {
   cmd_sub_ = createSubscriber(path::join(kJointCommandTopicNS, joint_name_), &self::commandCb, this);
 }

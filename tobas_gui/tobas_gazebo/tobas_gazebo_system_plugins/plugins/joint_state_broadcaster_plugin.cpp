@@ -50,7 +50,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::JointStateArray> js_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerROSInterfaces();
+  void registerRosInterfaces();
 };
 
 GazeboJointStateBroadcasterPlugin::GazeboJointStateBroadcasterPlugin()
@@ -87,7 +87,7 @@ void GazeboJointStateBroadcasterPlugin::Configure(
   }
 
   // Register ROS interfaces
-  registerROSInterfaces();
+  registerRosInterfaces();
 }
 
 void GazeboJointStateBroadcasterPlugin::PostUpdate(
@@ -119,7 +119,7 @@ void GazeboJointStateBroadcasterPlugin::getSdfParams(const sdf::ElementConstPtr&
   getSdfParam(sdf, "updateRate", param_.update_rate, kNonNegative);
 }
 
-void GazeboJointStateBroadcasterPlugin::registerROSInterfaces()
+void GazeboJointStateBroadcasterPlugin::registerRosInterfaces()
 {
   js_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
 }

@@ -121,7 +121,7 @@ private:
   ros2::ServiceServerPtr<BreakSrv> break_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerROSInterfaces();
+  void registerRosInterfaces();
 
   double velocitySim() const;
 
@@ -210,7 +210,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   TOBAS_CHECK(inertial_ = getComponent<cmp::Inertial>(link_entity, ecm));
 
   // Register ROS interfaces
-  registerROSInterfaces();
+  registerRosInterfaces();
 }
 
 void GazeboElectricPropulsionSystemPlugin::PreUpdate(
@@ -268,7 +268,7 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   getSdfParam(sdf, "vibrationForceVariationRate", param_.vib_force_var_rate, 0.3, kNonNegative);
 }
 
-void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
+void GazeboElectricPropulsionSystemPlugin::registerRosInterfaces()
 {
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
   state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
