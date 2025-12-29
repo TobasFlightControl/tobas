@@ -44,6 +44,7 @@ class BaseNode
 {
 public:
   explicit BaseNode();
+  ~BaseNode();
 
 protected:
   /* SDFパラメータの制約． */
@@ -57,8 +58,6 @@ protected:
   };
 
   rclcpp::Node::SharedPtr node_;
-  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
-  std::thread spin_thread_;
 
   void initialize(const std::string& name, const sdf::ElementConstPtr& sdf);
 
@@ -159,6 +158,9 @@ private:
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
+
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  std::thread spin_thread_;
 
   void gazeboLog(uint8_t level, const std::string& text) const;
 
