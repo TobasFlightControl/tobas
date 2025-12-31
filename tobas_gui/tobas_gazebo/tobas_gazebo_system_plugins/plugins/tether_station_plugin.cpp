@@ -80,7 +80,7 @@ void GazeboTetherStationForcePlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_tether_station_force_plugin", sdf);
+  initialize("gazebo_tether_station_plugin", sdf);
   getSdfParams(sdf);
 
   params_.tension = init_tension_;
