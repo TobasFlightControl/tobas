@@ -3,6 +3,7 @@
 namespace gazebo
 {
 // Gazebo Topics
+static constexpr char kGzMarkerTopic[] = "/marker";
 static constexpr char kGzStatsTopic[] = "/stats";
 static constexpr char kGzCameraLookAtTopic[] = "/gui/camera/look_at";
 static constexpr char kGzRenderFpsTopic[] = "/gui/render/fps";

@@ -1,6 +1,9 @@
+#include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
+#include <gz/transport/Node.hh>
 
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_conversions/gazebo_msg.hpp>
 #include <tobas_gazebo_tools/model_mass_holder.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -25,6 +28,7 @@ class GazeboTetherStationForcePlugin : public BaseNode,
   static constexpr double kDefaultInitMaxLength = 5.;     // [N]
   static constexpr double kDefaultYoungModulus = 200.;    // [MPa] 低密度ポリエチレン
   static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
+  static constexpr uint64_t kDefaultLineId = 0;
 
   using self = GazeboTetherStationForcePlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetTetherParams;
@@ -50,6 +54,7 @@ private:
   double init_max_length_;  // [m]
   double young_;            // [MPa] ヤング率 (Young Modulus)
   double csa_;              // [mm^2] 断面積 (Cross-Sectional Area)
+  uint64_t line_id_;
 
   tobas_gazebo_msgs::msg::TetherParams params_;
 
@@ -63,6 +68,11 @@ private:
 
   ros2::ServiceServerPtr<GetSrv> get_params_ss_;
   ros2::ServiceServerPtr<SetSrv> set_params_ss_;
+
+  gz::transport::Node node_;
+  gz::msgs::Marker marker_;
+  gz::msgs::Vector3d *line_p0_, *line_p1_;
+  gz::transport::Node::Publisher marker_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 
@@ -102,6 +112,14 @@ void GazeboTetherStationForcePlugin::Configure(
 
   get_params_ss_ = createService<GetSrv>(kGetTetherParamsSrv, &self::getParamsCb, this);
   set_params_ss_ = createService<SetSrv>(kSetTetherParamsSrv, &self::setParamsCb, this);
+
+  marker_.set_action(gz::msgs::Marker::ADD_MODIFY);
+  marker_.set_id(line_id_);
+  marker_.set_type(gz::msgs::Marker::LINE_LIST);
+  line_p0_ = marker_.add_point();
+  line_p1_ = marker_.add_point();
+
+  marker_pub_ = node_.Advertise<gz::msgs::Marker>(kGzMarkerTopic);
 }
 
 void GazeboTetherStationForcePlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
@@ -115,7 +133,8 @@ void GazeboTetherStationForcePlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::s
 
   // ケーブルの端点間ベクトルを計算
   const auto W_Pos_BQ = R_W_B.RotateVector(B_Pos_BQ_);
-  const auto W_Pos_PQ = W_Pos_WB - W_Pos_WP_ + W_Pos_BQ;
+  const auto W_Pos_WQ = W_Pos_WB + W_Pos_BQ;
+  const auto W_Pos_PQ = W_Pos_WQ - W_Pos_WP_;
 
   // ケーブルが伸び切っていない場合は一定張力
   auto T = params_.tension;  // [N]
@@ -143,6 +162,11 @@ void GazeboTetherStationForcePlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::s
   const auto axis_W = -W_Pos_PQ.Normalized();
   const auto force_W = T * axis_W;
   link_->AddWorldForce(ecm, force_W, B_Pos_BQ_);
+
+  // 描画用のラインマーカを発行
+  vector3dGzToMsg(W_Pos_WP_, *line_p0_);
+  vector3dGzToMsg(W_Pos_WQ, *line_p1_);
+  marker_pub_.Publish(marker_);
 }
 
 void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -154,6 +178,7 @@ void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sd
   getSdfParam(sdf, "initialMaximumLength", init_max_length_, kDefaultInitMaxLength, kPositive);
   getSdfParam(sdf, "youngModulus", young_, kDefaultYoungModulus, kPositive);
   getSdfParam(sdf, "crossSectionArea", csa_, kDefaultCrossSectionArea, kPositive);
+  getSdfParam(sdf, "lineId", line_id_, kDefaultLineId);
 }
 
 void GazeboTetherStationForcePlugin::getParamsCb(
