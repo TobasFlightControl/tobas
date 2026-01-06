@@ -40,6 +40,7 @@
         </gz-gui>
       </plugin>
 
+      <!-- Marker Manager (Required to visualize suspended payloads, tethers, etc.) -->
       <plugin filename="MarkerManager" name="Marker Manager">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
