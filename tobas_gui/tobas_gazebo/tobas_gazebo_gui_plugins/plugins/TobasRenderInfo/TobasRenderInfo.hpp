@@ -1,3 +1,5 @@
+#pragma once
+
 #include <gz/msgs/double.pb.h>
 #include <gz/gui/Plugin.hh>
 #include <gz/rendering/Scene.hh>
@@ -5,18 +7,18 @@
 
 namespace gazebo
 {
-class RenderInfo : public gz::gui::Plugin
+class TobasRenderInfo : public gz::gui::Plugin
 {
   Q_OBJECT
 
-  using self = RenderInfo;
+  using self = TobasRenderInfo;
   using super = gz::gui::Plugin;
 
   static constexpr double kAlpha = 0.05;
   static constexpr auto kPublishPeriod = std::chrono::milliseconds(1000);
 
 public:
-  explicit RenderInfo();
+  explicit TobasRenderInfo();
 
   void LoadConfig(const tinyxml2::XMLElement* elem) override;
 

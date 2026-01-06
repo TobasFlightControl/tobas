@@ -1,3 +1,5 @@
+#pragma once
+
 #include <gz/msgs/vector3d.pb.h>
 #include <gz/gui/Plugin.hh>
 #include <gz/rendering/Camera.hh>
@@ -7,15 +9,15 @@
 namespace gazebo
 {
 /* cf. gz-gui/src/plugins/camera_tracking/CameraTracking.cc */
-class LookAtCamera : public gz::gui::Plugin
+class TobasLookAtCamera : public gz::gui::Plugin
 {
   Q_OBJECT
 
-  using self = LookAtCamera;
+  using self = TobasLookAtCamera;
   using super = gz::gui::Plugin;
 
 public:
-  explicit LookAtCamera();
+  explicit TobasLookAtCamera();
 
   void LoadConfig(const tinyxml2::XMLElement* elem) override;
 

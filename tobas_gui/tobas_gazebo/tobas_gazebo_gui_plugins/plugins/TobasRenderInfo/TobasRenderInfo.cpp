@@ -1,4 +1,4 @@
-#include "./RenderInfo.hpp"
+#include "./TobasRenderInfo.hpp"
 
 #include <gz/common/Console.hh>
 #include <gz/gui/Application.hh>
@@ -13,11 +13,11 @@ namespace ch = std::chrono;
 
 namespace gazebo
 {
-RenderInfo::RenderInfo()
+TobasRenderInfo::TobasRenderInfo()
 {
 }
 
-void RenderInfo::LoadConfig(const tinyxml2::XMLElement*)
+void TobasRenderInfo::LoadConfig(const tinyxml2::XMLElement*)
 {
   if (title.empty()) {
     title = "Rendering Information Plugin";
@@ -28,7 +28,7 @@ void RenderInfo::LoadConfig(const tinyxml2::XMLElement*)
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }
 
-bool RenderInfo::eventFilter(QObject* obj, QEvent* event)
+bool TobasRenderInfo::eventFilter(QObject* obj, QEvent* event)
 {
   if (event->type() == gz::gui::events::Render::kType) {
     onRender();
@@ -37,7 +37,7 @@ bool RenderInfo::eventFilter(QObject* obj, QEvent* event)
   return super::eventFilter(obj, event);
 }
 
-void RenderInfo::onRender()
+void TobasRenderInfo::onRender()
 {
   const auto now = ch::steady_clock::now();
 
@@ -76,4 +76,4 @@ void RenderInfo::onRender()
 }
 }  // namespace gazebo
 
-GZ_ADD_PLUGIN(gazebo::RenderInfo, gz::gui::Plugin)
+GZ_ADD_PLUGIN(gazebo::TobasRenderInfo, gz::gui::Plugin)
