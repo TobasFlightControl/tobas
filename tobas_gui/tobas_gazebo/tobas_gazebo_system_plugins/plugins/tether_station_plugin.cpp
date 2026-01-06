@@ -12,6 +12,7 @@
 #include <tobas_gazebo_msgs/srv/set_tether_params.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
 namespace cmp = gz::sim::components;
@@ -23,6 +24,10 @@ class GazeboTetherStationPlugin : public BaseNode,
                                   public gz::sim::ISystemConfigure,
                                   public gz::sim::ISystemPreUpdate
 {
+  // Constants
+  static constexpr char kPluginName[] = "gazebo_tether_station_plugin";
+  static constexpr int kUpdateMarkerRate = 60;  // [Hz]
+
   // Default parameters
   static constexpr double kDefaultInitTension = 1.;       // [N]
   static constexpr double kDefaultInitMaxLength = 5.;     // [N]
@@ -65,14 +70,15 @@ private:
   const cmp::WorldAngularVelocity* angvel_W_;
 
   ModelMassHolder mass_holder_;
+  RateManager rate_manager_;
 
   ros2::ServiceServerPtr<GetSrv> get_params_ss_;
   ros2::ServiceServerPtr<SetSrv> set_params_ss_;
 
   gz::transport::Node node_;
   gz::msgs::Marker marker_;
-  gz::msgs::Vector3d *line_p0_, *line_p1_;
-  gz::transport::Node::Publisher marker_pub_;
+  gz::msgs::Vector3d* line_p0_;
+  gz::msgs::Vector3d* line_p1_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 
@@ -80,7 +86,7 @@ private:
   void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
 };
 
-GazeboTetherStationPlugin::GazeboTetherStationPlugin()
+GazeboTetherStationPlugin::GazeboTetherStationPlugin() : rate_manager_(kUpdateMarkerRate)
 {
 }
 
@@ -90,7 +96,7 @@ void GazeboTetherStationPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_tether_station_plugin", sdf);
+  initialize(kPluginName, sdf);
   getSdfParams(sdf);
 
   params_.tension = init_tension_;
@@ -114,15 +120,14 @@ void GazeboTetherStationPlugin::Configure(
   set_params_ss_ = createService<SetSrv>(kSetTetherParamsSrv, &self::setParamsCb, this);
 
   marker_.set_action(gz::msgs::Marker::ADD_MODIFY);
+  marker_.set_ns(kPluginName);
   marker_.set_id(line_id_);
   marker_.set_type(gz::msgs::Marker::LINE_LIST);
   line_p0_ = marker_.add_point();
   line_p1_ = marker_.add_point();
-
-  marker_pub_ = node_.Advertise<gz::msgs::Marker>(kGzMarkerTopic);
 }
 
-void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
+void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
   // 現在の状態を取得
   const auto& T_W_B = pose_W_->Data();
@@ -163,10 +168,12 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::E
   const auto force_W = T * axis_W;
   link_->AddWorldForce(ecm, force_W, B_Pos_BQ_);
 
-  // 描画用のラインマーカを発行
-  vector3dGzToMsg(W_Pos_WP_, *line_p0_);
-  vector3dGzToMsg(W_Pos_WQ, *line_p1_);
-  marker_pub_.Publish(marker_);
+  // 描画用のラインマーカを更新
+  if (rate_manager_.update(info.simTime)) {
+    vector3dGzToMsg(W_Pos_WP_, *line_p0_);
+    vector3dGzToMsg(W_Pos_WQ, *line_p1_);
+    node_.Request(kGzMarkerSrv, marker_);
+  }
 }
 
 void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

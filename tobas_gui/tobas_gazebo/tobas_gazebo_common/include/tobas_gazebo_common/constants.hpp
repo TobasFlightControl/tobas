@@ -3,13 +3,12 @@
 namespace gazebo
 {
 // Gazebo Topics
-static constexpr char kGzMarkerTopic[] = "/marker";
 static constexpr char kGzStatsTopic[] = "/stats";
 static constexpr char kGzCameraLookAtTopic[] = "/gui/camera/look_at";
 static constexpr char kGzRenderFpsTopic[] = "/gui/render/fps";
 
 // Gazebo Services
-static constexpr char kGzListMarkersSrv[] = "/list_markers";
+static constexpr char kGzMarkerSrv[] = "/marker";
 
 // ROS Topics
 static constexpr char kBatteryGtTopic[] = "gazebo/ground_truth/battery";
