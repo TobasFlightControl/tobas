@@ -18,10 +18,10 @@ namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
-class GazeboTetherStationForcePlugin : public BaseNode,
-                                       public gz::sim::System,
-                                       public gz::sim::ISystemConfigure,
-                                       public gz::sim::ISystemPreUpdate
+class GazeboTetherStationPlugin : public BaseNode,
+                                  public gz::sim::System,
+                                  public gz::sim::ISystemConfigure,
+                                  public gz::sim::ISystemPreUpdate
 {
   // Default parameters
   static constexpr double kDefaultInitTension = 1.;       // [N]
@@ -30,12 +30,12 @@ class GazeboTetherStationForcePlugin : public BaseNode,
   static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
   static constexpr uint64_t kDefaultLineId = 0;
 
-  using self = GazeboTetherStationForcePlugin;
+  using self = GazeboTetherStationPlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetTetherParams;
   using SetSrv = tobas_gazebo_msgs::srv::SetTetherParams;
 
 public:
-  explicit GazeboTetherStationForcePlugin();
+  explicit GazeboTetherStationPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -80,11 +80,11 @@ private:
   void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
 };
 
-GazeboTetherStationForcePlugin::GazeboTetherStationForcePlugin()
+GazeboTetherStationPlugin::GazeboTetherStationPlugin()
 {
 }
 
-void GazeboTetherStationForcePlugin::Configure(
+void GazeboTetherStationPlugin::Configure(
   const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
@@ -122,7 +122,7 @@ void GazeboTetherStationForcePlugin::Configure(
   marker_pub_ = node_.Advertise<gz::msgs::Marker>(kGzMarkerTopic);
 }
 
-void GazeboTetherStationForcePlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
+void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
 {
   // 現在の状態を取得
   const auto& T_W_B = pose_W_->Data();
@@ -169,7 +169,7 @@ void GazeboTetherStationForcePlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::s
   marker_pub_.Publish(marker_);
 }
 
-void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "worldEnd", W_Pos_WP_, gz::math::Vector3d::Zero);
@@ -181,14 +181,14 @@ void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sd
   getSdfParam(sdf, "lineId", line_id_, kDefaultLineId);
 }
 
-void GazeboTetherStationForcePlugin::getParamsCb(
+void GazeboTetherStationPlugin::getParamsCb(
   const GetSrv::Request::ConstSharedPtr&,
   const GetSrv::Response::SharedPtr& res)
 {
   res->params = params_;
 }
 
-void GazeboTetherStationForcePlugin::setParamsCb(
+void GazeboTetherStationPlugin::setParamsCb(
   const SetSrv::Request::ConstSharedPtr& req,
   const SetSrv::Response::SharedPtr& res)
 {
@@ -215,7 +215,7 @@ void GazeboTetherStationForcePlugin::setParamsCb(
 }  // namespace gazebo
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboTetherStationForcePlugin,
+  gazebo::GazeboTetherStationPlugin,
   gz::sim::System,
-  gazebo::GazeboTetherStationForcePlugin::ISystemConfigure,
-  gazebo::GazeboTetherStationForcePlugin::ISystemPreUpdate)
+  gazebo::GazeboTetherStationPlugin::ISystemConfigure,
+  gazebo::GazeboTetherStationPlugin::ISystemPreUpdate)
