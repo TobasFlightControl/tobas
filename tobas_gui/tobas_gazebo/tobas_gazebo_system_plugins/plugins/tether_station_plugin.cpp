@@ -28,7 +28,7 @@ class GazeboTetherStationPlugin : public BaseNode,
   static constexpr double kDefaultInitMaxLength = 5.;     // [N]
   static constexpr double kDefaultYoungModulus = 200.;    // [MPa] 低密度ポリエチレン
   static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
-  static constexpr uint64_t kDefaultLineId = 0;
+  static constexpr uint64_t kDefaultLineId = 1;
 
   using self = GazeboTetherStationPlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetTetherParams;
@@ -178,7 +178,7 @@ void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "initialMaximumLength", init_max_length_, kDefaultInitMaxLength, kPositive);
   getSdfParam(sdf, "youngModulus", young_, kDefaultYoungModulus, kPositive);
   getSdfParam(sdf, "crossSectionArea", csa_, kDefaultCrossSectionArea, kPositive);
-  getSdfParam(sdf, "lineId", line_id_, kDefaultLineId);
+  getSdfParam(sdf, "lineId", line_id_, kDefaultLineId, kPositive);  // 0だとIDがランダムに割り当てられて無限に増える
 }
 
 void GazeboTetherStationPlugin::getParamsCb(

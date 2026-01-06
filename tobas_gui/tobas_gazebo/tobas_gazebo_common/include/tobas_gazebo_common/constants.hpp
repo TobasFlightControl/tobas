@@ -8,6 +8,9 @@ static constexpr char kGzStatsTopic[] = "/stats";
 static constexpr char kGzCameraLookAtTopic[] = "/gui/camera/look_at";
 static constexpr char kGzRenderFpsTopic[] = "/gui/render/fps";
 
+// Gazebo Services
+static constexpr char kGzListMarkersSrv[] = "/list_markers";
+
 // ROS Topics
 static constexpr char kBatteryGtTopic[] = "gazebo/ground_truth/battery";
 static constexpr char kOdometryGtTopic[] = "gazebo/ground_truth/odom";
