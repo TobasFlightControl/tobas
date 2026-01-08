@@ -1,0 +1,6 @@
+float64 load_size     # [m]
+float64 load_mass     # [kg]
+float64 cable_length  # [m]
+---
+bool success
+string message
