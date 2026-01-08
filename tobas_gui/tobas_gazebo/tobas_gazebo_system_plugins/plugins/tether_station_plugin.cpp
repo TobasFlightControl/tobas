@@ -140,13 +140,11 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   const auto W_Pos_BQ = R_W_B.RotateVector(B_Pos_BQ_);
   const auto W_Pos_WQ = W_Pos_WB + W_Pos_BQ;
   const auto W_Pos_PQ = W_Pos_WQ - W_Pos_WP_;
-
-  // ケーブルが伸び切っていない場合は一定張力
-  auto T = params_.tension;  // [N]
-
-  // ケーブル長が限界以上ならばワイヤロープの弾粘性モデル
   const auto length = W_Pos_PQ.Length();  // [m]
-  if (length > params_.maximum_length) {
+
+  // 張力を決定
+  double T;
+  if (length > params_.maximum_length) {  // ケーブル長が限界以上ならばワイヤロープの弾粘性モデル
     // ケーブル長の変位を計算
     const auto x = length - params_.maximum_length;  // [m]
 
@@ -161,6 +159,9 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
     // ケーブルにかかる力を計算
     T = k * x + d * xd;  // [N]
+  }
+  else {                  // ケーブルが伸び切っていない場合は一定張力
+    T = params_.tension;  // [N]
   }
 
   // ケーブルの方向に張力を加える
