@@ -14,6 +14,7 @@ public:
 
 private:
   static constexpr int kTimeout = 1; // 1 second
+  static constexpr size_t kChunkSize = 1024;
   int socket_;
   struct sockaddr_in server_address_;
 

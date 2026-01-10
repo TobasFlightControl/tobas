@@ -7,6 +7,7 @@
 
 #include <boost/beast/core/detail/base64.hpp>
 #include <iostream>
+#include <string>
 
 namespace ntrip
 {
@@ -39,6 +40,21 @@ bool NtripClient::initialize(const char* server_ip, const int& server_port, cons
 
   // HTTP requestを送信
   send(socket_, http_request.c_str(), http_request.size(), 0);
+
+  // Get the response from the server
+  char buf[kChunkSize];
+  auto receive_size = recv(socket_, buf, kChunkSize, 0);
+  for (ssize_t i = 0; i < receive_size; i++) { // debug用, 消す予定
+    std::cout << buf[i];
+  }
+  std::cout << std::endl;
+  if (std::string(buf).find("SOURCETABLE 200 OK") != std::string::npos) {
+    std::cerr << "Received source table. Probably the mountpoint is not valid." << std::endl;
+    return false;
+  } else if (std::string(buf).find("401") != std::string::npos) {
+    std::cerr << "Received unauthorized response from the server. Check your user name and password." << std::endl;
+    return false;
+  }
   return true;
 }
 
@@ -102,7 +118,7 @@ bool NtripClient::connectWithTimeout(int fd, const sockaddr* addr, socklen_t len
   int optval = 0;
   socklen_t optlen = (socklen_t)sizeof(optval);
   errno = 0;
-  if (!getsockopt(fd, SOL_SOCKET, SO_ERROR, (void*)&optval, &optlen)) {
+  if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void*)&optval, &optlen) < 0) {
     std::cerr << "Failed in getsockopt" << std::endl;
     return false;
   }
