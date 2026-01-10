@@ -8,6 +8,9 @@
 #include <boost/beast/core/detail/base64.hpp>
 #include <iostream>
 #include <string>
+#include <vector>
+
+#include <tobas_ntrip_client/source_table_reader.hpp>
 
 namespace ntrip
 {
@@ -15,7 +18,7 @@ NtripClient::NtripClient()
 {
 }
 
-bool NtripClient::initialize(const char* server_ip, const int& server_port, const char* mount_point, const char* user_name, const char* password)
+bool NtripClient::initialize(const char* server_ip, const int& server_port, const char* mount_point, const char* user_name, const char* password, const double& latitude, const double& longitude)
 {
   // TCP通信用のsocketを作成
   socket_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -44,12 +47,20 @@ bool NtripClient::initialize(const char* server_ip, const int& server_port, cons
   // Get the response from the server
   char buf[kChunkSize];
   auto receive_size = recv(socket_, buf, kChunkSize, 0);
-  for (ssize_t i = 0; i < receive_size; i++) { // debug用, 消す予定
-    std::cout << buf[i];
-  }
-  std::cout << std::endl;
   if (std::string(buf).find("SOURCETABLE 200 OK") != std::string::npos) {
-    std::cerr << "Received source table. Probably the mountpoint is not valid." << std::endl;
+    std::cerr << "Received source table. Probably the mountpoint is not valid. Receiving source table..." << std::endl;
+    // read all source table data
+    std::vector<char> source_table;
+    source_table.insert(source_table.end(), buf, buf + receive_size);
+    while (receive_size > 0) {
+      receive_size = recv(socket_, buf, kChunkSize, 0);
+      source_table.insert(source_table.end(), buf, buf + receive_size);
+    }
+    // read source table data
+    std::string source_table_string(source_table.begin(), source_table.end());
+    SourceTableReader source_table_reader;
+    source_table_reader.read(source_table_string);
+    std::cout << "Recommended moint point : " << source_table_reader.findNearestMountPoint(latitude, longitude) << std::endl;
     return false;
   } else if (std::string(buf).find("401") != std::string::npos) {
     std::cerr << "Received unauthorized response from the server. Check your user name and password." << std::endl;
@@ -74,7 +85,7 @@ bool NtripClient::connectWithTimeout(int fd, const sockaddr* addr, socklen_t len
   // 接続
   auto result = connect(fd, addr, len);
   if (result == EWOULDBLOCK) {
-    if (EINPROGRESS == errno) {
+    if (errno == EINPROGRESS) {
       // 非同期接続成功だとここに入る。select()で完了を待つ。
       errno = 0;
     }

@@ -24,8 +24,10 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options)
   auto mount_point = getStringParam("mount_point");
   auto user_name = getStringParam("user_name");
   auto password = getStringParam("password", kDefaultPassword);
+  auto latitude = getDoubleParam("latitude"); // 最も近くのmount pointを探すために用いる 大体でok degree
+  auto longitude = getDoubleParam("longitude");
 
-  if (!ntrip_client_.initialize(server_ip.c_str(), server_port, mount_point.c_str(), user_name.c_str(), password.c_str())) {
+  if (!ntrip_client_.initialize(server_ip.c_str(), server_port, mount_point.c_str(), user_name.c_str(), password.c_str(), latitude, longitude)) {
     TOBAS_ERROR("Failed to initialize NTRIP client.");
   }
 }
