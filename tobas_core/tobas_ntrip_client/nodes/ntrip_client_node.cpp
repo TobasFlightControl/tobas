@@ -1,6 +1,8 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ntrip_client/ntrip_client.hpp>
 
+using namespace std::chrono_literals;
+
 class NtripClientNode : public tobas::BaseNode
 {
   using self = NtripClientNode;
@@ -13,8 +15,12 @@ private:
   static constexpr char kDefaultServerIp[] = "3.143.243.81";  // RTK2GO http://rtk2go.com/
   static constexpr int kDefaultServerPort = 2101;
   static constexpr char kDefaultPassword[] = "none";
+  static constexpr std::chrono::duration kIntervalTime = 1s; // RTCM3.3 protocolのデータの受け取りに確認しに行く時間間隔
 
   ntrip::NtripClient ntrip_client_;
+  ros2::TimerPtr timer_;
+
+  void timerCallback();
 };
 
 NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("ntrip_client", options)
@@ -30,7 +36,15 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("nt
   if (!ntrip_client_.initialize(
         server_ip.c_str(), server_port, mount_point.c_str(), user_name.c_str(), password.c_str(), latitude, longitude)) {
     TOBAS_ERROR("Failed to initialize NTRIP client.");
+    return;
   }
+
+  timer_ = createTimer(kIntervalTime, &NtripClientNode::timerCallback, this);
+}
+
+void NtripClientNode::timerCallback()
+{
+  ntrip_client_.receiveRtcmData();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(NtripClientNode)

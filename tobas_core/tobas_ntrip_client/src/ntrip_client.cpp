@@ -7,6 +7,7 @@
 
 #include <boost/beast/core/detail/base64.hpp>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 
@@ -56,16 +57,16 @@ bool NtripClient::initialize(
   if (mount_point_stat == GET_SOURCE_TABLE) {
     std::cerr << "Receiving source table..." << std::endl;
     // read all source table data
-    std::vector<char> source_table;
-    // とりあえずcheckMountPoint関数で読みこんだreceive_buffer_に入っているデータをsource_tableに保存
-    source_table.insert(source_table.end(), receive_buffer_, receive_buffer_ + receive_size_);
-    while (receive_size_ > 0) {
-      receive_size_ = recv(socket_, receive_buffer_, kChunkSize, 0);
-      source_table.insert(source_table.end(), receive_buffer_, receive_buffer_ + receive_size_);
+    while (true) {
+      auto receive_size = recv(socket_, receive_buffer_, kChunkSize, 0);
+      if (receive_size <= 0) {
+        break;
+      }
+      receive_deque_.insert(receive_deque_.end(), receive_buffer_, receive_buffer_ + receive_size);
     }
 
     // read source table data
-    SourceTableReader source_table_reader(std::string(source_table.begin(), source_table.end()));
+    SourceTableReader source_table_reader(std::string(receive_deque_.begin(), receive_deque_.end()));
 
     // sort moint points by the distance from here
     auto sorted_moint_points = source_table_reader.sortMountPoints(latitude, longitude);
@@ -76,10 +77,30 @@ bool NtripClient::initialize(
       std::cout << sorted_moint_points[i] << " ";
     }
     std::cout << std::endl;
+    
+    // dequeから処理が終わったsource tableのデータを削除
+    receive_deque_.resize(0);
     return false;
   }
   std::cerr << "Unexpected error." << std::endl;
   return false;
+}
+
+void NtripClient::receiveRtcmData()
+{
+  std::cout << "in receiveRtcm" << std::endl;
+  while (true) {
+    auto receive_size = nonblockReceive(socket_, receive_buffer_, kChunkSize, 0);
+    if (receive_size <= 0) {
+      break;
+    }
+    receive_deque_.insert(receive_deque_.end(), receive_buffer_, receive_buffer_ + receive_size);
+  }
+  std::cout << "deque size : " << receive_deque_.size() << std::endl;
+  for (size_t i = 0; i < receive_deque_.size(); i++) {
+    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(receive_deque_[i]);
+  }
+  std::cout << std::dec << std::endl;
 }
 
 std::string
@@ -113,24 +134,25 @@ NtripClient::checkMountPoint(const std::string& mount_point, const std::string& 
   }
 
   // Get the response from the server
-  receive_size_ = recv(socket_, receive_buffer_, kChunkSize, 0);
-  if (receive_size_ <= 0) {
+  auto receive_size = recv(socket_, receive_buffer_, kChunkSize, 0);
+  if (receive_size <= 0) {
     std::cerr << "Received data size is strange." << std::endl;
     return OTHER_FAILURE;
   }
 
+  receive_deque_.insert(receive_deque_.end(), receive_buffer_, receive_buffer_ + receive_size);
   // ICY 200 OKが含まれていれば接続できている
-  if (std::string(receive_buffer_).find("ICY 200 OK") != std::string::npos) {
+  if (std::string(receive_deque_.end() - receive_size, receive_deque_.end()).find("ICY 200 OK") != std::string::npos) {
     return SUCCESS;
   }
 
   // 接続できていない場合でsource tableが返ってきている場合
-  if (std::string(receive_buffer_).find("SOURCETABLE 200 OK") != std::string::npos) {
+  if (std::string(receive_deque_.end() - receive_size, receive_deque_.end()).find("SOURCETABLE 200 OK") != std::string::npos) {
     std::cerr << "Received source table. Probably the mountpoint is not valid." << std::endl;
     return GET_SOURCE_TABLE;
   }
 
-  if (std::string(receive_buffer_).find("401") != std::string::npos) {
+  if (std::string(receive_deque_.end() - receive_size, receive_deque_.end()).find("401") != std::string::npos) {
     std::cerr << "Received unauthorized response from the server. Check your user name and password." << std::endl;
     return AUTHORIZATION_FAILURE;
   }
@@ -208,6 +230,31 @@ bool NtripClient::connectWithTimeout(const int& fd, const sockaddr* addr, sockle
   }
 
   return true;
+}
+
+ssize_t NtripClient::nonblockReceive(const int& fd, void* buf, size_t n, int flags)
+{
+  // 非同期に変更
+  auto fcntl_flags = fcntl(fd, F_GETFL);
+  if (fcntl_flags == -1) {
+    std::cerr << "Failed in fcntl" << std::endl;
+    return -1;
+  }
+  if (fcntl(fd, F_SETFL, fcntl_flags | O_NONBLOCK) == -1) {
+    std::cerr << "Failed in fcntl" << std::endl;
+    return -1;
+  }
+
+  // 受信処理
+  auto result = recv(fd, buf, n, flags);
+
+  // 同期に戻す
+  if (fcntl(fd, F_SETFL, fcntl_flags) == -1) {
+    std::cerr << "Failed in fcntl" << std::endl;
+    return -1;
+  }
+
+  return result;
 }
 
 std::string NtripClient::base64Encode(const std::string& src)
