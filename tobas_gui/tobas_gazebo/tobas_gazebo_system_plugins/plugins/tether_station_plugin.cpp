@@ -149,8 +149,8 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     const auto x = length - params_.maximum_length;  // [m]
 
     // ケーブル長の変化率を計算
-    const auto W_Vel_PQ = linvel_W + angvel_W.Cross(W_Pos_BQ);  // [m]
-    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;            // [m/s]
+    const auto W_Vel_PQ = linvel_W + angvel_W.Cross(W_Pos_BQ);  // W_Vel_PQ = W_Vel_WQ - W_Vel_WP = W_Vel_WQ
+    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;  // 相対速度をケーブル方向に射影したものがケーブル長の変化率
 
     // マスバネダンパ系の係数
     const auto m = mass_holder_.getMass();                  // [kg]
