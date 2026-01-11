@@ -166,7 +166,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
       return;
     }
 
-    const auto link_entity = load_model.CanonicalLink(ecm);
+    const auto link_entity = load_model.CanonicalLink(ecm);  // モデルの代表リンクを取得
     load_link_ = std::make_shared<gz::sim::Link>(link_entity);
     if (!load_link_->Valid(ecm)) {
       TOBAS_EXIT("Failed to find the canonical link of the load.");
@@ -187,6 +187,8 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
       load_exist_ = false;
       return;
     }
+
+    return;  // コンポーネントを取得したサイクルは正しい値が出ないため力を加えない
   }
 
   // 機体の状態を取得
@@ -267,6 +269,12 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   const AttachSrv::Request::ConstSharedPtr& req,
   const AttachSrv::Response::SharedPtr& res)
 {
+  if (load_exist_) {
+    res->success = false;
+    res->message = "Load is already attached.";
+    return;
+  }
+
   if (req->load_size <= 0.) {
     res->success = false;
     res->message = "Load size must be positive.";
@@ -283,11 +291,22 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
+  const auto s_2 = req->load_size / 2;
+
+  // モデル名が被らないようにインデックスを上げる
   ++load_index_;
 
-  // TODO: 出現位置
+  // 出現位置を決める
+  const auto& W_Pose_B = W_Pose_B_->Data();
+  const auto& W_Pos_WB = W_Pose_B.Pos();
+  const auto& W_Rot_B = W_Pose_B.Rot();
+  const auto W_Pos_WP = W_Pos_WB + W_Rot_B.RotateVector(B_Pos_BP_);  // 取り付け位置
+  const auto x = W_Pos_WP.X();
+  const auto y = W_Pos_WP.Y();
+  const auto z = std::max(W_Pos_WP.Z() - req->cable_length - s_2, s_2);  // ケーブルの長さ分だけ下げるが地面よりは上
+
   gz::msgs::EntityFactory gzreq;
-  gzreq.set_sdf(makeBoxSdf(loadName(), req->load_size, req->load_size, req->load_size, req->load_mass, 0., 0., 0.));
+  gzreq.set_sdf(makeBoxSdf(loadName(), req->load_size, req->load_size, req->load_size, req->load_mass, x, y, z));
   gzreq.set_allow_renaming(true);
 
   gz::msgs::Boolean gzrep;
@@ -310,7 +329,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  L_Pos_LQ_.Set(0., 0., req->load_size / 2.);  // 直方体の上面の中央にケーブルを取り付ける想定
+  L_Pos_LQ_.Set(0., 0., s_2);  // 直方体の上面の中央にケーブルを取り付ける想定
   load_mass_ = req->load_mass;
   cable_length_ = req->cable_length;
 
