@@ -1,4 +1,6 @@
-float64 load_size     # [m]
+float64 load_sx       # [m]
+float64 load_sy       # [m]
+float64 load_sz       # [m]
 float64 load_mass     # [kg]
 float64 cable_length  # [m]
 ---

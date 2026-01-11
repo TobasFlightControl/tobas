@@ -13,6 +13,7 @@
 #include <tobas_gazebo_msgs/srv/detach_suspended_load.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
+#include "tobas_gazebo_system_plugins/inertia.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 #include "tobas_gazebo_system_plugins/sdf_string.hpp"
@@ -30,7 +31,8 @@ class GazeboSuspendedLoadPlugin : public BaseNode,
   // Constants
   static constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
   static constexpr char kLoadNamePrefix[] = "load_";
-  static constexpr int kUpdateMarkerRate = 60;  // [Hz]
+  static constexpr double kStopLoadRotationTimeConst = 10.;  // [s]
+  static constexpr int kUpdateMarkerRate = 60;               // [Hz]
 
   // Default parameters
   static constexpr double kDefaultYoungModulus = 200.;     // [MPa] 低密度ポリエチレン
@@ -69,6 +71,7 @@ private:
   // Load
   gz::math::Vector3d L_Pos_LQ_;
   double load_mass_;
+  gz::math::Matrix3d load_inertia_ = gz::math::Matrix3d::Zero;
   double cable_length_;
   bool load_exist_ = false;
   int load_index_ = 0;
@@ -234,10 +237,16 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     // ケーブルにかかる力を計算
     const auto T = k * x + d * xd;  // [N]
 
+    // 荷重の回転を打ち消す方向に働くトルク (空気抵抗やケーブル接続部の摩擦を模擬)
+    const auto L_Gyro_WL = W_Rot_L.RotateVectorReverse(W_Gyro_WL);
+    const auto L_DGyro_WL = -(1. / kStopLoadRotationTimeConst) * L_Gyro_WL;
+    const auto L_Torque_WL = load_inertia_ * L_DGyro_WL + L_Gyro_WL.Cross(load_inertia_ * L_Gyro_WL);
+    const auto W_Torque_WL = W_Rot_L.RotateVector(L_Torque_WL);
+
     // ケーブルの方向に張力を加える
     const auto W_Force_PQ = T * W_Pos_PQ.Normalized();
     base_link_->AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
-    load_link_->AddWorldForce(ecm, -W_Force_PQ, L_Pos_LQ_);
+    load_link_->AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
   }
 
   // 描画用のラインマーカを更新
@@ -275,7 +284,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  if (req->load_size <= 0.) {
+  if (req->load_sx <= 0. || req->load_sy <= 0. || req->load_sz <= 0.) {
     res->success = false;
     res->message = "Load size must be positive.";
     return;
@@ -291,7 +300,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  const auto s_2 = req->load_size / 2;
+  const auto sz_2 = req->load_sz / 2;
 
   // モデル名が被らないようにインデックスを上げる
   ++load_index_;
@@ -301,12 +310,12 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   const auto& W_Pos_WB = W_Pose_B.Pos();
   const auto& W_Rot_B = W_Pose_B.Rot();
   const auto W_Pos_WP = W_Pos_WB + W_Rot_B.RotateVector(B_Pos_BP_);  // 取り付け位置
-  const auto x = W_Pos_WP.X();
-  const auto y = W_Pos_WP.Y();
-  const auto z = std::max(W_Pos_WP.Z() - req->cable_length - s_2, s_2);  // ケーブルの長さ分だけ下げるが地面よりは上
+  const auto px = W_Pos_WP.X();
+  const auto py = W_Pos_WP.Y();
+  const auto pz = std::max(W_Pos_WP.Z() - req->cable_length - sz_2, sz_2);  // ケーブルの長さ分だけ下げるが地面よりは上
 
   gz::msgs::EntityFactory gzreq;
-  gzreq.set_sdf(makeBoxSdf(loadName(), req->load_size, req->load_size, req->load_size, req->load_mass, x, y, z));
+  gzreq.set_sdf(makeBoxSdf(loadName(), req->load_sx, req->load_sy, req->load_sz, req->load_mass, px, py, pz));
   gzreq.set_allow_renaming(true);
 
   gz::msgs::Boolean gzrep;
@@ -329,9 +338,14 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
-  L_Pos_LQ_.Set(0., 0., s_2);  // 直方体の上面の中央にケーブルを取り付ける想定
+  L_Pos_LQ_.Set(0., 0., sz_2);  // 直方体の上面の中央にケーブルを取り付ける想定
   load_mass_ = req->load_mass;
   cable_length_ = req->cable_length;
+
+  const auto [ixx, iyy, izz] = boxInertia(req->load_sx, req->load_sy, req->load_sz, req->load_mass);
+  load_inertia_.Set(0, 0, ixx);
+  load_inertia_.Set(1, 1, iyy);
+  load_inertia_.Set(2, 2, izz);
 
   load_exist_ = true;
 
