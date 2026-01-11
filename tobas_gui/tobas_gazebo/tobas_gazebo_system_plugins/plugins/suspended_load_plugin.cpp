@@ -243,7 +243,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     const auto L_Torque_WL = load_inertia_ * L_DGyro_WL + L_Gyro_WL.Cross(load_inertia_ * L_Gyro_WL);
     const auto W_Torque_WL = W_Rot_L.RotateVector(L_Torque_WL);
 
-    // ケーブルの方向に張力を加える
+    // ケーブル方向の張力と回転止めトルクを加える
     const auto W_Force_PQ = T * W_Pos_PQ.Normalized();
     base_link_->AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
     load_link_->AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
