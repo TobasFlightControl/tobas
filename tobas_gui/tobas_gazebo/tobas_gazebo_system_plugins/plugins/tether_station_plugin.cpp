@@ -33,7 +33,6 @@ class GazeboTetherStationPlugin : public BaseNode,
   static constexpr double kDefaultInitMaxLength = 5.;     // [N]
   static constexpr double kDefaultYoungModulus = 200.;    // [MPa] 低密度ポリエチレン
   static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
-  static constexpr uint64_t kDefaultLineId = 1;
 
   using self = GazeboTetherStationPlugin;
   using GetSrv = tobas_gazebo_msgs::srv::GetTetherParams;
@@ -59,7 +58,6 @@ private:
   double init_max_length_;  // [m]
   double young_;            // [MPa] ヤング率 (Young Modulus)
   double csa_;              // [mm^2] 断面積 (Cross-Sectional Area)
-  uint64_t line_id_;
 
   tobas_gazebo_msgs::msg::TetherParams params_;
 
@@ -121,7 +119,7 @@ void GazeboTetherStationPlugin::Configure(
 
   marker_.set_action(gz::msgs::Marker::ADD_MODIFY);
   marker_.set_ns(kPluginName);
-  marker_.set_id(line_id_);
+  marker_.set_id(1);  // 0だとIDがランダムに割り当てられて無限に増えてしまう
   marker_.set_type(gz::msgs::Marker::LINE_LIST);
   line_p0_ = marker_.add_point();
   line_p1_ = marker_.add_point();
@@ -186,7 +184,6 @@ void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "initialMaximumLength", init_max_length_, kDefaultInitMaxLength, kPositive);
   getSdfParam(sdf, "youngModulus", young_, kDefaultYoungModulus, kPositive);
   getSdfParam(sdf, "crossSectionArea", csa_, kDefaultCrossSectionArea, kPositive);
-  getSdfParam(sdf, "lineId", line_id_, kDefaultLineId, kPositive);  // 0だとIDがランダムに割り当てられて無限に増える
 }
 
 void GazeboTetherStationPlugin::getParamsCb(
