@@ -18,7 +18,11 @@ private:
   int socket_;
   struct sockaddr_in server_address_;
 
-  static bool connectWithTimeout(int fd, const sockaddr* addr, socklen_t len, timeval& timeout);
+  // NTRIP CasterへのHTTP requestを作成する
+  std::string createHttpRequest(const std::string& mount_point, const std::string& user_name, const std::string& password);
+  // timeout付きでtcp通信で接続する
+  static bool connectWithTimeout(const int& fd, const sockaddr* addr, socklen_t len, timeval& timeout);
+  // base64にencodeする
   static std::string base64Encode(const std::string& src);
 };
 } // namespace ntrip

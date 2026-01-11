@@ -10,10 +10,10 @@ class SourceTableReader
 {
 // access http://rtk2go.com:2101/ to get the example source table
 public:
-  explicit SourceTableReader();
-  void read(const std::string& data);
-  // 与えられた緯度・経度に最も近いmount_pointを見つけてその名前を返す．緯度・経度はdegree．
-  std::string findNearestMountPoint(const double& latitude, const double& longitude);
+  // source tableの文字列データを読む．
+  explicit SourceTableReader(const std::string& data);
+  // 各mount_pointに対する与えられた緯度・経度までの距離を計算し，近い順に並べて，moint pointの名前をその順で返す．緯度・経度はdegree．
+  std::vector<std::string> sortMountPoints(const double& latitude, const double& longitude);
 private:
   static constexpr double kDEG_TO_RAD = M_PI / 180.0;
   enum Index : u_int8_t {
@@ -38,7 +38,7 @@ private:
     kMISC, // その他
   };
 
-  // 受信したmoint pointのデータ
+  // source tableから読み取ったmoint pointのデータ
   std::vector<std::vector<std::string>> moint_points_;
 };
 }

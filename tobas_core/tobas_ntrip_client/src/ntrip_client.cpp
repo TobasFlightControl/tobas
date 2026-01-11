@@ -38,15 +38,25 @@ bool NtripClient::initialize(const char* server_ip, const int& server_port, cons
   }
 
   // NTRIP CasterへのHTTP requestを作成する
-  std::string basic_credentials = base64Encode(std::string(user_name) + ":" + std::string(password));
-  std::string http_request = "GET /" + std::string(mount_point) + " HTTP/1.0\r\nUser-Agent: NTRIP ntrip_client_ros\r\n" + "Authorization: Basic " + basic_credentials + "\r\n";
+  const std::string http_request = createHttpRequest(mount_point, user_name, password);
 
   // HTTP requestを送信
-  send(socket_, http_request.c_str(), http_request.size(), 0);
+  auto sended_size = send(socket_, http_request.c_str(), http_request.size(), 0);
+  if (sended_size != static_cast<ssize_t>(http_request.size())) {{
+    std::cerr << "Failed to send http request." << std::endl;
+    return false;
+  }}
 
   // Get the response from the server
   char buf[kChunkSize];
   auto receive_size = recv(socket_, buf, kChunkSize, 0);
+
+  // ICY 200 OKが含まれていれば接続できている
+  if (std::string(buf).find("ICY 200 OK") != std::string::npos) {
+    return true;
+  }
+
+  // 接続できていない場合でsource tableが返ってきている場合は，source tableから近くのmount pointを探して接続
   if (std::string(buf).find("SOURCETABLE 200 OK") != std::string::npos) {
     std::cerr << "Received source table. Probably the mountpoint is not valid. Receiving source table..." << std::endl;
     // read all source table data
@@ -56,11 +66,30 @@ bool NtripClient::initialize(const char* server_ip, const int& server_port, cons
       receive_size = recv(socket_, buf, kChunkSize, 0);
       source_table.insert(source_table.end(), buf, buf + receive_size);
     }
+
     // read source table data
-    std::string source_table_string(source_table.begin(), source_table.end());
-    SourceTableReader source_table_reader;
-    source_table_reader.read(source_table_string);
-    std::cout << "Recommended moint point : " << source_table_reader.findNearestMountPoint(latitude, longitude) << std::endl;
+    SourceTableReader source_table_reader(std::string(source_table.begin(), source_table.end()));
+
+    // sort moint points by the distance from here
+    auto sorted_moint_points = source_table_reader.sortMountPoints(latitude, longitude);
+
+    // 距離が近い順にmount pointを試していく
+    for (size_t i = 0; i < 3; i++) {
+      std::string mount_point_to_test = sorted_moint_points[i];
+      std::cout << "Trying " << mount_point_to_test << ", i = " << i << std::endl;
+
+      // 先程と同じようにしてNTRIP CasterへHTTP requestを送信してresponseをチェック
+      const std::string http_request_again = createHttpRequest(mount_point_to_test, user_name, password);
+      send(socket_, http_request_again.c_str(), http_request_again.size(), 0);
+      receive_size = recv(socket_, buf, kChunkSize, 0);
+      // ICY 200 OKが含まれていれば接続できている
+      if (std::string(buf).find("ICY 200 OK") != std::string::npos) {
+        return true;
+      }
+      if (std::string(buf).find("SOURCETABLE 200 OK") != std::string::npos) {
+        std::cerr << "Received source table. Probably the mountpoint is not valid." << std::endl;
+      }
+    }
     return false;
   } else if (std::string(buf).find("401") != std::string::npos) {
     std::cerr << "Received unauthorized response from the server. Check your user name and password." << std::endl;
@@ -69,7 +98,18 @@ bool NtripClient::initialize(const char* server_ip, const int& server_port, cons
   return true;
 }
 
-bool NtripClient::connectWithTimeout(int fd, const sockaddr* addr, socklen_t len, timeval& timeout)
+std::string NtripClient::createHttpRequest(const std::string& mount_point, const std::string& user_name, const std::string& password)
+{
+  std::string basic_credentials = base64Encode(std::string(user_name) + ":" + std::string(password));
+  std::string http_request =
+    "GET /" + mount_point + " HTTP/1.0\r\n"
+    "User-Agent: NTRIP str2str\r\n" // str2strを名乗らないと何故かsource tableが返ってくるだけで通信に成功しない
+    "Authorization: Basic " + basic_credentials + "\r\n"
+    "\r\n";
+  return http_request;
+}
+
+bool NtripClient::connectWithTimeout(const int& fd, const sockaddr* addr, socklen_t len, timeval& timeout)
 {
   // 接続前に一度非同期に変更
   auto flags = fcntl(fd, F_GETFL);
