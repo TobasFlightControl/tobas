@@ -1,6 +1,9 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ntrip_client/ntrip_client.hpp>
 
+#include <tobas_constants/constants.hpp>
+#include <tobas_msgs/msg/binary_packet.hpp>
+
 using namespace std::chrono_literals;
 
 class NtripClientNode : public tobas::BaseNode
@@ -20,6 +23,7 @@ private:
 
   ntrip::NtripClient ntrip_client_;
   ros2::TimerPtr timer_;
+  ros2::PublisherPtr<tobas_msgs::msg::BinaryPacket> rtcm_pub_;
 
   void timerCallback();
 };
@@ -40,13 +44,19 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("nt
     return;
   }
 
+  rtcm_pub_ = createPublisher<tobas_msgs::msg::BinaryPacket>(tobas::kRtcmCorrectionTopic);
   timer_ = createTimer(kIntervalTime, &NtripClientNode::timerCallback, this);
 }
 
 void NtripClientNode::timerCallback()
 {
   auto packets = ntrip_client_.receiveRtcmData();
-  std::cout << "received " << packets.size() << " packets" << std::endl;
+  for (size_t i = 0; i < packets.size(); i++) {
+    auto msg = std::make_unique<tobas_msgs::msg::BinaryPacket>();
+    msg->header.stamp = now();
+    msg->data = packets[i];
+    rtcm_pub_->publish(std::move(msg));
+  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(NtripClientNode)
