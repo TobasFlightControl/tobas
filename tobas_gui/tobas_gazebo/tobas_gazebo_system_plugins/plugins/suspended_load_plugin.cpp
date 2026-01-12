@@ -5,6 +5,7 @@
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_msg.hpp>
+#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_gazebo_tools/model_mass_holder.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 
@@ -50,7 +51,6 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  gz::math::Vector3d B_Pos_BP_;
 
   // Aircraft
   std::shared_ptr<gz::sim::Link> base_link_;
@@ -59,6 +59,7 @@ private:
   const cmp::WorldAngularVelocity* W_Gyro_WB_ = nullptr;
 
   // Load
+  gz::math::Vector3d B_Pos_BP_;
   gz::math::Vector3d L_Pos_LQ_;
   double load_mass_;
   gz::math::Matrix3d load_inertia_ = gz::math::Matrix3d::Zero;
@@ -84,7 +85,6 @@ private:
   gz::msgs::Vector3d* line_p0_;
   gz::msgs::Vector3d* line_p1_;
 
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
   std::string loadName() const;
 
   void attachLoadCb(const AttachSrv::Request::ConstSharedPtr& req, const AttachSrv::Response::SharedPtr& res);
@@ -102,7 +102,9 @@ void GazeboSuspendedLoadPlugin::Configure(
   gz::sim::EventManager&)
 {
   initialize(kPluginName, sdf);
-  getSdfParams(sdf);
+
+  // GUIで調整できるようにSDFパラメータは最小限に
+  getSdfParam(sdf, "linkName", link_name_);
 
   const auto world_name = getWorldName(ecm);
   if (!world_name) {
@@ -252,12 +254,6 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   }
 }
 
-void GazeboSuspendedLoadPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
-{
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "droneEnd", B_Pos_BP_, gz::math::Vector3d::Zero);
-}
-
 std::string GazeboSuspendedLoadPlugin::loadName() const
 {
   return kLoadNamePrefix + std::to_string(load_index_);
@@ -337,6 +333,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     return;
   }
 
+  vectorRosToGazebo(req->attachment_point, B_Pos_BP_);
   L_Pos_LQ_.Set(0., 0., sz_2);  // 直方体の上面の中央にケーブルを取り付ける想定
   load_mass_ = req->load_mass;
   cable_length_ = req->cable_length;
