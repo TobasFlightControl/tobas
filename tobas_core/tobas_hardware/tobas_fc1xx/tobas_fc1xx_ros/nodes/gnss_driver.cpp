@@ -3,6 +3,7 @@
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_std_tools/gnss.hpp>
 
+#include <tobas_msgs/msg/binary_packet.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
 
 #include "./common.hpp"
@@ -35,6 +36,7 @@ private:
   std::map<ublox::ZEDF9P::UbxNavId, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::BinaryPacket> rtcm_correction_sub_;
   ros2::TimerPtr initialize_timer_;
 
   void initialize();
@@ -42,6 +44,7 @@ private:
   void warnUnnecessaryUBXMessage();
 
   void mainTimerCb();
+  void rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg);
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_gnss_driver", options)
@@ -67,6 +70,8 @@ void GnssDriverNode::initialize()
   is_received_[ublox::ZEDF9P::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
+  rtcm_correction_sub_ = createSubscriber<tobas_msgs::msg::BinaryPacket>(
+    tobas::kRtcmCorrectionTopic, &GnssDriverNode::rtcmCorrectionSubCb, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
@@ -136,13 +141,13 @@ bool GnssDriverNode::configure()
   }
 
   // 不要なプロトコルを無効化
-  if (!gnss_.enableProtocol(ublox::ZEDF9P::NMEA, false)) {
+  if (!gnss_.enableProtocol(ublox::ZEDF9P::NMEA, false, false)) {
     TOBAS_WARN("Failed to disable NMEA protocol.");
   }
-  if (!gnss_.enableProtocol(ublox::ZEDF9P::RTCM3X, false)) {
+  if (!gnss_.enableProtocol(ublox::ZEDF9P::RTCM3X, true, false)) {
     TOBAS_WARN("Failed to disable RTCM3X protocol.");
   }
-  if (!gnss_.enableProtocol(ublox::ZEDF9P::SPARTN, false)) {
+  if (!gnss_.enableProtocol(ublox::ZEDF9P::SPARTN, false, false)) {
     TOBAS_WARN("Failed to disable SPARTN protocol.");
   }
 
@@ -255,6 +260,11 @@ void GnssDriverNode::mainTimerCb()
 
   // Publish GNSS message
   gnss_pub_->publish(std::move(gnss_msg));
+}
+
+void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg)
+{
+  gnss_.registerRtcmCorrectionData(msg->data);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(GnssDriverNode)

@@ -17,6 +17,7 @@ find_package(ament_cmake REQUIRED)
 set(AMENT_DEPENDENCIES
     rclcpp
     rclcpp_components
+    tobas_constants
     tobas_msgs
     tobas_node
 )

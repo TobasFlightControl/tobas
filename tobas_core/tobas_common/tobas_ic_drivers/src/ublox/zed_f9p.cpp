@@ -30,9 +30,19 @@ bool ZEDF9P::update(bool nonblock)
   scanner_.reset();
 
   if (nonblock) {
+    bool sended = false;
+    uint8_t send_data = kDefaultData;  // 送るデータがないときは0xFFを送信
+    if (send_buffer_.size() > 0) {
+      send_data = send_buffer_[0];
+      sended = true;
+    }
+    tx_buf_[0] = send_data;
     // スタートバイトを確認
-    if (!spi_.transfer(1)) {
+    if (!spi_.transfer(1)) {  // データを送信しながら受信する Back-to-back read and write access
       return false;
+    }
+    if (sended) {
+      send_buffer_.pop_front();  // 送信したデータはbufferから取り除く
     }
     if (!scanner_.update(rx_buf_[0])) {
       return false;
@@ -47,8 +57,18 @@ bool ZEDF9P::update(bool nonblock)
   // メッセージを1つスキャン
   rate_.start();
   while (scanner_.state() != UBXScanner::kDone) {
+    bool sended = false;
+    uint8_t send_data = kDefaultData;
+    if (send_buffer_.size() > 0) {
+      send_data = send_buffer_[0];
+      sended = true;
+    }
+    tx_buf_[0] = send_data;
     if (!spi_.transfer(1)) {
       return false;
+    }
+    if (sended) {
+      send_buffer_.pop_front();
     }
     if (!scanner_.update(rx_buf_[0])) {
       return false;
@@ -63,6 +83,11 @@ bool ZEDF9P::update(bool nonblock)
   }
 
   return true;
+}
+
+void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
+{
+  send_buffer_.insert(send_buffer_.end(), data.begin(), data.end());
 }
 
 bool ZEDF9P::enableMsg(UbxClass cls, uint8_t id, bool enable)
@@ -457,16 +482,14 @@ bool ZEDF9P::disableNavIc()
   return enableNavIc(false);
 }
 
-bool ZEDF9P::enableProtocol(CfgProtocol prot, bool enable)
+bool ZEDF9P::enableProtocol(CfgProtocol prot, bool enable_input, bool enable_output)
 {
   CfgValSet<uint8_t, 2> cfg;
 
-  for (size_t i = 0; i < 2; ++i) {
-    cfg.data[i].value = enable;
-  }
-
-  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SPIINPROT, prot);   // CFG-SPIINPROT-XXX
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SPIINPROT, prot);  // CFG-SPIINPROT-XXX
+  cfg.data[0].value = enable_input;
   cfg.data[1].key = configKeyID(ONE_BIT, CFG_SPIOUTPROT, prot);  // CFG-SPIOUTPROT-XXX
+  cfg.data[1].value = enable_output;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }

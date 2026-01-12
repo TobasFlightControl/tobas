@@ -1,5 +1,8 @@
 #pragma once
 
+#include <deque>
+#include <vector>
+
 #include <tobas_linux/spi_dev.hpp>
 #include <tobas_time_tools/rate.hpp>
 
@@ -26,6 +29,7 @@ private:
   static constexpr size_t kSPIBufSize = 256;
   static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] 同軸ケーブルの遅延
   static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
+  static constexpr uint8_t kDefaultData = 0xFF;
 
   // SPIで1バイト受け取る間隔 [us]
   // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．
@@ -125,6 +129,8 @@ public:
 
   bool initialize(const char* spi_device);
   bool update(bool nonblock = true);
+  // rtcm correction dataを登録する 登録したデータはupdate関数内で少しずつ送る
+  void registerRtcmCorrectionData(const std::vector<uint8_t>& data);
 
   /* ===== Configurations =====*/
 
@@ -153,7 +159,7 @@ public:
   bool enableNavIc();
   bool disableNavIc();
 
-  bool enableProtocol(CfgProtocol prot, bool enable);
+  bool enableProtocol(CfgProtocol prot, bool enable_input, bool enable_output);
 
   /* RF174ケーブルの長さからアナログ伝達の遅延を設定する． */
   bool setAntennaLength(uint8_t length_m);
@@ -267,6 +273,8 @@ private:
   uint8_t rx_buf_[kSPIBufSize];
 
   UBXScanner scanner_;
+
+  std::deque<uint8_t> send_buffer_;
 
   tim::Rate rate_;
 
