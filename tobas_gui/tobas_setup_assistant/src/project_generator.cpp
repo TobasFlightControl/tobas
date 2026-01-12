@@ -1174,6 +1174,9 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   // LookAt position plugin
   xml::addGazeboLookAtPositionPlugin(robot, ns, root_name);
 
+  // Suspended load plugin
+  xml::addGazeboSuspendedLoadPlugin(robot, ns, root_name);
+
   // Base static joint for debug
   xml::addBaseStaticJoint(robot, tree_.getRootName());
 

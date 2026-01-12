@@ -144,6 +144,8 @@ void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::str
 
 void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
+void addGazeboSuspendedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
 }  // namespace xml
 }  // namespace sa
