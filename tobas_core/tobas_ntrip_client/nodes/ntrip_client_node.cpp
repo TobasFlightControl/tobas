@@ -15,7 +15,8 @@ private:
   static constexpr char kDefaultServerIp[] = "3.143.243.81";  // RTK2GO http://rtk2go.com/
   static constexpr int kDefaultServerPort = 2101;
   static constexpr char kDefaultPassword[] = "none";
-  static constexpr std::chrono::duration kIntervalTime = 1s; // RTCM3.3 protocolのデータの受け取りに確認しに行く時間間隔
+  static constexpr std::chrono::duration kIntervalTime =
+    1s;  // RTCM3.3 protocolのデータの受け取りに確認しに行く時間間隔
 
   ntrip::NtripClient ntrip_client_;
   ros2::TimerPtr timer_;
@@ -44,7 +45,8 @@ NtripClientNode::NtripClientNode(const rclcpp::NodeOptions& options) : super("nt
 
 void NtripClientNode::timerCallback()
 {
-  ntrip_client_.receiveRtcmData();
+  auto packets = ntrip_client_.receiveRtcmData();
+  std::cout << "received " << packets.size() << " packets" << std::endl;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(NtripClientNode)

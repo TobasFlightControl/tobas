@@ -6,10 +6,9 @@
 #include <sys/socket.h>
 
 #include <boost/beast/core/detail/base64.hpp>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <string>
-#include <vector>
 
 #include <tobas_ntrip_client/source_table_reader.hpp>
 
@@ -77,7 +76,7 @@ bool NtripClient::initialize(
       std::cout << sorted_moint_points[i] << " ";
     }
     std::cout << std::endl;
-    
+
     // dequeから処理が終わったsource tableのデータを削除
     receive_deque_.resize(0);
     return false;
@@ -86,9 +85,9 @@ bool NtripClient::initialize(
   return false;
 }
 
-void NtripClient::receiveRtcmData()
+std::vector<std::vector<uint8_t>> NtripClient::receiveRtcmData()
 {
-  std::cout << "in receiveRtcm" << std::endl;
+  // receive data from the mount point
   while (true) {
     auto receive_size = nonblockReceive(socket_, receive_buffer_, kChunkSize, 0);
     if (receive_size <= 0) {
@@ -96,11 +95,21 @@ void NtripClient::receiveRtcmData()
     }
     receive_deque_.insert(receive_deque_.end(), receive_buffer_, receive_buffer_ + receive_size);
   }
-  std::cout << "deque size : " << receive_deque_.size() << std::endl;
-  for (size_t i = 0; i < receive_deque_.size(); i++) {
-    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(receive_deque_[i]);
+
+  // parse receive data
+  std::vector<std::vector<uint8_t>> packets;
+  auto size = receive_deque_.size();
+  for (size_t i = 0; i < size; i++) {
+    if (scanner_.state() == RtcmScanner::kDone) {
+      auto packet = std::vector<uint8_t>(scanner_.getPreamble(), scanner_.getEnd());
+      packets.push_back(packet);
+      scanner_.reset();
+    }
+    scanner_.update(receive_deque_[0]);
+    receive_deque_.pop_front();
   }
-  std::cout << std::dec << std::endl;
+
+  return packets;
 }
 
 std::string
@@ -143,6 +152,10 @@ NtripClient::checkMountPoint(const std::string& mount_point, const std::string& 
   receive_deque_.insert(receive_deque_.end(), receive_buffer_, receive_buffer_ + receive_size);
   // ICY 200 OKが含まれていれば接続できている
   if (std::string(receive_deque_.end() - receive_size, receive_deque_.end()).find("ICY 200 OK") != std::string::npos) {
+    // -1しているのはsizeofで終端文字\0の分まで数えられてしまっているのを除くため
+    for (size_t i = 0; i < sizeof("ICY 200 OK\r\n") - 1; i++) {
+      receive_deque_.pop_front();
+    }
     return SUCCESS;
   }
 

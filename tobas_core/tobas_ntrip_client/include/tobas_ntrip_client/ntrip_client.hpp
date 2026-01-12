@@ -4,6 +4,9 @@
 
 #include <deque>
 #include <string>
+#include <vector>
+
+#include "tobas_ntrip_client/rtcm_scanner.hpp"
 
 namespace ntrip
 {
@@ -22,7 +25,7 @@ public:
     const double& latitude,
     const double& longitude);
   // mount pointからRTCM3.3 protocolのデータを受信する nonblockingで受信を行う
-  void receiveRtcmData();
+  std::vector<std::vector<uint8_t>> receiveRtcmData();
 
 private:
   static constexpr int kTimeout = 5;  // 5 second
@@ -39,7 +42,9 @@ private:
   int socket_;
   struct sockaddr_in server_address_;
   char receive_buffer_[kChunkSize];  // 受信したデータ用buffer ここではデータ処理は行わずにreceive_dequeへ送りそちらで行う
-  std::deque<uint8_t> receive_deque_; // 受信したデータをここへためる 処理したものは前端から削除 受信したものは後端から投入
+  std::deque<uint8_t>
+    receive_deque_;  // 受信したデータをここへためる 処理したものは前端から削除 受信したものは後端から投入
+  RtcmScanner scanner_;
 
   // NTRIP CasterへのHTTP requestを作成する
   std::string
