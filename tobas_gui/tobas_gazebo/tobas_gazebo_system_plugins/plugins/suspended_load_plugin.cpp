@@ -1,7 +1,6 @@
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
-#include <gz/sim/World.hh>
 #include <gz/transport/Node.hh>
 
 #include <tobas_gazebo_common/constants.hpp>
@@ -28,15 +27,10 @@ class GazeboSuspendedLoadPlugin : public BaseNode,
                                   public gz::sim::ISystemConfigure,
                                   public gz::sim::ISystemPreUpdate
 {
-  // Constants
   static constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
   static constexpr char kLoadNamePrefix[] = "load_";
   static constexpr double kStopLoadRotationTimeConst = 10.;  // [s]
   static constexpr int kUpdateMarkerRate = 60;               // [Hz]
-
-  // Default parameters
-  static constexpr double kDefaultYoungModulus = 200.;     // [MPa] 低密度ポリエチレン
-  static constexpr double kDefaultCrossSectionArea = 50.;  // [mm^2]
 
   using self = GazeboSuspendedLoadPlugin;
   using AttachSrv = tobas_gazebo_msgs::srv::AttachSuspendedLoad;
@@ -57,8 +51,6 @@ private:
   // SDF parameters
   std::string link_name_;
   gz::math::Vector3d B_Pos_BP_;
-  double young_;  // [MPa] ヤング率 (Young Modulus)
-  double csa_;    // [mm^2] 断面積 (Cross-Sectional Area)
 
   // Aircraft
   std::shared_ptr<gz::sim::Link> base_link_;
@@ -70,7 +62,9 @@ private:
   gz::math::Vector3d L_Pos_LQ_;
   double load_mass_;
   gz::math::Matrix3d load_inertia_ = gz::math::Matrix3d::Zero;
-  double cable_length_;
+  double cable_length_;  // [m] ケーブルの自然長
+  double cable_young_;   // [Pa] ヤング率 (Young Modulus)
+  double cable_csa_;     // [m^2] 断面積 (Cross-Sectional Area)
   bool load_exist_ = false;
   int load_index_ = 0;
   std::shared_ptr<gz::sim::Link> load_link_;
@@ -228,9 +222,9 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     // マスバネダンパ系の係数
     const auto& m1 = mass_holder_.getMass();
     const auto& m2 = load_mass_;
-    const auto m = m1 * m2 / (m1 + m2);            // [kg] 相対運動の等価質量 (memo: 3-47)
-    const auto k = young_ * csa_ * cable_length_;  // [N/m]
-    const auto d = 2 * sqrt(m * k);                // [Ns/m] 臨海減衰する粘性係数
+    const auto m = m1 * m2 / (m1 + m2);                        // [kg] 相対運動の等価質量 (memo: 3-47)
+    const auto k = cable_young_ * cable_csa_ * cable_length_;  // [N/m]
+    const auto d = 2 * sqrt(m * k);                            // [Ns/m] 臨海減衰する粘性係数
 
     // ケーブルにかかる力を計算
     const auto T = k * x + d * xd;  // [N]
@@ -262,8 +256,6 @@ void GazeboSuspendedLoadPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "droneEnd", B_Pos_BP_, gz::math::Vector3d::Zero);
-  getSdfParam(sdf, "youngModulus", young_, kDefaultYoungModulus, kPositive);
-  getSdfParam(sdf, "crossSectionArea", csa_, kDefaultCrossSectionArea, kPositive);
 }
 
 std::string GazeboSuspendedLoadPlugin::loadName() const
@@ -294,6 +286,16 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   if (req->cable_length <= 0.) {
     res->success = false;
     res->message = "Cable length must be positive.";
+    return;
+  }
+  if (req->cable_young_modulus <= 0.) {
+    res->success = false;
+    res->message = "Cable young modulus must be positive.";
+    return;
+  }
+  if (req->cable_cross_section_area <= 0.) {
+    res->success = false;
+    res->message = "Cable cross section area must be positive.";
     return;
   }
 
@@ -338,6 +340,8 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   L_Pos_LQ_.Set(0., 0., sz_2);  // 直方体の上面の中央にケーブルを取り付ける想定
   load_mass_ = req->load_mass;
   cable_length_ = req->cable_length;
+  cable_young_ = req->cable_young_modulus;
+  cable_csa_ = req->cable_cross_section_area;
 
   const auto [ixx, iyy, izz] = boxInertia(req->load_sx, req->load_sy, req->load_sz, req->load_mass);
   load_inertia_.Set(0, 0, ixx);
