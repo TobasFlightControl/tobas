@@ -231,6 +231,7 @@ void NAV_STATUS::decode(const uint8_t* p)
   const auto flags2 = algo::decodeU8(p + 7);
   psmState = static_cast<payload::NAV_STATUS::PowerSaveModeState>((flags2 >> 0) & 0b11);
   spoofDetState = static_cast<payload::NAV_STATUS::SpoofDetectionState>((flags2 >> 3) & 0b11);
+  carrSoln = static_cast<payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus>((flags2 >> 6) & 0b11);
 
   ttff = algo::decodeU32(p + 8);
   msss = algo::decodeU32(p + 12);
@@ -520,6 +521,7 @@ void NAV_STATUS::print(std::ostream& os) const
 
   os << "Power save mode state: " << (int)psmState << std::endl;
   os << "Spoofing detection state: " << (int)spoofDetState << std::endl;
+  os << "Carrier phase range solution status: " << (int)carrSoln << std::endl;
 
   os << "Time to first fix: " << ttff << "[ms]" << std::endl;
   os << "Milliseconds since Startup / Reset: " << msss << "[ms]" << std::endl;

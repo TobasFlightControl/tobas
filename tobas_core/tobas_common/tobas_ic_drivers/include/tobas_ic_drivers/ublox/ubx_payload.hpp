@@ -351,6 +351,12 @@ struct NAV_STATUS : public Payload
     SPOOFING_INDICATED = 2,
     MULTIPLE_SPOOFING_INDICATIONS = 3,
   } spoofDetState;
+  enum CarrierPhaseRangeSolutionStatus : uint8_t
+  {
+    NO_SOLUTION = 0,
+    FLOATING_AMBIGUITY = 1,
+    FIXED_AMBIGUITY = 2,
+  } carrSoln;
 
   uint32_t ttff;  // Time to first fix [ms]
   uint32_t msss;  // Milliseconds since Startup / Reset [ms]

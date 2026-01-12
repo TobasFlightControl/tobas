@@ -228,6 +228,19 @@ void GnssDriverNode::mainTimerCb()
   // Fill fix type
   gnss_msg->fix_type = status_.gpsFix;
 
+  // Fill rtk status
+  if (!status_.diffCorr) {
+    gnss_msg->rtk_status = tobas_msgs::msg::Gnss::STAND_ALONE;
+  } else {
+    if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FLOATING_AMBIGUITY) {
+      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::RTK_FLOAT;
+    } else if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FIXED_AMBIGUITY) {
+      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::RTK_FIXED;
+    } else {
+      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::CORRECTION_RECEIVED;
+    }
+  }
+
   // Fill position
   gnss_msg->latitude = hpposllh_.lat + hpposllh_.latHp;                 // Latitude [deg]
   gnss_msg->longitude = hpposllh_.lon + hpposllh_.lonHp;                // Longitude [deg]
