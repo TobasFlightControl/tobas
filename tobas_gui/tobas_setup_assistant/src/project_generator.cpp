@@ -1168,6 +1168,9 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   // Wind plugin
   xml::addGazeboWindPlugin(robot, ns, root_name);
 
+  // Suspended load plugin
+  xml::addGazeboSuspendedLoadPlugin(robot, ns, root_name);
+
   // Ground truth state plugin
   xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);
 

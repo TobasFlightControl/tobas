@@ -1,4 +1,4 @@
-#include "./LookAtCamera.hpp"
+#include "./TobasLookAtCamera.hpp"
 
 #include <boost/polymorphic_pointer_cast.hpp>
 #include <gz/common/Console.hh>
@@ -13,11 +13,11 @@
 
 namespace gazebo
 {
-LookAtCamera::LookAtCamera()
+TobasLookAtCamera::TobasLookAtCamera()
 {
 }
 
-void LookAtCamera::LoadConfig(const tinyxml2::XMLElement* elem)
+void TobasLookAtCamera::LoadConfig(const tinyxml2::XMLElement* elem)
 {
   if (title.empty()) {
     title = "LookAt Camera Plugin";
@@ -30,7 +30,7 @@ void LookAtCamera::LoadConfig(const tinyxml2::XMLElement* elem)
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }
 
-bool LookAtCamera::eventFilter(QObject* obj, QEvent* event)
+bool TobasLookAtCamera::eventFilter(QObject* obj, QEvent* event)
 {
   if (event->type() == gz::gui::events::Render::kType) {
     onRender();
@@ -39,7 +39,7 @@ bool LookAtCamera::eventFilter(QObject* obj, QEvent* event)
   return super::eventFilter(obj, event);
 }
 
-void LookAtCamera::onRender()
+void TobasLookAtCamera::onRender()
 {
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -76,14 +76,14 @@ void LookAtCamera::onRender()
   camera_->SetWorldPose(camera_pose);
 }
 
-void LookAtCamera::initialize()
+void TobasLookAtCamera::initialize()
 {
   // Attach to the first camera we find
   for (size_t i = 0; i < scene_->NodeCount(); ++i) {
-    const auto camera = dynamic_pointer_cast<gz::rendering::Camera>(scene_->NodeByIndex(i));
+    const auto camera = std::dynamic_pointer_cast<gz::rendering::Camera>(scene_->NodeByIndex(i));
     if (camera) {
       camera_ = camera;
-      gzdbg << "LookAtCamera is moving camera [" << camera_->Name() << "]" << std::endl;
+      gzdbg << "TobasLookAtCamera is moving camera [" << camera_->Name() << "]" << std::endl;
       break;
     }
   }
@@ -93,10 +93,10 @@ void LookAtCamera::initialize()
     return;
   }
 
-  node_.Subscribe(kGzCameraLookAtTopic, &LookAtCamera::lookAtPositionCb, this);
+  node_.Subscribe(kGzCameraLookAtTopic, &TobasLookAtCamera::lookAtPositionCb, this);
 }
 
-void LookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
+void TobasLookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
 {
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -104,4 +104,4 @@ void LookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
 }
 }  // namespace gazebo
 
-GZ_ADD_PLUGIN(gazebo::LookAtCamera, gz::gui::Plugin)
+GZ_ADD_PLUGIN(gazebo::TobasLookAtCamera, gz::gui::Plugin)

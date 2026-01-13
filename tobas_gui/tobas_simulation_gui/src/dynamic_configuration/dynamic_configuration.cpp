@@ -23,17 +23,25 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
   wind_params_ = new WindParamsWidget(node);
   scroll_rows->addWidget(wind_params_);
 
+  suspended_load_ = new SuspendedLoadWidget(node);
+  scroll_rows->addWidget(suspended_load_);
+
   scroll_rows->addStretch();
 }
 
 void DynamicConfigWidget::updateNamespace(const std::string& ns)
 {
   wind_params_->updateNamespace(ns);
+  suspended_load_->updateNamespace(ns);
 }
 
 bool DynamicConfigWidget::start()
 {
   if (!wind_params_->start()) {
+    return false;
+  }
+
+  if (!suspended_load_->start()) {
     return false;
   }
 
@@ -43,6 +51,7 @@ bool DynamicConfigWidget::start()
 void DynamicConfigWidget::reset()
 {
   wind_params_->reset();
+  suspended_load_->reset();
 }
 }  // namespace sim
 }  // namespace gui

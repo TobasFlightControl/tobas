@@ -1,5 +1,6 @@
 #pragma once
 
+#include "./suspended_load.hpp"
 #include "./wind_parameters.hpp"
 
 namespace gui
@@ -23,6 +24,7 @@ public:
 
 private:
   WindParamsWidget* wind_params_;
+  SuspendedLoadWidget* suspended_load_;
 };
 }  // namespace sim
 }  // namespace gui

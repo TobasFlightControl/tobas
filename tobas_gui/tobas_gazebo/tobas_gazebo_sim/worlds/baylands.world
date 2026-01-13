@@ -40,8 +40,19 @@
         </gz-gui>
       </plugin>
 
+      <!-- Marker Manager (Required to visualize suspended payloads, tethers, etc.) -->
+      <plugin filename="MarkerManager" name="Marker Manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+
       <!-- Rendering Information -->
-      <plugin filename="RenderInfo" name="Rendering Information">
+      <plugin filename="TobasRenderInfo" name="Rendering Information">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
           <property key="width" type="double">5</property>
@@ -52,7 +63,7 @@
       </plugin>
 
       <!-- LookAt Camera -->
-      <plugin filename="LookAtCamera" name="LookAt Camera">
+      <plugin filename="TobasLookAtCamera" name="LookAt Camera">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
           <property key="width" type="double">5</property>
