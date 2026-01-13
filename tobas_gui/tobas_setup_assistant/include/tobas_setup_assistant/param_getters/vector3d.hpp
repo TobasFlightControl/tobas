@@ -1,9 +1,8 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
+#include <tobas_qt_tools/widgets/vector3d_edit.hpp>
 
 #include "./base.hpp"
-#include "./double_getter.hpp"
 
 namespace gui
 {
@@ -17,7 +16,7 @@ class ParamGetterWidget_Vector3d : public ParamGetterWidget<Eigen::Vector3d>
   using super = ParamGetterWidget<Eigen::Vector3d>;
 
 Q_SIGNALS:
-  void valueChanged(Eigen::Vector3d value);
+  void valueChanged(const Eigen::Vector3d& value);
 
 public:
   explicit ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text = "");
@@ -31,17 +30,11 @@ public:
   void setSingleStep(double single_step);
   void setSuffix(const QString& suffix);
 
-  double x() const;
-  double y() const;
-  double z() const;
-
 private Q_SLOTS:
-  void onValueChanged(double value);
+  void onValueChanged(const Eigen::Vector3d& value);
 
 private:
-  DoubleGetter* x_;
-  DoubleGetter* y_;
-  DoubleGetter* z_;
+  qt::Vector3dEdit* vector3d_;
 };
 }  // namespace sa
 }  // namespace gui

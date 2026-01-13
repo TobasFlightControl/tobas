@@ -2,22 +2,20 @@
 
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
-namespace gui
+namespace qt
 {
-namespace sa
-{
-class DoubleGetter : public QWidget
+class LabeledDoubleSpinBox : public QWidget
 {
   Q_OBJECT
 
-  using self = DoubleGetter;
+  using self = LabeledDoubleSpinBox;
   using super = QWidget;
 
 Q_SIGNALS:
   void valueChanged(double value);
 
 public:
-  explicit DoubleGetter(const QString& name);
+  explicit LabeledDoubleSpinBox(const QString& label_text);
 
   double getValue() const;
   bool setValue(const double& value);
@@ -34,5 +32,4 @@ private Q_SLOTS:
 private:
   qt::DoubleSpinBox* data_;
 };
-}  // namespace sa
-}  // namespace gui
+}  // namespace qt

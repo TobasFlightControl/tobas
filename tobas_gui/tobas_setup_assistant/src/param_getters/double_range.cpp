@@ -10,14 +10,14 @@ ParamGetterWidget_DoubleRange::ParamGetterWidget_DoubleRange(const QString& para
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
-  min_ = new DoubleGetter("min");
+  min_ = new qt::LabeledDoubleSpinBox("min");
   cols->addWidget(min_);
 
-  max_ = new DoubleGetter("max");
+  max_ = new qt::LabeledDoubleSpinBox("max");
   cols->addWidget(max_);
 
-  connect(min_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
-  connect(max_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
+  connect(min_, &qt::LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);
+  connect(max_, &qt::LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);
 }
 
 ParamGetterWidget_DoubleRange::ValueType ParamGetterWidget_DoubleRange::getValue() const
