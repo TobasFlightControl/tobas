@@ -289,7 +289,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
     res->message = "Cable young modulus must be positive.";
     return;
   }
-  if (req->cable_cross_section_area <= 0.) {
+  if (req->cable_cross_sectional_area <= 0.) {
     res->success = false;
     res->message = "Cable cross section area must be positive.";
     return;
@@ -338,7 +338,7 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   load_mass_ = req->load_mass;
   cable_length_ = req->cable_length;
   cable_young_ = req->cable_young_modulus;
-  cable_csa_ = req->cable_cross_section_area;
+  cable_csa_ = req->cable_cross_sectional_area;
 
   const auto [ixx, iyy, izz] = boxInertia(req->load_sx, req->load_sy, req->load_sz, req->load_mass);
   load_inertia_.Set(0, 0, ixx);

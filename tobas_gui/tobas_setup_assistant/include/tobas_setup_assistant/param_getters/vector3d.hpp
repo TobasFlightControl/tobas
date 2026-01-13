@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_qt_tools/widgets/vector3d_edit.hpp>
+#include <tobas_qt_tools/widgets/vector3d_edit_horizontal.hpp>
 
 #include "./base.hpp"
 
@@ -34,7 +34,7 @@ private Q_SLOTS:
   void onValueChanged(const Eigen::Vector3d& value);
 
 private:
-  qt::Vector3dEdit* vector3d_;
+  qt::Vector3dEditHorizontal* vector3d_;
 };
 }  // namespace sa
 }  // namespace gui

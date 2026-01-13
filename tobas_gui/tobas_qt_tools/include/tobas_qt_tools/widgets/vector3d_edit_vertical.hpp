@@ -3,22 +3,22 @@
 #include <QWidget>
 #include <eigen3/Eigen/Core>
 
-#include "./labeled_double_spin_box.hpp"
+#include "./double_spin_box.hpp"
 
 namespace qt
 {
-class Vector3dEdit : public QWidget
+class Vector3dEditVertical : public QWidget
 {
   Q_OBJECT
 
-  using self = Vector3dEdit;
+  using self = Vector3dEditVertical;
   using super = QWidget;
 
 Q_SIGNALS:
   void valueChanged(const Eigen::Vector3d& vector);
 
 public:
-  explicit Vector3dEdit(QWidget* parent = nullptr);
+  explicit Vector3dEditVertical(QWidget* parent = nullptr);
 
   Eigen::Vector3d vector() const;
   void setVector(const Eigen::Vector3d& src);
@@ -34,9 +34,9 @@ public:
   double z() const;
 
 private:
-  LabeledDoubleSpinBox* x_;
-  LabeledDoubleSpinBox* y_;
-  LabeledDoubleSpinBox* z_;
+  DoubleSpinBox* x_;
+  DoubleSpinBox* y_;
+  DoubleSpinBox* z_;
 
 private Q_SLOTS:
   void onValueChanged(double value);

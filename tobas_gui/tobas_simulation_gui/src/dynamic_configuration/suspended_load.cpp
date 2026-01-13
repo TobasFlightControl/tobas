@@ -3,12 +3,14 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_string_tools/core.hpp>
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
@@ -23,11 +25,11 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
   attach_detach_btn_ = new qt::ToggleButton("Attach", "Detach");
   attach_detach_btn_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
-  attach_point_ = new qt::Vector3dEdit();
+  attach_point_ = new qt::Vector3dEditVertical();
   attach_point_->setDecimals(3);
   attach_point_->setSuffix(" m");
 
-  load_size_ = new qt::Vector3dEdit();
+  load_size_ = new qt::Vector3dEditVertical();
   load_size_->setDecimals(3);
   load_size_->setMinimum(1e-3);
   load_size_->setSuffix(" m");
@@ -48,7 +50,7 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
 
   cable_csa_ = new qt::SpinBox();
   cable_csa_->setMinimum(1);
-  cable_csa_->setSuffix(" mm^2");
+  cable_csa_->setSuffix(QString::fromStdString(str::convertToSuperscript(" mm^2")));
 
   setParamsToDefault();
 
@@ -118,12 +120,46 @@ void SuspendedLoadWidget::setParamsToDefault()
 
 void SuspendedLoadWidget::onAttachRequested()
 {
-  // TODO
+  const auto req = std::make_shared<AttachSrv::Request>();
+  tf::vectorEigenToMsg(attach_point_->vector(), req->attachment_point);
+  req->load_sx = load_size_->x();
+  req->load_sy = load_size_->y();
+  req->load_sz = load_size_->z();
+  req->load_mass = load_mass_->value();
+  req->cable_length = cable_length_->value();
+  req->cable_young_modulus = cable_young_->value() * 1e+6;
+  req->cable_cross_sectional_area = cable_csa_->value() * 1e-6;
+
+  if (!attach_sc_->call(req, kServiceCallTimeout)) {
+    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service.");
+    reset();
+    return;
+  }
+
+  const auto res = attach_sc_->getResponse();
+  if (!res->success) {
+    qt::qErrorBox(this, "Failed to attach a load: " + QString::fromStdString(res->message));
+    reset();
+    return;
+  }
 }
 
 void SuspendedLoadWidget::onDetachRequested()
 {
-  // TODO
+  const auto req = std::make_shared<DetachSrv::Request>();
+
+  if (!detach_sc_->call(req, kServiceCallTimeout)) {
+    qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service.");
+    reset();
+    return;
+  }
+
+  const auto res = detach_sc_->getResponse();
+  if (!res->success) {
+    qt::qErrorBox(this, "Failed to detach the load: " + QString::fromStdString(res->message));
+    reset();
+    return;
+  }
 }
 }  // namespace sim
 }  // namespace gui

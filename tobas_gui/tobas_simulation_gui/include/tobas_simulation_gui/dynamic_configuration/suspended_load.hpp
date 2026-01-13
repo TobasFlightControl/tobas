@@ -5,7 +5,7 @@
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
-#include <tobas_qt_tools/widgets/vector3d_edit.hpp>
+#include <tobas_qt_tools/widgets/vector3d_edit_vertical.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
 #include <tobas_gazebo_msgs/srv/attach_suspended_load.hpp>
@@ -45,8 +45,8 @@ private:
 
   qt::ToggleButton* attach_detach_btn_;
 
-  qt::Vector3dEdit* attach_point_;
-  qt::Vector3dEdit* load_size_;
+  qt::Vector3dEditVertical* attach_point_;
+  qt::Vector3dEditVertical* load_size_;
   qt::DoubleSpinBox* load_mass_;
   qt::DoubleSpinBox* cable_length_;
   qt::SpinBox* cable_young_;

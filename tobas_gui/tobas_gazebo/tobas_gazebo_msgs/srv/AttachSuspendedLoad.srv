@@ -5,7 +5,7 @@ float64 load_sz                         # [m]
 float64 load_mass                       # [kg]
 float64 cable_length                    # [m]
 float64 cable_young_modulus             # [Pa]
-float64 cable_cross_section_area        # [m^2]
+float64 cable_cross_sectional_area        # [m^2]
 ---
 bool success
 string message
