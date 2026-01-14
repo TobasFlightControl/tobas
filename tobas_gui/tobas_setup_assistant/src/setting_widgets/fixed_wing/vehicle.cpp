@@ -56,7 +56,7 @@ void VehicleParametersWidget::updateInternalDataStructures()
 bool VehicleParametersWidget::isValid()
 {
   if (!alpha_limit_->isValid()) {
-    qt::qErrorBox(this, "Invalid limitation of angle of attack.");
+    qt::qWarnBox(this, "Invalid limitation of angle of attack.");
     return false;
   }
 

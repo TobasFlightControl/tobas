@@ -78,12 +78,12 @@ bool PropellerWidget::isValid()
 {
   const auto [min_pitch, max_pitch] = pitchAngleLimit();
   if (0. <= min_pitch || max_pitch <= 0.) {
-    qt::qErrorBox(this, "Pitch angle range must include 0.");
+    qt::qWarnBox(this, "Pitch angle range must include 0.");
     return false;
   }
 
   if (min_chord_->getValue() > max_chord_->getValue()) {
-    qt::qErrorBox(this, "Blade chord range is invalid.");
+    qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
 
