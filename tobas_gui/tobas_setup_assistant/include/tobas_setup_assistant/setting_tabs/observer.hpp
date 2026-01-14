@@ -32,6 +32,9 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  bool useMagnetometer() const;
+  bool useBarometer() const;
+  bool useGnss() const;
   bool adaptiveGnssNoise() const;
   bool adaptiveGravityNoise() const;
   bool doAccelBiasEstimation() const;
@@ -41,6 +44,9 @@ public:
   bool doGravityEstimation() const;
 
 private:
+  QCheckBox* use_magnetometer_;
+  QCheckBox* use_barometer_;
+  QCheckBox* use_gnss_;
   QCheckBox* adaptive_gnss_noise_;
   QCheckBox* adaptive_grav_noise_;
   QCheckBox* do_acc_bias_estimation_;

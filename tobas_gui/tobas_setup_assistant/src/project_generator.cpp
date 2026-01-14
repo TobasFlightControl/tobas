@@ -663,7 +663,9 @@ bool ProjectGenerator::generateObserverStaticConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
   params["frame_id"] = tree_.getRootName();
-  params["position_source"] = "gnss";  // TODO: 選択できるようにする
+  params["use_magnetometer"] = settings_->observer->useMagnetometer();
+  params["use_barometer"] = settings_->observer->useBarometer();
+  params["use_gnss"] = settings_->observer->useGnss();
   params["adaptive_gnss_noise"] = settings_->observer->adaptiveGnssNoise();
   params["adaptive_grav_noise"] = settings_->observer->adaptiveGravityNoise();
   params["do_acc_bias_estimation"] = settings_->observer->doAccelBiasEstimation();
