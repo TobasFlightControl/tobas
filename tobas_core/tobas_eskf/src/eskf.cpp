@@ -23,6 +23,7 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
   H_vel_.setZero();
   H_pv_.setZero();
   H_theta_.setZero();
+  H_pose_.setZero();
   H_mag_.setZero();
   H_yaw_.setZero();
   H_grav_.setZero();
@@ -33,7 +34,9 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
   H_vel_.block<3, 3>(0, kDeltaVelIdx).diagonal().setOnes();
   H_pv_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
   H_pv_.block<3, 3>(3, kDeltaVelIdx).diagonal().setOnes();
-  H_theta_.block<3, 3>(0, kDeltaThetaIdx).diagonal().setOnes();  // 回転の誤差を3Dベクトルとして観測
+  H_theta_.block<3, 3>(0, kDeltaThetaIdx).diagonal().setOnes();
+  H_pose_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
+  H_pose_.block<3, 3>(3, kDeltaThetaIdx).diagonal().setOnes();
   H_mag_.block<3, 3>(0, kDeltaMagHardBiasIdx).diagonal().setOnes();
   H_grav_.block<3, 3>(0, kDeltaAccBiasIdx).diagonal().setOnes();
 }
@@ -480,9 +483,8 @@ double ErrorStateKalmanFilter::measureVelocity(
 
 double ErrorStateKalmanFilter::measurePosVel(
   const Vector3d& pos_meas,
-  const Matrix3d& pos_cov,
   const Vector3d& vel_meas,
-  const Matrix3d& vel_cov,
+  const Matrix6d& cov,
   const Vector3d& offset,
   const Vector3d& gyro_meas,
   const ch::steady_clock::time_point& time)
@@ -505,13 +507,6 @@ double ErrorStateKalmanFilter::measurePosVel(
   H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // 速度の姿勢による偏微分
   H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
 
-  // 共分散
-  Matrix6d cov;
-  cov.topLeftCorner<3, 3>() = pos_cov;
-  cov.bottomRightCorner<3, 3>() = vel_cov;
-  cov.topRightCorner<3, 3>().setZero();
-  cov.bottomLeftCorner<3, 3>().setZero();
-
   // 事後推定を更新
   return correct(delta, cov, H_pv_);
 }
@@ -523,11 +518,32 @@ double ErrorStateKalmanFilter::measureQuaternion(
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Quaterniond q_nominal = getQuaternion(x);
-  const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
-  const Vector3d delta_theta = eigen::angleAxisFromQuaternion(q_error);
+  const auto q_error = getQuaternion(x).conjugate() * q_meas;
+  const auto delta_theta = eigen::angleAxisFromQuaternion(q_error);
 
   return correct(delta_theta, theta_cov, H_theta_);
+}
+
+double ErrorStateKalmanFilter::measurePose(
+  const Eigen::Vector3d& pos_meas,
+  const Eigen::Quaterniond& q_meas,
+  const Eigen::Matrix6d& cov,
+  const Eigen::Vector3d& offset,
+  const std::chrono::steady_clock::time_point& time)
+{
+  const auto& x = x_history_.closestAfterValue(time);
+
+  // 観測誤差
+  Vector6d delta;
+  delta.head<3>() = pos_meas - getPosition(x, offset);
+  delta.tail<3>() = eigen::angleAxisFromQuaternion(getQuaternion(x).conjugate() * q_meas);
+
+  // 位置の観測の姿勢による偏微分
+  const auto dqvq_dq = quatRotationDerivative(x, offset);
+  const auto Q_dtheta = getQ_dtheta(x);
+  H_pose_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
+
+  return correct(delta, cov, H_pose_);
 }
 
 double ErrorStateKalmanFilter::measureMagneticField3d(

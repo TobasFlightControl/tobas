@@ -10,6 +10,7 @@
 
 	<depend>tobas_kdl</depend>
 	<depend>tobas_kdl_msgs</depend>
+	<depend>tobas_eigen_tools</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

@@ -53,7 +53,7 @@ bool PwmWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qErrorBox(this, "PWM target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);

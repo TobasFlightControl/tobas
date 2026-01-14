@@ -53,7 +53,7 @@ bool DShotWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qErrorBox(this, "DShot target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "DShot target \"" + target_name + "\" is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);

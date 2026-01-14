@@ -61,7 +61,7 @@ const char* PropellerWidget::name() const
 bool PropellerWidget::isValid()
 {
   if (min_chord_->getValue() > max_chord_->getValue()) {
-    qt::qErrorBox(this, "Blade chord range is invalid.");
+    qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
 
