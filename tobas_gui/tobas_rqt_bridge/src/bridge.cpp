@@ -11,7 +11,6 @@ namespace gui
 {
 RosQtBridge::RosQtBridge(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  addGlobal<tobas_msgs::msg::Heartbeat, &self::localHeartbeatReceived>(kHeartbeatTopic);
 }
 
 void RosQtBridge::initializeScopedTopics(const std::string& ns)
