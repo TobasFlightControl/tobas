@@ -25,36 +25,35 @@ public:
   {
   }
 
-  QwtText label(double v) const override
+  QwtText label(double value) const override
   {
-    return QwtText(QString::number(v) + " " + unit_);
+    return QwtText(QString::number(value) + " " + unit_);
   }
 
 private:
   const QString unit_;
 };
 
-class BinaryScaleDraw : public QwtScaleDraw
+class IndexedLabelScaleDraw : public QwtScaleDraw
 {
   using super = QwtScaleDraw;
 
 public:
-  explicit BinaryScaleDraw(const QString& label0, const QString& label1) : label0_(label0), label1_(label1)
+  explicit IndexedLabelScaleDraw(const QStringList& labels) : labels_(labels)
   {
   }
 
-  QwtText label(double v) const override
+  QwtText label(double value) const override
   {
-    if (v < 0.5) {
-      return QwtText(label0_);
+    const auto idx = qRound(value);
+    if (idx < 0 || labels_.size() <= idx) {
+      return {};
     }
-    else {
-      return QwtText(label1_);
-    }
+    return QwtText(labels_.at(idx));
   }
 
 private:
-  const QString label0_, label1_;
+  const QStringList labels_;
 };
 }  // namespace
 
@@ -83,13 +82,21 @@ void QwtPlot2::setAxisLabelUnit(const QwtPlot::Axis& axis, const QString& unit)
   setAxisScaleDraw(axis, new UnitScaleDraw(unit));
 }
 
-void QwtPlot2::setupBinaryPlot(const QString& label0, const QString& label1)
+void QwtPlot2::setupIndexedLabelPlot(const QStringList& labels)
 {
+  const auto size = labels.size();
+
   const QList<double> none;
-  const QList<double> majors({ 0, 1 });
-  const QwtScaleDiv ydiv(0, 1, none, none, majors);
+
+  QList<double> majors;
+  for (int i = 0; i < size; ++i) {
+    majors.append(i);
+  }
+
+  const QwtScaleDiv ydiv(0, size - 1, none, none, majors);
   setAxisScaleDiv(QwtPlot::yLeft, ydiv);
-  setAxisScaleDraw(QwtPlot::yLeft, new BinaryScaleDraw(label0, label1));
+
+  setAxisScaleDraw(QwtPlot::yLeft, new IndexedLabelScaleDraw(labels));
 }
 }  // namespace log
 }  // namespace gui

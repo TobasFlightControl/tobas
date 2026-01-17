@@ -52,28 +52,28 @@ RcInputPlotWidget::RcInputPlotWidget()
 
   mode_plot_ = new QwtPlot2();
   mode_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  mode_plot_->setupBinaryPlot("OFF", "ON");
+  mode_plot_->setupIndexedLabelPlot({ "Acrobat", "Stabilize", "Loiter" });
   mode_curve_.setPen(Qt::black, kLineWidth);
   mode_curve_.attach(mode_plot_);
   grid->addWidget(mode_plot_, 0, 1, 1, 1);
 
   sub_mode_plot_ = new QwtPlot2();
   sub_mode_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  sub_mode_plot_->setupBinaryPlot("OFF", "ON");
+  sub_mode_plot_->setupIndexedLabelPlot({ "OFF", "ON" });
   sub_mode_curve_.setPen(Qt::black, kLineWidth);
   sub_mode_curve_.attach(sub_mode_plot_);
   grid->addWidget(sub_mode_plot_, 1, 1, 1, 1);
 
   enable_plot_ = new QwtPlot2();
   enable_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  enable_plot_->setupBinaryPlot("OFF", "ON");
+  enable_plot_->setupIndexedLabelPlot({ "OFF", "ON" });
   enable_curve_.setPen(Qt::black, kLineWidth);
   enable_curve_.attach(enable_plot_);
   grid->addWidget(enable_plot_, 2, 1, 1, 1);
 
   kill_plot_ = new QwtPlot2();
   kill_plot_->setAxisNoLabel(QwtPlot::xBottom);
-  kill_plot_->setupBinaryPlot("OFF", "ON");
+  kill_plot_->setupIndexedLabelPlot({ "OFF", "ON" });
   kill_curve_.setPen(Qt::black, kLineWidth);
   kill_curve_.attach(kill_plot_);
   grid->addWidget(kill_plot_, 3, 1, 1, 1);
@@ -138,10 +138,10 @@ void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& msgs)
     throt_data.push_back(msg.throttle);
     yaw_data.push_back(msg.yaw);
 
-    mode_data.push_back(msg.mode ? 1 : 0);  // TODO
-    sub_mode_data.push_back(msg.sub_mode ? 1 : 0);
-    enable_data.push_back(msg.enable ? 1 : 0);
-    kill_data.push_back(msg.kill ? 1 : 0);
+    mode_data.push_back(msg.mode);
+    sub_mode_data.push_back(static_cast<int>(msg.sub_mode));
+    enable_data.push_back(static_cast<int>(msg.enable));
+    kill_data.push_back(static_cast<int>(msg.kill));
   }
 
   roll_curve_.setSamples(t_data, roll_data);
