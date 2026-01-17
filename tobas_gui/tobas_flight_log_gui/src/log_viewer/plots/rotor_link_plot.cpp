@@ -101,6 +101,7 @@ bool RotorLinkPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::Ro
     ++num_rotors_;
 
     const auto plot = new QwtPlot2();
+    plot->setAxisNoLabel(QwtPlot::xBottom);
     plot->setupBinaryPlot("OK", "ERR");
 
     // ウィジェットをN行2列の格子状に配置
