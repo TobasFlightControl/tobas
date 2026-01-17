@@ -256,7 +256,7 @@ bool SimulationWidget::startHITL()
 
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
+  if (ssh_client_.connect() != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -265,7 +265,7 @@ bool SimulationWidget::startHITL()
 
   // Realサービスを停止
   progress.setLabelText("Stopping the Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -277,7 +277,7 @@ bool SimulationWidget::startHITL()
   const auto& proj_path = proj_paths_.getProjPath();
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -321,7 +321,7 @@ bool SimulationWidget::startHITL()
 
   // HITLサービスを起動
   progress.setLabelText("Starting the Tobas HITL service.");
-  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -368,7 +368,7 @@ void SimulationWidget::terminateHITL()
 
   // HITLサービスを停止
   progress.setLabelText("Stopping the Tobas HITL service.");
-  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     reset();
@@ -378,7 +378,7 @@ void SimulationWidget::terminateHITL()
 
   // Realサービスを起動
   progress.setLabelText("Starting the Tobas real service.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     reset();

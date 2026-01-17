@@ -41,14 +41,14 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
     meta_pkg_name);
 
   // ビルドできれば終了
-  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) == ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) == ssh::SshClient::kNoError) {
     return true;
   }
 
   // ビルドできなければクリーンビルド
   RCLCPP_WARN(node_->get_logger(), "Failed to build remote package. Retrying...");
   const auto command = pre_cmd + " && sudo colcon clean workspace -y && " + build_cmd;
-  if (ssh_client_.execute(command, output_, true) == ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute(command, output_, true) == ssh::SshClient::kNoError) {
     return true;
   }
 

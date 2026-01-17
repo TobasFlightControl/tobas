@@ -12,7 +12,7 @@ CleanThread::CleanThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 
 void CleanThread::run()
 {
-  if (ssh_client_.execute("rm -rf " + std::string(tobas::kRosbagDirRoot) + "/*", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("rm -rf " + std::string(tobas::kRosbagDirRoot) + "/*", true) != ssh::SshClient::kNoError) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;
   }

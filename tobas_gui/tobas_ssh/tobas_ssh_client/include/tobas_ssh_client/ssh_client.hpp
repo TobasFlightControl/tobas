@@ -20,7 +20,7 @@ namespace ssh
  * @brief プロパティサーバのクライアント．
  * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
  */
-class SSHClient
+class SshClient
 {
   static constexpr char kSetEndpointSrv[] = "ssh/set_endpoint";
   static constexpr char kConnectSrv[] = "ssh/connect";
@@ -32,7 +32,7 @@ class SSHClient
   static constexpr char kListSrv[] = "ssh/list";
 
 public:
-  using SharedPtr = std::shared_ptr<SSHClient>;
+  using SharedPtr = std::shared_ptr<SshClient>;
 
   enum Error
   {
@@ -41,7 +41,7 @@ public:
     kServerError = -2,
   };
 
-  explicit SSHClient(rclcpp::Node::SharedPtr node);
+  explicit SshClient(rclcpp::Node::SharedPtr node);
 
   Error setEndpoint(const std::string& host, const std::string& user);
 

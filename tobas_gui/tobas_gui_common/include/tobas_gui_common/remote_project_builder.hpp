@@ -22,7 +22,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  ssh::SSHClient ssh_client_;
+  ssh::SshClient ssh_client_;
 
   std::string output_;
 };

@@ -24,7 +24,7 @@ public:
   void setLogName(const QString& log_name);
 
 private:
-  ssh::SSHClient ssh_client_;
+  ssh::SshClient ssh_client_;
   QString log_name_;
 };
 }  // namespace log

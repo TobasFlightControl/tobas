@@ -49,7 +49,7 @@ protected:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  ssh::SSHClient ssh_client_;
+  ssh::SshClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;

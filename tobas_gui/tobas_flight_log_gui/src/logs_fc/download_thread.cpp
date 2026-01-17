@@ -22,7 +22,7 @@ void DownloadThread::run()
     fs::create_directories(local_pardir);
   }
 
-  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SshClient::kNoError) {
     Q_EMIT finished(false, ssh_client_.errorMessage());
     return;
   }

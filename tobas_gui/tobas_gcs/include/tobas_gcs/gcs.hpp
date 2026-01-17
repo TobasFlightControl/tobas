@@ -64,7 +64,7 @@ private:
   tobas::Drone drone_;
 
   ptree::PropertyClient property_client_;
-  ssh::SSHClient ssh_client_;
+  ssh::SshClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;

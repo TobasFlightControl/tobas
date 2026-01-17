@@ -162,7 +162,7 @@ void GroundControlStationWidget::updateInternalDataStructures()
   bridge_.initializeScopedTopics(drone_.name);
   qt::processAllQueuedEvents();
 
-  if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to set SSH endpoint:\n" + QString(ssh_client_.errorMessage()));
     return;
   }
@@ -330,7 +330,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
+  if (ssh_client_.connect() != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
@@ -340,7 +340,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // FCのバージョンを確認
   progress.setLabelText("Checking the Tobas version.");
   std::string fc_ver_text;
-  if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to retrieve the firmware version: " + QString(ssh_client_.errorMessage()));
     return;
@@ -363,7 +363,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping the Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -373,7 +373,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // 環境変数を読み込む
   progress.setLabelText("Getting environment variables.");
   std::string cur_env_content;
-  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SSHClient::kNoError) {  // ファイルが存在しなくても続行
+  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SshClient::kNoError) {  // ファイルが存在しなくても続行
     if (!config_env_parser_.parseFromText(cur_env_content)) {
       progress.close();
       qt::qErrorBox(this, "Failed to parse configuration file.");
@@ -404,7 +404,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     // 環境変数を更新
     progress.setLabelText("Setting environment variables.");
     config_env_parser_.config_pkg = config_pkg_name;
-    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SSHClient::kNoError) {
+    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
       progress.close();
       qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
       return;
@@ -421,7 +421,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto git_path = proj_paths_.getProjPath() / ".git";
-  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -440,7 +440,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // サービスを再起動
   progress.setLabelText("Restarting the flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;

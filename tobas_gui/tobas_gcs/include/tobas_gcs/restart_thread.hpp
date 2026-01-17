@@ -21,7 +21,7 @@ public:
   void run() override;
 
 private:
-  ssh::SSHClient ssh_client_;
+  ssh::SshClient ssh_client_;
 };
 }  // namespace gcs
 }  // namespace gui

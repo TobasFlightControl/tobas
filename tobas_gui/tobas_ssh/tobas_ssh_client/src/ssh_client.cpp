@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 
 namespace ssh
 {
-SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
+SshClient::SshClient(rclcpp::Node::SharedPtr node)
   : node_(node)
   , set_endpoint_sc_(node, kSetEndpointSrv)
   , connect_sc_(node, kConnectSrv)
@@ -20,19 +20,19 @@ SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
 {
 }
 
-bool SSHClient::fileExists(const fs::path& file_path)
+bool SshClient::fileExists(const fs::path& file_path)
 {
   std::string output;
   return execute("[ -f " + file_path.string() + " ]", output) == kNoError;
 }
 
-bool SSHClient::dirExists(const fs::path& dir_path)
+bool SshClient::dirExists(const fs::path& dir_path)
 {
   std::string output;
   return execute("[ -d " + dir_path.string() + " ]", output) == kNoError;
 }
 
-SSHClient::Error SSHClient::setEndpoint(const std::string& host, const std::string& user)
+SshClient::Error SshClient::setEndpoint(const std::string& host, const std::string& user)
 {
   const auto req = std::make_shared<SetEndpoint::Request>();
   req->host = host;
@@ -45,7 +45,7 @@ SSHClient::Error SSHClient::setEndpoint(const std::string& host, const std::stri
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::connect()
+SshClient::Error SshClient::connect()
 {
   const auto req = std::make_shared<Connect::Request>();
 
@@ -62,7 +62,7 @@ SSHClient::Error SSHClient::connect()
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::execute(const std::string& command, std::string& output, bool superuser, bool background)
+SshClient::Error SshClient::execute(const std::string& command, std::string& output, bool superuser, bool background)
 {
   const auto req = std::make_shared<Execute::Request>();
   req->command = command;
@@ -83,13 +83,13 @@ SSHClient::Error SSHClient::execute(const std::string& command, std::string& out
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::execute(const std::string& command, bool superuser, bool background)
+SshClient::Error SshClient::execute(const std::string& command, bool superuser, bool background)
 {
   std::string output;
   return execute(command, output, superuser, background);
 }
 
-SSHClient::Error SSHClient::scpGet(const std::string& remote_path, const std::string& local_path)
+SshClient::Error SshClient::scpGet(const std::string& remote_path, const std::string& local_path)
 {
   const auto req = std::make_shared<ScpGet::Request>();
   req->remote_path = remote_path;
@@ -108,7 +108,7 @@ SSHClient::Error SSHClient::scpGet(const std::string& remote_path, const std::st
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::scpPut(
+SshClient::Error SshClient::scpPut(
   const std::string& local_dir,
   const std::string& remote_dir,
   bool parents,
@@ -135,7 +135,7 @@ SSHClient::Error SSHClient::scpPut(
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
+SshClient::Error SshClient::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
 {
   const auto req = std::make_shared<SftpRead::Request>();
   req->remote_path = remote_path;
@@ -155,7 +155,7 @@ SSHClient::Error SSHClient::sftpRead(const std::string& remote_path, std::string
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
+SshClient::Error SshClient::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
 {
   const auto req = std::make_shared<SftpWrite::Request>();
   req->remote_path = remote_path;
@@ -175,7 +175,7 @@ SSHClient::Error SSHClient::sftpWrite(const std::string& remote_path, const std:
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::list(const std::string& pardir, std::vector<std::string>& dst)
+SshClient::Error SshClient::list(const std::string& pardir, std::vector<std::string>& dst)
 {
   const auto req = std::make_shared<List::Request>();
   req->pardir = pardir;
@@ -194,12 +194,12 @@ SSHClient::Error SSHClient::list(const std::string& pardir, std::vector<std::str
   return error_code_ = kNoError;
 }
 
-SSHClient::Error SSHClient::errorCode() const
+SshClient::Error SshClient::errorCode() const
 {
   return error_code_;
 }
 
-const char* SSHClient::errorMessage() const
+const char* SshClient::errorMessage() const
 {
   switch (error_code_) {
     case kNoError:
