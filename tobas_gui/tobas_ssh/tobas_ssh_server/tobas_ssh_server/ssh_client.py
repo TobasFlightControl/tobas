@@ -25,7 +25,7 @@ class SSHClientWrapper:
         self._user = user
         self._passwd = passwd
 
-        self._cli = paramiko.SshClient()
+        self._cli = paramiko.SSHClient()
 
         # ~/.ssh/known_hosts を読み込む
         self._cli.load_system_host_keys()
