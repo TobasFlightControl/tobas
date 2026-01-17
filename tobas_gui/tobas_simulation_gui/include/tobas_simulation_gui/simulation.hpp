@@ -7,9 +7,10 @@
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_gui_common/project_paths.hpp>
+#include <tobas_gui_common/remote_project_builder.hpp>
+#include <tobas_gui_common/ssh_client.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_uadf/model.hpp>
 #include <tobas_uadf/parser.hpp>
 
@@ -49,10 +50,11 @@ protected:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  ssh::SshClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
+  cmn::SshClientWrapper ssh_client_;
+  cmn::RemoteProjectBuilder remote_proj_builder_;
 
   uadf::Model uadf_;
   kdl::Tree tree_;

@@ -63,7 +63,6 @@ void AccelCalibrationWidget::onStartButtonClicked()
     return;
   }
 
-  spinner_.show();
   spinner_.start();
 
   thread_.start();
@@ -71,7 +70,6 @@ void AccelCalibrationWidget::onStartButtonClicked()
 
 void AccelCalibrationWidget::onCalibrationFinished(bool success, const QString& message)
 {
-  spinner_.hide();
   spinner_.stop();
 
   if (success) {

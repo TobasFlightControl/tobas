@@ -35,8 +35,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , network_checker_(this, bridge_)
   , property_client_(node, kPackageName)
   , ssh_client_(node)
-  , restart_thread_(node)
-  , shutdown_thread_(node)
+  , remote_proj_builder_(node)
   , spinner_(Qt::WindowModal, this)
 {
   // Applications
@@ -128,8 +127,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
-  connect(&restart_thread_, &RestartThread::finished, this, &self::onRestartThreadFinished);
-  connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
@@ -430,9 +427,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // GUIを止めないように別スレッドでプロジェクトをビルド
   progress.setLabelText("Building the Tobas project.");
-  const auto build_res = cmn::buildRemoteProjectBackground(node_, proj_paths_.remoteProjPath());
-  if (!build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + build_res.error());
+  if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
     progress.close();
     return;
   }
@@ -478,10 +474,21 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
   }
 
   // Tobasサービスを再起動
-  restart_thread_.start();
-
-  spinner_.show();
   spinner_.start();
+  const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
+  spinner_.stop();
+
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to restart the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  reset();
+
+  qt::qInfoBox(this, "Flight controller was restarted successfully.");
+
+  restart_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
@@ -506,41 +513,12 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
   }
 
   // ラズパイをシャットダウン
-  shutdown_thread_.start();
-
-  spinner_.show();
   spinner_.start();
-}
-
-void GroundControlStationWidget::onRestartThreadFinished(bool success, const QString& message)
-{
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRestartThreadFinished");
-
-  spinner_.hide();
+  const auto res = ssh_client_.execute("poweroff", true, true);
   spinner_.stop();
 
-  if (!success) {
-    qt::qErrorBox(this, message);
-    restart_btn_->setChecked(false);
-    return;
-  }
-
-  reset();
-
-  qt::qInfoBox(this, "Flight controller was restarted successfully.");
-
-  restart_btn_->setChecked(false);
-}
-
-void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QString& message)
-{
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onShutdownThreadFinished");
-
-  spinner_.hide();
-  spinner_.stop();
-
-  if (!success) {
-    qt::qErrorBox(this, message);
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to shutdown the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
     shutdown_btn_->setChecked(false);
     return;
   }

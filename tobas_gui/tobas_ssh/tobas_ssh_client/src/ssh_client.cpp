@@ -20,16 +20,23 @@ SshClient::SshClient(rclcpp::Node::SharedPtr node)
 {
 }
 
-bool SshClient::fileExists(const fs::path& file_path)
+SshClient::Error SshClient::errorCode() const
 {
-  std::string output;
-  return execute("[ -f " + file_path.string() + " ]", output) == kNoError;
+  return error_code_;
 }
 
-bool SshClient::dirExists(const fs::path& dir_path)
+const char* SshClient::errorMessage() const
 {
-  std::string output;
-  return execute("[ -d " + dir_path.string() + " ]", output) == kNoError;
+  switch (error_code_) {
+    case kNoError:
+      return "";
+    case kServiceNotReady:
+      return "Service server is not ready.";
+    case kServerError:
+      return server_error_msg_.c_str();
+    default:
+      return "Unknown error";
+  }
 }
 
 SshClient::Error SshClient::setEndpoint(const std::string& host, const std::string& user)
@@ -192,24 +199,5 @@ SshClient::Error SshClient::list(const std::string& pardir, std::vector<std::str
 
   dst = res->entries;
   return error_code_ = kNoError;
-}
-
-SshClient::Error SshClient::errorCode() const
-{
-  return error_code_;
-}
-
-const char* SshClient::errorMessage() const
-{
-  switch (error_code_) {
-    case kNoError:
-      return "";
-    case kServiceNotReady:
-      return "Service server is not ready.";
-    case kServerError:
-      return server_error_msg_.c_str();
-    default:
-      return "Unknown error";
-  }
 }
 }  // namespace ssh

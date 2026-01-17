@@ -2,14 +2,9 @@
 
 #include <QPushButton>
 
+#include <tobas_gui_common/ssh_client.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
-#include <tobas_ssh_client/ssh_client.hpp>
-
-#include "./clean_thread.hpp"
-#include "./delete_thread.hpp"
-#include "./download_thread.hpp"
-#include "./read_thread.hpp"
 
 namespace gui
 {
@@ -40,13 +35,10 @@ public:
   void sortLogs();
 
 private:
+  cmn::SshClientWrapper ssh_client_;
+
   QPushButton* read_button_;
   QPushButton* clean_button_;
-
-  ReadThread read_thread_;
-  CleanThread clean_thread_;
-  DownloadThread download_thread_;
-  DeleteThread delete_thread_;
 
   qt::WaitSpinnerWidget spinner_;
 
@@ -57,11 +49,6 @@ private Q_SLOTS:
   void onCleanButtonClicked();
   void onDownloadButtonClicked(const QString& log_name);
   void onDeleteButtonClicked(const QString& log_name);
-
-  void onReadThreadFinished(bool success, const QString& message, const QStringList& log_names);
-  void onCleanThreadFinished(bool success, const QString& message);
-  void onDownloadThreadFinished(bool success, const QString& message);
-  void onDeleteThreadFinished(bool success, const QString& message);
 };
 }  // namespace log
 }  // namespace gui

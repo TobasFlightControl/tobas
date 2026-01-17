@@ -12,7 +12,6 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/transport.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
-#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -30,7 +29,7 @@ namespace gui
 namespace sim
 {
 SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), ssh_client_(node)
+  : node_(node), ssh_client_(node), remote_proj_builder_(node)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -245,10 +244,10 @@ bool SimulationWidget::startHITL()
   progress.show();
 
   // ローカルパッケージをビルド
-  progress.setLabelText("Building the Tobas local project.");
+  progress.setLabelText("Building the Tobas project.");
   const auto local_build_res = cmn::buildLocalProjectBackground(proj_paths_.getProjPath());
   if (!local_build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas local project:\n\n" + local_build_res.error());
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + local_build_res.error());
     progress.close();
     return false;
   }
@@ -285,10 +284,9 @@ bool SimulationWidget::startHITL()
   progress.progressStep();
 
   // リモートパッケージをビルド
-  progress.setLabelText("Building the Tobas remote project.");
-  const auto remote_build_res = cmn::buildRemoteProjectBackground(node_, proj_paths_.remoteProjPath());
-  if (!remote_build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas remote project:\n\n" + remote_build_res.error());
+  progress.setLabelText("Building the Tobas project.");
+  if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
     progress.close();
     return false;
   }

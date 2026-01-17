@@ -119,7 +119,6 @@ void FlightLogRecorderWidget::onStartRequested()
   start_thread_.setLogName(log_name);
   start_thread_.start();
 
-  spinner_.show();
   spinner_.start();
 }
 
@@ -127,13 +126,11 @@ void FlightLogRecorderWidget::onStopRequested()
 {
   stop_thread_.start();
 
-  spinner_.show();
   spinner_.start();
 }
 
 void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString& message)
 {
-  spinner_.hide();
   spinner_.stop();
 
   if (!success) {
@@ -150,7 +147,6 @@ void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString&
 
 void FlightLogRecorderWidget::onStopThreadFinished(bool success, const QString& message)
 {
-  spinner_.hide();
   spinner_.stop();
 
   if (!success) {

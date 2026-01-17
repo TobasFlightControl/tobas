@@ -43,7 +43,16 @@ public:
 
   explicit SshClient(rclcpp::Node::SharedPtr node);
 
+  /* Getters */
+
+  Error errorCode() const;
+  const char* errorMessage() const;
+
+  /* Setters */
+
   Error setEndpoint(const std::string& host, const std::string& user);
+
+  /* SSH commands */
 
   Error connect();
 
@@ -51,6 +60,7 @@ public:
   Error execute(const std::string& command, bool superuser = false, bool background = false);
 
   Error scpGet(const std::string& remote_path, const std::string& local_path);
+
   Error scpPut(
     const std::string& local_dir,
     const std::string& remote_dir,
@@ -59,15 +69,10 @@ public:
     bool superuser = false);
 
   Error sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
+
   Error sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
 
   Error list(const std::string& pardir, std::vector<std::string>& dst);
-
-  bool fileExists(const std::filesystem::path& file_path);
-  bool dirExists(const std::filesystem::path& dir_path);
-
-  Error errorCode() const;
-  const char* errorMessage() const;
 
 private:
   const rclcpp::Node::SharedPtr node_;

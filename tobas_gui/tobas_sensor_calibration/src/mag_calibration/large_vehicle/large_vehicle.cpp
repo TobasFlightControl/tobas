@@ -62,7 +62,6 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
     return;
   }
 
-  spinner_.show();
   spinner_.start();
 
   thread_.start();
@@ -70,7 +69,6 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
 
 void LargeVehicleMagCalibWidget::onCalibrationFinished(bool success, const QString& message)
 {
-  spinner_.hide();
   spinner_.stop();
 
   if (success) {
