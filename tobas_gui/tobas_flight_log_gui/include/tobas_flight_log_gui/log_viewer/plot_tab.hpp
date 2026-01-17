@@ -19,6 +19,7 @@
 #include "./plots/observer_feedback_plot.hpp"
 #include "./plots/pose_plot.hpp"
 #include "./plots/propeller_pitch_plot.hpp"
+#include "./plots/rc_input_plot.hpp"
 #include "./plots/rotor_link_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/twist_plot.hpp"
@@ -45,6 +46,7 @@ public:
     const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
     const QVector<tobas_msgs::msg::MagneticField>& mag_data,
     const QVector<tobas_msgs::msg::Gnss>& gnss_data,
+    const QVector<tobas_msgs::msg::RCInput>& rcin_data,
     const QVector<tobas_msgs::msg::Battery>& battery_data,
     const QVector<tobas_msgs::msg::Cpu>& cpu_data,
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
@@ -71,6 +73,7 @@ private:
   const QVector<tobas_msgs::msg::Imu>& filt_imu_data_;
   const QVector<tobas_msgs::msg::MagneticField>& mag_data_;
   const QVector<tobas_msgs::msg::Gnss>& gnss_data_;
+  const QVector<tobas_msgs::msg::RCInput>& rcin_data_;
   const QVector<tobas_msgs::msg::Battery>& battery_data_;
   const QVector<tobas_msgs::msg::Cpu>& cpu_data_;
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data_;
@@ -94,6 +97,7 @@ private:
   ImuFftPlotWidget* imu_fft_plot_;
   MagPlotWidget* mag_plot_;
   GnssPlotWidget* gnss_plot_;
+  RcInputPlotWidget* rcin_plot_;
   BatteryPlotWidget* battery_plot_;
   EnginePlotWidget* engine_plot_;
   CpuPlotWidget* cpu_plot_;
