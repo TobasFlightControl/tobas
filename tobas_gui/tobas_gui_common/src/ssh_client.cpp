@@ -8,6 +8,210 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+class SshConnectThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(ssh::SshClient::Error error);
+
+public:
+  explicit SshConnectThread(ssh::SshClient& impl) : impl_(impl)
+  {
+  }
+
+  void run() override
+  {
+    const auto res = impl_.connect();
+    Q_EMIT finished(res);
+  }
+
+private:
+  ssh::SshClient& impl_;
+};
+
+class SshExecuteThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(ssh::SshClient::Error error);
+
+public:
+  explicit SshExecuteThread(
+    ssh::SshClient& impl,
+    const std::string& command,
+    std::string& output,
+    bool superuser,
+    bool background)
+    : impl_(impl), command_(command), output_(output), superuser_(superuser), background_(background)
+  {
+  }
+
+  void run() override
+  {
+    const auto res = impl_.execute(command_, output_, superuser_, background_);
+    Q_EMIT finished(res);
+  }
+
+private:
+  ssh::SshClient& impl_;
+
+  const std::string command_;
+  std::string& output_;
+  const bool superuser_;
+  const bool background_;
+};
+
+class ScpGetThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(ssh::SshClient::Error error);
+
+public:
+  explicit ScpGetThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& local_path)
+    : impl_(impl), remote_path_(remote_path), local_path_(local_path)
+  {
+  }
+
+  void run() override
+  {
+    const auto res = impl_.scpGet(remote_path_, local_path_);
+    Q_EMIT finished(res);
+  }
+
+private:
+  ssh::SshClient& impl_;
+
+  const std::string remote_path_;
+  const std::string local_path_;
+};
+
+class ScpPutThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(ssh::SshClient::Error error);
+
+public:
+  explicit ScpPutThread(
+    ssh::SshClient& impl,
+    const std::string& local_dir,
+    const std::string& remote_dir,
+    bool parents,
+    const std::vector<std::string>& exclude_dirs,
+    bool superuser)
+    : impl_(impl)
+    , local_dir_(local_dir)
+    , remote_dir_(remote_dir)
+    , parents_(parents)
+    , exclude_dirs_(exclude_dirs)
+    , superuser_(superuser)
+  {
+  }
+
+  void run() override
+  {
+    const auto res = impl_.scpPut(local_dir_, remote_dir_, parents_, exclude_dirs_, superuser_);
+    Q_EMIT finished(res);
+  }
+
+private:
+  ssh::SshClient& impl_;
+
+  const std::string local_dir_;
+  const std::string remote_dir_;
+  bool parents_;
+  const std::vector<std::string> exclude_dirs_;
+  bool superuser_;
+};
+
+class SftpReadThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(ssh::SshClient::Error error);
+
+public:
+  explicit SftpReadThread(ssh::SshClient& impl, const std::string& remote_path, std::string& text, bool superuser)
+    : impl_(impl), remote_path_(remote_path), text_(text), superuser_(superuser)
+  {
+  }
+
+  void run() override
+  {
+    const auto res = impl_.sftpRead(remote_path_, text_, superuser_);
+    Q_EMIT finished(res);
+  }
+
+private:
+  ssh::SshClient& impl_;
+
+  const std::string remote_path_;
+  std::string& text_;
+  bool superuser_;
+};
+
+class SftpWriteThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(ssh::SshClient::Error error);
+
+public:
+  explicit SftpWriteThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& text, bool superuser)
+    : impl_(impl), remote_path_(remote_path), text_(text), superuser_(superuser)
+  {
+  }
+
+  void run() override
+  {
+    const auto res = impl_.sftpWrite(remote_path_, text_, superuser_);
+    Q_EMIT finished(res);
+  }
+
+private:
+  ssh::SshClient& impl_;
+
+  const std::string remote_path_;
+  const std::string text_;
+  bool superuser_;
+};
+
+class SshListThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(ssh::SshClient::Error error);
+
+public:
+  explicit SshListThread(ssh::SshClient& impl, const std::string& pardir, std::vector<std::string>& dst)
+    : impl_(impl), pardir_(pardir), dst_(dst)
+  {
+  }
+
+  void run() override
+  {
+    const auto res = impl_.list(pardir_, dst_);
+    Q_EMIT finished(res);
+  }
+
+private:
+  ssh::SshClient& impl_;
+
+  const std::string pardir_;
+  std::vector<std::string>& dst_;
+};
+}  // namespace
+
 SshClientWrapper::SshClientWrapper(rclcpp::Node::SharedPtr node) : impl_(node)
 {
 }
@@ -82,101 +286,7 @@ ssh::SshClient::Error SshClientWrapper::list(const std::string& pardir, std::vec
   SshListThread thread(impl_, pardir, dst);
   return std::get<0>(qt::startThreadAndWait(thread, &SshListThread::finished));
 }
-
-SshConnectThread::SshConnectThread(ssh::SshClient& impl) : impl_(impl)
-{
-}
-
-void SshConnectThread::run()
-{
-  const auto res = impl_.connect();
-  Q_EMIT finished(res);
-}
-
-SshExecuteThread::SshExecuteThread(
-  ssh::SshClient& impl,
-  const std::string& command,
-  std::string& output,
-  bool superuser,
-  bool background)
-  : impl_(impl), command_(command), output_(output), superuser_(superuser), background_(background)
-{
-}
-
-void SshExecuteThread::run()
-{
-  const auto res = impl_.execute(command_, output_, superuser_, background_);
-  Q_EMIT finished(res);
-}
-
-ScpGetThread::ScpGetThread(ssh::SshClient& impl, const std::string& remote_path, const std::string& local_path)
-  : impl_(impl), remote_path_(remote_path), local_path_(local_path)
-{
-}
-
-void ScpGetThread::run()
-{
-  const auto res = impl_.scpGet(remote_path_, local_path_);
-  Q_EMIT finished(res);
-}
-
-ScpPutThread::ScpPutThread(
-  ssh::SshClient& impl,
-  const std::string& local_dir,
-  const std::string& remote_dir,
-  bool parents,
-  const std::vector<std::string>& exclude_dirs,
-  bool superuser)
-  : impl_(impl)
-  , local_dir_(local_dir)
-  , remote_dir_(remote_dir)
-  , parents_(parents)
-  , exclude_dirs_(exclude_dirs)
-  , superuser_(superuser)
-{
-}
-
-void ScpPutThread::run()
-{
-  const auto res = impl_.scpPut(local_dir_, remote_dir_, parents_, exclude_dirs_, superuser_);
-  Q_EMIT finished(res);
-}
-
-SftpReadThread::SftpReadThread(ssh::SshClient& impl, const std::string& remote_path, std::string& text, bool superuser)
-  : impl_(impl), remote_path_(remote_path), text_(text), superuser_(superuser)
-{
-}
-
-void SftpReadThread::run()
-{
-  const auto res = impl_.sftpRead(remote_path_, text_, superuser_);
-  Q_EMIT finished(res);
-}
-
-SftpWriteThread::SftpWriteThread(
-  ssh::SshClient& impl,
-  const std::string& remote_path,
-  const std::string& text,
-  bool superuser)
-  : impl_(impl), remote_path_(remote_path), text_(text), superuser_(superuser)
-{
-}
-
-void SftpWriteThread::run()
-{
-  const auto res = impl_.sftpWrite(remote_path_, text_, superuser_);
-  Q_EMIT finished(res);
-}
-
-SshListThread::SshListThread(ssh::SshClient& impl, const std::string& pardir, std::vector<std::string>& dst)
-  : impl_(impl), pardir_(pardir), dst_(dst)
-{
-}
-
-void SshListThread::run()
-{
-  const auto res = impl_.list(pardir_, dst_);
-  Q_EMIT finished(res);
-}
 }  // namespace cmn
 }  // namespace gui
+
+#include "ssh_client.moc"  // cppをMOCに加えるために必要
