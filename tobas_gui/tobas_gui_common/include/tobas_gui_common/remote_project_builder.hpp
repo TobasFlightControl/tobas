@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QThread>
-#include <expected>
 #include <filesystem>
 
 #include "./ssh_client.hpp"

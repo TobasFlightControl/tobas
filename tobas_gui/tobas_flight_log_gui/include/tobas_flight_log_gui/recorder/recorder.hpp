@@ -53,9 +53,6 @@ private Q_SLOTS:
   void onStartRequested();
   void onStopRequested();
 
-  void onStartThreadFinished(bool success, const QString& message);
-  void onStopThreadFinished(bool success, const QString& message);
-
   void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state);
 };
 }  // namespace log

@@ -41,7 +41,6 @@ private:
 
 private Q_SLOTS:
   void onStartButtonClicked();
-  void onCalibrationFinished(bool success, const QString& output);
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };

@@ -2,6 +2,7 @@
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
 namespace gui
@@ -28,7 +29,6 @@ AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, con
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(&thread_, &AccelCalibrationThread::finished, this, &self::onCalibrationFinished);
   connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
@@ -64,12 +64,7 @@ void AccelCalibrationWidget::onStartButtonClicked()
   }
 
   spinner_.start();
-
-  thread_.start();
-}
-
-void AccelCalibrationWidget::onCalibrationFinished(bool success, const QString& message)
-{
+  const auto [success, message] = qt::startThreadAndWait(thread_, &AccelCalibrationThread::finished);
   spinner_.stop();
 
   if (success) {

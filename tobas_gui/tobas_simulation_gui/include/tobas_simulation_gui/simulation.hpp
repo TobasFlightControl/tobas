@@ -11,6 +11,7 @@
 #include <tobas_gui_common/ssh_client.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_uadf/model.hpp>
 #include <tobas_uadf/parser.hpp>
 
@@ -61,6 +62,8 @@ private:
   tobas::Drone drone_;
   pid_t launch_pid_ = -1;
 
+  qt::WaitSpinnerWidget spinner_;
+
   qt::ToggleButton* start_stop_button_;
 
   SimulationSettingsWidget* sim_settings_;
@@ -77,7 +80,9 @@ private:
 
   std::map<std::string, std::string> makeGazeboLaunchArguments(bool launch_core) const;
   bool launchGazebo(bool launch_core);
-  std::expected<void, QString> killGazebo(bool run_spinner = true);
+
+  std::expected<void, QString> killGazebo();
+  std::expected<void, QString> killGazeboWithSpinner();
 
   bool waitForGazeboServerStart();
   bool waitForGazeboRenderingStart();

@@ -1,5 +1,7 @@
 #include "tobas_gui_common/ssh_client.hpp"
 
+#include <tobas_qt_tools/thread.hpp>
+
 namespace fs = std::filesystem;
 
 namespace gui
@@ -28,27 +30,27 @@ ssh::SshClient::Error SshClientWrapper::setEndpoint(const std::string& host, con
 ssh::SshClient::Error SshClientWrapper::connect()
 {
   SshConnectThread thread(impl_);
-  return run(thread);
+  return std::get<0>(qt::startThreadAndWait(thread, &SshConnectThread::finished));
 }
 
 ssh::SshClient::Error
 SshClientWrapper::execute(const std::string& command, std::string& output, bool superuser, bool background)
 {
   SshExecuteThread thread(impl_, command, output, superuser, background);
-  return run(thread);
+  return std::get<0>(qt::startThreadAndWait(thread, &SshExecuteThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::execute(const std::string& command, bool superuser, bool background)
 {
   std::string output;
   SshExecuteThread thread(impl_, command, output, superuser, background);
-  return run(thread);
+  return std::get<0>(qt::startThreadAndWait(thread, &SshExecuteThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::scpGet(const std::string& remote_path, const std::string& local_path)
 {
   ScpGetThread thread(impl_, remote_path, local_path);
-  return run(thread);
+  return std::get<0>(qt::startThreadAndWait(thread, &ScpGetThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::scpPut(
@@ -59,49 +61,26 @@ ssh::SshClient::Error SshClientWrapper::scpPut(
   bool superuser)
 {
   ScpPutThread thread(impl_, local_dir, remote_dir, parents, exclude_dirs, superuser);
-  return run(thread);
+  return std::get<0>(qt::startThreadAndWait(thread, &ScpPutThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
 {
   SftpReadThread thread(impl_, remote_path, text, superuser);
-  return run(thread);
+  return std::get<0>(qt::startThreadAndWait(thread, &SftpReadThread::finished));
 }
 
 ssh::SshClient::Error
 SshClientWrapper::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
 {
   SftpWriteThread thread(impl_, remote_path, text, superuser);
-  return run(thread);
+  return std::get<0>(qt::startThreadAndWait(thread, &SftpWriteThread::finished));
 }
 
 ssh::SshClient::Error SshClientWrapper::list(const std::string& pardir, std::vector<std::string>& dst)
 {
   SshListThread thread(impl_, pardir, dst);
-  return run(thread);
-}
-
-template <typename ThreadType>
-ssh::SshClient::Error SshClientWrapper::run(ThreadType& thread)
-{
-  // 別スレッドの結果をキャッチするためのイベントループを用意
-  ssh::SshClient::Error error;
-  QEventLoop loop;
-  QObject::connect(
-    &thread,
-    &ThreadType::finished,
-    [&error, &loop](ssh::SshClient::Error _error)
-    {
-      error = _error;
-      loop.quit();
-    });
-
-  // イベントループを回しながらスレッドが終了するまで待機
-  thread.start();
-  loop.exec();
-  thread.wait();
-
-  return error;
+  return std::get<0>(qt::startThreadAndWait(thread, &SshListThread::finished));
 }
 
 SshConnectThread::SshConnectThread(ssh::SshClient& impl) : impl_(impl)

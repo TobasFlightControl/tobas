@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QPushButton>
-#include <rclcpp/node.hpp>
 
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
@@ -39,7 +38,6 @@ private:
 
 private Q_SLOTS:
   void onStartButtonClicked();
-  void onCalibrationFinished(bool success, const QString& output);
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };

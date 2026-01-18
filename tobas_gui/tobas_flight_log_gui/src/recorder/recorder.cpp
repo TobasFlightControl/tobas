@@ -9,6 +9,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_string_tools/core.hpp>
 
@@ -64,8 +65,6 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
-  connect(&start_thread_, &RecordStartThread::finished, this, &self::onStartThreadFinished);
-  connect(&stop_thread_, &RecordStopThread::finished, this, &self::onStopThreadFinished);
   connect(&bridge, &RosQtBridge::rosbagStateReceived, this, &self::rosbagStateCb, Qt::QueuedConnection);
 }
 
@@ -117,20 +116,9 @@ void FlightLogRecorderWidget::onStartRequested()
   }
 
   start_thread_.setLogName(log_name);
-  start_thread_.start();
 
   spinner_.start();
-}
-
-void FlightLogRecorderWidget::onStopRequested()
-{
-  stop_thread_.start();
-
-  spinner_.start();
-}
-
-void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString& message)
-{
+  const auto [success, message] = qt::startThreadAndWait(start_thread_, &RecordStartThread::finished);
   spinner_.stop();
 
   if (!success) {
@@ -145,8 +133,10 @@ void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString&
   qt::qInfoBox(this, "Flight log recording has started.");
 }
 
-void FlightLogRecorderWidget::onStopThreadFinished(bool success, const QString& message)
+void FlightLogRecorderWidget::onStopRequested()
 {
+  spinner_.start();
+  const auto [success, message] = qt::startThreadAndWait(stop_thread_, &RecordStopThread::finished);
   spinner_.stop();
 
   if (!success) {

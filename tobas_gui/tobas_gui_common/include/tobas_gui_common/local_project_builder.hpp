@@ -40,7 +40,7 @@ private:
   LocalProjectBuilder builder_;
 };
 
-/* 別スレッドでローカルプロジェクトをビルドする． */
-std::expected<void, QString> buildLocalProjectBackground(const std::filesystem::path& proj_path);
+/* Qtスレッドを止めずにローカルプロジェクトをビルドする． */
+std::expected<void, QString> buildLocalProject(const std::filesystem::path& proj_path);
 }  // namespace cmn
 }  // namespace gui

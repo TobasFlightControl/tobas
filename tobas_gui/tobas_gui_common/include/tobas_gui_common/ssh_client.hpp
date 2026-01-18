@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QEventLoop>
 #include <QThread>
 
 #include <tobas_ssh_client/ssh_client.hpp>
@@ -44,9 +43,6 @@ public:
 
 private:
   Impl impl_;
-
-  template <typename ThreadType>
-  Impl::Error run(ThreadType& thread);
 };
 
 class SshConnectThread : public QThread

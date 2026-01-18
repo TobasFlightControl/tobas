@@ -14,9 +14,9 @@
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_simulation_gui/kill_gazebo_thread.hpp"
@@ -29,7 +29,7 @@ namespace gui
 namespace sim
 {
 SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), ssh_client_(node), remote_proj_builder_(node)
+  : node_(node), ssh_client_(node), remote_proj_builder_(node), spinner_(Qt::WindowModal, this)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -65,7 +65,7 @@ void SimulationWidget::reset()
   commanders_->reset();
 
   if (isRunning()) {
-    killGazebo();
+    killGazeboWithSpinner();
     launch_pid_ = -1;
     qWarning() << "Gazebo was forcibly shut down.";
   }
@@ -122,7 +122,7 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
 {
   // 親ウィジェットを閉じるときに子プロセスを破棄
   if (isRunning()) {
-    killGazebo();
+    killGazeboWithSpinner();
   }
 
   event->accept();
@@ -143,7 +143,7 @@ bool SimulationWidget::startSITL()
 
   // Tobasパッケージをビルド
   progress.setLabelText("Building the Tobas project packages.");
-  const auto build_res = cmn::buildLocalProjectBackground(proj_paths_.getProjPath());
+  const auto build_res = cmn::buildLocalProject(proj_paths_.getProjPath());
   if (!build_res) {
     qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + build_res.error());
     progress.close();
@@ -209,7 +209,7 @@ void SimulationWidget::terminateSITL()
   commanders_->reset();
 
   // 別スレッドでGazeboプロセスを終了
-  const auto kill_gazebo_res = killGazebo();
+  const auto kill_gazebo_res = killGazeboWithSpinner();
 
   // シミュレーションが正常に終了できなければアプリケーション全体を落とす
   if (!kill_gazebo_res) {
@@ -245,7 +245,7 @@ bool SimulationWidget::startHITL()
 
   // ローカルパッケージをビルド
   progress.setLabelText("Building the Tobas project.");
-  const auto local_build_res = cmn::buildLocalProjectBackground(proj_paths_.getProjPath());
+  const auto local_build_res = cmn::buildLocalProject(proj_paths_.getProjPath());
   if (!local_build_res) {
     qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + local_build_res.error());
     progress.close();
@@ -355,7 +355,7 @@ void SimulationWidget::terminateHITL()
 
   // launchを終了
   progress.setLabelText("Terminating the simulation.");
-  const auto kill_gazebo_res = killGazebo(false);
+  const auto kill_gazebo_res = killGazebo();
   if (!kill_gazebo_res) {
     qt::qErrorBox(this, "Failed to kill the simulation process:\n" + kill_gazebo_res.error());
     progress.close();
@@ -430,50 +430,24 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   return true;
 }
 
-std::expected<void, QString> SimulationWidget::killGazebo(bool run_spinner)
+std::expected<void, QString> SimulationWidget::killGazebo()
 {
-  // スレッドを作成
   KillGazeboThread thread(node_, launch_pid_);
-
-  // 別スレッドの結果をキャッチするためのイベントループを用意
-  bool success;
-  QString message;
-  QEventLoop loop;
-  connect(
-    &thread,
-    &KillGazeboThread::finished,
-    [&success, &message, &loop](bool _success, const QString& _message)
-    {
-      success = _success;
-      message = _message;
-      loop.quit();
-    });
-
-  // スピナーを起動
-  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
-  if (run_spinner) {
-    spinner.show();
-    spinner.start();
-  }
-
-  // イベントループを回しながらスレッドが終了するまで待機
-  thread.start();
-  loop.exec();
-  thread.wait();
-
-  // スピナーを停止
-  if (run_spinner) {
-    spinner.hide();
-    spinner.stop();
-  }
-
-  // 別スレッドの結果を返す
+  const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
   if (success) {
     return {};
   }
   else {
     return std::unexpected(message);
   }
+}
+
+std::expected<void, QString> SimulationWidget::killGazeboWithSpinner()
+{
+  spinner_.start();
+  const auto res = killGazebo();
+  spinner_.stop();
+  return res;
 }
 
 bool SimulationWidget::waitForGazeboServerStart()
