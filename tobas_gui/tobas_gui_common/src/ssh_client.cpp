@@ -1,8 +1,12 @@
 #include "tobas_gui_common/ssh_client.hpp"
 
+#include <QMetaType>
+
 #include <tobas_qt_tools/thread.hpp>
 
 namespace fs = std::filesystem;
+
+Q_DECLARE_METATYPE(ssh::SshClient::Error);
 
 namespace gui
 {
