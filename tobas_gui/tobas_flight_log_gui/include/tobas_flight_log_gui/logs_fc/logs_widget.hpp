@@ -27,6 +27,8 @@ Q_SIGNALS:
 public:
   explicit FlightLogsWidgetFC(rclcpp::Node::SharedPtr node);
 
+  void onProjectLoaded();
+
   void addLog(const QString& log_name);
   void removeLog(const QString& log_name);
   QListWidgetItem* findLog(const QString& log_name);
