@@ -22,7 +22,7 @@ public:
 
   void setPolicy(size_t idx, int policy);
   void setPriority(size_t idx, size_t priority);
-  void setCPUAffinity(size_t idx, uint32_t affinity);
+  void setCpuAffinity(size_t idx, uint32_t affinity);
   void setNumThreads(size_t idx, size_t num_threads);
 
   void spin();

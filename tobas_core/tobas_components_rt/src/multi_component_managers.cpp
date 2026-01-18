@@ -29,7 +29,7 @@ void MultiComponentManagers::setPriority(size_t idx, size_t priority)
   priority_.at(idx) = priority;
 }
 
-void MultiComponentManagers::setCPUAffinity(size_t idx, uint32_t affinity)
+void MultiComponentManagers::setCpuAffinity(size_t idx, uint32_t affinity)
 {
   affinity_.at(idx) = affinity;
 }
