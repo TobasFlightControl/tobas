@@ -13,7 +13,7 @@ ExecStartPre=/bin/bash -c 'echo 2 | sudo tee /proc/irq/117/smp_affinity'  # SPI0
 ExecStartPre=/bin/bash -c 'echo 4 | sudo tee /proc/irq/118/smp_affinity'  # SPI1
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && source /etc/tobas/colcon_ws/install/local_setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py'
 Restart=no
-CPUSchedulingPolicy=rr
+CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=95
 CPUAffinity=1 2 3
 
