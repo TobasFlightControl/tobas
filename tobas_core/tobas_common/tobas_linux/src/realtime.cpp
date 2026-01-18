@@ -87,7 +87,7 @@ bool setProcessCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
   return true;
 }
 
-bool setThisProcessCPUAffinity(uint32_t cpu_bit_mask)
+bool setThisProcessCpuAffinity(uint32_t cpu_bit_mask)
 {
   return setProcessCPUAffinity(getpid(), cpu_bit_mask);
 }
