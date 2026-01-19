@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QElapsedTimer>
 #include <QProgressDialog>
+#include <QTimer>
 
 namespace qt
 {
@@ -9,7 +11,7 @@ namespace qt
  * - ユーザーが他のUI要素と対話できないようにする
  * - タイトルを設定
  * - デフォルトで最小値に設定
- * - 各操作後に画面更新のためスリープ
+ * - ダイアログに動作するインジケータを表示
  * - 追加メソッド
  */
 class ProgressDialog : public QProgressDialog
@@ -23,14 +25,22 @@ public:
   explicit ProgressDialog(const QString& title = "", int num_steps = 1, QWidget* parent = nullptr);
 
   void show();
-  void setValue(int value);
+  void hide();
+
   void setLabelText(const QString& text);
   void setStep(int step);
   void progressStep();
-  void reflesh();
 
 private:
   const int num_steps_;
+
   int step_ = 0;
+  QString text_;
+
+  QTimer ui_timer_;
+  QElapsedTimer wall_timer_;
+
+private Q_SLOTS:
+  void onTimerTimeout();
 };
 }  // namespace qt
