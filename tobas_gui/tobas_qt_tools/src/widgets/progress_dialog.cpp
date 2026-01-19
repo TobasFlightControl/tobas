@@ -57,7 +57,14 @@ void ProgressDialog::progressStep()
 
 void ProgressDialog::onTimerTimeout()
 {
+  // スピナーの文字を決定
   spinner_step_ = (spinner_step_ + 1) % kSpinnerFrameSize;
-  super::setLabelText(QString("%1 %2").arg(text_).arg(kSpinnerFrames[spinner_step_]));
+  const auto spinner = kSpinnerFrames[spinner_step_];
+
+  // スピナー部分だけ等幅で表示
+  super::setLabelText(
+    QString(R"(<div style="text-align:center;">%1 <span style="font-family:monospace;">%2</span></div>)")
+      .arg(text_)
+      .arg(spinner));
 }
 }  // namespace qt

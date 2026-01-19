@@ -10,7 +10,7 @@ namespace qt
  * - ユーザーが他のUI要素と対話できないようにする
  * - タイトルを設定
  * - デフォルトで最小値に設定
- * - ダイアログに動作するインジケータを表示
+ * - ラベルテキストの右にスピナーを表示
  * - 追加メソッド
  */
 class ProgressDialog : public QProgressDialog
