@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QElapsedTimer>
 #include <QProgressDialog>
 #include <QTimer>
 
@@ -21,6 +20,9 @@ class ProgressDialog : public QProgressDialog
   using self = ProgressDialog;
   using super = QProgressDialog;
 
+  static constexpr int kSpinnerFrameSize = 4;
+  static constexpr char kSpinnerFrames[] = "|/-\\";
+
 public:
   explicit ProgressDialog(const QString& title = "", int num_steps = 1, QWidget* parent = nullptr);
 
@@ -37,8 +39,8 @@ private:
   int step_ = 0;
   QString text_;
 
-  QTimer ui_timer_;
-  QElapsedTimer wall_timer_;
+  int spinner_step_ = 0;
+  QTimer timer_;
 
 private Q_SLOTS:
   void onTimerTimeout();

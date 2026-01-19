@@ -13,7 +13,7 @@ using namespace std::chrono_literals;
 namespace qt
 {
 ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
-  : super(parent), num_steps_(num_steps), ui_timer_(this)
+  : super(parent), num_steps_(num_steps), timer_(this)
 {
   TOBAS_CHECK(num_steps > 0);
 
@@ -21,19 +21,18 @@ ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* par
   setWindowTitle(title);
   setStep(step_);
 
-  connect(&ui_timer_, &QTimer::timeout, this, &self::onTimerTimeout);
+  connect(&timer_, &QTimer::timeout, this, &self::onTimerTimeout);
 }
 
 void ProgressDialog::show()
 {
-  ui_timer_.start(100ms);
-  wall_timer_.start();
+  timer_.start(250ms);
   super::show();
 }
 
 void ProgressDialog::hide()
 {
-  ui_timer_.stop();
+  timer_.stop();
   super::hide();
 }
 
@@ -58,10 +57,7 @@ void ProgressDialog::progressStep()
 
 void ProgressDialog::onTimerTimeout()
 {
-  const auto msec = wall_timer_.elapsed();
-  const auto sec = msec / 1000;
-
-  super::setLabelText(
-    QString("%1 (%2:%3)").arg(text_).arg(sec / 60, 2, 10, QChar('0')).arg(sec % 60, 2, 10, QChar('0')));
+  spinner_step_ = (spinner_step_ + 1) % kSpinnerFrameSize;
+  super::setLabelText(QString("%1 %2").arg(text_).arg(kSpinnerFrames[spinner_step_]));
 }
 }  // namespace qt
