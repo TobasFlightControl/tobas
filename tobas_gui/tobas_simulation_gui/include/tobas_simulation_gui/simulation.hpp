@@ -81,11 +81,7 @@ private:
   std::map<std::string, std::string> makeGazeboLaunchArguments(bool launch_core) const;
   bool launchGazebo(bool launch_core);
 
-  std::expected<void, QString> killGazebo();
   std::expected<void, QString> killGazeboWithSpinner();
-
-  bool waitForGazeboServerStart();
-  bool waitForGazeboRenderingStart();
 
   static std::string boolToText(bool arg);
 

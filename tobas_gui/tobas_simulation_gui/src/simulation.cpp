@@ -1,7 +1,5 @@
 #include "tobas_simulation_gui/simulation.hpp"
 
-#include <gz/msgs/double.pb.h>
-#include <gz/msgs/world_stats.pb.h>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDebug>
@@ -9,19 +7,15 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_gazebo_common/constants.hpp>
-#include <tobas_gazebo_tools/transport.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_simulation_gui/kill_gazebo_thread.hpp"
+#include "tobas_simulation_gui/gazebo.hpp"
 
-using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace gui
@@ -162,7 +156,8 @@ bool SimulationWidget::startSITL()
 
   // Gazeboサーバの起動を待つ
   progress.setLabelText("Waiting for the Gazebo server to start.");
-  if (!waitForGazeboServerStart()) {
+  if (!waitUntilGazeboServerReady()) {
+    qt::qErrorBox(this, "Failed to start the Gazebo server.");
     progress.close();
     reset();
     return false;
@@ -171,7 +166,8 @@ bool SimulationWidget::startSITL()
 
   // Gazeboレンダリングの開始を待つ
   progress.setLabelText("Waiting for Gazebo rendering to start.");
-  if (!waitForGazeboRenderingStart()) {
+  if (!waitUntilGazeboRenderingReady()) {
+    qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
     progress.close();
     reset();
     return false;
@@ -303,7 +299,7 @@ bool SimulationWidget::startHITL()
 
   // Gazeboサーバの起動を待つ
   progress.setLabelText("Waiting for the Gazebo server to start.");
-  if (!waitForGazeboServerStart()) {
+  if (!waitUntilGazeboServerReady()) {
     progress.close();
     return false;
   }
@@ -311,7 +307,7 @@ bool SimulationWidget::startHITL()
 
   // Gazeboレンダリングの開始を待つ
   progress.setLabelText("Waiting for Gazebo rendering to start.");
-  if (!waitForGazeboRenderingStart()) {
+  if (!waitUntilGazeboRenderingReady()) {
     progress.close();
     return false;
   }
@@ -355,9 +351,9 @@ void SimulationWidget::terminateHITL()
 
   // launchを終了
   progress.setLabelText("Terminating the simulation.");
-  const auto kill_gazebo_res = killGazebo();
+  const auto kill_gazebo_res = killGazebo(node_, launch_pid_);
   if (!kill_gazebo_res) {
-    qt::qErrorBox(this, "Failed to kill the simulation process:\n" + kill_gazebo_res.error());
+    qt::qErrorBox(this, kill_gazebo_res.error());
     progress.close();
     reset();
     return;
@@ -430,46 +426,12 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   return true;
 }
 
-std::expected<void, QString> SimulationWidget::killGazebo()
-{
-  KillGazeboThread thread(node_, launch_pid_);
-  const auto [success, message] = qt::startThreadAndWait(thread, &KillGazeboThread::finished);
-  if (success) {
-    return {};
-  }
-  else {
-    return std::unexpected(message);
-  }
-}
-
 std::expected<void, QString> SimulationWidget::killGazeboWithSpinner()
 {
   spinner_.start();
-  const auto res = killGazebo();
+  const auto res = killGazebo(node_, launch_pid_);
   spinner_.stop();
   return res;
-}
-
-bool SimulationWidget::waitForGazeboServerStart()
-{
-  gz::msgs::WorldStatistics msg;
-  if (!gazebo::waitForMessage(msg, gazebo::kGzStatsTopic)) {
-    qt::qErrorBox(this, "Failed to start Gazebo server.");
-    return false;
-  }
-
-  return true;
-}
-
-bool SimulationWidget::waitForGazeboRenderingStart()
-{
-  gz::msgs::Double msg;
-  if (!gazebo::waitForMessage(msg, gazebo::kGzRenderFpsTopic)) {
-    qt::qErrorBox(this, "Failed to get Gazebo rendering information.");
-    return false;
-  }
-
-  return true;
 }
 
 std::string SimulationWidget::boolToText(bool arg)
