@@ -8,6 +8,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -68,12 +69,27 @@ void WindParamsWidget::updateNamespace(const std::string& ns)
 
 bool WindParamsWidget::start()
 {
-  if (!get_sc_->waitForService()) {
-    qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.");
-    return false;
-  }
-  if (!set_sc_->waitForService()) {
-    qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.");
+  // サービスクライアントの準備
+  bool success = true;
+  QString message;
+
+  qt::startThreadAndWait(
+    [&]()
+    {
+      if (!get_sc_->waitForService()) {
+        success = false;
+        message = "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.";
+        return;
+      }
+      if (!set_sc_->waitForService()) {
+        success = false;
+        message = "Failed to connect to \"" + QString(gazebo::kSetWindParamsSrv) + "\" service server.";
+        return;
+      }
+    });
+
+  if (!success) {
+    qt::qErrorBox(this, message);
     return false;
   }
 

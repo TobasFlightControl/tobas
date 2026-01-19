@@ -9,6 +9,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_string_tools/core.hpp>
 
@@ -91,12 +92,26 @@ void SuspendedLoadWidget::updateNamespace(const std::string& ns)
 
 bool SuspendedLoadWidget::start()
 {
-  if (!attach_sc_->waitForService()) {
-    qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service server.");
-    return false;
-  }
-  if (!detach_sc_->waitForService()) {
-    qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service server.");
+  bool success = true;
+  QString message;
+
+  qt::startThreadAndWait(
+    [&]()
+    {
+      if (!attach_sc_->waitForService()) {
+        success = false;
+        message = "Failed to connect to \"" + QString(gazebo::kAttachSuspenedLoadSrv) + "\" service server.";
+        return;
+      }
+      if (!detach_sc_->waitForService()) {
+        success = false;
+        message = "Failed to connect to \"" + QString(gazebo::kDetachSuspenedLoadSrv) + "\" service server.";
+        return;
+      }
+    });
+
+  if (!success) {
+    qt::qErrorBox(this, message);
     return false;
   }
 

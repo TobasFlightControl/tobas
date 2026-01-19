@@ -33,7 +33,7 @@ void ensureMetaTypesRegistered()
 }
 }  // namespace detail
 
-/* GUIを止めずにQThreadの終了を待機する． */
+/* GUIを止めずにスレッドの終了を待機する． */
 template <typename Thread, typename... SigArgs>
 auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> std::tuple<std::decay_t<SigArgs>...>
 {
@@ -63,4 +63,7 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
   QObject::disconnect(conn);
   return result;
 }
+
+/* 関数を実行するスレッドを作成し，GUIを止めずに終了まで待機する． */
+void startThreadAndWait(std::function<void()> func);
 }  // namespace qt
