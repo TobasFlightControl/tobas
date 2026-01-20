@@ -16,7 +16,7 @@ bool IcePropulsionSystemConfig::isValid() const
   // Rotors
   for (const auto& [_, rotor] : rotors) {
     if (!rotor->isValid()) {
-      cerr << "The configurations of rotor \"" << rotor->link_name << "\" are invalid." << endl;
+      cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << endl;
       return false;
     }
   }
@@ -46,7 +46,7 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   for (const auto& rotor_node : rotors_node) {
     const auto irotor = make_shared<IceRotorConfig>();
     if (!irotor->load(rotor_node)) {
-      cerr << "Failed to load the configurations of rotors." << endl;
+      cerr << "Failed to load the configuration of rotors." << endl;
       return false;
     }
     rotors[irotor->link_name] = irotor;
@@ -59,7 +59,7 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
     return false;
   }
   if (!engine.load(engine_node)) {
-    cerr << "Failed to load the configurations of engine." << endl;
+    cerr << "Failed to load the configuration of engine." << endl;
     return false;
   }
 

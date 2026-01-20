@@ -754,7 +754,7 @@ bool ProjectGenerator::generateSshConfig()
   config.user = tobas::kFmuUserName;
 
   if (!config.save(proj_paths_.sshConfigPath())) {
-    qt::qErrorBox(parent_, "Failed to save the SSH configurations.");
+    qt::qErrorBox(parent_, "Failed to save the SSH configuration.");
     return false;
   }
 
@@ -767,7 +767,7 @@ bool ProjectGenerator::generateNetworkConfig()
   config.interface = settings_->network->networkInterfaceName().toStdString();
 
   if (!config.save(proj_paths_.networkConfigPath())) {
-    qt::qErrorBox(parent_, "Failed to save the network configurations.");
+    qt::qErrorBox(parent_, "Failed to save the network configuration.");
     return false;
   }
 

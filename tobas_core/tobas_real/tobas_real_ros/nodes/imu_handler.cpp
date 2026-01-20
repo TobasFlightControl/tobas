@@ -74,7 +74,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real
   set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig()) {
-    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
     return;
   }
 

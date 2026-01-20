@@ -30,10 +30,10 @@ public:
   using ConstSharedPtr = std::shared_ptr<const Drone>;
 
   std::string name = "";                   // The name of this drone
-  JointConfigMap joints;                   // The servo joint configurations (joint name -> config)
-  PwmConfigMap pwms;                       // The PWM configurations (joint name -> config)
-  PropulsionSystemConfig::SharedPtr prop;  // The propulsion system configurations
-  FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configurations
+  JointConfigMap joints;                   // The servo joint configuration (joint name -> config)
+  PwmConfigMap pwms;                       // The PWM configuration (joint name -> config)
+  PropulsionSystemConfig::SharedPtr prop;  // The propulsion system configuration
+  FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configuration
   uint32_t num_sbus_channels = 0;          // The number of S.BUS channels
 
   inline bool empty() const;

@@ -14,18 +14,18 @@ void FixedWingConfig::clear()
 bool FixedWingConfig::isValid() const
 {
   if (!vehicle.isValid()) {
-    cerr << "The configurations of vehicle parameters are invalid." << endl;
+    cerr << "The vehicle parameters are invalid." << endl;
     return false;
   }
 
   if (!aerodynamics.isValid()) {
-    cerr << "The configurations of aerodynamic parameters are invalid." << endl;
+    cerr << "The aerodynamic parameters are invalid." << endl;
     return false;
   }
 
   for (const auto& [_, cs] : control_surfaces) {
     if (!cs.isValid()) {
-      cerr << "The configurations of control surface \"" << cs.link_name << "\" are invalid." << endl;
+      cerr << "The configuration of control surface \"" << cs.link_name << "\" is invalid." << endl;
       return false;
     }
   }
@@ -68,7 +68,7 @@ bool FixedWingConfig::load(const YAML::Node& root_node)
   for (const auto& cs_node : css_node) {
     ControlSurface cs;
     if (!cs.load(cs_node)) {
-      cerr << "Failed to load the configurations of control surfaces." << endl;
+      cerr << "Failed to load the configuration of control surfaces." << endl;
       return false;
     }
     control_surfaces[cs.link_name] = cs;

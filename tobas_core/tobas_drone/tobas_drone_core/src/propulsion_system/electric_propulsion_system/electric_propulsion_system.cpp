@@ -13,7 +13,7 @@ bool ElectricPropulsionSystemConfig::isValid() const
   // Rotors
   for (const auto& [_, rotor] : rotors) {
     if (!rotor->isValid()) {
-      cerr << "The configurations of rotor \"" << rotor->link_name << "\" are invalid." << endl;
+      cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << endl;
       return false;
     }
   }
@@ -43,7 +43,7 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
   for (const auto& rotor_node : rotors_node) {
     const auto rotor = make_shared<ElectricRotorConfig>();
     if (!rotor->load(rotor_node)) {
-      cerr << "Failed to load the configurations of rotors." << endl;
+      cerr << "Failed to load the configuration of rotors." << endl;
       return false;
     }
     rotors[rotor->link_name] = rotor;
@@ -56,7 +56,7 @@ bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
     return false;
   }
   if (!battery.load(battery_node)) {
-    cerr << "Failed to load the configurations of battery." << endl;
+    cerr << "Failed to load the configuration of battery." << endl;
     return false;
   }
 

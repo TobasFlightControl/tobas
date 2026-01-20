@@ -70,7 +70,7 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
 
   // Try to get configuration
   if (!getConfig()) {
-    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
     return;
   }
 

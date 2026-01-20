@@ -175,7 +175,7 @@ bool SimulationWidget::startSITL()
   progress.progressStep();
 
   // 動的パラメータを起動
-  progress.setLabelText("Starting dynamic configurations.");
+  progress.setLabelText("Starting dynamic configuration.");
   if (!dynamic_config_->start()) {
     progress.close();
     reset();
@@ -323,7 +323,7 @@ bool SimulationWidget::startHITL()
   progress.progressStep();
 
   // 動的パラメータを起動
-  progress.setLabelText("Starting dynamic configurations.");
+  progress.setLabelText("Starting dynamic configuration.");
   if (!dynamic_config_->start()) {
     progress.close();
     return false;
