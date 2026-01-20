@@ -20,10 +20,9 @@
   <arg name="pitch" default="0.0" description="Initial pitch angle in radians."/>
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
 
-  <!-- Set environment variables -->
-  <group if="$(var localhost_only)">
-    <set_env name="ROS_AUTOMATIC_DISCOVERY_RANGE" value="LOCALHOST"/>
-  </group>
+  <!-- Set environment variables (Must be  -->
+  <!-- NOTE: Must be set at the top level (outside any scoped <group>) to affect all nodes/includes. -->
+  <set_env name="ROS_AUTOMATIC_DISCOVERY_RANGE" value="LOCALHOST" if="$(var localhost_only)"/>
 
   <!-- Set common parameters -->
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
