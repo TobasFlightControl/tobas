@@ -68,7 +68,8 @@ private:
   bool generateObserverStaticConfig();
   bool generateControllerStaticConfig();
   bool generateRcTeleopStaticConfig();
-  bool generateSshEndpointConfig();
+  bool generateSshConfig();
+  bool generateNetworkConfig();
   bool generateOriginalUadf();
   bool generateModifiedUrdf();
 

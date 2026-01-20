@@ -6,14 +6,12 @@ namespace gui
 {
 namespace cmn
 {
-class SshEndpoint
+class NetworkConfig
 {
-  static constexpr char kHostKey[] = "host";
-  static constexpr char kUserKey[] = "user";
+  static constexpr char kInterfaceKey[] = "interface";
 
 public:
-  std::string host;
-  std::string user;
+  std::string interface;
 
   bool load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;

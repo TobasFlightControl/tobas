@@ -1,8 +1,9 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
 #include <tobas_gui_common/command.hpp>
+#include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_gui_common/ssh_config.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
@@ -504,7 +505,10 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateRcTeleopStaticConfig()) {
     return false;
   }
-  if (!generateSshEndpointConfig()) {
+  if (!generateSshConfig()) {
+    return false;
+  }
+  if (!generateNetworkConfig()) {
     return false;
   }
   if (!generateOriginalUadf()) {
@@ -743,14 +747,27 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
   return true;
 }
 
-bool ProjectGenerator::generateSshEndpointConfig()
+bool ProjectGenerator::generateSshConfig()
 {
-  cmn::SshEndpoint ssh_endpoint;
-  ssh_endpoint.host = settings_->remote_connection->host().toStdString();
-  ssh_endpoint.user = tobas::kFmuUserName;
+  cmn::SshConfig config;
+  config.host = settings_->remote_connection->host().toStdString();
+  config.user = tobas::kFmuUserName;
 
-  if (!ssh_endpoint.save(proj_paths_.sshEndpointPath())) {
-    qt::qErrorBox(parent_, "Failed to save the SSH endpoint.");
+  if (!config.save(proj_paths_.sshConfigPath())) {
+    qt::qErrorBox(parent_, "Failed to save the SSH configurations.");
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateNetworkConfig()
+{
+  cmn::NetworkConfig config;
+  config.interface = settings_->network->networkInterfaceName().toStdString();
+
+  if (!config.save(proj_paths_.networkConfigPath())) {
+    qt::qErrorBox(parent_, "Failed to save the network configurations.");
     return false;
   }
 

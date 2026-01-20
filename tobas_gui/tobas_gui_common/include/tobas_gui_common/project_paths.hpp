@@ -76,8 +76,11 @@ public:
   /* drone.tbsdrn の絶対パスを返す． */
   std::filesystem::path tbsdrnPath() const;
 
-  /* ssh_endpoint.yaml の絶対パスを返す． */
-  std::filesystem::path sshEndpointPath() const;
+  /* ssh.yaml の絶対パスを返す． */
+  std::filesystem::path sshConfigPath() const;
+
+  /* network.yaml の絶対パスを返す． */
+  std::filesystem::path networkConfigPath() const;
 
   /* imu_filter_dynamic.yaml の絶対パスを返す． */
   std::filesystem::path imuFiltDynParamsPath() const;

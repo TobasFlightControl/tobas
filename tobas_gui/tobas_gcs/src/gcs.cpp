@@ -276,7 +276,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   }
 
   // Load SSH endpoint
-  const auto ssh_endpoint_path = proj_paths_.sshEndpointPath();
+  const auto ssh_endpoint_path = proj_paths_.sshConfigPath();
   if (!ssh_endpoint_.load(ssh_endpoint_path)) {
     qt::qErrorBox(this, "Failed to load SSH endpoint.");
     return;

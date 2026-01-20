@@ -119,9 +119,14 @@ fs::path ProjectPaths::tbsdrnPath() const
   return cfgConfigDirPath() / "drone.tbsdrn";
 }
 
-fs::path ProjectPaths::sshEndpointPath() const
+fs::path ProjectPaths::sshConfigPath() const
 {
-  return cfgConfigDirPath() / "ssh_endpoint.yaml";
+  return cfgConfigDirPath() / "ssh.yaml";
+}
+
+fs::path ProjectPaths::networkConfigPath() const
+{
+  return cfgConfigDirPath() / "network.yaml";
 }
 
 fs::path ProjectPaths::imuFiltDynParamsPath() const

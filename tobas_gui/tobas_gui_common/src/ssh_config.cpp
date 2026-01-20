@@ -1,4 +1,4 @@
-#include "tobas_gui_common/ssh_endpoint.hpp"
+#include "tobas_gui_common/ssh_config.hpp"
 
 #include <tobas_yaml_tools/core.hpp>
 
@@ -8,7 +8,7 @@ namespace gui
 {
 namespace cmn
 {
-bool SshEndpoint::load(const fs::path& path)
+bool SshConfig::load(const fs::path& path)
 {
   const auto node = yaml::load(path);
   if (!node) {
@@ -26,7 +26,7 @@ bool SshEndpoint::load(const fs::path& path)
   return true;
 }
 
-bool SshEndpoint::save(const fs::path& path) const
+bool SshConfig::save(const fs::path& path) const
 {
   YAML::Node node(YAML::NodeType::Map);
 

@@ -9,7 +9,7 @@
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/ssh_client.hpp>
-#include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_gui_common/ssh_config.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
@@ -67,7 +67,7 @@ private:
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
   cmn::Version proj_version_;
-  cmn::SshEndpoint ssh_endpoint_;
+  cmn::SshConfig ssh_endpoint_;
   cmn::SshClientWrapper ssh_client_;
   cmn::RemoteProjectBuilder remote_proj_builder_;
   ProjectEnvParser project_env_parser_;
