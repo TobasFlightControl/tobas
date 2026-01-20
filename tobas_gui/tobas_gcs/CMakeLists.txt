@@ -11,8 +11,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES tobas_sensor_calibration tobas_actuator_test tobas_control_system tobas_parameter_tuning
-                       tobas_flight_log_gui tobas_simulation_gui
+set(AMENT_DEPENDENCIES
+    tobas_cyclonedds_config
+    tobas_sensor_calibration
+    tobas_actuator_test
+    tobas_control_system
+    tobas_parameter_tuning
+    tobas_flight_log_gui
+    tobas_simulation_gui
 )
 
 find_package(ament_cmake REQUIRED)

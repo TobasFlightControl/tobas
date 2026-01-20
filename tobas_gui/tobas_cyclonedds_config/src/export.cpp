@@ -20,6 +20,9 @@ std::string exportText(const Data& src)
   const auto e_ifaces = e_general->InsertNewChildElement(elem::kInterfaces);
 
   for (const auto& nif : src.interfaces) {
+    if (nif.name.empty()) {
+      continue;
+    }
     const auto e_nif = e_ifaces->InsertNewChildElement(elem::kNIF);
     e_nif->SetAttribute(attr::kName, nif.name.c_str());
   }

@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_cyclonedds_config/cyclonedds_config.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -159,8 +160,9 @@ void GroundControlStationWidget::updateInternalDataStructures()
   bridge_.initializeScopedTopics(drone_.name);
   qt::processAllQueuedEvents();
 
-  if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set SSH endpoint:\n" + QString(ssh_client_.errorMessage()));
+  // SSHの窓口に接続先の情報を伝える
+  if (ssh_client_.setEndpoint(ssh_config_.host, ssh_config_.user) != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to set SSH configuration:\n" + QString(ssh_client_.errorMessage()));
     return;
   }
 
@@ -275,10 +277,15 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
 
-  // Load SSH endpoint
-  const auto ssh_endpoint_path = proj_paths_.sshConfigPath();
-  if (!ssh_endpoint_.load(ssh_endpoint_path)) {
-    qt::qErrorBox(this, "Failed to load SSH endpoint.");
+  // Load SSH configuration
+  if (!ssh_config_.load(proj_paths_.sshConfigPath())) {
+    qt::qErrorBox(this, "Failed to load SSH configuration.");
+    return;
+  }
+
+  // Load network configuration
+  if (!network_config_.load(proj_paths_.networkConfigPath())) {
+    qt::qErrorBox(this, "Failed to load network configuration.");
     return;
   }
 
@@ -290,7 +297,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   restart_btn_->setEnabled(true);
   shutdown_btn_->setEnabled(true);
 
-  // ロードが成功したことを示すダイアログ
+  // プロジェクトの読み込みが成功したことを示すダイアログ
   qt::qInfoBox(this, "Tobas project is loaded successfully.");
 }
 
@@ -321,7 +328,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = proj_paths_.cfgPkgName();
 
   // 進捗バーを作成
-  qt::ProgressDialog progress("Write Tobas Project", 10, this);
+  qt::ProgressDialog progress("Write Tobas Project", 11, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -369,9 +376,9 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // 環境変数を読み込む (読み込めなくても続行)
   progress.setLabelText("Getting environment variables.");
-  std::string project_env_content;
-  if (ssh_client_.sftpRead(tobas::kProjectEnvPath, project_env_content, true) == ssh::SshClient::kNoError) {
-    if (!project_env_parser_.parseFromText(project_env_content)) {
+  std::string project_env_text;
+  if (ssh_client_.sftpRead(tobas::kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
+    if (!project_env_parser_.parseFromText(project_env_text)) {
       progress.close();
       qt::qErrorBox(this, "Failed to parse configuration file.");
       return;
@@ -430,6 +437,20 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
     qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
     progress.close();
+    return;
+  }
+  progress.progressStep();
+
+  // DDSの設定を更新
+  progress.setLabelText("Writing DDS configuration.");
+  tobas::cyclonedds::Data dds_data;
+  if (!network_config_.interface.empty()) {
+    dds_data.interfaces.emplace_back(network_config_.interface);
+  }
+  const auto dds_config_text = tobas::cyclonedds::exportText(dds_data);
+  if (ssh_client_.sftpWrite(tobas::kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
