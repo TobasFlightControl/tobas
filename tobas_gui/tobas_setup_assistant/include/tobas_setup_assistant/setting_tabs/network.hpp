@@ -1,10 +1,9 @@
 #pragma once
 
+#include <QButtonGroup>
 #include <QLineEdit>
+#include <QRadioButton>
 
-#include <tobas_qt_tools/widgets/combo_box.hpp>
-
-#include "../param_getters/combo_box.hpp"
 #include "./base_setting.hpp"
 
 namespace gui
@@ -24,7 +23,8 @@ class NetworkWidget : public BaseSettingWidget
   static constexpr int kAccessPointIdx = 3;
   static constexpr int kOtherIdx = 4;
 
-  static constexpr char kNifNameLabel[] = "Network Interface Name";
+  static constexpr char kNifTypeKey[] = "nif_type";
+  static constexpr char kOtherNifNameKey[] = "other_nif_name";
 
 public:
   explicit NetworkWidget();
@@ -42,13 +42,13 @@ public:
   QString networkInterfaceName() const;
 
 private:
-  ParamGetterWidget_ComboBox* nif_type_;
+  QButtonGroup* nif_btn_group_;
+  QLineEdit* other_nif_name_;
 
-  QLabel* nif_name_label_;
-  QLineEdit* nif_name_;
+  QRadioButton* addNifTypeButton(const QString& text, int id);
 
 private Q_SLOTS:
-  void onNifTypeChanged(int index);
+  void onOtherButtonToggled(bool checked);
 };
 };  // namespace sa
 }  // namespace gui
