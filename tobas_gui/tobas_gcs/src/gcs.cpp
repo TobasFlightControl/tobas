@@ -367,23 +367,23 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // 環境変数を読み込む
+  // 環境変数を読み込む (読み込めなくても続行)
   progress.setLabelText("Getting environment variables.");
-  std::string cur_env_content;
-  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SshClient::kNoError) {  // ファイルが存在しなくても続行
-    if (!config_env_parser_.parseFromText(cur_env_content)) {
+  std::string project_env_content;
+  if (ssh_client_.sftpRead(tobas::kProjectEnvPath, project_env_content, true) == ssh::SshClient::kNoError) {
+    if (!project_env_parser_.parseFromText(project_env_content)) {
       progress.close();
       qt::qErrorBox(this, "Failed to parse configuration file.");
       return;
     }
   }
   else {
-    qWarning() << "Failed to get environment variables: " << ssh_client_.errorMessage();
+    qWarning() << "Failed to get the current environment variables: " << ssh_client_.errorMessage();
   }
   progress.progressStep();
 
   // パッケージが変わる場合は競合を避けるためにクリーンビルド
-  if (config_pkg_name != config_env_parser_.config_pkg) {
+  if (config_pkg_name != project_env_parser_.config_pkg) {
     // ワークスペースを初期化
     progress.setLabelText("Initializing colcon workspace.");
     if (ssh_client_.execute(std::format("rm -rf {}", tobas::kColconWSPathRoot), true)) {
@@ -400,8 +400,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
     // 環境変数を更新
     progress.setLabelText("Setting environment variables.");
-    config_env_parser_.config_pkg = config_pkg_name;
-    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
+    project_env_parser_.config_pkg = config_pkg_name;
+    if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
       progress.close();
       qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
       return;

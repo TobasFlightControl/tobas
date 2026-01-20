@@ -22,8 +22,8 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 
-#include "./config_env_parser.hpp"
 #include "./network_checker.hpp"
+#include "./project_env_parser.hpp"
 #include "./remote_connection.hpp"
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
@@ -70,7 +70,7 @@ private:
   cmn::SshEndpoint ssh_endpoint_;
   cmn::SshClientWrapper ssh_client_;
   cmn::RemoteProjectBuilder remote_proj_builder_;
-  ConfigurationEnvParser config_env_parser_;
+  ProjectEnvParser project_env_parser_;
 
   RemoteConnectionWidget* remote_conn_;
 

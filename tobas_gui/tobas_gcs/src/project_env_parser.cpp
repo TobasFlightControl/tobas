@@ -1,4 +1,4 @@
-#include "tobas_gcs/config_env_parser.hpp"
+#include "tobas_gcs/project_env_parser.hpp"
 
 #include <sstream>
 
@@ -8,11 +8,11 @@ namespace gui
 {
 namespace gcs
 {
-ConfigurationEnvParser::ConfigurationEnvParser()
+ProjectEnvParser::ProjectEnvParser()
 {
 }
 
-bool ConfigurationEnvParser::parseFromText(const std::string& text)
+bool ProjectEnvParser::parseFromText(const std::string& text)
 {
   const auto lines = str::splitLines(text);
 
@@ -35,7 +35,7 @@ bool ConfigurationEnvParser::parseFromText(const std::string& text)
   return true;
 }
 
-std::string ConfigurationEnvParser::exportText() const
+std::string ProjectEnvParser::exportText() const
 {
   std::ostringstream oss;
 

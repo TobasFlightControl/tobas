@@ -6,14 +6,14 @@ namespace gui
 {
 namespace gcs
 {
-class ConfigurationEnvParser
+class ProjectEnvParser
 {
   static constexpr char kConfigPkgPrefix[] = "TOBAS_CONFIG_PKG=";
 
 public:
   std::string config_pkg;
 
-  explicit ConfigurationEnvParser();
+  explicit ProjectEnvParser();
 
   bool parseFromText(const std::string& text);
 
