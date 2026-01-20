@@ -1,8 +1,6 @@
 #include "tobas_setup_assistant/setting_tabs/observer.hpp"
 
-#include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
