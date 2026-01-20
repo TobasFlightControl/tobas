@@ -484,10 +484,9 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
     return;
   }
 
-  reset();
-
   qt::qInfoBox(this, "Flight controller was restarted successfully.");
 
+  reset();
   restart_btn_->setChecked(false);
 }
 
@@ -523,10 +522,10 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
     return;
   }
 
-  reset();
-
   qt::qInfoBox(this, "Flight controller was shut down successfully.");
 
+  // ウィジェットが保持しているROSメッセージなどを確実にリセットするために，reset()の呼び出しを最後に行う．
+  reset();
   shutdown_btn_->setChecked(false);
 }
 
