@@ -2,10 +2,6 @@
 
 #include <QCheckBox>
 
-#include <tobas_qt_tools/widgets/combo_box.hpp>
-#include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_qt_tools/widgets/stacked_widget.hpp>
-
 #include "./base_setting.hpp"
 
 namespace gui
