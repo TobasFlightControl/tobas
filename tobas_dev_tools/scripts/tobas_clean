@@ -18,7 +18,7 @@ sudo rm -rf /var/tmp/*
 sudo rm -rf /var/lib/apt/lists/*
 
 # Clean tobas directory
-sudo rm /etc/tobas/config/*.json
+sudo rm /etc/tobas/config/*
 sudo rm -rf /etc/tobas/rosbag/*
 
 # Clean user workspace
