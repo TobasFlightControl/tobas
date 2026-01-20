@@ -18,8 +18,6 @@ public:
   bool parseFromText(const std::string& text);
 
   std::string exportText() const;
-
-private:
 };
 }  // namespace gcs
 }  // namespace gui

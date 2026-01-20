@@ -13,6 +13,7 @@
 	<exec_depend>tobas_colcon_cpp</exec_depend>
 	<exec_depend>tobas_control_system</exec_depend>
 	<exec_depend>tobas_crypt</exec_depend>
+	<exec_depend>tobas_cyclonedds_config</exec_depend>
 	<exec_depend>tobas_flight_log_gui</exec_depend>
 	<exec_depend>tobas_gazebo</exec_depend>
 	<exec_depend>tobas_gcs</exec_depend>

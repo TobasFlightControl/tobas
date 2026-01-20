@@ -3,8 +3,7 @@
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_wpa_supplicant/export.hpp>
-#include <tobas_wpa_supplicant/parse.hpp>
+#include <tobas_wpa_supplicant/wpa_supplicant.hpp>
 
 #include "../base.hpp"
 
