@@ -58,16 +58,16 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
 
 void RotorAnomalyDetectorNode::publishRotorLiveliness()
 {
-  auto rotor_liveliness = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
-  rotor_liveliness->header.stamp = now();
+  auto msg = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
+  msg->header.stamp = now();
 
   for (const auto& [link_name, data] : data_) {
-    rotor_liveliness->data.emplace_back();
-    rotor_liveliness->data.back().link_name = link_name;
-    rotor_liveliness->data.back().alive = data.is_alive;
+    msg->data.emplace_back();
+    msg->data.back().link_name = link_name;
+    msg->data.back().alive = data.is_alive;
   }
 
-  rotor_liveliness_pub_->publish(std::move(rotor_liveliness));
+  rotor_liveliness_pub_->publish(std::move(msg));
 }
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
