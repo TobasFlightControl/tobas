@@ -2,6 +2,8 @@
 
 #include <QCheckBox>
 
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base_setting.hpp"
 
 namespace gui
@@ -31,6 +33,8 @@ class FailsafeWidget : public BaseSettingWidget
   static constexpr size_t kVibrationLevelIdx = kMagAlignmentIdx + 1;
   static constexpr size_t kItemSize = kVibrationLevelIdx + 1;
 
+  static constexpr char kEscNoCommTimeoutKey[] = "esc_no_comm_timeout";
+
 public:
   explicit FailsafeWidget();
 
@@ -59,8 +63,12 @@ public:
   bool checkMagAlignment() const;
   bool checkVibrationLevel() const;
 
+  double escNoCommunicationTiemout() const;  // [s]
+
 private:
   std::array<QCheckBox*, kItemSize> items_;
+
+  qt::SpinBox* esc_no_comm_timeout_;
 };
 }  // namespace sa
 }  // namespace gui

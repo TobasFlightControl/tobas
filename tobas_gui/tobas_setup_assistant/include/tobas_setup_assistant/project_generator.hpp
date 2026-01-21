@@ -65,6 +65,7 @@ private:
 
   bool generateDroneConfig();
   bool generateHealthMonitorConfig();
+  bool generateRotorAnomalyDetectorConfig();
   bool generateObserverStaticConfig();
   bool generateControllerStaticConfig();
   bool generateRcTeleopStaticConfig();

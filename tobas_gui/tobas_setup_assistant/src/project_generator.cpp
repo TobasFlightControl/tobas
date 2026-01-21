@@ -505,6 +505,9 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateRcTeleopStaticConfig()) {
     return false;
   }
+  if (!generateRotorAnomalyDetectorConfig()) {
+    return false;
+  }
   if (!generateSshConfig()) {
     return false;
   }
@@ -639,24 +642,57 @@ bool ProjectGenerator::generateDroneConfig()
 
 bool ProjectGenerator::generateHealthMonitorConfig()
 {
-  YAML::Node node(YAML::NodeType::Map);
-  node["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
-  node["check_battery_voltage"] = settings_->failsafe->checkBatteryVoltage();
-  node["check_cpu_temperature"] = settings_->failsafe->checkCpuTemperature();
-  node["check_radio_link"] = settings_->failsafe->checkRadioLink();
-  node["check_rotor_links"] = settings_->failsafe->checkRotorLinks();
-  node["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
-  node["check_position_stability"] = settings_->failsafe->checkPositionStability();
-  node["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();
-  node["check_velocity_accuracy"] = settings_->failsafe->checkVelocityAccuracy();
-  node["check_attitude_accuracy"] = settings_->failsafe->checkAttitudeAccuracy();
-  node["check_heading_accuracy"] = settings_->failsafe->checkHeadingAccuracy();
-  node["check_mag_offset"] = settings_->failsafe->checkMagOffset();
-  node["check_mag_alignment"] = settings_->failsafe->checkMagAlignment();
-  node["check_vibration_level"] = settings_->failsafe->checkVibrationLevel();
+  YAML::Node params(YAML::NodeType::Map);
+  params["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
+  params["check_battery_voltage"] = settings_->failsafe->checkBatteryVoltage();
+  params["check_cpu_temperature"] = settings_->failsafe->checkCpuTemperature();
+  params["check_radio_link"] = settings_->failsafe->checkRadioLink();
+  params["check_rotor_links"] = settings_->failsafe->checkRotorLinks();
+  params["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
+  params["check_position_stability"] = settings_->failsafe->checkPositionStability();
+  params["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();
+  params["check_velocity_accuracy"] = settings_->failsafe->checkVelocityAccuracy();
+  params["check_attitude_accuracy"] = settings_->failsafe->checkAttitudeAccuracy();
+  params["check_heading_accuracy"] = settings_->failsafe->checkHeadingAccuracy();
+  params["check_mag_offset"] = settings_->failsafe->checkMagOffset();
+  params["check_mag_alignment"] = settings_->failsafe->checkMagAlignment();
+  params["check_vibration_level"] = settings_->failsafe->checkVibrationLevel();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / "health_monitor.yaml", node)) {
+
+  // For component
+  const auto node_component = params;
+  if (!saveYamlNode(config_dir / "health_monitor.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"]["health_monitor"][kRosParamsKey] = params;
+  if (!saveYamlNode(config_dir / "health_monitor_standalone.yaml", node_standalone)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateRotorAnomalyDetectorConfig()
+{
+  YAML::Node params(YAML::NodeType::Map);
+  params["no_communication_timeout"] = settings_->failsafe->escNoCommunicationTiemout();
+
+  const auto config_dir = proj_paths_.cfgConfigDirPath();
+
+  // For component
+  const auto node_component = params;
+  if (!saveYamlNode(config_dir / "rotor_anomaly_detector.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"]["rotor_anomaly_detector"][kRosParamsKey] = params;
+  if (!saveYamlNode(config_dir / "rotor_anomaly_detector_standalone.yaml", node_standalone)) {
     return false;
   }
 

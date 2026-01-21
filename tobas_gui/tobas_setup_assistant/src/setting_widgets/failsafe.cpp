@@ -1,5 +1,11 @@
 #include "tobas_setup_assistant/setting_tabs/failsafe.hpp"
 
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace gui
@@ -23,16 +29,38 @@ FailsafeWidget::FailsafeWidget()
   items_[kMagAlignmentIdx] = new QCheckBox("Check magnetic field alignment");
   items_[kVibrationLevelIdx] = new QCheckBox("Check vibration level");
 
+  // TODO: 地磁気のオフセットを小さくできたらデフォルトをtrueにする
   for (const auto& item : items_) {
     item->setChecked(true);
-    addWidget(item);
   }
-
-  // TODO: 地磁気のオフセットを小さくできたらデフォルトをtrueにする
   items_.at(kMagOffsetIdx)->setChecked(false);
   items_.at(kMagAlignmentIdx)->setChecked(false);
 
-  addStretch();
+  esc_no_comm_timeout_ = new qt::SpinBox();
+  esc_no_comm_timeout_->setSuffix(" ms");
+  esc_no_comm_timeout_->setValue(200);
+
+  // Layout
+  const auto checklist_rows = new QVBoxLayout();
+  checklist_rows->addWidget(new qt::Label("Checklist", cmn::kLabelPSize, QFont::Bold));
+  for (const auto& item : items_) {
+    checklist_rows->addWidget(item);
+  }
+  checklist_rows->addStretch();
+
+  const auto form = new QFormLayout();
+  form->addRow("ESC no communication timeout", esc_no_comm_timeout_);
+
+  const auto detail_rows = new QVBoxLayout();
+  detail_rows->addWidget(new qt::Label("Details", cmn::kLabelPSize, QFont::Bold));
+  detail_rows->addLayout(form);
+  detail_rows->addStretch();
+
+  const auto cols = new QHBoxLayout();
+  cols->addLayout(checklist_rows, 1);
+  cols->addLayout(detail_rows, 1);
+
+  addLayout(cols);
 }
 
 const char* FailsafeWidget::name() const
@@ -69,6 +97,8 @@ YAML::Node FailsafeWidget::dump() const
     node[item->text()] = item->isChecked();
   }
 
+  node[kEscNoCommTimeoutKey] = esc_no_comm_timeout_->value();
+
   return node;
 }
 
@@ -77,6 +107,8 @@ void FailsafeWidget::load(const YAML::Node& node)
   for (const auto& item : items_) {
     item->setChecked(node[item->text()].as<bool>());
   }
+
+  esc_no_comm_timeout_->setValue(node[kEscNoCommTimeoutKey].as<int>());
 }
 
 bool FailsafeWidget::checkRealtimeCompliance() const
@@ -147,6 +179,11 @@ bool FailsafeWidget::checkMagAlignment() const
 bool FailsafeWidget::checkVibrationLevel() const
 {
   return items_[kVibrationLevelIdx]->isChecked();
+}
+
+double FailsafeWidget::escNoCommunicationTiemout() const
+{
+  return esc_no_comm_timeout_->value() * 1e-3;
 }
 }  // namespace sa
 }  // namespace gui
