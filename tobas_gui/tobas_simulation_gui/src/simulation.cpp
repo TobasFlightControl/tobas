@@ -7,9 +7,11 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -139,7 +141,21 @@ bool SimulationWidget::startSITL()
   progress.setLabelText("Building the Tobas project packages.");
   const auto build_res = cmn::buildLocalProject(proj_paths_.getProjPath());
   if (!build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + build_res.error());
+    const auto& error_msg = build_res.error();
+    if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
+      qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+    }
+    else {
+      const auto log_path =
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_local");
+      if (log_path) {
+        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+      }
+      else {
+        qWarning() << "Failed to save the build error output.";
+        qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+      }
+    }
     progress.close();
     return false;
   }

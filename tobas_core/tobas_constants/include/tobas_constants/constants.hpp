@@ -138,6 +138,7 @@ static constexpr char kRosbagDirHome[] = "~/.local/share/tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
 static constexpr char kProjectEnvPath[] = "/etc/tobas/config/project.env";
 static constexpr char kCycloneddsConfigPath[] = "/etc/tobas/config/cyclonedds.xml";
+static constexpr char kGuiLogDir[] = "~/.local/share/tobas/log";
 
 // Scale
 constexpr auto kAccelScale = 10.;   // [m/s^2]

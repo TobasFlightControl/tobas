@@ -12,6 +12,37 @@ namespace gui
 {
 namespace cmn
 {
+namespace
+{
+class LocalProjectBuilderThread : public QThread
+{
+  Q_OBJECT
+
+Q_SIGNALS:
+  void finished(bool success, const QString& message);
+
+public:
+  explicit LocalProjectBuilderThread(const fs::path& proj_path) : proj_path_(proj_path)
+  {
+  }
+
+  void run() override
+  {
+    if (!builder_.build(proj_path_)) {
+      Q_EMIT finished(false, QString::fromStdString(builder_.errorMessage()));
+      return;
+    }
+
+    Q_EMIT finished(true, "");
+  }
+
+private:
+  const fs::path proj_path_;
+
+  LocalProjectBuilder builder_;
+};
+}  // namespace
+
 LocalProjectBuilder::LocalProjectBuilder()
 {
   // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要
@@ -31,21 +62,7 @@ const std::string& LocalProjectBuilder::errorMessage() const
   return colcon_.errorMessage();
 }
 
-LocalProjectBuilderThread::LocalProjectBuilderThread(const std::filesystem::path& proj_path) : proj_path_(proj_path)
-{
-}
-
-void LocalProjectBuilderThread::run()
-{
-  if (!builder_.build(proj_path_)) {
-    Q_EMIT finished(false, QString::fromStdString(builder_.errorMessage()));
-    return;
-  }
-
-  Q_EMIT finished(true, "");
-}
-
-std::expected<void, QString> buildLocalProject(const std::filesystem::path& proj_path)
+std::expected<void, QString> buildLocalProject(const fs::path& proj_path)
 {
   LocalProjectBuilderThread thread(proj_path);
   const auto [success, message] = qt::startThreadAndWait(thread, &LocalProjectBuilderThread::finished);
@@ -59,3 +76,5 @@ std::expected<void, QString> buildLocalProject(const std::filesystem::path& proj
 }
 }  // namespace cmn
 }  // namespace gui
+
+#include "local_project_builder.moc"

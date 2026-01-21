@@ -9,11 +9,13 @@
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -435,7 +437,21 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // GUIを止めないように別スレッドでプロジェクトをビルド
   progress.setLabelText("Building the Tobas project.");
   if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
+    const QString error_msg(remote_proj_builder_.getErrorMessage());
+    if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
+      qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+    }
+    else {
+      const auto log_path =
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_remote");
+      if (log_path) {
+        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+      }
+      else {
+        qWarning() << "Failed to save the build error output.";
+        qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+      }
+    }
     progress.close();
     return;
   }
