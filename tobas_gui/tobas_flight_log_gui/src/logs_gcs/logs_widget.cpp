@@ -13,6 +13,15 @@
 #include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 
+#include <QFileDialog>
+#include <fstream>
+
+#include <rosbag2_cpp/reader.hpp>
+#include <rosbag2_storage/storage_filter.hpp>
+
+#include "tobas_kdl_msgs/msg/vector.hpp"
+#include "tobas_msgs/msg/imu.hpp"
+
 namespace fs = std::filesystem;
 
 namespace gui
@@ -60,6 +69,7 @@ void FlightLogsWidgetGCS::addLog(const QString& log_name)
   log_list_->addItem(list_item);
 
   const auto widget = new FlightLogItemWidgetGCS(log_name);
+  connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
 }
@@ -188,6 +198,78 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   }
 
   clearLogs();
+}
+
+void FlightLogsWidgetGCS::convertRosbag2CSV(
+  const QString& log_name,
+  const std::string& output_csv_path,
+  const std::string& target_topic)
+{
+  std::ofstream csvFile(output_csv_path);
+  if (!csvFile.is_open()) {
+    std::cerr << "Couldn't write to csv file: " << output_csv_path << std::endl;
+    return;
+  }
+  csvFile << FlightLogsWidgetGCS::exportCSVHeader;
+
+  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  rosbag2_cpp::Reader reader;
+
+  try {
+    reader.open(log_path.string());
+  }
+  catch (const std::exception& e) {
+    std::cerr << "Couldn't open rosbag: " << e.what() << std::endl;
+    return;
+  }
+
+  rosbag2_storage::StorageFilter filter;
+  filter.topics.push_back(target_topic);
+  reader.set_filter(filter);
+
+  rclcpp::Serialization<tobas_msgs::msg::Imu> serializer;
+  tobas_msgs::msg::Imu raw_msg;
+
+  while (reader.has_next()) {
+    auto bag_message = reader.read_next();
+
+    rclcpp::SerializedMessage serialized_msg(*bag_message->serialized_data);
+    serializer.deserialize_message(&serialized_msg, &raw_msg);
+
+    double timestamp = raw_msg.header.stamp.sec + (raw_msg.header.stamp.nanosec * 1e-9);
+
+    csvFile << std::fixed << std::setprecision(9) << timestamp << "," << raw_msg.accel.x << "," << raw_msg.accel.y
+            << "," << raw_msg.accel.z << "," << raw_msg.gyro.x << "," << raw_msg.gyro.y << "," << raw_msg.gyro.z << ","
+            << raw_msg.dgyro.x << "," << raw_msg.dgyro.y << "," << raw_msg.dgyro.z << "\n";
+  }
+  csvFile.close();
+}
+
+void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
+{
+  if (!qt::yesOrNo(this, "Do you want to export flight log \"" + log_name + " to csv\"?", qt::WARN)) {
+    return;
+  }
+
+  fs::path defaultCsvName(log_name.toStdString());
+  defaultCsvName.replace_extension(".csv");
+
+  QString savePath = QFileDialog::getSaveFileName(
+    this, "Select the directory", QString::fromStdString(defaultCsvName.string()), "CSV Files (*.csv)");
+
+  if (savePath.isEmpty()) {
+    return;
+  }
+
+  std::ofstream csvFile(savePath.toStdString());
+
+  if (!csvFile.is_open()) {
+    std::cerr << "Failed to save CSV file" << std::endl;
+    return;
+  }
+
+  std::string imu_topic = "/f450/imu_raw";
+  convertRosbag2CSV(log_name, savePath.toStdString(), imu_topic);
 }
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
