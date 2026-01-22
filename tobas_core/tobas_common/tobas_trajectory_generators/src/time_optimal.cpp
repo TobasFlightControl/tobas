@@ -12,7 +12,7 @@
 namespace traj
 {
 TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
-  : p0_(p0), pd_(fabs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
+  : p0_(p0), pd_(std::abs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
 {
   assert(jm_ > 0.);
   assert(am_ > 0.);

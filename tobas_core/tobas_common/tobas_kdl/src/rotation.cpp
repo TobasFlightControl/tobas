@@ -7,8 +7,6 @@
 
 #define EPS 1e-12
 
-using namespace std;
-
 namespace kdl
 {
 Rotation Rotation::RotX(double angle)
@@ -113,7 +111,7 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
     1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
 }
 
-bool Rotation::isValid(string& error_msg) const
+bool Rotation::isValid(std::string& error_msg) const
 {
   if (!eigen::isSpecialOrthogonal(data)) {
     error_msg = "Rotation matrix must belong to SO(3).";
@@ -161,7 +159,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
   pitch = getPitch();
-  if (fabs(pitch) > (M_PI_2 - EPS)) {
+  if (std::abs(pitch) > (M_PI_2 - EPS)) {
     yaw = atan2(-data(0, 1), data(1, 1));
     roll = 0.;
   }
@@ -171,7 +169,7 @@ void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
   }
 }
 
-tuple<double, double, double> Rotation::getRPY() const
+std::tuple<double, double, double> Rotation::getRPY() const
 {
   double roll, pitch, yaw;
   getRPY(roll, pitch, yaw);
@@ -184,20 +182,22 @@ Vector Rotation::getRot() const
   return angle * axis;
 }
 
-pair<double, Vector> Rotation::getAngleAxis() const
+std::pair<double, Vector> Rotation::getAngleAxis() const
 {
   constexpr auto eps2 = EPS * 10;  // margin to distinguish between 0 and 180 degrees
 
   // Optional check that input is pure rotation, 'isRotationMatrix' is defined at:
   // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
-  if (fabs(data(0, 1) - data(1, 0) < EPS) && fabs(data(0, 2) - data(2, 0)) < EPS && fabs(data(1, 2) - data(2, 1)) < EPS) {
+  if (
+    std::abs(data(0, 1) - data(1, 0) < EPS) && std::abs(data(0, 2) - data(2, 0)) < EPS &&
+    std::abs(data(1, 2) - data(2, 1)) < EPS) {
     // Singularity found
     // First check for identity matrix which must have +1
     // for all terms in leading diagonal and zero in other terms
     if (
-      fabs(data(0, 1) + data(1, 0)) < eps2 && fabs(data(0, 2) + data(2, 0)) < eps2 &&
-      fabs(data(1, 2) + data(2, 1)) < eps2 && fabs(this->trace() - 3) < eps2) {
+      std::abs(data(0, 1) + data(1, 0)) < eps2 && std::abs(data(0, 2) + data(2, 0)) < eps2 &&
+      std::abs(data(1, 2) + data(2, 1)) < eps2 && std::abs(this->trace() - 3) < eps2) {
       // This singularity is identity matrix so angle = 0, axis is arbitrary chose.
       return { 0., Vector::UnitZ() };
     }

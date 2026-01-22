@@ -6,14 +6,11 @@
 
 #include <tobas_math/core.hpp>
 
-#define EPS numeric_limits<double>::epsilon()
-#define INF numeric_limits<double>::infinity()
+#define EPS std::numeric_limits<double>::epsilon()
+#define INF std::numeric_limits<double>::infinity()
 #define TOL_FACTOR 100.
 
 // #define TRACE_SOLVER
-
-using namespace std;
-using namespace Eigen;
 
 namespace quadprog
 {
@@ -62,8 +59,8 @@ bool DualActiveSetSolver::solve()
   /* Preprocessing phase */
 
   // Decompose the matrix P in the form L L^T
-  const LLT<MatrixXd> llt(scaled.P);
-  if (llt.info() == NumericalIssue) {
+  const Eigen::LLT<Eigen::MatrixXd> llt(scaled.P);
+  if (llt.info() == Eigen::NumericalIssue) {
     error_msg_ = "Cholesky decomposition failed.";
     return false;
   }
@@ -73,7 +70,7 @@ bool DualActiveSetSolver::solve()
 #endif
 
   // Compute the inverse of the factorized matrix U^-1, this is the initial value for H
-  J_ = llt.matrixU().solve(MatrixXd::Identity(n_, n_));
+  J_ = llt.matrixU().solve(Eigen::MatrixXd::Identity(n_, n_));
 
 #ifdef TRACE_SOLVER
   cout << "J:\n" << J_ << endl;
@@ -94,7 +91,7 @@ bool DualActiveSetSolver::solve()
 #endif
 
   // Add equality constraints to the active set A
-  for (Index i = 0; i < p_; ++i) {
+  for (Eigen::Index i = 0; i < p_; ++i) {
     np_ = -scaled.G.row(i);
     d_ = J_.transpose() * np_;
     z_ = J_.rightCols(n_ - iq_) * d_.tail(n_ - iq_);
@@ -129,7 +126,7 @@ bool DualActiveSetSolver::solve()
   }
 
   // Set iai = K \ A
-  for (Index i = 0; i < m_; ++i) {
+  for (Eigen::Index i = 0; i < m_; ++i) {
     iai_(i) = i;
   }
 
@@ -141,13 +138,13 @@ bool DualActiveSetSolver::solve()
         cout << "x:\n" << x_.transpose() << endl;
 #endif
 
-        for (Index i = p_; i < iq_; ++i) {
+        for (Eigen::Index i = p_; i < iq_; ++i) {
           iai_(A_(i)) = -1;
         }
 
         ss_ = 0.;
         ip_ = 0;  // ip will be the index of the chosen violated constraint
-        for (Index i = 0; i < m_; ++i) {
+        for (Eigen::Index i = 0; i < m_; ++i) {
           iaexcl_[i] = true;
         }
 
@@ -159,7 +156,7 @@ bool DualActiveSetSolver::solve()
 #endif
 
         const auto psi = s_.head(m_).cwiseMin(0.).sum();  // Sum of all infeasibilities
-        if (fabs(psi) <= m_ * EPS * c_ * TOL_FACTOR) {
+        if (std::abs(psi) <= m_ * EPS * c_ * TOL_FACTOR) {
           // Numerically there are no infeasibilities anymore
           x_opt_ = x_.cwiseProduct(x_scale);
           return true;
@@ -174,7 +171,7 @@ bool DualActiveSetSolver::solve()
         break;
       }
       case kCheckFeasibility: {
-        for (Index i = 0; i < m_; ++i) {
+        for (Eigen::Index i = 0; i < m_; ++i) {
           if (s_(i) < ss_ && iai_(i) != -1 && iaexcl_[i]) {
             ss_ = s_(i);
             ip_ = i;
@@ -217,13 +214,13 @@ bool DualActiveSetSolver::solve()
 #endif
 
         // Step 2b: Compute step length
-        Index l = 0;
+        Eigen::Index l = 0;
 
         // Compute t1: partial step length
         // = maximum step in dual space without violating dual feasibility
         auto t1 = INF;
         // Find the index l s.t. it reaches the minimum of u+[x] / r
-        for (Index k = p_; k < iq_; ++k) {
+        for (Eigen::Index k = p_; k < iq_; ++k) {
           if (r_(k) > 0.) {
             if (u_(k) / r_(k) < t1) {
               t1 = u_(k) / r_(k);
@@ -245,7 +242,7 @@ bool DualActiveSetSolver::solve()
         }
 
         // The step is chosen as the minimum of t1 and t2
-        const auto t = min(t1, t2);
+        const auto t = std::min(t1, t2);
 
 #ifdef TRACE_SOLVER
         cout << "Step sizes: " << t << " (t1 = " << t1 << ", t2 = " << t2 << ") ";
@@ -294,7 +291,7 @@ bool DualActiveSetSolver::solve()
         cout << "A:\n" << A_.head(iq_ + 1).transpose() << endl;
 #endif
 
-        if (fabs(t - t2) < EPS) {
+        if (std::abs(t - t2) < EPS) {
 #ifdef TRACE_SOLVER
           cout << "Full step has taken " << t << endl;
           cout << "x:\n" << x_.transpose() << endl;
@@ -312,10 +309,10 @@ bool DualActiveSetSolver::solve()
             cout << "iai:\n" << iai_.transpose() << endl;
 #endif
 
-            for (Index i = 0; i < m_; ++i) {
+            for (Eigen::Index i = 0; i < m_; ++i) {
               iai_(i) = i;
             }
-            for (Index i = p_; i < iq_; ++i) {
+            for (Eigen::Index i = p_; i < iq_; ++i) {
               A_(i) = A_old_(i);
               u_(i) = u_old_(i);
               iai_(A_(i)) = -1;
@@ -368,15 +365,15 @@ bool DualActiveSetSolver::solve()
   }
 }
 
-VectorXd DualActiveSetSolver::getLagrangeMultipliersEq() const
+Eigen::VectorXd DualActiveSetSolver::getLagrangeMultipliersEq() const
 {
   return u_.head(p_);
 }
 
-VectorXd DualActiveSetSolver::getLagrangeMultipliersIneq() const
+Eigen::VectorXd DualActiveSetSolver::getLagrangeMultipliersIneq() const
 {
-  VectorXd lambda = VectorXd::Zero(m_);
-  for (Index i = p_; i < iq_; ++i) {
+  Eigen::VectorXd lambda = Eigen::VectorXd::Zero(m_);
+  for (Eigen::Index i = p_; i < iq_; ++i) {
     lambda(A_(i)) = u_(i);
   }
   return lambda;
@@ -385,7 +382,7 @@ VectorXd DualActiveSetSolver::getLagrangeMultipliersIneq() const
 void DualActiveSetSolver::update_r()
 {
   // Set r = R^-1 d
-  for (Index i = iq_ - 1; i >= 0; --i) {
+  for (Eigen::Index i = iq_ - 1; i >= 0; --i) {
     const auto sum = (R_.block(i, i + 1, 1, iq_ - i - 1) * r_.block(i + 1, 0, iq_ - i - 1, 1)).value();
     r_(i) = (d_(i) - sum) / R_(i, i);
   }
@@ -399,7 +396,7 @@ bool DualActiveSetSolver::addConstraint()
 
   // We have to find the Givens rotation which will reduce the element d(j) to zero.
   // If it is already zero, we don't have to do anything, except of decreasing j.
-  for (Index j = n_ - 1; j >= iq_ + 1; --j) {
+  for (Eigen::Index j = n_ - 1; j >= iq_ + 1; --j) {
     // The Givens rotation is done with the matrix (cc cs, cs -cc).
     // If cc is one, then element (j) of d is zero compared with element (j - 1).
     // Hence we don't have to do anything.
@@ -411,7 +408,7 @@ bool DualActiveSetSolver::addConstraint()
     auto cc = d_(j - 1);
     auto ss = d_(j);
     const auto h = distance(cc, ss);
-    if (fabs(h) < EPS)  // h == 0
+    if (std::abs(h) < EPS)  // h == 0
     {
       continue;
     }
@@ -429,8 +426,8 @@ bool DualActiveSetSolver::addConstraint()
     }
 
     const auto xny = ss / (1. + cc);
-    const VectorXd t1 = J_.col(j - 1);
-    const VectorXd t2 = J_.col(j);
+    const Eigen::VectorXd t1 = J_.col(j - 1);
+    const Eigen::VectorXd t2 = J_.col(j);
     J_.col(j - 1) = t1 * cc + t2 * ss;
     J_.col(j) = xny * (t1 + J_.col(j - 1)) - t2;
   }
@@ -447,26 +444,26 @@ bool DualActiveSetSolver::addConstraint()
   cout << "d:\n" << d_.head(iq_).transpose() << endl;
 #endif
 
-  if (fabs(d_(iq_ - 1)) <= EPS * R_norm_) {
+  if (std::abs(d_(iq_ - 1)) <= EPS * R_norm_) {
     error_msg_ = "Problem degenerate.";
     return false;
   }
 
-  R_norm_ = max(R_norm_, fabs(d_(iq_ - 1)));
+  R_norm_ = std::max(R_norm_, std::abs(d_(iq_ - 1)));
   return true;
 }
 
-void DualActiveSetSolver::deleteConstraint(const Index& l)
+void DualActiveSetSolver::deleteConstraint(const Eigen::Index& l)
 {
 #ifdef TRACE_SOLVER
   cout << "Delete constraint " << l << " " << iq_;
 #endif
 
-  Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers
+  Eigen::Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers
   [[maybe_unused]] bool found = false;
 
   // Find the index qq for active constraint l to be removed
-  for (Index i = p_; i < iq_; ++i) {
+  for (Eigen::Index i = p_; i < iq_; ++i) {
     if (A_(i) == l) {
       qq = i;
       found = true;
@@ -496,11 +493,11 @@ void DualActiveSetSolver::deleteConstraint(const Index& l)
     return;
   }
 
-  for (Index j = qq; j < iq_; ++j) {
+  for (Eigen::Index j = qq; j < iq_; ++j) {
     auto cc = R_(j, j);
     auto ss = R_(j + 1, j);
     const auto h = distance(cc, ss);
-    if (fabs(h) < EPS)  // h == 0
+    if (std::abs(h) < EPS)  // h == 0
     {
       continue;
     }
@@ -518,13 +515,13 @@ void DualActiveSetSolver::deleteConstraint(const Index& l)
 
     const auto xny = ss / (1. + cc);
 
-    const RowVectorXd r1 = R_.block(j, j + 1, 1, iq_ - j - 1);
-    const RowVectorXd r2 = R_.block(j + 1, j + 1, 1, iq_ - j - 1);
+    const auto r1 = R_.block(j, j + 1, 1, iq_ - j - 1).eval();
+    const auto r2 = R_.block(j + 1, j + 1, 1, iq_ - j - 1).eval();
     R_.block(j, j + 1, 1, iq_ - j - 1) = r1 * cc + r2 * ss;
     R_.block(j + 1, j + 1, 1, iq_ - j - 1) = xny * (r1 + R_.block(j, j + 1, 1, iq_ - j - 1)) - r2;
 
-    const VectorXd j1 = J_.col(j);
-    const VectorXd j2 = J_.col(j + 1);
+    const auto j1 = J_.col(j).eval();
+    const auto j2 = J_.col(j + 1).eval();
     J_.col(j) = j1 * cc + j2 * ss;
     J_.col(j + 1) = xny * (J_.col(j) + j1) - j2;
   }
@@ -532,8 +529,8 @@ void DualActiveSetSolver::deleteConstraint(const Index& l)
 
 double DualActiveSetSolver::distance(const double& a, const double& b)
 {
-  const auto a1 = fabs(a);
-  const auto b1 = fabs(b);
+  const auto a1 = std::abs(a);
+  const auto b1 = std::abs(b);
   if (a1 > b1) {
     const auto t = b1 / a1;
     return a1 * sqrt(1. + math::sqr(t));

@@ -8,8 +8,8 @@ namespace math
 template <typename T>
 inline bool isClose(T x, T y, T abs_tol = 1e-8, T rel_tol = 1e-5)
 {
-  const auto diff = std::fabs(x - y);
-  return diff < abs_tol || diff < rel_tol * std::max(std::fabs(x), std::fabs(y));
+  const auto diff = std::abs(x - y);
+  return diff < abs_tol || diff < rel_tol * std::max(std::abs(x), std::abs(y));
 }
 
 /* 小数が整数部分をもつかどうかを判定する． */

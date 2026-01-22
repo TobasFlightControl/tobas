@@ -6,23 +6,21 @@
 
 #include <tobas_math/core.hpp>
 
-using namespace std;
-
 namespace ctrl
 {
 static inline double sign(double v)
 {
-  return signbit(v) ? -1. : 1.;
+  return std::signbit(v) ? -1. : 1.;
 }
 
 static inline double delta_v(double v, double edk, double eddk)
 {
-  return eddk * fabs(eddk) + 2 * (edk - v);
+  return eddk * std::abs(eddk) + 2 * (edk - v);
 }
 
 static inline double u_cv(double v, double U, double edk, double eddk)
 {
-  return -U * sign(delta_v(v, edk, eddk) + (1 - fabs(sign(delta_v(v, edk, eddk)))) * eddk);
+  return -U * sign(delta_v(v, edk, eddk) + (1 - std::abs(sign(delta_v(v, edk, eddk)))) * eddk);
 }
 
 static inline double u_a(double a, double U, double eddk)
@@ -112,7 +110,7 @@ void OnlineTrajectoryGenerator::setMaxJerk(double max_jerk)
 
 void OnlineTrajectoryGenerator::setSpeedOverride(double speed_override)
 {
-  speed_override_ = clamp(speed_override, 1e-3, 1.);
+  speed_override_ = std::clamp(speed_override, 1e-3, 1.);
 }
 
 void OnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel, double cur_acc)
@@ -135,7 +133,7 @@ void OnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel
   const auto edd_min = (a_min - tar_acc_) / U;
   const auto edd_max = (a_max - tar_acc_) / U;
 
-  const auto delta = edk + (eddk * fabs(eddk)) / 2;
+  const auto delta = edk + (eddk * std::abs(eddk)) / 2;
   const auto sgnd = sign(delta);
 
   double Sigma = 0.;
@@ -149,10 +147,11 @@ void OnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel
   }
   else {
     const auto tmp = math::sqr(eddk) + 2 * edk * sgnd;
-    Sigma = ek + edk * eddk * sgnd - math::cube(eddk) / 6 * (1 - 3 * fabs(sgnd)) + sgnd / 4 * sqrt(2 * math::cube(tmp));
+    Sigma =
+      ek + edk * eddk * sgnd - math::cube(eddk) / 6 * (1 - 3 * std::abs(sgnd)) + sgnd / 4 * sqrt(2 * math::cube(tmp));
   }
 
-  const auto uc = -U * sign(Sigma + (1 - fabs(sign(Sigma))) * (delta + (1 - fabs(sgnd) * eddk)));
+  const auto uc = -U * sign(Sigma + (1 - std::abs(sign(Sigma))) * (delta + (1 - std::abs(sgnd) * eddk)));
   const auto min = fmin(uc, u_v(ed_max, U, edd_min, edd_max, edk, eddk));
   const auto uk = fmax(u_v(ed_min, U, edd_min, edd_max, edk, eddk), min);
 
@@ -162,8 +161,8 @@ void OnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel
   cmd_pos_ = cur_pos + dt / 2 * (cmd_vel_ + cur_vel);
 
   // Clamp output
-  cmd_vel_ = clamp(cmd_vel_, min_vel_, max_vel_);
-  cmd_acc_ = clamp(cmd_acc_, min_acc_, max_acc_);
+  cmd_vel_ = std::clamp(cmd_vel_, min_vel_, max_vel_);
+  cmd_acc_ = std::clamp(cmd_acc_, min_acc_, max_acc_);
 }
 
 void OnlineTrajectoryGenerator::update(double dt)
