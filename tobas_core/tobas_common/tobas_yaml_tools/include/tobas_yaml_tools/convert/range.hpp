@@ -4,6 +4,8 @@
 
 #include <tobas_std_tools/range.hpp>
 
+#include "../format.hpp"
+
 namespace YAML
 {
 template <typename T>
@@ -13,8 +15,14 @@ struct convert<tbs::Range<T>>
   {
     Node node(NodeType::Sequence);
 
-    node.push_back(rhs.lower);
-    node.push_back(rhs.upper);
+    if constexpr (std::is_floating_point_v<T>) {
+      node.push_back(yaml::format(rhs.lower));
+      node.push_back(yaml::format(rhs.upper));
+    }
+    else {
+      node.push_back(rhs.lower);
+      node.push_back(rhs.upper);
+    }
 
     return node;
   }

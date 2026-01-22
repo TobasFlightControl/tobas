@@ -3,6 +3,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 namespace gui
 {
@@ -67,9 +68,9 @@ YAML::Node VehicleParametersWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[wing_surface_->name()] = wing_surface_->getValue();
-  node[wing_span_->name()] = wing_span_->getValue();
-  node[mac_->name()] = mac_->getValue();
+  node[wing_surface_->name()] = yaml::format(wing_surface_->getValue());
+  node[wing_span_->name()] = yaml::format(wing_span_->getValue());
+  node[mac_->name()] = yaml::format(mac_->getValue());
   node[aerodynamic_center_->name()] = aerodynamic_center_->getValue();
   node[alpha_limit_->name()] = alpha_limit_->getValue();
 

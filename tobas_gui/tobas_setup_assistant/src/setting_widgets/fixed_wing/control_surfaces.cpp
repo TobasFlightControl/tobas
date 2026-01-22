@@ -10,6 +10,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 
@@ -61,12 +62,12 @@ YAML::Node ControlSurfacesWidget::dump() const
   for (int row = 0; row < rowCount(); ++row) {
     YAML::Node sub_node(YAML::NodeType::Map);
     sub_node[kJointNameLabel] = jointName(row);
-    sub_node[kLiftCoefLabel] = liftCoef(row);
-    sub_node[kDragCoefLabel] = dragCoef(row);
-    sub_node[kSideCoefLabel] = sideCoef(row);
-    sub_node[kRollCoefLabel] = rollCoef(row);
-    sub_node[kPitchCoefLabel] = pitchCoef(row);
-    sub_node[kYawCoefLabel] = yawCoef(row);
+    sub_node[kLiftCoefLabel] = yaml::format(liftCoef(row));
+    sub_node[kDragCoefLabel] = yaml::format(dragCoef(row));
+    sub_node[kSideCoefLabel] = yaml::format(sideCoef(row));
+    sub_node[kRollCoefLabel] = yaml::format(rollCoef(row));
+    sub_node[kPitchCoefLabel] = yaml::format(pitchCoef(row));
+    sub_node[kYawCoefLabel] = yaml::format(yawCoef(row));
 
     const auto link_name = linkName(row);
     node[link_name.toStdString()] = sub_node;

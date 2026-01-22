@@ -4,6 +4,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "../format.hpp"
+
 namespace YAML
 {
 template <typename T, size_t N>
@@ -14,6 +16,13 @@ struct convert<std::array<T, N>>
     Node node(NodeType::Sequence);
 
     for (auto& value : rhs) {
+      if constexpr (std::is_floating_point_v<T>) {
+        node.push_back(yaml::format(value));
+      }
+      else {
+        node.push_back(value);
+      }
+
       node.push_back(value);
     }
 
