@@ -551,7 +551,7 @@ void HealthMonitorNode::mainTimerCb()
   // 地磁気オフセット
   if (do_check_.mag_offset) {
     if (mag_) {
-      if (abs(mag_B_lpf_.getValue().norm() - 1.) > kMagLengthErrorThresh) {
+      if (std::abs(mag_B_lpf_.getValue().norm() - 1.) > kMagLengthErrorThresh) {
         health->mag_offset = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }

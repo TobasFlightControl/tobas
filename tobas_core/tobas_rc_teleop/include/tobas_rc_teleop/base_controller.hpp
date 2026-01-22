@@ -76,8 +76,8 @@ inline double BaseController::expoRemapDead(double x, double exp, double lb, dou
 
 inline double BaseController::expo(double x, double exp)
 {
-  assert(abs(x) < 1.);
-  assert(abs(exp) < 1.);
+  assert(std::abs(x) < 1.);
+  assert(std::abs(exp) < 1.);
   return (1. + exp) * x - exp * math::sign(x) * math::sqr(x);
 }
 }  // namespace tobas_rc_teleop

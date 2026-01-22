@@ -104,7 +104,7 @@ void FloatingJointModel::interpolate(const double* from, const double* to, const
 
   // Check if the quaternions are significantly different
   if (
-    abs(from[3] - to[3]) + abs(from[4] - to[4]) + abs(from[5] - to[5]) + abs(from[6] - to[6]) >
+    std::abs(from[3] - to[3]) + std::abs(from[4] - to[4]) + std::abs(from[5] - to[5]) + std::abs(from[6] - to[6]) >
     std::numeric_limits<double>::epsilon()) {
     // Note the ordering: Eigen takes w first!
     Eigen::Quaterniond q1(from[6], from[3], from[4], from[5]);
