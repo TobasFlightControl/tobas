@@ -440,7 +440,7 @@ void HealthMonitorNode::mainTimerCb()
   if (do_check_.attitude_level && !arming_->data) {
     if (odom_) {
       const auto [roll, pitch, _] = odom_->frame.M.getRPY();
-      if (std::max(fabs(roll), fabs(pitch)) > kAttitudeThresh) {
+      if (std::max(std::abs(roll), std::abs(pitch)) > kAttitudeThresh) {
         health->attitude_level = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }

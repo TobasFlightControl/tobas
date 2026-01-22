@@ -798,11 +798,11 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
   }
 
   // Check command range
-  if (fabs(angle_cmd->angle.roll) > M_PI_2) {
+  if (std::abs(angle_cmd->angle.roll) > M_PI_2) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;
   }
-  if (fabs(angle_cmd->angle.pitch) > M_PI_2) {
+  if (std::abs(angle_cmd->angle.pitch) > M_PI_2) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
     return;
   }

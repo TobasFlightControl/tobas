@@ -852,7 +852,7 @@ inline VariableBounds jointBoundsFromURDF(const urdf::Joint* urdf_joint)
     }
   }
   if (urdf_joint->limits) {
-    b.max_velocity_ = fabs(urdf_joint->limits->velocity);
+    b.max_velocity_ = std::abs(urdf_joint->limits->velocity);
     b.min_velocity_ = -b.max_velocity_;
     b.velocity_bounded_ = b.max_velocity_ > std::numeric_limits<double>::epsilon();
   }

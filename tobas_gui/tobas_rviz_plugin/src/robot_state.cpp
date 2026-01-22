@@ -1351,7 +1351,7 @@ void RobotState::getRobotMarkers(
             att_mark.header.stamp = clock.now();
             if (shapes::constructMarkerFromShape(it.second->getShapes()[j].get(), att_mark)) {
               // if the object is invisible (0 volume) we skip it
-              if (fabs(att_mark.scale.x * att_mark.scale.y * att_mark.scale.z) < std::numeric_limits<double>::epsilon()) {
+              if (std::abs(att_mark.scale.x * att_mark.scale.y * att_mark.scale.z) < std::numeric_limits<double>::epsilon()) {
                 continue;
               }
               att_mark.pose = tf2::toMsg(it.second->getGlobalCollisionBodyTransforms()[j]);
@@ -1378,7 +1378,7 @@ void RobotState::getRobotMarkers(
           continue;
         }
         // if the object is invisible (0 volume) we skip it
-        if (fabs(mark.scale.x * mark.scale.y * mark.scale.z) < std::numeric_limits<double>::epsilon()) {
+        if (std::abs(mark.scale.x * mark.scale.y * mark.scale.z) < std::numeric_limits<double>::epsilon()) {
           continue;
         }
         mark.pose =
@@ -1570,13 +1570,13 @@ void RobotState::computeVariableVelocity(
   static const double PINVTOLER = std::numeric_limits<double>::epsilon();
   double maxsv = 0.;
   for (std::size_t i = 0; i < static_cast<std::size_t>(s.rows()); ++i) {
-    if (fabs(s(i)) > maxsv) {
-      maxsv = fabs(s(i));
+    if (std::abs(s(i)) > maxsv) {
+      maxsv = std::abs(s(i));
     }
   }
   for (std::size_t i = 0; i < static_cast<std::size_t>(s.rows()); ++i) {
     // Those singular values smaller than a percentage of the maximum singular value are removed
-    if (fabs(s(i)) > maxsv * PINVTOLER) {
+    if (std::abs(s(i)) > maxsv * PINVTOLER) {
       sinv(i) = 1. / s(i);
     }
     else {

@@ -117,8 +117,8 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto goal = goal_handle->get_goal();
 
   // 起動を生成
-  const auto roll_duration = fabs(start_rpy.roll) / kAttitudeRecoveryRate;
-  const auto pitch_duration = fabs(start_rpy.pitch) / kAttitudeRecoveryRate;
+  const auto roll_duration = std::abs(start_rpy.roll) / kAttitudeRecoveryRate;
+  const auto pitch_duration = std::abs(start_rpy.pitch) / kAttitudeRecoveryRate;
   const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
   const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., pitch_duration);
 

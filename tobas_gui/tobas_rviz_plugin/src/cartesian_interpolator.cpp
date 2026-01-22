@@ -335,7 +335,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
     }
     traj.insert(traj.end(), start, waypoint_traj.end());
 
-    if (fabs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon()) {
       percentage_solved = static_cast<double>(i + 1) / static_cast<double>(waypoints.size());
     }
     else {
@@ -565,7 +565,7 @@ CartesianInterpolator::Percentage CartesianInterpolator::computeCartesianPath(
     }
     path.insert(path.end(), start, waypoint_path.end());
 
-    if (fabs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(wp_percentage_solved - 1.) < std::numeric_limits<double>::epsilon()) {
       percentage_solved = static_cast<double>((i + 1)) / static_cast<double>(waypoints.size());
     }
     else {

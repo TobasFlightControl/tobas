@@ -381,7 +381,7 @@ double GazeboFixedWingPlugin::dragCoefficient(const gz::sim::EntityComponentMana
 
   // 舵面
   for (const auto& [link_name, _] : control_surfaces_) {
-    C_D += control_surfaces_.at(link_name).c_drag_abs_delta * fabs(getDeflection(ecm, link_name));
+    C_D += control_surfaces_.at(link_name).c_drag_abs_delta * std::abs(getDeflection(ecm, link_name));
   }
 
   return C_D;
@@ -432,7 +432,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(
 {
   // 迎角，横滑り角
   auto C_m = aero_coefs_.c_pitch_0 + aero_coefs_.c_pitch_alpha * alpha;
-  C_m += aero_coefs_.c_pitch_abs_beta * fabs(beta);
+  C_m += aero_coefs_.c_pitch_abs_beta * std::abs(beta);
 
   // 角速度
   const auto& c = vehicle_params_.mac;

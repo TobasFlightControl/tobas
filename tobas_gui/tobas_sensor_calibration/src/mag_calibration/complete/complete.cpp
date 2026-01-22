@@ -196,9 +196,9 @@ size_t CompleteMagCalibWidget::computeFaceIndex() const
   const auto axz = R_W_B.axisX().z();
   const auto ayz = R_W_B.axisY().z();
   const auto azz = R_W_B.axisZ().z();
-  const auto abs_axz = fabs(axz);
-  const auto abs_ayz = fabs(ayz);
-  const auto abs_azz = fabs(azz);
+  const auto abs_axz = std::abs(axz);
+  const auto abs_ayz = std::abs(ayz);
+  const auto abs_azz = std::abs(azz);
 
   // 要素の大小関係から現在上を向いている面を決定
   if (abs_axz >= std::max(abs_ayz, abs_azz)) {
@@ -723,7 +723,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
     if (!completed_.at(face_idx)) {
       // グローバルZ軸回りの回転速さを計算
       const auto W_gyro = odom_->frame.M * odom_->twist.rot;
-      const auto yawrate = fabs(W_gyro.z());
+      const auto yawrate = std::abs(W_gyro.z());
 
       // 回転を検知したら回転量を積分
       // 回転が速すぎると十分にサンプリングできないため上限を定める

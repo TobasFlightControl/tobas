@@ -238,7 +238,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const auto dt = ch::duration<double>(info.dt).count();
 
   // Check aliasing
-  if (fabs(velocitySim() * dt) > M_PI) {
+  if (std::abs(velocitySim() * dt) > M_PI) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
   }
 
@@ -310,7 +310,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // External force: H-force
   const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
   const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
-  const auto h_force_W = (-fabs(vel_) * param_.drag_const) * linvel_perp_W;
+  const auto h_force_W = (-std::abs(vel_) * param_.drag_const) * linvel_perp_W;
 
   // External moment: Drag torque
   const auto torque = param_.moment_const * thrust;

@@ -137,14 +137,14 @@ bool FloatingJointModel::satisfiesPositionBounds(const double* values, const Bou
     return false;
   }
   double norm_sqr = values[3] * values[3] + values[4] * values[4] + values[5] * values[5] + values[6] * values[6];
-  return fabs(norm_sqr - 1.) <= std::numeric_limits<double>::epsilon() * 10.;
+  return std::abs(norm_sqr - 1.) <= std::numeric_limits<double>::epsilon() * 10.;
 }
 
 bool FloatingJointModel::normalizeRotation(double* values) const
 {
   // normalize the quaternion if we need to
   double norm_sqr = values[3] * values[3] + values[4] * values[4] + values[5] * values[5] + values[6] * values[6];
-  if (fabs(norm_sqr - 1.) > std::numeric_limits<double>::epsilon() * 100.) {
+  if (std::abs(norm_sqr - 1.) > std::numeric_limits<double>::epsilon() * 100.) {
     double norm = sqrt(norm_sqr);
     if (norm < std::numeric_limits<double>::epsilon() * 100.) {
       RCLCPP_WARN(getLogger(), "Quaternion is zero in RobotState representation. Setting to identity");

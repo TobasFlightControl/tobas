@@ -51,7 +51,7 @@ protected:
 
 inline double BaseController::deadband(double x) const
 {
-  return fabs(x) < kDeadband ? 0. : x;
+  return std::abs(x) < kDeadband ? 0. : x;
 }
 
 inline double BaseController::remap(double x, double lb, double ub) const

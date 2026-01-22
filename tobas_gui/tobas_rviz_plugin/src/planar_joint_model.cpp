@@ -175,7 +175,7 @@ void PlanarJointModel::interpolate(const double* from, const double* to, const d
 
     // interpolate angle
     double diff = to[2] - from[2];
-    if (fabs(diff) <= M_PI) {
+    if (std::abs(diff) <= M_PI) {
       state[2] = from[2] + diff * t;
     }
     else {
@@ -199,9 +199,9 @@ void PlanarJointModel::interpolate(const double* from, const double* to, const d
     double dx, dy, initial_turn, drive_angle, final_turn;
     computeTurnDriveTurnGeometry(from, to, min_translational_distance_, dx, dy, initial_turn, drive_angle, final_turn);
 
-    double initial_d = fabs(initial_turn) * angular_distance_weight_;
+    double initial_d = std::abs(initial_turn) * angular_distance_weight_;
     double drive_d = hypot(dx, dy);
-    double final_d = fabs(final_turn) * angular_distance_weight_;
+    double final_d = std::abs(final_turn) * angular_distance_weight_;
 
     double total_d = initial_d + drive_d + final_d;
 
@@ -237,7 +237,7 @@ double PlanarJointModel::distance(const double* values1, const double* values2) 
     double dx = values1[0] - values2[0];
     double dy = values1[1] - values2[1];
 
-    double d = fabs(values1[2] - values2[2]);
+    double d = std::abs(values1[2] - values2[2]);
     d = (d > M_PI) ? M_2PI - d : d;
     return sqrt(dx * dx + dy * dy) + angular_distance_weight_ * d;
   }
@@ -245,7 +245,7 @@ double PlanarJointModel::distance(const double* values1, const double* values2) 
     double dx, dy, initial_turn, drive_angle, final_turn;
     computeTurnDriveTurnGeometry(
       values1, values2, min_translational_distance_, dx, dy, initial_turn, drive_angle, final_turn);
-    return hypot(dx, dy) + angular_distance_weight_ * (fabs(initial_turn) + fabs(final_turn));
+    return hypot(dx, dy) + angular_distance_weight_ * (std::abs(initial_turn) + std::abs(final_turn));
   }
 
   return 0.;

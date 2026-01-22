@@ -651,7 +651,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   if (math::sqr(SA3) > kEpsilon) {
     SA4 = 1 / math::sqr(SA3);
     SA5_inv = math::sqr(SA2) * SA4 + 1;
-    can_use_A = fabs(SA5_inv) > kEpsilon;
+    can_use_A = std::abs(SA5_inv) > kEpsilon;
   }
 
   bool can_use_B = false;
@@ -663,12 +663,12 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   if (math::sqr(SB2) > kEpsilon) {
     SB3 = 1 / math::sqr(SB2);
     SB5_inv = SB3 * math::sqr(SB4) + 1;
-    can_use_B = fabs(SB5_inv) > kEpsilon;
+    can_use_B = std::abs(SB5_inv) > kEpsilon;
   }
 
   // Compute output matrix
   RowVector4d H;
-  if (can_use_A && (!can_use_B || fabs(SA5_inv) >= fabs(SB5_inv))) {
+  if (can_use_A && (!can_use_B || std::abs(SA5_inv) >= std::abs(SB5_inv))) {
     const auto SA5 = 1 / SA5_inv;
     const auto SA6 = 1 / SA3;
     const auto SA7 = SA2 * SA4;
@@ -680,7 +680,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
     H(2) = SA5 * (SA1 * SA7 + SA9 * q.x());
     H(3) = SA5 * (SA0 * SA7 + SA9 * q.w());
   }
-  else if (can_use_B && (!can_use_A || fabs(SB5_inv) > fabs(SA5_inv))) {
+  else if (can_use_B && (!can_use_A || std::abs(SB5_inv) > std::abs(SA5_inv))) {
     const auto SB5 = 1 / SB5_inv;
     const auto SB6 = 1 / SB2;
     const auto SB7 = SB3 * SB4;

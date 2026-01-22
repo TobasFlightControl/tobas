@@ -105,7 +105,7 @@ void RevoluteJointModel::interpolate(const double* from, const double* to, const
 {
   if (continuous_) {
     double diff = to[0] - from[0];
-    if (fabs(diff) <= M_PI) {
+    if (std::abs(diff) <= M_PI) {
       state[0] = from[0] + diff * t;
     }
     else {
@@ -133,11 +133,11 @@ void RevoluteJointModel::interpolate(const double* from, const double* to, const
 double RevoluteJointModel::distance(const double* values1, const double* values2) const
 {
   if (continuous_) {
-    double d = fmod(fabs(values1[0] - values2[0]), M_2PI);
+    double d = fmod(std::abs(values1[0] - values2[0]), M_2PI);
     return (d > M_PI) ? M_2PI - d : d;
   }
   else {
-    return fabs(values1[0] - values2[0]);
+    return std::abs(values1[0] - values2[0]);
   }
 }
 
