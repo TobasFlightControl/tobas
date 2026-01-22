@@ -3,6 +3,13 @@
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/list_widget.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
+
+#include <rosbag2_cpp/reader.hpp>
+
+#include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/imu.hpp>
+#include <tobas_msgs/msg/odometry.hpp>
 
 namespace gui
 {
@@ -20,9 +27,10 @@ class FlightLogsWidgetGCS : public QWidget
   static constexpr int kListItemHeight = 40;
 
   std::string exportCSVHeader = "time,\
-    imu_raw_accel_x[m/s^2], imu_raw_accel_y[m/s^2], imu_raw_accel_z[m/s^2],\
-    imu_raw_gyro_x[rad/s], imu_raw_gyro_y[rad/s], imu_raw_gyro_z[rad/s],\
-    imu_raw_dgyro_x[rad/s^2], imu_raw_dgyro_y[rad/s^2], imu_raw_dgyro_z[rad/s^2]\n";
+    imu_raw/accel/x, imu_raw/accel/y imu_raw/accel/z,\
+    imu_raw/gyro/x, imu_raw/gyro/y, imu_raw/gyro/z,\
+    imu_raw/dgyro/x, imu_raw/dgyro/y, imu_raw/dgyro/z,\
+    battery/voltage, battery/current\n";
 
 Q_SIGNALS:
   void logSelected(const QString& log_name);
@@ -31,19 +39,31 @@ Q_SIGNALS:
 public:
   explicit FlightLogsWidgetGCS();
 
-  void convertRosbag2CSV(const QString& log_name, const std::string& output_csv_path, const std::string& target_topic);
+  struct curData{
+    tobas_msgs::msg::Odometry cur_odom_data;
+    tobas_msgs::msg::Imu cur_Imu_data;
+    tobas_msgs::msg::Battery cur_battery;
+  }curData_;
+
+  std::string makeCSVRow(const auto& cur_time);
   void addLog(const QString& log_name);
   void removeLog(const QString& log_name);
+  bool open(const std::string& rosbag_path);
+  bool reindex(const std::string& rosbag_path);
   QListWidgetItem* findLog(const QString& log_name);
 
   void clearLogs();
   void sortLogs();
 
 private:
+  rosbag2_cpp::Reader reader_;
+  
   QPushButton* read_button_;
   QPushButton* clean_button_;
 
   qt::ListWidget* log_list_;
+
+  qt::WaitSpinnerWidget spinner_;
 
   QString currentLogName() const;
   void setCurrentLogName(const QString& log_name);

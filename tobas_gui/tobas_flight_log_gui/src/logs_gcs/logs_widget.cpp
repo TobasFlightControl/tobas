@@ -1,7 +1,13 @@
 #include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
 
+#include <fstream>
+#include <iostream>
+#include <string>
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QFileDialog>
+#include <rosbag2_cpp/reindexer.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -9,18 +15,14 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
+#include <tobas_path_tools/join.hpp>
 
 #include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 
-#include <QFileDialog>
-#include <fstream>
-
-#include <rosbag2_cpp/reader.hpp>
 #include <rosbag2_storage/storage_filter.hpp>
 
-#include "tobas_kdl_msgs/msg/vector.hpp"
-#include "tobas_msgs/msg/imu.hpp"
+using namespace std;
 
 namespace fs = std::filesystem;
 
@@ -29,6 +31,7 @@ namespace gui
 namespace log
 {
 FlightLogsWidgetGCS::FlightLogsWidgetGCS()
+  : spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -200,57 +203,50 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   clearLogs();
 }
 
-void FlightLogsWidgetGCS::convertRosbag2CSV(
-  const QString& log_name,
-  const std::string& output_csv_path,
-  const std::string& target_topic)
+bool FlightLogsWidgetGCS::reindex(const std::string& rosbag_path)
 {
-  std::ofstream csvFile(output_csv_path);
-  if (!csvFile.is_open()) {
-    std::cerr << "Couldn't write to csv file: " << output_csv_path << std::endl;
-    return;
-  }
-  csvFile << FlightLogsWidgetGCS::exportCSVHeader;
+  rosbag2_cpp::Reindexer reindexer;
 
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
-  rosbag2_cpp::Reader reader;
+  rosbag2_storage::StorageOptions options;
+  options.uri = rosbag_path;
+  options.storage_id = "mcap";
 
   try {
-    reader.open(log_path.string());
+    reindexer.reindex(options);
   }
   catch (const std::exception& e) {
-    std::cerr << "Couldn't open rosbag: " << e.what() << std::endl;
-    return;
+    qWarning() << "Failed to reindex " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    return false;
   }
 
-  rosbag2_storage::StorageFilter filter;
-  filter.topics.push_back(target_topic);
-  reader.set_filter(filter);
+  return true;
+}
 
-  rclcpp::Serialization<tobas_msgs::msg::Imu> serializer;
-  tobas_msgs::msg::Imu raw_msg;
-
-  while (reader.has_next()) {
-    auto bag_message = reader.read_next();
-
-    rclcpp::SerializedMessage serialized_msg(*bag_message->serialized_data);
-    serializer.deserialize_message(&serialized_msg, &raw_msg);
-
-    double timestamp = raw_msg.header.stamp.sec + (raw_msg.header.stamp.nanosec * 1e-9);
-
-    csvFile << std::fixed << std::setprecision(9) << timestamp << "," << raw_msg.accel.x << "," << raw_msg.accel.y
-            << "," << raw_msg.accel.z << "," << raw_msg.gyro.x << "," << raw_msg.gyro.y << "," << raw_msg.gyro.z << ","
-            << raw_msg.dgyro.x << "," << raw_msg.dgyro.y << "," << raw_msg.dgyro.z << "\n";
+bool FlightLogsWidgetGCS::open(const std::string& rosbag_path)
+{
+  try {
+    reader_.open(rosbag_path);
   }
-  csvFile.close();
+  catch (const std::exception& e) {
+    qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    return false;
+  }
+
+  return true;
+}
+
+std::string FlightLogsWidgetGCS::makeCSVRow(const auto& cur_time)
+{
+    return to_string(cur_time / 1000000000.0) + ","\
+          + to_string(curData_.cur_Imu_data.accel.x) + "," + to_string(curData_.cur_Imu_data.accel.y) + "," + to_string(curData_.cur_Imu_data.accel.z) + "," \
+          + to_string(curData_.cur_Imu_data.gyro.x) + "," + to_string(curData_.cur_Imu_data.gyro.y) + "," + to_string(curData_.cur_Imu_data.gyro.z) + ","\
+          + to_string(curData_.cur_Imu_data.dgyro.x) + "," + to_string(curData_.cur_Imu_data.dgyro.y) + "," + to_string(curData_.cur_Imu_data.dgyro.z) + ","\
+          + to_string(curData_.cur_battery.voltage) + "," + to_string(curData_.cur_battery.current)\
+          + "\n";
 }
 
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 {
-  if (!qt::yesOrNo(this, "Do you want to export flight log \"" + log_name + " to csv\"?", qt::WARN)) {
-    return;
-  }
-
   fs::path defaultCsvName(log_name.toStdString());
   defaultCsvName.replace_extension(".csv");
 
@@ -262,14 +258,89 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   }
 
   std::ofstream csvFile(savePath.toStdString());
-
   if (!csvFile.is_open()) {
-    std::cerr << "Failed to save CSV file" << std::endl;
+    std::cerr << "Couldn't write to csv file: " << savePath.toStdString() << std::endl;
     return;
   }
+  csvFile << FlightLogsWidgetGCS::exportCSVHeader;
 
-  std::string imu_topic = "/f450/imu_raw";
-  convertRosbag2CSV(log_name, savePath.toStdString(), imu_topic);
+  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  
+  if (!open(log_path.string())) {
+    if (!reindex(log_path.string())) {
+      qt::qErrorBox(this, "The log file is broken and failed to fix it.");
+      return;
+    }
+    if (!open(log_path.string())) {
+      qt::qErrorBox(this, "Failed to open the log file. The data is probably corrupted.");
+      return;
+    }
+  }
+
+  spinner_.start();
+  while (reader_.has_next()) {
+    const auto msg = reader_.read_next();
+
+    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+
+    if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic)))
+    {
+      const auto& cur_time = msg->recv_timestamp;  // [ns]
+      
+      rclcpp::Serialization<tobas_msgs::msg::Imu> serializer;
+      serializer.deserialize_message(&ser_msg, &curData_.cur_Imu_data);
+      
+      csvFile << makeCSVRow(cur_time);
+
+    }else{
+      if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
+        rclcpp::Serialization<tobas_msgs::msg::Odometry> serializer;
+        serializer.deserialize_message(&ser_msg, &curData_.cur_odom_data);
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
+        rclcpp::Serialization<tobas_msgs::msg::Battery> serializer;
+        serializer.deserialize_message(&ser_msg, &curData_.cur_battery);
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointStatesTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointPosCmdTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointVelCmdTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
+      }
+    }
+  }
+  csvFile.close();
+  spinner_.stop();
 }
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
