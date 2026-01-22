@@ -181,7 +181,7 @@ bool FailsafeWidget::checkVibrationLevel() const
   return items_[kVibrationLevelIdx]->isChecked();
 }
 
-double FailsafeWidget::escNoCommunicationTiemout() const
+double FailsafeWidget::escNoCommunicationTimeout() const
 {
   return esc_no_comm_timeout_->value() * 1e-3;
 }

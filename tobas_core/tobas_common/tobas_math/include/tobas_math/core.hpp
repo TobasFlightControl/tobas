@@ -28,7 +28,7 @@ inline constexpr T quar(const T& x)
 
 /* 4乗根を計算する． */
 template <typename T>
-inline T quart(const T& x)
+inline constexpr T quart(const T& x)
 {
   const auto sqrt_x = sqrt(x);
   return sqrt(sqrt_x);
@@ -39,6 +39,22 @@ template <typename T>
 inline constexpr int sign(const T& x)
 {
   return (x > 0) - (x < 0);
+}
+
+/* 整数の累乗を計算する． */
+template <typename T>
+inline constexpr T ipow(T base, size_t exp)
+{
+  if (exp == 0) {
+    return 1;
+  }
+  if (exp == 1) {
+    return base;
+  }
+
+  const auto half = ipow(base, exp / 2);
+  const auto sqr = half * half;
+  return (exp & 1) ? (sqr * base) : sqr;
 }
 
 /* xを[a, b]の範囲から[c, d]の範囲に投影する． */

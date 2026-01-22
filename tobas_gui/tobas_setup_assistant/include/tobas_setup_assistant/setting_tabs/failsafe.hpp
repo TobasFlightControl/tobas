@@ -63,7 +63,7 @@ public:
   bool checkMagAlignment() const;
   bool checkVibrationLevel() const;
 
-  double escNoCommunicationTiemout() const;  // [s]
+  double escNoCommunicationTimeout() const;  // [s]
 
 private:
   std::array<QCheckBox*, kItemSize> items_;

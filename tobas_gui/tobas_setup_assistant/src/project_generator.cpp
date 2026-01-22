@@ -17,6 +17,7 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
@@ -679,7 +680,7 @@ bool ProjectGenerator::generateHealthMonitorConfig()
 bool ProjectGenerator::generateRotorAnomalyDetectorConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
-  params["no_communication_timeout"] = settings_->failsafe->escNoCommunicationTiemout();
+  params["no_communication_timeout"] = yaml::format(settings_->failsafe->escNoCommunicationTimeout());
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
 
