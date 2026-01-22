@@ -1,6 +1,7 @@
 #include "tobas_drone_core/fixed_wing/aerodynamic_coefs.hpp"
 
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -134,22 +135,22 @@ YAML::Node AerodynamicCoefficients::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kCLift0Key] = c_lift_0;
-  node[kCLiftAlphaKey] = c_lift_alpha;
-  node[kCDrag0Key] = c_drag_0;
-  node[kCDragAlphaKey] = c_drag_alpha;
-  node[kCSideBetaKey] = c_side_beta;
-  node[kCRollBetaKey] = c_roll_beta;
-  node[kCRollPKey] = c_roll_p;
-  node[kCRollRKey] = c_roll_r;
-  node[kCPitch0Key] = c_pitch_0;
-  node[kCPitchAlphaKey] = c_pitch_alpha;
-  node[kCPitchAbsBetaKey] = c_pitch_abs_beta;
-  node[kCPitchAlphaRateKey] = c_pitch_alpha_rate;
-  node[kCPitchQKey] = c_pitch_q;
-  node[kCYawBetaKey] = c_yaw_beta;
-  node[kCYawPKey] = c_yaw_p;
-  node[kCYawRKey] = c_yaw_r;
+  node[kCLift0Key] = yaml::format(c_lift_0);
+  node[kCLiftAlphaKey] = yaml::format(c_lift_alpha);
+  node[kCDrag0Key] = yaml::format(c_drag_0);
+  node[kCDragAlphaKey] = yaml::format(c_drag_alpha);
+  node[kCSideBetaKey] = yaml::format(c_side_beta);
+  node[kCRollBetaKey] = yaml::format(c_roll_beta);
+  node[kCRollPKey] = yaml::format(c_roll_p);
+  node[kCRollRKey] = yaml::format(c_roll_r);
+  node[kCPitch0Key] = yaml::format(c_pitch_0);
+  node[kCPitchAlphaKey] = yaml::format(c_pitch_alpha);
+  node[kCPitchAbsBetaKey] = yaml::format(c_pitch_abs_beta);
+  node[kCPitchAlphaRateKey] = yaml::format(c_pitch_alpha_rate);
+  node[kCPitchQKey] = yaml::format(c_pitch_q);
+  node[kCYawBetaKey] = yaml::format(c_yaw_beta);
+  node[kCYawPKey] = yaml::format(c_yaw_p);
+  node[kCYawRKey] = yaml::format(c_yaw_r);
 
   return node;
 }

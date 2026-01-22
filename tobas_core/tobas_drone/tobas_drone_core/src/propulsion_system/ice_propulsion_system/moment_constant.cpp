@@ -1,10 +1,10 @@
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/moment_constant.hpp"
 
-#include <cassert>
 #include <iostream>
 #include <limits>
 
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -45,10 +45,10 @@ YAML::Node VppMomentConstant::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kAKey] = a;
-  node[kBKey] = b;
-  node[kCKey] = c;
-  node[kPhi0Key] = phi0;
+  node[kAKey] = yaml::format(a);
+  node[kBKey] = yaml::format(b);
+  node[kCKey] = yaml::format(c);
+  node[kPhi0Key] = yaml::format(phi0);
 
   return node;
 }

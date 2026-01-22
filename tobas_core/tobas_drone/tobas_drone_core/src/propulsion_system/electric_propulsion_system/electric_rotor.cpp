@@ -1,6 +1,7 @@
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_rotor.hpp"
 
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -102,12 +103,12 @@ YAML::Node ElectricRotorConfig::dump() const
 
   node[kChannelKey] = channel;
   node[kNumPolesKey] = num_poles;
-  node[kKvKey] = kv;
-  node[kInternalResistanceKey] = internal_resistance;
-  node[kMinSpeed] = min_speed;
-  node[kPropellerDiameterKey] = propeller_diameter;
-  node[kMotorConstKey] = motor_const;
-  node[kMomentConstKey] = moment_const;
+  node[kKvKey] = yaml::format(kv);
+  node[kInternalResistanceKey] = yaml::format(internal_resistance);
+  node[kMinSpeed] = yaml::format(min_speed);
+  node[kPropellerDiameterKey] = yaml::format(propeller_diameter);
+  node[kMotorConstKey] = yaml::format(motor_const);
+  node[kMomentConstKey] = yaml::format(moment_const);
 
   return node;
 }
