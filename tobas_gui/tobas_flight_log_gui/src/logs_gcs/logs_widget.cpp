@@ -4,18 +4,18 @@
 #include <iostream>
 #include <string>
 
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QFileDialog>
 #include <rosbag2_cpp/reindexer.hpp>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_path_tools/join.hpp>
 
 #include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
@@ -30,8 +30,7 @@ namespace gui
 {
 namespace log
 {
-FlightLogsWidgetGCS::FlightLogsWidgetGCS()
-  : spinner_(Qt::WindowModal, this)
+FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -237,12 +236,12 @@ bool FlightLogsWidgetGCS::open(const std::string& rosbag_path)
 
 std::string FlightLogsWidgetGCS::makeCSVRow(const auto& cur_time)
 {
-    return to_string(cur_time / 1000000000.0) + ","\
-          + to_string(curData_.cur_Imu_data.accel.x) + "," + to_string(curData_.cur_Imu_data.accel.y) + "," + to_string(curData_.cur_Imu_data.accel.z) + "," \
-          + to_string(curData_.cur_Imu_data.gyro.x) + "," + to_string(curData_.cur_Imu_data.gyro.y) + "," + to_string(curData_.cur_Imu_data.gyro.z) + ","\
-          + to_string(curData_.cur_Imu_data.dgyro.x) + "," + to_string(curData_.cur_Imu_data.dgyro.y) + "," + to_string(curData_.cur_Imu_data.dgyro.z) + ","\
-          + to_string(curData_.cur_battery.voltage) + "," + to_string(curData_.cur_battery.current)\
-          + "\n";
+  return to_string(cur_time / 1000000000.0) + "," + to_string(curData_.cur_Imu_data.accel.x) + "," +
+         to_string(curData_.cur_Imu_data.accel.y) + "," + to_string(curData_.cur_Imu_data.accel.z) + "," +
+         to_string(curData_.cur_Imu_data.gyro.x) + "," + to_string(curData_.cur_Imu_data.gyro.y) + "," +
+         to_string(curData_.cur_Imu_data.gyro.z) + "," + to_string(curData_.cur_Imu_data.dgyro.x) + "," +
+         to_string(curData_.cur_Imu_data.dgyro.y) + "," + to_string(curData_.cur_Imu_data.dgyro.z) + "," +
+         to_string(curData_.cur_battery.voltage) + "," + to_string(curData_.cur_battery.current) + "\n";
 }
 
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
@@ -265,7 +264,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   csvFile << FlightLogsWidgetGCS::exportCSVHeader;
 
   const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
-  
+
   if (!open(log_path.string())) {
     if (!reindex(log_path.string())) {
       qt::qErrorBox(this, "The log file is broken and failed to fix it.");
@@ -283,19 +282,18 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 
     rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
 
-    if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic)))
-    {
+    if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
       const auto& cur_time = msg->recv_timestamp;  // [ns]
-      
+
       rclcpp::Serialization<tobas_msgs::msg::Imu> serializer;
       serializer.deserialize_message(&ser_msg, &curData_.cur_Imu_data);
-      
-      csvFile << makeCSVRow(cur_time);
 
-    }else{
+      csvFile << makeCSVRow(cur_time);
+    }
+    else {
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
-        rclcpp::Serialization<tobas_msgs::msg::Odometry> serializer;
-        serializer.deserialize_message(&ser_msg, &curData_.cur_odom_data);
+        // rclcpp::Serialization<tobas_msgs::msg::Odometry> serializer;
+        // serializer.deserialize_message(&ser_msg, &curData_.cur_odom_data);
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
       }

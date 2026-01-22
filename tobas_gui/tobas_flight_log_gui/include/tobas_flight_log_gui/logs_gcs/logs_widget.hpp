@@ -9,7 +9,7 @@
 
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/imu.hpp>
-#include <tobas_msgs/msg/odometry.hpp>
+// #include <tobas_msgs/msg/odometry.hpp>
 
 namespace gui
 {
@@ -39,11 +39,12 @@ Q_SIGNALS:
 public:
   explicit FlightLogsWidgetGCS();
 
-  struct curData{
-    tobas_msgs::msg::Odometry cur_odom_data;
+  struct curData
+  {
+    // tobas_msgs::msg::Odometry cur_odom_data;
     tobas_msgs::msg::Imu cur_Imu_data;
     tobas_msgs::msg::Battery cur_battery;
-  }curData_;
+  } curData_;
 
   std::string makeCSVRow(const auto& cur_time);
   void addLog(const QString& log_name);
@@ -57,7 +58,7 @@ public:
 
 private:
   rosbag2_cpp::Reader reader_;
-  
+
   QPushButton* read_button_;
   QPushButton* clean_button_;
 
