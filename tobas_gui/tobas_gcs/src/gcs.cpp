@@ -330,7 +330,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = proj_paths_.cfgPkgName();
 
   // 進捗バーを作成
-  qt::ProgressDialog progress("Write Tobas Project", 11, this);
+  qt::ProgressDialog progress("Write Tobas Project", 12, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -471,11 +471,20 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   progress.progressStep();
 
-  // サービスを再起動
-  progress.setLabelText("Restarting the flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SshClient::kNoError) {
+  // サービスを有効化
+  progress.setLabelText("Enabling the flight controller.");
+  if (ssh_client_.execute("systemctl enable tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
-    qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to enable Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // サービスを起動
+  progress.setLabelText("Starting the flight controller.");
+  if (ssh_client_.execute("systemctl start tobas_real.target", true) != ssh::SshClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();

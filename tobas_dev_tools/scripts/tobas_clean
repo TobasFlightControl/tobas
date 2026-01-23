@@ -36,4 +36,7 @@ fi
 # Clear Wi-Fi hotspot settings
 sudo rm /etc/hostapd/hostapd.conf*
 
+# Disable Tobas service
+sudo systemctl disable tobas_real.target
+
 echo -e "\033[32mCleaning finished successfully.\033[0m"
