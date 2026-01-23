@@ -22,15 +22,24 @@
 
 #include <rosbag2_storage/storage_filter.hpp>
 
-using namespace std;
-
 namespace fs = std::filesystem;
 
 namespace gui
 {
 namespace log
 {
-FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
+// void LogExportWorker::process()
+// {
+//     try {
+
+//         Q_EMIT finished();
+//     }
+//     catch (const std::exception& e) {
+//         Q_EMIT error(QString::fromStdString(e.what()));
+//     }
+// }
+
+FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -202,6 +211,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   clearLogs();
 }
 
+// TODO rosbag.hpp
 bool FlightLogsWidgetGCS::reindex(const std::string& rosbag_path)
 {
   rosbag2_cpp::Reindexer reindexer;
@@ -221,6 +231,7 @@ bool FlightLogsWidgetGCS::reindex(const std::string& rosbag_path)
   return true;
 }
 
+// TODO rosbag.hpp
 bool FlightLogsWidgetGCS::open(const std::string& rosbag_path)
 {
   try {
@@ -234,14 +245,51 @@ bool FlightLogsWidgetGCS::open(const std::string& rosbag_path)
   return true;
 }
 
-std::string FlightLogsWidgetGCS::makeCSVRow(const auto& cur_time)
+template <typename T, typename Func>
+std::string FlightLogsWidgetGCS::getLogString(
+  const std::shared_ptr<T>& cur_ptr,
+  std::shared_ptr<T>& last_ptr,
+  const std::string& empty_str,
+  Func formatter)
 {
-  return to_string(cur_time / 1000000000.0) + "," + to_string(curData_.cur_Imu_data.accel.x) + "," +
-         to_string(curData_.cur_Imu_data.accel.y) + "," + to_string(curData_.cur_Imu_data.accel.z) + "," +
-         to_string(curData_.cur_Imu_data.gyro.x) + "," + to_string(curData_.cur_Imu_data.gyro.y) + "," +
-         to_string(curData_.cur_Imu_data.gyro.z) + "," + to_string(curData_.cur_Imu_data.dgyro.x) + "," +
-         to_string(curData_.cur_Imu_data.dgyro.y) + "," + to_string(curData_.cur_Imu_data.dgyro.z) + "," +
-         to_string(curData_.cur_battery.voltage) + "," + to_string(curData_.cur_battery.current) + "\n";
+  if (cur_ptr != nullptr && cur_ptr != last_ptr) {
+    last_ptr = cur_ptr;
+    return formatter(cur_ptr);
+  }
+  return empty_str;
+}
+
+std::string FlightLogsWidgetGCS::makeCsvRow(const auto& cur_time)
+{
+  // Odometry
+  std::string csv_line = "";
+
+  // Imu_raw
+  csv_line = std::to_string(cur_time / 1000000000.0) + "," + std::to_string(curData_.cur_imu.accel.x) + "," +
+             std::to_string(curData_.cur_imu.accel.y) + "," + std::to_string(curData_.cur_imu.accel.z) + "," +
+             std::to_string(curData_.cur_imu.gyro.x) + "," + std::to_string(curData_.cur_imu.gyro.y) + "," +
+             std::to_string(curData_.cur_imu.gyro.z) + "," + std::to_string(curData_.cur_imu.dgyro.x) + "," +
+             std::to_string(curData_.cur_imu.dgyro.y) + "," + std::to_string(curData_.cur_imu.dgyro.z) + ",";
+
+  // Gnss
+  csv_line += getLogString(
+    curData_.cur_gnss,
+    lastData_.last_gnss,
+    ",,,,,,",
+    [](const auto& msg)
+    {
+      return std::to_string(msg->latitude) + "," + std::to_string(msg->longitude) + "," +
+             std::to_string(msg->altitude) + "," + std::to_string(msg->ground_speed.x) + "," +
+             std::to_string(msg->ground_speed.y) + "," + std::to_string(msg->ground_speed.z) + ",";
+    });
+
+  // Battery
+  csv_line += getLogString(
+    curData_.cur_battery,
+    lastData_.last_battery,
+    ",",
+    [](const auto& msg) { return std::to_string(msg->voltage) + "," + std::to_string(msg->current); });
+  return csv_line + "\n";
 }
 
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
@@ -261,7 +309,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     std::cerr << "Couldn't write to csv file: " << savePath.toStdString() << std::endl;
     return;
   }
-  csvFile << FlightLogsWidgetGCS::exportCSVHeader;
+  csvFile << FlightLogsWidgetGCS::exportCsvHeader;
 
   const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
@@ -276,36 +324,31 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     }
   }
 
-  spinner_.start();
   while (reader_.has_next()) {
     const auto msg = reader_.read_next();
+    const auto& cur_time = msg->recv_timestamp;  // [ns]
 
     rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
 
     if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
-      const auto& cur_time = msg->recv_timestamp;  // [ns]
-
-      rclcpp::Serialization<tobas_msgs::msg::Imu> serializer;
-      serializer.deserialize_message(&ser_msg, &curData_.cur_Imu_data);
-
-      csvFile << makeCSVRow(cur_time);
+      curData_.cur_imu = imu_decoder_.decode(cur_time, ser_msg);
+      csvFile << makeCsvRow(cur_time);
     }
     else {
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
-        // rclcpp::Serialization<tobas_msgs::msg::Odometry> serializer;
-        // serializer.deserialize_message(&ser_msg, &curData_.cur_odom_data);
+        curData_.cur_odom = std::make_shared<tobas_msgs::msg::Odometry>(odom_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
+        curData_.cur_gnss = std::make_shared<tobas_msgs::msg::Gnss>(gnss_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
-        rclcpp::Serialization<tobas_msgs::msg::Battery> serializer;
-        serializer.deserialize_message(&ser_msg, &curData_.cur_battery);
+        curData_.cur_battery = std::make_shared<tobas_msgs::msg::Battery>(battery_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
       }
@@ -338,7 +381,6 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     }
   }
   csvFile.close();
-  spinner_.stop();
 }
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
