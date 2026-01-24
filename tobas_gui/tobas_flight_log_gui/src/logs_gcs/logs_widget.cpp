@@ -28,18 +28,214 @@ namespace gui
 {
 namespace log
 {
-// void LogExportWorker::process()
-// {
-//     try {
+void CsvExportWorker::process(const QString& log_name, const QString& savePath)
+{
+  try {
+    std::ofstream csvFile(savePath.toStdString());
+    if (!csvFile.is_open()) {
+      std::cerr << "Couldn't write to csv file: " << savePath.toStdString() << std::endl;
+      return;
+    }
+    csvFile << CsvExportWorker::exportCsvHeader;
 
-//         Q_EMIT finished();
-//     }
-//     catch (const std::exception& e) {
-//         Q_EMIT error(QString::fromStdString(e.what()));
-//     }
-// }
+    const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
 
-FlightLogsWidgetGCS::FlightLogsWidgetGCS()
+    if (!open(log_path.string())) {
+      if (!reindex(log_path.string())) {
+        return;
+      }
+      if (!open(log_path.string())) {
+        return;
+      }
+    }
+
+    while (reader_.has_next()) {
+      const auto msg = reader_.read_next();
+      const auto& cur_time = msg->recv_timestamp;  // [ns]
+
+      rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+
+      if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
+        curData_.cur_imu = std::make_shared<tobas_msgs::msg::Imu>(imu_decoder_.decode(cur_time, ser_msg));
+        csvFile << makeCsvRow(cur_time);
+      }
+      else {
+        if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
+          curData_.cur_odom = std::make_shared<tobas_msgs::msg::Odometry>(odom_decoder_.decode(cur_time, ser_msg));
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
+          curData_.cur_mag = std::make_shared<tobas_msgs::msg::MagneticField>(mag_decoder_.decode(cur_time, ser_msg));
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
+          curData_.cur_gnss = std::make_shared<tobas_msgs::msg::Gnss>(gnss_decoder_.decode(cur_time, ser_msg));
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
+          curData_.cur_battery = std::make_shared<tobas_msgs::msg::Battery>(battery_decoder_.decode(cur_time, ser_msg));
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kJointStatesTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kJointPosCmdTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kJointVelCmdTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
+        }
+        else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
+        }
+      }
+    }
+    csvFile.close();
+  }
+  catch (const std::exception& e) {
+    Q_EMIT error(QString::fromStdString(e.what()));
+    return;
+  }
+  Q_EMIT finished();
+}
+
+// TODO rosbag.hpp
+bool CsvExportWorker::reindex(const std::string& rosbag_path)
+{
+  rosbag2_cpp::Reindexer reindexer;
+
+  rosbag2_storage::StorageOptions options;
+  options.uri = rosbag_path;
+  options.storage_id = "mcap";
+
+  try {
+    reindexer.reindex(options);
+  }
+  catch (const std::exception& e) {
+    qWarning() << "Failed to reindex " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    return false;
+  }
+
+  return true;
+}
+
+// TODO rosbag.hpp
+bool CsvExportWorker::open(const std::string& rosbag_path)
+{
+  try {
+    reader_.open(rosbag_path);
+  }
+  catch (const std::exception& e) {
+    qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    return false;
+  }
+
+  return true;
+}
+
+template <typename T, typename Func>
+std::string CsvExportWorker::getLogString(
+  const std::shared_ptr<T>& cur_ptr,
+  std::shared_ptr<T>& last_ptr,
+  const std::string& empty_str,
+  Func formatter)
+{
+  if (cur_ptr != nullptr && cur_ptr != last_ptr) {
+    last_ptr = cur_ptr;
+    return formatter(cur_ptr);
+  }
+  return empty_str;
+}
+
+std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
+{
+  std::string csv_line = std::to_string(cur_time / 1000000000.0) + ",";
+
+  // Pose
+  // csv_line += sgetLogString(curData_.cur_odom, lastData_.last_odom, ",,,,,,",
+  //   [](const auto& msg)
+  //   {
+  //     return std::to_string(msg->latitude) + "," ;
+  // });
+
+  // Twist
+
+  // Accel
+
+  // Imu
+  csv_line += std::to_string(curData_.cur_imu->accel.x) + "," + std::to_string(curData_.cur_imu->accel.y) + "," +
+              std::to_string(curData_.cur_imu->accel.z) + "," + std::to_string(curData_.cur_imu->gyro.x) + "," +
+              std::to_string(curData_.cur_imu->gyro.y) + "," + std::to_string(curData_.cur_imu->gyro.z) + "," +
+              std::to_string(curData_.cur_imu->dgyro.x) + "," + std::to_string(curData_.cur_imu->dgyro.y) + "," +
+              std::to_string(curData_.cur_imu->dgyro.z) + ",";
+
+  // Magnetic_Field
+  csv_line += getLogString(
+    curData_.cur_mag,
+    lastData_.last_mag,
+    ",,,",
+    [](const auto& msg)
+    { return std::to_string(msg->mag.x) + "," + std::to_string(msg->mag.y) + "," + std::to_string(msg->mag.z) + ","; });
+
+  // Gnss
+  csv_line += getLogString(
+    curData_.cur_gnss,
+    lastData_.last_gnss,
+    ",,,,,,",
+    [](const auto& msg)
+    {
+      return std::to_string(msg->latitude) + "," + std::to_string(msg->longitude) + "," +
+             std::to_string(msg->altitude) + "," + std::to_string(msg->ground_speed.x) + "," +
+             std::to_string(msg->ground_speed.y) + "," + std::to_string(msg->ground_speed.z) + ",";
+    });
+
+  // RC Input
+
+  // Battery
+  csv_line += getLogString(
+    curData_.cur_battery,
+    lastData_.last_battery,
+    ",",
+    [](const auto& msg) { return std::to_string(msg->voltage) + "," + std::to_string(msg->current); });
+
+  // Engine
+
+  // CPU
+
+  // Rotor Speed
+
+  // Rotor Link
+
+  // Latency
+
+  // Vibration_Level
+
+  // Disturbance_Force
+
+  // Observer
+
+  // Multirotor_Controller
+
+  return csv_line + "\n";
+}
+
+FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -211,85 +407,16 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   clearLogs();
 }
 
-// TODO rosbag.hpp
-bool FlightLogsWidgetGCS::reindex(const std::string& rosbag_path)
+void FlightLogsWidgetGCS::onExportFinished()
 {
-  rosbag2_cpp::Reindexer reindexer;
-
-  rosbag2_storage::StorageOptions options;
-  options.uri = rosbag_path;
-  options.storage_id = "mcap";
-
-  try {
-    reindexer.reindex(options);
-  }
-  catch (const std::exception& e) {
-    qWarning() << "Failed to reindex " << QString::fromStdString(rosbag_path) + ": " << e.what();
-    return false;
-  }
-
-  return true;
+  spinner_.stop();
+  qt::qInfoBox(this, "Flight log has been exported successfully.");
 }
 
-// TODO rosbag.hpp
-bool FlightLogsWidgetGCS::open(const std::string& rosbag_path)
+void FlightLogsWidgetGCS::onExportError(const QString& err)
 {
-  try {
-    reader_.open(rosbag_path);
-  }
-  catch (const std::exception& e) {
-    qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
-    return false;
-  }
-
-  return true;
-}
-
-template <typename T, typename Func>
-std::string FlightLogsWidgetGCS::getLogString(
-  const std::shared_ptr<T>& cur_ptr,
-  std::shared_ptr<T>& last_ptr,
-  const std::string& empty_str,
-  Func formatter)
-{
-  if (cur_ptr != nullptr && cur_ptr != last_ptr) {
-    last_ptr = cur_ptr;
-    return formatter(cur_ptr);
-  }
-  return empty_str;
-}
-
-std::string FlightLogsWidgetGCS::makeCsvRow(const auto& cur_time)
-{
-  // Odometry
-  std::string csv_line = "";
-
-  // Imu_raw
-  csv_line = std::to_string(cur_time / 1000000000.0) + "," + std::to_string(curData_.cur_imu.accel.x) + "," +
-             std::to_string(curData_.cur_imu.accel.y) + "," + std::to_string(curData_.cur_imu.accel.z) + "," +
-             std::to_string(curData_.cur_imu.gyro.x) + "," + std::to_string(curData_.cur_imu.gyro.y) + "," +
-             std::to_string(curData_.cur_imu.gyro.z) + "," + std::to_string(curData_.cur_imu.dgyro.x) + "," +
-             std::to_string(curData_.cur_imu.dgyro.y) + "," + std::to_string(curData_.cur_imu.dgyro.z) + ",";
-
-  // Gnss
-  csv_line += getLogString(
-    curData_.cur_gnss,
-    lastData_.last_gnss,
-    ",,,,,,",
-    [](const auto& msg)
-    {
-      return std::to_string(msg->latitude) + "," + std::to_string(msg->longitude) + "," +
-             std::to_string(msg->altitude) + "," + std::to_string(msg->ground_speed.x) + "," +
-             std::to_string(msg->ground_speed.y) + "," + std::to_string(msg->ground_speed.z) + ",";
-    });
-
-  // Battery
-  csv_line += getLogString(
-    curData_.cur_battery,
-    lastData_.last_battery,
-    ",",
-    [](const auto& msg) { return std::to_string(msg->voltage) + "," + std::to_string(msg->current); });
-  return csv_line + "\n";
+  spinner_.stop();
+  qt::qErrorBox(this, "Export Error" + err);
 }
 
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
@@ -304,83 +431,23 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     return;
   }
 
-  std::ofstream csvFile(savePath.toStdString());
-  if (!csvFile.is_open()) {
-    std::cerr << "Couldn't write to csv file: " << savePath.toStdString() << std::endl;
-    return;
-  }
-  csvFile << FlightLogsWidgetGCS::exportCsvHeader;
+  spinner_.start();
+  QThread* thread = new QThread;
+  CsvExportWorker* worker = new CsvExportWorker();
 
-  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  connect(thread, &QThread::started, worker, [worker, log_name, savePath]() { worker->process(log_name, savePath); });
 
-  if (!open(log_path.string())) {
-    if (!reindex(log_path.string())) {
-      qt::qErrorBox(this, "The log file is broken and failed to fix it.");
-      return;
-    }
-    if (!open(log_path.string())) {
-      qt::qErrorBox(this, "Failed to open the log file. The data is probably corrupted.");
-      return;
-    }
-  }
+  // 処理完了時の後始末
+  connect(worker, &CsvExportWorker::finished, thread, &QThread::quit);
+  connect(worker, &CsvExportWorker::finished, worker, &CsvExportWorker::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 
-  while (reader_.has_next()) {
-    const auto msg = reader_.read_next();
-    const auto& cur_time = msg->recv_timestamp;  // [ns]
+  // GUIへの通知接続
+  connect(worker, &CsvExportWorker::finished, this, &FlightLogsWidgetGCS::onExportFinished);
+  connect(worker, &CsvExportWorker::error, this, &FlightLogsWidgetGCS::onExportError);
 
-    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
-
-    if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
-      curData_.cur_imu = imu_decoder_.decode(cur_time, ser_msg);
-      csvFile << makeCsvRow(cur_time);
-    }
-    else {
-      if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
-        curData_.cur_odom = std::make_shared<tobas_msgs::msg::Odometry>(odom_decoder_.decode(cur_time, ser_msg));
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
-        curData_.cur_gnss = std::make_shared<tobas_msgs::msg::Gnss>(gnss_decoder_.decode(cur_time, ser_msg));
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
-        curData_.cur_battery = std::make_shared<tobas_msgs::msg::Battery>(battery_decoder_.decode(cur_time, ser_msg));
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointStatesTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointPosCmdTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointVelCmdTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
-      }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
-      }
-    }
-  }
-  csvFile.close();
+  // 4. スレッド開始
+  thread->start();
 }
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
