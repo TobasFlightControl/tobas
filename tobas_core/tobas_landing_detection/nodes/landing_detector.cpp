@@ -8,7 +8,6 @@
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
 
 using namespace std::chrono_literals;
 
@@ -41,12 +40,9 @@ private:
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
 
-  ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
-
   ros2::TimerPtr publish_timer_;
 
   void publishLandedState(const builtin_interfaces::msg::Time& stamp);
-  void disarm();
 
   bool switchTimeThreshCb(const double& p);
   bool switchMassRateCb(const long& p);
@@ -70,8 +66,6 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
 
-  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
-
   publish_timer_ = createTimer(kPublishPeriod, &self::publishTimerCb, this);
 }
 
@@ -81,13 +75,6 @@ void LandingDetectorNode::publishLandedState(const builtin_interfaces::msg::Time
   msg->header.stamp = stamp;
   msg->data = landed_;
   landed_pub_->publish(std::move(msg));
-}
-
-void LandingDetectorNode::disarm()
-{
-  const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = false;
-  set_arm_sc_->async_send_request(req);
 }
 
 bool LandingDetectorNode::switchTimeThreshCb(const double& p)
@@ -143,12 +130,6 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
     if (time_from_last_detect > switch_time_thresh_) {
       landed_ = !landed_;
       publishLandedState(dist_force->header.stamp);
-
-      // 飛行している状態から着陸したら強制的にモータを停止 (アイドリングストップのようなもの)
-      // 着陸状態での制御器の積分誤差の蓄積を防ぐ目的
-      if (landed_) {
-        disarm();
-      }
     }
   }
 
