@@ -41,14 +41,14 @@ bool DShot::transfer()
     return false;
   }
 
-  // TODO: Check CRC
-  // const auto cs = rx_buf_[kChannelSize];
-  // const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
-  // if (cs != cr)
-  // {
-  //   cerr << "CRC failed: " << cs << " != " << cr << endl;
-  //   return false;
-  // }
+  // Check CRC
+  const auto cs = rx_buf_[kChannelSize];
+  const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
+  if (cs != cr) {
+    cerr << "CRC failed: " << cs << " != " << cr << endl;
+    fill(begin(rx_buf_), end(rx_buf_), 0u);
+    return false;
+  }
 
   return true;
 }
