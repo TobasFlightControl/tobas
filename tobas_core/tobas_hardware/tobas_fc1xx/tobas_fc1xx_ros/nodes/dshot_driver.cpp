@@ -80,7 +80,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("fc
 bool DShotDriverNode::transferAndSleep()
 {
   if (!dshot_.transfer()) {
-    TOBAS_ERROR("SPI communication failed.");
+    TOBAS_ERROR("Failed to communicate with the rotor controller.");
     return false;
   }
 
@@ -270,7 +270,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
 
   // Send command and get rotor states
   if (!dshot_.transfer()) {
-    TOBAS_ERROR("SPI communication failed.");
+    TOBAS_ERROR("Failed to communicate with the rotor controller.");
     return;
   }
 
