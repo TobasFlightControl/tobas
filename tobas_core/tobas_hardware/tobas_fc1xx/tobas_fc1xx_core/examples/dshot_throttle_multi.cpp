@@ -19,13 +19,13 @@ int main()
     for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
       if (!dshot.setThrottle(ch, throttles[ch])) {
         cerr << "Failed to set DShot throttle of channel " << ch << "." << endl;
-        return EXIT_FAILURE;
+        continue;
       }
     }
 
     if (!dshot.transfer()) {
       cerr << "Failed to command DShot throttles." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     dshot.printCurrentStates();

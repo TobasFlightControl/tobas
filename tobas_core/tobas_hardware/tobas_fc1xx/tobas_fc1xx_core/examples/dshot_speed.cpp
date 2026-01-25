@@ -24,64 +24,79 @@ int main(int argc, char** argv)
   fc1xx::DShot dshot;
 
   if (!dshot.initialize()) {
-    throw runtime_error("Failed to initialize DShot driver.");
+    cerr << "Failed to initialize DShot driver." << endl;
+    return EXIT_FAILURE;
   }
 
   if (!dshot.setKv(channel, tbs::rpm2rps(kv))) {
-    throw runtime_error("Failed to set Kv.");
+    cerr << "Failed to set Kv." << endl;
+    return EXIT_FAILURE;
   }
   if (!dshot.transfer()) {
-    throw runtime_error("Failed to send Kv.");
+    cerr << "Failed to send Kv." << endl;
+    return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   if (!dshot.setInternalResistance(channel, 0.25)) {  // Typical value
-    throw runtime_error("Failed to set internal resistance.");
+    cerr << "Failed to set internal resistance." << endl;
+    return EXIT_FAILURE;
   }
   if (!dshot.transfer()) {
-    throw runtime_error("Failed to send internal resistance.");
+    cerr << "Failed to send internal resistance." << endl;
+    return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   if (!dshot.setPropellerDiameter(channel, tbs::inch2meter(d))) {
-    throw runtime_error("Failed to set propeller diameter.");
+    cerr << "Failed to set propeller diameter." << endl;
+    return EXIT_FAILURE;
   }
   if (!dshot.transfer()) {
-    throw runtime_error("Failed to send propeller diameter.");
+    cerr << "Failed to send propeller diameter." << endl;
+    return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   if (!dshot.setMomentConstant(channel, 2e-4)) {  // Typical value
-    throw runtime_error("Failed to set moment constant.");
+    cerr << "Failed to set moment constant." << endl;
+    return EXIT_FAILURE;
   }
   if (!dshot.transfer()) {
-    throw runtime_error("Failed to send moment constant.");
+    cerr << "Failed to send moment constant." << endl;
+    return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   if (!dshot.setNumPoles(channel, poles)) {
-    throw runtime_error("Failed to set the number of poles.");
+    cerr << "Failed to set the number of poles." << endl;
+    return EXIT_FAILURE;
   }
   if (!dshot.transfer()) {
-    throw runtime_error("Failed to send the number of poles.");
+    cerr << "Failed to send the number of poles." << endl;
+    return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   if (!dshot.setSpeedControlGain(channel, gain)) {
-    throw runtime_error("Failed to set the speed control gain.");
+    cerr << "Failed to set the speed control gain." << endl;
+    return EXIT_FAILURE;
   }
   if (!dshot.transfer()) {
-    throw runtime_error("Failed to send the speed control gain.");
+    cerr << "Failed to send the speed control gain." << endl;
+    return EXIT_FAILURE;
   }
   this_thread::sleep_for(1ms);
 
   while (true) {
     if (!dshot.setTargetSpeed(channel, tbs::rpm2rps(tar_rpm))) {
-      throw runtime_error("Failed to set target speed.");
+      cerr << "Failed to set target speed." << endl;
+      continue;
     }
 
     if (!dshot.transfer()) {
-      throw runtime_error("Failed to send target speed.");
+      cerr << "Failed to send target speed." << endl;
+      continue;
     }
 
     dshot.printCurrentState(channel);
