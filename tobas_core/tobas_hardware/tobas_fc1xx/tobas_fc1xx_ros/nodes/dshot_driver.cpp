@@ -263,14 +263,14 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     }
 
     if (!dshot_.setTargetSpeed(erotor->channel, elem.speed)) {
-      TOBAS_ERROR("Failed to set target speed of rotor \"", elem.link_name, "\".");
+      TOBAS_ERROR("Failed to set the target speed of rotor \"", elem.link_name, "\".");
       continue;
     }
   }
 
   // Send command and get rotor states
   if (!dshot_.transfer()) {
-    TOBAS_ERROR("Failed to communicate with the rotor controller.");
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to communicate with the rotor controller.");
     return;
   }
 
