@@ -8,6 +8,7 @@
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 using namespace std::chrono_literals;
 
@@ -17,20 +18,22 @@ class LandingDetectorNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   static constexpr auto kPublishPeriod = 1s;
-  static constexpr double kDistForceLpfCutoff = 1.;  // [Hz]
+  static constexpr double kAccelLpfCutoff = 1.;         // [Hz]
+  static constexpr double kDistForceLpfCutoff = 1.;     // [Hz]
+  static constexpr double kMoveAccelUpThresh = 1.;      // [m/s^2]
+  static constexpr double kLandWeightRateThresh = 0.7;  // [-]
+  static constexpr auto kTakeoffDetectTimeThresh = 200ms;
+  static constexpr auto kLandDetectTimeThresh = 1s;
 
 public:
   explicit LandingDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // Dynamic parameters
-  double switch_time_thresh_;  // 着陸検知がどれだけの時間続いたら状態を切り替えるか [s]
-  double switch_mass_rate_;    // 質量の何割の力を検知したら着陸しているとみなすか [-]
-
   bool landed_ = true;
+  tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
-  rclcpp::Time t_last_detect_;  // 最後に鉛直上方向の力が閾値を超えた時刻
-  dsp::LowPassFilterP1<double> z_force_lpf_;
+  rclcpp::Time t_last_no_change_;  // 最後に鉛直上方向の力が閾値を超えた時刻
+  dsp::LowPassFilterP1<double> acc_z_lpf_, force_z_lpf_;
 
   kdl::Tree tree_;
   kdl::TreeMassHolder mass_holder_;
@@ -38,16 +41,15 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::LandedState> landed_pub_;
 
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
 
   ros2::TimerPtr publish_timer_;
 
-  void publishLandedState(const builtin_interfaces::msg::Time& stamp);
-
-  bool switchTimeThreshCb(const double& p);
-  bool switchMassRateCb(const long& p);
+  void publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp);
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
 
   void publishTimerCb();
@@ -56,37 +58,24 @@ private:
 LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   : super("landing_detector", options), mass_holder_(tree_)
 {
-  z_force_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
-
-  addDynamicDoubleParam("switch_time_threshold", &self::switchTimeThreshCb, this, 0.5, 2, 0, 10, " s");
-  addDynamicIntParam("switch_mass_rate", &self::switchMassRateCb, this, 50, 10, 90, " %");  // 誤着陸を防ぐべき
+  acc_z_lpf_.setCutoffFrequency(kAccelLpfCutoff);
+  force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
   landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::kLandedTopic);
 
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
 
   publish_timer_ = createTimer(kPublishPeriod, &self::publishTimerCb, this);
 }
 
-void LandingDetectorNode::publishLandedState(const builtin_interfaces::msg::Time& stamp)
+void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp)
 {
   auto msg = std::make_unique<tobas_msgs::msg::LandedState>();
   msg->header.stamp = stamp;
   msg->data = landed_;
   landed_pub_->publish(std::move(msg));
-}
-
-bool LandingDetectorNode::switchTimeThreshCb(const double& p)
-{
-  switch_time_thresh_ = p;
-  return true;
-}
-
-bool LandingDetectorNode::switchMassRateCb(const long& p)
-{
-  switch_mass_rate_ = static_cast<double>(p) / 100.;
-  return true;
 }
 
 void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -95,43 +84,89 @@ void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   mass_holder_.updateInternalDataStructures();
 }
 
-void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
+void LandingDetectorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  // Verify the KDL tree is received
-  if (mass_holder_.getMass() == 0.) {
+  // Get the current time
+  const auto& cur_time = odom->header.stamp;
+
+  // Compute the latest vertical accel wrt. the world frame
+  const auto acc_W = odom->frame.M * odom->accel.linear;
+  const auto& acc_z = acc_W.z();
+
+  // First message
+  if (!odom_) {
+    odom_ = odom;
+    t_last_no_change_ = cur_time;
+    acc_z_lpf_.setValue(acc_z);
     return;
   }
 
-  // Get the latest vertical force
-  const auto& z_force = dist_force->wrench.force.z();
+  // Smooth the vertical accel
+  const auto dt = (cur_time - odom_->header.stamp).seconds();
+  acc_z_lpf_.update(acc_z, dt);
+
+  // Update the latest message
+  odom_ = odom;
+
+  // Verify the other messages are received
+  if (tree_.getNrOfSegments() == 0 || !dist_force_) {
+    return;
+  }
+
+  if (landed_) {
+    // 以下の条件が一定時間続いたら着陸状態から離陸状態に移行
+    // 1. 鉛直上方向の加速度が閾値以上
+    const auto& acc_z_filt = acc_z_lpf_.getValue();
+    if (acc_z_filt > kMoveAccelUpThresh) {
+      if (cur_time - t_last_no_change_ > kTakeoffDetectTimeThresh) {
+        TOBAS_INFO("Takeoff detected.");
+        landed_ = false;
+        publishCurrentLandedState(cur_time);
+        publish_timer_->reset();
+      }
+    }
+    else {
+      t_last_no_change_ = cur_time;
+    }
+  }
+  else {
+    // 以下の条件が一定時間続いたら離陸状態から着陸状態に移行
+    // 1. 鉛直方向の加速度の絶対値が閾値未満
+    // 2. 鉛直上方向の外力（地面反力）が離陸重量の8割以上
+    const auto& acc_z_filt = acc_z_lpf_.getValue();
+    const auto& force_z_filt = force_z_lpf_.getValue();
+    const auto weight = mass_holder_.getMass() * tbs::kGravity;
+    const auto force_z_thresh = weight * kLandWeightRateThresh;
+    if (std::abs(acc_z_filt) < kMoveAccelUpThresh && force_z_filt > force_z_thresh) {
+      if (cur_time - t_last_no_change_ > kLandDetectTimeThresh) {
+        TOBAS_INFO("Landing detected.");
+        landed_ = true;
+        publishCurrentLandedState(cur_time);
+        publish_timer_->reset();
+      }
+    }
+    else {
+      t_last_no_change_ = cur_time;
+    }
+  }
+}
+
+void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
+{
+  // Get the latest vertical force wrt. the world frame
+  const auto& force_z = dist_force->wrench.force.z();
 
   // First message
   if (!dist_force_) {
     dist_force_ = dist_force;
-    t_last_detect_ = dist_force->header.stamp;
-    z_force_lpf_.setValue(z_force);
+    t_last_no_change_ = dist_force->header.stamp;
+    force_z_lpf_.setValue(force_z);
     return;
   }
 
-  // Smooth vertical force
+  // Smooth the vertical force
   const auto dt = (dist_force->header.stamp - dist_force_->header.stamp).seconds();
-  z_force_lpf_.update(z_force, dt);
-  const auto& z_force_filtered = z_force_lpf_.getValue();
-
-  // Compute the vertical force threshold
-  const auto z_force_thresh = mass_holder_.getMass() * tbs::kGravity * switch_mass_rate_;
-
-  // 鉛直上方向の力が閾値を超えている状態が一定時間続いたら状態を切り替える
-  if ((landed_ && z_force_filtered > z_force_thresh) || (!landed_ && z_force_filtered < z_force_thresh)) {
-    t_last_detect_ = dist_force->header.stamp;
-  }
-  else {
-    const auto time_from_last_detect = (dist_force->header.stamp - t_last_detect_).seconds();
-    if (time_from_last_detect > switch_time_thresh_) {
-      landed_ = !landed_;
-      publishLandedState(dist_force->header.stamp);
-    }
-  }
+  force_z_lpf_.update(force_z, dt);
 
   // Update the latest message
   dist_force_ = dist_force;
@@ -139,7 +174,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
 
 void LandingDetectorNode::publishTimerCb()
 {
-  publishLandedState(now());
+  publishCurrentLandedState(now());
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(LandingDetectorNode)
