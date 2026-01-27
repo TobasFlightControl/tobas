@@ -14,6 +14,8 @@
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
+using namespace std::chrono_literals;
+
 /* 推進系の目標推力を実現する． */
 class RotorControllerNode : public tobas::BaseNode
 {
@@ -21,6 +23,10 @@ class RotorControllerNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
   using SetArm = tobas_msgs::srv::SetArm;
+
+  static constexpr auto kPublishArmingPeriod = 1s;
+  static constexpr auto kAutoDisarmBeforeCmdTimeout = 10s;
+  static constexpr auto kAutoDisarmAfterCmdTimeout = 500ms;
 
 public:
   explicit RotorControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -30,6 +36,7 @@ private:
   tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
 
   bool is_armed_ = false;
+  bool is_commanded_ = false;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_pub_;
@@ -44,7 +51,8 @@ private:
   ros2::TimerPtr publish_arming_timer_;
   ros2::TimerPtr auto_disarm_timer_;
 
-  void publishArming();
+  void publishCurrentArmingState();
+  void disarm();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg);
@@ -52,8 +60,8 @@ private:
 
   void setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res);
 
-  void publishArmingTimerCb();
-  void autoDisarmTimerCb();
+  void autoDisarmBeforeCmdTimerCb();
+  void autoDisarmAfterCmdTimerCb();
 };
 
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
@@ -68,11 +76,10 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
 
   set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
 
-  publish_arming_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArmingTimerCb, this);
-  auto_disarm_timer_ = createTimer(tobas::kAutoDisarmTimeout, &self::autoDisarmTimerCb, this, false);
+  publish_arming_timer_ = createTimer(kPublishArmingPeriod, &self::publishCurrentArmingState, this);
 }
 
-void RotorControllerNode::publishArming()
+void RotorControllerNode::publishCurrentArmingState()
 {
   auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
   arming_msg->header.stamp = now();
@@ -80,13 +87,19 @@ void RotorControllerNode::publishArming()
   arming_pub_->publish(std::move(arming_msg));
 }
 
+void RotorControllerNode::disarm()
+{
+  is_armed_ = false;
+  is_commanded_ = false;
+
+  publishCurrentArmingState();
+  publish_arming_timer_->reset();
+
+  auto_disarm_timer_.reset();
+}
+
 void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (!drone->isValid()) {
-    TOBAS_ERROR("Drone configuration is invalid.");
-    return;
-  }
-
   drone_ = drone;
 }
 
@@ -98,11 +111,6 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
   if (!is_armed_) {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the rotors are disarmed.");
-    return;
-  }
-
-  if (tar_thrusts_msg->thrusts.size() != drone_->prop->numRotors()) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Thrust command size mismatch.");
     return;
   }
 
@@ -188,12 +196,18 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
     }
     default: {
       TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
-      break;
+      return;
     }
   }
 
   // Reset timeout timers
-  auto_disarm_timer_->reset();
+  if (is_commanded_) {
+    auto_disarm_timer_->reset();
+  }
+  else {
+    is_commanded_ = true;
+    auto_disarm_timer_ = createTimer(kAutoDisarmAfterCmdTimeout, &self::autoDisarmAfterCmdTimerCb, this);
+  }
 }
 
 void RotorControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
@@ -217,33 +231,34 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
     }
 
     is_armed_ = true;
-    publishArming();
-    auto_disarm_timer_->reset();
+    publishCurrentArmingState();
+    auto_disarm_timer_ = createTimer(kAutoDisarmBeforeCmdTimeout, &self::autoDisarmBeforeCmdTimerCb, this);
   }
   else if (is_armed_ && !req->arming) {
-    is_armed_ = false;
-    publishArming();
-    auto_disarm_timer_->cancel();
+    disarm();
   }
 
   res->success = true;
   res->message.clear();
 }
 
-void RotorControllerNode::publishArmingTimerCb()
+void RotorControllerNode::autoDisarmBeforeCmdTimerCb()
 {
-  publishArming();
-}
-
-void RotorControllerNode::autoDisarmTimerCb()
-{
-  is_armed_ = false;
-  publishArming();
-  auto_disarm_timer_->cancel();
+  disarm();
 
   TOBAS_WARN(
-    "All rotors are automatically disarmed because ",
-    tobas::kAutoDisarmTimeout,
+    "All rotors have been automatically disarmed because ",
+    kAutoDisarmBeforeCmdTimeout,
+    " have elapsed since arming with no commands received.");
+}
+
+void RotorControllerNode::autoDisarmAfterCmdTimerCb()
+{
+  disarm();
+
+  TOBAS_WARN(
+    "All rotors have been automatically disarmed because ",
+    kAutoDisarmAfterCmdTimeout,
     " have elapsed since the last command.");
 }
 

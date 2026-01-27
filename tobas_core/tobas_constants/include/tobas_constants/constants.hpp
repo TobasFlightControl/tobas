@@ -145,10 +145,8 @@ constexpr auto kAccelScale = 10.;   // [m/s^2]
 constexpr auto kDGyroScale = 100.;  // [rad/s^2]
 
 // Common period & timeout
-static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
 static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(5);
 static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(500);
-static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
 
 // Console message period
 static constexpr double kTypicalInfoPeriod = 5.;   // [s]
