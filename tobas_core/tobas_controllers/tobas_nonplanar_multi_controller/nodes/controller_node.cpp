@@ -464,7 +464,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
           *tar_dgyro_,
           dist_force_W,
           dist_torque_B)) {
-      TOBAS_FATAL("Failed to solve mixing equation.");
+      TOBAS_FATAL("Failed to solve the mixing equation.");
       return;
     }
     const auto& thrusts = mixer_.getThrusts();

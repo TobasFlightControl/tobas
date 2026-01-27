@@ -220,7 +220,7 @@ bool SqpMixer::initializeSQP()
   const auto R0 = kdl::Rotation::Identity();
   const auto v0 = kdl::Vector::Zero();
   if (!np_mixer_.solve(q0, R0, v0, v0, v0)) {
-    cerr << "Failed to solve Non-planar mixer." << endl;
+    cerr << "Failed to solve the Non-planar mixer." << endl;
     return false;
   }
 

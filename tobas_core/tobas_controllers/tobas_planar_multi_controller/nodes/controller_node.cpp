@@ -621,7 +621,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     if (!trans_eom_.solve(
           odom->frame.M, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch)) {
-      TOBAS_FATAL("Failed to solve translational EoM.");
+      TOBAS_FATAL("Failed to solve the translational EoM.");
       return;
     }
 
@@ -684,7 +684,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     {
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
       if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro_, tar_thrust_, dist_torque_B)) {
-        TOBAS_FATAL("Failed to solve mixing equation.");
+        TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
 

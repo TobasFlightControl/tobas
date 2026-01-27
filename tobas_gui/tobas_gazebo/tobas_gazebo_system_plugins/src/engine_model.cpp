@@ -118,7 +118,7 @@ double EngineModel::computeSteadySpeed()
 
   double speed = 0.;
   if (newton_.solve(speed) < 0) {
-    gzerr << "Failed to solve engine dynamics equation: " << newton_.errorMessage() << std::endl;
+    gzerr << "Failed to solve the engine dynamics equation: " << newton_.errorMessage() << std::endl;
     return 0.;
   }
 
