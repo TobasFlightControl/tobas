@@ -10,6 +10,7 @@
 #include <rosbag2_cpp/reindexer.hpp>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_kdl/rotation.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -72,12 +73,15 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
           curData_.cur_gnss = std::make_shared<tobas_msgs::msg::Gnss>(gnss_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
+          curData_.cur_rcin = std::make_shared<tobas_msgs::msg::RCInput>(rcin_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
           curData_.cur_battery = std::make_shared<tobas_msgs::msg::Battery>(battery_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
+          curData_.cur_cpu = std::make_shared<tobas_msgs::msg::Cpu>(cpu_decoder_.decode(cur_time, ser_msg));
         }
+
         else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
@@ -91,6 +95,8 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
         else if (msg->topic_name.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
+          curData_.cur_ice_cmd =
+            std::make_shared<tobas_msgs::msg::IcePropulsionSystemCommand>(ice_cmd_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
         }
@@ -167,23 +173,42 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
 {
   std::string csv_line = std::to_string(cur_time / 1000000000.0) + ",";
 
-  // Pose
-  // csv_line += sgetLogString(curData_.cur_odom, lastData_.last_odom, ",,,,,,",
-  //   [](const auto& msg)
-  //   {
-  //     return std::to_string(msg->latitude) + "," ;
-  // });
+  // Pose, Twist, Accel
+  csv_line += getLogString(
+    curData_.cur_odom,
+    lastData_.last_odom,
+    ",,,,,,,,,,,,,,,,,,",
+    [](const auto& msg)
+    {
+      const auto& pos = msg->frame.trans;
+      const kdl::Rotation rot(msg->frame.rot.data);
+      const auto [roll, pitch, yaw] = rot.getRPY();
+      std::string pose_str = std::to_string(pos.x) + "," + std::to_string(pos.y) + "," + std::to_string(pos.z) + "," +
+                             std::to_string(roll) + "," + std::to_string(pitch) + "," + std::to_string(yaw) + ",";
 
-  // Twist
+      const auto& lin_vel = msg->twist.linear;
+      const auto& ang_vel = msg->twist.angular;
+      std::string twist_str = std::to_string(lin_vel.x) + "," + std::to_string(lin_vel.y) + "," +
+                              std::to_string(lin_vel.z) + "," + std::to_string(ang_vel.x) + "," +
+                              std::to_string(ang_vel.y) + "," + std::to_string(ang_vel.z) + ",";
 
-  // Accel
+      const auto& lin_acc = msg->accel.linear;
+      const auto& ang_acc = msg->accel.angular;
+      std::string accel_str = std::to_string(lin_acc.x) + "," + std::to_string(lin_acc.y) + "," +
+                              std::to_string(lin_acc.z) + "," + std::to_string(ang_acc.x) + "," +
+                              std::to_string(ang_acc.y) + "," + std::to_string(ang_acc.z) + ",";
+
+      return pose_str + twist_str + accel_str;
+    });
 
   // Imu
-  csv_line += std::to_string(curData_.cur_imu->accel.x) + "," + std::to_string(curData_.cur_imu->accel.y) + "," +
-              std::to_string(curData_.cur_imu->accel.z) + "," + std::to_string(curData_.cur_imu->gyro.x) + "," +
-              std::to_string(curData_.cur_imu->gyro.y) + "," + std::to_string(curData_.cur_imu->gyro.z) + "," +
-              std::to_string(curData_.cur_imu->dgyro.x) + "," + std::to_string(curData_.cur_imu->dgyro.y) + "," +
-              std::to_string(curData_.cur_imu->dgyro.z) + ",";
+  const auto& imu_accel = curData_.cur_imu->accel;
+  const auto& imu_gyro = curData_.cur_imu->gyro;
+  const auto& imu_dgyro = curData_.cur_imu->dgyro;
+  csv_line += std::to_string(imu_accel.x) + "," + std::to_string(imu_accel.y) + "," + std::to_string(imu_accel.z) +
+              "," + std::to_string(imu_gyro.x) + "," + std::to_string(imu_gyro.y) + "," + std::to_string(imu_gyro.z) +
+              "," + std::to_string(imu_dgyro.x) + "," + std::to_string(imu_dgyro.y) + "," +
+              std::to_string(imu_dgyro.z) + ",";
 
   // Magnetic_Field
   csv_line += getLogString(
@@ -206,17 +231,41 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
     });
 
   // RC Input
+  csv_line += getLogString(
+    curData_.cur_rcin,
+    lastData_.last_rcin,
+    ",,,,,,,,",
+    [](const auto& msg)
+    {
+      return std::to_string(msg->roll) + "," + std::to_string(msg->pitch) + "," + std::to_string(msg->throttle) + "," +
+             std::to_string(msg->yaw) + "," + std::to_string(msg->mode) + "," + std::to_string(msg->sub_mode) + "," +
+             std::to_string(msg->enable) + "," + std::to_string(msg->kill) + ",";
+    });
 
   // Battery
   csv_line += getLogString(
     curData_.cur_battery,
     lastData_.last_battery,
     ",",
-    [](const auto& msg) { return std::to_string(msg->voltage) + "," + std::to_string(msg->current); });
+    [](const auto& msg) { return std::to_string(msg->voltage) + "," + std::to_string(msg->current) + ","; });
 
   // Engine
+  csv_line += getLogString(
+    curData_.cur_ice_cmd,
+    lastData_.last_ice_cmd,
+    ",",
+    [](const auto& msg) { return std::to_string(msg->engine_throttle) + ","; });
 
   // CPU
+  csv_line += getLogString(
+    curData_.cur_cpu,
+    lastData_.last_cpu,
+    ",",
+    [](const auto& msg)
+    {
+      return std::to_string(msg->frequency) + "," + std::to_string(msg->temperature) + "," + std::to_string(msg->load) +
+             ",";
+    });
 
   // Rotor Speed
 

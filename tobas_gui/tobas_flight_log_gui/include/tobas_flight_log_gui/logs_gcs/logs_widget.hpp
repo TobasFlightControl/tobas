@@ -12,10 +12,15 @@
 #include <rosbag2_cpp/reader.hpp>
 
 #include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
+#include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/imu.hpp>
 #include <tobas_msgs/msg/magnetic_field.hpp>
 #include <tobas_msgs/msg/odometry.hpp>
+#include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 
 #include "tobas_flight_log_gui/log_viewer/message_decoder.hpp"
 
@@ -29,13 +34,23 @@ class CsvExportWorker : public QObject
   Q_OBJECT
 
   std::string exportCsvHeader = "time,\
-    imu_raw/accel/x, imu_raw/accel/y, imu_raw/accel/z,\
-    imu_raw/gyro/x, imu_raw/gyro/y, imu_raw/gyro/z,\
-    imu_raw/dgyro/x, imu_raw/dgyro/y, imu_raw/dgyro/z,\
-    magnetic_field/X, magnetic_field/Y, magnetic_field/Z,\
-    gnss/latitude, gnss/longitude, gnss/altitude,\
-    gnss/EastSpeed, gnss/NorthSpeed, gnss/UpSpeed,\
-    battery/voltage, battery/current\n";
+    Pose/CurrentX[m], Pose/currently[m], Pose/CurrentZ[m],\
+    Pose/CurrentRoll[deg], Pose/CurrentPitch[deg], Pose/CurrentYaw[deg],\
+    Twist/CurrentLinearVelocityX[m/s], Twist/CurrentLinearVelocityY[m/s], Twist/CurrentLinearVelocityZ[m/s],\
+    Twist/CurrentAngularVelocityX[rad/s], Twist/CurrentAngularVelocityY[rad/s], Twist/CurrentAngularVelocityZ[rad/s],\
+    Accel/CurrentLinearAccelX[m/s^2], Accel/CurrentLinearAccelY[m/s^2], Accel/CurrentLinearAccelZ[m/s^2],\
+    Accel/CurrentAngularAccelX[rad/s^2], Accel/CurrentAngularAccelY[rad/s^2], Accel/CurrentAngularAccelZ[rad/s^2],\
+    IMU/accel/x[m/s^2], IMU/accel/y[m/s^2], IMU/accel/z[m/s^2],\
+    IMU/gyro/x[rad/s], IMU/gyro/y[rad/s], IMU/gyro/z[rad/s],\
+    IMU/dgyro/x[rad/s^2], IMU/dgyro/y[rad/s^2], IMU/dgyro/z[rad/s^2],\
+    MagneticField/X[-], MagneticField/Y[-], MagneticField/Z[-],\
+    GNSS/latitude[deg], GNSS/longitude[deg], GNSS/altitude[m],\
+    GNSS/EastSpeed[m/s], GNSS/NorthSpeed[m/s], GNSS/UpSpeed[m/s],\
+    RCInput/Roll, RCInput/Pitch, RCInput/Throttle, RCInput/Yaw,\
+    RCInput/FlightMode, RCInput/SubMode, RCInput/Enable, RCInput/kill,\
+    Battery/voltage[V], Battery/current[A],\
+    EngineThrottle[%],\
+    CPU/Frequency[GHz], CPU/Temperature[degC], CPU/Load[%],\n";
 
 public:
   explicit CsvExportWorker(QObject* parent = nullptr) : QObject(parent)
@@ -47,15 +62,21 @@ public:
     std::shared_ptr<tobas_msgs::msg::Odometry> cur_odom;
     std::shared_ptr<tobas_msgs::msg::Imu> cur_imu;
     std::shared_ptr<tobas_msgs::msg::MagneticField> cur_mag;
-    std::shared_ptr<tobas_msgs::msg::Battery> cur_battery;
     std::shared_ptr<tobas_msgs::msg::Gnss> cur_gnss;
+    std::shared_ptr<tobas_msgs::msg::RCInput> cur_rcin;
+    std::shared_ptr<tobas_msgs::msg::Battery> cur_battery;
+    std::shared_ptr<tobas_msgs::msg::IcePropulsionSystemCommand> cur_ice_cmd = nullptr;
+    std::shared_ptr<tobas_msgs::msg::Cpu> cur_cpu = nullptr;
   } curData_;
   struct LastData
   {
     std::shared_ptr<tobas_msgs::msg::Odometry> last_odom = nullptr;
     std::shared_ptr<tobas_msgs::msg::MagneticField> last_mag = nullptr;
-    std::shared_ptr<tobas_msgs::msg::Battery> last_battery = nullptr;
     std::shared_ptr<tobas_msgs::msg::Gnss> last_gnss = nullptr;
+    std::shared_ptr<tobas_msgs::msg::RCInput> last_rcin = nullptr;
+    std::shared_ptr<tobas_msgs::msg::Battery> last_battery = nullptr;
+    std::shared_ptr<tobas_msgs::msg::IcePropulsionSystemCommand> last_ice_cmd = nullptr;
+    std::shared_ptr<tobas_msgs::msg::Cpu> last_cpu = nullptr;
   } lastData_;
 
   bool open(const std::string& rosbag_path);
@@ -74,14 +95,14 @@ private:
   MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;
   MessageDecoder<tobas_msgs::msg::MagneticField> mag_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
-  // MessageDecoder<tobas_msgs::msg::RCInput> rcin_decoder_;
+  MessageDecoder<tobas_msgs::msg::RCInput> rcin_decoder_;
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
-  // MessageDecoder<tobas_msgs::msg::Cpu> cpu_decoder_;
+  MessageDecoder<tobas_msgs::msg::Cpu> cpu_decoder_;
   // MessageDecoder<tobas_msgs::msg::RotorStateArray> rotor_states_decoder_;
   // MessageDecoder<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_decoder_;
   // MessageDecoder<tobas_msgs::msg::JointStateArray> joint_states_decoder_;
   // MessageDecoder<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
-  // MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
+  MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
   // MessageDecoder<tobas_msgs::msg::Latency> latency_decoder_;
   // MessageDecoder<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
   // MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
