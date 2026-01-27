@@ -16,8 +16,6 @@ class QpMixer : public MixerI
 {
   using super = MixerI;
 
-  static constexpr double kThrustClampMargin = 1e-3;  // [N]
-
 public:
   explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
 

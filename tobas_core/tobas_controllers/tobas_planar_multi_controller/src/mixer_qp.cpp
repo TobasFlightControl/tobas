@@ -117,8 +117,15 @@ bool QpMixer::solve(
     min_thrust_sum += min_thrust;
   }
 
+  // 推力を出せない状態の場合は終了
+  if (max_thrust_sum == 0.) {
+    cerr << "The vehicle cannot generate thrust." << endl;
+    return false;
+  }
+
   // 等式制約
   // 不等式制約と競合しないようにクランプ
+  static constexpr double kThrustClampMargin = 1e-3;  // [N]
   qp_.problem.h(0) = clamp(tar_thrusts_sum, min_thrust_sum + kThrustClampMargin, max_thrust_sum - kThrustClampMargin);
 
   // QPPを解く
