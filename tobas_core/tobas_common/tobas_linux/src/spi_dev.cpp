@@ -12,18 +12,18 @@ using namespace std;
 
 namespace linux
 {
-SPIdev::SPIdev()
+SPIdev::SPIdev() noexcept
 {
 }
 
-SPIdev::~SPIdev()
+SPIdev::~SPIdev() noexcept
 {
   if (spi_fd_ >= 0) {
     close(spi_fd_);
   }
 }
 
-bool SPIdev::initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word)
+bool SPIdev::initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word) noexcept
 {
   spi_fd_ = open(spi_dev, O_RDWR);
   if (spi_fd_ < 0) {
@@ -41,7 +41,7 @@ bool SPIdev::initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_
   return true;
 }
 
-bool SPIdev::transfer(uint32_t length)
+bool SPIdev::transfer(uint32_t length) noexcept
 {
   spi_transfer_.len = length;
 

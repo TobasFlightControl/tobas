@@ -9,12 +9,12 @@ using namespace std;
 
 namespace fc1xx
 {
-DShot::DShot() : crc_(algo::CRC32Left::CRC_32)
+DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
 }
 
-bool DShot::initialize()
+bool DShot::initialize() noexcept
 {
   if (!spi_.initialize(kSpiDevice, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
@@ -31,7 +31,7 @@ bool DShot::initialize()
   return true;
 }
 
-bool DShot::transfer()
+bool DShot::transfer() noexcept
 {
   // Compute CRC
   tx_buf_[kChannelSize] = crc_.compute((uint8_t*)tx_buf_, sizeof(uint32_t) * kChannelSize);
@@ -52,7 +52,7 @@ bool DShot::transfer()
   return true;
 }
 
-bool DShot::setThrottle(size_t ch, uint16_t throttle)
+bool DShot::setThrottle(size_t ch, uint16_t throttle) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -68,7 +68,7 @@ bool DShot::setThrottle(size_t ch, uint16_t throttle)
   return true;
 }
 
-bool DShot::setTargetSpeed(size_t ch, double rps)
+bool DShot::setTargetSpeed(size_t ch, double rps) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -90,7 +90,7 @@ bool DShot::setTargetSpeed(size_t ch, double rps)
   return true;
 }
 
-bool DShot::setKv(size_t ch, double kv_si)
+bool DShot::setKv(size_t ch, double kv_si) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -116,7 +116,7 @@ bool DShot::setKv(size_t ch, double kv_si)
   return true;
 }
 
-bool DShot::setInternalResistance(size_t ch, double resistance)
+bool DShot::setInternalResistance(size_t ch, double resistance) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -142,7 +142,7 @@ bool DShot::setInternalResistance(size_t ch, double resistance)
   return true;
 }
 
-bool DShot::setPropellerDiameter(size_t ch, double diameter)
+bool DShot::setPropellerDiameter(size_t ch, double diameter) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -168,7 +168,7 @@ bool DShot::setPropellerDiameter(size_t ch, double diameter)
   return true;
 }
 
-bool DShot::setMomentConstant(size_t ch, double moment_const)
+bool DShot::setMomentConstant(size_t ch, double moment_const) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -194,7 +194,7 @@ bool DShot::setMomentConstant(size_t ch, double moment_const)
   return true;
 }
 
-bool DShot::setNumPoles(size_t ch, uint16_t num_poles)
+bool DShot::setNumPoles(size_t ch, uint16_t num_poles) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -222,7 +222,7 @@ bool DShot::setNumPoles(size_t ch, uint16_t num_poles)
   return true;
 }
 
-bool DShot::setSpeedControlGain(size_t ch, uint8_t gain)
+bool DShot::setSpeedControlGain(size_t ch, uint8_t gain) noexcept
 {
   if (!checkChannelSize(ch)) {
     return false;
@@ -238,12 +238,12 @@ bool DShot::setSpeedControlGain(size_t ch, uint8_t gain)
   return true;
 }
 
-bool DShot::getValidity(size_t ch)
+bool DShot::getValidity(size_t ch) noexcept
 {
   return rx_buf_[ch] > 0;
 }
 
-double DShot::getSpeed(size_t ch)
+double DShot::getSpeed(size_t ch) noexcept
 {
   const auto erpm = (rx_buf_[ch] >> 0) & 0x0FFF;
 
@@ -262,25 +262,25 @@ double DShot::getSpeed(size_t ch)
   return (M_2PI * 1e+6) / static_cast<double>(period_us);
 }
 
-double DShot::getTemperature(size_t ch)
+double DShot::getTemperature(size_t ch) noexcept
 {
   const auto temperature = (rx_buf_[ch] >> 12) & 0x0F;
   return static_cast<double>(temperature << 4);
 }
 
-double DShot::getVoltage(size_t ch)
+double DShot::getVoltage(size_t ch) noexcept
 {
   const auto voltage = (rx_buf_[ch] >> 16) & 0xFF;
   return static_cast<double>(voltage) / 4;
 }
 
-double DShot::getCurrent(size_t ch)
+double DShot::getCurrent(size_t ch) noexcept
 {
   const auto current = (rx_buf_[ch] >> 24) & 0xFF;
   return static_cast<double>(current);
 }
 
-void DShot::printCurrentState(size_t ch)
+void DShot::printCurrentState(size_t ch) noexcept
 {
   cout << "Channel " << ch << ":" << endl;
   cout << "\tValid             : " << boolalpha << getValidity(ch) << noboolalpha << endl;
@@ -290,14 +290,14 @@ void DShot::printCurrentState(size_t ch)
   cout << "\tCurrent [A]       : " << getCurrent(ch) << endl;
 }
 
-void DShot::printCurrentStates()
+void DShot::printCurrentStates() noexcept
 {
   for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
     printCurrentState(ch);
   }
 }
 
-bool DShot::checkChannelSize(size_t ch)
+bool DShot::checkChannelSize(size_t ch) noexcept
 {
   if (ch >= kChannelSize) {
     cerr << "DShot channel out of range." << endl;

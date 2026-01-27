@@ -67,41 +67,41 @@ private:
   static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
 
 public:
-  explicit DShot();
+  explicit DShot() noexcept;
 
-  bool initialize();
-  bool transfer();
+  bool initialize() noexcept;
+  bool transfer() noexcept;
 
   /* Set the DShot throttle directory. */
-  bool setThrottle(size_t ch, uint16_t throttle);
+  bool setThrottle(size_t ch, uint16_t throttle) noexcept;
   /* Set the target motor rotating speed [rad/s] */
-  bool setTargetSpeed(size_t ch, double rps);
+  bool setTargetSpeed(size_t ch, double rps) noexcept;
   /* Set the KV value [rad/s/V] */
-  bool setKv(size_t ch, double kv_si);
+  bool setKv(size_t ch, double kv_si) noexcept;
   /* Set the internal resistance [Ω] */
-  bool setInternalResistance(size_t ch, double resistance);
+  bool setInternalResistance(size_t ch, double resistance) noexcept;
   /* Set the propeller diameter [m] */
-  bool setPropellerDiameter(size_t ch, double diameter);
+  bool setPropellerDiameter(size_t ch, double diameter) noexcept;
   /* Set the moment constant scaled by the propeller diameter [Nm/(rad/s)^2/m^4] */
-  bool setMomentConstant(size_t ch, double moment_const);
+  bool setMomentConstant(size_t ch, double moment_const) noexcept;
   /* Set the number of motor poles */
-  bool setNumPoles(size_t ch, uint16_t num_poles);
+  bool setNumPoles(size_t ch, uint16_t num_poles) noexcept;
   /* Set the motor speed control gain (2 to the x-1 power). No feedback when 0 is specified. */
-  bool setSpeedControlGain(size_t ch, uint8_t gain);
+  bool setSpeedControlGain(size_t ch, uint8_t gain) noexcept;
 
   /* Get the validity of the telemetry */
-  bool getValidity(size_t ch);
+  bool getValidity(size_t ch) noexcept;
   /* Get the current motor rotating speed [rad/s] */
-  double getSpeed(size_t ch);
+  double getSpeed(size_t ch) noexcept;
   /* Get the current ESC temperature [degC] */
-  double getTemperature(size_t ch);
+  double getTemperature(size_t ch) noexcept;
   /* Get the current ESC input voltage [V] */
-  double getVoltage(size_t ch);
+  double getVoltage(size_t ch) noexcept;
   /* Get the current ESC current [A] */
-  double getCurrent(size_t ch);
+  double getCurrent(size_t ch) noexcept;
 
-  void printCurrentState(size_t ch);
-  void printCurrentStates();
+  void printCurrentState(size_t ch) noexcept;
+  void printCurrentStates() noexcept;
 
 private:
   linux::SPIdev spi_;
@@ -112,6 +112,6 @@ private:
 
   algo::CRC32Left crc_;
 
-  bool checkChannelSize(size_t ch);
+  bool checkChannelSize(size_t ch) noexcept;
 };
 }  // namespace fc1xx
