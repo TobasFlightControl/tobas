@@ -228,7 +228,7 @@ inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noe
     writer_.write(msg, ns_ + topic, now());
   }
   catch (const std::exception& e) {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
+    TOBAS_ERROR("Failed to write \"", topic, "\": ", e.what());
     return;
   }
 
