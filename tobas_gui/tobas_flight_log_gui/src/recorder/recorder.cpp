@@ -70,6 +70,9 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
 
 void FlightLogRecorderWidget::reset()
 {
+  start_stop_button_->setChecked(false);
+  start_stop_button_->setEnabled(false);
+
   clearRosbagStateViewerWidgets();
 
   rosbag_state_.reset();
@@ -153,8 +156,9 @@ void FlightLogRecorderWidget::onStopRequested()
 
 void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state)
 {
-  // 現在のレコーダの状態によってウィジェットの状態を切り替える
+  // 現在のレコーダの状態によってウィジェットの状態を切り替えて有効化
   start_stop_button_->setChecked(rosbag_state->recording);
+  start_stop_button_->setEnabled(true);
 
   if (rosbag_state->recording) {
     log_name_->setText(fs::path(rosbag_state->file_path).lexically_normal().filename().c_str());
