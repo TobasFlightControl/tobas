@@ -22,8 +22,8 @@ namespace ublox
 class ZEDF9P
 {
 private:
-  static constexpr uint32_t kSPIClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
-  static constexpr size_t kSPIBufSize = 256;
+  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
+  static constexpr size_t kSpiBufSize = 256;
   static constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] 同軸ケーブルの遅延
   static constexpr auto kWaitForGnssAck = std::chrono::seconds(1);
 
@@ -263,8 +263,8 @@ private:
   /* ==============================*/
 
   linux::SPIdev spi_;
-  uint8_t tx_buf_[kSPIBufSize];
-  uint8_t rx_buf_[kSPIBufSize];
+  uint8_t tx_buf_[kSpiBufSize];
+  uint8_t rx_buf_[kSpiBufSize];
 
   UBXScanner scanner_;
 

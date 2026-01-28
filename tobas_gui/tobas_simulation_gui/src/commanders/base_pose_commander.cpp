@@ -7,6 +7,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -94,8 +95,21 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 
 bool BasePoseCommanderWidget::start()
 {
-  if (!set_arm_sc_->waitForService()) {
-    qt::qErrorBox(this, "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.");
+  bool success = true;
+  QString message;
+
+  qt::startThreadAndWait(
+    [&]()
+    {
+      if (!set_arm_sc_->waitForService()) {
+        success = false;
+        message = "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.";
+        return;
+      }
+    });
+
+  if (!success) {
+    qt::qErrorBox(this, message);
     return false;
   }
 

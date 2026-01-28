@@ -323,7 +323,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
       // アームコマンドが入力されている場合
       if (
-        std::max(abs(rcin->roll), abs(rcin->pitch)) < kArmThrotThresh &&
+        std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
         rcin->yaw < tobas::kRcInputMin + kArmThrotThresh && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {
         // アームコマンドが一定時間維持されていれば一度アームをリクエスト
         if ((rcin->header.stamp - t_arm_start_).seconds() > kArmDuration) {
@@ -422,7 +422,9 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         updateWithIdleCommand(*rcin);
 
         // さらにディスアームコマンドの場合
-        if (std::max(abs(rcin->roll), abs(rcin->pitch)) < kArmThrotThresh && rcin->yaw > tobas::kRcInputMax - kArmThrotThresh) {
+        if (
+          std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
+          rcin->yaw > tobas::kRcInputMax - kArmThrotThresh) {
           TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
           if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisarmDuration) {  // 一定時間維持されていればリクエスト
             TOBAS_INFO("Disarming rotors...");

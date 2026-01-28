@@ -3,6 +3,7 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -62,9 +63,9 @@ YAML::Node VehicleParameters::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kWingSurfaceKey] = wing_surface;
-  node[kWingSpanKey] = wing_span;
-  node[kMACKey] = mac;
+  node[kWingSurfaceKey] = yaml::format(wing_surface);
+  node[kWingSpanKey] = yaml::format(wing_span);
+  node[kMACKey] = yaml::format(mac);
   node[kAeroCenterKey] = ac.data;
   node[kAlphaLimitLKey] = alpha_limit;
 

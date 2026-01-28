@@ -51,7 +51,7 @@ NewtonSolver1d::Error NewtonSolver1d::solve(double& x)
     x += dx;
 
     // 終了判定
-    if (fabs(dx) < abs_tol_) {
+    if (std::abs(dx) < abs_tol_) {
       return error_code_ = kNoError;
     }
   }

@@ -238,15 +238,15 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const traj::TimeOptimalTrajectory traj_z(
     start_pos.z(), goal_pos.z(), goal->max_vertical_jerk, goal->max_vertical_accel, goal->max_vertical_velocity);
 
-  const auto roll_duration = fabs(start_rpy.roll) / kAttitudeRate;
+  const auto roll_duration = std::abs(start_rpy.roll) / kAttitudeRate;
   const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
 
-  const auto pitch_duration = fabs(start_rpy.pitch) / kAttitudeRate;
+  const auto pitch_duration = std::abs(start_rpy.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., pitch_duration);
 
   const auto goal_yaw = atan2(xy_dir.y(), xy_dir.x());
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
-  const auto yaw_duration = fabs(start_rpy.yaw) / kHeadingRate;
+  const auto yaw_duration = std::abs(start_rpy.yaw) / kHeadingRate;
   const traj::CubicSpline traj_yaw(0., yaw_diff, yaw_duration);
 
   // 所要時間を取得
@@ -274,7 +274,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     if (t > duration) {
       const auto pos_err = goal_pos - cur_pos;
       const auto xy_err_abs = math::norm(pos_err.x(), pos_err.y());
-      const auto z_err_abs = fabs(pos_err.z());
+      const auto z_err_abs = std::abs(pos_err.z());
       const auto hor_ok = goal->acceptance_radius <= 0. || xy_err_abs < goal->acceptance_radius;
       const auto ver_ok = goal->altitude_tolerance <= 0. || z_err_abs < goal->altitude_tolerance;
       if (hor_ok && ver_ok) {

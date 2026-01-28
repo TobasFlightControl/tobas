@@ -3,8 +3,7 @@
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_wpa_supplicant/export.hpp>
-#include <tobas_wpa_supplicant/parse.hpp>
+#include <tobas_wpa_supplicant/wpa_supplicant.hpp>
 
 #include "../base.hpp"
 
@@ -21,7 +20,7 @@ class WifiClientWidget : public BaseConfigWidget
   using self = WifiClientWidget;
   using super = BaseConfigWidget;
 
-  static constexpr int kColWidth = 300;
+  static constexpr int kColWidth = 150;
 
   static constexpr int kKeyMgmtCol = 0;
   static constexpr int kSsidCol = 1;

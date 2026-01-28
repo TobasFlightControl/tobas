@@ -18,7 +18,7 @@ ZEDF9P::ZEDF9P() : rate_(kReqInterval)
 bool ZEDF9P::initialize(const char* spi_device)
 {
   // Initialize SPI device
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSPIClockFreq)) {
+  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 

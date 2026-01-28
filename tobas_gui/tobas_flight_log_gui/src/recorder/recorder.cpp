@@ -9,6 +9,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_string_tools/core.hpp>
 
@@ -64,13 +65,14 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node, c
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
-  connect(&start_thread_, &RecordStartThread::finished, this, &self::onStartThreadFinished);
-  connect(&stop_thread_, &RecordStopThread::finished, this, &self::onStopThreadFinished);
   connect(&bridge, &RosQtBridge::rosbagStateReceived, this, &self::rosbagStateCb, Qt::QueuedConnection);
 }
 
 void FlightLogRecorderWidget::reset()
 {
+  start_stop_button_->setChecked(false);
+  start_stop_button_->setEnabled(false);
+
   clearRosbagStateViewerWidgets();
 
   rosbag_state_.reset();
@@ -117,23 +119,9 @@ void FlightLogRecorderWidget::onStartRequested()
   }
 
   start_thread_.setLogName(log_name);
-  start_thread_.start();
 
-  spinner_.show();
   spinner_.start();
-}
-
-void FlightLogRecorderWidget::onStopRequested()
-{
-  stop_thread_.start();
-
-  spinner_.show();
-  spinner_.start();
-}
-
-void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString& message)
-{
-  spinner_.hide();
+  const auto [success, message] = qt::startThreadAndWait(start_thread_, &RecordStartThread::finished);
   spinner_.stop();
 
   if (!success) {
@@ -148,9 +136,10 @@ void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString&
   qt::qInfoBox(this, "Flight log recording has started.");
 }
 
-void FlightLogRecorderWidget::onStopThreadFinished(bool success, const QString& message)
+void FlightLogRecorderWidget::onStopRequested()
 {
-  spinner_.hide();
+  spinner_.start();
+  const auto [success, message] = qt::startThreadAndWait(stop_thread_, &RecordStopThread::finished);
   spinner_.stop();
 
   if (!success) {
@@ -167,8 +156,9 @@ void FlightLogRecorderWidget::onStopThreadFinished(bool success, const QString& 
 
 void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state)
 {
-  // 現在のレコーダの状態によってウィジェットの状態を切り替える
+  // 現在のレコーダの状態によってウィジェットの状態を切り替えて有効化
   start_stop_button_->setChecked(rosbag_state->recording);
+  start_stop_button_->setEnabled(true);
 
   if (rosbag_state->recording) {
     log_name_->setText(fs::path(rosbag_state->file_path).lexically_normal().filename().c_str());

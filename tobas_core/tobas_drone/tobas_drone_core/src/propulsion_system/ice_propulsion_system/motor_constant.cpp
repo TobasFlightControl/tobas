@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -35,8 +36,8 @@ YAML::Node VppMotorConstant::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kC0Key] = c0;
-  node[kC1Key] = c1;
+  node[kC0Key] = yaml::format(c0);
+  node[kC1Key] = yaml::format(c1);
 
   return node;
 }

@@ -40,6 +40,7 @@ static constexpr char kRotorStatesTopic[] = "rotor_states";
 static constexpr char kRotorLivTopic[] = "rotor_liveliness";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
+static constexpr char kExternalPoseTopic[] = "external_pose";
 static constexpr char kMagRefTopic[] = "magnetic_field_ref";
 static constexpr char kGnssOriginTopic[] = "gnss_origin";
 static constexpr char kImuSamplingTimeTopic[] = "imu_sampling_time";
@@ -135,17 +136,17 @@ static constexpr char kColconWSPathHome[] = "~/.local/share/tobas/colcon_ws";
 static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
 static constexpr char kRosbagDirHome[] = "~/.local/share/tobas/rosbag";
 static constexpr char kRosbagDirRoot[] = "/etc/tobas/rosbag";
-static constexpr char kConfigEnvPath[] = "/etc/tobas/config.env";
+static constexpr char kProjectEnvPath[] = "/etc/tobas/config/project.env";
+static constexpr char kCycloneddsConfigPath[] = "/etc/tobas/config/cyclonedds.xml";
+static constexpr char kGuiLogDir[] = "~/.local/share/tobas/log";
 
 // Scale
 constexpr auto kAccelScale = 10.;   // [m/s^2]
 constexpr auto kDGyroScale = 100.;  // [rad/s^2]
 
 // Common period & timeout
-static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
 static constexpr auto kCheckTopicsPeriod = std::chrono::seconds(5);
 static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(500);
-static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
 
 // Console message period
 static constexpr double kTypicalInfoPeriod = 5.;   // [s]

@@ -598,7 +598,7 @@ void DynamixelHandlerNode::velocitiesCmdCb(const tobas_dynamixel_msgs::msg::Moto
     }
 
     auto tar_vel = velocities->commands[i].data;
-    if (fabs(tar_vel) > cfg.vel_limit) {
+    if (std::abs(tar_vel) > cfg.vel_limit) {
       tar_vel = std::clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
       TOBAS_WARN("Target velocity of joint \"", jnt_name, "\" is out of limit. The value is clamped to ", tar_vel);
     }

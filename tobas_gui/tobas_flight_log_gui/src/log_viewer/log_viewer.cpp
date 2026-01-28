@@ -33,6 +33,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       filt_imu_data_,
       mag_data_,
       gnss_data_,
+      rcin_data_,
       battery_data_,
       cpu_data_,
       cur_rotor_states_data_,
@@ -74,6 +75,7 @@ void FlightLogViewerWidget::reset()
   odom_decoder_.clearCache();
   mag_decoder_.clearCache();
   gnss_decoder_.clearCache();
+  rcin_decoder_.clearCache();
   battery_decoder_.clearCache();
   cpu_decoder_.clearCache();
   rotor_states_decoder_.clearCache();
@@ -181,6 +183,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   filt_imu_data_.clear();
   mag_data_.clear();
   gnss_data_.clear();
+  rcin_data_.clear();
   battery_data_.clear();
   cpu_data_.clear();
   cur_rotor_states_data_.clear();
@@ -228,6 +231,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
         gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_msg));
+      }
+      else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
+        rcin_data_.push_back(rcin_decoder_.decode(cur_time, ser_msg));
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
         battery_data_.push_back(battery_decoder_.decode(cur_time, ser_msg));

@@ -6,6 +6,8 @@ from paramiko.config import SSH_PORT
 from scp import SCPClient
 from typing import Tuple, List
 
+from .util import is_under_any
+
 
 class SSHClientWrapper:
     UTF_8 = "utf-8"
@@ -138,13 +140,8 @@ class SSHClientWrapper:
 
         with SCPClient(self._cli.get_transport()) as scp:
             for root, _, files in os.walk(_local_dir):
-                # 除外ディレクトリだった場合は，ディレクトリのみ作成して中身は送信しない
-                if self._is_excluded_dir(root, _exclude_dirs):
-                    relative_path = osp.relpath(root, _local_dir)
-                    remote_dir = osp.join(_remote_dir, local_dir_base, relative_path)
-                    success, _, error_output = self.exec_command(f"mkdir -p {remote_dir}")
-                    if not success:
-                        raise RuntimeError(f"Failed to create remote directory {root}: {error_output}")
+                # 除外ディレクトリは送信しない
+                if is_under_any(root, _exclude_dirs):
                     continue
 
                 # ファイルを1つずつ送信
@@ -165,19 +162,22 @@ class SSHClientWrapper:
 
     def scp_put_dir_super(self, local_dir: str, remote_dir: str, exclude_dirs: List[str] = []) -> None:
         """SCPでroot権限が必要なリモートディレクトリ以下にローカルディレクトリをコピーする．"""
-        # リモートディレクトリが存在することを確かめる
-        # 存在しなければローカルオブジェクトがそのままリモートディレクトリのパスとして配置されてしまう
-        if not self.dir_exists(remote_dir):
-            raise RuntimeError(f"Remote directory {remote_dir} does not exist.")
-
-        # 一時オブジェクトに書き込む
-        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
-
         # 一時オブジェクトのパス
         tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
 
-        # 一時オブジェクトをリモートディレクトリ以下にコピーする
-        success, _, error_output = self.exec_command_super(f"cp -r {tmp_path} {remote_dir}")
+        # 一時オブジェクトが存在すれば削除 (paramikoにrsyncがないため)
+        if self.dir_exists(tmp_path):
+            success, _, error_output = self.exec_command(f"rm -r {tmp_path}")
+            if not success:
+                raise RuntimeError(f"{tmp_path} already exists, but failed to remove it: {error_output}")
+
+        # 一時オブジェクトに書き込む
+        # 事前に削除しているので確実に同期される
+        self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
+
+        # 一時オブジェクトをリモートディレクトリ直下に同期
+        # リモートディレクトリが存在しない場合は自動で作成される
+        success, _, error_output = self.exec_command_super(f"rsync -a --delete {tmp_path} {remote_dir}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
 
@@ -231,10 +231,3 @@ class SSHClientWrapper:
 
     def _sudo_command(self, command: str) -> str:
         return f"echo {self._passwd} | sudo -S bash -c '{command}'"
-
-    def _is_excluded_dir(self, root: str, exclude_dirs: List[str]) -> bool:
-        for exclude_dir in exclude_dirs:
-            if root.startswith(exclude_dir):
-                return True
-
-        return False

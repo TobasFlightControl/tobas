@@ -16,9 +16,9 @@ void AABB::extendWithTransformedBox(const Eigen::Isometry3d& transform, const Ei
   const Eigen::Matrix3d& r = transform.linear();
   const Eigen::Vector3d& t = transform.translation();
 
-  double x_range = 0.5 * (fabs(r(0, 0) * box[0]) + fabs(r(0, 1) * box[1]) + fabs(r(0, 2) * box[2]));
-  double y_range = 0.5 * (fabs(r(1, 0) * box[0]) + fabs(r(1, 1) * box[1]) + fabs(r(1, 2) * box[2]));
-  double z_range = 0.5 * (fabs(r(2, 0) * box[0]) + fabs(r(2, 1) * box[1]) + fabs(r(2, 2) * box[2]));
+  double x_range = 0.5 * (std::abs(r(0, 0) * box[0]) + std::abs(r(0, 1) * box[1]) + std::abs(r(0, 2) * box[2]));
+  double y_range = 0.5 * (std::abs(r(1, 0) * box[0]) + std::abs(r(1, 1) * box[1]) + std::abs(r(1, 2) * box[2]));
+  double z_range = 0.5 * (std::abs(r(2, 0) * box[0]) + std::abs(r(2, 1) * box[1]) + std::abs(r(2, 2) * box[2]));
 
   const Eigen::Vector3d v_delta(x_range, y_range, z_range);
   extend(t + v_delta);

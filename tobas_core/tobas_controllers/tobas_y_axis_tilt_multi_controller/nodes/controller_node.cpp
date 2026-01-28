@@ -94,8 +94,6 @@ private:
   ros2::TimerPtr check_topics_timer_;
 
   bool updateInternalDataStructures();
-  void resetCommands();
-  void resetIntegralErrors();
   bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
 
   bool horizontalNaturalFrequencyCb(const double& p);
@@ -212,18 +210,6 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
   }
 
   return true;
-}
-
-void ControllerNode::resetCommands()
-{
-  pos_cmd_.reset();
-  acc_cmd_.reset();
-}
-
-void ControllerNode::resetIntegralErrors()
-{
-  pos_pid_.resetIntegralError();
-  rot_pid_.resetIntegralError();
 }
 
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
@@ -381,7 +367,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       // 推力和と目標姿勢を計算
       const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
       if (!trans_eom_.solve(acc_cmd_->accel, acc_cmd_->pitch, acc_cmd_->yaw, dist_force_W, ux_, uz_, tar_rot_)) {
-        TOBAS_FATAL("Failed to solve translational EoM.");
+        TOBAS_FATAL("Failed to solve the translational EoM.");
         return;
       }
 
@@ -409,7 +395,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       // ミキシング方程式を解く
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
       if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro_, ux_, uz_, dist_torque_B)) {
-        TOBAS_FATAL("Failed to solve mixing equation.");
+        TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
 
@@ -464,15 +450,33 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
+  if (!landed_) {
+    landed_ = landed;
+    return;
+  }
+
+  // 着陸したら積分誤差をリセット
+  if (landed->data && !landed_->data) {
+    pos_pid_.resetIntegralError();
+    rot_pid_.resetIntegralError();
+    TOBAS_INFO("The integral errors have been reset.");
+  }
+
   landed_ = landed;
 }
 
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  if (arming_ && arming_->data && !arming->data) {
-    resetCommands();
-    resetIntegralErrors();
-    TOBAS_INFO("Controller is reset.");
+  if (!arming_) {
+    arming_ = arming;
+    return;
+  }
+
+  // ディスアームしたらコマンドをリセット
+  if (!arming->data && arming_->data) {
+    pos_cmd_.reset();
+    acc_cmd_.reset();
+    TOBAS_INFO("The high-level commands have been reset.");
   }
 
   arming_ = arming;

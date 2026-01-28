@@ -13,8 +13,8 @@ namespace driver
  */
 class ADS1220
 {
-  static constexpr size_t kSPIBufSize = 3;
-  static constexpr uint32_t kSPIClockFreq = 5'000'000;  // Minimum period is 150ns (6.67MHz)
+  static constexpr size_t kSpiBufSize = 3;
+  static constexpr uint32_t kSpiClockFreq = 5'000'000;  // Minimum period is 150ns (6.67MHz)
   static constexpr double kVref = 2.048;                // Internal 2.048-V reference (p.42)
   static constexpr double kGain = 1.;
 
@@ -92,8 +92,8 @@ private:
   };
 
   linux::SPIdev spi_;
-  uint8_t tx_buf_[kSPIBufSize];
-  uint8_t rx_buf_[kSPIBufSize];
+  uint8_t tx_buf_[kSpiBufSize];
+  uint8_t rx_buf_[kSpiBufSize];
 
   bool reset();
   bool start();

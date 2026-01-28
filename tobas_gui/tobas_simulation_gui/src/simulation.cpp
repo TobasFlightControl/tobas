@@ -1,7 +1,5 @@
 #include "tobas_simulation_gui/simulation.hpp"
 
-#include <gz/msgs/double.pb.h>
-#include <gz/msgs/world_stats.pb.h>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDebug>
@@ -9,20 +7,17 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_gazebo_common/constants.hpp>
-#include <tobas_gazebo_tools/transport.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
-#include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_simulation_gui/kill_gazebo_thread.hpp"
+#include "tobas_simulation_gui/gazebo.hpp"
 
-using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace gui
@@ -30,7 +25,7 @@ namespace gui
 namespace sim
 {
 SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
-  : node_(node), ssh_client_(node)
+  : node_(node), ssh_client_(node), remote_proj_builder_(node), spinner_(Qt::WindowModal, this)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -66,7 +61,7 @@ void SimulationWidget::reset()
   commanders_->reset();
 
   if (isRunning()) {
-    killGazebo();
+    killGazeboWithSpinner();
     launch_pid_ = -1;
     qWarning() << "Gazebo was forcibly shut down.";
   }
@@ -123,7 +118,7 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
 {
   // 親ウィジェットを閉じるときに子プロセスを破棄
   if (isRunning()) {
-    killGazebo();
+    killGazeboWithSpinner();
   }
 
   event->accept();
@@ -144,9 +139,23 @@ bool SimulationWidget::startSITL()
 
   // Tobasパッケージをビルド
   progress.setLabelText("Building the Tobas project packages.");
-  const auto build_res = cmn::buildLocalProjectBackground(proj_paths_.getProjPath());
+  const auto build_res = cmn::buildLocalProject(proj_paths_.getProjPath());
   if (!build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + build_res.error());
+    const auto& error_msg = build_res.error();
+    if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
+      qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+    }
+    else {
+      const auto log_path =
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_local");
+      if (log_path) {
+        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+      }
+      else {
+        qWarning() << "Failed to save the build error output.";
+        qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+      }
+    }
     progress.close();
     return false;
   }
@@ -163,7 +172,8 @@ bool SimulationWidget::startSITL()
 
   // Gazeboサーバの起動を待つ
   progress.setLabelText("Waiting for the Gazebo server to start.");
-  if (!waitForGazeboServerStart()) {
+  if (!waitUntilGazeboServerReady()) {
+    qt::qErrorBox(this, "Failed to start the Gazebo server.");
     progress.close();
     reset();
     return false;
@@ -172,7 +182,8 @@ bool SimulationWidget::startSITL()
 
   // Gazeboレンダリングの開始を待つ
   progress.setLabelText("Waiting for Gazebo rendering to start.");
-  if (!waitForGazeboRenderingStart()) {
+  if (!waitUntilGazeboRenderingReady()) {
+    qt::qErrorBox(this, "Failed to get the Gazebo rendering information.");
     progress.close();
     reset();
     return false;
@@ -180,7 +191,7 @@ bool SimulationWidget::startSITL()
   progress.progressStep();
 
   // 動的パラメータを起動
-  progress.setLabelText("Starting dynamic configurations.");
+  progress.setLabelText("Starting dynamic configuration.");
   if (!dynamic_config_->start()) {
     progress.close();
     reset();
@@ -210,7 +221,7 @@ void SimulationWidget::terminateSITL()
   commanders_->reset();
 
   // 別スレッドでGazeboプロセスを終了
-  const auto kill_gazebo_res = killGazebo();
+  const auto kill_gazebo_res = killGazeboWithSpinner();
 
   // シミュレーションが正常に終了できなければアプリケーション全体を落とす
   if (!kill_gazebo_res) {
@@ -245,10 +256,10 @@ bool SimulationWidget::startHITL()
   progress.show();
 
   // ローカルパッケージをビルド
-  progress.setLabelText("Building the Tobas local project.");
-  const auto local_build_res = cmn::buildLocalProjectBackground(proj_paths_.getProjPath());
+  progress.setLabelText("Building the Tobas project.");
+  const auto local_build_res = cmn::buildLocalProject(proj_paths_.getProjPath());
   if (!local_build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas local project:\n\n" + local_build_res.error());
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + local_build_res.error());
     progress.close();
     return false;
   }
@@ -256,7 +267,7 @@ bool SimulationWidget::startHITL()
 
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
+  if (ssh_client_.connect() != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -265,7 +276,7 @@ bool SimulationWidget::startHITL()
 
   // Realサービスを停止
   progress.setLabelText("Stopping the Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -277,7 +288,7 @@ bool SimulationWidget::startHITL()
   const auto& proj_path = proj_paths_.getProjPath();
   const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -285,10 +296,9 @@ bool SimulationWidget::startHITL()
   progress.progressStep();
 
   // リモートパッケージをビルド
-  progress.setLabelText("Building the Tobas remote project.");
-  const auto remote_build_res = cmn::buildRemoteProjectBackground(node_, proj_paths_.remoteProjPath());
-  if (!remote_build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas remote project:\n\n" + remote_build_res.error());
+  progress.setLabelText("Building the Tobas project.");
+  if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
+    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + QString(remote_proj_builder_.getErrorMessage()));
     progress.close();
     return false;
   }
@@ -305,7 +315,7 @@ bool SimulationWidget::startHITL()
 
   // Gazeboサーバの起動を待つ
   progress.setLabelText("Waiting for the Gazebo server to start.");
-  if (!waitForGazeboServerStart()) {
+  if (!waitUntilGazeboServerReady()) {
     progress.close();
     return false;
   }
@@ -313,7 +323,7 @@ bool SimulationWidget::startHITL()
 
   // Gazeboレンダリングの開始を待つ
   progress.setLabelText("Waiting for Gazebo rendering to start.");
-  if (!waitForGazeboRenderingStart()) {
+  if (!waitUntilGazeboRenderingReady()) {
     progress.close();
     return false;
   }
@@ -321,7 +331,7 @@ bool SimulationWidget::startHITL()
 
   // HITLサービスを起動
   progress.setLabelText("Starting the Tobas HITL service.");
-  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
@@ -329,7 +339,7 @@ bool SimulationWidget::startHITL()
   progress.progressStep();
 
   // 動的パラメータを起動
-  progress.setLabelText("Starting dynamic configurations.");
+  progress.setLabelText("Starting dynamic configuration.");
   if (!dynamic_config_->start()) {
     progress.close();
     return false;
@@ -357,9 +367,9 @@ void SimulationWidget::terminateHITL()
 
   // launchを終了
   progress.setLabelText("Terminating the simulation.");
-  const auto kill_gazebo_res = killGazebo(false);
+  const auto kill_gazebo_res = killGazebo(node_, launch_pid_);
   if (!kill_gazebo_res) {
-    qt::qErrorBox(this, "Failed to kill the simulation process:\n" + kill_gazebo_res.error());
+    qt::qErrorBox(this, kill_gazebo_res.error());
     progress.close();
     reset();
     return;
@@ -368,7 +378,7 @@ void SimulationWidget::terminateHITL()
 
   // HITLサービスを停止
   progress.setLabelText("Stopping the Tobas HITL service.");
-  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     reset();
@@ -378,7 +388,7 @@ void SimulationWidget::terminateHITL()
 
   // Realサービスを起動
   progress.setLabelText("Starting the Tobas real service.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SshClient::kNoError) {
     qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
     reset();
@@ -432,72 +442,12 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   return true;
 }
 
-std::expected<void, QString> SimulationWidget::killGazebo(bool run_spinner)
+std::expected<void, QString> SimulationWidget::killGazeboWithSpinner()
 {
-  // スレッドを作成
-  KillGazeboThread thread(node_, launch_pid_);
-
-  // 別スレッドの結果をキャッチするためのイベントループを用意
-  bool success;
-  QString message;
-  QEventLoop loop;
-  connect(
-    &thread,
-    &KillGazeboThread::finished,
-    [&success, &message, &loop](bool _success, const QString& _message)
-    {
-      success = _success;
-      message = _message;
-      loop.quit();
-    });
-
-  // スピナーを起動
-  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
-  if (run_spinner) {
-    spinner.show();
-    spinner.start();
-  }
-
-  // イベントループを回しながらスレッドが終了するまで待機
-  thread.start();
-  loop.exec();
-  thread.wait();
-
-  // スピナーを停止
-  if (run_spinner) {
-    spinner.hide();
-    spinner.stop();
-  }
-
-  // 別スレッドの結果を返す
-  if (success) {
-    return {};
-  }
-  else {
-    return std::unexpected(message);
-  }
-}
-
-bool SimulationWidget::waitForGazeboServerStart()
-{
-  gz::msgs::WorldStatistics msg;
-  if (!gazebo::waitForMessage(msg, gazebo::kGzStatsTopic)) {
-    qt::qErrorBox(this, "Failed to start Gazebo server.");
-    return false;
-  }
-
-  return true;
-}
-
-bool SimulationWidget::waitForGazeboRenderingStart()
-{
-  gz::msgs::Double msg;
-  if (!gazebo::waitForMessage(msg, gazebo::kGzRenderFpsTopic)) {
-    qt::qErrorBox(this, "Failed to get Gazebo rendering information.");
-    return false;
-  }
-
-  return true;
+  spinner_.start();
+  const auto res = killGazebo(node_, launch_pid_);
+  spinner_.stop();
+  return res;
 }
 
 std::string SimulationWidget::boolToText(bool arg)

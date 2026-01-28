@@ -15,6 +15,7 @@
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
+#include <tobas_kdl_msgs_adapter/frame_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
@@ -38,6 +39,7 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   using MagMsg = tobas_msgs::MagneticField;
   using BaroMsg = tobas_msgs::msg::FluidPressure;
   using GnssMsg = tobas_msgs::Gnss;
+  using PoseMsg = tobas_kdl_msgs::FrameWithCovarianceStamped;
   using OdomMsg = tobas_msgs::Odometry;
   using MagRefMsg = tobas_msgs::MagneticField;
   using GnssOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
@@ -48,7 +50,9 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
 
   // Default parameters
   static constexpr char kDefaultFrameId[] = "unknown";  // 空文字だとTFが警告文を出すため適当なデフォルト値を設定
-  static constexpr char kDefaultPositionSource[] = "gnss";
+  static constexpr bool kDefaultUseMagnetometer = true;
+  static constexpr bool kDefaultUseBarometer = false;
+  static constexpr bool kDefaultUseGnss = true;
   static constexpr bool kDefaultAdaptiveGnssNoise = true;
   static constexpr bool kDefaultAdaptiveGravNoise = false;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
@@ -68,22 +72,18 @@ public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  enum struct PositionSource
-  {
-    kGnss,
-    kAirPressure,
-  };
-
   // 固定値
   double lat_0_;  // 緯度のゼロ点 (Base Frame)
   double lon_0_;  // 経度のゼロ点 (Base Frame)
   double alt_0_;  // 高度のゼロ点 (Base Frame)
 
   Vector3d pos_meas_;
+  Matrix6d gnss_cov_ = Matrix6d::Zero();
   ImuMsg::ConstSharedPtr imu_raw_, imu_filt_;
   MagMsg::ConstSharedPtr mag_;
   BaroMsg::ConstSharedPtr baro_;
   GnssMsg::ConstSharedPtr gnss_;
+  PoseMsg::ConstSharedPtr pose_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gnss_fix_ = false;
   double gnss_anomaly_score_ = 0.;
@@ -92,7 +92,9 @@ private:
 
   // Static parameters
   std::string frame_id_;
-  PositionSource pos_src_;
+  bool use_mag_;
+  bool use_baro_;
+  bool use_gnss_;
   bool adaptive_gnss_noise_;
   bool adaptive_grav_noise_;
   bool do_acc_bias_estimation_;
@@ -129,6 +131,7 @@ private:
   ros2::SubscriberPtr<MagMsg> mag_sub_;
   ros2::SubscriberPtr<BaroMsg> baro_sub_;
   ros2::SubscriberPtr<GnssMsg> gnss_sub_;
+  ros2::SubscriberPtr<PoseMsg> pose_sub_;
 
   // Services
   ros2::ServiceServerPtr<GetOrigin> get_gnss_origin_ss_;
@@ -153,9 +156,6 @@ private:
   double initMagSoftBiasStddev() const;
   double initGravBiasStddev() const;
 
-  static const char* positionSourceEnumToString(const PositionSource& e);
-  static bool positionSourceStringToEnum(const std::string& s, PositionSource& e);
-
   bool fixedAccMeasNoiseStddevCb(const double& p);
   bool fixedGyroMeasNoiseStddevCb(const double& p);
   bool fixedMagMeasNoiseStddevCb(const double& p);
@@ -178,6 +178,7 @@ private:
   void magCb(const MagMsg::ConstSharedPtr& mag);
   void baroCb(const BaroMsg::ConstSharedPtr& baro);
   void gnssCb(const GnssMsg::ConstSharedPtr& gnss);
+  void poseCb(const PoseMsg::ConstSharedPtr& msg);
 
   void getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr& req, const GetOrigin::Response::SharedPtr& res);
   void setGnssOriginCb(const SetOrigin::Request::ConstSharedPtr& req, const SetOrigin::Response::SharedPtr& res);
@@ -256,9 +257,16 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   // Register subscribers
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
   imu_filt_sub_ = createSubscriber(tobas::kImuFiltTopic, &self::imuFiltCb, this);
-  mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
-  baro_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::baroCb, this);
-  gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
+  if (use_mag_) {
+    mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
+  }
+  if (use_baro_) {
+    baro_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::baroCb, this);
+  }
+  if (use_gnss_) {
+    gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
+  }
+  pose_sub_ = createSubscriber(tobas::kExternalPoseTopic, &self::poseCb, this);
 
   // Register service servers
   get_gnss_origin_ss_ = createService<GetOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
@@ -269,10 +277,9 @@ void ErrorStateKalmanFilterNode::getStaticRosParams()
 {
   frame_id_ = getStringParam("frame_id", kDefaultFrameId);
 
-  const auto pos_src = getStringParam("position_source", kDefaultPositionSource);
-  if (!positionSourceStringToEnum(pos_src, pos_src_)) {
-    TOBAS_EXIT("Invalid position source: ", pos_src);
-  }
+  use_mag_ = getBoolParam("use_magnetometer", kDefaultUseMagnetometer);
+  use_baro_ = getBoolParam("use_barometer", kDefaultUseBarometer);
+  use_gnss_ = getBoolParam("use_gnss", kDefaultUseGnss);
 
   adaptive_gnss_noise_ = getBoolParam("adaptive_gnss_noise", kDefaultAdaptiveGnssNoise);
   adaptive_grav_noise_ = getBoolParam("adaptive_grav_noise", kDefaultAdaptiveGravNoise);
@@ -457,7 +464,7 @@ double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Vector3d& acc) 
   // 制御器が姿勢を戻そうとし，並進方向の加速度の追従が遅れ，位置制御が振動するという因果関係がある．
   // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
   // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
-  const auto acc_norm_diff = fabs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
+  const auto acc_norm_diff = std::abs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
   const auto grav_stddev = grav_stddev_min_ + grav_stddev_rate_ * acc_norm_diff;  // TODO: 他のプロファイルを検討
   return std::min(grav_stddev, grav_stddev_max_);
 }
@@ -492,33 +499,6 @@ double ErrorStateKalmanFilterNode::initMagSoftBiasStddev() const
 double ErrorStateKalmanFilterNode::initGravBiasStddev() const
 {
   return do_grav_estimation_ ? 0.1 : 0.;
-}
-
-const char* ErrorStateKalmanFilterNode::positionSourceEnumToString(const PositionSource& e)
-{
-  switch (e) {
-    case PositionSource::kGnss:
-      return "gnss";
-    case PositionSource::kAirPressure:
-      return "air_pressure";
-    default:
-      throw;
-  }
-}
-
-bool ErrorStateKalmanFilterNode::positionSourceStringToEnum(const std::string& s, PositionSource& e)
-{
-  if (s == "gnss") {
-    e = PositionSource::kGnss;
-    return true;
-  }
-  else if (s == "air_pressure") {
-    e = PositionSource::kAirPressure;
-    return true;
-  }
-  else {
-    return false;
-  }
 }
 
 bool ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(const double& p)
@@ -754,10 +734,6 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
 void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
 {
-  if (pos_src_ != PositionSource::kAirPressure) {
-    return;
-  }
-
   if (!imu_raw_) {
     return;
   }
@@ -780,10 +756,6 @@ void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
 
 void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 {
-  if (pos_src_ != PositionSource::kGnss) {
-    return;
-  }
-
   if (!imu_raw_ || !imu_filt_) {
     return;
   }
@@ -831,13 +803,32 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
   // 位置の観測値
   tbs::gnssToCartRelative(gnss->latitude, gnss->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
-  pos_meas_.z() = gnss->altitude - alt_0_;  // FIXME: 気圧高度と競合しそう
+  pos_meas_.z() = gnss->altitude - alt_0_;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
+
+  // 共分散
+  gnss_cov_.topLeftCorner<3, 3>() = pos_cov;
+  gnss_cov_.bottomRightCorner<3, 3>() = vel_cov;
 
   // ESKFを更新
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   const auto& gyro_meas = imu_filt_->gyro.data;
   const auto stamp = ros2::chronoFromRosTime(gnss->header.stamp);
-  gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, pos_cov, vel_meas, vel_cov, imu2gnss, gyro_meas, stamp);
+  gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
+}
+
+void ErrorStateKalmanFilterNode::poseCb(const PoseMsg::ConstSharedPtr& msg)
+{
+  if (!imu_raw_ || !imu_filt_) {
+    return;
+  }
+
+  const auto& pose = msg->frame.frame;
+
+  Quaterniond quat;
+  pose.M.getQuaternion(quat.x(), quat.y(), quat.z(), quat.w());
+
+  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
+  eskf_.measurePose(pose.p.data, quat, msg->frame.covariance, Vector3d::Zero(), stamp);  // TODO: オフセット指定
 }
 
 void ErrorStateKalmanFilterNode::getGnssOriginCb(

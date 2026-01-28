@@ -20,11 +20,7 @@ namespace gui
 namespace log
 {
 FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
-  : read_thread_(node)
-  , clean_thread_(node)
-  , download_thread_(node)
-  , delete_thread_(node)
-  , spinner_(Qt::WindowModal, this)
+  : ssh_client_(node), spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -32,7 +28,7 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  read_button_->setEnabled(true);
+  read_button_->setEnabled(false);  // ホストが決まらないとSSH接続できないためTBSが読み込まれるまでは無効化
   clean_button_->setEnabled(false);
 
   log_list_ = new qt::ListWidget();
@@ -54,10 +50,11 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(&read_thread_, &ReadThread::finished, this, &self::onReadThreadFinished);
-  connect(&clean_thread_, &CleanThread::finished, this, &self::onCleanThreadFinished);
-  connect(&download_thread_, &DownloadThread::finished, this, &self::onDownloadThreadFinished);
-  connect(&delete_thread_, &DeleteThread::finished, this, &self::onDeleteThreadFinished);
+}
+
+void FlightLogsWidgetFC::onProjectLoaded()
+{
+  read_button_->setEnabled(true);
 }
 
 void FlightLogsWidgetFC::addLog(const QString& log_name)
@@ -106,10 +103,31 @@ void FlightLogsWidgetFC::sortLogs()
 
 void FlightLogsWidgetFC::onReadButtonClicked()
 {
-  read_thread_.start();
+  std::vector<std::string> log_names;
 
-  spinner_.show();
   spinner_.start();
+  const auto res = ssh_client_.list(tobas::kRosbagDirRoot, log_names);
+  spinner_.stop();
+
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, ssh_client_.errorMessage());
+    return;
+  }
+
+  clearLogs();
+
+  if (log_names.empty()) {
+    qt::qWarnBox(this, "There are no flight logs saved on the flight controller.");
+    return;
+  }
+
+  for (const auto& log_name : log_names) {
+    addLog(QString::fromStdString(log_name));
+  }
+
+  sortLogs();
+
+  clean_button_->setEnabled(true);
 }
 
 void FlightLogsWidgetFC::onCleanButtonClicked()
@@ -118,10 +136,16 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
     return;
   }
 
-  clean_thread_.start();
-
-  spinner_.show();
   spinner_.start();
+  const auto res = ssh_client_.execute("rm -rf " + std::string(tobas::kRosbagDirRoot) + "/*", true);
+  spinner_.stop();
+
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, ssh_client_.errorMessage());
+    return;
+  }
+
+  clearLogs();
 }
 
 void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
@@ -137,11 +161,23 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
     }
   }
 
-  download_thread_.setLogName(log_name);
-  download_thread_.start();
+  const auto remote_rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name.toStdString();
+  const auto local_pardir = ros2::expandUser(tobas::kRosbagDirHome);
 
-  spinner_.show();
+  if (!fs::is_directory(local_pardir)) {
+    fs::create_directories(local_pardir);
+  }
+
   spinner_.start();
+  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir);
+  spinner_.stop();
+
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, ssh_client_.errorMessage());
+    return;
+  }
+
+  Q_EMIT logDownloaded(log_name);
 }
 
 void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
@@ -152,76 +188,18 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
     return;
   }
 
-  delete_thread_.setLogName(log_name);
-  delete_thread_.start();
+  const auto rosbag_path = fs::path(tobas::kRosbagDirRoot) / log_name.toStdString();
 
-  spinner_.show();
   spinner_.start();
-}
-
-void FlightLogsWidgetFC::onReadThreadFinished(bool success, const QString& message, const QStringList& log_names)
-{
-  spinner_.hide();
+  const auto res = ssh_client_.execute("rm -rf " + rosbag_path.string(), true);
   spinner_.stop();
 
-  if (!success) {
-    qt::qErrorBox(this, message);
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, ssh_client_.errorMessage());
     return;
   }
 
-  clearLogs();
-
-  if (log_names.empty()) {
-    qt::qWarnBox(this, "There are no flight logs saved on the flight controller.");
-    return;
-  }
-
-  for (const auto& log_name : log_names) {
-    addLog(log_name);
-  }
-
-  sortLogs();
-
-  clean_button_->setEnabled(true);
-}
-
-void FlightLogsWidgetFC::onCleanThreadFinished(bool success, const QString& message)
-{
-  spinner_.hide();
-  spinner_.stop();
-
-  if (!success) {
-    qt::qErrorBox(this, message);
-    return;
-  }
-
-  clearLogs();
-}
-
-void FlightLogsWidgetFC::onDownloadThreadFinished(bool success, const QString& message)
-{
-  spinner_.hide();
-  spinner_.stop();
-
-  if (!success) {
-    qt::qErrorBox(this, message);
-    return;
-  }
-
-  Q_EMIT logDownloaded(download_thread_.getLogName());
-}
-
-void FlightLogsWidgetFC::onDeleteThreadFinished(bool success, const QString& message)
-{
-  spinner_.hide();
-  spinner_.stop();
-
-  if (!success) {
-    qt::qErrorBox(this, message);
-    return;
-  }
-
-  removeLog(delete_thread_.getLogName());
+  removeLog(log_name);
 }
 }  // namespace log
 }  // namespace gui

@@ -7,8 +7,10 @@
 #include <tobas_actuator_test/actuator_test.hpp>
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
+#include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_gui_common/ssh_client.hpp>
+#include <tobas_gui_common/ssh_config.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
@@ -21,13 +23,11 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 
-#include "./config_env_parser.hpp"
 #include "./network_checker.hpp"
+#include "./project_env_parser.hpp"
 #include "./remote_connection.hpp"
 #include "./restart_button.hpp"
-#include "./restart_thread.hpp"
 #include "./shutdown_button.hpp"
-#include "./shutdown_thread.hpp"
 
 namespace gui
 {
@@ -64,13 +64,15 @@ private:
   tobas::Drone drone_;
 
   ptree::PropertyClient property_client_;
-  ssh::SSHClient ssh_client_;
   uadf::Parser uadf_parser_;
   kdl::TreeParser tree_parser_;
   cmn::ProjectPaths proj_paths_;
   cmn::Version proj_version_;
-  cmn::SshEndpoint ssh_endpoint_;
-  ConfigurationEnvParser config_env_parser_;
+  cmn::SshConfig ssh_config_;
+  cmn::NetworkConfig network_config_;
+  cmn::SshClientWrapper ssh_client_;
+  cmn::RemoteProjectBuilder remote_proj_builder_;
+  ProjectEnvParser project_env_parser_;
 
   RemoteConnectionWidget* remote_conn_;
 
@@ -80,9 +82,6 @@ private:
 
   RestartButton* restart_btn_;
   ShutdownButton* shutdown_btn_;
-
-  RestartThread restart_thread_;
-  ShutdownThread shutdown_thread_;
 
   qt::WaitSpinnerWidget spinner_;
 
@@ -103,8 +102,6 @@ private Q_SLOTS:
 
   void onRestartButtonClicked(bool checked);
   void onShutdownButtonClicked(bool checked);
-  void onRestartThreadFinished(bool success, const QString& message);
-  void onShutdownThreadFinished(bool success, const QString& message);
 
   void onSimRealStateChanged();
 

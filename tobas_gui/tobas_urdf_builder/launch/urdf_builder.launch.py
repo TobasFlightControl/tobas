@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, Shutdown
+from launch.actions import SetEnvironmentVariable, DeclareLaunchArgument, Shutdown
 from launch.substitutions import LaunchConfiguration
 
 from launch_ros.actions import Node
@@ -11,6 +11,10 @@ OUTPUT = "output"
 
 def generate_launch_description():
     ld = LaunchDescription()
+
+    # Set localhost only
+    set_discovery_range = SetEnvironmentVariable("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST")
+    ld.add_action(set_discovery_range)
 
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
@@ -28,7 +32,6 @@ def generate_launch_description():
         executable="property_server",
         ros_arguments=ros_args,
         output=output,
-        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
     )
     ld.add_action(property_server)
 

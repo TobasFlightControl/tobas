@@ -1,0 +1,32 @@
+from pathlib import Path
+from typing import List
+
+
+def is_under(path: str, base: str, *, follow_symlinks: bool = True) -> bool:
+    """
+    path が base 配下に存在する（配下のファイル/ディレクトリを指す）かを判定する．
+    follow_symlinks=True なら実体パスで判定（シンボリックリンクを解決）．
+    """
+    p = Path(path)
+    b = Path(base)
+
+    if follow_symlinks:
+        # 存在しないパスでも解決できる範囲で正規化するために strict=False
+        p = p.resolve(strict=False)
+        b = b.resolve(strict=False)
+    else:
+        p = p.absolute()
+        b = b.absolute()
+
+    try:
+        p.relative_to(b)
+        return True
+    except ValueError:
+        return False
+
+
+def is_under_any(path: str, bases: List[str], *, follow_symlinks: bool = True) -> bool:
+    for base in bases:
+        if is_under(path, base, follow_symlinks=follow_symlinks):
+            return True
+    return False

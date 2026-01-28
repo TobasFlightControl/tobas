@@ -1,4 +1,1 @@
 #!/bin/bash
-
-rm -rf ~/.config/tobas/
-rm -rf ~/.cache/tobas/

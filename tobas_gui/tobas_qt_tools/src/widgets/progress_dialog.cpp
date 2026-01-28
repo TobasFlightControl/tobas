@@ -8,34 +8,37 @@
 
 #include "tobas_qt_tools/event.hpp"
 
+using namespace std::chrono_literals;
+
 namespace qt
 {
 ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
-  : super(parent), num_steps_(num_steps)
+  : super(parent), num_steps_(num_steps), timer_(this)
 {
   TOBAS_CHECK(num_steps > 0);
 
   setWindowModality(Qt::WindowModal);  // ユーザーが他のUI要素と対話できないようにする
   setWindowTitle(title);
   setStep(step_);
+
+  connect(&timer_, &QTimer::timeout, this, &self::onTimerTimeout);
 }
 
 void ProgressDialog::show()
 {
+  timer_.start(250ms);
   super::show();
-  reflesh();
 }
 
-void ProgressDialog::setValue(int value)
+void ProgressDialog::hide()
 {
-  super::setValue(value);
-  reflesh();
+  timer_.stop();
+  super::hide();
 }
 
 void ProgressDialog::setLabelText(const QString& text)
 {
-  super::setLabelText(text);
-  reflesh();
+  text_ = text;
 }
 
 void ProgressDialog::setStep(int step)
@@ -45,7 +48,6 @@ void ProgressDialog::setStep(int step)
   step_ = step;
   const auto value = math::remap(step, 0, num_steps_, minimum(), maximum());
   setValue(value);
-  reflesh();
 }
 
 void ProgressDialog::progressStep()
@@ -53,10 +55,16 @@ void ProgressDialog::progressStep()
   setStep(step_ + 1);
 }
 
-void ProgressDialog::reflesh()
+void ProgressDialog::onTimerTimeout()
 {
-  // イベントスタックの更新後にスリープすることで画面を更新できる
-  qt::processAllQueuedEvents();
-  QThread::msleep(100);
+  // スピナーの文字を決定
+  spinner_step_ = (spinner_step_ + 1) % kSpinnerFrameSize;
+  const auto spinner = kSpinnerFrames[spinner_step_];
+
+  // スピナー部分だけ等幅で表示
+  super::setLabelText(
+    QString(R"(<div style="text-align:center;">%1 <span style="font-family:monospace;">%2</span></div>)")
+      .arg(text_)
+      .arg(spinner));
 }
 }  // namespace qt

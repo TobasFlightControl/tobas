@@ -45,6 +45,7 @@ void FlightLogWidget::reset()
 void FlightLogWidget::updateNamespace(const std::string& ns)
 {
   recorder_->updateNamespace(ns);
+  logs_fc_->onProjectLoaded();
 }
 
 void FlightLogWidget::onLogDownloaded(const QString& log_name)

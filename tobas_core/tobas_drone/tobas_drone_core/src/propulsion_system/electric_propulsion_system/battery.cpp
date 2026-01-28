@@ -1,6 +1,7 @@
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/battery.hpp"
 
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -65,11 +66,11 @@ YAML::Node BatteryConfig::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kNominalVoltageKey] = nominal_voltage;
-  node[kMaxVoltageKey] = max_voltage;
-  node[kSagVoltageKey] = sag_voltage;
-  node[kMaxCurrentKey] = max_current;
-  node[kInternalResistanceKey] = internal_resistance;
+  node[kNominalVoltageKey] = yaml::format(nominal_voltage);
+  node[kMaxVoltageKey] = yaml::format(max_voltage);
+  node[kSagVoltageKey] = yaml::format(sag_voltage);
+  node[kMaxCurrentKey] = yaml::format(max_current);
+  node[kInternalResistanceKey] = yaml::format(internal_resistance);
 
   return node;
 }

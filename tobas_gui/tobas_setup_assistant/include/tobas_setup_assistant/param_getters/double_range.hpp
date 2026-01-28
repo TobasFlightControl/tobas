@@ -1,9 +1,9 @@
 #pragma once
 
+#include <tobas_qt_tools/widgets/labeled_double_spin_box.hpp>
 #include <tobas_std_tools/range.hpp>
 
 #include "./base.hpp"
-#include "./double_getter.hpp"
 
 namespace gui
 {
@@ -40,8 +40,8 @@ private Q_SLOTS:
   void onValueChanged(double value);
 
 private:
-  DoubleGetter* min_;
-  DoubleGetter* max_;
+  qt::LabeledDoubleSpinBox* min_;
+  qt::LabeledDoubleSpinBox* max_;
 };
 }  // namespace sa
 }  // namespace gui

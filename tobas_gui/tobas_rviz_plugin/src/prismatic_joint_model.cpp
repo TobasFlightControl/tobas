@@ -77,7 +77,7 @@ bool PrismaticJointModel::enforcePositionBounds(double* values, const Bounds& bo
 
 double PrismaticJointModel::distance(const double* values1, const double* values2) const
 {
-  return fabs(values1[0] - values2[0]);
+  return std::abs(values1[0] - values2[0]);
 }
 
 void PrismaticJointModel::interpolate(const double* from, const double* to, const double t, double* state) const

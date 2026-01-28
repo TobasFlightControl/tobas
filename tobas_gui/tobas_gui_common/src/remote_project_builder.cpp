@@ -1,7 +1,5 @@
 #include "tobas_gui_common/remote_project_builder.hpp"
 
-#include <QEventLoop>
-
 #include <tobas_constants/constants.hpp>
 
 #include "tobas_gui_common/project_paths.hpp"
@@ -41,14 +39,14 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
     meta_pkg_name);
 
   // ビルドできれば終了
-  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) == ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) == ssh::SshClient::kNoError) {
     return true;
   }
 
   // ビルドできなければクリーンビルド
   RCLCPP_WARN(node_->get_logger(), "Failed to build remote package. Retrying...");
   const auto command = pre_cmd + " && sudo colcon clean workspace -y && " + build_cmd;
-  if (ssh_client_.execute(command, output_, true) == ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute(command, output_, true) == ssh::SshClient::kNoError) {
     return true;
   }
 
@@ -65,57 +63,6 @@ const std::string& RemoteProjectBuilder::getOutput() const
 const char* RemoteProjectBuilder::getErrorMessage() const
 {
   return ssh_client_.errorMessage();
-}
-
-RemoteProjectBuilderThread::RemoteProjectBuilderThread(
-  rclcpp::Node::SharedPtr node,
-  const std::filesystem::path& proj_path)
-  : proj_path_(proj_path), builder_(node)
-{
-}
-
-void RemoteProjectBuilderThread::run()
-{
-  if (!builder_.build(proj_path_)) {
-    Q_EMIT finished(false, QString::fromStdString(builder_.getErrorMessage()));
-    return;
-  }
-
-  Q_EMIT finished(true, "");
-}
-
-std::expected<void, QString>
-buildRemoteProjectBackground(rclcpp::Node::SharedPtr node, const std::filesystem::path& proj_path)
-{
-  // スレッドを作成
-  cmn::RemoteProjectBuilderThread thread(node, proj_path);
-
-  // 別スレッドの結果をキャッチするためのイベントループを用意
-  bool success;
-  QString message;
-  QEventLoop loop;
-  QObject::connect(
-    &thread,
-    &cmn::RemoteProjectBuilderThread::finished,
-    [&success, &message, &loop](bool _success, const QString& _message)
-    {
-      success = _success;
-      message = _message;
-      loop.quit();
-    });
-
-  // イベントループを回しながらスレッドが終了するまで待機
-  thread.start();
-  loop.exec();
-  thread.wait();
-
-  // 別スレッドの結果を返す
-  if (success) {
-    return {};
-  }
-  else {
-    return std::unexpected(message);
-  }
 }
 }  // namespace cmn
 }  // namespace gui

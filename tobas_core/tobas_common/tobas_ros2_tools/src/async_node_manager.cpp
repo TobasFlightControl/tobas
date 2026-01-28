@@ -17,6 +17,7 @@ AsyncNodeManager::AsyncNodeManager(int argc, char** argv, const std::string& nod
 AsyncNodeManager::~AsyncNodeManager()
 {
   executor_->cancel();
+  executor_thread_->join();
 }
 
 rclcpp::Node::SharedPtr AsyncNodeManager::node()

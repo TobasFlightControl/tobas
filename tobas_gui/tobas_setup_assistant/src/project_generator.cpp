@@ -1,8 +1,9 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
 #include <tobas_gui_common/command.hpp>
+#include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
-#include <tobas_gui_common/ssh_endpoint.hpp>
+#include <tobas_gui_common/ssh_config.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
@@ -16,6 +17,7 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
@@ -504,7 +506,13 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateRcTeleopStaticConfig()) {
     return false;
   }
-  if (!generateSshEndpointConfig()) {
+  if (!generateRotorAnomalyDetectorConfig()) {
+    return false;
+  }
+  if (!generateSshConfig()) {
+    return false;
+  }
+  if (!generateNetworkConfig()) {
     return false;
   }
   if (!generateOriginalUadf()) {
@@ -635,24 +643,57 @@ bool ProjectGenerator::generateDroneConfig()
 
 bool ProjectGenerator::generateHealthMonitorConfig()
 {
-  YAML::Node node(YAML::NodeType::Map);
-  node["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
-  node["check_battery_voltage"] = settings_->failsafe->checkBatteryVoltage();
-  node["check_cpu_temperature"] = settings_->failsafe->checkCpuTemperature();
-  node["check_radio_link"] = settings_->failsafe->checkRadioLink();
-  node["check_rotor_links"] = settings_->failsafe->checkRotorLinks();
-  node["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
-  node["check_position_stability"] = settings_->failsafe->checkPositionStability();
-  node["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();
-  node["check_velocity_accuracy"] = settings_->failsafe->checkVelocityAccuracy();
-  node["check_attitude_accuracy"] = settings_->failsafe->checkAttitudeAccuracy();
-  node["check_heading_accuracy"] = settings_->failsafe->checkHeadingAccuracy();
-  node["check_mag_offset"] = settings_->failsafe->checkMagOffset();
-  node["check_mag_alignment"] = settings_->failsafe->checkMagAlignment();
-  node["check_vibration_level"] = settings_->failsafe->checkVibrationLevel();
+  YAML::Node params(YAML::NodeType::Map);
+  params["check_realtime_compliance"] = settings_->failsafe->checkRealtimeCompliance();
+  params["check_battery_voltage"] = settings_->failsafe->checkBatteryVoltage();
+  params["check_cpu_temperature"] = settings_->failsafe->checkCpuTemperature();
+  params["check_radio_link"] = settings_->failsafe->checkRadioLink();
+  params["check_rotor_links"] = settings_->failsafe->checkRotorLinks();
+  params["check_attitude_level"] = settings_->failsafe->checkAttitudeLevel();
+  params["check_position_stability"] = settings_->failsafe->checkPositionStability();
+  params["check_position_accuracy"] = settings_->failsafe->checkPositionAccuracy();
+  params["check_velocity_accuracy"] = settings_->failsafe->checkVelocityAccuracy();
+  params["check_attitude_accuracy"] = settings_->failsafe->checkAttitudeAccuracy();
+  params["check_heading_accuracy"] = settings_->failsafe->checkHeadingAccuracy();
+  params["check_mag_offset"] = settings_->failsafe->checkMagOffset();
+  params["check_mag_alignment"] = settings_->failsafe->checkMagAlignment();
+  params["check_vibration_level"] = settings_->failsafe->checkVibrationLevel();
 
   const auto config_dir = proj_paths_.cfgConfigDirPath();
-  if (!saveYamlNode(config_dir / "health_monitor.yaml", node)) {
+
+  // For component
+  const auto node_component = params;
+  if (!saveYamlNode(config_dir / "health_monitor.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"]["health_monitor"][kRosParamsKey] = params;
+  if (!saveYamlNode(config_dir / "health_monitor_standalone.yaml", node_standalone)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateRotorAnomalyDetectorConfig()
+{
+  YAML::Node params(YAML::NodeType::Map);
+  params["no_communication_timeout"] = yaml::format(settings_->failsafe->escNoCommunicationTimeout());
+
+  const auto config_dir = proj_paths_.cfgConfigDirPath();
+
+  // For component
+  const auto node_component = params;
+  if (!saveYamlNode(config_dir / "rotor_anomaly_detector.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"]["rotor_anomaly_detector"][kRosParamsKey] = params;
+  if (!saveYamlNode(config_dir / "rotor_anomaly_detector_standalone.yaml", node_standalone)) {
     return false;
   }
 
@@ -663,7 +704,9 @@ bool ProjectGenerator::generateObserverStaticConfig()
 {
   YAML::Node params(YAML::NodeType::Map);
   params["frame_id"] = tree_.getRootName();
-  params["position_source"] = "gnss";  // TODO: 選択できるようにする
+  params["use_magnetometer"] = settings_->observer->useMagnetometer();
+  params["use_barometer"] = settings_->observer->useBarometer();
+  params["use_gnss"] = settings_->observer->useGnss();
   params["adaptive_gnss_noise"] = settings_->observer->adaptiveGnssNoise();
   params["adaptive_grav_noise"] = settings_->observer->adaptiveGravityNoise();
   params["do_acc_bias_estimation"] = settings_->observer->doAccelBiasEstimation();
@@ -741,14 +784,27 @@ bool ProjectGenerator::generateRcTeleopStaticConfig()
   return true;
 }
 
-bool ProjectGenerator::generateSshEndpointConfig()
+bool ProjectGenerator::generateSshConfig()
 {
-  cmn::SshEndpoint ssh_endpoint;
-  ssh_endpoint.host = settings_->remote_connection->host().toStdString();
-  ssh_endpoint.user = tobas::kFmuUserName;
+  cmn::SshConfig config;
+  config.host = settings_->remote_connection->host().toStdString();
+  config.user = tobas::kFmuUserName;
 
-  if (!ssh_endpoint.save(proj_paths_.sshEndpointPath())) {
-    qt::qErrorBox(parent_, "Failed to save the SSH endpoint.");
+  if (!config.save(proj_paths_.sshConfigPath())) {
+    qt::qErrorBox(parent_, "Failed to save the SSH configuration.");
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateNetworkConfig()
+{
+  cmn::NetworkConfig config;
+  config.interface = settings_->network->networkInterfaceName().toStdString();
+
+  if (!config.save(proj_paths_.networkConfigPath())) {
+    qt::qErrorBox(parent_, "Failed to save the network configuration.");
     return false;
   }
 
@@ -1167,6 +1223,9 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Wind plugin
   xml::addGazeboWindPlugin(robot, ns, root_name);
+
+  // Suspended load plugin
+  xml::addGazeboSuspendedLoadPlugin(robot, ns, root_name);
 
   // Ground truth state plugin
   xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);

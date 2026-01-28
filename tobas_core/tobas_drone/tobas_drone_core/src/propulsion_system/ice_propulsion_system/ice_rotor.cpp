@@ -2,6 +2,7 @@
 
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -67,7 +68,7 @@ YAML::Node IceRotorConfig::dump() const
 {
   auto node = super::dump();
 
-  node[kGearRatioKey] = gear_ratio;
+  node[kGearRatioKey] = yaml::format(gear_ratio);
   node[kPitchLimitKey] = pitch_limit;
   node[kMotorConstKey] = motor_const.dump();
   node[kMomentConstKey] = moment_const.dump();

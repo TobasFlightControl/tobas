@@ -2,6 +2,7 @@
 
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -58,12 +59,12 @@ YAML::Node ControlSurface::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kLinkNameKey] = link_name;
-  node[kCLiftDeltaKey] = c_lift_delta;
-  node[kCDragAbsDeltaKey] = c_drag_abs_delta;
-  node[kCSideDeltaKey] = c_side_delta;
-  node[kCRollDeltaKey] = c_roll_delta;
-  node[kCPitchDeltaKey] = c_pitch_delta;
-  node[kCYawDeltaKey] = c_yaw_delta;
+  node[kCLiftDeltaKey] = yaml::format(c_lift_delta);
+  node[kCDragAbsDeltaKey] = yaml::format(c_drag_abs_delta);
+  node[kCSideDeltaKey] = yaml::format(c_side_delta);
+  node[kCRollDeltaKey] = yaml::format(c_roll_delta);
+  node[kCPitchDeltaKey] = yaml::format(c_pitch_delta);
+  node[kCYawDeltaKey] = yaml::format(c_yaw_delta);
 
   return node;
 }

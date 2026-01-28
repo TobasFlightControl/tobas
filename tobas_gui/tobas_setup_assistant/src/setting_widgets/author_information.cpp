@@ -49,17 +49,17 @@ bool AuthorInformationWidget::isValid()
 {
   const auto author_name = name_->getValue();
   if (author_name.isEmpty()) {
-    qt::qErrorBox(this, "Please specify author name.");
+    qt::qWarnBox(this, "Please specify author name.");
     return false;
   }
 
   const auto author_email = email_->getValue();
   if (author_email.isEmpty()) {
-    qt::qErrorBox(this, "Please specify author email address.");
+    qt::qWarnBox(this, "Please specify author email address.");
     return false;
   }
   if (!str::isValidEmail(author_email.toStdString())) {
-    qt::qErrorBox(this, "Invalid email address.");
+    qt::qWarnBox(this, "Invalid email address.");
     return false;
   }
 

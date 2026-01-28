@@ -80,7 +80,7 @@ bool Mixer::updateInternalDataStructures()
     const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
     const auto tilt_axis = B_T_gpar.M * par_joint.axis();  // ベースリンクから見たチルト軸
     const auto tilt_axis_y = tilt_axis.normalized().y();
-    if (!math::isClose(fabs(tilt_axis_y), 1.)) {
+    if (!math::isClose(std::abs(tilt_axis_y), 1.)) {
       cerr << "Tilt axis must be parallel to the Y axis." << endl;
       return false;
     }

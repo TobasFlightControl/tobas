@@ -1,6 +1,7 @@
 #include "tobas_drone_core/joint/joint.hpp"
 
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 using namespace std;
 
@@ -49,7 +50,7 @@ YAML::Node JointConfig::dump() const
   node[kRoleKey] = role;
   node[kCommandIfaceKey] = cmd_iface;
   node[kHardwareIfaceKey] = hw_iface;
-  node[kHomePosKey] = home_pos;
+  node[kHomePosKey] = yaml::format(home_pos);
 
   return node;
 }

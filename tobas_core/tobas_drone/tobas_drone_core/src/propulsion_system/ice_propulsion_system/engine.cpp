@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include <tobas_math/core.hpp>
+#include <tobas_yaml_tools/convert/pair.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std;

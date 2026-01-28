@@ -166,7 +166,7 @@ def generate_launch_description():
             package="tobas_failsafe",
             executable="health_monitor",
             namespace=DRONE_NAME,
-            parameters=[],  # TODO
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "health_monitor_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
         )
@@ -194,6 +194,7 @@ def generate_launch_description():
             package="tobas_rotor_anomaly_detection",
             executable="rotor_anomaly_detector",
             namespace=DRONE_NAME,
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "rotor_anomaly_detector_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
         )

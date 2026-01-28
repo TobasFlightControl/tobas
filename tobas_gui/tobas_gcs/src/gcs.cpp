@@ -8,11 +8,14 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_cyclonedds_config/cyclonedds_config.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -35,8 +38,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , network_checker_(this, bridge_)
   , property_client_(node, kPackageName)
   , ssh_client_(node)
-  , restart_thread_(node)
-  , shutdown_thread_(node)
+  , remote_proj_builder_(node)
   , spinner_(Qt::WindowModal, this)
 {
   // Applications
@@ -128,8 +130,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
-  connect(&restart_thread_, &RestartThread::finished, this, &self::onRestartThreadFinished);
-  connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
@@ -162,8 +162,9 @@ void GroundControlStationWidget::updateInternalDataStructures()
   bridge_.initializeScopedTopics(drone_.name);
   qt::processAllQueuedEvents();
 
-  if (ssh_client_.setEndpoint(ssh_endpoint_.host, ssh_endpoint_.user) != ssh::SSHClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set SSH endpoint:\n" + QString(ssh_client_.errorMessage()));
+  // SSHの窓口に接続先の情報を伝える
+  if (ssh_client_.setEndpoint(ssh_config_.host, ssh_config_.user) != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to set SSH configuration:\n" + QString(ssh_client_.errorMessage()));
     return;
   }
 
@@ -278,10 +279,15 @@ void GroundControlStationWidget::onLoadButtonClicked()
     return;
   }
 
-  // Load SSH endpoint
-  const auto ssh_endpoint_path = proj_paths_.sshEndpointPath();
-  if (!ssh_endpoint_.load(ssh_endpoint_path)) {
-    qt::qErrorBox(this, "Failed to load SSH endpoint.");
+  // Load SSH configuration
+  if (!ssh_config_.load(proj_paths_.sshConfigPath())) {
+    qt::qErrorBox(this, "Failed to load SSH configuration.");
+    return;
+  }
+
+  // Load network configuration
+  if (!network_config_.load(proj_paths_.networkConfigPath())) {
+    qt::qErrorBox(this, "Failed to load network configuration.");
     return;
   }
 
@@ -293,7 +299,7 @@ void GroundControlStationWidget::onLoadButtonClicked()
   restart_btn_->setEnabled(true);
   shutdown_btn_->setEnabled(true);
 
-  // ロードが成功したことを示すダイアログ
+  // プロジェクトの読み込みが成功したことを示すダイアログ
   qt::qInfoBox(this, "Tobas project is loaded successfully.");
 }
 
@@ -324,13 +330,13 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto config_pkg_name = proj_paths_.cfgPkgName();
 
   // 進捗バーを作成
-  qt::ProgressDialog progress("Write Tobas Project", 10, this);
+  qt::ProgressDialog progress("Write Tobas Project", 12, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
   // SSH接続
   progress.setLabelText("Connecting to the flight controller.");
-  if (ssh_client_.connect() != ssh::SSHClient::kNoError) {
+  if (ssh_client_.connect() != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
@@ -340,7 +346,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // FCのバージョンを確認
   progress.setLabelText("Checking the Tobas version.");
   std::string fc_ver_text;
-  if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to retrieve the firmware version: " + QString(ssh_client_.errorMessage()));
     return;
@@ -363,30 +369,30 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping the Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
 
-  // 環境変数を読み込む
+  // 環境変数を読み込む (読み込めなくても続行)
   progress.setLabelText("Getting environment variables.");
-  std::string cur_env_content;
-  if (ssh_client_.sftpRead(tobas::kConfigEnvPath, cur_env_content, true) == ssh::SSHClient::kNoError) {  // ファイルが存在しなくても続行
-    if (!config_env_parser_.parseFromText(cur_env_content)) {
+  std::string project_env_text;
+  if (ssh_client_.sftpRead(tobas::kProjectEnvPath, project_env_text, true) == ssh::SshClient::kNoError) {
+    if (!project_env_parser_.parseFromText(project_env_text)) {
       progress.close();
       qt::qErrorBox(this, "Failed to parse configuration file.");
       return;
     }
   }
   else {
-    qWarning() << "Failed to get environment variables: " << ssh_client_.errorMessage();
+    qWarning() << "Failed to get the current environment variables: " << ssh_client_.errorMessage();
   }
   progress.progressStep();
 
   // パッケージが変わる場合は競合を避けるためにクリーンビルド
-  if (config_pkg_name != config_env_parser_.config_pkg) {
+  if (config_pkg_name != project_env_parser_.config_pkg) {
     // ワークスペースを初期化
     progress.setLabelText("Initializing colcon workspace.");
     if (ssh_client_.execute(std::format("rm -rf {}", tobas::kColconWSPathRoot), true)) {
@@ -403,8 +409,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
     // 環境変数を更新
     progress.setLabelText("Setting environment variables.");
-    config_env_parser_.config_pkg = config_pkg_name;
-    if (ssh_client_.sftpWrite(tobas::kConfigEnvPath, config_env_parser_.exportText(), true) != ssh::SSHClient::kNoError) {
+    project_env_parser_.config_pkg = config_pkg_name;
+    if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
       progress.close();
       qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
       return;
@@ -418,9 +424,10 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // プロジェクトを送信
   progress.setLabelText("Sending the Tobas project to the flight controller.");
-  const auto mesh_path = proj_paths_.cfgMeshDirPath();
   const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
-  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path }, true) != ssh::SSHClient::kNoError) {
+  const auto mesh_path = proj_paths_.cfgMeshDirPath();
+  const auto git_path = proj_paths_.getProjPath() / ".git";
+  if (ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + QString(ssh_client_.errorMessage()));
     return;
@@ -429,19 +436,55 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // GUIを止めないように別スレッドでプロジェクトをビルド
   progress.setLabelText("Building the Tobas project.");
-  const auto build_res = cmn::buildRemoteProjectBackground(node_, proj_paths_.remoteProjPath());
-  if (!build_res) {
-    qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + build_res.error());
+  if (!remote_proj_builder_.build(proj_paths_.remoteProjPath())) {
+    const QString error_msg(remote_proj_builder_.getErrorMessage());
+    if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
+      qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+    }
+    else {
+      const auto log_path =
+        qt::writeTimestampedFile(error_msg + '\n', qt::expandUser(tobas::kGuiLogDir), "", "builderr_remote");
+      if (log_path) {
+        qt::qErrorBox(this, "Failed to build the Tobas project. The output has been saved to:\n" + log_path.value());
+      }
+      else {
+        qWarning() << "Failed to save the build error output.";
+        qt::qErrorBox(this, "Failed to build the Tobas project:\n\n" + error_msg);
+      }
+    }
     progress.close();
     return;
   }
   progress.progressStep();
 
-  // サービスを再起動
-  progress.setLabelText("Restarting the flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::kNoError) {
+  // DDSの設定を更新
+  progress.setLabelText("Writing DDS configuration.");
+  tobas::cyclonedds::Data dds_data;
+  if (!network_config_.interface.empty()) {
+    dds_data.interfaces.emplace_back(network_config_.interface);
+  }
+  const auto dds_config_text = tobas::cyclonedds::exportText(dds_data);
+  if (ssh_client_.sftpWrite(tobas::kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
     progress.close();
-    qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to write DDS configuration:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // サービスを有効化
+  progress.setLabelText("Enabling the flight controller.");
+  if (ssh_client_.execute("systemctl enable tobas_real.target", true) != ssh::SshClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to enable Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // サービスを起動
+  progress.setLabelText("Starting the flight controller.");
+  if (ssh_client_.execute("systemctl start tobas_real.target", true) != ssh::SshClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -477,10 +520,20 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
   }
 
   // Tobasサービスを再起動
-  restart_thread_.start();
-
-  spinner_.show();
   spinner_.start();
+  const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
+  spinner_.stop();
+
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to restart the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  qt::qInfoBox(this, "Flight controller was restarted successfully.");
+
+  reset();
+  restart_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
@@ -505,49 +558,20 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
   }
 
   // ラズパイをシャットダウン
-  shutdown_thread_.start();
-
-  spinner_.show();
   spinner_.start();
-}
-
-void GroundControlStationWidget::onRestartThreadFinished(bool success, const QString& message)
-{
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRestartThreadFinished");
-
-  spinner_.hide();
+  const auto res = ssh_client_.execute("poweroff", true, true);
   spinner_.stop();
 
-  if (!success) {
-    qt::qErrorBox(this, message);
-    restart_btn_->setChecked(false);
-    return;
-  }
-
-  reset();
-
-  qt::qInfoBox(this, "Flight controller was restarted successfully.");
-
-  restart_btn_->setChecked(false);
-}
-
-void GroundControlStationWidget::onShutdownThreadFinished(bool success, const QString& message)
-{
-  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onShutdownThreadFinished");
-
-  spinner_.hide();
-  spinner_.stop();
-
-  if (!success) {
-    qt::qErrorBox(this, message);
+  if (res != ssh::SshClient::kNoError) {
+    qt::qErrorBox(this, "Failed to shutdown the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
     shutdown_btn_->setChecked(false);
     return;
   }
 
-  reset();
-
   qt::qInfoBox(this, "Flight controller was shut down successfully.");
 
+  // ウィジェットが保持しているROSメッセージなどを確実にリセットするために，reset()の呼び出しを最後に行う．
+  reset();
   shutdown_btn_->setChecked(false);
 }
 

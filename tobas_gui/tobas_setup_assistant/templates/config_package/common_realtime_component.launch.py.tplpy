@@ -186,6 +186,7 @@ def generate_launch_description():
                     package="tobas_rotor_anomaly_detection",
                     plugin="RotorAnomalyDetectorNode",
                     namespace=DRONE_NAME,
+                    parameters=[PathJoinSubstitution([config_pkg_share, "config", "rotor_anomaly_detector.yaml"])],
                     extra_arguments=extra_args,
                 ),
                 ComposableNode(

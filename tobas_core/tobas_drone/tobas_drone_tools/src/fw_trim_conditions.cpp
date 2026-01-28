@@ -6,8 +6,6 @@
 
 #include "tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
@@ -19,11 +17,11 @@ bool TrimConditions::updateInternalDataStructures()
 {
   // Check drone configuration
   if (!drone_.fixed_wing) {
-    cerr << "The drone is not equipped with fixed wing." << endl;
+    std::cerr << "The drone is not equipped with fixed wing." << std::endl;
     return false;
   }
   if (drone_.fixed_wing->numControlSurfaces() == 0) {
-    cerr << "The drone must have at least 1 control surfaces." << endl;
+    std::cerr << "The drone must have at least 1 control surfaces." << std::endl;
     return false;
   }
 
@@ -37,7 +35,7 @@ bool TrimConditions::updateInternalDataStructures()
 
   // Set mass
   if (inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
   W_ = inertia_solver_.getInertia().getMass() * tbs::kGravity;
@@ -45,8 +43,8 @@ bool TrimConditions::updateInternalDataStructures()
   // Set elevator index
   auto max_c_pitch_delta = -INFINITY;
   for (const auto& [link_name, cs] : drone_.fixed_wing->control_surfaces) {
-    if (fabs(cs.c_pitch_delta) > max_c_pitch_delta) {
-      max_c_pitch_delta = fabs(cs.c_pitch_delta);
+    if (std::abs(cs.c_pitch_delta) > max_c_pitch_delta) {
+      max_c_pitch_delta = std::abs(cs.c_pitch_delta);
       elev_link_name_ = link_name;
     }
   }
@@ -59,11 +57,11 @@ bool TrimConditions::updateInternalDataStructures()
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
 
   if (a_ <= 0.) {
-    cerr << "The aerodynamic coefficient \"a\" must be positive." << endl;
+    std::cerr << "The aerodynamic coefficient \"a\" must be positive." << std::endl;
     return false;
   }
   if (b_ <= 0.) {
-    cerr << "The aerodynamic coefficient \"b\" must be positive." << endl;
+    std::cerr << "The aerodynamic coefficient \"b\" must be positive." << std::endl;
     return false;
   }
 
@@ -86,14 +84,14 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   const auto speed_limit = speedLimit(rho);
   if (V < speed_limit.lower) {
     if (error_code_ > kWarn) {
-      error_msg_ = "Speed is too low: " + to_string(V) + " < " + to_string(speed_limit.lower);
+      error_msg_ = "Speed is too low: " + std::to_string(V) + " < " + std::to_string(speed_limit.lower);
       error_code_ = kWarn;
     }
     V = speed_limit.lower;
   }
   else if (V > speed_limit.upper) {
     if (error_code_ > kWarn) {
-      error_msg_ = "Speed is too high: " + to_string(V) + " > " + to_string(speed_limit.upper);
+      error_msg_ = "Speed is too high: " + std::to_string(V) + " > " + std::to_string(speed_limit.upper);
       error_code_ = kWarn;
     }
     V = speed_limit.upper;
@@ -123,7 +121,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   alpha_ = (c_L_ - b_) / a_;                                                    // (2.9-49)
   elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
   const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;            // TODO: 2次以上も考慮
-  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * fabs(elevator_);                // (1.8-3)
+  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * std::abs(elevator_);            // (1.8-3)
   c_T_ = c_D_ / cos(alpha_);                                                    // (2.2-10b)
 
   // その他依存変数
@@ -143,7 +141,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
       error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
       error_code_ = kWarn;
     }
-    elevator_ = clamp(elevator_, joint.lower_limit, joint.upper_limit);
+    elevator_ = std::clamp(elevator_, joint.lower_limit, joint.upper_limit);
   }
 
   return error_code_;

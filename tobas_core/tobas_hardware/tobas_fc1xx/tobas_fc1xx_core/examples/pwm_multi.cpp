@@ -19,13 +19,13 @@ int main()
     for (size_t ch = 0; ch < fc1xx::PWM::kChannelSize; ++ch) {
       if (!pwm.setPeriod(ch, periods[ch])) {
         cerr << "Failed to set PWM period of channel " << ch << "." << endl;
-        return EXIT_FAILURE;
+        continue;
       }
     }
 
     if (!pwm.transfer()) {
       cerr << "Failed to command PWM periods." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     this_thread::sleep_for(100ms);

@@ -121,7 +121,7 @@ private:
   ros2::ServiceServerPtr<BreakSrv> break_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerROSInterfaces();
+  void registerRosInterfaces();
 
   double velocitySim() const;
 
@@ -210,7 +210,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   TOBAS_CHECK(inertial_ = getComponent<cmp::Inertial>(link_entity, ecm));
 
   // Register ROS interfaces
-  registerROSInterfaces();
+  registerRosInterfaces();
 }
 
 void GazeboElectricPropulsionSystemPlugin::PreUpdate(
@@ -238,7 +238,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const auto dt = ch::duration<double>(info.dt).count();
 
   // Check aliasing
-  if (fabs(velocitySim() * dt) > M_PI) {
+  if (std::abs(velocitySim() * dt) > M_PI) {
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
   }
 
@@ -268,7 +268,7 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   getSdfParam(sdf, "vibrationForceVariationRate", param_.vib_force_var_rate, 0.3, kNonNegative);
 }
 
-void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
+void GazeboElectricPropulsionSystemPlugin::registerRosInterfaces()
 {
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
   state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
@@ -310,7 +310,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   // External force: H-force
   const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W_;
   const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
-  const auto h_force_W = (-fabs(vel_) * param_.drag_const) * linvel_perp_W;
+  const auto h_force_W = (-std::abs(vel_) * param_.drag_const) * linvel_perp_W;
 
   // External moment: Drag torque
   const auto torque = param_.moment_const * thrust;

@@ -18,12 +18,12 @@ int main()
   while (true) {
     if (!baro.readPressure(pres)) {
       cerr << "Failed to read pressure." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     if (!baro.readTemperature(temp)) {
       cerr << "Failed to read temperature." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     cout << "Pressure [hPa]     : " << pres / 100. << endl;

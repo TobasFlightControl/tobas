@@ -70,7 +70,7 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
 
   // Try to get configuration
   if (!getConfig()) {
-    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
     return;
   }
 
@@ -180,7 +180,7 @@ tobas::FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
   auto min_dist = std::numeric_limits<uint16_t>::max();
 
   for (const auto& [mode, period_ref] : modes_) {
-    const auto dist = abs(period - period_ref);
+    const auto dist = std::abs(period - period_ref);
     if (dist < min_dist) {
       min_dist = dist;
       res = mode;
@@ -212,17 +212,18 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
   rcin_msg->throttle = math::remap<double>(
     sbus->periods[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
 
-  rcin_msg->mode = getClosestFlightMode(sbus->periods[real::kRcChannelMode]);
-  rcin_msg->sub_mode = abs(sbus->periods[real::kRcChannelSubMode] - sub_mode_on_) <
-                       abs(sbus->periods[real::kRcChannelSubMode] - sub_mode_off_);
-  rcin_msg->enable =
-    abs(sbus->periods[real::kRcChannelEnable] - enable_on_) < abs(sbus->periods[real::kRcChannelEnable] - enable_off_);
-  rcin_msg->kill =
-    abs(sbus->periods[real::kRcChannelKill] - kill_on_) < abs(sbus->periods[real::kRcChannelKill] - kill_off_);
+  const auto& mode = sbus->periods[real::kRcChannelMode];
+  const auto& sub_mode = sbus->periods[real::kRcChannelSubMode];
+  const auto& enable = sbus->periods[real::kRcChannelEnable];
+  const auto& kill = sbus->periods[real::kRcChannelKill];
+  rcin_msg->mode = getClosestFlightMode(mode);
+  rcin_msg->sub_mode = std::abs(sub_mode - sub_mode_on_) < std::abs(sub_mode - sub_mode_off_);
+  rcin_msg->enable = std::abs(enable - enable_on_) < std::abs(enable - enable_off_);
+  rcin_msg->kill = std::abs(kill - kill_on_) < std::abs(kill - kill_off_);
 
   for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
-    const auto sbus_idx = real::kRcChannelGpsw + i;
-    rcin_msg->gpsw[i] = abs(sbus->periods[sbus_idx] - gpsw_on_[i]) < abs(sbus->periods[sbus_idx] - gpsw_off_[i]);
+    const auto& gpsw = sbus->periods[real::kRcChannelGpsw + i];
+    rcin_msg->gpsw[i] = std::abs(gpsw - gpsw_on_[i]) < std::abs(gpsw - gpsw_off_[i]);
   }
 
   // Publish message

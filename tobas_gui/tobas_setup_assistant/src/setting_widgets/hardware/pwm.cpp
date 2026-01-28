@@ -8,6 +8,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
 
@@ -53,7 +54,7 @@ bool PwmWidget::isValid()
       continue;
     }
     if (target_name_set.contains(target_name)) {
-      qt::qErrorBox(this, "PWM target \"" + target_name + "\" is duplicated.");
+      qt::qWarnBox(this, "PWM target \"" + target_name + "\" is duplicated.");
       return false;
     }
     target_name_set.insert(target_name);
@@ -70,8 +71,8 @@ YAML::Node PwmWidget::dump() const
     YAML::Node sub_node(YAML::NodeType::Map);
 
     sub_node[kTargetNameLabel] = targetNameWidget(channel)->currentText();
-    sub_node[kPeriodLbLabel] = periodLbWidget(channel)->value();
-    sub_node[kPeriodUbLabel] = periodUbWidget(channel)->value();
+    sub_node[kPeriodLbLabel] = yaml::format(periodLbWidget(channel)->value());
+    sub_node[kPeriodUbLabel] = yaml::format(periodUbWidget(channel)->value());
 
     node.push_back(sub_node);
   }

@@ -55,7 +55,7 @@ bool ProcessSettings::configureProcess()
   }
 
   if (cpu_affinity_ > 0) {
-    if (!setThisProcessCPUAffinity(cpu_affinity_)) {
+    if (!setThisProcessCpuAffinity(cpu_affinity_)) {
       return false;
     }
   }

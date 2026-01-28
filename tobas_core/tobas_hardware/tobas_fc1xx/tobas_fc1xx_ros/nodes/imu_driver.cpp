@@ -146,12 +146,8 @@ void ImuDriverNode::mainTimerCb()
   const auto cur_time = now();
 
   // Read IMU data
-  if (!imu_.readAccel(acc_raw_.x(), acc_raw_.y(), acc_raw_.z())) {
-    TOBAS_FATAL("Failed to read accelerometer.");
-    return;
-  }
-  if (!imu_.readGyro(gyro_raw_.x(), gyro_raw_.y(), gyro_raw_.z())) {
-    TOBAS_FATAL("Failed to read gyroscope.");
+  if (!imu_.readImu(acc_raw_.x(), acc_raw_.y(), acc_raw_.z(), gyro_raw_.x(), gyro_raw_.y(), gyro_raw_.z())) {
+    TOBAS_FATAL("Failed to read IMU.");
     return;
   }
 

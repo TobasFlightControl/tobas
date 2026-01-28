@@ -107,8 +107,6 @@ private:
   ros2::TimerPtr check_topics_timer_;
 
   bool updateInternalDataStructures();
-  void resetCommands();
-  void resetIntegralErrors();
   bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
   std::pair<kdl::Vector, kdl::Vector> computeRotGain() const;
   static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
@@ -346,20 +344,6 @@ kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& cur_rpy, const k
   const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
   const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
   return { roll_err, pitch_err, yaw_err };
-}
-
-void ControllerNode::resetCommands()
-{
-  pos_cmd_.reset();
-  acc_cmd_.reset();
-  tar_angle_.reset();
-  tar_gyro_.reset();
-}
-
-void ControllerNode::resetIntegralErrors()
-{
-  pos_pid_.resetIntegralError();
-  rot_ei_.setZero();
 }
 
 bool ControllerNode::horizontalNaturalFreqCb(const double& p)
@@ -637,7 +621,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     if (!trans_eom_.solve(
           odom->frame.M, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch)) {
-      TOBAS_FATAL("Failed to solve translational EoM.");
+      TOBAS_FATAL("Failed to solve the translational EoM.");
       return;
     }
 
@@ -700,7 +684,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     {
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
       if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro_, tar_thrust_, dist_torque_B)) {
-        TOBAS_FATAL("Failed to solve mixing equation.");
+        TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
 
@@ -741,15 +725,35 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
+  if (!landed_) {
+    landed_ = landed;
+    return;
+  }
+
+  // 着陸したら積分誤差をリセット
+  if (landed->data && !landed_->data) {
+    pos_pid_.resetIntegralError();
+    rot_ei_.setZero();
+    TOBAS_INFO("The integral errors have been reset.");
+  }
+
   landed_ = landed;
 }
 
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  if (arming_ && arming_->data && !arming->data) {
-    resetCommands();
-    resetIntegralErrors();
-    TOBAS_INFO("Controller is reset.");
+  if (!arming_) {
+    arming_ = arming;
+    return;
+  }
+
+  // ディスアームしたらコマンドをリセット
+  if (!arming->data && arming_->data) {
+    pos_cmd_.reset();
+    acc_cmd_.reset();
+    tar_angle_.reset();
+    tar_gyro_.reset();
+    TOBAS_INFO("The high-level commands have been reset.");
   }
 
   arming_ = arming;
@@ -798,11 +802,11 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
   }
 
   // Check command range
-  if (fabs(angle_cmd->angle.roll) > M_PI_2) {
+  if (std::abs(angle_cmd->angle.roll) > M_PI_2) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;
   }
-  if (fabs(angle_cmd->angle.pitch) > M_PI_2) {
+  if (std::abs(angle_cmd->angle.pitch) > M_PI_2) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
     return;
   }

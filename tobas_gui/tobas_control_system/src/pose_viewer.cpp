@@ -337,7 +337,7 @@ bool PoseViewerWidget::isSky(const QPoint& p, double a, double b) const
   const auto right = a * p.x() + b;
 
   // ロール角で場合分け．ロール角が90度を超えている場合は天地が逆転している．
-  if (fabs(roll_) < M_PI_2) {
+  if (std::abs(roll_) < M_PI_2) {
     return left < right;
   }
   else {

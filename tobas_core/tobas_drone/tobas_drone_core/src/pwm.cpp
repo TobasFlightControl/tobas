@@ -1,5 +1,6 @@
 #include "tobas_drone_core/pwm.hpp"
 
+#include <tobas_yaml_tools/convert/pair.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 using namespace std;

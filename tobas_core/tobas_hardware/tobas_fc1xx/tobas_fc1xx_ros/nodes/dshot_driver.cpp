@@ -53,9 +53,10 @@ private:
 
   ros2::TimerPtr auto_stop_timer_;
 
+  bool transfer();
   bool transferAndSleep();
-  void publishRotorStates();
-  bool stopRotors();
+  void publishCurrentRotorStates();
+  void publishErrorRotorStates();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
@@ -77,18 +78,23 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("fc
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
 }
 
-bool DShotDriverNode::transferAndSleep()
+bool DShotDriverNode::transfer()
 {
   if (!dshot_.transfer()) {
-    TOBAS_ERROR("SPI communication failed.");
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to communicate with the rotor controller.");
     return false;
   }
-
-  rclcpp::sleep_for(1ms);
   return true;
 }
 
-void DShotDriverNode::publishRotorStates()
+bool DShotDriverNode::transferAndSleep()
+{
+  const auto res = transfer();
+  rclcpp::sleep_for(1ms);
+  return res;
+}
+
+void DShotDriverNode::publishCurrentRotorStates()
 {
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   rotor_states->header.stamp = now();
@@ -113,21 +119,21 @@ void DShotDriverNode::publishRotorStates()
   rotor_states_pub_->publish(std::move(rotor_states));
 }
 
-bool DShotDriverNode::stopRotors()
+void DShotDriverNode::publishErrorRotorStates()
 {
-  for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
-    if (!dshot_.setThrottle(ch, fc1xx::DShot::DSHOT_CMD_MOTOR_STOP)) {
-      TOBAS_ERROR("Failed to set disarm throttle on channel ", ch, ".");
-      return false;
-    }
+  auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
+  rotor_states->header.stamp = now();
+
+  for (const auto& [_, rotor] : eprop_->rotors) {
+    const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
+    rotor_states->states.emplace_back();
+    rotor_states->states.back().link_name = rotor->link_name;
+    rotor_states->states.back().speed = NAN;
+    rotor_states->states.back().thrust = NAN;
+    rotor_states->states.back().status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
   }
 
-  if (!dshot_.transfer()) {
-    TOBAS_ERROR("Failed to stop rotors.");
-    return false;
-  }
-
-  return true;
+  rotor_states_pub_->publish(std::move(rotor_states));
 }
 
 void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -263,22 +269,24 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     }
 
     if (!dshot_.setTargetSpeed(erotor->channel, elem.speed)) {
-      TOBAS_ERROR("Failed to set target speed of rotor \"", elem.link_name, "\".");
+      TOBAS_ERROR("Failed to set the target speed of rotor \"", elem.link_name, "\".");
       continue;
     }
   }
 
-  // Send command and get rotor states
-  if (!dshot_.transfer()) {
-    TOBAS_ERROR("SPI communication failed.");
-    return;
+  // Send the commands and publish the rotor states
+  // NOTE: Even in the event of a communication error, the motor status must always be published.
+  if (transfer()) {
+    publishCurrentRotorStates();
+  }
+  else {
+    publishErrorRotorStates();
   }
 
-  // Publish messages
-  publishRotorStates();
+  // Publish the control latency
   latency_pub_.publish(tar_speeds->header.stamp);
 
-  // Reset timeout timer
+  // Reset the timeout timer
   auto_stop_timer_->reset();
 
   // Now the rotors are commanded
@@ -301,9 +309,9 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, c
     gains_.at(gain.channel) = gain.gain;
   }
 
-  if (!dshot_.transfer()) {
+  if (!transfer()) {
     res->success = false;
-    res->message = "SPI communication with DShot driver is failed.";
+    res->message = "Failed to communicate with the rotor controller.";
     return;
   }
 
@@ -330,15 +338,23 @@ void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, con
 
 void DShotDriverNode::autoStopTimerCb()
 {
-  if (!stopRotors()) {
-    return;
+  for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
+    if (!dshot_.setThrottle(ch, fc1xx::DShot::DSHOT_CMD_MOTOR_STOP)) {
+      TOBAS_ERROR("Failed to set disarm throttle on channel ", ch, ".");
+      return;
+    }
   }
 
-  publishRotorStates();
+  if (transfer()) {
+    publishCurrentRotorStates();
+  }
+  else {
+    publishErrorRotorStates();
+  }
 
   if (is_commanded_) {
     is_commanded_ = false;
-    TOBAS_WARN(
+    TOBAS_INFO(
       "All rotors are automatically stopped because ",
       tobas::kCommandAutoResetTimeout,
       " have elapsed since the last command.");

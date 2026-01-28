@@ -440,7 +440,7 @@ void HealthMonitorNode::mainTimerCb()
   if (do_check_.attitude_level && !arming_->data) {
     if (odom_) {
       const auto [roll, pitch, _] = odom_->frame.M.getRPY();
-      if (std::max(fabs(roll), fabs(pitch)) > kAttitudeThresh) {
+      if (std::max(std::abs(roll), std::abs(pitch)) > kAttitudeThresh) {
         health->attitude_level = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }
@@ -551,7 +551,7 @@ void HealthMonitorNode::mainTimerCb()
   // 地磁気オフセット
   if (do_check_.mag_offset) {
     if (mag_) {
-      if (abs(mag_B_lpf_.getValue().norm() - 1.) > kMagLengthErrorThresh) {
+      if (std::abs(mag_B_lpf_.getValue().norm() - 1.) > kMagLengthErrorThresh) {
         health->mag_offset = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
       }

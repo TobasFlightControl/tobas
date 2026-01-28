@@ -9,16 +9,17 @@ namespace linux
 class SPIdev
 {
 public:
-  explicit SPIdev();
-  ~SPIdev();
+  explicit SPIdev() noexcept;
+  ~SPIdev() noexcept;
 
-  bool initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word = 8);
+  bool
+  initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word = 8) noexcept;
 
   /**
    * @brief 引数で与えたバイト数だけ送受信する．
    * @note デバイスが接続されてないなど，SPIスレーブが機能していない場合はデッドロックする．
    */
-  bool transfer(uint32_t length);
+  bool transfer(uint32_t length) noexcept;
 
 private:
   spi_ioc_transfer spi_transfer_;

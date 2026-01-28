@@ -5,6 +5,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 namespace gui
 {
@@ -61,7 +62,7 @@ const char* PropellerWidget::name() const
 bool PropellerWidget::isValid()
 {
   if (min_chord_->getValue() > max_chord_->getValue()) {
-    qt::qErrorBox(this, "Blade chord range is invalid.");
+    qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
 
@@ -85,7 +86,7 @@ YAML::Node PropellerWidget::dump() const
 
   node[num_blades_->name()] = num_blades_->getValue();
   node[diameter_->name()] = diameter_->getValue();
-  node[pitch_->name()] = pitch_->getValue();
+  node[pitch_->name()] = yaml::format(pitch_->getValue());
   node[min_chord_->name()] = min_chord_->getValue();
   node[max_chord_->name()] = max_chord_->getValue();
 

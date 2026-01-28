@@ -19,7 +19,7 @@ int main()
   while (true) {
     if (!mag.readMag(mx, my, mz)) {
       cerr << "Failed to read magnetic field." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;

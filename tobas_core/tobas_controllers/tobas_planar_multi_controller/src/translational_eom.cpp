@@ -48,7 +48,7 @@ bool TranslationalEoM::solve(
   cur_rot.getRPY(roll_, pitch_, yaw_);
 
   // 姿勢角が90度を超える場合は実現できない
-  if (fabs(roll_) > M_PI_2 || fabs(pitch_) > M_PI_2) {
+  if (std::abs(roll_) > M_PI_2 || std::abs(pitch_) > M_PI_2) {
     cerr << "Cannot solve translational EoM because the aircraft is upside-down." << endl;
     return false;
   }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 project(tobas_kdl_msgs_adapter)
 
-set(AMENT_DEPENDENCIES tobas_kdl tobas_kdl_msgs)
+set(AMENT_DEPENDENCIES tobas_kdl tobas_kdl_msgs tobas_eigen_tools)
 
 find_package(ament_cmake REQUIRED)
 

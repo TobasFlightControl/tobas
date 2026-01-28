@@ -10,6 +10,7 @@
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
@@ -22,17 +23,14 @@ public:
   explicit DisturbanceObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // Dynamic parameters
-  double cutoff_freq_;  // [Hz]
-
   kdl::Tree tree_;
-  tobas::Drone drone_;
+  tobas::Drone::ConstSharedPtr drone_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
   tobas::TreeJointStateConverter js_converter_;
 
-  tobas_msgs::msg::RotorStateArray::ConstSharedPtr rotor_states_;
+  std::map<std::string, double> rotor_thrusts_;
   bool js_received_ = false;
 
   ros2::PublisherPtr<tobas_kdl_msgs::WrenchStamped> dist_force_pub_;
@@ -40,12 +38,14 @@ private:
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> joint_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
@@ -58,6 +58,7 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
   tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorStatesCb, this);
+  rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivTopic, &self::rotorLivelinessCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 }
 
@@ -72,9 +73,9 @@ void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 
 void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  drone_ = *drone;
+  drone_ = drone;
 
-  rotor_states_.reset();
+  rotor_thrusts_.clear();
   js_received_ = false;
 
   if (drone->hasServoJoint()) {
@@ -87,7 +88,48 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
 {
-  rotor_states_ = rotor_states;
+  if (tree_.empty()) {
+    return;
+  }
+
+  if (!drone_) {
+    return;
+  }
+
+  for (const auto& elem : rotor_states->states) {
+    const auto thrust_it = rotor_thrusts_.find(elem.link_name);
+    if (thrust_it == rotor_thrusts_.end()) {
+      // 機体のモデルに含まれるリンク名ならば追加
+      if (!tree_.hasSegment(elem.link_name) || !drone_->prop->rotors.contains(elem.link_name)) {
+        TOBAS_ERROR("The drone does not have rotor named \"", elem.link_name, "\".");
+        continue;
+      }
+      rotor_thrusts_[elem.link_name] = 0.;
+    }
+    else {
+      // モータの状態が取得できている場合のみ回転数を更新
+      // つまりモータの状態が一時的に取得できないならば回転数は変化していないとみなす
+      if (elem.status == tobas_msgs::msg::RotorState::NO_ERROR) {
+        thrust_it->second = elem.thrust;
+      }
+    }
+  }
+}
+
+void DisturbanceObserverNode::rotorLivelinessCb(
+  const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
+{
+  for (const auto& elem : rotor_liveliness->data) {
+    const auto thrust_it = rotor_thrusts_.find(elem.link_name);
+    if (thrust_it == rotor_thrusts_.end()) {
+      continue;
+    }
+
+    // モータが死んでいたらその回転数をゼロとみなす
+    if (!elem.alive) {
+      thrust_it->second = 0.;
+    }
+  }
 }
 
 void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states)
@@ -106,11 +148,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
     return;
   }
 
-  if (drone_.empty()) {
-    return;
-  }
-
-  if (!rotor_states_) {
+  if (!drone_) {
     return;
   }
 
@@ -138,29 +176,20 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   // 推力がかかる項を計算
   kdl::Vector trans_sum = kdl::Vector::Zero();
   kdl::Vector rot_sum = kdl::Vector::Zero();
-  for (const auto& rotor_state : rotor_states_->states) {
-    if (rotor_state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
-      TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod,
-        "No communication with rotor \"",
-        rotor_state.link_name,
-        "\". Its rotation speed is estimated to 0.");
-    }
-    else {
-      const auto& rotor = drone_.prop->rotors.at(rotor_state.link_name);
+  for (const auto& [link_name, thrust] : rotor_thrusts_) {
+    const auto& rotor = drone_->prop->rotors.at(link_name);
 
-      const auto& elem = tree_.getSegment(rotor->link_name)->second;
-      const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
-      const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
+    const auto& elem = tree_.getSegment(link_name)->second;
+    const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
+    const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
-      const auto d = rotor->sign();
-      const auto cm = rotor->momentConst();
-      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
-      const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
+    const auto d = rotor->sign();
+    const auto cm = rotor->momentConst();
+    const auto& B_Pos_B2P = fk_solver_.getFrame(link_name).p;
+    const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
-      trans_sum += axis_B * rotor_state.thrust;
-      rot_sum += (B_Pos_G2P * axis_B - (d * cm) * axis_B) * rotor_state.thrust;
-    }
+    trans_sum += axis_B * thrust;
+    rot_sum += (B_Pos_G2P * axis_B - (d * cm) * axis_B) * thrust;
   }
 
   // 外力を計算

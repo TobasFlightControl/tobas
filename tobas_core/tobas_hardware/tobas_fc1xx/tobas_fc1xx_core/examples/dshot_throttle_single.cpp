@@ -23,12 +23,12 @@ int main(int argc, char** argv)
   while (true) {
     if (!dshot.setThrottle(channel, throttle)) {
       cerr << "Failed to set DShot throttle of channel " << channel << "." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     if (!dshot.transfer()) {
       cerr << "Failed to command DShot throttles." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     dshot.printCurrentState(channel);

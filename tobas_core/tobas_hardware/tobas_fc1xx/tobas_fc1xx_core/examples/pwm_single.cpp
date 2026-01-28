@@ -23,12 +23,12 @@ int main(int argc, char** argv)
   while (true) {
     if (!pwm.setPeriod(channel, period)) {
       cerr << "Failed to set PWM period of channel " << channel << "." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     if (!pwm.transfer()) {
       cerr << "Failed to command PWM periods." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     this_thread::sleep_for(100ms);

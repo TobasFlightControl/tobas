@@ -18,7 +18,7 @@ int main()
   while (true) {
     if (!battery.read(voltage, current)) {
       cerr << "Failed to read battery status." << endl;
-      return EXIT_FAILURE;
+      continue;
     }
 
     cout << "Voltage [V]: " << voltage << endl;

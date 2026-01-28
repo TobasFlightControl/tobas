@@ -9,14 +9,11 @@ class PWM
 {
 public:
   static constexpr size_t kChannelSize = 8;
-  static constexpr size_t kSPIBufSize = kChannelSize + 2;  // Data + CRC32
 
 private:
   static constexpr char kSpiDevice[] = "/dev/spidev1.1";
-  static constexpr uint32_t kSPIClockFreq = 50'000'000;                // [Hz]
-  static constexpr size_t kChannelBytes = 2;                           // 1チャネルあたりのバイト数
-  static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint16_t kMaxPeriod = 2500;                         // [us]
+  static constexpr uint32_t kSpiClockFreq = 50'000'000;  // [Hz]
+  static constexpr uint16_t kMaxPeriod = 2500;           // [us]
 
 public:
   explicit PWM();
@@ -28,8 +25,8 @@ public:
 
 private:
   linux::SPIdev spi_;
-  uint16_t tx_buf_[kSPIBufSize] = {};
-  uint16_t rx_buf_[kSPIBufSize] = {};
+  uint16_t tx_buf_[kChannelSize + 2] = {};
+  uint16_t rx_buf_[kChannelSize + 2] = {};
 
   algo::CRC32Left crc_;
 };

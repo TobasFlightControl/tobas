@@ -12,6 +12,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
   const QVector<tobas_msgs::msg::MagneticField>& mag_data,
   const QVector<tobas_msgs::msg::Gnss>& gnss_data,
+  const QVector<tobas_msgs::msg::RCInput>& rcin_data,
   const QVector<tobas_msgs::msg::Battery>& battery_data,
   const QVector<tobas_msgs::msg::Cpu>& cpu_data,
   const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
@@ -32,6 +33,7 @@ PlotTabWidget::PlotTabWidget(
   , filt_imu_data_(filt_imu_data)
   , mag_data_(mag_data)
   , gnss_data_(gnss_data)
+  , rcin_data_(rcin_data)
   , battery_data_(battery_data)
   , cpu_data_(cpu_data)
   , cur_rotor_states_data_(cur_rotor_states_data)
@@ -55,6 +57,7 @@ PlotTabWidget::PlotTabWidget(
   imu_fft_plot_ = new ImuFftPlotWidget();
   mag_plot_ = new MagPlotWidget();
   gnss_plot_ = new GnssPlotWidget();
+  rcin_plot_ = new RcInputPlotWidget();
   battery_plot_ = new BatteryPlotWidget();
   engine_plot_ = new EnginePlotWidget();
   cpu_plot_ = new CpuPlotWidget();
@@ -77,6 +80,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(imu_fft_plot_, "IMU FFT");
   addTab(mag_plot_, "Magnetic\nField");
   addTab(gnss_plot_, "GNSS");
+  addTab(rcin_plot_, "RC Input");
   addTab(battery_plot_, "Battery");
   addTab(engine_plot_, "Engine");
   addTab(cpu_plot_, "CPU");
@@ -142,6 +146,9 @@ void PlotTabWidget::plot(int index)
   }
   else if (cur_widget == gnss_plot_) {
     gnss_plot_->setData(gnss_data_);
+  }
+  else if (cur_widget == rcin_plot_) {
+    rcin_plot_->setData(rcin_data_);
   }
   else if (cur_widget == battery_plot_) {
     battery_plot_->setData(battery_data_);

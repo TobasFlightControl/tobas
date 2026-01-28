@@ -65,12 +65,7 @@ void RotorLinkPlotWidget::setData(const QVector<tobas_msgs::msg::RotorStateArray
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
 
-      if (elem.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
-        value_data[idx].push_back(1);
-      }
-      else {
-        value_data[idx].push_back(0);
-      }
+      value_data[idx].push_back(static_cast<int>(elem.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE));
     }
   }
 
@@ -101,7 +96,8 @@ bool RotorLinkPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::Ro
     ++num_rotors_;
 
     const auto plot = new QwtPlot2();
-    plot->setupBinaryPlot("OK", "ERR");
+    plot->setAxisNoLabel(QwtPlot::xBottom);
+    plot->setupIndexedLabelPlot({ "OK", "ERR" });
 
     // ウィジェットをN行2列の格子状に配置
     const auto row = idx / 2;

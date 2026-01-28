@@ -14,14 +14,13 @@ class RotorAnomalyDetectorNode : public tobas::BaseNode
   using self = RotorAnomalyDetectorNode;
   using super = tobas::BaseNode;
 
-  static constexpr rcl_duration_value_t kNoCommTimeout = 100'000'000;     // [ns]
-  static constexpr rcl_duration_value_t kCommRecoveryTime = 300'000'000;  // [ns]
-  static constexpr auto kPublishRotorLivelinessPeriod = 1s;
-
 public:
   explicit RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  // Parameters
+  double no_comm_timeout_;  // [s]
+
   struct RotorData
   {
     bool is_alive = true;
@@ -48,26 +47,28 @@ private:
 RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
   : super("rotor_anomaly_detector", options)
 {
+  no_comm_timeout_ = getDoubleParam("no_communication_timeout", 0.2);
+
   rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::statesCb, this);
 
-  publish_rotor_liveliness_timer_ = createTimer(kPublishRotorLivelinessPeriod, &self::publishRotorLiveliness, this);
+  publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
 }
 
 void RotorAnomalyDetectorNode::publishRotorLiveliness()
 {
-  auto rotor_liveliness = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
-  rotor_liveliness->header.stamp = now();
+  auto msg = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
+  msg->header.stamp = now();
 
   for (const auto& [link_name, data] : data_) {
-    rotor_liveliness->data.emplace_back();
-    rotor_liveliness->data.back().link_name = link_name;
-    rotor_liveliness->data.back().alive = data.is_alive;
+    msg->data.emplace_back();
+    msg->data.back().link_name = link_name;
+    msg->data.back().alive = data.is_alive;
   }
 
-  rotor_liveliness_pub_->publish(std::move(rotor_liveliness));
+  rotor_liveliness_pub_->publish(std::move(msg));
 }
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -105,7 +106,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
     if (data.is_alive) {
       if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
         // 一定時間通信が途絶えている場合は死んでいるとみなす
-        if ((cur_time - data.last_alive_time).nanoseconds() > kNoCommTimeout) {
+        if ((cur_time - data.last_alive_time).seconds() > no_comm_timeout_) {
           data.is_alive = false;
           data.last_dead_time = cur_time;
           TOBAS_WARN("No communication with rotor \"", state.link_name, "\".");
@@ -121,7 +122,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
     else {
       if (state.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
         // 一定時間通信があれば回復したとみなす
-        if ((cur_time - data.last_dead_time).nanoseconds() > kCommRecoveryTime) {
+        if ((cur_time - data.last_dead_time).seconds() > no_comm_timeout_ * 2) {
           data.is_alive = true;
           data.last_alive_time = cur_time;
           TOBAS_INFO("Communication with rotor \"", state.link_name, "\" has been recovered.");

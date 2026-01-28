@@ -8,6 +8,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
@@ -131,10 +132,6 @@ void GazeboImuPlugin::Configure(
 
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
-  if (!mass_holder_.initialize(model, ecm)) {
-    TOBAS_EXIT("Failed to initialize model mass holder.");
-  }
-
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
@@ -145,11 +142,15 @@ void GazeboImuPlugin::Configure(
     TOBAS_EXIT("Failed to get the world component.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
-  acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
-  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
-  grav_W_ = getComponent<cmp::Gravity>(world, ecm);
+  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(link, ecm));
+  TOBAS_CHECK(acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm));
+  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm));
+  TOBAS_CHECK(dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm));
+  TOBAS_CHECK(grav_W_ = getComponent<cmp::Gravity>(world, ecm));
+
+  if (!mass_holder_.initialize(model, ecm)) {
+    TOBAS_EXIT("Failed to initialize model mass holder.");
+  }
 
   imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
   imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);

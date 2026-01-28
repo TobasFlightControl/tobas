@@ -1,6 +1,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 namespace gui
 {
@@ -67,7 +68,7 @@ const char* BatteryWidget_Other::name() const
 bool BatteryWidget_Other::isValid()
 {
   if (max_voltage_->getValue() <= sag_voltage_->getValue()) {
-    qt::qErrorBox(this, "Maximum voltage must be greater than voltage threshold.");
+    qt::qWarnBox(this, "Maximum voltage must be greater than voltage threshold.");
     return false;
   }
 
@@ -78,10 +79,10 @@ YAML::Node BatteryWidget_Other::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[nominal_voltage_->name()] = nominal_voltage_->getValue();
-  node[max_voltage_->name()] = max_voltage_->getValue();
-  node[sag_voltage_->name()] = sag_voltage_->getValue();
-  node[max_current_->name()] = max_current_->getValue();
+  node[nominal_voltage_->name()] = yaml::format(nominal_voltage_->getValue());
+  node[max_voltage_->name()] = yaml::format(max_voltage_->getValue());
+  node[sag_voltage_->name()] = yaml::format(sag_voltage_->getValue());
+  node[max_current_->name()] = yaml::format(max_current_->getValue());
   node[capacity_->name()] = capacity_->getValue();
   node[registance_->name()] = registance_->getValue();
 

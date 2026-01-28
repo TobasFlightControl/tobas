@@ -1,8 +1,7 @@
 #include <iostream>
 
 #include <tobas_string_tools/stream.hpp>
-#include <tobas_wpa_supplicant/export.hpp>
-#include <tobas_wpa_supplicant/parse.hpp>
+#include <tobas_wpa_supplicant/wpa_supplicant.hpp>
 
 int main()
 {

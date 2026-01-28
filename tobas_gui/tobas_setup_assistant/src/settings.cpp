@@ -26,6 +26,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   rc_input = new RcInputWidget();
   extra_joints = new ExtraJointsWidget(uadf, tree);
   failsafe = new FailsafeWidget();
+  network = new NetworkWidget();
   author_info = new AuthorInformationWidget();
 
   // Basic settings
@@ -46,6 +47,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   addEntry(additional_list_, rc_input);
   addEntry(additional_list_, extra_joints);
   addEntry(additional_list_, failsafe);
+  addEntry(additional_list_, network);
   addEntry(additional_list_, author_info);
 
   // Make mutually exclusive

@@ -8,6 +8,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
+#include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero_parser.hpp"
@@ -152,7 +153,7 @@ YAML::Node AerodynamicsCoefficientsWidget::dump() const
   for (int row = 0; row < form_->rowCount(); ++row) {
     const auto label = qt::qConstPointerCast<QLabel>(form_->getLabel(row));
     const auto widget = qt::qConstPointerCast<qt::DoubleSpinBox>(form_->getWidget(row));
-    node[label->text().toStdString()] = widget->value();
+    node[label->text().toStdString()] = yaml::format(widget->value());
   }
 
   return node;

@@ -38,6 +38,7 @@ private:
   QVector<tobas_msgs::msg::Imu> filt_imu_data_;
   QVector<tobas_msgs::msg::MagneticField> mag_data_;
   QVector<tobas_msgs::msg::Gnss> gnss_data_;
+  QVector<tobas_msgs::msg::RCInput> rcin_data_;
   QVector<tobas_msgs::msg::Battery> battery_data_;
   QVector<tobas_msgs::msg::Cpu> cpu_data_;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data_;
@@ -58,6 +59,7 @@ private:
   MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;
   MessageDecoder<tobas_msgs::msg::MagneticField> mag_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
+  MessageDecoder<tobas_msgs::msg::RCInput> rcin_decoder_;
   MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
   MessageDecoder<tobas_msgs::msg::Cpu> cpu_decoder_;
   MessageDecoder<tobas_msgs::msg::RotorStateArray> rotor_states_decoder_;

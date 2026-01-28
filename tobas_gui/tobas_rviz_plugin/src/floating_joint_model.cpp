@@ -104,7 +104,7 @@ void FloatingJointModel::interpolate(const double* from, const double* to, const
 
   // Check if the quaternions are significantly different
   if (
-    abs(from[3] - to[3]) + abs(from[4] - to[4]) + abs(from[5] - to[5]) + abs(from[6] - to[6]) >
+    std::abs(from[3] - to[3]) + std::abs(from[4] - to[4]) + std::abs(from[5] - to[5]) + std::abs(from[6] - to[6]) >
     std::numeric_limits<double>::epsilon()) {
     // Note the ordering: Eigen takes w first!
     Eigen::Quaterniond q1(from[6], from[3], from[4], from[5]);
@@ -137,14 +137,14 @@ bool FloatingJointModel::satisfiesPositionBounds(const double* values, const Bou
     return false;
   }
   double norm_sqr = values[3] * values[3] + values[4] * values[4] + values[5] * values[5] + values[6] * values[6];
-  return fabs(norm_sqr - 1.) <= std::numeric_limits<double>::epsilon() * 10.;
+  return std::abs(norm_sqr - 1.) <= std::numeric_limits<double>::epsilon() * 10.;
 }
 
 bool FloatingJointModel::normalizeRotation(double* values) const
 {
   // normalize the quaternion if we need to
   double norm_sqr = values[3] * values[3] + values[4] * values[4] + values[5] * values[5] + values[6] * values[6];
-  if (fabs(norm_sqr - 1.) > std::numeric_limits<double>::epsilon() * 100.) {
+  if (std::abs(norm_sqr - 1.) > std::numeric_limits<double>::epsilon() * 100.) {
     double norm = sqrt(norm_sqr);
     if (norm < std::numeric_limits<double>::epsilon() * 100.) {
       RCLCPP_WARN(getLogger(), "Quaternion is zero in RobotState representation. Setting to identity");

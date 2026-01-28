@@ -28,29 +28,29 @@ bool Drone::isValid() const
 
   for (const auto& [_, pwm] : pwms) {
     if (!pwm.isValid()) {
-      cerr << "The configurations of PWM channel " << pwm.channel << " are invalid." << endl;
+      cerr << "The configuration of PWM channel " << pwm.channel << " is invalid." << endl;
       return false;
     }
   }
 
   for (const auto& [_, joint] : joints) {
     if (!joint.isValid()) {
-      cerr << "The configurations of joint \"" << joint.name << "\" are invalid." << endl;
+      cerr << "The configuration of joint \"" << joint.name << "\" is invalid." << endl;
       return false;
     }
   }
 
   if (!prop) {
-    cerr << "The configurations of propulsion system is null." << endl;
+    cerr << "The configuration of propulsion system is null." << endl;
     return false;
   }
   if (!prop->isValid()) {
-    cerr << "The configurations of propulsion system are invalid." << endl;
+    cerr << "The configuration of propulsion system is invalid." << endl;
     return false;
   }
 
   if (fixed_wing && !fixed_wing->isValid()) {
-    cerr << "The configurations of fixed wing are invalid." << endl;
+    cerr << "The configuration of fixed wing is invalid." << endl;
     return false;
   }
 
@@ -84,7 +84,7 @@ bool Drone::load(const YAML::Node& root_node)
   for (const auto& joint_node : joints_node) {
     JointConfig joint;
     if (!joint.load(joint_node)) {
-      cerr << "Failed to load the configurations of joints." << endl;
+      cerr << "Failed to load the configuration of joints." << endl;
       return false;
     }
     joints[joint.name] = joint;
@@ -103,7 +103,7 @@ bool Drone::load(const YAML::Node& root_node)
   for (const auto& pwm_node : pwms_node) {
     PwmConfig pwm;
     if (!pwm.load(pwm_node)) {
-      cerr << "Failed to load the configurations of PWM." << endl;
+      cerr << "Failed to load the configuration of PWM." << endl;
       return false;
     }
     pwms[pwm.name] = pwm;
@@ -125,7 +125,7 @@ bool Drone::load(const YAML::Node& root_node)
     case PropulsionSystem::kElectric: {
       const auto eprop = make_shared<ElectricPropulsionSystemConfig>();
       if (!eprop->load(prop_node)) {
-        cerr << "Failed to load the configurations of electric propulsion system." << endl;
+        cerr << "Failed to load the configuration of electric propulsion system." << endl;
         return false;
       }
       prop = static_pointer_cast<PropulsionSystemConfig>(eprop);
@@ -134,7 +134,7 @@ bool Drone::load(const YAML::Node& root_node)
     case PropulsionSystem::kIce: {
       const auto iprop = make_shared<IcePropulsionSystemConfig>();
       if (!iprop->load(prop_node)) {
-        cerr << "Failed to load the configurations of ICE propulsion system." << endl;
+        cerr << "Failed to load the configuration of ICE propulsion system." << endl;
         return false;
       }
       prop = static_pointer_cast<PropulsionSystemConfig>(iprop);
@@ -151,7 +151,7 @@ bool Drone::load(const YAML::Node& root_node)
   if (fw_node.IsDefined()) {
     fixed_wing = make_shared<FixedWingConfig>();
     if (!fixed_wing->load(fw_node)) {
-      cerr << "Failed to load the configurations of fixed wing." << endl;
+      cerr << "Failed to load the configuration of fixed wing." << endl;
       return false;
     }
   }

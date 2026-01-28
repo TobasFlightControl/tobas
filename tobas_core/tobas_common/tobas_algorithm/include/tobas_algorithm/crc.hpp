@@ -9,12 +9,12 @@ namespace algo
 class CRC
 {
 public:
-  void initialize();
+  void initialize() noexcept;
 
 protected:
   static constexpr size_t kTableSize = 1 << 8;
 
-  virtual void createTable() = 0;
+  virtual void createTable() noexcept = 0;
 };
 
 class CRC16 : public CRC
@@ -27,9 +27,9 @@ public:
    * @param init_value 初期値
    * @param out_xor 除算後のXOR
    */
-  explicit CRC16(uint16_t poly, uint16_t init_value = 0, uint16_t out_xor = 0);
+  explicit CRC16(uint16_t poly, uint16_t init_value = 0, uint16_t out_xor = 0) noexcept;
 
-  virtual uint16_t compute(const uint8_t* buf, size_t len) const = 0;
+  virtual uint16_t compute(const uint8_t* buf, size_t len) const noexcept = 0;
 
 protected:
   const uint16_t poly_;
@@ -49,9 +49,9 @@ public:
    * @param init_value 初期値
    * @param out_xor 除算後のXOR
    */
-  explicit CRC32(uint32_t poly, uint32_t init_value = 0, uint32_t out_xor = 0);
+  explicit CRC32(uint32_t poly, uint32_t init_value = 0, uint32_t out_xor = 0) noexcept;
 
-  virtual uint32_t compute(const uint8_t* buf, size_t len) const = 0;
+  virtual uint32_t compute(const uint8_t* buf, size_t len) const noexcept = 0;
 
 protected:
   const uint32_t poly_;
@@ -60,7 +60,7 @@ protected:
 
   uint32_t table_[kTableSize];
 
-  virtual void createTable() = 0;
+  virtual void createTable() noexcept = 0;
 };
 
 class CRC16Right : public CRC16
@@ -74,10 +74,10 @@ public:
 
   using CRC16::CRC16;
 
-  uint16_t compute(const uint8_t* buf, size_t len) const override;
+  uint16_t compute(const uint8_t* buf, size_t len) const noexcept override;
 
 protected:
-  void createTable() override;
+  void createTable() noexcept override;
 };
 
 class CRC16Left : public CRC16
@@ -91,10 +91,10 @@ public:
 
   using CRC16::CRC16;
 
-  uint16_t compute(const uint8_t* buf, size_t len) const override;
+  uint16_t compute(const uint8_t* buf, size_t len) const noexcept override;
 
 protected:
-  void createTable() override;
+  void createTable() noexcept override;
 };
 
 class CRC32Right : public CRC32
@@ -109,10 +109,10 @@ public:
 
   using CRC32::CRC32;
 
-  uint32_t compute(const uint8_t* buf, size_t len) const override;
+  uint32_t compute(const uint8_t* buf, size_t len) const noexcept override;
 
 protected:
-  void createTable() override;
+  void createTable() noexcept override;
 };
 
 class CRC32Left : public CRC32
@@ -127,9 +127,9 @@ public:
 
   using CRC32::CRC32;
 
-  uint32_t compute(const uint8_t* buf, size_t len) const override;
+  uint32_t compute(const uint8_t* buf, size_t len) const noexcept override;
 
 protected:
-  void createTable() override;
+  void createTable() noexcept override;
 };
 }  // namespace algo

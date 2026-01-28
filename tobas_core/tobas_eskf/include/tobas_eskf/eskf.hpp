@@ -172,11 +172,14 @@ public:
     const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& offset,
     const std::chrono::steady_clock::time_point& time);
+
   double measureXY(
     const Eigen::Vector2d& xy_meas,
     const Eigen::Matrix2d& xy_cov,
     const std::chrono::steady_clock::time_point& time);
+
   double measureAltitude(const double& z_meas, const double& z_var, const std::chrono::steady_clock::time_point& time);
+
   /**
    * @brief 速度の観測をノミナル状態に反映させる．
    *
@@ -193,17 +196,25 @@ public:
     const Eigen::Vector3d& offset,
     const Eigen::Vector3d& gyro_meas,
     const std::chrono::steady_clock::time_point& time);
+
   double measurePosVel(
     const Eigen::Vector3d& pos_meas,
-    const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& vel_meas,
-    const Eigen::Matrix3d& vel_cov,
+    const Eigen::Matrix6d& cov,
     const Eigen::Vector3d& offset,
     const Eigen::Vector3d& gyro_meas,
     const std::chrono::steady_clock::time_point& time);
+
   double measureQuaternion(
     const Eigen::Quaterniond& q_meas,
     const Eigen::Matrix3d& theta_cov,
+    const std::chrono::steady_clock::time_point& time);
+
+  double measurePose(
+    const Eigen::Vector3d& pos_meas,
+    const Eigen::Quaterniond& q_meas,
+    const Eigen::Matrix6d& cov,
+    const Eigen::Vector3d& offset,
     const std::chrono::steady_clock::time_point& time);
 
   double measureMagneticField3d(
@@ -240,6 +251,7 @@ private:
   Eigen::Matrix<double, 3, kDeltaStateSize> H_vel_;
   Eigen::Matrix<double, 6, kDeltaStateSize> H_pv_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_theta_;
+  Eigen::Matrix<double, 6, kDeltaStateSize> H_pose_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_mag_;
   Eigen::Matrix<double, 1, kDeltaStateSize> H_yaw_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_grav_;
