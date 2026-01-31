@@ -65,12 +65,13 @@ public:
     std::shared_ptr<tobas_msgs::msg::Gnss> cur_gnss;
     std::shared_ptr<tobas_msgs::msg::RCInput> cur_rcin;
     std::shared_ptr<tobas_msgs::msg::Battery> cur_battery;
-    std::shared_ptr<tobas_msgs::msg::IcePropulsionSystemCommand> cur_ice_cmd = nullptr;
-    std::shared_ptr<tobas_msgs::msg::Cpu> cur_cpu = nullptr;
+    std::shared_ptr<tobas_msgs::msg::IcePropulsionSystemCommand> cur_ice_cmd;
+    std::shared_ptr<tobas_msgs::msg::Cpu> cur_cpu;
   } curData_;
   struct LastData
   {
     std::shared_ptr<tobas_msgs::msg::Odometry> last_odom = nullptr;
+    std::shared_ptr<tobas_msgs::msg::Imu> last_imu = nullptr;
     std::shared_ptr<tobas_msgs::msg::MagneticField> last_mag = nullptr;
     std::shared_ptr<tobas_msgs::msg::Gnss> last_gnss = nullptr;
     std::shared_ptr<tobas_msgs::msg::RCInput> last_rcin = nullptr;
@@ -90,6 +91,8 @@ public:
   std::string makeCsvRow(const auto& cur_time);
 
 private:
+  size_t num_rotors_;
+
   rosbag2_cpp::Reader reader_;
   MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
   MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;

@@ -31,6 +31,34 @@ namespace log
 {
 void CsvExportWorker::process(const QString& log_name, const QString& savePath)
 {
+  // ローター数の取得
+  while (reader_.has_next()) {
+    const auto msg = reader_.read_next();
+
+    if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
+      break;
+    }
+  }
+
+  exportCsvHeader = "time,\
+    Pose/CurrentX[m], Pose/currently[m], Pose/CurrentZ[m],\
+    Pose/CurrentRoll[deg], Pose/CurrentPitch[deg], Pose/CurrentYaw[deg],\
+    Twist/CurrentLinearVelocityX[m/s], Twist/CurrentLinearVelocityY[m/s], Twist/CurrentLinearVelocityZ[m/s],\
+    Twist/CurrentAngularVelocityX[rad/s], Twist/CurrentAngularVelocityY[rad/s], Twist/CurrentAngularVelocityZ[rad/s],\
+    Accel/CurrentLinearAccelX[m/s^2], Accel/CurrentLinearAccelY[m/s^2], Accel/CurrentLinearAccelZ[m/s^2],\
+    Accel/CurrentAngularAccelX[rad/s^2], Accel/CurrentAngularAccelY[rad/s^2], Accel/CurrentAngularAccelZ[rad/s^2],\
+    IMU/accel/x[m/s^2], IMU/accel/y[m/s^2], IMU/accel/z[m/s^2],\
+    IMU/gyro/x[rad/s], IMU/gyro/y[rad/s], IMU/gyro/z[rad/s],\
+    IMU/dgyro/x[rad/s^2], IMU/dgyro/y[rad/s^2], IMU/dgyro/z[rad/s^2],\
+    MagneticField/X[-], MagneticField/Y[-], MagneticField/Z[-],\
+    GNSS/latitude[deg], GNSS/longitude[deg], GNSS/altitude[m],\
+    GNSS/EastSpeed[m/s], GNSS/NorthSpeed[m/s], GNSS/UpSpeed[m/s],\
+    RCInput/Roll, RCInput/Pitch, RCInput/Throttle, RCInput/Yaw,\
+    RCInput/FlightMode, RCInput/SubMode, RCInput/Enable, RCInput/kill,\
+    Battery/voltage[V], Battery/current[A],\
+    EngineThrottle[%],\
+    CPU/Frequency[GHz], CPU/Temperature[degC], CPU/Load[%],\n";
+
   try {
     std::ofstream csvFile(savePath.toStdString());
     if (!csvFile.is_open()) {
@@ -49,16 +77,28 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
         return;
       }
     }
+    rcutils_time_point_value_t start_time = 0;
+    bool is_timer_started = false;
+    const int64_t TIME_THRESHOLD_NS = 1 * 1000 * 1000;
 
+    const auto& metadata = reader_.get_metadata();
+    const auto record_start_time = metadata.starting_time.time_since_epoch().count();
+    reader_.seek(record_start_time);
     while (reader_.has_next()) {
       const auto msg = reader_.read_next();
       const auto& cur_time = msg->recv_timestamp;  // [ns]
+      if (cur_time - start_time > TIME_THRESHOLD_NS && is_timer_started) {
+        is_timer_started = false;
+        csvFile << makeCsvRow(cur_time);
+      }
 
       rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
 
       if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
         curData_.cur_imu = std::make_shared<tobas_msgs::msg::Imu>(imu_decoder_.decode(cur_time, ser_msg));
-        csvFile << makeCsvRow(cur_time);
+        is_timer_started = true;
+        start_time = msg->recv_timestamp;
+        // csvFile << makeCsvRow(cur_time);
       }
       else {
         if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
