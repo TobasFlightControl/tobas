@@ -8,9 +8,8 @@ namespace real
 static constexpr char kImuRawTopic[] = "real/imu_raw";
 static constexpr char kImuFiltTopic[] = "real/imu_filtered";
 static constexpr char kMagTopic[] = "real/magnetic_field";
-static constexpr char kAirPressureTopic[] = "real/air_pressure";
 
-// RCチャンネル
+// RC Channels
 static constexpr size_t kRcChannelRoll = 0;     // CH1
 static constexpr size_t kRcChannelPitch = 1;    // CH2
 static constexpr size_t kRcChannelThrot = 2;    // CH3

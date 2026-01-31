@@ -122,12 +122,6 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package="tobas_real_ros",
-                    plugin="BarometerHandlerNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
-                ),
-                ComposableNode(
-                    package="tobas_real_ros",
                     plugin="JointsHandlerNode",
                     namespace=DRONE_NAME,
                     extra_arguments=extra_args,
