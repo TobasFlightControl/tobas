@@ -62,7 +62,7 @@ private:
   enum Config : uint8_t
   {
     // CTRL_REG1
-    ODR_0HZ = 0b0000 << 3,
+    ODR_0HZ = 0b0000 << 3,  // Default
     ODR_1HZ = 0b0001 << 3,
     ODR_4HZ = 0b0010 << 3,
     ODR_10HZ = 0b0011 << 3,
@@ -71,7 +71,7 @@ private:
     ODR_75HZ = 0b0110 << 3,
     ODR_100HZ = 0b0111 << 3,
     ODR_200HZ = 0b1000 << 3,
-    AVG_4 = 0b000 << 0,
+    AVG_4 = 0b000 << 0,  // Default
     AVG_8 = 0b001 << 0,
     AVG_16 = 0b010 << 0,
     AVG_32 = 0b011 << 0,
@@ -81,27 +81,19 @@ private:
 
     // CTRL_REG2
     REBOOT_MEMORY_CONTENT = 1 << 7,
-    FS_MODE_1260HPA = 0 << 6,
+    FS_MODE_1260HPA = 0 << 6,  // Default
     FS_MODE_4060HPA = 1 << 6,
-    LPF_CFG_4 = 0 << 5,
+    LPF_CFG_4 = 0 << 5,  // Default
     LPF_CFG_9 = 1 << 5,
-    ENABLE_LPF = 1 << 4,
+    ENABLE_LPF = 1 << 4,  // Default
     BLOCK_DATA_UPDATE = 1 << 3,
     SOFTWARE_RESET = 1 << 2,
-    ONESHOT = 1 << 0,
+    ONESHOT = 1 << 0,  // Default
 
     // CTRL_REG3
     AH_QVAR_EN = 1 << 7,
     AH_QVAR_P_AUTO_EN = 1 << 5,
     IF_ADD_INC = 1 << 0,
-  };
-
-  enum Status : uint8_t
-  {
-    TEMP_OVERRUN = 1 << 5,
-    PRES_OVERRUN = 1 << 4,
-    TEMP_AVAILABLE = 1 << 1,
-    PRES_AVAILABLE = 1 << 0,
   };
 
   linux::I2Cdev i2c_;
