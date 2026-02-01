@@ -14,17 +14,17 @@ bool PosVelPitchYawController::requirePosition()
   return true;
 }
 
-bool PosVelPitchYawController::requireOrientation()
+bool PosVelPitchYawController::requireVelocity()
 {
   return true;
 }
 
-bool PosVelPitchYawController::requireLinearVelocity()
+bool PosVelPitchYawController::requireAttitude()
 {
   return true;
 }
 
-bool PosVelPitchYawController::requireAngularVelocity()
+bool PosVelPitchYawController::requireHeading()
 {
   return true;
 }

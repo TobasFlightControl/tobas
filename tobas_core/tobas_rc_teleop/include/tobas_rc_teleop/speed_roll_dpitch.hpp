@@ -15,9 +15,9 @@ public:
   explicit SpeedRollDeltaPitchController();
 
   bool requirePosition() override;
-  bool requireOrientation() override;
-  bool requireLinearVelocity() override;
-  bool requireAngularVelocity() override;
+  bool requireVelocity() override;
+  bool requireAttitude() override;
+  bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
   void reset(const tobas_msgs::Odometry& odom) override;

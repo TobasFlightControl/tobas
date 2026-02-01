@@ -14,17 +14,17 @@ bool SpeedRollDeltaPitchController::requirePosition()
   return false;
 }
 
-bool SpeedRollDeltaPitchController::requireOrientation()
+bool SpeedRollDeltaPitchController::requireVelocity()
 {
   return true;
 }
 
-bool SpeedRollDeltaPitchController::requireLinearVelocity()
+bool SpeedRollDeltaPitchController::requireAttitude()
 {
   return true;
 }
 
-bool SpeedRollDeltaPitchController::requireAngularVelocity()
+bool SpeedRollDeltaPitchController::requireHeading()
 {
   return false;
 }

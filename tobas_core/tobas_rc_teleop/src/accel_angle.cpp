@@ -14,17 +14,17 @@ bool AccelAngleController::requirePosition()
   return false;
 }
 
-bool AccelAngleController::requireOrientation()
-{
-  return true;
-}
-
-bool AccelAngleController::requireLinearVelocity()
+bool AccelAngleController::requireVelocity()
 {
   return false;
 }
 
-bool AccelAngleController::requireAngularVelocity()
+bool AccelAngleController::requireAttitude()
+{
+  return true;
+}
+
+bool AccelAngleController::requireHeading()
 {
   return true;
 }

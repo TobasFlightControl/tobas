@@ -14,17 +14,17 @@ bool PosVelAngleController::requirePosition()
   return true;
 }
 
-bool PosVelAngleController::requireOrientation()
+bool PosVelAngleController::requireVelocity()
 {
   return true;
 }
 
-bool PosVelAngleController::requireLinearVelocity()
+bool PosVelAngleController::requireAttitude()
 {
   return true;
 }
 
-bool PosVelAngleController::requireAngularVelocity()
+bool PosVelAngleController::requireHeading()
 {
   return true;
 }

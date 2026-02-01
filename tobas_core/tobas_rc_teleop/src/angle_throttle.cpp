@@ -14,19 +14,19 @@ bool AngleThrottleController::requirePosition()
   return false;
 }
 
-bool AngleThrottleController::requireOrientation()
+bool AngleThrottleController::requireVelocity()
+{
+  return false;
+}
+
+bool AngleThrottleController::requireAttitude()
 {
   return true;
 }
 
-bool AngleThrottleController::requireLinearVelocity()
+bool AngleThrottleController::requireHeading()
 {
-  return false;
-}
-
-bool AngleThrottleController::requireAngularVelocity()
-{
-  return false;
+  return true;
 }
 
 void AngleThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)

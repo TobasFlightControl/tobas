@@ -14,19 +14,19 @@ bool AccelYawController::requirePosition()
   return false;
 }
 
-bool AccelYawController::requireOrientation()
+bool AccelYawController::requireVelocity()
+{
+  return false;
+}
+
+bool AccelYawController::requireAttitude()
 {
   return true;
 }
 
-bool AccelYawController::requireLinearVelocity()
+bool AccelYawController::requireHeading()
 {
-  return false;
-}
-
-bool AccelYawController::requireAngularVelocity()
-{
-  return false;
+  return true;
 }
 
 void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)

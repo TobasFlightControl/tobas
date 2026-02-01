@@ -36,11 +36,6 @@ class RCTeleopNode : public tobas::BaseNode
   static constexpr double kArmDuration = 1.;      // [s]
   static constexpr double kDisarmDuration = 1.;   // [s]
 
-  static constexpr double kPosStddevThresh = 3.;           // [m]
-  static constexpr double kRotStddevThresh = M_PI / 12;    // [rad]
-  static constexpr double kLinVelStddevThresh = 1.;        // [m/s]
-  static constexpr double kAngVelStddevThresh = M_PI / 3;  // [rad/s]
-
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kWarnPeriod = 1.;            // [s]
 
@@ -219,38 +214,86 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
   const auto& controller = controller_it->second;
 
   if (controller->requirePosition()) {
-    const auto max_pos_var = odom_->position_covariance.eigenvalues().real().maxCoeff();
-    if (max_pos_var > math::sqr(kPosStddevThresh)) {
-      TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because position estimation is inaccurate.");
-      return false;
+    switch (health_->position_accuracy) {
+      case tobas_msgs::msg::VehicleHealth::PASSED:
+        break;
+      case tobas_msgs::msg::VehicleHealth::FAILED:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the position estimation is inaccurate.");
+        return false;
+      case tobas_msgs::msg::VehicleHealth::IGNORED:
+      case tobas_msgs::msg::VehicleHealth::UNKNOWN:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod,
+          mode2str_.at(mode),
+          " mode cannot be applied because the position estimation accuracy has not been checked.");
+        return false;
+      default:
+        TOBAS_ERROR("The position accuracy state is invalid: ", (int)health_->position_accuracy);
+        return false;
     }
   }
 
-  if (controller->requireOrientation()) {
-    const auto max_rot_var = odom_->orientation_covariance.eigenvalues().real().maxCoeff();
-    if (max_rot_var > math::sqr(kRotStddevThresh)) {
-      TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because orientation estimation is inaccurate.");
-      return false;
+  if (controller->requireVelocity()) {
+    switch (health_->velocity_accuracy) {
+      case tobas_msgs::msg::VehicleHealth::PASSED:
+        break;
+      case tobas_msgs::msg::VehicleHealth::FAILED:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the velocity estimation is inaccurate.");
+        return false;
+      case tobas_msgs::msg::VehicleHealth::IGNORED:
+      case tobas_msgs::msg::VehicleHealth::UNKNOWN:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod,
+          mode2str_.at(mode),
+          " mode cannot be applied because the velocity estimation accuracy has not been checked.");
+        return false;
+      default:
+        TOBAS_ERROR("The velocity accuracy state is invalid: ", (int)health_->position_accuracy);
+        return false;
     }
   }
 
-  if (controller->requireLinearVelocity()) {
-    const auto max_linvel_var = odom_->velocity_covariance.eigenvalues().real().maxCoeff();
-    if (max_linvel_var > math::sqr(kLinVelStddevThresh)) {
-      TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because linear velocity estimation is inaccurate.");
-      return false;
+  if (controller->requireAttitude()) {
+    switch (health_->attitude_accuracy) {
+      case tobas_msgs::msg::VehicleHealth::PASSED:
+        break;
+      case tobas_msgs::msg::VehicleHealth::FAILED:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the attitude estimation is inaccurate.");
+        return false;
+      case tobas_msgs::msg::VehicleHealth::IGNORED:
+      case tobas_msgs::msg::VehicleHealth::UNKNOWN:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod,
+          mode2str_.at(mode),
+          " mode cannot be applied because the attitude estimation accuracy has not been checked.");
+        return false;
+      default:
+        TOBAS_ERROR("The attitude accuracy state is invalid: ", (int)health_->position_accuracy);
+        return false;
     }
   }
 
-  if (controller->requireAngularVelocity()) {
-    const auto max_angvel_var = odom_->gyro_covariance.eigenvalues().real().maxCoeff();
-    if (max_angvel_var > math::sqr(kAngVelStddevThresh)) {
-      TOBAS_WARN_THROTTLE(
-        kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because angular velocity estimation is inaccurate.");
-      return false;
+  if (controller->requireHeading()) {
+    switch (health_->heading_accuracy) {
+      case tobas_msgs::msg::VehicleHealth::PASSED:
+        break;
+      case tobas_msgs::msg::VehicleHealth::FAILED:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the heading estimation is inaccurate.");
+        return false;
+      case tobas_msgs::msg::VehicleHealth::IGNORED:
+      case tobas_msgs::msg::VehicleHealth::UNKNOWN:
+        TOBAS_WARN_THROTTLE(
+          kWarnPeriod,
+          mode2str_.at(mode),
+          " mode cannot be applied because the heading estimation accuracy has not been checked.");
+        return false;
+      default:
+        TOBAS_ERROR("The heading accuracy state is invalid: ", (int)health_->position_accuracy);
+        return false;
     }
   }
 

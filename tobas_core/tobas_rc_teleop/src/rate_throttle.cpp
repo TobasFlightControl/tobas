@@ -13,19 +13,19 @@ bool RateThrottleController::requirePosition()
   return false;
 }
 
-bool RateThrottleController::requireOrientation()
+bool RateThrottleController::requireVelocity()
 {
   return false;
 }
 
-bool RateThrottleController::requireLinearVelocity()
+bool RateThrottleController::requireAttitude()
 {
   return false;
 }
 
-bool RateThrottleController::requireAngularVelocity()
+bool RateThrottleController::requireHeading()
 {
-  return true;
+  return false;
 }
 
 void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
