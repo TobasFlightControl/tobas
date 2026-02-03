@@ -15,6 +15,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -31,15 +32,39 @@ namespace log
 {
 void CsvExportWorker::process(const QString& log_name, const QString& savePath)
 {
-  // ローター数の取得
-  while (reader_.has_next()) {
-    const auto msg = reader_.read_next();
-
-    if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
-      break;
+  // open rosbag
+  const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
+  if (!open(log_path.string())) {
+    if (!reindex(log_path.string())) {
+      return;
+    }
+    if (!open(log_path.string())) {
+      return;
     }
   }
 
+  // get roter num
+  num_rotors_ = 0;
+  try {
+    while (reader_.has_next()) {
+      const auto msg = reader_.read_next();
+      rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+
+      if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
+        std::shared_ptr<tobas_msgs::msg::RotorStateArray> temp_rotor_states_array =
+          std::make_shared<tobas_msgs::msg::RotorStateArray>(rotor_states_decoder_.decode(msg->recv_timestamp, ser_msg));
+        num_rotors_ = (int8_t)temp_rotor_states_array->states.size();
+        break;
+      }
+    }
+  }
+  catch (const std::exception& e) {
+    Q_EMIT error(QString::fromStdString(e.what()));
+    return;
+  }
+  reader_.seek(0);
+
+  // write header
   exportCsvHeader = "time,\
     Pose/CurrentX[m], Pose/currently[m], Pose/CurrentZ[m],\
     Pose/CurrentRoll[deg], Pose/CurrentPitch[deg], Pose/CurrentYaw[deg],\
@@ -57,7 +82,34 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
     RCInput/FlightMode, RCInput/SubMode, RCInput/Enable, RCInput/kill,\
     Battery/voltage[V], Battery/current[A],\
     EngineThrottle[%],\
-    CPU/Frequency[GHz], CPU/Temperature[degC], CPU/Load[%],\n";
+    CPU/Frequency[GHz], CPU/Temperature[degC], CPU/Load[%],";
+
+  std::string tmp_header = "";
+  for (int i = 0; i < (int8_t)num_rotors_; i++) {
+    tmp_header += "RoterSpeed/TargetRPM(Propeller_" + std::to_string(i) + "),";
+  }
+  for (int8_t i = 0; i < (int8_t)num_rotors_; i++) {
+    tmp_header += "RoterSpeed/CurrentRPM(Propeller_" + std::to_string(i) + "),";
+  }
+  for (int i = 0; i < (int8_t)num_rotors_; i++) {
+    tmp_header += "RoterLink/CommunicationState(Propeller_" + std::to_string(i) + "),";
+  }
+  exportCsvHeader += tmp_header;
+
+  exportCsvHeader += "Latency/IMUSamplingTime[us], ControlLatency[us],\
+    VibrationLevel/X[m/s^2], VibrationLevel/Y[m/s^2], VibrationLevel/Z[m/s^2],\
+    DisturbanceForce/ForceX[N], DisturbanceForce/ForceY[N], DisturbanceForce/ForceZ[N],\
+    DisturbanceForce/TorqueX[N], DisturbanceForce/TorqueY[N], DisturbanceForce/TorqueZ[N],\
+    Observer/AccelBiasX[m/s²], Observer/AccelBiasY[m/s²], Observer/AccelBiasZ[m/s²],\
+    Observer/GyroBiasX[rad/s], Observer/GyroBiasY[rad/s], Observer/GyroBiasZ[rad/s],\
+    Observer/MagHard-IronBiasX, Observer/MagHard-IronBiasY, Observer/MagHard-IronBiasZ,\
+    Observer/MagSoft-IronBiasXX, Observer/MagSoft-IronBiasYY, Observer/MagSoft-IronBiasZZ,\
+    Observer/MagSoft-IronBiasXY, Observer/MagSoft-IronBiasYZ, Observer/MagSoft-IronBiasZX,\
+    Observer/Gravity, Observer/GNSSAnomalyScore,\
+    MultirotorController/XIntegralError[m*s], MultirotorController/YIntegralError[m*s], MultirotorController/ZIntegralError[m*s],\
+    MultirotorController/RollIntegralError[rad*s], MultirotorController/PitchIntegralError[rad*s], MultirotorController/YawIntegralError[rad*s]";
+
+  exportCsvHeader += "\n";
 
   try {
     std::ofstream csvFile(savePath.toStdString());
@@ -67,16 +119,6 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
     }
     csvFile << CsvExportWorker::exportCsvHeader;
 
-    const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name.toStdString();
-
-    if (!open(log_path.string())) {
-      if (!reindex(log_path.string())) {
-        return;
-      }
-      if (!open(log_path.string())) {
-        return;
-      }
-    }
     rcutils_time_point_value_t start_time = 0;
     bool is_timer_started = false;
     const int64_t TIME_THRESHOLD_NS = 1 * 1000 * 1000;
@@ -95,36 +137,39 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
       rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
 
       if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
-        curData_.cur_imu = std::make_shared<tobas_msgs::msg::Imu>(imu_decoder_.decode(cur_time, ser_msg));
+        curData_.imu = std::make_shared<tobas_msgs::msg::Imu>(imu_decoder_.decode(cur_time, ser_msg));
         is_timer_started = true;
         start_time = msg->recv_timestamp;
         // csvFile << makeCsvRow(cur_time);
       }
       else {
         if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
-          curData_.cur_odom = std::make_shared<tobas_msgs::msg::Odometry>(odom_decoder_.decode(cur_time, ser_msg));
+          curData_.odom = std::make_shared<tobas_msgs::msg::Odometry>(odom_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
-          curData_.cur_mag = std::make_shared<tobas_msgs::msg::MagneticField>(mag_decoder_.decode(cur_time, ser_msg));
+          curData_.mag = std::make_shared<tobas_msgs::msg::MagneticField>(mag_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
-          curData_.cur_gnss = std::make_shared<tobas_msgs::msg::Gnss>(gnss_decoder_.decode(cur_time, ser_msg));
+          curData_.gnss = std::make_shared<tobas_msgs::msg::Gnss>(gnss_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
-          curData_.cur_rcin = std::make_shared<tobas_msgs::msg::RCInput>(rcin_decoder_.decode(cur_time, ser_msg));
+          curData_.rcin = std::make_shared<tobas_msgs::msg::RCInput>(rcin_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
-          curData_.cur_battery = std::make_shared<tobas_msgs::msg::Battery>(battery_decoder_.decode(cur_time, ser_msg));
+          curData_.battery = std::make_shared<tobas_msgs::msg::Battery>(battery_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
-          curData_.cur_cpu = std::make_shared<tobas_msgs::msg::Cpu>(cpu_decoder_.decode(cur_time, ser_msg));
+          curData_.cpu = std::make_shared<tobas_msgs::msg::Cpu>(cpu_decoder_.decode(cur_time, ser_msg));
         }
-
         else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
+          curData_.rotor_states =
+            std::make_shared<tobas_msgs::msg::RotorStateArray>(rotor_states_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
+          curData_.rotor_speeds =
+            std::make_shared<tobas_msgs::msg::RotorSpeedArray>(rotor_speeds_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kJointStatesTopic))) {
         }
@@ -135,20 +180,29 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
         else if (msg->topic_name.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
-          curData_.cur_ice_cmd =
+          curData_.ice_cmd =
             std::make_shared<tobas_msgs::msg::IcePropulsionSystemCommand>(ice_cmd_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
+          curData_.latency = std::make_shared<tobas_msgs::msg::Latency>(latency_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
+          curData_.vibration_level =
+            std::make_shared<tobas_msgs::msg::VibrationLevel>(vibe_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
+          curData_.disturbance_force =
+            std::make_shared<tobas_kdl_msgs::msg::WrenchStamped>(wrench_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
+          curData_.obsv_fb =
+            std::make_shared<tobas_debug_msgs::msg::ObserverFeedback>(obsv_fb_decoder_.decode(cur_time, ser_msg));
         }
         else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
+          curData_.mr_ctrl_fb = std::make_shared<tobas_debug_msgs::msg::MulticopterControllerFeedback>(
+            mr_ctrl_fb_decoder_.decode(cur_time, ser_msg));
         }
       }
     }
@@ -161,7 +215,6 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
   Q_EMIT finished();
 }
 
-// TODO rosbag.hpp
 bool CsvExportWorker::reindex(const std::string& rosbag_path)
 {
   rosbag2_cpp::Reindexer reindexer;
@@ -181,7 +234,6 @@ bool CsvExportWorker::reindex(const std::string& rosbag_path)
   return true;
 }
 
-// TODO rosbag.hpp
 bool CsvExportWorker::open(const std::string& rosbag_path)
 {
   try {
@@ -214,10 +266,11 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
   std::string csv_line = std::to_string(cur_time / 1000000000.0) + ",";
 
   // Pose, Twist, Accel
+  std::string odom_empty_str(18, ',');
   csv_line += getLogString(
-    curData_.cur_odom,
-    lastData_.last_odom,
-    ",,,,,,,,,,,,,,,,,,",
+    curData_.odom,
+    lastData_.odom,
+    odom_empty_str,
     [](const auto& msg)
     {
       const auto& pos = msg->frame.trans;
@@ -242,9 +295,9 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
     });
 
   // Imu
-  const auto& imu_accel = curData_.cur_imu->accel;
-  const auto& imu_gyro = curData_.cur_imu->gyro;
-  const auto& imu_dgyro = curData_.cur_imu->dgyro;
+  const auto& imu_accel = curData_.imu->accel;
+  const auto& imu_gyro = curData_.imu->gyro;
+  const auto& imu_dgyro = curData_.imu->dgyro;
   csv_line += std::to_string(imu_accel.x) + "," + std::to_string(imu_accel.y) + "," + std::to_string(imu_accel.z) +
               "," + std::to_string(imu_gyro.x) + "," + std::to_string(imu_gyro.y) + "," + std::to_string(imu_gyro.z) +
               "," + std::to_string(imu_dgyro.x) + "," + std::to_string(imu_dgyro.y) + "," +
@@ -252,17 +305,18 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
 
   // Magnetic_Field
   csv_line += getLogString(
-    curData_.cur_mag,
-    lastData_.last_mag,
+    curData_.mag,
+    lastData_.mag,
     ",,,",
     [](const auto& msg)
     { return std::to_string(msg->mag.x) + "," + std::to_string(msg->mag.y) + "," + std::to_string(msg->mag.z) + ","; });
 
   // Gnss
+  std::string gnss_empty_str(6, ',');
   csv_line += getLogString(
-    curData_.cur_gnss,
-    lastData_.last_gnss,
-    ",,,,,,",
+    curData_.gnss,
+    lastData_.gnss,
+    gnss_empty_str,
     [](const auto& msg)
     {
       return std::to_string(msg->latitude) + "," + std::to_string(msg->longitude) + "," +
@@ -271,10 +325,11 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
     });
 
   // RC Input
+  std::string rcin_empty_str(8, ',');
   csv_line += getLogString(
-    curData_.cur_rcin,
-    lastData_.last_rcin,
-    ",,,,,,,,",
+    curData_.rcin,
+    lastData_.rcin,
+    rcin_empty_str,
     [](const auto& msg)
     {
       return std::to_string(msg->roll) + "," + std::to_string(msg->pitch) + "," + std::to_string(msg->throttle) + "," +
@@ -284,23 +339,23 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
 
   // Battery
   csv_line += getLogString(
-    curData_.cur_battery,
-    lastData_.last_battery,
-    ",",
+    curData_.battery,
+    lastData_.battery,
+    ",,",
     [](const auto& msg) { return std::to_string(msg->voltage) + "," + std::to_string(msg->current) + ","; });
 
   // Engine
   csv_line += getLogString(
-    curData_.cur_ice_cmd,
-    lastData_.last_ice_cmd,
+    curData_.ice_cmd,
+    lastData_.ice_cmd,
     ",",
     [](const auto& msg) { return std::to_string(msg->engine_throttle) + ","; });
 
   // CPU
   csv_line += getLogString(
-    curData_.cur_cpu,
-    lastData_.last_cpu,
-    ",",
+    curData_.cpu,
+    lastData_.cpu,
+    ",,,",
     [](const auto& msg)
     {
       return std::to_string(msg->frequency) + "," + std::to_string(msg->temperature) + "," + std::to_string(msg->load) +
@@ -308,19 +363,99 @@ std::string CsvExportWorker::makeCsvRow(const auto& cur_time)
     });
 
   // Rotor Speed
-
   // Rotor Link
+  csv_line += getLogString(
+    curData_.rotor_speeds,
+    lastData_.rotor_speeds,
+    ",,,,",
+    [](const auto& msg)
+    {
+      std::string temp_str = "";
+      for (const auto& elem : msg->speeds) {
+        temp_str += std::to_string(elem.speed) + ",";
+      }
+      return temp_str;
+    });
+
+  std::string rotor_empty_str(8, ',');
+  csv_line += getLogString(
+    curData_.rotor_states,
+    lastData_.rotor_states,
+    rotor_empty_str,
+    [](const auto& msg)
+    {
+      std::string temp_str = "";
+      for (const auto& elem : msg->states) {
+        temp_str += std::to_string(elem.speed) + ",";
+      }
+      for (const auto& elem : msg->states) {
+        temp_str +=
+          std::to_string(static_cast<int>(elem.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)) + ",";
+      }
+      return temp_str;
+    });
 
   // Latency
+  csv_line += getLogString(
+    curData_.latency,
+    lastData_.latency,
+    ",,",
+    [](const auto& msg) { return std::to_string(ros2::microseconds(msg->data)) + ",,"; });
 
   // Vibration_Level
+  csv_line += getLogString(
+    curData_.vibration_level,
+    lastData_.vibration_level,
+    ",,,",
+    [](const auto& msg) {
+      return std::to_string(msg->data.x) + "," + std::to_string(msg->data.y) + "," + std::to_string(msg->data.z) + ",";
+    });
 
   // Disturbance_Force
+  std::string dist_force_empty_str(6, ',');
+  csv_line += getLogString(
+    curData_.disturbance_force,
+    lastData_.disturbance_force,
+    dist_force_empty_str,
+    [](const auto& msg)
+    {
+      return std::to_string(msg->wrench.force.x) + "," + std::to_string(msg->wrench.force.y) + "," +
+             std::to_string(msg->wrench.force.z) + "," + std::to_string(msg->wrench.torque.x) + "," +
+             std::to_string(msg->wrench.torque.y) + "," + std::to_string(msg->wrench.torque.z) + ",";
+    });
 
   // Observer
+  std::string obsv_force_empty_str(17, ',');
+  csv_line += getLogString(
+    curData_.obsv_fb,
+    lastData_.obsv_fb,
+    obsv_force_empty_str,
+    [](const auto& msg)
+    {
+      return std::to_string(msg->accel_bias.data[0]) + "," + std::to_string(msg->accel_bias.data[1]) + "," +
+             std::to_string(msg->accel_bias.data[2]) + "," + std::to_string(msg->gyro_bias.data[0]) + "," +
+             std::to_string(msg->gyro_bias.data[1]) + "," + std::to_string(msg->gyro_bias.data[2]) + "," +
+             std::to_string(msg->mag_hard_bias.data[0]) + "," + std::to_string(msg->mag_hard_bias.data[1]) + "," +
+             std::to_string(msg->mag_hard_bias.data[2]) + "," + std::to_string(msg->mag_soft_bias.data[0]) + "," +
+             std::to_string(msg->mag_soft_bias.data[4]) + "," + std::to_string(msg->mag_hard_bias.data[8]) + "," +
+             std::to_string(msg->mag_soft_bias.data[1]) + "," + std::to_string(msg->mag_soft_bias.data[5]) + "," +
+             std::to_string(msg->mag_hard_bias.data[2]) + "," + std::to_string(msg->gravity) + "," +
+             std::to_string(msg->gnss_anomaly_score);
+    });
 
   // Multirotor_Controller
-
+  std::string mr_ctrl_fb_empty_str(6, ',');
+  csv_line += getLogString(
+    curData_.mr_ctrl_fb,
+    lastData_.mr_ctrl_fb,
+    mr_ctrl_fb_empty_str,
+    [](const auto& msg)
+    {
+      return std::to_string(msg->position_integral_error.x) + "," + std::to_string(msg->position_integral_error.y) +
+             "," + std::to_string(msg->position_integral_error.z) + "," + std::to_string(msg->angle_integral_error.x) +
+             "," + std::to_string(msg->angle_integral_error.y) + "," + std::to_string(msg->angle_integral_error.z) +
+             ",";
+    });
   return csv_line + "\n";
 }
 
