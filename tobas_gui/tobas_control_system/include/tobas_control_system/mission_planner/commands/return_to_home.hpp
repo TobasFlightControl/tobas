@@ -31,7 +31,7 @@ struct ReturnToHomeData : public BaseCommandData
   double acceptance_radius;        // [m]
   double altitude_tolerance;       // [m]
 
-  Command type() const
+  Command type() const override
   {
     return Command::kReturnToHome;
   }

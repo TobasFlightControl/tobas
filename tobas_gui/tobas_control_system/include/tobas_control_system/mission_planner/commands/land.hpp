@@ -13,7 +13,7 @@ struct LandData : public BaseCommandData
 
   double speed;  // [m/s]
 
-  Command type() const
+  Command type() const override
   {
     return Command::kLand;
   }

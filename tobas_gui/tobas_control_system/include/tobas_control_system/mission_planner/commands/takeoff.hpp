@@ -23,7 +23,7 @@ struct TakeoffData : public BaseCommandData
   double max_jerk;            // [m/s^3]
   double altitude_tolerance;  // [m]
 
-  Command type() const
+  Command type() const override
   {
     return Command::kTakeoff;
   }
