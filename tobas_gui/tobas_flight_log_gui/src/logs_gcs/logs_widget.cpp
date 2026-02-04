@@ -140,7 +140,6 @@ void CsvExportWorker::process(const QString& log_name, const QString& savePath)
         curData_.imu = std::make_shared<tobas_msgs::msg::Imu>(imu_decoder_.decode(cur_time, ser_msg));
         is_timer_started = true;
         start_time = msg->recv_timestamp;
-        // csvFile << makeCsvRow(cur_time);
       }
       else {
         if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
@@ -661,16 +660,13 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 
   connect(thread, &QThread::started, worker, [worker, log_name, savePath]() { worker->process(log_name, savePath); });
 
-  // 処理完了時の後始末
   connect(worker, &CsvExportWorker::finished, thread, &QThread::quit);
   connect(worker, &CsvExportWorker::finished, worker, &CsvExportWorker::deleteLater);
   connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 
-  // GUIへの通知接続
   connect(worker, &CsvExportWorker::finished, this, &FlightLogsWidgetGCS::onExportFinished);
   connect(worker, &CsvExportWorker::error, this, &FlightLogsWidgetGCS::onExportError);
 
-  // 4. スレッド開始
   thread->start();
 }
 
