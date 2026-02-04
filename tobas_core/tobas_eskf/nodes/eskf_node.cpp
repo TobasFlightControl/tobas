@@ -367,14 +367,6 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
   odom.header.stamp = imu_raw_->header.stamp;
   odom.header.frame_id = tobas::kWorldFrame;
 
-  // Status
-  if (!gnss_fix_) {
-    odom.status = tobas_msgs::msg::Odometry::POSITION_LOST;
-  }
-  else {
-    odom.status = tobas_msgs::msg::Odometry::NO_ERROR;
-  }
-
   // Position (Global): IMU frame -> Base frame
   odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
   odom.position_covariance = eskf_.getPositionCovariance();

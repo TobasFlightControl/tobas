@@ -53,10 +53,6 @@ std::expected<kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPt
     return std::unexpected("Failed to get the current odometry.");
   }
 
-  if (odom.status != tobas_msgs::msg::Odometry::NO_ERROR) {
-    return std::unexpected("The odometry status is unhealthy.");
-  }
-
   return odom.frame;
 }
 
