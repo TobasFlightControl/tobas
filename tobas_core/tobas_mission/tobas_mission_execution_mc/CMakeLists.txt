@@ -11,14 +11,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES
-    tobas_trajectory_generators
-    tobas_kdl_conversions
-    tobas_node
-    tobas_tools
-    tobas_msgs_adapter
-    tobas_mission_items
-    tobas_mission_msgs
+set(AMENT_DEPENDENCIES tobas_trajectory_generators tobas_node tobas_msgs_adapter tobas_command_msgs_adapter
+                       tobas_mission_items tobas_mission_msgs
 )
 
 find_package(ament_cmake REQUIRED)

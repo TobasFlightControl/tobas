@@ -2,13 +2,11 @@
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/linalg.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_tools/util.hpp>
 #include <tobas_trajectory_generators/cubic.hpp>
 #include <tobas_trajectory_generators/linear.hpp>
 #include <tobas_trajectory_generators/time_optimal.hpp>
@@ -94,10 +92,10 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   pos_vel_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelYaw>(kPosVelYawCmdTopic);
   pos_vel_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelPitchYaw>(kPosVelPitchYawCmdTopic);
 
-  odom_sub_ = createSubscriber(addThrotNS(kOdometryTopic), &self::odomCb, this);
+  odom_sub_ = createSubscriber(kOdometryTopic, &self::odomCb, this);
   arming_sub_ = createSubscriber(kArmingTopic, &self::armingCb, this);
   gnss_origin_sub_ = createSubscriber(kGnssOriginTopic, &self::gnssOriginCb, this, true, true);
-  landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
+  landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
 
   as_ = createAction(kMoveAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
@@ -149,12 +147,12 @@ void MulticopterMissionExecutorNode::publishCommands(
 
 bool MulticopterMissionExecutorNode::armRotors(bool arming)
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
+  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), kSetArmSrv);
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
   if (!sc.call(req)) {
-    TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");
+    TOBAS_ERROR("Failed to call \"", kSetArmSrv, "\" service.");
     return false;
   }
 
