@@ -1,0 +1,12 @@
+# Goal
+tobas_mission_msgs/Mission mission
+
+---
+
+# Result
+string message
+
+---
+
+# Feedback
+uint32 current_index
