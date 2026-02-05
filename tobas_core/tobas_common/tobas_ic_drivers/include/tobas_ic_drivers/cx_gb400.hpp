@@ -22,15 +22,33 @@ public:
     kUpperYawFix = 0x02,  // 機体に上向きで取り付ける（ヨーは回転フリー）
     kAuto = 0x03,         // 自動で決定（デフォルト）
   };
+  enum PhotoQuality : uint8_t
+  {
+    kSuperFine = 0x00,  // 9M (3600 x 2400)
+    kFine = 0x01,       // 8M (3264 x 2448)
+    kNormal = 0x02,     // 4M (2400 x 1600)
+  };
+  enum VideoQuality : uint8_t
+  {
+    k4K = 0x00,    // 4K
+    k2_7K = 0x01,  // 2.7K
+    kFHD = 0x02,   // Full HD
+    kHD = 0x03,    // HD
+  };
+  enum VideoFrameRate : uint8_t
+  {
+    k30p = 0x00,  // 30FPS
+    k60p = 0x01,  // 60FPS
+  };
 
   explicit CxGb400();
   ~CxGb400();
 
   bool initialize(
     const char* video_dev,
-    CameraPosition camera_position = kAuto,
-    bool disable_full_hd = true,
-    bool disable_video_streaming = false);
+    const CameraPosition& camera_position = kAuto,
+    const bool disable_full_hd = true,
+    const bool disable_video_streaming = false);
 
   bool sendCopterAttitude(const double& q_w, const double& q_x, const double& q_y, const double& q_z);
 
@@ -46,6 +64,35 @@ public:
   /* 工場出荷リセット実施後，通常起動前に1回のみ実施する． */
   bool turnOffUavcan();
 
+  /* 静止画を撮影する. 現在設定の画質で撮影. 画像は内蔵SDカードに保存 */
+  bool takePictureToSD();
+  /* 静止画の画質を設定する. superfine, fine, normalの中から選択 */
+  bool setPhotoQuality(const PhotoQuality& photo_quality);
+  /* 動画撮影を開始する 動画はSDへ保存 */
+  bool startRecording();
+  /* 動画撮影を止める 動画はSDへ保存 */
+  bool stopRecording();
+  /* レコーディングする動画の画質を設定する */
+  bool setVideoResolution(const VideoQuality& video_quality);
+  /* レコーディングする動画のフレームレートを設定する */
+  bool setVideoFrameRate(const VideoFrameRate& video_frame_rate);
+  /* カメラ状態を取得する */
+  bool getCameraStatus(
+    bool& sd_full,
+    bool& time_not_set,
+    bool& media_error, // SDカードが挿入されていないか満タン
+    bool& lens_error,
+    bool& gimbal_error,
+    bool& gimbal_motor_error,
+    bool& gimbal_control_error,
+    bool& thermal_error,
+    uint32_t& video_remain_time,
+    uint32_t& photo_remain_count,
+    uint32_t& card_full_size,
+    uint32_t& card_free_mem,
+    double& aperture,
+    uint16_t& iso);
+
 private:
   static constexpr double kPitchCmdMax = 45.0;    // [deg]
   static constexpr double kPitchCmdMin = -115.0;  // [deg]
@@ -60,6 +107,20 @@ private:
     kUnit3 = 0x8,
   };
 
+  enum CameraErrorStatusDigit : uint8_t
+  {
+    kTakingPicture = 3,
+    kTakingMovie = 4,
+    kSdFull = 6,
+    kTimeNotSet = 17,
+    kMediaError = 18,
+    kLensError = 19,
+    kGimbalError = 21,
+    kGimbalMotorError = 22,
+    kGimbalControlError = 23,
+    kThermalError = 25,
+  };
+
   struct PACKED AttitudeMsg
   {
     int16_t q_w;
@@ -67,6 +128,7 @@ private:
     int16_t q_y;
     int16_t q_z;
   };
+  static_assert(sizeof(AttitudeMsg) == 8, "AttitudeMsg size is strange!");
 
   struct PACKED GimbalCtrlMsg
   {
@@ -75,6 +137,30 @@ private:
     int16_t pitch_cmd_value;
     int16_t yaw_cmd_value;
   };
+  static_assert(sizeof(GimbalCtrlMsg) == 6, "GimbalCtrlMsg size of strange!");
+
+  struct PACKED CameraStatusMsg
+  {
+    uint32_t error_status;
+    uint32_t video_remain_time;
+    uint32_t photo_remain_count;
+    uint32_t card_full_size;  // SDカードのサイズ 単位はMB
+    uint32_t card_free_mem;   // SDカードの残りのサイズ 単位はMB
+    uint16_t ad_value_body;
+    uint16_t ad_value_cmos;
+    uint16_t ad_value_gimbal_pitch;
+    uint16_t ad_value_gimbal_roll;
+    uint16_t ad_value_gimbal_tilt;
+    uint16_t reserve1;
+    uint8_t get_date_time[7];
+    uint8_t reserve2;
+    uint32_t get_exposure_time;  // 単位はus(micro second)
+    uint16_t get_aperture;       // F値を100倍した値
+    uint16_t get_iso_sensitivity;
+  };
+  static_assert(sizeof(CameraStatusMsg) == 48, "CameraStatusMsg size is strange!");
+
+  bool interpretCameraError(const uint32_t& error_status, const CameraErrorStatusDigit& digit);
 };
 
 }  // namespace driver
