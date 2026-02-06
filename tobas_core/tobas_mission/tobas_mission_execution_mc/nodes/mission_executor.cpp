@@ -231,7 +231,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, GoalH
   const auto pitch_duration = std::abs(start_rpy.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_pitch(start_rpy.pitch, 0., pitch_duration);
 
-  const auto goal_yaw = atan2(xy_dir.y(), xy_dir.x());
+  const auto goal_yaw = goal.auto_heading ? atan2(xy_dir.y(), xy_dir.x()) : start_rpy.yaw;
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
   const auto yaw_duration = std::abs(start_rpy.yaw) / kHeadingRate;
   const traj::CubicSpline traj_yaw(0., yaw_diff, yaw_duration);
@@ -464,6 +464,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, Goal
   if (goal.min_altitude > cur_alt) {
     wp.latitude = gnss_->latitude;
     wp.longitude = gnss_->longitude;
+    wp.auto_heading = false;
     if (!executeWaypoint(wp, gh, res)) {
       return false;
     }
@@ -472,6 +473,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, Goal
   // アームした地点まで移動
   wp.latitude = launch_point_->latitude;
   wp.longitude = launch_point_->longitude;
+  wp.auto_heading = goal.auto_heading;
 
   if (!executeWaypoint(wp, gh, res)) {
     return false;

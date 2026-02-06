@@ -249,6 +249,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         waypoint.longitude = widget->longitude();
         waypoint.altitude = widget->altitude();
         waypoint.altitude_frame = widget->altitudeFrame();
+        waypoint.auto_heading = true;  // TODO
         waypoint.max_horizontal_velocity = widget->maxHorizontalVelocity();
         waypoint.max_vertical_velocity = widget->maxVerticalVelocity();
         waypoint.max_horizontal_accel = widget->maxHorizontalAccel();
@@ -298,6 +299,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
 
         tobas::mission::ReturnToLaunch rtl;
         rtl.min_altitude = widget->minAltitude();
+        rtl.auto_heading = true;  // TODO
         rtl.max_horizontal_velocity = widget->maxHorizontalVelocity();
         rtl.max_vertical_velocity = widget->maxVerticalVelocity();
         rtl.max_horizontal_accel = widget->maxHorizontalAccel();

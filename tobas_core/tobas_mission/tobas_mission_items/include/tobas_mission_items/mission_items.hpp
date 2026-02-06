@@ -30,6 +30,7 @@ struct PACKED Waypoint
   std::float64_t altitude = 0.;   // [m]
 
   AltitudeFrame altitude_frame = kRelativeToHome;
+  bool auto_heading = true;
 
   std::float64_t max_horizontal_velocity = 0.;  // [m/s]
   std::float64_t max_vertical_velocity = 0.;    // [m/s]
@@ -69,6 +70,8 @@ struct PACKED Land
 struct PACKED ReturnToLaunch
 {
   std::float64_t min_altitude = 0.;  // [m]
+
+  bool auto_heading = true;
 
   std::float64_t max_horizontal_velocity = 0.;  // [m/s]
   std::float64_t max_vertical_velocity = 0.;    // [m/s]
