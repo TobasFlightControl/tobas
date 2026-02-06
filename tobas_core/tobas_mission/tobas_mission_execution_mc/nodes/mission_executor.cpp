@@ -204,8 +204,8 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, GoalH
 
   // 目標位置を計算
   kdl::Vector goal_pos;
-  tbs::gnssToCartRelative(
-    goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude, goal_pos.x(), goal_pos.y());
+  std::tie(goal_pos.x(), goal_pos.y()) =
+    tbs::gnssToCartRelative(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
   goal_pos.z(goal.altitude);  // TODO: 目標高度がMSLで与えられた場合にも対応
   TOBAS_INFO("Goal position: ", goal_pos);
 

@@ -794,7 +794,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   gnss_ = gnss;
 
   // 位置の観測値
-  tbs::gnssToCartRelative(gnss->latitude, gnss->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
+  std::tie(pos_meas_.x(), pos_meas_.y()) = tbs::gnssToCartRelative(gnss->latitude, gnss->longitude, lat_0_, lon_0_);
   pos_meas_.z() = gnss->altitude - alt_0_;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
 
   // 共分散
