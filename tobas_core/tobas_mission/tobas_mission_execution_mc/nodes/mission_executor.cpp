@@ -457,13 +457,20 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, Goal
   wp.timeout = goal.timeout;
 
   // 目標高度を決定
+  const auto& cur_lat = gnss_->latitude;
+  const auto& cur_lon = gnss_->longitude;
   const auto& cur_alt = odom_->frame.p.z();
-  wp.altitude = std::max<double>(cur_alt, goal.min_altitude);
+  const auto& tar_lat = launch_point_->latitude;
+  const auto& tar_lon = launch_point_->longitude;
+  const auto [x_diff, y_diff] = tbs::gnssToCartRelative(cur_lat, cur_lon, tar_lat, tar_lon);
+  const auto xy_dist = math::norm(x_diff, y_diff);
+  const auto min_alt = std::min<double>(goal.min_altitude, xy_dist);  // 45度逆円錐ルール
+  wp.altitude = std::max(cur_alt, min_alt);
 
   // 指定高度が現在の高度よりも高い場合はそこまで上昇
   if (goal.min_altitude > cur_alt) {
-    wp.latitude = gnss_->latitude;
-    wp.longitude = gnss_->longitude;
+    wp.latitude = cur_lat;
+    wp.longitude = cur_lon;
     wp.auto_heading = false;
     if (!executeWaypoint(wp, gh, res)) {
       return false;
@@ -471,8 +478,8 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, Goal
   }
 
   // アームした地点まで移動
-  wp.latitude = launch_point_->latitude;
-  wp.longitude = launch_point_->longitude;
+  wp.latitude = tar_lat;
+  wp.longitude = tar_lon;
   wp.auto_heading = goal.auto_heading;
 
   if (!executeWaypoint(wp, gh, res)) {
