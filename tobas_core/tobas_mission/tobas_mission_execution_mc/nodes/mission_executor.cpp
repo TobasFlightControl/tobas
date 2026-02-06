@@ -467,8 +467,8 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, Goal
   const auto min_alt = std::min<double>(goal.min_altitude, xy_dist);  // 45度逆円錐ルール
   wp.altitude = std::max(cur_alt, min_alt);
 
-  // 指定高度が現在の高度よりも高い場合はそこまで上昇
-  if (min_alt > cur_alt) {
+  // 現在の高度がRTLの最低高度よりも低い場合はそこまで上昇
+  if (cur_alt < min_alt) {
     wp.latitude = cur_lat;
     wp.longitude = cur_lon;
     wp.auto_heading = false;
