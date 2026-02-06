@@ -4,7 +4,7 @@
 
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 
-#include "./command.hpp"
+#include "./command_type.hpp"
 
 namespace gui
 {

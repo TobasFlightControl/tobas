@@ -320,7 +320,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   }
   else {
     if (arming_->data) {
-      qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+      qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
       return;
     }
   }
@@ -508,7 +508,7 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
 
   // アームされていないことを確認
   if (arming_ && arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     restart_btn_->setChecked(false);
     return;
   }
@@ -546,7 +546,7 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
 
   // アームされていないことを確認
   if (arming_ && arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
     shutdown_btn_->setChecked(false);
     return;
   }

@@ -8,7 +8,3 @@ tobas_eigen_msgs/Matrix3d position_covariance     # [m^2]
 tobas_eigen_msgs/Matrix3d orientation_covariance  # [rad^2]
 tobas_eigen_msgs/Matrix3d velocity_covariance     # [m^2/s^2]
 tobas_eigen_msgs/Matrix3d gyro_covariance         # [rad^2/s^2]
-
-int8 status
-int8 NO_ERROR = 0
-int8 POSITION_LOST = -1

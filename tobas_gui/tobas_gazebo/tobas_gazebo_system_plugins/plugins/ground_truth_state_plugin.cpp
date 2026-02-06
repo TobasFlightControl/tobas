@@ -93,9 +93,6 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
   // Update time stamp
   ros2::timeChronoToMsg(info.simTime, odom->header.stamp);
 
-  // Update status
-  odom->status = tobas_msgs::msg::Odometry::NO_ERROR;
-
   // Update pose (Global)
   poseGazeboToKDL(pose_W_->Data(), odom->frame);
 

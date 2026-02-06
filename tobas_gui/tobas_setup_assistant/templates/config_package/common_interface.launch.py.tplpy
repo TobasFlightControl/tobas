@@ -40,29 +40,11 @@ def generate_launch_description():
 
     ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
 
-    # Launch navigation actions
+    # Launch mission executor
     ld.add_action(
         Node(
             package=ACTIONS_PKG,
-            executable="takeoff_server",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package=ACTIONS_PKG,
-            executable="land_server",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package=ACTIONS_PKG,
-            executable="move_server",
+            executable="mission_executor",
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,

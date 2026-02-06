@@ -12,6 +12,7 @@
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_command_msgs_adapter</depend>
+	<depend>tobas_mission_items</depend>
 	<depend>tobas_mission_msgs</depend>
 
 	<export>

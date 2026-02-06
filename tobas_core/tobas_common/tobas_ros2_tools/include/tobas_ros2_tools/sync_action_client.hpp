@@ -22,6 +22,7 @@ class SyncActionClient
 
   using Client = rclcpp_action::Client<ActionType>;
   using GoalHandle = rclcpp_action::ClientGoalHandle<ActionType>;
+  using GoalHandlePtr = std::shared_ptr<GoalHandle>;
 
 public:
   using SharedPtr = std::shared_ptr<SyncActionClient>;
@@ -42,7 +43,7 @@ public:
    *
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
-  std::pair<std::shared_ptr<GoalHandle>, std::shared_future<typename GoalHandle::WrappedResult>>
+  std::pair<GoalHandlePtr, std::shared_future<typename GoalHandle::WrappedResult>>
   sendGoal(const typename ActionType::Goal& goal)
   {
     if (!client_->wait_for_action_server(kWaitForServer)) {
@@ -96,15 +97,12 @@ public:
     return true;
   }
 
-  std::shared_future<std::shared_ptr<action_msgs::srv::CancelGoal_Response>>
-  cancelGoal(std::shared_ptr<GoalHandle> goal_handle)
+  std::shared_future<std::shared_ptr<action_msgs::srv::CancelGoal_Response>> cancelGoal(GoalHandlePtr goal_handle)
   {
     return client_->async_cancel_goal(goal_handle);
   }
 
-  bool cancelGoalAndWait(
-    std::shared_ptr<GoalHandle> goal_handle,
-    std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
+  bool cancelGoalAndWait(GoalHandlePtr goal_handle, std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
     const auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
     if (waitForFuture(cancel_goal_future, timeout) != std::future_status::ready) {

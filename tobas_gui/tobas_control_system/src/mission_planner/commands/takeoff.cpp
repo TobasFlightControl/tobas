@@ -26,24 +26,12 @@ const char* TakeoffWidget::name() const
   return "Takeoff";
 }
 
-BaseCommandData::SharedPtr TakeoffWidget::data() const
-{
-  const auto res = std::make_shared<TakeoffData>();
-  res->altitude = altitude();
-  res->altitude_frame = altitudeFrame();
-  res->max_speed = maxSpeed();
-  res->max_accel = maxAccel();
-  res->max_jerk = maxJerk();
-  res->altitude_tolerance = altitudeTolerance();
-  return res;
-}
-
 double TakeoffWidget::altitude() const
 {
   return altitude_->value();
 }
 
-AltitudeFrame TakeoffWidget::altitudeFrame() const
+tobas::mission::AltitudeFrame TakeoffWidget::altitudeFrame() const
 {
   return altitude_frame_->value();
 }
@@ -73,7 +61,7 @@ void TakeoffWidget::altitude(double value)
   altitude_->setValue(value);
 }
 
-void TakeoffWidget::altitudeFrame(AltitudeFrame value)
+void TakeoffWidget::altitudeFrame(tobas::mission::AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
 }

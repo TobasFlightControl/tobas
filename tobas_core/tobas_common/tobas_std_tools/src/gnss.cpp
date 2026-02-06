@@ -11,7 +11,7 @@ namespace ch = std::chrono;
 
 namespace tbs
 {
-long computeGPSDelayFromToW(uint32_t gps_tow_ms)
+long computeGpsDelayFromToW(uint32_t gps_tow_ms)
 {
   // 現在のUTC時刻を取得
   const auto now = ch::system_clock::now();
@@ -35,16 +35,11 @@ long computeGPSDelayFromToW(uint32_t gps_tow_ms)
   return diff_ms;
 }
 
-void gnssToCartAbsolute(
-  const double& latitude,
-  const double& longitude,
-  const double& altitude,
-  double& x,
-  double& y,
-  double& z)
+std::tuple<double, double, double>
+gnssToCartAbsolute(const double& latitude, const double& longitude, const double& altitude)
 {
-  constexpr double long_radius = 6378137.;          // 長半径 [m]
-  constexpr double eccentricity = 0.0818191908426;  // 離心率 [-]
+  constexpr double kLongRadius = 6378137.;           // 長半径 [m]
+  constexpr double kEccentricity = 0.0818191908426;  // 離心率 [-]
 
   const auto phi = deg2rad(latitude);
   const auto lam = deg2rad(longitude);
@@ -54,19 +49,16 @@ void gnssToCartAbsolute(
   const auto cos_lon = cos(lam);
   const auto sin_lon = sin(lam);
 
-  const auto N = long_radius / sqrt(1 - math::sqr(eccentricity * sin(phi)));
-  x = (N + altitude) * cos_lat * cos_lon;
-  y = (N + altitude) * cos_lat * sin_lon;
-  z = (N * (1 - math::sqr(eccentricity)) + altitude) * sin_lat;
+  const auto N = kLongRadius / sqrt(1 - math::sqr(kEccentricity * sin(phi)));
+  const auto x = (N + altitude) * cos_lat * cos_lon;
+  const auto y = (N + altitude) * cos_lat * sin_lon;
+  const auto z = (N * (1 - math::sqr(kEccentricity)) + altitude) * sin_lat;
+
+  return { x, y, z };
 }
 
-void gnssToCartRelative(
-  const double& latitude,
-  const double& longitude,
-  const double& latitude_0,
-  const double& longitude_0,
-  double& east,
-  double& north)
+std::tuple<double, double>
+gnssToCartRelative(const double& latitude, const double& longitude, const double& latitude_0, const double& longitude_0)
 {
   // 緯度経度・平面直角座標系原点をラジアンに直す
   const auto phi = deg2rad(latitude);
@@ -126,17 +118,11 @@ void gnssToCartRelative(
                        a3 * cos(6 * xi2) * sinh(6 * eta2) + a4 * cos(8 * xi2) * sinh(8 * eta2) +
                        a5 * cos(10 * xi2) * sinh(10 * eta2));  // [m]
 
-  east = y;
-  north = x;
+  return { y, x };
 }
 
-void cartToGnssRelative(
-  const double& east,
-  const double& north,
-  const double& latitude_0,
-  const double& longitude_0,
-  double& latitude,
-  double& longitude)
+std::tuple<double, double>
+cartToGnssRelative(const double& east, const double& north, const double& latitude_0, const double& longitude_0)
 {
   // 平面直角座標系原点をラジアンに直す
   const auto phi_0 = deg2rad(latitude_0);
@@ -202,7 +188,9 @@ void cartToGnssRelative(
   const auto longitude_rad = lam_0 + atan(sinh(eta2) / cos(xi2));     // [rad]
 
   // ラジアンを度になおす
-  latitude = rad2deg(latitude_rad);
-  longitude = rad2deg(longitude_rad);
+  const auto latitude = rad2deg(latitude_rad);
+  const auto longitude = rad2deg(longitude_rad);
+
+  return { latitude, longitude };
 }
 }  // namespace tbs

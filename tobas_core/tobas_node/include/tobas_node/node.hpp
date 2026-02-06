@@ -102,8 +102,8 @@ public:
     const std::string& action_name,
     rclcpp_action::GoalResponse (
       Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
-    rclcpp_action::CancelResponse (Obj::*handle_cancel)(ros2::ActionGoalHandlePtr<ActionType>),
-    void (Obj::*execute)(ros2::ActionGoalHandlePtr<ActionType>),
+    rclcpp_action::CancelResponse (Obj::*handle_cancel)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>>),
+    void (Obj::*execute)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>>),
     Obj* obj);
 
   template <typename RepType, typename DurType, typename Obj>
@@ -283,15 +283,15 @@ ros2::ActionServerPtr<ActionType> BaseNode::createAction(
   const std::string& action_name,
   rclcpp_action::GoalResponse (
     Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
-  rclcpp_action::CancelResponse (Obj::*handle_cancel)(ros2::ActionGoalHandlePtr<ActionType>),
-  void (Obj::*execute)(ros2::ActionGoalHandlePtr<ActionType>),
+  rclcpp_action::CancelResponse (Obj::*handle_cancel)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>>),
+  void (Obj::*execute)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>>),
   Obj* obj)
 {
   // Callback functions need to return quickly to avoid blocking the executor,
   // so we declare a lambda function to be called inside a new thread.
-  const auto handle_accepted = [execute, obj](ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+  const auto handle_accepted = [execute, obj](std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>> gh)
   {
-    const auto execute_in_thread = [execute, obj, goal_handle]() { return (obj->*execute)(goal_handle); };
+    const auto execute_in_thread = [execute, obj, gh]() { return (obj->*execute)(gh); };
     std::thread(execute_in_thread).detach();
   };
 

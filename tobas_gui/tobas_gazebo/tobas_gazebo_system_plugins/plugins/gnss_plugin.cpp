@@ -222,7 +222,7 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
   W_Pos_WS += pos_bias_;
 
   // Fill the GNSS message
-  tbs::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, gnss_msg.latitude, gnss_msg.longitude);
+  std::tie(gnss_msg.latitude, gnss_msg.longitude) = tbs::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
   gnss_msg.altitude = W_Pos_WS.Z();
 }
 

@@ -13,7 +13,6 @@
 	<exec_depend>tobas_eigen_msgs</exec_depend>
 	<exec_depend>tobas_eigen_msgs_adapter</exec_depend>
 	<exec_depend>tobas_kdl_msgs</exec_depend>
-	<exec_depend>tobas_mission_msgs</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_std_msgs</exec_depend>
 	<exec_depend>tobas_std_msgs_adapter</exec_depend>

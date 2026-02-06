@@ -1,8 +1,6 @@
 #pragma once
 
 #include "../fields/acceptance_radius.hpp"
-#include "../fields/altitude.hpp"
-#include "../fields/altitude_frame.hpp"
 #include "../fields/altitude_tolerance.hpp"
 #include "../fields/max_horizontal_accel.hpp"
 #include "../fields/max_horizontal_jerk.hpp"
@@ -10,48 +8,26 @@
 #include "../fields/max_vertical_accel.hpp"
 #include "../fields/max_vertical_jerk.hpp"
 #include "../fields/max_vertical_velocity.hpp"
+#include "../fields/rtl_min_altitude.hpp"
 #include "./base.hpp"
 
 namespace gui
 {
 namespace ctrl
 {
-struct ReturnToHomeData : public BaseCommandData
-{
-  using SharedPtr = std::shared_ptr<ReturnToHomeData>;
-
-  double altitude;  // [m]
-  AltitudeFrame altitude_frame;
-  double max_horizontal_velocity;  // [m/s]
-  double max_vertical_velocity;    // [m/s]
-  double max_horizontal_accel;     // [m/s^2]
-  double max_vertical_accel;       // [m/s^2]
-  double max_horizontal_jerk;      // [m/s^3]
-  double max_vertical_jerk;        // [m/s^3]
-  double acceptance_radius;        // [m]
-  double altitude_tolerance;       // [m]
-
-  Command type() const
-  {
-    return Command::kReturnToHome;
-  }
-};
-
-class ReturnToHomeWidget : public BaseCommandWidget
+class ReturnToLaunchWidget : public BaseCommandWidget
 {
   Q_OBJECT
 
-  using self = ReturnToHomeWidget;
+  using self = ReturnToLaunchWidget;
   using super = BaseCommandWidget;
 
 public:
-  explicit ReturnToHomeWidget();
+  explicit ReturnToLaunchWidget();
 
   const char* name() const override;
-  BaseCommandData::SharedPtr data() const override;
 
-  double altitude() const;
-  AltitudeFrame altitudeFrame() const;
+  double minAltitude() const;
   double maxHorizontalVelocity() const;
   double maxVerticalVelocity() const;
   double maxHorizontalAccel() const;
@@ -61,8 +37,7 @@ public:
   double acceptanceRadius() const;
   double altitudeTolerance() const;
 
-  void altitude(double value);
-  void altitudeFrame(AltitudeFrame value);
+  void minAltitude(double value);
   void maxHorizontalVelocity(double value);
   void maxVerticalVelocity(double value);
   void maxHorizontalAccel(double value);
@@ -73,8 +48,7 @@ public:
   void altitudeTolerance(double value);
 
 private:
-  field::AltitudeWidget* altitude_;
-  field::AltitudeFrameWidget* altitude_frame_;
+  field::RtlMinAltitudeWidget* min_alt_;
   field::MaxHorizontalVelocityWidget* max_hor_vel_;
   field::MaxVerticalVelocityWidget* max_ver_vel_;
   field::MaxHorizontalAccelWidget* max_hor_acc_;

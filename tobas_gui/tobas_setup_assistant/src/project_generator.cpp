@@ -113,7 +113,7 @@ std::string ProjectGenerator::flightActionsPackage() const
   if (
     frame_type == FrameType::kPlanarMulticopter || frame_type == FrameType::kNonPlanarMulticopter ||
     frame_type == FrameType::kYAxisTiltMulticopter || frame_type == FrameType::kRandomAxisTiltMulticopter) {
-    return "tobas_multicopter_actions";
+    return "tobas_mission_execution_mc";
   }
   else {
     qt::qWarnBox(parent_, "Mission planner is not supported for this frame type.");

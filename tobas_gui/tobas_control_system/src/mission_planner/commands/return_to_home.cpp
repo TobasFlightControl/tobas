@@ -1,13 +1,12 @@
-#include "tobas_control_system/mission_planner/commands/return_to_home.hpp"
+#include "tobas_control_system/mission_planner/commands/return_to_launch.hpp"
 
 namespace gui
 {
 namespace ctrl
 {
-ReturnToHomeWidget::ReturnToHomeWidget()
+ReturnToLaunchWidget::ReturnToLaunchWidget()
 {
-  altitude_ = new field::AltitudeWidget();
-  altitude_frame_ = new field::AltitudeFrameWidget();
+  min_alt_ = new field::RtlMinAltitudeWidget();
   max_hor_vel_ = new field::MaxHorizontalVelocityWidget();
   max_ver_vel_ = new field::MaxVerticalVelocityWidget();
   max_hor_acc_ = new field::MaxHorizontalAccelWidget();
@@ -17,8 +16,7 @@ ReturnToHomeWidget::ReturnToHomeWidget()
   acceptance_radius_ = new field::AcceptanceRadiusWidget();
   altitude_tolerance_ = new field::AltitudeToleranceWidget();
 
-  addField(altitude_);
-  addField(altitude_frame_);
+  addField(min_alt_);
   addField(max_hor_vel_);
   addField(max_ver_vel_);
   addField(max_hor_acc_);
@@ -29,123 +27,97 @@ ReturnToHomeWidget::ReturnToHomeWidget()
   addField(altitude_tolerance_);
 }
 
-const char* ReturnToHomeWidget::name() const
+const char* ReturnToLaunchWidget::name() const
 {
-  return "Return to Home";
+  return "Return to Launch";
 }
 
-BaseCommandData::SharedPtr ReturnToHomeWidget::data() const
+double ReturnToLaunchWidget::minAltitude() const
 {
-  const auto res = std::make_shared<ReturnToHomeData>();
-  res->altitude = altitude();
-  res->altitude_frame = altitudeFrame();
-  res->max_horizontal_velocity = maxHorizontalVelocity();
-  res->max_vertical_velocity = maxVerticalVelocity();
-  res->max_horizontal_accel = maxHorizontalAccel();
-  res->max_vertical_accel = maxVerticalAccel();
-  res->max_horizontal_jerk = maxHorizontalJerk();
-  res->max_vertical_jerk = maxVerticalJerk();
-  res->acceptance_radius = acceptanceRadius();
-  res->altitude_tolerance = altitudeTolerance();
-  return res;
+  return min_alt_->value();
 }
 
-double ReturnToHomeWidget::altitude() const
-{
-  return altitude_->value();
-}
-
-AltitudeFrame ReturnToHomeWidget::altitudeFrame() const
-{
-  return altitude_frame_->value();
-}
-
-double ReturnToHomeWidget::maxHorizontalVelocity() const
+double ReturnToLaunchWidget::maxHorizontalVelocity() const
 {
   return max_hor_vel_->value();
 }
 
-double ReturnToHomeWidget::maxVerticalVelocity() const
+double ReturnToLaunchWidget::maxVerticalVelocity() const
 {
   return max_ver_vel_->value();
 }
 
-double ReturnToHomeWidget::maxHorizontalAccel() const
+double ReturnToLaunchWidget::maxHorizontalAccel() const
 {
   return max_hor_acc_->value();
 }
 
-double ReturnToHomeWidget::maxVerticalAccel() const
+double ReturnToLaunchWidget::maxVerticalAccel() const
 {
   return max_ver_acc_->value();
 }
 
-double ReturnToHomeWidget::maxHorizontalJerk() const
+double ReturnToLaunchWidget::maxHorizontalJerk() const
 {
   return max_hor_jerk_->value();
 }
 
-double ReturnToHomeWidget::maxVerticalJerk() const
+double ReturnToLaunchWidget::maxVerticalJerk() const
 {
   return max_ver_jerk_->value();
 }
 
-double ReturnToHomeWidget::acceptanceRadius() const
+double ReturnToLaunchWidget::acceptanceRadius() const
 {
   return acceptance_radius_->value();
 }
 
-double ReturnToHomeWidget::altitudeTolerance() const
+double ReturnToLaunchWidget::altitudeTolerance() const
 {
   return altitude_tolerance_->value();
 }
 
-void ReturnToHomeWidget::altitude(double value)
+void ReturnToLaunchWidget::minAltitude(double value)
 {
-  altitude_->setValue(value);
+  min_alt_->setValue(value);
 }
 
-void ReturnToHomeWidget::altitudeFrame(AltitudeFrame value)
-{
-  altitude_frame_->setValue(value);
-}
-
-void ReturnToHomeWidget::maxHorizontalVelocity(double value)
+void ReturnToLaunchWidget::maxHorizontalVelocity(double value)
 {
   max_hor_vel_->setValue(value);
 }
 
-void ReturnToHomeWidget::maxVerticalVelocity(double value)
+void ReturnToLaunchWidget::maxVerticalVelocity(double value)
 {
   max_ver_vel_->setValue(value);
 }
 
-void ReturnToHomeWidget::maxHorizontalAccel(double value)
+void ReturnToLaunchWidget::maxHorizontalAccel(double value)
 {
   max_hor_acc_->setValue(value);
 }
 
-void ReturnToHomeWidget::maxVerticalAccel(double value)
+void ReturnToLaunchWidget::maxVerticalAccel(double value)
 {
   max_ver_acc_->setValue(value);
 }
 
-void ReturnToHomeWidget::maxHorizontalJerk(double value)
+void ReturnToLaunchWidget::maxHorizontalJerk(double value)
 {
   max_hor_jerk_->setValue(value);
 }
 
-void ReturnToHomeWidget::maxVerticalJerk(double value)
+void ReturnToLaunchWidget::maxVerticalJerk(double value)
 {
   max_ver_jerk_->setValue(value);
 }
 
-void ReturnToHomeWidget::acceptanceRadius(double value)
+void ReturnToLaunchWidget::acceptanceRadius(double value)
 {
   acceptance_radius_->setValue(value);
 }
 
-void ReturnToHomeWidget::altitudeTolerance(double value)
+void ReturnToLaunchWidget::altitudeTolerance(double value)
 {
   altitude_tolerance_->setValue(value);
 }

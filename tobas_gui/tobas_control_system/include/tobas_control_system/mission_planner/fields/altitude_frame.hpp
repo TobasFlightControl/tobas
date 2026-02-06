@@ -1,8 +1,8 @@
 #pragma once
 
+#include <tobas_mission_items/mission_items.hpp>
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
-#include "../altitude_frame.hpp"
 #include "./base.hpp"
 
 namespace gui
@@ -18,8 +18,8 @@ public:
 
   const char* label() const override;
 
-  AltitudeFrame value() const;
-  void setValue(AltitudeFrame value);
+  tobas::mission::AltitudeFrame value() const;
+  void setValue(tobas::mission::AltitudeFrame value);
 
 private:
   qt::ComboBox* combobox_;
