@@ -236,7 +236,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
   }
 
   if (!arming_->data) {
-    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the vehicle is disarmed.");
     return false;
   }
 
