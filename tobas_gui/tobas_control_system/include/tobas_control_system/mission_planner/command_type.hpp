@@ -9,7 +9,7 @@ enum struct Command
   kWaypoint,
   kTakeoff,
   kLand,
-  kReturnToHome,
+  kReturnToLaunch,
 };
 
 const char* commandToText(Command cmd);

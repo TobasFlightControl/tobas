@@ -1,4 +1,4 @@
-#include "tobas_control_system/mission_planner/command.hpp"
+#include "tobas_control_system/mission_planner/command_type.hpp"
 
 #include <string.h>
 
@@ -8,7 +8,7 @@
 #define WAYPOINT_LABEL "Waypoint"
 #define TAKEOFF_LABEL "Takeoff"
 #define LAND_LABEL "Land"
-#define RETURN_TO_HOME_LABEL "Return to Home"
+#define RTL_LABEL "Return to Launch"
 
 namespace gui
 {
@@ -23,8 +23,8 @@ const char* commandToText(Command cmd)
       return TAKEOFF_LABEL;
     case Command::kLand:
       return LAND_LABEL;
-    case Command::kReturnToHome:
-      return RETURN_TO_HOME_LABEL;
+    case Command::kReturnToLaunch:
+      return RTL_LABEL;
     default:
       throw std::runtime_error(std::format("Invalid command type: {}", (int)cmd));
   }
@@ -41,8 +41,8 @@ Command textToCommand(const char* text)
   else if (strcmp(text, LAND_LABEL) == 0) {
     return Command::kLand;
   }
-  else if (strcmp(text, RETURN_TO_HOME_LABEL) == 0) {
-    return Command::kReturnToHome;
+  else if (strcmp(text, RTL_LABEL) == 0) {
+    return Command::kReturnToLaunch;
   }
   else {
     throw std::runtime_error(std::format("Invalid command text: {}", text));

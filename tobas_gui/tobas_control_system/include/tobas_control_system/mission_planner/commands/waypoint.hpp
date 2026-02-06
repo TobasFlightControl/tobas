@@ -18,29 +18,6 @@ namespace gui
 {
 namespace ctrl
 {
-struct WaypointData : public BaseCommandData
-{
-  using SharedPtr = std::shared_ptr<WaypointData>;
-
-  double latitude;   // [deg]
-  double longitude;  // [deg]
-  double altitude;   // [m]
-  AltitudeFrame altitude_frame;
-  double max_horizontal_velocity;  // [m/s]
-  double max_vertical_velocity;    // [m/s]
-  double max_horizontal_accel;     // [m/s^2]
-  double max_vertical_accel;       // [m/s^2]
-  double max_horizontal_jerk;      // [m/s^3]
-  double max_vertical_jerk;        // [m/s^3]
-  double acceptance_radius;        // [m]
-  double altitude_tolerance;       // [m]
-
-  Command type() const override
-  {
-    return Command::kWaypoint;
-  }
-};
-
 class WaypointWidget : public BaseCommandWidget
 {
   Q_OBJECT
@@ -52,12 +29,11 @@ public:
   explicit WaypointWidget();
 
   const char* name() const override;
-  BaseCommandData::SharedPtr data() const override;
 
   double latitude() const;
   double longitude() const;
   double altitude() const;
-  AltitudeFrame altitudeFrame() const;
+  tobas::mission::AltitudeFrame altitudeFrame() const;
   double maxHorizontalVelocity() const;
   double maxVerticalVelocity() const;
   double maxHorizontalAccel() const;
@@ -70,7 +46,7 @@ public:
   void latitude(double value);
   void longitude(double value);
   void altitude(double value);
-  void altitudeFrame(AltitudeFrame value);
+  void altitudeFrame(tobas::mission::AltitudeFrame value);
   void maxHorizontalVelocity(double value);
   void maxVerticalVelocity(double value);
   void maxHorizontalAccel(double value);

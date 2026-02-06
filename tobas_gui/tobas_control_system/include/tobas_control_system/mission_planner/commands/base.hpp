@@ -7,20 +7,12 @@
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-#include "../command.hpp"
 #include "../fields/base.hpp"
 
 namespace gui
 {
 namespace ctrl
 {
-struct BaseCommandData
-{
-  using SharedPtr = std::shared_ptr<BaseCommandData>;
-
-  virtual Command type() const = 0;
-};
-
 class BaseCommandWidget : public QWidget
 {
   Q_OBJECT
@@ -40,7 +32,6 @@ public:
   explicit BaseCommandWidget();
 
   virtual const char* name() const = 0;
-  virtual BaseCommandData::SharedPtr data() const = 0;
 
 protected:
   void addField(field::BaseField* field);

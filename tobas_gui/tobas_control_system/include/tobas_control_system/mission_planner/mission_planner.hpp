@@ -1,13 +1,18 @@
 #pragma once
 
+#include <rclcpp_action/rclcpp_action.hpp>
+
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+
+#include <tobas_mission_msgs/action/execute_mission.hpp>
 
 #include "./add_command_dialog.hpp"
 #include "./command_button.hpp"
+#include "./commands/base.hpp"
 #include "./map_widget.hpp"
-#include "./mission_execution_thread.hpp"
 
 namespace gui
 {
@@ -20,9 +25,19 @@ class MissionPlannerWidget : public QWidget
   using self = MissionPlannerWidget;
   using super = QWidget;
 
-  static constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online/";
-  static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline/";
+  using Action = tobas_mission_msgs::action::ExecuteMission;
+  using Client = rclcpp_action::Client<Action>;
+  using GoalHandle = rclcpp_action::ClientGoalHandle<Action>;
+  using GoalHandlePtr = GoalHandle::SharedPtr;
+  using Result = GoalHandle::WrappedResult;
+
+  static constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online";
+  static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline";
   static constexpr uintmax_t kCacheMaxSize = 1 << 30;  // 1GiB
+
+Q_SIGNALS:
+  void goalResponseReceived(bool ok);
+  void resultReceived(rclcpp_action::ResultCode code, const QString& message);
 
 public:
   explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge);
@@ -46,11 +61,12 @@ private:
 
   qt::ListWidget* command_list_;
   qt::StackedWidget* commands_;
-
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
-  MissionExecutionThread mission_thread_;
 
-  tobas_msgs::RCInput::ConstSharedPtr rcin_;
+  qt::WaitSpinnerWidget spinner_;
+
+  bool mission_executing_;
+  Client::SharedPtr ac_;
 
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();
@@ -65,10 +81,10 @@ private:
   void commandsToMap();
 
   /* リストの要素に対応するコマンドウィジェットを取得する． */
-  BaseCommandWidget* getCommandWidget(QListWidgetItem* tar_item);
+  BaseCommandWidget* getCommandWidget(QListWidgetItem* tar_item) const;
 
-  /* ミッションコマンドのリストを作成する． */
-  QVector<BaseCommandData::SharedPtr> createMissionCommandList();
+  /* ミッション実行アクションのゴールを作成する． */
+  Action::Goal createMissionGoal() const;
 
 private Q_SLOTS:
   void onLoadButtonClicked();
@@ -84,11 +100,12 @@ private Q_SLOTS:
   void onListItemChanged();
   void onMissionUpdated();
   void onWaypointMoved(int index, double latitude, double longitude);
-  void onMissionFinished(bool success, const QString& message);
 
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+
+  void actionGoalResponseCb(bool ok);
+  void actionResultCb(rclcpp_action::ResultCode code, const QString& message);
 };
 }  // namespace ctrl
 }  // namespace gui
