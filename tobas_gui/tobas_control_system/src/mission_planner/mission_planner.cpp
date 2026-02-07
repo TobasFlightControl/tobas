@@ -641,7 +641,7 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
       qt::qErrorBox(this, "The mission was aborted: " + message);
       break;
     default:
-      qt::qErrorBox(this, "Unknown action result code: " + QString::number((int)code));
+      qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)code));
       break;
   }
 
