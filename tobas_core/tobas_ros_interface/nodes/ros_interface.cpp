@@ -247,7 +247,7 @@ void RosInterfaceNode::serviceCallback(
 {
   const auto client = boost::polymorphic_pointer_downcast<rclcpp::Client<SrvType>>(clients_.at(srv_name));
 
-  if (!client->wait_for_service()) {
+  if (!client->service_is_ready()) {
     TOBAS_ERROR("\"", client->get_service_name(), "\" service is not ready.");
     return;
   }
