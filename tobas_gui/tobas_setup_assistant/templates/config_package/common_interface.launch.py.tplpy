@@ -8,7 +8,6 @@ from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
-ACTIONS_PKG = "{{ actions_pkg }}"
 USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
 USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
 
@@ -39,17 +38,6 @@ def generate_launch_description():
     user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
 
     ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
-
-    # Launch mission executor
-    ld.add_action(
-        Node(
-            package=ACTIONS_PKG,
-            executable="mission_executor",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
 
     # Launch dynamic parameter server
     ld.add_action(

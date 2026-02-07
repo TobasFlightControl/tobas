@@ -47,13 +47,9 @@ private:
   std::shared_ptr<TemplateGenerator> user_cpp_env_;
   std::shared_ptr<TemplateGenerator> user_py_env_;
 
-  /* ROS Packageのタブで指定されたTobasパッケージのパスへのエイリアス． */
-  std::string flightActionsPackage() const;
-
-  inja::json createTemplateData();
-
-  tobas::Drone createDrone();
-
+  std::string missionExecutorPackage() const;
+  inja::json createTemplateData() const;
+  tobas::Drone createDrone() const;
   bool hasServoJoint() const;
 
   bool generateMetaPackage(const inja::json& data);
