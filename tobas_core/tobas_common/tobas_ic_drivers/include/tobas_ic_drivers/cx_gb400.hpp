@@ -76,7 +76,7 @@ public:
   bool setVideoResolution(const VideoQuality& video_quality);
   /* レコーディングする動画のフレームレートを設定する */
   bool setVideoFrameRate(const VideoFrameRate& video_frame_rate);
-  /* カメラ状態を取得する */
+  /* カメラ状態を取得する 結果から引数として与えられた変数の値を変更する */
   bool getCameraStatus(
     bool& sd_full,
     bool& time_not_set,
