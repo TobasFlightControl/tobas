@@ -82,10 +82,10 @@ private:
     double yaw) const;
   bool armRotors(bool arming);
 
-  bool executeWaypoint(const Waypoint& goal, GoalHandlePtr gh, ResultPtr res);
-  bool executeTakeoff(const Takeoff& goal, GoalHandlePtr gh, ResultPtr res);
-  bool executeLand(const Land& goal, GoalHandlePtr gh, ResultPtr res);
-  bool executeRTL(const ReturnToLaunch& goal, GoalHandlePtr gh, ResultPtr res);
+  bool executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res);
+  bool executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res);
+  bool executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res);
+  bool executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -93,9 +93,9 @@ private:
   void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
 
-  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, GoalPtr goal);
-  rclcpp_action::CancelResponse handleCancel(GoalHandlePtr gh);
-  void execute(GoalHandlePtr gh);
+  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, const GoalPtr& goal);
+  rclcpp_action::CancelResponse handleCancel(const GoalHandlePtr& gh);
+  void execute(const GoalHandlePtr& gh);
 };
 
 MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
@@ -180,7 +180,7 @@ bool MulticopterMissionExecutorNode::armRotors(bool arming)
   return true;
 }
 
-bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, GoalHandlePtr gh, ResultPtr res)
+bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
   // Verify that GNSS is fixed
   if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
@@ -300,7 +300,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, GoalH
   return false;
 }
 
-bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, GoalHandlePtr gh, ResultPtr res)
+bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
   // Arm rotors
   if (!armRotors(true)) {
@@ -376,7 +376,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, GoalHan
   return false;
 }
 
-bool MulticopterMissionExecutorNode::executeLand(const Land& goal, GoalHandlePtr gh, ResultPtr res)
+bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
   // 初期状態を取得
   const auto start_time = now();
@@ -433,7 +433,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, GoalHandlePtr
   return false;
 }
 
-bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, GoalHandlePtr gh, ResultPtr res)
+bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
   // cf. [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
 
@@ -531,7 +531,8 @@ void MulticopterMissionExecutorNode::landedCb(const tobas_msgs::msg::LandedState
   landed_ = landed;
 }
 
-rclcpp_action::GoalResponse MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, GoalPtr goal)
+rclcpp_action::GoalResponse
+MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const GoalPtr& goal)
 {
   TOBAS_INFO("New mission is uploaded.");
 
@@ -710,13 +711,13 @@ rclcpp_action::GoalResponse MulticopterMissionExecutorNode::handleGoal(const rcl
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(GoalHandlePtr)
+rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const GoalHandlePtr&)
 {
   TOBAS_INFO("The current mission is canceled.");
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void MulticopterMissionExecutorNode::execute(GoalHandlePtr gh)
+void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 {
   // Create res
   const auto res = std::make_shared<Action::Result>();

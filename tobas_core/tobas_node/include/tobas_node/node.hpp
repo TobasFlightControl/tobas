@@ -101,9 +101,9 @@ public:
   ros2::ActionServerPtr<ActType> createAction(
     const std::string& action_name,
     rclcpp_action::GoalResponse (
-      Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActType::Goal>),
-    rclcpp_action::CancelResponse (Obj::*handle_cancel)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>),
-    void (Obj::*execute)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>),
+      Obj::*handle_goal)(const rclcpp_action::GoalUUID&, const std::shared_ptr<const typename ActType::Goal>&),
+    rclcpp_action::CancelResponse (Obj::*handle_cancel)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
+    void (Obj::*execute)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
     Obj* obj);
 
   template <typename RepType, typename DurType, typename Obj>
@@ -282,14 +282,14 @@ template <typename ActType, typename Obj>
 ros2::ActionServerPtr<ActType> BaseNode::createAction(
   const std::string& action_name,
   rclcpp_action::GoalResponse (
-    Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActType::Goal>),
-  rclcpp_action::CancelResponse (Obj::*handle_cancel)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>),
-  void (Obj::*execute)(std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>),
+    Obj::*handle_goal)(const rclcpp_action::GoalUUID&, const std::shared_ptr<const typename ActType::Goal>&),
+  rclcpp_action::CancelResponse (Obj::*handle_cancel)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
+  void (Obj::*execute)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
   Obj* obj)
 {
   // Callback functions need to return quickly to avoid blocking the executor,
   // so we declare a lambda function to be called inside a new thread.
-  const auto handle_accepted = [execute, obj](std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>> gh)
+  const auto handle_accepted = [execute, obj](const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& gh)
   {
     const auto execute_in_thread = [execute, obj, gh]() { return (obj->*execute)(gh); };
     std::thread(execute_in_thread).detach();
