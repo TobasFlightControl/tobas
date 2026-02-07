@@ -260,8 +260,8 @@ void RosInterfaceNode::serviceCallback(
 
 int main(int argc, char* argv[])
 {
-  constexpr long kDefaultNumThreads = 4L;
-  constexpr long kMinNumThreads = 2L;
+  constexpr long kDefaultNumThreads = 4;
+  constexpr long kMinNumThreads = 2;
 
   rclcpp::init(argc, argv);
 
