@@ -7,7 +7,7 @@
 
 /* 開発用 */
 // #include <tobas_std_msgs/action/empty.hpp>
-// using ActionType = tobas_std_msgs::action::Empty;
+// using ActType = tobas_std_msgs::action::Empty;
 
 namespace ros2
 {
@@ -15,13 +15,13 @@ namespace ros2
  * @brief 同期アクションクライアント．
  * @note ブロッキングを行うため，リアルタイム性が重要なノードでは使用しないこと．
  */
-template <typename ActionType>
+template <typename ActType>
 class SyncActionClient
 {
   static constexpr auto kWaitForServer = std::chrono::seconds(1);
 
-  using Client = rclcpp_action::Client<ActionType>;
-  using GoalHandle = rclcpp_action::ClientGoalHandle<ActionType>;
+  using Client = rclcpp_action::Client<ActType>;
+  using GoalHandle = rclcpp_action::ClientGoalHandle<ActType>;
   using GoalHandlePtr = std::shared_ptr<GoalHandle>;
 
 public:
@@ -33,7 +33,7 @@ public:
     rclcpp::CallbackGroup::SharedPtr group = nullptr)
     : node_(node), action_name_(name)
   {
-    client_ = rclcpp_action::create_client<ActionType>(node, name, group);
+    client_ = rclcpp_action::create_client<ActType>(node, name, group);
   }
 
   /**
@@ -44,7 +44,7 @@ public:
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
   std::pair<GoalHandlePtr, std::shared_future<typename GoalHandle::WrappedResult>>
-  sendGoal(const typename ActionType::Goal& goal)
+  sendGoal(const typename ActType::Goal& goal)
   {
     if (!client_->wait_for_action_server(kWaitForServer)) {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << action_name_ << "\" action server is not ready.");
@@ -72,7 +72,7 @@ public:
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
   bool sendGoalAndWait(
-    const typename ActionType::Goal& goal,
+    const typename ActType::Goal& goal,
     std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(-1),
     std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
   {

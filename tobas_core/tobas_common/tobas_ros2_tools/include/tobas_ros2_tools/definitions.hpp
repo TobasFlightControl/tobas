@@ -13,10 +13,10 @@ template <typename SrvType>
 using ServiceServerPtr = typename rclcpp::Service<SrvType>::SharedPtr;
 template <typename SrvType>
 using ServiceClientPtr = typename rclcpp::Client<SrvType>::SharedPtr;
-template <typename ActionType>
-using ActionServerPtr = typename rclcpp_action::Server<ActionType>::SharedPtr;
-template <typename ActionType>
-using ActionClientPtr = typename rclcpp_action::Client<ActionType>::SharedPtr;
+template <typename ActType>
+using ActionServerPtr = typename rclcpp_action::Server<ActType>::SharedPtr;
+template <typename ActType>
+using ActionClientPtr = typename rclcpp_action::Client<ActType>::SharedPtr;
 
 using TimerPtr = rclcpp::TimerBase::SharedPtr;
 using ParamHandlePtr = std::shared_ptr<rclcpp::ParameterCallbackHandle>;
