@@ -65,7 +65,7 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   bool mission_executing_;
-  Client::SharedPtr ac_;
+  Client::SharedPtr mission_ac_;
 
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();

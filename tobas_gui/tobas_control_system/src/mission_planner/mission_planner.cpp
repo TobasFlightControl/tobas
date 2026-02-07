@@ -107,7 +107,8 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   reset();
 
-  ac_ = rclcpp_action::create_client<Action>(node_, path::join(ns, tobas::kExecuteMissionAction));
+  const auto action_name = path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kExecuteMissionAction);
+  mission_ac_ = rclcpp_action::create_client<Action>(node_, action_name);
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -486,7 +487,7 @@ void MissionPlannerWidget::onExecuteButtonClicked()
   }
 
   // ミッション実行サーバの状態を確認
-  if (!ac_->action_server_is_ready()) {
+  if (!mission_ac_->action_server_is_ready()) {
     qt::qWarnBox(this, "Mission executor is not ready.");
     return;
   }
@@ -499,7 +500,7 @@ void MissionPlannerWidget::onExecuteButtonClicked()
   { Q_EMIT feedbackReceived(fb->current_index); };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
   { Q_EMIT resultReceived(res.code, res.result->message.c_str()); };
-  ac_->async_send_goal(goal, opts);
+  mission_ac_->async_send_goal(goal, opts);
 
   spinner_.start();
 }
@@ -512,7 +513,7 @@ void MissionPlannerWidget::onCancelButtonClicked()
     return;
   }
 
-  ac_->async_cancel_all_goals();
+  mission_ac_->async_cancel_all_goals();
 }
 
 void MissionPlannerWidget::onFocusButtonClicked()
