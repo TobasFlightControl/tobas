@@ -719,7 +719,7 @@ rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const
 
 void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 {
-  // Create res
+  // Create result
   const auto res = std::make_shared<Action::Result>();
 
   // Get goal

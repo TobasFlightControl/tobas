@@ -324,7 +324,7 @@ void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
     }
   }
   else {
-    TOBAS_ERROR("Both target joint state and target link state are NULL.");
+    TOBAS_ERROR("Both target joint state and target link state are null.");
     return;
   }
 

@@ -494,8 +494,11 @@ void MissionPlannerWidget::onExecuteButtonClicked()
   // ミッションを実行
   const auto goal = createMissionGoal();
   Client::SendGoalOptions opts;
-  opts.goal_response_callback = [this](const GoalHandlePtr& gh) { Q_EMIT goalResponseReceived(gh != nullptr); };
-  opts.result_callback = [this](const Result& res) { Q_EMIT resultReceived(res.code, res.result->message.c_str()); };
+  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh) { Q_EMIT goalResponseReceived(gh != nullptr); };
+  opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& fb)
+  { Q_EMIT feedbackReceived(fb->current_index); };
+  opts.result_callback = [this](const GoalHandle::WrappedResult& res)
+  { Q_EMIT resultReceived(res.code, res.result->message.c_str()); };
   ac_->async_send_goal(goal, opts);
 
   spinner_.start();
@@ -605,8 +608,6 @@ void MissionPlannerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& od
 
 void MissionPlannerWidget::actionGoalResponseCb(bool ok)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::actionGoalResponseCb");
-
   spinner_.stop();
 
   if (!ok) {
@@ -618,10 +619,14 @@ void MissionPlannerWidget::actionGoalResponseCb(bool ok)
   setExecuteMode();
 }
 
+void MissionPlannerWidget::actionFeedbackCb(uint32_t current_index)
+{
+  (void)current_index;
+  // TODO
+}
+
 void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const QString& message)
 {
-  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::actionResultCb");
-
   switch (code) {
     case rclcpp_action::ResultCode::UNKNOWN:
       qt::qWarnBox(this, "The result of the mission is unknown.");

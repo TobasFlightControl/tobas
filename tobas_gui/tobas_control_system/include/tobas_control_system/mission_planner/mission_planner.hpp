@@ -28,8 +28,6 @@ class MissionPlannerWidget : public QWidget
   using Action = tobas_mission_msgs::action::ExecuteMission;
   using Client = rclcpp_action::Client<Action>;
   using GoalHandle = rclcpp_action::ClientGoalHandle<Action>;
-  using GoalHandlePtr = GoalHandle::SharedPtr;
-  using Result = GoalHandle::WrappedResult;
 
   static constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online";
   static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline";
@@ -37,6 +35,7 @@ class MissionPlannerWidget : public QWidget
 
 Q_SIGNALS:
   void goalResponseReceived(bool ok);
+  void feedbackReceived(uint32_t current_index);
   void resultReceived(rclcpp_action::ResultCode code, const QString& message);
 
 public:
@@ -105,6 +104,7 @@ private Q_SLOTS:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   void actionGoalResponseCb(bool ok);
+  void actionFeedbackCb(uint32_t current_index);
   void actionResultCb(rclcpp_action::ResultCode code, const QString& message);
 };
 }  // namespace ctrl
