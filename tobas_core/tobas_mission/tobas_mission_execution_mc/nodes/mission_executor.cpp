@@ -730,9 +730,9 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
     TOBAS_INFO("Start mission No. ", idx);
 
     // Publish the current mission #
-    auto feedback = std::make_unique<Action::Feedback>();
+    const auto feedback = std::make_shared<Action::Feedback>();
     feedback->current_index = idx;
-    gh->publish_feedback(std::move(feedback));
+    gh->publish_feedback(feedback);
 
     switch (item.type) {
       case kWaypoint: {
