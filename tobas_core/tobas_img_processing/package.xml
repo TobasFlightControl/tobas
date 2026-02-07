@@ -16,7 +16,7 @@
   <depend>geometry_msgs</depend>
   <depend>tobas_ic_drivers</depend>
   <depend>tobas_node</depend>
-  <depend>tobas_msgs</depend>
+  <depend>tobas_camera_msgs</depend>
   <depend>tobas_msgs_adapter</depend>
 
 	<export>

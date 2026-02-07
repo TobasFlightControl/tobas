@@ -107,18 +107,19 @@ private:
     kUnit3 = 0x8,
   };
 
+  // 0-indexed
   enum CameraErrorStatusDigit : uint8_t
   {
-    kTakingPicture = 3,
-    kTakingMovie = 4,
-    kSdFull = 6,
-    kTimeNotSet = 17,
-    kMediaError = 18,
-    kLensError = 19,
-    kGimbalError = 21,
-    kGimbalMotorError = 22,
-    kGimbalControlError = 23,
-    kThermalError = 25,
+    kTakingPicture = 2,
+    kTakingMovie = 3,
+    kSdFull = 5,
+    kTimeNotSet = 16,
+    kMediaError = 17,
+    kLensError = 18,
+    kGimbalError = 20,
+    kGimbalMotorError = 21,
+    kGimbalControlError = 22,
+    kThermalError = 24,
   };
 
   struct PACKED AttitudeMsg
