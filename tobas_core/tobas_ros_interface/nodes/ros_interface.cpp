@@ -54,16 +54,13 @@
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
-#define DEFAULT_NUM_THREADS 4
-#define MIN_NUM_THREADS 2
-
-class ROSInterfaceNode : public tobas::BaseNode
+class RosInterfaceNode : public tobas::BaseNode
 {
-  using self = ROSInterfaceNode;
+  using self = RosInterfaceNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit ROSInterfaceNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RosInterfaceNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   rclcpp::CallbackGroup::SharedPtr callback_group_;
@@ -105,7 +102,7 @@ private:
     const std::string& srv_name);
 };
 
-ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
+RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
 {
   // サービスコールバックを再帰的に呼んだ際のデッドロックを回避
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
@@ -184,7 +181,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
 }
 
 template <typename MsgType>
-void ROSInterfaceNode::addTopic(
+void RosInterfaceNode::addTopic(
   const std::string& sub_topic,
   const std::string& pub_topic,
   bool latch,
@@ -201,7 +198,7 @@ void ROSInterfaceNode::addTopic(
 }
 
 template <typename MsgType>
-void ROSInterfaceNode::addTopicLogicToIface(
+void RosInterfaceNode::addTopicLogicToIface(
   const std::string& sub_topic,
   const std::string& pub_topic,
   bool latch,
@@ -212,7 +209,7 @@ void ROSInterfaceNode::addTopicLogicToIface(
 }
 
 template <typename MsgType>
-void ROSInterfaceNode::addTopicIfaceToLogic(
+void RosInterfaceNode::addTopicIfaceToLogic(
   const std::string& sub_topic,
   const std::string& pub_topic,
   bool latch,
@@ -223,7 +220,7 @@ void ROSInterfaceNode::addTopicIfaceToLogic(
 }
 
 template <typename SrvType>
-void ROSInterfaceNode::addService(const std::string& srv_name)
+void RosInterfaceNode::addService(const std::string& srv_name)
 {
   auto cb =
     [this, srv_name](const typename SrvType::Request::SharedPtr& req, const typename SrvType::Response::SharedPtr& res)
@@ -235,7 +232,7 @@ void ROSInterfaceNode::addService(const std::string& srv_name)
 }
 
 template <typename MsgType>
-void ROSInterfaceNode::topicCallback(const typename MsgType::ConstSharedPtr& msg_in, const std::string& pub_topic)
+void RosInterfaceNode::topicCallback(const typename MsgType::ConstSharedPtr& msg_in, const std::string& pub_topic)
 {
   auto msg_out = std::make_unique<MsgType>(*msg_in);
   const auto publisher = boost::polymorphic_pointer_downcast<rclcpp::Publisher<MsgType>>(publishers_.at(pub_topic));
@@ -243,7 +240,7 @@ void ROSInterfaceNode::topicCallback(const typename MsgType::ConstSharedPtr& msg
 }
 
 template <typename SrvType>
-void ROSInterfaceNode::serviceCallback(
+void RosInterfaceNode::serviceCallback(
   const typename SrvType::Request::SharedPtr& req,
   const typename SrvType::Response::SharedPtr& res,
   const std::string& srv_name)
@@ -263,20 +260,23 @@ void ROSInterfaceNode::serviceCallback(
 
 int main(int argc, char* argv[])
 {
+  constexpr long kDefaultNumThreads = 4L;
+  constexpr long kMinNumThreads = 2L;
+
   rclcpp::init(argc, argv);
 
-  const auto node = std::make_shared<ROSInterfaceNode>();
+  const auto node = std::make_shared<RosInterfaceNode>();
 
-  long num_threads = DEFAULT_NUM_THREADS;
+  long num_threads = kDefaultNumThreads;
   if (node->has_parameter("num_threads")) {
     num_threads = node->get_parameter("num_threads").as_int();
   }
 
-  if (num_threads < MIN_NUM_THREADS) {
+  if (num_threads < kMinNumThreads) {
     RCLCPP_WARN_STREAM(
       node->get_logger(),
-      "To avoid deadlock with recursive service calls, at least " << MIN_NUM_THREADS << " threads are required.");
-    num_threads = MIN_NUM_THREADS;
+      "To avoid deadlock with recursive service calls, at least " << kMinNumThreads << " threads are required.");
+    num_threads = kMinNumThreads;
   }
 
   RCLCPP_INFO_STREAM(node->get_logger(), "The number of threads is set to " << num_threads << ".");
