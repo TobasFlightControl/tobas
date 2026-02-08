@@ -332,6 +332,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
 
+  // エイリアス
+  const auto& cur_pos_W = odom->frame.p;
+  const auto& cur_rot = odom->frame.M;
+  const auto& cur_vel_B = odom->twist.vel;
+  const auto& cur_gyro_B = odom->twist.rot;
+
   // 位置制御器
   if (pos_cmd_) {
     if (!acc_cmd_) {
@@ -339,17 +345,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
 
     // 世界座標系から見た現在の位置速度
-    const auto& cur_pos_W = odom->frame.p;
-    const auto cur_vel_W = odom->frame.M * odom->twist.vel;
+    const auto cur_vel_W = cur_rot * cur_vel_B;
 
-    // 目標加速度を計算
-    // 接地している場合はI制御は行わない
-    if (landed_->data) {
-      acc_cmd_->accel = pos_pid_.updatePD(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel);
-    }
-    else {
-      acc_cmd_->accel = pos_pid_.updatePID(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, dt);
-    }
+    // 目標加速度を計算（接地している場合は誤差の積分を行わない）
+    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->data ? 0. : dt);
 
     // ピッチ，ヨー角はそのまま流す
     acc_cmd_->pitch = pos_cmd_->pitch;
@@ -357,7 +356,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = odom->frame.M.inverse(pos_cmd_->vel);
+    feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
@@ -372,18 +371,13 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       }
 
       // フィードバックメッセージを埋める
-      feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
+      feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
     }
 
     // 姿勢制御器
     {
-      // 目標姿勢を計算
-      if (landed_->data) {  // 接地している場合はI制御は行わない
-        tar_dgyro_ = rot_pid_.updatePD(odom->frame.M, odom->twist.rot, tar_rot_, kdl::Vector::Zero());
-      }
-      else {
-        tar_dgyro_ = rot_pid_.updatePID(odom->frame.M, odom->twist.rot, tar_rot_, kdl::Vector::Zero(), dt);
-      }
+      // 目標姿勢を計算（接地している場合は誤差の積分を行わない）
+      tar_dgyro_ = rot_pid_.update(cur_rot, cur_gyro_B, tar_rot_, kdl::Vector::Zero(), landed_->data ? 0. : dt);
 
       // フィードバックメッセージを埋める
       feedback->target_angle = kdl::Euler(tar_rot_);
@@ -394,7 +388,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     {
       // ミキシング方程式を解く
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-      if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro_, ux_, uz_, dist_torque_B)) {
+      if (!mixer_.solve(js_converter_.getPosition(), cur_gyro_B, tar_dgyro_, ux_, uz_, dist_torque_B)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
@@ -450,18 +444,6 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
-  if (!landed_) {
-    landed_ = landed;
-    return;
-  }
-
-  // 着陸したら積分誤差をリセット
-  if (landed->data && !landed_->data) {
-    pos_pid_.resetIntegralError();
-    rot_pid_.resetIntegralError();
-    TOBAS_INFO("The integral errors have been reset.");
-  }
-
   landed_ = landed;
 }
 
@@ -472,11 +454,15 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     return;
   }
 
-  // ディスアームしたらコマンドをリセット
+  // ディスアームしたら積分誤差とコマンドをリセット
   if (!arming->data && arming_->data) {
+    pos_pid_.resetIntegralError();
+    rot_pid_.resetIntegralError();
+
     pos_cmd_.reset();
     acc_cmd_.reset();
-    TOBAS_INFO("The high-level commands have been reset.");
+
+    TOBAS_INFO("The controller has been reset.");
   }
 
   arming_ = arming;

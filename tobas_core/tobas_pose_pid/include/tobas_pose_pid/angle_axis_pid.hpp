@@ -9,18 +9,12 @@ class AngleAxisPID
 public:
   explicit AngleAxisPID();
 
-  kdl::Vector updatePID(
+  kdl::Vector update(
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro,
     const kdl::Rotation& tar_rot,
     const kdl::Vector& tar_gyro,
     const double& dt);
-
-  kdl::Vector updatePD(
-    const kdl::Rotation& cur_rot,
-    const kdl::Vector& cur_gyro,
-    const kdl::Rotation& tar_rot,
-    const kdl::Vector& tar_gyro);
 
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);

@@ -14,15 +14,13 @@ EulerPID::EulerPID()
   updateGain();
 }
 
-kdl::Vector EulerPID::updatePID(
+kdl::Vector EulerPID::update(
   const kdl::Euler& cur_rpy,
   const kdl::Vector& cur_gyro,
   const kdl::Euler& tar_rpy,
   const kdl::Vector& tar_gyro,
   const double& dt)
 {
-  assert(dt > 0.);
-
   // 誤差を計算
   const auto ep = computeProportionalError(cur_rpy, tar_rpy);
   const auto ed = computeDerivativeError(cur_rpy, cur_gyro, tar_gyro);
@@ -36,24 +34,6 @@ kdl::Vector EulerPID::updatePID(
 
   // 目標オイラー角加速度を計算
   const auto tar_ddrpy = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
-
-  // オイラー角加速度をDジャイロに変換
-  const auto cur_drpy = eigen::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
-  return eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_drpy, tar_ddrpy.data);
-}
-
-kdl::Vector EulerPID::updatePD(
-  const kdl::Euler& cur_rpy,
-  const kdl::Vector& cur_gyro,
-  const kdl::Euler& tar_rpy,
-  const kdl::Vector& tar_gyro)
-{
-  // 誤差を計算
-  const auto ep = computeProportionalError(cur_rpy, tar_rpy);
-  const auto ed = computeDerivativeError(cur_rpy, cur_gyro, tar_gyro);
-
-  // 目標オイラー角加速度を計算
-  const auto tar_ddrpy = kp_.hadamard(ep) + kd_.hadamard(ed);
 
   // オイラー角加速度をDジャイロに変換
   const auto cur_drpy = eigen::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
