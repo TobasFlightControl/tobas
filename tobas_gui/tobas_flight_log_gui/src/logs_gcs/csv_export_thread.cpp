@@ -438,13 +438,13 @@ std::string CsvExportThread::makeCsvRow(const rcutils_time_point_value_t& cur_ti
   csv_line += updateAndExportString(
     cur_data_.mr_ctrl_fb,
     last_data_.mr_ctrl_fb,
-    std::string(6, ','),
+    std::string(6 - 1, ','),
     [](const auto& msg)
     {
       const auto& pos_ie = msg->position_integral_error;
       const auto& rot_ie = msg->angle_integral_error;
       return std::to_string(pos_ie.x) + ',' + std::to_string(pos_ie.y) + ',' + std::to_string(pos_ie.z) + ',' +
-             std::to_string(rot_ie.x) + ',' + std::to_string(rot_ie.y) + ',' + std::to_string(rot_ie.z);
+             std::to_string(rot_ie.x) + ',' + std::to_string(rot_ie.y) + ',' + std::to_string(rot_ie.z);  // End
     });
 
   return csv_line + '\n';
