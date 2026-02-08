@@ -134,9 +134,9 @@ void CsvExportThread::run()
 
   csv_file << csv_header;
 
-  int64_t start_time = 0;  // [ns]
+  rcutils_time_point_value_t start_time = 0;  // [ns]
   bool is_timer_started = false;
-  constexpr int64_t kTimeThreshold = 1'000'000;  // [ns]
+  constexpr rcutils_time_point_value_t kTimeThreshold = 1'000'000;  // [ns]
 
   const auto& metadata = reader_.get_metadata();
   const auto record_start_time = metadata.starting_time.time_since_epoch().count();
