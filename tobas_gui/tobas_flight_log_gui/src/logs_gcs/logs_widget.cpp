@@ -204,11 +204,11 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     last_opened_dir = ros2::getHomeDir();
   }
 
-  // Set the default output path
+  // Set the default output file path
   auto default_out_path = fs::path(last_opened_dir) / log_name.toStdString();
   default_out_path.replace_extension(".csv");
 
-  // Get the save path
+  // Get the save file path
   const auto save_path = QFileDialog::getSaveFileName(
     this,
     "Select Output CSV File",
@@ -222,7 +222,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     return;
   }
 
-  // Save the selected directory
+  // Save the selected directory path
   const auto par_dir = fs::path(save_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
     qWarning() << property_client_.errorMessage();
@@ -231,7 +231,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
     qWarning() << property_client_.errorMessage();
   }
 
-  // Export CSV
+  // Export CSV file
   CsvExportThread thread(log_name, save_path);
   spinner_.start();
   const auto [success, message] = qt::startThreadAndWait(thread, &CsvExportThread::finished);
