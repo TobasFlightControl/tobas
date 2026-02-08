@@ -5,7 +5,6 @@
 #include <QFileDialog>
 #include <QPushButton>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -24,7 +23,7 @@ namespace sa
 namespace fw
 {
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), property_client_(node, path::join(kPackageName, "fixed_wing/aero_coefs"))
+  : node_(node), property_client_(node, "tobas_setup_assistant/fixed_wing/aero_coefs")
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

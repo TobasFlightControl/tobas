@@ -7,7 +7,6 @@
 #include <QPushButton>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
@@ -15,7 +14,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 
-#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/rapidcsv.hpp"
 
 namespace fs = std::filesystem;
@@ -36,7 +34,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   , title_(title)
   , labels_(labels)
   , num_entry_(labels.size())
-  , property_client_(node, path::join(kPackageName, "double_table"))
+  , property_client_(node, "tobas_setup_assistant/double_table")
 {
   TOBAS_CHECK(num_entry_ > 0);
 

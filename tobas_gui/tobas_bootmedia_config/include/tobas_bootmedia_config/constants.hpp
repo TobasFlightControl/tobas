@@ -6,8 +6,6 @@ namespace gui
 {
 namespace bm
 {
-static constexpr char kPackageName[] = "tobas_bootmedia_config";
-
 static constexpr int kCtrlButtonWidth = 100;
 static constexpr int kCtrlButtonHeight = 40;
 static constexpr int kFormSpacing = 30;

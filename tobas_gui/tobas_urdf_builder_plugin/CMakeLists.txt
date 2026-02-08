@@ -23,7 +23,6 @@ set(AMENT_DEPENDENCIES
     rviz_default_plugins
     rviz_rendering
     tobas_std_tools
-    tobas_path_tools
     tobas_ros2_tools
     tobas_urdf
     tobas_property_client

@@ -12,7 +12,7 @@ namespace sa
 {
 fs::path getPkgShareDir()
 {
-  return ament_index_cpp::get_package_share_directory(kPackageName);
+  return ament_index_cpp::get_package_share_directory("tobas_setup_assistant");
 }
 }  // namespace sa
 }  // namespace gui

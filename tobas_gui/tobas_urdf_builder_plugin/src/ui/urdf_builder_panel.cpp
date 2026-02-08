@@ -8,7 +8,6 @@
 #include <pluginlib/class_list_macros.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
-#include <tobas_path_tools/join.hpp>
 
 #include <tobas_ros2_tools/util.hpp>
 
@@ -18,7 +17,6 @@
 #include "tobas_urdf_builder_plugin/ui/add_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
-#include "tobas_urdf_builder_plugin/utils/constants.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
 #define ROBOT_MODEL_UPDATE_INTERVAL 10  // [ms]
@@ -37,7 +35,7 @@ UrdfBuilderPanel::UrdfBuilderPanel(QWidget* parent)
   : rviz_common::Panel(parent)
   , node_manager_(0, nullptr, "urdf_builder")
   , node_(node_manager_.node())
-  , property_client_(node_, path::join(kPropertySection, "urdf_builder_panel"))
+  , property_client_(node_, "tobas_urdf_builder_plugin/urdf_builder_panel")
 {
   ui_ = new Ui::URDFBuilderPanelUI();
   ui_->setupUi(this);
