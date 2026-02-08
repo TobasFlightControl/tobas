@@ -17,6 +17,7 @@ class FlightLogItemWidgetGCS : public QWidget
   static constexpr int kButtonWidth = 80;
 
 Q_SIGNALS:
+  void exportButtonClicked(const QString& log_name);
   void deleteButtonClicked(const QString& log_name);
 
 public:
@@ -26,9 +27,11 @@ public:
 
 private:
   QLabel* log_name_;
+  QPushButton* export_button_;
   QPushButton* delete_button_;
 
 private Q_SLOTS:
+  void onExportButtonClicked();
   void onDeleteButtonClicked();
 };
 }  // namespace log
