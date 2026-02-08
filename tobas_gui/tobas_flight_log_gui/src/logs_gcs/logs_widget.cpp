@@ -22,7 +22,8 @@ namespace gui
 {
 namespace log
 {
-FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
+FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
+  : property_client_(node, "tobas_flight_log_gui/logs_gcs"), spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -196,27 +197,47 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
 
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
 {
-  fs::path default_csv_name(log_name.toStdString());
-  default_csv_name.replace_extension(".csv");
+  // Get the last opened directory path
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = ros2::getHomeDir();
+  }
 
+  // Set the default output path
+  auto default_out_path = fs::path(last_opened_dir) / log_name.toStdString();
+  default_out_path.replace_extension(".csv");
+
+  // Get the save path
   const auto save_path = QFileDialog::getSaveFileName(
     this,
     "Select Output CSV File",
-    QString::fromStdString(default_csv_name),
+    QString::fromStdString(default_out_path),
     "CSV Files (*.csv)",
     nullptr,
     QFileDialog::DontUseNativeDialog);
 
+  // Return if canceled
   if (save_path.isEmpty()) {
     return;
   }
 
-  CsvExportThread thread(log_name, save_path);
+  // Save the selected directory
+  const auto par_dir = fs::path(save_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+  if (property_client_.save() < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
 
+  // Export CSV
+  CsvExportThread thread(log_name, save_path);
   spinner_.start();
   const auto [success, message] = qt::startThreadAndWait(thread, &CsvExportThread::finished);
   spinner_.stop();
 
+  // Show the result
   if (success) {
     qt::qInfoBox(this, "The flight log has been exported successfully.");
   }

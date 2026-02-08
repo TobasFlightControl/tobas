@@ -12,7 +12,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
 {
   recorder_ = new FlightLogRecorderWidget(node, bridge);
   logs_fc_ = new FlightLogsWidgetFC(node);
-  logs_gcs_ = new FlightLogsWidgetGCS();
+  logs_gcs_ = new FlightLogsWidgetGCS(node);
   log_viewer_ = new FlightLogViewerWidget();
 
   // Layout

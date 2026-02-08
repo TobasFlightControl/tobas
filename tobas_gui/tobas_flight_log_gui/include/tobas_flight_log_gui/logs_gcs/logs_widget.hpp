@@ -2,6 +2,7 @@
 
 #include <QPushButton>
 
+#include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
@@ -20,12 +21,14 @@ class FlightLogsWidgetGCS : public QWidget
   static constexpr int kButtonHeight = 40;
   static constexpr int kListItemHeight = 40;
 
+  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
+
 Q_SIGNALS:
   void logSelected(const QString& log_name);
   void logDeselected();
 
 public:
-  explicit FlightLogsWidgetGCS();
+  explicit FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node);
 
   void addLog(const QString& log_name);
   void removeLog(const QString& log_name);
@@ -35,6 +38,8 @@ public:
   void sortLogs();
 
 private:
+  ptree::PropertyClient property_client_;
+
   QPushButton* read_button_;
   QPushButton* clean_button_;
 

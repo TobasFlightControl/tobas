@@ -15,6 +15,7 @@ set(AMENT_DEPENDENCIES
     tobas_string_tools
     tobas_kdl
     tobas_ros2_tools
+    tobas_property_client
     tobas_msgs
     tobas_debug_msgs
     tobas_qt_tools
