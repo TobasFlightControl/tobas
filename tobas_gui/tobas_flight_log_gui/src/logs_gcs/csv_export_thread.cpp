@@ -1,6 +1,7 @@
 #include "tobas_flight_log_gui/logs_gcs/csv_export_thread.hpp"
 
 #include <fstream>
+#include <ranges>
 
 #include <QDebug>
 
@@ -54,15 +55,17 @@ void CsvExportThread::run()
     }
   }
 
-  // Get the number of rotors
+  // Get the rotor link names
   while (reader_.has_next()) {
     const auto msg = reader_.read_next();
     const rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
     if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
       try {
         const auto rotor_states = rotor_states_decoder_.decode(msg->recv_timestamp, ser_msg);
-        num_rotors_ = rotor_states.states.size();
-        qInfo() << "The number of rotors:" << num_rotors_;
+        for (const auto& elem : rotor_states.states) {
+          rotor_link_names_.push_back(elem.link_name);
+        }
+        qInfo() << "The number of rotors:" << rotor_link_names_.size();
       }
       catch (const std::exception& e) {
         Q_EMIT finished(false, "Failed to decode the first rotor states message.");
@@ -96,14 +99,14 @@ void CsvExportThread::run()
     "EngineThrottle[%],"
     "CPU/Frequency[GHz],CPU/Temperature[degC],CPU/Load[%],";
 
-  for (size_t i = 0; i < num_rotors_; i++) {
-    csv_header += "Roter/TargetRPM/" + std::to_string(i) + ',';
+  for (const auto& link_name : rotor_link_names_) {
+    csv_header += "Roter/TargetRPM/" + link_name + ',';
   }
-  for (size_t i = 0; i < num_rotors_; i++) {
-    csv_header += "Roter/CurrentRPM/" + std::to_string(i) + ',';
+  for (const auto& link_name : rotor_link_names_) {
+    csv_header += "Roter/CurrentRPM/" + link_name + ',';
   }
-  for (size_t i = 0; i < num_rotors_; i++) {
-    csv_header += "Roter/Link/" + std::to_string(i) + ',';
+  for (const auto& link_name : rotor_link_names_) {
+    csv_header += "Roter/Link/" + link_name + ',';
   }
 
   csv_header += "Latency/ControlLatency[us],"
@@ -178,18 +181,18 @@ void CsvExportThread::run()
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
         cur_data_.rotor_states =
           std::make_shared<tobas_msgs::msg::RotorStateArray>(rotor_states_decoder_.decode(cur_time, ser_msg));
-        if (cur_data_.rotor_states->states.size() != num_rotors_) {
+        if (!rotorLinkNamesValid(cur_data_.rotor_states)) {
           csv_file.close();
-          Q_EMIT finished(false, "Rotor size mismatch.");
+          Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
       }
       else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
         cur_data_.rotor_speeds =
           std::make_shared<tobas_msgs::msg::RotorSpeedArray>(rotor_speeds_decoder_.decode(cur_time, ser_msg));
-        if (cur_data_.rotor_speeds->speeds.size() != num_rotors_) {
+        if (!rotorLinkNamesValid(cur_data_.rotor_speeds)) {
           csv_file.close();
-          Q_EMIT finished(false, "Rotor size mismatch.");
+          Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
       }
@@ -236,6 +239,36 @@ bool CsvExportThread::open(const std::string& rosbag_path)
   catch (const std::exception& e) {
     qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
     return false;
+  }
+
+  return true;
+}
+
+bool CsvExportThread::rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg)
+{
+  if (msg->states.size() != rotor_link_names_.size()) {
+    return false;
+  }
+
+  for (const auto [elem, link_name] : std::views::zip(msg->states, rotor_link_names_)) {
+    if (elem.link_name != link_name) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool CsvExportThread::rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& msg)
+{
+  if (msg->speeds.size() != rotor_link_names_.size()) {
+    return false;
+  }
+
+  for (const auto [elem, link_name] : std::views::zip(msg->speeds, rotor_link_names_)) {
+    if (elem.link_name != link_name) {
+      return false;
+    }
   }
 
   return true;
@@ -356,7 +389,7 @@ std::string CsvExportThread::makeCsvRow(const rcutils_time_point_value_t& cur_ti
   csv_line += updateAndExportString(
     cur_data_.rotor_speeds,
     last_data_.rotor_speeds,
-    std::string(num_rotors_, ','),
+    std::string(rotor_link_names_.size(), ','),
     [](const auto& msg)
     {
       std::string res;
@@ -370,7 +403,7 @@ std::string CsvExportThread::makeCsvRow(const rcutils_time_point_value_t& cur_ti
   csv_line += updateAndExportString(
     cur_data_.rotor_states,
     last_data_.rotor_states,
-    std::string(num_rotors_ * 2, ','),
+    std::string(rotor_link_names_.size() * 2, ','),
     [](const auto& msg)
     {
       std::string res;

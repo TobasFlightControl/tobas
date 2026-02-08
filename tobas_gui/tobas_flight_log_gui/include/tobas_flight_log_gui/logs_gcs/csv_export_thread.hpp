@@ -60,7 +60,7 @@ private:
   const QString log_name_;
   const QString save_path_;
 
-  size_t num_rotors_ = 0;
+  std::vector<std::string> rotor_link_names_;
 
   rosbag2_cpp::Reader reader_;
 
@@ -81,6 +81,9 @@ private:
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
 
   bool open(const std::string& rosbag_path);
+
+  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
+  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& msg);
 
   std::string makeCsvRow(const rcutils_time_point_value_t& cur_time);
 };
