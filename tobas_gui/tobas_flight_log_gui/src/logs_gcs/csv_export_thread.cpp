@@ -97,13 +97,13 @@ void CsvExportThread::run()
     "CPU/Frequency[GHz],CPU/Temperature[degC],CPU/Load[%],";
 
   for (size_t i = 0; i < num_rotors_; i++) {
-    csv_header += "Roter/TargetRPM/" + std::to_string(i) + ",";
+    csv_header += "Roter/TargetRPM/" + std::to_string(i) + ',';
   }
   for (size_t i = 0; i < num_rotors_; i++) {
-    csv_header += "Roter/CurrentRPM/" + std::to_string(i) + ",";
+    csv_header += "Roter/CurrentRPM/" + std::to_string(i) + ',';
   }
   for (size_t i = 0; i < num_rotors_; i++) {
-    csv_header += "Roter/Link/" + std::to_string(i) + ",";
+    csv_header += "Roter/Link/" + std::to_string(i) + ',';
   }
 
   csv_header += "Latency/ControlLatency[us],"
