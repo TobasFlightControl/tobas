@@ -148,7 +148,18 @@ bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
   return true;
 }
 
-bool CxGb400::takePictureToSD()
+bool CxGb400::formatSdCard()
+{
+  uint8_t execute = 0;
+  const uvc_xu_control_query format_sd_card_query = { kUnit2, 0x15, UVC_SET_CUR, 1, &execute };
+  if (!execUvcControl(format_sd_card_query)) {
+    std::cerr << "Failed to format the SD card." << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::takePictureToSd()
 {
   uint8_t execute = 0;
   const uvc_xu_control_query take_picture_query = { kUnit1, 0x09, UVC_SET_CUR, 1, &execute };

@@ -21,11 +21,13 @@
 
 #include <tobas_camera_msgs/msg/gimbal_attitude_command.hpp>
 #include <tobas_camera_msgs/msg/status.hpp>
+#include <tobas_camera_msgs/srv/format_sd_card.hpp>
 #include <tobas_camera_msgs/srv/set_photo_quality.hpp>
 #include <tobas_camera_msgs/srv/set_video_frame_rate.hpp>
 #include <tobas_camera_msgs/srv/set_video_quality.hpp>
 #include <tobas_camera_msgs/srv/start_recording.hpp>
 #include <tobas_camera_msgs/srv/stop_recording.hpp>
+#include <tobas_camera_msgs/srv/take_picture_to_sd.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
 using namespace std::chrono_literals;
@@ -55,6 +57,27 @@ private:
 
   void copterAttMsgCb(const tobas_msgs::Odometry::ConstSharedPtr& _msg);
   void gimbalAttitudeCmdCb(const tobas_camera_msgs::msg::GimbalAttitudeCommand::ConstSharedPtr& _msg);
+  void formatSdCardCb(
+    const tobas_camera_msgs::srv::FormatSdCard::Request::ConstSharedPtr&,
+    const tobas_camera_msgs::srv::FormatSdCard::Response::SharedPtr& res);
+  void setPhotoQualityCb(
+    const tobas_camera_msgs::srv::SetPhotoQuality::Request::ConstSharedPtr& req,
+    const tobas_camera_msgs::srv::SetPhotoQuality::Response::SharedPtr& res);
+  void setVideoFrameRateCb(
+    const tobas_camera_msgs::srv::SetVideoFrameRate::Request::ConstSharedPtr& req,
+    const tobas_camera_msgs::srv::SetVideoFrameRate::Response::SharedPtr& res);
+  void setVideoQualityCb(
+    const tobas_camera_msgs::srv::SetVideoQuality::Request::ConstSharedPtr& req,
+    const tobas_camera_msgs::srv::SetVideoQuality::Response::SharedPtr& res);
+  void startRecordingCb(
+    const tobas_camera_msgs::srv::StartRecording::Request::ConstSharedPtr&,
+    const tobas_camera_msgs::srv::StartRecording::Response::SharedPtr& res);
+  void stopRecordingCb(
+    const tobas_camera_msgs::srv::StopRecording::Request::ConstSharedPtr&,
+    const tobas_camera_msgs::srv::StopRecording::Response::SharedPtr& res);
+  void takePictureToSdCb(
+    const tobas_camera_msgs::srv::TakePictureToSd::Request::ConstSharedPtr&,
+    const tobas_camera_msgs::srv::TakePictureToSd::Response::SharedPtr& res);
 
   // Parameters
   std::string device_name_;
@@ -66,6 +89,13 @@ private:
   ros2::PublisherPtr<tobas_camera_msgs::msg::Status> camera_status_pub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> copter_att_sub_;
   ros2::SubscriberPtr<tobas_camera_msgs::msg::GimbalAttitudeCommand> gimbal_att_cmd_sub_;
+  ros2::ServiceServerPtr<tobas_camera_msgs::srv::FormatSdCard> format_sd_card_ss_;
+  ros2::ServiceServerPtr<tobas_camera_msgs::srv::SetPhotoQuality> set_photo_quality_ss_;
+  ros2::ServiceServerPtr<tobas_camera_msgs::srv::SetVideoFrameRate> set_video_frame_rate_ss_;
+  ros2::ServiceServerPtr<tobas_camera_msgs::srv::SetVideoQuality> set_video_quality_ss_;
+  ros2::ServiceServerPtr<tobas_camera_msgs::srv::StartRecording> start_recording_ss_;
+  ros2::ServiceServerPtr<tobas_camera_msgs::srv::StopRecording> stop_recording_ss_;
+  ros2::ServiceServerPtr<tobas_camera_msgs::srv::TakePictureToSd> take_picture_to_sd_ss_;
 
   driver::CxGb400 camera_;
   Eigen::Quaterniond copter_attitude_ = Eigen::Quaterniond::Identity();
@@ -91,6 +121,21 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
 
   copter_att_sub_ = createSubscriber("odom", &CxGb400PublisherNode::copterAttMsgCb, this);
   gimbal_att_cmd_sub_ = createSubscriber("gimbal_attitude_command", &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
+
+  format_sd_card_ss_ =
+    createService<tobas_camera_msgs::srv::FormatSdCard>("format_sd_card", &CxGb400PublisherNode::formatSdCardCb, this);
+  set_photo_quality_ss_ = createService<tobas_camera_msgs::srv::SetPhotoQuality>(
+    "set_photo_quality", &CxGb400PublisherNode::setPhotoQualityCb, this);
+  set_video_frame_rate_ss_ = createService<tobas_camera_msgs::srv::SetVideoFrameRate>(
+    "set_video_frame_rate", &CxGb400PublisherNode::setVideoFrameRateCb, this);
+  set_video_quality_ss_ = createService<tobas_camera_msgs::srv::SetVideoQuality>(
+    "set_video_quality", &CxGb400PublisherNode::setVideoQualityCb, this);
+  start_recording_ss_ = createService<tobas_camera_msgs::srv::StartRecording>(
+    "start_recording", &CxGb400PublisherNode::startRecordingCb, this);
+  stop_recording_ss_ = createService<tobas_camera_msgs::srv::StopRecording>(
+    "stop_recording", &CxGb400PublisherNode::stopRecordingCb, this);
+  take_picture_to_sd_ss_ = createService<tobas_camera_msgs::srv::TakePictureToSd>(
+    "take_picture_to_sd", &CxGb400PublisherNode::takePictureToSdCb, this);
 
   timer_ = createTimer(std::chrono::milliseconds(1000 / fps), &CxGb400PublisherNode::timerCallback, this);
   last_attitude_send_ = this->now();
@@ -159,7 +204,8 @@ void CxGb400PublisherNode::timerCallback()
     if (camera_.sendCopterAttitude(
           copter_attitude_.w(), copter_attitude_.x(), copter_attitude_.y(), copter_attitude_.z())) {
       last_attitude_send_ = now;
-    } else{
+    }
+    else {
       TOBAS_WARN("Failed to send copter attitude.");
     }
   }
@@ -184,7 +230,8 @@ void CxGb400PublisherNode::timerCallback()
           msg->iso)) {
       camera_status_pub_->publish(std::move(msg));
       last_status_send_ = now;
-    } else {
+    }
+    else {
       TOBAS_WARN("Failed to get camera status");
     }
   }
@@ -225,6 +272,149 @@ void CxGb400PublisherNode::gimbalAttitudeCmdCb(const tobas_camera_msgs::msg::Gim
 {
   if (!camera_.sendGimbalCtrl(_msg->pitch, _msg->yaw)) {
     TOBAS_WARN("Failed to send gimbal control command.");
+  }
+}
+
+void CxGb400PublisherNode::formatSdCardCb(
+  const tobas_camera_msgs::srv::FormatSdCard::Request::ConstSharedPtr&,
+  const tobas_camera_msgs::srv::FormatSdCard::Response::SharedPtr& res)
+{
+  if (camera_.formatSdCard()) {
+    res->success = true;
+    res->message.clear();
+  }
+  else {
+    res->success = false;
+    res->message = "The camera rejected the request to format the SD card.";
+  }
+}
+
+void CxGb400PublisherNode::setPhotoQualityCb(
+  const tobas_camera_msgs::srv::SetPhotoQuality::Request::ConstSharedPtr& req,
+  const tobas_camera_msgs::srv::SetPhotoQuality::Response::SharedPtr& res)
+{
+  driver::CxGb400::PhotoQuality photo_quality;
+  if (req->photo_quality == req->SUPER_FINE) {
+    photo_quality = driver::CxGb400::PhotoQuality::kSuperFine;
+  }
+  else if (req->photo_quality == req->FINE) {
+    photo_quality = driver::CxGb400::PhotoQuality::kFine;
+  }
+  else if (req->photo_quality == req->NORMAL) {
+    photo_quality = driver::CxGb400::PhotoQuality::kNormal;
+  }
+  else {
+    res->success = false;
+    res->message = "Requested photo quality is out of range.";
+    return;
+  }
+  if (camera_.setPhotoQuality(photo_quality)) {
+    res->success = true;
+    res->message.clear();
+  }
+  else {
+    res->success = false;
+    res->message = "The camera rejected the request to set the photo quality.";
+  }
+}
+
+void CxGb400PublisherNode::setVideoFrameRateCb(
+  const tobas_camera_msgs::srv::SetVideoFrameRate::Request::ConstSharedPtr& req,
+  const tobas_camera_msgs::srv::SetVideoFrameRate::Response::SharedPtr& res)
+{
+  driver::CxGb400::VideoFrameRate video_frame_rate;
+  if (req->video_frame_rate == req->K30FPS) {
+    video_frame_rate = driver::CxGb400::VideoFrameRate::k30p;
+  }
+  else if (req->video_frame_rate == req->K60FPS) {
+    video_frame_rate = driver::CxGb400::VideoFrameRate::k60p;
+  }
+  else {
+    res->success = false;
+    res->message = "Requested video frame rate is out of range.";
+    return;
+  }
+  if (camera_.setVideoFrameRate(video_frame_rate)) {
+    res->success = true;
+    res->message.clear();
+  }
+  else {
+    res->success = false;
+    res->message = "The camera rejected the request to set the video frame rate.";
+  }
+}
+
+void CxGb400PublisherNode::setVideoQualityCb(
+  const tobas_camera_msgs::srv::SetVideoQuality::Request::ConstSharedPtr& req,
+  const tobas_camera_msgs::srv::SetVideoQuality::Response::SharedPtr& res)
+{
+  driver::CxGb400::VideoQuality video_quality;
+  if (req->video_quality == req->K4K) {
+    video_quality = driver::CxGb400::VideoQuality::k4K;
+  }
+  else if (req->video_quality == req->K2_7K) {
+    video_quality = driver::CxGb400::VideoQuality::k2_7K;
+  }
+  else if (req->video_quality == req->FHD) {
+    video_quality = driver::CxGb400::VideoQuality::kFHD;
+  }
+  else if (req->video_quality == req->HD) {
+    video_quality = driver::CxGb400::VideoQuality::kHD;
+  }
+  else {
+    res->success = false;
+    res->message = "Requested video quality is out of range.";
+    return;
+  }
+  if (camera_.setVideoResolution(video_quality)) {
+    res->success = true;
+    res->message.clear();
+  }
+  else {
+    res->success = false;
+    res->message = "The camera rejected the request to set the video resolution.";
+  }
+}
+
+void CxGb400PublisherNode::startRecordingCb(
+  const tobas_camera_msgs::srv::StartRecording::Request::ConstSharedPtr&,
+  const tobas_camera_msgs::srv::StartRecording::Response::SharedPtr& res)
+{
+  if (camera_.startRecording()) {
+    res->success = true;
+    res->message.clear();
+  }
+  else {
+    res->success = false;
+    res->message = "The camera rejected the request to start the recording.";
+  }
+}
+
+void CxGb400PublisherNode::stopRecordingCb(
+  const tobas_camera_msgs::srv::StopRecording::Request::ConstSharedPtr&,
+  const tobas_camera_msgs::srv::StopRecording::Response::SharedPtr& res)
+{
+  if (camera_.stopRecording()) {
+    res->success = true;
+    res->message.clear();
+  }
+  else {
+    res->success = false;
+    res->message = "The camera rejected the request to stop the recording.";
+  }
+}
+
+void CxGb400PublisherNode::takePictureToSdCb(
+  const tobas_camera_msgs::srv::TakePictureToSd::Request::ConstSharedPtr&,
+  const tobas_camera_msgs::srv::TakePictureToSd::Response::SharedPtr& res)
+{
+  if (camera_.takePictureToSd()) {
+    res->success = true;
+    res->message.clear();
+  }
+  else {
+    res->success = false;
+    res->message = "The camera rejected the request to take a picture and save it to the SD card.";
   }
 }
 

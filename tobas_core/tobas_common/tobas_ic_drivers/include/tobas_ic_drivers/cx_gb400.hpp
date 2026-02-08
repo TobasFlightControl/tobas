@@ -64,8 +64,10 @@ public:
   /* 工場出荷リセット実施後，通常起動前に1回のみ実施する． */
   bool turnOffUavcan();
 
+  /* SDカードをフォーマットする */
+  bool formatSdCard();
   /* 静止画を撮影する. 現在設定の画質で撮影. 画像は内蔵SDカードに保存 */
-  bool takePictureToSD();
+  bool takePictureToSd();
   /* 静止画の画質を設定する. superfine, fine, normalの中から選択 */
   bool setPhotoQuality(const PhotoQuality& photo_quality);
   /* 動画撮影を開始する 動画はSDへ保存 */
