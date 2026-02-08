@@ -13,19 +13,19 @@ bool AccelRateController::requirePosition()
   return false;
 }
 
-bool AccelRateController::requireOrientation()
-{
-  return true;
-}
-
-bool AccelRateController::requireLinearVelocity()
+bool AccelRateController::requireVelocity()
 {
   return false;
 }
 
-bool AccelRateController::requireAngularVelocity()
+bool AccelRateController::requireAttitude()
 {
   return true;
+}
+
+bool AccelRateController::requireHeading()
+{
+  return false;
 }
 
 void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)

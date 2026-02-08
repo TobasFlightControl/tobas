@@ -1,11 +1,12 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_std_tools/byte.hpp>
 #include <tobas_tools/util.hpp>
 
-#include <tobas_mission_msgs/action/land.hpp>
-#include <tobas_mission_msgs/action/move.hpp>
+#include <tobas_mission_msgs/action/execute_mission.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
@@ -19,13 +20,9 @@ class FailsafeExecutorNode : public tobas::BaseNode
   using self = FailsafeExecutorNode;
   using super = tobas::BaseNode;
 
-  using MoveAction = tobas_mission_msgs::action::Move;
-  using MoveClient = rclcpp_action::Client<MoveAction>;
-  using MoveGoalHandle = rclcpp_action::ClientGoalHandle<MoveAction>;
-
-  using LandAction = tobas_mission_msgs::action::Land;
-  using LandClient = rclcpp_action::Client<LandAction>;
-  using LandGoalHandle = rclcpp_action::ClientGoalHandle<LandAction>;
+  using Action = tobas_mission_msgs::action::ExecuteMission;
+  using Client = rclcpp_action::Client<Action>;
+  using GoalHandle = rclcpp_action::ClientGoalHandle<Action>;
 
 public:
   explicit FailsafeExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -43,7 +40,6 @@ private:
   tobas_msgs::RCInput::ConstSharedPtr rcin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
-  tobas_msgs::Gnss::ConstSharedPtr gnss_arm_;  // アームした地点の座標
 
   ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -53,9 +49,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
 
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
-
-  MoveClient::SharedPtr move_ac_;
-  LandClient::SharedPtr land_ac_;
+  ros2::ActionClientPtr<Action> mission_ac_;
 
   void disarm();
 
@@ -80,9 +74,7 @@ FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options) :
   gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
-
-  move_ac_ = rclcpp_action::create_client<MoveAction>(this, tobas::kMoveAction);
-  land_ac_ = rclcpp_action::create_client<LandAction>(this, tobas::kLandAction);
+  mission_ac_ = rclcpp_action::create_client<Action>(this, tobas::kExecuteMissionAction);
 }
 
 void FailsafeExecutorNode::disarm()
@@ -94,50 +86,55 @@ void FailsafeExecutorNode::disarm()
 
 void FailsafeExecutorNode::startRTL()
 {
-  assert(gnss_arm_);
-
-  MoveAction::Goal goal;
-  goal.level.data = tobas_command_msgs::msg::CommandLevel::DEFENSIVE;
-  goal.target_latitude = gnss_arm_->latitude;
-  goal.target_longitude = gnss_arm_->longitude;
-
   // TODO: パラメータをSAで指定可能にする
-  goal.target_altitude = odom_ ? odom_->frame.p.z() : 15.;
-  goal.max_horizontal_velocity = 5.;
-  goal.max_vertical_velocity = 1.5;
-  goal.max_horizontal_accel = 5.;
-  goal.max_vertical_accel = 3.;
-  goal.max_horizontal_jerk = 4.;
-  goal.max_vertical_jerk = 4.;
+  tobas::mission::ReturnToLaunch rtl;
+  rtl.min_altitude = 15.;
+  rtl.max_horizontal_velocity = 5.;
+  rtl.max_vertical_velocity = 1.5;
+  rtl.max_horizontal_accel = 5.;
+  rtl.max_vertical_accel = 3.;
+  rtl.max_horizontal_jerk = 4.;
+  rtl.max_vertical_jerk = 4.;
+  rtl.acceptance_radius = 0.;
+  rtl.altitude_tolerance = 0.;
+  rtl.timeout = 0.;
 
-  MoveClient::SendGoalOptions opts;
-  opts.goal_response_callback = [this](const MoveGoalHandle::SharedPtr& goal_handle)
+  tobas_mission_msgs::msg::MissionItem mission_item;
+  mission_item.type = tobas::mission::kReturnToLaunch;
+  mission_item.data = tbs::toBytes(rtl);
+
+  Action::Goal goal;
+  goal.mission.header.stamp = now();
+  goal.mission.items.push_back(mission_item);
+
+  Client::SendGoalOptions opts;
+  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
   {
-    if (!goal_handle) {
-      TOBAS_ERROR("Move action goal was rejected by server.");
+    if (!gh) {
+      TOBAS_ERROR("Mission goal was rejected by server.");
       startLand();
     }
   };
-  opts.result_callback = [this](const MoveGoalHandle::WrappedResult& result)
+  opts.result_callback = [this](const GoalHandle::WrappedResult& res)
   {
-    switch (result.code) {
+    switch (res.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
         startLand();  // RTLの次は必ず着陸
         break;
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        TOBAS_ERROR("Move action was aborted: ", result.result->message);
+        TOBAS_ERROR("Mission was aborted: ", res.result->message);
         startLand();
         break;
       default:
-        TOBAS_ERROR("Unknown result code: ", (int)result.code);
+        TOBAS_ERROR("Unknown result code: ", (int)res.code);
         startLand();
         break;
     }
   };
 
-  move_ac_->async_send_goal(goal, opts);
+  mission_ac_->async_send_goal(goal, opts);
 
   state_ = kReturnToLaunch;
 }
@@ -145,37 +142,45 @@ void FailsafeExecutorNode::startRTL()
 void FailsafeExecutorNode::startLand()
 {
   // TODO: パラメータをSAで指定可能にする
-  LandAction::Goal goal;
-  goal.level.data = tobas_command_msgs::msg::CommandLevel::DEFENSIVE;
-  goal.speed = 0.7;
+  tobas::mission::Land land;
+  land.speed = 0.7;
+  land.timeout = 0.;
 
-  LandClient::SendGoalOptions opts;
-  opts.goal_response_callback = [this](const LandGoalHandle::SharedPtr& goal_handle)
+  tobas_mission_msgs::msg::MissionItem mission_item;
+  mission_item.type = tobas::mission::kLand;
+  mission_item.data = tbs::toBytes(land);
+
+  Action::Goal goal;
+  goal.mission.header.stamp = now();
+  goal.mission.items.push_back(mission_item);
+
+  Client::SendGoalOptions opts;
+  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
   {
-    if (!goal_handle) {
-      TOBAS_ERROR("Land action goal was rejected by server.");
+    if (!gh) {
+      TOBAS_ERROR("Mission goal was rejected by server.");
       disarm();
     }
   };
-  opts.result_callback = [this](const LandGoalHandle::WrappedResult& result)
+  opts.result_callback = [this](const GoalHandle::WrappedResult& res)
   {
-    switch (result.code) {
+    switch (res.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
         break;  // フェイルセーフは必ず着陸で終わる
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        TOBAS_ERROR("Land action was aborted: ", result.result->message);
+        TOBAS_ERROR("Mission was aborted: ", res.result->message);
         disarm();
         break;
       default:
-        TOBAS_ERROR("Unknown result code: ", (int)result.code);
+        TOBAS_ERROR("Unknown result code: ", (int)res.code);
         disarm();
         break;
     }
   };
 
-  land_ac_->async_send_goal(goal, opts);
+  mission_ac_->async_send_goal(goal, opts);
 
   state_ = kLand;
 }
@@ -218,7 +223,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
         if (landed_ && landed_->data) {
           disarm();
         }
-        else if (gnss_arm_ && health->position_accuracy == tobas_msgs::msg::VehicleHealth::PASSED) {
+        else if (gnss_->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
           startRTL();
         }
         else {
@@ -233,7 +238,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       // 手動操縦が有効になったらフェイルセーフをキャンセル
       if (rcin_ && rcin_->enable) {
         TOBAS_WARN("Canceling RTL because the manual mode is enabled.");
-        move_ac_->async_cancel_all_goals();
+        mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
       }
@@ -241,7 +246,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       // フェイルセーフを更新
       if (batt_voltage_too_low) {
         TOBAS_WARN("Battery fail-safe is activated.");
-        move_ac_->async_cancel_all_goals();
+        mission_ac_->async_cancel_all_goals();
         startLand();
         break;
       }
@@ -252,7 +257,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       // 手動操縦が有効になったらフェイルセーフをキャンセル
       if (rcin_ && rcin_->enable) {
         TOBAS_WARN("Canceling the land action because the manual mode is enabled.");
-        land_ac_->async_cancel_all_goals();
+        mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
       }
@@ -278,20 +283,16 @@ void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
       case kNoFailSafe:
         break;
       case kReturnToLaunch:
-        move_ac_->async_cancel_all_goals();
+        mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
       case kLand:
-        land_ac_->async_cancel_all_goals();
+        mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
       default:
         throw;
     }
-  }
-  else if (!arming_->data && arming->data) {
-    // アームされた地点の座標を保存
-    gnss_arm_ = gnss_;
   }
 
   arming_ = arming;
@@ -314,13 +315,7 @@ void FailsafeExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSha
 
 void FailsafeExecutorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  // 3次元Fixの場合のみ位置情報を更新
-  if (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-    gnss_ = gnss;
-  }
-  else {
-    gnss_.reset();
-  }
+  gnss_ = gnss;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(FailsafeExecutorNode)

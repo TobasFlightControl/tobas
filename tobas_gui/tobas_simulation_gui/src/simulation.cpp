@@ -245,7 +245,7 @@ bool SimulationWidget::startHITL()
   }
   else {
     if (arming_->data) {
-      qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+      qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
       return false;
     }
   }

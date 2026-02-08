@@ -101,7 +101,7 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   return true;
 }
 
-std::string ProjectGenerator::flightActionsPackage() const
+std::string ProjectGenerator::missionExecutorPackage() const
 {
   if (!settings_->controller->useBuiltinContrller()) {
     qt::qWarnBox(parent_, "You cannot use the mission planner because the builtin controller is not used.");
@@ -113,7 +113,7 @@ std::string ProjectGenerator::flightActionsPackage() const
   if (
     frame_type == FrameType::kPlanarMulticopter || frame_type == FrameType::kNonPlanarMulticopter ||
     frame_type == FrameType::kYAxisTiltMulticopter || frame_type == FrameType::kRandomAxisTiltMulticopter) {
-    return "tobas_multicopter_actions";
+    return "tobas_mission_execution_mc";
   }
   else {
     qt::qWarnBox(parent_, "Mission planner is not supported for this frame type.");
@@ -121,7 +121,7 @@ std::string ProjectGenerator::flightActionsPackage() const
   }
 }
 
-inja::json ProjectGenerator::createTemplateData()
+inja::json ProjectGenerator::createTemplateData() const
 {
   inja::json tpl_data;
 
@@ -130,7 +130,7 @@ inja::json ProjectGenerator::createTemplateData()
   // Controller
   tpl_data["controller_pkg"] = settings_->controller->controllerPackage().toStdString();
   tpl_data["controller_plugin"] = settings_->controller->pluginName().toStdString();
-  tpl_data["actions_pkg"] = flightActionsPackage();
+  tpl_data["missoin_executor_pkg"] = missionExecutorPackage();
 
   // Hardware
   tpl_data["hardware_pkg"] = settings_->hardware->hardwarePackage();
@@ -149,7 +149,7 @@ inja::json ProjectGenerator::createTemplateData()
   return tpl_data;
 }
 
-tobas::Drone ProjectGenerator::createDrone()
+tobas::Drone ProjectGenerator::createDrone() const
 {
   tobas::Drone drone;
 

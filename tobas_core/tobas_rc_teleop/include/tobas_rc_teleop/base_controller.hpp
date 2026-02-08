@@ -15,9 +15,9 @@ public:
   explicit BaseController();
 
   virtual bool requirePosition() = 0;
-  virtual bool requireOrientation() = 0;
-  virtual bool requireLinearVelocity() = 0;
-  virtual bool requireAngularVelocity() = 0;
+  virtual bool requireVelocity() = 0;
+  virtual bool requireAttitude() = 0;
+  virtual bool requireHeading() = 0;
 
   virtual void initialize(tobas::BaseNode* node, tobas::FlightMode mode) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;

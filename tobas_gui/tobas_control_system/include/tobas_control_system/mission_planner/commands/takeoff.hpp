@@ -12,23 +12,6 @@ namespace gui
 {
 namespace ctrl
 {
-struct TakeoffData : public BaseCommandData
-{
-  using SharedPtr = std::shared_ptr<TakeoffData>;
-
-  double altitude;  // [m]
-  AltitudeFrame altitude_frame;
-  double max_speed;           // [m/s]
-  double max_accel;           // [m/s^2]
-  double max_jerk;            // [m/s^3]
-  double altitude_tolerance;  // [m]
-
-  Command type() const
-  {
-    return Command::kTakeoff;
-  }
-};
-
 class TakeoffWidget : public BaseCommandWidget
 {
   Q_OBJECT
@@ -40,17 +23,16 @@ public:
   explicit TakeoffWidget();
 
   const char* name() const override;
-  BaseCommandData::SharedPtr data() const override;
 
   double altitude() const;
-  AltitudeFrame altitudeFrame() const;
+  tobas::mission::AltitudeFrame altitudeFrame() const;
   double maxSpeed() const;
   double maxAccel() const;
   double maxJerk() const;
   double altitudeTolerance() const;
 
   void altitude(double value);
-  void altitudeFrame(AltitudeFrame value);
+  void altitudeFrame(tobas::mission::AltitudeFrame value);
   void maxSpeed(double value);
   void maxAccel(double value);
   void maxJerk(double value);

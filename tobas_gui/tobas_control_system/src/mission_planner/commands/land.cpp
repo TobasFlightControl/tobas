@@ -16,13 +16,6 @@ const char* LandWidget::name() const
   return "Land";
 }
 
-BaseCommandData::SharedPtr LandWidget::data() const
-{
-  const auto res = std::make_shared<LandData>();
-  res->speed = speed();
-  return res;
-}
-
 double LandWidget::speed() const
 {
   return speed_->value();

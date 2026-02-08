@@ -19,6 +19,7 @@ set(AMENT_DEPENDENCIES
     tobas_drone_msgs
     tobas_real_common
     tobas_real_msgs
+    tobas_mission_msgs
 )
 
 find_package(ament_cmake REQUIRED)

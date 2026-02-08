@@ -38,24 +38,6 @@ const char* WaypointWidget::name() const
   return "Waypoint";
 }
 
-BaseCommandData::SharedPtr WaypointWidget::data() const
-{
-  const auto res = std::make_shared<WaypointData>();
-  res->latitude = latitude();
-  res->longitude = longitude();
-  res->altitude = altitude();
-  res->altitude_frame = altitudeFrame();
-  res->max_horizontal_velocity = maxHorizontalVelocity();
-  res->max_vertical_velocity = maxVerticalVelocity();
-  res->max_horizontal_accel = maxHorizontalAccel();
-  res->max_vertical_accel = maxVerticalAccel();
-  res->max_horizontal_jerk = maxHorizontalJerk();
-  res->max_vertical_jerk = maxVerticalJerk();
-  res->acceptance_radius = acceptanceRadius();
-  res->altitude_tolerance = altitudeTolerance();
-  return res;
-}
-
 double WaypointWidget::latitude() const
 {
   return latitude_->value();
@@ -71,7 +53,7 @@ double WaypointWidget::altitude() const
   return altitude_->value();
 }
 
-AltitudeFrame WaypointWidget::altitudeFrame() const
+tobas::mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 {
   return altitude_frame_->value();
 }
@@ -131,7 +113,7 @@ void WaypointWidget::altitude(double value)
   altitude_->setValue(value);
 }
 
-void WaypointWidget::altitudeFrame(AltitudeFrame value)
+void WaypointWidget::altitudeFrame(tobas::mission::AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
 }

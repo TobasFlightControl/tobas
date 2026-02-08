@@ -12,12 +12,15 @@
 	<exec_depend>tobas_control</exec_depend>
 	<exec_depend>tobas_dsp</exec_depend>
 	<exec_depend>tobas_eigen_conversions</exec_depend>
+	<exec_depend>tobas_eigen_msgs</exec_depend>
+	<exec_depend>tobas_eigen_msgs_adapter</exec_depend>
 	<exec_depend>tobas_eigen_tools</exec_depend>
 	<exec_depend>tobas_geomag</exec_depend>
 	<exec_depend>tobas_ic_drivers</exec_depend>
 	<exec_depend>tobas_ic_drivers_ros</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>
 	<exec_depend>tobas_kdl_conversions</exec_depend>
+	<exec_depend>tobas_kdl_msgs</exec_depend>
 	<exec_depend>tobas_kdl_msgs_adapter</exec_depend>
 	<exec_depend>tobas_kdl_sympy</exec_depend>
 	<exec_depend>tobas_linux</exec_depend>
@@ -26,6 +29,8 @@
 	<exec_depend>tobas_path_tools</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
 	<exec_depend>tobas_ros2_tools</exec_depend>
+	<exec_depend>tobas_std_msgs</exec_depend>
+	<exec_depend>tobas_std_msgs_adapter</exec_depend>
 	<exec_depend>tobas_std_tools</exec_depend>
 	<exec_depend>tobas_std_tools_py</exec_depend>
 	<exec_depend>tobas_string_tools</exec_depend>

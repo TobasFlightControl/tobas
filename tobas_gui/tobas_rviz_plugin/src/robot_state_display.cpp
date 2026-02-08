@@ -458,7 +458,7 @@ void RobotStateDisplay::fixedFrameChanged()
 void RobotStateDisplay::changedHighlightColor()
 {
   if (!robot_) {
-    RCLCPP_ERROR(node_->get_logger(), "Robot is NULL.");
+    RCLCPP_ERROR(node_->get_logger(), "Robot is null.");
     return;
   }
 
@@ -474,7 +474,7 @@ void RobotStateDisplay::changedHighlightColor()
 void RobotStateDisplay::changedUnhighlightColor()
 {
   if (!robot_) {
-    RCLCPP_ERROR(node_->get_logger(), "Robot is NULL.");
+    RCLCPP_ERROR(node_->get_logger(), "Robot is null.");
     return;
   }
 

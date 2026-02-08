@@ -14,17 +14,17 @@ bool AccelPitchYawController::requirePosition()
   return false;
 }
 
-bool AccelPitchYawController::requireOrientation()
-{
-  return true;
-}
-
-bool AccelPitchYawController::requireLinearVelocity()
+bool AccelPitchYawController::requireVelocity()
 {
   return false;
 }
 
-bool AccelPitchYawController::requireAngularVelocity()
+bool AccelPitchYawController::requireAttitude()
+{
+  return true;
+}
+
+bool AccelPitchYawController::requireHeading()
 {
   return true;
 }

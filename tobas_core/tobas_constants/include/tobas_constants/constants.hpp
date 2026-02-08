@@ -102,9 +102,7 @@ static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
 static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
 
 // ROS actions
-static constexpr char kTakeoffAction[] = "takeoff_action";
-static constexpr char kLandAction[] = "land_action";
-static constexpr char kMoveAction[] = "move_action";
+static constexpr char kExecuteMissionAction[] = "execute_mission";
 
 // Node names
 namespace node

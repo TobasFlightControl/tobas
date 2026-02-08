@@ -9,6 +9,7 @@ from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
+MISSION_EXECUTOR_PKG = "{{ missoin_executor_pkg }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
@@ -122,6 +123,12 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
                     ],
+                    extra_arguments=extra_args,
+                ),
+                ComposableNode(
+                    package=MISSION_EXECUTOR_PKG,
+                    plugin="tobas::mission::MulticopterMissionExecutorNode",
+                    namespace=DRONE_NAME,
                     extra_arguments=extra_args,
                 ),
             ],

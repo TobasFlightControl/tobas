@@ -110,7 +110,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
   }
 
   if (!is_armed_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the rotors are disarmed.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the vehicle is disarmed.");
     return;
   }
 
