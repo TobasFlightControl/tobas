@@ -9,6 +9,7 @@
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_path_tools/core.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -31,7 +32,7 @@ namespace sa
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : jnt_parser_(tree_)
   , axis_solver_(tree_)
-  , property_client_(node, kPackageName)
+  , property_client_(node, path::join(kPackageName, "main"))
   , rsp_client_(node, "robot_state_publisher")
   , rotor_marker_publisher_(node, uadf_)
 {

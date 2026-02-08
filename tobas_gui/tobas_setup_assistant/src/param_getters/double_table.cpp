@@ -7,6 +7,7 @@
 #include <QPushButton>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
@@ -31,11 +32,11 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const QString& description_text)
   : super(param_name, description_text)
   , node_(node)
-  , last_opend_dir_key_("last_opened_dir/double_table/" + str::replace(param_name.toStdString(), " ", "_"))
+  , last_opend_dir_key_("last_opened_dir/" + str::replace(param_name.toStdString(), " ", "_"))
   , title_(title)
   , labels_(labels)
   , num_entry_(labels.size())
-  , property_client_(node, kPackageName)
+  , property_client_(node, path::join(kPackageName, "double_table"))
 {
   TOBAS_CHECK(num_entry_ > 0);
 

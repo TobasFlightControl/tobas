@@ -40,7 +40,7 @@ class GroundControlStationWidget : public QWidget
   using self = GroundControlStationWidget;
   using super = QWidget;
 
-  static constexpr char kLastOpenedDirKey[] = "last_opened_dir/tobas_project";
+  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
 
   static constexpr int kPathMaxWidth = 400;
   static constexpr int kPowerButtonRadius = 40;

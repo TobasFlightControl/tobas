@@ -36,7 +36,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   : node_(node)
   , bridge_(node)
   , network_checker_(this, bridge_)
-  , property_client_(node, kPackageName)
+  , property_client_(node, path::join(kPackageName, "main"))
   , ssh_client_(node)
   , remote_proj_builder_(node)
   , spinner_(Qt::WindowModal, this)
