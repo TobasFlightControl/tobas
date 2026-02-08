@@ -377,7 +377,7 @@ void RosInterfaceNode::actionFeedbackCallback(
   const typename ActType::Feedback::ConstSharedPtr& fb_in)
 {
   if (!action->server_gh) {
-    TOBAS_ERROR("\"", action->name, "\" action server goal handle is null.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for \"", action->name, "\" action server goal handle.");
     return;
   }
 
