@@ -20,6 +20,7 @@
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
+#include <tobas_kdl_msgs/msg/frame_with_covariance_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
 #include <tobas_mission_msgs/action/execute_mission.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -177,6 +178,7 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
   group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
+  // Topics (Logic -> Interface)
   addTopicLogicToIface<tobas_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
   addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKdlTreeTopic, tobas::kKdlTreeTopic, true, true);
@@ -203,12 +205,12 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::MagneticField>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);
 
-  // Low Command
+  // Topics (Interface -> Logic)
+  addTopicIfaceToLogic<tobas_kdl_msgs::msg::FrameWithCovarianceStamped>(
+    tobas::kExternalPoseTopic, tobas::kExternalPoseTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::IcePropulsionSystemCommand>(
     tobas::kIcePropulsionSystemCmdTopic, tobas::kIcePropulsionSystemCmdTopic);
-
-  // High Command
   addTopicIfaceToLogic<tobas_command_msgs::msg::Rate>(tobas::kRateCmdTopic, tobas::kRateCmdTopic);
   addTopicIfaceToLogic<tobas_command_msgs::msg::RateThrottle>(tobas::kRateThrotCmdTopic, tobas::kRateThrotCmdTopic);
   addTopicIfaceToLogic<tobas_command_msgs::msg::Angle>(tobas::kAngleCmdTopic, tobas::kAngleCmdTopic);
@@ -223,8 +225,6 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("
     tobas::kPosVelPitchYawCmdTopic, tobas::kPosVelPitchYawCmdTopic);
   addTopicIfaceToLogic<tobas_command_msgs::msg::SpeedRollDeltaPitch>(
     tobas::kSpeedRollDpitchCmdTopic, tobas::kSpeedRollDpitchCmdTopic);
-
-  // Joint Command
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic, tobas::kJointPosCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic, tobas::kJointVelCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic, tobas::kJointEffCmdTopic);
