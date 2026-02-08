@@ -77,7 +77,7 @@ void CsvExportThread::run()
 
   // Create CSV header
   std::string csv_header =
-    "Time,"
+    "Time[s],"
     "Pose/X[m],Pose/Y[m],Pose/Z[m],"
     "Pose/Roll[deg],Pose/Pitch[deg],Pose/Yaw[deg],"
     "Twist/LinearVelocity/X[m/s],Twist/LinearVelocity/Y[m/s],Twist/LinearVelocity/Z[m/s],"
