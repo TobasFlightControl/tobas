@@ -9,6 +9,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <tobas_constants/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/console.hpp>
 
@@ -28,10 +29,10 @@ namespace ub
 {
 namespace ui
 {
-UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPanel* main)
+UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, UrdfBuilderPanel* main)
   : super(main)
   , node_(node)
-  , property_client_(node, kPropertySection)
+  , property_client_(node, path::join(kPropertySection, "update_link_dialog"))
   , main_(main)
   , ui_(new Ui::UpdateLinkDialogUI())
   , link_vm_(new view_model::LinkViewModel())

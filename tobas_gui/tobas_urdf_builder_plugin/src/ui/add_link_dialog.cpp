@@ -12,7 +12,7 @@ namespace ub
 {
 namespace ui
 {
-AddLinkDialog::AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm)
+AddLinkDialog::AddLinkDialog(UrdfBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm)
   : super(main), main_(main), ui_(new Ui::AddLinkDialogUI()), link_vm_(link_vm)
 {
   ui_->setupUi(this);

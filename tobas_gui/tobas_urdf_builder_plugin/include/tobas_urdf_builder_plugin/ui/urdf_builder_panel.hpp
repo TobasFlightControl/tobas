@@ -27,18 +27,18 @@ namespace ui
 /**
  * @brief Rvizのメインウィジェットにプラグインするメインパネル．
  */
-class URDFBuilderPanel : public rviz_common::Panel
+class UrdfBuilderPanel : public rviz_common::Panel
 {
   Q_OBJECT
 
-  using self = URDFBuilderPanel;
+  using self = UrdfBuilderPanel;
   using super = rviz_common::Panel;
 
   static constexpr char kConfigKey_LastOpenedDir[] = "last_opened_dir";
 
 public:
-  explicit URDFBuilderPanel(QWidget* parent = nullptr);
-  ~URDFBuilderPanel() override;
+  explicit UrdfBuilderPanel(QWidget* parent = nullptr);
+  ~UrdfBuilderPanel() override;
 
   void onInitialize() override;
   void load(const rviz_common::Config& config) override;

@@ -22,7 +22,7 @@ namespace ub
 {
 namespace ui
 {
-class URDFBuilderPanel;
+class UrdfBuilderPanel;
 
 class UpdateLinkDialog : public QDialog
 {
@@ -38,7 +38,7 @@ Q_SIGNALS:
   void Changed();
 
 public:
-  explicit UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPanel* main);
+  explicit UpdateLinkDialog(rclcpp::Node::SharedPtr node, UrdfBuilderPanel* main);
 
   void done(int code) override;
 
@@ -83,7 +83,7 @@ private:
   const rclcpp::Node::SharedPtr node_;
   ptree::PropertyClient property_client_;
 
-  URDFBuilderPanel* main_;
+  UrdfBuilderPanel* main_;
   Ui::UpdateLinkDialogUIPtr ui_;
   view_model::LinkViewModelPtr link_vm_;
   view_model::VisualViewModelPtr visual_vm_;
