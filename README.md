@@ -104,18 +104,6 @@ $ ros2 launch tobas_gcs gcs.launch.py
 $ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
 ```
 
-## TO-DO List (2025)
-
-- [x] Support for active-tilt multicopters
-- [x] Support for engine-driven models
-- [x] Support for variable-pitch multicopters
-- [ ] Support for fixed-wing
-- [ ] Support for VTOL
-- [ ] CM5-based FMU
-- [ ] Visual Inertial Odometry (VIO)
-- [ ] Obstacle avoidance
-- [ ] Automatic path planning
-
 ## For Contributors
 
 See [Contributing to Tobas](./CONTRIBUTING.md).
