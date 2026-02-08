@@ -5,11 +5,11 @@
 #include <QDebug>
 #include <QGridLayout>
 #include <QVBoxLayout>
-#include <rosbag2_cpp/reindexer.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_ros2_tools/rosbag.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
 namespace fs = std::filesystem;
@@ -106,7 +106,7 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
 
   // rosbagを開く
   if (!open(log_path_)) {
-    if (!reindex(log_path_)) {
+    if (!ros2::reindexRosBag(log_path_)) {
       qt::qErrorBox(this, "The log file is broken and failed to fix it.");
       return;
     }
@@ -132,25 +132,6 @@ bool FlightLogViewerWidget::open(const std::string& rosbag_path)
   }
   catch (const std::exception& e) {
     qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
-    return false;
-  }
-
-  return true;
-}
-
-bool FlightLogViewerWidget::reindex(const std::string& rosbag_path)
-{
-  rosbag2_cpp::Reindexer reindexer;
-
-  rosbag2_storage::StorageOptions options;
-  options.uri = rosbag_path;
-  options.storage_id = "mcap";
-
-  try {
-    reindexer.reindex(options);
-  }
-  catch (const std::exception& e) {
-    qWarning() << "Failed to reindex " << QString::fromStdString(rosbag_path) + ": " << e.what();
     return false;
   }
 
@@ -215,7 +196,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     }
 
     // デコード
-    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+    const rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
     try {
       if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
         odom_data_.push_back(odom_decoder_.decode(cur_time, ser_msg));

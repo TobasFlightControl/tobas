@@ -4,7 +4,7 @@
 
 #include <rosbag2_cpp/reader.hpp>
 
-#include "./message_decoder.hpp"
+#include "../message_decoder.hpp"
 #include "./playback_control.hpp"
 #include "./plot_tab.hpp"
 
@@ -77,7 +77,6 @@ private:
   PlaybackControlWidget* playback_ctrl_;
 
   bool open(const std::string& rosbag_path);
-  bool reindex(const std::string& rosbag_path);
 
   void setPlotData(double time_from_start);
 

@@ -12,7 +12,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
-    rosbag2_cpp
     tobas_string_tools
     tobas_kdl
     tobas_ros2_tools
