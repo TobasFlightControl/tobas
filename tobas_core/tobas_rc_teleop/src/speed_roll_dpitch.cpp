@@ -52,8 +52,9 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
   cmd->header = rcin.header;
 
-  const auto throttle = expo(remap(rcin.throttle, 0., 1.), speed_expo_);  // [-1, 1] -> [0, 1] -> [0, 1]
-  cmd->speed = math::remap(throttle, 0., 1., min_speed_, max_speed_);     // TODO: 機体の制限速度を考慮
+  // TODO: 機体の制限速度を考慮
+  const auto throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), speed_expo_);
+  cmd->speed = math::remap(throttle, tobas::kMinThrot, tobas::kMaxThrot, min_speed_, max_speed_);
 
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);

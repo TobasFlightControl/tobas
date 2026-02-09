@@ -25,15 +25,15 @@ public:
 
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadband = 0.02;  // S.BUSのジッタは±2us程度だから，全帯域の1%もあれば十分．
+  static constexpr double kDeadband = 0.02;  // S.BUSのジッタは ±2us 程度だから，全帯域の 1% もあれば十分．
 
-  /* デッドバンドに入っていたら0にする． */
+  /* デッドバンドに入っていたら 0 にする． */
   inline double deadband(double x) const;
 
-  /* RCInputの値を範囲[lb, ub]に投影する． */
+  /* RCInput の値を範囲  [lb, ub] に投影する． */
   inline double remap(double x, double lb, double ub) const;
 
-  /* RCInputの値がデッドバンドに入っていたら0，入っていなければ[lb, ub]に投影する． */
+  /* RCInput の値がデッドバンドに入っていたら0，入っていなければ [lb, ub] に投影する． */
   inline double remapDead(double x, double lb, double ub) const;
 
   /* expo -> remap */
