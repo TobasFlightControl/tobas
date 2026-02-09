@@ -56,6 +56,7 @@ void CsvExportThread::run()
   }
 
   // Get the rotor link names
+  reader_.seek(0);
   while (reader_.has_next()) {
     const auto msg = reader_.read_next();
     const rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
@@ -75,10 +76,7 @@ void CsvExportThread::run()
     }
   }
 
-  // Reset the reader
-  reader_.seek(0);
-
-  // Open file
+  // Open the output file
   std::ofstream csv_file(save_path_.toStdString());
   if (!csv_file.is_open()) {
     finished(false, "Failed to open " + save_path_);
@@ -92,10 +90,7 @@ void CsvExportThread::run()
   bool is_timer_started = false;
   constexpr rcutils_time_point_value_t kTimeThreshold = 1'000'000;  // [ns]
 
-  const auto& metadata = reader_.get_metadata();
-  const auto record_start_time = metadata.starting_time.time_since_epoch().count();
-  reader_.seek(record_start_time);
-
+  reader_.seek(0);
   while (reader_.has_next()) {
     const auto msg = reader_.read_next();
     const auto& cur_time = msg->recv_timestamp;  // [ns]
@@ -191,7 +186,7 @@ bool CsvExportThread::openRosBag(const std::string& path)
     reader_.open(path);
   }
   catch (const std::exception& e) {
-    qWarning() << "Failed to open " << QString::fromStdString(path) + ": " << e.what();
+    qWarning() << "Failed to open" << QString::fromStdString(path) + ":" << e.what();
     return false;
   }
 
