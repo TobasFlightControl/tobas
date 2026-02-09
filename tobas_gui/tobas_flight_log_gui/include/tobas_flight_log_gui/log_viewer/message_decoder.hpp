@@ -11,19 +11,20 @@ namespace log
 template <typename MsgType>
 class MessageDecoderCache
 {
+  using Time = rcutils_time_point_value_t;
   using SerializedDataPtr = std::shared_ptr<rcutils_uint8_array_t>;
 
 public:
   explicit MessageDecoderCache();
 
-  const MsgType& decode(rcutils_time_point_value_t time_ns, const SerializedDataPtr& ser_data);
+  const MsgType& decode(const Time& time_ns, const SerializedDataPtr& ser_data);
 
   void clearCache();
 
 private:
   MsgType msg_;
   rclcpp::Serialization<MsgType> ser_;
-  std::unordered_map<rcutils_time_point_value_t, MsgType> cache_map_;
+  std::unordered_map<Time, MsgType> cache_map_;
 };
 
 template <typename MsgType>
@@ -32,8 +33,7 @@ MessageDecoderCache<MsgType>::MessageDecoderCache()
 }
 
 template <typename MsgType>
-const MsgType&
-MessageDecoderCache<MsgType>::decode(rcutils_time_point_value_t time_ns, const SerializedDataPtr& ser_data)
+const MsgType& MessageDecoderCache<MsgType>::decode(const Time& time_ns, const SerializedDataPtr& ser_data)
 {
   if (cache_map_.contains(time_ns)) {
     return cache_map_[time_ns];
