@@ -37,7 +37,7 @@ void RateThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Flig
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottleVector>(tobas::kRateThrotCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottleVector>(tobas::kRateThrotVectorCmdTopic);
 }
 
 void RateThrottleVectorController::reset(const tobas_msgs::Odometry&)

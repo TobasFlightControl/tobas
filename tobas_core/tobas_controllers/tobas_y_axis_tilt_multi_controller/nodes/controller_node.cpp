@@ -124,6 +124,7 @@ private:
   bool headingIGainCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
+  bool throttleGainThresholdCb(const double& p);
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -173,6 +174,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 1, 30);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
+  addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1., 50, 0, 100, " %");
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(kRotorThrustsCmdTopic);
@@ -191,8 +193,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   rotor_liveliness_sub_ = createSubscriber(kRotorLivTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(kPosVelPitchYawCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(kAccelPitchYawCmdTopic, &self::accelCommandCb, this);
-  angle_cmd_sub_ = createSubscriber(kAngleThrot2CmdTopic, &self::angleCommandCb, this);
-  rate_cmd_sub_ = createSubscriber(kRateThrot2CmdTopic, &self::rateCommandCb, this);
+  angle_cmd_sub_ = createSubscriber(kAngleThrotVectorCmdTopic, &self::angleCommandCb, this);
+  rate_cmd_sub_ = createSubscriber(kRateThrotVectorCmdTopic, &self::rateCommandCb, this);
 
   // Register timers
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -347,6 +349,12 @@ bool ControllerNode::maxHorizontalAccelCb(const double& p)
 bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
   return pos_pid_.setMaximumAccel(2, p);
+}
+
+bool ControllerNode::throttleGainThresholdCb(const double& p)
+{
+  throttle_gain_thresh_ = p / 100.;
+  return true;
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

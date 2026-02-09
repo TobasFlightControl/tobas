@@ -38,7 +38,7 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::kAngleThrotCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::kAngleThrotVectorCmdTopic);
 }
 
 void AngleThrottleVectorController::reset(const tobas_msgs::Odometry& odom)
