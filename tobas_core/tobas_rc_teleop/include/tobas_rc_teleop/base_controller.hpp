@@ -25,7 +25,7 @@ public:
 
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadband = 0.02;  // S.BUSのジッタは ±2us 程度だから，全帯域の 1% もあれば十分．
+  static constexpr double kDeadband = 0.01;  // S.BUSのジッタは ±2us 程度だから，全帯域の 1% もあれば十分．
 
   /* デッドバンドに入っていたら 0 にする． */
   inline double deadband(double x) const;
