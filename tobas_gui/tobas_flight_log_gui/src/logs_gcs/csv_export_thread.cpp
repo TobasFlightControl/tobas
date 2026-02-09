@@ -262,7 +262,7 @@ std::string CsvExportThread::makeCsvHeader() const
   return csv_header;
 }
 
-std::string CsvExportThread::makeCsvRow(rcutils_time_point_value_t time, const SerializedDataMap& data)
+std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& data)
 {
   std::string res;
 
@@ -473,10 +473,10 @@ std::string CsvExportThread::makeCsvRow(rcutils_time_point_value_t time, const S
   return res;
 }
 
-bool CsvExportThread::exportOldestImuLine(std::ofstream& file, rcutils_time_point_value_t before_this_time)
+bool CsvExportThread::exportOldestImuLine(std::ofstream& file, Time before_this_time)
 {
   // 一定時間以前に取得されたIMUが存在するかどうかを確認
-  rcutils_time_point_value_t imu_time = -1;
+  Time imu_time = -1;
   for (auto it = histmap_.begin(); it != histmap_.end() && it->first < before_this_time; ++it) {
     if (it->second.contains(tobas::kImuRawTopic)) {
       imu_time = it->first;
@@ -498,7 +498,7 @@ bool CsvExportThread::exportOldestImuLine(std::ofstream& file, rcutils_time_poin
   }
 
   // データを1行に書き出す
-  file << makeCsvRow(imu_time, line_data) << std::endl;
+  file << makeCsvDataRow(imu_time, line_data) << std::endl;
 
   return true;
 }

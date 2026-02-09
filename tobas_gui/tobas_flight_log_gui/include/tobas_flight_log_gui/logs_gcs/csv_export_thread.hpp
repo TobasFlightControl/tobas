@@ -31,10 +31,11 @@ class CsvExportThread : public QThread
 {
   Q_OBJECT
 
+  using Time = rcutils_time_point_value_t;
   using SerializedDataMap = std::map<std::string, std::shared_ptr<rcutils_uint8_array_t>>;
-  using HistoryMap = std::map<rcutils_time_point_value_t, SerializedDataMap>;
+  using HistoryMap = std::map<Time, SerializedDataMap>;
 
-  static constexpr rcutils_time_point_value_t kExpirationTime = 1'000'000'000;  // [ns]
+  static constexpr Time kExpirationTime = 1'000'000'000;  // [ns]
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);
@@ -75,9 +76,9 @@ private:
   bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray& msg);
 
   std::string makeCsvHeader() const;
-  std::string makeCsvRow(rcutils_time_point_value_t time, const SerializedDataMap& data);
+  std::string makeCsvDataRow(Time time, const SerializedDataMap& data);
 
-  bool exportOldestImuLine(std::ofstream& file, rcutils_time_point_value_t before_this_time = INT64_MAX);
+  bool exportOldestImuLine(std::ofstream& file, Time before_this_time = INT64_MAX);
 };
 }  // namespace log
 }  // namespace gui
