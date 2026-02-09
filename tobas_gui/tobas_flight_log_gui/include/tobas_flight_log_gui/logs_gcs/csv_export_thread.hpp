@@ -80,11 +80,12 @@ private:
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
 
-  bool open(const std::string& rosbag_path);
+  bool openRosBag(const std::string& path);
 
   bool rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
   bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& msg);
 
+  std::string makeCsvHeader() const;
   std::string makeCsvRow(const rcutils_time_point_value_t& cur_time);
 };
 }  // namespace log

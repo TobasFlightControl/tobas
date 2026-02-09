@@ -44,12 +44,12 @@ void CsvExportThread::run()
 {
   // Open rosbag
   const auto log_path = ros2::expandUser(tobas::kRosbagDirHome) / log_name_.toStdString();
-  if (!open(log_path.string())) {
+  if (!openRosBag(log_path.string())) {
     if (!ros2::reindexRosBag(log_path.string())) {
       Q_EMIT finished(false, "The log file is broken and failed to fix it.");
       return;
     }
-    if (!open(log_path.string())) {
+    if (!openRosBag(log_path.string())) {
       Q_EMIT finished(false, "Failed to open the log file. The data is probably corrupted.");
       return;
     }
@@ -78,61 +78,15 @@ void CsvExportThread::run()
   // Reset the reader
   reader_.seek(0);
 
-  // Create CSV header
-  std::string csv_header =
-    "Time[s],"
-    "Pose/X[m],Pose/Y[m],Pose/Z[m],"
-    "Pose/Roll[deg],Pose/Pitch[deg],Pose/Yaw[deg],"
-    "Twist/LinearVelocity/X[m/s],Twist/LinearVelocity/Y[m/s],Twist/LinearVelocity/Z[m/s],"
-    "Twist/AngularVelocity/X[rad/s],Twist/AngularVelocity/Y[rad/s],Twist/AngularVelocity/Z[rad/s],"
-    "Accel/LinearAccel/X[m/s^2],Accel/LinearAccel/Y[m/s^2],Accel/LinearAccel/Z[m/s^2],"
-    "Accel/AngularAccel/X[rad/s^2],Accel/AngularAccel/Y[rad/s^2],Accel/AngularAccel/Z[rad/s^2],"
-    "IMU/Accel/X[m/s^2],IMU/Accel/Y[m/s^2],IMU/Accel/Z[m/s^2],"
-    "IMU/Gyro/X[rad/s],IMU/Gyro/Y[rad/s],IMU/Gyro/Z[rad/s],"
-    "IMU/DGyro/X[rad/s^2],IMU/DGyro/Y[rad/s^2],IMU/DGyro/Z[rad/s^2],"
-    "MagneticField/X[-],MagneticField/Y[-],MagneticField/Z[-],"
-    "GNSS/Latitude[deg],GNSS/Longitude[deg],GNSS/Altitude[m],"
-    "GNSS/EastSpeed[m/s],GNSS/NorthSpeed[m/s],GNSS/UpSpeed[m/s],"
-    "RCInput/Roll,RCInput/Pitch,RCInput/Throttle,RCInput/Yaw,"
-    "RCInput/FlightMode,RCInput/SubMode,RCInput/Enable,RCInput/Kill,"
-    "Battery/Voltage[V],Battery/Current[A],"
-    "Engine/Throttle[%],"
-    "CPU/Frequency[GHz],CPU/Temperature[degC],CPU/Load[%],";
-
-  for (const auto& link_name : rotor_link_names_) {
-    csv_header += "Roter/TargetRPM/" + link_name + ',';
-  }
-  for (const auto& link_name : rotor_link_names_) {
-    csv_header += "Roter/CurrentRPM/" + link_name + ',';
-  }
-  for (const auto& link_name : rotor_link_names_) {
-    csv_header += "Roter/Link/" + link_name + ',';
-  }
-
-  csv_header += "Latency/ControlLatency[us],"
-                "VibrationLevel/X[m/s^2],VibrationLevel/Y[m/s^2],VibrationLevel/Z[m/s^2],"
-                "DisturbanceForce/Force/X[N],DisturbanceForce/Force/Y[N],DisturbanceForce/Force/Z[N],"
-                "DisturbanceForce/Torque/X[Nm],DisturbanceForce/Torque/Y[Nm],DisturbanceForce/Torque/Z[Nm],"
-                "Observer/AccelBias/X[m/s^2],Observer/AccelBias/Y[m/s^2],Observer/AccelBias/Z[m/s^2],"
-                "Observer/GyroBias/X[rad/s],Observer/GyroBias/Y[rad/s],Observer/GyroBias/Z[rad/s],"
-                "Observer/MagHardIronBias/X[-],Observer/MagHardIronBias/Y[-],Observer/MagHardIronBias/Z[-],"
-                "Observer/MagSoftIronBias/XX[-],Observer/MagSoftIronBias/YY[-],Observer/MagSoftIronBias/ZZ[-],"
-                "Observer/MagSoftIronBias/XY[-],Observer/MagSoftIronBias/YZ[-],Observer/MagSoftIronBias/ZX[-],"
-                "Observer/Gravity[m/s^2],Observer/GNSSAnomalyScore,"
-                "MultirotorController/IntegralError/X[m*s],"
-                "MultirotorController/IntegralError/Y[m*s],"
-                "MultirotorController/IntegralError/Z[m*s],"
-                "MultirotorController/IntegralError/Roll[rad*s],"
-                "MultirotorController/IntegralError/Pitch[rad*s],"
-                "MultirotorController/IntegralError/Yaw[rad*s]\n";
-
+  // Open file
   std::ofstream csv_file(save_path_.toStdString());
   if (!csv_file.is_open()) {
     finished(false, "Failed to open " + save_path_);
     return;
   }
 
-  csv_file << csv_header;
+  // Write header
+  csv_file << makeCsvHeader();
 
   rcutils_time_point_value_t start_time = 0;  // [ns]
   bool is_timer_started = false;
@@ -231,13 +185,13 @@ void CsvExportThread::run()
   Q_EMIT finished(true, "");
 }
 
-bool CsvExportThread::open(const std::string& rosbag_path)
+bool CsvExportThread::openRosBag(const std::string& path)
 {
   try {
-    reader_.open(rosbag_path);
+    reader_.open(path);
   }
   catch (const std::exception& e) {
-    qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    qWarning() << "Failed to open " << QString::fromStdString(path) + ": " << e.what();
     return false;
   }
 
@@ -272,6 +226,58 @@ bool CsvExportThread::rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray
   }
 
   return true;
+}
+
+std::string CsvExportThread::makeCsvHeader() const
+{
+  std::string csv_header =
+    "Time[s],"
+    "Pose/X[m],Pose/Y[m],Pose/Z[m],"
+    "Pose/Roll[deg],Pose/Pitch[deg],Pose/Yaw[deg],"
+    "Twist/LinearVelocity/X[m/s],Twist/LinearVelocity/Y[m/s],Twist/LinearVelocity/Z[m/s],"
+    "Twist/AngularVelocity/X[rad/s],Twist/AngularVelocity/Y[rad/s],Twist/AngularVelocity/Z[rad/s],"
+    "Accel/LinearAccel/X[m/s^2],Accel/LinearAccel/Y[m/s^2],Accel/LinearAccel/Z[m/s^2],"
+    "Accel/AngularAccel/X[rad/s^2],Accel/AngularAccel/Y[rad/s^2],Accel/AngularAccel/Z[rad/s^2],"
+    "IMU/Accel/X[m/s^2],IMU/Accel/Y[m/s^2],IMU/Accel/Z[m/s^2],"
+    "IMU/Gyro/X[rad/s],IMU/Gyro/Y[rad/s],IMU/Gyro/Z[rad/s],"
+    "IMU/DGyro/X[rad/s^2],IMU/DGyro/Y[rad/s^2],IMU/DGyro/Z[rad/s^2],"
+    "MagneticField/X[-],MagneticField/Y[-],MagneticField/Z[-],"
+    "GNSS/Latitude[deg],GNSS/Longitude[deg],GNSS/Altitude[m],"
+    "GNSS/EastSpeed[m/s],GNSS/NorthSpeed[m/s],GNSS/UpSpeed[m/s],"
+    "RCInput/Roll,RCInput/Pitch,RCInput/Throttle,RCInput/Yaw,"
+    "RCInput/FlightMode,RCInput/SubMode,RCInput/Enable,RCInput/Kill,"
+    "Battery/Voltage[V],Battery/Current[A],"
+    "Engine/Throttle[%],"
+    "CPU/Frequency[GHz],CPU/Temperature[degC],CPU/Load[%],";
+
+  for (const auto& link_name : rotor_link_names_) {
+    csv_header += "Roter/TargetRPM/" + link_name + ',';
+  }
+  for (const auto& link_name : rotor_link_names_) {
+    csv_header += "Roter/CurrentRPM/" + link_name + ',';
+  }
+  for (const auto& link_name : rotor_link_names_) {
+    csv_header += "Roter/Link/" + link_name + ',';
+  }
+
+  csv_header += "Latency/ControlLatency[us],"
+                "VibrationLevel/X[m/s^2],VibrationLevel/Y[m/s^2],VibrationLevel/Z[m/s^2],"
+                "DisturbanceForce/Force/X[N],DisturbanceForce/Force/Y[N],DisturbanceForce/Force/Z[N],"
+                "DisturbanceForce/Torque/X[Nm],DisturbanceForce/Torque/Y[Nm],DisturbanceForce/Torque/Z[Nm],"
+                "Observer/AccelBias/X[m/s^2],Observer/AccelBias/Y[m/s^2],Observer/AccelBias/Z[m/s^2],"
+                "Observer/GyroBias/X[rad/s],Observer/GyroBias/Y[rad/s],Observer/GyroBias/Z[rad/s],"
+                "Observer/MagHardIronBias/X[-],Observer/MagHardIronBias/Y[-],Observer/MagHardIronBias/Z[-],"
+                "Observer/MagSoftIronBias/XX[-],Observer/MagSoftIronBias/YY[-],Observer/MagSoftIronBias/ZZ[-],"
+                "Observer/MagSoftIronBias/XY[-],Observer/MagSoftIronBias/YZ[-],Observer/MagSoftIronBias/ZX[-],"
+                "Observer/Gravity[m/s^2],Observer/GNSSAnomalyScore,"
+                "MultirotorController/IntegralError/X[m*s],"
+                "MultirotorController/IntegralError/Y[m*s],"
+                "MultirotorController/IntegralError/Z[m*s],"
+                "MultirotorController/IntegralError/Roll[rad*s],"
+                "MultirotorController/IntegralError/Pitch[rad*s],"
+                "MultirotorController/IntegralError/Yaw[rad*s]\n";
+
+  return csv_header;
 }
 
 std::string CsvExportThread::makeCsvRow(const rcutils_time_point_value_t& cur_time)
