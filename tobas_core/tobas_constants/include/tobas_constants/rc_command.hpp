@@ -20,7 +20,7 @@ enum struct RcCommand
   kSpeedRollDPitch,
 };
 
-std::string textFromEnum(RcCommand role);
+std::string textFromEnum(RcCommand cmd);
 bool enumFromText(const std::string& text, RcCommand& dst);
 }  // namespace tobas
 

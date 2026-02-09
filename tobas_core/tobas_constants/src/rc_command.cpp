@@ -3,7 +3,9 @@
 #include <iostream>
 
 #define RATE_THROTTLE_TEXT "rate_throttle"
+#define RATE_THROTTLE_VECTOR_TEXT "rate_throttle_vector"
 #define ANGLE_THROTTLE_TEXT "angle_throttle"
+#define ANGLE_THROTTLE_VECTOR_TEXT "angle_throttle_vector"
 #define ACCEL_YAW_TEXT "accel_yaw"
 #define ACCEL_PITCH_YAW_TEXT "accel_pitch_yaw"
 #define POS_VEL_YAW_TEXT "pos_vel_yaw"
@@ -17,13 +19,17 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(RcCommand role)
+string textFromEnum(RcCommand cmd)
 {
-  switch (role) {
+  switch (cmd) {
     case RcCommand::kRateThrottle:
       return RATE_THROTTLE_TEXT;
+    case RcCommand::kRateThrottleVector:
+      return RATE_THROTTLE_VECTOR_TEXT;
     case RcCommand::kAngleThrottle:
       return ANGLE_THROTTLE_TEXT;
+    case RcCommand::kAngleThrottleVector:
+      return ANGLE_THROTTLE_VECTOR_TEXT;
     case RcCommand::kAccelYaw:
       return ACCEL_YAW_TEXT;
     case RcCommand::kAccelPitchYaw:
@@ -51,8 +57,16 @@ bool enumFromText(const string& text, RcCommand& dst)
     dst = RcCommand::kRateThrottle;
     return true;
   }
+  else if (text == RATE_THROTTLE_VECTOR_TEXT) {
+    dst = RcCommand::kRateThrottleVector;
+    return true;
+  }
   else if (text == ANGLE_THROTTLE_TEXT) {
     dst = RcCommand::kAngleThrottle;
+    return true;
+  }
+  else if (text == ANGLE_THROTTLE_VECTOR_TEXT) {
+    dst = RcCommand::kAngleThrottleVector;
     return true;
   }
   else if (text == ACCEL_YAW_TEXT) {

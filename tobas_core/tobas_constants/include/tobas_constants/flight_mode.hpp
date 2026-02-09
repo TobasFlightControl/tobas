@@ -11,7 +11,7 @@ enum struct FlightMode
   kLoiter,
 };
 
-std::string textFromEnum(FlightMode role);
+std::string textFromEnum(FlightMode mode);
 bool enumFromText(const std::string& text, FlightMode& dst);
 }  // namespace tobas
 
