@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+
 #include <QThread>
 #include <rosbag2_cpp/reader.hpp>
 
@@ -19,7 +21,7 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/vibration_level.hpp>
 
-#include "../message_decoder.hpp"
+#include "./message_decoder.hpp"
 
 namespace gui
 {
@@ -28,6 +30,11 @@ namespace log
 class CsvExportThread : public QThread
 {
   Q_OBJECT
+
+  using SerializedDataMap = std::map<std::string, std::shared_ptr<rcutils_uint8_array_t>>;
+  using HistoryMap = std::map<rcutils_time_point_value_t, SerializedDataMap>;
+
+  static constexpr rcutils_time_point_value_t kExpirationTime = 1'000'000'000;  // [ns]
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);
@@ -41,26 +48,8 @@ private:
   const QString log_name_;
   const QString save_path_;
 
-  struct Data
-  {
-    tobas_msgs::msg::Odometry::SharedPtr odom;
-    tobas_msgs::msg::Imu::SharedPtr imu;
-    tobas_msgs::msg::MagneticField::SharedPtr mag;
-    tobas_msgs::msg::Gnss::SharedPtr gnss;
-    tobas_msgs::msg::RCInput::SharedPtr rcin;
-    tobas_msgs::msg::Battery::SharedPtr battery;
-    tobas_msgs::msg::IcePropulsionSystemCommand::SharedPtr ice_cmd;
-    tobas_msgs::msg::Cpu::SharedPtr cpu;
-    tobas_msgs::msg::RotorStateArray::SharedPtr rotor_states;
-    tobas_msgs::msg::RotorSpeedArray::SharedPtr rotor_speeds;
-    tobas_msgs::msg::Latency::SharedPtr latency;
-    tobas_msgs::msg::VibrationLevel::SharedPtr vibration_level;
-    tobas_kdl_msgs::msg::WrenchStamped::SharedPtr disturbance_force;
-    tobas_debug_msgs::msg::ObserverFeedback::SharedPtr obsv_fb;
-    tobas_debug_msgs::msg::MulticopterControllerFeedback::SharedPtr mr_ctrl_fb;
-  } cur_data_, last_data_;
-
   std::vector<std::string> rotor_link_names_;
+  HistoryMap histmap_;
 
   rosbag2_cpp::Reader reader_;
 
@@ -82,11 +71,13 @@ private:
 
   bool openRosBag(const std::string& path);
 
-  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
-  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& msg);
+  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray& msg);
+  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray& msg);
 
   std::string makeCsvHeader() const;
-  std::string makeCsvRow(const rcutils_time_point_value_t& cur_time);
+  std::string makeCsvRow(rcutils_time_point_value_t time, const SerializedDataMap& data);
+
+  bool exportOldestImuLine(std::ofstream& file, rcutils_time_point_value_t before_this_time = INT64_MAX);
 };
 }  // namespace log
 }  // namespace gui
