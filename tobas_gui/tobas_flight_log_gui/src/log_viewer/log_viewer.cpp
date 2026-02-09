@@ -183,88 +183,90 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
   // データを仕分ける
   while (reader_.has_next()) {
-    const auto msg = reader_.read_next();
+    const auto bag_msg = reader_.read_next();
 
-    const auto& cur_time = msg->recv_timestamp;  // [ns]
+    const auto& ser_data = bag_msg->serialized_data;
+    const auto& cur_time = bag_msg->recv_timestamp;  // [ns]
+    const auto& topic = bag_msg->topic_name;
+
     if (cur_time > window_stop_time) {
       break;
     }
 
     // 一度デコードに失敗したトピックはログがリセットされるまでデコードしない
-    if (decode_fail_topics_.contains(msg->topic_name)) {
+    if (decode_fail_topics_.contains(topic)) {
       continue;
     }
 
     // デコード
-    const rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
     try {
-      if (msg->topic_name.ends_with(path::join("/", tobas::kOdometryTopic))) {
-        odom_data_.push_back(odom_decoder_.decode(cur_time, ser_msg));
+      if (topic.ends_with(path::join("/", tobas::kOdometryTopic))) {
+        odom_data_.push_back(odom_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuRawTopic))) {
-        raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kImuRawTopic))) {
+        raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuFiltTopic))) {
-        filt_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kImuFiltTopic))) {
+        filt_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kMagTopic))) {
-        mag_data_.push_back(mag_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kMagTopic))) {
+        mag_data_.push_back(mag_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kGnssTopic))) {
-        gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kGnssTopic))) {
+        gnss_data_.push_back(gnss_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRcInputTopic))) {
-        rcin_data_.push_back(rcin_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kRcInputTopic))) {
+        rcin_data_.push_back(rcin_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kBatteryTopic))) {
-        battery_data_.push_back(battery_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kBatteryTopic))) {
+        battery_data_.push_back(battery_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kCpuTopic))) {
-        cpu_data_.push_back(cpu_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kCpuTopic))) {
+        cpu_data_.push_back(cpu_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
-        cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kRotorStatesTopic))) {
+        cur_rotor_states_data_.push_back(rotor_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
-        tar_rotor_speeds_data_.push_back(rotor_speeds_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kRotorSpeedsCmdTopic))) {
+        tar_rotor_speeds_data_.push_back(rotor_speeds_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointStatesTopic))) {
-        cur_joint_states_data_.push_back(joint_states_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kJointStatesTopic))) {
+        cur_joint_states_data_.push_back(joint_states_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointPosCmdTopic))) {
-        tar_joint_positions_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kJointPosCmdTopic))) {
+        tar_joint_positions_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointVelCmdTopic))) {
-        tar_joint_velocities_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kJointVelCmdTopic))) {
+        tar_joint_velocities_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
-        tar_joint_efforts_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kJointEffCmdTopic))) {
+        tar_joint_efforts_data_.push_back(joint_commands_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
-        ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kIcePropulsionSystemCmdTopic))) {
+        ice_cmd_data_.push_back(ice_cmd_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
-        sampling_time_data_.push_back(latency_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kImuSamplingTimeTopic))) {
+        sampling_time_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
-        ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kControlLatencyTopic))) {
+        ctrl_latency_data_.push_back(latency_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
-        vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kVibrationLevelTopic))) {
+        vibe_data_.push_back(vibe_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
-        dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kDisturbanceForceTopic))) {
+        dist_force_data_.push_back(wrench_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
-        obsv_fb_data_.push_back(obsv_fb_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kObsvFeedbackTopic))) {
+        obsv_fb_data_.push_back(obsv_fb_decoder_.decode(cur_time, ser_data));
       }
-      else if (msg->topic_name.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
-        mr_ctrl_fb_data_.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_msg));
+      else if (topic.ends_with(path::join("/", tobas::kMRCtrlFeedbackTopic))) {
+        mr_ctrl_fb_data_.push_back(mr_ctrl_fb_decoder_.decode(cur_time, ser_data));
       }
     }
     catch (const std::exception& e) {
-      qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(msg->topic_name) + "\".");
-      decode_fail_topics_.insert(msg->topic_name);
+      qt::qErrorBox(this, "Failed to deserialize \"" + QString::fromStdString(topic) + "\".");
+      decode_fail_topics_.insert(topic);
     }
   }
 

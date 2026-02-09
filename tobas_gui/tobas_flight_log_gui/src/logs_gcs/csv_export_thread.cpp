@@ -72,6 +72,7 @@ void CsvExportThread::run()
   reader_.seek(0);
   while (reader_.has_next()) {
     const auto bag_msg = reader_.read_next();
+
     const auto& ser_data = bag_msg->serialized_data;
     const auto& topic = bag_msg->topic_name;
 
