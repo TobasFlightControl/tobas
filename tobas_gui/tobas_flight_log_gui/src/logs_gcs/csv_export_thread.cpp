@@ -96,7 +96,7 @@ void CsvExportThread::run()
     "RCInput/Roll,RCInput/Pitch,RCInput/Throttle,RCInput/Yaw,"
     "RCInput/FlightMode,RCInput/SubMode,RCInput/Enable,RCInput/Kill,"
     "Battery/Voltage[V],Battery/Current[A],"
-    "EngineThrottle[%],"
+    "Engine/Throttle[%],"
     "CPU/Frequency[GHz],CPU/Temperature[degC],CPU/Load[%],";
 
   for (const auto& link_name : rotor_link_names_) {

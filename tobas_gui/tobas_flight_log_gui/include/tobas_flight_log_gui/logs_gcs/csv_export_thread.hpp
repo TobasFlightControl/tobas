@@ -35,6 +35,12 @@ Q_SIGNALS:
 public:
   explicit CsvExportThread(const QString& log_name, const QString& save_path);
 
+  void run() override;
+
+private:
+  const QString log_name_;
+  const QString save_path_;
+
   struct Data
   {
     tobas_msgs::msg::Odometry::SharedPtr odom;
@@ -53,12 +59,6 @@ public:
     tobas_debug_msgs::msg::ObserverFeedback::SharedPtr obsv_fb;
     tobas_debug_msgs::msg::MulticopterControllerFeedback::SharedPtr mr_ctrl_fb;
   } cur_data_, last_data_;
-
-  void run() override;
-
-private:
-  const QString log_name_;
-  const QString save_path_;
 
   std::vector<std::string> rotor_link_names_;
 
