@@ -7,7 +7,9 @@ namespace tobas
 enum struct RcCommand
 {
   kRateThrottle,
+  kRateThrottleVector,
   kAngleThrottle,
+  kAngleThrottleVector,
   kAccelYaw,
   kAccelPitchYaw,
   kPosVelYaw,
