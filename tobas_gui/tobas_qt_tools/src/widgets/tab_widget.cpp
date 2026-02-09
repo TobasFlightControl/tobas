@@ -29,7 +29,7 @@ void TabBar::setTabBackgroundColor(int index, const QColor& color)
 void TabBar::clearTabBackgroundColor(int index)
 {
   if (!colors_.contains(index)) {
-    qWarning() << "No color is set for tab " << index << ".";
+    qWarning().nospace() << "No color is set for tab " << index << ".";
     return;
   }
 

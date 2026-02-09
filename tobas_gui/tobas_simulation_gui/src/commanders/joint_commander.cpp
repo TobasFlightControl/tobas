@@ -87,12 +87,12 @@ void JointCommanderWidget::updateInternalDataStructures()
     // Check joint type is not FIXED
     const auto& jnt_type = joint_parser_.joint(jnt_name).type;
     if (jnt_type == kdl::Joint::kFixed) {
-      qWarning() << "The joint type of " << jnt_name.c_str() << " is FIXED.";
+      qWarning() << "The joint type of" << QString::fromStdString(jnt_name) << "is FIXED.";
       continue;
     }
 
     const auto commander = new qt::DoubleSliderDisplay();
-    commander->setText(jnt_name.c_str());
+    commander->setText(QString::fromStdString(jnt_name));
 
     switch (joint.cmd_iface) {
       case tobas::JointCommandInterface::kPosition: {
@@ -273,7 +273,7 @@ void JointCommanderWidget::onStopRequested()
 void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_name)
 {
   if (!drone_.joints.contains(jnt_name)) {
-    qWarning() << "Invalid joint name: " << jnt_name.c_str();
+    qWarning() << "Invalid joint name:" << QString::fromStdString(jnt_name);
     return;
   }
 
@@ -291,7 +291,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
       }
 
       if (!jnt_found) {
-        qWarning() << "Position commanded joint " << jnt_name.c_str() << " is not found.";
+        qWarning() << "Position commanded joint" << QString::fromStdString(jnt_name) << "is not found.";
         return;
       }
 
@@ -307,7 +307,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
       }
 
       if (!jnt_found) {
-        qWarning() << "Velocity commanded joint " << jnt_name.c_str() << " is not found.";
+        qWarning() << "Velocity commanded joint" << QString::fromStdString(jnt_name) << "is not found.";
         return;
       }
 
@@ -323,7 +323,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
       }
 
       if (!jnt_found) {
-        qWarning() << "Effort commanded joint " << jnt_name.c_str() << " is not found.";
+        qWarning() << "Effort commanded joint" << QString::fromStdString(jnt_name) << "is not found.";
         return;
       }
 
@@ -333,7 +333,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
       break;
     }
     default: {
-      qWarning() << "The command interface of joint " << jnt_name.c_str() << " is invalid.";
+      qWarning() << "The command interface of joint" << QString::fromStdString(jnt_name) << "is invalid.";
       return;
     }
   }

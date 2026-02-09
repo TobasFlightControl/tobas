@@ -117,7 +117,7 @@ int ControlSurfacesWidget::find(const QString& link_name) const
     }
   }
 
-  qWarning() << link_name << " is not selected as a control surface.";
+  qWarning() << link_name << "is not selected as a control surface.";
   return -1;
 }
 

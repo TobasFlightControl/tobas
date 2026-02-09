@@ -55,7 +55,7 @@ void JointPositionPlotWidget::addJoint(const std::string& name)
   const auto idx = numJoints();
 
   if (!name2idx_.insert({ name, idx }).second) {
-    qWarning() << "Joint \"" << QString::fromStdString(name) << "\" already exists.";
+    qWarning() << "Joint" << QString::fromStdString(name) << "already exists.";
     return;
   }
 

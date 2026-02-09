@@ -157,7 +157,7 @@ void MediaManagerWidget::onScanTimerTimeout()
 
   // 存在しないメディアを選択肢から削除
   for (const auto& removed_media : removed_medias) {
-    qInfo() << "Remove: " << removed_media;
+    qInfo().noquote() << "Remove:" << removed_media;
 
     // 接続中に切断された場合
     if (isConnected() && media_name_->currentText() == removed_media) {
@@ -174,7 +174,7 @@ void MediaManagerWidget::onScanTimerTimeout()
   // 新たなメディアを選択肢に追加
   for (const auto& [new_media_name, new_media] : new_medias) {
     if (!medias_.contains(new_media_name)) {
-      qInfo() << "Add: " << new_media_name;
+      qInfo().noquote() << "Add:" << new_media_name;
 
       medias_[new_media_name] = new_media;
       media_name_->addItem(new_media_name);

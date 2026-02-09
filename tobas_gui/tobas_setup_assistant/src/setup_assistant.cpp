@@ -387,7 +387,7 @@ void SetupAssistantWidget::onNewButtonClicked()
 
     const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
 
-    qInfo() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
+    qInfo().nospace() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
     if (!colcon_.build(pkg_path.value(), ws_path)) {
       qt::qErrorBox(
         this,

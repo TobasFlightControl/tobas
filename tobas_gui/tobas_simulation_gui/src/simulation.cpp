@@ -438,7 +438,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
     return false;
   }
 
-  qInfo() << "Simulation has been started with pid " << launch_pid_ << ".";
+  qInfo().nospace() << "Simulation has been started with pid " << launch_pid_ << ".";
   return true;
 }
 

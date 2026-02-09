@@ -131,7 +131,7 @@ bool FlightLogViewerWidget::open(const std::string& rosbag_path)
     reader_.open(rosbag_path);
   }
   catch (const std::exception& e) {
-    qWarning() << "Failed to open " << QString::fromStdString(rosbag_path) + ": " << e.what();
+    qWarning() << "Failed to open" << QString::fromStdString(rosbag_path) + ":" << e.what();
     return false;
   }
 
@@ -146,7 +146,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   }
 
   if (!fs::exists(log_path_)) {
-    qWarning() << "Log path " << QString::fromStdString(log_path_) << " does not exist.";
+    qWarning() << "Log path" << QString::fromStdString(log_path_) << "does not exist.";
     return;
   }
 

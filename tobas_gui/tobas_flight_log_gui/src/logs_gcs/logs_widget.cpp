@@ -121,7 +121,7 @@ void FlightLogsWidgetGCS::setCurrentLogName(const QString& log_name)
     }
   }
 
-  qWarning() << log_name << " not found.";
+  qWarning() << log_name << "not found.";
 }
 
 void FlightLogsWidgetGCS::onReadButtonClicked()

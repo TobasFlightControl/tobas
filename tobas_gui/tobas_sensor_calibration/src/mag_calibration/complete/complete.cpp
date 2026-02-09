@@ -323,7 +323,7 @@ void CompleteMagCalibWidget::removeOutliers()
     const auto& p = buf_.at(pi);
     const auto dist = (p - mean).norm();
     if (dist > dist_stddev * kZScoreThresh) {
-      qWarning() << "Point (" << p.x() << ", " << p.y() << ", " << p.z() << ") was identified as an outlier.";
+      qWarning().nospace() << "Point (" << p.x() << ", " << p.y() << ", " << p.z() << ") was identified as an outlier.";
       active_.at(pi) = false;
     }
   }

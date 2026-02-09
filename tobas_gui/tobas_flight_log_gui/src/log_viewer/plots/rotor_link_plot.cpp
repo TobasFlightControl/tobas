@@ -57,7 +57,7 @@ void RotorLinkPlotWidget::setData(const QVector<tobas_msgs::msg::RotorStateArray
 
     for (const auto& elem : msg.states) {
       if (!name2idx_.contains(elem.link_name)) {
-        qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is not registered.";
+        qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is not registered.";
         continue;
       }
 
@@ -89,7 +89,7 @@ bool RotorLinkPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::Ro
     }
 
     if (!name2idx_.insert({ elem.link_name, idx }).second) {
-      qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
+      qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is duplicated.";
       return false;
     }
 

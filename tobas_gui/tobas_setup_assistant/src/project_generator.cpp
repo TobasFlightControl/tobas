@@ -1197,7 +1197,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
       case tobas::JointCommandInterface::kPosition: {
         const auto max_vel = uadf_.urdf->getJoint(joint.name)->limits->velocity;
         if (max_vel <= 0.) {
-          qWarning() << "The maximum velocity of " << QString::fromStdString(joint.name) << " is invalid: " << max_vel;
+          qWarning() << "The maximum velocity of" << QString::fromStdString(joint.name) << "is invalid:" << max_vel;
           break;
         }
 
