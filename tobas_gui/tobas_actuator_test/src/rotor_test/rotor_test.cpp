@@ -193,6 +193,10 @@ bool RotorTestWidget::loadCurrentGains()
   const auto& gains = res->gains;
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
+    if (erotor->channel >= gains.size()) {
+      qt::qErrorBox(this, "Failed to get the rotor control gain of channel " + QString::number(erotor->channel) + ".");
+      return false;
+    }
     rotor_widgets_.at(erotor->channel)->setGain(gains.at(erotor->channel));
   }
 
