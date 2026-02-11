@@ -189,8 +189,8 @@ double PinvMixer::getThrust(size_t idx) const
 
 double PinvMixer::getTiltAngle(size_t idx) const
 {
-  const auto& tx = x_(2 * idx);
-  const auto& ty = x_(2 * idx + 1);
+  const auto tx = thrustDeadband(x_(2 * idx));
+  const auto ty = thrustDeadband(x_(2 * idx + 1));
   return atan2(ty, tx);
 }
 
