@@ -19,7 +19,7 @@ cd $(realpath $(dirname "$0"))/../../
 
 # Sync
 rsync -av --delete \
-  tobas tobas_core tobas_dev_tools tobas_external tobas_sdk \
+  tobas tobas_core tobas_dev_tools tobas_external \
   --exclude-from .gitignore \
   --exclude .git/ \
   --exclude tobas_cui/ \

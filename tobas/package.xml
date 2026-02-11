@@ -11,7 +11,6 @@
 	<exec_depend>tobas_core</exec_depend>
 	<exec_depend>tobas_examples</exec_depend>
 	<exec_depend>tobas_gui</exec_depend>
-	<exec_depend>tobas_sdk</exec_depend>
 	<exec_depend>tobas_external</exec_depend>
 
 	<export>
