@@ -1,6 +1,5 @@
 #include "tobas_time_tools/util.hpp"
 
-using namespace std;
 namespace ch = std::chrono;
 
 namespace tim
@@ -11,7 +10,7 @@ ch::system_clock::time_point tmToTimePoint(tm tm)
   // https://dev.activebasic.com/egtra/2017/01/03/941/
   const auto tt = timegm(&tm);
   if (tt < 0) {
-    throw runtime_error("Failed to convert tm to time_t.");
+    throw std::runtime_error("Failed to convert tm to time_t.");
   }
 
   // time_t -> time_pointの変換にはタイムゾーンは影響しない

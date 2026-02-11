@@ -6,9 +6,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace planar_multicopter
@@ -44,19 +41,19 @@ bool QpMixer::solve(
   const kdl::Vector& ext_torque_B)
 {
   if (tar_thrusts_sum < 0.) {
-    cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << endl;
+    std::cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << std::endl;
     return false;
   }
 
   // 順運動学を計算
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
   // 質量特性を計算
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
@@ -65,7 +62,7 @@ bool QpMixer::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // EoM行列等式の左辺
-  for (const auto& [idx, pair] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
@@ -98,7 +95,7 @@ bool QpMixer::solve(
   // 同時に合計推力の範囲を計算
   double max_thrust_sum = 0.;
   double min_thrust_sum = 0.;
-  for (const auto& [idx, pair] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
     double max_thrust, min_thrust;
@@ -119,20 +116,20 @@ bool QpMixer::solve(
 
   // 推力を出せない状態の場合は終了
   if (max_thrust_sum == 0.) {
-    cerr << "The vehicle cannot generate thrust." << endl;
+    std::cerr << "The vehicle cannot generate thrust." << std::endl;
     return false;
   }
 
   // 等式制約
   // 不等式制約と競合しないようにクランプ
-  static constexpr double kThrustClampMargin = 1e-3;  // [N]
-  qp_.problem.h(0) = clamp(tar_thrusts_sum, min_thrust_sum + kThrustClampMargin, max_thrust_sum - kThrustClampMargin);
+  static constexpr double kThrustMargin = 1e-3;  // [N]
+  qp_.problem.h(0) = std::clamp(tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
   // stopwatch_.start();
   if (!qp_.solve()) {
-    cerr << "QP failed: " << qp_.errorMessage() << endl;
+    std::cerr << "QP failed: " << qp_.errorMessage() << std::endl;
     return false;
   }
   // stopwatch_.stop();
@@ -148,7 +145,7 @@ double QpMixer::getThrust(size_t idx) const
 bool QpMixer::setBaseWeight(double p)
 {
   if (p <= 0.) {
-    cerr << "Base weight must be positive." << endl;
+    std::cerr << "Base weight must be positive." << std::endl;
     return false;
   }
 
@@ -159,7 +156,7 @@ bool QpMixer::setBaseWeight(double p)
 bool QpMixer::setThrustWeight(double p)
 {
   if (p <= 0.) {
-    cerr << "Thrust weight must be positive." << endl;
+    std::cerr << "Thrust weight must be positive." << std::endl;
     return false;
   }
 
@@ -183,7 +180,7 @@ void QpMixer::resizeAndFill()
   qp_.problem.A.bottomRows(nr).diagonal().fill(-1);
 
   R_.resize(nr);
-  G_.resize(NoChange, nr);
+  G_.resize(Eigen::NoChange, nr);
 }
 }  // namespace planar_multicopter
 }  // namespace tobas

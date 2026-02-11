@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-using namespace std;
 namespace ch = std::chrono;
 
 namespace tim
@@ -10,7 +9,7 @@ namespace tim
 Stopwatch::Stopwatch(size_t samples) : samples_(samples)
 {
   if (samples == 0) {
-    throw runtime_error("The number of samples must be positive.");
+    throw std::runtime_error("The number of samples must be positive.");
   }
 }
 
@@ -32,7 +31,7 @@ uint64_t Stopwatch::stop()
 
   if (++count_ == samples_) {
     const auto mean_duration = sum_duration_ / samples_;
-    cout << "The average duration of " << count_ << " measurements [us]: " << mean_duration << endl;
+    std::cout << "The average duration of " << count_ << " measurements [us]: " << mean_duration << std::endl;
     count_ = 0;
     sum_duration_ = 0;
   }
