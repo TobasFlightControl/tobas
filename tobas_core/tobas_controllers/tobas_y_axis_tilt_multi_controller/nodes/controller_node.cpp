@@ -570,6 +570,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 
     pos_cmd_.reset();
     acc_cmd_.reset();
+    tar_rot_.reset();
+    tar_gyro_.reset();
 
     TOBAS_INFO("The controller has been reset.");
   }
