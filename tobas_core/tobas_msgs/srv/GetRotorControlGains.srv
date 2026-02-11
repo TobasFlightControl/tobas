@@ -1,2 +1,3 @@
 ---
+bool success
 uint8[] gains

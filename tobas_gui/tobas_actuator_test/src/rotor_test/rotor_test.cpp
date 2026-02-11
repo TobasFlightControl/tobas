@@ -190,14 +190,19 @@ bool RotorTestWidget::loadCurrentGains()
   }
 
   const auto res = get_gains_sc_->getResponse();
-  const auto& gains = res->gains;
+  if (!res->success) {
+    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    return false;
+  }
+
+  const auto& cur_gains = res->gains;
   for (const auto& [link_name, _] : eprop_->rotors) {
     const auto erotor = eprop_->getRotor(link_name);
-    if (erotor->channel >= gains.size()) {
+    if (erotor->channel >= cur_gains.size()) {
       qt::qErrorBox(this, "Failed to get the rotor control gain of channel " + QString::number(erotor->channel) + ".");
       return false;
     }
-    rotor_widgets_.at(erotor->channel)->setGain(gains.at(erotor->channel));
+    rotor_widgets_.at(erotor->channel)->setGain(cur_gains.at(erotor->channel));
   }
 
   return true;
