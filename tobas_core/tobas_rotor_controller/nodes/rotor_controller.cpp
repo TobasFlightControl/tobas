@@ -132,7 +132,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
         const auto tar_thrust = std::max(elem.thrust, 0.);
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = elem.link_name;
-        tar_speeds_msg->speeds.back().speed = erotor->speedFromThrust(tar_thrust);
+        tar_speeds_msg->speeds.back().speed = std::max(erotor->speedFromThrust(tar_thrust), erotor->min_speed);
       }
 
       // Publish target speeds
