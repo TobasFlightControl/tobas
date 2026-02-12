@@ -159,7 +159,7 @@ int PwmWidget::channel(const QString& target_name) const
     }
   }
 
-  qWarning() << "Failed to find \"" << target_name << "\".";
+  qWarning() << target_name << "not found.";
   return -1;
 }
 

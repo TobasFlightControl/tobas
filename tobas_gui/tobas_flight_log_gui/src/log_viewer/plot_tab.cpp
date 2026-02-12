@@ -193,7 +193,7 @@ void PlotTabWidget::plot(int index)
     mr_ctrl_fb_plot_->setData(mr_ctrl_fb_data_);
   }
   else {
-    qWarning() << "Invalid index: " << index;
+    qWarning() << "Invalid index:" << index;
   }
 }
 

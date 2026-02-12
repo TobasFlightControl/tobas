@@ -12,7 +12,6 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/remote_project_builder.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
@@ -23,7 +22,6 @@
 #include <tobas_string_tools/stream.hpp>
 
 #include "tobas_gcs/app_button.hpp"
-#include "tobas_gcs/constants.hpp"
 #include "tobas_gcs/util.hpp"
 
 namespace fs = std::filesystem;
@@ -36,7 +34,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   : node_(node)
   , bridge_(node)
   , network_checker_(this, bridge_)
-  , property_client_(node, kPackageName)
+  , property_client_(node, "tobas_gcs/gcs")
   , ssh_client_(node)
   , remote_proj_builder_(node)
   , spinner_(Qt::WindowModal, this)

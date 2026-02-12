@@ -2,8 +2,6 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include "tobas_gcs/constants.hpp"
-
 namespace fs = std::filesystem;
 
 namespace gui
@@ -12,7 +10,7 @@ namespace gcs
 {
 fs::path getPkgShareDir()
 {
-  return ament_index_cpp::get_package_share_directory(kPackageName);
+  return ament_index_cpp::get_package_share_directory("tobas_gcs");
 }
 
 fs::path getResourceDir()

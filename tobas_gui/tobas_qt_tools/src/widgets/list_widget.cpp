@@ -21,7 +21,7 @@ void ListWidget::setCurrentText(const QString& text)
 {
   const auto items = findItems(text, Qt::MatchExactly);
   if (items.empty()) {
-    qWarning() << text << " not found.";
+    qWarning() << text << "not found.";
     return;
   }
 

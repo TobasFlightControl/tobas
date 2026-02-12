@@ -41,6 +41,6 @@ inline bool MixerI::isInitialized() const
 
 inline double MixerI::thrustDeadband(double thrust) const
 {
-  return thrust < kZeroThrustThresh ? 0. : thrust;
+  return std::abs(thrust) > kZeroThrustThresh ? thrust : 0.;
 }
 }  // namespace tobas

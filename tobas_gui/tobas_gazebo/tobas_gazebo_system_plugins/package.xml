@@ -8,6 +8,8 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<depend>gz_sim_vendor</depend>
+	<depend>gz_plugin_vendor</depend>
 	<depend>std_srvs</depend>
 	<depend>tobas_dsp</depend>
 	<depend>tobas_geomag</depend>

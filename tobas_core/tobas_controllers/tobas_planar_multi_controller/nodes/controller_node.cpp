@@ -81,9 +81,9 @@ private:
   tobas_command_msgs::PosVelYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
   tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
   std::shared_ptr<kdl::Euler> tar_angle_;             // 目標オイラー角 (世界座標系)
-  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標角速度 (機体座標系P)
-  kdl::Vector tar_dgyro_;                             // 目標角加速度
-  double tar_thrust_;                                 // 目標推力
+  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標角速度 (機体座標系)
+  kdl::Vector tar_dgyro_;                             // 目標角加速度 (機体座標系)
+  double tar_thrust_;                                 // 目標推力 (機体座標系)
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;

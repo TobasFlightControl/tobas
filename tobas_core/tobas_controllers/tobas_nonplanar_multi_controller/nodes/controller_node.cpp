@@ -103,16 +103,16 @@ private:
   bool updateHeadingPDGain();
   bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
 
-  bool horizontalNaturalFrequencyCb(const double& p);
+  bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
   bool horizontalIGainCb(const double& p);
-  bool verticalNaturalFrequencyCb(const double& p);
+  bool verticalNaturalFreqCb(const double& p);
   bool verticalDampingRatioCb(const double& p);
   bool verticalIGainCb(const double& p);
-  bool attitudeNaturalFrequencyCb(const double& p);
+  bool attitudeNaturalFreqCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool attitudeIGainCb(const double& p);
-  bool headingNaturalFrequencyCb(const double& p);
+  bool headingNaturalFreqCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
@@ -153,11 +153,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register dynamic parameters
   // I制御は姿勢変化が大きいと逆効果なため，デフォルトではオフにする．
-  addDynamicDoubleParam(
-    "horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 1., 10, 1, 50, " rad/s");
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 1., 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1., 10, 1, 50, " rad/s");
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 1., 5, 1, 25, " rad/s");
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
@@ -249,7 +248,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
   return true;
 }
 
-bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
+bool ControllerNode::horizontalNaturalFreqCb(const double& p)
 {
   return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
 }
@@ -264,7 +263,7 @@ bool ControllerNode::horizontalIGainCb(const double& p)
   return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
 }
 
-bool ControllerNode::verticalNaturalFrequencyCb(const double& p)
+bool ControllerNode::verticalNaturalFreqCb(const double& p)
 {
   return pos_pid_.setNaturalFreq(2, p);
 }
@@ -279,7 +278,7 @@ bool ControllerNode::verticalIGainCb(const double& p)
   return pos_pid_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
+bool ControllerNode::attitudeNaturalFreqCb(const double& p)
 {
   atti_wn_ = p;
   return updateAttitudePDGain();
@@ -296,7 +295,7 @@ bool ControllerNode::attitudeIGainCb(const double& p)
   return rot_pi_.setIntegralGain(0, p) && rot_pi_.setIntegralGain(1, p);
 }
 
-bool ControllerNode::headingNaturalFrequencyCb(const double& p)
+bool ControllerNode::headingNaturalFreqCb(const double& p)
 {
   head_wn_ = p;
   return updateHeadingPDGain();

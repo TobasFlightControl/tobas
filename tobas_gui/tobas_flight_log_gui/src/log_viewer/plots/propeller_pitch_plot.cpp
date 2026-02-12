@@ -58,7 +58,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
 
     for (const auto& elem : msg.pitch_angles) {
       if (!name2idx_.contains(elem.link_name)) {
-        qWarning() << "VPP \"" << QString::fromStdString(elem.link_name) << "\" is not registered.";
+        qWarning() << "VPP" << QString::fromStdString(elem.link_name) << "is not registered.";
         continue;
       }
 
@@ -89,7 +89,7 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
     }
 
     if (!name2idx_.insert({ elem.link_name, idx }).second) {
-      qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
+      qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is duplicated.";
       return false;
     }
 

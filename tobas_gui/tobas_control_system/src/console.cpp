@@ -86,7 +86,7 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
       message_item->setForeground(kFatalColor);
       break;
     default:
-      qWarning() << "Unknown message level: " << static_cast<int>(msg->level);
+      qWarning() << "Unknown message level:" << static_cast<int>(msg->level);
       level_item->setText("Unknown");
       level_item->setForeground(kUnknownColor);
       message_item->setForeground(kUnknownColor);

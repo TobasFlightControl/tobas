@@ -20,10 +20,12 @@
 #include "tobas_rc_teleop/accel_rate.hpp"
 #include "tobas_rc_teleop/accel_yaw.hpp"
 #include "tobas_rc_teleop/angle_throttle.hpp"
+#include "tobas_rc_teleop/angle_throttle_vector.hpp"
 #include "tobas_rc_teleop/pos_vel_angle.hpp"
 #include "tobas_rc_teleop/pos_vel_pitch_yaw.hpp"
 #include "tobas_rc_teleop/pos_vel_yaw.hpp"
 #include "tobas_rc_teleop/rate_throttle.hpp"
+#include "tobas_rc_teleop/rate_throttle_vector.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std::chrono_literals;
@@ -32,9 +34,9 @@ namespace tobas_rc_teleop
 {
 class RCTeleopNode : public tobas::BaseNode
 {
-  static constexpr double kArmThrotThresh = 0.1;  // [-]
-  static constexpr double kArmDuration = 1.;      // [s]
-  static constexpr double kDisarmDuration = 1.;   // [s]
+  static constexpr double kArmThrotThresh = 0.04;  // 帯域 [-1, 1] の 2%
+  static constexpr double kArmDuration = 1.;       // [s]
+  static constexpr double kDisarmDuration = 1.;    // [s]
 
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kWarnPeriod = 1.;            // [s]
@@ -145,8 +147,14 @@ void RCTeleopNode::initializeControllers()
       case tobas::RcCommand::kRateThrottle:
         controllers_[mode] = std::make_unique<RateThrottleController>();
         break;
+      case tobas::RcCommand::kRateThrottleVector:
+        controllers_[mode] = std::make_unique<RateThrottleVectorController>();
+        break;
       case tobas::RcCommand::kAngleThrottle:
         controllers_[mode] = std::make_unique<AngleThrottleController>();
+        break;
+      case tobas::RcCommand::kAngleThrottleVector:
+        controllers_[mode] = std::make_unique<AngleThrottleVectorController>();
         break;
       case tobas::RcCommand::kAccelYaw:
         controllers_[mode] = std::make_unique<AccelYawController>();
@@ -201,7 +209,7 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.yaw = tobas::kRCInputMid;
   idle_rcin.throttle = tobas::kRcInputMin;
 
-  controllers_[tobas::FlightMode::kAcrobat]->update(idle_rcin, *odom_);
+  controllers_[cur_mode_]->update(idle_rcin, *odom_);
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)

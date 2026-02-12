@@ -22,7 +22,7 @@ class AerodynamicsCoefficientsWidget : public QWidget
 
   static constexpr int kButtonWidth = 180;
   static constexpr int kButtonHeight = 60;
-  static constexpr char kLastOpenedDirKey[] = "aerodynamics/last_opened_dir";
+  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
 
 public:
   explicit AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node);

@@ -73,7 +73,7 @@ inline double ElectricRotorConfig::momentConst() const
 
 inline double ElectricRotorConfig::voltageFromSpeed(double tar_speed) const
 {
-  assert(tar_speed >= 0);
+  assert(tar_speed >= 0.);
 
   const auto b = internal_resistance * kv * moment_const * motor_const;
   const auto c = 1. / kv;
@@ -82,7 +82,7 @@ inline double ElectricRotorConfig::voltageFromSpeed(double tar_speed) const
 
 inline double ElectricRotorConfig::speedFromVoltage(double voltage) const
 {
-  assert(voltage >= 0);
+  assert(voltage >= 0.);
 
   const auto b = internal_resistance * kv * moment_const * motor_const;
   const auto c = 1. / kv;
@@ -96,7 +96,7 @@ inline double ElectricRotorConfig::thrustFromSpeed(double tar_speed) const
 
 inline double ElectricRotorConfig::speedFromThrust(double thrust) const
 {
-  assert(thrust >= 0);
+  assert(thrust >= 0.);
   return sqrt(thrust / motor_const);
 }
 
@@ -110,7 +110,7 @@ inline double ElectricRotorConfig::thrustFromVoltage(double voltage) const
 
 inline double ElectricRotorConfig::throttleFromSpeed(double tar_speed, double battery_voltage) const
 {
-  assert(tar_speed >= 0);
+  assert(tar_speed >= 0.);
 
   const auto voltage = voltageFromSpeed(tar_speed);
   return voltage / battery_voltage;
@@ -118,7 +118,7 @@ inline double ElectricRotorConfig::throttleFromSpeed(double tar_speed, double ba
 
 inline double ElectricRotorConfig::throttleFromThrust(double thrust, double battery_voltage) const
 {
-  assert(thrust >= 0);
+  assert(thrust >= 0.);
 
   const auto tar_speed = speedFromThrust(thrust);
   return throttleFromSpeed(tar_speed, battery_voltage);

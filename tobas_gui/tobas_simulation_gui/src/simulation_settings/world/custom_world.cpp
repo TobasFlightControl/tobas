@@ -7,15 +7,14 @@
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-#include "tobas_simulation_gui/constants.hpp"
-
 namespace fs = std::filesystem;
 
 namespace gui
 {
 namespace sim
 {
-CustomWorldWidget::CustomWorldWidget(rclcpp::Node::SharedPtr node) : node_(node), property_client_(node, kPackageName)
+CustomWorldWidget::CustomWorldWidget(rclcpp::Node::SharedPtr node)
+  : node_(node), property_client_(node, "tobas_simulation_gui/simulation_settings/world/custom_world")
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);

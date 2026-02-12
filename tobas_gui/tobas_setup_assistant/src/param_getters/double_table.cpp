@@ -14,7 +14,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_string_tools/core.hpp>
 
-#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/rapidcsv.hpp"
 
 namespace fs = std::filesystem;
@@ -31,11 +30,11 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const QString& description_text)
   : super(param_name, description_text)
   , node_(node)
-  , last_opend_dir_key_("last_opened_dir/double_table/" + str::replace(param_name.toStdString(), " ", "_"))
+  , last_opend_dir_key_("last_opened_dir/" + str::replace(param_name.toStdString(), " ", "_"))
   , title_(title)
   , labels_(labels)
   , num_entry_(labels.size())
-  , property_client_(node, kPackageName)
+  , property_client_(node, "tobas_setup_assistant/double_table")
 {
   TOBAS_CHECK(num_entry_ > 0);
 

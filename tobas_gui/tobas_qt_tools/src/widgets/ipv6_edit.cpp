@@ -87,7 +87,7 @@ uint16_t IPv6Edit::getFieldValue(size_t idx) const
   const auto text = fields_.at(idx)->text();
 
   if (text.isEmpty()) {
-    qWarning() << "Field " + QString::number(idx) + " is empty.";
+    qWarning() << "Field" << idx << "is empty.";
     return 0;
   }
 

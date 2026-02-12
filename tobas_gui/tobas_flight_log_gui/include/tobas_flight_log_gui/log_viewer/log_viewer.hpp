@@ -55,29 +55,28 @@ private:
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data_;
   QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_data_;
 
-  MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
-  MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;
-  MessageDecoder<tobas_msgs::msg::MagneticField> mag_decoder_;
-  MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;
-  MessageDecoder<tobas_msgs::msg::RCInput> rcin_decoder_;
-  MessageDecoder<tobas_msgs::msg::Battery> battery_decoder_;
-  MessageDecoder<tobas_msgs::msg::Cpu> cpu_decoder_;
-  MessageDecoder<tobas_msgs::msg::RotorStateArray> rotor_states_decoder_;
-  MessageDecoder<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_decoder_;
-  MessageDecoder<tobas_msgs::msg::JointStateArray> joint_states_decoder_;
-  MessageDecoder<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
-  MessageDecoder<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
-  MessageDecoder<tobas_msgs::msg::Latency> latency_decoder_;
-  MessageDecoder<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
-  MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
-  MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
-  MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::Odometry> odom_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::Imu> imu_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::MagneticField> mag_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::Gnss> gnss_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::RCInput> rcin_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::Battery> battery_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::Cpu> cpu_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::RotorStateArray> rotor_states_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::JointStateArray> joint_states_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::JointCommandArray> joint_commands_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::Latency> latency_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::VibrationLevel> vibe_decoder_;
+  MessageDecoderCache<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
+  MessageDecoderCache<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
+  MessageDecoderCache<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
 
   std::array<PlotTabWidget*, 6> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
 
   bool open(const std::string& rosbag_path);
-  bool reindex(const std::string& rosbag_path);
 
   void setPlotData(double time_from_start);
 

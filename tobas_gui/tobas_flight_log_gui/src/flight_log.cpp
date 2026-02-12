@@ -12,7 +12,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
 {
   recorder_ = new FlightLogRecorderWidget(node, bridge);
   logs_fc_ = new FlightLogsWidgetFC(node);
-  logs_gcs_ = new FlightLogsWidgetGCS();
+  logs_gcs_ = new FlightLogsWidgetGCS(node);
   log_viewer_ = new FlightLogViewerWidget();
 
   // Layout
@@ -51,7 +51,7 @@ void FlightLogWidget::updateNamespace(const std::string& ns)
 void FlightLogWidget::onLogDownloaded(const QString& log_name)
 {
   if (logs_gcs_->findLog(log_name)) {
-    qInfo() << "\"" << log_name << "\" already exists in the GCS log list.";
+    qInfo() << log_name << "already exists in the GCS log list.";
     return;
   }
 

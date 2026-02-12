@@ -44,7 +44,7 @@ QString YAxisTiltMulticopterWidget::pluginName() const
 
 tobas::RcCommand YAxisTiltMulticopterWidget::acrobatModeCommand() const
 {
-  return tobas::RcCommand::kAccelPitchYaw;  // TODO
+  return tobas::RcCommand::kRateThrottleVector;
 }
 
 tobas::RcCommand YAxisTiltMulticopterWidget::stabilizeModeCommand() const

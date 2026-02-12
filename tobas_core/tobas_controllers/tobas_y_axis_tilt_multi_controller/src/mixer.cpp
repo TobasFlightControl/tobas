@@ -173,8 +173,8 @@ double Mixer::getThrust(size_t idx) const
 
 double Mixer::getTiltAngle(size_t idx) const
 {
-  const auto& tx = x_(2 * idx);
-  const auto& tz = x_(2 * idx + 1);
+  const auto tx = thrustDeadband(x_(2 * idx));
+  const auto tz = thrustDeadband(x_(2 * idx + 1));
   return tilt_axis_signs_.at(idx) * algo::wrapPi(atan2(tx, tz) - tilt_offsets_.at(idx));
 }
 }  // namespace y_axis_tilt_multicopter

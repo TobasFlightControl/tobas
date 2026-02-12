@@ -18,7 +18,7 @@ class CustomWorldWidget : public BaseWorldWidget
   using self = CustomWorldWidget;
   using super = BaseWorldWidget;
 
-  static constexpr char kLastOpenedDirKey[] = "last_opened_dir/custom_world";
+  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
 
 public:
   explicit CustomWorldWidget(rclcpp::Node::SharedPtr node);

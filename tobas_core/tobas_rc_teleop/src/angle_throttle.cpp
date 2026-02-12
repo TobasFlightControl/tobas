@@ -62,10 +62,10 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
   // 姿勢とスロットルを埋める
-  cmd->angle.roll = expoRemap(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);
-  cmd->angle.pitch = expoRemap(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
+  cmd->angle.roll = expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);
+  cmd->angle.pitch = expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
   cmd->angle.yaw = yaw_;
-  cmd->throttle = expo(deadband(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot)), throt_expo_);
+  cmd->throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), throt_expo_);
 
   // コマンドを発行
   cmd_pub_->publish(std::move(cmd));

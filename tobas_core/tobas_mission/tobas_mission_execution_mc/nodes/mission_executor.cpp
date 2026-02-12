@@ -8,7 +8,6 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_trajectory_generators/cubic.hpp>
 #include <tobas_trajectory_generators/linear.hpp>
 #include <tobas_trajectory_generators/time_optimal.hpp>
 
@@ -28,6 +27,8 @@ namespace tobas
 {
 struct GeoPoint
 {
+  using SharedPtr = std::shared_ptr<GeoPoint>;
+
   double latitude;   // [deg]
   double longitude;  // [deg]
 };
@@ -44,9 +45,10 @@ class MulticopterMissionExecutorNode : public BaseNode
   using GoalPtr = Action::Goal::ConstSharedPtr;
   using ResultPtr = Action::Result::SharedPtr;
 
-  static constexpr double kCommandRate = 100.;       // [Hz]
-  static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
-  static constexpr double kHeadingRate = M_PI / 3;   // [rad/s]
+  static constexpr double kCommandRate = 100.;         // [Hz]
+  static constexpr double kAttitudeRate = M_PI / 6;    // [rad/s]
+  static constexpr double kMaxHeadingAcc = M_PI / 2;   // [rad/s^2]
+  static constexpr double kMaxHeadingRate = M_PI / 4;  // [rad/s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -58,7 +60,8 @@ private:
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
 
-  std::shared_ptr<GeoPoint> launch_point_;
+  GeoPoint::SharedPtr launch_point_;
+  GeoPoint::SharedPtr last_setpoint_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
@@ -196,6 +199,9 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     return false;
   }
 
+  // Save the latest setpoint
+  last_setpoint_ = std::make_shared<GeoPoint>(goal.latitude, goal.longitude);
+
   // 初期状態を取得
   const auto start_time = now();
   const auto start_pos = odom_->frame.p.clone();
@@ -233,8 +239,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
   const auto goal_yaw = goal.auto_heading ? atan2(xy_dir.y(), xy_dir.x()) : start_rpy.yaw;
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
-  const auto yaw_duration = std::abs(start_rpy.yaw) / kHeadingRate;
-  const traj::CubicSpline traj_yaw(0., yaw_diff, yaw_duration);
+  const traj::TimeOptimalTrajectory traj_yaw(0., yaw_diff, INFINITY, kMaxHeadingAcc, kMaxHeadingRate);
 
   // 所要時間を取得
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
@@ -383,7 +388,18 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   const auto start_pos = odom_->frame.p.clone();
   const kdl::Euler start_rpy(odom_->frame.M);
 
-  // 起動を生成
+  // 最新 (直前のコマンド) の目標位置が存在すればそれ，存在しなければ現在位置を目標着陸地点とする．
+  double tar_x, tar_y;
+  if (last_setpoint_) {
+    std::tie(tar_x, tar_y) = tbs::gnssToCartRelative(
+      last_setpoint_->latitude, last_setpoint_->longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+  }
+  else {
+    tar_x = start_pos.x();
+    tar_y = start_pos.y();
+  }
+
+  // 姿勢の起動を生成
   const auto roll_duration = std::abs(start_rpy.roll) / kAttitudeRate;
   const auto pitch_duration = std::abs(start_rpy.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
@@ -407,7 +423,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
     const auto tar_z = start_pos.z() - goal.speed * t;
-    const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), tar_z);
+    const kdl::Vector tar_pos(tar_x, tar_y, tar_z);
     kdl::Vector tar_vel(0., 0., -goal.speed);
     const auto tar_roll = traj_roll.get(t).p;
     const auto tar_pitch = traj_pitch.get(t).p;
@@ -442,6 +458,9 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     gh->abort(res);
     return false;
   }
+
+  // Save the latest setpoint
+  last_setpoint_ = std::make_shared<GeoPoint>(*launch_point_);
 
   // ウェイポイントのゴールを作成
   Waypoint wp;
@@ -719,6 +738,9 @@ rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const
 
 void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 {
+  // Reset the old setpoint
+  last_setpoint_.reset();
+
   // Create result
   const auto res = std::make_shared<Action::Result>();
 

@@ -5,9 +5,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace planar_multicopter
@@ -30,7 +27,7 @@ bool PinvMixer::updateInternalDataStructures()
     return false;
   }
 
-  E_.conservativeResize(NoChange, drone_.prop->numRotors());
+  E_.conservativeResize(Eigen::NoChange, drone_.prop->numRotors());
   E_.bottomRows<1>().setOnes();  // 推力和等式の左辺
 
   x_.conservativeResize(drone_.prop->numRotors());
@@ -49,13 +46,13 @@ bool PinvMixer::solve(
 
   // 順運動学を計算
   if (fk_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
     return false;
   }
 
   // 質量特性を計算
   if (inertia_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
@@ -63,7 +60,7 @@ bool PinvMixer::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // EoM行列等式の左辺
-  for (const auto& [idx, pair] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
     if (rotor_alive_.at(rotor->link_name)) {
@@ -92,7 +89,7 @@ bool PinvMixer::solve(
 
   // Ex = f を解く
   // TODO: Rank(E) < 4 (方程式が解けない) の場合に行ごとに優先度 (atti > thrust > yaw) をつける
-  x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
+  x_ = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   return true;
 }

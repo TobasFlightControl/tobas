@@ -43,7 +43,7 @@ void StatusWidget::setStatus(Status status)
       led_->setFillColor(kUnknownColor);
       break;
     default:
-      qWarning() << "Unknown status: " << status;
+      qWarning() << "Unknown status:" << status;
       reset();
       break;
   }
