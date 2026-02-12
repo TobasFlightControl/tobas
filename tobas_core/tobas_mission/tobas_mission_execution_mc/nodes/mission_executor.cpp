@@ -27,6 +27,8 @@ namespace tobas
 {
 struct GeoPoint
 {
+  using SharedPtr = std::shared_ptr<GeoPoint>;
+
   double latitude;   // [deg]
   double longitude;  // [deg]
 };
@@ -58,7 +60,8 @@ private:
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
 
-  std::shared_ptr<GeoPoint> launch_point_;
+  GeoPoint::SharedPtr launch_point_;
+  GeoPoint::SharedPtr last_setpoint_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
@@ -195,6 +198,9 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     gh->abort(res);
     return false;
   }
+
+  // Save the latest setpoint
+  last_setpoint_ = std::make_shared<GeoPoint>(goal.latitude, goal.longitude);
 
   // 初期状態を取得
   const auto start_time = now();
@@ -382,7 +388,18 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   const auto start_pos = odom_->frame.p.clone();
   const kdl::Euler start_rpy(odom_->frame.M);
 
-  // 起動を生成
+  // 最新 (直前のコマンド) の目標位置が存在すればそれ，存在しなければ現在位置を目標着陸地点とする．
+  double tar_x, tar_y;
+  if (last_setpoint_) {
+    std::tie(tar_x, tar_y) = tbs::gnssToCartRelative(
+      last_setpoint_->latitude, last_setpoint_->longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+  }
+  else {
+    tar_x = start_pos.x();
+    tar_y = start_pos.y();
+  }
+
+  // 姿勢の起動を生成
   const auto roll_duration = std::abs(start_rpy.roll) / kAttitudeRate;
   const auto pitch_duration = std::abs(start_rpy.pitch) / kAttitudeRate;
   const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
@@ -406,7 +423,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
     const auto tar_z = start_pos.z() - goal.speed * t;
-    const kdl::Vector tar_pos(start_pos.x(), start_pos.y(), tar_z);
+    const kdl::Vector tar_pos(tar_x, tar_y, tar_z);
     kdl::Vector tar_vel(0., 0., -goal.speed);
     const auto tar_roll = traj_roll.get(t).p;
     const auto tar_pitch = traj_pitch.get(t).p;
@@ -441,6 +458,9 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     gh->abort(res);
     return false;
   }
+
+  // Save the latest setpoint
+  last_setpoint_ = std::make_shared<GeoPoint>(*launch_point_);
 
   // ウェイポイントのゴールを作成
   Waypoint wp;
@@ -738,6 +758,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Waypoint waypoint;
         tbs::fromBytes(item.data, waypoint);
         if (!executeWaypoint(waypoint, gh, res)) {
+          last_setpoint_.reset();
           return;
         }
         break;
@@ -746,6 +767,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Takeoff takeoff;
         tbs::fromBytes(item.data, takeoff);
         if (!executeTakeoff(takeoff, gh, res)) {
+          last_setpoint_.reset();
           return;
         }
         break;
@@ -754,6 +776,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Land land;
         tbs::fromBytes(item.data, land);
         if (!executeLand(land, gh, res)) {
+          last_setpoint_.reset();
           return;
         }
         break;
@@ -762,6 +785,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         ReturnToLaunch rtl;
         tbs::fromBytes(item.data, rtl);
         if (!executeRTL(rtl, gh, res)) {
+          last_setpoint_.reset();
           return;
         }
         break;
@@ -769,6 +793,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       default: {
         res->message = "Invalid mission type: " + std::to_string(idx);
         gh->abort(res);
+        last_setpoint_.reset();
         return;
       }
     }
@@ -776,6 +801,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 
   res->message.clear();
   gh->succeed(res);
+  last_setpoint_.reset();
 }
 }  // namespace mission
 }  // namespace tobas
