@@ -8,7 +8,6 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_trajectory_generators/cubic.hpp>
 #include <tobas_trajectory_generators/linear.hpp>
 #include <tobas_trajectory_generators/time_optimal.hpp>
 
@@ -44,9 +43,10 @@ class MulticopterMissionExecutorNode : public BaseNode
   using GoalPtr = Action::Goal::ConstSharedPtr;
   using ResultPtr = Action::Result::SharedPtr;
 
-  static constexpr double kCommandRate = 100.;       // [Hz]
-  static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
-  static constexpr double kHeadingRate = M_PI / 3;   // [rad/s]
+  static constexpr double kCommandRate = 100.;         // [Hz]
+  static constexpr double kAttitudeRate = M_PI / 6;    // [rad/s]
+  static constexpr double kMaxHeadingAcc = M_PI / 2;   // [rad/s^2]
+  static constexpr double kMaxHeadingRate = M_PI / 4;  // [rad/s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -233,8 +233,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
   const auto goal_yaw = goal.auto_heading ? atan2(xy_dir.y(), xy_dir.x()) : start_rpy.yaw;
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
-  const auto yaw_duration = std::abs(start_rpy.yaw) / kHeadingRate;
-  const traj::CubicSpline traj_yaw(0., yaw_diff, yaw_duration);
+  const traj::TimeOptimalTrajectory traj_yaw(0., yaw_diff, INFINITY, kMaxHeadingAcc, kMaxHeadingRate);
 
   // 所要時間を取得
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
