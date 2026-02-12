@@ -738,6 +738,9 @@ rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const
 
 void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 {
+  // Reset the old setpoint
+  last_setpoint_.reset();
+
   // Create result
   const auto res = std::make_shared<Action::Result>();
 
@@ -758,7 +761,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Waypoint waypoint;
         tbs::fromBytes(item.data, waypoint);
         if (!executeWaypoint(waypoint, gh, res)) {
-          last_setpoint_.reset();
           return;
         }
         break;
@@ -767,7 +769,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Takeoff takeoff;
         tbs::fromBytes(item.data, takeoff);
         if (!executeTakeoff(takeoff, gh, res)) {
-          last_setpoint_.reset();
           return;
         }
         break;
@@ -776,7 +777,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Land land;
         tbs::fromBytes(item.data, land);
         if (!executeLand(land, gh, res)) {
-          last_setpoint_.reset();
           return;
         }
         break;
@@ -785,7 +785,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         ReturnToLaunch rtl;
         tbs::fromBytes(item.data, rtl);
         if (!executeRTL(rtl, gh, res)) {
-          last_setpoint_.reset();
           return;
         }
         break;
@@ -793,7 +792,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       default: {
         res->message = "Invalid mission type: " + std::to_string(idx);
         gh->abort(res);
-        last_setpoint_.reset();
         return;
       }
     }
@@ -801,7 +799,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 
   res->message.clear();
   gh->succeed(res);
-  last_setpoint_.reset();
 }
 }  // namespace mission
 }  // namespace tobas
