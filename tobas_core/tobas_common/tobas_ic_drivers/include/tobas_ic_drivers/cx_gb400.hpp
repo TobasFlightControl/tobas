@@ -15,6 +15,11 @@ class CxGb400 : public linux::VideoDev
 {
 public:
   static constexpr std::chrono::milliseconds kSendAttitudeInterval = std::chrono::milliseconds(200);
+  static constexpr double kPitchCmdMax = 45.0;    // [deg]
+  static constexpr double kPitchCmdMin = -115.0;  // [deg]
+  static constexpr double kYawCmdMax = 85.0;      // [deg]
+  static constexpr double kYawCmdMin = -85.0;     // [deg]
+
   enum CameraPosition : uint8_t
   {
     kLower = 0x0,         // 機体に下向きで取り付ける（レンズより台が上になる向き）
@@ -82,7 +87,7 @@ public:
   bool getCameraStatus(
     bool& sd_full,
     bool& time_not_set,
-    bool& media_error, // SDカードが挿入されていないか満タン
+    bool& media_error,  // SDカードが挿入されていないか満タン
     bool& lens_error,
     bool& gimbal_error,
     bool& gimbal_motor_error,
@@ -96,10 +101,6 @@ public:
     uint16_t& iso);
 
 private:
-  static constexpr double kPitchCmdMax = 45.0;    // [deg]
-  static constexpr double kPitchCmdMin = -115.0;  // [deg]
-  static constexpr double kYawCmdMax = 85.0;      // [deg]
-  static constexpr double kYawCmdMin = -85.0;     // [deg]
   static constexpr double kGimbalAngleResolution = 1.0 / 0.01;
 
   enum UnitId : uint8_t
