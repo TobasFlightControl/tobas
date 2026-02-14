@@ -86,19 +86,7 @@ void FailsafeExecutorNode::disarm()
 
 void FailsafeExecutorNode::startRTL()
 {
-  // TODO: パラメータをSAで指定可能にする
   tobas::mission::ReturnToLaunch rtl;
-  rtl.min_altitude = 15.;
-  rtl.max_horizontal_velocity = 5.;
-  rtl.max_vertical_velocity = 1.5;
-  rtl.max_horizontal_accel = 5.;
-  rtl.max_vertical_accel = 3.;
-  rtl.max_horizontal_jerk = 4.;
-  rtl.max_vertical_jerk = 4.;
-  rtl.acceptance_radius = 0.;
-  rtl.altitude_tolerance = 0.;
-  rtl.timeout = 0.;
-
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kReturnToLaunch;
   mission_item.data = tbs::toBytes(rtl);
@@ -141,11 +129,7 @@ void FailsafeExecutorNode::startRTL()
 
 void FailsafeExecutorNode::startLand()
 {
-  // TODO: パラメータをSAで指定可能にする
   tobas::mission::Land land;
-  land.speed = 0.7;
-  land.timeout = 0.;
-
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kLand;
   mission_item.data = tbs::toBytes(land);

@@ -54,6 +54,30 @@ public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  struct WaypointConfig
+  {
+    double max_hor_vel;   // [m/s]
+    double max_ver_vel;   // [m/s]
+    double max_hor_acc;   // [m/s^2]
+    double max_ver_acc;   // [m/s^2]
+    double max_hor_jerk;  // [m/s^3]
+    double max_ver_jerk;  // [m/s^3]
+  } wp_cfg_;
+  struct TakeoffConfig
+  {
+    double max_speed;  // [m/s]
+    double max_accel;  // [m/s^2]
+    double max_jerk;   // [m/s^3]
+  } takeoff_cfg_;
+  struct LandConfig
+  {
+    double speed;  // [m/s]
+  } land_cfg_;
+  struct ReturnToLaunchConfig
+  {
+    double min_alt;  // [m]
+  } rtl_cfg_;
+
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
@@ -76,6 +100,7 @@ private:
 
   ros2::ActionServerPtr<Action> as_;
 
+  void getStaticRosParams();
   void publishCommands(
     const rclcpp::Time& stamp,
     const kdl::Vector& pos,
@@ -104,6 +129,8 @@ private:
 MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
   : super("mission_executor", options)
 {
+  getStaticRosParams();
+
   angle_pub_ = createPublisher<tobas_command_msgs::Angle>(kAngleCmdTopic);
   pos_vel_pub_ = createPublisher<tobas_command_msgs::PosVel>(kPosVelCmdTopic);
   pos_vel_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelYaw>(kPosVelYawCmdTopic);
@@ -116,6 +143,24 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
 
   as_ = createAction(kExecuteMissionAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
+}
+
+void MulticopterMissionExecutorNode::getStaticRosParams()
+{
+  wp_cfg_.max_hor_vel = getDoubleParam("waypoint/max_horizontal_velocity");
+  wp_cfg_.max_ver_vel = getDoubleParam("waypoint/max_vertical_velocity");
+  wp_cfg_.max_hor_acc = getDoubleParam("waypoint/max_horizontal_accel");
+  wp_cfg_.max_ver_acc = getDoubleParam("waypoint/max_vertical_accel");
+  wp_cfg_.max_hor_jerk = getDoubleParam("waypoint/max_horizontal_jerk");
+  wp_cfg_.max_ver_jerk = getDoubleParam("waypoint/max_vertical_jerk");
+
+  takeoff_cfg_.max_speed = getDoubleParam("takeoff/max_speed");
+  takeoff_cfg_.max_accel = getDoubleParam("takeoff/max_accel");
+  takeoff_cfg_.max_jerk = getDoubleParam("takeoff/max_jerk");
+
+  land_cfg_.speed = getDoubleParam("land/speed");
+
+  rtl_cfg_.min_alt = getDoubleParam("rtl/min_altitude");
 }
 
 void MulticopterMissionExecutorNode::publishCommands(
@@ -215,6 +260,14 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   goal_pos.z(goal.altitude);  // TODO: 目標高度がMSLで与えられた場合にも対応
   TOBAS_INFO("Goal position: ", goal_pos);
 
+  // 制約を決定
+  const auto max_hor_vel = goal.max_horizontal_velocity > 0. ? goal.max_horizontal_velocity : wp_cfg_.max_hor_vel;
+  const auto max_ver_vel = goal.max_vertical_velocity > 0. ? goal.max_vertical_velocity : wp_cfg_.max_ver_vel;
+  const auto max_hor_acc = goal.max_horizontal_accel > 0. ? goal.max_horizontal_accel : wp_cfg_.max_hor_acc;
+  const auto max_ver_acc = goal.max_vertical_accel > 0. ? goal.max_vertical_accel : wp_cfg_.max_ver_acc;
+  const auto max_hor_jerk = goal.max_horizontal_jerk > 0. ? goal.max_horizontal_jerk : wp_cfg_.max_hor_jerk;
+  const auto max_ver_jerk = goal.max_vertical_jerk > 0. ? goal.max_vertical_jerk : wp_cfg_.max_ver_jerk;
+
   // 軌道を生成
   const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
   const Eigen::Vector2d goal_xy(goal_pos.x(), goal_pos.y());
@@ -224,12 +277,10 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     return true;
   }
   const Eigen::Vector2d xy_dir = xy_diff / xy_dist;
-  const traj::TimeOptimalTrajectory traj_xy(
-    0., xy_dist, goal.max_horizontal_jerk, goal.max_horizontal_accel, goal.max_horizontal_velocity);
+  const traj::TimeOptimalTrajectory traj_xy(0., xy_dist, max_hor_jerk, max_hor_acc, max_hor_vel);
 
   // TODO: Altitude Frame を考慮
-  const traj::TimeOptimalTrajectory traj_z(
-    start_pos.z(), goal_pos.z(), goal.max_vertical_jerk, goal.max_vertical_accel, goal.max_vertical_velocity);
+  const traj::TimeOptimalTrajectory traj_z(start_pos.z(), goal_pos.z(), max_ver_jerk, max_ver_acc, max_ver_vel);
 
   const auto roll_duration = std::abs(start_rpy.roll) / kAttitudeRate;
   const traj::LinearSpline traj_roll(start_rpy.roll, 0., roll_duration);
@@ -321,9 +372,14 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   const auto start_pos = odom_->frame.p.clone();
   const auto start_yaw = odom_->frame.M.getYaw();
 
+  // 制約を決定
+  const auto max_speed = goal.max_speed > 0. ? goal.max_speed : takeoff_cfg_.max_speed;
+  const auto max_accel = goal.max_accel > 0. ? goal.max_accel : takeoff_cfg_.max_accel;
+  const auto max_jerk = goal.max_jerk > 0. ? goal.max_jerk : takeoff_cfg_.max_jerk;
+
   // 軌道を生成
   // TODO: Altitude Frame を考慮
-  const traj::TimeOptimalTrajectory traj_z(start_pos.z(), goal.altitude, goal.max_jerk, goal.max_accel, goal.max_speed);
+  const traj::TimeOptimalTrajectory traj_z(start_pos.z(), goal.altitude, max_jerk, max_accel, max_speed);
 
   // 所要時間を取得
   const auto duration = traj_z.duration();
@@ -399,6 +455,9 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     tar_y = start_pos.y();
   }
 
+  // 下降速度を決定
+  const auto speed = goal.speed > 0. ? goal.speed : land_cfg_.speed;
+
   // 姿勢の起動を生成
   const auto roll_duration = std::abs(start_rpy.roll) / kAttitudeRate;
   const auto pitch_duration = std::abs(start_rpy.pitch) / kAttitudeRate;
@@ -422,9 +481,9 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     // 現在時刻における目標位置姿勢を計算
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
-    const auto tar_z = start_pos.z() - goal.speed * t;
+    const auto tar_z = start_pos.z() - speed * t;
     const kdl::Vector tar_pos(tar_x, tar_y, tar_z);
-    kdl::Vector tar_vel(0., 0., -goal.speed);
+    kdl::Vector tar_vel(0., 0., -speed);
     const auto tar_roll = traj_roll.get(t).p;
     const auto tar_pitch = traj_pitch.get(t).p;
     const auto& tar_yaw = start_rpy.yaw;
@@ -483,7 +542,8 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   const auto& tar_lon = launch_point_->longitude;
   const auto [x_diff, y_diff] = tbs::gnssToCartRelative(cur_lat, cur_lon, tar_lat, tar_lon);
   const auto xy_dist = math::norm(x_diff, y_diff);
-  const auto min_alt = std::min<double>(goal.min_altitude, xy_dist);  // 45度逆円錐ルール
+  const auto min_alt_goal = goal.min_altitude > 0. ? goal.min_altitude : rtl_cfg_.min_alt;
+  const auto min_alt = std::min<double>(min_alt_goal, xy_dist);  // 45度逆円錐ルール
   wp.altitude = std::max(cur_alt, min_alt);
 
   // 現在の高度がRTLの最低高度よりも低い場合はそこまで上昇
@@ -499,8 +559,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   // アームした地点まで移動
   wp.latitude = tar_lat;
   wp.longitude = tar_lon;
-  wp.auto_heading = goal.auto_heading;
-
+  wp.auto_heading = true;
   if (!executeWaypoint(wp, gh, res)) {
     return false;
   }
@@ -595,39 +654,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
           TOBAS_ERROR("Mission No. ", idx, ": Invalid target longitude.");
           return rclcpp_action::GoalResponse::REJECT;
         }
-        if (waypoint.max_horizontal_velocity <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum horizontal velocity must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (waypoint.max_vertical_velocity <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum vertical velocity must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (waypoint.max_horizontal_accel <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum horizontal acceleration must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (waypoint.max_vertical_accel <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum vertical acceleration must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (waypoint.max_horizontal_jerk <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum horizontal jerk must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (waypoint.max_vertical_jerk <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum vertical jerk must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (waypoint.acceptance_radius <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The acceptance radius is not specified. It will be infinite.");
-        }
-        if (waypoint.altitude_tolerance <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The altitude tolerance is not specified. It will be infinite.");
-        }
-        if (waypoint.timeout <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The timeout is not specified. It will be infinite.");
-        }
 
         break;
       }
@@ -642,24 +668,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
           TOBAS_ERROR("Mission No. ", idx, ": Target altitude must be positive.");
           return rclcpp_action::GoalResponse::REJECT;
         }
-        if (takeoff.max_speed <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum speed must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (takeoff.max_accel <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum acceleration must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (takeoff.max_jerk <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum jerk must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (takeoff.altitude_tolerance <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The altitude tolerance is not specified. It will be infinite.");
-        }
-        if (takeoff.timeout <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The timeout is not specified. It will be infinite.");
-        }
 
         break;
       }
@@ -670,11 +678,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
           return rclcpp_action::GoalResponse::REJECT;
         }
 
-        if (land.speed <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Descending speed must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-
         break;
       }
       case kReturnToLaunch: {
@@ -682,40 +685,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         if (!tbs::fromBytes(item.data, rtl)) {
           TOBAS_ERROR("Mission No. ", idx, ": Size mismatch.");
           return rclcpp_action::GoalResponse::REJECT;
-        }
-
-        if (rtl.max_horizontal_velocity <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum horizontal velocity must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (rtl.max_vertical_velocity <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum vertical velocity must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (rtl.max_horizontal_accel <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum horizontal acceleration must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (rtl.max_vertical_accel <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum vertical acceleration must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (rtl.max_horizontal_jerk <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum horizontal jerk must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (rtl.max_vertical_jerk <= 0.) {
-          TOBAS_ERROR("Mission No. ", idx, ": Maximum vertical jerk must be positive.");
-          return rclcpp_action::GoalResponse::REJECT;
-        }
-        if (rtl.acceptance_radius <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The acceptance radius is not specified. It will be infinite.");
-        }
-        if (rtl.altitude_tolerance <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The altitude tolerance is not specified. It will be infinite.");
-        }
-        if (rtl.timeout <= 0.) {
-          TOBAS_WARN("Mission No. ", idx, ": The timeout is not specified. It will be infinite.");
         }
 
         break;
