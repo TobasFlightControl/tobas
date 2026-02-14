@@ -22,11 +22,8 @@ BaseCommandWidget::BaseCommandWidget()
 
   rows->addSpacing(30);
 
-  grid_ = new QGridLayout();
-  grid_->setColumnStretch(0, 0);
-  grid_->setColumnStretch(1, 0);
-  grid_->setColumnStretch(2, 1);
-  rows->addLayout(grid_);
+  form_ = new qt::FormLayout();
+  rows->addLayout(form_);
 
   rows->addStretch(1);
 
@@ -41,7 +38,7 @@ BaseCommandWidget::BaseCommandWidget()
 
 void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridable)
 {
-  const auto checkbox = new QCheckBox();
+  const auto checkbox = new QCheckBox(widget->label());
   checkboxes_[widget] = checkbox;
 
   const auto stacked = new QStackedWidget();
@@ -59,9 +56,7 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridabl
     stacked->setCurrentIndex(1);
   }
 
-  grid_->addWidget(checkbox, row_, 0);
-  grid_->addWidget(new QLabel(widget->label()), row_, 1);
-  grid_->addWidget(stacked, row_, 2);
+  form_->addVAlignedRow(checkbox, stacked);
 
   connect(checkbox, &QCheckBox::toggled, [stacked](bool checked) { stacked->setCurrentIndex((int)checked); });
   connect(widget, &field::BaseFieldWidget::updated, this, &self::onFieldUpdated);

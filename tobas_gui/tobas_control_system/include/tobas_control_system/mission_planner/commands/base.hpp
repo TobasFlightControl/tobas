@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QCheckBox>
-#include <QGridLayout>
 #include <QLabel>
 #include <QMap>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "../fields/base.hpp"
 
@@ -46,7 +47,7 @@ protected:
 private:
   QLabel* label_;
   QPushButton* delete_button_;
-  QGridLayout* grid_;
+  qt::FormLayout* form_;
   QMap<field::BaseFieldWidget*, QCheckBox*> checkboxes_;
 
   int row_ = 0;
