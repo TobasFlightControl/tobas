@@ -8,7 +8,7 @@ LandWidget::LandWidget()
 {
   speed_ = new field::LandSpeedWidget();
 
-  addField(speed_);
+  addField(speed_, true);
 }
 
 const char* LandWidget::name() const
@@ -18,7 +18,7 @@ const char* LandWidget::name() const
 
 double LandWidget::speed() const
 {
-  return speed_->value();
+  return getValue(speed_);
 }
 
 void LandWidget::speed(double value)

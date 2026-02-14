@@ -22,7 +22,7 @@ AcceptanceRadiusWidget::AcceptanceRadiusWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* AcceptanceRadiusWidget::label() const
@@ -30,7 +30,7 @@ const char* AcceptanceRadiusWidget::label() const
   return "Acceptance Radius";
 }
 
-double AcceptanceRadiusWidget::value() const
+double AcceptanceRadiusWidget::getValue() const
 {
   return spin_box_->value();
 }

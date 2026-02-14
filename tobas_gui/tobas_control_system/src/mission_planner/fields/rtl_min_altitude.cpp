@@ -19,7 +19,7 @@ RtlMinAltitudeWidget::RtlMinAltitudeWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* RtlMinAltitudeWidget::label() const
@@ -27,7 +27,7 @@ const char* RtlMinAltitudeWidget::label() const
   return "Minimum Altitude (wrt. Home)";
 }
 
-double RtlMinAltitudeWidget::value() const
+double RtlMinAltitudeWidget::getValue() const
 {
   return spin_box_->value();
 }

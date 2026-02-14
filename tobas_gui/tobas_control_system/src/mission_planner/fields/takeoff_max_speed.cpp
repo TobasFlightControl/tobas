@@ -22,7 +22,7 @@ TakeoffMaxSpeedWidget::TakeoffMaxSpeedWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* TakeoffMaxSpeedWidget::label() const
@@ -30,7 +30,7 @@ const char* TakeoffMaxSpeedWidget::label() const
   return "Maximum Speed";
 }
 
-double TakeoffMaxSpeedWidget::value() const
+double TakeoffMaxSpeedWidget::getValue() const
 {
   return spin_box_->value();
 }

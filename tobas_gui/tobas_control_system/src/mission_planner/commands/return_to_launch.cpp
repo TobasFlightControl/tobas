@@ -16,13 +16,13 @@ ReturnToLaunchWidget::ReturnToLaunchWidget()
   acceptance_radius_ = new field::AcceptanceRadiusWidget();
   altitude_tolerance_ = new field::AltitudeToleranceWidget();
 
-  addField(min_alt_);
-  addField(max_hor_vel_);
-  addField(max_ver_vel_);
-  addField(max_hor_acc_);
-  addField(max_ver_acc_);
-  addField(max_hor_jerk_);
-  addField(max_ver_jerk_);
+  addField(min_alt_, true);
+  addField(max_hor_vel_, true);
+  addField(max_ver_vel_, true);
+  addField(max_hor_acc_, true);
+  addField(max_ver_acc_, true);
+  addField(max_hor_jerk_, true);
+  addField(max_ver_jerk_, true);
   addField(acceptance_radius_);
   addField(altitude_tolerance_);
 }
@@ -34,47 +34,47 @@ const char* ReturnToLaunchWidget::name() const
 
 double ReturnToLaunchWidget::minAltitude() const
 {
-  return min_alt_->value();
+  return min_alt_->getValue();
 }
 
 double ReturnToLaunchWidget::maxHorizontalVelocity() const
 {
-  return max_hor_vel_->value();
+  return getValue(max_hor_vel_);
 }
 
 double ReturnToLaunchWidget::maxVerticalVelocity() const
 {
-  return max_ver_vel_->value();
+  return getValue(max_ver_vel_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalAccel() const
 {
-  return max_hor_acc_->value();
+  return getValue(max_hor_acc_);
 }
 
 double ReturnToLaunchWidget::maxVerticalAccel() const
 {
-  return max_ver_acc_->value();
+  return getValue(max_ver_acc_);
 }
 
 double ReturnToLaunchWidget::maxHorizontalJerk() const
 {
-  return max_hor_jerk_->value();
+  return getValue(max_hor_jerk_);
 }
 
 double ReturnToLaunchWidget::maxVerticalJerk() const
 {
-  return max_ver_jerk_->value();
+  return getValue(max_ver_jerk_);
 }
 
 double ReturnToLaunchWidget::acceptanceRadius() const
 {
-  return acceptance_radius_->value();
+  return getValue(acceptance_radius_);
 }
 
 double ReturnToLaunchWidget::altitudeTolerance() const
 {
-  return altitude_tolerance_->value();
+  return getValue(altitude_tolerance_);
 }
 
 void ReturnToLaunchWidget::minAltitude(double value)

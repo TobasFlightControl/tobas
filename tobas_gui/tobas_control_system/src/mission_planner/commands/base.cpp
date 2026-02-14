@@ -1,5 +1,7 @@
 #include "tobas_control_system/mission_planner/commands/base.hpp"
 
+#include <QLabel>
+#include <QStackedWidget>
 #include <QTimer>
 
 #include <tobas_qt_tools/font.hpp>
@@ -20,10 +22,13 @@ BaseCommandWidget::BaseCommandWidget()
 
   rows->addSpacing(30);
 
-  form_ = new qt::FormLayout();
-  rows->addLayout(form_);
+  grid_ = new QGridLayout();
+  grid_->setColumnStretch(0, 0);
+  grid_->setColumnStretch(1, 0);
+  grid_->setColumnStretch(2, 1);
+  rows->addLayout(grid_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 
   delete_button_ = new QPushButton("Delete Command");
   delete_button_->setStyleSheet("background-color: red");
@@ -34,10 +39,39 @@ BaseCommandWidget::BaseCommandWidget()
   QTimer::singleShot(0, this, &self::initialize);
 }
 
-void BaseCommandWidget::addField(field::BaseField* field)
+void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridable)
 {
-  connect(field, &field::BaseField::updated, this, &self::onFieldUpdated);
-  form_->addVAlignedRow(field->label(), field);
+  const auto checkbox = new QCheckBox();
+  checkboxes_[widget] = checkbox;
+
+  const auto stacked = new QStackedWidget();
+  stacked->setStyleSheet("QStackedWidget { border: 0px; }");  // 外枠を消す
+  stacked->addWidget(new QLabel("    Project Default"));
+  stacked->addWidget(widget);
+
+  if (overridable) {
+    checkbox->setChecked(false);
+    stacked->setCurrentIndex(0);
+  }
+  else {
+    checkbox->setChecked(true);
+    checkbox->setEnabled(false);
+    stacked->setCurrentIndex(1);
+  }
+
+  grid_->addWidget(checkbox, row_, 0);
+  grid_->addWidget(new QLabel(widget->label()), row_, 1);
+  grid_->addWidget(stacked, row_, 2);
+
+  connect(checkbox, &QCheckBox::toggled, [stacked](bool checked) { stacked->setCurrentIndex((int)checked); });
+  connect(widget, &field::BaseFieldWidget::updated, this, &self::onFieldUpdated);
+
+  ++row_;
+}
+
+bool BaseCommandWidget::isChecked(field::BaseFieldWidget* widget) const
+{
+  return checkboxes_[widget]->isChecked();
 }
 
 void BaseCommandWidget::initialize()

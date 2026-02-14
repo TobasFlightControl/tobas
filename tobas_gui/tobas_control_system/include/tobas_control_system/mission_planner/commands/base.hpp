@@ -1,11 +1,12 @@
 #pragma once
 
+#include <QCheckBox>
+#include <QGridLayout>
 #include <QLabel>
+#include <QMap>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
-
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "../fields/base.hpp"
 
@@ -34,17 +35,32 @@ public:
   virtual const char* name() const = 0;
 
 protected:
-  void addField(field::BaseField* field);
+  void addField(field::BaseFieldWidget* widget, bool overridable = false);
+
+  bool isChecked(field::BaseFieldWidget* widget) const;
+
+  /* チェックされていたら設定された値，されていなければゼロを返す． */
+  template <typename T>
+  T getValue(field::FieldWidget<T>* widget) const;
 
 private:
   QLabel* label_;
   QPushButton* delete_button_;
-  qt::FormLayout* form_;
+  QGridLayout* grid_;
+  QMap<field::BaseFieldWidget*, QCheckBox*> checkboxes_;
+
+  int row_ = 0;
 
 private Q_SLOTS:
   void initialize();
   void onFieldUpdated();
   void onDeleteButtonClicked();
 };
+
+template <typename T>
+T BaseCommandWidget::getValue(field::FieldWidget<T>* widget) const
+{
+  return isChecked(widget) ? widget->getValue() : static_cast<T>(0);
+}
 }  // namespace ctrl
 }  // namespace gui
