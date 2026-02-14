@@ -27,9 +27,10 @@ struct PACKED Waypoint
 {
   std::float64_t latitude = 0.;   // [deg]
   std::float64_t longitude = 0.;  // [deg]
-  std::float64_t altitude = 0.;   // [m]
 
+  std::float64_t altitude = 0.;  // [m]
   AltitudeFrame altitude_frame = kRelativeToHome;
+
   bool auto_heading = true;
 
   std::float64_t max_horizontal_velocity = 0.;  // [m/s]
@@ -48,7 +49,6 @@ struct PACKED Waypoint
 struct PACKED Takeoff
 {
   std::float64_t altitude = 0.;  // [m]
-
   AltitudeFrame altitude_frame = kRelativeToHome;
 
   std::float64_t max_speed = 0.;  // [m/s]
