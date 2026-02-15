@@ -245,7 +245,9 @@ void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 
 void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  t_last_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
+  if (rcin->ok) {
+    t_last_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
+  }
 }
 
 void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv)

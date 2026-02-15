@@ -20,9 +20,11 @@ private:
   tobas::SBUS sbus_;
   ros2::PublisherPtr<tobas_msgs::msg::Sbus> sbus_pub_;
   ros2::TimerPtr initialize_timer_;
+  ros2::TimerPtr timeout_timer_;
 
   void initialize();
   void onPacket(const tobas::SBUS::Packet& packet);
+  void onPacketTimeout();
 };
 
 SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
@@ -49,11 +51,18 @@ void SbusDriverNode::initialize()
   initialize_timer_->cancel();
 
   sbus_.start();
+
+  // S.BUSの最長周期が14msなので，3フレーム以上来なければ受信機に異常が生じたと判定する．
+  // メッセージが来ない可能性があるとサブスクライバがイベント駆動で実装しづらくなるため，常に何らかのメッセージを発行するようにする．
+  timeout_timer_ = createWallTimer(14ms * 3, &self::onPacketTimeout, this);
 }
 
 void SbusDriverNode::onPacket(const tobas::SBUS::Packet& packet)
 {
-  // Create message
+  // Reset the timeout timer
+  timeout_timer_.reset();
+
+  // Create a message
   auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
   sbus_msg->header.stamp = now();
 
@@ -63,7 +72,16 @@ void SbusDriverNode::onPacket(const tobas::SBUS::Packet& packet)
   sbus_msg->frame_lost = packet.frame_lost;
   sbus_msg->failsafe = packet.failsafe;
 
-  // Publish message
+  // Publish the message
+  sbus_pub_->publish(std::move(sbus_msg));
+}
+
+void SbusDriverNode::onPacketTimeout()
+{
+  // Publish a frame-lost message
+  auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
+  sbus_msg->header.stamp = now();
+  sbus_msg->frame_lost = true;
   sbus_pub_->publish(std::move(sbus_msg));
 }
 

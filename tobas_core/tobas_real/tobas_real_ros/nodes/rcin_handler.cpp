@@ -27,10 +27,10 @@ public:
 
 private:
   // Config
-  tbs::Range<uint16_t> roll_range_;
-  tbs::Range<uint16_t> pitch_range_;
-  tbs::Range<uint16_t> yaw_range_;
-  tbs::Range<uint16_t> throt_range_;
+  tbs::Range<uint16_t> roll_;
+  tbs::Range<uint16_t> pitch_;
+  tbs::Range<uint16_t> yaw_;
+  tbs::Range<uint16_t> throt_;
   std::map<tobas::FlightMode, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
   uint16_t enable_on_, enable_off_;
@@ -80,38 +80,38 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
 
 bool RCInputHandlerNode::getConfig()
 {
-  if (!pt_.get(ns(), kRollLeftKey, roll_range_.lower)) {
+  if (!pt_.get(ns(), kRollLeftKey, roll_.lower)) {
     TOBAS_ERROR("Failed to get \"", kRollLeftKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kRollRightKey, roll_range_.upper)) {
+  if (!pt_.get(ns(), kRollRightKey, roll_.upper)) {
     TOBAS_ERROR("Failed to get \"", kRollRightKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kPitchUpKey, pitch_range_.upper)) {
+  if (!pt_.get(ns(), kPitchUpKey, pitch_.upper)) {
     TOBAS_ERROR("Failed to get \"", kPitchUpKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kPitchDownKey, pitch_range_.lower)) {
+  if (!pt_.get(ns(), kPitchDownKey, pitch_.lower)) {
     TOBAS_ERROR("Failed to get \"", kPitchDownKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kYawLeftKey, yaw_range_.upper)) {
+  if (!pt_.get(ns(), kYawLeftKey, yaw_.upper)) {
     TOBAS_ERROR("Failed to get \"", kYawLeftKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kYawRightKey, yaw_range_.lower)) {
+  if (!pt_.get(ns(), kYawRightKey, yaw_.lower)) {
     TOBAS_ERROR("Failed to get \"", kYawRightKey, "\".");
     return false;
   }
 
-  if (!pt_.get(ns(), kThrotUpKey, throt_range_.lower)) {
+  if (!pt_.get(ns(), kThrotUpKey, throt_.lower)) {
     TOBAS_ERROR("Failed to get \"", kThrotUpKey, "\".");
     return false;
   }
-  if (!pt_.get(ns(), kThrotDownKey, throt_range_.upper)) {
+  if (!pt_.get(ns(), kThrotDownKey, throt_.upper)) {
     TOBAS_ERROR("Failed to get \"", kThrotDownKey, "\".");
     return false;
   }
@@ -192,41 +192,40 @@ tobas::FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
-  if (sbus->frame_lost) {
-    return;
-  }
-
-  // Create message
   auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
-
-  // Fill header
   rcin_msg->header = sbus->header;
 
-  // Fill duty periods for each channel
-  rcin_msg->roll = math::remap<double>(
-    sbus->periods[real::kRcChannelRoll], roll_range_.lower, roll_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
-  rcin_msg->pitch = math::remap<double>(
-    sbus->periods[real::kRcChannelPitch], pitch_range_.lower, pitch_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
-  rcin_msg->yaw = math::remap<double>(
-    sbus->periods[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
-  rcin_msg->throttle = math::remap<double>(
-    sbus->periods[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+  if (sbus->frame_lost) {
+    rcin_msg->ok = false;
+  }
+  else {
+    rcin_msg->ok = true;
 
-  const auto& mode = sbus->periods[real::kRcChannelMode];
-  const auto& sub_mode = sbus->periods[real::kRcChannelSubMode];
-  const auto& enable = sbus->periods[real::kRcChannelEnable];
-  const auto& kill = sbus->periods[real::kRcChannelKill];
-  rcin_msg->mode = getClosestFlightMode(mode);
-  rcin_msg->sub_mode = std::abs(sub_mode - sub_mode_on_) < std::abs(sub_mode - sub_mode_off_);
-  rcin_msg->enable = std::abs(enable - enable_on_) < std::abs(enable - enable_off_);
-  rcin_msg->kill = std::abs(kill - kill_on_) < std::abs(kill - kill_off_);
+    const auto& roll = sbus->periods[real::kRcChannelRoll];
+    const auto& pitch = sbus->periods[real::kRcChannelPitch];
+    const auto& throt = sbus->periods[real::kRcChannelThrot];
+    const auto& yaw = sbus->periods[real::kRcChannelYaw];
+    const auto& mode = sbus->periods[real::kRcChannelMode];
+    const auto& sub_mode = sbus->periods[real::kRcChannelSubMode];
+    const auto& enable = sbus->periods[real::kRcChannelEnable];
+    const auto& kill = sbus->periods[real::kRcChannelKill];
 
-  for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
-    const auto& gpsw = sbus->periods[real::kRcChannelGpsw + i];
-    rcin_msg->gpsw[i] = std::abs(gpsw - gpsw_on_[i]) < std::abs(gpsw - gpsw_off_[i]);
+    rcin_msg->roll = math::remap<double>(roll, roll_.lower, roll_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    rcin_msg->pitch = math::remap<double>(pitch, pitch_.lower, pitch_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    rcin_msg->throttle = math::remap<double>(throt, throt_.lower, throt_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+    rcin_msg->yaw = math::remap<double>(yaw, yaw_.lower, yaw_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
+
+    rcin_msg->mode = getClosestFlightMode(mode);
+    rcin_msg->sub_mode = std::abs(sub_mode - sub_mode_on_) < std::abs(sub_mode - sub_mode_off_);
+    rcin_msg->enable = std::abs(enable - enable_on_) < std::abs(enable - enable_off_);
+    rcin_msg->kill = std::abs(kill - kill_on_) < std::abs(kill - kill_off_);
+
+    for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
+      const auto& gpsw = sbus->periods[real::kRcChannelGpsw + i];
+      rcin_msg->gpsw[i] = std::abs(gpsw - gpsw_on_[i]) < std::abs(gpsw - gpsw_off_[i]);
+    }
   }
 
-  // Publish message
   rcin_pub_->publish(std::move(rcin_msg));
 }
 
@@ -235,14 +234,14 @@ void RCInputHandlerNode::setParamsCb(
   const SetParams::Response::SharedPtr& res)
 {
   // Update parameters
-  roll_range_.lower = req->roll_left;
-  roll_range_.upper = req->roll_right;
-  pitch_range_.upper = req->pitch_up;
-  pitch_range_.lower = req->pitch_down;
-  yaw_range_.upper = req->yaw_left;
-  yaw_range_.lower = req->yaw_right;
-  throt_range_.lower = req->throttle_up;
-  throt_range_.upper = req->throttle_down;
+  roll_.lower = req->roll_left;
+  roll_.upper = req->roll_right;
+  pitch_.upper = req->pitch_up;
+  pitch_.lower = req->pitch_down;
+  yaw_.upper = req->yaw_left;
+  yaw_.lower = req->yaw_right;
+  throt_.lower = req->throttle_up;
+  throt_.upper = req->throttle_down;
   modes_.at(tobas::FlightMode::kAcrobat) = req->mode_acrobat;
   modes_.at(tobas::FlightMode::kStabilize) = req->mode_stabilize;
   modes_.at(tobas::FlightMode::kLoiter) = req->mode_loiter;
