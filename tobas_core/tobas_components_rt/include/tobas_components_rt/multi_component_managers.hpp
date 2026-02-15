@@ -1,22 +1,13 @@
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
+#include <sched.h>
 
-#include "./component_manager.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 namespace ros2
 {
-struct ComponentManager
-{
-  ros2::ThreadSafeComponentManager::SharedPtr node;
-  rclcpp::Executor::SharedPtr exec;
-  std::thread thread;
-};
-
 class MultiComponentManagers
 {
-  static constexpr char kName[] = "multi_component_managers";
-
 public:
   explicit MultiComponentManagers(size_t num_managers);
 
@@ -28,13 +19,15 @@ public:
   void spin();
 
 private:
+  struct ManagerConfig
+  {
+    int policy = SCHED_FIFO;
+    size_t priority = 0;
+    uint32_t affinity = 0;
+    size_t num_threads = 0;
+  };
+
   const size_t num_managers_;
-
-  std::vector<int> policy_;
-  std::vector<size_t> priority_;
-  std::vector<uint32_t> affinity_;
-  std::vector<size_t> num_threads_;
-
-  static std::string nodeName(size_t idx);
+  std::vector<ManagerConfig> configs_;
 };
 }  // namespace ros2

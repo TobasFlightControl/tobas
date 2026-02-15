@@ -3,30 +3,28 @@
 #include <class_loader/class_loader.hpp>
 #include <rclcpp_components/component_manager.hpp>
 
-using namespace std;
-
 namespace
 {
 // プロセス全体で共有するローダと排他ロック
 // ローダをクラス単位ではなくプロセス単位で保持
-mutex g_loader_mtx;
-unordered_map<string, shared_ptr<class_loader::ClassLoader>> g_loader_cache;
+std::mutex g_loader_mtx;
+std::unordered_map<std::string, std::shared_ptr<class_loader::ClassLoader>> g_loader_cache;
 }  // namespace
 
 namespace ros2
 {
-shared_ptr<rclcpp_components::NodeFactory>
+std::shared_ptr<rclcpp_components::NodeFactory>
 ThreadSafeComponentManager::create_component_factory(const ComponentResource& resource)
 {
   const auto& library_path = resource.second;
   const auto& class_name = resource.first;
   const auto fq_class_name = "rclcpp_components::NodeFactoryTemplate<" + class_name + ">";
 
-  shared_ptr<class_loader::ClassLoader> loader;
+  std::shared_ptr<class_loader::ClassLoader> loader;
 
   // ClassLoaderで1つの共有ライブラリを複数のスレッドが同時にdlopenすると競合するため，排他ロックする必要がある．
   {
-    lock_guard<mutex> lock(g_loader_mtx);
+    const std::lock_guard lock(g_loader_mtx);
 
     auto it = g_loader_cache.find(library_path);
     if (it == g_loader_cache.end()) {
@@ -34,8 +32,8 @@ ThreadSafeComponentManager::create_component_factory(const ComponentResource& re
       try {
         loader = std::make_shared<class_loader::ClassLoader>(library_path);
       }
-      catch (const exception& ex) {
-        throw rclcpp_components::ComponentManagerException("Failed to load library: " + string(ex.what()));
+      catch (const std::exception& ex) {
+        throw rclcpp_components::ComponentManagerException("Failed to load library: " + std::string(ex.what()));
       }
       catch (...) {
         throw rclcpp_components::ComponentManagerException("Failed to load library");

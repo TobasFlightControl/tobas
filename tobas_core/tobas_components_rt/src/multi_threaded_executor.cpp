@@ -2,8 +2,6 @@
 
 #include <tobas_linux/realtime.hpp>
 
-using namespace std;
-
 namespace ros2
 {
 MultiThreadedExecutorRT::MultiThreadedExecutorRT(int policy, size_t priority, uint32_t cpu_affinity, size_t num_threads)
@@ -17,14 +15,14 @@ MultiThreadedExecutorRT::MultiThreadedExecutorRT(int policy, size_t priority, ui
 void MultiThreadedExecutorRT::spin()
 {
   if (spinning.exchange(true)) {
-    throw runtime_error("spin() called while already spinning.");
+    throw std::runtime_error("spin() called while already spinning.");
   }
 
   RCPPUTILS_SCOPE_EXIT(wait_result_.reset(); spinning.store(false););
 
-  vector<thread> threads;
+  std::vector<std::thread> threads;
   for (size_t thread_id = 0; thread_id < get_number_of_threads(); ++thread_id) {
-    auto func = bind(&MultiThreadedExecutorRT::run, this, thread_id);
+    auto func = std::bind(&MultiThreadedExecutorRT::run, this, thread_id);
     threads.emplace_back(func);
 
     // スレッドのリアルタイム優先度を設定
@@ -47,13 +45,13 @@ void MultiThreadedExecutorRT::spin()
   }
 }
 
-size_t MultiThreadedExecutorRT::priority() const
-{
-  return priority_;
-}
-
 int MultiThreadedExecutorRT::policy() const
 {
   return policy_;
+}
+
+size_t MultiThreadedExecutorRT::priority() const
+{
+  return priority_;
 }
 }  // namespace ros2

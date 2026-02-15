@@ -1,4 +1,4 @@
-#include <sched.h>
+#pragma once
 
 #include <rclcpp/executors/multi_threaded_executor.hpp>
 
@@ -12,16 +12,12 @@ class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
 public:
   using SharedPtr = std::shared_ptr<MultiThreadedExecutorRT>;
 
-  explicit MultiThreadedExecutorRT(
-    int policy = SCHED_FIFO,
-    size_t priority = 0,
-    uint32_t cpu_affinity = 0,
-    size_t num_threads = 0);
+  explicit MultiThreadedExecutorRT(int policy, size_t priority, uint32_t cpu_affinity, size_t num_threads);
 
   void spin() override;
 
-  size_t priority() const;
   int policy() const;
+  size_t priority() const;
 
 private:
   const int policy_;
