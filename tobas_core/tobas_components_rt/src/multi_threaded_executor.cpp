@@ -14,6 +14,8 @@ MultiThreadedExecutorRT::MultiThreadedExecutorRT(int policy, size_t priority, ui
 
 void MultiThreadedExecutorRT::spin()
 {
+  constexpr char kLoggerName[] = "multi_threaded_executor_rt";
+
   if (spinning.exchange(true)) {
     throw std::runtime_error("spin() called while already spinning.");
   }
@@ -28,14 +30,14 @@ void MultiThreadedExecutorRT::spin()
     // スレッドのリアルタイム優先度を設定
     if (priority_ > 0) {
       if (!linux::setThreadPriority(threads.back().native_handle(), priority_, policy_)) {
-        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread realtime priority.");
+        RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread realtime priority.");
       }
     }
 
     // スレッドのCPU割当を設定
     if (cpu_affinity_ > 0) {
       if (!linux::setThreadCPUAffinity(threads.back().native_handle(), cpu_affinity_)) {
-        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread CPU affinity.");
+        RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread CPU affinity.");
       }
     }
   }

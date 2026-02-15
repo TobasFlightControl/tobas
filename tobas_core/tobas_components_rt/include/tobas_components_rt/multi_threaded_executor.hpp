@@ -7,8 +7,6 @@ namespace ros2
 /* MultiThreadedExecutorのスレッドプールにリアルタイム優先度を付与． */
 class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
 {
-  static constexpr char kName[] = "multi_threaded_executor_rt";
-
 public:
   using SharedPtr = std::shared_ptr<MultiThreadedExecutorRT>;
 
