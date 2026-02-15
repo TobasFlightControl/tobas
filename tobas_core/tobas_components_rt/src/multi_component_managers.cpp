@@ -89,7 +89,8 @@ void MultiComponentManagers::spin()
       }
     }
 
-    std::this_thread::sleep_for(100ms);  // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
+    // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
+    std::this_thread::sleep_for(100ms);
   }
 
   for (auto& manager : managers) {
