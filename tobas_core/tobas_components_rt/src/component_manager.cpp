@@ -3,6 +3,8 @@
 #include <class_loader/class_loader.hpp>
 #include <rclcpp_components/component_manager.hpp>
 
+namespace ros2
+{
 namespace
 {
 // プロセス全体で共有するローダと排他ロック
@@ -11,8 +13,6 @@ std::mutex g_loader_mtx;
 std::unordered_map<std::string, std::shared_ptr<class_loader::ClassLoader>> g_loader_cache;
 }  // namespace
 
-namespace ros2
-{
 std::shared_ptr<rclcpp_components::NodeFactory>
 ThreadSafeComponentManager::create_component_factory(const ComponentResource& resource)
 {

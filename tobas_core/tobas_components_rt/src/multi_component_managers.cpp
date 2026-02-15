@@ -16,7 +16,7 @@ namespace
 {
 struct ComponentManager
 {
-  ros2::ThreadSafeComponentManager::SharedPtr node;
+  ThreadSafeComponentManager::SharedPtr node;
   rclcpp::Executor::SharedPtr exec;
   std::thread thread;
 };
@@ -69,7 +69,7 @@ void MultiComponentManagers::spin()
       manager.exec = std::make_shared<MultiThreadedExecutorRT>(cfg.policy, cfg.priority, cfg.affinity, cfg.num_threads);
     }
 
-    manager.node = make_shared<ros2::ThreadSafeComponentManager>(manager.exec, nodeName(i), node_options);
+    manager.node = std::make_shared<ThreadSafeComponentManager>(manager.exec, nodeName(i), node_options);
     manager.exec->add_node(manager.node);
 
     // ComponentManagerを別スレッドで起動
