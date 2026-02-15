@@ -24,7 +24,7 @@ private:
     int policy = SCHED_FIFO;
     size_t priority = 0;
     uint32_t affinity = 0;
-    size_t num_threads = 0;
+    size_t num_threads = 1;
   };
 
   const size_t num_managers_;
