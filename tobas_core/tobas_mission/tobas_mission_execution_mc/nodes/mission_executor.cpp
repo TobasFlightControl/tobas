@@ -747,7 +747,7 @@ rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const
 
 void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 {
-  // Wait until the previous mission finishes
+  // Wait until the previous mission is finished
   rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok() && is_executing_) {
     rate.sleep();
