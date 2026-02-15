@@ -27,7 +27,7 @@ TakeoffMaxAccelWidget::TakeoffMaxAccelWidget()
 
 const char* TakeoffMaxAccelWidget::label() const
 {
-  return "Maximum Accel";
+  return "Maximum Acceleration";
 }
 
 double TakeoffMaxAccelWidget::getValue() const
