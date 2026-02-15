@@ -38,7 +38,8 @@ BaseCommandWidget::BaseCommandWidget()
 
 void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridable)
 {
-  const auto checkbox = new QCheckBox(widget->label());
+  const auto checkbox = new qt::CheckBox(widget->label());
+  checkbox->setDisabledTextNormal();
   checkboxes_[widget] = checkbox;
 
   const auto stacked = new QStackedWidget();

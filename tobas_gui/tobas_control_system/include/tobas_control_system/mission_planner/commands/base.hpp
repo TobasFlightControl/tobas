@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QCheckBox>
 #include <QLabel>
 #include <QMap>
 #include <QPushButton>
@@ -8,6 +7,7 @@
 #include <QWidget>
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <tobas_qt_tools/widgets/check_box.hpp>
 
 #include "../fields/base.hpp"
 
@@ -48,7 +48,7 @@ private:
   QLabel* label_;
   QPushButton* delete_button_;
   qt::FormLayout* form_;
-  QMap<field::BaseFieldWidget*, QCheckBox*> checkboxes_;
+  QMap<field::BaseFieldWidget*, qt::CheckBox*> checkboxes_;
 
   int row_ = 0;
 
