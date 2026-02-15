@@ -25,6 +25,7 @@
 #include "tobas_gcs/app_button.hpp"
 #include "tobas_gcs/util.hpp"
 
+using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace gui
@@ -216,7 +217,7 @@ std::expected<void, QString> GroundControlStationWidget::shutdownInBackground()
   }
 
   // 確実にラズパイがシャットダウンされるまで適当に待つ
-  qt::spinFor(5000);
+  qt::spinFor(5s);
 
   return {};
 }

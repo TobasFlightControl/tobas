@@ -17,9 +17,4 @@ void startThreadAndWait(std::function<void()> func)
 
   QObject::disconnect(conn);
 }
-
-void spinFor(int time_ms)
-{
-  startThreadAndWait([time_ms]() { QThread::msleep(time_ms); });
-}
 }  // namespace qt
