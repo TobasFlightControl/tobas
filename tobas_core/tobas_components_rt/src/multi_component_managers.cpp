@@ -32,7 +32,7 @@ MultiComponentManagers::MultiComponentManagers(size_t num_managers)
 {
 }
 
-void MultiComponentManagers::setPolicy(size_t idx, int policy)
+void MultiComponentManagers::setPolicy(size_t idx, linux::sched_t policy)
 {
   configs_.at(idx).policy = policy;
 }

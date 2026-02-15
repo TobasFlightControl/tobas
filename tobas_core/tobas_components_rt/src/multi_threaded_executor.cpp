@@ -4,7 +4,11 @@
 
 namespace ros2
 {
-MultiThreadedExecutorRT::MultiThreadedExecutorRT(int policy, size_t priority, uint32_t cpu_affinity, size_t num_threads)
+MultiThreadedExecutorRT::MultiThreadedExecutorRT(
+  linux::sched_t policy,
+  size_t priority,
+  uint32_t cpu_affinity,
+  size_t num_threads)
   : rclcpp::executors::MultiThreadedExecutor(rclcpp::ExecutorOptions(), num_threads)
   , policy_(policy)
   , priority_(priority)
