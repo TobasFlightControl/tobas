@@ -80,6 +80,7 @@ private:
   } rtl_cfg_;
 
   bool is_executing_ = false;
+  bool is_manual_ctrl_enabled_ = false;
 
   enum Status
   {
@@ -93,7 +94,6 @@ private:
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
-  tobas_msgs::RCInput::ConstSharedPtr rcin_;
 
   GeoPoint::SharedPtr launch_point_;
   GeoPoint::SharedPtr last_setpoint_;
@@ -668,9 +668,9 @@ void MulticopterMissionExecutorNode::landedCb(const tobas_msgs::msg::LandedState
 
 void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  rcin_ = rcin;
+  is_manual_ctrl_enabled_ = (rcin->ok && rcin->enable);
 
-  if (is_executing_ && rcin->enable) {
+  if (is_executing_ && is_manual_ctrl_enabled_) {
     status_ = kManualInterruption;
   }
 }
@@ -703,8 +703,8 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   }
 
   // Reject the mission if manual control is enabled
-  if (rcin_ && rcin_->enable) {
-    TOBAS_WARN("Manual control is enabled.");
+  if (is_manual_ctrl_enabled_) {
+    TOBAS_WARN("Mission cannot be executed while manual control is enabled.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 

@@ -611,7 +611,7 @@ void MissionPlannerWidget::actionGoalResponseCb(bool ok)
   spinner_.stop();
 
   if (!ok) {
-    qt::qErrorBox(this, "Mission goal was rejected.");
+    qt::qErrorBox(this, "The request to execute the mission was rejected.");
     return;
   }
 
