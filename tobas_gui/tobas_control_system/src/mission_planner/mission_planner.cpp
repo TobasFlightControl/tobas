@@ -300,7 +300,6 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
 
         tobas::mission::ReturnToLaunch rtl;
         rtl.min_altitude = widget->minAltitude();
-        rtl.auto_heading = true;  // TODO
         rtl.max_horizontal_velocity = widget->maxHorizontalVelocity();
         rtl.max_vertical_velocity = widget->maxVerticalVelocity();
         rtl.max_horizontal_accel = widget->maxHorizontalAccel();

@@ -564,6 +564,13 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     return false;
   }
 
+  // 着陸
+  Land land;
+  land.timeout = goal.timeout;
+  if (!executeLand(land, gh, res)) {
+    return false;
+  }
+
   return true;
 }
 

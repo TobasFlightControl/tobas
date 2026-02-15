@@ -107,24 +107,23 @@ void FailsafeExecutorNode::startRTL()
   {
     switch (res.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
-        startLand();  // RTLの次は必ず着陸
         break;
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
         TOBAS_ERROR("Mission was aborted: ", res.result->message);
-        startLand();
+        disarm();
         break;
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
-        startLand();
+        disarm();
         break;
     }
   };
 
   mission_ac_->async_send_goal(goal, opts);
 
-  state_ = kReturnToLaunch;
+  state_ = kLand;
 }
 
 void FailsafeExecutorNode::startLand()
