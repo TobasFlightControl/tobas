@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base_setting.hpp"

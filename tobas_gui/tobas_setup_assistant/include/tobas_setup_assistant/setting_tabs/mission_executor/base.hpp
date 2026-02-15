@@ -3,8 +3,6 @@
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
-
-
 namespace gui
 {
 namespace sa
@@ -28,6 +26,6 @@ public:
   /* ユーザ設定が有効な場合にtrueを返す． */
   virtual bool isValid() = 0;
 };
-}  // namespace ctrl
+}  // namespace mission
 }  // namespace sa
 }  // namespace gui
