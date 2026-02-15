@@ -22,6 +22,7 @@
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 
 namespace tobas
 {
@@ -79,13 +80,20 @@ private:
   } rtl_cfg_;
 
   bool is_executing_ = false;
-  bool is_overrided_ = false;
+
+  enum Status
+  {
+    kNoProblem,
+    kOverrided,
+    kManualInterruption,
+  } status_ = kNoProblem;
 
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
+  tobas_msgs::RCInput::ConstSharedPtr rcin_;
 
   GeoPoint::SharedPtr launch_point_;
   GeoPoint::SharedPtr last_setpoint_;
@@ -100,6 +108,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
   ros2::ActionServerPtr<Action> as_;
 
@@ -112,6 +121,7 @@ private:
     double pitch,
     double yaw) const;
   bool armRotors(bool arming);
+  bool checkCurrentStatus(const GoalHandlePtr& gh, const ResultPtr& res);
 
   bool executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res);
@@ -123,6 +133,7 @@ private:
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, const GoalPtr& goal);
   rclcpp_action::CancelResponse handleCancel(const GoalHandlePtr& gh);
@@ -144,6 +155,7 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   gnss_sub_ = createSubscriber(kGnssTopic, &self::gnssCb, this);
   gnss_origin_sub_ = createSubscriber(kGnssOriginTopic, &self::gnssOriginCb, this, true, true);
   landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
+  rcin_sub_ = createSubscriber(kRcInputTopic, &self::rcInputCb, this);
 
   as_ = createAction(kExecuteMissionAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
@@ -231,6 +243,26 @@ bool MulticopterMissionExecutorNode::armRotors(bool arming)
   return true;
 }
 
+bool MulticopterMissionExecutorNode::checkCurrentStatus(const GoalHandlePtr& gh, const ResultPtr& res)
+{
+  switch (status_) {
+    case kNoProblem:
+      return true;
+    case kOverrided:
+      res->message = "The mission currently in progress has been overwritten by another mission.";
+      gh->abort(res);
+      return false;
+    case kManualInterruption:
+      res->message = "The mission has been interrupted because manual control has been enabled.";
+      gh->abort(res);
+      return false;
+    default:
+      res->message = "Invalid status: " + std::to_string((int)status_);
+      gh->abort(res);
+      return false;
+  }
+}
+
 bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
   // Verify that GNSS is fixed
@@ -302,10 +334,8 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // ミッションが上書きされたら終了（キャンセルには移行できない）
-    if (is_overrided_) {
-      res->message = "The mission currently in progress has been overwritten by another mission.";
-      gh->abort(res);
+    // ミッション継続可能かどうかを確認
+    if (!checkCurrentStatus(gh, res)) {
       return false;
     }
 
@@ -402,10 +432,8 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // ミッションが上書きされたら終了（キャンセルには移行できない）
-    if (is_overrided_) {
-      res->message = "The mission currently in progress has been overwritten by another mission.";
-      gh->abort(res);
+    // ミッション継続可能かどうかを確認
+    if (!checkCurrentStatus(gh, res)) {
       return false;
     }
 
@@ -484,10 +512,8 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   // 姿勢を戻しながら下降
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    // ミッションが上書きされたら終了（キャンセルには移行できない）
-    if (is_overrided_) {
-      res->message = "The mission currently in progress has been overwritten by another mission.";
-      gh->abort(res);
+    // ミッション継続可能かどうかを確認
+    if (!checkCurrentStatus(gh, res)) {
       return false;
     }
 
@@ -640,12 +666,21 @@ void MulticopterMissionExecutorNode::landedCb(const tobas_msgs::msg::LandedState
   landed_ = landed;
 }
 
+void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+{
+  rcin_ = rcin;
+
+  if (is_executing_ && rcin->enable) {
+    status_ = kManualInterruption;
+  }
+}
+
 rclcpp_action::GoalResponse
 MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const GoalPtr& goal)
 {
   TOBAS_INFO("New mission is uploaded.");
 
-  // Check topics
+  // Check the essential topics
   if (!odom_) {
     TOBAS_WARN("Odometry is not received yet.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -667,7 +702,13 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  // Check mission items
+  // Reject the mission if manual control is enabled
+  if (rcin_ && rcin_->enable) {
+    TOBAS_WARN("Manual control is enabled.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+
+  // Check the mission items
   for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
     switch (item.type) {
       case kWaypoint: {
@@ -729,7 +770,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
   // 古いミッションが実行中なら中断要求
   if (is_executing_) {
-    is_overrided_ = true;
+    status_ = kOverrided;
   }
 
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -755,7 +796,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 
   // Now the new mission is in execution
   is_executing_ = true;
-  is_overrided_ = false;
+  status_ = kNoProblem;
 
   // Reset the old setpoint
   last_setpoint_.reset();
