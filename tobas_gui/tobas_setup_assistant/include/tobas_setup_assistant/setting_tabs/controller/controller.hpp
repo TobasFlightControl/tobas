@@ -34,7 +34,6 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  FrameType getFrameType() const;
   void setFrameType(const FrameType& type);
 
   bool useBuiltinContrller() const;

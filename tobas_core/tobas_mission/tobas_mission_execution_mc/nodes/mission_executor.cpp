@@ -127,7 +127,7 @@ private:
 };
 
 MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
-  : super("mission_executor", options)
+  : super(tobas::node::kMissionExecutor, options)
 {
   getStaticRosParams();
 

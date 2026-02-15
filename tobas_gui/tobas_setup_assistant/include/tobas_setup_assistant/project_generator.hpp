@@ -47,7 +47,6 @@ private:
   std::shared_ptr<TemplateGenerator> user_cpp_env_;
   std::shared_ptr<TemplateGenerator> user_py_env_;
 
-  std::string missionExecutorPackage() const;
   inja::json createTemplateData() const;
   tobas::Drone createDrone() const;
   bool hasServoJoint() const;
@@ -64,6 +63,7 @@ private:
   bool generateRotorAnomalyDetectorConfig();
   bool generateObserverStaticConfig();
   bool generateControllerStaticConfig();
+  bool generateMissionExecutorStaticConfig();
   bool generateRcTeleopStaticConfig();
   bool generateSshConfig();
   bool generateNetworkConfig();
