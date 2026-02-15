@@ -96,6 +96,9 @@ private:
 
   std::filesystem::path projectPath() const;
 
+  std::expected<void, QString> restartInBackground();
+  std::expected<void, QString> shutdownInBackground();
+
 private Q_SLOTS:
   void onLoadButtonClicked();
   void onWriteButtonClicked();

@@ -15,6 +15,7 @@
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -193,6 +194,31 @@ void GroundControlStationWidget::closeEvent(QCloseEvent* event)
 fs::path GroundControlStationWidget::projectPath() const
 {
   return proj_path_->text().toStdString();
+}
+
+std::expected<void, QString> GroundControlStationWidget::restartInBackground()
+{
+  // コマンドを実行
+  const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
+  if (res != ssh::SshClient::kNoError) {
+    return std::unexpected("Failed to restart the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
+  }
+
+  return {};
+}
+
+std::expected<void, QString> GroundControlStationWidget::shutdownInBackground()
+{
+  // コマンドを実行
+  const auto res = ssh_client_.execute("poweroff", true, true);
+  if (res != ssh::SshClient::kNoError) {
+    return std::unexpected("Failed to shutdown the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
+  }
+
+  // 確実にラズパイがシャットダウンされるまで適当に待つ
+  qt::spinFor(5000);
+
+  return {};
 }
 
 void GroundControlStationWidget::onLoadButtonClicked()
@@ -517,20 +543,20 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
     return;
   }
 
-  // Tobasサービスを再起動
+  // systemd サービスを再起動
   spinner_.start();
-  const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
+  const auto res = restartInBackground();
   spinner_.stop();
 
-  if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to restart the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
-    restart_btn_->setChecked(false);
-    return;
+  if (res) {
+    qt::qInfoBox(this, "The flight controller has been restarted successfully.");
+    reset();
+  }
+  else {
+    qt::qErrorBox(this, res.error());
   }
 
-  qt::qInfoBox(this, "Flight controller was restarted successfully.");
-
-  reset();
+  // ボタンを押される前に戻す
   restart_btn_->setChecked(false);
 }
 
@@ -555,21 +581,20 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
     return;
   }
 
-  // ラズパイをシャットダウン
+  // OS をシャットダウン
   spinner_.start();
-  const auto res = ssh_client_.execute("poweroff", true, true);
+  const auto res = shutdownInBackground();
   spinner_.stop();
 
-  if (res != ssh::SshClient::kNoError) {
-    qt::qErrorBox(this, "Failed to shutdown the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
-    shutdown_btn_->setChecked(false);
-    return;
+  if (res) {
+    qt::qInfoBox(this, "The flight controller has been shut down successfully.");
+    reset();  // ウィジェットが保持しているROSメッセージなどを確実にリセットするために，reset()の呼び出しを最後に行う．
+  }
+  else {
+    qt::qErrorBox(this, res.error());
   }
 
-  qt::qInfoBox(this, "Flight controller was shut down successfully.");
-
-  // ウィジェットが保持しているROSメッセージなどを確実にリセットするために，reset()の呼び出しを最後に行う．
-  reset();
+  // ボタンを押される前に戻す
   shutdown_btn_->setChecked(false);
 }
 

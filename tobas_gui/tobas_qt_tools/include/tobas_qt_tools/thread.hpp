@@ -66,4 +66,7 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
 
 /* 関数を実行するスレッドを作成し，GUIを止めずに終了まで待機する． */
 void startThreadAndWait(std::function<void()> func);
+
+/* GUIを止めずに指定した時間だけスリープする． */
+void spinFor(int time_ms);
 }  // namespace qt
