@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== QWidgetとの違い =====
+ * ===== QWidget との違い =====
  * - 追加メソッド
  */
 class Widget : public QWidget

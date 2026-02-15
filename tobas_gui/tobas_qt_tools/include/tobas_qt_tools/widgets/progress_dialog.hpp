@@ -6,7 +6,7 @@
 namespace qt
 {
 /**
- * ===== QProgressDialogとの違い =====
+ * ===== QProgressDialog との違い =====
  * - ユーザーが他のUI要素と対話できないようにする
  * - タイトルを設定
  * - デフォルトで最小値に設定

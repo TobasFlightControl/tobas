@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== QStackedWidgetとの違い =====
+ * ===== QStackedWidget との違い =====
  * - setCurrentIndexを安定化
  * - 追加メソッド
  */

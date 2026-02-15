@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== QScrollAreaとの違い =====
+ * ===== QScrollArea との違い =====
  * - デフォルトでスクロール可能
  * - 追加メソッド
  */
