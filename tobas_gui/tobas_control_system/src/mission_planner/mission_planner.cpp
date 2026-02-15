@@ -638,7 +638,7 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
       qt::qWarnBox(this, "The mission was canceled.");
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      qt::qErrorBox(this, "The mission was aborted: " + message);
+      qt::qErrorBox(this, "The mission was aborted:\n\n" + message);
       break;
     default:
       qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)code));
