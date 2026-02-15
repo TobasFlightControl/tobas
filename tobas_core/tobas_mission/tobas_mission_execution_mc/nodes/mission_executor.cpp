@@ -78,6 +78,9 @@ private:
     double min_alt;  // [m]
   } rtl_cfg_;
 
+  bool is_executing_ = false;
+  bool is_overrided_ = false;
+
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
@@ -299,6 +302,13 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
+    // ミッションが上書きされたら終了（キャンセルには移行できない）
+    if (is_overrided_) {
+      res->message = "The mission currently in progress has been overwritten by another mission.";
+      gh->abort(res);
+      return false;
+    }
+
     // 開始からの経過時間を計算
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
@@ -392,6 +402,13 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
+    // ミッションが上書きされたら終了（キャンセルには移行できない）
+    if (is_overrided_) {
+      res->message = "The mission currently in progress has been overwritten by another mission.";
+      gh->abort(res);
+      return false;
+    }
+
     // 開始からの経過時間を計算
     const auto cur_time = now();
     const auto dt = (cur_time - start_time).seconds();
@@ -467,6 +484,13 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   // 姿勢を戻しながら下降
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
+    // ミッションが上書きされたら終了（キャンセルには移行できない）
+    if (is_overrided_) {
+      res->message = "The mission currently in progress has been overwritten by another mission.";
+      gh->abort(res);
+      return false;
+    }
+
     // 着陸検知したらモータを停止して終了
     if (landed_->data) {
       TOBAS_INFO("Landing detected. Stopping motors.");
@@ -703,17 +727,36 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     }
   }
 
+  // 古いミッションが実行中なら中断要求
+  if (is_executing_) {
+    is_overrided_ = true;
+  }
+
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
 rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const GoalHandlePtr&)
 {
-  TOBAS_INFO("The current mission is canceled.");
+  if (!is_executing_) {
+    TOBAS_ERROR("No mission is in execution.");
+    return rclcpp_action::CancelResponse::REJECT;
+  }
+
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
 void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 {
+  // Wait until the previous mission finishes
+  rclcpp::Rate rate(kCommandRate);
+  while (rclcpp::ok() && is_executing_) {
+    rate.sleep();
+  }
+
+  // Now the new mission is in execution
+  is_executing_ = true;
+  is_overrided_ = false;
+
   // Reset the old setpoint
   last_setpoint_.reset();
 
@@ -737,6 +780,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Waypoint waypoint;
         tbs::fromBytes(item.data, waypoint);
         if (!executeWaypoint(waypoint, gh, res)) {
+          is_executing_ = false;
           return;
         }
         break;
@@ -745,6 +789,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Takeoff takeoff;
         tbs::fromBytes(item.data, takeoff);
         if (!executeTakeoff(takeoff, gh, res)) {
+          is_executing_ = false;
           return;
         }
         break;
@@ -753,6 +798,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         Land land;
         tbs::fromBytes(item.data, land);
         if (!executeLand(land, gh, res)) {
+          is_executing_ = false;
           return;
         }
         break;
@@ -761,6 +807,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         ReturnToLaunch rtl;
         tbs::fromBytes(item.data, rtl);
         if (!executeRTL(rtl, gh, res)) {
+          is_executing_ = false;
           return;
         }
         break;
@@ -768,6 +815,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       default: {
         res->message = "Invalid mission type: " + std::to_string(idx);
         gh->abort(res);
+        is_executing_ = false;
         return;
       }
     }
@@ -775,6 +823,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 
   res->message.clear();
   gh->succeed(res);
+  is_executing_ = false;
 }
 }  // namespace mission
 }  // namespace tobas
