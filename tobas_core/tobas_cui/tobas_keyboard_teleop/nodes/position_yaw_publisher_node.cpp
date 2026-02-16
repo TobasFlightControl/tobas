@@ -178,7 +178,7 @@ int main(int argc, char** argv)
     // コマンドを発行
     auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
     cmd->header.stamp = node->now();
-    cmd->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    cmd->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     cmd->pos = cmd_pos;
     cmd->vel.setZero();
     cmd->yaw = cmd_yaw;

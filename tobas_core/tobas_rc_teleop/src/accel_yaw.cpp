@@ -69,7 +69,7 @@ void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msg
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AccelYaw>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->accel = kdl::Rotation::RotZ(tar_yaw_) * tar_acc_G_;  // 地面座標系から世界座標系に変換
   cmd->yaw = tar_yaw_;
 

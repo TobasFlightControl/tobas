@@ -11,7 +11,7 @@ namespace tobas_command_msgs
 struct PosVel
 {
   std_msgs::msg::Header header;
-  tobas_command_msgs::msg::CommandLevel level;
+  tobas_command_msgs::msg::Priority priority;
   kdl::Vector pos;
   kdl::Vector vel;
 
@@ -30,7 +30,7 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PosVel, tobas_command_msgs::msg::
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.header = src.header;
-    dst.level = src.level;
+    dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.pos, dst.pos);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.vel, dst.vel);
   }
@@ -38,7 +38,7 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PosVel, tobas_command_msgs::msg::
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.header = src.header;
-    dst.level = src.level;
+    dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.pos, dst.pos);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.vel, dst.vel);
   }

@@ -11,7 +11,7 @@ namespace tobas_command_msgs
 struct Rate
 {
   std_msgs::msg::Header header;
-  tobas_command_msgs::msg::CommandLevel level;
+  tobas_command_msgs::msg::Priority priority;
   kdl::Vector rate;
 
   using SharedPtr = std::shared_ptr<Rate>;
@@ -29,14 +29,14 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::Rate, tobas_command_msgs::msg::Ra
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.header = src.header;
-    dst.level = src.level;
+    dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.rate, dst.rate);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.header = src.header;
-    dst.level = src.level;
+    dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.rate, dst.rate);
   }
 };

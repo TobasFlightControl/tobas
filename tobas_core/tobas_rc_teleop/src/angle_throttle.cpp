@@ -59,7 +59,7 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AngleThrottle>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   // 姿勢とスロットルを埋める
   cmd->angle.roll = expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);

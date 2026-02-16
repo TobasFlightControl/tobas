@@ -194,20 +194,20 @@ void MulticopterMissionExecutorNode::publishCommands(
   uint8_t cmd_priority;
   switch (mission_priority_) {
     case tobas_mission_msgs::msg::Priority::NORMAL:
-      cmd_priority = tobas_command_msgs::msg::CommandLevel::NORMAL;
+      cmd_priority = tobas_command_msgs::msg::Priority::NORMAL;
       break;
     case tobas_mission_msgs::msg::Priority::DEFENSIVE:
-      cmd_priority = tobas_command_msgs::msg::CommandLevel::DEFENSIVE;
+      cmd_priority = tobas_command_msgs::msg::Priority::DEFENSIVE;
       break;
     default:
-      TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Invalid mission priority: ", (int)mission_priority_);
+      TOBAS_ERROR("Invalid mission priority: ", (int)mission_priority_);
       return;
   }
 
   {
     auto cmd = std::make_unique<tobas_command_msgs::Angle>();
     cmd->header.stamp = stamp;
-    cmd->level.data = cmd_priority;
+    cmd->priority.data = cmd_priority;
     cmd->angle.roll = roll;
     cmd->angle.pitch = pitch;
     cmd->angle.yaw = yaw;
@@ -217,7 +217,7 @@ void MulticopterMissionExecutorNode::publishCommands(
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
     cmd->header.stamp = stamp;
-    cmd->level.data = cmd_priority;
+    cmd->priority.data = cmd_priority;
     cmd->pos = pos;
     cmd->vel = vel;
     pos_vel_pub_->publish(std::move(cmd));
@@ -226,7 +226,7 @@ void MulticopterMissionExecutorNode::publishCommands(
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
     cmd->header.stamp = stamp;
-    cmd->level.data = cmd_priority;
+    cmd->priority.data = cmd_priority;
     cmd->pos = pos;
     cmd->vel = vel;
     cmd->yaw = yaw;
@@ -236,7 +236,7 @@ void MulticopterMissionExecutorNode::publishCommands(
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
     cmd->header.stamp = stamp;
-    cmd->level.data = cmd_priority;
+    cmd->priority.data = cmd_priority;
     cmd->pos = pos;
     cmd->vel = vel;
     cmd->pitch = pitch;

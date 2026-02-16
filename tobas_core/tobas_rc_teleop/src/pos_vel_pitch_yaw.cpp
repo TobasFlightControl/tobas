@@ -94,7 +94,7 @@ void PosVelPitchYawController::update(const tobas_msgs::RCInput& rcin, const tob
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
   cmd->pitch = tar_pitch_;

@@ -88,7 +88,7 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->accel = tar_acc_W;
   cmd->pitch = tar_pitch_;
   cmd->yaw = tar_yaw_;

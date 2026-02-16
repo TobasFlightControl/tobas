@@ -48,7 +48,7 @@ void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const
 {
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottleVector>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   if (rcin.sub_mode) {  // 並進モード
     cmd->rate.y(0.);
