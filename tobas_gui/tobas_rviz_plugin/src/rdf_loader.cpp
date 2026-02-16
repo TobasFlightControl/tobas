@@ -30,7 +30,7 @@ RDFLoader::RDFLoader(
   double default_timeout)
   : ros_name_(ros_name)
 {
-  auto start = node->now();
+  const auto start = node->now();
 
   urdf_string_ = urdf_ssp_.loadInitialValue(
     node,
@@ -64,13 +64,13 @@ RDFLoader::RDFLoader(const std::string& urdf_string, const std::string& srdf_str
 
 bool RDFLoader::loadFromStrings()
 {
-  std::unique_ptr<urdf::Model> urdf = std::make_unique<urdf::Model>();
+  auto urdf = std::make_unique<urdf::Model>();
   if (!urdf->initString(urdf_string_)) {
     RCLCPP_INFO(getLogger(), "Unable to parse URDF");
     return false;
   }
 
-  srdf::ModelSharedPtr srdf = std::make_shared<srdf::Model>();
+  auto srdf = std::make_shared<srdf::Model>();
   if (!srdf->initString(*urdf, srdf_string_)) {
     RCLCPP_ERROR(getLogger(), "Unable to parse SRDF");
     return false;
@@ -83,7 +83,7 @@ bool RDFLoader::loadFromStrings()
 
 bool RDFLoader::isXacroFile(const std::string& path)
 {
-  std::string lower_path = path;
+  auto lower_path = path;
   std::transform(lower_path.begin(), lower_path.end(), lower_path.begin(), ::tolower);
 
   return lower_path.find(".xacro") != std::string::npos;
@@ -134,16 +134,12 @@ bool RDFLoader::loadXacroFileToString(
   }
 
   std::string cmd = "ros2 run xacro xacro ";
-  for (const std::string& xacro_arg : xacro_args) {
+  for (const auto& xacro_arg : xacro_args) {
     cmd += xacro_arg + " ";
   }
   cmd += path;
 
-#ifdef _WIN32
-  FILE* pipe = _popen(cmd.c_str(), "r");
-#else
-  FILE* pipe = popen(cmd.c_str(), "r");
-#endif
+  auto pipe = popen(cmd.c_str(), "r");
   if (!pipe) {
     RCLCPP_ERROR(getLogger(), "Unable to load path");
     return false;
@@ -155,11 +151,7 @@ bool RDFLoader::loadXacroFileToString(
       buffer += pipe_buffer;
     }
   }
-#ifdef _WIN32
-  _pclose(pipe);
-#else
   pclose(pipe);
-#endif
 
   return true;
 }
