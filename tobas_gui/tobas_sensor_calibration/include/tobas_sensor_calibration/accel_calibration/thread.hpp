@@ -17,7 +17,7 @@ class AccelCalibrationThread : public QThread
   using super = QThread;
 
   static constexpr size_t kDataCount = 200;
-  static constexpr double kCollectDataTimeout = 10.;  // [s]
+  static constexpr auto kCollectDataTimeout = std::chrono::seconds(10);
   static constexpr double kAccelBiasNormThresh = 1.;  // [m/s^2] ISM330DLCで最大 85mg (= 0.83m/s^2) のオフセット
 
 Q_SIGNALS:

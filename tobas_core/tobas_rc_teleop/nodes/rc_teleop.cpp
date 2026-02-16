@@ -35,8 +35,8 @@ namespace tobas_rc_teleop
 class RCTeleopNode : public tobas::BaseNode
 {
   static constexpr double kArmThrotThresh = 0.04;  // 帯域 [-1, 1] の 2%
-  static constexpr double kArmDuration = 1.;       // [s]
-  static constexpr double kDisarmDuration = 1.;    // [s]
+  static constexpr auto kArmDuration = 1s;
+  static constexpr auto kDisarmDuration = 1s;
 
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kWarnPeriod = 1.;            // [s]
@@ -377,7 +377,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
         rcin->yaw < tobas::kRcInputMin + kArmThrotThresh && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {
         // アームコマンドが一定時間維持されていれば一度アームをリクエスト
-        if ((rcin->header.stamp - t_arm_start_).seconds() > kArmDuration) {
+        if (rcin->header.stamp - t_arm_start_ > kArmDuration) {
           TOBAS_INFO("Arming rotors...");
           requestArmingRotors(true);
           t_arm_start_ = rcin->header.stamp;
@@ -477,7 +477,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
           rcin->yaw > tobas::kRcInputMax - kArmThrotThresh) {
           TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
-          if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisarmDuration) {  // 一定時間維持されていればリクエスト
+          if (rcin->header.stamp - t_disarm_start_ > kDisarmDuration) {  // 一定時間維持されていればリクエスト
             TOBAS_INFO("Disarming rotors...");
             requestArmingRotors(false);
             t_disarm_start_ = rcin->header.stamp;
