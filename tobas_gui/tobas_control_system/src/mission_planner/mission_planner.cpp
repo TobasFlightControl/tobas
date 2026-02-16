@@ -498,7 +498,7 @@ void MissionPlannerWidget::onExecuteButtonClicked()
   opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& fb)
   { Q_EMIT feedbackReceived(fb->current_index); };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
-  { Q_EMIT resultReceived(res.code, res.result->message.c_str()); };
+  { Q_EMIT resultReceived(res.code, QString::fromStdString(res.result->error_message)); };
   mission_ac_->async_send_goal(goal, opts);
 
   spinner_.start();

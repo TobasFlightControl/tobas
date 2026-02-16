@@ -42,9 +42,12 @@ class MulticopterMissionExecutorNode : public BaseNode
   using super = BaseNode;
 
   using Action = tobas_mission_msgs::action::ExecuteMission;
-  using GoalHandlePtr = std::shared_ptr<rclcpp_action::ServerGoalHandle<Action>>;
-  using GoalPtr = Action::Goal::ConstSharedPtr;
-  using ResultPtr = Action::Result::SharedPtr;
+  using Goal = Action::Goal;
+  using GoalPtr = Goal::ConstSharedPtr;
+  using Result = Action::Result;
+  using ResultPtr = Result::SharedPtr;
+  using GoalHandle = rclcpp_action::ServerGoalHandle<Action>;
+  using GoalHandlePtr = std::shared_ptr<GoalHandle>;
 
   static constexpr double kCommandRate = 100.;         // [Hz]
   static constexpr double kAttitudeRate = M_PI / 6;    // [rad/s]
@@ -85,8 +88,8 @@ private:
   enum Status
   {
     kNoProblem,
-    kOverrided,
-    kManualInterruption,
+    kMissionSuperseded,
+    kManualOverride,
   } status_ = kNoProblem;
 
   tobas_msgs::Odometry::ConstSharedPtr odom_;
@@ -248,16 +251,19 @@ bool MulticopterMissionExecutorNode::checkCurrentStatus(const GoalHandlePtr& gh,
   switch (status_) {
     case kNoProblem:
       return true;
-    case kOverrided:
-      res->message = "The mission currently in progress has been overwritten by another mission.";
+    case kMissionSuperseded:
+      res->error_code = Result::MISSION_SUPERSEDED;
+      res->error_message = "The mission was superseded by a new mission.";
       gh->abort(res);
       return false;
-    case kManualInterruption:
-      res->message = "The mission has been interrupted because manual control has been enabled.";
+    case kManualOverride:
+      res->error_code = Result::MANUAL_OVERRIDE;
+      res->error_message = "Autopilot was overridden by manual control";
       gh->abort(res);
       return false;
     default:
-      res->message = "Invalid status: " + std::to_string((int)status_);
+      res->error_code = Result::OTHER_ERROR;
+      res->error_message = "Invalid status: " + std::to_string((int)status_);
       gh->abort(res);
       return false;
   }
@@ -267,14 +273,16 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 {
   // Verify that GNSS is fixed
   if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
-    res->message = "GNSS is lost.";
+    res->error_code = Result::OTHER_ERROR;
+    res->error_message = "GNSS is lost.";
     gh->abort(res);
     return false;
   }
 
   // Verify that the vehicle is armed
   if (!arming_->data) {
-    res->message = "The vehicle is disarmed.";
+    res->error_code = Result::OTHER_ERROR;
+    res->error_message = "The vehicle is disarmed.";
     gh->abort(res);
     return false;
   }
@@ -345,7 +353,8 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
     // タイムアウトの確認
     if (goal.timeout > 0. && t > duration + goal.timeout) {
-      res->message = "Timeout before reaching the goal position.";
+      res->error_code = Result::ACCEPTANCE_TIMEOUT;
+      res->error_message = "Timed out before reaching the waypoint acceptance radius.";
       gh->abort(res);
       return false;
     }
@@ -400,7 +409,8 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 {
   // Arm rotors
   if (!armRotors(true)) {
-    res->message = "Failed to arm rotors.";
+    res->error_code = Result::OTHER_ERROR;
+    res->error_message = "Failed to arm rotors.";
     gh->abort(res);
     return false;
   }
@@ -443,7 +453,8 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
     // タイムアウトの確認
     if (goal.timeout > 0. && dt > duration + goal.timeout) {
-      res->message = "Timeout before reaching the target altitude.";
+      res->error_code = Result::ACCEPTANCE_TIMEOUT;
+      res->error_message = "Timed out before reaching the takeoff altitude tolerance.";
       gh->abort(res);
       return false;
     }
@@ -521,7 +532,8 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     if (landed_->data) {
       TOBAS_INFO("Landing detected. Stopping motors.");
       if (!armRotors(false)) {
-        res->message = "Failed to disarm rotors.";
+        res->error_code = Result::OTHER_ERROR;
+        res->error_message = "Failed to disarm rotors.";
         gh->abort(res);
         return false;
       }
@@ -563,7 +575,8 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   // cf. [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
 
   if (!launch_point_) {
-    res->message = "Launch point is not set.";
+    res->error_code = Result::OTHER_ERROR;
+    res->error_message = "Launch point is not set.";
     gh->abort(res);
     return false;
   }
@@ -671,7 +684,7 @@ void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstS
   is_manual_ctrl_enabled_ = (rcin->ok && rcin->enable);
 
   if (is_executing_ && is_manual_ctrl_enabled_) {
-    status_ = kManualInterruption;
+    status_ = kManualOverride;
   }
 }
 
@@ -770,7 +783,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
   // 古いミッションが実行中なら中断要求
   if (is_executing_) {
-    status_ = kOverrided;
+    status_ = kMissionSuperseded;
   }
 
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -802,7 +815,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
   last_setpoint_.reset();
 
   // Create result
-  const auto res = std::make_shared<Action::Result>();
+  const auto res = std::make_shared<Result>();
 
   // Get goal
   const auto goal = gh->get_goal();
@@ -854,7 +867,8 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       default: {
-        res->message = "Invalid mission type: " + std::to_string(idx);
+        res->error_code = Result::OTHER_ERROR;
+        res->error_message = "Invalid mission type: " + std::to_string(idx);
         gh->abort(res);
         is_executing_ = false;
         return;
@@ -862,7 +876,8 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
     }
   }
 
-  res->message.clear();
+  res->error_code = Result::NO_ERROR;
+  res->error_message.clear();
   gh->succeed(res);
   is_executing_ = false;
 }

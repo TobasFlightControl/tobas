@@ -96,19 +96,26 @@ void FailsafeExecutorNode::startRTL()
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        TOBAS_ERROR("RTL mission was aborted: ", res.result->message);
-        disarm();
+        switch (res.result->error_code) {
+          case Action::Result::NO_ERROR:
+          case Action::Result::MISSION_SUPERSEDED:
+          case Action::Result::MANUAL_OVERRIDE:
+            break;
+          default:
+            TOBAS_ERROR("RTL mission was aborted: ", res.result->error_message);
+            startLand();
+            break;
+        }
         break;
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
-        disarm();
+        startLand();
         break;
     }
   };
 
   mission_ac_->async_send_goal(goal, opts);
-
-  state_ = kLand;
+  state_ = kReturnToLaunch;
 }
 
 void FailsafeExecutorNode::startLand()
@@ -138,8 +145,16 @@ void FailsafeExecutorNode::startLand()
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        TOBAS_ERROR("Land ission was aborted: ", res.result->message);
-        disarm();
+        switch (res.result->error_code) {
+          case Action::Result::NO_ERROR:
+          case Action::Result::MISSION_SUPERSEDED:
+          case Action::Result::MANUAL_OVERRIDE:
+            break;
+          default:
+            TOBAS_ERROR("Land mission was aborted: ", res.result->error_message);
+            disarm();
+            break;
+        }
         break;
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
@@ -149,7 +164,6 @@ void FailsafeExecutorNode::startLand()
   };
 
   mission_ac_->async_send_goal(goal, opts);
-
   state_ = kLand;
 }
 
@@ -187,7 +201,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     case kReturnToLaunch: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
       if (is_manual_ctrl_enabled_) {
-        TOBAS_WARN("Canceling RTL because the manual mode is enabled.");
+        TOBAS_INFO("Fail-safe is canceled because the manual control is enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
@@ -205,7 +219,7 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     case kLand: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
       if (is_manual_ctrl_enabled_) {
-        TOBAS_WARN("Canceling the land action because the manual mode is enabled.");
+        TOBAS_INFO("Fail-safe is canceled because the manual control is enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;

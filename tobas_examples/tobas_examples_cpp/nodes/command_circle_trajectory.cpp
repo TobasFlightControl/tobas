@@ -42,7 +42,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   // アクションの成否を確認
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result.result->message);
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result.result->error_message);
     return false;
   }
 
@@ -75,7 +75,7 @@ bool land(rclcpp::Node::SharedPtr node)
   // アクションの成否を確認
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result.result->message);
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result.result->error_message);
     return false;
   }
 
