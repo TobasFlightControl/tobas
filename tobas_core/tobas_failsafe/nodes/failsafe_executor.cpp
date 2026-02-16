@@ -77,8 +77,8 @@ void FailsafeExecutorNode::startRTL()
   mission_item.data = tbs::toBytes(rtl);
 
   Action::Goal goal;
-  goal.mission.header.stamp = now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
+  goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
@@ -96,10 +96,10 @@ void FailsafeExecutorNode::startRTL()
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        switch (res.result->error_code) {
-          case Action::Result::NO_ERROR:
-          case Action::Result::MISSION_SUPERSEDED:
-          case Action::Result::MANUAL_OVERRIDE:
+        switch (res.result->error_code.data) {
+          case tobas_mission_msgs::msg::ErrorCode::NO_ERROR:
+          case tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED:
+          case tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE:
             break;
           default:
             TOBAS_ERROR("RTL mission was aborted: ", res.result->error_message);
@@ -126,8 +126,8 @@ void FailsafeExecutorNode::startLand()
   mission_item.data = tbs::toBytes(land);
 
   Action::Goal goal;
-  goal.mission.header.stamp = now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
+  goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
@@ -145,10 +145,10 @@ void FailsafeExecutorNode::startLand()
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        switch (res.result->error_code) {
-          case Action::Result::NO_ERROR:
-          case Action::Result::MISSION_SUPERSEDED:
-          case Action::Result::MANUAL_OVERRIDE:
+        switch (res.result->error_code.data) {
+          case tobas_mission_msgs::msg::ErrorCode::NO_ERROR:
+          case tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED:
+          case tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE:
             break;
           default:
             TOBAS_ERROR("Land mission was aborted: ", res.result->error_message);

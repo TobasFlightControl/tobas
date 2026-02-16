@@ -1,16 +1,11 @@
 # Goal
-tobas_mission_msgs/Mission mission
+tobas_mission_msgs/MissionItem[] items
+tobas_mission_msgs/Priority priority
 
 ---
 
 # Result
-int8 error_code
-int8 NO_ERROR = 0
-int8 MISSION_SUPERSEDED = -1
-int8 MANUAL_OVERRIDE = -2
-int8 ACCEPTANCE_TIMEOUT = -3
-int8 OTHER_ERROR = -4
-
+tobas_mission_msgs/ErrorCode error_code
 string error_message
 
 ---

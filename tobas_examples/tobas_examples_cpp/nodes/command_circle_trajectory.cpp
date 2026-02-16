@@ -30,8 +30,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   mission_item.data = tbs::toBytes(takeoff);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
-  goal.mission.header.stamp = node->now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {
@@ -63,8 +62,7 @@ bool land(rclcpp::Node::SharedPtr node)
   mission_item.data = tbs::toBytes(land);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
-  goal.mission.header.stamp = node->now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {

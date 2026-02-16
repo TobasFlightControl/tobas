@@ -232,7 +232,7 @@ BaseCommandWidget* MissionPlannerWidget::getCommandWidget(QListWidgetItem* tar_i
 MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() const
 {
   Action::Goal goal;
-  goal.mission.header.stamp = node_->now();
+  goal.priority.data = tobas_mission_msgs::msg::Priority::NORMAL;
 
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto list_item = command_list_->item(i);
@@ -320,7 +320,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
       }
     }
 
-    goal.mission.items.push_back(mission_item);
+    goal.items.push_back(mission_item);
   }
 
   return goal;

@@ -84,6 +84,7 @@ private:
 
   bool is_executing_ = false;
   bool is_manual_ctrl_enabled_ = false;
+  uint8_t mission_priority_ = tobas_mission_msgs::msg::Priority::NORMAL;
 
   enum Status
   {
@@ -122,7 +123,7 @@ private:
     const kdl::Vector& vel,
     double roll,
     double pitch,
-    double yaw) const;
+    double yaw);
   bool armRotors(bool arming);
   bool checkCurrentStatus(const GoalHandlePtr& gh, const ResultPtr& res);
 
@@ -187,11 +188,26 @@ void MulticopterMissionExecutorNode::publishCommands(
   const kdl::Vector& vel,
   double roll,
   double pitch,
-  double yaw) const
+  double yaw)
 {
+  // ミッション優先度に応じてコマンド優先度を設定
+  uint8_t cmd_priority;
+  switch (mission_priority_) {
+    case tobas_mission_msgs::msg::Priority::NORMAL:
+      cmd_priority = tobas_command_msgs::msg::CommandLevel::NORMAL;
+      break;
+    case tobas_mission_msgs::msg::Priority::DEFENSIVE:
+      cmd_priority = tobas_command_msgs::msg::CommandLevel::DEFENSIVE;
+      break;
+    default:
+      TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Invalid mission priority: ", (int)mission_priority_);
+      return;
+  }
+
   {
     auto cmd = std::make_unique<tobas_command_msgs::Angle>();
     cmd->header.stamp = stamp;
+    cmd->level.data = cmd_priority;
     cmd->angle.roll = roll;
     cmd->angle.pitch = pitch;
     cmd->angle.yaw = yaw;
@@ -201,6 +217,7 @@ void MulticopterMissionExecutorNode::publishCommands(
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
     cmd->header.stamp = stamp;
+    cmd->level.data = cmd_priority;
     cmd->pos = pos;
     cmd->vel = vel;
     pos_vel_pub_->publish(std::move(cmd));
@@ -209,6 +226,7 @@ void MulticopterMissionExecutorNode::publishCommands(
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
     cmd->header.stamp = stamp;
+    cmd->level.data = cmd_priority;
     cmd->pos = pos;
     cmd->vel = vel;
     cmd->yaw = yaw;
@@ -218,6 +236,7 @@ void MulticopterMissionExecutorNode::publishCommands(
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
     cmd->header.stamp = stamp;
+    cmd->level.data = cmd_priority;
     cmd->pos = pos;
     cmd->vel = vel;
     cmd->pitch = pitch;
@@ -252,17 +271,17 @@ bool MulticopterMissionExecutorNode::checkCurrentStatus(const GoalHandlePtr& gh,
     case kNoProblem:
       return true;
     case kMissionSuperseded:
-      res->error_code = Result::MISSION_SUPERSEDED;
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED;
       res->error_message = "The mission was superseded by a new mission.";
       gh->abort(res);
       return false;
     case kManualOverride:
-      res->error_code = Result::MANUAL_OVERRIDE;
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE;
       res->error_message = "Autopilot was overridden by manual control";
       gh->abort(res);
       return false;
     default:
-      res->error_code = Result::OTHER_ERROR;
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
       res->error_message = "Invalid status: " + std::to_string((int)status_);
       gh->abort(res);
       return false;
@@ -273,7 +292,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 {
   // Verify that GNSS is fixed
   if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
-    res->error_code = Result::OTHER_ERROR;
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "GNSS is lost.";
     gh->abort(res);
     return false;
@@ -281,7 +300,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
   // Verify that the vehicle is armed
   if (!arming_->data) {
-    res->error_code = Result::OTHER_ERROR;
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "The vehicle is disarmed.";
     gh->abort(res);
     return false;
@@ -353,7 +372,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
     // タイムアウトの確認
     if (goal.timeout > 0. && t > duration + goal.timeout) {
-      res->error_code = Result::ACCEPTANCE_TIMEOUT;
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
       res->error_message = "Timed out before reaching the waypoint acceptance radius.";
       gh->abort(res);
       return false;
@@ -409,7 +428,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 {
   // Arm rotors
   if (!armRotors(true)) {
-    res->error_code = Result::OTHER_ERROR;
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "Failed to arm rotors.";
     gh->abort(res);
     return false;
@@ -453,7 +472,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
     // タイムアウトの確認
     if (goal.timeout > 0. && dt > duration + goal.timeout) {
-      res->error_code = Result::ACCEPTANCE_TIMEOUT;
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
       res->error_message = "Timed out before reaching the takeoff altitude tolerance.";
       gh->abort(res);
       return false;
@@ -532,7 +551,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     if (landed_->data) {
       TOBAS_INFO("Landing detected. Stopping motors.");
       if (!armRotors(false)) {
-        res->error_code = Result::OTHER_ERROR;
+        res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
         res->error_message = "Failed to disarm rotors.";
         gh->abort(res);
         return false;
@@ -575,7 +594,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   // cf. [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
 
   if (!launch_point_) {
-    res->error_code = Result::OTHER_ERROR;
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "Launch point is not set.";
     gh->abort(res);
     return false;
@@ -693,6 +712,19 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 {
   TOBAS_INFO("New mission is uploaded.");
 
+  // Check mission priority
+  const auto& new_priority = goal->priority.data;
+  if (new_priority > tobas_mission_msgs::msg::Priority::DEFENSIVE) {
+    TOBAS_WARN("Invalid mission priority: ", (int)new_priority);
+    return rclcpp_action::GoalResponse::REJECT;
+  }
+  if (is_executing_) {
+    if (new_priority < mission_priority_) {
+      TOBAS_WARN("The mission cannot be executed because its priority is lower than the one currently being executed.");
+      return rclcpp_action::GoalResponse::REJECT;
+    }
+  }
+
   // Check the essential topics
   if (!odom_) {
     TOBAS_WARN("Odometry is not received yet.");
@@ -722,7 +754,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   }
 
   // Check the mission items
-  for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
+  for (const auto& [idx, item] : std::views::enumerate(goal->items)) {
     switch (item.type) {
       case kWaypoint: {
         Waypoint waypoint;
@@ -781,6 +813,9 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
     }
   }
 
+  // ミッション優先度を更新
+  mission_priority_ = new_priority;
+
   // 古いミッションが実行中なら中断要求
   if (is_executing_) {
     status_ = kMissionSuperseded;
@@ -821,7 +856,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
   const auto goal = gh->get_goal();
 
   // Execute mission
-  for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
+  for (const auto& [idx, item] : std::views::enumerate(goal->items)) {
     TOBAS_INFO("Start mission No. ", idx);
 
     // Publish the current mission #
@@ -867,7 +902,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
         break;
       }
       default: {
-        res->error_code = Result::OTHER_ERROR;
+        res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
         res->error_message = "Invalid mission type: " + std::to_string(idx);
         gh->abort(res);
         is_executing_ = false;
@@ -876,7 +911,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
     }
   }
 
-  res->error_code = Result::NO_ERROR;
+  res->error_code.data = tobas_mission_msgs::msg::ErrorCode::NO_ERROR;
   res->error_message.clear();
   gh->succeed(res);
   is_executing_ = false;
