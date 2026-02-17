@@ -12,14 +12,9 @@ Rectangle {
     id: mapPlugin
     name: "osm"  // itemsoverlay, mapbox, here, esri, osm
 
-    // Tile Server / Tile Sources: https://www.trailnotes.org/FetchMap/TileServeSource.html
-    PluginParameter {  // タイルサーバを指定
+    PluginParameter {
       name: "osm.mapping.custom.host"
-      value: "http://127.0.0.1:8080/tiles/"  // Local server
-      // value: "https://tile.openstreetmap.org/"  // Open Street Map: https://www.openstreetmap.org
-      // value: "https://cyberjapandata.gsi.go.jp/xyz/std/"  // 標準地図 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
-      // value: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/"  // 写真 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
-      // value: "https://c.tile.opentopomap.org/"  // OpenTopoMap: https://github.com/der-stefan/OpenTopoMap
+      value: "http://127.0.0.1:8080/tiles/"  // ローカルサーバを指定
     }
     PluginParameter {
       name: "osm.mapping.cache.directory"
