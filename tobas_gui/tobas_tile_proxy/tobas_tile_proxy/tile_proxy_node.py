@@ -68,7 +68,7 @@ def main(args=None) -> None:
     parser.add_argument(
         "--upstream",
         type=str,
-        default="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png",
+        default="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
     )
     parser.add_argument("--timeout", type=float, default=5.0)
     args, _ = parser.parse_known_args(args)

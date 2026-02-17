@@ -79,11 +79,11 @@ Rectangle {
     anchors.fill: parent
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
-    maximumZoomLevel: 20 // タイルサーバに合わせて調整する
-    minimumZoomLevel: 0
+    maximumZoomLevel: 22 // タイルサーバに合わせて調整する (大きすぎるのは問題ない)
+    minimumZoomLevel: 0 // 最小
     objectName: "map" // Qt側からアクセスするためのオブジェクト名
     plugin: mapPlugin
-    zoomLevel: 0 // 最小
+    zoomLevel: 0
 
     Component.onCompleted: {
       requested_zoom = zoomLevel;
@@ -99,7 +99,7 @@ Rectangle {
         const anchor = map.toCoordinate(p); // カーソル位置 (地理座標)
         const dz = (e.angleDelta.y / 120.0) * 0.5; // ズーム値の変化量
         requested_zoom = clamp(requested_zoom + dz, map.minimumZoomLevel, Constants.maximumZoomLevel); // ズーム値の目標値を更新
-        // console.log("Zoom Level:", requested_zoom);
+        console.log("Zoom Level:", requested_zoom);
         updateZoom(); // ズームとスケールを更新
         map.alignCoordinateToPoint(anchor, p); // 元々の地理座標を新しいカーソル位置に合わせる
         e.accepted = true;
