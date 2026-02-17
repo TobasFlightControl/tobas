@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+from os import environ as env
 
 import httpx
 import uvicorn
@@ -16,7 +16,7 @@ _client: httpx.AsyncClient | None = None
 async def _startup():
     global _client
 
-    timeout = float(os.environ.get("TILE_PROXY_TIMEOUT", "5.0"))
+    timeout = float(env.get("TILE_PROXY_TIMEOUT", "5.0"))
 
     _client = httpx.AsyncClient(
         headers={"User-Agent": "Tobas (QtLocation tile proxy)"},  # User-Agent が空だとレート制限が入る場合がある
@@ -39,7 +39,7 @@ async def healthz():
     return Response(content=b"ok\n", media_type="text/plain; charset=utf-8")
 
 
-@app.get("tiles/{z:int}/{x:int}/{y:int}.png")
+@app.get("/tiles/{z:int}/{x:int}/{y:int}.png")
 async def tiles(z: int, x: int, y: int):
     if _client is None:
         raise HTTPException(status_code=500, detail="HTTP client not initialized")
@@ -54,8 +54,8 @@ async def tiles(z: int, x: int, y: int):
 
 
 def main(args=None) -> None:
-    host = os.environ.get("TILE_PROXY_HOST", "127.0.0.1")
-    port = int(os.environ.get("TILE_PROXY_PORT", "8080"))
+    host = env.get("TILE_PROXY_HOST", "127.0.0.1")
+    port = int(env.get("TILE_PROXY_PORT", "8080"))
     uvicorn.run(app, host=host, port=port, reload=False)
 
 
