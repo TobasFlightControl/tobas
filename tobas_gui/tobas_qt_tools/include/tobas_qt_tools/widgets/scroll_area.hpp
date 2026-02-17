@@ -18,6 +18,10 @@ class ScrollArea : public QScrollArea
 public:
   explicit ScrollArea(QWidget* parent = nullptr);
 
+  /* ウィジェットの中にレイアウトをセットする． */
   void setLayout(QLayout* layout);
+
+  /* 背景を透明化する． */
+  void setBackgroundTransparent();
 };
 }  // namespace qt

@@ -6,7 +6,7 @@
 #include <QTimer>
 
 #include <tobas_qt_tools/font.hpp>
-#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace gui
 {
@@ -27,11 +27,17 @@ BaseCommandWidget::BaseCommandWidget()
   header_cols->addStretch();
 
   delete_button_ = new QPushButton("Delete");
+  delete_button_->setStyleSheet("background-color: red");
   header_cols->addWidget(delete_button_);
   connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
 
-  const auto field_rows = qt::createScrollableQVBoxLayout(root_rows);
-  root_rows->addLayout(field_rows);
+  const auto scroll_area = new qt::ScrollArea();
+  root_rows->addWidget(scroll_area);
+
+  const auto field_rows = new QVBoxLayout();
+  scroll_area->setLayout(field_rows);
+
+  scroll_area->setBackgroundTransparent();
 
   form_ = new qt::FormLayout();
   field_rows->addLayout(form_);
