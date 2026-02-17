@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cmath>
+
 #include <QColor>
 #include <QTimer>
 #include <QWidget>
-#include <cmath>
 
 namespace qt
 {

@@ -1,3 +1,7 @@
+"""
+外部のタイルサーバを QML の OSM プラグインの形式 (.../{z}/{x}/{y}.png) で提供するウェブサーバ．
+"""
+
 from __future__ import annotations
 
 from os import environ as env
@@ -56,7 +60,7 @@ async def tiles(z: int, x: int, y: int):
 def main(args=None) -> None:
     host = env.get("TILE_PROXY_HOST", "127.0.0.1")
     port = int(env.get("TILE_PROXY_PORT", "8080"))
-    uvicorn.run(app, host=host, port=port, reload=False)
+    uvicorn.run(app, host=host, port=port, reload=False, log_level="warning")
 
 
 if __name__ == "__main__":
