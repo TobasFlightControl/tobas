@@ -1,5 +1,6 @@
 #include "tobas_control_system/mission_planner/commands/base.hpp"
 
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QStackedWidget>
 #include <QTimer>
@@ -13,24 +14,29 @@ namespace ctrl
 {
 BaseCommandWidget::BaseCommandWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto root_rows = new QVBoxLayout();
+  setLayout(root_rows);
+
+  const auto header_cols = new QHBoxLayout();
+  root_rows->addLayout(header_cols);
 
   label_ = new QLabel();
   label_->setFont(qt::DefaultFont(kLablePSize, QFont::Bold));
-  qt::addWidgetCenter(label_, rows);
+  header_cols->addWidget(label_);
 
-  rows->addSpacing(30);
+  header_cols->addStretch();
+
+  delete_button_ = new QPushButton("Delete");
+  header_cols->addWidget(delete_button_);
+  connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
+
+  const auto field_rows = qt::createScrollableQVBoxLayout(root_rows);
+  root_rows->addLayout(field_rows);
 
   form_ = new qt::FormLayout();
-  rows->addLayout(form_);
+  field_rows->addLayout(form_);
 
-  rows->addStretch(1);
-
-  delete_button_ = new QPushButton("Delete Command");
-  delete_button_->setStyleSheet("background-color: red");
-  connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
-  qt::addWidgetCenter(delete_button_, rows);
+  field_rows->addStretch(1);  // フォームウィジェットを最小化
 
   // 純粋仮想関数を基底クラスのコンストラクタで呼ぶことはできないため，タイマーコールバックを使用．
   QTimer::singleShot(0, this, &self::initialize);
