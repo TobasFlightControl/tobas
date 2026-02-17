@@ -1,6 +1,7 @@
 *.pyc
 *.deb
 *.ui.autosave
+*.qml~
 build/
 log/
 __pycache__/
