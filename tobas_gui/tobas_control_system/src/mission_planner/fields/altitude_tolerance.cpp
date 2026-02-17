@@ -23,7 +23,7 @@ AltitudeToleranceWidget::AltitudeToleranceWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* AltitudeToleranceWidget::label() const
@@ -31,7 +31,7 @@ const char* AltitudeToleranceWidget::label() const
   return "Altitude Tolerance";
 }
 
-double AltitudeToleranceWidget::value() const
+double AltitudeToleranceWidget::getValue() const
 {
   return spin_box_->value();
 }

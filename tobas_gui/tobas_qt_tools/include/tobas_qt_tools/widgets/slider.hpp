@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== QSliderとの違い =====
+ * ===== QSlider との違い =====
  * - マウスホイールイベントを無効化
  */
 class Slider : public QSlider

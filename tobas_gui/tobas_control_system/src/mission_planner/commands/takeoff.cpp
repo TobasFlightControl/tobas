@@ -15,9 +15,9 @@ TakeoffWidget::TakeoffWidget()
 
   addField(altitude_);
   addField(altitude_frame_);
-  addField(max_speed_);
-  addField(max_accel_);
-  addField(max_jerk_);
+  addField(max_speed_, true);
+  addField(max_accel_, true);
+  addField(max_jerk_, true);
   addField(altitude_tolerance_);
 }
 
@@ -28,32 +28,32 @@ const char* TakeoffWidget::name() const
 
 double TakeoffWidget::altitude() const
 {
-  return altitude_->value();
+  return getValue(altitude_);
 }
 
 tobas::mission::AltitudeFrame TakeoffWidget::altitudeFrame() const
 {
-  return altitude_frame_->value();
+  return getValue(altitude_frame_);
 }
 
 double TakeoffWidget::maxSpeed() const
 {
-  return max_speed_->value();
+  return getValue(max_speed_);
 }
 
 double TakeoffWidget::maxAccel() const
 {
-  return max_accel_->value();
+  return getValue(max_accel_);
 }
 
 double TakeoffWidget::maxJerk() const
 {
-  return max_jerk_->value();
+  return getValue(max_jerk_);
 }
 
 double TakeoffWidget::altitudeTolerance() const
 {
-  return altitude_tolerance_->value();
+  return getValue(altitude_tolerance_);
 }
 
 void TakeoffWidget::altitude(double value)

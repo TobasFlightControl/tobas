@@ -12,14 +12,16 @@ RtlMinAltitudeWidget::RtlMinAltitudeWidget()
 {
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
-  spin_box_->setValue(15.);  // https://ardupilot.org/copter/docs/rtl-mode.html
+  spin_box_->setMinimum(0.);
+  spin_box_->setMaximum(150.);  // 日本の飛行禁止空域
+  spin_box_->setValue(15.);     // https://ardupilot.org/copter/docs/rtl-mode.html
   spin_box_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* RtlMinAltitudeWidget::label() const
@@ -27,7 +29,7 @@ const char* RtlMinAltitudeWidget::label() const
   return "Minimum Altitude (wrt. Home)";
 }
 
-double RtlMinAltitudeWidget::value() const
+double RtlMinAltitudeWidget::getValue() const
 {
   return spin_box_->value();
 }

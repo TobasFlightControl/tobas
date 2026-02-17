@@ -48,7 +48,7 @@ void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottle>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->rate.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
   cmd->rate.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
   cmd->rate.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));

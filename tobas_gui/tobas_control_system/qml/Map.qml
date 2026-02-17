@@ -7,18 +7,52 @@ import "./map_constants.js" as Constants
 Rectangle {
   id: rectangle
 
+  property real requested_zoom: 0 // ユーザが要求しているズーム（上限超えOK）
+  property real visual_scale: 1.0 // overzoom分の見た目スケール
+
+  // 関数呼び出し用シグナル
+  signal setArrowPosition(double latitude, double longitude)
+  signal setArrowRotation(double angle)
+  signal setMapCenter(double latitude, double longitude)
+
+  // イベント通知用シグナル
+  signal waypointMoved(int index, double latitude, double longitude)
+
+  function clamp(v, lb, ub) {
+    return Math.min(ub, Math.max(lb, v));
+  }
+  function onSetArrowPosition(latitude, longitude) {
+    arrow.coordinate = QtPositioning.coordinate(latitude, longitude);
+  }
+  function onSetArrowRotation(angle) {
+    arrowRotation.angle = angle; // ユニークなIDを直接参照する
+  }
+  function onSetMapCenter(latitude, longitude) {
+    map.center = QtPositioning.coordinate(latitude, longitude);
+  }
+  function updateZoom() {
+    var base_z = Math.min(requested_zoom, map.maximumZoomLevel);
+    map.zoomLevel = base_z;
+    var extra = Math.max(0, requested_zoom - base_z); // 上限超え分
+    visual_scale = Math.pow(2, extra);
+    map.scale = visual_scale;
+  }
+
+  Component.onCompleted: {
+    console.log("Available map service providers:", mapPlugin.availableServiceProviders);
+    setMapCenter.connect(onSetMapCenter);
+    setArrowPosition.connect(onSetArrowPosition);
+    setArrowRotation.connect(onSetArrowRotation);
+  }
+
   // Qt Location Open Street Map Plugin: https://doc.qt.io/archives/qt-5.15/location-plugin-osm.html
   Plugin {
     id: mapPlugin
-    name: "osm"  // itemsoverlay, mapbox, here, esri, osm
+    name: "osm" // itemsoverlay, mapbox, here, esri, osm
 
-    // Tile Server / Tile Sources: https://www.trailnotes.org/FetchMap/TileServeSource.html
-    PluginParameter {  // タイルサーバを指定
+    PluginParameter {
       name: "osm.mapping.custom.host"
-      value: "https://tile.openstreetmap.org/"  // Open Street Map: https://www.openstreetmap.org
-      // value: "https://cyberjapandata.gsi.go.jp/xyz/std/"  // 標準地図 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
-      // value: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/"  // 写真 | 国土地理院: https://maps.gsi.go.jp/development/ichiran.html
-      // value: "https://c.tile.opentopomap.org/"  // OpenTopoMap: https://github.com/der-stefan/OpenTopoMap
+      value: "http://127.0.0.1:8080/tiles/" // ローカルサーバを指定
     }
     PluginParameter {
       name: "osm.mapping.cache.directory"
@@ -34,38 +68,68 @@ Rectangle {
     }
     PluginParameter {
       name: "osm.mapping.cache.disk.size"
-      value: 1 << 30  // 1GiB
+      value: 1 << 30 // 1GiB
     }
   }
 
   // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html
   Map {
     id: map
-    objectName: "map"  // Qt側からアクセスするためのオブジェクト名
+    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1] // タイルサーバを指定する場合に必要
     anchors.fill: parent
-    activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1]  // タイルサーバを指定する場合に必要
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
+    maximumZoomLevel: 22 // タイルサーバに合わせて調整する (大きすぎるのは問題ない)
+    minimumZoomLevel: 0 // 最小
+    objectName: "map" // Qt側からアクセスするためのオブジェクト名
     plugin: mapPlugin
-    zoomLevel: 0  // 最小
+    zoomLevel: 0
+
+    Component.onCompleted: {
+      requested_zoom = zoomLevel;
+      updateZoom();
+    }
+
+    // ホイールイベントでスケールを調整しながらズーム
+    WheelHandler {
+      target: null
+
+      onWheel: e => {
+        const p = point.position; // カーソル位置 (2次元座標)
+        const anchor = map.toCoordinate(p); // カーソル位置 (地理座標)
+        const dz = (e.angleDelta.y / 120.0) * 0.5; // ズーム値の変化量
+        requested_zoom = clamp(requested_zoom + dz, map.minimumZoomLevel, Constants.maximumZoomLevel); // ズーム値の目標値を更新
+        // console.log("Zoom Level:", requested_zoom);
+        updateZoom(); // ズームとスケールを更新
+        map.alignCoordinateToPoint(anchor, p); // 元々の地理座標を新しいカーソル位置に合わせる
+        e.accepted = true;
+      }
+    }
 
     // Arrow
     MapQuickItem {
       id: arrow
-      objectName: "arrow"
       coordinate: QtPositioning.coordinate(0, 0)
+      objectName: "arrow"
+
       sourceItem: Image {
         id: arrowImage
+        height: 30
         source: "./arrow.png" // アイコン画像の相対パス
         width: 30
-        height: 30
+
         transform: Rotation {
           id: arrowRotation
+          angle: 0 // Clock-wise [degree]
           objectName: "arrowRotation"
           origin.x: arrowImage.width / 2
           origin.y: arrowImage.height / 2
-          axis { x: 0; y: 0; z: 1 }
-          angle: 0 // Clock-wise [degree]
+
+          axis {
+            x: 0
+            y: 0
+            z: 1
+          }
         }
       }
     }
@@ -77,18 +141,18 @@ Rectangle {
       // Rectangleはdelegateに設定できないため，MapQuickItemを使う
       delegate: MapQuickItem {
         id: waypoint
-        coordinate: model.coordinate
         anchorPoint.x: circle.width / 2
         anchorPoint.y: circle.height / 2
+        coordinate: model.coordinate
 
         sourceItem: Rectangle {
           id: circle
-          width: 30
-          height: 30
-          radius: 15  // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
-          color: model.marker_color
           border.color: "black"
           border.width: 2
+          color: model.marker_color
+          height: 30
+          radius: 15 // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
+          width: 30
 
           // 親オブジェクトに対する相対座標
           x: 0
@@ -97,15 +161,16 @@ Rectangle {
           // 円の中心に番号を表示
           Text {
             anchors.centerIn: parent
-            text: model.index
             color: "black"
             font.pixelSize: 16
+            text: model.index
           }
 
           // 円をドラッグ・アンド・ドロップできるようにするための設定
           MouseArea {
             anchors.fill: parent
             drag.target: parent
+
             onReleased: {
               // ドラッグ・アンド・ドロップによって発生した，親オブジェクトに対する子オブジェクトの移動量
               let offset_x = circle.x;
@@ -122,68 +187,39 @@ Rectangle {
               // 子オブジェクトのオフセットをリセット
               circle.x = 0;
               circle.y = 0;
-
               waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
             }
           }
         }
       }
     }
-
     MapItemView {
-      model: WaypointModel  // 1つのモデルに対して複数のMapItemViewを定義できる
+      model: WaypointModel // 1つのモデルに対して複数のMapItemViewを定義できる
 
       delegate: MapCircle {
-        center: model.coordinate
-        radius: model.acceptance_radius  // [m]
-        color: "transparent"
         border.color: "yellow"
         border.width: 2
+        center: model.coordinate
+        color: "transparent"
+        radius: model.acceptance_radius // [m]
       }
     }
 
     // LineModel
     MapItemView {
       model: LineModel
+
       delegate: MapPolyline {
-        line.width: 3
         line.color: "green"
-        path: [
-        {latitude: model.latitude_1, longitude: model.longitude_1},
-        {latitude: model.latitude_2, longitude: model.longitude_2},
-        ]
+        line.width: 3
+        path: [{
+            "latitude": model.latitude_1,
+            "longitude": model.longitude_1
+          }, {
+            "latitude": model.latitude_2,
+            "longitude": model.longitude_2
+          },]
       }
     }
-  }
-
-  // イベント通知用シグナル
-  signal waypointMoved(int index, double latitude, double longitude)
-
-  // 関数呼び出し用シグナル
-  signal setMapCenter(double latitude, double longitude)
-  signal setArrowPosition(double latitude, double longitude)
-  signal setArrowRotation(double angle)
-
-  Component.onCompleted: {
-    console.log("Available map service providers:", mapPlugin.availableServiceProviders);
-
-    setMapCenter.connect(onSetMapCenter);
-    setArrowPosition.connect(onSetArrowPosition);
-    setArrowRotation.connect(onSetArrowRotation);
-  }
-
-  function onSetMapCenter(latitude, longitude)
-  {
-    map.center = QtPositioning.coordinate(latitude, longitude);
-  }
-
-  function onSetArrowPosition(latitude, longitude)
-  {
-    arrow.coordinate = QtPositioning.coordinate(latitude, longitude);
-  }
-
-  function onSetArrowRotation(angle)
-  {
-    arrowRotation.angle = angle;  // ユニークなIDを直接参照する
   }
 }

@@ -60,7 +60,7 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AngleThrottleVector>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   // コマンドのモードに依らない部分を埋める
   cmd->angle.roll = expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);

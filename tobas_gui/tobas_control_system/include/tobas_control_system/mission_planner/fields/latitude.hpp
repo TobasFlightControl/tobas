@@ -10,15 +10,15 @@ namespace ctrl
 {
 namespace field
 {
-class LatitudeWidget : public BaseField
+class LatitudeWidget : public FieldWidget<double>
 {
 public:
   explicit LatitudeWidget();
 
   const char* label() const override;
 
-  double value() const;
-  void setValue(double value);
+  double getValue() const override;
+  void setValue(double value) override;
 
 private:
   qt::DoubleSpinBox* spin_box_;

@@ -1,10 +1,12 @@
 # Goal
-tobas_mission_msgs/Mission mission
+tobas_mission_msgs/MissionItem[] items
+tobas_mission_msgs/Priority priority
 
 ---
 
 # Result
-string message
+tobas_mission_msgs/ErrorCode error_code
+string error_message
 
 ---
 

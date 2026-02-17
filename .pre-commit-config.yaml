@@ -71,6 +71,11 @@ repos:
         name: cmake-lint
         entry: cmake-lint
         language: system
-        args:
-          - "--suppress-decorations"
+        args: ["--suppress-decorations"]
         files: (CMakeLists\.txt|.*\.cmake)$
+      - id: qmlformat
+        name: qmlformat
+        entry: /usr/lib/qt6/bin/qmlformat
+        language: system
+        args: ["-i"]
+        files: \.qml$

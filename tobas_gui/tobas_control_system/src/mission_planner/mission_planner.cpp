@@ -232,7 +232,7 @@ BaseCommandWidget* MissionPlannerWidget::getCommandWidget(QListWidgetItem* tar_i
 MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() const
 {
   Action::Goal goal;
-  goal.mission.header.stamp = node_->now();
+  goal.priority.data = tobas_mission_msgs::msg::Priority::NORMAL;
 
   for (int i = 0; i < command_list_->count(); ++i) {
     const auto list_item = command_list_->item(i);
@@ -300,7 +300,6 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
 
         tobas::mission::ReturnToLaunch rtl;
         rtl.min_altitude = widget->minAltitude();
-        rtl.auto_heading = true;  // TODO
         rtl.max_horizontal_velocity = widget->maxHorizontalVelocity();
         rtl.max_vertical_velocity = widget->maxVerticalVelocity();
         rtl.max_horizontal_accel = widget->maxHorizontalAccel();
@@ -321,7 +320,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
       }
     }
 
-    goal.mission.items.push_back(mission_item);
+    goal.items.push_back(mission_item);
   }
 
   return goal;
@@ -499,7 +498,7 @@ void MissionPlannerWidget::onExecuteButtonClicked()
   opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& fb)
   { Q_EMIT feedbackReceived(fb->current_index); };
   opts.result_callback = [this](const GoalHandle::WrappedResult& res)
-  { Q_EMIT resultReceived(res.code, res.result->message.c_str()); };
+  { Q_EMIT resultReceived(res.code, QString::fromStdString(res.result->error_message)); };
   mission_ac_->async_send_goal(goal, opts);
 
   spinner_.start();
@@ -612,7 +611,7 @@ void MissionPlannerWidget::actionGoalResponseCb(bool ok)
   spinner_.stop();
 
   if (!ok) {
-    qt::qErrorBox(this, "Mission goal was rejected.");
+    qt::qErrorBox(this, "The request to execute the mission was rejected.");
     return;
   }
 
@@ -639,7 +638,7 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
       qt::qWarnBox(this, "The mission was canceled.");
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      qt::qErrorBox(this, "The mission was aborted: " + message);
+      qt::qErrorBox(this, "The mission was aborted:\n\n" + message);
       break;
     default:
       qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)code));

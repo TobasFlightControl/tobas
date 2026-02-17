@@ -8,11 +8,8 @@
 
 #include <tobas_mission_msgs/action/execute_mission.hpp>
 #include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 class FailsafeExecutorNode : public tobas::BaseNode
@@ -35,18 +32,12 @@ private:
     kLand,
   } state_ = kNoFailSafe;
 
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_msgs::RCInput::ConstSharedPtr rcin_;
-  tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
-  tobas_msgs::Gnss::ConstSharedPtr gnss_;
+  bool is_armed_ = false;
+  bool is_manual_ctrl_enabled_ = false;
 
   ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
 
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
   ros2::ActionClientPtr<Action> mission_ac_;
@@ -58,20 +49,14 @@ private:
 
   void vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
-  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };
 
 FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options) : super("failsafe_executor", options)
 {
   health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::vehicleHealthCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
-  landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
-  gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
   mission_ac_ = rclcpp_action::create_client<Action>(this, tobas::kExecuteMissionAction);
@@ -86,32 +71,20 @@ void FailsafeExecutorNode::disarm()
 
 void FailsafeExecutorNode::startRTL()
 {
-  // TODO: パラメータをSAで指定可能にする
   tobas::mission::ReturnToLaunch rtl;
-  rtl.min_altitude = 15.;
-  rtl.max_horizontal_velocity = 5.;
-  rtl.max_vertical_velocity = 1.5;
-  rtl.max_horizontal_accel = 5.;
-  rtl.max_vertical_accel = 3.;
-  rtl.max_horizontal_jerk = 4.;
-  rtl.max_vertical_jerk = 4.;
-  rtl.acceptance_radius = 0.;
-  rtl.altitude_tolerance = 0.;
-  rtl.timeout = 0.;
-
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kReturnToLaunch;
   mission_item.data = tbs::toBytes(rtl);
 
   Action::Goal goal;
-  goal.mission.header.stamp = now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
+  goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
   {
     if (!gh) {
-      TOBAS_ERROR("Mission goal was rejected by server.");
+      TOBAS_ERROR("RTL mission was rejected by server.");
       startLand();
     }
   };
@@ -119,13 +92,20 @@ void FailsafeExecutorNode::startRTL()
   {
     switch (res.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
-        startLand();  // RTLの次は必ず着陸
         break;
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        TOBAS_ERROR("Mission was aborted: ", res.result->message);
-        startLand();
+        switch (res.result->error_code.data) {
+          case tobas_mission_msgs::msg::ErrorCode::NO_ERROR:
+          case tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED:
+          case tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE:
+            break;
+          default:
+            TOBAS_ERROR("RTL mission was aborted: ", res.result->error_message);
+            startLand();
+            break;
+        }
         break;
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
@@ -135,30 +115,25 @@ void FailsafeExecutorNode::startRTL()
   };
 
   mission_ac_->async_send_goal(goal, opts);
-
   state_ = kReturnToLaunch;
 }
 
 void FailsafeExecutorNode::startLand()
 {
-  // TODO: パラメータをSAで指定可能にする
   tobas::mission::Land land;
-  land.speed = 0.7;
-  land.timeout = 0.;
-
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kLand;
   mission_item.data = tbs::toBytes(land);
 
   Action::Goal goal;
-  goal.mission.header.stamp = now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
+  goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
   opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
   {
     if (!gh) {
-      TOBAS_ERROR("Mission goal was rejected by server.");
+      TOBAS_ERROR("Land mission was rejected by server.");
       disarm();
     }
   };
@@ -170,8 +145,16 @@ void FailsafeExecutorNode::startLand()
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        TOBAS_ERROR("Mission was aborted: ", res.result->message);
-        disarm();
+        switch (res.result->error_code.data) {
+          case tobas_mission_msgs::msg::ErrorCode::NO_ERROR:
+          case tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED:
+          case tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE:
+            break;
+          default:
+            TOBAS_ERROR("Land mission was aborted: ", res.result->error_message);
+            disarm();
+            break;
+        }
         break;
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
@@ -181,7 +164,6 @@ void FailsafeExecutorNode::startLand()
   };
 
   mission_ac_->async_send_goal(goal, opts);
-
   state_ = kLand;
 }
 
@@ -190,45 +172,27 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   const auto batt_voltage_too_low = health->battery_voltage == tobas_msgs::msg::VehicleHealth::FAILED;
   const auto radio_link_lost = health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED;
 
-  // RC入力が取れてなければメッセージをリセット
-  if (radio_link_lost) {
-    rcin_.reset();
-  }
-
   // アームしていなければフェイルセーフは発動しない
-  if (!arming_ || !arming_->data) {
+  if (!is_armed_) {
     return;
   }
 
   switch (state_) {
     case kNoFailSafe: {
       // 手動操縦中はフェイルセーフは発動しない
-      if (rcin_ && rcin_->enable) {
+      if (is_manual_ctrl_enabled_) {
         break;
       }
 
       // フェイルセーフを更新
       if (batt_voltage_too_low) {
         TOBAS_WARN("Battery fail-safe is activated.");
-        if (landed_ && landed_->data) {
-          disarm();
-        }
-        else {
-          startLand();
-        }
+        startLand();
         break;
       }
       if (radio_link_lost) {
         TOBAS_WARN("Radio fail-safe is activated.");
-        if (landed_ && landed_->data) {
-          disarm();
-        }
-        else if (gnss_->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-          startRTL();
-        }
-        else {
-          startLand();
-        }
+        startRTL();
         break;
       }
 
@@ -236,8 +200,8 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     }
     case kReturnToLaunch: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
-      if (rcin_ && rcin_->enable) {
-        TOBAS_WARN("Canceling RTL because the manual mode is enabled.");
+      if (is_manual_ctrl_enabled_) {
+        TOBAS_INFO("Fail-safe is canceled because the manual control is enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
@@ -246,7 +210,6 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
       // フェイルセーフを更新
       if (batt_voltage_too_low) {
         TOBAS_WARN("Battery fail-safe is activated.");
-        mission_ac_->async_cancel_all_goals();
         startLand();
         break;
       }
@@ -255,8 +218,8 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     }
     case kLand: {
       // 手動操縦が有効になったらフェイルセーフをキャンセル
-      if (rcin_ && rcin_->enable) {
-        TOBAS_WARN("Canceling the land action because the manual mode is enabled.");
+      if (is_manual_ctrl_enabled_) {
+        TOBAS_INFO("Fail-safe is canceled because the manual control is enabled.");
         mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
@@ -272,22 +235,15 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
 
 void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  if (!arming_) {
-    arming_ = arming;
-    return;
-  }
-
-  if (arming_->data && !arming->data) {
+  if (is_armed_ && !arming->data) {
     // フェイルセーフは全てディスアームに収束するため，ディスアームされたらフェイルセーフが終了したと判定できる．
     switch (state_) {
       case kNoFailSafe:
         break;
       case kReturnToLaunch:
-        mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
       case kLand:
-        mission_ac_->async_cancel_all_goals();
         state_ = kNoFailSafe;
         break;
       default:
@@ -295,27 +251,12 @@ void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
     }
   }
 
-  arming_ = arming;
-}
-
-void FailsafeExecutorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
-{
-  odom_ = odom;
+  is_armed_ = arming->data;
 }
 
 void FailsafeExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  rcin_ = rcin;
-}
-
-void FailsafeExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
-{
-  landed_ = landed;
-}
-
-void FailsafeExecutorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
-{
-  gnss_ = gnss;
+  is_manual_ctrl_enabled_ = (rcin->ok && rcin->enable);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(FailsafeExecutorNode)

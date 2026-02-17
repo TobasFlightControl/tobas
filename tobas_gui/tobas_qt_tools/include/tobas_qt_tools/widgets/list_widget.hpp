@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== QListWidgetItemとの違い =====
+ * ===== QListWidgetItem との違い =====
  * - ドラッグアンドドロップでシグナル発行
  * - 追加メソッド
  */
@@ -41,7 +41,7 @@ protected:
 };
 
 /**
- * ===== QListWidgetItemとの違い =====
+ * ===== QListWidgetItem との違い =====
  * - UserRoleを基準に比較
  */
 class ListWidgetItem : public QListWidgetItem

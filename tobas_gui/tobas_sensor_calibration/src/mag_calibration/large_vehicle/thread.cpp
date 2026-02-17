@@ -62,7 +62,7 @@ void LargeVehicleMagCalibThread::run()
     if (cnt_ >= kDataCount) {
       break;
     }
-    if ((clock->now() - start_time).seconds() > kCollectDataTimeout) {
+    if (clock->now() - start_time > kCollectDataTimeout) {
       Q_EMIT finished(false, "Timeout before Magnetic field collection is completed.");
       get_data_ = false;
       return;

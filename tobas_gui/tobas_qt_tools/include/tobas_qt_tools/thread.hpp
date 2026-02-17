@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <tuple>
 
 #include <QEventLoop>
@@ -66,4 +67,12 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
 
 /* 関数を実行するスレッドを作成し，GUIを止めずに終了まで待機する． */
 void startThreadAndWait(std::function<void()> func);
+
+/* GUIを止めずに指定した時間だけスリープする． */
+template <typename RepType, typename DurType>
+void spinFor(std::chrono::duration<RepType, DurType> time)
+{
+  const auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(time).count();
+  startThreadAndWait([msec]() { QThread::msleep(msec); });
+}
 }  // namespace qt

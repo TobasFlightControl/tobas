@@ -32,15 +32,6 @@ add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})
 set_target_properties(main PROPERTIES OUTPUT_NAME "TobasURDFBuilder")
 
-install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES
-  DESTINATION include
-)
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY config launch resources DESTINATION share/${PROJECT_NAME})
 

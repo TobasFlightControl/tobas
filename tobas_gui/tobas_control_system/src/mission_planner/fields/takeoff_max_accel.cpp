@@ -22,15 +22,15 @@ TakeoffMaxAccelWidget::TakeoffMaxAccelWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* TakeoffMaxAccelWidget::label() const
 {
-  return "Maximum Accel";
+  return "Maximum Acceleration";
 }
 
-double TakeoffMaxAccelWidget::value() const
+double TakeoffMaxAccelWidget::getValue() const
 {
   return spin_box_->value();
 }

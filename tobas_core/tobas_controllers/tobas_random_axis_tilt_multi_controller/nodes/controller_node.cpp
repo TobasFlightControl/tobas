@@ -7,7 +7,7 @@
 #include <tobas_pose_pid/angle_axis_pi.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_tools/command_level_handler.hpp>
+#include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_command_msgs_adapter/accel.hpp>
@@ -63,7 +63,7 @@ private:
   bool tree_received_ = false;
   bool js_received_ = false;
   bool topics_received_ = false;
-  CommandLevelHandler cmd_level_handler_;
+  CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
@@ -101,7 +101,7 @@ private:
   bool updateInternalDataStructures();
   bool updateAttitudePDGain();
   bool updateHeadingPDGain();
-  bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
+  bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
   bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
@@ -164,7 +164,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 1, 30);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
+  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 16, 2, 20, " m/s^2");
   addDynamicIntParam(
     "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 10, 0, 45, " deg");
   addDynamicIntParam(
@@ -227,7 +227,7 @@ bool ControllerNode::updateHeadingPDGain()
   return rot_pi_.setProportionalGain(2, angle_gain);
 }
 
-bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
+bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
 {
   if (!topics_received_) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
@@ -239,7 +239,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, now())) {
+  if (!cmd_priority_handler_.update(priority.data, now())) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -537,7 +537,7 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
 
 void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd)
 {
-  if (!isCommandAccepted(pos_cmd->level)) {
+  if (!isCommandAccepted(pos_cmd->priority)) {
     return;
   }
 
@@ -547,7 +547,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVel::ConstSh
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd)
 {
-  if (!isCommandAccepted(acc_cmd->level)) {
+  if (!isCommandAccepted(acc_cmd->priority)) {
     return;
   }
 
@@ -560,7 +560,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd)
 {
-  if (!isCommandAccepted(angle_cmd->level)) {
+  if (!isCommandAccepted(angle_cmd->priority)) {
     return;
   }
 
@@ -570,7 +570,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstShared
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPtr& rate_cmd)
 {
-  if (!isCommandAccepted(rate_cmd->level)) {
+  if (!isCommandAccepted(rate_cmd->priority)) {
     return;
   }
 

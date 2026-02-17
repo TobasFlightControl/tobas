@@ -112,7 +112,7 @@ void PosVelAngleController::publishPosVel(
 {
   auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
   cmd->header.stamp = stamp;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = pos;
   cmd->vel = vel;
 
@@ -123,7 +123,7 @@ void PosVelAngleController::publishAngle(const builtin_interfaces::msg::Time& st
 {
   auto cmd = std::make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->angle = angle;
 
   angle_pub_->publish(std::move(cmd));

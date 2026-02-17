@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== TableWidgetとの違い =====
+ * ===== TableWidget との違い =====
  * - 追加メソッド
  */
 class TableWidget : public QTableWidget

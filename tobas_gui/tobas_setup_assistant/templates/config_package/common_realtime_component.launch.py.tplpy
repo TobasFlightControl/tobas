@@ -9,11 +9,12 @@ from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
-MISSION_EXECUTOR_PKG = "{{ missoin_executor_pkg }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
 CONTROLLER_PLUGIN = "{{ controller_plugin }}"
+MISSION_EXECUTOR_PKG = "{{ mission_executor_pkg }}"
+MISSION_EXECUTOR_PLUGIN = "{{ mission_executor_plugin }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -127,8 +128,9 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package=MISSION_EXECUTOR_PKG,
-                    plugin="tobas::mission::MulticopterMissionExecutorNode",
+                    plugin=MISSION_EXECUTOR_PLUGIN,
                     namespace=DRONE_NAME,
+                    parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static.yaml"])],
                     extra_arguments=extra_args,
                 ),
             ],

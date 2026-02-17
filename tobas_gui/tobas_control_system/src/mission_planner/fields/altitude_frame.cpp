@@ -56,7 +56,7 @@ AltitudeFrameWidget::AltitudeFrameWidget()
   setLayout(cols);
   cols->addWidget(combobox_);
 
-  connect(combobox_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BaseField::updated);
+  connect(combobox_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* AltitudeFrameWidget::label() const
@@ -64,7 +64,7 @@ const char* AltitudeFrameWidget::label() const
   return "Altitude Frame";
 }
 
-tobas::mission::AltitudeFrame AltitudeFrameWidget::value() const
+tobas::mission::AltitudeFrame AltitudeFrameWidget::getValue() const
 {
   return textToAltFrame(combobox_->currentText().toUtf8());
 }

@@ -151,7 +151,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
 
   if (angle_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::Angle>();
-    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->angle.roll = tar_roll;
     msg->angle.pitch = tar_pitch;
     msg->angle.yaw = tar_yaw;
@@ -160,7 +160,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
 
   if (pos_vel_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::PosVel>();
-    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
@@ -170,7 +170,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
 
   if (pos_vel_yaw_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::PosVelYaw>();
-    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
@@ -180,7 +180,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
 
   if (pos_vel_pitch_yaw_pub_) {
     auto msg = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
-    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;

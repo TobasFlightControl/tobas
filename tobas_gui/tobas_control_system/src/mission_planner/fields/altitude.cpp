@@ -19,7 +19,7 @@ AltitudeWidget::AltitudeWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* AltitudeWidget::label() const
@@ -27,7 +27,7 @@ const char* AltitudeWidget::label() const
   return "Altitude";
 }
 
-double AltitudeWidget::value() const
+double AltitudeWidget::getValue() const
 {
   return spin_box_->value();
 }

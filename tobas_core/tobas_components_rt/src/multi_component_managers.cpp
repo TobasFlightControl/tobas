@@ -1,89 +1,100 @@
 #include "tobas_components_rt/multi_component_managers.hpp"
 
+#include <ranges>
 #include <thread>
 
 #include <tobas_linux/realtime.hpp>
 
+#include "tobas_components_rt/component_manager.hpp"
 #include "tobas_components_rt/multi_threaded_executor.hpp"
 
-using namespace std;
+using namespace std::chrono_literals;
 
 namespace ros2
 {
+namespace
+{
+struct ComponentManager
+{
+  ThreadSafeComponentManager::SharedPtr node;
+  rclcpp::Executor::SharedPtr exec;
+  std::thread thread;
+};
+
+std::string nodeName(size_t idx)
+{
+  return "component_manager_" + std::to_string(idx + 1);
+}
+}  // namespace
+
 MultiComponentManagers::MultiComponentManagers(size_t num_managers)
-  : num_managers_(num_managers)
-  , policy_(num_managers, SCHED_FIFO)
-  , priority_(num_managers, 0)
-  , affinity_(num_managers, 0)
-  , num_threads_(num_managers, 1)
+  : num_managers_(num_managers), configs_(num_managers)
 {
 }
 
-void MultiComponentManagers::setPolicy(size_t idx, int policy)
+void MultiComponentManagers::setPolicy(size_t idx, linux::sched_t policy)
 {
-  policy_.at(idx) = policy;
+  configs_.at(idx).policy = policy;
 }
 
 void MultiComponentManagers::setPriority(size_t idx, size_t priority)
 {
-  priority_.at(idx) = priority;
+  configs_.at(idx).priority = priority;
 }
 
 void MultiComponentManagers::setCpuAffinity(size_t idx, uint32_t affinity)
 {
-  affinity_.at(idx) = affinity;
+  configs_.at(idx).affinity = affinity;
 }
 
 void MultiComponentManagers::setNumThreads(size_t idx, size_t num_threads)
 {
-  num_threads_.at(idx) = num_threads;
+  configs_.at(idx).num_threads = num_threads;
 }
 
 void MultiComponentManagers::spin()
 {
-  vector<ComponentManager> managers(num_managers_);
+  constexpr char kLoggerName[] = "multi_component_managers";
+
+  std::vector<ComponentManager> managers(num_managers_);
 
   rclcpp::NodeOptions node_options;
   node_options.use_intra_process_comms(true);
 
-  for (size_t i = 0; i < num_managers_; ++i) {
-    if (num_threads_[i] == 1) {
-      managers[i].exec = make_shared<rclcpp::executors::SingleThreadedExecutor>();
+  for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(num_managers_), managers, configs_)) {
+    if (cfg.num_threads == 1) {
+      manager.exec = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     }
     else {
-      managers[i].exec = make_shared<MultiThreadedExecutorRT>(policy_[i], priority_[i], affinity_[i], num_threads_[i]);
+      manager.exec = std::make_shared<MultiThreadedExecutorRT>(cfg.policy, cfg.priority, cfg.affinity, cfg.num_threads);
     }
 
-    managers[i].node = make_shared<ros2::ThreadSafeComponentManager>(managers[i].exec, nodeName(i), node_options);
-    managers[i].exec->add_node(managers[i].node);
+    manager.node = std::make_shared<ThreadSafeComponentManager>(manager.exec, nodeName(i), node_options);
+    manager.exec->add_node(manager.node);
 
     // ComponentManagerを別スレッドで起動
-    managers[i].thread = thread([&]() { managers[i].exec->spin(); });
+    manager.thread = std::thread([&manager]() { manager.exec->spin(); });
 
     // スレッドのリアルタイム優先度を設定
-    if (priority_[i] > 0) {
-      if (!linux::setThreadPriority(managers[i].thread.native_handle(), priority_[i], policy_[i])) {
-        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread realtime priority.");
+    if (cfg.priority > 0) {
+      if (!linux::setThreadPriority(manager.thread.native_handle(), cfg.priority, cfg.policy)) {
+        RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread realtime priority.");
       }
     }
 
     // スレッドのCPU割当を設定
-    if (affinity_[i] > 0) {
-      if (!linux::setThreadCPUAffinity(managers[i].thread.native_handle(), affinity_[i])) {
-        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread CPU affinity.");
+    if (cfg.affinity > 0) {
+      if (!linux::setThreadCPUAffinity(manager.thread.native_handle(), cfg.affinity)) {
+        RCLCPP_WARN(rclcpp::get_logger(kLoggerName), "Failed to set thread CPU affinity.");
       }
     }
 
-    this_thread::sleep_for(100ms);  // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
+    // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
+    std::this_thread::sleep_for(100ms);
   }
 
   for (auto& manager : managers) {
     manager.thread.join();
   }
-}
-
-string MultiComponentManagers::nodeName(size_t idx)
-{
-  return "component_manager_" + to_string(idx + 1);
 }
 }  // namespace ros2

@@ -10,15 +10,15 @@ namespace ctrl
 {
 namespace field
 {
-class LandSpeedWidget : public BaseField
+class LandSpeedWidget : public FieldWidget<double>
 {
 public:
   explicit LandSpeedWidget();
 
   const char* label() const override;
 
-  double value() const;
-  void setValue(double value);
+  double getValue() const override;
+  void setValue(double value) override;
 
 private:
   qt::DoubleSpinBox* spin_box_;

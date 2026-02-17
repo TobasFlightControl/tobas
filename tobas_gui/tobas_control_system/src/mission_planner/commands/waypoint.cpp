@@ -23,12 +23,12 @@ WaypointWidget::WaypointWidget()
   addField(longitude_);
   addField(altitude_);
   addField(altitude_frame_);
-  addField(max_hor_vel_);
-  addField(max_ver_vel_);
-  addField(max_hor_acc_);
-  addField(max_ver_acc_);
-  addField(max_hor_jerk_);
-  addField(max_ver_jerk_);
+  addField(max_hor_vel_, true);
+  addField(max_ver_vel_, true);
+  addField(max_hor_acc_, true);
+  addField(max_ver_acc_, true);
+  addField(max_hor_jerk_, true);
+  addField(max_ver_jerk_, true);
   addField(acceptance_radius_);
   addField(altitude_tolerance_);
 }
@@ -40,62 +40,62 @@ const char* WaypointWidget::name() const
 
 double WaypointWidget::latitude() const
 {
-  return latitude_->value();
+  return getValue(latitude_);
 }
 
 double WaypointWidget::longitude() const
 {
-  return longitude_->value();
+  return getValue(longitude_);
 }
 
 double WaypointWidget::altitude() const
 {
-  return altitude_->value();
+  return getValue(altitude_);
 }
 
 tobas::mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 {
-  return altitude_frame_->value();
+  return getValue(altitude_frame_);
 }
 
 double WaypointWidget::maxHorizontalVelocity() const
 {
-  return max_hor_vel_->value();
+  return getValue(max_hor_vel_);
 }
 
 double WaypointWidget::maxVerticalVelocity() const
 {
-  return max_ver_vel_->value();
+  return getValue(max_ver_vel_);
 }
 
 double WaypointWidget::maxHorizontalAccel() const
 {
-  return max_hor_acc_->value();
+  return getValue(max_hor_acc_);
 }
 
 double WaypointWidget::maxVerticalAccel() const
 {
-  return max_ver_acc_->value();
+  return getValue(max_ver_acc_);
 }
 
 double WaypointWidget::maxHorizontalJerk() const
 {
-  return max_hor_jerk_->value();
+  return getValue(max_hor_jerk_);
 }
 
 double WaypointWidget::maxVerticalJerk() const
 {
-  return max_ver_jerk_->value();
+  return getValue(max_ver_jerk_);
 }
 
 double WaypointWidget::acceptanceRadius() const
 {
-  return acceptance_radius_->value();
+  return getValue(acceptance_radius_);
 }
 
 double WaypointWidget::altitudeTolerance() const
 {
-  return altitude_tolerance_->value();
+  return getValue(altitude_tolerance_);
 }
 
 void WaypointWidget::latitude(double value)

@@ -21,8 +21,9 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   fixed_wing = new fw::FixedWingWidget(node, uadf);
   hardware = new hw::HardwareWidget(uadf, sig);
   remote_connection = new rc::RemoteConnectionWidget();
-  controller = new ctrl::ControllerWidget();
   observer = new ObserverWidget();
+  controller = new ctrl::ControllerWidget();
+  mission = new mission::MissionExecutorWidget();
   rc_input = new RcInputWidget();
   extra_joints = new ExtraJointsWidget(uadf, tree);
   failsafe = new FailsafeWidget();
@@ -42,8 +43,9 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   additional_list_ = new qt::ListWidget();
   toolbox_->addItem(additional_list_, "Additional Settings");
   connect(additional_list_, &QListWidget::currentItemChanged, this, &self::onListItemChanged);
-  addEntry(additional_list_, controller);
   addEntry(additional_list_, observer);
+  addEntry(additional_list_, controller);
+  addEntry(additional_list_, mission);
   addEntry(additional_list_, rc_input);
   addEntry(additional_list_, extra_joints);
   addEntry(additional_list_, failsafe);
@@ -164,9 +166,11 @@ void SettingsWidget::setFrameType(FrameType type)
   // フレーム型が定義されていなければ制御器の設定を無効化
   if (type == FrameType::kUndefined) {
     setPageEnabled(controller, false);
+    setPageEnabled(mission, false);
   }
 
   controller->setFrameType(type);
+  mission->setFrameType(type);
 }
 
 int SettingsWidget::getIndex(BaseSettingWidget* page) const

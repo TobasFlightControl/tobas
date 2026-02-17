@@ -30,8 +30,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   mission_item.data = tbs::toBytes(takeoff);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
-  goal.mission.header.stamp = node->now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {
@@ -42,7 +41,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   // アクションの成否を確認
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result.result->message);
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result.result->error_message);
     return false;
   }
 
@@ -63,8 +62,7 @@ bool land(rclcpp::Node::SharedPtr node)
   mission_item.data = tbs::toBytes(land);
 
   tobas_mission_msgs::action::ExecuteMission::Goal goal;
-  goal.mission.header.stamp = node->now();
-  goal.mission.items.push_back(mission_item);
+  goal.items.push_back(mission_item);
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {
@@ -75,7 +73,7 @@ bool land(rclcpp::Node::SharedPtr node)
   // アクションの成否を確認
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result.result->message);
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result.result->error_message);
     return false;
   }
 

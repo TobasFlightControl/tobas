@@ -1,26 +1,19 @@
 #pragma once
 
+#include <sched.h>
+
 #include <rclcpp/rclcpp.hpp>
 
-#include "./component_manager.hpp"
+#include <tobas_linux/types.hpp>
 
 namespace ros2
 {
-struct ComponentManager
-{
-  ros2::ThreadSafeComponentManager::SharedPtr node;
-  rclcpp::Executor::SharedPtr exec;
-  std::thread thread;
-};
-
 class MultiComponentManagers
 {
-  static constexpr char kName[] = "multi_component_managers";
-
 public:
   explicit MultiComponentManagers(size_t num_managers);
 
-  void setPolicy(size_t idx, int policy);
+  void setPolicy(size_t idx, linux::sched_t policy);
   void setPriority(size_t idx, size_t priority);
   void setCpuAffinity(size_t idx, uint32_t affinity);
   void setNumThreads(size_t idx, size_t num_threads);
@@ -28,13 +21,15 @@ public:
   void spin();
 
 private:
+  struct ManagerConfig
+  {
+    linux::sched_t policy = SCHED_FIFO;
+    size_t priority = 0;
+    uint32_t affinity = 0;
+    size_t num_threads = 1;
+  };
+
   const size_t num_managers_;
-
-  std::vector<int> policy_;
-  std::vector<size_t> priority_;
-  std::vector<uint32_t> affinity_;
-  std::vector<size_t> num_threads_;
-
-  static std::string nodeName(size_t idx);
+  std::vector<ManagerConfig> configs_;
 };
 }  // namespace ros2

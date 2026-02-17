@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== QFormLayoutとの違い =====
+ * ===== QFormLayout との違い =====
  * - 追加メソッド
  */
 class FormLayout : public QFormLayout

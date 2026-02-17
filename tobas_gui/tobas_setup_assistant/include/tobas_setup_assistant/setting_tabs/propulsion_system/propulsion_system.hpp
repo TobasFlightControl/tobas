@@ -50,6 +50,7 @@ public:
   const BasePropulsionSystemWidget* selected() const;
 
 private:
+  const rclcpp::Node::SharedPtr node_;
   Signals& sig_;
 
   QButtonGroup* type_btn_group_;

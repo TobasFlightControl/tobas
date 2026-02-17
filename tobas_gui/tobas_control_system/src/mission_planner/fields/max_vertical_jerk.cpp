@@ -22,7 +22,7 @@ MaxVerticalJerkWidget::MaxVerticalJerkWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* MaxVerticalJerkWidget::label() const
@@ -30,7 +30,7 @@ const char* MaxVerticalJerkWidget::label() const
   return "Maximum Vertical Jerk";
 }
 
-double MaxVerticalJerkWidget::value() const
+double MaxVerticalJerkWidget::getValue() const
 {
   return spin_box_->value();
 }

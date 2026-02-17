@@ -101,26 +101,6 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   return true;
 }
 
-std::string ProjectGenerator::missionExecutorPackage() const
-{
-  if (!settings_->controller->useBuiltinContrller()) {
-    qt::qWarnBox(parent_, "You cannot use the mission planner because the builtin controller is not used.");
-    return "tobas_dummy_pkg";
-  }
-
-  const auto frame_type = settings_->controller->getFrameType();
-
-  if (
-    frame_type == FrameType::kPlanarMulticopter || frame_type == FrameType::kNonPlanarMulticopter ||
-    frame_type == FrameType::kYAxisTiltMulticopter || frame_type == FrameType::kRandomAxisTiltMulticopter) {
-    return "tobas_mission_execution_mc";
-  }
-  else {
-    qt::qWarnBox(parent_, "Mission planner is not supported for this frame type.");
-    return "tobas_dummy_pkg";
-  }
-}
-
 inja::json ProjectGenerator::createTemplateData() const
 {
   inja::json tpl_data;
@@ -130,7 +110,10 @@ inja::json ProjectGenerator::createTemplateData() const
   // Controller
   tpl_data["controller_pkg"] = settings_->controller->controllerPackage().toStdString();
   tpl_data["controller_plugin"] = settings_->controller->pluginName().toStdString();
-  tpl_data["missoin_executor_pkg"] = missionExecutorPackage();
+
+  // Mission Executor
+  tpl_data["mission_executor_pkg"] = settings_->mission->executorPackage().toStdString();
+  tpl_data["mission_executor_plugin"] = settings_->mission->pluginName().toStdString();
 
   // Hardware
   tpl_data["hardware_pkg"] = settings_->hardware->hardwarePackage();
@@ -503,6 +486,9 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateControllerStaticConfig()) {
     return false;
   }
+  if (!generateMissionExecutorStaticConfig()) {
+    return false;
+  }
   if (!generateRcTeleopStaticConfig()) {
     return false;
   }
@@ -753,6 +739,29 @@ bool ProjectGenerator::generateControllerStaticConfig()
   YAML::Node node_standalone(YAML::NodeType::Map);
   node_standalone["/**"][tobas::node::kController][kRosParamsKey] = params;
   if (!saveYamlNode(config_dir / "controller_static_standalone.yaml", node_standalone)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool ProjectGenerator::generateMissionExecutorStaticConfig()
+{
+  const auto params = settings_->mission->staticParams();
+  TOBAS_CHECK(params.IsMap());
+
+  const auto config_dir = proj_paths_.cfgConfigDirPath();
+
+  // For component
+  const auto node_component = params;
+  if (!saveYamlNode(config_dir / "mission_executor_static.yaml", node_component)) {
+    return false;
+  }
+
+  // For standalone
+  YAML::Node node_standalone(YAML::NodeType::Map);
+  node_standalone["/**"][tobas::node::kMissionExecutor][kRosParamsKey] = params;
+  if (!saveYamlNode(config_dir / "mission_executor_static_standalone.yaml", node_standalone)) {
     return false;
   }
 

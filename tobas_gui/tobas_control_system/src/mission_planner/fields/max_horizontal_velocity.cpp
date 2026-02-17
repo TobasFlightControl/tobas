@@ -22,7 +22,7 @@ MaxHorizontalVelocityWidget::MaxHorizontalVelocityWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* MaxHorizontalVelocityWidget::label() const
@@ -30,7 +30,7 @@ const char* MaxHorizontalVelocityWidget::label() const
   return "Maximum Horizontal Velocity";
 }
 
-double MaxHorizontalVelocityWidget::value() const
+double MaxHorizontalVelocityWidget::getValue() const
 {
   return spin_box_->value();
 }

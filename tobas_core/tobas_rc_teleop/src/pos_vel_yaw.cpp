@@ -80,7 +80,7 @@ void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
   cmd->yaw = tar_yaw_;

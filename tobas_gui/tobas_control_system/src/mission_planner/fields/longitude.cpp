@@ -21,7 +21,7 @@ LongitudeWidget::LongitudeWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* LongitudeWidget::label() const
@@ -29,7 +29,7 @@ const char* LongitudeWidget::label() const
   return "Longitude";
 }
 
-double LongitudeWidget::value() const
+double LongitudeWidget::getValue() const
 {
   return spin_box_->value();
 }

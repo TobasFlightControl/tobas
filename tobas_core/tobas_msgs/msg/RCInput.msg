@@ -1,4 +1,6 @@
 std_msgs/Header header
+bool ok
+
 float64 roll      # CH1: [-1, 1]
 float64 pitch     # CH2: [-1, 1]
 float64 throttle  # CH3: [-1, 1]
