@@ -17,7 +17,7 @@ def package_files(directory: str, data_files: List[str]) -> List[str]:
 data_files = []
 data_files.append(("share/ament_index/resource_index/packages", ["resource/" + pkg_name]))
 data_files.append(("share/" + pkg_name, ["package.xml"]))
-data_files = package_files("launch/", data_files)
+# data_files = package_files("launch/", data_files)
 
 
 console_scripts = []
