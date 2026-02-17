@@ -98,7 +98,7 @@ Rectangle {
         const anchor = map.toCoordinate(p); // カーソル位置 (地理座標)
         const dz = (e.angleDelta.y / 120.0) * 0.5; // ズーム値の変化量
         requested_zoom = clamp(requested_zoom + dz, map.minimumZoomLevel, Constants.maximumZoomLevel); // ズーム値の目標値を更新
-        console.log("Zoom Level:", requested_zoom);
+        // console.log("Zoom Level:", requested_zoom);
         updateZoom(); // ズームとスケールを更新
         map.alignCoordinateToPoint(anchor, p); // 元々の地理座標を新しいカーソル位置に合わせる
         e.accepted = true;
