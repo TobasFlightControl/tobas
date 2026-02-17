@@ -68,7 +68,7 @@ def main(args=None) -> None:
     parser.add_argument(
         "--upstream",
         type=str,
-        default="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+        default="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
     )
     parser.add_argument("--timeout", type=float, default=5.0)
     args, _ = parser.parse_known_args(args)
