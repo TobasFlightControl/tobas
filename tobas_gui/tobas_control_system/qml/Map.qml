@@ -79,6 +79,7 @@ Rectangle {
     anchors.fill: parent
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
+    maximumZoomLevel: 20 // タイルサーバに合わせて調整する
     minimumZoomLevel: 0
     objectName: "map" // Qt側からアクセスするためのオブジェクト名
     plugin: mapPlugin
