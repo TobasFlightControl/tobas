@@ -65,6 +65,10 @@ void ThrottlesViewer::reset()
 
 void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
+  if (!rcin->ok) {
+    return;
+  }
+
   roll_range_->setValue(rcin->roll);
   pitch_range_->setValue(rcin->pitch);
   yaw_range_->setValue(rcin->yaw);

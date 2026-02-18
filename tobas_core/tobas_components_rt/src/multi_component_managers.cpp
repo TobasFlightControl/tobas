@@ -61,7 +61,7 @@ void MultiComponentManagers::spin()
   rclcpp::NodeOptions node_options;
   node_options.use_intra_process_comms(true);
 
-  for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(num_managers_), managers, configs_)) {
+  for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(0), managers, configs_)) {
     if (cfg.num_threads == 1) {
       manager.exec = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     }
