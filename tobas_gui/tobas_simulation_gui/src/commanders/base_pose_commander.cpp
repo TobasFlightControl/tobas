@@ -310,7 +310,7 @@ void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
 void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   // 手動操縦が有効になったら強制終了
-  if (isRunning() && rcin->enable) {
+  if (isRunning() && rcin->ok && rcin->enable) {
     reset();
   }
 
