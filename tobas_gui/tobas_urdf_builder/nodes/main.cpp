@@ -8,11 +8,6 @@
 #include <tobas_urdf_builder/urdf_builder.hpp>
 #include <tobas_urdf_builder/util.hpp>
 
-static void sigIntHandler(int)
-{
-  QApplication::quit();
-}
-
 int main(int argc, char** argv)
 {
   // X11を強制
@@ -31,7 +26,7 @@ int main(int argc, char** argv)
   main.show();
 
   // Ctrl+Cで即終了
-  signal(SIGINT, sigIntHandler);
+  signal(SIGINT, [](int) { QApplication::quit(); });
 
   // アプリケーションの終了時に全てのノードを落とす
   const auto result = qapp.exec();
