@@ -1,36 +1,32 @@
 #include "tobas_components_rt/multi_component_managers.hpp"
 
-static void sigIntHandler(int)
-{
-  rclcpp::shutdown();
-}
-
 int main(int argc, char* argv[])
 {
-  // ROSノードを起動
+  constexpr size_t kNumManagers = 3;
+
+  // ROSノードを起動．
   rclcpp::init(argc, argv);
 
-  // Ctrl+Cで即終了
-  signal(SIGINT, sigIntHandler);
+  // Ctrl+Cで即終了．
+  signal(SIGINT, [](int) { rclcpp::shutdown(); });
 
   // 複数のComponentManagerをシングルプロセスで動作させる．
-  // MultiThreadedExecutorはCPU不可が高く，パフォーマンス向上のため1つのCPUに1つのスレッドのみを割り当てるのが重要．
-  ros2::MultiComponentManagers managers(3);
+  ros2::MultiComponentManagers managers(kNumManagers);
 
-  managers.setPolicy(0, SCHED_FIFO);
-  managers.setPriority(0, 98);
-  managers.setCpuAffinity(0, 0b0010);
-  managers.setNumThreads(0, 1);
+  for (size_t i = 0; i < kNumManagers; ++i) {
+    // 厳密に優先度を守るポリシーに設定．
+    managers.setPolicy(i, SCHED_FIFO);
 
-  managers.setPolicy(1, SCHED_FIFO);
-  managers.setPriority(1, 97);
-  managers.setCpuAffinity(1, 0b0100);
-  managers.setNumThreads(1, 1);
+    // IOのIRQのデフォルト値50以上のIRQ値にすると，CPUを固定した場合にデッドロックする恐れがあるため，それ未満に設定する．
+    // https://docs.redhat.com/ja/documentation/red_hat_enterprise_linux/9/html/monitoring_and_managing_system_status_and_performance/priority-map_tuning-scheduling-policy
+    managers.setPriority(i, 49 - i);
 
-  managers.setPolicy(2, SCHED_FIFO);
-  managers.setPriority(2, 96);
-  managers.setCpuAffinity(2, 0b1000);
-  managers.setNumThreads(2, 1);
+    // ComponentManagerごとにCPUを専有する．
+    managers.setCpuAffinity(i, 1 << (i + 1));
+
+    // MultiThreadedExecutorはCPU負荷が高く，パフォーマンス向上のため1つのCPUに1つのスレッドのみを割り当てる．
+    managers.setNumThreads(i, 1);
+  }
 
   managers.spin();
 
