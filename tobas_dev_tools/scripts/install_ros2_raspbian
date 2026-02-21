@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # cf. https://zenn.dev/thorie/articles/548emb-install-ros2-offical-ver-on-raspberry-pi-os
-# Remember to add swap space and generate lacales before executing this script.
+# Remember to generate lacales before executing this script.
 
 set -e
 
@@ -12,8 +12,6 @@ if [ "$(id -un)" != "pi" ]; then
 fi
 
 # Enable required repositories
-sudo apt install -y software-properties-common
-# sudo add-apt-repository universe
 sudo apt update
 sudo apt install -y curl
 sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
@@ -44,42 +42,39 @@ git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b ros2
 git clone https://github.com/ros-misc-utilities/ffmpeg_encoder_decoder.git -b 3.0.1
 git clone https://github.com/ros-misc-utilities/ffmpeg_image_transport_msgs.git -b 1.0.2
 git clone https://github.com/ros-perception/vision_opencv.git -b 4.1.0
-
-# Install MAVROS (optional): https://github.com/mavlink/mavros/blob/ros2/mavros/README.md#installation
-sudo apt install -y python3-vcstool python3-rosinstall-generator python3-osrf-pycommon
-cd ~/colcon_ws_install
-rosinstall_generator --format repos mavlink | tee /tmp/mavlink.repos
-rosinstall_generator --format repos --upstream mavros | tee -a /tmp/mavros.repos
-vcs import src < /tmp/mavlink.repos
-vcs import src < /tmp/mavros.repos
-sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh
-cd ~/colcon_ws_install/src
-git clone https://github.com/ros-geographic-info/geographic_info.git -b ros2
-git clone https://github.com/ros/diagnostics.git -b ros2-jazzy
+git clone https://github.com/ros-geographic-info/geographic_info.git -b ros2  # Required by MAVROS
+git clone https://github.com/ros/diagnostics.git -b ros2-jazzy  # Required by MAVROS
 
 # Install dependencies
 sudo apt upgrade -y
 sudo rosdep init | true
 rosdep update  # Fails if "python3-rosdep" is installed. Remove it.
-rosdep install -iy --from-paths ~/colcon_ws_install/src --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers"
+rosdep install -iy \
+  --from-paths ~/colcon_ws_install/src \
+  --skip-keys "rti-connext-dds-6.0.1 libboost-python python3-qt5-bindings python3-future" \
+
+# Install MAVROS (optional): https://github.com/mavlink/mavros/blob/ros2/mavros/README.md#installation
+sudo apt install -y python3-vcstool python3-rosinstall-generator python3-osrf-pycommon
+cd ~/colcon_ws_install
+rosinstall_generator --rosdistro jazzy --format repos mavlink | tee /tmp/mavlink.repos
+rosinstall_generator --rosdistro jazzy --format repos --upstream mavros | tee -a /tmp/mavros.repos
+vcs import src < /tmp/mavlink.repos
+vcs import src < /tmp/mavros.repos
+sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh
 
 # Build and install
-# Use the manually installed compilers and libraries.
-# The "-march=native" option has little impact on speeding up performance on ARM CPUs.
-# MAVLink requires the ROS_PYTHON_VERSION environment variable.
 cd ~/colcon_ws_install/
 sudo \
   env \
-    LD_LIBRARY_PATH=/usr/local/lib64 \
-    ROS_PYTHON_VERSION=3 \
+    ROS_PYTHON_VERSION=3 \  # Required by MAVLink
   colcon build \
     --merge-install \
     --parallel-workers $(nproc) \
     --install-base /opt/ros/jazzy \
     --cmake-args \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_C_COMPILER=/usr/local/bin/gcc \
-      -DCMAKE_CXX_COMPILER=/usr/local/bin/g++
+      -DCMAKE_C_FLAGS="-mcpu=native" \
+      -DCMAKE_CXX_FLAGS="-mcpu=native" \
 
 # Verify installation is successful
 source /opt/ros/jazzy/setup.bash
