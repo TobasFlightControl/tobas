@@ -226,20 +226,20 @@ bool CxGb400::setVideoFrameRate(const VideoFrameRate& video_frame_rate)
 }
 
 bool CxGb400::getCameraStatus(
-    bool& sd_full,
-    bool& time_not_set,
-    bool& media_error,
-    bool& lens_error,
-    bool& gimbal_error,
-    bool& gimbal_motor_error,
-    bool& gimbal_control_error,
-    bool& thermal_error,
-    uint32_t& video_remain_time,
-    uint32_t& photo_remain_count,
-    uint32_t& card_full_size,
-    uint32_t& card_free_mem,
-    double& aperture,
-    uint16_t& iso)
+  bool& sd_full,
+  bool& time_not_set,
+  bool& media_error,
+  bool& lens_error,
+  bool& gimbal_error,
+  bool& gimbal_motor_error,
+  bool& gimbal_control_error,
+  bool& thermal_error,
+  uint32_t& video_remain_time,
+  uint32_t& photo_remain_count,
+  uint32_t& card_full_size,
+  uint32_t& card_free_mem,
+  double& aperture,
+  uint16_t& iso)
 {
   union MsgUnion
   {
@@ -247,7 +247,9 @@ bool CxGb400::getCameraStatus(
     uint8_t data[sizeof(CameraStatusMsg)];
   } msg_union;
 
-  const uvc_xu_control_query get_camera_status_query = { kUnit2, 0x0B, UVC_GET_CUR, sizeof(CameraStatusMsg), msg_union.data };
+  const uvc_xu_control_query get_camera_status_query = {
+    kUnit2, 0x0B, UVC_GET_CUR, sizeof(CameraStatusMsg), msg_union.data
+  };
   if (!execUvcControl(get_camera_status_query)) {
     std::cerr << "Failed to send gimbal control." << std::endl;
     return false;

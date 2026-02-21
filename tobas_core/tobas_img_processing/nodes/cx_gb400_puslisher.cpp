@@ -13,8 +13,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
-#include <tobas_ic_drivers/cx_gb400.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_ic_drivers/cx_gb400.hpp>
 #include <tobas_node/node.hpp>
 
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
@@ -121,10 +121,11 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
   camera_status_pub_ = createPublisher<tobas_camera_msgs::msg::Status>(tobas::camera::kCameraStatusTopic);
 
   copter_att_sub_ = createSubscriber(tobas::kOdometryTopic, &CxGb400PublisherNode::copterAttMsgCb, this);
-  gimbal_att_cmd_sub_ = createSubscriber(tobas::camera::kGimbalAttitudeCmdTopic, &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
+  gimbal_att_cmd_sub_ =
+    createSubscriber(tobas::camera::kGimbalAttitudeCmdTopic, &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
 
-  format_sd_card_ss_ =
-    createService<tobas_camera_msgs::srv::FormatSdCard>(tobas::camera::kFormatSdCardSrv, &CxGb400PublisherNode::formatSdCardCb, this);
+  format_sd_card_ss_ = createService<tobas_camera_msgs::srv::FormatSdCard>(
+    tobas::camera::kFormatSdCardSrv, &CxGb400PublisherNode::formatSdCardCb, this);
   set_photo_quality_ss_ = createService<tobas_camera_msgs::srv::SetPhotoQuality>(
     tobas::camera::kSetPhotoQualitySrv, &CxGb400PublisherNode::setPhotoQualityCb, this);
   set_video_frame_rate_ss_ = createService<tobas_camera_msgs::srv::SetVideoFrameRate>(
