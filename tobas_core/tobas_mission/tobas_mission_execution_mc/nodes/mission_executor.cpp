@@ -20,20 +20,11 @@
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 namespace tobas
 {
-struct GeoPoint
-{
-  using SharedPtr = std::shared_ptr<GeoPoint>;
-
-  double latitude;   // [deg]
-  double longitude;  // [deg]
-};
-
 namespace mission
 {
 class MulticopterMissionExecutorNode : public BaseNode
@@ -95,12 +86,11 @@ private:
 
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::Gnss::ConstSharedPtr gnss_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
 
-  GeoPoint::SharedPtr launch_point_;
-  GeoPoint::SharedPtr last_setpoint_;
+  std::unique_ptr<kdl::Vector> launch_point_;
+  std::unique_ptr<kdl::Vector> last_setpoint_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
@@ -109,7 +99,6 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
@@ -134,7 +123,6 @@ private:
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
@@ -156,7 +144,6 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
 
   odom_sub_ = createSubscriber(kOdometryTopic, &self::odomCb, this);
   arming_sub_ = createSubscriber(kArmingTopic, &self::armingCb, this);
-  gnss_sub_ = createSubscriber(kGnssTopic, &self::gnssCb, this);
   gnss_origin_sub_ = createSubscriber(kGnssOriginTopic, &self::gnssOriginCb, this, true, true);
   landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
   rcin_sub_ = createSubscriber(kRcInputTopic, &self::rcInputCb, this);
@@ -292,14 +279,6 @@ bool MulticopterMissionExecutorNode::checkCurrentStatus(const GoalHandlePtr& gh,
 
 bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
-  // Verify that GNSS is fixed
-  if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "GNSS is lost.";
-    gh->abort(res);
-    return false;
-  }
-
   // Verify that the vehicle is armed
   if (!arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
@@ -308,9 +287,6 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     return false;
   }
 
-  // Save the latest setpoint
-  last_setpoint_ = std::make_shared<GeoPoint>(goal.latitude, goal.longitude);
-
   // 初期状態を取得
   const auto start_time = now();
   const auto start_pos = odom_->frame.p.clone();
@@ -318,11 +294,34 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   TOBAS_INFO("Start position: ", start_pos);
 
   // 目標位置を計算
-  kdl::Vector goal_pos;
+  kdl::Vector goal_pos;  // wrt. the odometry frame
   std::tie(goal_pos.x(), goal_pos.y()) =
     tbs::gnssToCartRelative(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
-  goal_pos.z(goal.altitude);  // TODO: 目標高度がMSLで与えられた場合にも対応
+  switch (goal.altitude_frame) {
+    case kRelativeToLaunch:
+      if (!launch_point_) {
+        res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+        res->error_message = "Launch point is not set.";
+        gh->abort(res);
+        return false;
+      }
+      goal_pos.z(goal.altitude - launch_point_->z());
+      break;
+    case kMeanSeaLevel:  // TODO
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+      res->error_message = "Not implemented yet.";
+      gh->abort(res);
+      return false;
+    default:
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+      res->error_message = "Invalid altitude frame type.";
+      gh->abort(res);
+      return false;
+  }
   TOBAS_INFO("Goal position: ", goal_pos);
+
+  // Save the latest setpoint
+  last_setpoint_ = std::make_unique<kdl::Vector>(goal_pos);
 
   // 制約を決定
   const auto max_hor_vel = goal.max_horizontal_velocity > 0. ? goal.max_horizontal_velocity : wp_cfg_.max_hor_vel;
@@ -345,7 +344,6 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   const Eigen::Vector2d xy_dir = xy_diff / xy_dist;
   const traj::TimeOptimalTrajectory traj_xy(0., xy_dist, max_hor_jerk, max_hor_acc, max_hor_vel);
 
-  // TODO: Altitude Frame を考慮
   const traj::TimeOptimalTrajectory traj_z(start_pos.z(), goal_pos.z(), max_ver_jerk, max_ver_acc, max_ver_vel);
 
   const auto roll_duration = std::abs(start_rpy.roll) / kAttitudeRate;
@@ -430,10 +428,17 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
 bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
+  if (arming_->data) {
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    res->error_message = "The vehicle is already armed.";
+    gh->abort(res);
+    return false;
+  }
+
   // Arm rotors
   if (!armRotors(true)) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "Failed to arm rotors.";
+    res->error_message = "Failed to arm the vehicle.";
     gh->abort(res);
     return false;
   }
@@ -445,14 +450,31 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   const auto start_pos = odom_->frame.p.clone();
   const auto start_yaw = odom_->frame.M.getYaw();
 
+  // 目標高度を決定
+  double tar_z;  // wrt. the odometry frame
+  switch (goal.altitude_frame) {
+    case kRelativeToLaunch:
+      tar_z = start_pos.z() + goal.altitude;
+      break;
+    case kMeanSeaLevel:  // TODO
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+      res->error_message = "Not implemented yet.";
+      gh->abort(res);
+      return false;
+    default:
+      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+      res->error_message = "Invalid altitude frame type.";
+      gh->abort(res);
+      return false;
+  }
+
   // 制約を決定
   const auto max_speed = goal.max_speed > 0. ? goal.max_speed : takeoff_cfg_.max_speed;
   const auto max_accel = goal.max_accel > 0. ? goal.max_accel : takeoff_cfg_.max_accel;
   const auto max_jerk = goal.max_jerk > 0. ? goal.max_jerk : takeoff_cfg_.max_jerk;
 
   // 軌道を生成
-  // TODO: Altitude Frame を考慮
-  const traj::TimeOptimalTrajectory traj_z(start_pos.z(), goal.altitude, max_jerk, max_accel, max_speed);
+  const traj::TimeOptimalTrajectory traj_z(start_pos.z(), tar_z, max_jerk, max_accel, max_speed);
 
   // 所要時間を取得
   const auto duration = traj_z.duration();
@@ -484,7 +506,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
-    const auto alt_err_abs = std::abs(goal.altitude - cur_pos.z());
+    const auto alt_err_abs = std::abs(tar_z - cur_pos.z());
     if (dt > duration) {
       if (goal.altitude_tolerance <= 0. || alt_err_abs < goal.altitude_tolerance) {
         return true;
@@ -524,10 +546,10 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   const kdl::Euler start_rpy(odom_->frame.M);
 
   // 最新 (直前のコマンド) の目標位置が存在すればそれ，存在しなければ現在位置を目標着陸地点とする．
-  double tar_x, tar_y;
+  double tar_x, tar_y;  // wrt. the odometry frame
   if (last_setpoint_) {
-    std::tie(tar_x, tar_y) = tbs::gnssToCartRelative(
-      last_setpoint_->latitude, last_setpoint_->longitude, gnss_origin_->latitude, gnss_origin_->longitude);
+    tar_x = last_setpoint_->x();
+    tar_y = last_setpoint_->y();
   }
   else {
     tar_x = start_pos.x();
@@ -605,37 +627,37 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   }
 
   // Save the latest setpoint
-  last_setpoint_ = std::make_shared<GeoPoint>(*launch_point_);
+  last_setpoint_ = std::make_unique<kdl::Vector>(*launch_point_);
 
   // ウェイポイントのゴールを作成
   Waypoint wp;
-  wp.altitude_frame = AltitudeFrame::kRelativeToHome;
+  wp.altitude_frame = AltitudeFrame::kRelativeToLaunch;
   wp.max_horizontal_velocity = goal.max_horizontal_velocity;
-  wp.max_vertical_velocity = goal.max_vertical_velocity;
   wp.max_horizontal_accel = goal.max_horizontal_accel;
-  wp.max_vertical_accel = goal.max_vertical_accel;
+  wp.max_vertical_velocity = goal.max_vertical_velocity;
   wp.max_horizontal_jerk = goal.max_horizontal_jerk;
+  wp.max_vertical_accel = goal.max_vertical_accel;
   wp.max_vertical_jerk = goal.max_vertical_jerk;
+  wp.max_heading_rate = goal.max_heading_rate;
+  wp.max_heading_accel = goal.max_heading_accel;
   wp.acceptance_radius = goal.acceptance_radius;
   wp.altitude_tolerance = goal.altitude_tolerance;
   wp.timeout = goal.timeout;
 
   // 目標高度を決定
-  const auto& cur_lat = gnss_->latitude;
-  const auto& cur_lon = gnss_->longitude;
-  const auto& cur_alt = odom_->frame.p.z();
-  const auto& tar_lat = launch_point_->latitude;
-  const auto& tar_lon = launch_point_->longitude;
-  const auto [x_diff, y_diff] = tbs::gnssToCartRelative(cur_lat, cur_lon, tar_lat, tar_lon);
-  const auto xy_dist = math::norm(x_diff, y_diff);
+  const auto& cur_pos = odom_->frame.p;
+  const auto cur_alt = cur_pos.z() - launch_point_->z();
+  const auto xy_dist = math::norm(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
   const auto min_alt_goal = goal.min_altitude > 0. ? goal.min_altitude : rtl_cfg_.min_alt;
   const auto min_alt = std::min<double>(min_alt_goal, xy_dist);  // 45度逆円錐ルール
   wp.altitude = std::max(cur_alt, min_alt);
 
   // 現在の高度がRTLの最低高度よりも低い場合はそこまで上昇
   if (cur_alt < min_alt) {
-    wp.latitude = cur_lat;
-    wp.longitude = cur_lon;
+    const auto [tar_lat, tar_lon] =
+      tbs::cartToGnssRelative(cur_pos.x(), cur_pos.y(), gnss_origin_->latitude, gnss_origin_->longitude);
+    wp.latitude = tar_lat;
+    wp.longitude = tar_lon;
     wp.auto_heading = false;
     if (!executeWaypoint(wp, gh, res)) {
       return false;
@@ -643,6 +665,8 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   }
 
   // アームした地点まで移動
+  const auto [tar_lat, tar_lon] =
+    tbs::cartToGnssRelative(launch_point_->x(), launch_point_->y(), gnss_origin_->latitude, gnss_origin_->longitude);
   wp.latitude = tar_lat;
   wp.longitude = tar_lon;
   wp.auto_heading = true;
@@ -674,8 +698,8 @@ void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::Con
 
   // アームされた座標を保存
   if (!arming_->data && arming->data) {
-    if (gnss_ && gnss_->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-      launch_point_ = std::make_shared<GeoPoint>(gnss_->latitude, gnss_->longitude);
+    if (odom_) {
+      launch_point_ = std::make_unique<kdl::Vector>(odom_->frame.p);
     }
   }
 
@@ -685,11 +709,6 @@ void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::Con
   }
 
   arming_ = arming;
-}
-
-void MulticopterMissionExecutorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
-{
-  gnss_ = gnss;
 }
 
 void MulticopterMissionExecutorNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin)
@@ -736,10 +755,6 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   }
   if (!arming_) {
     TOBAS_WARN("Arming status is not received yet.");
-    return rclcpp_action::GoalResponse::REJECT;
-  }
-  if (!gnss_) {
-    TOBAS_WARN("GNSS is not received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (!gnss_origin_) {

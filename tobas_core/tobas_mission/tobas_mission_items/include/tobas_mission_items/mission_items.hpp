@@ -19,7 +19,7 @@ enum Type : uint8_t
 
 enum AltitudeFrame : uint8_t
 {
-  kRelativeToHome,
+  kRelativeToLaunch,
   kMeanSeaLevel,
 };
 
@@ -29,7 +29,7 @@ struct PACKED Waypoint
   std::float64_t longitude = 0.;  // [deg]
 
   std::float64_t altitude = 0.;  // [m]
-  AltitudeFrame altitude_frame = kRelativeToHome;
+  AltitudeFrame altitude_frame = kRelativeToLaunch;
 
   bool auto_heading = true;
 
@@ -51,7 +51,7 @@ struct PACKED Waypoint
 struct PACKED Takeoff
 {
   std::float64_t altitude = 0.;  // [m]
-  AltitudeFrame altitude_frame = kRelativeToHome;
+  AltitudeFrame altitude_frame = kRelativeToLaunch;
 
   std::float64_t max_speed = 0.;  // [m/s]
   std::float64_t max_accel = 0.;  // [m/s^2]
