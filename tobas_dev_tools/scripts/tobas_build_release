@@ -24,11 +24,15 @@ export COLCON_LOG_PATH=${RELEASE_DIR}/log
 export MAKEFLAGS="-j1"
 
 # Build
-# The "-march=native" option has little impact on speeding up performance on ARM CPUs.
-colcon build --merge-install --parallel-workers 1 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Release $1 $2
-if [ $? -ne 0 ]; then
-  echo "Failed to build." >&2
-  exit 1
-fi
+colcon build \
+  --merge-install \
+  --parallel-workers 1 \
+  --install-base ${INSTALL_BASE} \
+  --build-base ${BUILD_BASE} \
+  --cmake-args \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_FLAGS="-mcpu=native" \
+    -DCMAKE_CXX_FLAGS="-mcpu=native" \
+  $1 $2 \
 
 echo -e "\033[32mRelease build finished successfully.\033[0m"

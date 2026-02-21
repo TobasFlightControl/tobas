@@ -156,7 +156,7 @@ bool WifiClientWidget::writeCurrentConfig()
 
 std::string WifiClientWidget::configPath()
 {
-  return std::string(kRootPath) + "/etc/wpa_supplicant/wpa_supplicant.conf";
+  return std::string(kRootPath) + "/etc/wpa_supplicant/wpa_supplicant-nl80211-wlan0.conf";
 }
 
 void WifiClientWidget::onReadButtonClicked()
