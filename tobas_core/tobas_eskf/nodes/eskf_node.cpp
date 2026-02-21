@@ -73,9 +73,13 @@ public:
 
 private:
   // 固定値
-  double lat_0_;  // 緯度のゼロ点 (Base Frame)
-  double lon_0_;  // 経度のゼロ点 (Base Frame)
-  double alt_0_;  // 高度のゼロ点 (Base Frame)
+  struct GeoPoint
+  {
+    double latitude;
+    double longitude;
+    double altitude;
+  } gnss_origin_;
+  double alt_0_baro_;
 
   Vector3d pos_meas_;
   Matrix6d gnss_cov_ = Matrix6d::Zero();
@@ -733,15 +737,19 @@ void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
   if (!baro_) {
-    alt_0_ = tbs::pressureToAltitude(baro->pressure);
+    alt_0_baro_ = tbs::pressureToAltitude(baro->pressure);
   }
 
   baro_ = baro;
 
-  // TODO: baro_offsetを考慮
+  // FIXME: ESKFに気圧高度のバイアスを追加し，気圧高度とGPS高度のフュージョンを行う．
+  if (gnss_) {
+    return;
+  }
+
   const auto z_abs = tbs::pressureToAltitude(baro->pressure);
   const auto z_var = fixed_baro_alt_var_;
-  const auto z_m = z_abs - alt_0_;
+  const auto z_m = z_abs - alt_0_baro_;
   const auto stamp = ros2::chronoFromRosTime(baro->header.stamp);
   eskf_.measureAltitude(z_m, z_var, stamp);
 }
@@ -764,16 +772,17 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   if (!gnss_) {
     // GNSSの初期位置
     // TODO: IMUフレームに変換
-    lat_0_ = gnss->latitude;
-    lon_0_ = gnss->longitude;
-    alt_0_ = gnss->altitude;
+    gnss_origin_.latitude = gnss->latitude;
+    gnss_origin_.longitude = gnss->longitude;
+    gnss_origin_.altitude = gnss->altitude;
 
     // GNSSの初期位置を発行
-    publishGnssOrigin(lat_0_, lon_0_, alt_0_);
+    publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
 
     // GNSSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
-    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_, tim::yearFraction());
+    const auto mag = geomag::elementsFromGeodetic(
+      gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude, tim::yearFraction());
     const Vector3d mag_W(mag.east, mag.north, -mag.down);  // ENU coordinates
     if (!setMagneticFieldRef(mag_W)) {
       return;
@@ -794,8 +803,9 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   gnss_ = gnss;
 
   // 位置の観測値
-  std::tie(pos_meas_.x(), pos_meas_.y()) = tbs::gnssToCartRelative(gnss->latitude, gnss->longitude, lat_0_, lon_0_);
-  pos_meas_.z() = gnss->altitude - alt_0_;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
+  std::tie(pos_meas_.x(), pos_meas_.y()) =
+    tbs::gnssToCartRelative(gnss->latitude, gnss->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
+  pos_meas_.z() = gnss->altitude - gnss_origin_.altitude;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
 
   // 共分散
   gnss_cov_.topLeftCorner<3, 3>() = pos_cov;
@@ -833,8 +843,8 @@ void ErrorStateKalmanFilterNode::getGnssOriginCb(
     return;
   }
 
-  res->latitude = lat_0_;
-  res->longitude = lon_0_;
+  res->latitude = gnss_origin_.latitude;
+  res->longitude = gnss_origin_.longitude;
 
   res->success = true;
   res->message.clear();
@@ -850,10 +860,10 @@ void ErrorStateKalmanFilterNode::setGnssOriginCb(
     return;
   }
 
-  lat_0_ = req->latitude;
-  lon_0_ = req->longitude;
+  gnss_origin_.latitude = req->latitude;
+  gnss_origin_.longitude = req->longitude;
 
-  publishGnssOrigin(lat_0_, lon_0_, alt_0_);
+  publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
 
   res->success = true;
   res->message.clear();
