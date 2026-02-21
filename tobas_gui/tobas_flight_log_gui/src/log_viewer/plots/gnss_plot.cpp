@@ -11,7 +11,7 @@ namespace log
 GnssPlotWidget::GnssPlotWidget()
   : latitude_curve_("Latitude [deg]")
   , longitude_curve_("Longitude [deg]")
-  , altitude_curve_("Altitude [deg]")
+  , altitude_curve_("Altitude [m]")
   , east_speed_curve_("East Speed [m/s]")
   , north_speed_curve_("North Speed [m/s]")
   , up_speed_curve_("Up Speed [m/s]")
