@@ -40,7 +40,7 @@ class GroundControlStationWidget : public QWidget
   using self = GroundControlStationWidget;
   using super = QWidget;
 
-  static constexpr char kLastOpenedDirKey[] = "last_opened_dir/tobas_project";
+  static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
 
   static constexpr int kPathMaxWidth = 400;
   static constexpr int kPowerButtonRadius = 40;
@@ -95,6 +95,9 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   std::filesystem::path projectPath() const;
+
+  std::expected<void, QString> restartInBackground();
+  std::expected<void, QString> shutdownInBackground();
 
 private Q_SLOTS:
   void onLoadButtonClicked();

@@ -9,6 +9,7 @@ from launch_ros.substitutions import FindPackageShare
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
+MISSION_EXECUTOR_PKG = "{{ mission_executor_pkg }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -94,30 +95,10 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_manipulation",
-            executable="position_controller",
+            package=MISSION_EXECUTOR_PKG,
+            executable="mission_executor",
             namespace=DRONE_NAME,
-            remappings=tf_remap,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_manipulation",
-            executable="velocity_controller",
-            namespace=DRONE_NAME,
-            remappings=tf_remap,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_manipulation",
-            executable="effort_controller",
-            namespace=DRONE_NAME,
-            remappings=tf_remap,
+            parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static_standalone.yaml"])],
             ros_arguments=ros_args,
             output=output,
         )

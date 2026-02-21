@@ -10,7 +10,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_tools/command_level_handler.hpp>
+#include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/coordinates.hpp>
 
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
@@ -61,7 +61,7 @@ private:
   bool drone_received_ = false;
   bool tree_received_ = false;
   bool topics_received_ = false;
-  tobas::CommandLevelHandler cmd_level_handler_;
+  tobas::CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // 大気圧
   tobas_msgs::Odometry::ConstSharedPtr odom_flu_;                         // 現在の状態 (FLU座標系)
   tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // 現在のコマンド (FLU座標系)
@@ -91,7 +91,7 @@ private:
   void updateSetStateVector();
   void publishThrusts(const Eigen::VectorXd& thrusts);
   void publishDeflections(const Eigen::VectorXd& deflections);
-  bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
+  bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
   void updateForwardSpeedWeight();
   void updateAlphaWeight();
@@ -266,7 +266,7 @@ void ControllerNode::publishDeflections(const Eigen::VectorXd& deflections)
   tar_angles_pub_->publish(std::move(tar_angles_msg));
 }
 
-bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
+bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
 {
   if (!topics_received_) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
@@ -274,11 +274,11 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
   }
 
   if (!arming_->data) {
-    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the vehicle is disarmed.");
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, now())) {
+  if (!cmd_priority_handler_.update(priority.data, now())) {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -531,7 +531,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu
 
 void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_flu)
 {
-  if (!isCommandAccepted(cmd_flu->level)) {
+  if (!isCommandAccepted(cmd_flu->priority)) {
     return;
   }
 

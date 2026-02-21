@@ -1,0 +1,14 @@
+# Goal
+tobas_mission_msgs/MissionItem[] items
+tobas_mission_msgs/Priority priority
+
+---
+
+# Result
+tobas_mission_msgs/ErrorCode error_code
+string error_message
+
+---
+
+# Feedback
+uint32 current_index

@@ -88,22 +88,22 @@ public:
   /**
    * @brief アクションサーバを作成する．
    *
-   * @tparam ActionType
+   * @tparam ActType
    * @tparam Obj
    * @param action_name
    * @param handle_goal
    * @param handle_cancel
    * @param execute 別スレッドで実行されるアクションの実行関数
    * @param obj
-   * @return ros2::ActionServerPtr<ActionType>
+   * @return ros2::ActionServerPtr<ActType>
    */
-  template <typename ActionType, typename Obj>
-  ros2::ActionServerPtr<ActionType> createAction(
+  template <typename ActType, typename Obj>
+  ros2::ActionServerPtr<ActType> createAction(
     const std::string& action_name,
     rclcpp_action::GoalResponse (
-      Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
-    rclcpp_action::CancelResponse (Obj::*handle_cancel)(ros2::ActionGoalHandlePtr<ActionType>),
-    void (Obj::*execute)(ros2::ActionGoalHandlePtr<ActionType>),
+      Obj::*handle_goal)(const rclcpp_action::GoalUUID&, const std::shared_ptr<const typename ActType::Goal>&),
+    rclcpp_action::CancelResponse (Obj::*handle_cancel)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
+    void (Obj::*execute)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
     Obj* obj);
 
   template <typename RepType, typename DurType, typename Obj>
@@ -278,24 +278,24 @@ ros2::ServiceServerPtr<SrvType> BaseNode::createService(
   return create_service<SrvType>(srv_name, cb, rclcpp::ServicesQoS(), callback_group);
 }
 
-template <typename ActionType, typename Obj>
-ros2::ActionServerPtr<ActionType> BaseNode::createAction(
+template <typename ActType, typename Obj>
+ros2::ActionServerPtr<ActType> BaseNode::createAction(
   const std::string& action_name,
   rclcpp_action::GoalResponse (
-    Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
-  rclcpp_action::CancelResponse (Obj::*handle_cancel)(ros2::ActionGoalHandlePtr<ActionType>),
-  void (Obj::*execute)(ros2::ActionGoalHandlePtr<ActionType>),
+    Obj::*handle_goal)(const rclcpp_action::GoalUUID&, const std::shared_ptr<const typename ActType::Goal>&),
+  rclcpp_action::CancelResponse (Obj::*handle_cancel)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
+  void (Obj::*execute)(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&),
   Obj* obj)
 {
   // Callback functions need to return quickly to avoid blocking the executor,
   // so we declare a lambda function to be called inside a new thread.
-  const auto handle_accepted = [execute, obj](ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+  const auto handle_accepted = [execute, obj](const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& gh)
   {
-    const auto execute_in_thread = [execute, obj, goal_handle]() { return (obj->*execute)(goal_handle); };
+    const auto execute_in_thread = [execute, obj, gh]() { return (obj->*execute)(gh); };
     std::thread(execute_in_thread).detach();
   };
 
-  return rclcpp_action::create_server<ActionType>(
+  return rclcpp_action::create_server<ActType>(
     obj,
     action_name,
     std::bind(handle_goal, obj, std::placeholders::_1, std::placeholders::_2),

@@ -13,6 +13,7 @@
 	<depend>tobas_tools</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_drone_msgs_adapter</depend>
+	<depend>tobas_mission_items</depend>
 	<depend>tobas_mission_msgs</depend>
 
 	<export>

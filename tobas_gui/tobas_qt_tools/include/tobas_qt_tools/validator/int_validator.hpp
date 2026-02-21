@@ -5,7 +5,7 @@
 namespace qt
 {
 /**
- * ===== QFormLayoutとの違い =====
+ * ===== QFormLayout との違い =====
  * - validate() で Intermediate を正確に処理
  */
 class IntValidator : public QIntValidator

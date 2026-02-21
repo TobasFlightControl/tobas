@@ -228,7 +228,7 @@ int ExtraJointsWidget::findLink(const QString& link_name) const
     }
   }
 
-  qWarning() << "Link " << link_name << " is not found.";
+  qWarning() << "Link" << link_name << "not found.";
   return -1;
 }
 
@@ -240,7 +240,7 @@ int ExtraJointsWidget::findJoint(const QString& joint_name) const
     }
   }
 
-  qWarning() << "Joint " << joint_name << " is not found.";
+  qWarning() << "Joint" << joint_name << "not found.";
   return -1;
 }
 

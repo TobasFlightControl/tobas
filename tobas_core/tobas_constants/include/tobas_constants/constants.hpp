@@ -63,8 +63,10 @@ static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 // High Command
 static constexpr char kRateCmdTopic[] = "command/rate";
 static constexpr char kRateThrotCmdTopic[] = "command/rate_throttle";
+static constexpr char kRateThrotVectorCmdTopic[] = "command/rate_throttle_vector";
 static constexpr char kAngleCmdTopic[] = "command/angle";
 static constexpr char kAngleThrotCmdTopic[] = "command/angle_throttle";
+static constexpr char kAngleThrotVectorCmdTopic[] = "command/angle_throttle_vector";
 static constexpr char kAccelCmdTopic[] = "command/accel";
 static constexpr char kAccelYawCmdTopic[] = "command/accel_yaw";
 static constexpr char kAccelPitchYawCmdTopic[] = "command/accel_pitch_yaw";
@@ -102,9 +104,7 @@ static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
 static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
 
 // ROS actions
-static constexpr char kTakeoffAction[] = "takeoff_action";
-static constexpr char kLandAction[] = "land_action";
-static constexpr char kMoveAction[] = "move_action";
+static constexpr char kExecuteMissionAction[] = "execute_mission";
 
 // Node names
 namespace node
@@ -113,6 +113,7 @@ static constexpr char kImuFilterConfigServer[] = "imu_filter_config_server";
 static constexpr char kObserver[] = "observer";
 static constexpr char kController[] = "controller";
 static constexpr char kRcTeleop[] = "rc_teleop";
+static constexpr char kMissionExecutor[] = "mission_executor";
 }  // namespace node
 
 // PWM keys

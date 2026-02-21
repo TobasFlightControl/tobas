@@ -8,7 +8,7 @@ namespace ctrl
 {
 namespace field
 {
-class BaseField : public QWidget
+class BaseFieldWidget : public QWidget
 {
   Q_OBJECT
 
@@ -17,6 +17,14 @@ Q_SIGNALS:
 
 public:
   virtual const char* label() const = 0;
+};
+
+template <typename T>
+class FieldWidget : public BaseFieldWidget
+{
+public:
+  virtual T getValue() const = 0;
+  virtual void setValue(T value) = 0;
 };
 }  // namespace field
 }  // namespace ctrl

@@ -33,6 +33,7 @@ void FakeRcInputPublisherNode::timerCb()
 {
   auto msg = std::make_unique<tobas_msgs::RCInput>();
   msg->header.stamp = now();
+  msg->ok = true;
   msg->roll = 0.;
   msg->pitch = 0.;
   msg->throttle = -1.;

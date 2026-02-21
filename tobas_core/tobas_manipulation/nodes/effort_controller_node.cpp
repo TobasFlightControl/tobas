@@ -384,7 +384,7 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
     }
   }
   else {
-    TOBAS_ERROR("Both target joint state and target cartesian state are NULL.");
+    TOBAS_ERROR("Both target joint state and target cartesian state are null.");
     return;
   }
 

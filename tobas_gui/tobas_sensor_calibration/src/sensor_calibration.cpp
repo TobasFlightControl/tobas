@@ -102,9 +102,11 @@ void SensorCalibrationWidget::magCb(const tobas_msgs::MagneticField::ConstShared
   setCompleted(mag_calib_);
 }
 
-void SensorCalibrationWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr&)
+void SensorCalibrationWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& msg)
 {
-  setCompleted(rcin_calib_);
+  if (msg->ok) {
+    setCompleted(rcin_calib_);
+  }
 }
 }  // namespace sc
 }  // namespace gui

@@ -40,7 +40,7 @@
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_msgs_adapter/vibration_level.hpp>
 
-#define BILLION 1'000'000'000
+#define BILLION 1'000'000'000UL
 
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;

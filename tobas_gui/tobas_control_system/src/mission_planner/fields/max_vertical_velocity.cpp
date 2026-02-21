@@ -24,7 +24,7 @@ MaxVerticalVelocityWidget::MaxVerticalVelocityWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* MaxVerticalVelocityWidget::label() const
@@ -32,7 +32,7 @@ const char* MaxVerticalVelocityWidget::label() const
   return "Maximum Vertical Velocity";
 }
 
-double MaxVerticalVelocityWidget::value() const
+double MaxVerticalVelocityWidget::getValue() const
 {
   return spin_box_->value();
 }

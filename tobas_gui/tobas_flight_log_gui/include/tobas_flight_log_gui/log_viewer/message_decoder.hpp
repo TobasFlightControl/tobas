@@ -9,41 +9,43 @@ namespace gui
 namespace log
 {
 template <typename MsgType>
-class MessageDecoder
+class MessageDecoderCache
 {
-public:
-  explicit MessageDecoder();
+  using Time = rcutils_time_point_value_t;
+  using SerializedDataPtr = std::shared_ptr<rcutils_uint8_array_t>;
 
-  MsgType decode(rcutils_time_point_value_t time_ns, const rclcpp::SerializedMessage& ser_msg);
+public:
+  explicit MessageDecoderCache();
+
+  const MsgType& decode(const Time& time_ns, const SerializedDataPtr& ser_data);
 
   void clearCache();
 
 private:
   MsgType msg_;
   rclcpp::Serialization<MsgType> ser_;
-  std::unordered_map<rcutils_time_point_value_t, MsgType> cache_map_;
+  std::unordered_map<Time, MsgType> cache_map_;
 };
 
 template <typename MsgType>
-MessageDecoder<MsgType>::MessageDecoder()
+MessageDecoderCache<MsgType>::MessageDecoderCache()
 {
 }
 
 template <typename MsgType>
-MsgType MessageDecoder<MsgType>::decode(rcutils_time_point_value_t time_ns, const rclcpp::SerializedMessage& ser_msg)
+const MsgType& MessageDecoderCache<MsgType>::decode(const Time& time_ns, const SerializedDataPtr& ser_data)
 {
   if (cache_map_.contains(time_ns)) {
     return cache_map_[time_ns];
   }
-  {
-    ser_.deserialize_message(&ser_msg, &msg_);
-    cache_map_[time_ns] = msg_;
-    return msg_;
-  }
+
+  const rclcpp::SerializedMessage ser_msg(*ser_data);
+  ser_.deserialize_message(&ser_msg, &msg_);
+  return cache_map_[time_ns] = msg_;
 }
 
 template <typename MsgType>
-void MessageDecoder<MsgType>::clearCache()
+void MessageDecoderCache<MsgType>::clearCache()
 {
   cache_map_.clear();
 }

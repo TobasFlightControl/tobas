@@ -110,7 +110,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
   }
 
   if (!is_armed_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the rotors are disarmed.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the vehicle is disarmed.");
     return;
   }
 
@@ -130,9 +130,10 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
           continue;
         }
         const auto tar_thrust = std::max(elem.thrust, 0.);
+        const auto tar_speed = erotor->speedFromThrust(tar_thrust);
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = elem.link_name;
-        tar_speeds_msg->speeds.back().speed = erotor->speedFromThrust(tar_thrust);
+        tar_speeds_msg->speeds.back().speed = std::max(tar_speed, erotor->min_speed);
       }
 
       // Publish target speeds

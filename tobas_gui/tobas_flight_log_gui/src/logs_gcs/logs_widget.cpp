@@ -1,16 +1,19 @@
 #include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
 
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_flight_log_gui/constants.hpp"
+#include "tobas_flight_log_gui/logs_gcs/csv_export_thread.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 
 namespace fs = std::filesystem;
@@ -19,7 +22,8 @@ namespace gui
 {
 namespace log
 {
-FlightLogsWidgetGCS::FlightLogsWidgetGCS()
+FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
+  : property_client_(node, "tobas_flight_log_gui/logs_gcs"), spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -60,6 +64,7 @@ void FlightLogsWidgetGCS::addLog(const QString& log_name)
   log_list_->addItem(list_item);
 
   const auto widget = new FlightLogItemWidgetGCS(log_name);
+  connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
 }
@@ -116,7 +121,7 @@ void FlightLogsWidgetGCS::setCurrentLogName(const QString& log_name)
     }
   }
 
-  qWarning() << log_name << " not found.";
+  qWarning() << log_name << "not found.";
 }
 
 void FlightLogsWidgetGCS::onReadButtonClicked()
@@ -188,6 +193,57 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   }
 
   clearLogs();
+}
+
+void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
+{
+  // Get the last opened directory path
+  std::string last_opened_dir;
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+    last_opened_dir = ros2::getHomeDir();
+  }
+
+  // Set the default output file path
+  auto default_out_path = fs::path(last_opened_dir) / log_name.toStdString();
+  default_out_path.replace_extension(".csv");
+
+  // Get the save file path
+  const auto save_path = QFileDialog::getSaveFileName(
+    this,
+    "Select Output CSV File",
+    QString::fromStdString(default_out_path),
+    "CSV Files (*.csv)",
+    nullptr,
+    QFileDialog::DontUseNativeDialog);
+
+  // Return if canceled
+  if (save_path.isEmpty()) {
+    return;
+  }
+
+  // Save the selected directory path
+  const auto par_dir = fs::path(save_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+  if (property_client_.save() < 0) {
+    qWarning() << property_client_.errorMessage();
+  }
+
+  // Export CSV file
+  CsvExportThread thread(log_name, save_path);
+  spinner_.start();
+  const auto [success, message] = qt::startThreadAndWait(thread, &CsvExportThread::finished);
+  spinner_.stop();
+
+  // Show the result
+  if (success) {
+    qt::qInfoBox(this, "The flight log has been exported successfully.");
+  }
+  else {
+    qt::qErrorBox(this, "Failed to export the flight log: " + message);
+  }
 }
 
 void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)

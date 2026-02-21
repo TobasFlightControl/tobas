@@ -12,7 +12,7 @@ using namespace std;
 
 namespace linux
 {
-bool setThreadPriority(pthread_t thread, size_t priority, int policy)
+bool setThreadPriority(pthread_t thread, size_t priority, sched_t policy)
 {
   struct sched_param param;
   memset(&param, 0, sizeof(param));
@@ -26,7 +26,7 @@ bool setThreadPriority(pthread_t thread, size_t priority, int policy)
   return true;
 }
 
-bool setProcessPriority(pid_t pid, size_t priority, int policy)
+bool setProcessPriority(pid_t pid, size_t priority, sched_t policy)
 {
   struct sched_param param;
   memset(&param, 0, sizeof(param));
@@ -40,7 +40,7 @@ bool setProcessPriority(pid_t pid, size_t priority, int policy)
   return true;
 }
 
-bool setThisProcessPriority(size_t priority, int policy)
+bool setThisProcessPriority(size_t priority, sched_t policy)
 {
   return setProcessPriority(getpid(), priority, policy);
 }

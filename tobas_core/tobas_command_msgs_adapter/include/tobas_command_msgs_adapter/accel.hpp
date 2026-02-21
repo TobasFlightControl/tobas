@@ -11,7 +11,7 @@ namespace tobas_command_msgs
 struct Accel
 {
   std_msgs::msg::Header header;
-  tobas_command_msgs::msg::CommandLevel level;
+  tobas_command_msgs::msg::Priority priority;
   kdl::Vector accel;
 
   using SharedPtr = std::shared_ptr<Accel>;
@@ -29,14 +29,14 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::Accel, tobas_command_msgs::msg::A
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.header = src.header;
-    dst.level = src.level;
+    dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.accel, dst.accel);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.header = src.header;
-    dst.level = src.level;
+    dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.accel, dst.accel);
   }
 };

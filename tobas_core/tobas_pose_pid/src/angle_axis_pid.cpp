@@ -13,7 +13,7 @@ AngleAxisPID::AngleAxisPID()
   updateGain();
 }
 
-kdl::Vector AngleAxisPID::updatePID(
+kdl::Vector AngleAxisPID::update(
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro,
   const kdl::Rotation& tar_rot,
@@ -33,20 +33,6 @@ kdl::Vector AngleAxisPID::updatePID(
 
   // Compute target dgyro
   return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
-}
-
-kdl::Vector AngleAxisPID::updatePD(
-  const kdl::Rotation& cur_rot,
-  const kdl::Vector& cur_gyro,
-  const kdl::Rotation& tar_rot,
-  const kdl::Vector& tar_gyro)
-{
-  // Compute error in angle-axis form wrt. the local frame
-  const auto ep = (cur_rot.inverse() * tar_rot).getRot();
-  const auto ed = tar_gyro - cur_gyro;
-
-  // Compute target dgyro
-  return kp_.hadamard(ep) + kd_.hadamard(ed);
 }
 
 bool AngleAxisPID::setNaturalFreq(int idx, double value)

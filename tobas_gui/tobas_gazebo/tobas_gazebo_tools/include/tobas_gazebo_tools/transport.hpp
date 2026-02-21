@@ -22,7 +22,7 @@ bool waitForMessage(
   // コールバック (最初の1通だけ採用)
   const std::function<void(const MsgT&)> cb = [&](const MsgT& msg)
   {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard lock(mutex);
     if (got) {
       return;  // 2通目以降は無視
     }

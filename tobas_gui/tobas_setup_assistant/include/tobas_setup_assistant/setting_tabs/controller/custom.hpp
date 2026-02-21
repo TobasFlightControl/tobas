@@ -19,7 +19,9 @@ class CustomFrameWidget : public BaseControllerWidget
   static constexpr char kLoiterLabel[] = "Loiter Mode";
 
   static constexpr char kRateThrottleLabel[] = "Angle Rate + Throttle";
+  static constexpr char kRateThrottleVectorLabel[] = "Angle Rate + Throttle + Thrust Direction";
   static constexpr char kAngleThrottleLabel[] = "Euler Angle + Throttle";
+  static constexpr char kAngleThrottleVectorLabel[] = "Euler Angle + Throttle + Thrust Direction";
   static constexpr char kAccelYawLabel[] = "Accel + Yaw";
   static constexpr char kAccelPitchYawLabel[] = "Accel + Pitch + Yaw";
   static constexpr char kPosVelYawLabel[] = "Position + Velocity + Yaw";
@@ -50,7 +52,9 @@ public:
 private:
   const std::map<QString, tobas::RcCommand> command_map_{
     { kRateThrottleLabel, tobas::RcCommand::kRateThrottle },
+    { kRateThrottleVectorLabel, tobas::RcCommand::kRateThrottleVector },
     { kAngleThrottleLabel, tobas::RcCommand::kAngleThrottle },
+    { kAngleThrottleVectorLabel, tobas::RcCommand::kAngleThrottleVector },
     { kAccelYawLabel, tobas::RcCommand::kAccelYaw },
     { kAccelPitchYawLabel, tobas::RcCommand::kAccelPitchYaw },
     { kPosVelYawLabel, tobas::RcCommand::kPosVelYaw },

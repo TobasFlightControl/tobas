@@ -69,7 +69,7 @@ bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
     }
 
     if (!name2idx_.insert({ elem.link_name, idx }).second) {
-      qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is duplicated.";
+      qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is duplicated.";
       return false;
     }
 
@@ -114,7 +114,7 @@ void RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::m
 
     for (const auto& elem : msg.states) {
       if (!name2idx_.contains(elem.link_name)) {
-        qWarning() << "Rotor \"" << QString::fromStdString(elem.link_name) << "\" is not registered.";
+        qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is not registered.";
         continue;
       }
 
@@ -147,7 +147,7 @@ void RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::ms
 
     for (const auto& speed : msg.speeds) {
       if (!name2idx_.contains(speed.link_name)) {
-        qWarning() << "Rotor \"" << QString::fromStdString(speed.link_name) << "\" is not registered.";
+        qWarning() << "Rotor" << QString::fromStdString(speed.link_name) << "is not registered.";
         continue;
       }
 

@@ -34,7 +34,7 @@ void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMod
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 4, 20, " m/s^2");
   node->addDynamicDoubleParam(
-    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 8, 4, 20, " m/s^2");
+    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 4, 20, " m/s^2");
   node->addDynamicIntParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 90, 0, 180, " deg");
   node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360, " dps");
   node->addDynamicIntParam(
@@ -88,7 +88,7 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->accel = tar_acc_W;
   cmd->pitch = tar_pitch_;
   cmd->yaw = tar_yaw_;

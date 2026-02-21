@@ -1,11 +1,12 @@
 #include <tobas_constants/constants.hpp>
+#include <tobas_mission_items/mission_items.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
+#include <tobas_std_tools/byte.hpp>
 
 #include <tobas_command_msgs/msg/pos_vel_yaw.hpp>
-#include <tobas_mission_msgs/action/land.hpp>
-#include <tobas_mission_msgs/action/takeoff.hpp>
+#include <tobas_mission_msgs/action/execute_mission.hpp>
 
 #define ALTITUDE 3.  // [m]
 
@@ -14,15 +15,22 @@ using namespace std::chrono_literals;
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::Takeoff> client(node, tobas::kTakeoffAction);
+  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::kExecuteMissionAction);
 
   // ゴールを作成
-  tobas_mission_msgs::action::Takeoff::Goal goal;
-  goal.target_altitude = ALTITUDE;
-  goal.max_speed = 1.5;
-  goal.max_accel = 4.;
-  goal.max_jerk = 4.;
-  goal.altitude_tolerance = 0.5;
+  tobas::mission::Takeoff takeoff;
+  takeoff.altitude = ALTITUDE;
+  takeoff.max_speed = 1.5;
+  takeoff.max_accel = 4.;
+  takeoff.max_jerk = 4.;
+  takeoff.altitude_tolerance = 0.5;
+
+  tobas_mission_msgs::msg::MissionItem mission_item;
+  mission_item.type = tobas::mission::kTakeoff;
+  mission_item.data = tbs::toBytes(takeoff);
+
+  tobas_mission_msgs::action::ExecuteMission::Goal goal;
+  goal.items.push_back(mission_item);
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {
@@ -33,7 +41,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   // アクションの成否を確認
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Takeoff action failed: " << result.result->message);
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result.result->error_message);
     return false;
   }
 
@@ -43,11 +51,18 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 bool land(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::Land> client(node, tobas::kLandAction);
+  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::kExecuteMissionAction);
 
   // ゴールを作成
-  tobas_mission_msgs::action::Land::Goal goal;
-  goal.speed = 0.7;
+  tobas::mission::Land land;
+  land.speed = 0.7;
+
+  tobas_mission_msgs::msg::MissionItem mission_item;
+  mission_item.type = tobas::mission::kLand;
+  mission_item.data = tbs::toBytes(land);
+
+  tobas_mission_msgs::action::ExecuteMission::Goal goal;
+  goal.items.push_back(mission_item);
 
   // アクションを実行
   if (!client.sendGoalAndWait(goal)) {
@@ -58,7 +73,7 @@ bool land(rclcpp::Node::SharedPtr node)
   // アクションの成否を確認
   const auto result = client.getResult();
   if (result.code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Land action failed: " << result.result->message);
+    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result.result->error_message);
     return false;
   }
 

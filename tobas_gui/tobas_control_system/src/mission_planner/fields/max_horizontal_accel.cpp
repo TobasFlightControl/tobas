@@ -22,7 +22,7 @@ MaxHorizontalAccelWidget::MaxHorizontalAccelWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* MaxHorizontalAccelWidget::label() const
@@ -30,7 +30,7 @@ const char* MaxHorizontalAccelWidget::label() const
   return "Maximum Horizontal Acceleration";
 }
 
-double MaxHorizontalAccelWidget::value() const
+double MaxHorizontalAccelWidget::getValue() const
 {
   return spin_box_->value();
 }

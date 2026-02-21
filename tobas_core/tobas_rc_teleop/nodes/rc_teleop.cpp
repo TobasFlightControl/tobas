@@ -20,10 +20,12 @@
 #include "tobas_rc_teleop/accel_rate.hpp"
 #include "tobas_rc_teleop/accel_yaw.hpp"
 #include "tobas_rc_teleop/angle_throttle.hpp"
+#include "tobas_rc_teleop/angle_throttle_vector.hpp"
 #include "tobas_rc_teleop/pos_vel_angle.hpp"
 #include "tobas_rc_teleop/pos_vel_pitch_yaw.hpp"
 #include "tobas_rc_teleop/pos_vel_yaw.hpp"
 #include "tobas_rc_teleop/rate_throttle.hpp"
+#include "tobas_rc_teleop/rate_throttle_vector.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std::chrono_literals;
@@ -32,14 +34,12 @@ namespace tobas_rc_teleop
 {
 class RCTeleopNode : public tobas::BaseNode
 {
-  static constexpr double kArmThrotThresh = 0.1;  // [-]
-  static constexpr double kArmDuration = 1.;      // [s]
-  static constexpr double kDisarmDuration = 1.;   // [s]
+  static constexpr double kArmThrotThresh = 0.04;  // 帯域 [-1, 1] の 2%
+  static constexpr auto kArmDuration = 1s;
+  static constexpr auto kDisarmDuration = 1s;
 
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kWarnPeriod = 1.;            // [s]
-
-  static constexpr auto kRadioLinkLostTimeout = 1s;
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -89,9 +89,6 @@ private:
   // Service
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
 
-  // Timer
-  ros2::TimerPtr rcin_timeout_timer_;
-
   void getStaticRosParams();
   void initializeControllers();
   void requestArmingRotors(bool arming);
@@ -104,8 +101,6 @@ private:
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
-
-  void rcInputTimeoutTimerCb();
 };
 
 RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::node::kRcTeleop, options)
@@ -122,8 +117,6 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::no
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
-
-  rcin_timeout_timer_ = createTimer(kRadioLinkLostTimeout, &self::rcInputTimeoutTimerCb, this);
 }
 
 void RCTeleopNode::getStaticRosParams()
@@ -145,8 +138,14 @@ void RCTeleopNode::initializeControllers()
       case tobas::RcCommand::kRateThrottle:
         controllers_[mode] = std::make_unique<RateThrottleController>();
         break;
+      case tobas::RcCommand::kRateThrottleVector:
+        controllers_[mode] = std::make_unique<RateThrottleVectorController>();
+        break;
       case tobas::RcCommand::kAngleThrottle:
         controllers_[mode] = std::make_unique<AngleThrottleController>();
+        break;
+      case tobas::RcCommand::kAngleThrottleVector:
+        controllers_[mode] = std::make_unique<AngleThrottleVectorController>();
         break;
       case tobas::RcCommand::kAccelYaw:
         controllers_[mode] = std::make_unique<AccelYawController>();
@@ -201,7 +200,7 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.yaw = tobas::kRCInputMid;
   idle_rcin.throttle = tobas::kRcInputMin;
 
-  controllers_[tobas::FlightMode::kAcrobat]->update(idle_rcin, *odom_);
+  controllers_[cur_mode_]->update(idle_rcin, *odom_);
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
@@ -313,6 +312,14 @@ void RCTeleopNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& armin
 void RCTeleopNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
 {
   health_ = health;
+
+  // 通信が切れた場合，切れる前のコマンドが残らないようにステージを最初に戻す．
+  if (health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED) {
+    if (stage_ != kCheckPrerequisites) {
+      stage_ = kCheckPrerequisites;
+      TOBAS_WARN("The radio control command has been reset because the link was lost.");
+    }
+  }
 }
 
 void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
@@ -322,8 +329,9 @@ void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& 
 
 void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
-  // 通信チェックタイマーをリセット
-  rcin_timeout_timer_->reset();
+  if (!rcin->ok) {
+    return;
+  }
 
   switch (stage_) {
     case kCheckPrerequisites: {
@@ -369,7 +377,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
         rcin->yaw < tobas::kRcInputMin + kArmThrotThresh && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {
         // アームコマンドが一定時間維持されていれば一度アームをリクエスト
-        if ((rcin->header.stamp - t_arm_start_).seconds() > kArmDuration) {
+        if (rcin->header.stamp - t_arm_start_ > kArmDuration) {
           TOBAS_INFO("Arming rotors...");
           requestArmingRotors(true);
           t_arm_start_ = rcin->header.stamp;
@@ -469,7 +477,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < kArmThrotThresh &&
           rcin->yaw > tobas::kRcInputMax - kArmThrotThresh) {
           TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
-          if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisarmDuration) {  // 一定時間維持されていればリクエスト
+          if (rcin->header.stamp - t_disarm_start_ > kDisarmDuration) {  // 一定時間維持されていればリクエスト
             TOBAS_INFO("Disarming rotors...");
             requestArmingRotors(false);
             t_disarm_start_ = rcin->header.stamp;
@@ -490,15 +498,6 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       TOBAS_ERROR("Invalid stage: ", (int)stage_);
       break;
     }
-  }
-}
-
-void RCTeleopNode::rcInputTimeoutTimerCb()
-{
-  if (stage_ != kCheckPrerequisites) {
-    // 通信が切れる前のコマンドが残らないようにステージを最初に戻す
-    TOBAS_WARN("Radio link was lost.");
-    stage_ = kCheckPrerequisites;
   }
 }
 }  // namespace tobas_rc_teleop

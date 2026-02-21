@@ -52,7 +52,7 @@ void GnssViewerWidget::setStatus(uint8_t status)
       status_->setText("Time Fix Only");
       break;
     default:
-      qWarning() << "Unknown status: " << (int)status;
+      qWarning() << "Unknown status:" << (int)status;
       status_->setText("Unknown");
       break;
   }

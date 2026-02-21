@@ -6,10 +6,7 @@
 
 namespace tbs
 {
-/**
- * @brief 指定した期間内のデータのみを保持するバッファ．
- * @tparam T データ型
- */
+/* 指定した期間内のデータのみを保持するバッファ． */
 template <typename T>
 class TimestampedBuffer
 {
@@ -83,7 +80,7 @@ public:
     assert(!map_.empty());
 
     // 与えられた時刻以後の最初の要素を取得
-    // lower_bound, upper_boundはキーを挟んでいるわけではなく，前者はキー以上，後者はキーより大きい要素を返す．
+    // lower_bound, upper_bound はキーを挟んでいるわけではなく，前者はキー以上，後者はキーより大きい要素を返す．
     auto it = map_.lower_bound(time);
 
     // 要素が古すぎる場合は最新の値を返す

@@ -1,27 +1,23 @@
-#include <sched.h>
+#pragma once
 
 #include <rclcpp/executors/multi_threaded_executor.hpp>
+
+#include <tobas_linux/types.hpp>
 
 namespace ros2
 {
 /* MultiThreadedExecutorのスレッドプールにリアルタイム優先度を付与． */
 class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
 {
-  static constexpr char kName[] = "multi_threaded_executor_rt";
-
 public:
   using SharedPtr = std::shared_ptr<MultiThreadedExecutorRT>;
 
-  explicit MultiThreadedExecutorRT(
-    int policy = SCHED_FIFO,
-    size_t priority = 0,
-    uint32_t cpu_affinity = 0,
-    size_t num_threads = 0);
+  explicit MultiThreadedExecutorRT(linux::sched_t policy, size_t priority, uint32_t cpu_affinity, size_t num_threads);
 
   void spin() override;
 
+  linux::sched_t policy() const;
   size_t priority() const;
-  int policy() const;
 
 private:
   const int policy_;

@@ -7,7 +7,6 @@ namespace tobas
 void odometryFrdToFlu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
 {
   des.header = src.header;
-  des.status = src.status;
   kdl::frameFrdToFlu(src.frame, des.frame);
   kdl::twistFrdToFlu(src.twist, des.twist);
 }

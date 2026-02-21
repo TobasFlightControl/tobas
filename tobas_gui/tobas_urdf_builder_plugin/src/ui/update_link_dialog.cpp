@@ -28,10 +28,10 @@ namespace ub
 {
 namespace ui
 {
-UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPanel* main)
+UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, UrdfBuilderPanel* main)
   : super(main)
   , node_(node)
-  , property_client_(node, kPropertySection)
+  , property_client_(node, "tobas_urdf_builder_plugin/update_link_dialog")
   , main_(main)
   , ui_(new Ui::UpdateLinkDialogUI())
   , link_vm_(new view_model::LinkViewModel())

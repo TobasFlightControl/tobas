@@ -9,18 +9,12 @@ class PositionPID
 public:
   explicit PositionPID();
 
-  kdl::Vector updatePID(
+  kdl::Vector update(
     const kdl::Vector& cur_pos,
     const kdl::Vector& cur_vel,
     const kdl::Vector& tar_pos,
     const kdl::Vector& tar_vel,
     const double& dt);
-
-  kdl::Vector updatePD(
-    const kdl::Vector& cur_pos,
-    const kdl::Vector& cur_vel,
-    const kdl::Vector& tar_pos,
-    const kdl::Vector& tar_vel);
 
   bool setProportionalGain(int idx, double value);
   bool setIntegralGain(int idx, double value);

@@ -23,12 +23,12 @@ WaypointWidget::WaypointWidget()
   addField(longitude_);
   addField(altitude_);
   addField(altitude_frame_);
-  addField(max_hor_vel_);
-  addField(max_ver_vel_);
-  addField(max_hor_acc_);
-  addField(max_ver_acc_);
-  addField(max_hor_jerk_);
-  addField(max_ver_jerk_);
+  addField(max_hor_vel_, true);
+  addField(max_ver_vel_, true);
+  addField(max_hor_acc_, true);
+  addField(max_ver_acc_, true);
+  addField(max_hor_jerk_, true);
+  addField(max_ver_jerk_, true);
   addField(acceptance_radius_);
   addField(altitude_tolerance_);
 }
@@ -38,82 +38,64 @@ const char* WaypointWidget::name() const
   return "Waypoint";
 }
 
-BaseCommandData::SharedPtr WaypointWidget::data() const
-{
-  const auto res = std::make_shared<WaypointData>();
-  res->latitude = latitude();
-  res->longitude = longitude();
-  res->altitude = altitude();
-  res->altitude_frame = altitudeFrame();
-  res->max_horizontal_velocity = maxHorizontalVelocity();
-  res->max_vertical_velocity = maxVerticalVelocity();
-  res->max_horizontal_accel = maxHorizontalAccel();
-  res->max_vertical_accel = maxVerticalAccel();
-  res->max_horizontal_jerk = maxHorizontalJerk();
-  res->max_vertical_jerk = maxVerticalJerk();
-  res->acceptance_radius = acceptanceRadius();
-  res->altitude_tolerance = altitudeTolerance();
-  return res;
-}
-
 double WaypointWidget::latitude() const
 {
-  return latitude_->value();
+  return getValue(latitude_);
 }
 
 double WaypointWidget::longitude() const
 {
-  return longitude_->value();
+  return getValue(longitude_);
 }
 
 double WaypointWidget::altitude() const
 {
-  return altitude_->value();
+  return getValue(altitude_);
 }
 
-AltitudeFrame WaypointWidget::altitudeFrame() const
+tobas::mission::AltitudeFrame WaypointWidget::altitudeFrame() const
 {
-  return altitude_frame_->value();
+  return getValue(altitude_frame_);
 }
 
 double WaypointWidget::maxHorizontalVelocity() const
 {
-  return max_hor_vel_->value();
+  return getValue(max_hor_vel_);
 }
 
 double WaypointWidget::maxVerticalVelocity() const
 {
-  return max_ver_vel_->value();
+  return getValue(max_ver_vel_);
 }
 
 double WaypointWidget::maxHorizontalAccel() const
 {
-  return max_hor_acc_->value();
+  return getValue(max_hor_acc_);
 }
 
 double WaypointWidget::maxVerticalAccel() const
 {
-  return max_ver_acc_->value();
+  return getValue(max_ver_acc_);
 }
 
 double WaypointWidget::maxHorizontalJerk() const
 {
-  return max_hor_jerk_->value();
+  return getValue(max_hor_jerk_);
 }
 
 double WaypointWidget::maxVerticalJerk() const
 {
-  return max_ver_jerk_->value();
+  return getValue(max_ver_jerk_);
 }
 
 double WaypointWidget::acceptanceRadius() const
 {
-  return acceptance_radius_->value();
+  return getValue(acceptance_radius_);
 }
 
 double WaypointWidget::altitudeTolerance() const
 {
-  return altitude_tolerance_->value();
+  return getValue(altitude_tolerance_);
 }
 
 void WaypointWidget::latitude(double value)
@@ -131,7 +113,7 @@ void WaypointWidget::altitude(double value)
   altitude_->setValue(value);
 }
 
-void WaypointWidget::altitudeFrame(AltitudeFrame value)
+void WaypointWidget::altitudeFrame(tobas::mission::AltitudeFrame value)
 {
   altitude_frame_->setValue(value);
 }

@@ -8,7 +8,7 @@
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_tools/command_level_handler.hpp>
+#include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
@@ -71,7 +71,7 @@ private:
   bool tree_received_ = false;
   bool js_received_ = false;
   bool topics_received_ = false;
-  CommandLevelHandler cmd_level_handler_;
+  CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
@@ -81,9 +81,9 @@ private:
   tobas_command_msgs::PosVelYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
   tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
   std::shared_ptr<kdl::Euler> tar_angle_;             // 目標オイラー角 (世界座標系)
-  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標角速度 (機体座標系P)
-  kdl::Vector tar_dgyro_;                             // 目標角加速度
-  double tar_thrust_;                                 // 目標推力
+  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標角速度 (機体座標系)
+  kdl::Vector tar_dgyro_;                             // 目標角加速度 (機体座標系)
+  double tar_thrust_;                                 // 目標推力 (機体座標系)
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -107,7 +107,7 @@ private:
   ros2::TimerPtr check_topics_timer_;
 
   bool updateInternalDataStructures();
-  bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
+  bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
   std::pair<kdl::Vector, kdl::Vector> computeRotGain() const;
   static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
 
@@ -227,7 +227,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 10, 4, 30, " m/s^2");
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 30, " m/s^2");
+  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 16, 2, 30, " m/s^2");
   addDynamicDoubleParam("max_attitude", &self::maxAttitudeCb, this, 1., 60, 0, 90, " deg");
   addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1., 50, 0, 100, " %");
 
@@ -279,7 +279,7 @@ bool ControllerNode::updateInternalDataStructures()
   return true;
 }
 
-bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
+bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
 {
   if (!topics_received_) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
@@ -287,11 +287,11 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
   }
 
   if (!arming_->data) {
-    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the vehicle is disarmed.");
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, now())) {
+  if (!cmd_priority_handler_.update(priority.data, now())) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -583,6 +583,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
 
+  // エイリアス
+  const auto& cur_pos_W = odom->frame.p;
+  const auto& cur_rot = odom->frame.M;
+  const auto& cur_vel_B = odom->twist.vel;
+  const auto& cur_gyro_B = odom->twist.rot;
+
   // 位置制御器
   if (pos_cmd_) {
     if (!acc_cmd_) {
@@ -590,24 +596,17 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
 
     // 世界座標系から見た現在の位置速度
-    const auto& cur_pos_W = odom->frame.p;
-    const auto cur_vel_W = odom->frame.M * odom->twist.vel;
+    const auto cur_vel_W = cur_rot * cur_vel_B;
 
-    // 目標加速度を計算
-    // 接地している場合はI制御は行わない
-    if (landed_->data) {
-      acc_cmd_->accel = pos_pid_.updatePD(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel);
-    }
-    else {
-      acc_cmd_->accel = pos_pid_.updatePID(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, dt);
-    }
+    // 目標加速度を計算（接地している場合は誤差の積分を行わない）
+    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->data ? 0. : dt);
 
     // ヨー角はそのまま流す
     acc_cmd_->yaw = pos_cmd_->yaw;
 
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = odom->frame.M.inverse(pos_cmd_->vel);
+    feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
@@ -619,8 +618,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 推力和と目標姿勢を計算
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
-    if (!trans_eom_.solve(
-          odom->frame.M, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch)) {
+    if (!trans_eom_.solve(cur_rot, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch)) {
       TOBAS_FATAL("Failed to solve the translational EoM.");
       return;
     }
@@ -629,7 +627,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_angle_->yaw = acc_cmd_->yaw;
 
     // フィードバックメッセージを埋める
-    feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
+    feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
   }
 
   // 回転のゲインを決定
@@ -644,7 +642,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 回転角的にはクォータニオンや回転行列で目標姿勢と現在姿勢の誤差を計算し，それを角軸ベクトルに変換したものが最短距離だが，
     // その場合は方位のみの追従誤差がモデル化誤差によって姿勢の動きに変換されて不安定になる恐れがあるため，
     // 姿勢と方位を分離する目的でオイラー角で回転誤差を計算している．
-    const kdl::Euler cur_rpy(odom->frame.M);
+    const kdl::Euler cur_rpy(cur_rot);
     const auto ep = computeEulerError(cur_rpy, *tar_angle_);
 
     // 浮遊していれば積分誤差を蓄積
@@ -659,7 +657,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       }
     }
 
-    // 目標オイラー角速度を計算 (接地している場合はI制御は行わない)
+    // 目標オイラー角速度を計算
     const auto tar_drpy = angle_gain.hadamard(ep) + rot_ki_.hadamard(rot_ei_);
 
     // オイラー角速度をジャイロに変換
@@ -674,7 +672,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 角速度制御器
     {
       // 目標角加速度を計算
-      tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - odom->twist.rot);
+      tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
 
       // フィードバックメッセージを埋める
       feedback->target_gyro = *tar_gyro_;
@@ -683,7 +681,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // ミキサー
     {
       const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-      if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro_, tar_thrust_, dist_torque_B)) {
+      if (!mixer_.solve(js_converter_.getPosition(), cur_gyro_B, tar_dgyro_, tar_thrust_, dist_torque_B)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
@@ -725,18 +723,6 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
-  if (!landed_) {
-    landed_ = landed;
-    return;
-  }
-
-  // 着陸したら積分誤差をリセット
-  if (landed->data && !landed_->data) {
-    pos_pid_.resetIntegralError();
-    rot_ei_.setZero();
-    TOBAS_INFO("The integral errors have been reset.");
-  }
-
   landed_ = landed;
 }
 
@@ -747,13 +733,17 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     return;
   }
 
-  // ディスアームしたらコマンドをリセット
+  // ディスアームしたら積分誤差とコマンドをリセット
   if (!arming->data && arming_->data) {
+    pos_pid_.resetIntegralError();
+    rot_ei_.setZero();
+
     pos_cmd_.reset();
     acc_cmd_.reset();
     tar_angle_.reset();
     tar_gyro_.reset();
-    TOBAS_INFO("The high-level commands have been reset.");
+
+    TOBAS_INFO("The controller has been reset.");
   }
 
   arming_ = arming;
@@ -774,7 +764,7 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
 
 void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelYaw::ConstSharedPtr& pos_cmd)
 {
-  if (!isCommandAccepted(pos_cmd->level)) {
+  if (!isCommandAccepted(pos_cmd->priority)) {
     return;
   }
 
@@ -784,7 +774,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelYaw::Cons
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd)
 {
-  if (!isCommandAccepted(acc_cmd->level)) {
+  if (!isCommandAccepted(acc_cmd->priority)) {
     return;
   }
 
@@ -797,7 +787,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd)
 {
-  if (!isCommandAccepted(angle_cmd->level)) {
+  if (!isCommandAccepted(angle_cmd->priority)) {
     return;
   }
 
@@ -822,7 +812,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd)
 {
-  if (!isCommandAccepted(rate_cmd->level)) {
+  if (!isCommandAccepted(rate_cmd->priority)) {
     return;
   }
 

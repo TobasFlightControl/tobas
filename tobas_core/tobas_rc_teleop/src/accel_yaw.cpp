@@ -34,7 +34,7 @@ void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mod
   node->addDynamicDoubleParam(
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 4, 20, " m/s^2");
   node->addDynamicDoubleParam(
-    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 8, 4, 20, " m/s^2");
+    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 4, 20, " m/s^2");
   node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360, " dps");
   node->addDynamicIntParam(
     addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, -30, -kExpoScale, kExpoScale);
@@ -69,7 +69,7 @@ void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msg
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AccelYaw>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->accel = kdl::Rotation::RotZ(tar_yaw_) * tar_acc_G_;  // 地面座標系から世界座標系に変換
   cmd->yaw = tar_yaw_;
 

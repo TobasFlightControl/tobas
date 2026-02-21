@@ -79,6 +79,16 @@ def generate_launch_description():
     )
     ld.add_action(run_ssh_server)
 
+    # Launch Tile proxy
+    run_tile_server = Node(
+        package="tobas_tile_proxy",
+        executable="tile_proxy_node",
+        ros_arguments=ros_args,
+        output=output,
+        additional_env={"ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"},
+    )
+    ld.add_action(run_tile_server)
+
     # Launch heartbeat sender to monitor network connectivity
     run_heartbeat_sender = Node(
         package="tobas_connection_monitor",

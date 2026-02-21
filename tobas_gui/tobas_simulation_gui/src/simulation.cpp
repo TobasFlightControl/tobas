@@ -245,7 +245,7 @@ bool SimulationWidget::startHITL()
   }
   else {
     if (arming_->data) {
-      qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+      qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
       return false;
     }
   }
@@ -438,7 +438,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
     return false;
   }
 
-  qInfo() << "Simulation has been started with pid " << launch_pid_ << ".";
+  qInfo().nospace() << "Simulation has been started with pid " << launch_pid_ << ".";
   return true;
 }
 

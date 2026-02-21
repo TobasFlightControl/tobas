@@ -98,11 +98,6 @@ void ControllerWidget::load(const YAML::Node& node)
   }
 }
 
-FrameType ControllerWidget::getFrameType() const
-{
-  return frame_type_;
-}
-
 void ControllerWidget::setFrameType(const FrameType& type)
 {
   frame_type_ = type;

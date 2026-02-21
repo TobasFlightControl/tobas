@@ -82,7 +82,7 @@ public:
   bool setInternalResistance(size_t ch, double resistance) noexcept;
   /* Set the propeller diameter [m] */
   bool setPropellerDiameter(size_t ch, double diameter) noexcept;
-  /* Set the moment constant scaled by the propeller diameter [Nm/(rad/s)^2/m^4] */
+  /* Set the moment constant scaled by the propeller diameter [Nm/(rad/s)^2/m^5] */
   bool setMomentConstant(size_t ch, double moment_const) noexcept;
   /* Set the number of motor poles */
   bool setNumPoles(size_t ch, uint16_t num_poles) noexcept;

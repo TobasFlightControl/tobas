@@ -1,7 +1,15 @@
 #include "tobas_control_system/mission_planner/fields/altitude_frame.hpp"
 
+#include <string.h>
+
+#include <format>
+#include <stdexcept>
+
 #include <QHBoxLayout>
 #include <magic_enum/magic_enum.hpp>
+
+#define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
+#define RELATIVE_TO_HOME_LABEL "Relative to Home"
 
 namespace gui
 {
@@ -9,18 +17,46 @@ namespace ctrl
 {
 namespace field
 {
+namespace
+{
+const char* altFrameToText(tobas::mission::AltitudeFrame frame)
+{
+  switch (frame) {
+    case tobas::mission::kMeanSeaLevel:
+      return MEAN_SEA_LEVEL_LABEL;
+    case tobas::mission::kRelativeToHome:
+      return RELATIVE_TO_HOME_LABEL;
+    default:
+      throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)frame));
+  }
+}
+
+tobas::mission::AltitudeFrame textToAltFrame(const char* text)
+{
+  if (strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
+    return tobas::mission::kMeanSeaLevel;
+  }
+  else if (strcmp(text, RELATIVE_TO_HOME_LABEL) == 0) {
+    return tobas::mission::kRelativeToHome;
+  }
+  else {
+    throw std::runtime_error(std::format("Invalid altitude frame text: {}", text));
+  }
+}
+}  // namespace
+
 AltitudeFrameWidget::AltitudeFrameWidget()
 {
   combobox_ = new qt::ComboBox();
-  combobox_->addItem(altFrameToText(AltitudeFrame::kRelativeToHome));  // TODO: 他の選択肢も選べるようにする
-  // for (const auto alt_frame : magic_enum::enum_values<AltitudeFrame>())
+  combobox_->addItem(altFrameToText(tobas::mission::kRelativeToHome));  // TODO: 他の選択肢も選べるようにする
+  // for (const auto alt_frame : magic_enum::enum_values<tobas::mission::AltitudeFrame>())
   //   combobox_->addItem(altFrameToText(alt_frame));
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
   cols->addWidget(combobox_);
 
-  connect(combobox_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BaseField::updated);
+  connect(combobox_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* AltitudeFrameWidget::label() const
@@ -28,12 +64,12 @@ const char* AltitudeFrameWidget::label() const
   return "Altitude Frame";
 }
 
-AltitudeFrame AltitudeFrameWidget::value() const
+tobas::mission::AltitudeFrame AltitudeFrameWidget::getValue() const
 {
   return textToAltFrame(combobox_->currentText().toUtf8());
 }
 
-void AltitudeFrameWidget::setValue(AltitudeFrame value)
+void AltitudeFrameWidget::setValue(tobas::mission::AltitudeFrame value)
 {
   combobox_->setCurrentText(altFrameToText(value));
 }

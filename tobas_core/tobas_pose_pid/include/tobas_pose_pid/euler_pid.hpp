@@ -9,18 +9,12 @@ class EulerPID
 public:
   explicit EulerPID();
 
-  kdl::Vector updatePID(
+  kdl::Vector update(
     const kdl::Euler& cur_rpy,
     const kdl::Vector& cur_gyro,
     const kdl::Euler& tar_rpy,
     const kdl::Vector& tar_gyro,
     const double& dt);
-
-  kdl::Vector updatePD(
-    const kdl::Euler& cur_rpy,
-    const kdl::Vector& cur_gyro,
-    const kdl::Euler& tar_rpy,
-    const kdl::Vector& tar_gyro);
 
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);

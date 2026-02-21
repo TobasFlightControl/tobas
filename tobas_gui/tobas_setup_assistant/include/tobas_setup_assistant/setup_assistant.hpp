@@ -34,9 +34,9 @@ class SetupAssistantWidget : public QWidget
   using self = SetupAssistantWidget;
   using super = QWidget;
 
-  static constexpr char kLastOpenedDirKey_New[] = "last_opened_dir/setup_assistant/new";
-  static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/setup_assistant/load";
-  static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/setup_assistant/save";
+  static constexpr char kLastOpenedDirKey_New[] = "last_opened_dir/new";
+  static constexpr char kLastOpenedDirKey_Load[] = "last_opened_dir/load";
+  static constexpr char kLastOpenedDirKey_Save[] = "last_opened_dir/save";
 
   static constexpr double kJntAxisParallelTol = tbs::deg2rad(5);  // [rad]
 

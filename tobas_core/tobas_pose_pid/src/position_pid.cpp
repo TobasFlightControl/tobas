@@ -12,15 +12,13 @@ PositionPID::PositionPID()
 {
 }
 
-kdl::Vector PositionPID::updatePID(
+kdl::Vector PositionPID::update(
   const kdl::Vector& cur_pos,
   const kdl::Vector& cur_vel,
   const kdl::Vector& tar_pos,
   const kdl::Vector& tar_vel,
   const double& dt)
 {
-  assert(dt > 0.);
-
   // 誤差を計算
   const auto ep = tar_pos - cur_pos;
   const auto ed = tar_vel - cur_vel;
@@ -40,23 +38,6 @@ kdl::Vector PositionPID::updatePID(
   // 目標加速度を計算
   const auto cmd_acc_pd = (kp_.hadamard(ep) + kd_.hadamard(ed)).clamp(-max_acc_, max_acc_);
   return cmd_acc_pd + ki_.hadamard(ei_);  // 定常誤差が大きい時の誤差の発散を防ぐためI成分は最大加速度を超えて指示可能
-}
-
-kdl::Vector PositionPID::updatePD(
-  const kdl::Vector& cur_pos,
-  const kdl::Vector& cur_vel,
-  const kdl::Vector& tar_pos,
-  const kdl::Vector& tar_vel)
-{
-  // 誤差を計算
-  const auto ep = tar_pos - cur_pos;
-  const auto ed = tar_vel - cur_vel;
-
-  // 目標加速度を計算
-  const auto cmd_acc = kp_.hadamard(ep) + kd_.hadamard(ed);
-
-  // 目標加速度を制限して出力
-  return cmd_acc.clamp(-max_acc_, max_acc_);
 }
 
 bool PositionPID::setProportionalGain(int idx, double value)

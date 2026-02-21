@@ -90,7 +90,7 @@ int PropulsionUnitsWidget::index(const QString& link_name) const
     }
   }
 
-  qWarning() << link_name << " is not selected as a propulsion system.";
+  qWarning() << link_name << "is not selected as a propulsion system.";
   return -1;
 }
 

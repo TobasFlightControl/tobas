@@ -67,7 +67,8 @@ bool Version::fromString(QString str)
   // 3つに分割
   const auto parts = str.split('.');
   if (parts.size() != 3) {
-    qWarning() << "Invalid version format: " << str << ". Expected major.minor.patch (e.g., 1.2.3).";
+    qWarning().noquote().nospace() << "Invalid version format: " << str
+                                   << ". Expected major.minor.patch (e.g., 1.2.3).";
     return false;
   }
 
@@ -77,8 +78,9 @@ bool Version::fromString(QString str)
   minor = parts[1].toInt(&ok2);
   patch = parts[2].toInt(&ok3);
   if (!ok1 || !ok2 || !ok3) {
-    qWarning() << "Invalid version number: " << str
-               << ". Each component must be an integer in the form major.minor.patch (e.g., 1.2.3).";
+    qWarning().noquote().nospace()
+      << "Invalid version number: " << str
+      << ". Each component must be an integer in the form major.minor.patch (e.g., 1.2.3).";
     return false;
   }
 
@@ -89,7 +91,7 @@ bool Version::load(const fs::path& path)
 {
   const auto node = yaml::load(path);
   if (!node) {
-    qWarning() << QString::fromStdString(node.error());
+    qWarning() << node.error().c_str();
     return false;
   }
 

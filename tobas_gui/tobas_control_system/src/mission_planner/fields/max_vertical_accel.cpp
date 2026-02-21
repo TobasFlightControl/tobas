@@ -24,7 +24,7 @@ MaxVerticalAccelWidget::MaxVerticalAccelWidget()
   setLayout(cols);
   cols->addWidget(spin_box_);
 
-  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+  connect(spin_box_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);
 }
 
 const char* MaxVerticalAccelWidget::label() const
@@ -32,7 +32,7 @@ const char* MaxVerticalAccelWidget::label() const
   return "Maximum Vertical Acceleration";
 }
 
-double MaxVerticalAccelWidget::value() const
+double MaxVerticalAccelWidget::getValue() const
 {
   return spin_box_->value();
 }

@@ -11,6 +11,7 @@
 #include "./setting_tabs/failsafe.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
+#include "./setting_tabs/mission_executor/mission_executor.hpp"
 #include "./setting_tabs/network.hpp"
 #include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
@@ -33,8 +34,9 @@ public:
   fw::FixedWingWidget* fixed_wing;
   hw::HardwareWidget* hardware;
   rc::RemoteConnectionWidget* remote_connection;
-  ctrl::ControllerWidget* controller;
   ObserverWidget* observer;
+  ctrl::ControllerWidget* controller;
+  mission::MissionExecutorWidget* mission;
   RcInputWidget* rc_input;
   ExtraJointsWidget* extra_joints;
   FailsafeWidget* failsafe;

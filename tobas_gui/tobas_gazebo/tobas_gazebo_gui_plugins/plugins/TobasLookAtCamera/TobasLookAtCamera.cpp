@@ -41,7 +41,7 @@ bool TobasLookAtCamera::eventFilter(QObject* obj, QEvent* event)
 
 void TobasLookAtCamera::onRender()
 {
-  std::lock_guard<std::mutex> lock(mutex_);
+  const std::lock_guard lock(mutex_);
 
   if (!scene_) {
     scene_ = gz::rendering::sceneFromFirstRenderEngine();
@@ -98,8 +98,7 @@ void TobasLookAtCamera::initialize()
 
 void TobasLookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
-
+  const std::lock_guard lock(mutex_);
   vector3dMsgToGz(msg, tar_pos_);
 }
 }  // namespace gazebo

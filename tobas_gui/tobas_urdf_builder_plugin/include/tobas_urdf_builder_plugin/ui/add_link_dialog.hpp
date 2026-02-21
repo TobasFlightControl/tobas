@@ -18,7 +18,7 @@ namespace ub
 {
 namespace ui
 {
-class URDFBuilderPanel;
+class UrdfBuilderPanel;
 
 class AddLinkDialog : public QDialog
 {
@@ -28,7 +28,7 @@ class AddLinkDialog : public QDialog
   using super = QDialog;
 
 public:
-  explicit AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm);
+  explicit AddLinkDialog(UrdfBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm);
 
 private Q_SLOTS:
   void onLinkNameLineEditTextChanged(const QString& text);
@@ -36,7 +36,7 @@ private Q_SLOTS:
   void onJointParentComboBoxIndexChanged(int index);
 
 private:
-  URDFBuilderPanel* main_;
+  UrdfBuilderPanel* main_;
   Ui::AddLinkDialogUIPtr ui_;
   view_model::LinkViewModel& link_vm_;
 

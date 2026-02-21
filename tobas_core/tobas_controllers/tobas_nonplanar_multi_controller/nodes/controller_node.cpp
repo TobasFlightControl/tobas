@@ -7,7 +7,7 @@
 #include <tobas_pose_pid/angle_axis_pi.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_tools/command_level_handler.hpp>
+#include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_command_msgs_adapter/accel.hpp>
@@ -64,7 +64,7 @@ private:
   bool tree_received_ = false;
   bool js_received_ = false;
   bool topics_received_ = false;
-  CommandLevelHandler cmd_level_handler_;
+  CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
@@ -101,18 +101,18 @@ private:
   bool updateInternalDataStructures();
   bool updateAttitudePDGain();
   bool updateHeadingPDGain();
-  bool isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level);
+  bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
-  bool horizontalNaturalFrequencyCb(const double& p);
+  bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
   bool horizontalIGainCb(const double& p);
-  bool verticalNaturalFrequencyCb(const double& p);
+  bool verticalNaturalFreqCb(const double& p);
   bool verticalDampingRatioCb(const double& p);
   bool verticalIGainCb(const double& p);
-  bool attitudeNaturalFrequencyCb(const double& p);
+  bool attitudeNaturalFreqCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool attitudeIGainCb(const double& p);
-  bool headingNaturalFrequencyCb(const double& p);
+  bool headingNaturalFreqCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
@@ -153,11 +153,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register dynamic parameters
   // I制御は姿勢変化が大きいと逆効果なため，デフォルトではオフにする．
-  addDynamicDoubleParam(
-    "horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 0.2, 5, 1, 25, " rad/s");
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 1., 10, 1, 50, " rad/s");
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 1., 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1., 10, 1, 50, " rad/s");
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 1., 5, 1, 25, " rad/s");
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
@@ -167,7 +166,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 1, 30);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 8, 2, 20, " m/s^2");
+  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 16, 2, 20, " m/s^2");
   addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
   addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
   addDynamicIntParam("mixer_thrust_weight_log2", &self::mixerThrustWeightLog2Cb, this, -20, -30, 0);
@@ -229,7 +228,7 @@ bool ControllerNode::updateHeadingPDGain()
   return rot_pi_.setProportionalGain(2, angle_gain);
 }
 
-bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLevel& level)
+bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
 {
   if (!topics_received_) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics are not received yet.");
@@ -237,11 +236,11 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
   }
 
   if (!arming_->data) {
-    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because the vehicle is disarmed.");
     return false;
   }
 
-  if (!cmd_level_handler_.update(level.data, now())) {
+  if (!cmd_priority_handler_.update(priority.data, now())) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -249,7 +248,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::CommandLev
   return true;
 }
 
-bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
+bool ControllerNode::horizontalNaturalFreqCb(const double& p)
 {
   return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
 }
@@ -264,7 +263,7 @@ bool ControllerNode::horizontalIGainCb(const double& p)
   return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
 }
 
-bool ControllerNode::verticalNaturalFrequencyCb(const double& p)
+bool ControllerNode::verticalNaturalFreqCb(const double& p)
 {
   return pos_pid_.setNaturalFreq(2, p);
 }
@@ -279,7 +278,7 @@ bool ControllerNode::verticalIGainCb(const double& p)
   return pos_pid_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
+bool ControllerNode::attitudeNaturalFreqCb(const double& p)
 {
   atti_wn_ = p;
   return updateAttitudePDGain();
@@ -296,7 +295,7 @@ bool ControllerNode::attitudeIGainCb(const double& p)
   return rot_pi_.setIntegralGain(0, p) && rot_pi_.setIntegralGain(1, p);
 }
 
-bool ControllerNode::headingNaturalFrequencyCb(const double& p)
+bool ControllerNode::headingNaturalFreqCb(const double& p)
 {
   head_wn_ = p;
   return updateHeadingPDGain();
@@ -393,6 +392,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
 
+  // エイリアス
+  const auto& cur_pos_W = odom->frame.p;
+  const auto& cur_rot = odom->frame.M;
+  const auto& cur_vel_B = odom->twist.vel;
+  const auto& cur_gyro_B = odom->twist.rot;
+
   // 位置制御器
   if (pos_cmd_) {
     if (!acc_cmd_) {
@@ -400,21 +405,14 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
 
     // 世界座標系から見た現在の位置速度
-    const auto& cur_pos_W = odom->frame.p;
-    const auto cur_vel_W = odom->frame.M * odom->twist.vel;
+    const auto cur_vel_W = cur_rot * cur_vel_B;
 
-    // 目標加速度を計算
-    // 接地している場合はI制御は行わない
-    if (landed_->data) {
-      acc_cmd_->accel = pos_pid_.updatePD(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel);
-    }
-    else {
-      acc_cmd_->accel = pos_pid_.updatePID(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, dt);
-    }
+    // 目標加速度を計算（接地している場合は誤差の積分を行わない）
+    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->data ? 0. : dt);
 
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = odom->frame.M.inverse(pos_cmd_->vel);
+    feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
@@ -424,14 +422,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>();
     }
 
-    // 目標角速度を計算
-    // 接地している場合はI制御は行わない
-    if (landed_->data) {
-      rate_cmd_->rate = rot_pi_.updateP(odom->frame.M, angle_cmd_->angle.toRotation());
-    }
-    else {
-      rate_cmd_->rate = rot_pi_.updatePI(odom->frame.M, angle_cmd_->angle.toRotation(), dt);
-    }
+    // 目標角速度を計算（接地している場合は誤差の積分を行わない）
+    rate_cmd_->rate = rot_pi_.update(cur_rot, angle_cmd_->angle.toRotation(), landed_->data ? 0. : dt);
 
     // フィードバックメッセージを埋める
     feedback->target_angle = angle_cmd_->angle;
@@ -445,7 +437,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
 
     // 目標角加速度を計算
-    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - odom->twist.rot);
+    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B);
 
     // フィードバックメッセージを埋める
     feedback->target_gyro = rate_cmd_->rate;
@@ -457,13 +449,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
     if (!mixer_.solve(
-          js_converter_.getPosition(),
-          odom->frame.M,
-          odom->twist.rot,
-          acc_cmd_->accel,
-          *tar_dgyro_,
-          dist_force_W,
-          dist_torque_B)) {
+          js_converter_.getPosition(), cur_rot, cur_gyro_B, acc_cmd_->accel, *tar_dgyro_, dist_force_W, dist_torque_B)) {
       TOBAS_FATAL("Failed to solve the mixing equation.");
       return;
     }
@@ -480,7 +466,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
     // フィードバックメッセージを埋める
-    feedback->target_accel = odom->frame.M.inverse(acc_cmd_->accel);
+    feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
     feedback->target_dgyro = *tar_dgyro_;
 
     // フィードバックメッセージを発行
@@ -506,18 +492,6 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
 {
-  if (!landed_) {
-    landed_ = landed;
-    return;
-  }
-
-  // 着陸したら積分誤差をリセット
-  if (landed->data && !landed_->data) {
-    pos_pid_.resetIntegralError();
-    rot_pi_.resetIntegralError();
-    TOBAS_INFO("The integral errors have been reset.");
-  }
-
   landed_ = landed;
 }
 
@@ -528,14 +502,18 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     return;
   }
 
-  // ディスアームしたらコマンドをリセット
+  // ディスアームしたら積分誤差とコマンドをリセット
   if (!arming->data && arming_->data) {
+    pos_pid_.resetIntegralError();
+    rot_pi_.resetIntegralError();
+
     pos_cmd_.reset();
     acc_cmd_.reset();
     angle_cmd_.reset();
     rate_cmd_.reset();
     tar_dgyro_.reset();
-    TOBAS_INFO("The high-level commands have been reset.");
+
+    TOBAS_INFO("The controller has been reset.");
   }
 
   arming_ = arming;
@@ -556,7 +534,7 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
 
 void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd)
 {
-  if (!isCommandAccepted(pos_cmd->level)) {
+  if (!isCommandAccepted(pos_cmd->priority)) {
     return;
   }
 
@@ -566,7 +544,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVel::ConstSh
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd)
 {
-  if (!isCommandAccepted(acc_cmd->level)) {
+  if (!isCommandAccepted(acc_cmd->priority)) {
     return;
   }
 
@@ -579,7 +557,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd)
 {
-  if (!isCommandAccepted(angle_cmd->level)) {
+  if (!isCommandAccepted(angle_cmd->priority)) {
     return;
   }
 
@@ -589,7 +567,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstShared
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPtr& rate_cmd)
 {
-  if (!isCommandAccepted(rate_cmd->level)) {
+  if (!isCommandAccepted(rate_cmd->priority)) {
     return;
   }
 

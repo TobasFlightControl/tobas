@@ -1,15 +1,13 @@
 #include "tobas_time_tools/operator.hpp"
 
-using namespace std;
-
-ostream& operator<<(ostream& os, const tm& arg)
+std::ostream& operator<<(std::ostream& os, const tm& arg)
 {
-  os << "Year: " << arg.tm_year + 1900 << endl;  // Years since 1900
-  os << "Month: " << arg.tm_mon + 1 << endl;     // Months since January [0-11]
-  os << "Day: " << arg.tm_mday << endl;
-  os << "Hour: " << arg.tm_hour << endl;
-  os << "Min: " << arg.tm_min << endl;
-  os << "Sec: " << arg.tm_sec << endl;
+  os << "Year: " << arg.tm_year + 1900 << std::endl;  // Years since 1900
+  os << "Month: " << arg.tm_mon + 1 << std::endl;     // Months since January [0-11]
+  os << "Day: " << arg.tm_mday << std::endl;
+  os << "Hour: " << arg.tm_hour << std::endl;
+  os << "Min: " << arg.tm_min << std::endl;
+  os << "Sec: " << arg.tm_sec << std::endl;
   return os;
 }
 

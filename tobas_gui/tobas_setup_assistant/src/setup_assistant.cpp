@@ -31,7 +31,7 @@ namespace sa
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : jnt_parser_(tree_)
   , axis_solver_(tree_)
-  , property_client_(node, kPackageName)
+  , property_client_(node, "tobas_setup_assistant/setup_assistant")
   , rsp_client_(node, "robot_state_publisher")
   , rotor_marker_publisher_(node, uadf_)
 {
@@ -387,7 +387,7 @@ void SetupAssistantWidget::onNewButtonClicked()
 
     const auto ws_path = ros2::expandUser(tobas::kColconWSPathHome);
 
-    qInfo() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
+    qInfo().nospace() << "UADF is in ROS package " << QString::fromStdString(pkg_name.value()) << ". Building it.";
     if (!colcon_.build(pkg_path.value(), ws_path)) {
       qt::qErrorBox(
         this,

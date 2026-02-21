@@ -10,9 +10,9 @@ using namespace std;
 
 namespace tobas
 {
-string textFromEnum(FlightMode role)
+string textFromEnum(FlightMode mode)
 {
-  switch (role) {
+  switch (mode) {
     case FlightMode::kAcrobat:
       return ACROBAT_TEXT;
     case FlightMode::kStabilize:

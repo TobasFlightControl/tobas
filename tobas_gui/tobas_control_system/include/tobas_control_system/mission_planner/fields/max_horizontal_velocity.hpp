@@ -10,15 +10,15 @@ namespace ctrl
 {
 namespace field
 {
-class MaxHorizontalVelocityWidget : public BaseField
+class MaxHorizontalVelocityWidget : public FieldWidget<double>
 {
 public:
   explicit MaxHorizontalVelocityWidget();
 
   const char* label() const override;
 
-  double value() const;
-  void setValue(double value);
+  double getValue() const override;
+  void setValue(double value) override;
 
 private:
   qt::DoubleSpinBox* spin_box_;
