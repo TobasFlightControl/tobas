@@ -27,9 +27,9 @@ sudo colcon clean workspace -y
 sudo rm -rf ./src/*
 
 # Clear Wi-Fi client settings
-sudo sed -i '4,$ d' /etc/wpa_supplicant/wpa_supplicant.conf
+sudo sed -i '4,$ d' /etc/wpa_supplicant/wpa_supplicant-nl80211-wlan0.conf
 if [ $? -ne 0 ]; then
-  echo "Failed to edit /etc/wpa_supplicant/wpa_supplicant.conf." >&2
+  echo "Failed to edit the wpa_supplicant configuration file." >&2
   exit 1
 fi
 
