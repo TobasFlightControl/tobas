@@ -845,6 +845,7 @@ void ErrorStateKalmanFilterNode::getGnssOriginCb(
 
   res->latitude = gnss_origin_.latitude;
   res->longitude = gnss_origin_.longitude;
+  res->altitude = gnss_origin_.altitude;
 
   res->success = true;
   res->message.clear();
