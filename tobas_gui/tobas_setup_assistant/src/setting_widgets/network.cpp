@@ -112,7 +112,7 @@ QString NetworkWidget::networkInterfaceName() const
     case kAutoIdx:
       return {};
     case kWiredIdx:
-      return "end0";
+      return "eth0";
     case kWirelessIdx:
       return "wlan0";
     case kAccessPointIdx:
