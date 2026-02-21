@@ -252,11 +252,13 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         waypoint.altitude_frame = widget->altitudeFrame();
         waypoint.auto_heading = true;  // TODO
         waypoint.max_horizontal_velocity = widget->maxHorizontalVelocity();
-        waypoint.max_vertical_velocity = widget->maxVerticalVelocity();
         waypoint.max_horizontal_accel = widget->maxHorizontalAccel();
-        waypoint.max_vertical_accel = widget->maxVerticalAccel();
         waypoint.max_horizontal_jerk = widget->maxHorizontalJerk();
+        waypoint.max_vertical_velocity = widget->maxVerticalVelocity();
+        waypoint.max_vertical_accel = widget->maxVerticalAccel();
         waypoint.max_vertical_jerk = widget->maxVerticalJerk();
+        waypoint.max_heading_rate = widget->maxHeadingRate();
+        waypoint.max_heading_accel = widget->maxHeadingAccel();
         waypoint.acceptance_radius = widget->acceptanceRadius();
         waypoint.altitude_tolerance = widget->altitudeTolerance();
         waypoint.timeout = 0.;  // TODO
@@ -301,11 +303,13 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         tobas::mission::ReturnToLaunch rtl;
         rtl.min_altitude = widget->minAltitude();
         rtl.max_horizontal_velocity = widget->maxHorizontalVelocity();
-        rtl.max_vertical_velocity = widget->maxVerticalVelocity();
         rtl.max_horizontal_accel = widget->maxHorizontalAccel();
-        rtl.max_vertical_accel = widget->maxVerticalAccel();
         rtl.max_horizontal_jerk = widget->maxHorizontalJerk();
+        rtl.max_vertical_velocity = widget->maxVerticalVelocity();
+        rtl.max_vertical_accel = widget->maxVerticalAccel();
         rtl.max_vertical_jerk = widget->maxVerticalJerk();
+        rtl.max_heading_rate = widget->maxHeadingRate();
+        rtl.max_heading_accel = widget->maxHeadingAccel();
         rtl.acceptance_radius = widget->acceptanceRadius();
         rtl.altitude_tolerance = widget->altitudeTolerance();
         rtl.timeout = 0.;  // TODO

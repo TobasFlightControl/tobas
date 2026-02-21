@@ -49,10 +49,8 @@ class MulticopterMissionExecutorNode : public BaseNode
   using GoalHandle = rclcpp_action::ServerGoalHandle<Action>;
   using GoalHandlePtr = std::shared_ptr<GoalHandle>;
 
-  static constexpr double kCommandRate = 100.;         // [Hz]
-  static constexpr double kAttitudeRate = M_PI / 6;    // [rad/s]
-  static constexpr double kMaxHeadingAcc = M_PI / 2;   // [rad/s^2]
-  static constexpr double kMaxHeadingRate = M_PI / 4;  // [rad/s]
+  static constexpr double kCommandRate = 100.;       // [Hz]
+  static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -60,12 +58,14 @@ public:
 private:
   struct WaypointConfig
   {
-    double max_hor_vel;   // [m/s]
-    double max_ver_vel;   // [m/s]
-    double max_hor_acc;   // [m/s^2]
-    double max_ver_acc;   // [m/s^2]
-    double max_hor_jerk;  // [m/s^3]
-    double max_ver_jerk;  // [m/s^3]
+    double max_hor_vel;    // [m/s]
+    double max_hor_acc;    // [m/s^2]
+    double max_hor_jerk;   // [m/s^3]
+    double max_ver_vel;    // [m/s]
+    double max_ver_acc;    // [m/s^2]
+    double max_ver_jerk;   // [m/s^3]
+    double max_head_rate;  // [rad/s]
+    double max_head_acc;   // [rad/s^2]
   } wp_cfg_;
   struct TakeoffConfig
   {
@@ -167,11 +167,13 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
 void MulticopterMissionExecutorNode::getStaticRosParams()
 {
   wp_cfg_.max_hor_vel = getDoubleParam("waypoint/max_horizontal_velocity");
-  wp_cfg_.max_ver_vel = getDoubleParam("waypoint/max_vertical_velocity");
   wp_cfg_.max_hor_acc = getDoubleParam("waypoint/max_horizontal_accel");
-  wp_cfg_.max_ver_acc = getDoubleParam("waypoint/max_vertical_accel");
   wp_cfg_.max_hor_jerk = getDoubleParam("waypoint/max_horizontal_jerk");
+  wp_cfg_.max_ver_vel = getDoubleParam("waypoint/max_vertical_velocity");
+  wp_cfg_.max_ver_acc = getDoubleParam("waypoint/max_vertical_accel");
   wp_cfg_.max_ver_jerk = getDoubleParam("waypoint/max_vertical_jerk");
+  wp_cfg_.max_head_rate = getDoubleParam("waypoint/max_heading_rate");
+  wp_cfg_.max_head_acc = getDoubleParam("waypoint/max_heading_accel");
 
   takeoff_cfg_.max_speed = getDoubleParam("takeoff/max_speed");
   takeoff_cfg_.max_accel = getDoubleParam("takeoff/max_accel");
@@ -324,14 +326,16 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
   // 制約を決定
   const auto max_hor_vel = goal.max_horizontal_velocity > 0. ? goal.max_horizontal_velocity : wp_cfg_.max_hor_vel;
-  const auto max_ver_vel = goal.max_vertical_velocity > 0. ? goal.max_vertical_velocity : wp_cfg_.max_ver_vel;
   const auto max_hor_acc = goal.max_horizontal_accel > 0. ? goal.max_horizontal_accel : wp_cfg_.max_hor_acc;
-  const auto max_ver_acc = goal.max_vertical_accel > 0. ? goal.max_vertical_accel : wp_cfg_.max_ver_acc;
   const auto max_hor_jerk = goal.max_horizontal_jerk > 0. ? goal.max_horizontal_jerk : wp_cfg_.max_hor_jerk;
+  const auto max_ver_vel = goal.max_vertical_velocity > 0. ? goal.max_vertical_velocity : wp_cfg_.max_ver_vel;
+  const auto max_ver_acc = goal.max_vertical_accel > 0. ? goal.max_vertical_accel : wp_cfg_.max_ver_acc;
   const auto max_ver_jerk = goal.max_vertical_jerk > 0. ? goal.max_vertical_jerk : wp_cfg_.max_ver_jerk;
+  const auto max_head_rate = goal.max_heading_rate > 0. ? goal.max_heading_rate : wp_cfg_.max_head_rate;
+  const auto max_head_acc = goal.max_heading_accel > 0. ? goal.max_heading_accel : wp_cfg_.max_head_acc;
 
   // 軌道を生成
-  const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
+  Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
   const Eigen::Vector2d goal_xy(goal_pos.x(), goal_pos.y());
   const Eigen::Vector2d xy_diff = goal_xy - start_xy;  // XYの軌道を別々に生成すると最短経路を通らないことに注意
   const auto xy_dist = xy_diff.norm();  // [m]
@@ -352,7 +356,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
   const auto goal_yaw = goal.auto_heading ? atan2(xy_dir.y(), xy_dir.x()) : start_rpy.yaw;
   const auto yaw_diff = algo::wrapPi(goal_yaw - start_rpy.yaw);  // 最短経路をとるよう[-π, π)の範囲に変換
-  const traj::TimeOptimalTrajectory traj_yaw(0., yaw_diff, INFINITY, kMaxHeadingAcc, kMaxHeadingRate);
+  const traj::TimeOptimalTrajectory traj_yaw(0., yaw_diff, INFINITY, max_head_acc, max_head_rate);
 
   // 所要時間を取得
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
