@@ -1,0 +1,6 @@
+uint8 video_frame_rate
+uint8 K30FPS = 0
+uint8 K60FPS = 1
+---
+bool success
+string message

@@ -21,7 +21,7 @@ set(AMENT_DEPENDENCIES
     sensor_msgs
     tobas_ic_drivers
     tobas_node
-    tobas_msgs
+    tobas_camera_msgs
     tobas_msgs_adapter
     OpenCV
     cv_bridge
