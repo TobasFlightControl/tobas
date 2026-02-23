@@ -72,11 +72,11 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVel::SharedPtr pos_cmd_;
-  tobas_command_msgs::Accel::SharedPtr acc_cmd_;
-  tobas_command_msgs::Angle::SharedPtr angle_cmd_;
-  tobas_command_msgs::Rate::SharedPtr rate_cmd_;
-  std::shared_ptr<kdl::Vector> tar_dgyro_;
+  tobas_command_msgs::PosVel::UniquePtr pos_cmd_;
+  tobas_command_msgs::Accel::UniquePtr acc_cmd_;
+  tobas_command_msgs::Angle::UniquePtr angle_cmd_;
+  tobas_command_msgs::Rate::UniquePtr rate_cmd_;
+  std::unique_ptr<kdl::Vector> tar_dgyro_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -392,7 +392,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 位置制御器
   if (pos_cmd_) {
     if (!acc_cmd_) {
-      acc_cmd_ = std::make_shared<tobas_command_msgs::Accel>();
+      acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
     }
 
     // 世界座標系から見た現在の位置速度
@@ -410,7 +410,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 姿勢制御器
   if (angle_cmd_) {
     if (!rate_cmd_) {
-      rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>();
+      rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
     }
 
     // 目標角速度を計算（接地している場合は誤差の積分を行わない）
@@ -424,7 +424,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 角速度制御器
   if (rate_cmd_) {
     if (!tar_dgyro_) {
-      tar_dgyro_ = std::make_shared<kdl::Vector>();
+      tar_dgyro_ = std::make_unique<kdl::Vector>();
     }
 
     // 目標角加速度を計算
@@ -544,7 +544,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVel::ConstSh
   }
 
   // コマンドを更新
-  pos_cmd_ = std::make_shared<tobas_command_msgs::PosVel>(*pos_cmd);
+  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVel>(*pos_cmd);
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd)
@@ -557,7 +557,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
   pos_cmd_.reset();
 
   // コマンドを更新
-  acc_cmd_ = std::make_shared<tobas_command_msgs::Accel>(*acc_cmd);
+  acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>(*acc_cmd);
 }
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd)
@@ -567,7 +567,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstShared
   }
 
   // コマンドを更新
-  angle_cmd_ = std::make_shared<tobas_command_msgs::Angle>(*angle_cmd);
+  angle_cmd_ = std::make_unique<tobas_command_msgs::Angle>(*angle_cmd);
 }
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPtr& rate_cmd)
@@ -580,7 +580,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
   angle_cmd_.reset();
 
   // コマンドを更新
-  rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>(*rate_cmd);
+  rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>(*rate_cmd);
 }
 
 void ControllerNode::checkTopicsTimerCb()

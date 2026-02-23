@@ -81,10 +81,10 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
-  tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
-  std::shared_ptr<kdl::Euler> tar_angle_;             // 目標オイラー角 (世界座標系)
-  std::shared_ptr<kdl::Vector> tar_gyro_;             // 目標角速度 (機体座標系)
+  tobas_command_msgs::PosVelYaw::UniquePtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
+  tobas_command_msgs::AccelYaw::UniquePtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
+  std::unique_ptr<kdl::Euler> tar_angle_;             // 目標オイラー角 (世界座標系)
+  std::unique_ptr<kdl::Vector> tar_gyro_;             // 目標角速度 (機体座標系)
   kdl::Vector tar_dgyro_;                             // 目標角加速度 (機体座標系)
   double tar_thrust_;                                 // 目標推力 (機体座標系)
 
@@ -595,7 +595,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 位置制御器
   if (pos_cmd_) {
     if (!acc_cmd_) {
-      acc_cmd_ = std::make_shared<tobas_command_msgs::AccelYaw>();
+      acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>();
     }
 
     // 世界座標系から見た現在の位置速度
@@ -616,7 +616,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 加速度制御器
   if (acc_cmd_) {
     if (!tar_angle_) {
-      tar_angle_ = std::make_shared<kdl::Euler>();
+      tar_angle_ = std::make_unique<kdl::Euler>();
     }
 
     // 推力和と目標姿勢を計算
@@ -639,7 +639,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 姿勢制御器
   if (tar_angle_) {
     if (!tar_gyro_) {
-      tar_gyro_ = std::make_shared<kdl::Vector>();
+      tar_gyro_ = std::make_unique<kdl::Vector>();
     }
 
     // 回転角的にはクォータニオンや回転行列で目標姿勢と現在姿勢の誤差を計算し，それを角軸ベクトルに変換したものが最短距離だが，
@@ -772,7 +772,7 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelYaw::Cons
   }
 
   // コマンドを更新
-  pos_cmd_ = std::make_shared<tobas_command_msgs::PosVelYaw>(*pos_cmd);
+  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelYaw>(*pos_cmd);
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd)
@@ -785,7 +785,7 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
   pos_cmd_.reset();
 
   // コマンドを更新
-  acc_cmd_ = std::make_shared<tobas_command_msgs::AccelYaw>(*acc_cmd);
+  acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>(*acc_cmd);
 }
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd)
@@ -809,7 +809,7 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
   acc_cmd_.reset();
 
   // コマンドを更新
-  tar_angle_ = std::make_shared<kdl::Euler>(angle_cmd->angle);
+  tar_angle_ = std::make_unique<kdl::Euler>(angle_cmd->angle);
   tar_thrust_ = max_thrust_sum_ * std::clamp(angle_cmd->throttle, kMinThrot, kMaxThrot);
 }
 
@@ -825,7 +825,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
   tar_angle_.reset();
 
   // コマンドを更新
-  tar_gyro_ = std::make_shared<kdl::Vector>(rate_cmd->rate);
+  tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
   tar_thrust_ = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
 }
 
