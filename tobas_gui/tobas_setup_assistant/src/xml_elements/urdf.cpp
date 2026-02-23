@@ -3,7 +3,7 @@
 #include <format>
 #include <ranges>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/frame.hpp>
 #include <tobas_path_tools/join.hpp>
 
 namespace gui
@@ -404,13 +404,13 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_lin
 
   // robot/xacro:if/link
   const auto link = xacro_if->InsertNewChildElement("link");
-  link->SetAttribute("name", tobas::kWorldFrame);
+  link->SetAttribute("name", tobas::frame::kWorld);
 
   // robot/xacro:if/joint
   const auto joint = xacro_if->InsertNewChildElement("joint");
   joint->SetAttribute("name", "base_static_joint");
   joint->SetAttribute("type", "fixed");
-  joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::kWorldFrame);
+  joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::frame::kWorld);
   joint->InsertNewChildElement("child")->SetAttribute("link", root_link_name.c_str());
 }
 }  // namespace xml

@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -25,7 +25,7 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
 {
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 
-  drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
+  drone_pub_ = createPublisher<tobas::Drone>(tobas::topic::kDrone, true, true);
 }
 
 void DroneServerNode::publishDrone()

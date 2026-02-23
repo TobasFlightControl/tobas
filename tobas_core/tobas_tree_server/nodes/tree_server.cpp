@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_node/node.hpp>
 
@@ -44,8 +44,8 @@ void TreeServerNode::publishTree()
 
 void TreeServerNode::initializeTimerCb()
 {
-  tree_pub_ = createPublisher<kdl::Tree>(tobas::kKdlTreeTopic, true, true);
-  description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this, true, true);
+  tree_pub_ = createPublisher<kdl::Tree>(tobas::topic::kKdlTree, true, true);
+  description_sub_ = createSubscriber(tobas::topic::kRobotDescription, &self::descriptionCb, this, true, true);
 
   initialize_timer_->cancel();
 }

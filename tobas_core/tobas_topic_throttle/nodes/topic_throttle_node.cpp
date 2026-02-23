@@ -1,6 +1,6 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/rate_manager.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_tools/util.hpp>
@@ -93,18 +93,18 @@ void TopicThrottleNode::initialize()
 {
   const auto node = shared_from_this();
 
-  battery_throttle_.initialize(node, tobas::kBatteryTopic);
-  engine_state_throttle_.initialize(node, tobas::kEngineStateTopic);
-  sbus_throttle_.initialize(node, tobas::kSbusTopic);
-  rcin_throttle_.initialize(node, tobas::kRcInputTopic);
-  imu_throttle_.initialize(node, tobas::kImuFiltTopic);
-  mag_throttle_.initialize(node, tobas::kMagTopic);
-  pres_throttle_.initialize(node, tobas::kAirPressureTopic);
-  rotor_states_throttle_.initialize(node, tobas::kRotorStatesTopic);
-  joint_states_throttle_.initialize(node, tobas::kJointStatesTopic);
-  odom_throttle_.initialize(node, tobas::kOdometryTopic);
-  real_imu_throttle_.initialize(node, real::kImuRawTopic);
-  real_mag_throttle_.initialize(node, real::kMagTopic);
+  battery_throttle_.initialize(node, tobas::topic::kBattery);
+  engine_state_throttle_.initialize(node, tobas::topic::kEngineState);
+  sbus_throttle_.initialize(node, tobas::topic::kSbus);
+  rcin_throttle_.initialize(node, tobas::topic::kRcInput);
+  imu_throttle_.initialize(node, tobas::topic::kImuFilt);
+  mag_throttle_.initialize(node, tobas::topic::kMagneticField);
+  pres_throttle_.initialize(node, tobas::topic::kAirPressure);
+  rotor_states_throttle_.initialize(node, tobas::topic::kRotorStates);
+  joint_states_throttle_.initialize(node, tobas::topic::kJointStates);
+  odom_throttle_.initialize(node, tobas::topic::kOdometry);
+  real_imu_throttle_.initialize(node, real::topic::kImuRaw);
+  real_mag_throttle_.initialize(node, real::topic::kMagneticField);
 
   initialize_timer_->cancel();
 }

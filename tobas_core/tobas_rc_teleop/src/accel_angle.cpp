@@ -1,5 +1,6 @@
 #include "tobas_rc_teleop/accel_angle.hpp"
 
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -44,8 +45,8 @@ void AccelAngleController::initialize(tobas::BaseNode* node, tobas::FlightMode m
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
-  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::kAccelCmdTopic);
-  angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::kAngleCmdTopic);
+  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::topic::kAccelCmd);
+  angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
 }
 
 void AccelAngleController::reset(const tobas_msgs::Odometry& odom)

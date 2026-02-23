@@ -1,5 +1,7 @@
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -39,7 +41,7 @@ void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::Fli
   node->addDynamicIntParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::topic::kSpeedRollDpitchCmd);
 }
 
 void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)

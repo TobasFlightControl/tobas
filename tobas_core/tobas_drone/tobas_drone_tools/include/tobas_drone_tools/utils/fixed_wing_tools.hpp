@@ -2,7 +2,7 @@
 
 #include <eigen3/Eigen/Core>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/fixed_wing.hpp>
 #include <tobas_math/linalg.hpp>
 
 namespace tobas

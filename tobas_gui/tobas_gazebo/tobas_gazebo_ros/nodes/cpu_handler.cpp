@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/cpu.hpp>
@@ -27,7 +27,7 @@ private:
 
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("cpu_handler", options)
 {
-  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
+  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::topic::kCpu);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

@@ -1,6 +1,6 @@
 #include "tobas_gazebo_system_plugins/common/node.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 
 namespace gazebo
 {
@@ -36,7 +36,7 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
   const auto spin = [this]() { executor_->spin(); };
   spin_thread_ = std::thread(spin);
 
-  message_pub_ = createPublisher<tobas_msgs::msg::Message>(tobas::kMessageTopic);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(tobas::topic::kMessage);
 }
 
 const std::string& BaseNode::name() const

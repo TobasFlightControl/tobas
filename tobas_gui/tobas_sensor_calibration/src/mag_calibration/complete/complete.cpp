@@ -7,7 +7,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/frame.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_eigen_tools/hash.hpp>
 #include <tobas_gui_common/constants.hpp>
@@ -16,7 +17,8 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/array.hpp>
@@ -67,7 +69,7 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, con
 
   // 固定フレームを設定
   // TFが出ているフレームでなければならない
-  rviz_manager_.setFixedFrame(tobas::kWorldFrame);
+  rviz_manager_.setFixedFrame(tobas::frame::kWorld);
 
   const auto point_stamped_displays = rviz_manager_.getDisplays("PointStamped");
   TOBAS_CHECK(point_stamped_displays.size() == 1);
@@ -441,7 +443,7 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results.");
     return false;
@@ -468,9 +470,9 @@ void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoi
   removed_points->header.stamp = cur_time;
   calibrated_points->header.stamp = cur_time;
 
-  used_points->header.frame_id = tobas::kWorldFrame;
-  removed_points->header.frame_id = tobas::kWorldFrame;
-  calibrated_points->header.frame_id = tobas::kWorldFrame;
+  used_points->header.frame_id = tobas::frame::kWorld;
+  removed_points->header.frame_id = tobas::frame::kWorld;
+  calibrated_points->header.frame_id = tobas::frame::kWorld;
 
   for (int pi = 0; pi < cnt_; ++pi) {
     const auto& p_raw = buf_.at(pi).data;
@@ -500,7 +502,7 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
 
   visualization_msgs::msg::Marker marker;
   marker.header.stamp = node_->now();
-  marker.header.frame_id = tobas::kWorldFrame;
+  marker.header.frame_id = tobas::frame::kWorld;
   marker.id = 0;
   marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
   marker.action = visualization_msgs::msg::Marker::ADD;
@@ -701,7 +703,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   // 表示用メッセージを発行
   auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = msg->header;
-  point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
+  point_msg->header.frame_id = tobas::frame::kWorld;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
   kdl::pointKDLToMsg(msg->mag * kRvizPointScale, point_msg->point);
   samples_pub_->publish(std::move(point_msg));
 

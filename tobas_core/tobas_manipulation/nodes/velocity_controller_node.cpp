@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_taskspace_vel_ctrl.hpp>
@@ -110,13 +110,13 @@ void VelocityControllerNode::initialize()
   addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.1, 5, 1, 10, " s");
   addDynamicDoubleParam("angular_time_constant", &self::angularTimeConstCb, this, 0.1, 5, 1, 10, " s");
 
-  velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
+  velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointVelCmd);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
-  cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
-  tar_js_sub_ = createSubscriber(tobas::kVelCtrlJSTopic, &self::targetJointStateCb, this);
-  tar_ls_sub_ = createSubscriber(tobas::kVelCtrlLSTopic, &self::targetLinkStateCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
+  cur_js_sub_ = createSubscriber(tobas::topic::kJointStates, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(tobas::topic::kVelCtrlJS, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(tobas::topic::kVelCtrlLS, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 

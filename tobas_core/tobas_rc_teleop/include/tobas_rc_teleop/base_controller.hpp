@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/rc_input.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 

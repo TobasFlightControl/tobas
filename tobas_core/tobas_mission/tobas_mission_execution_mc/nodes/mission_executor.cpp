@@ -1,7 +1,8 @@
 #include <ranges>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_math/linalg.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
@@ -137,18 +138,18 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
 {
   getStaticRosParams();
 
-  angle_pub_ = createPublisher<tobas_command_msgs::Angle>(kAngleCmdTopic);
-  pos_vel_pub_ = createPublisher<tobas_command_msgs::PosVel>(kPosVelCmdTopic);
-  pos_vel_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelYaw>(kPosVelYawCmdTopic);
-  pos_vel_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelPitchYaw>(kPosVelPitchYawCmdTopic);
+  angle_pub_ = createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
+  pos_vel_pub_ = createPublisher<tobas_command_msgs::PosVel>(topic::kPosVelCmd);
+  pos_vel_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelYaw>(topic::kPosVelYawCmd);
+  pos_vel_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelPitchYaw>(topic::kPosVelYawCmd);
 
-  odom_sub_ = createSubscriber(kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(kArmingTopic, &self::armingCb, this);
-  gnss_origin_sub_ = createSubscriber(kGnssOriginTopic, &self::gnssOriginCb, this, true, true);
-  landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
-  rcin_sub_ = createSubscriber(kRcInputTopic, &self::rcInputCb, this);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  gnss_origin_sub_ = createSubscriber(topic::kGnssOrigin, &self::gnssOriginCb, this, true, true);
+  landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
+  rcin_sub_ = createSubscriber(topic::kRcInput, &self::rcInputCb, this);
 
-  as_ = createAction(kExecuteMissionAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
+  as_ = createAction(action::kExecuteMission, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
 void MulticopterMissionExecutorNode::getStaticRosParams()
@@ -236,12 +237,12 @@ void MulticopterMissionExecutorNode::publishCommands(
 
 bool MulticopterMissionExecutorNode::armRotors(bool arming)
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), kSetArmSrv);
+  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), service::kSetArm);
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
   if (!sc.call(req)) {
-    TOBAS_ERROR("Failed to call \"", kSetArmSrv, "\" service.");
+    TOBAS_ERROR("Failed to call \"", service::kSetArm, "\" service.");
     return false;
   }
 

@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/heartbeat.hpp>
@@ -29,8 +29,8 @@ private:
 
 HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& options) : super("heartbeat_receiver", options)
 {
-  connection_pub_ = createPublisher<tobas_msgs::msg::RemoteConnection>(tobas::kRemoteConnectionTopic);
-  heartbeat_sub_ = createSubscriber(tobas::kHeartbeatTopic, &self::heartbeatCb, this);
+  connection_pub_ = createPublisher<tobas_msgs::msg::RemoteConnection>(tobas::topic::kRemoteConnection);
+  heartbeat_sub_ = createSubscriber(tobas::topic::kHeartbeat, &self::heartbeatCb, this);
   timeout_timer_ = createTimer(kConnectionTimeout, &self::onConnectionTimeout, this);
 }
 

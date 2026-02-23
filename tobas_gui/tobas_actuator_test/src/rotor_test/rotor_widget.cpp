@@ -4,7 +4,6 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 namespace gui
@@ -27,8 +26,8 @@ RotorWidget::RotorWidget()
   tar_rpm_slider_->setGroove(true);
 
   gain_slider_ = new QwtSlider(Qt::Vertical);
-  gain_slider_->setScale(tobas::kMinRotorCtrlGain, tobas::kMaxRotorCtrlGain);
-  gain_slider_->setTotalSteps(tobas::kMaxRotorCtrlGain - tobas::kMinRotorCtrlGain);  // 1刻み
+  gain_slider_->setScale(kMinRotorCtrlGain, kMaxRotorCtrlGain);
+  gain_slider_->setTotalSteps(kMaxRotorCtrlGain - kMinRotorCtrlGain);  // 1刻み
   gain_slider_->setScalePosition(QwtSlider::TrailingScale);
   gain_slider_->setTrough(false);
   gain_slider_->setGroove(true);

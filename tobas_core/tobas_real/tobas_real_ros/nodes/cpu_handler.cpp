@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -43,7 +43,7 @@ private:
 
 CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("real_cpu_handler", options)
 {
-  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
+  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::topic::kCpu);
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

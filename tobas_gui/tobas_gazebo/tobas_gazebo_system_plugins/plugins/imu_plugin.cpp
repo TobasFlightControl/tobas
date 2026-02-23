@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
@@ -152,8 +152,8 @@ void GazeboImuPlugin::Configure(
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugTopic);
   sampling_time_pub_.initialize(node_, node_->now());
 
@@ -170,7 +170,7 @@ void GazeboImuPlugin::Configure(
   }
 
   config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
+    tobas::service::kConfigureImuFilter, &self::configureImuFilterCb, this);
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

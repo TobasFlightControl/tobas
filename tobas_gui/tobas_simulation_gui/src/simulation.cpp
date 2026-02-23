@@ -6,7 +6,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>

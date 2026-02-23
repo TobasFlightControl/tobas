@@ -1,5 +1,7 @@
 #include "tobas_rc_teleop/angle_throttle.hpp"
 
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -37,7 +39,7 @@ void AngleThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMod
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::kAngleThrotCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::topic::kAngleThrotCmd);
 }
 
 void AngleThrottleController::reset(const tobas_msgs::Odometry& odom)

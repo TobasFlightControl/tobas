@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -29,8 +29,8 @@ private:
 RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& options)
   : super("gazebo_rotor_states_publisher", options)
 {
-  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
 }
 
 void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

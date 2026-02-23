@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>

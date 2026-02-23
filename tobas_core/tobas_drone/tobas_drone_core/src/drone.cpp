@@ -1,5 +1,6 @@
 #include "tobas_drone_core/drone.hpp"
 
+#include <tobas_constants/rc_input.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"

@@ -4,7 +4,8 @@
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/fixed_wing.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_gazebo_common/constants.hpp>

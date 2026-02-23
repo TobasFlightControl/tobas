@@ -6,7 +6,7 @@
 #include <QHeaderView>
 #include <QPushButton>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>

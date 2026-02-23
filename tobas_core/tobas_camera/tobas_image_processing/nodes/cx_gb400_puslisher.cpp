@@ -14,7 +14,7 @@
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_camera_ros_interface/ros_interface.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ic_drivers/cx_gb400.hpp>
 #include <tobas_node/node.hpp>
 
@@ -119,26 +119,26 @@ CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
     ffmpeg_packet_pub_ = createPublisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>(h264_topic);
     setFfmpegParameters();
   }
-  camera_status_pub_ = createPublisher<tobas_camera_msgs::msg::Status>(camera::topic::kCameraStatusTopic);
+  camera_status_pub_ = createPublisher<tobas_camera_msgs::msg::Status>(camera::topic::kCameraStatus);
 
-  copter_att_sub_ = createSubscriber(tobas::kOdometryTopic, &CxGb400PublisherNode::copterAttMsgCb, this);
+  copter_att_sub_ = createSubscriber(tobas::topic::kOdometry, &CxGb400PublisherNode::copterAttMsgCb, this);
   gimbal_att_cmd_sub_ =
-    createSubscriber(camera::topic::kGimbalAttitudeCmdTopic, &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
+    createSubscriber(camera::topic::kGimbalAttitudeCmd, &CxGb400PublisherNode::gimbalAttitudeCmdCb, this);
 
   format_sd_card_ss_ = createService<tobas_camera_msgs::srv::FormatSdCard>(
-    camera::service::kFormatSdCardSrv, &CxGb400PublisherNode::formatSdCardCb, this);
+    camera::service::kFormatSdCard, &CxGb400PublisherNode::formatSdCardCb, this);
   set_photo_quality_ss_ = createService<tobas_camera_msgs::srv::SetPhotoQuality>(
-    camera::service::kSetPhotoQualitySrv, &CxGb400PublisherNode::setPhotoQualityCb, this);
+    camera::service::kSetPhotoQuality, &CxGb400PublisherNode::setPhotoQualityCb, this);
   set_video_frame_rate_ss_ = createService<tobas_camera_msgs::srv::SetVideoFrameRate>(
-    camera::service::kSetVideoFrameRateSrv, &CxGb400PublisherNode::setVideoFrameRateCb, this);
+    camera::service::kSetVideoFrameRate, &CxGb400PublisherNode::setVideoFrameRateCb, this);
   set_video_quality_ss_ = createService<tobas_camera_msgs::srv::SetVideoQuality>(
-    camera::service::kSetVideoQualitySrv, &CxGb400PublisherNode::setVideoQualityCb, this);
+    camera::service::kSetVideoQuality, &CxGb400PublisherNode::setVideoQualityCb, this);
   start_recording_ss_ = createService<tobas_camera_msgs::srv::StartRecording>(
-    camera::service::kStartRecordingSrv, &CxGb400PublisherNode::startRecordingCb, this);
+    camera::service::kStartRecording, &CxGb400PublisherNode::startRecordingCb, this);
   stop_recording_ss_ = createService<tobas_camera_msgs::srv::StopRecording>(
-    camera::service::kStopRecordingSrv, &CxGb400PublisherNode::stopRecordingCb, this);
+    camera::service::kStopRecording, &CxGb400PublisherNode::stopRecordingCb, this);
   take_picture_to_sd_ss_ = createService<tobas_camera_msgs::srv::TakePictureToSd>(
-    camera::service::kTakePictureToSdSrv, &CxGb400PublisherNode::takePictureToSdCb, this);
+    camera::service::kTakePictureToSd, &CxGb400PublisherNode::takePictureToSdCb, this);
 
   timer_ = createTimer(std::chrono::milliseconds(1000 / fps), &CxGb400PublisherNode::timerCallback, this);
   last_attitude_send_ = this->now();

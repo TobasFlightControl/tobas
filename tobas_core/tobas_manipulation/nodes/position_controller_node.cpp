@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
@@ -62,12 +62,12 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
   }
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
 
-  positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
+  positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
-  tar_js_sub_ = createSubscriber(tobas::kPosCtrlJSTopic, &self::targetJointStateCb, this);
-  tar_ls_sub_ = createSubscriber(tobas::kPosCtrlLSTopic, &self::targetLinkStateCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  cur_js_sub_ = createSubscriber(tobas::topic::kJointStates, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(tobas::topic::kPosCtrlJS, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(tobas::topic::kPosCtrlLS, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }

@@ -1,5 +1,6 @@
 #include "tobas_rc_teleop/pos_vel_yaw.hpp"
 
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -42,7 +43,7 @@ void PosVelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
     addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelYaw>(tobas::kPosVelYawCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelYaw>(tobas::topic::kPosVelYawCmd);
 }
 
 void PosVelYawController::reset(const tobas_msgs::Odometry& odom)

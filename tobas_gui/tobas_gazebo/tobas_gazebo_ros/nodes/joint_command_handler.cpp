@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -43,7 +43,7 @@ private:
 JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_joint_command_handler", options)
 {
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this);
 }
 
 void JointCommandHandlerNode::publishJointCommand(const std::string& jnt_name, double command)
@@ -73,9 +73,9 @@ void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   // Resister subscribers
-  positions_sub_ = createSubscriber(tobas::kJointPosCmdTopic, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(tobas::kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(tobas::kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
+  positions_sub_ = createSubscriber(tobas::topic::kJointPosCmd, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(tobas::topic::kJointVelCmd, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(tobas::topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
 }
 
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)

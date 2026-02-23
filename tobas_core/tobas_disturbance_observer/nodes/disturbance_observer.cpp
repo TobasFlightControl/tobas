@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_node/node.hpp>
@@ -53,13 +53,13 @@ private:
 DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& options)
   : super("disturbance_observer", options), fk_solver_(tree_), inertia_solver_(tree_), js_converter_(tree_)
 {
-  dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::kDisturbanceForceTopic);
+  dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::topic::kDisturbanceForce);
 
-  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorStatesCb, this);
-  rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivTopic, &self::rotorLivelinessCb, this);
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  rotor_states_sub_ = createSubscriber(tobas::topic::kRotorStates, &self::rotorStatesCb, this);
+  rotor_liveliness_sub_ = createSubscriber(tobas::topic::kRotorLiv, &self::rotorLivelinessCb, this);
+  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
 }
 
 void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -79,7 +79,7 @@ void DisturbanceObserverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   js_received_ = false;
 
   if (drone->hasServoJoint()) {
-    joint_states_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStatesCb, this);
+    joint_states_sub_ = createSubscriber(tobas::topic::kJointStates, &self::jointStatesCb, this);
   }
   else {
     joint_states_sub_.reset();

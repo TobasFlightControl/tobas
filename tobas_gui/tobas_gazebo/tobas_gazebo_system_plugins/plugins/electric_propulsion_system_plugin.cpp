@@ -2,7 +2,7 @@
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>

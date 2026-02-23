@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -133,19 +133,19 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   mag_B_lpf_.setCutoffFrequency(kMagLpfCutoff);
   mag_W_lpf_.setCutoffFrequency(kMagLpfCutoff);
 
-  health_pub_ = createPublisher<tobas_msgs::msg::VehicleHealth>(tobas::kVehicleHealthTopic);
+  health_pub_ = createPublisher<tobas_msgs::msg::VehicleHealth>(tobas::topic::kVehicleHealth);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::kBatteryTopic), &self::battCb, this);
-  cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
-  rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
-  rotor_liv_sub_ = createSubscriber(tobas::kRotorLivTopic, &self::rotorLivCb, this);
-  sampling_time_sub_ = createSubscriber(tobas::kImuSamplingTimeTopic, &self::samplingTimeCb, this);
-  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
-  mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
-  mag_ref_sub_ = createSubscriber(tobas::kMagRefTopic, &self::magRefCb, this);
-  vibe_sub_ = createSubscriber(tobas::kVibrationLevelTopic, &self::vibrationLevelCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
+  batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kBattery), &self::battCb, this);
+  cpu_sub_ = createSubscriber(tobas::topic::kCpu, &self::cpuCb, this);
+  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
+  rotor_liv_sub_ = createSubscriber(tobas::topic::kRotorLiv, &self::rotorLivCb, this);
+  sampling_time_sub_ = createSubscriber(tobas::topic::kImuSamplingTime, &self::samplingTimeCb, this);
+  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kOdometry), &self::odomCb, this);
+  mag_sub_ = createSubscriber(tobas::topic::kMagneticField, &self::magCb, this);
+  mag_ref_sub_ = createSubscriber(tobas::topic::kMagRef, &self::magRefCb, this);
+  vibe_sub_ = createSubscriber(tobas::topic::kVibrationLevel, &self::vibrationLevelCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }

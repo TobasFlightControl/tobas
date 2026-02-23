@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -82,15 +82,15 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 {
   const auto& ns = drone_.name;
 
-  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::kAngleCmdTopic));
-  pos_vel_pub_ = ros2::createPublisher<tobas_command_msgs::PosVel>(node_, path::join(ns, tobas::kPosVelCmdTopic));
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::topic::kAngleCmd));
+  pos_vel_pub_ = ros2::createPublisher<tobas_command_msgs::PosVel>(node_, path::join(ns, tobas::topic::kPosVelCmd));
   pos_vel_yaw_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::kPosVelYawCmdTopic));
+    ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::topic::kPosVelYawCmd));
   pos_vel_pitch_yaw_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelPitchYaw>(node_, path::join(ns, tobas::kPosVelPitchYawCmdTopic));
+    ros2::createPublisher<tobas_command_msgs::PosVelPitchYaw>(node_, path::join(ns, tobas::topic::kPosVelYawCmd));
 
   set_arm_sc_ =
-    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::kSetArmSrv));
+    std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::service::kSetArm));
 }
 
 bool BasePoseCommanderWidget::start()
@@ -103,7 +103,7 @@ bool BasePoseCommanderWidget::start()
     {
       if (!set_arm_sc_->waitForService()) {
         success = false;
-        message = "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.";
+        message = "Failed to connect to \"" + QString(tobas::service::kSetArm) + "\" service server.";
         return;
       }
     });

@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -107,7 +107,7 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   reset();
 
-  const auto action_name = path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kExecuteMissionAction);
+  const auto action_name = path::join(ns, tobas::kRemoteIfaceNS, tobas::action::kExecuteMission);
   mission_ac_ = rclcpp_action::create_client<Action>(node_, action_name);
 }
 

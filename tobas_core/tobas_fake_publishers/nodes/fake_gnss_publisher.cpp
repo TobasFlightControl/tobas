@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
@@ -33,7 +33,7 @@ FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options)
   pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
   vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 

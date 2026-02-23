@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QHBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -185,13 +185,13 @@ void JointCommanderWidget::updateInternalDataStructures()
   // Register command publishers
   const auto& ns = drone_.name;
   if (!tar_js_pos_.commands.empty()) {
-    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::kJointPosCmdTopic));
+    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointPosCmd));
   }
   if (!tar_js_vel_.commands.empty()) {
-    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::kJointVelCmdTopic));
+    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointVelCmd));
   }
   if (!tar_js_eff_.commands.empty()) {
-    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::kJointEffCmdTopic));
+    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node_, path::join(ns, tobas::topic::kJointEffCmd));
   }
 }
 

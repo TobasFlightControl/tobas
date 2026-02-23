@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/high_pass_filter.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_node/node.hpp>
@@ -37,8 +37,8 @@ VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options) : s
   TOBAS_ASSERT(hpf_.setCutoffFrequency(kHpfCutoff));
   TOBAS_ASSERT(lpf_.setCutoffFrequency(kLpfCutoff));
 
-  vibe_pub_ = createPublisher<tobas_msgs::VibrationLevel>(tobas::kVibrationLevelTopic);
-  imu_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuCb, this);
+  vibe_pub_ = createPublisher<tobas_msgs::VibrationLevel>(tobas::topic::kVibrationLevel);
+  imu_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuCb, this);
 }
 
 void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)

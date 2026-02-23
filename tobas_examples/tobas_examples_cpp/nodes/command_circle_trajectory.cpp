@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -15,7 +15,7 @@ using namespace std::chrono_literals;
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::kExecuteMissionAction);
+  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
   // ゴールを作成
   tobas::mission::Takeoff takeoff;
@@ -51,7 +51,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 bool land(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::kExecuteMissionAction);
+  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
   // ゴールを作成
   tobas::mission::Land land;
@@ -86,7 +86,7 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
   constexpr double kPeriod = 10.;  // [s]
 
   // コマンドのパブリッシャーを作成
-  const auto pub = ros2::createPublisher<tobas_command_msgs::msg::PosVelYaw>(node, tobas::kPosVelYawCmdTopic);
+  const auto pub = ros2::createPublisher<tobas_command_msgs::msg::PosVelYaw>(node, tobas::topic::kPosVelYawCmd);
 
   const auto start_time = node->now();
 

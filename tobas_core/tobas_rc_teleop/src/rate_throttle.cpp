@@ -1,5 +1,7 @@
 #include "tobas_rc_teleop/rate_throttle.hpp"
 
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 namespace tobas_rc_teleop
@@ -36,7 +38,7 @@ void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::kRateThrotCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::topic::kRateThrotCmd);
 }
 
 void RateThrottleController::reset(const tobas_msgs::Odometry&)

@@ -1,7 +1,8 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/vector.hpp>
@@ -66,15 +67,15 @@ private:
 
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
 {
-  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
-  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::kIcePropulsionSystemCmdTopic);
-  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::topic::kRotorSpeedsCmd);
+  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::topic::kIcePropulsionSystemCmd);
+  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::topic::kArming);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tar_thrusts_sub_ = createSubscriber(tobas::kRotorThrustsCmdTopic, &self::thrustsCmdCb, this);
-  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::healthCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  tar_thrusts_sub_ = createSubscriber(tobas::topic::kRotorThrustsCmd, &self::thrustsCmdCb, this);
+  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::healthCb, this);
 
-  set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
+  set_arm_ss_ = createService<SetArm>(tobas::service::kSetArm, &self::setArmCb, this);
 
   publish_arming_timer_ = createTimer(kPublishArmingPeriod, &self::publishCurrentArmingState, this);
 }

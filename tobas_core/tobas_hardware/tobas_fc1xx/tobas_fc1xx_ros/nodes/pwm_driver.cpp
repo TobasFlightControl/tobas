@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_fc1xx_core/pwm.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -36,7 +36,7 @@ void PwmDriverNode::initialize()
     return;
   }
 
-  pwms_sub_ = createSubscriber(tobas::kPwmCmdTopic, &self::pwmsCb, this);
+  pwms_sub_ = createSubscriber(tobas::topic::kPwmCmd, &self::pwmsCb, this);
 
   initialize_timer_->cancel();
 }

@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -101,7 +101,7 @@ void GazeboBatteryPlugin::Configure(
   voltage_noise_ = NormalDistribution(0., voltage_noise_stddev_);
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定

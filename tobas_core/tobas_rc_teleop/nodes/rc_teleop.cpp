@@ -1,8 +1,10 @@
 #include <eigen3/Eigen/Eigen>
 #include <magic_enum/magic_enum.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/node.hpp>
 #include <tobas_constants/rc_command.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -110,13 +112,13 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::no
   getStaticRosParams();
   initializeControllers();
 
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::healthCb, this);
-  rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
-  landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
+  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
+  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
+  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::healthCb, this);
+  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
+  landed_sub_ = createSubscriber(tobas::topic::kLanded, &self::landedCb, this);
 
-  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::service::kSetArm);
 }
 
 void RCTeleopNode::getStaticRosParams()
@@ -182,7 +184,7 @@ void RCTeleopNode::initializeControllers()
 void RCTeleopNode::requestArmingRotors(bool arming)
 {
   if (!set_arm_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
+    TOBAS_ERROR("\"", tobas::service::kSetArm, "\" is not ready.");
     return;
   }
 

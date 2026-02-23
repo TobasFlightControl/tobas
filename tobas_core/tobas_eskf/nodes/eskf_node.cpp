@@ -1,7 +1,9 @@
 #include <tf2_ros/transform_broadcaster.h>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/frame.hpp>
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/core.hpp>
@@ -194,7 +196,7 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   getStaticRosParams();
 
   // Fill the static part of the transform message
-  tf_.header.frame_id = tobas::kWorldFrame;
+  tf_.header.frame_id = tobas::frame::kWorld;
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
@@ -253,28 +255,28 @@ ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions
   }
 
   // Register publishers
-  odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
-  mag_ref_pub_ = createPublisher<MagRefMsg>(tobas::kMagRefTopic, true, true);
-  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(tobas::kGnssOriginTopic, true, true);
-  feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObsvFeedbackTopic);
+  odom_pub_ = createPublisher<OdomMsg>(tobas::topic::kOdometry);
+  mag_ref_pub_ = createPublisher<MagRefMsg>(tobas::topic::kMagRef, true, true);
+  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(tobas::topic::kGnssOrigin, true, true);
+  feedback_pub_ = createPublisher<FeedbackMsg>(tobas::topic::kObsvFeedback);
 
   // Register subscribers
-  imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(tobas::kImuFiltTopic, &self::imuFiltCb, this);
+  imu_raw_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(tobas::topic::kImuFilt, &self::imuFiltCb, this);
   if (use_mag_) {
-    mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
+    mag_sub_ = createSubscriber(tobas::topic::kMagneticField, &self::magCb, this);
   }
   if (use_baro_) {
-    baro_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::baroCb, this);
+    baro_sub_ = createSubscriber(tobas::topic::kAirPressure, &self::baroCb, this);
   }
   if (use_gnss_) {
-    gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
+    gnss_sub_ = createSubscriber(tobas::topic::kGnss, &self::gnssCb, this);
   }
-  pose_sub_ = createSubscriber(tobas::kExternalPoseTopic, &self::poseCb, this);
+  pose_sub_ = createSubscriber(tobas::topic::kExternalPose, &self::poseCb, this);
 
   // Register service servers
-  get_gnss_origin_ss_ = createService<GetOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ = createService<SetOrigin>(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = createService<GetOrigin>(tobas::service::kGetGnssOrigin, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = createService<SetOrigin>(tobas::service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
 
 void ErrorStateKalmanFilterNode::getStaticRosParams()
@@ -369,7 +371,7 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
 
   // Header
   odom.header.stamp = imu_raw_->header.stamp;
-  odom.header.frame_id = tobas::kWorldFrame;
+  odom.header.frame_id = tobas::frame::kWorld;
 
   // Position (Global): IMU frame -> Base frame
   odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;

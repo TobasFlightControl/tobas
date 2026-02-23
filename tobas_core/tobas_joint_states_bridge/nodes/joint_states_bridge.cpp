@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <sensor_msgs/msg/joint_state.hpp>
@@ -24,7 +24,7 @@ private:
 JointStatesBridgeNode::JointStatesBridgeNode(const rclcpp::NodeOptions& options) : super("joint_states_bridge", options)
 {
   js_pub_ = createPublisher<sensor_msgs::msg::JointState>("joint_states");
-  js_sub_ = createSubscriber<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic, &self::jointStatesCb, this);
+  js_sub_ = createSubscriber<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates, &self::jointStatesCb, this);
 }
 
 void JointStatesBridgeNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js_in)

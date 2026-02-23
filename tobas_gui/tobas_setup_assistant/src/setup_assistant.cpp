@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <tobas_constants/path.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/version.hpp>
@@ -607,7 +609,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
     return;
   }
   const auto proj_path = dialog.selectedFiles().first();
-  TOBAS_CHECK(proj_path.endsWith(tobas::kProjectExtension));
+  TOBAS_CHECK(proj_path.endsWith(cmn::kProjectExtension));
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(proj_path.toStdString()).parent_path();

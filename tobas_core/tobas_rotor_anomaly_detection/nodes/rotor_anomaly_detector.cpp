@@ -1,4 +1,5 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_tools/util.hpp>
@@ -49,10 +50,10 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
 {
   no_comm_timeout_ = getDoubleParam("no_communication_timeout", 0.2);
 
-  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivTopic);
+  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::topic::kRotorLiv);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::statesCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kRotorStates), &self::statesCb, this);
 
   publish_rotor_liveliness_timer_ = createTimer(1s, &self::publishRotorLiveliness, this);
 }

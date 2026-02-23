@@ -1,6 +1,6 @@
 #include <tobas_fc1xx_core/iis2mdc.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 
 #include <tobas_msgs_adapter/magnetic_field.hpp>
 
@@ -39,7 +39,7 @@ void MagDriverNode::initialize()
     return;
   }
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::kMagTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);

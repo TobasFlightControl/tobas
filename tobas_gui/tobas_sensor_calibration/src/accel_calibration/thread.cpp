@@ -1,8 +1,8 @@
 #include "tobas_sensor_calibration/accel_calibration/thread.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -79,7 +79,7 @@ void AccelCalibrationThread::run()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetImuParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::imu::kSetParamSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;

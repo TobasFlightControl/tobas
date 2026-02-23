@@ -1,5 +1,6 @@
 #include "tobas_rc_teleop/accel_rate.hpp"
 
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 namespace tobas_rc_teleop
@@ -43,8 +44,8 @@ void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
-  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::kAccelCmdTopic);
-  rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::kRateCmdTopic);
+  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(tobas::topic::kAccelCmd);
+  rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::topic::kRateCmd);
 }
 
 void AccelRateController::reset(const tobas_msgs::Odometry&)

@@ -1,6 +1,5 @@
 #include "tobas_actuator_test/joint_test/joint_test.hpp"
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>

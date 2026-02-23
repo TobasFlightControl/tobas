@@ -1,9 +1,11 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -103,10 +105,10 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
-  imu_raw_sub_ = createSubscriber(real::kImuRawTopic, &self::imuRawCb, this);
-  imu_filt_sub_ = createSubscriber(real::kImuFiltTopic, &self::imuFiltCb, this);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
+  imu_raw_sub_ = createSubscriber(real::topic::kImuRaw, &self::imuRawCb, this);
+  imu_filt_sub_ = createSubscriber(real::topic::kImuFilt, &self::imuFiltCb, this);
 }
 
 void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)

@@ -1,5 +1,8 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/pwm_key.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
@@ -232,12 +235,12 @@ tobas::Drone ProjectGenerator::createDrone() const
         tobas::PwmConfig engine_pwm;
         const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
         engine_pwm.channel = engine_pwm_channel;
-        engine_pwm.name = tobas::pwm::kEngineThrottleKey;
+        engine_pwm.name = tobas::pwm_key::kEngineThrottleKey;
         engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);
         engine_pwm.period_range.second = settings_->hardware->pwm()->periodUb(engine_pwm_channel);
         engine_pwm.value_range.first = tobas::kMinThrot;
         engine_pwm.value_range.second = tobas::kMaxThrot;
-        TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+        TOBAS_CHECK(drone.pwms.insert({ tobas::pwm_key::kEngineThrottleKey, engine_pwm }).second);
       }
 
       // Rotors
@@ -797,7 +800,7 @@ bool ProjectGenerator::generateSshConfig()
 {
   cmn::SshConfig config;
   config.host = settings_->remote_connection->host().toStdString();
-  config.user = tobas::kFmuUserName;
+  config.user = cmn::kUserNameFC;
 
   if (!config.save(proj_paths_.sshConfigPath())) {
     qt::qErrorBox(parent_, "Failed to save the SSH configuration.");

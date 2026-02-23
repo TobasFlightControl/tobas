@@ -1,6 +1,6 @@
 #include "tobas_gui_common/remote_project_builder.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
 
 #include "tobas_gui_common/project_paths.hpp"
 

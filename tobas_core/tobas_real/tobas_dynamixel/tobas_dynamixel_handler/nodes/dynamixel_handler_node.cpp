@@ -3,7 +3,7 @@
 
 #include <dynamixel_sdk/dynamixel_sdk.h>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dynamixel_ros_interface/ros_interface.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>

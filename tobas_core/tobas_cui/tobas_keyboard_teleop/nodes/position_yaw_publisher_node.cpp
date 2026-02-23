@@ -2,7 +2,7 @@
 
 #include <rclcpp/wait_for_message.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_keyboard/utils.hpp>
 #include <tobas_mission_items/mission_items.hpp>
@@ -21,7 +21,7 @@ using namespace std::chrono_literals;
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::kExecuteMissionAction);
+  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
   // ゴールを作成
   tobas::mission::Takeoff takeoff;
@@ -57,7 +57,7 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 std::expected<kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPtr node)
 {
   tobas_msgs::Odometry odom;
-  if (!rclcpp::wait_for_message(odom, node, tobas::kOdometryTopic, 1s, ros2::makeQoS())) {
+  if (!rclcpp::wait_for_message(odom, node, tobas::topic::kOdometry, 1s, ros2::makeQoS())) {
     return std::unexpected("Failed to get the current odometry.");
   }
 
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   keyboard::KeyboardReader key_reader;
 
   // コマンドパブリッシャーを登録
-  const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node, tobas::kPosVelYawCmdTopic);
+  const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node, tobas::topic::kPosVelYawCmd);
 
   // 説明文の表示を開始
   constexpr char kInstructionText[] = "Control your drone!\n"

@@ -1,7 +1,10 @@
 #include <ranges>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/throttle.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
@@ -232,23 +235,23 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1., 50, 0, 100, " %");
 
   // Register publishers
-  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(kRotorThrustsCmdTopic);
-  feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(kMRCtrlFeedbackTopic);
+  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
+  feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(kKdlTreeTopic, &self::treeCb, this, true, true);
-  odom_sub_ = createSubscriber(kOdometryTopic, &self::odomCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   if (do_dist_comp_trans_ || do_dist_comp_rot_) {
-    dist_force_sub_ = createSubscriber(kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+    dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
   }
-  landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
-  arming_sub_ = createSubscriber(kArmingTopic, &self::armingCb, this);
-  rotor_liveliness_sub_ = createSubscriber(kRotorLivTopic, &self::rotorLivelinessCb, this);
-  pos_cmd_sub_ = createSubscriber(kPosVelYawCmdTopic, &self::positionCommandCb, this);
-  acc_cmd_sub_ = createSubscriber(kAccelYawCmdTopic, &self::accelCommandCb, this);
-  angle_cmd_sub_ = createSubscriber(kAngleThrotCmdTopic, &self::angleCommandCb, this);
-  rate_cmd_sub_ = createSubscriber(kRateThrotCmdTopic, &self::rateCommandCb, this);
+  landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  rotor_liveliness_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivelinessCb, this);
+  pos_cmd_sub_ = createSubscriber(topic::kPosVelYawCmd, &self::positionCommandCb, this);
+  acc_cmd_sub_ = createSubscriber(topic::kAccelYawCmd, &self::accelCommandCb, this);
+  angle_cmd_sub_ = createSubscriber(topic::kAngleThrotCmd, &self::angleCommandCb, this);
+  rate_cmd_sub_ = createSubscriber(topic::kRateThrotCmd, &self::rateCommandCb, this);
 
   // Register timers
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -538,7 +541,7 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   drone_ = *drone;
 
   if (drone->hasServoJoint()) {
-    js_sub_ = createSubscriber(kJointStatesTopic, &self::jointStateCb, this);
+    js_sub_ = createSubscriber(topic::kJointStates, &self::jointStateCb, this);
   }
   else {
     js_sub_.reset();
@@ -829,37 +832,37 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
 void ControllerNode::checkTopicsTimerCb()
 {
   if (!drone_received_) {
-    TOBAS_WARN("Waiting for \"", kDroneTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
     return;
   }
 
   if (!tree_received_) {
-    TOBAS_WARN("Waiting for \"", kKdlTreeTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
     return;
   }
 
   if (!odom_) {
-    TOBAS_WARN("Waiting for \"", kOdometryTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kOdometry, "\".");
     return;
   }
 
   if (dist_force_sub_ && !dist_force_) {
-    TOBAS_WARN("Waiting for \"", kDisturbanceForceTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kDisturbanceForce, "\".");
     return;
   }
 
   if (js_sub_ && !js_received_) {
-    TOBAS_WARN("Waiting for \"", kJointStatesTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kJointStates, "\".");
     return;
   }
 
   if (!landed_) {
-    TOBAS_WARN("Waiting for \"", kLandedTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kLanded, "\".");
     return;
   }
 
   if (!arming_) {
-    TOBAS_WARN("Waiting for \"", kArmingTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kArming, "\".");
     return;
   }
 

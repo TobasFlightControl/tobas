@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
@@ -26,7 +26,7 @@ MatrixEulerConverterNode::MatrixEulerConverterNode(const rclcpp::NodeOptions& op
   : super("matrix_euler_converter", options)
 {
   euler_pub_ = createPublisher<tobas_kdl_msgs::EulerStamped>("euler");
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
 }
 
 void MatrixEulerConverterNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)

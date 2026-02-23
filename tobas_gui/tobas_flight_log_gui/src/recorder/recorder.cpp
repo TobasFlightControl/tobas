@@ -5,7 +5,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/rosbag.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>

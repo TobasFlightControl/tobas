@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
@@ -57,10 +57,10 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
 
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
-  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::kLandedTopic);
+  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::topic::kLanded);
 
-  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
-  dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
+  dist_force_sub_ = createSubscriber(tobas::topic::kDisturbanceForce, &self::disturbanceForceCb, this);
 }
 
 void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp)

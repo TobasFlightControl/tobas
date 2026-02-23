@@ -1,6 +1,6 @@
 #include "tobas_node/node.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
 using namespace std;
@@ -12,9 +12,9 @@ BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
 {
   RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
 
-  message_pub_ = createPublisher<tobas_msgs::msg::Message>(kMessageTopic);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage);
   get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
-    node_name + "/" + tobas::kGetDynamicParamsSrv, &self::getDParamCb, this);
+    node_name + "/" + service::kGetDynamicParams, &self::getDParamCb, this);
 }
 
 bool BaseNode::getBoolParam(const string& name)

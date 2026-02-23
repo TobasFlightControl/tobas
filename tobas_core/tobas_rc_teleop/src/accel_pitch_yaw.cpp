@@ -1,5 +1,6 @@
 #include "tobas_rc_teleop/accel_pitch_yaw.hpp"
 
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -44,7 +45,7 @@ void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMod
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(tobas::kAccelPitchYawCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(tobas::topic::kAccelPitchYawCmd);
 }
 
 void AccelPitchYawController::reset(const tobas_msgs::Odometry& odom)
