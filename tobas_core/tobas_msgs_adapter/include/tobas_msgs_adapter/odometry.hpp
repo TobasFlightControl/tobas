@@ -23,6 +23,8 @@ struct Odometry
 
   using SharedPtr = std::shared_ptr<Odometry>;
   using ConstSharedPtr = std::shared_ptr<const Odometry>;
+  using UniquePtr = std::unique_ptr<Odometry>;
+  using ConstUniquePtr = std::unique_ptr<const Odometry>;
 };
 }  // namespace tobas_msgs
 

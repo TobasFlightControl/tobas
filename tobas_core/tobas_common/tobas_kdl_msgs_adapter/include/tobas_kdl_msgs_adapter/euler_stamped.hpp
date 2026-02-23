@@ -17,6 +17,8 @@ struct EulerStamped
 
   using SharedPtr = std::shared_ptr<EulerStamped>;
   using ConstSharedPtr = std::shared_ptr<const EulerStamped>;
+  using UniquePtr = std::unique_ptr<EulerStamped>;
+  using ConstUniquePtr = std::unique_ptr<const EulerStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

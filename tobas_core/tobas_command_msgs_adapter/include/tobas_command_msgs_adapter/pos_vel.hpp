@@ -17,6 +17,8 @@ struct PosVel
 
   using SharedPtr = std::shared_ptr<PosVel>;
   using ConstSharedPtr = std::shared_ptr<const PosVel>;
+  using UniquePtr = std::unique_ptr<PosVel>;
+  using ConstUniquePtr = std::unique_ptr<const PosVel>;
 };
 }  // namespace tobas_command_msgs
 

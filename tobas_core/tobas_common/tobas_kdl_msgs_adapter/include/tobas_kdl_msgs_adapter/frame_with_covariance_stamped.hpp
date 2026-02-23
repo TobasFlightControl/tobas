@@ -15,6 +15,8 @@ struct FrameWithCovarianceStamped
 
   using SharedPtr = std::shared_ptr<FrameWithCovarianceStamped>;
   using ConstSharedPtr = std::shared_ptr<const FrameWithCovarianceStamped>;
+  using UniquePtr = std::unique_ptr<FrameWithCovarianceStamped>;
+  using ConstUniquePtr = std::unique_ptr<const FrameWithCovarianceStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

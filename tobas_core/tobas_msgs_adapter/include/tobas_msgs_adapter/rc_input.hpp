@@ -24,6 +24,8 @@ struct RCInput
 
   using SharedPtr = std::shared_ptr<RCInput>;
   using ConstSharedPtr = std::shared_ptr<const RCInput>;
+  using UniquePtr = std::unique_ptr<RCInput>;
+  using ConstUniquePtr = std::unique_ptr<const RCInput>;
 };
 }  // namespace tobas_msgs
 

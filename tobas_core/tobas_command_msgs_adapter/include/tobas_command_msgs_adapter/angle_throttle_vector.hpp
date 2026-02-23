@@ -18,6 +18,8 @@ struct AngleThrottleVector
 
   using SharedPtr = std::shared_ptr<AngleThrottleVector>;
   using ConstSharedPtr = std::shared_ptr<const AngleThrottleVector>;
+  using UniquePtr = std::unique_ptr<AngleThrottleVector>;
+  using ConstUniquePtr = std::unique_ptr<const AngleThrottleVector>;
 };
 }  // namespace tobas_command_msgs
 

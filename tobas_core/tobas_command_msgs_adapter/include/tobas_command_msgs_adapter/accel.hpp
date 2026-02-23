@@ -16,6 +16,8 @@ struct Accel
 
   using SharedPtr = std::shared_ptr<Accel>;
   using ConstSharedPtr = std::shared_ptr<const Accel>;
+  using UniquePtr = std::unique_ptr<Accel>;
+  using ConstUniquePtr = std::unique_ptr<const Accel>;
 };
 }  // namespace tobas_command_msgs
 

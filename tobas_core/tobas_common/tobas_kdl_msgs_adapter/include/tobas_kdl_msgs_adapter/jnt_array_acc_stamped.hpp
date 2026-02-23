@@ -17,6 +17,8 @@ struct JntArrayAccStamped
 
   using SharedPtr = std::shared_ptr<JntArrayAccStamped>;
   using ConstSharedPtr = std::shared_ptr<const JntArrayAccStamped>;
+  using UniquePtr = std::unique_ptr<JntArrayAccStamped>;
+  using ConstUniquePtr = std::unique_ptr<const JntArrayAccStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

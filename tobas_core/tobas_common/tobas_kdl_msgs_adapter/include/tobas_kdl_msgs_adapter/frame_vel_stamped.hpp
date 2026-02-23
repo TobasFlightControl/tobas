@@ -17,6 +17,8 @@ struct FrameVelStamped
 
   using SharedPtr = std::shared_ptr<FrameVelStamped>;
   using ConstSharedPtr = std::shared_ptr<const FrameVelStamped>;
+  using UniquePtr = std::unique_ptr<FrameVelStamped>;
+  using ConstUniquePtr = std::unique_ptr<const FrameVelStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

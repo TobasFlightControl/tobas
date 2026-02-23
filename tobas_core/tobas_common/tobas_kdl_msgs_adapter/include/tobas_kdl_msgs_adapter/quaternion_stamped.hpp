@@ -17,6 +17,8 @@ struct QuaternionStamped
 
   using SharedPtr = std::shared_ptr<QuaternionStamped>;
   using ConstSharedPtr = std::shared_ptr<const QuaternionStamped>;
+  using UniquePtr = std::unique_ptr<QuaternionStamped>;
+  using ConstUniquePtr = std::unique_ptr<const QuaternionStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

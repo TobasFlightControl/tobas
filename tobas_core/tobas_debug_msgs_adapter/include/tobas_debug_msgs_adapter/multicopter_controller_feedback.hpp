@@ -23,6 +23,8 @@ struct MulticopterControllerFeedback
 
   using SharedPtr = std::shared_ptr<MulticopterControllerFeedback>;
   using ConstSharedPtr = std::shared_ptr<const MulticopterControllerFeedback>;
+  using UniquePtr = std::unique_ptr<MulticopterControllerFeedback>;
+  using ConstUniquePtr = std::unique_ptr<const MulticopterControllerFeedback>;
 };
 }  // namespace tobas_debug_msgs
 

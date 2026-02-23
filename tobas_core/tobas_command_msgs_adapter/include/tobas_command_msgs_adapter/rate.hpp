@@ -16,6 +16,8 @@ struct Rate
 
   using SharedPtr = std::shared_ptr<Rate>;
   using ConstSharedPtr = std::shared_ptr<const Rate>;
+  using UniquePtr = std::unique_ptr<Rate>;
+  using ConstUniquePtr = std::unique_ptr<const Rate>;
 };
 }  // namespace tobas_command_msgs
 

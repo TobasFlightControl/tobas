@@ -20,6 +20,8 @@ struct LinkState
 
   using SharedPtr = std::shared_ptr<LinkState>;
   using ConstSharedPtr = std::shared_ptr<const LinkState>;
+  using UniquePtr = std::unique_ptr<LinkState>;
+  using ConstUniquePtr = std::unique_ptr<const LinkState>;
 };
 }  // namespace tobas_msgs
 

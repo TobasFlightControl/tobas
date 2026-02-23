@@ -19,6 +19,8 @@ struct PosVelPitchYaw
 
   using SharedPtr = std::shared_ptr<PosVelPitchYaw>;
   using ConstSharedPtr = std::shared_ptr<const PosVelPitchYaw>;
+  using UniquePtr = std::unique_ptr<PosVelPitchYaw>;
+  using ConstUniquePtr = std::unique_ptr<const PosVelPitchYaw>;
 };
 }  // namespace tobas_command_msgs
 

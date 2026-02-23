@@ -17,6 +17,8 @@ struct WrenchStamped
 
   using SharedPtr = std::shared_ptr<WrenchStamped>;
   using ConstSharedPtr = std::shared_ptr<const WrenchStamped>;
+  using UniquePtr = std::unique_ptr<WrenchStamped>;
+  using ConstUniquePtr = std::unique_ptr<const WrenchStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

@@ -19,6 +19,8 @@ struct AccelWithCovariance
 
   using SharedPtr = std::shared_ptr<AccelWithCovariance>;
   using ConstSharedPtr = std::shared_ptr<const AccelWithCovariance>;
+  using UniquePtr = std::unique_ptr<AccelWithCovariance>;
+  using ConstUniquePtr = std::unique_ptr<const AccelWithCovariance>;
 };
 }  // namespace tobas_kdl_msgs
 
