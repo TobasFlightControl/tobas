@@ -1,4 +1,4 @@
-# tobas_img_processing
+# tobas_image_processing
 
 ## nodes
 
@@ -66,13 +66,13 @@ MJPGであればmjpg_decompressorにより，H.264であればh264_decompressor�
   - cx_gb400から映像を取得してffmpegを用いてsrt通信で送信しながら，ジンバルの制御も行う．ros topicでの映像の配信は行わない．
   - 一例としては，以下のように実行する．
     ```bash
-    $ ros2 launch tobas_img_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888 # 映像を送信．
+    $ ros2 launch tobas_image_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888 # 映像を送信．
     $ ffplay -fflags nobuffer -autoexit "srt://127.0.0.1:8888?mode=listener" # 映像を受信．
     ```
   - ros topicとして再publishし，rviz2で表示したい場合は，次のようにする．
     ```bash
-    $ ros2 launch tobas_img_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888 # 映像を送信．
-    $ ros2 run tobas_img_processing ffmpeg_to_ros_msg_converter
+    $ ros2 launch tobas_image_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888 # 映像を送信．
+    $ ros2 run tobas_image_processing ffmpeg_to_ros_msg_converter
     $ rviz2 # image topicをimageとして，表示する．
     ```
   - parameters

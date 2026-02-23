@@ -1,4 +1,4 @@
-# launch : ros2 launch tobas_img_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888
+# launch : ros2 launch tobas_image_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888
 # image receive command : ffplay -fflags nobuffer -autoexit "srt://127.0.0.1:8888?mode=listener"
 
 from launch import LaunchDescription
@@ -58,7 +58,7 @@ def generate_launch_description():
             server_and_port_arg,
             image_scale_arg,
             Node(
-                package="tobas_img_processing",
+                package="tobas_image_processing",
                 executable="cx_gb400_publisher",
                 parameters=[{"device_name": "/dev/video0", "disable_video_streaming": True}],
                 output="screen",

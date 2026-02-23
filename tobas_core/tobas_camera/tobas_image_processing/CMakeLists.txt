@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_img_processing)
+project(tobas_image_processing)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -14,18 +14,17 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 
 set(AMENT_DEPENDENCIES
-    rclcpp
-    rclcpp_components
+    OpenCV
+    cv_bridge
+    PkgConfig
     ffmpeg_encoder_decoder
     ffmpeg_image_transport_msgs
     sensor_msgs
     tobas_ic_drivers
     tobas_node
-    tobas_camera_msgs
     tobas_msgs_adapter
-    OpenCV
-    cv_bridge
-    PkgConfig
+    tobas_camera_ros_interface
+    tobas_camera_msgs
 )
 
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})

@@ -10,7 +10,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             Node(
-                package="tobas_img_processing",
+                package="tobas_image_processing",
                 executable="video_dev_publisher",
                 parameters=[
                     {
@@ -22,7 +22,7 @@ def generate_launch_description():
                 output="screen",
             ),
             Node(
-                package="tobas_img_processing",
+                package="tobas_image_processing",
                 executable="mjpg_compressor",
                 parameters=[
                     {
@@ -34,7 +34,7 @@ def generate_launch_description():
                 output="screen",
             ),
             Node(
-                package="tobas_img_processing",
+                package="tobas_image_processing",
                 executable="h264_decompressor",
                 parameters=[
                     {

@@ -1,6 +1,6 @@
 <package format="3">
 
-	<name>tobas_img_processing</name>
+	<name>tobas_image_processing</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -8,16 +8,14 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclcpp</depend>
-  <depend>rclcpp_components</depend>
   <depend>ffmpeg_encoder_decoder</depend>
-  <depend>ffmpeg_image_transport</depend>
   <depend>ffmpeg_image_transport_msgs</depend>
-  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>tobas_ic_drivers</depend>
   <depend>tobas_node</depend>
-  <depend>tobas_camera_msgs</depend>
   <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_camera_ros_interface</depend>
+  <depend>tobas_camera_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
