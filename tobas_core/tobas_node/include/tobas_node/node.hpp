@@ -247,7 +247,7 @@ template <typename MsgType>
 ros2::PublisherPtr<MsgType>
 BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  const ros2::qos::QoS qos(latch, reliable, queue_size);
   return create_publisher<MsgType>(topic_name, qos);
 }
 
@@ -260,7 +260,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   bool reliable,
   size_t queue_size)
 {
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  const ros2::qos::QoS qos(latch, reliable, queue_size);
   const auto cb = std::bind(fp, obj, std::placeholders::_1);
   return create_subscription<MsgType>(topic_name, qos, cb);
 }

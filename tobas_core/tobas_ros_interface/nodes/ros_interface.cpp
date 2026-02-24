@@ -268,7 +268,7 @@ void RosInterfaceNode::addTopic(
 {
   const auto topic = std::make_shared<Topic<MsgType>>();
 
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  const ros2::qos::QoS qos(latch, reliable, queue_size);
 
   // Create publisher
   topic->publisher = create_publisher<MsgType>(pub_topic, qos);

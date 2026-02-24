@@ -2,24 +2,27 @@
 
 namespace ros2
 {
-rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size)
+namespace qos
 {
-  auto qos = rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST, queue_size));
-
+QoS::QoS(bool latch, bool reliable, size_t queue_size) : rclcpp::QoS(rclcpp::KeepLast(queue_size))
+{
   if (latch) {
-    qos.durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL);
+    durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL);
   }
   else {
-    qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+    durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
   }
 
   if (reliable) {
-    qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
+    reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
   }
   else {
-    qos.reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
+    reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
   }
-
-  return qos;
 }
+
+DefaultQoS::DefaultQoS() : QoS(kDefaultLatch, kDefaultReliable, kDefaultQueueSize)
+{
+}
+}  // namespace qos
 }  // namespace ros2

@@ -9,10 +9,18 @@ namespace qos
 static constexpr bool kDefaultLatch = false;
 static constexpr bool kDefaultReliable = false;
 static constexpr size_t kDefaultQueueSize = 1;
-}  // namespace qos
 
-rclcpp::QoS makeQoS(
-  bool latch = qos::kDefaultLatch,
-  bool reliable = qos::kDefaultReliable,
-  size_t queue_size = qos::kDefaultQueueSize);
+class QoS : public rclcpp::QoS
+{
+public:
+  explicit QoS(bool latch, bool reliable, size_t queue_size);
+};
+
+/* The default topic QoS. */
+class DefaultQoS : public QoS
+{
+public:
+  explicit DefaultQoS();
+};
+}  // namespace qos
 }  // namespace ros2

@@ -107,7 +107,7 @@ void GazeboBatteryPlugin::Configure(
   // モータ状態のコールバックとサブスクライバを設定
   for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
-    const auto qos = ros2::makeQoS(false, false, 1);
+    const ros2::qos::QoS qos(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
     {
       if (msg->current < 0.) {

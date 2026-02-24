@@ -240,7 +240,7 @@ inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noe
 template <typename MsgType>
 void RosbagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool reliable, size_t queue_size)
 {
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  const ros2::qos::QoS qos(latch, reliable, queue_size);
   const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& msg) { standardMsgCb<MsgType>(msg, topic); };
   const auto sub = create_subscription<MsgType>(topic, qos, cb);
   subs_.push_back(sub);
@@ -254,7 +254,7 @@ void RosbagRecorderNode::addTypeAdaptedMsgSub(
   bool reliable,
   size_t queue_size)
 {
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  const ros2::qos::QoS qos(latch, reliable, queue_size);
   const auto cb = [this, &raw_msg, topic](const typename ExtMsgType::ConstSharedPtr& ext_msg)
   { typeAdaptedMsgCb<ExtMsgType, RawMsgType>(ext_msg, raw_msg, topic); };
   const auto sub = create_subscription<ExtMsgType>(topic, qos, cb);

@@ -44,7 +44,7 @@ void RosQtBridge::initializeScopedTopics(const std::string& ns)
 template <typename MsgType, auto SignalType>
 void RosQtBridge::add(const std::string& topic, std::vector<rclcpp::SubscriptionBase::SharedPtr>& buf)
 {
-  const auto qos = ros2::makeQoS(false, false, 1);  // 必ず受け取れる設定
+  const ros2::qos::QoS qos(false, false, 1);  // 必ず受け取れる設定
   const auto cb = [this](const typename MsgType::ConstSharedPtr& msg) { (this->*SignalType)(msg); };
   buf.push_back(node_->create_subscription<MsgType>(topic, qos, cb));
 }
