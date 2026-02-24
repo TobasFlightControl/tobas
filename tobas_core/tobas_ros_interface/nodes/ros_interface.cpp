@@ -228,7 +228,7 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicIfaceToLogic<tobas_command_msgs::msg::PosVel>(tobas::topic::kPosVelCmd, tobas::topic::kPosVelCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelYaw>(tobas::topic::kPosVelYawCmd, tobas::topic::kPosVelYawCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelPitchYaw>(
-    tobas::topic::kPosVelYawCmd, tobas::topic::kPosVelYawCmd);
+    tobas::topic::kPosVelPitchYawCmd, tobas::topic::kPosVelPitchYawCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::SpeedRollDeltaPitch>(
     tobas::topic::kSpeedRollDpitchCmd, tobas::topic::kSpeedRollDpitchCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd, tobas::topic::kJointPosCmd);

@@ -194,7 +194,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivelinessCb, this);
-  pos_cmd_sub_ = createSubscriber(topic::kPosVelYawCmd, &self::positionCommandCb, this);
+  pos_cmd_sub_ = createSubscriber(topic::kPosVelPitchYawCmd, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(topic::kAccelPitchYawCmd, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::angleCommandCb, this);
   rate_cmd_sub_ = createSubscriber(topic::kRateThrotVectorCmd, &self::rateCommandCb, this);

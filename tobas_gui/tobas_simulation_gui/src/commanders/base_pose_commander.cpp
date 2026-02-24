@@ -87,7 +87,7 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
   pos_vel_yaw_pub_ =
     ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::topic::kPosVelYawCmd));
   pos_vel_pitch_yaw_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelPitchYaw>(node_, path::join(ns, tobas::topic::kPosVelYawCmd));
+    ros2::createPublisher<tobas_command_msgs::PosVelPitchYaw>(node_, path::join(ns, tobas::topic::kPosVelPitchYawCmd));
 
   set_arm_sc_ =
     std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::service::kSetArm));

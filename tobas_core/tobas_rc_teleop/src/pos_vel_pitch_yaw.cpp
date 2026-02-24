@@ -45,7 +45,7 @@ void PosVelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMo
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelPitchYaw>(tobas::topic::kPosVelYawCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelPitchYaw>(tobas::topic::kPosVelPitchYawCmd);
 }
 
 void PosVelPitchYawController::reset(const tobas_msgs::Odometry& odom)

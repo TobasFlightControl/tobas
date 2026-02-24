@@ -142,7 +142,7 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   angle_pub_ = createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
   pos_vel_pub_ = createPublisher<tobas_command_msgs::PosVel>(topic::kPosVelCmd);
   pos_vel_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelYaw>(topic::kPosVelYawCmd);
-  pos_vel_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelPitchYaw>(topic::kPosVelYawCmd);
+  pos_vel_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelPitchYaw>(topic::kPosVelPitchYawCmd);
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
