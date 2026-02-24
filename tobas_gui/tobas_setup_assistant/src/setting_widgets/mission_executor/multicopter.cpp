@@ -22,7 +22,7 @@ MulticopterWidget::MulticopterWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
   wp_max_hor_vel_ = new qt::DoubleSpinBox();
   wp_max_hor_vel_->setDecimals(1);
-  wp_max_hor_vel_->setMinimum(3.);
+  wp_max_hor_vel_->setMinimum(1.);  // 3 m/s -> 1 m/s
   wp_max_hor_vel_->setMaximum(20.);
   wp_max_hor_vel_->setValue(5.);
   wp_max_hor_vel_->setSuffix(" m/s");
