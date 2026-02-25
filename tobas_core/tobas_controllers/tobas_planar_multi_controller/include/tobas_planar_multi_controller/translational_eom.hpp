@@ -22,14 +22,7 @@ public:
     double& roll_out,
     double& pitch_out);
 
-  bool setMaxAttitude(double p);
-
 private:
-  struct Config
-  {
-    double max_attitude = M_PI_4;  // [rad]
-  } cfg_;
-
   kdl::TreeMassHolder mass_holder_;
 
   const kdl::Vector grav_W_;

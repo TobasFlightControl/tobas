@@ -2,11 +2,7 @@
 
 #include <iostream>
 
-#include <tobas_algorithm/core.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-
-using namespace std;
 
 namespace tobas
 {
@@ -31,24 +27,16 @@ bool TranslationalEoM::solve(
 {
   // 並進EoMの左辺
   const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_) - ext_force_W;
-  auto x = xyz.x();
-  auto y = xyz.y();
-  auto z = xyz.z();
-
-  // 鉛直下方向に推力は出せないことを考慮して垂直成分をクランプ
-  z = max(z, 0.);
-
-  // 姿勢の制限を考慮して水平成分をクランプ
-  const auto tan_max_atti = tan(cfg_.max_attitude);
-  const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
-  algo::clamp2d(x, y, max_xy_norm);
+  const auto x = xyz.x();
+  const auto y = xyz.y();
+  const auto z = std::max(xyz.z(), 0.);  // 鉛直下方向に推力は出せない
 
   // 現在のオイラー角を計算
   cur_rot.getRPY(roll_, pitch_, yaw_);
 
   // 姿勢角が90度を超える場合は実現できない
   if (std::abs(roll_) > M_PI_2 || std::abs(pitch_) > M_PI_2) {
-    cerr << "Cannot solve translational EoM because the aircraft is upside-down." << endl;
+    std::cerr << "Cannot solve translational EoM because the aircraft is upside-down." << std::endl;
     return false;
   }
 
@@ -61,17 +49,6 @@ bool TranslationalEoM::solve(
   // 高度追従と姿勢追従を分離するために現在の姿勢で目標推力を計算
   thrust_out = z / (cos(roll_) * cos(pitch_));
 
-  return true;
-}
-
-bool TranslationalEoM::setMaxAttitude(double p)
-{
-  if (p <= 0.) {
-    cerr << "Maximum attitude must be positive." << endl;
-    return false;
-  }
-
-  cfg_.max_attitude = p;
   return true;
 }
 }  // namespace planar_multicopter

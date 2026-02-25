@@ -7,7 +7,6 @@
 #include <tobas_constants/time.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_priority_handler.hpp>
@@ -56,14 +55,23 @@ private:
   bool do_dist_comp_rot_;
 
   // Controller
-  PositionPID pos_pid_;
   TranslationalEoM trans_eom_;
   Mixer mixer_;
-  double atti_wn_, head_wn_;      // [rad/s]
-  double atti_zeta_, head_zeta_;  // [-]
-  kdl::Vector angle_gain_, rate_gain_;  // 回転のPIDを2段階に分けたときの姿勢と角速度に対応したゲイン
-  kdl::Vector rot_ki_, rot_ei_;
   double throttle_gain_thresh_;  // [-]
+  struct TranslationControlParameters
+  {
+    double hor_wn, ver_wn;      // [rad/s]
+    double hor_zeta, ver_zeta;  // [-]
+    double hor_ki, ver_ki;
+    kdl::Vector ei;
+  } trans_ctrl_;
+  struct RotationControlParameters
+  {
+    double atti_wn, head_wn;      // [rad/s]
+    double atti_zeta, head_zeta;  // [-]
+    double atti_ki, head_ki;
+    kdl::Vector ei;
+  } rot_ctrl_;
 
   // Values depending on drone configuration
   double max_thrust_sum_;  // [N]
@@ -85,7 +93,7 @@ private:
   std::unique_ptr<kdl::Rotation> tar_rot_;                 // 目標姿勢 (機体座標系)
   std::unique_ptr<kdl::Vector> tar_gyro_;                  // 目標角速度 (機体座標系)
   kdl::Vector tar_dgyro_;                                  // 目標角加速度 (機体座標系)
-  double ux_, uz_;                                         // 目標推力 (機体座標系)
+  double ux_ = 0., uz_ = 0.;                               // 目標推力 (機体座標系)
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -111,8 +119,8 @@ private:
 
   bool updateInternalDataStructures();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
-  std::pair<kdl::Vector, kdl::Vector> computeRotationGain() const;
 
+  // Parameter callbacks
   bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
   bool horizontalIGainCb(const double& p);
@@ -125,10 +133,9 @@ private:
   bool headingNaturalFreqCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
-  bool maxHorizontalAccelCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
   bool throttleGainThresholdCb(const double& p);
 
+  // Topic callbacks
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
@@ -142,6 +149,7 @@ private:
   void angleCommandCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& angle_cmd);
   void rateCommandCb(const tobas_command_msgs::RateThrottleVector::ConstSharedPtr& rate_cmd);
 
+  // Timer callbacks
   void checkTopicsTimerCb();
 };
 
@@ -175,9 +183,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, default_vertical_i_gain, 1, 30);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 1, 30);
-  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 16, 2, 20, " m/s^2");
-  addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1., 50, 0, 100, " %");
+  addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1., 70, 0, 100, " %");
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
@@ -248,110 +254,76 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   return true;
 }
 
-std::pair<kdl::Vector, kdl::Vector> ControllerNode::computeRotationGain() const
-{
-  double thrust_coef;
-  if (throttle_gain_thresh_ > 0.) {
-    const auto thrust_thresh = mass_holder_.getMass() * tbs::kGravity * throttle_gain_thresh_;
-    const auto tar_thrust = math::norm(ux_, uz_);
-    if (tar_thrust > thrust_thresh) {
-      thrust_coef = 1.;
-    }
-    else {
-      thrust_coef = tar_thrust / thrust_thresh;
-    }
-  }
-  else {
-    thrust_coef = 1.;
-  }
-
-  const auto atti_wn = atti_wn_ * thrust_coef;
-  const auto head_wn = head_wn_ * thrust_coef;
-  const auto atti_angle_gain = atti_wn / atti_zeta_ / 2;
-  const auto head_angle_gain = head_wn / head_zeta_ / 2;
-  const auto atti_rate_gain = atti_wn * atti_zeta_ * 2;
-  const auto head_rate_gain = head_wn * head_zeta_ * 2;
-
-  const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
-  const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
-  return { angle_gain, rate_gain };
-}
-
 bool ControllerNode::horizontalNaturalFreqCb(const double& p)
 {
-  return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
+  trans_ctrl_.hor_wn = p;
+  return true;
 }
 
 bool ControllerNode::horizontalDampingRatioCb(const double& p)
 {
-  return pos_pid_.setDampingRatio(0, p) && pos_pid_.setDampingRatio(1, p);
+  trans_ctrl_.hor_zeta = p;
+  return true;
 }
 
 bool ControllerNode::horizontalIGainCb(const double& p)
 {
-  return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
+  trans_ctrl_.hor_ki = p;
+  return true;
 }
 
 bool ControllerNode::verticalNaturalFreqCb(const double& p)
 {
-  return pos_pid_.setNaturalFreq(2, p);
+  trans_ctrl_.ver_wn = p;
+  return true;
 }
 
 bool ControllerNode::verticalDampingRatioCb(const double& p)
 {
-  return pos_pid_.setDampingRatio(2, p);
+  trans_ctrl_.ver_zeta = p;
+  return true;
 }
 
 bool ControllerNode::verticalIGainCb(const double& p)
 {
-  return pos_pid_.setIntegralGain(2, p);
+  trans_ctrl_.ver_ki = p;
+  return true;
 }
 
 bool ControllerNode::attitudeNaturalFreqCb(const double& p)
 {
-  atti_wn_ = p;
+  rot_ctrl_.atti_wn = p;
   return true;
 }
 
 bool ControllerNode::attitudeDampingRatioCb(const double& p)
 {
-  atti_zeta_ = p;
+  rot_ctrl_.atti_zeta = p;
   return true;
 }
 
 bool ControllerNode::attitudeIGainCb(const double& p)
 {
-  rot_ki_.x(p);
-  rot_ki_.y(p);
+  rot_ctrl_.atti_ki = p;
   return true;
 }
 
 bool ControllerNode::headingNaturalFreqCb(const double& p)
 {
-  head_wn_ = p;
+  rot_ctrl_.head_wn = p;
   return true;
 }
 
 bool ControllerNode::headingDampingRatioCb(const double& p)
 {
-  head_zeta_ = p;
+  rot_ctrl_.head_zeta = p;
   return true;
 }
 
 bool ControllerNode::headingIGainCb(const double& p)
 {
-  rot_ki_.z(p);
+  rot_ctrl_.head_ki = p;
   return true;
-}
-
-bool ControllerNode::maxHorizontalAccelCb(const double& p)
-{
-  return pos_pid_.setMaximumAccel(0, p) && pos_pid_.setMaximumAccel(1, p);
-}
-
-bool ControllerNode::maxVerticalAccelCb(const double& p)
-{
-  return pos_pid_.setMaximumAccel(2, p);
 }
 
 bool ControllerNode::throttleGainThresholdCb(const double& p)
@@ -416,17 +388,50 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto& cur_vel_B = odom->twist.vel;
   const auto& cur_gyro_B = odom->twist.rot;
 
+  // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど制御器の自然周波数が小さくなるように調整する．
+  // 例えば可変ピッチプロペラの姿勢制御の場合，これで低速域でのジャイロに対するピッチ角の感度が一定になる． (memo: 3-33)
+  const auto tar_thrust = math::norm(ux_, uz_);
+  const auto thrust_thresh = mass_holder_.getMass() * tbs::kGravity * throttle_gain_thresh_;
+  const auto land_suspect = (tar_thrust < thrust_thresh);
+  const auto gain_throt = land_suspect ? tar_thrust / thrust_thresh : 1.;
+
   // 位置制御器
   if (pos_cmd_) {
     if (!acc_cmd_) {
       acc_cmd_ = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
     }
 
-    // 世界座標系から見た現在の位置速度
-    const auto cur_vel_W = cur_rot * cur_vel_B;
+    // ゲインを決定
+    const auto hor_wn = trans_ctrl_.hor_wn * gain_throt;
+    const auto ver_wn = trans_ctrl_.ver_wn;  // 垂直方向はスロットルしない
+    const auto hor_kp = math::sqr(hor_wn);
+    const auto ver_kp = math::sqr(ver_wn);
+    const auto hor_ki = trans_ctrl_.hor_ki * gain_throt;
+    const auto ver_ki = trans_ctrl_.ver_ki;  // 垂直方向はスロットルしない
+    const auto hor_kd = 2 * trans_ctrl_.hor_zeta * hor_wn;
+    const auto ver_kd = 2 * trans_ctrl_.ver_zeta * ver_wn;
+    const kdl::Vector kp(hor_kp, hor_kp, ver_kp);
+    const kdl::Vector ki(hor_ki, hor_ki, ver_ki);
+    const kdl::Vector kd(hor_kd, hor_kd, ver_kd);
 
-    // 目標加速度を計算（接地している場合は誤差の積分を行わない）
-    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
+    // 誤差を計算
+    const auto ep = pos_cmd_->pos - cur_pos_W;
+    const auto ed = pos_cmd_->vel - cur_rot * cur_vel_B;
+
+    // 浮遊していれば積分誤差を蓄積
+    if (!land_suspect) {
+      for (int i = 0; i < 3; ++i) {
+        if (ki(i) > 0.) {
+          trans_ctrl_.ei(i) += ep(i) * dt;
+        }
+        else {
+          trans_ctrl_.ei(i) = 0.;
+        }
+      }
+    }
+
+    // 目標加速度を計算
+    acc_cmd_->accel = kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
 
     // ピッチ，ヨー角はそのまま流す
     acc_cmd_->pitch = pos_cmd_->pitch;
@@ -435,7 +440,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
     feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
-    feedback->position_integral_error = pos_pid_.getIntegralError();
+    feedback->position_integral_error = trans_ctrl_.ei;
   }
 
   // 加速度制御器
@@ -455,41 +460,55 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
   }
 
-  // 回転のゲインを決定
-  const auto [angle_gain, rate_gain] = computeRotationGain();
-
   // 姿勢制御器
   if (tar_rot_) {
     if (!tar_gyro_) {
       tar_gyro_ = std::make_unique<kdl::Vector>();
     }
 
+    // ゲインを決定
+    const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
+    const auto head_wn = rot_ctrl_.head_wn * gain_throt;
+    const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
+    const auto head_angle_gain = head_wn / rot_ctrl_.head_zeta / 2;
+    const auto atti_ki = rot_ctrl_.atti_ki * gain_throt;
+    const auto head_ki = rot_ctrl_.head_ki * gain_throt;
+    const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
+    const kdl::Vector ki(atti_ki, atti_ki, head_ki);
+
     // 回転誤差を計算
     const auto ep = (cur_rot.inverse() * *tar_rot_).getRot();
 
     // 浮遊していれば積分誤差を蓄積
-    if (!landed_->landed) {
+    if (!land_suspect) {
       for (int i = 0; i < 3; ++i) {
-        if (rot_ki_(i) > 0.) {
-          rot_ei_(i) += ep(i) * dt;
+        if (ki(i) > 0.) {
+          rot_ctrl_.ei(i) += ep(i) * dt;
         }
         else {
-          rot_ei_(i) = 0.;
+          rot_ctrl_.ei(i) = 0.;
         }
       }
     }
 
     // 目標角速度を計算
-    *tar_gyro_ = angle_gain.hadamard(ep) + rot_ki_.hadamard(rot_ei_);
+    *tar_gyro_ = angle_gain.hadamard(ep) + ki.hadamard(rot_ctrl_.ei);
 
     // フィードバックメッセージを埋める
     feedback->target_angle = kdl::Euler(*tar_rot_);
-    feedback->angle_integral_error = rot_ei_;
+    feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
   if (tar_gyro_) {
     // 角速度制御器
     {
+      // ゲインを決定
+      const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
+      const auto head_wn = rot_ctrl_.head_wn * gain_throt;
+      const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
+      const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
+      const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
+
       // 目標角加速度を計算
       tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
 
@@ -509,7 +528,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       feedback->target_dgyro = tar_dgyro_;
     }
 
-    // 推力を発行
+    // 目標推力を発行
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     tar_thrusts->header.stamp = odom->header.stamp;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
@@ -519,7 +538,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
-    // チルト角を発行
+    // 目標チルト角を発行
     auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
     tar_angles->header.stamp = odom->header.stamp;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
@@ -568,8 +587,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 
   // ディスアームしたら積分誤差とコマンドをリセット
   if (!arming->data && arming_->data) {
-    pos_pid_.resetIntegralError();
-    rot_ei_.setZero();
+    trans_ctrl_.ei.setZero();
+    rot_ctrl_.ei.setZero();
 
     pos_cmd_.reset();
     acc_cmd_.reset();
