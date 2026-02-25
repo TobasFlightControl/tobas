@@ -63,14 +63,14 @@ private:
     double hor_wn, ver_wn;      // [rad/s]
     double hor_zeta, ver_zeta;  // [-]
     double hor_ki, ver_ki;
-    kdl::Vector ei;
+    kdl::Vector ei = kdl::Vector::Zero();
   } trans_ctrl_;
   struct RotationControlParameters
   {
     double atti_wn, head_wn;      // [rad/s]
     double atti_zeta, head_zeta;  // [-]
     double atti_ki, head_ki;
-    kdl::Vector ei;
+    kdl::Vector ei = kdl::Vector::Zero();
   } rot_ctrl_;
 
   // Values depending on drone configuration
