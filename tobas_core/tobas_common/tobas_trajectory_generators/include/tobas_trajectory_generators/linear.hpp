@@ -10,8 +10,8 @@ class LinearSpline : public TrajectoryGenerator
 public:
   explicit LinearSpline(double p0, double pf, double T);
 
-  TrajectoryPoint get(double t) const override;
-  double duration() const override;
+  TrajectoryPoint get(double t) const noexcept override;
+  double duration() const noexcept override;
 
 private:
   const double p0_, T_;

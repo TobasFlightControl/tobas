@@ -60,7 +60,7 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
   assert(t3_ < t4_);
 }
 
-TrajectoryPoint TimeOptimalTrajectory::get(double t) const
+TrajectoryPoint TimeOptimalTrajectory::get(double t) const noexcept
 {
   if (pd_ < EPS) {
     return { p0_, 0., 0. };
@@ -70,12 +70,12 @@ TrajectoryPoint TimeOptimalTrajectory::get(double t) const
   return { p0_ + sign_ * p(t), sign_ * v(t), sign_ * a(t) };
 }
 
-double TimeOptimalTrajectory::duration() const
+double TimeOptimalTrajectory::duration() const noexcept
 {
   return 2 * t4_;
 }
 
-double TimeOptimalTrajectory::p(double t) const
+double TimeOptimalTrajectory::p(double t) const noexcept
 {
   if (t <= 0) {
     return 0;
@@ -97,7 +97,7 @@ double TimeOptimalTrajectory::p(double t) const
   }
 }
 
-double TimeOptimalTrajectory::v(double t) const
+double TimeOptimalTrajectory::v(double t) const noexcept
 {
   if (t <= 0) {
     return 0;
@@ -119,7 +119,7 @@ double TimeOptimalTrajectory::v(double t) const
   }
 }
 
-double TimeOptimalTrajectory::a(double t) const
+double TimeOptimalTrajectory::a(double t) const noexcept
 {
   if (t <= 0) {
     return 0;
