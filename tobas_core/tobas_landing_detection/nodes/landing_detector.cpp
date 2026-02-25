@@ -67,7 +67,7 @@ void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::ms
 {
   auto msg = std::make_unique<tobas_msgs::msg::LandedState>();
   msg->header.stamp = stamp;
-  msg->data = landed_;
+  msg->landed = landed_;
   landed_pub_->publish(std::move(msg));
 }
 

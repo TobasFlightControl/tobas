@@ -470,7 +470,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
       }
 
-      if (landed_->data && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {  // 地上でゼロスロットルの場合
+      if (landed_->landed && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {  // 地上でゼロスロットルの場合
         // 安全のためアイドルコマンドを送信
         updateWithIdleCommand(*rcin);
 

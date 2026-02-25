@@ -579,7 +579,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     }
 
     // 着陸検知したらモータを停止して終了
-    if (landed_->data) {
+    if (landed_->landed) {
       TOBAS_INFO("Landing detected. Stopping motors.");
       if (!armRotors(false)) {
         res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;

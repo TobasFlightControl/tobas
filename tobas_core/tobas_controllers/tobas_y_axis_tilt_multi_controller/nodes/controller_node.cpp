@@ -111,7 +111,7 @@ private:
 
   bool updateInternalDataStructures();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
-  std::pair<kdl::Vector, kdl::Vector> computeRotGain() const;
+  std::pair<kdl::Vector, kdl::Vector> computeRotationGain() const;
 
   bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
@@ -248,7 +248,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   return true;
 }
 
-std::pair<kdl::Vector, kdl::Vector> ControllerNode::computeRotGain() const
+std::pair<kdl::Vector, kdl::Vector> ControllerNode::computeRotationGain() const
 {
   double thrust_coef;
   if (throttle_gain_thresh_ > 0.) {
@@ -426,7 +426,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto cur_vel_W = cur_rot * cur_vel_B;
 
     // 目標加速度を計算（接地している場合は誤差の積分を行わない）
-    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->data ? 0. : dt);
+    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
 
     // ピッチ，ヨー角はそのまま流す
     acc_cmd_->pitch = pos_cmd_->pitch;
@@ -456,7 +456,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 回転のゲインを決定
-  const auto [angle_gain, rate_gain] = computeRotGain();
+  const auto [angle_gain, rate_gain] = computeRotationGain();
 
   // 姿勢制御器
   if (tar_rot_) {
@@ -468,7 +468,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto ep = (cur_rot.inverse() * *tar_rot_).getRot();
 
     // 浮遊していれば積分誤差を蓄積
-    if (!landed_->data) {
+    if (!landed_->landed) {
       for (int i = 0; i < 3; ++i) {
         if (rot_ki_(i) > 0.) {
           rot_ei_(i) += ep(i) * dt;
