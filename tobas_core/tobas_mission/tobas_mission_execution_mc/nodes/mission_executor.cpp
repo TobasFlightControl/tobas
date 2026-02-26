@@ -627,7 +627,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     // 1. 自重に近い地面反力を検知（共通の着陸検知アルゴリズム）
     // 2. 鉛直方向の速度の絶対値が小さい状態が一定時間持続: https://ardupilot.org/copter/docs/land-mode.html
     // 3. 目標高度と推定高度の差が非常に大きい（どうしても他の条件が満たされない場合の最後の手段）
-    if (landed_->landed || time_from_last_high_speed > 1s || z_error < -30.) {
+    if (landed_->landed || time_from_last_high_speed > 1s || z_error < -10.) {
       TOBAS_INFO("Landing detected. Stopping motors.");
       if (!armRotors(false)) {
         res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
