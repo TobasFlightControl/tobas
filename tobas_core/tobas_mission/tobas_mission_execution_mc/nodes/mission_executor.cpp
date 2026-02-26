@@ -7,6 +7,7 @@
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/gnss.hpp>
 #include <tobas_trajectory_generators/linear.hpp>
@@ -23,6 +24,8 @@
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
+
+using namespace std::chrono_literals;
 
 namespace tobas
 {
@@ -569,6 +572,10 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   const traj::LinearSpline traj_roll(start_rot.roll, 0., roll_duration);
   const traj::LinearSpline traj_pitch(start_rot.pitch, 0., pitch_duration);
 
+  // 着陸判定に使うオブジェクトを作成
+  const auto stop_speed_thresh = std::min<double>(speed / 2, 0.2);
+  auto t_last_high_speed = odom_->header.stamp;
+
   // 姿勢を戻しながら下降
   const auto start_time = now();
   rclcpp::Rate rate(kCommandRate, get_clock());
@@ -576,18 +583,6 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     // ミッション継続可能かどうかを確認
     if (!checkCurrentStatus(gh, res)) {
       return false;
-    }
-
-    // 着陸検知したらモータを停止して終了
-    if (landed_->landed) {
-      TOBAS_INFO("Landing detected. Stopping motors.");
-      if (!armRotors(false)) {
-        res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-        res->error_message = "Failed to disarm rotors.";
-        gh->abort(res);
-        return false;
-      }
-      return true;
     }
 
     // 現在時刻における目標位置姿勢を計算
@@ -610,6 +605,37 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     if (gh->is_canceling()) {
       gh->canceled(res);
       return false;
+    }
+
+    // 最新のIMU時刻を取得
+    const auto imu_time = odom_->header.stamp;  // Copy
+
+    // 鉛直方向の速度を計算
+    const auto cur_vel_W = odom_->frame.M * odom_->twist.vel;
+    const auto& cur_vz = cur_vel_W.z();
+
+    // 最後に高い速度を検知した時刻からの経過時間を計算
+    if (std::abs(cur_vz) > stop_speed_thresh) {
+      t_last_high_speed = imu_time;
+    }
+    const auto time_from_last_high_speed = imu_time - t_last_high_speed;
+
+    // 高度誤差を計算
+    const auto z_error = tar_z - odom_->frame.p.z();
+
+    // 以下の条件のうちいずれか1つが満たされたらモータを停止して終了
+    // 1. 自重に近い地面反力を検知（共通の着陸検知アルゴリズム）
+    // 2. 鉛直方向の速度の絶対値が小さい状態が一定時間持続: https://ardupilot.org/copter/docs/land-mode.html
+    // 3. 目標高度と推定高度の差が非常に大きい（どうしても他の条件が満たされない場合の最後の手段）
+    if (landed_->landed || time_from_last_high_speed > 1s || z_error < -30.) {
+      TOBAS_INFO("Landing detected. Stopping motors.");
+      if (!armRotors(false)) {
+        res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+        res->error_message = "Failed to disarm rotors.";
+        gh->abort(res);
+        return false;
+      }
+      return true;
     }
 
     rate.sleep();
