@@ -53,6 +53,7 @@ private:
   ros2::TimerPtr auto_disarm_timer_;
 
   void publishCurrentArmingState();
+  void publishZeroThrottle();
   void disarm();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -88,8 +89,53 @@ void RotorControllerNode::publishCurrentArmingState()
   arming_pub_->publish(std::move(arming_msg));
 }
 
+void RotorControllerNode::publishZeroThrottle()
+{
+  switch (drone_->prop->type()) {
+    case tobas::PropulsionSystem::kElectric: {
+      const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+
+      auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
+      tar_speeds_msg->header.stamp = now();
+      for (const auto& [link_name, rotor] : eprop->rotors) {
+        const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
+        tar_speeds_msg->speeds.emplace_back();
+        tar_speeds_msg->speeds.back().link_name = link_name;
+        tar_speeds_msg->speeds.back().speed = 0.;
+      }
+
+      rotor_speeds_pub_->publish(std::move(tar_speeds_msg));
+
+      break;
+    }
+    case tobas::PropulsionSystem::kIce: {
+      const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
+
+      auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
+      ice_cmd_msg->header.stamp = now();
+      ice_cmd_msg->engine_throttle = 0.;
+      for (const auto& [link_name, rotor] : iprop->rotors) {
+        const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
+        ice_cmd_msg->pitch_angles.emplace_back();
+        ice_cmd_msg->pitch_angles.back().link_name = link_name;
+        ice_cmd_msg->pitch_angles.back().angle = irotor->optimalPitch();
+      }
+
+      ice_cmd_pub_->publish(std::move(ice_cmd_msg));
+
+      break;
+    }
+    default: {
+      TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
+      return;
+    }
+  }
+}
+
 void RotorControllerNode::disarm()
 {
+  publishZeroThrottle();
+
   is_armed_ = false;
   is_commanded_ = false;
 
