@@ -46,7 +46,11 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pos_vel_acc_pub_;
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
 
-  void publishPosVelAcc(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& pos, const kdl::Vector& vel);
+  void publishPosVelAcc(
+    const builtin_interfaces::msg::Time& stamp,
+    const kdl::Vector& pos,
+    const kdl::Vector& vel,
+    const kdl::Vector& acc);
   void publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle);
 
   bool maxHorizontalVelocityCb(const double& p);

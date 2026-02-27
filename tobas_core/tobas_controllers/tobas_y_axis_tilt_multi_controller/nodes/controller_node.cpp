@@ -440,7 +440,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
 
     // 目標加速度を計算
-    acc_cmd_->accel = kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
+    acc_cmd_->accel = pos_cmd_->acc + kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
 
     // ピッチ，ヨー角はそのまま流す
     acc_cmd_->pitch = pos_cmd_->pitch;

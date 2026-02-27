@@ -35,6 +35,7 @@ struct Command
 {
   kdl::Vector pos;
   kdl::Vector vel;
+  kdl::Vector acc;
   kdl::Euler rot;
 };
 
@@ -104,9 +105,9 @@ private:
   std::unique_ptr<Command> command_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pos_vel_acc_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pos_vel_acc_yaw_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pos_vel_acc_pitch_yaw_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pva_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pvapy_pub_;
 
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -143,9 +144,9 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   getStaticRosParams();
 
   angle_pub_ = createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
-  pos_vel_acc_pub_ = createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
-  pos_vel_acc_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelAccYaw>(topic::kPosVelAccYawCmd);
-  pos_vel_acc_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
+  pva_pub_ = createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
+  pvay_pub_ = createPublisher<tobas_command_msgs::PosVelAccYaw>(topic::kPosVelAccYawCmd);
+  pvapy_pub_ = createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
@@ -208,7 +209,8 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
     cmd->priority.data = cmd_priority;
     cmd->pos = command_->pos;
     cmd->vel = command_->vel;
-    pos_vel_acc_pub_->publish(std::move(cmd));
+    cmd->acc = command_->acc;
+    pva_pub_->publish(std::move(cmd));
   }
 
   {
@@ -217,8 +219,9 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
     cmd->priority.data = cmd_priority;
     cmd->pos = command_->pos;
     cmd->vel = command_->vel;
+    cmd->acc = command_->acc;
     cmd->yaw = command_->rot.yaw;
-    pos_vel_acc_yaw_pub_->publish(std::move(cmd));
+    pvay_pub_->publish(std::move(cmd));
   }
 
   {
@@ -227,9 +230,10 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
     cmd->priority.data = cmd_priority;
     cmd->pos = command_->pos;
     cmd->vel = command_->vel;
+    cmd->acc = command_->acc;
     cmd->pitch = command_->rot.pitch;
     cmd->yaw = command_->rot.yaw;
-    pos_vel_acc_pitch_yaw_pub_->publish(std::move(cmd));
+    pvapy_pub_->publish(std::move(cmd));
   }
 }
 
@@ -405,14 +409,17 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     const auto traj_point_xy = traj_xy.get(t);
     const Eigen::Vector2d pxy = start_xy + traj_point_xy.p * xy_dir;
     const Eigen::Vector2d vxy = traj_point_xy.v * xy_dir;
+    const Eigen::Vector2d axy = traj_point_xy.a * xy_dir;
     const auto traj_point_z = traj_z.get(t);
     command_->pos.set(pxy.x(), pxy.y(), traj_point_z.p);
     command_->vel.set(vxy.x(), vxy.y(), traj_point_z.v);
+    command_->acc.set(axy.x(), axy.y(), traj_point_z.a);
     command_->rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, algo::wrapPi(start_rot.yaw + traj_yaw.get(t).p));
 
-    // アクション中止の場合は目標速度を0にする
+    // TODO: アクション中止の場合は滑らかに停止
     if (gh->is_canceling()) {
       command_->vel.setZero();
+      command_->acc.setZero();
     }
 
     // コマンドを発行
@@ -503,10 +510,10 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
     // 開始からの経過時間を計算
     const auto cur_time = now();
-    const auto dt = (cur_time - start_time).seconds();
+    const auto t = (cur_time - start_time).seconds();
 
     // タイムアウトの確認
-    if (goal.timeout > 0. && dt > duration + goal.timeout) {
+    if (goal.timeout > 0. && t > duration + goal.timeout) {
       res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
       res->error_message = "Timed out before reaching the takeoff altitude tolerance.";
       gh->abort(res);
@@ -516,24 +523,26 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     const auto& cur_pos = odom_->frame.p;
     const auto alt_err_abs = std::abs(tar_z - cur_pos.z());
-    if (dt > duration) {
+    if (t > duration) {
       if (goal.altitude_tolerance <= 0. || alt_err_abs < goal.altitude_tolerance) {
         return true;
       }
     }
 
-    // 鉛直方向の軌道を生成
-    const auto traj_point_z = traj_z.get(dt);
+    // コマンドを作成
+    const auto traj_point_z = traj_z.get(t);
+    command_->pos.set(start_pos.x(), start_pos.y(), traj_point_z.p);
+    command_->vel.set(0., 0., traj_point_z.v);
+    command_->acc.set(0., 0., traj_point_z.a);
+    command_->rot.set(0., 0., start_yaw);
 
-    // アクション中止の場合は目標速度を0にする
+    // TODO: アクション中止の場合は滑らかに停止
     if (gh->is_canceling()) {
       command_->vel.setZero();
+      command_->acc.setZero();
     }
 
     // コマンドを発行
-    command_->pos.set(start_pos.x(), start_pos.y(), traj_point_z.p);
-    command_->vel.set(0., 0., traj_point_z.v);
-    command_->rot.set(0., 0., start_yaw);
     publishCommand(cur_time);
 
     // アクション中止の場合は終了
@@ -591,11 +600,13 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto tar_z = start_pos.z() - speed * t;
     command_->pos.set(start_pos.x(), start_pos.y(), tar_z);
     command_->vel.set(0., 0., -speed);
+    command_->acc.setZero();
     command_->rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, start_rot.yaw);
 
-    // アクション中止の場合は目標速度を0にする
+    // TODO: アクション中止の場合は滑らかに停止
     if (gh->is_canceling()) {
       command_->vel.setZero();
+      command_->acc.setZero();
     }
 
     // コマンドを発行

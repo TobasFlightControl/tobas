@@ -84,6 +84,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
+  cmd->acc.setZero();
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行

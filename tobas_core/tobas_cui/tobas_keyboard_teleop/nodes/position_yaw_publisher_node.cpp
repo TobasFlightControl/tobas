@@ -181,6 +181,7 @@ int main(int argc, char** argv)
     cmd->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     cmd->pos = cmd_pos;
     cmd->vel.setZero();
+    cmd->acc.setZero();
     cmd->yaw = cmd_yaw;
     cmd_pub->publish(std::move(cmd));
   }

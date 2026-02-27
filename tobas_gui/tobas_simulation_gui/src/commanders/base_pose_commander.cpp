@@ -165,6 +165,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
     msg->vel.setZero();
+    msg->acc.setZero();
     pva_pub_->publish(std::move(msg));
   }
 
@@ -174,6 +175,8 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
+    msg->vel.setZero();
+    msg->acc.setZero();
     msg->yaw = tar_yaw;
     pvay_pub_->publish(std::move(msg));
   }
@@ -184,6 +187,8 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
+    msg->vel.setZero();
+    msg->acc.setZero();
     msg->pitch = tar_pitch;
     msg->yaw = tar_yaw;
     pvapy_pub_->publish(std::move(msg));

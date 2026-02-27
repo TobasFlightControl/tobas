@@ -102,20 +102,22 @@ void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tob
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
 
   // コマンドを発行
-  publishPosVelAcc(rcin.header.stamp, tar_pos_W_, tar_vel_W);
+  publishPosVelAcc(rcin.header.stamp, tar_pos_W_, tar_vel_W, kdl::Vector::Zero());
   publishAngle(rcin.header.stamp, tar_angle_);
 }
 
 void PosVelAccAngleController::publishPosVelAcc(
   const builtin_interfaces::msg::Time& stamp,
   const kdl::Vector& pos,
-  const kdl::Vector& vel)
+  const kdl::Vector& vel,
+  const kdl::Vector& acc)
 {
   auto cmd = std::make_unique<tobas_command_msgs::PosVelAcc>();
   cmd->header.stamp = stamp;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = pos;
   cmd->vel = vel;
+  cmd->acc = acc;
 
   pos_vel_acc_pub_->publish(std::move(cmd));
 }

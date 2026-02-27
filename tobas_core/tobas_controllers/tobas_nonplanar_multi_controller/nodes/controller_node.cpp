@@ -403,7 +403,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto cur_vel_W = cur_rot * cur_vel_B;
 
     // 目標加速度を計算（接地している場合は誤差の積分を行わない）
-    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
+    acc_cmd_->accel =
+      pos_cmd_->acc + pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
 
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;

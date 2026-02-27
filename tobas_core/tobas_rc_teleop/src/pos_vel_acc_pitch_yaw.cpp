@@ -98,6 +98,7 @@ void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const 
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
+  cmd->acc.setZero();
   cmd->pitch = tar_pitch_;
   cmd->yaw = tar_yaw_;
 
