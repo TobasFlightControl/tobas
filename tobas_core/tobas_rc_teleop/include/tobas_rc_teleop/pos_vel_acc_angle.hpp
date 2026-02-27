@@ -1,21 +1,21 @@
 #pragma once
 
 #include <tobas_command_msgs_adapter/angle.hpp>
-#include <tobas_command_msgs_adapter/pos_vel.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc.hpp>
 
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
 {
-class PosVelAngleController : public BaseController
+class PosVelAccAngleController : public BaseController
 {
-  using self = PosVelAngleController;
+  using self = PosVelAccAngleController;
   using super = BaseController;
 
   static constexpr double kMaxPositionError = 5.;  // [m]
 
 public:
-  explicit PosVelAngleController();
+  explicit PosVelAccAngleController();
 
   bool requirePosition() override;
   bool requireVelocity() override;
@@ -43,10 +43,10 @@ private:
   double head_expo_;
 
   // Publisher
-  ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pos_vel_acc_pub_;
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
 
-  void publishPosVel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& pos, const kdl::Vector& vel);
+  void publishPosVelAcc(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& pos, const kdl::Vector& vel);
   void publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle);
 
   bool maxHorizontalVelocityCb(const double& p);

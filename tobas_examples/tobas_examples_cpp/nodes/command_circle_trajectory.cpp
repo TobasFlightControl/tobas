@@ -5,7 +5,7 @@
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_std_tools/byte.hpp>
 
-#include <tobas_command_msgs/msg/pos_vel_yaw.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc_yaw.hpp>
 #include <tobas_mission_msgs/action/execute_mission.hpp>
 
 #define ALTITUDE 3.  // [m]
@@ -86,7 +86,7 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
   constexpr double kPeriod = 10.;  // [s]
 
   // コマンドのパブリッシャーを作成
-  const auto pub = ros2::createPublisher<tobas_command_msgs::msg::PosVelYaw>(node, tobas::topic::kPosVelYawCmd);
+  const auto pub = ros2::createPublisher<tobas_command_msgs::msg::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
 
   const auto start_time = node->now();
 
@@ -103,7 +103,7 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
     constexpr double kSpeed = kRadius * kOmega;    // [m/s]
     const auto theta = kOmega * t;
 
-    auto cmd = std::make_unique<tobas_command_msgs::msg::PosVelYaw>();
+    auto cmd = std::make_unique<tobas_command_msgs::msg::PosVelAccYaw>();
     cmd->header.stamp = cur_time;
     cmd->pos.x = kRadius * sin(theta);
     cmd->pos.y = kRadius * (1 - cos(theta));

@@ -83,11 +83,11 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
   const auto& ns = drone_.name;
 
   angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::topic::kAngleCmd));
-  pos_vel_pub_ = ros2::createPublisher<tobas_command_msgs::PosVel>(node_, path::join(ns, tobas::topic::kPosVelCmd));
-  pos_vel_yaw_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::topic::kPosVelYawCmd));
-  pos_vel_pitch_yaw_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelPitchYaw>(node_, path::join(ns, tobas::topic::kPosVelPitchYawCmd));
+  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node_, path::join(ns, tobas::topic::kPosVelAccCmd));
+  pvay_pub_ =
+    ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, tobas::topic::kPosVelAccYawCmd));
+  pvapy_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(
+    node_, path::join(ns, tobas::topic::kPosVelAccPitchYawCmd));
 
   set_arm_sc_ =
     std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::service::kSetArm));
@@ -158,35 +158,35 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     angle_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_pub_) {
-    auto msg = std::make_unique<tobas_command_msgs::PosVel>();
+  if (pva_pub_) {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelAcc>();
     msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
     msg->vel.setZero();
-    pos_vel_pub_->publish(std::move(msg));
+    pva_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_yaw_pub_) {
-    auto msg = std::make_unique<tobas_command_msgs::PosVelYaw>();
+  if (pvay_pub_) {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
     msg->yaw = tar_yaw;
-    pos_vel_yaw_pub_->publish(std::move(msg));
+    pvay_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_pitch_yaw_pub_) {
-    auto msg = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
+  if (pvapy_pub_) {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
     msg->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     msg->pos.x() = tar_x;
     msg->pos.y() = tar_y;
     msg->pos.z() = tar_z;
     msg->pitch = tar_pitch;
     msg->yaw = tar_yaw;
-    pos_vel_pitch_yaw_pub_->publish(std::move(msg));
+    pvapy_pub_->publish(std::move(msg));
   }
 }
 

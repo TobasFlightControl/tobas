@@ -12,11 +12,11 @@ enum struct RcCommand
   kAngleThrottleVector,
   kAccelYaw,
   kAccelPitchYaw,
-  kPosVelYaw,
-  kPosVelPitchYaw,
+  kPosVelAccYaw,
+  kPosVelAccPitchYaw,
   kAccelRate,
   kAccelAngle,
-  kPosVelAngle,
+  kPosVelAccAngle,
   kSpeedRollDPitch,
 };
 

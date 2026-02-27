@@ -1,20 +1,20 @@
 #pragma once
 
-#include <tobas_command_msgs_adapter/pos_vel_pitch_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
 
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
 {
-class PosVelPitchYawController : public BaseController
+class PosVelAccPitchYawController : public BaseController
 {
-  using self = PosVelPitchYawController;
+  using self = PosVelAccPitchYawController;
   using super = BaseController;
 
   static constexpr double kMaxPositionError = 5.;  // [m]
 
 public:
-  explicit PosVelPitchYawController();
+  explicit PosVelAccPitchYawController();
 
   bool requirePosition() override;
   bool requireVelocity() override;
@@ -43,7 +43,7 @@ private:
   double head_expo_;
 
   // Publisher
-  ros2::PublisherPtr<tobas_command_msgs::PosVelPitchYaw> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> cmd_pub_;
 
   bool maxHorizontalVelocityCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);

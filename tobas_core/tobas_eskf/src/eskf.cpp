@@ -480,7 +480,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   return correct(delta_vel, vel_cov, H_vel_);
 }
 
-double ErrorStateKalmanFilter::measurePosVel(
+double ErrorStateKalmanFilter::measurePosVelAcc(
   const Vector3d& pos_meas,
   const Vector3d& vel_meas,
   const Matrix6d& cov,

@@ -34,7 +34,7 @@ CustomFrameWidget::CustomFrameWidget()
   // Set default command
   acrobat_mode_->setCurrentText(kRateThrottleLabel);
   stabilize_mode_->setCurrentText(kAccelYawLabel);
-  loiter_mode_->setCurrentText(kPosVelYawLabel);
+  loiter_mode_->setCurrentText(kPosVelAccYawLabel);
 
   // Layout
   const auto form = new qt::FormLayout();

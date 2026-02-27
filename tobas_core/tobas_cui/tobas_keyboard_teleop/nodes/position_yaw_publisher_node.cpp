@@ -12,7 +12,7 @@
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/range.hpp>
 
-#include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_mission_msgs/action/execute_mission.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   keyboard::KeyboardReader key_reader;
 
   // コマンドパブリッシャーを登録
-  const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node, tobas::topic::kPosVelYawCmd);
+  const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
 
   // 説明文の表示を開始
   constexpr char kInstructionText[] = "Control your drone!\n"
@@ -176,7 +176,7 @@ int main(int argc, char** argv)
     }
 
     // コマンドを発行
-    auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
+    auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     cmd->header.stamp = node->now();
     cmd->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     cmd->pos = cmd_pos;

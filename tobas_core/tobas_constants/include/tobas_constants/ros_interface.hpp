@@ -55,9 +55,9 @@ static constexpr char kAngleThrotVectorCmd[] = "command/angle_throttle_vector";
 static constexpr char kAccelCmd[] = "command/accel";
 static constexpr char kAccelYawCmd[] = "command/accel_yaw";
 static constexpr char kAccelPitchYawCmd[] = "command/accel_pitch_yaw";
-static constexpr char kPosVelCmd[] = "command/pos_vel";
-static constexpr char kPosVelYawCmd[] = "command/pos_vel_yaw";
-static constexpr char kPosVelPitchYawCmd[] = "command/pos_vel_pitch_yaw";
+static constexpr char kPosVelAccCmd[] = "command/pos_vel_acc";
+static constexpr char kPosVelAccYawCmd[] = "command/pos_vel_acc_yaw";
+static constexpr char kPosVelAccPitchYawCmd[] = "command/pos_vel_acc_pitch_yaw";
 static constexpr char kSpeedRollDpitchCmd[] = "command/speed_roll_delta_pitch";
 
 // Joint Command

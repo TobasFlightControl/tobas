@@ -4,31 +4,31 @@
 
 #include <tobas_kdl_msgs_adapter/vector.hpp>
 
-#include <tobas_command_msgs/msg/pos_vel_yaw.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc.hpp>
 
 namespace tobas_command_msgs
 {
-struct PosVelYaw
+struct PosVelAcc
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
   kdl::Vector pos;
   kdl::Vector vel;
-  double yaw;
+  kdl::Vector acc;
 
-  using SharedPtr = std::shared_ptr<PosVelYaw>;
-  using ConstSharedPtr = std::shared_ptr<const PosVelYaw>;
-  using UniquePtr = std::unique_ptr<PosVelYaw>;
-  using ConstUniquePtr = std::unique_ptr<const PosVelYaw>;
+  using SharedPtr = std::shared_ptr<PosVelAcc>;
+  using ConstSharedPtr = std::shared_ptr<const PosVelAcc>;
+  using UniquePtr = std::unique_ptr<PosVelAcc>;
+  using ConstUniquePtr = std::unique_ptr<const PosVelAcc>;
 };
 }  // namespace tobas_command_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_command_msgs::PosVelYaw, tobas_command_msgs::msg::PosVelYaw>
+struct rclcpp::TypeAdapter<tobas_command_msgs::PosVelAcc, tobas_command_msgs::msg::PosVelAcc>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_command_msgs::PosVelYaw;
-  using ros_message_type = tobas_command_msgs::msg::PosVelYaw;
+  using custom_type = tobas_command_msgs::PosVelAcc;
+  using ros_message_type = tobas_command_msgs::msg::PosVelAcc;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -36,7 +36,7 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PosVelYaw, tobas_command_msgs::ms
     dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.pos, dst.pos);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.vel, dst.vel);
-    dst.yaw = src.yaw;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.acc, dst.acc);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -45,13 +45,13 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PosVelYaw, tobas_command_msgs::ms
     dst.priority = src.priority;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.pos, dst.pos);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.vel, dst.vel);
-    dst.yaw = src.yaw;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.acc, dst.acc);
   }
 };
 
 namespace tobas_command_msgs
 {
-using PosVelYawAdapter = rclcpp::TypeAdapter<tobas_command_msgs::PosVelYaw, tobas_command_msgs::msg::PosVelYaw>;
+using PosVelAccAdapter = rclcpp::TypeAdapter<tobas_command_msgs::PosVelAcc, tobas_command_msgs::msg::PosVelAcc>;
 }  // namespace tobas_command_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_command_msgs::PosVelYaw, tobas_command_msgs::msg::PosVelYaw);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_command_msgs::PosVelAcc, tobas_command_msgs::msg::PosVelAcc);

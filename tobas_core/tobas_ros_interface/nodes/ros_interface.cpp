@@ -14,9 +14,9 @@
 #include <tobas_command_msgs/msg/accel_yaw.hpp>
 #include <tobas_command_msgs/msg/angle.hpp>
 #include <tobas_command_msgs/msg/angle_throttle.hpp>
-#include <tobas_command_msgs/msg/pos_vel.hpp>
-#include <tobas_command_msgs/msg/pos_vel_pitch_yaw.hpp>
-#include <tobas_command_msgs/msg/pos_vel_yaw.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc_pitch_yaw.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc_yaw.hpp>
 #include <tobas_command_msgs/msg/rate.hpp>
 #include <tobas_command_msgs/msg/rate_throttle.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
@@ -225,10 +225,11 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicIfaceToLogic<tobas_command_msgs::msg::AccelYaw>(tobas::topic::kAccelYawCmd, tobas::topic::kAccelYawCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::AccelPitchYaw>(
     tobas::topic::kAccelPitchYawCmd, tobas::topic::kAccelPitchYawCmd);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVel>(tobas::topic::kPosVelCmd, tobas::topic::kPosVelCmd);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelYaw>(tobas::topic::kPosVelYawCmd, tobas::topic::kPosVelYawCmd);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelPitchYaw>(
-    tobas::topic::kPosVelPitchYawCmd, tobas::topic::kPosVelPitchYawCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAcc>(tobas::topic::kPosVelAccCmd, tobas::topic::kPosVelAccCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAccYaw>(
+    tobas::topic::kPosVelAccYawCmd, tobas::topic::kPosVelAccYawCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAccPitchYaw>(
+    tobas::topic::kPosVelAccPitchYawCmd, tobas::topic::kPosVelAccPitchYawCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::SpeedRollDeltaPitch>(
     tobas::topic::kSpeedRollDpitchCmd, tobas::topic::kSpeedRollDpitchCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd, tobas::topic::kJointPosCmd);

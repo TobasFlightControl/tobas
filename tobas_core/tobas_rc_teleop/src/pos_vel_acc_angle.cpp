@@ -1,4 +1,4 @@
-#include "tobas_rc_teleop/pos_vel_angle.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_angle.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -6,31 +6,31 @@
 
 namespace tobas_rc_teleop
 {
-PosVelAngleController::PosVelAngleController()
+PosVelAccAngleController::PosVelAccAngleController()
 {
 }
 
-bool PosVelAngleController::requirePosition()
-{
-  return true;
-}
-
-bool PosVelAngleController::requireVelocity()
+bool PosVelAccAngleController::requirePosition()
 {
   return true;
 }
 
-bool PosVelAngleController::requireAttitude()
+bool PosVelAccAngleController::requireVelocity()
 {
   return true;
 }
 
-bool PosVelAngleController::requireHeading()
+bool PosVelAccAngleController::requireAttitude()
 {
   return true;
 }
 
-void PosVelAngleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+bool PosVelAccAngleController::requireHeading()
+{
+  return true;
+}
+
+void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
@@ -45,11 +45,11 @@ void PosVelAngleController::initialize(tobas::BaseNode* node, tobas::FlightMode 
   node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
-  pos_vel_pub_ = node->createPublisher<tobas_command_msgs::PosVel>(tobas::topic::kPosVelCmd);
+  pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(tobas::topic::kPosVelAccCmd);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
 }
 
-void PosVelAngleController::reset(const tobas_msgs::Odometry& odom)
+void PosVelAccAngleController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = odom.header.stamp;
   tar_vel_G_.setZero();
@@ -57,7 +57,7 @@ void PosVelAngleController::reset(const tobas_msgs::Odometry& odom)
   odom.frame.M.getRPY(tar_angle_.roll, tar_angle_.pitch, tar_angle_.yaw);
 }
 
-void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -102,25 +102,25 @@ void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
 
   // コマンドを発行
-  publishPosVel(rcin.header.stamp, tar_pos_W_, tar_vel_W);
+  publishPosVelAcc(rcin.header.stamp, tar_pos_W_, tar_vel_W);
   publishAngle(rcin.header.stamp, tar_angle_);
 }
 
-void PosVelAngleController::publishPosVel(
+void PosVelAccAngleController::publishPosVelAcc(
   const builtin_interfaces::msg::Time& stamp,
   const kdl::Vector& pos,
   const kdl::Vector& vel)
 {
-  auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
+  auto cmd = std::make_unique<tobas_command_msgs::PosVelAcc>();
   cmd->header.stamp = stamp;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = pos;
   cmd->vel = vel;
 
-  pos_vel_pub_->publish(std::move(cmd));
+  pos_vel_acc_pub_->publish(std::move(cmd));
 }
 
-void PosVelAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
+void PosVelAccAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
 {
   auto cmd = std::make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
@@ -130,49 +130,49 @@ void PosVelAngleController::publishAngle(const builtin_interfaces::msg::Time& st
   angle_pub_->publish(std::move(cmd));
 }
 
-bool PosVelAngleController::maxHorizontalVelocityCb(const double& p)
+bool PosVelAccAngleController::maxHorizontalVelocityCb(const double& p)
 {
   max_hor_vel_ = p;
   return true;
 }
 
-bool PosVelAngleController::maxVerticalVelocityCb(const double& p)
+bool PosVelAccAngleController::maxVerticalVelocityCb(const double& p)
 {
   max_ver_vel_ = p;
   return true;
 }
 
-bool PosVelAngleController::maxAttitudeCb(const long& p)
+bool PosVelAccAngleController::maxAttitudeCb(const long& p)
 {
   max_attitude_ = tbs::deg2rad(p);
   return true;
 }
 
-bool PosVelAngleController::maxHeadingRateCb(const long& p)
+bool PosVelAccAngleController::maxHeadingRateCb(const long& p)
 {
   max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 
-bool PosVelAngleController::horizontalVelocityExpoCb(const long& p)
+bool PosVelAccAngleController::horizontalVelocityExpoCb(const long& p)
 {
   hor_vel_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 
-bool PosVelAngleController::verticalVelocityExpoCb(const long& p)
+bool PosVelAccAngleController::verticalVelocityExpoCb(const long& p)
 {
   ver_vel_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 
-bool PosVelAngleController::attitudeExpoCb(const long& p)
+bool PosVelAccAngleController::attitudeExpoCb(const long& p)
 {
   atti_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 
-bool PosVelAngleController::headingExpoCb(const long& p)
+bool PosVelAccAngleController::headingExpoCb(const long& p)
 {
   head_expo_ = static_cast<double>(p) / kExpoScale;
   return true;

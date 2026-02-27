@@ -23,9 +23,9 @@
 #include "tobas_rc_teleop/accel_yaw.hpp"
 #include "tobas_rc_teleop/angle_throttle.hpp"
 #include "tobas_rc_teleop/angle_throttle_vector.hpp"
-#include "tobas_rc_teleop/pos_vel_angle.hpp"
-#include "tobas_rc_teleop/pos_vel_pitch_yaw.hpp"
-#include "tobas_rc_teleop/pos_vel_yaw.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_angle.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_pitch_yaw.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "tobas_rc_teleop/rate_throttle.hpp"
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
@@ -155,11 +155,11 @@ void RCTeleopNode::initializeControllers()
       case tobas::RcCommand::kAccelPitchYaw:
         controllers_[mode] = std::make_unique<AccelPitchYawController>();
         break;
-      case tobas::RcCommand::kPosVelYaw:
-        controllers_[mode] = std::make_unique<PosVelYawController>();
+      case tobas::RcCommand::kPosVelAccYaw:
+        controllers_[mode] = std::make_unique<PosVelAccYawController>();
         break;
-      case tobas::RcCommand::kPosVelPitchYaw:
-        controllers_[mode] = std::make_unique<PosVelPitchYawController>();
+      case tobas::RcCommand::kPosVelAccPitchYaw:
+        controllers_[mode] = std::make_unique<PosVelAccPitchYawController>();
         break;
       case tobas::RcCommand::kAccelRate:
         controllers_[mode] = std::make_unique<AccelRateController>();
@@ -167,8 +167,8 @@ void RCTeleopNode::initializeControllers()
       case tobas::RcCommand::kAccelAngle:
         controllers_[mode] = std::make_unique<AccelAngleController>();
         break;
-      case tobas::RcCommand::kPosVelAngle:
-        controllers_[mode] = std::make_unique<PosVelAngleController>();
+      case tobas::RcCommand::kPosVelAccAngle:
+        controllers_[mode] = std::make_unique<PosVelAccAngleController>();
         break;
       case tobas::RcCommand::kSpeedRollDPitch:
         controllers_[mode] = std::make_unique<SpeedRollDeltaPitchController>();

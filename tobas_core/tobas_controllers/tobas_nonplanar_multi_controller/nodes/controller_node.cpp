@@ -14,7 +14,7 @@
 
 #include <tobas_command_msgs_adapter/accel.hpp>
 #include <tobas_command_msgs_adapter/angle.hpp>
-#include <tobas_command_msgs_adapter/pos_vel.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc.hpp>
 #include <tobas_command_msgs_adapter/rate.hpp>
 #include <tobas_debug_msgs_adapter/multicopter_controller_feedback.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -73,7 +73,7 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVel::UniquePtr pos_cmd_;
+  tobas_command_msgs::PosVelAcc::UniquePtr pos_cmd_;
   tobas_command_msgs::Accel::UniquePtr acc_cmd_;
   tobas_command_msgs::Angle::UniquePtr angle_cmd_;
   tobas_command_msgs::Rate::UniquePtr rate_cmd_;
@@ -92,7 +92,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::PosVel> pos_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PosVelAcc> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Accel> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Angle> angle_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Rate> rate_cmd_sub_;
@@ -132,7 +132,7 @@ private:
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
-  void positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd);
+  void positionCommandCb(const tobas_command_msgs::PosVelAcc::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd);
   void rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPtr& rate_cmd);
@@ -181,7 +181,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivelinessCb, this);
-  pos_cmd_sub_ = createSubscriber(topic::kPosVelCmd, &self::positionCommandCb, this);
+  pos_cmd_sub_ = createSubscriber(topic::kPosVelAccCmd, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(topic::kAccelCmd, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(topic::kAngleCmd, &self::angleCommandCb, this);
   rate_cmd_sub_ = createSubscriber(topic::kRateCmd, &self::rateCommandCb, this);
@@ -527,14 +527,14 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
   }
 }
 
-void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd)
+void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAcc::ConstSharedPtr& pos_cmd)
 {
   if (!isCommandAccepted(pos_cmd->priority)) {
     return;
   }
 
   // コマンドを更新
-  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVel>(*pos_cmd);
+  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAcc>(*pos_cmd);
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd)

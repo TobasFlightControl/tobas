@@ -55,7 +55,7 @@ tobas::RcCommand PlanarMulticopterWidget::stabilizeModeCommand() const
 
 tobas::RcCommand PlanarMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelYaw;
+  return tobas::RcCommand::kPosVelAccYaw;
 }
 
 YAML::Node PlanarMulticopterWidget::staticParams() const

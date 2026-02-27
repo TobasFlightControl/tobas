@@ -14,9 +14,9 @@
 #include <tobas_trajectory_generators/time_optimal.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
-#include <tobas_command_msgs_adapter/pos_vel.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_pitch_yaw.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_mission_msgs/action/execute_mission.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
@@ -104,9 +104,9 @@ private:
   std::unique_ptr<Command> command_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> pos_vel_yaw_pub_;
-  ros2::PublisherPtr<tobas_command_msgs::PosVelPitchYaw> pos_vel_pitch_yaw_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pos_vel_acc_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pos_vel_acc_yaw_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pos_vel_acc_pitch_yaw_pub_;
 
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -143,9 +143,9 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   getStaticRosParams();
 
   angle_pub_ = createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
-  pos_vel_pub_ = createPublisher<tobas_command_msgs::PosVel>(topic::kPosVelCmd);
-  pos_vel_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelYaw>(topic::kPosVelYawCmd);
-  pos_vel_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelPitchYaw>(topic::kPosVelPitchYawCmd);
+  pos_vel_acc_pub_ = createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
+  pos_vel_acc_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelAccYaw>(topic::kPosVelAccYawCmd);
+  pos_vel_acc_pitch_yaw_pub_ = createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
@@ -203,33 +203,33 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
   }
 
   {
-    auto cmd = std::make_unique<tobas_command_msgs::PosVel>();
+    auto cmd = std::make_unique<tobas_command_msgs::PosVelAcc>();
     cmd->header.stamp = stamp;
     cmd->priority.data = cmd_priority;
     cmd->pos = command_->pos;
     cmd->vel = command_->vel;
-    pos_vel_pub_->publish(std::move(cmd));
+    pos_vel_acc_pub_->publish(std::move(cmd));
   }
 
   {
-    auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
+    auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     cmd->header.stamp = stamp;
     cmd->priority.data = cmd_priority;
     cmd->pos = command_->pos;
     cmd->vel = command_->vel;
     cmd->yaw = command_->rot.yaw;
-    pos_vel_yaw_pub_->publish(std::move(cmd));
+    pos_vel_acc_yaw_pub_->publish(std::move(cmd));
   }
 
   {
-    auto cmd = std::make_unique<tobas_command_msgs::PosVelPitchYaw>();
+    auto cmd = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
     cmd->header.stamp = stamp;
     cmd->priority.data = cmd_priority;
     cmd->pos = command_->pos;
     cmd->vel = command_->vel;
     cmd->pitch = command_->rot.pitch;
     cmd->yaw = command_->rot.yaw;
-    pos_vel_pitch_yaw_pub_->publish(std::move(cmd));
+    pos_vel_acc_pitch_yaw_pub_->publish(std::move(cmd));
   }
 }
 

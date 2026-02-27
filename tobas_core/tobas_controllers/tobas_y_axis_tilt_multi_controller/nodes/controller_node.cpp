@@ -14,7 +14,7 @@
 
 #include <tobas_command_msgs_adapter/accel_pitch_yaw.hpp>
 #include <tobas_command_msgs_adapter/angle_throttle_vector.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_pitch_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
 #include <tobas_command_msgs_adapter/rate_throttle_vector.hpp>
 #include <tobas_debug_msgs_adapter/multicopter_controller_feedback.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -89,12 +89,12 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelPitchYaw::UniquePtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
-  tobas_command_msgs::AccelPitchYaw::UniquePtr acc_cmd_;   // 加速度制御の目標値 (世界座標系)
-  std::unique_ptr<kdl::Rotation> tar_rot_;                 // 目標姿勢 (機体座標系)
-  std::unique_ptr<kdl::Vector> tar_gyro_;                  // 目標角速度 (機体座標系)
-  kdl::Vector tar_dgyro_;                                  // 目標角加速度 (機体座標系)
-  double ux_ = 0., uz_ = 0.;                               // 目標推力 (機体座標系)
+  tobas_command_msgs::PosVelAccPitchYaw::UniquePtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
+  tobas_command_msgs::AccelPitchYaw::UniquePtr acc_cmd_;      // 加速度制御の目標値 (世界座標系)
+  std::unique_ptr<kdl::Rotation> tar_rot_;                    // 目標姿勢 (機体座標系)
+  std::unique_ptr<kdl::Vector> tar_gyro_;                     // 目標角速度 (機体座標系)
+  kdl::Vector tar_dgyro_;                                     // 目標角加速度 (機体座標系)
+  double ux_ = 0., uz_ = 0.;                                  // 目標推力 (機体座標系)
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -110,7 +110,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::PosVelPitchYaw> pos_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PosVelAccPitchYaw> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AccelPitchYaw> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AngleThrottleVector> angle_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::RateThrottleVector> rate_cmd_sub_;
@@ -147,7 +147,7 @@ private:
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
-  void positionCommandCb(const tobas_command_msgs::PosVelPitchYaw::ConstSharedPtr& pos_cmd);
+  void positionCommandCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::AccelPitchYaw::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& angle_cmd);
   void rateCommandCb(const tobas_command_msgs::RateThrottleVector::ConstSharedPtr& rate_cmd);
@@ -199,7 +199,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivelinessCb, this);
-  pos_cmd_sub_ = createSubscriber(topic::kPosVelPitchYawCmd, &self::positionCommandCb, this);
+  pos_cmd_sub_ = createSubscriber(topic::kPosVelAccPitchYawCmd, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(topic::kAccelPitchYawCmd, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::angleCommandCb, this);
   rate_cmd_sub_ = createSubscriber(topic::kRateThrotVectorCmd, &self::rateCommandCb, this);
@@ -623,14 +623,14 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
   }
 }
 
-void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelPitchYaw::ConstSharedPtr& pos_cmd)
+void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& pos_cmd)
 {
   if (!isCommandAccepted(pos_cmd->priority)) {
     return;
   }
 
   // コマンドを更新
-  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelPitchYaw>(*pos_cmd);
+  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>(*pos_cmd);
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelPitchYaw::ConstSharedPtr& acc_cmd)

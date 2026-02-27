@@ -1,4 +1,4 @@
-#include "tobas_rc_teleop/pos_vel_yaw.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -6,31 +6,31 @@
 
 namespace tobas_rc_teleop
 {
-PosVelYawController::PosVelYawController()
+PosVelAccYawController::PosVelAccYawController()
 {
 }
 
-bool PosVelYawController::requirePosition()
-{
-  return true;
-}
-
-bool PosVelYawController::requireVelocity()
+bool PosVelAccYawController::requirePosition()
 {
   return true;
 }
 
-bool PosVelYawController::requireAttitude()
+bool PosVelAccYawController::requireVelocity()
+{
+  return true;
+}
+
+bool PosVelAccYawController::requireAttitude()
 {
   return false;
 }
 
-bool PosVelYawController::requireHeading()
+bool PosVelAccYawController::requireHeading()
 {
   return false;
 }
 
-void PosVelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
+void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
@@ -43,10 +43,10 @@ void PosVelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
     addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelYaw>(tobas::topic::kPosVelYawCmd);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(tobas::topic::kPosVelAccYawCmd);
 }
 
-void PosVelYawController::reset(const tobas_msgs::Odometry& odom)
+void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 {
   t_last_rcin_ = odom.header.stamp;
   tar_pos_W_ = odom.frame.p;
@@ -54,7 +54,7 @@ void PosVelYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -79,7 +79,7 @@ void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
+  auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
   cmd->pos = tar_pos_W_;
@@ -90,37 +90,37 @@ void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool PosVelYawController::maxHorizontalVelocityCb(const double& p)
+bool PosVelAccYawController::maxHorizontalVelocityCb(const double& p)
 {
   max_hor_vel_ = p;
   return true;
 }
 
-bool PosVelYawController::maxVerticalVelocityCb(const double& p)
+bool PosVelAccYawController::maxVerticalVelocityCb(const double& p)
 {
   max_ver_vel_ = p;
   return true;
 }
 
-bool PosVelYawController::maxHeadingRateCb(const long& p)
+bool PosVelAccYawController::maxHeadingRateCb(const long& p)
 {
   max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 
-bool PosVelYawController::horizontalVelocityExpoCb(const long& p)
+bool PosVelAccYawController::horizontalVelocityExpoCb(const long& p)
 {
   hor_vel_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 
-bool PosVelYawController::verticalVelocityExpoCb(const long& p)
+bool PosVelAccYawController::verticalVelocityExpoCb(const long& p)
 {
   ver_vel_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 
-bool PosVelYawController::headingExpoCb(const long& p)
+bool PosVelAccYawController::headingExpoCb(const long& p)
 {
   head_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
