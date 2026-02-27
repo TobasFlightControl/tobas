@@ -817,7 +817,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
   const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   const auto& gyro_meas = imu_filt_->gyro.data;
   const auto stamp = ros2::chronoFromRosTime(gnss->header.stamp);
-  gnss_anomaly_score_ = eskf_.measurePosVelAcc(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
+  gnss_anomaly_score_ = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
 }
 
 void ErrorStateKalmanFilterNode::poseCb(const PoseMsg::ConstSharedPtr& msg)

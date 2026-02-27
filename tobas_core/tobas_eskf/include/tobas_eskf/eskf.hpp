@@ -197,7 +197,7 @@ public:
     const Eigen::Vector3d& gyro_meas,
     const std::chrono::steady_clock::time_point& time);
 
-  double measurePosVelAcc(
+  double measurePosVel(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix6d& cov,
