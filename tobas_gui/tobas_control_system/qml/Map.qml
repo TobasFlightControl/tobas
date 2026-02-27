@@ -80,7 +80,7 @@ Rectangle {
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
     maximumZoomLevel: 22 // タイルサーバに合わせて調整する (大きすぎるのは問題ない)
-    minimumZoomLevel: 3
+    minimumZoomLevel: 3 // 地図全体が見える最大値に設定
     objectName: "map" // Qt側からアクセスするためのオブジェクト名
     plugin: mapPlugin
     zoomLevel: 3
