@@ -63,6 +63,7 @@ private:
     double hor_wn, ver_wn;      // [rad/s]
     double hor_zeta, ver_zeta;  // [-]
     double hor_ki, ver_ki;
+    double hor_max_i_acc, ver_max_i_acc;
     kdl::Vector ei = kdl::Vector::Zero();
   } trans_ctrl_;
   struct RotationControlParameters
@@ -124,9 +125,11 @@ private:
   bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
   bool horizontalIGainCb(const double& p);
+  bool horizontalIMaxAccelCb(const double& p);
   bool verticalNaturalFreqCb(const double& p);
   bool verticalDampingRatioCb(const double& p);
   bool verticalIGainCb(const double& p);
+  bool verticalIMaxAccelCb(const double& p);
   bool attitudeNaturalFreqCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool attitudeIGainCb(const double& p);
@@ -177,6 +180,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
+  addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, "m/s^2");
+  addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1., 70, 0, 100, " %");
 
   // Register publishers
@@ -274,6 +279,12 @@ bool ControllerNode::horizontalIGainCb(const double& p)
   return true;
 }
 
+bool ControllerNode::horizontalIMaxAccelCb(const double& p)
+{
+  trans_ctrl_.hor_max_i_acc = p;
+  return true;
+}
+
 bool ControllerNode::verticalNaturalFreqCb(const double& p)
 {
   trans_ctrl_.ver_wn = p;
@@ -289,6 +300,12 @@ bool ControllerNode::verticalDampingRatioCb(const double& p)
 bool ControllerNode::verticalIGainCb(const double& p)
 {
   trans_ctrl_.ver_ki = p;
+  return true;
+}
+
+bool ControllerNode::verticalIMaxAccelCb(const double& p)
+{
+  trans_ctrl_.ver_max_i_acc = p;
   return true;
 }
 
@@ -421,14 +438,13 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 浮遊していれば積分誤差を蓄積
     if (!land_suspect) {
-      for (int i = 0; i < 3; ++i) {
-        if (ki(i) > 0.) {
-          trans_ctrl_.ei(i) += ep(i) * dt;
-        }
-        else {
-          trans_ctrl_.ei(i) = 0.;
-        }
-      }
+      assert(trans_ctrl_.hor_ki > 0.);
+      assert(trans_ctrl_.ver_ki > 0.);
+      const auto hor_max_ei = trans_ctrl_.hor_max_i_acc / trans_ctrl_.hor_ki;
+      const auto ver_max_ei = trans_ctrl_.ver_max_i_acc / trans_ctrl_.ver_ki;
+      const kdl::Vector max_ei(hor_max_ei, hor_max_ei, ver_max_ei);
+      const auto next_ei = trans_ctrl_.ei + ep * dt;
+      trans_ctrl_.ei = next_ei.clamp(-max_ei, max_ei);
     }
 
     // 目標加速度を計算

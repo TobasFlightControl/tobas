@@ -108,17 +108,17 @@ private:
   bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
   bool horizontalIGainCb(const double& p);
+  bool horizontalIMaxAccelCb(const double& p);
   bool verticalNaturalFreqCb(const double& p);
   bool verticalDampingRatioCb(const double& p);
   bool verticalIGainCb(const double& p);
+  bool verticalIMaxAccelCb(const double& p);
   bool attitudeNaturalFreqCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool attitudeIGainCb(const double& p);
   bool headingNaturalFreqCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
-  bool maxHorizontalAccelCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
   bool tiltAsixSingularDeclinationLBCb(const long& lb_deg);
   bool tiltAsixSingularDeclinationUBCb(const long& ub_deg);
 
@@ -158,8 +158,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
-  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 16, 2, 20, " m/s^2");
+  addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, "m/s^2");
+  addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicIntParam(
     "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 10, 0, 45, " deg");
   addDynamicIntParam(
@@ -257,6 +257,11 @@ bool ControllerNode::horizontalIGainCb(const double& p)
   return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
 }
 
+bool ControllerNode::horizontalIMaxAccelCb(const double& p)
+{
+  return pos_pid_.setMaxIntegralAccel(0, p) && pos_pid_.setMaxIntegralAccel(1, p);
+}
+
 bool ControllerNode::verticalNaturalFreqCb(const double& p)
 {
   return pos_pid_.setNaturalFreq(2, p);
@@ -270,6 +275,11 @@ bool ControllerNode::verticalDampingRatioCb(const double& p)
 bool ControllerNode::verticalIGainCb(const double& p)
 {
   return pos_pid_.setIntegralGain(2, p);
+}
+
+bool ControllerNode::verticalIMaxAccelCb(const double& p)
+{
+  return pos_pid_.setMaxIntegralAccel(2, p);
 }
 
 bool ControllerNode::attitudeNaturalFreqCb(const double& p)
@@ -304,16 +314,6 @@ bool ControllerNode::headingDampingRatioCb(const double& p)
 bool ControllerNode::headingIGainCb(const double& p)
 {
   return rot_pi_.setIntegralGain(2, p);
-}
-
-bool ControllerNode::maxHorizontalAccelCb(const double& p)
-{
-  return pos_pid_.setMaximumAccel(0, p) && pos_pid_.setMaximumAccel(1, p);
-}
-
-bool ControllerNode::maxVerticalAccelCb(const double& p)
-{
-  return pos_pid_.setMaximumAccel(2, p);
 }
 
 bool ControllerNode::tiltAsixSingularDeclinationLBCb(const long& lb_deg)

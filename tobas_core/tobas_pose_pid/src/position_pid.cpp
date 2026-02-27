@@ -26,7 +26,8 @@ kdl::Vector PositionPID::update(
   for (size_t i = 0; i < 3; ++i) {
     if (ki_(i) > 0.) {  // I制御を行う場合
       // 積分誤差を蓄積
-      ei_(i) += ep(i) * dt;
+      const auto next_ei = ei_(i) + ep(i) * dt;
+      ei_(i) = clamp(next_ei, -max_i_acc_(i), max_i_acc_(i));
     }
     else  // I制御を行わない場合
     {
@@ -36,8 +37,7 @@ kdl::Vector PositionPID::update(
   }
 
   // 目標加速度を計算
-  const auto cmd_acc_pd = (kp_.hadamard(ep) + kd_.hadamard(ed)).clamp(-max_acc_, max_acc_);
-  return cmd_acc_pd + ki_.hadamard(ei_);  // 定常誤差が大きい時の誤差の発散を防ぐためI成分は最大加速度を超えて指示可能
+  return kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 }
 
 bool PositionPID::setProportionalGain(int idx, double value)
@@ -122,7 +122,7 @@ bool PositionPID::setDampingRatio(int idx, double value)
   return true;
 }
 
-bool PositionPID::setMaximumAccel(int idx, double value)
+bool PositionPID::setMaxIntegralAccel(int idx, double value)
 {
   if (!checkIndex(idx)) {
     return false;
@@ -133,7 +133,7 @@ bool PositionPID::setMaximumAccel(int idx, double value)
     return false;
   }
 
-  max_acc_(idx) = value;
+  max_i_acc_(idx) = value;
 
   return true;
 }

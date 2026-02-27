@@ -22,8 +22,7 @@ public:
 
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);
-
-  bool setMaximumAccel(int idx, double value);
+  bool setMaxIntegralAccel(int idx, double value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();
@@ -38,11 +37,11 @@ private:
   kdl::Vector natural_freq_ = { 1., 1., 1. };  // [rad/s]
   kdl::Vector damp_ratio_ = { 1., 1., 1. };    // [-]
 
+  // Limit
+  kdl::Vector max_i_acc_ = { INFINITY, INFINITY, INFINITY };
+
   // Error
   kdl::Vector ei_ = kdl::Vector::Zero();
-
-  // Limit
-  kdl::Vector max_acc_ = { INFINITY, INFINITY, INFINITY };  // [m/s^2]
 
   void setGainFromSecondOrderFrom();
 };
