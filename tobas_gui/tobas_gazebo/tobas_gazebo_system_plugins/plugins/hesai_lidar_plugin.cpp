@@ -221,7 +221,7 @@ void HesaiLidarPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   ros2::timeChronoToMsg(info.simTime, cur_time);
 
   // Publish raw IMU message
-  // Hesai ROS2 driverでの単位はaccはm/s^2, gyroはrad/s ref : 
+  // Hesai ROS2 driverでの単位はaccはm/s^2, gyroはrad/s ref :
   // https://github.com/HesaiTechnology/HesaiLidar_ROS_2.0/blob/96be4a1fcbf74d41a04c74e12e5d5df694fab693/src/manager/source_driver_ros2.hpp#L374
   auto imu_raw_msg = std::make_unique<sensor_msgs::msg::Imu>();
   imu_raw_msg->header.stamp = cur_time;
