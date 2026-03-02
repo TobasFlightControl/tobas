@@ -8,10 +8,10 @@ namespace ctrl
  * @brief 制約を満たしつつ最短時間で目標状態に到達する軌道をオンラインで更新する．
  * @note バンバン制御は安定余裕が無いので，遅延，モデル化誤差を含む実環境でフィードバックループとして使うのは難しい．
  */
-class OnlineTrajectoryGenerator
+class JerkLimitedOnlineTrajectoryGenerator
 {
 public:
-  explicit OnlineTrajectoryGenerator();
+  explicit JerkLimitedOnlineTrajectoryGenerator();
 
   inline double getTrajectoryPosition() const;
   inline double getTrajectoryVelocity() const;
@@ -26,8 +26,6 @@ public:
   void setMinAcceleration(double min_acc);
   void setMaxAcceleration(double max_acc);
   void setMaxJerk(double max_jerk);
-
-  void setSpeedOverride(double speed_override);
 
   /* 状態フィードバックを含む更新． */
   void update(double dt, double cur_pos, double cur_vel, double cur_acc);
@@ -49,43 +47,40 @@ private:
   double tar_acc_ = 0.;
 
   // Limit
-  double min_vel_ = NAN;
-  double max_vel_ = NAN;
-  double min_acc_ = NAN;
-  double max_acc_ = NAN;
-  double max_jerk_ = NAN;
-
-  double speed_override_ = 1.;
+  double v_min_ = NAN;
+  double v_max_ = NAN;
+  double a_min_ = NAN;
+  double a_max_ = NAN;
+  double u_ = NAN;
 };
 
-inline double OnlineTrajectoryGenerator::getTrajectoryPosition() const
+inline double JerkLimitedOnlineTrajectoryGenerator::getTrajectoryPosition() const
 {
   return traj_pos_;
 }
 
-inline double OnlineTrajectoryGenerator::getTrajectoryVelocity() const
+inline double JerkLimitedOnlineTrajectoryGenerator::getTrajectoryVelocity() const
 {
   return traj_vel_;
 }
 
-inline double OnlineTrajectoryGenerator::getTrajectoryAcceleration() const
+inline double JerkLimitedOnlineTrajectoryGenerator::getTrajectoryAcceleration() const
 {
   return traj_acc_;
 }
 
-inline void OnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
+inline void JerkLimitedOnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
 {
   tar_pos_ = tar_pos;
 }
 
-inline void OnlineTrajectoryGenerator::setTargetVelocity(double tar_vel)
+inline void JerkLimitedOnlineTrajectoryGenerator::setTargetVelocity(double tar_vel)
 {
   tar_vel_ = tar_vel;
 }
 
-inline void OnlineTrajectoryGenerator::setTargetAcceleration(double tar_acc)
+inline void JerkLimitedOnlineTrajectoryGenerator::setTargetAcceleration(double tar_acc)
 {
   tar_acc_ = tar_acc;
 }
-
 }  // namespace ctrl
