@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 namespace ctrl
 {
 /**
@@ -11,17 +13,13 @@ class OnlineTrajectoryGenerator
 public:
   explicit OnlineTrajectoryGenerator();
 
-  double getCommandPosition() const;
-  double getCommandVelocity() const;
-  double getCommandAcceleration() const;
+  inline double getTrajectoryPosition() const;
+  inline double getTrajectoryVelocity() const;
+  inline double getTrajectoryAcceleration() const;
 
-  double getTargetPosition() const;
-  double getTargetVelocity() const;
-  double getTargetAcceleration() const;
-
-  void setTargetPosition(double tar_pos);
-  void setTargetVelocity(double tar_vel);
-  void setTargetAcceleration(double tar_acc);
+  inline void setTargetPosition(double tar_pos);
+  inline void setTargetVelocity(double tar_vel);
+  inline void setTargetAcceleration(double tar_acc);
 
   void setMinVelocity(double min_vel);
   void setMaxVelocity(double max_vel);
@@ -37,11 +35,13 @@ public:
   /* 状態フィードバックを含まない更新． */
   void update(double dt);
 
+  void resetCurrentTrajectoryPoint(double pos, double vel, double acc);
+
 private:
-  // Command
-  double cmd_pos_ = 0.;
-  double cmd_vel_ = 0.;
-  double cmd_acc_ = 0.;
+  // Trajectory Point
+  double traj_pos_ = 0.;
+  double traj_vel_ = 0.;
+  double traj_acc_ = 0.;
 
   // Target
   double tar_pos_ = 0.;
@@ -49,12 +49,43 @@ private:
   double tar_acc_ = 0.;
 
   // Limit
-  double min_vel_ = 0.;
-  double max_vel_ = 0.;
-  double min_acc_ = 0.;
-  double max_acc_ = 0.;
-  double max_jerk_ = 0.;
+  double min_vel_ = NAN;
+  double max_vel_ = NAN;
+  double min_acc_ = NAN;
+  double max_acc_ = NAN;
+  double max_jerk_ = NAN;
 
   double speed_override_ = 1.;
 };
+
+inline double OnlineTrajectoryGenerator::getTrajectoryPosition() const
+{
+  return traj_pos_;
+}
+
+inline double OnlineTrajectoryGenerator::getTrajectoryVelocity() const
+{
+  return traj_vel_;
+}
+
+inline double OnlineTrajectoryGenerator::getTrajectoryAcceleration() const
+{
+  return traj_acc_;
+}
+
+inline void OnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
+{
+  tar_pos_ = tar_pos;
+}
+
+inline void OnlineTrajectoryGenerator::setTargetVelocity(double tar_vel)
+{
+  tar_vel_ = tar_vel;
+}
+
+inline void OnlineTrajectoryGenerator::setTargetAcceleration(double tar_acc)
+{
+  tar_acc_ = tar_acc;
+}
+
 }  // namespace ctrl
