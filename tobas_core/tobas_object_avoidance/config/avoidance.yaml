@@ -1,0 +1,4 @@
+/**:
+  ros__parameters:
+    min_safety_distance: 30
+    repulsive_gain: 1.0
