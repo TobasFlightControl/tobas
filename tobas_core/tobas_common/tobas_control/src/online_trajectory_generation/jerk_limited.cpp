@@ -31,8 +31,8 @@ inline double u_a(double a, double u, double eddk)
 
 inline double u_v(double v, double u, double edd_min, double edd_max, double edk, double eddk)
 {
-  const auto min = std::min(u_cv(v, u, edk, eddk), u_a(edd_max, u, eddk));
-  return std::max(u_a(edd_min, u, eddk), min);
+  const auto tmp = std::min(u_cv(v, u, edk, eddk), u_a(edd_max, u, eddk));
+  return std::max(u_a(edd_min, u, eddk), tmp);
 }
 }  // namespace
 
@@ -106,8 +106,8 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt, double cur_pos, dou
   }
 
   const auto uc = -u_ * sign(sigma + (1 - std::abs(sign(sigma))) * (delta + (1 - std::abs(sgnd) * eddk)));
-  const auto min = std::min(uc, u_v(ed_max, u_, edd_min, edd_max, edk, eddk));
-  const auto uk = std::max(u_v(ed_min, u_, edd_min, edd_max, edk, eddk), min);
+  const auto tmp = std::min(uc, u_v(ed_max, u_, edd_min, edd_max, edk, eddk));
+  const auto uk = std::max(u_v(ed_min, u_, edd_min, edd_max, edk, eddk), tmp);
 
   // Compute filter output
   traj_acc_ = cur_acc + dt * uk;
