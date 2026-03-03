@@ -18,9 +18,9 @@ LiDARの仕様がよくわからないので，一旦以下のような仮決め
 - メッセージで送られてくるheaderのtimestampはフレームの最初の時間（Hesai driverのソースコードにそうっぽいことが書いてある），各点ごとに設定されるtimestampはその時刻からのズレの時間で単位は秒（怪しい）．
 - 128段の発光体列は静止状態において同一方向を向いていない．まんべんなく全周方向に向いている．1段上に上がるごとに角度が360 / 128 degreeずつズレていく．
 
-発行するデータはLiDAR点群データとLiDARに搭載されているimuのデータ．
-topic名はtobas_constantsで管理してあり，
-それぞれtobas::kLidarPointCloudTopicとtobas::kLidarImuTopicである．
+発行するデータはLiDAR点群データのみ．
+topic名はhesai_lidar_plugin.cppに直書きしてあり，hesai_lidarである．
+LiDARに搭載されているIMUのデータを模擬したい場合はtobas_imu_pluginを追加する．
 
 ### 使用方法
 
@@ -64,25 +64,11 @@ topic名はtobas_constantsで管理してあり，
     </gazebo>
     <gazebo>
         <plugin filename="tobas_gazebo_hesai_lidar_plugin" name="gazebo::HesaiLidarPlugin">
-            <robotNamespace>f450</robotNamespace>
-            <lidar>
-                <gpuRayTopic>/f450/lidar/points</gpuRayTopic>
-                <gpuRayUpdateRate>100</gpuRayUpdateRate>
-                <updateRate>10</updateRate>
-                <horizontalSamples>900</horizontalSamples>
-                <verticalSamples>128</verticalSamples>
-            </lidar>
-            <imu>
-                <linkName>base_link</linkName>
-                <updateRate>400</updateRate>
-                <offset>0 0 0</offset>
-                <gyroNoiseDensity>0.00019198621771937625</gyroNoiseDensity>
-                <gyroRandomWalk>0</gyroRandomWalk>
-                <gyroBiasCorrelationTime>1000</gyroBiasCorrelationTime>
-                <accelNoiseDensity>0.0016671305000000001</accelNoiseDensity>
-                <accelRandomWalk>0</accelRandomWalk>
-                <accelBiasCorrelationTime>300</accelBiasCorrelationTime>
-            </imu>
+            <gpuRayTopic>/f450/lidar/points</gpuRayTopic>
+            <gpuRayUpdateRate>100</gpuRayUpdateRate>
+            <updateRate>10</updateRate>
+            <horizontalSamples>900</horizontalSamples>
+            <verticalSamples>128</verticalSamples>
         </plugin>
     </gazebo>
     <!-- 後略 -->
@@ -100,9 +86,8 @@ topic名はtobas_constantsで管理してあり，
 次の\<gazebo\>タグがtobas_gazebo_heasi_lidar_pluginを利用する設定である．
 変更可能性があるのは以下の部分．
 - \<robotNamespace\>f450\</robotNamespace\>, machine_nameの変更に伴い変更．
-- \<lidar\>\<gpuRayTopic\>/f450/lidar/points\</gpuRayTopic\>\</lidar\>, gazeboのgpu_lidar pluginのところで\<topic\>として指定したものにpointsをつけたものに変更．
-- \<lidar\>\<gpuRayUpdateRate\>/f450/lidar/points\</gpuRayUpdateRate\>\</lidar\>, gazeboのgpu_lidar pluginのところで\<update_rate\>として指定したものと一致させる．
-- \<lidar\>\<updateRate\>10\</updateRate\>\</lidar\>, 本当のlidarのupdate rate f_1を指定する．
-- \<lidar\>\<horizontalSamples\>900\</horizontalSamples\>\</lidar\>, gazebo gpu_lidar pluginのところで指定したものと一致させる．
-- \<lidar\>\<verticalSamples\>128\</verticalSamples\>\</lidar\>, gazebo gpu_lidar pluginのところで指定したものと一致させる．
-- \<imu\>\</imu\>以下, lidarに搭載されているimuのノイズの状況に応じて変更する．
+- \<gpuRayTopic\>/f450/lidar/points\</gpuRayTopic\>, gazeboのgpu_lidar pluginのところで\<topic\>として指定したものにpointsをつけたものに変更．
+- \<gpuRayUpdateRate\>/f450/lidar/points\</gpuRayUpdateRate\>, gazeboのgpu_lidar pluginのところで\<update_rate\>として指定したものと一致させる．
+- \<updateRate\>10\</updateRate\>, 本当のlidarのupdate rate f_1を指定する．
+- \<horizontalSamples\>900\</horizontalSamples\>, gazebo gpu_lidar pluginのところで指定したものと一致させる．
+- \<verticalSamples\>128\</verticalSamples\>, gazebo gpu_lidar pluginのところで指定したものと一致させる．
