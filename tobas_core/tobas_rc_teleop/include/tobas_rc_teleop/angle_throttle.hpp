@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_control/online_trajectory_generation/velocity_limited.hpp>
+
 #include <tobas_command_msgs_adapter/angle_throttle.hpp>
 
 #include "./base_controller.hpp"
@@ -24,8 +26,9 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
-  double yaw_;
   rclcpp::Time t_last_rcin_;
+  ctrl::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
+  double tar_yaw_;
 
   // rosparams
   double max_attitude_;   // [rad]
@@ -38,6 +41,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
   bool maxAttitudeCb(const long& p);
+  bool maxAttitudeRateCb(const long& p);
   bool maxHeadingRateCb(const long& p);
   bool attitudeExpoCb(const long& p);
   bool headingExpoCb(const long& p);

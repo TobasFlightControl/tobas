@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_control/online_trajectory_generation/velocity_limited.hpp>
+
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
 
 #include "./base_controller.hpp"
@@ -25,7 +27,7 @@ public:
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
-  kdl::Vector tar_acc_G_;
+  ctrl::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_;
   double tar_yaw_;
 
   // rosparams
@@ -40,6 +42,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::AccelYaw> cmd_pub_;
 
   bool maxHorizontalAccelCb(const double& p);
+  bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
   bool maxHeadingRateCb(const long& p);
   bool horizontalAccelExpoCb(const long& p);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_control/online_trajectory_generation/velocity_limited.hpp>
+
 #include <tobas_command_msgs_adapter/accel.hpp>
 #include <tobas_command_msgs_adapter/angle.hpp>
 
@@ -26,8 +28,8 @@ public:
 
 private:
   rclcpp::Time t_last_rcin_;
-  kdl::Vector tar_acc_G_;
-  kdl::Euler tar_angle_;
+  ctrl::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_, roll_filt_, pitch_filt_;
+  double tar_yaw_;
 
   // rosparams
   double max_hor_acc_;    // [m/s]
@@ -44,11 +46,13 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
 
   void publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc);
-  void publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle);
+  void publishAngle(const builtin_interfaces::msg::Time& stamp, double roll, double pitch, double yaw);
 
   bool maxHorizontalAccelCb(const double& p);
+  bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
   bool maxAttitudeCb(const long& p);
+  bool maxAttitudeRateCb(const long& p);
   bool maxHeadingRateCb(const long& p);
   bool horizontalAccelExpoCb(const long& p);
   bool verticalAccelExpoCb(const long& p);

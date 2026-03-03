@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_control/online_trajectory_generation/velocity_limited.hpp>
+
 #include <tobas_command_msgs_adapter/accel_pitch_yaw.hpp>
 
 #include "./base_controller.hpp"
@@ -25,30 +27,29 @@ public:
 
 private:
   rclcpp::Time t_last_rcin_;
-  kdl::Vector tar_acc_G_;
-  double tar_pitch_;
+  ctrl::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_, pitch_filt_;
   double tar_yaw_;
 
   // rosparams
-  double max_hor_acc_;    // [m/s]
-  double max_ver_acc_;    // [m/s]
-  double max_attitude_;   // [rad]
-  double max_head_rate_;  // [rad/s]
+  double max_hor_acc_;   // [m/s]
+  double max_ver_acc_;   // [m/s]
+  double max_pitch_;     // [rad]
+  double max_yaw_rate_;  // [rad/s]
   double hor_acc_expo_;
   double ver_acc_expo_;
-  double atti_expo_;
-  double head_expo_;
+  double yaw_expo_;
 
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::AccelPitchYaw> cmd_pub_;
 
   bool maxHorizontalAccelCb(const double& p);
+  bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxAttitudeCb(const long& p);
-  bool maxHeadingRateCb(const long& p);
+  bool maxPitchCb(const long& p);
+  bool maxPitchRateCb(const long& p);
+  bool maxYawRateCb(const long& p);
   bool horizontalAccelExpoCb(const long& p);
   bool verticalAccelExpoCb(const long& p);
-  bool attitudeExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
+  bool yawExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

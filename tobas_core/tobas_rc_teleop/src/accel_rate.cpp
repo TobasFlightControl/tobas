@@ -32,11 +32,11 @@ bool AccelRateController::requireHeading()
 void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
   node->addDynamicDoubleParam(
-    addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 18, 4, 30, " m/s^2");
+    addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(
-    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 18, 4, 30, " m/s^2");
+    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
   node->addDynamicIntParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 180, 0, 360, " dps");
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 90, 0, 360, " dps");
+  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
   node->addDynamicIntParam(
     addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
@@ -50,43 +50,37 @@ void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
 
 void AccelRateController::reset(const tobas_msgs::Odometry&)
 {
-  tar_acc_G_.setZero();
-  tar_gyro_B_.setZero();
 }
 
 void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
-  // サブモードで並進制御モードと回転制御モードを切り替える
-  if (rcin.sub_mode)  // 回転固定で並進制御
+  // Horizontal acceleration & Attitude rate
+  if (rcin.sub_mode)  // Translation mode
   {
-    // RC入力から目標水平加速度を計算
     tar_acc_G_.x(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
     tar_acc_G_.y(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-
-    // 目標角速度はゼロ
     tar_gyro_B_.x(0.);
     tar_gyro_B_.y(0.);
   }
-  else  // 並進固定で回転制御
+  else  // Rotation mode
   {
-    // RC入力から目標角速度を計算
     tar_gyro_B_.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
     tar_gyro_B_.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
-
-    // 目標水平加速度はゼロ
     tar_acc_G_.x(0.);
     tar_acc_G_.y(0.);
   }
 
-  // RC入力から鉛直加速度とヨーレートを計算
+  // Vertical acceleration
   tar_acc_G_.z(expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_));
+
+  // Heading rate
   tar_gyro_B_.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
 
-  // 目標加速度を地面座標系から世界座標系に変換
+  // Compute the acceleration wrt. the world frame
   const auto cur_yaw = odom.frame.M.getYaw();
   const auto tar_acc_W = kdl::Rotation::RotZ(cur_yaw) * tar_acc_G_;
 
-  // コマンドを発行
+  // Publish commands
   publishAccel(rcin.header.stamp, tar_acc_W);
   publishRate(rcin.header.stamp, tar_gyro_B_);
 }

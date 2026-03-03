@@ -33,11 +33,16 @@ bool AngleThrottleVectorController::requireHeading()
 
 void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
-  node->addDynamicIntParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 45, 0, 80, " deg");
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
+  node->addDynamicIntParam(addMode("max_roll", mode), &self::maxRollCb, this, 45, 0, 80, " deg");
+  node->addDynamicIntParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 360, 0, 720, " dps");
+  node->addDynamicIntParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 90, 0, 180, " deg");
+  node->addDynamicIntParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 180, 0, 360, " dps");
+  node->addDynamicIntParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 180, 0, 360, " dps");
   node->addDynamicIntParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 90, 0, 180, " deg");
-  node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, -30, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(
+    addMode("max_thrust_angle_rate", mode), &self::maxThrustAngleRateCb, this, 360, 0, 720, " dps");
+  node->addDynamicIntParam(addMode("roll_expo", mode), &self::rollExpoCb, this, -30, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, -15, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::topic::kAngleThrotVectorCmd);
@@ -45,55 +50,87 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
 
 void AngleThrottleVectorController::reset(const tobas_msgs::Odometry& odom)
 {
-  yaw_ = odom.frame.M.getYaw();
   t_last_rcin_ = odom.header.stamp;
+
+  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+  roll_filt_.resetCurrentTrajectoryPoint(roll);
+  pitch_filt_.resetCurrentTrajectoryPoint(pitch);
+  thrust_angle_filt_.resetCurrentTrajectoryPoint(-pitch);
+  tar_yaw_ = yaw;
 }
 
 void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
 {
-  // 時刻を更新
+  // Update timestamp
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
-  // ヨーの目標値を更新
-  const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
-  yaw_ += yawrate * dt;
-
-  // コマンドを作成
+  // Create a command
   auto cmd = std::make_unique<tobas_command_msgs::AngleThrottleVector>();
   cmd->header = rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
-  // コマンドのモードに依らない部分を埋める
-  cmd->angle.roll = expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);
-  cmd->angle.yaw = yaw_;
+  // Roll
+  roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_));
+  roll_filt_.update(dt);
+  cmd->angle.roll = roll_filt_.getTrajectoryPosition();
+
+  // Yaw
+  const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
+  tar_yaw_ += yawrate * dt;
+  cmd->angle.yaw = tar_yaw_;
+
+  // Throttle
   cmd->throttle = expo(remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot), throt_expo_);
 
-  // コマンドのサブモードに依存する要素を埋める
-  if (rcin.sub_mode)  // 並進モード
+  // Pitch & Thrust Angle
+  if (rcin.sub_mode)  // Translation mode
   {
-    cmd->angle.pitch = 0.;
-    cmd->thrust_angle = remapDead(rcin.pitch, -max_thrust_angle_, max_thrust_angle_);
+    pitch_filt_.setTargetPosition(0.);
+    thrust_angle_filt_.setTargetPosition(remapDead(rcin.pitch, -max_thrust_angle_, max_thrust_angle_));
   }
-  else  // 回転モード
+  else  // Rotation mode
   {
-    cmd->angle.pitch = expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
-    cmd->thrust_angle = 0.;
+    const auto tar_pitch = remapDead(rcin.pitch, -max_pitch_, max_pitch_);
+    pitch_filt_.setTargetPosition(tar_pitch);
+    thrust_angle_filt_.setTargetPosition(-tar_pitch);
   }
+  pitch_filt_.update(dt);
+  thrust_angle_filt_.update(dt);
+  cmd->angle.pitch = pitch_filt_.getTrajectoryPosition();
+  cmd->thrust_angle = thrust_angle_filt_.getTrajectoryPosition();
 
-  // コマンドを発行
+  // Publish the command
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool AngleThrottleVectorController::maxAttitudeCb(const long& p)
+bool AngleThrottleVectorController::maxRollCb(const long& p)
 {
-  max_attitude_ = tbs::deg2rad(p);
+  max_roll_ = tbs::deg2rad(p);
   return true;
 }
 
-bool AngleThrottleVectorController::maxHeadingRateCb(const long& p)
+bool AngleThrottleVectorController::maxRollRateCb(const long& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  roll_filt_.setMaxVelocity(tbs::deg2rad(p));
+  return true;
+}
+
+bool AngleThrottleVectorController::maxPitchCb(const long& p)
+{
+  max_pitch_ = tbs::deg2rad(p);
+  return true;
+}
+
+bool AngleThrottleVectorController::maxPitchRateCb(const long& p)
+{
+  pitch_filt_.setMaxVelocity(tbs::deg2rad(p));
+  return true;
+}
+
+bool AngleThrottleVectorController::maxYawRateCb(const long& p)
+{
+  max_yaw_rate_ = tbs::deg2rad(p);
   return true;
 }
 
@@ -103,15 +140,21 @@ bool AngleThrottleVectorController::maxThrustAngleCb(const long& p)
   return true;
 }
 
-bool AngleThrottleVectorController::attitudeExpoCb(const long& p)
+bool AngleThrottleVectorController::maxThrustAngleRateCb(const long& p)
 {
-  atti_expo_ = static_cast<double>(p) / kExpoScale;
+  thrust_angle_filt_.setMaxVelocity(tbs::deg2rad(p));
   return true;
 }
 
-bool AngleThrottleVectorController::headingExpoCb(const long& p)
+bool AngleThrottleVectorController::rollExpoCb(const long& p)
 {
-  head_expo_ = static_cast<double>(p) / kExpoScale;
+  roll_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AngleThrottleVectorController::yawExpoCb(const long& p)
+{
+  yaw_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 
