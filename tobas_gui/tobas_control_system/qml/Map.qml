@@ -109,6 +109,8 @@ Rectangle {
     // Arrow
     MapQuickItem {
       id: arrow
+      anchorPoint.x: arrowImage.width / 2
+      anchorPoint.y: arrowImage.height / 2
       coordinate: QtPositioning.coordinate(0, 0)
       objectName: "arrow"
 
