@@ -1,3 +1,4 @@
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_gazebo_common/constants.hpp>
@@ -40,9 +41,6 @@ class GazeboImuPlugin : public BaseNode,
   // Constants
   static constexpr char kDebugTopic[] = "gazebo/imu_debug";
 
-  static constexpr double kStaticAccThresh = 1.;    // [m/s^2]
-  static constexpr double kStaticGyroThresh = 0.1;  // [rad/s]
-
   // TODO: 加速度の比率やジャイロの振動も真面目に考察
   static constexpr double kVibrationAccVerHorRate = 1.;
   static constexpr double kVibrationAccGyroRate = 0.05;
@@ -84,7 +82,7 @@ private:
   ModelMassHolder mass_holder_;
   dsp::LowPassFilterP1<gz::math::Vector3d> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
-  bool stationary_state_detected_ = false;
+  bool static_state_detected_ = false;
   gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d gyro_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d prev_gyro_meas_ = gz::math::Vector3d::Zero;
@@ -208,9 +206,9 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   prev_gyro_meas_ = gyro_meas;
 
   // 姿勢推定の発散を防ぐために機体の位置姿勢が安定するまでは発行しない
-  if (!stationary_state_detected_) {
-    stationary_state_detected_ = (acc_B.Length() < kStaticAccThresh) && (gyro_B.Length() < kStaticGyroThresh);
-    if (stationary_state_detected_) {
+  if (!static_state_detected_) {
+    static_state_detected_ = (acc_B.Length() < tobas::kStaticAccThresh) && (gyro_B.Length() < tobas::kStaticGyroThresh);
+    if (static_state_detected_) {
       TOBAS_INFO("Stationary state detected. Start to publish IMU messages.");
       acc_lpf_.setValue(acc_meas);
       gyro_lpf_.setValue(gyro_meas);

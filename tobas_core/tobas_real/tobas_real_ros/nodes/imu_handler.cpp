@@ -1,3 +1,4 @@
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
@@ -22,9 +23,8 @@ class ImuHandlerNode : public tobas::BaseNode
   using super = tobas::BaseNode;
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
-  static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
-  static constexpr double kStaticGyroThreshold = 0.1;  // [rad/s]
-  static constexpr double kGyroLpfCutoff = 30.;        // [Hz]
+  static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
+  static constexpr double kGyroLpfCutoff = 30.;       // [Hz]
 
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -130,12 +130,12 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       const auto& gyro_filt = gyro_lpf_.getValue();
 
       // 角速度が大きすぎる場合はやり直し
-      if (gyro_filt.norm() > kStaticGyroThreshold) {
+      if (gyro_filt.norm() > tobas::kStaticGyroThresh) {
         TOBAS_WARN_THROTTLE(
           1., "Perturbation is detected while measuring gyro bias: ", gyro_filt, " [rad/s]. Retrying...");
         gyro_bias_cnt_ = 0;
-        for (size_t i = 0; i < 3; ++i) {
-          gyro_sum_[i].reset();
+        for (auto& sum : gyro_sum_) {
+          sum.reset();
         }
         break;
       }
