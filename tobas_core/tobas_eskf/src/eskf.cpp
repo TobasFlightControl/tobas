@@ -4,6 +4,7 @@
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/geometry.hpp>
 
 #define E3 Diagonal3d(1, 1, 1)
 
@@ -590,9 +591,8 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const auto& x = x_history_.closestAfterValue(time);
 
   // オイラー角を取得
-  double roll_pred, pitch_pred, yaw_pred;
   const auto R_W_B = getQuaternion(x);
-  tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w(), roll_pred, pitch_pred, yaw_pred);
+  const auto [roll_pred, pitch_pred, yaw_pred] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
   // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
   const AngleAxisd R_W_G(yaw_pred, Vector3d::UnitZ());

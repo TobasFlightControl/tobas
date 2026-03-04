@@ -99,9 +99,8 @@ inline Vector Euler::toAngleAxis() const
 
 inline Quaternion Euler::toQuaternion() const
 {
-  Quaternion res;
-  tbs::quaternionFromEuler(roll, pitch, yaw, res.x, res.y, res.z, res.w);
-  return res;
+  const auto [x, y, z, w] = tbs::quaternionFromEuler(roll, pitch, yaw);
+  return Quaternion(x, y, z, w);
 }
 
 inline AngleAxis Euler::operator-(const Euler& rhs) const
