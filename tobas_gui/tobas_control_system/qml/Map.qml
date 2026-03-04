@@ -21,6 +21,9 @@ Rectangle {
   function clamp(v, lb, ub) {
     return Math.min(ub, Math.max(lb, v));
   }
+  function mapObjectScale() {
+    return Math.min(map.scale, Constants.maxMapObjectScale);
+  }
   function onSetArrowPosition(latitude, longitude) {
     arrow.coordinate = QtPositioning.coordinate(latitude, longitude);
   }
@@ -116,9 +119,9 @@ Rectangle {
 
       sourceItem: Image {
         id: arrowImage
-        height: 30
+        height: 32 / mapObjectScale()
         source: "./arrow.png" // アイコン画像の相対パス
-        width: 30
+        width: 32 / mapObjectScale()
 
         transform: Rotation {
           id: arrowRotation
@@ -150,22 +153,22 @@ Rectangle {
         sourceItem: Rectangle {
           id: circle
           border.color: "black"
-          border.width: 2
+          border.pixelAligned: false // 小数値の枠線幅を許容
+          border.width: 2 / mapObjectScale()
           color: model.marker_color
-          height: 30
-          radius: 15 // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
-          width: 30
-
-          // 親オブジェクトに対する相対座標
+          height: 32 / mapObjectScale()
+          radius: 16 / mapObjectScale() // 半径を正方形の辺長の半分に設定することで，正方形から円を作ることができる
+          width: 32 / mapObjectScale()
           x: 0
           y: 0
 
           // 円の中心に番号を表示
           Text {
-            anchors.centerIn: parent
             color: "black"
-            font.pixelSize: 16
+            font.pixelSize: 16 / mapObjectScale() // 2以上じゃないとオーバーズームした際にアラインメントが崩れる
             text: model.index
+            x: (circle.width - width) / 2
+            y: (circle.height - height) / 2
           }
 
           // 円をドラッグ・アンド・ドロップできるようにするための設定
@@ -200,7 +203,7 @@ Rectangle {
 
       delegate: MapCircle {
         border.color: "yellow"
-        border.width: 2
+        border.width: 2 / mapObjectScale()
         center: model.coordinate
         color: "transparent"
         radius: model.acceptance_radius // [m]
@@ -213,7 +216,7 @@ Rectangle {
 
       delegate: MapPolyline {
         line.color: "green"
-        line.width: 3
+        line.width: 3 / mapObjectScale()
         path: [{
             "latitude": model.latitude_1,
             "longitude": model.longitude_1
