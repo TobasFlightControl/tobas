@@ -1,7 +1,9 @@
 #include <tf2_ros/transform_broadcaster.h>
 
 #include <tobas_algorithm/core.hpp>
+#include <tobas_algorithm/kahan.hpp>
 #include <tobas_constants/frame.hpp>
+#include <tobas_constants/imu.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_geomag/core.hpp>
@@ -70,6 +72,10 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   static constexpr double kInitRotStddev = M_PI_4;  // [rad]
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
+  // Other constants
+  static constexpr double kAccurateAttitudeStddevThresh = 1e-2;  // [rad]
+  static constexpr size_t kInitMagCount = 100;
+
 public:
   explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -95,6 +101,9 @@ private:
   double gnss_anomaly_score_ = 0.;
 
   eskf::ErrorStateKalmanFilter eskf_;
+
+  size_t init_mag_cnt_ = 0;
+  std::array<algo::Kahan<double>, 3> init_mag_sum_;
 
   // Static parameters
   std::string frame_id_;
@@ -320,13 +329,12 @@ bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
   // でないとヨーの誤差が大きすぎる場合にロールピッチまでフィードバックの影響を受けてしまう
   if (mag_) {
     // 現在のRPYを取得
-    double old_roll, old_pitch, old_yaw;
     const auto R_W_B = eskf_.getQuaternion();
-    tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w(), old_roll, old_pitch, old_yaw);
+    const auto [old_roll, old_pitch, old_yaw] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
     // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
-    const AngleAxisd R_W_G(old_yaw, Vector3d::UnitZ());
-    const auto mag_G = R_W_G.inverse() * (R_W_B * mag_->mag.data);  // 後ろから計算することで計算量を削減
+    const AngleAxisd R_G_B(old_yaw, Vector3d::UnitZ());
+    const auto mag_G = R_G_B.inverse() * (R_W_B * mag_->mag.data);  // 後ろから計算することで計算量を削減
     const auto& mx = mag_G.x();
     const auto& my = mag_G.y();
 
@@ -714,7 +722,43 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照とする．
   if (!mag_ref_set_) {
-    setMagneticFieldRef(mag_->mag.data);
+    // 姿勢が安定するまで待機
+    const auto rot_cov = eskf_.getRotationCovariance();
+    const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
+    const auto atti_stddev = sqrt(atti_var);  // [rad]
+    if (atti_stddev > kAccurateAttitudeStddevThresh) {
+      return;
+    }
+
+    // 動作を検知したら始めからやり直し
+    if (!imu_filt_ || imu_filt_->gyro.norm() > tobas::kStaticGyroThresh) {
+      init_mag_cnt_ = 0;
+      for (auto& sum : init_mag_sum_) {
+        sum.reset();
+      }
+      return;
+    }
+
+    // 姿勢を補正し地上座標系から見た地磁気ベクトルを求める
+    const auto R_W_B = eskf_.getQuaternion();
+    const auto [roll, pitch, _] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
+    const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
+    const auto mag_G = R_G_B * mag->mag;
+
+    // 地磁気ベクトルを加算
+    for (size_t i = 0; i < 3; ++i) {
+      init_mag_sum_[i].add(mag_G(i));
+    }
+
+    // 十分に地磁気データが溜まったら平均値を参照ベクトルに設定
+    if (++init_mag_cnt_ >= kInitMagCount) {
+      Eigen::Vector3d init_mag_mean;
+      for (size_t i = 0; i < 3; ++i) {
+        init_mag_mean(i) = init_mag_sum_[i].get() / init_mag_cnt_;
+      }
+      setMagneticFieldRef(init_mag_mean);
+    }
+
     return;
   }
 
