@@ -49,14 +49,6 @@ const std::string& BaseNode::ns() const
   return ns_;
 }
 
-sdf::ElementConstPtr BaseNode::getSdfChild(const sdf::ElementConstPtr& sdf, const std::string& name) const
-{
-  if (!sdf->HasElement(name)) {
-    TOBAS_EXIT("Please specify \"", name, "\".");
-  }
-  return sdf->FindElement(name);
-}
-
 void BaseNode::gazeboLog(uint8_t level, const std::string& text) const
 {
   switch (level) {
