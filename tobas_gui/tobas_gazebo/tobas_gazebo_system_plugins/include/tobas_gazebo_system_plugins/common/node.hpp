@@ -149,6 +149,7 @@ protected:
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param) const;
+  sdf::ElementConstPtr getSdfChild(const sdf::ElementConstPtr& sdf, const std::string& name) const;
 
 private:
   std::string name_;
