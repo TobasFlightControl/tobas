@@ -142,6 +142,7 @@ Rectangle {
     // WaypointModel
     MapItemView {
       model: WaypointModel
+      z: 3
 
       // Rectangleはdelegateに設定できないため，MapQuickItemを使う
       delegate: MapQuickItem {
@@ -203,6 +204,7 @@ Rectangle {
     }
     MapItemView {
       model: WaypointModel // 1つのモデルに対して複数のMapItemViewを定義できる
+      z: 2
 
       delegate: MapCircle {
         border.color: "yellow"
@@ -216,6 +218,7 @@ Rectangle {
     // LineModel
     MapItemView {
       model: LineModel
+      z: 1
 
       delegate: MapPolyline {
         line.color: "green"
