@@ -142,7 +142,7 @@ Rectangle {
     // WaypointModel
     MapItemView {
       model: WaypointModel
-      z: 3
+      z: 3 // 他のオブジェクトと重なった際の優先度
 
       // Rectangleはdelegateに設定できないため，MapQuickItemを使う
       delegate: MapQuickItem {
