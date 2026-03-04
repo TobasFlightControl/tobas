@@ -174,7 +174,10 @@ Rectangle {
           // 円をドラッグ・アンド・ドロップできるようにするための設定
           MouseArea {
             anchors.fill: parent
+            cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+            drag.smoothed: false // ターゲットがカーソル位置に直ちに移動
             drag.target: parent
+            drag.threshold: 0 // ドラッグしたらすぐに移動開始
 
             onReleased: {
               // ドラッグ・アンド・ドロップによって発生した，親オブジェクトに対する子オブジェクトの移動量
