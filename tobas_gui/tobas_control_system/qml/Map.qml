@@ -196,6 +196,8 @@ Rectangle {
               // 子オブジェクトのオフセットをリセット
               circle.x = 0;
               circle.y = 0;
+
+              // ウェイポイントの座標が変化したことを通知
               waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
             }
           }
