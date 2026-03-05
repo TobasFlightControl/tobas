@@ -22,8 +22,8 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const tobas_msgs::Odometry& odom, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   rclcpp::Time t_last_rcin_;
@@ -37,6 +37,7 @@ private:
   double max_yaw_rate_;  // [rad/s]
   double hor_acc_expo_;
   double ver_acc_expo_;
+  double pitch_expo_;
   double yaw_expo_;
 
   // Publisher
@@ -50,6 +51,7 @@ private:
   bool maxYawRateCb(const long& p);
   bool horizontalAccelExpoCb(const long& p);
   bool verticalAccelExpoCb(const long& p);
+  bool pitchExpoCb(const long& p);
   bool yawExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

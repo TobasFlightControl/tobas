@@ -20,8 +20,8 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const tobas_msgs::Odometry& odom, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   // rosparams

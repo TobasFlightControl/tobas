@@ -23,8 +23,8 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const tobas_msgs::Odometry& odom, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   rclcpp::Time t_last_rcin_;
@@ -37,6 +37,7 @@ private:
   double max_ver_vel_;    // [m/s]
   double max_attitude_;   // [rad]
   double max_head_rate_;  // [rad/s]
+  double max_ep_down_;    // [m]
   double hor_vel_expo_;
   double ver_vel_expo_;
   double atti_expo_;
@@ -57,6 +58,7 @@ private:
   bool maxVerticalVelocityCb(const double& p);
   bool maxAttitudeCb(const long& p);
   bool maxHeadingRateCb(const long& p);
+  bool maxPositionErrorDown(const double& p);
   bool horizontalVelocityExpoCb(const long& p);
   bool verticalVelocityExpoCb(const long& p);
   bool attitudeExpoCb(const long& p);

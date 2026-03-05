@@ -41,11 +41,11 @@ void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode
   cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::topic::kRateThrotCmd);
 }
 
-void RateThrottleController::reset(const tobas_msgs::Odometry&)
+void RateThrottleController::reset(const tobas_msgs::Odometry&, bool)
 {
 }
 
-void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
+void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottle>();

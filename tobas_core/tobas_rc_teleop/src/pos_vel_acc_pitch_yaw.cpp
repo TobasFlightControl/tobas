@@ -36,28 +36,34 @@ void PosVelAccPitchYawController::initialize(tobas::BaseNode* node, tobas::Fligh
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
   node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
-  node->addDynamicIntParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 90, 0, 180, " deg");
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
+  node->addDynamicIntParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 90, 0, 180, " deg");
+  node->addDynamicIntParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 180, 0, 360, " dps");
+  node->addDynamicDoubleParam(
+    addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
   node->addDynamicIntParam(
     addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
     addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, -15, -kExpoScale, kExpoScale);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(tobas::topic::kPosVelAccPitchYawCmd);
 }
 
-void PosVelAccPitchYawController::reset(const tobas_msgs::Odometry& odom)
+void PosVelAccPitchYawController::reset(const tobas_msgs::Odometry& odom, bool landed)
 {
   t_last_rcin_ = odom.header.stamp;
-  tar_vel_G_.setZero();
+
   tar_pos_W_ = odom.frame.p;
+  if (landed) {
+    tar_pos_W_.z() -= max_ep_down_;
+  }
+
   tar_pitch_ = odom.frame.M.getPitch();
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -72,13 +78,13 @@ void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const 
   else  // 並進固定で回転制御
   {
     tar_vel_G_.x(0.);
-    tar_pitch_ = expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
+    tar_pitch_ = expoRemapDead(rcin.pitch, pitch_expo_, -max_pitch_, max_pitch_);
   }
 
   // Y, Z, Yaw はサブモードに依らない
   tar_vel_G_.y(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
   tar_vel_G_.z(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_));
-  const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
+  const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
 
   // 目標速度を地面座標系から世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
@@ -88,9 +94,16 @@ void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const 
   tar_pos_W_ += tar_vel_W * dt;
   tar_yaw_ += yawrate * dt;
 
-  // 目標位置の偏差を制限
+  // 着陸状態ならば水平位置制御は行わない
   const auto& cur_pos_W = odom.frame.p;
-  tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
+  if (landed) {
+    tar_pos_W_.x() = cur_pos_W.x();
+    tar_pos_W_.y() = cur_pos_W.y();
+  }
+
+  // 着陸時に目標高度が下がりすぎるのを防ぐために偏差を制限
+  const auto& cur_z = cur_pos_W.z();
+  tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
 
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
@@ -118,15 +131,21 @@ bool PosVelAccPitchYawController::maxVerticalVelocityCb(const double& p)
   return true;
 }
 
-bool PosVelAccPitchYawController::maxAttitudeCb(const long& p)
+bool PosVelAccPitchYawController::maxPitchCb(const long& p)
 {
-  max_attitude_ = tbs::deg2rad(p);
+  max_pitch_ = tbs::deg2rad(p);
   return true;
 }
 
-bool PosVelAccPitchYawController::maxHeadingRateCb(const long& p)
+bool PosVelAccPitchYawController::maxYawRateCb(const long& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_yaw_rate_ = tbs::deg2rad(p);
+  return true;
+}
+
+bool PosVelAccPitchYawController::maxPositionErrorDown(const double& p)
+{
+  max_ep_down_ = p;
   return true;
 }
 
@@ -142,15 +161,15 @@ bool PosVelAccPitchYawController::verticalVelocityExpoCb(const long& p)
   return true;
 }
 
-bool PosVelAccPitchYawController::attitudeExpoCb(const long& p)
+bool PosVelAccPitchYawController::pitchExpoCb(const long& p)
 {
-  atti_expo_ = static_cast<double>(p) / kExpoScale;
+  pitch_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 
-bool PosVelAccPitchYawController::headingExpoCb(const long& p)
+bool PosVelAccPitchYawController::yawExpoCb(const long& p)
 {
-  head_expo_ = static_cast<double>(p) / kExpoScale;
+  yaw_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

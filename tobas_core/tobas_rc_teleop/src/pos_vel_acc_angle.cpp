@@ -38,6 +38,8 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
   node->addDynamicIntParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 90, 0, 180, " deg");
   node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
+  node->addDynamicDoubleParam(
+    addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
   node->addDynamicIntParam(
     addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
@@ -49,15 +51,19 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
 }
 
-void PosVelAccAngleController::reset(const tobas_msgs::Odometry& odom)
+void PosVelAccAngleController::reset(const tobas_msgs::Odometry& odom, bool landed)
 {
   t_last_rcin_ = odom.header.stamp;
-  tar_vel_G_.setZero();
+
   tar_pos_W_ = odom.frame.p;
+  if (landed) {
+    tar_pos_W_.z() -= max_ep_down_;
+  }
+
   odom.frame.M.getRPY(tar_angle_.roll, tar_angle_.pitch, tar_angle_.yaw);
 }
 
-void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -97,9 +103,16 @@ void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tob
   tar_pos_W_ += tar_vel_W * dt;
   tar_angle_.yaw += yawrate * dt;
 
-  // 目標位置の偏差を制限
+  // 着陸状態ならば水平位置制御は行わない
   const auto& cur_pos_W = odom.frame.p;
-  tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
+  if (landed) {
+    tar_pos_W_.x() = cur_pos_W.x();
+    tar_pos_W_.y() = cur_pos_W.y();
+  }
+
+  // 着陸時に目標高度が下がりすぎるのを防ぐために偏差を制限
+  const auto& cur_z = cur_pos_W.z();
+  tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
 
   // コマンドを発行
   publishPosVelAcc(rcin.header.stamp, tar_pos_W_, tar_vel_W, kdl::Vector::Zero());
@@ -153,6 +166,12 @@ bool PosVelAccAngleController::maxAttitudeCb(const long& p)
 bool PosVelAccAngleController::maxHeadingRateCb(const long& p)
 {
   max_head_rate_ = tbs::deg2rad(p);
+  return true;
+}
+
+bool PosVelAccAngleController::maxPositionErrorDown(const double& p)
+{
+  max_ep_down_ = p;
   return true;
 }
 

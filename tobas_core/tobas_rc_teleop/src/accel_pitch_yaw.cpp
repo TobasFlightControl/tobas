@@ -45,12 +45,13 @@ void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMod
     addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
     addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, -15, -kExpoScale, kExpoScale);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(tobas::topic::kAccelPitchYawCmd);
 }
 
-void AccelPitchYawController::reset(const tobas_msgs::Odometry& odom)
+void AccelPitchYawController::reset(const tobas_msgs::Odometry& odom, bool)
 {
   t_last_rcin_ = odom.header.stamp;
 
@@ -61,7 +62,7 @@ void AccelPitchYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
+void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
   // Update timestamp
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -76,7 +77,7 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   else  // Rotation mode
   {
     ax_filt_.setTargetPosition(0.);
-    pitch_filt_.setTargetPosition(remapDead(rcin.pitch, -max_pitch_, max_pitch_));
+    pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, pitch_expo_, -max_pitch_, max_pitch_));
   }
   ax_filt_.update(dt);
   pitch_filt_.update(dt);
@@ -154,6 +155,12 @@ bool AccelPitchYawController::horizontalAccelExpoCb(const long& p)
 bool AccelPitchYawController::verticalAccelExpoCb(const long& p)
 {
   ver_acc_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AccelPitchYawController::pitchExpoCb(const long& p)
+{
+  pitch_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 

@@ -20,8 +20,8 @@ public:
   virtual bool requireHeading() = 0;
 
   virtual void initialize(tobas::BaseNode* node, tobas::FlightMode mode) = 0;
-  virtual void reset(const tobas_msgs::Odometry& odom) = 0;
-  virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
+  virtual void reset(const tobas_msgs::Odometry& odom, bool landed) = 0;
+  virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) = 0;
 
 protected:
   static constexpr int kExpoScale = 100;

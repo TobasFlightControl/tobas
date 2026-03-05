@@ -44,11 +44,11 @@ void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::Fli
   cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::topic::kSpeedRollDpitchCmd);
 }
 
-void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
+void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&, bool)
 {
 }
 
-void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
+void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();

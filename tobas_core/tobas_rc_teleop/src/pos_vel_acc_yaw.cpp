@@ -37,6 +37,8 @@ void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode
   node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
   node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
+  node->addDynamicDoubleParam(
+    addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
   node->addDynamicIntParam(
     addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(
@@ -46,15 +48,19 @@ void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode
   cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(tobas::topic::kPosVelAccYawCmd);
 }
 
-void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
+void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom, bool landed)
 {
   t_last_rcin_ = odom.header.stamp;
+
   tar_pos_W_ = odom.frame.p;
-  tar_vel_G_.setZero();
+  if (landed) {
+    tar_pos_W_.z() -= max_ep_down_;
+  }
+
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -74,9 +80,16 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   tar_pos_W_ += tar_vel_W * dt;
   tar_yaw_ += yawrate * dt;
 
-  // 目標位置の偏差を制限
+  // 着陸状態ならば水平位置制御は行わない
   const auto& cur_pos_W = odom.frame.p;
-  tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
+  if (landed) {
+    tar_pos_W_.x() = cur_pos_W.x();
+    tar_pos_W_.y() = cur_pos_W.y();
+  }
+
+  // 着陸時に目標高度が下がりすぎるのを防ぐために偏差を制限
+  const auto& cur_z = cur_pos_W.z();
+  tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
 
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
@@ -106,6 +119,12 @@ bool PosVelAccYawController::maxVerticalVelocityCb(const double& p)
 bool PosVelAccYawController::maxHeadingRateCb(const long& p)
 {
   max_head_rate_ = tbs::deg2rad(p);
+  return true;
+}
+
+bool PosVelAccYawController::maxPositionErrorDown(const double& p)
+{
+  max_ep_down_ = p;
   return true;
 }
 

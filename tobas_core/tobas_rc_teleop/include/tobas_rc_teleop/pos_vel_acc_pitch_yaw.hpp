@@ -11,8 +11,6 @@ class PosVelAccPitchYawController : public BaseController
   using self = PosVelAccPitchYawController;
   using super = BaseController;
 
-  static constexpr double kMaxPositionError = 5.;  // [m]
-
 public:
   explicit PosVelAccPitchYawController();
 
@@ -22,8 +20,8 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const tobas_msgs::Odometry& odom, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   rclcpp::Time t_last_rcin_;
@@ -33,25 +31,27 @@ private:
   double tar_yaw_;
 
   // rosparams
-  double max_hor_vel_;    // [m/s]
-  double max_ver_vel_;    // [m/s]
-  double max_attitude_;   // [rad]
-  double max_head_rate_;  // [rad/s]
+  double max_hor_vel_;   // [m/s]
+  double max_ver_vel_;   // [m/s]
+  double max_pitch_;     // [rad]
+  double max_yaw_rate_;  // [rad/s]
+  double max_ep_down_;   // [m]
   double hor_vel_expo_;
   double ver_vel_expo_;
-  double atti_expo_;
-  double head_expo_;
+  double pitch_expo_;
+  double yaw_expo_;
 
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> cmd_pub_;
 
   bool maxHorizontalVelocityCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
-  bool maxAttitudeCb(const long& p);
-  bool maxHeadingRateCb(const long& p);
+  bool maxPitchCb(const long& p);
+  bool maxYawRateCb(const long& p);
+  bool maxPositionErrorDown(const double& p);
   bool horizontalVelocityExpoCb(const long& p);
   bool verticalVelocityExpoCb(const long& p);
-  bool attitudeExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
+  bool pitchExpoCb(const long& p);
+  bool yawExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

@@ -48,7 +48,7 @@ void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mod
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelYaw>(tobas::topic::kAccelYawCmd);
 }
 
-void AccelYawController::reset(const tobas_msgs::Odometry& odom)
+void AccelYawController::reset(const tobas_msgs::Odometry& odom, bool)
 {
   t_last_rcin_ = odom.header.stamp;
 
@@ -58,7 +58,7 @@ void AccelYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
+void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
   // Update timestamp
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();

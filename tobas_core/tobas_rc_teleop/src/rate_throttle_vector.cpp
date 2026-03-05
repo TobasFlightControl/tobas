@@ -42,11 +42,11 @@ void RateThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Flig
   cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottleVector>(tobas::topic::kRateThrotVectorCmd);
 }
 
-void RateThrottleVectorController::reset(const tobas_msgs::Odometry&)
+void RateThrottleVectorController::reset(const tobas_msgs::Odometry&, bool)
 {
 }
 
-void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
+void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottleVector>();
   cmd->header = rcin.header;

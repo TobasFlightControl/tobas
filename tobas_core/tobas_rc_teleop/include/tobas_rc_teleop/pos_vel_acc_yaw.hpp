@@ -11,8 +11,6 @@ class PosVelAccYawController : public BaseController
   using self = PosVelAccYawController;
   using super = BaseController;
 
-  static constexpr double kMaxPositionError = 5.;  // [m]
-
 public:
   explicit PosVelAccYawController();
 
@@ -22,8 +20,8 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const tobas_msgs::Odometry& odom, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
@@ -35,6 +33,7 @@ private:
   double max_hor_vel_;    // [m/s]
   double max_ver_vel_;    // [m/s]
   double max_head_rate_;  // [rad/s]
+  double max_ep_down_;    // [m]
   double hor_vel_expo_;
   double ver_vel_expo_;
   double head_expo_;
@@ -45,6 +44,7 @@ private:
   bool maxHorizontalVelocityCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
   bool maxHeadingRateCb(const long& p);
+  bool maxPositionErrorDown(const double& p);
   bool horizontalVelocityExpoCb(const long& p);
   bool verticalVelocityExpoCb(const long& p);
   bool headingExpoCb(const long& p);

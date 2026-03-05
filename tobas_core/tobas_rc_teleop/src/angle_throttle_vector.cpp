@@ -48,7 +48,7 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::topic::kAngleThrotVectorCmd);
 }
 
-void AngleThrottleVectorController::reset(const tobas_msgs::Odometry& odom)
+void AngleThrottleVectorController::reset(const tobas_msgs::Odometry& odom, bool)
 {
   t_last_rcin_ = odom.header.stamp;
 
@@ -59,7 +59,7 @@ void AngleThrottleVectorController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = yaw;
 }
 
-void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
+void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
 {
   // Update timestamp
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();

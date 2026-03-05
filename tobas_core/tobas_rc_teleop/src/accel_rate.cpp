@@ -48,11 +48,11 @@ void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
   rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::topic::kRateCmd);
 }
 
-void AccelRateController::reset(const tobas_msgs::Odometry&)
+void AccelRateController::reset(const tobas_msgs::Odometry&, bool)
 {
 }
 
-void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool)
 {
   // Horizontal acceleration & Attitude rate
   if (rcin.sub_mode)  // Translation mode

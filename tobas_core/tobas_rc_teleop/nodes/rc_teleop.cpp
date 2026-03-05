@@ -202,7 +202,7 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.yaw = tobas::kRCInputMid;
   idle_rcin.throttle = tobas::kRcInputMin;
 
-  controllers_[cur_mode_]->update(idle_rcin, *odom_);
+  controllers_[cur_mode_]->update(idle_rcin, *odom_, landed_->landed);
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
@@ -429,7 +429,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
       // RC入力が有効かつ実行可能な飛行モードだったら次のステージへ
       if (rcin->enable && isFlightModeApplicable(rcin->mode)) {
-        controllers_.at(rcin->mode)->reset(*odom_);
+        controllers_.at(rcin->mode)->reset(*odom_, landed_->landed);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
 
@@ -465,7 +465,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       // フライトモードの変更があった場合，適用可能な場合に限り変更する．
       // 適用できない場合は前のフライトモードを継続する．
       if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode)) {
-        controllers_[rcin->mode]->reset(*odom_);
+        controllers_[rcin->mode]->reset(*odom_, landed_->landed);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
       }
@@ -488,7 +488,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         }
       }
       else {  // それ以外は普通にコマンド送信
-        controllers_[cur_mode_]->update(*rcin, *odom_);
+        controllers_[cur_mode_]->update(*rcin, *odom_, landed_->landed);
       }
 
       // ディスアームコマンドの開始時刻を更新して抜ける
