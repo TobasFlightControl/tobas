@@ -105,8 +105,9 @@ void JointCommanderWidget::updateInternalDataStructures()
           case kdl::Joint::kTranslation:
             commander->setSuffix(" m");
             break;
+          case kdl::Joint::kFixed:
           default:
-            throw;
+            throw std::runtime_error("Unexpected joint command interface type: " + std::to_string((int)joint.cmd_iface));
         }
 
         tobas_msgs::msg::JointCommand cmd;
@@ -127,8 +128,9 @@ void JointCommanderWidget::updateInternalDataStructures()
           case kdl::Joint::kTranslation:
             commander->setSuffix(" m/s");
             break;
+          case kdl::Joint::kFixed:
           default:
-            throw;
+            throw std::runtime_error("Unexpected joint command interface type: " + std::to_string((int)joint.cmd_iface));
         }
 
         tobas_msgs::msg::JointCommand cmd;
@@ -149,8 +151,9 @@ void JointCommanderWidget::updateInternalDataStructures()
           case kdl::Joint::kTranslation:
             commander->setSuffix(" N");
             break;
+          case kdl::Joint::kFixed:
           default:
-            throw;
+            throw std::runtime_error("Unexpected joint command interface type: " + std::to_string((int)joint.cmd_iface));
         }
 
         tobas_msgs::msg::JointCommand cmd;

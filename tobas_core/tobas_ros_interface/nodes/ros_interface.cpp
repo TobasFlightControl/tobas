@@ -468,6 +468,7 @@ void RosInterfaceNode::actionHandleAccepted(
     case rclcpp_action::ResultCode::ABORTED:
       server_gh->abort(res.result);
       break;
+    case rclcpp_action::ResultCode::UNKNOWN:
     default:
       TOBAS_ERROR("Invalid action result code: ", (int)res.code);
       server_gh->abort(res.result);
