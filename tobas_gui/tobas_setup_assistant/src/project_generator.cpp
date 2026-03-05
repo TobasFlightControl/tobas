@@ -104,6 +104,11 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   return true;
 }
 
+void ProjectGenerator::setClearDynamicParams(bool flag)
+{
+  config_.clear_dynamic_params = flag;
+}
+
 inja::json ProjectGenerator::createTemplateData() const
 {
   inja::json tpl_data;
@@ -460,16 +465,16 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
-  if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
-  if (!createEmptyYaml(proj_paths_.obsvDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.obsvDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
-  if (!createEmptyYaml(proj_paths_.ctrlDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.ctrlDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
-  if (!createEmptyYaml(proj_paths_.rcTeleopDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.rcTeleopDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
 
