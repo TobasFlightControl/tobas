@@ -8,6 +8,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/path.hpp>
+#include <tobas_ros2_tools/package.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
 namespace gui
@@ -81,6 +82,14 @@ void SaveProjectDialog::onFilePathChanged()
   // ファイル名が設定されていなければならない
   if (file_name.isEmpty()) {
     warn_text_->setText("Please specify a file name.");
+    save_button_->setEnabled(false);
+    return;
+  }
+
+  // 拡張子を除いたパッケージ名がROSの慣習に沿っていなければならない
+  const auto pkg_name = QFileInfo(file_name).completeBaseName();
+  if (!ros2::isValidPackageName(pkg_name.toStdString())) {
+    warn_text_->setText("Project name is invalid. It must match: ^[a-z][a-z0-9_]*$");
     save_button_->setEnabled(false);
     return;
   }
