@@ -38,6 +38,7 @@ private:
   double roll_expo_;
   double yaw_expo_;
   double throt_expo_;
+  double thrust_angle_expo_;
 
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottleVector> cmd_pub_;
@@ -52,5 +53,6 @@ private:
   bool rollExpoCb(const long& p);
   bool yawExpoCb(const long& p);
   bool throttleExpoCb(const long& p);
+  bool thrustAngleExpoCb(const long& p);
 };
 }  // namespace tobas_rc_teleop

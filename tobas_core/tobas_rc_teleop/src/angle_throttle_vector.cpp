@@ -44,6 +44,8 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
   node->addDynamicIntParam(addMode("roll_expo", mode), &self::rollExpoCb, this, -30, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, -15, -kExpoScale, kExpoScale);
   node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
+  node->addDynamicIntParam(
+    addMode("thrust_angle_expo", mode), &self::thrustAngleExpoCb, this, 0, -kExpoScale, kExpoScale);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::topic::kAngleThrotVectorCmd);
 }
@@ -87,7 +89,8 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   if (rcin.sub_mode)  // Translation mode
   {
     pitch_filt_.setTargetPosition(0.);
-    thrust_angle_filt_.setTargetPosition(remapDead(rcin.pitch, -max_thrust_angle_, max_thrust_angle_));
+    thrust_angle_filt_.setTargetPosition(
+      expoRemapDead(rcin.pitch, thrust_angle_expo_, -max_thrust_angle_, max_thrust_angle_));
   }
   else  // Rotation mode
   {
@@ -161,6 +164,12 @@ bool AngleThrottleVectorController::yawExpoCb(const long& p)
 bool AngleThrottleVectorController::throttleExpoCb(const long& p)
 {
   throt_expo_ = static_cast<double>(p) / kExpoScale;
+  return true;
+}
+
+bool AngleThrottleVectorController::thrustAngleExpoCb(const long& p)
+{
+  thrust_angle_expo_ = static_cast<double>(p) / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop
