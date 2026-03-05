@@ -33,12 +33,12 @@ bool AngleThrottleController::requireHeading()
 
 void AngleThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
-  node->addDynamicIntParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 45, 0, 80, " deg");
-  node->addDynamicIntParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 360, 0, 720, " dps");
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
-  node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, -30, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 0, 0, kExpoScale);
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 5., 9, 1, 16, " deg");
+  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45., 8, 1, 16, " dps");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
+  node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5., 0, 0, 20);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::topic::kAngleThrotCmd);
 }
@@ -86,13 +86,13 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool AngleThrottleController::maxAttitudeCb(const long& p)
+bool AngleThrottleController::maxAttitudeCb(const double& p)
 {
   max_attitude_ = tbs::deg2rad(p);
   return true;
 }
 
-bool AngleThrottleController::maxAttitudeRateCb(const long& p)
+bool AngleThrottleController::maxAttitudeRateCb(const double& p)
 {
   const auto max_atti_rate = tbs::deg2rad(p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
@@ -100,27 +100,27 @@ bool AngleThrottleController::maxAttitudeRateCb(const long& p)
   return true;
 }
 
-bool AngleThrottleController::maxHeadingRateCb(const long& p)
+bool AngleThrottleController::maxHeadingRateCb(const double& p)
 {
   max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 
-bool AngleThrottleController::attitudeExpoCb(const long& p)
+bool AngleThrottleController::attitudeExpoCb(const double& p)
 {
-  atti_expo_ = static_cast<double>(p) / kExpoScale;
+  atti_expo_ = p / kExpoScale;
   return true;
 }
 
-bool AngleThrottleController::headingExpoCb(const long& p)
+bool AngleThrottleController::headingExpoCb(const double& p)
 {
-  head_expo_ = static_cast<double>(p) / kExpoScale;
+  head_expo_ = p / kExpoScale;
   return true;
 }
 
-bool AngleThrottleController::throttleExpoCb(const long& p)
+bool AngleThrottleController::throttleExpoCb(const double& p)
 {
-  throt_expo_ = static_cast<double>(p) / kExpoScale;
+  throt_expo_ = p / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

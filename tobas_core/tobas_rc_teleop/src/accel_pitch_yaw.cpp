@@ -38,15 +38,14 @@ void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMod
     addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5., 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicIntParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 90, 0, 180, " deg");
-  node->addDynamicIntParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 180, 0, 360, " dps");
-  node->addDynamicIntParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 180, 0, 360, " dps");
-  node->addDynamicIntParam(
-    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, -30, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(
-    addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, -15, -kExpoScale, kExpoScale);
+  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 10., 9, 1, 18, " deg");
+  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(
+    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5., -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 5., 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, 5., -3, -20, 20);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(tobas::topic::kAccelPitchYawCmd);
 }
@@ -128,45 +127,45 @@ bool AccelPitchYawController::maxVerticalAccelCb(const double& p)
   return true;
 }
 
-bool AccelPitchYawController::maxPitchCb(const long& p)
+bool AccelPitchYawController::maxPitchCb(const double& p)
 {
   max_pitch_ = tbs::deg2rad(p);
   return true;
 }
 
-bool AccelPitchYawController::maxPitchRateCb(const long& p)
+bool AccelPitchYawController::maxPitchRateCb(const double& p)
 {
   pitch_filt_.setMaxVelocity(tbs::deg2rad(p));
   return true;
 }
 
-bool AccelPitchYawController::maxYawRateCb(const long& p)
+bool AccelPitchYawController::maxYawRateCb(const double& p)
 {
   max_yaw_rate_ = tbs::deg2rad(p);
   return true;
 }
 
-bool AccelPitchYawController::horizontalAccelExpoCb(const long& p)
+bool AccelPitchYawController::horizontalAccelExpoCb(const double& p)
 {
-  hor_acc_expo_ = static_cast<double>(p) / kExpoScale;
+  hor_acc_expo_ = p / kExpoScale;
   return true;
 }
 
-bool AccelPitchYawController::verticalAccelExpoCb(const long& p)
+bool AccelPitchYawController::verticalAccelExpoCb(const double& p)
 {
-  ver_acc_expo_ = static_cast<double>(p) / kExpoScale;
+  ver_acc_expo_ = p / kExpoScale;
   return true;
 }
 
-bool AccelPitchYawController::pitchExpoCb(const long& p)
+bool AccelPitchYawController::pitchExpoCb(const double& p)
 {
-  pitch_expo_ = static_cast<double>(p) / kExpoScale;
+  pitch_expo_ = p / kExpoScale;
   return true;
 }
 
-bool AccelPitchYawController::yawExpoCb(const long& p)
+bool AccelPitchYawController::yawExpoCb(const double& p)
 {
-  yaw_expo_ = static_cast<double>(p) / kExpoScale;
+  yaw_expo_ = p / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

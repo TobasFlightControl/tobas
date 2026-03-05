@@ -34,10 +34,10 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;
 
-  bool maxAttitudeRateCb(const long& p);
-  bool maxHeadingRateCb(const long& p);
-  bool attitudeExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
-  bool throttleExpoCb(const long& p);
+  bool maxAttitudeRateCb(const double& p);
+  bool maxHeadingRateCb(const double& p);
+  bool attitudeExpoCb(const double& p);
+  bool headingExpoCb(const double& p);
+  bool throttleExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

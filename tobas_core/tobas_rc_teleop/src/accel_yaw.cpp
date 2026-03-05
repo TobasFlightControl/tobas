@@ -38,12 +38,11 @@ void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mod
     addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5., 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(
     addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
-  node->addDynamicIntParam(
-    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, -30, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(
-    addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 20., 9, 1, 18, " dps");
+  node->addDynamicDoubleParam(
+    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5., -6, -20, 20);
+  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5., 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelYaw>(tobas::topic::kAccelYawCmd);
 }
@@ -109,27 +108,27 @@ bool AccelYawController::maxVerticalAccelCb(const double& p)
   return true;
 }
 
-bool AccelYawController::maxHeadingRateCb(const long& p)
+bool AccelYawController::maxHeadingRateCb(const double& p)
 {
   max_head_rate_ = tbs::deg2rad(p);
   return true;
 }
 
-bool AccelYawController::horizontalAccelExpoCb(const long& p)
+bool AccelYawController::horizontalAccelExpoCb(const double& p)
 {
-  hor_acc_expo_ = static_cast<double>(p) / kExpoScale;
+  hor_acc_expo_ = p / kExpoScale;
   return true;
 }
 
-bool AccelYawController::verticalAccelExpoCb(const long& p)
+bool AccelYawController::verticalAccelExpoCb(const double& p)
 {
-  ver_acc_expo_ = static_cast<double>(p) / kExpoScale;
+  ver_acc_expo_ = p / kExpoScale;
   return true;
 }
 
-bool AccelYawController::headingExpoCb(const long& p)
+bool AccelYawController::headingExpoCb(const double& p)
 {
-  head_expo_ = static_cast<double>(p) / kExpoScale;
+  head_expo_ = p / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

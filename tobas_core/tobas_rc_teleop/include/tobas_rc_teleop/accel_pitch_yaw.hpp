@@ -46,12 +46,12 @@ private:
   bool maxHorizontalAccelCb(const double& p);
   bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxPitchCb(const long& p);
-  bool maxPitchRateCb(const long& p);
-  bool maxYawRateCb(const long& p);
-  bool horizontalAccelExpoCb(const long& p);
-  bool verticalAccelExpoCb(const long& p);
-  bool pitchExpoCb(const long& p);
-  bool yawExpoCb(const long& p);
+  bool maxPitchCb(const double& p);
+  bool maxPitchRateCb(const double& p);
+  bool maxYawRateCb(const double& p);
+  bool horizontalAccelExpoCb(const double& p);
+  bool verticalAccelExpoCb(const double& p);
+  bool pitchExpoCb(const double& p);
+  bool yawExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

@@ -36,16 +36,16 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
   node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
-  node->addDynamicIntParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 90, 0, 180, " deg");
-  node->addDynamicIntParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 180, 0, 360, " dps");
+  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 10., 9, 1, 18, " deg");
+  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 20., 9, 1, 18, " dps");
   node->addDynamicDoubleParam(
     addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
-  node->addDynamicIntParam(
-    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, -30, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(
-    addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("heading_expo", mode), &self::headingExpoCb, this, -15, -kExpoScale, kExpoScale);
+  node->addDynamicDoubleParam(
+    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 5., -6, -20, 20);
+  node->addDynamicDoubleParam(
+    addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 5., 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5., 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5., -3, -20, 20);
 
   pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(tobas::topic::kPosVelAccCmd);
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
@@ -157,13 +157,13 @@ bool PosVelAccAngleController::maxVerticalVelocityCb(const double& p)
   return true;
 }
 
-bool PosVelAccAngleController::maxAttitudeCb(const long& p)
+bool PosVelAccAngleController::maxAttitudeCb(const double& p)
 {
   max_attitude_ = tbs::deg2rad(p);
   return true;
 }
 
-bool PosVelAccAngleController::maxHeadingRateCb(const long& p)
+bool PosVelAccAngleController::maxHeadingRateCb(const double& p)
 {
   max_head_rate_ = tbs::deg2rad(p);
   return true;
@@ -175,27 +175,27 @@ bool PosVelAccAngleController::maxPositionErrorDown(const double& p)
   return true;
 }
 
-bool PosVelAccAngleController::horizontalVelocityExpoCb(const long& p)
+bool PosVelAccAngleController::horizontalVelocityExpoCb(const double& p)
 {
-  hor_vel_expo_ = static_cast<double>(p) / kExpoScale;
+  hor_vel_expo_ = p / kExpoScale;
   return true;
 }
 
-bool PosVelAccAngleController::verticalVelocityExpoCb(const long& p)
+bool PosVelAccAngleController::verticalVelocityExpoCb(const double& p)
 {
-  ver_vel_expo_ = static_cast<double>(p) / kExpoScale;
+  ver_vel_expo_ = p / kExpoScale;
   return true;
 }
 
-bool PosVelAccAngleController::attitudeExpoCb(const long& p)
+bool PosVelAccAngleController::attitudeExpoCb(const double& p)
 {
-  atti_expo_ = static_cast<double>(p) / kExpoScale;
+  atti_expo_ = p / kExpoScale;
   return true;
 }
 
-bool PosVelAccAngleController::headingExpoCb(const long& p)
+bool PosVelAccAngleController::headingExpoCb(const double& p)
 {
-  head_expo_ = static_cast<double>(p) / kExpoScale;
+  head_expo_ = p / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

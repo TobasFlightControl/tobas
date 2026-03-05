@@ -44,9 +44,9 @@ private:
   bool maxHorizontalAccelCb(const double& p);
   bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxHeadingRateCb(const long& p);
-  bool horizontalAccelExpoCb(const long& p);
-  bool verticalAccelExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
+  bool maxHeadingRateCb(const double& p);
+  bool horizontalAccelExpoCb(const double& p);
+  bool verticalAccelExpoCb(const double& p);
+  bool headingExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

@@ -33,13 +33,13 @@ bool SpeedRollDeltaPitchController::requireHeading()
 
 void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::FlightMode mode)
 {
-  node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 0, 20, " m/s");
-  node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 0, 80, " m/s");
-  node->addDynamicIntParam(addMode("max_roll", mode), &self::maxRollCb, this, 90, 0, 180, " deg");
-  node->addDynamicIntParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, 45, 0, 90, " deg");
-  node->addDynamicIntParam(addMode("speed_expo", mode), &self::speedExpoCb, this, 0, 0, kExpoScale);
-  node->addDynamicIntParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 0, -kExpoScale, kExpoScale);
-  node->addDynamicIntParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 0, -kExpoScale, kExpoScale);
+  node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 1, 20, " m/s");
+  node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 1, 80, " m/s");
+  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 10., 9, 1, 18, " deg");
+  node->addDynamicDoubleParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, 5., 9, 1, 18, " deg");
+  node->addDynamicDoubleParam(addMode("speed_expo", mode), &self::speedExpoCb, this, 5., 0, 0, 20);
+  node->addDynamicDoubleParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 5., 0, -20, 20);
+  node->addDynamicDoubleParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 5., 0, -20, 20);
 
   cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::topic::kSpeedRollDpitchCmd);
 }
@@ -87,33 +87,33 @@ bool SpeedRollDeltaPitchController::maxSpeedCb(const double& p)
   return true;
 }
 
-bool SpeedRollDeltaPitchController::maxRollCb(const long& p)
+bool SpeedRollDeltaPitchController::maxRollCb(const double& p)
 {
   max_roll_ = tbs::deg2rad(p);
   return true;
 }
 
-bool SpeedRollDeltaPitchController::maxDeltaPitchCb(const long& p)
+bool SpeedRollDeltaPitchController::maxDeltaPitchCb(const double& p)
 {
   max_dpitch_ = tbs::deg2rad(p);
   return true;
 }
 
-bool SpeedRollDeltaPitchController::speedExpoCb(const long& p)
+bool SpeedRollDeltaPitchController::speedExpoCb(const double& p)
 {
-  speed_expo_ = static_cast<double>(p) / kExpoScale;
+  speed_expo_ = p / kExpoScale;
   return true;
 }
 
-bool SpeedRollDeltaPitchController::rollExpoCb(const long& p)
+bool SpeedRollDeltaPitchController::rollExpoCb(const double& p)
 {
-  roll_expo_ = static_cast<double>(p) / kExpoScale;
+  roll_expo_ = p / kExpoScale;
   return true;
 }
 
-bool SpeedRollDeltaPitchController::pitchExpoCb(const long& p)
+bool SpeedRollDeltaPitchController::pitchExpoCb(const double& p)
 {
-  pitch_expo_ = static_cast<double>(p) / kExpoScale;
+  pitch_expo_ = p / kExpoScale;
   return true;
 }
 }  // namespace tobas_rc_teleop

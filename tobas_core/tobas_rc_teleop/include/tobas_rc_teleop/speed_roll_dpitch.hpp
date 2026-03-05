@@ -38,10 +38,10 @@ private:
 
   bool minSpeedCb(const double& p);
   bool maxSpeedCb(const double& p);
-  bool maxRollCb(const long& p);
-  bool maxDeltaPitchCb(const long& p);
-  bool speedExpoCb(const long& p);
-  bool rollExpoCb(const long& p);
-  bool pitchExpoCb(const long& p);
+  bool maxRollCb(const double& p);
+  bool maxDeltaPitchCb(const double& p);
+  bool speedExpoCb(const double& p);
+  bool rollExpoCb(const double& p);
+  bool pitchExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

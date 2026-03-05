@@ -43,10 +43,10 @@ private:
 
   bool maxHorizontalVelocityCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
-  bool maxHeadingRateCb(const long& p);
+  bool maxHeadingRateCb(const double& p);
   bool maxPositionErrorDown(const double& p);
-  bool horizontalVelocityExpoCb(const long& p);
-  bool verticalVelocityExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
+  bool horizontalVelocityExpoCb(const double& p);
+  bool verticalVelocityExpoCb(const double& p);
+  bool headingExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop
