@@ -1,6 +1,6 @@
 std_msgs/Header header
 
-tobas_kdl_msgs/Frame frame  # The transformation from the global frame to the vehicle frame
+tobas_kdl_msgs/Frame frame  # The transformation from the global frame to the body frame
 tobas_kdl_msgs/Twist twist  # The 6D twist expressed in the body frame
 tobas_kdl_msgs/Accel accel  # The 6D accel expressed in the body frame
 
