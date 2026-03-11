@@ -25,6 +25,8 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
+#include "tobas_mission_execution_mc/stop_trajectory_generator.hpp"
+
 using namespace std::chrono_literals;
 
 namespace tobas
@@ -120,7 +122,15 @@ private:
   void getStaticRosParams();
   void publishCommand(const rclcpp::Time& stamp);
   bool armRotors(bool arming);
-  bool checkCurrentStatus(const GoalHandlePtr& gh, const ResultPtr& res);
+
+  /* 現在のコマンドから滑らかに停止させる． */
+  void brake();
+
+  /**
+   * @brief 外部からの要求（キャンセル，上書きなど）に応じて適切に終了処理を行う．
+   * @return bool ミッション継続可能かどうか
+   */
+  bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
 
   bool executeWaypoint(const Waypoint& goal, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res);
@@ -257,12 +267,85 @@ bool MulticopterMissionExecutorNode::armRotors(bool arming)
   return true;
 }
 
-bool MulticopterMissionExecutorNode::checkCurrentStatus(const GoalHandlePtr& gh, const ResultPtr& res)
+void MulticopterMissionExecutorNode::brake()
 {
+  if (!command_) {
+    TOBAS_WARN("Cannot brake because the latest command is nuknown.");
+    return;
+  }
+
+  // 軌道を生成
+  const Eigen::Vector2d pxy0(command_->pos.x(), command_->pos.y());
+  const Eigen::Vector2d vxy0(command_->vel.x(), command_->vel.y());
+  const Eigen::Vector2d axy0(command_->acc.x(), command_->acc.y());
+  const auto vxy0_norm = vxy0.norm();
+  const auto axy0_norm = axy0.norm();
+  const auto dir_xy = vxy0_norm > 0. ? (vxy0 / vxy0_norm).eval() : Eigen::Vector2d::Zero();
+  const StopTrajectory traj_xy(
+    0., vxy0_norm, axy0_norm * math::sign(vxy0.dot(axy0)), wp_cfg_.max_hor_acc, wp_cfg_.max_hor_jerk);
+
+  const auto pz0 = command_->pos.z();
+  const auto vz0 = command_->vel.z();
+  const auto az0 = command_->acc.z();
+  const auto vz0_norm = std::abs(vz0);
+  const auto az0_norm = std::abs(az0);
+  const auto dir_z = math::sign(vz0);
+  const StopTrajectory traj_z(0., vz0_norm, az0_norm * math::sign(vz0 * az0), wp_cfg_.max_ver_acc, wp_cfg_.max_ver_jerk);
+
+  // 所要時間を取得
+  const auto duration = std::max(traj_xy.duration(), traj_z.duration());
+  if (duration == 0.) {
+    return;
+  }
+  TOBAS_INFO("The vehicle will stop in ", duration, " seconds.");
+
+  // 軌道を発行
+  const auto start_time = now();
+  rclcpp::Rate rate(kCommandRate, get_clock());
+  while (rclcpp::ok()) {
+    // 開始からの経過時間を計算
+    const auto cur_time = now();
+    const auto t = (cur_time - start_time).seconds();
+
+    // コマンドを発行し終えたら終了
+    if (t > duration) {
+      return;
+    }
+
+    // 現在の時刻における目標状態を取得
+    const auto traj_point_xy = traj_xy.get(t);
+    const Eigen::Vector2d pxy = pxy0 + traj_point_xy.p * dir_xy;
+    const Eigen::Vector2d vxy = traj_point_xy.v * dir_xy;
+    const Eigen::Vector2d axy = traj_point_xy.a * dir_xy;
+    const auto traj_point_z = traj_z.get(t);
+    const auto pz = pz0 + traj_point_z.p * dir_z;
+    const auto vz = traj_point_z.v * dir_z;
+    const auto az = traj_point_z.a * dir_z;
+    command_->pos.set(pxy.x(), pxy.y(), pz);
+    command_->vel.set(vxy.x(), vxy.y(), vz);
+    command_->acc.set(axy.x(), axy.y(), az);
+
+    // コマンドを発行
+    publishCommand(cur_time);
+
+    rate.sleep();
+  }
+}
+
+bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res)
+{
+  // アクション中止の場合は滑らかに停止して終了
+  if (gh->is_canceling()) {
+    brake();
+    gh->canceled(res);
+    return false;
+  }
+
   switch (status_) {
     case kNoProblem:
       return true;
     case kMissionSuperseded:
+      brake();
       res->error_code.data = tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED;
       res->error_message = "The mission was superseded by a new mission.";
       gh->abort(res);
@@ -341,7 +424,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   const auto max_head_acc = goal.max_heading_accel > 0. ? goal.max_heading_accel : wp_cfg_.max_head_acc;
 
   // 軌道を生成
-  Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
+  const Eigen::Vector2d start_xy(start_pos.x(), start_pos.y());
   const Eigen::Vector2d goal_xy(goal_pos.x(), goal_pos.y());
   const Eigen::Vector2d xy_diff = goal_xy - start_xy;  // XYの軌道を別々に生成すると最短経路を通らないことに注意
   const auto xy_dist = xy_diff.norm();  // [m]
@@ -374,7 +457,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // ミッション継続可能かどうかを確認
-    if (!checkCurrentStatus(gh, res)) {
+    if (!handleExternalRequest(gh, res)) {
       return false;
     }
 
@@ -416,20 +499,8 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     command_->acc.set(axy.x(), axy.y(), traj_point_z.a);
     command_->rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, algo::wrapPi(start_rot.yaw + traj_yaw.get(t).p));
 
-    // TODO: アクション中止の場合は滑らかに停止
-    if (gh->is_canceling()) {
-      command_->vel.setZero();
-      command_->acc.setZero();
-    }
-
     // コマンドを発行
     publishCommand(cur_time);
-
-    // アクション中止の場合は終了
-    if (gh->is_canceling()) {
-      gh->canceled(res);
-      return false;
-    }
 
     rate.sleep();
   }
@@ -504,7 +575,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // ミッション継続可能かどうかを確認
-    if (!checkCurrentStatus(gh, res)) {
+    if (!handleExternalRequest(gh, res)) {
       return false;
     }
 
@@ -536,20 +607,8 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     command_->acc.set(0., 0., traj_point_z.a);
     command_->rot.set(0., 0., start_yaw);
 
-    // TODO: アクション中止の場合は滑らかに停止
-    if (gh->is_canceling()) {
-      command_->vel.setZero();
-      command_->acc.setZero();
-    }
-
     // コマンドを発行
     publishCommand(cur_time);
-
-    // アクション中止の場合は終了
-    if (gh->is_canceling()) {
-      gh->canceled(res);
-      return false;
-    }
 
     rate.sleep();
   }
@@ -590,7 +649,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // ミッション継続可能かどうかを確認
-    if (!checkCurrentStatus(gh, res)) {
+    if (!handleExternalRequest(gh, res)) {
       return false;
     }
 
@@ -603,20 +662,8 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     command_->acc.setZero();
     command_->rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, start_rot.yaw);
 
-    // TODO: アクション中止の場合は滑らかに停止
-    if (gh->is_canceling()) {
-      command_->vel.setZero();
-      command_->acc.setZero();
-    }
-
     // コマンドを発行
     publishCommand(cur_time);
-
-    // アクション中止の場合は終了
-    if (gh->is_canceling()) {
-      gh->canceled(res);
-      return false;
-    }
 
     // 最新のIMU時刻を取得
     const auto imu_time = odom_->header.stamp;  // Copy
@@ -882,6 +929,8 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
 rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const GoalHandlePtr&)
 {
+  TOBAS_INFO("Mission cancellation has been requested.");
+
   if (!is_executing_) {
     TOBAS_ERROR("No mission is in execution.");
     return rclcpp_action::CancelResponse::REJECT;
@@ -915,7 +964,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
   for (const auto& [idx, item] : std::views::enumerate(goal->items)) {
     TOBAS_INFO("Start mission No. ", idx);
 
-    // Publish the current mission #
+    // Publish the current mission number
     const auto feedback = std::make_shared<Action::Feedback>();
     feedback->current_index = idx;
     gh->publish_feedback(feedback);
