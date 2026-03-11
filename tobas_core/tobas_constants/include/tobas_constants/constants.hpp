@@ -55,6 +55,7 @@ static constexpr char kHeartbeatTopic[] = "heartbeat";
 static constexpr char kRemoteConnectionTopic[] = "remote_connection";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
+static constexpr char kRepulsiveAccelerationTopic[] = "rep_acc";
 // Low Command
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";

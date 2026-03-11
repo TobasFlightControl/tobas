@@ -25,6 +25,7 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/repulsive_acceleration.hpp>
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 #include "tobas_planar_multi_controller/translational_eom.hpp"
@@ -85,6 +86,9 @@ private:
   kdl::Vector tar_dgyro_;                             // 目標角加速度 (機体座標系)
   double tar_thrust_;                                 // 目標推力 (機体座標系)
 
+  // object
+  tobas_msgs::RepulsiveAcceleration::ConstSharedPtr rep_acc_;  // 障害物反力加速度
+
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::MulticopterControllerFeedback> feedback_pub_;
@@ -102,6 +106,7 @@ private:
   ros2::SubscriberPtr<tobas_command_msgs::AccelYaw> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AngleThrottle> angle_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::RateThrottle> rate_cmd_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RepulsiveAcceleration> rep_acc_sub_;
 
   // Timers
   ros2::TimerPtr check_topics_timer_;
@@ -166,6 +171,7 @@ private:
   void accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd);
   void rateCommandCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd);
+  void repAccCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& rep_acc);
 
   // Timer callbacks
   void checkTopicsTimerCb();
@@ -249,6 +255,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   acc_cmd_sub_ = createSubscriber(kAccelYawCmdTopic, &self::accelCommandCb, this);
   angle_cmd_sub_ = createSubscriber(kAngleThrotCmdTopic, &self::angleCommandCb, this);
   rate_cmd_sub_ = createSubscriber(kRateThrotCmdTopic, &self::rateCommandCb, this);
+  rep_acc_sub_ = createSubscriber(kRepulsiveAccelerationTopic, &self::repAccCb, this);
 
   // Register timers
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -824,6 +831,11 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
   // コマンドを更新
   tar_gyro_ = std::make_shared<kdl::Vector>(rate_cmd->rate);
   tar_thrust_ = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
+}
+
+void ControllerNode::repAccCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& rep_acc)
+{
+  rep_acc_ = rep_acc;
 }
 
 void ControllerNode::checkTopicsTimerCb()
