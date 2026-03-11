@@ -24,6 +24,8 @@ public:
 
   static inline Euler Zero();
 
+  inline Euler clone() const;
+
   inline void setZero();
 
   inline void set(double roll, double pitch, double yaw);
@@ -68,6 +70,11 @@ inline Euler::Euler(const Rotation& rot)
 inline Euler Euler::Zero()
 {
   return Euler(0., 0., 0.);
+}
+
+inline Euler Euler::clone() const
+{
+  return *this;
 }
 
 inline void Euler::setZero()

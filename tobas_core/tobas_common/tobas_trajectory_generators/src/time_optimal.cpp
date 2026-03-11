@@ -20,6 +20,7 @@ TimeOptimalTrajectory::TimeOptimalTrajectory(double p0, double pf, double max_je
 
   // 開始位置と目標位置が一致している場合は例外
   if (pd_ < EPS) {
+    t1_ = t2_ = t3_ = t4_ = 0.;
     return;
   }
 

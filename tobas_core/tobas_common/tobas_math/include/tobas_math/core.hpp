@@ -6,21 +6,21 @@ namespace math
 {
 /* 2乗する． */
 template <typename T>
-inline constexpr T sqr(const T& x)
+inline constexpr T sqr(const T& x) noexcept
 {
   return x * x;
 }
 
 /* 3乗する． */
 template <typename T>
-inline constexpr T cube(const T& x)
+inline constexpr T cube(const T& x) noexcept
 {
   return x * x * x;
 }
 
 /* 4乗する． */
 template <typename T>
-inline constexpr T quar(const T& x)
+inline constexpr T quar(const T& x) noexcept
 {
   const auto x2 = sqr(x);
   return sqr(x2);
@@ -28,7 +28,7 @@ inline constexpr T quar(const T& x)
 
 /* 4乗根を計算する． */
 template <typename T>
-inline constexpr T quart(const T& x)
+inline constexpr T quart(const T& x) noexcept
 {
   const auto sqrt_x = sqrt(x);
   return sqrt(sqrt_x);
@@ -36,14 +36,14 @@ inline constexpr T quart(const T& x)
 
 /* 符号を返す．正なら+1，負なら-1，ゼロなら0． */
 template <typename T>
-inline constexpr int sign(const T& x)
+inline constexpr int sign(const T& x) noexcept
 {
   return (x > 0) - (x < 0);
 }
 
 /* 整数の累乗を計算する． */
 template <typename T>
-inline constexpr T ipow(T base, size_t exp)
+inline constexpr T ipow(T base, size_t exp) noexcept
 {
   if (exp == 0) {
     return 1;
@@ -59,26 +59,26 @@ inline constexpr T ipow(T base, size_t exp)
 
 /* xを[a, b]の範囲から[c, d]の範囲に投影する． */
 template <typename T>
-inline T remap(T x, T a, T b, T c, T d)
+inline T remap(T x, T a, T b, T c, T d) noexcept
 {
   return a == b ? (c + d) / 2 : (c * (b - x) + d * (x - a)) / (b - a);
 }
 
 /* 与えられた単位で切り上げ． */
-inline double ceil(double x, double unit = 1.)
+inline double ceil(double x, double unit = 1.) noexcept
 {
   return std::ceil(x / unit) * unit;
 }
 
 /* 与えられた単位で切り捨て． */
-inline double floor(double x, double unit = 1.)
+inline double floor(double x, double unit = 1.) noexcept
 {
   return std::floor(x / unit) * unit;
 }
 
 /* 与えられた数を，2nで割った余りを変えずに[-n, n)の範囲に変換する． */
 template <typename T>
-T wrap(T x, T n)
+T wrap(T x, T n) noexcept
 {
   const auto n2 = 2 * n;
 

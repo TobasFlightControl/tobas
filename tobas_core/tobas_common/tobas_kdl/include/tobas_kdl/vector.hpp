@@ -217,7 +217,7 @@ inline void Vector::z(double _z)
 
 inline Vector Vector::clone() const
 {
-  return Vector(data);
+  return *this;
 }
 
 inline void Vector::set(double _x, double _y, double _z)
