@@ -41,6 +41,7 @@ private:
 
   struct Params
   {
+    std::string topic;
     std::string gpu_ray_topic;
     int gpu_ray_update_rate;
     int update_rate;
@@ -115,11 +116,12 @@ void HesaiLidarPlugin::Configure(
 
   // ros interfaces
   point_cloud_publisher_ =
-    createPublisher<sensor_msgs::msg::PointCloud2>(kHesaiLidarTopic, kHesaiLatch, kHesaiReliable, kHesaiQueueSize);
+    createPublisher<sensor_msgs::msg::PointCloud2>(lidar_params_.topic, kHesaiLatch, kHesaiReliable, kHesaiQueueSize);
 }
 
 void HesaiLidarPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
+  getSdfParam(sdf, "topic", lidar_params_.topic);
   getSdfParam(sdf, "gpuRayTopic", lidar_params_.gpu_ray_topic);
   getSdfParam(sdf, "gpuRayUpdateRate", lidar_params_.gpu_ray_update_rate);
   getSdfParam(sdf, "updateRate", lidar_params_.update_rate);

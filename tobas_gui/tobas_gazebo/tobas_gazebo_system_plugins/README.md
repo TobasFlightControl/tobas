@@ -91,3 +91,90 @@ LiDARに搭載されているIMUのデータを模擬したい場合はtobas_imu
 - \<updateRate\>10\</updateRate\>, 本当のlidarのupdate rate f_1を指定する．
 - \<horizontalSamples\>900\</horizontalSamples\>, gazebo gpu_lidar pluginのところで指定したものと一致させる．
 - \<verticalSamples\>128\</verticalSamples\>, gazebo gpu_lidar pluginのところで指定したものと一致させる．
+
+### 2台lidarを使用したい場合
+
+~.xacroを以下のようにする．
+
+```xml
+<gazebo reference="fmu">
+    <sensor name='HesaiJT128' type='gpu_lidar'>
+        <pose>0 0 1 0 0 0</pose>
+        <always_on>1</always_on>
+        <visualize>1</visualize>
+        <topic>f450/lidar</topic>
+        <update_rate>100</update_rate>
+        <ray>
+            <scan>
+                <horizontal>
+                    <samples>900</samples>
+                    <resolution>1</resolution>
+                    <min_angle>0</min_angle>
+                    <max_angle>6.283</max_angle>
+                </horizontal>
+                <vertical>
+                    <samples>128</samples>
+                    <resolution>1</resolution>
+                    <min_angle>-0.0872</min_angle>
+                    <max_angle>1.57</max_angle>
+                </vertical>
+            </scan>
+            <range>
+                <min>0.1</min>
+                <max>60.0</max>
+                <resolution>0.001</resolution>
+            </range>
+        </ray>
+    </sensor>
+</gazebo>
+<gazebo reference="fmu">
+    <sensor name='HesaiJT128_2' type='gpu_lidar'>
+        <pose>0 0 0 3.14 0 0</pose>
+        <always_on>1</always_on>
+        <visualize>1</visualize>
+        <topic>f450/lidar2</topic>
+        <update_rate>100</update_rate>
+        <ray>
+            <scan>
+                <horizontal>
+                    <samples>900</samples>
+                    <resolution>1</resolution>
+                    <min_angle>0</min_angle>
+                    <max_angle>6.283</max_angle>
+                </horizontal>
+                <vertical>
+                    <samples>128</samples>
+                    <resolution>1</resolution>
+                    <min_angle>-0.0872</min_angle>
+                    <max_angle>1.57</max_angle>
+                </vertical>
+            </scan>
+            <range>
+                <min>0.1</min>
+                <max>60.0</max>
+                <resolution>0.001</resolution>
+            </range>
+        </ray>
+    </sensor>
+</gazebo>
+<gazebo>
+    <plugin filename="tobas_gazebo_hesai_lidar_plugin" name="gazebo::HesaiLidarPlugin">
+        <topic>/f450/hesai_lidar</topic>
+        <gpuRayTopic>/f450/lidar/points</gpuRayTopic>
+        <gpuRayUpdateRate>100</gpuRayUpdateRate>
+        <updateRate>10</updateRate>
+        <horizontalSamples>900</horizontalSamples>
+        <verticalSamples>128</verticalSamples>
+    </plugin>
+</gazebo>
+<gazebo>
+    <plugin filename="tobas_gazebo_hesai_lidar_plugin" name="gazebo::HesaiLidarPlugin">
+        <topic>/f450/hesai_lidar2</topic>
+        <gpuRayTopic>/f450/lidar2/points</gpuRayTopic>
+        <gpuRayUpdateRate>100</gpuRayUpdateRate>
+        <updateRate>10</updateRate>
+        <horizontalSamples>900</horizontalSamples>
+        <verticalSamples>128</verticalSamples>
+    </plugin>
+</gazebo>
+```
