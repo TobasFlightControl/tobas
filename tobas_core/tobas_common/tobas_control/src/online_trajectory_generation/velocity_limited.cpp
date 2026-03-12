@@ -17,20 +17,14 @@ void VelocityLimitedOnlineTrajectoryGenerator::setMaxVelocity(double max_vel)
   max_vel_ = max_vel;
 }
 
-void VelocityLimitedOnlineTrajectoryGenerator::update(double dt, double cur_pos)
+void VelocityLimitedOnlineTrajectoryGenerator::update(double dt)
 {
   assert(std::isfinite(max_vel_));
-  assert(max_vel_ > 0);
   assert(dt >= 0);
 
   const auto max_delta = max_vel_ * dt;
-  const auto delta = std::clamp(tar_pos_ - cur_pos, -max_delta, max_delta);
-  traj_pos_ = cur_pos + delta;
-}
-
-void VelocityLimitedOnlineTrajectoryGenerator::update(double dt)
-{
-  update(dt, traj_pos_);
+  const auto delta = std::clamp(tar_pos_ - traj_pos_, -max_delta, max_delta);
+  traj_pos_ += delta;
 }
 
 void VelocityLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double pos)

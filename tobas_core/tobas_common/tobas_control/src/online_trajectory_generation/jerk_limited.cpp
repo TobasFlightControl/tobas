@@ -66,7 +66,7 @@ void JerkLimitedOnlineTrajectoryGenerator::setMaxJerk(double max_jerk)
   u_ = max_jerk;
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel, double cur_acc)
+void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
 {
   assert(std::isfinite(v_min_));
   assert(std::isfinite(v_max_));
@@ -78,9 +78,9 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt, double cur_pos, dou
   assert(u_ > 0);
   assert(dt >= 0);
 
-  const auto ek = (cur_pos - tar_pos_) / u_;
-  const auto edk = (cur_vel - tar_vel_) / u_;
-  const auto eddk = (cur_acc - tar_acc_) / u_;
+  const auto ek = (traj_pos_ - tar_pos_) / u_;
+  const auto edk = (traj_vel_ - tar_vel_) / u_;
+  const auto eddk = (traj_acc_ - tar_acc_) / u_;
 
   const auto ed_min = (v_min_ - tar_vel_) / u_;
   const auto ed_max = (v_max_ - tar_vel_) / u_;
@@ -110,18 +110,14 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt, double cur_pos, dou
   const auto uk = std::max(u_v(ed_min, u_, edd_min, edd_max, edk, eddk), tmp);
 
   // Compute filter output
-  traj_acc_ = cur_acc + dt * uk;
-  traj_vel_ = cur_vel + dt / 2 * (traj_acc_ + cur_acc);
-  traj_pos_ = cur_pos + dt / 2 * (traj_vel_ + cur_vel);
+  const auto next_acc = traj_acc_ + dt * uk;
+  const auto next_vel = traj_vel_ + dt / 2 * (traj_acc_ + next_acc);
+  const auto next_pos = traj_pos_ + dt / 2 * (traj_vel_ + next_vel);
 
-  // Clamp output
-  traj_vel_ = std::clamp(traj_vel_, v_min_, v_max_);
-  traj_acc_ = std::clamp(traj_acc_, a_min_, a_max_);
-}
-
-void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
-{
-  update(dt, traj_pos_, traj_vel_, traj_acc_);
+  // Update trajectory point
+  traj_acc_ = std::clamp(next_acc, a_min_, a_max_);
+  traj_vel_ = std::clamp(next_vel, v_min_, v_max_);
+  traj_pos_ = next_pos;
 }
 
 void JerkLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double pos, double vel, double acc)

@@ -27,10 +27,6 @@ public:
   void setMaxAcceleration(double max_acc);
   void setMaxJerk(double max_jerk);
 
-  /* 状態フィードバックを含む更新． */
-  void update(double dt, double cur_pos, double cur_vel, double cur_acc);
-
-  /* 状態フィードバックを含まない更新． */
   void update(double dt);
 
   void resetCurrentTrajectoryPoint(double pos, double vel, double acc);

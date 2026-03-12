@@ -15,10 +15,6 @@ public:
 
   void setMaxVelocity(double max_vel);
 
-  /* 状態フィードバックを含む更新． */
-  void update(double dt, double cur_pos);
-
-  /* 状態フィードバックを含まない更新． */
   void update(double dt);
 
   void resetCurrentTrajectoryPoint(double pos);
