@@ -1,12 +1,8 @@
-#include <bit>
-
 #include <gz/transport/Node.hh>
 
 #include <tobas_gazebo_tools/time.hpp>
-#include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
-#include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
