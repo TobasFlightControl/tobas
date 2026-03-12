@@ -66,6 +66,8 @@ void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msg
   // Horizontal acceleration
   ax_filt_.setTargetPosition(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
   ay_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
+  ax_filt_.update(dt);
+  ay_filt_.update(dt);
 
   // Vertical acceleration
   const auto az = expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_);
