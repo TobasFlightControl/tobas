@@ -13,10 +13,9 @@ public:
   inline double getTrajectoryPosition() const;
   inline double getTrajectoryVelocity() const;
 
-  void setTargetPosition(double tar_pos);
-  void setTargetVelocity(double tar_vel);
+  inline void setTargetPosition(double tar_pos);
+  inline void setTargetVelocity(double tar_vel);
 
-  void setMaxVelocity(double max_vel);
   void setMaxAccel(double max_acc);
 
   void update(double dt);
@@ -24,13 +23,6 @@ public:
   void resetCurrentTrajectoryPoint(double pos, double vel);
 
 private:
-  enum State
-  {
-    kFirstBang,
-    kSecondBang,
-    kDone,
-  } state_;
-
   // Trajectory Point
   double p_ = 0.;
   double v_ = 0.;
@@ -40,20 +32,7 @@ private:
   double vf_ = 0.;
 
   // Limit
-  double vm_ = NAN;
   double am_ = NAN;
-
-  // Command
-  double sign_ = 0.;
-
-  double switchingCurve() const;
-  int controlSign() const;
-  bool hasCrossedSwitchingCurve() const;
-
-  bool isCloseToTarget(double dt);
-  void fixToTarget();
-
-  void step(double dt);
 };
 
 inline double AccelLimitedOnlineTrajectoryGenerator::getTrajectoryPosition() const
@@ -64,5 +43,15 @@ inline double AccelLimitedOnlineTrajectoryGenerator::getTrajectoryPosition() con
 inline double AccelLimitedOnlineTrajectoryGenerator::getTrajectoryVelocity() const
 {
   return v_;
+}
+
+inline void AccelLimitedOnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
+{
+  pf_ = tar_pos;
+}
+
+inline void AccelLimitedOnlineTrajectoryGenerator::setTargetVelocity(double tar_vel)
+{
+  vf_ = tar_vel;
 }
 }  // namespace ctrl
