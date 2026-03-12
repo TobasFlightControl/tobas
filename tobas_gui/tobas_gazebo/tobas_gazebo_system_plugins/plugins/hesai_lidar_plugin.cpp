@@ -34,7 +34,7 @@ public:
     gz::sim::EventManager& event_mgr) override;
 
 private:
-  struct Params
+  struct SdfParams
   {
     std::string topic;
     int update_rate;
