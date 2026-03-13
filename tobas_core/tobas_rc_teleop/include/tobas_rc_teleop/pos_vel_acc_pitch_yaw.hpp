@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_control/online_trajectory_generation/velocity_limited.hpp>
+
 #include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
 
 #include "./base_controller.hpp"
@@ -25,9 +27,8 @@ public:
 
 private:
   rclcpp::Time t_last_rcin_;
-  kdl::Vector tar_vel_G_;  // 地面座標系から見た目標速度
-  kdl::Vector tar_pos_W_;  // 世界座標系から見た目標位置
-  double tar_pitch_;
+  ctrl::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, pitch_filt_;
+  kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
   // rosparams
@@ -45,8 +46,10 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> cmd_pub_;
 
   bool maxHorizontalVelocityCb(const double& p);
+  bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
   bool maxPitchCb(const double& p);
+  bool maxPitchRateCb(const double& p);
   bool maxYawRateCb(const double& p);
   bool maxPositionErrorDown(const double& p);
   bool horizontalVelocityExpoCb(const double& p);

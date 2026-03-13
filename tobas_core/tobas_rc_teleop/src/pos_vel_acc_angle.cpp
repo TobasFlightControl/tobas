@@ -35,8 +35,11 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
   node->addDynamicDoubleParam(
+    addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 1., 10, 1, 20, " m/s^2");
+  node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
   node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 10., 9, 1, 18, " deg");
+  node->addDynamicDoubleParam(addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 20., 9, 1, 18, " dps");
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 20., 9, 1, 18, " dps");
   node->addDynamicDoubleParam(
     addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
@@ -55,68 +58,81 @@ void PosVelAccAngleController::reset(const tobas_msgs::Odometry& odom, bool land
 {
   t_last_rcin_ = odom.header.stamp;
 
+  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+
+  const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
+  const auto cur_vel_G = R_G_B * odom.twist.vel;
+  vx_filt_.resetCurrentTrajectoryPoint(cur_vel_G.x());
+  vy_filt_.resetCurrentTrajectoryPoint(cur_vel_G.y());
+
   tar_pos_W_ = odom.frame.p;
   if (landed) {
     tar_pos_W_.z() -= max_ep_down_;
   }
 
-  odom.frame.M.getRPY(tar_angle_.roll, tar_angle_.pitch, tar_angle_.yaw);
+  roll_filt_.resetCurrentTrajectoryPoint(roll);
+  pitch_filt_.resetCurrentTrajectoryPoint(pitch);
+  tar_yaw_ = yaw;
 }
 
 void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
 {
-  // 時刻を更新
+  // Update timestamp
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
-  // サブモードで並進制御モードと回転制御モードを切り替える
-  if (rcin.sub_mode)  // 回転固定で並進制御
+  // Velocity-X & Pitch
+  if (rcin.sub_mode)  // Translation mode
   {
-    // RC入力から目標水平速度を計算
-    tar_vel_G_.x(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-    tar_vel_G_.y(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-
-    // 目標姿勢角はゼロ
-    tar_angle_.roll = 0.;
-    tar_angle_.pitch = 0.;
+    vx_filt_.setTargetPosition(expoRemap(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
+    vy_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
+    roll_filt_.setTargetPosition(0.);
+    pitch_filt_.setTargetPosition(0.);
   }
-  else  // 並進固定で回転制御
+  else  // Rotation mode
   {
-    // RC入力から目標姿勢を計算
-    tar_angle_.roll = expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_);
-    tar_angle_.pitch = expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_);
-
-    // 目標水平速度はゼロ
-    tar_vel_G_.x(0.);
-    tar_vel_G_.y(0.);
+    roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_));
+    pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_));
+    vx_filt_.setTargetPosition(0.);
+    vy_filt_.setTargetPosition(0.);
   }
+  vx_filt_.update(dt);
+  vy_filt_.update(dt);
+  roll_filt_.update(dt);
+  pitch_filt_.update(dt);
 
-  // RC入力から鉛直速度とヨーレートを計算
-  tar_vel_G_.z(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_));
+  // Velocity-Y
+  vy_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
+  vy_filt_.update(dt);
+
+  // Velocity-Z
+  const auto vz = expoRemap(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_);
+
+  // Yaw
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
+  tar_yaw_ += yawrate * dt;
 
-  // 目標速度を地面座標系から世界座標系に変換
-  // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
-  const auto tar_vel_W = kdl::Rotation::RotZ(tar_angle_.yaw) * tar_vel_G_;
+  // Compute the velocity wrt. the world frame
+  const kdl::Vector tar_vel_G(vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz);
+  const auto tar_vel_W = kdl::Rotation::RotZ(tar_yaw_) * tar_vel_G;
 
-  // 目標速度とヨーレートを積分
+  // Integrate the velocity
   tar_pos_W_ += tar_vel_W * dt;
-  tar_angle_.yaw += yawrate * dt;
 
-  // 着陸状態ならば水平位置制御は行わない
+  // Do not perform horizontal position control while landed
   const auto& cur_pos_W = odom.frame.p;
   if (landed) {
     tar_pos_W_.x() = cur_pos_W.x();
     tar_pos_W_.y() = cur_pos_W.y();
   }
 
-  // 着陸時に目標高度が下がりすぎるのを防ぐために偏差を制限
+  // Limit the error to prevent the target altitude from dropping too far while on the ground
   const auto& cur_z = cur_pos_W.z();
   tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
 
-  // コマンドを発行
+  // Publish commands
   publishPosVelAcc(rcin.header.stamp, tar_pos_W_, tar_vel_W, kdl::Vector::Zero());
-  publishAngle(rcin.header.stamp, tar_angle_);
+  publishAngle(rcin.header.stamp, roll_filt_.getTrajectoryPosition(), pitch_filt_.getTrajectoryPosition(), tar_yaw_);
 }
 
 void PosVelAccAngleController::publishPosVelAcc(
@@ -135,12 +151,16 @@ void PosVelAccAngleController::publishPosVelAcc(
   pos_vel_acc_pub_->publish(std::move(cmd));
 }
 
-void PosVelAccAngleController::publishAngle(const builtin_interfaces::msg::Time& stamp, const kdl::Euler& angle)
+void PosVelAccAngleController::publishAngle(
+  const builtin_interfaces::msg::Time& stamp,
+  double roll,
+  double pitch,
+  double yaw)
 {
   auto cmd = std::make_unique<tobas_command_msgs::Angle>();
   cmd->header.stamp = stamp;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-  cmd->angle = angle;
+  cmd->angle.set(roll, pitch, yaw);
 
   angle_pub_->publish(std::move(cmd));
 }
@@ -148,6 +168,13 @@ void PosVelAccAngleController::publishAngle(const builtin_interfaces::msg::Time&
 bool PosVelAccAngleController::maxHorizontalVelocityCb(const double& p)
 {
   max_hor_vel_ = p;
+  return true;
+}
+
+bool PosVelAccAngleController::maxHorizontalAccelCb(const double& p)
+{
+  vx_filt_.setMaxVelocity(p);
+  vy_filt_.setMaxVelocity(p);
   return true;
 }
 
@@ -160,6 +187,14 @@ bool PosVelAccAngleController::maxVerticalVelocityCb(const double& p)
 bool PosVelAccAngleController::maxAttitudeCb(const double& p)
 {
   max_attitude_ = tbs::deg2rad(p);
+  return true;
+}
+
+bool PosVelAccAngleController::maxAttitudeRateCb(const double& p)
+{
+  const auto max_atti_rate = tbs::deg2rad(p);  // [rad/s]
+  roll_filt_.setMaxVelocity(max_atti_rate);
+  pitch_filt_.setMaxVelocity(max_atti_rate);
   return true;
 }
 
