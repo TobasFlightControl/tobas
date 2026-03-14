@@ -24,6 +24,9 @@ ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
   hor_header->setSectionResizeMode(kLevelCol, QHeaderView::ResizeToContents);
   hor_header->setSectionResizeMode(kMessageCol, QHeaderView::Stretch);
 
+  const auto ver_header = table_->verticalHeader();
+  ver_header->setVisible(false);
+
   const auto rows = new QVBoxLayout();
   rows->addWidget(table_);
   setLayout(rows);
