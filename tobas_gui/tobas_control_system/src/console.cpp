@@ -38,7 +38,6 @@ void ConsoleWidget::reset()
 void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg)
 {
   // TODO: ボタンでメッセージのスクリーニング
-  // TODO: メッセージにカーソルを重ねると全文を表示 (cf. rqt_console)
 
   // 先頭に行を追加
   table_->insertRow(0);
@@ -53,11 +52,15 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
   const auto stamp_item = new QTableWidgetItem(stamp_text);
   table_->setItem(0, kStampCol, stamp_item);
 
-  const auto name_item = new QTableWidgetItem(msg->name.c_str());
+  const auto name = QString::fromStdString(msg->name);
+  const auto name_item = new QTableWidgetItem(name);
   table_->setItem(0, kNameCol, name_item);
 
   const auto level_item = new QTableWidgetItem();
-  const auto message_item = new QTableWidgetItem(msg->message.c_str());
+
+  const auto message = QString::fromStdString(msg->message);
+  const auto message_item = new QTableWidgetItem(message);
+  message_item->setToolTip(message);
 
   switch (msg->level) {
     case tobas_msgs::msg::Message::LEVEL_DEBUG:
