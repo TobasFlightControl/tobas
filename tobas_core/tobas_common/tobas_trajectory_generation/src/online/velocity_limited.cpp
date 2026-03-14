@@ -1,4 +1,4 @@
-#include "tobas_control/online_trajectory_generation/velocity_limited.hpp"
+#include "tobas_trajectory_generation/online/velocity_limited.hpp"
 
 #include <algorithm>
 #include <cassert>

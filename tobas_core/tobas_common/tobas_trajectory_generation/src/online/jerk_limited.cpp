@@ -1,4 +1,4 @@
-#include "tobas_control/online_trajectory_generation/jerk_limited.hpp"
+#include "tobas_trajectory_generation/online/jerk_limited.hpp"
 
 #include <algorithm>
 #include <cassert>

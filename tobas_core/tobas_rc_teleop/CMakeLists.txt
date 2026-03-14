@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
     magic_enum_ament
-    tobas_control
+    tobas_trajectory_generation
     tobas_path_tools
     tobas_ros2_tools
     tobas_node

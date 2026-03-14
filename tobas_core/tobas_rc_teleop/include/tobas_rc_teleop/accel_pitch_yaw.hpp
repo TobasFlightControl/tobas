@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_control/online_trajectory_generation/velocity_limited.hpp>
+#include <tobas_trajectory_generation/online/velocity_limited.hpp>
 
 #include <tobas_command_msgs_adapter/accel_pitch_yaw.hpp>
 
