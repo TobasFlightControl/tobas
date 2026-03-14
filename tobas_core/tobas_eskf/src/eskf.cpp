@@ -636,62 +636,66 @@ ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Eigen
 
 Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
 {
-  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw_pred
   constexpr double kEpsilon = 1e-6;
-  const auto q = getQuaternion(x);
 
-  bool can_use_A = false;
-  const auto SA0 = 2 * q.z();
-  const auto SA1 = 2 * q.y();
-  const auto SA2 = SA0 * q.w() + SA1 * q.x();
-  const auto SA3 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
-  double SA4, SA5_inv;
-  if (math::sqr(SA3) > kEpsilon) {
-    SA4 = 1 / math::sqr(SA3);
-    SA5_inv = math::sqr(SA2) * SA4 + 1;
-    can_use_A = std::abs(SA5_inv) > kEpsilon;
+  const auto ham = getHamilton(x);
+  const auto& qw = ham(0);
+  const auto& qx = ham(1);
+  const auto& qy = ham(2);
+  const auto& qz = ham(3);
+
+  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
+  bool can_use_a = false;
+  const auto sa0 = 2 * qz;
+  const auto sa1 = 2 * qy;
+  const auto sa2 = sa0 * qw + sa1 * qx;
+  const auto sa3 = math::sqr(qw) + math::sqr(qx) - math::sqr(qy) - math::sqr(qz);
+  double sa4, sa5_inv;
+  if (math::sqr(sa3) > kEpsilon) {
+    sa4 = 1 / math::sqr(sa3);
+    sa5_inv = math::sqr(sa2) * sa4 + 1;
+    can_use_a = std::abs(sa5_inv) > kEpsilon;
   }
-
-  bool can_use_B = false;
-  const auto SB0 = 2 * q.w();
-  const auto SB1 = 2 * q.x();
-  const auto SB2 = SB0 * q.z() + SB1 * q.y();
-  const auto SB4 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
-  double SB3, SB5_inv;
-  if (math::sqr(SB2) > kEpsilon) {
-    SB3 = 1 / math::sqr(SB2);
-    SB5_inv = SB3 * math::sqr(SB4) + 1;
-    can_use_B = std::abs(SB5_inv) > kEpsilon;
+  bool can_use_b = false;
+  const auto sb0 = 2 * qw;
+  const auto sb1 = 2 * qx;
+  const auto sb2 = sb0 * qz + sb1 * qy;
+  const auto sb4 = math::sqr(qw) + math::sqr(qx) - math::sqr(qy) - math::sqr(qz);
+  double sb3, sb5_inv;
+  if (math::sqr(sb2) > kEpsilon) {
+    sb3 = 1 / math::sqr(sb2);
+    sb5_inv = sb3 * math::sqr(sb4) + 1;
+    can_use_b = std::abs(sb5_inv) > kEpsilon;
   }
 
   // Compute output matrix
   Eigen::RowVector4d H;
-  if (can_use_A && (!can_use_B || std::abs(SA5_inv) >= std::abs(SB5_inv))) {
-    const auto SA5 = 1 / SA5_inv;
-    const auto SA6 = 1 / SA3;
-    const auto SA7 = SA2 * SA4;
-    const auto SA8 = 2 * SA7;
-    const auto SA9 = 2 * SA6;
+  if (can_use_a && (!can_use_b || std::abs(sa5_inv) >= std::abs(sb5_inv))) {
+    const auto sa5 = 1 / sa5_inv;
+    const auto sa6 = 1 / sa3;
+    const auto sa7 = sa2 * sa4;
+    const auto sa8 = 2 * sa7;
+    const auto sa9 = 2 * sa6;
 
-    H(0) = SA5 * (SA0 * SA6 - SA8 * q.w());
-    H(1) = SA5 * (SA1 * SA6 - SA8 * q.x());
-    H(2) = SA5 * (SA1 * SA7 + SA9 * q.x());
-    H(3) = SA5 * (SA0 * SA7 + SA9 * q.w());
+    H(0) = sa5 * (sa0 * sa6 - sa8 * qw);
+    H(1) = sa5 * (sa1 * sa6 - sa8 * qx);
+    H(2) = sa5 * (sa1 * sa7 + sa9 * qx);
+    H(3) = sa5 * (sa0 * sa7 + sa9 * qw);
   }
-  else if (can_use_B && (!can_use_A || std::abs(SB5_inv) > std::abs(SA5_inv))) {
-    const auto SB5 = 1 / SB5_inv;
-    const auto SB6 = 1 / SB2;
-    const auto SB7 = SB3 * SB4;
-    const auto SB8 = 2 * SB7;
-    const auto SB9 = 2 * SB6;
+  else if (can_use_b && (!can_use_a || std::abs(sb5_inv) > std::abs(sa5_inv))) {
+    const auto sb5 = 1 / sb5_inv;
+    const auto sb6 = 1 / sb2;
+    const auto sb7 = sb3 * sb4;
+    const auto sb8 = 2 * sb7;
+    const auto sb9 = 2 * sb6;
 
-    H(0) = -SB5 * (SB0 * SB6 - SB8 * q.z());
-    H(1) = -SB5 * (SB1 * SB6 - SB8 * q.y());
-    H(2) = -SB5 * (-SB1 * SB7 - SB9 * q.y());
-    H(3) = -SB5 * (-SB0 * SB7 - SB9 * q.z());
+    H(0) = -sb5 * (sb0 * sb6 - sb8 * qz);
+    H(1) = -sb5 * (sb1 * sb6 - sb8 * qy);
+    H(2) = -sb5 * (-sb1 * sb7 - sb9 * qy);
+    H(3) = -sb5 * (-sb0 * sb7 - sb9 * qz);
   }
   else {
-    std::cerr << "Unable to compute the output matrix of yaw_pred angle observation." << std::endl;
+    std::cerr << "Unable to compute the output matrix of yaw angle observation." << std::endl;
     return Eigen::RowVector4d::Zero();
   }
 
