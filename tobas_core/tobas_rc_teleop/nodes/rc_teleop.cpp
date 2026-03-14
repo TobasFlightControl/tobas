@@ -363,13 +363,6 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       // アームされていれば次のステージに以降
       // プログラムモードから制御を奪う場合のために，アームコマンドの確認の前に現在のアーム状態の確認を行う．
       if (arming_->data) {
-        // プロポを起動した瞬間ディスアームされるのを防ぐため，Killスイッチがオンの時はRC制御モードには移行しない．
-        if (rcin->kill) {
-          TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot switch to RC control mode because the kill switch is on.");
-          t_arm_start_ = rcin->header.stamp;
-          break;
-        }
-
         stage_ = kWaitForEnable;
         break;
       }
@@ -427,8 +420,19 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         break;
       }
 
-      // RC入力が有効かつ実行可能な飛行モードだったら次のステージへ
-      if (rcin->enable && isFlightModeApplicable(rcin->mode)) {
+      // RC入力が有効ならば次のステージへ
+      if (rcin->enable) {
+        // 手動モードに移行した瞬間にディスアームされるのを防ぐため，Killスイッチがオンの時は移行しない．
+        if (rcin->kill) {
+          TOBAS_WARN_THROTTLE(kWarnPeriod, "Turn off the kill switch before enabling RC control.");
+          break;
+        }
+
+        // 飛行モードが適用可能であることを確認
+        if (!isFlightModeApplicable(rcin->mode)) {
+          break;
+        }
+
         controllers_.at(rcin->mode)->reset(*odom_, landed_->landed);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
