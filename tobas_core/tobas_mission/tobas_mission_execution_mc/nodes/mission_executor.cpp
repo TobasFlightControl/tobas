@@ -10,8 +10,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/gnss.hpp>
-#include <tobas_trajectory_generators/linear.hpp>
-#include <tobas_trajectory_generators/time_optimal.hpp>
+#include <tobas_trajectory_generation/offline/linear.hpp>
+#include <tobas_trajectory_generation/offline/time_optimal.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc.hpp>

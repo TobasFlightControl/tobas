@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_trajectory_generators/base.hpp>
+#include <tobas_trajectory_generation/offline/base.hpp>
 
 namespace tobas
 {

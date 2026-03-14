@@ -1,4 +1,4 @@
-#include "tobas_trajectory_generators/linear.hpp"
+#include "tobas_trajectory_generation/offline/linear.hpp"
 
 #include <algorithm>
 #include <stdexcept>

@@ -1,4 +1,4 @@
-#include "tobas_trajectory_generators/cubic.hpp"
+#include "tobas_trajectory_generation/offline/cubic.hpp"
 
 #include <algorithm>
 #include <stdexcept>

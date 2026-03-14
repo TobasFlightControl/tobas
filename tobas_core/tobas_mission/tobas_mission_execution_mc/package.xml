@@ -8,7 +8,7 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_trajectory_generators</depend>
+	<depend>tobas_trajectory_generation</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_command_msgs_adapter</depend>

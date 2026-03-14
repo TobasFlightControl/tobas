@@ -1,4 +1,4 @@
-#include "tobas_trajectory_generators/time_optimal.hpp"
+#include "tobas_trajectory_generation/offline/time_optimal.hpp"
 
 #include <algorithm>
 #include <cassert>
