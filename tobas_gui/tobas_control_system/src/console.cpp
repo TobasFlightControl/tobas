@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QHeaderView>
+#include <QScrollBar>
 #include <QVBoxLayout>
 
 namespace gui
@@ -98,6 +99,13 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
 
   table_->setItem(0, kLevelCol, level_item);
   table_->setItem(0, kMessageCol, message_item);
+
+  // 行の追加前後で表示位置が変化しないようにスクロール位置を調整
+  const auto sb = table_->verticalScrollBar();
+  const auto old_scroll = sb->value();
+  if (old_scroll > 0) {
+    sb->setValue(old_scroll + 1);
+  }
 }
 }  // namespace ctrl
 }  // namespace gui
