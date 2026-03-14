@@ -6,10 +6,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 
-#define E3 Diagonal3d(1, 1, 1)
+#define E3 Eigen::Diagonal3d(1, 1, 1)
 
-using namespace std;
-using namespace Eigen;
 namespace ch = std::chrono;
 
 namespace eskf
@@ -42,20 +40,20 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
 }
 
 bool ErrorStateKalmanFilter::initialize(
-  const Vector3d& init_pos,
-  const Matrix3d& init_pos_cov,
-  const Vector3d& init_vel,
-  const Matrix3d& init_vel_cov,
-  const Quaterniond& init_quat,
-  const Matrix3d& init_dtheta_cov,
-  const Vector3d& init_acc_bias,
-  const Matrix3d& init_acc_bias_cov,
-  const Vector3d& init_gyro_bias,
-  const Matrix3d& init_gyro_bias_cov,
-  const Vector3d& init_mag_hard_bias,
-  const Matrix3d& init_mag_hard_bias_cov,
-  const Matrix3d& init_mag_soft_bias,
-  const Matrix6d& init_mag_soft_bias_cov,
+  const Eigen::Vector3d& init_pos,
+  const Eigen::Matrix3d& init_pos_cov,
+  const Eigen::Vector3d& init_vel,
+  const Eigen::Matrix3d& init_vel_cov,
+  const Eigen::Quaterniond& init_quat,
+  const Eigen::Matrix3d& init_dtheta_cov,
+  const Eigen::Vector3d& init_acc_bias,
+  const Eigen::Matrix3d& init_acc_bias_cov,
+  const Eigen::Vector3d& init_gyro_bias,
+  const Eigen::Matrix3d& init_gyro_bias_cov,
+  const Eigen::Vector3d& init_mag_hard_bias,
+  const Eigen::Matrix3d& init_mag_hard_bias_cov,
+  const Eigen::Matrix3d& init_mag_soft_bias,
+  const Eigen::Matrix6d& init_mag_soft_bias_cov,
   const double& init_grav,
   const double& init_grav_var,
   const ch::steady_clock::time_point& time)
@@ -97,10 +95,10 @@ bool ErrorStateKalmanFilter::initialize(
   return true;
 }
 
-bool ErrorStateKalmanFilter::initializePosition(const Vector3d& value, const Matrix3d& cov)
+bool ErrorStateKalmanFilter::initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
   if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    cerr << "Initial position covariance must be symmetric semi-positive definite." << endl;
+    std::cerr << "Initial position covariance must be symmetric semi-positive definite." << std::endl;
     return false;
   }
 
@@ -115,10 +113,10 @@ bool ErrorStateKalmanFilter::initializePosition(const Vector3d& value, const Mat
   return true;
 }
 
-bool ErrorStateKalmanFilter::initializeVelocity(const Vector3d& value, const Matrix3d& cov)
+bool ErrorStateKalmanFilter::initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
   if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    cerr << "Initial velocity covariance must be symmetric semi-positive definite." << endl;
+    std::cerr << "Initial velocity covariance must be symmetric semi-positive definite." << std::endl;
     return false;
   }
 
@@ -133,10 +131,10 @@ bool ErrorStateKalmanFilter::initializeVelocity(const Vector3d& value, const Mat
   return true;
 }
 
-bool ErrorStateKalmanFilter::initializeQuaternion(const Quaterniond& value, const Matrix3d& cov)
+bool ErrorStateKalmanFilter::initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov)
 {
   if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    cerr << "Initial rotation covariance must be symmetric semi-positive definite." << endl;
+    std::cerr << "Initial rotation covariance must be symmetric semi-positive definite." << std::endl;
     return false;
   }
 
@@ -151,10 +149,10 @@ bool ErrorStateKalmanFilter::initializeQuaternion(const Quaterniond& value, cons
   return true;
 }
 
-bool ErrorStateKalmanFilter::initializeAccelBias(const Vector3d& value, const Matrix3d& cov)
+bool ErrorStateKalmanFilter::initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
   if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    cerr << "Initial accelerometer bias covariance must be symmetric semi-positive definite." << endl;
+    std::cerr << "Initial accelerometer bias covariance must be symmetric semi-positive definite." << std::endl;
     return false;
   }
 
@@ -169,10 +167,10 @@ bool ErrorStateKalmanFilter::initializeAccelBias(const Vector3d& value, const Ma
   return true;
 }
 
-bool ErrorStateKalmanFilter::initializeGyroBias(const Vector3d& value, const Matrix3d& cov)
+bool ErrorStateKalmanFilter::initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
   if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    cerr << "Initial gyroscope bias covariance must be symmetric semi-positive definite." << endl;
+    std::cerr << "Initial gyroscope bias covariance must be symmetric semi-positive definite." << std::endl;
     return false;
   }
 
@@ -187,10 +185,10 @@ bool ErrorStateKalmanFilter::initializeGyroBias(const Vector3d& value, const Mat
   return true;
 }
 
-bool ErrorStateKalmanFilter::initializeMagHardBias(const Vector3d& value, const Matrix3d& cov)
+bool ErrorStateKalmanFilter::initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
 {
   if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    cerr << "Initial magnetometer hard bias covariance must be symmetric semi-positive definite." << endl;
+    std::cerr << "Initial magnetometer hard bias covariance must be symmetric semi-positive definite." << std::endl;
     return false;
   }
 
@@ -205,15 +203,15 @@ bool ErrorStateKalmanFilter::initializeMagHardBias(const Vector3d& value, const 
   return true;
 }
 
-bool ErrorStateKalmanFilter::initializeMagSoftBias(const Matrix3d& value, const Matrix6d& cov)
+bool ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov)
 {
   if (!eigen::isSymmetricPositiveDefinite(value)) {
-    cerr << "Initial magnetometer soft bias matrix must be symmetric positive definite." << endl;
+    std::cerr << "Initial magnetometer soft bias matrix must be symmetric positive definite." << std::endl;
     return false;
   }
 
   if (!eigen::isSymmetricSemiPositiveDefinite(cov)) {
-    cerr << "Initial magnetometer soft bias covariance must be symmetric semi-positive definite." << endl;
+    std::cerr << "Initial magnetometer soft bias covariance must be symmetric semi-positive definite." << std::endl;
     return false;
   }
 
@@ -231,7 +229,7 @@ bool ErrorStateKalmanFilter::initializeMagSoftBias(const Matrix3d& value, const 
 bool ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
 {
   if (var < 0.) {
-    cerr << "Initial gravity variance must be non-negative." << endl;
+    std::cerr << "Initial gravity variance must be non-negative." << std::endl;
     return false;
   }
 
@@ -269,7 +267,7 @@ void ErrorStateKalmanFilter::enableJosephForm(bool enable)
 bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 {
   if (value < 0.) {
-    cerr << "The noise density of accelerometer bias process must be non-negative." << endl;
+    std::cerr << "The noise density of accelerometer bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -280,7 +278,7 @@ bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 {
   if (value < 0.) {
-    cerr << "The noise density of gyroscope bias process must be non-negative." << endl;
+    std::cerr << "The noise density of gyroscope bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -291,7 +289,7 @@ bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 {
   if (value < 0.) {
-    cerr << "The noise density of magnetometer hard-iron bias process must be non-negative." << endl;
+    std::cerr << "The noise density of magnetometer hard-iron bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -302,7 +300,7 @@ bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 {
   if (value < 0.) {
-    cerr << "The noise density of magnetometer soft-iron bias process must be non-negative." << endl;
+    std::cerr << "The noise density of magnetometer soft-iron bias process must be non-negative." << std::endl;
     return false;
   }
 
@@ -313,7 +311,7 @@ bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 {
   if (value < 0.) {
-    cerr << "The noise density of gravity process must be non-negative." << endl;
+    std::cerr << "The noise density of gravity process must be non-negative." << std::endl;
     return false;
   }
 
@@ -321,10 +319,10 @@ bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
   return true;
 }
 
-bool ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_W)
+bool ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
 {
   if (mag_W.norm() <= 0.) {
-    cerr << "The norm of reference magnetic field must be positive." << endl;
+    std::cerr << "The norm of reference magnetic field must be positive." << std::endl;
     return false;
   }
 
@@ -333,11 +331,11 @@ bool ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_W)
 }
 
 double ErrorStateKalmanFilter::measureIMU(
-  const Vector3d& acc_meas,
-  const Vector3d& gyro_meas,
-  const Matrix3d& acc_cov,
-  const Matrix3d& gyro_cov,
-  const Matrix3d& grav_cov,
+  const Eigen::Vector3d& acc_meas,
+  const Eigen::Vector3d& gyro_meas,
+  const Eigen::Matrix3d& acc_cov,
+  const Eigen::Matrix3d& gyro_cov,
+  const Eigen::Matrix3d& grav_cov,
   const ch::steady_clock::time_point& time)
 {
   assert(eigen::isSymmetricSemiPositiveDefinite(acc_cov));
@@ -351,20 +349,20 @@ double ErrorStateKalmanFilter::measureIMU(
 
   // クオータニオンの正規化のためにdt = 0を許容できない
   if (dt <= 0) {
-    cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << endl;
+    std::cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << std::endl;
     return INFINITY;
   }
 
-  const Vector3d acc_B = acc_meas - getAccelBias(x_);
-  const Vector3d gyro_B = gyro_meas - getGyroBias(x_);
+  const Eigen::Vector3d acc_B = acc_meas - getAccelBias(x_);
+  const Eigen::Vector3d gyro_B = gyro_meas - getGyroBias(x_);
 
-  const Quaterniond delta_q = eigen::quaternionFromAngleAxis(gyro_B * dt);
-  const Matrix3d delta_R = delta_q.toRotationMatrix();
+  const Eigen::Quaterniond delta_q = eigen::quaternionFromAngleAxis(gyro_B * dt);
+  const Eigen::Matrix3d delta_R = delta_q.toRotationMatrix();
 
-  const Vector3d vel_W = getVelocity(x_);
-  const Quaterniond q = getQuaternion(x_);
-  const Matrix3d W_Rot_B = q.toRotationMatrix();
-  const Vector3d acc_grav_W = W_Rot_B * acc_B + getGravVector(x_);
+  const Eigen::Vector3d vel_W = getVelocity(x_);
+  const Eigen::Quaterniond q = getQuaternion(x_);
+  const Eigen::Matrix3d W_Rot_B = q.toRotationMatrix();
+  const Eigen::Vector3d acc_grav_W = W_Rot_B * acc_B + getGravVector(x_);
 
   // IMUの共分散を補正
   const auto acc_cov_fixed = eigen::nearestPositiveDefinite(acc_cov, math::sqr(kMinAccStddev));
@@ -387,7 +385,7 @@ double ErrorStateKalmanFilter::measureIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269)第一項: 共分散行列の予測値を更新
-  P_ = F_x_ * P_.selfadjointView<Lower>() * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  P_ = F_x_ * P_.selfadjointView<Eigen::Lower>() * F_x_.transpose();  // TODO: 必要な部分のみ計算
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov_fixed * W_Rot_B.transpose() * dt2;
@@ -409,7 +407,7 @@ double ErrorStateKalmanFilter::measureIMU(
   const auto acc_norm = acc_meas.norm();
   const auto gravity = getGravity(x_);
   if (acc_norm < kFreeFallAccelNormThresh * gravity) {
-    cerr << "Attitude correction cannot be performed because the aircraft is in free fall." << endl;
+    std::cerr << "Attitude correction cannot be performed because the aircraft is in free fall." << std::endl;
     return INFINITY;
   }
 
@@ -417,14 +415,14 @@ double ErrorStateKalmanFilter::measureIMU(
 }
 
 double ErrorStateKalmanFilter::measurePosition(
-  const Vector3d& pos_meas,
-  const Matrix3d& pos_cov,
-  const Vector3d& offset,
+  const Eigen::Vector3d& pos_meas,
+  const Eigen::Matrix3d& pos_cov,
+  const Eigen::Vector3d& offset,
   const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Vector3d delta_pos = pos_meas - getPosition(x, offset);
+  const Eigen::Vector3d delta_pos = pos_meas - getPosition(x, offset);
 
   // 姿勢による偏微分
   const auto dqvq_dq = quatRotationDerivative(x, offset);
@@ -435,13 +433,13 @@ double ErrorStateKalmanFilter::measurePosition(
 }
 
 double ErrorStateKalmanFilter::measureXY(
-  const Vector2d& xy_meas,
-  const Matrix2d& xy_cov,
+  const Eigen::Vector2d& xy_meas,
+  const Eigen::Matrix2d& xy_cov,
   const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Vector2d delta_xy = xy_meas - getXY(x);
+  const Eigen::Vector2d delta_xy = xy_meas - getXY(x);
   return correct(delta_xy, xy_cov, H_xy_);
 }
 
@@ -453,22 +451,22 @@ double ErrorStateKalmanFilter::measureAltitude(
   const auto& x = x_history_.closestAfterValue(time);
 
   const double delta_z = z_meas - getAltitude(x);
-  return correct(Scalard(delta_z), Scalard(z_var), H_z_);
+  return correct(Eigen::Scalard(delta_z), Eigen::Scalard(z_var), H_z_);
 }
 
 double ErrorStateKalmanFilter::measureVelocity(
-  const Vector3d& vel_meas,
-  const Matrix3d& vel_cov,
-  const Vector3d& offset,
-  const Vector3d& gyro_meas,
+  const Eigen::Vector3d& vel_meas,
+  const Eigen::Matrix3d& vel_cov,
+  const Eigen::Vector3d& offset,
+  const Eigen::Vector3d& gyro_meas,
   const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
-  const Vector3d gyro_offset = gyro_nominal.cross(offset);
-  const Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
-  const Vector3d delta_vel = vel_meas - vel_nominal;
+  const Eigen::Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
+  const Eigen::Vector3d gyro_offset = gyro_nominal.cross(offset);
+  const Eigen::Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
+  const Eigen::Vector3d delta_vel = vel_meas - vel_nominal;
 
   // 姿勢による偏微分
   const auto dqvq_dq = quatRotationDerivative(x, gyro_offset);
@@ -482,20 +480,20 @@ double ErrorStateKalmanFilter::measureVelocity(
 }
 
 double ErrorStateKalmanFilter::measurePosVel(
-  const Vector3d& pos_meas,
-  const Vector3d& vel_meas,
-  const Matrix6d& cov,
-  const Vector3d& offset,
-  const Vector3d& gyro_meas,
+  const Eigen::Vector3d& pos_meas,
+  const Eigen::Vector3d& vel_meas,
+  const Eigen::Matrix6d& cov,
+  const Eigen::Vector3d& offset,
+  const Eigen::Vector3d& gyro_meas,
   const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
   // 観測誤差
-  Vector6d delta;
-  const Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
-  const Vector3d gyro_offset = gyro_nominal.cross(offset);
-  const Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
+  Eigen::Vector6d delta;
+  const Eigen::Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
+  const Eigen::Vector3d gyro_offset = gyro_nominal.cross(offset);
+  const Eigen::Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
   delta.head<3>() = pos_meas - getPosition(x, offset);  // 位置の誤差
   delta.tail<3>() = vel_meas - vel_nominal;             // 速度の誤差
 
@@ -512,8 +510,8 @@ double ErrorStateKalmanFilter::measurePosVel(
 }
 
 double ErrorStateKalmanFilter::measureQuaternion(
-  const Quaterniond& q_meas,
-  const Matrix3d& theta_cov,
+  const Eigen::Quaterniond& q_meas,
+  const Eigen::Matrix3d& theta_cov,
   const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
@@ -529,12 +527,12 @@ double ErrorStateKalmanFilter::measurePose(
   const Eigen::Quaterniond& q_meas,
   const Eigen::Matrix6d& cov,
   const Eigen::Vector3d& offset,
-  const std::chrono::steady_clock::time_point& time)
+  const ch::steady_clock::time_point& time)
 {
   const auto& x = x_history_.closestAfterValue(time);
 
   // 観測誤差
-  Vector6d delta;
+  Eigen::Vector6d delta;
   delta.head<3>() = pos_meas - getPosition(x, offset);
   delta.tail<3>() = eigen::angleAxisFromQuaternion(getQuaternion(x).conjugate() * q_meas);
 
@@ -547,20 +545,20 @@ double ErrorStateKalmanFilter::measurePose(
 }
 
 double ErrorStateKalmanFilter::measureMagneticField3d(
-  const Vector3d& mag_meas,
-  const Matrix3d& mag_cov,
+  const Eigen::Vector3d& mag_meas,
+  const Eigen::Matrix3d& mag_cov,
   const ch::steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.) {
-    cerr << "Reference magnetic field is not set." << endl;
+    std::cerr << "Reference magnetic field is not set." << std::endl;
     return INFINITY;
   }
 
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Vector3d mag_B = getQuaternion(x).inverse() * mag_W_;
-  const Vector3d m_b = getMagHardBias(x);
-  const Matrix3d T = getMagSoftBias(x);
+  const Eigen::Vector3d mag_B = getQuaternion(x).inverse() * mag_W_;
+  const Eigen::Vector3d m_b = getMagHardBias(x);
+  const Eigen::Matrix3d T = getMagSoftBias(x);
 
   const auto& mx = mag_B.x();
   const auto& my = mag_B.y();
@@ -568,7 +566,7 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
 
   // 観測誤差
   const auto mag_pred = T * mag_B + m_b;
-  const Vector3d delta_mag = mag_meas - mag_pred;
+  const Eigen::Vector3d delta_mag = mag_meas - mag_pred;
 
   // 観測方程式 (memo: 3-20)
   H_mag_.block<3, 3>(0, kDeltaThetaIdx) = T * eigen::skew(2 * mag_B);
@@ -579,12 +577,12 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
 }
 
 double ErrorStateKalmanFilter::measureMagneticFieldHead(
-  const Vector3d& mag_meas,
+  const Eigen::Vector3d& mag_meas,
   const double& yaw_var,
   const ch::steady_clock::time_point& time)
 {
   if (mag_W_.norm() == 0.) {
-    cerr << "Reference magnetic field is not set." << endl;
+    std::cerr << "Reference magnetic field is not set." << std::endl;
     return INFINITY;
   }
 
@@ -595,7 +593,7 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   const auto [roll_pred, pitch_pred, yaw_pred] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
   // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
-  const AngleAxisd R_W_G(yaw_pred, Vector3d::UnitZ());
+  const Eigen::AngleAxisd R_W_G(yaw_pred, Eigen::Vector3d::UnitZ());
   const auto mag_G = R_W_G.inverse() * (R_W_B * mag_meas);  // 後ろから計算することで計算量を削減
   const auto mx = mag_G.x();
   const auto my = mag_G.y();
@@ -609,37 +607,38 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
   H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = hamiltonToYawOutputMatrix(x) * getQ_dtheta(x);
 
   // 事後推定を更新
-  return correct(Scalard(delta_yaw), Scalard(yaw_var), H_yaw_);
+  return correct(Eigen::Scalard(delta_yaw), Eigen::Scalard(yaw_var), H_yaw_);
 }
 
-Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
+Eigen::Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
 {
-  const Vector4d qby2 = 0.5 * getHamilton(x);
+  const Eigen::Vector4d qby2 = 0.5 * getHamilton(x);
   const auto& qw = qby2(0);
   const auto& qx = qby2(1);
   const auto& qy = qby2(2);
   const auto& qz = qby2(3);
-  return (Matrix<double, 4, 3>() << -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw).finished();
+  return (Eigen::Matrix<double, 4, 3>() << -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw).finished();
 }
 
-Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Vector3d& a) const
+Eigen::Matrix<double, 3, 4>
+ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const
 {
-  const Vector4d ham = getHamilton(x);
-  const double& w = ham(0);
-  const Vector3d v = ham.tail<3>();
+  const auto ham = getHamilton(x);
+  const auto w = ham(0);
+  const auto v = ham.tail<3>();
 
-  Matrix<double, 3, 4> res;
+  Eigen::Matrix<double, 3, 4> res;
   res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
   res.block<3, 3>(0, 1) = 2 * (a.dot(v) * E3 + v * a.transpose() - a * v.transpose() - w * eigen::skew(a));
 
   return res;
 }
 
-RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
+Eigen::RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
 {
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw_pred
   constexpr double kEpsilon = 1e-6;
-  const Quaterniond q = getQuaternion(x);
+  const auto q = getQuaternion(x);
 
   bool can_use_A = false;
   const auto SA0 = 2 * q.z();
@@ -666,7 +665,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   }
 
   // Compute output matrix
-  RowVector4d H;
+  Eigen::RowVector4d H;
   if (can_use_A && (!can_use_B || std::abs(SA5_inv) >= std::abs(SB5_inv))) {
     const auto SA5 = 1 / SA5_inv;
     const auto SA6 = 1 / SA3;
@@ -692,8 +691,8 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
     H(3) = -SB5 * (-SB0 * SB7 - SB9 * q.z());
   }
   else {
-    cerr << "Unable to compute the output matrix of yaw_pred angle observation." << endl;
-    return RowVector4d::Zero();
+    std::cerr << "Unable to compute the output matrix of yaw_pred angle observation." << std::endl;
+    return Eigen::RowVector4d::Zero();
   }
 
   return H;
@@ -720,7 +719,7 @@ void ErrorStateKalmanFilter::applyConstraints()
     x_.segment<3>(kMagHardBiasIdx) = getMagHardBias().cwiseMax(-kMaxMagHardBias).cwiseMin(kMaxMagHardBias);
   }
   if (grav_proc_noise_density_ > 0.) {
-    x_(kGravIdx) = clamp(getGravity(), kMinGravity, kMaxGravity);
+    x_(kGravIdx) = std::clamp(getGravity(), kMinGravity, kMaxGravity);
   }
 
   // 地磁気のソフトバイアスは正定値対称
@@ -743,8 +742,8 @@ void ErrorStateKalmanFilter::resetStateHistory()
 }
 
 double ErrorStateKalmanFilter::measureGravity(
-  const Vector3d& acc_meas,
-  const Matrix3d& grav_cov,
+  const Eigen::Vector3d& acc_meas,
+  const Eigen::Matrix3d& grav_cov,
   const ch::steady_clock::time_point& time)
 {
   // 参考: 姿勢推定の基礎 (森田 直人)
@@ -759,10 +758,10 @@ double ErrorStateKalmanFilter::measureGravity(
 
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Matrix3d R_B_W = getDCM(x).transpose();
-  const Vector3d grav_B = R_B_W * getGravVector(x);
-  const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
-  const Vector3d delta_acc = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
+  const Eigen::Matrix3d R_B_W = getDCM(x).transpose();
+  const Eigen::Vector3d grav_B = R_B_W * getGravVector(x);
+  const Eigen::Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
+  const Eigen::Vector3d delta_acc = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
 
   H_grav_.block<3, 3>(0, kDeltaThetaIdx) = -eigen::skew(2 * grav_B);
   H_grav_.col(kDeltaGravIdx) = R_B_W.col(2);
