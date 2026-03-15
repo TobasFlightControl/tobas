@@ -1,6 +1,7 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
@@ -131,8 +132,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 
       // 角速度が大きすぎる場合はやり直し
       if (gyro_filt.norm() > tobas::kStaticGyroThresh) {
-        TOBAS_WARN_THROTTLE(
-          1., "Perturbation is detected while measuring gyro bias: ", gyro_filt, " [rad/s]. Retrying...");
+        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
         gyro_bias_cnt_ = 0;
         for (auto& sum : gyro_sum_) {
           sum.reset();
