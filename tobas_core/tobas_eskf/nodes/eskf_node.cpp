@@ -6,6 +6,7 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_math/core.hpp>
@@ -73,7 +74,7 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   static constexpr double kInitMagStddev = 0.5;     // [-]
 
   // Other constants
-  static constexpr double kAccurateAttitudeStddevThresh = 1e-2;  // [rad]
+  static constexpr double kAccurateAttitudeStddevThresh = 0.05;  // [rad]
   static constexpr size_t kInitMagCount = 100;
 
 public:
@@ -727,11 +728,20 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
     const auto atti_var = (rot_cov(0, 0) + rot_cov(1, 1)) / 2;
     const auto atti_stddev = sqrt(atti_var);  // [rad]
     if (atti_stddev > kAccurateAttitudeStddevThresh) {
+      TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Waiting for attitude estimation to converge.");
+      return;
+    }
+
+    // フィルタリング後のIMUが取得できるまで待機
+    if (!imu_filt_) {
+      TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Waiting for the filtered IMU messages.");
       return;
     }
 
     // 動作を検知したら始めからやり直し
-    if (!imu_filt_ || imu_filt_->gyro.norm() > tobas::kStaticGyroThresh) {
+    if (imu_filt_->gyro.norm() > tobas::kStaticGyroThresh) {
+      TOBAS_WARN_THROTTLE(
+        tobas::kTypicalWarnPeriod, "Motion was detected while measuring the reference magnetic field. Retrying...");
       init_mag_cnt_ = 0;
       for (auto& sum : init_mag_sum_) {
         sum.reset();
