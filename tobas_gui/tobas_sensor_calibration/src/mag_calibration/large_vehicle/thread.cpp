@@ -20,6 +20,7 @@ LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(rclcpp::Node::SharedPtr n
 {
   connect(&bridge, &RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
   connect(&bridge, &RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&bridge, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 void LargeVehicleMagCalibThread::run()
@@ -31,6 +32,10 @@ void LargeVehicleMagCalibThread::run()
   }
   if (!gnss_) {
     Q_EMIT finished(false, "GNSS has not been received yet.");
+    return;
+  }
+  if (!arming_) {
+    Q_EMIT finished(false, "Arming status has not been received yet.");
     return;
   }
 
@@ -61,6 +66,11 @@ void LargeVehicleMagCalibThread::run()
   while (rclcpp::ok()) {
     if (cnt_ >= kDataCount) {
       break;
+    }
+    if (arming_->data) {  // データ収集中にアームされたら強制終了
+      Q_EMIT finished(false, "Accelerometer calibration was canceled because an arming command was issued.");
+      get_data_ = false;
+      return;
     }
     if (clock->now() - start_time > kCollectDataTimeout) {
       Q_EMIT finished(false, "Timeout before Magnetic field collection is completed.");
@@ -148,6 +158,11 @@ void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSha
 void LargeVehicleMagCalibThread::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
   gnss_ = gnss;
+}
+
+void LargeVehicleMagCalibThread::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 }  // namespace sc
 }  // namespace gui

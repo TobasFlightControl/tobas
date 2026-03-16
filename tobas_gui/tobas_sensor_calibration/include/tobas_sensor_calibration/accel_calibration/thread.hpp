@@ -37,6 +37,7 @@ private:
   std::string ns_;
 
   tobas_msgs::Imu::ConstSharedPtr imu_raw_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   bool get_data_ = false;
   size_t cnt_;
@@ -44,6 +45,7 @@ private:
 
 private Q_SLOTS:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace sc
 }  // namespace gui
