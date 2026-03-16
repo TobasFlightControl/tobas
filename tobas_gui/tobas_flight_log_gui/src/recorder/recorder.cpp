@@ -114,7 +114,7 @@ void FlightLogRecorderWidget::onStartRequested()
 
   // ロガーの状態が取得できているかをチェック
   if (!rosbag_state_) {
-    qt::qWarnBox(this, "Unable to start recording because the logger state is not received yet.");
+    qt::qWarnBox(this, "Unable to start recording because the logger state has not been received yet.");
     start_stop_button_->setChecked(false);
     return;
   }

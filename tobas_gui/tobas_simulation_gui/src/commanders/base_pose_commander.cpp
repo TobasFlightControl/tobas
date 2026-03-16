@@ -216,15 +216,15 @@ bool BasePoseCommanderWidget::armRotors(bool arming)
 void BasePoseCommanderWidget::onArmRequested()
 {
   if (!arming_) {
-    qt::qWarnBox(this, "Arming status is not received yet.");
+    qt::qWarnBox(this, "Arming status has not been received yet.");
     return;
   }
   if (!odom_) {
-    qt::qWarnBox(this, "Odometry is not received yet.");
+    qt::qWarnBox(this, "Odometry has not been received yet.");
     return;
   }
   if (!rcin_) {
-    qt::qWarnBox(this, "RC input is not received yet.");
+    qt::qWarnBox(this, "RC input has not been received yet.");
     return;
   }
 
@@ -267,7 +267,7 @@ void BasePoseCommanderWidget::onArmRequested()
 void BasePoseCommanderWidget::onDisarmRequested()
 {
   if (!arming_) {
-    qt::qWarnBox(this, "Arming status is not received yet.");
+    qt::qWarnBox(this, "Arming status has not been received yet.");
     return;
   }
 

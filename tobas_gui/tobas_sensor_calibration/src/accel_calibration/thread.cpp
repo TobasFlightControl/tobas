@@ -23,7 +23,7 @@ void AccelCalibrationThread::run()
 {
   // 必要なトピックが受け取れていることを確認
   if (!imu_raw_) {
-    Q_EMIT finished(false, "IMU data is not received yet.");
+    Q_EMIT finished(false, "IMU data has not been received yet.");
     return;
   }
 

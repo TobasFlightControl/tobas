@@ -75,11 +75,11 @@ void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::
 void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
   if (!eprop_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message is not received yet.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message has not been received yet.");
     return;
   }
   if (!battery_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery message is not received yet.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery message has not been received yet.");
     return;
   }
 

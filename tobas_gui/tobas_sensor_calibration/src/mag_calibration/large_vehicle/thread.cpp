@@ -26,11 +26,11 @@ void LargeVehicleMagCalibThread::run()
 {
   // 必要なトピックが受け取れていることを確認
   if (!mag_raw_) {
-    Q_EMIT finished(false, "Magnetic field is not received yet.");
+    Q_EMIT finished(false, "Magnetic field has not been received yet.");
     return;
   }
   if (!gnss_) {
-    Q_EMIT finished(false, "GNSS is not received yet.");
+    Q_EMIT finished(false, "GNSS has not been received yet.");
     return;
   }
 
