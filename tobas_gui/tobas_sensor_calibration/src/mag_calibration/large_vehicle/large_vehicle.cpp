@@ -67,7 +67,7 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
   spinner_.stop();
 
   if (success) {
-    qt::qInfoBox(this, message);
+    qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
   }
   else {
     qt::qErrorBox(this, message);

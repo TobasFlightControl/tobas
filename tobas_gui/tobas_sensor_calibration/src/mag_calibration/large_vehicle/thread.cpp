@@ -110,7 +110,7 @@ void LargeVehicleMagCalibThread::run()
     return;
   }
 
-  Q_EMIT finished(true, "Magnetometer calibration finished successfully.");
+  Q_EMIT finished(true, "");
 }
 
 void LargeVehicleMagCalibThread::reset()

@@ -672,7 +672,7 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
   std::cout << "Soft-iron bias: " << soft_bias.transpose() << std::endl;
 
   resetToPreStart();
-  qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
+  qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
 }
 
 void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
