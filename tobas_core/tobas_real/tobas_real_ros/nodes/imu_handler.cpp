@@ -15,6 +15,7 @@
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
+using namespace std::chrono_literals;
 using namespace real::handler::imu;
 namespace fs = std::filesystem;
 
@@ -26,6 +27,7 @@ class ImuHandlerNode : public tobas::BaseNode
 
   static constexpr int kMeasureGyroBiasCount = 1000;  // [-]
   static constexpr double kGyroLpfCutoff = 30.;       // [Hz]
+  static constexpr auto kMotionDetectedDeadTime = 3s;
 
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -46,6 +48,7 @@ private:
   std::array<algo::Kahan<double>, 3> gyro_sum_;
   dsp::LowPassFilterP1<kdl::Vector> gyro_lpf_;
   tobas_msgs::Imu::ConstSharedPtr imu_raw_in_;
+  builtin_interfaces::msg::Time t_last_motion_detected_;
 
   ptree::PropertyTree pt_;
 
@@ -116,6 +119,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
 {
   switch (stage_) {
     case kMeasureGyroBias: {
+      const auto& cur_time = imu_raw_in->header.stamp;
       const auto& gyro_raw = imu_raw_in->gyro;
 
       if (!imu_raw_in_) {
@@ -125,18 +129,24 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
       }
 
       // 外れ値やノイズの影響を減らすためジャイロをLPFに通す
-      const auto dt = (imu_raw_in->header.stamp - imu_raw_in_->header.stamp).seconds();
+      const auto dt = (cur_time - imu_raw_in_->header.stamp).seconds();
       imu_raw_in_ = imu_raw_in;
       gyro_lpf_.update(gyro_raw, dt);
       const auto& gyro_filt = gyro_lpf_.getValue();
 
-      // 角速度が大きすぎる場合はやり直し
+      // 角速度が大きすぎる場合は機体が運動しているとみなしてやり直し
       if (gyro_filt.norm() > tobas::kStaticGyroThresh) {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Motion was detected while measuring the gyro bias. Retrying...");
         gyro_bias_cnt_ = 0;
         for (auto& sum : gyro_sum_) {
           sum.reset();
         }
+        t_last_motion_detected_ = cur_time;
+        break;
+      }
+
+      // 最後に機体の運動を検知してから一定時間は計測しない
+      if (cur_time - t_last_motion_detected_ < kMotionDetectedDeadTime) {
         break;
       }
 
