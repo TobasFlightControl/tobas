@@ -562,7 +562,7 @@ void CompleteMagCalibWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
@@ -572,13 +572,13 @@ void CompleteMagCalibWidget::onStartButtonClicked()
 
   // 必要なトピックが受け取れていることを確認
   if (!mag_raw_) {
-    qt::qWarnBox(this, "Magnetic field is not received yet.");
+    qt::qWarnBox(this, "Magnetic field has not been received yet.");
     return;
   }
   if (!odom_) {
     qt::qWarnBox(
       this,
-      "This operation cannot be performed because the odometry is not received yet. "
+      "This operation cannot be performed because the odometry has not been received yet. "
       "Please check whether the accelerometer has been calibrated.");
     return;
   }
@@ -761,6 +761,12 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
 
 void CompleteMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)
 {
+  if (running_ && msg->data) {
+    resetToPreStart();
+    clearDisplayPoints();
+    qt::qWarnBox(this, "Magnetometer calibration was canceled because an arming command was issued.");
+  }
+
   arming_ = msg;
 }
 

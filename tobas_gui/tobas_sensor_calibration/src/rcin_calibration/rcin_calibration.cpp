@@ -335,7 +335,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
@@ -345,7 +345,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 
   // 必要なトピックが受け取れていることを確認
   if (!sbus_) {
-    qt::qWarnBox(this, "S.BUS is not received yet.");
+    qt::qWarnBox(this, "S.BUS has not been received yet.");
     return;
   }
 
@@ -452,6 +452,11 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
 
 void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
+  if (running_ && arming->data) {
+    reset();
+    qt::qWarnBox(this, "Radio calibration was canceled because an arming command was issued.");
+  }
+
   arming_ = arming;
 }
 }  // namespace sc
