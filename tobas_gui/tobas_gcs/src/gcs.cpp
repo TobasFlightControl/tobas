@@ -133,6 +133,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
+  connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
@@ -606,6 +607,14 @@ void GroundControlStationWidget::onSimRealStateChanged()
 
   // シミュレーションウィジェット以外リセット
   reset(false);
+}
+
+void GroundControlStationWidget::onRemoteConnectionDisconnected()
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRemoteConnectionDisconnected");
+
+  qt::qWarnBox(this, "Communication with the flight controller was lost.");
+  reset();
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

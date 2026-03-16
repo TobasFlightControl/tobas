@@ -78,18 +78,21 @@ void RemoteConnectionWidget::restart()
 
 void RemoteConnectionWidget::setConnected()
 {
+  state_ = kConnected;
   setIconPixmap(connected_);
   label_->setText("Connected");
 }
 
 void RemoteConnectionWidget::setDisonnected()
 {
+  state_ = kDisonnected;
   setIconPixmap(disconnected_);
   label_->setText("Not Connected");
 }
 
 void RemoteConnectionWidget::setUnknown()
 {
+  state_ = kUnknown;
   setIconPixmap(unknown_);
   label_->setText("Connecting...");
 }
@@ -107,6 +110,9 @@ void RemoteConnectionWidget::heartbeatCb(const tobas_msgs::msg::Heartbeat::Const
 
 void RemoteConnectionWidget::onTimeout()
 {
+  if (state_ == kConnected) {
+    Q_EMIT disconnected();
+  }
   setDisonnected();
 }
 }  // namespace gcs
