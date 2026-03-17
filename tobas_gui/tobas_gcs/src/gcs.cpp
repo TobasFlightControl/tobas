@@ -433,21 +433,21 @@ void GroundControlStationWidget::onWriteButtonClicked()
       return;
     }
     progress.progressStep();
-
-    // 環境変数を更新
-    progress.setLabelText("Setting environment variables.");
-    project_env_parser_.config_pkg = config_pkg_name;
-    if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
-      progress.close();
-      qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
-      return;
-    }
-    progress.progressStep();
   }
   else {
     progress.progressStep();
-    progress.progressStep();
   }
+
+  // 環境変数を更新
+  progress.setLabelText("Setting environment variables.");
+  project_env_parser_.config_pkg = config_pkg_name;
+  project_env_parser_.nif = network_config_.interface;
+  if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
 
   // プロジェクトを送信
   progress.setLabelText("Sending the Tobas project to the flight controller.");
@@ -487,9 +487,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // DDSの設定を更新
   progress.setLabelText("Writing DDS configuration.");
   tobas::cyclonedds::Data dds_data;
-  if (!network_config_.interface.empty()) {
-    dds_data.interfaces.emplace_back(network_config_.interface);
-  }
+  dds_data.interfaces.emplace_back(network_config_.interface);
   const auto dds_config_text = tobas::cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(tobas::kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
     progress.close();
