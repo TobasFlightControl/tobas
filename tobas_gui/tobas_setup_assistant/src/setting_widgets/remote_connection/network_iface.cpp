@@ -1,4 +1,4 @@
-#include "tobas_setup_assistant/setting_tabs/network.hpp"
+#include "tobas_setup_assistant/setting_tabs/remote_connection/network_iface.hpp"
 
 #include <ranges>
 
@@ -14,62 +14,43 @@ namespace gui
 {
 namespace sa
 {
-NetworkWidget::NetworkWidget()
+namespace rc
+{
+NetworkIfaceWidget::NetworkIfaceWidget()
 {
   nif_btn_group_ = new QButtonGroup(this);
   nif_btn_group_->setExclusive(true);
 
   int id = 0;
-  const auto auto_btn = addNifTypeButton("Auto", id++);
   const auto wired_btn = addNifTypeButton("Wired (Ethernet)", id++);
   const auto wireless_btn = addNifTypeButton("Wireless (Wi-Fi Client)", id++);
   const auto ap_btn = addNifTypeButton("Access Point (Wi-Fi Hotspot)", id++);
   const auto other_btn = addNifTypeButton("Other", id++);
 
-  nif_btn_group_->button(kAutoIdx)->setChecked(true);  // Default
+  nif_btn_group_->button(kWirelessIdx)->setChecked(true);  // Default
 
   other_nif_name_ = new QLineEdit();
   other_nif_name_->setPlaceholderText("e.g. wwan0, eth1, enx...");
   other_nif_name_->setEnabled(false);
 
+  // Layout
   const auto other_row = new QHBoxLayout();
   other_row->addWidget(other_btn);
   other_row->addWidget(other_nif_name_);
 
-  addWidget(new qt::Label("Network Interface", cmn::kLabelPSize, QFont::Bold));
-  addWidget(auto_btn);
-  addWidget(wired_btn);
-  addWidget(wireless_btn);
-  addWidget(ap_btn);
-  addLayout(other_row);
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(wired_btn);
+  rows->addWidget(wireless_btn);
+  rows->addWidget(ap_btn);
+  rows->addLayout(other_row);
 
-  addStretch();
+  setLayout(rows);
 
+  // Connection
   connect(other_btn, &QRadioButton::toggled, this, &self::onOtherButtonToggled);
 }
 
-const char* NetworkWidget::name() const
-{
-  return "Network";
-}
-
-const char* NetworkWidget::title() const
-{
-  return "Configure Network";
-}
-
-const char* NetworkWidget::description() const
-{
-  return "Configure the network settings used by the Flight Controller (FC). "
-         "All devices that communicate with the FC via ROS must match the settings specified here.";
-}
-
-void NetworkWidget::updateInternalDataStructures()
-{
-  return;
-}
-
-bool NetworkWidget::isValid()
+bool NetworkIfaceWidget::isValid()
 {
   if (nif_btn_group_->checkedId() == kOtherIdx) {
     if (other_nif_name_->text().isEmpty()) {
@@ -81,7 +62,7 @@ bool NetworkWidget::isValid()
   return true;
 }
 
-YAML::Node NetworkWidget::dump() const
+YAML::Node NetworkIfaceWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -93,7 +74,7 @@ YAML::Node NetworkWidget::dump() const
   return node;
 }
 
-void NetworkWidget::load(const YAML::Node& node)
+void NetworkIfaceWidget::load(const YAML::Node& node)
 {
   const auto nif_type_text = node[kNifTypeKey].as<QString>();
   for (const auto& [idx, btn] : std::views::enumerate(nif_btn_group_->buttons())) {
@@ -106,11 +87,10 @@ void NetworkWidget::load(const YAML::Node& node)
   other_nif_name_->setText(node[kOtherNifNameKey].as<QString>());
 }
 
-QString NetworkWidget::networkInterfaceName() const
+QString NetworkIfaceWidget::networkInterface() const
 {
-  switch (nif_btn_group_->checkedId()) {
-    case kAutoIdx:
-      return {};
+  const auto id = nif_btn_group_->checkedId();
+  switch (id) {
     case kWiredIdx:
       return "eth0";
     case kWirelessIdx:
@@ -120,19 +100,18 @@ QString NetworkWidget::networkInterfaceName() const
     case kOtherIdx:
       return other_nif_name_->text();
     default:
-      qWarning() << "Invalid network interface.";
-      return {};
+      throw std::runtime_error("Invalid network interface ID: " + std::to_string(id));
   }
 }
 
-QRadioButton* NetworkWidget::addNifTypeButton(const QString& text, int id)
+QRadioButton* NetworkIfaceWidget::addNifTypeButton(const QString& text, int id)
 {
   const auto btn = new QRadioButton(text);
   nif_btn_group_->addButton(btn, id);
   return btn;
 }
 
-void NetworkWidget::onOtherButtonToggled(bool checked)
+void NetworkIfaceWidget::onOtherButtonToggled(bool checked)
 {
   other_nif_name_->setEnabled(checked);
 
@@ -141,5 +120,6 @@ void NetworkWidget::onOtherButtonToggled(bool checked)
     other_nif_name_->selectAll();
   }
 }
+}  // namespace rc
 }  // namespace sa
 }  // namespace gui

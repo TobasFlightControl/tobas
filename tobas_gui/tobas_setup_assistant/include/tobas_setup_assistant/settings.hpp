@@ -12,7 +12,6 @@
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
 #include "./setting_tabs/mission_executor/mission_executor.hpp"
-#include "./setting_tabs/network.hpp"
 #include "./setting_tabs/observer.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/rc_input.hpp"
@@ -40,7 +39,6 @@ public:
   RcInputWidget* rc_input;
   ExtraJointsWidget* extra_joints;
   FailsafeWidget* failsafe;
-  NetworkWidget* network;
   AuthorInformationWidget* author_info;
 
   explicit SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);

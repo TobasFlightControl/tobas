@@ -818,7 +818,7 @@ bool ProjectGenerator::generateSshConfig()
 bool ProjectGenerator::generateNetworkConfig()
 {
   cmn::NetworkConfig config;
-  config.interface = settings_->network->networkInterfaceName().toStdString();
+  config.interface = settings_->remote_connection->networkInterface().toStdString();
 
   if (!config.save(proj_paths_.networkConfigPath())) {
     qt::qErrorBox(parent_, "Failed to save the network configuration.");
