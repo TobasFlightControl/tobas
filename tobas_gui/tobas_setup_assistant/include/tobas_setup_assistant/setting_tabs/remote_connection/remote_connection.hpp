@@ -2,6 +2,7 @@
 
 #include "../base_setting.hpp"
 #include "./host/host.hpp"
+#include "./network_iface.hpp"
 
 namespace gui
 {
@@ -16,6 +17,7 @@ class RemoteConnectionWidget : public BaseSettingWidget
   using self = RemoteConnectionWidget;
   using super = BaseSettingWidget;
 
+  static constexpr char kNetworkIfaceLabel[] = "Network Interface";
   static constexpr char kHostLabel[] = "Host";
 
 public:
@@ -31,9 +33,11 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  QString networkInterface() const;
   QString host() const;
 
 private:
+  NetworkIfaceWidget* nif_;
   HostWidget* host_;
 };
 };  // namespace rc
