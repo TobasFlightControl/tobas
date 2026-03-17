@@ -44,7 +44,7 @@ void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node, tobas::Fli
   cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::topic::kSpeedRollDpitchCmd);
 }
 
-void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&, bool)
+void SpeedRollDeltaPitchController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 

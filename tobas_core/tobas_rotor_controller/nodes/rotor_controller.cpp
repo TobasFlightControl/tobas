@@ -268,7 +268,7 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
   if (!is_armed_ && req->arming) {
     if (!health_) {
       res->success = false;
-      res->message = "Vehicle health status is not received yet.";
+      res->message = "Vehicle health status has not been received yet.";
       return;
     }
 

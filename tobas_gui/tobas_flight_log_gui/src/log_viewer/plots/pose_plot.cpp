@@ -50,7 +50,7 @@ void PosePlotWidget::setTimeScale(double t_start, double t_stop)
 }
 
 void PosePlotWidget::setData(
-  const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
 {
   updateCurrentSamples(odom_msgs);
@@ -61,7 +61,7 @@ void PosePlotWidget::setData(
   }
 }
 
-void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
+void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -69,12 +69,12 @@ void PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometr
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
-    const auto& pos = odom.frame.trans;
+    const auto& pos = odom.odom.odom.frame.trans;
     val_data[0].push_back(pos.x);
     val_data[1].push_back(pos.y);
     val_data[2].push_back(pos.z);
 
-    const kdl::Rotation rot(odom.frame.rot.data);
+    const kdl::Rotation rot(odom.odom.odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
     val_data[3].push_back(tbs::rad2deg(roll));
     val_data[4].push_back(tbs::rad2deg(pitch));

@@ -275,20 +275,20 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   if (odom_it != data.end()) {
     const auto& msg = odom_decoder_.decode(odom_it->second);
 
-    const auto& pos = msg.frame.trans;
-    const kdl::Rotation rot(msg.frame.rot.data);
+    const auto& pos = msg.odom.odom.frame.trans;
+    const kdl::Rotation rot(msg.odom.odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
     res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
            std::to_string(tbs::rad2deg(roll)) + ',' + std::to_string(tbs::rad2deg(pitch)) + ',' +
            std::to_string(tbs::rad2deg(yaw)) + ',';
 
-    const auto& lin_vel = msg.twist.linear;
-    const auto& ang_vel = msg.twist.angular;
+    const auto& lin_vel = msg.odom.odom.twist.linear;
+    const auto& ang_vel = msg.odom.odom.twist.angular;
     res += std::to_string(lin_vel.x) + ',' + std::to_string(lin_vel.y) + ',' + std::to_string(lin_vel.z) + ',' +
            std::to_string(ang_vel.x) + ',' + std::to_string(ang_vel.y) + ',' + std::to_string(ang_vel.z) + ',';
 
-    const auto& lin_acc = msg.accel.linear;
-    const auto& ang_acc = msg.accel.angular;
+    const auto& lin_acc = msg.odom.odom.accel.linear;
+    const auto& ang_acc = msg.odom.odom.accel.angular;
     res += std::to_string(lin_acc.x) + ',' + std::to_string(lin_acc.y) + ',' + std::to_string(lin_acc.z) + ',' +
            std::to_string(ang_acc.x) + ',' + std::to_string(ang_acc.y) + ',' + std::to_string(ang_acc.z) + ',';
   }

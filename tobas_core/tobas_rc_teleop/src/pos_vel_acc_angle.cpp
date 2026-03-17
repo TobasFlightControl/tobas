@@ -54,9 +54,12 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
 }
 
-void PosVelAccAngleController::reset(const tobas_msgs::Odometry& odom, bool landed)
+void PosVelAccAngleController::reset(
+  const builtin_interfaces::msg::Time& stamp,
+  const tobas_msgs::Odometry& odom,
+  bool landed)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
   const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
 

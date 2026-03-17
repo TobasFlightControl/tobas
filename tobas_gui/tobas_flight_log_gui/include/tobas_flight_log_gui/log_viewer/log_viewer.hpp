@@ -33,7 +33,7 @@ private:
   std::unordered_set<std::string> decode_fail_topics_;
   rosbag2_cpp::Reader reader_;
 
-  QVector<tobas_msgs::msg::Odometry> odom_data_;
+  QVector<tobas_msgs::msg::OdometryWithCovarianceStamped> odom_data_;
   QVector<tobas_msgs::msg::Imu> raw_imu_data_;
   QVector<tobas_msgs::msg::Imu> filt_imu_data_;
   QVector<tobas_msgs::msg::MagneticField> mag_data_;
@@ -55,7 +55,7 @@ private:
   QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data_;
   QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_data_;
 
-  MessageDecoderCache<tobas_msgs::msg::Odometry> odom_decoder_;
+  MessageDecoderCache<tobas_msgs::msg::OdometryWithCovarianceStamped> odom_decoder_;
   MessageDecoderCache<tobas_msgs::msg::Imu> imu_decoder_;
   MessageDecoderCache<tobas_msgs::msg::MagneticField> mag_decoder_;
   MessageDecoderCache<tobas_msgs::msg::Gnss> gnss_decoder_;

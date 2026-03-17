@@ -47,7 +47,7 @@ void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
   rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::topic::kRateCmd);
 }
 
-void AccelRateController::reset(const tobas_msgs::Odometry&, bool)
+void AccelRateController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 

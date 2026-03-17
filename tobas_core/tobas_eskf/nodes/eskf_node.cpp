@@ -28,7 +28,7 @@
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_eskf/eskf.hpp"
 #include "tobas_eskf/util.hpp"
@@ -45,7 +45,7 @@ class ErrorStateKalmanFilterNode : public tobas::BaseNode
   using BaroMsg = tobas_msgs::msg::FluidPressure;
   using GnssMsg = tobas_msgs::Gnss;
   using PoseMsg = tobas_kdl_msgs::FrameWithCovarianceStamped;
-  using OdomMsg = tobas_msgs::Odometry;
+  using OdomMsg = tobas_msgs::OdometryWithCovarianceStamped;
   using MagRefMsg = tobas_msgs::MagneticField;
   using GnssOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
   using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
@@ -383,26 +383,26 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(OdomMsg& odom) const
   odom.header.frame_id = tobas::frame::kWorld;
 
   // Position (Global): IMU frame -> Base frame
-  odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
-  odom.position_covariance = eskf_.getPositionCovariance();
+  odom.odom.odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
+  odom.odom.position_covariance = eskf_.getPositionCovariance();
 
   // Linear velocity (Local): IMU frame -> Base frame
-  odom.twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
-  odom.velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
+  odom.odom.odom.twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
+  odom.odom.velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
 
   // Orientation (Global)
-  odom.frame.M.data = W_Rot_B.toRotationMatrix();
-  odom.orientation_covariance = eskf_.getRotationCovariance();
+  odom.odom.odom.frame.M.data = W_Rot_B.toRotationMatrix();
+  odom.odom.orientation_covariance = eskf_.getRotationCovariance();
 
   // Angular velocity (Local)
-  odom.twist.rot.data = B_Gyro;
-  odom.gyro_covariance = fixed_gyro_cov_ + eskf_.getGyroBiasCovariance();
+  odom.odom.odom.twist.rot.data = B_Gyro;
+  odom.odom.gyro_covariance = fixed_gyro_cov_ + eskf_.getGyroBiasCovariance();
 
   // Linear acceleration (Local)
-  odom.accel.linear.data = B_Acc;
+  odom.odom.odom.accel.linear.data = B_Acc;
 
   // Angular acceleration (Local)
-  odom.accel.angular = imu_filt_->dgyro;
+  odom.odom.odom.accel.angular = imu_filt_->dgyro;
 }
 
 void ErrorStateKalmanFilterNode::publishMagRef(const Vector3d& mag_W) const
@@ -698,7 +698,7 @@ void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
 
   // Create TF message
   tf_.header.stamp = odom->header.stamp;
-  kdl::transformKDLToMsg(odom->frame, tf_.transform);
+  kdl::transformKDLToMsg(odom->odom.odom.frame, tf_.transform);
 
   // Publish odometry and TF
   odom_pub_->publish(std::move(odom));

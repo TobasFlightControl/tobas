@@ -26,7 +26,7 @@
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 #include "tobas_planar_multi_controller/translational_eom.hpp"
@@ -83,7 +83,7 @@ private:
   bool js_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -103,7 +103,7 @@ private:
   // Subscribers
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -141,7 +141,7 @@ private:
   // Topic callbacks
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
@@ -386,7 +386,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 }
 
-void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   if (!odom_) {
     odom_ = odom;
@@ -402,10 +402,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->header.stamp = odom->header.stamp;
 
   // エイリアス
-  const auto& cur_pos_W = odom->frame.p;
-  const auto& cur_rot = odom->frame.M;
-  const auto& cur_vel_B = odom->twist.vel;
-  const auto& cur_gyro_B = odom->twist.rot;
+  const auto& cur_pos_W = odom->odom.odom.frame.p;
+  const auto& cur_rot = odom->odom.odom.frame.M;
+  const auto& cur_vel_B = odom->odom.odom.twist.vel;
+  const auto& cur_gyro_B = odom->odom.odom.twist.rot;
 
   // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど制御器の自然周波数が小さくなるように調整する．
   // 例えば可変ピッチプロペラの姿勢制御の場合，これで低速域でのジャイロに対するピッチ角の感度が一定になる． (memo: 3-33)

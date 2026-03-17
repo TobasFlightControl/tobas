@@ -22,7 +22,7 @@
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 namespace tobas
 {
@@ -65,7 +65,7 @@ private:
   bool topics_received_ = false;
   tobas::CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;           // 大気圧
-  tobas_msgs::Odometry::ConstSharedPtr odom_flu_;                         // 現在の状態 (FLU座標系)
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;    // 現在の状態 (FLU座標系)
   tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_flu_;  // 現在のコマンド (FLU座標系)
   tobas_msgs::Odometry odom_frd_;                                         // 現在の状態 (FRD座標系)
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // ロータのアーム状態
@@ -81,7 +81,7 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
 
@@ -91,8 +91,8 @@ private:
   bool initialize();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishThrusts(const Eigen::VectorXd& thrusts);
-  void publishDeflections(const Eigen::VectorXd& deflections);
+  void publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts);
+  void publishDeflections(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& deflections);
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
   void updateForwardSpeedWeight();
@@ -120,7 +120,7 @@ private:
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu);
   void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_flu);
 
   void checkTopicsTimerCb();
@@ -233,12 +233,12 @@ void ControllerNode::updateSetStateVector()
   lqd_.target_state(eom_.kStateIdx_r) = 0.;
 }
 
-void ControllerNode::publishThrusts(const Eigen::VectorXd& thrusts)
+void ControllerNode::publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts)
 {
   assert(static_cast<size_t>(thrusts.size()) == drone_.prop->numRotors());
 
   auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-  thrusts_msg->header.stamp = odom_frd_.header.stamp;
+  thrusts_msg->header.stamp = stamp;
 
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     thrusts_msg->thrusts.emplace_back();
@@ -249,12 +249,12 @@ void ControllerNode::publishThrusts(const Eigen::VectorXd& thrusts)
   tar_thrusts_pub_->publish(std::move(thrusts_msg));
 }
 
-void ControllerNode::publishDeflections(const Eigen::VectorXd& deflections)
+void ControllerNode::publishDeflections(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& deflections)
 {
   assert(static_cast<size_t>(deflections.size()) == drone_.fixed_wing->numControlSurfaces());
 
   auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-  tar_angles_msg->header.stamp = odom_frd_.header.stamp;
+  tar_angles_msg->header.stamp = stamp;
 
   for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& link_name = cs_item.first;
@@ -477,7 +477,7 @@ void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSh
   air_pressure_ = pressure;
 }
 
-void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu)
+void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu)
 {
   if (!odom_flu_) {
     odom_flu_ = odom_flu;
@@ -494,7 +494,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu
   }
 
   // FLU -> FRD
-  tobas::odometryFluToFrd(*odom_flu_, odom_frd_);
+  tobas::odometryFluToFrd(odom_flu_->odom.odom, odom_frd_);
   tobas::speedRollDeltaPitchFluToFrd(*cmd_flu_, cmd_frd_);
 
   // 現在の速度を使って状態方程式を更新
@@ -527,8 +527,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_flu
   const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
 
   // Publish
-  publishThrusts(thrusts);
-  publishDeflections(deflections);
+  publishThrusts(odom_flu->header.stamp, thrusts);
+  publishDeflections(odom_flu->header.stamp, deflections);
 }
 
 void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_flu)

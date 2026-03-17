@@ -192,7 +192,7 @@ int CompleteMagCalibWidget::numActiveSamples() const
 
 size_t CompleteMagCalibWidget::computeFaceIndex() const
 {
-  const auto& R_W_B = odom_->frame.M;
+  const auto& R_W_B = odom_->odom.odom.frame.M;
 
   // 世界座標系から見た各軸のZ成分を取得
   const auto axz = R_W_B.axisX().z();
@@ -724,7 +724,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
     // 現在の向きの回転量を更新
     if (!completed_.at(face_idx)) {
       // グローバルZ軸回りの回転速さを計算
-      const auto W_gyro = odom_->frame.M * odom_->twist.rot;
+      const auto W_gyro = odom_->odom.odom.frame.M * odom_->odom.odom.twist.rot;
       const auto yawrate = std::abs(W_gyro.z());
 
       // 回転を検知したら回転量を積分
@@ -770,7 +770,7 @@ void CompleteMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstShared
   arming_ = msg;
 }
 
-void CompleteMagCalibWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg)
+void CompleteMagCalibWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& msg)
 {
   odom_ = msg;
 }

@@ -49,9 +49,12 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::topic::kAngleThrotVectorCmd);
 }
 
-void AngleThrottleVectorController::reset(const tobas_msgs::Odometry& odom, bool)
+void AngleThrottleVectorController::reset(
+  const builtin_interfaces::msg::Time& stamp,
+  const tobas_msgs::Odometry& odom,
+  bool)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
   const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
   roll_filt_.resetCurrentTrajectoryPoint(roll);

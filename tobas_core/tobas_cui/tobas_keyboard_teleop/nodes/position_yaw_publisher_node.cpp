@@ -14,7 +14,7 @@
 
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_mission_msgs/action/execute_mission.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 using namespace std::chrono_literals;
 
@@ -56,12 +56,12 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 
 std::expected<kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPtr node)
 {
-  tobas_msgs::Odometry odom;
+  tobas_msgs::OdometryWithCovarianceStamped odom;
   if (!rclcpp::wait_for_message(odom, node, tobas::topic::kOdometry, 1s, ros2::qos::DefaultQoS())) {
     return std::unexpected("Failed to get the current odometry.");
   }
 
-  return odom.frame;
+  return odom.odom.odom.frame;
 }
 
 int main(int argc, char** argv)

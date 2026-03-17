@@ -14,7 +14,7 @@
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 #include "tobas_rc_teleop/accel_angle.hpp"
@@ -73,7 +73,7 @@ private:
   // Mutables
   tobas::FlightMode cur_mode_;
   builtin_interfaces::msg::Time t_arm_start_, t_disarm_start_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
@@ -82,7 +82,7 @@ private:
   std::map<tobas::FlightMode, std::unique_ptr<BaseController>> controllers_;
 
   // PubSub
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -98,7 +98,7 @@ private:
 
   bool isFlightModeApplicable(tobas::FlightMode mode);
 
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
@@ -202,7 +202,7 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.yaw = tobas::kRCInputMid;
   idle_rcin.throttle = tobas::kRcInputMin;
 
-  controllers_[cur_mode_]->update(idle_rcin, *odom_, landed_->landed);
+  controllers_[cur_mode_]->update(idle_rcin, odom_->odom.odom, landed_->landed);
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
@@ -301,7 +301,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
   return true;
 }
 
-void RCTeleopNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void RCTeleopNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }
@@ -433,7 +433,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           break;
         }
 
-        controllers_.at(rcin->mode)->reset(*odom_, landed_->landed);
+        controllers_.at(rcin->mode)->reset(rcin->header.stamp, odom_->odom.odom, landed_->landed);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
 
@@ -469,7 +469,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       // フライトモードの変更があった場合，適用可能な場合に限り変更する．
       // 適用できない場合は前のフライトモードを継続する．
       if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode)) {
-        controllers_[rcin->mode]->reset(*odom_, landed_->landed);
+        controllers_[rcin->mode]->reset(rcin->header.stamp, odom_->odom.odom, landed_->landed);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
       }
@@ -492,7 +492,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         }
       }
       else {  // それ以外は普通にコマンド送信
-        controllers_[cur_mode_]->update(*rcin, *odom_, landed_->landed);
+        controllers_[cur_mode_]->update(*rcin, odom_->odom.odom, landed_->landed);
       }
 
       // ディスアームコマンドの開始時刻を更新して抜ける

@@ -33,7 +33,7 @@ void RosQtBridge::initializeScopedTopics(const std::string& ns)
   addScoped<tobas_msgs::msg::RotorStateArray, &self::rotorStatesReceived>(ns, path::join(rm, topic::kRotorStates));
   addScoped<tobas_msgs::msg::RotorLivelinessArray, &self::rotorLivelinessReceived>(ns, path::join(rm, topic::kRotorLiv));
   addScoped<tobas_msgs::msg::JointStateArray, &self::jointStatesReceived>(ns, path::join(rm, topic::kJointStates));
-  addScoped<tobas_msgs::Odometry, &self::odomReceived>(ns, path::join(rm, topic::kOdometry));
+  addScoped<tobas_msgs::OdometryWithCovarianceStamped, &self::odomReceived>(ns, path::join(rm, topic::kOdometry));
   addScoped<tobas_msgs::msg::Arming, &self::armingReceived>(ns, path::join(rm, topic::kArming));
   addScoped<tobas_msgs::msg::VehicleHealth, &self::vehicleHealthReceived>(ns, path::join(rm, topic::kVehicleHealth));
   addScoped<tobas_msgs::msg::RosbagState, &self::rosbagStateReceived>(ns, path::join(rm, topic::kRosbagState));

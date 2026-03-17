@@ -47,9 +47,9 @@ void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mod
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelYaw>(tobas::topic::kAccelYawCmd);
 }
 
-void AccelYawController::reset(const tobas_msgs::Odometry& odom, bool)
+void AccelYawController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& odom, bool)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
   ax_filt_.resetCurrentTrajectoryPoint(0.);
   ay_filt_.resetCurrentTrajectoryPoint(0.);

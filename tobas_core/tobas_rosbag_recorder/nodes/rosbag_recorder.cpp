@@ -38,7 +38,7 @@
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_msgs_adapter/vibration_level.hpp>
 
@@ -79,7 +79,7 @@ private:
   tobas_msgs::msg::Imu imu_;
   tobas_msgs::msg::MagneticField mag_;
   tobas_msgs::msg::Gnss gnss_;
-  tobas_msgs::msg::Odometry odom_;
+  tobas_msgs::msg::OdometryWithCovarianceStamped odom_;
   tobas_msgs::msg::VibrationLevel vibe_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
@@ -157,7 +157,7 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
   addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::topic::kRotorLiv);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);
-  addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::topic::kOdometry);
+  addTypeAdaptedMsgSub<tobas_msgs::OdometryWithCovarianceStamped>(odom_, tobas::topic::kOdometry);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::topic::kImuSamplingTime);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::topic::kControlLatency);
   addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::topic::kArming);

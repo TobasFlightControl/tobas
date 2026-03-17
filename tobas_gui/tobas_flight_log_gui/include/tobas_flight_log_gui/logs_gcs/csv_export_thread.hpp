@@ -15,7 +15,7 @@
 #include <tobas_msgs/msg/imu.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/magnetic_field.hpp>
-#include <tobas_msgs/msg/odometry.hpp>
+#include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
@@ -54,7 +54,7 @@ private:
 
   rosbag2_cpp::Reader reader_;
 
-  MessageDecoder<tobas_msgs::msg::Odometry> odom_decoder_;
+  MessageDecoder<tobas_msgs::msg::OdometryWithCovarianceStamped> odom_decoder_;
   MessageDecoder<tobas_msgs::msg::Imu> imu_decoder_;
   MessageDecoder<tobas_msgs::msg::MagneticField> mag_decoder_;
   MessageDecoder<tobas_msgs::msg::Gnss> gnss_decoder_;

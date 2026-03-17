@@ -22,7 +22,7 @@
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 #include "tobas_mission_execution_mc/stop_trajectory_generator.hpp"
@@ -98,7 +98,7 @@ private:
     kManualOverride,
   } status_ = kNoProblem;
 
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
@@ -111,7 +111,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pvapy_pub_;
 
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -137,7 +137,7 @@ private:
   bool executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res);
 
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
@@ -382,8 +382,8 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   }
   else {
     command_ = std::make_unique<Command>();
-    start_pos = odom_->frame.p;
-    odom_->frame.M.getRPY(start_rot.roll, start_rot.pitch, start_rot.yaw);
+    start_pos = odom_->odom.odom.frame.p;
+    odom_->odom.odom.frame.M.getRPY(start_rot.roll, start_rot.pitch, start_rot.yaw);
   }
 
   // 目標位置を計算
@@ -474,7 +474,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     }
 
     // 現在の位置を取得
-    const auto& cur_pos = odom_->frame.p;
+    const auto& cur_pos = odom_->odom.odom.frame.p;
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     if (t > duration) {
@@ -536,8 +536,8 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   }
   else {
     command_ = std::make_unique<Command>();
-    start_pos = odom_->frame.p;
-    start_yaw = odom_->frame.M.getYaw();
+    start_pos = odom_->odom.odom.frame.p;
+    start_yaw = odom_->odom.odom.frame.M.getYaw();
   }
 
   // 目標高度を決定
@@ -592,7 +592,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     }
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
-    const auto& cur_pos = odom_->frame.p;
+    const auto& cur_pos = odom_->odom.odom.frame.p;
     const auto alt_err_abs = std::abs(tar_z - cur_pos.z());
     if (t > duration) {
       if (goal.altitude_tolerance <= 0. || alt_err_abs < goal.altitude_tolerance) {
@@ -627,8 +627,8 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   }
   else {
     command_ = std::make_unique<Command>();
-    start_pos = odom_->frame.p;
-    odom_->frame.M.getRPY(start_rot.roll, start_rot.pitch, start_rot.yaw);
+    start_pos = odom_->odom.odom.frame.p;
+    odom_->odom.odom.frame.M.getRPY(start_rot.roll, start_rot.pitch, start_rot.yaw);
   }
 
   // 下降速度を決定
@@ -669,7 +669,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto imu_time = odom_->header.stamp;  // Copy
 
     // 鉛直方向の速度を計算
-    const auto cur_vel_W = odom_->frame.M * odom_->twist.vel;
+    const auto cur_vel_W = odom_->odom.odom.frame.M * odom_->odom.odom.twist.vel;
     const auto& cur_vz = cur_vel_W.z();
 
     // 最後に高い速度を検知した時刻からの経過時間を計算
@@ -679,7 +679,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto time_from_last_high_speed = imu_time - t_last_high_speed;
 
     // 高度誤差を計算
-    const auto z_error = tar_z - odom_->frame.p.z();
+    const auto z_error = tar_z - odom_->odom.odom.frame.p.z();
 
     // 以下の条件のうちいずれか1つが満たされたらモータを停止して終了
     // 1. 自重に近い地面反力を検知（共通の着陸検知アルゴリズム）
@@ -729,7 +729,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   wp.timeout = goal.timeout;
 
   // 目標高度を決定
-  const auto& cur_pos = odom_->frame.p;
+  const auto& cur_pos = odom_->odom.odom.frame.p;
   const auto cur_alt = cur_pos.z() - launch_point_->z();
   const auto xy_dist = math::norm(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
   const auto min_alt_goal = goal.min_altitude > 0. ? goal.min_altitude : rtl_cfg_.min_alt;
@@ -768,7 +768,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   return true;
 }
 
-void MulticopterMissionExecutorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void MulticopterMissionExecutorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }
@@ -783,7 +783,7 @@ void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::Con
   // アームされた座標を保存
   if (!arming_->data && arming->data) {
     if (odom_) {
-      launch_point_ = std::make_unique<kdl::Vector>(odom_->frame.p);
+      launch_point_ = std::make_unique<kdl::Vector>(odom_->odom.odom.frame.p);
     }
   }
 
@@ -834,19 +834,19 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
   // Check the essential topics
   if (!odom_) {
-    TOBAS_WARN("Odometry is not received yet.");
+    TOBAS_WARN("Odometry has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (!arming_) {
-    TOBAS_WARN("Arming status is not received yet.");
+    TOBAS_WARN("Arming status has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (!gnss_origin_) {
-    TOBAS_WARN("GNSS origin is not received yet.");
+    TOBAS_WARN("GNSS origin has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (!landed_) {
-    TOBAS_WARN("Landed state is not received yet.");
+    TOBAS_WARN("Landed state has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 

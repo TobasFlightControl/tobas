@@ -48,7 +48,7 @@ void AccelPlotWidget::setTimeScale(double t_start, double t_stop)
 }
 
 void AccelPlotWidget::setData(
-  const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
 {
   updateCurrentSamples(odom_msgs);
@@ -59,7 +59,7 @@ void AccelPlotWidget::setData(
   }
 }
 
-void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
+void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -67,12 +67,12 @@ void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
-    const auto& lin_acc = odom.accel.linear;
+    const auto& lin_acc = odom.odom.odom.accel.linear;
     val_data[0].push_back(lin_acc.x);
     val_data[1].push_back(lin_acc.y);
     val_data[2].push_back(lin_acc.z);
 
-    const auto& ang_acc = odom.accel.angular;
+    const auto& ang_acc = odom.odom.odom.accel.angular;
     val_data[3].push_back(ang_acc.x);
     val_data[4].push_back(ang_acc.y);
     val_data[5].push_back(ang_acc.z);

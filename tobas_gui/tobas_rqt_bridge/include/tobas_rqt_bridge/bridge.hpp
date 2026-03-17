@@ -28,7 +28,7 @@ Q_SIGNALS:
   void rotorStatesReceived(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
   void rotorLivelinessReceived(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
   void jointStatesReceived(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& msg);
-  void odomReceived(const tobas_msgs::Odometry::ConstSharedPtr& msg);
+  void odomReceived(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& msg);
   void armingReceived(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
   void vehicleHealthReceived(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& msg);
   void rosbagStateReceived(const tobas_msgs::msg::RosbagState::ConstSharedPtr& msg);

@@ -50,9 +50,12 @@ void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode
   cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(tobas::topic::kPosVelAccYawCmd);
 }
 
-void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom, bool landed)
+void PosVelAccYawController::reset(
+  const builtin_interfaces::msg::Time& stamp,
+  const tobas_msgs::Odometry& odom,
+  bool landed)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
   const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
 

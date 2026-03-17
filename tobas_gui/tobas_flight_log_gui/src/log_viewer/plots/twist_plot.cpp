@@ -49,7 +49,7 @@ void TwistPlotWidget::setTimeScale(double t_start, double t_stop)
 }
 
 void TwistPlotWidget::setData(
-  const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
 {
   updateCurrentSamples(odom_msgs);
@@ -60,7 +60,7 @@ void TwistPlotWidget::setData(
   }
 }
 
-void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
+void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -68,12 +68,12 @@ void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
-    const auto& lin_vel = odom.twist.linear;
+    const auto& lin_vel = odom.odom.odom.twist.linear;
     val_data[0].push_back(lin_vel.x);
     val_data[1].push_back(lin_vel.y);
     val_data[2].push_back(lin_vel.z);
 
-    const auto& ang_vel = odom.twist.angular;
+    const auto& ang_vel = odom.odom.odom.twist.angular;
     val_data[3].push_back(ang_vel.x);
     val_data[4].push_back(ang_vel.y);
     val_data[5].push_back(ang_vel.z);

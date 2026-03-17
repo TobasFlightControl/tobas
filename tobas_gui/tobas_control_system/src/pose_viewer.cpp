@@ -355,10 +355,10 @@ double PoseViewerWidget::yawToWidth(double yaw)
   return kOriginalSize * yaw / kYawAngleOfView;
 }
 
-void PoseViewerWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   // 現在のオイラー角を更新
-  odom->frame.M.getRPY(roll_, pitch_, yaw_);
+  odom->odom.odom.frame.M.getRPY(roll_, pitch_, yaw_);
 
   // 再描画
   update();

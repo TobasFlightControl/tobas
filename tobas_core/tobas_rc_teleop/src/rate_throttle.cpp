@@ -41,7 +41,7 @@ void RateThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMode
   cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::topic::kRateThrotCmd);
 }
 
-void RateThrottleController::reset(const tobas_msgs::Odometry&, bool)
+void RateThrottleController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 

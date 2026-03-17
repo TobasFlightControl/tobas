@@ -7,7 +7,7 @@ namespace gui
 namespace log
 {
 PlotTabWidget::PlotTabWidget(
-  const QVector<tobas_msgs::msg::Odometry>& odom_data,
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
   const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
   const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
   const QVector<tobas_msgs::msg::MagneticField>& mag_data,

@@ -241,8 +241,8 @@ void BasePoseCommanderWidget::onArmRequested()
   }
 
   // 現在の位置姿勢を取得
-  const auto& cur_pos = odom_->frame.p;
-  const kdl::Euler cur_rpy(odom_->frame.M);
+  const auto& cur_pos = odom_->odom.odom.frame.p;
+  const kdl::Euler cur_rpy(odom_->odom.odom.frame.M);
 
   // 初期コマンドを現在の位置姿勢に設定
   cmd_xyz_[0]->setValue(cur_pos.x());
@@ -307,7 +307,7 @@ void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstShare
   arming_ = arming;
 }
 
-void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void BasePoseCommanderWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }

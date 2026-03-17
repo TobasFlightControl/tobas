@@ -50,7 +50,7 @@ private:
   QPushButton* home_button_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_msgs::RCInput::ConstSharedPtr rcin_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
@@ -74,7 +74,7 @@ private Q_SLOTS:
   void onHomeButtonClicked();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace sim

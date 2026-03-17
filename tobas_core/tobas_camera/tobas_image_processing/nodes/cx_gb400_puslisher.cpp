@@ -30,7 +30,7 @@
 #include <tobas_camera_msgs/srv/start_recording.hpp>
 #include <tobas_camera_msgs/srv/stop_recording.hpp>
 #include <tobas_camera_msgs/srv/take_picture_to_sd.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
@@ -57,7 +57,7 @@ private:
 
   void timerCallback();
 
-  void copterAttMsgCb(const tobas_msgs::Odometry::ConstSharedPtr& _msg);
+  void copterAttMsgCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _msg);
   void gimbalAttitudeCmdCb(const tobas_camera_msgs::msg::GimbalAttitudeCommand::ConstSharedPtr& _msg);
   void formatSdCardCb(
     const tobas_camera_msgs::srv::FormatSdCard::Request::ConstSharedPtr&,
@@ -89,7 +89,7 @@ private:
 
   ros2::PublisherPtr<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> ffmpeg_packet_pub_;
   ros2::PublisherPtr<tobas_camera_msgs::msg::Status> camera_status_pub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> copter_att_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> copter_att_sub_;
   ros2::SubscriberPtr<tobas_camera_msgs::msg::GimbalAttitudeCommand> gimbal_att_cmd_sub_;
   ros2::ServiceServerPtr<tobas_camera_msgs::srv::FormatSdCard> format_sd_card_ss_;
   ros2::ServiceServerPtr<tobas_camera_msgs::srv::SetPhotoQuality> set_photo_quality_ss_;
@@ -266,9 +266,9 @@ void CxGb400PublisherNode::timerCallback()
   }
 }
 
-void CxGb400PublisherNode::copterAttMsgCb(const tobas_msgs::Odometry::ConstSharedPtr& _msg)
+void CxGb400PublisherNode::copterAttMsgCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _msg)
 {
-  copter_attitude_ = Eigen::Quaterniond(_msg->frame.M.data);
+  copter_attitude_ = Eigen::Quaterniond(_msg->odom.odom.frame.M.data);
 }
 
 void CxGb400PublisherNode::gimbalAttitudeCmdCb(const tobas_camera_msgs::msg::GimbalAttitudeCommand::ConstSharedPtr& _msg)
