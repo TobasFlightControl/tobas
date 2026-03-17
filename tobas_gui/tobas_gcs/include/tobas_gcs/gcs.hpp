@@ -93,6 +93,7 @@ private:
   sim::SimulationWidget* simulation_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  bool executing_conn_lost_task_ = false;
 
   std::filesystem::path projectPath() const;
 
