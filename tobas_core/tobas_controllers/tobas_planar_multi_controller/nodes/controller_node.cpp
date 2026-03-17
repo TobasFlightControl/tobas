@@ -401,10 +401,13 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto dt = (cur_time - odom_->header.stamp).seconds();
   odom_ = odom;
 
-  // フィードバックメッセージを作成
+  // 設定値メッセージを作成
   auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
-  auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
   setpoint->header.stamp = cur_time;
+  setpoint->odom = odom->odom.odom;  // 制御しない値は現在値を入れる
+
+  // フィードバックメッセージを作成
+  auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
   feedback->header.stamp = cur_time;
 
   // エイリアス
