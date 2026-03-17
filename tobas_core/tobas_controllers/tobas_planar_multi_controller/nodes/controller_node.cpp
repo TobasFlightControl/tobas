@@ -26,6 +26,7 @@
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
@@ -98,6 +99,7 @@ private:
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
+  ros2::PublisherPtr<tobas_msgs::OdometryStamped> setpoint_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::MulticopterControllerFeedback> feedback_pub_;
 
   // Subscribers
@@ -186,6 +188,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
+  setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   // Register subscribers
@@ -394,12 +397,15 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   }
 
   // 経過時間を計算してオドメトリを更新
-  const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
+  const auto& cur_time = odom->header.stamp;
+  const auto dt = (cur_time - odom_->header.stamp).seconds();
   odom_ = odom;
 
   // フィードバックメッセージを作成
+  auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
-  feedback->header.stamp = odom->header.stamp;
+  setpoint->header.stamp = cur_time;
+  feedback->header.stamp = cur_time;
 
   // エイリアス
   const auto& cur_pos_W = odom->odom.odom.frame.p;
@@ -454,8 +460,8 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     acc_cmd_->yaw = pos_cmd_->yaw;
 
     // フィードバックメッセージを埋める
-    feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
+    setpoint->odom.frame.p = pos_cmd_->pos;
+    setpoint->odom.twist.vel = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = trans_ctrl_.ei;
   }
 
@@ -476,7 +482,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     tar_angle_->yaw = acc_cmd_->yaw;
 
     // フィードバックメッセージを埋める
-    feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
+    setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
   }
 
   // 姿勢制御器
@@ -520,7 +526,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
 
     // フィードバックメッセージを埋める
-    feedback->target_angle = *tar_angle_;
+    setpoint->odom.frame.M = tar_angle_->toRotation();
     feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
@@ -538,7 +544,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
 
       // フィードバックメッセージを埋める
-      feedback->target_gyro = *tar_gyro_;
+      setpoint->odom.twist.rot = *tar_gyro_;
     }
 
     // ミキサー
@@ -550,12 +556,12 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       }
 
       // フィードバックメッセージを埋める
-      feedback->target_dgyro = tar_dgyro_;
+      setpoint->odom.accel.angular = tar_dgyro_;
     }
 
     // 目標推力を発行
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-    thrusts_msg->header.stamp = odom->header.stamp;
+    thrusts_msg->header.stamp = cur_time;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
@@ -564,6 +570,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     tar_thrusts_pub_->publish(std::move(thrusts_msg));
 
     // フィードバックメッセージを発行
+    setpoint_pub_->publish(std::move(setpoint));
     feedback_pub_->publish(std::move(feedback));
   }
 }

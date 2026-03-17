@@ -26,6 +26,7 @@
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
@@ -81,6 +82,7 @@ private:
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> tar_angles_pub_;
+  ros2::PublisherPtr<tobas_msgs::OdometryStamped> setpoint_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::MulticopterControllerFeedback> feedback_pub_;
 
   // Subscribers
@@ -168,6 +170,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
   tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
+  setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   // Register subscribers
@@ -369,12 +372,15 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   }
 
   // 経過時間を計算してオドメトリを更新
-  const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
+  const auto& cur_time = odom->header.stamp;
+  const auto dt = (cur_time - odom_->header.stamp).seconds();
   odom_ = odom;
 
   // フィードバックメッセージを作成
+  auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
-  feedback->header.stamp = odom->header.stamp;
+  setpoint->header.stamp = cur_time;
+  feedback->header.stamp = cur_time;
 
   // エイリアス
   const auto& cur_pos_W = odom->odom.odom.frame.p;
@@ -396,8 +402,8 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       pos_cmd_->acc + pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
 
     // フィードバックメッセージを埋める
-    feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
+    setpoint->odom.frame.p = pos_cmd_->pos;
+    setpoint->odom.twist.vel = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
@@ -408,10 +414,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
 
     // 目標角速度を計算（接地している場合は誤差の積分を行わない）
-    rate_cmd_->rate = rot_pi_.update(cur_rot, angle_cmd_->angle.toRotation(), landed_->landed ? 0. : dt);
+    const auto tar_rot = angle_cmd_->angle.toRotation();
+    rate_cmd_->rate = rot_pi_.update(cur_rot, tar_rot, landed_->landed ? 0. : dt);
 
     // フィードバックメッセージを埋める
-    feedback->target_angle = angle_cmd_->angle;
+    setpoint->odom.frame.M = tar_rot;
     feedback->angle_integral_error = rot_pi_.getIntegralError();
   }
 
@@ -425,7 +432,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B);
 
     // フィードバックメッセージを埋める
-    feedback->target_gyro = rate_cmd_->rate;
+    setpoint->odom.twist.rot = rate_cmd_->rate;
   }
 
   // ミキサー
@@ -441,13 +448,13 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       }
 
       // フィードバックメッセージを埋める
-      feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
-      feedback->target_dgyro = *tar_dgyro_;
+      setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
+      setpoint->odom.accel.angular = *tar_dgyro_;
     }
 
     // 推力を発行
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-    tar_thrusts->header.stamp = odom->header.stamp;
+    tar_thrusts->header.stamp = cur_time;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
@@ -457,7 +464,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // チルト角を発行
     auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-    tar_angles->header.stamp = odom->header.stamp;
+    tar_angles->header.stamp = cur_time;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       const auto& rotor = rotor_it.second;
       if (rotor->tilt_joint_name.empty()) {
@@ -470,6 +477,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     tar_angles_pub_->publish(std::move(tar_angles));
 
     // フィードバックメッセージを発行
+    setpoint_pub_->publish(std::move(setpoint));
     feedback_pub_->publish(std::move(feedback));
   }
 }

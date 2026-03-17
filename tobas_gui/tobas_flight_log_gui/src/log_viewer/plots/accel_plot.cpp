@@ -49,10 +49,10 @@ void AccelPlotWidget::setTimeScale(double t_start, double t_stop)
 
 void AccelPlotWidget::setData(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
-  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
+  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   updateCurrentSamples(odom_msgs);
-  updateTargetSamples(ctrl_fb_msgs);
+  updateTargetSamples(setpoint_msgs);
 
   for (auto& plot : plots_) {
     plot->replot();
@@ -83,21 +83,20 @@ void AccelPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
   }
 }
 
-void AccelPlotWidget::updateTargetSamples(
-  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
+void AccelPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
 
-  for (const auto& ctrl_fb : ctrl_fb_msgs) {
-    t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
+  for (const auto& setpoint : setpoint_msgs) {
+    t_data.push_back(ros2::seconds(setpoint.header.stamp));
 
-    const auto& lin_acc = ctrl_fb.target_accel;
+    const auto& lin_acc = setpoint.odom.accel.linear;
     val_data[0].push_back(lin_acc.x);
     val_data[1].push_back(lin_acc.y);
     val_data[2].push_back(lin_acc.z);
 
-    const auto& ang_acc = ctrl_fb.target_dgyro;
+    const auto& ang_acc = setpoint.odom.accel.angular;
     val_data[3].push_back(ang_acc.x);
     val_data[4].push_back(ang_acc.y);
     val_data[5].push_back(ang_acc.z);

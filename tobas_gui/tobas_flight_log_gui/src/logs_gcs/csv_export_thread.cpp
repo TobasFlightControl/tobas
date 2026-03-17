@@ -88,7 +88,7 @@ void CsvExportThread::run()
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
       else if (topic.ends_with(path::join("/", tobas::topic::kOdometry))) {
-        const auto& msg = odom_decoder_.decode(ser_data);
+        const auto& msg = odom_cov_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kOdometry] = ser_data;
       }
       else if (topic.ends_with(path::join("/", tobas::topic::kMagneticField))) {
@@ -273,7 +273,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   // Pose, Twist, Accel
   const auto odom_it = data.find(tobas::topic::kOdometry);
   if (odom_it != data.end()) {
-    const auto& msg = odom_decoder_.decode(odom_it->second);
+    const auto& msg = odom_cov_decoder_.decode(odom_it->second);
 
     const auto& pos = msg.odom.odom.frame.trans;
     const kdl::Rotation rot(msg.odom.odom.frame.rot.data);
