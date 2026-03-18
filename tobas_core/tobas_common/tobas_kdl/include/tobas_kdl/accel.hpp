@@ -24,6 +24,7 @@ public:
   static inline Accel Zero();
 
   inline void setZero();
+  inline void setNaN();
 
   inline Eigen::Vector6d ravel() const;
 
@@ -57,6 +58,12 @@ inline void Accel::setZero()
 {
   linear.setZero();
   angular.setZero();
+}
+
+inline void Accel::setNaN()
+{
+  linear.setNaN();
+  angular.setNaN();
 }
 
 inline Eigen::Vector6d Accel::ravel() const

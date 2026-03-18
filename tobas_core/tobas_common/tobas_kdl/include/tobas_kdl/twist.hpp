@@ -28,6 +28,7 @@ public:
   static inline Twist Zero();
 
   inline void setZero();
+  inline void setNaN();
 
   inline Eigen::Vector6d ravel() const;
 
@@ -76,6 +77,12 @@ inline void Twist::setZero()
 {
   vel.setZero();
   rot.setZero();
+}
+
+inline void Twist::setNaN()
+{
+  vel.setNaN();
+  rot.setNaN();
 }
 
 inline Eigen::Vector6d Twist::ravel() const

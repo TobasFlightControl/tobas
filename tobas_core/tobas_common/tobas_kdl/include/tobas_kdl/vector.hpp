@@ -85,6 +85,7 @@ public:
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
+  inline void setNaN();
 
   inline double norm() const;
   inline double squaredNorm() const;
@@ -283,6 +284,11 @@ inline Vector Vector::clamp(const Vector& lb, const Vector& ub) const
 inline void Vector::setZero()
 {
   data.setZero();
+}
+
+inline void Vector::setNaN()
+{
+  data.setConstant(NAN);
 }
 
 inline double Vector::norm() const

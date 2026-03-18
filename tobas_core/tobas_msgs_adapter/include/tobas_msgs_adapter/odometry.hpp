@@ -19,6 +19,13 @@ struct Odometry
   using ConstSharedPtr = std::shared_ptr<const Odometry>;
   using UniquePtr = std::unique_ptr<Odometry>;
   using ConstUniquePtr = std::unique_ptr<const Odometry>;
+
+  void setNaN()
+  {
+    frame.setNaN();
+    twist.setNaN();
+    accel.setNaN();
+  }
 };
 }  // namespace tobas_msgs
 
