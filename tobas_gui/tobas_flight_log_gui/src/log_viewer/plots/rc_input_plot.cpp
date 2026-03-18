@@ -131,6 +131,10 @@ void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& msgs)
   QVector<double> kill_data;
 
   for (const auto& msg : msgs) {
+    if (!msg.ok) {
+      continue;
+    }
+
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     roll_data.push_back(msg.roll);

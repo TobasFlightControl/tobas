@@ -98,6 +98,10 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   QVector<double> up_speed_data;
 
   for (const auto& gnss : gnss_msgs) {
+    if (gnss.fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
+      break;
+    }
+
     t_data.push_back(ros2::seconds(gnss.header.stamp));
 
     latitude_data.push_back(gnss.latitude);

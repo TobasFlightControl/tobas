@@ -326,9 +326,14 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   const auto gnss_it = data.find(tobas::topic::kGnss);
   if (gnss_it != data.end()) {
     const auto& msg = gnss_decoder_.decode(gnss_it->second);
-    res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.altitude) +
-           ',' + std::to_string(msg.ground_speed.x) + ',' + std::to_string(msg.ground_speed.y) + ',' +
-           std::to_string(msg.ground_speed.z) + ',';
+    if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+      res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.altitude) +
+             ',' + std::to_string(msg.ground_speed.x) + ',' + std::to_string(msg.ground_speed.y) + ',' +
+             std::to_string(msg.ground_speed.z) + ',';
+    }
+    else {
+      res += std::string(6, ',');
+    }
   }
   else {
     res += std::string(6, ',');
@@ -338,9 +343,14 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   const auto rcin_it = data.find(tobas::topic::kRcInput);
   if (rcin_it != data.end()) {
     const auto& msg = rcin_decoder_.decode(rcin_it->second);
-    res += std::to_string(msg.roll) + ',' + std::to_string(msg.pitch) + ',' + std::to_string(msg.throttle) + ',' +
-           std::to_string(msg.yaw) + ',' + std::to_string(msg.mode) + ',' + std::to_string(msg.sub_mode) + ',' +
-           std::to_string(msg.enable) + ',' + std::to_string(msg.kill) + ',';
+    if (msg.ok) {
+      res += std::to_string(msg.roll) + ',' + std::to_string(msg.pitch) + ',' + std::to_string(msg.throttle) + ',' +
+             std::to_string(msg.yaw) + ',' + std::to_string(msg.mode) + ',' + std::to_string(msg.sub_mode) + ',' +
+             std::to_string(msg.enable) + ',' + std::to_string(msg.kill) + ',';
+    }
+    else {
+      res += std::string(8, ',');
+    }
   }
   else {
     res += std::string(8, ',');
