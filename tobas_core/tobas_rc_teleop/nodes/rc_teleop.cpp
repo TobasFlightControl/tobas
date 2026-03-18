@@ -207,7 +207,7 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.yaw = tobas::kRCInputMid;
   idle_rcin.throttle = tobas::kRcInputMin;
 
-  controllers_[cur_mode_]->update(idle_rcin, odom_->odom.odom, landed_->landed);
+  controllers_.at(cur_mode_)->update(idle_rcin, odom_->odom.odom, landed_->landed);
 }
 
 void RCTeleopNode::resetCurrentController(const tobas_msgs::RCInput& rcin)
@@ -531,7 +531,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         }
       }
       else {  // それ以外は普通にコマンド送信
-        controllers_[cur_mode_]->update(*rcin, odom_->odom.odom, landed_->landed);
+        controllers_.at(cur_mode_)->update(*rcin, odom_->odom.odom, landed_->landed);
       }
 
       // ディスアームコマンドの開始時刻を更新して抜ける
