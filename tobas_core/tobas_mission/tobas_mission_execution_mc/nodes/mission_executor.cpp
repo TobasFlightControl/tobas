@@ -50,6 +50,7 @@ class MulticopterMissionExecutorNode : public BaseNode
 
   static constexpr double kCommandRate = 100.;       // [Hz]
   static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
+  static constexpr double kMinBrakeDuration = 0.1;   // [s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -93,6 +94,7 @@ private:
     kManualOverride,
   } status_ = kNoProblem;
 
+  /* Target trajectory point expressed in the global frame. */
   struct Command
   {
     kdl::Vector pos;
@@ -217,16 +219,16 @@ void MulticopterMissionExecutorNode::initializeCommand()
       odom.frame.M.getRPY(command_.rot.roll, command_.rot.pitch, command_.rot.yaw);
     }
     if (sp.twist.vel.isFinite()) {
-      command_.vel = sp.twist.vel;
+      command_.vel = odom.frame.M * sp.twist.vel;
     }
     else {
-      command_.vel = odom.twist.vel;
+      command_.vel = odom.frame.M * odom.twist.vel;
     }
     if (sp.accel.linear.isFinite()) {
-      command_.acc = sp.accel.linear;
+      command_.acc = odom.frame.M * sp.accel.linear;
     }
     else {
-      command_.acc = odom.accel.linear;
+      command_.acc = odom.frame.M * odom.accel.linear;
     }
   }
   else {
@@ -327,9 +329,9 @@ void MulticopterMissionExecutorNode::brake()
   const StopTrajectory traj_xy(
     0., vxy0_norm, axy0_norm * math::sign(vxy0.dot(axy0)), wp_cfg_.max_hor_acc, wp_cfg_.max_hor_jerk);
 
-  const auto pz0 = command_.pos.z();
-  const auto vz0 = command_.vel.z();
-  const auto az0 = command_.acc.z();
+  const auto pz0 = command_.pos.z();  // Must be copy
+  const auto vz0 = command_.vel.z();  // Must be copy
+  const auto az0 = command_.acc.z();  // Must be copy
   const auto vz0_norm = std::abs(vz0);
   const auto az0_norm = std::abs(az0);
   const auto dir_z = math::sign(vz0);
@@ -337,8 +339,8 @@ void MulticopterMissionExecutorNode::brake()
 
   // 所要時間を取得
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
-  if (duration == 0.) {
-    return;
+  if (duration < kMinBrakeDuration) {
+    return;  // 既にほぼ停止している場合はコマンドを発行せず終了
   }
   TOBAS_INFO("The vehicle will stop in ", duration, " seconds.");
 
@@ -415,6 +417,9 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     gh->abort(res);
     return false;
   }
+
+  // 開始前に一時停止
+  brake();
 
   // 目標状態の初期値を取得
   const auto start_pos = command_.pos.clone();
@@ -544,6 +549,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
 bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
+  // Verify that the vehicle is disarmed
   if (arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "The vehicle is already armed.";
@@ -643,6 +649,17 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
 bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
+  // Verify that the vehicle is armed
+  if (!arming_->data) {
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    res->error_message = "The vehicle is disarmed.";
+    gh->abort(res);
+    return false;
+  }
+
+  // 開始前に一時停止
+  brake();
+
   // 目標状態の初期値を取得
   const auto start_pos = command_.pos.clone();
   const auto start_rot = command_.rot.clone();
@@ -728,6 +745,9 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     gh->abort(res);
     return false;
   }
+
+  // 開始前に一時停止
+  brake();
 
   // ウェイポイントのゴールを作成
   Waypoint wp;
