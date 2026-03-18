@@ -56,19 +56,19 @@ void PosVelAccAngleController::initialize(tobas::BaseNode* node, tobas::FlightMo
 
 void PosVelAccAngleController::reset(
   const builtin_interfaces::msg::Time& stamp,
-  const tobas_msgs::Odometry& odom,
+  const tobas_msgs::Odometry& setpoint,
   bool landed)
 {
   t_last_rcin_ = stamp;
 
-  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
 
   const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
-  const auto cur_vel_G = R_G_B * odom.twist.vel;
+  const auto cur_vel_G = R_G_B * setpoint.twist.vel;
   vx_filt_.resetCurrentTrajectoryPoint(cur_vel_G.x());
   vy_filt_.resetCurrentTrajectoryPoint(cur_vel_G.y());
 
-  tar_pos_W_ = odom.frame.p;
+  tar_pos_W_ = setpoint.frame.p;
   if (landed) {
     tar_pos_W_.z() -= max_ep_down_;
   }

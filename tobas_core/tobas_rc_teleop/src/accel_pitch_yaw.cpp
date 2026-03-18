@@ -50,15 +50,15 @@ void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMod
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(tobas::topic::kAccelPitchYawCmd);
 }
 
-void AccelPitchYawController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& odom, bool)
+void AccelPitchYawController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)
 {
   t_last_rcin_ = stamp;
 
   ax_filt_.resetCurrentTrajectoryPoint(0.);
   ay_filt_.resetCurrentTrajectoryPoint(0.);
 
-  pitch_filt_.resetCurrentTrajectoryPoint(odom.frame.M.getPitch());
-  tar_yaw_ = odom.frame.M.getYaw();
+  pitch_filt_.resetCurrentTrajectoryPoint(setpoint.frame.M.getPitch());
+  tar_yaw_ = setpoint.frame.M.getYaw();
 }
 
 void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)

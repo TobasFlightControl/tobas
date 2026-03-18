@@ -51,7 +51,7 @@ void AccelRateController::reset(const builtin_interfaces::msg::Time&, const toba
 {
 }
 
-void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool)
+void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& setpoint, bool)
 {
   // Horizontal acceleration & Attitude rate
   if (rcin.sub_mode)  // Translation mode
@@ -76,7 +76,7 @@ void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   tar_gyro_B_.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
 
   // Compute the acceleration wrt. the world frame
-  const auto cur_yaw = odom.frame.M.getYaw();
+  const auto cur_yaw = setpoint.frame.M.getYaw();
   const auto tar_acc_W = kdl::Rotation::RotZ(cur_yaw) * tar_acc_G_;
 
   // Publish commands

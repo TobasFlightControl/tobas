@@ -51,12 +51,12 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
 
 void AngleThrottleVectorController::reset(
   const builtin_interfaces::msg::Time& stamp,
-  const tobas_msgs::Odometry& odom,
+  const tobas_msgs::Odometry& setpoint,
   bool)
 {
   t_last_rcin_ = stamp;
 
-  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
   roll_filt_.resetCurrentTrajectoryPoint(roll);
   pitch_filt_.resetCurrentTrajectoryPoint(pitch);
   thrust_angle_filt_.resetCurrentTrajectoryPoint(-pitch);
