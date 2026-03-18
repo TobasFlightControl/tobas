@@ -38,6 +38,8 @@ void PosVelAccYawController::initialize(tobas::BaseNode* node, tobas::FlightMode
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 1., 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
+  node->addDynamicDoubleParam(
+    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 1., 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 20., 9, 1, 18, " dps");
   node->addDynamicDoubleParam(
     addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
@@ -60,12 +62,15 @@ void PosVelAccYawController::reset(
   const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
 
   const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
-  const auto cur_vel_G = R_G_B * setpoint.twist.vel;
-  vx_filt_.resetCurrentTrajectoryPoint(cur_vel_G.x());
-  vy_filt_.resetCurrentTrajectoryPoint(cur_vel_G.y());
+  const auto tar_vel_G = R_G_B * setpoint.twist.vel;
+  vx_filt_.resetCurrentTrajectoryPoint(tar_vel_G.x());
+  vy_filt_.resetCurrentTrajectoryPoint(tar_vel_G.y());
+  vz_filt_.resetCurrentTrajectoryPoint(tar_vel_G.z());
 
   tar_pos_W_ = setpoint.frame.p;
+
   if (landed) {
+    vz_filt_.resetCurrentTrajectoryPoint(-max_ver_vel_);
     tar_pos_W_.z() -= max_ep_down_;
   }
 
@@ -78,21 +83,21 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
-  // Horizontal velocity
+  // Velocity
   vx_filt_.setTargetPosition(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
   vy_filt_.setTargetPosition(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
+  vz_filt_.setTargetPosition(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_));
   vx_filt_.update(dt);
   vy_filt_.update(dt);
-
-  // Vertical velocity
-  const auto vz = expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_);
+  vz_filt_.update(dt);
 
   // Yaw
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
   tar_yaw_ += yawrate * dt;
 
   // Compute the velocity and acceleration wrt. the world frame
-  const kdl::Vector tar_vel_G(vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz);
+  const kdl::Vector tar_vel_G(
+    vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz_filt_.getTrajectoryPosition());
   const auto R_W_G = kdl::Rotation::RotZ(tar_yaw_);
   const auto tar_vel_W = R_W_G * tar_vel_G;
 
@@ -139,6 +144,12 @@ bool PosVelAccYawController::maxHorizontalAccelCb(const double& p)
 bool PosVelAccYawController::maxVerticalVelocityCb(const double& p)
 {
   max_ver_vel_ = p;
+  return true;
+}
+
+bool PosVelAccYawController::maxVerticalAccelCb(const double& p)
+{
+  vz_filt_.setMaxVelocity(p);
   return true;
 }
 

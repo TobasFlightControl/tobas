@@ -27,7 +27,7 @@ public:
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
-  ctrl::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_;
+  ctrl::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, vz_filt_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
@@ -46,6 +46,7 @@ private:
   bool maxHorizontalVelocityCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
+  bool maxVerticalAccelCb(const double& p);
   bool maxHeadingRateCb(const double& p);
   bool maxPositionErrorDown(const double& p);
   bool horizontalVelocityExpoCb(const double& p);
