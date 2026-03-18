@@ -404,7 +404,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   // 設定値メッセージを作成
   auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
   setpoint->header.stamp = cur_time;
-  setpoint->odom = odom->odom.odom;  // 制御しない値は現在値を入れる
+  setpoint->odom.setNaN();
 
   // フィードバックメッセージを作成
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
