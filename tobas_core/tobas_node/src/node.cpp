@@ -221,12 +221,12 @@ void BaseNode::setClockType(rclcpp::NodeOptions& options)
 
 rclcpp::NodeOptions BaseNode::nodeOptions_Default(rclcpp::NodeOptions options)
 {
-  // Changes from the ROS 2 default
   options.enable_rosout(false);
   options.use_intra_process_comms(true);
   options.start_parameter_services(false);
   options.start_parameter_event_publisher(false);
   setClockType(options);
+  options.append_parameter_override("start_type_description_service", false);
 
   return options;
 }

@@ -40,6 +40,7 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
   options.enable_rosout(false);
   options.start_parameter_services(false);
   options.start_parameter_event_publisher(false);
+  options.append_parameter_override("start_type_description_service", false);
 
   node_ = rclcpp::Node::make_shared(name, ns_, options);
 
