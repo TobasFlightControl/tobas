@@ -2,6 +2,11 @@
 
 #include <tobas_constants/ros_interface.hpp>
 
+#define tbsdbg gzdbg << "[" << name_ << "] "
+#define tbsmsg gzmsg << "[" << name_ << "] "
+#define tbswarn gzwarn << "[" << name_ << "] "
+#define tbserr gzerr << "[" << name_ << "] "
+
 namespace gazebo
 {
 BaseNode::BaseNode()
