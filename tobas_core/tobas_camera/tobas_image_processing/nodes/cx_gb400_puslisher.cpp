@@ -14,7 +14,6 @@
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_camera_ros_interface/ros_interface.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ic_drivers/cx_gb400.hpp>
 #include <tobas_node/node.hpp>
 
@@ -108,7 +107,7 @@ private:
 };
 
 CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("cx_gb400_publisher", options)
+  : tobas::BaseNode("cx_gb400_publisher", nodeOptions_Default(options))
 {
   device_name_ = getStringParam("device_name", "/dev/video0");
   disable_video_streaming_ = getBoolParam("disable_video_streaming", false);

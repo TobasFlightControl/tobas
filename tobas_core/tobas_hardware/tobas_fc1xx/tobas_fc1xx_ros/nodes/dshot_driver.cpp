@@ -1,7 +1,6 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_fc1xx_core/dshot.hpp>
@@ -70,7 +69,8 @@ private:
   void autoStopTimerCb();
 };
 
-DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_dshot_driver", options)
+DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_dshot_driver", nodeOptions_Default(options))
 {
   if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.json"))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");

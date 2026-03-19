@@ -2,7 +2,6 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/rc_input.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -53,7 +52,8 @@ private:
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
-RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("real_rcin_handler", options)
+RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_rcin_handler", nodeOptions_Default(options))
 {
   // Initialize property tree
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);

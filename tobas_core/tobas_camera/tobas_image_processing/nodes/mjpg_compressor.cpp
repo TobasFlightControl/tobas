@@ -58,7 +58,8 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr mjpg_sub_;
 };
 
-MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& options) : tobas::BaseNode("mjpg_compressor", options)
+MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& options)
+  : tobas::BaseNode("mjpg_compressor", nodeOptions_Default(options))
 {
   const auto mjpg_topic = getStringParam("mjpg_topic", "image_compressed");
   const auto resized_topic = getStringParam("resized_topic", "mjpg_resized");

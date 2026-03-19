@@ -27,7 +27,8 @@ private:
   void onConnectionTimeout();
 };
 
-HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& options) : super("heartbeat_receiver", options)
+HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& options)
+  : super("heartbeat_receiver", nodeOptions_Default(options))
 {
   connection_pub_ = createPublisher<tobas_msgs::msg::RemoteConnection>(tobas::topic::kRemoteConnection);
   heartbeat_sub_ = createSubscriber(tobas::topic::kHeartbeat, &self::heartbeatCb, this);

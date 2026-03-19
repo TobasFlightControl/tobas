@@ -1,7 +1,6 @@
 #include <rosbag2_cpp/writer.hpp>
 
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/rosbag.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
@@ -135,7 +134,7 @@ private:
 };
 
 RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
-  : super("rosbag_recorder", options)
+  : super("rosbag_recorder", nodeOptions_Default(options))
   , ns_(std::string(get_namespace()) + "/")
   , rosbag_dir_(linux::isSuperUser() ? tobas::kRosbagDirRoot : ros2::expandUser(tobas::kRosbagDirHome))
 {

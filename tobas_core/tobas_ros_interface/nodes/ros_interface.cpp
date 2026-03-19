@@ -1,5 +1,4 @@
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -175,7 +174,8 @@ private:
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& gh);
 };
 
-RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
+RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
+  : super("ros_interface", nodeOptions_Default(options))
 {
   // サービスコールバックを再帰的に呼んだ際のデッドロックを回避
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/

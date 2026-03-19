@@ -27,7 +27,8 @@ private:
   void mainTimerCb();
 };
 
-BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_baro_driver", options)
+BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_baro_driver", nodeOptions_Default(options))
 {
   initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
 }

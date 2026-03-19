@@ -1,6 +1,5 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_linux/core.hpp>
@@ -67,7 +66,8 @@ private:
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
-ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real_imu_handler", options)
+ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_imu_handler", nodeOptions_Default(options))
 {
   TOBAS_CHECK(gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff));
 

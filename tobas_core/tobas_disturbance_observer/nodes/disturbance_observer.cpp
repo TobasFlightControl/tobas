@@ -51,7 +51,10 @@ private:
 };
 
 DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& options)
-  : super("disturbance_observer", options), fk_solver_(tree_), inertia_solver_(tree_), js_converter_(tree_)
+  : super("disturbance_observer", nodeOptions_Default(options))
+  , fk_solver_(tree_)
+  , inertia_solver_(tree_)
+  , js_converter_(tree_)
 {
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::topic::kDisturbanceForce);
 

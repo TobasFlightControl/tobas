@@ -52,7 +52,8 @@ private:
   void effortResetTimerCb();
 };
 
-JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options) : super("real_joints_handler", options)
+JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_joints_handler", nodeOptions_Default(options))
 {
   pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::topic::kPwmCmd);
   joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(tobas::topic::kJointStates);

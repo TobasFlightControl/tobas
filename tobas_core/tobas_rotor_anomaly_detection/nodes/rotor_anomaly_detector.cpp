@@ -46,7 +46,7 @@ private:
 };
 
 RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
-  : super("rotor_anomaly_detector", options)
+  : super("rotor_anomaly_detector", nodeOptions_Default(options))
 {
   no_comm_timeout_ = getDoubleParam("no_communication_timeout", 0.2);
 

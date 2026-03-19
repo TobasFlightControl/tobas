@@ -21,7 +21,8 @@ private:
   bool fileParamCb(const std::string& p);
 };
 
-DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
+DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options)
+  : super("drone_server", nodeOptions_DParam(options))
 {
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 

@@ -2,7 +2,6 @@
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_math/linalg.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
@@ -161,7 +160,7 @@ private:
 };
 
 MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kMissionExecutor, options)
+  : super(tobas::node::kMissionExecutor, nodeOptions_Default(options))
 {
   getStaticRosParams();
 

@@ -3,7 +3,6 @@
 
 #include <dynamixel_sdk/dynamixel_sdk.h>
 
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dynamixel_ros_interface/ros_interface.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -102,7 +101,8 @@ private:
   void publishCurrentStatesTimerCb();
 };
 
-DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options) : super("dynamixel_handler", options)
+DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
+  : super("dynamixel_handler", nodeOptions_Default(options))
 {
   // Get ROS parameters
   if (!getStaticRosParams()) {

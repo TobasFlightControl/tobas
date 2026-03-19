@@ -28,7 +28,8 @@ private:
   void timerCb();
 };
 
-FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options) : super("fake_batt_publisher", options)
+FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options)
+  : super("fake_batt_publisher", nodeOptions_Default(options))
 {
   pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
   vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);

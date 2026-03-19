@@ -122,7 +122,7 @@ private:
 };
 
 HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
-  : super("health_monitor", options)
+  : super("health_monitor", nodeOptions_Default(options))
   , t_last_rt_violation_(now())
   , pos_bufs_{ tbs::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
                tbs::TimestampedBufferDouble(kPosDriftCheckTimeWindow),

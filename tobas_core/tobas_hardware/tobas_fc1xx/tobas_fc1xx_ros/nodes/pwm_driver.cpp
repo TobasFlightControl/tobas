@@ -24,7 +24,8 @@ private:
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 };
 
-PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_pwm_driver", options)
+PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_pwm_driver", nodeOptions_Default(options))
 {
   initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
 }

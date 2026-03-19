@@ -52,7 +52,7 @@ private:
 };
 
 LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
-  : super("landing_detector", options), mass_holder_(tree_)
+  : super("landing_detector", nodeOptions_Default(options)), mass_holder_(tree_)
 {
   static_assert(kTakeoffWeightRateThresh < kLandWeightRateThresh);  // ヒステリシスが必要
 

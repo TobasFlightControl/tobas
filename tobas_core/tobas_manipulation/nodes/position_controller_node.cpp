@@ -53,7 +53,7 @@ private:
 };
 
 PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& options)
-  : super("jointpos_trajectory_controller", options)
+  : super("jointpos_trajectory_controller", nodeOptions_Default(options))
 {
   const auto jnt_names = getStringArrayParam("joint_names", {});
   if (jnt_names.empty()) {

@@ -5,7 +5,6 @@
 #include <tobas_constants/frame.hpp>
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
@@ -201,7 +200,7 @@ private:
 };
 
 ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kObserver, options), tf_br_(this)
+  : super(tobas::node::kObserver, nodeOptions_DParam(options)), tf_br_(this)
 {
   getStaticRosParams();
 

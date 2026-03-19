@@ -45,8 +45,6 @@ def generate_launch_description():
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
 
-    extra_args = [{"use_intra_process_comms": True}]
-
     # Launch component containers
     ld.add_action(
         IncludeLaunchDescription(
@@ -82,7 +80,6 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
                     ],
                     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=CONTROLLER_PKG,
@@ -93,19 +90,16 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "controller_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
                     ],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_rotor_controller",
                     plugin="RotorControllerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_disturbance_observer",
                     plugin="DisturbanceObserverNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
             ],
         )
@@ -124,14 +118,12 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
                     ],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package=MISSION_EXECUTOR_PKG,
                     plugin=MISSION_EXECUTOR_PLUGIN,
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static.yaml"])],
-                    extra_arguments=extra_args,
                 ),
             ],
         )
@@ -146,7 +138,6 @@ def generate_launch_description():
                     package="tobas_tree_server",
                     plugin="TreeServerNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_drone_server",
@@ -157,64 +148,54 @@ def generate_launch_description():
                             "tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"]),
                         }
                     ],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_rosbag_recorder",
                     plugin="RosbagRecorderNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_config_servers",
                     plugin="ImuFilterConfigServer",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"])],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
                     plugin="HealthMonitorNode",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "health_monitor.yaml"])],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
                     plugin="FailsafeExecutorNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_landing_detection",
                     plugin="LandingDetectorNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_rotor_anomaly_detection",
                     plugin="RotorAnomalyDetectorNode",
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "rotor_anomaly_detector.yaml"])],
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_vibration_filter",
                     plugin="VibrationFilterNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_joint_states_bridge",
                     plugin="JointStatesBridgeNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
                 ComposableNode(
                     package="tobas_topic_throttle",
                     plugin="TopicThrottleNode",
                     namespace=DRONE_NAME,
-                    extra_arguments=extra_args,
                 ),
             ],
         )

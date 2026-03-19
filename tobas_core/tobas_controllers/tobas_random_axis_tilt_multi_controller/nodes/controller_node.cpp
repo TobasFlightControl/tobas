@@ -1,7 +1,6 @@
 #include <ranges>
 
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
@@ -141,7 +140,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
+  : super(node::kController, nodeOptions_DParam(options)), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // Get static parameters
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");

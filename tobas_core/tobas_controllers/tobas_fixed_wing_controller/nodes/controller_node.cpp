@@ -1,7 +1,6 @@
 #include <ranges>
 
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_control/lqd.hpp>
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
@@ -127,7 +126,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kController, options), mass_holder_(tree_), eom_(drone_, tree_)
+  : super(tobas::node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), eom_(drone_, tree_)
 {
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);

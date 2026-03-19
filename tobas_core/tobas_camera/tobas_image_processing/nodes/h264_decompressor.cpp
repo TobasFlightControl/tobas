@@ -42,7 +42,8 @@ private:
   ffmpeg_encoder_decoder::Decoder decoder_;
 };
 
-H264Decompressor::H264Decompressor(const rclcpp::NodeOptions& options) : tobas::BaseNode("h264_decompressor", options)
+H264Decompressor::H264Decompressor(const rclcpp::NodeOptions& options)
+  : tobas::BaseNode("h264_decompressor", nodeOptions_Default(options))
 {
   const auto image_raw_topic = getStringParam("decoded_topic", "image_h264_decoded");
   const auto h264_topic = getStringParam("h264_topic", "image_h264");

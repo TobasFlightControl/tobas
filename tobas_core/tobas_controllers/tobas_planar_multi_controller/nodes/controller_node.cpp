@@ -2,7 +2,6 @@
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
@@ -159,7 +158,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node::kController, options)
+  : super(node::kController, nodeOptions_DParam(options))
   , mass_holder_(tree_)
   , js_converter_(tree_)
   , trans_eom_(tree_)

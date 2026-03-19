@@ -3,7 +3,6 @@
 
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/rc_command.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -109,7 +108,8 @@ private:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 
-RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::node::kRcTeleop, options)
+RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options)
+  : super(tobas::node::kRcTeleop, nodeOptions_DParam(options))
 {
   TOBAS_CHECK(mode2str_.size() == magic_enum::enum_count<tobas::FlightMode>());
 

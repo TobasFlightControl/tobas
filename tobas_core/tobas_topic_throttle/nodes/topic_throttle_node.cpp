@@ -84,7 +84,8 @@ private:
   ros2::TimerPtr initialize_timer_;
 };
 
-TopicThrottleNode::TopicThrottleNode(const rclcpp::NodeOptions& options) : super("topic_throttle", options)
+TopicThrottleNode::TopicThrottleNode(const rclcpp::NodeOptions& options)
+  : super("topic_throttle", nodeOptions_Default(options))
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }

@@ -23,7 +23,7 @@ private:
 };
 
 MatrixEulerConverterNode::MatrixEulerConverterNode(const rclcpp::NodeOptions& options)
-  : super("matrix_euler_converter", options)
+  : super("matrix_euler_converter", nodeOptions_Default(options))
 {
   euler_pub_ = createPublisher<tobas_kdl_msgs::EulerStamped>("euler");
   odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
