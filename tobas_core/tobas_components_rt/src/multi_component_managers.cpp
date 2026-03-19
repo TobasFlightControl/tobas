@@ -59,7 +59,7 @@ void MultiComponentManagers::spin()
   std::vector<ComponentManager> managers(num_managers_);
 
   rclcpp::NodeOptions node_options;
-  node_options.use_global_arguments(true);  // 必須
+  node_options.use_global_arguments(true);  // falseだとコンポーネントをロードできない
   node_options.enable_rosout(false);
   node_options.use_intra_process_comms(true);
   node_options.start_parameter_services(false);
