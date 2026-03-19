@@ -58,10 +58,10 @@ void MultiComponentManagers::spin()
 
   std::vector<ComponentManager> managers(num_managers_);
 
-  // Changes from the default
   rclcpp::NodeOptions node_options;
-  node_options.use_global_arguments(false);
+  node_options.use_global_arguments(true);  // 必須
   node_options.enable_rosout(false);
+  node_options.use_intra_process_comms(true);
   node_options.start_parameter_services(false);
   node_options.start_parameter_event_publisher(false);
 
