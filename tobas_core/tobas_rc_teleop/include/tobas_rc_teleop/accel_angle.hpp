@@ -28,7 +28,7 @@ public:
 
 private:
   rclcpp::Time t_last_rcin_;
-  ctrl::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_, roll_filt_, pitch_filt_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_, roll_filt_, pitch_filt_;
   double tar_yaw_;
 
   // rosparams

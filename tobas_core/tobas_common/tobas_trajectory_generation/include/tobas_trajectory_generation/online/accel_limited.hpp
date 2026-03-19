@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace ctrl
+namespace traj
 {
 /* memo: 3-50 */
 class AccelLimitedOnlineTrajectoryGenerator
@@ -54,4 +54,4 @@ inline void AccelLimitedOnlineTrajectoryGenerator::setTargetVelocity(double tar_
 {
   vf_ = tar_vel;
 }
-}  // namespace ctrl
+}  // namespace traj

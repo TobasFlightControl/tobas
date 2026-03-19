@@ -27,7 +27,7 @@ public:
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
-  ctrl::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, vz_filt_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, vz_filt_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 

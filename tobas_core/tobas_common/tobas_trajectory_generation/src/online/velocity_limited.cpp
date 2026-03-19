@@ -5,7 +5,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace ctrl
+namespace traj
 {
 VelocityLimitedOnlineTrajectoryGenerator::VelocityLimitedOnlineTrajectoryGenerator()
 {
@@ -31,4 +31,4 @@ void VelocityLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(doubl
 {
   traj_pos_ = pos;
 }
-}  // namespace ctrl
+}  // namespace traj

@@ -27,7 +27,7 @@ public:
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
-  ctrl::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_;
   double tar_yaw_;
 
   // rosparams
