@@ -2,7 +2,6 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
 namespace gui

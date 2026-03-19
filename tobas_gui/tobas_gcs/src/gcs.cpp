@@ -8,7 +8,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
