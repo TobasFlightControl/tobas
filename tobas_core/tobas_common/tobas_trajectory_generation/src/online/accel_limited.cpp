@@ -78,6 +78,13 @@ void AccelLimitedOnlineTrajectoryGenerator::update(double t)
   }
 }
 
+void AccelLimitedOnlineTrajectoryGenerator::setTargetPointAndUpdate(double tar_pos, double tar_vel, double dt)
+{
+  setTargetPosition(tar_pos);
+  setTargetVelocity(tar_vel);
+  update(dt);
+}
+
 void AccelLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double pos, double vel)
 {
   p_ = pos;

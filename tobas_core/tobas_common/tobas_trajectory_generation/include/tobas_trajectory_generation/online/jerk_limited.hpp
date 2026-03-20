@@ -29,6 +29,8 @@ public:
 
   void update(double dt);
 
+  void setTargetPointAndUpdate(double tar_pos, double tar_vel, double tar_acc, double dt);
+
   void resetCurrentTrajectoryPoint(double pos, double vel, double acc);
 
 private:

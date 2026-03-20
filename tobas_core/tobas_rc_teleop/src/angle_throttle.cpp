@@ -65,13 +65,11 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   // Roll
-  roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_));
-  roll_filt_.update(dt);
+  roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
   cmd->angle.roll = roll_filt_.getTrajectoryPosition();
 
   // Pitch
-  pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_));
-  pitch_filt_.update(dt);
+  pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
   cmd->angle.pitch = pitch_filt_.getTrajectoryPosition();
 
   // Yaw

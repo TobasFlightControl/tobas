@@ -92,26 +92,21 @@ void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tob
   // Horizontal velocity & Attitude
   if (rcin.sub_mode)  // Translation mode
   {
-    vx_filt_.setTargetPosition(expoRemap(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-    vy_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-    roll_filt_.setTargetPosition(0.);
-    pitch_filt_.setTargetPosition(0.);
+    vx_filt_.setTargetPointAndUpdate(expoRemap(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+    vy_filt_.setTargetPointAndUpdate(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+    roll_filt_.setTargetPointAndUpdate(0., dt);
+    pitch_filt_.setTargetPointAndUpdate(0., dt);
   }
   else  // Rotation mode
   {
-    roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_));
-    pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_));
-    vx_filt_.setTargetPosition(0.);
-    vy_filt_.setTargetPosition(0.);
+    roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
+    pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
+    vx_filt_.setTargetPointAndUpdate(0., dt);
+    vy_filt_.setTargetPointAndUpdate(0., dt);
   }
-  vx_filt_.update(dt);
-  vy_filt_.update(dt);
-  roll_filt_.update(dt);
-  pitch_filt_.update(dt);
 
   // Vertical velocity
-  vz_filt_.setTargetPosition(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_));
-  vz_filt_.update(dt);
+  vz_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
   // Yaw
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);

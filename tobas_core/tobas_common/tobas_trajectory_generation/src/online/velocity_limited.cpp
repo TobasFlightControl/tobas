@@ -27,6 +27,12 @@ void VelocityLimitedOnlineTrajectoryGenerator::update(double dt)
   traj_pos_ += delta;
 }
 
+void VelocityLimitedOnlineTrajectoryGenerator::setTargetPointAndUpdate(double tar_pos, double dt)
+{
+  setTargetPosition(tar_pos);
+  update(dt);
+}
+
 void VelocityLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double pos)
 {
   traj_pos_ = pos;

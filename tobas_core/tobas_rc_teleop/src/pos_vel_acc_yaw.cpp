@@ -84,12 +84,9 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   t_last_rcin_ = rcin.header.stamp;
 
   // Velocity
-  vx_filt_.setTargetPosition(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-  vy_filt_.setTargetPosition(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-  vz_filt_.setTargetPosition(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_));
-  vx_filt_.update(dt);
-  vy_filt_.update(dt);
-  vz_filt_.update(dt);
+  vx_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+  vy_filt_.setTargetPointAndUpdate(-expoRemapDead(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+  vz_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
   // Yaw
   const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);

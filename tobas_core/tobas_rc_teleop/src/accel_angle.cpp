@@ -73,22 +73,18 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   // Horizontal acceleration & Attitude
   if (rcin.sub_mode)  // Translation mode
   {
-    ax_filt_.setTargetPosition(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-    ay_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-    roll_filt_.setTargetPosition(0.);
-    pitch_filt_.setTargetPosition(0.);
+    ax_filt_.setTargetPointAndUpdate(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
+    ay_filt_.setTargetPointAndUpdate(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
+    roll_filt_.setTargetPointAndUpdate(0., dt);
+    pitch_filt_.setTargetPointAndUpdate(0., dt);
   }
   else  // Rotation mode
   {
-    roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_));
-    pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_));
-    ax_filt_.setTargetPosition(0.);
-    ay_filt_.setTargetPosition(0.);
+    roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
+    pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
+    ax_filt_.setTargetPointAndUpdate(0., dt);
+    ay_filt_.setTargetPointAndUpdate(0., dt);
   }
-  ax_filt_.update(dt);
-  ay_filt_.update(dt);
-  roll_filt_.update(dt);
-  pitch_filt_.update(dt);
 
   // Vertical acceleration
   const auto az = expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_);
