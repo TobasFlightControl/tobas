@@ -1,4 +1,4 @@
-#include "tobas_control_system/mission_planner/map_widget.hpp"
+#include "tobas_control_system/mission_planner/map/map.hpp"
 
 #include <QtQml/QQmlContext>
 #include <QtQuick/QQuickItem>

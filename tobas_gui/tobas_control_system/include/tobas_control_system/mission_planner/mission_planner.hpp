@@ -12,7 +12,7 @@
 #include "./add_command_dialog.hpp"
 #include "./command_button.hpp"
 #include "./commands/base.hpp"
-#include "./map_widget.hpp"
+#include "./map/map.hpp"
 
 namespace gui
 {

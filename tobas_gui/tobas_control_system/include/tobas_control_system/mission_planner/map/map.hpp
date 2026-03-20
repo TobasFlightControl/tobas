@@ -2,7 +2,8 @@
 
 #include <QtQuickWidgets/QQuickWidget>
 
-#include "./map_items/map_items.hpp"
+#include "./items/line.hpp"
+#include "./items/waypoint.hpp"
 
 namespace gui
 {
