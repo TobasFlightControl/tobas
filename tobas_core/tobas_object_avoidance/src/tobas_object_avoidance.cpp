@@ -44,7 +44,7 @@ void TobasObjectAvoidance::odomCallback(const tobas_msgs::Odometry::ConstSharedP
 
 void TobasObjectAvoidance::calculateRepulsiveForce()
 {
-  if (!octree_ || !current_odom_) {
+  if (!octree_) {
     return;
   }
 
@@ -56,9 +56,9 @@ void TobasObjectAvoidance::calculateRepulsiveForce()
 
   for (auto it = octree_->begin_leafs(); it != octree_->end_leafs(); ++it) {
     if (octree_->isNodeOccupied(*it)) {
-      double ox = it.getX() - current_odom_->frame.p.x();
-      double oy = it.getY() - current_odom_->frame.p.y();
-      double oz = it.getZ() - current_odom_->frame.p.z();
+      double ox = it.getX();
+      double oy = it.getY();
+      double oz = it.getZ();
 
       double dist_sq = ox * ox + oy * oy + oz * oz;
       double dist = std::sqrt(dist_sq);
