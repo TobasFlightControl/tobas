@@ -95,8 +95,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   // Compute the velocity and acceleration wrt. the world frame
   const kdl::Vector tar_vel_G(
     vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz_filt_.getTrajectoryPosition());
-  const auto R_W_G = kdl::Rotation::RotZ(tar_yaw_);
-  const auto tar_vel_W = R_W_G * tar_vel_G;
+  const auto tar_vel_W = kdl::Rotation::RotZ(tar_yaw_) * tar_vel_G;
 
   // Integrate the velocity
   tar_pos_W_ += tar_vel_W * dt;
