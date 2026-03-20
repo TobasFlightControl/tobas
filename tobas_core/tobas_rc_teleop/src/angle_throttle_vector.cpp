@@ -49,11 +49,14 @@ void AngleThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Fli
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(tobas::topic::kAngleThrotVectorCmd);
 }
 
-void AngleThrottleVectorController::reset(const tobas_msgs::Odometry& odom, bool)
+void AngleThrottleVectorController::reset(
+  const builtin_interfaces::msg::Time& stamp,
+  const tobas_msgs::Odometry& setpoint,
+  bool)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
-  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
   roll_filt_.resetCurrentTrajectoryPoint(roll);
   pitch_filt_.resetCurrentTrajectoryPoint(pitch);
   thrust_angle_filt_.resetCurrentTrajectoryPoint(-pitch);
@@ -72,8 +75,7 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   // Roll
-  roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_));
-  roll_filt_.update(dt);
+  roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_), dt);
   cmd->angle.roll = roll_filt_.getTrajectoryPosition();
 
   // Yaw
@@ -87,18 +89,16 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
   // Pitch & Thrust Angle
   if (rcin.sub_mode)  // Translation mode
   {
-    pitch_filt_.setTargetPosition(0.);
-    thrust_angle_filt_.setTargetPosition(
-      expoRemapDead(rcin.pitch, thrust_angle_expo_, -max_thrust_angle_, max_thrust_angle_));
+    pitch_filt_.setTargetPointAndUpdate(0., dt);
+    thrust_angle_filt_.setTargetPointAndUpdate(
+      expoRemapDead(rcin.pitch, thrust_angle_expo_, -max_thrust_angle_, max_thrust_angle_), dt);
   }
   else  // Rotation mode
   {
     const auto tar_pitch = remapDead(rcin.pitch, -max_pitch_, max_pitch_);
-    pitch_filt_.setTargetPosition(tar_pitch);
-    thrust_angle_filt_.setTargetPosition(-tar_pitch);
+    pitch_filt_.setTargetPointAndUpdate(tar_pitch, dt);
+    thrust_angle_filt_.setTargetPointAndUpdate(-tar_pitch, dt);
   }
-  pitch_filt_.update(dt);
-  thrust_angle_filt_.update(dt);
   cmd->angle.pitch = pitch_filt_.getTrajectoryPosition();
   cmd->thrust_angle = thrust_angle_filt_.getTrajectoryPosition();
 

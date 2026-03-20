@@ -30,7 +30,7 @@ private:
   void descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg);
 };
 
-TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", options)
+TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", nodeOptions_Default(options))
 {
   // 起動時に既に発行済のURDFを確実に取得するために，Pubscriberの登録を遅延させる．
   initialize_timer_ = createTimer(0s, &self::initializeTimerCb, this);

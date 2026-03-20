@@ -32,7 +32,8 @@ private:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu);
 };
 
-VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options) : super("vibration_filter", options)
+VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options)
+  : super("vibration_filter", nodeOptions_Default(options))
 {
   TOBAS_ASSERT(hpf_.setCutoffFrequency(kHpfCutoff));
   TOBAS_ASSERT(lpf_.setCutoffFrequency(kLpfCutoff));

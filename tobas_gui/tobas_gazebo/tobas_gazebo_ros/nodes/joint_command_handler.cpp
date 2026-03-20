@@ -41,7 +41,7 @@ private:
 };
 
 JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_joint_command_handler", options)
+  : super("gazebo_joint_command_handler", nodeOptions_Default(options))
 {
   drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this);
 }

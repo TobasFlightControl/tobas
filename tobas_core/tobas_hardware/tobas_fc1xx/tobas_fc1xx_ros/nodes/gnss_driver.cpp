@@ -44,7 +44,8 @@ private:
   void mainTimerCb();
 };
 
-GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_gnss_driver", options)
+GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_gnss_driver", nodeOptions_Default(options))
 {
   initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
 }

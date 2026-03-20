@@ -5,7 +5,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace ctrl
+namespace traj
 {
 namespace
 {
@@ -120,10 +120,22 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
   traj_pos_ = next_pos;
 }
 
+void JerkLimitedOnlineTrajectoryGenerator::setTargetPointAndUpdate(
+  double tar_pos,
+  double tar_vel,
+  double tar_acc,
+  double dt)
+{
+  setTargetPosition(tar_pos);
+  setTargetVelocity(tar_vel);
+  setTargetAcceleration(tar_acc);
+  update(dt);
+}
+
 void JerkLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double pos, double vel, double acc)
 {
   traj_pos_ = pos;
   traj_vel_ = vel;
   traj_acc_ = acc;
 }
-}  // namespace ctrl
+}  // namespace traj

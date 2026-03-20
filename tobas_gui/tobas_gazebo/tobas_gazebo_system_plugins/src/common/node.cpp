@@ -2,6 +2,11 @@
 
 #include <tobas_constants/ros_interface.hpp>
 
+#define tbsdbg gzdbg << "[" << name_ << "] "
+#define tbsmsg gzmsg << "[" << name_ << "] "
+#define tbswarn gzwarn << "[" << name_ << "] "
+#define tbserr gzerr << "[" << name_ << "] "
+
 namespace gazebo
 {
 BaseNode::BaseNode()
@@ -30,7 +35,15 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
     rclcpp::init(0, nullptr);
   }
 
-  node_ = rclcpp::Node::make_shared(name, ns_);
+  rclcpp::NodeOptions options;
+  options.use_global_arguments(false);
+  options.enable_rosout(false);
+  options.start_parameter_services(false);
+  options.start_parameter_event_publisher(false);
+  options.append_parameter_override("start_type_description_service", false);
+
+  node_ = rclcpp::Node::make_shared(name, ns_, options);
+
   executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
   executor_->add_node(node_);
   const auto spin = [this]() { executor_->spin(); };

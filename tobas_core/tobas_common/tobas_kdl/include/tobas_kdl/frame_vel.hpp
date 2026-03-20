@@ -20,6 +20,7 @@ public:
   static inline FrameVel Identity();
 
   inline void setIdentity();
+  inline void setNaN();
 
   inline Frame getFrame() const;
   inline Twist getTwist() const;
@@ -64,6 +65,12 @@ inline void FrameVel::setIdentity()
 {
   p.setZero();
   M.setIdentity();
+}
+
+inline void FrameVel::setNaN()
+{
+  p.setNaN();
+  M.setNaN();
 }
 
 inline Frame FrameVel::getFrame() const

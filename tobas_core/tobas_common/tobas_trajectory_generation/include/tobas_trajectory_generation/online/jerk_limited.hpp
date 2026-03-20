@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace ctrl
+namespace traj
 {
 /**
  * @brief 制約を満たしつつ最短時間で目標状態に到達する軌道をオンラインで更新する．
@@ -28,6 +28,8 @@ public:
   void setMaxJerk(double max_jerk);
 
   void update(double dt);
+
+  void setTargetPointAndUpdate(double tar_pos, double tar_vel, double tar_acc, double dt);
 
   void resetCurrentTrajectoryPoint(double pos, double vel, double acc);
 
@@ -79,4 +81,4 @@ inline void JerkLimitedOnlineTrajectoryGenerator::setTargetAcceleration(double t
 {
   tar_acc_ = tar_acc;
 }
-}  // namespace ctrl
+}  // namespace traj

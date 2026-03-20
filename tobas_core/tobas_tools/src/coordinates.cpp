@@ -4,16 +4,16 @@
 
 namespace tobas
 {
-void odometryFrdToFlu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
+void odometryFrdToFlu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& dst)
 {
-  des.header = src.header;
-  kdl::frameFrdToFlu(src.frame, des.frame);
-  kdl::twistFrdToFlu(src.twist, des.twist);
+  kdl::frameFrdToFlu(src.frame, dst.frame);
+  kdl::twistFrdToFlu(src.twist, dst.twist);
+  kdl::accelFrdToFlu(src.accel, dst.accel);
 }
 
-void odometryFluToFrd(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& des)
+void odometryFluToFrd(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& dst)
 {
-  odometryFrdToFlu(src, des);
+  odometryFrdToFlu(src, dst);
 }
 
 void odometryFrdToFlu(tobas_msgs::Odometry& arg)
@@ -28,18 +28,19 @@ void odometryFluToFrd(tobas_msgs::Odometry& arg)
 
 void speedRollDeltaPitchFrdToFlu(
   const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_command_msgs::msg::SpeedRollDeltaPitch& des)
+  tobas_command_msgs::msg::SpeedRollDeltaPitch& dst)
 {
-  des.speed = src.speed;
-  des.roll = src.roll;
-  des.delta_pitch = -src.delta_pitch;
+  dst.header = src.header;
+  dst.speed = src.speed;
+  dst.roll = src.roll;
+  dst.delta_pitch = -src.delta_pitch;
 }
 
 void speedRollDeltaPitchFluToFrd(
   const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_command_msgs::msg::SpeedRollDeltaPitch& des)
+  tobas_command_msgs::msg::SpeedRollDeltaPitch& dst)
 {
-  speedRollDeltaPitchFrdToFlu(src, des);
+  speedRollDeltaPitchFrdToFlu(src, dst);
 }
 
 void speedRollDeltaPitchFrdToFlu(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg)

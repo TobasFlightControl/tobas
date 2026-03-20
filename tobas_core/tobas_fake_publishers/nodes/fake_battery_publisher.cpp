@@ -28,7 +28,8 @@ private:
   void timerCb();
 };
 
-FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options) : super("fake_batt_publisher", options)
+FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options)
+  : super("fake_batt_publisher", nodeOptions_Default(options))
 {
   voltage_ = getDoubleParam("voltage", kDefaultVoltage);
   current_ = getDoubleParam("current", kDefaultCurrent);

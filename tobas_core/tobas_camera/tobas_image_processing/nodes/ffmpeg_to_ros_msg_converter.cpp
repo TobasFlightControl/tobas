@@ -43,7 +43,7 @@ private:
 };
 
 FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options)
-  : tobas::BaseNode("ffmpeg_to_ros_msg_converter", options)
+  : tobas::BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(options))
 {
   const auto ros_image_topic_name = getStringParam("ros_image_topic", "image");
   // ffmpegが送信してくるデータのプロトコルの名称．udp, srtなど．

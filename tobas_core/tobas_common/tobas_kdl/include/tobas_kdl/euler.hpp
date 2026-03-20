@@ -27,6 +27,7 @@ public:
   inline Euler clone() const;
 
   inline void setZero();
+  inline void setNaN();
 
   inline void set(double roll, double pitch, double yaw);
 
@@ -80,6 +81,11 @@ inline Euler Euler::clone() const
 inline void Euler::setZero()
 {
   this->fill(0.);
+}
+
+inline void Euler::setNaN()
+{
+  this->fill(NAN);
 }
 
 inline void Euler::set(double _roll, double _pitch, double _yaw)

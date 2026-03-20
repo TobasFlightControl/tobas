@@ -1,7 +1,6 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -66,7 +65,8 @@ private:
   void autoDisarmAfterCmdTimerCb();
 };
 
-RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
+RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options)
+  : super("rotor_controller", nodeOptions_Default(options))
 {
   rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::topic::kRotorSpeedsCmd);
   ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::topic::kIcePropulsionSystemCmd);
@@ -268,7 +268,7 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
   if (!is_armed_ && req->arming) {
     if (!health_) {
       res->success = false;
-      res->message = "Vehicle health status is not received yet.";
+      res->message = "Vehicle health status has not been received yet.";
       return;
     }
 

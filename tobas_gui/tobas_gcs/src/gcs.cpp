@@ -8,7 +8,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
@@ -154,7 +153,6 @@ void GroundControlStationWidget::reset(bool include_simulation)
   }
 
   arming_.reset();
-  executing_conn_lost_task_ = false;
 
   qt::processAllQueuedEvents();
 }
@@ -397,7 +395,6 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping the Tobas real service.");
-  executing_conn_lost_task_ = true;
   if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SshClient::kNoError) {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
@@ -548,7 +545,6 @@ void GroundControlStationWidget::onRestartButtonClicked(bool checked)
 
   // systemd サービスを再起動
   spinner_.start();
-  executing_conn_lost_task_ = false;
   const auto res = restartInBackground();
   spinner_.stop();
 
@@ -587,7 +583,6 @@ void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
 
   // OS をシャットダウン
   spinner_.start();
-  executing_conn_lost_task_ = true;
   const auto res = shutdownInBackground();
   spinner_.stop();
 
@@ -615,10 +610,7 @@ void GroundControlStationWidget::onRemoteConnectionDisconnected()
 {
   RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRemoteConnectionDisconnected");
 
-  if (!executing_conn_lost_task_) {
-    qt::qWarnBox(this, "Communication with the flight controller was lost.");
-    reset();
-  }
+  reset();
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

@@ -2,6 +2,7 @@
 
 #include <rclcpp_components/register_node_macro.hpp>
 
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_ros2_tools/qos.hpp>
 #include <tobas_std_tools/stream.hpp>
@@ -204,6 +205,14 @@ public:
   std::vector<double> getDoubleArrayParam(const std::string& name, const std::vector<double>& dflt) noexcept;
   std::vector<std::string> getStringArrayParam(const std::string& name, const std::vector<std::string>& dflt) noexcept;
 
+  static void setClockType(rclcpp::NodeOptions& options);
+
+  /* Tobasデフォルトのノードオプション． */
+  static rclcpp::NodeOptions nodeOptions_Default(rclcpp::NodeOptions options);
+
+  /* 動的パラメータをもつノード用のノードオプション． */
+  static rclcpp::NodeOptions nodeOptions_DParam(rclcpp::NodeOptions options);
+
 private:
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
@@ -221,6 +230,9 @@ private:
   template <typename T>
   T declareParam(const std::string& name, const T& dflt);
 
+  template <typename T>
+  void declareDynamicParam(const std::string& name, const T& dflt);
+
   void rclcppLog(uint8_t level, const std::string& text) const;
 
   void getDParamCb(
@@ -228,9 +240,6 @@ private:
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res);
 
   static std::string createID(const char* file, int line);
-
-  /* 環境変数によってノードオプションを切り替える． */
-  static rclcpp::NodeOptions createNodeOptions(rclcpp::NodeOptions options);
 };
 
 inline std::string BaseNode::ns() const
@@ -331,7 +340,7 @@ void BaseNode::addDynamicBoolParam(const std::string& name, bool (Obj::*fp)(cons
     return;
   }
 
-  declare_parameter(name, dflt);
+  declareDynamicParam(name, dflt);
 
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
@@ -373,7 +382,7 @@ void BaseNode::addDynamicIntParam(
     return;
   }
 
-  declare_parameter(name, dflt);
+  declareDynamicParam(name, dflt);
 
   const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
   {
@@ -419,7 +428,7 @@ void BaseNode::addDynamicDoubleParam(
     return;
   }
 
-  declare_parameter(name, dflt);
+  declareDynamicParam(name, dflt);
 
   const auto cb = [this, name, fp, obj, step, _min, _max](const rclcpp::Parameter& param)
   {
@@ -459,7 +468,7 @@ void BaseNode::addDynamicStringParam(
     return;
   }
 
-  declare_parameter(name, dflt);
+  declareDynamicParam(name, dflt);
 
   const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
@@ -653,6 +662,17 @@ T BaseNode::declareParam(const std::string& name, const T& dflt)
   }
   catch (const std::exception& e) {
     TOBAS_EXIT("Unexptected error while declaring \"", name, "\": ", e.what());
+  }
+}
+
+template <typename T>
+void BaseNode::declareDynamicParam(const std::string& _name, const T& _dflt)
+{
+  declare_parameter(_name, _dflt);
+
+  if (!get_dparam_ss_) {
+    get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
+      name() + "/" + service::kGetDynamicParams, &self::getDParamCb, this);
   }
 }
 }  // namespace tobas

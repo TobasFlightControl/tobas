@@ -1,5 +1,4 @@
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -38,7 +37,7 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field.hpp>
 #include <tobas_msgs/msg/message.hpp>
-#include <tobas_msgs/msg/odometry.hpp>
+#include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -175,7 +174,8 @@ private:
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& gh);
 };
 
-RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
+RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
+  : super("ros_interface", nodeOptions_Default(options))
 {
   // サービスコールバックを再帰的に呼んだ際のデッドロックを回避
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
@@ -202,7 +202,8 @@ RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(tobas::topic::kRotorLiv, tobas::topic::kRotorLiv);
   addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
     tobas::addThrotNS(tobas::topic::kJointStates), tobas::topic::kJointStates);
-  addTopicLogicToIface<tobas_msgs::msg::Odometry>(tobas::addThrotNS(tobas::topic::kOdometry), tobas::topic::kOdometry);
+  addTopicLogicToIface<tobas_msgs::msg::OdometryWithCovarianceStamped>(
+    tobas::addThrotNS(tobas::topic::kOdometry), tobas::topic::kOdometry);
   addTopicLogicToIface<tobas_msgs::msg::Arming>(tobas::topic::kArming, tobas::topic::kArming);
   addTopicLogicToIface<tobas_msgs::msg::VehicleHealth>(tobas::topic::kVehicleHealth, tobas::topic::kVehicleHealth);
   addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(real::topic::kImuRaw), real::topic::kImuRaw);

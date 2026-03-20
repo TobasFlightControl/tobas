@@ -50,7 +50,8 @@ private:
   void mainTimerCb();
 };
 
-ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_imu_driver", options)
+ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_imu_driver", nodeOptions_Default(options))
 {
   prev_gyro_raw_.setZero();
 

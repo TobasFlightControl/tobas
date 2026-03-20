@@ -85,6 +85,7 @@ public:
   inline Eigen::Matrix4d matrix() const;
 
   inline void setIdentity();
+  inline void setNaN();
 
   /**
    * @brief Treats a frame as a 4x4 matrix and returns element i,j.
@@ -185,6 +186,12 @@ inline void Frame::setIdentity()
 {
   p.setZero();
   M.setIdentity();
+}
+
+inline void Frame::setNaN()
+{
+  p.setNaN();
+  M.setNaN();
 }
 
 inline double Frame::operator()(int i, int j)

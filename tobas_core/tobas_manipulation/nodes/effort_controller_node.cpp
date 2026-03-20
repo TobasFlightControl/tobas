@@ -88,7 +88,7 @@ private:
 };
 
 EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
-  : super("jointeff_trajectory_controller", options)
+  : super("jointeff_trajectory_controller", nodeOptions_DParam(options))
   , jnt_parser_(tree_)
   , active_jnts_extractor_(tree_)
   , pid_js_(tree_)

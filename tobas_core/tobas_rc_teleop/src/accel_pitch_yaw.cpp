@@ -50,15 +50,15 @@ void AccelPitchYawController::initialize(tobas::BaseNode* node, tobas::FlightMod
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelPitchYaw>(tobas::topic::kAccelPitchYawCmd);
 }
 
-void AccelPitchYawController::reset(const tobas_msgs::Odometry& odom, bool)
+void AccelPitchYawController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
   ax_filt_.resetCurrentTrajectoryPoint(0.);
   ay_filt_.resetCurrentTrajectoryPoint(0.);
 
-  pitch_filt_.resetCurrentTrajectoryPoint(odom.frame.M.getPitch());
-  tar_yaw_ = odom.frame.M.getYaw();
+  pitch_filt_.resetCurrentTrajectoryPoint(setpoint.frame.M.getPitch());
+  tar_yaw_ = setpoint.frame.M.getYaw();
 }
 
 void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
@@ -70,20 +70,17 @@ void AccelPitchYawController::update(const tobas_msgs::RCInput& rcin, const toba
   // Accel-X & Pitch
   if (rcin.sub_mode)  // Translation mode
   {
-    ax_filt_.setTargetPosition(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-    pitch_filt_.setTargetPosition(0.);
+    ax_filt_.setTargetPointAndUpdate(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
+    pitch_filt_.setTargetPointAndUpdate(0., dt);
   }
   else  // Rotation mode
   {
-    ax_filt_.setTargetPosition(0.);
-    pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, pitch_expo_, -max_pitch_, max_pitch_));
+    ax_filt_.setTargetPointAndUpdate(0., dt);
+    pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, pitch_expo_, -max_pitch_, max_pitch_), dt);
   }
-  ax_filt_.update(dt);
-  pitch_filt_.update(dt);
 
   // Accel-Y
-  ay_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-  ay_filt_.update(dt);
+  ay_filt_.setTargetPointAndUpdate(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
 
   // Accel-Z
   const auto az = expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_);

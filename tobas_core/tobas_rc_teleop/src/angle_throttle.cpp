@@ -43,11 +43,11 @@ void AngleThrottleController::initialize(tobas::BaseNode* node, tobas::FlightMod
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::topic::kAngleThrotCmd);
 }
 
-void AngleThrottleController::reset(const tobas_msgs::Odometry& odom, bool)
+void AngleThrottleController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
-  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
   roll_filt_.resetCurrentTrajectoryPoint(roll);
   pitch_filt_.resetCurrentTrajectoryPoint(pitch);
   tar_yaw_ = yaw;
@@ -65,13 +65,11 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   // Roll
-  roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_));
-  roll_filt_.update(dt);
+  roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
   cmd->angle.roll = roll_filt_.getTrajectoryPosition();
 
   // Pitch
-  pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_));
-  pitch_filt_.update(dt);
+  pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
   cmd->angle.pitch = pitch_filt_.getTrajectoryPosition();
 
   // Yaw

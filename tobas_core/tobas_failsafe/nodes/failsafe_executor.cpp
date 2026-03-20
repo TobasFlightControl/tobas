@@ -1,6 +1,5 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/byte.hpp>
@@ -52,7 +51,8 @@ private:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 
-FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options) : super("failsafe_executor", options)
+FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options)
+  : super("failsafe_executor", nodeOptions_Default(options))
 {
   health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::vehicleHealthCb, this);
   arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);

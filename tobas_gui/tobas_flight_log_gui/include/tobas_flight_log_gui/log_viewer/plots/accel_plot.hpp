@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_debug_msgs/msg/multicopter_controller_feedback.hpp>
-#include <tobas_msgs/msg/odometry.hpp>
+#include <tobas_msgs/msg/odometry_stamped.hpp>
+#include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 
 #include "./common.hpp"
 
@@ -22,8 +22,8 @@ public:
   void setTimeScale(double t_start, double t_stop) override;
 
   void setData(
-    const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
-    const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs);
+    const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
+    const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;
@@ -31,8 +31,8 @@ private:
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> cur_curves_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> tar_curves_;
 
-  void updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs);
-  void updateTargetSamples(const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs);
+  void updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs);
+  void updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs);
 };
 }  // namespace log
 }  // namespace gui

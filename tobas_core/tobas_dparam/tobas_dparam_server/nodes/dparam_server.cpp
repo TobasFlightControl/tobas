@@ -28,7 +28,8 @@ private:
   void callback(const typename SrvType::Request::ConstSharedPtr& req, const typename SrvType::Response::SharedPtr& res);
 };
 
-DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& options) : super("dynamic_parameter_server", options)
+DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& options)
+  : super("dynamic_parameter_server", nodeOptions_Default(options))
 {
   cb_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 

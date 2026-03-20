@@ -51,14 +51,14 @@ void AccelAngleController::initialize(tobas::BaseNode* node, tobas::FlightMode m
   angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(tobas::topic::kAngleCmd);
 }
 
-void AccelAngleController::reset(const tobas_msgs::Odometry& odom, bool)
+void AccelAngleController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
   ax_filt_.resetCurrentTrajectoryPoint(0.);
   ay_filt_.resetCurrentTrajectoryPoint(0.);
 
-  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
   roll_filt_.resetCurrentTrajectoryPoint(roll);
   pitch_filt_.resetCurrentTrajectoryPoint(pitch);
   tar_yaw_ = yaw;
@@ -73,22 +73,18 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   // Horizontal acceleration & Attitude
   if (rcin.sub_mode)  // Translation mode
   {
-    ax_filt_.setTargetPosition(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-    ay_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-    roll_filt_.setTargetPosition(0.);
-    pitch_filt_.setTargetPosition(0.);
+    ax_filt_.setTargetPointAndUpdate(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
+    ay_filt_.setTargetPointAndUpdate(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
+    roll_filt_.setTargetPointAndUpdate(0., dt);
+    pitch_filt_.setTargetPointAndUpdate(0., dt);
   }
   else  // Rotation mode
   {
-    roll_filt_.setTargetPosition(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_));
-    pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_));
-    ax_filt_.setTargetPosition(0.);
-    ay_filt_.setTargetPosition(0.);
+    roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
+    pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
+    ax_filt_.setTargetPointAndUpdate(0., dt);
+    ay_filt_.setTargetPointAndUpdate(0., dt);
   }
-  ax_filt_.update(dt);
-  ay_filt_.update(dt);
-  roll_filt_.update(dt);
-  pitch_filt_.update(dt);
 
   // Vertical acceleration
   const auto az = expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_);

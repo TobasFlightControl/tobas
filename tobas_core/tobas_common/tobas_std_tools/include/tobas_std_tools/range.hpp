@@ -30,7 +30,7 @@ public:
   inline T clamp(const T& x) const;
 
   /* Return true if value is clamped. */
-  inline bool clamp(const T& src, T& des) const;
+  inline bool clamp(const T& src, T& dst) const;
 
   inline T range() const;
   inline T mean() const;
@@ -103,18 +103,18 @@ inline T Range<T>::clamp(const T& x) const
 }
 
 template <typename T>
-inline bool Range<T>::clamp(const T& src, T& des) const
+inline bool Range<T>::clamp(const T& src, T& dst) const
 {
   if (src < lower) {
-    des = lower;
+    dst = lower;
     return true;
   }
   else if (src > upper) {
-    des = upper;
+    dst = upper;
     return true;
   }
   else {
-    des = src;
+    dst = src;
     return false;
   }
 }

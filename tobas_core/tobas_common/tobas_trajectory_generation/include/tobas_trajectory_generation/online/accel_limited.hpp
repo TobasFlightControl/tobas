@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace ctrl
+namespace traj
 {
 /* memo: 3-50 */
 class AccelLimitedOnlineTrajectoryGenerator
@@ -19,6 +19,8 @@ public:
   void setMaxAccel(double max_acc);
 
   void update(double dt);
+
+  void setTargetPointAndUpdate(double tar_pos, double tar_vel, double dt);
 
   void resetCurrentTrajectoryPoint(double pos, double vel);
 
@@ -54,4 +56,4 @@ inline void AccelLimitedOnlineTrajectoryGenerator::setTargetVelocity(double tar_
 {
   vf_ = tar_vel;
 }
-}  // namespace ctrl
+}  // namespace traj

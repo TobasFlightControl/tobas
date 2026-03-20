@@ -4,7 +4,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 namespace tobas_rc_teleop
@@ -20,7 +20,7 @@ public:
   virtual bool requireHeading() = 0;
 
   virtual void initialize(tobas::BaseNode* node, tobas::FlightMode mode) = 0;
-  virtual void reset(const tobas_msgs::Odometry& odom, bool landed) = 0;
+  virtual void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) = 0;
   virtual void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) = 0;
 
 protected:

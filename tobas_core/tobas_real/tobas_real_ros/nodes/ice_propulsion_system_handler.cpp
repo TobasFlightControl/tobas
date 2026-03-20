@@ -1,5 +1,4 @@
 #include <tobas_constants/pwm_key.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
@@ -45,7 +44,7 @@ private:
 };
 
 IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_ice_propulsion_system_handler", options)
+  : super("real_ice_propulsion_system_handler", nodeOptions_Default(options))
 {
   drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
 }

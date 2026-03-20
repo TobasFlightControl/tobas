@@ -47,14 +47,14 @@ void AccelYawController::initialize(tobas::BaseNode* node, tobas::FlightMode mod
   cmd_pub_ = node->createPublisher<tobas_command_msgs::AccelYaw>(tobas::topic::kAccelYawCmd);
 }
 
-void AccelYawController::reset(const tobas_msgs::Odometry& odom, bool)
+void AccelYawController::reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
   ax_filt_.resetCurrentTrajectoryPoint(0.);
   ay_filt_.resetCurrentTrajectoryPoint(0.);
 
-  tar_yaw_ = odom.frame.M.getYaw();
+  tar_yaw_ = setpoint.frame.M.getYaw();
 }
 
 void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
@@ -64,10 +64,8 @@ void AccelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msg
   t_last_rcin_ = rcin.header.stamp;
 
   // Horizontal acceleration
-  ax_filt_.setTargetPosition(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-  ay_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-  ax_filt_.update(dt);
-  ay_filt_.update(dt);
+  ax_filt_.setTargetPointAndUpdate(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
+  ay_filt_.setTargetPointAndUpdate(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_), dt);
 
   // Vertical acceleration
   const auto az = expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_);

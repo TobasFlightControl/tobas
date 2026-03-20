@@ -2,7 +2,6 @@
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
@@ -12,6 +11,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
+#include <tobas_trajectory_generation/online/velocity_limited.hpp>
 
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
 #include <tobas_command_msgs_adapter/angle_throttle.hpp>
@@ -26,7 +26,8 @@
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_stamped.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 #include "tobas_planar_multi_controller/translational_eom.hpp"
@@ -39,6 +40,8 @@ class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
   using super = BaseNode;
+
+  static constexpr double kModeTransitionMaxAttiRate = M_PI_2;
 
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -83,7 +86,7 @@ private:
   bool js_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -96,14 +99,19 @@ private:
   kdl::Vector tar_dgyro_;                                // 目標角加速度 (機体座標系)
   double tar_thrust_ = 0.;                               // 目標推力 (機体座標系)
 
+  // Command smoothing
+  traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
+  bool smooth_tar_roll_ = false, smooth_tar_pitch_ = false;  // 飛行モード遷移時に目標姿勢の平滑化を行っている状態
+
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
+  ros2::PublisherPtr<tobas_msgs::OdometryStamped> setpoint_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::MulticopterControllerFeedback> feedback_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -119,6 +127,7 @@ private:
 
   bool updateInternalDataStructures();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
+  void startSmoothTargetAttitude();
   static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
 
   // Parameter callbacks
@@ -141,7 +150,7 @@ private:
   // Topic callbacks
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
@@ -157,12 +166,15 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node::kController, options)
+  : super(node::kController, nodeOptions_DParam(options))
   , mass_holder_(tree_)
   , js_converter_(tree_)
   , trans_eom_(tree_)
   , mixer_(drone_, tree_)
 {
+  roll_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
+  pitch_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
+
   // Get static parameters
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
@@ -186,6 +198,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
+  setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   // Register subscribers
@@ -250,6 +263,16 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   }
 
   return true;
+}
+
+void ControllerNode::startSmoothTargetAttitude()
+{
+  const auto [roll, pitch, _] = odom_->odom.odom.frame.M.getRPY();
+  roll_filt_.resetCurrentTrajectoryPoint(roll);
+  pitch_filt_.resetCurrentTrajectoryPoint(pitch);
+
+  smooth_tar_roll_ = true;
+  smooth_tar_pitch_ = true;
 }
 
 kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy)
@@ -386,7 +409,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 }
 
-void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   if (!odom_) {
     odom_ = odom;
@@ -394,18 +417,24 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 経過時間を計算してオドメトリを更新
-  const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
+  const auto& cur_time = odom->header.stamp;
+  const auto dt = (cur_time - odom_->header.stamp).seconds();
   odom_ = odom;
+
+  // 設定値メッセージを作成
+  auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
+  setpoint->header.stamp = cur_time;
+  setpoint->odom.setNaN();
 
   // フィードバックメッセージを作成
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
-  feedback->header.stamp = odom->header.stamp;
+  feedback->header.stamp = cur_time;
 
   // エイリアス
-  const auto& cur_pos_W = odom->frame.p;
-  const auto& cur_rot = odom->frame.M;
-  const auto& cur_vel_B = odom->twist.vel;
-  const auto& cur_gyro_B = odom->twist.rot;
+  const auto& cur_pos_W = odom->odom.odom.frame.p;
+  const auto& cur_rot = odom->odom.odom.frame.M;
+  const auto& cur_vel_B = odom->odom.odom.twist.vel;
+  const auto& cur_gyro_B = odom->odom.odom.twist.rot;
 
   // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど制御器の自然周波数が小さくなるように調整する．
   // 例えば可変ピッチプロペラの姿勢制御の場合，これで低速域でのジャイロに対するピッチ角の感度が一定になる． (memo: 3-33)
@@ -454,8 +483,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     acc_cmd_->yaw = pos_cmd_->yaw;
 
     // フィードバックメッセージを埋める
-    feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
+    setpoint->odom.frame.p = pos_cmd_->pos;
+    setpoint->odom.twist.vel = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = trans_ctrl_.ei;
   }
 
@@ -476,7 +505,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_angle_->yaw = acc_cmd_->yaw;
 
     // フィードバックメッセージを埋める
-    feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
+    setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
   }
 
   // 姿勢制御器
@@ -495,11 +524,24 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
     const kdl::Vector ki(atti_ki, atti_ki, head_ki);
 
+    // 目標姿勢を決定
+    // 姿勢制御モードから位置制御モードに変化したときに目標姿勢が不連続に変化するのを避けるため，遷移期間は目標姿勢の変化率を制限する．
+    // 基本的にシステムの入力制約は行わないのが望ましいため，遷移期間が終わったら制限を解くようにする．
+    auto tar_rpy = *tar_angle_;
+    if (smooth_tar_roll_) {
+      tar_rpy.roll = roll_filt_.setTargetPointAndUpdate(tar_angle_->roll, dt);
+      smooth_tar_roll_ = roll_filt_.isSaturated();
+    }
+    if (smooth_tar_pitch_) {
+      tar_rpy.pitch = pitch_filt_.setTargetPointAndUpdate(tar_angle_->pitch, dt);
+      smooth_tar_pitch_ = pitch_filt_.isSaturated();
+    }
+
     // 回転角的にはクォータニオンや回転行列で目標姿勢と現在姿勢の誤差を計算し，それを角軸ベクトルに変換したものが最短距離だが，
     // その場合は方位のみの追従誤差がモデル化誤差によって姿勢の動きに変換されて不安定になる恐れがあるため，
     // 姿勢と方位を分離する目的でオイラー角で回転誤差を計算している．
     const kdl::Euler cur_rpy(cur_rot);
-    const auto ep = computeEulerError(cur_rpy, *tar_angle_);
+    const auto ep = computeEulerError(cur_rpy, tar_rpy);
 
     // 浮遊していれば積分誤差を蓄積
     if (!land_suspect) {
@@ -520,7 +562,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
 
     // フィードバックメッセージを埋める
-    feedback->target_angle = *tar_angle_;
+    setpoint->odom.frame.M = tar_rpy.toRotation();
     feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
@@ -538,7 +580,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
 
       // フィードバックメッセージを埋める
-      feedback->target_gyro = *tar_gyro_;
+      setpoint->odom.twist.rot = *tar_gyro_;
     }
 
     // ミキサー
@@ -550,12 +592,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       }
 
       // フィードバックメッセージを埋める
-      feedback->target_dgyro = tar_dgyro_;
+      setpoint->odom.accel.angular = tar_dgyro_;
     }
 
     // 目標推力を発行
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-    thrusts_msg->header.stamp = odom->header.stamp;
+    thrusts_msg->header.stamp = cur_time;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       thrusts_msg->thrusts.emplace_back();
       thrusts_msg->thrusts.back().link_name = rotor_it.first;
@@ -564,6 +606,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_thrusts_pub_->publish(std::move(thrusts_msg));
 
     // フィードバックメッセージを発行
+    setpoint_pub_->publish(std::move(setpoint));
     feedback_pub_->publish(std::move(feedback));
   }
 }
@@ -631,8 +674,14 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAccYaw::C
     return;
   }
 
+  // コマンドを作成
+  if (!pos_cmd_) {
+    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
+    startSmoothTargetAttitude();
+  }
+
   // コマンドを更新
-  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccYaw>(*pos_cmd);
+  *pos_cmd_ = *pos_cmd;
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd)
@@ -644,8 +693,14 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
   // 外側の制御を止める
   pos_cmd_.reset();
 
+  // コマンドを作成
+  if (!acc_cmd_) {
+    acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>();
+    startSmoothTargetAttitude();
+  }
+
   // コマンドを更新
-  acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>(*acc_cmd);
+  *acc_cmd_ = *acc_cmd;
 }
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd)
@@ -668,8 +723,13 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
   pos_cmd_.reset();
   acc_cmd_.reset();
 
+  // コマンドを作成
+  if (!tar_angle_) {
+    tar_angle_ = std::make_unique<kdl::Euler>();
+  }
+
   // コマンドを更新
-  tar_angle_ = std::make_unique<kdl::Euler>(angle_cmd->angle);
+  *tar_angle_ = angle_cmd->angle;
   tar_thrust_ = max_thrust_sum_ * std::clamp(angle_cmd->throttle, kMinThrot, kMaxThrot);
 }
 
@@ -684,8 +744,13 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
   acc_cmd_.reset();
   tar_angle_.reset();
 
+  // コマンドを作成
+  if (!tar_gyro_) {
+    tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+  }
+
   // コマンドを更新
-  tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+  *tar_gyro_ = rate_cmd->rate;
   tar_thrust_ = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
 }
 

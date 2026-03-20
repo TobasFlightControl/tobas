@@ -46,7 +46,7 @@ private:
 };
 
 RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
-  : super("rotor_anomaly_detector", options)
+  : super("rotor_anomaly_detector", nodeOptions_Default(options))
 {
   no_comm_timeout_ = getDoubleParam("no_communication_timeout", 0.2);
 
@@ -89,7 +89,7 @@ void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
 void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
   if (!drone_) {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration has not been received yet.");
     return;
   }
 

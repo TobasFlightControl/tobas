@@ -1,6 +1,5 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_node/node.hpp>
@@ -37,7 +36,7 @@ private:
 };
 
 ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_electric_rotor_command_handler", options)
+  : super("gazebo_electric_rotor_command_handler", nodeOptions_Default(options))
 {
   drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
 }

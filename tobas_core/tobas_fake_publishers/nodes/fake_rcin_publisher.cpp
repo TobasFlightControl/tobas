@@ -23,7 +23,7 @@ private:
 };
 
 FakeRcInputPublisherNode::FakeRcInputPublisherNode(const rclcpp::NodeOptions& options)
-  : super("fake_rcin_publisher", options)
+  : super("fake_rcin_publisher", nodeOptions_Default(options))
 {
   pub_ = createPublisher<tobas_msgs::RCInput>(tobas::topic::kRcInput);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);

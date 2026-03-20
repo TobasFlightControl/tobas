@@ -20,6 +20,7 @@ public:
   static inline Wrench Zero();
 
   inline void setZero();
+  inline void setNaN();
 
   // Changes the reference point of the wrench.
   // The vector p is expressed in the same base as the wrench.
@@ -60,6 +61,12 @@ inline void Wrench::setZero()
 {
   force.setZero();
   torque.setZero();
+}
+
+inline void Wrench::setNaN()
+{
+  force.setNaN();
+  torque.setNaN();
 }
 
 inline Wrench Wrench::refPoint(const Vector& p) const

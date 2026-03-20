@@ -50,7 +50,8 @@ private:
   void saveFileCb(const Trigger::Request::ConstSharedPtr& req, const Trigger::Response::SharedPtr& res);
 };
 
-PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
+PropertyServer::PropertyServer(const rclcpp::NodeOptions& options)
+  : super("property_server", nodeOptions_Default(options))
 {
   const auto file_path = getStringParam("file_path", "~/.config/tobas/config.json");
   if (!pt_.initialize(ros2::expandUser(file_path.c_str()))) {

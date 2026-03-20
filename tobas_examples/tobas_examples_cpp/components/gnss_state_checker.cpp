@@ -17,7 +17,8 @@ private:
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
 };
 
-GnssStateCheckerNode::GnssStateCheckerNode(const rclcpp::NodeOptions& options) : super("gnss_state_checker", options)
+GnssStateCheckerNode::GnssStateCheckerNode(const rclcpp::NodeOptions& options)
+  : super("gnss_state_checker", nodeOptions_Default(options))
 {
   gnss_sub_ = createSubscriber<tobas_msgs::Gnss>(tobas::topic::kGnss, &self::gnssCb, this);
 }

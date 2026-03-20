@@ -88,7 +88,7 @@ void CsvExportThread::run()
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
       else if (topic.ends_with(path::join("/", tobas::topic::kOdometry))) {
-        const auto& msg = odom_decoder_.decode(ser_data);
+        const auto& msg = odom_cov_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][tobas::topic::kOdometry] = ser_data;
       }
       else if (topic.ends_with(path::join("/", tobas::topic::kMagneticField))) {
@@ -273,22 +273,22 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   // Pose, Twist, Accel
   const auto odom_it = data.find(tobas::topic::kOdometry);
   if (odom_it != data.end()) {
-    const auto& msg = odom_decoder_.decode(odom_it->second);
+    const auto& msg = odom_cov_decoder_.decode(odom_it->second);
 
-    const auto& pos = msg.frame.trans;
-    const kdl::Rotation rot(msg.frame.rot.data);
+    const auto& pos = msg.odom.odom.frame.trans;
+    const kdl::Rotation rot(msg.odom.odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
     res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
            std::to_string(tbs::rad2deg(roll)) + ',' + std::to_string(tbs::rad2deg(pitch)) + ',' +
            std::to_string(tbs::rad2deg(yaw)) + ',';
 
-    const auto& lin_vel = msg.twist.linear;
-    const auto& ang_vel = msg.twist.angular;
+    const auto& lin_vel = msg.odom.odom.twist.linear;
+    const auto& ang_vel = msg.odom.odom.twist.angular;
     res += std::to_string(lin_vel.x) + ',' + std::to_string(lin_vel.y) + ',' + std::to_string(lin_vel.z) + ',' +
            std::to_string(ang_vel.x) + ',' + std::to_string(ang_vel.y) + ',' + std::to_string(ang_vel.z) + ',';
 
-    const auto& lin_acc = msg.accel.linear;
-    const auto& ang_acc = msg.accel.angular;
+    const auto& lin_acc = msg.odom.odom.accel.linear;
+    const auto& ang_acc = msg.odom.odom.accel.angular;
     res += std::to_string(lin_acc.x) + ',' + std::to_string(lin_acc.y) + ',' + std::to_string(lin_acc.z) + ',' +
            std::to_string(ang_acc.x) + ',' + std::to_string(ang_acc.y) + ',' + std::to_string(ang_acc.z) + ',';
   }
@@ -326,9 +326,14 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   const auto gnss_it = data.find(tobas::topic::kGnss);
   if (gnss_it != data.end()) {
     const auto& msg = gnss_decoder_.decode(gnss_it->second);
-    res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.altitude) +
-           ',' + std::to_string(msg.ground_speed.x) + ',' + std::to_string(msg.ground_speed.y) + ',' +
-           std::to_string(msg.ground_speed.z) + ',';
+    if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+      res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.altitude) +
+             ',' + std::to_string(msg.ground_speed.x) + ',' + std::to_string(msg.ground_speed.y) + ',' +
+             std::to_string(msg.ground_speed.z) + ',';
+    }
+    else {
+      res += std::string(6, ',');
+    }
   }
   else {
     res += std::string(6, ',');
@@ -338,9 +343,14 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   const auto rcin_it = data.find(tobas::topic::kRcInput);
   if (rcin_it != data.end()) {
     const auto& msg = rcin_decoder_.decode(rcin_it->second);
-    res += std::to_string(msg.roll) + ',' + std::to_string(msg.pitch) + ',' + std::to_string(msg.throttle) + ',' +
-           std::to_string(msg.yaw) + ',' + std::to_string(msg.mode) + ',' + std::to_string(msg.sub_mode) + ',' +
-           std::to_string(msg.enable) + ',' + std::to_string(msg.kill) + ',';
+    if (msg.ok) {
+      res += std::to_string(msg.roll) + ',' + std::to_string(msg.pitch) + ',' + std::to_string(msg.throttle) + ',' +
+             std::to_string(msg.yaw) + ',' + std::to_string(msg.mode) + ',' + std::to_string(msg.sub_mode) + ',' +
+             std::to_string(msg.enable) + ',' + std::to_string(msg.kill) + ',';
+    }
+    else {
+      res += std::string(8, ',');
+    }
   }
   else {
     res += std::string(8, ',');

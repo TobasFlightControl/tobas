@@ -4,7 +4,7 @@
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
@@ -46,7 +46,7 @@ private:
 
   RateManager::SharedPtr rate_manager_;
 
-  ros2::PublisherPtr<tobas_msgs::Odometry> odom_pub_;
+  ros2::PublisherPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
@@ -77,7 +77,7 @@ void GazeboGroundTruthStatePlugin::Configure(
 
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
 
-  odom_pub_ = createPublisher<tobas_msgs::Odometry>(kOdometryGtTopic);
+  odom_pub_ = createPublisher<tobas_msgs::OdometryWithCovarianceStamped>(kOdometryGtTopic);
 }
 
 void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -87,32 +87,32 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, c
   }
 
   // Create Pose & Twist message
-  auto odom = std::make_unique<tobas_msgs::Odometry>();
+  auto odom = std::make_unique<tobas_msgs::OdometryWithCovarianceStamped>();
   odom->header.frame_id = link_name_;
 
   // Update time stamp
   ros2::timeChronoToMsg(info.simTime, odom->header.stamp);
 
   // Update pose (Global)
-  poseGazeboToKDL(pose_W_->Data(), odom->frame);
+  poseGazeboToKDL(pose_W_->Data(), odom->odom.odom.frame);
 
   // Update linear velocity (Local)
-  vectorGazeboToKDL(vel_B_->Data(), odom->twist.vel);
+  vectorGazeboToKDL(vel_B_->Data(), odom->odom.odom.twist.vel);
 
   // Update angular velocity (Local)
-  vectorGazeboToKDL(gyro_B_->Data(), odom->twist.rot);
+  vectorGazeboToKDL(gyro_B_->Data(), odom->odom.odom.twist.rot);
 
   // Update linear acceleration (Local)
-  vectorGazeboToKDL(acc_B_->Data(), odom->accel.linear);
+  vectorGazeboToKDL(acc_B_->Data(), odom->odom.odom.accel.linear);
 
   // Update angular acceleration (Local)
-  vectorGazeboToKDL(dgyro_B_->Data(), odom->accel.angular);
+  vectorGazeboToKDL(dgyro_B_->Data(), odom->odom.odom.accel.angular);
 
   // Update covariances
-  odom->position_covariance.setZero();
-  odom->orientation_covariance.setZero();
-  odom->velocity_covariance.setZero();
-  odom->gyro_covariance.setZero();
+  odom->odom.position_covariance.setZero();
+  odom->odom.orientation_covariance.setZero();
+  odom->odom.velocity_covariance.setZero();
+  odom->odom.gyro_covariance.setZero();
 
   // Publish state message
   odom_pub_->publish(std::move(odom));

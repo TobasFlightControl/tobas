@@ -33,7 +33,8 @@ private:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu);
 };
 
-ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& options) : super("imu_noise_filter", options)
+ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& options)
+  : super("imu_noise_filter", nodeOptions_Default(options))
 {
   acc_noise_pub_ = createPublisher<Eigen::Matrix3d>("accel_covariance");
   gyro_noise_pub_ = createPublisher<Eigen::Matrix3d>("gyro_covariance");

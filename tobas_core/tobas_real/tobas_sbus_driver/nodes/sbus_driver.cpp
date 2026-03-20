@@ -34,7 +34,7 @@ private:
 };
 
 SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
-  : super("sbus_driver", options), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
+  : super("sbus_driver", nodeOptions_Default(options)), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
 {
   device_ = getStringParam("device", "");
   if (device_.empty()) {

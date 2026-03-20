@@ -2,7 +2,6 @@
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_math/linalg.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
@@ -22,7 +21,8 @@
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_stamped.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 #include "tobas_mission_execution_mc/stop_trajectory_generator.hpp"
@@ -33,13 +33,6 @@ namespace tobas
 {
 namespace mission
 {
-struct Command
-{
-  kdl::Vector pos;
-  kdl::Vector vel;
-  kdl::Vector acc;
-  kdl::Euler rot;
-};
 
 class MulticopterMissionExecutorNode : public BaseNode
 {
@@ -56,6 +49,7 @@ class MulticopterMissionExecutorNode : public BaseNode
 
   static constexpr double kCommandRate = 100.;       // [Hz]
   static constexpr double kAttitudeRate = M_PI / 6;  // [rad/s]
+  static constexpr double kMinBrakeDuration = 0.1;   // [s]
 
 public:
   explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -90,6 +84,7 @@ private:
   bool is_executing_ = false;
   bool is_manual_ctrl_enabled_ = false;
   uint8_t mission_priority_ = tobas_mission_msgs::msg::Priority::NORMAL;
+  std::unique_ptr<kdl::Vector> launch_point_;
 
   enum Status
   {
@@ -98,20 +93,28 @@ private:
     kManualOverride,
   } status_ = kNoProblem;
 
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  /* Target trajectory point expressed in the global frame. */
+  struct Command
+  {
+    kdl::Vector pos;
+    kdl::Vector vel;
+    kdl::Vector acc;
+    kdl::Euler rot;
+  } command_;
+
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
+  tobas_msgs::OdometryStamped::ConstSharedPtr setpoint_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
-
-  std::unique_ptr<kdl::Vector> launch_point_;
-  std::unique_ptr<Command> command_;
 
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAcc> pva_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pvapy_pub_;
 
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryStamped> setpoint_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gnss_origin_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -120,7 +123,14 @@ private:
   ros2::ActionServerPtr<Action> as_;
 
   void getStaticRosParams();
+
+  /* 設定値が存在すれば設定値，存在しなければ現在値でコマンドを初期化する． */
+  void initializeCommand();
+
+  /* コマンドを発行する． */
   void publishCommand(const rclcpp::Time& stamp);
+
+  /* アーム・ディスアーム要求を行う． */
   bool armRotors(bool arming);
 
   /* 現在のコマンドから滑らかに停止させる． */
@@ -137,7 +147,8 @@ private:
   bool executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res);
   bool executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res);
 
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
@@ -149,7 +160,7 @@ private:
 };
 
 MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kMissionExecutor, options)
+  : super(tobas::node::kMissionExecutor, nodeOptions_Default(options))
 {
   getStaticRosParams();
 
@@ -159,6 +170,7 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   pvapy_pub_ = createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
+  setpoint_sub_ = createSubscriber(tobas::topic::kTrajSetpoint, &self::setpointCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   gnss_origin_sub_ = createSubscriber(topic::kGnssOrigin, &self::gnssOriginCb, this, true, true);
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
@@ -187,6 +199,45 @@ void MulticopterMissionExecutorNode::getStaticRosParams()
   rtl_cfg_.min_alt = getDoubleParam("rtl/min_altitude");
 }
 
+void MulticopterMissionExecutorNode::initializeCommand()
+{
+  const auto& odom = odom_->odom.odom;
+
+  if (setpoint_) {
+    const auto& sp = setpoint_->odom;
+    if (sp.frame.p.isFinite()) {
+      command_.pos = sp.frame.p;
+    }
+    else {
+      command_.pos = odom.frame.p;
+    }
+    if (sp.frame.M.isFinite()) {
+      sp.frame.M.getRPY(command_.rot.roll, command_.rot.pitch, command_.rot.yaw);
+    }
+    else {
+      odom.frame.M.getRPY(command_.rot.roll, command_.rot.pitch, command_.rot.yaw);
+    }
+    if (sp.twist.vel.isFinite()) {
+      command_.vel = odom.frame.M * sp.twist.vel;
+    }
+    else {
+      command_.vel = odom.frame.M * odom.twist.vel;
+    }
+    if (sp.accel.linear.isFinite()) {
+      command_.acc = odom.frame.M * sp.accel.linear;
+    }
+    else {
+      command_.acc = odom.frame.M * odom.accel.linear;
+    }
+  }
+  else {
+    command_.pos = odom.frame.p;
+    odom.frame.M.getRPY(command_.rot.roll, command_.rot.pitch, command_.rot.yaw);
+    command_.vel = odom.twist.vel;
+    command_.acc = odom.accel.linear;
+  }
+}
+
 void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
 {
   // ミッション優先度に応じてコマンド優先度を設定
@@ -207,9 +258,7 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
     auto cmd = std::make_unique<tobas_command_msgs::Angle>();
     cmd->header.stamp = stamp;
     cmd->priority.data = cmd_priority;
-    cmd->angle.roll = command_->rot.roll;
-    cmd->angle.pitch = command_->rot.pitch;
-    cmd->angle.yaw = command_->rot.yaw;
+    cmd->angle = command_.rot;
     angle_pub_->publish(std::move(cmd));
   }
 
@@ -217,9 +266,9 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
     auto cmd = std::make_unique<tobas_command_msgs::PosVelAcc>();
     cmd->header.stamp = stamp;
     cmd->priority.data = cmd_priority;
-    cmd->pos = command_->pos;
-    cmd->vel = command_->vel;
-    cmd->acc = command_->acc;
+    cmd->pos = command_.pos;
+    cmd->vel = command_.vel;
+    cmd->acc = command_.acc;
     pva_pub_->publish(std::move(cmd));
   }
 
@@ -227,10 +276,10 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
     auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     cmd->header.stamp = stamp;
     cmd->priority.data = cmd_priority;
-    cmd->pos = command_->pos;
-    cmd->vel = command_->vel;
-    cmd->acc = command_->acc;
-    cmd->yaw = command_->rot.yaw;
+    cmd->pos = command_.pos;
+    cmd->vel = command_.vel;
+    cmd->acc = command_.acc;
+    cmd->yaw = command_.rot.yaw;
     pvay_pub_->publish(std::move(cmd));
   }
 
@@ -238,11 +287,11 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
     auto cmd = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
     cmd->header.stamp = stamp;
     cmd->priority.data = cmd_priority;
-    cmd->pos = command_->pos;
-    cmd->vel = command_->vel;
-    cmd->acc = command_->acc;
-    cmd->pitch = command_->rot.pitch;
-    cmd->yaw = command_->rot.yaw;
+    cmd->pos = command_.pos;
+    cmd->vel = command_.vel;
+    cmd->acc = command_.acc;
+    cmd->pitch = command_.rot.pitch;
+    cmd->yaw = command_.rot.yaw;
     pvapy_pub_->publish(std::move(cmd));
   }
 }
@@ -269,24 +318,19 @@ bool MulticopterMissionExecutorNode::armRotors(bool arming)
 
 void MulticopterMissionExecutorNode::brake()
 {
-  if (!command_) {
-    TOBAS_WARN("Cannot brake because the latest command is nuknown.");
-    return;
-  }
-
   // 軌道を生成
-  const Eigen::Vector2d pxy0(command_->pos.x(), command_->pos.y());
-  const Eigen::Vector2d vxy0(command_->vel.x(), command_->vel.y());
-  const Eigen::Vector2d axy0(command_->acc.x(), command_->acc.y());
+  const Eigen::Vector2d pxy0(command_.pos.x(), command_.pos.y());
+  const Eigen::Vector2d vxy0(command_.vel.x(), command_.vel.y());
+  const Eigen::Vector2d axy0(command_.acc.x(), command_.acc.y());
   const auto vxy0_norm = vxy0.norm();
   const auto axy0_norm = axy0.norm();
   const auto dir_xy = vxy0_norm > 0. ? (vxy0 / vxy0_norm).eval() : Eigen::Vector2d::Zero();
   const StopTrajectory traj_xy(
     0., vxy0_norm, axy0_norm * math::sign(vxy0.dot(axy0)), wp_cfg_.max_hor_acc, wp_cfg_.max_hor_jerk);
 
-  const auto pz0 = command_->pos.z();
-  const auto vz0 = command_->vel.z();
-  const auto az0 = command_->acc.z();
+  const auto pz0 = command_.pos.z();  // Must be copy
+  const auto vz0 = command_.vel.z();  // Must be copy
+  const auto az0 = command_.acc.z();  // Must be copy
   const auto vz0_norm = std::abs(vz0);
   const auto az0_norm = std::abs(az0);
   const auto dir_z = math::sign(vz0);
@@ -294,8 +338,8 @@ void MulticopterMissionExecutorNode::brake()
 
   // 所要時間を取得
   const auto duration = std::max(traj_xy.duration(), traj_z.duration());
-  if (duration == 0.) {
-    return;
+  if (duration < kMinBrakeDuration) {
+    return;  // 既にほぼ停止している場合はコマンドを発行せず終了
   }
   TOBAS_INFO("The vehicle will stop in ", duration, " seconds.");
 
@@ -321,9 +365,9 @@ void MulticopterMissionExecutorNode::brake()
     const auto pz = pz0 + traj_point_z.p * dir_z;
     const auto vz = traj_point_z.v * dir_z;
     const auto az = traj_point_z.a * dir_z;
-    command_->pos.set(pxy.x(), pxy.y(), pz);
-    command_->vel.set(vxy.x(), vxy.y(), vz);
-    command_->acc.set(axy.x(), axy.y(), az);
+    command_.pos.set(pxy.x(), pxy.y(), pz);
+    command_.vel.set(vxy.x(), vxy.y(), vz);
+    command_.acc.set(axy.x(), axy.y(), az);
 
     // コマンドを発行
     publishCommand(cur_time);
@@ -373,18 +417,12 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     return false;
   }
 
-  // 目標状態の初期値を決定
-  kdl::Vector start_pos;
-  kdl::Euler start_rot;
-  if (command_) {
-    start_pos = command_->pos;
-    start_rot = command_->rot;
-  }
-  else {
-    command_ = std::make_unique<Command>();
-    start_pos = odom_->frame.p;
-    odom_->frame.M.getRPY(start_rot.roll, start_rot.pitch, start_rot.yaw);
-  }
+  // 開始前に一時停止
+  brake();
+
+  // 目標状態の初期値を取得
+  const auto start_pos = command_.pos.clone();
+  const auto start_rot = command_.rot.clone();
 
   // 目標位置を計算
   kdl::Vector goal_pos;  // wrt. the odometry frame
@@ -474,7 +512,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     }
 
     // 現在の位置を取得
-    const auto& cur_pos = odom_->frame.p;
+    const auto& cur_pos = odom_->odom.odom.frame.p;
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
     if (t > duration) {
@@ -494,10 +532,10 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
     const Eigen::Vector2d vxy = traj_point_xy.v * xy_dir;
     const Eigen::Vector2d axy = traj_point_xy.a * xy_dir;
     const auto traj_point_z = traj_z.get(t);
-    command_->pos.set(pxy.x(), pxy.y(), traj_point_z.p);
-    command_->vel.set(vxy.x(), vxy.y(), traj_point_z.v);
-    command_->acc.set(axy.x(), axy.y(), traj_point_z.a);
-    command_->rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, algo::wrapPi(start_rot.yaw + traj_yaw.get(t).p));
+    command_.pos.set(pxy.x(), pxy.y(), traj_point_z.p);
+    command_.vel.set(vxy.x(), vxy.y(), traj_point_z.v);
+    command_.acc.set(axy.x(), axy.y(), traj_point_z.a);
+    command_.rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, algo::wrapPi(start_rot.yaw + traj_yaw.get(t).p));
 
     // コマンドを発行
     publishCommand(cur_time);
@@ -510,6 +548,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
 
 bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
+  // Verify that the vehicle is disarmed
   if (arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
     res->error_message = "The vehicle is already armed.";
@@ -527,18 +566,9 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
   // TODO: 正常にアームされたかどうかを確認
 
-  // 目標状態の初期値を決定
-  kdl::Vector start_pos;
-  double start_yaw;
-  if (command_) {
-    start_pos = command_->pos;
-    start_yaw = command_->rot.yaw;
-  }
-  else {
-    command_ = std::make_unique<Command>();
-    start_pos = odom_->frame.p;
-    start_yaw = odom_->frame.M.getYaw();
-  }
+  // 目標状態の初期値を取得
+  const auto start_pos = command_.pos.clone();
+  const auto start_yaw = command_.rot.yaw;
 
   // 目標高度を決定
   double tar_z;  // wrt. the odometry frame
@@ -592,7 +622,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     }
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
-    const auto& cur_pos = odom_->frame.p;
+    const auto& cur_pos = odom_->odom.odom.frame.p;
     const auto alt_err_abs = std::abs(tar_z - cur_pos.z());
     if (t > duration) {
       if (goal.altitude_tolerance <= 0. || alt_err_abs < goal.altitude_tolerance) {
@@ -602,10 +632,10 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
     // コマンドを作成
     const auto traj_point_z = traj_z.get(t);
-    command_->pos.set(start_pos.x(), start_pos.y(), traj_point_z.p);
-    command_->vel.set(0., 0., traj_point_z.v);
-    command_->acc.set(0., 0., traj_point_z.a);
-    command_->rot.set(0., 0., start_yaw);
+    command_.pos.set(start_pos.x(), start_pos.y(), traj_point_z.p);
+    command_.vel.set(0., 0., traj_point_z.v);
+    command_.acc.set(0., 0., traj_point_z.a);
+    command_.rot.set(0., 0., start_yaw);
 
     // コマンドを発行
     publishCommand(cur_time);
@@ -618,18 +648,20 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
 bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res)
 {
-  // 目標状態の初期値を決定
-  kdl::Vector start_pos;
-  kdl::Euler start_rot;
-  if (command_) {
-    start_pos = command_->pos;
-    start_rot = command_->rot;
+  // Verify that the vehicle is armed
+  if (!arming_->data) {
+    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    res->error_message = "The vehicle is disarmed.";
+    gh->abort(res);
+    return false;
   }
-  else {
-    command_ = std::make_unique<Command>();
-    start_pos = odom_->frame.p;
-    odom_->frame.M.getRPY(start_rot.roll, start_rot.pitch, start_rot.yaw);
-  }
+
+  // 開始前に一時停止
+  brake();
+
+  // 目標状態の初期値を取得
+  const auto start_pos = command_.pos.clone();
+  const auto start_rot = command_.rot.clone();
 
   // 下降速度を決定
   const auto speed = goal.speed > 0. ? goal.speed : land_cfg_.speed;
@@ -657,10 +689,10 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto cur_time = now();
     const auto t = (cur_time - start_time).seconds();
     const auto tar_z = start_pos.z() - speed * t;
-    command_->pos.set(start_pos.x(), start_pos.y(), tar_z);
-    command_->vel.set(0., 0., -speed);
-    command_->acc.setZero();
-    command_->rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, start_rot.yaw);
+    command_.pos.set(start_pos.x(), start_pos.y(), tar_z);
+    command_.vel.set(0., 0., -speed);
+    command_.acc.setZero();
+    command_.rot.set(traj_roll.get(t).p, traj_pitch.get(t).p, start_rot.yaw);
 
     // コマンドを発行
     publishCommand(cur_time);
@@ -669,7 +701,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto imu_time = odom_->header.stamp;  // Copy
 
     // 鉛直方向の速度を計算
-    const auto cur_vel_W = odom_->frame.M * odom_->twist.vel;
+    const auto cur_vel_W = odom_->odom.odom.frame.M * odom_->odom.odom.twist.vel;
     const auto& cur_vz = cur_vel_W.z();
 
     // 最後に高い速度を検知した時刻からの経過時間を計算
@@ -679,7 +711,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     const auto time_from_last_high_speed = imu_time - t_last_high_speed;
 
     // 高度誤差を計算
-    const auto z_error = tar_z - odom_->frame.p.z();
+    const auto z_error = tar_z - odom_->odom.odom.frame.p.z();
 
     // 以下の条件のうちいずれか1つが満たされたらモータを停止して終了
     // 1. 自重に近い地面反力を検知（共通の着陸検知アルゴリズム）
@@ -713,6 +745,9 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     return false;
   }
 
+  // 開始前に一時停止
+  brake();
+
   // ウェイポイントのゴールを作成
   Waypoint wp;
   wp.altitude_frame = AltitudeFrame::kRelativeToLaunch;
@@ -729,7 +764,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   wp.timeout = goal.timeout;
 
   // 目標高度を決定
-  const auto& cur_pos = odom_->frame.p;
+  const auto& cur_pos = odom_->odom.odom.frame.p;
   const auto cur_alt = cur_pos.z() - launch_point_->z();
   const auto xy_dist = math::norm(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
   const auto min_alt_goal = goal.min_altitude > 0. ? goal.min_altitude : rtl_cfg_.min_alt;
@@ -768,9 +803,14 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   return true;
 }
 
-void MulticopterMissionExecutorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void MulticopterMissionExecutorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom_ = odom;
+}
+
+void MulticopterMissionExecutorNode::setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint)
+{
+  setpoint_ = setpoint;
 }
 
 void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -783,13 +823,14 @@ void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::Con
   // アームされた座標を保存
   if (!arming_->data && arming->data) {
     if (odom_) {
-      launch_point_ = std::make_unique<kdl::Vector>(odom_->frame.p);
+      launch_point_ = std::make_unique<kdl::Vector>(odom_->odom.odom.frame.p);
     }
   }
 
-  // ディスアームされたら座標をリセット
+  // ディスアームされたらアーム座標と設定値をリセット
   if (arming_->data && !arming->data) {
     launch_point_.reset();
+    setpoint_.reset();
   }
 
   arming_ = arming;
@@ -834,19 +875,19 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
 
   // Check the essential topics
   if (!odom_) {
-    TOBAS_WARN("Odometry is not received yet.");
+    TOBAS_WARN("Odometry has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (!arming_) {
-    TOBAS_WARN("Arming status is not received yet.");
+    TOBAS_WARN("Arming status has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (!gnss_origin_) {
-    TOBAS_WARN("GNSS origin is not received yet.");
+    TOBAS_WARN("GNSS origin has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (!landed_) {
-    TOBAS_WARN("Landed state is not received yet.");
+    TOBAS_WARN("Landed state has not been received yet.");
     return rclcpp_action::GoalResponse::REJECT;
   }
 
@@ -951,8 +992,8 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
   is_executing_ = true;
   status_ = kNoProblem;
 
-  // Reset the old command
-  command_.reset();
+  // Initialize the command
+  initializeCommand();
 
   // Create result
   const auto res = std::make_shared<Result>();

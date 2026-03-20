@@ -13,7 +13,7 @@
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 using namespace std::chrono_literals;
@@ -77,14 +77,15 @@ private:
   TopicThrottle<tobas_msgs::msg::FluidPressure> pres_throttle_;
   TopicThrottle<tobas_msgs::msg::RotorStateArray> rotor_states_throttle_;
   TopicThrottle<tobas_msgs::msg::JointStateArray> joint_states_throttle_;
-  TopicThrottle<tobas_msgs::Odometry> odom_throttle_;
+  TopicThrottle<tobas_msgs::OdometryWithCovarianceStamped> odom_throttle_;
   TopicThrottle<tobas_msgs::Imu> real_imu_throttle_;
   TopicThrottle<tobas_msgs::MagneticField> real_mag_throttle_;
 
   ros2::TimerPtr initialize_timer_;
 };
 
-TopicThrottleNode::TopicThrottleNode(const rclcpp::NodeOptions& options) : super("topic_throttle", options)
+TopicThrottleNode::TopicThrottleNode(const rclcpp::NodeOptions& options)
+  : super("topic_throttle", nodeOptions_Default(options))
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }

@@ -38,6 +38,8 @@ void PosVelAccPitchYawController::initialize(tobas::BaseNode* node, tobas::Fligh
     addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 1., 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(
     addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
+  node->addDynamicDoubleParam(
+    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 1., 10, 1, 20, " m/s^2");
   node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 10., 9, 1, 18, " deg");
   node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 20., 9, 1, 18, " dps");
   node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 20., 9, 1, 18, " dps");
@@ -53,24 +55,30 @@ void PosVelAccPitchYawController::initialize(tobas::BaseNode* node, tobas::Fligh
   cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(tobas::topic::kPosVelAccPitchYawCmd);
 }
 
-void PosVelAccPitchYawController::reset(const tobas_msgs::Odometry& odom, bool landed)
+void PosVelAccPitchYawController::reset(
+  const builtin_interfaces::msg::Time& stamp,
+  const tobas_msgs::Odometry& setpoint,
+  bool landed)
 {
-  t_last_rcin_ = odom.header.stamp;
+  t_last_rcin_ = stamp;
 
-  const auto [roll, pitch, yaw] = odom.frame.M.getRPY();
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
 
   const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
-  const auto cur_vel_G = R_G_B * odom.twist.vel;
-  vx_filt_.resetCurrentTrajectoryPoint(cur_vel_G.x());
-  vy_filt_.resetCurrentTrajectoryPoint(cur_vel_G.y());
+  const auto tar_vel_G = R_G_B * setpoint.twist.vel;
+  vx_filt_.resetCurrentTrajectoryPoint(tar_vel_G.x());
+  vy_filt_.resetCurrentTrajectoryPoint(tar_vel_G.y());
+  vz_filt_.resetCurrentTrajectoryPoint(tar_vel_G.z());
 
-  tar_pos_W_ = odom.frame.p;
+  tar_pos_W_ = setpoint.frame.p;
+
   if (landed) {
+    vz_filt_.resetCurrentTrajectoryPoint(-max_ver_vel_);
     tar_pos_W_.z() -= max_ep_down_;
   }
 
   pitch_filt_.resetCurrentTrajectoryPoint(pitch);
-  tar_yaw_ = odom.frame.M.getYaw();
+  tar_yaw_ = setpoint.frame.M.getYaw();
 }
 
 void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
@@ -82,30 +90,26 @@ void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const 
   // Velocity-X & Pitch
   if (rcin.sub_mode)  // Translation mode
   {
-    vx_filt_.setTargetPosition(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-    pitch_filt_.setTargetPosition(0.);
+    vx_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+    pitch_filt_.setTargetPointAndUpdate(0., dt);
   }
   else  // Rotation mode
   {
-    vx_filt_.setTargetPosition(0.);
-    pitch_filt_.setTargetPosition(expoRemapDead(rcin.pitch, pitch_expo_, -max_pitch_, max_pitch_));
+    vx_filt_.setTargetPointAndUpdate(0., dt);
+    pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, pitch_expo_, -max_pitch_, max_pitch_), dt);
   }
-  vx_filt_.update(dt);
-  pitch_filt_.update(dt);
 
-  // Velocity-Y
-  vy_filt_.setTargetPosition(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_));
-  vy_filt_.update(dt);
-
-  // Velocity-Z
-  const auto vz = expoRemap(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_);
+  // Velocity-YZ
+  vy_filt_.setTargetPointAndUpdate(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+  vz_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
   // Yaw
   const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
   tar_yaw_ += yawrate * dt;
 
   // Compute the velocity wrt. the world frame
-  const kdl::Vector tar_vel_G(vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz);
+  const kdl::Vector tar_vel_G(
+    vx_filt_.getTrajectoryPosition(), vy_filt_.getTrajectoryPosition(), vz_filt_.getTrajectoryPosition());
   const auto tar_vel_W = kdl::Rotation::RotZ(tar_yaw_) * tar_vel_G;
 
   // Integrate the velocity
@@ -152,6 +156,12 @@ bool PosVelAccPitchYawController::maxHorizontalAccelCb(const double& p)
 bool PosVelAccPitchYawController::maxVerticalVelocityCb(const double& p)
 {
   max_ver_vel_ = p;
+  return true;
+}
+
+bool PosVelAccPitchYawController::maxVerticalAccelCb(const double& p)
+{
+  vz_filt_.setMaxVelocity(p);
   return true;
 }
 

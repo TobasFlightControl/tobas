@@ -42,7 +42,7 @@ void RateThrottleVectorController::initialize(tobas::BaseNode* node, tobas::Flig
   cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottleVector>(tobas::topic::kRateThrotVectorCmd);
 }
 
-void RateThrottleVectorController::reset(const tobas_msgs::Odometry&, bool)
+void RateThrottleVectorController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 

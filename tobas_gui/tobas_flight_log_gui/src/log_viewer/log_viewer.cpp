@@ -30,6 +30,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   for (const auto& [idx, plot_tab] : std::views::enumerate(plot_tabs_)) {
     plot_tab = new PlotTabWidget(
       odom_data_,
+      setpoint_data_,
       raw_imu_data_,
       filt_imu_data_,
       mag_data_,
@@ -73,7 +74,7 @@ void FlightLogViewerWidget::reset()
   reader_.close();
   decode_fail_topics_.clear();
 
-  odom_decoder_.clearCache();
+  odom_cov_decoder_.clearCache();
   mag_decoder_.clearCache();
   gnss_decoder_.clearCache();
   rcin_decoder_.clearCache();
@@ -161,6 +162,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
   // データを初期化
   odom_data_.clear();
+  setpoint_data_.clear();
   raw_imu_data_.clear();
   filt_imu_data_.clear();
   mag_data_.clear();
@@ -202,7 +204,10 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     // デコード
     try {
       if (topic.ends_with(path::join("/", tobas::topic::kOdometry))) {
-        odom_data_.push_back(odom_decoder_.decode(cur_time, ser_data));
+        odom_data_.push_back(odom_cov_decoder_.decode(cur_time, ser_data));
+      }
+      else if (topic.ends_with(path::join("/", tobas::topic::kTrajSetpoint))) {
+        setpoint_data_.push_back(odom_decoder_.decode(cur_time, ser_data));
       }
       else if (topic.ends_with(path::join("/", tobas::topic::kImuRaw))) {
         raw_imu_data_.push_back(imu_decoder_.decode(cur_time, ser_data));

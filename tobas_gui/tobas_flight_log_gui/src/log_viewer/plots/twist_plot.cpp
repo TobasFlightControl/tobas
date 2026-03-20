@@ -49,18 +49,18 @@ void TwistPlotWidget::setTimeScale(double t_start, double t_stop)
 }
 
 void TwistPlotWidget::setData(
-  const QVector<tobas_msgs::msg::Odometry>& odom_msgs,
-  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
+  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   updateCurrentSamples(odom_msgs);
-  updateTargetSamples(ctrl_fb_msgs);
+  updateTargetSamples(setpoint_msgs);
 
   for (auto& plot : plots_) {
     plot->replot();
   }
 }
 
-void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odometry>& odom_msgs)
+void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -68,12 +68,12 @@ void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
   for (const auto& odom : odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
-    const auto& lin_vel = odom.twist.linear;
+    const auto& lin_vel = odom.odom.odom.twist.linear;
     val_data[0].push_back(lin_vel.x);
     val_data[1].push_back(lin_vel.y);
     val_data[2].push_back(lin_vel.z);
 
-    const auto& ang_vel = odom.twist.angular;
+    const auto& ang_vel = odom.odom.odom.twist.angular;
     val_data[3].push_back(ang_vel.x);
     val_data[4].push_back(ang_vel.y);
     val_data[5].push_back(ang_vel.z);
@@ -84,21 +84,20 @@ void TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::Odomet
   }
 }
 
-void TwistPlotWidget::updateTargetSamples(
-  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& ctrl_fb_msgs)
+void TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
 
-  for (const auto& ctrl_fb : ctrl_fb_msgs) {
-    t_data.push_back(ros2::seconds(ctrl_fb.header.stamp));
+  for (const auto& setpoint : setpoint_msgs) {
+    t_data.push_back(ros2::seconds(setpoint.header.stamp));
 
-    const auto& lin_vel = ctrl_fb.target_velocity;
+    const auto& lin_vel = setpoint.odom.twist.linear;
     val_data[0].push_back(lin_vel.x);
     val_data[1].push_back(lin_vel.y);
     val_data[2].push_back(lin_vel.z);
 
-    const auto& ang_vel = ctrl_fb.target_gyro;
+    const auto& ang_vel = setpoint.odom.twist.angular;
     val_data[3].push_back(ang_vel.x);
     val_data[4].push_back(ang_vel.y);
     val_data[5].push_back(ang_vel.z);

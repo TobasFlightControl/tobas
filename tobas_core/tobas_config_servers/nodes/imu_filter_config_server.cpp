@@ -1,5 +1,4 @@
 #include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/srv/configure_imu_filter.hpp>
@@ -32,7 +31,7 @@ private:
 };
 
 ImuFilterConfigServer::ImuFilterConfigServer(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kImuFilterConfigServer, options)
+  : super(tobas::node::kImuFilterConfigServer, nodeOptions_DParam(options))
 {
   imu_raw_sub_ = createSubscriber(tobas::topic::kImuRaw, &self::imuRawCb, this);
 }

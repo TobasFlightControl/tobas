@@ -41,7 +41,8 @@ class PlotTabWidget : public qt::TabWidget
 
 public:
   explicit PlotTabWidget(
-    const QVector<tobas_msgs::msg::Odometry>& odom_data,
+    const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
+    const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,
     const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
     const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
     const QVector<tobas_msgs::msg::MagneticField>& mag_data,
@@ -68,7 +69,8 @@ public:
   void plot();
 
 private:
-  const QVector<tobas_msgs::msg::Odometry>& odom_data_;
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data_;
+  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data_;
   const QVector<tobas_msgs::msg::Imu>& raw_imu_data_;
   const QVector<tobas_msgs::msg::Imu>& filt_imu_data_;
   const QVector<tobas_msgs::msg::MagneticField>& mag_data_;

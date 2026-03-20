@@ -25,6 +25,7 @@ static constexpr char kRotorStates[] = "rotor_states";
 static constexpr char kRotorLiv[] = "rotor_liveliness";
 static constexpr char kJointStates[] = "joint_states_2";
 static constexpr char kOdometry[] = "odom";
+static constexpr char kTrajSetpoint[] = "trajectory_setpoint";
 static constexpr char kExternalPose[] = "external_pose";
 static constexpr char kMagRef[] = "magnetic_field_ref";
 static constexpr char kGnssOrigin[] = "gnss_origin";

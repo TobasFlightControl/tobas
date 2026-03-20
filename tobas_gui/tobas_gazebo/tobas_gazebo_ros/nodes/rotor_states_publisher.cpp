@@ -27,7 +27,7 @@ private:
 };
 
 RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_rotor_states_publisher", options)
+  : super("gazebo_rotor_states_publisher", nodeOptions_Default(options))
 {
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
   drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);

@@ -22,12 +22,12 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom, bool landed) override;
+  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   rclcpp::Time t_last_rcin_;
-  ctrl::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, pitch_filt_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator vx_filt_, vy_filt_, vz_filt_, pitch_filt_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
@@ -48,6 +48,7 @@ private:
   bool maxHorizontalVelocityCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
+  bool maxVerticalAccelCb(const double& p);
   bool maxPitchCb(const double& p);
   bool maxPitchRateCb(const double& p);
   bool maxYawRateCb(const double& p);

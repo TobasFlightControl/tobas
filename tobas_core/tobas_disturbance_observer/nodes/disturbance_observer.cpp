@@ -12,7 +12,7 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 class DisturbanceObserverNode : public tobas::BaseNode
 {
@@ -40,18 +40,21 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> joint_states_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
 };
 
 DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& options)
-  : super("disturbance_observer", options), fk_solver_(tree_), inertia_solver_(tree_), js_converter_(tree_)
+  : super("disturbance_observer", nodeOptions_Default(options))
+  , fk_solver_(tree_)
+  , inertia_solver_(tree_)
+  , js_converter_(tree_)
 {
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::topic::kDisturbanceForce);
 
@@ -142,7 +145,7 @@ void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArr
   js_received_ = true;
 }
 
-void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   if (tree_.empty()) {
     return;
@@ -194,10 +197,10 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
 
   // 外力を計算
   // TODO: 固定翼の力も考慮
-  const auto& W_Rot_B = odom->frame.M;
-  const auto& gyro_B = odom->twist.rot;
-  const auto& acc_B = odom->accel.linear;
-  const auto& dgyro_B = odom->accel.angular;  // FIXME: DGyroの数値誤差が大きく外力トルクの推定制度が低い
+  const auto& W_Rot_B = odom->odom.odom.frame.M;
+  const auto& gyro_B = odom->odom.odom.twist.rot;
+  const auto& acc_B = odom->odom.odom.accel.linear;
+  const auto& dgyro_B = odom->odom.odom.accel.angular;  // FIXME: DGyroの数値誤差が大きく外力トルクの推定制度が低い
   const auto force_W = kdl::Vector(0, 0, weight) + W_Rot_B * (mass * acc_B - trans_sum);
   const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 

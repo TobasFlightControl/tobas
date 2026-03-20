@@ -27,7 +27,8 @@ private:
   void mainTimerCb();
 };
 
-MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_mag_driver", options)
+MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_mag_driver", nodeOptions_Default(options))
 {
   initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
 }

@@ -41,7 +41,8 @@ private:
   void jointEffCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in);
 };
 
-DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options) : super("dynamixel_bridge", options)
+DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options)
+  : super("dynamixel_bridge", nodeOptions_Default(options))
 {
   const auto jnt_names = getStringArrayParam("joint_names", {});
   if (jnt_names.empty()) {

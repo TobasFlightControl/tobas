@@ -47,11 +47,11 @@ void AccelRateController::initialize(tobas::BaseNode* node, tobas::FlightMode mo
   rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(tobas::topic::kRateCmd);
 }
 
-void AccelRateController::reset(const tobas_msgs::Odometry&, bool)
+void AccelRateController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 
-void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool)
+void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& setpoint, bool)
 {
   // Horizontal acceleration & Attitude rate
   if (rcin.sub_mode)  // Translation mode
@@ -76,7 +76,7 @@ void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_ms
   tar_gyro_B_.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
 
   // Compute the acceleration wrt. the world frame
-  const auto cur_yaw = odom.frame.M.getYaw();
+  const auto cur_yaw = setpoint.frame.M.getYaw();
   const auto tar_acc_W = kdl::Rotation::RotZ(cur_yaw) * tar_acc_G_;
 
   // Publish commands

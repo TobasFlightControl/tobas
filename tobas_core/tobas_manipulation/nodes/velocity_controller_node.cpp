@@ -84,7 +84,7 @@ private:
 };
 
 VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& options)
-  : super("jointvel_trajectory_controller", options)
+  : super("jointvel_trajectory_controller", nodeOptions_DParam(options))
   , jnt_parser_(tree_)
   , active_jnts_extractor_(tree_)
   , vel_ctrl_(tree_)

@@ -1,5 +1,4 @@
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/ros_interface.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/ellipsoid.hpp>
 #include <tobas_linux/core.hpp>
@@ -42,7 +41,7 @@ private:
 };
 
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_magnetometer_handler", options)
+  : super("real_magnetometer_handler", nodeOptions_Default(options))
 {
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName))) {
