@@ -11,6 +11,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
+#include <tobas_trajectory_generation/online/velocity_limited.hpp>
 
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
 #include <tobas_command_msgs_adapter/angle_throttle.hpp>
@@ -39,6 +40,8 @@ class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
   using super = BaseNode;
+
+  static constexpr double kModeTransitionMaxAttiRate = M_PI_2;
 
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -96,6 +99,10 @@ private:
   kdl::Vector tar_dgyro_;                                // 目標角加速度 (機体座標系)
   double tar_thrust_ = 0.;                               // 目標推力 (機体座標系)
 
+  // Command smoothing
+  traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
+  bool smooth_tar_roll_ = false, smooth_tar_pitch_ = false;  // 飛行モード遷移時に目標姿勢の平滑化を行っている状態
+
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_msgs::OdometryStamped> setpoint_pub_;
@@ -120,6 +127,7 @@ private:
 
   bool updateInternalDataStructures();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
+  void startSmoothTargetAttitude();
   static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
 
   // Parameter callbacks
@@ -164,6 +172,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   , trans_eom_(tree_)
   , mixer_(drone_, tree_)
 {
+  roll_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
+  pitch_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
+
   // Get static parameters
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
@@ -252,6 +263,16 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   }
 
   return true;
+}
+
+void ControllerNode::startSmoothTargetAttitude()
+{
+  const auto [roll, pitch, _] = odom_->odom.odom.frame.M.getRPY();
+  roll_filt_.resetCurrentTrajectoryPoint(roll);
+  pitch_filt_.resetCurrentTrajectoryPoint(pitch);
+
+  smooth_tar_roll_ = true;
+  smooth_tar_pitch_ = true;
 }
 
 kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy)
@@ -503,11 +524,24 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
     const kdl::Vector ki(atti_ki, atti_ki, head_ki);
 
+    // 目標姿勢を決定
+    // 姿勢制御モードから位置制御モードに変化したときに目標姿勢が不連続に変化するのを避けるため，遷移期間は目標姿勢の変化率を制限する．
+    // 基本的にシステムの入力制約は行わないのが望ましいため，遷移期間が終わったら制限を解くようにする．
+    auto tar_rpy = *tar_angle_;
+    if (smooth_tar_roll_) {
+      tar_rpy.roll = roll_filt_.setTargetPointAndUpdate(tar_angle_->roll, dt);
+      smooth_tar_roll_ = roll_filt_.isSaturated();
+    }
+    if (smooth_tar_pitch_) {
+      tar_rpy.pitch = pitch_filt_.setTargetPointAndUpdate(tar_angle_->pitch, dt);
+      smooth_tar_pitch_ = pitch_filt_.isSaturated();
+    }
+
     // 回転角的にはクォータニオンや回転行列で目標姿勢と現在姿勢の誤差を計算し，それを角軸ベクトルに変換したものが最短距離だが，
     // その場合は方位のみの追従誤差がモデル化誤差によって姿勢の動きに変換されて不安定になる恐れがあるため，
     // 姿勢と方位を分離する目的でオイラー角で回転誤差を計算している．
     const kdl::Euler cur_rpy(cur_rot);
-    const auto ep = computeEulerError(cur_rpy, *tar_angle_);
+    const auto ep = computeEulerError(cur_rpy, tar_rpy);
 
     // 浮遊していれば積分誤差を蓄積
     if (!land_suspect) {
@@ -528,7 +562,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
 
     // フィードバックメッセージを埋める
-    setpoint->odom.frame.M = tar_angle_->toRotation();
+    setpoint->odom.frame.M = tar_rpy.toRotation();
     feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
@@ -640,8 +674,14 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAccYaw::C
     return;
   }
 
+  // コマンドを作成
+  if (!pos_cmd_) {
+    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
+    startSmoothTargetAttitude();
+  }
+
   // コマンドを更新
-  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccYaw>(*pos_cmd);
+  *pos_cmd_ = *pos_cmd;
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd)
@@ -653,8 +693,14 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelYaw::ConstSha
   // 外側の制御を止める
   pos_cmd_.reset();
 
+  // コマンドを作成
+  if (!acc_cmd_) {
+    acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>();
+    startSmoothTargetAttitude();
+  }
+
   // コマンドを更新
-  acc_cmd_ = std::make_unique<tobas_command_msgs::AccelYaw>(*acc_cmd);
+  *acc_cmd_ = *acc_cmd;
 }
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd)
@@ -677,8 +723,13 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottle::Con
   pos_cmd_.reset();
   acc_cmd_.reset();
 
+  // コマンドを作成
+  if (!tar_angle_) {
+    tar_angle_ = std::make_unique<kdl::Euler>();
+  }
+
   // コマンドを更新
-  tar_angle_ = std::make_unique<kdl::Euler>(angle_cmd->angle);
+  *tar_angle_ = angle_cmd->angle;
   tar_thrust_ = max_thrust_sum_ * std::clamp(angle_cmd->throttle, kMinThrot, kMaxThrot);
 }
 
@@ -693,8 +744,13 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
   acc_cmd_.reset();
   tar_angle_.reset();
 
+  // コマンドを作成
+  if (!tar_gyro_) {
+    tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+  }
+
   // コマンドを更新
-  tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+  *tar_gyro_ = rate_cmd->rate;
   tar_thrust_ = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
 }
 
