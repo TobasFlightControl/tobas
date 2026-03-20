@@ -638,8 +638,13 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAccPitchY
     return;
   }
 
+  // コマンドを作成
+  if (!pos_cmd_) {
+    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
+  }
+
   // コマンドを更新
-  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>(*pos_cmd);
+  *pos_cmd_ = *pos_cmd;
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelPitchYaw::ConstSharedPtr& acc_cmd)
@@ -651,8 +656,13 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::AccelPitchYaw::Con
   // 外側の制御を止める
   pos_cmd_.reset();
 
+  // コマンドを作成
+  if (!acc_cmd_) {
+    acc_cmd_ = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
+  }
+
   // コマンドを更新
-  acc_cmd_ = std::make_unique<tobas_command_msgs::AccelPitchYaw>(*acc_cmd);
+  *acc_cmd_ = *acc_cmd;
 }
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& angle_cmd)
@@ -675,8 +685,13 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::AngleThrottleVecto
   pos_cmd_.reset();
   acc_cmd_.reset();
 
+  // コマンドを作成
+  if (!tar_rot_) {
+    tar_rot_ = std::make_unique<kdl::Rotation>();
+  }
+
   // コマンドを更新
-  tar_rot_ = std::make_unique<kdl::Rotation>(angle_cmd->angle.toRotation());
+  *tar_rot_ = angle_cmd->angle.toRotation();
   const auto tar_thrust = max_thrust_sum_ * std::clamp(angle_cmd->throttle, kMinThrot, kMaxThrot);
   ux_ = tar_thrust * sin(angle_cmd->thrust_angle);
   uz_ = tar_thrust * cos(angle_cmd->thrust_angle);
@@ -693,8 +708,13 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottleVector:
   acc_cmd_.reset();
   tar_rot_.reset();
 
+  // コマンドを作成
+  if (!tar_gyro_) {
+    tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+  }
+
   // コマンドを更新
-  tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+  *tar_gyro_ = rate_cmd->rate;
   const auto tar_thrust = max_thrust_sum_ * std::clamp(rate_cmd->throttle, kMinThrot, kMaxThrot);
   ux_ = tar_thrust * sin(rate_cmd->thrust_angle);
   uz_ = tar_thrust * cos(rate_cmd->thrust_angle);

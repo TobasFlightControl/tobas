@@ -544,8 +544,13 @@ void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAcc::Cons
     return;
   }
 
+  // コマンドを作成
+  if (!pos_cmd_) {
+    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAcc>();
+  }
+
   // コマンドを更新
-  pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAcc>(*pos_cmd);
+  *pos_cmd_ = *pos_cmd;
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd)
@@ -557,8 +562,13 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
   // 外側の制御を止める
   pos_cmd_.reset();
 
+  // コマンドを作成
+  if (!acc_cmd_) {
+    acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
+  }
+
   // コマンドを更新
-  acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>(*acc_cmd);
+  *acc_cmd_ = *acc_cmd;
 }
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd)
@@ -567,8 +577,13 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstShared
     return;
   }
 
+  // コマンドを作成
+  if (!angle_cmd_) {
+    angle_cmd_ = std::make_unique<tobas_command_msgs::Angle>();
+  }
+
   // コマンドを更新
-  angle_cmd_ = std::make_unique<tobas_command_msgs::Angle>(*angle_cmd);
+  *angle_cmd_ = *angle_cmd;
 }
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPtr& rate_cmd)
@@ -580,8 +595,13 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
   // 外側の制御を止める
   angle_cmd_.reset();
 
+  // コマンドを作成
+  if (!rate_cmd_) {
+    rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
+  }
+
   // コマンドを更新
-  rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>(*rate_cmd);
+  *rate_cmd_ = *rate_cmd;
 }
 
 void ControllerNode::checkTopicsTimerCb()

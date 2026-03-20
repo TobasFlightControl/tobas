@@ -746,7 +746,7 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottle::Const
 
   // コマンドを作成
   if (!tar_gyro_) {
-    tar_gyro_ = std::make_unique<kdl::Vector>(rate_cmd->rate);
+    tar_gyro_ = std::make_unique<kdl::Vector>();
   }
 
   // コマンドを更新
