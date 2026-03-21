@@ -9,7 +9,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
-#define RELATIVE_TO_HOME_LABEL "Relative to Home"
+#define RELATIVE_TO_LAUNCH_LABEL "Relative to Launch"
 
 namespace gui
 {
@@ -24,8 +24,8 @@ const char* altFrameToText(tobas::mission::AltitudeFrame frame)
   switch (frame) {
     case tobas::mission::kMeanSeaLevel:
       return MEAN_SEA_LEVEL_LABEL;
-    case tobas::mission::kRelativeToHome:
-      return RELATIVE_TO_HOME_LABEL;
+    case tobas::mission::kRelativeToLaunch:
+      return RELATIVE_TO_LAUNCH_LABEL;
     default:
       throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)frame));
   }
@@ -36,8 +36,8 @@ tobas::mission::AltitudeFrame textToAltFrame(const char* text)
   if (strcmp(text, MEAN_SEA_LEVEL_LABEL) == 0) {
     return tobas::mission::kMeanSeaLevel;
   }
-  else if (strcmp(text, RELATIVE_TO_HOME_LABEL) == 0) {
-    return tobas::mission::kRelativeToHome;
+  else if (strcmp(text, RELATIVE_TO_LAUNCH_LABEL) == 0) {
+    return tobas::mission::kRelativeToLaunch;
   }
   else {
     throw std::runtime_error(std::format("Invalid altitude frame text: {}", text));
@@ -48,7 +48,7 @@ tobas::mission::AltitudeFrame textToAltFrame(const char* text)
 AltitudeFrameWidget::AltitudeFrameWidget()
 {
   combobox_ = new qt::ComboBox();
-  combobox_->addItem(altFrameToText(tobas::mission::kRelativeToHome));  // TODO: 他の選択肢も選べるようにする
+  combobox_->addItem(altFrameToText(tobas::mission::kRelativeToLaunch));  // TODO: 他の選択肢も選べるようにする
   // for (const auto alt_frame : magic_enum::enum_values<tobas::mission::AltitudeFrame>())
   //   combobox_->addItem(altFrameToText(alt_frame));
 

@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/battery.hpp>
@@ -28,12 +28,13 @@ private:
   void timerCb();
 };
 
-FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options) : super("fake_batt_publisher", options)
+FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options)
+  : super("fake_batt_publisher", nodeOptions_Default(options))
 {
   voltage_ = getDoubleParam("voltage", kDefaultVoltage);
   current_ = getDoubleParam("current", kDefaultCurrent);
 
-  batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 

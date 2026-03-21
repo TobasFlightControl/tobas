@@ -1,4 +1,5 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/imu.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
@@ -39,9 +40,6 @@ class GazeboImuPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugTopic[] = "gazebo/imu_debug";
-
-  static constexpr double kStaticAccThresh = 1.;    // [m/s^2]
-  static constexpr double kStaticGyroThresh = 0.1;  // [rad/s]
 
   // TODO: 加速度の比率やジャイロの振動も真面目に考察
   static constexpr double kVibrationAccVerHorRate = 1.;
@@ -84,7 +82,7 @@ private:
   ModelMassHolder mass_holder_;
   dsp::LowPassFilterP1<gz::math::Vector3d> acc_lpf_, gyro_lpf_, dgyro_lpf_;
   bool lpf_initialized_ = false;
-  bool stationary_state_detected_ = false;
+  bool static_state_detected_ = false;
   gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d gyro_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d prev_gyro_meas_ = gz::math::Vector3d::Zero;
@@ -152,8 +150,8 @@ void GazeboImuPlugin::Configure(
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuRawTopic);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuFiltTopic);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(tobas::topic::kImuFilt);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugTopic);
   sampling_time_pub_.initialize(node_, node_->now());
 
@@ -162,7 +160,7 @@ void GazeboImuPlugin::Configure(
   // モータ状態のコールバックとサブスクライバを設定
   for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
-    const auto qos = ros2::makeQoS(false, false, 1);
+    const ros2::qos::QoS qos(false, false, 1);
     const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
     { rotor_vibration_forces_[link_name] = msg->vibration_force; };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
@@ -170,7 +168,7 @@ void GazeboImuPlugin::Configure(
   }
 
   config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
+    tobas::service::kConfigureImuFilter, &self::configureImuFilterCb, this);
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -208,9 +206,9 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   prev_gyro_meas_ = gyro_meas;
 
   // 姿勢推定の発散を防ぐために機体の位置姿勢が安定するまでは発行しない
-  if (!stationary_state_detected_) {
-    stationary_state_detected_ = (acc_B.Length() < kStaticAccThresh) && (gyro_B.Length() < kStaticGyroThresh);
-    if (stationary_state_detected_) {
+  if (!static_state_detected_) {
+    static_state_detected_ = (acc_B.Length() < tobas::kStaticAccThresh) && (gyro_B.Length() < tobas::kStaticGyroThresh);
+    if (static_state_detected_) {
       TOBAS_INFO("Stationary state detected. Start to publish IMU messages.");
       acc_lpf_.setValue(acc_meas);
       gyro_lpf_.setValue(gyro_meas);

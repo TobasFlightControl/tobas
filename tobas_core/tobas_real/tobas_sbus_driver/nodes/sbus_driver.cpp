@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/sbus.hpp>
@@ -34,7 +34,7 @@ private:
 };
 
 SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
-  : super("sbus_driver", options), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
+  : super("sbus_driver", nodeOptions_Default(options)), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
 {
   device_ = getStringParam("device", "");
   if (device_.empty()) {
@@ -42,7 +42,7 @@ SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
     return;
   }
 
-  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::kSbusTopic);
+  sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::topic::kSbus);
 
   initialize_timer_ = createWallTimer(3s, &self::initialize, this);
 }

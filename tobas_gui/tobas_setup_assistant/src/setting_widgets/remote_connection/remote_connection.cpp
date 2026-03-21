@@ -12,11 +12,16 @@ namespace rc
 {
 RemoteConnectionWidget::RemoteConnectionWidget()
 {
+  host_ = new HostWidget();
+  nif_ = new NetworkIfaceWidget();
+
+  addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
+  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
+  addWidget(nif_);
+
   addWidget(new qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
   addWidget(new qt::DescriptionWidget(
     "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", cmn::kBodyPSize));
-
-  host_ = new HostWidget();
   addWidget(host_);
 
   addStretch();
@@ -29,15 +34,13 @@ const char* RemoteConnectionWidget::name() const
 
 const char* RemoteConnectionWidget::title() const
 {
-  return "Specify SSH Endpoint";
+  return "Set up Remote Connection";
 }
 
 const char* RemoteConnectionWidget::description() const
 {
   return "Configure the settings required to connect remotely "
-         "from the ground control station (GCS) to the flight controller (FC). "
-         "Enter your flight controller’s settings in each field. "
-         "These are GCS-side settings and do not change any configuration on the FC.";
+         "from the ground control station (GCS) to the flight controller (FC). ";
 }
 
 void RemoteConnectionWidget::updateInternalDataStructures()
@@ -47,6 +50,9 @@ void RemoteConnectionWidget::updateInternalDataStructures()
 
 bool RemoteConnectionWidget::isValid()
 {
+  if (!nif_->isValid()) {
+    return false;
+  }
   if (!host_->isValid()) {
     return false;
   }
@@ -58,6 +64,7 @@ YAML::Node RemoteConnectionWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[kNetworkIfaceLabel] = nif_->dump();
   node[kHostLabel] = host_->dump();
 
   return node;
@@ -65,7 +72,13 @@ YAML::Node RemoteConnectionWidget::dump() const
 
 void RemoteConnectionWidget::load(const YAML::Node& node)
 {
+  nif_->load(node[kNetworkIfaceLabel]);
   host_->load(node[kHostLabel]);
+}
+
+QString RemoteConnectionWidget::networkInterface() const
+{
+  return nif_->networkInterface();
 }
 
 QString RemoteConnectionWidget::host() const

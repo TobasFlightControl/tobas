@@ -25,9 +25,13 @@ bool ProjectEnvParser::parseFromText(const std::string& text)
       continue;
     }
 
-    // Configuration package name
+    // Get elements
     if (line.starts_with(kConfigPkgPrefix)) {
       config_pkg = line.substr(sizeof(kConfigPkgPrefix) - 1);
+      continue;
+    }
+    if (line.starts_with(kNetworkIfacePrefix)) {
+      nif = line.substr(sizeof(kNetworkIfacePrefix) - 1);
       continue;
     }
   }
@@ -40,6 +44,7 @@ std::string ProjectEnvParser::exportText() const
   std::ostringstream oss;
 
   oss << kConfigPkgPrefix << config_pkg << std::endl;
+  oss << kNetworkIfacePrefix << nif << std::endl;
 
   return oss.str();
 }

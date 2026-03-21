@@ -1,11 +1,12 @@
 #include <magic_enum/magic_enum.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
+#include <tobas_constants/rc_input.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_property_tree/property_tree.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/range.hpp>
 
@@ -51,7 +52,8 @@ private:
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
-RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("real_rcin_handler", options)
+RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_rcin_handler", nodeOptions_Default(options))
 {
   // Initialize property tree
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
@@ -170,8 +172,8 @@ bool RCInputHandlerNode::getConfig()
 
 void RCInputHandlerNode::registerPubSub()
 {
-  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::kRcInputTopic);
-  sbus_sub_ = createSubscriber(tobas::kSbusTopic, &self::sbusCb, this);
+  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::topic::kRcInput);
+  sbus_sub_ = createSubscriber(tobas::topic::kSbus, &self::sbusCb, this);
 }
 
 tobas::FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t period)
@@ -201,14 +203,14 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
   else {
     rcin_msg->ok = true;
 
-    const auto& roll = sbus->periods[real::kRcChannelRoll];
-    const auto& pitch = sbus->periods[real::kRcChannelPitch];
-    const auto& throt = sbus->periods[real::kRcChannelThrot];
-    const auto& yaw = sbus->periods[real::kRcChannelYaw];
-    const auto& mode = sbus->periods[real::kRcChannelMode];
-    const auto& sub_mode = sbus->periods[real::kRcChannelSubMode];
-    const auto& enable = sbus->periods[real::kRcChannelEnable];
-    const auto& kill = sbus->periods[real::kRcChannelKill];
+    const auto& roll = sbus->periods[tobas::kRcChannelRoll];
+    const auto& pitch = sbus->periods[tobas::kRcChannelPitch];
+    const auto& throt = sbus->periods[tobas::kRcChannelThrot];
+    const auto& yaw = sbus->periods[tobas::kRcChannelYaw];
+    const auto& mode = sbus->periods[tobas::kRcChannelMode];
+    const auto& sub_mode = sbus->periods[tobas::kRcChannelSubMode];
+    const auto& enable = sbus->periods[tobas::kRcChannelEnable];
+    const auto& kill = sbus->periods[tobas::kRcChannelKill];
 
     rcin_msg->roll = math::remap<double>(roll, roll_.lower, roll_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
     rcin_msg->pitch = math::remap<double>(pitch, pitch_.lower, pitch_.upper, tobas::kRcInputMin, tobas::kRcInputMax);
@@ -221,7 +223,7 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
     rcin_msg->kill = std::abs(kill - kill_on_) < std::abs(kill - kill_off_);
 
     for (size_t i = 0; i < tobas::kMaxNumOfGpsw; ++i) {
-      const auto& gpsw = sbus->periods[real::kRcChannelGpsw + i];
+      const auto& gpsw = sbus->periods[tobas::kRcChannelGpsw + i];
       rcin_msg->gpsw[i] = std::abs(gpsw - gpsw_on_[i]) < std::abs(gpsw - gpsw_off_[i]);
     }
   }

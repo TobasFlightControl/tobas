@@ -107,6 +107,7 @@ private Q_SLOTS:
   void onShutdownButtonClicked(bool checked);
 
   void onSimRealStateChanged();
+  void onRemoteConnectionDisconnected();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };

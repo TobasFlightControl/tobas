@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -14,7 +14,7 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_msgs_adapter/vibration_level.hpp>
 
@@ -76,7 +76,7 @@ private:
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
   tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr rotor_liv_;
   tobas_msgs::msg::Latency::ConstSharedPtr sampling_time_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_;
   tobas_msgs::MagneticField::ConstSharedPtr mag_ref_;
   tobas_msgs::VibrationLevel::ConstSharedPtr vibe_;
@@ -97,7 +97,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liv_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Latency> sampling_time_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_ref_sub_;
   ros2::SubscriberPtr<tobas_msgs::VibrationLevel> vibe_sub_;
@@ -113,7 +113,7 @@ private:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
   void rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv);
   void samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
   void magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref);
   void vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe);
@@ -122,7 +122,7 @@ private:
 };
 
 HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
-  : super("health_monitor", options)
+  : super("health_monitor", nodeOptions_Default(options))
   , t_last_rt_violation_(now())
   , pos_bufs_{ tbs::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
                tbs::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
@@ -133,19 +133,19 @@ HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
   mag_B_lpf_.setCutoffFrequency(kMagLpfCutoff);
   mag_W_lpf_.setCutoffFrequency(kMagLpfCutoff);
 
-  health_pub_ = createPublisher<tobas_msgs::msg::VehicleHealth>(tobas::kVehicleHealthTopic);
+  health_pub_ = createPublisher<tobas_msgs::msg::VehicleHealth>(tobas::topic::kVehicleHealth);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::kBatteryTopic), &self::battCb, this);
-  cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
-  rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
-  rotor_liv_sub_ = createSubscriber(tobas::kRotorLivTopic, &self::rotorLivCb, this);
-  sampling_time_sub_ = createSubscriber(tobas::kImuSamplingTimeTopic, &self::samplingTimeCb, this);
-  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
-  mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
-  mag_ref_sub_ = createSubscriber(tobas::kMagRefTopic, &self::magRefCb, this);
-  vibe_sub_ = createSubscriber(tobas::kVibrationLevelTopic, &self::vibrationLevelCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
+  batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kBattery), &self::battCb, this);
+  cpu_sub_ = createSubscriber(tobas::topic::kCpu, &self::cpuCb, this);
+  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
+  rotor_liv_sub_ = createSubscriber(tobas::topic::kRotorLiv, &self::rotorLivCb, this);
+  sampling_time_sub_ = createSubscriber(tobas::topic::kImuSamplingTime, &self::samplingTimeCb, this);
+  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::topic::kOdometry), &self::odomCb, this);
+  mag_sub_ = createSubscriber(tobas::topic::kMagneticField, &self::magCb, this);
+  mag_ref_sub_ = createSubscriber(tobas::topic::kMagRef, &self::magRefCb, this);
+  vibe_sub_ = createSubscriber(tobas::topic::kVibrationLevel, &self::vibrationLevelCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
@@ -265,13 +265,13 @@ void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstShar
   sampling_time_ = sampling_time;
 }
 
-void HealthMonitorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   // アームされていなければ位置の履歴を保存
   if (arming_ && !arming_->data) {
     const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
     for (size_t i = 0; i < 3; ++i) {
-      pos_bufs_[i].add(stamp, odom->frame.p(i));
+      pos_bufs_[i].add(stamp, odom->odom.odom.frame.p(i));
     }
   }
 
@@ -288,7 +288,7 @@ void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& m
 
   // 世界座標系から見た地磁気ベクトル (理想的には不変ベクトル)
   // 姿勢と地磁気の時間ずれをなくすためにLPFを通す前に世界座標系に変換する
-  const auto mag_W = odom_->frame.M * mag_B;
+  const auto mag_W = odom_->odom.odom.frame.M * mag_B;
 
   if (!mag_) {
     mag_B_lpf_.setValue(mag_B);
@@ -441,7 +441,7 @@ void HealthMonitorNode::mainTimerCb()
   // 姿勢角
   if (do_check_.attitude_level && !arming_->data) {
     if (odom_) {
-      const auto [roll, pitch, _] = odom_->frame.M.getRPY();
+      const auto [roll, pitch, _] = odom_->odom.odom.frame.M.getRPY();
       if (std::max(std::abs(roll), std::abs(pitch)) > kAttitudeThresh) {
         health->attitude_level = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
@@ -479,7 +479,7 @@ void HealthMonitorNode::mainTimerCb()
   // 位置推定の確かさ
   if (do_check_.position_accuracy) {
     if (odom_) {
-      const auto pos_cov_diag = odom_->position_covariance.diagonal().eval();
+      const auto pos_cov_diag = odom_->odom.position_covariance.diagonal().eval();
       const auto hor_pos_var = std::max(pos_cov_diag.x(), pos_cov_diag.y());
       const auto ver_pos_var = pos_cov_diag.z();
       if (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh)) {
@@ -499,7 +499,7 @@ void HealthMonitorNode::mainTimerCb()
   // 速度推定の確かさ
   if (do_check_.velocity_accuracy) {
     if (odom_) {
-      const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
+      const auto vel_var = odom_->odom.velocity_covariance.diagonal().maxCoeff();
       if (vel_var > math::sqr(kVelStddevThresh)) {
         health->velocity_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
@@ -517,7 +517,7 @@ void HealthMonitorNode::mainTimerCb()
   // 姿勢推定の確かさ
   if (do_check_.attitude_accuracy) {
     if (odom_) {
-      const auto atti_var = odom_->orientation_covariance.diagonal().head<2>().maxCoeff();
+      const auto atti_var = odom_->odom.orientation_covariance.diagonal().head<2>().maxCoeff();
       if (atti_var > math::sqr(kAttiStddevThresh)) {
         health->attitude_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;
@@ -535,7 +535,7 @@ void HealthMonitorNode::mainTimerCb()
   // 方位推定の確かさ
   if (do_check_.heading_accuracy) {
     if (odom_) {
-      const auto head_var = odom_->orientation_covariance(2, 2);
+      const auto head_var = odom_->odom.orientation_covariance(2, 2);
       if (head_var > math::sqr(kHeadStddevThresh)) {
         health->heading_accuracy = tobas_msgs::msg::VehicleHealth::FAILED;
         health->ok = false;

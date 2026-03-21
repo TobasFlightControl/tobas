@@ -4,7 +4,7 @@
 
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_nlp/newton_1d.hpp>
 
 using namespace std;

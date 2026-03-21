@@ -28,7 +28,7 @@ kdl::Vector PositionPDD2::update(
   const auto ea = tar_acc - cur_acc;
 
   // PDD2 + clamp
-  const auto cmd_jerk = (kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea)).clamp(-max_jerk_, max_jerk_);
+  const auto cmd_jerk = kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea);
 
   // 目標ジャークを積分して出力
   cmd_acc_ += cmd_jerk * dt;
@@ -82,22 +82,6 @@ bool PositionPDD2::setDampingRatio(int idx, double value)
 
   xi_(idx) = value;
   updateGain();
-
-  return true;
-}
-
-bool PositionPDD2::setMaximumJerk(int idx, double value)
-{
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value <= 0.) {
-    cerr << "Maximum jerk must be positive." << endl;
-    return false;
-  }
-
-  max_jerk_(idx) = value;
 
   return true;
 }

@@ -14,6 +14,8 @@ struct VibrationLevel
 
   using SharedPtr = std::shared_ptr<VibrationLevel>;
   using ConstSharedPtr = std::shared_ptr<const VibrationLevel>;
+  using UniquePtr = std::unique_ptr<VibrationLevel>;
+  using ConstUniquePtr = std::unique_ptr<const VibrationLevel>;
 };
 }  // namespace tobas_msgs
 

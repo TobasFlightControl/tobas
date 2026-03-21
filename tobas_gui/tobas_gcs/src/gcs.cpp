@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
@@ -132,6 +132,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
+  connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
   connect(&bridge_, &RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
@@ -431,21 +432,21 @@ void GroundControlStationWidget::onWriteButtonClicked()
       return;
     }
     progress.progressStep();
-
-    // 環境変数を更新
-    progress.setLabelText("Setting environment variables.");
-    project_env_parser_.config_pkg = config_pkg_name;
-    if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
-      progress.close();
-      qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
-      return;
-    }
-    progress.progressStep();
   }
   else {
     progress.progressStep();
-    progress.progressStep();
   }
+
+  // 環境変数を更新
+  progress.setLabelText("Setting environment variables.");
+  project_env_parser_.config_pkg = config_pkg_name;
+  project_env_parser_.nif = network_config_.interface;
+  if (ssh_client_.sftpWrite(tobas::kProjectEnvPath, project_env_parser_.exportText(), true) != ssh::SshClient::kNoError) {
+    progress.close();
+    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
 
   // プロジェクトを送信
   progress.setLabelText("Sending the Tobas project to the flight controller.");
@@ -485,9 +486,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // DDSの設定を更新
   progress.setLabelText("Writing DDS configuration.");
   tobas::cyclonedds::Data dds_data;
-  if (!network_config_.interface.empty()) {
-    dds_data.interfaces.emplace_back(network_config_.interface);
-  }
+  dds_data.interfaces.emplace_back(network_config_.interface);
   const auto dds_config_text = tobas::cyclonedds::exportText(dds_data);
   if (ssh_client_.sftpWrite(tobas::kCycloneddsConfigPath, dds_config_text, true) != ssh::SshClient::kNoError) {
     progress.close();
@@ -605,6 +604,13 @@ void GroundControlStationWidget::onSimRealStateChanged()
 
   // シミュレーションウィジェット以外リセット
   reset(false);
+}
+
+void GroundControlStationWidget::onRemoteConnectionDisconnected()
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GroundControlStationWidget::onRemoteConnectionDisconnected");
+
+  reset();
 }
 
 void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

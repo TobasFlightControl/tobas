@@ -1,5 +1,8 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/pwm_key.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_gui_common/command.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
@@ -99,6 +102,11 @@ bool ProjectGenerator::generateProject(const fs::path& proj_path)
   }
 
   return true;
+}
+
+void ProjectGenerator::setClearDynamicParams(bool flag)
+{
+  config_.clear_dynamic_params = flag;
 }
 
 inja::json ProjectGenerator::createTemplateData() const
@@ -232,12 +240,12 @@ tobas::Drone ProjectGenerator::createDrone() const
         tobas::PwmConfig engine_pwm;
         const auto engine_pwm_channel = settings_->hardware->pwm()->channel(hw::PwmWidget::kEngineThrotLabel);
         engine_pwm.channel = engine_pwm_channel;
-        engine_pwm.name = tobas::pwm::kEngineThrottleKey;
+        engine_pwm.name = tobas::pwm_key::kEngineThrottleKey;
         engine_pwm.period_range.first = settings_->hardware->pwm()->periodLb(engine_pwm_channel);
         engine_pwm.period_range.second = settings_->hardware->pwm()->periodUb(engine_pwm_channel);
         engine_pwm.value_range.first = tobas::kMinThrot;
         engine_pwm.value_range.second = tobas::kMaxThrot;
-        TOBAS_CHECK(drone.pwms.insert({ tobas::pwm::kEngineThrottleKey, engine_pwm }).second);
+        TOBAS_CHECK(drone.pwms.insert({ tobas::pwm_key::kEngineThrottleKey, engine_pwm }).second);
       }
 
       // Rotors
@@ -457,16 +465,16 @@ bool ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
-  if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
-  if (!createEmptyYaml(proj_paths_.obsvDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.obsvDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
-  if (!createEmptyYaml(proj_paths_.ctrlDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.ctrlDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
-  if (!createEmptyYaml(proj_paths_.rcTeleopDynParamsPath(), false)) {
+  if (!createEmptyYaml(proj_paths_.rcTeleopDynParamsPath(), config_.clear_dynamic_params)) {
     return false;
   }
 
@@ -797,7 +805,7 @@ bool ProjectGenerator::generateSshConfig()
 {
   cmn::SshConfig config;
   config.host = settings_->remote_connection->host().toStdString();
-  config.user = tobas::kFmuUserName;
+  config.user = cmn::kUserNameFC;
 
   if (!config.save(proj_paths_.sshConfigPath())) {
     qt::qErrorBox(parent_, "Failed to save the SSH configuration.");
@@ -810,7 +818,7 @@ bool ProjectGenerator::generateSshConfig()
 bool ProjectGenerator::generateNetworkConfig()
 {
   cmn::NetworkConfig config;
-  config.interface = settings_->network->networkInterfaceName().toStdString();
+  config.interface = settings_->remote_connection->networkInterface().toStdString();
 
   if (!config.save(proj_paths_.networkConfigPath())) {
     qt::qErrorBox(parent_, "Failed to save the network configuration.");
@@ -1083,8 +1091,8 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     root_name,
     fmu->gnssUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
-    0.1,
-    10.,
+    0.1,  // GNSS衛星からの電波が地上に到達するまでの時間は概ね決まっている
+    30.,  // TODO: GNSS位置の相関時定数は実際どれくらいだろうか
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),

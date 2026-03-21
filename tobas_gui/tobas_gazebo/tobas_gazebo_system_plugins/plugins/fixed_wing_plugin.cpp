@@ -4,7 +4,7 @@
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/fixed_wing.hpp>
 #include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_gazebo_common/constants.hpp>
@@ -83,7 +83,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Wind> wind_sub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void registerPubSub();
 
   double getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const;
 
@@ -187,7 +186,9 @@ void GazeboFixedWingPlugin::Configure(
     cs_joints_[link_name] = joint;
   }
 
-  registerPubSub();
+  // Register ROS interfaces
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugTopic);
+  wind_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedCb, this);
 }
 
 void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
@@ -347,12 +348,6 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
       cs_elem = cs_elem->GetNextElement(kControlSurfaceKey);
     }
   }
-}
-
-void GazeboFixedWingPlugin::registerPubSub()
-{
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugTopic);
-  wind_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedCb, this);
 }
 
 double

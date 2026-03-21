@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_node/node.hpp>
@@ -43,6 +43,7 @@ private:
   ros2::TimerPtr publish_timer_;
 
   void publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp);
+  void changeState(bool landed, const builtin_interfaces::msg::Time& stamp);
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
@@ -51,24 +52,32 @@ private:
 };
 
 LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
-  : super("landing_detector", options), mass_holder_(tree_)
+  : super("landing_detector", nodeOptions_Default(options)), mass_holder_(tree_)
 {
   static_assert(kTakeoffWeightRateThresh < kLandWeightRateThresh);  // ヒステリシスが必要
 
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
-  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::kLandedTopic);
+  landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(tobas::topic::kLanded);
 
-  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
-  dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
+  dist_force_sub_ = createSubscriber(tobas::topic::kDisturbanceForce, &self::disturbanceForceCb, this);
 }
 
 void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp)
 {
   auto msg = std::make_unique<tobas_msgs::msg::LandedState>();
   msg->header.stamp = stamp;
-  msg->data = landed_;
+  msg->landed = landed_;
   landed_pub_->publish(std::move(msg));
+}
+
+void LandingDetectorNode::changeState(bool landed, const builtin_interfaces::msg::Time& stamp)
+{
+  landed_ = landed;
+  t_last_no_change_ = stamp;
+  publishCurrentLandedState(stamp);
+  publish_timer_->reset();
 }
 
 void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -112,9 +121,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
     if (force_z_filt < force_z_thresh) {
       if (cur_time - t_last_no_change_ > kTakeoffDetectTimeThresh) {
         TOBAS_INFO("Takeoff detected.");
-        landed_ = false;
-        publishCurrentLandedState(cur_time);
-        publish_timer_->reset();
+        changeState(false, cur_time);
       }
     }
     else {
@@ -126,9 +133,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
     if (force_z_filt > force_z_thresh) {
       if (cur_time - t_last_no_change_ > kLandDetectTimeThresh) {
         TOBAS_INFO("Landing detected.");
-        landed_ = true;
-        publishCurrentLandedState(cur_time);
-        publish_timer_->reset();
+        changeState(true, cur_time);
       }
     }
     else {

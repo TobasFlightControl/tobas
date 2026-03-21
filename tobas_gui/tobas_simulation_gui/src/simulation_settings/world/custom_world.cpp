@@ -3,7 +3,6 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_ros2_tools/util.hpp>
 

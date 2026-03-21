@@ -1,6 +1,5 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_mission_items/mission_items.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/byte.hpp>
@@ -52,14 +51,15 @@ private:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 
-FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options) : super("failsafe_executor", options)
+FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options)
+  : super("failsafe_executor", nodeOptions_Default(options))
 {
-  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::vehicleHealthCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
+  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::vehicleHealthCb, this);
+  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
+  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
 
-  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
-  mission_ac_ = rclcpp_action::create_client<Action>(this, tobas::kExecuteMissionAction);
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::service::kSetArm);
+  mission_ac_ = rclcpp_action::create_client<Action>(this, tobas::action::kExecuteMission);
 }
 
 void FailsafeExecutorNode::disarm()
@@ -107,6 +107,7 @@ void FailsafeExecutorNode::startRTL()
             break;
         }
         break;
+      case rclcpp_action::ResultCode::UNKNOWN:
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
         startLand();
@@ -156,6 +157,7 @@ void FailsafeExecutorNode::startLand()
             break;
         }
         break;
+      case rclcpp_action::ResultCode::UNKNOWN:
       default:
         TOBAS_ERROR("Unknown result code: ", (int)res.code);
         disarm();

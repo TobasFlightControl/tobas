@@ -9,7 +9,9 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>magic_enum_ament</depend>
+	<depend>tobas_trajectory_generation</depend>
 	<depend>tobas_path_tools</depend>
+	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_command_msgs_adapter</depend>

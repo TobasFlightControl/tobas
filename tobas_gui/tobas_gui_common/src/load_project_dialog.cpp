@@ -3,7 +3,7 @@
 #include <QAbstractItemView>
 #include <QFileSystemModel>
 
-#include <tobas_constants/constants.hpp>
+#include "tobas_gui_common/constants.hpp"
 
 namespace gui
 {
@@ -34,7 +34,7 @@ LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
 void LoadProjectDialog::onItemActivated(const QModelIndex& index)
 {
   const auto path = proxy_->data(index, QFileSystemModel::FilePathRole).toString();
-  if (path.endsWith(tobas::kProjectExtension)) {
+  if (path.endsWith(kProjectExtension)) {
     accept();
   }
 }

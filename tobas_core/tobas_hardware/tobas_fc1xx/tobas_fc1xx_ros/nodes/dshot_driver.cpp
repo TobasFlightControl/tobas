@@ -1,6 +1,7 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_fc1xx_core/dshot.hpp>
 #include <tobas_node/node.hpp>
@@ -68,14 +69,15 @@ private:
   void autoStopTimerCb();
 };
 
-DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_dshot_driver", options)
+DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_dshot_driver", nodeOptions_Default(options))
 {
   if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / "dshot.json"))) {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
   }
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
 }
 
 bool DShotDriverNode::transfer()
@@ -240,16 +242,16 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   // Resister publishers
-  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::topic::kRotorStates);
   latency_pub_.initialize(shared_from_this());
 
   // Resister subscribers
-  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
+  tar_speeds_sub_ = createSubscriber(tobas::topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
 
   // Resister service servers
-  get_gains_ss_ = createService<GetGains>(tobas::kGetRotorControlGainsSrv, &self::getGainsCb, this);
-  set_gains_ss_ = createService<SetGains>(tobas::kSetRotorControlGainsSrv, &self::setGainsCb, this);
-  save_gains_ss_ = createService<SaveGains>(tobas::kSaveRotorControlGainsSrv, &self::saveGainsCb, this);
+  get_gains_ss_ = createService<GetGains>(tobas::service::kGetRotorControlGains, &self::getGainsCb, this);
+  set_gains_ss_ = createService<SetGains>(tobas::service::kSetRotorControlGains, &self::setGainsCb, this);
+  save_gains_ss_ = createService<SaveGains>(tobas::service::kSaveRotorControlGains, &self::saveGainsCb, this);
 
   // Create timers
   auto_stop_timer_ = createWallTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this);

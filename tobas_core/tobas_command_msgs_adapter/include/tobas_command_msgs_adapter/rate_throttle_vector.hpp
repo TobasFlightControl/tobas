@@ -18,6 +18,8 @@ struct RateThrottleVector
 
   using SharedPtr = std::shared_ptr<RateThrottleVector>;
   using ConstSharedPtr = std::shared_ptr<const RateThrottleVector>;
+  using UniquePtr = std::unique_ptr<RateThrottleVector>;
+  using ConstUniquePtr = std::unique_ptr<const RateThrottleVector>;
 };
 }  // namespace tobas_command_msgs
 

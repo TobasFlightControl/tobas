@@ -1,8 +1,9 @@
 #include <eigen3/Eigen/Eigen>
 #include <magic_enum/magic_enum.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/node.hpp>
 #include <tobas_constants/rc_command.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -12,7 +13,8 @@
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_stamped.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 #include "tobas_rc_teleop/accel_angle.hpp"
@@ -21,9 +23,9 @@
 #include "tobas_rc_teleop/accel_yaw.hpp"
 #include "tobas_rc_teleop/angle_throttle.hpp"
 #include "tobas_rc_teleop/angle_throttle_vector.hpp"
-#include "tobas_rc_teleop/pos_vel_angle.hpp"
-#include "tobas_rc_teleop/pos_vel_pitch_yaw.hpp"
-#include "tobas_rc_teleop/pos_vel_yaw.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_angle.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_pitch_yaw.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "tobas_rc_teleop/rate_throttle.hpp"
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
@@ -71,7 +73,8 @@ private:
   // Mutables
   tobas::FlightMode cur_mode_;
   builtin_interfaces::msg::Time t_arm_start_, t_disarm_start_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
+  tobas_msgs::OdometryStamped::ConstSharedPtr setpoint_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::VehicleHealth::ConstSharedPtr health_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
@@ -80,7 +83,8 @@ private:
   std::map<tobas::FlightMode, std::unique_ptr<BaseController>> controllers_;
 
   // PubSub
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryStamped> setpoint_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -93,30 +97,33 @@ private:
   void initializeControllers();
   void requestArmingRotors(bool arming);
   void updateWithIdleCommand(const tobas_msgs::RCInput& rcin);
-
+  void resetCurrentController(const tobas_msgs::RCInput& rcin);
   bool isFlightModeApplicable(tobas::FlightMode mode);
 
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 
-RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(tobas::node::kRcTeleop, options)
+RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options)
+  : super(tobas::node::kRcTeleop, nodeOptions_DParam(options))
 {
   TOBAS_CHECK(mode2str_.size() == magic_enum::enum_count<tobas::FlightMode>());
 
   getStaticRosParams();
   initializeControllers();
 
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::healthCb, this);
-  rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
-  landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
+  odom_sub_ = createSubscriber(tobas::topic::kOdometry, &self::odomCb, this);
+  setpoint_sub_ = createSubscriber(tobas::topic::kTrajSetpoint, &self::setpointCb, this);
+  arming_sub_ = createSubscriber(tobas::topic::kArming, &self::armingCb, this);
+  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::healthCb, this);
+  rcin_sub_ = createSubscriber(tobas::topic::kRcInput, &self::rcInputCb, this);
+  landed_sub_ = createSubscriber(tobas::topic::kLanded, &self::landedCb, this);
 
-  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::service::kSetArm);
 }
 
 void RCTeleopNode::getStaticRosParams()
@@ -153,11 +160,11 @@ void RCTeleopNode::initializeControllers()
       case tobas::RcCommand::kAccelPitchYaw:
         controllers_[mode] = std::make_unique<AccelPitchYawController>();
         break;
-      case tobas::RcCommand::kPosVelYaw:
-        controllers_[mode] = std::make_unique<PosVelYawController>();
+      case tobas::RcCommand::kPosVelAccYaw:
+        controllers_[mode] = std::make_unique<PosVelAccYawController>();
         break;
-      case tobas::RcCommand::kPosVelPitchYaw:
-        controllers_[mode] = std::make_unique<PosVelPitchYawController>();
+      case tobas::RcCommand::kPosVelAccPitchYaw:
+        controllers_[mode] = std::make_unique<PosVelAccPitchYawController>();
         break;
       case tobas::RcCommand::kAccelRate:
         controllers_[mode] = std::make_unique<AccelRateController>();
@@ -165,8 +172,8 @@ void RCTeleopNode::initializeControllers()
       case tobas::RcCommand::kAccelAngle:
         controllers_[mode] = std::make_unique<AccelAngleController>();
         break;
-      case tobas::RcCommand::kPosVelAngle:
-        controllers_[mode] = std::make_unique<PosVelAngleController>();
+      case tobas::RcCommand::kPosVelAccAngle:
+        controllers_[mode] = std::make_unique<PosVelAccAngleController>();
         break;
       case tobas::RcCommand::kSpeedRollDPitch:
         controllers_[mode] = std::make_unique<SpeedRollDeltaPitchController>();
@@ -182,7 +189,7 @@ void RCTeleopNode::initializeControllers()
 void RCTeleopNode::requestArmingRotors(bool arming)
 {
   if (!set_arm_sc_->service_is_ready()) {
-    TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
+    TOBAS_ERROR("\"", tobas::service::kSetArm, "\" is not ready.");
     return;
   }
 
@@ -200,17 +207,42 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   idle_rcin.yaw = tobas::kRCInputMid;
   idle_rcin.throttle = tobas::kRcInputMin;
 
-  controllers_[cur_mode_]->update(idle_rcin, *odom_);
+  controllers_.at(cur_mode_)->update(idle_rcin, odom_->odom.odom, landed_->landed);
+}
+
+void RCTeleopNode::resetCurrentController(const tobas_msgs::RCInput& rcin)
+{
+  auto init_setpoint = odom_->odom.odom;
+
+  // 設定値が存在する場合はそれを初期目標値とする
+  if (setpoint_) {
+    const auto& sp = setpoint_->odom;
+    if (sp.frame.p.isFinite()) {
+      init_setpoint.frame.p = sp.frame.p;
+    }
+    if (sp.frame.M.isFinite()) {
+      init_setpoint.frame.M = sp.frame.M;
+    }
+    if (sp.twist.vel.isFinite()) {
+      init_setpoint.twist.vel = sp.twist.vel;
+    }
+    if (sp.twist.rot.isFinite()) {
+      init_setpoint.twist.rot = sp.twist.rot;
+    }
+    if (sp.accel.linear.isFinite()) {
+      init_setpoint.accel.linear = sp.accel.linear;
+    }
+    if (sp.accel.angular.isFinite()) {
+      init_setpoint.accel.angular = sp.accel.angular;
+    }
+  }
+
+  controllers_.at(rcin.mode)->reset(rcin.header.stamp, init_setpoint, landed_->landed);
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
 {
-  const auto controller_it = controllers_.find(mode);
-  if (controller_it == controllers_.end()) {
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)mode);
-    return false;
-  }
-  const auto& controller = controller_it->second;
+  const auto& controller = controllers_.at(mode);
 
   if (controller->requirePosition()) {
     switch (health_->position_accuracy) {
@@ -299,14 +331,23 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::FlightMode mode)
   return true;
 }
 
-void RCTeleopNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void RCTeleopNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   odom_ = odom;
+}
+
+void RCTeleopNode::setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint)
+{
+  setpoint_ = setpoint;
 }
 
 void RCTeleopNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
+
+  if (!arming->data) {
+    setpoint_.reset();
+  }
 }
 
 void RCTeleopNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
@@ -361,13 +402,6 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       // アームされていれば次のステージに以降
       // プログラムモードから制御を奪う場合のために，アームコマンドの確認の前に現在のアーム状態の確認を行う．
       if (arming_->data) {
-        // プロポを起動した瞬間ディスアームされるのを防ぐため，Killスイッチがオンの時はRC制御モードには移行しない．
-        if (rcin->kill) {
-          TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot switch to RC control mode because the kill switch is on.");
-          t_arm_start_ = rcin->header.stamp;
-          break;
-        }
-
         stage_ = kWaitForEnable;
         break;
       }
@@ -425,9 +459,20 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         break;
       }
 
-      // RC入力が有効かつ実行可能な飛行モードだったら次のステージへ
-      if (rcin->enable && isFlightModeApplicable(rcin->mode)) {
-        controllers_.at(rcin->mode)->reset(*odom_);
+      // RC入力が有効ならば次のステージへ
+      if (rcin->enable) {
+        // 手動モードに移行した瞬間にディスアームされるのを防ぐため，Killスイッチがオンの時は移行しない．
+        if (rcin->kill) {
+          TOBAS_WARN_THROTTLE(kWarnPeriod, "Turn off the kill switch before enabling RC control.");
+          break;
+        }
+
+        // 飛行モードが適用可能であることを確認
+        if (!isFlightModeApplicable(rcin->mode)) {
+          break;
+        }
+
+        resetCurrentController(*rcin);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
 
@@ -463,12 +508,12 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       // フライトモードの変更があった場合，適用可能な場合に限り変更する．
       // 適用できない場合は前のフライトモードを継続する．
       if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode)) {
-        controllers_[rcin->mode]->reset(*odom_);
+        resetCurrentController(*rcin);
         cur_mode_ = rcin->mode;
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
       }
 
-      if (landed_->data && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {  // 地上でゼロスロットルの場合
+      if (landed_->landed && rcin->throttle < tobas::kRcInputMin + kArmThrotThresh) {  // 地上でゼロスロットルの場合
         // 安全のためアイドルコマンドを送信
         updateWithIdleCommand(*rcin);
 
@@ -486,7 +531,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         }
       }
       else {  // それ以外は普通にコマンド送信
-        controllers_[cur_mode_]->update(*rcin, *odom_);
+        controllers_.at(cur_mode_)->update(*rcin, odom_->odom.odom, landed_->landed);
       }
 
       // ディスアームコマンドの開始時刻を更新して抜ける

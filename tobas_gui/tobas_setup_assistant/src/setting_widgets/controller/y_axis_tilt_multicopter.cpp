@@ -54,7 +54,7 @@ tobas::RcCommand YAxisTiltMulticopterWidget::stabilizeModeCommand() const
 
 tobas::RcCommand YAxisTiltMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelPitchYaw;
+  return tobas::RcCommand::kPosVelAccPitchYaw;
 }
 
 YAML::Node YAxisTiltMulticopterWidget::staticParams() const

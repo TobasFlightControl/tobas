@@ -1,11 +1,10 @@
 [Unit]
-Description=Wait for end0 or wlan0 to get a routable IP
-After=network.target
+Description=Wait until the specified NIF comes online
 
 [Service]
 Type=oneshot
-ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --interface=end0 --interface=wlan0 --any --timeout=30
-Restart=no
+EnvironmentFile=/etc/tobas/config/project.env
+ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --interface=${TOBAS_NIF}:routable --ipv4 --timeout=0
 
 [Install]
 WantedBy=multi-user.target

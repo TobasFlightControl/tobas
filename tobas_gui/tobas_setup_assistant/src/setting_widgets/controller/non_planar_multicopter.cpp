@@ -54,7 +54,7 @@ tobas::RcCommand NonPlanarMulticopterWidget::stabilizeModeCommand() const
 
 tobas::RcCommand NonPlanarMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAngle;
+  return tobas::RcCommand::kPosVelAccAngle;
 }
 
 YAML::Node NonPlanarMulticopterWidget::staticParams() const

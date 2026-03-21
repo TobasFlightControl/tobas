@@ -13,7 +13,7 @@ PublisherPtr<MsgType> createPublisher(
   bool reliable = qos::kDefaultReliable,
   size_t queue_size = qos::kDefaultQueueSize)
 {
-  return node->create_publisher<MsgType>(topic_name, makeQoS(latch, reliable, queue_size));
+  return node->create_publisher<MsgType>(topic_name, qos::QoS(latch, reliable, queue_size));
 }
 
 template <typename MsgType, typename Obj>
@@ -27,7 +27,7 @@ SubscriberPtr<MsgType> createSubscriber(
   size_t queue_size = qos::kDefaultQueueSize)
 {
   return node->create_subscription<MsgType>(
-    topic_name, makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
+    topic_name, qos::QoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
 }
 
 template <typename SrvType, typename Obj>

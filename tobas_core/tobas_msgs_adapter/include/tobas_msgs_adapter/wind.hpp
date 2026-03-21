@@ -15,6 +15,8 @@ struct Wind
 
   using SharedPtr = std::shared_ptr<Wind>;
   using ConstSharedPtr = std::shared_ptr<const Wind>;
+  using UniquePtr = std::unique_ptr<Wind>;
+  using ConstUniquePtr = std::unique_ptr<const Wind>;
 };
 }  // namespace tobas_msgs
 

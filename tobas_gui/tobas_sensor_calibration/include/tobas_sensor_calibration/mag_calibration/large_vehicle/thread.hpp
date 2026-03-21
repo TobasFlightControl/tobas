@@ -37,6 +37,7 @@ private:
 
   tobas_msgs::MagneticField::ConstSharedPtr mag_raw_;
   tobas_msgs::Gnss::ConstSharedPtr gnss_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   bool get_data_ = false;
   size_t cnt_;
@@ -45,6 +46,7 @@ private:
 private Q_SLOTS:
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw);
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 };
 }  // namespace sc
 }  // namespace gui

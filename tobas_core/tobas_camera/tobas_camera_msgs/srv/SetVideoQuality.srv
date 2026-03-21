@@ -1,0 +1,8 @@
+uint8 video_quality
+uint8 K4K = 0
+uint8 K2_7K = 1
+uint8 FHD = 2
+uint8 HD = 3
+---
+bool success
+string message

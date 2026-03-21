@@ -1,6 +1,5 @@
 #include "tobas_node/node.hpp"
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
 using namespace std;
@@ -8,13 +7,11 @@ using namespace std;
 namespace tobas
 {
 BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
-  : super(node_name, createNodeOptions(options)), dparam_sub_(this)
+  : super(node_name, options), dparam_sub_(this)
 {
   RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
 
-  message_pub_ = createPublisher<tobas_msgs::msg::Message>(kMessageTopic);
-  get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
-    node_name + "/" + tobas::kGetDynamicParamsSrv, &self::getDParamCb, this);
+  message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage);
 }
 
 bool BaseNode::getBoolParam(const string& name)
@@ -197,6 +194,48 @@ vector<string> BaseNode::getStringArrayParam(const string& name, const vector<st
   }
 }
 
+void BaseNode::setClockType(rclcpp::NodeOptions& options)
+{
+  const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
+
+  if (!clock_type) {
+    return;
+  }
+
+  if (strcmp(clock_type, "ros_time") == 0) {
+    options.clock_type(RCL_ROS_TIME);  // 参照クロックがなければシステムクロック
+    options.use_clock_thread(true);    // /clock を受信する可能性があるため専用スレッドを設ける
+  }
+  else if (strcmp(clock_type, "system_time") == 0) {
+    options.clock_type(RCL_SYSTEM_TIME);  // NTPと同期したシステムクロック
+    options.use_clock_thread(false);      // /clock を受信しないので専用スレッドは不要
+  }
+  else if (strcmp(clock_type, "steady_time") == 0) {
+    options.clock_type(RCL_STEADY_TIME);  // NTPの影響を受けないモノトニックタイマー
+    options.use_clock_thread(false);      // /clock を受信しないので専用スレッドは不要
+  }
+  else {
+    cerr << "Unknown clock type: " << clock_type << endl;
+  }
+}
+
+rclcpp::NodeOptions BaseNode::nodeOptions_Default(rclcpp::NodeOptions options)
+{
+  options.enable_rosout(false);
+  options.use_intra_process_comms(true);
+  options.start_parameter_services(false);
+  options.start_parameter_event_publisher(false);
+  setClockType(options);
+  options.append_parameter_override("start_type_description_service", false);
+
+  return options;
+}
+
+rclcpp::NodeOptions BaseNode::nodeOptions_DParam(rclcpp::NodeOptions options)
+{
+  return nodeOptions_Default(options).start_parameter_services(true).start_parameter_event_publisher(true);
+}
+
 void BaseNode::rclcppLog(uint8_t level, const string& text) const
 {
   switch (level) {
@@ -231,28 +270,5 @@ void BaseNode::getDParamCb(
 string BaseNode::createID(const char* file, int line)
 {
   return string(file) + ":" + to_string(line);
-}
-
-rclcpp::NodeOptions BaseNode::createNodeOptions(rclcpp::NodeOptions options)
-{
-  const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
-
-  if (!clock_type) {
-    return options;
-  }
-
-  if (strcmp(clock_type, "ros_time") == 0) {
-    return options.clock_type(RCL_ROS_TIME);  // 参照クロックがなければシステムクロック
-  }
-  else if (strcmp(clock_type, "system_time") == 0) {
-    return options.clock_type(RCL_SYSTEM_TIME);  // NTPと同期したシステムクロック
-  }
-  else if (strcmp(clock_type, "steady_time") == 0) {
-    return options.clock_type(RCL_STEADY_TIME);  // NTPの影響を受けないモノトニックタイマー
-  }
-  else {
-    cerr << "Unknown clock type: " << clock_type << endl;
-    return options;
-  }
 }
 }  // namespace tobas

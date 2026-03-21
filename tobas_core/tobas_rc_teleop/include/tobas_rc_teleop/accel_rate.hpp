@@ -21,8 +21,8 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   kdl::Vector tar_acc_G_;
@@ -47,11 +47,11 @@ private:
 
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxAttitudeRateCb(const long& p);
-  bool maxHeadingRateCb(const long& p);
-  bool horizontalAccelExpoCb(const long& p);
-  bool verticalAccelExpoCb(const long& p);
-  bool attitudeExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
+  bool maxAttitudeRateCb(const double& p);
+  bool maxHeadingRateCb(const double& p);
+  bool horizontalAccelExpoCb(const double& p);
+  bool verticalAccelExpoCb(const double& p);
+  bool attitudeExpoCb(const double& p);
+  bool headingExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

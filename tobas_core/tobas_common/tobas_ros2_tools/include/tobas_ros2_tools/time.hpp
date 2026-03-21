@@ -7,9 +7,9 @@
 
 namespace ros2
 {
-inline long nanoseconds(const builtin_interfaces::msg::Time& stamp)
+inline int64_t nanoseconds(const builtin_interfaces::msg::Time& stamp)
 {
-  return static_cast<long>(stamp.sec) * 1'000'000'000L + static_cast<long>(stamp.nanosec);
+  return static_cast<int64_t>(stamp.sec) * 1'000'000'000L + static_cast<int64_t>(stamp.nanosec);
 }
 
 inline double microseconds(const builtin_interfaces::msg::Time& stamp)
@@ -27,9 +27,9 @@ inline double seconds(const builtin_interfaces::msg::Time& stamp)
   return static_cast<double>(nanoseconds(stamp)) * 1e-9;
 }
 
-inline long nanoseconds(const builtin_interfaces::msg::Duration& duration)
+inline int64_t nanoseconds(const builtin_interfaces::msg::Duration& duration)
 {
-  return static_cast<long>(duration.sec) * 1'000'000'000L + static_cast<long>(duration.nanosec);
+  return static_cast<int64_t>(duration.sec) * 1'000'000'000L + static_cast<int64_t>(duration.nanosec);
 }
 
 inline double microseconds(const builtin_interfaces::msg::Duration& duration)

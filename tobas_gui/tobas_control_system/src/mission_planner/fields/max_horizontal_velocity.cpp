@@ -13,7 +13,7 @@ MaxHorizontalVelocityWidget::MaxHorizontalVelocityWidget()
   // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
-  spin_box_->setMinimum(3.);
+  spin_box_->setMinimum(1.);  // 3 m/s -> 1 m/s
   spin_box_->setMaximum(20.);
   spin_box_->setValue(5.);
   spin_box_->setSuffix(" m/s");

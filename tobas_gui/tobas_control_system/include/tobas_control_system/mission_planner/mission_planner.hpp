@@ -12,7 +12,7 @@
 #include "./add_command_dialog.hpp"
 #include "./command_button.hpp"
 #include "./commands/base.hpp"
-#include "./map_widget.hpp"
+#include "./map/map.hpp"
 
 namespace gui
 {
@@ -101,7 +101,7 @@ private Q_SLOTS:
   void onWaypointMoved(int index, double latitude, double longitude);
 
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
 
   void actionGoalResponseCb(bool ok);
   void actionFeedbackCb(uint32_t current_index);

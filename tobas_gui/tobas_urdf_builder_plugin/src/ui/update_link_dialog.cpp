@@ -8,7 +8,6 @@
 #include <boost/polymorphic_cast.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/console.hpp>
 

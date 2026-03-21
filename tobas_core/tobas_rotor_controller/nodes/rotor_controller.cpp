@@ -1,7 +1,7 @@
 #include <boost/polymorphic_pointer_cast.hpp>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/vector.hpp>
@@ -52,6 +52,7 @@ private:
   ros2::TimerPtr auto_disarm_timer_;
 
   void publishCurrentArmingState();
+  void publishZeroThrottle();
   void disarm();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -64,17 +65,18 @@ private:
   void autoDisarmAfterCmdTimerCb();
 };
 
-RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
+RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options)
+  : super("rotor_controller", nodeOptions_Default(options))
 {
-  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
-  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::kIcePropulsionSystemCmdTopic);
-  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::topic::kRotorSpeedsCmd);
+  ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(tobas::topic::kIcePropulsionSystemCmd);
+  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::topic::kArming);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tar_thrusts_sub_ = createSubscriber(tobas::kRotorThrustsCmdTopic, &self::thrustsCmdCb, this);
-  health_sub_ = createSubscriber(tobas::kVehicleHealthTopic, &self::healthCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  tar_thrusts_sub_ = createSubscriber(tobas::topic::kRotorThrustsCmd, &self::thrustsCmdCb, this);
+  health_sub_ = createSubscriber(tobas::topic::kVehicleHealth, &self::healthCb, this);
 
-  set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
+  set_arm_ss_ = createService<SetArm>(tobas::service::kSetArm, &self::setArmCb, this);
 
   publish_arming_timer_ = createTimer(kPublishArmingPeriod, &self::publishCurrentArmingState, this);
 }
@@ -87,8 +89,53 @@ void RotorControllerNode::publishCurrentArmingState()
   arming_pub_->publish(std::move(arming_msg));
 }
 
+void RotorControllerNode::publishZeroThrottle()
+{
+  switch (drone_->prop->type()) {
+    case tobas::PropulsionSystem::kElectric: {
+      const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+
+      auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
+      tar_speeds_msg->header.stamp = now();
+      for (const auto& [link_name, rotor] : eprop->rotors) {
+        const auto erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(rotor);
+        tar_speeds_msg->speeds.emplace_back();
+        tar_speeds_msg->speeds.back().link_name = link_name;
+        tar_speeds_msg->speeds.back().speed = 0.;
+      }
+
+      rotor_speeds_pub_->publish(std::move(tar_speeds_msg));
+
+      break;
+    }
+    case tobas::PropulsionSystem::kIce: {
+      const auto iprop = boost::polymorphic_pointer_downcast<tobas::IcePropulsionSystemConfig>(drone_->prop);
+
+      auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
+      ice_cmd_msg->header.stamp = now();
+      ice_cmd_msg->engine_throttle = 0.;
+      for (const auto& [link_name, rotor] : iprop->rotors) {
+        const auto irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(rotor);
+        ice_cmd_msg->pitch_angles.emplace_back();
+        ice_cmd_msg->pitch_angles.back().link_name = link_name;
+        ice_cmd_msg->pitch_angles.back().angle = irotor->optimalPitch();
+      }
+
+      ice_cmd_pub_->publish(std::move(ice_cmd_msg));
+
+      break;
+    }
+    default: {
+      TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
+      return;
+    }
+  }
+}
+
 void RotorControllerNode::disarm()
 {
+  publishZeroThrottle();
+
   is_armed_ = false;
   is_commanded_ = false;
 
@@ -221,7 +268,7 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
   if (!is_armed_ && req->arming) {
     if (!health_) {
       res->success = false;
-      res->message = "Vehicle health status is not received yet.";
+      res->message = "Vehicle health status has not been received yet.";
       return;
     }
 

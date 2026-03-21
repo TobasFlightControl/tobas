@@ -1,6 +1,6 @@
 #include "tobas_gui_common/remote_project_builder.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/path.hpp>
 
 #include "tobas_gui_common/project_paths.hpp"
 
@@ -34,7 +34,7 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
     "colcon build "
     "--merge-install "
     "--parallel-workers $(nproc) "
-    "--cmake-args -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ "  // コンパイラを指定
+    "--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=\"-mcpu=native\" -DCMAKE_CXX_FLAGS=\"-mcpu=native\" "
     "--packages-up-to {}",
     meta_pkg_name);
 

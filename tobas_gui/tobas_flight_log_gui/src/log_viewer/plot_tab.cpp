@@ -7,7 +7,8 @@ namespace gui
 namespace log
 {
 PlotTabWidget::PlotTabWidget(
-  const QVector<tobas_msgs::msg::Odometry>& odom_data,
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
+  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,
   const QVector<tobas_msgs::msg::Imu>& raw_imu_data,
   const QVector<tobas_msgs::msg::Imu>& filt_imu_data,
   const QVector<tobas_msgs::msg::MagneticField>& mag_data,
@@ -29,6 +30,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data)
   : odom_data_(odom_data)
+  , setpoint_data_(setpoint_data)
   , raw_imu_data_(raw_imu_data)
   , filt_imu_data_(filt_imu_data)
   , mag_data_(mag_data)
@@ -127,13 +129,13 @@ void PlotTabWidget::plot(int index)
   const auto cur_widget = widget(index);
 
   if (cur_widget == pose_plot_) {
-    pose_plot_->setData(odom_data_, mr_ctrl_fb_data_);
+    pose_plot_->setData(odom_data_, setpoint_data_);
   }
   else if (cur_widget == twist_plot_) {
-    twist_plot_->setData(odom_data_, mr_ctrl_fb_data_);
+    twist_plot_->setData(odom_data_, setpoint_data_);
   }
   else if (cur_widget == accel_plot_) {
-    accel_plot_->setData(odom_data_, mr_ctrl_fb_data_);
+    accel_plot_->setData(odom_data_, setpoint_data_);
   }
   else if (cur_widget == imu_plot_) {
     imu_plot_->setData(raw_imu_data_, filt_imu_data_);

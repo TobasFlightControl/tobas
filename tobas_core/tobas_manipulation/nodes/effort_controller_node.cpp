@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl/tree_jntspace_pid.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
@@ -88,7 +88,7 @@ private:
 };
 
 EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
-  : super("jointeff_trajectory_controller", options)
+  : super("jointeff_trajectory_controller", nodeOptions_DParam(options))
   , jnt_parser_(tree_)
   , active_jnts_extractor_(tree_)
   , pid_js_(tree_)
@@ -118,13 +118,13 @@ void EffortControllerNode::initialize()
   addDynamicIntParam("linear_damping", &self::linearDampingCb, this, 10, 1, 20);
   addDynamicIntParam("angular_damping", &self::angularDampingCb, this, 10, 1, 20);
 
-  efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
+  efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointEffCmd);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(tobas::kKdlTreeTopic, &self::treeCb, this, true, true);
-  cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
-  tar_js_sub_ = createSubscriber(tobas::kEffCtrlJSTopic, &self::targetJointStateCb, this);
-  tar_ls_sub_ = createSubscriber(tobas::kEffCtrlLSTopic, &self::targetLinkStateCb, this);
+  drone_sub_ = createSubscriber(tobas::topic::kDrone, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::topic::kKdlTree, &self::treeCb, this, true, true);
+  cur_js_sub_ = createSubscriber(tobas::topic::kJointStates, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(tobas::topic::kEffCtrlJS, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(tobas::topic::kEffCtrlLS, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 

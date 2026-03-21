@@ -18,7 +18,7 @@
 #include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 #include <tobas_msgs_adapter/magnetic_field.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
 // tobas_ros_interfaceで扱うトピックのうち，FCからPCに流れるもの
@@ -38,5 +38,5 @@ Q_DECLARE_METATYPE(tobas_msgs::msg::Sbus::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::Gnss::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::Imu::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::MagneticField::ConstSharedPtr);
-Q_DECLARE_METATYPE(tobas_msgs::Odometry::ConstSharedPtr);
+Q_DECLARE_METATYPE(tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr);
 Q_DECLARE_METATYPE(tobas_msgs::RCInput::ConstSharedPtr);

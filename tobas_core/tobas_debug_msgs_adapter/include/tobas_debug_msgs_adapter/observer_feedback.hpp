@@ -34,6 +34,8 @@ struct ObserverFeedback
 
   using SharedPtr = std::shared_ptr<ObserverFeedback>;
   using ConstSharedPtr = std::shared_ptr<const ObserverFeedback>;
+  using UniquePtr = std::unique_ptr<ObserverFeedback>;
+  using ConstUniquePtr = std::unique_ptr<const ObserverFeedback>;
 };
 }  // namespace tobas_debug_msgs
 

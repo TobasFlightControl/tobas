@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+#include <tobas_constants/path.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_property_tree/property_tree.hpp>
@@ -9,7 +11,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
@@ -70,24 +72,24 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
   roll_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   roll_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(roll_range_);
-  qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", real::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", tobas::kRcChannelRoll + 1).c_str()), roll_yaw_rows);
 
   roll_yaw_rows->addStretch();
 
   const auto pitch_throt_label_cols = new QHBoxLayout();
   roll_yaw_rows->addLayout(pitch_throt_label_cols);
 
-  const auto pitch_label = new QLabel(std::format("Pitch (CH{})", real::kRcChannelPitch + 1).c_str());
+  const auto pitch_label = new QLabel(std::format("Pitch (CH{})", tobas::kRcChannelPitch + 1).c_str());
   pitch_label->setAlignment(Qt::AlignLeft);
   pitch_throt_label_cols->addWidget(pitch_label);
 
-  const auto throt_label = new QLabel(std::format("Throttle (CH{})", real::kRcChannelThrot + 1).c_str());
+  const auto throt_label = new QLabel(std::format("Throttle (CH{})", tobas::kRcChannelThrot + 1).c_str());
   throt_label->setAlignment(Qt::AlignRight);
   pitch_throt_label_cols->addWidget(throt_label);
 
   roll_yaw_rows->addStretch();
 
-  qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", real::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
+  qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", tobas::kRcChannelYaw + 1).c_str()), roll_yaw_rows);
   yaw_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   yaw_range_->setFixedHeight(kRangeSideShort);
   roll_yaw_rows->addWidget(yaw_range_);
@@ -101,25 +103,26 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(
 
   mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Mode (CH{})", real::kRcChannelMode + 1).c_str(), mode_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Mode (CH{})", tobas::kRcChannelMode + 1).c_str(), mode_range_);
 
   ctrl_switch_form->addStretch();
 
   sub_mode_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   sub_mode_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Sub Mode (CH{})", real::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
+  ctrl_switch_form->addVAlignedRow(
+    std::format("Sub Mode (CH{})", tobas::kRcChannelSubMode + 1).c_str(), sub_mode_range_);
 
   ctrl_switch_form->addStretch();
 
   enable_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   enable_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", real::kRcChannelEnable + 1).c_str(), enable_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Enable (CH{})", tobas::kRcChannelEnable + 1).c_str(), enable_range_);
 
   ctrl_switch_form->addStretch();
 
   kill_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
   kill_range_->setFixedHeight(kRangeSideShort);
-  ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", real::kRcChannelKill + 1).c_str(), kill_range_);
+  ctrl_switch_form->addVAlignedRow(std::format("Kill (CH{})", tobas::kRcChannelKill + 1).c_str(), kill_range_);
 
   // General Purpose Switches
   const auto gpsw_form = new qt::FormLayout();
@@ -208,7 +211,7 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
   reset();
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, real::kRcChannelGpsw + i + 1).c_str());
+    gpsw_labels_.at(i)->setText(std::format("GPSw{} (CH{})", i + 1, tobas::kRcChannelGpsw + i + 1).c_str());
     gpsw_ranges_.at(i)->setEnabled(true);
   }
   for (size_t i = numOfGpswChannels(); i < tobas::kMaxNumOfGpsw; ++i) {
@@ -313,7 +316,7 @@ bool RCInputCalibrationWidget::saveParamsToFc()
   }
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams> sc(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, kSetParamSrv));
+    node_, path::join(drone_.name, tobas::kRemoteIfaceNS, kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout)) {
     qt::qErrorBox(this, "Failed to send calibration results to FC.");
     return false;
@@ -332,7 +335,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 {
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {
@@ -342,7 +345,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 
   // 必要なトピックが受け取れていることを確認
   if (!sbus_) {
-    qt::qWarnBox(this, "S.BUS is not received yet.");
+    qt::qWarnBox(this, "S.BUS has not been received yet.");
     return;
   }
 
@@ -432,23 +435,28 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
     return;
   }
 
-  roll_range_->setValue(sbus->periods.at(real::kRcChannelRoll));
-  pitch_range_->setValue(sbus->periods.at(real::kRcChannelPitch));
-  yaw_range_->setValue(sbus->periods.at(real::kRcChannelYaw));
-  throt_range_->setValue(sbus->periods.at(real::kRcChannelThrot));
+  roll_range_->setValue(sbus->periods.at(tobas::kRcChannelRoll));
+  pitch_range_->setValue(sbus->periods.at(tobas::kRcChannelPitch));
+  yaw_range_->setValue(sbus->periods.at(tobas::kRcChannelYaw));
+  throt_range_->setValue(sbus->periods.at(tobas::kRcChannelThrot));
 
-  mode_range_->setValue(sbus->periods.at(real::kRcChannelMode));
-  sub_mode_range_->setValue(sbus->periods.at(real::kRcChannelSubMode));
-  enable_range_->setValue(sbus->periods.at(real::kRcChannelEnable));
-  kill_range_->setValue(sbus->periods.at(real::kRcChannelKill));
+  mode_range_->setValue(sbus->periods.at(tobas::kRcChannelMode));
+  sub_mode_range_->setValue(sbus->periods.at(tobas::kRcChannelSubMode));
+  enable_range_->setValue(sbus->periods.at(tobas::kRcChannelEnable));
+  kill_range_->setValue(sbus->periods.at(tobas::kRcChannelKill));
 
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_ranges_[i]->setValue(sbus->periods.at(real::kRcChannelGpsw + i));
+    gpsw_ranges_[i]->setValue(sbus->periods.at(tobas::kRcChannelGpsw + i));
   }
 }
 
 void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
+  if (running_ && arming->data) {
+    reset();
+    qt::qWarnBox(this, "Radio calibration was canceled because an arming command was issued.");
+  }
+
   arming_ = arming;
 }
 }  // namespace sc

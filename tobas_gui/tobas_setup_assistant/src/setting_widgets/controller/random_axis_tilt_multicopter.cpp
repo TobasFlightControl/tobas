@@ -54,7 +54,7 @@ tobas::RcCommand RandomAxisTiltMulticopterWidget::stabilizeModeCommand() const
 
 tobas::RcCommand RandomAxisTiltMulticopterWidget::loiterModeCommand() const
 {
-  return tobas::RcCommand::kPosVelAngle;
+  return tobas::RcCommand::kPosVelAccAngle;
 }
 
 YAML::Node RandomAxisTiltMulticopterWidget::staticParams() const

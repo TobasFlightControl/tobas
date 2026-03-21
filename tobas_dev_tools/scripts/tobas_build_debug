@@ -24,10 +24,13 @@ export COLCON_LOG_PATH=${RELEASE_DIR}/log
 export MAKEFLAGS="-j1"
 
 # Build
-colcon build --merge-install --symlink-install --parallel-workers 1 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Debug $1 $2
-if [ $? -ne 0 ]; then
-  echo "Failed to build." >&2
-  exit 1
-fi
+colcon build \
+  --merge-install \
+  --parallel-workers 1 \
+  --install-base ${INSTALL_BASE} \
+  --build-base ${BUILD_BASE} \
+  --cmake-args \
+    -DCMAKE_BUILD_TYPE=Debug \
+  $1 $2 \
 
 echo -e "\033[32mDebug build finished successfully.\033[0m"

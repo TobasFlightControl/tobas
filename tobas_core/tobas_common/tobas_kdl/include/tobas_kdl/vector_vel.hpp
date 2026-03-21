@@ -19,6 +19,7 @@ public:
   static inline VectorVel Zero();
 
   inline void setZero();
+  inline void setNaN();
 
   inline doubleVel norm() const;
 
@@ -67,6 +68,12 @@ inline void VectorVel::setZero()
 {
   p.setZero();
   v.setZero();
+}
+
+inline void VectorVel::setNaN()
+{
+  p.setNaN();
+  v.setNaN();
 }
 
 inline doubleVel VectorVel::norm() const

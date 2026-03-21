@@ -9,11 +9,6 @@
 
 #include <tobas_msgs/msg/message.hpp>
 
-#define tbsdbg gzdbg << "[" << name_ << "] "
-#define tbsmsg gzmsg << "[" << name_ << "] "
-#define tbswarn gzwarn << "[" << name_ << "] "
-#define tbserr gzerr << "[" << name_ << "] "
-
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
     TOBAS_FATAL(__VA_ARGS__);                                                                                          \

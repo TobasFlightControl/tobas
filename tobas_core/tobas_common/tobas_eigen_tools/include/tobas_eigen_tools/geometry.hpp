@@ -8,16 +8,16 @@
 namespace eigen
 {
 /* 3次元ベクトルを FLU (Front-Left-Up) 座標系から FRD (Front-Right-Down) 座標系に変換する．Rx(π)をかけるのと同じ． */
-inline void vectorFrdToFlu(const Eigen::Vector3d& src, Eigen::Vector3d& des)
+inline void vectorFrdToFlu(const Eigen::Vector3d& src, Eigen::Vector3d& dst)
 {
-  des.x() = src.x();
-  des.y() = -src.y();
-  des.z() = -src.z();
+  dst.x() = src.x();
+  dst.y() = -src.y();
+  dst.z() = -src.z();
 }
 
-inline void vectorFluToFrd(const Eigen::Vector3d& src, Eigen::Vector3d& des)
+inline void vectorFluToFrd(const Eigen::Vector3d& src, Eigen::Vector3d& dst)
 {
-  vectorFrdToFlu(src, des);
+  vectorFrdToFlu(src, dst);
 }
 
 inline void vectorFrdToFlu(Eigen::Vector3d& arg)

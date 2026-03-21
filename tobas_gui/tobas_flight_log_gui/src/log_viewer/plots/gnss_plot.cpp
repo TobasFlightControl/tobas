@@ -11,7 +11,7 @@ namespace log
 GnssPlotWidget::GnssPlotWidget()
   : latitude_curve_("Latitude [deg]")
   , longitude_curve_("Longitude [deg]")
-  , altitude_curve_("Altitude [deg]")
+  , altitude_curve_("Altitude [m]")
   , east_speed_curve_("East Speed [m/s]")
   , north_speed_curve_("North Speed [m/s]")
   , up_speed_curve_("Up Speed [m/s]")
@@ -98,6 +98,10 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   QVector<double> up_speed_data;
 
   for (const auto& gnss : gnss_msgs) {
+    if (gnss.fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
+      break;
+    }
+
     t_data.push_back(ros2::seconds(gnss.header.stamp));
 
     latitude_data.push_back(gnss.latitude);

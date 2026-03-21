@@ -1,6 +1,7 @@
 #include <ranges>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_node/node.hpp>
@@ -12,7 +13,7 @@
 
 #include <tobas_command_msgs_adapter/accel.hpp>
 #include <tobas_command_msgs_adapter/angle.hpp>
-#include <tobas_command_msgs_adapter/pos_vel.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc.hpp>
 #include <tobas_command_msgs_adapter/rate.hpp>
 #include <tobas_debug_msgs_adapter/multicopter_controller_feedback.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -23,7 +24,8 @@
 #include <tobas_msgs/msg/landed_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_stamped.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_nonplanar_multi_controller/mixer_qp.hpp"
 
@@ -65,32 +67,33 @@ private:
   bool js_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
-  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVel::SharedPtr pos_cmd_;
-  tobas_command_msgs::Accel::SharedPtr acc_cmd_;
-  tobas_command_msgs::Angle::SharedPtr angle_cmd_;
-  tobas_command_msgs::Rate::SharedPtr rate_cmd_;
-  std::shared_ptr<kdl::Vector> tar_dgyro_;
+  tobas_command_msgs::PosVelAcc::UniquePtr pos_cmd_;
+  tobas_command_msgs::Accel::UniquePtr acc_cmd_;
+  tobas_command_msgs::Angle::UniquePtr angle_cmd_;
+  tobas_command_msgs::Rate::UniquePtr rate_cmd_;
+  std::unique_ptr<kdl::Vector> tar_dgyro_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
+  ros2::PublisherPtr<tobas_msgs::OdometryStamped> setpoint_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::MulticopterControllerFeedback> feedback_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::PosVel> pos_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PosVelAcc> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Accel> acc_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Angle> angle_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Rate> rate_cmd_sub_;
@@ -106,17 +109,17 @@ private:
   bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
   bool horizontalIGainCb(const double& p);
+  bool horizontalIMaxAccelCb(const double& p);
   bool verticalNaturalFreqCb(const double& p);
   bool verticalDampingRatioCb(const double& p);
   bool verticalIGainCb(const double& p);
+  bool verticalIMaxAccelCb(const double& p);
   bool attitudeNaturalFreqCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool attitudeIGainCb(const double& p);
   bool headingNaturalFreqCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
-  bool maxHorizontalAccelCb(const double& p);
-  bool maxVerticalAccelCb(const double& p);
   bool mixerLinearWeightCb(const long& p);
   bool mixerAngularWeightCb(const long& p);
   bool mixerThrustWeightLog2Cb(const long& p);
@@ -124,13 +127,13 @@ private:
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
-  void positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd);
+  void positionCommandCb(const tobas_command_msgs::PosVelAcc::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd);
   void angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd);
   void rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPtr& rate_cmd);
@@ -139,57 +142,51 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
+  : super(node::kController, nodeOptions_DParam(options)), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // Get static parameters
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
-  // Iゲインは1~2秒で補正が感じられるくらいに設定するのが良いらしい (GPT o1)
-  const long default_horizontal_i_gain = do_dist_comp_trans_ ? 1 : 10;
-  const long default_vertical_i_gain = do_dist_comp_trans_ ? 1 : 10;
-  const long default_attitude_i_gain = do_dist_comp_rot_ ? 1 : 10;
-  const long default_heading_i_gain = do_dist_comp_rot_ ? 1 : 10;
-
   // Register dynamic parameters
-  // I制御は姿勢変化が大きいと逆効果なため，デフォルトではオフにする．
-  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 25, " rad/s");
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 5, 1, 25, " rad/s");
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1., 10, 1, 50, " rad/s");
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 1., 5, 1, 25, " rad/s");
+  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1., 10, 1, 30, " rad/s");
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.5, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 30);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 30);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, default_horizontal_i_gain, 1, 30);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, default_vertical_i_gain, 1, 30);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, default_attitude_i_gain, 1, 30);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, default_heading_i_gain, 1, 30);
-  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 0.5, 16, 2, 40, " m/s^2");
-  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 0.5, 16, 2, 20, " m/s^2");
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, 10, 1, 30);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 1, 30);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 1, 30);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
+  addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
+  addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
   addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
   addDynamicIntParam("mixer_thrust_weight_log2", &self::mixerThrustWeightLog2Cb, this, -20, -30, 0);
   addDynamicIntParam("mixer_delta_thrust_weight_log2", &self::mixerDeltaThrustWeightLog2Cb, this, -20, -30, 0);
 
   // Register publishers
-  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(kRotorThrustsCmdTopic);
-  feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(kMRCtrlFeedbackTopic);
+  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
+  setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
+  feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(kDroneTopic, &self::droneCb, this, true, true);
-  tree_sub_ = createSubscriber(kKdlTreeTopic, &self::treeCb, this, true, true);
-  odom_sub_ = createSubscriber(kOdometryTopic, &self::odomCb, this);
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
+  odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   if (do_dist_comp_trans_ || do_dist_comp_rot_) {
-    dist_force_sub_ = createSubscriber(kDisturbanceForceTopic, &self::disturbanceForceCb, this);
+    dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
   }
-  landed_sub_ = createSubscriber(kLandedTopic, &self::landedCb, this);
-  arming_sub_ = createSubscriber(kArmingTopic, &self::armingCb, this);
-  rotor_liveliness_sub_ = createSubscriber(kRotorLivTopic, &self::rotorLivelinessCb, this);
-  pos_cmd_sub_ = createSubscriber(kPosVelCmdTopic, &self::positionCommandCb, this);
-  acc_cmd_sub_ = createSubscriber(kAccelCmdTopic, &self::accelCommandCb, this);
-  angle_cmd_sub_ = createSubscriber(kAngleCmdTopic, &self::angleCommandCb, this);
-  rate_cmd_sub_ = createSubscriber(kRateCmdTopic, &self::rateCommandCb, this);
+  landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
+  arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
+  rotor_liveliness_sub_ = createSubscriber(topic::kRotorLiv, &self::rotorLivelinessCb, this);
+  pos_cmd_sub_ = createSubscriber(topic::kPosVelAccCmd, &self::positionCommandCb, this);
+  acc_cmd_sub_ = createSubscriber(topic::kAccelCmd, &self::accelCommandCb, this);
+  angle_cmd_sub_ = createSubscriber(topic::kAngleCmd, &self::angleCommandCb, this);
+  rate_cmd_sub_ = createSubscriber(topic::kRateCmd, &self::rateCommandCb, this);
 
   // Register timers
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -263,6 +260,11 @@ bool ControllerNode::horizontalIGainCb(const double& p)
   return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
 }
 
+bool ControllerNode::horizontalIMaxAccelCb(const double& p)
+{
+  return pos_pid_.setMaxIntegralAccel(0, p) && pos_pid_.setMaxIntegralAccel(1, p);
+}
+
 bool ControllerNode::verticalNaturalFreqCb(const double& p)
 {
   return pos_pid_.setNaturalFreq(2, p);
@@ -276,6 +278,11 @@ bool ControllerNode::verticalDampingRatioCb(const double& p)
 bool ControllerNode::verticalIGainCb(const double& p)
 {
   return pos_pid_.setIntegralGain(2, p);
+}
+
+bool ControllerNode::verticalIMaxAccelCb(const double& p)
+{
+  return pos_pid_.setMaxIntegralAccel(2, p);
 }
 
 bool ControllerNode::attitudeNaturalFreqCb(const double& p)
@@ -312,16 +319,6 @@ bool ControllerNode::headingIGainCb(const double& p)
   return rot_pi_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::maxHorizontalAccelCb(const double& p)
-{
-  return pos_pid_.setMaximumAccel(0, p) && pos_pid_.setMaximumAccel(1, p);
-}
-
-bool ControllerNode::maxVerticalAccelCb(const double& p)
-{
-  return pos_pid_.setMaximumAccel(2, p);
-}
-
 bool ControllerNode::mixerLinearWeightCb(const long& p)
 {
   return mixer_.setLinearWeight(static_cast<double>(p) / static_cast<double>(kMaxWeight));
@@ -347,7 +344,7 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   drone_ = *drone;
 
   if (drone->hasServoJoint()) {
-    js_sub_ = createSubscriber(kJointStatesTopic, &self::jointStateCb, this);
+    js_sub_ = createSubscriber(topic::kJointStates, &self::jointStateCb, this);
   }
   else {
     js_sub_.reset();
@@ -377,7 +374,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 }
 
-void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   if (!odom_) {
     odom_ = odom;
@@ -385,62 +382,70 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 経過時間を計算してオドメトリを更新
-  const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
+  const auto& cur_time = odom->header.stamp;
+  const auto dt = (cur_time - odom_->header.stamp).seconds();
   odom_ = odom;
+
+  // 設定値メッセージを作成
+  auto setpoint = std::make_unique<tobas_msgs::OdometryStamped>();
+  setpoint->header.stamp = cur_time;
+  setpoint->odom.setNaN();
 
   // フィードバックメッセージを作成
   auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
-  feedback->header.stamp = odom->header.stamp;
+  feedback->header.stamp = cur_time;
 
   // エイリアス
-  const auto& cur_pos_W = odom->frame.p;
-  const auto& cur_rot = odom->frame.M;
-  const auto& cur_vel_B = odom->twist.vel;
-  const auto& cur_gyro_B = odom->twist.rot;
+  const auto& cur_pos_W = odom->odom.odom.frame.p;
+  const auto& cur_rot = odom->odom.odom.frame.M;
+  const auto& cur_vel_B = odom->odom.odom.twist.vel;
+  const auto& cur_gyro_B = odom->odom.odom.twist.rot;
 
   // 位置制御器
   if (pos_cmd_) {
     if (!acc_cmd_) {
-      acc_cmd_ = std::make_shared<tobas_command_msgs::Accel>();
+      acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
     }
 
     // 世界座標系から見た現在の位置速度
     const auto cur_vel_W = cur_rot * cur_vel_B;
 
     // 目標加速度を計算（接地している場合は誤差の積分を行わない）
-    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->data ? 0. : dt);
+    acc_cmd_->accel =
+      pos_cmd_->acc + pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0. : dt);
 
     // フィードバックメッセージを埋める
-    feedback->target_position = pos_cmd_->pos;
-    feedback->target_velocity = cur_rot.inverse(pos_cmd_->vel);
+    setpoint->odom.frame.p = pos_cmd_->pos;
+    setpoint->odom.twist.vel = cur_rot.inverse(pos_cmd_->vel);
     feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
   // 姿勢制御器
   if (angle_cmd_) {
     if (!rate_cmd_) {
-      rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>();
+      rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
     }
 
     // 目標角速度を計算（接地している場合は誤差の積分を行わない）
-    rate_cmd_->rate = rot_pi_.update(cur_rot, angle_cmd_->angle.toRotation(), landed_->data ? 0. : dt);
+    const auto tar_rot = angle_cmd_->angle.toRotation();
+    rate_cmd_->rate = rot_pi_.update(cur_rot, tar_rot, landed_->landed ? 0. : dt);
 
     // フィードバックメッセージを埋める
-    feedback->target_angle = angle_cmd_->angle;
+    setpoint->odom.frame.M = tar_rot;
     feedback->angle_integral_error = rot_pi_.getIntegralError();
   }
 
   // 角速度制御器
   if (rate_cmd_) {
     if (!tar_dgyro_) {
-      tar_dgyro_ = std::make_shared<kdl::Vector>();
+      tar_dgyro_ = std::make_unique<kdl::Vector>();
     }
 
     // 目標角加速度を計算
     *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B);
 
     // フィードバックメッセージを埋める
-    feedback->target_gyro = rate_cmd_->rate;
+    setpoint->odom.twist.rot = rate_cmd_->rate;
   }
 
   // ミキサー
@@ -457,7 +462,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 目標推力を発行
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-    tar_thrusts->header.stamp = odom->header.stamp;
+    tar_thrusts->header.stamp = cur_time;
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
@@ -466,10 +471,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
     // フィードバックメッセージを埋める
-    feedback->target_accel = cur_rot.inverse(acc_cmd_->accel);
-    feedback->target_dgyro = *tar_dgyro_;
+    setpoint->odom.accel.linear = cur_rot.inverse(acc_cmd_->accel);
+    setpoint->odom.accel.angular = *tar_dgyro_;
 
     // フィードバックメッセージを発行
+    setpoint_pub_->publish(std::move(setpoint));
     feedback_pub_->publish(std::move(feedback));
   }
 }
@@ -532,14 +538,19 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
   }
 }
 
-void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd)
+void ControllerNode::positionCommandCb(const tobas_command_msgs::PosVelAcc::ConstSharedPtr& pos_cmd)
 {
   if (!isCommandAccepted(pos_cmd->priority)) {
     return;
   }
 
+  // コマンドを作成
+  if (!pos_cmd_) {
+    pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAcc>();
+  }
+
   // コマンドを更新
-  pos_cmd_ = std::make_shared<tobas_command_msgs::PosVel>(*pos_cmd);
+  *pos_cmd_ = *pos_cmd;
 }
 
 void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd)
@@ -551,8 +562,13 @@ void ControllerNode::accelCommandCb(const tobas_command_msgs::Accel::ConstShared
   // 外側の制御を止める
   pos_cmd_.reset();
 
+  // コマンドを作成
+  if (!acc_cmd_) {
+    acc_cmd_ = std::make_unique<tobas_command_msgs::Accel>();
+  }
+
   // コマンドを更新
-  acc_cmd_ = std::make_shared<tobas_command_msgs::Accel>(*acc_cmd);
+  *acc_cmd_ = *acc_cmd;
 }
 
 void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstSharedPtr& angle_cmd)
@@ -561,8 +577,13 @@ void ControllerNode::angleCommandCb(const tobas_command_msgs::Angle::ConstShared
     return;
   }
 
+  // コマンドを作成
+  if (!angle_cmd_) {
+    angle_cmd_ = std::make_unique<tobas_command_msgs::Angle>();
+  }
+
   // コマンドを更新
-  angle_cmd_ = std::make_shared<tobas_command_msgs::Angle>(*angle_cmd);
+  *angle_cmd_ = *angle_cmd;
 }
 
 void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPtr& rate_cmd)
@@ -574,44 +595,49 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
   // 外側の制御を止める
   angle_cmd_.reset();
 
+  // コマンドを作成
+  if (!rate_cmd_) {
+    rate_cmd_ = std::make_unique<tobas_command_msgs::Rate>();
+  }
+
   // コマンドを更新
-  rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>(*rate_cmd);
+  *rate_cmd_ = *rate_cmd;
 }
 
 void ControllerNode::checkTopicsTimerCb()
 {
   if (!drone_received_) {
-    TOBAS_WARN("Waiting for \"", kDroneTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
     return;
   }
 
   if (!tree_received_) {
-    TOBAS_WARN("Waiting for \"", kKdlTreeTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
     return;
   }
 
   if (!odom_) {
-    TOBAS_WARN("Waiting for \"", kOdometryTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kOdometry, "\".");
     return;
   }
 
   if (dist_force_sub_ && !dist_force_) {
-    TOBAS_WARN("Waiting for \"", kDisturbanceForceTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kDisturbanceForce, "\".");
     return;
   }
 
   if (js_sub_ && !js_received_) {
-    TOBAS_WARN("Waiting for \"", kJointStatesTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kJointStates, "\".");
     return;
   }
 
   if (!landed_) {
-    TOBAS_WARN("Waiting for \"", kLandedTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kLanded, "\".");
     return;
   }
 
   if (!arming_) {
-    TOBAS_WARN("Waiting for \"", kArmingTopic, "\".");
+    TOBAS_WARN("Waiting for \"", topic::kArming, "\".");
     return;
   }
 

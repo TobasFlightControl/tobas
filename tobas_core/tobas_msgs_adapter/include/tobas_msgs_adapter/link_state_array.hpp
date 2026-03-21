@@ -15,6 +15,8 @@ struct LinkStateArray
 
   using SharedPtr = std::shared_ptr<LinkStateArray>;
   using ConstSharedPtr = std::shared_ptr<const LinkStateArray>;
+  using UniquePtr = std::unique_ptr<LinkStateArray>;
+  using ConstUniquePtr = std::unique_ptr<const LinkStateArray>;
 };
 }  // namespace tobas_msgs
 

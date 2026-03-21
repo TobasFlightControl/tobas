@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_trajectory_generation/online/velocity_limited.hpp>
+
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
 
 #include "./base_controller.hpp"
@@ -20,12 +22,12 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
-  kdl::Vector tar_acc_G_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator ax_filt_, ay_filt_;
   double tar_yaw_;
 
   // rosparams
@@ -40,10 +42,11 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::AccelYaw> cmd_pub_;
 
   bool maxHorizontalAccelCb(const double& p);
+  bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxHeadingRateCb(const long& p);
-  bool horizontalAccelExpoCb(const long& p);
-  bool verticalAccelExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
+  bool maxHeadingRateCb(const double& p);
+  bool horizontalAccelExpoCb(const double& p);
+  bool verticalAccelExpoCb(const double& p);
+  bool headingExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

@@ -18,6 +18,8 @@ struct AccelPitchYaw
 
   using SharedPtr = std::shared_ptr<AccelPitchYaw>;
   using ConstSharedPtr = std::shared_ptr<const AccelPitchYaw>;
+  using UniquePtr = std::unique_ptr<AccelPitchYaw>;
+  using ConstUniquePtr = std::unique_ptr<const AccelPitchYaw>;
 };
 }  // namespace tobas_command_msgs
 

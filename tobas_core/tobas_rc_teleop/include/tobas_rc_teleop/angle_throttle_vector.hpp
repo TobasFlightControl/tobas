@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_trajectory_generation/online/velocity_limited.hpp>
+
 #include <tobas_command_msgs_adapter/angle_throttle_vector.hpp>
 
 #include "./base_controller.hpp"
@@ -20,29 +22,37 @@ public:
   bool requireHeading() override;
 
   void initialize(tobas::BaseNode* node, tobas::FlightMode mode) override;
-  void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  double yaw_;
   rclcpp::Time t_last_rcin_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_, thrust_angle_filt_;
+  double tar_yaw_;
 
   // rosparams
-  double max_attitude_;      // [rad]
-  double max_head_rate_;     // [rad/s]
+  double max_roll_;          // [rad]
+  double max_pitch_;         // [rad]
+  double max_yaw_rate_;      // [rad/s]
   double max_thrust_angle_;  // [rad]
-  double atti_expo_;
-  double head_expo_;
+  double roll_expo_;
+  double yaw_expo_;
   double throt_expo_;
+  double thrust_angle_expo_;
 
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottleVector> cmd_pub_;
 
-  bool maxAttitudeCb(const long& p);
-  bool maxHeadingRateCb(const long& p);
-  bool maxThrustAngleCb(const long& p);
-  bool attitudeExpoCb(const long& p);
-  bool headingExpoCb(const long& p);
-  bool throttleExpoCb(const long& p);
+  bool maxRollCb(const double& p);
+  bool maxRollRateCb(const double& p);
+  bool maxPitchCb(const double& p);
+  bool maxPitchRateCb(const double& p);
+  bool maxYawRateCb(const double& p);
+  bool maxThrustAngleCb(const double& p);
+  bool maxThrustAngleRateCb(const double& p);
+  bool rollExpoCb(const double& p);
+  bool yawExpoCb(const double& p);
+  bool throttleExpoCb(const double& p);
+  bool thrustAngleExpoCb(const double& p);
 };
 }  // namespace tobas_rc_teleop

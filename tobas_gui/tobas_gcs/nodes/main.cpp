@@ -8,11 +8,6 @@
 #include "tobas_gcs/gcs.hpp"
 #include "tobas_gcs/util.hpp"
 
-static void sigIntHandler(int)
-{
-  QApplication::quit();
-}
-
 int main(int argc, char** argv)
 {
   // X11を強制
@@ -34,7 +29,7 @@ int main(int argc, char** argv)
   main.show();
 
   // Ctrl+Cで即終了
-  signal(SIGINT, sigIntHandler);
+  signal(SIGINT, [](int) { QApplication::quit(); });
 
   // アプリケーションの終了時に全てのノードを落とす
   const auto result = qapp.exec();

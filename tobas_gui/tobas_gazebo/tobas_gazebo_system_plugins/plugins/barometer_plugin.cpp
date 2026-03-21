@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -77,7 +77,7 @@ void GazeboBarometerPlugin::Configure(
   rate_manager_ = std::make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., noise_stddev_);
 
-  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
+  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::topic::kAirPressure);
 }
 
 void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

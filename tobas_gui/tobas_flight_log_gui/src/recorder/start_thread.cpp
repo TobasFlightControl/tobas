@@ -1,6 +1,6 @@
 #include "tobas_flight_log_gui/recorder/start_thread.hpp"
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
@@ -18,7 +18,7 @@ RecordStartThread::RecordStartThread(rclcpp::Node::SharedPtr node) : node_(node)
 void RecordStartThread::run()
 {
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kRosbagRecordStartSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceNS, tobas::service::kRosbagRecordStart));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name_;

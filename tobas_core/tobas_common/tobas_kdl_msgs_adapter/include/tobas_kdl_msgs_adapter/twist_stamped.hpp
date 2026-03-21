@@ -17,6 +17,8 @@ struct TwistStamped
 
   using SharedPtr = std::shared_ptr<TwistStamped>;
   using ConstSharedPtr = std::shared_ptr<const TwistStamped>;
+  using UniquePtr = std::unique_ptr<TwistStamped>;
+  using ConstUniquePtr = std::unique_ptr<const TwistStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

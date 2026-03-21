@@ -7,7 +7,6 @@
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 
 namespace eskf
@@ -278,7 +277,6 @@ private:
   getVelocity(const StateVector& x, const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
   inline Eigen::Quaterniond getQuaternion(const StateVector& x) const;
   inline Eigen::Matrix3d getDCM(const StateVector& x) const;
-  inline Eigen::Vector3d getEuler(const StateVector& x) const;
   inline Eigen::Vector3d getGravVector(const StateVector& x) const;
 
   /* (281) */
@@ -488,14 +486,6 @@ inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion(const StateVecto
 inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM(const StateVector& x) const
 {
   return getQuaternion(x).toRotationMatrix();
-}
-
-inline Eigen::Vector3d ErrorStateKalmanFilter::getEuler(const StateVector& x) const
-{
-  Eigen::Vector3d rpy;
-  const auto q = getQuaternion(x);
-  tbs::eulerFromQuaternion(q.x(), q.y(), q.z(), q.w(), rpy.x(), rpy.y(), rpy.z());
-  return rpy;
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getGravVector(const StateVector& x) const

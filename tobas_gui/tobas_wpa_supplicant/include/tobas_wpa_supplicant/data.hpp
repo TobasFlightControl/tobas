@@ -11,9 +11,9 @@ namespace wpa
 {
 struct Data
 {
-  CountryCode country;
-  std::string ctrl_interface;
-  bool update_config;
+  CountryCode country = JP;
+  std::string ctrl_interface = "DIR=/var/run/wpa_supplicant";
+  bool update_config = true;
   std::vector<Network> networks;
 };
 }  // namespace wpa

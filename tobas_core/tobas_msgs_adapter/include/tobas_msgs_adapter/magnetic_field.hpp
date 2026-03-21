@@ -14,6 +14,8 @@ struct MagneticField
 
   using SharedPtr = std::shared_ptr<MagneticField>;
   using ConstSharedPtr = std::shared_ptr<const MagneticField>;
+  using UniquePtr = std::unique_ptr<MagneticField>;
+  using ConstUniquePtr = std::unique_ptr<const MagneticField>;
 };
 }  // namespace tobas_msgs
 

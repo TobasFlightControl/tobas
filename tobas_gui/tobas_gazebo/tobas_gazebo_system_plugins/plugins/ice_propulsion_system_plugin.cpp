@@ -1,4 +1,5 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/throttle.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -207,8 +208,8 @@ void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& s
 
 void GazeboIcePropulsionSystemPlugin::registerPubSub()
 {
-  latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(tobas::kControlLatencyTopic);
-  engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(tobas::kEngineStateTopic);
+  latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(tobas::topic::kControlLatency);
+  engine_state_pub_ = createPublisher<tobas_msgs::msg::EngineState>(tobas::topic::kEngineState);
   engine_state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::EngineState>(kEngineStateGtTopic);
 
   for (auto& [link_name, _] : rotors_) {
@@ -218,7 +219,7 @@ void GazeboIcePropulsionSystemPlugin::registerPubSub()
       createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name));
   }
 
-  ice_cmd_sub_ = createSubscriber(tobas::kIcePropulsionSystemCmdTopic, &self::iceCommandCb, this);
+  ice_cmd_sub_ = createSubscriber(tobas::topic::kIcePropulsionSystemCmd, &self::iceCommandCb, this);
   wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
 

@@ -2,7 +2,7 @@
 
 #include <rclcpp/wait_for_message.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_keyboard/utils.hpp>
 #include <tobas_mission_items/mission_items.hpp>
@@ -12,16 +12,16 @@
 #include <tobas_std_tools/byte.hpp>
 #include <tobas_std_tools/range.hpp>
 
-#include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_mission_msgs/action/execute_mission.hpp>
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 using namespace std::chrono_literals;
 
 bool takeoff(rclcpp::Node::SharedPtr node)
 {
   // アクションクライアントを作成
-  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::kExecuteMissionAction);
+  ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
 
   // ゴールを作成
   tobas::mission::Takeoff takeoff;
@@ -56,12 +56,12 @@ bool takeoff(rclcpp::Node::SharedPtr node)
 
 std::expected<kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPtr node)
 {
-  tobas_msgs::Odometry odom;
-  if (!rclcpp::wait_for_message(odom, node, tobas::kOdometryTopic, 1s, ros2::makeQoS())) {
+  tobas_msgs::OdometryWithCovarianceStamped odom;
+  if (!rclcpp::wait_for_message(odom, node, tobas::topic::kOdometry, 1s, ros2::qos::DefaultQoS())) {
     return std::unexpected("Failed to get the current odometry.");
   }
 
-  return odom.frame;
+  return odom.odom.odom.frame;
 }
 
 int main(int argc, char** argv)
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   keyboard::KeyboardReader key_reader;
 
   // コマンドパブリッシャーを登録
-  const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node, tobas::kPosVelYawCmdTopic);
+  const auto cmd_pub = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
 
   // 説明文の表示を開始
   constexpr char kInstructionText[] = "Control your drone!\n"
@@ -176,11 +176,12 @@ int main(int argc, char** argv)
     }
 
     // コマンドを発行
-    auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
+    auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
     cmd->header.stamp = node->now();
     cmd->priority.data = tobas_command_msgs::msg::Priority::NORMAL;
     cmd->pos = cmd_pos;
     cmd->vel.setZero();
+    cmd->acc.setZero();
     cmd->yaw = cmd_yaw;
     cmd_pub->publish(std::move(cmd));
   }

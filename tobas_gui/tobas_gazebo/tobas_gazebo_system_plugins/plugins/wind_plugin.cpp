@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/frame.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
@@ -161,7 +161,7 @@ void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // 風速メッセージを作成
   auto wind_msg = std::make_unique<tobas_msgs::Wind>();
-  wind_msg->header.frame_id = tobas::kWorldFrame;
+  wind_msg->header.frame_id = tobas::frame::kWorld;
   vectorGazeboToKDL(wind_W, wind_msg->vel);
 
   // 風速を発行

@@ -1,8 +1,8 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter_p1.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 #include <tobas_tools/imu_sampling_time_publisher.hpp>
 
 #include <tobas_msgs/srv/configure_imu_filter.hpp>
@@ -50,7 +50,8 @@ private:
   void mainTimerCb();
 };
 
-ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_imu_driver", options)
+ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_imu_driver", nodeOptions_Default(options))
 {
   prev_gyro_raw_.setZero();
 
@@ -127,12 +128,12 @@ void ImuDriverNode::initializeTimerCb()
     return;
   }
 
-  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuRawTopic);
-  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::kImuFiltTopic);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
   sampling_time_pub_.initialize(shared_from_this(), now());
 
   config_ss_ = createService<tobas_msgs::srv::ConfigureImuFilter>(
-    tobas::kConfigureImuFilterSrv, &self::configureImuFilterCb, this);
+    tobas::service::kConfigureImuFilter, &self::configureImuFilterCb, this);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);

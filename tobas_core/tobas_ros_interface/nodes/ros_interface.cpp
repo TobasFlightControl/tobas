@@ -1,7 +1,9 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/node.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_real_common/constants.hpp>
+#include <tobas_real_common/handler.hpp>
+#include <tobas_real_common/ros_interface.hpp>
 #include <tobas_tools/util.hpp>
 
 #include <std_srvs/srv/trigger.hpp>
@@ -11,9 +13,9 @@
 #include <tobas_command_msgs/msg/accel_yaw.hpp>
 #include <tobas_command_msgs/msg/angle.hpp>
 #include <tobas_command_msgs/msg/angle_throttle.hpp>
-#include <tobas_command_msgs/msg/pos_vel.hpp>
-#include <tobas_command_msgs/msg/pos_vel_pitch_yaw.hpp>
-#include <tobas_command_msgs/msg/pos_vel_yaw.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc_pitch_yaw.hpp>
+#include <tobas_command_msgs/msg/pos_vel_acc_yaw.hpp>
 #include <tobas_command_msgs/msg/rate.hpp>
 #include <tobas_command_msgs/msg/rate_throttle.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
@@ -35,7 +37,7 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field.hpp>
 #include <tobas_msgs/msg/message.hpp>
-#include <tobas_msgs/msg/odometry.hpp>
+#include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -172,84 +174,90 @@ private:
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& gh);
 };
 
-RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
+RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
+  : super("ros_interface", nodeOptions_Default(options))
 {
   // サービスコールバックを再帰的に呼んだ際のデッドロックを回避
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
   group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
   // Topics (Logic -> Interface)
-  addTopicLogicToIface<tobas_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
-  addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
-  addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKdlTreeTopic, tobas::kKdlTreeTopic, true, true);
-  addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(tobas::kBatteryTopic), tobas::kBatteryTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Message>(tobas::topic::kMessage, tobas::topic::kMessage);
+  addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::topic::kDrone, tobas::topic::kDrone, true, true);
+  addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::topic::kKdlTree, tobas::topic::kKdlTree, true, true);
+  addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(tobas::topic::kBattery), tobas::topic::kBattery);
   addTopicLogicToIface<tobas_msgs::msg::EngineState>(
-    tobas::addThrotNS(tobas::kEngineStateTopic), tobas::kEngineStateTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCpuTopic, tobas::kCpuTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(tobas::kSbusTopic), tobas::kSbusTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(tobas::kRcInputTopic), tobas::kRcInputTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(tobas::kImuFiltTopic), tobas::kImuFiltTopic);
-  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(tobas::addThrotNS(tobas::kMagTopic), tobas::kMagTopic);
+    tobas::addThrotNS(tobas::topic::kEngineState), tobas::topic::kEngineState);
+  addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::topic::kCpu, tobas::topic::kCpu);
+  addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(tobas::topic::kSbus), tobas::topic::kSbus);
+  addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(tobas::topic::kRcInput), tobas::topic::kRcInput);
+  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(tobas::topic::kImuFilt), tobas::topic::kImuFilt);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(
+    tobas::addThrotNS(tobas::topic::kMagneticField), tobas::topic::kMagneticField);
   addTopicLogicToIface<tobas_msgs::msg::FluidPressure>(
-    tobas::addThrotNS(tobas::kAirPressureTopic), tobas::kAirPressureTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Gnss>(tobas::kGnssTopic, tobas::kGnssTopic);
+    tobas::addThrotNS(tobas::topic::kAirPressure), tobas::topic::kAirPressure);
+  addTopicLogicToIface<tobas_msgs::msg::Gnss>(tobas::topic::kGnss, tobas::topic::kGnss);
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
-    tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivTopic, tobas::kRotorLivTopic);
+    tobas::addThrotNS(tobas::topic::kRotorStates), tobas::topic::kRotorStates);
+  addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(tobas::topic::kRotorLiv, tobas::topic::kRotorLiv);
   addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
-    tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Odometry>(tobas::addThrotNS(tobas::kOdometryTopic), tobas::kOdometryTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Arming>(tobas::kArmingTopic, tobas::kArmingTopic);
-  addTopicLogicToIface<tobas_msgs::msg::VehicleHealth>(tobas::kVehicleHealthTopic, tobas::kVehicleHealthTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(real::kImuRawTopic), real::kImuRawTopic);
-  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);
+    tobas::addThrotNS(tobas::topic::kJointStates), tobas::topic::kJointStates);
+  addTopicLogicToIface<tobas_msgs::msg::OdometryWithCovarianceStamped>(
+    tobas::addThrotNS(tobas::topic::kOdometry), tobas::topic::kOdometry);
+  addTopicLogicToIface<tobas_msgs::msg::Arming>(tobas::topic::kArming, tobas::topic::kArming);
+  addTopicLogicToIface<tobas_msgs::msg::VehicleHealth>(tobas::topic::kVehicleHealth, tobas::topic::kVehicleHealth);
+  addTopicLogicToIface<tobas_msgs::msg::Imu>(tobas::addThrotNS(real::topic::kImuRaw), real::topic::kImuRaw);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticField>(
+    tobas::addThrotNS(real::topic::kMagneticField), real::topic::kMagneticField);
+  addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::topic::kRosbagState, tobas::topic::kRosbagState);
 
   // Topics (Interface -> Logic)
   addTopicIfaceToLogic<tobas_kdl_msgs::msg::FrameWithCovarianceStamped>(
-    tobas::kExternalPoseTopic, tobas::kExternalPoseTopic);
-  addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
+    tobas::topic::kExternalPose, tobas::topic::kExternalPose);
+  addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::topic::kRotorSpeedsCmd, tobas::topic::kRotorSpeedsCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::IcePropulsionSystemCommand>(
-    tobas::kIcePropulsionSystemCmdTopic, tobas::kIcePropulsionSystemCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::Rate>(tobas::kRateCmdTopic, tobas::kRateCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::RateThrottle>(tobas::kRateThrotCmdTopic, tobas::kRateThrotCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::Angle>(tobas::kAngleCmdTopic, tobas::kAngleCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrotCmdTopic, tobas::kAngleThrotCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::Accel>(tobas::kAccelCmdTopic, tobas::kAccelCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::AccelYaw>(tobas::kAccelYawCmdTopic, tobas::kAccelYawCmdTopic);
+    tobas::topic::kIcePropulsionSystemCmd, tobas::topic::kIcePropulsionSystemCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::Rate>(tobas::topic::kRateCmd, tobas::topic::kRateCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::RateThrottle>(tobas::topic::kRateThrotCmd, tobas::topic::kRateThrotCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::Angle>(tobas::topic::kAngleCmd, tobas::topic::kAngleCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::AngleThrottle>(
+    tobas::topic::kAngleThrotCmd, tobas::topic::kAngleThrotCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::Accel>(tobas::topic::kAccelCmd, tobas::topic::kAccelCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::AccelYaw>(tobas::topic::kAccelYawCmd, tobas::topic::kAccelYawCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::AccelPitchYaw>(
-    tobas::kAccelPitchYawCmdTopic, tobas::kAccelPitchYawCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVel>(tobas::kPosVelCmdTopic, tobas::kPosVelCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelYaw>(tobas::kPosVelYawCmdTopic, tobas::kPosVelYawCmdTopic);
-  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelPitchYaw>(
-    tobas::kPosVelPitchYawCmdTopic, tobas::kPosVelPitchYawCmdTopic);
+    tobas::topic::kAccelPitchYawCmd, tobas::topic::kAccelPitchYawCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAcc>(tobas::topic::kPosVelAccCmd, tobas::topic::kPosVelAccCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAccYaw>(
+    tobas::topic::kPosVelAccYawCmd, tobas::topic::kPosVelAccYawCmd);
+  addTopicIfaceToLogic<tobas_command_msgs::msg::PosVelAccPitchYaw>(
+    tobas::topic::kPosVelAccPitchYawCmd, tobas::topic::kPosVelAccPitchYawCmd);
   addTopicIfaceToLogic<tobas_command_msgs::msg::SpeedRollDeltaPitch>(
-    tobas::kSpeedRollDpitchCmdTopic, tobas::kSpeedRollDpitchCmdTopic);
-  addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic, tobas::kJointPosCmdTopic);
-  addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic, tobas::kJointVelCmdTopic);
-  addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic, tobas::kJointEffCmdTopic);
+    tobas::topic::kSpeedRollDpitchCmd, tobas::topic::kSpeedRollDpitchCmd);
+  addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointPosCmd, tobas::topic::kJointPosCmd);
+  addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointVelCmd, tobas::topic::kJointVelCmd);
+  addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::topic::kJointEffCmd, tobas::topic::kJointEffCmd);
 
   // Services
-  addService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
-  addService<tobas_msgs::srv::GetGnssOrigin>(tobas::kGetGnssOriginSrv);
-  addService<tobas_msgs::srv::SetGnssOrigin>(tobas::kSetGnssOriginSrv);
-  addService<tobas_msgs::srv::BagRecordStart>(tobas::kRosbagRecordStartSrv);
-  addService<tobas_msgs::srv::BagRecordStop>(tobas::kRosbagRecordStopSrv);
-  addService<std_srvs::srv::Trigger>(tobas::kRosbagCleanSrv);
-  addService<tobas_msgs::srv::GetRotorControlGains>(tobas::kGetRotorControlGainsSrv);
-  addService<tobas_msgs::srv::SetRotorControlGains>(tobas::kSetRotorControlGainsSrv);
-  addService<std_srvs::srv::Trigger>(tobas::kSaveRotorControlGainsSrv);
+  addService<tobas_msgs::srv::SetArm>(tobas::service::kSetArm);
+  addService<tobas_msgs::srv::GetGnssOrigin>(tobas::service::kGetGnssOrigin);
+  addService<tobas_msgs::srv::SetGnssOrigin>(tobas::service::kSetGnssOrigin);
+  addService<tobas_msgs::srv::BagRecordStart>(tobas::service::kRosbagRecordStart);
+  addService<tobas_msgs::srv::BagRecordStop>(tobas::service::kRosbagRecordStop);
+  addService<std_srvs::srv::Trigger>(tobas::service::kRosbagClean);
+  addService<tobas_msgs::srv::GetRotorControlGains>(tobas::service::kGetRotorControlGains);
+  addService<tobas_msgs::srv::SetRotorControlGains>(tobas::service::kSetRotorControlGains);
+  addService<std_srvs::srv::Trigger>(tobas::service::kSaveRotorControlGains);
   addService<tobas_dparam_msgs::srv::GetParams>(
-    path::join(tobas::node::kImuFilterConfigServer, tobas::kGetDynamicParamsSrv));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::kGetDynamicParamsSrv));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, tobas::kGetDynamicParamsSrv));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kRcTeleop, tobas::kGetDynamicParamsSrv));
+    path::join(tobas::node::kImuFilterConfigServer, tobas::service::kGetDynamicParams));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::service::kGetDynamicParams));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, tobas::service::kGetDynamicParams));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kRcTeleop, tobas::service::kGetDynamicParams));
   addService<tobas_real_msgs::srv::SetImuParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetRcInputParams>(real::handler::rcin::kSetParamSrv);
 
   // Actions
-  addAction<tobas_mission_msgs::action::ExecuteMission>(tobas::kExecuteMissionAction);
+  addAction<tobas_mission_msgs::action::ExecuteMission>(tobas::action::kExecuteMission);
 }
 
 template <typename MsgType>
@@ -262,7 +270,7 @@ void RosInterfaceNode::addTopic(
 {
   const auto topic = std::make_shared<Topic<MsgType>>();
 
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  const ros2::qos::QoS qos(latch, reliable, queue_size);
 
   // Create publisher
   topic->publisher = create_publisher<MsgType>(pub_topic, qos);
@@ -461,6 +469,7 @@ void RosInterfaceNode::actionHandleAccepted(
     case rclcpp_action::ResultCode::ABORTED:
       server_gh->abort(res.result);
       break;
+    case rclcpp_action::ResultCode::UNKNOWN:
     default:
       TOBAS_ERROR("Invalid action result code: ", (int)res.code);
       server_gh->abort(res.result);

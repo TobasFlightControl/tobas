@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
@@ -100,7 +100,7 @@ void GazeboMagnetometerPlugin::Configure(
 
   noise_ = std::make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::topic::kMagneticField);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

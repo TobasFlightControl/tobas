@@ -28,7 +28,7 @@ kdl::Vector AngleAxisPDD2::update(
   const auto ea = tar_dgyro - cur_dgyro;
 
   // Compute command ddgyro
-  const auto cmd_ddgyro = (kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea)).clamp(-max_ddgyro_, max_ddgyro_);
+  const auto cmd_ddgyro = kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea);
 
   // Integrate command ddgyro
   cmd_dgyro_ += cmd_ddgyro * dt;
@@ -82,22 +82,6 @@ bool AngleAxisPDD2::setDampingRatio(int idx, double value)
 
   xi_(idx) = value;
   updateGain();
-
-  return true;
-}
-
-bool AngleAxisPDD2::setMaximumDDGyro(int idx, double value)
-{
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value <= 0.) {
-    cerr << "Maximum DD-Gyro must be positive." << endl;
-    return false;
-  }
-
-  max_ddgyro_(idx) = value;
 
   return true;
 }

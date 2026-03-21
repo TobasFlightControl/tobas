@@ -24,15 +24,9 @@ sudo systemctl enable hostapd.service
 sudo iptables -t nat -A POSTROUTING -s 192.168.249.0/24 ! -d 192.168.249.0/24 -j MASQUERADE
 sudo netfilter-persistent save
 
-# Disable Bluetooth HCI (Host Controller Interface) to enable GPIO UART
-sudo systemctl disable hciuart.service
-
-# Disable swap because the access speed to SD card is too slow
-sudo systemctl disable dphys-swapfile.service
-
-# Disable NetworkManager to use wpa_supplicant
+# Use WPA Supplicant instead of NetworkManager
 sudo systemctl disable NetworkManager.service
+sudo systemctl enable wpa_supplicant-nl80211@wlan0.service
 
 # Enable Tobas services
 sudo systemctl enable tobas_network_wait_online.service
-sudo systemctl enable tobas_real.target

@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/heartbeat.hpp>
@@ -22,9 +22,10 @@ private:
   void mainTimerCb();
 };
 
-HeartbeatSenderNode::HeartbeatSenderNode(const rclcpp::NodeOptions& options) : super("heartbeat_sender", options)
+HeartbeatSenderNode::HeartbeatSenderNode(const rclcpp::NodeOptions& options)
+  : super("heartbeat_sender", nodeOptions_Default(options))
 {
-  heartbeat_pub_ = createPublisher<tobas_msgs::msg::Heartbeat>(tobas::kHeartbeatTopic);
+  heartbeat_pub_ = createPublisher<tobas_msgs::msg::Heartbeat>(tobas::topic::kHeartbeat);
   main_timer_ = createTimer(kPublishPeriod, &self::mainTimerCb, this);
 }
 

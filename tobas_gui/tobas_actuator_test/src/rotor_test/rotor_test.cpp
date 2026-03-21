@@ -2,7 +2,7 @@
 
 #include <boost/polymorphic_pointer_cast.hpp>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -136,14 +136,14 @@ void RotorTestWidget::updateInternalDataStructures()
     }
 
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::topic::kRotorSpeedsCmd));
 
     get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kGetRotorControlGainsSrv));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kGetRotorControlGains));
     set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetRotorControlGainsSrv));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kSetRotorControlGains));
     save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSaveRotorControlGainsSrv));
+      node_, path::join(drone_.name, tobas::kRemoteIfaceNS, tobas::service::kSaveRotorControlGains));
   }
   else {
     eprop_.reset();
@@ -214,7 +214,7 @@ void RotorTestWidget::onStartButtonClicked()
 
   // アームされていないことを確認
   if (!arming_) {
-    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
     return;
   }
   if (arming_->data) {

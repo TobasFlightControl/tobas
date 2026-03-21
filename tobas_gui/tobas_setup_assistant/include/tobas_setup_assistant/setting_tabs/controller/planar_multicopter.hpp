@@ -35,7 +35,6 @@ public:
 private:
   QCheckBox* do_dist_comp_trans_;
   QCheckBox* do_dist_comp_rot_;
-  QCheckBox* standard_second_order_form_tuning_;
 };
 }  // namespace ctrl
 }  // namespace sa

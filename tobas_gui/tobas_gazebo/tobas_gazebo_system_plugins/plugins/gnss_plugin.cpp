@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_math/core.hpp>
@@ -115,7 +115,7 @@ void GazeboGnssPlugin::Configure(
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
   gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::topic::kGnss);
 }
 
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

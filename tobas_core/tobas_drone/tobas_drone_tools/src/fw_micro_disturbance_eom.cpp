@@ -1,8 +1,8 @@
 #include "tobas_drone_tools/fw_micro_disturbance_eom.hpp"
 
+#include <format>
 #include <ranges>
 
-#include <tobas_constants/constants.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_std_tools/map.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -224,7 +224,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     if (thrust > max_thrust) {
       if (error_code_ > kWarn) {
         error_code_ = kWarn;
-        error_msg_ = format("Thrust force of \"{}\" is too large: {} > {}", link_name, thrust, max_thrust);
+        error_msg_ = std::format("Thrust force of \"{}\" is too large: {} > {}", link_name, thrust, max_thrust);
       }
       thrust = max_thrust;
     }

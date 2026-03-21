@@ -1,4 +1,4 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
 #include <tobas_fc1xx_core/ilps22qs.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 
@@ -27,7 +27,8 @@ private:
   void mainTimerCb();
 };
 
-BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_baro_driver", options)
+BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_baro_driver", nodeOptions_Default(options))
 {
   initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
 }
@@ -39,7 +40,7 @@ void BaroDriverNode::initialize()
     return;
   }
 
-  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(tobas::topic::kAirPressure);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);

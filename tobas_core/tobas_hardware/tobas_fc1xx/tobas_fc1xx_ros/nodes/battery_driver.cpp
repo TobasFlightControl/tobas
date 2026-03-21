@@ -1,4 +1,5 @@
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_fc1xx_core/battery.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 
@@ -29,7 +30,8 @@ private:
   void mainTimerCb();
 };
 
-BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options) : super("fc1xx_battery_driver", options)
+BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options)
+  : super("fc1xx_battery_driver", nodeOptions_Default(options))
 {
   initialize_timer_ = createWallTimer(fc1xx::kRetryInitializationInterval, &self::initialize, this);
 }
@@ -41,7 +43,7 @@ void BatteryDriverNode::initialize()
     return;
   }
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::topic::kBattery);
 
   initialize_timer_->cancel();
   main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
