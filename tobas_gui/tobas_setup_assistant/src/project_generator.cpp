@@ -1091,7 +1091,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     root_name,
     fmu->gnssUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
-    0.1,
+    0.1,  // GNSS衛星からの電波が地上に到達するまでの時間は概ね決まっている
     30.,  // TODO: GNSS位置の相関時定数は実際どれくらいだろうか
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
