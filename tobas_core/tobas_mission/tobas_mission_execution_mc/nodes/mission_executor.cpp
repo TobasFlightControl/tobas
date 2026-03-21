@@ -436,7 +436,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
         gh->abort(res);
         return false;
       }
-      goal_pos.z(goal.altitude - launch_point_->z());
+      goal_pos.z(goal.altitude + launch_point_->z());
       break;
     case kMeanSeaLevel:  // TODO
       res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
