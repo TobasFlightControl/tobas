@@ -17,7 +17,7 @@ namespace
 template <typename T>
 std::string toString(const T& data)
 {
-  return to_string(data);
+  return std::to_string(data);
 }
 
 template <>
@@ -29,8 +29,7 @@ std::string toString<std::string>(const std::string& data)
 template <>
 std::string toString<double>(const double& data)
 {
-  // 最適な表記方法を自動判定
-  return std::format("{}", data);
+  return std::format("{:.{}g}", data, 9);
 }
 
 template <>
@@ -95,12 +94,12 @@ void addBatteryPlugin(
 {
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_battery_plugin", "gazebo::GazeboBatteryPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
-  plugin->InsertNewChildElement("maxVoltage")->SetText(max_voltage);
-  plugin->InsertNewChildElement("sagVoltage")->SetText(sag_voltage);
-  plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
-  plugin->InsertNewChildElement("currentCapacity")->SetText(current_capacity);
-  plugin->InsertNewChildElement("internalRegistance")->SetText(internal_registance);
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
+  plugin->InsertNewChildElement("maxVoltage")->SetText(toString(max_voltage).c_str());
+  plugin->InsertNewChildElement("sagVoltage")->SetText(toString(sag_voltage).c_str());
+  plugin->InsertNewChildElement("maxCurrent")->SetText(toString(max_current).c_str());
+  plugin->InsertNewChildElement("currentCapacity")->SetText(toString(current_capacity).c_str());
+  plugin->InsertNewChildElement("internalRegistance")->SetText(toString(internal_registance).c_str());
   addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 
@@ -121,14 +120,14 @@ void addImuPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "gazebo::GazeboImuPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("gyroNoiseDensity")->SetText(gyro_noise_density);
-  plugin->InsertNewChildElement("gyroRandomWalk")->SetText(gyro_random_walk);
-  plugin->InsertNewChildElement("gyroBiasCorrelationTime")->SetText(gyro_bias_corr_time);
-  plugin->InsertNewChildElement("accelNoiseDensity")->SetText(acc_noise_density);
-  plugin->InsertNewChildElement("accelRandomWalk")->SetText(acc_random_walk);
-  plugin->InsertNewChildElement("accelBiasCorrelationTime")->SetText(acc_bias_corr_time);
+  plugin->InsertNewChildElement("gyroNoiseDensity")->SetText(toString(gyro_noise_density).c_str());
+  plugin->InsertNewChildElement("gyroRandomWalk")->SetText(toString(gyro_random_walk).c_str());
+  plugin->InsertNewChildElement("gyroBiasCorrelationTime")->SetText(toString(gyro_bias_corr_time).c_str());
+  plugin->InsertNewChildElement("accelNoiseDensity")->SetText(toString(acc_noise_density).c_str());
+  plugin->InsertNewChildElement("accelRandomWalk")->SetText(toString(acc_random_walk).c_str());
+  plugin->InsertNewChildElement("accelBiasCorrelationTime")->SetText(toString(acc_bias_corr_time).c_str());
   addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 
@@ -144,10 +143,10 @@ void addMagnetometerPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "gazebo::GazeboMagnetometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
-  plugin->InsertNewChildElement("hardBiasNorm")->SetText(hard_bias_norm);
+  plugin->InsertNewChildElement("noiseStddev")->SetText(toString(noise_stddev).c_str());
+  plugin->InsertNewChildElement("hardBiasNorm")->SetText(toString(hard_bias_norm).c_str());
 }
 
 void addBarometerPlugin(
@@ -161,9 +160,9 @@ void addBarometerPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "gazebo::GazeboBarometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
+  plugin->InsertNewChildElement("noiseStddev")->SetText(toString(noise_stddev).c_str());
 }
 
 void addGnssPlugin(
@@ -182,14 +181,14 @@ void addGnssPlugin(
   const auto plugin = addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
   plugin->InsertNewChildElement("offset")->SetText(toString(offset).c_str());
-  plugin->InsertNewChildElement("delay")->SetText(delay);
-  plugin->InsertNewChildElement("positionCorrTime")->SetText(position_corr_time);
-  plugin->InsertNewChildElement("horPosAccuracy")->SetText(hor_pos_accuracy);
-  plugin->InsertNewChildElement("verPosAccuracy")->SetText(ver_pos_accuracy);
-  plugin->InsertNewChildElement("horVelStdDev")->SetText(hor_vel_stddev);
-  plugin->InsertNewChildElement("verVelStdDev")->SetText(ver_vel_stddev);
+  plugin->InsertNewChildElement("delay")->SetText(toString(delay).c_str());
+  plugin->InsertNewChildElement("positionCorrTime")->SetText(toString(position_corr_time).c_str());
+  plugin->InsertNewChildElement("horPosAccuracy")->SetText(toString(hor_pos_accuracy).c_str());
+  plugin->InsertNewChildElement("verPosAccuracy")->SetText(toString(ver_pos_accuracy).c_str());
+  plugin->InsertNewChildElement("horVelStdDev")->SetText(toString(hor_vel_stddev).c_str());
+  plugin->InsertNewChildElement("verVelStdDev")->SetText(toString(ver_vel_stddev).c_str());
 }
 
 void addElectricPropulsionSystemPlugin(
@@ -209,14 +208,14 @@ void addElectricPropulsionSystemPlugin(
     robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-  plugin->InsertNewChildElement("kv")->SetText(kv);
+  plugin->InsertNewChildElement("kv")->SetText(toString(kv).c_str());
   plugin->InsertNewChildElement("internalResistance")->SetText(internal_resistance);
-  plugin->InsertNewChildElement("numberOfBlades")->SetText(num_blades);
-  plugin->InsertNewChildElement("motorConstant")->SetText(motor_const);
-  plugin->InsertNewChildElement("momentConstant")->SetText(moment_const);
-  plugin->InsertNewChildElement("dragConstant")->SetText(drag_const);
+  plugin->InsertNewChildElement("numberOfBlades")->SetText(toString(num_blades).c_str());
+  plugin->InsertNewChildElement("motorConstant")->SetText(toString(motor_const).c_str());
+  plugin->InsertNewChildElement("momentConstant")->SetText(toString(moment_const).c_str());
+  plugin->InsertNewChildElement("dragConstant")->SetText(toString(drag_const).c_str());
   plugin->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(direction).c_str());
-  plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
+  plugin->InsertNewChildElement("maxCurrent")->SetText(toString(max_current).c_str());
 }
 
 void addIcePropulsionSystemPlugin(
@@ -233,19 +232,19 @@ void addIcePropulsionSystemPlugin(
   // robot/gazebo/plugin/engine
   const auto engine = plugin->InsertNewChildElement("engine");
   engine->InsertNewChildElement("engineConstant")->SetText(toString(engine_param.engine_const).c_str());
-  engine->InsertNewChildElement("timeConstUp")->SetText(engine_param.time_const_up);
-  engine->InsertNewChildElement("timeConstDown")->SetText(engine_param.time_const_down);
+  engine->InsertNewChildElement("timeConstUp")->SetText(toString(engine_param.time_const_up).c_str());
+  engine->InsertNewChildElement("timeConstDown")->SetText(toString(engine_param.time_const_down).c_str());
 
   // robot/gazebo/plugin/rotor
   for (const auto& rotor_param : rotor_params) {
     const auto rotor = plugin->InsertNewChildElement("rotor");
     rotor->InsertNewChildElement("linkName")->SetText(rotor_param.link_name.c_str());
     rotor->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(rotor_param.direction).c_str());
-    rotor->InsertNewChildElement("gearRatio")->SetText(rotor_param.gear_ratio);
-    rotor->InsertNewChildElement("numberOfBlades")->SetText(rotor_param.num_blades);
-    rotor->InsertNewChildElement("minPitchAngle")->SetText(rotor_param.pitch_angle_limit.lower);
-    rotor->InsertNewChildElement("maxPitchAngle")->SetText(rotor_param.pitch_angle_limit.upper);
-    rotor->InsertNewChildElement("maxPitchAngleRate")->SetText(rotor_param.max_pitch_angle_rate);
+    rotor->InsertNewChildElement("gearRatio")->SetText(toString(rotor_param.gear_ratio).c_str());
+    rotor->InsertNewChildElement("numberOfBlades")->SetText(toString(rotor_param.num_blades).c_str());
+    rotor->InsertNewChildElement("minPitchAngle")->SetText(toString(rotor_param.pitch_angle_limit.lower).c_str());
+    rotor->InsertNewChildElement("maxPitchAngle")->SetText(toString(rotor_param.pitch_angle_limit.upper).c_str());
+    rotor->InsertNewChildElement("maxPitchAngleRate")->SetText(toString(rotor_param.max_pitch_angle_rate).c_str());
 
     const auto& ct = rotor_param.motor_const;
     rotor->InsertNewChildElement("motorConstant")->SetText(toString(std::vector<double>{ ct.c0, ct.c1 }).c_str());
@@ -274,41 +273,41 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("baseLinkName")->SetText(base_link_name.c_str());
 
   // Vehicle
-  plugin->InsertNewChildElement("wingSurface")->SetText(vehicle.wing_surface);
-  plugin->InsertNewChildElement("wingSpan")->SetText(vehicle.wing_span);
-  plugin->InsertNewChildElement("meanAerodynamicChord")->SetText(vehicle.mac);
+  plugin->InsertNewChildElement("wingSurface")->SetText(toString(vehicle.wing_surface).c_str());
+  plugin->InsertNewChildElement("wingSpan")->SetText(toString(vehicle.wing_span).c_str());
+  plugin->InsertNewChildElement("meanAerodynamicChord")->SetText(toString(vehicle.mac).c_str());
   plugin->InsertNewChildElement("aerodynamicCenter")->SetText(toString(vehicle.ac.data).c_str());
-  plugin->InsertNewChildElement("lowerStallAngle")->SetText(vehicle.alpha_limit.lower);
-  plugin->InsertNewChildElement("upperStallAngle")->SetText(vehicle.alpha_limit.upper);
+  plugin->InsertNewChildElement("lowerStallAngle")->SetText(toString(vehicle.alpha_limit.lower).c_str());
+  plugin->InsertNewChildElement("upperStallAngle")->SetText(toString(vehicle.alpha_limit.upper).c_str());
 
   // Aerodynamic Coefficients
-  plugin->InsertNewChildElement("cLift0")->SetText(aerodynamics.c_lift_0);
-  plugin->InsertNewChildElement("cLiftAlpha")->SetText(aerodynamics.c_lift_alpha);
-  plugin->InsertNewChildElement("cDrag0")->SetText(aerodynamics.c_drag_0);
-  plugin->InsertNewChildElement("cDragAlpha")->SetText(aerodynamics.c_drag_alpha);
-  plugin->InsertNewChildElement("cSideBeta")->SetText(aerodynamics.c_side_beta);
-  plugin->InsertNewChildElement("cRollBeta")->SetText(aerodynamics.c_roll_beta);
-  plugin->InsertNewChildElement("cRollP")->SetText(aerodynamics.c_roll_p);
-  plugin->InsertNewChildElement("cRollR")->SetText(aerodynamics.c_roll_r);
-  plugin->InsertNewChildElement("cPitch0")->SetText(aerodynamics.c_pitch_0);
-  plugin->InsertNewChildElement("cPitchAlpha")->SetText(aerodynamics.c_pitch_alpha);
-  plugin->InsertNewChildElement("cPitchAbsBeta")->SetText(aerodynamics.c_pitch_abs_beta);
-  plugin->InsertNewChildElement("cPitchAlphaRate")->SetText(aerodynamics.c_pitch_alpha_rate);
-  plugin->InsertNewChildElement("cPitchQ")->SetText(aerodynamics.c_pitch_q);
-  plugin->InsertNewChildElement("cYawBeta")->SetText(aerodynamics.c_yaw_beta);
-  plugin->InsertNewChildElement("cYawP")->SetText(aerodynamics.c_yaw_p);
-  plugin->InsertNewChildElement("cYawR")->SetText(aerodynamics.c_yaw_r);
+  plugin->InsertNewChildElement("cLift0")->SetText(toString(aerodynamics.c_lift_0).c_str());
+  plugin->InsertNewChildElement("cLiftAlpha")->SetText(toString(aerodynamics.c_lift_alpha).c_str());
+  plugin->InsertNewChildElement("cDrag0")->SetText(toString(aerodynamics.c_drag_0).c_str());
+  plugin->InsertNewChildElement("cDragAlpha")->SetText(toString(aerodynamics.c_drag_alpha).c_str());
+  plugin->InsertNewChildElement("cSideBeta")->SetText(toString(aerodynamics.c_side_beta).c_str());
+  plugin->InsertNewChildElement("cRollBeta")->SetText(toString(aerodynamics.c_roll_beta).c_str());
+  plugin->InsertNewChildElement("cRollP")->SetText(toString(aerodynamics.c_roll_p).c_str());
+  plugin->InsertNewChildElement("cRollR")->SetText(toString(aerodynamics.c_roll_r).c_str());
+  plugin->InsertNewChildElement("cPitch0")->SetText(toString(aerodynamics.c_pitch_0).c_str());
+  plugin->InsertNewChildElement("cPitchAlpha")->SetText(toString(aerodynamics.c_pitch_alpha).c_str());
+  plugin->InsertNewChildElement("cPitchAbsBeta")->SetText(toString(aerodynamics.c_pitch_abs_beta).c_str());
+  plugin->InsertNewChildElement("cPitchAlphaRate")->SetText(toString(aerodynamics.c_pitch_alpha_rate).c_str());
+  plugin->InsertNewChildElement("cPitchQ")->SetText(toString(aerodynamics.c_pitch_q).c_str());
+  plugin->InsertNewChildElement("cYawBeta")->SetText(toString(aerodynamics.c_yaw_beta).c_str());
+  plugin->InsertNewChildElement("cYawP")->SetText(toString(aerodynamics.c_yaw_p).c_str());
+  plugin->InsertNewChildElement("cYawR")->SetText(toString(aerodynamics.c_yaw_r).c_str());
 
   // Control Surfaces
   for (const auto& [_, cs] : control_surfaces) {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
     cs_elem->InsertNewChildElement("linkName")->SetText(cs.link_name.c_str());
-    cs_elem->InsertNewChildElement("cLiftDelta")->SetText(cs.c_lift_delta);
-    cs_elem->InsertNewChildElement("cDragAbsDelta")->SetText(cs.c_drag_abs_delta);
-    cs_elem->InsertNewChildElement("cSideDelta")->SetText(cs.c_side_delta);
-    cs_elem->InsertNewChildElement("cRollDelta")->SetText(cs.c_roll_delta);
-    cs_elem->InsertNewChildElement("cPitchDelta")->SetText(cs.c_pitch_delta);
-    cs_elem->InsertNewChildElement("cYawDelta")->SetText(cs.c_yaw_delta);
+    cs_elem->InsertNewChildElement("cLiftDelta")->SetText(toString(cs.c_lift_delta).c_str());
+    cs_elem->InsertNewChildElement("cDragAbsDelta")->SetText(toString(cs.c_drag_abs_delta).c_str());
+    cs_elem->InsertNewChildElement("cSideDelta")->SetText(toString(cs.c_side_delta).c_str());
+    cs_elem->InsertNewChildElement("cRollDelta")->SetText(toString(cs.c_roll_delta).c_str());
+    cs_elem->InsertNewChildElement("cPitchDelta")->SetText(toString(cs.c_pitch_delta).c_str());
+    cs_elem->InsertNewChildElement("cYawDelta")->SetText(toString(cs.c_yaw_delta).c_str());
   }
 }
 
@@ -322,7 +321,7 @@ void addJointStateBroadcasterPlugin(
     addGazeboPlugin(robot, "tobas_gazebo_joint_state_broadcaster_plugin", "gazebo::GazeboJointStateBroadcasterPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   addList(plugin, "jointNames", joint_names);
-  plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
+  plugin->InsertNewChildElement("updateRate")->SetText(toString(update_rate).c_str());
 }
 
 void addJointPositionControllerPlugin(
@@ -336,8 +335,8 @@ void addJointPositionControllerPlugin(
     robot, "tobas_gazebo_joint_position_controller_plugin", "gazebo::GazeboJointPositionControllerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
-  plugin->InsertNewChildElement("homePosition")->SetText(home_pos);
-  plugin->InsertNewChildElement("timeConstant")->SetText(time_const);
+  plugin->InsertNewChildElement("homePosition")->SetText(toString(home_pos).c_str());
+  plugin->InsertNewChildElement("timeConstant")->SetText(toString(time_const).c_str());
 }
 
 void addJointVelocityControllerPlugin(
@@ -350,7 +349,7 @@ void addJointVelocityControllerPlugin(
     robot, "tobas_gazebo_joint_velocity_controller_plugin", "gazebo::GazeboJointVelocityControllerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
-  plugin->InsertNewChildElement("homePosition")->SetText(home_pos);
+  plugin->InsertNewChildElement("homePosition")->SetText(toString(home_pos).c_str());
 }
 
 void addJointEffortControllerPlugin(
@@ -363,7 +362,7 @@ void addJointEffortControllerPlugin(
     addGazeboPlugin(robot, "tobas_gazebo_joint_effort_controller_plugin", "gazebo::GazeboJointEffortControllerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
-  plugin->InsertNewChildElement("homePosition")->SetText(home_pos);
+  plugin->InsertNewChildElement("homePosition")->SetText(toString(home_pos).c_str());
 }
 
 void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name)
