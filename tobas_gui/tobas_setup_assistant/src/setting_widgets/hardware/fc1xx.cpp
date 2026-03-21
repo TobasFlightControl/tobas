@@ -105,22 +105,22 @@ int T1Widget::gnssUpdateRate() const
 
 double T1Widget::gnssHorizontalPositionAccuracy() const
 {
-  return 1.5;  // ZED-F9P
+  return 5.;  // 一般的な単独測位の精度
 }
 
 double T1Widget::gnssVerticalPositionAccuracy() const
 {
-  return 2.0;  // ZED-F9P
+  return 10.;  // 一般的な単独測位の精度
 }
 
 double T1Widget::gnssHorizontalVelocityStddev() const
 {
-  return 0.05;  // FIXME: 精度 (Accurasy) と標準偏差は異なる
+  return 0.05;  // FIXME: 精度 (Accuracy) と標準偏差は異なる
 }
 
 double T1Widget::gnssVerticalVelocityStddev() const
 {
-  return 0.05;  // FIXME: 精度 (Accurasy) と標準偏差は異なる
+  return 0.05;  // FIXME: 精度 (Accuracy) と標準偏差は異なる
 }
 
 int T1Widget::numPwmChannels() const

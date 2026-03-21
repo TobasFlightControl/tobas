@@ -1092,7 +1092,7 @@ bool ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     fmu->gnssUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO
     0.1,
-    10.,
+    30.,  // TODO: GNSS位置の相関時定数は実際どれくらいだろうか
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),
