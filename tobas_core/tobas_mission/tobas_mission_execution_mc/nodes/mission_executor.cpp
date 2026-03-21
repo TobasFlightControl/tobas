@@ -412,7 +412,7 @@ bool MulticopterMissionExecutorNode::executeWaypoint(const Waypoint& goal, const
   // Verify that the vehicle is armed
   if (!arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "The vehicle is disarmed.";
+    res->error_message = "The waypoint mission cannot be started because the vehicle is disarmed.";
     gh->abort(res);
     return false;
   }
@@ -551,7 +551,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   // Verify that the vehicle is disarmed
   if (arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "The vehicle is already armed.";
+    res->error_message = "The takeoff mission cannot be started because the vehicle is already armed.";
     gh->abort(res);
     return false;
   }
@@ -651,7 +651,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   // Verify that the vehicle is armed
   if (!arming_->data) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "The vehicle is disarmed.";
+    res->error_message = "The land mission cannot be started because the vehicle is disarmed.";
     gh->abort(res);
     return false;
   }
@@ -740,7 +740,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
 
   if (!launch_point_) {
     res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "Launch point is not set.";
+    res->error_message = "The RTL mission cannot be started because the launch point is not set.";
     gh->abort(res);
     return false;
   }
