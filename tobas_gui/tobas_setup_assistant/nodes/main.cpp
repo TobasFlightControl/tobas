@@ -2,6 +2,7 @@
 
 #include <tobas_gui_common/argument.hpp>
 #include <tobas_gui_common/version.hpp>
+#include <tobas_qt_tools/debug.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
 
@@ -16,6 +17,9 @@ int main(int argc, char** argv)
     std::cerr << "Failed to set display platform." << std::endl;
     return EXIT_FAILURE;
   }
+
+  // コンソール出力に着色
+  qInstallMessageHandler(qt::colorMessageHandler);
 
   // ノードを起動
   ros2::AsyncNodeManager node_manager(argc, argv, "tobas_setup_assistant");
