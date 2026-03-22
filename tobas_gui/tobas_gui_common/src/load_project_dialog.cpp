@@ -13,8 +13,8 @@ LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
   : QFileDialog(parent, "Select Tobas Project (*.TBS)", dir, "Tobas Project (*.TBS)")
 {
   setOptions(ShowDirsOnly | DontUseNativeDialog);  // カスタム設定のためにQtのダイアログを使用
-  setFileMode(Directory);  // ディレクトリのダブルクリックでシグナルを発行させるために必須
-  setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);  // 隠しフォルダも表示
+  setFileMode(Directory);                          // 既存のディレクトリを選択するモード
+  setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
 
   proxy_ = new QSortFilterProxyModel(this);
   setProxyModel(proxy_);
