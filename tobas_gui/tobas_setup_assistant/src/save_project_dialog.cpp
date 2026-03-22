@@ -42,6 +42,9 @@ SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const 
   // パスが変わったらその都度保存可能性をチェック
   connect(proj_name_, &QLineEdit::textChanged, this, &self::onProjectPathChanged);
   connect(this, &super::directoryEntered, this, &self::onProjectPathChanged);
+
+  // 最初のチェック
+  onProjectPathChanged();
 }
 
 bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
