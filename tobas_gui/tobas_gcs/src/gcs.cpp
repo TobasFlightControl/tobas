@@ -1,10 +1,7 @@
 #include "tobas_gcs/gcs.hpp"
 
-#include <QApplication>
 #include <QButtonGroup>
-#include <QFileDialog>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
