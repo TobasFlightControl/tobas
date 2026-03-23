@@ -608,6 +608,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // 目標加速度を計算（接地している場合は誤差の積分を行わない）
     acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->data ? 0. : dt);
 
+    // 障害物反力加速度を足す
+    if (rep_acc_) {
+      acc_cmd_->accel += rep_acc_->accel;
+    }
+
     // ヨー角はそのまま流す
     acc_cmd_->yaw = pos_cmd_->yaw;
 
