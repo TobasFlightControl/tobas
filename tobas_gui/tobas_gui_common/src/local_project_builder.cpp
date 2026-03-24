@@ -45,8 +45,13 @@ private:
 
 LocalProjectBuilder::LocalProjectBuilder()
 {
-  // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要
+  // ワークスペースの install ディレクトリをそのままパスに追加するために --merge-install が必要．
   colcon_.setMergeInstall(true);
+
+  // 対象のパッケージとは別の同名パッケージのキャッシュが /build 以下に残っている場合，
+  // カレントディレクトリに関わらず colcon がそのパッケージを再利用してしまう．
+  // そのため，確実に対象のパッケージのみをビルド対象にするためにキャッシュをクリアしておく．
+  colcon_.setCmakeCleanCache(true);
 }
 
 bool LocalProjectBuilder::build(const fs::path& proj_path)

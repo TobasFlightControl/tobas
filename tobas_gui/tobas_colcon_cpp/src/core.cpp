@@ -68,6 +68,9 @@ bool Colcon::build(const fs::path& pkg_path, const fs::path& ws_path)
   if (build_opts_.symlink_install) {
     build_cmd += "--symlink-install ";
   }
+  if (build_opts_.cmake_clean_cache) {
+    build_cmd += "--cmake-clean-cache ";
+  }
 
   // Build the Tobas project packages
   std::cout << "Executing \"" << build_cmd << "\" on " << exec_path.value() << "." << std::endl;
@@ -114,6 +117,11 @@ void Colcon::setMergeInstall(bool enabled)
 void Colcon::setSymlinkInstall(bool enabled)
 {
   build_opts_.symlink_install = enabled;
+}
+
+void Colcon::setCmakeCleanCache(bool enabled)
+{
+  build_opts_.cmake_clean_cache = enabled;
 }
 
 fs::path Colcon::buildBase(const fs::path& ws_path)
