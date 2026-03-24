@@ -39,20 +39,12 @@ bool RemoteProjectBuilder::build(const fs::path& remote_proj_path)
     meta_pkg_name);
 
   // ビルドできれば終了
-  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) == ssh::SshClient::kNoError) {
-    return true;
+  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) != ssh::SshClient::kNoError) {
+    RCLCPP_ERROR(node_->get_logger(), "Failed to build the remote package.");
+    return false;
   }
 
-  // ビルドできなければクリーンビルド
-  RCLCPP_WARN(node_->get_logger(), "Failed to build remote package. Retrying...");
-  const auto command = pre_cmd + " && sudo colcon clean workspace -y && " + build_cmd;
-  if (ssh_client_.execute(command, output_, true) == ssh::SshClient::kNoError) {
-    return true;
-  }
-
-  // クリーンビルドもできなければエラー
-  RCLCPP_ERROR_STREAM(node_->get_logger(), "Clean build of remote package also failed: " << getErrorMessage());
-  return false;
+  return true;
 }
 
 const std::string& RemoteProjectBuilder::getOutput() const
