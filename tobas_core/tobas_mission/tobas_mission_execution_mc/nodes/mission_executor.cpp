@@ -33,7 +33,6 @@ namespace tobas
 {
 namespace mission
 {
-
 class MulticopterMissionExecutorNode : public BaseNode
 {
   using self = MulticopterMissionExecutorNode;
@@ -160,7 +159,7 @@ private:
 };
 
 MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
-  : super(tobas::node::kMissionExecutor, nodeOptions_Default(options))
+  : super(node::kMissionExecutor, nodeOptions_Default(options))
 {
   getStaticRosParams();
 
@@ -170,7 +169,7 @@ MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::Nod
   pvapy_pub_ = createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
-  setpoint_sub_ = createSubscriber(tobas::topic::kTrajSetpoint, &self::setpointCb, this);
+  setpoint_sub_ = createSubscriber(topic::kTrajSetpoint, &self::setpointCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   gnss_origin_sub_ = createSubscriber(topic::kGnssOrigin, &self::gnssOriginCb, this, true, true);
   landed_sub_ = createSubscriber(topic::kLanded, &self::landedCb, this);
