@@ -6,6 +6,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
@@ -143,3 +145,4 @@ void TreeIkSolverAcc_RAC::resize()
   qp_solver_.problem.h.conservativeResize(0);
 }
 }  // namespace kdl
+}  // namespace tobas

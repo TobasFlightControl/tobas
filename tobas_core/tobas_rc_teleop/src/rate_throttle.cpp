@@ -64,13 +64,13 @@ void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas
 
 bool RateThrottleController::maxAttitudeRateCb(const double& p)
 {
-  max_atti_rate_ = tbs::deg2rad(p);
+  max_atti_rate_ = st::deg2rad(p);
   return true;
 }
 
 bool RateThrottleController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 

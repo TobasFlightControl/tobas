@@ -188,7 +188,7 @@ void SshAuthorizedKeysWidget::onRemoveButtonClicked()
   }
 
   // 鍵を削除
-  tbs::eraseIndex(keys_, row);
+  st::eraseIndex(keys_, row);
   list_->takeItem(row);
 
   // 現在の設定をメディアに反映

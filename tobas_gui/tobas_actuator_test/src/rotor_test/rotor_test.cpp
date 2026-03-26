@@ -133,7 +133,7 @@ void RotorTestWidget::updateInternalDataStructures()
       const auto text = "CH" + QString::number(erotor->channel) + ": " + QString::fromStdString(link_name);
       rotor_widgets_.at(erotor->channel)->setText(text);
 
-      const auto max_rpm = tbs::rps2rpm(drone_.prop->maxSpeed(link_name));
+      const auto max_rpm = st::rps2rpm(drone_.prop->maxSpeed(link_name));
       rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
     }
 
@@ -160,7 +160,7 @@ void RotorTestWidget::updateInternalDataStructures()
 
 int RotorTestWidget::numRegisteredChannels() const
 {
-  return tbs::count(registered_, true);
+  return st::count(registered_, true);
 }
 
 void RotorTestWidget::publishTargetSppeds()
@@ -177,7 +177,7 @@ void RotorTestWidget::publishTargetSppeds()
 
     tar_speeds->speeds.emplace_back();
     tar_speeds->speeds.back().link_name = link_name;
-    tar_speeds->speeds.back().speed = tbs::rpm2rps(rotor_widgets_.at(erotor->channel)->getTargetRPM());
+    tar_speeds->speeds.back().speed = st::rpm2rps(rotor_widgets_.at(erotor->channel)->getTargetRPM());
   }
 
   tar_speeds_pub_->publish(std::move(tar_speeds));
@@ -322,7 +322,7 @@ void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::Cons
     }
 
     const auto erotor = eprop_->getRotor(elem.link_name);
-    rotor_widgets_.at(erotor->channel)->setCurrentRPM(tbs::rps2rpm(elem.speed));
+    rotor_widgets_.at(erotor->channel)->setCurrentRPM(st::rps2rpm(elem.speed));
   }
 }
 

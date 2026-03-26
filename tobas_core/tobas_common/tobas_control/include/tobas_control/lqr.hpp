@@ -2,6 +2,8 @@
 
 #include "./state_spaces.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -37,3 +39,4 @@ private:
   void checkProblemValidity();
 };
 }  // namespace ctrl
+}  // namespace tobas

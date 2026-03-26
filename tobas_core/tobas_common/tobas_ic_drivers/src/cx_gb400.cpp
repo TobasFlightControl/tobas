@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+namespace tobas
+{
 namespace driver
 {
 CxGb400::CxGb400() : linux::VideoDev::VideoDev()
@@ -281,3 +283,4 @@ bool CxGb400::interpretCameraError(const uint32_t& error_status, const CameraErr
 }
 
 }  // namespace driver
+}  // namespace tobas

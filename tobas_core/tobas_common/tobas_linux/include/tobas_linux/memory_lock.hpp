@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+namespace tobas
+{
 namespace linux
 {
 /**
@@ -20,3 +22,4 @@ bool lockAndPrefaultDynamic();
  */
 bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory);
 }  // namespace linux
+}  // namespace tobas

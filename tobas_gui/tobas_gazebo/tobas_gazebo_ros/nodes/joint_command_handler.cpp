@@ -7,6 +7,10 @@
 #include <tobas_gazebo_msgs/msg/joint_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
+namespace tobas
+{
+namespace gazebo
+{
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboに指令する．
  */
@@ -150,5 +154,7 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     publishJointCommand(tbs_cmd);
   }
 }
+}  // namespace gazebo
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(JointCommandHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::JointCommandHandlerNode)

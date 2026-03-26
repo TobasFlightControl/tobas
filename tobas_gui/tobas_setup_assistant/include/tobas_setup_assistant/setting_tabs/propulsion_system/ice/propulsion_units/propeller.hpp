@@ -45,7 +45,7 @@ public:
   double pitchAngleNeutoral() const;
 
   /* Variable pitch angle limit around the neutoral position [rad] */
-  tbs::Range<double> pitchAngleLimit() const;
+  st::Range<double> pitchAngleLimit() const;
 
   /* Maximum pitch angle rate [rad/s] */
   double maxPitchAngleRate() const;

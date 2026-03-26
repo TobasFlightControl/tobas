@@ -91,13 +91,13 @@ bool SpeedRollDeltaPitchController::maxSpeedCb(const double& p)
 
 bool SpeedRollDeltaPitchController::maxRollCb(const double& p)
 {
-  max_roll_ = tbs::deg2rad(p);
+  max_roll_ = st::deg2rad(p);
   return true;
 }
 
 bool SpeedRollDeltaPitchController::maxDeltaPitchCb(const double& p)
 {
-  max_dpitch_ = tbs::deg2rad(p);
+  max_dpitch_ = st::deg2rad(p);
   return true;
 }
 

@@ -246,7 +246,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 
   // 定数部分を計算しておく
   const auto altitude = alt_0_ + P_W_B.Z();
-  const auto rho = tbs::altitudeToDensity(altitude);
+  const auto rho = st::altitudeToDensity(altitude);
   const auto q_bar = tobas::dynamicPressure(rho, V);  // 動圧 (p.15) [Pa]
   const auto& S = vehicle_params_.wing_surface;       // 主翼面積 [m^2]
 

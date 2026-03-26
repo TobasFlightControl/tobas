@@ -2,6 +2,8 @@
 
 #include <cinttypes>
 
+namespace tobas
+{
 namespace linux
 {
 /**
@@ -12,3 +14,4 @@ namespace linux
  */
 bool setNonStandardBaudRate(int fd, uint32_t baud_rate);
 }  // namespace linux
+}  // namespace tobas

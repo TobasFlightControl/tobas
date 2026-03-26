@@ -4,6 +4,8 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeFkSolverPos : public TreeSolverI
@@ -28,3 +30,4 @@ inline const Frame& TreeFkSolverPos::getFrame() const
   return p_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

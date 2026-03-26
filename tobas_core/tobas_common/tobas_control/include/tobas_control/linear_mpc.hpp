@@ -8,6 +8,8 @@
 #include "./equations.hpp"
 #include "./state_spaces.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -112,3 +114,4 @@ inline const std::string& LinearMPC::errorMessage() const
   return qpsolver_.errorMessage();
 }
 }  // namespace ctrl
+}  // namespace tobas

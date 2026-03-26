@@ -1,5 +1,7 @@
 #include "tobas_algorithm/crc.hpp"
 
+namespace tobas
+{
 namespace algo
 {
 void CRC::initialize() noexcept
@@ -97,3 +99,4 @@ void CRC32Left::createTable() noexcept
   }
 }
 }  // namespace algo
+}  // namespace tobas

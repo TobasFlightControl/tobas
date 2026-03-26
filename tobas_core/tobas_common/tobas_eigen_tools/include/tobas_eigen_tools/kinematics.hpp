@@ -2,6 +2,8 @@
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace eigen
 {
 /* ZYXオイラー角の変化率をグローバル座標系で表現された角速度に変換する行列を返す． */
@@ -50,3 +52,4 @@ Eigen::Vector3d angaccFromEuleraccLocal(
 Eigen::Vector3d
 angaccFromEuleraccLocal(double roll, double pitch, const Eigen::Vector3d& drpy, const Eigen::Vector3d& ddrpy);
 }  // namespace eigen
+}  // namespace tobas

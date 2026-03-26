@@ -12,7 +12,7 @@ struct AccelYaw
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Vector accel;
+  tobas::kdl::Vector accel;
   double yaw;
 
   using SharedPtr = std::shared_ptr<AccelYaw>;

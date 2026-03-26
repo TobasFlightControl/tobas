@@ -10,10 +10,10 @@
 #include "./vector.hpp"
 
 template <>
-struct rclcpp::TypeAdapter<kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia>
+struct rclcpp::TypeAdapter<tobas::kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia>
 {
   using is_specialized = std::true_type;
-  using custom_type = kdl::RigidBodyInertia;
+  using custom_type = tobas::kdl::RigidBodyInertia;
   using ros_message_type = tobas_kdl_msgs::msg::RigidBodyInertia;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -26,8 +26,8 @@ struct rclcpp::TypeAdapter<kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBody
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     double mass;
-    kdl::Vector cog;
-    kdl::RotationalInertia i_cog;
+    tobas::kdl::Vector cog;
+    tobas::kdl::RotationalInertia i_cog;
 
     mass = src.mass;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.cog, cog);
@@ -39,7 +39,8 @@ struct rclcpp::TypeAdapter<kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBody
 
 namespace tobas_kdl_msgs
 {
-using RigidBodyInertiaAdapter = rclcpp::TypeAdapter<kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia>;
+using RigidBodyInertiaAdapter =
+  rclcpp::TypeAdapter<tobas::kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia>;
 }  // namespace tobas_kdl_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia);

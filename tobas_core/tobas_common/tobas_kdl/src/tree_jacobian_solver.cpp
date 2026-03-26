@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeJacobianSolver::TreeJacobianSolver(const Tree& tree) : super(tree)
@@ -75,3 +77,4 @@ void TreeJacobianSolver::resize()
   J_out_.resize(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -202,7 +202,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
   message->header.stamp = node_->now();
   message->level = level;
   message->name = node_->get_name();
-  message->message = tbs::buildString(args...);
+  message->message = st::buildString(args...);
 
   // Output message to the console
   gazeboLog(level, message->message);

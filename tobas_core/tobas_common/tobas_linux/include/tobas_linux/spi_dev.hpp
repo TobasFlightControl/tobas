@@ -4,6 +4,8 @@
 
 #include <cstdint>
 
+namespace tobas
+{
 namespace linux
 {
 class SPIdev
@@ -26,3 +28,4 @@ private:
   int spi_fd_ = -1;
 };
 }  // namespace linux
+}  // namespace tobas

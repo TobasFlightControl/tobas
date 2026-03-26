@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeMassHolder::TreeMassHolder(const Tree& tree) : super(tree)
@@ -47,3 +49,4 @@ double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it)
   return mass_sum.get();
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -12,7 +12,7 @@ struct AccelPitchYaw
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Vector accel;
+  tobas::kdl::Vector accel;
   double pitch;
   double yaw;
 

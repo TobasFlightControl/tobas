@@ -110,43 +110,43 @@ void AngleThrottleVectorController::update(const tobas_msgs::RCInput& rcin, cons
 
 bool AngleThrottleVectorController::maxRollCb(const double& p)
 {
-  max_roll_ = tbs::deg2rad(p);
+  max_roll_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxRollRateCb(const double& p)
 {
-  roll_filt_.setMaxVelocity(tbs::deg2rad(p));
+  roll_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
 bool AngleThrottleVectorController::maxPitchCb(const double& p)
 {
-  max_pitch_ = tbs::deg2rad(p);
+  max_pitch_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxPitchRateCb(const double& p)
 {
-  pitch_filt_.setMaxVelocity(tbs::deg2rad(p));
+  pitch_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
 bool AngleThrottleVectorController::maxYawRateCb(const double& p)
 {
-  max_yaw_rate_ = tbs::deg2rad(p);
+  max_yaw_rate_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxThrustAngleCb(const double& p)
 {
-  max_thrust_angle_ = tbs::deg2rad(p);
+  max_thrust_angle_ = st::deg2rad(p);
   return true;
 }
 
 bool AngleThrottleVectorController::maxThrustAngleRateCb(const double& p)
 {
-  thrust_angle_filt_.setMaxVelocity(tbs::deg2rad(p));
+  thrust_angle_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 

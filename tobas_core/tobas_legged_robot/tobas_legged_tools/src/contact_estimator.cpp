@@ -97,7 +97,7 @@ void ContactEstimator::reset()
   const auto ones = VectorXd::Ones(nc_);
   kf_.initialize(ones, ones.asDiagonal());
 
-  tbs::fill(states_, kContact);
+  st::fill(states_, kContact);
 }
 
 void ContactEstimator::setPredictionVariance(const double& var)
@@ -165,7 +165,7 @@ VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntA
 
 VectorXd ContactEstimator::calcProbs_force(const vector<double>& contact_forces)
 {
-  const auto mean_force = mass_holder_.getMass() * tbs::kGravity / nc_;
+  const auto mean_force = mass_holder_.getMass() * st::kGravity / nc_;
 
   VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l) {

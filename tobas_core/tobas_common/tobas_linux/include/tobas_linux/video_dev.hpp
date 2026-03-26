@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <string>
 
+namespace tobas
+{
 namespace linux
 {
 /**
@@ -104,3 +106,4 @@ private:
   bool requestImgFormat();
 };
 }  // namespace linux
+}  // namespace tobas

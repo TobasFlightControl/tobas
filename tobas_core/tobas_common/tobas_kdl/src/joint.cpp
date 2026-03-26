@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 bool Joint::isValid(string& error_msg) const
@@ -43,3 +45,4 @@ ostream& operator<<(ostream& os, const Joint& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

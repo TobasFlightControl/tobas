@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+namespace tobas
+{
 namespace linux
 {
 VideoDev::VideoDev()
@@ -334,4 +336,5 @@ bool VideoDev::requestImgFormat()
   fmt_.bytes_per_line = fmt_request.fmt.pix.bytesperline;
   return true;
 }
-}  // end of namespace linux
+}  // namespace linux
+}  // namespace tobas

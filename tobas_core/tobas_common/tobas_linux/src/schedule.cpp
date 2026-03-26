@@ -9,6 +9,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool checkRealtimePriority(const pthread_t& thread, const int& tar_policy, const int& tar_priority)
@@ -73,3 +75,4 @@ bool setRealtimePriorityRR(const int& priority)
   return setRealtimePriority(SCHED_RR, priority);
 }
 }  // namespace linux
+}  // namespace tobas

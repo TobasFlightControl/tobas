@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <map>
 
+namespace tobas
+{
 namespace linux
 {
 /**
@@ -60,3 +62,4 @@ private:
   bool setNonStandardBaudRate(uint32_t baud_rate);
 };
 }  // namespace linux
+}  // namespace tobas

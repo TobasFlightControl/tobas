@@ -266,7 +266,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         waypoint.timeout = 0.;  // TODO
 
         mission_item.type = tobas::mission::kWaypoint;
-        mission_item.data = tbs::toBytes(waypoint);
+        mission_item.data = st::toBytes(waypoint);
 
         break;
       }
@@ -283,7 +283,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         takeoff.timeout = 0.;  // TODO
 
         mission_item.type = tobas::mission::kTakeoff;
-        mission_item.data = tbs::toBytes(takeoff);
+        mission_item.data = st::toBytes(takeoff);
 
         break;
       }
@@ -295,7 +295,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         land.timeout = 0.;  // TODO
 
         mission_item.type = tobas::mission::kLand;
-        mission_item.data = tbs::toBytes(land);
+        mission_item.data = st::toBytes(land);
 
         break;
       }
@@ -317,7 +317,7 @@ MissionPlannerWidget::Action::Goal MissionPlannerWidget::createMissionGoal() con
         rtl.timeout = 0.;  // TODO
 
         mission_item.type = tobas::mission::kReturnToLaunch;
-        mission_item.data = tbs::toBytes(rtl);
+        mission_item.data = st::toBytes(rtl);
 
         break;
       }
@@ -609,7 +609,7 @@ void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 void MissionPlannerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
 {
   const auto yaw = odom->odom.odom.frame.M.getYaw();
-  map_->setArrowRotation(-tbs::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
+  map_->setArrowRotation(-st::rad2deg(yaw - M_PI_2));  // 東向きが方位の基準なので90degのオフセットを考慮
 }
 
 void MissionPlannerWidget::actionGoalResponseCb(bool ok)

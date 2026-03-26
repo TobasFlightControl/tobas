@@ -3,6 +3,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LinearEquation LinearEquation::scale(const VectorXd& scale) const
@@ -37,3 +39,4 @@ ostream& operator<<(ostream& os, const LinearEquation& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

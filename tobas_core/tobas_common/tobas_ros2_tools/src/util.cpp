@@ -9,6 +9,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace ros2
 {
 const char* getEnv(const char* name)
@@ -44,3 +46,4 @@ fs::path expandUser(const char* path)
   return rcutils_expand_user(path, rcutils_get_default_allocator());
 }
 }  // namespace ros2
+}  // namespace tobas

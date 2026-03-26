@@ -35,12 +35,12 @@ const char* MaxHeadingRateWidget::label() const
 
 double MaxHeadingRateWidget::getValue() const
 {
-  return tbs::deg2rad(spin_box_->value());
+  return st::deg2rad(spin_box_->value());
 }
 
 void MaxHeadingRateWidget::setValue(double value)
 {
-  spin_box_->setValue(tbs::rad2deg(value));
+  spin_box_->setValue(st::rad2deg(value));
 }
 }  // namespace field
 }  // namespace ctrl

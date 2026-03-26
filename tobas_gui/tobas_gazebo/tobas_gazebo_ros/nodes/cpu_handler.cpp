@@ -5,6 +5,10 @@
 
 using namespace std::chrono_literals;
 
+namespace tobas
+{
+namespace gazebo
+{
 class CpuHandlerNode : public tobas::BaseNode
 {
   static constexpr auto kSamplingPeriod = 1s;
@@ -42,5 +46,7 @@ void CpuHandlerNode::mainTimerCb()
   // Publish ROS message
   cpu_pub_->publish(std::move(cpu_msg));
 }
+}  // namespace gazebo
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(CpuHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::CpuHandlerNode)

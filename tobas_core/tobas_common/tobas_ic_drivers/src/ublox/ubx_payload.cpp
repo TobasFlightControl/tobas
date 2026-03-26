@@ -4,6 +4,8 @@
 
 #include <tobas_algorithm/binary.hpp>
 
+namespace tobas
+{
 namespace ublox
 {
 namespace payload
@@ -596,3 +598,4 @@ void NAV_VELNED::print(std::ostream& os) const
 }
 }  // namespace payload
 }  // namespace ublox
+}  // namespace tobas

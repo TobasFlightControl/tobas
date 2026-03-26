@@ -13,6 +13,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 I2Cdev::I2Cdev()
@@ -240,3 +242,4 @@ bool I2Cdev::read(size_t length, void* rx)
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

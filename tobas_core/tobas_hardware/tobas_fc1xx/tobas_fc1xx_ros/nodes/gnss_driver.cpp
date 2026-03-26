@@ -214,7 +214,7 @@ void GnssDriverNode::mainTimerCb()
 
   // GNSSメッセージの遅延を表示 (デバッグモードのみ)
   if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug) {
-    const auto delay_ms = tbs::computeGpsDelayFromToW(hpposllh_.iTOW);
+    const auto delay_ms = st::computeGpsDelayFromToW(hpposllh_.iTOW);
     TOBAS_DEBUG("GNSS delay: ", delay_ms, "[ms]");
   }
 

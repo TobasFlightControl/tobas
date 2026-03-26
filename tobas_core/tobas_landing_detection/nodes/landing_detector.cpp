@@ -117,7 +117,7 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   // 鉛直上方向の外力（地面反力）が離陸重量の比が閾値を超えた状態が一定時間続いたら離着陸状態を変更
   const auto& cur_time = dist_force->header.stamp;
   const auto& force_z_filt = force_z_lpf_.getValue();
-  const auto weight = mass_holder_.getMass() * tbs::kGravity;
+  const auto weight = mass_holder_.getMass() * st::kGravity;
   if (landed_) {
     const auto force_z_thresh = weight * kTakeoffWeightRateThresh;
     if (force_z_filt < force_z_thresh) {

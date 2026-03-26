@@ -22,10 +22,10 @@ class LinkViewModel;
 using LinkViewModelPtr = std::shared_ptr<LinkViewModel>;
 using V_LinkViewModelPtr = std::vector<LinkViewModelPtr>;
 
-class LinkViewModel : public BaseViewModel<urdf::Link, LinkViewModel>
+class LinkViewModel : public BaseViewModel<::urdf::Link, LinkViewModel>
 {
 public:
-  explicit LinkViewModel(const urdf::LinkSharedPtr& model = nullptr);
+  explicit LinkViewModel(const ::urdf::LinkSharedPtr& model = nullptr);
 
   void sync() override;
 

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void onPacket(const driver::NssnmfgPEFC::Packet& packet)
+void onPacket(const tobas::driver::NssnmfgPEFC::Packet& packet)
 {
   // Error
   const auto& error = packet.error;
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];
 
-  driver::NssnmfgPEFC pefc(&onPacket);
+  tobas::driver::NssnmfgPEFC pefc(&onPacket);
 
   if (!pefc.initialize(device)) {
     cerr << "Failed to initialize PEFC driver." << endl;

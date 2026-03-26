@@ -2,6 +2,8 @@
 
 #include "./base.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -23,3 +25,4 @@ private:
   Eigen::MatrixXd I_;  // 単位行列
 };
 }  // namespace ctrl
+}  // namespace tobas

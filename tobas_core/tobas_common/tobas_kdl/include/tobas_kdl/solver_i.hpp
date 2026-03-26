@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -64,3 +66,4 @@ inline const std::string& SolverI::errorMessage() const
   return error_msg_;
 }
 }  // namespace kdl
+}  // namespace tobas

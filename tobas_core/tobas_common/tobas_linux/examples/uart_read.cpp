@@ -57,7 +57,7 @@ int main(int argc, char** argv)
   cout << "\tHungup close: " << boolalpha << hungup << noboolalpha << endl;
   cout << "----------------------------------------" << endl;
 
-  linux::UARTdev uart;
+  tobas::linux::UARTdev uart;
 
   if (!uart.initialize(device.c_str())) {
     return EXIT_FAILURE;
@@ -95,12 +95,12 @@ int main(int argc, char** argv)
     }
   }
   else if (parity == "odd") {
-    if (!uart.enableParity(linux::UARTdev::ParityMode::kOdd)) {
+    if (!uart.enableParity(tobas::linux::UARTdev::ParityMode::kOdd)) {
       return EXIT_FAILURE;
     }
   }
   else if (parity == "even") {
-    if (!uart.enableParity(linux::UARTdev::ParityMode::kEven)) {
+    if (!uart.enableParity(tobas::linux::UARTdev::ParityMode::kEven)) {
       return EXIT_FAILURE;
     }
   }

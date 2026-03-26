@@ -12,7 +12,7 @@ struct AngleThrottleVector
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Euler angle;
+  tobas::kdl::Euler angle;
   double throttle;
   double thrust_angle;
 

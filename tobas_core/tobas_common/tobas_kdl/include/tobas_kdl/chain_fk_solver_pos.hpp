@@ -4,6 +4,8 @@
 #include "./frame.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -34,3 +36,4 @@ inline const Frame& ChainFkSolverPos::getFrame() const
   return p_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

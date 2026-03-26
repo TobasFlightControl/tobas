@@ -9,15 +9,15 @@
 namespace YAML
 {
 template <typename T>
-struct convert<tbs::Range<T>>
+struct convert<tobas::st::Range<T>>
 {
-  static Node encode(const tbs::Range<T>& rhs)
+  static Node encode(const tobas::st::Range<T>& rhs)
   {
     Node node(NodeType::Sequence);
 
     if constexpr (std::is_floating_point_v<T>) {
-      node.push_back(yaml::format(rhs.lower));
-      node.push_back(yaml::format(rhs.upper));
+      node.push_back(tobas::yaml::format(rhs.lower));
+      node.push_back(tobas::yaml::format(rhs.upper));
     }
     else {
       node.push_back(rhs.lower);
@@ -27,7 +27,7 @@ struct convert<tbs::Range<T>>
     return node;
   }
 
-  static bool decode(const Node& node, tbs::Range<T>& rhs)
+  static bool decode(const Node& node, tobas::st::Range<T>& rhs)
   {
     if (!node.IsSequence()) {
       return false;

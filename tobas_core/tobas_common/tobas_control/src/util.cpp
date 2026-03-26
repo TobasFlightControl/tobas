@@ -11,6 +11,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 MatrixXd ctrb(const MatrixXd& A, const MatrixXd& B)
@@ -82,3 +84,4 @@ double firstOrderVel(const double& x0, const double& v0, const double& vd, const
   return x0 + vd * t - tau * (1 - exp(-t / (tau + EPS))) * (vd - v0);
 }
 }  // namespace ctrl
+}  // namespace tobas

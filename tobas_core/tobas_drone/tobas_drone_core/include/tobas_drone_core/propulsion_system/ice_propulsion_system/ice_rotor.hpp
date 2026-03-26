@@ -26,8 +26,8 @@ public:
   using SharedPtr = std::shared_ptr<IceRotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const IceRotorConfig>;
 
-  double gear_ratio = 0.;                       // 減速比 [-]
-  tbs::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
+  double gear_ratio = 0.;                      // 減速比 [-]
+  st::Range<double> pitch_limit = { 0., 0. };  // プロペラピッチ角の範囲 [rad]
   VppMotorConstant motor_const;
   VppMomentConstant moment_const;
   HardwareInterface hw_iface = HardwareInterface::kOther;

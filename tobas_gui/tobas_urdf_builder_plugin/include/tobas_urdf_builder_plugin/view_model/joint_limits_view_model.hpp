@@ -10,10 +10,10 @@ namespace ub
 {
 namespace view_model
 {
-class JointLimitsViewModel : public BaseViewModel<urdf::JointLimits, JointLimitsViewModel>
+class JointLimitsViewModel : public BaseViewModel<::urdf::JointLimits, JointLimitsViewModel>
 {
 public:
-  using BaseViewModel<urdf::JointLimits, JointLimitsViewModel>::BaseViewModel;
+  using BaseViewModel<::urdf::JointLimits, JointLimitsViewModel>::BaseViewModel;
 
   void sync() override;
 

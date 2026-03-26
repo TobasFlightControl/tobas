@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 Chain::Chain()
@@ -86,3 +88,4 @@ ostream& operator<<(ostream& os, const Chain& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

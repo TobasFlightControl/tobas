@@ -15,13 +15,13 @@ using namespace Eigen;
 
 double f(const VectorXd& x)
 {
-  return math::sqr(x(0)) + x(0) * x(1);
+  return tobas::math::sqr(x(0)) + x(0) * x(1);
 }
 
 VectorXd g(const VectorXd& x)
 {
   VectorXd res(5);
-  res(0) = 50 - math::sqr(x(0)) - 4 * x(1);
+  res(0) = 50 - tobas::math::sqr(x(0)) - 4 * x(1);
   res(1) = -x(0) - 100;
   res(2) = -x(1) - 100;
   res(3) = x(0) - 100;
@@ -32,7 +32,7 @@ VectorXd g(const VectorXd& x)
 VectorXd h(const VectorXd& x)
 {
   VectorXd res(1);
-  res(0) = math::cube(x(0)) + x(0) * x(1) - 100;
+  res(0) = tobas::math::cube(x(0)) + x(0) * x(1) - 100;
   return res;
 }
 
@@ -63,7 +63,7 @@ MatrixXd dgdx(const VectorXd& x)
 MatrixXd dhdx(const VectorXd& x)
 {
   MatrixXd res(1, 2);
-  res(0, 0) = 3 * math::sqr(x(0)) + x(1);
+  res(0, 0) = 3 * tobas::math::sqr(x(0)) + x(1);
   res(0, 1) = x(0);
   return res;
 }
@@ -98,7 +98,7 @@ Tensor3Xd dHdx(const VectorXd& x)
 
 int main()
 {
-  nlp::SQP sqp;
+  tobas::nlp::SQP sqp;
 
   VectorXd x0(2);
   x0 << 5, 5;

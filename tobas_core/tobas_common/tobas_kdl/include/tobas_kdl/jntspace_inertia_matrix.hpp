@@ -4,6 +4,8 @@
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -153,3 +155,4 @@ inline void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntA
   dest.data = src.data.lazyProduct(vec.data);
 }
 }  // namespace kdl
+}  // namespace tobas

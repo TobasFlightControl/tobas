@@ -6,7 +6,7 @@
 
 namespace fs = std::filesystem;
 
-Q_DECLARE_METATYPE(ssh::SshClient::Error);
+Q_DECLARE_METATYPE(tobas::ssh::SshClient::Error);
 
 namespace tobas
 {

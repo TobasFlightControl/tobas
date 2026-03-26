@@ -4,6 +4,8 @@
 
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* セグメントの位置姿勢に影響を与える関節を抽出する． */
@@ -34,3 +36,4 @@ inline bool TreeActiveJointsExtractor::isActiveJoint(const std::string& jnt_name
   return active_joints_set_.contains(jnt_name);
 }
 }  // namespace kdl
+}  // namespace tobas

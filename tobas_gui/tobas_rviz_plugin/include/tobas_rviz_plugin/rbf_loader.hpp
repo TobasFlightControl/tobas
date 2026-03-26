@@ -57,7 +57,7 @@ public:
   }
 
   /* Get the parsed URDF model*/
-  const urdf::ModelInterfaceSharedPtr& getURDF() const
+  const ::urdf::ModelInterfaceSharedPtr& getURDF() const
   {
     return urdf_;
   }
@@ -109,6 +109,6 @@ private:
   SynchronizedStringParameter srdf_ssp_;
 
   srdf::ModelSharedPtr srdf_;
-  urdf::ModelInterfaceSharedPtr urdf_;
+  ::urdf::ModelInterfaceSharedPtr urdf_;
 };
 }  // namespace tobas

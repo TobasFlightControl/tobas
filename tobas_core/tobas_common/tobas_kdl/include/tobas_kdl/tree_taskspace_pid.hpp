@@ -6,6 +6,8 @@
 #include "./tree_id_solver_rne.hpp"
 #include "./tree_ik_solver_acc_rac.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeTaskSpacePID : public TreeSolverI
@@ -16,7 +18,7 @@ public:
   static constexpr double kDefaultStiffness = 25.;
   static constexpr double kDefaultDamping = 10.;
 
-  explicit TreeTaskSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -tbs::kGravity));
+  explicit TreeTaskSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
 
   bool updateInternalDataStructures() override;
 
@@ -53,3 +55,4 @@ inline const JntArray& TreeTaskSpacePID::getEfforts() const
   return rne_.getEfforts();
 }
 }  // namespace kdl
+}  // namespace tobas

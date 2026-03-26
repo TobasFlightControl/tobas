@@ -153,7 +153,7 @@ bool PosVelAccYawController::maxVerticalAccelCb(const double& p)
 
 bool PosVelAccYawController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 

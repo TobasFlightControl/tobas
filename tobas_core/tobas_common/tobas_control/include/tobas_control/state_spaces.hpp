@@ -4,6 +4,8 @@
 
 #include "./util.hpp"
 
+namespace tobas
+{
 namespace ctrl
 {
 class LinearDynamics
@@ -216,3 +218,4 @@ inline bool LinearStateSpace::isObservable() const
   return ctrl::isObservable(A, C);
 }
 }  // namespace ctrl
+}  // namespace tobas

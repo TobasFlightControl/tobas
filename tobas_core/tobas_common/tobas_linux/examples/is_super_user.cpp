@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-  if (linux::isSuperUser()) {
+  if (tobas::linux::isSuperUser()) {
     cout << "Running with super privileges." << endl;
   }
   else {

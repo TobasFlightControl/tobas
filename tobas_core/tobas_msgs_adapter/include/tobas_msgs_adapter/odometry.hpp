@@ -11,9 +11,9 @@ namespace tobas_msgs
 {
 struct Odometry
 {
-  kdl::Frame frame;
-  kdl::Twist twist;
-  kdl::Accel accel;
+  tobas::kdl::Frame frame;
+  tobas::kdl::Twist twist;
+  tobas::kdl::Accel accel;
 
   using SharedPtr = std::shared_ptr<Odometry>;
   using ConstSharedPtr = std::shared_ptr<const Odometry>;

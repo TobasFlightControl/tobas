@@ -33,7 +33,7 @@ class RobotModel
 {
 public:
   /* Construct a kinematic model from a parsed description and a list of planning groups */
-  RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model);
+  RobotModel(const ::urdf::ModelInterfaceSharedPtr& urdf_model, const srdf::ModelConstSharedPtr& srdf_model);
 
   /* Destructor. Clear all memory. */
   ~RobotModel();
@@ -61,7 +61,7 @@ public:
   }
 
   /* Get the parsed URDF model */
-  const urdf::ModelInterfaceSharedPtr& getURDF() const
+  const ::urdf::ModelInterfaceSharedPtr& getURDF() const
   {
     return urdf_;
   }
@@ -438,7 +438,7 @@ protected:
 
   srdf::ModelConstSharedPtr srdf_;
 
-  urdf::ModelInterfaceSharedPtr urdf_;
+  ::urdf::ModelInterfaceSharedPtr urdf_;
 
   // LINKS
 
@@ -554,7 +554,7 @@ protected:
 
 private:
   /* Given an URDF model and a SRDF model, build a full kinematic model */
-  void buildModel(const urdf::ModelInterface& urdf_model, const srdf::Model& srdf_model);
+  void buildModel(const ::urdf::ModelInterface& urdf_model, const srdf::Model& srdf_model);
 
   /* Given a SRDF model describing the groups, build up the groups in this kinematic model */
   void buildGroups(const srdf::Model& srdf_model);
@@ -566,7 +566,7 @@ private:
   void buildGroupsInfoEndEffectors(const srdf::Model& srdf_model);
 
   /* Given the URDF model, build up the mimic joints (mutually constrained joints) */
-  void buildMimic(const urdf::ModelInterface& urdf_model);
+  void buildMimic(const ::urdf::ModelInterface& urdf_model);
 
   /* Given a SRDF model describing the groups, build the default states defined in the SRDF */
   void buildGroupStates(const srdf::Model& srdf_model);
@@ -582,18 +582,18 @@ private:
 
   /* (This function is mostly intended for internal use). Given a parent link, build up (recursively),
    * the kinematic model by walking  down the tree*/
-  JointModel* buildRecursive(LinkModel* parent, const urdf::Link* link, const srdf::Model& srdf_model);
+  JointModel* buildRecursive(LinkModel* parent, const ::urdf::Link* link, const srdf::Model& srdf_model);
 
   /* Construct a JointModelGroup given a SRDF description \e group */
   bool addJointModelGroup(const srdf::Model::Group& group);
 
   /* Given a child link and a srdf model, build up the corresponding JointModel object */
-  JointModel* constructJointModel(const urdf::Link* child_link, const srdf::Model& srdf_model);
+  JointModel* constructJointModel(const ::urdf::Link* child_link, const srdf::Model& srdf_model);
 
   /* Given a urdf link, build the corresponding LinkModel object */
-  LinkModel* constructLinkModel(const urdf::Link* urdf_link);
+  LinkModel* constructLinkModel(const ::urdf::Link* urdf_link);
 
   /* Given a geometry spec from the URDF and a filename (for a mesh), construct the corresponding shape object */
-  shapes::ShapePtr constructShape(const urdf::Geometry* geom);
+  shapes::ShapePtr constructShape(const ::urdf::Geometry* geom);
 };
 }  // namespace tobas

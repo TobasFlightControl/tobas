@@ -1,5 +1,7 @@
 #pragma once
 
+namespace tobas
+{
 namespace traj
 {
 struct TrajectoryPoint
@@ -17,3 +19,4 @@ public:
   virtual double duration() const noexcept = 0;
 };
 }  // namespace traj
+}  // namespace tobas

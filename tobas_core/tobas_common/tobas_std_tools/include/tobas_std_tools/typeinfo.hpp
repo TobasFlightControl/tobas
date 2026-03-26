@@ -4,7 +4,9 @@
 
 #include <typeinfo>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 template <typename T>
 const char* getClassName()
@@ -18,4 +20,5 @@ const char* getClassName()
     return typeid(T).name();
   }
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

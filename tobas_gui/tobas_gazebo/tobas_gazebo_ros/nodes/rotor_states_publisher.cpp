@@ -6,6 +6,10 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
+namespace tobas
+{
+namespace gazebo
+{
 class RotorStatesPublisherNode : public tobas::BaseNode
 {
   using self = RotorStatesPublisherNode;
@@ -75,5 +79,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     rotor_states_.clear();
   }
 }
+}  // namespace gazebo
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RotorStatesPublisherNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::RotorStatesPublisherNode)

@@ -6,6 +6,8 @@
 
 #include <tobas_math/core.hpp>
 
+namespace tobas
+{
 namespace traj
 {
 namespace
@@ -91,3 +93,4 @@ void AccelLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double p
   v_ = vel;
 }
 }  // namespace traj
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include "./structs.hpp"
 
+namespace tobas
+{
 namespace geomag
 {
 const ConstModel WMM2015 = { 2015.000000,
@@ -1468,3 +1470,4 @@ const ConstModel WMM2025 = { 2025.000000,
                                0.0,
                                -1.7954038938891263e-13 } };
 }  // namespace geomag
+}  // namespace tobas

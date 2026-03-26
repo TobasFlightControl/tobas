@@ -25,12 +25,12 @@ std::shared_ptr<T> clone(const std::shared_ptr<T>& ptr)
   return std::make_shared<T>(*ptr);
 }
 
-urdf::GeometrySharedPtr clone(const urdf::GeometrySharedPtr& geometry);
-urdf::VisualSharedPtr clone(const urdf::VisualSharedPtr& visual);
-urdf::CollisionSharedPtr clone(const urdf::CollisionSharedPtr& collision);
-urdf::JointCalibrationSharedPtr clone(const urdf::JointCalibrationSharedPtr& calibration);
-urdf::JointSharedPtr clone(const urdf::JointSharedPtr& joint);
-urdf::LinkSharedPtr clone(const urdf::LinkSharedPtr& link);
+::urdf::GeometrySharedPtr clone(const ::urdf::GeometrySharedPtr& geometry);
+::urdf::VisualSharedPtr clone(const ::urdf::VisualSharedPtr& visual);
+::urdf::CollisionSharedPtr clone(const ::urdf::CollisionSharedPtr& collision);
+::urdf::JointCalibrationSharedPtr clone(const ::urdf::JointCalibrationSharedPtr& calibration);
+::urdf::JointSharedPtr clone(const ::urdf::JointSharedPtr& joint);
+::urdf::LinkSharedPtr clone(const ::urdf::LinkSharedPtr& link);
 }  // namespace utils
 }  // namespace ub
 }  // namespace gui

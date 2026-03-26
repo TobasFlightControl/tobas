@@ -9,6 +9,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LQID::LQID(const Index& state_size, const Index& input_size, const Index& integrate_size)
@@ -153,3 +155,4 @@ ostream& operator<<(ostream& os, const LQID& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

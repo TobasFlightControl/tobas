@@ -3,6 +3,8 @@
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 
+namespace tobas
+{
 class DroneServerNode : public tobas::BaseNode
 {
   using self = DroneServerNode;
@@ -55,5 +57,6 @@ bool DroneServerNode::fileParamCb(const std::string& p)
   TOBAS_INFO("New drone configuration message is published.");
   return true;
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(DroneServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::DroneServerNode)

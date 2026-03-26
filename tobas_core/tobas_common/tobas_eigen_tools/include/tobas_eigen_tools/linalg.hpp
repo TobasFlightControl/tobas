@@ -7,6 +7,8 @@
 
 #include "./core.hpp"
 
+namespace tobas
+{
 namespace eigen
 {
 /* 行列のランクを計算する． */
@@ -132,3 +134,4 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
 }  // namespace eigen
+}  // namespace tobas

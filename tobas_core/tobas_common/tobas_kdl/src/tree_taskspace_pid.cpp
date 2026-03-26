@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeTaskSpacePID::TreeTaskSpacePID(const Tree& tree, const Vector& grav)
@@ -169,3 +171,4 @@ bool TreeTaskSpacePID::setAngularDamping(const double& kd)
   return true;
 }
 }  // namespace kdl
+}  // namespace tobas

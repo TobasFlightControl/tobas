@@ -8,8 +8,8 @@ namespace ub
 {
 namespace view_model
 {
-MaterialViewModel::MaterialViewModel(const urdf::MaterialSharedPtr& model)
-  : BaseViewModel<urdf::Material, MaterialViewModel>(model)
+MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& model)
+  : BaseViewModel<::urdf::Material, MaterialViewModel>(model)
 {
   if (model_->name.empty()) {
     // Set default name
@@ -37,7 +37,7 @@ void MaterialViewModel::name(const QString& name)
   model_->name = name.toStdString();
 }
 
-const urdf::Color& MaterialViewModel::color() const
+const ::urdf::Color& MaterialViewModel::color() const
 {
   return model_->color;
 }

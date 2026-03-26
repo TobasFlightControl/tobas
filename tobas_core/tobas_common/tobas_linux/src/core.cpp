@@ -7,6 +7,8 @@
 using namespace std;
 namespace fs = filesystem;
 
+namespace tobas
+{
 namespace linux
 {
 string userName()
@@ -52,3 +54,4 @@ bool isSuperUser() noexcept
   return getuid() == 0;
 }
 }  // namespace linux
+}  // namespace tobas

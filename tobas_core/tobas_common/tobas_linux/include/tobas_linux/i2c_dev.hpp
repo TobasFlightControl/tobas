@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace tobas
+{
 namespace linux
 {
 class I2Cdev
@@ -106,3 +108,4 @@ private:
   bool read(size_t length, void* rx);
 };
 }  // namespace linux
+}  // namespace tobas

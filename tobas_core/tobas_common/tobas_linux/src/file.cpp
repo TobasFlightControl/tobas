@@ -9,6 +9,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 int writeFile(const char* path, const char* fmt, ...)
@@ -61,3 +63,4 @@ int readFile(const char* path, const char* fmt, ...)
   return ret;
 }
 }  // namespace linux
+}  // namespace tobas

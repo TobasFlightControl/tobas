@@ -12,15 +12,15 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];
 
-  ublox::ZEDF9P gnss;
+  tobas::ublox::ZEDF9P gnss;
 
-  ublox::payload::NAV_COV cov;
-  ublox::payload::NAV_HPPOSLLH hpposllh;
-  ublox::payload::NAV_POSLLH posllh;
-  ublox::payload::NAV_PVT pvt;
-  ublox::payload::NAV_STATUS status;
-  ublox::payload::NAV_TIMEGPS timegps;
-  ublox::payload::NAV_VELNED velned;
+  tobas::ublox::payload::NAV_COV cov;
+  tobas::ublox::payload::NAV_HPPOSLLH hpposllh;
+  tobas::ublox::payload::NAV_POSLLH posllh;
+  tobas::ublox::payload::NAV_PVT pvt;
+  tobas::ublox::payload::NAV_STATUS status;
+  tobas::ublox::payload::NAV_TIMEGPS timegps;
+  tobas::ublox::payload::NAV_VELNED velned;
 
   cout << "Initializing GNSS device." << endl;
   if (!gnss.initialize(device)) {
@@ -63,31 +63,31 @@ int main(int argc, char** argv)
 
   // Enable messages
   cout << "Enabling messages." << endl;
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_COV, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_COV, true)) {
     cerr << "Failed to enable NAV_COV message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_HPPOSLLH, true)) {
     cerr << "Failed to enable NAV_HPPOSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_POSLLH, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_POSLLH, true)) {
     cerr << "Failed to enable NAV_POSLLH message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_PVT, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_STATUS, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_STATUS, true)) {
     cerr << "Failed to enable NAV_STATUS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_TIMEGPS, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_TIMEGPS, true)) {
     cerr << "Failed to enable NAV_TIMEGPS message." << endl;
     return EXIT_FAILURE;
   }
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_VELNED, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_VELNED, true)) {
     cerr << "Failed to enable NAV_VELNED message." << endl;
     return EXIT_FAILURE;
   }
@@ -100,42 +100,42 @@ int main(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    if (gnss.latestClass() != ublox::ZEDF9P::CLASS_NAV) {
+    if (gnss.latestClass() != tobas::ublox::ZEDF9P::CLASS_NAV) {
       continue;
     }
 
     switch (gnss.latestId()) {
-      case ublox::ZEDF9P::NAV_COV:
+      case tobas::ublox::ZEDF9P::NAV_COV:
         cov.decode(gnss.payload());
         cout << "[NAV_COV]" << endl;
         cout << cov << endl;
         break;
-      case ublox::ZEDF9P::NAV_HPPOSLLH:
+      case tobas::ublox::ZEDF9P::NAV_HPPOSLLH:
         hpposllh.decode(gnss.payload());
         cout << "[NAV_HPPOSLLH]" << endl;
         cout << hpposllh << endl;
         break;
-      case ublox::ZEDF9P::NAV_POSLLH:
+      case tobas::ublox::ZEDF9P::NAV_POSLLH:
         posllh.decode(gnss.payload());
         cout << "[NAV_POSLLH]" << endl;
         cout << posllh << endl;
         break;
-      case ublox::ZEDF9P::NAV_PVT:
+      case tobas::ublox::ZEDF9P::NAV_PVT:
         pvt.decode(gnss.payload());
         cout << "[NAV_PVT]" << endl;
         cout << pvt << endl;
         break;
-      case ublox::ZEDF9P::NAV_STATUS:
+      case tobas::ublox::ZEDF9P::NAV_STATUS:
         status.decode(gnss.payload());
         cout << "[NAV_STATUS]" << endl;
         cout << status << endl;
         break;
-      case ublox::ZEDF9P::NAV_TIMEGPS:
+      case tobas::ublox::ZEDF9P::NAV_TIMEGPS:
         timegps.decode(gnss.payload());
         cout << "[NAV_TIMEGPS]" << endl;
         cout << timegps << endl;
         break;
-      case ublox::ZEDF9P::NAV_VELNED:
+      case tobas::ublox::ZEDF9P::NAV_VELNED:
         velned.decode(gnss.payload());
         cout << "[NAV_VELNED]" << endl;
         cout << velned << endl;

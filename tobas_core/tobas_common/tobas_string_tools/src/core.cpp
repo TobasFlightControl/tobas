@@ -8,6 +8,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace str
 {
 vector<string> split(const string& s, const char& c)
@@ -278,3 +280,4 @@ string snakeFromTitle(const string& title_case)
   return snakeFromPascal(pascalFromTitle(title_case));
 }
 }  // namespace str
+}  // namespace tobas

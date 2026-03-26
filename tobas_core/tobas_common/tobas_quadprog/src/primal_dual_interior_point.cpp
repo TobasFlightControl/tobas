@@ -8,6 +8,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace quadprog
 {
 PrimalDualInteriorPointSolver::PrimalDualInteriorPointSolver()
@@ -166,3 +168,4 @@ double PrimalDualInteriorPointSolver::findAlpha(const VectorXd& dlam, const Vect
   return lb;
 }
 }  // namespace quadprog
+}  // namespace tobas

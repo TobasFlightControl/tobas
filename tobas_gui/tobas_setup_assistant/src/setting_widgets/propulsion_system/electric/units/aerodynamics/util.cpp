@@ -26,7 +26,7 @@ double ratioLeastSquare(const Eigen::VectorXd& num, const Eigen::VectorXd& den)
 
 double motorConstFromThrustStand(const Eigen::VectorXd& rpms, const Eigen::VectorXd& thrusts)
 {
-  const auto omega2 = (rpms * tbs::kRpmToRps).cwiseAbs2();
+  const auto omega2 = (rpms * st::kRpmToRps).cwiseAbs2();
   return ratioLeastSquare(thrusts, omega2);
 }
 
@@ -38,7 +38,7 @@ double momentConstFromThrustStand(const Eigen::VectorXd& thrusts, const Eigen::V
 double motorConstFromUiuc(const Eigen::VectorXd& cts, double d)
 {
   const auto ct = cts.mean();
-  constexpr auto rho = tbs::kStandardAirDensity;  // TODO: ランタイムの気圧変化を考慮
+  constexpr auto rho = st::kStandardAirDensity;  // TODO: ランタイムの気圧変化を考慮
   return (ct * rho * math::quar(d)) / math::sqr(M_2PI);
 }
 

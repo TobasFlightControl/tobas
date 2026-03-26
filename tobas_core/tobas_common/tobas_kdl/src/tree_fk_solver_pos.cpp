@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeFkSolverPos::TreeFkSolverPos(const Tree& tree) : super(tree)
@@ -41,3 +43,4 @@ Frame TreeFkSolverPos::recursiveFk(const JntArray& q, const SegmentMap::const_it
   return recursiveFk(q, parent_it) * cur_frame;
 }
 }  // namespace kdl
+}  // namespace tobas

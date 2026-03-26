@@ -258,7 +258,7 @@ private:
   Eigen::Matrix<double, 3, kDeltaStateSize> H_grav_;
 
   std::chrono::steady_clock::time_point t_last_imu_;
-  tbs::TimestampedBuffer<StateVector> x_history_;
+  st::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
 
   // Direct value getters

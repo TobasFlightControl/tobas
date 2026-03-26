@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <stdfloat>
 
+namespace tobas
+{
 namespace algo
 {
 template <typename T>
@@ -56,3 +58,4 @@ std::float16_t decodeR16(uint16_t bin);
  */
 std::float32_t decodeR32(uint32_t bin);
 }  // namespace algo
+}  // namespace tobas

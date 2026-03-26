@@ -7,6 +7,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LinearMPC::LinearMPC()
@@ -382,3 +384,4 @@ MatrixXd LinearMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, c
   return res;
 }
 }  // namespace ctrl
+}  // namespace tobas

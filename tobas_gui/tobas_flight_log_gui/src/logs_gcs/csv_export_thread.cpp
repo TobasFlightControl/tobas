@@ -281,8 +281,8 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
     const kdl::Rotation rot(msg.odom.odom.frame.rot.data);
     const auto [roll, pitch, yaw] = rot.getRPY();
     res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
-           std::to_string(tbs::rad2deg(roll)) + ',' + std::to_string(tbs::rad2deg(pitch)) + ',' +
-           std::to_string(tbs::rad2deg(yaw)) + ',';
+           std::to_string(st::rad2deg(roll)) + ',' + std::to_string(st::rad2deg(pitch)) + ',' +
+           std::to_string(st::rad2deg(yaw)) + ',';
 
     const auto& lin_vel = msg.odom.odom.twist.linear;
     const auto& ang_vel = msg.odom.odom.twist.angular;
@@ -394,7 +394,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   if (rotor_speeds_cmd_it != data.end()) {
     const auto& msg = rotor_speeds_decoder_.decode(rotor_speeds_cmd_it->second);
     for (const auto& elem : msg.speeds) {
-      res += std::to_string(tbs::rps2rpm(elem.speed)) + ',';
+      res += std::to_string(st::rps2rpm(elem.speed)) + ',';
     }
   }
   else {
@@ -406,7 +406,7 @@ std::string CsvExportThread::makeCsvDataRow(Time time, const SerializedDataMap& 
   if (rotor_states_it != data.end()) {
     const auto& msg = rotor_states_decoder_.decode(rotor_states_it->second);
     for (const auto& elem : msg.states) {
-      res += std::to_string(tbs::rps2rpm(elem.speed)) + ',';
+      res += std::to_string(st::rps2rpm(elem.speed)) + ',';
     }
     for (const auto& elem : msg.states) {
       const auto comm_ok = (elem.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE);

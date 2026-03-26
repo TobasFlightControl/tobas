@@ -10,7 +10,7 @@ namespace gazebo
 class SimpleJointModel
 {
 public:
-  tbs::Range<double> pos_limit;
+  st::Range<double> pos_limit;
   double max_vel;
 
   explicit SimpleJointModel(double _min_pos, double _max_pos, double _max_vel);

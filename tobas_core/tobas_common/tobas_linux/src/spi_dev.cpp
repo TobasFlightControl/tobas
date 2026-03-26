@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 SPIdev::SPIdev() noexcept
@@ -53,3 +55,4 @@ bool SPIdev::transfer(uint32_t length) noexcept
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

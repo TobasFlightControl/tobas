@@ -77,17 +77,17 @@ double PoseWidget::z() const
 
 double PoseWidget::roll() const
 {
-  return tbs::deg2rad(rpy_[0]->value());
+  return st::deg2rad(rpy_[0]->value());
 }
 
 double PoseWidget::pitch() const
 {
-  return tbs::deg2rad(rpy_[1]->value());
+  return st::deg2rad(rpy_[1]->value());
 }
 
 double PoseWidget::yaw() const
 {
-  return tbs::deg2rad(rpy_[2]->value());
+  return st::deg2rad(rpy_[2]->value());
 }
 }  // namespace sim
 }  // namespace gui

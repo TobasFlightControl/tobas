@@ -16,10 +16,10 @@ namespace ub
 {
 namespace view_model
 {
-class JointViewModel : public BaseViewModel<urdf::Joint, JointViewModel>
+class JointViewModel : public BaseViewModel<::urdf::Joint, JointViewModel>
 {
 public:
-  explicit JointViewModel(const urdf::JointSharedPtr& model);
+  explicit JointViewModel(const ::urdf::JointSharedPtr& model);
 
   void sync() override;
 
@@ -29,8 +29,8 @@ public:
   const QString& type() const;
   void type(const QString& type);
 
-  const urdf::Pose& origin() const;
-  void origin(const urdf::Pose& origin);
+  const ::urdf::Pose& origin() const;
+  void origin(const ::urdf::Pose& origin);
 
   QString parentLinkName() const;
   void parentLinkName(const QString& name);
@@ -38,8 +38,8 @@ public:
   QString childLinkName() const;
   void childLinkName(const QString& name);
 
-  const urdf::Vector3& axis() const;
-  void axis(const urdf::Vector3& axis);
+  const ::urdf::Vector3& axis() const;
+  void axis(const ::urdf::Vector3& axis);
 
   const JointLimitsViewModelPtr& limits();
 

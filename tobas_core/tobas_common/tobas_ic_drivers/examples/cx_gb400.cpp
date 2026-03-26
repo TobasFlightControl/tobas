@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     }
   }
 
-  driver::CxGb400 camera;
+  tobas::driver::CxGb400 camera;
   // reset uavcan
   if (reset_uavcan) {
     if (!camera.initialize(device, camera.kLower)) {

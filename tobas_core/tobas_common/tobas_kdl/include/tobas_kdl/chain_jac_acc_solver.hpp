@@ -3,6 +3,8 @@
 #include "./chain_solver_i.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -39,3 +41,4 @@ inline const Accel& ChainJacAccSolver::getJdqd() const
   return Jdqd_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

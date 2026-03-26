@@ -2,6 +2,8 @@
 
 #include "./frames.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* 3次元サイクロイドを生成 */
@@ -68,3 +70,4 @@ private:
   double computeTheta(const double& t) const;
 };
 }  // namespace kdl
+}  // namespace tobas

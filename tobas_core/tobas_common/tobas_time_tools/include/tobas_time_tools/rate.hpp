@@ -2,6 +2,8 @@
 
 #include <chrono>
 
+namespace tobas
+{
 namespace tim
 {
 class Rate
@@ -18,3 +20,4 @@ private:
   std::chrono::steady_clock::time_point last_time_;
 };
 }  // namespace tim
+}  // namespace tobas

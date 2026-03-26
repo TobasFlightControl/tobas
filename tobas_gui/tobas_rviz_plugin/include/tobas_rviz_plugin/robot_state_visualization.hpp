@@ -26,7 +26,7 @@ public:
     return robot_;
   }
 
-  void load(const urdf::ModelInterface& descr, bool visual = true, bool collision = true);
+  void load(const ::urdf::ModelInterface& descr, bool visual = true, bool collision = true);
   void clear();
 
   void update(const RobotStateConstPtr& robot_state);

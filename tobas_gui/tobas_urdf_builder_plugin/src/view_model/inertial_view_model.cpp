@@ -16,12 +16,12 @@ void InertialViewModel::sync()
 {
 }
 
-const urdf::Pose& InertialViewModel::origin() const
+const ::urdf::Pose& InertialViewModel::origin() const
 {
   return model_->origin;
 }
 
-void InertialViewModel::origin(const urdf::Pose& origin)
+void InertialViewModel::origin(const ::urdf::Pose& origin)
 {
   model_->origin = origin;
 }

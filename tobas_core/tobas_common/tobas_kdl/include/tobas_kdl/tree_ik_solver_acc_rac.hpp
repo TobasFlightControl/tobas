@@ -7,6 +7,8 @@
 #include "./tree_jacobian_solver.hpp"
 #include "./tree_joint_parser.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeIkSolverAcc_RAC : public TreeIkSolverAcc
@@ -42,3 +44,4 @@ private:
   void resize();
 };
 }  // namespace kdl
+}  // namespace tobas

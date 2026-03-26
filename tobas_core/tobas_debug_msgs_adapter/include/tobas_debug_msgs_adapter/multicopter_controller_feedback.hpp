@@ -11,8 +11,8 @@ namespace tobas_debug_msgs
 struct MulticopterControllerFeedback
 {
   std_msgs::msg::Header header;
-  kdl::Vector position_integral_error;
-  kdl::Vector angle_integral_error;
+  tobas::kdl::Vector position_integral_error;
+  tobas::kdl::Vector angle_integral_error;
 
   using SharedPtr = std::shared_ptr<MulticopterControllerFeedback>;
   using ConstSharedPtr = std::shared_ptr<const MulticopterControllerFeedback>;

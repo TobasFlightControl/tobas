@@ -10,6 +10,8 @@ using Tensor3Xd = Tensor<double, 3>;
 using Tensor4Xd = Tensor<double, 4>;
 }  // namespace Eigen
 
+namespace tobas
+{
 namespace eigen
 {
 template <typename TensorType>
@@ -40,6 +42,7 @@ inline void setVectorX(
   _des.slice(offset, extent) = Eigen::TensorMap<const Eigen::Tensor<Scalar, Dims>>(_src.data(), extent);
 }
 }  // namespace eigen
+}  // namespace tobas
 
 template <typename Scalar, int N>
 inline Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>

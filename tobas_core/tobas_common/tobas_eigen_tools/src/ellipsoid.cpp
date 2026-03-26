@@ -7,6 +7,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace eigen
 {
 Ellipsoid::Ellipsoid()
@@ -88,3 +90,4 @@ void Ellipsoid::setSoftBias(const Vector6d& t)
   T_inv_ = T_.inverse();
 }
 }  // namespace eigen
+}  // namespace tobas

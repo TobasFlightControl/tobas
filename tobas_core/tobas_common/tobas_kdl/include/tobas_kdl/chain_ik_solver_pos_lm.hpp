@@ -7,6 +7,8 @@
 #include "./chain.hpp"
 #include "./chain_ik_solver.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -139,3 +141,4 @@ private:
   void enforceJointLimits(Eigen::VectorXd& q);
 };
 }  // namespace kdl
+}  // namespace tobas

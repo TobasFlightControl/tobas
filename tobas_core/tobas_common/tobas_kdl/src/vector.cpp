@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angle_tol_rad, double zero_tol) const
@@ -34,3 +36,4 @@ bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angl
   }
 }
 }  // namespace kdl
+}  // namespace tobas

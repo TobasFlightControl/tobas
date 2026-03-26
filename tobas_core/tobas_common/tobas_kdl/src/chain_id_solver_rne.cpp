@@ -1,5 +1,7 @@
 #include "tobas_kdl/chain_id_solver_rne.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 ChainIdSolver_RNE::ChainIdSolver_RNE(const Chain& chain) : super(chain), ag_(Accel::Zero())
@@ -158,3 +160,4 @@ void ChainIdSolver_RNE::resize()
   effort_out_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

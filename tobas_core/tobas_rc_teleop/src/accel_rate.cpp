@@ -120,13 +120,13 @@ bool AccelRateController::maxVerticalAccelCb(const double& p)
 
 bool AccelRateController::maxAttitudeRateCb(const double& p)
 {
-  max_atti_rate_ = tbs::deg2rad(p);
+  max_atti_rate_ = st::deg2rad(p);
   return true;
 }
 
 bool AccelRateController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 

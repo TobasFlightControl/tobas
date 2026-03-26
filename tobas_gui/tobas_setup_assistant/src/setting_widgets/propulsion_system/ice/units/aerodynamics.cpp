@@ -146,10 +146,10 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> A
   const auto pitch_limit = propeller_->pitchAngleLimit();
 
   for (int i = 0; i < num_data; ++i) {
-    const auto speed = tbs::rpm2rps(data_mat(i, 0));  // [rad/s]
-    const auto pitch = tbs::deg2rad(data_mat(i, 1));  // [rad]
-    const auto thrust = data_mat(i, 2);               // [N]
-    const auto torque = data_mat(i, 3);               // [Nm]
+    const auto speed = st::rpm2rps(data_mat(i, 0));  // [rad/s]
+    const auto pitch = st::deg2rad(data_mat(i, 1));  // [rad]
+    const auto thrust = data_mat(i, 2);              // [N]
+    const auto torque = data_mat(i, 3);              // [Nm]
 
     if (pitch_limit.inRange(pitch, 1e-3)) {
       speeds.push_back(speed);

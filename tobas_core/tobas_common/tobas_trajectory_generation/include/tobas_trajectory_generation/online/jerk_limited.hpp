@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace tobas
+{
 namespace traj
 {
 /**
@@ -82,3 +84,4 @@ inline void JerkLimitedOnlineTrajectoryGenerator::setTargetAcceleration(double t
   tar_acc_ = tar_acc;
 }
 }  // namespace traj
+}  // namespace tobas

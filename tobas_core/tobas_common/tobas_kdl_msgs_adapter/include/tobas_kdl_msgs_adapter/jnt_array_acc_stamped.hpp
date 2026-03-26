@@ -13,7 +13,7 @@ namespace tobas_kdl_msgs
 struct JntArrayAccStamped
 {
   std_msgs::msg::Header header;
-  kdl::JntArrayAcc q;
+  tobas::kdl::JntArrayAcc q;
 
   using SharedPtr = std::shared_ptr<JntArrayAccStamped>;
   using ConstSharedPtr = std::shared_ptr<const JntArrayAccStamped>;

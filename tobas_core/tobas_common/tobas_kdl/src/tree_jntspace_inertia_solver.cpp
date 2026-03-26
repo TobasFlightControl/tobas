@@ -2,6 +2,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
 TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree) : super(tree), rne_(tree_, kdl::Vector::Zero())
@@ -60,3 +62,4 @@ void TreeJntSpaceInertiaSolver::resize()
   jntarray_null_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl
+}  // namespace tobas

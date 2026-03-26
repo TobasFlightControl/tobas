@@ -9,6 +9,8 @@
 // #include <tobas_std_msgs/action/empty.hpp>
 // using ActType = tobas_std_msgs::action::Empty;
 
+namespace tobas
+{
 namespace ros2
 {
 /**
@@ -124,3 +126,4 @@ private:
   typename GoalHandle::WrappedResult result_;
 };
 }  // namespace ros2
+}  // namespace tobas

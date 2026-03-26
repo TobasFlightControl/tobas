@@ -592,7 +592,7 @@ double ErrorStateKalmanFilter::measureMagneticFieldHead(
 
   // オイラー角を取得
   const auto R_W_B = getQuaternion(x);
-  const auto [roll_pred, pitch_pred, yaw_pred] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
+  const auto [roll_pred, pitch_pred, yaw_pred] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
   // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
   const Eigen::AngleAxisd R_W_G(yaw_pred, Eigen::Vector3d::UnitZ());

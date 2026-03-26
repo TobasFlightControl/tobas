@@ -2,6 +2,8 @@
 
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Wrench;
@@ -136,3 +138,4 @@ inline std::ostream& operator<<(std::ostream& os, const Wrench& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

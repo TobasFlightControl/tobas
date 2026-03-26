@@ -3,7 +3,9 @@
 #include <sstream>
 #include <string>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 template <typename T>
 inline void addToStream(std::stringstream& ss, const T& t)
@@ -25,4 +27,5 @@ inline std::string buildString(const Args&... args)
   addToStream(ss, args...);
   return ss.str();
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

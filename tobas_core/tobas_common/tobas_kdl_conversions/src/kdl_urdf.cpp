@@ -2,131 +2,133 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace kdl
 {
-void vectorKdlToUrdf(const Vector& k, urdf::Vector3& u)
+void vectorKdlToUrdf(const Vector& k, ::urdf::Vector3& u)
 {
   u.x = k.x();
   u.y = k.y();
   u.z = k.z();
 }
 
-void vectorUrdfToKdl(const urdf::Vector3& u, Vector& k)
+void vectorUrdfToKdl(const ::urdf::Vector3& u, Vector& k)
 {
   k.x(u.x);
   k.y(u.y);
   k.z(u.z);
 }
 
-urdf::Vector3 vectorKdlToUrdf(const Vector& k)
+::urdf::Vector3 vectorKdlToUrdf(const Vector& k)
 {
-  urdf::Vector3 u;
+  ::urdf::Vector3 u;
   vectorKdlToUrdf(k, u);
   return u;
 }
 
-Vector vectorUrdfToKdl(const urdf::Vector3& u)
+Vector vectorUrdfToKdl(const ::urdf::Vector3& u)
 {
   Vector k;
   vectorUrdfToKdl(u, k);
   return k;
 }
 
-void rotationKdlToUrdf(const Rotation& k, urdf::Rotation& u)
+void rotationKdlToUrdf(const Rotation& k, ::urdf::Rotation& u)
 {
   k.getQuaternion(u.x, u.y, u.z, u.w);
 }
 
-void rotationUrdfToKdl(const urdf::Rotation& u, Rotation& k)
+void rotationUrdfToKdl(const ::urdf::Rotation& u, Rotation& k)
 {
   k = Rotation::Quaternion(u.x, u.y, u.z, u.w);
 }
 
-urdf::Rotation rotationKdlToUrdf(const Rotation& k)
+::urdf::Rotation rotationKdlToUrdf(const Rotation& k)
 {
-  urdf::Rotation u;
+  ::urdf::Rotation u;
   rotationKdlToUrdf(k, u);
   return u;
 }
 
-Rotation rotationUrdfToKdl(const urdf::Rotation& u)
+Rotation rotationUrdfToKdl(const ::urdf::Rotation& u)
 {
   Rotation k;
   rotationUrdfToKdl(u, k);
   return k;
 }
 
-void poseKdlToUrdf(const Frame& k, urdf::Pose& u)
+void poseKdlToUrdf(const Frame& k, ::urdf::Pose& u)
 {
   vectorKdlToUrdf(k.p, u.position);
   rotationKdlToUrdf(k.M, u.rotation);
 }
 
-void poseUrdfToKdl(const urdf::Pose& u, Frame& k)
+void poseUrdfToKdl(const ::urdf::Pose& u, Frame& k)
 {
   vectorUrdfToKdl(u.position, k.p);
   rotationUrdfToKdl(u.rotation, k.M);
 }
 
-urdf::Pose poseKdlToUrdf(const Frame& k)
+::urdf::Pose poseKdlToUrdf(const Frame& k)
 {
-  urdf::Pose u;
+  ::urdf::Pose u;
   poseKdlToUrdf(k, u);
   return u;
 }
 
-Frame poseUrdfToKdl(const urdf::Pose& u)
+Frame poseUrdfToKdl(const ::urdf::Pose& u)
 {
   Frame k;
   poseUrdfToKdl(u, k);
   return k;
 }
 
-void inertiaKdlToUrdf(const RigidBodyInertia&, urdf::Inertial&)
+void inertiaKdlToUrdf(const RigidBodyInertia&, ::urdf::Inertial&)
 {
   throw runtime_error("Not implemented yet.");  // TODO
 }
 
-void inertiaUrdfToKdl(const urdf::Inertial& u, RigidBodyInertia& k)
+void inertiaUrdfToKdl(const ::urdf::Inertial& u, RigidBodyInertia& k)
 {
   const auto kdl_origin = poseUrdfToKdl(u.origin);
   const RotationalInertia urdf_inertia(u.ixx, u.iyy, u.izz, u.ixy, u.ixz, u.iyz);
   k = RigidBodyInertia(u.mass, kdl_origin.p, kdl_origin.M * urdf_inertia);
 }
 
-urdf::Inertial inertiaKdlToUrdf(const RigidBodyInertia& k)
+::urdf::Inertial inertiaKdlToUrdf(const RigidBodyInertia& k)
 {
-  urdf::Inertial u;
+  ::urdf::Inertial u;
   inertiaKdlToUrdf(k, u);
   return u;
 }
 
-RigidBodyInertia inertiaUrdfToKdl(const urdf::Inertial& u)
+RigidBodyInertia inertiaUrdfToKdl(const ::urdf::Inertial& u)
 {
   RigidBodyInertia k;
   inertiaUrdfToKdl(u, k);
   return k;
 }
 
-void jointKdlToUrdf(const Joint&, urdf::Joint&)
+void jointKdlToUrdf(const Joint&, ::urdf::Joint&)
 {
   throw runtime_error("Not implemented yet.");  // TODO
 }
 
-void jointUrdfToKdl(const urdf::Joint& u, Joint& k)
+void jointUrdfToKdl(const ::urdf::Joint& u, Joint& k)
 {
   // Name
   k.name = u.name;
 
-  if (u.type == urdf::Joint::FIXED) {
+  if (u.type == ::urdf::Joint::FIXED) {
     k.type = Joint::kFixed;
   }
   else {
     // Type
-    if (u.type == urdf::Joint::REVOLUTE || u.type == urdf::Joint::CONTINUOUS) {
+    if (u.type == ::urdf::Joint::REVOLUTE || u.type == ::urdf::Joint::CONTINUOUS) {
       k.type = Joint::kRotation;
     }
-    else if (u.type == urdf::Joint::PRISMATIC) {
+    else if (u.type == ::urdf::Joint::PRISMATIC) {
       k.type = Joint::kTranslation;
     }
     else {
@@ -157,17 +159,18 @@ void jointUrdfToKdl(const urdf::Joint& u, Joint& k)
   }
 }
 
-urdf::Joint jointKdlToUrdf(const Joint& k)
+::urdf::Joint jointKdlToUrdf(const Joint& k)
 {
-  urdf::Joint u;
+  ::urdf::Joint u;
   jointKdlToUrdf(k, u);
   return u;
 }
 
-Joint jointUrdfToKdl(const urdf::Joint& u)
+Joint jointUrdfToKdl(const ::urdf::Joint& u)
 {
   Joint k;
   jointUrdfToKdl(u, k);
   return k;
 }
 }  // namespace kdl
+}  // namespace tobas

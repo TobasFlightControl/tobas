@@ -4,6 +4,8 @@
 #include "./frame.hpp"
 #include "./twist.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -56,3 +58,4 @@ inline Accel TaskSpaceDamping::operator*(const Twist& rhs)
   return Accel(linear.hadamard(rhs.vel), angular.hadamard(rhs.rot));
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -13,7 +13,7 @@ namespace tobas_kdl_msgs
 struct RotationStamped
 {
   std_msgs::msg::Header header;
-  kdl::Rotation rotation;
+  tobas::kdl::Rotation rotation;
 
   using SharedPtr = std::shared_ptr<RotationStamped>;
   using ConstSharedPtr = std::shared_ptr<const RotationStamped>;

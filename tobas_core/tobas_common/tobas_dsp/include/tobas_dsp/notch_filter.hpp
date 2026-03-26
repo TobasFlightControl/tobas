@@ -11,6 +11,8 @@
 #include "./base_filter.hpp"
 #include "./utils.hpp"
 
+namespace tobas
+{
 namespace dsp
 {
 /* cf. https://qiita.com/yknk0104/items/9519fa02dfd37ea4b228 */
@@ -144,3 +146,4 @@ void NotchFilter<T>::shiftHistory()
   u_[1] = u_[0];
 }
 }  // namespace dsp
+}  // namespace tobas

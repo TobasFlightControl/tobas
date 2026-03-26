@@ -11,6 +11,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LQR::LQR()
@@ -88,3 +90,4 @@ ostream& operator<<(ostream& os, const LQR& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

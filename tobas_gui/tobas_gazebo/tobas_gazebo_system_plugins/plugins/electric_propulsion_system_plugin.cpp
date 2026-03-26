@@ -387,8 +387,8 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   const auto b = param_.resistance * param_.kv * param_.moment_const * param_.motor_const;
   const auto c = 1. / param_.kv;
 
-  const auto Ea = battery_gt_->voltage * throt_;                                            // 印加電圧
-  const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
+  const auto Ea = battery_gt_->voltage * throt_;                                          // 印加電圧
+  const auto eq_speed = Ea == 0. ? 0. : (sqrt(math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
   const auto cur_speed = std::max(param_.direction * vel_, 0.);
 

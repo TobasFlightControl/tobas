@@ -5,6 +5,8 @@
 
 #include "./chain.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class TreeElement;
@@ -185,3 +187,4 @@ inline bool Tree::hasSegment(const std::string& seg_name) const
   return segments_.find(seg_name) != segments_.end();
 }
 }  // namespace kdl
+}  // namespace tobas

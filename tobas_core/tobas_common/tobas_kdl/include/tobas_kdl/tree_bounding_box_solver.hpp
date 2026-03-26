@@ -6,6 +6,8 @@
 #include "./tree_fk_solver_pos_all.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* ロボットの全てのフレームを囲う最小の直方体を求める． */
@@ -89,3 +91,4 @@ inline double TreeBoundingBoxSolver::diagonalLength() const
   return ::sqrt(math::sqr(xWidth()) + math::sqr(yWidth()) + math::sqr(zWidth()));
 }
 }  // namespace kdl
+}  // namespace tobas

@@ -176,7 +176,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto& mass = inertia.getMass();
-  const auto weight = mass * tbs::kGravity;
+  const auto weight = mass * st::kGravity;
 
   // 推力がかかる項を計算
   kdl::Vector trans_sum = kdl::Vector::Zero();

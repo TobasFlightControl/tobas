@@ -195,13 +195,13 @@ bool PosVelAccAngleController::maxVerticalAccelCb(const double& p)
 
 bool PosVelAccAngleController::maxAttitudeCb(const double& p)
 {
-  max_attitude_ = tbs::deg2rad(p);
+  max_attitude_ = st::deg2rad(p);
   return true;
 }
 
 bool PosVelAccAngleController::maxAttitudeRateCb(const double& p)
 {
-  const auto max_atti_rate = tbs::deg2rad(p);  // [rad/s]
+  const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
   pitch_filt_.setMaxVelocity(max_atti_rate);
   return true;
@@ -209,7 +209,7 @@ bool PosVelAccAngleController::maxAttitudeRateCb(const double& p)
 
 bool PosVelAccAngleController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 

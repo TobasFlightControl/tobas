@@ -11,7 +11,7 @@ namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_IntRange : public ParamGetterWidget<tbs::Range<int>>
+class ParamGetterWidget_IntRange : public ParamGetterWidget<st::Range<int>>
 {
   Q_OBJECT
 

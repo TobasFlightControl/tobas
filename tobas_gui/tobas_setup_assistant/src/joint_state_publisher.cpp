@@ -118,7 +118,7 @@ void JointStatePublisherWidget::publish()
 
 void JointStatePublisherWidget::onValueChanged(double value, const std::string& jnt_name)
 {
-  const auto idx = tbs::index(js_.name, jnt_name);
+  const auto idx = st::index(js_.name, jnt_name);
   if (idx < 0) {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Joint \"" << jnt_name << "\" does not exist.");
     return;

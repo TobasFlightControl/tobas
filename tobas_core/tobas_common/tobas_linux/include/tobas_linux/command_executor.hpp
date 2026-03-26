@@ -3,6 +3,8 @@
 #include <array>
 #include <string>
 
+namespace tobas
+{
 namespace linux
 {
 class CommandExecutor
@@ -24,3 +26,4 @@ inline const std::string& CommandExecutor::getOutput() const
   return output_;
 }
 }  // namespace linux
+}  // namespace tobas

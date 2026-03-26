@@ -2,6 +2,8 @@
 
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 void quaternionKDLToEigen(const Quaternion& k, Quaterniond& e)
@@ -20,3 +22,4 @@ void quaternionEigenToKDL(const Quaterniond& e, Quaternion& k)
   k.w = e.w();
 }
 }  // namespace kdl
+}  // namespace tobas

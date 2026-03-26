@@ -47,7 +47,7 @@ int T1Widget::imuUpdateRate() const
 
 double T1Widget::gyroNoiseDensity() const
 {
-  return 0.011 * tbs::kDeg2Rad;  // ISM330DLC
+  return 0.011 * st::kDeg2Rad;  // ISM330DLC
 }
 
 double T1Widget::gyroRandomWalk() const
@@ -62,7 +62,7 @@ int T1Widget::gyroBiasCorrTime() const
 
 double T1Widget::accNoiseDensity() const
 {
-  return 1.7e-4 * tbs::kGravity;  // ISM330DLC
+  return 1.7e-4 * st::kGravity;  // ISM330DLC
 }
 
 double T1Widget::accRandomWalk() const

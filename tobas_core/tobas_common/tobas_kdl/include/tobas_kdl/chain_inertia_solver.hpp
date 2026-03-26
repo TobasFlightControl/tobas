@@ -5,6 +5,8 @@
 #include "./jntarray.hpp"
 #include "./rigid_body_inertia.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class ChainInertiaSolver : public ChainSolverI
@@ -34,3 +36,4 @@ inline const RigidBodyInertia& ChainInertiaSolver::getInertia() const
   return I_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

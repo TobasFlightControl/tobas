@@ -5,6 +5,8 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 static constexpr double kDefaultWeightTS = 1.;
@@ -110,3 +112,4 @@ protected:
   JntArray qdd_out_;
 };
 }  // namespace kdl
+}  // namespace tobas

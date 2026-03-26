@@ -6,6 +6,8 @@
 
 // #define TRACE_SOLVER
 
+namespace tobas
+{
 namespace nlp
 {
 NewtonSolver1d::NewtonSolver1d()
@@ -95,3 +97,4 @@ bool NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
   return true;
 }
 }  // namespace nlp
+}  // namespace tobas

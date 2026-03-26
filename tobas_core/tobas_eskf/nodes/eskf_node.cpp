@@ -332,7 +332,7 @@ bool ErrorStateKalmanFilterNode::setMagneticFieldRef(const Vector3d& mag_W)
   if (mag_) {
     // 現在のRPYを取得
     const auto R_W_B = eskf_.getQuaternion();
-    const auto [old_roll, old_pitch, old_yaw] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
+    const auto [old_roll, old_pitch, old_yaw] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
 
     // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
     const AngleAxisd R_G_B(old_yaw, Vector3d::UnitZ());
@@ -529,7 +529,7 @@ bool ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(const double& p)
 
 bool ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(const double& p)
 {
-  const auto mag_stddev = p * 1e-2 / tbs::kGeomagScale;  // [-]
+  const auto mag_stddev = p * 1e-2 / st::kGeomagScale;  // [-]
   const auto mag_var = math::sqr(mag_stddev);
   fixed_mag_cov_.diagonal().fill(mag_var);
 
@@ -578,7 +578,7 @@ bool ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(const double& p)
 {
   assert(!adaptive_grav_noise_);
 
-  const auto grav_stddev = p * tbs::kGravity;  // [m/s^2]
+  const auto grav_stddev = p * st::kGravity;  // [m/s^2]
   const auto grav_var = math::sqr(grav_stddev);
   fixed_grav_cov_.diagonal().fill(grav_var);
 
@@ -610,7 +610,7 @@ bool ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_acc_bias_estimation_);
 
-  const auto nd = p * 1e-6 * tbs::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
+  const auto nd = p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
   return eskf_.setAccBiasProcNoiseDensity(nd);
 }
 
@@ -618,7 +618,7 @@ bool ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_gyro_bias_estimation_);
 
-  const auto nd = p * 1e-3 * tbs::kDeg2Rad;  // mdps/s/√Hz -> rad/s^2/√Hz
+  const auto nd = p * 1e-3 * st::kDeg2Rad;  // mdps/s/√Hz -> rad/s^2/√Hz
   return eskf_.setGyroBiasProcNoiseDensity(nd);
 }
 
@@ -626,7 +626,7 @@ bool ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_hard_bias_estimation_);
 
-  const auto nd = p * 1e-5 / tbs::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
+  const auto nd = p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   return eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
@@ -634,7 +634,7 @@ bool ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(const double& p)
 {
   assert(do_mag_soft_bias_estimation_);
 
-  const auto nd = p * 1e-5 / tbs::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
+  const auto nd = p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   return eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
@@ -642,7 +642,7 @@ bool ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(const double& p)
 {
   assert(do_grav_estimation_);
 
-  const auto nd = p * 1e-6 * tbs::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
+  const auto nd = p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
   return eskf_.setGravProcNoiseDensity(nd);
 }
 
@@ -668,7 +668,7 @@ void ErrorStateKalmanFilterNode::imuRawCb(const ImuMsg::ConstSharedPtr& imu_raw)
           Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias cov
           Matrix3d::Identity(),                                                 // Init mag soft bias
           Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias cov
-          tbs::kGravity,                                                        // Init gravity
+          st::kGravity,                                                         // Init gravity
           math::sqr(initGravBiasStddev()),                                      // Init gravity var
           cur_time)) {
       TOBAS_ERROR("Failed to initialize ESKF.");
@@ -752,7 +752,7 @@ void ErrorStateKalmanFilterNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
     // 姿勢を補正し地上座標系から見た地磁気ベクトルを求める
     const auto R_W_B = eskf_.getQuaternion();
-    const auto [roll, pitch, _] = tbs::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
+    const auto [roll, pitch, _] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
     const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.);
     const auto mag_G = R_G_B * mag->mag;
 
@@ -794,7 +794,7 @@ void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
   if (!baro_) {
-    alt_0_baro_ = tbs::pressureToAltitude(baro->pressure);
+    alt_0_baro_ = st::pressureToAltitude(baro->pressure);
   }
 
   baro_ = baro;
@@ -804,7 +804,7 @@ void ErrorStateKalmanFilterNode::baroCb(const BaroMsg::ConstSharedPtr& baro)
     return;
   }
 
-  const auto z_abs = tbs::pressureToAltitude(baro->pressure);
+  const auto z_abs = st::pressureToAltitude(baro->pressure);
   const auto z_var = fixed_baro_alt_var_;
   const auto z_m = z_abs - alt_0_baro_;
   const auto stamp = ros2::chronoFromRosTime(baro->header.stamp);
@@ -861,7 +861,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 
   // 位置の観測値
   std::tie(pos_meas_.x(), pos_meas_.y()) =
-    tbs::gnssToCartRelative(gnss->latitude, gnss->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
+    st::gnssToCartRelative(gnss->latitude, gnss->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
   pos_meas_.z() = gnss->altitude - gnss_origin_.altitude;  // FIXME: BaroとGNSSが両方有効のときに高度情報が競合する
 
   // 共分散

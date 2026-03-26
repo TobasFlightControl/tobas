@@ -4,6 +4,8 @@
 #include "./utilities/rall1d.hpp"
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class VectorVel
@@ -187,3 +189,4 @@ inline VectorVel operator*(const Rotation& R, const VectorVel& x)
   return VectorVel(R * x.p, R * x.v);
 }
 }  // namespace kdl
+}  // namespace tobas

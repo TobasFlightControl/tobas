@@ -27,7 +27,7 @@ public:
     double radius,
     double blade_chord,
     double pitch_angle,
-    double air_density = tbs::kStandardAirDensity);
+    double air_density = st::kStandardAirDensity);
 
   double motorConst() const;
   double momentConst() const;

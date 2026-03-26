@@ -4,6 +4,8 @@
 #include "./utilities/rall2d.hpp"
 #include "./vector.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class VectorAcc
@@ -207,3 +209,4 @@ inline VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1)
   return r2 * (1. / r1);
 }
 }  // namespace kdl
+}  // namespace tobas

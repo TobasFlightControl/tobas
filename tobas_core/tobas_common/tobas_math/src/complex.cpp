@@ -1,5 +1,7 @@
 #include "tobas_math/complex.hpp"
 
+namespace tobas
+{
 namespace math
 {
 std::complex<double> cbrt(const std::complex<double>& z)
@@ -13,3 +15,4 @@ std::complex<double> cbrt(const std::complex<double>& z)
   return std::polar(cbrt_r, cbrt_theta);  // 極座標から複素数に変換
 }
 }  // namespace math
+}  // namespace tobas

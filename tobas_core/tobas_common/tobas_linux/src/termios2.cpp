@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
@@ -35,3 +37,4 @@ bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

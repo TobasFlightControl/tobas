@@ -4,6 +4,8 @@
 #include "./frame_vel.hpp"
 #include "./jntarray.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /**
@@ -36,3 +38,4 @@ inline const FrameVel& ChainFkSolverVel_recursive::getFrameVel() const
   return p_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

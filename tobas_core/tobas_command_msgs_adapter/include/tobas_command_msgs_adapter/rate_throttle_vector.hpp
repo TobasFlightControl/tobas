@@ -12,7 +12,7 @@ struct RateThrottleVector
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Vector rate;
+  tobas::kdl::Vector rate;
   double throttle;
   double thrust_angle;
 

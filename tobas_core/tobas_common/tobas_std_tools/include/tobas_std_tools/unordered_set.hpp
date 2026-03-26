@@ -4,7 +4,9 @@
 #include <unordered_set>
 #include <vector>
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 /* 要素の最小値を返す． */
 template <typename T>
@@ -31,4 +33,5 @@ T max(const std::unordered_set<T>& set)
   }
   return res;
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

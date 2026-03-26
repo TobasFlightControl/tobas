@@ -10,6 +10,8 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 
+namespace tobas
+{
 namespace tf
 {
 void vectorEigenToMsg(const Eigen::Vector3d& e, geometry_msgs::msg::Vector3& m);
@@ -27,3 +29,4 @@ void quaternionMsgToEigen(const geometry_msgs::msg::Quaternion& m, Eigen::Quater
 void matrix3EigenToMsg(const Eigen::Matrix3d& e, std::array<double, 9>& m);
 void matrix3MsgToEigen(const std::array<double, 9>& m, Eigen::Matrix3d& e);
 }  // namespace tf
+}  // namespace tobas

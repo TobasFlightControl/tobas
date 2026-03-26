@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -tbs::kGravity)
+TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -st::kGravity)
 {
 }
 

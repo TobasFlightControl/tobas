@@ -5,6 +5,8 @@
 #include "./accel.hpp"
 #include "./wrench.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Twist;
@@ -160,3 +162,4 @@ inline std::ostream& operator<<(std::ostream& os, const Twist& arg)
   return os;
 }
 }  // namespace kdl
+}  // namespace tobas

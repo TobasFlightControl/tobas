@@ -6,6 +6,8 @@
 #include "./jntarray.hpp"
 #include "./segment_jacobian.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 class Jacobian;
@@ -116,3 +118,4 @@ inline Twist Jacobian::operator*(const JntArray& rhs) const
   return Twist(Vector(t.head<3>()), Vector(t.tail<3>()));
 }
 }  // namespace kdl
+}  // namespace tobas

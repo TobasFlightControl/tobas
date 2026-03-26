@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 GitHandler::GitHandler()
@@ -30,3 +32,4 @@ string GitHandler::getUserEmail()
   return command_executor_.getOutput();
 }
 }  // namespace linux
+}  // namespace tobas

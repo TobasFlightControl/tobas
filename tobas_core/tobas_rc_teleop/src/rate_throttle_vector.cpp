@@ -72,19 +72,19 @@ void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const
 
 bool RateThrottleVectorController::maxAttitudeRateCb(const double& p)
 {
-  max_atti_rate_ = tbs::deg2rad(p);
+  max_atti_rate_ = st::deg2rad(p);
   return true;
 }
 
 bool RateThrottleVectorController::maxHeadingRateCb(const double& p)
 {
-  max_head_rate_ = tbs::deg2rad(p);
+  max_head_rate_ = st::deg2rad(p);
   return true;
 }
 
 bool RateThrottleVectorController::maxThrustAngleCb(const double& p)
 {
-  max_thrust_angle_ = tbs::deg2rad(p);
+  max_thrust_angle_ = st::deg2rad(p);
   return true;
 }
 

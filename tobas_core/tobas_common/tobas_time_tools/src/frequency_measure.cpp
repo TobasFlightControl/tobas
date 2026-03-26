@@ -4,6 +4,8 @@
 
 namespace ch = std::chrono;
 
+namespace tobas
+{
 namespace tim
 {
 FrequencyMeasure::FrequencyMeasure(const ch::nanoseconds& period) : period_(period)
@@ -32,3 +34,4 @@ void FrequencyMeasure::count()
   }
 }
 }  // namespace tim
+}  // namespace tobas

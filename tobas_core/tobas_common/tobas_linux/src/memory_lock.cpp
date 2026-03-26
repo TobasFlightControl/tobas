@@ -13,6 +13,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 bool lockMemory()
@@ -110,3 +112,4 @@ bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

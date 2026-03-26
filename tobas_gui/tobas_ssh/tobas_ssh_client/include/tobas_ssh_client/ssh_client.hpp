@@ -14,6 +14,8 @@
 #include <tobas_ssh_msgs/srv/sftp_read.hpp>
 #include <tobas_ssh_msgs/srv/sftp_write.hpp>
 
+namespace tobas
+{
 namespace ssh
 {
 /**
@@ -90,3 +92,4 @@ private:
   std::string server_error_msg_;
 };
 }  // namespace ssh
+}  // namespace tobas

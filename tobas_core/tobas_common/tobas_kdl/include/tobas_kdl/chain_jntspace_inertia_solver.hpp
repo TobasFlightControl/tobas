@@ -3,6 +3,8 @@
 #include "./chain_solver_i.hpp"
 #include "./jntspace_inertia_matrix.hpp"
 
+namespace tobas
+{
 namespace kdl
 {
 /* ベースは公式のChainDynParamで，重力加速度を呼び出し時に与えるようにしたもの */
@@ -35,3 +37,4 @@ inline const JntSpaceInertiaMatrix& ChainJntSpaceInertiaSolver::getMass() const
   return H_out_;
 }
 }  // namespace kdl
+}  // namespace tobas

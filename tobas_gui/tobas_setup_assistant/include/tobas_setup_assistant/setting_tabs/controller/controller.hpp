@@ -67,6 +67,6 @@ private Q_SLOTS:
   void onDontUseBuiltinCtrlCheckBoxToggled(bool checked);
 };
 }  // namespace ctrl
-};  // namespace sa
+}  // namespace sa
 }  // namespace gui
 }  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include <eigen3/Eigen/Core>
 
+namespace tobas
+{
 namespace ctrl
 {
 /**
@@ -15,3 +17,4 @@ Eigen::MatrixXd dare(
   const double& tol = 1e-3,
   size_t max_iter = 10000);
 }  // namespace ctrl
+}  // namespace tobas

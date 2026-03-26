@@ -13,6 +13,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 UARTdev::UARTdev()
@@ -336,3 +338,4 @@ bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
   return true;
 }
 }  // namespace linux
+}  // namespace tobas

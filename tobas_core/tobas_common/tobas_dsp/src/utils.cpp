@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace dsp
 {
 double prewarp(double wc, double dt)
@@ -16,3 +18,4 @@ double prewarp(double wc, double dt)
   return tan(wc * dt_2) / dt_2;
 }
 }  // namespace dsp
+}  // namespace tobas

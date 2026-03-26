@@ -2,6 +2,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 template <typename T>
@@ -20,3 +22,4 @@ void declareParam(rclcpp::Node::SharedPtr node, const std::string& name, const T
   }
 }
 }  // namespace ros2
+}  // namespace tobas

@@ -2,6 +2,8 @@
 
 #include "./qpsolver.hpp"
 
+namespace tobas
+{
 namespace quadprog
 {
 /**
@@ -20,3 +22,4 @@ private:
   int nWSR_ = 10;
 };
 }  // namespace quadprog
+}  // namespace tobas

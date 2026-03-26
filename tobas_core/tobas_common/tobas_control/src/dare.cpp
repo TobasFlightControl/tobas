@@ -9,6 +9,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 MatrixXd
@@ -52,3 +54,4 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
   return X_next;
 }
 }  // namespace ctrl
+}  // namespace tobas

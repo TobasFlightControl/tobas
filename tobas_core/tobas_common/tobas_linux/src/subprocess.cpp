@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace tobas
+{
 namespace linux
 {
 pid_t createSubprocess(const vector<char*>& _argv)
@@ -52,3 +54,4 @@ pid_t createSubprocess(const string& command)
   return createSubprocess(argv);
 }
 }  // namespace linux
+}  // namespace tobas

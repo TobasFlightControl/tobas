@@ -22,7 +22,7 @@ int main(int argc, char** argv)
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
   // ノードを起動
-  ros2::AsyncNodeManager node_manager(argc, argv, "tobas_setup_assistant");
+  tobas::ros2::AsyncNodeManager node_manager(argc, argv, "tobas_setup_assistant");
 
   // GUIを表示
   QApplication qapp(arg_parser.argc(), arg_parser.argv());

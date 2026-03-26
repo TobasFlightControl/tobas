@@ -13,8 +13,8 @@ struct convert<std::pair<double, double>>
   {
     Node node(NodeType::Sequence);
 
-    node.push_back(yaml::format(rhs.first));
-    node.push_back(yaml::format(rhs.second));
+    node.push_back(tobas::yaml::format(rhs.first));
+    node.push_back(tobas::yaml::format(rhs.second));
 
     return node;
   }

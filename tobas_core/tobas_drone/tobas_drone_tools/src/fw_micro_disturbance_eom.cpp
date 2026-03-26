@@ -120,7 +120,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   const auto M_u_dash = M_u + M_alpha_rate * Z_u_bar;
   const auto M_alpha_dash = M_alpha + M_alpha_rate * Z_alpha_bar;
   const auto M_q_dash = M_q + M_alpha_rate;
-  const auto M_theta_dash = -tbs::kGravity * sin(trim_.theta()) / V * M_alpha_rate;
+  const auto M_theta_dash = -st::kGravity * sin(trim_.theta()) / V * M_alpha_rate;
 
   // (3.2-22)
   const auto N_beta_dash = q_S_b / I_z_tilde * (asd_cog.cYawBeta() + I_xz / I_x * aero.c_roll_beta);
@@ -130,15 +130,15 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
   // Aを更新
   A_(kStateIdx_u, kStateIdx_u) = X_u;
   A_(kStateIdx_u, kStateIdx_alpha) = X_alpha;
-  A_(kStateIdx_u, kStateIdx_theta) = -tbs::kGravity * cos(trim_.theta());
+  A_(kStateIdx_u, kStateIdx_theta) = -st::kGravity * cos(trim_.theta());
 
   A_(kStateIdx_alpha, kStateIdx_u) = Z_u_bar;
   A_(kStateIdx_alpha, kStateIdx_alpha) = Z_alpha_bar;
-  A_(kStateIdx_alpha, kStateIdx_theta) = -tbs::kGravity * sin(trim_.theta()) / V;
+  A_(kStateIdx_alpha, kStateIdx_theta) = -st::kGravity * sin(trim_.theta()) / V;
   A_(kStateIdx_alpha, kStateIdx_q) = 1;
 
   A_(kStateIdx_beta, kStateIdx_beta) = Y_beta_bar;
-  A_(kStateIdx_beta, kStateIdx_phi) = tbs::kGravity * cos(trim_.theta()) / V;
+  A_(kStateIdx_beta, kStateIdx_phi) = st::kGravity * cos(trim_.theta()) / V;
   A_(kStateIdx_beta, kStateIdx_p) = trim_.alpha();
   A_(kStateIdx_beta, kStateIdx_r) = -1;
 
@@ -231,7 +231,7 @@ int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::J
     u_0_(idx) = thrust;
   }
 
-  const auto elev_cs_idx = tbs::getIndex(drone_.fixed_wing->control_surfaces, trim_.elevatorLinkName());
+  const auto elev_cs_idx = st::getIndex(drone_.fixed_wing->control_surfaces, trim_.elevatorLinkName());
   u_0_(nr + elev_cs_idx) = trim_.elevator();
 
   return error_code_;

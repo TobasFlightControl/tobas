@@ -7,6 +7,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace kdl
 {
 ChainIkSolverVel_pinv::ChainIkSolverVel_pinv(const Chain& chain) : super(chain), jnt2jac_(chain_)
@@ -68,3 +70,4 @@ int ChainIkSolverVel_pinv::cartToJnt(const JntArray& q, const Twist& v)
   return setDefaultError(kNoError);
 }
 }  // namespace kdl
+}  // namespace tobas

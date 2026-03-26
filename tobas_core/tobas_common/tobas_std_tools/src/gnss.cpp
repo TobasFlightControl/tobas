@@ -9,7 +9,9 @@
 
 namespace ch = std::chrono;
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 long computeGpsDelayFromToW(uint32_t gps_tow_ms)
 {
@@ -193,4 +195,5 @@ cartToGnssRelative(const double& east, const double& north, const double& latitu
 
   return { latitude, longitude };
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

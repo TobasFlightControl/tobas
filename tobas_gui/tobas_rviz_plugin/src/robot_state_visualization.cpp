@@ -36,7 +36,7 @@ RobotStateVisualization::RobotStateVisualization(
   render_shapes_ = std::make_shared<RenderShapes>(context);
 }
 
-void RobotStateVisualization::load(const urdf::ModelInterface& descr, bool visual, bool collision)
+void RobotStateVisualization::load(const ::urdf::ModelInterface& descr, bool visual, bool collision)
 {
   // clear previously loaded model
   clear();

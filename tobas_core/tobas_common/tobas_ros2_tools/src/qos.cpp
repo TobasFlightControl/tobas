@@ -1,5 +1,7 @@
 #include "tobas_ros2_tools/qos.hpp"
 
+namespace tobas
+{
 namespace ros2
 {
 namespace qos
@@ -26,3 +28,4 @@ DefaultQoS::DefaultQoS() : QoS(kDefaultLatch, kDefaultReliable, kDefaultQueueSiz
 }
 }  // namespace qos
 }  // namespace ros2
+}  // namespace tobas

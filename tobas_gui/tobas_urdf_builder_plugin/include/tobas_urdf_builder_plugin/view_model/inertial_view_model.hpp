@@ -19,15 +19,15 @@ struct Inertia
   double izz;
 };
 
-class InertialViewModel : public BaseViewModel<urdf::Inertial, InertialViewModel>
+class InertialViewModel : public BaseViewModel<::urdf::Inertial, InertialViewModel>
 {
 public:
-  using BaseViewModel<urdf::Inertial, InertialViewModel>::BaseViewModel;
+  using BaseViewModel<::urdf::Inertial, InertialViewModel>::BaseViewModel;
 
   void sync() override;
 
-  const urdf::Pose& origin() const;
-  void origin(const urdf::Pose& origin);
+  const ::urdf::Pose& origin() const;
+  void origin(const ::urdf::Pose& origin);
 
   double mass() const;
   void mass(double mass);

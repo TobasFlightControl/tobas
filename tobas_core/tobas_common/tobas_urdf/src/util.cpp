@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+namespace tobas
+{
 namespace urdf
 {
 fs::path resolveURI(const std::string& uri)
@@ -31,3 +33,4 @@ fs::path resolveURI(const std::string& uri)
   }
 }
 }  // namespace urdf
+}  // namespace tobas

@@ -18,18 +18,18 @@ namespace ch = std::chrono;
 
 bool testImu()
 {
-  stm::ISM330DLC imu;
+  tobas::stm::ISM330DLC imu;
 
   if (!imu.initialize("/dev/spidev0.0")) {
     cerr << "Failed to initialize IMU." << endl;
     return false;
   }
 
-  if (!imu.setAccelOutputDataRate(stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
+  if (!imu.setAccelOutputDataRate(tobas::stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
     cerr << "Failed to set accelerometer output data rate." << endl;
     return false;
   }
-  if (!imu.setGyroOutputDataRate(stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
+  if (!imu.setGyroOutputDataRate(tobas::stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
     cerr << "Failed to set gyroscope output data rate." << endl;
     return false;
   }
@@ -37,7 +37,7 @@ bool testImu()
   this_thread::sleep_for(200ms);
 
   double ax, ay, az, gx, gy, gz;
-  tim::Rate rate(5ms);
+  tobas::tim::Rate rate(5ms);
 
   for (int i = 0; i < 200; ++i) {
     if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
@@ -48,11 +48,11 @@ bool testImu()
     cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
 
-    if (math::norm(ax, ay, az - tbs::kGravity) > 1.) {
+    if (tobas::math::norm(ax, ay, az - tobas::st::kGravity) > 1.) {
       cerr << "Abnormal accel detected." << endl;
       return false;
     }
-    if (math::norm(gx, gy, gz) > 0.3) {
+    if (tobas::math::norm(gx, gy, gz) > 0.3) {
       cerr << "Abnormal gyro detected." << endl;
       return false;
     }
@@ -75,7 +75,7 @@ bool testMagnetometer()
   this_thread::sleep_for(200ms);
 
   double mx, my, mz;
-  tim::Rate rate(20ms);
+  tobas::tim::Rate rate(20ms);
 
   for (int i = 0; i < 50; ++i) {
     if (!mag.readMag(mx, my, mz)) {
@@ -85,7 +85,7 @@ bool testMagnetometer()
 
     cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;
 
-    if (math::norm(mx, my, mz) > 1.5) {  // 標準の地磁気の大きさ (0.5くらい) の3倍まで許容
+    if (tobas::math::norm(mx, my, mz) > 1.5) {  // 標準の地磁気の大きさ (0.5くらい) の3倍まで許容
       cerr << "Abnormal magnetic field detected." << endl;
       return false;
     }
@@ -108,7 +108,7 @@ bool testBarometer()
   this_thread::sleep_for(200ms);
 
   double pres, temp;
-  tim::Rate rate(20ms);
+  tobas::tim::Rate rate(20ms);
 
   for (int i = 0; i < 50; ++i) {
     if (!baro.readPressure(pres)) {
@@ -152,7 +152,7 @@ bool testPowerSensor()
   this_thread::sleep_for(200ms);
 
   float volt, curr;
-  tim::Rate rate(10ms);
+  tobas::tim::Rate rate(10ms);
 
   for (int i = 0; i < 100; ++i) {
     if (!batt.read(volt, curr)) {
@@ -180,7 +180,7 @@ bool testPowerSensor()
 
 bool testGnssReceiver()
 {
-  ublox::ZEDF9P gnss;
+  tobas::ublox::ZEDF9P gnss;
 
   if (!gnss.initialize("/dev/spidev1.2")) {
     cerr << "Failed to initialize GNSS driver." << endl;
@@ -207,7 +207,7 @@ bool testGnssReceiver()
   }
 
   // Enable messages
-  if (!gnss.enableMsg(ublox::ZEDF9P::CLASS_NAV, ublox::ZEDF9P::NAV_PVT, true)) {
+  if (!gnss.enableMsg(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message." << endl;
     return false;
   }
@@ -220,12 +220,12 @@ bool testGnssReceiver()
       return false;
     }
 
-    if (gnss.latestClass() != ublox::ZEDF9P::CLASS_NAV) {
+    if (gnss.latestClass() != tobas::ublox::ZEDF9P::CLASS_NAV) {
       continue;
     }
 
     switch (gnss.latestId()) {
-      case ublox::ZEDF9P::NAV_PVT:
+      case tobas::ublox::ZEDF9P::NAV_PVT:
         return true;
       default:
         continue;

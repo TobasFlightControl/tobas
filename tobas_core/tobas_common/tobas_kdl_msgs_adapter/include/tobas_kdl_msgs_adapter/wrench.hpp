@@ -9,10 +9,10 @@
 #include "./vector.hpp"
 
 template <>
-struct rclcpp::TypeAdapter<kdl::Wrench, tobas_kdl_msgs::msg::Wrench>
+struct rclcpp::TypeAdapter<tobas::kdl::Wrench, tobas_kdl_msgs::msg::Wrench>
 {
   using is_specialized = std::true_type;
-  using custom_type = kdl::Wrench;
+  using custom_type = tobas::kdl::Wrench;
   using ros_message_type = tobas_kdl_msgs::msg::Wrench;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -30,7 +30,7 @@ struct rclcpp::TypeAdapter<kdl::Wrench, tobas_kdl_msgs::msg::Wrench>
 
 namespace tobas_kdl_msgs
 {
-using WrenchAdapter = rclcpp::TypeAdapter<kdl::Wrench, tobas_kdl_msgs::msg::Wrench>;
+using WrenchAdapter = rclcpp::TypeAdapter<tobas::kdl::Wrench, tobas_kdl_msgs::msg::Wrench>;
 }  // namespace tobas_kdl_msgs
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Wrench, tobas_kdl_msgs::msg::Wrench);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas::kdl::Wrench, tobas_kdl_msgs::msg::Wrench);

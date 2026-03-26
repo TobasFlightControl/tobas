@@ -12,7 +12,7 @@ struct Angle
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::Priority priority;
-  kdl::Euler angle;
+  tobas::kdl::Euler angle;
 
   using SharedPtr = std::shared_ptr<Angle>;
   using ConstSharedPtr = std::shared_ptr<const Angle>;

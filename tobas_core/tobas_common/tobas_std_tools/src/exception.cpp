@@ -2,7 +2,9 @@
 
 using namespace std;
 
-namespace tbs
+namespace tobas
+{
+namespace st
 {
 NotImplementedError::NotImplementedError(const string& msg) : msg_(msg)
 {
@@ -12,4 +14,5 @@ const char* NotImplementedError::what() const noexcept
 {
   return msg_.c_str();
 }
-}  // namespace tbs
+}  // namespace st
+}  // namespace tobas

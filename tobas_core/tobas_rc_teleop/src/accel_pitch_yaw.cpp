@@ -128,19 +128,19 @@ bool AccelPitchYawController::maxVerticalAccelCb(const double& p)
 
 bool AccelPitchYawController::maxPitchCb(const double& p)
 {
-  max_pitch_ = tbs::deg2rad(p);
+  max_pitch_ = st::deg2rad(p);
   return true;
 }
 
 bool AccelPitchYawController::maxPitchRateCb(const double& p)
 {
-  pitch_filt_.setMaxVelocity(tbs::deg2rad(p));
+  pitch_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
 bool AccelPitchYawController::maxYawRateCb(const double& p)
 {
-  max_yaw_rate_ = tbs::deg2rad(p);
+  max_yaw_rate_ = st::deg2rad(p);
   return true;
 }
 

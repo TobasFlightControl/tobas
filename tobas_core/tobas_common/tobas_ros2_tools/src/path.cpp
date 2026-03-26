@@ -4,6 +4,8 @@
 
 namespace rfs = rcpputils::fs;
 
+namespace tobas
+{
 namespace ros2
 {
 int createTemporalFile(std::string& path)
@@ -18,3 +20,4 @@ int createTemporalFile(std::string& path)
   return mkstemp(path.data());
 }
 }  // namespace ros2
+}  // namespace tobas

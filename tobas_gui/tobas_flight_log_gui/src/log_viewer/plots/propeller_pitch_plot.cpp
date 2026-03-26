@@ -67,7 +67,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
       const auto& idx = name2idx_.at(elem.link_name);
 
       t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-      pitch_data[idx].push_back(tbs::rad2deg(elem.angle));
+      pitch_data[idx].push_back(st::rad2deg(elem.angle));
     }
   }
 

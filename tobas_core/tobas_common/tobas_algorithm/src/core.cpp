@@ -6,6 +6,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
 
+namespace tobas
+{
 namespace algo
 {
 double wrapPi(double angle)
@@ -29,3 +31,4 @@ void clamp2d(double& x, double& y, const double& max_length)
   }
 }
 }  // namespace algo
+}  // namespace tobas

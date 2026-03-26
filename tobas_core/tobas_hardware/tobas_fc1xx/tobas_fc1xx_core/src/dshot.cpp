@@ -81,7 +81,7 @@ bool DShot::setTargetSpeed(size_t ch, double rps) noexcept
     return false;
   }
 
-  const auto rpm = static_cast<uint32_t>(tbs::rps2rpm(rps));
+  const auto rpm = static_cast<uint32_t>(st::rps2rpm(rps));
   if (rpm >= (1 << 16)) {
     cerr << "Target rotation speed is too large." << endl;
     return false;
@@ -103,7 +103,7 @@ bool DShot::setKv(size_t ch, double kv_si) noexcept
     return false;
   }
 
-  const auto kv = static_cast<uint32_t>(tbs::rps2rpm(kv_si));  // [rpm/V]
+  const auto kv = static_cast<uint32_t>(st::rps2rpm(kv_si));  // [rpm/V]
   if (kv == 0) {
     cerr << "Kv value is too small." << endl;
     return false;
@@ -286,7 +286,7 @@ void DShot::printCurrentState(size_t ch) noexcept
 {
   cout << "Channel " << ch << ":" << endl;
   cout << "\tValid             : " << boolalpha << getValidity(ch) << noboolalpha << endl;
-  cout << "\tSpeed [rpm]       : " << tbs::rps2rpm(getSpeed(ch)) << endl;
+  cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(ch)) << endl;
   cout << "\tTemperature [degC]: " << getTemperature(ch) << endl;
   cout << "\tVoltage [V]       : " << getVoltage(ch) << endl;
   cout << "\tCurrent [A]       : " << getCurrent(ch) << endl;

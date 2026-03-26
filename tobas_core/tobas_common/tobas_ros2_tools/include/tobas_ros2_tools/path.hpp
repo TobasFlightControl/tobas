@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace tobas
+{
 namespace ros2
 {
 /**
@@ -12,3 +14,4 @@ namespace ros2
  */
 int createTemporalFile(std::string& path);
 }  // namespace ros2
+}  // namespace tobas

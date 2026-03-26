@@ -11,6 +11,8 @@
 using namespace std;
 using namespace Eigen;
 
+namespace tobas
+{
 namespace ctrl
 {
 LQD::LQD()
@@ -132,3 +134,4 @@ ostream& operator<<(ostream& os, const LQD& arg)
   return os;
 }
 }  // namespace ctrl
+}  // namespace tobas

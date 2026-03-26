@@ -76,7 +76,7 @@ void FailsafeExecutorNode::startRTL()
   tobas::mission::ReturnToLaunch rtl;
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kReturnToLaunch;
-  mission_item.data = tbs::toBytes(rtl);
+  mission_item.data = st::toBytes(rtl);
 
   Action::Goal goal;
   goal.items.push_back(mission_item);
@@ -126,7 +126,7 @@ void FailsafeExecutorNode::startLand()
   tobas::mission::Land land;
   tobas_mission_msgs::msg::MissionItem mission_item;
   mission_item.type = tobas::mission::kLand;
-  mission_item.data = tbs::toBytes(land);
+  mission_item.data = st::toBytes(land);
 
   Action::Goal goal;
   goal.items.push_back(mission_item);

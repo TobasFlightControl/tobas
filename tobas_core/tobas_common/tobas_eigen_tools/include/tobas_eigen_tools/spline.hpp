@@ -3,6 +3,8 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/unsupported/Eigen/Splines>
 
+namespace tobas
+{
 namespace eigen
 {
 /**
@@ -28,3 +30,4 @@ private:
   Eigen::RowVectorXd scaledValues(const Eigen::VectorXd& x_vec) const;
 };
 }  // namespace eigen
+}  // namespace tobas

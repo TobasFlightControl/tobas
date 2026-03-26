@@ -2,6 +2,8 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -90,3 +92,4 @@ inline size_t Welford<Scalar, Size>::count() const
   return n_;
 }
 }  // namespace dsp
+}  // namespace tobas

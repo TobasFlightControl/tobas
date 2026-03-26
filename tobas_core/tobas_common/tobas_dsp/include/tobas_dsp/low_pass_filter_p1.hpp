@@ -9,6 +9,8 @@
 #include "./base_filter.hpp"
 #include "./utils.hpp"
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -75,3 +77,4 @@ bool LowPassFilterP1<T>::setCutoffFrequency(const double& fc_hz)
   return true;
 }
 }  // namespace dsp
+}  // namespace tobas

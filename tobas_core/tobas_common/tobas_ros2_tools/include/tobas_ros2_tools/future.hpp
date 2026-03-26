@@ -2,6 +2,8 @@
 
 #include <rclcpp/client.hpp>
 
+namespace tobas
+{
 namespace ros2
 {
 /* future.wait_for()とほぼ同じだが，タイムアウトが非正の場合は無限待機する． */
@@ -17,3 +19,4 @@ std::future_status waitForFuture(const FutureType& future, std::chrono::duration
   }
 }
 }  // namespace ros2
+}  // namespace tobas

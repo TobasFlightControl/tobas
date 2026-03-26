@@ -97,8 +97,8 @@ bool JointSpaceDynamics::updateInternalDataStructures()
   cur_qd_.resize(nj_);
   tar_qdd_.resize(nj_);
 
-  qp_.x_scale.head(wrench_size_).fill(calcMass() * tbs::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
-  qp_.x_scale.segment<3>(wrench_size_).fill(sqrt(tbs::kGravity * calcSizeScale()));  // フルード数に基づく
+  qp_.x_scale.head(wrench_size_).fill(calcMass() * st::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
+  qp_.x_scale.segment<3>(wrench_size_).fill(sqrt(st::kGravity * calcSizeScale()));  // フルード数に基づく
   qp_.x_scale.segment<3>(wrench_size_ + 3).fill(M_PI);
 
   return true;

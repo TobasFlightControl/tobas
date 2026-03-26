@@ -68,7 +68,7 @@ private Q_SLOTS:
   void onLinkDialogChanged();
 
 private:
-  ros2::AsyncNodeManager node_manager_;  // Qtと別のスレッドで動作するノード
+  tobas::ros2::AsyncNodeManager node_manager_;  // Qtと別のスレッドで動作するノード
   const rclcpp::Node::SharedPtr node_;
   ptree::PropertyClient property_client_;
 

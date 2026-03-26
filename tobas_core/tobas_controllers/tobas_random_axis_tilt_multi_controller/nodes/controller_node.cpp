@@ -320,12 +320,12 @@ bool ControllerNode::headingIGainCb(const double& p)
 
 bool ControllerNode::tiltAsixSingularDeclinationLBCb(const long& lb_deg)
 {
-  return mixer_.setTiltAxisSingularDeclinationLB(tbs::deg2rad(lb_deg));
+  return mixer_.setTiltAxisSingularDeclinationLB(st::deg2rad(lb_deg));
 }
 
 bool ControllerNode::tiltAsixSingularDeclinationUBCb(const long& ub_deg)
 {
-  return mixer_.setTiltAxisSingularDeclinationUB(tbs::deg2rad(ub_deg));
+  return mixer_.setTiltAxisSingularDeclinationUB(st::deg2rad(ub_deg));
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)

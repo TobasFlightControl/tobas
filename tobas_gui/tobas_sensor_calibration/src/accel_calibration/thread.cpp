@@ -74,7 +74,7 @@ void AccelCalibrationThread::run()
   }
 
   // バイアスを計算
-  const kdl::Vector acc_ref(0, 0, tbs::kGravity);
+  const kdl::Vector acc_ref(0, 0, st::kGravity);
   const auto acc_bias = acc_mean - acc_ref;
 
   // バイアスが異常に大きい場合は失敗

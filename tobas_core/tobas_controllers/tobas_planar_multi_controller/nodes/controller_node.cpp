@@ -438,7 +438,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // 目標推力が重量の割合で定められた閾値未満のときは，推力が小さいほど制御器の自然周波数が小さくなるように調整する．
   // 例えば可変ピッチプロペラの姿勢制御の場合，これで低速域でのジャイロに対するピッチ角の感度が一定になる． (memo: 3-33)
-  const auto thrust_thresh = mass_holder_.getMass() * tbs::kGravity * throttle_gain_thresh_;
+  const auto thrust_thresh = mass_holder_.getMass() * st::kGravity * throttle_gain_thresh_;
   const auto land_suspect = (tar_thrust_ < thrust_thresh);
   const auto gain_throt = land_suspect ? tar_thrust_ / thrust_thresh : 1.;
 

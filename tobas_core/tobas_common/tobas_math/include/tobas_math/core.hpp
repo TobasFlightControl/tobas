@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace tobas
+{
 namespace math
 {
 /* 2乗する． */
@@ -103,3 +105,4 @@ T wrap(T x, T n) noexcept
   return x - n;
 }
 }  // namespace math
+}  // namespace tobas

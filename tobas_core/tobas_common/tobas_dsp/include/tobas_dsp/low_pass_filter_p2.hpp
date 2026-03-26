@@ -11,6 +11,8 @@
 #include "./base_filter.hpp"
 #include "./utils.hpp"
 
+namespace tobas
+{
 namespace dsp
 {
 /**
@@ -103,3 +105,4 @@ void LowPassFilterP2<T>::shiftHistory()
   u_[1] = u_[0];
 }
 }  // namespace dsp
+}  // namespace tobas
