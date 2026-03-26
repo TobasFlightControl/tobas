@@ -4,6 +4,8 @@
 #include <tobas_msgs/srv/configure_imu_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
+namespace tobas
+{
 class ImuFilterConfigServer : public tobas::BaseNode
 {
   using self = ImuFilterConfigServer;
@@ -111,5 +113,6 @@ bool ImuFilterConfigServer::dGyroLowPassCutoffCb(const long& p)
 
   return true;
 }
+}  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ImuFilterConfigServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::ImuFilterConfigServer)
